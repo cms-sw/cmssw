@@ -26,13 +26,15 @@ function Production(){
 
     echo -e "\n... Create analysis cfg"
     #####################
-    cat ${template_path}/template_$1.cfg | sed -e "s#OUTPUT_FILE#${job_name}#g" -e "s#CONFIG#${Config}#g" > ${cfg_path}/${job_name}.cfg
+    cat ${template_path}/template_$1.cfg | sed -e "s#OUTPUT_FILE#${job_name}#g" -e "s#CONFIG#${Config}#g" \
+                                               -e "s/#${Config}//g" > ${cfg_path}/${job_name}.cfg
     cp ${cfg_path}/${job_name}.cfg ${StoreDir}/logs
-
     echo -e "\n... Create crab cfg"
     #################
+
     cat ${template_path}/template_crab.cfg | sed -e "s#OUTPUT_FILE#${job_name}#g" -e "s#CONFIG#${Config}#g" \
                           -e "s#DATASETPATH#${Datasetpath}#g" -e "s#ANALYSIS_CFG#${cfg_path}/${job_name}.cfg#" \
+                          -e "s/#SE_WHITE_LIST/${SE_WHITELIST}/" \
                           -e "s#WORKING_PATH#${CrabWorkingDir}#" > ${cfg_path}/crab_${job_name}.cfg
     cp ${cfg_path}/crab_${job_name}.cfg ${StoreDir}/logs
 
@@ -74,19 +76,19 @@ source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 source ${MYHOME}/crab.sh
 
 # log dirs creation
-if [ ! -e ${log_path} ]; then
-  mkdir -v ${log_path}
-  mkdir -v ${created_path}
-  mkdir -v ${not_created_path}
-  mkdir -v ${submitted_path}
-  mkdir -v ${not_submitted_path}
-  mkdir -v ${list_path}
-  mkdir -v ${log_path}/Resubmitted
-  mkdir -v ${log_path}/Scheduled
-  mkdir -v ${log_path}/Status
-  mkdir -v ${log_path}/Done
-  mkdir -v ${log_path}/Crashed
-fi
+#if [ ! -e ${log_path} ]; then
+  mkdir -v -p ${log_path}
+  mkdir -v -p ${created_path}
+  mkdir -v -p ${not_created_path}
+  mkdir -v -p ${submitted_path}
+  mkdir -v -p ${not_submitted_path}
+#  mkdir -v -p ${list_path}
+  mkdir -v -p ${log_path}/Resubmitted
+  mkdir -v -p ${log_path}/Scheduled
+  mkdir -v -p ${log_path}/Status
+  mkdir -v -p ${log_path}/Done
+  mkdir -v -p ${log_path}/Crashed
+#fi
 
 echo "... cfg dir creation"
 mkdir -v -p ${cfg_path}
@@ -95,18 +97,20 @@ echo Doing eval in ${CMSSW_DIR}
 cd ${CMSSW_DIR}/src
 eval `scramv1 runtime -sh`
 
+
+
 #  python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCLocal_4/Writer --datasetPath=/TAC-TIBTOB-120-DAQ-EDM/RECO/*CMSSW_1_3_0_pre6* --logfile=${list_path}/${list}
 
 ##############################
 ## Extract list of new runs ##
 ##############################
-echo Interrogating database
+#echo Interrogating database
 
 # To access Bari reconstructed TIBTOB runs
 # python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-TIBTOB-120-DAQ-EDM/RECO/*CMSSW_1_3_0_pre6* --logfile=${list_path}/${list}
 
 # To access FNAL reconstructed TIBTOB runs
- python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-TIBTOB-RecoPass0/RECO/*CMSSW_1_3_0_pre6* --logfile=${list_path}/${list}
+# python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-TIBTOB-RecoPass0/RECO/*CMSSW_1_3_0_pre6* --logfile=${list_path}/${list}
 
 # To access RAW TIBTOB data
 #python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-TIBTOB-120-DAQ-EDM/RAW/*CMSSW_1_2_0* --logfile=${list_path}/${list}
@@ -114,14 +118,14 @@ echo Interrogating database
 ###############################
 
 # Extract list of physics runs
-wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O ${list_path}/${list_phys}
+#wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O ${list_path}/${list_phys}
 
 # temporary patch since cmsmon is not responding
-if [ "`cat ${list_path}/${list_phys}`" == "" ]; then
-  echo list of physics runs is empty
-  echo using list of all runs
-  cp ${list_path}/${list} ${list_path}/${list_phys}
-fi
+#if [ "`cat ${list_path}/${list_phys}`" == "" ]; then
+#  echo list of physics runs is empty
+#  echo using list of all runs
+#  cp ${list_path}/${list} ${list_path}/${list_phys}
+#fi
 
 # If All is used set RunsList to all physics runs
 if [ "`echo ${RunsList} | awk '{print $1}'`" == "All" ]; then
@@ -144,14 +148,17 @@ for AnalyzerName in `echo ${AnalyzersList}`; do
   fi
   mkdir -v -p ${WorkingDir}/CRAB_${Version}
 
+  echo RunsList = $RunsList
+
   # Loop on runs
   for Run in `echo ${RunsList}`; do
 
-    Datasetpath=`grep -i $Run ${list_path}/${list}`
-    export Flag=`echo $Datasetpath | awk -F- '{print $4}'`
-    export Config=`echo $Datasetpath | awk -F- '{print $2}'`
+    Datasetpath=`grep -i $Run ${list_path}/${datasets_list}`
+    FlagConfig=`grep -i $Run ${list_path}/${list}`
+    export Flag=`echo $FlagConfig | awk -F- '{print $2}'`
+    export Config=`echo $FlagConfig | awk -F- '{print $1}'`
 
-    if [ "${Datasetpath}" != "" ]; then
+    if [ "${Datasetpath}" != "" ] && [ `grep -c ${Run} ${list_path}/${list}` -eq 1 ]; then
 
       echo Run ${Run} found in the database
       echo Preparing to create jobs

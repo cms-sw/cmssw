@@ -13,11 +13,11 @@ function MakePlots(){
 
   do="true"
 
-#  if [ -e ${StoreDir}/plots.txt ] && [ `cat plots.txt` == ${FileNum} ]; then
-#    do="false"
-#  fi
+  if [ -e ${StoreDir}/plots.txt ] && [ `cat plots.txt` == ${FileNum} ]; then
+    do="false"
+  fi
 
-  if [ $do == "true" ]; then
+  if [ `ls | grep -c root` -ne 0 ] && [ $do == "true" ]; then
     jobsList=`ls *.root | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
 
     Name=$1_${Config}_${Flag}
@@ -85,7 +85,7 @@ function MergePlots(){
 #source /analysis/sw/CRAB/crab.sh
 ########################################
 
-cd /analysis/sw/CRAB/CMSSW_1_3_0_pre6_v1/src/
+cd /analysis/sw/CRAB/CMSSW/CMSSW_1_3_0/src/
 eval `scramv1 runtime -sh`
 
 #export X509_USER_PROXY=`cat /analysis/sw/CRAB/log/X509_USER_PROXY.txt`

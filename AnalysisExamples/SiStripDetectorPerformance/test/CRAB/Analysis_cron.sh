@@ -43,9 +43,22 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
 	export Version=`echo ${FullList} | awk -F, '{print $1}' | awk '{print $1}'`
 	export AnalyzersList=`echo ${FullList} | awk -F, '{print $3}'`
 	export RunsList=`echo ${FullList} | awk -F, '{print $4}'`
+	export Site=`echo ${FullList} | awk -F, '{print $5}' | awk '{print $1}'`
+	export Config_=`echo ${FullList} | awk -F, '{print $6}'`
 ## Where to do eval scramv1 (without src/)
 	export CMSSW_DIR=${LOCALHOME}/CMSSW/`echo ${FullList} | awk -F, '{print $2}' | sed -e "s@[ \t]*@@g"`
-	
+
+## White list selection
+	export WHITELIST=`echo ${FullList} | awk -F, '{print $7}'`
+	if [ "${WHITELIST}" != "" ]; then
+	  export SE_WHITELIST="se_white_list ="
+	  export SE_WHITELIST="${SE_WHITELIST} ${WHITELIST}"
+        else
+          export SE_WHITELIST=""
+        fi
+
+    echo Processing Analyzers $AnalyzersList with Flag = $Version
+
     # Check if there is at least one analyzer and run to process
 	if [ `echo ${AnalyzersList} | awk '{print $1}'` != "" ] && [ `echo ${RunsList} | awk '{print $1}'` != "" ]; then
 	   	    
@@ -65,6 +78,7 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
       # list dirs
 	    export list_path=${log_path}/list
 	    export list=list_reco_CMSSW_1_3_0_pre6.txt
+	    export datasets_list=datasets_list.txt
 	    export list_phys=list_physics_runs.txt
 #      export list_selected=list_selected_runs.txt
 
@@ -78,7 +92,11 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
       ############
 
 	    mkdir -p ${MainStoreDir}/logs/${Version}/LogProducer/
-	    mkdir -p ${MainStoreDir}/logs/${Version}/LogMonitor/${Version}
+	    mkdir -p ${MainStoreDir}/logs/${Version}/LogMonitor/
+
+            echo -e "\nGetting list of available runs on site ${Site} for type ${Config_}"
+            # The Version information is in the log_path exported before
+            ${LOCALHOME}/MakeLists.sh ${Site} "${Config_}" > ${MainStoreDir}/logs/${Version}/LogProducer/list_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 
 	    echo -e "\nExecuting producer: creating and submitting new jobs"
 #      if [ ! -e ${LOCALHOME}/lock ]; then
@@ -86,7 +104,7 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
 
 	    echo -e "\n${LOCALHOME}/Producer.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogProducer/prod_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
 
-	    ${LOCALHOME}/Producer.sh ${Version} #> ${MainStoreDir}/logs/${Version}/LogProducer/prod_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
+	    ${LOCALHOME}/Producer.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogProducer/prod_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 #        rm -f ${LOCALHOME}/lock
 #      fi
 
@@ -94,16 +112,18 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
 #      if [ ! -e ${LOCALHOME}/lock ]; then
 #        touch ${LOCALHOME}/lock
 
-	    echo -e "\n${LOCALHOME}/Monitor.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/${Version}/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
+	    echo -e "\n${LOCALHOME}/Monitor.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
 
 	    ${LOCALHOME}/Monitor.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 
 #        rm -f ${LOCALHOME}/lock
 #      fi
 
-	    if [ ! -e ${LOCALHOME} ]; then
-		echo FUNCTIONING_3
-	    fi
+	    echo -e "\n${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
+
+	    ${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
+
+
 	else
 	    if [ `echo ${AnalyzersList} | awk '{print $1}'` == "" ]; then
 		echo Specify at least one Analyzer name
@@ -118,7 +138,7 @@ done
 
 echo -e "\n...Creating Summaries"
 ${LOCALHOME}/getSummary.sh
-	    
+
 echo -e "\n...Running BadStripsFromPosition"
 ${LOCALHOME}/macros/BadStripsFromPosition.sh
 

@@ -56,7 +56,9 @@ function Monitor(){
 
   echo Monitoring ${Type} job for run ${Flag} - ${Config}
 
+  #echo "crab -status -c ${CrabWorkingDir} > ${log_path}/Status/${job_name}.txt"
   crab -status -c ${CrabWorkingDir} > ${log_path}/Status/${job_name}.txt
+  cp ${log_path}/Status/${job_name}.txt ${StoreDir}/logs/status_${job_name}.txt
 
   # Get the output of complete jobs
   #################################
@@ -82,6 +84,8 @@ function Monitor(){
               mv ${log_path}/Done/${job_name}_${job_num} ${log_path}/Crashed/${job_name}_${job_num}
               if [ ! -e ${log_path}/Resubmitted/${job_name}_${job_num}.txt ]; then
                 crab -resubmit ${job_num} -c ${CrabWorkingDir} > ${log_path}/Resubmitted/${job_name}_${job_num}.txt
+              else
+                cp ${CrabWorkingDir}/log/crab.log ${StoreDir}/logs/crab.log
               fi
             # If it was completed successfully copy the output in the corresponding dir
             ###########################################################################

@@ -38,8 +38,7 @@ fi
 if [ $1 == "RAW" ]; then
   # To access RAW TIBTOB data
   python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-*-120-DAQ-EDM/RAW/*CMSSW_1_2_0* --logfile=${list_path}/${datasets_list}
-# Check this before using
-#  cat ${list_path}/${datasets_list} | awk -F- '{print $2 "-" $8}' > ${list_path}/${list_temp}
+  cat ${list_path}/${datasets_list} | awk -F- '{print $2 "-" $8}' > ${list_path}/${list_temp}
 fi
 
 echo Selecting runs of type $2
@@ -50,7 +49,7 @@ touch ${list_path}/${list}
 
 for type_ in `echo ${Config_}`; do
   if [ ${type_} != "All" ]; then
-    if [ ${type_} == "TIBTOB" ]; then
+    if [ ${type_} == "TIBTOB" ] && [ ${type_} != "TIBTOBTEC" ]; then
       echo TIBTOB type_ = ${type_}
       cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
 #      cat ${list_path}/${list}
