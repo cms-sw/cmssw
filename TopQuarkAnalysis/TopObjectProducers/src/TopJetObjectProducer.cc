@@ -34,11 +34,11 @@ TopJetObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    // Get the vector of generated particles from the event
-   Handle<vector<jetType> > recjets;
+   Handle<vector<JetType> > recjets;
    iEvent.getByLabel(recJetsLabel_, recjets );
-   Handle<vector<jetType> > lcalijets;
+   Handle<vector<JetType> > lcalijets;
    iEvent.getByLabel(lcaliJetsLabel_, lcalijets );
-   Handle<vector<jetType> > bcalijets;
+   Handle<vector<JetType> > bcalijets;
    iEvent.getByLabel(bcaliJetsLabel_, bcalijets );
    Handle<vector<JetTag> > jetTags;
    iEvent.getByLabel(jetTagsLabel_, jetTags );

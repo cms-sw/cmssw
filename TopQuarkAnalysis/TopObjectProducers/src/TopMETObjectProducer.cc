@@ -27,7 +27,7 @@ TopMETObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    // Get the vector of generated particles from the event
-   Handle<vector<metType> > METs;
+   Handle<vector<METType> > METs;
    iEvent.getByLabel(METLabel_, METs );
    
    // define vector of selected TopJet objects
