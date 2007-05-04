@@ -30,7 +30,7 @@ public:
 
   uint32_t rawId() const { return hcalElectronicsId_; }
 
-  bool isTriggerChainId() const { return (hcalElectronicsId_&0x04000000)!=0; }
+  bool isTriggerChainId() const { return (hcalElectronicsId_&0x02000000)!=0; }
 
   /** Set the htr-related information 1=top, 0=bottom*/
   void setHTR(int crate, int slot, int tb);
