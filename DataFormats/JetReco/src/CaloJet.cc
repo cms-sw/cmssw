@@ -1,6 +1,6 @@
 // CaloJet.cc
 // Fedor Ratnikov UMd
-// $Id: CaloJet.cc,v 1.12 2007/02/22 19:17:35 fedor Exp $
+// $Id: CaloJet.cc,v 1.13 2007/05/03 21:13:18 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -99,18 +99,4 @@ std::vector<CaloTowerDetId> CaloJet::getTowerIndices() const {
 // here are methods extracting information from constituents
 //----------------------------------------------------------
 
-  /// return # of constituent carring fraction of energy. Assume ordered towers
-int CaloJet::nCarring (double fFraction) const {
-  std::vector <CaloTowerRef> towers = getConstituents ();
-  if (fFraction >= 1) return towers.size();
-  double totalEnergy = 0;
-  for (unsigned i = 0; i < towers.size(); ++i) totalEnergy += towers[i]->energy();
-  double fractionEnergy = totalEnergy * fFraction;
-  unsigned result = 0;
-  for (; result < towers.size(); ++result) {
-    fractionEnergy -= towers[result]->energy();
-    if (fractionEnergy <= 0) return result+1;
-  }
-  return 0;
-}
 

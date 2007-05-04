@@ -1,10 +1,11 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.4 2007/05/04 09:53:18 kodolova Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.6 2007/05/04 11:59:55 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -20,6 +21,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace std;
@@ -100,8 +103,9 @@ namespace cms
   }
   
   // Functions that gets called by framework every event
-  void BasePilupSubtractionJetProducer::produce(edm::Event& e, const edm::EventSetup&)
+  void BasePilupSubtractionJetProducer::produce(edm::Event& e, const edm::EventSetup& fSetup)
   {
+    const CaloSubdetectorGeometry* towerGeometry = 0; // cache geometry
     // get input
     InputCollection inputs; 
     edm::Handle<CandidateCollection> concreteInputs;
@@ -225,7 +229,12 @@ namespace cms
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
       if (caloJets.get ()) {
-	caloJets->push_back (jetMaker.makeCaloJet (*protojet));
+	if (!towerGeometry) {
+	  edm::ESHandle<CaloGeometry> geometry;
+	  fSetup.get<IdealGeometryRecord>().get(geometry);
+	  towerGeometry = geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
+	}
+	caloJets->push_back (jetMaker.makeCaloJet (*protojet, *towerGeometry));
       }
       if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));

@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.21 2007/02/22 19:17:35 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.22 2007/05/03 21:13:18 fedor Exp $
  ************************************************************/
 
 
@@ -115,9 +115,6 @@ class CaloJet : public Jet {
   /** Returns the number of constituents carrying a 60% of the total Jet energy*/
   int n60() const {return nCarring (0.6);}
 
-  /// return # of constituent carring fraction of energy
-  int nCarring (double fFraction) const;
- 
 
   /// convert generic constituent to specific type
   static CaloTowerRef caloTower (const reco::Candidate* fConstituent);

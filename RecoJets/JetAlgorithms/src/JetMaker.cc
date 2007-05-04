@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.20 2007/04/18 22:04:32 fedor Exp $
+/// $Id: JetMaker.cc,v 1.21 2007/05/03 21:20:09 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -9,6 +9,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 
@@ -17,6 +19,7 @@ using namespace reco;
 
 namespace {
   bool makeSpecific (const ProtoJet::Constituents& fTowers,
+		     const CaloSubdetectorGeometry& fTowerGeometry,
 		     CaloJet::Specific* fJetSpecific) {
     if (!fJetSpecific) return false;
     
@@ -34,6 +37,7 @@ namespace {
     double eEmInHF = 0.;
     double eInEB = 0.;
     double eInEE = 0.;
+    double jetArea = 0.;
     
     for (ProtoJet::Constituents::const_iterator towerCand = fTowers.begin(); towerCand != fTowers.end(); ++towerCand) {
       const Candidate* candidate = towerCand->get ();
@@ -67,6 +71,16 @@ namespace {
 	  default:
 	    break;
 	  }
+	  // get area of the tower (++ minus --)
+	  const CaloCellGeometry* geometry = fTowerGeometry.getGeometry(tower->id());
+	  if (geometry) {
+	    float dEta = fabs (geometry->getCorners() [0].eta() - geometry->getCorners() [2].eta());
+	    float dPhi = fabs (geometry->getCorners() [0].phi() - geometry->getCorners() [2].phi());
+	    jetArea += dEta * dPhi;
+	  }
+	  else {
+	    std::cerr << "JetMaker::makeSpecific (CaloJet)-> Geometry for cell " << tower->id() << " can not be found. Ignoring cell" << std::endl;
+	  }
 	}
 	else {
 	  std::cerr << "JetMaker::makeSpecific (CaloJet)-> Referred CaloTower is not available in the event" << std::endl;
@@ -86,6 +100,7 @@ namespace {
     fJetSpecific->mEmEnergyInEE = eInEE;
     fJetSpecific->mEnergyFractionHadronic = eInHad / towerEnergy;
     fJetSpecific->mEnergyFractionEm = eInEm / towerEnergy;
+    fJetSpecific->mTowersArea = jetArea;
     fJetSpecific->mMaxEInEmTowers = 0;
     fJetSpecific->mMaxEInHadTowers = 0;
     
@@ -99,7 +114,6 @@ namespace {
       fJetSpecific->mMaxEInHadTowers = eHCal_i.front();
       
     }
-    fJetSpecific->mTowersArea = 0;
     return true;
   }
   
@@ -153,9 +167,9 @@ BasicJet JetMaker::makeBasicJet (const ProtoJet& fProtojet) const {
 }
 
 
-CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet) const {
+CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorGeometry& fTowerGeometry) const {
   CaloJet::Specific specific;
-  makeSpecific (fProtojet.getTowerList(), &specific);
+  makeSpecific (fProtojet.getTowerList(), fTowerGeometry, &specific);
   return CaloJet (fProtojet.p4(), specific, fProtojet.getTowerList());
 }
 

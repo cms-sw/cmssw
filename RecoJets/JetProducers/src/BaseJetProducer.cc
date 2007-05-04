@@ -1,11 +1,12 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.13 2007/05/03 21:24:16 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.14 2007/05/04 11:57:30 kodolova Exp $
 //--------------------------------------------
 #include <memory>
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/View.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -16,11 +17,14 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
-//#include "RecoJets/JetAlgorithms/interface/JetTrackConeAssociator.h"
+#include "RecoJets/JetAlgorithms/interface/JetTrackConeAssociator.h"
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "RecoJets/JetProducers/interface/BaseJetProducer.h"
 
@@ -109,8 +113,9 @@ namespace cms
   BaseJetProducer::~BaseJetProducer() { } 
 
   // Functions that gets called by framework every event
-  void BaseJetProducer::produce(edm::Event& e, const edm::EventSetup&)
+  void BaseJetProducer::produce(edm::Event& e, const edm::EventSetup& fSetup)
   {
+    const CaloSubdetectorGeometry* towerGeometry = 0; // cache geometry
     // get input
     InputCollection input;
     CandidateCollection inputCache;
@@ -166,7 +171,12 @@ namespace cms
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
       if (caloJets.get ()) {
-	caloJets->push_back (jetMaker.makeCaloJet (*protojet));
+	if (!towerGeometry) {
+	  edm::ESHandle<CaloGeometry> geometry;
+	  fSetup.get<IdealGeometryRecord>().get(geometry);
+	  towerGeometry = geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
+	}
+	caloJets->push_back (jetMaker.makeCaloJet (*protojet, *towerGeometry));
       }
       if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));

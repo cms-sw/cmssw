@@ -4,7 +4,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.h,v 1.6 2007/03/26 20:42:26 fedor Exp $
+/// $Id: JetMaker.h,v 1.7 2007/04/18 22:04:31 fedor Exp $
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -13,13 +13,15 @@
 #include "RecoJets/JetAlgorithms/interface/ProtoJet.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
+class CaloSubdetectorGeometry;
+
 
 /// Make Jets from protoobjects
 class JetMaker {
  public:
   reco::BasicJet makeBasicJet (const ProtoJet& fProtojet) const;
   /// Make CaloJet. Assumes ProtoJet is made from CaloTowerCandidates
-  reco::CaloJet makeCaloJet (const ProtoJet& fProtojet) const;
+  reco::CaloJet makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorGeometry& fTowerGeometry) const;
   /// Make GenJet. Assumes ProtoJet is made from HepMCCandidate
   reco::GenJet makeGenJet (const ProtoJet& fProtojet) const;
   /// Generic jet: assumes nothing

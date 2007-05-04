@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.11 2006/12/11 12:21:39 fedor Exp $
+ * \version   $Id: Jet.h,v 1.12 2007/05/03 21:13:18 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -39,26 +39,32 @@ namespace reco {
     /// Destructor
     virtual ~Jet () {}
 
-    /// eta-phi statistics
+    /// eta-phi statistics, ET weighted
     EtaPhiMoments etaPhiStatistics () const;
 
-    /// eta-eta second moment
+    /// eta-eta second moment, ET weighted
     double etaetaMoment () const;
 
-    /// phi-phi second moment
+    /// phi-phi second moment, ET weighted
     double phiphiMoment () const;
 
-    /// eta-phi second moment
+    /// eta-phi second moment, ET weighted
     double etaphiMoment () const;
 
-    /// energy in annulus between rmin and rmax around jet direction
-    double energyInAnnulus (double fRmin, double fRmax) const;
+    /// ET in annulus between rmin and rmax around jet direction
+    double etInAnnulus (double fRmin, double fRmax) const;
 
+    /// return # of constituent carring fraction of energy
+    int nCarring (double fFraction) const;
+ 
     /// # of constituents
     virtual int nConstituents () const {return numberOfDaughters();}
 
     /// list of constituents
     Constituents getJetConstituents () const;
+
+    // quick list of constituents
+    std::vector<const reco::Candidate*> getJetConstituentsQuick () const;
 
   /// Print object
     virtual std::string print () const;
