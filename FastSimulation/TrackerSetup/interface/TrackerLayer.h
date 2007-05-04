@@ -16,7 +16,8 @@ public:
   /// constructor from private members
   TrackerLayer(BoundSurface* theSurface,
 	       bool isForward,
-	       unsigned theLayerNumber    = 0,
+	       unsigned int theLayerNumber,
+	       double theModuleThickness = 0.,
 	       double theResolutionAlongX = 0.,
 	       double theResolutionAlongY = 0.,
 	       double theHitEfficiency    = 1. ) :
@@ -25,7 +26,8 @@ public:
     theLayerNumber(theLayerNumber),
     theResolutionAlongX(theResolutionAlongX),
     theResolutionAlongY(theResolutionAlongY),
-    theHitEfficiency(theHitEfficiency)
+    theHitEfficiency(theHitEfficiency),
+    theModuleThickness(theModuleThickness)
    { 
      isSensitive = (theLayerNumber<100);
      theFirstRing = 0;
@@ -41,13 +43,15 @@ public:
    }
 
   TrackerLayer(BoundSurface* theSurface,
-	       int theLayerNumber,
-	       int theFirstRing, 
-	       int theLastRing ) :
+	       unsigned int theLayerNumber,
+	       double theModuleThickness, 
+	       unsigned int theFirstRing, 
+	       unsigned int theLastRing) :
     theSurface(theSurface), 
     theLayerNumber(theLayerNumber),
     theFirstRing(theFirstRing),
-    theLastRing(theLastRing) 
+    theLastRing(theLastRing),
+    theModuleThickness(theModuleThickness)
    { 
      isSensitive = true;
      isForward = true;
@@ -58,25 +62,6 @@ public:
      theCylinder = 0;
    }
 
-
-
-  /// Copy constructor
-  TrackerLayer(const TrackerLayer& other) :
-
-    theSurface (other.theSurface),
-    theDisk (other.theDisk),
-    theCylinder (other.theCylinder),
-    isForward (other.isForward),
-    theLayerNumber (other.theLayerNumber),
-    theFirstRing (other.theFirstRing),
-    theLastRing (other.theLastRing),
-    theResolutionAlongX (other.theResolutionAlongX),
-    theResolutionAlongY (other.theResolutionAlongY),
-    theHitEfficiency (other.theHitEfficiency),
-    isSensitive (other.isSensitive) {
-    
-  }
-    
   /// Is the layer sensitive ?
   inline bool sensitive() const { return isSensitive; }
 
@@ -93,13 +78,13 @@ public:
   inline BoundDisk* disk() const { return theDisk; }
 
   /// Returns the layer number  
-  inline unsigned layerNumber() const { return theLayerNumber; }
+  inline unsigned int layerNumber() const { return theLayerNumber; }
 
   /// Returns the first ring  
-  inline unsigned firstRing() const { return theFirstRing; }
+  inline unsigned int firstRing() const { return theFirstRing; }
 
   /// Returns the lasst ring  
-  inline unsigned lastRing() const { return theLastRing; }
+  inline unsigned int lastRing() const { return theLastRing; }
 
   /// Returns the resolution along x in cm (local coordinates)
   inline double resolutionAlongxInCm() const { return theResolutionAlongX; }
@@ -110,18 +95,22 @@ public:
   /// Returns the hit reconstruction efficiency
   inline double hitEfficiency() const { return theHitEfficiency; }
 
+  /// Returns the sensitive module thickness
+  inline double moduleThickness() const { return theModuleThickness; }
+
 private:
 
   BoundSurface* theSurface;
   BoundDisk* theDisk;
   BoundCylinder* theCylinder;
   bool isForward;
-  unsigned theLayerNumber;
-  unsigned theFirstRing;
-  unsigned theLastRing;
+  unsigned int theLayerNumber;
+  unsigned int theFirstRing;
+  unsigned int theLastRing;
   double theResolutionAlongX;
   double theResolutionAlongY;
   double theHitEfficiency;
+  double theModuleThickness;
   bool isSensitive;
 
 };
