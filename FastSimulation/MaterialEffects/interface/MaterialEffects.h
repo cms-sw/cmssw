@@ -62,16 +62,25 @@ class MaterialEffects
 		ParticlePropagator& PP,
 		unsigned i);
 
+  /// Save nuclear interaction information
+  void save();
+
+  /// Return the thickness of the current layer
+  inline double thickness() const { return theThickness; }
+
+  /// Return the energy loss by ionization in the current layer
+  inline double energyLoss() const { return theEnergyLoss; }
+
+
+ private:
+
   /// The number of radiation lengths traversed
   double radLengths(const TrackerLayer& layer,
-		    ParticlePropagator& myTrack ) const;
+		    ParticlePropagator& myTrack);
 
   /// The vector normal to the surface traversed
   GlobalVector normalVector(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack ) const;
-
-  /// Save nuclear interaction information
-  void save();
 
  private:
 
@@ -83,9 +92,11 @@ class MaterialEffects
 
   double pTmin;
   GlobalVector theNormalVector;
+  double theThickness;
+  double theEnergyLoss;
 
   // debugging
-  double myEta;
+  //  double myEta;
 
   // The random engine
   const RandomEngine* random;

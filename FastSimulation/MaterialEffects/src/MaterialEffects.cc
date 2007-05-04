@@ -44,7 +44,7 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
 
     double photonEnergy = matEff.getParameter<double>("photonEnergy");
     PairProduction = new PairProductionSimulator(photonEnergy,
-					       random);
+						 random);
 
   }
 
@@ -53,8 +53,8 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     double bremEnergy = matEff.getParameter<double>("bremEnergy");
     double bremEnergyFraction = matEff.getParameter<double>("bremEnergyFraction");
     Bremsstrahlung = new BremsstrahlungSimulator(bremEnergy,
-					       bremEnergyFraction,
-					       random);
+						 bremEnergyFraction,
+						 random);
 
   }
 
@@ -87,12 +87,12 @@ MaterialEffects::MaterialEffects(const edm::ParameterSet& matEff,
     // Construction
     NuclearInteraction = 
       new NuclearInteractionSimulator(listOfFiles,
-				    pionEnergies,
-				    pionEnergy,
-				    lengthRatio,
-				    ratioRatio,
-				    inputFile,
-				    random);
+				      pionEnergies,
+				      pionEnergy,
+				      lengthRatio,
+				      ratioRatio,
+				      inputFile,
+				      random);
   }
 
 }
@@ -115,6 +115,9 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   MaterialEffectsSimulator::RHEP_const_iter DaughterIter;
   double radlen;
+  theEnergyLoss = 0;
+  theNormalVector = normalVector(layer,myTrack);
+  radlen = radLengths(layer,myTrack);
 
   /* For radiation length tuning */
   /* 
@@ -142,8 +145,6 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( PairProduction && myTrack.pid()==22 ) {
     
-    theNormalVector = normalVector(layer,myTrack);
-    radlen = radLengths(layer,myTrack);
     //
     PairProduction->updateState(myTrack,radlen);
 
@@ -166,8 +167,6 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   }
 
   if ( myTrack.pid() == 22 ) return;
-  theNormalVector = normalVector(layer,myTrack);
-  radlen = radLengths(layer,myTrack);
 
 //------------------------
 //   Nuclear interactions
@@ -258,7 +257,12 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 ///---------------
 
   if ( EnergyLoss )
+  {
+    theEnergyLoss = myTrack.e();
     EnergyLoss->updateState(myTrack,radlen);
+    theEnergyLoss -= myTrack.e();
+  }
+  
 
 ////----------------------
 ////  Multiple scattering
@@ -274,12 +278,14 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
 double
 MaterialEffects::radLengths(const TrackerLayer& layer,
-			    ParticlePropagator& myTrack ) const {
+			    ParticlePropagator& myTrack) {
 
   //  const Surface& surface = layer.surface();
   //  const MediumProperties& mp = *surface.mediumProperties();
   //  double radlen = mp.radLen();
-  double radlen = layer.surface().mediumProperties()->radLen();
+
+  // Thickness of layer
+  theThickness = layer.surface().mediumProperties()->radLen();
 
   GlobalVector P(myTrack.px(),myTrack.py(),myTrack.pz());
   
@@ -290,13 +296,15 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
   //		 0.0);
   //  GlobalVector normal = normalVector(layer,myTrack);
 
-  //  radlen /= fabs(P.dot(normal)/(P.mag()*normal.mag()));
-  radlen /= fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
+  // Effective length of track inside layer (considering crossing angle)
+  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
 
   // This is disgusting. It should be in the geometry description, by there
   // is no way to define a cylinder with a hole in the middle...
   double rad = myTrack.vertex().perp();
   double zed = fabs(myTrack.vertex().z());
+
+  double factor = 1;
 
   if ( rad > 16. && zed < 299. ) {
 
@@ -304,29 +312,31 @@ MaterialEffects::radLengths(const TrackerLayer& layer,
     if ( zed > 122. && layer.sensitive() ) { 
 
       if ( zed < 165. ) { 
-	if ( rad < 24. ) radlen *= 3.0;
+	if ( rad < 24. ) factor = 3.0;
       } else {
-	if ( rad < 32.5 ) radlen *= 3.0;
+	if ( rad < 32.5 )  factor = 3.0;
 	else if ( (zed > 220. && rad < 45.0) || 
-		  (zed > 250. && rad < 54.) ) radlen *= 0.3;
+		  (zed > 250. && rad < 54.) ) factor = 0.3;
       }
     }
 
     // Less material on all sensitive layers of the Silicon Tracker
     else if ( zed < 20. && layer.sensitive() ) { 
-      if ( rad > 55. ) radlen *= 0.50;
-      else if ( zed < 10 ) radlen *= 0.77;
+      if ( rad > 55. ) factor = 0.50;
+      else if ( zed < 10 ) factor = 0.77;
     }
     // Much less cables outside the Si Tracker barrel
     else if ( rad > 118. && zed < 250. ) { 
-      if ( zed < 116 ) radlen *= 0.225 * .75 ;
-      else radlen *= .75;
+      if ( zed < 116 ) factor = 0.225 * .75 ;
+      else factor = .75;
     }
     // No cable whatsoever in the Pixel Barrel.
-    else if ( rad < 18. && zed < 26. ) radlen *= 0.08;
+    else if ( rad < 18. && zed < 26. ) factor = 0.08;
   }
 
-  return radlen;
+  theThickness *= factor;
+
+  return radlen * factor;
 
 }
 
