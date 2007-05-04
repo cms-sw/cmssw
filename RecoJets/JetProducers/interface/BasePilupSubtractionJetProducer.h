@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.1 2007/04/07 18:12:45 kodolova Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.2 2007/04/10 16:22:33 kodolova Exp $
  *
  ************************************************************/
 
@@ -17,9 +17,17 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include <map>
 #include <vector>
+#include "FWCore/Framework/interface/EventSetup.h"
+
+namespace edm {
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 namespace cms
 {
@@ -35,6 +43,8 @@ namespace cms
     virtual void produce(edm::Event& e, const edm::EventSetup& c);
     /** jet type */
     std::string jetType () const {return mJetType;}
+    
+    void beginJob( const edm::EventSetup& iSetup);
 
     // abstract method to be set up in actual implementations
     /** run algorithm itself */
@@ -51,8 +61,8 @@ namespace cms
     double mEInputCut;
     double mEtJetInputCut;
     std::map<int,double> esigma;
-    std::map<int,double> emean;
-    std::map<double,int> ietamap;
+    std::map<int,double> emean;  
+    const CaloGeometry* geo;
   };
 }
 

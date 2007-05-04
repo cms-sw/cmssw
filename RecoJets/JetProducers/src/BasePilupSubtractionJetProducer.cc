@@ -1,6 +1,6 @@
 // File: BasePilupSubtractionJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BasePilupSubtractionJetProducer.cc,v 1.2 2007/04/10 16:22:33 kodolova Exp $
+// $Id: BasePilupSubtractionJetProducer.cc,v 1.3 2007/05/03 21:24:16 fedor Exp $
 //--------------------------------------------
 #include <memory>
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -20,6 +20,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "RecoJets/JetProducers/interface/BasePilupSubtractionJetProducer.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 using namespace std;
 using namespace reco;
@@ -70,6 +71,8 @@ namespace {
 namespace cms
 {
 
+  
+
   // Constructor takes input parameters now: to be replaced with parameter set.
   BasePilupSubtractionJetProducer::BasePilupSubtractionJetProducer(const edm::ParameterSet& conf)
     : mSrc (conf.getParameter<edm::InputTag>( "src" )),
@@ -87,8 +90,15 @@ namespace cms
   }
 
   // Virtual destructor needed.
-  BasePilupSubtractionJetProducer::~BasePilupSubtractionJetProducer() { } 
-
+  BasePilupSubtractionJetProducer::~BasePilupSubtractionJetProducer() { }
+   
+  void BasePilupSubtractionJetProducer::beginJob( const edm::EventSetup& iSetup)
+  {
+//      edm::ESHandle<CaloGeometry> pG;
+//      iSetup.get<IdealGeometryRecord>().get(pG);
+//      geo = pG.product();
+  }
+  
   // Functions that gets called by framework every event
   void BasePilupSubtractionJetProducer::produce(edm::Event& e, const edm::EventSetup&)
   {
@@ -188,9 +198,9 @@ namespace cms
       
       for(ProtoJet::Constituents::const_iterator ito = towers.begin(); ito != towers.end(); ito++)
       {
-       double eta = (**ito).eta();
-       int it = (*ietamap.find(eta)).second;
-       
+//       double eta = (**ito).eta();
+//       int it = (*ietamap.find(eta)).second;
+       int it = 0;
        offset = offset + (*emean.find(it)).second + (*esigma.find(it)).second;
        
        
@@ -248,27 +258,45 @@ void BasePilupSubtractionJetProducer::calculate_pedestal(JetReco::InputCollectio
     map<int,double> emean2;
     map<int,double> ntowers;
     
-    double etaold = -10000.;
-    int itower = -1;
+    int ietaold = -10000;
+    int ieta = -100;
+    int itower = 0;
+    
     for (JetReco::InputCollection::const_iterator input_object = inputs.begin ();  input_object != inputs.end (); input_object++) {
-      double eta = (**input_object).eta();
-      if(fabs(eta-etaold)<0.00001) 
+      
+      if (makeCaloJet (mJetType)) ieta = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta(); 
+      
+       if( ieta-ietaold != 0 )
       {
+<<<<<<< BasePilupSubtractionJetProducer.cc
+        emean[ieta] = emean[ieta]+(**input_object).et();
+        emean2[ieta] = emean2[ieta]+((**input_object).et())*((**input_object).et());
+	ntowers[ieta]++;
+=======
         emean[itower] += (**input_object).et();
         emean2[itower] += ((**input_object).et())*((**input_object).et());
 	ntowers[itower] += 1;
+>>>>>>> 1.3
       } 
         else
 	{
+<<<<<<< BasePilupSubtractionJetProducer.cc
+           emean[ieta] = emean[ieta]+(**input_object).et();
+           emean2[ieta] = emean2[ieta]+((**input_object).et())*((**input_object).et());
+	   ntowers[ieta]=1.;
+	}
+	itower++;	
+=======
 	   itower++;
            emean[itower] += (**input_object).et();
            emean2[itower] += ((**input_object).et())*((**input_object).et());
 	   ietamap[eta] = itower;
 	   ntowers[itower]=1;
 	}	
+>>>>>>> 1.3
     }
     
-    for(int it = 0; it<=itower; itower++)
+    for(int it = 0; it< itower; it++)
     {
        emean[it] = emean[it]/ntowers[it];
        esigma[it] = sqrt(emean2[it]/ntowers[it] - emean[it]*emean[it]);
@@ -286,9 +314,12 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
     Candidate * mycand;
 
     JetReco::InputCollection inputTMP;
+    int it = -100;
+    
     for (JetReco::InputCollection::const_iterator input_object = inputs.begin (); input_object != inputs.end (); input_object++) {
          
-       int it = (*ietamap.find((**input_object).eta())).second;
+//       int it = (*ietamap.find((**input_object).eta())).second;
+       if (makeCaloJet (mJetType)) it = dynamic_cast<const CaloTower*>(&(**input_object))->id().ieta();
        
        double etnew = (**input_object).et() - (*emean.find(it)).second -  (*esigma.find(it)).second;
        float mScale = etnew/(**input_object).et(); 
@@ -302,4 +333,5 @@ CandidateCollection BasePilupSubtractionJetProducer::subtract_pedestal(JetReco::
     return inputCache;
 }
 
-}
+
+} // namespace cms
