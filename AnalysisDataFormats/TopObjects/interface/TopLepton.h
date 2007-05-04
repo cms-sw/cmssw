@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Wed May  2 16:48:32 PDT 2007
 //
-// $Id$
+// $Id: TopLepton.h,v 1.1 2007/05/03 01:37:10 lowette Exp $
 //
 
 #ifndef TopLepton_h
@@ -16,11 +16,9 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  1.0
+  \version  $Id$
 */
 
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
