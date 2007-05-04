@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.15 2007/04/30 20:00:38 cliu Exp $
+// $Id: MuonIdProducer.cc,v 1.16 2007/05/01 18:18:29 dmytro Exp $
 //
 //
 
@@ -27,8 +27,6 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -415,6 +413,3 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    LogTrace("MuonIdentification") << "number of muon chambers: " << aMuon.getMatches().size() << "\n" 
      << "number of muon matches: " << aMuon.numberOfMatches();
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(MuonIdProducer);
