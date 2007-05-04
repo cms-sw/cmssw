@@ -185,19 +185,9 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
       HIPUserVariables* uservar =
 	dynamic_cast<HIPUserVariables*>(ap->userVariables());
 
-      std::vector<const Alignable*> terminals;
-
-      ali->deepComponents(terminals);
-
-      unsigned int nTerminal = terminals.size();
-
-      for (unsigned int j = 0; j < nTerminal; ++j)
+      for (unsigned int l = 0; l < theLevels.size(); ++l)
       {
-	const Alignable* term = terminals[j];
-
-	for (unsigned int l = 0; l < theLevels.size(); ++l)
-      {
-        SurveyResidual res(*term, theLevels[l]);
+        SurveyResidual res(*ali, theLevels[l]);
 
         AlgebraicSymMatrix invCov = res.inverseCovariance();
 
@@ -222,7 +212,6 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
 // 	  uservar->jtve += J * (invCov1 * e);
 // 	}
 
-      }
     }
   }
 
