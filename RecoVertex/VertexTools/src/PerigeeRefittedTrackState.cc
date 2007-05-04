@@ -6,10 +6,11 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
 
-AlgebraicVector3 PerigeeRefittedTrackState::momentumVector() const
+AlgebraicVector PerigeeRefittedTrackState::momentumVector() const
 {
  if (!momentumVectorAvailable) {
-    momentumAtVertex[0] = theState.perigeeParameters().vector()[0];
+   momentumAtVertex = AlgebraicVector(3);
+    momentumAtVertex[0] = theState.perigeeParameters().vector_old()[0];
     momentumAtVertex[1] = theState.perigeeParameters().theta();
     momentumAtVertex[2] = theState.perigeeParameters().phi();
     momentumVectorAvailable = true;
