@@ -52,8 +52,11 @@ namespace reco {
     /// particle identification
     virtual int particleId() const { return particleId_;}
     
-    /// \return reference to the block
-    const reco::PFBlockRef& blockRef() const { return blockRef_;} 
+    /// return reference to the block
+    const reco::PFBlockRef & blockRef() const { return blockRef_; } 
+
+    /// return reference to the block
+    PFBlockRef block() const { return blockRef_; } 
 
     friend std::ostream& operator<<( std::ostream& out, 
 				     const PFCandidate& c );
@@ -67,6 +70,17 @@ namespace reco {
     /// reference to the corresponding PFBlock
     reco::PFBlockRef blockRef_;
   };
+
+  /// particle ID component tag
+  struct PFParticleIdTag { };
+
+  /// get default PFBlockRef component
+  /// as: pfcand->get<PFBlockRef>();
+  GET_DEFAULT_CANDIDATE_COMPONENT( PFCandidate, PFBlockRef, block );
+
+  /// get int component
+  /// as: pfcand->get<int, PFParticleIdTag>();
+  GET_CANDIDATE_COMPONENT( PFCandidate, int, particleId, PFParticleIdTag );
 
 }
 
