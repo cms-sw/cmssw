@@ -28,7 +28,6 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
   // parse parameters
 
   verbose = cfg.getParameter<bool>("verbosity");
-  useSurvey = cfg.getParameter<bool>("useSurvey");
 
   outpath = cfg.getParameter<string>("outpath");
   outfile = cfg.getParameter<string>("outfile");
@@ -71,6 +70,15 @@ HIPAlignmentAlgorithm::HIPAlignmentAlgorithm(const edm::ParameterSet& cfg):
 
   theEventPrescale = cfg.getParameter<int>("eventPrescale");
   theCurrentPrescale = theEventPrescale;
+
+  AlignableObjectId dummy;
+
+  const std::vector<std::string>& levels = cfg.getUntrackedParameter< std::vector<std::string> >("surveyResiduals");
+
+  for (unsigned int l = 0; l < levels.size(); ++l)
+  {
+    theLevels.push_back( dummy.nameToType(levels[l]) );
+  }
 
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] constructed.";
 
@@ -162,7 +170,7 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
   edm::LogWarning("Alignment") <<"[HIPAlignmentAlgorithm] Current Iteration number: " 
     << theIteration;
 
-  if (useSurvey)
+  if (theLevels.size() > 0)
   {
     edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm] Using survey constraint";
 
@@ -187,20 +195,15 @@ void HIPAlignmentAlgorithm::startNewLoop( void )
       {
 	const Alignable* term = terminals[j];
 
-	SurveyResidual res1(*term, AlignableObjectId::AlignablePetal);
-	SurveyResidual res2(*term, AlignableObjectId::AlignableEndcapLayer);
-	SurveyResidual res3(*term, AlignableObjectId::AlignableEndcap);
+	for (unsigned int l = 0; l < theLevels.size(); ++l)
+      {
+        SurveyResidual res(*term, theLevels[l]);
 
-	AlgebraicSymMatrix invCov1 = res1.inverseCovariance();
-	AlgebraicSymMatrix invCov2 = res2.inverseCovariance();
-	AlgebraicSymMatrix invCov3 = res3.inverseCovariance();
+        AlgebraicSymMatrix invCov = res.inverseCovariance();
 
-	uservar->jtvj += invCov1;
-	uservar->jtvj += invCov2;
-	uservar->jtvj += invCov3;
-	uservar->jtve += invCov1 * res1.sensorResidual();
-	uservar->jtve += invCov2 * res2.sensorResidual();
-	uservar->jtve += invCov3 * res3.sensorResidual();
+        uservar->jtvj += invCov;
+        uservar->jtve += invCov * res.sensorResidual();
+      }
 
 // 	align::LocalVectors residuals = res1.pointsResidual();
 

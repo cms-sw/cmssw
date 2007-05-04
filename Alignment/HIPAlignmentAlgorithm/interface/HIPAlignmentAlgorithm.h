@@ -1,6 +1,7 @@
 #ifndef Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 #define Alignment_HIPAlignmentAlgorithm_HIPAlignmentAlgorithm_h
 
+#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
@@ -76,7 +77,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   std::string theCollectorPath;
   int theEventPrescale,theCurrentPrescale;
 
-  bool useSurvey; // enable survey constraint if true
+  std::vector<AlignableObjectId::AlignableObjectIdType> theLevels; // for survey residuals
 
   // root tree variables
   TFile* theFile;
