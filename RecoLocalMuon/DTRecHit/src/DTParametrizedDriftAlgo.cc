@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/24 13:45:19 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/19 11:43:57 $
+ *  $Revision: 1.7 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -241,38 +241,38 @@ bool DTParametrizedDriftAlgo::compute(const DTLayer* layer,
     if (step==1) {     // 1. step
       if (wireId.superlayer()==2) {     
         if (wheel==0) {
-          reso = 0.0221;
+          reso = 0.0269;
         } else if (wheel==1) {
-          reso = 0.0302;
+          reso = 0.0257;
         } else if (wheel==2){
-          reso = 0.0315;
+          reso = 0.0250;
         }
       } else {
-        reso = 0.0200;
+        reso = 0.0241;
       }
     } else if (step==2) {                  // 2. step //FIXME
       if (wireId.superlayer()==2) {
         if (wheel==0) {
-          reso = 0.0220;
+          reso = 0.0283;
         } else if (wheel==1) {
-          reso = 0.0252;
+          reso = 0.0250;
         } else if (wheel==2){
-          reso = 0.0258;
+          reso = 0.0234;
         }
       } else {
-        reso = 0.0188;
+        reso = 0.0237;
       }
     } else if (step==3) {                  // 3. step
       if (wireId.superlayer()==2) {
         if (wheel==0) {
-          reso = 0.0146;
+          reso = 0.0172;
         } else if (wheel==1) {
-          reso = 0.0167;
+          reso = 0.0198;
         } else if (wheel==2){
-          reso = 0.0167;
+          reso = 0.0245;
         }
       } else {
-        reso = 0.0142;
+        reso = 0.0211;
       }
     }
   }

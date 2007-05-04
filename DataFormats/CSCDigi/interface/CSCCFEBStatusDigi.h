@@ -5,8 +5,8 @@
  *
  * Digi for CSC CFEB status.
  *  
- *  $Date: 2006/12/05 22:47:01 $
- *  $Revision: 1.3 $
+ *  $Date:$
+ *  $Revision:$
  *
  * \author N. Terentiev, CMU
  *
@@ -22,34 +22,38 @@ public:
             /// Construct from the CFEB number (1-5).
   CSCCFEBStatusDigi (int cfebnmb) {cfebnmb_ = cfebnmb;}
 
-
-  /// Constructor for all variables
-  CSCCFEBStatusDigi (int cfebnmb, std::vector<uint16_t> crcWords, 
-		     std::vector<uint16_t> contrWords,  std::vector<uint16_t> bWords) {
-    cfebnmb_ = cfebnmb;
-    crcWords_ = crcWords;
-    contrWords_ = contrWords;
-    bWords_ = bWords;
-}
-
-
             /// Default construction.
   CSCCFEBStatusDigi () {}
 
+            /// Set the word with L1A overlap bits
+  void setL1AOverlap(int overlap) {L1AOverlap_ = overlap;}
+                                
+            /// Set the word SCA Full condition
+  void setSCAFull(int scacapfull) {SCACapFull_ = scacapfull;}
+
+            /// Set the word FPGA FIFO Full condition
+  void setFPGAFIFOFull(int fpgafifafull) { FPGAFIFOFull_ = fpgafifafull;}
+                                                
             /// Set CRC vector 
-  void setCRC (std::vector<uint16_t> crc) {crcWords_ = crc;}
+  void setCRC (std::vector<uint16_t> crc) {CRCWord_ = crc;}
 
             /// Set SCAC (SCA Controller) vector
-  void setSCAC (std::vector<uint16_t> scac) {contrWords_ =  scac;}
+  void setSCAC (std::vector<uint16_t> scac) {SCACWord_ =  scac;}
 
             /// Get the  CFEB number
   int getCFEBNmb() const {return cfebnmb_;}
 
-            /// Get SCA Full Condition 
-  std::vector<uint16_t> getSCAFullCond() const;
+            /// Get the  L1A overlap bits word
+  int getL1AOverlap() const {return L1AOverlap_;} 
+
+            /// Get the  SCA capacitors full condition (bits 8:0) 
+  int getSCACapFull() const {return SCACapFull_;}
+
+            /// Get the  FPGA FIFO full condition (bits 8:0)
+  int getFPGAFIFOFull() const {return FPGAFIFOFull_;}
 
             /// Get CRC per each time sample
-  std::vector<uint16_t> getCRC() const {return crcWords_;}
+  std::vector<uint16_t> getCRC() const {return CRCWord_;}
 
             /// Shift and select
   int ShiftSel(int nmb,int nshift,int nsel) const;
@@ -76,21 +80,21 @@ public:
   void print() const;
 
 private:
+  friend class testCSCCFEBStatusDigis;
   
   uint16_t cfebnmb_;
-  std::vector<uint16_t> crcWords_;
-  std::vector<uint16_t> contrWords_;
-  std::vector<uint16_t> bWords_;
-
+  uint16_t L1AOverlap_;
+  uint16_t SCACapFull_;
+  uint16_t FPGAFIFOFull_;
+  std::vector<uint16_t> CRCWord_;
+  std::vector<uint16_t> SCACWord_;
 };
 
 #include<iostream>
             /// needed by COBRA
 inline std::ostream & operator<<(std::ostream & o, const CSCCFEBStatusDigi& digi) {
-  o << " " << digi.getCFEBNmb()<<"\n";
-  for (size_t i = 0; i<4; ++i ){
-        o <<" " <<(digi.getSCAFullCond())[i]; }
-  o <<"\n";
+  o << " " << digi.getCFEBNmb()<<" "<<digi.getL1AOverlap()<<" "
+           << digi.getSCACapFull()<<" "<<digi.getFPGAFIFOFull()<<"\n";
   for (size_t i = 0; i<digi.getCRC().size(); ++i ){
     o <<" " <<(digi.getCRC())[i]; }
   o<<"\n";

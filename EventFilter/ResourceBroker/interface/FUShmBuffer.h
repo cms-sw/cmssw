@@ -59,6 +59,7 @@ namespace evf {
     void             postWriterSem()    { sem_post(0); }
     void             waitReaderSem()    { sem_wait(1); }
     void             postReaderSem()    { sem_post(1); }
+    // semaphores to discard events
     void             waitDiscardedSem() { sem_wait(3); }
     void             postDiscardedSem() { sem_post(3); }
     void             waitDiscardSem()   { sem_wait(4); }
@@ -95,7 +96,6 @@ namespace evf {
     static int          shm_create(key_t key,int size);
     static int          shm_get(key_t key,int size);
     static void*        shm_attach(int shmid);
-    static void         shm_dettach(void* addr);
     static int          shm_nattch(int shmid);
     static int          shm_destroy(int shmid);
     

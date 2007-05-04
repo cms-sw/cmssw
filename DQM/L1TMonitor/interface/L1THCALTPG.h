@@ -4,8 +4,8 @@
 /*
  * \file L1THCALTPG.h
  *
- * $Date: 2007/02/22 19:43:52 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/02 20:56:20 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
 */
@@ -13,9 +13,6 @@
 // system include files
 #include <memory>
 #include <unistd.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -31,8 +28,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-
-#include "DataFormats/HcalDigi/interface/HcalTriggerPrimitiveDigi.h"
+#include <iostream>
+#include <fstream>
+#include <vector>
 
 //
 // class decleration
@@ -62,17 +60,14 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  // what we monitor
-  MonitorElement *hcalTpEtEtaPhi_;
-  MonitorElement *hcalTpOccEtaPhi_;
-  MonitorElement *hcalTpRank_;
+  MonitorElement* hcaltpgtest;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag hcaltpgSource_;
+
 };
 
 #endif

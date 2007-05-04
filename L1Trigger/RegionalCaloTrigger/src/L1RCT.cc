@@ -1,5 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
+#include <vector>
+using std::vector;
+
 #include <fstream>
 #include <string>
 
@@ -498,10 +501,10 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
 
 vector<L1CaloRegion> L1RCT::getRegions(int crate){
   // barrel regions
-  bitset<14> taus( (long) crates.at(crate).getTauBits());
-  bitset<14> mips( (long) crates.at(crate).getMIPBits());
-  bitset<14> quiets( (long) crates.at(crate).getQuietBits());
-  bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
+  std::bitset<14> taus( (long) crates.at(crate).getTauBits());
+  std::bitset<14> mips( (long) crates.at(crate).getMIPBits());
+  std::bitset<14> quiets( (long) crates.at(crate).getQuietBits());
+  std::bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
   vector<unsigned short> barrelEnergies = crates.at(crate).getBarrelRegions();
   vector<L1CaloRegion> regionCollection;
   for (int card = 0; card < 7; card++){

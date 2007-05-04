@@ -2,9 +2,8 @@
 #define HcalSimAlgos_HcalSimParameterMap_h
 
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
-#include "SimCalorimetry/HcalSimAlgos/interface/HcalSimParameters.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloSimParameters.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 class HcalSimParameterMap : public CaloVSimParameterMap
 {
@@ -19,18 +18,16 @@ public:
   virtual const CaloSimParameters & simParameters(const DetId & id) const;
 
   /// accessors
-  HcalSimParameters hbParameters() const {return theHBParameters;}
-  HcalSimParameters heParameters() const {return theHEParameters;}
-  HcalSimParameters hoParameters() const  {return theHOParameters;}
+  CaloSimParameters hbParameters() const {return theHBParameters;}
+  CaloSimParameters heParameters() const {return theHEParameters;}
+  CaloSimParameters hoParameters() const  {return theHOParameters;}
   CaloSimParameters hfParameters1() const  {return theHFParameters1;}
   CaloSimParameters hfParameters2() const  {return theHFParameters2;}
 
-  void setDbService(const HcalDbService * service);
-
 private:
-  HcalSimParameters theHBParameters;
-  HcalSimParameters theHEParameters;
-  HcalSimParameters theHOParameters;
+  CaloSimParameters theHBParameters;
+  CaloSimParameters theHEParameters;
+  CaloSimParameters theHOParameters;
   CaloSimParameters theHFParameters1;
   CaloSimParameters theHFParameters2;
 };

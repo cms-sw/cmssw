@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// ecal calorimeter info
+// calorimeter info
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
@@ -22,24 +22,6 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
-
-// hcal calorimeter info
-#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalDigi/interface/HcalQIESample.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
-#include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
-#include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
-#include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
-#include "DataFormats/HcalDigi/interface/HFDataFrame.h"
-#include "DataFormats/HcalDigi/interface/HODataFrame.h"
-//#include "Geometry/Records/interface/IdealGeometryRecord.h"
-//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 // event info
 #include "SimDataFormats/GlobalDigiValidation/interface/PGlobalDigi.h"
@@ -84,8 +66,6 @@ class GlobalDigisProducer : public edm::EDProducer
   // production related methods
   void fillECal(edm::Event&, const edm::EventSetup&);
   void storeECal(PGlobalDigi&);
-  void fillHCal(edm::Event&, const edm::EventSetup&);
-  void storeHCal(PGlobalDigi&);
 
   void clear();
 
@@ -110,32 +90,12 @@ class GlobalDigisProducer : public edm::EDProducer
   DoubleVector EECalAEE; 
   FloatVector EECalSHE;
 
-  FloatVector ESCalADC0, ESCalADC1, ESCalADC2;
-  FloatVector ESCalSHE;
-
   edm::InputTag ECalEBSrc_;
   edm::InputTag ECalEESrc_;
-  edm::InputTag ECalESSrc_;
 
   std::map<int, double, std::less<int> > ECalgainConv_;
   double ECalbarrelADCtoGeV_;
   double ECalendcapADCtoGeV_;
-
-  // HCal info
-
-  FloatVector HBCalAEE;
-  FloatVector HBCalSHE;
-
-  FloatVector HECalAEE;
-  FloatVector HECalSHE;
-
-  FloatVector HOCalAEE;
-  FloatVector HOCalSHE;
-
-  FloatVector HFCalAEE;
-  FloatVector HFCalSHE;
-
-  edm::InputTag HCalSrc_;
 
   // private statistics information
   unsigned int count;

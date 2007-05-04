@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/02/20 15:42:17 $
- * $Revision: 1.51 $
+ * $Date: 2007/01/29 15:19:37 $
+ * $Revision: 1.49 $
  * \author G. Della Ricca
  *
 */
@@ -33,8 +33,6 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBLaserClient : public EBClient {
-
-friend class EBSummaryClient;
 
 public:
 
@@ -285,9 +283,8 @@ float percentVariation_;
 
 // Quality check on PNs
 
-float amplitudeThresholdPnG01_;
-float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float meanThresholdPN_;
+float amplitudeThresholdPN_;
 
 };
 

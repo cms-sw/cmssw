@@ -2,29 +2,17 @@
 
 if (( ${#LOCALRT} < 4 ))
 then
-    if (( ${#HCALDAQ_SW_LOC} < 4  || ${#HCAL_CMSSW_RELEASE} < 4 ))
-    then
-	echo HCALDAQ_SW_LOC or HCAL_CMSSW_RELEASE not set, aborting!
-	exit
-    else
-	pushd $HCALDAQ_SW_LOC/src/$HCAL_CMSSW_RELEASE/src >/dev/null
-	eval `scramv1 runtime -sh`
-	popd >/dev/null
-    fi
-fi
-
-if (( ${#LOCALRT} < 4 ))
-then
     echo Please setup your runtime environment!
     exit
 fi
 
 ARG1=$1
 OUTPUTFILE=$2
+FIRSTFED=700 # except for TB04/old data
 
-if [[ -e ./reco_setup.rc ]] 
+if [[ -e reco_setup.rc ]] 
 then
-    source ./reco_setup.rc
+    source reco_setup.rc
 fi
 
 # ARG1 determines the file selection mode
@@ -69,15 +57,14 @@ EOF
 
 ### Mode-dependent part
 
-if [[ "$MODE" == "TESTSTAND" || "${FILE}" == *"HTB_"* ]]
+if [[ "$MODE" == "TB04" || "${FILE}" == *"HTB_"* ]]
 then
 # STREAMS: comma-separated list of strings, like: " 'HCAL_Trigger','HCAL_DCC020'  "
     STREAMS=","${FEDS}
-    STREAMS=${STREAMS/20/020} # special case for teststand files
+    STREAMS=${STREAMS/20/020} # special case for testbeam files
     STREAMS=${STREAMS//,/\',\'HCAL_DCC}
     STREAMS="'HCAL_Trigger"${STREAMS}\'
-
-    if [[ "$MODE" == "TESTSTAND" && "$FIRSTFED"=="" ]]
+    if [[ "$MODE" == "TB04" ]]
     then
 	FIRSTFED=20
     fi
@@ -102,11 +89,6 @@ EOF
 # MTCC mode unavailable for now
 # elif [[ "$MODE" == "MTCC" ]] 
 #     then
-#
-#     if [[ -z "$FIRSTFED" ]]
-#     then
-#	 FIRSTFED=700
-#     fi
 # 
 #     EXT=${FILE##*.}
 #     if [[ "$EXT" == "dat" ]]
@@ -140,11 +122,6 @@ EOF
 #     fi
 elif [[ "$MODE" == "TB06" ]] 
     then
-
-    if [[ -z "$FIRSTFED" ]]
-    then
-	FIRSTFED=700
-    fi
 
     PREF=${FILE#*:}
     if (( ${#PREF} == ${#FILE} ))

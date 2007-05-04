@@ -65,15 +65,6 @@ void ExtKtJetAlgorithmWrapper::run(const std::vector <FJCand>& fInput,
       double py=(*inputCand)->py();
       double pz=(*inputCand)->pz();
       double E=(*inputCand)->energy();
-      
-      // The following fix is applyed because FastJet and KtJet have different treatments of fourvectors with E<P. The fix makes the 
-      // output equal. - Maybe a better solution can be found.
-      double P=sqrt(px*px+py*py+pz*pz);
-      if (E<P) {
-        if ((E-P)<(-0.5)) LogWarning("ExtKtWrapperInput")<<"Jet input with (E-P)= "<<(E-P)<<" < 0.5 GeV - BROKEN FOURVECTOR!";
-        E=P;
-      }
-      
       KtJet::KtLorentzVector p(px,py,pz,E);
       //p.set_user_index(index_);
       const unsigned int lvID=p.getID();

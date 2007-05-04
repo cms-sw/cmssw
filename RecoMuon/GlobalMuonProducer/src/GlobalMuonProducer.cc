@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/02/16 18:42:28 $
- *   $Revision: 1.24 $
+ *   $Date: 2007/02/16 13:33:11 $
+ *   $Revision: 1.23 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -104,7 +104,7 @@ void GlobalMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   theService->update(eventSetup);
 
   // Take the STA muon container(s)
-  LogTrace(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel<<endl;
+  LogTrace(metname)<<"Taking the Stand Alone Muons "<<theSTACollectionLabel.label()<<endl;
 
   Handle<reco::TrackCollection> staMuons;
   event.getByLabel(theSTACollectionLabel,staMuons);

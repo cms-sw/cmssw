@@ -323,27 +323,31 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
-  ss << " Using database            : " << usingDb_ << endl
-     << " ConfDb                    : " << confdb_ << endl
-     << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
-     << " Partition                 : " << partition_ << endl
-     << " Major/minor versions      : " << major_ << "/" << minor_ << endl;
+  ss << " Using database: " << usingDb_ << endl
+     << " ConfDb: " << confdb_ << endl
+     << " User/Passwd@Path: "
+     << user_ << "/" << passwd_ << "@" << path_ << endl
+     << " Partition: " << partition_ << endl
+     << " Major/minor versions: " 
+     << major_ << "/" << minor_ << endl;
   // Input
-  ss << " Input \"module.xml\" file   : " << inputModuleXml_ << endl
-     << " Input \"dcuinfo.xml\" file  : " << inputDcuInfoXml_ << endl
-     << " Input \"fec.xml\" file(s)   : ";
+  ss << " Input \"module.xml\" file: " << inputModuleXml_ << endl
+     << " Input \"dcuinfo.xml\" file: " << inputDcuInfoXml_ << endl
+     << " Input \"fec.xml\" file(s): ";
   vector<string>::const_iterator ifec = inputFecXml_.begin();
-  for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << *ifec << ", "; }
+  for ( ; ifec != inputFecXml_.end(); ifec++ ) { ss << "\"" << *ifec << "\", "; }
   ss << endl;
-  ss << " Input \"fed.xml\" file(s)   : ";
+  ss << " Input \"fed.xml\" file(s): ";
   vector<string>::const_iterator ifed = inputFedXml_.begin();
-  for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << *ifed << ", "; }
+  for ( ; ifed != inputFedXml_.end(); ifed++ ) { ss << "\"" << *ifed << "\", "; }
   ss << endl;
   // Output 
-  ss << " Output \"module.xml\" file  : " << outputModuleXml_ << endl
-     << " Output \"dcuinfo.xml\" file : " << outputDcuInfoXml_ << endl
-     << " Output \"fec.xml\" file(s)  : " << outputFecXml_ << endl
-     << " Output \"fed.xml\" file(s)  : " << outputFedXml_ << endl;
+  ss << " Output \"module.xml\" file: " << outputModuleXml_ << endl
+     << " Output \"dcuinfo.xml\" file: " << outputDcuInfoXml_ << endl
+     << " Output \"fec.xml\" file(s): "
+     << "\"" << outputFecXml_ << "\", " << endl
+     << " Output \"fed.xml\" file(s): "
+     << "\"" << outputFedXml_ << "\", " << endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -398,9 +402,6 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::usingDatabase() {
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Using a database account...";
   
   // Check TNS_ADMIN env var
   string tns_admin = "TNS_ADMIN";
@@ -413,16 +414,10 @@ void SiStripConfigDb::usingDatabase() {
 	<< " Env. var. TNS_ADMIN is set to 'pwd'!"
 	<< " Setting to '" << env_var << "'...";
       setenv(tns_admin.c_str(),env_var.c_str(),1); 
-    } else if ( tmp != env_var ) { 
-      edm::LogWarning(mlConfigDb_)
-	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to '" << tmp
-	<< "'! Setting to '" << env_var << "'...";
-      setenv(tns_admin.c_str(),env_var.c_str(),1); 
     } else {
       LogTrace(mlConfigDb_)
 	<< "[SiStripConfigDb::" << __func__ << "]"
-	<< " Env. var. TNS_ADMIN is set to: " << tmp;
+	<< " Env. var. TNS_ADMIN is set to: " << env_var;
     }
   } else {
     edm::LogWarning(mlConfigDb_)
@@ -529,7 +524,7 @@ void SiStripConfigDb::usingDatabase() {
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
        << hex << setw(8) << setfill('0') << factory_ << dec
-       << ", using database account with parameters '" 
+       << " using database connection parameters '" 
        << dbParams_.user_ << "/" 
        << dbParams_.passwd_ << "@" 
        << dbParams_.path_
@@ -595,9 +590,6 @@ void SiStripConfigDb::usingDatabase() {
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::usingXmlFiles() {
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Using XML description files...";
 
   // Create device factory object
   try { 
@@ -612,7 +604,7 @@ void SiStripConfigDb::usingXmlFiles() {
     ss << "[SiStripConfigDb::" << __func__ << "]"
        << " DeviceFactory created at address 0x" 
        << hex << setw(8) << setfill('0') << factory_ << dec
-       << ", using XML description files";
+       << " using xml files";
     LogTrace(mlConfigDb_) << ss.str();
     cout << ss.str() << endl;
   } else {    

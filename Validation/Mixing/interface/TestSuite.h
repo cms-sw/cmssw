@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.h,v 1.1 2006/03/14 14:23:26 uberthon Exp $
+// $Id: TestSuite.h,v 1.2 2005/12/12 10:48:56 uberthon Exp $
 //
 //
 
@@ -23,13 +23,10 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-//DQM services for histogram
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Daemon/interface/MonitorDaemon.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
 class TFile;
+
+namespace edm
+{
 
 //
 // class declaration
@@ -42,13 +39,11 @@ class TestSuite : public edm::EDAnalyzer {
 
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void beginJob(edm::EventSetup const&iSetup);
-      virtual void endJob();
-     
    private:
       std::string filename_;
       int bunchcr_;
       int minbunch_;
       int maxbunch_;
-      DaqMonitorBEInterface* dbe_;
+      TFile *histfile_;
 };
+}//edm

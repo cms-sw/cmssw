@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.4 2006/12/07 18:06:40 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.5 2007/02/19 12:59:04 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -48,6 +48,8 @@ namespace reco {
     virtual bool hasMasterClone() const;
     /// returns reference to master clone
     virtual const CandidateBaseRef & masterClone() const;
+    /// PDG identifier
+    virtual int pdgId() const;
 
     /// implementation of const_iterator. 
     /// should be private; declared public only 

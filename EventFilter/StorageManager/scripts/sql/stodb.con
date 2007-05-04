@@ -32,9 +32,7 @@ ALTER TABLE RUN_FILES
       RUNNUMBER
      ,LUMISECTION
      ,INSTANCE
-     ,COUNT
      ,STREAM
-     ,TYPE
      ,PRODUCER
     )
     USING INDEX

@@ -13,7 +13,7 @@
 //
 // Original Author:  Samvel Khalatyan (ksamdev at gmail dot com)
 //         Created:  Wed Oct  5 16:42:34 CET 2006
-// $Id: SiStripOfflineDQM.cc,v 1.4 2007/02/24 15:39:23 samvel Exp $
+// $Id: SiStripOfflineDQM.cc,v 1.2 2006/11/09 15:47:36 samvel Exp $
 //
 //
 
@@ -24,6 +24,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
 
 #include "DQM/SiStripMonitorClient/interface/SiStripOfflineDQM.h"
 
@@ -33,7 +34,6 @@ SiStripOfflineDQM::SiStripOfflineDQM( const edm::ParameterSet &roPARAMETER_SET)
   : bVerbose( roPARAMETER_SET.getUntrackedParameter<bool>( "bVerbose")),
     bSaveInFile( roPARAMETER_SET.getUntrackedParameter<bool>( "bOutputMEsInRootFile")),
     oFILE_NAME( roPARAMETER_SET.getUntrackedParameter<std::string>( "oOutputFile")),
-    //    nQTEST_EVENTS_DELAY_( roPARAMETER_SET.getUntrackedParameter<int>( "nQTestEventsDelay")),
     poMui( new MonitorUIRoot()) {
 
   // Create MessageSender
@@ -45,25 +45,13 @@ SiStripOfflineDQM::~SiStripOfflineDQM() {
 }
 
 void SiStripOfflineDQM::beginJob( const edm::EventSetup &roEVENT_SETUP) {
-  // Essential: creates some object that are used in createSummary
-  oActionExecutor_.readConfiguration();
-  //  nQTestEventsPassed_ = 0;
-
   if( bVerbose) {
     LogInfo( "SiStripOfflineDQM") << "[beginJob] done";
   }
 }
 
 void SiStripOfflineDQM::analyze( const edm::Event      &roEVENT, 
-				                         const edm::EventSetup &roEVENT_SETUP) {
-
-  //  if( nQTEST_EVENTS_DELAY_ < nQTestEventsPassed_) {
-  //    oActionExecutor_.setupQTests( poMui);
-  //    nQTestEventsPassed_ = 0;
-  //  }
-
-  //  ++nQTestEventsPassed_;
-
+				 const edm::EventSetup &roEVENT_SETUP) {
   if( bVerbose) {
     LogInfo( "SiStripOfflineDQM") << "[analyze] done";
   }
@@ -75,11 +63,13 @@ void SiStripOfflineDQM::endJob() {
     LogInfo( "SiStripOfflineDQM") << "[endJob] start";
   }
 
-  oActionExecutor_.setupQTests( poMui);
-  oActionExecutor_.createSummary( poMui);
+  SiStripActionExecutor oActionExecuter;
+  // Essential: creates some object that are used in createSummary
+  oActionExecuter.readConfiguration();
+  oActionExecuter.createSummary( poMui);
 
   if( bSaveInFile) {
-    oActionExecutor_.saveMEs( poMui, oFILE_NAME);
+    oActionExecuter.saveMEs( poMui, oFILE_NAME);
   }
 
   if( bVerbose) {

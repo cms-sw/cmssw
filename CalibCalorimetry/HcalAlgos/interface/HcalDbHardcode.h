@@ -12,6 +12,7 @@
 #include "CondFormats/HcalObjects/interface/HcalQIECoder.h"
 #include "CondFormats/HcalObjects/interface/HcalQIEShape.h"
 #include "CondFormats/HcalObjects/interface/HcalCalibrationQIECoder.h"
+#include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
 /**
 
@@ -28,5 +29,6 @@ namespace HcalDbHardcode {
   HcalQIECoder makeQIECoder (HcalDetId fId);
   HcalCalibrationQIECoder makeCalibrationQIECoder (HcalDetId fId);
   HcalQIEShape makeQIEShape ();
+  void makeHardcodeMap(HcalElectronicsMap& emap);
 }
 #endif

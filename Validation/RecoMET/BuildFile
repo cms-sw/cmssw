@@ -15,6 +15,7 @@
  <use name=Geometry/CaloTopology>
  <use name=Geometry/CaloGeometry>
  <use name=Geometry/CaloEventSetup>
+ <use name=DataFormats/JetReco>
 
 
 <flags SEAL_PLUGIN_NAME="ValidationRecoMET">

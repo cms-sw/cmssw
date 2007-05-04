@@ -12,8 +12,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/06 22:44:35 $
-// $Revision: 1.23 $
+// $Date: 2007/03/01 08:16:18 $
+// $Revision: 1.24 $
 //
 
 #include <vector>
@@ -25,7 +25,7 @@
 
 #include "RecoTracker/RoadMapRecord/interface/RoadMapRecord.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

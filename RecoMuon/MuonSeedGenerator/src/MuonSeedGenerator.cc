@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2006/11/13 08:55:24 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/03/07 13:20:55 $
+ *  $Revision: 1.16 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -21,9 +21,10 @@
 
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2DCollection.h"
 #include "DataFormats/CSCRecHit/interface/CSCRecHit2D.h"
-
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
@@ -40,7 +41,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
 
 // C++
 #include <vector>
@@ -489,9 +489,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(theSeed, list6, MB3);
 	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
 				  theSeed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(theSeed,eSetup);
-
-
+	  fill(theSeed,eSetup);
 	}
       }
     }
@@ -508,7 +506,7 @@ void MuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& eSetup
 	complete(theSeed, list7, MB2);
 	if (theSeed.nrhit()>1 || (theSeed.nrhit()==1 &&
 				  theSeed.firstRecHit()->dimension()==4) ) {
-	  checkAndFill(theSeed,eSetup);
+	  fill(theSeed,eSetup);
 	}
       }
     }
@@ -712,5 +710,16 @@ void MuonSeedGenerator::checkAndFill(MuonSeedFinder& theSeed, const edm::EventSe
       //if ( (*the_seed).isValid() )
       theSeeds.push_back(*the_seed);
     }
+  }
+}
+
+void MuonSeedGenerator::fill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup){
+  
+  vector<TrajectorySeed> the_seeds =  theSeed.seeds(eSetup);
+  for (vector<TrajectorySeed>::const_iterator
+	 the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
+    // FIXME, ask for this method
+    //if ( (*the_seed).isValid() )
+    theSeeds.push_back(*the_seed);
   }
 }

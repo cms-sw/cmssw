@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.3 2007/02/05 16:39:41 klute Exp $
+// $Id: StorageManager.cc,v 1.2 2007/02/05 11:19:57 klute Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -112,10 +112,6 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   i2o::bind(this,
             &StorageManager::receiveOtherMessage,
             I2O_SM_OTHER,
-            XDAQ_ORGANIZATION_ID);
-  i2o::bind(this,
-            &StorageManager::receiveDQMMessage,
-            I2O_SM_DQM,
             XDAQ_ORGANIZATION_ID);
 
   // Bind web interface
@@ -443,9 +439,8 @@ void StorageManager::receiveRegistryMessage(toolbox::mem::Reference *ref)
       // queue for output
       if(writeStreamerOnly_) {
         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-        // don't have the correct run number yet
         new (b.buffer()) stor::FragEntry(&serialized_prods_[0], &serialized_prods_[0], ser_prods_size_,
-                                         1, 1, Header::INIT, 0, 0, 0); // use fixed 0 as ID
+                                         1, 1, Header::INIT, 0); // use fixed 0 as ID
         b.commit(sizeof(stor::FragEntry));
       }
       // this is checked ok by default
@@ -550,8 +545,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
          int thislen = thismsg->dataSize;
          // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
          new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                  thismsg->frameCount+1, thismsg->numFrames, Header::EVENT, 
-                  thismsg->runID, thismsg->eventID, 0);
+                  thismsg->frameCount+1, thismsg->numFrames, Header::EVENT, thismsg->eventID);
          b.commit(sizeof(stor::FragEntry));
 
          receivedFrames_++;
@@ -601,8 +595,7 @@ void StorageManager::receiveDataMessage(toolbox::mem::Reference *ref)
     EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
     // must give it the 1 of N for this fragment (starts from 0 in i2o header)
     /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                msg->frameCount+1, msg->numFrames, Header::EVENT, 
-                                msg->runID, msg->eventID, 0);
+                                msg->frameCount+1, msg->numFrames, Header::EVENT, msg->eventID);
     b.commit(sizeof(stor::FragEntry));
     // Frame release is done in the deleter.
     receivedFrames_++;
@@ -690,125 +683,6 @@ void StorageManager::receiveOtherMessage(toolbox::mem::Reference *ref)
   // for bandwidth performance measurements
   unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_OTHER_MESSAGE_FRAME);
   addMeasurement(actualFrameSize);
-}
-
-void StorageManager::receiveDQMMessage(toolbox::mem::Reference *ref)
-{
-  // get the memory pool pointer for statistics if not already set
-  if(pool_is_set_ == 0)
-  {
-    pool_ = ref->getBuffer()->getPool();
-    pool_is_set_ = 1;
-  }
-
-  I2O_MESSAGE_FRAME         *stdMsg =
-    (I2O_MESSAGE_FRAME*)ref->getDataLocation();
-  I2O_SM_DQM_MESSAGE_FRAME *msg    =
-    (I2O_SM_DQM_MESSAGE_FRAME*)stdMsg;
-  FDEBUG(10) << "StorageManager: Received DQM message from HLT at " << msg->hltURL 
-             << " application " << msg->hltClassName << " id " << msg->hltLocalId
-             << " instance " << msg->hltInstance << " tid " << msg->hltTid << std::endl;
-  FDEBUG(10) << "                 for run " << msg->runID << " eventATUpdate = " << msg->eventAtUpdateID
-             << " total frames = " << msg->numFrames << std::endl;
-  FDEBUG(10) << "StorageManager: Frame " << msg->frameCount << " of " 
-             << msg->numFrames-1 << std::endl;
-  int len = msg->dataSize;
-  FDEBUG(10) << "StorageManager: received DQM frame size = " << len << std::endl;
-
-  // check the storage Manager is in the Ready state first!
-  if(fsm_->stateName_ != "Enabled")
-  {
-    LOG4CPLUS_ERROR(this->getApplicationLogger(),
-                       "Received DQM message but not in Enabled state! Current state = "
-                       << fsm_->stateName_.toString() << " DQMMessage from" << msg->hltURL
-                       << " application " << msg->hltClassName);
-    // just release the memory at least - is that what we want to do?
-    ref->release();
-    return;
-  }
-
-  // If running with local transfers, a chain of I2O frames when posted only has the
-  // head frame sent. So a single frame can complete a chain for local transfers.
-  // We need to test for this. Must be head frame, more than one frame
-  // and next pointer must exist.
-  // -- we have to break chains due to the way the FragmentCollector frees memory
-  //    for each frame after processing each as the freeing a chain frees all memory
-  //    in the chain
-  int is_local_chain = 0;
-  if(msg->frameCount == 0 && msg->numFrames > 1 && ref->getNextReference())
-  {
-    // this looks like a chain of frames (local transfer)
-    toolbox::mem::Reference *head = ref;
-    toolbox::mem::Reference *next = 0;
-    // best to check the complete chain just in case!
-    unsigned int tested_frames = 1;
-    next = head;
-    while((next=next->getNextReference())!=0) ++tested_frames;
-    FDEBUG(10) << "StorageManager: DQM Head frame has " << tested_frames-1
-               << " linked frames out of " << msg->numFrames-1 << std::endl;
-    if(msg->numFrames == tested_frames)
-    {
-      // found a complete linked chain from the leading frame
-      is_local_chain = 1;
-      FDEBUG(10) << "StorageManager: Leading frame contains a complete linked chain"
-                 << " - must be local transfer" << std::endl;
-      FDEBUG(10) << "StorageManager: Breaking the chain" << std::endl;
-      // break the chain and feed them to the fragment collector
-      next = head;
-
-      for(int iframe=0; iframe <(int)msg->numFrames; ++iframe)
-      {
-         toolbox::mem::Reference *thisref=next;
-         next = thisref->getNextReference();
-         thisref->setNextReference(0);
-         I2O_MESSAGE_FRAME         *thisstdMsg = (I2O_MESSAGE_FRAME*)thisref->getDataLocation();
-         I2O_SM_DQM_MESSAGE_FRAME *thismsg    = (I2O_SM_DQM_MESSAGE_FRAME*)thisstdMsg;
-         EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-         int thislen = thismsg->dataSize;
-         // ***  must give it the 1 of N for this fragment (starts from 0 in i2o header)
-         new (b.buffer()) stor::FragEntry(thisref, (char*)(thismsg->dataPtr()), thislen,
-                  thismsg->frameCount+1, thismsg->numFrames, Header::DQM_EVENT, 
-                  thismsg->runID, thismsg->eventAtUpdateID, thismsg->folderID);
-         b.commit(sizeof(stor::FragEntry));
-
-         ++receivedFrames_;
-         // for bandwidth performance measurements
-         // Following is wrong for the last frame because frame sent is
-         // is actually larger than the size taken by actual data
-         unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
-                                         +thislen;
-         addMeasurement(actualFrameSize);
-
-         // no FU sender list update yet for DQM data, should add it here
-      }
-
-    } else {
-      // should never get here!
-      FDEBUG(10) << "StorageManager: DQM Head frame has fewer linked frames "
-                 << "than expected: abnormal error! " << std::endl;
-      LOG4CPLUS_ERROR(this->getApplicationLogger(),"DQM Head frame has fewer linked frames" 
-                      << " than expected: abnormal error! ");
-    }
-  }
-
-  if (is_local_chain == 0) 
-  {
-    // put pointers into fragment collector queue
-    EventBuffer::ProducerBuffer b(jc_->getFragmentQueue());
-    // must give it the 1 of N for this fragment (starts from 0 in i2o header)
-    /* stor::FragEntry* fe = */ new (b.buffer()) stor::FragEntry(ref, (char*)(msg->dataPtr()), len,
-                                msg->frameCount+1, msg->numFrames, Header::DQM_EVENT, 
-                                msg->runID, msg->eventAtUpdateID, msg->folderID);
-    b.commit(sizeof(stor::FragEntry));
-    // Frame release is done in the deleter.
-    ++receivedFrames_;
-    // for bandwidth performance measurements
-    unsigned long actualFrameSize = (unsigned long)sizeof(I2O_SM_DQM_MESSAGE_FRAME)
-                                    + len;
-    addMeasurement(actualFrameSize);
-
-    // no FU sender list update yet for DQM data, should add it here
-  }
 }
 
 //////////// ***  Performance //////////////////////////////////////////////////////////

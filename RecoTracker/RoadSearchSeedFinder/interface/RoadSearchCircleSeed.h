@@ -14,15 +14,15 @@
 // Created:         Mon Jan 22 21:42:35 UTC 2007
 //
 // $Author: gutsche $
-// $Date: 2006/09/08 19:26:18 $
-// $Revision: 1.11 $
+// $Date: 2007/02/05 19:26:14 $
+// $Revision: 1.1 $
 //
 
 #include <utility>
 #include <vector>
 #include <iosfwd>
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 

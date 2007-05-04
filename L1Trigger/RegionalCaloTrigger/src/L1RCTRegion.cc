@@ -1,5 +1,13 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
 
+#include <vector>
+using std::vector;
+
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
+
 L1RCTRegion::L1RCTRegion() : totalRegionEt(36),
 			     totalRegionHE_FG(36),
 			     etIn9Bits(16),

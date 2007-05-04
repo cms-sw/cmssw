@@ -19,6 +19,7 @@ float L1RCTLookupTables::eMaxForFGCut_ = 50.;
 float L1RCTLookupTables::hOeCut_ = 0.05;
 float L1RCTLookupTables::eGammaLSB_ = 0.5;
 float L1RCTLookupTables::jetMETLSB_ = 0.5;
+float L1RCTLookupTables::eGammaSCF_[32] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 
 // constructor
 
@@ -62,7 +63,7 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
   int iEta = L1RCT::calcIEta(crtNo, crdNo, twrNo);
   int iAbsEta = abs(iEta);
   if(iAbsEta < 1 || iAbsEta > 28) throw cms::Exception("Invalid Data") << "1 <= |IEta| <= 28, is " << iAbsEta;
-  float ecalLinear = convertEcal(ecal);
+  float ecalLinear = convertEcal(ecal, iAbsEta);
   float hcalLinear;
   if(useTranscoder_) hcalLinear = transcoder_->hcaletValue(iAbsEta, hcal);
   else hcalLinear = hcal;
@@ -81,8 +82,8 @@ unsigned long L1RCTLookupTables::lookup(unsigned short ecal,unsigned short hcal,
 }
 
 // converts compressed ecal energy to linear (real) scale
-float L1RCTLookupTables::convertEcal(unsigned short ecal){
-  return ((float) ecal) * eGammaLSB_;
+float L1RCTLookupTables::convertEcal(unsigned short ecal, int iAbsEta){
+  return ((float) ecal) * eGammaLSB_ * eGammaSCF_[iAbsEta];
 }
 
 // calculates activity bit for each tower - assume that noise is well suppressed
@@ -90,11 +91,20 @@ unsigned short L1RCTLookupTables::calcActivityBit(float ecal, float hcal){
   return ((ecal > eActivityCut_) || (hcal > hActivityCut_));
 }
 
-// calculates h-over-e veto bit (true if hcal/ecal energy > 5%)
+// Calculates h-over-e veto bit (true if hcal/ecal energy > hOeCut)
+// Uses finegrain veto only if the energy is within eActivityCut and eMaxForFGCut
 unsigned short L1RCTLookupTables::calcHEBit(float ecal, float hcal, bool fgbit){
-  if((ecal > eActivityCut_) && (hcal/ecal)>hOeCut_) return fgbit;
-  if((ecal > eMaxForFGCut_) && (hcal/ecal)>hOeCut_) return true;
-  return false;
+  bool veto = false;
+  if(ecal > eMaxForFGCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+    }
+  else if(ecal > eActivityCut_)
+    {
+      if((hcal/ecal) > hOeCut_) veto = true;
+      if(fgbit) veto = true;
+    }
+  return veto;
 }
 
 // integerize given an LSB and set maximum value of 2^precision
@@ -132,6 +142,9 @@ void L1RCTLookupTables::loadLUTConstants(const std::string& filename)
       userfile >> junk >> jetMETLSB_;
       std::cout << "L1RCTLookupTables: Using jetMETLSB = " 
 		<< jetMETLSB_ << std::endl;
+      userfile >> junk;
+      for(int i = 0; i < 26; i++) userfile >> eGammaSCF_[i];
+      for(int i = 26; i < 32; i++) eGammaSCF_[i] = eGammaSCF_[i-1];
       userfile.close();
     }
   else 

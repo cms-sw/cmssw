@@ -1,17 +1,15 @@
 #ifndef IOMC_BaseEvtVtxGenerator_H
 #define IOMC_BaseEvtVtxGenerator_H
 /*
-*   $Date: 2006/11/07 19:38:31 $
-*   $Revision: 1.2 $
+*   $Date: 2006/09/29 17:02:11 $
+*   $Revision: 1.1 $
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
-/*
 namespace HepMC {
    class GenEvent;
 }
-*/
 
 namespace CLHEP {
    class Hep3Vector;
@@ -29,7 +27,7 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    virtual void produce( edm::Event&, const edm::EventSetup& );
       
    virtual CLHEP::Hep3Vector * newVertex() = 0;
-   /** This method - and the comment - is a left-over from COBRA-OSCAR time :
+   /** This methid - and the comment - is a left-over from COBRA-OSCAR time :
     *  return the last generated event vertex.
     *  If no vertex has been generated yet, a NULL pointer is returned. */
    virtual CLHEP::Hep3Vector * lastVertex() { return fVertex; }
@@ -46,6 +44,8 @@ class BaseEvtVtxGenerator : public edm::EDProducer
    CLHEP::Hep3Vector*       fVertex;
 
    private :
+
+   HepMC::GenEvent*         fEvt;
 
    CLHEP::HepRandomEngine*  fEngine;
 };

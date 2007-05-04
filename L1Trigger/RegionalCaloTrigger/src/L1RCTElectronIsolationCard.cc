@@ -1,5 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTElectronIsolationCard.h"
 
+#include <iostream>
+#include <iomanip>
+
 L1RCTElectronIsolationCard::L1RCTElectronIsolationCard(int crateNumber,
 						       int cardNumber) :
   crtNo(crateNumber),cardNo(cardNumber),isoElectrons(2),nonIsoElectrons(2),
@@ -13,8 +16,8 @@ L1RCTElectronIsolationCard::~L1RCTElectronIsolationCard(){}
 
 
 void L1RCTElectronIsolationCard::fillElectronCandidates(){
-  vector<unsigned short> region0Electrons = calcElectronCandidates(regions.at(0));
-  vector<unsigned short> region1Electrons = calcElectronCandidates(regions.at(1));
+  std::vector<unsigned short> region0Electrons = calcElectronCandidates(regions.at(0));
+  std::vector<unsigned short> region1Electrons = calcElectronCandidates(regions.at(1));
   isoElectrons.at(0) = region0Electrons.at(0);
   isoElectrons.at(1) = region1Electrons.at(0);
   nonIsoElectrons.at(0) = region0Electrons.at(1);
@@ -28,7 +31,7 @@ void L1RCTElectronIsolationCard::fillElectronCandidates(){
 //not on and it is higher energy than it's direct four neighbors.
 //An electron candidate is *always* a non-isolated electron.
 //If it also passes the neighbor cuts then it is an isolated electron as well.
-vector<unsigned short>
+std::vector<unsigned short>
 L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
   
   unsigned short nonIsoElectron = 0;
@@ -100,12 +103,15 @@ L1RCTElectronIsolationCard::calcElectronCandidates(L1RCTRegion* region){
 	}
 	else if(candidateEt > nonIsoElectron)
 	  nonIsoElectron = candidateEt;
+
+	bool isolated = !(quietVeto || neighborVeto);
+	
       }
     }
   }
 
   
-  vector<unsigned short> candidates;
+  std::vector<unsigned short> candidates;
   unsigned short fullIsoElectron = isoElectron*16 + cardNo*2;  // leaves room for last bit -- region number, added in Crate.cc
   candidates.push_back(fullIsoElectron);
   unsigned short fullNonIsoElectron = nonIsoElectron*16 + cardNo*2;  // leaves room for region info in last bit
@@ -129,16 +135,16 @@ L1RCTElectronIsolationCard::calcMaxSum(unsigned short primaryEt,unsigned short n
 }
 
 void L1RCTElectronIsolationCard::print() {
-  cout << "Electron isolation card " << cardNo << endl;
-  cout << "Region 0 Information" << endl;
+  std::cout << "Electron isolation card " << cardNo << std::endl;
+  std::cout << "Region 0 Information" << std::endl;
   regions.at(0)->print();
 
-  cout << "IsoElectron Candidate " << isoElectrons.at(0) << endl;
-  cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(0) << endl << endl;
+  std::cout << "IsoElectron Candidate " << isoElectrons.at(0) << std::endl;
+  std::cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(0) << std::endl << std::endl;
 
-  cout << "Region 1 Information" << endl;
+  std::cout << "Region 1 Information" << std::endl;
   regions.at(1)->print();
 
-  cout << "IsoElectron Candidate " << isoElectrons.at(1) << endl;
-  cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(1) << endl;
+  std::cout << "IsoElectron Candidate " << isoElectrons.at(1) << std::endl;
+  std::cout << "NonIsoElectron Candidate " << nonIsoElectrons.at(1) << std::endl;
 }

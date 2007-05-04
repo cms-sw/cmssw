@@ -29,8 +29,7 @@ class SiStripRawToDigiUnpacker {
   
   /** */
   SiStripRawToDigiUnpacker( int16_t appended_bytes, 
-			    int16_t fed_buffer_dump_freq, 
-			    int16_t fed_event_dump_freq, 
+			    int16_t dump_frequency, 
 			    int16_t trigger_fed_id,
 			    bool    using_fed_key );
   /** */
@@ -56,8 +55,7 @@ class SiStripRawToDigiUnpacker {
   
   /** */
   void triggerFed( const FEDRawDataCollection&, 
-		   SiStripEventSummary&,
-		   const uint32_t& event );
+		   SiStripEventSummary& );
 
  private:
   
@@ -81,8 +79,7 @@ class SiStripRawToDigiUnpacker {
  private:
   
   int16_t headerBytes_;
-  int16_t fedBufferDumpFreq_;
-  int16_t fedEventDumpFreq_;
+  int16_t dumpFrequency_;
   int16_t triggerFedId_;
   bool    useFedKey_;
   

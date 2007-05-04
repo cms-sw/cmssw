@@ -9,14 +9,14 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAnalyzer.h,v 1.4 2006/10/27 15:04:04 uberthon Exp $
+// $Id: PixelMatchElectronAnalyzer.h,v 1.5 2007/01/26 13:05:02 uberthon Exp $
 //
 //
   
   
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

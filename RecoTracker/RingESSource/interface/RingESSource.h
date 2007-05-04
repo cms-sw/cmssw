@@ -12,8 +12,8 @@
 // Created:         Thu Oct  5 01:35:14 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/01/15 00:59:13 $
-// $Revision: 1.2 $
+// $Date: 2007/02/05 19:01:45 $
+// $Revision: 1.1 $
 //
 
 // system include files
@@ -53,6 +53,8 @@ class RingESSource : public edm::ESProducer, public edm::EventSetupRecordInterva
 
   // ----------member data ---------------------------
   std::string fileName_;
+  Rings *rings_;
+  
 };
 
 #endif

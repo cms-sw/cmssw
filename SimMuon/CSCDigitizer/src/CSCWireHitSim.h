@@ -11,7 +11,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "Geometry/Vector/interface/LocalPoint.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class CSCDriftSim;
 class CSCLayer;
@@ -30,8 +29,6 @@ public:
   std::vector<CSCDetectorHit> & simulate(const CSCLayer * layer, 
 				    const edm::PSimHitContainer & simHits);
  
-  void setParticleDataTable(const ParticleDataTable * pdt);
-
 private:
   // Helper functions
   std::vector<Local3DPoint> getIonizationClusters(const PSimHit & hit, 

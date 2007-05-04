@@ -60,6 +60,20 @@ L1MuDTChambThDigi::L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
   }
 }
 
+L1MuDTChambThDigi::L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
+                                      int* upos ) {
+
+  bx              = ubx;
+  wheel           = uwh;
+  sector          = usc;
+  station         = ust;
+
+  for(int i=0;i<7;i++) {
+    m_outPos[i] = upos[i];
+    m_outQual[i] = 0;
+  }
+}
+
 //--------------
 // Destructor --
 //--------------

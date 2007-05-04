@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTPG.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 L1TRPCTPG::L1TRPCTPG(const ParameterSet& ps)
-  : rpctpgSource_( ps.getParameter< InputTag >("rpctpgSource") )
 {
 
   // verbosity switch
