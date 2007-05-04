@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.9 2007/03/27 09:06:03 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.10 2007/03/27 09:21:15 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -46,6 +46,7 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   int chargeTimesThree( int ) const;
 };
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -85,9 +86,13 @@ int FastGenParticleCandidateProducer::chargeTimesThree( int id ) const {
   if( abs( id ) < PDGCacheMax ) 
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
-  if ( f == chargeMap_.end() )
-    throw edm::Exception( edm::errors::InvalidReference ) 
-      << "invalid PDG id: " << id << endl;
+  if ( f == chargeMap_.end() ) {
+    edm::LogWarning  ("MCConversionError")
+      << ">>> *** WARNING *** invalid PDG id: " << id 
+      << " detected in conversion to GenParticleCandidates.\n" 
+      << ">>> Setting particle charge to zero" << endl;
+    return 0;
+  }
   return f->second;
 }
 
