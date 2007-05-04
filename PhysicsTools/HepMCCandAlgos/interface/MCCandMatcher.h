@@ -17,6 +17,8 @@ public:
 private:
   /// get ultimate daughter skipping status = 3
   virtual std::vector<const reco::Candidate *> getDaughters( const reco::Candidate * ) const;
+  /// composite candidate preselection
+  virtual bool compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const;
 };
 
 #include "PhysicsTools/HepMCCandAlgos/interface/MCCandMatcher.h"
@@ -56,6 +58,20 @@ std::vector<const reco::Candidate *> MCCandMatcher<C>::getDaughters( const reco:
     }
   }
   return v;
+}
+
+template<typename C>
+bool MCCandMatcher<C>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
+  // IMPORTANT: select a mother if the number 
+  // daughters of c is <= the number of daughters
+  // of the matched mom. This is needed because
+  // status 3 particles decay in more dummy
+  // particles (e.g.: Z0(3)->e+(3)e-(3)Z0(2) or similar)
+  // This has the effect, for instance, that a decay
+  // like: a10 -> pi+ pi- pi0 is matched to
+  // the reconstructed decay rho0 -> pi+ pi-
+  return( c.numberOfDaughters() <= m.numberOfDaughters() && 
+	  c.charge() == m.charge() );
 }
 
 #endif

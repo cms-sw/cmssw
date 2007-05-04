@@ -32,6 +32,8 @@ public:
 protected:
   /// get ultimate daughter (can skip status = 3 in MC)
   virtual std::vector<const reco::Candidate *> getDaughters( const reco::Candidate * ) const = 0;
+  /// composite candidate preselection
+  virtual bool compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const = 0;
   /// init maps
   void initMaps( const std::vector<const map_type *> & maps );
 
@@ -63,6 +65,8 @@ public:
 protected:
   /// get ultimate daughter (get all in the general case)
   virtual std::vector<const reco::Candidate *> getDaughters( const reco::Candidate * ) const;
+  /// composite candidate preselection
+  virtual bool compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const;
 };
 
 #include <algorithm>
@@ -125,46 +129,56 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
   unsigned int nDau = c.numberOfDaughters();
   const CandidateCollection & matched = * matched_;
   if ( nDau > 0 ) {
-    vector<size_t> moms;
+    // check for composite candidate c
+    // navigate to daughters and find parent matches
+    vector<size_t> momsIntersection, momDaughters, tmp;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
       // check here generically if status == 3, then descend down to one more level
-      CandidateRef mom = (*this)( * d );
-      if ( mom.isNull() ) return CandidateRef();
-      size_t mk = mom.key();
-      const vector<size_t> & allMomd = matchedMothers_[ mk ];
-      vector<size_t> momd;
-      for( size_t k = 0; k < allMomd.size(); ++ k ) {
-	size_t mom = allMomd[ k ];
-	if( nDau <= matched[ mom ].numberOfDaughters() )
-	  momd.push_back( mom );
+      CandidateRef m = (*this)( * d );
+      // if a daughter does not match, return a null ref.
+      if ( m.isNull() ) return CandidateRef();
+      // get matched mother indices (fetched previously)
+      const vector<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
+      momDaughters.clear();
+      for( vector<size_t>::const_iterator k = allMomDaughters.begin(); 
+	   k != allMomDaughters.end(); ++ k ) {
+	size_t m = * k;
+	if( compositePreselect( c, matched[ m ] ) )
+	  momDaughters.push_back( m );
       }
-      if ( moms.size() == 0 ) moms = momd;
+      // if no mother was found return null reference
+      if ( momDaughters.size() == 0 ) return CandidateRef();
+      // the first time, momsIntersection is set to momDaughters
+      if ( momsIntersection.size() == 0 ) momsIntersection = momDaughters;
       else {
-	vector<size_t> tmp;
-	set_intersection( moms.begin(), moms.end(),
-			  momd.begin(), momd.end(),
+	tmp.clear();
+	set_intersection( momsIntersection.begin(), momsIntersection.end(),
+			  momDaughters.begin(), momDaughters.end(),
 			  back_insert_iterator<vector<size_t> >( tmp ) );
-	swap( moms, tmp );
+	swap( momsIntersection, tmp );
       }
-      if ( moms.size() == 0 ) return CandidateRef();
+      if ( momsIntersection.size() == 0 ) return CandidateRef();
     }
-    if ( moms.size() > 1 ) return CandidateRef();
-    return CandidateRef( matched_, moms.front() );
-  }
-
-  for( typename std::vector<const map_type *>::const_iterator m = maps_.begin(); 
-       m != maps_.end(); ++ m ) {
-    typename CandRefMap::const_iterator f = candRefs_.find( & c );
-    if ( f != candRefs_.end() ) {
-      reference_type ref = f->second;
-      typename map_type::const_iterator f = (*m)->find( ref );
-      if ( f != (*m)->end() ) {
-	return f->val;
+    // if multiple mothers are found, return a null reference
+    if ( momsIntersection.size() > 1 ) return CandidateRef();
+    // return a reference to the unique mother
+    return CandidateRef( matched_, momsIntersection.front() );
+  } else {
+    // check for non-composite (leaf) candidate 
+    // if one of the maps contains the candidate c
+    for( typename std::vector<const map_type *>::const_iterator m = maps_.begin(); 
+	 m != maps_.end(); ++ m ) {
+      typename CandRefMap::const_iterator f = candRefs_.find( & c );
+      if ( f != candRefs_.end() ) {
+	reference_type ref = f->second;
+	typename map_type::const_iterator f = (*m)->find( ref );
+	if ( f != (*m)->end() ) {
+	  return f->val;
+	}
       }
     }
+    return CandidateRef();
   }
-  
-  return CandidateRef();
 }
 
 template<typename C>
@@ -182,6 +196,12 @@ std::vector<const reco::Candidate *> CandMatcher<C>::getDaughters( const reco::C
   std::vector<const reco::Candidate *> v;
   v.push_back( c );
   return v;
+}
+
+template<typename C>
+bool CandMatcher<C>::compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const {
+  // By default, check that the number of daughters is identical
+  return( c.numberOfDaughters() == m.numberOfDaughters() );
 }
 
 #endif
