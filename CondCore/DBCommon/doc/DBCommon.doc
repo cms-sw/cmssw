@@ -24,7 +24,6 @@ Central base package encapsulates the interaction with databases.
 - ConfigSessionFromParameterSet
 - ConnectionConfiguration
 - ConnectMode
-- ConnectStringParser
 - ContainerIterator
 - DBSession
 - Exception
@@ -49,7 +48,6 @@ testGenericCondObjCopy: test copy objects by token <br>
 testTokenBuilder: test building pool token by external parameters <br>
 testContainerIterator: test container iterator functionality <br>
 testServiceLoader: test serviceloader <br>
-testConnectStringParser: test logical connection parser <br>
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
