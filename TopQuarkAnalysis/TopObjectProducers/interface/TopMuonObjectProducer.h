@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMuonObjectProducer.h,v 1.1 2007/04/30 10:51:22 heyninck Exp $
+// $Id: TopMuonObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
 //
 //
 
@@ -32,6 +32,11 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopMuonObject.h"
 
 #include <vector>
+#include <string>
+
+
+class TopLeptonLRCalc;
+
 
 using namespace std;
 using namespace edm;
@@ -52,6 +57,10 @@ class TopMuonObjectProducer : public edm::EDProducer {
      double muonEtacut_;
      double muonLRcut_;
      bool   addResolutions_;  
+     bool   addLRValues_;
+     string muonLRFile_;
+
+     TopLeptonLRCalc * theLeptonLRCalc_;
         
      struct ComparePtMuon {
        bool operator()( TopMuonObject m1, TopMuonObject m2 ) const {

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopElectronObjectProducer.h,v 1.1 2007/04/30 10:51:22 heyninck Exp $
+// $Id: TopElectronObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
 //
 //
 
@@ -32,6 +32,11 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopElectronObject.h"
 
 #include <vector>
+#include <string>
+
+
+class TopLeptonLRCalc;
+
 
 using namespace std;
 using namespace edm;
@@ -51,7 +56,11 @@ class TopElectronObjectProducer : public edm::EDProducer {
      double electronPTcut_;
      double electronEtacut_;
      double electronLRcut_;
-     bool   addResolutions_;  
+     bool   addResolutions_;
+     bool   addLRValues_;
+     string electronLRFile_;
+
+     TopLeptonLRCalc * theLeptonLRCalc_;
      
      struct ComparePtElectron {
        bool operator()( TopElectronObject e1, TopElectronObject e2 ) const {
