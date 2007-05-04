@@ -12,8 +12,8 @@ process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidatesFast.cfi
 # include "PhysicsTools/HepMCCandAlgos/test/h4l.cff"
 # include "PhysicsTools/HepMCCandAlgos/test/herwig.cff"
 
-process.add_(Service("RandomNumberGeneratorService",
-             sourceSeed= untracked.uint32( 123456789 )))
+process.add_( Service("RandomNumberGeneratorService",
+              sourceSeed= untracked.uint32( 123456789 ) ) )
 
 process.maxEvents = untracked.PSet( input = untracked.int32(50) )
 
@@ -21,12 +21,12 @@ from h4l import pythiaSource
 
 process.source = pythiaSource
 
-process.out = OutputModule("PoolOutputModule",
-  fileName = untracked.string("genevents.root"),
+process.out = OutputModule( "PoolOutputModule",
+  fileName = untracked.string( "genevents.root" ),
   outputCommands= untracked.vstring(
     "drop *",
     "keep *_genParticleCandidates_*_*"
- )
+  )
 )
   
 process.printEventNumber = OutputModule( "AsciiOutputModule" )
