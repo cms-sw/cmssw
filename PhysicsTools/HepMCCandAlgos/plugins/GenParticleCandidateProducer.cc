@@ -85,7 +85,6 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   int chargeTimesThree( int ) const;
 };
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
@@ -131,10 +130,8 @@ int GenParticleCandidateProducer::chargeTimesThree( int id ) const {
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
   if ( f == chargeMap_.end() )
-    edm::LogWarning  ("MCConversionError")
-      << ">>> *** WARNING *** invalid PDG id: " << id 
-      << " detected in conversion to GenParticleCandidates.\n" 
-      << ">>> Setting particle charge to zero" << endl;
+    throw edm::Exception( edm::errors::LogicError ) 
+      << "invalid PDG id: " << id << endl;
   return f->second;
 }
 

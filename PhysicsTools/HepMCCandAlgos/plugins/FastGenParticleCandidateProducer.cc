@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.10 2007/03/27 09:21:15 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.12 2007/05/04 13:44:19 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -86,7 +86,7 @@ int FastGenParticleCandidateProducer::chargeTimesThree( int id ) const {
     return id > 0 ? chargeP_[ id ] : chargeM_[ - id ];
   map<int, int>::const_iterator f = chargeMap_.find( id );
   if ( f == chargeMap_.end() )
-    throw edm::Exception( edm::errors::InvalidReference ) 
+    throw edm::Exception( edm::errors::LogicError ) 
       << "invalid PDG id: " << id << endl;
   return f->second;
 }
