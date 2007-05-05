@@ -6,8 +6,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store map between detector ID, electronics ID and trigger ID
 $Author: ratnikov
-$Date: 2007/02/12 21:21:58 $
-$Revision: 1.12 $
+$Date: 2007/02/19 04:06:34 $
+$Revision: 1.13 $
 */
 
 #include <vector>
@@ -19,7 +19,7 @@ $Revision: 1.12 $
 #include "DataFormats/HcalDetId/interface/HcalCalibDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
-
+#include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 // 
 class HcalElectronicsMap {
  public:
@@ -43,43 +43,50 @@ class HcalElectronicsMap {
   const HcalElectronicsId lookupTrigger(DetId fId) const;
 
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/fiber/fiberchan) id
-  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, DetId& did) const;
+  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, HcalGenericDetId& did) const;
+  /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/slb/slbchan) id
+  bool lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const;
 
   std::vector <HcalElectronicsId> allElectronicsId () const;
-  std::vector <DetId> allDetectorId () const;
-  std::vector <HcalDetId> allHcalDetectorId () const;
-  std::vector <HcalCalibDetId> allCalibrationId () const;
+  std::vector <HcalGenericDetId> allPrecisionId () const;
   std::vector <HcalTrigTowerDetId> allTriggerId () const;
 
   // map channels
-  bool setMapping (DetId fId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
   bool mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId);
   bool mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId);
   // sorting
   void sortById () const;
-  void sortByElectronicsId ();
   void sortByTriggerId () const;
-  void sort () {sortByElectronicsId ();}
-  class Item { 
+  void sort() {}
+
+  class PrecisionItem { 
   public:
-    Item () {mId = mElId = mTrigId = 0;}
-    Item (uint32_t fId, uint32_t fElId, uint32_t fTrigId) 
-      : mId (fId), mElId (fElId), mTrigId (fTrigId) {}
+    PrecisionItem () {mId = mElId = 0;}
+    PrecisionItem (uint32_t fId, uint32_t fElId) 
+      : mId (fId), mElId (fElId) {}
     uint32_t mId;
     uint32_t mElId;
+  };
+  class TriggerItem { 
+  public:
+    TriggerItem () {mElId = mTrigId = 0;}
+    TriggerItem (uint32_t fTrigId, uint32_t fElId) 
+      : mTrigId (fTrigId), mElId (fElId) { }
     uint32_t mTrigId;
+    uint32_t mElId;
   };
  protected:
-  void sortByPartialEId () const;
-  const Item* findById (unsigned long fId) const;
-  const Item* findByElId (unsigned long fElId) const;
-  const Item* findByTrigId (unsigned long fTrigId) const;
-  const Item* findByPartialEId (unsigned long fTrigId) const;
+  const PrecisionItem* findById (unsigned long fId) const;
+  const PrecisionItem* findPByElId (unsigned long fElId) const;
+  const TriggerItem* findTByElId (unsigned long fElId) const;
+  const TriggerItem* findByTrigId (unsigned long fTrigId) const;
   
-  std::vector<Item> mItems;
-  mutable std::vector<const Item*> mItemsById;
-  mutable std::vector<const Item*> mItemsByTrigId;
-  mutable std::vector<const Item*> mItemsByPartialEId;
+  std::vector<PrecisionItem> mPItems;
+  std::vector<TriggerItem> mTItems;
+  mutable std::vector<const PrecisionItem*> mPItemsById;
+  mutable bool sortedByPId;
+  mutable std::vector<const TriggerItem*> mTItemsByTrigId;
+  mutable bool sortedByTId;
 };
 
 #endif

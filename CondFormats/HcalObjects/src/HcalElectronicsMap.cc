@@ -3,8 +3,8 @@
 \author Fedor Ratnikov (UMd)
 POOL object to store mapping for Hcal channels
 $Author: ratnikov
-$Date: 2007/02/19 23:33:42 $
-$Revision: 1.17 $
+$Date: 2007/04/16 14:18:29 $
+$Revision: 1.18 $
 */
 
 #include <iostream>
@@ -14,155 +14,119 @@ $Revision: 1.17 $
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "CondFormats/HcalObjects/interface/HcalElectronicsMap.h"
 
-HcalElectronicsMap::HcalElectronicsMap() 
+HcalElectronicsMap::HcalElectronicsMap() : 
+  mPItems(HcalElectronicsId::maxLinearIndex+1),
+  mTItems(HcalElectronicsId::maxLinearIndex+1),
+  sortedByPId(false),
+  sortedByTId(false)
 {}
 
 namespace hcal_impl {
-  static const int PartialEIdMask = 0x3fff;
-    class LessById {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mId < b->mId;}};
-    class LessByPartialEId {
-    public: 
-      bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {
-	return (a->mElId&PartialEIdMask) < (b->mElId&PartialEIdMask);
-      }
-    };
-    class LessByElId {public: 
-      bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mElId < b->mElId;}
-      bool operator () (const HcalElectronicsMap::Item& a, const HcalElectronicsMap::Item& b) {return a.mElId < b.mElId;}
-    };
-    class LessByTrigId {public: bool operator () (const HcalElectronicsMap::Item* a, const HcalElectronicsMap::Item* b) {return a->mTrigId < b->mTrigId;}};
+  class LessById {public: bool operator () (const HcalElectronicsMap::PrecisionItem* a, const HcalElectronicsMap::PrecisionItem* b) {return a->mId < b->mId;}};
+  class LessByTrigId {public: bool operator () (const HcalElectronicsMap::TriggerItem* a, const HcalElectronicsMap::TriggerItem* b) {return a->mTrigId < b->mTrigId;}};
 }
 
 HcalElectronicsMap::~HcalElectronicsMap(){}
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findById (unsigned long fId) const {
-  Item target (fId, 0, 0);
-  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
+const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findById (unsigned long fId) const {
+  PrecisionItem target (fId, 0);
+  std::vector<const HcalElectronicsMap::PrecisionItem*>::const_iterator item;
 
-  if (mItemsById.size()!=mItems.size()) sortById();
+  if (!sortedByPId) sortById();
   
-  item = std::lower_bound (mItemsById.begin(), mItemsById.end(), &target, hcal_impl::LessById());
-  if (item == mItemsById.end() || (*item)->mId != fId) 
+  item = std::lower_bound (mPItemsById.begin(), mPItemsById.end(), &target, hcal_impl::LessById());
+  if (item == mPItemsById.end() || (*item)->mId != fId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByPartialEId (unsigned long fElId) const {
-  Item target (0, fElId, 0);
-  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
-
-  if (mItemsByPartialEId.size()!=mItems.size()) sortByPartialEId();
+const HcalElectronicsMap::PrecisionItem* HcalElectronicsMap::findPByElId (unsigned long fElId) const {
+  HcalElectronicsId eid(fElId);
+  const PrecisionItem* i=&(mPItems[eid.linearIndex()]);
   
-  item = std::lower_bound (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), &target, hcal_impl::LessByPartialEId());
-  if (item == mItemsByPartialEId.end() || ((*item)->mElId&hcal_impl::PartialEIdMask) != (fElId&hcal_impl::PartialEIdMask))
-    //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
-    return 0;
-  return *item;
+  if (i!=0 && i->mElId!=fElId) i=0;
+  return i;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByElId (unsigned long fElId) const {
-  Item target (0, fElId, 0);
-  std::vector<HcalElectronicsMap::Item>::const_iterator item;
-
-  item = std::lower_bound (mItems.begin(), mItems.end(), target, hcal_impl::LessByElId ());
-  if (item == mItems.end() || item->mElId != fElId)
-    // throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for e-cell " << fElId;
-    return 0;
-  return &*item;
+const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findTByElId (unsigned long fElId) const {
+  HcalElectronicsId eid(fElId);
+  const TriggerItem* i=&(mTItems[eid.linearIndex()]);
+  
+  if (i!=0 && i->mElId!=fElId) i=0;
+  return i;
 }
 
-const HcalElectronicsMap::Item* HcalElectronicsMap::findByTrigId (unsigned long fTrigId) const {
-  Item target (0, 0, fTrigId);
-  std::vector<const HcalElectronicsMap::Item*>::const_iterator item;
 
-  if (mItemsByTrigId.size()!=mItems.size()) sortByTriggerId();
+const HcalElectronicsMap::TriggerItem* HcalElectronicsMap::findByTrigId (unsigned long fTrigId) const {
+  TriggerItem target (fTrigId,0);
+  std::vector<const HcalElectronicsMap::TriggerItem*>::const_iterator item;
+
+  if (!sortedByTId) sortByTriggerId();
   
-  item = std::lower_bound (mItemsByTrigId.begin(), mItemsByTrigId.end(), &target, hcal_impl::LessByTrigId());
-  if (item == mItemsByTrigId.end() || (*item)->mTrigId != fTrigId) 
+  item = std::lower_bound (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), &target, hcal_impl::LessByTrigId());
+  if (item == mTItemsByTrigId.end() || (*item)->mTrigId != fTrigId) 
     //    throw cms::Exception ("Conditions not found") << "Unavailable Electronics map for cell " << fId;
     return 0;
   return *item;
 }
 
 const DetId HcalElectronicsMap::lookup(HcalElectronicsId fId ) const {
-  const Item* item = findByElId (fId.rawId ());
+  const PrecisionItem* item = findPByElId (fId.rawId ());
   return DetId (item ? item->mId : 0);
 }
 
 const HcalElectronicsId HcalElectronicsMap::lookup(DetId fId) const {
-  const Item* item = findById (fId.rawId ());
+  const PrecisionItem* item = findById (fId.rawId ());
   return HcalElectronicsId (item ? item->mElId : 0);
 }
 
 const DetId HcalElectronicsMap::lookupTrigger(HcalElectronicsId fId) const {
-  const Item* item = findByElId (fId.rawId ());
+  const TriggerItem* item = findTByElId (fId.rawId ());
   return DetId (item ? item->mTrigId : 0);
 }
 
 const HcalElectronicsId HcalElectronicsMap::lookupTrigger(DetId fId) const {
-  const Item* item = findByTrigId (fId.rawId ());
+  const TriggerItem* item = findByTrigId (fId.rawId ());
   return HcalElectronicsId (item ? item->mElId : 0);
 }
 
-bool HcalElectronicsMap::lookup(const HcalElectronicsId pId, HcalElectronicsId& eid, DetId& did) const {
-  const Item* item = findByPartialEId (pId.rawId ());
-  if (item!=0) {
-    eid=HcalElectronicsId(item->mElId);
-    did=DetId(item->mId);
-  }
-  return (item!=0);
+bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& eid, HcalGenericDetId& did) const {
+  const PrecisionItem* i=&(mPItems[pid.linearIndex()]);
+  if (i!=0 && i->mId!=0) {
+    eid=HcalElectronicsId(i->mElId);
+    did=HcalGenericDetId(i->mId);
+    return true;
+  } else return false;
 }
 
-bool HcalElectronicsMap::setMapping (DetId fId, HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
-  Item item (fId.rawId (), fElectronicsId.rawId (), fTriggerId.rawId ());
-  mItems.push_back (item);
-  return true;
+bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& eid, HcalTrigTowerDetId& did) const {
+  const TriggerItem* i=&(mTItems[pid.linearIndex()]);
+  if (i!=0 && i->mTrigId!=0) {
+    eid=HcalElectronicsId(i->mElId);
+    did=HcalGenericDetId(i->mTrigId);
+    return true;
+  } else return false;  
 }
+
 
 std::vector <HcalElectronicsId> HcalElectronicsMap::allElectronicsId () const {
   std::vector <HcalElectronicsId> result;
-  std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++) 
-    if (item->mElId) allIds.insert (item->mElId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
-    result.push_back (HcalElectronicsId (*channel));
+  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
+    if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
+  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
+    if (item->mElId) result.push_back(HcalElectronicsId(item->mElId));
+
   return result;
 }
 
-std::vector <DetId> HcalElectronicsMap::allDetectorId () const {
-  std::vector <DetId> result;
+std::vector <HcalGenericDetId> HcalElectronicsMap::allPrecisionId () const {
+  std::vector <HcalGenericDetId> result;
   std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
+  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-      result.push_back (DetId (DetId (*channel)));
-  }
-  return result;
-}
-
-std::vector <HcalCalibDetId> HcalElectronicsMap::allCalibrationId () const {
-  std::vector <HcalCalibDetId> result;
-  std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
-    if (item->mId) allIds.insert (item->mId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-    if (HcalGenericDetId (*channel).isHcalCalibDetId ()) {
-      result.push_back (HcalCalibDetId (*channel));
-    }
-  }
-  return result;
-}
-
-std::vector <HcalDetId> HcalElectronicsMap::allHcalDetectorId () const {
-  std::vector <HcalDetId> result;
-  std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
-    if (item->mId) allIds.insert (item->mId);
-  for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-    if (HcalGenericDetId (*channel).isHcalDetId()) {
-      result.push_back (HcalDetId (*channel));
-    }
+      result.push_back (HcalGenericDetId (*channel));
   }
   return result;
 }
@@ -170,7 +134,7 @@ std::vector <HcalDetId> HcalElectronicsMap::allHcalDetectorId () const {
 std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
   std::vector <HcalTrigTowerDetId> result;
   std::set <unsigned long> allIds;
-  for (std::vector<Item>::const_iterator item = mItems.begin (); item != mItems.end (); item++)  
+  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++)  
     if (item->mTrigId) allIds.insert (item->mTrigId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
     result.push_back (HcalTrigTowerDetId (*channel));
@@ -178,76 +142,56 @@ std::vector <HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId () const {
 }
 
 bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigTowerDetId fTriggerId) {
-  const Item* item = findByElId (fElectronicsId.rawId ());
-  if (item) { // record exists
-    if (item->mTrigId == 0) {
-      ((Item*)item)->mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
-    } 
-    else if (item->mTrigId != fTriggerId.rawId ()) {
-      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to trigger channel " 
-		<< item->mTrigId << ". New value " << fTriggerId.rawId () << " is ignored" << std::endl;
-      return false;
-    }
-    return true;
+  TriggerItem& item = mTItems[fElectronicsId.linearIndex()];
+  sortedByTId=false;
+  if (item.mElId==0) item.mElId=fElectronicsId.rawId();
+  if (item.mTrigId == 0) {
+    item.mTrigId = fTriggerId.rawId (); // just cast avoiding long machinery
+  } 
+  else if (item.mTrigId != fTriggerId.rawId ()) {
+    std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to trigger channel " 
+	      << item.mTrigId << ". New value " << fTriggerId.rawId () << " is ignored" << std::endl;
+    return false;
   }
-  else {
-    bool retval=setMapping (DetId (), fElectronicsId, fTriggerId);
-    // resort (almost certainly needed)
-    sortByElectronicsId();
-    return retval;
-  }
+  return true;
 }
 
 bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId) {
-  const Item* item = findByElId (fElectronicsId.rawId ());
-  if (item) { // record exists
-    if (item->mId == 0) {
-      ((Item*)item)->mId = fId.rawId (); // just cast avoiding long machinery
-    } 
-    else if (item->mId != fId.rawId ()) {
-      std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to channel " 
-		<< item->mId << ". New value " << fId.rawId () << " is ignored" << std::endl;
-      return false;
-    }
-    return true;
+  PrecisionItem& item = mPItems[fElectronicsId.linearIndex()];
+
+  sortedByPId=false;
+  if (item.mElId==0) item.mElId=fElectronicsId.rawId();
+  if (item.mId == 0) {
+    item.mId = fId.rawId ();
+  } 
+  else if (item.mId != fId.rawId ()) {
+    std::cerr << "HcalElectronicsMap::mapEId2tId-> Electronics channel " <<  fElectronicsId.rawId () << " already mapped to channel " 
+	      << item.mId << ". New value " << fId.rawId () << " is ignored" << std::endl;
+    return false;
   }
-  bool retval=setMapping (fId, fElectronicsId, 0);
-  // resort (almost certainly needed)
-  sortByElectronicsId();
-  return retval;
+  return true;
 }
 
 void HcalElectronicsMap::sortById () const {
-  if (mItems.size()!=mItemsById.size()) {
-    mItemsById.clear();
-    mItemsById.reserve(mItems.size());
-    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
-      mItemsById.push_back(&(*i));
+  if (!sortedByPId) {
+    mPItemsById.clear();
+    for (std::vector<PrecisionItem>::const_iterator i=mPItems.begin(); i!=mPItems.end(); ++i) {
+      if (i->mElId) mPItemsById.push_back(&(*i));
     }
+    
+    std::sort (mPItemsById.begin(), mPItemsById.end(), hcal_impl::LessById ());
+    sortedByPId=true;
   }
-  std::sort (mItemsById.begin(), mItemsById.end(), hcal_impl::LessById ());
 }
 
-void HcalElectronicsMap::sortByPartialEId () const {
-  if (mItems.size()!=mItemsByPartialEId.size()) {
-    mItemsByPartialEId.clear();
-    mItemsByPartialEId.reserve(mItems.size());
-    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
-      mItemsByPartialEId.push_back(&(*i));
-    }
-  }
-  std::sort (mItemsByPartialEId.begin(), mItemsByPartialEId.end(), hcal_impl::LessByPartialEId());
-}
-void HcalElectronicsMap::sortByElectronicsId () {
-  std::sort (mItems.begin(), mItems.end(), hcal_impl::LessByElId ());
-}
 void HcalElectronicsMap::sortByTriggerId () const {
-  if (mItems.size()!=mItemsByTrigId.size()) {
-    mItemsByTrigId.clear();
-    mItemsByTrigId.reserve(mItems.size());
-    for (std::vector<Item>::const_iterator i=mItems.begin(); i!=mItems.end(); ++i) {
-      mItemsByTrigId.push_back(&(*i));
+  if (!sortedByTId) {
+    mTItemsByTrigId.clear();
+    for (std::vector<TriggerItem>::const_iterator i=mTItems.begin(); i!=mTItems.end(); ++i) {
+      if (i->mElId) mTItemsByTrigId.push_back(&(*i));
     }
+    
+    std::sort (mTItemsByTrigId.begin(), mTItemsByTrigId.end(), hcal_impl::LessByTrigId ());
+    sortedByTId=true;
   }
-  std::sort (mItemsByTrigId.begin(), mItemsByTrigId.end(), hcal_impl::LessByTrigId ());
 }
