@@ -107,7 +107,7 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	HcalElectronicsId partialEid(fiberchan,fiber,spigot,dccnumber);
 	// does this partial id exist?
 	HcalElectronicsId fullEid;
-	DetId genId;
+	HcalGenericDetId genId;
 	if (!emap.lookup(partialEid,fullEid,genId)) continue;
 
 
@@ -135,20 +135,19 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	  npresent++;
 	}	
       }
-    for (int fiber=1; fiber<=8; fiber++) 
-      for (int fiberchan=0; fiberchan<3; fiberchan++) {
-	int linear=(fiber-1)*3+fiberchan;
-	unsigned short chanid=(((fiber-1)&0x7)<<13)|((fiberchan&0x3)<<11);
+    for (int slb=1; slb<=6; slb++) 
+      for (int slbchan=0; slbchan<=3; slbchan++) {
+	int linear=(slb-1)*4+slbchan;
+	unsigned short chanid=(((slb-1)&0x7)<<13)|((slbchan&0x3)<<11);
 	triglen[linear]=0;
 	
-	HcalElectronicsId partialEid(dccnumber,spigot,fiber,fiberchan);
+	HcalElectronicsId partialEid(dccnumber,spigot,slb,slbchan,0,0,0);
 	// does this partial id exist?
 	HcalElectronicsId fullEid;
-	DetId genId;
-	if (!emap.lookup(partialEid,fullEid,genId)) continue;
+	HcalTrigTowerDetId tid;
+	if (!emap.lookup(partialEid,fullEid,tid)) continue;
           
 	// finally, what about a trigger channel?
-	HcalTrigTowerDetId tid=emap.lookupTrigger(fullEid);
 	if (!tid.null()) {
 	  unsigned short* trigbase=&(trigdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	  triglen[linear]=processTrig(inputs.tpCont,tid,trigbase,samples,presamples);

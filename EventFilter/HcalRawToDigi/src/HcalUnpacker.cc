@@ -88,11 +88,10 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
     */
     for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
       if (tp_work->raw()==0xFFFF) continue; // filler word
-      if (tp_work->fiberAndChan()!=currFiberChan) { // start new set
-	currFiberChan=tp_work->fiberAndChan();
+      if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	currFiberChan=tp_work->slbAndChan();
 	// lookup the right channel
-	HcalElectronicsId eid(tp_work->fiberChan(),tp_work->fiber(),spigot,dccid);
-	eid.setHTR(htr_cr,htr_slot,htr_tb);
+	HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
 	DetId did=emap.lookupTrigger(eid);
 	if (did.null()) {
 	  report.countUnmappedTPDigi();
