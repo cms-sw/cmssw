@@ -88,8 +88,9 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
     fpix = true;     // yes, it's forward
   
   // Make cot(alpha) and cot(beta)... cot(x) = 1.0/tan(x);
-  float cotalpha = 1.0/tan(alpha_);  
-  float cotbeta  = 1.0/tan(beta_);   
+  // No longer need these. cotalpha_and cotbeta_ are calculated in PixelCPEBase  
+  //float cotalpha = 1.0/tan(alpha_);  
+  //float cotbeta  = 1.0/tan(beta_);   
   
   // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
   // clust_array_2d.
@@ -188,16 +189,16 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   templXrec_ = templYrec_ = templSigmaX_ = templSigmaY_ = nonsense;
   
   // ******************************************************************
-  // Do it!
+  // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
+
   ierr =
-    PixelTempReco2D(ID, fpix, cotalpha, cotbeta,
+    PixelTempReco2D(ID, fpix, cotalpha_, cotbeta_,
                     clust_array_2d, ydouble, xdouble,
                     templ_,
                     templYrec_, templSigmaY_, templProbY_,
                     templXrec_, templSigmaX_, templProbX_, templQbin_);
   // ******************************************************************
 
-  
   // &&& need a class const
   const float micronsToCm = 1.0e-4;
   
@@ -209,6 +210,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       printf("reconstruction failed with error %d \n", ierr);
       
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
+      // In the x case, apply a rough Lorentz drift correction
       double lorentz_drift = 60.0;
       templXrec_ = cluster.x() / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
       templYrec_ = cluster.y() / micronsToCm;
@@ -250,19 +252,13 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) || theTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) || theTopol->isItEdgePixelInY( maxPixelCol ) );
   
-  if ( edgex && edgey ) 
+  if ( edgex || edgey || ierr !=0 ) 
     {
-      //--- Both axes on the edge, no point in calling PixelErrorParameterization,
-      //--- just return the max errors on both.
-      // &&& Do we ever see this message in the log files? Yes we do
-      cout << "PixelCPETemplateReco::localError: edge hit, returning sqrt(12)." 
-	   << endl;
-   
-      return LocalError(xerr*xerr, 0, yerr*yerr); // Gavril : is this error OK ? large enough ? 
-    }
-  else if ( ierr != 0 )
-    {
-      // template reconstruction failed; return 10 times thePitchX / sqrt(12.0)
+      // If the cluster is at the module edge or the template reconstruction fails 
+      // return a huge errors since the estimated position is not reliable
+      // The template reconstruction fails when the cluster size is larger than 7 in x
+      // or larger than 21 in y. These kind of clusters must be delta rays, so they are 
+      // not good.
       xerr = 10.0 * xerr;
       yerr = 10.0 * yerr;
       return LocalError(xerr*xerr, 0, yerr*yerr);
