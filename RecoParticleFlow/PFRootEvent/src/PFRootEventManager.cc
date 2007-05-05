@@ -824,8 +824,7 @@ bool PFRootEventManager::processEntry(int entry) {
 //     if(! readFromSimulation(entry) ) return false;
 //   } 
 
-  if(! readFromSimulation(entry) ) return false;
-
+  bool goodevent =  readFromSimulation(entry);
 
   if(verbosity_ == VERBOSE ) {
     cout<<"number of recTracks      : "<<recTracks_.size()<<endl;
@@ -853,7 +852,7 @@ bool PFRootEventManager::processEntry(int entry) {
   }
 
   particleFlow();
-  if (doJets_) 
+  if( goodevent && doJets_) 
     makeJets(); 
   
   if(outTree_) outTree_->Fill();
@@ -870,7 +869,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   if(!tree_) return false;
   
-
   // setAddresses();
 
   if(trueParticlesBranch_ ) {
@@ -907,6 +905,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
 
   // now can use the tree
 
+  bool goodevent = true;
   if(trueParticlesBranch_ ) {
     // this is a filter to select single particle events.
     // usually not active
@@ -914,11 +913,11 @@ bool PFRootEventManager::readFromSimulation(int entry) {
        trueParticles_.size() != filterNParticles_ ) {
       cout << "PFRootEventManager : event discarded Nparticles="
 	   <<filterNParticles_<< endl; 
-      return false;
+      goodevent = false;
     }
     if(filterHadronicTaus_ && !isHadronicTau() ) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
-      return false;
+      goodevent =  false;
     }
   }
   if(rechitsECALBranch_) {
@@ -943,7 +942,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       (*clustersPS_)[i].calculatePositionREP();    
   }
 
-  return true;
+  return goodevent;
 }
 
 
