@@ -6,15 +6,15 @@
 
 /** \class HcalTriggerPrimitiveSample
     
-  $Date: 2005/10/04 13:37:35 $
-  $Revision: 1.4 $
+  $Date: 2006/10/05 17:38:39 $
+  $Revision: 1.5 $
   \author J. Mans - Minnesota
 */
 class HcalTriggerPrimitiveSample {
 public:
   HcalTriggerPrimitiveSample();
   HcalTriggerPrimitiveSample(uint16_t data);
-  HcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int fiber, int fiberchan);
+  HcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int slb, int slbchan);
   
   /// get the raw word
   uint16_t raw() const { return theSample; }
@@ -22,12 +22,12 @@ public:
   int compressedEt() const { return theSample&0xFF; }
   /// get the fine-grain bit
   bool fineGrain() const { return (theSample&0x100)!=0; }
-  /// get the fiber number
-  int fiber() const { return ((theSample>>13)&0x7)+1; }
-  /// get the fiber channel number
-  int fiberChan() const { return (theSample>>11)&0x3; }
+  /// get the slb site number
+  int slb() const { return ((theSample>>13)&0x7)+1; }
+  /// get the slb channel number
+  int slbChan() const { return (theSample>>11)&0x3; }
   /// get the id channel
-  int fiberAndChan() const { return (theSample>>11)&0x1F; }
+  int slbAndChan() const { return (theSample>>11)&0x1F; }
   
 private:
   uint16_t theSample;
