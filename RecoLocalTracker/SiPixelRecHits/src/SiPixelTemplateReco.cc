@@ -65,7 +65,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	unsigned int nclusx, nclusy;
 	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix;
 	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq;
-	float originx, originy, qfy, qly, qfx, qlx, bias, err, maxpix;
+	float originx, originy, qfy, qly, qfx, qlx, bias, maxpix;
 	double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi2;
 	const float ysize={150.}, xsize={100.};
 	
@@ -113,10 +113,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // First, sum the total charge and "decapitate" big pixels         
 
 	float qtotal = 0.;
-    for(i=0; i<nclusy; ++i) {
+	for(i=0; i<(int)nclusy; ++i) {
 	   maxpix = templ.symax();
 	   if(ydouble[i]) {maxpix *=2.;}
-	   for(j=0; j<nclusx; ++j) {
+	   for(j=0; j<(int)nclusx; ++j) {
 		  qtotal += cluster[j][i];
 		  if(cluster[j][i] > maxpix) {cluster[j][i] = maxpix;}
 	   }
@@ -127,8 +127,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	std::vector<float> ysum(25, 0.);
 	std::vector<bool> yd(25, false);
 	k=0;
-    for(i=0; i<nclusy; ++i) {
-	   for(j=0; j<nclusx; ++j) {
+	for(i=0; i<(int)nclusy; ++i) {
+	  for(j=0; j<(int)nclusx; ++j) {
 		  ysum[k] += cluster[j][i];
 	   }
     
@@ -152,8 +152,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	std::vector<float> xsum(11, 0.);
 	std::vector<bool> xd(11, false);
 	k=0;
-    for(j=0; j<nclusx; ++j) {
-	   for(i=0; i<nclusy; ++i) {
+	for(j=0; j<(int)nclusx; ++j) {
+	  for(i=0; i<(int)nclusy; ++i) {
 		  xsum[k] += cluster[j][i];
 	   }
     
