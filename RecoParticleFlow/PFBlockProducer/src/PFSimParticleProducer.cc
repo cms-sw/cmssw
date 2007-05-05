@@ -586,8 +586,12 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
 	  = ReferenceCountingPointer<Surface>(new BoundPlane(Surface::PositionType(0,0,-zCyl), TkRotation<float>(), SimpleDiskBounds(0., rCyl, -epsilon, epsilon))); 
 	break;
       }
+      
+      
       TrajectoryStateOnSurface showerMaxTSOS = 
 	fwdPropagator.propagate(ecalTSOS, *showerMaxWall);
+
+      if( !showerMaxTSOS.isValid() ) continue;
       GlobalPoint vShowerMax  = showerMaxTSOS.globalParameters().position();
       GlobalVector pShowerMax = showerMaxTSOS.globalParameters().momentum();
       math::XYZPoint posShowerMax(vShowerMax.x(), vShowerMax.y(), 
@@ -599,7 +603,10 @@ PFSimParticleProducer::processRecTracks(auto_ptr< reco::PFRecTrackCollection >&
 				      posShowerMax, momShowerMax);
       track.addPoint(eSMaxPt);
       LogDebug("PFSimParticleProducer")<<"ecal shower maximum point "<<eSMaxPt 
-			    <<endl;    
+				       <<endl;    
+
+
+
     
       // Propagate track to HCAL entrance
 
