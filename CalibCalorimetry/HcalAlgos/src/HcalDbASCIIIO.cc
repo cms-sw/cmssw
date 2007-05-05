@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.29 2006/11/21 03:32:04 fedor Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.30 2007/02/12 21:18:10 mansj Exp $
 //
 #include <vector>
 #include <string>
@@ -412,20 +412,25 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalElectronicsMap* fObject
     if (items [3] == "b") top = 0;
     int dcc = atoi (items [4].c_str());
     int spigot = atoi (items [5].c_str());
-    int fiber = atoi (items [6].c_str());
-    int fiberCh = atoi (items [7].c_str());
+    HcalElectronicsId elId;
+    if (items[8] == "HT" || items[8] == "NT") {
+      int slb = atoi (items [6].c_str());
+      int slbCh = atoi (items [7].c_str());
+      elId=HcalElectronicsId(slbCh, slb, spigot, dcc,crate,slot,top);
+    } else {
+      int fiber = atoi (items [6].c_str());
+      int fiberCh = atoi (items [7].c_str());
 
-    HcalElectronicsId elId (fiberCh, fiber, spigot, dcc);
-    elId.setHTR (crate, slot, top);
+      elId=HcalElectronicsId(fiberCh, fiber, spigot, dcc);
+      elId.setHTR (crate, slot, top);
+    }
 
     // first, handle undefined cases
     if (items [8] == "NA") { // undefined channel
       fObject->mapEId2chId (elId, DetId (HcalDetId::Undefined));
-      fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     } else if (items [8] == "NT") { // undefined trigger channel
       fObject->mapEId2tId (elId, DetId (HcalTrigTowerDetId::Undefined));
     } else {
-    
       HcalText2DetIdConverter converter (items [8], items [9], items [10], items [11]);
       if (converter.isHcalDetId ()) { 
 	fObject->mapEId2chId (elId, converter.getId ());
@@ -453,30 +458,33 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
   std::vector<HcalElectronicsId> eids = fObject.allElectronicsId ();
   char buf [1024];
   sprintf (buf, "#%6s %6s %6s %6s %6s %6s %6s %6s %15s %15s %15s %15s",
-	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber", "fibcha", "subdet", "ieta", "iphi", "depth");
+	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber/slb", "fibcha/slbcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
   for (unsigned i = 0; i < eids.size (); i++) {
     HcalElectronicsId eid = eids[i];
-    DetId channel = fObject.lookup (eid);
-    if (channel.rawId()) {
-      HcalText2DetIdConverter converter (channel);
-      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-	       i,
-	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-	       converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+    if (eid.isTriggerChainId()) {
+      DetId trigger = fObject.lookupTrigger (eid);
+      if (trigger.rawId ()) {
+	HcalText2DetIdConverter converter (trigger);
+	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+		 i,
+		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
+		 );
+	fOutput << buf << std::endl;
+      }
+    } else {
+      DetId channel = fObject.lookup (eid);
+      if (channel.rawId()) {
+	HcalText2DetIdConverter converter (channel);
+	sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
+		 i,
+		 eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+		 converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
 	       );
-      fOutput << buf << std::endl;
-    }
-    DetId trigger = fObject.lookupTrigger (eid);
-    if (trigger.rawId ()) {
-      HcalText2DetIdConverter converter (trigger);
-      sprintf (buf, " %6d %6d %6d %6c %6d %6d %6d %6d %15s %15s %15s %15s",
-	       i,
-	       eid.readoutVMECrateId(), eid.htrSlot(), eid.htrTopBottom()>0?'t':'b', eid.dccid(), eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-	       converter.getFlavor ().c_str (), converter.getField1 ().c_str (), converter.getField2 ().c_str (), converter.getField3 ().c_str ()
-	       );
-      fOutput << buf << std::endl;
+	fOutput << buf << std::endl;
+      }
     }
   }
   return true;
