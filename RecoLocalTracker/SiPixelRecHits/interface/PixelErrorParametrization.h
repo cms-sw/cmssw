@@ -33,7 +33,7 @@ class PixelErrorParametrization
 	     int sizex, int sizey, 
 	     float alpha, float beta,
 	     bool bigInX = false, 
-	     bool bigInX = false); // Gavril: add big pixel flags, 03/27/07
+	     bool bigInY = false); // Gavril: add big pixel flags, 03/27/07
   
  private:
   float a_min; 
@@ -80,9 +80,9 @@ class PixelErrorParametrization
 
   // Gavril: for barrel x errors, add big pixel flag  
   float error_XB(int sizex, float alpha, float beta, bool bigInX); 
-  float error_XF(int sizex, float alpha, float beta);
-  float error_YB(int sizey, float alpha, float beta);
-  float error_YF(int sizey, float alpha, float beta);
+  float error_XF(int sizex, float alpha, float beta, bool bigInX);
+  float error_YB(int sizey, float alpha, float beta, bool bigInY);
+  float error_YF(int sizey, float alpha, float beta, bool bigInY);
   float interpolation(std::vector<float>&, float&, 
 		      std::pair<float,float>&);
   int betaIndex(int&, std::vector<float>&, float&);

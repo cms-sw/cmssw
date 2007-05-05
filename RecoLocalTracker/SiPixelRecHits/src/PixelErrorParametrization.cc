@@ -154,11 +154,11 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
   switch (pixelPart) {
   case GeomDetEnumerators::PixelBarrel:
     element = pair<float,float>(error_XB(sizex, alpha, beta, bigInX), // Gavril: add big pixel flag here. 03/27/07
-				error_YB(sizey, alpha, beta));
+				error_YB(sizey, alpha, beta, bigInY));
     break;
   case GeomDetEnumerators::PixelEndcap:
-    element =  pair<float,float>(error_XF(sizex, alpha, beta),
-				 error_YF(sizey, alpha, beta));
+    element =  pair<float,float>(error_XF(sizex, alpha, beta, bigInX),
+				 error_YF(sizey, alpha, beta, bigInY));
     break;
   default:
     LogDebug ("PixelErrorParametrization::getError") 
@@ -192,20 +192,8 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bo
   // if ( i_size==0 ) return linParametrize(barrelPart, i_size, i_beta, alpha);
   //else return quadParametrize(barrelPart, i_size, i_beta, alpha);
 
+  // Gavril: fix for big pixels at the module center
   double pitch_x = 0.0100;
-
-  // Gavril: nasty patch for big pixels at the module center !!!
-  /*
-    double delta = 2.0 * ( a_max - a_min ) / 162.0;
-    double half_pi = 3.14159265 / 2.0;
-    double pitch_x = 0.0100;
-    if ( i_size == 0 && i_beta == 0 && alpha > half_pi - delta && alpha < half_pi + delta )
-    return pitch_x/sqrt(12.0);
-    //return 0.0026;
-    else
-  */
-
-  // Gavril: nicer fix for big pixels at the module center
   if ( bigInX && sizex == 1 )
     return pitch_x/sqrt(12.0);
   else
@@ -217,7 +205,7 @@ float PixelErrorParametrization::error_XB(int sizex, float alpha, float beta, bo
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
+float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta, bool bigInX)
 {
   LogDebug("PixelErrorParametrization::error_XF") << "I'M AT THE BEGIN IN ERROR XF METHOD";
   
@@ -233,8 +221,11 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
   LogDebug("PixelErrorParametrization::error_XF") << "size index = " << i_size
 						  << "no beta index, "
 						  << " alphaprime = " << alpha_prime;
-  
-  return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
+  double pitch_x = 0.0100;
+  if ( bigInX && sizex == 1 )
+    return pitch_x/sqrt(12.0);
+  else
+    return linParametrize(barrelPart, i_size, i_beta, alpha_prime);
 }
 
 
@@ -242,83 +233,103 @@ float PixelErrorParametrization::error_XF(int sizex, float alpha, float beta)
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta)
+float PixelErrorParametrization::error_YB(int sizey, float alpha, float beta, bool bigInY)
 {  
   LogDebug("PixelErrorParametrization::error_YB") << "I'M AT THE BEGIN IN ERROR YB METHOD";
-  
-  int i_alpha;
-  int i_size = min(sizey-1,5);
-  
-  LogDebug("PixelErrorParametrization::error_YB") << "I found size index = " << i_size;
-  
-  if (sizey < 4) 
-    {      // 3 alpha bins
-      if (alpha <= a_min + a_bin) 
-	{ 
-	  i_alpha = 0;
-	} 
-      else if (alpha < a_max-a_bin) 
-	{
-	  i_alpha = 1;
-	}
-      else 
-	{
-	  i_alpha = 2; 
-	}
+
+  double pitch_y = 0.0150;
+ 
+  if ( bigInY && sizey == 1 )
+    {
+      return pitch_y/sqrt(12.0);
     }
   else
-    { // 1 alpha bin 
-      i_alpha = 0;
-    }
-  
-  LogDebug("PixelErrorParametrization::error_YB") << "I found alpha index = " << i_alpha;
-  
-  // vector of beta parametrization
-  //vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
-  vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha]; // suggestion to speed up the code by Patrick/Vincenzo
-  
-  LogDebug("PixelErrorParametrization::error_YB") << " beta vec has dimensions = " << ybarrel_1D.size()
-						  << " beta = " << beta 
-						  << " beta max = " << brange_yb[i_size].second 
-						  << " beta min = " << brange_yb[i_size].first;
-  
-  // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
-  float beta_prime = fabs(3.14159/2.-beta);
-  double pitch_y = 0.0150;
-  if ( beta_prime <= brange_yb[i_size].first ) // Gavril: brange_yb[0].first == 0.0; when i_size==0, beta_prime is never less than 0 ?!?! 
-    { 
-      return ybarrel_1D[0];
-    }
-  else if ( beta_prime >= brange_yb[i_size].second )
     {
-      //return ybarrel_1D[ybarrel_1D.size()-1];
-      return pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
-    } 
-  else 
-    {
-      return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
-    }  
+      int i_alpha;
+      int i_size = min(sizey-1,5);
+      
+      LogDebug("PixelErrorParametrization::error_YB") << "I found size index = " << i_size;
+      
+      if (sizey < 4) 
+	{      // 3 alpha bins
+	  if (alpha <= a_min + a_bin) 
+	    { 
+	      i_alpha = 0;
+	    } 
+	  else if (alpha < a_max-a_bin) 
+	    {
+	      i_alpha = 1;
+	    }
+	  else 
+	    {
+	      i_alpha = 2; 
+	    }
+	}
+      else
+	{ // 1 alpha bin 
+	  i_alpha = 0;
+	}
+      
+      LogDebug("PixelErrorParametrization::error_YB") << "I found alpha index = " << i_alpha;
+      
+      // vector of beta parametrization
+      //vector<float> ybarrel_1D = (ybarrel_3D[i_size])[i_alpha];
+      vector<float>& ybarrel_1D = (ybarrel_3D[i_size])[i_alpha]; // suggestion to speed up the code by Patrick/Vincenzo
+      
+      LogDebug("PixelErrorParametrization::error_YB") << " beta vec has dimensions = " << ybarrel_1D.size()
+						      << " beta = " << beta 
+						      << " beta max = " << brange_yb[i_size].second 
+						      << " beta min = " << brange_yb[i_size].first;
+      
+      // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
+      float beta_prime = fabs(3.14159/2.-beta);
+           
+      if ( beta_prime <= brange_yb[i_size].first )// Gavril: brange_yb[0].first == 0.0; when i_size==0, beta_prime is never less than 0
+	{ 
+	  return ybarrel_1D[0];
+	}
+      else if ( beta_prime >= brange_yb[i_size].second )
+	{
+	  //return ybarrel_1D[ybarrel_1D.size()-1];
+	  return pitch_y / sqrt(12.0); // Gavril: we are in un-physical beta_prime range; return large error, 03/27/07 
+	} 
+      else 
+	{
+	  return interpolation(ybarrel_1D, beta_prime, brange_yb[i_size] );
+	}  
+    }
 }
 
 //-----------------------------------------------------------------------------
 //  
 //-----------------------------------------------------------------------------
-float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta)
+float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bool bigInY)
 {
   LogDebug("PixelErrorParametrization::error_YF") << "I'M AT THE BEGIN IN ERROR YF METHOD";
 
-  // find y size index
-  int i_size = min(sizey-1,1);
-  // no parametrization in alpha
-  int i_alpha = 0;
-  // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
-  float beta_prime = fabs(3.14159/2.-beta);
-  if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
-  if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
-  float err_par = 0;
-  for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
-    err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
-  }
+  float err_par = 0.0;
+  double pitch_y = 0.0150;
+
+  if ( bigInY && sizey == 1 )
+    {
+      err_par =  pitch_y/sqrt(12.0);
+    }
+  else
+    {
+      // find y size index
+      int i_size = min(sizey-1,1);
+      // no parametrization in alpha
+      int i_alpha = 0;
+      // beta --> abs(pi/2-beta) to be symmetric w.r.t. pi/2 axis
+      float beta_prime = fabs(3.14159/2.-beta);
+      if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
+      if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
+      float err_par = 0;
+      for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
+	err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
+      }
+    }
+  
   return err_par; 
 }
 
