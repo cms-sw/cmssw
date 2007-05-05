@@ -28,6 +28,8 @@
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
+#include "FWCore/FWLite/src/AutoLibraryLoader.h"
+
 #include <TFile.h>
 #include <TTree.h>
 #include <TCanvas.h>
@@ -109,16 +111,16 @@ PFRootEventManager::PFRootEventManager(const char* file)
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
-  rechitsECAL_.clear();
-  rechitsHCAL_.clear();
-  rechitsPS_.clear();
-  recTracks_.clear();
-  stdTracks_.clear();
-  clustersECAL_->clear();
-  clustersHCAL_->clear();
-  clustersPS_->clear();
-  clustersIslandBarrel_.clear();
-  trueParticles_.clear();
+//   rechitsECAL_.clear();
+//   rechitsHCAL_.clear();
+//   rechitsPS_.clear();
+//   recTracks_.clear();
+//   stdTracks_.clear();
+//   clustersECAL_->clear();
+//   clustersHCAL_->clear();
+//   clustersPS_->clear();
+//   clustersIslandBarrel_.clear();
+//   trueParticles_.clear();
 
 
   if(outEvent_) outEvent_->reset();
@@ -598,6 +600,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   
   file_ = TFile::Open(inFileName_.c_str() );
 
+
   if(!file_ ) return;
   else if(file_->IsZombie() ) {
     return;
@@ -606,6 +609,8 @@ void PFRootEventManager::connect( const char* infilename ) {
     cout<<"rootfile "<<inFileName_
 	<<" opened"<<endl;
 
+  AutoLibraryLoader::enable();
+
   tree_ = (TTree*) file_->Get("Events");  
   if(!tree_) {
     cerr<<"PFRootEventManager::ReadOptions :";
@@ -613,6 +618,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 	<<inFileName_<<endl;
     return; 
   }
+  tree_->GetEntry();
     
   // hits branches ----------------------------------------------
 
@@ -646,33 +652,39 @@ void PFRootEventManager::connect( const char* infilename ) {
 
   // clusters branches ----------------------------------------------
 
-  string clustersECALbranchname;
-  options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
-
-  clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
-  if(!clustersECALBranch_) {
-    cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
-	 <<clustersECALbranchname<<endl;
-  }
   
-  string clustersHCALbranchname;
-  options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
+  clustersECALBranch_ = 0;
+  clustersHCALBranch_ = 0;
+  clustersPSBranch_ = 0;
 
-  clustersHCALBranch_ = tree_->GetBranch(clustersHCALbranchname.c_str());
-  if(!clustersHCALBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
-        <<clustersHCALbranchname<<endl;
-  }
+  if( !clusteringIsOn_ ) {
+    string clustersECALbranchname;
+    options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
+    
+    clustersECALBranch_ = tree_->GetBranch(clustersECALbranchname.c_str());
+    if(!clustersECALBranch_) {
+      cerr <<"PFRootEventManager::ReadOptions : clusters_ECAL_branch not found:"
+	   <<clustersECALbranchname<<endl;
+    }
   
-  string clustersPSbranchname;
-  options_->GetOpt("root","clusters_PS_branch", clustersPSbranchname);
+    string clustersHCALbranchname;
+    options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
+    
+    clustersHCALBranch_ = tree_->GetBranch(clustersHCALbranchname.c_str());
+    if(!clustersHCALBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions : clusters_HCAL_branch not found : "
+	  <<clustersHCALbranchname<<endl;
+    }
+  
+    string clustersPSbranchname;
+    options_->GetOpt("root","clusters_PS_branch", clustersPSbranchname);
 
-  clustersPSBranch_ = tree_->GetBranch(clustersPSbranchname.c_str());
-  if(!clustersPSBranch_) {
-    cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
-	<<clustersPSbranchname<<endl;
+    clustersPSBranch_ = tree_->GetBranch(clustersPSbranchname.c_str());
+    if(!clustersPSBranch_) {
+      cerr<<"PFRootEventManager::ReadOptions : clusters_PS_branch not found : "
+	  <<clustersPSbranchname<<endl;
+    }
   }
-  
   // other branches ----------------------------------------------
   
   
@@ -737,6 +749,8 @@ void PFRootEventManager::connect( const char* infilename ) {
       caloTowersBranch_->SetAddress(&caloTowers_);
     }           
   }    
+
+  setAddresses();
 } 
 
 
@@ -857,10 +871,43 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   if(!tree_) return false;
   
 
-  setAddresses();
+  // setAddresses();
 
   if(trueParticlesBranch_ ) {
     trueParticlesBranch_->GetEntry(entry);
+  }
+  if(rechitsECALBranch_) {
+    rechitsECALBranch_->GetEntry(entry);
+  }
+  if(rechitsHCALBranch_) {
+    rechitsHCALBranch_->GetEntry(entry);
+  }
+  if(rechitsPSBranch_) {
+    rechitsPSBranch_->GetEntry(entry);  
+  }
+  if(clustersECALBranch_ && !clusteringIsOn_) {
+    clustersECALBranch_->GetEntry(entry);
+  }
+  if(clustersHCALBranch_ && !clusteringIsOn_) {
+    clustersHCALBranch_->GetEntry(entry);
+  }
+  if(clustersPSBranch_ && !clusteringIsOn_) {
+    clustersPSBranch_->GetEntry(entry);
+  }
+  if(clustersIslandBarrelBranch_) {
+    clustersIslandBarrelBranch_->GetEntry(entry);
+  }
+  if(caloTowersBranch_) {
+    caloTowersBranch_->GetEntry(entry);
+  } 
+  if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
+  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
+  
+  tree_->GetEntry( entry, 0 );
+
+  // now can use the tree
+
+  if(trueParticlesBranch_ ) {
     // this is a filter to select single particle events.
     // usually not active
     if(filterNParticles_ && 
@@ -875,47 +922,26 @@ bool PFRootEventManager::readFromSimulation(int entry) {
     }
   }
   if(rechitsECALBranch_) {
-    rechitsECALBranch_->GetEntry(entry);
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
   }
   if(rechitsHCALBranch_) {
-    rechitsHCALBranch_->GetEntry(entry);
     PreprocessRecHits( rechitsHCAL_ , findRecHitNeighbours_);
   }
   if(rechitsPSBranch_) {
-    rechitsPSBranch_->GetEntry(entry);  
     PreprocessRecHits( rechitsPS_ , findRecHitNeighbours_);
   }
   if(clustersECALBranch_ && !clusteringIsOn_) {
-    clustersECALBranch_->GetEntry(entry);
     for(unsigned i=0; i<clustersECAL_->size(); i++) 
       (*clustersECAL_)[i].calculatePositionREP();
   }
   if(clustersHCALBranch_ && !clusteringIsOn_) {
-    clustersHCALBranch_->GetEntry(entry);
     for(unsigned i=0; i<clustersHCAL_->size(); i++) 
       (*clustersHCAL_)[i].calculatePositionREP();    
   }
   if(clustersPSBranch_ && !clusteringIsOn_) {
-    clustersPSBranch_->GetEntry(entry);
     for(unsigned i=0; i<clustersPS_->size(); i++) 
       (*clustersPS_)[i].calculatePositionREP();    
   }
-  if(clustersIslandBarrelBranch_) {
-    clustersIslandBarrelBranch_->GetEntry(entry);
-  }
-  if(caloTowersBranch_) {
-    caloTowersBranch_->GetEntry(entry);
-    if(verbosity_ == VERBOSE )
-      cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
-  }
-    
-  
-  if(recTracksBranch_) recTracksBranch_->GetEntry(entry);
-  if(stdTracksBranch_) stdTracksBranch_->GetEntry(entry);
-  
-
-  tree_->GetEntry( entry );
 
   return true;
 }
