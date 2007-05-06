@@ -113,19 +113,27 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer & hits1, const M
         if(fabs(dphi) < 0.0001) dphi = 0.00001;
         double pt = (c1 + c2 * fabs(eta) ) / dphi;
         double minpt = 3.;
+
         // if too small, probably an error.  Keep trying.
         if(fabs(pt) > minpt)
         {
-          //FIXME add max PT, too
-          // add 20% errors in quadrature
-          //float sigmapt = sqrt(20*20 + pt*.20*pt*.20);
           float sigmapt = 25.;
+
+          double maxpt = 2000.;
+          if(pt > maxpt) {
+            pt = maxpt;
+            sigmapt = maxpt;
+          }
+          if(pt < -maxpt) {
+            pt = -maxpt;
+            sigmapt = maxpt;
+          }
 
           // get the position and direction from the higher-quality segment
           ConstMuonRecHitPointer bestSeg = bestSegment();
           seed = createSeed(pt, sigmapt, bestSeg);
 
-          // std::cout << "FITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
+          //std::cout << "FITTED TIMESPT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
           return true;
         }
 
