@@ -3,7 +3,6 @@
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/Common>
-<use name=Foundation/PluginManager>
 <use name=RecoTracker/CkfPattern>
 
 <use name=root>
@@ -15,7 +14,6 @@
 <export>
    <lib name=RecoTrackerNuclearSeedGenerator>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/TrajectorySeed>
    <use name=RecoTracker/CkfPattern>
