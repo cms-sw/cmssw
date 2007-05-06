@@ -7,6 +7,7 @@ CDECK  ID>, HWEGAM.
 * Modified for herwig65 21/11/02 B. Cox
 * Changed outgoing particles to P and PBAR (depending on whether incoming 
 * 'lepton' is an electron or positron) 16/06/04
+* Added H1 2006 Diffractive PDFs 11/02/07 B. Cox
 C-----------------------------------------------------------------------
       SUBROUTINE HWEGAM(IHEP,ZMI,ZMA,WWA)
 C-----------------------------------------------------------------------
@@ -20,7 +21,7 @@ C-----------------------------------------------------------------------
       LOGICAL WWA
       DOUBLE PRECISION F,C,FN
       DOUBLE PRECISION B,alphap,zh1
-      PARAMETER (alphap=0.26,B=4.6,zh1=0.003)
+      PARAMETER (zh1=0.003)
       EXTERNAL HWRGEN,HWRUNI
       DATA EGMIN/5.D0/
       IF (IERROR.NE.0)  RETURN
@@ -85,7 +86,7 @@ C--PR MOD 7/7/99
               DO I=1,3
                 RPM(2) = MIN(RPM(1),RMASS(433+2*I))
               ENDDO
-              RPM(1) = MIN(RPM(1),RPM(2))
+             RPM(1) = MIN(RPM(1),RPM(2))
               RPM(2) = RMASS(203)
               DO I=1,2
                 RPM(2) = MIN(RPM(2),RMASS(204+I))
@@ -160,27 +161,69 @@ C---Q2WWMN AND Q2WWMX ARE USER-DEFINED LIMITS IN THE Q**2 INTEGRATION
 C        IF (QQMIN.GT.QQMAX) CALL HWWARN('HWEGAM',50,*10)
 C---GENERATE GAMMA MOMENTUM FRACTION
         ZGAM=(ZMIN/ZMAX)**HWRGEN(1)*ZMAX
-C---POMERON (REGGEON) FLUX     
-        CALL FLUX(F,ZGAM,QQMIN,QQMAX,NSTRU)
-        CALL FLUX(FN,ZH1,QQMIN,QQMAX,NSTRU)
+C---POMERON (REGGEON) FLUX
+C     . B.C. 11/02/07
+        IF (NSTRU.GE.9.AND.NSTRU.LE.11) THEN
+           CALL FLUX(F,ZGAM,QQMIN,QQMAX,NSTRU)
+           CALL FLUX(FN,ZH1,QQMIN,QQMAX,NSTRU)
+        ELSEIF (NSTRU.EQ.12) THEN ! POMERON 2006 FIT A
+           CALL h12006flux(ZGAM,-QQMAX,1,1,1,F)
+           CALL h12006flux(ZH1,-QQMAX,1,1,1,FN)
+        ELSEIF (NSTRU.EQ.13) THEN ! REGGEON 2006 FIT A
+           CALL h12006flux(ZGAM,-QQMAX,1,1,2,F)
+           CALL h12006flux(ZH1,-QQMAX,1,1,2,FN)
+        ELSEIF (NSTRU.EQ.14) THEN ! POMERON 2006 FIT B
+           CALL h12006flux(ZGAM,-QQMAX,1,2,1,F)
+           CALL h12006flux(ZH1,-QQMAX,1,2,1,FN)
+        ELSEIF (NSTRU.EQ.15) THEN ! REGGEON 2006 FIT B
+           CALL h12006flux(ZGAM,-QQMAX,1,2,2,F)
+           CALL h12006flux(ZH1,-QQMAX,1,2,2,FN)
+        ELSE
+           WRITE(*,*) 'HWEGAM : POMWIG : NSTRU OUT OF RANGE'
+           STOP
+        ENDIF
+           
 
 C---CALCULATE GAMWT
         C=1.D0/DLOG(ZMAX/ZMIN)
-        IF (NSTRU.EQ.9) THEN
+C B.C. 11/02/07
+C        IF (NSTRU.EQ.9) THEN
+        IF (NSTRU.EQ.9.OR.NSTRU.EQ.12.OR.NSTRU.EQ.14) THEN
            GAMWT = GAMWT*F*ZGAM/(C*FN*zh1)   
-        ELSEIF (NSTRU.EQ.10.OR.NSTRU.EQ.11) THEN 
+        ELSEIF (NSTRU.EQ.10.OR.NSTRU.EQ.11.OR.NSTRU.EQ.13
+     +          .OR.NSTRU.EQ.15) THEN 
            GAMWT = GAMWT*F*ZGAM/C             
         ELSE
-           WRITE(*,*) 'POMWIG : NSTRU MUST BE 9, 10 or 11 in herwig65'
+           WRITE(*,*) 'POMWIG : NSTRU OUT OF RANGE'
            STOP
         ENDIF
-       
-C---PICK T (=Q2)        
+
+C B. C. 11/02/07 FOr H1 2006 pdfs use alphap and B from the H1 flux as in h12006flux.f   
+C. Also fix bug in original pomwig to use alphap and B for reggeon (previous versions 
+C  used pomeron alphap and B for reggeon flux)
+        
+C---  PICK T (=Q2)        
+        IF (NSTRU.EQ.9) THEN
+           alphap=0.26D0
+           B=4.6D0
+        ELSEIF (NSTRU.EQ.10) THEN
+           alphap = 0.9D0
+           B = 2.0D0
+        ELSEIF (NSTRU.EQ.11) THEN
+           alphap=0.26D0
+           B=4.6D0
+        ELSEIF (NSTRU.EQ.12.OR.NSTRU.EQ.14) THEN
+           alphap=0.06D0
+           B=5.5D0
+        ELSEIF (NSTRU.EQ.13.OR.NSTRU.EQ.15) THEN
+           alphap=0.3D0
+           B=1.6D0
+        ENDIF
         C=B+alphap*DLOG(1.D0/ZGAM)
         Q2=(1.D0/C)*DLOG(1.D0/(DEXP(-C*QQMAX)+HWRGEN(1)*
      +       (DEXP(-C*QQMIN)-DEXP(-C*QQMAX))))
-      IF (GAMWT.LT.ZERO) GAMWT=ZERO
-C---FILL PHOTON
+        IF (GAMWT.LT.ZERO) GAMWT=ZERO
+C---  FILL PHOTON
       NHEP=NHEP+1
       IDHW(NHEP)=59
       ISTHEP(NHEP)=3

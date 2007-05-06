@@ -102,35 +102,27 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
                 hwbmch.PART1[1]  = '-';
                 hwbmch.PART2[0]  = 'E';
                 hwbmch.PART2[1]  = '-';
-                //hwpram.MODPDF[0] = -1;
-                //hwpram.MODPDF[1] = -1;
                 break;
         case 1: //SD survive PART1
                 hwbmch.PART1[0]  = 'E';
                 hwbmch.PART1[1]  = '-';
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
-                //hwpram.MODPDF[0] = -1;
-                //hwpram.MODPDF[1] = 20060;
                 break;
         case 2: //SD survive PART2
                 hwbmch.PART1[0]  = 'P';
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'E';
                 hwbmch.PART2[1]  = '-';
-                //hwpram.MODPDF[0] = 20060;
-                //hwpram.MODPDF[1] = -1;
                 break;
         case 3: //Non diffractive
                 hwbmch.PART1[0]  = 'P';
                 hwbmch.PART1[1]  = ' ';
                 hwbmch.PART2[0]  = 'P';
                 hwbmch.PART2[1]  = ' ';
-                //hwpram.MODPDF[0] = 20060;
-                //hwpram.MODPDF[1] = 20060;
                 break;
         default:
-                throw edm::Exception(edm::errors::Configuration,"HerwigError")
+                throw edm::Exception(edm::errors::Configuration,"PomwigError")
           <<" Invalid Diff. Topology. Must be DPE(diffTopology = 0), SD particle 1 (diffTopology = 1), SD particle 2 (diffTopology = 2) and Non diffractive (diffTopology = 3)";
                 break;
   }
@@ -214,19 +206,60 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   // HERWIG preparations ...
   hwuinc();
   hwusta("PI0     ",1);
-  // Initialize H1 pomeron structure function
+
+  // Initialize H1 pomeron
   if(diffTopology != 3){
-  	int ifit = pset.getParameter<int>("h1fit");
-  	if((ifit <= 0)||(ifit >= 7)){
-  		throw edm::Exception(edm::errors::Configuration,"HerwigError")
-          	<<" Attempted to set non existant H1 fit index. Has to be 1...6";		
-  	}
-  	cout << "   IFIT = "<< ifit <<endl;	
-  	double xp = 0.1;
-  	double Q2 = 75.0;
-  	double xpq[13];
-  	qcd_1994(xp,Q2,xpq,ifit);
+        int nstru = hwpram.NSTRU;
+        int ifit = pset.getParameter<int>("h1fit");
+        if(nstru == 9){
+                if((ifit <= 0)||(ifit >= 7)){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 1997 fit index. Has to be 1...6";
+                }
+                cout << "   H1 1997 pdf's" << endl;
+                cout << "   IFIT = "<< ifit << endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                qcd_1994(xp,Q2,xpq,ifit);
+        } else if(nstru == 12){
+                /*if(ifit != 1){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 A fit index. Only IFIT=1";
+                }*/
+                ifit = 1;
+                cout << "   H1 2006 A pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+        } else if(nstru == 14){
+                /*if(ifit != 2){
+                        throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                        <<" Attempted to set non existant H1 2006 B fit index. Only IFIT=2";
+                }*/
+                ifit = 2;
+                cout << "   H1 2006 B pdf's" << endl;
+                cout << "   IFIT = "<< ifit <<endl;
+                double xp = 0.1;
+                double Q2 = 75.0;
+                double xpq[13];
+                double f2[2];
+                double fl[2];
+                double c2[2];
+                double cl[2];
+                qcd_2006(xp,Q2,ifit,xpq,f2,fl,c2,cl);
+        } else{
+                throw edm::Exception(edm::errors::Configuration,"PomwigError")
+                <<" Only running Pomeron H1 1997 (NSTRU=9), H1 2006 fit A (NSTRU=12) and H1 2006 fit B (NSTRU=14)";
+        }
   }
+
   hweini();
 
   cout << endl; // Stetically add for the output
