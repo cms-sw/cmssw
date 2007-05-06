@@ -136,7 +136,11 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(MonitorUserInterface* mui) {
           map<string, MonitorElement*>::iterator iPos = MEMap.find(name); 
           MonitorElement* me; 
           if (iPos == MEMap.end()) {
-	    me = getSummaryME(mui, name, htype);
+            if (htype == "sum" || htype == "Sum") {
+	      me = getSummaryME(mui, name, htype);
+	    } else {
+	      me = getSummaryME(mui, name, "bin-by-bin");              
+            }
 	    MEMap.insert(pair<string, MonitorElement*>(name, me));
           } else  me =  iPos->second;
           if (htype == "sum" || htype == "Sum") {
