@@ -137,19 +137,19 @@ double TrackDetMatchInfo::coneEnergy( double dR, EnergyType type )
     case TowerEcal:
 	{
 	   for(std::vector<CaloTower>::const_iterator hit=crossedTowers.begin(); hit!=crossedTowers.end(); hit++)
-	     if (insideCone(hit->id(),dR)) energy += hit->energy();
+	     if (insideCone(hit->id(),dR)) energy += hit->emEnergy();
 	}
       break;
     case TowerHcal:
 	{
 	   for(std::vector<CaloTower>::const_iterator hit=crossedTowers.begin(); hit!=crossedTowers.end(); hit++)
-	     if (insideCone(hit->id(),dR)) energy += hit->energy();
+	     if (insideCone(hit->id(),dR)) energy += hit->hadEnergy();
 	}
       break;
     case TowerHO:
 	{
 	   for(std::vector<CaloTower>::const_iterator hit=crossedTowers.begin(); hit!=crossedTowers.end(); hit++)
-	     if (insideCone(hit->id(),dR)) energy += hit->energy();
+	     if (insideCone(hit->id(),dR)) energy += hit->outerEnergy();
 	}
       break;
     default:
@@ -195,7 +195,7 @@ double TrackDetMatchInfo::nXnEnergy(const DetId& id, EnergyType type, int gridSi
 		    energy += hit->hadEnergy();
 		    break;
 		  case TowerHO:
-		    energy += hit->energy();
+		    energy += hit->outerEnergy();
 		    break;
 		  default:
 		    edm::LogWarning("TrackAssociator") << "Unknown calo tower energy type: " << type;
