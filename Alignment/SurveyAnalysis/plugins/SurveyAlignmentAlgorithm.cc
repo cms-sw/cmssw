@@ -17,17 +17,6 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
 					  AlignableMuon*,
 					  AlignmentParameterStore* store)
 {
-  const std::vector<Alignable*>& alignables = store->alignables();
-
-  unsigned int nAlignable = alignables.size();
-
-  std::vector<Alignable*> sensors(nAlignable, 0);
-
-  for (unsigned int i = 0; i < nAlignable; ++i)
-  {
-    sensors[i] = alignables[i]->components().front();
-  }
-
   AlignableObjectId dummy;
 
   std::vector<Alignable::AlignableObjectIdType> levels;
@@ -37,7 +26,7 @@ void SurveyAlignmentAlgorithm::initialize(const edm::EventSetup&,
     levels.push_back(dummy.nameToType(theLevels[l]));
   }
 
-  SurveyAlignmentSensor align(sensors, levels);
+  SurveyAlignmentSensor align(store->alignables(), levels);
 
   align.iterate(theIterations, theOutfile);
 }

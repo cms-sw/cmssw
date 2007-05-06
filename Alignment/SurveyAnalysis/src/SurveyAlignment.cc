@@ -47,12 +47,14 @@ void SurveyAlignment::iterate(unsigned int nIteration,
 
   SurveyOutput out(theSensors, fileName);
 
-  for (unsigned int i = 0; i < nIteration; ++i)
+  out.write(0);
+
+  for (unsigned int i = 1; i <= nIteration; ++i)
   {
     std::cout << "***** Iteration " << i << " *****\n";
     findAlignPars(bias);
-    out.write(i);
     shiftSensors();
+    out.write(i);
 
   // Check convergence
 
