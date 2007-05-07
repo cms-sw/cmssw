@@ -67,8 +67,8 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
     }
   }
 
-  std::cout << "Overlap hits " << barrelHits.size() << " " 
-                               << endcapHits.size() << std::endl;
+  //std::cout << "Overlap hits " << barrelHits.size() << " " 
+  //                             << endcapHits.size() << std::endl;
 
   return result;
 }
