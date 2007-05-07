@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.14 2007/04/17 09:06:36 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.15 2007/04/26 03:02:10 jribnik Exp $
 //
 //
 
@@ -736,13 +736,17 @@ void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamb
    if( const DTChamber* chamberDT = dynamic_cast<const DTChamber*>(chamber))
      if (chamberDT->id().station()==4)
        isDTOuterStation = true;
+
+   double deltaPhi(fabs(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi()));
+   if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
+
    if( isDTOuterStation )
      {
-	isGood = fabs(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi()) < parameters.dRMuon;
+	isGood = deltaPhi < parameters.dRMuon;
 	// Be in chamber
 	isGood &= fabs(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta()) < .3;
      } else isGood = sqrt( pow(segmentGlobalPosition.eta()-trajectoryStateOnSurface.freeState()->position().eta(),2) + 
-			   pow(segmentGlobalPosition.phi()-trajectoryStateOnSurface.freeState()->position().phi(),2)) < parameters.dRMuon;
+			   deltaPhi*deltaPhi) < parameters.dRMuon;
 
    if(isGood) {
       MuonSegmentMatch muonSegment;
