@@ -24,6 +24,9 @@
 
 #include "CkfTrackCandidateMakerWithSeedAssoc.h"
 
+#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
+
 using namespace edm;
 using namespace std;
 
@@ -31,7 +34,7 @@ namespace cms{
   CkfTrackCandidateMakerWithSeedAssoc::CkfTrackCandidateMakerWithSeedAssoc(edm::ParameterSet const& conf) : 
 
     conf_(conf),theTrajectoryBuilder(0),theTrajectoryCleaner(0),
-    theInitialState(0),theNavigationSchool(0)
+    theInitialState(0),theNavigationSchool(0),theSeedCleaner(0)
   {  
     produces<TrackCandidateCollection>();  
     produces<reco::TrackCandidateSeedAssociationCollection>();
@@ -43,6 +46,7 @@ namespace cms{
     delete theInitialState;  
     delete theNavigationSchool;
     delete theTrajectoryCleaner;    
+    if (theSeedCleaner) delete theSeedCleaner;
   }  
 
   void CkfTrackCandidateMakerWithSeedAssoc::beginJob (EventSetup const & es)
@@ -65,6 +69,16 @@ namespace cms{
     edm::ESHandle<TrackerTrajectoryBuilder> theTrajectoryBuilderHandle;
     es.get<CkfComponentsRecord>().get(trajectoryBuilderName,theTrajectoryBuilderHandle);
     theTrajectoryBuilder = theTrajectoryBuilderHandle.product();    
+    std::string cleaner = conf_.getParameter<std::string>("RedundantSeedCleaner");
+    if (cleaner == "SeedCleanerByHitPosition") {
+        theSeedCleaner = new SeedCleanerByHitPosition();
+    } else if (cleaner == "CachingSeedCleanerByHitPosition") {
+        theSeedCleaner = new CachingSeedCleanerByHitPosition();
+    } else if (cleaner == "none") {
+        theSeedCleaner = 0;
+    } else {
+        throw cms::Exception("RedundantSeedCleaner not found", cleaner);
+    }
   }
   
   // Functions that gets called by framework every event
@@ -92,10 +106,16 @@ namespace cms{
        TrajectorySeedCollection::const_iterator iseed;
      
       vector<Trajectory> rawResult;
+      if (theSeedCleaner) theSeedCleaner->init( &rawResult );
       vector <int> seedLocations;
       int seednr =0;
+      int seedkept =0;
+      
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){
 	vector<Trajectory> theTmpTrajectories;
+	
+	if (!theSeedCleaner || theSeedCleaner->good(&(*iseed))) {
+	
 	theTmpTrajectories = theTrajectoryBuilder->trajectories(*iseed);
 	
        
@@ -108,12 +128,19 @@ namespace cms{
 	    it!=theTmpTrajectories.end(); it++){
 	  if( it->isValid() ) {
 	    rawResult.push_back(*it);
+            if (theSeedCleaner) theSeedCleaner->add( & (*it) );
 	    seedLocations.push_back(seednr);
 	  }
 	}
 	LogDebug("CkfPattern") << "rawResult size after cleaning " << rawResult.size();
+        
+	seedkept++;
+	}
+	
         seednr++;
       }
+      
+      if (theSeedCleaner) theSeedCleaner->done();
       
       // Step E: Clean the result
       seednr=0;
@@ -170,6 +197,7 @@ namespace cms{
       edm::ESHandle<TrackerGeometry> tracker;
       es.get<TrackerDigiGeometryRecord>().get(tracker);
       edm::LogVerbatim("CkfPattern") << "number of Seed: " << theSeedColl.size();
+      edm::LogVerbatim("CkfPattern") << "number of kept seeds: " << seedkept;
       
       /*
       for(iseed=theSeedColl.begin();iseed!=theSeedColl.end();iseed++){

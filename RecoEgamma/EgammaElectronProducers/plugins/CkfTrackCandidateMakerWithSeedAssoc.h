@@ -32,6 +32,8 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
+
 class TransientInitialStateEstimator;
 
 namespace cms
@@ -58,6 +60,8 @@ namespace cms
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
     const NavigationSchool*       theNavigationSchool;
+    
+    RedundantSeedCleaner*  theSeedCleaner;
   };
 }
 
