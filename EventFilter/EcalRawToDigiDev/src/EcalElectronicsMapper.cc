@@ -232,10 +232,11 @@ bool EcalElectronicsMapper::readDCCMapFile(){
   char lineBuf_[100];
   uint SMId_,DCCId_;
   // loop while extraction from file is possible
+  dccMapFile_.getline(lineBuf_,10);       //read line from file
   while (dccMapFile_.good()) {
-    dccMapFile_.getline(lineBuf_,10);       //read line from file
     sscanf(lineBuf_,"%u:%u",&SMId_,&DCCId_);
     myDCCMap_[SMId_] = DCCId_;
+    dccMapFile_.getline(lineBuf_,10);       //read line from file
   }
   
   
