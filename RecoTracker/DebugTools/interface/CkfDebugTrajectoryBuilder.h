@@ -28,8 +28,10 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
 				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 
     return theDbg->analyseCompatibleMeasurements(traj,meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);
   };
-  void fillSeedHistoDebugger(TM result0, TM result1) const {
-    theDbg->fillSeedHist(result0.recHit(),result1.recHit(),result1.updatedState());
+  void fillSeedHistoDebugger(std::vector<TrajectoryMeasurement>::iterator result0, 
+			     std::vector<TrajectoryMeasurement>::iterator result1) const {
+    if (result0-result1>=2)
+      theDbg->fillSeedHist(result0->recHit(),(result0+1)->recHit(),(result0+1)->updatedState());
   }; 
 
 };
