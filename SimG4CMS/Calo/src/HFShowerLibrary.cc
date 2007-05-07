@@ -172,7 +172,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
 		       << " of energy " << pin/GeV << " GeV" 
-                       << " in.Pos x,y,z = " << xint << "," << yint << "," 
+                       << " Pos x,y,z = " << xint << "," << yint << "," 
                        << zint << "   sphi,cphi,stheta,ctheta  =" 
                        << sphi << "," << cphi << ","   
                        << stheta << "," << ctheta ; 
@@ -287,7 +287,7 @@ G4ThreeVector HFShowerLibrary::getPosHit(int i) {
 
   G4ThreeVector pos;
   if (i < nHit) pos = (hit[i].position);
-  LogDebug("HFShower") << " HFShowerLibrary: PosHit (" << i << "/" << nHit 
+  LogDebug("HFShower") << " HFShowerLibrary: getPosHit (" << i << "/" << nHit 
 		       << ") " << pos;
   return pos;
 }
@@ -296,7 +296,7 @@ int HFShowerLibrary::getDepth(int i) {
 
   int depth = 0;
   if (i < nHit) depth = (hit[i].depth);
-  LogDebug("HFShower") << " HFShowerLibrary: Depth (" << i << "/" << nHit 
+  LogDebug("HFShower") << " HFShowerLibrary: getDepth (" << i << "/" << nHit 
 		       << ") "  << depth;
   return depth;
 }
@@ -320,7 +320,7 @@ bool HFShowerLibrary::rInside(double r) {
 int HFShowerLibrary::getPhoton(TTree* tree, int record) {
 
   int nph = 0;
-  if (tree && record > 0) {
+  if (record > 0) {
     tree->SetBranchAddress("NPH", &nph);
     int nrc = record-1;
     tree->GetEntry(nrc);
@@ -332,7 +332,7 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
 
   int nrc = record-1;
   nPhoton = getPhoton(tree, record);
-  if (nPhoton > 0 && tree && nrc >= 0) {
+  if (nPhoton > 0 && nrc >= 0) {
     photon.clear(); photon.resize(nPhoton);
     LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
 			 << nPhoton << " photons";
