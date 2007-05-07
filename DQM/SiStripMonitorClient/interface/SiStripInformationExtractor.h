@@ -67,11 +67,14 @@ class SiStripInformationExtractor {
   void selectImage(std::string& name, int status);
   void selectImage(std::string& name, dqm::qtests::QR_map& test_map);
   void selectGlobalHistos(MonitorUserInterface * mui, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
-  
+  void defineZone(int nhist, int& ncol, int & now);  
+  void setCanvasMessage(const std::string& error_string);
+
   std::ostringstream pictureBuffer_;
   SiStripLayoutParser* layoutParser_;
 
   std::map<std::string, std::vector< std::string > > layoutMap;
   TCanvas* canvas_;
+  bool  readReference_;
 };
 #endif

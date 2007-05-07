@@ -16,7 +16,7 @@
 #include "TImageDump.h"
 #include "TAxis.h"
 #include "TStyle.h"
-
+#include "TPaveLabel.h"
 #include <iostream>
 using namespace std;
 
@@ -27,6 +27,7 @@ SiStripInformationExtractor::SiStripInformationExtractor() {
   edm::LogInfo("SiStripInformationExtractor") << 
     " Creating SiStripInformationExtractor " << "\n" ;
   layoutParser_ = 0;
+  readReference_ = false;
   layoutMap.clear();
   readConfiguration();
   canvas_ = new TCanvas("TestCanvas", "Test Canvas");
@@ -56,6 +57,7 @@ void SiStripInformationExtractor::readConfiguration() {
   } else  edm::LogInfo("SiStripInformationExtractor") << 
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
+
 }
 //
 // --  Fill Histo and Module List
@@ -334,26 +336,49 @@ void SiStripInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui,
 //
 void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mui){
   if (layoutMap.size() == 0) return;
-  multimap<string, string> opt_map;
-  opt_map.insert(pair<string,string>("width","600"));
-  opt_map.insert(pair<string,string>("height","600"));
-
+  if (!readReference_) {
+    DaqMonitorBEInterface * bei = mui->getBEInterface();
+    bei->open("Reference.root", false);
+    readReference_ = true;
+  }
+  gStyle->SetOptStat("emruo");
+  gStyle->SetStatFontSize(0.05);
+  canvas_->SetWindowSize(600,600);
+  canvas_->Clear();
+  float scale_fac;
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     string fname  = it->first + ".png";
-    vector < MonitorElement* > me_list;
+    int ncol, nrow;
+    defineZone(it->second.size(), ncol, nrow);
+    canvas_->Divide(ncol, nrow);
+    int ival = 0;
     for (vector<string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = mui->get(path_name);
-      if (me) me_list.push_back(me);
+      ival++;
+      canvas_->cd(ival);
+      if (!me) setCanvasMessage("Plot not ready yet!!");
+      else {
+	TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
+	if (hist1) {
+	  hist1->DrawCopy();
+	  string ref_path = it->first + "/" + path_name.substr(path_name.rfind("/")+1);
+	  MonitorElement* me_ref = mui->get(ref_path);
+	  if (me_ref) {
+	    TH1F* hist1_ref = ExtractTObject<TH1F>().extract(me_ref);
+            scale_fac = hist1->GetEntries()*1.0;
+	    hist1_ref->SetLineColor(3);
+	    hist1_ref->DrawNormalized("same", scale_fac);
+	  }
+	} else setCanvasMessage("Plot not ready yet!!"); 
+      }
     }
-    if (me_list.size() > 0) { 
-      plotHistos(opt_map, me_list, false); 
-      canvas_->Print(fname.c_str(),"png");
-      canvas_->Clear();
-      me_list.clear();
-    }
+    string command = "rm -f " + fname;
+    gSystem->Exec(command.c_str());
+    canvas_->Print(fname.c_str(),"png");
+    canvas_->Clear();
   }
 }
 
@@ -381,34 +406,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   } else {
     if (hasItem(req_map,"cols")) ncol = atoi(getItemValue(req_map, "cols").c_str());
     if (hasItem(req_map,"rows")) nrow = atoi(getItemValue(req_map, "rows").c_str());
-    if (ncol*nrow < nhist) {
-      if (nhist == 2) {
-	ncol = 1;
-	nrow = 2;
-      } else if (nhist == 3) {
-	ncol = 1;
-	nrow = 3;
-      } else if (nhist == 4) {
-	ncol = 2;
-	nrow = 2;
-      } else if (nhist == 5 ||nhist == 6 ) {
-	ncol = 2;
-	nrow = 3;
-      } else if (nhist == 7 ||nhist == 8 ) {
-	ncol = 2;
-	nrow = 4;
-      } else if (nhist > 8 && nhist <= 12) {
-        ncol = 3;
-	nrow = nhist/ncol+1;
-      } else if (nhist > 10 && nhist <= 20) {
-        ncol = 3;
-	nrow = nhist/ncol+1;
-      } else if (nhist > 20 && nhist <= 40) {
-         ncol = 4;
-	 nrow = nhist/ncol+1;
-      } 		
-
-    }
+    if (ncol*nrow < nhist) defineZone(nhist, ncol, nrow);
   }
   if (hasItem(req_map,"width")) 
               width = atoi(getItemValue(req_map, "width").c_str());    
@@ -506,7 +504,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
       if (hasItem(req_map,"logy")) {
 	gPad->SetLogy(1);
       }
-    }
+    } else setCanvasMessage("Plot does not exist (yet)!!"); 
   }
   canvas_->Update();
   canvas_->Modified();
@@ -759,4 +757,43 @@ void SiStripInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
    *out << "</PathList>" << endl;
    *out << "</StatusAndPath>" << endl;
 }
+//
+// -- Define Zone from # of histograms
+//
+void SiStripInformationExtractor::defineZone(int nhist, int& ncol, int & nrow) {
 
+  if (nhist == 2) {
+    ncol = 1;
+    nrow = 2;
+  } else if (nhist == 3) {
+    ncol = 1;
+    nrow = 3;
+  } else if (nhist == 4) {
+    ncol = 2;
+    nrow = 2;
+  } else if (nhist == 5 ||nhist == 6 ) {
+    ncol = 2;
+    nrow = 3;
+  } else if (nhist == 7 ||nhist == 8 ) {
+    ncol = 2;
+    nrow = 4;
+  } else if (nhist > 8 && nhist <= 12) {
+    ncol = 3;
+    nrow = nhist/ncol+1;
+  } else if (nhist > 10 && nhist <= 20) {
+    ncol = 3;
+    nrow = nhist/ncol+1;
+  } else if (nhist > 20 && nhist <= 40) {
+    ncol = 4;
+    nrow = nhist/ncol+1;
+  } 		
+}
+//
+// -- Set Canvas Message
+//
+void SiStripInformationExtractor::setCanvasMessage(const string& error_string) {
+  TText tLabel;
+  tLabel.SetTextSize(0.16);
+  tLabel.SetTextColor(4);
+  tLabel.DrawTextNDC(0.1, 0.5, error_string.c_str());
+}
