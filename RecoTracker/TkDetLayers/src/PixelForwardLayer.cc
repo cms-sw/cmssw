@@ -259,7 +259,7 @@ PixelForwardLayer::computeWindowSize( const GeomDet* det,
 				      const TrajectoryStateOnSurface& tsos, 
 				      const MeasurementEstimator& est) const
 {
-  return est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
+  return est.maximalLocalDisplacement(tsos, det->surface()).x();
 }
 
 

@@ -236,7 +236,7 @@ TIDLayer::computeWindowSize( const GeomDet* det,
 			     const TrajectoryStateOnSurface& tsos, 
 			     const MeasurementEstimator& est) const
 {
-  const BoundPlane& startPlane( dynamic_cast<const BoundPlane&>(det->surface()) );  
+  const BoundPlane& startPlane = det->surface();  
   MeasurementEstimator::Local2DVector maxDistance = 
     est.maximalLocalDisplacement( tsos, startPlane);
   return maxDistance.y();

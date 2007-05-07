@@ -196,7 +196,7 @@ float PixelBlade::computeWindowSize( const GeomDet* det,
 				     const MeasurementEstimator& est) const
 {
   return
-    est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
+    est.maximalLocalDisplacement(tsos, det->surface()).x();
 }
 
 

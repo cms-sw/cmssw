@@ -286,7 +286,7 @@ float CompositeTECPetal::computeWindowSize( const GeomDet* det,
 					    const TrajectoryStateOnSurface& tsos, 
 					    const MeasurementEstimator& est) const
 {
-  double ymax = est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).y();
+  double ymax = est.maximalLocalDisplacement(tsos, det->surface()).y();
   return ymax;
 }
 

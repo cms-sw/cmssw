@@ -199,7 +199,7 @@ float TIDRing::computeWindowSize( const GeomDet* det,
 				  const TrajectoryStateOnSurface& tsos, 
 				  const MeasurementEstimator& est) const
 {
-  const BoundPlane& startPlane( dynamic_cast<const BoundPlane&>(det->surface()) );  
+  const BoundPlane& startPlane = det->surface() ;  
   MeasurementEstimator::Local2DVector maxDistance = 
     est.maximalLocalDisplacement( tsos, startPlane);
   return calculatePhiWindow( maxDistance, tsos, startPlane);
@@ -254,11 +254,9 @@ void TIDRing::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 bool 
 TIDRing::overlapInPhi( const GlobalPoint& startPoint,const GeomDet* det, float phiWindow) const 
-{
-  const BoundPlane& plane( dynamic_cast<const BoundPlane&>( det->surface()));
-  
+{  
   pair<float,float> phiRange(startPoint.phi()-phiWindow, startPoint.phi()+phiWindow);
-  pair<float,float> detPhiRange = computeDetPhiRange( plane);
+  pair<float,float> detPhiRange = computeDetPhiRange( det->surface());
   if ( rangesIntersect( phiRange, detPhiRange, PhiLess())) { 
     return true;
   } 

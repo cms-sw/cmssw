@@ -210,7 +210,7 @@ float TOBRod::computeWindowSize( const GeomDet* det,
 				 const MeasurementEstimator& est) const
 {
   return
-    est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).y();
+    est.maximalLocalDisplacement(tsos, det->surface()).y();
 }
 
 

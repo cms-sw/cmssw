@@ -259,8 +259,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   GlobalVector cylDir( cylCrossing.direction());
   int closestIndex = theBinFinder.binIndex(cylPoint.phi());
 
-  const BoundPlane& closestPlane( dynamic_cast<const BoundPlane&>( 
-    theDets[closestIndex]->surface()));
+  const BoundPlane& closestPlane( theDets[closestIndex]->surface());
 
   LocalPoint closestPos = Crossing( cylPoint, cylDir, rho, closestPlane).position();
   float closestDist = closestPos.x(); // use fact that local X perp to global Z 
@@ -269,8 +268,7 @@ TIBRing::computeCrossings( const TrajectoryStateOnSurface& startingState,
   int nextIndex = PhiLess()( closestPlane.position().phi(), cylPoint.phi()) ? 
     closestIndex+1 : closestIndex-1;
 
-  const BoundPlane& nextPlane( dynamic_cast<const BoundPlane&>( 
-    theDets[ theBinFinder.binIndex(nextIndex)]->surface()));
+  const BoundPlane& nextPlane( theDets[ theBinFinder.binIndex(nextIndex)]->surface());
   LocalPoint nextPos = Crossing( cylPoint, cylDir, rho, nextPlane).position();
   float nextDist = nextPos.x();
 
@@ -286,7 +284,7 @@ float TIBRing::computeWindowSize( const GeomDet* det,
 				  const TrajectoryStateOnSurface& tsos, 
 				  const MeasurementEstimator& est) const
 {
-  return est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
+  return est.maximalLocalDisplacement(tsos, det->surface()).x();
 }
 
 

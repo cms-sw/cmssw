@@ -199,7 +199,7 @@ float PixelBarrelLayer::computeWindowSize( const GeomDet* det,
 					   const MeasurementEstimator& est) const
 {
   double xmax = 
-    est.maximalLocalDisplacement(tsos, dynamic_cast<const BoundPlane&>(det->surface())).x();
+    est.maximalLocalDisplacement(tsos, det->surface()).x();
   return calculatePhiWindow( xmax, *det, tsos);
 }
 

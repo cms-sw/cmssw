@@ -249,9 +249,8 @@ void CompositeTECWedge::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 
 bool CompositeTECWedge::overlap( const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) const
 {
-  const BoundPlane& plane( dynamic_cast<const BoundPlane&>( det.surface()));
   pair<float,float> phiRange(crossPoint.phi()-phiWindow, crossPoint.phi()+phiWindow);
-  pair<float,float> detPhiRange = computeDetPhiRange( plane);
+  pair<float,float> detPhiRange = computeDetPhiRange( det.surface());
   if ( rangesIntersect( phiRange, detPhiRange, PhiLess())) { 
     return true;
   } 
@@ -262,7 +261,7 @@ float CompositeTECWedge::computeWindowSize( const GeomDet* det,
 					    const TrajectoryStateOnSurface& tsos, 
 					    const MeasurementEstimator& est) const
 {
-  const BoundPlane& plane( dynamic_cast<const BoundPlane&>(det->surface()) );
+  const BoundPlane& plane = det->surface();
   MeasurementEstimator::Local2DVector maxDistance = 
     est.maximalLocalDisplacement(tsos, plane);
   return calculatePhiWindow( maxDistance, tsos, plane);
