@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.7 2007/04/02 17:26:02 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.9 2007/04/13 02:52:10 dmytro Exp $
 //
 //
 
@@ -237,11 +237,11 @@ std::pair<float,float> CachedTrajectory::delta(const double& theta1,
 {
    std::pair<float,float> result(theta2 - theta1, phi2 - phi1 );
    // this won't work for loopers, since deltaPhi cannot be larger than Pi.
-   if ( fabs(result.second) > 2*3.1416-fabs(result.second) ) {
+   if ( fabs(result.second) > 2*M_PI-fabs(result.second) ) {
       if (result.second>0) 
-	result.second -= 2*3.1416;
+	result.second -= 2*M_PI;
       else
-	result.second += 2*3.1416;
+	result.second += 2*M_PI;
    }
    return result;
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.16 2007/04/02 17:32:15 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.17 2007/04/13 02:55:40 dmytro Exp $
 //
 //
 
@@ -133,10 +133,10 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point
      return getDetIdsCloseToAPoint(point,n,n,n,n);
    // check that region of interest overlaps with the look-up map
    double maxTheta = point.theta()+dThetaPlus;
-   if (maxTheta > 3.1416-minTheta_) maxTheta =  3.1416-minTheta_;
+   if (maxTheta > M_PI-minTheta_) maxTheta =  M_PI-minTheta_;
    double minTheta = point.theta()-dThetaMinus;
    if (minTheta < minTheta_) minTheta = minTheta_;
-   if ( maxTheta < minTheta_ || minTheta > 3.1416-minTheta_) return std::set<DetId>();
+   if ( maxTheta < minTheta_ || minTheta > M_PI-minTheta_) return std::set<DetId>();
    
    // take into account non-linear dependence of eta from
    // theta in regions with large |eta|
@@ -144,8 +144,8 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point
    double maxEta = -log(tan(minTheta/2));
    unsigned int iNEtaPlus  = abs(int( ( maxEta-point.eta() )/etaBinSize_));
    unsigned int iNEtaMinus = abs(int( ( point.eta() - minEta )/etaBinSize_));
-   unsigned int iNPhiPlus = abs(int( dPhiPlus/(2*3.1416)*nPhi_ ));
-   unsigned int iNPhiMinus  = abs(int( dPhiMinus/(2*3.1416)*nPhi_ ));
+   unsigned int iNPhiPlus = abs(int( dPhiPlus/(2*M_PI)*nPhi_ ));
+   unsigned int iNPhiMinus  = abs(int( dPhiMinus/(2*M_PI)*nPhi_ ));
    // add one more bin in each direction to guaranty that we don't miss anything
    return getDetIdsCloseToAPoint(point, iNEtaPlus+1, iNEtaMinus+1, iNPhiPlus+1, iNPhiMinus+1);
 }
@@ -158,7 +158,7 @@ int DetIdAssociator::iEta (const GlobalPoint& point)
 
 int DetIdAssociator::iPhi (const GlobalPoint& point)
 {
-   return int((double(point.phi())+3.1416)/(2*3.1416)*nPhi_);
+   return int((double(point.phi())+M_PI)/(2*M_PI)*nPhi_);
 }
 
 
@@ -258,7 +258,7 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 					     const std::vector<GlobalPoint>& trajectory,
 					     const double dR)
 {
-   if ( dR > 2*3.1416 && dR > maxEta_ ) return inset;
+   if ( dR > 2*M_PI && dR > maxEta_ ) return inset;
    check_setup();
    std::set<DetId> outset;
    for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)

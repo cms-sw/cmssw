@@ -21,7 +21,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.h,v 1.10 2007/04/02 17:32:14 dmytro Exp $
+// $Id: DetIdAssociator.h,v 1.11 2007/04/13 02:55:39 dmytro Exp $
 //
 //
 
@@ -127,10 +127,8 @@ class DetIdAssociator{
    virtual bool nearElement(const GlobalPoint& point, const DetId& id, const double distance) {
      GlobalPoint center = getPosition(id);
 
-     double pi = 3.1415926535;
-
      double deltaPhi(fabs(point.phi()-center.phi()));
-     if(deltaPhi>pi) deltaPhi = fabs(deltaPhi-pi*2.);
+     if(deltaPhi>M_PI) deltaPhi = fabs(deltaPhi-M_PI*2.);
 
      return (point.eta()-center.eta())*(point.eta()-center.eta()) + deltaPhi*deltaPhi < distance*distance;
    };

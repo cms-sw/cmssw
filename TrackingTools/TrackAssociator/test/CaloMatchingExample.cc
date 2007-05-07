@@ -11,7 +11,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.5 2007/04/02 17:43:56 dmytro Exp $
+// $Id: CaloMatchingExample.cc,v 1.6 2007/04/13 03:09:28 dmytro Exp $
 //
 //
 
@@ -255,7 +255,7 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       LogTrace("TrackAssociator") << "===========================================================================\nDetails:\n" ;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, parameters_);
       // get some noise info (random direction)
-      ROOT::Math::RhoEtaPhiVector randomVector(10,(HepRandom::getTheEngine()->flat()-0.5)*6,(HepRandom::getTheEngine()->flat()-0.5)*2*3.1416);
+      ROOT::Math::RhoEtaPhiVector randomVector(10,(HepRandom::getTheEngine()->flat()-0.5)*6,(HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
       TrackDetMatchInfo infoRandom = trackAssociator_.associate(iEvent, iSetup,      
 								GlobalVector(randomVector.x(),randomVector.y(),randomVector.z()),
 								GlobalPoint(0,0,0),
