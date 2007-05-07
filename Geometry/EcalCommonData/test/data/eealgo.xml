@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../DetectorDescription/Schema/DDLSchema.xsd">
+
+
+<ConstantsSection  label="eealgo.xml" eval="true">
+
+</ConstantsSection>
+
+<Algorithm name="ecal:DDEcalEndcapAlgo">
+     <rParent name="eregalgo:EREG"/>
+
+    <String  name="EEName" value="ENCA"/>
+    <String  name="EEMat"  value="materials:Air"/>
+
+    <Numeric name="EEdz"       value="28.5*cm"/>
+    <Numeric name="EErMin1"    value="31.693*cm"/>
+    <Numeric name="EErMin2"    value="33.962*cm"/>
+    <Numeric name="EErMax1"    value="1.5644*m"/>
+    <Numeric name="EErMax2"    value="1.77164*m"/>
+    <Numeric name="EEzOff"     value="3.429*m"/>
+
+  </Algorithm>
+
+</DDDefinition>
+
