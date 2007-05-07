@@ -6,7 +6,7 @@
 class EventColin {
   
  public:
-  EventColin() : number_(-1) {}
+  EventColin() : number_(-1), nTracks_(0) {}
   virtual ~EventColin() {}
   void reset() {
     number_ = -1;
@@ -16,6 +16,7 @@ class EventColin {
     jetsMC_.clear();
     jetsEHT_.clear();
     jetsPF_.clear();
+    nTracks_=0;
   }
 
   class Particle {
@@ -48,7 +49,10 @@ class EventColin {
     double e;
   };
 
+  
+
   void setNumber(int number) {number_ = number;}
+  void setNTracks(int nTracks) {nTracks_ = nTracks;}
 
   void addParticle( const Particle& ptc ) {
     particles_.push_back(ptc);
@@ -91,13 +95,13 @@ class EventColin {
  private:
 
   int                               number_;
+  int                               nTracks_;
   std::vector<EventColin::Particle> particles_;
   std::vector<EventColin::Cluster>  clusters_;
   std::vector<EventColin::Cluster>  clustersIsland_;
   std::vector<EventColin::Jet>      jetsMC_;
   std::vector<EventColin::Jet>      jetsEHT_;
   std::vector<EventColin::Jet>      jetsPF_;
-  
 };
 
 #endif
