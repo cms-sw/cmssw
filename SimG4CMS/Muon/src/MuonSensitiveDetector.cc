@@ -220,8 +220,8 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
   float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
   float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
   float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-  //  short theParticleType     = theTrack->GetDefinition()->GetPDGEncoding();
-  short theParticleType     = myG4TrackToParticleID->particleID(theTrack);
+  //  int theParticleType     = theTrack->GetDefinition()->GetPDGEncoding();
+  int theParticleType     = myG4TrackToParticleID->particleID(theTrack);
   G4ThreeVector gmd  = aStep->GetPreStepPoint()->GetMomentumDirection();
   G4ThreeVector lmd = ((G4TouchableHistory *)(aStep->GetPreStepPoint()->GetTouchable()))->GetHistory()
     ->GetTopTransform().TransformAxis(gmd);
