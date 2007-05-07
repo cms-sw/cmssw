@@ -44,7 +44,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone( const math::X
 
 const TrackRef IsolatedTauTagInfo::leadingSignalTrack(const float rm_cone, const float pt_min) const {
 
-  const Jet & myjet = jet(); 
+  const Jet & myjet = * jet(); 
   math::XYZVector jet3Vec   (myjet.px(),myjet.py(),myjet.pz()) ;
 
   const  RefVector<TrackCollection>  sTracks = tracksInCone(jet3Vec, rm_cone, pt_min);

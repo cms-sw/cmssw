@@ -8,8 +8,6 @@
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
@@ -53,13 +51,6 @@ namespace {
     reco::JetTagRefProd                                                 jt_rp;
     reco::JetTagRefVector                                               jt_rv;
     edm::Wrapper<reco::JetTagCollection>                                jt_wc;
-
-    reco::BaseTagInfo                                                   bti;
-    reco::BaseTagInfoCollection                                         bti_c;
-    reco::BaseTagInfoRef                                                bti_r;
-    reco::BaseTagInfoRefProd                                            bti_rp;
-    reco::BaseTagInfoRefVector                                          bti_rv;
-    edm::Wrapper<reco::BaseTagInfoCollection>                           bti_wc;
 
     reco::CombinedSVTagInfo                                             sv;
     reco::CombinedSVTagInfoCollection                                   sv_c;

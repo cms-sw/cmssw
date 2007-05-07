@@ -11,7 +11,7 @@
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -25,10 +25,10 @@ using namespace edm;
 using namespace std;
 
 namespace reco { 
-  class CombinedTauTagInfo : public BaseTagInfo {
+  class CombinedTauTagInfo : public JTATagInfo {
   public:
     CombinedTauTagInfo(){}
-    CombinedTauTagInfo(const JetTracksAssociationRef& jtaRef):BaseTagInfo(jtaRef){
+    CombinedTauTagInfo(const JetTracksAssociationRef& jtaRef):JTATagInfo(jtaRef){
       thecandidate_passed_trackerselection=false;
       thecandidate_is_GoodTauCandidate=false;
       thecandidate_is_infact_GoodElectronCandidate=false;

@@ -7,11 +7,6 @@
   <class name="edm::Wrapper<reco::JetTagCollection>"/>
 
   <class name="reco::BaseTagInfo"/>
-  <class name="reco::BaseTagInfoCollection"/>
-  <class name="reco::BaseTagInfoRef"/>
-  <class name="reco::BaseTagInfoRefProd"/>
-  <class name="reco::BaseTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::BaseTagInfoCollection>"/>
 
   <class name="reco::CombinedSVTagInfo"/>
   <class name="reco::CombinedSVTagInfoCollection"/>

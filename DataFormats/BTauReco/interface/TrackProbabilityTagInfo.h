@@ -4,13 +4,13 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
 
 
 namespace reco {
  
-class TrackProbabilityTagInfo : public BaseTagInfo
+class TrackProbabilityTagInfo : public JTATagInfo
  {
   public:
 
@@ -18,7 +18,7 @@ class TrackProbabilityTagInfo : public BaseTagInfo
    std::vector<double> probability2d,
    std::vector<double> probability3d,
    std::vector<int> trackOrder2d,
-   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : BaseTagInfo(jtaRef),
+   std::vector<int> trackOrder3d,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
      m_probability2d(probability2d),
      m_probability3d(probability3d),
      m_trackOrder2d(trackOrder2d),

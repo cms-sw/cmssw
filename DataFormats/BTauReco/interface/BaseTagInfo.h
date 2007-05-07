@@ -1,33 +1,27 @@
 #ifndef DataFormats_BTauReco_BaseTagInfo_h
 #define DataFormats_BTauReco_BaseTagInfo_h
 
-#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
-
-#include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+#include "DataFormats/BTauReco/interface/BaseTagInfoFwd.h"
 
 namespace reco {
  
 class BaseTagInfo {
 public:
-  
-  BaseTagInfo() : m_jetTracksAssociation() { }
-  BaseTagInfo(const JetTracksAssociationRef & jtaRef) : m_jetTracksAssociation(jtaRef) { }
+  BaseTagInfo(void) { }
 
-  virtual ~BaseTagInfo(void) {}
+  virtual ~BaseTagInfo(void) { }
   
-  virtual BaseTagInfo* clone(void) const { return new BaseTagInfo(*this); }
+  /// returns a polymorphic reference to the tagget Jet
+  virtual edm::RefToBase<Jet> jet(void) const = 0;
 
-  void  setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation=jtaRef;  } 
-
-  const JetTracksAssociationRef & jtaRef(void)         const { return m_jetTracksAssociation; }
-  const Jet & jet() const { return *m_jetTracksAssociation->key; }
-  const edm::RefVector<TrackCollection> & tracks() const { return m_jetTracksAssociation->val; }
-	
-  
-protected:
-  JetTracksAssociationRef m_jetTracksAssociation;
+  /// returns a description of the extended informations in a TaggingVariableList
+  virtual TaggingVariableList taggingVariables(void) const {
+    // if this is called often, we can cache the results un return a reference
+    return TaggingVariableList();
+  }
 };
 
 }

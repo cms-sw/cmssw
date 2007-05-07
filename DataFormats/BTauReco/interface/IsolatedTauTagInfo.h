@@ -11,7 +11,7 @@
 
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -28,14 +28,14 @@ using namespace std;
 namespace reco { 
 
 
-class IsolatedTauTagInfo : public BaseTagInfo {
+class IsolatedTauTagInfo : public JTATagInfo {
 
   public:
     //default constructor
     IsolatedTauTagInfo() {}
 
 
-    IsolatedTauTagInfo(edm::RefVector<TrackCollection> tracks,const JetTracksAssociationRef & jtaRef):BaseTagInfo(jtaRef) 
+    IsolatedTauTagInfo(edm::RefVector<TrackCollection> tracks,const JetTracksAssociationRef & jtaRef):JTATagInfo(jtaRef) 
       {    
 	track_iterator it = tracks.begin();
 	for(;it!= tracks.end(); it++)
@@ -48,7 +48,7 @@ class IsolatedTauTagInfo : public BaseTagInfo {
     virtual ~IsolatedTauTagInfo() {};
     
     //get the tracks from the jetTag
-    const TrackRefVector & allTracks() const { return tracks(); }
+    const TrackRefVector allTracks() const { return tracks(); }
 
     //get the selected tracks used to computed the isolation
     const TrackRefVector & selectedTracks() const {return selectedTracks_;}
@@ -56,7 +56,7 @@ class IsolatedTauTagInfo : public BaseTagInfo {
     virtual IsolatedTauTagInfo* clone() const { return new IsolatedTauTagInfo( *this ); }
   
     //default discriminator: returns the value of the discriminator of the jet tag, i.e. the one computed with the parameters taken from the cfg file
-    //   using BaseTagInfo::discriminator;
+    //   using JTATagInfo::discriminator;
     float  discriminator() const {return -1.; }
      
     //methods to be used to recomputed the isolation with a new set of parameters

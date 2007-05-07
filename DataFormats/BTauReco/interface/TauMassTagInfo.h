@@ -5,7 +5,7 @@
 #include <map>
 
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -14,7 +14,7 @@
 
 namespace reco {
  
-  class TauMassTagInfo : public BaseTagInfo {
+  class TauMassTagInfo : public JTATagInfo {
   public:
 
     typedef edm::AssociationMap < edm::OneToValue<BasicClusterCollection,

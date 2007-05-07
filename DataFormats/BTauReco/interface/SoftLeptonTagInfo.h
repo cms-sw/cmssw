@@ -8,7 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
 
 namespace reco {
@@ -31,7 +31,7 @@ public:
     double tag;                             // discriminant using this track as tagging lepton
 };
 
-class SoftLeptonTagInfo : public BaseTagInfo {
+class SoftLeptonTagInfo : public JetTagInfo {
 public:
 
     //typedef edm::AssociationMap< edm::OneToValue< TrackCollection, SoftLeptonProperties, unsigned int > > LeptonMap;

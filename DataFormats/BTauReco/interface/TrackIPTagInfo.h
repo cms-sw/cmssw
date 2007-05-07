@@ -5,12 +5,12 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
 
 namespace reco {
  
-class TrackIPTagInfo : public BaseTagInfo
+class TrackIPTagInfo : public JTATagInfo
  {
   public:
 
@@ -21,7 +21,7 @@ class TrackIPTagInfo : public BaseTagInfo
    std::vector<Measurement1D> jetDistance,
    std::vector<float> prob2d,
    std::vector<float> prob3d,
-   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef) : BaseTagInfo(jtaRef),
+   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
      m_ip2d(ip2d),  m_ip3d(ip3d),  m_decayLen(decayLen),
      m_jetDistance(jetDistance),  m_prob2d(prob2d),
      m_prob3d(prob3d), m_selectedTracks(selectedTracks) {}
