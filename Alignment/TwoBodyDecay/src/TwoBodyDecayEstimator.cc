@@ -5,7 +5,7 @@
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayModel.h"
 #include "Alignment/TwoBodyDecay/interface/TwoBodyDecayDerivatives.h"
 
-#include "DataFormats/CLHEP/interface/Migration.h"
+//#include "DataFormats/CLHEP/interface/Migration.h"
 
 using namespace std;
 
@@ -112,8 +112,8 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   PerigeeLinearizedTrackState* linTrack1 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[0].get() );
   PerigeeLinearizedTrackState* linTrack2 = dynamic_cast<PerigeeLinearizedTrackState*>( linTracks[1].get() );
 
-  AlgebraicVector trackParam1 = asHepVector<5>( linTrack1->predictedStateParameters() );
-  AlgebraicVector trackParam2 = asHepVector<5>( linTrack2->predictedStateParameters() );
+  AlgebraicVector trackParam1 = linTrack1->predictedStateParameters();
+  AlgebraicVector trackParam2 = linTrack2->predictedStateParameters();
 
   if ( checkValues( trackParam1 ) || checkValues( trackParam2 ) || checkValues( linearizationPoint.parameters() ) ) return false;
 
@@ -131,11 +131,11 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   pair< AlgebraicVector, AlgebraicVector > linCartMomenta = decayModel.cartesianSecondaryMomenta( linearizationPoint );
 
   // first track
-  AlgebraicMatrix matA1 = asHepMatrix<5,3>( linTrack1->positionJacobian() );
-  AlgebraicMatrix matB1 = asHepMatrix<5,3>( linTrack1->momentumJacobian() );
-  AlgebraicVector vecC1 = asHepVector<5>( linTrack1->constantTerm() );
+  AlgebraicMatrix matA1 = linTrack1->positionJacobian();
+  AlgebraicMatrix matB1 = linTrack1->momentumJacobian();
+  AlgebraicVector vecC1 = linTrack1->constantTerm();
 
-  AlgebraicVector curvMomentum1 = asHepVector<3>( linTrack1->predictedStateMomentumParameters() );
+  AlgebraicVector curvMomentum1 = linTrack1->predictedStateMomentumParameters();
   AlgebraicMatrix curv2cart1 = decayModel.curvilinearToCartesianJacobian( curvMomentum1, zMagField );
 
   AlgebraicVector cartMomentum1 = decayModel.convertCurvilinearToCartesian( curvMomentum1, zMagField );
@@ -145,7 +145,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   AlgebraicMatrix matF1 = derivatives.first;
   AlgebraicVector vecD1 = linCartMomenta.first - matF1*vecLinParam;
   AlgebraicVector vecM1 = trackParam1 - vecC1 - matB1*vecD1;
-  AlgebraicSymMatrix covM1 = asHepMatrix<5>( linTrack1->predictedStateError() );
+  AlgebraicSymMatrix covM1 = linTrack1->predictedStateError();
 
 
   AlgebraicSymMatrix matG1 = covM1.inverse( checkInversion );
@@ -160,11 +160,11 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
    AlgebraicMatrix matU1 = diagonalize( &matG1 ).T();
 
   // second track
-  AlgebraicMatrix matA2 = asHepMatrix<5,3>( linTrack2->positionJacobian() );
-  AlgebraicMatrix matB2 = asHepMatrix<5,3>( linTrack2->momentumJacobian() );
-  AlgebraicVector vecC2 = asHepVector<5>( linTrack2->constantTerm() );
+  AlgebraicMatrix matA2 = linTrack2->positionJacobian();
+  AlgebraicMatrix matB2 = linTrack2->momentumJacobian();
+  AlgebraicVector vecC2 = linTrack2->constantTerm();
 
-  AlgebraicVector curvMomentum2 = asHepVector<3>( linTrack2->predictedStateMomentumParameters() );
+  AlgebraicVector curvMomentum2 = linTrack2->predictedStateMomentumParameters();
   AlgebraicMatrix curv2cart2 = decayModel.curvilinearToCartesianJacobian( curvMomentum2, zMagField );
 
   AlgebraicVector cartMomentum2 = decayModel.convertCurvilinearToCartesian( curvMomentum2, zMagField );
@@ -174,7 +174,7 @@ bool TwoBodyDecayEstimator::constructMatrices( const std::vector< RefCountedLine
   AlgebraicMatrix matF2 = derivatives.second;
   AlgebraicVector vecD2 = linCartMomenta.second - matF2*vecLinParam;
   AlgebraicVector vecM2 = trackParam2 - vecC2 - matB2*vecD2;
-  AlgebraicSymMatrix covM2 = asHepMatrix<5>( linTrack2->predictedStateError() );
+  AlgebraicSymMatrix covM2 = linTrack2->predictedStateError();
 
   AlgebraicSymMatrix matG2 = covM2.inverse( checkInversion );
   if ( checkInversion != 0 )
