@@ -10,24 +10,27 @@ void debugRun(){
   ClusterThr A;                                                      
       
   /* Set input file(s) separated by space*/
-  A.setInputFiles("6920_1","/tmp/giordano/");
+  //  A.setInputFiles("SingleMuon_Clusters","/data/local1/giordano/ClusterTh_Data");
+  A.setInputFiles("6925","/tmp/giordano");
   //A.setInputFile("/castor/cern.ch/cms/store/TAC/RECO/2007/3/2/TAC-TOB-RecoPass0b-run2048/0000/06D72868-78C8-DB11-8AF9-00304876A0DB.root");
   //A.setInputFiles("rfio:/castor/cern.ch/cms/store/TAC/RECO/2007/3/31/TAC-TIBTOB-RecoPass0r-run6923/0000/123BA35D-95DF-DB11-81F2-001731AF67E1.root");
 
   /* set Output file */
   A.setOutputFile(outfile);                                        
-    
+
   /* Set maximum number of events to be analyzed*/
-  A.setMaxEvent(1);
+  A.setMaxEvent(5);
 
   /* Set verbosity in a scale from 0 to 4 */
-  A.setVerbosity(2);
+  A.setVerbosity(1);
+
+  A.setBadStripsFile("badStrips.bin");
     
   /* Set definition of Noise used in S/N cut*/
   A.setNoiseMode(1);
     
   /* Set SiStripClusterInfo branch name, this could change from process to process */
-  A.setBranchName("SiStripClusterInfoedmDetSetVector_siStripClusterInfoProducer__TRACKRECONSTRUCTION.obj._sets");
+  A.setBranchName("SiStripClusterInfoedmDetSetVector_siStripClusterInfoProducer__NewNoise.obj._sets");
 
   /* Set module to be skipped*/
   //    A.setSkippedModules("369199109 419561989 419627960");
