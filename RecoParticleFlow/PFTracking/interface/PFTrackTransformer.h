@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,6 +31,7 @@ class Trajectory;
 class AnalyticalPropagator;
 class TrajectoryStateOnSurface;
 class Propagator;
+class StraightLinePropagator;
 
 class PFTrackTransformer{
 
@@ -78,19 +78,16 @@ class PFTrackTransformer{
  private:
 
   ///Forward analytical Propagator
-  const AnalyticalPropagator *fwdPropagator;
+  const AnalyticalPropagator *fwdPropagator_;
 
   ///Backward analytical Propagator
-  const AnalyticalPropagator *bkwdPropagator;
+  const AnalyticalPropagator *bkwdPropagator_;
 
-/*   math::XYZTLorentzVector momClosest_; */
-/*   math::XYZPoint posClosest_; */
+  ///StraightLinePropagator to propagate the Trajectory from
+  ///ECAL to the max shower surface
+  StraightLinePropagator *maxShPropagator_;
 
-  ///PFRecTrack returned in methods producePFtrackKf
-  // reco::PFRecTrack track_;
 
-  ///Trajectory propagated to the surfaces of PFGeometry
-/*   Trajectory *tj_; */
 };
 
 #endif

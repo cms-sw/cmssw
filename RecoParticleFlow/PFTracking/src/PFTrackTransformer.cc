@@ -11,6 +11,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
@@ -18,6 +19,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -32,17 +34,18 @@ using namespace edm;
 PFTrackTransformer::PFTrackTransformer( const MagneticField * magField){
   LogInfo("PFTrackTransformer")<<"PFTrackTransformer built";
 
-  fwdPropagator=new AnalyticalPropagator(magField,alongMomentum);
-  bkwdPropagator=new AnalyticalPropagator(magField,oppositeToMomentum);
-
+  fwdPropagator_=new AnalyticalPropagator(magField,alongMomentum);
+  bkwdPropagator_=new AnalyticalPropagator(magField,oppositeToMomentum);
+  maxShPropagator_=new StraightLinePropagator(magField);
   PFGeometry pfGeometry;
 }
 
 
 
 PFTrackTransformer::~PFTrackTransformer(){
-  delete fwdPropagator;
-  delete bkwdPropagator;
+  delete fwdPropagator_;
+  delete bkwdPropagator_;
+  delete maxShPropagator_;
 }
 
 
@@ -170,7 +173,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   if (posClosest.Rho() < PFGeometry::innerRadius(PFGeometry::BeamPipe)) {
     TSOS beamPipeTSOS = 
       getStateOnSurface(PFGeometry::BeamPipeWall, innerTSOS, 
-			bkwdPropagator, side);
+			bkwdPropagator_, side);
     if(!beamPipeTSOS.isValid() ) return false;
 
     GlobalPoint v=beamPipeTSOS.globalPosition();
@@ -203,7 +206,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    int ecalSide = 100;
    TSOS ecalTSOS = 
      getStateOnSurface(PFGeometry::ECALInnerWall, outerTSOS, 
-		       fwdPropagator, ecalSide);
+		       fwdPropagator_, ecalSide);
    if (!ecalTSOS.isValid()) return false; 
 
    GlobalPoint v=ecalTSOS.globalPosition();
@@ -222,7 +225,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      //layer 1
      TSOS ps1TSOS = 
        getStateOnSurface(PFGeometry::PS1Wall, outerTSOS, 
-			 fwdPropagator, side);     
+			 fwdPropagator_, side);     
      if( !ps1TSOS.isValid() ) return false;
      
      GlobalPoint v=ps1TSOS.globalPosition();
@@ -245,7 +248,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      //layer 2
      TSOS ps2TSOS = 
        getStateOnSurface(PFGeometry::PS2Wall, outerTSOS, 
-			 fwdPropagator, side);     
+			 fwdPropagator_, side);     
      if( !ps2TSOS.isValid() ) return false;
 
      v=ps2TSOS.globalPosition();
@@ -281,8 +284,9 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 		      ecalTSOS,side);
    if(&(*showerMaxWall)!=0){
      TSOS showerMaxTSOS = 
-       fwdPropagator->propagate(ecalTSOS, *showerMaxWall);
-     
+       //  fwdPropagator_->propagate(ecalTSOS, *showerMaxWall);
+       maxShPropagator_->propagate(*(ecalTSOS.freeTrajectoryState()),
+				   *showerMaxWall);
      if (!showerMaxTSOS.isValid()) return false; 
 
      v=showerMaxTSOS.globalPosition();
@@ -298,7 +302,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    //HCAL
    TSOS hcalTSOS = 
      getStateOnSurface(PFGeometry::HCALInnerWall, ecalTSOS, 
-		       fwdPropagator, side);
+		       fwdPropagator_, side);
    if (!hcalTSOS.isValid() ) return false; 
    
    v=hcalTSOS.globalPosition();

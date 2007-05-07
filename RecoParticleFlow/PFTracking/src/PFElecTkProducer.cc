@@ -17,6 +17,7 @@
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -43,7 +44,7 @@ PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):conf_(iConfig)
 PFElecTkProducer::~PFElecTkProducer()
 {
  
-
+  delete pfTransformer_;
 }
 
 

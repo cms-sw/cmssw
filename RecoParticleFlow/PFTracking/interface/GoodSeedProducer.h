@@ -36,6 +36,7 @@ class TrajectorySmoother;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
+class StraightLinePropagator;
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -61,6 +62,10 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///Propagator
       edm::ESHandle<Propagator> propagator_;
+
+      ///StraightLinePropagator to propagate the Trajectory from
+      ///ECAL to the max shower surface
+      StraightLinePropagator *maxShPropagator_;
 
       ///Fitter
       edm::ESHandle<TrajectoryFitter> fitter_;

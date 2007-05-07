@@ -24,6 +24,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
 
 #include <fstream>
 #include <string>
@@ -87,6 +88,8 @@ GoodSeedProducer::~GoodSeedProducer()
 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.) 
+  delete maxShPropagator_;
+  delete pfTransformer_;
 }
 
 
@@ -175,7 +178,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
 
 	if (&(*showerMaxWall)!=0){
-	  TSOS maxShTsos=propagator_.product()->propagate(ecalTsos, *showerMaxWall);
+	  TSOS maxShTsos= maxShPropagator_->propagate
+	    (*(ecalTsos.freeTrajectoryState()), *showerMaxWall);
+
+
 	  if (maxShTsos.isValid()){
 	    etarec=maxShTsos.globalPosition().eta();
 	    phirec=maxShTsos.globalPosition().phi();
@@ -362,6 +368,7 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   es.get<TrackingComponentsRecord>().get(propagatorName_, propagator_);
   es.get<TrackingComponentsRecord>().get(fitterName_, fitter_);
   es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
+  maxShPropagator_=new StraightLinePropagator(magField.product());
 
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
