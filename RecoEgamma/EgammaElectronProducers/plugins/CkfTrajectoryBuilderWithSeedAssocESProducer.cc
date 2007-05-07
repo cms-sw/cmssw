@@ -54,7 +54,6 @@ CkfTrajectoryBuilderWithSeedAssocESProducer::produce(const CkfComponentsRecord& 
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerHandle);  
-    
   _trajectoryBuilder  = 
     boost::shared_ptr<TrackerTrajectoryBuilder> (new CkfTrajectoryBuilderWithSeedAssoc(pset_,
 									 updatorHandle.product(),
