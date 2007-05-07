@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.5 2006/08/23 14:37:28 charlot Exp $
+// $Id: PixelHitMatcher.cc,v 1.6 2006/09/28 17:09:10 uberthon Exp $
 //
 //
 
@@ -48,21 +48,18 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
   startLayers.setup(theGeometricSearchTracker);
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   theMagField = magField;
-  //  cout<<"Magfield "<<magField->inTesla(GlobalPoint(-28.1,-133.2,-48.6)).x()<<" "<<magField->inTesla(GlobalPoint(-28.1,-133.2,-48.6)).y()<<" "<<magField->inTesla(GlobalPoint(-28.1,-133.2,-48.6)).z()<<endl;
   delete prop2ndLayer;
   float mass=.1057; //FIXME, masse  mu
   prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
 
-//RC vector<pair<RecHitWithDist, TSiPixelRecHit> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
 vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatcher::compatibleHits(const GlobalPoint& xmeas,
 												   const GlobalPoint& vprim,
 										  float energy,
 										  float fcharge) {
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
-  //RC vector<pair<RecHitWithDist, TSiPixelRecHit> > result;
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
    LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
 
@@ -72,9 +69,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 
   typedef vector<TrajectoryMeasurement>::const_iterator aMeas;
 
-  //   // set the correct navigation
-  //  NavigationSetter setter( *theNavigationSchool);
-
   pred1Meas.clear();
   pred2Meas.clear();
 
@@ -82,14 +76,10 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   typedef vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
   BarrelLayerIterator firstLayer = startLayers.firstBLayer();
 
-  //firstLayer++; //to skip the 4cm layer
-
   FreeTrajectoryState fts =myFTS(theMagField,xmeas, vprim, 
 				 energy, charge);
 
-  // We have to propagate to the outermost layer
-  //CC@@
-  //BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
+  // We have to propagate first to a layer to make a tsos
   math::XYZPoint geommess(xmeas.x(),xmeas.y(),xmeas.z());
   TrajectoryStateOnSurface tsos;
   if (fabs(geommess.eta()) < 1.479) {
@@ -104,7 +94,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
      tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
    }
   }
-  //const TrajectoryStateOnSurface tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
   
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements = 
@@ -135,7 +124,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     
     // check if there are compatible 1st hits in the second layer
     firstLayer++;
-
 
     vector<TrajectoryMeasurement> pixel2Measurements = 
       theLayerMeasurements->measurements(**firstLayer,tsos,
@@ -172,7 +160,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
     outermostFLayer = (theGeometricSearchTracker->negForwardLayers())[theGeometricSearchTracker->negForwardLayers().size() - 1 ];
   }
   else {
-    outermostFLayer = (theGeometricSearchTracker->negForwardLayers())[theGeometricSearchTracker->negForwardLayers().size() - 1 ];
+    outermostFLayer = (theGeometricSearchTracker->posForwardLayers())[theGeometricSearchTracker->posForwardLayers().size() - 1 ];
   }
   const TrajectoryStateOnSurface tsosfwd=prop1stLayer->propagate(fts,outermostFLayer->specificSurface());
   if (tsosfwd.isValid()) {
@@ -192,13 +180,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	  pred1Meas.push_back( prediction);
 	
 	  validMeasurements.push_back(*m);      
-	  //FIXME: method disappeared!
-//           LogDebug("") <<"Found a rechit in layer ";
-// 	  const ForwardDetLayer *fdetl = dynamic_cast<const ForwardDetLayer *>(*flayer);
-// 	  if (fdetl) {
-// 	     LogDebug("") <<" with radius "<<fdetl->initialPosition();
-// 	  }
-// 	  else   LogDebug("") <<"Could not downcast!!";
 	}
       }
     }
@@ -207,10 +188,6 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   // now we have the vector of all valid measurements of the first point
   for (unsigned i=0; i<validMeasurements.size(); i++){
     const DetLayer* newLayer = theGeometricSearchTracker->detLayer(validMeasurements[i].recHit()->det()->geographicalId());
-    //     const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(newLayer);
-    //     if (bdetl) {
-    //       std::cout <<"Layer of RecHit has radius "<<bdetl->specificSurface().radius()<<std::endl;
-    //     }
 
     // compute the z vertex from the cluster point and the found pixel hit
     double pxHit1z = validMeasurements[i].recHit()->det()->surface().toGlobal(
@@ -242,15 +219,11 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
       if (dphi > pi) dphi -= twopi;
       if (dphi < -pi) dphi += twopi; 
 
-      //RCconst TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
       ConstRecHitPointer pxrh = validMeasurements[i].recHit();
       
-      //RC RecHitWithDist rh(pxrh,dphi);
       RecHitWithDist rh(pxrh,dphi);
       
-      //RC pxrh=dynamic_cast<const TSiPixelRecHit*>( secondHit.measurementsInNextLayers()[0].recHit());
       pxrh = secondHit.measurementsInNextLayers()[0].recHit();
-      //RC pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
       pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
       result.push_back(compatiblePair);
     }
@@ -272,14 +245,9 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	  float dphi = pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi();
 	  if (dphi > pi) dphi -= twopi;
 	  if (dphi < -pi) dphi += twopi; 
-	  //RC const TSiPixelRecHit *pxrh=dynamic_cast<const TSiPixelRecHit*>(validMeasurements[i].recHit());
 	  ConstRecHitPointer pxrh = validMeasurements[i].recHit();
-	  //RC RecHitWithDist rh(*pxrh,dphi);
 	  RecHitWithDist rh(pxrh,dphi);
-
-	  //RC pxrh=dynamic_cast<const TSiPixelRecHit *>(secondSecondHit.measurementsInNextLayers()[0].recHit());
 	  pxrh = secondSecondHit.measurementsInNextLayers()[0].recHit();
-	  //RC pair<RecHitWithDist, TSiPixelRecHit> compatiblePair = pair<RecHitWithDist, TSiPixelRecHit>(rh,*pxrh);
 	  pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
           result.push_back(compatiblePair);
         }// test on secondSecondHit.measurementsInNextLayers()
