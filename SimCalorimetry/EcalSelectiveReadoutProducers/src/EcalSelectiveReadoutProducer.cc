@@ -38,6 +38,9 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
      produces<EBSrFlagCollection>(ebSrFlagCollection_);
      produces<EESrFlagCollection>(eeSrFlagCollection_);
    }
+
+   theGeometry = 0;
+   theTriggerTowerMap = 0;
    
 }
 
