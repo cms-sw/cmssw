@@ -3,6 +3,7 @@
 
 #include "CLHEP/config/CLHEP.h"
 #include "CLHEP/Vector/LorentzVector.h"
+#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 class ParticleTable;
 
@@ -60,19 +61,18 @@ public:
    *  This should be a standard HEP-PID number. It will be used to deduce the 
    *  name and the properties of the particle from a particle data table.
    */
-
    void setID(const int id); 
+
   /** Set identifier for this particle.
    *  This should be a standard HEP-PID name. It will be used to deduce the 
    *  particle properties from a particle data table.
    */
-
    void setID(const std::string name); 
+
   /** Set the status of this particle.
    *  The coding follows PYTHIAs convention:
    *  1 = stable
    */
-
    void setStatus(int istat);
 
   /// set the RECONSTRUCTED mass
@@ -205,6 +205,7 @@ protected:
   int myUsed;                  //!< status of the locking
   HepDouble myCharge;          //!< the MEASURED charge
   HepDouble myMass;            //!< the RECONSTRUCTED mass
+  const ParticleData* myInfo;   //!< The pointer to the PDG info
 
 private:
   ParticleTable* tab;

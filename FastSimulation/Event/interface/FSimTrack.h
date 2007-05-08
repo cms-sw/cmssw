@@ -43,7 +43,7 @@ class FSimTrack : public SimTrack {
 
   /// particle info...
   inline const HepPDT::ParticleData* particleInfo() const {
-    return mom_->theTable()->particle(HepPDT::ParticleID(type()));
+    return info_;
   }
   
   /// charge
@@ -235,8 +235,8 @@ class FSimTrack : public SimTrack {
 
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 
-  //  std::map<unsigned,const FamosBasicRecHit*> theRecHits;
-  //  std::map<unsigned,RawParticle> theSimHits;
+  const HepPDT::ParticleData* info_; // The PDG info
+
 };
 
 #include<iosfwd>

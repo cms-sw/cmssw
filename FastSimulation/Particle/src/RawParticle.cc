@@ -1,12 +1,11 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/10/03 09:14:48 $
-//  $Revision: 1.8 $
+//  $Date: 2007/04/04 19:34:53 $
+//  $Revision: 1.9 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
@@ -69,6 +68,7 @@ RawParticle::RawParticle(const RawParticle &right) : HepLorentzVector() {
   myMass   = right.myMass;
   myVertex = (right.myVertex);
   tab = (right.tab);
+  myInfo = (right.myInfo);
 }
 
 RawParticle::~RawParticle() {
@@ -89,6 +89,7 @@ RawParticle&  RawParticle::operator = (const RawParticle & right ) {
     myMass   = right.myMass;
     myVertex = right.myVertex;
     tab      = right.tab;
+    myInfo   = right.myInfo;
   }
   return *this;
 }
@@ -100,23 +101,30 @@ void RawParticle::init() {
   myCharge=0.;
   myMass=0.;
   tab = ParticleTable::instance();
+  myInfo=0;
 }
 
 void RawParticle::setID(const int id) {
   myId = id;
-  if ( tab && tab->theTable()->particle(ParticleID(id)) != 0 ) { 
-    myCharge = tab->theTable()->particle(ParticleID(id))->charge();
-    myMass   = tab->theTable()->particle(ParticleID(id))->mass().value();
+  if ( tab ) {
+    if ( !myInfo ) myInfo = tab->theTable()->particle(ParticleID(myId));
+    if ( myInfo ) { 
+      myCharge = myInfo->charge();
+      myMass   = myInfo->mass().value();
+    }
   }
 }
 
 void RawParticle::setID(const std::string name) {
-  if ( tab && tab->theTable()->particle(name) != 0) {
-    myId = (tab->theTable()->particle(name))->pid();
-    myCharge = tab->theTable()->particle(ParticleID(myId))->charge();
-    myMass   = tab->theTable()->particle(ParticleID(myId))->mass().value();
-  } else {
-    myId = 0;
+  if ( tab ) { 
+    if ( !myInfo ) myInfo = tab->theTable()->particle(name);
+    if ( myInfo ) { 
+      myId = myInfo->pid();
+      myCharge = myInfo->charge();
+      myMass   = myInfo->mass().value();
+    } else {
+      myId = 0;
+    }
   }
 }
 
@@ -133,14 +141,12 @@ void RawParticle::setCharge(float q) {
 }
 
 void RawParticle::chargeConjugate() {
-  if ( tab && tab->theTable()->particle(ParticleID(-myId)) ) {
-    myId = -myId;
-    myCharge = -1*myCharge;
-  }
+  myId = -myId;
+  myCharge = -1*myCharge;
 }
 
 void RawParticle::setT(const double t) {
-    myVertex.setT(t);
+  myVertex.setT(t);
 }
 
 void RawParticle::setVertex(const HepLorentzVector& vtx) {
@@ -175,27 +181,23 @@ void RawParticle::rotateZ(HepDouble rphi) {
 
 std::string RawParticle::PDGname() const {
   std::string MyParticleName;
-  //  HepString MyParticleName;
-  if ( tab && tab->theTable()->particle(ParticleID(myId)) != 0) {
-    MyParticleName = (tab->theTable()->particle(ParticleID(myId)))->name();
+  if ( tab && myInfo ) {
+    MyParticleName = myInfo->name();
   } else {
-    MyParticleName = "none";
+    MyParticleName = "unknown  ";
   }
   return (std::string) MyParticleName;}
 
 
 void RawParticle::printName() const {
-  std::string MyParticleName;
-  //  CLHep::HepString MyParticleName;
-  if ( tab && tab->theTable()->particle(ParticleID(myId)) != 0) {
-    MyParticleName = (tab->theTable()->particle(ParticleID(myId)))->name();
-  }  if (MyParticleName.length() != 0) {
+  std::string MyParticleName = PDGname();
+  if (MyParticleName.length() != 0) {
     std::cout <<  MyParticleName;
     for(unsigned int k=0;k<9-MyParticleName.length() && k<10; k++) 
       std::cout << " " ;
-  }
-  else
+  } else {
     std::cout << "unknown  ";
+  }
 }
 
 void RawParticle::print() const {
@@ -229,30 +231,29 @@ std::ostream& operator <<(std::ostream& o , const RawParticle& p) {
 
 HepDouble RawParticle::PDGcharge() const { 
   HepDouble q=-99999;
-  if ( tab && tab->theTable()->particle(ParticleID(myId))) {
-    q=tab->theTable()->particle(ParticleID(myId))->charge();
+  if ( myInfo ) {
+    q=myInfo->charge();
   }
   return q;
 }
 
 HepDouble RawParticle::PDGmass() const  { 
   HepDouble m=-99999;
-  if (tab && tab->theTable()->particle(ParticleID(myId))) {
-    m=tab->theTable()->particle(ParticleID(myId))->mass().value();
+  if ( myInfo ) {
+    myInfo->mass().value();
   }
   return m;
 }
 
 HepDouble RawParticle::PDGcTau() const {
   HepDouble ct=1E99;
-  if (tab && tab->theTable()->particle(ParticleID(myId))) {
+  if ( myInfo ) {
 
     // The lifetime is 0. in the Pythia Particle Data Table !
     //    ct=tab->theTable()->particle(ParticleID(myId))->lifetime().value();
 
     // Get it from the width (apparently Gamma/c!)
-    HepDouble w 
-      = tab->theTable()->particle(ParticleID(myId))->totalWidth().value();
+    HepDouble w = myInfo->totalWidth().value();
     ct = w != 0. ? 6.582119e-25 / w / 10. : 1e99;   // ctau in cm 
   }
 
