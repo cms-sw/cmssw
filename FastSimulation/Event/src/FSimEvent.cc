@@ -17,6 +17,12 @@ FSimEvent::~FSimEvent()
 {}
 
 void 
+FSimEvent::fill(const reco::CandidateCollection& parts, edm::EventID& Id) { 
+  FBaseSimEvent::fill(parts); 
+  id_ = Id;
+}
+    
+void 
 FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) { 
   FBaseSimEvent::fill(hev); 
   id_ = Id;

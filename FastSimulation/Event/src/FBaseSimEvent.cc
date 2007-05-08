@@ -3,6 +3,9 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
+//CMSSW Data Formats
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 // CMSSW Sim headers
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
@@ -156,19 +159,20 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   // Clear old vectors
   clear();
 
-  // printMCTruth(myGenEvent);
-
-  // Fill the event with the stable particles of the GenEvent 
-  // (and their mother), in the order defined by the original 
-  // particle barcodes
-
   // Add the particles in the FSimEvent
   addParticles(myGenEvent);
 
-  // Check 
-  // for ( unsigned i=0; i<nTracks(); ++i ) cout << embdTrack(i) << endl;
+}
 
-  // for ( unsigned i=0; i<nVertices(); ++i ) cout << embdVertex(i) << endl;
+void
+FBaseSimEvent::fill(const reco::CandidateCollection& myGenParticles) {
+  
+  // Clear old vectors
+  clear();
+
+  // Add the particles in the FSimEvent
+  addParticles(myGenParticles);
+
 }
 
 void
@@ -341,7 +345,8 @@ void
 FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   /// Some internal array to work with.
-  std::map<const GenParticle*,int> myGenVertices;
+  std::vector<int> myGenVertices(myGenEvent.particles_size()+1,
+				 static_cast<int>(0));
 
   // If no particles, no work to be done !
   if ( myGenEvent.particles_empty() ) return;
@@ -386,7 +391,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     // This is the generated particle pointer - for the signal event only
     GenParticle* p = *piter;
 
-    // if  ( !offset && nGenParts() != 20000 ) theGenParticles->push_back(p);
     if  ( !offset ) {
       (*theGenParticles)[nGenParticles++] = p;
       if ( nGenParticles/theGenSize*theGenSize == nGenParticles ) { 
@@ -433,14 +437,18 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     // Save the corresponding particle and vertices
     if ( testStable || testDaugh || testDecay ) {
       
+      /*
       const GenParticle* mother = p->production_vertex() ?
 	*(p->production_vertex()->particles_in_const_begin()) : 0;
+      */
+
+      int motherBarcode = p->production_vertex() ?
+	(*(p->production_vertex()->particles_in_const_begin()))->barcode() : 0;
 
       int originVertex = 
-	mother &&  
-	myGenVertices.find(mother) != myGenVertices.end() ? 
-      	myGenVertices[mother] : mainVertex;
-      
+	motherBarcode && myGenVertices[motherBarcode] ?
+	myGenVertices[motherBarcode] : mainVertex;
+
       HepLorentzVector momentum(p->momentum().px(),
 				p->momentum().py(),
 				p->momentum().pz(),
@@ -463,12 +471,121 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
 
-      if ( theVertex != -1 ) myGenVertices[p] = theVertex;
+      if ( theVertex != -1 ) myGenVertices[p->barcode()] = theVertex;
 
       // There we are !
-
     }
   }
+
+}
+
+void
+FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
+
+  // If no particles, no work to be done !
+  unsigned int nParticles = myGenParticles.size();
+  if ( !nParticles ) return;
+
+  /// Some internal array to work with.
+  std::map<const reco::Candidate*,int> myGenVertices;
+
+  // Are there particles in the FSimEvent already ? 
+  int offset = nGenParts();
+
+  // Skip the incoming protons
+  unsigned int ip = 0;
+  if ( nParticles > 1 && 
+       myGenParticles[0].pdgId() == 2212 &&
+       myGenParticles[1].pdgId() == 2212 ) ip = 2;
+
+  // Primary vertex (already smeared by the SmearedVtx module)
+  Hep3Vector primaryVertex (myGenParticles[ip].vx(),
+			    myGenParticles[ip].vy(),
+			    myGenParticles[ip].vz());
+
+  // Smear the main vertex if needed
+  HepLorentzVector smearedVertex;
+  if ( primaryVertex.mag() < 1E-10 ) {
+    theVertexGenerator->generate();
+    smearedVertex = (HepLorentzVector) *theVertexGenerator;
+  } else { 
+    smearedVertex = HepLorentzVector(primaryVertex,0.);
+  }
+
+  // Set the main vertex
+  myFilter->setMainVertex(smearedVertex);
+
+  // This is the smeared main vertex
+  int mainVertex = addSimVertex(myFilter->vertex());
+
+  // Loop on the particles of the generated event
+  for ( ; ip<nParticles; ++ip ) { 
+    
+    nGenParticles = ip;
+    
+    const reco::Candidate& p = myGenParticles[ip];
+
+    // Keep only: 
+    // 1) Stable particles
+    bool testStable = p.status()==1;
+
+    // 2) or particles with stable daughters
+    bool testDaugh = false;
+    unsigned int nDaughters = p.numberOfDaughters();
+    if ( !testStable && nDaughters ) {  
+      for ( unsigned iDaughter=0; iDaughter<nDaughters; ++iDaughter ) {
+	const reco::Candidate* daughter = p.daughter(iDaughter);
+	if ( daughter->status()==1 ) {
+	  testDaugh=true;
+	  break;
+	}
+      }
+    }
+
+    // 3) or particles that fly more than one micron.
+    double dist = 0.;
+    if ( !testStable && !testDaugh ) {
+      Hep3Vector productionVertex(p.vx(),p.vy(),p.vz());
+      dist = (primaryVertex-productionVertex).mag();
+    }
+    bool testDecay = ( dist > 0.0001 ) ? true : false; 
+
+    // Save the corresponding particle and vertices
+    if ( testStable || testDaugh || testDecay ) {
+      
+      const reco::Candidate* mother = p.numberOfMothers() ? p.mother(0) : 0;
+
+      int originVertex = 
+	mother &&  
+	myGenVertices.find(mother) != myGenVertices.end() ? 
+      	myGenVertices[mother] : mainVertex;
+      
+      HepLorentzVector momentum(p.px(),p.py(),p.pz(),p.energy());
+      RawParticle part(momentum, vertex(originVertex).position());
+      part.setID(p.pdgId());
+
+      // Add the particle to the event and to the various lists
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-1-offset);
+
+      // It there an end vertex ?
+      if ( !nDaughters ) continue; 
+      const reco::Candidate* daughter = p.daughter(0);
+
+      // Add the vertex to the event and to the various lists
+      HepLorentzVector decayVertex = 
+	HepLorentzVector(daughter->vx(), daughter->vy(),
+			 daughter->vz(), 0.) +
+	vertex(mainVertex).position();
+      int theVertex = addSimVertex(decayVertex,theTrack);
+
+      if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
+
+      // There we are !
+    }
+  }
+
+  // There is no GenParticle's in that case...
+  nGenParticles=0;
 
 }
 

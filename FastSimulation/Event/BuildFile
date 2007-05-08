@@ -3,6 +3,7 @@
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/Utilities>
+<use name=DataFormats/Candidate>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>

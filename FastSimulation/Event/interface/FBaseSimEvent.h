@@ -4,12 +4,13 @@
 //Framework Headers
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
+// Data Formats
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 // CLHEP Headers
 #include "CLHEP/Vector/LorentzVector.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 
 #include <map>
 #include <vector>
@@ -61,6 +62,9 @@ public:
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);
 
+  /// fill the FBaseSimEvent from the current reco::CandidateCollection
+  void fill(const reco::CandidateCollection& hev);
+
   /// fill the FBaseSimEvent from SimTrack's and SimVert'ices
   void fill(const std::vector<SimTrack>&, const std::vector<SimVertex>&);
   
@@ -69,6 +73,7 @@ public:
 
   /// Add the particles and their vertices to the list
   void addParticles(const HepMC::GenEvent& hev);
+  void addParticles(const reco::CandidateCollection& myGenParticles);
 
   /// print the FBaseSimEvent in an intelligible way
   void print() const;
