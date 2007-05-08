@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.22 2007/02/26 13:06:31 llista Exp $
+ * \version $Id: Candidate.h,v 1.24 2007/03/05 08:56:51 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -94,6 +94,11 @@ namespace reco {
       else return reco::numberOf<T, Tag>( * this ); 
     }
 
+    /// add a new mother pointer
+    void addMother( const Candidate * mother ) const {
+      mothers_.push_back( mother );
+    }
+
   protected:
     struct const_iterator_imp {
       typedef ptrdiff_t difference_type;
@@ -127,9 +132,6 @@ namespace reco {
       virtual Candidate & deref() const = 0;
       virtual difference_type difference( const iterator_imp * ) const = 0;
     };
-
-    /// set mother pointers from daughters
-    void addMothersFromDaughterLinks() const;
 
   public:
     /// const_iterator over daughters
@@ -214,10 +216,6 @@ namespace reco {
     friend class ShallowCloneCandidate;
     /// mother link
     mutable std::vector<const Candidate *> mothers_;
-    /// set mother pointer
-    void addMother( const Candidate * mother ) const {
-      mothers_.push_back( mother );
-    }
     /// post-read fixup
     virtual void fixup() const = 0;
     /// declare friend class

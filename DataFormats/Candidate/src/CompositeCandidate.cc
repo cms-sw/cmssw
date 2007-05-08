@@ -1,4 +1,4 @@
-// $Id: CompositeCandidate.cc,v 1.3 2006/12/07 18:06:41 llista Exp $
+// $Id: CompositeCandidate.cc,v 1.4 2007/02/19 12:59:05 llista Exp $
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -31,5 +31,8 @@ bool CompositeCandidate::overlap( const Candidate & c2 ) const {
 }
 
 void CompositeCandidate::fixup() const {
-  addMothersFromDaughterLinks();
+  size_t n = numberOfDaughters();
+  for( size_t i = 0; i < n; ++ i ) {
+    daughter( i )->addMother( this );
+  }
 }

@@ -1,4 +1,4 @@
-// $Id: GenParticleCandidate.cc,v 1.10 2007/03/01 15:56:30 llista Exp $
+// $Id: GenParticleCandidate.cc,v 1.11 2007/03/05 13:25:49 llista Exp $
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include <iostream>
 using namespace reco;
@@ -19,5 +19,8 @@ GenParticleCandidate * GenParticleCandidate::clone() const {
 }
 
 void GenParticleCandidate::fixup() const {
-  addMothersFromDaughterLinks();
+  size_t n = numberOfDaughters();
+  for( size_t i = 0; i < n; ++ i ) {
+    daughter( i )->addMother( this );
+  }
 }
