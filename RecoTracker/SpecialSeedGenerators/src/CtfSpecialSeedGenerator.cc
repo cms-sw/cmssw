@@ -76,6 +76,11 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
 	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
+	
+	edm::ESHandle<Propagator>  propagatorAlongHandle;
+  	iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",propagatorAlongHandle);
+	edm::ESHandle<Propagator>  propagatorOppositeHandle;
+        iSetup.get<TrackingComponentsRecord>().get("PropagatorWithMaterialOpposite",propagatorOppositeHandle);
 
 /*  	edm::ParameterSet hitsfactoryOutInPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryOutInPSet");
   	std::string hitsfactoryOutInName = hitsfactoryOutInPSet.getParameter<std::string>("ComponentName");
@@ -114,10 +119,16 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
         	edm::LogVerbatim("CtfSpecialSeedGenerator") << "hitsGenerator done";
 	} 
 	bool setMomentum = conf_.getParameter<bool>("SetMomentum");
-	theSeedBuilder = new SeedFromGenericPairOrTriplet(conf_, 
-							  theMagfield.product(), 
+	std::vector<int> charges;
+	if (setMomentum){
+	 	charges = conf_.getParameter<std::vector<int> >("Charges");
+	}
+	theSeedBuilder = new SeedFromGenericPairOrTriplet(theMagfield.product(), 
 							  theTracker.product(), 
 							  theBuilder.product(),
+							  propagatorAlongHandle.product(),
+							  propagatorOppositeHandle.product(),
+							  charges,
 							  setMomentum);
 	double p = 1;
         if (setMomentum) {
@@ -157,6 +168,10 @@ void CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 			i++;
 		}
 	}
+	//clear memory
+	for (std::vector<TrackingRegion*>::iterator iReg = regions.begin(); iReg != regions.end(); iReg++){
+		delete *iReg;
+	}
 }
 
 void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
@@ -170,15 +185,15 @@ void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
   for (unsigned int i = 0; i < osh.size(); i++){
 	SeedingHitSet shs = osh[i];
 	if (preliminaryCheck(shs)){
-		TrajectorySeed* seed = theSeedBuilder->seed(shs, 
-							    dir,
-							    navdir, 
-							    iSetup);
-		if (seed){
-			if (postCheck(*seed)){
-				output.push_back(*seed);
+		std::vector<TrajectorySeed*> seeds = theSeedBuilder->seed(shs, 
+							    		dir,
+							    		navdir, 
+							    		iSetup);
+		for (std::vector<TrajectorySeed*>::const_iterator iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++){
+			if (postCheck(**iSeed)){
+				output.push_back(**iSeed);
 			}
-			delete seed;
+			delete *iSeed;
 			edm::LogVerbatim("CtfSpecialSeedGenerator") << "Seed built";
 		}
 	}

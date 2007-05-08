@@ -12,32 +12,54 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 
-SeedFromGenericPairOrTriplet::SeedFromGenericPairOrTriplet(const edm::ParameterSet& conf,
-                                     			   const MagneticField* mf,
+SeedFromGenericPairOrTriplet::SeedFromGenericPairOrTriplet(const MagneticField* mf,
                                                            const TrackerGeometry* geom,
 							   const TransientTrackingRecHitBuilder* builder,
-							   bool momFromPSet):theMagfield(mf), theTracker(geom), theBuilder(builder), theSetMomentum(momFromPSet){}
+							   const Propagator* propagatorAlong,
+							   const Propagator* propagatorOpposite,
+							   const std::vector<int>& charges,
+							   bool momFromPSet):theMagfield(mf), theTracker(geom), theBuilder(builder), thePropagatorAlong(propagatorAlong), thePropagatorOpposite(propagatorOpposite), theSetMomentum(momFromPSet), theCharges(charges){}
 
 
-TrajectorySeed* SeedFromGenericPairOrTriplet::seed(const SeedingHitSet& hits,
-                                        	   const PropagationDirection& dir,
-                                                   const NavigationDirection&  seedDir,
-                                                   const edm::EventSetup& iSetup){
+std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHitSet& hits,
+                                        	   		const PropagationDirection& dir,
+                                                   		const NavigationDirection&  seedDir,
+                                                   		const edm::EventSetup& iSetup){
+	std::vector<TrajectorySeed*> seeds;
 	if (hits.hits().size() == 3) {
-		return seedFromTriplet(hits, dir, seedDir, iSetup);
+		if(!theSetMomentum){
+			TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup);
+			if (seed) seeds.push_back(seed);
+		} else {
+			for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++){
+				TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup, *iCh);
+				if(seed) seeds.push_back(seed);
+			}
+		} 
+		
 	} else if (hits.hits().size() == 2){
-		return seedFromPair(hits, dir, seedDir);
+		if(!theSetMomentum){
+			TrajectorySeed* seed = seedFromPair(hits, dir, seedDir);
+                        if (seed) seeds.push_back(seed);
+                } else {
+                        for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++){
+				TrajectorySeed* seed = seedFromPair(hits, dir, seedDir, *iCh);
+                                seeds.push_back(seed);
+                        }
+                }
 	} else {
 		throw cms::Exception("CombinatorialSeedGeneratorForCosmics") << " Wrong number of hits in Set: "
                                                         << hits.hits().size() << ", should be 2 or 3 ";	
 	}
+	return seeds;
 }
 
 TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSet& hits,
 							      const PropagationDirection& dir,
 							      const NavigationDirection&  seedDir,
-							      const edm::EventSetup& iSetup){
+							      const edm::EventSetup& iSetup, int charge){
 	if (hits.hits().size() != 3) {
 		throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
 			"call to SeedFromGenericPairOrTriplet::seedFromTriplet with " << hits.hits().size() << " hits ";
@@ -51,17 +73,17 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
 	if (theSetMomentum){
 		LogDebug("SeedFromGenericPairOrTriplet") << 
-			"Using the following hits: outer(r, phi, theta) (" << outer.perp() 
+			"Using the following hits: outer(r, phi, theta) " << outerHit->geographicalId().subdetId()<< " (" << outer.perp() 
 			<< ", " << outer.phi() 
 			<< "," << outer.theta() 
-			<< ")   middle (" 
+			<< ")    " << middleHit->geographicalId().subdetId() << " middle (" 
 			<< middle.perp() << ", " 
 			<< middle.phi() << "," 
-			<< middle.theta() 
-			<<")    inner (" 
+			<< middle.theta() << ")    " 
+			<<innerHit->geographicalId().subdetId() <<" inner (" 
 			<< inner.perp() 
 			<< ", " << inner.phi() 
-			<< "," << inner.theta() <<")"
+			<< "," << inner.theta() <<")   "
 			<< "   (x, y, z)   outer ("  
 			<< inner.x() << ", " 
 			<< inner.y() << ", " 
@@ -77,7 +99,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 			newSet.add((hits.hits())[0]);
                         newSet.add((hits.hits())[1]);
 		}
-		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir);
+		TrajectorySeed* seed = seedFromPair(newSet, dir, seedDir, charge);
 		if (!seed) return 0;
 		LogDebug("SeedFromGenericPairOrTriplet") << "about to retrieve free state";
 		TrajectoryStateTransform theTransformer;
@@ -129,7 +151,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
         FreeTrajectoryState originalStartingState = helix.stateAtVertex();
 	LogDebug("SeedFromGenericPairOrTriplet") << "originalStartingState " << originalStartingState;
         GlobalTrajectoryParameters originalPar = originalStartingState.parameters();
-        GlobalTrajectoryParameters newPar = GlobalTrajectoryParameters(*secondPoint, //originalPar.position(),
+        GlobalTrajectoryParameters newPar = GlobalTrajectoryParameters(originalPar.position(), //*secondPoint, //originalPar.position(),
                                                                        momentumSign*originalPar.momentum(),
                                                                        originalPar.charge(),
                                                                        &originalPar.magneticField());
@@ -139,7 +161,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
                                                                        momentumSign*originalPar.momentum(),
                                                                        originalPar.charge(),
                                                                        &originalPar.magneticField());*/
-        FreeTrajectoryState* startingState = new FreeTrajectoryState(newPar, initialError(trHits[1]));
+        FreeTrajectoryState* startingState = new FreeTrajectoryState(newPar, initialError(trHits[0]));//trHits[1]));
 	if (!qualityFilter(startingState, hits)) return 0;
 	TrajectorySeed* seed = buildSeed(startingState, trHits, dir);
 	delete startingState;
@@ -148,7 +170,7 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 
 TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& hits,
                                                            const PropagationDirection& dir,
-							   const NavigationDirection&  seedDir){
+							   const NavigationDirection&  seedDir, int charge){
 	if (hits.hits().size() != 2) {
                 throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
                         "call to SeedFromGenericPairOrTriplet::seedFromPair with " << hits.hits().size() << " hits ";
@@ -194,11 +216,11 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
         }
 	if (dir == oppositeToMomentum) momentumSign = -1;
 	GlobalVector momentum = momentumSign*theP*(*secondPoint-*firstPoint).unit();
-        GlobalTrajectoryParameters gtp(*secondPoint,
+        GlobalTrajectoryParameters gtp(*firstPoint, //*secondPoint,
                                        momentum,
-                                       -1,
+                                       charge,
                                        &(*theMagfield));
-        FreeTrajectoryState* startingState = new FreeTrajectoryState(gtp,initialError(trHits[1]));
+        FreeTrajectoryState* startingState = new FreeTrajectoryState(gtp,initialError(trHits[0]));//trHits[1]));
 	if (!qualityFilter(startingState, hits)) return 0;
         //TrajectorySeed* seed = buildSeed(startingState, firstHit, dir);
         TrajectorySeed* seed = buildSeed(startingState, trHits, dir);
@@ -227,6 +249,9 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
 			"Not a SiStripMatchedRecHit2D or SiStripRecHit2D used";
 		return 0;
 	}
+	const Propagator* propagator = thePropagatorAlong;
+	if (dir == oppositeToMomentum) propagator = thePropagatorOpposite;
+
 	//debug
 	GlobalPoint first = theTracker->idToDet(trHits[0]->geographicalId() )->surface().toGlobal(trHits[0]->localPosition() );
         GlobalPoint second  = theTracker->idToDet(trHits[1]->geographicalId() )->surface().toGlobal(trHits[1]->localPosition() );
@@ -239,7 +264,18 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
                         << ", " << second.phi()
                         << "," << second.theta() <<")";
 
-	TrajectoryStateOnSurface seedTSOS(*startingState, *plane);
+	//TrajectoryStateOnSurface seedTSOS(*startingState, *plane);
+	const TrajectoryStateOnSurface propTSOS = propagator->propagate(*startingState,*plane);
+	if (!propTSOS.isValid()){
+		LogDebug("SeedFromGenericPairOrTriplet") << "first propagation failed";
+		return 0;
+	}
+	KFUpdator updator;
+	TrajectoryStateOnSurface seedTSOS = updator.update(propTSOS, *(theBuilder->build(trHits[1])));
+	if (!seedTSOS.isValid()){
+		LogDebug("SeedFromGenericPairOrTriplet") << "first update failed";
+                return 0;
+	}	
 	LogDebug("SeedFromGenericPairOrTriplet") << "starting TSOS " << seedTSOS ;
 	PTrajectoryStateOnDet *PTraj=
 		theTransformer.persistentState(seedTSOS, trHits[1]->geographicalId().rawId());

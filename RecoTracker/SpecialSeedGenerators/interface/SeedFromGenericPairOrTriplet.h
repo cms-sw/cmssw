@@ -16,6 +16,7 @@ If used with B it checks the initial state has a momentum greated than the thres
 #include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
 //TrackingTools
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
@@ -23,28 +24,33 @@ If used with B it checks the initial state has a momentum greated than the thres
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 //MagneticField
 #include "MagneticField/Engine/interface/MagneticField.h"
+
+#include <vector>
+
 class SeedFromGenericPairOrTriplet{
 	public:
-	SeedFromGenericPairOrTriplet(const edm::ParameterSet& conf,
-				     const MagneticField* mf,
+	SeedFromGenericPairOrTriplet(const MagneticField* mf,
 				     const TrackerGeometry* geom,
 				     const TransientTrackingRecHitBuilder* builder,
+				     const Propagator* propagatorAlong,
+				     const Propagator* propagatorOpposite,
+				     const std::vector<int>& charges,		
 				     bool momFromPSet);
 	~SeedFromGenericPairOrTriplet(){};
 	void setMomentumTo(double mom){theP = mom;};
 	bool momentumFromPSet(){return theSetMomentum;}; 
 	//builds a seed from a pair or triplet. it returns a null pointer if the seed does not pass the quality filter
-	TrajectorySeed*            seed(const SeedingHitSet& hits,
-                                        const PropagationDirection& dir,
-                                        const NavigationDirection&  seedDir,
-                                        const edm::EventSetup& iSetup);
+	std::vector<TrajectorySeed*> seed(const SeedingHitSet& hits,
+                                         const PropagationDirection& dir,
+                                         const NavigationDirection&  seedDir,
+                                         const edm::EventSetup& iSetup);
 	TrajectorySeed* seedFromTriplet(const SeedingHitSet& hits,
                                         const PropagationDirection& dir,
 					const NavigationDirection&  seedDir,
-                                  	const edm::EventSetup& iSetup);
+                                  	const edm::EventSetup& iSetup, int charge = -1);
   	TrajectorySeed*    seedFromPair(const SeedingHitSet& hits,
                                   	const PropagationDirection& dir,
-					const NavigationDirection&  seedDir);
+					const NavigationDirection&  seedDir, int charge = -1);
 
 	
 	private:
@@ -59,11 +65,14 @@ class SeedFromGenericPairOrTriplet{
 	bool qualityFilter(const FreeTrajectoryState* startingState,
                       	   const SeedingHitSet& hits);
 	const MagneticField*   theMagfield;
-	const TrackerGeometry* theTracker;	
-        TrajectoryStateTransform theTransformer;
+	const TrackerGeometry* theTracker;
 	const TransientTrackingRecHitBuilder* theBuilder;
+	const Propagator* thePropagatorAlong;
+	const Propagator* thePropagatorOpposite;
+        TrajectoryStateTransform theTransformer;
 	float theP;
-	bool theSetMomentum;	
+	bool theSetMomentum;
+	std::vector<int> theCharges;	
 };
 
 #endif
