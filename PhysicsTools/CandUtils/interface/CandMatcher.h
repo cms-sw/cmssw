@@ -24,7 +24,9 @@ public:
   typedef typename reference_type::value_type value_type;
   /// constructor
   explicit CandMatcherBase( const map_vector & maps );
-  /// destructor
+  /// constructor
+  explicit CandMatcherBase( const map_type & map );
+ /// destructor
   virtual ~CandMatcherBase();
   /// get match from transient reference
   reco::CandidateRef operator()( const reco::Candidate & ) const;
@@ -35,8 +37,10 @@ protected:
   /// composite candidate preselection
   virtual bool compositePreselect( const reco::Candidate & c, const reco::Candidate & m ) const = 0;
   /// init maps
-  void initMaps( const std::vector<const map_type *> & maps );
+  void initMaps();
 
+protected:
+  const std::vector<const map_type *> & maps() const { return maps_; }
 private:
   /// pointers to stored maps
   std::vector<const map_type *> maps_;
@@ -52,6 +56,8 @@ private:
   MatchedRefMap matchedRefs_;
   /// mother + n.daughters indices from matched
   std::vector<std::vector<size_t> > matchedMothers_;
+  /// init at constructor
+  void init();
 };
 
 template<typename C>
@@ -59,6 +65,8 @@ class CandMatcher : public CandMatcherBase<C> {
 public:
   /// constructor
   explicit CandMatcher( const typename CandMatcherBase<C>::map_vector & maps );
+  /// constructor
+  explicit CandMatcher( const typename CandMatcherBase<C>::map_type & map );
   /// destructor
   virtual ~CandMatcher();
 
@@ -73,11 +81,10 @@ protected:
 #include <iterator>
 
 template<typename C>
-CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_vector & maps ):
-  maps_( maps ) {
-  matched_ = maps.front()->refProd().val;
-  for( typename map_vector::const_iterator m = maps.begin() + 1; 
-       m != maps.end(); ++ m ) {
+void CandMatcherBase<C>::init() {
+  matched_ = maps_.front()->refProd().val;
+  for( typename map_vector::const_iterator m = maps_.begin() + 1; 
+       m != maps_.end(); ++ m ) {
     if( (*m)->refProd().val != matched_ )
       throw edm::Exception( edm::errors::InvalidReference )
 	<< "Multiple match maps specified matching different MC truth collections.\n"
@@ -87,11 +94,23 @@ CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_vect
 }
 
 template<typename C>
-void CandMatcherBase<C>::initMaps( const std::vector<const typename CandMatcherBase<C>::map_type *> & maps ) {
+CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_vector & maps ):
+  maps_( maps ) {
+  init();
+}
+
+template<typename C>
+CandMatcherBase<C>::CandMatcherBase( const typename CandMatcherBase<C>::map_type & map ):
+  maps_( 1, & map ) {
+  init();
+}
+
+template<typename C>
+void CandMatcherBase<C>::initMaps() {
   using namespace reco;
   using namespace std;
-  for( typename map_vector::const_iterator m = maps.begin(); 
-       m != maps.end(); ++ m ) {
+  for( typename map_vector::const_iterator m = maps_.begin(); 
+       m != maps_.end(); ++ m ) {
     edm::RefProd<C> cands = (*m)->refProd().key;
     for( size_t i = 0; i < cands->size(); ++ i ) {
       candRefs_[ & (*cands)[ i ] ] = reference_type( cands, i );
@@ -185,7 +204,13 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
 template<typename C>
 CandMatcher<C>::CandMatcher( const typename CandMatcherBase<C>::map_vector & maps ) :
   CandMatcherBase<C>( maps ) {
-  CandMatcherBase<C>::initMaps( maps );
+  CandMatcherBase<C>::initMaps();
+}
+
+template<typename C>
+CandMatcher<C>::CandMatcher( const typename CandMatcherBase<C>::map_type & map ) :
+  CandMatcherBase<C>( map ) {
+  CandMatcherBase<C>::initMaps();
 }
 
 template<typename C>

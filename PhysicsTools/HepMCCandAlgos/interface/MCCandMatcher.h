@@ -12,6 +12,8 @@ class MCCandMatcher : public CandMatcherBase<C> {
 public:
   /// constructor
   explicit MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps );
+  /// constructor
+  explicit MCCandMatcher( const typename CandMatcherBase<C>::map_type & map );
   /// destructor
   virtual ~MCCandMatcher();
 private:
@@ -27,7 +29,13 @@ private:
 template<typename C>
 MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_vector & maps ) :
   CandMatcherBase<C>( maps ) {
-  CandMatcherBase<C>::initMaps( maps );
+  CandMatcherBase<C>::initMaps();
+}
+
+template<typename C>
+MCCandMatcher<C>::MCCandMatcher( const typename CandMatcherBase<C>::map_type & map ) :
+  CandMatcherBase<C>( map ) {
+  CandMatcherBase<C>::initMaps();
 }
 
 template<typename C>
