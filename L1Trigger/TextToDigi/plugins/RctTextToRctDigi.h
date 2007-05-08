@@ -14,7 +14,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.h,v 1.1 2007/03/21 18:48:23 tapper Exp $
+// $Id: RctTextToRctDigi.h,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 
@@ -44,6 +44,12 @@ class RctTextToRctDigi : public edm::EDProducer {
   
  private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
+
+  /// Create empty digi collection
+  void putEmptyDigi(edm::Event&);
+
+  /// Synchronize bunch crossing
+  void bxSynchro(int &,int);
 
   /// Name out input file
   std::string m_textFileName;
