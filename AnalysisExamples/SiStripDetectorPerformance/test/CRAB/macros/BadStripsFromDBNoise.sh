@@ -28,8 +28,8 @@ N=0;
 }
 {
 if (int($1)!=N) {N=int($1); if (i==0){i=1}else{i=0} }
-pswebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/HotStrips/cPos_SingleDet_%s*.gif",path,$3,$2);
-smrywebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/ClusterAnalysis_*_run%07d*HotStrips.smry",path,$3,$3);
+pswebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/DBBadStrips/DBNoise_SingleDet_%s*.gif",path,$3,$2);
+smrywebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/ClusterAnalysis_*_run%07d*DBBadStrips.smry",path,$3,$3);
 #print htmlwebadd
 print "<TD> " fontColor[i] "<a href=pswebadd>" $1 "</a>" Separator[0] fontColor[i] $2 Separator[1] fontColor[i] "<a href=smrywebadd>" $3 "</a>" Separator[1] fontColor[i] $4 Separator[1] fontColor[i] $5 Separator[1] fontColor[i] $6 Separator[1] fontColor[i] $7 Separator[1] fontColor[i] $8 Separator[1] fontColor[i] $9 Separator[1] fontColor[i] $10 Separator[1] fontColor[i] $11"</font> <TR> | " pswebadd " | " smrywebadd  
 }' path=$path | while read line; do
@@ -46,7 +46,6 @@ function extractInfo(){
 
     #Run=`echo $1 |  sed -e "s@[a-zA-Z]*.txt@@g" -e "s@_[0-9]*@@g" -e "s@[[:alpha:]]@@g" | awk '{print int($0)}'`
     Run=`echo $1 | awk -F"_" '{print int($3)}'`
-
 ############
 # summary
 ############
@@ -100,11 +99,11 @@ function SummaryInfo(){
       #Summaryes x each SubDet to extract trends
 
     echo "...creating .gif files with root"
-    rm -f Asummary_HotStrips_T*
-    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_HotStrips_TIB.dat
-    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_HotStrips_TID.dat
-    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_HotStrips_TOB.dat
-    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_HotStrips_TEC.dat
+    rm -f Asummary_DBBadStrips_T*
+    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_DBBadStrips_TIB.dat
+    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_DBBadStrips_TID.dat
+    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_DBBadStrips_TOB.dat
+    echo "Run >=0 >=5 >=10 >=25 >=50 >=100" > Asummary_DBBadStrips_TEC.dat
     for file in `echo $runSmryFile`
       do
       Run=`cat $file | head -1 | awk '{print $2}'`
@@ -112,21 +111,21 @@ function SummaryInfo(){
       EntriesTID=`cat $file | head -11 | grep TID | awk -F "|" '{print $2}'`
       EntriesTOB=`cat $file | head -11 | grep TOB | awk -F "|" '{print $2}'`
       EntriesTEC=`cat $file | head -11 | grep TEC | awk -F "|" '{print $2}'`
-      echo $Run $EntriesTIB >> Asummary_HotStrips_TIB.dat
-      echo $Run $EntriesTID >> Asummary_HotStrips_TID.dat
-      echo $Run $EntriesTOB >> Asummary_HotStrips_TOB.dat
-      echo $Run $EntriesTEC >> Asummary_HotStrips_TEC.dat
+      echo $Run $EntriesTIB >> Asummary_DBBadStrips_TIB.dat
+      echo $Run $EntriesTID >> Asummary_DBBadStrips_TID.dat
+      echo $Run $EntriesTOB >> Asummary_DBBadStrips_TOB.dat
+      echo $Run $EntriesTEC >> Asummary_DBBadStrips_TEC.dat
 
     done
 
-    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_HotStrips_TIB.dat\",\"Run\",\"N modules\")"
-    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_HotStrips_TID.dat\",\"Run\",\"N modules\")"
-    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_HotStrips_TOB.dat\",\"Run\",\"N modules\")"
-    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_HotStrips_TEC.dat\",\"Run\",\"N modules\")"
+    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_DBBadStrips_TIB.dat\",\"Run\",\"N modules\")"
+    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_DBBadStrips_TID.dat\",\"Run\",\"N modules\")"
+    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_DBBadStrips_TOB.dat\",\"Run\",\"N modules\")"
+    root.exe -b -q -l "$macroPath/CreateSinglePlotFromTable.C(\"$Tpath/$path/AllSummaries/Asummary_DBBadStrips_TEC.dat\",\"Run\",\"N modules\")"
 
-    echo "...creating Asummary_HotStrips.txt"
+    echo "...creating Asummary_DBBadStrips.txt"
     
-    echo -e "N |\t\t Module |\t Run |\t %(Num Bads) all |\t inside |\t leftEdge |\t rigthEdge" > Asummary_HotStrips.txt
+    echo -e "N |\t\t Module |\t Run |\t %(Num Bads) all |\t inside |\t leftEdge |\t rigthEdge" > Asummary_DBBadStrips.txt
 
     cat $runSmryFile | grep "^*" | awk -F"|" '{print $2" "$1}' | sed -e "s@*@@" | awk 'function perc(n,d){return sprintf("%3.2f",int(n/d*10000)/100);}{if(index($1,"--")){print $1}else if(index($1,"Run")){print $1" "$2}else{print $1"_"$2"_"$3"_"$4"_"$5" "perc($6,$10)"("$6")?"perc($7,$10)"("$7")?"perc($8,$10)"("$8")?"perc($9,$10)"("$9")"}}' | awk '
 BEGIN{Run=1} 
@@ -136,11 +135,11 @@ if (index($1,"Run")){ Run=$2}
 else{ print $1"\t|"Run"\t|"$2} 
 }
 }
-' | sort  | sed -e "s@(@ (@g" -e "s@?@|\t@g" | awk 'BEGIN{det=0;count=0;count2=0}{if ($1!=det){count++;count2=0;det=$1;print"----------------------------------------------------------------------------------------------------------------"};count2++;print count"."count2"|\t"$0}' >> Asummary_HotStrips.txt
+' | sort  | sed -e "s@(@ (@g" -e "s@?@|\t@g" | awk 'BEGIN{det=0;count=0;count2=0}{if ($1!=det){count++;count2=0;det=$1;print"----------------------------------------------------------------------------------------------------------------"};count2++;print count"."count2"|\t"$0}' >> Asummary_DBBadStrips.txt
 
-    echo "...creating Asummary_HotStrips.html"
-    rm -f  Asummary_HotStrips.html
-    CreateHtml `pwd` Asummary_HotStrips.txt
+    echo "...creating Asummary_DBBadStrips.html"
+    rm -f  Asummary_DBBadStrips.html
+    CreateHtml `pwd` Asummary_DBBadStrips.txt
     
     cd -
 }
@@ -178,21 +177,21 @@ for path in `ls $Tpath`
     fi
     [ "$rootFile" == "" ] && continue
     pwd
-    outFile=`echo $rootFile | sed -e "s@.root@_HotStrips.txt@"`  
-    binFile=`echo $rootFile | sed -e "s@.root@_HotStrips.bin@"`  
-    smryFile=`echo $rootFile | sed -e "s@.root@_HotStrips.smry@"`  
+    outFile=`echo $rootFile | sed -e "s@.root@_DBBadStrips.txt@"`  
+    binFile=`echo $rootFile | sed -e "s@.root@_DBBadStrips.bin@"`  
+    smryFile=`echo $rootFile | sed -e "s@.root@_DBBadStrips.smry@"`  
 
     if [ ! -e $outFile ]; then
 ############
 # root macro
 ############
 	echo "...Running root"
-	echo "root.exe -q -b -l \"$macroPath/RunBadStripsFromPosition.C(\"$rootFile\",\"$binFile\")\" > $outFile"
-	root.exe -q -b -l "$macroPath/RunBadStripsFromPosition.C(\"$rootFile\",\"$binFile\")" > $outFile
+	echo "root.exe -q -b -l \"$macroPath/RunBadStripsFromDBNoise.C(\"$rootFile\",\"$binFile\")\" > $outFile"
+	root.exe -q -b -l "$macroPath/RunBadStripsFromDBNoise.C(\"$rootFile\",\"$binFile\")" > $outFile
 
-	if [ `ls cPos*.gif 2>/dev/null | wc -l` -ne 0 ]; then
-	    mkdir -p HotStrips
-	    mv -f cPos*.gif HotStrips 2>/dev/null
+	if [ `ls DBNoise*.gif 2>/dev/null | wc -l` -ne 0 ]; then
+	    mkdir -p DBBadStrips
+	    mv -f DBNoise*.gif DBBadStrips 2>/dev/null
 	fi
         echo "...Running extractInfo"
 	extractInfo $outFile > $smryFile
