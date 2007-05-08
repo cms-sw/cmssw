@@ -18,8 +18,9 @@
 #include "G4Track.hh"
 
 HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
+	       SensitiveDetectorCatalog & clg, 
                edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingFromDDD(0), numberingScheme(0), 
+  CaloSD(name, cpv, clg, p, manager), numberingFromDDD(0), numberingScheme(0), 
   showerLibrary(0), hfshower(0) {
 
   //static SimpleConfigurable<bool>   on1(false, "HCalSD:UseBirkLaw");

@@ -44,7 +44,8 @@ class CaloSD : public SensitiveCaloDetector,
 
 public:    
   
-  CaloSD(G4String aSDname, const DDCompactView & cpv,
+  CaloSD(G4String  aSDname, const DDCompactView & cpv,
+	 SensitiveDetectorCatalog & clg, 
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~CaloSD();
   virtual bool ProcessHits(G4Step * step,G4TouchableHistory * tHistory);

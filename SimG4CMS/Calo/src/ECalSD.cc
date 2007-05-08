@@ -21,8 +21,9 @@
 #include "G4VProcess.hh"
 
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
+	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   
   //   static SimpleConfigurable<bool>   on1(false, "ECalSD:UseBirkLaw");
   //   static SimpleConfigurable<double> bk1(0.013, "ECalSD:BirkC1");

@@ -5,7 +5,6 @@
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
 #include "SimDataFormats/SimHitMaker/interface/CaloSlaveSD.h"
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Application/interface/EventAction.h"
 
@@ -17,8 +16,9 @@
 #include "G4GFlashSpot.hh"
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
+	       SensitiveDetectorCatalog & clg, 
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  SensitiveCaloDetector(name, cpv, p),
+  SensitiveCaloDetector(name, cpv, clg, p),
   G4VGFlashSensitiveDetector(), 
   theTrack(0), preStepPoint(0), m_trackManager(manager), hcID(-1), theHC(0), 
   currentHit(0) {
@@ -56,10 +56,10 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames = 
-    SensitiveDetectorCatalog::instance()->logicalNames(name);
+  std::vector<std::string> lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it=lvNames.begin();  it !=lvNames.end(); it++){
+  for (std::vector<std::string>::iterator it=lvNames.begin();
+       it !=lvNames.end(); it++){
     this->AssignSD(*it);
     LogDebug("CaloSim") << "CaloSD : Assigns SD to LV " << (*it);
   }

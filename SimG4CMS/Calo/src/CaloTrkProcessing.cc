@@ -17,9 +17,10 @@
 
 CaloTrkProcessing::CaloTrkProcessing(G4String name, 
 				     const DDCompactView & cpv,
+				     SensitiveDetectorCatalog & clg, 
 				     edm::ParameterSet const & p,
 				     const SimTrackManager* manager) : 
-  SensitiveCaloDetector(name, cpv, p), lastTrackID(-1),
+  SensitiveCaloDetector(name, cpv, clg, p), lastTrackID(-1),
   m_trackManager(manager) {  
 
   //Initialise the parameter set
