@@ -30,6 +30,10 @@
 #include <string>
 #include <vector>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class SiStripDigitizer : public edm::EDProducer
 {
  public:
@@ -56,6 +60,7 @@ class SiStripDigitizer : public edm::EDProducer
   typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
+  CLHEP::HepRandomEngine& rndEngine;
 };
 
 #endif

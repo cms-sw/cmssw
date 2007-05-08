@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.29 2007/04/26 16:37:44 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.30 2007/04/30 09:13:32 genta Exp $
 //
 //
 
@@ -39,7 +39,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include <cstdlib> // I need it for random numbers
+//#include <cstdlib> // I need it for random numbers
 
 //needed for the geometry:
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,6 +60,11 @@
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
 
+//Random Number
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
   conf_(conf),SiStripNoiseService_(conf)
 {
@@ -68,7 +73,20 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   produces<edm::DetSetVector<StripDigiSimLink> >().setBranchAlias ( alias + "siStripDigiSimLink");
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
+  //Initialize RandomService
+  
+  edm::Service<edm::RandomNumberGenerator> rng;
+  
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "SiStripDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
   }
+  
+  rndEngine = rng->getEngine();
+  
+}
 
 // Virtual destructor needed.
 SiStripDigitizer::~SiStripDigitizer() { }  
@@ -77,15 +95,12 @@ SiStripDigitizer::~SiStripDigitizer() { }
 void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-
   // Step A: Get Inputs
   edm::Handle<CrossingFrame> cf;
   iEvent.getByType(cf);
 
   edm::ESHandle < ParticleDataTable > pdt;
   iSetup.getData( pdt );
-  
-
   
   std::auto_ptr<MixCollection<PSimHit> > allTrackerHits(new MixCollection<PSimHit>(cf.product(),trackerContainers));
   
@@ -132,10 +147,12 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       uint32_t idForNoise = (*iu)->geographicalId().rawId();
       if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
-														idForNoise,&SiStripNoiseService_));
+														idForNoise,&SiStripNoiseService_,
+														rndEngine));
       }
 
       ((theAlgoMap.find(&(sgd->type())))->second)->setParticleDataTable(&*pdt);
+
       float langle=0;
       if(SiStripLorentzAngle_.isValid())langle=SiStripLorentzAngle_->getLorentzAngle((*iu)->geographicalId().rawId());
       collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield,langle);

@@ -17,9 +17,6 @@
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <gsl/gsl_sf_erf.h>
-#include "CLHEP/Random/RandGauss.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -27,15 +24,10 @@
 #define e_SI (1.6E-19)
 
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det,
-						     uint32_t& idForNoise , SiStripNoiseService* noiseService):conf_(conf){
-  //  cout << "Creating a SiStripDigitizerAlgorithm." << endl;
-
+						     uint32_t& idForNoise , SiStripNoiseService* noiseService,
+						     CLHEP::HepRandomEngine& eng):conf_(conf),engine(eng){
   ndigis=0;
   SiStripNoiseService_=noiseService;
-  NumberOfSegments = 20; // Default number of track segment divisions
-  ClusterWidth = 3.; // Charge integration spread on the collection plane
-  Sigma0 = 0.0007; // Charge diffusion constant 
-  Dist300 = 0.0300; // normalized to 300micron Silicon
   theElectronPerADC = conf_.getParameter<double>("ElectronPerAdc");
   theThreshold      = conf_.getParameter<double>("AdcThreshold");
   theAdcFullScale   = conf_.getParameter<int>("AdcFullScale");
@@ -58,7 +50,7 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   int strip = int(numStrips/2.);
   float noiseRMS = SiStripNoiseService_->getNoise(idForNoise,strip);
 
-  theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS*theElectronPerADC,theThreshold);
+  theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS*theElectronPerADC,theThreshold,engine);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS);
   theSiHitDigitizer = new SiHitDigitizer(conf_,det);
   theSiPileUpSignals = new SiPileUpSignals();

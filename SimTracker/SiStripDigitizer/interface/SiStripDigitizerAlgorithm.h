@@ -35,6 +35,10 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class SiStripDigitizerAlgorithm 
 {
  public:
@@ -49,7 +53,8 @@ class SiStripDigitizerAlgorithm
   std::vector<StripDigiSimLink> make_link(){ return link_coll;}
 
   
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*,
+			    CLHEP::HepRandomEngine&);
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
@@ -62,19 +67,6 @@ class SiStripDigitizerAlgorithm
   std::vector<short int> adcVec;
 
   edm::ParameterSet conf_;
-  // Const Parameters needed by:
-  //-- primary ionization
-  int    NumberOfSegments; // =20 does not work ;
-  // go from Geant energy GeV to number of electrons
-
-  //-- drift
-  float Sigma0; //=0.0007  // Charge diffusion in microns for 300 micron Si
-  float Dist300;  //=0.0300  // Define 300microns for normalization 
-
-  //-- induce_signal
-  float ClusterWidth;       // Gaussian charge cutoff width in sigma units
-  // Should be rather called CutoffWidth?
-
   //-- make_digis 
   float theElectronPerADC;     // Gain, number of electrons per adc count.
   int theAdcFullScale;         // Saturation count, 255=8bit.
@@ -92,6 +84,9 @@ class SiStripDigitizerAlgorithm
   double temperature;
   bool noDiffusion;
   double chargeDistributionRMS;
+
+  CLHEP::HepRandomEngine& engine;
+
   SiLinearChargeCollectionDrifter* theSiChargeCollectionDrifter;
   SiChargeDivider* theSiChargeDivider;
   SiGaussianTailNoiseAdder* theSiNoiseAdder;
@@ -106,12 +101,6 @@ class SiStripDigitizerAlgorithm
   int strip;  // number used for noise calculation
   float moduleThickness; // sensor thickness 
 
-  //-- add_noise
-  /*
-  bool addNoise;
-  bool addNoisyStrips;
-  bool fluctuateCharge;
-  */
 
   void push_digis(const DigitalMapType&,
 		  const HitToDigisMapType&,
