@@ -10,7 +10,7 @@
  *
  * \author Marcel Vos, INFN Pisa
  *
- * \version $Id: HitPattern.h,v 1.7 2006/08/28 11:24:58 llista Exp $
+ * \version $Id: HitPattern.h,v 1.9 2006/09/11 19:44:42 vos Exp $
  *
  */
 #include "DataFormats/DetId/interface/DetId.h"
@@ -49,7 +49,7 @@ namespace reco {
     int numberOfValidMuonHits() const;
     int numberOfLostMuonHits() const;
     int numberOfValidTrackerHits() const;    
-    int numberOfLostTrackerHits();    
+    int numberOfLostTrackerHits() const;    
     int numberOfValidPixelHits() const;
     int numberOfLostPixelHits() const;    
     /// return true if a valid hit is found in the first pixel barrel layer
