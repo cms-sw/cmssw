@@ -16,7 +16,7 @@ function CreateJobTable(){
     for dir in `ls $path`;
       do
 
-      [ ! -d $path/$dir ] && continue 
+      [ ! -d $path/$dir ] || [ "$dir" == "AllSummaries" ] && continue 
 
       let NJobs++
 
@@ -91,12 +91,13 @@ function CreateSummaries(){
    echo "<TABLE  BORDER=1 ALIGN=CENTER> " > ${webfiletmp}_jobtable
     echo -e "<TD><a href=$htmlwebadd>Job</a> $tableSeparator Ncreated $tableSeparator Nsubmitted $tableSeparator Ncleared $tableSeparator EXIT CODE 0 $tableSeparator <a href=$sortedwebadd> Nevents </a><TR> " >> ${webfiletmp}_jobtable 
 
-    for dir in `ls $path| grep .txt`;
+    for file in `ls $path/AllSummaries 2>/dev/null`;
       do
-      [ -d $path/$dir ] && continue 
-   
-      echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/$dir>$dir</a>&nbsp;&nbsp;<a href="`echo $webpath/$dir | sed -e 's@.txt@.html@'`">html</a>""<br><br>" >> ${webfiletmp}_smry
-      
+      [ -d $path/AllSummaries/$file ] && continue 
+
+      [ `echo $file | grep -c .txt` != 0 ] && echo "<br><br>""&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$file>$file</a>&nbsp;&nbsp;<a href="`echo $webpath/AllSummaries/$file | sed -e 's@.txt@.html@'`">html</a>""<br><br>" >> ${webfiletmp}_smry
+
+      [ `echo $file | grep -c .gif` != 0 ] && echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$file>$file</a>&nbsp;&nbsp;" >> ${webfiletmp}_smry #&& echo "<br>" >> ${webfiletmp}_smry 
     done
 }
 
@@ -132,11 +133,7 @@ function CreateHtml(){
  
  
     #Header
-    echo "<html><head><title>Summary Page</title></head><body><h3>Summary Results List</h3><br>Links to summary pages, related to specific analyses (Quality Tests) performed on the CRAB job's outputs (root histograms)<br><br>" | tee $sortedfile > $webfile
-
-    #Summaries
-    CreateSummaries
-    [ -e ${webfiletmp}_smry ] && cat ${webfiletmp}_smry | tee -a $sortedfile >> $webfile
+    echo "<html><head><title>Summary Page</title></head>" | tee $sortedfile > $webfile
 
     #CRAB
     echo "<h3>CRAB Job List</h3>&nbsp;&nbsp;&nbsp; Report of monitored quantities related to the CRAB jobs, created and submitted for each scheduled run<br><br>&nbsp;&nbsp;&nbsp; The Job Name provides a link to the web page where logs and results for the given job are collected<br>" | tee -a $sortedfile >> $webfile
@@ -162,7 +159,16 @@ function CreateHtml(){
     cat ${webfiletmp}_jobtable >> $webfile
     cat ${sortedfiletmp}_jobtable >>$sortedfile
 
+
+    #Summaries
+    echo "<body><h3>Summary Results List</h3><br>Links to summary pages, related to specific analyses (Quality Tests) performed on the CRAB job's outputs (root histograms)<br><br>" | tee -a $sortedfile >> $webfile
+    
+    CreateSummaries
+    [ -e ${webfiletmp}_smry ] && cat ${webfiletmp}_smry | tee -a $sortedfile >> $webfile
+
+
     #END
+    echo "<br><br>Webmaster: domenico.giordano@cern.ch"| tee -a $sortedfile >> $webfile
     echo "</body></html>" | tee -a $sortedfile >> $webfile
 
 

@@ -5,7 +5,7 @@
 # It takes 1 parameter: $1 = Job name (examples are ClusterAnalysis, TIFNtupleMaker)
 function Production(){
 
-  # Declarinf the name of the job
+  # Declaring the name of the job
   job_name=$1_${Config}_${Flag}
 
   # Declaring and creating the directory in which to store everything
@@ -57,10 +57,12 @@ function Production(){
   ################
   if [ -e ${created_name} ] && [ ! -e ${submitted_path}/${job_name} ] || [ `grep -c not ${submitted_path}/${job_name}` != 0 ]; then
     echo Submitting ${job_name} job with crab in ${WorkingDir}/CRAB_${Version}
-    crab -submit all -c ${CrabWorkingDir} > ${submitted_path}/${job_name}
+    crab -submit all -c ${CrabWorkingDir} > ${submitted_path}/${job_name} #&
+    #pid=$!
+    #(sleep 60; kill -9 $pid; [ "$?" != "0" ] && echo -e "\nprocess \"crab submit\" killed after 120 seconds" >> ${submitted_path}/${job_name} )
     cp ${submitted_path}/${job_name} ${StoreDir}/logs/submission_log.txt
     cat ${submitted_path}/${job_name}
-    if [ `grep -c Cannot ${created_name}` != 0 ] || [ `grep -c failed ${created_name}` != 0 ]; then
+    if [ `grep -c Cannot ${created_name}` != 0 ] || [ `grep -c failed ${created_name}` != 0 ] || [ `grep -c killed ${created_name}` != 0 ]; then
       mv ${submitted_path}/${job_name} ${not_submitted_path}/${job_name}
     fi
   fi
@@ -159,6 +161,8 @@ for AnalyzerName in `echo ${AnalyzersList}`; do
     export Config=`echo $FlagConfig | awk -F- '{print $1}'`
 
     if [ "${Datasetpath}" != "" ] && [ `grep -c ${Run} ${list_path}/${list}` -eq 1 ]; then
+
+
 
       echo Run ${Run} found in the database
       echo Preparing to create jobs

@@ -28,7 +28,7 @@ source /analysis/sw/CRAB/CRAB_1_4_2/CRAB/Boss/BOSS_4_2_4/bossenv.sh
 
 # check if .bossrc dir exists
 
-echo $MYHOME
+echo MYHOME $MYHOME
 
 if [ ! -d $MYHOME/.bossrc ]; then
   mkdir $MYHOME/.bossrc

@@ -23,10 +23,33 @@ echo Interrogating database $1
 
 export list_temp=list_temp.txt
 
+# to change the names for TIBTOBTEC samples in Bari
+export list_temp_temp=list_temp_temp.txt
+rm -f ${list_path}/${list_temp_temp}
+touch ${list_path}/${list_temp_temp}
+
 if [ $1 == "Bari" ]; then
   # To access Bari reconstructed TIBTOB runs
   python ${local_crab_path}/dbsreadprocdataset.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC-*-120-DAQ-EDM/RECO/*CMSSW_1_3_0_pre6* --logfile=${list_path}/${datasets_list}
-  cat ${list_path}/${datasets_list} | awk -F- '{print $2 "-" $9}' > ${list_path}/${list_temp}
+  cat ${list_path}/${datasets_list} | awk -F- '{print $2 "-" $9 "_" $10}' > ${list_path}/${list_temp}
+  cat ${list_path}/${list_temp} | while read line; do
+    if [ `echo ${line} | grep -c TIBTOBTEC` -ne 0 ]; then
+      echo if ${line}
+      echo $line | awk -F_ '{print $3 "-" $1}' | awk -F- '{print "TIF-" $3}' >> ${list_path}/${list_temp_temp}
+    else
+      echo else ${line}
+      echo $line | awk -F_ '{print $1}' >> ${list_path}/${list_temp_temp}
+    fi
+  done
+
+  cp ${list_path}/${list_temp_temp} ${list_path}/${list_temp}
+
+  # Check this
+  cat ${list_path}/${list_temp} | grep -v "Minus" > ${list_path}/${list_temp_temp}
+  cp ${list_path}/${list_temp_temp} ${list_path}/${list_temp}
+  ##
+
+  rm ${list_path}/${list_temp_temp}
 fi
 
 if [ $1 == "FNAL" ]; then
@@ -49,7 +72,9 @@ touch ${list_path}/${list}
 
 for type_ in `echo ${Config_}`; do
   if [ ${type_} != "All" ]; then
-    if [ ${type_} == "TIBTOB" ] && [ ${type_} != "TIBTOBTEC" ]; then
+    if [ ${type_} == "TIBTOBTEC" ]; then
+      cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
+    elif [ ${type_} == "TIBTOB" ]; then
       echo TIBTOB type_ = ${type_}
       cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
 #      cat ${list_path}/${list}

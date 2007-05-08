@@ -30,6 +30,13 @@ function Clear(){
   rm -v -r -f ${log_path}/Crashed/${Name}
 }
 
+######################
+## MAIN
+#####################
+
+[ "$1" == "" ] && echo "Please specify the version to be removed " && exit
+
+
 #source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 #source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
 #source ~/public/crab.sh
@@ -44,7 +51,7 @@ function Clear(){
 #source /analysis/sw/CRAB/crab.sh
 ########################################
 
-cd /analysis/sw/CRAB/CMSSW_1_3_0_pre6_v1/src/
+cd /analysis/sw/CRAB/CMSSW/CMSSW_1_3_0/src/
 eval `scramv1 runtime -sh`
 
 #export X509_USER_PROXY=`cat /analysis/sw/CRAB/log/X509_USER_PROXY.txt`
