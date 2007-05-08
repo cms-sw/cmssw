@@ -4,7 +4,6 @@
 #include "SimG4Core/SensitiveDetector/interface/FrameRotation.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
@@ -61,9 +60,10 @@ numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
 								 const DDCompactView & cpv,
+								 SensitiveDetectorCatalog & clg, 
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
-   SensitiveTkDetector(name, cpv, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
+  SensitiveTkDetector(name, cpv, clg, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
    oldVolume(0), lastId(0), lastTrack(0), eventno(0) ,rTracker(1200.*mm),zTracker(3000.*mm),
    numberingScheme_(0)
 {
@@ -102,7 +102,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
     slaveHighTof = new TrackingSlaveSD(name+"HighTof");
   
     // Now attach the right detectors (LogicalVolumes) to me
-    vector<string>  lvNames= SensitiveDetectorCatalog::instance()->logicalNames(name);
+    vector<string>  lvNames = clg.logicalNames(name);
     this->Register();
     for (vector<string>::iterator it = lvNames.begin();  it != lvNames.end(); it++)
     {

@@ -13,7 +13,6 @@
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSimHitNumberingScheme.h"
 
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
@@ -29,9 +28,10 @@
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
+					     SensitiveDetectorCatalog & clg,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
-  : SensitiveTkDetector(name, cpv, p),
+  : SensitiveTkDetector(name, cpv, clg, p),
     thePV(0), theHit(0), theDetUnitId(0), theTrackID(0), theManager(manager)
 {
   edm::ParameterSet m_MuonSD = p.getParameter<edm::ParameterSet>("MuonSD");
@@ -68,7 +68,7 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string>  lvNames= SensitiveDetectorCatalog::instance()->logicalNames(name);
+  std::vector<std::string>  lvNames = clg.logicalNames(name);
   this->Register();
   for (std::vector<std::string>::iterator it = lvNames.begin();  it != lvNames.end(); it++){
     LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;

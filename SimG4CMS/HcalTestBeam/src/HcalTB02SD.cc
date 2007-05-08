@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Sun 21 10:14:34 CEST 2006
-// $Id: HcalTB02SD.cc,v 1.1 2006/06/04 13:59:38 sunanda Exp $
+// $Id: HcalTB02SD.cc,v 1.2 2007/03/08 00:19:50 sunanda Exp $
 //
   
 // system include files
@@ -33,9 +33,10 @@
 //
 
 HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
+		       SensitiveDetectorCatalog & clg, 
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   
   edm::ParameterSet m_SD = p.getParameter<edm::ParameterSet>("HcalTB02SD");
   useBirk= m_SD.getUntrackedParameter<bool>("UseBirkLaw",false);

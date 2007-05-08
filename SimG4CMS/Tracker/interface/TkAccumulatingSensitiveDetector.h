@@ -35,6 +35,7 @@ public Observer<const BeginOfJob*>
 { 
 public:    
     TkAccumulatingSensitiveDetector(std::string, const DDCompactView &,
+				    SensitiveDetectorCatalog &,
 				    edm::ParameterSet const &,
 				    const SimTrackManager*);
     virtual ~TkAccumulatingSensitiveDetector();

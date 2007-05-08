@@ -21,8 +21,8 @@ class HcalTB06BeamSD : public CaloSD {
 
 public:    
 
-  HcalTB06BeamSD(G4String , const DDCompactView &, edm::ParameterSet const &,
-		   const SimTrackManager*);
+  HcalTB06BeamSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,
+		 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HcalTB06BeamSD();
   virtual double getEnergyDeposit(G4Step* );
   virtual uint32_t setDetUnitId(G4Step* step);

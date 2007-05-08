@@ -18,9 +18,10 @@
 #include "G4Track.hh"
 
 HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
+			       SensitiveDetectorCatalog & clg, 
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager) {
+  CaloSD(name, cpv, clg, p, manager) {
 
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HcalTB06BeamSD");

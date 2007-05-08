@@ -14,7 +14,7 @@
 //
 // Original Author:  
 //         Created:  Fri May 20 10:14:34 CEST 2006
-// $Id: HcalTB02SD.h,v 1.1 2006/05/23 10:53:29 sunanda Exp $
+// $Id: HcalTB02SD.h,v 1.2 2007/03/08 00:19:48 sunanda Exp $
 //
   
 // system include files
@@ -30,8 +30,8 @@
 class HcalTB02SD : public CaloSD {
 
 public:
-  HcalTB02SD(G4String, const DDCompactView &, edm::ParameterSet const &,
-	     const SimTrackManager*);
+  HcalTB02SD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+	     edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HcalTB02SD();
   virtual double getEnergyDeposit(G4Step*);
   virtual uint32_t setDetUnitId(G4Step* step);
