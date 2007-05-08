@@ -81,7 +81,6 @@ void unpack(const char* bitword){
   for (size_t i=0;i<768;++i){
     block=int(i/8);
     bitshift=i%8;
-    char* c;
     int num=(( bitword[4+block] & 0xFF) >> bitshift ) & 0x1;
     unsigned int detid;
     memcpy((void*)&detid,(void*)bitword,4);
@@ -94,7 +93,7 @@ void unpack(const char* bitword){
 void iterate(TH1F* histo,std::map<short,StripStruct>& mBadStrip){
   double diff=1.-_prob; 
   int ibinStart= 1; 
-  int ibinStop= histo->GetNbinsX(); 
+  int ibinStop= histo->GetNbinsX()+1; 
   int MaxEntry=(int)histo->GetMaximum();
 
   size_t startingSize=mBadStrip.size();
@@ -110,10 +109,12 @@ void iterate(TH1F* histo,std::map<short,StripStruct>& mBadStrip){
     Nbins--;
   }
 
-
+  if (Nentries==0)
+    return;
+  
   float meanVal=Nentries/Nbins; 
 
-  cout << "Iterate " << Nentries << " " << Nbins << " " << meanVal << endl;
+  //cout << "Iterate " << Nentries << " " << Nbins << " " << meanVal << endl;
 
   for(int i=0;i<MaxEntry+1;i++){
     Poisson[i]= (i==0)?TMath::Poisson(i,meanVal):Poisson[i-1]+TMath::Poisson(i,meanVal);
@@ -150,7 +151,7 @@ void badStripStudy(TH1F *histo){
 
   std::map<short,StripStruct> mBadStrip;
   
-  cout << "new" << endl;
+  //  cout << "new" << endl;
   iterate(histo,mBadStrip);
 
   std::map<short,StripStruct>::const_iterator EndIter=mBadStrip.end();
@@ -169,11 +170,12 @@ void badStripStudy(TH1F *histo){
   }
 
   if(Nbads ){ 
-    std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << histo->GetNbinsX()-1 <<"\n-----------------------------------------------\n"<< std::endl;
+    std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << histo->GetNbinsX() <<"\n-----------------------------------------------\n"<< std::endl;
     
     TCanvas C;
+    C.SetLogy();
     histo->Draw();
-    C.Print(TString(histo->GetTitle())+TString(".eps"));
+    C.Print(TString(histo->GetTitle())+TString(".gif"));
     
     char title[128];
     sprintf(title,"%s",histo->GetTitle());
