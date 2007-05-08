@@ -1,7 +1,7 @@
 #include <DataFormats/L1CSCTrackFinder/interface/L1Track.h>
 
 namespace csc {
-  
+
   L1Track::L1Track(const csc::L1TrackId& id): m_name("csc::L1Track")
   {
     m_endcap = id.endcap();
@@ -9,7 +9,7 @@ namespace csc {
     m_lphi = 0;
     m_ptAddress = 0;
     m_empty = true;
-    setType(2); 
+    setType(2);
     setPtPacked(0);
     m_rank = 0;
     me1_id = 0;
@@ -19,7 +19,7 @@ namespace csc {
     mb1_id = 0;
     m_output_link = 0;
   }
-  
+
   L1Track::L1Track(const csc::L1Track& rhs) : L1MuRegionalCand(rhs.type_idx(),rhs.phi_packed(),rhs.eta_packed(),
 						      rhs.pt_packed(),rhs.charge_packed(),
 						      rhs.charge_valid_packed(),rhs.finehalo_packed(),
@@ -80,28 +80,7 @@ namespace csc {
     return m_rank;
   }
 
-  float L1Track::ptValueMid() const
-  {
-    if(pt_packed() >= 31) return m_scale.getPtScale()->getLowEdge(pt_packed());
-    return m_scale.getPtScale()->getCenter(pt_packed());
-  }
-
-  float L1Track:: etaValueLow() const
-  {
-    return m_scale.getRegionalEtaScale(type_idx())->getLowEdge(eta_packed());
-  }
-
-  float L1Track::phiValueMid() const
-  {
-    return m_scale.getPhiScale()->getCenter(phi_packed());
-  }
-
-  float L1Track::localPhiValue() const
-  {
-    return m_scale.getPhiScale()->getLowEdge(m_lphi);
-  }
-    
-  void L1Track::setStationIds(const unsigned& me1, const unsigned& me2, 
+  void L1Track::setStationIds(const unsigned& me1, const unsigned& me2,
 			      const unsigned& me3, const unsigned& me4,
 			      const unsigned& mb1)
   {
@@ -115,7 +94,7 @@ namespace csc {
   unsigned L1Track::encodeRank(const unsigned& pt, const unsigned& quality)
   {
     if(pt == 0) return 0;
-    return pt | (quality << L1MuRegionalCand::PT_LENGTH); 
+    return pt | (quality << L1MuRegionalCand::PT_LENGTH);
   }
 
   void L1Track::decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality)
@@ -132,24 +111,9 @@ namespace csc {
       }
   }
 
-  unsigned L1Track::encodePt(const double& pt)
-  {
-    L1MuTriggerScales* tempScales = new L1MuTriggerScales();
-    double pT = fabs(pt);
-    unsigned i = 0;
-    for(i = 0; i < (1<<L1MuRegionalCand::PT_LENGTH) - 1; i++)
-      {
-	if( pT < tempScales->getPtScale()->getLowEdge(i+1) ||
-	    tempScales->getPtScale()->getLowEdge(i+1) == -1 )
-	  break;
-      }
-    delete tempScales;    
-    return i;
-  } 
-
   bool L1Track::operator>(const csc::L1Track &rhs) const
   {
-    return (rank() > rhs.rank()); 
+    return (rank() > rhs.rank());
   }
 
   bool L1Track::operator<(const csc::L1Track& rhs) const
@@ -171,42 +135,36 @@ namespace csc {
   {
     return (rank() == rhs.rank());
   }
-  
+
   bool L1Track::operator!=(const csc::L1Track& rhs) const
   {
     return (rank() != rhs.rank());
-  }  
+  }
 
   void L1Track::Print() const
   {
-    if (!empty()) 
+    if (!empty())
       {
 	std::cout << "\t  Pt(int): "  << " " << pt_packed()
 		  << " Phi(int): " << " " << phi_packed()
 		  << " Eta(int): " << " " << eta_packed()
 		  << " Quality: "  << " " << quality_packed()
-		  << " charge: "   << " " << chargeValue()
+		  << " charge: "   << " " << charge_packed()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
 		  << std::endl;
-	std::cout << "\t  Pt(float): "  << " " << ptValue()
-		  << " Phi(float): " << " " << phiValueMid()
-		  << " Eta(float): " << " " << etaValueLow();
       }
-    else 
+    else
       {
 	std::cout <<"\t  Empty track!\n";
 	std::cout << "\t  Pt(int): "  << " " << "unassigned or zero"
 		  << " Phi(int): " << " " << phi_packed()
 		  << " Eta(int): " << " " << eta_packed()
 		  << " Quality: "  << " " << "unassigned or zero"
-		  << " charge: "   << " " << chargeValue()
+		  << " charge: "   << " " << charge_packed()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
 		  << std::endl;
-	std::cout << "\t  Phi(float): " << " " << phiValueMid()
-		  << " Eta(float): " << " " << etaValueLow();
-	
       }
   }
 }

@@ -2,7 +2,7 @@
  * \class L1Track (for CSC TrackFinder)
  * \author L. Gray (partial port from ORCA)
  *
- * A L1 Track class for the CSC Track Finder. 
+ * A L1 Track class for the CSC Track Finder.
  *
  **/
 
@@ -11,7 +11,6 @@
 
 #include <DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h>
 #include <DataFormats/L1CSCTrackFinder/interface/L1TrackId.h>
-#include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
 
 class CSCTFSectorProcessor;
 class CSCTFUnpacker;
@@ -32,14 +31,10 @@ namespace csc{
 
       unsigned rank() const;
       void setRank(const unsigned& rank) { m_rank = rank; }
-      float ptValueMid() const;
-      float etaValueLow() const;
-      float phiValueMid() const;
 
-      float localPhiValue() const;
       unsigned localPhi() const { return m_lphi; }
-      void setLocalPhi(const unsigned& lphi) { m_lphi = lphi; } 
-      
+      void setLocalPhi(const unsigned& lphi) { m_lphi = lphi; }
+
       unsigned me1ID() const { return me1_id; }
       unsigned me2ID() const { return me2_id; }
       unsigned me3ID() const { return me3_id; }
@@ -51,13 +46,13 @@ namespace csc{
       unsigned station() const { return 0; }
       // these next two are needed by the trigger container class
       unsigned subsector() const { return 0; }
-      unsigned cscid() const { return 0; } 
+      unsigned cscid() const { return 0; }
 
       int BX() const { return bx(); }
-      
+
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
-      static unsigned encodePt(const double& pt); 
+      static unsigned encodePt(const double& pt);
 
       unsigned ptLUTAddress() const { return m_ptAddress; }
       void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
@@ -84,8 +79,7 @@ namespace csc{
       void Print() const;
 
     private:
-      L1MuTriggerScales m_scale;
-      
+
       std::string m_name;
       //L1TrackId m_id; remove this nested class for now... POOL doesn't like it.
       unsigned m_endcap, m_sector;
@@ -97,7 +91,7 @@ namespace csc{
       unsigned m_output_link;
       bool m_empty;
 
-      void setStationIds(const unsigned& me1, const unsigned& me2, 
+      void setStationIds(const unsigned& me1, const unsigned& me2,
 			 const unsigned& me3, const unsigned& me4,
 			 const unsigned& mb1);
      };
