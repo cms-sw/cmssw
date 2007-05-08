@@ -423,6 +423,12 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
           return; 
         }
 
+	// ignore track minus center-of-chamber "residual" from 1d hits (only muon drift tubes)
+	if ((*ihit)->dimension() == 1) {
+	   covmat[1][1] = 0.;
+	   covmat[0][1] = 0.;
+	}
+
         // calculate user parameters
         int npar=derivs.num_row();
         AlgebraicSymMatrix thisjtvj(npar);
