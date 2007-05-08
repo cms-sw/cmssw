@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.22 2007/05/04 23:23:05 fedor Exp $
+/// $Id: JetMaker.cc,v 1.23 2007/05/08 05:39:52 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -134,6 +134,7 @@ namespace {
     float chargedMuPt=0.;
     int   chargedMultiplicity=0;
     int   neutralMultiplicity=0;
+    int   muonMultiplicity=0;
     
     ProtoJet::Constituents::const_iterator constituent = fPFCandidates.begin();
     for (; constituent != fPFCandidates.end(); ++constituent) {
@@ -155,6 +156,7 @@ namespace {
 	  case PFCandidate::mu:      // muon
 	    chargedMuPt += pfCand->pt();
 	    chargedMultiplicity++;
+	    muonMultiplicity++;
 	    break;
 	    
 	  case PFCandidate::gamma:   // photon
@@ -187,6 +189,7 @@ namespace {
     fJetSpecific->mNeutralEmPt=neutralEmPt;
     fJetSpecific->mChargedMultiplicity=chargedMultiplicity;
     fJetSpecific->mNeutralMultiplicity=neutralMultiplicity;
+    fJetSpecific->mMuonMultiplicity=muonMultiplicity;
     return true;
   }
  
