@@ -1,5 +1,5 @@
-#include "IOPool/Input/interface/RootTree.h"
-#include "IOPool/Input/interface/RootDelayedReader.h"
+#include "RootTree.h"
+#include "RootDelayedReader.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Principal.h"

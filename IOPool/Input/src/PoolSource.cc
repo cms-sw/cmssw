@@ -1,9 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.46 2007/03/27 22:47:39 wmtan Exp $
+$Id: PoolSource.cc,v 1.1 2007/04/16 19:43:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
-#include "IOPool/Input/interface/RootFile.h"
-#include "IOPool/Input/interface/RootTree.h"
+#include "RootFile.h"
+#include "RootTree.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"

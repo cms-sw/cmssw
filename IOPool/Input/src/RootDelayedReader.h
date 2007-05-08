@@ -5,7 +5,7 @@
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.4 2006/12/23 20:55:25 wmtan Exp $
+$Id: RootDelayedReader.h,v 1.1 2007/04/16 19:43:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ $Id: RootDelayedReader.h,v 1.4 2006/12/23 20:55:25 wmtan Exp $
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
-#include "IOPool/Input/interface/Inputfwd.h"
+#include "Inputfwd.h"
 #include "TBranch.h"
 
 namespace edm {

@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.21 2007/03/27 22:54:46 wmtan Exp $
+$Id: RootFile.h,v 1.1 2007/04/16 19:43:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -15,8 +15,8 @@ $Id: RootFile.h,v 1.21 2007/03/27 22:54:46 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 #include "boost/array.hpp"
 
-#include "IOPool/Input/interface/Inputfwd.h"
-#include "IOPool/Input/interface/RootTree.h"
+#include "Inputfwd.h"
+#include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
