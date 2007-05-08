@@ -16,24 +16,34 @@
 // Lower the pixel noise from 500 to 175elec.
 // Change the input threshold from noise units to electrons.
 // Lower the amount of static dead pixels from 0.01 to 0.001.
+// Modify to the new random number services. d.k. 5/07
+
  
 #include <vector>
 #include <iostream>
-//#include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
+
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimTracker/SiPixelDigitizer/interface/SiPixelDigitizerAlgorithm.h"
+
 #include <gsl/gsl_sf_erf.h>
-//#include "CLHEP/Random/RandGauss.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
+
 //#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+ 
 
 using namespace std;
 using namespace edm;
+
+#define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
 SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :conf_(conf) {
   using std::cout;
@@ -167,19 +177,36 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     
   } // end the pixel inefficinecy part
 
-  LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
-			       <<"Configuration parameters:" 
-			       << "Threshold/Gain = "  
-			       << thePixelThresholdInE<<" "<<theElectronPerADC 
-			       << " " << theAdcFullScale 
-			       << " The delta cut-off is set to " << tMax
-			      << " pix-inefficiency "<<thePixelLuminosity;
+
+
+  // Init the random number services
+  if(addNoise || thePixelLuminosity ) {
+    edm::Service<edm::RandomNumberGenerator> rng;
+    if ( ! rng.isAvailable()) {
+      throw cms::Exception("Configuration")
+        << "SiPixelDigitizer requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+    }
+ 
+    CLHEP::HepRandomEngine& engine = rng->getEngine();
+ 
+    // engine MUST be a reference here, if a pointer is used the
+    // distribution will destroy the engine in its destructor, a major
+    // problem because the service owns the engine and will destroy it
+    gaussDistribution_ = new CLHEP::RandGaussQ(engine, 0., theReadoutNoise);
+    flatDistribution_ = new CLHEP::RandFlat(engine, 0., 1.);
+     
+  }
+
+
+  // Prepare for the analog amplitude miss-calibration
   if(doMissCalibrate) {
     LogDebug ("PixelDigitizer ") 
       << " miss-calibrate the pixel amplitude "; 
 
     const bool ReadCalParameters = false;
-    if(ReadCalParameters) {
+    if(ReadCalParameters) {   // Read the calibration files from file
       // read the calibration constants from a file (testing only)
       ifstream in_file;  // data file pointer
       char filename[80] = "phCalibrationFit_C0.dat";
@@ -255,15 +282,27 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 //       //cin>>dummy;
 //     }
 
-
     } // end if readparameters
   } // end if missCalibration 
+
+  LogInfo ("PixelDigitizer ") <<"SiPixelDigitizerAlgorithm constructed"
+			       <<"Configuration parameters:" 
+			       << "Threshold/Gain = "  
+			       << thePixelThresholdInE<<" "<<theElectronPerADC 
+			       << " " << theAdcFullScale 
+			       << " The delta cut-off is set to " << tMax
+			      << " pix-inefficiency "<<thePixelLuminosity;
+
 
 }
 //=========================================================================
 SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
 
-   LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
+  LogDebug ("PixelDigitizer")<<"SiPixelDigitizerAlgorithm deleted";
+
+   // Destructor
+   delete gaussDistribution_;
+   delete flatDistribution_;
 
 }
 //=========================================================================
@@ -278,7 +317,7 @@ SiPixelDigitizerAlgorithm::run(
   _bfield=bfield; //cache the drift direction
 
   // Pixel Efficiency moved from the constructor to the method run because
-  // the information of the det are nota available in the constructor
+  // the information of the det are not available in the constructor
   // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
 
   detID= _detp->geographicalId().rawId();
@@ -292,7 +331,10 @@ SiPixelDigitizerAlgorithm::run(
   vector<PixelDigi> collector =digitize(pixdet);
 
   // edm::DetSet<PixelDigi> collector;
+
+#ifdef TP_DEBUG
   LogDebug ("PixelDigitizer") << "[SiPixelDigitizerAlgorithm] converted " << collector.size() << " PixelDigis in DetUnit" << detID; 
+#endif
 
   return collector;
 }
@@ -324,9 +366,11 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     else 
       thePixelThreshold = 0.;
 
+#ifdef TP_DEBUG
     LogDebug ("PixelDigitizer") 
       << " PixelDigitizer "  
       << numColumns << " " << numRows << " " << moduleThickness;
+#endif
 
     // produce SignalPoint's for all SimHit's in detector
     // Loop over hits
@@ -334,13 +378,14 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
     vector<PSimHit>::const_iterator ssbegin; 
     for (ssbegin= _PixelHits.begin();ssbegin !=_PixelHits.end(); ++ssbegin) {
       
+#ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer") 
 	<< (*ssbegin).particleType() << " " << (*ssbegin).pabs() << " " 
 	<< (*ssbegin).energyLoss() << " " << (*ssbegin).tof() << " " 
 	<< (*ssbegin).trackId() << " " << (*ssbegin).processType() << " " 
 	<< (*ssbegin).detUnitId()  
 	<< (*ssbegin).entryPoint() << " " << (*ssbegin).exitPoint() ; 
-      
+#endif      
       
       _collection_points.clear();  // Clear the container
       // fill _collection_points for this SimHit, indpendent of topology
@@ -384,9 +429,9 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
   float length = direction.mag();  // Track length in Silicon
 
   NumberOfSegments = int ( length / SegmentLength); // Number of segments
-  if(NumberOfSegments < 1)
-    NumberOfSegments = 1;
+  if(NumberOfSegments < 1) NumberOfSegments = 1;
 
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") 
     << " enter primary_ionzation " << NumberOfSegments 
     << " shift = " 
@@ -394,7 +439,7 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     << (hit.exitPoint().y()-hit.entryPoint().y()) << " " 
     << (hit.exitPoint().z()-hit.entryPoint().z()) << " "
     << hit.particleType() <<" "<< hit.pabs() ; 
-  
+#endif  
 
   float* elossVector = new float[NumberOfSegments];  // Eloss vector
 
@@ -426,13 +471,15 @@ void SiPixelDigitizerAlgorithm::primary_ionization(const PSimHit& hit) {
     _ionization_points[i] = edu; // save
     
 
+#ifdef TP_DEBUG
     LogDebug ("Pixel Digitizer") 
       << i << " " << _ionization_points[i].x() << " " 
       << _ionization_points[i].y() << " " 
       << _ionization_points[i].z() << " " 
       << _ionization_points[i].energy();
+#endif
     
-  }
+  }  // end for loop 
 
   delete[] elossVector;
 
@@ -496,7 +543,10 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 // INlcude the effect of E-field and B-field 
 void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 
+
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter drift " ;
+#endif
 
   _collection_points.resize( _ionization_points.size()); // set size
   
@@ -527,11 +577,13 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
       CosLorenzAngleY = 1.;
   }
  
+
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") 
     << " Lorentz Tan " << TanLorenzAngleX << " " << TanLorenzAngleY <<" "
     << CosLorenzAngleX << " " << CosLorenzAngleY << " "
     << moduleThickness*TanLorenzAngleX << " " << driftDir;
-  
+#endif  
 
   float Sigma_x = 1.;  // Charge spread 
   float Sigma_y = 1.;
@@ -592,12 +644,12 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
   // X  - Rows, Left-Right, 160, (1.6cm)   for barrel
   // Y  - Columns, Down-Up, 416, (6.4cm)
-  //DA MODIFICARE
 
+#ifdef TP_DEBUG
     LogDebug ("Pixel Digitizer") 
       << " enter induce_signal, " 
       << topol->pitch().first << " " << topol->pitch().second; //OK
-
+#endif
 
    // local map to store pixels hit by 1 Hit.      
    typedef map< int, float, less<int> > hit_map_type;
@@ -618,11 +670,11 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      float SigmaY = i->sigma_y();            //               in y
      float Charge = i->amplitude();          // Charge amplitude
      
- 
+#ifdef TP_DEBUG
        LogDebug ("Pixel Digitizer") 
 	 << " cloud " << i->position().x() << " " << i->position().y() << " " 
 	 << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude();
-      
+#endif      
      
      // Find the maximum cloud spread in 2D plane , assume 3*sigma
      float CloudRight = CloudCenterX + ClusterWidth*SigmaX;
@@ -647,21 +699,22 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      int IPixRightUpX = int( floor( mp.x()));
      int IPixRightUpY = int( floor( mp.y()));
      
+#ifdef TP_DEBUG
      LogDebug ("Pixel Digitizer") << " right-up " << PointRightUp << " " 
 				  << mp.x() << " " << mp.y() << " "
 				  << IPixRightUpX << " " << IPixRightUpY ;
-
+#endif
  
      mp = topol->measurementPosition(PointLeftDown ); //OK
     
      int IPixLeftDownX = int( floor( mp.x()));
      int IPixLeftDownY = int( floor( mp.y()));
      
-
+#ifdef TP_DEBUG
      LogDebug ("Pixel Digitizer") << " left-down " << PointLeftDown << " " 
 				  << mp.x() << " " << mp.y() << " "
 				  << IPixLeftDownX << " " << IPixLeftDownY ;
-
+#endif
 
      // Check detector limits to correct for pixels outside range.
      IPixRightUpX = numRows>IPixRightUpX ? IPixRightUpX : numRows-1 ;
@@ -760,12 +813,15 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 	mp = MeasurementPoint( float(ix), float(iy) );
 	LocalPoint lp = topol->localPosition(mp);
 	chan = topol->channel(lp);
+
+#ifdef TP_DEBUG
 	LogDebug ("Pixel Digitizer") 
 	  << " pixel " << ix << " " << iy << " - "<<" "
 	  << chan << " " << ChargeFraction<<" "
 	  << mp.x() << " " << mp.y() <<" "
 	  << lp.x() << " " << lp.y() << " "  // givex edge position
 	  << chan; // edge belongs to previous ?
+#endif
 
       } // endfor iy
     } //endfor ix
@@ -779,7 +835,6 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 //     pair<int,int> ip = PixelDigi::channelToPixel(chan);
 //     MeasurementPoint mp1 = MeasurementPoint( float(ip.first),
 // 					     float(ip.second) );
-
 //     LogDebug ("Pixel Digitizer") << " Test "<< mp.x() << " " << mp.y() 
 // 				 << " "<< lp.x() << " " << lp.y() << " "<<" "
 // 				 <<p.first <<" "<<p.second<<" "<<chan<< " "
@@ -800,10 +855,12 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
     
     int chan =  (*im).first; 
     pair<int,int> ip = PixelDigi::channelToPixel(chan);
+
+#ifdef TP_DEBUG
     LogDebug ("Pixel Digitizer") 
       << " pixel " << ip.first << " " << ip.second << " "
       << _signal[(*im).first];    
-
+#endif
   }
 
 } // end induce_signal
@@ -812,10 +869,11 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 void SiPixelDigitizerAlgorithm::make_digis() {
   internal_coll.reserve(50); internal_coll.clear();
 
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " make digis "<<" "
 			       << " pixel threshold " << thePixelThresholdInE << " " 
 			       << " List pixels passing threshold ";
-  
+#endif  
   
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
     
@@ -840,9 +898,11 @@ void SiPixelDigitizerAlgorithm::make_digis() {
       }
       adc = min(adc, theAdcFullScale); // Check maximum value
       
+#ifdef TP_DEBUG
       LogDebug ("Pixel Digitizer") 
 	<< (*i).first << " " << (*i).second << " " << signalInElectrons 
 	<< " " << adc << ip.first << " " << ip.second ;
+#endif
            
       // Load digis
       internal_coll.push_back( PixelDigi( ip.first, ip.second, adc));
@@ -879,13 +939,16 @@ void SiPixelDigitizerAlgorithm::make_digis() {
 /***********************************************************************/
 //  Add electronic noise to pixel charge
 void SiPixelDigitizerAlgorithm::add_noise() {
+
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter add_noise " << theNoiseInElectrons;
+#endif
  
   // First add noise to hit pixels
   // Use here the FULL readout noise, including TBM,ALT,AOH,OPT-REC.
   for ( signal_map_iterator i = _signal.begin(); i != _signal.end(); i++) {
-    //float noise  = RandGauss::shoot(0.,theReadoutNoise);
-    float noise  = RandGaussQ::shoot(0.,theReadoutNoise);
+    //float noise  = RandGaussQ::shoot(0.,theReadoutNoise);
+    float noise  = gaussDistribution_->fire() ;
     (*i).second += Amplitude( noise,0,-1.);  
   }
   
@@ -902,11 +965,13 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 		      theNoiseInElectrons, // noise in elec. 
                       otherPixels );
 
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") 
     <<  " Add noisy pixels " << numRows << " " 
     << numColumns << " " << theNoiseInElectrons << " " 
     << thePixelThresholdInE <<" "<< numberOfPixels<<" " 
     << otherPixels.size() ;
+#endif
   
   // Add noisy pixels
   for (mapI = otherPixels.begin(); mapI!= otherPixels.end(); mapI++) {
@@ -921,9 +986,11 @@ void SiPixelDigitizerAlgorithm::add_noise() {
 
     int chan = PixelDigi::pixelToChannel(ix, iy);
 
+#ifdef TP_DEBUG
     LogDebug ("Pixel Digitizer")
       <<" Storing noise = " << (*mapI).first << " " << (*mapI).second 
       << " " << ix << " " << iy << " " << chan ;
+#endif
  
     if(_signal[chan] == 0){
       //      float noise = float( (*mapI).second );
@@ -971,10 +1038,10 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     }
   } // if barrel/forward
 
-
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " enter pixel_inefficiency " << pixelEfficiency << " " 
 			       << columnEfficiency << " " << chipEfficiency;
-
+#endif
   
   // Initilize the index converter
   //PixelIndices indexConverter(numColumns,numRows);
@@ -1003,13 +1070,15 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
 
   // Delete some ROC hits.
   for ( iter = chips.begin(); iter != chips.end() ; iter++ ) {
-    float rand  = RandFlat::shoot();
+    //float rand  = RandFlat::shoot();
+    float rand  = flatDistribution_->fire();
     if( rand > chipEfficiency ) chips[iter->first]=0;
   }
 
   // Delete some Dcol hits.
   for ( iter = columns.begin(); iter != columns.end() ; iter++ ) {
-    float rand  = RandFlat::shoot();
+    //float rand  = RandFlat::shoot();
+    float rand  = flatDistribution_->fire();
     if( rand > columnEfficiency ) columns[iter->first]=0;
   }
   
@@ -1028,7 +1097,8 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency() {
     int dColInDet = pIndexConverter->DColumnInModule(dColInChip,chipIndex); 
 
 
-    float rand  = RandFlat::shoot();
+    //float rand  = RandFlat::shoot();
+    float rand  = flatDistribution_->fire();
     if( chips[chipIndex]==0 || columns[dColInDet]==0 
 	|| rand>pixelEfficiency ) {
       // make pixel amplitude =0, pixel will be lost at clusterization    
@@ -1128,8 +1198,10 @@ LocalVector SiPixelDigitizerAlgorithm::DriftDirection(){
   float scale = (1 + alpha2* Bfield.z()*Bfield.z() );
   LocalVector theDriftDirection = LocalVector(dir_x/scale, dir_y/scale, dir_z/scale );
 
+#ifdef TP_DEBUG
   LogDebug ("Pixel Digitizer") << " The drift direction in local coordinate is "   
 			       << theDriftDirection ;
+#endif
    
   return theDriftDirection;
 }

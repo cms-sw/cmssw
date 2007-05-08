@@ -29,6 +29,11 @@
 
 #include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 
+// For the random numbers
+namespace CLHEP {
+  class RandGaussQ;
+  class RandFlat;
+}
 
 class SiPixelDigitizerAlgorithm  {
  public:
@@ -286,8 +291,11 @@ class SiPixelDigitizerAlgorithm  {
     void pixel_inefficiency();
     float missCalibrate(int col, int row, float amp) const;  
     LocalVector DriftDirection();
-    
 
+   // For random numbers
+    CLHEP::RandFlat *flatDistribution_;
+    CLHEP::RandGaussQ *gaussDistribution_;
+    
 };
 
 #endif
