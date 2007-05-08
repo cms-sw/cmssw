@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/28 17:19:35 $
+ *  $Date: 2007/05/08 14:52:52 $
  *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
@@ -55,7 +55,7 @@ void DTTTrigAnalyzer::endJob() {
 		    (*ttrig).first.slId, 0, 0);
     float tmean = (*ttrig).second.tTrig * convToNs;
     float sigma = (*ttrig).second.tTrms * convToNs;
-    float ttrig = tmean - kfactor * sigma; //FIXME read k factor from cfg file
+    float ttrig = tmean - kfactor * sigma; 
     cout << "Wire: " <<  wireId <<endl
 	 << " Ttrig (ns): " << ttrig<<endl
 	 << " tmean (ns): " << tmean<<endl
