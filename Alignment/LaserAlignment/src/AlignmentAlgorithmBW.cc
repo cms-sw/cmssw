@@ -1,8 +1,8 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/04/18 13:40:30 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/05/02 09:40:10 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -195,47 +195,47 @@ std::vector<LASAlignmentParameter> AlignmentAlgorithmBW::run(const std::string t
 		<< "      Dphi[8] = " << dphik[7] << "  Dx[8] = " << dxk[7] << "   Dy[8] = " << dyk[7] << std::endl
 		<< "      Dphi[9] = " << dphik[8] << "  Dx[9] = " << dxk[8] << "   Dy[9] = " << dyk[8] << std::endl;
 		
-	std::cout << " here are the calculated alignment parameters:" << std::endl
-		<< "      Dphi0 = " << dphi0 << "  Dx0 = " << dx0 << "  Dy0 = " << dy0 << std::endl
-		<< "      Dphit = " << dphit << "  Dxt = " << dxt << "  Dyt = " << dyt << std::endl << std::endl
-		<< "      Dphi[1] = " << dphik[0] << "  Dx[1] = " << dxk[0] << "   Dy[1] = " << dyk[0] << std::endl
-		<< "      Dphi[2] = " << dphik[1] << "  Dx[2] = " << dxk[1] << "   Dy[2] = " << dyk[1] << std::endl
-		<< "      Dphi[3] = " << dphik[2] << "  Dx[3] = " << dxk[2] << "   Dy[3] = " << dyk[2] << std::endl
-		<< "      Dphi[4] = " << dphik[3] << "  Dx[4] = " << dxk[3] << "   Dy[4] = " << dyk[3] << std::endl
-		<< "      Dphi[5] = " << dphik[4] << "  Dx[5] = " << dxk[4] << "   Dy[5] = " << dyk[4] << std::endl
-		<< "      Dphi[6] = " << dphik[5] << "  Dx[6] = " << dxk[5] << "   Dy[6] = " << dyk[5] << std::endl
-		<< "      Dphi[7] = " << dphik[6] << "  Dx[7] = " << dxk[6] << "   Dy[7] = " << dyk[6] << std::endl
-		<< "      Dphi[8] = " << dphik[7] << "  Dx[8] = " << dxk[7] << "   Dy[8] = " << dyk[7] << std::endl
-		<< "      Dphi[9] = " << dphik[8] << "  Dx[9] = " << dxk[8] << "   Dy[9] = " << dyk[8] << std::endl;
-			
-	//____________________________________________________________________________________________________		
-	// ONLY FOR DEBUGGING
-  for (int j = 0; j < 8; ++j)
-    {
-      // calculate the corrections and the errors
-      double thePhiCorrected = dphik[0] 
-				- (sin(phiPositions[0])/r0) * dxk[0]
-				+ (cos(phiPositions[0])/r0) * dyk[0]
-				- ( dphik[j+1]
-				   - (sin(phiPositions[0])/r0) * dxk[j+1]
-				   + (cos(phiPositions[0])/r0) * dyk[j+1] );
-
-      // for debugging
-         std::cout << " Fitted relative Correction for " << theName << " in Phi[" << j << "] = " << thePhiCorrected << std::endl;
-     }
-
-  for (int j = 0; j < 9; ++j)
-    {
-      // calculate the correction for each disk (not relative to disk one)
-      double theAbsPhiCorrected = dphik[j] 
-				   - (sin(phiPositions[0])/r0) * dxk[j]
-           + (cos(phiPositions[0])/r0) * dyk[j];
-
-      // for debugging
-         std::cout << " Fitted Correction for " << theName << " in Phi[" << j << "] = " << theAbsPhiCorrected << std::endl;
-    }
-	// ONLY FOR DEBUGGING		
-	//____________________________________________________________________________________________________
+  // std::cout << " here are the calculated alignment parameters:" << std::endl
+  //  << "      Dphi0 = " << dphi0 << "  Dx0 = " << dx0 << "  Dy0 = " << dy0 << std::endl
+  //  << "      Dphit = " << dphit << "  Dxt = " << dxt << "  Dyt = " << dyt << std::endl << std::endl
+  //  << "      Dphi[1] = " << dphik[0] << "  Dx[1] = " << dxk[0] << "   Dy[1] = " << dyk[0] << std::endl
+  //  << "      Dphi[2] = " << dphik[1] << "  Dx[2] = " << dxk[1] << "   Dy[2] = " << dyk[1] << std::endl
+  //  << "      Dphi[3] = " << dphik[2] << "  Dx[3] = " << dxk[2] << "   Dy[3] = " << dyk[2] << std::endl
+  //  << "      Dphi[4] = " << dphik[3] << "  Dx[4] = " << dxk[3] << "   Dy[4] = " << dyk[3] << std::endl
+  //  << "      Dphi[5] = " << dphik[4] << "  Dx[5] = " << dxk[4] << "   Dy[5] = " << dyk[4] << std::endl
+  //  << "      Dphi[6] = " << dphik[5] << "  Dx[6] = " << dxk[5] << "   Dy[6] = " << dyk[5] << std::endl
+  //  << "      Dphi[7] = " << dphik[6] << "  Dx[7] = " << dxk[6] << "   Dy[7] = " << dyk[6] << std::endl
+  //  << "      Dphi[8] = " << dphik[7] << "  Dx[8] = " << dxk[7] << "   Dy[8] = " << dyk[7] << std::endl
+  //  << "      Dphi[9] = " << dphik[8] << "  Dx[9] = " << dxk[8] << "   Dy[9] = " << dyk[8] << std::endl;
+  //    
+  // //____________________________________________________________________________________________________   
+  // // ONLY FOR DEBUGGING
+  //   for (int j = 0; j < 8; ++j)
+  //     {
+  //       // calculate the corrections and the errors
+  //       double thePhiCorrected = dphik[0] 
+  //      - (sin(phiPositions[0])/r0) * dxk[0]
+  //      + (cos(phiPositions[0])/r0) * dyk[0]
+  //      - ( dphik[j+1]
+  //         - (sin(phiPositions[0])/r0) * dxk[j+1]
+  //         + (cos(phiPositions[0])/r0) * dyk[j+1] );
+  // 
+  //       // for debugging
+  //          std::cout << " Fitted relative Correction for " << theName << " in Phi[" << j << "] = " << thePhiCorrected << std::endl;
+  //      }
+  // 
+  //   for (int j = 0; j < 9; ++j)
+  //     {
+  //       // calculate the correction for each disk (not relative to disk one)
+  //       double theAbsPhiCorrected = dphik[j] 
+  //         - (sin(phiPositions[0])/r0) * dxk[j]
+  //            + (cos(phiPositions[0])/r0) * dyk[j];
+  // 
+  //       // for debugging
+  //          std::cout << " Fitted Correction for " << theName << " in Phi[" << j << "] = " << theAbsPhiCorrected << std::endl;
+  //     }
+  // // ONLY FOR DEBUGGING    
+  // //____________________________________________________________________________________________________
 	
 		// we want to store this parameters in a separate DataFormat to study them later in more detail
 	// unfortunately storing a std::valarray is not working due to reflex dictionary troubles. Therefore

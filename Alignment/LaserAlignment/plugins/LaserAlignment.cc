@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2007/04/18 15:05:44 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/05/02 09:40:10 $
+ *  $Revision: 1.13 $
  *  \author Maarten Thomas
  */
 
@@ -178,26 +178,26 @@ void LaserAlignment::beginJob(const edm::EventSetup& theSetup)
     } 
 
   LogDebug("LaserAlignment:beginJob()") << " access the Tracker Geometry ";
-  // // access the tracker
-  // theSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
-  // theSetup.get<IdealGeometryRecord>().get( gD );
-
-  // Create the tracker geometry from ideal geometry
-  theSetup.get<IdealGeometryRecord>().get( cpv );
+  // access the tracker
+  theSetup.get<TrackerDigiGeometryRecord>().get( theTrackerGeometry );
   theSetup.get<IdealGeometryRecord>().get( gD );
-  TrackerGeomBuilderFromGeometricDet trackerBuilder;
-  theTrackerGeometry = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
 
-  GeometryAligner aligner;
-
-  // Retrieve and apply alignments, if requested (requires DB setup)
-  // if ( applyDbAlignment_ ) {
-      edm::ESHandle<Alignments> alignments;
-      theSetup.get<TrackerAlignmentRcd>().get( alignments );
-      edm::ESHandle<AlignmentErrors> alignmentErrors;
-      theSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
-      aligner.applyAlignments<TrackerGeometry>( &(*theTrackerGeometry), &(*alignments), &(*alignmentErrors) );
-    // }
+  // // Create the tracker geometry from ideal geometry
+  // theSetup.get<IdealGeometryRecord>().get( cpv );
+  // theSetup.get<IdealGeometryRecord>().get( gD );
+  // TrackerGeomBuilderFromGeometricDet trackerBuilder;
+  // theTrackerGeometry = boost::shared_ptr<TrackerGeometry>( trackerBuilder.build(&(*cpv),&(*gD)) );
+  // 
+  // GeometryAligner aligner;
+  // 
+  // // Retrieve and apply alignments, if requested (requires DB setup)
+  // // if ( applyDbAlignment_ ) {
+  //     edm::ESHandle<Alignments> alignments;
+  //     theSetup.get<TrackerAlignmentRcd>().get( alignments );
+  //     edm::ESHandle<AlignmentErrors> alignmentErrors;
+  //     theSetup.get<TrackerAlignmentErrorRcd>().get( alignmentErrors );
+  //     aligner.applyAlignments<TrackerGeometry>( &(*theTrackerGeometry), &(*alignments), &(*alignmentErrors) );
+  //   // }
 
 
   // Create the alignable hierarchy
@@ -385,12 +385,12 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           {
             if (sectorLocation.at(1) == 4) // Ring 4
             {
-              theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+              theNegTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
               theNegTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
             }
             else if (sectorLocation.at(1) == 6) // Ring 6
             {
-              theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+              theNegTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
               theNegTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
             }
           }
@@ -398,12 +398,12 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           {
             if (sectorLocation.at(1) == 4) // Ring 4
             {
-              thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+              thePosTECR4BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
               thePosTECR4BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
             }
             else if (sectorLocation.at(1) == 6) // Ring 6
             {
-              thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.mean();
+              thePosTECR6BeamPositions[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * (theFit.mean()-255.5);
               thePosTECR6BeamPositionErrors[sectorLocation.at(2)][sectorLocation.at(3)] = theFit.pitch() * theFit.meanError();
             }				
           }
@@ -427,7 +427,8 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           /// for Bruno's algorithm get the pitch at strip 255.5 and multiply it with 255.5 to get the position in cm at the middle of the module
           const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet((iHist->second).first));
 
-          double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
+          // double thePosition = 255.5 * theStripDet->specificTopology().localPitch(theStripDet->specificTopology().localPosition(255.5));
+          double thePosition = 0.0;
           double thePositionError = 0.05; // set the error to half a milllimeter in this case
 
           // fill also the LASvec2D for Bruno's algorithm
@@ -533,11 +534,11 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           **/
           for (int i = 0; i < 9; ++i)
         {
-          GlobalVector translationPos( (theAPPosTECR4.at(0).dxk()[i] + theAPPosTECR6.at(0).dxk()[i])/2,
-            (theAPPosTECR4.at(0).dyk()[i] + theAPPosTECR6.at(0).dyk()[i])/2,
+          GlobalVector translationPos( -1.0 * (theAPPosTECR4.at(0).dxk()[i] + theAPPosTECR6.at(0).dxk()[i])/2,
+            -1.0 * (theAPPosTECR4.at(0).dyk()[i] + theAPPosTECR6.at(0).dyk()[i])/2,
             0.0);
-          GlobalVector translationNeg( (theAPNegTECR4.at(0).dxk()[i] + theAPNegTECR6.at(0).dxk()[i])/2,
-            (theAPNegTECR4.at(0).dyk()[i] + theAPNegTECR6.at(0).dyk()[i])/2,
+          GlobalVector translationNeg( -1.0 * (theAPNegTECR4.at(0).dxk()[i] + theAPNegTECR6.at(0).dxk()[i])/2,
+            -1.0 * (theAPNegTECR4.at(0).dyk()[i] + theAPNegTECR6.at(0).dyk()[i])/2,
             0.0);
           // TODO - Implement usage and propagation of errors!!!!
           AlignmentPositionError positionErrorPos(0.0, 0.0, 0.0);
@@ -548,12 +549,12 @@ void LaserAlignment::produce(edm::Event& theEvent, edm::EventSetup const& theSet
           // TEC+
           theAlignableTracker->endCap(0).layer(i).move(translationPos);
           theAlignableTracker->endCap(0).layer(i).addAlignmentPositionError(positionErrorPos);
-          theAlignableTracker->endCap(0).layer(i).rotateAroundGlobalZ((theAPPosTECR4.at(0).dphik()[i] + theAPPosTECR6.at(0).dphik()[i])/2);
+          theAlignableTracker->endCap(0).layer(i).rotateAroundGlobalZ(-1.0 * (theAPPosTECR4.at(0).dphik()[i] + theAPPosTECR6.at(0).dphik()[i])/2);
           theAlignableTracker->endCap(0).layer(i).addAlignmentPositionErrorFromRotation(rotationErrorPos);
           // TEC-
           theAlignableTracker->endCap(1).layer(i).move(translationNeg);
           theAlignableTracker->endCap(1).layer(i).addAlignmentPositionError(positionErrorNeg);
-          theAlignableTracker->endCap(1).layer(i).rotateAroundGlobalZ((theAPNegTECR4.at(0).dphik()[i] + theAPNegTECR6.at(0).dphik()[i])/2);
+          theAlignableTracker->endCap(1).layer(i).rotateAroundGlobalZ(-1.0 * (theAPNegTECR4.at(0).dphik()[i] + theAPNegTECR6.at(0).dphik()[i])/2);
           theAlignableTracker->endCap(1).layer(i).addAlignmentPositionErrorFromRotation(rotationErrorNeg);
         }
       }        

@@ -4,8 +4,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2007/04/12 14:20:33 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/05/02 09:40:10 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -152,15 +152,15 @@ class LaserAlignment : public edm::EDProducer, public TObject
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
 
   // tracker geometry;
-/*  edm::ESHandle<GeometricDet> gD;
+  edm::ESHandle<GeometricDet> gD;
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
-*/
 
-  edm::ESHandle<DDCompactView> cpv;
+
+/*  edm::ESHandle<DDCompactView> cpv;
   edm::ESHandle<GeometricDet> gD;
   
   boost::shared_ptr<TrackerGeometry> theTrackerGeometry;
-
+*/
   // alignable tracker
   AlignableTracker * theAlignableTracker;
 
