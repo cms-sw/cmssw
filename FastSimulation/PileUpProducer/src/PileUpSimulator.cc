@@ -213,18 +213,19 @@ void PileUpSimulator::produce()
 				 + aParticle.py*aParticle.py
 				 + aParticle.pz*aParticle.pz
 				 + aParticle.mass*aParticle.mass );
-      RawParticle * myPart 
-	= new  RawParticle (HepLorentzVector(aParticle.px,aParticle.py,
-					     aParticle.pz,energy), 
-			    smearedVertex);
-      myPart->setID(aParticle.id);
+      RawParticle myPart(HepLorentzVector(aParticle.px,
+					  aParticle.py,
+					  aParticle.pz,
+					  energy), 
+			 smearedVertex);
+      myPart.setID(aParticle.id);
       
       // Rotate around the z axis
-      (*myPart) *= theRotation;
+      myPart *= theRotation;
       
       // Add the particle to the event (with a genpartIndex 
       // indicating the pileup event index)
-      mySimEvent->addSimTrack(myPart,mainVertex,-ievt-2);
+      mySimEvent->addSimTrack(&myPart,mainVertex,-ievt-2);
 
     }
     // End of particle loop
