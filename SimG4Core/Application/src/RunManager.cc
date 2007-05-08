@@ -8,6 +8,8 @@
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
@@ -156,7 +158,9 @@ void RunManager::initG4(const edm::EventSetup & es)
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
-    const DDDWorld * world = new DDDWorld(&(*pDD), m_check);
+    G4LogicalVolumeToDDLogicalPartMap map_;
+    SensitiveDetectorCatalog catalog_;
+    const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, m_check);
     m_registry.dddWorldSignal_(world);
 
     if (m_pUseMagneticField)
@@ -167,7 +171,7 @@ void RunManager::initG4(const edm::EventSetup & es)
 	const GlobalPoint g(0.,0.,0.);
 	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
 
-	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), m_pField));
+	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>(new sim::FieldBuilder(&(*pMF), map_, m_pField));
 	G4TransportationManager * tM = G4TransportationManager::GetTransportationManager();
 	m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField() ) ;
 	// m_fieldBuilder->configure("MagneticFieldType",tM->GetFieldManager(),tM->GetPropagatorInField());
@@ -179,7 +183,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     m_attach = new AttachSD;
     {
 	std::pair< std::vector<SensitiveTkDetector*>,
-	std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
+	           std::vector<SensitiveCaloDetector*> > sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
       
 	m_sensTkDets.swap(sensDets.first);
 	m_sensCaloDets.swap(sensDets.second);
@@ -200,7 +204,7 @@ void RunManager::initG4(const edm::EventSetup & es)
       PhysicsListFactory::get()->create
       (m_pPhysics.getParameter<std::string> ("type")));
     if (physicsMaker.get()==0) throw SimG4Exception("Unable to find the Physics list requested");
-    m_physicsList = physicsMaker->make(m_pPhysics,m_registry);
+    m_physicsList = physicsMaker->make(map_,m_pPhysics,m_registry);
     if (m_physicsList.get()==0) throw SimG4Exception("Physics list construction failed!");
     m_kernel->SetPhysics(m_physicsList.get());
     m_kernel->InitializePhysics();
