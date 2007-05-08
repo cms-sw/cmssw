@@ -107,8 +107,8 @@ bool HitPattern::trackerHitFilter(uint32_t pattern) const {
 }
 
 bool HitPattern::muonHitFilter(uint32_t pattern) const {
-  if (DetId::Detector(((pattern>>SubDetectorOffset) & SubDetectorMask)) == DetId::Muon) return true;
-  return false;
+  return ( ( (pattern>>SubDetectorOffset) & SubDetectorMask)  ==
+	   (DetId::Muon & SubDetectorMask) );
 }
 
 bool HitPattern::pixelHitFilter(uint32_t pattern) const { 
@@ -173,7 +173,7 @@ int HitPattern::numberOfValidTrackerHits() const {
   return count;
 }
 
-int HitPattern::numberOfLostTrackerHits() {
+int HitPattern::numberOfLostTrackerHits() const{
   int count=0;
   for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
     uint32_t pattern = getHitPattern(i);
