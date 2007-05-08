@@ -5,6 +5,7 @@
 // setup of volumes for GFLASH
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
  
 #ifdef G4V7
 class GFlashHomoShowerParamterisation;
@@ -21,19 +22,20 @@ named in OscarApplication/G4SimApplication/test/ShowerModelVolumes.xml  */
 class CaloModel 
 {
 public:
-    CaloModel(edm::ParameterSet const & p);
-    ~CaloModel();
+  CaloModel(G4LogicalVolumeToDDLogicalPartMap& ,edm::ParameterSet const &);
+  ~CaloModel();
 private:
-    void build();  
+  void build();  
 #ifdef G4V7
-    GFlashHomoShowerParamterisation *theParametrisation;
+  GFlashHomoShowerParamterisation *theParametrisation;
 #else
-    GFlashHomoShowerParameterisation *theParameterisation;
+  GFlashHomoShowerParameterisation *theParameterisation;
 #endif
-    GFlashHitMaker *theHMaker;
-    GFlashParticleBounds *theParticleBounds;
-    GFlashShowerModel *theShowerModel;  	
-    edm::ParameterSet m_pCaloModel;
+  GFlashHitMaker *theHMaker;
+  GFlashParticleBounds *theParticleBounds;
+  GFlashShowerModel *theShowerModel;
+  G4LogicalVolumeToDDLogicalPartMap map_;
+  edm::ParameterSet m_pCaloModel;
 };
 
 #endif

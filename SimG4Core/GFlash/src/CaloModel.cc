@@ -1,5 +1,4 @@
 #include "SimG4Core/GFlash/interface/CaloModel.h"
-#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMapper.h"
 
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -23,8 +22,8 @@
 //#include "GFlashHitMaker.hh"
 #include "GFlashParticleBounds.hh"
 
-CaloModel::CaloModel(const edm::ParameterSet & p) : 
-  m_pCaloModel(p) 
+CaloModel::CaloModel(G4LogicalVolumeToDDLogicalPartMap& map,
+		     const edm::ParameterSet & p) : map_(map), m_pCaloModel(p) 
 { 
   build();
   std::cout <<" CaloModel built !!!  "<< std::endl;
@@ -32,25 +31,24 @@ CaloModel::CaloModel(const edm::ParameterSet & p) :
 
 void CaloModel::build()
 {
-	G4LogicalVolume * barrel_log = 0;
-	G4LogicalVolume * ecap_log = 0;
-	//Finding correct G4LogicalVolume for parameterisation
-	ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector vec =
-        G4LogicalVolumeToDDLogicalPartMapper::instance()->all("volumes");
-       	std::cout <<" CaloModel !!!  "<< std::endl;
+  G4LogicalVolume * barrel_log = 0;
+  G4LogicalVolume * ecap_log = 0;
+  //Finding correct G4LogicalVolume for parameterisation
+  G4LogicalVolumeToDDLogicalPartMap::Vector vec = map_.all("volumes");
+  std::cout <<" CaloModel !!!  "<< std::endl;
 
-	for (ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector::iterator
-        tit = vec.begin(); tit != vec.end(); tit++){
-		if (((*tit).first)->GetName()=="ESPM"){  
-			std::cout <<" GFlash added  to voulme  "<< ((*tit).first)->GetName() << std::endl;
-			barrel_log = (*tit).first;
-		}
-		if (((*tit).first)->GetName()=="ENCA"){
-			std::cout <<" GFlash added  to voulme  "<< ((*tit).first)->GetName() << std::endl;
-			ecap_log = (*tit).first;
-		}
-	}
-	if ((barrel_log) && (ecap_log)) {
+  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec.begin(); 
+       tit != vec.end(); tit++){
+    if (((*tit).first)->GetName()=="ESPM"){  
+      std::cout <<" GFlash added  to voulme  "<< ((*tit).first)->GetName() << std::endl;
+      barrel_log = (*tit).first;
+    }
+    if (((*tit).first)->GetName()=="ENCA"){
+      std::cout <<" GFlash added  to voulme  "<< ((*tit).first)->GetName() << std::endl;
+      ecap_log = (*tit).first;
+    }
+  }
+  if ((barrel_log) && (ecap_log)) {
 
 	// Parameterisaiton components	
 	theParticleBounds  = new GFlashParticleBounds();

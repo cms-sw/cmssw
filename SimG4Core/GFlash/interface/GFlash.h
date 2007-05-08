@@ -11,10 +11,10 @@ class CaloModel;
 class GFlash : public PhysicsList
 {
 public:
-    GFlash(const edm::ParameterSet & p);
-    virtual ~GFlash();
+  GFlash(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p);
+  virtual ~GFlash();
 private:
-    CaloModel * caloModel;   
+  CaloModel * caloModel;   
 };
 
 #endif

@@ -19,13 +19,14 @@
 #include "G4DataQuestionaire.hh"
 #endif 
 
-GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p), caloModel(0)
-{
-    G4DataQuestionaire it(photon);
+GFlash::GFlash(G4LogicalVolumeToDDLogicalPartMap& map,
+	       const edm::ParameterSet & p) : PhysicsList(map, p), 
+					      caloModel(0) {
+  G4DataQuestionaire it(photon);
 #ifdef G4V7
     std::cout << "You are using the simulation engine: QGSP 2.8 + CMS GFLASH" << std::endl;
 
-    if (caloModel==0) caloModel = new CaloModel(p);
+    if (caloModel==0) caloModel = new CaloModel(map, p);
     RegisterPhysics(new GeneralPhysics("general"));
     RegisterPhysics(new EMPhysics("EM"));
     RegisterPhysics(new MuonPhysics("muon"));
@@ -35,7 +36,7 @@ GFlash::GFlash(const edm::ParameterSet & p) : PhysicsList(p), caloModel(0)
 #else
     std::cout << "You are using the simulation engine: QGSP 3.1 + CMS GFLASH" << std::endl;
 
-    if (caloModel==0) caloModel = new CaloModel(p);
+    if (caloModel==0) caloModel = new CaloModel(map, p);
 
     RegisterPhysics(new ParametrisedPhysics("parametrised")); 
     // EM Physics
