@@ -41,9 +41,9 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 {
    using namespace edm;
    Handle<vector<TopMuonObject> >  muons;
-   iEvent.getByType(muons);
+   if(leptonFlavour_ == "muon") iEvent.getByType(muons);
    Handle<vector<TopElectronObject> >  electrons;
-   iEvent.getByType(electrons);
+   if(leptonFlavour_ == "electron") iEvent.getByType(electrons);
    Handle<vector<TopMETObject> >  mets;
    iEvent.getByType(mets);
    Handle<vector<TopJetObject> >  jets;
