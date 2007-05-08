@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/03/23 17:04:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/03 13:39:43 $
+ * $Revision: 1.1 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -113,12 +113,6 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   if (updates%1 == 0 && debug) 
     cout<<"[DTNoiseTest]: "<<updates<<" updates"<<endl;
 
-  /*
-  int nevents = e.id().event();
-  cout << "Nevents : " << nevents << endl;
-  if (nevents==0) nevents=1;
-  */
-
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);
   
@@ -134,7 +128,6 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   for (; ch_it != ch_end; ++ch_it) {
     
     DTChamberId ch = (*ch_it)->id();
-    uint32_t indexCh = ch.rawId();
   
     MonitorElement * noiseME = dbe->get(getMEName(ch));
     
