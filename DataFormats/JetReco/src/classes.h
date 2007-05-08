@@ -2,6 +2,7 @@
 #define JetObjects_classes_h
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
@@ -47,6 +48,14 @@ namespace {
     edm::Wrapper<GenericJetCollection> w4;
     edm::reftobase::Holder<reco::Candidate, reco::GenericJetRef> rtb4;
     JetTrackMatch<GenericJetCollection> jtm4;
+
+    PFJetCollection o5;
+    PFJetRef r5;
+    PFJetRefVector rr5;
+    PFJetRefProd rrr5;
+    edm::Wrapper<PFJetCollection> w5;
+    edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
+    JetTrackMatch<PFJetCollection> jtm5;
   }
 }
 #endif

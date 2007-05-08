@@ -16,8 +16,15 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::CaloJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
 
-
-
+  <class name="reco::PFJet"/>
+  <class name="reco::PFJet::Specific"/>
+  <class name="std::vector<reco::PFJet>"/>
+  <class name="edm::RefVector<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
+  <class name="edm::RefProd<std::vector<reco::PFJet> >"/>
+  <class name="edm::Wrapper<std::vector<reco::PFJet> >"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> > >" />
+  <class name="reco::JetTrackMatch<std::vector<reco::PFJet> >"/>
 
   <class name="reco::GenJet"/>
   <class name="reco::GenJet::Specific"/>
