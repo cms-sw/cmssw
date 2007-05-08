@@ -368,14 +368,6 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     smearedVertex = HepLorentzVector(*theVertexGenerator);
   }
 
-  // Fill Histos
-  /* 
-  myHistos->fill("hvtx",smearedVertex.x());
-  myHistos->fill("hvty",smearedVertex.y());
-  myHistos->fill("hvtz",smearedVertex.z());
-  cout << smearedVertex << endl;
-  */
-
   // Set the main vertex
   myFilter->setMainVertex(primaryVertexPosition+smearedVertex);
 
@@ -468,7 +460,8 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 			 p->end_vertex()->position().y()/10.,
 			 p->end_vertex()->position().z()/10.,
 			 p->end_vertex()->position().t()/10.) +
-	vertex(mainVertex).position();
+	smearedVertex;
+      //	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
 
       if ( theVertex != -1 ) myGenVertices[p->barcode()] = theVertex;
@@ -499,21 +492,20 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
        myGenParticles[1].pdgId() == 2212 ) ip = 2;
 
   // Primary vertex (already smeared by the SmearedVtx module)
-  Hep3Vector primaryVertex (myGenParticles[ip].vx(),
-			    myGenParticles[ip].vy(),
-			    myGenParticles[ip].vz());
+  HepLorentzVector primaryVertex (myGenParticles[ip].vx(),
+				  myGenParticles[ip].vy(),
+				  myGenParticles[ip].vz(),
+				  0.);
 
   // Smear the main vertex if needed
   HepLorentzVector smearedVertex;
   if ( primaryVertex.mag() < 1E-10 ) {
     theVertexGenerator->generate();
     smearedVertex = (HepLorentzVector) *theVertexGenerator;
-  } else { 
-    smearedVertex = HepLorentzVector(primaryVertex,0.);
-  }
+  } 
 
   // Set the main vertex
-  myFilter->setMainVertex(smearedVertex);
+  myFilter->setMainVertex(primaryVertex+smearedVertex);
 
   // This is the smeared main vertex
   int mainVertex = addSimVertex(myFilter->vertex());
@@ -545,8 +537,8 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
     // 3) or particles that fly more than one micron.
     double dist = 0.;
     if ( !testStable && !testDaugh ) {
-      Hep3Vector productionVertex(p.vx(),p.vy(),p.vz());
-      dist = (primaryVertex-productionVertex).mag();
+      HepLorentzVector productionVertex(p.vx(),p.vy(),p.vz(),0.);
+      dist = (primaryVertex-productionVertex).vect().mag();
     }
     bool testDecay = ( dist > 0.0001 ) ? true : false; 
 
@@ -575,7 +567,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
       HepLorentzVector decayVertex = 
 	HepLorentzVector(daughter->vx(), daughter->vy(),
 			 daughter->vz(), 0.) +
-	vertex(mainVertex).position();
+	smearedVertex;
       int theVertex = addSimVertex(decayVertex,theTrack);
 
       if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
