@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using a weights method
   *
-  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.4 2007/04/05 13:34:06 meridian Exp $
-  *  $Date: 2007/04/05 13:34:06 $
-  *  $Revision: 1.4 $
+  *  $Id: EcalUncalibRecHitRecWeightsAlgo.h,v 1.5 2007/04/05 15:41:21 meridian Exp $
+  *  $Date: 2007/04/05 15:41:21 $
+  *  $Revision: 1.5 $
   *  \author R. Bruneliere - A. Zabi
   */
 
@@ -35,7 +35,9 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo : public EcalUncalibRecH
     int gainId0 = 1;
     int iGainSwitch = 0;
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
-      int gainId = dataFrame.sample(iSample).gainId(); 
+      int gainId = dataFrame.sample(iSample).gainId();
+      //Handling saturation (treating saturated gainId as maximum gain)
+      if (gainId == 0 ) gainId = 3;
       if (gainId != gainId0) iGainSwitch = 1;
       if (!iGainSwitch)
 	frame(iSample) = double(dataFrame.sample(iSample).adc());

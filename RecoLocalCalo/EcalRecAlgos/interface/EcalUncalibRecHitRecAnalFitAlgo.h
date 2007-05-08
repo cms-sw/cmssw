@@ -5,9 +5,9 @@
   *  Template used to compute amplitude, pedestal, time jitter, chi2 of a pulse
   *  using an analytical fit
   *
-  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.6 2007/04/05 13:34:06 meridian Exp $
-  *  $Date: 2007/04/05 13:34:06 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalUncalibRecHitRecAnalFitAlgo.h,v 1.7 2007/04/05 15:41:21 meridian Exp $
+  *  $Date: 2007/04/05 15:41:21 $
+  *  $Revision: 1.7 $
   *  \author A. Palma, Sh. Rahatlou Roma1
   */
 
@@ -69,6 +69,7 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
 
     for(int iSample = 0; iSample < C::MAXSAMPLES; iSample++) {
       int gainId = dataFrame.sample(iSample).gainId(); 
+      if ( gainId == 0 ) gainId = 3;
       if (gainId != gainId0) iGainSwitch++ ;
       if (!iGainSwitch)
 	frame[iSample] = double(dataFrame.sample(iSample).adc());

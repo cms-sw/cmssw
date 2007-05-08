@@ -121,6 +121,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
 	// FIX-ME: warning: the vector pedestal is supposed to have in the order G12, G6 and G1
 	frame[iSample] = (double(dataFrame.sample(iSample).adc())-pedestals[GainId-1])*gainRatios[GainId-1];
 	//Gain12Equivalent[GainId];
+	if (GainId == 0 ) GainId = 3;
 	if (GainId != gainId0) iGainSwitch = 1;
 	if( frame[iSample]>maxsample ) {
           maxsample = frame[iSample];
@@ -136,6 +137,7 @@ template<class C> EcalUncalibratedRecHit  EcalUncalibRecHitFixedAlphaBetaAlgo<C>
       GainId = dataFrame.sample(iSample).gainId();
       //no gain switch forseen if there is no external pedestal
       frame[iSample] = double(dataFrame.sample(iSample).adc())-pedestal ;
+      if (GainId == 0 ) GainId = 3;
       if (GainId > gainId0) iGainSwitch = 1;
       if( frame[iSample]>maxsample ) {
 	maxsample = frame[iSample];
