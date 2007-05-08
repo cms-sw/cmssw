@@ -12,7 +12,7 @@
 
 // ESRecHitProducer author : Chia-Ming, Kuo
 
-ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps)
+ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) : theGeometry(0)
 {
   digiCollection_ = ps.getParameter<edm::InputTag>("ESdigiCollection");
   rechitCollection_ = ps.getParameter<std::string>("ESrechitCollection");
