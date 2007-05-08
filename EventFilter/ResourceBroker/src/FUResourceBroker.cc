@@ -419,7 +419,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     
     if (item=="doFedIdCheck") FUResource::doFedIdCheck(doFedIdCheck_);
     if (item=="doCrcCheck")   resourceTable_->setDoCrcCheck(doCrcCheck_);
-    if (item=="doDumpEvents") resourceTable_->setDoCrcCheck(doDumpEvents_);
+    if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
     if (item=="runNumber")    resourceTable_->resetCounters();
   }
   

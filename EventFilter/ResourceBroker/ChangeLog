@@ -1,3 +1,9 @@
+2007-05-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-10
+	* bug fix: propagate doDumpEvents to FUResourceTable correctly.
+	* bug fix: R-bit in FED trailer is 0x4, not 0x2.
+
 2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-09
