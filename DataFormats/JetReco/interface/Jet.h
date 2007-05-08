@@ -12,7 +12,7 @@
  *
  * \version   Original: April 22, 2005 by Fernando Varela Rodriguez.
  * \version   May 23, 2006 by F.R.
- * \version   $Id: Jet.h,v 1.12 2007/05/03 21:13:18 fedor Exp $
+ * \version   $Id: Jet.h,v 1.13 2007/05/04 23:23:03 fedor Exp $
  ************************************************************/
 #include <string>
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
@@ -54,8 +54,8 @@ namespace reco {
     /// ET in annulus between rmin and rmax around jet direction
     double etInAnnulus (double fRmin, double fRmax) const;
 
-    /// return # of constituent carring fraction of energy
-    int nCarring (double fFraction) const;
+    /// return # of constituent carrying fraction of energy
+    int nCarrying (double fFraction) const;
  
     /// # of constituents
     virtual int nConstituents () const {return numberOfDaughters();}

@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.4 2007/05/03 21:13:18 fedor Exp $
+// $Id: Jet.cc,v 1.5 2007/05/04 23:23:04 fedor Exp $
 
 #include <sstream>
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -22,7 +22,7 @@ Jet::Jet (const LorentzVector& fP4,
 }  
 
 /// return # of constituent carring fraction of energy. Assume ordered towers
-int Jet::nCarring (double fFraction) const {
+int Jet::nCarrying (double fFraction) const {
   std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   if (fFraction >= 1) return towers.size();
   double totalEt = 0;

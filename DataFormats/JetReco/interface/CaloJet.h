@@ -18,7 +18,7 @@
  *
  * \version   May 3, 2006, F.Ratnikov, include all different
  *            energy components separately
- * \version   $Id: CaloJet.h,v 1.22 2007/05/03 21:13:18 fedor Exp $
+ * \version   $Id: CaloJet.h,v 1.23 2007/05/04 23:23:03 fedor Exp $
  ************************************************************/
 
 
@@ -111,9 +111,9 @@ class CaloJet : public Jet {
   /** Returns area of contributing towers */
   float towersArea() const {return m_specific.mTowersArea;}
   /** Returns the number of constituents carrying a 90% of the total Jet energy*/
-  int n90() const {return nCarring (0.9);}
+  int n90() const {return nCarrying (0.9);}
   /** Returns the number of constituents carrying a 60% of the total Jet energy*/
-  int n60() const {return nCarring (0.6);}
+  int n60() const {return nCarrying (0.6);}
 
 
   /// convert generic constituent to specific type

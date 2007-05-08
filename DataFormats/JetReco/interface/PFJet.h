@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.1 2007/04/24 21:53:08 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.3 2007/05/08 05:34:59 fedor Exp $
  ************************************************************/
 
 
@@ -30,7 +30,8 @@ class PFJet : public Jet {
 	 mChargedMuPt (0),
 	 mNeutralEmPt (0),
 	 mChargedMultiplicity (0),
-	 mNeutralMultiplicity (0)
+	 mNeutralMultiplicity (0),
+	 mMuonMultiplicity (0)
     {}
     float mChargedHadronPt;
     float mNeutralHadronPt;
@@ -39,6 +40,7 @@ class PFJet : public Jet {
     float mNeutralEmPt;
     int mChargedMultiplicity;
     int mNeutralMultiplicity;
+    int mMuonMultiplicity;
  };
   
   /** Default constructor*/
@@ -79,6 +81,8 @@ class PFJet : public Jet {
   float chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
   /// neutralMultiplicity
   float neutralMultiplicity () const {return m_specific.mNeutralMultiplicity;}
+  /// muonMultiplicity
+  float muonMultiplicity () const {return m_specific.mMuonMultiplicity;}
 
  
   /// convert generic constituent to specific type
