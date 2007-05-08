@@ -1,18 +1,16 @@
-#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
-#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMapper.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 
-#include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLConfiguration.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
@@ -31,10 +29,11 @@
 using namespace sim;
 
 FieldBuilder::FieldBuilder(const MagneticField * f, 
+			   const G4LogicalVolumeToDDLogicalPartMap & map,
 			   const edm::ParameterSet & p) 
    : theField( new Field(f,p)), 
      theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
-     theTopVolume(0),
+     map_(map), theTopVolume(0),
      fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
      dIntersection(0.), dIntersectionAndOneStep(0.), 
      maxLoopCount(0), minEpsilonStep(0.), maxEpsilonStep(0.), 
@@ -46,20 +45,25 @@ FieldBuilder::FieldBuilder(const MagneticField * f,
 void FieldBuilder::readFieldParameters(DDLogicalPart lp,
 				       const std::string& keywordField)
 {
-    G4LogicalVolumeToDDLogicalPartMapper * m = 
-	G4LogicalVolumeToDDLogicalPartMapper::instance();
     int tmp;
-    tmp = m->toString(keywordField,lp,fieldType);
-    tmp = m->toDouble("FieldValue",lp,fieldValue);
-    tmp = m->toString("Stepper",lp,stepper);
-    tmp = m->toDouble("MinStep",lp,minStep);
-    tmp = m->toDouble("DeltaChord",lp,dChord);
-    tmp = m->toDouble("DeltaOneStep",lp,dOneStep);
-    tmp = m->toDouble("DeltaIntersection",lp,dIntersection);
-    tmp = m->toDouble("DeltaIntersectionAndOneStep",lp,dIntersectionAndOneStep);
-    tmp = m->toDouble("MaximumLoopCount",lp,maxLoopCount);
-    tmp = m->toDouble("MinimumEpsilonStep",lp,minEpsilonStep);
-    tmp = m->toDouble("MaximumEpsilonStep",lp,maxEpsilonStep);
+    tmp = map_.toString(keywordField,lp,fieldType);
+    tmp = map_.toDouble("FieldValue",lp,fieldValue);
+    tmp = map_.toString("Stepper",lp,stepper);
+    tmp = map_.toDouble("MinStep",lp,minStep);
+    tmp = map_.toDouble("DeltaChord",lp,dChord);
+    tmp = map_.toDouble("DeltaOneStep",lp,dOneStep);
+    tmp = map_.toDouble("DeltaIntersection",lp,dIntersection);
+    tmp = map_.toDouble("DeltaIntersectionAndOneStep",lp,dIntersectionAndOneStep);
+    tmp = map_.toDouble("MaximumLoopCount",lp,maxLoopCount);
+    tmp = map_.toDouble("MinimumEpsilonStep",lp,minEpsilonStep);
+    tmp = map_.toDouble("MaximumEpsilonStep",lp,maxEpsilonStep);
+    LogDebug("MagneticField") << "FieldBuilder " << lp.name() << " " 
+			      << fieldType << " " << fieldValue << " " 
+			      << stepper << " " << minStep << " " << dChord 
+			      << " " << dOneStep << " " << dIntersection << " "
+			      << dIntersectionAndOneStep << " "
+			      << maxLoopCount << " " << minEpsilonStep << " " 
+			      << maxEpsilonStep;
     return;
 }
 
@@ -68,8 +72,8 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
 
     std::cout << " Configuring Global Mag.Field" << std::endl;
     configure( "MagneticFieldType", fM, fP ) ;
-       std::cout << " Top Volume: " << theTopVolume->GetName() << std::endl;
-       std::cout << " Local Stepper: " << stepper[0] << std::endl;
+    std::cout << " Top Volume: " << theTopVolume->GetName() << "\n"
+	      << " Local Stepper: " << stepper[0] << "\n";
 
     if ( thePSet.getParameter<bool>("UseLocalMagFieldManager") )
     {
@@ -82,15 +86,14 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
        //
        if ( thePSetForLMFM == defpset )
        {
-          std::cout << " Patology ! Local Mag.Field Manager requested but config not given !" <<
-	  std::endl;
+	 std::cout << " Patology ! Local Mag.Field Manager requested but config not given !\n";
 	  return ;
        }
        std::vector<std::string> ListOfVolumes = 
           thePSetForLMFM.getParameter< std::vector<std::string> >("ListOfVolumes");
        // creating Local Mag.Field Manager
        std::cout << " Creating Local Mag.Field Manager(s)" << std::endl;
-       for ( int i = 0; i < ListOfVolumes.size(); ++ i )
+       for (unsigned int i = 0; i < ListOfVolumes.size(); ++ i )
        {
           G4FieldManager* fAltM = new G4FieldManager() ;
           configureLocalFM( ListOfVolumes[i], fAltM ) ;
@@ -118,17 +121,15 @@ void FieldBuilder::configure(const std::string& keywordField,
 			     G4FieldManager * fM,
 			     G4PropagatorInField * fP)
 {
-    ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector vec = 
-        G4LogicalVolumeToDDLogicalPartMapper::instance()->all(keywordField);
-    for (ConcreteG4LogicalVolumeToDDLogicalPartMapper::Vector::iterator 
-	     tit = vec.begin(); tit != vec.end(); tit++)            
-    {
-	theTopVolume = (*tit).first;
-	readFieldParameters((*tit).second,keywordField);	
-	if (fM!=0) configureFieldManager(fM);
-	if (fP!=0) configurePropagatorInField(fP);	
-    }
-    return ;
+  G4LogicalVolumeToDDLogicalPartMap::Vector vec = map_.all(keywordField);
+  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec.begin();
+       tit != vec.end(); tit++) {
+    theTopVolume = (*tit).first;
+    readFieldParameters((*tit).second,keywordField);	
+    if (fM!=0) configureFieldManager(fM);
+    if (fP!=0) configurePropagatorInField(fP);	
+  }
+  return ;
 }
 
 void FieldBuilder::configureLocalFM( const std::string& volName,
@@ -137,7 +138,7 @@ void FieldBuilder::configureLocalFM( const std::string& volName,
 {
 
    G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
-   for ( int i=0; i<(*theStore).size(); ++i )
+   for (unsigned int i=0; i<(*theStore).size(); ++i )
    {
       std::string curVolName = ((*theStore)[i])->GetName();
       if ( curVolName == volName )
