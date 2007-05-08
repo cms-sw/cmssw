@@ -1,13 +1,13 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalTrigger>
-<flags SEAL_PLUGIN_NAME="L1TriggerHardwareValidation">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=L1TriggerHardwareValidation>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/L1GlobalTrigger>
    <use name=DataFormats/L1CaloTrigger>
