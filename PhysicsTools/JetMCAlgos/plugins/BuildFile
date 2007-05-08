@@ -1,5 +1,4 @@
 <use name=PhysicsTools/JetMCAlgos>
 <use name=SimGeneral/HepPDTRecord>
-<library file="*.cc" name=PhysicsToolsJetMCAlgosPlugins>
-  <flags EDM_PLUGIN=1>
-</library>
+<use name=root>
+<library file="*.cc" name=PhysicsToolsJetMCAlgosPlugins></library>
