@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.18 2007/03/04 06:14:45 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.19 2007/03/27 23:13:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -22,8 +22,6 @@ $Id: generichandle_t.cppunit.cc,v 1.18 2007/03/04 06:14:45 wmtan Exp $
 
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include <cppunit/extensions/HelperMacros.h>
-
-#include "SealBase/Error.h"
 
 class testGenericHandle: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testGenericHandle);
@@ -139,10 +137,6 @@ void testGenericHandle::getbyLabelTest() {
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
     CPPUNIT_ASSERT("Threw cms::Exception unexpectedly" == 0);
-  }
-  catch(seal::Error& x){
-     std::cerr <<x.explainSelf()<<std::endl;
-     CPPUNIT_ASSERT("Threw seal Error"==0);
   }
   catch(std::exception& x){
      std::cerr <<x.what()<<std::endl;

@@ -16,7 +16,6 @@
 #include "boost/thread/xtime.hpp"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "SealBase/Error.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -1288,13 +1287,6 @@ namespace edm {
     }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "
-			      << "EventProcessor::asyncRun" 
-			      << "\n"
-			      << e.explainSelf();
-      me->last_error_text_ = e.explainSelf();
-    }
-    catch (seal::Error& e) {
-      edm::LogError("FwkJob") << "seal::Exception caught in " 
 			      << "EventProcessor::asyncRun" 
 			      << "\n"
 			      << e.explainSelf();

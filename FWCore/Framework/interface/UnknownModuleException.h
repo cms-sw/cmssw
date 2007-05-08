@@ -6,7 +6,7 @@
    Declaration
 
    \author Stefano ARGIRO
-   \version $Id: UnknownModuleException.h,v 1.4 2005/09/01 23:30:49 wmtan Exp $
+   \version $Id: UnknownModuleException.h,v 1.5 2006/05/11 19:05:58 chrjones Exp $
    \date 02 Jun 2005
 */
 
@@ -34,7 +34,7 @@ namespace edm {
       (*this) << "Module " << moduletype << " was not registered \n"
 	"Perhaps your module type is misspelled or is not a "
 	"framework plugin \n"
-	"Try running SealPluginDump to obtain a list "
+	"Try running EdmPluginDump to obtain a list "
 	"of available Plugins\n";
     }
     ~UnknownModuleException() throw(){}

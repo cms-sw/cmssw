@@ -200,7 +200,6 @@ namespace cms {
 
   private:
 
-    // the following were required by seal::Error
     virtual std::exception* clone() const;
     virtual void rethrow();
 

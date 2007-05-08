@@ -16,7 +16,7 @@
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 15:21:05 EDT 2005
-// $Id: ComponentFactory.h,v 1.20 2007/04/12 12:40:56 wmtan Exp $
+// $Id: ComponentFactory.h,v 1.21 2007/04/13 10:39:41 wmtan Exp $
 //
 
 // system include files
@@ -68,7 +68,7 @@ template<typename T>
               <<" of type "<< modtype <<" has not been registered.\n"
               << "Perhaps your module type is misspelled or is not a "
               << "framework plugin.\n"
-              << "Try running SealPluginDump to obtain a list of "
+              << "Try running EdmPluginDump to obtain a list of "
               << "available Plugins.";            
             }
             

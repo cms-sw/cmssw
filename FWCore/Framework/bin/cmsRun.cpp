@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.31 2007/04/09 23:13:18 chrjones Exp $
+$Id: cmsRun.cpp,v 1.32 2007/04/20 17:12:33 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -16,8 +16,6 @@ $Id: cmsRun.cpp,v 1.31 2007/04/09 23:13:18 chrjones Exp $
 #include <memory>
 #include <boost/shared_ptr.hpp>
 #include <boost/program_options.hpp>
-
-#include "SealBase/Error.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -237,17 +235,6 @@ int main(int argc, char* argv[])
     proc.off();
     proc->endJob();
     rc = 0;
-  }
-  catch (seal::Error& e) {
-    std::string shortDesc("SEALException");
-    std::ostringstream longDesc;
-    longDesc << "seal::Exception caught in " 
-	     << kProgramName
-	     << "\n"
-	     << e.explainSelf();
-    rc = 8000;
-    jobRep->reportError(shortDesc, longDesc.str(), rc);
-    edm::LogSystem(shortDesc) << longDesc.str() << "\n";
   }
   catch (cms::Exception& e) {
     std::string shortDesc("CMSException");

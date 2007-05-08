@@ -15,8 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/Makers.h"
-#include "SealKernel/Exception.h"
-#include "SealBase/SharedLibrary.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -51,8 +49,7 @@ void testmaker::makerTest()
     
   /*try {
 
-    //seal::SharedLibrary* lib = seal::SharedLibrary::load("libTestMod.so");
-    seal::PluginManager::get()->initialise();
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
     Factory* f = Factory::get();
 
     //Factory::Iterator ib(f->begin()),ie(f->end());
@@ -79,14 +76,6 @@ void testmaker::makerTest()
   }
   catch(std::exception& e) {
       std::cerr << "std::Exception: " << e.what() << std::endl;
-      throw;
-  }
-  catch(seal::SharedLibraryError& e) {
-      std::cerr << "sharedliberror\n" << e.explainSelf() << std::endl;
-      throw;
-  }
-  catch(seal::Error& e) {
-      std::cerr << "seal::Error\n" << e.explain() << std::endl;
       throw;
   }
   catch(...) {

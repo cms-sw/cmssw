@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.20 2007/03/07 00:06:01 wmtan Exp $
+$Id: Worker.cc,v 1.21 2007/03/22 06:09:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -14,7 +14,6 @@ $Id: Worker.cc,v 1.20 2007/03/07 00:06:01 wmtan Exp $
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/signal.hpp"
-#include "SealBase/Error.h"
 
 namespace edm
 {
@@ -242,16 +241,6 @@ private:
 	}
       }
     
-    catch(seal::Error& e) {
-	if (isEvent) ++timesExcept_;
-	state_ = Exception;
-	cached_exception_.reset(new cms::Exception("SealError"));
-	*cached_exception_
-	  << "A seal::Error occurred during a call to the module ";
-        exceptionContext(md_,ep,*cached_exception_)<< "and cannot be repropagated.\n"
-	  << "Previous information:\n" << e.explainSelf();
-	throw *cached_exception_;
-    }
     catch(std::exception& e) {
 	if (isEvent) ++timesExcept_;
 	state_ = Exception;
@@ -312,12 +301,6 @@ private:
 	  << description();
 	throw;
     }
-    catch(seal::Error& e) {
-	LogError("BeginJob")
-	  << "A seal::Error is going through "<< workerType()<<":\n"
-	  << description() << "\n";
-	throw;
-    }
     catch(std::exception& e) {
 	LogError("BeginJob")
 	  << "An std::exception is going through "<< workerType()<<":\n"
@@ -362,12 +345,6 @@ private:
 	// should event id be included?
 	e << "A cms::Exception is going through "<< workerType()<<":\n"
 	  << description();
-	throw;
-    }
-    catch(seal::Error& e) {
-	LogError("EndJob")
-	  << "A seal::Error is going through "<< workerType()<<":\n"
-	  << description() << "\n";
 	throw;
     }
     catch(std::exception& e) {

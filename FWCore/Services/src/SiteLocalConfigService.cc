@@ -5,8 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SealBase/DebugAids.h"
-
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMCharacterData.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>

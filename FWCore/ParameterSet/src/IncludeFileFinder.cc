@@ -23,7 +23,7 @@ namespace edm {
         typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
         const std::string kCapability("Capability"); 
         const CatToInfos& catToInfos = thePluginManager->categoryToInfos();
-        // map every module to its library.  Code copied from SealPluginDump
+        // map every module to its library.  Code copied from PluginDump
         for (CatToInfos::const_iterator it = catToInfos.begin(), itEnd=catToInfos.end();
              it != itEnd; ++it)
         {
@@ -90,7 +90,7 @@ namespace edm {
       if(mapItr == theLibraryMap.end())
       {
         throw edm::Exception(errors::Configuration, "IncludeFileFinder")
-          << "Cannot find " << moduleClass << " in the SEAL Plugin list";
+          << "Cannot find " << moduleClass << " in the Edm Plugin list";
       }
       return mapItr->second;
     }

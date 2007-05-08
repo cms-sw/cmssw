@@ -49,8 +49,8 @@ namespace edm {
 	  << "VectorInputSource Factory:\n"
 	  << "Cannot find source type from ParameterSet: "
 	  << modtype << "\n"
-	  << "Perhaps your source type is misspelled or is not a SEAL Plugin?\n"
-	  << "Try running SealPluginDump to obtain a list of available Plugins.";
+	  << "Perhaps your source type is misspelled or is not an EDM Plugin?\n"
+	  << "Try running EdmPluginDump to obtain a list of available Plugins.";
       }
 
     FDEBUG(1) << "VectorInputSourceFactory: created input source "

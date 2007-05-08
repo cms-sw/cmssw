@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.11 2006/12/25 04:21:36 wmtan Exp $
+// $Id: JobReport.h,v 1.12 2007/03/04 04:53:28 wmtan Exp $
 //
 
 #include <cstddef>
@@ -242,8 +242,8 @@ namespace edm {
 
       ///
       /// Report an exception, providing details of the problem as
-      /// a short description (Eg "SEALError") and a long description 
-      /// (Eg "Seal crashed because...")
+      /// a short description (Eg "XXXError") and a long description 
+      /// (Eg "XXX crashed because...")
       /// Also overload this method to accept an optional standard exit code
       void  reportError(std::string const& shortDesc,
 			std::string const& longDesc);

@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.9 2007/03/04 06:14:45 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.10 2007/03/27 23:13:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -32,7 +32,6 @@ $Id: event_getrefbeforeput_t.cppunit.cc,v 1.9 2007/03/04 06:14:45 wmtan Exp $
 #include "FWCore/Framework/interface/Event.h"
 #undef private
 
-#include "SealBase/Error.h"
 #include <cppunit/extensions/HelperMacros.h>
 
 class testEventGetRefBeforePut: public CppUnit::TestFixture {
@@ -127,10 +126,6 @@ void testEventGetRefBeforePut::getRefTest() {
   catch (cms::Exception& x) {
     std::cerr << x.explainSelf()<< std::endl;
     CPPUNIT_ASSERT("Threw exception unexpectedly" == 0);
-  }
-  catch(seal::Error& x){
-     std::cerr <<x.explainSelf()<<std::endl;
-     CPPUNIT_ASSERT("Threw seal Error"==0);
   }
   catch(std::exception& x){
      std::cerr <<x.what()<<std::endl;

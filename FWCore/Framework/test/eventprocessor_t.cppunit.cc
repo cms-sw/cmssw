@@ -2,7 +2,7 @@
 
 Test of the EventProcessor class.
 
-$Id: eventprocessor_t.cppunit.cc,v 1.26 2007/03/22 06:12:56 wmtan Exp $
+$Id: eventprocessor_t.cppunit.cc,v 1.27 2007/04/09 23:13:20 chrjones Exp $
 
 ----------------------------------------------------------------------*/  
 #include <exception>
@@ -10,7 +10,6 @@ $Id: eventprocessor_t.cppunit.cc,v 1.26 2007/03/22 06:12:56 wmtan Exp $
 #include <string>
 #include <sstream>
 #include "boost/regex.hpp"
-#include "SealBase/Error.h"
 
 //I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
@@ -234,11 +233,6 @@ void testeventprocessor::parseTest()
       std::cerr << "cms exception caught: "
 		<< e.explainSelf() << std::endl;
       CPPUNIT_ASSERT("Caught cms::Exception " == 0);
-  }
-  catch (seal::Error& e) {
-      std::cerr << "Application exception caught: "
-		<< e.explainSelf() << std::endl;
-      CPPUNIT_ASSERT("Caught seal::Error " == 0);
   }
   catch (std::exception& e) {
       std::cerr << "Standard library exception caught: "

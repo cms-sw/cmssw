@@ -26,13 +26,13 @@ problems:
   specification of "pass" and other things like it - things that
   have to do with the job as a whole or with this object in particular.
 
-  we are not careful yet about catching seal exceptions and printing
+  we are not careful yet about catching exceptions and printing
   useful information.
 
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.32 2007/03/17 02:30:48 jbk Exp $
+$Id: EventProcessor.h,v 1.34 2007/03/22 22:26:11 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -2,7 +2,7 @@
 #define ParameterSet_IncludeFileFinder_h
 
 /** Resolves where to look for include files,
-    by looking up the module using the SealPluginManager
+    by looking up the module using the EdmPluginManager
   */
 
 #include <string>

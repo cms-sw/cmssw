@@ -25,8 +25,6 @@
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/FilterWorker.h"
 
-#include "SealBase/Error.h"
-
 #include "boost/shared_ptr.hpp"
 #include "boost/bind.hpp"
 #include "boost/lambda/lambda.hpp"
@@ -615,11 +613,6 @@ namespace edm
     for(; ai != ae; ++ai) {
       try {
 	(*ai)->endJob();
-      }
-      catch (seal::Error& e) {
-        accumulated << "seal::Exception caught in Schedule::endJob\n"
-		    << e.explainSelf();
-        failure = true;
       }
       catch (cms::Exception& e) {
         accumulated << "cms::Exception caught in Schedule::endJob\n"

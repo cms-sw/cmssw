@@ -10,13 +10,13 @@
  Description: Factory which is dynamically loadable and used to create an eventstore module
 
  Usage:
-    Used by the SEAL plugin-manager
+    Used by the EDM plugin-manager
 
 */
 //
 // Author:      Chris Jones
 // Created:     Wed May 25 18:01:31 EDT 2005
-// $Id: ModuleFactory.h,v 1.11 2006/12/26 03:13:41 wmtan Exp $
+// $Id: ModuleFactory.h,v 1.12 2007/04/09 23:13:18 chrjones Exp $
 //
 
 // system include files

@@ -54,7 +54,7 @@ namespace edm {
 	    << " was not registered.\n"
 	    << "Perhaps your module type is misspelled or is not a "
 	    << "framework plugin.\n"
-	    << "Try running SealPluginDump to obtain a list of "
+	    << "Try running EdmPluginDump to obtain a list of "
 	    << "available Plugins.";
 	  
 	FDEBUG(1) << "Factory:  created worker of type " << modtype << endl;
