@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.30 2007/04/30 09:13:32 genta Exp $
+// $Id: SiStripDigitizer.cc,v 1.31 2007/05/08 09:53:27 fambrogl Exp $
 //
 //
 
@@ -55,7 +55,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
@@ -64,6 +63,30 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+namespace {
+  //
+  // this machinery allows to set CLHEP static engine
+  // to the one defined by RandomNumberGenerator service
+  // at the beginning of an event, and reset it back to
+  // "default-default" at the end of the event;
+  // Dave D. has decided to implement it this way because
+  // we don't know if there're other modules using CLHEP
+  // static engine, thus we want to ensure that the one
+  // we use for OscarProducer is unique to OscarProducer
+  //
+  class StaticRandomEngineSetUnset {
+  public:
+    StaticRandomEngineSetUnset();
+    explicit StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine);
+    ~StaticRandomEngineSetUnset();
+    CLHEP::HepRandomEngine* getEngine() const;
+  private:
+    CLHEP::HepRandomEngine* m_currentEngine;
+    CLHEP::HepRandomEngine* m_previousEngine;
+  };
+}
+
 
 SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) : 
   conf_(conf),SiStripNoiseService_(conf)
@@ -74,18 +97,10 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   trackerContainers.clear();
   trackerContainers = conf.getParameter<std::vector<std::string> >("ROUList");
   //Initialize RandomService
-  
-  edm::Service<edm::RandomNumberGenerator> rng;
-  
-  if ( ! rng.isAvailable()) {
-    throw cms::Exception("Configuration")
-      << "SiStripDigitizer requires the RandomNumberGeneratorService\n"
-      "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file or remove the modules that require it.";
-  }
-  
-  rndEngine = rng->getEngine();
-  
+
+    StaticRandomEngineSetUnset random;
+    rndEngine = random.getEngine();
+
 }
 
 // Virtual destructor needed.
@@ -95,6 +110,8 @@ SiStripDigitizer::~SiStripDigitizer() { }
 void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
+  StaticRandomEngineSetUnset random(rndEngine);
+  
   // Step A: Get Inputs
   edm::Handle<CrossingFrame> cf;
   iEvent.getByType(cf);
@@ -148,7 +165,7 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
 														idForNoise,&SiStripNoiseService_,
-														rndEngine));
+														*(random.getEngine())));
       }
 
       ((theAlgoMap.find(&(sgd->type())))->second)->setParticleDataTable(&*pdt);
@@ -182,5 +199,35 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   
 }
-//define this as a plug-in
 
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset() {
+
+  using namespace edm;
+  Service<RandomNumberGenerator> rng;
+
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The OscarProducer module requires the RandomNumberGeneratorService\n"
+               "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file if you want to run OscarProducer";
+  }
+  m_currentEngine = &(rng->getEngine());
+
+  m_previousEngine = HepRandom::getTheEngine();
+  HepRandom::setTheEngine(m_currentEngine);
+}
+
+StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(CLHEP::HepRandomEngine * engine) {
+
+  m_currentEngine = engine;
+
+  m_previousEngine = HepRandom::getTheEngine();
+  HepRandom::setTheEngine(m_currentEngine);
+}
+
+StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() {
+  HepRandom::setTheEngine(m_previousEngine);
+}
+
+CLHEP::HepRandomEngine*
+StaticRandomEngineSetUnset::getEngine() const { return m_currentEngine; }

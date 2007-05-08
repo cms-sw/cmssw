@@ -54,13 +54,13 @@ class SiStripDigitizer : public edm::EDProducer
   
   edm::ParameterSet conf_;
   SiStripNoiseService SiStripNoiseService_;  
+  CLHEP::HepRandomEngine * rndEngine;
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
   typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
-  CLHEP::HepRandomEngine& rndEngine;
 };
 
 #endif
