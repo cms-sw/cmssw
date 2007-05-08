@@ -55,7 +55,7 @@ private:
   /// pointer map of matched candidates (e.g.: MC truth)
   MatchedRefMap matchedRefs_;
   /// mother + n.daughters indices from matched
-  std::vector<std::vector<size_t> > matchedMothers_;
+  std::vector<std::set<size_t> > matchedMothers_;
   /// init at constructor
   void init();
 };
@@ -129,7 +129,7 @@ void CandMatcherBase<C>::initMaps() {
 	  if ( f == matchedRefs_.end() ) continue;
 	  size_t k = f->second.key();
 	  assert( k < matchedMothers_.size() );
-	  matchedMothers_[ k ].push_back( i );
+	  matchedMothers_[ k ].insert( i );
 	}
       }
     }
@@ -151,20 +151,20 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
   if ( nDau > 0 ) {
     // check for composite candidate c
     // navigate to daughters and find parent matches
-    vector<size_t> momsIntersection, momDaughters, tmp;
+    set<size_t> momsIntersection, momDaughters, tmp;
     for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
       // check here generically if status == 3, then descend down to one more level
       CandidateRef m = (*this)( * d );
       // if a daughter does not match, return a null ref.
       if ( m.isNull() ) return CandidateRef();
       // get matched mother indices (fetched previously)
-      const vector<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
+      const set<size_t> & allMomDaughters = matchedMothers_[ m.key() ];
       momDaughters.clear();
-      for( vector<size_t>::const_iterator k = allMomDaughters.begin(); 
+      for( set<size_t>::const_iterator k = allMomDaughters.begin(); 
 	   k != allMomDaughters.end(); ++ k ) {
 	size_t m = * k;
 	if( compositePreselect( c, matched[ m ] ) )
-	  momDaughters.push_back( m );
+	  momDaughters.insert( m );
       }
       // if no mother was found return null reference
       if ( momDaughters.size() == 0 ) return CandidateRef();
@@ -174,7 +174,7 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
 	tmp.clear();
 	set_intersection( momsIntersection.begin(), momsIntersection.end(),
 			  momDaughters.begin(), momDaughters.end(),
-			  back_insert_iterator<vector<size_t> >( tmp ) );
+			 inserter( tmp, tmp.begin() ) );
 	swap( momsIntersection, tmp );
       }
       if ( momsIntersection.size() == 0 ) return CandidateRef();
@@ -182,7 +182,7 @@ reco::CandidateRef CandMatcherBase<C>::operator()( const reco::Candidate & c ) c
     // if multiple mothers are found, return a null reference
     if ( momsIntersection.size() > 1 ) return CandidateRef();
     // return a reference to the unique mother
-    return CandidateRef( matched_, momsIntersection.front() );
+    return CandidateRef( matched_, * momsIntersection.begin() );
   } else {
     // check for non-composite (leaf) candidate 
     // if one of the maps contains the candidate c
