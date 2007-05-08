@@ -22,6 +22,8 @@ ESZeroSuppressionProducer::ESZeroSuppressionProducer(const edm::ParameterSet& ps
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV);
 
+  theGeometry = 0;
+
   produces<ESDigiCollection>(ESZSdigiCollection_);
 }
 
