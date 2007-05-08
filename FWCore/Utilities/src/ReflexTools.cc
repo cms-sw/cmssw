@@ -3,11 +3,14 @@
 #include <sstream>
 #include <string>
 
+#include "boost/thread/tss.hpp"
+
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
+#include "Reflex/Object.h"
 #include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
-#include "boost/thread/tss.hpp"
+
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -26,12 +29,14 @@ namespace ROOT {
   }
 }
 
+using ROOT::Reflex::Base;
 using ROOT::Reflex::FINAL;
 using ROOT::Reflex::Member;
+using ROOT::Reflex::Object;
 using ROOT::Reflex::SCOPED;
 using ROOT::Reflex::Type;
-using ROOT::Reflex::Type_Iterator;
 using ROOT::Reflex::TypeTemplate;
+using ROOT::Reflex::Type_Iterator;
 
 
 namespace edm
@@ -227,18 +232,18 @@ namespace edm
   }
 
 
-  void public_base_classes(const ROOT::Reflex::Type& type,
-                           std::vector<ROOT::Reflex::Type>& baseTypes) {
+  void public_base_classes(const Type& type,
+                           std::vector<Type>& baseTypes) {
 
     if (type.IsClass() || type.IsStruct()) {
 
       int nBase = type.BaseSize();
       for (int i = 0; i < nBase; ++i) {
 
-        ROOT::Reflex::Base base = type.BaseAt(i);
+        Base base = type.BaseAt(i);
         if (base.IsPublic()) {
 
-          ROOT::Reflex::Type baseType = type.BaseAt(i).ToType();
+          Type baseType = type.BaseAt(i).ToType();
           if (bool(baseType)) {
 
             while (baseType.IsTypedef() == true) {
@@ -247,7 +252,7 @@ namespace edm
 
             // Check to make sure this base appears only once in the
             // inheritance heirarchy.
-	    std::vector<ROOT::Reflex::Type>::const_iterator result;
+	    std::vector<Type>::const_iterator result;
             result = find(baseTypes.begin(), baseTypes.end(), baseType);
             if (result == baseTypes.end()) {
 
@@ -279,5 +284,14 @@ namespace edm
         }
       }
     }
+  }
+
+  void const*
+  reflex_pointer_adjust(void* raw,
+			Type const& dynamicType,
+			std::type_info const& toType)
+  {
+    Object  obj(dynamicType, raw);
+    return obj.CastObject(Type::ByTypeInfo(toType)).Address();    
   }
 }

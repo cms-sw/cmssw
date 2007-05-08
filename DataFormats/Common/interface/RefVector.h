@@ -6,12 +6,13 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.21 2007/03/29 22:56:31 wmtan Exp $
+$Id: RefVector.h,v 1.22 2007/05/01 22:08:32 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <stdexcept>
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefVectorBase.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
@@ -115,7 +116,8 @@ namespace edm {
     /// Swap two vectors.
     void swap(RefVector<C, T, F> & other);
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+		  std::vector<helper_ptr>& helpers) const;
 
   private:
     contents_type refVector_;
@@ -145,14 +147,17 @@ namespace edm {
 
   template <typename C, typename T, typename F>
   void
-  RefVector<C,T,F>::fillView(std::vector<void const*>& pointers) const
+  RefVector<C,T,F>::fillView(std::vector<void const*>& pointers,
+			     std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
+    helpers.reserve(this->size());
     for (const_iterator i=begin(), e=end(); i!=e; ++i)
       {
 	member_type const* p = i->isNull() ? 0 : &**i;
 	pointers.push_back(p);
       }
+    // We are not yet filling helpers...
   }
 
 
@@ -160,9 +165,10 @@ namespace edm {
   inline
   void
   fillView(RefVector<C,T,F> const& obj,
-	   std::vector<void const*>& pointers)
+	   std::vector<void const*>& pointers,
+	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers);
+    obj.fillView(pointers, helpers);
   }
 
   template <typename C, typename T, typename F>

@@ -1,11 +1,12 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.23 2007/02/22 09:32:40 llista Exp $
+// $Id: OwnVector.h,v 1.24 2007/05/01 22:08:32 paterno Exp $
 
 #include <algorithm>
 #include <functional>
 #include <vector>
 
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
 
@@ -160,7 +161,8 @@ namespace edm {
 
     void swap(OwnVector<T, P> & other);
 
-    void fillView(std::vector<void const*>& pointers) const;
+  void fillView(std::vector<void const*>& pointers,
+		std::vector<helper_ptr>& helpers) const;
 
   private:
     void destroy();
@@ -384,7 +386,8 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  void OwnVector<T, P>::fillView(std::vector<void const*>& pointers) const
+  void OwnVector<T, P>::fillView(std::vector<void const*>& pointers,
+				 std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
     for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i) {
@@ -412,9 +415,10 @@ namespace edm {
   inline
   void
   fillView(OwnVector<T,P> const& obj,
-	   std::vector<void const*>& pointers)
+	   std::vector<void const*>& pointers,
+	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers);
+    obj.fillView(pointers, helpers);
   }
 
   template <typename T, typename P>

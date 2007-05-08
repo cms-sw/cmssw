@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.14 2007/02/07 23:01:43 paterno Exp $
+$Id: DetSetVector.h,v 1.15 2007/05/02 13:37:55 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -182,7 +182,8 @@ namespace edm {
     /// DetSetVector has been inserted into the Event.
     void post_insert();
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+		  std::vector<helper_ptr>& helpers) const;
 
   private:
     collection_type   _sets;
@@ -387,7 +388,8 @@ namespace edm {
   }
 
   template<class T>
-  void DetSetVector<T>::fillView(std::vector<void const*>& pointers) const
+  void DetSetVector<T>::fillView(std::vector<void const*>& pointers,
+				 std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
     for(const_iterator i=begin(), e=end(); i!=e; ++i)
@@ -402,9 +404,10 @@ namespace edm {
   inline
   void
   fillView(DetSetVector<T> const& obj,
-	   std::vector<void const*>& pointers)
+	   std::vector<void const*>& pointers,
+	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers);
+    obj.fillView(pointers, helpers);
   }
 
   template <class T>

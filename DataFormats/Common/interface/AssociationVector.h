@@ -9,12 +9,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.10 $
+ * \version $Revision: 1.11 $
  */
 
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_same.hpp"
 
@@ -57,7 +59,8 @@ namespace edm {
       transientVector_[ i ].first = KeyRef(ref_, i);
       transientVector_[ i ].second = & data_[ i ];
     }   
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+		  std::vector<helper_ptr>& helpers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
 
@@ -135,11 +138,13 @@ namespace edm {
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::fillView(std::vector<void const*>& pointers) const
+  void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::fillView(std::vector<void const*>& pointers, 
+								       std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
     for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
       pointers.push_back(&(*i));
+    // helpers is not yet filled in.
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
@@ -156,8 +161,9 @@ namespace edm {
   inline
   void
   fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType> const& obj,
-	   std::vector<void const*>& pointers) {
-    obj.fillView(pointers);
+	   std::vector<void const*>& pointers,
+	   std::vector<helper_ptr>& helpers) {
+    obj.fillView(pointers, helpers);
   }
 
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>

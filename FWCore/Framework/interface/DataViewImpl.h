@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.21 2007/04/09 22:18:55 wdd Exp $
+$Id: DataViewImpl.h,v 1.22 2007/05/01 22:08:33 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -92,8 +92,9 @@ $Id: DataViewImpl.h,v 1.21 2007/04/09 22:18:55 wdd Exp $
 #include "boost/type_traits.hpp"
 
 
-#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
@@ -566,7 +567,8 @@ namespace edm {
 			  Handle<View<ELEMENT> >& result) const
   {
     std::vector<void const*> pointersToElements;
-    bh.wrapper()->fillView(pointersToElements);
+    std::vector<helper_ptr>  helpers;
+    bh.wrapper()->fillView(pointersToElements, helpers);
 
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements));

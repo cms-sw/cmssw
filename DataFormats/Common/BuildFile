@@ -6,6 +6,7 @@
   <use name=DataFormats/Provenance>
   <use name=FWCore/Utilities>
   <use name=boost>
+  <use name=rootrflx>
   <lib name=DataFormatsCommon>
 </export>
 

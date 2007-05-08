@@ -7,12 +7,15 @@ ReflexTools provides a small number of Reflex-based tools, used in
 the CMS event model.  
 
 
-$Id: ReflexTools.h,v 1.4 2007/05/01 16:45:20 wmtan Exp $
+$Id: ReflexTools.h,v 1.5 2007/05/01 22:08:34 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <ostream>
 #include <vector>
+
+#include "Reflex/Type.h"
+#include "Reflex/Object.h"
 
 namespace ROOT
 {
@@ -65,7 +68,7 @@ namespace edm
 
   void 
   if_edm_ref_get_value_type(ROOT::Reflex::Type const& possible_ref,
-			    ROOT::Reflex::Type & value_type);
+			    ROOT::Reflex::Type& value_type);
 
   bool
   is_RefVector(ROOT::Reflex::Type const& possible_ref_vector,
@@ -77,6 +80,60 @@ namespace edm
 
   void public_base_classes(const ROOT::Reflex::Type& type,
                            std::vector<ROOT::Reflex::Type>& baseTypes);
+
+  /// Try to convert the un-typed pointer raw (which we promise is a
+  /// pointer to an object whose dynamic type is denoted by
+  /// dynamicType) to a pointer of type T. This is like the
+  /// dynamic_cast operator, in that it can do pointer adjustment (in
+  /// cases of multiple inheritance), and will return 0 if T is
+  /// neither the same type as nor a public base of the C++ type
+  /// denoted by dynamicType.
+
+  // It would be nice to use void const* for the type of 'raw', but
+  // the Reflex interface for creating an Object will not allow that.
+
+  template <class T>
+  T const*
+  reflex_cast(void* raw, ROOT::Reflex::Type const& dynamicType)
+  {
+    static const ROOT::Reflex::Type 
+      toType(ROOT::Reflex::Type::ByTypeInfo(typeid(T)));
+
+    ROOT::Reflex::Object obj(dynamicType, raw);
+    return static_cast<T const*>(obj.CastObject(toType).Address());
+
+    // This alternative implementation of reflex_cast would allow us
+    // to remove the compile-time depenency on Reflex/Type.h and
+    // Reflex/Object.h, at the cost of some speed.
+    //
+    //     return static_cast<T const*>(reflex_pointer_adjust(raw, 
+    // 						       dynamicType,
+    // 						       typeid(T)));
+  }
+
+  // The following function should not now be used. It is here in case
+  // we need to get rid of the compile-time dependency on
+  // Reflex/Type.h and Reflex/Object.h introduced by the current
+  // implementation of reflex_cast (above). If we have to be rid of
+  // that dependency, the alternative implementation of reflex_cast
+  // uses this function, at the cost of some speed: repeated lookups
+  // of the same ROOT::Reflex::Type object for the same type will have
+  // to be made.
+
+  /// Take an un-typed pointer raw (which we promise is a pointer to
+  /// an object whose dynamic type is denoted by dynamicType), and
+  /// return a raw pointer that is appropriate for referring to an
+  /// object whose type is denoted by toType. This performs any
+  /// pointer adjustment needed for dealing with base class
+  /// sub-objects, and returns 0 if the type denoted by toType is
+  /// neither the same as, nor a public base of, the type denoted by
+  /// dynamicType.
+  
+  void const*
+  reflex_pointer_adjust(void* raw,
+			ROOT::Reflex::Type const& dynamicType,
+			std::type_info const& toType);
+  
 }
 
 #endif

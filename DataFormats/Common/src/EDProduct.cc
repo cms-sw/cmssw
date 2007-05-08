@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProduct.cc,v 1.2 2006/12/28 18:51:12 paterno Exp $
+$Id: EDProduct.cc,v 1.3 2007/01/11 23:39:18 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -11,9 +11,11 @@ namespace edm {
 
   EDProduct::~EDProduct() {}
 
-  void EDProduct::fillView(std::vector<void const*>& pointers) const
+  void EDProduct::fillView(std::vector<void const*>& pointers,
+			   std::vector<helper_ptr>& helpers) const
   {
-    assert(pointers.empty());
-    do_fillView(pointers);
+    assert(pointers.empty() && helpers.empty());
+
+    do_fillView(pointers, helpers);
   }
 }

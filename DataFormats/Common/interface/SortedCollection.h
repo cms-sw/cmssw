@@ -23,13 +23,14 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.7 2007/01/11 23:39:17 paterno Exp $
+$Id: SortedCollection.h,v 1.8 2007/01/17 22:07:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <algorithm>
 #include <vector>
 
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
@@ -156,7 +157,8 @@ namespace edm {
     // SortedCollection has been inserted into the Event.
     void post_insert();
 
-    void fillView(std::vector<void const*>& pointers) const;
+    void fillView(std::vector<void const*>& pointers,
+		  std::vector<helper_ptr>& helpers) const;
 
   private:
 
@@ -371,7 +373,8 @@ namespace edm {
 
   template <class T, class SORT>
   void
-  SortedCollection<T,SORT>::fillView(std::vector<void const*>& pointers) const
+  SortedCollection<T,SORT>::fillView(std::vector<void const*>& pointers,
+				     std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
     for(const_iterator i=begin(), e=end(); i!=e; ++i)
@@ -435,9 +438,10 @@ namespace edm {
   inline
   void
   fillView(SortedCollection<T,SORT> const& obj,
-	   std::vector<void const*>& pointers)
+	   std::vector<void const*>& pointers,
+	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers);
+    obj.fillView(pointers, helpers);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)

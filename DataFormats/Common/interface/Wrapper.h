@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.13 2007/01/19 23:28:23 wdd Exp $
+$Id: Wrapper.h,v 1.14 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,16 +38,19 @@ namespace edm {
   template <class T>
   struct DoFillView
   {
-    void operator()(T const& obj, std::vector<void const*>& pointers) const
+    void operator()(T const& obj, 
+		    std::vector<void const*>& pointers,
+		    std::vector<helper_ptr>& helpers) const
     {
-      fillView(obj, pointers);
+      fillView(obj, pointers, helpers);
     }
   };
 
   template <class T, class A>
   void
   fillView(std::vector<T,A> const& obj,
-	   std::vector<void const*>& ptrs)
+	   std::vector<void const*>& ptrs,
+	   std::vector<helper_ptr>& helpers)
   {
     typedef typename std::vector<T,A>::const_iterator iter;
     for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
@@ -56,7 +59,8 @@ namespace edm {
   template <class T, class A>
   void
   fillView(std::list<T,A> const& obj,
-	   std::vector<void const*>& ptrs)
+	   std::vector<void const*>& ptrs,
+	   std::vector<helper_ptr>& helpers)
   {
     typedef typename std::list<T,A>::const_iterator iter;
     for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
@@ -65,7 +69,8 @@ namespace edm {
   template <class T, class A>
   void
   fillView(std::deque<T,A> const& obj,
-	   std::vector<void const*>& ptrs)
+	   std::vector<void const*>& ptrs,
+	   std::vector<helper_ptr>& helpers)
   {
     typedef typename std::deque<T,A>::const_iterator iter;
     for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
@@ -74,7 +79,8 @@ namespace edm {
   template <class T, class A>
   void
   fillView(std::set<T,A> const& obj,
-	   std::vector<void const*>& ptrs)
+	   std::vector<void const*>& ptrs,
+	   std::vector<helper_ptr>& helpers)
   {
     typedef typename std::set<T,A>::const_iterator iter;
     for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
@@ -83,7 +89,9 @@ namespace edm {
   template <class T>
   struct DoNotFillView
   {
-    void operator()(T const&, std::vector<void const*>&) const 
+    void operator()(T const&, 
+		    std::vector<void const*>&,
+		    std::vector<helper_ptr>& ) const 
     {
       throw Exception(errors::ProductDoesNotSupportViews)
 	<< "The product type " 
@@ -104,12 +112,13 @@ namespace edm {
     T const * operator->() const {return product();}
   private:
     virtual bool isPresent_() const {return present;}
-    void do_fillView(std::vector<void const*>& pointers) const
+    void do_fillView(std::vector<void const*>& pointers,
+		     std::vector<helper_ptr>& helpers) const
     {
       typename boost::mpl::if_c<has_fillView<T>::value,
                                 DoFillView<T>,
                                 DoNotFillView<T> >::type maybe_filler;
-      maybe_filler(obj, pointers);
+      maybe_filler(obj, pointers, helpers);
     }
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
