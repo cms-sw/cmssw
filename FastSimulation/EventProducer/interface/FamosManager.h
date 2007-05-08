@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include <fstream>
 #include <string>
@@ -39,13 +40,15 @@ class FamosManager
   void setupGeometryAndField(const edm::EventSetup & es);    
 
   /// The generated event
-  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
+  //  const HepMC::GenEvent* genEvent() const { return myGenEvent; };
+  //  const reco::CandidateCollection*
 
   /// The simulated event 
   FSimEvent* simEvent() const { return mySimEvent; }
 
   /// The real thing is done here
-  void reconstruct(const HepMC::GenEvent* evt);
+  void reconstruct(const HepMC::GenEvent* evt, 
+		   const reco::CandidateCollection* particles);
 
   /// The tracker 
   TrajectoryManager * trackerManager() const {return myTrajectoryManager;}
@@ -57,7 +60,7 @@ class FamosManager
  private:   
 
   int iEvent;
-  const HepMC::GenEvent* myGenEvent;
+  //  const HepMC::GenEvent* myGenEvent;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
   PileUpSimulator* myPileUpSimulator;

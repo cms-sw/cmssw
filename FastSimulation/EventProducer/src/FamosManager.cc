@@ -9,6 +9,7 @@
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
@@ -47,7 +48,7 @@ using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      myGenEvent(0),
+      //      myGenEvent(0),
       myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
@@ -160,17 +161,23 @@ void FamosManager::setupGeometryAndField(const edm::EventSetup & es)
 
 
 void 
-FamosManager::reconstruct(const HepMC::GenEvent* evt) {
+FamosManager::reconstruct(const HepMC::GenEvent* evt,
+			  const reco::CandidateCollection* particles) 
+{
 
-  myGenEvent = evt;
+  //  myGenEvent = evt;
 
-  if (evt != 0) {
+  if (evt != 0 || particles != 0) {
     iEvent++;
     edm::EventID id(m_pRunNumber,iEvent);
 
 
     // Fill the event from the original generated event
-    mySimEvent->fill(*evt,id);
+    if (evt ) 
+      mySimEvent->fill(*evt,id);
+    else
+      mySimEvent->fill(*particles,id);
+
     //    mySimEvent->printMCTruth(*evt);
     //    std::cout << "----------------------------------------" << std::endl;
 

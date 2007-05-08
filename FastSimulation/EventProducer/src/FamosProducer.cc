@@ -11,6 +11,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
@@ -58,40 +59,62 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    using namespace edm;
 
    // Get the generated event(s) from the edm::Event
+   // 1. Check if a HepMCProduct exists
+   //    a. Take the VtxSmeared if it exists
+   //    b. Take the source  otherwise
+   // 2. Otherwise go for the CandidateCollection
    Handle<HepMCProduct> evtSource;
    Handle<HepMCProduct> evtVtxSmeared;
+   bool genPart = false;
    bool source = false;
    bool vtxSmeared = false;
+   std::vector< Handle<reco::CandidateCollection> > genEvts;
+   const reco::CandidateCollection* myGenParticles = 0;
+   const HepMC::GenEvent* myGenEvent = 0;
+
+   // Look for the GenEvent
    std::vector< Handle<HepMCProduct> > evts; 
    iEvent.getManyByType(evts);
    for ( unsigned i=0; i<evts.size(); ++i ) {
-     if ( !vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared" ) {
+     if (!vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared") {
        vtxSmeared = true;      
        evtVtxSmeared = evts[i];
        break;
-     } else if ( !source &&  evts[i].provenance()->moduleLabel()=="source" ) {
+     } else if (!source &&  evts[i].provenance()->moduleLabel()=="source") {
        source = true;
        evtSource = evts[i];
      }
    }
-
+   
    // Take the VtxSmeared if it exists, the source otherwise
    // (The vertex smearing is done in Famos only in the latter case)
-   const HepMC::GenEvent* myGenEvent;
    if ( vtxSmeared ) {
      myGenEvent = evtVtxSmeared->GetEvent();
    } else if ( source ) {
      myGenEvent = evtSource->GetEvent();
-   } else {
-     myGenEvent = 0;
    }
 
-   // .and pass it to the Famos Manager (should be EventManager)
-   if ( myGenEvent ) famosManager_->reconstruct(myGenEvent);
+   if ( !myGenEvent ) { 
+     // Look for the particle CandidateCollection
+     iEvent.getManyByType(genEvts);
+     if ( genEvts.size() ) { 
+       for ( unsigned i=0; i<genEvts.size(); ++i ) {
+	 if ( genEvts[i].provenance()->moduleLabel()=="genParticleCandidates" )
+	   {
+	     genPart= true;
+	     myGenParticles = &(*genEvts[i]);
+	   }
+       }
+     }
+   }
 
+   // .and pass the event to the Famos Manager
+   if ( myGenEvent || myGenParticles ) 
+     famosManager_->reconstruct(myGenEvent,myGenParticles);
+   
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
-
+   
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
 
@@ -126,4 +149,3 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 }
 
 DEFINE_FWK_MODULE(FamosProducer);
- 
