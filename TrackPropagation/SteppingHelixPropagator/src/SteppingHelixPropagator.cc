@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/04/30 20:38:58 $
- *  $Revision: 1.35 $
+ *  $Date: 2007/04/30 23:14:13 $
+ *  $Revision: 1.36 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.35 2007/04/30 20:38:58 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.36 2007/04/30 23:14:13 slava77 Exp $
 //
 //
 
@@ -32,7 +32,9 @@
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <sstream>
+#include <typeinfo>
 
 SteppingHelixPropagator::SteppingHelixPropagator() :
   Propagator(anyDirection)
@@ -287,7 +289,7 @@ SteppingHelixPropagator::Result
 SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type, 
 				   const double pars[6], double epsilon)  const{
 
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   StateInfo* svCurrent = &svBuf_[cIndex_(nPoints_-1)];
 
   //check if it's going to work at all
@@ -532,7 +534,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
 					const SteppingHelixPropagator::Vector& p3, 
 					const SteppingHelixPropagator::Point& r3, int charge,
 					const AlgebraicSymMatrix66& cov, PropagationDirection dir) const{
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   svCurrent.q = charge;
   svCurrent.p3 = p3;
   svCurrent.r3 = r3;
@@ -590,7 +592,7 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
 					   double dP, const SteppingHelixPropagator::Vector& tau,
 					   const SteppingHelixPropagator::Vector& drVec, double dS, double dX0,
 					   const AlgebraicMatrix66& dCovTransform) const{
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   svNext.q = svPrevious.q;
   svNext.dir = dS > 0.0 ? 1.: -1.; 
   svNext.p3 = tau;  svNext.p3*=(svPrevious.p3.mag() - svNext.dir*fabs(dP));
@@ -666,7 +668,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 					   double dS, 
 					   PropagationDirection dir, 
 					   SteppingHelixPropagator::Fancy fancy) const{
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   if (debug_){
     LogTrace(metname)<<"Make atom step "<<svCurrent.path_<<" with step "<<dS<<" in direction "<<dir<<std::endl;
   }
@@ -714,7 +716,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
     //improve with above values:
     drVec += svCurrent.r3;
-    GlobalVector bfGV = field_->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
+    GlobalVector bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
     Vector bf(bfGV.x(), bfGV.y(), bfGV.z());
     b0 = bf.mag();
     if (b0 < 1e-6) {
@@ -1189,7 +1191,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 				   const double pars[6], 
 				   double& dist, double& tanDist, 
 				   PropagationDirection& refDirection) const{
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
   double curZ = sv.r3.z();
   double curR = sv.r3.perp();
@@ -1233,8 +1235,10 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	Vector lVec = sv.bf.cross(sv.p3)/b0/p0;
 	double bVal = lVec.dot(nPlane)/tN;
 	if (fabs(aVal*bVal)< 0.3){
-	  double cVal = - sv.bf.cross(lVec).dot(nPlane)/b0/tN;
-	  double tanDCorr = bVal/2.*aVal + (bVal*bVal/2. + cVal/6)*aVal*aVal; 
+	  double cVal = lVec.dot(nPlane) - sv.bf.dot(lVec)*sv.bf.dot(nPlane);
+	  cVal /= tN;
+	  double tanDCorr = bVal/2. + (bVal*bVal/2. + cVal/6)*aVal; 
+	  tanDCorr *= aVal;
 	  //+ (-bVal/24. + 0.625*bVal*bVal*bVal + 5./12.*bVal*cVal)*aVal*aVal*aVal
 	  if (debug_) LogTrace(metname)<<tanDist<<" vs "<<tanDist*(1.+tanDCorr)<<" corr "<<tanDist*tanDCorr<<std::endl;
 	  tanDist *= (1.+tanDCorr);
@@ -1243,7 +1247,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 				       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
 	}
       }
-      refDirection = (sv.p3.dot(nPlane))*dRDotN < 0. ?
+      refDirection = tN*dRDotN < 0. ?
 	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
     }
@@ -1353,12 +1357,12 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
 					PropagationDirection dir,
 					double& dist, double& tanDist) const{
 
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
   const MagVolume* cVol = sv.magVol;
 
   if (cVol == 0) return result;
-  const std::vector<VolumeSide> cVolFaces = cVol->faces();
+  const std::vector<VolumeSide> cVolFaces(cVol->faces());
 
   double distToFace[6];
   double tanDistToFace[6];
@@ -1378,9 +1382,22 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     if (debug_){
       LogTrace(metname)<<"Start with face "<<iFace<<std::endl;
     }
-    const Plane* cPlane = dynamic_cast<const Plane*>(&cVolFaces[iFace].surface());
-    const Cylinder* cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
-    const Cone* cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
+//     const Plane* cPlane = dynamic_cast<const Plane*>(&cVolFaces[iFace].surface());
+//     const Cylinder* cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
+//     const Cone* cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
+    const Surface* cPlane = 0; //only need to know the loc->glob transform
+    const Cylinder* cCyl = 0;
+    const Cone* cCone = 0;
+    if (typeid(cVolFaces[iFace].surface()) == typeid(const Plane&)){
+      cPlane = &cVolFaces[iFace].surface();
+    } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cylinder&)){
+      cCyl = reinterpret_cast<const Cylinder*>(&cVolFaces[iFace].surface());
+    } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cone&)){
+      cCone = reinterpret_cast<const Cone*>(&cVolFaces[iFace].surface());
+    } else {
+      edm::LogWarning(metname)<<"Could not cast a volume side surface to a known type"<<std::endl;
+    }
+    
     if (debug_){
       if (cPlane!=0) LogTrace(metname)<<"The face is a plane at "<<cPlane<<std::endl;
       if (cCyl!=0) LogTrace(metname)<<"The face is a cylinder at "<<cCyl<<std::endl;
@@ -1489,7 +1506,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 					PropagationDirection dir,
 					double& dist, double& tanDist) const{
 
-  const std::string metname = "SteppingHelixPropagator";
+  static const std::string metname = "SteppingHelixPropagator";
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
 
   double parLim[6] = {sv.rzLims.rMin, sv.rzLims.rMax, 
