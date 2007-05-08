@@ -4,6 +4,8 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
+#include <boost/shared_ptr.hpp>
+
 /** Class providing access to the covariance matrix of a set of relevant parameters of a trajectory
  *  in a local, Cartesian frame. The errors provided are: <BR> <BR>
  *  
@@ -26,9 +28,9 @@ public:
    */
 
   LocalTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
-    theCovarianceMatrix(aCovarianceMatrix) { }
+    theCovarianceMatrix(aCovarianceMatrix), theWeightMatrixPtr() { }
   LocalTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
-    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)) {}
+    theCovarianceMatrix(asSMatrix<5>(aCovarianceMatrix)), theWeightMatrixPtr() {}
 
 
   /** Constructing class from standard deviations of the individual parameters, making
@@ -56,13 +58,24 @@ public:
     return asHepMatrix(theCovarianceMatrix);
   }
 
+  const AlgebraicSymMatrix55 &weightMatrix() const {
+        if (theWeightMatrixPtr.get() == 0) {
+                int ifail;
+                boost::shared_ptr<AlgebraicSymMatrix55> inv(
+                          new AlgebraicSymMatrix55(theCovarianceMatrix.Inverse(ifail))
+                );
+                theWeightMatrixPtr = inv;
+        }
+        return *theWeightMatrixPtr;
+  }
+
 
   /** Enables the multiplication of the covariance matrix with the scalar "factor".
    */
 
   void operator *= (double factor) {
     theCovarianceMatrix *= factor;
-    
+    if ((theWeightMatrixPtr.get() != 0) && (factor != 0.0)) { (*theWeightMatrixPtr) /= factor; } 
   }
 
   /** Returns the two-by-two submatrix of the covariance matrix which yields the local
@@ -76,6 +89,7 @@ public:
 
 private:
   AlgebraicSymMatrix55 theCovarianceMatrix;
+  mutable boost::shared_ptr<AlgebraicSymMatrix55> theWeightMatrixPtr;
 };
 
 #endif

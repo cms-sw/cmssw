@@ -63,7 +63,7 @@ public:
 
   virtual const CurvilinearTrajectoryError& curvilinearError() const = 0;
 
-  virtual FreeTrajectoryState* freeTrajectoryState() const = 0;
+  virtual FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const = 0;
 
   virtual const LocalTrajectoryParameters& localParameters() const = 0;
 

@@ -69,9 +69,9 @@ public:
     return theCombinedState.curvilinearError();
   }
 
-  FreeTrajectoryState* freeTrajectoryState() const {
+  FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const {
     checkCombinedState();
-    return theCombinedState.freeTrajectoryState();
+    return theCombinedState.freeTrajectoryState(withErrors);
   }
   
   const LocalTrajectoryParameters& localParameters() const {

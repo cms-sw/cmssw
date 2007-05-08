@@ -101,25 +101,25 @@ public:
 
 // access global parameters/errors
   const GlobalTrajectoryParameters& globalParameters() const {
-    return freeTrajectoryState()->parameters();
+    return freeTrajectoryState(false)->parameters();
   }
   GlobalPoint globalPosition() const {
-    return freeTrajectoryState()->position();
+    return freeTrajectoryState(false)->position();
   }
   GlobalVector globalMomentum() const {
-    return freeTrajectoryState()->momentum();
+    return freeTrajectoryState(false)->momentum();
   }
   GlobalVector globalDirection() const {
-    return freeTrajectoryState()->momentum().unit();
+    return freeTrajectoryState(false)->momentum().unit();
   }  
   TrackCharge charge() const {
-    return freeTrajectoryState()->charge();
+    return freeTrajectoryState(false)->charge();
   }
   double signedInverseMomentum() const {
-    return freeTrajectoryState()->signedInverseMomentum();
+    return freeTrajectoryState(false)->signedInverseMomentum();
   }
   double transverseCurvature() const {
-    return freeTrajectoryState()->transverseCurvature();
+    return freeTrajectoryState(false)->transverseCurvature();
   }
   const CartesianTrajectoryError& cartesianError() const {
     if(!hasError()) throw TrajectoryStateException(
@@ -131,11 +131,12 @@ public:
      "TrajectoryStateOnSurface: attempt to access curvilinear errors when none available");
     return freeTrajectoryState()->curvilinearError();
   }
-  FreeTrajectoryState* freeTrajectoryState() const {
+  FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const {
     if(!isValid()) throw TrajectoryStateException(
       "TrajectoryStateOnSurface is invalid and cannot return any parameters");
     checkGlobalParameters();
-    if(hasError()) {
+    //if(hasError()) { // let's start like this to see if we alloc less
+    if(withErrors && hasError()) { // this is the right thing
       checkCartesianError();
       checkCurvilinError();
     }

@@ -2,7 +2,7 @@
 
 LocalTrajectoryError::
 LocalTrajectoryError( float dx, float dy, float dxdir, float dydir,
-		      float dpinv) : theCovarianceMatrix()
+		      float dpinv) : theCovarianceMatrix(), theWeightMatrixPtr()
 {
   theCovarianceMatrix(3,3) = dx*dx;
   theCovarianceMatrix(4,4) = dy*dy;

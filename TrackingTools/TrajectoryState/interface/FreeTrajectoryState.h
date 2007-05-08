@@ -36,6 +36,17 @@ public:
     theCurvilinearErrorValid(false)
   {
   }
+
+  FreeTrajectoryState(const GlobalPoint& aX,
+                      const GlobalVector& aP,
+                      TrackCharge aCharge, 
+                      const MagneticField* fieldProvider) :
+    theGlobalParameters(aX, aP, aCharge, fieldProvider),
+    theCartesianErrorValid(false),
+    theCurvilinearErrorValid(false)
+  {
+  }
+
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CartesianTrajectoryError& aCartesianError) :
     theGlobalParameters(aGlobalParameters),
@@ -107,6 +118,19 @@ public:
       theCartesianError *= (factor*factor);
     if (theCurvilinearErrorValid)
       theCurvilinearError *= (factor*factor);
+  }
+
+  void setCartesianError(const CartesianTrajectoryError &err) {
+        theCartesianError = err; theCartesianErrorValid = true;
+  }
+  void setCartesianError(const AlgebraicSymMatrix66 &err) {
+        theCartesianError = CartesianTrajectoryError(err); theCartesianErrorValid = true;
+  }
+  void setCurvilinearError(const CurvilinearTrajectoryError &err) {
+        theCurvilinearError = err; theCurvilinearErrorValid = true;
+  }
+  void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
+        theCurvilinearError = CurvilinearTrajectoryError(err); theCurvilinearErrorValid = true;
   }
 // properties
   bool canReach(double radius) const;

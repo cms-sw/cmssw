@@ -177,15 +177,16 @@ void BasicSingleTrajectoryState::checkGlobalParameters() const {
     // calculate global parameters from local
     GlobalPoint  x = surface().toGlobal(theLocalParameters.position());
     GlobalVector p = surface().toGlobal(theLocalParameters.momentum());
-    theFreeState = new FreeTrajectoryState(GlobalTrajectoryParameters(x, p, 
-								      theLocalParameters.charge(),
-								      theField));
+    theFreeState = new FreeTrajectoryState(x, p, 
+                                              theLocalParameters.charge(),
+                                              theField);
   }
 }
 
 void BasicSingleTrajectoryState::checkCurvilinError() const {
   if(!theCurvilinErrorUp2Date){
     if(!theLocalParametersValid) createLocalParameters();
+    // after createLocalParameters we can be sure theFreeState is not null
     if(!theLocalErrorValid) createLocalError();
     //    cout<<"!theCurvilinErrorUp2Date: create curviError from local"<<endl;
     theCurvilinErrorUp2Date = true;
@@ -194,17 +195,9 @@ void BasicSingleTrajectoryState::checkCurvilinError() const {
     const AlgebraicMatrix55& jac = loc2Curv.jacobian();
     
     const AlgebraicSymMatrix55 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
-    GlobalTrajectoryParameters params = 
-      theFreeState->parameters();
-    if(theCartesianErrorUp2Date) {
-      CartesianTrajectoryError cate = 
-	theFreeState->cartesianError(); 
-      theFreeState = new FreeTrajectoryState(params, cate,
-					     CurvilinearTrajectoryError(cov));      
-    } else {
-      theFreeState = new FreeTrajectoryState(params,
-					     CurvilinearTrajectoryError(cov));      
-    }
+
+    //theFreeState->setCurvilinearError( CurvilinearTrajectoryError(cov) );
+    theFreeState->setCurvilinearError( cov );
   }
 }
 
@@ -218,18 +211,9 @@ void BasicSingleTrajectoryState::checkCartesianError() const {
     const AlgebraicMatrix65& jac = loc2Cart.jacobian();
 
     const AlgebraicSymMatrix66 &cov = ROOT::Math::Similarity(jac, theLocalError.matrix());
-    //    cout<<"cov: "<<cov<<endl;
-    GlobalTrajectoryParameters params = 
-      theFreeState->parameters();
-    if(theCurvilinErrorUp2Date) {
-      CurvilinearTrajectoryError cute = 
-	theFreeState->curvilinearError();
-      theFreeState = 
-	new FreeTrajectoryState(params, CartesianTrajectoryError(cov), cute);
-    } else {
-      theFreeState = 
-	new FreeTrajectoryState(params, CartesianTrajectoryError(cov));
-    }
+    
+    //theFreeState->setCartesianError( CartesianTrajectoryError(cov) );
+    theFreeState->setCartesianError( cov );
   }
 }
  

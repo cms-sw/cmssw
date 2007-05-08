@@ -25,7 +25,8 @@ public:
                              const GlobalVector& aP,
                              TrackCharge aCharge, 
 			     const MagneticField* fieldProvider) :
-    theX(aX), theP(aP), theCharge(aCharge), theField(fieldProvider) {}
+    theX(aX), theP(aP), theCharge(aCharge), theField(fieldProvider),
+    hasCurvature_(false) {}
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
@@ -109,6 +110,9 @@ private:
   GlobalVector theP;
   TrackCharge theCharge;
   const MagneticField* theField;
+  mutable bool hasCurvature_; mutable double cachedCurvature_;
+  //mutable bool hasMagneticField_; mutable GlobalVector cachedMagneticField_; // 
+
 };
 
 #endif
