@@ -18,8 +18,10 @@
 #include "G4VProcess.hh"
 
 EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
-	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingScheme(0) {
+			       SensitiveDetectorCatalog & clg, 
+			       edm::ParameterSet const & p, 
+			       const SimTrackManager* manager) : 
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   
   edm::ParameterSet m_EcalTBH4BeamSD = p.getParameter<edm::ParameterSet>("EcalTBH4BeamSD");
   useBirk= m_EcalTBH4BeamSD.getParameter<bool>("UseBirkLaw");

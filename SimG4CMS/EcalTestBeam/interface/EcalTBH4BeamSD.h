@@ -5,7 +5,7 @@
 // Description: Stores hits of TBH4 hodoscope fibers in appropriate
 //              container
 // Use in your sensitive detector builder:
-// $Id:$
+// $Id: EcalTBH4BeamSD.h,v 1.1 2007/03/19 17:21:49 fabiocos Exp $
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/CaloSD.h"
@@ -22,8 +22,8 @@ class EcalTBH4BeamSD : public CaloSD {
 
 public:    
 
-  EcalTBH4BeamSD(G4String, const DDCompactView &, edm::ParameterSet const &,
-	 const SimTrackManager*);
+  EcalTBH4BeamSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &,
+		 edm::ParameterSet const &, const SimTrackManager*);
   virtual ~EcalTBH4BeamSD();
   virtual double getEnergyDeposit(G4Step*);
   virtual uint32_t setDetUnitId(G4Step* step);
