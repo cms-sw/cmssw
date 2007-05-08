@@ -7,7 +7,8 @@
 class CustomPhysics : public PhysicsList
 {
 public:
-    CustomPhysics(const edm::ParameterSet & p);
+    CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
+		  const edm::ParameterSet & p);
 };
  
 #endif
