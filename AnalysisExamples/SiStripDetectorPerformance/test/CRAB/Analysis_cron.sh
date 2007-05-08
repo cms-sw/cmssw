@@ -136,11 +136,4 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
     fi
 done
 
-echo -e "\n...Creating Summaries"
-${LOCALHOME}/getSummary.sh
-
-echo -e "\n...Running BadStripsFromPosition"
-${LOCALHOME}/macros/BadStripsFromPosition.sh
-
-
 rm -f ${LOCALHOME}/lock
