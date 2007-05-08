@@ -1,11 +1,11 @@
-// $Id: $
+// $Id: Numbers.cc,v 1.1 2007/05/08 10:04:48 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: $
-  \date $Date: $
+  \version $Revision: 1.1 $
+  \date $Date: 2007/05/08 10:04:48 $
 */
 
 #include <sstream>
@@ -14,16 +14,8 @@
 
 //-------------------------------------------------------------------------
 
-int Numbers::iEB( int fed ) throw( std::runtime_error ) {
+int Numbers::iEB( int ism ) throw( std::runtime_error ) {
   
-  int ism = 0;
-  if( fed > 600 ) {
-    ism = fed - 609;
-  }
-  else {
-    ism = fed -9;
-  }
-
   if( ism < 1 || ism > 36 ) {
     std::ostringstream s;
     s << "Wrong SM id determination: iSM = " << ism;
@@ -37,10 +29,10 @@ int Numbers::iEB( int fed ) throw( std::runtime_error ) {
 
 //-------------------------------------------------------------------------
 
-std::string Numbers::sEB( int fed  ) throw( std::runtime_error ) {
+std::string Numbers::sEB( int ism  ) throw( std::runtime_error ) {
 
   try {
-    int ieb = Numbers::iEB( fed );
+    int ieb = Numbers::iEB( ism );
     std::ostringstream s;
     s << "EB" << std::setw(3) << std::setfill('0')
       << std::setiosflags( std::ios::showpos )
