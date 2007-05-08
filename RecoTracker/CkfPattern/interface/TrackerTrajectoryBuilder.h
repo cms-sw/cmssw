@@ -41,7 +41,8 @@ public:
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
-  virtual void fillSeedHistoDebugger(TrajectoryMeasurement result0, TrajectoryMeasurement result1) const {;}
+  virtual void fillSeedHistoDebugger(std::vector<TrajectoryMeasurement>::iterator begin, 
+                                     std::vector<TrajectoryMeasurement>::iterator end) const {;}
 
 };
 

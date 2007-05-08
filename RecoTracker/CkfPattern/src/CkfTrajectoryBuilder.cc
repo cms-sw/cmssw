@@ -222,7 +222,7 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
   }
 
   // method for debugging
-  fillSeedHistoDebugger(result[0],result[1]);
+  fillSeedHistoDebugger(result.begin(),result.end());
 
   return result;
 }
