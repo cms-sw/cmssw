@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Nov 14 11:50:24 EST 2005
-// $Id: SensitiveDetectorMakerBase.h,v 1.1 2005/11/15 03:51:00 chrjones Exp $
+// $Id: SensitiveDetectorMakerBase.h,v 1.2 2005/11/28 00:43:38 chrjones Exp $
 //
 
 // system include files
@@ -44,6 +44,7 @@ class SensitiveDetectorMakerBase
       // ---------- const member functions ---------------------
       virtual void make(const std::string& iname,
 			const DDCompactView& cpv,
+			SensitiveDetectorCatalog& clg,
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,

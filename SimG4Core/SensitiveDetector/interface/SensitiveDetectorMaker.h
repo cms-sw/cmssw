@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Mon Nov 14 11:56:05 EST 2005
-// $Id: SensitiveDetectorMaker.h,v 1.1 2005/11/15 03:51:00 chrjones Exp $
+// $Id: SensitiveDetectorMaker.h,v 1.2 2005/11/28 00:43:38 chrjones Exp $
 //
 
 // system include files
@@ -39,13 +39,14 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
       // ---------- const member functions ---------------------
       virtual void make(const std::string& iname,
 			const DDCompactView& cpv,
+			SensitiveDetectorCatalog& clg,
 			const edm::ParameterSet& p,
 			const SimTrackManager* m,
 			SimActivityRegistry& reg,
 			std::auto_ptr<SensitiveTkDetector>& oTK,
 			std::auto_ptr<SensitiveCaloDetector>& oCalo) const
       {
-	std::auto_ptr<T> returnValue(new T(iname, cpv,p,m));
+	std::auto_ptr<T> returnValue(new T(iname, cpv, clg, p, m));
 	SimActivityRegistryEnroller::enroll(reg, returnValue.get());
 
 	this->convertTo(returnValue.get(), oTK,oCalo);

@@ -11,6 +11,7 @@
 using std::string;
 
 SensitiveDetector::SensitiveDetector(string & iname, const DDCompactView & cpv,
+				     SensitiveDetectorCatalog & clg, 
 				     edm::ParameterSet const & p) :
   G4VSensitiveDetector(iname), name(iname) {}
 

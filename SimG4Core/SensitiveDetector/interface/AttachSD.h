@@ -18,6 +18,7 @@ public:
     std::pair< std::vector<SensitiveTkDetector*>,
       std::vector<SensitiveCaloDetector*> > create(const DDDWorld & w, 
 						   const DDCompactView & cpv,
+						   SensitiveDetectorCatalog & clg,
 						   edm::ParameterSet const & p,
 						   const SimTrackManager* m,
 						   SimActivityRegistry& reg ) const;
