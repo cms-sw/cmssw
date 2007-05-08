@@ -52,7 +52,6 @@ namespace csc{
 
       static unsigned encodeRank(const unsigned& pt, const unsigned& quality);
       static void decodeRank(const unsigned& rank, unsigned& pt, unsigned& quality);
-      static unsigned encodePt(const double& pt);
 
       unsigned ptLUTAddress() const { return m_ptAddress; }
       void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
