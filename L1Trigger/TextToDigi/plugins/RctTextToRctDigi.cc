@@ -11,7 +11,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.cc,v 1.1 2007/03/21 18:48:23 tapper Exp $
+// $Id: RctTextToRctDigi.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
 
 // Rct Input File Format 
 // Line 1: Crossing no as "Crossing x" (2)     
@@ -56,9 +56,10 @@ RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet& iConfig):
 
     if(!m_file[i].good())
       {
-        throw cms::Exception("RctTextToRctDigiTextFileOpenError")
+        //throw cms::Exception("RctTextToRctDigiTextFileOpenError")
+	LogDebug("RctTextToRctDigi")
           << "RctTextToRctDigi::RctTextToRctDigi : "
-          << " couldn't open the file " << fileName << " for reading" << endl;
+          << " couldn't open the file " << fileName << "...skipping!" << endl;
       }
   }
 }
@@ -71,16 +72,51 @@ RctTextToRctDigi::~RctTextToRctDigi()
   }
 }
 
+/// Append empty digi collection/n
+void RctTextToRctDigi::putEmptyDigi(edm::Event& iEvent) {
+  auto_ptr<L1CaloEmCollection> em (new L1CaloEmCollection);
+  auto_ptr<L1CaloRegionCollection> rgn (new L1CaloRegionCollection);
+    for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
+      for (unsigned j=0; j<4; j++) {
+	em->push_back(L1CaloEmCand(0, i, true));
+	em->push_back(L1CaloEmCand(0, i, false));
+      }
+      for (unsigned j=0; j<14; j++)
+	rgn->push_back(L1CaloRegion(0,false,false,false,false,i,j/2,j%2));
+      for (unsigned j=0; j<8; j++)
+	rgn->push_back(L1CaloRegion(0,true,i,j));
+    }
+    iEvent.put(em);
+    iEvent.put(rgn);
+}
+
+/// Syncronize bunch crossing number/n
+void RctTextToRctDigi::bxSynchro(int &bx,int crate) {
+  string tmp;
+  // bypass bx input until correct bx is reached
+  while(bx<m_nevt+m_skipEvents) {
+    for (int j=0; j<6; j++){
+      getline(m_file[crate],tmp);
+    }
+    m_file[crate] >> tmp >> bx;
+    if(tmp!="Crossing")
+      throw cms::Exception("RctTextToRctDigiTextFileReadError")
+	<< "RctTextToRctDigi::bxSynchro : "
+	<< " something screwy happened Crossing!=" << tmp << endl;
+  }
+}
+
 // ------------ method called to produce the data  ------------
 void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // Skip event if required
   if (m_nevt < m_skipEvents){ 
-    string tmp;
-    for (int i=0; i<6; i++){
-      getline(m_file[i],tmp);
-    } 
+    //string tmp;
+    //for (int i=0; i<6; i++){
+    //  getline(m_file[i],tmp);
+    //} 
+    putEmptyDigi(iEvent);
     m_nevt++;
     return;
   }
@@ -92,12 +128,21 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   // Loop over RCT crates
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){  
 
+    if(!m_file[i].good()) {
+      continue;
+    }
+
     // Check we're not at the end of the file
     if(m_file[i].eof())
       {
-        throw cms::Exception("RctTextToRctDigiTextFileReadError")
+        //throw cms::Exception("RctTextToRctDigiTextFileReadError")
+	LogDebug("RctTextToRctDigi")
           << "RctTextToRctDigi::produce : "
-          << " unexpected end of file " << m_textFileName << i << endl;
+          << " unexpected end of file " << m_textFileName << i 
+	  << " adding empty collection for event !"
+	  << endl;
+	putEmptyDigi(iEvent);
+	continue;
       }      
     
     // Check we're at the start of an event
@@ -114,6 +159,16 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     dec(m_file[i]);
     int BXNum;
     m_file[i]>>BXNum;
+    
+    /// Synchronize bunch crossing
+    bxSynchro(BXNum,i);
+ 
+    if(BXNum!=m_nevt+m_skipEvents)
+      throw cms::Exception("RctTextToRctDigiTextSyncError")
+	<< "RctTextToRctDigi::produce : "
+	<< " something screwy happened "
+	<< "evt:" << m_nevt << " != bx:" << BXNum << " + " << m_skipEvents 
+	<< endl;
     
     // Buffers
     unsigned long int uLongBuffer;
@@ -166,6 +221,7 @@ void RctTextToRctDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       rgn->push_back(L1CaloRegion(et,true,i,j));
     }        
 
+    dec(m_file[i]); 
   }
   
   iEvent.put(em);
