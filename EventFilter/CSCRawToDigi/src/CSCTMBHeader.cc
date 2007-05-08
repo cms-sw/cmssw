@@ -9,7 +9,7 @@ bool CSCTMBHeader::debug = false;
 
 CSCTMBHeader::CSCTMBHeader() 
 {
-  bzero(this, sizeInWords()*2);
+  bzero(this, 54);
   nHeaderFrames = 26;
   e0bline = 0x6E0B;
   b0cline = 0x6B0C;
