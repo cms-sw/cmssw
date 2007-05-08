@@ -10,6 +10,7 @@
 <use name=JetMETCorrections/JetParton>
 <use name=JetMETCorrections/JetPlusTrack>
 <use name=JetMETCorrections/TauJet>
+<use name=PhysicsTools/Utilities>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsModules>

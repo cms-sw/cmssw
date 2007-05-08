@@ -13,6 +13,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 using namespace std;
 using namespace reco;
@@ -60,6 +61,8 @@ namespace cms {
                            jet->pz()*scale, jet->energy()*scale);
       result->push_back (CaloJet (common, jet->getSpecific (), jet->getJetConstituents()));
     }
+    NumericSafeGreaterByPt<CaloJet> compJets;
+    std::sort (result->begin (), result->end (), compJets); // reorder corrected jets
     fEvent.put(result);  //Puts Corrected Jet Collection into event
   }
 }
