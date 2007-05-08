@@ -1,9 +1,9 @@
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
+
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4LogicalVolume.hh"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using std::string;
 using std::vector;
@@ -14,52 +14,49 @@ DDG4SensitiveConverter::DDG4SensitiveConverter() {}
 
 DDG4SensitiveConverter::~DDG4SensitiveConverter() {}
 
-void DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s) 
-{
-    LogDebug("SimG4CoreGeometry") <<" DDG4SensitiveConverter::upDate() starts" ;
+SensitiveDetectorCatalog DDG4SensitiveConverter::upDate(const DDG4DispContainer & ddg4s) {
 
-    for (unsigned int i=0; i<ddg4s.size(); i++)
-    {
-	DDG4Dispatchable * ddg4 = ddg4s[i];
-	const DDLogicalPart * part   = (ddg4->getDDLogicalPart());
-	G4LogicalVolume *     result = (ddg4->getG4LogicalVolume());
+  LogDebug("SimG4CoreGeometry") <<" DDG4SensitiveConverter::upDate() starts" ;
+  SensitiveDetectorCatalog catalog;
+
+  for (unsigned int i=0; i<ddg4s.size(); i++)  {
+    DDG4Dispatchable * ddg4 = ddg4s[i];
+    const DDLogicalPart * part   = (ddg4->getDDLogicalPart());
+    G4LogicalVolume *     result = (ddg4->getG4LogicalVolume());
   
-	string sClassName = getString("SensitiveDetector",part);
-	string sROUName   = getString("ReadOutName",part);
-	string fff        = result->GetName();
-	if (sClassName != "NotFound") 
-	{
-	    LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff
-					  << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
-	    fff = result->GetName();
-	    SensitiveDetectorCatalog::instance()->insert(sClassName,sROUName,fff);
-	}
+    std::string sClassName = getString("SensitiveDetector",part);
+    std::string sROUName   = getString("ReadOutName",part);
+    std::string fff        = result->GetName();
+    if (sClassName != "NotFound") {
+      LogDebug("SimG4CoreGeometry") << " DDG4SensitiveConverter: Sensitive " << fff
+				    << " Class Name " << sClassName << " ROU Name " << sROUName ;	    
+      fff = result->GetName();
+      catalog.insert(sClassName,sROUName,fff);
     }
+  }
+  return catalog;
 }
 
-string DDG4SensitiveConverter::getString(const string & s, const DDLogicalPart * part) 
-{
-    vector<string> temp;
-    DDValue val(s);
-    vector<const DDsvalues_type *> result = part->specifics();
-    vector<const DDsvalues_type *>::iterator it = result.begin();
-    bool foundIt = false;
-    for (; it != result.end(); ++it) 
-    {
-	foundIt = DDfetch(*it,val);
-	if (foundIt) break;
-    }    
-    if (foundIt) 
-    { 
-	temp = val.strings(); 
-	if (temp.size() != 1) 
-	{
-	    // cout << " ERROR: I need 1 " << s << " tags" << endl;
-	    edm::LogError("SimG4CoreGeometry") << " DDG4SensitiveConverter - ERROR: I need 1 " << s << " tags" ;
-	    abort();
-	}
-	return temp[0]; 
+std::string DDG4SensitiveConverter::getString(const std::string & s, 
+					      const DDLogicalPart * part) {
+  std::vector<std::string> temp;
+  DDValue val(s);
+  std::vector<const DDsvalues_type *> result = part->specifics();
+  std::vector<const DDsvalues_type *>::iterator it = result.begin();
+  bool foundIt = false;
+  for (; it != result.end(); ++it) {
+    foundIt = DDfetch(*it,val);
+    if (foundIt) break;
+  }    
+  if (foundIt) { 
+    temp = val.strings(); 
+    if (temp.size() != 1) {
+      // cout << " ERROR: I need 1 " << s << " tags" << endl;
+      edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << s << " tags" ;
+      abort();
     }
-    return "NotFound";
+    return temp[0]; 
+  }
+  return "NotFound";
 }
 

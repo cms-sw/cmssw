@@ -11,22 +11,27 @@
  
 using namespace edm;
 
-DDDWorld::DDDWorld(const DDCompactView* cpv, bool check) 
-{
-    std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+DDDWorld::DDDWorld(const DDCompactView* cpv, 
+		   G4LogicalVolumeToDDLogicalPartMap & map,
+		   SensitiveDetectorCatalog & catalog,
+		   bool check) {
 
-    G4LogicalVolume * world = theBuilder->BuildGeometry();
-    G4VPhysicalVolume * pv = 
-	new G4PVPlacement(0,G4ThreeVector(),world,"DDDWorld",0,false,0);
-    SetAsWorld(pv);
+  std::auto_ptr<DDG4Builder> theBuilder(new DDG4Builder(cpv, check));
+
+  DDGeometryReturnType ret = theBuilder->BuildGeometry();
+  G4LogicalVolume *    world = ret.logicalVolume();
+  G4VPhysicalVolume *  pv = 
+    new G4PVPlacement(0,G4ThreeVector(),world,"DDDWorld",0,false,0);
+  SetAsWorld(pv);
+  map     = ret.lvToDDLPMap();
+  catalog = ret.sdCatalog();
 }
 
 DDDWorld::~DDDWorld() {}
 
-void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv)
-{
-    G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
-    if (kernel != 0) kernel->DefineWorldVolume(pv);
-    std::cout << " World volume defined " << std::endl;
+void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
+  G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
+  if (kernel != 0) kernel->DefineWorldVolume(pv);
+  std::cout << " World volume defined " << std::endl;
 }
 

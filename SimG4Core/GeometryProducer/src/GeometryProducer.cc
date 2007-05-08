@@ -8,6 +8,8 @@
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
@@ -81,7 +83,9 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
     edm::ESHandle<DDCompactView> pDD;
     es.get<IdealGeometryRecord>().get(pDD);
    
-    const DDDWorld * world = new DDDWorld(&(*pDD));
+    G4LogicalVolumeToDDLogicalPartMap map_;
+    SensitiveDetectorCatalog catalog_;
+    const DDDWorld * world = new DDDWorld(&(*pDD), map_, catalog_, false);
     m_registry.dddWorldSignal_(world);
 
     if (m_pUseMagneticField)
@@ -93,7 +97,7 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 	std::cout << "B-field(T) at (0,0,0)(cm): " << pMF->inTesla(g) << std::endl;
 
 	m_fieldBuilder = std::auto_ptr<sim::FieldBuilder>
-			 (new sim::FieldBuilder(&(*pMF), m_pField));
+	  (new sim::FieldBuilder(&(*pMF), map_, m_pField));
 	G4TransportationManager * tM = 
 	    G4TransportationManager::GetTransportationManager();
 	m_fieldBuilder->configure
@@ -109,7 +113,7 @@ void GeometryProducer::beginJob(const edm::EventSetup & es)
 	{
 	    std::pair< std::vector<SensitiveTkDetector*>,
 		std::vector<SensitiveCaloDetector*> > 
-		sensDets = m_attach->create(*world,(*pDD),m_p,m_trackManager.get(),m_registry);
+	      sensDets = m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
       
 	    m_sensTkDets.swap(sensDets.first);
 	    m_sensCaloDets.swap(sensDets.second);
