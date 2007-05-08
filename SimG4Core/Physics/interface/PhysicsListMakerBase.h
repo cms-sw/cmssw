@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris D Jones
 //         Created:  Tue Nov 22 13:03:39 EST 2005
-// $Id$
+// $Id: PhysicsListMakerBase.h,v 1.1 2005/11/22 20:05:22 chrjones Exp $
 //
 
 // system include files
@@ -39,7 +39,8 @@ class PhysicsListMakerBase
       virtual ~PhysicsListMakerBase() {}
 
       // ---------- const member functions ---------------------
-      virtual std::auto_ptr<PhysicsList> make(const edm::ParameterSet&,
+      virtual std::auto_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap&,
+					      const edm::ParameterSet&,
 					      SimActivityRegistry&) const = 0;
 
       // ---------- static member functions --------------------
