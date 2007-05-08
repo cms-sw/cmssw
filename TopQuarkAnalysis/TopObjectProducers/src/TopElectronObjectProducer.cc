@@ -8,12 +8,18 @@
 //
 TopElectronObjectProducer::TopElectronObjectProducer(const edm::ParameterSet& iConfig)
 {
-   electronPTcut_  = iConfig.getParameter< double > ("electronPTcut");
-   electronEtacut_ = iConfig.getParameter< double > ("electronEtacut");
-   electronLRcut_  = iConfig.getParameter< double > ("electronLRcut");
-   addResolutions_ = iConfig.getParameter< bool   > ("addResolutions");
-   addLRValues_    = iConfig.getParameter<bool>("addLRValues");
-   electronLRFile_ = iConfig.getParameter<string>("electronLRFile");
+   electronPTcut_  	= iConfig.getParameter< double > ("electronPTcut");
+   electronEtacut_ 	= iConfig.getParameter< double > ("electronEtacut");
+   electronLRcut_  	= iConfig.getParameter< double > ("electronLRcut");
+   addResolutions_ 	= iConfig.getParameter< bool   > ("addResolutions");
+   addLRValues_    	= iConfig.getParameter<bool>("addLRValues");
+   electronLRFile_ 	= iConfig.getParameter<string>("electronLRFile");
+   electronResoFile_	= iConfig.getParameter<string>("electronResoFile");
+   
+   //construct resolution calculator
+   if(addResolutions_){
+     elResCalc = new TopObjectResolutionCalc(electronResoFile_);
+   }
 
    //produces vector of electrons
    produces<vector<TopElectronObject > >("electrons");
@@ -22,6 +28,7 @@ TopElectronObjectProducer::TopElectronObjectProducer(const edm::ParameterSet& iC
 
 TopElectronObjectProducer::~TopElectronObjectProducer()
 {
+   if(addResolutions_) delete elResCalc;
 }
 
 
@@ -48,12 +55,7 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
        TopElectron anElectron((*electrons)[e]);
        // add resolution info if demanded
        if(addResolutions_){
-	 anElectron.setResET(5.);
-	 anElectron.setResEta(0.0005);
-	 anElectron.setResD(0.5);
-	 anElectron.setResPhi(0.0003);
-	 anElectron.setResTheta(0.0001);
-	 anElectron.setResPinv(0.0002);
+         (*elResCalc)(anElectron);
        }
        // add top lepton id LR info if requested
        if (addLRValues_) {

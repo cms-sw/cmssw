@@ -5,15 +5,23 @@
 //
 TopJetObjectProducer::TopJetObjectProducer(const edm::ParameterSet& iConfig)
 {
-   jetTagsLabel_    = iConfig.getParameter< string > ("jetTagInput");
-   lcaliJetsLabel_  = iConfig.getParameter< string > ("lcaliJetInput");
-   recJetsLabel_    = iConfig.getParameter< string > ("recJetInput");
-   bcaliJetsLabel_  = iConfig.getParameter< string > ("bcaliJetInput");
-   recJetETcut_     = iConfig.getParameter< double > ("recJetETcut");
-   calJetETcut_     = iConfig.getParameter< double > ("calJetETcut");
-   jetEtaCut_       = iConfig.getParameter< double > ("jetEtacut");
-   minNrConstis_    = iConfig.getParameter< int    > ("minNrConstis");
-   addResolutions_  = iConfig.getParameter< bool   > ("addResolutions");
+   jetTagsLabel_    	= iConfig.getParameter< string > ("jetTagInput");
+   lcaliJetsLabel_  	= iConfig.getParameter< string > ("lcaliJetInput");
+   recJetsLabel_    	= iConfig.getParameter< string > ("recJetInput");
+   bcaliJetsLabel_  	= iConfig.getParameter< string > ("bcaliJetInput");
+   recJetETcut_     	= iConfig.getParameter< double > ("recJetETcut");
+   calJetETcut_     	= iConfig.getParameter< double > ("calJetETcut");
+   jetEtaCut_       	= iConfig.getParameter< double > ("jetEtacut");
+   minNrConstis_    	= iConfig.getParameter< int    > ("minNrConstis");
+   addResolutions_  	= iConfig.getParameter< bool   > ("addResolutions");
+   lcaliJetResoFile_ 	= iConfig.getParameter< string > ("lcaliJetResoFile");
+   bcaliJetResoFile_ 	= iConfig.getParameter< string > ("bcaliJetResoFile");
+   
+   //construct resolution calculator
+   if(addResolutions_){
+     lJetsResCalc = new TopObjectResolutionCalc(lcaliJetResoFile_);
+     bJetsResCalc = new TopObjectResolutionCalc(bcaliJetResoFile_);
+   }
 
    produces<vector<TopJetObject> >();
 }
@@ -21,6 +29,10 @@ TopJetObjectProducer::TopJetObjectProducer(const edm::ParameterSet& iConfig)
 
 TopJetObjectProducer::~TopJetObjectProducer()
 {
+   if(addResolutions_) {
+     delete lJetsResCalc;
+     delete bJetsResCalc;
+   }
 }
 
 
@@ -63,13 +75,7 @@ TopJetObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   lcjFound = true;
 	   TopJet ajet((*lcalijets)[lcj]);
            if(addResolutions_){
-             //still to implement, for the moment some realistic average value was taken
-	     ajet.setResET(12.);
-	     ajet.setResEta(0.03);
-	     ajet.setResPhi(0.03);
-	     ajet.setResTheta(0.03);
-	     ajet.setResD(0.12);
-	     ajet.setResPinv(0.001);
+             (*lJetsResCalc)(ajet);
 	   }
 	   jetObj.setLCalJet(ajet);
 	 }
@@ -79,13 +85,7 @@ TopJetObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   bcjFound = true;
 	   TopJet ajet((*bcalijets)[bcj]);
            if(addResolutions_){
-             //still to implement, for the moment some realistic average value was taken
-	     ajet.setResET(12.);
-	     ajet.setResEta(0.03);
-	     ajet.setResPhi(0.03);
-	     ajet.setResTheta(0.03);
-	     ajet.setResD(0.12);
-	     ajet.setResPinv(0.001);
+             (*bJetsResCalc)(ajet);
 	   }
 	   jetObj.setBCalJet(ajet);
 	 }

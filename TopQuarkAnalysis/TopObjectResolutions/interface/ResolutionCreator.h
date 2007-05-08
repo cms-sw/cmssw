@@ -17,6 +17,7 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/METReco/interface/CaloMET.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TH1.h"
@@ -34,6 +35,7 @@ using namespace std;
 typedef PixelMatchGsfElectron electronType;
 typedef Muon muonType;
 typedef CaloJet jetType;
+typedef CaloMET metType;
 
 //
 // class declaration
@@ -57,4 +59,5 @@ class ResolutionCreator : public edm::EDAnalyzer {
       vector	<double> etabinVals_, eTbinVals_;
       double	minDR_;
       int 	etnrbins, etanrbins;
+      int	nrFilled;
 };

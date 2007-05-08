@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMuonObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
+// $Id: TopMuonObjectProducer.h,v 1.2 2007/05/04 01:04:16 lowette Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopMuonObject.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 #include <vector>
 #include <string>
@@ -58,7 +59,7 @@ class TopMuonObjectProducer : public edm::EDProducer {
      double muonLRcut_;
      bool   addResolutions_;  
      bool   addLRValues_;
-     string muonLRFile_;
+     string muonLRFile_, muonResoFile_;
 
      TopLeptonLRCalc * theLeptonLRCalc_;
         
@@ -68,5 +69,6 @@ class TopMuonObjectProducer : public edm::EDProducer {
        }
      };
      ComparePtMuon     pTMuonComparator;
+     TopObjectResolutionCalc *muResCalc;
 
 };

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopElectronObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
+// $Id: TopElectronObjectProducer.h,v 1.2 2007/05/04 01:04:16 lowette Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopElectronObject.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 #include <vector>
 #include <string>
@@ -58,7 +59,7 @@ class TopElectronObjectProducer : public edm::EDProducer {
      double electronLRcut_;
      bool   addResolutions_;
      bool   addLRValues_;
-     string electronLRFile_;
+     string electronLRFile_, electronResoFile_;
 
      TopLeptonLRCalc * theLeptonLRCalc_;
      
@@ -68,5 +69,6 @@ class TopElectronObjectProducer : public edm::EDProducer {
        }
      };
      ComparePtElectron pTElectronComparator;
+     TopObjectResolutionCalc *elResCalc;
 
 };

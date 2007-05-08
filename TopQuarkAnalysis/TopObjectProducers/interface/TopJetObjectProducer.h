@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopJetObjectProducer.h,v 1.1 2007/04/30 10:51:22 heyninck Exp $
+// $Id: TopJetObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
 //
 //
 
@@ -31,6 +31,7 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJetObject.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 
 #include <vector>
@@ -54,6 +55,8 @@ class TopJetObjectProducer : public edm::EDProducer {
      string recJetsLabel_;
      string lcaliJetsLabel_;
      string bcaliJetsLabel_;
+     string lcaliJetResoFile_;
+     string bcaliJetResoFile_;
      double recJetETcut_;
      double calJetETcut_;
      double jetEtaCut_;
@@ -67,5 +70,6 @@ class TopJetObjectProducer : public edm::EDProducer {
        }
      };
      CompareET eTComparator;
+     TopObjectResolutionCalc *lJetsResCalc, *bJetsResCalc;
 
 };

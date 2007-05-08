@@ -14,6 +14,12 @@ TopMuonObjectProducer::TopMuonObjectProducer(const edm::ParameterSet& iConfig)
    addResolutions_ = iConfig.getParameter< bool   > ("addResolutions");
    addLRValues_    = iConfig.getParameter<bool>("addLRValues");
    muonLRFile_     = iConfig.getParameter<string>("muonLRFile");
+   muonResoFile_   = iConfig.getParameter<string>("muonResoFile");
+   
+   //construct resolution calculator
+   if(addResolutions_){
+     muResCalc = new TopObjectResolutionCalc(muonResoFile_);
+   }
    
    //produces vector of muons
    produces<vector<TopMuonObject > >("muons");
@@ -22,6 +28,7 @@ TopMuonObjectProducer::TopMuonObjectProducer(const edm::ParameterSet& iConfig)
 
 TopMuonObjectProducer::~TopMuonObjectProducer()
 {
+   if(addResolutions_) delete muResCalc;
 }
 
 
@@ -48,12 +55,7 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        TopMuon aMuon((*muons)[m]);
        // add resolution info if demanded
        if(addResolutions_){
-	 aMuon.setResET(5.);
-	 aMuon.setResEta(0.0005);
-	 aMuon.setResD(0.5);
-	 aMuon.setResPhi(0.0003);
-	 aMuon.setResTheta(0.0001);
-	 aMuon.setResPinv(0.0002);
+         (*muResCalc)(aMuon);
        }
        // add top lepton id LR info if requested
        if (addLRValues_) {

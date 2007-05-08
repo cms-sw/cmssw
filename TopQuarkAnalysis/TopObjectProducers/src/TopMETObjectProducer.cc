@@ -8,12 +8,21 @@ TopMETObjectProducer::TopMETObjectProducer(const edm::ParameterSet& iConfig)
    METLabel_   	   = iConfig.getParameter< string > ("METInput");
    METcut_         = iConfig.getParameter< double > ("METcut");
    addResolutions_ = iConfig.getParameter< bool   > ("addResolutions");
+   metResoFile_    = iConfig.getParameter< string > ("metResoFile");
+   
+   //construct resolution calculator
+   if(addResolutions_){
+     metResCalc = new TopObjectResolutionCalc(metResoFile_);
+   }
+   
+   //produces vector of mets
    produces<vector<TopMETObject> >();
 }
 
 
 TopMETObjectProducer::~TopMETObjectProducer()
 {
+   if(addResolutions_) delete metResCalc;
 }
 
 
@@ -38,14 +47,8 @@ TopMETObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        TopMET amet((*METs)[j]);
        // add jet resolution info if demanded
        if(addResolutions_){
-         //still to implement, for the moment some realistic average value was taken
-	 amet.setResET(25.);
-	 amet.setResEta(100000.);
-	 amet.setResD(100000.);
-	 amet.setResTheta(10000.);
-	 amet.setResPhi(0.6);
-	 amet.setResPinv(0.008);
-      }
+         (*metResCalc)(amet);
+       }
        ttMETs->push_back(TopMETObject(amet));
      }
    }

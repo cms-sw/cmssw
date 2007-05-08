@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMETObjectProducer.h,v 1.2 2007/05/01 14:46:32 heyninck Exp $
+// $Id: TopMETObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopMETObject.h"
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 
 #include <vector>
@@ -48,7 +49,7 @@ class TopMETObjectProducer : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
-     string METLabel_;
+     string METLabel_, metResoFile_;
      double METcut_;
      bool addResolutions_;
      
@@ -59,4 +60,5 @@ class TopMETObjectProducer : public edm::EDProducer {
        }
      };
      CompareET eTComparator;
+     TopObjectResolutionCalc *metResCalc;
 };

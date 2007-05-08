@@ -18,19 +18,36 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
   // input parameters
   objectType_  	= iConfig.getParameter< string >   	 ("object");
   jetmetLabel_  = iConfig.getParameter< string > 	 ("jetmetLabel");
-  etabinVals_	= iConfig.getParameter< vector<double> > ("etabinValues");
+  if(objectType_ != "met"){
+    etabinVals_	= iConfig.getParameter< vector<double> > ("etabinValues");
+  }
   eTbinVals_	= iConfig.getParameter< vector<double> > ("eTbinValues");
   minDR_	= iConfig.getParameter< double >         ("minMatchingDR");
 
 
   // input constants  
-  TString  	resObsName[6] 		= {"pres","eres","thres","phres","etres","etares"};
-  TString  	def[2] 	 		= {"_abs","_rel"};
-  int      	resObsNrBins  		= 60;
-  double   	resObsMinAbs[6] 	= {-0.002,0.95,-0.002,-0.002,-5,-0.002};
-  double   	resObsMaxAbs[6] 	= { 0.002,1.05, 0.002, 0.002, 5, 0.002};
-  double   	resObsMinRel[6]  	= {-0.0002,0.00,-0.002,-0.002,-1,-0.005};
-  double      	resObsMaxRel[6]  	= { 0.0002,0.01, 0.002, 0.002, 1, 0.005};
+  TString  	  resObsName[6] 	= {"pres","eres","thres","phres","etres","etares"};
+  TString  	  def[2] 	 	= {"_abs","_rel"};
+  int      	  resObsNrBins  	= 120;
+  vector<double>  resObsMinAbs, resObsMaxAbs, resObsMinRel, resObsMaxRel;
+  if(objectType_ == "electron" || objectType_ == "muon"){
+    resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(0.90);  resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(-5);  resObsMinAbs.push_back(-0.002);   
+    resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back(1.1);  resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back( 5);  resObsMaxAbs.push_back( 0.002);
+    resObsMinRel.push_back(-0.00005); resObsMinRel.push_back(0.00);  resObsMinRel.push_back( -0.002); resObsMinRel.push_back(-0.002); resObsMinRel.push_back( -0.2); resObsMinRel.push_back( -0.005);
+    resObsMaxRel.push_back( 0.00005); resObsMaxRel.push_back( 0.05); resObsMaxRel.push_back(  0.002); resObsMaxRel.push_back( 0.002); resObsMaxRel.push_back(  0.2); resObsMaxRel.push_back(  0.005);
+  } else if(objectType_ == "lJets" || objectType_ == "bJets"){
+    resObsMinAbs.push_back(-0.02);  resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-0.1); resObsMinAbs.push_back(-0.3); resObsMinAbs.push_back( -40); resObsMinAbs.push_back(-0.3);   
+    resObsMaxAbs.push_back( 0.02);  resObsMaxAbs.push_back(2.5);   resObsMaxAbs.push_back( 0.1); resObsMaxAbs.push_back( 0.3); resObsMaxAbs.push_back( 40);  resObsMaxAbs.push_back( 0.3);
+    resObsMinRel.push_back(-0.001); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-0.1); resObsMinRel.push_back(-0.1); resObsMinRel.push_back( -1);  resObsMinRel.push_back( -0.25);
+    resObsMaxRel.push_back( 0.001); resObsMaxRel.push_back(0.05); resObsMaxRel.push_back( 0.1); resObsMaxRel.push_back( 0.1); resObsMaxRel.push_back(  00); resObsMaxRel.push_back( 0.25);
+  } else{
+    resObsMinAbs.push_back(-0.03);   resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-3);   resObsMinAbs.push_back(-3);   resObsMinAbs.push_back( -90); resObsMinAbs.push_back(-3);   
+    resObsMaxAbs.push_back( 0.09);   resObsMaxAbs.push_back(10.);  resObsMaxAbs.push_back( 3);   resObsMaxAbs.push_back( 3);   resObsMaxAbs.push_back(  90); resObsMaxAbs.push_back( 3);
+    resObsMinRel.push_back(-0.0004); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-0.5); resObsMinRel.push_back(-0.5); resObsMinRel.push_back( -1);  resObsMinRel.push_back( -0.5);
+    resObsMaxRel.push_back( 0.001);  resObsMaxRel.push_back(0.05); resObsMaxRel.push_back( 0.5); resObsMaxRel.push_back( 0.5); resObsMaxRel.push_back(  1);  resObsMaxRel.push_back( 0.5);
+  
+  }
+  
   const char*   resObsVsEtFit[6]    	= {"[0]+[1]*exp(-[2]*x)",
                                            "[0]+[1]*exp(-[2]*x)",
 					   "[0]+[1]*exp(-[2]*x)",
@@ -48,13 +65,21 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
 					   "[0]+[1]*exp(-[2]*x)","[0]+[1]*exp(-[2]*x)","[0]+[1]*exp(-[2]*x)"
 					  };	
 
-  etanrbins       = etabinVals_.size()-1;
   etnrbins        = eTbinVals_.size()-1;
-  double *etabins = new double[etabinVals_.size()];
   double *etbins  = new double[eTbinVals_.size()];
-  for(unsigned int b=0; b<etabinVals_.size(); b++) etabins[b] = etabinVals_[b];
   for(unsigned int b=0; b<eTbinVals_.size(); b++)  etbins[b]  = eTbinVals_[b];
-  
+  double *etabins;
+  if(objectType_ != "met"){
+    etanrbins  = etabinVals_.size()-1;
+    etabins    = new double[etabinVals_.size()];
+    for(unsigned int b=0; b<etabinVals_.size(); b++) etabins[b] = etabinVals_[b];
+  }
+  else
+  {
+    etanrbins = 1;
+    etabins    = new double[2];
+    etabins[0] = 0; etabins[1] = 5.;
+  }
   TString outputFileName = envUtil("LOCALRT").getEnv()+"/src/TopQuarkAnalysis/TopObjectResolutions/data/Resolutions_"; outputFileName += objectType_;
   if(objectType_ == "lJets" || objectType_ == "bJets") { outputFileName += "_"; outputFileName += jetmetLabel_; }; 
   outputFileName += ".root"; 
@@ -76,12 +101,14 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
       for(Int_t par=0; par<3; par++) {
         TString obsName3 = objectType_; obsName3 += resObsName[ro]; obsName3 += "_par"; obsName3 += par; obsName3 += def[aor];
         hResPar[ro][aor][par] = new TH1F(obsName3,obsName3,etanrbins,etabins);
-        fResPar[ro][aor][par] = new TF1(obsName3,resObsVsEtaFit[ro*3+par],etabinVals_[0],etabinVals_[etabinVals_.size()-1]);
+        fResPar[ro][aor][par] = new TF1(obsName3,resObsVsEtaFit[ro*3+par],etabins[0],etabins[etabinVals_.size()-1]);
       }
     }
   }
   delete [] etabins; 
   delete [] etbins; 
+  
+  nrFilled = 0;
 }
 
 
@@ -90,32 +117,47 @@ ResolutionCreator::~ResolutionCreator()
   outfile->cd();
   for(Int_t ro=0; ro<6; ro++) {
     for(Int_t aor=0; aor<2; aor++) {
-      for(unsigned int etab=0; etab<etabinVals_.size()-1; etab++) {	
-        for(unsigned int etb=0; etb<eTbinVals_.size()-1; etb++) {
-          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"Q");
-          fResEtEtaBin[ro][etab][etb][aor] -> SetRange(fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)-1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2),
-	                                              fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)+1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
+      for(int etab=0; etab<etanrbins; etab++) {	
+        for(int etb=0; etb<etnrbins; etb++) {
+          double maxcontent = 0.;
+	  int maxbin = 0;
+	  for(int nb=1; nb<hResEtEtaBin[ro][etab][etb][aor]->GetNbinsX(); nb ++){
+	    if (hResEtEtaBin[ro][etab][etb][aor]->GetBinContent(nb)>maxcontent) {
+	      maxcontent = hResEtEtaBin[ro][etab][etb][aor]->GetBinContent(nb);
+	      maxbin = nb;
+	    }
+	  }
+          fResEtEtaBin[ro][etab][etb][aor] -> SetRange(hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin-8),
+	  					       hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin+8));
           hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
+          //fResEtEtaBin[ro][etab][etb][aor] -> SetRange(fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)-1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2),
+	  //                                            fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)+1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
+          //hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
           hResEtEtaBin[ro][etab][etb][aor] -> Write();
           hResEtaBin[ro][etab][aor]        -> SetBinContent(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           hResEtaBin[ro][etab][aor]        -> SetBinError(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParError(2));
 	}
         hResEtaBin[ro][etab][aor] -> Fit(fResEtaBin[ro][etab][aor]->GetName(),"RQ");
         hResEtaBin[ro][etab][aor] -> Write();
-        for(Int_t par=0; par<3; par++) {
-          hResPar[ro][aor][par]   -> SetBinContent(etab+1,fResEtaBin[ro][etab][aor]->GetParameter(par)); 
-          hResPar[ro][aor][par]   -> SetBinError(etab+1,fResEtaBin[ro][etab][aor]->GetParError(par)); 
-        }     
+        if(objectType_ != "met"){
+	  for(Int_t par=0; par<3; par++) {
+            hResPar[ro][aor][par]   -> SetBinContent(etab+1,fResEtaBin[ro][etab][aor]->GetParameter(par)); 
+            hResPar[ro][aor][par]   -> SetBinError(etab+1,fResEtaBin[ro][etab][aor]->GetParError(par)); 
+          }
+	}     
       }
-      for(Int_t par=0; par<3; par++) {
-        hResPar[ro][aor][par] -> Fit(hResPar[ro][aor][par] -> GetName(),"RQ"); 
-        hResPar[ro][aor][par] -> Write(); 
+      if(etanrbins > 1){
+        for(Int_t par=0; par<3; par++) {
+          hResPar[ro][aor][par] -> Fit(hResPar[ro][aor][par] -> GetName(),"RQ"); 
+          hResPar[ro][aor][par] -> Write(); 
+        }
       }  
     }
   } 
   outfile->cd();
   outfile->Write();
   outfile->Close();
+  cout<<"nr. of "<<objectType_<<" filled: "<<nrFilled<<endl;
 }
 
 
@@ -169,7 +211,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }
      }
    }
-    else if(objectType_ == "bJets"){
+   else if(objectType_ == "bJets"){
      Handle<vector<jetType> >  bjets;
      iEvent.getByLabel(jetmetLabel_,bjets);
      if(bjets->size()>=4) { 
@@ -180,6 +222,16 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      p4rec.push_back(new Particle((jetType)(*bjets)[j])); 
 	   }
 	 }
+       }
+     }
+   }
+   else if(objectType_ == "met"){
+     Handle<vector<metType> >  mets;
+     iEvent.getByLabel(jetmetLabel_,mets);
+     if(mets->size()>=1) { 
+       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[5]->p4(), (*mets)[0].p4()) < minDR_){
+         p4gen.push_back(new Particle(*(genEvt->particles()[5]))); 
+         p4rec.push_back(new Particle((metType)((*mets)[0]))); 
        }
      }
    }
@@ -206,15 +258,18 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
      // find eta and et bin
      int etabin  =  0;
-     for(unsigned int b=0; b<etabinVals_.size()-1; b++) {
-       if(fabs(Etacal) > etabinVals_[b]) etabin = b;
+     if(etanrbins > 1){
+       for(unsigned int b=0; b<etabinVals_.size()-1; b++) {
+         if(fabs(Etacal) > etabinVals_[b]) etabin = b;
+       }
      }
      int etbin  =  0;
      for(unsigned int b=0; b<eTbinVals_.size()-1; b++) {
        if(Etcal > eTbinVals_[b]) etbin = b;
      }
       
-     //fill histograms     
+     //fill histograms    
+     ++nrFilled; 
      //abs
      hResEtEtaBin[0][etabin][etbin][0] -> Fill(1./Pcal - 1./Pgen);
      hResEtEtaBin[1][etabin][etbin][0] -> Fill(Egen/Ecal);
@@ -223,7 +278,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      hResEtEtaBin[4][etabin][etbin][0] -> Fill(Etcal-Etgen);
      hResEtEtaBin[5][etabin][etbin][0] -> Fill(Etacal-Etagen);
      //rel
-     hResEtEtaBin[0][etabin][etbin][1] -> Fill((1./Pcal - 1./Pgen)/Pgen)	;
+     hResEtEtaBin[0][etabin][etbin][1] -> Fill((1./Pcal - 1./Pgen)/Pgen);
      hResEtEtaBin[1][etabin][etbin][1] -> Fill(1./Ecal);
      hResEtEtaBin[2][etabin][etbin][1] -> Fill((Thetacal-Thetagen)/Thetagen);
      hResEtEtaBin[3][etabin][etbin][1] -> Fill(phidiff/Phigen);
