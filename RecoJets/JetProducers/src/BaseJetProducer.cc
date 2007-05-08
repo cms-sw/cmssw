@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.15 2007/05/04 23:23:02 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.16 2007/05/08 05:39:53 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -37,6 +37,9 @@ namespace {
 
   bool makeCaloJet (const string& fTag) {
     return fTag == "CaloJet";
+  }
+  bool makePFJet (const string& fTag) {
+    return fTag == "PFJet";
   }
   bool makeGenJet (const string& fTag) {
     return fTag == "GenJet";
@@ -104,6 +107,7 @@ namespace cms
       produces<CaloJetCollection>().setBranchAlias (alias);
       if (mVertexTracksCone > 0) produces<JetTrackMatch<CaloJetCollection> > ();
     }
+    else if (makePFJet (mJetType)) produces<PFJetCollection>().setBranchAlias (alias);
     else if (makeGenJet (mJetType)) produces<GenJetCollection>().setBranchAlias (alias);
     else if (makeBasicJet (mJetType)) produces<BasicJetCollection>().setBranchAlias (alias);
     else if (makeGenericJet (mJetType)) produces<GenericJetCollection>().setBranchAlias (alias);
@@ -161,6 +165,8 @@ namespace cms
     // produce output collection
     auto_ptr<CaloJetCollection> caloJets;
     if (makeCaloJet (mJetType)) caloJets.reset (new CaloJetCollection);
+    auto_ptr<PFJetCollection> pfJets;
+    if (makePFJet (mJetType)) pfJets.reset (new PFJetCollection);
     auto_ptr<GenJetCollection> genJets;
     if (makeGenJet (mJetType)) genJets.reset (new GenJetCollection);
     auto_ptr<BasicJetCollection> basicJets;
@@ -177,6 +183,9 @@ namespace cms
 	  towerGeometry = geometry->getSubdetectorGeometry(DetId::Calo, CaloTowerDetId::SubdetId);
 	}
 	caloJets->push_back (jetMaker.makeCaloJet (*protojet, *towerGeometry));
+      }
+      if (pfJets.get ()) { 
+	pfJets->push_back (jetMaker.makePFJet (*protojet));
       }
       if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));
@@ -204,6 +213,12 @@ namespace cms
       std::sort (genJets->begin (), genJets->end (), compJets);
       if (mVerbose) dumpJets (*genJets);
       e.put(genJets);  //Puts Jet Collection into event
+    }
+    if (pfJets.get ()) {
+      GreaterByPt<PFJet> compJets;
+      std::sort (pfJets->begin (), pfJets->end (), compJets);
+      if (mVerbose) dumpJets (*pfJets);
+      e.put(pfJets);  //Puts Jet Collection into event
     }
     if (basicJets.get ()) {
       GreaterByPt<BasicJet> compJets;
