@@ -13,7 +13,7 @@ extern "C"   float freq_(const float& x);
 extern "C"   float gausin_(const float& x);
 
 GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& eng,int NumbChannels,float thr ):
-  poissonDistribution_(0),flatDistribution_(0),engine(eng),numberOfChannels(NumbChannels)
+  poissonDistribution_(0),flatDistribution_(0),rndEngine(eng),numberOfChannels(NumbChannels)
 {
   // Gaussian tail probability
   gsl_sf_result result;
@@ -26,9 +26,9 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& e
   
   float meanNumberOfNoisyChannels = probabilityLeft * numberOfChannels;
   
-  poissonDistribution_ = new CLHEP::RandPoisson(engine, meanNumberOfNoisyChannels);
+  poissonDistribution_ = new CLHEP::RandPoisson(rndEngine, meanNumberOfNoisyChannels);
 
-  flatDistribution_ = new CLHEP::RandFlat(engine, numberOfChannels); 
+  flatDistribution_ = new CLHEP::RandFlat(rndEngine, numberOfChannels); 
  
 }
 
