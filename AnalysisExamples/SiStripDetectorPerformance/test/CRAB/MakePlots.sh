@@ -9,7 +9,7 @@ function MakePlots(){
 
   cd ${StoreDir}
 
-  FileNum=`ls *.root | grep -c root`
+  FileNum=`ls *.root 2>/dev/null | grep -c root`
 
   do="true"
 
@@ -18,7 +18,7 @@ function MakePlots(){
   fi
 
   if [ `ls | grep -c root` -ne 0 ] && [ $do == "true" ]; then
-    jobsList=`ls *.root | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
+    jobsList=`ls *.root 2>/dev/null | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
 
     Name=$1_${Config}_${Flag}
     PSFile=$1_${Config}_${Flag}.ps
@@ -39,14 +39,14 @@ function MergePlots(){
 
   cd ${StoreDir}
 
-  FileNum=`ls *.root | grep -c root`
+  FileNum=`ls *.root 2>/dev/null | grep -c root`
 
   do="true"
 
   # If there is more then one file
   if [ $FileNum -gt "1" ]; then
 
-    jobsList=`ls *.root | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
+    jobsList=`ls *.root 2>/dev/null | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
 
     # If the merging was not done for these files
     if [ -e ${StoreDir}/plots.txt ] && [ `cat plots.txt` == ${jobsList} ]; then
