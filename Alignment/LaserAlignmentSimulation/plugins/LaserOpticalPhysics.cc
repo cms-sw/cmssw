@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: Mon Mar 19 12:27:08 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -43,7 +43,7 @@ LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet & p) : PhysicsL
 		// Optical physics
 		RegisterPhysics(new LaserOpticalPhysicsList("optical"));
 #else
-    std::cout << "You are using the simulation engine: QGSP 3.1" << std::endl;
+    std::cout << "You are using the simulation engine: QGSP together with optical physics" << std::endl;
   
     // EM Physics
     RegisterPhysics(new G4EmStandardPhysics("standard EM"));
