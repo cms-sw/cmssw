@@ -23,9 +23,8 @@ double TSOSKullbackLeiblerDistance::operator() (const TrajectoryStateOnSurface& 
   AlgebraicVector5 mu2 = tsos2.localParameters().vector();
   const AlgebraicSymMatrix55 & V2 = tsos2.localError().matrix();
 
-  int ierr;
-  AlgebraicSymMatrix55 G1 = V1.Inverse(ierr);
-  AlgebraicSymMatrix55 G2 = V2.Inverse(ierr);
+  const AlgebraicSymMatrix55 & G1 = tsos1.localError().weightMatrix();
+  const AlgebraicSymMatrix55 & G2 = tsos2.localError().weightMatrix();
   AlgebraicVector5 mudiff = mu1 - mu2;
   AlgebraicSymMatrix55 Vdiff = V1 - V2;
   AlgebraicSymMatrix55 Gdiff = G2 - G1;
