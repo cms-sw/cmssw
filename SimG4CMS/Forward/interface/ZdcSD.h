@@ -13,7 +13,8 @@
 class ZdcSD : public CaloSD {
 
 public:    
-  ZdcSD(G4String, const DDCompactView &, edm::ParameterSet const &,const SimTrackManager*);
+  ZdcSD(G4String, const DDCompactView &, SensitiveDetectorCatalog &, 
+	edm::ParameterSet const &,const SimTrackManager*);
   virtual ~ZdcSD();
   void setNumberingScheme(ZdcNumberingScheme* scheme);
   virtual uint32_t setDetUnitId(G4Step* step);

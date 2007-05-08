@@ -53,12 +53,11 @@ class G4TrackToParticleID;
 class FP420SD : public SensitiveTkDetector,
 		public Observer<const BeginOfEvent*>,
 		public Observer<const EndOfEvent*> {
- public:
+
+public:
   
-  FP420SD(std::string, const DDCompactView &,
-  	  edm::ParameterSet const &,
-  	  const SimTrackManager*
-	  );
+  FP420SD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+  	  edm::ParameterSet const &, const SimTrackManager* );
 
 //-------------------------------------------------------------------
 /*

@@ -10,7 +10,6 @@
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
@@ -43,10 +42,12 @@
 //#define debug
 //-------------------------------------------------------------------
 FP420SD::FP420SD(std::string name, const DDCompactView & cpv,
+		 SensitiveDetectorCatalog & clg, 
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, p), numberingScheme(0), name(name),hcID(-1),
-  theHC(0), theManager(manager), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  previousUnitID(0), preStepPoint(0), postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
+  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
+  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
+  postStepPoint(0), eventno(0){
 //-------------------------------------------------------------------
 /*
 FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
@@ -82,8 +83,7 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
     //
     // attach detectors (LogicalVolumes)
     //
-    std::vector<std::string> lvNames =
-      SensitiveDetectorCatalog::instance()->logicalNames(name);
+    std::vector<std::string> lvNames = clg.logicalNames(name);
 
     this->Register();
 

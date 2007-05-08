@@ -23,9 +23,10 @@
 #define debug
 
 CastorSD::CastorSD(G4String name, const DDCompactView & cpv,
+		   SensitiveDetectorCatalog & clg, 
 		   edm::ParameterSet const & p, 
 		   const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   
   edm::ParameterSet m_CastorSD = p.getParameter<edm::ParameterSet>("CastorSD");
 

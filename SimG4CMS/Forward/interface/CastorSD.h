@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: CastorSD.h,v 1.3 2006/05/17 16:18:57 sunanda Exp $
 //
  
 // system include files
@@ -30,8 +30,8 @@ class CastorSD : public CaloSD {
 
 public:    
 
-  CastorSD(G4String, const DDCompactView &, edm::ParameterSet const &,
-	   const SimTrackManager*);
+  CastorSD(G4String, const DDCompactView &, SensitiveDetectorCatalog & clg, 
+	   edm::ParameterSet const &, const SimTrackManager*);
   virtual ~CastorSD();
   virtual double   getEnergyDeposit(G4Step* );
   virtual uint32_t setDetUnitId(G4Step* step);

@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id$
+// $Id: TotemSD.h,v 1.1 2006/05/17 16:18:57 sunanda Exp $
 //
  
 // system include files
@@ -46,9 +46,8 @@ class TotemSD : public SensitiveTkDetector,
 
 public:
 
-  TotemSD(std::string, const DDCompactView &,
-	  edm::ParameterSet const &,
-	  const SimTrackManager*);
+  TotemSD(std::string, const DDCompactView &, SensitiveDetectorCatalog &, 
+	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~TotemSD();
 
   virtual bool   ProcessHits(G4Step *,G4TouchableHistory *);

@@ -20,8 +20,9 @@
 #include "CLHEP/Random/Randomize.h"
 
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
+	     SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
-  CaloSD(name, cpv, p, manager), numberingScheme(0) {
+  CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");
   verbosity  = m_ZdcSD.getParameter<int>("Verbosity");
   int verbn  = verbosity/10;

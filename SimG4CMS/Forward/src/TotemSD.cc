@@ -8,7 +8,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: TotemSD.cc,v 1.1 2006/05/17 16:18:58 sunanda Exp $
+// $Id: TotemSD.cc,v 1.2 2007/03/08 00:09:09 sunanda Exp $
 //
 
 // system include files
@@ -20,7 +20,6 @@
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
 #include "SimG4Core/Notification/interface/G4TrackToParticleID.h"
-#include "SimG4Core/Geometry/interface/SDCatalog.h"
 #include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
  
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
@@ -44,10 +43,12 @@
 // constructors and destructor
 //
 TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
+		 SensitiveDetectorCatalog & clg, 
 		 edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, p), numberingScheme(0), name(name),hcID(-1),
-  theHC(0), theManager(manager), currentHit(0), theTrack(0), currentPV(0), 
-  unitID(0),  previousUnitID(0), preStepPoint(0), postStepPoint(0), eventno(0){
+  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
+  hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
+  currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
+  postStepPoint(0), eventno(0){
 
   //Add Totem Sentitive Detector Names
   collectionName.insert(name);
@@ -69,8 +70,7 @@ TotemSD::TotemSD(std::string name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames =
-    SensitiveDetectorCatalog::instance()->logicalNames(name);
+  std::vector<std::string> lvNames = clg.logicalNames(name);
   this->Register();
   for (std::vector<std::string>::iterator it=lvNames.begin();  
        it !=lvNames.end(); it++) {
