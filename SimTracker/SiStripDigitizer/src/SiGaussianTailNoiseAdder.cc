@@ -9,19 +9,14 @@ SiGaussianTailNoiseAdder::SiGaussianTailNoiseAdder(int ns, float nrms, float th,
   noiseRMS(nrms), 
   threshold(th),
   gaussDistribution_(0),
-  genNoise_(0),
   rndEngine(eng)
-
 {
   gaussDistribution_ = new CLHEP::RandGauss(rndEngine, 0., noiseRMS);
-
-  genNoise_ = new GaussianTailNoiseGenerator(rndEngine,numStrips, threshold);
 
 }
 
 SiGaussianTailNoiseAdder::~SiGaussianTailNoiseAdder(){
   delete gaussDistribution_;
-  delete genNoise_;
 }   
   
 SiPileUpSignals::signal_map_type 
@@ -31,7 +26,8 @@ SiGaussianTailNoiseAdder::addNoise(SiPileUpSignals::signal_map_type in){
   
   std::map<int,float,std::less<int> > generatedNoise;
   
-  genNoise_->generate(threshold,noiseRMS,generatedNoise);
+  GaussianTailNoiseGenerator gen;
+  gen.generate(numStrips,threshold,noiseRMS,generatedNoise);
 
   // noise on strips with signal:
   // ----------------------------

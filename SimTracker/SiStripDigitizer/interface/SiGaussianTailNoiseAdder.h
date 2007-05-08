@@ -24,7 +24,6 @@ class SiGaussianTailNoiseAdder : public SiNoiseAdder{
   float noiseRMS;
   float threshold;
   CLHEP::RandGauss *gaussDistribution_;
-  GaussianTailNoiseGenerator* genNoise_;
   CLHEP::HepRandomEngine& rndEngine;
 };
 #endif
