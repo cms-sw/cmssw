@@ -245,56 +245,15 @@ void CSCCFEBData::digis(uint32_t idlayer, std::vector<CSCStripDigi> & result )
 
 
 
-std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer) const 
+std::vector<CSCStripDigi> CSCCFEBData::digis(unsigned idlayer)
 {
-
-  //  assert(layer>0 && layer <= 6);
+  //assert(layer>0 && layer <= 6);
   std::vector<CSCStripDigi> result;
-  result.reserve(16);
-  std::vector<int> sca(nTimeSamples());
-  std::vector<uint16_t> overflow(nTimeSamples());
-  std::vector<uint16_t> overlap(nTimeSamples());
-  std::vector<uint16_t> errorfl(nTimeSamples());
-
-  bool me1a = (CSCDetId::station(idlayer)==1) && (CSCDetId::ring(idlayer)==4);
-  unsigned layer = CSCDetId::layer(idlayer);
-
-  for(unsigned ichannel = 1; ichannel <= 16; ++ichannel)
-    {
-      if (nTimeSamples()==0) 
-	{
-	  edm::LogError("CSCCFEBData") << "TimeSamples is Zero - CFEB Data Corrupt!";
-	  break;
-	}
-
-      for(unsigned itime = 0; itime < nTimeSamples(); ++itime)
-	{	  
-	  const CSCCFEBTimeSlice * slice = timeSlice(itime);
-	  CSCCFEBDataWord * word;
-	  if (slice) 
-	    { 
-	      word = slice->timeSample(layer, ichannel);
-	      ///for bad or missing data word will be zero
-	      if (word) 
-		{
-		  sca[itime] = word->adcCounts;
-		  overflow[itime] = word->adcOverflow;
-		  overlap[itime] = word->overlappedSampleFlag;
-		  errorfl[itime] = word->errorstat;
-		}
-	    }
-	}
-      if (sca.empty()) 
-	{
-	  edm::LogError("CSCCFEBData") << "ADC counts are empty - CFEB Data Corrupt!";
-	  break;
-	}
-      int strip = ichannel + 16*boardNumber_;
-      if ( me1a ) strip = strip%64; // reset 65-80 to 1-16 digi(strip, sca, overflow, overlap, errorfl);
-      result.push_back(CSCStripDigi(strip, sca, overflow, overlap, errorfl));
-    }
+  uint32_t layer= idlayer;
+  digis(layer, result);
   return result;
 }
+
 
 
 bool CSCCFEBData::check() const 
@@ -328,7 +287,7 @@ std::ostream & operator<<(std::ostream & os, const CSCCFEBData & data)
   return os;
 }
 
-std::vector < std::vector<CSCStripDigi> > CSCCFEBData::stripDigis() const 
+std::vector < std::vector<CSCStripDigi> > CSCCFEBData::stripDigis()
 {
   std::vector < std::vector<CSCStripDigi> > result;
   for (int layer = 1; layer <= 6; ++layer) 

@@ -121,7 +121,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
 
-  for (int sandrik=0;sandrik<1000;++sandrik) {
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id)
     { //for each of our DCCs
@@ -319,7 +318,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	    }
 	}///end of if fed has data
     }///end of loop over DCCs
-  }
+
   // commit to the event
   e.put(wireProduct,          "MuonCSCWireDigi");
   e.put(stripProduct,         "MuonCSCStripDigi");

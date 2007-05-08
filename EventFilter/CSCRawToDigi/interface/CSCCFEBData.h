@@ -36,9 +36,9 @@ class CSCCFEBData {
   ///faster way to get to digis
   void digis(uint32_t idlayer,  std::vector<CSCStripDigi> & result);
 
-  std::vector<CSCStripDigi> digis(unsigned idlayer) const;
+  std::vector<CSCStripDigi> digis(unsigned idlayer);
   /// deprecated.  Use the above method.
-  std::vector<std::vector<CSCStripDigi> > stripDigis() const;
+  std::vector<std::vector<CSCStripDigi> > stripDigis();
  
   /// returns one status digi per cfeb
   CSCCFEBStatusDigi statusDigi() const;
