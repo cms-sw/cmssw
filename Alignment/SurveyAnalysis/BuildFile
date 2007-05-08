@@ -19,6 +19,7 @@
   <lib name=AlignmentSurveyAnalysis>
   <use name=root>
   <use name=Alignment/CommonAlignment>
+  <use name=Alignment/TrackerAlignment>
   <use name=Alignment/CommonAlignmentAlgorithm>
   <use name=FWCore/ParameterSet>
   <use name=FWCore/PluginManager>

@@ -1,9 +1,16 @@
 <use name=Alignment/CommonAlignment>
 <use name=Alignment/MuonAlignment>
+<use name=Alignment/TrackerAlignment>
 <use name=Alignment/SurveyAnalysis>
 <use name=FWCore/ParameterSet>
 
 <library file="SurveyAlignmentAlgorithm.cc"><flags EDM_PLUGIN=1></library>
+
+<library name="SurveyInputTrackerFromDB" file="SurveyInputTrackerFromDB.cc">
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<flags EDM_PLUGIN=1></library>
 
 <library name="SurveyDBUploader" file="SurveyDBUploader.cc">
 <use name=CondCore/DBOutputService>
@@ -14,7 +21,6 @@
 
 <library name="SurveyDataConverter" file="SurveyDataConverter.cc">
 <use name=Alignment/MuonAlignment>
-<use name=Alignment/TrackerAlignment>
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
 <use name=CondFormats/DataRecord>
