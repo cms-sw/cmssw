@@ -119,3 +119,7 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
 
 }
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE( CandOneToManyDeltaRMatcher );
