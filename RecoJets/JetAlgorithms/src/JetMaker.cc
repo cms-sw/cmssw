@@ -1,13 +1,14 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.21 2007/05/03 21:20:09 fedor Exp $
+/// $Id: JetMaker.cc,v 1.22 2007/05/04 23:23:05 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -117,6 +118,78 @@ namespace {
     return true;
   }
   
+  ///@@@ PFJET *************************
+  bool makeSpecific (const ProtoJet::Constituents& fPFCandidates,		   
+		     PFJet::Specific* fJetSpecific) {
+    if (!fJetSpecific) return false;
+    
+    // 1.- Loop over PFCandidates, 
+    // 2.- Get the corresponding PFCandidate
+    // 3.- Calculate the different PFJet specific quantities
+
+    float chargedHadronPt=0.;
+    float neutralHadronPt=0.;
+    float chargedEmPt=0.;
+    float neutralEmPt=0.;
+    float chargedMuPt=0.;
+    int   chargedMultiplicity=0;
+    int   neutralMultiplicity=0;
+    
+    ProtoJet::Constituents::const_iterator constituent = fPFCandidates.begin();
+    for (; constituent != fPFCandidates.end(); ++constituent) {
+      const Candidate* candidate = constituent->get ();
+      if (candidate) {
+	const PFCandidate* pfCand = dynamic_cast<const PFCandidate*> (candidate);
+	if (pfCand) {
+	  switch ( PFCandidate::ParticleType (pfCand->particleId())) {
+	  case PFCandidate::h:       // charged hadron
+	    chargedHadronPt += pfCand->pt();
+	    chargedMultiplicity++;
+	    break;
+	    
+	  case PFCandidate::e:       // electron 
+	    chargedEmPt += pfCand->pt(); 
+	    chargedMultiplicity++;
+	    break;
+	    
+	  case PFCandidate::mu:      // muon
+	    chargedMuPt += pfCand->pt();
+	    chargedMultiplicity++;
+	    break;
+	    
+	  case PFCandidate::gamma:   // photon
+	    neutralEmPt += pfCand->pt();
+	    neutralMultiplicity++;
+	    break;
+	    
+	  case  PFCandidate::h0 :    // neutral hadron
+	    neutralHadronPt += pfCand->pt();
+	    neutralMultiplicity++;
+	    break;
+	  
+	  default:
+	    std::cerr << "JetMaker::makeSpecific (PFJetJet)-> Unknown PFCandidate::ParticleType: " << pfCand->particleId() << " is ignored" << std::endl;
+	    break;
+	  }
+	}
+	else {
+	   std::cerr << "JetMaker::makeSpecific (PFJetJet)-> Referred constituent is not PFCandidate" << std::endl;
+	}
+      }
+      else {
+	std::cerr << "JetMaker::makeSpecific (PFJetJet)-> Referred constituent is not available in the event" << std::endl;
+      }
+    }
+    fJetSpecific->mChargedHadronPt=chargedHadronPt;
+    fJetSpecific->mNeutralHadronPt= neutralHadronPt;
+    fJetSpecific->mChargedEmPt=chargedEmPt;
+    fJetSpecific->mChargedMuPt=chargedMuPt;
+    fJetSpecific->mNeutralEmPt=neutralEmPt;
+    fJetSpecific->mChargedMultiplicity=chargedMultiplicity;
+    fJetSpecific->mNeutralMultiplicity=neutralMultiplicity;
+    return true;
+  }
+ 
   bool makeSpecific (const ProtoJet::Constituents& fMcParticles, 
 		     GenJet::Specific* fJetSpecific) {
     for (ProtoJet::Constituents::const_iterator genCand = fMcParticles.begin(); genCand != fMcParticles.end(); ++genCand) {
@@ -171,6 +244,12 @@ CaloJet JetMaker::makeCaloJet (const ProtoJet& fProtojet, const CaloSubdetectorG
   CaloJet::Specific specific;
   makeSpecific (fProtojet.getTowerList(), fTowerGeometry, &specific);
   return CaloJet (fProtojet.p4(), specific, fProtojet.getTowerList());
+}
+
+PFJet JetMaker::makePFJet (const ProtoJet& fProtojet) const {
+  PFJet::Specific specific;
+  makeSpecific (fProtojet.getTowerList(), &specific);
+  return PFJet (fProtojet.p4(), specific, fProtojet.getTowerList());
 }
 
 GenJet JetMaker::makeGenJet (const ProtoJet& fProtojet) const {

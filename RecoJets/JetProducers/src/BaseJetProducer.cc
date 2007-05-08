@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.14 2007/05/04 11:57:30 kodolova Exp $
+// $Id: BaseJetProducer.cc,v 1.15 2007/05/04 23:23:02 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -84,7 +84,6 @@ namespace {
     }
   }
 
-  
 }
 
 namespace cms
@@ -97,7 +96,8 @@ namespace cms
       mVerbose (conf.getUntrackedParameter<bool>("verbose", false)),
       mEtInputCut (conf.getParameter<double>("inputEtMin")),
       mEInputCut (conf.getParameter<double>("inputEMin")),
-      mVertexTracksCone (conf.getParameter<double>("vertexTracksCone"))
+      //      mVertexTracksCone (conf.getParameter<double>("vertexTracksCone"))
+      mVertexTracksCone (0)
   {
     std::string alias = conf.getUntrackedParameter<string>( "alias", conf.getParameter<std::string>("@module_label"));
     if (makeCaloJet (mJetType)) {

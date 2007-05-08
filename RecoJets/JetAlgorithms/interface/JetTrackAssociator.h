@@ -4,7 +4,7 @@
 /// Abstract interface to fill JetTrack association
 /// \author: F.Ratnikov, UMd
 /// Apr. 20, 2007
-/// $Id: JetTrackAssociator.h,v 1.7 2007/04/18 22:04:31 fedor Exp $
+/// $Id: JetTrackAssociator.h,v 1.1 2007/05/03 21:20:09 fedor Exp $
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
@@ -32,10 +32,10 @@ class JetTrackAssociator {
       throw cms::Exception ("JetTrackAssociator") << " Invalid supplied matching map pointer" << std::endl;
     }
     for (unsigned iJet = 0; iJet < fJets->size(); ++iJet) {
-      typename MatchMap::JetRef jetRef = edm::Ref (fJets, iJet);  
+      typename MatchMap::JetRef jetRef (fJets, iJet);  
       bool orphanJet = true;
       for (unsigned iTrack = 0; iTrack < fTracks->size(); ++iTrack) {
-	typename MatchMap::TrackRef trackRef = edm::Ref (fTracks, iTrack); 
+	typename MatchMap::TrackRef trackRef (fTracks, iTrack); 
 	if (goodTrack (trackRef) && associate (jetRef, trackRef)) {
 	  fMap->insert (jetRef, trackRef);
 	  orphanJet = false;
