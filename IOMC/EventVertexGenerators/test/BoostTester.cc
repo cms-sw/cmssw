@@ -32,11 +32,11 @@ BoostTester::BoostTester( const ParameterSet& )
 	ftreep->Branch("px",&fpx,"fpx/D");
 	ftreep->Branch("py",&fpy,"fpy/D");
 	ftreep->Branch("pz",&fpz,"fpz/D");
-	ftreep->Branch("pt",&fpt,"fpt/D");
-	ftreep->Branch("p",&fp,"fp/D");
-	ftreep->Branch("e",&fe,"fe/D");
-	ftreep->Branch("eta",&feta,"feta/D");
-	ftreep->Branch("phi",&fphi,"fphi/D");
+	//ftreep->Branch("pt",&fpt,"fpt/D");
+	//ftreep->Branch("p",&fp,"fp/D");
+	//ftreep->Branch("e",&fe,"fe/D");
+	//ftreep->Branch("eta",&feta,"feta/D");
+	//ftreep->Branch("phi",&fphi,"fphi/D");
 	
 /*
 
@@ -89,11 +89,15 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
 	ftreep->SetBranchAddress("px",&fpx);
 	ftreep->SetBranchAddress("py",&fpy);
 	ftreep->SetBranchAddress("pz",&fpz);
-	ftreep->SetBranchAddress("pt",&fpt);
-	ftreep->SetBranchAddress("p",&fp);
-	ftreep->SetBranchAddress("e",&fe);
-	ftreep->SetBranchAddress("eta",&feta);
-	ftreep->SetBranchAddress("phi",&fphi);
+	//ftreep->SetBranchAddress("pt",&fpt);
+	//ftreep->SetBranchAddress("p",&fp);
+	//ftreep->SetBranchAddress("e",&fe);
+	//ftreep->SetBranchAddress("eta",&feta);
+	//ftreep->SetBranchAddress("phi",&fphi);
+
+	fpx=0.;
+	fpy=0.;
+	fpz=0.;
 	
    
    vector< Handle< HepMCProduct > > EvtHandles ;
@@ -122,49 +126,39 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
 		   fvy = (*Vtx)->position().y();
 		   fvz = (*Vtx)->position().z();
 		   
-		   //fVtxHistx->Fill((*Vtx)->position().x() ) ;
-		   //fVtxHisty->Fill( (*Vtx)->position().y() ) ;
-		   //fVtxHistxy->Fill( (*Vtx)->position().x(),(*Vtx)->position().y() );
-		   //fVtxHistz->Fill( (*Vtx)->position().z() ) ;
+		   
 
 		   ftreevtx->Fill();
        }
        
        for (HepMC::GenEvent::particle_const_iterator Part = Evt->particles_begin();
-	    Part!=Evt->particles_end(); ++Part ) {
+			Part!=Evt->particles_end(); ++Part ) {
 	 
-	 if ( (*Part)->status() != 1 ) continue;
+		   if ( (*Part)->status() != 1 ) continue;
 
-	 HepMC::FourVector Mon = (*Part)->momentum() ;
-	 double Phi = Mon.phi() ;
-	 double Eta = Mon.eta();//-log(tan(Mom.theta()/2.));
+		   HepMC::FourVector Mon = (*Part)->momentum() ;
+		   double Phi = Mon.phi() ;
+		   double Eta = Mon.eta();//-log(tan(Mom.theta()/2.));
 	 
-	 //if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
-	 //{	 
+		   //if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
+		   //{	 
 
-	 fpx = Mon.px();
-	 fpy = Mon.py();
-	 fpz = Mon.pz();
-	 fp = Mon.mag();
-	 fpt = Mon.perp();
-	 fe = Mon.e();
-	 feta = Eta;
-	 fphi = Phi;
+		   		   
+		   fpx += Mon.px();
+		   fpy += Mon.py();
+		   fpz += Mon.pz();
+		   /*
+		   fp = Mon.mag();
+		   fpt = Mon.perp();
+		   fe = Mon.e();
+		   feta = Eta;
+		   fphi = Phi;
+		   */
+		   
+		   //ftreep->Fill();
+	
 	 
-	 ftreep->Fill();
-	 /*
-	 fpxHist->Fill( Mon.px() );
-	 fpyHist->Fill( Mon.py() );
-	 fpzHist->Fill( Mon.pz() );
-	 fpHist->Fill( Mon.mag() );
-	 feHist->Fill( Mon.e() );
-	 fptHist->Fill( Mon.perp() );
-
-	 fPhiHistSmr->Fill( Phi ) ;
-	 fEtaHistSmr->Fill( Eta ) ;
-	 */
-	 
-	 //std::cout << "particle: p="<<Mon.mag() << " status="<< (*Part)->status() << " pdgid="<<(*Part)->pdg_id() << std::endl;
+		   //std::cout << "particle: p="<<Mon.mag() << " status="<< (*Part)->status() << " pdgid="<<(*Part)->pdg_id() << std::endl;
        }
 	
        //std::cout << " vertex (x,y,z)= " << (*Vtx)->position().x() <<" " << (*Vtx)->position().y() << " " << (*Vtx)->position().z() << std::endl;
@@ -173,7 +167,9 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
      }
 
    }
+   //std::cout << " total px= " << fpx << " py= " << fpy << " pz= " << fpz << std::endl;
    
+   ftreep->Fill();
    return ;
 }
 
