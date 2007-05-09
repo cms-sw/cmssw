@@ -51,8 +51,7 @@ void CreateSinglePlotFromTable(TString filename,TString XTitle="", TString YTitl
     //cout << *(&values[0]+i*m)<< " " << *(&values[0]+i*m+j) << endl;
    }
   }
-  //  c1->SetLogy();
-
+  c1->SetLogy();
   mg->Draw("a");
   mg->GetXaxis()->SetTitle(XTitle);
   mg->GetYaxis()->SetTitle(YTitle);
