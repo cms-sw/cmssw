@@ -14,6 +14,6 @@
   <use name=DataFormats/VertexReco>
   <use name=TrackingTools/TrajectoryState>
   <use name=TrackingTools/TransientTrack>
-  <lib name=RecoBTagBTagTools>
+  <lib name=TrackingToolsIPTools>
 </export>
 
