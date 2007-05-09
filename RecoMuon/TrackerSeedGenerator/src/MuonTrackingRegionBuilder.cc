@@ -1,12 +1,12 @@
 /** \class MuonTrackingRegionBuilder
  *  Base class for the Muon reco TrackingRegion Builder
  *
- *  $Date: 2007/05/04 15:57:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/04 16:29:26 $
+ *  $Revision: 1.2 $
  *  \author A. Everett - Purdue University
  */
 
-#include "RecoMuon/TrackingTools/interface/MuonTrackingRegionBuilder.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/MuonTrackingRegionBuilder.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 

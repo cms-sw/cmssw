@@ -16,7 +16,6 @@
 <use name=RecoMuon/TransientTrackingRecHit>
 <use name=TrackingTools/TrajectoryParametrization>
 <use name=RecoVertex/KalmanVertexFit>
-<use name=RecoTracker/TkTrackingRegions>
 <use name=Utilities/Timing>
 <use name=CLHEP>
 

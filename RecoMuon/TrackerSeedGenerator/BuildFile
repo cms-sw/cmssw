@@ -14,6 +14,7 @@
 <use name=RecoTracker/MeasurementDet>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TkSeedGenerator>
+<use name=RecoTracker/TkTrackingRegions>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/MaterialEffects>

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/04/30 15:02:10 $
- *  $Revision: 1.94 $
+ *  $Date: 2007/05/04 15:57:42 $
+ *  $Revision: 1.95 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -76,7 +76,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGeneratorFactory.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackingRegionBuilder.h"
+#include "RecoMuon/TrackerSeedGenerator/interface/MuonTrackingRegionBuilder.h"
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
