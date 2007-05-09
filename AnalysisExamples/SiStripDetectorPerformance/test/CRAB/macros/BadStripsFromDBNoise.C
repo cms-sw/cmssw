@@ -120,15 +120,20 @@ void apvStudy(int iApv, TH1F *histo, std::map<short,StripStruct>& mBadStrip){
 
   StripStruct a;
   for (Int_t i=ibinStart; i<=ibinStop; ++i){
-    if(histo->GetBinContent(i)>Mean+_HighTh*stddev || histo->GetBinContent(i)<Mean-_LowTh*stddev){
+    if(histo->GetBinContent(i)<_AbsLowThNoise || histo->GetBinContent(i)>_AbsHighThNoise){
       a.val=histo->GetBinContent(i);
       a.mean=Mean;
       a.sigma=stddev;
-      if(histo->GetBinContent(i)>_AbsLowThNoise && histo->GetBinContent(i)<_AbsHighThNoise)
-	a.outAbsRange=false;
-      else
-	a.outAbsRange=true;
+      a.outAbsRange=true;
       mBadStrip[i]=a;
+    }else{
+      if(histo->GetBinContent(i)>Mean+_HighTh*stddev || histo->GetBinContent(i)<Mean-_LowTh*stddev){
+	a.val=histo->GetBinContent(i);
+	a.mean=Mean;
+	a.sigma=stddev;
+	a.outAbsRange=false;
+	mBadStrip[i]=a;
+      }
     }
   }
 }
