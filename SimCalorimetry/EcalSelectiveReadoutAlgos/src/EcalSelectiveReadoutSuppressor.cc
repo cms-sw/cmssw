@@ -493,7 +493,7 @@ double EcalSelectiveReadoutSuppressor::frame2Energy(const T& frame,
 
   const int n = min<int>(frame.size(), sizeof(weights)/sizeof(weights[0]));
 
-  double gainInv[] = {0., 1., 6., 12}; //first elt not used.
+  double gainInv[] = {12., 1., 6., 12.};
 
 
   //cout << __PRETTY_FUNCTION__ << ": ";
@@ -522,8 +522,8 @@ void EcalSelectiveReadoutSuppressor::printTTFlags(ostream& os, int iEvent,
       "# +-->Phi            " << tccFlagMarker[1] << ": 000 (low interest)\n"
       "# |                  " << tccFlagMarker[2] << ": 001 (mid interest)\n"
       "# |                  " << tccFlagMarker[3] << ": 010 (not valid)\n"
-      "# V Eta              " << tccFlagMarker[5] << ": 011 (high interest)\n"
-      "#                    " << tccFlagMarker[6] << ": 1xx forced readout (Hw error)\n";
+      "# V Eta              " << tccFlagMarker[4] << ": 011 (high interest)\n"
+      "#                    " << tccFlagMarker[5] << ": 1xx forced readout (Hw error)\n";
   }
 
   if(iEvent>=0){
