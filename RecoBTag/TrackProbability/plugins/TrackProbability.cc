@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackProbability.cc,v 1.6 2007/03/28 12:39:38 arizzi Exp $
+// $Id: TrackProbability.cc,v 1.2 2007/04/23 12:59:26 arizzi Exp $
 //
 //
 
@@ -181,9 +181,9 @@ TrackProbability::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    }
    
    JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
-   for(; it != jetTracksAssociation->end(); it++)
+   int i=0;
+   for(; it != jetTracksAssociation->end(); it++,i++)
      {
-      int i=it->key.key();
       pair<JetTag,TrackProbabilityTagInfo>  result=m_algo.tag(edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),*pv);
       baseCollection->push_back(result.first);    
       extCollection->push_back(result.second);    

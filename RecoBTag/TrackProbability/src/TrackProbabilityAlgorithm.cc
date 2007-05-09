@@ -61,12 +61,10 @@ pair<JetTag,TrackProbabilityTagInfo> TrackProbabilityAlgorithm::tag(const  JetTr
  SignedTransverseImpactParameter stip;
  multimap<double,int> probability3DMap;
  multimap<double,int> probability2DMap;
- GlobalVector direction(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());
+ GlobalVector direction(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());
  double pvZ=pv.z();
  
-if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are tracks in this jet
- {
- edm::RefVector<reco::TrackCollection> tracks=jetTracks->val;
+ edm::RefVector<reco::TrackCollection> tracks=jetTracks->second;
 
  int i=0; //everything is based on indices
  for(edm::RefVector<reco::TrackCollection>::const_iterator it=tracks.begin() ; it!=tracks.end(); it++ , i++ )
@@ -84,8 +82,8 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
                  fabs(dLen) < m_cutMaxDecayLen
                 )
              {
-              pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
-              pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
+              pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->first),pv);
+              pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->first),pv);
               
               if(prob3d.first)
                { 
@@ -103,7 +101,6 @@ if(jetTracks.product()->numberOfAssociations(jetTracks->key)!=0) //if there are 
                }
              }
          }
-  }
  
   vector<double> probability3D,probability2D;
     vector<int> trackOrder3D,trackOrder2D;
