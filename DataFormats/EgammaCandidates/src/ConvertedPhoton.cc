@@ -1,14 +1,25 @@
 
 #include "DataFormats/EgammaCandidates/interface/ConvertedPhoton.h"
 
+
 using namespace reco;
 
 
 
 
-ConvertedPhoton::ConvertedPhoton( const reco::SuperClusterRef sc, const std::vector<reco::TrackRef> tr, Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ), const Point & convVtx = Point( 0, 0, 0 ) ):  
-    RecoCandidate( q, p4, vtx, 22 * q ), superCluster_(sc), tracks_(tr), theConversionVertex_(convVtx) {
-
+ConvertedPhoton::ConvertedPhoton(  const reco::SuperClusterRef sc, 
+                                   const std::vector<reco::TrackRef> tr, 
+                                   Charge q, const LorentzVector & p4,
+				   double r9, 
+				   const std::vector<math::XYZPoint> a, 
+                                   const Point & vtx = Point( 0, 0, 0 ), 
+                                   const Point & convVtx = Point( 0, 0, 0 ) ):  
+  RecoCandidate( q, p4, vtx, 22*q ),  
+  superCluster_(sc), tracks_(tr),
+  r9_(r9), 
+  theConversionVertex_(convVtx),  
+  thePositionAtEcal_(a) {
+  
   makePairInvariantMass();
   makePairCotThetaSeparation();
   makePairMomentum();
@@ -44,6 +55,16 @@ TrackRef ConvertedPhoton::track( size_t ind ) const {
 
 
 
+void ConvertedPhoton::setVertex(const Point & vertex) {
+  math::XYZVector direction = this->superCluster()->position() - vertex;
+  double energy = this->energy();
+  math::XYZVector momentum = direction.unit() * energy;
+  p4_.SetXYZT(momentum.x(), momentum.y(), momentum.z(), energy );
+  vertex_ = vertex;
+}
+
+
+
 bool ConvertedPhoton::isConverted() const {
   
   if ( this->nTracks() > 0) 
@@ -51,6 +72,8 @@ bool ConvertedPhoton::isConverted() const {
   else
     return false;
 }
+
+
 
 
 void  ConvertedPhoton::makePairInvariantMass() {
