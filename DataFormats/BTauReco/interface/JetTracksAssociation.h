@@ -15,13 +15,13 @@
 #include <vector>
 
 namespace reco {
-  typedef
-  edm::AssociationMap<edm::OneToMany<CaloJetCollection, TrackCollection> >
-    JetTracksAssociationCollection;
-  
 //  typedef
-//  edm::AssociationMap<edm::OneToValue<CaloJetCollection, TrackRefVector> >
+//  edm::AssociationMap<edm::OneToMany<CaloJetCollection, TrackCollection> >
 //    JetTracksAssociationCollection;
+ 
+  typedef
+  std::vector<std::pair<edm::RefToBase<Jet>,reco::TrackRefVector> > 
+     JetTracksAssociationCollection;
   
   typedef
   JetTracksAssociationCollection::value_type JetTracksAssociation;

@@ -19,7 +19,7 @@ public:
   virtual edm::RefToBase<Jet> jet(void) const { return m_jet; }
   
   template <typename T>
-  void setJetRef(const edm::Ref<T> & jetRef) { m_jet = RefToBase<Jet>( jetRef ); } 
+  void setJetRef(const edm::Ref<T> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 
   
 protected:
   edm::RefToBase<Jet> m_jet;

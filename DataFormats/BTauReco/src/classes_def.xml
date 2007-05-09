@@ -98,11 +98,7 @@
   <class name="edm::Wrapper<reco::TrackProbabilityTagInfoCollection>"/>
 
   <class name="reco::JetTracksAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, reco::TrackCollection, unsigned int> >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="reco::JetTracksAssociationMapType"/>
-  <class name="reco::JetTracksAssociationRefType"/>
+  <class name="reco::JetTracksAssociationCollection"/>
   <class name="reco::JetTracksAssociationRef"/>
   <class name="reco::JetTracksAssociationRefProd"/>
   <class name="reco::JetTracksAssociationRefVector"/>
@@ -130,7 +126,7 @@
   <class name="reco::JetEisolAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetEisolAssociationCollection>"/>
 
-  <class name="reco::JetTracksIPDataAssociation"/>
+  <!--<class name="reco::JetTracksIPDataAssociation"/>
   <class name="edm::AssociationMap<edm::OneToValue<reco::JetTracksAssociationCollection, reco::TracksInJetData, unsigned int> >">
     <field name="transientMap_" transient="true"/>
   </class>
@@ -140,6 +136,7 @@
   <class name="reco::JetTracksIPDataAssociationRefProd"/>
   <class name="reco::JetTracksIPDataAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetTracksIPDataAssociationCollection>"/>
+-->
 
   <class name="reco::TrackIPTagInfo"/>
   <class name="reco::TrackIPTagInfoCollection"/>
@@ -149,11 +146,25 @@
   <class name="edm::Wrapper<reco::TrackIPTagInfoCollection>"/>
   
   <class name="std::vector<Measurement1D>"/>
-  	    
+
+  <class name="reco::JTATagInfoCollection"/>
+  <class name="reco::JTATagInfoRef"/>
+  <class name="reco::JTATagInfoRefProd"/>
+  <class name="reco::JTATagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
+ 
+ <class name="reco::BaseTagInfoCollection"/>
+ <class name="reco::BaseTagInfoRef"/>
+ <class name="reco::BaseTagInfoRefProd"/>
+ <class name="reco::BaseTagInfoRefVector"/>
+ <class name="edm::Wrapper<reco::BaseTagInfoCollection>"/>
+ 
+	    
  <!-- RefToBase stuff -->
   <class name="edm::RefToBase<reco::BaseTagInfo>" />
   <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef>" />
+  <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::JTATagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>" />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef> " />

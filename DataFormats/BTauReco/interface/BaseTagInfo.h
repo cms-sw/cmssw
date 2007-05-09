@@ -15,7 +15,8 @@ public:
   virtual ~BaseTagInfo(void) { }
   
   /// returns a polymorphic reference to the tagget Jet
-  virtual edm::RefToBase<Jet> jet(void) const = 0;
+//  virtual const edm::RefToBase<Jet> & jet(void) const = 0;
+  virtual edm::RefToBase<Jet>  jet(void) const  {return edm::RefToBase<Jet>() ; }
 
   /// returns a description of the extended informations in a TaggingVariableList
   virtual TaggingVariableList taggingVariables(void) const {

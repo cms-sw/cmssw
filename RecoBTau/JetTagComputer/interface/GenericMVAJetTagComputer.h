@@ -26,9 +26,9 @@ class  GenericMVAJetTagComputer : public JetTagComputer
     {
       //adapt  tagging variable (if we decide to add such a virtual method in the base
       // class BaseTagInfo) to DiscriminatorComputer generic interface 
-       PhysicsTools::Variable::Value * values;
+  //     PhysicsTools::Variable::Value * values;
 
-      return m_mvaComputer->eval(values,values);
+//      return m_mvaComputer->eval(values,values);
     }
  private:
    PhysicsTools::MVAComputer * m_mvaComputer;
