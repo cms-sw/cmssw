@@ -30,8 +30,17 @@ export MYHOME=/analysis/sw/CRAB
 
 touch ${LOCALHOME}/lock_summ
 
+for Version in `ls ${LOCALHOME}/log`
+  do
+  echo -e "\n${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
+  ${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
+done
+
 echo -e "\n...Running BadStripsFromPosition"
-${LOCALHOME}/macros/BadStripsFromPosition.sh
+#${LOCALHOME}/macros/BadStripsFromPosition.sh
+
+echo -e "\n...Running BadStripsFromDBNoise"
+${LOCALHOME}/macros/BadStripsFromDBNoise.sh
 
 echo -e "\n...Creating Summaries"
 ${LOCALHOME}/getSummary.sh

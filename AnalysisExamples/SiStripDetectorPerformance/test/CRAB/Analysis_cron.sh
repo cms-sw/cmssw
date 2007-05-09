@@ -119,10 +119,9 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
 #        rm -f ${LOCALHOME}/lock
 #      fi
 
-	    echo -e "\n${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
-
-	    ${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
-
+	    #moved in summary cron
+	    #echo -e "\n${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
+	    #${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 
 	else
 	    if [ `echo ${AnalyzersList} | awk '{print $1}'` == "" ]; then
