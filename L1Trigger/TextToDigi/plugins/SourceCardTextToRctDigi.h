@@ -16,7 +16,7 @@
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: SourceCardTextToRctDigi.h,v 1.2 2007/03/21 00:43:26 tapper Exp $
+// $Id: SourceCardTextToRctDigi.h,v 1.1 2007/04/19 22:27:20 tapper Exp $
 //
 //
 
@@ -48,12 +48,15 @@ class SourceCardTextToRctDigi : public edm::EDProducer {
   
  private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+
+  /// Create empty digi collection
+  void putEmptyDigi(edm::Event&);
+
   /// Name out input file
   std::string m_textFileName;
 
   /// Number of events to skip at the start of the file
-  int m_skipEvents;
+  int m_fileEventOffset;
 
   /// Event counter
   int m_nevt;
