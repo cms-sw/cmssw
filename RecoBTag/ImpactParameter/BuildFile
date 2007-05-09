@@ -1,0 +1,34 @@
+
+<use name=CLHEP>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<use name=DataFormats/VertexReco>
+<use name=TrackingTools/GeomPropagators>
+<use name=DataFormats/Common>
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
+<use name=DataFormats/Common>
+<use name=MagneticField/Engine>
+<use name=MagneticField/Records>
+<use name=DataFormats/VertexReco>
+<use name=TrackingTools/IPTools>
+<flags EDM_PLUGIN=1>
+
+<export>
+   <lib name=RecoBTagTrackCounting>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
+   <use name=MagneticField/Engine>
+   <use name=MagneticField/Records>
+   <use name=DataFormats/VertexReco>
+   <use name=CLHEP>
+   <use name=TrackingTools/TrajectoryState>
+   <use name=TrackingTools/TransientTrack>
+   <use name=TrackingTools/GeomPropagators>
+   <use name=DataFormats/Common>
+   <use name=DataFormats/VertexReco>
+   <use name=TrackingTools/IPTools>
+</export>
+
