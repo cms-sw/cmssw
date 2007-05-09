@@ -1,17 +1,24 @@
 #ifndef _CR_ENERGYLOSSUPDATOR_H_
 #define _CR_ENERGYLOSSUPDATOR_H_
 
+/** \class EnergyLossUpdator
+ *  Energy loss according to Bethe-Bloch + special treatment for electrons.
+ *  Adds effects from energy loss according to Bethe-Bloch formula
+ *  without density effect. Assumes silicon as material.
+ *  For electrons energy loss due to radiation added according 
+ *  to formulae by Bethe & Heitler.
+ *  Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:21:30 $
+ *  $Revision: 1.5.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
 
 class MediumProperties;
 
-/** Energy loss according to Bethe-Bloch + special treatment for electrons.
- * Adds effects from energy loss according to Bethe-Bloch formula
- *   without density effect. Assumes silicon as material.
- *   For electrons energy loss due to radiation added according 
- *   to formulae by Bethe & Heitler.
- */
 class EnergyLossUpdator : public MaterialEffectsUpdator 
 {
  public:
