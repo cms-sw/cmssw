@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.15 2007/04/26 03:02:10 jribnik Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.16 2007/05/07 20:50:12 jribnik Exp $
 //
 //
 
@@ -53,6 +53,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
+#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
@@ -625,8 +626,28 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
 	}
 	// timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::geometryAccess",TimerStack::FastMonitoring);
 	LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
-	float distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2;
-	float distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2;
+   float distanceX = 0;
+   float distanceY = 0;
+   if(const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+      const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
+      const CSCLayerGeometry* layerGeometry = chamberSpecs->oddLayerGeometry(1);
+      std::vector<float> trapBounds = layerGeometry->parameters();
+      // TrapezoidalPlaneBounds::parameters()
+      // vec[0] = hbotedge, vec[1] = htopedge, vec[3] = hapothem; vec[2] = hthickness
+      // mind the above ordering!; above values are all halves
+
+      // tangent of the incline angle from inside the trapezoid
+      float tangent = (trapBounds.at(1)-trapBounds.at(0))/(2*trapBounds.at(3));
+      // y position wrt bottom of trapezoid
+      float yPrime  = localPoint.y()+trapBounds.at(3);
+      // half trapezoid width at y' is hbotedge + x side of triangle with the above tangent and side y'
+      float halfWidthAtYPrime = trapBounds.at(0)+yPrime*tangent;
+      distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
+      distanceY = fabs(localPoint.y()) - trapBounds.at(3);
+   } else {
+      distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2;
+      distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2;
+   }
 	// timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
 	if (distanceX < maxDistanceX && distanceY < maxDistanceY) {
 	   LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
