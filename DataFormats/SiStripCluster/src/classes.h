@@ -24,4 +24,12 @@ namespace {
   }
 }
 
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
+namespace {
+  namespace {
+    edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy6;
+    edm::Wrapper< edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > > dummy7;
+  }
+}
+
 #endif // SISTRIPCLUSTER_CLASSES_H
