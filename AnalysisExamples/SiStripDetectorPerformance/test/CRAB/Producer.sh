@@ -160,7 +160,7 @@ for AnalyzerName in `echo ${AnalyzersList}`; do
     export Flag=`echo $FlagConfig | awk -F- '{print $2}'`
     export Config=`echo $FlagConfig | awk -F- '{print $1}'`
 
-    if [ "${Datasetpath}" != "" ] && [ `grep -c ${Run} ${list_path}/${list}` -eq 1 ]; then
+    if [ "${Datasetpath}" != "" ] && [ `grep -c ${Run} ${list_path}/${list}` -eq 1 ] && [ `grep -c ${Run} ${list_path}/${datasets_list}` -eq 1 ]; then
 
 
 
