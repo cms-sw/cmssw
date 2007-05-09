@@ -3,7 +3,7 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainRandomCalculator.cc,v 1.1 2007/05/02 12:46:46 gbruno Exp $
+// $Id: SiStripGainRandomCalculator.cc,v 1.1 2007/05/04 20:22:34 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -37,6 +37,8 @@ SiStripGainRandomCalculator::SiStripGainRandomCalculator(const edm::ParameterSet
 
    meanGain_=iConfig.getParameter<double>("MeanGain");
    sigmaGain_=iConfig.getParameter<double>("SigmaGain");
+   minimumPosValue_=iConfig.getParameter<double>("MinPositiveGain");
+   printdebug_ = iConfig.getUntrackedParameter<bool>("printDebug", false);
 
 }
 
@@ -47,28 +49,14 @@ SiStripGainRandomCalculator::~SiStripGainRandomCalculator()
 }
 
 
-// ------------ method called to for each event  ------------
-void SiStripGainRandomCalculator::algoAnalyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-   edm::LogInfo("SiStripGainRandomCalculator::SiStripGainRandomCalculator");
-
-}
-
-void SiStripGainRandomCalculator::beginJob(const edm::EventSetup& iSetup){
+void SiStripGainRandomCalculator::algoBeginRun(const edm::Run &, const edm::EventSetup& iSetup){
 
 
-  edm::LogInfo("SiStripGainRandomCalculator::beginJob");
-  bool printdebug_ = true;
+  edm::LogInfo("SiStripGainRandomCalculator::beginRun");
 
 
-  SiStripApvGain * gain = gainCalibrationPointer();
-
-  if(! gain) {
-    edm::LogError("SiStripGainRandomCalculator: got null object pointer...will not set any data into it") ;
-    return;
-  }
-
-  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs;
+  detid_apvs.clear();
 
 
   edm::ESHandle<TrackerGeometry> pDD;
@@ -90,33 +78,38 @@ void SiStripGainRandomCalculator::beginJob(const edm::EventSetup& iSetup){
 	edm::LogInfo("SiStripGainCalculator")<< "detid " << detid << " apvpairs " << NAPVPairs;
     }
   }
+}
 
+
+SiStripApvGain * SiStripGainRandomCalculator::getNewObject() {
+
+  std::cout<<"SiStripGainRandomCalculator::getNewObject called"<<std::endl;
+
+  SiStripApvGain * obj = new SiStripApvGain();
 
   for(std::vector< pair<uint32_t,unsigned short> >::const_iterator it = detid_apvs.begin(); it != detid_apvs.end(); it++){
     //Generate Noise for det detid
     std::vector<float> theSiStripVector;
     for(unsigned short j=0; j<it->second; j++){
       float gain = RandGauss::shoot(meanGain_, sigmaGain_);
+      if(gain<=minimumPosValue_) gain=minimumPosValue_;
       if (printdebug_)
 	edm::LogInfo("SiStripGainCalculator") << "detid " << it->first << " \t"
-					     << " apv " << j << " \t"
-					       << gain    << " \t" 
-					       << std::endl; 	    
+					      << " apv " << j << " \t"
+					      << gain    << " \t" 
+					      << std::endl; 	    
       theSiStripVector.push_back(gain);
     }
-  	    
-      
+    
+    
     SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! gain->put(it->first,range) )
+    if ( ! obj->put(it->first,range) )
       edm::LogError("SiStripGainCalculator")<<"[SiStripGainCalculator::beginJob] detid already exists"<<std::endl;
+
   }
   
+  return obj;
 
 }
 
-// void SiStripGainRandomCalculator::endJob() {
-
-//   std::cout<<"SiStripGainRandomCalculator::endJob called"<<std::endl;
-
-// }
 
