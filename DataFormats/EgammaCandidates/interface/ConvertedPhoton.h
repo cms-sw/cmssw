@@ -14,16 +14,19 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 namespace reco {
     class ConvertedPhoton : public RecoCandidate {
   public:
     /// default constructor
     ConvertedPhoton() : RecoCandidate() { }
-
   
-    ConvertedPhoton( const reco::SuperClusterRef sc, const std::vector<reco::TrackRef> tr, Charge q, const LorentzVector & p4, const Point & vtx, const Point & convVtx  );
+    ConvertedPhoton( const reco::SuperClusterRef sc, 
+                     const std::vector<reco::TrackRef> tr, 
+                     Charge q, const LorentzVector & p4, double r9,
+                     const std::vector<math::XYZPoint> a , 
+		     const Point & vtx, const Point & convVtx );
     /// destructor
     virtual ~ConvertedPhoton();
     /// returns a clone of the candidate
@@ -31,30 +34,36 @@ namespace reco {
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster() const ;
 
-    // vector of references to  tracks
+    /// vector of references to  tracks
     std::vector<reco::TrackRef> tracks() const ; 
-    // Bool flagging objects having track size >0
+    /// reference to one of multiple Tracks: implements the method inherited from RecoCandidate
+    reco::TrackRef track( size_t ) const;
+    /// Bool flagging objects having track size >0
     bool isConverted() const;
-    // Number of tracks= 0,1,2
+    /// Number of tracks= 0,1,2
     unsigned int nTracks() const {return  tracks().size(); }
-    // if nTracks=2 
+    /// if nTracks=2 returns the pair invariant mass
     double pairInvariantMass() const {return invMass_;}
-    // Delta cotg(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
+    /// Delta cot(Theta) where Theta is the angle in the (y,z) plane between the two tracks 
     double pairCotThetaSeparation() const {return dCotTheta_;}
-    // Conversion tracks momentum 
+    /// Conversion tracks momentum 
     GlobalVector  pairMomentum() const {return momTracks_;}
-    // Phi  
+    /// Phi  
     double pairMomentumPhi() const {return  phiTracks_;}
-    // Eta 
+    /// Eta 
     double pairMomentumEta() const {return etaTracks_;}
-    // Pt from tracks divided by the super cluster transverse energy
+    /// Pt from tracks divided by the super cluster transverse energy
     double pairPtOverEtSC() const {return ptOverEtSC_;}
-    // Super Cluster energy divided by tracks momentum
+    /// Super Cluster energy divided by tracks momentum
     double EoverP() const {return ep_;}
-    // returns the position of the conversion vertex
+    /// ratio of E(3x3)/ESC
+    double r9() const { return r9_; }
+    /// returns the position of the conversion vertex
     const Point & convVertexPosition() const { return theConversionVertex_ ; }
-   /// reference to one of multiple Tracks: implements the method inherited from RecoCandidate
-     reco::TrackRef track( size_t ) const;
+    /// positions of the track extrapolation at the ECAL front face
+    std::vector<math::XYZPoint> ecalImpactPosition() const {return thePositionAtEcal_;} 
+    /// set primary event vertex used to define photon direction
+    void setVertex(const Point & vertex);
 
 
   private:
@@ -64,8 +73,13 @@ namespace reco {
 
     /// reference to a SuperCluster
     reco::SuperClusterRef superCluster_;
+    /// reference to a vector Track references
     std::vector<reco::TrackRef>  tracks_;
+    double r9_;
     reco::Particle::Point theConversionVertex_;
+    std::vector<math::XYZPoint>  thePositionAtEcal_;
+
+
 
     void makePairInvariantMass() ;
     void makePairCotThetaSeparation();
@@ -75,6 +89,7 @@ namespace reco {
     void makePairPtOverEtSC() ;
     void makeEoverP() ;
 
+
     double invMass_;
     double dCotTheta_;
     double etaTracks_;
@@ -82,6 +97,7 @@ namespace reco {
     GlobalVector  momTracks_;
     double ptOverEtSC_;
     double ep_;
+
 
 
   };
