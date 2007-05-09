@@ -38,52 +38,54 @@
 
 using namespace std;
 
-double CorrectDeadChannelsNN(vector<double> M5x5Input){
+double CorrectDeadChannelsNN(double *M5x5Input){
+
 
   //From 07 May 07 we have as input a vector of :
   //So now, we have a vector which is ordered around the Maximum containement and which contains a dead channel as:
     //Filling of the vector : NxNaroundDC with N==11 Typo are possible...
-    // 000 is Maximum containement which is in +/- 2 from DC
+    // 060 is Maximum containement which is in +/- 2 from DC
     //
-    // 118 110 098 082 062 041 061 081 097 109 117  
-    // 112 100 084 064 043 025 042 063 083 099 111 
-    // 102 086 066 045 027 013 026 044 065 085 101
-    // 088 068 047 029 015 005 014 028 046 067 087
-    // 070 049 031 017 007 001 006 016 030 048 069
-    // 060 040 024 012 004 000 003 011 023 039 039
-    // 080 058 038 022 010 002 009 021 037 057 079
-    // 096 078 056 036 020 008 019 035 055 077 095
-    // 108 094 076 054 034 018 033 053 075 093 107
-    // 116 106 092 074 052 032 051 073 091 105 115
-    // 120 114 104 090 072 050 071 089 103 113 119
-    //////////////////////////////////////////////
+     // 120 119 118 117 116 115 114 113 112 111 110
+     // 109 108 107 106 105 104 103 102 101 100 099
+     // 098 097 096 095 094 093 092 091 090 089 088
+     // 087 086 085 084 083 082 081 080 079 078 077
+     // 076 075 074 073 072 071 070 069 068 067 066
+     // 065 064 063 062 061 060 059 058 057 056 055
+     // 054 053 052 051 050 049 048 047 046 045 044
+     // 043 042 041 040 039 038 037 036 035 034 033
+     // 032 031 030 029 028 027 026 025 024 023 022
+     // 021 020 019 018 017 016 015 014 013 012 011
+     // 010 009 008 007 006 005 004 003 002 001 000
+     //////////////////////////////////////////////
+
   //Conversion between input and input need by NN:
-  vector<double> M5x5;
-  for(int i=0;i<3;i++)M5x5[i]=M5x5Input[i];
-  M5x5[3]=M5x5Input[4];
-  M5x5[4]=M5x5Input[7];
-  M5x5[5]=M5x5Input[10];
-  M5x5[6]=M5x5Input[3];
-  M5x5[7]=M5x5Input[6];
-  M5x5[8]=M5x5Input[9];
-  M5x5[9]=M5x5Input[5];
-  M5x5[10]=M5x5Input[15];
-  M5x5[11]=M5x5Input[14];
-  M5x5[12]=M5x5Input[8];
-  M5x5[13]=M5x5Input[20];
-  M5x5[14]=M5x5Input[19];
-  M5x5[15]=M5x5Input[11];
-  M5x5[16]=M5x5Input[16];
-  M5x5[17]=M5x5Input[28];
-  M5x5[18]=M5x5Input[21];
-  M5x5[19]=M5x5Input[35];
-  M5x5[20]=M5x5Input[12];
-  M5x5[21]=M5x5Input[17];
-  M5x5[22]=M5x5Input[29];
-  M5x5[23]=M5x5Input[22];
-  M5x5[24]=M5x5Input[36];
-
-
+  double M5x5[25];
+  M5x5[0]=M5x5Input[60];
+  M5x5[1]=M5x5Input[71];
+  M5x5[2]=M5x5Input[49];
+  M5x5[3]=M5x5Input[61];
+  M5x5[4]=M5x5Input[72];
+  M5x5[5]=M5x5Input[51];
+  M5x5[6]=M5x5Input[59];
+  M5x5[7]=M5x5Input[70];
+  M5x5[8]=M5x5Input[48];
+  M5x5[9]=M5x5Input[82];
+  M5x5[10]=M5x5Input[83];
+  M5x5[11]=M5x5Input[81];
+  M5x5[12]=M5x5Input[38];
+  M5x5[13]=M5x5Input[39];
+  M5x5[14]=M5x5Input[37];
+  M5x5[15]=M5x5Input[58];
+  M5x5[16]=M5x5Input[69];
+  M5x5[17]=M5x5Input[80];
+  M5x5[18]=M5x5Input[47];
+  M5x5[19]=M5x5Input[36];
+  M5x5[20]=M5x5Input[62];
+  M5x5[21]=M5x5Input[73];
+  M5x5[22]=M5x5Input[84];
+  M5x5[23]=M5x5Input[51];
+  M5x5[24]=M5x5Input[40];
 
 
   Test_Central_1500 *NNCentral =new Test_Central_1500();
@@ -204,7 +206,7 @@ double CorrectDeadChannelsNN(vector<double> M5x5Input){
     voisin1=6;voisin2=2;voisin3=18;voisin4=14;
     break;
   default:
-    cout<<" Error, not valid Dead Channel Number, Abort"<<endl;
+    cout<<" Error, Dead Channel to far from main containement one, no correction is applied"<<endl;
     return 0.0;
     break;
   }//end switch
@@ -225,7 +227,6 @@ double CorrectDeadChannelsNN(vector<double> M5x5Input){
 
   SUM8 =0;
   for(int j=0;j<9;j++)if(j!=IndDeadCha)SUM8+=M5x5[j];
-
 
   float XL24=XL8+M5x5[10]+M5x5[13]+M5x5[20]+M5x5[21]+M5x5[23]+M5x5[24]+M5x5[22];
   float XR24=XR8+M5x5[11]+M5x5[14]+M5x5[15]+M5x5[16]+M5x5[17]+M5x5[18]+M5x5[19];
