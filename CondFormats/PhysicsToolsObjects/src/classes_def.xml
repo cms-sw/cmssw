@@ -5,7 +5,6 @@
 	<class name="PhysicsTools::Calibration::PDF"/>
 	<class name="PhysicsTools::Calibration::VarProcessor"/>
 	<class name="PhysicsTools::Calibration::Variable"/>
-	<class name="PhysicsTools::Calibration::MVAComputer"/>
 	<class name="PhysicsTools::Calibration::ProcOptional"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcOptional&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcClassed"/>
@@ -31,7 +30,6 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcMLP&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcTMVA"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcTMVA&gt;"/>
-
 	<class name="std::vector&lt;unsigned char&gt;"/>
 	<class name="std::vector&lt;std::string&gt;"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::Variable&gt;"/>
@@ -39,4 +37,7 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcLikelihood::SigBkg&gt;"/>
 	<class name="std::pair&lt;double, std::vector&lt;double&gt; &gt;"/>
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
+
+	<class name="PhysicsTools::Calibration::MVAComputer"/>
+	<class name="PhysicsTools::Calibration::MVAComputerContainer"/>
 </lcgdict>

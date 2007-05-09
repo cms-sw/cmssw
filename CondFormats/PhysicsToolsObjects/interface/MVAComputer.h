@@ -9,11 +9,12 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: MVAComputer.h,v 1.1 2007/05/07 18:28:57 saout Exp $
 //
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace PhysicsTools {
 namespace Calibration {
@@ -146,6 +147,10 @@ class MVAComputer {
 	std::vector<ProcTMVA>		vProcTMVA_;
 	std::vector<ProcMLP>		vProcMLP_;
 };
+
+// this is a temporary hack used in RecoBTau until ESSources can be
+// retrieved via label from the same record
+typedef std::map<std::string, MVAComputer> MVAComputerContainer;
 
 } // namespace Calibration
 } // namespace PhysicsTools
