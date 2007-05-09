@@ -28,9 +28,9 @@ SiStripInformationExtractor::SiStripInformationExtractor() {
     " Creating SiStripInformationExtractor " << "\n" ;
   layoutParser_ = 0;
   readReference_ = false;
+  canvas_ = new TCanvas("TestCanvas", "Test Canvas");
   layoutMap.clear();
   readConfiguration();
-  canvas_ = new TCanvas("TestCanvas", "Test Canvas");
 }
 //
 // --  Destructor
@@ -57,7 +57,7 @@ void SiStripInformationExtractor::readConfiguration() {
   } else  edm::LogInfo("SiStripInformationExtractor") << 
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
-
+  createDummiesFromLayout();
 }
 //
 // --  Fill Histo and Module List
@@ -345,7 +345,6 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
   gStyle->SetStatFontSize(0.05);
   canvas_->SetWindowSize(600,600);
   canvas_->Clear();
-  float scale_fac;
   for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
     string fname  = it->first + ".png";
     int ncol, nrow;
@@ -363,14 +362,18 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
       else {
 	TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
 	if (hist1) {
+          setDrawingOption(hist1);
 	  hist1->DrawCopy();
 	  string ref_path = it->first + "/" + path_name.substr(path_name.rfind("/")+1);
+          string hname = hist1->GetTitle();
 	  MonitorElement* me_ref = mui->get(ref_path);
 	  if (me_ref) {
 	    TH1F* hist1_ref = ExtractTObject<TH1F>().extract(me_ref);
-            scale_fac = hist1->GetEntries()*1.0;
-	    hist1_ref->SetLineColor(3);
-	    hist1_ref->DrawNormalized("same", scale_fac);
+	    if (hist1_ref) {
+              hist1_ref->SetLineColor(3);
+              if (hname.find("Summary") != string::npos) hist1_ref->DrawCopy("same");
+              else hist1_ref->DrawNormalized("same", hist1->GetEntries());
+            }
 	  }
 	} else setCanvasMessage("Plot not ready yet!!"); 
       }
@@ -381,7 +384,20 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
     canvas_->Clear();
   }
 }
-
+//
+// -- Plot Dummy Histograms from Layout
+//
+void SiStripInformationExtractor::createDummiesFromLayout(){
+  if (layoutMap.size() == 0) return;
+  canvas_->SetWindowSize(600,600);
+  canvas_->Clear();
+  for (map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
+    string fname  = it->first + ".png";
+    setCanvasMessage("Plot not ready yet!!");
+    canvas_->Print(fname.c_str(),"png");
+    canvas_->Clear();
+  }
+}
 //
 //  plot Histograms in a Canvas
 //
@@ -441,15 +457,14 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
       tTitle.SetTextFont(64);
       tTitle.SetTextSizePixels(20);
       if (hist2) {
-	TAxis* xa = hist2->GetXaxis();
-        xa->SetLabelSize(0.04);
-	if (xlow != -1.0 && xhigh != -1.0) {	  
-          xa->SetRangeUser(xlow, xhigh);
-        }
+        setDrawingOption(hist2, xlow, xhigh);
         hist2->SetFillColor(1);
         if (dopt.find("projection") != string::npos) {
-          TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
+          string ptit = hist1->GetTitle();
+          ptit += "(y-projection)";
+          TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
 	      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
+          thproj.GetXaxis()->SetTitle(ptit.c_str());
 	  for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
 	    for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
 	      thproj.SetBinContent(j, hist2->GetBinContent(i,j));
@@ -459,14 +474,14 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
 	} else hist2->Draw(dopt.c_str());
         tTitle.DrawTextNDC(0.1, 0.92, hist2->GetName());
       } else if (prof) {
-	TAxis* xa = prof->GetXaxis();
-        xa->SetLabelSize(0.04);
-        if (xlow != -1 &&  xhigh != -1.0) {
-          xa->SetRangeUser(xlow, xhigh);
-        }
+        setDrawingOption(prof, xlow, xhigh);
         if (dopt.find("projection") != string::npos) {
-          TH1F thproj(prof->GetName(),prof->GetTitle(),100, 
+
+          string ptit = hist1->GetTitle();
+          ptit += "(y-projection)";
+          TH1F thproj(prof->GetName(),ptit.c_str(),100, 
 		      0.0,prof->GetMaximum()*1.2);
+          thproj.GetXaxis()->SetTitle(ptit.c_str());
           for (int i = 1; i < prof->GetNbinsX()+1; i++) {
 	    thproj.Fill(prof->GetBinContent(i));
 	  }
@@ -474,14 +489,13 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         } else prof->Draw(dopt.c_str());
         tTitle.DrawTextNDC(0.1, 0.92, prof->GetName());
       } else {
-	TAxis* xa = hist1->GetXaxis();
-        xa->SetLabelSize(0.04);
-        if (xlow != -1 &&  xhigh != -1.0) {
-          xa->SetRangeUser(xlow, xhigh);
-        }
+        setDrawingOption(hist1, xlow, xhigh);
         if (dopt.find("projection") != string::npos || sflag) {
-          TH1F thproj(hist1->GetName(),hist1->GetTitle(),100, 
+          string ptit = hist1->GetTitle();
+          ptit += "(y-projection)";
+          TH1F thproj(hist1->GetName(),ptit.c_str(),100, 
 		      0.0,hist1->GetMaximum()*1.2);
+          thproj.GetXaxis()->SetTitle(ptit.c_str());
           for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
 	    thproj.Fill(hist1->GetBinContent(i));
 	  }
@@ -796,4 +810,24 @@ void SiStripInformationExtractor::setCanvasMessage(const string& error_string) {
   tLabel.SetTextSize(0.16);
   tLabel.SetTextColor(4);
   tLabel.DrawTextNDC(0.1, 0.5, error_string.c_str());
+}
+//
+// -- Set Drawing Option
+//
+void SiStripInformationExtractor::setDrawingOption(TH1* hist, float xlow, float xhigh) {
+  if (!hist) return;
+
+  TAxis* xa = hist->GetXaxis();
+  TAxis* ya = hist->GetYaxis();
+
+  xa->SetTitleOffset(0.7);
+  xa->SetTitleSize(0.06);
+  ya->SetTitleOffset(0.7);
+  ya->SetTitleSize(0.06);
+  xa->SetLabelSize(0.04);
+
+  if (xlow != -1 &&  xhigh != -1.0) {
+    xa->SetRangeUser(xlow, xhigh);
+  }
+
 }

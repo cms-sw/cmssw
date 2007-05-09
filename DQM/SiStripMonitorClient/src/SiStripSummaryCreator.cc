@@ -224,7 +224,6 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(MonitorUserInterface* mui,
 	  string sub_path =   mui->pwd() + "/" + (*iv);
 	  MonitorElement* s_me = mui->get(sub_path);
 	  if (s_me) {
-            nBins = s_me->getNbinsX();
             TH1F* hist1 = ExtractTObject<TH1F>().extract( s_me );
             if (hist1) {
 	      nBins = s_me->getNbinsX();
@@ -235,6 +234,11 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(MonitorUserInterface* mui,
 	  }
         }
       }
+    }
+    // Set the axis title 
+    if (me) { 
+      TH1F* hist = ExtractTObject<TH1F>().extract( me );
+      if (hist) hist->GetYaxis()->SetTitle(name.c_str());
     }   
     for (map<int,string>::const_iterator ic = tags.begin();
       ic != tags.end(); ic++) {

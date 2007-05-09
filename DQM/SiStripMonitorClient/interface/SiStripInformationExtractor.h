@@ -10,6 +10,7 @@
 #include "xgi/include/xgi/Method.h"
 
 #include "TCanvas.h"
+#include "TH1.h"
 
 #include <fstream>
 #include <sstream>
@@ -69,6 +70,8 @@ class SiStripInformationExtractor {
   void selectGlobalHistos(MonitorUserInterface * mui, std::vector<std::string>& names, std::vector<MonitorElement*>& mes);
   void defineZone(int nhist, int& ncol, int & now);  
   void setCanvasMessage(const std::string& error_string);
+  void createDummiesFromLayout();
+  void setDrawingOption(TH1* hist, float xlow=-1.0, float xhigh=-1.0);
 
   std::ostringstream pictureBuffer_;
   SiStripLayoutParser* layoutParser_;
