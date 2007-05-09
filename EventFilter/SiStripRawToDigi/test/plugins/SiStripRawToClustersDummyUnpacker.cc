@@ -23,8 +23,6 @@ SiStripRawToClustersDummyUnpacker::SiStripRawToClustersDummyUnpacker( const edm:
     << __func__ 
     << "]"
     << " Constructing object...";
-  
-  produces< RefGetter >();
 }
 
 // -----------------------------------------------------------------------------
@@ -52,7 +50,7 @@ void SiStripRawToClustersDummyUnpacker::endJob() {;}
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripRawToClustersDummyUnpacker::produce( edm::Event& event, 
+void SiStripRawToClustersDummyUnpacker::analyze( const edm::Event& event, 
 						 const edm::EventSetup& setup ) {  
   //Retrieve RefGetter with demand from event
   edm::Handle< RefGetter > demandclusters;

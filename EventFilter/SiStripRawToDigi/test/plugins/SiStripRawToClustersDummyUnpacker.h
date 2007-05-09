@@ -2,7 +2,7 @@
 #define EventFilter_SiStripRawToDigi_SiStripRawToClustersDummyUnpacker_H
 
 //FWCore
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -23,7 +23,7 @@
    @class SiStripRawToClustersDummyUnpacker
 */
 
-class SiStripRawToClustersDummyUnpacker : public edm::EDProducer {
+class SiStripRawToClustersDummyUnpacker : public edm::EDAnalyzer {
   
  public:
 
@@ -35,7 +35,7 @@ class SiStripRawToClustersDummyUnpacker : public edm::EDProducer {
   
   virtual void beginJob( const edm::EventSetup& );
   virtual void endJob();
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
  private: 
 
