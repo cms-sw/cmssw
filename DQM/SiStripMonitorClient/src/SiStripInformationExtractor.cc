@@ -461,7 +461,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         hist2->SetFillColor(1);
         if (dopt.find("projection") != string::npos) {
           string ptit = hist1->GetTitle();
-          ptit += "(y-projection)";
+          ptit += " (y-projection)";
           TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
 	      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
           thproj.GetXaxis()->SetTitle(ptit.c_str());
@@ -478,7 +478,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         if (dopt.find("projection") != string::npos) {
 
           string ptit = hist1->GetTitle();
-          ptit += "(y-projection)";
+          ptit += " (y-projection)";
           TH1F thproj(prof->GetName(),ptit.c_str(),100, 
 		      0.0,prof->GetMaximum()*1.2);
           thproj.GetXaxis()->SetTitle(ptit.c_str());
@@ -492,7 +492,7 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         setDrawingOption(hist1, xlow, xhigh);
         if (dopt.find("projection") != string::npos || sflag) {
           string ptit = hist1->GetTitle();
-          ptit += "(y-projection)";
+          ptit += " (y-projection)";
           TH1F thproj(hist1->GetName(),ptit.c_str(),100, 
 		      0.0,hist1->GetMaximum()*1.2);
           thproj.GetXaxis()->SetTitle(ptit.c_str());
