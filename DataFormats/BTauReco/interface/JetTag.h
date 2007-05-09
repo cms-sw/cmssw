@@ -31,11 +31,12 @@ namespace reco {
     edm::RefToBase<BaseTagInfo> tagInfoRef(void)    const { return m_tagInfo; }
     edm::RefToBase<Jet>         jet(void)           const { return m_tagInfo->jet(); }
     TrackRefVector              tracks(void)        const {
-      try {
-        return m_tagInfo.castTo<JTATagInfo>().tracks();
-      } catch (edm::Exception e) {
-        return TrackRefVector();
-      }
+           const JTATagInfo * jta = dynamic_cast<const JTATagInfo *> (m_tagInfo.get());
+        if(jta){
+          return jta->tracks();
+        } else {
+          return TrackRefVector();
+        }
     }
     
   private:

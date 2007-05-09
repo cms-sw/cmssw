@@ -210,6 +210,10 @@ namespace {
       edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef > rb6;
       edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef > rb7;
       edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef > rb8;
- 
+   //Ref to base holders for Jet
+   //   edm::reftobase::Holder<reco::Jet, reco::BaseTagInfoRef >  rbj0;
+      edm::reftobase::Holder<reco::Jet, reco::CaloJetRef >  rbj05;
+   //   edm::reftobase::Holder<reco::Jet, reco::GenJetRef > rbj1;
+
   }
 }

@@ -147,12 +147,14 @@
   
   <class name="std::vector<Measurement1D>"/>
 
+  <class name="reco::JTATagInfo"/>
   <class name="reco::JTATagInfoCollection"/>
   <class name="reco::JTATagInfoRef"/>
   <class name="reco::JTATagInfoRefProd"/>
   <class name="reco::JTATagInfoRefVector"/>
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
  
+ <!-- <class name="reco::BaseTagInfo"/> -->
  <class name="reco::BaseTagInfoCollection"/>
  <class name="reco::BaseTagInfoRef"/>
  <class name="reco::BaseTagInfoRefProd"/>
@@ -173,6 +175,10 @@
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef> " />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef> " />
   <class name="edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef>" />
+  
+  <class name="edm::RefToBase<reco::Jet>" />
+  <class name="edm::reftobase::BaseHolder<reco::Jet>" />
+  <class name="edm::reftobase::Holder<reco::Jet, reco::CaloJetRef >" />
 
 
 </lcgdict>
