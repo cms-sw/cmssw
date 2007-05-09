@@ -6,8 +6,14 @@
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include <iostream>
+using std::map;
+using std::string;
+using std::cout;
+using std::endl;
+using edm::PCaloHitContainer;
 
-CaloHitAnalyzer::CaloHitAnalyzer(const std::string & name,
+
+CaloHitAnalyzer::CaloHitAnalyzer(const string & name,
                       double hitEnergyThreshold,
                       const CaloVSimParameterMap * parameterMap,
                       const CaloVHitFilter * filter)
@@ -22,12 +28,12 @@ CaloHitAnalyzer::CaloHitAnalyzer(const std::string & name,
 
 
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-void CaloHitAnalyzer::fillHits(const edm::PCaloHitContainer & hits) {
+void CaloHitAnalyzer::fillHits(const PCaloHitContainer & hits) {
   hitEnergySumMap_.clear();
   noiseHits_ = 0;
   // store the energy of each hit in a map
-  edm::PCaloHitContainer::const_iterator hitItr = hits.begin();
-  edm::PCaloHitContainer::const_iterator last = hits.end();
+  PCaloHitContainer::const_iterator hitItr = hits.begin();
+  PCaloHitContainer::const_iterator last = hits.end();
   for( ; hitItr != last; ++hitItr) 
   {
     if(hitFilter_ == 0 || hitFilter_->accepts(*hitItr)) {
@@ -37,7 +43,7 @@ void CaloHitAnalyzer::fillHits(const edm::PCaloHitContainer & hits) {
       double energy = hitItr->energy() * samplingFactor;
 
       // add it to the map
-      std::map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
+      map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
       if(mapItr == hitEnergySumMap_.end()) {
         hitEnergySumMap_[id] = energy;
       } else {
@@ -50,7 +56,7 @@ void CaloHitAnalyzer::fillHits(const edm::PCaloHitContainer & hits) {
 
 void CaloHitAnalyzer::analyze(int id, double recEnergy) {
   if(recEnergy > hitEnergyThreshold_) {
-    std::map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
+    map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
     if(mapItr == hitEnergySumMap_.end()) {
       ++noiseHits_;
     } else {

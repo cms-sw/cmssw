@@ -49,7 +49,7 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
   cout << "Grid reference point in local x,y,z: " << lrefp << endl;
   cout << "steps " << stepx << "," <<  stepy << "," << stepz << endl;
   cout << "RParAsFunOfPhi[0...4] = ";
-  for (int i=0; i<4; ++i) cout << RParAsFunOfPhi[i] << " "; cout << endl;
+  for (int i=0; i<4; i++) cout << RParAsFunOfPhi[i] << " "; cout << endl;
 #endif
 
   Grid1D<double> gridX( 0, n1-1, n1); // offset and step size not constant
@@ -69,7 +69,7 @@ SpecialCylindricalMFGrid::SpecialCylindricalMFGrid( binary_ifstream& inFile,
 }
  
 
-MFGrid::LocalVector SpecialCylindricalMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector SpecialCylindricalMFGrid::valueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(SpecialCylindricalMFGrid)"];
 //   TimeMe t(timer,false);

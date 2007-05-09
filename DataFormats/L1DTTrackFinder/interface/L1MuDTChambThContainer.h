@@ -48,6 +48,10 @@ class L1MuDTChambThContainer {
 
   The_Container* getContainer() const;
 
+  bool bxEmpty(int step) const;
+
+  int bxSize(int step1, int step2) const;
+
   L1MuDTChambThDigi* chThetaSegm(int wheel, int stat, int sect, int bx) const;
 
  private:

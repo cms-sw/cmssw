@@ -54,7 +54,7 @@ CandidateRef CandMatcherBase::operator()( const Candidate & c ) const {
       vector<size_t> momd;
       for( size_t k = 0; k < allMomd.size(); ++ k ) {
 	size_t m = allMomd[ k ];
-	if( nDau == (*matched)[ m ].numberOfDaughters() )
+	if( nDau <= (*matched)[ m ].numberOfDaughters() )
 	  momd.push_back( m );
       }
       if ( moms.size() == 0 ) moms = momd;

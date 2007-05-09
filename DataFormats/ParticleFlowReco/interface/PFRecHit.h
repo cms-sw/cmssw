@@ -51,11 +51,7 @@ namespace reco {
     void calculatePositionREP();
 
     void setNeighbours( const std::vector<PFRecHit*>& neighbours );
-
-    //C this function will not be necessary anymore.
-    //C neighbours4 and neighbours8 will directly contain
-    //C the index of the neighbours, allowing to find them
-    //C in the global rechit vector
+    
     /// \brief search for pointers to neighbours, using neighbours' DetId.
     /// 
     /// pointers to neighbours are not persistent, in contrary to the DetId's 
@@ -100,14 +96,13 @@ namespace reco {
     const std::vector< math::XYZPoint >& getCornersXYZ() const 
       { return cornersxyz_; }    
 
-    //C replace PFRecHit* by unsigned
+    
     const std::vector< PFRecHit* >& getNeighbours4() const 
       {return neighbours4_;}  
 
     const std::vector< PFRecHit* >& getNeighbours8() const 
       {return neighbours8_;}  
 
-    //C remove these
     const std::vector< unsigned >& getNeighboursIds4() const 
       {return neighboursIds4_;}  
 
@@ -135,8 +130,7 @@ namespace reco {
     /// comparison < operator
     bool operator< (const PFRecHit& rhs) const { return (energy_< rhs.energy_); }
 
-    friend std::ostream& operator<<(std::ostream& out, 
-				    const reco::PFRecHit& hit);
+    friend std::ostream& operator<<(std::ostream& out, const reco::PFRecHit& hit);
 
   private:
 
@@ -164,7 +158,6 @@ namespace reco {
     /// rechit cell corners
     std::vector< math::XYZPoint > cornersxyz_;
 
-    //C remove these
     /// id's of neighbours - replace by a set 
     std::vector<unsigned>    neighboursIds4_;
 
@@ -174,7 +167,6 @@ namespace reco {
     /// pointers to neighbours (if null: no neighbour here) (transient)
 /*     std::vector<PFRecHit*>   neighbours_; */
   
-    //C change PFRecHit* to unsigned
     /// pointers to existing neighbours (1 common side) (transient)
     std::vector<PFRecHit*>   neighbours4_;
 

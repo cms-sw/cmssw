@@ -337,20 +337,25 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             unsigned int indexCand = 0;
             unsigned int bxInEvent = 0;
 
-            LogTrace("L1GlobalTrigger")
-            << "Three variants to get muon index 0 in BXInEvent = 0"
-            << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
-            << std::endl;
+            // test first if the record has the required number of candidates
+            if ((*muCollRefProd).getRecord(bxInEvent).getGMTCands().size() > indexCand) {
 
-            L1MuGMTExtendedCand mu00 = (*muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
-            mu00.print();
+                LogTrace("L1GlobalTrigger")
+                << "Three variants to get muon index 0 in BXInEvent = 0"
+                << "\n via RefProd, muonCand(indexCand, bxInEvent), muonCand(indexCand)"
+                << std::endl;
 
-            L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
-            mu00A.print();
+                L1MuGMTExtendedCand mu00 = (*muCollRefProd).getRecord(bxInEvent).getGMTCands()[indexCand];
+                mu00.print();
+    
+                L1MuGMTExtendedCand mu00A = gtReadoutRecord->muonCand(indexCand, bxInEvent);
+                mu00A.print();
+        
+                L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
+                mu00B.print();
 
-            L1MuGMTExtendedCand mu00B = gtReadoutRecord->muonCand(indexCand);
-            mu00B.print();
-
+            }
+            
             // test methods to get GMT records
             std::vector<L1MuGMTReadoutRecord> muRecords = (*muCollRefProd).getRecords();
             LogTrace("L1GlobalTrigger")

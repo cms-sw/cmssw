@@ -239,7 +239,7 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
                     }
                 }
                 
-                edm::LogVerbatim("L1GlobalTriggerGTL")
+                LogTrace("L1GlobalTriggerGTL")
                     << " Bit " << prealgoNumber-1
                     << " " << prealgoName << " = " << prealgoLogExpression << ": " 
                     << m_gtlAlgorithmOR[ prealgoNumber-1 ]
@@ -279,7 +279,7 @@ void L1GlobalTriggerGTL::run(int iBxInEvent) {
                     }
                 }
 
-                edm::LogVerbatim("L1GlobalTriggerGTL")
+                LogTrace("L1GlobalTriggerGTL")
                     << " Bit " << itxml->second->getOutputPin()-1
                     << " " << algoName << " = " << algoLogExpression  
                     << " = " << algoNumExpression
@@ -391,7 +391,7 @@ void L1GlobalTriggerGTL::reset() {
 
 void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
     
-    edm::LogVerbatim("L1GlobalTriggerGTL") 
+    LogTrace("L1GlobalTriggerGTL") 
         << "\nMuon data received by GTL:" << std::endl;
     
     for ( GMTVector::iterator iter = glt_muonCand->begin(); 
@@ -410,7 +410,7 @@ void L1GlobalTriggerGTL::printGmtData(int iBxInEvent) const {
 
     }
 
-    edm::LogVerbatim("L1GlobalTriggerGTL") << std::endl;
+    LogTrace("L1GlobalTriggerGTL") << std::endl;
 
 }
 

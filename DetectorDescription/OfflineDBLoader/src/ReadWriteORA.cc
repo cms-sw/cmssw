@@ -145,9 +145,6 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     std::vector<std::string> partSelections;
     std::map<std::string, std::vector<std::pair<std::string, double> > > values;
     std::map<std::string, int> isEvaluated;
-
-
-  
     PSpecPar* psp;
 
     DDSpecifics::iterator<DDSpecifics> spit(DDSpecifics::begin()), spend(DDSpecifics::end());
@@ -155,11 +152,55 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     // ======= For each DDSpecific...
     for (; spit != spend; ++spit) {
       if ( !spit->isDefined().second ) continue;  
-      psp = DDDToPersFactory::specpar( *spit );
+      const DDSpecifics & sp = *spit;
+
+      std::vector<DDPartSelection>::const_iterator sit(sp.selection().begin()), sed(sp.selection().end());
+
+      // ========... copy all the selection strings out as strings by using the DDPartSelection's ostream function...
+      for (; sit != sed; ++sit) {
+	std::ostringstream selStringStream;
+	selStringStream << *sit;
+	partSelections.push_back ( selStringStream.str() );
+      }
+      // =========  ... and iterate over all DDValues...
+      DDsvalues_type::const_iterator vit(sp.specifics().begin()), ved(sp.specifics().end());
+      for (; vit != ved; ++vit) {
+	const DDValue & v = vit->second;
+	std::vector<std::pair<std::string, double> > vpvp;
+	if ( v.isEvaluated() ) {
+	  size_t s=v.size();
+	  size_t i=0;
+	  // ============  ... and copy all actual values with the same name
+	  for (; i<s; ++i) {
+	    vpvp.push_back(v[i]);
+	  }
+	  isEvaluated[v.name()] = 1;
+	  //	  std::cout << sp.toString() << " variable name " << v.name() << " set evaluated to 1 (true) " << std::endl;
+	}
+	else {
+	  size_t s=v.size();
+	  size_t i=0;
+	  const std::vector<std::string> & vs = v.strings();
+	  // ============  ... and copy all actual values with the same name
+	  for (; i<s; ++i) {
+	    vpvp.push_back(make_pair(vs[i], 0.0));
+	  }
+	  isEvaluated[v.name()] = 0;
+	  //	  std::cout << sp.toString() << " variable name " << v.name() << " set evaluated to 0 (false) " << std::endl;
+	}
+	values[v.name()] = vpvp;
+      }
+      psp = DDDToPersFactory::specpar( spit->toString()
+				       , partSelections
+				       , values
+				       , isEvaluated );
+
       pgeom->pSpecPars.push_back( *psp );
+      values.clear();
+      partSelections.clear();
+      isEvaluated.clear();
       delete psp;
     } 
-
     pgeom->pStartNode = DDRootDef::instance().root().toString();
 
     pool::POOLContext::loadComponent( "SEAL/Services/MessageService" );

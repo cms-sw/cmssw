@@ -17,7 +17,7 @@ using namespace std;
 
 
 HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps) 
-: theParameterMap(new HcalSimParameterMap(ps)),
+: theParameterMap(new HcalSimParameterMap()),
   theHcalShape(new HcalShape()),
   theHFShape(new HFShape()),
   theHcalIntegratedShape(new CaloShapeIntegrator(theHcalShape)),
@@ -91,7 +91,6 @@ void HcalDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
   eventSetup.get<HcalDbRecord>().get(conditions);
   theAmplifier->setDbService(conditions.product());
   theCoderFactory->setDbService(conditions.product());
-  theParameterMap->setDbService(conditions.product());
 
   // get the correct geometry
   checkGeometry(eventSetup);

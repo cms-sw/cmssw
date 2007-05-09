@@ -31,7 +31,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DigiAnalyzer::DigiAnalyzer(edm::ParameterSet const& conf) {
-
+  digiCreator = conf.getUntrackedParameter<std::string>("DigiCreator", "cscunpacker");
   // If your module takes parameters, here is where you would define
   // their names and types, and access them to initialize internal
   // variables. Example as follows:
@@ -56,13 +56,13 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   // one and only one instance of the type in question out of event "e". If
   // zero or more than one instance exists in the event an exception is thrown.
   //
-  e.getByLabel("cscunpacker","MuonCSCWireDigi",wires);
-  e.getByLabel("cscunpacker","MuonCSCStripDigi",strips);
-  e.getByLabel("cscunpacker","MuonCSCComparatorDigi",comparators);
-  e.getByLabel("cscunpacker","MuonCSCALCTDigi",alcts);
-  e.getByLabel("cscunpacker","MuonCSCCLCTDigi",clcts);
-  e.getByLabel("cscunpacker","MuonCSCRPCDigi",rpcs);
-  e.getByLabel("cscunpacker","MuonCSCCorrelatedLCTDigi",correlatedlcts);
+  e.getByLabel(digiCreator,"MuonCSCWireDigi",wires);
+  e.getByLabel(digiCreator,"MuonCSCStripDigi",strips);
+  e.getByLabel(digiCreator,"MuonCSCComparatorDigi",comparators);
+  //e.getByLabel(digiCreator,"MuonCSCALCTDigi",alcts);
+  //e.getByLabel(digiCreator,"MuonCSCCLCTDigi",clcts);
+  //e.getByLabel(digiCreator,"MuonCSCRPCDigi",rpcs);
+  //e.getByLabel(digiCreator,"MuonCSCCorrelatedLCTDigi",correlatedlcts);
    
   
    
@@ -96,7 +96,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
   }
 
 
-
+  /*
   for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
  
     std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
@@ -138,7 +138,7 @@ void DigiAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup) {
     }
   }
 
-
+  */
 
   eventNumber++;
   edm::LogInfo ("DigiAnalyzer")  << "end of event number " << eventNumber;

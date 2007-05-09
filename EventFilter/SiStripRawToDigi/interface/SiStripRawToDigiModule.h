@@ -16,7 +16,7 @@ class SiStripRawToDigiUnpacker;
 class SiStripRawToDigiModule : public edm::EDProducer {
   
  public:
-  
+
   SiStripRawToDigiModule( const edm::ParameterSet& );
   ~SiStripRawToDigiModule();
 
@@ -30,9 +30,6 @@ class SiStripRawToDigiModule : public edm::EDProducer {
   SiStripRawToDigiUnpacker* rawToDigi_;
 
   bool createDigis_;
-
-  std::string label_;
-  std::string instance_;
   
 };
 

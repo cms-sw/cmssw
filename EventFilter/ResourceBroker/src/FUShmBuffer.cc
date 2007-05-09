@@ -71,9 +71,9 @@ FUShmBuffer::~FUShmBuffer()
     unsigned char* buffer=(unsigned char*)((unsigned int)this+cellOffset_);
     if (0!=buffer) delete [] buffer;
   }
-  //else {
-  //  shmdt((void*)this);
-  //}
+  else {
+    shmdt((void*)this);
+  }
 }
 
 
@@ -98,7 +98,6 @@ FUShmBufferCell* FUShmBuffer::cell(unsigned int i)
 //______________________________________________________________________________
 FUShmBufferCell* FUShmBuffer::currentWriterCell()
 {
-  lock();
   FUShmBufferCell* result=cell(writeIndex_);
   while (result->isWritten()||result->isProcessing()) {
     result->skip();
@@ -110,7 +109,6 @@ FUShmBufferCell* FUShmBuffer::currentWriterCell()
   }
   result->resetSkip();
   writeIndex_=(writeIndex_+1)%nCell_;
-  unlock();
   return result;
 }
 
@@ -118,10 +116,8 @@ FUShmBufferCell* FUShmBuffer::currentWriterCell()
 //______________________________________________________________________________
 FUShmBufferCell* FUShmBuffer::currentReaderCell()
 {
-  lock();
   FUShmBufferCell* result=cell(readIndex_);
   readIndex_=(readIndex_+1)%nCell_;
-  unlock();
   return result;
 }
 
@@ -130,10 +126,7 @@ FUShmBufferCell* FUShmBuffer::currentReaderCell()
 FUShmBufferCell* FUShmBuffer::cellToBeDiscarded()
 {
   waitDiscardedSem();
-  lock();
-  FUShmBufferCell* result=cell(cellIndexToBeDiscarded_);
-  unlock();
-  return result;
+  return cell(cellIndexToBeDiscarded_);
 }
 
 
@@ -337,9 +330,7 @@ FUShmBuffer* FUShmBuffer::getShmBuffer()
       <<endl;
   
   // no reason to stay attached to this segment
-  cout<<shm_nattch(shmid1)<<endl;
   shmdt(shmAddr1);
-  cout<<shm_nattch(shmid1)<<endl;
   
   // get the 'real' shared memory buffer
   int size =FUShmBuffer::size(nCell,cellBufferSize,nFed,nSuperFrag);
@@ -383,6 +374,14 @@ bool FUShmBuffer::releaseSharedMemory()
   void* shmAddr1=shm_attach(shmid1);
   if (0==shmAddr1) return false;
   
+  // check that a creator is atached to the segment
+  if (1!=shm_nattch(shmid1)) {
+    cout<<"FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid1)
+	<<", don't release shared memory."<<endl;
+    shmdt(shmAddr1);
+    return false;
+  }
+  
   // retrieve buffer parameters
   unsigned int*p             =(unsigned int*)shmAddr1;
   unsigned int nCell         =*p++;
@@ -404,15 +403,15 @@ bool FUShmBuffer::releaseSharedMemory()
   int shmid=shm_get(FUShmBuffer::getShmKey(),size);
   if (shmid<0) return false;
   
-  // check that a creator is attached to the segment
-  if (shm_nattch(shmid)>1) {
+  // check that a creator is atached to the segment
+  if (0!=shm_nattch(shmid)) {
     cout<<"FUShmBuffer::releaseSharedMemory(): nattch="<<shm_nattch(shmid)
 	<<", don't release shared memory."<<endl;
     return false;
   }
   
   // get semaphore set to control buffer access
-  int semid=sem_get(FUShmBuffer::getSemKey(),5);
+  int semid=sem_get(FUShmBuffer::getSemKey(),3);
   if (semid<0) return false;
   
   if (sem_destroy(semid)==-1)  return false;
@@ -511,13 +510,6 @@ void* FUShmBuffer::shm_attach(int shmid)
 
 
 //______________________________________________________________________________
-void FUShmBuffer::shm_dettach(void* addr)
-{
-  shmdt(addr);
-}
-
-
-//______________________________________________________________________________
 int FUShmBuffer::shm_nattch(int shmid)
 {
   shmid_ds shmstat;
@@ -596,7 +588,7 @@ void FUShmBuffer::sem_wait(int isem)
   sops[0].sem_op =  -1;
   sops[0].sem_flg=   0;
   if (semop(semid(),sops,1)==-1) {
-    cout<<"FUShmBuffer: ERROR in semaphore operation sem_wait."<<endl;
+    cout<<"FUShmBuffer: FATAL ERROR in semaphore operation."<<endl;
   }
 }
 
@@ -609,6 +601,6 @@ void FUShmBuffer::sem_post(int isem)
   sops[0].sem_op =   1;
   sops[0].sem_flg=   0;
   if (semop(semid(),sops,1)==-1) {
-    cout<<"FUShmBuffer: ERROR in semaphore operation sem_post."<<endl;
+    cout<<"FUShmBuffer: FATAL ERROR in semaphore operation."<<endl;
   }
 }

@@ -9,8 +9,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:15:00 $
-// $Revision: 1.4 $
+// $Date: 2007/03/01 07:46:30 $
+// $Revision: 1.5 $
 //
 
 #include "RecoTracker/RoadMapESSource/interface/RoadMapESSource.h"
@@ -32,12 +32,16 @@ RoadMapESSource::RoadMapESSource(const edm::ParameterSet& iConfig) :
   ringsLabel_ = iConfig.getParameter<std::string>("RingsLabel");
 
   findingRecord<RoadMapRecord>();
+  
+  roads_ = 0;
 }
 
 
 RoadMapESSource::~RoadMapESSource()
 {
- 
+  if ( roads_ != 0 ) {
+    delete roads_;
+  }
 }
 
 RoadMapESSource::ReturnType
@@ -49,7 +53,9 @@ RoadMapESSource::produce(const RoadMapRecord& iRecord)
   iRecord.getRecord<RingRecord>().get(ringsLabel_, ringHandle);
   const Rings *rings = ringHandle.product();
 
-  std::auto_ptr<Roads> roads(new Roads(fileName_,rings));
+  roads_ = new Roads(fileName_,rings);
+  
+  std::auto_ptr<Roads> roads(roads_);
 
   return roads ;
 }

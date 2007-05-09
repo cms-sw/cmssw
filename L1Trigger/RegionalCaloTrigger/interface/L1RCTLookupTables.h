@@ -1,11 +1,6 @@
 #ifndef L1RCTLookupTables_h
 #define L1RCTLookupTables_h
 
-#include <math.h>
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/CaloTPG/interface/CaloTPGTranscoder.h"
 
@@ -45,7 +40,7 @@ class L1RCTLookupTables {
 
   L1RCTLookupTables();  // Do not implement so one cannot instantiate without input file
 
-  float convertEcal(unsigned short ecal);
+  float convertEcal(unsigned short ecal, int iAbsEta);
   unsigned short calcActivityBit(float ecal, float hcal);
   unsigned short calcHEBit(float ecal,float hcal, bool fgbit);
   unsigned long convertToInteger(float et, float lsb, int precision);
@@ -64,5 +59,6 @@ class L1RCTLookupTables {
   static float hOeCut_;
   static float eGammaLSB_;
   static float jetMETLSB_;
+  static float eGammaSCF_[32];
 };
 #endif

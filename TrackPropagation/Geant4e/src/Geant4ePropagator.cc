@@ -30,7 +30,9 @@ Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
   theField(field),
   theParticleName(particleName),
   theG4eManager(G4eManager::GetG4eManager()),
-  theSteppingAction(0) {
+  theSteppingAction(new Geant4eSteppingAction) {
+
+  theG4eManager->SetUserAction(theSteppingAction);
 }
 
 /** Destructor. 
@@ -51,12 +53,6 @@ TrajectoryStateOnSurface
 Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart, 
 			      const Plane& pDest) const {
 
-  if (!theSteppingAction) {
-    theG4eManager->InitGeant4e();
-    theSteppingAction = new Geant4eSteppingAction;
-    theG4eManager->SetUserAction(theSteppingAction);
-  }
-
   ///////////////////////////////
   // Construct the target surface
   //
@@ -75,25 +71,21 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     TrackPropagation::globalVectorToHepNormal3D(normalPlane);
 
   //DEBUG
-  LogDebug("Geant4e") << "G4e -  Destination CMS plane position:" << posPlane << "cm\n"
-		      << "G4e -                  (Ro, eta, phi): (" 
-		      << posPlane.perp() << " cm, " 
-		      << posPlane.eta() << ", " 
-		      << posPlane.phi().degrees() << " deg)\n"
-		      << "G4e -  Destination G4  plane position: " << surfPos
-		      << " mm, Ro = " << surfPos.perp() << " mm";
-  LogDebug("Geant4e") << "G4e -  Destination CMS plane normal  : " 
+  LogDebug("Geant4e") << "G4e -- Destination CMS plane position:" << posPlane 
+		      << " cm\n"
+		      << "G4e -- Destination G4  plane position: " << surfPos
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Destination CMS plane normal  : " 
 		      << normalPlane << "\n"
-		      << "G4e -  Destination G4  plane normal  : " 
+		      << "G4e -- Destination G4  plane normal  : " 
 		      << normalPlane;
-  LogDebug("Geant4e") << "G4e -  Distance from plane position to plane: " 
-		      << pDest.localZ(posPlane) << " cm";
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(posPlane);
   //DEBUG
 
   //* Set the target surface
   G4eTarget* g4eTarget = new G4eTargetPlaneSurface(surfNorm, surfPos);
   theG4eManager->SetTarget(g4eTarget);
-  g4eTarget->Dump("G4e - ");
   //
   ///////////////////////////////
 
@@ -112,20 +104,16 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     TrackPropagation::globalVectorToHep3Vector(cmsInitMom*GeV);
 
   //DEBUG
-  LogDebug("Geant4e") << "G4e -  Initial CMS point position:" << cmsInitPos 
-		      << "cm\n"
-		      << "G4e -              (Ro, eta, phi): (" 
-		      << cmsInitPos.perp() << " cm, " 
-		      << cmsInitPos.eta() << ", " 
-		      << cmsInitPos.phi().degrees() << " deg)\n"
-		      << "G4e -  Initial G4  point position: " << g4InitPos 
-		      << " mm, Ro = " << g4InitPos.perp() << " mm";
-  LogDebug("Geant4e") << "G4e -  Initial CMS momentum      :" << cmsInitMom 
-		      << "GeV\n"
-		      << "G4e -  Initial G4  momentum      : " << g4InitMom 
+  LogDebug("Geant4e") << "G4e -- Initial CMS point position:" << cmsInitPos 
+		      << " cm\n"
+		      << "G4e -- Initial G4  point position: " << g4InitPos 
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Initial CMS momentum      :" << cmsInitMom 
+		      << " GeV\n"
+		      << "G4e -- Initial G4  momentum      :" << g4InitMom 
 		      << " MeV";
-  LogDebug("Geant4e") << "G4e -  Distance from initial point to plane: " 
-		      << pDest.localZ(cmsInitPos) << " cm";
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(cmsInitPos);
   //DEBUG
 
   //
@@ -141,7 +129,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   else
     particleName += "-";
 
-  LogDebug("Geant4e") << "G4e -  Particle name: " << particleName;
+  LogDebug("Geant4e") << "G4e -- Particle name: " << particleName;
 
   //
   ///////////////////////////////
@@ -149,21 +137,18 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   ///////////////////////////////
   //Set the error and trajectories, and finally propagate
   //
-  G4eTrajError g4error( 5, 1 ); //The error matrix
-  LogDebug("Geant4e") << "G4e -  Error matrix: " << g4error;
-
+  G4eTrajError error( 5, 0 ); //The error matrix
   G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, g4error);
-  LogDebug("Geant4e") << "G4e -  Traj. State: " << (*g4eTrajState);
+    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, error);
 
   //Set the mode of propagation according to the propagation direction
   G4eMode mode = G4eMode_PropForwards;
   if (propagationDirection() == oppositeToMomentum) {
     mode = G4eMode_PropBackwards;
-    LogDebug("Geant4e") << "G4e -  Propagator mode is \'backwards\'";
+    LogDebug("Geant4e") << "G4e -- Prop. mode is backwards";
   }
   else
-    LogDebug("Geant4e") << "G4e -  Propagator mode is \'forwards\'";
+    LogDebug("Geant4e") << "G4e -- Prop. mode is forwards";
   //
   //////////////////////////////
 
@@ -172,12 +157,12 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   int ierr =
     theG4eManager->Propagate( g4eTrajState, g4eTarget, mode);
-  LogDebug("Geant4e") << "G4e -  Return error from propagation: " << ierr;
+  LogDebug("Geant4e") << "G4e -- Return error from propagation: " << ierr;
   //
   //////////////////////////////
 
   //////////////////////////////
-  // Retrieve the state in the end from Geant4e, convert them to CMS vectors
+  // Retrieve the state in the end from Geant4e, converte them to CMS vectors
   // and points, and build global trajectory parameters.
   // CMS uses cm and GeV while Geant4 uses mm and MeV
   //
@@ -188,20 +173,16 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   GlobalVector momEndGV = TrackPropagation::hep3VectorToGlobalVector(momEnd)/GeV;
 
   //DEBUG
-  LogDebug("Geant4e") << "G4e -  Final CMS point position:" << posEndGV 
-		      << "cm\n"
-		      << "G4e -            (Ro, eta, phi): (" 
-		      << posEndGV.perp() << " cm, " 
-		      << posEndGV.eta() << ", " 
-		      << posEndGV.phi().degrees() << " deg)\n"
-		      << "G4e -  Final G4  point position: " << posEnd 
-		      << " mm,\tRo =" << posEnd.perp()  << " mm";
-  LogDebug("Geant4e") << "G4e -  Final CMS momentum      :" << momEndGV
-		      << "GeV\n"
-		      << "G4e -  Final G4  momentum      : " << momEnd 
+  LogDebug("Geant4e") << "G4e -- Final CMS point position:" << posEndGV 
+		      << " cm\n"
+		      << "G4e -- Final G4  point position: " << posEnd 
+		      << " mm";
+  LogDebug("Geant4e") << "G4e -- Final CMS momentum      :" << momEndGV
+		      << " GeV\n"
+		      << "G4e -- Final G4  momentum      :" << momEnd 
 		      << " MeV";
-  LogDebug("Geant4e") << "G4e -  Distance from final point to plane: " 
-		      << pDest.localZ(posEndGV) << " cm";
+  LogDebug("Geant4e") << "G4e -- Distance from point to plane: " 
+		      << pDest.localZ(posEndGV);
   //DEBUG
 
   GlobalTrajectoryParameters tParsDest(posEndGV, momEndGV, charge, theField);
@@ -209,8 +190,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   // Get the error covariance matrix from Geant4e. It comes in curvilinear
   // coordinates so use the appropiate CMS class  
-  G4eTrajError g4errorEnd = g4eTrajState->GetError();
-  CurvilinearTrajectoryError curvError(g4errorEnd);
+  G4eTrajError errorEnd = g4eTrajState->GetError();
+  CurvilinearTrajectoryError curvError(errorEnd);
 
 
   ////////////////////////////////////////////////////////////////////////
@@ -218,7 +199,7 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
   // tracker where special treatment need to be used when arriving to   //
   // a surface, we set the SurfaceSide to atCenterOfSurface.            //
   ////////////////////////////////////////////////////////////////////////
-  LogDebug("Geant4e") << "G4e -  SurfaceSide is always atCenterOfSurface after propagation";
+  LogDebug("Geant4e") << "G4e -- SurfaceSide is always atCenterOfSurface after propagation";
   SurfaceSide side = atCenterOfSurface;
   //
   ////////////////////////////////////////////////////////
@@ -246,8 +227,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   //DEBUG --- Remove at some point
   TkRotation<float>  rotation = cDest.rotation();
-  LogDebug("Geant4e") << "G4e -  TkRotation" << rotation;
-  LogDebug("Geant4e") << "G4e -  G4Rotation" << rotCyl << "mm";
+  LogDebug("Geant4e") << "G4e -- TkRotation" << rotation;
+  LogDebug("Geant4e") << "G4e -- G4Rotation" << rotCyl << "mm";
 
 
   //Set the target surface
@@ -271,9 +252,9 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     particleName += "-";
 
   //Set the error and trajectories, and finally propagate
-  G4eTrajError g4error( 5, 0 ); //The error matrix
+  G4eTrajError error( 5, 0 ); //The error matrix
   G4eTrajStateFree* g4eTrajState = 
-    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, g4error);
+    new G4eTrajStateFree(particleName, g4InitPos, g4InitMom, error);
 
   //Set the mode of propagation according to the propagation direction
   G4eMode mode = G4eMode_PropForwards;
@@ -299,8 +280,8 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
 
   // Get the error covariance matrix from Geant4e. It comes in curvilinear
   // coordinates so use the appropiate CMS class  
-  G4eTrajError g4errorEnd = g4eTrajState->GetError();
-  CurvilinearTrajectoryError curvError(g4errorEnd);
+  G4eTrajError errorEnd = g4eTrajState->GetError();
+  CurvilinearTrajectoryError curvError(errorEnd);
 
 
   ////////////////////////////////////////////////////////////////////////

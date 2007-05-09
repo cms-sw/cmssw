@@ -1,9 +1,6 @@
 <use name=DataFormats/CLHEP>
 <use name=DetectorDescription/Base>
-<use name=DetectorDescription/ExprAlgo>
-<use name=FWCore/MessageLogger>
-<use name=Foundation/SealUtil>
-<use name=boost>
+<use name=DetectorDescription/CoreImpl>
 <use name=clhep>
 <export>
   <use name=DetectorDescription/Base>

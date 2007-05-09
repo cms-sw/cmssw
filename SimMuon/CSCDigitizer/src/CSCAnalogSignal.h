@@ -26,8 +26,6 @@
 #include <vector>
 #include <iosfwd>
 
-//TODO remove
-#include <iostream>
 
 class CSCAnalogSignal
 {
@@ -105,13 +103,6 @@ public:
     assert(i>=0 && i < getSize());
     return theBinValues[i];
   }
-
-  const float & operator[](int i) const {
-    assert(i>=0 && i < getSize());
-    return theBinValues[i];
-  }
-
-  unsigned size() const {return theBinValues.size();}
 
 private:
   int theElement;

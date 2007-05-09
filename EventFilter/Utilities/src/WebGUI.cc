@@ -381,16 +381,9 @@ void WebGUI::htmlTable(Input_t*in,Output_t*out,
       <<endl;
 
   for (unsigned int i=0;i<params.size();i++) {
-    string valueAsString;
-    try {
-      valueAsString = params[i].second->toString();
-    }
-    catch (xcept::Exception& e) {
-      valueAsString = e.what();
-    }
     *out<<tr()
 	<<td(params[i].first).set("align","left")
-	<<td(valueAsString).set("align","right")
+	<<td(params[i].second->toString()).set("align","right")
 	<<tr()<<endl;
   }
   *out<<table()<<endl;

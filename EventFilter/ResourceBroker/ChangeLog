@@ -1,27 +1,3 @@
-2007-02-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-02-01
-	* add rcmsStateNotifier from xdaq2rc package: used to notify run
-	control of the self-triggered transition into the target state.
-
-2007-02-20  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
-
-	* tag V00-02-00
-	* new asynchronous state model: upon receiving a command
-	(e.g. 'configure'), a transitional state is entered; at
-	the end of the transitional state (e.g. 'configuring'), the
-	transition into the target state (e.g. 'ready') is
-	auto-triggered.
-	* missing: the run control function manager needs to be notified
-	of the transition into the target state. This will be done using
-	the xdaq2rc package, which will be part of xdaq in version
-	3.8. Until xdaq 2.8. is part of the CMSSW release, this tag and
-	following tags are not going to be published to the TC.
-	* The stop and halt commands have been tested and verified to work
-	well. After halt, the allocated shared memory will be released
-	cleanly.
-	
-
 2007-02-12  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-01-02

@@ -9,7 +9,7 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -69,8 +69,8 @@ namespace cms
 
     edm::ESHandle<TrackerGeometry> tracker;
     es.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  
+    edm::LogVerbatim("CosmicTrackFinder") << "========== Cosmic Track Finder Info ==========";
+    edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Seeds " << (*seed).size();
     if((*seed).size()>0){
 
       std::vector<Trajectory> trajoutput;
@@ -84,7 +84,8 @@ namespace cms
 				   e,
 				   trajoutput);
    
-      
+      edm::LogVerbatim("CosmicTrackFinder") << " Numbers of Temp Trajectories " << trajoutput.size();
+      edm::LogVerbatim("CosmicTrackFinder") << "========== END Info ==========";
       if(trajoutput.size()>0){
 	std::vector<Trajectory*> tmpTraj;
 	std::vector<Trajectory>::iterator itr;
@@ -191,10 +192,17 @@ namespace cms
 	output->push_back(theTrack);
 	delete theTrackExtra;
       }
-
+      else {
+	e.put( outputRHColl );
+	e.put(outputTEColl);    
+      }
     }
-	e.put(output);
-	if (trinevents)	e.put(outputTJ);
+    else {
+      e.put( outputRHColl );
+      e.put(outputTEColl);    
+    }
+    e.put(output);
+    if (trinevents) e.put(outputTJ);
 
   }
 }

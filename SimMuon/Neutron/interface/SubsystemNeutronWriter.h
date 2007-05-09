@@ -41,9 +41,6 @@ public:
 
   virtual int chamberId(int globalDetId) const = 0;
 
-  /// good practice to do once for each chamber type
-  void initialize(int chamberType);
-
 protected:
 
 
@@ -60,7 +57,6 @@ private:
   edm::InputTag theInputTag;
   double theNeutronTimeCut;
   double theTimeWindow;
-  int theNEvents;
   bool initialized;
   std::map<int, int> theCountPerChamberType;
 };

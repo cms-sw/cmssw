@@ -45,12 +45,6 @@ RPCRollSpecs::topology() const
   return *(_top);
 }
 
-const StripTopology& 
-RPCRollSpecs::specificTopology() const
-{
-  return *(_top);
-}
-
 
 const std::string&
 RPCRollSpecs::detName() const

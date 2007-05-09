@@ -4,8 +4,8 @@
 /** \class MuonDTDigis
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/02/06 10:51:27 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/02/10 10:20:10 $
+ *  $Revision: 1.2 $
  *  \authors: R. Bellan
  */
 #include <FWCore/Framework/interface/Event.h>
@@ -26,7 +26,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/DTGeometry/interface/DTLayer.h"
-#include "Geometry/Vector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
   
 #include "DataFormats/DTDigi/interface/DTDigi.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"

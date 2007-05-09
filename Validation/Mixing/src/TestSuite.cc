@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Fri Sep 23 11:38:38 CEST 2005
-// $Id: TestSuite.cc,v 1.6 2006/06/27 09:13:42 uberthon Exp $
+// $Id: TestSuite.cc,v 1.5 2006/06/14 13:19:42 uberthon Exp $
 //
 //
 
@@ -20,21 +20,29 @@
 #include <utility>
 
 // user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "Validation/Mixing/interface/TestSuite.h"
-
+#include "TH1I.h"
 #include "TFile.h"
 
 using namespace edm;
 
-TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch")),  dbe_(0)
+TestSuite::TestSuite(const edm::ParameterSet& iConfig): filename_(iConfig.getParameter<std::string>("fileName")), bunchcr_(iConfig.getParameter<int>("BunchNr")), minbunch_(iConfig.getParameter<int>("minBunch")),maxbunch_(iConfig.getParameter<int>("maxBunch"))
 {
   std::cout << "Constructed testSuite , bunchcr "<<bunchcr_<<" filename: "<<filename_<<std::endl;
 
+  histfile_ = new TFile(filename_.c_str(),"UPDATE");
 }
 
 
@@ -43,27 +51,21 @@ TestSuite::~TestSuite()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-}
+  histfile_->Write();
+  histfile_->Close();
 
-void TestSuite::beginJob(edm::EventSetup const&iSetup) {
-
-  // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->(); 
-  dbe_->showDirStructure();
-  dbe_->setCurrentFolder("Mixing");
-} 
-
-void TestSuite::endJob() {
- if (filename_.size() != 0 && dbe_ ) dbe_->save(filename_);
 }
 
 
+//
+// member functions
+//
 
 // ------------ method called to analyze the data  ------------
 void
 TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
+   using namespace edm;
 
 // Get input
     edm::Handle<CrossingFrame> cf;
@@ -79,10 +81,10 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     sprintf(sighistotracks,"SignalTracks_bcr_%d",bunchcr_);
     sprintf(histotracksind,"VtxPointers_%d",bunchcr_);
     sprintf(histotracksindsig,"VtxPointers_signal_%d",bunchcr_);
-    MonitorElement * trhist = dbe_->book1D(histotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
-    MonitorElement * trhistsig = dbe_->book1D(sighistotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
-    MonitorElement * trindhist = dbe_->book1D(histotracksind,"Track to Vertex indices",100,0,500);
-    MonitorElement * trindhistsig = dbe_->book1D(histotracksindsig,"Signal Track to Vertex indices",100,0,500);
+    TH1I * trhist = new TH1I(histotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * trhistsig = new TH1I(sighistotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * trindhist = new TH1I(histotracksind,"Track to Vertex indices",100,0,500);
+    TH1I * trindhistsig = new TH1I(histotracksindsig,"Signal Track to Vertex indices",100,0,500);
     std::auto_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf.product()));
     MixCollection<SimTrack>::iterator cfi1;
     for (cfi1=col1->begin(); cfi1!=col1->end();cfi1++) {
@@ -102,10 +104,10 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     sprintf(sighistovertices,"SignalVertices_bcr_%d",bunchcr_);
     sprintf(histovertexindices,"TrackPointers_%d",bunchcr_);
     sprintf(histovertexindicessig,"TrackPointers_signal_%d",bunchcr_);
-    MonitorElement * vtxhist = dbe_->book1D(histovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
-    MonitorElement * vtxhistsig = dbe_->book1D(sighistovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
-    MonitorElement * vtxindhist = dbe_->book1D(histovertexindices,"Vertex to Track Indices",100,0,300);
-    MonitorElement * vtxindhistsig = dbe_->book1D(histovertexindicessig,"Signal Vertex to Track Indices",100,0,300);
+    TH1I * vtxhist = new TH1I(histovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * vtxhistsig = new TH1I(sighistovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
+    TH1I * vtxindhist = new TH1I(histovertexindices,"Vertex to Track Indices",100,0,300);
+    TH1I * vtxindhistsig = new TH1I(histovertexindicessig,"Signal Vertex to Track Indices",100,0,300);
     std::auto_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf.product()));
     MixCollection<SimVertex>::iterator cfi2;
     for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
@@ -123,9 +125,9 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //tracker
     sprintf(tof,"TrackerHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofhist = dbe_->book1D(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofhist = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     sprintf(tof,"SignalTrackerHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofhist_sig = dbe_->book1D(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofhist_sig = new TH1I(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     std::string subdet("TrackerHitsTECLowTof");
     //    std::string subdet("TrackerHitsTIBLowTof");
     std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf.product(),std::string(subdet)));
@@ -141,9 +143,9 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     //Ecal
     sprintf(tof,"EcalEBHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofecalhist = dbe_->book1D(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofecalhist = new TH1I(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     sprintf(tof,"SignalEcalEBHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofecalhist_sig = dbe_->book1D(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofecalhist_sig = new TH1I(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     std::string ecalsubdet("EcalHitsEB");
     std::auto_ptr<MixCollection<PCaloHit> > colecal(new MixCollection<PCaloHit>(cf.product(),std::string(ecalsubdet)));
     MixCollection<PCaloHit>::iterator cfiecal;
@@ -154,9 +156,9 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // Hcal
     sprintf(tof,"HcalHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofhcalhist = dbe_->book1D(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofhcalhist = new TH1I(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     sprintf(tof,"SignalHcalHit_Tof_bcr_%d",bunchcr_);
-    MonitorElement * tofhcalhist_sig = dbe_->book1D(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
+    TH1I * tofhcalhist_sig = new TH1I(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
     std::string hcalsubdet("HcalHits");
     std::auto_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf.product(),std::string(hcalsubdet)));
     MixCollection<PCaloHit>::iterator cfihcal;

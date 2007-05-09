@@ -23,6 +23,7 @@
 #include <cmath>
 
 using namespace std;
+using namespace edm;
 
 //-----------------------------------------------------------------------------
 //  
@@ -132,6 +133,20 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 				    float alpha, float beta)
 {
   pair<float,float> element;
+
+  ///
+  /// Temporary patch for CMSSW_1_3_0. Handle NANs received from bad tracks
+  /// to avoid job crash and return binary errors.
+  ///
+  if( isnan(alpha) || isnan(beta) ) {
+
+    LogError ("NANcatched") << "PixelErrorParametrization::getError: NAN catched in angles alpha or beta" ; 
+ 
+    element = pair<float,float>(0.010/sqrt(12.), 0.015/sqrt(12.));
+    return element;
+
+  }
+  
   switch (pixelPart) {
   case GeomDetEnumerators::PixelBarrel:
     element = pair<float,float>(error_XB(sizex, alpha, beta), 
@@ -142,13 +157,13 @@ PixelErrorParametrization::getError(GeomDetType::SubDetector pixelPart,
 				 error_YF(sizey, alpha, beta));
     break;
   default:
-    LogDebug("PixelErrorParametrization::getError") 
+    LogDebug ("PixelErrorParametrization::getError") 
       << "PixelErrorParametrization:: a non-pixel detector type in here?" ;
     //  &&& Should throw an exception here!
     assert(0);
   }
 
-  LogDebug("PixelErrorParametrization::getError") << " ErrorMatrix gives error: " 
+  LogDebug ("PixelErrorParametrization::getError") << " ErrorMatrix gives error: " 
 						  << element.first << " , " << element.second;
   
   return element;

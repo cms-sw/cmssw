@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/01 15:24:06 $
- *  $Revision: 1.22 $
+ *  $Date: 2006/06/22 17:15:31 $
+ *  $Revision: 1.21 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -402,29 +402,24 @@ pair<float,bool> DTDigitizer::driftTimeFromParametrization(float x, float theta,
   // Double half-gaussian smearing
   float time = asymGausSmear(DT.t_drift, DT.t_width_m, DT.t_width_p);
 
-  // Do not allow the smearing to lead to negative values
-  time = max(time,0.f);
-
-  // Apply a Gaussian smearing to account for electronic effects (cf. 2004 TB analysis)
-  // The width of the Gaussian can be configured with the "Smearing" parameter
-  double u = RandGaussQ::shoot(0.,smearing);
-  time += u;
-
   if (debug) cout << "  drift time = " << time << endl;
-  
-  return pair<float,bool>(time,true); 
+
+  // Do not allow the smearing to lead to negative values
+  return pair<float,bool>(max(time,0.f),true); 
+
 }
 
 float DTDigitizer::asymGausSmear(double mean, double sigmaLeft, double sigmaRight) const {
 
   double f = sigmaLeft/(sigmaLeft+sigmaRight);
-  double t;
+  double t, u;
+  u = RandGaussQ::shoot(0.,smearing);
   if (RandFlat::shoot() <= f) {
     t = RandGaussQ::shoot(mean,sigmaLeft);
-    t = mean - fabs(t - mean);
+    t = mean - fabs(t - mean) + u;
   } else {
     t = RandGaussQ::shoot(mean,sigmaRight);
-    t = mean + fabs(t - mean);
+    t = mean + fabs(t - mean) + u;
   }
   return static_cast<float>(t);
 }

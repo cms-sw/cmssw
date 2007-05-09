@@ -1,5 +1,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTNeighborMap.h"
 
+#include <vector>
+using std::vector;
 
 vector<int> L1RCTNeighborMap::north(int crate,int card,int region){
   vector<int> north(3);

@@ -11,8 +11,7 @@ using namespace reco;
 
 
 PixelMatchElectron::PixelMatchElectron(const SuperClusterRef scl, const TrackRef t,
-					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, const double HoE) :LeafCandidate(),
-//	       const TrajectoryStateClosestToPoint& tssuper, const TrajectoryStateClosestToPoint& tsseed) :LeafCandidate(), 
+					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, const GlobalPoint tsseedPos, const GlobalVector tsseedMom, const double HoE) :
                hadOverEm_(HoE), superCluster_(scl), track_(t)   
 {
   //
@@ -29,6 +28,8 @@ PixelMatchElectron::PixelMatchElectron(const SuperClusterRef scl, const TrackRef
 			  superCluster_->energy());
   setCharge(track_->charge());
   setP4(momentum);
+  setVertex(Point(track_->vertex()));
+  //  setPdgId( -11 * charge() );
 
   math::XYZPoint trackPos= track_->vertex();
   trackPositionAtVtx_=math::XYZVector(trackPos.x(),trackPos.y(),trackPos.z());
@@ -178,5 +179,15 @@ float PixelMatchElectron::ecalPhi(float PtParticle, float EtaParticle, float Phi
   return PHI;
 }
 
+bool PixelMatchElectron::overlap( const Candidate & c ) const {
+  const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
+  return ( o != 0 && 
+	   ( checkOverlap( track(), o->track() ) ||
+	     checkOverlap( superCluster(), o->superCluster() ) ) 
+	   );
+  return false;
+}
 
-
+PixelMatchElectron * PixelMatchElectron::clone() const { 
+  return new PixelMatchElectron( * this ); 
+}
