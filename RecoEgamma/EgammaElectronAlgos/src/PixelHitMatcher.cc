@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.cc,v 1.6 2006/09/28 17:09:10 uberthon Exp $
+// $Id: PixelHitMatcher.cc,v 1.7 2007/05/07 20:01:15 charlot Exp $
 //
 //
 
@@ -28,6 +28,7 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -49,7 +50,7 @@ void PixelHitMatcher::setES(const MagneticField* magField, const MeasurementTrac
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   theMagField = magField;
   delete prop2ndLayer;
-  float mass=.1057; //FIXME, masse  mu
+  float mass=.1057; // using muon propagation
   prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum,mass,theMagField);
   prop2ndLayer = new PropagatorWithMaterial(alongMomentum,mass,theMagField);
 }
@@ -61,7 +62,7 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   int charge = int(fcharge);
   // return all compatible RecHit pairs (vector< TSiPixelRecHit>)
   vector<pair<RecHitWithDist, ConstRecHitPointer> > result;
-   LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
+  LogDebug("") << "[PixelHitMatcher::compatibleHits] entering .. ";
 
 
   vector<TrajectoryMeasurement> validMeasurements;
@@ -79,21 +80,8 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   FreeTrajectoryState fts =myFTS(theMagField,xmeas, vprim, 
 				 energy, charge);
 
-  // We have to propagate first to a layer to make a tsos
-  math::XYZPoint geommess(xmeas.x(),xmeas.y(),xmeas.z());
-  TrajectoryStateOnSurface tsos;
-  if (fabs(geommess.eta()) < 1.479) {
-    BarrelDetLayer *outermostLayer = (theGeometricSearchTracker->tobLayers())[theGeometricSearchTracker->tobLayers().size() - 1 ];
-    tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
-    } else {
-   if (xmeas.z() > 0.) {
-     ForwardDetLayer *outermostLayer = (theGeometricSearchTracker->posTecLayers())[theGeometricSearchTracker->posTecLayers().size() - 1 ];
-     tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
-   } else if (xmeas.z() < 0.) {
-     ForwardDetLayer *outermostLayer = (theGeometricSearchTracker->negTecLayers())[theGeometricSearchTracker->negTecLayers().size() - 1 ];
-     tsos=prop1stLayer->propagate(fts,outermostLayer->specificSurface());
-   }
-  }
+  PerpendicularBoundPlaneBuilder bpb;
+  TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
   
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements = 
@@ -111,14 +99,13 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	pred1Meas.push_back( prediction);
       
 	validMeasurements.push_back(*m);
-	//@@ uncomment lines below
-		LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
-		const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-		if (bdetl) {
-		  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
-		}
-		else  LogDebug("") <<"Could not downcast!!";
-      } //else  cout << "[PixelHitMatcher::compatibleHits] invalid pixel recHit " << endl;
+	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
+	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
+	if (bdetl) {
+	  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
+	}
+	else  LogDebug("") <<"Could not downcast!!";
+      } 
     }
 
     
@@ -139,13 +126,12 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
         LogDebug("") << "[PixelHitMatcher::compatibleHits] predicted position " << m->forwardPredictedState().globalPosition() << endl;
       
 	validMeasurements.push_back(*m);
-	//@@ uncomment lines below
-		LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
-		const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
-		if (bdetl) {
-		  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
-		}
-		else  LogDebug("") <<"Could not downcast!!";
+	LogDebug("") <<"[PixelHitMatcher::compatibleHits] Found a rechit in layer ";
+	const BarrelDetLayer *bdetl = dynamic_cast<const BarrelDetLayer *>(*firstLayer);
+	if (bdetl) {
+	  LogDebug("") <<" with radius "<<bdetl->specificSurface().radius();
+	}
+	else  LogDebug("") <<"Could not downcast!!";
       }
     }
   }
@@ -154,15 +140,8 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
   // check if there are compatible 1st hits the forward disks
   typedef vector<ForwardDetLayer*>::const_iterator ForwardLayerIterator;
   ForwardLayerIterator flayer;
-  // We have to propagate to the outermost forward layer
-  ForwardDetLayer *outermostFLayer;
-  if (xmeas.z()<0){
-    outermostFLayer = (theGeometricSearchTracker->negForwardLayers())[theGeometricSearchTracker->negForwardLayers().size() - 1 ];
-  }
-  else {
-    outermostFLayer = (theGeometricSearchTracker->posForwardLayers())[theGeometricSearchTracker->posForwardLayers().size() - 1 ];
-  }
-  const TrajectoryStateOnSurface tsosfwd=prop1stLayer->propagate(fts,outermostFLayer->specificSurface());
+  
+  TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));  
   if (tsosfwd.isValid()) {
 
     for (int i=0; i<2; i++) {
@@ -250,10 +229,10 @@ vector<pair<RecHitWithDist, PixelHitMatcher::ConstRecHitPointer> > PixelHitMatch
 	  pxrh = secondSecondHit.measurementsInNextLayers()[0].recHit();
 	  pair<RecHitWithDist, ConstRecHitPointer> compatiblePair = pair<RecHitWithDist, ConstRecHitPointer>(rh,pxrh);
           result.push_back(compatiblePair);
-        }// test on secondSecondHit.measurementsInNextLayers()
-      }//loop on missed measurements
-    }//test on emptiness of secondHit.measurementsInNextLayers()
-  } //loop on valid measurements
+        }
+      }
+    }
+  }
 
   return result;
 
