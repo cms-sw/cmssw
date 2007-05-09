@@ -43,6 +43,8 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
   double deltaEta_;
   double deltaPhi_;
   edm::InputTag candTag_;
+  edm::InputTag candTagEle_;
+  bool useZvertex_;
 };
 
 #endif

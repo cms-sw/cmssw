@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.1 2007/03/06 10:57:39 monicava Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.2 2007/03/07 09:22:03 monicava Exp $
 //
 
 #include <iostream>
@@ -22,7 +22,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
-
+#include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -42,7 +43,8 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   deltaEta_    = conf_.getParameter<double>("deltaEtaRegion");
   deltaPhi_    = conf_.getParameter<double>("deltaPhiRegion");
   candTag_     = conf_.getParameter< edm::InputTag > ("candTag");
-
+  candTagEle_  = conf_.getParameter< edm::InputTag > ("candTagEle");
+  useZvertex_  = conf_.getParameter<bool>("UseZInVertex");
 
 }
 
@@ -72,28 +74,41 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
   iEvent.getByLabel(candTag_,recoecalcands);
 
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); 
-       recoecalcand!=recoecalcands->end(); recoecalcand++) {
+  //Get the HLT electrons collection if needed
+  edm::Handle<reco::ElectronCollection> electronHandle;
+  if(useZvertex_){iEvent.getByLabel(candTagEle_,electronHandle);}
 
-      
-      GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
-      
+  reco::SuperClusterRef scRef;
+  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
+    scRef = recoecalcand->superCluster();
+    float zvertex = 0;
+    if( useZvertex_ ){
+      reco::SuperClusterRef scRefEle;
+      for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
+	//Compare electron SC with EcalCandidate SC
+	scRefEle = iElectron->superCluster();
+	if(&(*scRef) == &(*scRefEle)){
+	  zvertex = iElectron->track()->vz();	  
+	  break;
+	}
+      }
 
-      RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(dirVector,
-											   GlobalPoint(0,0,float(vertexz_)), 
+    }
+    GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
+    RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(dirVector,
+											   GlobalPoint(0,0,zvertex), 
 											   ptmin_,
 											   originradius_,
 											   halflength_,
 											   deltaEta_,
 											   deltaPhi_);
 
-
-      combinatorialSeedGenerator.init(*pixelHits,iSetup);
-      combinatorialSeedGenerator.run(*etaphiRegion,*output,iSetup);
- 
-      delete etaphiRegion;
-
-   }
+    combinatorialSeedGenerator.init(*pixelHits,iSetup);
+    combinatorialSeedGenerator.run(*etaphiRegion,*output,iSetup);
+    
+    delete etaphiRegion;
+    
+  }
 
     iEvent.put(output);
 }
