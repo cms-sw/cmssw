@@ -37,8 +37,9 @@
 
 using namespace std;
 
-double CorrectDeadChannelsClassic(double *M9x9, const int DCeta){
+double CorrectDeadChannelsClassic(double *M11x11Input, const int DCeta){
 
+  //cout<<"Inside Correction Function ...."<< endl;
 
   PositionCorrector *PosCorr = new PositionCorrector();
   SplineCorrector *SplCorr   = new SplineCorrector();
@@ -51,69 +52,79 @@ double CorrectDeadChannelsClassic(double *M9x9, const int DCeta){
   float NEWx,NEWy;
   float estimX,estimY,SUMlogFR;
   float SUM24;
-  //revert crystal matrix because of negative eta
   float crE[25];
-  float crE9x9[9][9];  
- 
-  //
-  // Pass the 9x9 matrix to crE9x9
-  //
-  int indix;
-  indix=-1;
-  for(int ieta=0;ieta<9;ieta++){
-    for(int iphi=0;iphi<9;iphi++){
-      indix++;
-      crE9x9[ieta][iphi]=M9x9[indix];
-    }
-  }
   
+   
 
-  //  cout<<"Dead Channel ETA" << DCeta << endl;
+  crE[0]=M11x11Input[40];
+  crE[1]=M11x11Input[51];
+  crE[2]=M11x11Input[62];
+  crE[3]=M11x11Input[73];
+  crE[4]=M11x11Input[84];
+
+  crE[5]=M11x11Input[39];
+  crE[6]=M11x11Input[50];
+  crE[7]=M11x11Input[61];
+  crE[8]=M11x11Input[72];
+  crE[9]=M11x11Input[83];
+
+  crE[10]=M11x11Input[38];
+  crE[11]=M11x11Input[49];
+  crE[12]=M11x11Input[60];
+  crE[13]=M11x11Input[71];
+  crE[14]=M11x11Input[82];
+
+  crE[15]=M11x11Input[37];
+  crE[16]=M11x11Input[48];
+  crE[17]=M11x11Input[59];
+  crE[18]=M11x11Input[70];
+  crE[19]=M11x11Input[81];
+
+  crE[20]=M11x11Input[36];
+  crE[21]=M11x11Input[47];
+  crE[22]=M11x11Input[58];
+  crE[23]=M11x11Input[69];
+  crE[24]=M11x11Input[80];
+
+
+  cout<<"Inside Correction Function : Dead Channel ETA" << DCeta << endl;
+  //revert crystal matrix because of negative eta
   if(DCeta<0){
-    //cout<<" I revert the CR9x9 MATRIX because of negative eta" << DCeta << endl;
-    indix=-1;
-    for(int ieta=0;ieta<9;ieta++){
-      for(int iphi=0;iphi<9;iphi++){
-	indix++;
-	crE9x9[8-ieta][iphi]=M9x9[indix];
-      }
-    }
+
+  crE[0]=M11x11Input[36];
+  crE[1]=M11x11Input[47];
+  crE[2]=M11x11Input[58];
+  crE[3]=M11x11Input[69];
+  crE[4]=M11x11Input[80];
+
+  crE[5]=M11x11Input[37];
+  crE[6]=M11x11Input[48];
+  crE[7]=M11x11Input[59];
+  crE[8]=M11x11Input[70];
+  crE[9]=M11x11Input[81];
+
+  crE[10]=M11x11Input[38];
+  crE[11]=M11x11Input[49];
+  crE[12]=M11x11Input[60];
+  crE[13]=M11x11Input[71];
+  crE[14]=M11x11Input[82];
+
+  crE[15]=M11x11Input[39];
+  crE[16]=M11x11Input[50];
+  crE[17]=M11x11Input[61];
+  crE[18]=M11x11Input[72];
+  crE[19]=M11x11Input[83];
+
+  crE[20]=M11x11Input[40];
+  crE[21]=M11x11Input[51];
+  crE[22]=M11x11Input[62];
+  crE[23]=M11x11Input[73];
+  crE[24]=M11x11Input[84];
+
+
   }
   
 
-
-
-  //  center the 9x9 around the most energetic crystal 
-  //  search should only be made in the 5x5 around the DC
-
-  int iMAXEeta = -100;
-  int iMAXEphi = -100;
-  float MAXenergy = -1.0;
-
-  for(int ieta=2;ieta<7;ieta++){
-    for(int iphi=2;iphi<7;iphi++){
-
-      if(crE9x9[ieta][iphi]>MAXenergy){
-	MAXenergy = crE9x9[ieta][iphi];
-	iMAXEeta = ieta;
-	iMAXEphi = iphi;
-      }
-
-    }
-  }
-
-
-
-  // Copy to crE only the part we care for
-
-  indix=-1;
-  for(int ieta=iMAXEeta-2;ieta<iMAXEeta+3;ieta++){
-    for(int iphi=iMAXEphi-2;iphi<iMAXEphi+3;iphi++){
-      indix++;
-      crE[indix]= crE9x9[ieta][iphi];
-    }
-  }
-  
 
 
 
@@ -136,7 +147,7 @@ double CorrectDeadChannelsClassic(double *M9x9, const int DCeta){
   SUMr   = crE[15] + crE[16] + crE[17] + crE[18] + crE[19];
   SUMrr  = crE[20] + crE[21] + crE[22] + crE[23] + crE[24];
 
-
+  /*
   cout<<"================================================================="<<endl;
   cout<<crE[4]<<setw(12)<<crE[9]<<setw(12)<<crE[14]<<setw(12)<<crE[19]<<setw(12)<<crE[24]<<endl;
   cout<<crE[3]<<setw(12)<<crE[8]<<setw(12)<<crE[13]<<setw(12)<<crE[18]<<setw(12)<<crE[23]<<endl;
@@ -144,7 +155,7 @@ double CorrectDeadChannelsClassic(double *M9x9, const int DCeta){
   cout<<crE[1]<<setw(12)<<crE[6]<<setw(12)<<crE[11]<<setw(12)<<crE[16]<<setw(12)<<crE[21]<<endl;
   cout<<crE[0]<<setw(12)<<crE[5]<<setw(12)<<crE[10]<<setw(12)<<crE[15]<<setw(12)<<crE[20]<<endl;
   cout<<"================================================================="<<endl;
-
+  */
 
 
 ////////////////////////////////////////////////////////////////////
