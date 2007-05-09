@@ -41,6 +41,20 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
       << stripConditions;
   }
   theDigitizer.setStripConditions(theStripConditions);
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+   throw cms::Exception("Configuration")
+     << "CSCDigitizer requires the RandomNumberGeneratorService\n"
+        "which is not present in the configuration file.  You must add the service\n"
+        "in the configuration file or remove the modules that require it.";
+  }
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+
+  theDigitizer.setRandomEngine(engine);
+  theStripConditions->setRandomEngine(engine);
+
 }
 
 
@@ -83,19 +97,6 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   edm::ESHandle < ParticleDataTable > pdt;
   eventSetup.getData( pdt );
   theDigitizer.setParticleDataTable(&*pdt);
-
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable()) {
-   throw cms::Exception("Configuration")
-     << "CSCDigitizer requires the RandomNumberGeneratorService\n"
-        "which is not present in the configuration file.  You must add the service\n"
-        "in the configuration file or remove the modules that require it.";
-  }
-
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-
-  theDigitizer.setRandomEngine(engine);
-  theStripConditions->setRandomEngine(engine);
 
   theStripConditions->initializeEvent(eventSetup);
 
