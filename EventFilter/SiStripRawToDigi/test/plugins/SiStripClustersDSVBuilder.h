@@ -10,8 +10,7 @@
 
 //Data Formats
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 //stl

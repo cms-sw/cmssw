@@ -8,9 +8,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-//Data Formats
-#include "DataFormats/SiStripCommon/test/stubs/SiStripLazyGetter.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
+//DataFormats
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 
 //stl

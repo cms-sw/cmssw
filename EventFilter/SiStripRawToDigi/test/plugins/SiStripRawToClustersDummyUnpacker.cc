@@ -5,7 +5,7 @@
 
 //Data Formats
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/SiStripCommon/test/stubs/SiStripRefGetter.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
 using namespace std;

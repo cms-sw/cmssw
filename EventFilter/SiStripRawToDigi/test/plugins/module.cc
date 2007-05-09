@@ -21,9 +21,6 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersDummyRoI);
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyUnpacker.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersDummyUnpacker);
 
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClusters.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClusters);
-
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripClustersDSVBuilder.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripClustersDSVBuilder);
 
