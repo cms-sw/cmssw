@@ -6,6 +6,7 @@
       digitized data frame
    */
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
+#include "CLHEP/Random/RandFlat.h"
 
 class HBHEDataFrame;
 class HODataFrame;
@@ -18,8 +19,9 @@ class HcalElectronicsSim {
 public:
   HcalElectronicsSim(HcalAmplifier * amplifier, 
                      const HcalCoderFactory * coderFactory);
-  /// doesn't delete pointers
-  ~HcalElectronicsSim() {}
+  ~HcalElectronicsSim();
+
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   void analogToDigital(CaloSamples & linearFrame, HBHEDataFrame & result);
   void analogToDigital(CaloSamples & linearFrame, HODataFrame & result);
@@ -33,6 +35,7 @@ private:
 
   HcalAmplifier * theAmplifier;
   const HcalCoderFactory * theCoderFactory;
+  CLHEP::RandFlat * theRandFlat;
 
   int theStartingCapId;
 };

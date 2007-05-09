@@ -3,18 +3,21 @@
   
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVSimParameterMap.h"
+#include "CLHEP/Random/RandGaussQ.h"
+
 class HcalDbService;
 
 class HcalAmplifier {
 public:
   HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise);
-  /// doesn't delete the pointer
-  virtual ~HcalAmplifier(){}
+  virtual ~HcalAmplifier(){ delete theRandGaussQ; }
 
   /// the Producer will probably update this every event
   void setDbService(const HcalDbService * service) {
     theDbService = service;
    }
+
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   virtual void amplify(CaloSamples & linearFrame) const;
 
@@ -22,7 +25,9 @@ public:
 
 private:
   const HcalDbService * theDbService;
+  CLHEP::RandGaussQ * theRandGaussQ;
   const CaloVSimParameterMap * theParameterMap;
+
   unsigned theStartingCapId;
   bool addNoise_;
 };
