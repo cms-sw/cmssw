@@ -42,10 +42,10 @@
 // class declaration
 //
 
-class TestReader : public edm::EDAnalyzer {
+class TestMuonReader : public edm::EDAnalyzer {
 public:
-  explicit TestReader( const edm::ParameterSet& );
-  ~TestReader();
+  explicit TestMuonReader( const edm::ParameterSet& );
+  ~TestMuonReader();
   
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -61,18 +61,18 @@ private:
 //
 // constructors and destructor
 //
-TestReader::TestReader( const edm::ParameterSet& iConfig ) 
+TestMuonReader::TestMuonReader( const edm::ParameterSet& iConfig ) 
 { 
 }
 
 
-TestReader::~TestReader()
+TestMuonReader::~TestMuonReader()
 { 
 }
 
 
 void
-TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
    
@@ -160,4 +160,4 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestReader);
+DEFINE_FWK_MODULE(TestMuonReader);
