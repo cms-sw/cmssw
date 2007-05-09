@@ -1,11 +1,16 @@
 #!/bin/sh
 
-
-for file in `ls /tmp/giordano/ClusterThr/*root`
+Tpath=/data/local1/giordano/ClusterTh_Data
+for dir in `ls $Tpath`
+  do
+  [ ! -d $Tpath/$dir ] && continue
+  
+  for file in `ls $Tpath/$dir/*root`
     do
 
-  echo -e "\n $file \n"
-
-  outfile=`echo $file | sed -e "s@.root@_DoPlot.ps@g"`
-  root -b -l -q "DoPlot.C(\"$file\",\"$outfile\")"
+    outfile=`echo $file | sed -e "s@.root@_DoPlot.ps@g"`
+    [ -e $outfile ] && continue
+    echo -e "\n $file $outfile\n"
+    root -b -l -q "DoPlot.C(\"$file\",\"$outfile\")"
+  done
 done
