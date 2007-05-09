@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.24 2007/05/02 17:52:52 duboscq Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.25 2007/05/08 21:32:45 duboscq Exp $
 //
 
 // system include files
@@ -172,9 +172,9 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
 
     // JED Debugging possible double hit sort problem
-    LogDebug("") <<" HERE BEFORE SORT electron case "<<std::endl;
-    for (std::vector<const TrackingRecHit*>::iterator itHit=outputHits_neg_.begin();
-		  itHit != outputHits_neg_.end(); ++itHit) {
+    LogDebug("") << " HERE BEFORE SORT electron case " << std::endl;
+    for (std::vector<const TrackingRecHit*>::iterator itHit=outputHits_neg_.begin(); 
+	        itHit != outputHits_neg_.end(); ++itHit) {
        LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<" \n"
 		    <<"    Local Position: "<<(*itHit)->localPosition()<<" \n"
 		    <<"    Global Rho:  "
@@ -184,21 +184,21 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 		    << " Z "
 		    <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
     }
-     // end of dump 
- 
-
- 
-     // JED call dump 
-     LogDebug("") << " Calling sort " << std::endl; 
- 
-     std::sort(outputHits_neg_.begin(), outputHits_neg_.end(),
+    // end of dump 
+    
+    
+    
+    // JED call dump 
+    LogDebug("") << " Calling sort " << std::endl; 
+    
+    std::sort(outputHits_neg_.begin(), outputHits_neg_.end(),
 	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
-
-
-     LogDebug("") << " Done with sort " << std::endl;
-
- 
-
+    
+    
+    LogDebug("") << " Done with sort " << std::endl;
+    
+    
+    
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
     for(std::vector<const TrackingRecHit*>::iterator itHit =outputHits_neg_.begin();
@@ -206,22 +206,22 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 	++itHit) {
       hits.push_back( (*itHit)->clone());
       if( !(hitUsed_.find(*itHit) != hitUsed_.end()) ) {
-        LogDebug("") << " Assert failure " ;
-        assert(hitUsed_.find(*itHit) != hitUsed_.end());
+	  LogDebug("") << " Assert failure " ;
+	  assert(hitUsed_.find(*itHit) != hitUsed_.end());
       }
       hitUsed_[*itHit] = true;
     }
-
+    
     TrajectoryStateOnSurface state(
 				   GlobalTrajectoryParameters(position_neg_, momentum_neg_, -1, magneticField_p_),
 				   CurvilinearTrajectoryError(errors),
 				   tracker_p_->idToDet(innerhit_neg_->geographicalId())->surface());
-
+    
     TrajectoryStateTransform transformer;
     PTrajectoryStateOnDet* PTraj = transformer.persistentState(state, innerhit_neg_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
     trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
-
+    
     electronOut.push_back(reco::SiStripElectron(superclusterIn,
 						-1,
 						outputRphiHits_neg_,
@@ -237,12 +237,12 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfStereoHits_neg_,
 						numberOfBarrelRphiHits_neg_,
 						numberOfEndcapZphiHits_neg_));
-
+    
     delete PTraj; // ShR: fix memory leak reported per perfrmance task force
-
+    
     return true;
   }
-
+  
   // positron hypothesis did better than electron
   if ((!electronSuccess  &&  positronSuccess)  ||
       (electronSuccess  &&  positronSuccess  &&  redchi2_neg_ > redchi2_pos_)) {
@@ -256,28 +256,28 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
 
      // JED Debugging possible double hit sort problem
-     LogDebug("") <<" HERE BEFORE SORT Positron case "<<std::endl;
-     for (std::vector<const TrackingRecHit*>::iterator itHit = outputHits_pos_.begin();
- 	 itHit != outputHits_pos_.end(); ++itHit) {
-       LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<" \n"
-		    <<"    Local Position: "<<(*itHit)->localPosition()<<" \n"
-		    <<"    Global Rho:  "
-		    <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())
-		    <<" Phi "
-		    <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).phi())
-		    << " Z "
-		    <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
+     LogDebug("") << " HERE BEFORE SORT Positron case " << std::endl;
+     for (std::vector<const TrackingRecHit*>::iterator itHit = outputHits_pos_.begin(); 
+       itHit != outputHits_pos_.end(); ++itHit) {
+         LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<" \n"
+		      <<"    Local Position: "<<(*itHit)->localPosition()<<" \n"
+		      <<"    Global Rho:  "
+		      <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())
+		      <<" Phi "
+		      <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).phi())
+		      << " Z "
+		      <<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
      }
      // end of dump 
-
-
-    std::sort(outputHits_pos_.begin(), outputHits_pos_.end(),
-	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
-
+    
+    
+     std::sort(outputHits_pos_.begin(), outputHits_pos_.end(),
+	       CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
+     
      LogDebug("") << " Done with sort " << std::endl;
- 
-
-
+    
+    
+    
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
     for(std::vector<const TrackingRecHit*>::iterator itHit =outputHits_pos_.begin();
@@ -287,17 +287,17 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
       assert(hitUsed_.find(*itHit) != hitUsed_.end());
       hitUsed_[*itHit] = true;
     }
-
+    
     TrajectoryStateOnSurface state(
 				   GlobalTrajectoryParameters(position_pos_, momentum_pos_, 1, magneticField_p_),
 				   CurvilinearTrajectoryError(errors),
 				   tracker_p_->idToDet(innerhit_pos_->geographicalId())->surface());
-
+    
     TrajectoryStateTransform transformer;
     PTrajectoryStateOnDet* PTraj = transformer.persistentState(state, innerhit_pos_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(*PTraj, hits, alongMomentum);
     trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, *PTraj));
-
+    
     electronOut.push_back(reco::SiStripElectron(superclusterIn,
 						1,
 						outputRphiHits_pos_,
@@ -313,12 +313,12 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfStereoHits_pos_,
 						numberOfBarrelRphiHits_pos_,
 						numberOfEndcapZphiHits_pos_));
-
+    
     delete PTraj; // JED: fix of 2nd memory leak reported per perfrmance task force
-
+    
     return true;
   }
-
+  
   return false;
 }
 
@@ -460,6 +460,18 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // hits and reduced chi^2 from the fit are used to select a good
   // candidate.
 
+  // set limits on Si hits - smallest error that makes sense = 1 micron ?
+  static const double rphiHitSmallestError = 0.0001 ;
+  static const double stereoHitSmallestError = 0.0001 ;
+  //not used since endcap is not implemented  
+  // static const double zphiHitSmallestError = 0.0001 ;
+
+
+  static const double stereoPitchAngle = 0.100 ; // stereo angle in rad
+  static const double cos2SiPitchAngle = cos(stereoPitchAngle)*cos(stereoPitchAngle) ;
+  static const double sin2SiPitchAngle = sin(stereoPitchAngle)*sin(stereoPitchAngle) ;
+
+
   // Create and fill vectors of pointers to hits
   std::vector<const SiStripRecHit2D*> stereoHits;
   std::vector<const SiStripRecHit2D*> rphiBarrelHits;
@@ -487,7 +499,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   double energy = superclusterIn->energy();
   double pT = energy * superclusterIn->position().rho()/sqrt(superclusterIn->x()*superclusterIn->x() +
 						  superclusterIn->y()*superclusterIn->y() +
-						  superclusterIn->z()*superclusterIn->z());
+					          superclusterIn->z()*superclusterIn->z());
   // cf Jackson p. 581-2, a little geometry
   double phiVsRSlope = -3.00e-3 * chargeHypothesis * magneticField_p_->inTesla(GlobalPoint(superclusterIn->x(), superclusterIn->y(), 0.)).z() / pT / 2.;
 
@@ -588,41 +600,47 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     double r_stereo = sqrt(position.x()*position.x() + position.y()*position.y());
     double phi_stereo = unwrapPhi(position.phi() - superclusterIn->position().phi());  // phi is relative to supercluster
     //    double z_stereo = position.z();
-    double theta = 0.100 ; // stereo angle in rad
-    double r_stereo_err = sqrt((*hit)->localPositionError().xx()*cos(theta)*cos(theta) +
-                               ((*hit)->localPositionError().yy()*sin(theta)*sin(theta)) ) ; 
-    // stereo is has a pitch of 100 mrad, so error gets inflated by
-    // tan(100mrad) * length of detector - about 10cm
-    //    r_stereo_err=sqrt(r_stereo_err*r_stereo_err+1.0*1.0);
- 
-    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=(*hit)->cluster();
-    
-    bool thisHitIsMatched = false ;
 
-    if (!hitUsed_[*hit]) {
+    double r_stereo_err = sqrt((*hit)->localPositionError().xx()*cos2SiPitchAngle +
+                               (*hit)->localPositionError().yy()*sin2SiPitchAngle );
+    // stereo is has a pitch of 100 mrad - so consider both components
+
+
+    // make sure that the error for this hit is sensible, ie > 1 micron
+    // otherwise skip this hit
+    if(r_stereo_err > stereoHitSmallestError ) {
+
  
-      unsigned int matcheduselist_size = matcheduselist.size();
-      for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
-        if (matcheduselist[i]) {
-          const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mystereocluster = matchedhitlist[i]->stereoHit()->cluster();
-          if( stereocluster == mystereocluster ) {
-            thisHitIsMatched = true ;
-            //    LogDebug("")<< "     This hit is matched " << tracker_p_->idToDet(matchedhitlist[i]->stereoHit()->geographicalId())->surface().toGlobal(matchedhitlist[i]->stereoHit()->localPosition()) << std::endl;
-	    //      break ;
-	  }
-	} // check if matcheduselist okay 
-      }// loop over matched hits 
+      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=(*hit)->cluster();
+    
+      bool thisHitIsMatched = false ;
+
+      if (!hitUsed_[*hit]) {
+ 
+	unsigned int matcheduselist_size = matcheduselist.size();
+	for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
+	  if (matcheduselist[i]) {
+	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mystereocluster = matchedhitlist[i]->stereoHit()->cluster();
+	    if( stereocluster == mystereocluster ) {
+	      thisHitIsMatched = true ;
+	      //    LogDebug("")<< "     This hit is matched " << tracker_p_->idToDet(matchedhitlist[i]->stereoHit()->geographicalId())->surface().toGlobal(matchedhitlist[i]->stereoHit()->localPosition()) << std::endl;
+	      //      break ;
+	    }
+	  } // check if matcheduselist okay 
+	}// loop over matched hits 
       
-      if(thisHitIsMatched) {
-	// Use this hit to fit phi(r)
-	uselist.push_back(true);
-	rlist.push_back(r_stereo);
-	philist.push_back(phi_stereo);
-	w2list.push_back(1./(r_stereo_err/r_stereo)/(r_stereo_err/r_stereo));  // weight**2 == 1./uncertainty**2
-	typelist.push_back(0);
-	hitlist.push_back(*hit);
-      } // thisHitIsMatched
-    } //  if(!hitUsed)
+	if(thisHitIsMatched) {
+	  // Use this hit to fit phi(r)
+	  uselist.push_back(true);
+	  rlist.push_back(r_stereo);
+	  philist.push_back(phi_stereo);
+	  w2list.push_back(1./(r_stereo_err/r_stereo)/(r_stereo_err/r_stereo));  // weight**2 == 1./uncertainty**2
+	  typelist.push_back(0);
+	  hitlist.push_back(*hit);
+	} // thisHitIsMatched
+      } //  if(!hitUsed)
+
+    } //  end of check on hit position error size 
 
   } // end loop over stereo hits
   
@@ -643,53 +661,30 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     double z = position.z();
     double r_mono_err = sqrt((*hit)->localPositionError().xx()) ;
 
-    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=(*hit)->cluster();
+    // only consider hits with errors that make sense
+    if( r_mono_err > rphiHitSmallestError) {
+
+      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=(*hit)->cluster();
     
 
-    if (!hitUsed_[*hit]) {
-      if( (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
-	   (TIBDetId((*hit)->geographicalId()).layer()==1 || TIBDetId((*hit)->geographicalId()).layer()==2)) || 
-	  (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  
-	   && (TOBDetId((*hit)->geographicalId()).layer()==1 || TOBDetId((*hit)->geographicalId()).layer()==2)) ) {
-	bool thisHitIsMatched = false ;
-	unsigned int matcheduselist_size = matcheduselist.size();
-	for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
-	  if (matcheduselist[i]) {
-	    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mymonocluster = matchedhitlist[i]->monoHit()->cluster();
-	    if( monocluster == mymonocluster ) {
-	      thisHitIsMatched = true ;
-	    } 
-	  } // check if matcheduselist okay 
-	}// loop over matched hits 
+      if (!hitUsed_[*hit]) {
+	if( (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
+	     (TIBDetId((*hit)->geographicalId()).layer()==1 || TIBDetId((*hit)->geographicalId()).layer()==2)) || 
+	    (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  
+	     && (TOBDetId((*hit)->geographicalId()).layer()==1 || TOBDetId((*hit)->geographicalId()).layer()==2)) ) {
+	  bool thisHitIsMatched = false ;
+	  unsigned int matcheduselist_size = matcheduselist.size();
+	  for (unsigned int i = 0;  i < matcheduselist_size;  i++) {
+	    if (matcheduselist[i]) {
+	      const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > mymonocluster = matchedhitlist[i]->monoHit()->cluster();
+	      if( monocluster == mymonocluster ) {
+		thisHitIsMatched = true ;
+	      } 
+	    } // check if matcheduselist okay 
+	  }// loop over matched hits 
         
         
-	if( thisHitIsMatched ) {
-	  // Use this hit to fit phi(r)
-	  uselist.push_back(true);
-	  rlist.push_back(r);
-	  philist.push_back(phi);
-	  w2list.push_back(1./(r_mono_err/r)/(r_mono_err/r));  // weight**2 == 1./uncertainty**2
-	  typelist.push_back(1);
-	  hitlist.push_back(*hit);
-	  rphiMatchedCounter++;
-	} // end of matched hit check
-
-      } else {
-
-
-	// The expected z position of this hit, according to the z(r) fit
-	double zFit = zVsRSlope * (r - scr) + scz;
-        
-	// Cut on the Z of the strip
-	// TIB strips are 11 cm long, TOB strips are 19 cm long (can I get these from a function?)
-	if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
-	     fabs(z - zFit) < 12.)  ||
-	    (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  && 
-	     fabs(z - zFit) < 20.)    ) {
-          
-	  // Cut a narrow band around the supercluster's projection in phi
-	  if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {
-            
+	  if( thisHitIsMatched ) {
 	    // Use this hit to fit phi(r)
 	    uselist.push_back(true);
 	    rlist.push_back(r);
@@ -697,12 +692,39 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	    w2list.push_back(1./(r_mono_err/r)/(r_mono_err/r));  // weight**2 == 1./uncertainty**2
 	    typelist.push_back(1);
 	    hitlist.push_back(*hit);
-	    rphiUnMatchedCounter++;
+	    rphiMatchedCounter++;
+	  } // end of matched hit check
+
+	} else {
+
+
+	  // The expected z position of this hit, according to the z(r) fit
+	  double zFit = zVsRSlope * (r - scr) + scz;
+        
+	  // Cut on the Z of the strip
+	  // TIB strips are 11 cm long, TOB strips are 19 cm long (can I get these from a function?)
+	  if ((tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB  && 
+	       fabs(z - zFit) < 12.)  ||
+	      (tracker_p_->idToDetUnit((*hit)->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB  && 
+	       fabs(z - zFit) < 20.)    ) {
+          
+	    // Cut a narrow band around the supercluster's projection in phi
+	    if (unwrapPhi((r-scr)*phiVsRSlope - phiBandWidth_) < phi  &&  phi < unwrapPhi((r-scr)*phiVsRSlope + phiBandWidth_)) {
             
-	  } // end cut on phi band
-	} // end cut on strip z
-      } // loop over TIB/TOB layer 1,2 
-    } // end assign disjoint sets of hits to electrons
+	      // Use this hit to fit phi(r)
+	      uselist.push_back(true);
+	      rlist.push_back(r);
+	      philist.push_back(phi);
+	      w2list.push_back(1./(r_mono_err/r)/(r_mono_err/r));  // weight**2 == 1./uncertainty**2
+	      typelist.push_back(1);
+	      hitlist.push_back(*hit);
+	      rphiUnMatchedCounter++;
+            
+	    } // end cut on phi band
+	  } // end cut on strip z
+	} // loop over TIB/TOB layer 1,2 
+      } // end assign disjoint sets of hits to electrons
+    } // end of check on rphi hit position error size
   } // end loop over barrel rphi hits
 
   LogDebug("") << " There are " << rphiMatchedCounter <<" matched rphi hits"; 
@@ -731,8 +753,8 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       double phi = unwrapPhi(position.phi() - superclusterIn->position().phi());  // phi is relative to supercluster
       //      double r=sqrt(position.x()*position.x()+position.y()*position.y()) ;
 
-	// The expected r position of this hit, according to the z(r) fit
-	double rFit = (z - scz)/zVsRSlope + scr;
+      // The expected r position of this hit, according to the z(r) fit
+      double rFit = (z - scz)/zVsRSlope + scr;
 
       // I don't know the r widths of the endcap strips, otherwise I
       // would apply a cut on r similar to the rphi z cut
@@ -756,36 +778,76 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
  
   LogDebug("") << " There are " << uselist.size() << " good stereo+rphi+zphi hits " ;
 
-
+  
   // Calculate a linear phi(r) fit and drop hits until the biggest contributor to chi^2 is less than maxNormResid_
   bool done = false;
-  double intercept, slope, chi2;
+  double intercept = 0 ;
+  double slope = 0 ;
+  double chi2 = 0;
+
+  std::ostringstream debugstr4;
+  debugstr4 <<" Calc of phi(r) "<<" \n";
+
   while (!done) {
-    // The linear fit
-    double sum_w2   = 0.;
-    double sum_w2x  = 0.;
-    double sum_w2x2 = 0.;
-    double sum_w2y  = 0.;
-    double sum_w2y2 = 0.;
-    double sum_w2xy = 0.;
+    // Use an iterative update of <psi>, <r> etc instead in an
+    // attempt to minize divisions of  large numbers
+    // The linear fit  psi = slope*r + intercept
+    //             slope is (<psi*r>-<psi>*<r>) / (<r^2>-<r>^2>)
+    //             intercept is <psi> - slope*<r>
+    
+    double phiBar   = 0.;
+    double phiBarOld   = 0.;
+    double rBar  = 0.;
+    double rBarOld  = 0.;
+    double r2Bar = 0.;
+    double r2BarOld = 0.;
+    double phirBar = 0.;
+    double phirBarOld = 0.;
+    double totalWeight = 0.;
+    double totalWeightOld = 0.; 
     unsigned int uselist_size = uselist.size();
     for (unsigned int i = 0;  i < uselist_size;  i++) {
       if (uselist[i]) {
-	double r = rlist[i];
-	double phi = philist[i];
-	double weight2 = w2list[i];
+        double r = rlist[i];
+        double phi = philist[i];
+        double weight2 = w2list[i];
+	
+        totalWeight = totalWeightOld + weight2 ;
+	
+        //weight2 is 1/sigma^2. Typically sigma is 100micron pitch
+        // over root(12) = 30 microns so weight2 is about 10^5-10^6
+	
+        double totalWeightRatio = totalWeightOld/totalWeight ;
+        double localWeightRatio = weight2/totalWeight ;
+	
+        phiBar = phiBarOld*totalWeightRatio + phi*localWeightRatio ; 
+        rBar = rBarOld*totalWeightRatio + r*localWeightRatio ; 
+        r2Bar= r2BarOld*totalWeightRatio + r*r*localWeightRatio ; 
+        phirBar = phirBarOld*totalWeightRatio + phi*r*localWeightRatio ;
+	
+	totalWeightOld = totalWeight ;
+        phiBarOld = phiBar ;
+        rBarOld = rBar ;
+        r2BarOld = r2Bar ;
+        phirBarOld = phirBar ;  
+	
+	debugstr4 << " totalWeight " << totalWeight 
+                  << " totalWeightRatio " << totalWeightRatio
+                  << " localWeightRatio "<< localWeightRatio
+                  << " phiBar " << phiBar
+                  << " rBar " << rBar 
+                  << " r2Bar " << r2Bar
+                  << " phirBar " << phirBar 
+                  << " \n ";
 
-	sum_w2   += weight2;
-	sum_w2x  += weight2 * r;
-	sum_w2x2 += weight2 * r*r;
-	sum_w2y  += weight2 * phi;
-	sum_w2y2 += weight2 * phi*phi;
-	sum_w2xy += weight2 * r*phi;
-      }
-    } // end loop over hits to calculate a linear fit
-    double delta = sum_w2 * sum_w2x2 - (sum_w2x)*(sum_w2x);
-    intercept = (sum_w2x2 * sum_w2y - sum_w2x * sum_w2xy)/delta;
-    slope = (sum_w2 * sum_w2xy - sum_w2x * sum_w2y)/delta;
+
+      } // end of use hit loop
+    } // end of hit loop to calculate a linear fit
+    slope = (phirBar-phiBar*rBar)/(r2Bar-rBar*rBar);
+    intercept = phiBar-slope*rBar ;
+
+    debugstr4 << " end of loop slope " << slope 
+              << " intercept " << intercept << " \n";
 
     // Calculate chi^2
     chi2 = 0.;
@@ -814,6 +876,15 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       done = true;
     }
   } // end loop over trial fits
+
+  debugstr4 <<" Fit " 
+            << " Intercept  " << intercept
+            << " slope " << slope 
+            << " chi2 " << chi2
+            << " \n" ;
+
+  LogDebug("") <<   debugstr4.str() ;
+
 
   // Now we have intercept, slope, and chi2; uselist to tell us which hits are used, and hitlist for the hits
 
