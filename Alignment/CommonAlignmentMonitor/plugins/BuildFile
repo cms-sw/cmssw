@@ -1,0 +1,5 @@
+<library name="AlignmentMonitorHIP" file="AlignmentMonitorHIP.cc">
+ <use name=Alignment/CommonAlignmentMonitor>
+ <use name=TrackingTools/TrackFitters>
+ <flags EDM_PLUGIN=1>
+</library>

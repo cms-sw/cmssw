@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 30 12:21:02 CDT 2007
-// $Id$
+// $Id: AlignmentMonitorBase.h,v 1.1 2007/04/23 22:19:13 pivarski Exp $
 //
 
 // system include files
@@ -53,6 +53,9 @@ class AlignmentMonitorBase {
 
       /// Constructor
       AlignmentMonitorBase(const edm::ParameterSet &cfg);
+      
+      /// Destructor
+      virtual ~AlignmentMonitorBase() {}
 
       /// Called at beginning of job: don't reimplement
       void beginOfJob(AlignableTracker *pTracker, AlignableMuon *pMuon,

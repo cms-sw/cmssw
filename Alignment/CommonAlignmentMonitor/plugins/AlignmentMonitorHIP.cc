@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id$
+// $Id: AlignmentMonitorHIP.cc,v 1.1 2007/04/23 22:19:14 pivarski Exp $
 //
 
 // system include files
