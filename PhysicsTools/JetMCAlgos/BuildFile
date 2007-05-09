@@ -1,21 +1,2 @@
-<use name=PhysicsTools/CandAlgos>
-<use name=PhysicsTools/CandUtils>
-<use name=PhysicsTools/JetMCUtils>
-<use name=DataFormats/Candidate>
-<use name=DataFormats/RecoCandidate>
-<use name=FWCore/Framework>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
-<use name=SimGeneral/HepPDTRecord>
-<use name=root>
 <export>
-  <lib name=PhysicsToolsJetMCAlgos>
-  <use name=PhysicsTools/CandAlgos>
-  <use name=PhysicsTools/CandUtils>
-  <use name=DataFormats/Candidate>
-  <use name=DataFormats/RecoCandidate>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FWCore/PluginManager>
-  <use name=root>
 </export>
