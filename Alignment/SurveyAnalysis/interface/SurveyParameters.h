@@ -5,8 +5,8 @@
  *
  *  Alignment parameters for survey.
  *
- *  $Date: 2007/02/06 $
- *  $Revision: 1 $
+ *  $Date: 2007/03/14 18:05:35 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -40,13 +40,13 @@ class SurveyParameters:
   /// Derivatives not implemented.
   virtual AlgebraicMatrix derivatives(
 				      const TrajectoryStateOnSurface&,
-				      AlignableDet*
+				      const AlignableDetOrUnitPtr&
 				      ) const;
 
   /// Derivatives not implemented.
   virtual AlgebraicMatrix selectedDerivatives(
 					      const TrajectoryStateOnSurface&,
-					      AlignableDet*
+					      const AlignableDetOrUnitPtr&
 					      ) const;
 
 };

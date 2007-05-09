@@ -20,13 +20,13 @@ AlignmentParameters* SurveyParameters::cloneFromSelected(const AlgebraicVector&,
 }
 
 AlgebraicMatrix SurveyParameters::derivatives(const TrajectoryStateOnSurface&,
-					      AlignableDet*) const
+					      const AlignableDetOrUnitPtr& ) const
 {
   return AlgebraicMatrix();
 }
 
 AlgebraicMatrix SurveyParameters::selectedDerivatives(const TrajectoryStateOnSurface&,
-						      AlignableDet*) const
+						      const AlignableDetOrUnitPtr& ) const
 {
   return AlgebraicMatrix();
 }
