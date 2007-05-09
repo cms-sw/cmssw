@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.1 2007/05/02 15:05:04 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.2 2007/05/04 01:13:08 lowette Exp $
 //
 
 // system include files
@@ -20,7 +20,7 @@
 
 TtSemiEvtSolution::TtSemiEvtSolution()
 {
-  chi2 		= -999.;
+  probChi2 	= -999.;
   jetMatchPur  	= -999.;
   signalPur   	= -999.;
   sumDeltaRjp   = -999.;
@@ -45,7 +45,7 @@ void TtSemiEvtSolution::setLepb(TopJetObject j)      		{ lepb = j; }
 void TtSemiEvtSolution::setMuon(TopMuonObject m)		{ muon = m; decay = "muon";}
 void TtSemiEvtSolution::setElectron(TopElectronObject e)	{ electron = e;  decay = "electron";}
 void TtSemiEvtSolution::setMET(TopMETObject   n)		{ met = n; }
-void TtSemiEvtSolution::setChi2(double c)     			{ chi2 = c; }
+void TtSemiEvtSolution::setProbChi2(double c)     	        { probChi2 = c; }
 void TtSemiEvtSolution::setPtrueCombExist(double pce)		{ ptrueCombExist= pce; }
 void TtSemiEvtSolution::setPtrueBJetSel(double pbs)		{ ptrueBJetSel= pbs; }
 void TtSemiEvtSolution::setPtrueBhadrSel(double pbh)		{ ptrueBhadrSel= pbh; }

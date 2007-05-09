@@ -149,7 +149,7 @@ TtSemiEvtSolution TtSemiKinFitterEMom::addKinFitInfo(TtSemiEvtSolution * asol) {
       TopElectronObject aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitElectron(aFitLepl); fitsol.setElectron(aFitLeplObj);
     }
     TopMETObject  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
-    fitsol.setChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
+    fitsol.setProbChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
   }
   return fitsol;
 }

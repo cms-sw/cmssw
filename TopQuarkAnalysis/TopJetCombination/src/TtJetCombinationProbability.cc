@@ -58,7 +58,7 @@ double  TtJetCombinationProbability::getPTrueCombExist(TtSemiEvtSolution * sol){
 //calculate P(correct b-jets|there exist one)
 double  TtJetCombinationProbability::getPTrueBJetSel(TtSemiEvtSolution * sol){
   double PcorrectBjets = 0.;
-  if(sol->getChi2()>0){
+  if(sol->getProbChi2()>0){
     vector<double> bSelObsVals = getBSelObsValues(sol, &combBTagFit);
     double logLR = 0;
     for (int j = 0; j < nrBSelObs; j++) {
@@ -74,7 +74,7 @@ double  TtJetCombinationProbability::getPTrueBJetSel(TtSemiEvtSolution * sol){
 //calculate P(correct b-jets|there exist one)
 double  TtJetCombinationProbability::getPTrueBhadrSel(TtSemiEvtSolution * sol){
   double PcorrectBhadr = 0.;
-  if(sol->getChi2()>0){
+  if(sol->getProbChi2()>0){
     vector<double> bHadrObsVals = getBhadrObsValues(sol, &combBTagFit);
     double logLR = 0;
     for (int j = 0; j < nrBhadrObs; j++) {

@@ -44,7 +44,7 @@ inline static vector<double> getBSelObsValues(TtSemiEvtSolution *sol, TF1 *bprob
     vector<double> vals;
  
     //obs0: solutions' Chi2-value of the kinfit
-    vals.push_back(sol->getChi2());
+    vals.push_back(sol->getProbChi2());
     
     //obs1: combined b-tag information
     vals.push_back(log(bprobfit->Eval(sol->getLepb().getBdiscriminant())    *     bprobfit->Eval(sol->getHadb().getBdiscriminant()) 
