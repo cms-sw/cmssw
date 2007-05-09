@@ -140,8 +140,8 @@ void CSCBaseElectronicsSim::addNoise() {
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
     // DON'T do amp gain variations.  Handled in strips by calibration code
     // and variations in the shaper peaking time.
-    (*mapI).second.setTimeOffset((*mapI).second.getTimeOffset() 
-                               + thePeakTimeSigma * theRandGaussQ->shoot());
+     double timeOffset = theRandGaussQ->fire((*mapI).second.getTimeOffset(), thePeakTimeSigma);
+    (*mapI).second.setTimeOffset(timeOffset);
   }
   theNoiseWasAdded = true;
 }

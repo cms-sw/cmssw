@@ -22,7 +22,7 @@ void CSCStripConditions::setRandomEngine(CLHEP::HepRandomEngine& engine)
 
 float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel) const
 {
-  return theRandGaussQ->shoot( gain(detId, channel), gainSigma(detId, channel) );
+  return theRandGaussQ->fire( gain(detId, channel), gainSigma(detId, channel) );
 }
 
 

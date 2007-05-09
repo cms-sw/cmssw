@@ -113,7 +113,7 @@ float CSCStripElectronicsSim::signalDelay(int element, float pos) const {
 float CSCStripElectronicsSim::comparatorReading(const CSCAnalogSignal & signal,
                                                   float time) const {
    return std::min(signal.getValue(time), theComparatorSaturation)
-       +  theComparatorRMSOffset* theRandGaussQ->shoot();  
+       +  theComparatorRMSOffset* theRandGaussQ->fire();  
 }
 
 

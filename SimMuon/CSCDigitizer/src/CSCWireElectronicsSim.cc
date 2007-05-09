@@ -50,7 +50,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
     LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
-    float threshold = theWireThreshold + theRandGaussQ->shoot() * theWireNoise;
+    float threshold = theWireThreshold + theRandGaussQ->fire() * theWireNoise;
     for(int ibin = 0; ibin < signal.getSize(); ++ibin)
       if(signal.getBinValue(ibin) > threshold) {
         // jackpot.  Now define this signal as everything up until
@@ -99,8 +99,8 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       // bx earlier than the signal bx.
       // (Comments from Tim, Aug-2005)
 
-      float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD
-                   + theRandGaussQ->shoot() * theTimingCalibrationError;
+      float fdTime = theRandGaussQ->fire(theSignalStartTime + theSamplingTime*bin_firing_FD,
+                                         theTimingCalibrationError);
 
       int beamCrossingTag = 
          static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])

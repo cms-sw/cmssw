@@ -110,15 +110,15 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
   }
 
   // electron drift path length 
-  double pathLength = std::max(RandGaussQ::shoot(avgPathLength, pathSigma), 0.);
+  double pathLength = std::max(theRandGaussQ->fire(avgPathLength, pathSigma), 0.);
 
   // electron drift distance along the anode wire, including diffusion
   double diffusionSigma = ELECTRON_DIFFUSION_COEFF * sqrt(pathLength);
-  double x = clusterPos.x() + RandGaussQ::shoot(avgDrift(), driftSigma())
-                            + RandGaussQ::shoot(0., diffusionSigma);
+  double x = clusterPos.x() + theRandGaussQ->fire(avgDrift(), driftSigma())
+                            + theRandGaussQ->fire(0., diffusionSigma);
 
   // electron drift time
-  double driftTime  = std::max(RandGaussQ::shoot(avgDriftTime, driftTimeSigma), 0.);
+  double driftTime  = std::max(theRandGaussQ->fire(avgDriftTime, driftTimeSigma), 0.);
 
   //@@ Parameters which should be defined outside the code
   // f_att is the fraction of drift electrons lost due to attachment
@@ -140,7 +140,7 @@ CSCDriftSim::getWireHit(const Local3DPoint & pos, const CSCLayer * layer,
 double CSCDriftSim::avalancheCharge() {
   double returnVal = 0.;
   // pick a random value along the dNdE integral
-  double x = RandFlat::shoot();
+  double x = theRandFlat->fire();
   size_t i;
   size_t isiz = dNdEIntegral.size();
   /*

@@ -275,7 +275,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
 double CSCGasCollisions::generateStep( double avCollisions ) const
 {
 // Generate a m.f.p.  (1/avCollisions = cm/collision)
-  double step = (theRandExponential->shoot())/avCollisions;
+  double step = (theRandExponential->fire())/avCollisions;
 
 // Without using CLHEP: approx random exponential by...
 //    double da = double(rand())/double(RAND_MAX);
@@ -291,7 +291,7 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
    double anmin, double anmax, const std::vector<float>& collisions ) const
 {
 // Generate a no. of collisions between collisions[0] and [N_ENERGY-1]
-    float lnColl = log(theRandFlat->shoot(anmin, anmax));
+    float lnColl = log(theRandFlat->fire(anmin, anmax));
 
 // Without using CLHEP: approx random between anmin and anmax
 //    double ra = double(rand())/double(RAND_MAX)*avCollisions;
