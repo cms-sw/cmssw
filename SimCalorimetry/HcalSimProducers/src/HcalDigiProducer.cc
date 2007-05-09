@@ -12,6 +12,8 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 using namespace std;
 
 
@@ -63,6 +65,17 @@ HcalDigiProducer::HcalDigiProducer(const edm::ParameterSet& ps)
   theHODigitizer = new HODigitizer(theHOResponse, theElectronicsSim, doNoise);
   theHFDigitizer = new HFDigitizer(theHFResponse, theElectronicsSim, doNoise);
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "HcalDigiProducer requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+  }
+
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  theAmplifier->setRandomEngine(engine);
+  theElectronicsSim->setRandomEngine(engine);
 }
 
 
