@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a L2 reonstructed muon.
  *
- *   $Date: 2007/02/26 18:04:57 $
- *   $Revision: 1.7 $
+ *   $Date: 2007/03/06 08:49:24 $
+ *   $Revision: 1.8 $
  *   \author  A. Everett - Purdue University
  */
 
@@ -29,7 +29,10 @@
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 
 using namespace edm;
 using namespace std;
@@ -76,7 +79,7 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   produces<reco::TrackExtraCollection>();
   produces<vector<Trajectory> >() ;
 
-  produces<reco::MuonCollection>();
+  produces<reco::MuonTrackLinksCollection>();
 
 }
 

@@ -5,8 +5,8 @@
  *   information,<BR>
  *   starting from a standalone reonstructed muon.
  *
- *   $Date: 2007/03/20 13:38:12 $
- *   $Revision: 1.28 $
+ *   $Date: 2007/03/20 15:58:13 $
+ *   $Revision: 1.29 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -30,7 +30,9 @@
 // Input and output collection
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 using namespace edm;
 using namespace std;
@@ -46,7 +48,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   ParameterSet trajectoryBuilderParameters = parameterSet.getParameter<ParameterSet>("GLBTrajBuilderParameters");
   InputTag trackCollectionTag = parameterSet.getParameter<InputTag>("TrackerCollectionLabel");
   trajectoryBuilderParameters.addParameter<InputTag>("TrackerCollectionLabel",trackCollectionTag);
-
+  
   // STA Muon Collection Label
   theSTACollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
 
@@ -73,7 +75,7 @@ GlobalMuonProducer::GlobalMuonProducer(const ParameterSet& parameterSet) {
   produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
   produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
   produces<vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories") ;
-  produces<reco::MuonCollection>().setBranchAlias(theAlias + "s");
+  produces<reco::MuonTrackLinksCollection>().setBranchAlias(theAlias + "s");
 }
 
 
