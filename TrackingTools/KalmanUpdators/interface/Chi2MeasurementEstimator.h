@@ -1,16 +1,18 @@
 #ifndef CommonDet_Chi2MeasurementEstimator_H
 #define CommonDet_Chi2MeasurementEstimator_H
 
-#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
-
-
-
-/** A Chi2 Measurement Estimator. 
+/** \class Chi2MeasurementEstimator
+ *  A Chi2 Measurement Estimator. 
  *  Computhes the Chi^2 of a TrajectoryState with a RecHit or a 
  *  BoundPlane. The TrajectoryState must have errors.
- *  Works for any RecHit dimension.
+ *  Works for any RecHit dimension. Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:58:19 $
+ *  $Revision: 1.1.2.1 $
+ *  \author todorov, cerati
  */
 
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 class Chi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
 public:

@@ -1,6 +1,14 @@
 #ifndef TrackingTools_ESProducers_Chi2MeasurementEstimatorESProducer_h
 #define TrackingTools_ESProducers_Chi2MeasurementEstimatorESProducer_h
 
+/** \class Chi2MeasurementEstimatorESProducer
+ *  ESProducer for Chi2MeasurementEstimator.
+ *
+ *  $Date: 2007/05/09 13:58:19 $
+ *  $Revision: 1.1.2.1 $
+ *  \author cerati
+ */
+
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
