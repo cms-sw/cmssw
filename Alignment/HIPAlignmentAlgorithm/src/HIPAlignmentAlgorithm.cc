@@ -363,8 +363,8 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
     }
     
     // transform RecHit vector to AlignableDet vector
-    vector <AlignableDet*> alidetvec = 
-      theAlignableDetAccessor->alignableDetsFromHits(hitvec);
+    vector <AlignableDetOrUnitPtr> alidetvec = 
+      theAlignableDetAccessor->alignablesFromHits(hitvec);
 
     // get concatenated alignment parameters for list of alignables
     CompositeAlignmentParameters aap = 
@@ -378,8 +378,8 @@ void HIPAlignmentAlgorithm::run( const edm::EventSetup& setup,
     {
       // get AlignableDet for this hit
       const GeomDet* det=(*ihit)->det();
-      AlignableDet* alidet = 
-        theAlignableDetAccessor->alignableDetFromGeomDet(det);
+      AlignableDetOrUnitPtr alidet = 
+	theAlignableDetAccessor->alignableFromGeomDet(det);
 
       // get relevant Alignable
       Alignable* ali=aap.alignableFromAlignableDet(alidet);
