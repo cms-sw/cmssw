@@ -76,7 +76,7 @@ void SequentialVertexFitter::setDefaultParameters()
 
 CachingVertex 
 SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
-{ 
+{
   // Linearization Point
   GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
   if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
@@ -116,6 +116,29 @@ SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
   vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
   return fit(vtContainer, state, false);
 }
+
+
+  /** Fit vertex out of a set of TransientTracks. 
+   *  The specified BeamSpot will be used as priot, but NOT for the linearization.
+   * The specified LinearizationPointFinder will be used to find the linearization point.
+   */
+CachingVertex 
+SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+			       const BeamSpot& beamSpot) const
+{
+  // Linearization Point
+  GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
+  if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
+  // LinP vertex state, with a very large error matrix
+  AlgebraicSymMatrix we(3,1);
+  GlobalError error(we*10000);
+  VertexState lpState(linP, error);
+  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lpState);
+
+  VertexState state(beamSpot.position(), beamSpot.error());
+  return fit(vtContainer, state, true);
+}
+
 
 // Fit vertex out of a set of RecTracks. 
 // Uses the position as both the linearization point AND as prior

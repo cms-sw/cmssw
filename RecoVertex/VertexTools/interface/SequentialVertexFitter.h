@@ -104,6 +104,14 @@ public:
   virtual CachingVertex  vertex(const std::vector<reco::TransientTrack> & tracks, 
   		const GlobalPoint& linPoint) const;
 
+  /** Fit vertex out of a set of TransientTracks. 
+   *  The specified BeamSpot will be used as priot, but NOT for the linearization.
+   * The specified LinearizationPointFinder will be used to find the linearization point.
+   */
+  virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
+		const BeamSpot& beamSpot) const;
+
+
   /** Fit vertex out of a set of RecTracks. 
    *   Uses the position as both the linearization point AND as prior
    *   estimate of the vertex position. The error is used for the 

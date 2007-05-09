@@ -65,6 +65,17 @@ public:
     return theFitter->vertex(tracks, linPoint);
   }
 
+  /** Fit vertex out of a set of TransientTracks. 
+   *  The specified BeamSpot will be used as priot, but NOT for the linearization.
+   * The specified LinearizationPointFinder will be used to find the linearization point.
+   */
+  virtual inline CachingVertex 
+  vertex(const vector<reco::TransientTrack> & tracks, const BeamSpot& beamSpot) const
+  {
+    return theFitter->vertex(tracks, beamSpot);
+  }
+
+
   /** Fit vertex out of a set of RecTracks. 
    *  Uses the specified point as both the linearization point AND as prior
    *  estimate of the vertex position. The error is used for the 

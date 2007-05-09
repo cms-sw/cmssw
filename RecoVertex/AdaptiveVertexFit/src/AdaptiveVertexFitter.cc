@@ -128,6 +128,36 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 }
 
 
+/** Fit vertex out of a set of TransientTracks. 
+ *  The specified BeamSpot will be used as priot, but NOT for the linearization.
+ *  The specified LinearizationPointFinder will be used to find the linearization point.
+ */
+CachingVertex 
+AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
+			       const BeamSpot& beamSpot) const
+{
+  if ( tracks.size() < 1 )
+  {
+    throw VertexException( "Supplied no tracks" );
+  };
+  // Linearization Point
+  GlobalPoint linP(0.,0.,0.);
+  try {
+    linP = theLinP->getLinearizationPoint(tracks);
+  } catch (...) {
+    cout << "[AdaptiveVertexFitter] LinPt Finder threw exception" 
+         << endl;
+  };
+  // LinP vertex state, with a very large error matrix
+  AlgebraicSymMatrix we(3,1);
+  GlobalError error(we*initialError);
+  VertexState lpState(linP, error);
+  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lpState);
+
+  VertexState state(beamSpot.position(), beamSpot.error());
+  return fit(vtContainer, state, true);
+}
+
 /** Fit vertex out of a set of reco::TransientTracks.
  *   Uses the position as both the linearization point AND as prior
  *   estimate of the vertex position. The error is used for the
