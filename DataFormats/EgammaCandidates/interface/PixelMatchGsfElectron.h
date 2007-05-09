@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.15 2007/03/16 12:46:30 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.16 2007/03/16 13:59:37 llista Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.16  2007/03/16 13:59:37  llista
+// restored 140 version
+//
 // Revision 1.15  2007/03/16 12:46:30  uberthon
 // make PixelMatchElectrons inherit from RecoCandidate
 //
@@ -165,6 +168,7 @@ class PixelMatchGsfElectron : public RecoCandidate {
 
   //! get associated GsfTrack pointer
   reco::GsfTrackRef gsfTrack() const { return track_; } 
+  reco::TrackRef track() const {edm::LogWarning("PixelMatchGsfElectron")<<"!!!You are using the method 'track()' with a PixelMatchGsfElectron, which has a link to a GsfTrack, please use the method 'gsfTrack()' instead!!!";return TrackRef();} 
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
