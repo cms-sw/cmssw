@@ -43,10 +43,10 @@
 // class declaration
 //
 
-class TestReader : public edm::EDAnalyzer {
+class TestTrackerReader : public edm::EDAnalyzer {
 public:
-  explicit TestReader( const edm::ParameterSet& );
-  ~TestReader();
+  explicit TestTrackerReader( const edm::ParameterSet& );
+  ~TestTrackerReader();
   
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
@@ -62,18 +62,18 @@ private:
 //
 // constructors and destructor
 //
-TestReader::TestReader( const edm::ParameterSet& iConfig ) 
+TestTrackerReader::TestTrackerReader( const edm::ParameterSet& iConfig ) 
 { 
 }
 
 
-TestReader::~TestReader()
+TestTrackerReader::~TestTrackerReader()
 { 
 }
 
 
 void
-TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
 
    
@@ -119,4 +119,4 @@ TestReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TestReader);
+DEFINE_FWK_MODULE(TestTrackerReader);
