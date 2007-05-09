@@ -3,8 +3,12 @@
  <use name=TrackingTools/TransientTrack>
  <use name=DataFormats/VertexReco>
  <use name=DataFormats/Math>
+ <use name=DataFormats/BeamSpot>
+ <use name=CondFormats/BeamSpotObjects>
 </export>
 
 <use name=TrackingTools/TransientTrack>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/Math>
+<use name=DataFormats/BeamSpot>
+<use name=CondFormats/BeamSpotObjects>
