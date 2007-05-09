@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.6 2007/05/08 21:36:52 fedor Exp $
+// $Id: Jet.cc,v 1.7 2007/05/09 20:28:04 fedor Exp $
 
 #include <sstream>
 #include "PhysicsTools/Utilities/interface/Math.h"
@@ -21,24 +21,9 @@ Jet::Jet (const LorentzVector& fP4,
   for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
 }  
 
-/// return # of constituent carring fraction of energy. Assume ordered towers
-int Jet::nCarrying (double fFraction) const {
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
-  if (fFraction >= 1) return towers.size();
-  double totalEt = 0;
-  for (unsigned i = 0; i < towers.size(); ++i) totalEt += towers[i]->et();
-  double fractionEnergy = totalEt * fFraction;
-  unsigned result = 0;
-  for (; result < towers.size(); ++result) {
-    fractionEnergy -= towers[result]->energy();
-    if (fractionEnergy <= 0) return result+1;
-  }
-  return 0;
-}
-
 /// eta-phi statistics
 Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
-  Constituents towers = getJetConstituents ();
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   double phiRef = phi();
   double sumw = 0;
   double sumEta = 0;
@@ -77,8 +62,8 @@ Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
 }
 
 /// eta-eta second moment
-double Jet::etaetaMoment () const {
-  Constituents towers = getJetConstituents ();
+float Jet::etaetaMoment () const {
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   double sumw = 0;
   double sum = 0;
   double sum2 = 0;
@@ -94,9 +79,9 @@ double Jet::etaetaMoment () const {
 }
 
 /// phi-phi second moment
-double Jet::phiphiMoment () const {
+float Jet::phiphiMoment () const {
   double phiRef = phi();
-  Constituents towers = getJetConstituents ();
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   double sumw = 0;
   double sum = 0;
   double sum2 = 0;
@@ -112,9 +97,9 @@ double Jet::phiphiMoment () const {
 }
 
 /// eta-phi second moment
-double Jet::etaphiMoment () const {
+float Jet::etaphiMoment () const {
   double phiRef = phi();
-  Constituents towers = getJetConstituents ();
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   double sumw = 0;
   double sumA = 0;
   double sumB = 0;
@@ -133,13 +118,39 @@ double Jet::etaphiMoment () const {
 }
 
 /// et in annulus between rmin and rmax around jet direction
-double Jet::etInAnnulus (double fRmin, double fRmax) const {
-  double result = 0;
-  Constituents towers = getJetConstituents ();
+float Jet::etInAnnulus (float fRmin, float fRmax) const {
+  float result = 0;
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   int i = towers.size ();
   while (--i >= 0) {
     double r = deltaR (*this, *(towers[i]));
     if (r >= fRmin && r < fRmax) result += towers[i]->et ();
+  }
+  return result;
+}
+
+/// return # of constituent carring fraction of energy. Assume ordered towers
+int Jet::nCarrying (float fFraction) const {
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  if (fFraction >= 1) return towers.size();
+  double totalEt = 0;
+  for (unsigned i = 0; i < towers.size(); ++i) totalEt += towers[i]->et();
+  double fractionEnergy = totalEt * fFraction;
+  unsigned result = 0;
+  for (; result < towers.size(); ++result) {
+    fractionEnergy -= towers[result]->energy();
+    if (fractionEnergy <= 0) return result+1;
+  }
+  return 0;
+}
+
+    /// maximum distance from jet to constituent
+float Jet::maxDistance () const {
+  float result = 0;
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    float dR = deltaR (*(towers[i]), *this);
+    if (dR > result)  result = dR;
   }
   return result;
 }
@@ -159,7 +170,7 @@ std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
     CandidateRef ref = daughterRef (0);
     const CandidateCollection* container = ref.product();
     while (--i >= 0) {
-      result.push_back (&((*container)[i]));
+      result.push_back (&((*container)[daughterRef (i).key()]));
     }
   }
   return result;
