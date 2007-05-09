@@ -365,7 +365,7 @@ BaseParticlePropagator::propagateToPreshowerLayer2(bool first) {
 
   // Check that we are on Layer 2 
   if ( done && (vertex().perp2() > 125.0*125.0 || 
-		vertex().perp() < 45.0*45.0 ))
+		vertex().perp2() < 45.0*45.0 ))
     success = 0;
 
   return done;
