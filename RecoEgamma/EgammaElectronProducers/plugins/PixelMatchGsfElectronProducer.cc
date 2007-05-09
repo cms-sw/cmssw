@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelMatchGsfElectronProducer.cc,v 1.3 2007/01/31 15:14:23 uberthon Exp $
+// $Id: PixelMatchGsfElectronProducer.cc,v 1.1 2007/04/20 14:54:21 uberthon Exp $
 //
 //
 
@@ -45,6 +45,8 @@ PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::Paramete
   algo_ = new
     PixelMatchElectronAlgo(iConfig.getParameter<double>("maxEOverPBarrel"),
 			   iConfig.getParameter<double>("maxEOverPEndcaps"),
+                           iConfig.getParameter<double>("minEOverPBarrel"),
+			   iConfig.getParameter<double>("minEOverPEndcaps"),
 			   iConfig.getParameter<double>("hOverEConeSize"),
 			   iConfig.getParameter<double>("maxHOverE"),
 			   iConfig.getParameter<double>("maxDeltaEta"),
@@ -52,7 +54,6 @@ PixelMatchGsfElectronProducer::PixelMatchGsfElectronProducer(const edm::Paramete
 			   iConfig.getParameter<double>("ptCut"));
 
 }
-
 
 PixelMatchGsfElectronProducer::~PixelMatchGsfElectronProducer()
 {
