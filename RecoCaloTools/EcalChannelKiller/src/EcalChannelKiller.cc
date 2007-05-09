@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Tue Apr 24 17:21:31 CEST 2007
-// $Id$
+// $Id: EcalChannelKiller.cc,v 1.1 2007/05/03 12:36:07 gdaskal Exp $
 //
 //
 
@@ -97,14 +97,14 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {
      
      double NewEnergy =it->energy();
-     
+     bool ItIsDead=false;
      //Dead Cells are read from text files
      vector<EBDetId>::const_iterator DeadCell;
      for(DeadCell=ChannelsDeadID.begin();DeadCell<ChannelsDeadID.end();DeadCell++){
        if(it->detid()==*DeadCell){
-	 
 	 DetId itID = it->id();
 	 cout<<" +++++++++++ Old Energy "<<it->energy()<<" eta "<< itID.rawId()<<endl;
+	 ItIsDead=true;
 	 NewEnergy =0.;
 	 nRed++;
 	 
@@ -116,8 +116,10 @@ EcalChannelKiller::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      // TODO what will be the it->time() for D.C. ?
      // Could we use it for "correction" identification?
      //
-     EcalRecHit NewHit(it->id(),NewEnergy,it->time());
-     redCollection->push_back( NewHit );
+     if(!ItIsDead){
+       EcalRecHit NewHit(it->id(),NewEnergy,it->time());
+       redCollection->push_back( NewHit );
+     }
    }
    std::cout << "total # hits: " << nTot << "  #hits with E = " << 0 << " GeV : " << nRed << std::endl;
    

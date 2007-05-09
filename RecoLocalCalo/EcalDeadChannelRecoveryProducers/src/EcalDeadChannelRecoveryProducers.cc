@@ -13,7 +13,7 @@
 //
 // Original Author:  Georgios Daskalakis
 //         Created:  Thu Apr 12 17:01:03 CEST 2007
-// $Id$
+// $Id: EcalDeadChannelRecoveryProducers.cc,v 1.1 2007/05/03 12:42:17 gdaskal Exp $
 //
 //
 
@@ -114,11 +114,16 @@ EcalDeadChannelRecoveryProducers::produce(edm::Event& evt, const edm::EventSetup
   //This should work only if we REMOVE the DC RecHit from the reduced RecHit collection 
   //
   for(EcalRecHitCollection::const_iterator it = hit_collection->begin(); it != hit_collection->end(); ++it) {     
-    redCollection->push_back( *it );
+    vector<EBDetId>::const_iterator CheckDead = ChannelsDeadID.begin();
+    bool OverADeadRecHit=false;
+    while(CheckDead<ChannelsDeadID.end()){
+      if(it->detid()==*CheckDead){OverADeadRecHit=true;break;}
+      CheckDead++;
+    }
+    if(!OverADeadRecHit)redCollection->push_back( *it );
   }
   for(DeadCell=ChannelsDeadID.begin();DeadCell<ChannelsDeadID.end();DeadCell++){
-    
-    EcalRecHit NewRecHit = DeadChannelCorrector->Correct(*DeadCell,hit_collection,CorrectionMethod_);
+    EcalRecHit NewRecHit = DeadChannelCorrector->Correct(*DeadCell,hit_collection,CorrectionMethod_,Sum8GeVThreshold_);
     redCollection->push_back( NewRecHit );
   }
 
