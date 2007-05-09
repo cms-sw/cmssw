@@ -9,6 +9,8 @@
 <use name=RecoTracker/TkTrackingRegions>
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
+<use name=RecoTracker/TkSeedingLayers>
+
 
 <export>
  <lib name=RecoPixelVertexingPixelTriplets>
@@ -23,4 +25,5 @@
  <use name=RecoTracker/TkTrackingRegions>
  <use name=MagneticField/Records>
  <use name=MagneticField/Engine>
+ <use name=RecoTracker/TkSeedingLayers>
 </export>

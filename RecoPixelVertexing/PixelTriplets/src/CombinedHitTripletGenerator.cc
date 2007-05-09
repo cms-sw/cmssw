@@ -6,6 +6,10 @@
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayersFactory.h"
 #include "LayerTriplets.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 
 using namespace std;
 using namespace ctfseeding;
@@ -16,8 +20,15 @@ CombinedHitTripletGenerator::CombinedHitTripletGenerator(const edm::ParameterSet
 
 void CombinedHitTripletGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
-  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
-  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+//  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
+//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+
+  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
+  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
+  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
+
+  SeedingLayerSets layerSets  =  layerBuilder->layers(es);
+
 
   vector<LayerTriplets::LayerPairAndLayers>::const_iterator it;
   vector<LayerTriplets::LayerPairAndLayers> trilayers=LayerTriplets(layerSets).layers();

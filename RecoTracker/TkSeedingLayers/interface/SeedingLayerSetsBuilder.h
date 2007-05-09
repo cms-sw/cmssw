@@ -11,7 +11,6 @@
 #include <vector>
 namespace edm { class EventSetup; }
 
-namespace ctfseeding {
 class SeedingLayerSetsBuilder {
 
 public:
@@ -19,7 +18,7 @@ public:
   SeedingLayerSetsBuilder(){}
   SeedingLayerSetsBuilder(const edm::ParameterSet & cfg);
 
-  SeedingLayerSets layers(const edm::EventSetup& es) const; 
+  ctfseeding::SeedingLayerSets layers(const edm::EventSetup& es) const; 
 
 private:
   std::vector<std::vector<std::string> > layerNamesInSets(
@@ -38,5 +37,4 @@ private:
   }; 
   std::vector<std::vector<LayerSpec> > theLayersInSets;
 };
-}
 #endif

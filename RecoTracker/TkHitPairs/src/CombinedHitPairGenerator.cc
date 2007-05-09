@@ -2,6 +2,10 @@
 #include "RecoTracker/TkHitPairs/interface/HitPairGeneratorFromLayerPair.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+
 
 using namespace std;
 using namespace ctfseeding;
@@ -18,8 +22,15 @@ CombinedHitPairGenerator::CombinedHitPairGenerator(const SeedingLayerSets & laye
 
 void CombinedHitPairGenerator::init(const edm::ParameterSet & cfg, const edm::EventSetup& es)
 {
-  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
-  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+
+//  edm::ParameterSet leyerPSet = cfg.getParameter<edm::ParameterSet>("LayerPSet");
+//  SeedingLayerSets layerSets  = SeedingLayerSetsBuilder(leyerPSet).layers(es);
+
+  std::string layerBuilderName = cfg.getParameter<std::string>("SeedingLayers");
+  edm::ESHandle<SeedingLayerSetsBuilder> layerBuilder;
+  es.get<TrackerDigiGeometryRecord>().get(layerBuilderName, layerBuilder);
+
+  SeedingLayerSets layerSets  =  layerBuilder->layers(es); 
   init(layerSets);
 }
 
