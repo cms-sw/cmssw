@@ -1,7 +1,7 @@
 #ifndef _TRACKER_KFUPDATOR_H_
 #define _TRACKER_KFUPDATOR_H_
 
-/**
+/** \class KFUpdator
  * Update trajectory state by combining predicted state and measurement 
  * as prescribed in the Kalman Filter algorithm 
  * (see R. Fruhwirth, NIM A262 (1987) 444). <BR>
@@ -22,7 +22,12 @@
  *            RecHit &            reconstructed hit <BR>
  *
  * Initial author: P.Vanlaer 25.02.1999
- */ 
+ * Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.1.2.1 $
+ *  \author vanlaer, cerati
+ */
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 

@@ -1,14 +1,19 @@
 #ifndef CD_StripMeasurementTransformator_H_
 #define CD_StripMeasurementTransformator_H_
 
+/** \class StripMeasurementTransformator
+ *  Helper class for accessing the RecHit and the TrajectoryState parameters
+ *  and errors in the measurement frame. Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.2.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-/** Helper class for accessing the RecHit and the TrajectoryState parameters
- *  and errors in the measurement frame.
- */
 
 
 class StripMeasurementTransformator {

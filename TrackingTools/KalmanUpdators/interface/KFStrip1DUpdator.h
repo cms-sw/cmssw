@@ -1,11 +1,17 @@
 #ifndef CD_KFStrip1DUpdator_H_
 #define CD_KFStrip1DUpdator_H_
 
+/** \class KFStrip1DUpdator
+ *  A Kalman Updator that works in the measurement frame and uses
+ *  only the X coordinate (the one perpendicular to the strip). Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.2.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-/** A Kalman Updator that works in the measurement frame and uses
- *  only the X coordinate (the one perpendicular to the strip).
- */
 class KFStrip1DUpdator : public TrajectoryStateUpdator {
 
 private:

@@ -1,15 +1,20 @@
 #ifndef Chi2SwitchingEstimator_H_
 #define Chi2SwitchingEstimator_H_
 
+/** \class Chi2SwitchingEstimator
+ *  A measurement estimator that uses Chi2MeasurementEstimator for
+ *  pixel and matched strip hits, and Chi2StripEstimator for
+ *  simple strip hits. Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.3.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2StripEstimator.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
-
-/** A measurement estimator that uses Chi2MeasurementEstimator for
- *  pixel and matched strip hits, and Chi2StripEstimator for
- *  simple strip hits.
- */
 
 class Chi2SwitchingEstimator : public Chi2MeasurementEstimatorBase {
 

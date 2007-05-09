@@ -1,15 +1,20 @@
 #ifndef CD_Strip1DMeasurementTransformator_H_
 #define CD_Strip1DMeasurementTransformator_H_
 
+/** \class Strip1DMeasurementTransformator
+ *  Helper class for accessing the RecHit and the TrajectoryState parameters
+ *  and errors in the measurement frame. The RecHits are treated as
+ *  1-dimensional, the second coordinate is ignored. Ported from ORCA.
+ *
+ *  $Date: 2007/05/09 13:11:43 $
+ *  $Revision: 1.2.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-
-/** Helper class for accessing the RecHit and the TrajectoryState parameters
- *  and errors in the measurement frame. The RecHits are treated as
- *  1-dimensional, the second coordinate is ignored.
- */
 
 class Strip1DMeasurementTransformator {
 
