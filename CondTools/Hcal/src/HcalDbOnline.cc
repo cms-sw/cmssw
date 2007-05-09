@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbOnline.cc,v 1.15 2006/10/17 23:31:27 fedor Exp $
+// $Id: HcalDbOnline.cc,v 1.16 2006/11/21 03:39:09 fedor Exp $
 //
 #include <limits>
 #include <string>
@@ -105,7 +105,9 @@ bool HcalDbOnline::getObject (HcalElectronicsMap* fObject, const std::string& fT
       HcalSubdetector sub = hcalSubdet (subdet);
       HcalDetId id (sub, z * eta, phi, depth);
 
-      fObject->setMapping (id, eid, HcalTrigTowerDetId ());
+//      fObject->setMapping (id, eid, HcalTrigTowerDetId ());
+      DetId detid(id);
+      fObject->mapEId2chId (eid,detid);
     }
     delete rset;
     //    delete stmt;
