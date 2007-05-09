@@ -28,15 +28,19 @@ N=0;
 }
 {
 if (int($1)!=N) {N=int($1); if (i==0){i=1}else{i=0} }
-pswebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/HotStrips/cPos_SingleDet_%s*.gif",path,$3,$2);
-smrywebadd=sprintf("%s/../ClusterAnalysis_*_run%07d/res/ClusterAnalysis_*_run%07d*HotStrips.smry",path,$3,$3);
+pswebadd=sprintf("%s/../ClusterAnalysis_*%d/res/HotStrips/cPos_SingleDet_%s*.gif",path,$3,$2);
+smrywebadd=sprintf("%s/../ClusterAnalysis_*%d/res/ClusterAnalysis_*%d*HotStrips.smry",path,$3,$3);
 #print htmlwebadd
 print "<TD> " fontColor[i] "<a href=pswebadd>" $1 "</a>" Separator[0] fontColor[i] $2 Separator[1] fontColor[i] "<a href=smrywebadd>" $3 "</a>" Separator[1] fontColor[i] $4 Separator[1] fontColor[i] $5 Separator[1] fontColor[i] $6 Separator[1] fontColor[i] $7 Separator[1] fontColor[i] $8 Separator[1] fontColor[i] $9 Separator[1] fontColor[i] $10 Separator[1] fontColor[i] $11"</font> <TR> | " pswebadd " | " smrywebadd  
 }' path=$path | while read line; do
- 	psfile=`echo $line | awk -F"|" '{print $2}'`
- 	smryfile=`echo $line | awk -F"|" '{print $3}'`
-	echo $line | awk -F"|" '{print $1}' | sed -e "s@pswebadd@$psfile@g" -e "s@smrywebadd@$smryfile@g" -e "s@/data1/@$webadd@g" >> $webfile
+	psfile=(`echo $line | awk -F"|" '{print $2" "$3}'`)
+	echo $line | awk -F"|" '{print $1}' | sed -e "s@pswebadd@${psfile[0]}@g" -e "s@smrywebadd@${psfile[1]}@g" -e "s@/data1/@$webadd@g" >> $webfile
     done
+#| while read line; do
+## 	psfile=`echo $line | awk -F"|" '{print $2}'`
+# 	smryfile=`echo $line | awk -F"|" '{print $3}'`
+#	echo $line | awk -F"|" '{print $1}' | sed -e "s@pswebadd@$psfile@g" -e "s@smrywebadd@$smryfile@g" -e "s@/data1/@$webadd@g" >> $webfile
+#    done
     echo "</TABLE> " >> $webfile
 }
 
@@ -92,9 +96,10 @@ function SummaryInfo(){
     
     cd $Tpath/$path/AllSummaries
 
-    runSmryFile=`ls ../*/res/*smry 2>/dev/null`
+    runSmryFile=`ls ../*/res/*_HotStrips.smry 2>/dev/null`
     [ "`echo $runSmryFile`" == "" ] && return
 
+    #echo $runSmryFile
 
 
       #Summaryes x each SubDet to extract trends
@@ -171,7 +176,7 @@ for path in `ls $Tpath`
 
     [ ! -e $workdir ] && continue 
     cd $workdir
-    
+ 
     rootFile=$dir.root
     if [ ! -e $rootFile ]; then
 	rootFile=`ls -1 | grep ".root" | head -1`
@@ -183,21 +188,26 @@ for path in `ls $Tpath`
     smryFile=`echo $rootFile | sed -e "s@.root@_HotStrips.smry@"`  
 
     if [ ! -e $outFile ]; then
-############
-# root macro
-############
+
+	rm -fv *_HotStrips.*
+
+        ############
+        # root macro
+        ############
+	
 	echo "...Running root"
 	echo "root.exe -q -b -l \"$macroPath/RunBadStripsFromPosition.C(\"$rootFile\",\"$binFile\")\" > $outFile"
 	root.exe -q -b -l "$macroPath/RunBadStripsFromPosition.C(\"$rootFile\",\"$binFile\")" > $outFile
-
+	exitStatus=$?
 	if [ `ls cPos*.gif 2>/dev/null | wc -l` -ne 0 ]; then
 	    mkdir -p HotStrips
 	    mv -f cPos*.gif HotStrips 2>/dev/null
 	fi
+	[ "$exitStatus" != "0" ] && continue
         echo "...Running extractInfo"
 	extractInfo $outFile > $smryFile
     fi
-	cd -
+    cd -
   done
 
   echo "...Running SummaryInfo"
