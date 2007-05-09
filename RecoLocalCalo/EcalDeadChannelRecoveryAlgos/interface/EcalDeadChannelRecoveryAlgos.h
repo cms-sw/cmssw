@@ -3,8 +3,8 @@
  
 /** \class EcalDeadChannelRecoveryAlgos
   *
-  *  $Date: 2007/05/03 13:12:30 $
-  *  $Revision: 1.1 $
+  *  $Date: 2007/05/03 17:21:06 $
+  *  $Revision: 1.2 $
   */
  
 
@@ -40,18 +40,17 @@ class EcalDeadChannelRecoveryAlgos  {
   EcalDeadChannelRecoveryAlgos();
   ~EcalDeadChannelRecoveryAlgos();
  
-  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_);
+  EcalRecHit Correct(const EBDetId Id, const EcalRecHitCollection* hit_collection, string algo_, double Sum8Cut);
   
  private:
   
   
   CaloTopology calotopo;
-  bool MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection,const int size, double *MNxN);
+  double MakeNxNMatrice(EBDetId itID,const EcalRecHitCollection* hit_collection, double *MNxN);
   
 
   
   // ----------member data ---------------------------
-  
   
 };
 #endif
