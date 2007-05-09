@@ -19,7 +19,7 @@
 <use name=clhep>
 <use name=root>
 <lib name=Minuit2>
-<flags SEAL_PLUGIN_NAME="RecoVertexBeamSpotProducer">
+
 <export>
    <lib name=RecoVertexBeamSpotProducer>
    <use name=FWCore/Framework>
