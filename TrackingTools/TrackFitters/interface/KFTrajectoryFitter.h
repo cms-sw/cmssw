@@ -1,6 +1,14 @@
 #ifndef CD_KFTrajectoryFitter_H_
 #define CD_KFTrajectoryFitter_H_
 
+/** \class KFTrajectoryFitter
+ *  A Standard Kalman fit. Ported from ORCA
+ *
+ *  $Date: 2007/05/09 12:56:07 $
+ *  $Revision: 1.5.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -9,9 +17,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
-
-/** A Standard Kalman fit.
- */
 
 class KFTrajectoryFitter : public TrajectoryFitter {
 

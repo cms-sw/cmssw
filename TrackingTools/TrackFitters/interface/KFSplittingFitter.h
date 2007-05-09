@@ -1,11 +1,16 @@
 #ifndef CD_KFSplittingFitter_H_
 #define CD_KFSplittingFitter_H_
 
-#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-
-/** A Kalman track fit that splits matched RecHits into individual
- *  components before fitting them.
+/** \class KFTrajectoryFitter
+ *  A Kalman track fit that splits matched RecHits into individual
+ *  components before fitting them. Ported from ORCA
+ *
+ *  $Date: 2007/05/09 12:56:07 $
+ *  $Revision: 1.5.2.1 $
+ *  \author todorov, cerati
  */
+
+#include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
 
 class KFSplittingFitter : public KFTrajectoryFitter {
 

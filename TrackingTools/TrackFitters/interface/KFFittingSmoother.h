@@ -1,15 +1,20 @@
 #ifndef CD_KFFittingSmoother_H_
 #define CD_KFFittingSmoother_H_
 
+/** \class KFFittingSmoother
+ *  A TrajectorySmoother that rpeats the forward fit before smoothing.
+ *  This is necessary e.g. when the seed introduced a bias (by using
+ *  a beam contraint etc.). Ported from ORCA
+ *
+ *  $Date: 2007/05/09 13:34:14 $
+ *  $Revision: 1.4.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
-
-/** A TrajectorySmoother that rpeats the forward fit before smoothing.
- *  This is necessary e.g. when the seed introduced a bias (by using
- *  a beam contraint etc.). 
- */
 
 class KFFittingSmoother : public TrajectoryFitter {
 

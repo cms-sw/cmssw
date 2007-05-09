@@ -1,6 +1,14 @@
 #ifndef TrackingTools_TrackFitters_KFTrajectoryFitterESProducer_h
 #define TrackingTools_TrackFitters_KFTrajectoryFitterESProducer_h
 
+/** \class KFTrajectoryFitterESProducer
+ *  ESProducer for the KFTrajectoryFitter.
+ *
+ *  $Date$
+ *  $Revision$
+ *  \author cerati
+ */
+
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"

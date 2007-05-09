@@ -1,6 +1,15 @@
 #ifndef CD_KFTrajectorySmoother_H_
 #define CD_KFTrajectorySmoother_H_
 
+/** \class KFTrajectorySmoother
+ *  A Standard Kalman smoother. The forward fit is not redone,
+ *  only the backward smoothing. Ported from ORCA
+ *
+ *  $Date: 2007/05/09 12:56:07 $
+ *  $Revision: 1.4.2.1 $
+ *  \author todorov, cerati
+ */
+
 #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -8,10 +17,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-
-/** A Standard Kalman smoother. The forward fit is not redone,
- *  only the backward smoothing.
- */
 
 class KFTrajectorySmoother : public TrajectorySmoother {
 
