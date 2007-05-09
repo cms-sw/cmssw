@@ -1,9 +1,9 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.5 2007/05/04 23:23:04 fedor Exp $
+// $Id: Jet.cc,v 1.6 2007/05/08 21:36:52 fedor Exp $
 
 #include <sstream>
-#include "PhysicsTools/Utilities/interface/DeltaR.h"
+#include "PhysicsTools/Utilities/interface/Math.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -38,7 +38,8 @@ int Jet::nCarrying (double fFraction) const {
 
 /// eta-phi statistics
 Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  Constituents towers = getJetConstituents ();
+  double phiRef = phi();
   double sumw = 0;
   double sumEta = 0;
   double sumEta2 = 0;
@@ -48,7 +49,7 @@ Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
   int i = towers.size();
   while (--i >= 0) {
     double eta = towers[i]->eta();
-    double phi = towers[i]->phi();
+    double phi = deltaPhi (towers[i]->phi(), phiRef);
     double weight = towers[i]->et();
     sumw += weight;
     sumEta += eta * weight;
@@ -60,7 +61,7 @@ Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
   Jet::EtaPhiMoments result;
   if (sumw > 0) {
     result.etaMean = sumEta / sumw;
-    result.phiMean = sumPhi / sumw;
+    result.phiMean = deltaPhi (phiRef + sumPhi, 0.);
     result.etaEtaMoment = (sumEta2 - sumEta * sumEta / sumw) / sumw;
     result.phiPhiMoment = (sumPhi2 - sumPhi * sumPhi / sumw) / sumw;
     result.etaPhiMoment = (sumEtaPhi - sumEta * sumPhi / sumw) / sumw;
@@ -77,7 +78,7 @@ Jet::EtaPhiMoments Jet::etaPhiStatistics () const {
 
 /// eta-eta second moment
 double Jet::etaetaMoment () const {
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  Constituents towers = getJetConstituents ();
   double sumw = 0;
   double sum = 0;
   double sum2 = 0;
@@ -94,13 +95,14 @@ double Jet::etaetaMoment () const {
 
 /// phi-phi second moment
 double Jet::phiphiMoment () const {
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  double phiRef = phi();
+  Constituents towers = getJetConstituents ();
   double sumw = 0;
   double sum = 0;
   double sum2 = 0;
   int i = towers.size();
   while (--i >= 0) {
-    double value = towers[i]->phi();
+    double value = deltaPhi (towers[i]->phi(), phiRef);
     double weight = towers[i]->et();
     sumw += weight;
     sum += value * weight;
@@ -111,8 +113,8 @@ double Jet::phiphiMoment () const {
 
 /// eta-phi second moment
 double Jet::etaphiMoment () const {
+  double phiRef = phi();
   Constituents towers = getJetConstituents ();
-  //  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   double sumw = 0;
   double sumA = 0;
   double sumB = 0;
@@ -120,7 +122,7 @@ double Jet::etaphiMoment () const {
   int i = towers.size();
   while (--i >= 0) {
     double valueA = towers[i]->eta();
-    double valueB = towers[i]->phi();
+    double valueB = deltaPhi (towers[i]->phi(), phiRef);
     double weight = towers[i]->et();
     sumw += weight;
     sumA += valueA * weight;
@@ -133,7 +135,7 @@ double Jet::etaphiMoment () const {
 /// et in annulus between rmin and rmax around jet direction
 double Jet::etInAnnulus (double fRmin, double fRmax) const {
   double result = 0;
-  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  Constituents towers = getJetConstituents ();
   int i = towers.size ();
   while (--i >= 0) {
     double r = deltaR (*this, *(towers[i]));
