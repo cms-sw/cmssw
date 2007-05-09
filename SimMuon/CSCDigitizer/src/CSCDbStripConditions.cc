@@ -169,7 +169,8 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
     throw cms::Exception("CSCDbStripConditions")
      << "Cannot find noise matrix for layer " << detId;
   }
-  assert(matrixItr->second.size() >= istrip);
+  int nstrips = matrixItr->second.size();
+  assert(nstrips >= istrip);
 
   const CSCNoiseMatrix::Item & item = matrixItr->second[istrip-1];
 

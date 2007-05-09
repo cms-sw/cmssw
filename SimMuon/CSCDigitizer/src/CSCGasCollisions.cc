@@ -21,9 +21,6 @@
 #include <fstream>
 #include <string>
 
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandExponential.h"
-
 // stdlib math functions
 // for 'abs':
 #include <cstdlib>
@@ -46,6 +43,8 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
   theGammaBins(N_GAMMA, 0.), theEnergyBins(N_ENERGY, 0.), 
   theCollisionTable(N_ENTRIES, 0.), theCrossGap( 0 ),
   theParticleDataTable(0),
+  theRandFlat(0),
+  theRandExponential(0),
   saveGasCollisions ( false )
 {
 
@@ -64,6 +63,8 @@ CSCGasCollisions::CSCGasCollisions() : me("CSCGasCollisions"),
 CSCGasCollisions::~CSCGasCollisions() {
   edm::LogInfo(me) << "Destructing a " << me;
   delete theCrossGap;
+  delete theRandFlat;
+  delete theRandExponential;
 }
 
 void CSCGasCollisions::readCollisionTable() {
@@ -138,6 +139,13 @@ void CSCGasCollisions::readCollisionTable() {
 void CSCGasCollisions::setParticleDataTable(const ParticleDataTable * pdt)
 {
   theParticleDataTable = pdt;
+}
+
+
+void CSCGasCollisions::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  theRandFlat = new CLHEP::RandFlat(engine);
+  theRandExponential = new CLHEP::RandExponential(engine);
 }
 
 
@@ -267,7 +275,7 @@ void CSCGasCollisions::simulate( const PSimHit& simHit, const CSCLayer * layer,
 double CSCGasCollisions::generateStep( double avCollisions ) const
 {
 // Generate a m.f.p.  (1/avCollisions = cm/collision)
-  double step = (RandExponential::shoot())/avCollisions;
+  double step = (theRandExponential->shoot())/avCollisions;
 
 // Without using CLHEP: approx random exponential by...
 //    double da = double(rand())/double(RAND_MAX);
@@ -283,7 +291,7 @@ float CSCGasCollisions::generateEnergyLoss( double avCollisions,
    double anmin, double anmax, const std::vector<float>& collisions ) const
 {
 // Generate a no. of collisions between collisions[0] and [N_ENERGY-1]
-    float lnColl = log(RandFlat::shoot(anmin, anmax));
+    float lnColl = log(theRandFlat->shoot(anmin, anmax));
 
 // Without using CLHEP: approx random between anmin and anmax
 //    double ra = double(rand())/double(RAND_MAX)*avCollisions;

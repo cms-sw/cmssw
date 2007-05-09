@@ -9,8 +9,6 @@
 
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include <cmath>
 #include <iostream>
@@ -24,7 +22,9 @@ CSCDriftSim::CSCDriftSim()
   dNdEIntegral(N_INTEGRAL_STEPS, 0.),
   STEP_SIZE(0.01),
   ELECTRON_DIFFUSION_COEFF(0.0161),
-  theMagneticField(0)
+  theMagneticField(0),
+  theRandGaussQ(0),
+  theRandFlat(0)
 {
   // just initialize avalanche sim.  There has to be a better
   // way to take the integral of a function!
@@ -45,6 +45,20 @@ CSCDriftSim::CSCDriftSim()
   for(i =  0; i < N_INTEGRAL_STEPS; ++i) {
     dNdEIntegral[i] /= sum;
   }
+}
+
+
+CSCDriftSim::~CSCDriftSim()
+{
+  delete theRandGaussQ;
+  delete theRandFlat;
+}
+
+
+void CSCDriftSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
+{
+  theRandGaussQ = new CLHEP::RandGaussQ(engine);
+  theRandFlat = new CLHEP::RandFlat(engine);
 }
 
 

@@ -16,6 +16,9 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandExponential.h"
+
 #include <vector>
 #include <string>
 
@@ -26,6 +29,8 @@ public:
    virtual ~CSCGasCollisions();
 
    void setParticleDataTable(const ParticleDataTable * pdt);
+
+   void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
    void simulate(const PSimHit&, const CSCLayer * layer,
       std::vector<LocalPoint>& clusters, std::vector<int>& electrons );
@@ -65,6 +70,8 @@ private:
 
    CSCCrossGap* theCrossGap; // Owned by CSCGasCollisions
    const ParticleDataTable * theParticleDataTable;
+   CLHEP::RandFlat * theRandFlat;
+   CLHEP::RandExponential * theRandExponential;
    bool saveGasCollisions; // Simple Configurable to flag saving info w. debugV
 };
 

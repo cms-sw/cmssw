@@ -12,6 +12,7 @@
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 class CSCDriftSim;
 class CSCLayer;
@@ -31,6 +32,8 @@ public:
 				    const edm::PSimHitContainer & simHits);
  
   void setParticleDataTable(const ParticleDataTable * pdt);
+
+  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
 private:
   // Helper functions

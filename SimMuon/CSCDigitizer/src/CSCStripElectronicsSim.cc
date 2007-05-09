@@ -11,7 +11,6 @@
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include<list>
 
@@ -114,7 +113,7 @@ float CSCStripElectronicsSim::signalDelay(int element, float pos) const {
 float CSCStripElectronicsSim::comparatorReading(const CSCAnalogSignal & signal,
                                                   float time) const {
    return std::min(signal.getValue(time), theComparatorSaturation)
-       +  theComparatorRMSOffset*RandGaussQ::shoot();  
+       +  theComparatorRMSOffset* theRandGaussQ->shoot();  
 }
 
 

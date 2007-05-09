@@ -100,3 +100,11 @@ void CSCWireHitSim::setParticleDataTable(const ParticleDataTable * pdt)
   theGasIonizer->setParticleDataTable(pdt);
 }
 
+
+void CSCWireHitSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
+{
+  theDriftSim->setRandomEngine(engine);
+  theGasIonizer->setRandomEngine(engine);
+}
+
+

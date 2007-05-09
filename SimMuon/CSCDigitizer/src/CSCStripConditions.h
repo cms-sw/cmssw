@@ -5,15 +5,17 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 
 class CSCStripConditions
 {
 public:
-  CSCStripConditions()
-  : theNoisifier(0) {}
+  CSCStripConditions();
 
-  virtual ~CSCStripConditions() {delete theNoisifier;}
+  virtual ~CSCStripConditions();
+
+  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
   void noisify(const CSCDetId & detId, CSCAnalogSignal & signal);
 
@@ -39,6 +41,7 @@ protected:
   virtual void fetchNoisifier(const CSCDetId & detId, int istrip) = 0;
 
   CorrelatedNoisifier * theNoisifier;
+  CLHEP::RandGaussQ * theRandGaussQ;
 };
 
 #endif

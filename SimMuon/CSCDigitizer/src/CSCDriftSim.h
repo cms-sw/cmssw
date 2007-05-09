@@ -23,11 +23,15 @@ class CSCDetectorHit;
 class PSimHit;
 class MagneticField;
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 class CSCDriftSim
 {
 public:
   CSCDriftSim();
+
+  ~CSCDriftSim();
 
   /** takes a point, 
    and creates a signal on the wire
@@ -36,6 +40,8 @@ public:
 			      const CSCLayer *, int wire, const PSimHit & simHit);
 
   void setMagneticField(const MagneticField * field) {theMagneticField = field;}
+
+  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
 private:
   // helper functions
@@ -63,6 +69,8 @@ private:
 
   const MagneticField * theMagneticField;
 
+  CLHEP::RandGaussQ * theRandGaussQ;
+  CLHEP::RandFlat *   theRandFlat;
 };
 
 #endif

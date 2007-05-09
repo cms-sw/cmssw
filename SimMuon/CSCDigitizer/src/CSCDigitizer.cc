@@ -118,6 +118,13 @@ void CSCDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
 }
 
 
+void CSCDigitizer::setRandomEngine(CLHEP::HepRandomEngine& engine)
+{
+  theWireElectronicsSim->setRandomEngine(engine);
+  theStripElectronicsSim->setRandomEngine(engine);
+}
+
+
 const CSCLayer * CSCDigitizer::findLayer(int detId) const {
   assert(theCSCGeometry != 0);
   const GeomDetUnit* detUnit = theCSCGeometry->idToDetUnit(CSCDetId(detId));

@@ -13,7 +13,6 @@
  *
  */
 
-//#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>
@@ -21,6 +20,7 @@
 
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 // declarations
 class CSCLayer;
@@ -37,7 +37,9 @@ public:
 
   typedef std::map<int, CSCAnalogSignal, std::less<int> > CSCSignalMap;
   typedef edm::DetSet<StripDigiSimLink> DigiSimLinks;
-  
+ 
+  void setRandomEngine(CLHEP::HepRandomEngine& engine);
+ 
   // takes the input detector hits, turns them into DIGIs, and
   // stores them in the layer
   void simulate(const CSCLayer * layer,
@@ -45,7 +47,7 @@ public:
 
   const DigiSimLinks & digiSimLinks() const {return theDigiSimLinks;}
  
-  virtual ~CSCBaseElectronicsSim() {}
+  virtual ~CSCBaseElectronicsSim();
 
   /**
    * For verbosity
@@ -129,7 +131,7 @@ protected:
 
   // amplifier parameters
   int theShapingTime;
-  float thePeakTimeVariance;
+  float thePeakTimeSigma;
   // used to correct the bunch timing so that the signal event 
   // comes at BX zero.
   std::vector<double> theBunchTimingOffsets;
@@ -154,6 +156,7 @@ protected:
   DetectorHitMap theDetectorHitMap;
   DigiSimLinks theDigiSimLinks;
 
+  CLHEP::RandGaussQ * theRandGaussQ;
 };
 
 #endif

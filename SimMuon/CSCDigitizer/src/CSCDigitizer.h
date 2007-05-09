@@ -19,6 +19,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+#include "CLHEP/Random/RandomEngine.h"
 #include <boost/utility.hpp>
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -61,6 +62,8 @@ public:
   void setStripConditions(CSCStripConditions * cond);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
+
+  void setRandomEngine(CLHEP::HepRandomEngine& engine);
 
   /// finds the layer in the geometry associated with this det ID
   const CSCLayer * findLayer(int detId) const;

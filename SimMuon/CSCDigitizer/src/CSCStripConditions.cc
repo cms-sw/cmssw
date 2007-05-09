@@ -1,9 +1,28 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
+CSCStripConditions::CSCStripConditions()
+  : theNoisifier(0),
+    theRandGaussQ(0)
+ {}
+
+
+CSCStripConditions::~CSCStripConditions() 
+{
+  delete theNoisifier;
+  delete theRandGaussQ;
+}
+
+
+void CSCStripConditions::setRandomEngine(CLHEP::HepRandomEngine& engine)
+{
+  theRandGaussQ = new RandGaussQ(engine);
+}
+
+
 float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel) const
 {
-  return RandGaussQ::shoot( gain(detId, channel), gainSigma(detId, channel) );
+  return theRandGaussQ->shoot( gain(detId, channel), gainSigma(detId, channel) );
 }
 
 

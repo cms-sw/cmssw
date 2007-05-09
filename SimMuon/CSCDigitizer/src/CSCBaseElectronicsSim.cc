@@ -7,7 +7,6 @@
 #include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
-#include "CLHEP/Random/RandGaussQ.h" 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
@@ -27,16 +26,29 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theNoiseWasAdded(false),
   nElements(0),
   theShapingTime(p.getParameter<int>("shapingTime")),
-  thePeakTimeVariance(p.getParameter<double>("peakTimeVariance")),
+  thePeakTimeSigma(p.getParameter<double>("peakTimeSigma")),
   theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
   theSignalStartTime(p.getParameter<double>("signalStartTime")),
   theSignalStopTime(p.getParameter<double>("signalStopTime")),
   theSamplingTime(p.getParameter<double>("samplingTime")),
   theNumberOfSamples(static_cast<int>((theSignalStopTime-theSignalStartTime)/theSamplingTime)),
   theOffsetOfBxZero(p.getParameter<int>("timeBitForBxZero")),
-  doNoise_(p.getParameter<bool>("doNoise"))
+  doNoise_(p.getParameter<bool>("doNoise")),
+  theRandGaussQ(0)
 {
   assert(theBunchTimingOffsets.size() == 11);
+}
+
+
+CSCBaseElectronicsSim::~CSCBaseElectronicsSim()
+{
+  delete theRandGaussQ;
+}
+
+
+void CSCBaseElectronicsSim::setRandomEngine(CLHEP::HepRandomEngine& engine)
+{
+  theRandGaussQ = new RandGaussQ(engine);
 }
 
 
@@ -127,10 +139,9 @@ void CSCBaseElectronicsSim::addNoise() {
     // superimpose electronics noise
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
     // DON'T do amp gain variations.  Handled in strips by calibration code
-    //(*mapI).second *= (1.+ theAmpGainVariance * RandGaussQ::shoot());
     // and variations in the shaper peaking time.
     (*mapI).second.setTimeOffset((*mapI).second.getTimeOffset() 
-                               + thePeakTimeVariance * RandGaussQ::shoot());
+                               + thePeakTimeSigma * theRandGaussQ->shoot());
   }
   theNoiseWasAdded = true;
 }

@@ -8,7 +8,6 @@
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Random/RandGaussQ.h"
 #include <iostream>
 
 
@@ -51,7 +50,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
     LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " <<  signal;
     // the way we handle noise in this chamber is by randomly varying
     // the threshold
-    float threshold = theWireThreshold + RandGaussQ::shoot() * theWireNoise;
+    float threshold = theWireThreshold + theRandGaussQ->shoot() * theWireNoise;
     for(int ibin = 0; ibin < signal.getSize(); ++ibin)
       if(signal.getBinValue(ibin) > threshold) {
         // jackpot.  Now define this signal as everything up until
@@ -101,7 +100,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection & digis) {
       // (Comments from Tim, Aug-2005)
 
       float fdTime = theSignalStartTime + theSamplingTime*bin_firing_FD
-                   + RandGaussQ::shoot() * theTimingCalibrationError;
+                   + theRandGaussQ->shoot() * theTimingCalibrationError;
 
       int beamCrossingTag = 
          static_cast<int>( (fdTime - tofOffset - theBunchTimingOffsets[chamberType])
