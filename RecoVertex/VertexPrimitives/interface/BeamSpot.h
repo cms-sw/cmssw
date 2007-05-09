@@ -3,6 +3,8 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 /** \class BeamSpot 
  *  Defines position and spread of the beam spot 
@@ -20,7 +22,9 @@ public:
    *  (0.0015*0.0015, 0.0015*0.0015, 5.3*5.3)
    */
   BeamSpot();
-  
+  BeamSpot(reco::BeamSpot & beamSpot);
+  BeamSpot(const BeamSpotObjects * beamSpot);
+
   GlobalPoint position() const { return thePos; }
   GlobalError error() const { return theErr; }
 
