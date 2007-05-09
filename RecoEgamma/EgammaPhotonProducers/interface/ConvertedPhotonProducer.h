@@ -3,9 +3,9 @@
 /** \class ConvertedPhotonProducer
  **  
  **
- **  $Id: ConvertedPhotonProducer.h,v 1.6 2007/02/19 20:58:07 nancy Exp $ 
- **  $Date: 2007/02/19 20:58:07 $ 
- **  $Revision: 1.6 $
+ **  $Id: ConvertedPhotonProducer.h,v 1.7 2007/02/25 16:30:04 nancy Exp $ 
+ **  $Date: 2007/02/25 16:30:04 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -55,8 +55,7 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   std::string outInTrackSCEndcapAssociationCollection_;
   std::string inOutTrackSCEndcapAssociationCollection_;
 
-  //std::string OutInTrackCandidateCollection_;
-  //std::string InOutTrackCandidateCollection_;
+
   std::string ConvertedPhotonCollection_;
 
   
@@ -69,6 +68,12 @@ class ConvertedPhotonProducer : public edm::EDProducer {
   std::string scIslandEndcapCollection_;
   edm::ParameterSet conf_;
 
+  std::string barrelClusterShapeMapProducer_;
+  std::string barrelClusterShapeMapCollection_;
+  std::string endcapClusterShapeMapProducer_;
+  std::string endcapClusterShapeMapCollection_;
+
+ 
 
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
