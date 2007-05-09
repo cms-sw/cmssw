@@ -54,7 +54,10 @@ int EcalTrigTowerDetId::iDCC() const
 {
   if ( subDet() == EcalBarrel )
     {
-      int id = ( iphi() - 1 ) / kEBTowersInPhi + 1;
+      //Correction since iphi is uniformized with HB convention 
+      int iphi_simple = iphi() + 2 ;
+      if (iphi_simple > 72 ) = iphi_simple % 72;
+      int id = ( iphi_simple - 1 ) / kEBTowersInPhi + 1;
       if ( zside() < 0 ) id += 18;
       return id;
     }
@@ -68,10 +71,12 @@ int EcalTrigTowerDetId::iTT() const
     {
       int ie = ietaAbs() -1;
       int ip;
+      int iphi_simple = iphi() + 2 ;
+      if (iphi_simple > 72 ) = iphi_simple % 72;
       if (zside() < 0) {
-	ip = (( iphi() -1 ) % kEBTowersInPhi ) + 1;
+	ip = (( iphi_simple -1 ) % kEBTowersInPhi ) + 1;
       } else {
-	ip = kEBTowersInPhi - ((iphi() -1 ) % kEBTowersInPhi );
+	ip = kEBTowersInPhi - ((iphi_simple -1 ) % kEBTowersInPhi );
       }
       
       return (ie * kEBTowersInPhi) + ip;
