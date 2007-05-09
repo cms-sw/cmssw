@@ -6,8 +6,9 @@
 #include "TKey.h"
 #include "Riostream.h"
 
- TList *FileList;
+TList *FileList;
 TFile *Target;
+vector<string> ExcludedHistosNames;
 
 void MergeRootfile( TDirectory *target, TList *sourcelist );
 
@@ -51,24 +52,39 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
     if ( obj->IsA()->InheritsFrom( "TH1" ) ) {
       // descendant of TH1 -> merge it
 
-      //      cout << "Merging histogram " << obj->GetName() << endl;
+      //cout << "Merging histogram " << obj->GetName() << endl;
       TH1 *h1 = (TH1*)obj;
-
+      
+      bool DoMerge=true;
+      for (size_t i=0;i<ExcludedHistosNames.size();++i){
+	//cout << h1->GetTitle() << " " << ExcludedHistosNames[i].c_str() << endl;
+	if (strstr(h1->GetTitle(),ExcludedHistosNames[i].c_str())!=NULL){
+	  std::cout << "skipping merge for histo " << h1->GetTitle() << endl;
+	  DoMerge=false;
+	  break;
+	}
+      }
+      
       // loop over all source files and add the content of the
       // correspondant histogram to the one pointed to by "h1"
-      TFile *nextsource = (TFile*)sourcelist->After( first_source );
-      while ( nextsource ) {
-        
-        // make sure we are at the correct directory level by cd'ing to path
-        nextsource->cd( path );
-        TH1 *h2 = (TH1*)gDirectory->Get( h1->GetName() );
-        if ( h2 ) {
-          h1->Add( h2 );
-          delete h2; // don't know if this is necessary, i.e. if 
-                     // h2 is created by the call to gDirectory above.
-        }
+      if (DoMerge){
+	
+	//std::cout << "merge for histo " << h1->GetTitle() << endl;
 
-        nextsource = (TFile*)sourcelist->After( nextsource );
+	TFile *nextsource = (TFile*)sourcelist->After( first_source );
+	while ( nextsource ) {
+	  
+	  // make sure we are at the correct directory level by cd'ing to path
+	  nextsource->cd( path );
+	  TH1 *h2 = (TH1*)gDirectory->Get( h1->GetName() );
+	  if ( h2 ) {
+	    h1->Add( h2 );
+	    delete h2; // don't know if this is necessary, i.e. if 
+	    // h2 is created by the call to gDirectory above.
+	  }
+	  
+	  nextsource = (TFile*)sourcelist->After( nextsource );
+	}
       }
     }
     else if ( obj->IsA()->InheritsFrom( "TTree" ) ) {
@@ -118,8 +134,10 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
       //!!if the object is a tree, it is stored in globChain...
       if(obj->IsA()->InheritsFrom( "TTree" ))
 	globChain->Write( key->GetName() );
-      else
+      else{
         obj->Write( key->GetName() );
+	//cout << "writing object " << obj->GetTitle() << endl;
+      }    
     }
 
   } // while ( ( TKey *key = (TKey*)nextkey() ) )
@@ -132,11 +150,14 @@ void MergeRootfile( TDirectory *target, TList *sourcelist ) {
 
 // Class to create the TList and pass it to the merger
 void AddHisto( const char *pcFILE_IN,
-	       const char *jobList ) {
+	       const char *jobList,
+	       char* ExcludedHistosList="") {
 
   FileList = new TList();
   TString FileName;
 
+  cout << "jobList " << jobList << endl;
+  
   char * jobNum = std::strtok(jobList,"-");
   std::cout << "jobNum = " << jobNum << std::endl;
   while ( jobNum != NULL ) {
@@ -147,7 +168,7 @@ void AddHisto( const char *pcFILE_IN,
     FileName+=jobNum;
     FileName+=".root";
     std::cout << "FileName = " << FileName << std::endl;
-    FileList->Add( TFile::Open( FileName ) );
+    FileList->Add( TFile::Open( FileName , "READ" ) );
     jobNum = std::strtok(NULL,"-");
   }
 
@@ -156,5 +177,16 @@ void AddHisto( const char *pcFILE_IN,
 
   Target = TFile::Open( NameOut, "RECREATE" );
 
+
+  char *ptr=strtok(ExcludedHistosList," ");
+  while (ptr!=NULL){
+    ExcludedHistosNames.push_back(string(ptr));
+    ptr=strtok(NULL," ");
+  }
+
+  
+  for (size_t i=0;i<ExcludedHistosNames.size();++i)
+    cout << "Exclude from merge Histo" << ExcludedHistosNames[i] << endl;
+  
   MergeRootfile( Target, FileList );
 };
