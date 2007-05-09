@@ -4,8 +4,8 @@
 /** \class LaserOpticalPhysics
  *  Custom physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: Mon Mar 19 12:27:44 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */ 
 
@@ -16,7 +16,7 @@ class LaserOpticalPhysics : public PhysicsList
 {
 public:
 		/// constructor
-    LaserOpticalPhysics(const edm::ParameterSet & p);
+    LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map, const edm::ParameterSet & p);
 };
  
 #endif

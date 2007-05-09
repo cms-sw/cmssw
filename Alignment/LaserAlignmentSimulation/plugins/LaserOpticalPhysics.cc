@@ -1,8 +1,8 @@
 /** \file LaserOpticalPhysics.cc
  *  Custom Physics to activate optical processes for the simulation of the Laser Alignment System
  *
- *  $Date: 2007/03/20 12:01:00 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/08 08:00:16 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -29,7 +29,8 @@
 #include "G4DataQuestionaire.hh"
 #endif
 
-LaserOpticalPhysics::LaserOpticalPhysics(const edm::ParameterSet & p) : PhysicsList(p)
+LaserOpticalPhysics::LaserOpticalPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
+  const edm::ParameterSet & p) : PhysicsList(map, p)
 {
     G4DataQuestionaire it(photon);
 #ifdef G4V7
