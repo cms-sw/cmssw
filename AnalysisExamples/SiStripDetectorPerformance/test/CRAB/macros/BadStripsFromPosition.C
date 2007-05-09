@@ -9,11 +9,13 @@
 #include <sstream>
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TKey.h"
 #include "TObject.h"
 #include "TDirectory.h"
 #include "TMath.h"
 #include "TCanvas.h"
+#include "TStyle.h"
 
 char * Mask;
 stringstream ss;
@@ -21,6 +23,8 @@ TFile *f;
 double _prob;
 static const size_t _Mask_LENGTH = 100;
 static const size_t _cbads_LENGTH = 96;
+
+TH2F* CollectivePedHisto;
 
 struct StripStruct{
   int N;
@@ -30,6 +34,7 @@ struct StripStruct{
 
 
 void badStripStudy(TH1F *histo);
+void CorrelatePedestals(TH1F *histo,std::map<short,StripStruct>& mBadStrip);
 
 void Navigate(){
   TIter nextkey(gDirectory->GetListOfKeys());
@@ -193,16 +198,63 @@ void badStripStudy(TH1F *histo){
       ptr=strtok(NULL,"_");
       c++;
     }
+
+    CorrelatePedestals(histo,mBadStrip);
   }  
 }
 
+void CorrelatePedestals(TH1F *histo,std::map<short,StripStruct>& mBadStrip){
+
+  char PedHistoName[1024];
+  sprintf(PedHistoName,"DBPedestals_%s",&(histo->GetName()[5]));
+  //std::cout << "PedHistoName " << PedHistoName << std::endl;
+  TH1 *hped = (TH1*)gDirectory->Get( PedHistoName );
+  if (hped==NULL)
+    return;
+  
+  int ibinStart= 1; 
+  int ibinStop= histo->GetNbinsX()+1;
+  const size_t Napvs= histo->GetNbinsX()/128;
+  std::vector<short> apvPed[Napvs];
+  float apvCM[Napvs];
+
+  int i;
+  for (i=ibinStart; i<ibinStop; ++i){
+    apvPed[(int)((i-1)/128)].push_back((short)hped->GetBinContent(i));
+  }
+  
+  for (i=0;i<Napvs;++i){
+    sort(apvPed[i].begin(),apvPed[i].end());
+    apvCM[i]=.5*(apvPed[i][63]+apvPed[i][64]);
+  }
+  
+  std::map<short,StripStruct>::const_iterator EndIter=mBadStrip.end();
+  for(std::map<short,StripStruct>::const_iterator iter=mBadStrip.begin();iter!=EndIter;++iter){
+    i=iter->first;
+    CollectivePedHisto->Fill(hped->GetBinContent(i),apvCM[(int)((i-1)/128)]);
+  }
+}
 
 void BadStripsFromPosition(char *input, char* output,double prob=1.e-07){
+  
+  char PedHistoName[1024];
+  char inputNoExtention[1024];
+  strcat(inputNoExtention,input);
+  sprintf(PedHistoName,"%s_HotStrips_PedScatters",strtok(inputNoExtention,"."));  
+  CollectivePedHisto = new TH2F("CollectivePedHisto",PedHistoName,256,0.1,1024.1,512,0.1,2048.1);
 
   f=new TFile(input,"READ"); 
   _prob=prob;
 
   Navigate();  
+
+  TCanvas C;
+  C.SetLogx();
+  C.SetLogy();
+  gStyle->SetOptStat(0);
+  CollectivePedHisto->SetMarkerStyle(20);
+  CollectivePedHisto->Draw();
+  C.Print(TString(CollectivePedHisto->GetTitle())+".gif");
 
   //cout << "close" << endl;
   //f->Close();     
