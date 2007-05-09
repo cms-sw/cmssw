@@ -11,6 +11,7 @@
 #include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetTxt.h"
+#include "Validation/Geometry/interface/TestHistoMgr.h"
 
 #include "SimG4Core/Watcher/interface/SimProducer.h"
 #include "SimG4Core/Notification/interface/Observer.h"
@@ -62,6 +63,7 @@ class MaterialBudgetAction : public SimProducer,
   MaterialBudgetTree* theTree;
   MaterialBudgetFormat* theHistos;
   MaterialBudgetTxt* theTxt;
+  TestHistoMgr* theHistoMgr;
   bool saveToTxt, saveToTree, saveToHistos;
 
   std::vector<G4String> theVolumeList; 

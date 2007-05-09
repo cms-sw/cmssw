@@ -2,13 +2,15 @@
 #define MaterialBudgetTrackerHistos_h 1
 
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
-class TestHistoMgr;
+#include "Validation/Geometry/interface/TestHistoMgr.h"
 
 class MaterialBudgetTrackerHistos : public MaterialBudgetFormat
 {
 public:
   
-  MaterialBudgetTrackerHistos( MaterialBudgetData* data, const std::string& fileName );   
+  MaterialBudgetTrackerHistos( MaterialBudgetData* data, 
+			       TestHistoMgr* mgr,
+			       const std::string& fileName );   
   virtual ~MaterialBudgetTrackerHistos(){ hend(); }
   
   virtual void fillStartTrack();

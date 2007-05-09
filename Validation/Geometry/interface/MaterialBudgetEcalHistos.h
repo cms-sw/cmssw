@@ -2,13 +2,17 @@
 #define MaterialBudgetEcalHistos_h 1
 
 #include "Validation/Geometry/interface/MaterialBudgetFormat.h"
-class TestHistoMgr;
+#include "Validation/Geometry/interface/TestHistoMgr.h"
+
+#include <string>
 
 class MaterialBudgetEcalHistos : public MaterialBudgetFormat
 {
 public:
   
-  MaterialBudgetEcalHistos( MaterialBudgetData* data, const std::string& fileName );   
+  MaterialBudgetEcalHistos( MaterialBudgetData* data, 
+			    TestHistoMgr* mgr,
+			    const std::string& fileName );   
   virtual ~MaterialBudgetEcalHistos(){ hend(); }
   
   virtual void fillStartTrack();

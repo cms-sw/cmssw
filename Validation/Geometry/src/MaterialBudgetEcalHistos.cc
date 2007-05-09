@@ -1,15 +1,13 @@
 #include "Validation/Geometry/interface/MaterialBudgetEcalHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
-#include "Validation/Geometry/interface/TestHistoMgr.h"
-
-#include "SimG4Core/Notification/interface/Singleton.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(MaterialBudgetData* data, const std::string& fileName ): MaterialBudgetFormat( data )
+MaterialBudgetEcalHistos::MaterialBudgetEcalHistos(MaterialBudgetData* data, 
+						   TestHistoMgr* mgr,
+						   const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
 {
-  hmgr = Singleton<TestHistoMgr>::instance();
   theFileName = fileName;
   book();
 

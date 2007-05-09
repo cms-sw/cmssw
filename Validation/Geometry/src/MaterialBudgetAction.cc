@@ -27,7 +27,8 @@
 
 
 //-------------------------------------------------------------------------
-MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) 
+MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet) :
+  theHistoMgr(0)
 {
   theData = new MaterialBudgetData;
   
@@ -65,15 +66,17 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   if( saveToHistosFile != "None" ) {
     saveToHistos = true;
     std::cout << "TestGeometry: saving histograms to " << saveToHistosFile << std::endl;
+    theHistoMgr = new TestHistoMgr();
+
     // rr
     if(theHistoList == "Tracker" ) {
-      theHistos = new MaterialBudgetTrackerHistos( theData, saveToHistosFile );
+      theHistos = new MaterialBudgetTrackerHistos( theData, theHistoMgr, saveToHistosFile );
     } 
     else if (theHistoList == "ECAL") {
-      theHistos = new MaterialBudgetEcalHistos( theData, saveToHistosFile );
+      theHistos = new MaterialBudgetEcalHistos( theData, theHistoMgr, saveToHistosFile );
     }
     else {
-      theHistos = new MaterialBudgetHistos( theData, saveToHistosFile );
+      theHistos = new MaterialBudgetHistos( theData, theHistoMgr, saveToHistosFile );
     }
       // rr
   } else {
@@ -115,6 +118,7 @@ MaterialBudgetAction::~MaterialBudgetAction()
   if (saveToTxt) delete theTxt;
   if (saveToTree) delete theTree;
   if (saveToHistos) delete theHistos;
+  if (theHistoMgr) delete theHistoMgr;
   delete theData;
 }
 

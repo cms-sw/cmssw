@@ -1,13 +1,11 @@
 #include "Validation/Geometry/interface/MaterialBudgetTrackerHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
-#include "Validation/Geometry/interface/TestHistoMgr.h"
 
-#include "SimG4Core/Notification/interface/Singleton.h"
-
-MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(MaterialBudgetData* data, const std::string& fileName ): MaterialBudgetFormat( data )
+MaterialBudgetTrackerHistos::MaterialBudgetTrackerHistos(MaterialBudgetData* data,
+							 TestHistoMgr* mgr,
+							 const std::string& fileName ): MaterialBudgetFormat( data ), hmgr(mgr)
 {
-  hmgr = Singleton<TestHistoMgr>::instance();
   theFileName = fileName;
   book();
 
