@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/04/30 23:14:13 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/05/08 07:45:12 $
+ *  $Revision: 1.37 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.36 2007/04/30 23:14:13 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.37 2007/05/08 07:45:12 slava77 Exp $
 //
 //
 
@@ -187,10 +187,11 @@ SteppingHelixPropagator::propagate(const SteppingHelixStateInfo& sStart,
   }
   setIState(sStart);
   
-  GlobalPoint rPlane = pDest.toGlobal(LocalPoint(0,0,0));
-  GlobalVector nPlane = pDest.toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
-  double pars[6] = { rPlane.x(), rPlane.y(), rPlane.z(),
-		     nPlane.x(), nPlane.y(), nPlane.z() };
+  GlobalPoint rPlane = pDest.position();
+  GlobalVector nPlane(pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz());
+
+  double pars[6] = { pDest.position().x(), pDest.position().y(), pDest.position().z(),
+		     pDest.rotation().zx(), pDest.rotation().zy(), pDest.rotation().zz() };
   
   propagate(PLANE_DT, pars);
   
@@ -544,9 +545,11 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.radPath = 0;
 
   GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
-  GlobalVector bf = field_->inTesla(gPoint);
+  GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
+
+  GlobalVector bf;
+  // = field_->inTesla(gPoint);
   if (useMagVolumes_){
-    GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z() > 0. ? -svCurrent.r3.z() : svCurrent.r3.z());
     if (vbField_ ){
       svCurrent.magVol = vbField_->findVolume(gPointNegZ);
     } else {
@@ -558,8 +561,19 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
     }
   }
   
-  svCurrent.bf.set(bf.x(), bf.y(), bf.z());
+  if (useMagVolumes_ && svCurrent.magVol != 0){
+    bf = svCurrent.magVol->inTesla(gPointNegZ);
+    if (gPoint.z() > 0){
+      svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
+    } else {
+      svCurrent.bf.set(bf.x(), bf.y(), bf.z());
+    }
+  } else {
+    bf = field_->inTesla(gPoint);
+    svCurrent.bf.set(bf.x(), bf.y(), bf.z());
+  }
   if (svCurrent.bf.mag() < 1e-6) svCurrent.bf.set(0., 0., 1e-6);
+
 
 
   double dEdXPrime = 0;
@@ -603,12 +617,11 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   svNext.radPath = svPrevious.radPath + dX0;
 
   GlobalPoint gPoint(svNext.r3.x(), svNext.r3.y(), svNext.r3.z());
+  GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), -fabs(svNext.r3.z()));
 
-  GlobalVector bf = field_->inTesla(gPoint);
-  svNext.bf.set(bf.x(), bf.y(), bf.z());
-  if (svNext.bf.mag() < 1e-6) svNext.bf.set(0., 0., 1e-6);
+  GlobalVector bf; 
+
   if (useMagVolumes_){
-    GlobalPoint gPointNegZ(svNext.r3.x(), svNext.r3.y(), svNext.r3.z() > 0. ? -svNext.r3.z() : svNext.r3.z());
     if (vbField_ ){
       svNext.magVol = vbField_->findVolume(gPointNegZ);
     } else {
@@ -619,6 +632,19 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
       LogTrace(metname)<<"Got volume at "<<svNext.magVol<<std::endl;
     }
   }
+
+  if (useMagVolumes_ && svNext.magVol != 0){
+    bf = svNext.magVol->inTesla(gPointNegZ);
+    if (gPoint.z() > 0){
+      svNext.bf.set(-bf.x(), -bf.y(), bf.z());
+    } else {
+      svNext.bf.set(bf.x(), bf.y(), bf.z());
+    }
+  } else {
+    bf = field_->inTesla(gPoint);
+    svNext.bf.set(bf.x(), bf.y(), bf.z());
+  }
+  if (svNext.bf.mag() < 1e-6) svNext.bf.set(0., 0., 1e-6);
   
   
   double dEdXPrime = 0;
@@ -633,7 +659,10 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   //update Emat only if it's valid
   svNext.hasErrorPropagated_ = svPrevious.hasErrorPropagated_;
   if (svPrevious.hasErrorPropagated_){
-    svNext.cov = ROOT::Math::Similarity(dCovTransform, svPrevious.cov);
+    //    svNext.cov = ROOT::Math::Similarity(dCovTransform, svPrevious.cov);
+    AlgebraicMatrix66 tmp = dCovTransform*svPrevious.cov;
+    ROOT::Math::AssignSym::Evaluate(svNext.cov, tmp*ROOT::Math::Transpose(dCovTransform));
+
     svNext.cov += svPrevious.matDCov;
   } else {
     //could skip dragging along the unprop. cov later
@@ -659,7 +688,7 @@ void SteppingHelixPropagator::setRep(SteppingHelixPropagator::Basis& rep,
 				     const SteppingHelixPropagator::Vector& tau) const{
   Vector zRep(0., 0., 1.);
   rep.lX = tau;
-  rep.lY = zRep.cross(tau); rep.lY /= tau.perp();
+  rep.lY = zRep.cross(tau); rep.lY *= 1./tau.perp();
   rep.lZ = rep.lX.cross(rep.lY);
 }
 
@@ -674,7 +703,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
   }
 
   double dP = 0;
-  Vector tau = svCurrent.p3; tau/=tau.mag();
+  Vector tau = svCurrent.p3; tau *= 1./tau.mag();
   Vector tauNext(tau);
   Vector drVec;
 
@@ -700,7 +729,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     double sinPhiOPhi = phiSmall ? 1. - phi*phi/6. : sinPhi/phi;
     double phiLessSinPhiOPhi = phiSmall ? phi*phi/6.*(1. - phi*phi/20.) : (phi - sinPhi)/phi;
 
-    Vector bHat = svCurrent.bf; bHat /= bHat.mag();
+    Vector bHat = svCurrent.bf; bHat *= 1./bHat.mag();
     Vector btVec(bHat.cross(tau));
     Vector bbtVec(bHat.cross(btVec));
     Vector tbtVec(tau.cross(btVec));
@@ -716,8 +745,21 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 
     //improve with above values:
     drVec += svCurrent.r3;
-    GlobalVector bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
-    Vector bf(bfGV.x(), bfGV.y(), bfGV.z());
+    GlobalVector bfGV;
+    Vector bf; //(bfGV.x(), bfGV.y(), bfGV.z());
+    // = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
+    if (useMagVolumes_ && svCurrent.magVol != 0){
+      // this negative-z business will break at some point
+      bfGV = svCurrent.magVol->inTesla(GlobalPoint(drVec.x(), drVec.y(), -fabs(drVec.z())));
+      if (drVec.z() > 0){
+	bf.set(-bfGV.x(), -bfGV.y(), bfGV.z());
+      } else {
+	bf.set(bfGV.x(), bfGV.y(), bfGV.z());
+      }
+    } else {
+      bfGV = field_->inTesla(GlobalPoint(drVec.x(), drVec.y(), drVec.z()));
+      bf.set(bfGV.x(), bfGV.y(), bfGV.z());
+    }
     b0 = bf.mag();
     if (b0 < 1e-6) {
       b0 = 1e-6;
@@ -754,7 +796,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
     sinPhiOPhi = phiSmall ? 1. - phi*phi/6. : sinPhi/phi;
     phiLessSinPhiOPhi = phiSmall ? phi*phi/6.*(1. - phi*phi/20.) : (phi - sinPhi)/phi;
 
-    bHat = bf; bHat /= bHat.mag();
+    bHat = bf; bHat *= 1./bHat.mag();
     btVec = bHat.cross(tau);
     bbtVec = bHat.cross(btVec);
     tbtVec = tau.cross(btVec);
@@ -1232,7 +1274,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       if (b0>1.5e-6){
 	double kVal = 0.0029979*sv.q/p0*b0;
 	double aVal = tanDist*kVal;
-	Vector lVec = sv.bf.cross(sv.p3)/b0/p0;
+	Vector lVec = sv.bf.cross(sv.p3); lVec *= 1./b0/p0;
 	double bVal = lVec.dot(nPlane)/tN;
 	if (fabs(aVal*bVal)< 0.3){
 	  double cVal = lVec.dot(nPlane) - sv.bf.dot(lVec)*sv.bf.dot(nPlane);
@@ -1300,7 +1342,7 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     {
       Point pDest(pars[0], pars[1], pars[2]);
       dist = (sv.r3 - pDest).mag()+ 1e-24;//add a small number to avoid 1/0
-      tanDist = (sv.r3 - pDest).dot(sv.p3)/(sv.p3.mag());
+      tanDist = (sv.r3.dot(sv.p3) - pDest.dot(sv.p3))/sv.p3.mag();
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
@@ -1311,12 +1353,12 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       Point rLine(pars[0], pars[1], pars[2]);
       Vector dLine(pars[3], pars[4], pars[5]);
       dLine = (dLine - rLine);
-      dLine /= dLine.mag();
+      dLine *= 1./dLine.mag();
 
       Vector dR = sv.r3 - rLine;
       Vector dRPerp = dR - dLine*(dR.dot(dLine));
       dist = dRPerp.mag() + 1e-24;//add a small number to avoid 1/0
-      tanDist = dRPerp.dot(sv.p3)/(sv.p3.mag());
+      tanDist = dRPerp.dot(sv.p3)/sv.p3.mag();
       //angle wrt line
       double cosAlpha = dLine.dot(sv.p3)/sv.p3.mag();
       tanDist *= fabs(1./sqrt(fabs(1.-cosAlpha*cosAlpha)+1e-96));
@@ -1362,7 +1404,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   const MagVolume* cVol = sv.magVol;
 
   if (cVol == 0) return result;
-  const std::vector<VolumeSide> cVolFaces(cVol->faces());
+  std::vector<VolumeSide> cVolFaces(cVol->faces());
 
   double distToFace[6];
   double tanDistToFace[6];
@@ -1406,8 +1448,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     double pars[6];
     DestType dType = UNDEFINED_DT;
     if (cPlane != 0){
-      GlobalPoint rPlane = cPlane->toGlobal(LocalPoint(0,0,0));
-      GlobalVector nPlane = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
+      GlobalPoint rPlane = cPlane->position();
+      // = cPlane->toGlobal(LocalVector(0,0,1.)); nPlane = nPlane.unit();
+      GlobalVector nPlane(cPlane->rotation().zx(), cPlane->rotation().zy(), cPlane->rotation().zz());
       
       if (sv.r3.z() < 0){
 	pars[0] = rPlane.x(); pars[1] = rPlane.y(); pars[2] = rPlane.z();
@@ -1454,16 +1497,14 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     
     if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
       double sign = dir == alongMomentum ? 1. : -1.;
-      GlobalPoint gPointEst(sv.r3.x(), sv.r3.y(), sv.r3.z());
-      GlobalVector gDir(sv.p3.x(), sv.p3.y(), sv.p3.z());
-      gDir /= sv.p3.mag();
-      gPointEst += sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))*gDir;
+      Point gPointEst(sv.r3);
+      Vector lDelta(sv.p3); lDelta *= 1./sv.p3.mag()*sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]));
+      gPointEst += lDelta;
       if (debug_){
 	LogTrace(metname)<<"Linear est point "<<gPointEst
 			 <<std::endl;
       }
-      GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(),
-				gPointEst.z() > 0 ? -gPointEst.z() : gPointEst.z());
+      GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
       if ( cVol->inside(gPointEstNegZ) ){
 	if (debug_){
 	  LogTrace(metname)<<"The point is inside the volume"<<std::endl;
@@ -1559,10 +1600,9 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
     
     if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
       double sign = dir == alongMomentum ? 1. : -1.;
-      GlobalPoint gPointEst(sv.r3.x(), sv.r3.y(), sv.r3.z());
-      GlobalVector gDir(sv.p3.x(), sv.p3.y(), sv.p3.z());
-      gDir /= sv.p3.mag();
-      gPointEst += sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))*gDir;
+      Point gPointEst(sv.r3);
+      Vector lDelta(sv.p3); lDelta *= sign*sqrt(fabs(distToFace[iFace]*tanDistToFace[iFace]))/sv.p3.mag();
+      gPointEst += lDelta;
       if (debug_){
 	LogTrace(metname)<<"Linear est point "<<gPointEst
 			 <<std::endl;
