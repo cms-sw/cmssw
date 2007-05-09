@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.38 2007/03/28 11:52:17 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.39 2007/04/30 12:57:20 rahatlou Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -70,9 +70,11 @@ using namespace reco;
 //using namespace math; // conflicts with DataFormat/Math/interface/Point3D.h!!!!
 
 PixelMatchElectronAlgo::PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
+                                               double minEOverPBarrel, double minEOverPEndcaps,
                                                double hOverEConeSize, double maxHOverE, 
                                                double maxDeltaEta, double maxDeltaPhi, double ptcut):  
   maxEOverPBarrel_(maxEOverPBarrel), maxEOverPEndcaps_(maxEOverPEndcaps), 
+  minEOverPBarrel_(minEOverPBarrel), minEOverPEndcaps_(minEOverPEndcaps), 
   hOverEConeSize_(hOverEConeSize), maxHOverE_(maxHOverE), 
   maxDeltaEta_(maxDeltaEta), maxDeltaPhi_(maxDeltaPhi), ptCut_(ptcut)
 {   
@@ -245,7 +247,6 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
 bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const GlobalVector& tsosVtxMom, const GlobalPoint& tsosSclPos, double HoE) 
 {
   LogDebug("")<< "========== preSelection ==========";
- 
   LogDebug("") << "E/p : " << clus.energy()/tsosVtxMom.mag();
   if (tsosVtxMom.perp()<ptCut_)   return false;
   //FIXME: how to get detId from a cluster??
@@ -253,7 +254,10 @@ bool PixelMatchElectronAlgo::preSelection(const SuperCluster& clus, const Global
   int subdet =vecId[0].subdetId();  //FIXME: is the first one really the biggest??
   if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() > maxEOverPBarrel_)) return false;
   if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() > maxEOverPEndcaps_)) return false;
+  if ((subdet==EcalBarrel) && (clus.energy()/tsosVtxMom.mag() < minEOverPBarrel_)) return false;
+  if ((subdet==EcalEndcap) && (clus.energy()/tsosVtxMom.mag() < minEOverPEndcaps_)) return false;
   LogDebug("") << "E/p criteria is satisfied ";
+
   // delta eta criteria
   double etaclu = clus.eta();
   double etatrk = tsosSclPos.eta();

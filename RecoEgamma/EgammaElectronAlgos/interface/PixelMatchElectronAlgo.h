@@ -25,11 +25,11 @@
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 class MultiTrajectoryStateTransform;
@@ -39,7 +39,8 @@ class PixelMatchElectronAlgo {
 
 public:
 
-  PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPBarrel, 
+  PixelMatchElectronAlgo(double maxEOverPBarrel, double maxEOverPEndcaps, 
+                         double minEOverPBarrel, double minEOverPEndcaps,
                          double hOverEConeSize, double maxHOverE, 
                          double maxDeltaEta, double maxDeltaPhi, double ptCut);
 
@@ -65,6 +66,9 @@ public:
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double maxEOverPBarrel_;   
   double maxEOverPEndcaps_;   
+  // minimum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
+   double minEOverPBarrel_;   
+   double minEOverPEndcaps_;     
   // cone size for H/E
   double hOverEConeSize_; 
   // maximum H/E where H is the Hcal energy inside the cone centered on the seed cluster eta-phi position 
