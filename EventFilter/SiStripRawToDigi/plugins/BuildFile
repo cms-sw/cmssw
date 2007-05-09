@@ -1,4 +1,8 @@
+
+<environment>
+
 <use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <use name=CommonTools/SiStripClusterization>
 <use name=CondFormats/SiStripObjects>
 <use name=CondFormats/DataRecord>
@@ -14,8 +18,10 @@
 <use name=TkOnlineSw>
 <use name=boost>
 <use name=xdaq>
-
+<lib name=CalibTrackerSiStripConnectivityPlugins>
 <library file="*.cc" name=EventFilterSiStripRawToDigiPlugins>
   <flags EDM_PLUGIN=1>
 </library>
+
+</environment>
 
