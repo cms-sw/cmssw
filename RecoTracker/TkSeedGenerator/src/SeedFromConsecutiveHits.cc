@@ -29,21 +29,52 @@ SeedFromConsecutiveHits:: SeedFromConsecutiveHits(
     const SeedingHitSet & ordered,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
-    const edm::EventSetup& es, const edm::ParameterSet& p)
+    const edm::EventSetup& es)
   : isValid_(false)
 {
   const SeedingHitSet::Hits & hits = ordered.hits(); 
+  if ( hits.size() < 2) return;
 
-  //
-  // FIXME - clearly temporary !!!!
-  //
+  // build initial helix and FTS
+  const TransientTrackingRecHit::ConstRecHitPointer& tth1 = hits[0];
+  const TransientTrackingRecHit::ConstRecHitPointer& tth2 = hits[1];
+  FastHelix helix(tth2->globalPosition(), tth1->globalPosition(), GlobalPoint(0.,0.,0.),es);
+  FreeTrajectoryState fts( helix.stateAtVertex().parameters(), initialError(  hits[1], hits[0], vertexPos, vertexErr));
 
-  if (hits.size() >=2) {
-    const TrackingRecHit* innerHit = hits[0].RecHit();
-    const TrackingRecHit* outerHit = hits[1].RecHit();
-    isValid_ = construct( outerHit,  innerHit, vertexPos, vertexErr, es, p);
-  }
+  // get tracker
+  edm::ESHandle<TrackerGeometry> tracker;
+  es.get<TrackerDigiGeometryRecord>().get(tracker);
+  
+  // get propagator
+  edm::ESHandle<Propagator>  thePropagatorHandle;
+  es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
+  const Propagator*  thePropagator = &(*thePropagatorHandle);
+
+  // get updator
+  KFUpdator     theUpdator;
+
+  TrajectoryStateOnSurface updatedState;
+  const TrackingRecHit* hit = 0;
+  for ( unsigned int iHit = 0; iHit < hits.size(); iHit++) {
+    hit = hits[iHit];
+    TrajectoryStateOnSurface state = (iHit==0) ? 
+        thePropagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
+      : thePropagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
+
+    if (!state.isValid()) return;
+
+    const TransientTrackingRecHit::ConstRecHitPointer& tth = hits[iHit]; 
+    updatedState =  theUpdator.update(state, *tth);
+    _hits.push_back(hit->clone());
+      
+  } 
+  PTraj = boost::shared_ptr<PTrajectoryStateOnDet>(
+    transformer.persistentState(updatedState, hit->geographicalId().rawId()) );
+
+  isValid_ = true;
 }
+
+
 
 
 bool SeedFromConsecutiveHits::
@@ -123,12 +154,12 @@ initialError( const TrackingRecHit* outerHit,
 	      const GlobalPoint& vertexPos,
 	      const GlobalError& vertexErr) 
 {
-  AlgebraicSymMatrix55 C = AlgebraicMatrixID();
+  AlgebraicSymMatrix C(5,1);
 
   float zErr = vertexErr.czz();
   float transverseErr = vertexErr.cxx(); // assume equal cxx cyy 
-  C(3, 3) = transverseErr;
-  C(4, 4) = zErr;
+  C[3][3] = transverseErr;
+  C[4][4] = zErr;
 
   return CurvilinearTrajectoryError(C);
 }

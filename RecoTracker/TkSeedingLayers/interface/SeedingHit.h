@@ -1,28 +1,38 @@
 #ifndef TkSeedingLayers_SeedingHit_H
 #define TkSeedingLayers_SeedingHit_H
 
+#include <boost/shared_ptr.hpp>
 
 namespace edm { class EventSetup; }
 class TrackingRecHit;
+namespace ctfseeding { class SeedingLayer; }
+
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
 
 namespace ctfseeding {
 
 class SeedingHit {
 public:
-  SeedingHit(const TrackingRecHit * hit ,  const edm::EventSetup& iSetup);
+  SeedingHit(const TrackingRecHit * hit , const SeedingLayer &l,  const edm::EventSetup& iSetup);
+  SeedingHit(const TransientTrackingRecHit::ConstRecHitPointer& ttrh, const SeedingLayer &l);
 
-  float phi() const {return thePhi;}
-  float rOrZ() const { return theRZ; } 
-  float r() const {return theR; }
-  float z() const {return theZ; }
+  float phi() const;
+  float rOrZ() const;
+  float errorRZ() const;
+  float errorRPhi() const;
 
-  const TrackingRecHit * RecHit() const { return theRecHit;}
+  float r() const;
+  float z() const;
+
+  operator const TrackingRecHit* () const;
+  operator const TransientTrackingRecHit::ConstRecHitPointer& () const;
+
+  const SeedingLayer & seedinglayer() const;
 
 private:
-  const TrackingRecHit *theRecHit;
-  float thePhi;
-  float theR, theZ;
-  float theRZ;
+  class SeedingHitImpl;
+  boost::shared_ptr<SeedingHitImpl> theImpl;
 };
 
 }

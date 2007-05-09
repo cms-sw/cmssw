@@ -73,39 +73,7 @@ public:
 
 private:
   Cache * theCache; 
-  friend class LayerHitMapCacheBC;
 };
-
-class LayerHitMapCacheBC {
-
-private:
-  typedef const LayerWithHits * LayerRegionKey;
-  typedef LayerHitMapCache::SimpleCache<LayerRegionKey, LayerHitMap> Cache;
- public:
-  LayerHitMapCacheBC(int initSize=50) { theCache = new Cache(initSize); }
-  ~LayerHitMapCacheBC() { delete theCache; }
-  void clear() { theCache->clear(); }
-  const LayerHitMap & operator()(
-      const LayerWithHits *layer, const TrackingRegion &region, const edm::EventSetup& iSetup) {
-    LayerRegionKey key(layer);
-    const LayerHitMap * lhm = theCache->get(key);
-    if (lhm==0) {
-      std::vector<ctfseeding::SeedingHit> hits;
-      typedef std::vector<const TrackingRecHit * > TRHS;
-      TRHS trhs = layer->recHits();
-      for (TRHS::const_iterator it=trhs.begin(); it!=trhs.end();it++)
-          hits.push_back( ctfseeding::SeedingHit(*it,iSetup));
-      lhm=new LayerHitMap(layer->layer(), hits);
-      theCache->add( key, lhm);
-    }
-    return *lhm;
-  }
-public:
-  LayerHitMapCacheBC(const LayerHitMapCacheBC &) { }
-private:
-  Cache * theCache;
-};
-
 
 #endif
 

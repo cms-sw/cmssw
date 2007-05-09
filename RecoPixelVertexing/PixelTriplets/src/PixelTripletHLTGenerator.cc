@@ -60,8 +60,8 @@ void PixelTripletHLTGenerator::hitTriplets(
 
 
   for (ip = pairs.begin(); ip != pairs.end(); ip++) {
-    const TrackingRecHit * h1 = (*ip).inner().RecHit();
-    const TrackingRecHit * h2 = (*ip).outer().RecHit();
+    const TrackingRecHit * h1 = (*ip).inner();
+    const TrackingRecHit * h2 = (*ip).outer();
     GlobalPoint gp1 = tracker->idToDet( 
         h1->geographicalId())->surface().toGlobal(h1->localPosition());
     GlobalPoint gp2 = tracker->idToDet( 

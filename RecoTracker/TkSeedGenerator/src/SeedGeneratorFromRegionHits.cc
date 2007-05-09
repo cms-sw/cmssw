@@ -41,7 +41,7 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
   for (unsigned int iHits = 0; iHits < nHitss; ++iHits) { 
     const SeedingHitSet & hits =  hitss[iHits];
     if (!theComparitor || theComparitor->compatible( hits ) ) {
-      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, theConfig);
+      SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es);
       if(seedfromhits.isValid()) {
         seedCollection.push_back( seedfromhits.TrajSeed() );
       }

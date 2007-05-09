@@ -36,6 +36,7 @@ template <class T> T sqr( T t) {return t*t;}
 
 using namespace PixelRecoUtilities;
 using namespace std;
+using namespace ctfseeding; 
 
 void RectangularEtaPhiTrackingRegion::
     initEtaRange( const GlobalVector & dir, const Margin& margin)
@@ -270,19 +271,16 @@ HitRZConstraint
                               pRight, sinh(theEtaRange.max()) );
 }
 
-std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
+std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
       const edm::Event& ev,
       const edm::EventSetup& es,
-      const ctfseeding::SeedingLayer* layer) const
+      const  SeedingLayer* layer) const
 {
 
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field);
-  const MagneticField * magField = field.product();
 
 
   //ESTIMATOR
-  std::vector<ctfseeding::SeedingHit> result;
+  std::vector< SeedingHit> result;
   const DetLayer * detLayer = layer->detLayer();
   OuterEstimator * est = 0;
   if (detLayer->location() == GeomDetEnumerators::barrel) {
@@ -294,13 +292,15 @@ std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   }
   if (!est) return result;
 
+/*
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+  const MagneticField * magField = field.product();
 
   const GlobalPoint vtx = origin();
   GlobalVector dir = est->center() - vtx;
    
   // TSOS
-//  LocalTrajectoryParameters lpar( LocalPoint( 0., vtx.z(), 0),
-//                                  LocalVector( 0., ptMin()/tan(theta), ptMin()), 1); 
   float phi = dir.phi();
   Surface::RotationType rot( sin(phi), -cos(phi),           0,
                              0,                0,          -1,
@@ -327,20 +327,20 @@ std::vector<ctfseeding::SeedingHit> RectangularEtaPhiTrackingRegion::hits(
   for (IM im = meas.begin(); im != meas.end(); im++) {
     TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
     if (ptrHit->isValid()) { 
-;//      result.push_back( ctfseeding::SeedingHit( ptrHit->hit(),es));
+      result.push_back(  SeedingHit( ptrHit, *layer));
     }
   }
+*/
 
-
-//
-  // temporary fix
-  typedef  std::vector<ctfseeding::SeedingHit> Hits;
+  //
+  // temporary solution 
+  //
+  typedef  std::vector< SeedingHit> Hits;
   Hits layerHits = layer->hits(ev,es);
   for (Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
-    const TrackingRecHit * hit = (*ih).RecHit();
-    if ( est->hitCompatibility()(hit,es) ) result.push_back( ctfseeding::SeedingHit(hit,es));
+    const TrackingRecHit * hit = *ih;
+    if ( est->hitCompatibility()(hit,es) ) result.push_back( *ih );
   }
-//
   
   delete est;
   return result;

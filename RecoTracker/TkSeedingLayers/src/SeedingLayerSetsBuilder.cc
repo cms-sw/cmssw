@@ -7,6 +7,10 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
@@ -245,9 +249,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
       if(nameOK) {
         if ( detLayer->subDetector() == GeomDetEnumerators::PixelBarrel ||
              detLayer->subDetector() == GeomDetEnumerators::PixelEndcap) {
-          extractor = layer.useErrorsFromParam ? 
-                 new HitExtractorPIX(side,idLayer,layer.pixelHitProducer,layer.hitErrorRPhi,layer.hitErrorRZ)
-              :  new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
+          extractor = new HitExtractorPIX(side,idLayer,layer.pixelHitProducer);
         } else {
           HitExtractorSTRP extSTRP(detLayer,side,idLayer);
           if (layer.useMatchedRecHits) extSTRP.useMatchedHits(layer.matchedRecHits);
@@ -256,7 +258,16 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es) cons
           if (layer.useRingSelector)   extSTRP.useRingSelector(layer.minRing,layer.maxRing);
           extractor = extSTRP.clone();
         }
-        set.push_back( SeedingLayer(detLayer, name, layer.hitBuilder, extractor));
+
+        edm::ESHandle<TransientTrackingRecHitBuilder> builder;
+        es.get<TransientRecHitRecord>().get(layer.hitBuilder, builder);
+
+        if (layer.useErrorsFromParam) {
+          set.push_back( SeedingLayer( name, detLayer, builder.product(), 
+                                       extractor, true, layer.hitErrorRPhi,layer.hitErrorRZ));
+        } else {
+          set.push_back( SeedingLayer( name, detLayer, builder.product(), extractor));
+        }
       }
     
     }

@@ -27,6 +27,7 @@ class SeedFromConsecutiveHits{
  public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
   
+  // obsolete!
   SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
 			   const TrackingRecHit* innerHit,
 			   const GlobalPoint& vertexPos,
@@ -38,7 +39,7 @@ class SeedFromConsecutiveHits{
   SeedFromConsecutiveHits(const SeedingHitSet & hits,
     const GlobalPoint& vertexPos,
     const GlobalError& vertexErr,
-    const edm::EventSetup& es, const edm::ParameterSet& pset);
+    const edm::EventSetup& es);
   
   virtual  ~SeedFromConsecutiveHits(){};
 

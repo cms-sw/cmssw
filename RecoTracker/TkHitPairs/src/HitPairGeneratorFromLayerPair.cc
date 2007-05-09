@@ -103,7 +103,7 @@ void HitPairGeneratorFromLayerPair::hitPairs(
     if (dphi < 0.) continue;
     PixelRecoRange<float> phiRange((*oh).phi()-dphi,(*oh).phi()+dphi);
 
-    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), oh->RecHit(),iSetup);
+    const HitRZCompatibility *checkRZ = region.checkRZ(&(*innerlay), *oh, iSetup);
 
     if(!checkRZ) continue;
  
@@ -165,10 +165,10 @@ void HitPairGeneratorFromLayerPair::
    vector<SeedingHit> oSHits(region.hits(iEvent,iSetup,&theOuterLayer));
    vector<const TrackingRecHit*> outerHits;
    typedef vector<SeedingHit>::const_iterator ISH;
-   for (ISH it=oSHits.begin(); it != oSHits.end(); ++it) outerHits.push_back( it->RecHit());
+   for (ISH it=oSHits.begin(); it != oSHits.end(); ++it) outerHits.push_back( *it);
    vector<SeedingHit> iSHits(theInnerLayer.hits(iEvent,iSetup));
    vector<const TrackingRecHit*> innerHits;
-   for (ISH it=iSHits.begin(); it != iSHits.end(); ++it) innerHits.push_back( it->RecHit());
+   for (ISH it=iSHits.begin(); it != iSHits.end(); ++it) innerHits.push_back( *it);
    RecHitsSortedInPhi innerSortedHits(innerHits,trackerGeometry);
    
 				   
@@ -206,7 +206,7 @@ void HitPairGeneratorFromLayerPair::
       }
       Range crossRange = allowed.intersection(hitRZ);
       if (! crossRange.empty() ) {
-        result.push_back( OrderedHitPair( SeedingHit(*ih,iSetup), SeedingHit(*oh,iSetup) ) );
+        result.push_back( OrderedHitPair( SeedingHit(*ih,theInnerLayer,iSetup), SeedingHit(*oh,theOuterLayer, iSetup) ) );
       }
     } 
     delete checkRZ;

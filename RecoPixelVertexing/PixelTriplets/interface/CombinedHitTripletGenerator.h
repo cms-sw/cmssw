@@ -15,8 +15,6 @@ class TrackingRegion;
 class HitTripletGeneratorFromPairAndLayers;
 namespace ctfseeding { class SeedingLayer;}
 
-class PixelLayerTriplets;
-
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
