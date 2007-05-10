@@ -16,9 +16,9 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision$
-///  $Date$
-///  (last update by $Author$)
+///  $Revision: 1.6 $
+///  $Date: 2006/10/19 17:09:13 $
+///  (last update by $Author: flucke $)
 
 class GeomDet;
 class Alignable;
@@ -31,12 +31,6 @@ public:
   typedef AlignableObjectId::AlignableObjectIdType idType;
   typedef std::map<int,std::string> MapEnumType;
   typedef std::pair<uint32_t,int> UniqueId;
-
-  /// Constructor (builds map)
-  TrackerAlignableId( );
-
-  /// Destructor
-  ~TrackerAlignableId() {};
 
   /// Return geographical ID of first GeomDet
   uint32_t alignableId( const Alignable* alignable ) const;
@@ -65,8 +59,8 @@ public:
 
 private:
 
-  /// Get first AlignableDet of an Alignable
-  const AlignableDet* firstDet( const Alignable* alignable ) const;
+  /// Get first sensor of an Alignable
+  const Alignable* firstDet( const Alignable* alignable ) const;
  
   /// Get unique identifyer of first AlignableDet of alignable
   uint32_t firstDetId( const Alignable* alignable ) const;
