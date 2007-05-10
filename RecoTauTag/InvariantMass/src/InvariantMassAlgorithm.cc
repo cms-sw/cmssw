@@ -74,7 +74,6 @@ pair<reco::JetTag,reco::TauMassTagInfo> InvariantMassAlgorithm::tag(edm::Event& 
     discriminator = resultExtended.discriminator(isolation_cone,leading_trk_pt,signal_cone,
                                          track_matching_cone,inv_mass_cut); 
   }
-  const JetTracksAssociationRef& jtaRef = tauRef->jtaRef();
   JetTag resultBase(discriminator);
 
   return pair<JetTag,TauMassTagInfo> (resultBase,resultExtended); 
@@ -86,7 +85,8 @@ float InvariantMassAlgorithm::getMinimumClusterDR(edm::Event& theEvent, const ed
 
   const TrackRefVector tracks = tauRef->allTracks();
   float min_dR = 999.9;
-  math::XYZVector jet3Vec(tauRef->jet().px(),tauRef->jet().py(),tauRef->jet().pz());  
+  const Jet & jet = *(tauRef->jet()); 
+  math::XYZVector jet3Vec(jet.px(),jet.py(),jet.pz());  
   float deltaR1 = ROOT::Math::VectorUtil::DeltaR(cluster_3vec, jet3Vec);
   if (deltaR1 > jet_matching_cone) return -1.0;
 

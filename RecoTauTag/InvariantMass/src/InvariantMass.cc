@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.4 2007/04/23 14:52:35 gennai Exp $
+// $Id: InvariantMass.cc,v 1.5 2007/04/23 15:09:01 gennai Exp $
 //
 //
 
@@ -107,7 +107,10 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(IsolatedTauTagInfoCollection::const_iterator it = isolatedTaus->begin(); 
                  it != isolatedTaus->end(); it++) {
      IsolatedTauTagInfoRef tauRef(isolatedTaus,theKey);
-     math::XYZVector jetDir(tauRef->jet().px(),tauRef->jet().py(),tauRef->jet().pz());
+
+     const Jet & jet = *(tauRef->jet()); 
+     math::XYZVector jetDir(jet.px(),jet.py(),jet.pz());  
+
      pair<JetTag,TauMassTagInfo> jetTauPair;
      if (jetDir.eta() < 1.2) { //barrel  
        jetTauPair = m_algo->tag(iEvent,iSetup,tauRef,barrelBasicClusterHandle);
