@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/05/10 09:41:41 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/05/10 10:08:36 $
+ *  $Revision: 1.11 $
  *  \author Maarten Thomas
  */
 
@@ -47,25 +47,23 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 	std::vector<const TrackingRecHit*>::const_iterator ohh;
 
 	for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-    GlobalPoint oh = tracker->idToDet(*ohh->geographicalId())->surface().toGlobal(*ohh->localPosition());
-    GlobalPoint oh = tracker->idToDet(*ohh->geographicalId())->surface().toGlobal(*ohh->localPosition());
+    GlobalPoint oh = trackerGeometry->idToDet(*ohh->geographicalId())->surface().toGlobal(*ohh->localPosition());
 	  std::vector<const TrackingRecHit*>::const_iterator ihh;
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-      GlobalPoint ih = tracker->idToDet(*ihh->geographicalId())->surface().toGlobal(*ihh->localPosition());
-      GlobalPoint ih = tracker->idToDet(*ihh->geographicalId())->surface().toGlobal(*ihh->localPosition());
+      GlobalPoint ih = trackerGeometry->idToDet(*ihh->geographicalId())->surface().toGlobal(*ihh->localPosition());
 
-			double inny = ih->r() * sin(ih->phi());
-			double outy = oh->r() * sin(oh->phi());
-			double innz = ih->z();
-			double outz = oh->z();
-			double innphi = ih->phi();
-			double outphi = oh->phi();
+			double inny = ih.r() * sin(ih.phi());
+			double outy = oh.r() * sin(oh.phi());
+			double innz = ih.z();
+			double outz = oh.z();
+			double innphi = ih.phi();
+			double outphi = oh.phi();
 			double phi_diff = innphi - outphi;
-			double r_diff = ih->r() - oh->r();
+			double r_diff = ih.r() - oh.r();
 
 			if ( ( inny * outy > 0.0 ) && ( innz * outz > 0.0 ) && ( fabs(phi_diff) < 0.005 ) && ( fabs(r_diff) < 0.5 ) )
 			{
-				allthepairs.push_back( OrderedHitPair(*ih, *oh ));
+				allthepairs.push_back( OrderedHitPair(*ihh, *ohh ));
 			}
 		}
 	}
