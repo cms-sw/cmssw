@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.14 2007/01/23 00:25:52 wmtan Exp $
+$Id: Wrapper.h,v 1.15 2007/05/08 16:54:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -110,6 +110,11 @@ namespace edm {
     virtual ~Wrapper() {}
     T const * product() const {return (present ? &obj : 0);}
     T const * operator->() const {return product();}
+    
+    //these are used by FWLite
+    static const std::type_info& productTypeInfo() { return typeid(T);}
+    static const std::type_info& typeInfo() { return typeid(Wrapper<T>);}
+    
   private:
     virtual bool isPresent_() const {return present;}
     void do_fillView(std::vector<void const*>& pointers,
