@@ -1,7 +1,7 @@
 #! /bin/bash
 export RELEASE=$CMSSW_VERSION
 
-export wwwDir=/afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE/
+export wwwDir=/afs/cern.ch/cms/performance/tracker/activities/validation/$RELEASE
 
 if [ ! -d $wwwDir ]; then
     echo Creating directory $wwwDir
