@@ -20,13 +20,15 @@ class MagneticField;
 class SimpleNavigationSchool : public NavigationSchool {
 public:
   
+  SimpleNavigationSchool(){};
   SimpleNavigationSchool(const GeometricSearchTracker* theTracker,
 			 const MagneticField* field);
   
   // from base class
   virtual StateType navigableLayers() const;
 
-private:
+//private:
+protected:
 
   typedef std::vector<const DetLayer*>              DLC;
   typedef std::vector<BarrelDetLayer*>              BDLC;
