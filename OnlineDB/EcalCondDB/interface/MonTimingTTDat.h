@@ -32,6 +32,9 @@ class MonTimingTTDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonTimingTTDat* item, MonRunIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonTimingTTDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, MonTimingTTDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 

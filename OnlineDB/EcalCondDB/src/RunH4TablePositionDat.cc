@@ -13,6 +13,8 @@ RunH4TablePositionDat::RunH4TablePositionDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
+
   m_table_x = 0;
   m_table_y = 0;
   m_numSpills = 0;
@@ -87,14 +89,14 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.table_x, d.table_y, d.number_of_spills, d.number_of_events "
 		 "FROM channelview cv JOIN run_h4_table_position_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, RunH4TablePositionDat > p;
     RunH4TablePositionDat dat;
@@ -114,6 +116,7 @@ void RunH4TablePositionDat::fetchData(map< EcalLogicID, RunH4TablePositionDat >*
       p.second = dat;
       fillMap->insert(p);
     }
+
   } catch (SQLException &e) {
     throw(runtime_error("RunH4TablePositionDat::fetchData():  "+e.getMessage()));
   }

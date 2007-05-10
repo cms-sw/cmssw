@@ -41,6 +41,9 @@ class MonLaserBlueDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonLaserBlueDat* item, MonRunIOV* iov)
     throw(std::runtime_error);
 
+void writeArrayDB(const std::map< EcalLogicID,  MonLaserBlueDat>* data, MonRunIOV* iov)
+  throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, MonLaserBlueDat >* fillMap, MonRunIOV* iov)
      throw(std::runtime_error);
 

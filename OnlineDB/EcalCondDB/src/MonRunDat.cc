@@ -14,6 +14,8 @@ MonRunDat::MonRunDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
+
   m_numEvents = 0;
   m_outcomeDef = MonRunOutcomeDef();
   m_rootfileName = "";
@@ -95,14 +97,14 @@ void MonRunDat::fetchData(map< EcalLogicID, MonRunDat >* fillMap, MonRunIOV* iov
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.num_events, d.run_outcome_id, d.rootfile_name, d.task_list, d.task_outcome "
 		 "FROM channelview cv JOIN mon_run_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, MonRunDat > p;
     MonRunDat dat;

@@ -26,6 +26,8 @@ class RunIOV : public IIOV {
   Tm getRunEnd() const;
   void setRunTag(RunTag tag);
   RunTag getRunTag() const;
+  void setID(int id);
+
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);

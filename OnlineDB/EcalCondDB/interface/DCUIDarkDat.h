@@ -28,6 +28,10 @@ class DCUIDarkDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const DCUIDarkDat* item, DCUIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, DCUIDarkDat>* data, DCUIOV* iov)
+    throw(std::runtime_error);
+
+
   void fetchData(std::map< EcalLogicID, DCUIDarkDat >* fillVec, DCUIOV* iov)
      throw(std::runtime_error);
 

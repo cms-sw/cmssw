@@ -40,6 +40,11 @@ class MonPNPedDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonPNPedDat* item, MonRunIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonPNPedDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
+
   void fetchData(std::map< EcalLogicID, MonPNPedDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 

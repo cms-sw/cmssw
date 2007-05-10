@@ -12,6 +12,7 @@ MonOccupancyDat::MonOccupancyDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_eventsOverLowThreshold = 0;
   m_eventsOverHighThreshold = 0;
@@ -86,14 +87,14 @@ void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMa
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.events_over_low_threshold, d.events_over_high_threshold, d.avg_energy "
 		 "FROM channelview cv JOIN mon_occupancy_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, MonOccupancyDat > p;
     MonOccupancyDat dat;
@@ -114,5 +115,90 @@ void MonOccupancyDat::fetchData(std::map< EcalLogicID, MonOccupancyDat >* fillMa
     }
   } catch (SQLException &e) {
     throw(runtime_error("MonOccupancyDat::fetchData():  "+e.getMessage()));
+  }
+}
+
+void MonOccupancyDat::writeArrayDB(const std::map< EcalLogicID, MonOccupancyDat >* data, MonRunIOV* iov)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  int iovID = iov->fetchID();
+  if (!iovID) { throw(runtime_error("MonOccupancyDat::writeArrayDB:  IOV not in DB")); }
+
+
+  int nrows=data->size(); 
+  int* ids= new int[nrows];
+  int* iovid_vec= new int[nrows];
+  int* xx= new int[nrows];
+  int* yy= new int[nrows];
+  float* zz= new float[nrows];
+
+  ub2* ids_len= new ub2[nrows];
+  ub2* iov_len= new ub2[nrows];
+  ub2* x_len= new ub2[nrows];
+  ub2* y_len= new ub2[nrows];
+  ub2* z_len= new ub2[nrows];
+
+
+  const EcalLogicID* channel;
+  const MonOccupancyDat* dataitem;
+  int count=0;
+  typedef map< EcalLogicID, MonOccupancyDat >::const_iterator CI;
+  for (CI p = data->begin(); p != data->end(); ++p) {
+        channel = &(p->first);
+	int logicID = channel->getLogicID();
+	if (!logicID) { throw(runtime_error("MonOccupancyDat::writeArrayDB:  Bad EcalLogicID")); }
+	ids[count]=logicID;
+	iovid_vec[count]=iovID;
+
+	dataitem = &(p->second);
+	// dataIface.writeDB( channel, dataitem, iov);
+	int x=dataitem->getEventsOverLowThreshold();
+	int y=dataitem->getEventsOverHighThreshold();
+	float z=dataitem->getAvgEnergy();
+
+
+
+	xx[count]=x;
+	yy[count]=y;
+	zz[count]=z;
+
+	ids_len[count]=sizeof(ids[count]);
+	iov_len[count]=sizeof(iovid_vec[count]);
+	
+	x_len[count]=sizeof(xx[count]);
+	y_len[count]=sizeof(yy[count]);
+	z_len[count]=sizeof(zz[count]);
+
+	count++;
+     }
+
+
+  try {
+    m_writeStmt->setDataBuffer(1, (dvoid*)iovid_vec, OCCIINT, sizeof(iovid_vec[0]),iov_len);
+    m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
+    m_writeStmt->setDataBuffer(9, (dvoid*)xx, OCCIINT , sizeof(xx[0]), x_len );
+    m_writeStmt->setDataBuffer(9, (dvoid*)yy, OCCIINT , sizeof(yy[0]), y_len );
+    m_writeStmt->setDataBuffer(5, (dvoid*)zz, OCCIFLOAT , sizeof(zz[0]), z_len );
+    
+    m_writeStmt->executeArrayUpdate(nrows);
+
+    delete [] ids;
+    delete [] iovid_vec;
+    delete [] xx;
+    delete [] yy;
+    delete [] zz;
+    
+    delete [] ids_len;
+    delete [] iov_len;
+    delete [] x_len;
+    delete [] y_len;
+    delete [] z_len;
+    
+
+  } catch (SQLException &e) {
+    throw(runtime_error("MonOccupancyDat::writeArrayDB():  "+e.getMessage()));
   }
 }

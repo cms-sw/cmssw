@@ -14,6 +14,7 @@ MonPulseShapeDat::MonPulseShapeDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_samplesG1.assign(10, 0);
   m_samplesG6.assign(10, 0);
@@ -102,16 +103,16 @@ void MonPulseShapeDat::fetchData(std::map< EcalLogicID, MonPulseShapeDat >* fill
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.g1_avg_sample_01, d.g1_avg_sample_02, d.g1_avg_sample_03, d.g1_avg_sample_04, d.g1_avg_sample_05, d.g1_avg_sample_06, d.g1_avg_sample_07, d.g1_avg_sample_08, d.g1_avg_sample_09, d.g1_avg_sample_10, "
 		 "d.g6_avg_sample_01, d.g6_avg_sample_02, d.g6_avg_sample_03, d.g6_avg_sample_04, d.g6_avg_sample_05, d.g6_avg_sample_06, d.g6_avg_sample_07, d.g6_avg_sample_08, d.g6_avg_sample_09, d.g6_avg_sample_10, "
 		 "d.g12_avg_sample_01, d.g12_avg_sample_02, d.g12_avg_sample_03, d.g12_avg_sample_04, d.g12_avg_sample_05, d.g12_avg_sample_06, d.g12_avg_sample_07, d.g12_avg_sample_08, d.g12_avg_sample_09, d.g12_avg_sample_10 "
 		 "FROM channelview cv JOIN mon_pulse_shape_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, MonPulseShapeDat > p;
     MonPulseShapeDat dat;

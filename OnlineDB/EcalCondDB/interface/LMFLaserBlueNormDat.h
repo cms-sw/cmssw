@@ -44,6 +44,10 @@ class LMFLaserBlueNormDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const LMFLaserBlueNormDat* item, LMFRunIOV* iov)
     throw(std::runtime_error);
 
+void writeArrayDB(const std::map< EcalLogicID, LMFLaserBlueNormDat >* data, LMFRunIOV* iov)
+  throw(std::runtime_error);
+
+
   void fetchData(std::map< EcalLogicID, LMFLaserBlueNormDat >* fillVec, LMFRunIOV* iov)
      throw(std::runtime_error);
 

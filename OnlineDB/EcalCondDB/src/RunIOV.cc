@@ -34,6 +34,12 @@ void RunIOV::setRunNumber(run_t run)
   }
 }
 
+void RunIOV::setID(int id)
+{
+     m_ID = id;
+   }
+
+
 
 
 run_t RunIOV::getRunNumber() const
@@ -172,12 +178,12 @@ void RunIOV::setByID(int id)
        m_runTag.setByID(tagID);
        m_ID = id;
      } else {
-       throw(runtime_error("RunTag::setByID:  Given tag_id is not in the database"));
+       throw(runtime_error("RunIOV::setByID:  Given tag_id is not in the database"));
      }
      
      m_conn->terminateStatement(stmt);
    } catch (SQLException &e) {
-     throw(runtime_error("RunTag::setByID:  "+e.getMessage()));
+     throw(runtime_error("RunIOV::setByID:  "+e.getMessage()));
    }
 }
 
@@ -192,6 +198,8 @@ int RunIOV::writeDB()
   if (this->fetchID()) {
     return m_ID;
   }
+  
+  
 
   m_runTag.setConnection(m_env, m_conn);
   int tagID = m_runTag.writeDB();
@@ -314,7 +322,6 @@ void RunIOV::setByRun(std::string location, run_t run)
 }
 
 
-
 void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run) 
   throw(std::runtime_error)
 {
@@ -401,6 +408,4 @@ void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t 
      throw(runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
    }
 }
-
-
 
