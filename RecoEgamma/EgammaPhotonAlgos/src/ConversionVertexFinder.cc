@@ -30,37 +30,38 @@ ConversionVertexFinder::~ConversionVertexFinder() {
     
 }
 
-// reco::Vertex*  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
+
 CachingVertex  ConversionVertexFinder::run(std::vector<reco::TransientTrack>  pair) {
   LogDebug("ConversionVertexFinder") << "ConversionVertexFinder run pair size " << pair.size() <<  "\n";  
   
   for ( std::vector<reco::TransientTrack>::const_iterator iTk=pair.begin(); iTk!=pair.end(); ++iTk) {
-   LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder  Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
   }
   
   
   
   KalmanVertexFitter fitter;
-  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder ciao 1 " << "\n";
-  CachingVertex theVertex = fitter.vertex(pair); 
-  //  TransientVertex  theVertex = fitter.vertex(pair); 
-  LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder ciao 2 " << "\n";
+  CachingVertex theVertex;
+  const string metname =  "ConversionVertexFinder| ConversionVertexFinder";
+  try{
+    theVertex = fitter.vertex(pair); 
+  }  catch ( cms::Exception& e ) {
+    // std::cout << " cms::Exception caught in ConversionVertexFinder::run " << "\n" ;
+    edm::LogWarning(metname) << "cms::Exception caught in ConversionVertexFinder::run\n"
+			     << e.explainSelf();
+    
+  }
   
+
   if ( theVertex.isValid() ) {
     LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder VALID " << "\n";
+    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex.position() << "\n"; 
   } else {
     LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder NOT VALID " << "\n";
   }
   
-  if ( theVertex.isValid() ) {
-    LogDebug("ConversionVertexFinder") << "  ConversionVertexFinder vertex position " << theVertex.position() << "\n";
-    return theVertex;
+  return theVertex;
     
-  }
-  
-  
-  
-  
-  
+    
 }
 
