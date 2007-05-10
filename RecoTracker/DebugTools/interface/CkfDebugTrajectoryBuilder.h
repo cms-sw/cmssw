@@ -3,6 +3,7 @@
 
 #include "RecoTracker/CkfPattern/interface/CkfTrajectoryBuilder.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugger.h"
+#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
 
 
 class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
@@ -22,6 +23,12 @@ class CkfDebugTrajectoryBuilder: public CkfTrajectoryBuilder{
 
  private:
   mutable CkfDebugger * theDbg;
+  bool analyzeMeasurementsDebugger(TempTrajectory& traj, std::vector<TM> meas,
+				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
+				   const Chi2MeasurementEstimatorBase* theEstimator, 
+				   const TransientTrackingRecHitBuilder * theTTRHBuilder) const { 
+    return theDbg->analyseCompatibleMeasurements(traj.toTrajectory(),meas,theMeasurementTracker,theForwardPropagator,theEstimator,theTTRHBuilder);
+  };
   bool analyzeMeasurementsDebugger(Trajectory& traj, std::vector<TM> meas,
 				   const MeasurementTracker* theMeasurementTracker, const Propagator* theForwardPropagator, 
 				   const Chi2MeasurementEstimatorBase* theEstimator, 
