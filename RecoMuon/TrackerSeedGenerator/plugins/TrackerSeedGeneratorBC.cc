@@ -3,8 +3,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/04/13 09:18:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/18 17:19:16 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -35,8 +35,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonUpdatorAtVertex.h"
 //#include "RecoMuon/TrackerSeedGeneratorBC/interface/PrimitiveMuonSeed.h"
 //#include "RecoMuon/TrackerSeedGeneratorBC/interface/MuonSeedFromConsecutiveHits.h"
-#include "RecoTracker/TkSeedGenerator/interface/CombinatorialSeedGeneratorFromPixel.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
@@ -72,10 +70,10 @@ using namespace edm;
 //       class TrackerSeedGeneratorBC
 //---------------------------------
 TrackerSeedGeneratorBC::TrackerSeedGeneratorBC(const edm::ParameterSet& par)
-  : theService(0), combinatorialSeedGenerator(par), theConfig(par)
+  : theService(0), theConfig(par)
 {}
 
-TrackerSeedGeneratorBC::TrackerSeedGeneratorBC(const edm::ParameterSet& par, const MuonServiceProxy *service) : theService(0), combinatorialSeedGenerator(par), theConfig(par)
+TrackerSeedGeneratorBC::TrackerSeedGeneratorBC(const edm::ParameterSet& par, const MuonServiceProxy *service) : theService(0), theConfig(par)
 { 
   init(service);
 }
@@ -121,7 +119,6 @@ void TrackerSeedGeneratorBC::init(const MuonServiceProxy *service)
   theMeasurementTracker = new MeasurementTracker(setup,meastkPar);
   theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
   edm::ParameterSet seedPar = par.getParameter<edm::ParameterSet>("SeedGeneratorParameters");
-  theSeedGenerator = new CombinatorialSeedGeneratorFromPixel(seedPar);
   */
   
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
@@ -137,7 +134,6 @@ void TrackerSeedGeneratorBC::init(const MuonServiceProxy *service)
 TrackerSeedGeneratorBC::~TrackerSeedGeneratorBC() {
   if(theUpdator) delete theUpdator;
   if(theRoadEstimator) delete theRoadEstimator;
-  //if(combinatorialSeedGenerator) delete combinatorialSeedGenerator;
   /*
     delete theSeedGenerator;
     delete theStepPropagator;
@@ -513,9 +509,6 @@ void TrackerSeedGeneratorBC::pixelSeeds(const Trajectory& muon,
     }    
   }
 
-  combinatorialSeedGenerator.init(*pixelHits,theService->eventSetup());
-  combinatorialSeedGenerator.run(region,ss,theService->eventSetup());
-  
   int nseeds = theSeeds.size();
   vector<TrajectorySeed>::const_iterator is;
   for ( is = ss.begin(); is != ss.end(); is++ ) {

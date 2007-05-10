@@ -4,8 +4,8 @@
 /** \class TrackerSeedGeneratorBC
  *  Generate seed from muon trajectory.
  *
- *  $Date: 2007/03/31 15:22:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/18 17:21:10 $
+ *  $Revision: 1.1 $
  *  \author Norbert Neumeister - Purdue University
  *  \porting author Chang Liu - Purdue University
  */
@@ -24,7 +24,6 @@
 #include "RecoMuon/TrackingTools/interface/RecoMuonEnumerators.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "RecoTracker/TkSeedGenerator/interface/CombinatorialRegionalSeedGeneratorFromPixel.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 
@@ -34,7 +33,6 @@ class Propagator;
 class MagneticField;
 class TrackingRegion;
 class RectangularEtaPhiTrackingRegion;
-class SeedGeneratorFromTrackingRegion;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
 class Chi2MeasurementEstimator;
@@ -89,7 +87,6 @@ class TrackerSeedGeneratorBC : public TrackerSeedGenerator {
 
   //Propagator* thePropagator;
   //Propagator* theStepPropagator;
-  //SeedGeneratorFromTrackingRegion* theSeedGenerator;
   MuonUpdatorAtVertex* theUpdator;
 
   //ReconstructionDirection theDirection;
@@ -115,7 +112,6 @@ class TrackerSeedGeneratorBC : public TrackerSeedGenerator {
   const MuonServiceProxy *theService;
   GlobalPoint theVertexPos;
   GlobalError theVertexErr;
-  CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
 
   bool theMIMFlag;
   GlobalMuonMonitorInterface* dataMonitor;
