@@ -21,6 +21,8 @@
 #include <limits>
 #include <math.h>
 
+namespace reco {
+
   class CombinedTauTagInfo : public JTATagInfo {
   public:
     CombinedTauTagInfo(){}
