@@ -171,13 +171,16 @@ public:
   /// if the result should be multiplied by the sqrt(diagonal element)
   explicit CorrelatedNoisifier(const HepSymMatrix & matrix);
 
-  virtual ~CorrelatedNoisifier() {}
+  virtual ~CorrelatedNoisifier() { delete theRandomGaussian;}
 
   /// sets all elements along the diagonal of
   /// the correlation matrix to be value
   void setDiagonal(double value);
   
   void setOffDiagonal(int neighbor, double value);
+
+  void setRandomEngine();
+  void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
   template<class T>
   void noisify(T & frame)
@@ -186,7 +189,7 @@ public:
     assert(frame.size() == theSize);
     std::valarray<double> uncorrelated(0.,theSize);
     for (int i=0; i<theSize; i++)
-      uncorrelated[i]=theRandomGaussian.shoot();
+      uncorrelated[i]=theRandomGaussian->fire();
 
     if ( isDiagonal_ ) 
     {
@@ -225,7 +228,7 @@ public:
 private:
   noiseMath::SparseMatrix<double> theCovarianceMatrix;
   noiseMath::SparseMatrix<double> theMatrix;
-  mutable RandGaussQ theRandomGaussian;
+  mutable RandGaussQ * theRandomGaussian;
   int theSize; 
   bool isDiagonal_;
 

@@ -1,10 +1,12 @@
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 CorrelatedNoisifier::CorrelatedNoisifier(int nFrames)
 : theCovarianceMatrix(nFrames, 1.0),
   theMatrix(nFrames, 1.0),
-  theRandomGaussian(*(HepRandom::getTheEngine())),
+  theRandomGaussian(0),
   theSize(nFrames)
 {
 
@@ -12,14 +14,14 @@ CorrelatedNoisifier::CorrelatedNoisifier(int nFrames)
   checkOffDiagonal(isDiagonal_);
 
   computeDecomposition();
-
+  setRandomEngine();
 }
 
 
 CorrelatedNoisifier::CorrelatedNoisifier(const HepSymMatrix & matrix)
 : theCovarianceMatrix(matrix.num_row(),matrix),
   theMatrix(matrix.num_row(),1.0),
-  theRandomGaussian(*(HepRandom::getTheEngine())),
+  theRandomGaussian(0),
   theSize(theCovarianceMatrix.rank())
 {
 
@@ -27,7 +29,26 @@ CorrelatedNoisifier::CorrelatedNoisifier(const HepSymMatrix & matrix)
   checkOffDiagonal(isDiagonal_);
 
   computeDecomposition();
+  setRandomEngine();
+}
 
+
+void CorrelatedNoisifier::setRandomEngine()
+{
+   edm::Service<edm::RandomNumberGenerator> rng;
+   if ( ! rng.isAvailable()) {
+     throw cms::Exception("Configuration")
+       << "CorrelatedNoisifier requires the RandomNumberGeneratorService\n"
+          "which is not present in the configuration file.  You must add the service\n"
+          "in the configuration file or remove the modules that require it.";
+   }
+   setRandomEngine(rng->getEngine());
+}
+
+
+void CorrelatedNoisifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  theRandomGaussian = new CLHEP::RandGaussQ(engine);
 }
 
 
