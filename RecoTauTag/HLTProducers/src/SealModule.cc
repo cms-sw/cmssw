@@ -1,4 +1,4 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+//#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoTauTag/HLTProducers/interface/IsolatedTauJetsSelector.h"
 #include "RecoTauTag/HLTProducers/interface/EMIsolatedTauJetsSelector.h"
@@ -6,7 +6,7 @@
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
 
 
-DEFINE_SEAL_MODULE();
+//DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(IsolatedTauJetsSelector);
 DEFINE_ANOTHER_FWK_MODULE(EMIsolatedTauJetsSelector);
 DEFINE_ANOTHER_FWK_MODULE(L2TauJetsProvider);
