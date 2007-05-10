@@ -234,13 +234,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			{
 			  if (cscData[iCSC].tmbHeader().check())
 			    {
-			      goodTMB=true; 
+			      if (cscData[iCSC].clctData().check()) goodTMB=true; 
 			    }
 			  else 
 			    {
-			      goodTMB=false;
 			      edm::LogError ("CSCDCCUnpacker") <<
-				"TMBHeader check failed! not storing TMB data ";
+				"one of TMB checks failed! not storing TMB digis ";
 			    }
 			}
 
