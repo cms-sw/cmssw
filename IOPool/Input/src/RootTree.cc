@@ -4,6 +4,7 @@
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "Reflex/Type.h"
+#include "Reflex/Object.h"
 
 #include <iostream>
 
@@ -27,17 +28,8 @@ namespace edm {
     entryNumber_(-1),
     origEntryNumber_(),
     branchNames_(),
-    provenance_(),
-    provenancePtrs_(),
-    branches_(new BranchMap),
-    products_()
-  {
-    int nBranches = (metaTree_ != 0 ? metaTree_->GetNbranches() : 0);
-    if (nBranches > 0) {
-      provenance_.reserve(nBranches);
-      provenancePtrs_.reserve(nBranches);
-    }
-  }
+    branches_(new BranchMap)
+  {}
 
   bool
   RootTree::isValid() const {
@@ -56,53 +48,33 @@ namespace edm {
 		      std::string const& oldBranchName) {
       prod.init();
       //use the translated branch name 
+      TBranch * provBranch = metaTree_->GetBranch(oldBranchName.c_str());
       prod.provenancePresent_ = (metaTree_->GetBranch(oldBranchName.c_str()) != 0);
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
       prod.present_ = (branch != 0);
       if (prod.provenancePresent()) {
-        ROOT::Reflex::Type type =  ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
-        if (branch != 0) branches_->insert(std::make_pair(key, std::make_pair(type, branch)));
-        products_.insert(std::make_pair(prod.productID(), prod));
-	//we want the new branch name for the JobReport
-	branchNames_.push_back(prod.branchName());
-        int n = provenance_.size();
-        provenance_.push_back(BranchEntryDescription());
-        provenancePtrs_.push_back(&provenance_[n]);
-        metaTree_->SetBranchAddress(oldBranchName.c_str(),(&provenancePtrs_[n]));
+        input::EventBranchInfo info;
+	branches_->insert(std::make_pair(key, info));
+        input::EventBranchInfo & branchInfo = (*branches_)[key];
+        branchInfo.branchDescription_ = prod;
+        branchInfo.provenanceBranch_ = provBranch;
+        branchInfo.productBranch_ = 0;
+	if (prod.present_) {
+          branchInfo.type = ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
+          branchInfo.productBranch_ = branch;
+	  //we want the new branch name for the JobReport
+	  branchNames_.push_back(prod.branchName());
+        }
       }
-  }
-
-  // fillMetaData() is a separate function only so it can be monitored for performance.
-  // We could redesign things so we read branches ne at a time on demand.
-  void
-  RootTree::fillMetaData() {
-    metaTree_->GetEntry(entryNumber_);
   }
 
   void
   RootTree::fillGroups(Principal& item) {
     if (metaTree_ == 0) return;
-    fillMetaData();
     // Loop over provenance
-    std::vector<BranchEntryDescription>::const_iterator pit = provenance_.begin();
-    std::vector<BranchEntryDescription>::const_iterator pitEnd = provenance_.end();
+    BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end();
     for (; pit != pitEnd; ++pit) {
-      // if (pit->creatorStatus() != BranchEntryDescription::Success) continue;
-      // BEGIN These lines read all branches
-      // TBranch *br = branches_->find(poolNames::keyName(*pit))->second;
-      // br->SetAddress(p);
-      // br->GetEntry(rootFile_->entryNumber());
-      // BranchDescription const& product = products_[pit->productID_];
-      // std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
-      // bool const isPresent = prov->event.isPresent();
-      // std::auto_ptr<Group> g(new Group(std::auto_ptr<EDProduct>(p), prov, isPresent));
-      // END These lines read all branches
-      // BEGIN These lines defer reading branches
-      BranchDescription const& product = products_[pit->productID_];
-      std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
-      bool const isPresent = prov->isPresent();
-      std::auto_ptr<Group> g(new Group(prov, isPresent));
-      // END These lines defer reading branches
+      std::auto_ptr<Group> g(new Group(pit->second.branchDescription_));
       item.addGroup(g);
     }
   }

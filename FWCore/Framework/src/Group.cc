@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.21 2007/03/04 06:10:25 wmtan Exp $
+$Id: Group.cc,v 1.22 2007/04/09 19:11:58 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/Group.h"
@@ -8,14 +8,21 @@ $Id: Group.cc,v 1.21 2007/03/04 06:10:25 wmtan Exp $
 using ROOT::Reflex::Type;
 using ROOT::Reflex::TypeTemplate;
 
-namespace edm
-{
+namespace edm {
+
   Group::Group(std::auto_ptr<Provenance> prov,
 	       bool acc, bool onDemand) :
     product_(),
     provenance_(prov.release()),
     accessible_(acc),
     onDemand_(onDemand) {
+  }
+
+  Group::Group(BranchDescription const& bd) :
+    product_(),
+    provenance_(new Provenance(bd)),
+    accessible_(true),
+    onDemand_(false) {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp,
@@ -28,8 +35,6 @@ namespace edm
   }
 
   Group::~Group() {
-    delete product_;
-    delete provenance_;
   }
 
   bool 
@@ -47,13 +52,20 @@ namespace edm
   void 
   Group::setProduct(std::auto_ptr<EDProduct> prod) const {
     assert (product() == 0);
-    product_ = prod.release();  // Group takes ownership
+    product_ = boost::shared_ptr<EDProduct>(prod.release());  // Group takes ownership
   }
   
+  void 
+  Group::setProvenance(std::auto_ptr<BranchEntryDescription> prov) const {
+    assert (branchEntryDescription().get() == 0);
+    provenance_->setEvent(boost::shared_ptr<BranchEntryDescription>(prov.release()));  // Group takes ownership
+    accessible_ = provenance_->isPresent();
+  }
+
   void  
   Group::swap(Group& other) {
-    std::swap(product_,other.product_);
-    std::swap(provenance_,other.provenance_);
+    std::swap(product_, other.product_);
+    std::swap(provenance_, other.provenance_);
     std::swap(accessible_, other.accessible_);
     std::swap(onDemand_, other.onDemand_);
   }
@@ -100,7 +112,7 @@ namespace edm
   BasicHandle
   Group::makeBasicHandle() const
   {
-    return BasicHandle(product_, provenance_);
+    return BasicHandle(product_.get(), provenance_.get());
   }
 
   void

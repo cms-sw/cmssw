@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.2 2007/04/09 22:18:55 wdd Exp $
+$Id: Principal.h,v 1.3 2007/05/01 22:08:33 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -150,8 +150,6 @@ namespace edm {
 
     virtual bool unscheduledFill(Group const& group) const = 0;
 
-    SharedConstGroupPtr const getInactiveGroup(ProductID const& oid) const;
-
     // Used for indices to find groups by type and process
     typedef std::map<std::string, std::vector<int> > ProcessLookup;
     typedef std::map<std::string, ProcessLookup> TypeLookup;
@@ -172,7 +170,11 @@ namespace edm {
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of groups through this call, and so
     // *this is const.
-    void resolve_(Group const& g) const;
+    void resolveProduct(Group const& g) const;
+
+    // Make my DelayedReader get the BranchEntryDescription
+    // for a group.
+    void resolveProvenance(Group const& g) const;
 
     void fillElementLookup(const ROOT::Reflex::Type & type,
                            int slotNumber,
@@ -186,7 +188,7 @@ namespace edm {
 
     mutable bool processHistoryModified_;
 
-    // A vector of active groups.
+    // A vector of groups.
     GroupVec groups_; // products and provenances are persistent
 
     // indices used to quickly find a group in the vector groups_
@@ -206,11 +208,6 @@ namespace edm {
     // an EDProduct
     TypeLookup productLookup_; // 1->many
     TypeLookup elementLookup_; // 1->many
-
-    // A vector of inactive groups (product not present or inaccessible).
-    GroupVec inactiveGroups_; // products and provenances are persistent
-    BranchDict inactiveBranchDict_; // 1->1
-    ProductDict inactiveProductDict_; // 1->1
 
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.

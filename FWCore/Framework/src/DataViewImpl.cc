@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.13 2007/04/01 15:52:17 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.15 2007/04/09 22:18:56 wdd Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -54,13 +54,13 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	BranchEntryDescription event(pit->second->productID_, BranchEntryDescription::Success);
+	boost::shared_ptr<BranchEntryDescription> event(new BranchEntryDescription(pit->second->productID_, BranchEntryDescription::Success));
 
 	// set parts of provenance
-	event.cid_ = 0; // TODO: what is this supposed to be?
-	event.isPresent_ = true;
-	event.parents_ = gotProductIDs_;
-	event.moduleDescriptionID_ = pit->second->moduleDescriptionID_;
+	event->cid_ = 0; // TODO: what is this supposed to be?
+	event->isPresent_ = true;
+	event->parents_ = gotProductIDs_;
+	event->moduleDescriptionID_ = pit->second->moduleDescriptionID_;
 	auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
 	dbk_.put(pr,pv);
 	++pit;

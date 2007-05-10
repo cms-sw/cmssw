@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.1 2007/04/16 19:43:51 wmtan Exp $
+$Id: RootTree.h,v 1.10 2007/05/08 16:24:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -31,7 +31,6 @@ namespace edm {
   class RootTree {
   public:
     typedef input::BranchMap BranchMap;
-    typedef std::map<ProductID const, BranchDescription const> ProductMap;
     typedef input::EntryNumber EntryNumber;
     RootTree(boost::shared_ptr<TFile> filePtr, BranchType const& branchType);
     ~RootTree() {}
@@ -58,7 +57,6 @@ namespace edm {
       auxBranch_->SetAddress(&pAux);
       auxBranch_->GetEntry(entryNumber_);
     }
-    void fillMetaData();
   private:
     boost::shared_ptr<TFile> filePtr_;
 // We use bare pointers for pointers to some ROOT entities.
@@ -71,10 +69,7 @@ namespace edm {
     EntryNumber entryNumber_;
     EntryNumber origEntryNumber_;
     std::vector<std::string> branchNames_;
-    std::vector<BranchEntryDescription> provenance_;
-    std::vector<BranchEntryDescription const*> provenancePtrs_;
     boost::shared_ptr<BranchMap> branches_;
-    ProductMap products_;
   };
 }
 #endif

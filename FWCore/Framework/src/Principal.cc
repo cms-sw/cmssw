@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.3 2007/04/24 22:07:47 wmtan Exp $
+  $Id: Principal.cc,v 1.4 2007/05/01 22:08:33 paterno Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -43,9 +43,6 @@ namespace edm {
     productDict_(),
     productLookup_(),
     elementLookup_(),
-    inactiveGroups_(),
-    inactiveBranchDict_(),
-    inactiveProductDict_(),
     preg_(&reg),
     store_(rtrv)
   {
@@ -78,14 +75,9 @@ namespace edm {
     //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
     //cerr << "addGroup DEBUG 3---> " << bk << endl;
 
-    bool accessible = g->productAvailable();
-    BranchDict & branchDict = (accessible ? branchDict_ : inactiveBranchDict_ );
-    ProductDict & productDict = (accessible ? productDict_ : inactiveProductDict_ );
-    GroupVec & groups = (accessible ? groups_ : inactiveGroups_ );
-
-    BranchDict::iterator itFound = branchDict.find(bk);
-    if (itFound != branchDict.end()) {
-      if(groups[itFound->second]->replace(*g)) {
+    BranchDict::iterator itFound = branchDict_.find(bk);
+    if (itFound != branchDict_.end()) {
+      if(groups_[itFound->second]->replace(*g)) {
 	return;
       } else {
 	// the products are lost at this point!
@@ -105,48 +97,46 @@ namespace edm {
     // we do not have any rollback capabilities as products 
     // and the indices are updated
 
-    size_type slotNumber = groups.size();
-    groups.push_back(g);
+    size_type slotNumber = groups_.size();
+    groups_.push_back(g);
 
-    branchDict[bk] = slotNumber;
+    branchDict_[bk] = slotNumber;
 
-    productDict[g->productDescription().productID()] = slotNumber;
+    productDict_[g->productDescription().productID()] = slotNumber;
 
     //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
 
-    if (accessible) {
 
-      ProcessLookup& processLookup = productLookup_[bk.friendlyClassName_];
-      vector<int>& vint = processLookup[bk.processName_];
-      vint.push_back(slotNumber);
+    ProcessLookup& processLookup = productLookup_[bk.friendlyClassName_];
+    vector<int>& vint = processLookup[bk.processName_];
+    vint.push_back(slotNumber);
 
-      Type type(Type::ByName(g->productDescription().className()));
-      if (bool(type)) {
+    Type type(Type::ByName(g->productDescription().className()));
+    if (bool(type)) {
 
-        // Here we look in the object named "type" for a typedef
-        // named "value_type" and get the Reflex::Type for it.
-        // Then check to ensure the Reflex dictionary is defined
-        // for this value_type.
-        // I do not throw an exception here if the check fails
-        // because there are known cases where the dictionary does
-        // not exist and we do not need to support those cases.
-        Type valueType;
-	//        if (edm::value_type_of(type, valueType) && bool(valueType)) {
-	if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
-	    && bool(valueType)) {
+      // Here we look in the object named "type" for a typedef
+      // named "value_type" and get the Reflex::Type for it.
+      // Then check to ensure the Reflex dictionary is defined
+      // for this value_type.
+      // I do not throw an exception here if the check fails
+      // because there are known cases where the dictionary does
+      // not exist and we do not need to support those cases.
+      Type valueType;
+      //        if (edm::value_type_of(type, valueType) && bool(valueType)) {
+      if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
+	  && bool(valueType)) {
 
-          fillElementLookup(valueType, slotNumber, bk);
+        fillElementLookup(valueType, slotNumber, bk);
 
-          // Repeat this for all public base classes of the value_type
-          std::vector<Type> baseTypes;
-          edm::public_base_classes(valueType, baseTypes);
+        // Repeat this for all public base classes of the value_type
+        std::vector<Type> baseTypes;
+        edm::public_base_classes(valueType, baseTypes);
 
-          for (std::vector<Type>::iterator iter = baseTypes.begin(),
-		 iend = baseTypes.end();
+        for (std::vector<Type>::iterator iter = baseTypes.begin(),
+	       iend = baseTypes.end();
                iter != iend;
                ++iter) {
-            fillElementLookup(*iter, slotNumber, bk);
-          }
+          fillElementLookup(*iter, slotNumber, bk);
         }
       }
     }
@@ -219,28 +209,16 @@ namespace edm {
   Principal::getGroup(ProductID const& oid, bool resolve) const {
     ProductDict::const_iterator i = productDict_.find(oid);
     if (i == productDict_.end()) {
-      return getInactiveGroup(oid);
+      return SharedConstGroupPtr();
     }
     size_type slotNumber = i->second;
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];
-    if (resolve && g->provenance().isPresent()) {
-      this->resolve_(*g);
+    this->resolveProvenance(*g);
+    if (resolve && g->productAvailable()) {
+      this->resolveProduct(*g);
     }
-    return g;
-  }
-
-  Principal::SharedConstGroupPtr const
-  Principal::getInactiveGroup(ProductID const& oid) const {
-    ProductDict::const_iterator i = inactiveProductDict_.find(oid);
-    if (i == inactiveProductDict_.end()) {
-      return SharedConstGroupPtr();
-    }
-    size_type slotNumber = i->second;
-    assert(slotNumber < inactiveGroups_.size());
-
-    SharedConstGroupPtr const& g = inactiveGroups_[slotNumber];
     return g;
   }
 
@@ -259,7 +237,8 @@ namespace edm {
     assert(slotNumber < groups_.size());
 
     SharedConstGroupPtr const& g = groups_[slotNumber];
-    resolve_(*g);
+    this->resolveProvenance(*g);
+    this->resolveProduct(*g);
 
     // Check for case where we tried on demand production and
     // it failed to produce the object
@@ -463,6 +442,8 @@ namespace edm {
       throw edm::Exception(edm::errors::ProductNotFound)
 	<< "getProvenance: no product with given ProductID: "<< oid <<"\n";
     }
+
+    this->resolveProvenance(*g);
     return g->provenance();
   }
 
@@ -474,6 +455,7 @@ namespace edm {
     provenances.clear();
     for (Principal::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
       SharedConstGroupPtr g = *i;
+      this->resolveProvenance(*g);
       if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
     }
   }
@@ -549,14 +531,16 @@ namespace edm {
 
       if (selector.match(group->provenance())) {
 
-        // Try unscheduled execution or delayed read when needed
-        this->resolve_(*group);
+        this->resolveProvenance(*group);
 
-        // Unscheduled execution can fail to produce the EDProduct so check
-        if (!group->onDemand()) {
-
-          // Found a good match, save it
-          results.push_back(BasicHandle(group->product(), &group->provenance()));
+	// Skip product if not available.
+        if (group->productAvailable()) {
+          this->resolveProduct(*group);
+          // Unscheduled execution can fail to produce the EDProduct so check
+          if (!group->onDemand()) {
+            // Found a good match, save it
+            results.push_back(BasicHandle(group->product(), &group->provenance()));
+          }
         }
       }
     }
@@ -564,11 +548,12 @@ namespace edm {
   }
 
   void
-  Principal::resolve_(Group const& g) const {
-    if (!g.productAvailable())
+  Principal::resolveProduct(Group const& g) const {
+    if (!g.productAvailable()) {
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
 	<< g.provenance() << '\n';
+    }
 
     if (g.product()) return; // nothing to do.
 
@@ -580,9 +565,21 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    auto_ptr<EDProduct> edp(store_->get(bk, this));
+    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
 
-    // Now fixup the Group
+    // Now fix up the Group
     g.setProduct(edp);
+  }
+
+  void
+  Principal::resolveProvenance(Group const& g) const {
+    if (g.branchEntryDescription().get()) return;
+
+    // must attempt to load from persistent store
+    BranchKey const bk = BranchKey(g.productDescription());
+    auto_ptr<BranchEntryDescription> prov(store_->getProvenance(bk, this));
+
+    // Now fix up the Group
+    g.setProvenance(prov);
   }
 }

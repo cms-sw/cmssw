@@ -6,11 +6,13 @@
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.4 2007/04/01 15:52:17 wmtan Exp $
+$Id: Group.h,v 1.5 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <memory>
+
+#include "boost/shared_ptr.hpp"
 
 #include "Reflex/Type.h"
 
@@ -22,7 +24,10 @@ namespace edm {
   class Group {
   public:
     explicit Group(std::auto_ptr<Provenance> prov,
- 	  bool acc = true, bool onDemand = false);
+	  bool acc = true,
+ 	  bool onDemand = false);
+
+    explicit Group(BranchDescription const& bd);
 
     Group(std::auto_ptr<EDProduct> edp,
 	  std::auto_ptr<Provenance> prov,
@@ -32,8 +37,6 @@ namespace edm {
 
     void swap(Group& other);
 
-    Provenance& provenance() { return *provenance_; }
-    
     // drop (hide) on input: means hide, but provenance is available
     // drop (write) on output: choose not to write, output module
     //   still chooses on a per product to include or exclude
@@ -49,9 +52,13 @@ namespace edm {
     // and an unscheduled module in this process declared it produces it
     bool onDemand() const { return onDemand_; }
 
-    EDProduct const* product() const { return product_; }
+    EDProduct const* product() const { return product_.get(); }
 
-    Provenance const& provenance() const { return *provenance_; }
+    Provenance & provenance() {return *provenance_;} 
+
+    Provenance const& provenance() const {return *provenance_;} 
+
+    boost::shared_ptr<BranchEntryDescription const> branchEntryDescription() const { return provenance_->branchEntryDescription(); }
 
     BranchDescription const& productDescription() const { return provenance_->product(); }
 
@@ -68,6 +75,11 @@ namespace edm {
     // cache after creation of the Group, without changing the meaning
     // of the Group.
     void setProduct(std::auto_ptr<EDProduct> prod) const;
+
+    // The following is const because we can add a BranchEntryDescription
+    // to the cache after creation of the Group, without changing the meaning
+    // of the Group.
+    void setProvenance(std::auto_ptr<BranchEntryDescription> prov) const;
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -96,10 +108,12 @@ namespace edm {
     Group(const Group&);
     void operator=(const Group&);
 
-    mutable EDProduct* product_;
-    Provenance*        provenance_;
-    bool               accessible_;
-    bool               onDemand_;
+    mutable boost::shared_ptr<EDProduct> product_;
+    // mutable boost::shared_ptr<BranchEntryDescription> branchEntryDescription_;
+    // BranchDescription branchDescription_;
+    mutable boost::shared_ptr<Provenance> provenance_;
+    mutable bool      accessible_;
+    bool              onDemand_;
   };
 
   // Free swap function

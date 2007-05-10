@@ -6,12 +6,13 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+$Id: Provenance.h,v 1.2 2007/04/01 15:39:44 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "boost/shared_ptr.hpp"
 
 /*
   Provenance
@@ -27,13 +28,18 @@ $Id: Provenance.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 namespace edm {
   class Provenance {
   public:
+    explicit Provenance(BranchDescription const& p);
     Provenance(BranchDescription const& p, BranchEntryDescription::CreatorStatus const& status);
+    Provenance(BranchDescription const& p, boost::shared_ptr<BranchEntryDescription> e);
     Provenance(BranchDescription const& p, BranchEntryDescription const& e);
 
     ~Provenance() {}
 
+    void setEvent(boost::shared_ptr<BranchEntryDescription> e);
+
     BranchDescription const& product() const {return product_;}
-    BranchEntryDescription const& event() const {return event_;}
+    BranchEntryDescription const& event() const {return *event_;}
+    boost::shared_ptr<BranchEntryDescription> branchEntryDescription()  const {return event_;}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
     std::string const& moduleLabel() const {return product().moduleLabel();}
@@ -59,7 +65,7 @@ namespace edm {
 
   private:
     BranchDescription const product_;
-    BranchEntryDescription event_;
+    boost::shared_ptr<BranchEntryDescription> event_;
   };
   
   inline
