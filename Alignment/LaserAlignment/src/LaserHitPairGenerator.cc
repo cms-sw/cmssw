@@ -1,8 +1,8 @@
 /** \file LaserHitPairGenerator.cc
  *  
  *
- *  $Date: 2007/03/26 06:24:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/10 07:12:15 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -33,7 +33,7 @@ void LaserHitPairGenerator::add(const LayerWithHits * inner, const LayerWithHits
   theGenerators.push_back(new LaserHitPairGeneratorFromLayerPair(inner, outer, iSetup));
 }
 
-void LaserHitPairGenerator::hitPairs(const TrackingRegion & region, OrderedHitPairs & pairs, const edm::EventSetup & iSetup)
+void LaserHitPairGenerator::hitPairs(const TrackingRegion & region, OrderedLaserHitPairs & pairs, const edm::EventSetup & iSetup)
 {
   for (Container::const_iterator it = theGenerators.begin(); it != theGenerators.end(); it++)
     {
@@ -41,4 +41,11 @@ void LaserHitPairGenerator::hitPairs(const TrackingRegion & region, OrderedHitPa
     }
 
   theLayerCache.clear();
+}
+
+const OrderedLaserHitPairs & LaserHitPairGenerator::run(const TrackingRegion& region, const edm::Event & iEvent, const edm::EventSetup& iSetup)
+{
+  thePairs.clear();
+  hitPairs(region, thePairs, iEvent, iSetup);
+  return thePairs;
 }

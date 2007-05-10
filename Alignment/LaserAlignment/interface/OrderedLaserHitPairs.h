@@ -1,19 +1,26 @@
 #ifndef LaserAlignment_OrderedLaserHitPairs_H
 #define LaserAlignment_OrderedLaserHitPairs_H
 
+/** \class OrderedLaserHitPairs
+ *  ordered pairs of laser hits; used for seedgenerator
+ *
+ *  $Date: Thu May 10 13:53:49 CEST 2007 $
+ *  $Revision: 1.1 $
+ *  \author Maarten Thomas
+ */
+
 #include "Alignment/LaserAlignment/interface/OrderedLaserHitPair.h"
-/*#include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
-*/#include <vector>
+#include <vector>
 
-class OrderedHitPairs : public std::vector<OrderedHitPair> { /*, public OrderedSeedingHits {
-public:*/
+class OrderedLaserHitPairs : public std::vector<OrderedLaserHitPair> { 
+public:
 
-  virtual ~OrderedHitPairs(){}
+  virtual ~OrderedLaserHitPairs(){}
 
-  virtual unsigned int size() const { return std::vector<OrderedHitPair>::size(); }
+  virtual unsigned int size() const { return std::vector<OrderedLaserHitPair>::size(); }
 
-  virtual const OrderedHitPair& operator[](unsigned int i) const { 
-    return std::vector<OrderedHitPair>::operator[](i); 
+  virtual const OrderedLaserHitPair& operator[](unsigned int i) const { 
+    return std::vector<OrderedLaserHitPair>::operator[](i); 
   }
 
 };

@@ -4,21 +4,22 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/05/10 10:08:35 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/05/10 10:38:15 $
+ *  $Revision: 1.13 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/05/10 10:08:35 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/05/10 10:38:15 $
+ *  $Revision: 1.13 $
  *  \author Maarten Thomas
  */
 
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
+#include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
+#include "Alignment/LaserAlignment/interface/OrderedLaserHitPair.h"
+#include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
 #include "Alignment/LaserAlignment/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -36,7 +37,7 @@ class CompareHitPairsZ
   CompareHitPairsZ(const edm::EventSetup& iSetup)
     { iSetup.get<TrackerDigiGeometryRecord>().get(tracker); };
 
-  bool operator() ( OrderedHitPair h1, OrderedHitPair h2)
+  bool operator() ( OrderedLaserHitPair h1, OrderedLaserHitPair h2)
   {
     GlobalPoint in1p = tracker->idToDet((*(h1.inner())).geographicalId())->surface().toGlobal((*(h1.inner())).localPosition());
     GlobalPoint in2p = tracker->idToDet((*(h2.inner())).geographicalId())->surface().toGlobal((*(h2.inner())).localPosition());
@@ -57,7 +58,7 @@ class CompareHitPairsZ
 
 };
 
-class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
+class LaserHitPairGeneratorFromLayerPair
 {
  public:
 	/// constructor
@@ -69,7 +70,7 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
 
 	/// from base class
   virtual void hitPairs(const TrackingRegion & ar, OrderedLaserHitPairs & ap, const edm::EventSetup & iSetup);
-  virtual void hitPairs(const TrackingRegion& ar, OrderedLaserHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup) {}
+
   virtual LaserHitPairGeneratorFromLayerPair * clone() const 
   {
     return new LaserHitPairGeneratorFromLayerPair(*this);

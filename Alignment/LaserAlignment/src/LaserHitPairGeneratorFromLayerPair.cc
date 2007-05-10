@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/05/10 10:13:13 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/05/10 10:38:16 $
+ *  $Revision: 1.13 $
  *  \author Maarten Thomas
  */
 
@@ -11,10 +11,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
+#include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
-// #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -42,7 +41,7 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 	if (theInnerLayer->recHits().empty()) return;
 	if (theOuterLayer->recHits().empty()) return;
 
-	std::vector<OrderedHitPair> allthepairs;
+	std::vector<OrderedLaserHitPair> allthepairs;
 
 	std::vector<const TrackingRecHit*>::const_iterator ohh;
 
@@ -71,7 +70,7 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 
 	if (allthepairs.size() > 0) 
 	{
-		for (std::vector<OrderedHitPair>::const_iterator it = allthepairs.begin(); it != allthepairs.end(); it++)
+		for (std::vector<OrderedLaserHitPair>::const_iterator it = allthepairs.begin(); it != allthepairs.end(); it++)
 		{
 			result.push_back(*it);
 		}

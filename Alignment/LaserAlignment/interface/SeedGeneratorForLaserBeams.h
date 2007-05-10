@@ -4,8 +4,8 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: Fri Mar 16 16:10:36 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -17,8 +17,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromLayerPairs.h"
-
 #include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -30,7 +28,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
-class SeedGeneratorForLaserBeams : public SeedGeneratorFromTrackingRegion
+class SeedGeneratorForLaserBeams
 {
  public:
   typedef TrajectoryStateOnSurface TSOS;
