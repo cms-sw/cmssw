@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_EMIso_BKG.cc,v 1.1 2007/02/22 10:50:41 gennai Exp $
+// $Id: TauTagVal_EMIso_BKG.cc,v 1.2 2007/03/05 18:23:34 gennai Exp $
 //
 //
 
@@ -168,7 +168,7 @@ void TauTagVal_EMIso_BKG::analyze(const edm::Event& iEvent, const edm::EventSetu
   for (; i != tauTagInfo.end(); ++i) {
     
     //Added By Konstantinos A. Petridis
-    TLorentzVector recTauJet(i->jet().px(),i->jet().py(),i->jet().pz(),i->jet().energy());
+    TLorentzVector recTauJet(i->jet()->px(),i->jet()->py(),i->jet()->pz(),i->jet()->energy());
     bool mtchdTauJet=false;
     TLorentzVector* mcTauJetMtchd=0;
     for(int l=0;l<TauJets->GetEntriesFast();l++)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal_BKG.cc,v 1.3 2007/03/05 12:15:41 gennai Exp $
+// $Id: TauTagVal_BKG.cc,v 1.4 2007/03/05 18:23:34 gennai Exp $
 //
 //
 
@@ -238,7 +238,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  if( i->discriminator(Rmatch,Rsig,Riso,pT_LT,pT_min) > 0) {
 	    nEventsRiso[ii]++;
 	  }
-	  if(i->jet().pt() > Etmin && i->jet().pt()<Etmax)
+	  if(i->jet()->pt() > Etmin && i->jet()->pt()<Etmax)
 	    {
 	      nEventsEnergyUsed[ii]++;
 	      if( i->discriminator(Rmatch,Rsig,rIso,pT_LT,pT_min) > 0) nEventsEnergy[ii]++;
@@ -253,7 +253,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  if(!leadTkTmp){
 	  }else{
 	    math::XYZVector momentum = (*leadTkTmp).momentum();
-	    math::XYZVector jetMomentum(i->jet().px(), i->jet().py(), i->jet().pz());
+	    math::XYZVector jetMomentum(i->jet()->px(), i->jet()->py(), i->jet()->pz());
 	    float deltaR = ROOT::Math::VectorUtil::DeltaR(jetMomentum, momentum);
 	    deltaRLeadTk_Jet->Fill(deltaR);
 	  }
@@ -263,7 +263,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	    LogInfo("LeadingTrack") << " No LeadingTrack";
 	  }else{
 	    ptLeadingTrack->Fill((*leadTk).pt());
-	    ptJet->Fill((i->jet()).pt());
+	    ptJet->Fill((i->jet())->pt());
 	    math::XYZVector momentum = (*leadTk).momentum();
 	    float nsigtks = (i->tracksInCone(momentum, rSig,  1.)).size();
 	    nSignalTracks->Fill(nsigtks);
@@ -281,7 +281,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if(i->discriminator(0.1,0.07,0.4,6.,1.,0,0.2)){
 
 	
-	TLorentzVector recoTauJet(i->jet().px(),i->jet().py(),i->jet().pz(),i->jet().energy());
+	TLorentzVector recoTauJet(i->jet()->px(),i->jet()->py(),i->jet()->pz(),i->jet()->energy());
 	bool trueTauJet=false;
 	TLorentzVector* mcTauJetMatched=0;
 	for(int m=0;m<TauJets->GetEntriesFast();m++)
@@ -312,7 +312,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      {
 		math::XYZVector LeadingTrackMom=(*LeadingTrack3GeV).momentum();
 		TVector3 LdgTrackMom3GeV(LeadingTrackMom.X(),LeadingTrackMom.Y(),LeadingTrackMom.Z());
-		TVector3 RecoTauJetTight3GeV(i->jet().px(),i->jet().py(),i->jet().pz());
+		TVector3 RecoTauJetTight3GeV(i->jet()->px(),i->jet()->py(),i->jet()->pz());
 		double LdgTrTauJetDR = Vec3dR(&LdgTrackMom3GeV,&RecoTauJetTight3GeV);
 		if(mcTauJetMatched->Et()>40.0&&mcTauJetMatched->Et()<60)hDRRecLdgTrTauJet->Fill(LdgTrTauJetDR);
 		if(mcTauJetMatched->Et()>200&&mcTauJetMatched->Et()<250)hDRRecLdgTrTauJet1->Fill(LdgTrTauJetDR);
@@ -321,7 +321,7 @@ void TauTagVal_BKG::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  }
       }
       
-      TLorentzVector recTauJet(i->jet().px(),i->jet().py(),i->jet().pz(),i->jet().energy());
+      TLorentzVector recTauJet(i->jet()->px(),i->jet()->py(),i->jet()->pz(),i->jet()->energy());
       bool mtchdTauJet=false;
       TLorentzVector* mcTauJetMtchd=0;
       for(int l=0;l<TauJets->GetEntriesFast();l++)
