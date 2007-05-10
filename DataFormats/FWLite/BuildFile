@@ -1,0 +1,9 @@
+<use name=DataFormats/Common>
+<use name=rootrflx>
+<use name=rootcore>
+<export>
+  <lib name=DataFormatsFWLite>
+  <use name=DataFormats/Common>
+  <use name=rootrflx>
+  <use name=rootcore>
+</export>
