@@ -3,7 +3,7 @@
 /*
  * \file EcalTBMCInfoProducer.h
  *
- * $Id: EcalTBMCInfoProducer.h,v 1.3 2006/10/26 08:00:02 fabiocos Exp $
+ * $Id: EcalTBMCInfoProducer.h,v 1.4 2007/03/07 10:48:54 fabiocos Exp $
  *
 */
 
@@ -28,6 +28,10 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+namespace CLHEP {
+  class RandFlat;
+}
 
 class EcalTBMCInfoProducer: public edm::EDProducer{
   
@@ -68,6 +72,9 @@ private:
   HepRotation * fromCMStoTB;
 
   std::string GenVtxLabel;
+
+  CLHEP::RandFlat *flatDistribution_;
+ 
 
 };
 
