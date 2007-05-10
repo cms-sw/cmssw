@@ -7,7 +7,7 @@
 <use name=Mixing/Base>
 <use name=SimDataFormats/CrossingFrame>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=Geometry/Surface>
+# <use name=Geometry/Surface>
 <use name=SimTracker/Common>
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimGeneral/HepPDT>
@@ -35,5 +35,5 @@
    <use name=clhep>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=Geometry/Surface>
+#    <use name=Geometry/Surface>
 </export>

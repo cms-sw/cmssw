@@ -263,9 +263,9 @@ class SiPixelDigitizerAlgorithm  {
     double tMax;  // The delta production cut, should be as in OSCAR = 30keV
     //                                           cmsim = 100keV
     // The eloss fluctuation class from G4. Is the right place? 
-    SiG4UniversalFluctuation fluctuate; //
-    GaussianTailNoiseGenerator* theNoiser; //
-    PixelIndices * pIndexConverter; // Pointer to the index converter 
+    SiG4UniversalFluctuation * fluctuate;   // make a pointer 
+    GaussianTailNoiseGenerator * theNoiser; //
+    PixelIndices * pIndexConverter;         // Pointer to the index converter 
    
     std::vector<EnergyDepositUnit> _ionization_points;
     std::vector<SignalPoint> _collection_points;

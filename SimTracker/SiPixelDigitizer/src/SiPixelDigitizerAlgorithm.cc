@@ -45,7 +45,8 @@ using namespace edm;
 
 #define TP_DEBUG // protect all LogDebug with ifdef. Takes too much CPU
 
-SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :conf_(conf) {
+SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& conf) :
+  conf_(conf) , fluctuate(0), theNoiser(0), pIndexConverter(0) {
   using std::cout;
   using std::endl;
 
@@ -75,11 +76,17 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   // Pixel threshold in electron units.
   thePixelThresholdInE=conf_.getParameter<double>("ThresholdInElectrons");
 
+  // Add noise   
+  addNoise=conf_.getParameter<bool>("AddNoise");
+  // Add noisy pixels 
+  addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
   // Noise in electrons.
   // Pixel cell noise, relevant for generating noisy pixels 
   theNoiseInElectrons=conf_.getParameter<double>("NoiseInElectrons");
   // Fill readout noise, including all readout chain, relevant for smearing
   theReadoutNoise=conf_.getUntrackedParameter<double>("ReadoutNoiseInElec",500.);
+
+
 
   //theTofCut 12.5, cut in particle TOD +/- 12.5ns
   theTofCut=conf_.getUntrackedParameter<double>("TofCut",12.5);
@@ -87,11 +94,6 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
   //Lorentz angle tangent per Tesla
   tanLorentzAnglePerTesla=conf_.getParameter<double>("TanLorentzAnglePerTesla");
 
-  // Add noise   
-  addNoise=conf_.getParameter<bool>("AddNoise");
-
-  // Add noisy pixels 
-  addNoisyPixels=conf_.getParameter<bool>("AddNoisyPixels");
 
   // Fluctuate charge in track subsegments
   fluctuateCharge=conf_.getUntrackedParameter<bool>("FluctuateCharge",true);
@@ -180,7 +182,7 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
 
 
   // Init the random number services
-  if(addNoise || thePixelLuminosity ) {
+  if(addNoise || thePixelLuminosity || fluctuateCharge) {
     edm::Service<edm::RandomNumberGenerator> rng;
     if ( ! rng.isAvailable()) {
       throw cms::Exception("Configuration")
@@ -190,12 +192,23 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     }
  
     CLHEP::HepRandomEngine& engine = rng->getEngine();
- 
+    // Fillipo has: rndEngine = &(rng->getEngine()); LETS SEE IF BOTH WORK
+
     // engine MUST be a reference here, if a pointer is used the
     // distribution will destroy the engine in its destructor, a major
     // problem because the service owns the engine and will destroy it
     gaussDistribution_ = new CLHEP::RandGaussQ(engine, 0., theReadoutNoise);
     flatDistribution_ = new CLHEP::RandFlat(engine, 0., 1.);
+
+
+
+    if(addNoise) { 
+      theNoiser = new GaussianTailNoiseGenerator(engine);
+    }
+
+    if(fluctuateCharge) {
+      fluctuate = new SiG4UniversalFluctuation(engine);
+    }
      
   }
 
@@ -304,6 +317,9 @@ SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
    delete gaussDistribution_;
    delete flatDistribution_;
 
+    if(addNoise) delete theNoiser;
+    if(fluctuateCharge) delete fluctuate;
+   
 }
 //=========================================================================
 edm::DetSet<PixelDigi>::collection_type 
@@ -353,7 +369,6 @@ vector<PixelDigi> SiPixelDigitizerAlgorithm::digitize(PixelGeomDetUnit *det){
 
     // The index converter is only needed when inefficiencies or misscalibration
     // are simulated.
-    pIndexConverter = 0;  // Initilize to NULL
     if((pixelInefficiency>0) || doMissCalibrate ) {  // Init pixel indices
       pIndexConverter = new PixelIndices(numColumns,numRows);
     }
@@ -518,7 +533,7 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
     // track segment length in mm, segment eloss in MeV 
     // Returns fluctuated eloss in MeV
     double deltaCutoff = tMax; // the cutoff is sometimes redefined inside, so fix it.
-    de = fluctuate.SampleFluctuations(double(particleMomentum*1000.),
+    de = fluctuate->SampleFluctuations(double(particleMomentum*1000.),
 				      particleMass, deltaCutoff, 
 				      double(segmentLength*10.),
 				      segmentEloss )/1000.; //convert to GeV
