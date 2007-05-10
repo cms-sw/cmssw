@@ -35,11 +35,12 @@ typedef std::vector<edm::InputTag> vtag;
     for(;i !=tauJets->end(); i++ ) {
       double discriminator = (*i).discriminator();
       if(discriminator > 0) {
-	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-	isolatedTaus->push_back(*pippo );
+	const CaloJet pippo = *(i->jet().castTo<CaloJetRef>());
+	isolatedTaus->push_back(pippo );
       }else{
-	const CaloJet* notPippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-	notIsolatedTaus->push_back(*notPippo );
+	const CaloJet notPippo =*(i->jet().castTo<CaloJetRef>());
+
+	notIsolatedTaus->push_back(notPippo );
       }
     }
   }

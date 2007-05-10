@@ -55,14 +55,14 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
     for(;i !=tauJets->end(); i++ ) {
       
       JetTracksAssociationRef jetTracks = i->jtaRef();
-      math::XYZVector jetDir(jetTracks->key->px(),jetTracks->key->py(),jetTracks->key->pz());   
+      math::XYZVector jetDir(jetTracks->first->px(),jetTracks->first->py(),jetTracks->first->pz());   
       float discriminator = i->discriminator(jetDir, matching_cone, signal_cone, isolation_cone, pt_min_leadTrack, pt_min_isolation,  n_tracks_isolation_ring,dZ_vertex); 
       allExtendedCollection->push_back(*(i)); //to  be used in HLT Analyzers ...
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator);
 	baseCollectionTmp->push_back(pippoTag);
-	const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(i->jet()));
-	jetCollectionTmp->push_back(*pippo );
+	const CaloJet pippo = *(i->jet().castTo<CaloJetRef>());
+	jetCollectionTmp->push_back(pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
       }
 
@@ -90,8 +90,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    JetTag myTag(1.);
 	    taggedJets++;
 	    myCollection->push_back(myTag);
-	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(&(myIsolJet->jet()));
-	    myJetCollection->push_back(*pippo);
+	    const CaloJet pippo = *(myIsolJet->jet().castTo<CaloJetRef>());
+	    myJetCollection->push_back(pippo);
 	  }
       }
       //check if we have at least 2 jets from the same vertex
