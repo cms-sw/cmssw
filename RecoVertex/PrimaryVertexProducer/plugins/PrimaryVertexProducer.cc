@@ -1,4 +1,4 @@
-\#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
+#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -19,9 +19,9 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "VertexReco/VertexPrimitives/BeamSpot.h"
+#include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
 
-using namespace reco;
+//using namespace reco;
 
 //
 // constants, enums and typedefs
@@ -42,7 +42,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf)
   fVerbose=conf.getUntrackedParameter<bool>("verbose", false);
 
   //  produces<VertexCollection>("PrimaryVertex");
-  produces<VertexCollection>();
+  produces<reco::VertexCollection>();
 
 }
 
@@ -62,6 +62,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   reco::VertexCollection vColl;
 
+
   try {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Reconstructing event number: " << iEvent.id() << "\n";
@@ -74,14 +75,14 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    if (fVerbose) {cout << "RecoVertex/PrimaryVertexProducer:got " 
-			<< (*tks).size() << " tracks " << endl;}
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-    vector<TransientTrack> t_tks = (*theB).build(tks);
-
+    vector<reco::TransientTrack> t_tks = (*theB).build(tks);
    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+   if(fVerbose) {cout << "RecoVertex/PrimaryVertexProducer"
+      << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
+   }
 
 
    // get the BeamSpot, it will alwys be needed, even when not used as a constraint
@@ -89,27 +90,36 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
    try{
      iEvent.getByType(recoBeamSpotHandle);
-     vertexBeamSpot=BeamSpot(*recoBeamSpotHandle);
-   }catch(std::exception & err)
+     vertexBeamSpot = BeamSpot(*recoBeamSpotHandle);
+   }catch(std::exception & err){
      edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
        << "Exception occured retrieving BeamSpot in event: " << iEvent.id() 
        << "\n" << err.what() << "\n"
        << "continue using default BeamSpot" << endl;
-  }
+     if(fVerbose){
+     cout << "RecoVertex/PrimaryVertexProducer"
+       << "Exception occured retrieving BeamSpot in event: " << iEvent.id() 
+       << "\n" << err.what() << "\n"
+       << "continue using default BeamSpot" << endl;
+     }
+   }
 
 
     // here call vertex reconstruction
     
+    //vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
     vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
+
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_vts.size() << " reconstructed vertices" << "\n";
 
     // convert transient vertices returned by the theAlgo to (reco) vertices
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
-      Vertex v = *iv;
+      reco::Vertex v = *iv;
       vColl.push_back(v);
     }
+
 
 
     if(fVerbose){
@@ -135,6 +145,9 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   catch (std::exception & err) {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+      << "Exception during event number: " << iEvent.id() 
+      << "\n" << err.what() << "\n";
+    cout << "RecoVertex/PrimaryVertexProducer"
       << "Exception during event number: " << iEvent.id() 
       << "\n" << err.what() << "\n";
   }

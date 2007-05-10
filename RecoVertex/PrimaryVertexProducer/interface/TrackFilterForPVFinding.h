@@ -7,6 +7,7 @@
 
 */
 
+#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -18,6 +19,7 @@ public:
   TrackFilterForPVFinding(const edm::ParameterSet& conf);
 
   bool operator() (const reco::TransientTrack & tk) const;
+  bool operator() (const BeamTransientTrack & tk) const;
 
   float minPt() const;
   float maxD0Significance() const;

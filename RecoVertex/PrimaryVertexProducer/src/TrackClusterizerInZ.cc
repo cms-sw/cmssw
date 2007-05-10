@@ -14,7 +14,7 @@ namespace {
   bool beamTrackLessZ(const BeamTransientTrack & tk1, 
 		     const BeamTransientTrack & tk2) 
   {
-    return tk1.beamState.position().z() < tk2.beamState.position().z();
+    return tk1.beamState().position().z() < tk2.beamState().position().z();
   }
 }
 
@@ -85,12 +85,12 @@ TrackClusterizerInZ::clusterize(const vector<BeamTransientTrack> & tracks)
   vector <reco::TransientTrack> currentCluster; 
   
   currentCluster.push_back(*it);
-  double zPrev=(*it).beamState.position().z();
+  double zPrev=(*it).beamState().position().z();
 
   it++;
   for ( ; it != tks.end(); it++) {
 
-    double zCurr = (*it).beamState.position().z();
+    double zCurr = (*it).beamState().position().z();
     if ( abs(zCurr - zPrev) < zSeparation() ) {
       // close enough ? cluster together
       currentCluster.push_back(*it);
@@ -101,7 +101,7 @@ TrackClusterizerInZ::clusterize(const vector<BeamTransientTrack> & tracks)
       clusters.push_back(currentCluster);
       currentCluster.clear();
       currentCluster.push_back(*it);
-      zPrev = (*it).beamState.position().z();
+      zPrev = (*it).beamState().position().z();
 
       it++; if (it == tks.end()) break;
     }

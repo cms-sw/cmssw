@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.4 2007/01/21 22:41:26 yumiceva Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.5 2007/05/10 11:36:23 werdmann Exp $
 //
 //
 
@@ -58,7 +58,7 @@ private:
   edm::ParameterSet theConfig;
   TrackFilterForPVFinding theTrackFilter;
   TrackClusterizerInZ theTrackClusterizer;
-  KalmanTrimmedVertexFinder theFinder;
+  //KalmanTrimmedVertexFinder theFinder;
   VertexCompatibleWithBeam theVertexSelector;
 
   bool fVerbose;

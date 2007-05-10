@@ -9,7 +9,7 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
-#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
+//#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 
 //using namespace reco;
 
@@ -58,6 +58,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
+  /*
   // FIXME move vertex chi2 cut in theVertexSelector
   // theFinder should not perform the final vertex cleanup
   float minVertexFitProb 
@@ -65,6 +66,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PVSelParameters::minVertexFitProb = " 
     << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("minVertexFitProb") << endl;
+
   theFinder.setVertexFitProbabilityCut(minVertexFitProb);
 
   // initialization of vertex finder algorithm
@@ -89,6 +91,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     << "VtxFinderParameters::maxNbVertices = " 
     << conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("maxNbVertices") << endl;
   theFinder.setMaxNbOfVertices(maxNbVertices);
+  */
 
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PV producer algorithm initialization: done" << "\n";
@@ -120,22 +123,23 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   VertexState beamVertexState(beamSpot.position(), beamSpot.error());
 
   if ( fapply_finder) {
-    return theFinder.vertices( tracks );
+    //    return theFinder.vertices( tracks );
   }
   vector<TransientVertex> pvs;
   try {
 
 
     // select tracks
-    //vector<reco::TransientTrack> seltks;
-    vector<BeamTransientTrack> seltks;
+    vector<reco::TransientTrack> seltks;
+    //vector<BeamTransientTrack> seltks;
 
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
-      //if (theTrackFilter(*itk)) seltks.push_back(*itk);
+      if (theTrackFilter(*itk)) seltks.push_back(*itk);
+      /*
       BeamTransientTrack t(*itk, beamSpot.position());
       if (theTrackFilter(t)) seltks.push_back(t);
-      //if (theTrackFilter(*itk, beamSpot)) seltks.push_back(*itk);
+      */
     }
 
     if(fVerbose){
@@ -164,6 +168,14 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
       }
 
+      /*
+	std::cout << "cluster tracks " << std::endl;
+      for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
+        t!=(*iclus).end(); ++t){
+	std::cout << (*t).initialFreeState()
+                << std::endl;
+      }
+      */
 
       if( fUseBeamConstraint &&((*iclus).size()>0) ){
 	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
@@ -191,6 +203,10 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }else if((*iclus).size()>1){
 	if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 	try {
+
+	  
+
+
 	  TransientVertex v = theFitter->vertex(*iclus); 
 	  if (fVerbose){
 	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
