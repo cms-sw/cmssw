@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.32 2007/05/08 11:53:14 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.1 2007/05/10 08:51:53 fambrogl Exp $
 //
 //
 
@@ -58,6 +58,7 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
 
 //Random Number
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -83,7 +84,8 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf) :
   }
   
   rndEngine = &(rng->getEngine());
-  
+  useGainFromDB_=conf_.getParameter<bool>("UseGainFromDB");
+
 }
 
 // Virtual destructor needed.
@@ -117,9 +119,14 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::ESHandle<MagneticField> pSetup;
   iSetup.get<IdealMagneticFieldRecord>().get(pSetup);
   
-  //Load Lorentz angle calibration
+  //Load Lorentz angle values
   edm::ESHandle<SiStripLorentzAngle> SiStripLorentzAngle_;
   if(conf_.getParameter<bool>("UseLACalibrationFromDB"))iSetup.get<SiStripLorentzAngleRcd>().get(SiStripLorentzAngle_);
+
+  //get gain correction ES handle
+  edm::ESHandle<SiStripGain> gainHandle;
+  if(useGainFromDB_) iSetup.get<SiStripGainRcd>().get(gainHandle);
+
 
   SiStripNoiseService_.setESObjects(iSetup);
   
@@ -151,7 +158,16 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       float langle=0;
       if(SiStripLorentzAngle_.isValid())langle=SiStripLorentzAngle_->getLorentzAngle((*iu)->geographicalId().rawId());
-      collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield,langle);
+
+//       //get gain values here
+//       SiStripApvGain::Range gainRange;
+//       if(useGainFromDB_ && gainHandle.isValid()) {
+// 	SiStripApvGain::Range detGainRange = gainHandle->getRange(idForNoise);
+
+// 	  }
+
+
+      collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield,langle, gainHandle);
       
       if (collector.data.size()>0){
 	

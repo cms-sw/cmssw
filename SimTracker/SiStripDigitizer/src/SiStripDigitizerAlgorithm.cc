@@ -52,6 +52,8 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS);
   theSiHitDigitizer = new SiHitDigitizer(conf_,det,rndEngine);
   theSiPileUpSignals = new SiPileUpSignals();
+
+
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
 
   
@@ -76,7 +78,7 @@ SiStripDigitizerAlgorithm::~SiStripDigitizerAlgorithm(){
 
 edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const std::vector<PSimHit> &input,
 									 StripGeomDetUnit *det,
-									 GlobalVector bfield,float langle){
+									 GlobalVector bfield,float langle, edm::ESHandle<SiStripGain> & gainHandle){
   
   //  std::cout << "SiStripDigitizerAlgorithm is running!" << endl;
   
@@ -109,7 +111,7 @@ edm::DetSet<SiStripDigi>::collection_type SiStripDigitizerAlgorithm::run(const s
   }
   
   digis.clear();
-  push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise)),
+  push_digis(theSiZeroSuppress->zeroSuppress(theSiDigitalConverter->convert(afterNoise, gainHandle, detID)),
 	     theLink,afterNoise,detID);
   
   return digis;

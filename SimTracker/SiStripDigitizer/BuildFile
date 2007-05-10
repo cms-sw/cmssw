@@ -17,6 +17,8 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=CommonTools/SiStripZeroSuppression>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 <export>
    <lib name=SimTrackerSiStripDigitizer>
    <use name=FWCore/Framework>
@@ -38,4 +40,6 @@
    <use name=MagneticField/Engine>
    <use name=Geometry/Surface>
    <use name=CommonTools/SiStripZeroSuppression>
+   <use name=CalibFormats/SiStripObjects>
+   <use name=CalibTracker/Records>
 </export>

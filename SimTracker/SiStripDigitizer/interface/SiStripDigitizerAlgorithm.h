@@ -29,7 +29,7 @@
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
-
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 namespace CLHEP {
@@ -55,7 +55,7 @@ class SiStripDigitizerAlgorithm
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
-  edm::DetSet<SiStripDigi>::collection_type  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector,float langle);
+  edm::DetSet<SiStripDigi>::collection_type  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector,float langle, edm::ESHandle<SiStripGain> &);
 
   void setParticleDataTable(const ParticleDataTable * pdt);
   

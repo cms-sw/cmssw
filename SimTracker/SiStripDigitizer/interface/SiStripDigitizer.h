@@ -62,6 +62,9 @@ private:
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
   CLHEP::HepRandomEngine* rndEngine;
+
+  bool useGainFromDB_;
+
 };
 
 #endif

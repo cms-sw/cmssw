@@ -10,7 +10,7 @@ class SiTrivialDigitalConverter: public SiDigitalConverter{
 
   SiTrivialDigitalConverter(float in,int fs);
   
-  DigitalMapType convert(const signal_map_type&);
+  DigitalMapType convert(const signal_map_type&,  edm::ESHandle<SiStripGain>& ,unsigned int detid);
     
  private:
 
