@@ -14,6 +14,7 @@
 
 #include "DataFormats/DetId/interface/DetId.h"
 
+#include "CalibTracker/SiStripLorentzAngle/interface/SiStripLorentzAngleAlgorithm.h"
 
 class SiStripLorentzAngleDB : public edm::EDAnalyzer
 {
@@ -41,7 +42,7 @@ class SiStripLorentzAngleDB : public edm::EDAnalyzer
   double rhall_;
   double holeBeta_;
   double holeSaturationVelocity_;
-  
+  SiStripLorentzAngleAlgorithm *siStripLorentzAngleAlgorithm_;
 };
 
 

@@ -15,7 +15,9 @@ using namespace std;
   //Constructor
 
 SiStripLorentzAngleDB::SiStripLorentzAngleDB(edm::ParameterSet const& conf) : 
-  conf_(conf){}
+  conf_(conf){
+  siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
+}
 
   //BeginJob
 
@@ -29,6 +31,9 @@ void SiStripLorentzAngleDB::beginJob(const edm::EventSetup& c){
   holeBeta_         = conf_.getParameter<double>("HoleBeta");
   holeSaturationVelocity_ = conf_.getParameter<double>("HoleSaturationVelocity");
   
+  //building histograms
+  siStripLorentzAngleAlgorithm_->init(c);
+
   edm::ESHandle<TrackerGeometry> pDD;
   c.get<TrackerDigiGeometryRecord>().get( pDD );
   edm::LogInfo("SiStripLorentzAngle") <<" There are "<<pDD->detUnits().size() <<" detectors"<<std::endl;
@@ -52,27 +57,44 @@ void SiStripLorentzAngleDB::beginJob(const edm::EventSetup& c){
       detid_la.push_back( pair<uint32_t,float>(detid,hallMobility) );
     }      
   } 
+
 }
 // Virtual destructor needed.
 
-SiStripLorentzAngleDB::~SiStripLorentzAngleDB() {  }  
+SiStripLorentzAngleDB::~SiStripLorentzAngleDB() {  
+  if(siStripLorentzAngleAlgorithm_!=0){
+    delete siStripLorentzAngleAlgorithm_;
+    siStripLorentzAngleAlgorithm_=0;
+  }
+}  
 
 // Analyzer: Functions that gets called by framework every event
 
 void SiStripLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
   
-  unsigned int run=e.id().run();
-  edm::LogInfo("SiStripLorentzAngle") << "... inserting SiStripLorentzAngle for Run " << run << "\n " << std::endl;
-  
+  //fill histograms for each module
+  siStripLorentzAngleAlgorithm_->run(e,es);
+}
+
+void SiStripLorentzAngleDB::endJob(){
+
+  SiStripLorentzAngleAlgorithm::fitmap fits;
   SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
+  edm::LogInfo("SiStripLorentzAngle") <<"End job ";
+  siStripLorentzAngleAlgorithm_->fit(fits);
   
   for(std::vector<std::pair<uint32_t, float> >::iterator it = detid_la.begin(); it != detid_la.end(); it++){
-    //    edm::LogInfo("SiStripLorentzAngle") <<"DetId= "<<it->first<<endl;
-    if ( ! LorentzAngle->putLorentzAngle(it->first, it->second) )
+
+    SiStripLorentzAngleAlgorithm::fitmap::iterator thefit=fits.find(it->first);
+    float langle=it->second;
+    if(thefit!=fits.end()){
+      if(thefit->second->p1>0&&thefit->second->p2>0)langle=thefit->second->p0;
+    }
+    if ( ! LorentzAngle->putLorentzAngle(it->first,langle) )
       edm::LogError("SiStripLorentzAngleDB")<<"[SiStripLorentzAngleDB::analyze] detid already exists"<<std::endl;
   }
-
+  
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if( mydbservice.isAvailable() ){
     try{
@@ -91,10 +113,7 @@ void SiStripLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
   }else{
     edm::LogError("SiStripLorentzAngleDB")<<"Service is unavailable"<<std::endl;
   }
-}
-
-void SiStripLorentzAngleDB::endJob(){
-
-  //  std::vector<DetId>::iterator Iditer;
-  
+//  std::vector<DetId>::iterator Iditer;
+  SiStripLorentzAngleAlgorithm::fitmap::iterator  fitpar;
+  for( fitpar=fits.begin(); fitpar!=fits.end();++fitpar)delete fitpar->second;
 }
