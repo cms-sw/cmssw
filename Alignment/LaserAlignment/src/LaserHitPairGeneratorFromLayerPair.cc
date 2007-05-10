@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/03/26 15:51:22 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/05/10 07:12:15 $
+ *  $Revision: 1.9 $
  *  \author Maarten Thomas
  */
 
@@ -47,10 +47,10 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 	std::vector<const TrackingRecHit*>::const_iterator ohh;
 
 	for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-	  const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,iSetup);
+	  const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,theOuterLayer,iSetup);
 	  std::vector<const TrackingRecHit*>::const_iterator ihh;
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,iSetup);
+	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,theInnerLayer,iSetup);
 
 			double inny = ih->r() * sin(ih->phi());
 			double outy = oh->r() * sin(oh->phi());
