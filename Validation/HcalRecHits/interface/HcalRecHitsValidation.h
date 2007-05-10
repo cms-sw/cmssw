@@ -43,7 +43,7 @@
 
 class HcalRecHitsValidation : public edm::EDAnalyzer {
  public:
-   HcalRecHitsValidation(edm::ParameterSet const& conf);
+  HcalRecHitsValidation(edm::ParameterSet const& conf);
   ~HcalRecHitsValidation();
   virtual void analyze(edm::Event const& e, edm::EventSetup const& c);
   virtual void beginJob(const edm::EventSetup&) ;
@@ -110,6 +110,13 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   MonitorElement* meRecHitsEnergyNoise;
   // number of ECAL's rechits in cone 0.3 
   MonitorElement* meNumEcalRecHitsCone;
+
+
+  MonitorElement* e_hb;
+  MonitorElement*e_he;
+  MonitorElement*e_ho;
+  MonitorElement*e_hfl;
+  MonitorElement*e_hfs;
 
   edm::ESHandle<CaloGeometry> geometry ;
 
