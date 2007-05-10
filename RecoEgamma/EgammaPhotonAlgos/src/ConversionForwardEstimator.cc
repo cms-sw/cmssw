@@ -15,7 +15,8 @@
   // zero value indicates incompatible ts - hit pair
 std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 							const TransientTrackingRecHit& hit) const {
-  LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
+  LogDebug("ConversionForwardEstimator") << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
+  //  std::cout  << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts ...) " << "\n";
   
   std::pair<bool,double> result;
   
@@ -26,8 +27,8 @@ std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectorySta
 
   // allow an r fudge of 1.5 * times the sigma
   // nodt used float dr = 1.5 * hit.localPositionError().yy();
-//   cout << " err " << hit.globalPositionError().phierr(gp) 
-//        << " "     << hit.globalPositionError().rerr(gp) << endl;
+  //std::cout << " err " << hit.globalPositionError().phierr(gp) 
+  //    << " "     << hit.globalPositionError().rerr(gp) << std::endl;
 
   // not used float zLayer = ts.globalParameters().position().z();
   float rLayer = ts.globalParameters().position().perp();
@@ -39,25 +40,20 @@ std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectorySta
   if (phiDiff > pi) phiDiff -= twopi;
   if (phiDiff < -pi) phiDiff += twopi; 
 
-   LogDebug("ConversionForwardEstimator") << " ForwardEstimator: RecHit at " << gp << "\n";
-   LogDebug("ConversionForwardEstimator") << "                   rMin = " << rMin << ", rMax = " << rMax << ", rHit = " << rhR << "\n";
-   LogDebug("ConversionForwardEstimator") << "                   thePhiRangeMin = " << thePhiRangeMin << ", thePhiRangeMax = " << thePhiRangeMax << ", phiDiff = " << phiDiff << "\n";
+  //std::cout << " ConversionForwardEstimator: RecHit at " << gp << "\n";
+  //std::cout << "                   rMin = " << rMin << ", rMax = " << rMax << ", rHit = " << rhR << "\n";
+  //std::cout << "                   thePhiRangeMin = " << thePhiRangeMin << ", thePhiRangeMax = " << thePhiRangeMax << ", phiDiff = " << phiDiff << "\n";
 
-    /*
-    if(ptype > 1) {
-    cout << "endcap " << gp.perp() <<" " << gp.phi() <<" " << gp.z() <<" " << ptype << " " << phiDiff <<" " << rhR-rLayer << " dr " << dr_ << " " << newdr << endl;
-    }
-  */
   
   if ( phiDiff < thePhiRangeMax && phiDiff > thePhiRangeMin && 
        rhR < rMax && rhR > rMin) {
   
-    /*
-    cout << "      estimator returns 1 with phiDiff " << thePhiRangeMin << " < " << phiDiff << " < "
-	 << thePhiRangeMax << " and rhR " << rMin << " < " << rhR << " < " << rMax << endl;
-    cout << " YES " << phiDiff << " " <<rLayer-rhR << endl;
-    cout << "                  => RECHIT ACCEPTED " << endl;
-    */
+    
+    //    std::cout << "      estimator returns 1 with phiDiff " << thePhiRangeMin << " < " << phiDiff << " < "
+    // << thePhiRangeMax << " and rhR " << rMin << " < " << rhR << " < " << rMax << "\n";
+    //std::cout << " YES " << phiDiff << " " <<rLayer-rhR << "\n";
+    //std::cout << "                  => RECHIT ACCEPTED " << "\n";
+   
     result.first= true;
     result.second=phiDiff;
   } else {
@@ -77,7 +73,7 @@ std::pair<bool,double> ConversionForwardEstimator::estimate( const TrajectorySta
 bool ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, 
 			   const BoundPlane& plane) const {
 
-   LogDebug("ConversionForwardEstimator") << "::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) " << "\n";  
+  //  std::cout << "ConversionForwardEstimator::estimate( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) always TRUE " << "\n";  
   // this method should return one if a detector ring is close enough
   //     to the hit, zero otherwise.
   //     Now time is wasted looking for hits in the rings which are anyhow
@@ -93,17 +89,17 @@ ConversionForwardEstimator::maximalLocalDisplacement( const TrajectoryStateOnSur
                                                         const BoundPlane& plane) const
 {
   
-   LogDebug("ConversionForwardEstimator") << "::maximalLocalDisplacement  " << "\n";
-  
-  
+  /*
   if ( ts.hasError() ) {
     LocalError le = ts.localError().positionError();
-    LogDebug("ConversionForwardEstimator") << "::maximalLocalDisplacent local error " << le.xx() << " " << le.yy() << "\n";
-    //return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
-    return Local2DVector( sqrt(le.xx()), sqrt(le.yy()) );
+    std::cout << "  ConversionForwardEstimator::maximalLocalDisplacent local error " << sqrt(le.xx()) << " " << sqrt(le.yy()) << " nSigma " << nSigmaCut() << " sqrt(le.xx())*nSigmaCut() " << sqrt(le.xx())*nSigmaCut()  << "  sqrt(le.yy())*nSigmaCut() " <<  sqrt(le.yy())*nSigmaCut() << std::endl;
+    return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
+    
   }
-  else return Local2DVector(0,0);
- 
+  else return Local2DVector(99999,99999);
+  */
+
+  return Local2DVector(99999,99999);
 
 }
 

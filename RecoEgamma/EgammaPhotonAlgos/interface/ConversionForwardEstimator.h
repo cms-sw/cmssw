@@ -5,8 +5,8 @@
  * \class ConversionForwardEstimator
  *  Defines the search area in the  forward 
  *
- *   $Date: 2007/02/25 16:37:35 $ 
- *   $Revision: 1.2 $
+ *   $Date: 2007/03/07 16:48:53 $ 
+ *   $Revision: 1.3 $
  *  \author Nancy Marinelli, U. of Notre Dame, US
  */
 
@@ -23,8 +23,8 @@ class BoundPlane;
 class ConversionForwardEstimator : public MeasurementEstimator {
 public:
   ConversionForwardEstimator() {};
-  ConversionForwardEstimator( float phiRangeMin, float phiRangeMax, float dr) :
-                           thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax), dr_(dr) {
+  ConversionForwardEstimator( float phiRangeMin, float phiRangeMax, float dr, double nSigma = 3.  ) :
+                           thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax), dr_(dr),  theNSigma(nSigma) {
     //std::cout << " ConversionForwardEstimator CTOR " << std::endl;
 }
 
@@ -40,12 +40,14 @@ public:
 
 virtual Local2DVector maximalLocalDisplacement( const TrajectoryStateOnSurface& ts, const BoundPlane& plane) const;
 
+ double nSigmaCut() const {return theNSigma;}
+
 private:
 
   float thePhiRangeMin;
   float thePhiRangeMax;
   float dr_;
-
+  double theNSigma;
 };
 
 #endif // ConversionForwardEstimator_H
