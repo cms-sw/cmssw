@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/04/25 21:00:57 $
-// $Revision: 1.35 $
+// $Author: gpetrucc $
+// $Date: 2007/04/29 23:21:44 $
+// $Revision: 1.36 $
 //
 
 #include <vector>
@@ -325,8 +325,8 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
       std::multimap<int, const DetLayer*>::iterator ilm = layer_map.begin();
       int ngoodlayers = 0;
       while (ilm != layer_map.end()) {
-        //if (ngoodlayers >= nFoundMin && ilm->first > 1) break;
-        if (ilm->first > 1) break;
+        if (ngoodlayers >= nFoundMin_ && ilm->first > 1) break;
+        //if (ilm->first > 1) break;
         //map<const DetLayer*, int>::iterator ilr = layer_reference.find(ilm->second);
         //std::cout<<"Layer " << ilr->second << " with " << ilm->first << " hits added " << std::endl;
         ++ngoodlayers;
