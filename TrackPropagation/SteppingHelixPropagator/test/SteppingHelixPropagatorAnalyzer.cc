@@ -4,20 +4,20 @@
 // Class:      SteppingHelixPropagatorAnalyzer
 // 
 /**\class SteppingHelixPropagatorAnalyzer 
-Description: Analyzer of SteppingHelixPropagator performance
+   Description: Analyzer of SteppingHelixPropagator performance
 
-Implementation:
-Use simTracks and simVertices as initial points. For all  muon PSimHits in the event 
-extrapolate/propagate from the previous point (starting from a vertex) 
-to the hit position (detector surface).
-Fill an nTuple (could've been an EventProduct) with expected (given by the propagator) 
-and actual (PSimHits)
-positions of a muon in the detector.
+   Implementation:
+   Use simTracks and simVertices as initial points. For all  muon PSimHits in the event 
+   extrapolate/propagate from the previous point (starting from a vertex) 
+   to the hit position (detector surface).
+   Fill an nTuple (could've been an EventProduct) with expected (given by the propagator) 
+   and actual (PSimHits)
+   positions of a muon in the detector.
 */
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.13 2007/04/30 18:38:15 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.14 2007/04/30 20:37:57 slava77 Exp $
 //
 //
 
@@ -88,7 +88,7 @@ positions of a muon in the detector.
 //
 
 class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
- public:
+public:
   explicit SteppingHelixPropagatorAnalyzer(const edm::ParameterSet&);
   ~SteppingHelixPropagatorAnalyzer();
 
@@ -97,7 +97,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   virtual void endJob();
   void beginJob(edm::EventSetup const&);
 
- protected:
+protected:
   struct GlobalSimHit {
     const PSimHit* hit;
     const Surface* surf;
@@ -114,8 +114,8 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 		  int charge, const AlgebraicSymMatrix66& cov);
 
   FreeTrajectoryState getFromCLHEP(const Hep3Vector& p3, const Hep3Vector& r3, 
-				    int charge, const AlgebraicSymMatrix66& cov,
-				    const MagneticField* field);
+				   int charge, const AlgebraicSymMatrix66& cov,
+				   const MagneticField* field);
   void getFromFTS(const FreeTrajectoryState& fts,
 		  Hep3Vector& p3, Hep3Vector& r3, 
 		  int& charge, AlgebraicSymMatrix66& cov);
@@ -125,8 +125,8 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
 		   const edm::ESHandle<GlobalTrackingGeometry>& geom,
 		   std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const;
 
- private:
-// ----------member data ---------------------------
+private:
+  // ----------member data ---------------------------
   TFile* ntFile_;
   TTree* tr_;
 
@@ -215,6 +215,7 @@ SteppingHelixPropagatorAnalyzer::~SteppingHelixPropagatorAnalyzer()
 void
 SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  static std::string metname = "SteppingHelixPropagatorAnalyzer";
   using namespace edm;
   ESHandle<MagneticField> bField;
   iSetup.get<IdealMagneticFieldRecord>().get(bField);
@@ -227,25 +228,25 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
   ESHandle<GlobalTrackingGeometry> geomESH;
   iSetup.get<GlobalTrackingGeometryRecord>().get(geomESH);
   if (debug_){
-    std::cout<<"Got GlobalTrackingGeometry "<<std::endl;
+    LogTrace(metname)<<"Got GlobalTrackingGeometry "<<std::endl;
   }
 
-//   ESHandle<CSCGeometry> cscGeomESH;
-//   iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
-//   if (debug_){
-//     std::cout<<"Got CSCGeometry "<<std::endl;
-//   }
+  //   ESHandle<CSCGeometry> cscGeomESH;
+  //   iSetup.get<MuonGeometryRecord>().get(cscGeomESH);
+  //   if (debug_){
+  //     std::cout<<"Got CSCGeometry "<<std::endl;
+  //   }
 
-//   ESHandle<RPCGeometry> rpcGeomESH;
-//   iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
-//   if (debug_){
-//     std::cout<<"Got RPCGeometry "<<std::endl;
-//   }
+  //   ESHandle<RPCGeometry> rpcGeomESH;
+  //   iSetup.get<MuonGeometryRecord>().get(rpcGeomESH);
+  //   if (debug_){
+  //     std::cout<<"Got RPCGeometry "<<std::endl;
+  //   }
 
   run_ = (int)iEvent.id().run();
   event_ = (int)iEvent.id().event();
   if (debug_){
-    std::cout<<"Begin for run:event =="<<run_<<":"<<event_<<std::endl;
+    LogTrace(metname)<<"Begin for run:event =="<<run_<<":"<<event_<<std::endl;
   }
 
 
@@ -259,7 +260,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     return;
   }
   if (debug_){
-    std::cout<<"Got simTracks of size "<< simTracks->size()<<std::endl;
+    LogTrace(metname)<<"Got simTracks of size "<< simTracks->size()<<std::endl;
   }
 
   Handle<SimVertexContainer> simVertices;
@@ -269,7 +270,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     return;
   }
   if (debug_){
-    std::cout<<"Got simVertices of size "<< simVertices->size()<<std::endl;
+    LogTrace(metname)<<"Got simVertices of size "<< simVertices->size()<<std::endl;
   }
 
 
@@ -293,7 +294,7 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     int trkPDG = tracksCI->type();
     if (abs(trkPDG) != 13 ) {
       if (debug_){
-	std::cout<<"Skip "<<trkPDG<<std::endl;
+	LogTrace(metname)<<"Skip "<<trkPDG<<std::endl;
       }
       continue;
     }
@@ -362,20 +363,20 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	const PSimHit* iHit = simHitsCI->second->hit;
 
 	if (debug_){
-	  std::cout<< igHit->id.rawId()
-		   <<" r3L:"<<iHit->localPosition()
-		   <<" r3G:"<<igHit->r3
-		   <<" p3L:"<<iHit->momentumAtEntry()
-		   <<" p3G:"<<igHit->p3
-		   <<" pId:"<<iHit->particleType()
-		   <<" tId:"<<iHit->trackId()
-		   <<std::endl;
+	  LogTrace(metname)<< igHit->id.rawId()
+			   <<" r3L:"<<iHit->localPosition()
+			   <<" r3G:"<<igHit->r3
+			   <<" p3L:"<<iHit->momentumAtEntry()
+			   <<" p3G:"<<igHit->p3
+			   <<" pId:"<<iHit->particleType()
+			   <<" tId:"<<iHit->trackId()
+			   <<std::endl;
 	}
 
 	if (debug_){
-	  std::cout<<"Will propagate to surface: "
-		   <<igHit->surf->position()
-		   <<" "<<igHit->surf->rotation()<<std::endl;
+	  LogTrace(metname)<<"Will propagate to surface: "
+			   <<igHit->surf->position()
+			   <<" "<<igHit->surf->rotation()<<std::endl;
 	}
 	pStatus = 0;
 	if (radX0CorrectionMode_ ){
@@ -409,14 +410,14 @@ SteppingHelixPropagatorAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 	
 
 	if (debug_){
-	  std::cout<<"Got to "
-		   <<" r3Prp:"<<r3F
-		   <<" r3Hit:"<<igHit->r3
-		   <<" p3Prp:"<<p3F
-		   <<" p3Hit:"<<igHit->p3
-		   <<" pPrp:"<<p3F.mag()
-		   <<" pHit:"<<igHit->p3.mag()
-		   <<std::endl;
+	  LogTrace(metname)<<"Got to "
+			   <<" r3Prp:"<<r3F
+			   <<" r3Hit:"<<igHit->r3
+			   <<" p3Prp:"<<p3F
+			   <<" p3Hit:"<<igHit->p3
+			   <<" pPrp:"<<p3F.mag()
+			   <<" pHit:"<<igHit->p3.mag()
+			   <<std::endl;
 	}
 	loadNtVars(nPoints_, 0, pStatus, igHit->id.rawId(), 
 		   p3F, r3F, igHit->p3, igHit->r3, charge, covF); nPoints_++;
@@ -440,23 +441,23 @@ void SteppingHelixPropagatorAnalyzer::endJob() {
 }
 
 void SteppingHelixPropagatorAnalyzer::loadNtVars(int ind, int eType, int pStatus, int id,
-			    const Hep3Vector& p3, const Hep3Vector& r3, 
-			    const Hep3Vector& p3R, const Hep3Vector& r3R, 
-			    int charge, const AlgebraicSymMatrix66& cov){
-      p3_[ind][eType*3+0] = p3.x();  p3_[ind][eType*3+1] = p3.y();  p3_[ind][eType*3+2] = p3.z();
-      r3_[ind][eType*3+0] = r3.x();  r3_[ind][eType*3+1] = r3.y();  r3_[ind][eType*3+2] = r3.z();
-      id_[ind] = id;
-      p3R_[ind][0] = p3R.x();  p3R_[ind][1] = p3R.y();  p3R_[ind][2] = p3R.z();
-      r3R_[ind][0] = r3R.x();  r3R_[ind][1] = r3R.y();  r3R_[ind][2] = r3R.z();
-      int flatInd = 0;
-      for (int i =1; i <= cov.kRows; i++) 
-	for (int j=1; j<=i;j++){
-	  covFlat_[ind][flatInd] = cov(i-1,j-1);
-	  flatInd++;
-	}
-      q_[ind] = charge;
-      eType_[ind] = eType;
-      pStatus_[ind][eType] = pStatus;
+						 const Hep3Vector& p3, const Hep3Vector& r3, 
+						 const Hep3Vector& p3R, const Hep3Vector& r3R, 
+						 int charge, const AlgebraicSymMatrix66& cov){
+  p3_[ind][eType*3+0] = p3.x();  p3_[ind][eType*3+1] = p3.y();  p3_[ind][eType*3+2] = p3.z();
+  r3_[ind][eType*3+0] = r3.x();  r3_[ind][eType*3+1] = r3.y();  r3_[ind][eType*3+2] = r3.z();
+  id_[ind] = id;
+  p3R_[ind][0] = p3R.x();  p3R_[ind][1] = p3R.y();  p3R_[ind][2] = p3R.z();
+  r3R_[ind][0] = r3R.x();  r3R_[ind][1] = r3R.y();  r3R_[ind][2] = r3R.z();
+  int flatInd = 0;
+  for (int i =1; i <= cov.kRows; i++) 
+    for (int j=1; j<=i;j++){
+      covFlat_[ind][flatInd] = cov(i-1,j-1);
+      flatInd++;
+    }
+  q_[ind] = charge;
+  eType_[ind] = eType;
+  pStatus_[ind][eType] = pStatus;
 
 }
 
@@ -493,6 +494,7 @@ void SteppingHelixPropagatorAnalyzer
 	      const std::string instanceName, 
 	      const edm::ESHandle<GlobalTrackingGeometry>& geom,
 	      std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
+  static std::string metname = "SteppingHelixPropagatorAnalyzer";
   edm::Handle<edm::PSimHitContainer> handle;
   iEvent.getByLabel(g4SimName_, instanceName, handle);
   if (! handle.isValid() ){
@@ -500,7 +502,7 @@ void SteppingHelixPropagatorAnalyzer
     return;
   }
   if (debug_){
-    std::cout<<"Got "<<instanceName<<" of size "<< handle->size()<<std::endl;
+    LogTrace(metname)<<"Got "<<instanceName<<" of size "<< handle->size()<<std::endl;
   }  
 
   edm::PSimHitContainer::const_iterator pHits_CI = handle->begin();
