@@ -1,7 +1,7 @@
 
 /*
-*  $Date: 2007/03/22 02:28:46 $
-*  $Revision: 1.4 $
+*  $Date: 2007/04/27 14:25:35 $
+*  $Revision: 1.5 $
 */
 
 #include "IOMC/EventVertexGenerators/interface/BaseEvtVtxGenerator.h"
@@ -74,7 +74,7 @@ void BaseEvtVtxGenerator::produce( Event& evt, const EventSetup& )
             
    // generate new vertex & apply the shift 
    //
-   std::cout << " smearing vertex " << std::endl;
+   //std::cout << " smearing vertex " << std::endl;
    HepMCEvt->applyVtxGen( newVertex() ) ;
 
    //HepMCEvt->LorentzBoost( 0., 142.e-6 );
