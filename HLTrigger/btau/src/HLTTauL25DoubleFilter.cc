@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/01/31 10:48:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/10 10:58:56 $
+ *  $Revision: 1.2 $
  *
  *  \author S. Gennai
  *
@@ -85,10 +85,10 @@ HLTTauL25DoubleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       nTag++;
     
     // Store (ref to) jets which passed tagging cuts
-    ref=CandidateBaseRef( (jet->jtaRef())->key );
+    ref=CandidateBaseRef( jet->jet());
       filterproduct->putParticle(ref);
       if (nTag==1) { // also store ProductID of Product containing AssociationMap
-	ProductID pid( (jet->jtaRef()).id() );
+	ProductID pid( jet->jet().id() );
 	filterproduct->putPID(pid);
       }
 	
