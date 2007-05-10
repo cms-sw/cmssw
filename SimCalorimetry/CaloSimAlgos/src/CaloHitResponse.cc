@@ -8,8 +8,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include "CLHEP/Units/PhysicalConstants.h"
 #include<iostream>
 
@@ -102,13 +106,24 @@ CaloSamples CaloHitResponse::makeAnalogSignal(const PCaloHit & inputHit) const {
 
 
 double CaloHitResponse::analogSignalAmplitude(const PCaloHit & hit, const CaloSimParameters & parameters) const {
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "CaloHitResponse requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+
   // OK, the "energy" in the hit could be a real energy, deposited energy,
   // or pe count.  This factor converts to photoelectrons
   DetId id(hit.id());
   double npe = hit.energy() * parameters.simHitToPhotoelectrons(id);
   // do we need to doPoisson statistics for the photoelectrons?
   if(parameters.doPhotostatistics()) {
-    npe = RandPoisson::shoot(static_cast<int>(npe));
+
+    CLHEP::RandPoisson poissonDistribution(rng->getEngine(), static_cast<int>(npe));
+    npe = poissonDistribution.fire();
   }
   return npe;
 }
