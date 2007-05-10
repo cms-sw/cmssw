@@ -11,11 +11,11 @@ ROOT::Cintex::Cintex::Enable();
 // create a PFRootEventManager
 PFRootEventManagerColin em("pfRootEvent.opt");
 
-if(em.tree_) {
-  int n =  em.tree_->GetEntries();
-  for(unsigned i=0; i<n; i++) {
+if(em.tree() ) {
+  int n =  em.tree()->GetEntries();
+  for(unsigned i=0; i<2; i++) {
     em.processEntry(i);
-    // em.print();
+    em.print();
   }
   em.write();
 }

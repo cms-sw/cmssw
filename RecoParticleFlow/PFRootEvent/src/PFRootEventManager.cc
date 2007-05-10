@@ -2341,6 +2341,7 @@ void  PFRootEventManager::print() const {
   }
   if(printPFCandidates_) {
     cout<<"Particle Flow Candidates =================================="<<endl;
+    cout<<pfAlgo_<<endl;
     for(unsigned i=0; i<pfCandidates_->size(); i++) {
       cout<<(*pfCandidates_)[i]<<endl;
     }    
@@ -2349,9 +2350,10 @@ void  PFRootEventManager::print() const {
   if( printTrueParticles_ ) {
     cout<<"True Particles  ==========================================="<<endl;
     for(unsigned i=0; i<trueParticles_.size(); i++) {
-      if( trackInsideGCut( &(trueParticles_[i]) ) )
-	cout<<"\t"<<trueParticles_[i]<<endl;
-    }    
+       if( trackInsideGCut( &(trueParticles_[i]) ) )
+	 cout<<"\t"<<trueParticles_[i]<<endl;
+     }    
+ 
   }
   
 
