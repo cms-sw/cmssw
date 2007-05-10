@@ -302,8 +302,8 @@ inline std::string to_string( char value[])
     startTm2.setToCurrentGMTime();
     cout << "record inserted at:    " << startTm2.str() << endl;
 
-
-  };
+  }
+  
  
 
 
@@ -332,7 +332,7 @@ inline std::string to_string( char value[])
     } catch (...) {
       cout << "testTable FAILED:  unknown exception" << endl;
     }
-  };
+  }
 
 
 
