@@ -47,7 +47,10 @@ void MaterialBudgetCategorizer::buildMaps()
     air=0;
     cout << " material " << (*matTable)[ii]->GetName() << " prepared"
 	 << endl;
-    if((*matTable)[ii]->GetName()=="Air") {
+    if((*matTable)[ii]->GetName()=="Air"
+       ||
+       (*matTable)[ii]->GetName()=="Vacuum"
+       ) {
       air=1.000; 
       oth=0.000;
     }
