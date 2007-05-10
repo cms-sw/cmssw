@@ -11,7 +11,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
-#include "SimCalorimetry/CaloSimAlgos/interface/CaloCorrelatedNoisifier.h"
+#include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.h"
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 
@@ -41,7 +41,7 @@ class EcalCoder
   enum {NGAINS = 3};
 
   /// ctor
-  EcalCoder(bool addNoise, CaloCorrelatedNoisifier * theCorrNoise) ;
+  EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise) ;
   /// dtor
   virtual ~EcalCoder() {}
 
@@ -97,7 +97,7 @@ class EcalCoder
   /// whether add noise to the pedestals and the gains
   bool addNoise_;
   /// Correlated noisifier
-  CaloCorrelatedNoisifier * theCorrNoise_;
+  CorrelatedNoisifier * theCorrNoise_;
 
 };
 

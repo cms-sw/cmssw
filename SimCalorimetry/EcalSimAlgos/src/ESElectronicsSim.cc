@@ -2,7 +2,10 @@
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
@@ -72,6 +75,14 @@ void ESElectronicsSim::digitalToAnalog(const ESDataFrame& df, CaloSamples& cs) c
 std::vector<ESSample>
 ESElectronicsSim::encode(const CaloSamples& timeframe) const
 {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "ESElectroncSim requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+
 
   std::vector<ESSample> results;
   results.reserve(timeframe.size());
@@ -84,7 +95,10 @@ ESElectronicsSim::encode(const CaloSamples& timeframe) const
     double noi = 0;
     double signal = 0;    
 
-    if (addNoise_) noi = RandGaussQ::shoot(0., sigma_);
+    if (addNoise_) {
+      CLHEP::RandGaussQ gaussQDistribution(rng->getEngine(), 0., sigma_);
+      noi = gaussQDistribution.fire();
+    }
 
     if (gain_ == 0) { 
       signal = timeframe[i]*1000000. + noi + baseline_;     

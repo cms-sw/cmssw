@@ -8,20 +8,20 @@
 #include <iostream>
 
 
-EcalCoder::EcalCoder(bool addNoise, CaloCorrelatedNoisifier * theCorrNoise)
+EcalCoder::EcalCoder(bool addNoise, CorrelatedNoisifier * theCorrNoise)
 :  thePedestals(0),
    addNoise_(addNoise),
    theCorrNoise_(theCorrNoise)
 
 {
 
-  // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)
+  // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
   
-  m_maxEneEB = 1719.9 ; 
+  m_maxEneEB = 1668.3 ; 
   
-  // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)
+  // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
   
-  m_maxEneEE = 2948.4 ; 
+  m_maxEneEE = 2859.9 ; 
   
 }  
 
@@ -161,8 +161,12 @@ EcalCoder::encode(const CaloSamples& caloSamples) const
            }
        }
 
-     LogDebug("EcalCoder") << " Writing out frame " << i << " ADC = " << adc << " gainId = " << gainId; 
-     results.push_back(EcalMGPASample(adc, gainId));
+
+     // change the gain for saturation
+     int storeGainId = gainId;
+     if ( gainId == 3 && adc == MAXADC ) storeGainId = 0;
+     LogDebug("EcalCoder") << " Writing out frame " << i << " ADC = " << adc << " gainId = " << gainId << " storeGainId = " << storeGainId ; 
+     results.push_back(EcalMGPASample(adc, storeGainId));
   }
   return results;
 }
