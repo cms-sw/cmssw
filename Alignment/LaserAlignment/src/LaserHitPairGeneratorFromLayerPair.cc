@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/05/10 07:12:15 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/05/10 09:41:41 $
+ *  $Revision: 1.10 $
  *  \author Maarten Thomas
  */
 
@@ -47,10 +47,12 @@ void LaserHitPairGeneratorFromLayerPair::hitPairs(const TrackingRegion & region,
 	std::vector<const TrackingRecHit*>::const_iterator ohh;
 
 	for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-	  const TkHitPairsCachedHit * oh=new TkHitPairsCachedHit(*ohh,theOuterLayer,iSetup);
+    GlobalPoint oh = tracker->idToDet(*ohh->geographicalId())->surface().toGlobal(*ohh->localPosition());
+    GlobalPoint oh = tracker->idToDet(*ohh->geographicalId())->surface().toGlobal(*ohh->localPosition());
 	  std::vector<const TrackingRecHit*>::const_iterator ihh;
 	  for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-	    const TkHitPairsCachedHit * ih=new TkHitPairsCachedHit(*ihh,theInnerLayer,iSetup);
+      GlobalPoint ih = tracker->idToDet(*ihh->geographicalId())->surface().toGlobal(*ihh->localPosition());
+      GlobalPoint ih = tracker->idToDet(*ihh->geographicalId())->surface().toGlobal(*ihh->localPosition());
 
 			double inny = ih->r() * sin(ih->phi());
 			double outy = oh->r() * sin(oh->phi());
