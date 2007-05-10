@@ -7,7 +7,7 @@
 #include "Rtypes.h"
 #include "Reflex/Type.h"
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm {
   class BranchKey;
@@ -16,7 +16,9 @@ namespace edm {
   class RootTree;
   namespace input {
     struct EventBranchInfo {
-      BranchDescription branchDescription_;
+      EventBranchInfo(ConstBranchDescription const& prod) :
+        branchDescription_(prod), type(), provenanceBranch_(0), productBranch_(0) {}
+      ConstBranchDescription branchDescription_;
       ROOT::Reflex::Type type;
       TBranch * provenanceBranch_;
       TBranch * productBranch_;

@@ -4,6 +4,7 @@
 namespace edm {
   class BranchDescription;
   class BranchEntryDescription;
+  class ConstBranchDescription;
   class BranchKey;
   class EventAuxiliary;
   class EventID;

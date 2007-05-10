@@ -5,7 +5,7 @@
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.10 2007/05/08 16:24:15 wmtan Exp $
+$Id: RootTree.h,v 1.11 2007/05/10 12:27:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -17,10 +17,11 @@ $Id: RootTree.h,v 1.10 2007/05/08 16:24:15 wmtan Exp $
 #include "Inputfwd.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TBranch.h"
 #include "TFile.h"

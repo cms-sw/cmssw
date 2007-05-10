@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.22 2007/04/09 19:11:58 wmtan Exp $
+$Id: Group.cc,v 1.23 2007/05/10 12:27:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/interface/Group.h"
@@ -18,7 +18,7 @@ namespace edm {
     onDemand_(onDemand) {
   }
 
-  Group::Group(BranchDescription const& bd) :
+  Group::Group(ConstBranchDescription const& bd) :
     product_(),
     provenance_(new Provenance(bd)),
     accessible_(true),

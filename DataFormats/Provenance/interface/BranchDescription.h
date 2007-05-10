@@ -6,7 +6,7 @@
 BranchDescription: The full description of a Branch.
 This description also applies to every product instance on the branch.  
 
-$Id: BranchDescription.h,v 1.24 2006/12/05 23:56:17 paterno Exp $
+$Id: BranchDescription.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 #include <string>
@@ -76,6 +76,7 @@ namespace edm {
     bool const& provenancePresent() const {return provenancePresent_;}
     bool const& transient() const {return transient_;}
 
+    ModuleDescriptionID const& moduleDescriptionID() const {return moduleDescriptionID_;}
     std::set<ParameterSetID> const& psetIDs() const {return psetIDs_;}
     ParameterSetID const& psetID() const;
     bool isPsetIDUnique() const {return psetIDs().size() == 1;}

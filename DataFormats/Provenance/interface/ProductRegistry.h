@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.11 2007/01/23 00:25:52 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
    \date 19 Jul 2005
 */
 
@@ -17,6 +17,7 @@
 
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 
 namespace edm {
 
@@ -38,6 +39,8 @@ namespace edm {
 
     typedef std::map<BranchKey, BranchDescription> ProductList;
 
+    typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
+
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 
     void copyProduct(BranchDescription const& productdesc);
@@ -53,6 +56,11 @@ namespace edm {
     ProductList const& productList() const {
       throwIfNotFrozen();
       return productList_;
+    }
+
+    ConstProductList const& constProductList() const {
+      throwIfNotFrozen();
+      return constProductList_;
     }
 
     unsigned int nextID() const {return nextID_;}
@@ -77,6 +85,7 @@ namespace edm {
     void print(std::ostream& os) const;
 
   private:
+    void initializeConstProductList() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
@@ -84,6 +93,7 @@ namespace edm {
     ProductList productList_;
     unsigned int nextID_;
     mutable bool frozen_;
+    mutable ConstProductList constProductList_;
   };
 
   inline

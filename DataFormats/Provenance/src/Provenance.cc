@@ -3,27 +3,47 @@
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.2 2007/04/01 15:40:08 wmtan Exp $
+$Id: Provenance.cc,v 1.3 2007/05/10 12:27:02 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 namespace edm {
   Provenance::Provenance(BranchDescription const& p) :
+    product_(ConstBranchDescription(p)),
+    event_()
+  { }
+
+  Provenance::Provenance(ConstBranchDescription const& p) :
     product_(p),
     event_()
   { }
 
   Provenance::Provenance(BranchDescription const& p, BranchEntryDescription::CreatorStatus const& status) :
+    product_(ConstBranchDescription(p)),
+    event_(new BranchEntryDescription(p.productID(), status))
+  { }
+
+  Provenance::Provenance(ConstBranchDescription const& p, BranchEntryDescription::CreatorStatus const& status) :
     product_(p),
     event_(new BranchEntryDescription(p.productID(), status))
   { }
 
   Provenance::Provenance(BranchDescription const& p, boost::shared_ptr<BranchEntryDescription> e) :
+    product_(ConstBranchDescription(p)),
+    event_(e)
+  { }
+
+  Provenance::Provenance(ConstBranchDescription const& p, boost::shared_ptr<BranchEntryDescription> e) :
     product_(p),
     event_(e)
   { }
 
  Provenance::Provenance(BranchDescription const& p, BranchEntryDescription const& e) :
+    product_(ConstBranchDescription(p)),
+    event_(new BranchEntryDescription(e))
+  { }
+
+ Provenance::Provenance(ConstBranchDescription const& p, BranchEntryDescription const& e) :
     product_(p),
     event_(new BranchEntryDescription(e))
   { }

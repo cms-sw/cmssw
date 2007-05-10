@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.15 2007/04/09 22:18:56 wdd Exp $
+$Id: DataViewImpl.cc,v 1.16 2007/05/10 12:27:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -29,7 +29,7 @@ namespace edm {
   {  }
 
   struct deleter {
-    void operator()(pair<EDProduct*, BranchDescription const*> const p) const { delete p.first; }
+    void operator()(pair<EDProduct*, ConstBranchDescription const*> const p) const { delete p.first; }
   };
 
   DataViewImpl::~DataViewImpl() {
@@ -54,13 +54,13 @@ namespace edm {
 	// note: ownership has been passed - so clear the pointer!
 	pit->first = 0;
 
-	boost::shared_ptr<BranchEntryDescription> event(new BranchEntryDescription(pit->second->productID_, BranchEntryDescription::Success));
+	boost::shared_ptr<BranchEntryDescription> event(new BranchEntryDescription(pit->second->productID(), BranchEntryDescription::Success));
 
 	// set parts of provenance
 	event->cid_ = 0; // TODO: what is this supposed to be?
 	event->isPresent_ = true;
 	event->parents_ = gotProductIDs_;
-	event->moduleDescriptionID_ = pit->second->moduleDescriptionID_;
+	event->moduleDescriptionID_ = pit->second->moduleDescriptionID();
 	auto_ptr<Provenance> pv(new Provenance(*pit->second, event));
 	dbk_.put(pr,pv);
 	++pit;
@@ -150,13 +150,13 @@ namespace edm {
     return dbk_.processHistory();
   }
 
-  BranchDescription const&
+  ConstBranchDescription const&
   DataViewImpl::getBranchDescription(TypeID const& type,
 				     string const& productInstanceName) const {
     string friendlyClassName = type.friendlyClassName();
         BranchKey bk(friendlyClassName, md_.moduleLabel(), productInstanceName, md_.processName());
-    ProductRegistry::ProductList const& pl = dbk_.productRegistry().productList();
-    ProductRegistry::ProductList::const_iterator it = pl.find(bk);
+    ProductRegistry::ConstProductList const& pl = dbk_.productRegistry().constProductList();
+    ProductRegistry::ConstProductList::const_iterator it = pl.find(bk);
     if (it == pl.end()) {
       throw edm::Exception(edm::errors::InsertFailure)
 	<< "Illegal attempt to 'put' an unregistered product.\n"

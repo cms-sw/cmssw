@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.15 2007/02/21 20:04:21 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.15 2007/02/21 20:04:21 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -49,6 +49,7 @@ namespace edm {
       }
     }
     frozen_ = true;
+    initializeConstProductList();
   }
   
   void
@@ -64,6 +65,7 @@ namespace edm {
     }
 */
     frozen_ = true;
+    initializeConstProductList();
   }
   
   void
@@ -123,19 +125,21 @@ namespace edm {
 	++j;
       }
     }
+    initializeConstProductList();
     return differences.str();
   }
 
-  void ProductRegistry::print(std::ostream& os) const
-  {
-    for (ProductList::const_iterator
-	   i = productList_.begin(),
-	   e = productList_.end();
-	 i != e;
-	 ++i)
-      {
+  void ProductRegistry::initializeConstProductList() const {
+    constProductList_.clear();
+    for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
+      constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
+    }
+  }
+
+  void ProductRegistry::print(std::ostream& os) const {
+    for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
 	os << i->second << "\n-----\n";
-      }
+    }
   }
 
 }

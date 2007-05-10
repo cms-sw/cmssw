@@ -53,18 +53,16 @@ namespace edm {
       TBranch * branch = tree_->GetBranch(oldBranchName.c_str());
       prod.present_ = (branch != 0);
       if (prod.provenancePresent()) {
-        input::EventBranchInfo info;
-	branches_->insert(std::make_pair(key, info));
-        input::EventBranchInfo & branchInfo = (*branches_)[key];
-        branchInfo.branchDescription_ = prod;
-        branchInfo.provenanceBranch_ = provBranch;
-        branchInfo.productBranch_ = 0;
+        input::EventBranchInfo info = input::EventBranchInfo(ConstBranchDescription(prod));
+        info.provenanceBranch_ = provBranch;
+        info.productBranch_ = 0;
 	if (prod.present_) {
-          branchInfo.type = ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
-          branchInfo.productBranch_ = branch;
+          info.type = ROOT::Reflex::Type::ByName(wrappedClassName(prod.className()));
+          info.productBranch_ = branch;
 	  //we want the new branch name for the JobReport
 	  branchNames_.push_back(prod.branchName());
         }
+	branches_->insert(std::make_pair(key, info));
       }
   }
 

@@ -6,12 +6,13 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.2 2007/04/01 15:39:44 wmtan Exp $
+$Id: Provenance.h,v 1.3 2007/05/10 12:27:02 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "boost/shared_ptr.hpp"
 
 /*
@@ -29,15 +30,19 @@ namespace edm {
   class Provenance {
   public:
     explicit Provenance(BranchDescription const& p);
+    explicit Provenance(ConstBranchDescription const& p);
     Provenance(BranchDescription const& p, BranchEntryDescription::CreatorStatus const& status);
+    Provenance(ConstBranchDescription const& p, BranchEntryDescription::CreatorStatus const& status);
     Provenance(BranchDescription const& p, boost::shared_ptr<BranchEntryDescription> e);
+    Provenance(ConstBranchDescription const& p, boost::shared_ptr<BranchEntryDescription> e);
     Provenance(BranchDescription const& p, BranchEntryDescription const& e);
+    Provenance(ConstBranchDescription const& p, BranchEntryDescription const& e);
 
     ~Provenance() {}
 
     void setEvent(boost::shared_ptr<BranchEntryDescription> e);
 
-    BranchDescription const& product() const {return product_;}
+    BranchDescription const& product() const {return product_.me();}
     BranchEntryDescription const& event() const {return *event_;}
     boost::shared_ptr<BranchEntryDescription> branchEntryDescription()  const {return event_;}
     std::string const& branchName() const {return product().branchName();}
@@ -64,7 +69,7 @@ namespace edm {
     void write(std::ostream& os) const;
 
   private:
-    BranchDescription const product_;
+    ConstBranchDescription const product_;
     boost::shared_ptr<BranchEntryDescription> event_;
   };
   

@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.22 2007/05/01 22:08:33 paterno Exp $
+$Id: DataViewImpl.h,v 1.23 2007/05/08 16:54:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -207,14 +207,14 @@ namespace edm {
 
     typedef std::vector<ProductID>       ProductIDVec;
     //typedef std::vector<const Group*> GroupPtrVec;
-    typedef std::vector<std::pair<EDProduct*, BranchDescription const *> >  ProductPtrVec;
+    typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
     //------------------------------------------------------------
     // Private functions.
     //
 
-    BranchDescription const&
+    ConstBranchDescription const&
     getBranchDescription(TypeID const& type, std::string const& productInstanceName) const;
 
     // commit_ is called to complete the transaction represented by
@@ -434,7 +434,7 @@ namespace edm {
       DoNotPostInsert<PROD> >::type maybe_inserter;
     maybe_inserter(product.get());
 
-    BranchDescription const& desc =
+    ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*product), productInstanceName);
 
     Wrapper<PROD> *wp(new Wrapper<PROD>(product));
@@ -451,7 +451,7 @@ namespace edm {
   RefProd<PROD>
   DataViewImpl::getRefBeforePut(std::string const& productInstanceName) {
     PROD* p = 0;
-    BranchDescription const& desc =
+    ConstBranchDescription const& desc =
       getBranchDescription(TypeID(*p), productInstanceName);
 
     //should keep track of what Ref's have been requested and make sure they are 'put'
