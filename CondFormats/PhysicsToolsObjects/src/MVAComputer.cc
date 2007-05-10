@@ -18,12 +18,15 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: MVAComputer.cc,v 1.1 2007/05/07 18:28:58 saout Exp $
 //
+#include <functional>
+#include <algorithm>
 #include <typeinfo>
 #include <iostream>
 #include <cstring>
 #include <cstddef>
+#include <string>
 #include <vector>
 #include <map>
 
@@ -173,6 +176,40 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 		<< "Calibration class " << type.Name()
 		<< " not registered with Calibration::MVAComputer."
 		<< std::endl;
+}
+
+MVAComputer &MVAComputerContainer::add(const std::string &label)
+{
+	entries.push_back(std::make_pair(label, MVAComputer()));
+	return entries.back().second;
+}
+
+namespace {
+	struct Comparator :
+		public std::unary_function<const std::string&, bool> {
+
+		inline Comparator(const std::string &label) : label(label) {}
+
+		inline bool
+		operator () (const MVAComputerContainer::Entry &entry) const
+		{ return entry.first == label; }
+
+		const std::string &label;
+	};
+}
+
+const MVAComputer &MVAComputerContainer::find(const std::string &label) const
+{
+	std::vector<Entry>::const_iterator pos =
+				std::find_if(entries.begin(), entries.end(),
+				             Comparator(label));
+
+	if (pos == entries.end())
+		throw cms::Exception("MVAComputerCalibration")
+			<< "Calibration record " << label
+			<< " not found in MVAComputerContainer." << std::endl;
+
+	return pos->second;
 }
 
 } // namespace Calibration

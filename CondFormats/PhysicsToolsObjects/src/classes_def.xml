@@ -39,5 +39,8 @@
 	<class name="std::pair&lt;std::vector&lt;PhysicsTools::Calibration::ProcMLP::Neuron&gt;, bool&gt;"/>
 
 	<class name="PhysicsTools::Calibration::MVAComputer"/>
+
+	<class name="std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt;"/>
+	<class name="std::vector&lt;std::pair&lt;std::string, PhysicsTools::Calibration::MVAComputer&gt; &gt;"/>
 	<class name="PhysicsTools::Calibration::MVAComputerContainer"/>
 </lcgdict>

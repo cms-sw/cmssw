@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.1 2007/05/07 18:28:57 saout Exp $
+// $Id: MVAComputer.h,v 1.2 2007/05/09 23:37:26 saout Exp $
 //
 
 #include <string>
@@ -150,7 +150,16 @@ class MVAComputer {
 
 // this is a temporary hack used in RecoBTau until ESSources can be
 // retrieved via label from the same record
-typedef std::map<std::string, MVAComputer> MVAComputerContainer;
+class MVAComputerContainer {
+    public:
+	typedef std::pair<std::string, MVAComputer> Entry;
+
+	MVAComputer &add(const std::string &label);
+	const MVAComputer &find(const std::string &label) const;
+
+    private:
+	std::vector<Entry>	entries;
+};
 
 } // namespace Calibration
 } // namespace PhysicsTools
