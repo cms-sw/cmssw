@@ -7,6 +7,7 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfoFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace reco {
  
@@ -21,10 +22,11 @@ class TrackIPTagInfo : public JTATagInfo
    std::vector<Measurement1D> jetDistance,
    std::vector<float> prob2d,
    std::vector<float> prob3d,
-   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef) : JTATagInfo(jtaRef),
+   edm::RefVector<TrackCollection> selectedTracks,const JetTracksAssociationRef & jtaRef,
+   const edm::Ref<VertexCollection> & pv) : JTATagInfo(jtaRef),
      m_ip2d(ip2d),  m_ip3d(ip3d),  m_decayLen(decayLen),
      m_jetDistance(jetDistance),  m_prob2d(prob2d),
-     m_prob3d(prob3d), m_selectedTracks(selectedTracks) {}
+     m_prob3d(prob3d), m_selectedTracks(selectedTracks), m_pv(pv) {}
 
   TrackIPTagInfo() {}
   
@@ -46,8 +48,8 @@ class TrackIPTagInfo : public JTATagInfo
    ip = 1   means transverse IP 
    */
   const std::vector<Measurement1D> & impactParameters(int ip) const {return (ip==0)?m_ip3d:m_ip2d; }
-  const std::vector<Measurement1D> & decayLen() const {return m_decayLen; }
-  const std::vector<Measurement1D> & jetDistance() const {return m_jetDistance; }
+  const std::vector<Measurement1D> & decayLengths() const {return m_decayLen; }
+  const std::vector<Measurement1D> & jetDistances() const {return m_jetDistance; }
 
   const edm::RefVector<TrackCollection> & selectedTracks() const { return m_selectedTracks; }
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
@@ -63,7 +65,7 @@ class TrackIPTagInfo : public JTATagInfo
    std::vector<float> m_prob2d;   
    std::vector<float> m_prob3d;   
    edm::RefVector<TrackCollection> m_selectedTracks;
-//   edm::Ref<VertexCollection> m_pv;
+   edm::Ref<VertexCollection> m_pv;
 
 };
 
