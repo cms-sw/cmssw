@@ -3,6 +3,7 @@
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JTATagInfoFwd.h"
 
 namespace reco {
  

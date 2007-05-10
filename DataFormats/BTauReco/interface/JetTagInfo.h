@@ -2,6 +2,7 @@
 #define DataFormats_BTauReco_JetTagInfo_h
 
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
+#include "DataFormats/BTauReco/interface/JetTagInfoFwd.h"
 
 namespace reco {
  
