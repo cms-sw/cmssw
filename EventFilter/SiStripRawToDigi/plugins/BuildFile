@@ -1,27 +1,22 @@
-
-<environment>
-
-<use name=CalibFormats/SiStripObjects>
-<use name=CalibTracker/Records>
-<use name=CommonTools/SiStripClusterization>
-<use name=CondFormats/SiStripObjects>
-<use name=CondFormats/DataRecord>
-<use name=DataFormats/Common>
-<use name=DataFormats/FEDRawData>
-<use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripCluster>
-<use name=DataFormats/SiStripDigi>
-<use name=EventFilter/SiStripRawToDigi>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
-<use name=TkOnlineSw>
-<use name=boost>
-<use name=xdaq>
-<lib name=CalibTrackerSiStripConnectivityPlugins>
 <library file="*.cc" name=EventFilterSiStripRawToDigiPlugins>
+  <use name=CalibFormats/SiStripObjects>
+  <use name=CalibTracker/Records>
+  <use name=CalibTracker/SiStripConnectivity>
+  <use name=CommonTools/SiStripClusterization>
+  <use name=CondFormats/SiStripObjects>
+  <use name=CondFormats/DataRecord>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/FEDRawData>
+  <use name=DataFormats/SiStripCommon>
+  <use name=DataFormats/SiStripCluster>
+  <use name=DataFormats/SiStripDigi>
+  <use name=EventFilter/SiStripRawToDigi>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=TkOnlineSw>
+  <use name=boost>
+  <use name=xdaq>
   <flags EDM_PLUGIN=1>
 </library>
-
-</environment>
 

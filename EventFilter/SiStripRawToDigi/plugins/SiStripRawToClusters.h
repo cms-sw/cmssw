@@ -14,7 +14,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 
 //CalibTracker
-#include "CalibTracker/SiStripConnectivity/plugins/SiStripRegionCablingRcd.h"
+#include "CalibTracker/SiStripConnectivity/interface/SiStripRegionCablingRcd.h"
 
 //stl
 #include <string>
