@@ -3,6 +3,7 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
 
 class VertexDistance;
 
@@ -16,14 +17,20 @@ class VertexCompatibleWithBeam {
 public:
 
   VertexCompatibleWithBeam(const VertexDistance & dist, float cut);
+  VertexCompatibleWithBeam(const VertexDistance & dist, float cut, 
+			   const BeamSpot & beamSpot);
+
   VertexCompatibleWithBeam(const VertexCompatibleWithBeam & other);
   VertexCompatibleWithBeam & operator=(const VertexCompatibleWithBeam & other);
   virtual ~VertexCompatibleWithBeam();
 
+  void setBeamSpot(const BeamSpot & beamSpot);
   virtual bool operator()(const reco::Vertex &) const;
+  virtual bool operator()(const reco::Vertex &, const VertexState &) const;
 
   // return value of VertexDistance to beam
   float distanceToBeam(const reco::Vertex &) const;
+  float distanceToBeam(const reco::Vertex &, const VertexState &) const;
 
 private:
 
