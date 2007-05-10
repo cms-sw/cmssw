@@ -4,22 +4,22 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/03/26 06:24:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/26 15:49:25 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/03/26 06:24:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/26 15:49:25 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/CombinedHitPairGenerator.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "Alignment/LaserAlignment/interface/LayerWithHits.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

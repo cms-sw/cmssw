@@ -4,8 +4,8 @@
 /** \class LaserLayerPairs
  *  find all (resonable) pairs of endcap layers
  *
- *  $Date: Fri Mar 16 16:08:54 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:19 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -13,8 +13,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"
 
-#include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
+#include "Alignment/LaserAlignment/interface/SeedLayerPairs.h"
+#include "Alignment/LaserAlignment/interface/LayerWithHits.h"
 #include "RecoTracker/TkDetLayers/interface/TECLayer.h" 
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
