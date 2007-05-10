@@ -33,7 +33,8 @@ InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* fiel
   theLayerMeasurements_ =  new LayerMeasurements(this->getMeasurementTracker() );
   theTrackerGeom_= this->getMeasurementTracker()->geomTracker();
   
-  the2ndHitdphi_ = 0.008; 
+  //the2ndHitdphi_ = 0.008; 
+  the2ndHitdphi_ = 0.01; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
   
@@ -79,16 +80,38 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
   LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fillClusterSeeds outInTracks_.size " << theOutInTracks_.size() << "\n";
   //Start looking for seeds for both of the 2 best tracks from the inward tracking
   
-  
+  ///// This bit is for debugging; it will go away  
+  for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
+    LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
+    DetId tmpId = DetId( (*outInTrackItr).seed().startingState().detId());
+    const GeomDet* tmpDet  = this->getMeasurementTracker()->geomTracker()->idToDet( tmpId );
+    GlobalVector gv = tmpDet->surface().toGlobal( (*outInTrackItr).seed().startingState().parameters().momentum() );
+
+
+    LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeed was built from seed position " <<gv   <<  " charge " << (*outInTrackItr).seed().startingState().parameters().charge() << "\n";
+
+    Trajectory::DataContainer m=  outInTrackItr->measurements();
+    int nHit=0;
+    for (Trajectory::DataContainer::iterator itm = m.begin(); itm != m.end(); ++itm) {
+      if ( itm->recHit()->isValid()  ) {
+        nHit++;
+	LogDebug("InOutConversionSeedFinder") << nHit << ")  Valid RecHit global position " << itm->recHit()->globalPosition() << " R " <<  itm->recHit()->globalPosition().perp() << " phi " << itm->recHit()->globalPosition().phi() << " eta " << itm->recHit()->globalPosition().eta() << "\n";
+      } 
+
+    }
+
+  }
+
+
+  //Start looking for seeds for both of the 2 best tracks from the inward tracking
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
     
+
     //Find the first valid hit of the track
     // Measurements are ordered according to the direction in which the trajectories were built
     std::vector<TrajectoryMeasurement> measurements = (*outInTrackItr).measurements();
     
-    
-
     std::vector<const DetLayer*> allLayers=layerList();
     
     LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::fill clusterSeed allLayers.size " <<  allLayers.size() << "\n";
@@ -146,10 +169,10 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	
 	if ( (myLayers[0])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[0]);
-	 LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n";
+	  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** firstHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n";
 	} else {
 	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[0]);
-	 LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  **** firstHit found in Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
+	  LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  **** firstHit found in Forw on layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 	
 	
@@ -163,10 +186,10 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	LogDebug("InOutConversionSeedFinder") << "Layer " << ilayer << "  contains the first innermost  valid measurement " << "\n"; 	
 	if ( (myLayers[1])->location() == GeomDetEnumerators::barrel ) {
 	  const BarrelDetLayer * barrelLayer = dynamic_cast<const BarrelDetLayer*>(myLayers[1]);
-	 LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n"; 
+	  LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds  **** 2ndHit found in Barrel on layer " << ilayer  << " R= " << barrelLayer->specificSurface().radius() <<   "\n"; 
 	} else {
 	  const ForwardDetLayer * forwardLayer = dynamic_cast<const ForwardDetLayer*>(myLayers[1]);
-	 LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
+	  LogDebug("InOutConversionSeedFinder") << " InOutwardConversionSeedFinder::fillClusterSeeds  ****  2ndHitfound on forw layer " << ilayer  << " Z= " << forwardLayer->specificSurface().position().z() <<  "\n";
 	}
 	
 	
@@ -231,7 +254,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 	LogDebug("InOutConversionSeedFinder") << " innermost hit R " << myPointer->recHit()->globalPosition().perp() << " Z " << myPointer->recHit()->globalPosition().z() << " phi " <<myPointer->recHit()->globalPosition().phi() << "\n";
 	LogDebug("InOutConversionSeedFinder") << " surface R " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().perp() <<  " Z " <<  theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().z() << " phi " << theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface().position().phi() << "\n";
 
-       stateAtPreviousLayer= newProp.propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
+	stateAtPreviousLayer= newProp.propagate(*fts,   theTrackerGeom_->idToDet(  myPointer->recHit() ->geographicalId())->surface()   );
 
       }
               
@@ -322,13 +345,14 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
   
   std::vector<const reco::BasicCluster*> result;
   
- LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters" <<  "\n"; 
+  LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters" <<  "\n"; 
   
   Geom::Phi<float> theConvPhi(conversionPosition.phi() );
   
   for( reco::BasicClusterCollection::const_iterator bcItr = bcCollection_.begin(); bcItr != bcCollection_.end(); bcItr++) {
     Geom::Phi<float> theBcPhi(bcItr->position().phi());
-    LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters  Basic cluster phi " << theBcPhi << " theConvPhi " << theConvPhi << "\n";
+    LogDebug("InOutConversionSeedFinder")<< "InOutConversionSeedFinder::getSecondBasicClusters  BC energy " << bcItr->energy() << " Basic cluster phi " << theBcPhi << " " << bcItr->position().phi()<<  " theConvPhi " << theConvPhi << "\n";
+    
     // Require phi of cluster to be consistent with the conversion 
     // position and the track charge
     
@@ -571,10 +595,10 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
   TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
   
   /*
-   LogDebug("InOutConversionSeedFinder") << "hit surface " <<  m1.recHit()->det()->surface().position() << "\n";
-   LogDebug("InOutConversionSeedFinder") << "prop to " << typeid( m1.recHit()->det()->surface() ).name() <<"\n";
-   LogDebug("InOutConversionSeedFinder") << "prop to first hit " << state1 << "\n"; 
-   LogDebug("InOutConversionSeedFinder") << "update to " <<  m1.recHit()->globalPosition() << "\n";
+    LogDebug("InOutConversionSeedFinder") << "hit surface " <<  m1.recHit()->det()->surface().position() << "\n";
+    LogDebug("InOutConversionSeedFinder") << "prop to " << typeid( m1.recHit()->det()->surface() ).name() <<"\n";
+    LogDebug("InOutConversionSeedFinder") << "prop to first hit " << state1 << "\n"; 
+    LogDebug("InOutConversionSeedFinder") << "update to " <<  m1.recHit()->globalPosition() << "\n";
   */
   
   
