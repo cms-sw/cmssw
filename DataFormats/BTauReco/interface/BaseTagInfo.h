@@ -15,15 +15,23 @@ public:
 
   virtual ~BaseTagInfo(void) { }
   
-  /// returns a polymorphic reference to the tagget Jet
-//  virtual const edm::RefToBase<Jet> & jet(void) const = 0;
-  virtual edm::RefToBase<Jet>  jet(void) const  {return edm::RefToBase<Jet>() ; }
-  
-  virtual reco::TrackRefVector  tracks() const  {return TrackRefVector() ; }
+  /// returns a polymorphic reference to the tagged jet
+  virtual edm::RefToBase<Jet> jet(void) const { 
+    return edm::RefToBase<Jet>() ; 
+  }
 
+  /// returns a list of tracks associated to the jet
+  virtual TrackRefVector tracks(void) const {
+    return TrackRefVector();
+  }
+
+  /// check if the algorithm is using the tracks or not
+  virtual bool hasTracks(void) const {
+    return false;
+  }
+  
   /// returns a description of the extended informations in a TaggingVariableList
   virtual TaggingVariableList taggingVariables(void) const {
-    // if this is called often, we can cache the results un return a reference
     return TaggingVariableList();
   }
 };
