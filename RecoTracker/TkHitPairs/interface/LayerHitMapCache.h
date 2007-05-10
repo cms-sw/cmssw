@@ -7,7 +7,6 @@
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMap.h"
-#include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
