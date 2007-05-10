@@ -136,18 +136,18 @@ pair<bool,Measurement1D> signedImpactParameter3D(const   TrajectoryStateOnSurfac
     GlobalVector momentumDir = momentumAtClosestPoint.unit();
     
     AlgebraicVector3 deriv_v;
-    deriv_v[0] =  ipDirection.x();
-    deriv_v[1] =  ipDirection.y();
-    deriv_v[2] =  ipDirection.z();
+    deriv_v[0] = - ipDirection.x();
+    deriv_v[1] = - ipDirection.y();
+    deriv_v[2] = - ipDirection.z();
 
  
     AlgebraicVector6 deriv;
     deriv[0] = ipDirection.x();
     deriv[1] = ipDirection.y();
     deriv[2] = ipDirection.z();
-    deriv[3] = -  (momentumDir.dot(flightDistance)*jetDir.x())/momentumAtClosestPoint.mag();
-    deriv[4] = -  (momentumDir.dot(flightDistance)*jetDir.y())/momentumAtClosestPoint.mag();
-    deriv[5] = -  (momentumDir.dot(flightDistance)*jetDir.z())/momentumAtClosestPoint.mag();
+    deriv[3] = -  (momentumDir.dot(flightDistance)*ipDirection.x())/momentumAtClosestPoint.mag();
+    deriv[4] = -  (momentumDir.dot(flightDistance)*ipDirection.y())/momentumAtClosestPoint.mag();
+    deriv[5] = -  (momentumDir.dot(flightDistance)*ipDirection.z())/momentumAtClosestPoint.mag();
 
     double trackError2 = ROOT::Math::Similarity(deriv , closestToJetState.cartesianError().matrix());
     double vertexError2 = ROOT::Math::Similarity(deriv_v , vertex.covariance());
