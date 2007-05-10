@@ -49,19 +49,11 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
 
 OutInConversionTrackFinder::~OutInConversionTrackFinder() {
 
-  // delete theCkfTrajectoryBuilder_;
   delete theTrajectoryCleaner_;
   delete  theInitialState_;
 
 }
 
-
-
-// std::auto_ptr<TrackCandidateCollection>  OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds  )const  {
-
-//std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds, 
-//                                                                TrackCandidateCollection &output_p,   
-//                                                                reco::TrackCandidateSuperClusterAssociationCollection& outAssoc, int iSC )const  {
 
 std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedCollection outInSeeds, 
 							   TrackCandidateCollection &output_p ) const { 
@@ -69,9 +61,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::tracks getting " <<  outInSeeds.size() << " Out-In seeds " << "\n";;
  
-  
-  
-  
   std::vector<Trajectory> tmpO;
   tmpO.erase(tmpO.begin(), tmpO.end() ) ;
 
@@ -82,15 +71,40 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   std::vector<Trajectory> rawResult;
   rawResult.erase(rawResult.begin(), rawResult.end() ) ;
 
-
+  ///// This loop is only for debugging
+  for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
+    DetId tmpId = DetId( iSeed->startingState().detId());
+    const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
+    GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+    
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
+    LogDebug("OutInConversionTrackFinder")<< " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
+    
+    TrajectorySeed::range hitRange = iSeed->recHits();
+    for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+      
+      if ( ihit->isValid() ) {
+	
+	LogDebug("OutInConversionTrackFinder")  << " Valid hit global position " << theMeasurementTracker_->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()) << " R " << theMeasurementTracker_->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).perp() << " phi " << theMeasurementTracker_->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).phi() << " eta " << theMeasurementTracker_->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).eta() <<    "\n" ;
+	
+      }
+    }
+  } 
+  
+  
+  
+  
+  
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
 
-    /*    
-    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
-    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << "\n";
-    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << "\n";
+    DetId tmpId = DetId( iSeed->startingState().detId());
+    const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
+    GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+
     
-    */
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
+    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
+    
     
     std::vector<Trajectory> theTmpTrajectories;
 
@@ -192,10 +206,10 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
       recHits.push_back( (**hitIt).hit()->clone());
     }
     
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << "\n";
+    
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
     PTrajectoryStateOnDet* state = TrajectoryStateTransform().persistentState( initState.first, initState.second->geographicalId().rawId());
-    
+    LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
     output_p.push_back(TrackCandidate(recHits, it->seed(),*state ) );
     delete state;
   }  
@@ -204,10 +218,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   LogDebug("OutInConversionTrackFinder") << "  Returning " << result.size() << "Out In Trajectories  " << "\n";      
   
 
-
-
-  
-  //  return  unsmoothedResult;
   return  result;
   
 
