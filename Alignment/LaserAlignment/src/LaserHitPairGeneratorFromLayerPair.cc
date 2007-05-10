@@ -1,8 +1,8 @@
 /** \file LaserHitPairGeneratorFromLayerPair.cc
  *  
  *
- *  $Date: 2007/03/26 08:52:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/03/26 15:51:22 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
@@ -14,7 +14,7 @@
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionBase.h"
-#include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
+// #include "RecoTracker/TkHitPairs/interface/LayerHitMapLoop.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"

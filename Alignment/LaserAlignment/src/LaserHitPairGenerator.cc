@@ -1,14 +1,14 @@
 /** \file LaserHitPairGenerator.cc
  *  
  *
- *  $Date: 2007/03/18 19:00:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 06:24:18 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/LaserHitPairGenerator.h"
 
-#include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
+#include "Alignment/LaserAlignment/interface/SeedLayerPairs.h"
 
 LaserHitPairGenerator::LaserHitPairGenerator(SeedLayerPairs & layers, const edm::EventSetup & iSetup)
 {
