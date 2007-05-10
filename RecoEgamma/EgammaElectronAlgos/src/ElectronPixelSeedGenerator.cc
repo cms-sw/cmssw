@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.22 2007/04/02 16:43:33 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.23 2007/04/03 09:13:59 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -51,9 +51,11 @@ ElectronPixelSeedGenerator::ElectronPixelSeedGenerator(float iephimin1, float ie
 			                               float ipphimin1, float ipphimax1,
 			                               float ipphimin2, float ipphimax2,
 						       float izmin1, float izmax1,
-						       float izmin2, float izmax2)
+						       float izmin2, float izmax2 ,
+						       bool idynamicphiroad)
  : ephimin1(iephimin1), ephimax1(iephimax1), pphimin1(ipphimin1), pphimax1(ipphimax1), pphimin2(ipphimin2),	
    pphimax2(ipphimax2),zmin1(izmin1),zmax1(izmax1),zmin2(izmin2),zmax2(izmax2),
+   dynamicphiroad(idynamicphiroad),
    myMatchEle(0), myMatchPos(0),
    theMode_(unknown), theUpdator(0), thePropagator(0), theMeasurementTracker(0), 
    theNavigationSchool(0), theSetup(0), pts_(0)
@@ -135,6 +137,46 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
    LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] new supercluster with energy: " << clusterEnergy;
    LogDebug("") << "[ElectronPixelSeedGenerator::seedsFromThisCluster] and position: " << clusterPos;
    
+  //RS
+  if (dynamicphiroad)
+   {
+     float clusterEnergyT = clusterEnergy*sin(seedCluster->position().theta()) ;
+
+     float deltaPhi1 = 1.4/clusterEnergyT ;
+     float deltaPhi2 = 0.7/clusterEnergyT ;
+     float ephimin1 = -deltaPhi1*0.625 ; 
+     float ephimax1 =  deltaPhi1*0.375 ;
+     float pphimin1 = -deltaPhi1*0.375 ; 
+     float pphimax1 =  deltaPhi1*0.625 ;
+     float phimin2  = -deltaPhi2*0.5 ;
+     float phimax2  =  deltaPhi2*0.5 ;
+
+     if (clusterEnergyT < 5)
+       {
+	 ephimin1 = -0.280*0.625 ; 
+	 ephimax1 =  0.280*0.375 ;
+	 pphimin1 = -0.280*0.375 ; 
+	 pphimax1 =  0.280*0.625 ;
+         phimin2  = -0.007 ;
+         phimin2  =  0.007 ;
+       }
+     if (clusterEnergyT > 35)
+       {
+	 ephimin1 = -0.040*0.625 ; 
+	 ephimax1 =  0.040*0.375 ;
+	 pphimin1 = -0.040*0.375 ; 
+	 pphimax1 =  0.040*0.625 ;
+         phimin2  = -0.001 ;
+         phimax2  =  0.001 ;
+       }
+     myMatchEle->setphi1min(ephimin1) ;			                               
+     myMatchEle->setphi1max(ephimax1) ;			                               
+     myMatchPos->setphi1min(pphimin1) ;			                               
+     myMatchPos->setphi1max(pphimax1) ;			                               
+     myMatchPos->setphi2min(phimin2) ;			                               
+     myMatchPos->setphi2max(phimax2) ;	
+   }
+
   PropagationDirection dir = alongMomentum;
    
   // is this an electron

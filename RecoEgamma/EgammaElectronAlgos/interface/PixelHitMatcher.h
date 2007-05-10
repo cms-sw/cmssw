@@ -17,7 +17,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: PixelHitMatcher.h,v 1.2 2006/07/31 21:36:13 tboccali Exp $
+// $Id: PixelHitMatcher.h,v 1.3 2007/02/05 17:53:51 uberthon Exp $
 //
 //
 
@@ -100,6 +100,11 @@ class PixelHitMatcher{
   std::vector<Hep3Vector> predicted1Hits();
   std::vector<Hep3Vector> predicted2Hits();
   float getVertex();
+ 
+  void setphi1min (float dummyphi1min) { phi1min = dummyphi1min ;}
+  void setphi1max (float dummyphi1max) { phi1max = dummyphi1max ;}
+  void setphi2min (float dummyphi2min) { phi2min = dummyphi2min ;}
+  void setphi2max (float dummyphi2max) { phi2max = dummyphi2max ;}
  
  private:
   //vector<TSiPixelRecHit> hitsInTrack;
