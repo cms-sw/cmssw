@@ -146,10 +146,10 @@ void DDTECCoolAlgo::execute() {
 			      << ") Limit" << phiMax/deg << " R " << rr1 
 			      << ":" << rr2 << " (" << petalRmax[mm] << ")";
 	} else {
-	  edm::LogInfo("TECGeom") << "Error in positioning Cool Tube : Phi " 
-				  << phi1/deg  << ":" << phi2/deg << " (Limit "
-				  << phiMax/deg << " R " << rr1 << ":" << rr2 
-				  << " (Limit " << petalRmax[mm] << ")";
+	  LogDebug("TECGeom") << "Error in positioning Cool Tube : Phi " 
+	                      << phi1/deg  << ":" << phi2/deg << " (Limit "
+			      << phiMax/deg << " R " << rr1 << ":" << rr2 
+			      << " (Limit " << petalRmax[mm] << ")";
 	}
 	copyNo++;
       }
