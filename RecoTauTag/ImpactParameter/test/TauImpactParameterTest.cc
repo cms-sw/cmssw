@@ -113,13 +113,13 @@ void TauImpactParameterTest::analyze(const edm::Event& iEvent, const edm::EventS
 		     pT_min  = 1;
 	      double discriminator = iJet->getIsolatedTauTag()->discriminator(Rmatch,Rsignal,Riso,pT_LT,pT_min);
 
-	      const Jet theJet = iJet->getIsolatedTauTag()->jet();
-	      cout << "  Candidate jet Et = " << theJet.et() << endl;
+	      const Jet* theJet = iJet->getIsolatedTauTag()->jet().get();
+	      cout << "  Candidate jet Et = " << theJet->et() << endl;
               cout << "    isolation discriminator = "<< discriminator <<endl;
 
               if(discriminator == 0) continue;
-              if(theJet.et() < 0 || theJet.et() > 150) continue;
-	      if(fabs(theJet.eta()) > 2.2) continue;
+              if(theJet->et() < 0 || theJet->et() > 150) continue;
+	      if(fabs(theJet->eta()) > 2.2) continue;
 
 	      const TrackRefVector& tracks = iJet->getIsolatedTauTag()->selectedTracks();
 

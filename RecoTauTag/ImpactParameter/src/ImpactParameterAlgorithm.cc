@@ -37,8 +37,8 @@ pair<JetTag,TauImpactParameterInfo> ImpactParameterAlgorithm::tag(const Isolated
         TauImpactParameterInfo resultExtended;
 	resultExtended.setIsolatedTauTag(tauRef);
 
-	const Jet & jet = tauRef->jet();
-	GlobalVector direction(jet.px(),jet.py(),jet.pz());
+	const Jet* jet = tauRef->jet().get();
+	GlobalVector direction(jet->px(),jet->py(),jet->pz());
 
         const TrackRefVector& tracks = tauRef->selectedTracks();
 
