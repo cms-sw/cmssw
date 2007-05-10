@@ -173,6 +173,7 @@ namespace {
     math::VectorF<4>::type vVf4;
     math::VectorF<5>::type vVf5;
     math::VectorF<6>::type vVf6;
+	math::VectorF<7>::type vVf7;
 
     math::Error<1>::type e1;
     math::Error<2>::type e2;
@@ -180,6 +181,8 @@ namespace {
     math::Error<4>::type e4;
     math::Error<5>::type e5;
     math::Error<6>::type e6;
+	math::Error<7>::type e7;
+	
     math::ErrorD<1>::type ed1;
     math::ErrorD<2>::type ed2;
     math::ErrorD<3>::type ed3;
@@ -192,6 +195,7 @@ namespace {
     math::ErrorF<4>::type ef4;
     math::ErrorF<5>::type ef5;
     math::ErrorF<6>::type ef6;
+	math::ErrorF<7>::type ef7;
 
     std::vector<math::Error<1>::type> ve1;
     std::vector<math::Error<2>::type> ve2;
@@ -199,6 +203,7 @@ namespace {
     std::vector<math::Error<4>::type> ve4;
     std::vector<math::Error<5>::type> ve5;
     std::vector<math::Error<6>::type> ve6;
+	std::vector<math::Error<7>::type> ve7;
 
     edm::Wrapper<math::Error<1>::type> we1;
     edm::Wrapper<math::Error<2>::type> we2;
@@ -206,6 +211,7 @@ namespace {
     edm::Wrapper<math::Error<4>::type> we4;
     edm::Wrapper<math::Error<5>::type> we5;
     edm::Wrapper<math::Error<6>::type> we6;
+	edm::Wrapper<math::Error<7>::type> we7;
 
     edm::Wrapper<std::vector<math::Error<1>::type> > wve1;
     edm::Wrapper<std::vector<math::Error<2>::type> > wve2;
@@ -213,6 +219,7 @@ namespace {
     edm::Wrapper<std::vector<math::Error<4>::type> > wve4;
     edm::Wrapper<std::vector<math::Error<5>::type> > wve5;
     edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
+	edm::Wrapper<std::vector<math::Error<7>::type> > wve7;
 
     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
@@ -220,25 +227,29 @@ namespace {
     ROOT::Math::MatRepSym<Double32_t, 4> sm4;
     ROOT::Math::MatRepSym<Double32_t, 5> sm5;
     ROOT::Math::MatRepSym<Double32_t, 6> sm6;
+	ROOT::Math::MatRepSym<Double32_t, 7> sm7;
     ROOT::Math::MatRepSym<double, 1> smd1;
     ROOT::Math::MatRepSym<double, 2> smd2;
     ROOT::Math::MatRepSym<double, 3> smd3;
     ROOT::Math::MatRepSym<double, 4> smd4;
     ROOT::Math::MatRepSym<double, 5> smd5;
     ROOT::Math::MatRepSym<double, 6> smd6;
+	ROOT::Math::MatRepSym<double, 7> smd7;
     ROOT::Math::MatRepSym<float, 1> smf1;
     ROOT::Math::MatRepSym<float, 2> smf2;
     ROOT::Math::MatRepSym<float, 3> smf3;
     ROOT::Math::MatRepSym<float, 4> smf4;
     ROOT::Math::MatRepSym<float, 5> smf5;
     ROOT::Math::MatRepSym<float, 6> smf6;
- 
+	ROOT::Math::MatRepSym<float, 7> smf7;
+	
     ROOT::Math::RowOffsets<1> ro1;
     ROOT::Math::RowOffsets<2> ro2;
     ROOT::Math::RowOffsets<3> ro3;
     ROOT::Math::RowOffsets<4> ro4;
     ROOT::Math::RowOffsets<5> ro5;
     ROOT::Math::RowOffsets<6> ro6;
+	ROOT::Math::RowOffsets<7> ro7;
 
     //Used by ECAL Weights reconstruction
     math::Matrix<3,10>::type mw; 
