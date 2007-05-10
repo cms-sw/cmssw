@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BTauReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
@@ -15,7 +14,6 @@
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
-#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
@@ -24,7 +22,7 @@
 //#include "DataFormats/BTauReco/interface/TrackIPData.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
-#include "DataFormats/BTauReco/interface/JTATagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/JetTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;

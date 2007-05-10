@@ -6,6 +6,7 @@
 // #include "RecoBTag/CombinedSVTagInfo/interface/CombinedData.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/JetTagFwd.h"
+#include "DataFormats/BTauReco/interface/CombinedSVTagInfoFwd.h"
 
 namespace reco {
   class CombinedSVTagInfo : public JTATagInfo {
