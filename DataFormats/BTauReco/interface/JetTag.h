@@ -30,14 +30,13 @@ namespace reco {
     double                      discriminator(void) const { return m_discriminator; }  
     edm::RefToBase<BaseTagInfo> tagInfoRef(void)    const { return m_tagInfo; }
     edm::RefToBase<Jet>         jet(void)           const { return m_tagInfo->jet(); }
-    TrackRefVector              tracks(void)        const {
-           const JTATagInfo * jta = dynamic_cast<const JTATagInfo *> (m_tagInfo.get());
+    TrackRefVector              tracks(void)        const { return m_tagInfo->tracks(); }
+/*           const JTATagInfo * jta = dynamic_cast<const JTATagInfo *> (m_tagInfo.get());
         if(jta){
           return jta->tracks();
         } else {
           return TrackRefVector();
-        }
-    }
+        }*/
     
   private:
     double m_discriminator;
