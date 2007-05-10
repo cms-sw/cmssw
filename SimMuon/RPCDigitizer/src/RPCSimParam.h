@@ -9,6 +9,10 @@
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+  class RandFlat;
+}
 class RPCSimParam : public RPCSim
 {
  public:
@@ -28,5 +32,7 @@ class RPCSimParam : public RPCSim
   double sspeed;
   double lbGate;
   bool rpcdigiprint;
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution;
 };
 #endif

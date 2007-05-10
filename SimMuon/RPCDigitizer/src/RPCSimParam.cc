@@ -4,10 +4,12 @@
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 #include <cmath>
-
-#include <CLHEP/Random/RandGaussQ.h>
-#include <CLHEP/Random/RandFlat.h>
 
 
 
@@ -31,6 +33,16 @@ RPCSimParam::RPCSimParam(const edm::ParameterSet& config) : RPCSim(config){
     std::cout <<"Signal propagation time   = "<<sspeed<<" x c"<<std::endl;
     std::cout <<"Link Board Gate Width     = "<<lbGate<<" ns"<<std::endl;
   }
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  
+  rndEngine = &(rng->getEngine());
+  flatDistribution = new CLHEP::RandFlat(rndEngine);
 }
 
 
@@ -48,12 +60,12 @@ RPCSimParam::simulate(const RPCRoll* roll,
     //    const LocalPoint& exit=_hit->exitPoint();
 
     // Effinciecy
-    if (RandFlat::shoot() < aveEff) {
+    if (flatDistribution->fire() < aveEff) {
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = RandFlat::shoot();
+      double w = flatDistribution->fire();
       if (w < 1.e-10) w=1.e-10;
       int clsize = static_cast<int>( -1.*aveCls*log(w)+1.);
       std::vector<int> cls;
