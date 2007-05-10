@@ -12,6 +12,8 @@ using namespace std;
 
 SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
 : theHitReader(0),
+  theRandFlat(0), 
+  theRandPoisson(0),
   theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
   theStartTime(pset.getParameter<double>("startTime")), 
   theEndTime(pset.getParameter<double>("endTime")),
@@ -36,6 +38,15 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
 
 SubsystemNeutronReader::~SubsystemNeutronReader() {
   delete theHitReader;
+  delete theRandFlat;
+  delete theRandPoisson;
+}
+
+
+void SubsystemNeutronReader::setRandomEngine(CLHEP::HepRandomEngine & engine)
+{
+  theRandFlat = new CLHEP::RandFlat(engine);
+  theRandPoisson = new CLHEP::RandPoisson(engine);
 }
 
 
@@ -49,7 +60,7 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
   {
     float meanNumberOfEvents = theEventOccupancy[chamberType-1] 
                              * theEventsInWindow;
-    int nEventsToAdd = RandPoisson::shoot(meanNumberOfEvents);
+    int nEventsToAdd = theRandPoisson->fire(meanNumberOfEvents);
 //    LogDebug("NeutronReader") << "Number of neutron events to add: " 
 //std::cout << "Number of neutron events to add for chamber type " << chamberType << " : " 
 // << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
@@ -57,8 +68,7 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
 
     for(int i = 0; i < nEventsToAdd; ++i) {
       // find the time for this event
-      float timeOffset = theStartTime
-        + RandFlat::shoot() * (theEndTime-theStartTime);
+      float timeOffset = theRandFlat->fire(theStartTime, theEndTime);
       vector<PSimHit> neutronHits;
       theHitReader->readNextEvent(chamberType, neutronHits);
 
