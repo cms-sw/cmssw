@@ -6,7 +6,7 @@
 // Field
 #include "MagneticField/Engine/interface/MagneticField.h"
 //
-#include "CLHEP/Matrix/Matrix.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -188,9 +188,9 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
   GlobalVector gvTracker(momentumInTracker.x(), momentumInTracker.y(), momentumInTracker.z());
   GlobalTrajectoryParameters gtp(startingPoint, gvTracker, charge, theMF_);
   // error matrix
-  AlgebraicSymMatrix m(5,1) ;
-  m[0][0] = 0.1; m[1][1] = 0.1 ; m[2][2] = 0.1 ;
-  m[3][3] = 0.1 ; m[4][4] = 0.1;
+  AlgebraicSymMatrix55 m = AlgebraicMatrixID();
+  m(0,0) = 0.1; m(1,1) = 0.1 ; m(2,2) = 0.1 ;
+  m(3,3) = 0.1 ; m(4,4) = 0.1;
   
    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << std::endl;
    
@@ -452,9 +452,9 @@ FreeTrajectoryState OutInConversionSeedFinder::createSeedFTS(const TrajectoryMea
 
   GlobalTrajectoryParameters gp(xmeas, pNew, charge, theMF_);
 
-  AlgebraicSymMatrix m(5,1) ;
-  m[0][0] = 0.05; m[1][1] = 0.02 ; m[2][2] = 0.007 ;
-  m[3][3] = 10. ; m[4][4] = 10. ;
+  AlgebraicSymMatrix55 m = AlgebraicMatrixID();
+  m(0,0) = 0.05; m(1,1) = 0.02 ; m(2,2) = 0.007 ;
+  m(3,3) = 10. ; m(4,4) = 10. ;
   return FreeTrajectoryState(gp, CurvilinearTrajectoryError(m));
 
 

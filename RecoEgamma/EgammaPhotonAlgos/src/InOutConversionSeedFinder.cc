@@ -8,7 +8,7 @@
 // Field
 #include "MagneticField/Engine/interface/MagneticField.h"
 //
-#include "CLHEP/Matrix/Matrix.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -365,10 +365,12 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
   
   
   // create error matrix
-  AlgebraicSymMatrix m(5,1) ;
-  m[0][0] = 0.1; m[1][1] = 0.0001 ; m[2][2] = 0.0001 ;
-  m[3][3] = 0.0001 ; m[4][4] = 0.001;
+  AlgebraicSymMatrix55 m = AlgebraicMatrixID();
+  m(0,0) = 0.1; m(1,1) = 0.0001 ; m(2,2) = 0.0001 ;
+  m(3,3) = 0.0001 ; m(4,4) = 0.001;
   
+
+
   // Make an FTS consistent with the start point, start direction and curvature
   FreeTrajectoryState fts(GlobalTrajectoryParameters(startingState.globalPosition(), 
 						     startingState.globalDirection(),

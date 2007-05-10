@@ -127,7 +127,8 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
 	 (magvtx.z()) < 0.) ? 
 	-1 : 1;
       
-      AlgebraicSymMatrix C(5,1);
+
+      AlgebraicSymMatrix55 C = AlgebraicMatrixID();
       //MP
       
       atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
@@ -207,7 +208,8 @@ FreeTrajectoryState ConversionFastHelix::straightLineStateAtVertex() {
     double pz = pt*dzdr; 
     
     TrackCharge q = 1;
-    AlgebraicSymMatrix C(6,1);
+ 
+    AlgebraicSymMatrix66 C = AlgebraicMatrixID();
     //MP
     FTS atVertex = FTS(GlobalTrajectoryParameters(GlobalPoint(v.x(), v.y(), z_0),
 						  GlobalVector(px, py, pz),
