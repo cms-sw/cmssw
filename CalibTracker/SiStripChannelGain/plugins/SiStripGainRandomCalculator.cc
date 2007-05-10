@@ -3,7 +3,7 @@
 // Class:      SiStripGainRandomCalculator
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainRandomCalculator.cc,v 1.1 2007/05/04 20:22:34 gbruno Exp $
+// $Id: SiStripGainRandomCalculator.cc,v 1.2 2007/05/09 16:10:14 gbruno Exp $
 
 #include "CalibTracker/SiStripChannelGain/interface/SiStripGainRandomCalculator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -68,14 +68,14 @@ void SiStripGainRandomCalculator::algoBeginRun(const edm::Run &, const edm::Even
     if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
       uint32_t detid=((*it)->geographicalId()).rawId();            
       const StripTopology& p = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
-      unsigned short NAPVPairs = p.nstrips()/256;
-      if(NAPVPairs<2 || NAPVPairs>3 ) {
+      unsigned short NAPVPairs = p.nstrips()/128;
+      if(NAPVPairs<1 || NAPVPairs>6 ) {
 	edm::LogError("SiStripGainCalculator")<<" Problem with Number of strips in detector.. "<< p.nstrips() <<" Exiting program"<<endl;
 	exit(1);
       }
       detid_apvs.push_back( pair<uint32_t,unsigned short>(detid,NAPVPairs) );
       if (printdebug_)
-	edm::LogInfo("SiStripGainCalculator")<< "detid " << detid << " apvpairs " << NAPVPairs;
+	edm::LogInfo("SiStripGainCalculator")<< "detid " << detid << " apvs " << NAPVPairs;
     }
   }
 }
