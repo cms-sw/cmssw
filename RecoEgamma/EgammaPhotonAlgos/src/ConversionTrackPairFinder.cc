@@ -20,30 +20,27 @@
 
 ConversionTrackPairFinder::ConversionTrackPairFinder( ){ 
 
-    LogDebug("ConversionTrackPairFinder") << " CTOR  " <<  "\n";  
+  LogDebug("ConversionTrackPairFinder") << " CTOR  " <<  "\n";  
 
 }
 
 ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
-    LogDebug("ConversionTrackPairFinder") << " DTOR " <<  "\n";  
+  LogDebug("ConversionTrackPairFinder") << " DTOR " <<  "\n";  
     
 }
 
 
 
 
- std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
-										const edm::Handle<reco::TrackCollection>& outInTrkHandle,
-										const edm::Handle<reco::TrackSuperClusterAssociationCollection>& outInTrackSCAssH, 
-										std::vector<reco::TransientTrack> inOutTrk, 
-										const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
-										const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  ) {
+std::map<std::vector<reco::TransientTrack>, reco::SuperCluster>  ConversionTrackPairFinder::run(std::vector<reco::TransientTrack> outInTrk,  
+												const edm::Handle<reco::TrackCollection>& outInTrkHandle,
+												const edm::Handle<reco::TrackSuperClusterAssociationCollection>& outInTrackSCAssH, 
+												std::vector<reco::TransientTrack> inOutTrk, 
+												const edm::Handle<reco::TrackCollection>& inOutTrkHandle,
+												const edm::Handle<reco::TrackSuperClusterAssociationCollection>& inOutTrackSCAssH  ) {
 
 
-  
-  
-  //  LogDebug("ConversionTrackPairFinder") << "::run " <<  "\n";  
   LogDebug("ConversionTrackPairFinder")  << "ConversionTrackPairFinder::run " <<  "\n";  
   
   std::vector<reco::TransientTrack>  selectedOutInTk;
@@ -58,7 +55,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   
   int iTrk=0;
   for( std::vector<reco::TransientTrack>::const_iterator  iTk =  outInTrk.begin(); iTk !=  outInTrk.end(); iTk++) {
-    LogDebug("ConversionTrackPairFinder")  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum()  << "\n";  
+    //std::cout  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum()  << "\n";  
     
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
     
@@ -66,16 +63,16 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
     
     const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
     reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
-    LogDebug("ConversionTrackPairFinder") <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner momentum " <<  myTkRef->innerMomentum() << "\n";
+    //std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner momentum " <<  myTkRef->innerMomentum() << "\n";
     
     edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );
     
-    LogDebug("ConversionTrackPairFinder") <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
+    //std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
     
     reco::TrackSuperClusterAssociationCollection outInTrackSCAss = *outInTrackSCAssH;
     const reco::SuperCluster aClus= *outInTrackSCAss[trackRef];
     
-    LogDebug("ConversionTrackPairFinder") << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus.energy() << "\n"; 
+    //std::cout << "ConversionTrackPairFinder  Out In track belonging to SC with energy " << aClus.energy() << "\n"; 
 
     scTrkAssocMap[*iTk]= aClus;
     selectedOutInTk.push_back(*iTk);
@@ -88,21 +85,23 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
   iTrk=0;
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  inOutTrk.begin(); iTk !=  inOutTrk.end(); iTk++) {
-    LogDebug("ConversionTrackPairFinder") << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+    //   std::cout << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
     
     if ( iTk->numberOfValidHits() <3 ||   iTk->normalizedChi2() <0 ) continue; 
     
     
     const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
     reco::TrackRef myTkRef= ttt->persistentTrackRef(); 
-    LogDebug("ConversionTrackPairFinder") <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner momentum " <<  myTkRef->innerMomentum() << "\n";
+    //std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner momentum " <<  myTkRef->innerMomentum() << "\n";
     
     edm::Ref<reco::TrackCollection> trackRef(inOutTrkHandle, iTrk );
     
-    LogDebug("ConversionTrackPairFinder") <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
+    //std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner momentum " <<  trackRef->innerMomentum() << "\n";
     
     reco::TrackSuperClusterAssociationCollection inOutTrackSCAss = *inOutTrackSCAssH;
     const reco::SuperCluster aClus= *inOutTrackSCAss[trackRef];
+
+    //    std::cout << "ConversionTrackPairFinder  In Out  track belonging to SC with energy " << aClus.energy() << "\n"; 
     
     scTrkAssocMap[*iTk]= aClus;
     selectedInOutTk.push_back(*iTk);
@@ -113,7 +112,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   }
   
 
-  LogDebug("ConversionTrackPairFinder") << " ConversionTrackPairFinder allSelectedTk size " << allSelectedTk.size() << "  scTrkAssocMap  size " <<  scTrkAssocMap.size() << "\n"; 
+  // std::cout << " ConversionTrackPairFinder allSelectedTk size " << allSelectedTk.size() << "  scTrkAssocMap  size " <<  scTrkAssocMap.size() << "\n"; 
   
   // Sort tracks in decreasing number of hits
   if(selectedOutInTk.size() > 0)
@@ -126,10 +125,10 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   
   
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  selectedOutInTk.begin(); iTk !=  selectedOutInTk.end(); iTk++) {
-    LogDebug("ConversionTrackPairFinder") << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+    // std::cout << " Selected Out In  Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
   }
   for(  std::vector<reco::TransientTrack>::const_iterator  iTk =  selectedInOutTk.begin(); iTk !=  selectedInOutTk.end(); iTk++) {
-    LogDebug("ConversionTrackPairFinder") << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
+    //std::cout << " Selected In Out Tracks charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";  
   }
   
   
@@ -145,32 +144,47 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
   if ( scTrkAssocMap.size() > 2 ){
     for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {
       for( iMap2 =  iMap1; iMap2 !=   scTrkAssocMap.end(); ++iMap2) {
-	if (   ((iMap1->first)).charge() *  ((iMap2->first)).charge()  > 0 ) continue;
-
-
+	
+	// consider only tracks associated to the same SC 
 	if( !( (  fabs( ((iMap1->second)).energy() -((iMap2->second)).energy() ) < 0.001 ) &&  
 	       (   fabs( ((iMap1->second)).eta() -   ((iMap2->second)).eta() ) < 0.001 )      &&
 	       (    fabs( ((iMap1->second)).phi() - ((iMap2->second)).phi() ) < 0.001  ) ) )   continue;
 	
+	
+	if (   ((iMap1->first)).charge() *  ((iMap2->first)).charge()  < 0 ) {
+	  // Opoosite track pairs 
+	  
+	  
+	  
+	  //	  std::cout << " ConversionTrackPairFinde All selected from the map First  Track charge " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner momentum " <<  ((iMap1->first)).track().innerMomentum() << " Ass SC " << (iMap1->second).energy() <<  "\n";  
+	  
+	  //std::cout << " ConversionTrackPairFinde All selected from the map Second  Track charge " <<   ((iMap2->first)).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner momentum " <<  ((iMap2->first)).track().innerMomentum() << " Ass SC " << (iMap2->second).energy()  <<  "\n";  
+	  
+	  
+	  thePair.clear();
+	  thePair.push_back( iMap1->first );
+	  thePair.push_back( iMap2->first  );
+	  allPairs.push_back ( thePair );	
+	  
+	  allPairSCAss[thePair]= iMap1->second; 
+	}	
+      }
+    }
+    if ( allPairSCAss.size() == 0) { 
+      //      std::cout << " All Tracks had the same charge: Need to send out a single track  " <<   "\n";
 
+      for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {
 
-	
-
-	LogDebug("ConversionTrackPairFinder") << " ConversionTrackPairFinde All selected from the map First  Track charge " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner momentum " <<  ((iMap1->first)).track().innerMomentum() << " Ass SC " << (iMap1->second).energy() <<  "\n";  
-	
-	LogDebug("ConversionTrackPairFinder") << " ConversionTrackPairFinde All selected from the map Second  Track charge " <<   ((iMap2->first)).charge() << " Num of RecHits " <<  ((iMap2->first)).recHitsSize() << " inner momentum " <<  ((iMap2->first)).track().innerMomentum() << " Ass SC " << (iMap2->second).energy()  <<  "\n";  
-	
-	
 	thePair.clear();
-	thePair.push_back( iMap1->first );
-	thePair.push_back( iMap2->first  );
-	allPairs.push_back ( thePair );	
-	
+	thePair.push_back(iMap1->first);
+	allPairs.push_back ( thePair );
 	allPairSCAss[thePair]= iMap1->second; 
 	
 	
       }
+
     }
+
 
 
 
@@ -178,7 +192,10 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
 
     iMap1=scTrkAssocMap.begin();
     iMap2=scTrkAssocMap.end();
-    if (  ((iMap1->second).energy()== (iMap2->second).energy()  )   && ((iMap1->first).charge() * (iMap2->first).charge() < 0 )   ) {
+    if (  (   (iMap1->second).energy() - (iMap2->second).energy() < 0.001  )  &&
+	  (   fabs( ((iMap1->second)).eta() -   ((iMap2->second)).eta() ) < 0.001 )      &&
+	  (   fabs( ((iMap1->second)).phi() -   ((iMap2->second)).phi() ) < 0.001 )      &&
+	  ((iMap1->first).charge() * (iMap2->first).charge() < 0 )   ) {
       
       thePair.clear();
       thePair.push_back( iMap1->first );
@@ -209,7 +226,7 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
     allPairs.push_back ( thePair );
     allPairSCAss[thePair]= iMap1->second; 
 
-    LogDebug("ConversionTrackPairFinder") << "  WARNING ConversionTrackPairFinder::tracks The candidate has just one leg. Need to find another way to evaltuate the vertex !!! "   << "\n";
+    //   std::cout << "  WARNING ConversionTrackPairFinder::tracks The candidate has just one leg. Need to find another way to evaltuate the vertex !!! "   << "\n";
   }
   
   if ( noTrack) {
@@ -217,7 +234,6 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
     allPairSCAss.clear();
   }
   
-  //  return allPairs;
 
   return allPairSCAss;
  
