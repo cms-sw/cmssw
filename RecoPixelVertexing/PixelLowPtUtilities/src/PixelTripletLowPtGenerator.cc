@@ -85,8 +85,8 @@ void PixelTripletLowPtGenerator::hitTriplets(
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
 
-    recHits[0] = (*ip).inner().RecHit();
-    recHits[1] = (*ip).outer().RecHit();
+    recHits[0] = (*ip).inner();
+    recHits[1] = (*ip).outer();
 
     for(int i=0; i<2; i++)
       points[i] = getGlobalPosition(recHits[i]);
@@ -114,7 +114,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
       while( (th = thirdHits.getHit()) )
       {
         // Fill rechit and point
-        recHits[2] = th->RecHit();
+        recHits[2] = *th;
         points[2]  = getGlobalPosition(recHits[2]);
 
         // Check if third hit is compatible with multiple scattering
