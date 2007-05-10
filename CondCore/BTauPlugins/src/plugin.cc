@@ -5,9 +5,15 @@
 #include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
 
 #include "CondFormats/BTauObjects/interface/CombinedTauTagCalibration.h"
+#include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "CondFormats/DataRecord/interface/CombinedTauTagRcd.h"
+#include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
+
+using namespace PhysicsTools::Calibration;
 
 DEFINE_SEAL_MODULE();
+
+REGISTER_PLUGIN(CombinedTauTagRcd,CombinedTauTagCalibration);
+REGISTER_PLUGIN(BTauGenericMVAJetTagComputerRcd, MVAComputerContainer);
 REGISTER_PLUGIN(BTagTrackProbability2DRcd,TrackProbabilityCalibration);
 REGISTER_PLUGIN(BTagTrackProbability3DRcd,TrackProbabilityCalibration);
-REGISTER_PLUGIN(CombinedTauTagRcd,CombinedTauTagCalibration);
