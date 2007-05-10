@@ -72,7 +72,7 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   }
   theNoiseMatrix = new EcalCorrelatedNoiseMatrix(thisMatrix);
 
-  theCorrNoise = new CaloCorrelatedNoisifier(thisMatrix);
+  theCorrNoise = new CorrelatedNoisifier(thisMatrix);
 
   theCoder = new EcalCoder(addNoise, theCorrNoise);
   bool applyConstantTerm = params.getParameter<bool>("applyConstantTerm");
@@ -90,6 +90,9 @@ EcalDigiProducer::EcalDigiProducer(const edm::ParameterSet& params)
   theEndcapDigitizer = new EEDigitizer(theEcalResponse, theElectronicsSim, addNoise);
   theESDigitizer = new ESDigitizer(theESResponse, theESElectronicsSim, addESNoise);
 
+  // not containment corrections
+  EBs25notCont = params.getParameter<double>("EBs25notContainment");
+  EEs25notCont = params.getParameter<double>("EEs25notContainment");
 }
 
 
@@ -253,10 +256,10 @@ void  EcalDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 
   delete defaultRatios;
 
-  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC);
-  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
-  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC);
-  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
+  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC)*EBs25notCont;
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " notCont = " << EBs25notCont << "\n" << " saturation for EB = " << EBscale << ", " << EBs25notCont;
+  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC)*EEs25notCont;
+  LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " notCont = " << EEs25notCont << "\n" << " saturation for EB = " << EEscale << ", " << EEs25notCont;
   theCoder->setFullScaleEnergy( EBscale , EEscale );
 
 }
