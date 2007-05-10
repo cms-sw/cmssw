@@ -1,4 +1,4 @@
-#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
+\#include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducer.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -18,6 +18,8 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "VertexReco/VertexPrimitives/BeamSpot.h"
 
 using namespace reco;
 
@@ -72,50 +74,40 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
-    if (fVerbose) {cout << "RecoVertex/PrimaryVertexProducer:got " << (*tks).size() << " tracks " << endl;}
-
-
+    if (fVerbose) {cout << "RecoVertex/PrimaryVertexProducer:got " 
+			<< (*tks).size() << " tracks " << endl;}
     edm::ESHandle<TransientTrackBuilder> theB;
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
-
     vector<TransientTrack> t_tks = (*theB).build(tks);
 
    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_tks.size() << " reconstructed tracks" << "\n";
-    
+
+
+   // get the BeamSpot, it will alwys be needed, even when not used as a constraint
+   BeamSpot vertexBeamSpot;   // the beamspot from VertexReco/VertexPrimitives
+   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+   try{
+     iEvent.getByType(recoBeamSpotHandle);
+     vertexBeamSpot=BeamSpot(*recoBeamSpotHandle);
+   }catch(std::exception & err)
+     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+       << "Exception occured retrieving BeamSpot in event: " << iEvent.id() 
+       << "\n" << err.what() << "\n"
+       << "continue using default BeamSpot" << endl;
+  }
+
+
     // here call vertex reconstruction
     
-    vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
+    vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << t_vts.size() << " reconstructed vertices" << "\n";
 
     // convert transient vertices returned by the theAlgo to (reco) vertices
     for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
 	 iv != t_vts.end(); iv++) {
-	Vertex v = *iv;
-
-//       Vertex v(Vertex::Point((*iv).position()), 
-// 	       RecoVertex::convertError((*iv).positionError()), 
-// 	       (*iv).totalChiSquared(), 
-// 	       (*iv).degreesOfFreedom() , 
-//       (*iv).originalTracks().size());
-//       vector<reco::TransientTrack> prongs = (*iv).originalTracks();
-// 
-//       // store link to tracks
-//       for (vector<reco::TransientTrack>::const_iterator it = prongs.begin();
-//  	   it != prongs.end(); it++) {
-//  	if ((*it).persistentTrackRef().isNonnull()) {
-// 	  // edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-// 	  //	  << (*it).persistentTrackRef().id() << ", "
-// 	  //	  << (*it).persistentTrackRef().key() << "\n";
-//  	  v.add((*it).persistentTrackRef());
-//  	}
-//  	else {
-//  	  if(fVerbose){
-// 	    cout << "PrimaryVertexProducer::this transient track has no persistent track ref" << endl;
-// 	  }
-//  	}
-//       }
+      Vertex v = *iv;
       vColl.push_back(v);
     }
 

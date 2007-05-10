@@ -9,8 +9,9 @@
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
+#include "RecoVertex/PrimaryVertexProducer/interface/BeamTransientTrack.h"
 
-using namespace reco;
+//using namespace reco;
 
 //
 // constants, enums and typedefs
@@ -102,24 +103,39 @@ PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm()
 //
 // member functions
 //
-
 vector<TransientVertex> 
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks) const
 {
+  std::cout<< "PrimaryVertexProducer::vertices> Obsolete function, using dummy beamspot " << std::endl;
+    BeamSpot dummyBeamSpot;
+    return vertices(tracks,dummyBeamSpot); 
+}
+
+
+vector<TransientVertex> 
+PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks,
+					 const BeamSpot & beamSpot) const
+{
   
+  VertexState beamVertexState(beamSpot.position(), beamSpot.error());
+
   if ( fapply_finder) {
     return theFinder.vertices( tracks );
   }
   vector<TransientVertex> pvs;
   try {
+
+
     // select tracks
-    vector<reco::TransientTrack> seltks;
-    // if(fVerbose){
-    //  cout << "PrimaryVertexProducerAlgorithm::vertices  input tracks="<<tracks.size() << endl;
-    //}
+    //vector<reco::TransientTrack> seltks;
+    vector<BeamTransientTrack> seltks;
+
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
-      if (theTrackFilter(*itk)) seltks.push_back(*itk);
+      //if (theTrackFilter(*itk)) seltks.push_back(*itk);
+      BeamTransientTrack t(*itk, beamSpot.position());
+      if (theTrackFilter(t)) seltks.push_back(t);
+      //if (theTrackFilter(*itk, beamSpot)) seltks.push_back(*itk);
     }
 
     if(fVerbose){
@@ -152,15 +168,15 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       if( fUseBeamConstraint &&((*iclus).size()>0) ){
 	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 	try {
-          TransientVertex v = theFitter->vertex(*iclus, theBeamSpot.position(), theBeamSpot.error());
+          TransientVertex v = theFitter->vertex(*iclus, beamSpot);
 
 	  if (fVerbose){
-	    cout << "beamspot   x="<< theBeamSpot.position().x() 
-		 << " y=" << theBeamSpot.position().y()
-		 << " z=" << theBeamSpot.position().z()
-		 << " dx=" << sqrt(theBeamSpot.error().cxx())
-		 << " dy=" << sqrt(theBeamSpot.error().cyy())
-		 << " dz=" << sqrt(theBeamSpot.error().czz())
+	    cout << "beamspot   x="<< beamSpot.position().x() 
+		 << " y=" << beamSpot.position().y()
+		 << " z=" << beamSpot.position().z()
+		 << " dx=" << sqrt(beamSpot.error().cxx())
+		 << " dy=" << sqrt(beamSpot.error().cyy())
+		 << " dz=" << sqrt(beamSpot.error().czz())
 		 << std::endl;
 	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
 	      else cout <<"Invalid fitted vertex\n";
@@ -206,9 +222,9 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	 ipv != pvCand.end(); ipv++) {
       if(fVerbose){
 	cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
-	  theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+	  theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
       }
-      if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
+      if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
     }
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)

@@ -13,7 +13,7 @@
 //
 // Original Author:  Pascal Vanlaer
 //         Created:  Tue Feb 28 11:06:34 CET 2006
-// $Id: PrimaryVertexProducerAlgorithm.h,v 1.3 2006/09/29 11:26:57 werdmann Exp $
+// $Id: PrimaryVertexProducerAlgorithm.h,v 1.4 2007/01/21 22:41:26 yumiceva Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/TrimmedKalmanVertexFinder/interface/KalmanTrimmedVertexFinder.h"
 #include "RecoVertex/VertexTools/interface/VertexCompatibleWithBeam.h"
-#include "RecoVertex/VertexTools/interface/BeamSpot.h"
+#include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
 
 //
 // class declaration
@@ -42,6 +42,10 @@ public:
   virtual vector<TransientVertex> 
   vertices(const vector<reco::TransientTrack> & tracks) const;
 
+  virtual vector<TransientVertex> 
+  vertices(const vector<reco::TransientTrack> & tracks, 
+	   const BeamSpot & beamSpot) const;
+
   /** Clone method
    */ 
   virtual PrimaryVertexProducerAlgorithm * clone() const {
@@ -57,7 +61,6 @@ private:
   KalmanTrimmedVertexFinder theFinder;
   VertexCompatibleWithBeam theVertexSelector;
 
-  BeamSpot theBeamSpot;
   bool fVerbose;
   bool fUseBeamConstraint;
   VertexFitter *theFitter;
