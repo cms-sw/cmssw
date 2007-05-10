@@ -142,3 +142,4 @@ TrackingVertex KVFTest::getSimVertex(const edm::Event& iEvent) const
 //    }
    return *(tPC.begin());
 }
+DEFINE_ANOTHER_FWK_MODULE(KVFTest);
