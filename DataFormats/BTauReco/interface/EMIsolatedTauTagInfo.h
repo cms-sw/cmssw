@@ -15,72 +15,68 @@
 #include "Math/GenVector/PxPyPzE4D.h"
 
 
-namespace reco { 
+namespace reco {
 
   class EMIsolatedTauTagInfo : public BaseTagInfo {
 
   public:
     //default constructor
-    EMIsolatedTauTagInfo() : m_discriminator(0), m_jetCrystalsAssociation() {}
+    EMIsolatedTauTagInfo() : m_discriminator(0), m_jetCrystalsAssociation() { }
 
-    EMIsolatedTauTagInfo(double discriminator, JetCrystalsAssociationRef jetCrystals) 
-    {    
-        m_discriminator = discriminator;
-        m_jetCrystalsAssociation  = jetCrystals;
-    }
-    
+    EMIsolatedTauTagInfo(double discriminator, const JetCrystalsAssociationRef & jetCrystals) :
+      m_discriminator( discriminator ),
+      m_jetCrystalsAssociation( jetCrystals ) { }
+
     // destructor
-    virtual ~EMIsolatedTauTagInfo() {};
+    virtual ~EMIsolatedTauTagInfo() { };
     virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( * this ); }
-    
+
     // get the jet from the jetTag
     virtual edm::RefToBase<Jet>       jet()                  const { return m_jetCrystalsAssociation->first;  }
-    virtual EMLorentzVectorRefVector  lorentzVectorRecHits() const { return m_jetCrystalsAssociation->second; } 
+    virtual EMLorentzVectorRefVector  lorentzVectorRecHits() const { return m_jetCrystalsAssociation->second; }
     const JetCrystalsAssociationRef & jcaRef()               const { return m_jetCrystalsAssociation; }
 
     // default discriminator: returns the value of the discriminator computed with the parameters taken from the cfg file in the EDProducer
-    float discriminator() const { 
-        return m_discriminator; 
+    float discriminator() const {
+        return m_discriminator;
     }
 
-    void setDiscriminator(double discriminator) {m_discriminator =discriminator;}  
+    void setDiscriminator(double discriminator) { m_discriminator = discriminator; }
 
     //Method to recompute the discriminator
     double pIsol(float rMax, float rMin) const
     {
-        const edm::RefVector<EMLorentzVectorCollection>  myRecHits = lorentzVectorRecHits();
-        const Jet & myJet = * m_jetCrystalsAssociation->first; 
+        const EMLorentzVectorRefVector & myRecHits = m_jetCrystalsAssociation->second;
+        const Jet & myJet = * m_jetCrystalsAssociation->first;
         double energyRMax= 0.;
         double energyRMin = 0.;
-          
-        edm::RefVector<EMLorentzVectorCollection>::const_iterator mRH =myRecHits.begin();
-        for(; mRH != myRecHits.end(); mRH++)
+
+        for (EMLorentzVectorRefVector::const_iterator mRH = myRecHits.begin(); mRH != myRecHits.end(); ++mRH)
         {
             double delta  = ROOT::Math::VectorUtil::DeltaR((myJet).p4().Vect(), (**mRH));
-            if(delta < rMax) {
-                energyRMax = energyRMax +  (**mRH).pt(); 
+            if (delta < rMax) {
+                energyRMax += (**mRH).pt();
             }
-            if(delta < rMin) {
-                energyRMin = energyRMin +  (**mRH).pt();
+            if (delta < rMin) {
+                energyRMin += (**mRH).pt();
             }
         }
-        //std::cout <<"EnergyMax - EnergyMin" << energyRMax <<" - " << energyRMin<<std::endl;
         double pIsol = energyRMax - energyRMin;
         return pIsol;
     }
-    
+
     float discriminator(float rMax, float rMin, float pIsolCut) const
     {
-        double newDiscriminator_ =0;
+        double newDiscriminator_ = 0;
         double pIsol_ = pIsol(rMax, rMin);
-        if (pIsol_ < pIsolCut) newDiscriminator_ =1.;
-                                 
+        if (pIsol_ < pIsolCut) newDiscriminator_ = 1.;
+
         return newDiscriminator_;
     }
-  
+
   private:
 
-    float m_discriminator; //Default discriminator assigned in the EDProducer 
+    float m_discriminator; //Default discriminator assigned in the EDProducer
     JetCrystalsAssociationRef m_jetCrystalsAssociation;
   };
 }
