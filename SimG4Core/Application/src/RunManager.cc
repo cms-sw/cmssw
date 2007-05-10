@@ -89,7 +89,8 @@ void createWatchers(const edm::ParameterSet& iP,
   }
 }
 
-RunManager * RunManager::me = 0;
+// RunManager * RunManager::me = 0;
+/*
 RunManager * RunManager::init(edm::ParameterSet const & p)
 {
     if (me != 0) abort();
@@ -102,6 +103,7 @@ RunManager * RunManager::instance()
     if (me==0) abort();
     return me;
 }
+*/
 
 RunManager::RunManager(edm::ParameterSet const & p) 
   :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
@@ -129,7 +131,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     
-    m_CustomExceptionHandler = new ExceptionHandler() ;
+    m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
     m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
     std::cout << " Run Manager constructed " << std::endl;
@@ -344,7 +346,7 @@ void RunManager::abortEvent()
 void RunManager::initializeUserActions()
 {
 
-    RunAction* userRunAction = new RunAction(m_pRunAction);
+    RunAction* userRunAction = new RunAction(m_pRunAction,this);
     m_userRunAction = userRunAction;
     userRunAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
     userRunAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
@@ -353,7 +355,8 @@ void RunManager::initializeUserActions()
     eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
     if (m_generator!=0)
     {
-        EventAction * userEventAction = new EventAction(m_pEventAction,m_trackManager.get());
+        EventAction * userEventAction = new EventAction(m_pEventAction,this,m_trackManager.get());
+	//userEventAction->SetRunManager(this) ;
 	userEventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
 	userEventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
         eventManager->SetUserAction(userEventAction);

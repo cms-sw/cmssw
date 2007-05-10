@@ -25,9 +25,11 @@ class EventAction: public G4UserEventAction
 {
 public:
     //EventAction(const edm::ParameterSet & ps);
-    EventAction(const edm::ParameterSet & ps,
+    EventAction(const edm::ParameterSet& ps,
+                RunManager*,
 		SimTrackManager*);
     ~EventAction();
+    // void SetRunManager( RunManager* rm ) { m_runManager = rm ; return ; }
     void BeginOfEventAction(const G4Event * evt);
     void EndOfEventAction(const G4Event * evt);
 
@@ -42,6 +44,7 @@ public:
 
 private:
     //does not own the manager
+    RunManager*      m_runManager;
     SimTrackManager* m_trackManager;
     std::string m_stopFile;
     bool m_debug;

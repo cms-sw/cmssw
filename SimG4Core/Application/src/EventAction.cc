@@ -11,8 +11,10 @@ using std::cout;
 using std::endl;
 
 EventAction::EventAction(const edm::ParameterSet & p,
+                         RunManager* rm,
 			 SimTrackManager* iManager) 
-    : m_trackManager(iManager),
+    : m_runManager(rm),
+      m_trackManager(iManager),
       m_stopFile(p.getParameter<std::string>("StopFile")),
       m_debug(p.getUntrackedParameter<bool>("debug",false))
 {
@@ -27,7 +29,8 @@ void EventAction::BeginOfEventAction(const G4Event * anEvent)
     {
         cout << "BeginOfEventAction: termination signal received at event "
              << anEvent->GetEventID() << endl;
-        RunManager::instance()->abortRun(true);
+        //RunManager::instance()->abortRun(true);
+	m_runManager->abortRun(true);
     }
 
     m_trackManager->reset();
@@ -41,7 +44,8 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
     {
         cout << "EndOfEventAction: termination signal received at event "
              << anEvent->GetEventID() << endl;
-        RunManager::instance()->abortRun(true);
+        //RunManager::instance()->abortRun(true);
+	m_runManager->abortRun(this);
     }
     if (anEvent->GetNumberOfPrimaryVertex()==0)
     {
@@ -50,7 +54,8 @@ void EventAction::EndOfEventAction(const G4Event * anEvent)
         return;
     }
 
-    m_trackManager->storeTracks(RunManager::instance()->simEvent());
+    // m_trackManager->storeTracks(RunManager::instance()->simEvent());
+    m_trackManager->storeTracks(m_runManager->simEvent());
     // dispatch now end of event, and only then delete tracks...
     EndOfEvent e(anEvent);
     m_endOfEventSignal(&e);

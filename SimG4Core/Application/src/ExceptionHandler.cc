@@ -11,11 +11,12 @@ using std::cout;
 using std::endl;
 using std::string;
 
-//ExceptionHandler::ExceptionHandler(RunManager * rm) : runManager_(rm), override(false)
-//{ 
-//    override = true; 
+ExceptionHandler::ExceptionHandler(RunManager* rm) 
+   : fRunManager(rm)
+{ 
+//    override = false; 
 //    verbose = 0; 
-//}
+}
 
 ExceptionHandler::~ExceptionHandler() {}
 
@@ -30,8 +31,20 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
     switch(severity)
     {
     case FatalException:
+        if ( aps==G4State_EventProc && exceptionOrigin==string("G4HadronicProcess") )
+        {
+        cout << "*** Fatal exception *** (will be fixed in v4.8.3) ***" << endl;
+        throw SimG4Exception( "SimG4CoreApplication: Bug in G4HadronicProcess will be fixed in G4.8.3" ) ;
+        }
+        else
+        {
+        cout << "*** Fatal exception *** core dump ***" << endl;
+        abortionForCoreDump = true;
+        }
+/*
 	cout << "*** Fatal exception *** core dump ***" << endl;
 	abortionForCoreDump = true;
+*/
 	break;
     case FatalErrorInArgument:
 	cout << "*** Fatal error in argument *** core dump ***" << endl;
@@ -41,8 +54,8 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 	if(aps==G4State_GeomClosed || aps==G4State_EventProc)
 	{
 	    cout << "*** Run must be aborted " << endl;
-	    //runManager_->abortRun(false);
-	    RunManager::instance()->abortRun(false) ;
+	    fRunManager->abortRun(false);
+	    //RunManager::instance()->abortRun(false) ;
 	}
 	abortionForCoreDump = false;
 	break;
@@ -75,7 +88,7 @@ bool ExceptionHandler::Notify(const char* exceptionOrigin,const char* exceptionC
 	    }
 	    else
 */
-		//runManager_->abortEvent();
+		//fRunManager->abortEvent();
 		//RunManager::instance()->abortEvent() ;
 		throw SimG4Exception( "SimG4CoreApplication: G4Navigator:StuckTrack detected" ) ;
 	}

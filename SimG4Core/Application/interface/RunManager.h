@@ -48,8 +48,9 @@ class ExceptionHandler ;
 class RunManager
 {
 public:
-    static RunManager * instance();
-    static RunManager * init(edm::ParameterSet const & p); 
+    RunManager(edm::ParameterSet const & p);
+    //static RunManager * instance();
+    //static RunManager * init(edm::ParameterSet const & p); 
     virtual ~RunManager();
     void initG4(const edm::EventSetup & es);
     void initializeUserActions();
@@ -72,8 +73,8 @@ protected:
     G4Event * generateEvent( edm::Event& inpevt );
 private:
 
-    static RunManager * me;
-    explicit RunManager(edm::ParameterSet const & p);
+    // static RunManager * me;
+    // explicit RunManager(edm::ParameterSet const & p);
     
     G4RunManagerKernel * m_kernel;
     
