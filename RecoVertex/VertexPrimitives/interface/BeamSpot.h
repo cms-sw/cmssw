@@ -22,7 +22,7 @@ public:
    *  (0.0015*0.0015, 0.0015*0.0015, 5.3*5.3)
    */
   BeamSpot();
-  BeamSpot(reco::BeamSpot & beamSpot);
+  BeamSpot(const reco::BeamSpot & beamSpot);
   BeamSpot(const BeamSpotObjects * beamSpot);
 
   GlobalPoint position() const { return thePos; }

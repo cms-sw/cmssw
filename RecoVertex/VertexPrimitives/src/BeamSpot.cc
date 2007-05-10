@@ -6,7 +6,7 @@ BeamSpot::BeamSpot() : thePos(0, 0, 0),
 			      0., 0., 5.3*5.3) 
 {}
 
-BeamSpot::BeamSpot(reco::BeamSpot & beamSpot) :
+BeamSpot::BeamSpot(const reco::BeamSpot & beamSpot) :
 	 thePos(RecoVertex::convertPos(beamSpot.position())),
 	 theErr(RecoVertex::convertError(beamSpot.covariance3D()))
 {}
