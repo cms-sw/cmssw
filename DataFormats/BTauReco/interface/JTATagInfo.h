@@ -16,9 +16,9 @@ public:
   
   virtual JTATagInfo* clone(void) const { return new JTATagInfo(*this); }
 
-  virtual  edm::RefToBase<Jet> jet(void)    const { return m_jetTracksAssociation->first ; }
-  JetTracksAssociationRef     jtaRef(void) const { return m_jetTracksAssociation; }
-  TrackRefVector              tracks(void) const { return m_jetTracksAssociation->second; }
+  virtual edm::RefToBase<Jet>     jet(void)    const { return m_jetTracksAssociation->first ; }
+  virtual TrackRefVector          tracks(void) const { return m_jetTracksAssociation->second; }
+  const JetTracksAssociationRef & jtaRef(void) const { return m_jetTracksAssociation; }
   
   void setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation = jtaRef; } 
   
