@@ -34,14 +34,8 @@ namespace reco {
     typedef TauMassTagInfo::ClusterTrackAssociationCollection               TauMassTagInfo_ClusterTrackAssociationCollection;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::value_type   TauMassTagInfo_ClusterTrackAssociation;
- //   typedef JetTracksAssociationCollection::map_type                        JetTracksAssociationMapType;
-//    typedef JetTracksAssociationCollection::ref_type                        JetTracksAssociationRefType;
-    typedef JetCrystalsAssociationCollection::map_type                      JetCrystalsAssociationMapType;
-    typedef JetCrystalsAssociationCollection::ref_type                      JetCrystalsAssociationRefType;
-    typedef JetEisolAssociationCollection::map_type                         JetEisolAssociationMapType;
-    typedef JetEisolAssociationCollection::ref_type                         JetEisolAssociationRefType;
-//    typedef JetTracksIPDataAssociationCollection::map_type                  JetTracksIPDataAssociationMapType;
-//    typedef JetTracksIPDataAssociationCollection::ref_type                  JetTracksIPDataAssociationRefType;
+//  typedef JetTracksIPDataAssociationCollection::map_type                  JetTracksIPDataAssociationMapType;
+//  typedef JetTracksIPDataAssociationCollection::ref_type                  JetTracksIPDataAssociationRefType;
 }
 
 namespace {
@@ -148,8 +142,6 @@ namespace {
  
     reco::JetCrystalsAssociation                                        jca;
     reco::JetCrystalsAssociationCollection                              jca_c;
-    reco::JetCrystalsAssociationMapType                                 jca_cm;
-    reco::JetCrystalsAssociationRefType                                 jca_cr;
     reco::JetCrystalsAssociationRef                                     jca_r;
     reco::JetCrystalsAssociationRefProd                                 jca_rp;
     reco::JetCrystalsAssociationRefVector                               jca_rv;
@@ -157,14 +149,13 @@ namespace {
 
     reco::JetEisolAssociation                                           jea;
     reco::JetEisolAssociationCollection                                 jea_c;
-    reco::JetEisolAssociationMapType                                    jea_cm;
-    reco::JetEisolAssociationRefType                                    jea_cr;
     reco::JetEisolAssociationRef                                        jea_r;
     reco::JetEisolAssociationRefProd                                    jea_rp;
     reco::JetEisolAssociationRefVector                                  jea_rv;
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
 
-/*    reco::JetTracksIPDataAssociation                                    jtip;
+/*
+    reco::JetTracksIPDataAssociation                                    jtip;
     reco::JetTracksIPDataAssociationCollection                          jtip_c;
     reco::JetTracksIPDataAssociationMapType                             jtip_cm;
     reco::JetTracksIPDataAssociationRefType                             jtip_cr;
@@ -173,12 +164,13 @@ namespace {
     reco::JetTracksIPDataAssociationRefVector                           jtip_rv;
     edm::Wrapper<reco::JetTracksIPDataAssociationCollection>            jtip_wc;
 */
-    reco::TrackIPTagInfo                                          tcip;
-    reco::TrackIPTagInfoCollection                                tcip_c;
-    reco::TrackIPTagInfoRef                                       tcip_r;
-    reco::TrackIPTagInfoRefProd                                   tcip_rp;
-    reco::TrackIPTagInfoRefVector                                 tcip_rv;
-    edm::Wrapper<reco::TrackIPTagInfoCollection>                  tcip_wc;
+
+    reco::TrackIPTagInfo                                                tcip;
+    reco::TrackIPTagInfoCollection                                      tcip_c;
+    reco::TrackIPTagInfoRef                                             tcip_r;
+    reco::TrackIPTagInfoRefProd                                         tcip_rp;
+    reco::TrackIPTagInfoRefVector                                       tcip_rv;
+    edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
 
 
     reco::BaseTagInfo                                                   bti;
@@ -188,32 +180,30 @@ namespace {
     reco::BaseTagInfoRefVector                                          bti_rv;
     edm::Wrapper<reco::BaseTagInfoCollection>                           bti_wc;
     
-    reco::JTATagInfo                                                   jbti;
-    reco::JTATagInfoCollection                                         jbti_c;
-    reco::JTATagInfoRef                                                jbti_r;
-    reco::JTATagInfoRefProd                                            jbti_rp;
-    reco::JTATagInfoRefVector                                          jbti_rv;
-    edm::Wrapper<reco::JTATagInfoCollection>                           jbti_wc;
+    reco::JTATagInfo                                                    jbti;
+    reco::JTATagInfoCollection                                          jbti_c;
+    reco::JTATagInfoRef                                                 jbti_r;
+    reco::JTATagInfoRefProd                                             jbti_rp;
+    reco::JTATagInfoRefVector                                           jbti_rv;
+    edm::Wrapper<reco::JTATagInfoCollection>                            jbti_wc;
 
-    
     std::vector<Measurement1D>    vm1d;
 	    
-    //Ref To base holders
-    // 
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef >  rb0;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::JTATagInfoRef >  rb05;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef > rb1;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef > rb2;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef > rb3;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef > rb4;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef > rb5;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef > rb6;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef > rb7;
-      edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef > rb8;
-   //Ref to base holders for Jet
-   //   edm::reftobase::Holder<reco::Jet, reco::BaseTagInfoRef >  rbj0;
-      edm::reftobase::Holder<reco::Jet, reco::CaloJetRef >  rbj05;
-   //   edm::reftobase::Holder<reco::Jet, reco::GenJetRef > rbj1;
+    // Ref To base holders
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::BaseTagInfoRef >  rb0;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::JTATagInfoRef >  rb05;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackCountingTagInfoRef > rb1;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef > rb2;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef > rb3;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef > rb4;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef > rb5;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef > rb6;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef > rb7;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef > rb8;
+    
+    // Ref to base holders for Jet
+    edm::reftobase::Holder<reco::Jet, reco::CaloJetRef >  rbj05;
+    // edm::reftobase::Holder<reco::Jet, reco::GenJetRef > rbj1;
 
   }
 }

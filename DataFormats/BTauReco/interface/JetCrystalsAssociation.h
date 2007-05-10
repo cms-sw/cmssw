@@ -17,12 +17,20 @@
 #include <vector>
 
 namespace reco {
-  typedef math::PtEtaPhiELorentzVector EMLorentzVector;
+  typedef math::PtEtaPhiELorentzVector           EMLorentzVector;
   typedef math::PtEtaPhiELorentzVectorCollection EMLorentzVectorCollection;
+  typedef math::PtEtaPhiELorentzVectorRef        EMLorentzVectorRef;
+  typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
+  typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
+        
+  // typedef 
+  // edm::AssociationMap<edm::OneToMany<CaloJetCollection, EMLorentzVectorCollection> >
+  //  JetCrystalsAssociationCollection;
 
-  typedef  edm::AssociationMap<edm::OneToMany<CaloJetCollection, EMLorentzVectorCollection> >
+  typedef 
+  std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>  >
     JetCrystalsAssociationCollection;
-  
+    
   typedef
   JetCrystalsAssociationCollection::value_type JetCrystalsAssociation;
   

@@ -23,25 +23,22 @@ namespace reco {
     //default constructor
     EMIsolatedTauTagInfo() : m_discriminator(0), m_jetCrystalsAssociation() {}
 
-
     EMIsolatedTauTagInfo(double discriminator, JetCrystalsAssociationRef jetCrystals) 
     {    
         m_discriminator = discriminator;
         m_jetCrystalsAssociation  = jetCrystals;
     }
     
-    //destructor
+    // destructor
     virtual ~EMIsolatedTauTagInfo() {};
     virtual EMIsolatedTauTagInfo* clone() const { return new EMIsolatedTauTagInfo( * this ); }
     
-    //get the jet from the jetTag
-    edm::RefToBase<Jet> jet() const { return edm::RefToBase<Jet>(m_jetCrystalsAssociation->key);  }
+    // get the jet from the jetTag
+    virtual edm::RefToBase<Jet>       jet()                  const { return m_jetCrystalsAssociation->first;  }
+    virtual EMLorentzVectorRefVector  lorentzVectorRecHits() const { return m_jetCrystalsAssociation->second; } 
+    const JetCrystalsAssociationRef & jcaRef()               const { return m_jetCrystalsAssociation; }
 
-    const edm::RefVector<EMLorentzVectorCollection> & lorentzVectorRecHits() const { return m_jetCrystalsAssociation->val; } 
-
-    const JetCrystalsAssociationRef& jcaRef() const { return m_jetCrystalsAssociation; }
-
-    //default discriminator: returns the value of the discriminator computed with the parameters taken from the cfg file in the EDProducer
+    // default discriminator: returns the value of the discriminator computed with the parameters taken from the cfg file in the EDProducer
     float discriminator() const { 
         return m_discriminator; 
     }
@@ -52,7 +49,7 @@ namespace reco {
     double pIsol(float rMax, float rMin) const
     {
         const edm::RefVector<EMLorentzVectorCollection>  myRecHits = lorentzVectorRecHits();
-        const Jet & myJet = * m_jetCrystalsAssociation->key; 
+        const Jet & myJet = * m_jetCrystalsAssociation->first; 
         double energyRMax= 0.;
         double energyRMin = 0.;
           

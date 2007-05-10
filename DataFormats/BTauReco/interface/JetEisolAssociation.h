@@ -14,10 +14,14 @@
 #include <vector>
 
 namespace reco {
-  typedef
-  edm::AssociationMap<edm::OneToValue<CaloJetCollection, float, unsigned int> >
-                      JetEisolAssociationCollection;
+  // typedef
+  // edm::AssociationMap<edm::OneToValue<CaloJetCollection, float> >
+  //   JetEisolAssociationCollection;
   
+  typedef 
+  std::vector<std::pair<edm::RefToBase<Jet>, float>  >
+    JetEisolAssociationCollection;
+    
   typedef
   JetEisolAssociationCollection::value_type JetEisolAssociation;
   

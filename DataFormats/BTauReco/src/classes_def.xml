@@ -105,22 +105,14 @@
   <class name="edm::Wrapper<reco::JetTracksAssociationCollection>"/>
 
   <class name="reco::JetCrystalsAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToMany<reco::CaloJetCollection, reco::EMLorentzVectorCollection, unsigned int> >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="reco::JetCrystalsAssociationMapType"/>
-  <class name="reco::JetCrystalsAssociationRefType"/>
+  <class name="reco::JetCrystalsAssociationCollection"/>
   <class name="reco::JetCrystalsAssociationRef"/>
   <class name="reco::JetCrystalsAssociationRefProd"/>
   <class name="reco::JetCrystalsAssociationRefVector"/>
   <class name="edm::Wrapper<reco::JetCrystalsAssociationCollection>"/>
 
   <class name="reco::JetEisolAssociation"/>
-  <class name="edm::AssociationMap<edm::OneToValue<reco::CaloJetCollection, float, unsigned int> >">
-    <field name="transientMap_" transient="true"/>
-  </class>
-  <class name="reco::JetEisolAssociationMapType"/>
-  <class name="reco::JetEisolAssociationRefType"/>
+  <class name="reco::JetEisolAssociationCollection"/>
   <class name="reco::JetEisolAssociationRef"/>
   <class name="reco::JetEisolAssociationRefProd"/>
   <class name="reco::JetEisolAssociationRefVector"/>
