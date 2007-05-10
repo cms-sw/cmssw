@@ -9,9 +9,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=Geometry/CommonDetUnit>
-<use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=RecoPixelVertexing/PixelTriplets>
@@ -23,10 +22,11 @@
 <use name=RecoTracker/TransientTrackingRecHit>
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/KalmanUpdators>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
-<flags EDM_PLUGIN=1>
+<flags EDM_PLUGIN="1">
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/GeometrySurface>
@@ -43,6 +43,7 @@
   <use name=RecoTracker/TkTrackingRegions>
   <use name=RecoTracker/TransientTrackingRecHit>
   <use name=TrackingTools/DetLayers>
+  <use name=TrackingTools/GeomPropagators>
   <use name=TrackingTools/Records>
   <use name=TrackingTools/TrajectoryState>
   <use name=TrackingTools/TransientTrackingRecHit>

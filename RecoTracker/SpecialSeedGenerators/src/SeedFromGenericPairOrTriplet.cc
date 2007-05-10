@@ -65,9 +65,9 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromTriplet(const SeedingHitSe
 			"call to SeedFromGenericPairOrTriplet::seedFromTriplet with " << hits.hits().size() << " hits ";
 	}
 
-        const TrackingRecHit* innerHit  = (hits.hits())[0].RecHit();
-        const TrackingRecHit* middleHit = (hits.hits())[1].RecHit();
-        const TrackingRecHit* outerHit  = (hits.hits())[2].RecHit();
+        const TrackingRecHit* innerHit  = &(*(hits.hits())[0]);
+        const TrackingRecHit* middleHit = &(*(hits.hits())[1]);
+        const TrackingRecHit* outerHit  = &(*(hits.hits())[2]);
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint middle = theTracker->idToDet(middleHit->geographicalId())->surface().toGlobal(middleHit->localPosition());
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
@@ -175,8 +175,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::seedFromPair(const SeedingHitSet& 
                 throw cms::Exception("CombinatorialSeedGeneratorForCosmics") <<
                         "call to SeedFromGenericPairOrTriplet::seedFromPair with " << hits.hits().size() << " hits ";
         }
-	const TrackingRecHit* innerHit = (hits.hits())[0].RecHit();
-        const TrackingRecHit* outerHit = (hits.hits())[1].RecHit();
+	const TrackingRecHit* innerHit = &(*(hits.hits())[0]);
+        const TrackingRecHit* outerHit = &(*(hits.hits())[1]);
         GlobalPoint inner  = theTracker->idToDet(innerHit->geographicalId() )->surface().toGlobal(innerHit->localPosition() );
         GlobalPoint outer  = theTracker->idToDet(outerHit->geographicalId() )->surface().toGlobal(outerHit->localPosition() );
 	LogDebug("SeedFromGenericPairOrTriplet") <<
@@ -315,9 +315,9 @@ bool SeedFromGenericPairOrTriplet::qualityFilter(const FreeTrajectoryState* star
                         std::vector<GlobalPoint> gPoints;
                         SeedingHitSet::Hits::const_iterator iHit;
                         for (iHit = hits.hits().begin(); iHit != hits.hits().end(); iHit++){
-                                gPoints.push_back(theTracker->idToDet(iHit->RecHit()->geographicalId() )->surface().toGlobal(iHit->RecHit()->localPosition() ));
+                                gPoints.push_back(theTracker->idToDet((**iHit).geographicalId() )->surface().toGlobal((**iHit).localPosition() ));
                         }
-                        unsigned int subid=hits.hits().front().RecHit()->geographicalId().subdetId();
+                        unsigned int subid=(*(hits.hits().front())).geographicalId().subdetId();
 			if(subid == StripSubdetector::TEC || subid == StripSubdetector::TID){
                                 LogDebug("SeedFromGenericPairOrTriplet") 
 					<< "In the endcaps we cannot decide if hits are aligned with only phi and z";
