@@ -17,7 +17,6 @@
 <use name=MagneticField/Records>
 <use name=MagneticField/Engine>
 <use name=CommonTools/SiStripZeroSuppression>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimTrackerSiStripDigitizer>
    <use name=FWCore/Framework>
