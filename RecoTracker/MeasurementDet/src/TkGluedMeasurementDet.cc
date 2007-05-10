@@ -12,6 +12,11 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+
+#include <typeinfo>
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
+#include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorForTrackerHits.h"
+
 using namespace std;
 
 TkGluedMeasurementDet::TkGluedMeasurementDet( const GluedGeomDet* gdet, 
@@ -38,52 +43,60 @@ TkGluedMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
   RecHitContainer monoHits = theMonoDet->recHits( ts);
   RecHitContainer stereoHits = theStereoDet->recHits( ts);
 
+  //edm::LogWarning("TkGluedMeasurementDet::recHits") << "Query-for-detid-" << theGeomDet->geographicalId().rawId();
+
   //checkProjection(ts, monoHits, stereoHits);
 
   if (monoHits.empty()) return projectOnGluedDet( stereoHits, ts);
   else if (stereoHits.empty()) return projectOnGluedDet(monoHits, ts);
   else {    
     LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
+
     // convert stereo hits to type expected by matcher
     SiStripRecHitMatcher::SimpleHitCollection  vsStereoHits;
+    vsStereoHits.reserve(stereoHits.size());
     for (RecHitContainer::const_iterator stereoHit = stereoHits.begin();
-	 stereoHit != stereoHits.end(); stereoHit++) {
-      const TrackingRecHit* tkhit = (**stereoHit).hit();
-      const SiStripRecHit2D* verySpecificStereoHit =
-	dynamic_cast<const SiStripRecHit2D*>(tkhit);
-      if (verySpecificStereoHit == 0) {
-	throw MeasurementDetException("TkGluedMeasurementDet ERROR: stereoHit is not SiStripRecHit2D");
-      }
-      vsStereoHits.push_back( verySpecificStereoHit);
+            stereoHit != stereoHits.end(); ++stereoHit) {
+        const TrackingRecHit* tkhit = (**stereoHit).hit();
+        const SiStripRecHit2D* verySpecificStereoHit =
+            reinterpret_cast<const SiStripRecHit2D*>(tkhit);
+        //dynamic_cast<const SiStripRecHit2D*>(tkhit);
+        //if (verySpecificStereoHit == 0) {
+        //   throw MeasurementDetException("TkGluedMeasurementDet ERROR: stereoHit is not SiStripRecHit2D");
+        //}
+        vsStereoHits.push_back( verySpecificStereoHit );
     }
+
 
     // convert mono hits to type expected by matcher
     for (RecHitContainer::const_iterator monoHit = monoHits.begin();
-	 monoHit != monoHits.end(); monoHit++) {
-      const TrackingRecHit* tkhit = (**monoHit).hit();
-      const SiStripRecHit2D* verySpecificMonoHit =
-	dynamic_cast<const SiStripRecHit2D*>(tkhit);
-      if (verySpecificMonoHit == 0) {
-	throw MeasurementDetException("TkGluedMeasurementDet ERROR: monoHit is not SiStripRecHit2D");
-      }
+            monoHit != monoHits.end(); ++monoHit) {
+        const TrackingRecHit* tkhit = (**monoHit).hit();
+        const SiStripRecHit2D* verySpecificMonoHit =
+            reinterpret_cast<const SiStripRecHit2D*>(tkhit);
 
-      edm::OwnVector<SiStripMatchedRecHit2D> tmp =
-	theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(),
-			  &specificGeomDet(), tkDir);
-
-      if(tmp.size()){
-	for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator i=tmp.begin();
-	     i != tmp.end(); i++) {
-	  result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i), theMatcher));
-	}
-      }else{
-	//edm::LogVerbatim("Madf") << "in TkGluedMeasurementDet, no stereo hit matched with the mono one" ;
-	RecHitContainer monoUnmatchedHit;
-	monoUnmatchedHit.push_back(*monoHit);
-	RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
-	result.insert(result.end(),projectedMonoUnmatchedHit.begin(),projectedMonoUnmatchedHit.end());
-      }
-    }//close loop mono
+        edm::OwnVector<SiStripMatchedRecHit2D> tmp = 
+                theMatcher->match( verySpecificMonoHit, vsStereoHits.begin(), vsStereoHits.end(), 
+                        &specificGeomDet(), tkDir);
+  
+        if (!tmp.empty()) {
+            for (edm::OwnVector<SiStripMatchedRecHit2D>::const_iterator i=tmp.begin(), e = tmp.end();
+                 i != e; ++i) {
+              result.push_back( TSiStripMatchedRecHit::build( &geomDet(), &(*i), theMatcher));
+            }
+        } else {
+            //<<<< if projecting 1 rec hit does not produce more than one rec hit ...
+            //<<<< then the following is "suboptimal"
+            //  RecHitContainer monoUnmatchedHit;     //better kept here, it is often never used at all in one call to recHits
+            //  monoUnmatchedHit.push_back(*monoHit);
+            //  RecHitContainer projectedMonoUnmatchedHit = projectOnGluedDet(monoUnmatchedHit, ts);
+            //  result.insert(result.end(), projectedMonoUnmatchedHit.begin(), projectedMonoUnmatchedHit.end());
+            //<<<< and so we use 
+            TrackingRecHitProjector<ProjectedRecHit2D> proj;
+            result.push_back( proj.project( **monoHit, geomDet(), ts));
+            //<<<< end of change
+        }
+    } // loop on mono hit
   }
   return result;
 }
@@ -96,7 +109,14 @@ TkGluedMeasurementDet::fastMeasurements( const TrajectoryStateOnSurface& stateOn
 {
    if (theMonoDet->isActive() || theStereoDet->isActive()) {
       NonPropagatingDetMeasurements realOne;
-      return realOne.get( *this, stateOnThisDet, est);
+      
+      if ( typeid(est) == typeid(Chi2MeasurementEstimator&) ) {
+          Chi2MeasurementEstimatorForTrackerHits estOpt(static_cast<const Chi2MeasurementEstimator&>(est));;
+          return realOne.get( *this, stateOnThisDet, estOpt);
+          //return realOne.get( *this, stateOnThisDet, est);
+      } else { // can't optimize for this
+          return realOne.get( *this, stateOnThisDet, est);
+      }
    } else {
       std::vector<TrajectoryMeasurement> result;
       result.push_back( TrajectoryMeasurement( stateOnThisDet, 

@@ -44,4 +44,5 @@
 <use name=CalibTracker/Records>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=FWCore/MessageLogger>
+<use name=TrackingTools/KalmanUpdators>
 
