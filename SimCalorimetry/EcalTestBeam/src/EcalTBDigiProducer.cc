@@ -67,7 +67,7 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   }
   theNoiseMatrix = new EcalCorrelatedNoiseMatrix(thisMatrix);
 
-  theCorrNoise = new CaloCorrelatedNoisifier(thisMatrix);
+  theCorrNoise = new CorrelatedNoisifier(thisMatrix);
 
   theCoder = new EcalCoder(addNoise, theCorrNoise);
   bool applyConstantTerm = params.getParameter<bool>("applyConstantTerm");
@@ -75,6 +75,10 @@ EcalTBDigiProducer::EcalTBDigiProducer(const edm::ParameterSet& params)
   theElectronicsSim = new EcalElectronicsSim(theParameterMap, theCoder, applyConstantTerm, rmsConstantTerm);
 
   theBarrelDigitizer = new EBDigitizer(theEcalResponse, theElectronicsSim, addNoise);
+
+  // not containment corrections
+  EBs25notCont = params.getParameter<double>("EBs25notContainment");
+  EEs25notCont = params.getParameter<double>("EEs25notContainment");
 
   /// Test Beam specific part
 
@@ -222,12 +226,11 @@ void  EcalTBDigiProducer::checkCalibrations(const edm::EventSetup & eventSetup)
 
   delete defaultRatios;
 
-  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC);
+  const double EBscale = (agc->getEBValue())*theGains[1]*(theCoder->MAXADC)*EBs25notCont;
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEBValue() << "\n" << " saturation for EB = " << EBscale;
-  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC);
+  const double EEscale = (agc->getEEValue())*theGains[1]*(theCoder->MAXADC)*EEs25notCont;
   LogDebug("EcalDigi") << " GeV/ADC = " << agc->getEEValue() << "\n" << " saturation for EE = " << EEscale;
   theCoder->setFullScaleEnergy( EBscale , EEscale );
-
 }
 
 
