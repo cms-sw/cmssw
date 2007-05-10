@@ -18,16 +18,21 @@ TruncatedPyramid::TruncatedPyramid(double dz, double theta, double phi,
   init(dz,theta,phi,h1,bl1,tl1,alpha1,h2,bl2,tl2,alpha2,frontSideIsPositiveZ);
   // calculate the center of the front face
   int i;
-  int offset;
-  if (frontSideIsPositiveZ)
-    offset = 4;                 // calculate the center of the front
-                                // face from the second four points
-  else
-    offset = 0;                 // or from the first four points
-  
+  int offset ( 0 ) ;
+
+  if( dz<11.2*cm ) // only for endcap
+  {
+     if (frontSideIsPositiveZ)
+	offset = 4;                 // calculate the center of the front
+                                    // face from the second four points
+     else
+	offset = 0;                 // or from the first four points
+  }
   HepGeom::Point3D<double> position;
   for (i=0; i<4; ++i)
-    position += HepGeom::Point3D<double>(corners[i + offset].x(),corners[i + offset].y(),corners[i + offset].z());
+    position += HepGeom::Point3D<double>(corners[i + offset].x(),
+					 corners[i + offset].y(),
+					 corners[i + offset].z());
 
   //While waiting for *= operator
   position *= 0.25;
@@ -55,16 +60,78 @@ void TruncatedPyramid::init(double dz, double theta, double phi,
   //                                             | of the trapezium
   //                                             | don't have their
   //                                             | center at the same 
-  //                                             | x value (alpha !=0)                                            
+  //                                             | x value (alpha !=0)       
+  std::vector<GlobalPoint> tcorners;
+  tcorners.resize(8);
+/*
   corners[0] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       - bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (-,-,-)
   corners[1] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       - tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (-,+,-)
   corners[2] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       + tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (+,+,-)
   corners[3] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       + bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (+,-,-)
-                                                                             
+  
   corners[4] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       - bl2,  dz*tan_theta_sin_phi - h2  , dz); // (-,-,+)
   corners[5] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       - tl2,  dz*tan_theta_sin_phi + h2  , dz); // (-,+,+)
   corners[6] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       + tl2,  dz*tan_theta_sin_phi + h2  , dz); // (+,+,+)
   corners[7] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       + bl2,  dz*tan_theta_sin_phi - h2  , dz); // (+,-,+)
+*/
+
+  tcorners[0] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       - bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (-,-,-)
+  tcorners[1] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       - tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (-,+,-)
+  tcorners[2] = GlobalPoint(-dz*tan_theta_cos_phi + h1 * tan_alpha1       + tl1, -dz*tan_theta_sin_phi + h1 , -dz); // (+,+,-)
+  tcorners[3] = GlobalPoint(-dz*tan_theta_cos_phi - h1 * tan_alpha1       + bl1, -dz*tan_theta_sin_phi - h1 , -dz); // (+,-,-)
+  
+  tcorners[4] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       - bl2,  dz*tan_theta_sin_phi - h2  , dz); // (-,-,+)
+  tcorners[5] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       - tl2,  dz*tan_theta_sin_phi + h2  , dz); // (-,+,+)
+  tcorners[6] = GlobalPoint(dz*tan_theta_cos_phi  + h2 * tan_alpha2       + tl2,  dz*tan_theta_sin_phi + h2  , dz); // (+,+,+)
+  tcorners[7] = GlobalPoint(dz*tan_theta_cos_phi  - h2 * tan_alpha2       + bl2,  dz*tan_theta_sin_phi - h2  , dz); // (+,-,+)
+
+
+// modified code to work with new barrel geometry (brian heltsley 4/2007)
+
+  int i0 ( 0 ) ;
+  int i1 ( 1 ) ;
+  int i2 ( 2 ) ;
+  int i3 ( 3 ) ;
+  int i4 ( 4 ) ;
+  int i5 ( 5 ) ;
+  int i6 ( 6 ) ;
+  int i7 ( 7 ) ;
+
+  if( dz > 11.2*cm )
+  {
+     const double sign ( bl1<tl1 ? 1. : -1. ) ;
+     for( int k ( 0 ) ; k != 4 ; ++k )
+     {
+	const unsigned int j ( frontSideIsPositiveZ ? k+4 : k ) ;
+	if( sign*tcorners[j].x()>0 &&
+	    sign*tcorners[j].y()<0    ) i0 = j ;
+	if( sign*tcorners[j].x()>0 &&
+	    sign*tcorners[j].y()>0    ) i1 = j ;
+	if( sign*tcorners[j].x()<0 &&
+	    sign*tcorners[j].y()>0    ) i2 = j ;
+	if( sign*tcorners[j].x()<0 &&
+	    sign*tcorners[j].y()<0    ) i3 = j ;
+
+	const unsigned int m ( frontSideIsPositiveZ ? k : k+4 ) ;
+	if( sign*tcorners[m].x()>0 &&
+	    sign*tcorners[m].y()<0    ) i4 = m ;
+	if( sign*tcorners[m].x()>0 &&
+	    sign*tcorners[m].y()>0    ) i5 = m ;
+	if( sign*tcorners[m].x()<0 &&
+	    sign*tcorners[m].y()>0    ) i6 = m ;
+	if( sign*tcorners[m].x()<0 &&
+	    sign*tcorners[m].y()<0    ) i7 = m ;
+     }
+  }
+
+  corners[0] =  tcorners[i0] ;
+  corners[1] =  tcorners[i1] ;
+  corners[2] =  tcorners[i2] ;
+  corners[3] =  tcorners[i3] ;
+  corners[4] =  tcorners[i4] ;
+  corners[5] =  tcorners[i5] ;
+  corners[6] =  tcorners[i6] ;
+  corners[7] =  tcorners[i7] ;
 
   // corners[0],corners[3] and corners[1],corners[2] make the parallel lines of the -dz trapezium
   // corners[4],corners[7] and corners[5],corners[6] make the parallel lines of the +dz trapezium
@@ -134,14 +201,6 @@ TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
 
   unsigned int i;
 
-  //Updating corners
-  for (i=0; i<corners.size(); ++i)
-    {
-      HepGeom::Point3D<float> newCorner(corners[i].x(),corners[i].y(),corners[i].z());
-      newCorner.transform(transformation);
-      corners[i]=GlobalPoint(newCorner.x(),newCorner.y(),newCorner.z());
-    }
-
   //Updating reference position
   const GlobalPoint& position_=CaloCellGeometry::getPosition();
   HepGeom::Point3D<float> newPosition(position_.x(),position_.y(),position_.z());
@@ -161,6 +220,51 @@ TruncatedPyramid::hepTransform(const HepTransform3D &transformation)
   thetaAxis = axe.getTheta();
   phiAxis = axe.getPhi();
 
+  // brian heltsley  April 13 2007
+  // if the transformation contains a reflection 
+  // the corners must be swapped accordingly.
+  // we know there is one such reflection in the barrel
+
+  std::vector< HepGeom::Point3D<float> > tlocal;
+  tlocal.resize(8);
+
+  //Updating corners
+  for (i=0; i<corners.size(); ++i)
+  {
+     HepGeom::Point3D<float> newCorner(corners[i].x(),
+				       corners[i].y(),
+				       corners[i].z());
+     newCorner.transform(transformation);
+     corners[i]=GlobalPoint(newCorner.x(),
+			    newCorner.y(),
+			    newCorner.z());
+     tlocal[i] = HepGeom::Point3D<float>(corners[i].x(),
+					 corners[i].y(),
+					 corners[i].z()  ) ;
+  }
+
+  if( fabs( corners[4].z() ) < 300. ) // not for endcap
+  {
+     const HepVector3D one ( tlocal[0] - newPosition ) ;
+     const HepVector3D two ( tlocal[1] - newPosition ) ;
+     const HepVector3D zax ( tlocal[4] - tlocal[0] ) ;
+
+     if( (one.cross( two )).dot(zax) > 0 ) // swap condition for barrel
+     {
+	GlobalPoint temp ( corners[0] ) ;
+	corners[0] = corners[3] ; 
+	corners[3] = temp ; 
+	temp = corners[1] ;
+	corners[1] = corners[2] ;
+	corners[2] = temp ;
+	temp = corners[4] ;
+	corners[4] = corners[7] ;
+	corners[7] = temp ;
+	temp = corners[5] ;
+	corners[5] = corners[6] ;
+	corners[6] = temp ;
+     }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -233,3 +337,18 @@ void TruncatedPyramid::dump(const char * prefix="") const {
   }
 }
 //----------------------------------------------------------------------
+
+std::ostream& operator<<(std::ostream& s,const TruncatedPyramid& cell) {
+  assert(cell.getCorners().size() == 8);
+  s  << "Center: " <<  cell.getPosition(0.) << std::endl;
+  float thetaaxis_= cell.getThetaAxis();
+  float phiaxis_= cell.getPhiAxis();
+  s  << "Axis: " <<  thetaaxis_ << " " << phiaxis_ << std::endl;
+  const std::vector<GlobalPoint>& corners=cell.getCorners(); 
+  //  vector<HepPoint3D> xtCorners=getCorners();
+  for ( unsigned int  ci=0; ci !=corners.size(); ci++) {
+    s  << "Corner: " << corners[ci] << std::endl;
+  }
+  return s;
+}
+  

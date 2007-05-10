@@ -127,10 +127,14 @@ RunManager::RunManager(edm::ParameterSet const & p)
     m_kernel = G4RunManagerKernel::GetRunManagerKernel();
     if (m_kernel==0) m_kernel = new G4RunManagerKernel();
     
+    // this will override G4ExceptionHandler 
+   // (initialized in kernal by default)
     m_CustomExceptionHandler = new ExceptionHandler() ;
     
     m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
+    
     std::cout << " Run Manager constructed " << std::endl;
+    
     if (m_nonBeam) std::cout << " Run Manager: simulating non beam events!!! " << std::endl;
 
     //Look for an outside SimActivityRegistry

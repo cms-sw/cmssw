@@ -31,7 +31,7 @@
 
 //constructor
 GlobalMuonRSTrajectoryBuilder::GlobalMuonRSTrajectoryBuilder(const edm::ParameterSet & iConfig) : 
- _smoother(NULL)
+  _roadEstimator(0),_hitEstimator(0),_updator(0),_smoother(0)
 {
   _category = "GlobalMuonRSTrajectoryBuilder";
 
@@ -79,6 +79,7 @@ GlobalMuonRSTrajectoryBuilder::~GlobalMuonRSTrajectoryBuilder()
   if (_roadEstimator) delete _roadEstimator;
   if (_hitEstimator) delete _hitEstimator;
   if (_updator) delete _updator;
+  if (_smoother) delete _smoother;
 }
 
 void GlobalMuonRSTrajectoryBuilder::init(const MuonServiceProxy* service){

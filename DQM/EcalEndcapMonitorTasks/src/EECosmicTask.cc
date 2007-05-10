@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.68 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,11 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
@@ -55,14 +60,9 @@ void EECosmicTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-    dbe->rmdir("EcalEndcap/EECosmicTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
+    dbe_->rmdir("EcalEndcap/EECosmicTask");
   }
 
 }
@@ -73,30 +73,25 @@ void EECosmicTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EECT energy cut SM%02d", i+1);
-      meCutMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EECT energy sel SM%02d", i+1);
-      meSelMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EECT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 
   }
@@ -105,29 +100,26 @@ void EECosmicTask::setup(void){
 
 void EECosmicTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask");
-
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      if ( meCutMap_[i] ) dbe->removeElement( meCutMap_[i]->getName() );
+      if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSelMap_[i] ) dbe->removeElement( meSelMap_[i]->getName() );
+      if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
+    dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      if ( meSpectrumMap_[i] ) dbe->removeElement( meSpectrumMap_[i]->getName() );
+      if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -36,6 +36,11 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
   for (int i = 0; i < 36 ; i++) {
@@ -52,14 +57,9 @@ void EETimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
-    dbe->rmdir("EcalEndcap/EETimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
+    dbe_->rmdir("EcalEndcap/EETimingTask");
   }
 
 }
@@ -70,18 +70,13 @@ void EETimingTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EETMT timing SM%02d", i+1);
-      meTimeMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe->tag(meTimeMap_[i], i+1);
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      dbe_->tag(meTimeMap_[i], i+1);
     }
 
   }
@@ -90,16 +85,13 @@ void EETimingTask::setup(void){
 
 void EETimingTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe->removeElement( meTimeMap_[i]->getName() );
+      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 

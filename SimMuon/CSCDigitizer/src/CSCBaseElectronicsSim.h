@@ -123,8 +123,6 @@ protected:
 
   // amplifier parameters
   int theShapingTime;
-  int theTailShaping;
-  float theAmpGainVariance;
   float thePeakTimeVariance;
   // used to correct the bunch timing so that the signal event 
   // comes at BX zero.

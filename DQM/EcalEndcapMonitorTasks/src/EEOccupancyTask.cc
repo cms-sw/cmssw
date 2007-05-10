@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/05 13:56:49 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -37,6 +37,11 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
@@ -55,14 +60,9 @@ void EEOccupancyTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEOccupancyTask");
-    dbe->rmdir("EcalEndcap/EEOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
+    dbe_->rmdir("EcalEndcap/EEOccupancyTask");
   }
 
 }
@@ -73,23 +73,18 @@ void EEOccupancyTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EEOT occupancy SM%02d", i+1);
-      meOccupancy_[i] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-      dbe->tag(meOccupancy_[i], i+1);
+      meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 36; i++) {
       sprintf(histo, "EEOT MEM occupancy SM%02d", i+1);
-      meOccupancyMem_[i] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
-      dbe->tag(meOccupancyMem_[i], i+1);
+      meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      dbe_->tag(meOccupancyMem_[i], i+1);
     }
 
   }
@@ -98,18 +93,15 @@ void EEOccupancyTask::setup(void){
 
 void EEOccupancyTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEOccupancyTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
-      if ( meOccupancy_[i] ) dbe->removeElement( meOccupancy_[i]->getName() );
+      if ( meOccupancy_[i] ) dbe_->removeElement( meOccupancy_[i]->getName() );
       meOccupancy_[i] = 0;
-      if ( meOccupancyMem_[i] ) dbe->removeElement( meOccupancyMem_[i]->getName() );
+      if ( meOccupancyMem_[i] ) dbe_->removeElement( meOccupancyMem_[i]->getName() );
       meOccupancyMem_[i] = 0;
     }
 

@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/03/30 15:59:51 $
- * $Revision: 1.23 $
+ * $Date: 2007/03/29 17:56:21 $
+ * $Revision: 1.22 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
 */
@@ -98,8 +98,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
   if ( folder == "DDU" ) {
     dbe->setCurrentFolder("DT/FED" + dduID_s.str());
 
-    histoType = "TTSValues";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUTTSValues";
+    histoName = "FED" + dduID_s.str() + "_DDUTTSValues";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,7,0,7);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"disconnected",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"warning overflow",1);	
@@ -109,8 +109,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"error",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"disconnected",1);	
 
-    histoType = "TTS_2";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUTTS_2";
+    histoName = "FED" + dduID_s.str() + "_DDUTTS_2";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,21,0,21);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"L1A mismatch",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"BX mismatch",1);	
@@ -134,8 +134,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(20,"error ROS 11",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(21,"error ROS 12",1);
 
-    histoType = "TTS_12";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUTTS_12";
+    histoName = "FED" + dduID_s.str() + "_DDUTTS_12";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,21,0,21);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"L1A mismatch",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"BX mismatch",1);	
@@ -160,12 +160,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(21,"error ROS 12",1);
 
 
-    histoType = "EventLenght";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUEventLenght";
+    histoName = "FED" + dduID_s.str() + "_DDUEventLenght";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,1000,0,1000);
  
-    histoType = "EventType";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUEventType";
+    histoName = "FED" + dduID_s.str() + "_DDUEventType";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,7,1,8);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"physics",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"calibration",1);	
@@ -175,12 +175,12 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"traced",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"error",1);	
   
-    histoType = "ROSList";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUROSList";
+    histoName = "FED" + dduID_s.str() + "_DDUROSList";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
     
-    histoType = "ROSStatus";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUChannelStatus";
+    histoName = "FED" + dduID_s.str() + "_DDUChannelStatus";;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book2D(histoName,histoName,9,0,9,12,0,12);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ch.enabled",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"timeout",1);	
@@ -204,8 +204,8 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",2);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",2);
 
-    histoType = "FIFOStatus";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoType = "DDUFIFOStatus";
+    histoName = "FED" + dduID_s.str() + "_DDUFIFOStatus";;
     (dduHistos[histoType])[code.getDDUID()] = dbe->book2D(histoName,histoName,7,0,7,3,0,3);
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"Input ch1-4",1);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"Input ch5-8",1);	
@@ -217,38 +217,7 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"Full",2);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"Almost Full",2);	
     ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"Not Full",2);	
-
-    histoType = "L1A_IDErrorROS";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",1);  
-
-    histoType = "BX_IDErrorROS";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoName,12,0,12);
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(1,"ROS 1",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(2,"ROS 2",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(3,"ROS 3",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(4,"ROS 4",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(5,"ROS 5",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(6,"ROS 6",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(7,"ROS 7",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(8,"ROS 8",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(9,"ROS 9",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(10,"ROS 10",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(11,"ROS 11",1);	
-    ((dduHistos[histoType])[code.getDDUID()])->setBinLabel(12,"ROS 12",1);  
+  
   }
 
   // ROS Histograms
@@ -805,7 +774,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
 
   //1D HISTO WITH TTS VALUES form trailer (7 bins = 7 values)
-  histoType = "TTSValues";
+  histoType = "DDUTTSValues";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
       bookHistos( string("DDU"), code);
   }
@@ -846,10 +815,10 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   
   //1D HISTO: IF TTS=2,12 CHECK L1A AND BX MISIMATCH, FIFO AND ROS ERROR (from status words)
   if(trailer.ttsBits()==2){
-    histoType = "TTS_2";
+    histoType = "DDUTTS_2";
   }
   if(trailer.ttsBits()==12){
-    histoType = "TTS_12";
+    histoType = "DDUTTS_12";
   }
 
   if(trailer.ttsBits()==2 || trailer.ttsBits()==12){
@@ -920,7 +889,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   //1D HISTOS: EVENT LENGHT from trailer
   //cout<<"1D HISTOS WITH EVENT LENGHT from trailer"<<endl;
-  histoType = "EventLenght";
+  histoType = "DDUEventLenght";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
       bookHistos( string("DDU"), code);
   }
@@ -928,7 +897,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 
   //1D HISTO: EVENT TYPE from header
   //cout<<"1D HISTO WITH EVENT TYPE from header"<<endl;
-   histoType = "EventType";
+   histoType = "DDUEventType";
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
       bookHistos( string("DDU"), code);
   }
@@ -943,14 +912,14 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     rosList >>= 1;
   }
 
-  histoType = "ROSList";   
+  histoType = "DDUROSList";   
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
     bookHistos( string("DDU"), code);
   } 
   (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(rosPositions.size());
 
   //2D HISTO: ROS VS STATUS (8 BIT = 8 BIN) from 1st-2nd status words (9th BIN FROM LIST OF ROS in 2nd status word)
-  histoType = "ROSStatus";   
+  histoType = "DDUChannelStatus";   
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
     bookHistos( string("DDU"), code);
   } 
@@ -1010,7 +979,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 //   }
 
   //2D HISTO: FIFO STATUS from 2nd status word
-  histoType = "FIFOStatus";   
+  histoType = "DDUFIFOStatus";   
   if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
     bookHistos( string("DDU"), code);
   } 
@@ -1103,49 +1072,10 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
 //     fifoVSTime.merge(fifoVSTime_copy);
 //   }
 
-
-  if(trailer.ttsBits()==2){   //DDU OUT OF SYNCH
-
-    //If BX_ID error identify which ROS has wrong BX
-    histoType = "BX_IDErrorROS";
-    if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-      bookHistos( string("DDU"), code);
-    } 
-    int ros=0;
-    for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
-	 ros_it != rosData.end(); ros_it++) {
-      for (vector<DTROSDebugWord>::const_iterator debug_it = (*ros_it).getROSDebugs().begin();
-	   debug_it != (*ros_it).getROSDebugs().end(); debug_it++) {
-	if ((*debug_it).debugType() == 0 ) {
-	  int ROSDebug_BunchNumber = (*debug_it).debugMessage();
-	  if(ROSDebug_BunchNumber != header.bxID()){
-	    (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(ros);
-	    //FIXME: how to notify this error in a log file
-	    cout << "BX_ID error from ROS "<<ros<<" :"
-		 <<" ROSDebug_BunchNumber "<< ROSDebug_BunchNumber
-		 <<"   DDUHeader_BXID "<< header.bxID()<<endl;
-	  }
-	}
-      }
-      ros++;
-    }
-
-    //If L1A_ID error identify which ROS has wrong L1A 
-     histoType = "L1A_IDErrorROS";
-     if (dduHistos[histoType].find(code.getDDUID()) == dduHistos[histoType].end()) {
-       bookHistos( string("DDU"), code);
-     } 
-     ros =0;
-     for (vector<DTROS25Data>::const_iterator ros_it = rosData.begin();
-	  ros_it != rosData.end(); ros_it++) {
-       (dduHistos.find(histoType)->second).find(code.getDDUID())->second->Fill(ros);
-       //FIXME: how to notify this error in a log file
-       cout << "L1A_ID error from ROS "<<ros<<" :"
-	    <<" ROSHeader_TTCeventcounter " << ((*ros_it).getROSHeader()).TTCEventCounter()
-	    <<"   DDUHeader_lvl1ID "<< header.lvl1ID()<<endl;
-       ros++;
-     }
-  }
+  //IF L1A_ID error identify which ROS has wrong L1A 
+ //  if(trailer.ttsBits()==2){   
+//     header.lvl1ID()
+//   }
+ 
 }
-
   

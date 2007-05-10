@@ -188,8 +188,6 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
 
   // Retrieve commissioning information from "event summary" 
   edm::Handle<SiStripEventSummary> summary;
-  //@@ BUG? why below added? why not initialized?
-  inputModuleLabelSummary_ = inputModuleLabel_;
   event.getByLabel( inputModuleLabelSummary_, summary );
 
   // Check if EventSummary has info attached
@@ -200,7 +198,7 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
       << "[SiStripCommissioningSource::" << __func__ << "]"
       << " Unknown/undefined RunType and NULL parameter values!"
       << " It may be that the 'trigger FED' object was not found!"; 
- }
+  }
   
   // Extract run number
   if ( event.id().run() != run_ ) { run_ = event.id().run(); }

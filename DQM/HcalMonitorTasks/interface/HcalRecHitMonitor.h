@@ -2,12 +2,13 @@
 #define DQM_HCALMONITORTASKS_HCALRECHITMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
-
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include <map>
 
 /** \class HcalRecHitMonitor
   *  
-  * $Date: 2006/12/12 19:10:27 $
-  * $Revision: 1.10 $
+  * $Date: 2006/09/01 15:39:27 $
+  * $Revision: 1.9 $
   * \author W. Fisher - FNAL
   */
 class HcalRecHitMonitor: public HcalBaseMonitor {
@@ -47,11 +48,8 @@ private:  ///Monitoring elements
   MonitorElement* meOCC_MAP_L3_E;
   MonitorElement* meOCC_MAP_L4;
   MonitorElement* meOCC_MAP_L4_E;
-
   MonitorElement* meOCC_MAP_ETA;
   MonitorElement* meOCC_MAP_PHI;
-  MonitorElement* meOCC_MAP_ETA_E;
-  MonitorElement* meOCC_MAP_PHI_E;
  
   MonitorElement* meRECHIT_E_all;
   MonitorElement* meEVT_;

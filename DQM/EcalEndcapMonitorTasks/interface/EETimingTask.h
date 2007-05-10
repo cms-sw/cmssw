@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/03/21 16:10:39 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/05 13:56:48 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,10 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalUncalibratedRecHitCollection_;
 

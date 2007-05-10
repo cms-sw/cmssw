@@ -83,8 +83,6 @@ public:
   //----- Propagate the error of every Entry to every Measurement
   static void PropagateErrors();
 
-  static void CheckIfFitPossible();
-
  public:
   //----- Calculate the simulated value of each Measurement propagating the LightRay when all the entries have their original values
   static void calculateSimulatedMeasurementsWithOriginalValues();
@@ -175,9 +173,6 @@ private:
 
   //----- Minimum quality the fit has to have to be good
   static ALIdouble theFitQualityCut;
-  static ALIdouble theRelativeFitQualityCut;
-  static ALIdouble fit_quality_cut;
-  static ALIdouble fit_quality_cut_previous;
 
   //----- Number of fit iterations made up to a certain moment
   static ALIint theNoFitIterations;

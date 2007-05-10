@@ -149,4 +149,6 @@ document.write('<script src="SERVED_DIRECTORY_URL/js_files/ClientActions.js"><\/
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/tab-view.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/context-menu.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/folder-tree-static.js"><\/script>');
+document.write('<script src="SERVED_DIRECTORY_URL/js_files/SlideShow.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/OnLoad.js"><\/script>');
+

@@ -1,3 +1,24 @@
+2007-05-08  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-10
+	* bug fix: propagate doDumpEvents to FUResourceTable correctly.
+	* bug fix: R-bit in FED trailer is 0x4, not 0x2.
+
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-09
+	* fix stopping/halting
+	* remove counter nbProcessed (is aequivalent to nbDiscarded, the
+	FUEventProcessor knows the real number)
+
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-08
+	* fix 'nbShmClients()' calculation, which is now assuming that
+	each process attaches 3x: reader,output,dqm.
+	* If FUShmOutputModule and/or FUShmDQMOutputService are not
+	present, 'halt' will fail!
+	
 2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 	
 	* tag V00-06-07

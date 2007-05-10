@@ -39,3 +39,14 @@ CREATE TABLE cali_hv_scan_ratio_dat (
  
 ALTER TABLE cali_hv_scan_ratio_dat ADD CONSTRAINT cali_hv_scan_ratio_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE cali_hv_scan_ratio_dat ADD CONSTRAINT cali_hv_scan_ratio_fk FOREIGN KEY (iov_id) REFERENCES cali_iov (iov_id);
+
+CREATE TABLE CALI_GAIN_RATIO_DAT (
+  iov_id                NUMBER(10),
+  logic_id              NUMBER(10), -- (crystal)
+  g1_g12                BINARY_FLOAT,
+  g6_g12                BINARY_FLOAT,
+  task_status           char(1)
+);
+
+ALTER TABLE CALI_GAIN_RATIO_DAT ADD CONSTRAINT CALI_GAIN_RATIO_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE CALI_GaIN_RATIO_DAT ADD CONSTRAINT CALI_GAIN_RATIO_fk FOREIGN KEY (iov_id) REFERENCES cali_iov (iov_id);

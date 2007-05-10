@@ -5,8 +5,8 @@
  *
  *  Muxed PAC data
  *
- *  $Date: 2006/08/24 18:02:12 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/08/02 12:05:47 $
+ *  $Revision: 1.2 $
  * \author K. Bunkowski & M. Bluj - Warsaw
 */
 
@@ -41,7 +41,7 @@ public:
   void setLbNum(unsigned int lbNo) { lbNum_=lbNo; }
 
   void fromRaw(unsigned int rawData);
-  unsigned int toRaw() const;
+  unsigned int toRaw();
   
   std::string toString();
   

@@ -35,7 +35,7 @@ struct SMFUSenderEntry  // used to store each FU sender
   unsigned int  totFrames_;    // number of frames in this fragment
   unsigned int  currFrames_;   // current frames received for registry
   std::vector<toolbox::mem::Reference*> frameRefs_; // vector of frame reference pointers
-  char          registryData_[2*1000*1000]; // change this to a vector<char>
+  std::vector<unsigned char> registryData_;
   bool          regCheckedOK_;    // Registry checked to be same as configuration
   unsigned int  connectStatus_;   // FU+HLT connection status
   double        lastLatency_;     // Latency of last frame in microseconds

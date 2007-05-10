@@ -359,3 +359,48 @@ void RunIOV::setByRecentData(std::string dataTable, RunTag* tag, run_t run)
      throw(runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
    }
 }
+
+
+
+
+
+
+void RunIOV::setByRecentData(std::string dataTable, std::string location, run_t run) 
+  throw(std::runtime_error)
+{
+  this->checkConnection();
+   
+  DateHandler dh(m_env, m_conn);
+
+   try {
+     Statement* stmt = m_conn->createStatement();
+
+     stmt->setSQL("SELECT * FROM (SELECT riov.iov_id, riov.run_num, riov.run_start, riov.run_end "
+		  "FROM run_iov riov "
+		  "JOIN "+dataTable+" dat on dat.iov_id = riov.iov_id "
+	          "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
+		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
+		  "WHERE loc.location = :1 AND riov.run_num <= :2 ORDER BY riov.run_num DESC ) WHERE rownum = 1");
+
+     stmt->setString(1, location);
+     stmt->setInt(2, run);
+     
+     ResultSet* rset = stmt->executeQuery();
+    
+
+     if (rset->next()) {
+       int id = rset->getInt(1);
+       this->setByID(id);
+     } else {
+       throw(runtime_error("RunIOV::setByRecentData(datatable, loc, run):  Given run is not in the database"));
+     }
+
+     
+     m_conn->terminateStatement(stmt);
+   } catch (SQLException &e) {
+     throw(runtime_error("RunIOV::setByRecentData:  "+e.getMessage()));
+   }
+}
+
+
+

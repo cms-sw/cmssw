@@ -10,8 +10,6 @@
 #include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 #include "RecoParticleFlow/PFRootEvent/interface/EventColin.h" 
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -35,11 +33,7 @@
 
 using namespace std;
 
-PFRootEventManager::PFRootEventManager() 
-{
-  energyCalibration_ = new PFEnergyCalibration();
-  energyResolution_ = new PFEnergyResolution();
-}
+PFRootEventManager::PFRootEventManager() {}
 
 PFRootEventManager::PFRootEventManager(const char* file)
   : clusters_(new vector<reco::PFCluster>),
@@ -79,8 +73,7 @@ PFRootEventManager::PFRootEventManager(const char* file)
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;
 
-  energyCalibration_ = new PFEnergyCalibration();
-  energyResolution_ = new PFEnergyResolution();
+  
 }
 
 void PFRootEventManager::reset() { 
@@ -394,17 +387,11 @@ void PFRootEventManager::readOptions(const char* file,
   vector<double> ecalib;
   options_->GetOpt("particle_flow", "ecalib", ecalib);
   if(ecalib.size() == 2) {
-// CV: PFBlock::setEcalib(ecalib[0], ecalib[1]);
-    std::cout << "setting ECAL calibration for electrons/photons:" << std::endl;
-    std::cout << " slope = " << ecalib[1] << std::endl;
-    std::cout << " offset = " << ecalib[0] << std::endl;
-    energyCalibration_->setCalibrationParametersEm(ecalib[1], ecalib[0]); 
-  } else {
-// CV: PFBlock::setEcalib(0, 1);
-    energyCalibration_->setCalibrationParametersEm(1., 0.);
+    PFBlock::setEcalib(ecalib[0], ecalib[1]);
   }
-  PFBlock::setEnergyCalibration(energyCalibration_);
-  PFBlock::setEnergyResolution(energyResolution_);
+  else {
+    PFBlock::setEcalib(0, 1);
+  }
 
   reconMethod_ = 3; 
   options_->GetOpt("particle_flow", "recon_method", reconMethod_);
@@ -648,10 +635,6 @@ PFRootEventManager::~PFRootEventManager() {
  
   delete options_;
   
-  delete energyCalibration_;
-  PFBlock::setEnergyCalibration(NULL);
-  delete energyResolution_;
-  PFBlock::setEnergyResolution(NULL);
 }
 
 
@@ -1021,6 +1004,9 @@ void PFRootEventManager::particleFlow() {
   for(unsigned iefb = 0; iefb<allPFBs_.size(); iefb++) {
 
     switch(reconMethod_) {
+    case 1:
+      allPFBs_[iefb].reconstructParticles1();
+      break;
     case 2:
       allPFBs_[iefb].reconstructParticles2();
       break;

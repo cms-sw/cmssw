@@ -1,3 +1,28 @@
+2007-05-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-11-08
+	* lock infospace in monitoring workloop
+
+2007-05-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-11-07
+	* added flashlist to infospace and monitoring workloop
+	* does not access microstate when not in running mode
+	* cleaned up web page (separated configuration and state
+	* added switch to disable shared memory
+	* added trigger summary to web page
+	* now displays content of cfg file 
+
+2007-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-11-06
+	* removed RunBase inheritance
+	* branched from 150 (main trunk) at V00-11-05
+	* added direct binding to dqm output service for attach/detach
+	from shm
+	* fixed halt from ready transition where edm::EventProcessor is
+	not yet initialized
+
 2007-03-26  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-11-02

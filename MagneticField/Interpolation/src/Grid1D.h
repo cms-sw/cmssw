@@ -33,7 +33,12 @@ public:
   /// returns valid index, or -1 if the value is outside range +/- one cell.
   int index( Scalar a) const {
     int ind = static_cast<int>((a-lower())/step());
-    if (ind < -1 || ind > cells()) return -1;
+    // FIXME: this causes an exception to be thrown later. Should be tested
+    // more carefully before release
+    //  if (ind < -1 || ind > cells()) {
+    //     std::cout << "**** ind = " << ind << " cells: " << cells() << std::endl;
+    //    return -1;
+    //  }
     return std::max(0, std::min( cells()-1, ind));
   }
 

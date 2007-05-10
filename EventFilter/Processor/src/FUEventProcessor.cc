@@ -11,6 +11,8 @@
 #include "EventFilter/Utilities/interface/ParameterSetRetriever.h"
 #include "EventFilter/Utilities/interface/MicroStateService.h"
 #include "EventFilter/Message2log4cplus/interface/MLlog4cplus.h"
+#include "EventFilter/Modules/interface/FUShmDQMOutputService.h"
+
 
 #include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/RawInputSource.h"
@@ -93,21 +95,26 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   , inputPrescale_(1)
   , outputPrescale_(1)
   , timeoutOnStop_(10)
+  , hasShMem_(true)
   , outprev_(true)
+  , monSleepSec_(1)
+  , wlMonitoring_(0)
+  , asMonitoring_(0)
 {
   // bind relevant callbacks to finite state machine
   fsm_.initialize<evf::FUEventProcessor>(this);
   
   //set sourceId_
-  string       xmlClass = getApplicationDescriptor()->getClassName();
-  unsigned int instance = getApplicationDescriptor()->getInstance();
-  ostringstream sourcename;
-  sourcename<<xmlClass<<"_"<<instance;
-  LOG4CPLUS_INFO(getApplicationLogger(),sourcename.str()<<" constructor");
-  cout<<"FUEventProcessor constructor"<<endl;
+  url_ =
+    getApplicationDescriptor()->getContextDescriptor()->getURL()+"/"+
+    getApplicationDescriptor()->getURN();
+  class_   =getApplicationDescriptor()->getClassName();
+  instance_=getApplicationDescriptor()->getInstance();
+  sourceId_=class_.toString()+"_"+instance_.toString();
+  LOG4CPLUS_INFO(getApplicationLogger(),sourceId_ <<" constructor");
   LOG4CPLUS_INFO(getApplicationLogger(),"plugin path:"<<getenv("SEAL_PLUGINS"));
   
-  ostringstream ns; ns<<"EP"<<instance;
+  ostringstream ns;  ns << "EP" << instance_.toString();
 
   dqmCollectorAddr_       = "localhost";
   dqmCollectorPort_       = 9090;
@@ -127,7 +134,9 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   ispace->fireItemAvailable("globalInputPrescale",  &inputPrescale_);
   ispace->fireItemAvailable("globalOutputPrescale", &outputPrescale_);
   ispace->fireItemAvailable("timeoutOnStop",        &timeoutOnStop_);
-  
+  ispace->fireItemAvailable("hasSharedMemory",      &hasShMem_);
+  ispace->fireItemAvailable("monSleepSec",          &monSleepSec_);
+
   ispace->fireItemAvailable("foundRcmsStateListener",fsm_.foundRcmsStateListener());
   
   ispace->fireItemAvailable("collectorAddr",        &dqmCollectorAddr_);
@@ -144,6 +153,24 @@ FUEventProcessor::FUEventProcessor(xdaq::ApplicationStub *s)
   getApplicationInfoSpace()->addItemChangedListener("outputEnabled",       this);
   getApplicationInfoSpace()->addItemChangedListener("globalInputPrescale", this);
   getApplicationInfoSpace()->addItemChangedListener("globalOutputPrescale",this);
+
+  // initialize monitoring infospace
+
+  std::stringstream oss2;
+  oss2<<"urn:xdaq-monitorable:"<<class_.toString()<<":"<<instance_.toString();
+  string monInfoSpaceName=oss2.str();
+
+  mispace = xdata::InfoSpace::get(monInfoSpaceName);
+  mispace->fireItemAvailable("url",                      &url_);
+  mispace->fireItemAvailable("class",                    &class_);
+  mispace->fireItemAvailable("instance",                 &instance_);
+  mispace->fireItemAvailable("runNumber",                &runNumber_);
+  mispace->fireItemAvailable("stateName",                 fsm_.stateName()); 
+  mispace->fireItemAvailable("epMacroState",             &epMState_);
+  mispace->fireItemAvailable("epMicroState",             &epmState_);
+  mispace->fireItemAvailable("nbProcessed",              &nbProcessed_);
+  mispace->fireItemAvailable("nbAccepted",               &nbAccepted_);
+
  
   // bind prescale related soap callbacks
   xoap::bind(this,&FUEventProcessor::getPsReport ,"GetPsReport",XDAQ_NS_URI);
@@ -377,7 +404,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
     LOG4CPLUS_INFO(getApplicationLogger(),"Start configuring ...");
     initEventProcessor();
     LOG4CPLUS_INFO(getApplicationLogger(),"Finished configuring!");
-    
+    startMonitoringWorkLoop();
     fsm_.fireEvent("ConfigureDone",this);
   }
   catch (xcept::Exception &e) {
@@ -397,7 +424,8 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     
     // if the ep is intialized already, the initialization will be skipped
     initEventProcessor();
-    
+    if(hasShMem_) attachDqmToShm();
+
     int sc = 0;
     evtProcessor_->setRunNumber(runNumber_.value_);
     try {
@@ -451,7 +479,11 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
     if(rc != edm::EventProcessor::epTimedOut) 
       fsm_.fireEvent("StopDone",this);
     else
-      fsm_.fireFailed("EventProcessor stop timed out",this);
+      {
+	epMState_ = evtProcessor_->currentStateName();
+	fsm_.fireFailed("EventProcessor stop timed out",this);
+      }
+    if(hasShMem_) detachDqmFromShm();
   }
   catch (xcept::Exception &e) {
     string msg = "stopping FAILED: " + (string)e.what();
@@ -465,12 +497,15 @@ bool FUEventProcessor::stopping(toolbox::task::WorkLoop* wl)
 //______________________________________________________________________________
 bool FUEventProcessor::halting(toolbox::task::WorkLoop* wl)
 {
+  edm::event_processor::State st = evtProcessor_->getState();
   try {
     LOG4CPLUS_INFO(getApplicationLogger(),"Start halting ...");
     edm::EventProcessor::StatusCode rc = stopEventProcessor();
     if(rc != edm::EventProcessor::epTimedOut)
       {
-	evtProcessor_->endJob();
+	detachDqmFromShm();
+	if(st == edm::event_processor::sJobReady || st == edm::event_processor::sDone)
+	  evtProcessor_->endJob();
 	delete evtProcessor_;
 	evtProcessor_ = 0;
 	epInitialized_ = false;
@@ -519,12 +554,12 @@ void FUEventProcessor::initEventProcessor()
   
   // job configuration string
   ParameterSetRetriever pr(configString_.value_);
-  string configString = pr.getAsString();
+  configuration_ = pr.getAsString();
   
   
   boost::shared_ptr<edm::ParameterSet> params; // change this name!
   boost::shared_ptr<vector<edm::ParameterSet> > pServiceSets;
-  makeParameterSets(configString, params, pServiceSets);
+  makeParameterSets(configuration_, params, pServiceSets);
   
   // add default set of services
   if(!servicesDone_) {
@@ -600,7 +635,7 @@ void FUEventProcessor::initEventProcessor()
   
   //test rerouting of fwk logging to log4cplus
   edm::LogInfo("FUEventProcessor")<<"started MessageLogger Service.";
-  edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configString;
+  edm::LogInfo("FUEventProcessor")<<"Using config string \n"<<configuration_;
 
 
   // instantiate the event processor
@@ -612,7 +647,7 @@ void FUEventProcessor::initEventProcessor()
     
     if (0!=evtProcessor_) delete evtProcessor_;
     
-    evtProcessor_ = new edm::EventProcessor(configString,
+    evtProcessor_ = new edm::EventProcessor(configuration_,
 					    serviceToken_,
 					    edm::serviceregistry::kTokenOverrides,
 					    defaultServices);
@@ -689,7 +724,15 @@ void FUEventProcessor::initEventProcessor()
 //______________________________________________________________________________
 edm::EventProcessor::StatusCode FUEventProcessor::stopEventProcessor()
 {
+  edm::event_processor::State st = evtProcessor_->getState();
+
+  LOG4CPLUS_INFO(getApplicationLogger(),"FUEventProcessor::stopEventProcessor. state "
+               << evtProcessor_->stateName(st));
+
   edm::EventProcessor::StatusCode rc = edm::EventProcessor::epSuccess;
+
+  if(st == edm::event_processor::sInit) return rc;
+
   try  {
     rc = evtProcessor_->waitTillDoneAsync(timeoutOnStop_.value_);
   }
@@ -1003,40 +1046,6 @@ void FUEventProcessor::defaultWebPage(xgi::Input  *in, xgi::Output *out)
   *out << "  </td>"                                                  << endl;
 
   *out << "  <td>"                                                   << endl;
-  if(evtProcessor_)
-    taskWebPage(in,out,urn);
-  else
-    *out << "Unconfigured" << endl;
-  *out << "  </td>"                                                  << endl;
-  *out << "</table>"                                                 << endl;
-  
-  *out << "<textarea rows=" << 10 << " cols=80 scroll=yes>"          << endl;
-  *out << configString_.value_                                       << endl;
-  *out << "</textarea><P>"                                           << endl;
-  
-  *out << "</body>"                                                  << endl;
-  *out << "</html>"                                                  << endl;
-
-}
-
-
-//______________________________________________________________________________
-void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string &urn)
-{
-  evf::filter *filt = 0;
-  ModuleWebRegistry *mwr = 0;
-  edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
-  vector<edm::ModuleDescription const*> descs_ =
-    evtProcessor_->getAllModuleDescriptions();
-
-  try{
-    if(edm::Service<ModuleWebRegistry>().isAvailable())
-      mwr = edm::Service<ModuleWebRegistry>().operator->();
-  }
-  catch(...) {
-    cout<<"exception when trying to get the service registry " << endl;
-  }
-
   *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">" << endl;
   *out << "<colgroup> <colgroup align=\"rigth\">"                    << endl;
   *out << "  <tr>"                                                   << endl;
@@ -1055,121 +1064,224 @@ void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string
   *out << "</tr>" << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
-  *out << "EP state" << endl;
+  *out << "Plugin Path" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
-  *out << evtProcessor_->getState() << endl;
+  *out << getenv("SEAL_PLUGINS") << endl;
   *out << "</td>" << endl;
   *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
-  *out << "<td>" << endl;
-  *out << "edm::EP initialized" << endl;
-  *out << "</td>" << endl;
-  *out << "<td>" << endl;
-  *out << epInitialized_ << endl;
-  *out << "</td>" << endl;
-  *out << "  </tr>"                                            << endl;
-  *out << "<tr>" << endl;
   *out << "<td >" << endl;
-  *out << "Processed Events/Accepted Events" << endl;
+  *out << "Run Number" << endl;
   *out << "</td>" << endl;
   *out << "<td>" << endl;
-  *out << evtProcessor_->totalEvents() << "/" 
-       << evtProcessor_->totalEventsPassed() << endl;
+  *out << runNumber_.toString() << endl;
   *out << "</td>" << endl;
-  *out << "  </tr>"                                            << endl;
+  *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
-  *out << "Endpaths State" << endl;
+  *out << "Output Enabled" << endl;
   *out << "</td>" << endl;
-  *out << "<td";
-  *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
-	   " bgcolor=\"red\"> disabled" ) << endl;
-  //*out << "> N/A this version" << endl;
+  *out << "<td>" << endl;
+  *out << outPut_.toString() << endl;
   *out << "</td>" << endl;
-  *out << "  </tr>"                                            << endl;
+  *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
-  *out << "Global Input Prescale" << endl;
+  *out << "Timeout On Stop" << endl;
   *out << "</td>" << endl;
-  *out << "<td";
-  //*out << (sched_->global_input_prescale_!=1 ? " bgcolor=\"red\">" : ">") << endl;
-  //  *out <<  sched_->global_input_prescale_ << endl;
-  *out << "> N/A this version" << endl;
+  *out << "<td>" << endl;
+  *out << timeoutOnStop_.toString() << endl;
   *out << "</td>" << endl;
-  *out << "  </tr>"                                            << endl;
+  *out << "</tr>"                                            << endl;
   *out << "<tr>" << endl;
   *out << "<td >" << endl;
-  *out << "Global Output Prescale" << endl;
+  *out << "Has Shared Memory" << endl;
   *out << "</td>" << endl;
-  *out << "<td";
-  //*out  << (sched_->global_output_prescale_!=1 ? " bgcolor=\"red\">" : ">") << endl;
-  //  *out <<  sched_->global_output_prescale_ << endl;
-  *out << ">N/A this version" << endl;
+  *out << "<td>" << endl;
+  *out << hasShMem_.toString() << endl;
   *out << "</td>" << endl;
-  *out << "  </tr>"                                            << endl;
-  
-  
-  
+  *out << "</tr>"                                            << endl;
+  *out << "<tr>" << endl;
+  *out << "<td >" << endl;
+  *out << "Monitor Sleep (s)" << endl;
+  *out << "</td>" << endl;
+  *out << "<td>" << endl;
+  *out << monSleepSec_.toString() << endl;
+  *out << "</td>" << endl;
+  *out << "</tr>"                                            << endl;
   *out << "</table>" << endl;
+  *out << "</tr>"                                            << endl;
+  if(evtProcessor_)
+    taskWebPage(in,out,urn);
+  else
+    *out << "<td>HLT Unconfigured</td>" << endl;
+  *out << "</table>"                                                 << endl;
   
-  *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">" << endl;
-  *out << "  <tr>"                                                   << endl;
-  *out << "    <th colspan=3>"                                       << endl;
-  *out << "      " << "Application"                                  << endl;
+  *out << "<textarea rows=" << 10 << " cols=80 scroll=yes>"          << endl;
+  *out << configuration_                                             << endl;
+  *out << "</textarea><P>"                                           << endl;
   
+  *out << "</body>"                                                  << endl;
+  *out << "</html>"                                                  << endl;
+
+}
+
+
+//______________________________________________________________________________
+void FUEventProcessor::taskWebPage(xgi::Input *in, xgi::Output *out,const string &urn)
+{
+  ModuleWebRegistry *mwr = 0;
+  edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+  vector<edm::ModuleDescription const*> descs_ =
+    evtProcessor_->getAllModuleDescriptions();
+  edm::TriggerReport tr; 
+  evtProcessor_->getTriggerReport(tr);
+  try{
+    if(edm::Service<ModuleWebRegistry>().isAvailable())
+      mwr = edm::Service<ModuleWebRegistry>().operator->();
+  }
+  catch(...) {
+    cout<<"exception when trying to get the service registry "		<< endl;
+  }
+  *out << "<tr valign=\"top\">"						<< endl;
+  *out << "<td>"							<< endl;
+  //status table
+  *out << "<table frame=\"void\" rules=\"groups\" class=\"states\">"	<< endl;
+  *out << "<colgroup> <colgroup align=\"rigth\">"			<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <th colspan=2>"						<< endl;
+  *out << "      " << "Status"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <th >"							<< endl;
+  *out << "       Parameter"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "    <th>"							<< endl;
+  *out << "       Value"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td >"							<< endl;
+  *out << "       EP state"						<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "    <td>"							<< endl;
+  *out << "      " << evtProcessor_->currentStateName()			<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td>"							<< endl;
+  *out << "       edm::EP initialized"					<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "    <td>"							<< endl;
+  *out << "      " <<epInitialized_					<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td >"							<< endl;
+  *out << "       Processed Events/Accepted Events"			<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "    <td>"							<< endl;
+  *out << "      " << evtProcessor_->totalEvents() << "/" 
+       << evtProcessor_->totalEventsPassed()				<< endl;
+  *out << "    </td>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td>Endpaths State</td>"					<< endl;
+  *out << "    <td";
+  *out << (evtProcessor_->endPathsEnabled() ?  "> enabled" : 
+	   " bgcolor=\"red\"> disabled" );
+  *out << "    </td>"							<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td >Global Input Prescale</td>"				<< endl;
+  *out << "    <td> N/A this version</td>"				<< endl;
+  *out << "  </tr>"							<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <td >Global Output Prescale</td>"			<< endl;
+  *out << "    <td>N/A this version</td>"				<< endl;
+  *out << "  </tr>"							<< endl;
+  
+  *out << "</table>"							<< endl;
+
+  *out << "<td>" << endl;
+  // trigger summary table
+  *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <th colspan=5>"						<< endl;
+  *out << "      " << "Trigger Summary"					<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "  </tr>"							<< endl;
+
+  *out << "  <tr >"							<< endl;
+  *out << "    <th >Path</th>"						<< endl;
+  *out << "    <th >Exec</th>"						<< endl;
+  *out << "    <th >Pass</th>"						<< endl;
+  *out << "    <th >Fail</th>"						<< endl;
+  *out << "    <th >Except</th>"					<< endl;
+  *out << "  </tr>"							<< endl;
+
+
+  for(unsigned int i=0; i<tr.trigPathSummaries.size(); i++) {
+    *out << "  <tr>" << endl;
+    *out << "    <td>"<< tr.trigPathSummaries[i].name << "</td>"		<< endl;
+    *out << "    <td>" << tr.trigPathSummaries[i].timesRun << "</td>"		<< endl;
+    *out << "    <td>" << tr.trigPathSummaries[i].timesPassed << "</td>"	<< endl;
+    *out << "    <td >" << tr.trigPathSummaries[i].timesFailed << "</td>"	<< endl;
+    *out << "    <td >" << tr.trigPathSummaries[i].timesExcept << "</td>"	<< endl;
+    *out << "  </tr >"								<< endl;
+
+  }
+  *out << "</table>" << endl;
+  *out << "</td>" << endl;
+  *out << "</tr><tr colspan=2>" << endl;
+
+  //Process details table
+  *out << "<table frame=\"void\" rules=\"rows\" class=\"modules\">"	<< endl;
+  *out << "  <tr>"							<< endl;
+  *out << "    <th colspan=3>"						<< endl;
+  *out << "      " << "HLT"						<< endl;
   if(descs_.size()>0)
-    *out << " (Process name=" << descs_[0]->processName() << ")"       << endl;
-  
-  
-  
-  *out << "    </th>"                                                << endl;
-  *out << "  </tr>"                                                  << endl;
-  
-  *out << "<tr >" << endl;
-  *out << "<th >" << endl;
-  *out << "Module" << endl;
-  *out << "</th>" << endl;
-  *out << "<th >" << endl;
-  *out << "Label" << endl;
-  *out << "</th>" << endl;
-  *out << "<th >" << endl;
-  *out << "Version" << endl;
-  *out << "</th>" << endl;
-  *out << "</tr>" << endl;
+    *out << " (Process " << descs_[0]->processName() << ")"		<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "  </tr>"							<< endl;
+
+  *out << "  <tr >"							<< endl;
+  *out << "    <th >"							<< endl;
+  *out << "       Module"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "    <th >"							<< endl;
+  *out << "       Label"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "    <th >"							<< endl;
+  *out << "       Version"						<< endl;
+  *out << "    </th>"							<< endl;
+  *out << "  </tr>"							<< endl;
   
   for(unsigned int idesc = 0; idesc < descs_.size(); idesc++)
     {
-      *out << "<tr>" << endl;
-      *out << "<td >" << endl;
+      *out << "  <tr>"							<< endl;
+      *out << "    <td >";
       if(mwr && mwr->checkWeb(descs_[idesc]->moduleName()))
-	*out << "<a href=\"/" << urn << "/moduleWeb?module=" << descs_[idesc]->moduleName() << "\">" 
-	     << descs_[idesc]->moduleName() << "</a>" << endl;
+	*out << "<a href=\"/" << urn 
+	     << "/moduleWeb?module=" 
+	     << descs_[idesc]->moduleName() << "\">" 
+	     << descs_[idesc]->moduleName() << "</a>";
       else
-	*out << descs_[idesc]->moduleName() << endl;
-      *out << "</td>" << endl;
-      *out << "<td >" << endl;
-      *out << descs_[idesc]->moduleLabel() << endl;
-      *out << "</td>" << endl;
-      *out << "<td >" << endl;
-      *out << descs_[idesc]->releaseVersion() << endl;
-      *out << "</td>" << endl;
-      *out << "</tr>" << endl;
+	*out << descs_[idesc]->moduleName();
+      *out << "</td>"							<< endl;
+      *out << "    <td >";
+      *out << descs_[idesc]->moduleLabel();
+      *out << "</td>"							<< endl;
+      *out << "    <td >";
+      *out << descs_[idesc]->releaseVersion();
+      *out << "</td>"							<< endl;
+      *out << "  </tr>" << endl;
     }
   *out << "</table>" << endl;
-  *out << "<table border=1 bgcolor=\"#CFCFCF\">" << endl;
-  *out << "<tr>" << endl;
-
-  if(filt) {
-    //HLT summary status goes here
-  }
-  else {      
-    *out << "<td >" << endl;
-    *out << "No Filter Module" << endl;
-    *out << "</td>" << endl;
-  }
+  *out << "</td>" << endl;
   *out << "</tr>" << endl;
-  *out << "</table>" << endl;
 }
 
 
@@ -1263,13 +1375,16 @@ void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
   MicroStateService *mss = 0;
   string micro1 = "unavailable";
   string micro2 = "unavailable";
-  try{
-    mss = edm::Service<MicroStateService>().operator->();
-  }
-  catch(...) { 
-    LOG4CPLUS_INFO(getApplicationLogger(),
-		   "exception when trying to get service MicroStateService");
-  }
+  if(0 != evtProcessor_ && evtProcessor_->getState() != edm::event_processor::sInit)
+    {
+      try{
+	mss = edm::Service<MicroStateService>().operator->();
+      }
+      catch(...) { 
+	LOG4CPLUS_INFO(getApplicationLogger(),
+		       "exception when trying to get service MicroStateService");
+      }
+    }
   if(mss) {
     micro1 = mss->getMicroState1();
     micro2 = mss->getMicroState2();
@@ -1278,6 +1393,96 @@ void FUEventProcessor::microState(xgi::Input  *in, xgi::Output *out)
   *out << "<br>  " << micro1 << endl;
   *out << "<br>  " << micro2 << endl;
 }
+
+
+void FUEventProcessor::attachDqmToShm() throw (evf::Exception)  
+{
+  string errmsg;
+  bool success = false;
+  try {
+    edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+    if(edm::Service<FUShmDQMOutputService>().isAvailable())
+      success = edm::Service<FUShmDQMOutputService>()->attachToShm();
+    if (!success) errmsg = "Failed to attach DQM service to shared memory";
+  }
+  catch (cms::Exception& e) {
+    errmsg = "Failed to attach DQM service to shared memory: " + (string)e.what();
+  }
+  if (!errmsg.empty()) XCEPT_RAISE(evf::Exception,errmsg);
+}
+
+
+
+void FUEventProcessor::detachDqmFromShm() throw (evf::Exception)
+{
+  string errmsg;
+  bool success = false;
+  try {
+    edm::ServiceRegistry::Operate operate(evtProcessor_->getToken());
+    if(edm::Service<FUShmDQMOutputService>().isAvailable())
+      success = edm::Service<FUShmDQMOutputService>()->detachFromShm();
+    if (!success) errmsg = "Failed to detach DQM service from shared memory";
+  }
+  catch (cms::Exception& e) {
+    errmsg = "Failed to detach DQM service from shared memory: " + (string)e.what();
+  }
+  if (!errmsg.empty()) XCEPT_RAISE(evf::Exception,errmsg);
+}
+
+
+void FUEventProcessor::startMonitoringWorkLoop() throw (evf::Exception)
+{
+  struct timezone timezone;
+  gettimeofday(&monStartTime_,&timezone);
+  
+  try {
+    wlMonitoring_=
+      toolbox::task::getWorkLoopFactory()->getWorkLoop(sourceId_+"Monitoring",
+						       "waiting");
+    if (!wlMonitoring_->isActive()) wlMonitoring_->activate();
+    asMonitoring_ = toolbox::task::bind(this,&FUEventProcessor::monitoring,
+				      sourceId_+"Monitoring");
+    wlMonitoring_->submit(asMonitoring_);
+  }
+  catch (xcept::Exception& e) {
+    string msg = "Failed to start workloop 'Monitoring'.";
+    XCEPT_RETHROW(evf::Exception,msg,e);
+  }
+}
+
+
+//______________________________________________________________________________
+bool FUEventProcessor::monitoring(toolbox::task::WorkLoop* wl)
+{
+  
+  struct timeval  monEndTime;
+  struct timezone timezone;
+  gettimeofday(&monEndTime,&timezone);
+
+  epMState_ = evtProcessor_->currentStateName();
+  edm::ServiceRegistry::Operate operate(serviceToken_);
+  MicroStateService *mss = 0;
+  if(0 != evtProcessor_ && evtProcessor_->getState() != edm::event_processor::sInit)
+    {
+      try{
+	mss = edm::Service<MicroStateService>().operator->();
+      }
+      catch(...) { 
+	LOG4CPLUS_INFO(getApplicationLogger(),
+		       "exception when trying to get service MicroStateService");
+      }
+    }
+  mispace->lock();
+  if(mss) 
+    epmState_  = mss->getMicroState2();
+  nbProcessed_ = evtProcessor_->totalEvents();
+  nbAccepted_  = evtProcessor_->totalEventsPassed(); 
+  mispace->unlock();
+  ::sleep(monSleepSec_.value_);
+  
+  return true;
+}
+
 
 
 XDAQ_INSTANTIATOR_IMPL(evf::FUEventProcessor)

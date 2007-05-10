@@ -3,21 +3,16 @@
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include <iostream>
-#include <sstream>
 #include "TText.h"
 using namespace std;
 //
 // -- Constructor
 // 
-TrackerMapCreator::TrackerMapCreator(string themEName) {
+TrackerMapCreator::TrackerMapCreator() {
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::TrackerMapCreator()]" 
        << ACPlain << " ctor" << endl ;
-//  trackerMap = new TrackerMap("Interactive Pixel Tracker Map");
-  stringstream title ;
-  title.str("") ; title << "Interactive Pixel Tracker Map. Monitoring element displayed: "
-                        << themEName ;
-  trackerMap = new TrackerMap(title.str());
+  trackerMap = new TrackerMap("SiPixelMap");
 }
 //
 // -- Destructor
@@ -28,14 +23,13 @@ TrackerMapCreator::~TrackerMapCreator() {
 //
 // -- Browse through monitorable and get values need for TrackerMap
 //
-void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_names, string themEName) {
+void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_names) {
 
-  mEName = themEName ;
-//  cout << ACYellow << ACBold
-//       << "[TrackerMapCreator::create()]"
-//       << ACRed << ACReverse 
-//       << " ----------- Filling colors ------------" << ACPlain
-//       << endl ;
+  cout << ACYellow << ACBold
+       << "[TrackerMapCreator::create()]"
+       << ACRed << ACReverse 
+       << " ----------- Filling colors ------------" << ACPlain
+       << endl ;
   vector<string> tempVec, contentVec;
   mui->getContents(tempVec);
   for (vector<string>::iterator it = tempVec.begin();
@@ -115,15 +109,15 @@ void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map
 
   MonitorElement* me;
   int me_size = me_map.size() ;
-//  cout << "\n" << ACGreen << ACBold
-//       << "[TrackerMapCreator::paintTkMap()] "
-//       << ACPlain
-//       << "det_id: " 
-//       << det_id
-//       << ACYellow 
-//       << " Me: " << ACPlain
-//       << mEName.c_str()
-//       << endl ;
+//   cout << "\n" << ACGreen << ACBold
+//        << "[TrackerMapCreator::paintTkMap()] "
+//        << ACPlain
+//        << "det_id: " 
+//        << det_id
+//        << ACYellow 
+//        << " Me size: " << ACPlain
+//        << me_size
+//        << endl ;
   for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); 
 	      it != me_map.end(); it++) {
     me = it->first;
@@ -134,18 +128,18 @@ void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map
     // global status 
     if (it->second > gstatus ) gstatus = it->second;
     SiPixelUtility::getStatusColor(it->second, icol, tag);
-    if( !me->getName().find(mEName.c_str()) )
+    if( !me->getName().find("ndigis") )
     {
-//      cout << ACYellow << ACBold
-//           << "[TrackerMapCreator::paintTkMap()] "
-//           << ACPlain
-//           << "name: " 
-//           << me->getName()
-//           << " mean: " 
-//           << mean
-//           << " nBinsX: "
-//           << me->getNbinsX()
-//           << endl ; 
+//       cout << ACYellow << ACBold
+//            << "[TrackerMapCreator::paintTkMap()] "
+//            << ACPlain
+//            << "name: " 
+//            << me->getName()
+//            << " mean: " 
+//            << mean
+//            << " nBinsX: "
+//            << me->getNbinsX()
+//            << endl ; 
        norm = me->getNbinsX() ;
        sts = (double)mean / (double)norm ;
     }

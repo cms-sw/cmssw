@@ -20,11 +20,11 @@ CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps)
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
-
   std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
   if( stripConditions == "Configurable" )
   {
-    theStripConditions = new CSCConfigurableStripConditions(ps);
+    edm::ParameterSet stripPSet = ps.getParameter<edm::ParameterSet>("strips");
+    theStripConditions = new CSCConfigurableStripConditions(stripPSet);
   }
   else if ( stripConditions == "Database" )
   {
@@ -77,6 +77,9 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   edm::ESHandle < ParticleDataTable > pdt;
   eventSetup.getData( pdt );
   theDigitizer.setParticleDataTable(&*pdt);
+
+
+  theStripConditions->initializeEvent(eventSetup);
 
   // run the digitizer
   theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);

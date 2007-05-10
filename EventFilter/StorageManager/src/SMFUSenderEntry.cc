@@ -1,6 +1,7 @@
 /*
         For saving the FU sender list
 
+ $Id$
 */
 
 #include "EventFilter/StorageManager/interface/SMFUSenderEntry.h"
@@ -25,7 +26,8 @@ SMFUSenderEntry::SMFUSenderEntry(const char* hltURL,
   regAllReceived_(false),
   totFrames_(numFramesToAllocate), 
   currFrames_(1), 
-  frameRefs_(totFrames_, 0)
+  frameRefs_(totFrames_, 0),
+  registryData_(1000000)
 {
   copy(hltURL, hltURL+MAX_I2O_SM_URLCHARS, hltURL_);
   copy(hltClassName, hltClassName+MAX_I2O_SM_URLCHARS, hltClassName_);
@@ -221,7 +223,8 @@ bool SMFUSenderEntry::getDataStatus() //const
 
 char* SMFUSenderEntry::getregistryData()
 {
-   return registryData_;
+   // this could be dangerous
+   return (char*) &registryData_[0];
 }
 
 bool SMFUSenderEntry::regIsCopied() //const
@@ -395,7 +398,8 @@ bool SMFUSenderEntry::copyRegistry(toolbox::mem::Reference *head)
     }
     // tempbuffer is filled with whole chain data
     registrySize_ = origsize; // is zero on create
-    copy(&tempbuffer[0], &tempbuffer[0]+origsize, registryData_);
+    if(registryData_.capacity() < origsize) registryData_.resize(origsize);
+    copy(&tempbuffer[0], &tempbuffer[0]+origsize, &registryData_[0]);
   } else { // only one frame/fragment
     FDEBUG(9) << "copyAndTestRegistry: populating registry buffer from single frame for "
               << msg->hltURL << " and Tid " << msg->hltTid << std::endl;
@@ -405,7 +409,8 @@ bool SMFUSenderEntry::copyRegistry(toolbox::mem::Reference *head)
     copy(msg->dataPtr(), &msg->dataPtr()[sz], &tempbuffer[0]);
     // tempbuffer is filled with all data
     registrySize_ = origsize; // is zero on create
-    copy(&tempbuffer[0], &tempbuffer[0]+origsize, registryData_);
+    if(registryData_.capacity() < origsize) registryData_.resize(origsize);
+    copy(&tempbuffer[0], &tempbuffer[0]+origsize, &registryData_[0]);
   } // end of number of frames test
 
   // the test of subsequent registries must be done in StorageManager

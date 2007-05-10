@@ -1,6 +1,5 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
-#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
@@ -535,15 +534,6 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
   } else {
     modtree << "Desired Directory does not exist";
   }
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::readModuleHistoTree()]"
-       << ACPlain
-       << "html string follows: " << endl ;
-  cout << modtree.str() << endl ;
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::readModuleHistoTree()]"
-       << ACPlain
-       << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << modtree.str();
    mui->cd();
@@ -671,7 +661,7 @@ string SiPixelInformationExtractor::getItemValue(multimap<string,string>& req_ma
 void SiPixelInformationExtractor::fillImageBuffer(TCanvas& c1) {
 //cout<<"entering SiPixelInformationExtractor::fillImageBuffer"<<endl;
   c1.SetFixedAspectRatio(kTRUE);
-  c1.SetCanvasSize(1000, 1300);
+  c1.SetCanvasSize(530, 440);
   gStyle->SetPalette(1);
   // Now extract the image
   // 114 - stands for "no write on Close"

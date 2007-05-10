@@ -123,7 +123,7 @@ void OpticalObject::readData( ALIFileIn& filein )
     //---------- Read extra entries from file
     readExtraEntries( filein );
     filein.getWordsInLine( wordlist );
-  }
+  } 
 
   //--------- set centre and angles not global (default behaviour)
   centreIsGlobal = 0;
@@ -271,10 +271,6 @@ void OpticalObject::readCoordinates( const ALIstring& coor_type_read, const ALIs
 	 << " they are " << coor_names[0] << ", " << coor_names[1] << ", " << coor_names[2] << "." << std::endl;
     exit(1);
   }
-
-  //---- Transform global to local if input is global
-  if( coor_type_reads == "centre" && centreIsGlobal ) transformGlobal2Local();
-
 }
 
 
@@ -309,52 +305,6 @@ void OpticalObject::transformCylindrical2Cartesian()
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void OpticalObject::transformSpherical2Cartesian()
 {
-  ALIuint ii;
-  ALIuint siz =  theCoordinateEntryVector.size();
-  ALIdouble newcoor[3];
-  ALIdouble R = theCoordinateEntryVector[0]->value();
-  ALIdouble phi = theCoordinateEntryVector[1]->value()/ALIUtils::LengthValueDimensionFactor()*ALIUtils::AngleValueDimensionFactor();
-  ALIdouble theta = theCoordinateEntryVector[2]->value()/ALIUtils::LengthValueDimensionFactor()*ALIUtils::AngleValueDimensionFactor();
-  newcoor[0] = R*cos(phi)*sin(theta);
-  newcoor[1] = R*sin(phi)*sin(theta);
-  newcoor[2] = cos(theta); // Z
-  //-  std::cout << " phi " << phi << std::endl;
-   //----- Name is filled from here to include 'centre' or 'angles'
-
- for( ii = 0; ii < siz; ii++ ) { 
-    if(ALIUtils::debug >= 5 ) std::cout << " OpticalObject::transformCylindrical2Cartesian " << ii << " " << newcoor[ii] << std::endl;
-    theCoordinateEntryVector[ii]->setValue( newcoor[ii] );
-  }
- // change the names
-  ALIstring name = "centre_X";
-  theCoordinateEntryVector[0]->fillName( name );
-  name = "centre_Y";
-  theCoordinateEntryVector[1]->fillName( name );
-  name = "centre_Z";
-  theCoordinateEntryVector[2]->fillName( name );
-
-}
-
-
-//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-void OpticalObject::transformGlobal2Local()
-{
-
-  ALIuint ii;
-  ALIuint siz =  theCoordinateEntryVector.size();
-  ALIdouble newcoor[3];
-  Hep3Vector centreLocal( getEntryCentre(XCoor), getEntryCentre(YCoor), getEntryCentre(ZCoor) );
-  centreLocal -= theParent->centreGlob();
-  CLHEP::HepRotation parentRmGlobInv = inverseOf( theParent->rmGlob() );
-  centreLocal = parentRmGlobInv * centreLocal;
-
-  if(ALIUtils::debug >= -5 ) std::cout << " OpticalObject::transformGlobal2Local old entry values " << theCoordinateEntryVector[0]->value() << " " << theCoordinateEntryVector[1]->value() << " " << theCoordinateEntryVector[2]->value() << std::endl;
-
-  theCoordinateEntryVector[0]->setValue( centreLocal.x() );
-  theCoordinateEntryVector[1]->setValue( centreLocal.y() );
-  theCoordinateEntryVector[2]->setValue( centreLocal.z() );
-
-  if(ALIUtils::debug >= -5 ) std::cout << " OpticalObject::transformGlobal2Local new entry values " << theCoordinateEntryVector[0]->value() << " " << theCoordinateEntryVector[1]->value() << " " << theCoordinateEntryVector[2]->value() << std::endl;
 
 }
 
@@ -669,8 +619,7 @@ void OpticalObject::setGlobalCoordinates()
 void OpticalObject::setGlobalCentre()
 {
   SetCentreLocalFromEntryValues();
-  //-  if ( type() != ALIstring("system") && !centreIsGlobal ) {
-  if ( type() != ALIstring("system") ) {
+  if ( type() != ALIstring("system") && !centreIsGlobal ) {
     SetCentreGlobFromCentreLocal();
   }
   if( anglesIsGlobal ){
@@ -835,7 +784,7 @@ void OpticalObject::SetRMLocalFromEntryValues()
 void OpticalObject::SetCentreGlobFromCentreLocal()
 {
   //----------- Get global centre: parent centre plus local centre traslated to parent coordinate system
-  //  CLHEP::Hep3Vector cLocal = theCentreGlob;
+  CLHEP::Hep3Vector cLocal = theCentreGlob;
   theCentreGlob = parent()->rmGlob() * theCentreGlob;
   
   if(ALIUtils::debug >= 5) ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE in parent local frame ");
@@ -2088,7 +2037,7 @@ const CLHEP::Hep3Vector OpticalObject::centreLocal() const
 const double OpticalObject::getEntryCentre( const XYZcoor coor ) const
 {
   Entry* ce = theCoordinateEntryVector[coor];
-  //-  std::cout << coor <<  theCoordinateEntryVector[coor] << " getEntryCentre " << ce->value() << " + " << ce->valueDisplacementByFitting() << std::endl; 
+  //  std::cout << coor << " getEntryCentre " << ce->value() << " + " << ce->valueDisplacementByFitting() << std::endl; 
   return ce->value() + ce->valueDisplacementByFitting();
 }
 

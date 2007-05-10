@@ -3,8 +3,8 @@
  *  
  *  All the code is under revision
  *
- *  $Date: 2007/03/27 08:04:08 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/03/07 13:20:55 $
+ *  $Revision: 1.16 $
  *
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author ported by: R. Bellan - INFN Torino
@@ -700,23 +700,26 @@ void MuonSeedGenerator::complete(MuonSeedFinder& seed,
 }  //   void complete.
 
 
-void MuonSeedGenerator::checkAndFill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup){
+void MuonSeedGenerator::checkAndFill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup){
 
-  if (seedFinder.nrhit()>1 ) {
-    fill(seedFinder, eSetup);
+  if (theSeed.nrhit()>1 ) {
+    vector<TrajectorySeed> the_seeds =  theSeed.seeds(eSetup);
+    for (vector<TrajectorySeed>::const_iterator
+	   the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
+      // FIXME, ask for this method
+      //if ( (*the_seed).isValid() )
+      theSeeds.push_back(*the_seed);
+    }
   }
 }
 
-
-void MuonSeedGenerator::fill(MuonSeedFinder& seedFinder, const edm::EventSetup& eSetup)
-{
-  vector<TrajectorySeed> seeds  = seedFinder.seeds(eSetup);
-  for (vector<TrajectorySeed>::const_iterator seedItr = seeds.begin(), seedEnd = seeds.end();
-       seedItr != seedEnd; ++seedItr)
-  {
+void MuonSeedGenerator::fill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup){
+  
+  vector<TrajectorySeed> the_seeds =  theSeed.seeds(eSetup);
+  for (vector<TrajectorySeed>::const_iterator
+	 the_seed=the_seeds.begin(); the_seed!=the_seeds.end(); ++the_seed) {
     // FIXME, ask for this method
     //if ( (*the_seed).isValid() )
-    theSeeds.push_back(*seedItr);
+    theSeeds.push_back(*the_seed);
   }
 }
-

@@ -4,8 +4,8 @@
 /*
  * \file EECosmicTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/05 13:56:48 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  *
 */
@@ -45,6 +45,10 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;

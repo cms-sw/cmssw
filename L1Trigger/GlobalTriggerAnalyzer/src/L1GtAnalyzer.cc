@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -539,7 +539,7 @@ void L1GtAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     analyzeSetDecision(iEvent, iSetup);
 
     // print/access L1 objects in bunch cross with L1A
-    analyzeL1Objects(iEvent, iSetup);
+//    analyzeL1Objects(iEvent, iSetup); // TODO FIXME temporary disable it, until
 
     // test muon part in L1GlobalTriggerReadoutRecord
     analyzeMuons(iEvent, iSetup);

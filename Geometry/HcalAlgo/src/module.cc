@@ -9,7 +9,7 @@
 #include "Geometry/HcalAlgo/interface/DDHCalTBZposAlgo.h"
 #include "Geometry/HcalAlgo/interface/DDHCalAngular.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 DEFINE_SEAL_MODULE ();
 DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDHCalAngular,      "hcal:DDHCalAngular");

@@ -15,7 +15,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: EcalDetIdAssociator.h,v 1.2 2006/08/25 17:35:06 jribnik Exp $
+// $Id: EcalDetIdAssociator.h,v 1.3 2006/09/01 17:21:41 jribnik Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 class EcalDetIdAssociator: public CaloDetIdAssociator{
  public:
-   EcalDetIdAssociator():CaloDetIdAssociator(180,150,0.04){};
+   EcalDetIdAssociator():CaloDetIdAssociator(360,300,0.02){};
  protected:
 
    virtual std::set<DetId> getASetOfValidDetIds(){

@@ -92,17 +92,14 @@ public:
 
 
   //Offline output functions
-  void loadHistograms(TFile* infile, const char* fname);
+  void loadHistograms(TFile* infile);
   void dumpHistograms(int& runNum, vector<TH1F*> &hist1d, vector<TH2F*> &hist2d);
   
   void labelBins(TH1F* hist);
 
 
 private:
-  void removeAll();
   
-  DaqMonitorBEInterface* m_dbe;
-
   int ievt_, jevt_;
 
   int timeout_;
@@ -121,7 +118,6 @@ private:
   
   
   string outputFile_;
-  string inputFile_;
   bool enableSubRun_;
   int subrun_;
   string baseHtmlDir_;

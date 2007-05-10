@@ -27,14 +27,18 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
 PixelCPEGenericESProducer::~PixelCPEGenericESProducer() {}
 
 boost::shared_ptr<PixelClusterParameterEstimator> 
-PixelCPEGenericESProducer::produce(const TkPixelCPERecord & iRecord){ 
-
+PixelCPEGenericESProducer::produce(const TrackerCPERecord & iRecord){ 
+//   if (_propagator){
+//     delete _propagator;
+//     _propagator = 0;
+//   }
   ESHandle<MagneticField> magfield;
   iRecord.getRecord<IdealMagneticFieldRecord>().get(magfield );
 
   edm::ESHandle<TrackerGeometry> pDD;
   iRecord.getRecord<TrackerDigiGeometryRecord>().get( pDD );
 
+  //  cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product(), pDD.product()));
   cpe_  = boost::shared_ptr<PixelClusterParameterEstimator>(new PixelCPEGeneric(pset_,magfield.product())  );
   return cpe_;
 }

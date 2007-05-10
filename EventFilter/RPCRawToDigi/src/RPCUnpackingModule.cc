@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/01/04 21:29:04 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/03/20 09:18:53 $
+ *  $Revision: 1.28 $
  *
  * \author Ilaria Segoni
  */
@@ -23,10 +23,12 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "RPCReadOutMappingWithFastSearch.h"
 #include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
 #include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
@@ -42,7 +44,8 @@ typedef uint64_t Word64;
 
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
-: eventCounter_(0)
+  : dataLabel_(pset.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"))),
+    eventCounter_(0)
 {
   produces<RPCDigiCollection>();
 }
@@ -56,10 +59,12 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
  /// Get Data from all FEDs
   Handle<FEDRawDataCollection> allFEDRawData; 
-  e.getByType(allFEDRawData); 
+  e.getByLabel(dataLabel_,allFEDRawData); 
 
   edm::ESHandle<RPCReadOutMapping> readoutMapping;
   c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  static RPCReadOutMappingWithFastSearch readoutMappingSearch;
+  readoutMappingSearch.init(readoutMapping.product());
 
   edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  
@@ -75,7 +80,8 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
   for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
 
     const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
-    RPCRecordFormatter interpreter(fedId, readoutMapping.product()) ;
+    //RPCRecordFormatter interpreter(fedId, readoutMapping.product()) ;
+    RPCRecordFormatter interpreter(fedId, &readoutMappingSearch) ;
     int currentBX =0;
     try {
       int nWords = rawData.size()/sizeof(Word64);

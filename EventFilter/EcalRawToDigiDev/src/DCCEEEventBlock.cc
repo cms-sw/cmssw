@@ -31,7 +31,7 @@ DCCEEEventBlock::DCCEEEventBlock( DCCDataUnpacker * u,EcalElectronicsMapper * m,
 
 void DCCEEEventBlock::unpackTCCBlocks(){
 
-  vector<short>::iterator it;
+  std::vector<short>::iterator it;
   for(it=tccChStatus_.begin();it!=tccChStatus_.end();it++){
     if( (*it) != CH_TIMEOUT &&  (*it) != CH_DISABLED){
       tccBlock_->unpack(&data_,&dwToEnd_);

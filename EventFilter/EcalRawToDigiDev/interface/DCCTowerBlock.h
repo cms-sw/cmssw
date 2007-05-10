@@ -16,9 +16,6 @@
 
 #include "DCCFEBlock.h"
 
-using namespace std;
-using namespace edm;
-
 class DCCEventBlock;
 class DCCDataUnpacker;
 
@@ -30,21 +27,21 @@ class DCCTowerBlock : public DCCFEBlock {
 
     DCCTowerBlock(DCCDataUnpacker * u,EcalElectronicsMapper * m, DCCEventBlock * e, bool unpack );
     
-	 void updateCollectors();
+    void updateCollectors();
 	 
   protected:
 	 
     void unpackXtalData(uint stripID, uint xtalID);
 
-    auto_ptr<EBDigiCollection>     * digis_;
+    std::auto_ptr<EBDigiCollection>     * digis_;
     
-    EBDetId                        * pDetId_;
-    EBDataFrame                    * pDFId_;
+    EBDetId                             * pDetId_;
+    EBDataFrame                         * pDFId_;
 
-    auto_ptr<EBDetIdCollection>    * invalidGains_;  
-    auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
-    auto_ptr<EBDetIdCollection>    * invalidGainsSwitchStay_;
-    auto_ptr<EBDetIdCollection>    * invalidChIds_;
+    std::auto_ptr<EBDetIdCollection>    * invalidGains_;  
+    std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitch_ ;
+    std::auto_ptr<EBDetIdCollection>    * invalidGainsSwitchStay_;
+    std::auto_ptr<EBDetIdCollection>    * invalidChIds_;
 	 
 };
 

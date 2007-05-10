@@ -53,6 +53,16 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << useBirk << "  with the two constants C1 = "
 			  << birk1 << ", C2 = " << birk2;
   
+  suppress    = m_HC.getUntrackedParameter<bool>("SuppressHeavy", false);
+  pmaxIon     = m_HC.getUntrackedParameter<double>("IonThreshold", 50.0)*MeV;
+  pmaxProton  = m_HC.getUntrackedParameter<double>("ProtonThreshold", 50.0)*MeV;
+  pmaxNeutron = m_HC.getUntrackedParameter<double>("NeutronThreshold",50.0)*MeV;
+
+  edm::LogInfo("HcalSim") << "HCalSD:: Suppression Flag " << suppress
+			  << " protons below " << pmaxProton << " MeV/c,"
+			  << " neutrons below " << pmaxNeutron << " and ions"
+			  << " below " << pmaxIon << " MeV/c";
+
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) 
@@ -175,6 +185,28 @@ double HCalSD::getEnergyDeposit(G4Step* aStep) {
   int depth = (touch->GetReplicaNumber(0))%10;
   int det   = ((touch->GetReplicaNumber(1))/1000)-3;
   if (depth==0 && (det==0 || det==1)) weight = layer0wt[det];
+
+  if (suppress) {
+    G4Track* theTrack = aStep->GetTrack();
+    TrackInformation * trkInfo = (TrackInformation *)(theTrack->GetUserInformation());
+    if (trkInfo) {
+      int pdg = theTrack->GetDefinition()->GetPDGEncoding();
+      if (!(trkInfo->isPrimary())) { // Only secondary particles
+	double pp = theTrack->GetMomentum().mag()/MeV;
+	if (((pdg/1000000000 == 1 && ((pdg/10000)%100) > 0 &&
+	      ((pdg/10)%100) > 0)) && (pp<pmaxIon)) weight = 0;
+	if ((pdg == 2212) && (pp < pmaxProton))     weight = 0;
+	if ((pdg == 2112) && (pp < pmaxNeutron))    weight = 0;
+	if (weight == 0) {
+	  LogDebug("HcalSim") << "Kill Track " << theTrack->GetTrackID()
+			      << " Type " << theTrack->GetDefinition()->GetParticleName()
+			      << " Momentum " << pp << " MeV/c";
+	  //	  std::cout << "ECalSD:: Kill Track " << theTrack->GetTrackID() << " Type " << theTrack->GetDefinition()->GetParticleName() << " Momentum " << pp << " MeV/c\n";
+	}
+      }
+    }
+  }
+
   double weight0 = weight;
   if (useBirk) {
     G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();

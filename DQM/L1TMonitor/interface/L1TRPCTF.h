@@ -4,8 +4,8 @@
 /*
  * \file L1TRPCTF.h
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/02 20:56:20 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
 */
@@ -62,29 +62,20 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  MonitorElement* rpctfbetavalue;
-  MonitorElement* rpctfbphivalue;
-  MonitorElement* rpctfbptvalue;
-  MonitorElement* rpctfbptpacked;
-  MonitorElement* rpctfbquality;
-  MonitorElement* rpctfbchargevalue;
-  MonitorElement* rpctfbntrack;
-
-  MonitorElement* rpctffetavalue;
-  MonitorElement* rpctffphivalue;
-  MonitorElement* rpctffptvalue;
-  MonitorElement* rpctffptpacked;
-  MonitorElement* rpctffquality;
-  MonitorElement* rpctffchargevalue;
-  MonitorElement* rpctffntrack;
+  MonitorElement* rpctfetavalue;
+  MonitorElement* rpctfphivalue;
+  MonitorElement* rpctfptvalue;
+  MonitorElement* rpctfptpacked;
+  MonitorElement* rpctfquality;
+  MonitorElement* rpctfchargevalue;
+  MonitorElement* rpctfntrack;
 
   int nev_; // Number of events processed
   std::string outputFile_; //file name for ROOT ouput
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag rpctfbSource_;
-  edm::InputTag rpctffSource_;
+
 };
 
 #endif

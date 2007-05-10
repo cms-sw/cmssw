@@ -6,7 +6,7 @@
      Header file shared memory to be used with FUShmOutputModule.
      See CMS EvF Storage Manager wiki page for further notes.
 
-   $Id$
+   $Id: FUShmOutputModule.h,v 1.1 2007/03/26 23:36:20 hcheung Exp $
 */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,7 +27,9 @@ namespace edm
 
     void doOutputHeader(InitMsgBuilder const& initMessage);
     void doOutputEvent(EventMsgBuilder const& eventMessage);
+    void start();
     void stop();
+
 
   private:
 

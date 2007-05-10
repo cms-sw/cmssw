@@ -3,7 +3,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=hepmc> 
-<use name=pythia6_227>
+<use name=pythia6>
 #<use name=photos215>
  
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceAlpgenInterface">
@@ -14,7 +14,7 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep> 
  <use name=hepmc> 
- <use name=pythia6_227>
+ <use name=pythia6>
 # <use name=tauola27.121_aux1>
 # <use name=tauola27.121>
 # <use name=photos215>

@@ -62,6 +62,8 @@ namespace csc{
       unsigned ptLUTAddress() const { return m_ptAddress; }
       void setPtLUTAddress(const unsigned& adr) { m_ptAddress = adr; }
 
+      unsigned outputLink() const {return m_output_link;}
+
       bool operator>(const csc::L1Track&) const;
       bool operator<(const csc::L1Track&) const;
       bool operator>=(const csc::L1Track&) const;

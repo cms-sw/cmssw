@@ -68,12 +68,6 @@ namespace stor
 	    ep_.endJob();
       }
       }
-    catch (seal::Error& e)
-      {
-	std::cerr << "Exception caught EventProcessor" << "\n"
-		  << e.explainSelf()
-		  << std::endl;
-      }
     catch (std::exception& e)
       {
 	std::cerr << "Standard library exception caught EventProcessor" << "\n"

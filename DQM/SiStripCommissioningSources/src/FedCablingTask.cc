@@ -49,7 +49,7 @@ void FedCablingTask::book() {
 			       sistrip::LLD_CHAN, 
 			       connection().lldChannel(),
 			       extra_info ).title();
-    
+
     cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
 						nbins, -0.5, nbins*1.-0.5,
 						1025, 0., 1025. );

@@ -22,7 +22,7 @@ public:
   static const int DEFAULT_AXIS = 111;
   static const int TIME_AXIS = 222;
 
-  RootPlot(string type, string format, string file) 
+  RootPlot(string type, string format, string file, float hmin=0., float hmax=0.) 
   {
     m_isInit = 0;
     m_type = type;
@@ -33,8 +33,10 @@ public:
     m_xtitle = "X";
     m_ytitle = "Y";
     m_xAxisType = DEFAULT_AXIS;
-    m_debug = 0;
+    m_debug = 1;
     m_T0 = TDatime(2005,01,01,00,00,00);
+    m_hmin = hmin;
+    m_hmax = hmax;
   };
 
   ~RootPlot() {};
@@ -46,9 +48,16 @@ public:
     m_maxs[0] = m_maxs[1] = FLT_MIN;
     m_data[0] = m_data[1] = m_data[2] = 0;
 
+    gROOT->SetStyle("Plain");
     gStyle->SetOptStat(1110);
     gStyle->SetOptFit();
     gStyle->SetPalette(1,0);
+
+    int pCol[2] = { 2, 3 };
+    if((m_type == "Map") && (TString(m_title).Contains("status")) ) {
+      gStyle->SetPalette(2,pCol);
+    }
+
 
     m_rootfile = new TFile(m_outputRoot.c_str(), "RECREATE");
     m_tree = new TTree("t1", "rootplot tree");
@@ -65,10 +74,9 @@ public:
       m_tree->Branch("x", &m_data[0], "x/F");
       m_tree->Branch("y", &m_data[1], "y/F");
     } else if (m_type == "Map") {
-      m_nfields = 3;
+      m_nfields = 2;
       m_tree->Branch("x", &m_data[0], "x/F");
       m_tree->Branch("y", &m_data[1], "y/F");
-      m_tree->Branch("w", &m_data[2], "w/F");
     }
   };
 
@@ -235,6 +243,56 @@ public:
 
   void drawMap()
   {
+    gStyle->SetOptStat(0);
+
+    const Int_t csize = 150;
+    TCanvas c1("c1","rootplot",Int_t(85./20.*csize),csize);
+    TH2F* plot = new TH2F("rootplot",m_title.c_str(),85,0.0001,85.0001,20,0.0001,20.0001);
+    plot->GetXaxis()->SetTitle(m_xtitle.c_str());
+    plot->GetYaxis()->SetTitle(m_ytitle.c_str());
+
+    Float_t x, y;
+    m_tree->SetBranchAddress("x", &x);
+    m_tree->SetBranchAddress("y", &y);
+
+    // now fill the map...
+    Int_t n = (Int_t)m_tree->GetEntries();
+    for(Int_t i=0; i<n; i++) {
+      m_tree->GetEntry(i);
+      Float_t xmap = Float_t(Int_t(x-1)/20)+1;
+      Float_t ymap = Float_t(Int_t(x-1)%20)+1;
+      plot->Fill(xmap,ymap,y);
+    }
+
+    // draw the map
+    plot->SetTitle(m_title.c_str());
+    if(!(m_hmin==0 && m_hmax==0)) {
+      plot->SetMinimum(m_hmin);
+      plot->SetMaximum(m_hmax);
+    }
+    plot->GetXaxis()->SetTitle("crystal number (#eta)");
+    plot->GetYaxis()->SetTitle("crystal number (#phi)");
+    plot->GetZaxis()->SetTitle(m_ytitle.c_str());
+    plot->GetXaxis()->SetNdivisions(17);
+    plot->GetYaxis()->SetNdivisions(4);
+    c1.SetGridx();
+    c1.SetGridy();
+    plot->Draw("colz");
+
+    // and draw the grid upon the map...
+    TH2C* labelGrid = new TH2C("labelGrid", "label grid for SM", 85, 0., 85., 20, 0., 20.);
+    for(Int_t i=0; i<68; i++){
+      Float_t X = (i/4)*5+2;
+      Float_t Y = (i%4)*5+2;
+      labelGrid->Fill(X,Y,i+1);
+    }
+    labelGrid->SetMinimum(0.1);
+    labelGrid->SetMarkerSize(2);
+    labelGrid->Draw("text,same");
+
+    c1.Print(m_outputFile.c_str(), m_outputFormat.c_str());
+    plot->Write();
+
   };
 
   void setTimeAxis(TAxis* axis) {
@@ -258,6 +316,8 @@ private:
   string m_title;
   string m_xtitle;
   string m_ytitle;
+  float m_hmin;
+  float m_hmax;
   int m_xAxisType;
   int m_debug;
   int m_nfields;
@@ -293,12 +353,16 @@ int main (int argc, char* argv[])
     ("type", program_options::value<string>(),"Type of ROOT plot")
     ("format", program_options::value<string>(), "Output format")
     ("output", program_options::value<string>(), "Output file")
+    ("hmin", program_options::value<float>(), "histo_min")
+    ("hmax", program_options::value<float>(), "histo_max")
     ;
   desc.add(visible).add(hidden);
   program_options::positional_options_description pd;
   pd.add("type", 1);
   pd.add("format", 1);
   pd.add("output", 1);
+  pd.add("hmin", 1);
+  pd.add("hmax", 1);
   program_options::variables_map vm;
   try {
     program_options::store(program_options::command_line_parser(argc, argv).options(desc).positional(pd).run(), vm);
@@ -317,6 +381,8 @@ int main (int argc, char* argv[])
   string title = "";
   string xtitle = "";
   string ytitle = "";
+  float histo_min = 0;
+  float histo_max = 0;
   int axisCode = RootPlot::DEFAULT_AXIS;
   int debug = 0;
 
@@ -344,6 +410,8 @@ int main (int argc, char* argv[])
   else { arg_error("format is required"); }
   if (vm.count("output")) { outputFile = vm["output"].as<string>(); }
   else { arg_error("output is required"); }
+  if (vm.count("hmin")) {histo_min = vm["hmin"].as<float>(); }
+  if (vm.count("hmax")) {histo_max = vm["hmax"].as<float>(); }
 
   if (vm.count("time")) { axisCode = RootPlot::TIME_AXIS; }
   if (vm.count("title")) {
@@ -367,11 +435,13 @@ int main (int argc, char* argv[])
     cout << "  title:       " << title << endl;
     cout << "  xtitle:      " << xtitle << endl;
     cout << "  ytitle:      " << ytitle << endl;
+    cout << "  map min:     " << histo_min << endl;
+    cout << "  map max:     " << histo_max << endl;
   }
 
   // Read data from stdin
   try {
-    RootPlot rootplot(type, outputFormat, outputFile);
+    RootPlot rootplot(type, outputFormat, outputFile, histo_min, histo_max);
     rootplot.setXAxisType(axisCode);
     rootplot.setTitle(title);
     rootplot.setXTitle(xtitle);

@@ -16,8 +16,8 @@
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/08/29 14:48:15 $
-// $Revision: 1.3 $
+// $Date: 2007/02/05 19:22:45 $
+// $Revision: 1.5 $
 //
 
 #include <vector>
@@ -29,13 +29,15 @@
 #include "RecoTracker/RingRecord/interface/Ring.h"
 #include "RecoTracker/RingRecord/interface/Rings.h"
 
+#include "RecoTracker/RoadMapRecord/interface/RoadMapSorting.h"
+
 class Roads {
  
  public:
   
   typedef std::pair<std::vector<const Ring*>, std::vector<const Ring*> > RoadSeed;
   typedef std::vector<std::vector<const Ring*> > RoadSet;
-  typedef std::multimap<RoadSeed,RoadSet> RoadMap;
+  typedef std::multimap<RoadSeed,RoadSet,RoadMapSorting> RoadMap;
   
   typedef RoadMap::iterator iterator;
   typedef RoadMap::const_iterator const_iterator;

@@ -232,7 +232,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
 	if( putBufferToEvent ){
-		auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
+		std::auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
 		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::getCSCTFFEDIds().first);
 		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
 		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());

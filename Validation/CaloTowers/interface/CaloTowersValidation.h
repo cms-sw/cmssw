@@ -23,11 +23,6 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-
 
 class CaloTowersValidation : public edm::EDAnalyzer {
  public:
@@ -40,10 +35,10 @@ class CaloTowersValidation : public edm::EDAnalyzer {
  private:
   
   DaqMonitorBEInterface* dbe_;
-  string outputFile_;
+  std::string outputFile_;
 
 
-  string theCaloTowerCollectionLabel;
+  std::string theCaloTowerCollectionLabel;
 
 
   MonitorElement* meEnergyHcalvsEcal;

@@ -2,16 +2,16 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
-  theCaloTowerCollectionLabel(conf.getUntrackedParameter<string>("CaloTowerCollectionLabel"))
+  theCaloTowerCollectionLabel(conf.getUntrackedParameter<std::string>("CaloTowerCollectionLabel"))
 {
   // DQM ROOT output
-  outputFile_ = conf.getUntrackedParameter<string>("outputFile", "myfile.root");
+  outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   
   if ( outputFile_.size() != 0 ) {
-    LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
   
   dbe_ = 0;
@@ -25,7 +25,7 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
  
 
   if ( dbe_ ) {
-    cout << " dbe_->setCurrentFolder" << endl; 
+    std::cout << " dbe_->setCurrentFolder" << std::endl; 
     dbe_->setCurrentFolder("CaloTowersTask");
   
     sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL" ) ;
@@ -58,16 +58,16 @@ CaloTowersValidation::CaloTowersValidation(edm::ParameterSet const& conf):
 
 CaloTowersValidation::~CaloTowersValidation() {
    
-  cout << " outputFile_.size() =  " << outputFile_.size() << endl;
-  cout << " dbe_ = " << dbe_ << endl;
+  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
+  std::cout << " dbe_ = " << dbe_ << std::endl;
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
 
 void CaloTowersValidation::endJob() {
   
-  cout << " outputFile_.size() =  " << outputFile_.size() << endl;
-  cout << " dbe_ = " << dbe_ << endl; 
+  std::cout << " outputFile_.size() =  " << outputFile_.size() << std::endl;
+  std::cout << " dbe_ = " << dbe_ << std::endl; 
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
   
 }
@@ -76,7 +76,7 @@ void CaloTowersValidation::beginJob(const edm::EventSetup& c){
 }
 void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup const& c) {
 
-  Handle<CaloTowerCollection> towers;
+  edm::Handle<CaloTowerCollection> towers;
   event.getByLabel(theCaloTowerCollectionLabel,towers);
   CaloTowerCollection::const_iterator cal;
 
@@ -92,11 +92,11 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
  for ( cal = towers->begin(); cal != towers->end(); ++cal ) {
 
       double eE = cal->emEnergy();
-//      cout << " e_ecal = " << eE << endl;
+//      std::cout << " e_ecal = " << eE << std::endl;
       double eH = cal->hadEnergy();
-//      cout << " e_hcal = " << eH << endl;
+//      std::cout << " e_hcal = " << eH << std::endl;
       double eHO = cal->outerEnergy();
-//      cout << " e_HO = " << eHO << endl;
+//      std::cout << " e_HO = " << eHO << std::endl;
       sumEnergyHcal += eH;
       sumEnergyEcal += eE;
       sumEnergyHO += eHO;
@@ -117,7 +117,7 @@ void CaloTowersValidation::analyze(edm::Event const& event, edm::EventSetup cons
 }
 
 
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();

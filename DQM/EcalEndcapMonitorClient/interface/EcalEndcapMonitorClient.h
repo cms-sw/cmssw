@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/03/27 11:31:44 $
- * $Revision: 1.67 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -77,7 +77,7 @@ void setup(void);
 void cleanup(void);
   
 /// HtmlOutput
-void htmlOutput(void);
+void htmlOutput(bool current=false);
   
 /// BeginRunDB
 void beginRunDb(void);
@@ -141,11 +141,13 @@ string maskFile_;
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRun_;
+bool enableSubRunDb_;
+bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
-time_t last_time_;
+time_t last_time_db_;
+time_t last_time_html_;
  
 string baseHtmlDir_;
 

@@ -17,7 +17,6 @@
 // The crystals corresponding to a given FE in a given FED
 //
 
-using namespace std;
 
 
 class TowerBlockFormatter : public BlockFormatter {
@@ -31,11 +30,11 @@ class TowerBlockFormatter : public BlockFormatter {
 	void StartEvent();
 	void EndEvent(FEDRawDataCollection* productRawData);
 
-	map<int, map<int,int> >* GetFEDorder() {return FEDorder; }
+	std::map<int, std::map<int,int> >* GetFEDorder() {return FEDorder; }
 
  private :
-        map<int, map<int,int> >* FEDmap;
-	map<int, map<int,int> >* FEDorder;
+        std::map<int, std::map<int,int> >* FEDmap;
+	std::map<int, std::map<int,int> >* FEDorder;
 
 
 };

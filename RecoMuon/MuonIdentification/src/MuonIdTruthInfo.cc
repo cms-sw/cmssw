@@ -9,7 +9,7 @@
 
 void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, 
 				     const edm::EventSetup& iSetup,
-				     reco::MuonWithMatchInfo& aMuon)
+				     reco::Muon& aMuon)
 {
    // get a list of simulated track and find a track with the best match to
    // the muon.track(). Use its id and chamber id to localize hits
@@ -44,18 +44,18 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
    
    bestMatch -= offset;
    
-   std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>& matches = aMuon.matches();
+   std::vector<reco::MuonChamberMatch>& matches = aMuon.getMatches();
    int numberOfTruthMatchedChambers = 0;
 
    // loop over chambers
-   for(std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>::iterator chamberMatch = matches.begin();
+   for(std::vector<reco::MuonChamberMatch>::iterator chamberMatch = matches.begin();
        chamberMatch != matches.end(); chamberMatch ++)
      {
 	if (chamberMatch->id.det() != DetId::Muon ) {
 	   edm::LogWarning("MuonIdentification") << "Detector id of a muon chamber corresponds to not a muon detector";
 	   continue;
 	}
-	reco::MuonWithMatchInfo::MuonSegmentMatch bestSegmentMatch;
+	reco::MuonSegmentMatch bestSegmentMatch;
 	double distance = 99999;
 	
 	if ( chamberMatch->id.subdetId() == MuonSubdetId::DT) {
@@ -91,7 +91,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent,
      "\n\tnumber of truth matched chambers: " << numberOfTruthMatchedChambers << "\n";
 }
 
-void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonWithMatchInfo::MuonSegmentMatch& segmentMatch,
+void MuonIdTruthInfo::checkSimHitForBestMatch(reco::MuonSegmentMatch& segmentMatch,
 					      double& distance,
 					      const PSimHit& hit, 
 					      const DetId& chamberId,

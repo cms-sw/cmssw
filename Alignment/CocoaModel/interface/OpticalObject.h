@@ -303,7 +303,6 @@ private:
 
   void transformCylindrical2Cartesian();
   void transformSpherical2Cartesian();
-  void transformGlobal2Local();
 
 template<class T>
   void rotateItAroundGlobal( T& object, const XYZcoor coor, const double disp );

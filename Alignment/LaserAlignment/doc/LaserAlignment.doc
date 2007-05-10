@@ -20,6 +20,7 @@ This package contains the reconstruction code for the Laser Alignment System in 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
+- AlignmentAlgorithmBW: alignment algorithm developed by Bruno Wittmer. Used to calculate the alignment parameters using the data from the Laser Alignment System.
 - BeamProfileFitter: fit a gaussian to the laser beam profiles.
 - LaserAlignmentAlgorithmNegTEC: interface to the alignment algorithm for TEC-.
 - LaserAlignmentAlgorithmPosTEC: interface to the alignment algorithm for TEC+.
