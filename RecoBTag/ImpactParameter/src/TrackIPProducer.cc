@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.2 2007/01/30 16:12:40 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.1 2007/05/09 14:11:12 arizzi Exp $
 //
 //
 
@@ -40,18 +40,12 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 
-//#include "MagneticField/Engine/interface/MagneticField.h"
-//#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-//#include "RecoBTau/TrackTools/interface/SignedImpactParameter3D.h"
-//#include "RecoBTau/TrackTools/interface/SignedTransverseImpactParameter.h"
-//#include "RecoBTau/TrackTools/interface/SignedDecayLength3D.h"
-//#include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-//#include "RecoBTag/BTagTools/interface/SignedTransverseImpactParameter.h"
-//#include "RecoBTag/BTagTools/interface/SignedDecayLength3D.h"
-
 //#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
+
 #include <iostream>
 
 using namespace std;
@@ -62,28 +56,41 @@ using namespace edm;
 // constructors and destructor
 //
 TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) : 
-  m_config(iConfig)  {
+  m_config(iConfig),m_probabilityEstimator(0)  {
 
-  produces<reco::TrackIPTagInfoCollection>(); 
+  m_useDB=iConfig.getParameter<bool>("useDB");
+  if(!m_useDB)
+  {
+   edm::FileInPath f2d("RecoBTag/TrackProbability/data/2DHisto.xml");
+   edm::FileInPath f3d("RecoBTag/TrackProbability/data/3DHisto.xml");
+   m_probabilityEstimator=new HistogramProbabilityEstimator( new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f3d.fullPath()).c_str()),
+               new AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>((f2d.fullPath()).c_str())) ;
+  }
+  m_calibrationCacheId3D= 0;
+  m_calibrationCacheId2D= 0;
   
   m_associator = m_config.getParameter<string>("jetTracks");
   m_primaryVertexProducer = m_config.getParameter<string>("primaryVertex");
 
-  m_computeProbabilities = m_config.getParameter<bool>("ComputeProbabilities"); //FIXME: use or remove
+  m_computeProbabilities = m_config.getParameter<bool>("computeProbabilities"); //FIXME: use or remove
   
-  m_cutPixelHits     =  m_config.getParameter<int>("MinimumNumberOfPixelHits"); //FIXME: use or remove
-  m_cutTotalHits     =  m_config.getParameter<int>("MinimumNumberOfHits"); // used
-  m_cutMaxTIP        =  m_config.getParameter<double>("MaximumTransverseImpactParameter"); // used
-  m_cutMinPt         =  m_config.getParameter<double>("MinimumTransverseMomentum"); // used
-  m_cutMaxDecayLen   =  m_config.getParameter<double>("MaximumDecayLength"); //used
-  m_cutMaxChiSquared =  m_config.getParameter<double>("MaximumChiSquared"); //used
-  m_cutMaxLIP        =  m_config.getParameter<double>("MaximumLongitudinalImpactParameter"); //used
-  m_cutMaxDistToAxis =  m_config.getParameter<double>("MaximumDistanceToJetAxis"); //used
+  m_cutPixelHits     =  m_config.getParameter<int>("minimumNumberOfPixelHits"); //FIXME: use or remove
+  m_cutTotalHits     =  m_config.getParameter<int>("minimumNumberOfHits"); // used
+  m_cutMaxTIP        =  m_config.getParameter<double>("maximumTransverseImpactParameter"); // used
+  m_cutMinPt         =  m_config.getParameter<double>("minimumTransverseMomentum"); // used
+  m_cutMaxDecayLen   =  m_config.getParameter<double>("maximumDecayLength"); //used
+  m_cutMaxChiSquared =  m_config.getParameter<double>("maximumChiSquared"); //used
+  m_cutMaxLIP        =  m_config.getParameter<double>("maximumLongitudinalImpactParameter"); //used
+  m_cutMaxDistToAxis =  m_config.getParameter<double>("maximumDistanceToJetAxis"); //used
+
+
+   produces<reco::TrackIPTagInfoCollection>();
 
 }
 
 TrackIPProducer::~TrackIPProducer()
 {
+ delete m_probabilityEstimator;
 }
 
 //
@@ -94,7 +101,10 @@ void
 TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-   //input objects
+   
+   if(m_computeProbabilities && m_useDB) checkEventSetup(iSetup); //Update probability estimator if event setup is changed
+ 
+  //input objects 
    Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
    iEvent.getByLabel(m_associator,jetTracksAssociation);
    
@@ -113,11 +123,12 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //use first pv of the collection
    //FIXME: use BeamSpot when pv is missing
    const  Vertex  *pv;
-
+   edm::Ref<VertexCollection> * pvRef;
    bool pvFound = (primaryVertex->size() != 0);
    if(pvFound)
    {
     pv = &(*primaryVertex->begin());
+    pvRef = new edm::Ref<VertexCollection>(primaryVertex,0); // we always use the first vertex at the moment
    }
     else 
    { // create a dummy PV
@@ -127,6 +138,7 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      e(2,2)=15.*15.;
      Vertex::Point p(0,0,0);
      pv=  new Vertex(p,e,1,1,1);
+     pvRef = new edm::Ref<VertexCollection>();
    }
    
    double pvZ=pv->z();
@@ -166,29 +178,89 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          ip2Dv.push_back(IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second);
          dLenv.push_back(IPTools::signedDecayLength3D(transientTrack,direction,*pv).second);
          jetDistv.push_back(IPTools::jetTrackDistance(transientTrack,direction,*pv).second);
-
+         cout << "nuovo " <<  ip3Dv.back().value() << " " << ip3Dv.back().error() << endl;
          if(m_computeProbabilities) {
-              prob2D.push_back(-1.); 
-              prob3D.push_back(-1.); 
-//             pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
-//             pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->key),pv);
+              //probability with 3D ip
+              pair<bool,double> probability =  m_probabilityEstimator->probability(0,ip3Dv.back().significance(),track,*(it->first),*pv);
+              if(probability.first)  prob3D.push_back(probability.second); else  prob3D.push_back(-1.); 
+              
+              //probability with 2D ip
+              probability =  m_probabilityEstimator->probability(1,ip2Dv.back().significance(),track,*(it->first),*pv);
+              if(probability.first)  prob2D.push_back(probability.second); else  prob2D.push_back(-1.); 
+
           } 
     
          } // quality cuts if
      
       } //track loop
-       TrackIPTagInfo tagInfo(ip2Dv,ip3Dv,dLenv,jetDistv,prob2D,prob3D,selectedTracks,edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i));
+       TrackIPTagInfo tagInfo(ip2Dv,ip3Dv,dLenv,jetDistv,prob2D,prob3D,selectedTracks,
+                              edm::Ref<JetTracksAssociationCollection>(jetTracksAssociation,i),
+                              *pvRef);
        outCollection->push_back(tagInfo); 
      }
-  // reco::TrackIPTagInfoCollection * outCollection = new reco::TrackIPTagInfoCollection();
  
     std::auto_ptr<reco::TrackIPTagInfoCollection> result(outCollection);
    iEvent.put(result);
    cout << "done"  << endl;
  
    if(!pvFound) delete pv; //dummy pv deleted
-
+   delete pvRef;
 }
+
+
+#include "CondFormats/BTauObjects/interface/TrackProbabilityCalibration.h"
+#include "RecoBTag/XMLCalibration/interface/CalibrationInterface.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability2DRcd.h"
+#include "CondFormats/DataRecord/interface/BTagTrackProbability3DRcd.h"
+#include "FWCore/Framework/interface/EventSetupRecord.h"
+#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+
+
+void TrackIPProducer::checkEventSetup(const EventSetup & iSetup)
+ {
+using namespace edm;
+using namespace edm::eventsetup;
+   const EventSetupRecord & re2D= iSetup.get<BTagTrackProbability2DRcd>();
+   const EventSetupRecord & re3D= iSetup.get<BTagTrackProbability3DRcd>();
+   unsigned long long cacheId2D= re2D.cacheIdentifier();
+   unsigned long long cacheId3D= re3D.cacheIdentifier();
+
+   if(cacheId2D!=m_calibrationCacheId2D || cacheId3D!=m_calibrationCacheId3D  )  //Calibration changed
+   {
+//     cout<< "Calibration data changed" << endl;
+     //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
+     ESHandle<TrackProbabilityCalibration> calib2DHandle;
+     iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
+     ESHandle<TrackProbabilityCalibration> calib3DHandle;
+     iSetup.get<BTagTrackProbability3DRcd>().get(calib3DHandle);
+
+     const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
+     const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
+
+     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib3d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
+     CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML> * calib2d =  new CalibrationInterface<TrackClassFilterCategory,CalibratedHistogramXML>;
+
+     for(size_t i=0;i<ca3D->data.size(); i++)    
+     {
+//        cout <<  "  Adding category" << endl;
+        calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
+     }
+    
+     for(size_t i=0;i<ca2D->data.size(); i++)    
+     {
+//        cout <<  "  Adding category" << endl;
+        calib2d->addEntry(TrackClassFilterCategory(ca2D->data[i].category),ca2D->data[i].histogram); // convert category data to filtering category
+     }
+  
+     if(m_probabilityEstimator) delete m_probabilityEstimator;  //this should delete also old calib via estimator destructor
+     m_probabilityEstimator=new HistogramProbabilityEstimator(calib3d,calib2d);
+
+   }
+   m_calibrationCacheId3D=cacheId3D;
+   m_calibrationCacheId2D=cacheId2D;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackIPProducer);

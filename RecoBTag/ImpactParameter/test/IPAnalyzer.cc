@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.1 2007/02/07 07:44:22 arizzi Exp $
+// $Id: IPAnalyzer.cc,v 1.1 2007/05/09 14:11:13 arizzi Exp $
 //
 //
 
@@ -99,12 +99,14 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRefVector selTracks=it->selectedTracks();
       int n=selTracks.size();
       cout << "Sel tracks: " << n << endl; 
-      cout << " Pt  \t d len \t jet dist \t ip2d \t ip3d " << endl; 
+      cout << " Pt  \t d len \t jet dist \t p3d \t p2d\t ip3d \t ip2d " << endl; 
       for(int j=0;j< n;j++)
       {
         cout << selTracks[j]->pt() << "\t";
-        cout << it->decayLen()[j].value() << "\t";
-        cout << it->jetDistance()[j].value() << "\t";
+        cout << it->decayLengths()[j].value() << "\t";
+        cout << it->jetDistances()[j].value() << "\t";
+        cout << it->probabilities(0)[j]<< "\t";
+        cout << it->probabilities(1)[j]<< "\t";
         cout << it->impactParameters(0)[j].significance() << "\t";
         cout << it->impactParameters(1)[j].significance() << endl;
       }
