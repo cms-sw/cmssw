@@ -238,9 +238,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	 ipv != pvCand.end(); ipv++) {
       if(fVerbose){
 	cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
-	  theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+	  //theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+	  theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
       }
-      if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
+      //if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
+      if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
     }
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)
