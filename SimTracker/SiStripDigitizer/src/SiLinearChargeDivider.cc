@@ -4,7 +4,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf_(conf),theParticleDataTable(0){
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng):
+  conf_(conf),rndEngine(eng),theParticleDataTable(0){
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   peakMode=conf_.getParameter<bool>("APVpeakmode");
   
@@ -26,6 +27,8 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf
   //The value to be used it must be evaluated and depend on the volume defnition used
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift=conf_.getUntrackedParameter<double>("CosmicDelayShift");
+  
+  fluctuate = new SiG4UniversalFluctuation(rndEngine);
 }
 
 SiChargeDivider::ionization_type 
@@ -104,10 +107,10 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
     // Returns fluctuated eloss in MeV
     // the cutoff is sometimes redefined inside, so fix it.
     double deltaCutoff = deltaCut;
-    de = fluctuate.SampleFluctuations(double(particleMomentum*1000.),
-				      particleMass, deltaCutoff, 
-				      double(segmentLength*10.),
-				      segmentEloss )/1000.; //convert to GeV
+    de = fluctuate->SampleFluctuations(double(particleMomentum*1000.),
+				       particleMass, deltaCutoff, 
+				       double(segmentLength*10.),
+				       segmentEloss )/1000.; //convert to GeV
     elossVector[i]=de;
     sum +=de;
   }

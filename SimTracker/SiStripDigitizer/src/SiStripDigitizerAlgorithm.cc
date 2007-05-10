@@ -14,8 +14,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
-#include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
-#include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -25,7 +23,7 @@
 
 SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det,
 						     uint32_t& idForNoise , SiStripNoiseService* noiseService,
-						     CLHEP::HepRandomEngine& eng):conf_(conf),engine(eng){
+						     CLHEP::HepRandomEngine& eng):conf_(conf),rndEngine(eng){
   ndigis=0;
   SiStripNoiseService_=noiseService;
   theElectronPerADC = conf_.getParameter<double>("ElectronPerAdc");
@@ -50,9 +48,9 @@ SiStripDigitizerAlgorithm::SiStripDigitizerAlgorithm(const edm::ParameterSet& co
   int strip = int(numStrips/2.);
   float noiseRMS = SiStripNoiseService_->getNoise(idForNoise,strip);
 
-  theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS*theElectronPerADC,theThreshold,engine);
+  theSiNoiseAdder = new SiGaussianTailNoiseAdder(numStrips,noiseRMS*theElectronPerADC,theThreshold,rndEngine);
   theSiZeroSuppress = new SiTrivialZeroSuppress(conf_,noiseRMS);
-  theSiHitDigitizer = new SiHitDigitizer(conf_,det);
+  theSiHitDigitizer = new SiHitDigitizer(conf_,det,rndEngine);
   theSiPileUpSignals = new SiPileUpSignals();
   theSiDigitalConverter = new SiTrivialDigitalConverter(theElectronPerADC,theAdcFullScale);
 

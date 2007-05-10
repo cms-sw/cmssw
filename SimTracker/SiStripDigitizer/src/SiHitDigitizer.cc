@@ -11,13 +11,13 @@
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det ):conf_(conf){
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,CLHEP::HepRandomEngine& eng ):conf_(conf),rndEngine(eng){
 
   //
   // Construct default classes
   //
   
-  theSiChargeDivider = new SiLinearChargeDivider(conf_);
+  theSiChargeDivider = new SiLinearChargeDivider(conf_,rndEngine);
   
   depletionVoltage = conf_.getParameter<double>("DepletionVoltage");
   appliedVoltage   = conf_.getParameter<double>("AppliedVoltage");

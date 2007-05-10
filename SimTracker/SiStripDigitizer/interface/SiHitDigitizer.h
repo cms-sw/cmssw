@@ -15,6 +15,10 @@
 
 #include <map>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 class SiStripDetType;
 /**
 * Digitizes the response for a single SimHit.
@@ -23,7 +27,7 @@ class SiHitDigitizer{
  public:
 
   typedef std::map< int, float, std::less<int> > hit_map_type;
-  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det);
+  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,CLHEP::HepRandomEngine&);
 
   ~SiHitDigitizer();
 
@@ -50,6 +54,7 @@ class SiHitDigitizer{
   SiInduceChargeOnStrips* theSiInduceChargeOnStrips;
 
   edm::ParameterSet conf_;
+  CLHEP::HepRandomEngine& rndEngine;
   double depletionVoltage;
   double appliedVoltage;
   double chargeMobility;

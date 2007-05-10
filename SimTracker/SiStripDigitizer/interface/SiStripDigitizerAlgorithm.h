@@ -16,17 +16,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimTracker/SiStripDigitizer/interface/SiLinearChargeCollectionDrifter.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialZeroSuppress.h"
 #include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
-#include "SimTracker/SiStripDigitizer/interface/SiLinearChargeDivider.h"
 #include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
@@ -53,8 +50,8 @@ class SiStripDigitizerAlgorithm
   std::vector<StripDigiSimLink> make_link(){ return link_coll;}
 
   
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*,
-			    CLHEP::HepRandomEngine&);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*,CLHEP::HepRandomEngine&);
+
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
@@ -85,9 +82,6 @@ class SiStripDigitizerAlgorithm
   bool noDiffusion;
   double chargeDistributionRMS;
 
-  CLHEP::HepRandomEngine& engine;
-
-  SiLinearChargeCollectionDrifter* theSiChargeCollectionDrifter;
   SiChargeDivider* theSiChargeDivider;
   SiGaussianTailNoiseAdder* theSiNoiseAdder;
   SiPileUpSignals* theSiPileUpSignals;
@@ -115,11 +109,7 @@ class SiStripDigitizerAlgorithm
   //-- charge fluctuation
   double tMax;  // The delta production cut, should be as in OSCAR = 30keV
                 //                                           cmsim = 100keV
-  // The eloss fluctuation class from G4. Is the right place? 
-  SiG4UniversalFluctuation fluctuate; //
-  GaussianTailNoiseGenerator* theNoiser; //
   std::vector<const PSimHit*> ss;
-
   void fluctuateEloss(int particleId, float momentum, float eloss, 
 		      float length, int NumberOfSegments,
 		      float elossVector[]);
@@ -128,7 +118,7 @@ class SiStripDigitizerAlgorithm
   const StripGeomDetUnit* _detp;
   const StripTopology* topol;
   std::vector<SiStripDigi> digis;
-
+  CLHEP::HepRandomEngine& rndEngine;
 };
 
 #endif

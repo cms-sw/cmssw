@@ -29,6 +29,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -36,7 +37,7 @@ namespace CLHEP {
 
 class SiStripDigitizer : public edm::EDProducer
 {
- public:
+public:
   
   // The following is not yet used, but will be the primary
   // constructor when the parameter set system is available.
@@ -47,20 +48,20 @@ class SiStripDigitizer : public edm::EDProducer
   
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
   
- private:
-  std::map<GeomDetType* , boost::shared_ptr<SiStripDigitizerAlgorithm> > theAlgoMap; 
+private:
+  std::map<const GeomDetType* , boost::shared_ptr<SiStripDigitizerAlgorithm> > theAlgoMap; 
   std::vector<edm::DetSet<SiStripDigi> > theDigiVector;
   std::vector<edm::DetSet<StripDigiSimLink> > theDigiLinkVector;
   
   edm::ParameterSet conf_;
   SiStripNoiseService SiStripNoiseService_;  
-  CLHEP::HepRandomEngine * rndEngine;
   typedef std::vector<std::string> vstring;
   vstring trackerContainers;
   typedef std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > simhit_map;
   typedef simhit_map::iterator simhit_map_iterator;
   simhit_map SimHitMap;
   int numStrips;    // number of strips in the module
+  CLHEP::HepRandomEngine* rndEngine;
 };
 
 #endif

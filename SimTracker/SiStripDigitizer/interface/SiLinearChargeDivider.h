@@ -11,6 +11,10 @@
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
+namespace CLHEP{
+  class HepRandomEngine;
+}
+
 /**
  * Concrete implementation of SiChargeDivider. 
  * It divides the charge on the line connecting entry and exit point of the SimTrack in the Silicon.
@@ -18,9 +22,7 @@
 class SiLinearChargeDivider : public SiChargeDivider{
  public:
 
-  SiLinearChargeDivider(){
-  }
-  SiLinearChargeDivider(const edm::ParameterSet& conf);
+  SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine&);
 
   virtual ~SiLinearChargeDivider(){
   }
@@ -31,7 +33,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   
  private:
   edm::ParameterSet conf_;
-  
+  CLHEP::HepRandomEngine& rndEngine;
   float PeakShape(const PSimHit&, const StripGeomDetUnit& det);
   float DeconvolutionShape( const PSimHit&, const StripGeomDetUnit& det);
   float TimeResponse( const PSimHit&, const StripGeomDetUnit& det); 
@@ -42,7 +44,7 @@ class SiLinearChargeDivider : public SiChargeDivider{
   int  chargedivisionsPerStrip;
   double deltaCut ;
   double cosmicShift;
-  SiG4UniversalFluctuation fluctuate; 
+  SiG4UniversalFluctuation* fluctuate; 
   const ParticleDataTable * theParticleDataTable;
 
 };

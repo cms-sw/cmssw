@@ -13,9 +13,7 @@
  */
 class SiChargeDivider{
  public:
-  
   typedef std::vector< EnergyDepositUnit > ionization_type;
-  
   virtual ~SiChargeDivider() { }
   virtual ionization_type divide(const PSimHit&, const StripGeomDetUnit& det) = 0;
   virtual void setParticleDataTable(const ParticleDataTable * pdt) = 0;
