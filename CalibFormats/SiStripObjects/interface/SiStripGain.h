@@ -16,7 +16,7 @@
 //
 // Original Author:  gbruno
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripGain.h,v 1.4 2007/01/29 15:24:29 gbruno Exp $
+// $Id: SiStripGain.h,v 1.1 2007/05/02 12:33:33 gbruno Exp $
 //
 
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
@@ -27,7 +27,7 @@ class SiStripGain
 public:
   SiStripGain();
   virtual ~SiStripGain();
-  SiStripGain(const SiStripApvGain &);
+  SiStripGain(const SiStripApvGain &, double factor);
   
   // getters
   const SiStripApvGain::Range getRange(const uint32_t& detID) const;
@@ -44,6 +44,7 @@ public:
     // ---------- member data --------------------------------
 
     const SiStripApvGain * apvgain_;
+    double norm_;
 
 };
 
