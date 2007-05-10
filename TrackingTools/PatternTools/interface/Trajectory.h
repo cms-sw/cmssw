@@ -79,6 +79,10 @@ public:
     theSeed(seed)
   {}
 
+  /** Reserves space in the vector to avoid lots of allocations when 
+      push_back-ing measurements */
+  void reserve (unsigned int n) { theData.reserve(n); }
+
   /** Add a new measurement to a Trajectory.
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
