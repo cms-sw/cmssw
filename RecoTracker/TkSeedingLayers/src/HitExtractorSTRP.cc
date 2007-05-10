@@ -195,7 +195,7 @@ vector<SeedingHit> HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           rphiHits->get(accessor.stripTECDisk(theSide,theIdLayer) );
       for(SiStripRecHit2DCollection::const_iterator it=range.first; it!=range.second; it++){
         int ring = TECDetId( it->geographicalId() ).ring();
-      std::cout << "layer " << theIdLayer << " ring " << ring << std::endl;
+//      std::cout << "layer " << theIdLayer << " ring " << ring << std::endl;
         if (ringRange(ring)){
                 if (hasMatchedHits){
                         if (ring!=1 && ring!=2 && ring!=5){
