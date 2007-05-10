@@ -20,7 +20,7 @@
 // * statement, and all its terms.                                    *
 // ********************************************************************
 //
-// $Id: SiG4UniversalFluctuation.cc,v 1.4 2006/03/02 09:18:36 pioppi Exp $
+// $Id: SiG4UniversalFluctuation.cc,v 1.5 2006/11/13 14:24:35 fambrogl Exp $
 // GEANT4 tag $Name:  $
 //
 // -------------------------------------------------------------------
@@ -71,18 +71,22 @@
 
 using namespace std;
 
-SiG4UniversalFluctuation::SiG4UniversalFluctuation()
- :minNumberInteractionsBohr(10.0),
-  theBohrBeta2(50.0*keV/proton_mass_c2),
-  minLoss(10.*eV),
-  problim(5.e-3),  
-  alim(10.),
-  nmaxCont1(4.),
-  nmaxCont2(16.)
+SiG4UniversalFluctuation::SiG4UniversalFluctuation(CLHEP::HepRandomEngine& eng)
+  :rndEngine(eng),
+   gaussQDistribution(0),
+   poissonDistribution(0),
+   flatDistribution(0),
+   minNumberInteractionsBohr(10.0),
+   theBohrBeta2(50.0*keV/proton_mass_c2),
+   minLoss(10.*eV),
+   problim(5.e-3),  
+   alim(10.),
+   nmaxCont1(4.),
+   nmaxCont2(16.)
 {
   sumalim = -log(problim);
   //lastMaterial = 0;
-
+  
   // Add these definitions d.k.
   chargeSquare   = 1.;  //Assume all particles have charge 1
   // Taken from Geant4 printout, HARDWIRED for Silicon.
@@ -97,6 +101,10 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
   rateFluct    = 0.4;     //material->GetIonisation()->GetRateionexcfluct();
   ipotLogFluct = -8.659;  //material->GetIonisation()->GetLogMeanExcEnergy();
   e0 = 1.E-5;             //material->GetIonisation()->GetEnergy0fluct();
+  
+  gaussQDistribution = new CLHEP::RandGaussQ(rndEngine);
+  poissonDistribution = new CLHEP::RandPoisson(rndEngine);
+  flatDistribution = new CLHEP::RandFlat(rndEngine);
 
   //cout << " init new fluct +++++++++++++++++++++++++++++++++++++++++"<<endl;
 }
@@ -107,7 +115,12 @@ SiG4UniversalFluctuation::SiG4UniversalFluctuation()
 // MeV, silicon thickness in mm, mean eloss in MeV.
 
 SiG4UniversalFluctuation::~SiG4UniversalFluctuation()
-{}
+{
+  delete gaussQDistribution;
+  delete poissonDistribution;
+  delete flatDistribution;
+
+}
 
 
 double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
@@ -158,15 +171,12 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
       if (twomeanLoss < siga) {
         double x;
         do {
-          //loss = twomeanLoss*G4UniformRand();
-          loss = twomeanLoss*RandFlat::shoot();
+          loss = twomeanLoss*flatDistribution->fire();
        	  x = (loss - meanLoss)/siga;
-	  //} while (1.0 - 0.5*x*x < G4UniformRand());
-        } while (1.0 - 0.5*x*x < RandFlat::shoot());
+        } while (1.0 - 0.5*x*x < flatDistribution->fire());
       } else {
         do {
-          //loss = G4RandGauss::shoot(meanLoss,siga);
-          loss = RandGaussQ::shoot(meanLoss,siga);
+          loss = gaussQDistribution->fire(meanLoss,siga);
         } while (loss < 0. || loss > twomeanLoss);
       }
       return loss;
@@ -226,31 +236,26 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
       // excitation type 1
       if (a1>alim) {
         siga=sqrt(a1) ;
-        //p1 = max(0.,G4RandGauss::shoot(a1,siga)+0.5);
-        p1 = max(0.,RandGaussQ::shoot(a1,siga)+0.5);
+        p1 = max(0.,gaussQDistribution->fire(a1,siga)+0.5);
       } else {
-        //p1 = double(G4Poisson(a1));
-        p1 = double(RandPoisson::shoot(a1));
+        p1 = double(poissonDistribution->fire(a1));
       }
     
       // excitation type 2
       if (a2>alim) {
         siga=sqrt(a2) ;
-        //p2 = max(0.,G4RandGauss::shoot(a2,siga)+0.5);
-        p2 = max(0.,RandGaussQ::shoot(a2,siga)+0.5);
+        p2 = max(0.,gaussQDistribution->fire(a2,siga)+0.5);
       } else {
-        p2 = double(RandPoisson::shoot(a2));
+        p2 = double(poissonDistribution->fire(a2));
       }
     
       loss = p1*e1Fluct+p2*e2Fluct;
  
       // smearing to avoid unphysical peaks
       if (p2 > 0.)
-        //loss += (1.-2.*G4UniformRand())*e2Fluct;
-        loss += (1.-2.*RandFlat::shoot())*e2Fluct;
+        loss += (1.-2.*flatDistribution->fire())*e2Fluct;
       else if (loss>0.)
-        //loss += (1.-2.*G4UniformRand())*e1Fluct;   
-        loss += (1.-2.*RandFlat::shoot())*e1Fluct;   
+        loss += (1.-2.*flatDistribution->fire())*e1Fluct;   
       if (loss < 0.) loss = 0.0;
     }
 
@@ -258,9 +263,9 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
     if (a3 > 0.) {
       if (a3>alim) {
         siga=sqrt(a3) ;
-        p3 = max(0.,RandGaussQ::shoot(a3,siga)+0.5);
+        p3 = max(0.,gaussQDistribution->fire(a3,siga)+0.5);
       } else {
-        p3 = double(RandPoisson::shoot(a3));
+        p3 = double(poissonDistribution->fire(a3));
       }
       double lossc = 0.;
       if (p3 > 0) {
@@ -270,15 +275,13 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
           double rfac   = p3/(nmaxCont2+p3);
           double namean = p3*rfac;
           double sa     = nmaxCont1*rfac;
-          //na              = G4RandGauss::shoot(namean,sa);
-          na              = RandGaussQ::shoot(namean,sa);
+          na              = gaussQDistribution->fire(namean,sa);
           if (na > 0.) {
             alfa   = w1*(nmaxCont2+p3)/(w1*nmaxCont2+p3);
             double alfa1  = alfa*log(alfa)/(alfa-1.);
             double ea     = na*ipotFluct*alfa1;
             double sea    = ipotFluct*sqrt(na*(alfa-alfa1*alfa1));
-            // lossc += G4RandGauss::shoot(ea,sea);
-            lossc += RandGaussQ::shoot(ea,sea);
+            lossc += gaussQDistribution->fire(ea,sea);
           }
         }
 
@@ -286,8 +289,7 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
           w2 = alfa*ipotFluct;
           double w  = (tmax-w2)/tmax;
           int    nb = int(p3-na);
-          //for (int k=0; k<nb; k++) lossc += w2/(1.-w*G4UniformRand());
-          for (int k=0; k<nb; k++) lossc += w2/(1.-w*RandFlat::shoot());
+          for (int k=0; k<nb; k++) lossc += w2/(1.-w*flatDistribution->fire());
         }
       }        
       loss += lossc;  
@@ -303,11 +305,9 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
   if (a3 > alim)
   {
     siga=sqrt(a3);
-    //p3 = max(0.,G4RandGauss::shoot(a3,siga)+0.5);
-    p3 = max(0.,RandGaussQ::shoot(a3,siga)+0.5);
+    p3 = max(0.,gaussQDistribution->fire(a3,siga)+0.5);
   } else {
-    //p3 = double(G4Poisson(a3));
-    p3 = double(RandPoisson::shoot(a3));
+    p3 = double(poissonDistribution->fire(a3));
   }
   if (p3 > 0.) {
     double w = (tmax-e0)/tmax;
@@ -317,13 +317,11 @@ double SiG4UniversalFluctuation::SampleFluctuations(const double momentum,
       p3 = nmaxCont2;
     } 
     int ip3 = (int)p3;
-    //for (int i=0; i<ip3; i++) loss += 1./(1.-w*G4UniformRand());
-    for (int i=0; i<ip3; i++) loss += 1./(1.-w*RandFlat::shoot());
+    for (int i=0; i<ip3; i++) loss += 1./(1.-w*flatDistribution->fire());
     loss *= e0*corrfac;
     // smearing for losses near to e0
     if(p3 <= 2.)
-      //loss += e0*(1.-2.*G4UniformRand()) ;
-      loss += e0*(1.-2.*RandFlat::shoot()) ;
+      loss += e0*(1.-2.*flatDistribution->fire()) ;
    }
     
    return loss;

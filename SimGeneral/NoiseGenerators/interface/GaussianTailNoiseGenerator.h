@@ -15,17 +15,29 @@
 
 #include <map>
 
+namespace CLHEP {
+  class RandPoisson;
+  class RandFlat;
+  class HepRandomEngine;
+}
+
 class GaussianTailNoiseGenerator {
 
 public:
-     
-  GaussianTailNoiseGenerator(){}
-  ~GaussianTailNoiseGenerator(){}
+
+  GaussianTailNoiseGenerator( CLHEP::HepRandomEngine& eng);
+  ~GaussianTailNoiseGenerator();
 
   void generate(int NumberOfchannels, 
 		float threshold,
 		float noiseRMS, 
 		std::map<int,float, std::less<int> >& theMap );
+
+
+private:
+  CLHEP::RandPoisson *poissonDistribution_;
+  CLHEP::RandFlat *flatDistribution_;
+  CLHEP::HepRandomEngine& rndEngine;
 
 };
 
