@@ -26,8 +26,6 @@
 
 OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker ) : ConversionSeedFinder( field, theInputMeasurementTracker)  {
 
-  
-  //    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
     LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
     theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
@@ -77,22 +75,24 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
 
   //  Loop over the Basic Clusters  in the event looking for seeds 
   reco::BasicClusterCollection::const_iterator bcItr;
+  LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() All BC in the event " << std::endl;
+
   for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
     theBCEnergy_=bcItr->energy();
-    if ( theBCEnergy_ < 1.5 ) continue;
-
     theBCPosition_ = GlobalPoint(bcItr->position().x(), bcItr->position().y(), bcItr->position().z() ) ;
-   
-   
     float theBcEta=  theBCPosition_.eta();
     float theBcPhi=  theBCPosition_.phi();
-    LogDebug("OutInConversionSeedFinder") << " BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << "\n";
+    float  dPhi= theBcPhi-theSCPhi;
 
+    LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << " dPhi " << fabs(theBcPhi-theSCPhi) << " dEta " <<  fabs(theBcEta-theSCEta) << "\n";
+    
+    if ( theBCEnergy_ < 1.5 ) continue;
 
+    LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() Passing the >=1.5 GeV cut  BC eta  " << theBcEta << " phi " <<  theBcPhi << " BC energy " << theBCEnergy_ << "\n";
 
     if (  fabs(theBcEta-theSCEta) < 0.015  && fabs(theBcPhi-theSCPhi) < 0.25 ) { 
-
-     fillClusterSeeds( &(*bcItr) );
+      LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() in et and phi range passed to the analysis " << std::endl;
+      fillClusterSeeds( &(*bcItr) );
     }
     
 
@@ -100,8 +100,39 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
 
 
   LogDebug("OutInConversionSeedFinder") << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
- 
   
+  ///// This part is only for local debugging: will be trhown away when no longer needed
+  int nSeed=0;
+  for ( std::vector<TrajectorySeed>::const_iterator iSeed= theSeeds_.begin(); iSeed != theSeeds_.end(); ++iSeed) {
+    nSeed++;
+    PTrajectoryStateOnDet  ptsod=iSeed->startingState();
+    std::cout << nSeed << ")  Direction " << iSeed->direction() << " Num of hits " << iSeed->nHits() <<  " starting state position " << ptsod.parameters().position() << " R " << ptsod.parameters().position().perp() << " phi " << ptsod.parameters().position().phi() << " eta " << ptsod.parameters().position().eta() << "\n" ;
+    
+    
+    DetId tmpId = DetId( iSeed->startingState().detId());
+    const GeomDet* tmpDet  = this->getMeasurementTracker()->geomTracker()->idToDet( tmpId );
+    GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+    
+    std::cout << "seed perp,phi,eta : " 
+				       << gv.perp() << " , " 
+				       << gv.phi() << " , " 
+				       << gv.eta() << "\n" ; ;
+
+
+
+
+    TrajectorySeed::range hitRange = iSeed->recHits();
+    for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
+   
+      if ( ihit->isValid() ) {
+
+	std::cout << " Valid hit global position " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()) << " R " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).perp() << " phi " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).phi() << " eta " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).eta() <<    "\n" ;
+
+      }
+    }
+  } 
+  
+
 
   
   
@@ -131,7 +162,6 @@ void OutInConversionSeedFinder::fillClusterSeeds(const reco::BasicCluster* bc) c
 }
 
 
-//FreeTrajectoryState OutInConversionSeedFinder::makeTrackState(int  charge) const {
 
 std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(int  charge) const {
 
@@ -166,9 +196,13 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
   //float u = rho + rho/d/d*(R*R-rho*rho) ;
   if ( u <=R )   result.second=true;
 
-  double newdphi = charge * asin(0.5*u/R);
+  double sinAlpha = 0.5*u/R;
+  if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
+  else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
+  
+  double newdphi = charge * asin( sinAlpha) ;
 
-   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " R " << R << " u/R " << u/R << " asin(0.5*u/R) " << asin(0.5*u/R) << "\n";
+   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState charge " << charge << " R " << R << " u/R " << u/R << " asin(0.5*u/R) " << asin(sinAlpha) << "\n";
 
   HepTransform3D rotation =  HepRotate3D(newdphi, HepVector3D(0., 0. ,1.));
 
@@ -195,7 +229,6 @@ std::pair<FreeTrajectoryState,bool>  OutInConversionSeedFinder::makeTrackState(i
    LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::makeTrackState " <<  FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) << std::endl;
    
   result.first= FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
- //  return FreeTrajectoryState(gtp, CurvilinearTrajectoryError(m) ) ;
   return result;
 
 }
@@ -246,12 +279,18 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
 	  // update the fts to start from this point.  much better than starting from
 	  // extrapolated point along the line
 	  GlobalPoint hitPoint = m1.recHit()->globalPosition();
-	  //GlobalPoint hitPoint = innerState.globalPosition();
+	  LogDebug("OutInConversionSeedFinder")  << " Valid hit at R  " <<   m1.recHit()->globalPosition().perp() << " Z " <<  m1.recHit()->globalPosition().z() << " eta " << m1.recHit()->globalPosition().eta() << " phi " << m1.recHit()->globalPosition().phi()  << " xyz " <<  m1.recHit()->globalPosition() << std::endl;
+
 	  
 	  FreeTrajectoryState newfts = trackStateFromClusters(fts.charge(), hitPoint, alongMomentum, 0.8);
-	  
-	  thePropagatorWithMaterial_.setPropagationDirection(oppositeToMomentum);  
-	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";               
+	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed  newfts " << newfts << std::endl;
+	   
+	  thePropagatorWithMaterial_.setPropagationDirection(oppositeToMomentum); 
+
+ 
+	  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::startSeed propagationDirection  after switching " << int(thePropagatorWithMaterial_.propagationDirection() ) << "\n";        
+
+       
 	  completeSeed(m1, newfts, &thePropagatorWithMaterial_, ilayer-1);
 	  // skip a layer, if you haven't already skipped the first layer
 	  if(ilayer == myLayers.size()-1) {
@@ -364,13 +403,14 @@ void OutInConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
 void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1, 
                                          const TrajectoryMeasurement & m2) const {
 
-  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed " << "\n";
+  LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed  from hit1 " << m1.recHit()->globalPosition() << " r1 " << m1.recHit()->globalPosition().perp() << " and hit2 " << m2.recHit()->globalPosition() << " r2 " << m2.recHit()->globalPosition().perp() << "\n";
+  
 
   FreeTrajectoryState fts = createSeedFTS(m1, m2);
 
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed First point errors " <<m1.recHit()->parametersError() << "\n";
-  // LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts << endl;
+  LogDebug("OutInConversionSeedFinder") << "original cluster FTS " << fts << endl;
 
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed propagation dir " << int( thePropagatorWithMaterial_.propagationDirection() ) << "\n"; 
   TrajectoryStateOnSurface state1 = thePropagatorWithMaterial_.propagate(fts,  m1.recHit()->det()->surface());
@@ -397,11 +437,16 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	myHits.push_back(meas2.recHit()->hit()->clone());
    
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed " << "\n";
-		
-	//	InwardSeed * seed = new InwardSeed(measurements, theBasicCluster, oppositeToMomentum);
-	//   LogDebug("OutInConversionSeedFinder") << " InwardConversionSeedFinder seed direction " << seed->direction() << endl;
+	LogDebug("OutInConversionSeedFinder") << " InwardConversionSeedFinder seed direction " << seed->direction() << "\n";
+
+
+
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
+
+	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  from state " << state2.globalPosition()  <<  "\n";
+	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod->parameters().position() << " R " << ptsod->parameters().position().perp() << " phi " << ptsod->parameters().position().phi() << " eta " << ptsod->parameters().position().eta() << "\n" ;
+	
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum )); 
         delete ptsod;  
         
