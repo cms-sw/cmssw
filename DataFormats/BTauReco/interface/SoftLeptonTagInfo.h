@@ -3,7 +3,6 @@
 
 #include <iterator>
 
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -33,8 +32,6 @@ public:
 
 class SoftLeptonTagInfo : public JetTagInfo {
 public:
-
-    //typedef edm::AssociationMap< edm::OneToValue< TrackCollection, SoftLeptonProperties, unsigned int > > LeptonMap;
     typedef std::vector< std::pair< TrackRef, SoftLeptonProperties > > LeptonMap;
     
     SoftLeptonTagInfo(void) : m_leptons() {}
