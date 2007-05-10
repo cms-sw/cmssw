@@ -3,6 +3,7 @@
 <use name=FWCore/MessageLogger>
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=SimCalorimetry/EcalTestBeamAlgos>
+<use name=SimGeneral/NoiseGenerators>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/EcalTestBeam>
 <use name=Geometry/CaloEventSetup>
@@ -14,6 +15,7 @@
    <lib name=SimCalorimetryEcalTestBeam>
    <use name=SimCalorimetry/EcalSimAlgos>
    <use name=SimCalorimetry/EcalTestBeamAlgos>
+   <use name=SimGeneral/NoiseGenerators>
    <use name=SimDataFormats/CrossingFrame>
    <use name=SimDataFormats/EcalTestBeam>
    <use name=Geometry/CaloEventSetup>
