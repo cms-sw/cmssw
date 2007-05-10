@@ -139,21 +139,20 @@ namespace {
     reco::JetTracksAssociationRefProd                                   jta_rp;
     reco::JetTracksAssociationRefVector                                 jta_rv;
     edm::Wrapper<reco::JetTracksAssociationCollection>                  jta_wc;
- 
+/* 
     reco::JetCrystalsAssociation                                        jca;
     reco::JetCrystalsAssociationCollection                              jca_c;
     reco::JetCrystalsAssociationRef                                     jca_r;
     reco::JetCrystalsAssociationRefProd                                 jca_rp;
     reco::JetCrystalsAssociationRefVector                               jca_rv;
     edm::Wrapper<reco::JetCrystalsAssociationCollection>                jca_wc;
-
+*/
     reco::JetEisolAssociation                                           jea;
     reco::JetEisolAssociationCollection                                 jea_c;
     reco::JetEisolAssociationRef                                        jea_r;
     reco::JetEisolAssociationRefProd                                    jea_rp;
     reco::JetEisolAssociationRefVector                                  jea_rv;
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
-
 /*
     reco::JetTracksIPDataAssociation                                    jtip;
     reco::JetTracksIPDataAssociationCollection                          jtip_c;
