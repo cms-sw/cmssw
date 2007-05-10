@@ -65,12 +65,6 @@ class HcalDbService {
   const HcalQIEData* mQIEData;
   const HcalChannelQuality* mChannelQuality;
   const HcalElectronicsMap* mElectronicsMap;
-  double m_hbEScale;
-  double m_hesEScale;
-  double m_hedEScale;
-  double m_hoEScale;
-  double m_hf1EScale;
-  double m_hf2EScale;
 };
 
 #endif

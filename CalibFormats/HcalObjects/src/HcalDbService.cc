@@ -1,7 +1,7 @@
 //
 // F.Ratnikov (UMd), Aug. 9, 2005
 //
-// $Id: HcalDbService.cc,v 1.14 2007/04/12 16:51:27 michals Exp $
+// $Id: HcalDbService.cc,v 1.15 2007/04/26 19:29:21 michals Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 
@@ -31,28 +31,6 @@ HcalDbService::HcalDbService ()
   mGains (0),
   mGainWidths (0)
  {}
-
-HcalDbService::HcalDbService (const edm::ParameterSet& fConfig) 
-  : 
-  mQieShapeCache (0),
-  mPedestals (0),
-  mPedestalWidths (0),
-  mGains (0),
-  mGainWidths (0)
- {
-  m_hbEScale = fConfig.getParameter <double> ("hbEScale");
-  m_hesEScale = fConfig.getParameter <double> ("hesEScale");
-  m_hedEScale = fConfig.getParameter <double> ("hedEScale");
-  m_hoEScale = fConfig.getParameter <double> ("hoEScale");
-  m_hf1EScale = fConfig.getParameter <double> ("hf1EScale");
-  m_hf2EScale = fConfig.getParameter <double> ("hf2EScale");
-  EScales.HBPiOvere = m_hbEScale;
-  EScales.HESPiOvere = m_hesEScale;
-  EScales.HEDPiOvere = m_hedEScale;
-  EScales.HOPiOvere = m_hoEScale;
-  EScales.HF1PiOvere = m_hf1EScale;
-  EScales.HF2PiOvere = m_hf2EScale;
-}
 
 bool HcalDbService::makeHcalCalibration (const HcalGenericDetId& fId, HcalCalibrations* fObject) const {
   if (fObject) {
@@ -96,24 +74,7 @@ const HcalPedestal* HcalDbService::getPedestal (const HcalGenericDetId& fId) con
 
 const HcalGain* HcalDbService::getGain (const HcalGenericDetId& fId) const {
   if (mGains) {
-// make room to include fixed pion energy scale (read from cfi)
-    float escale=0.;
-    HcalDetId id(fId);
-    if (fId.subdet()==HcalBarrel) escale=m_hbEScale;
-    if (fId.subdet()==HcalEndcap && id.ietaAbs()<21) escale=m_hesEScale;
-    if (fId.subdet()==HcalEndcap && id.ietaAbs()>=21) escale=m_hedEScale;
-    if (fId.subdet()==HcalOuter) escale=m_hoEScale;
-    if (fId.subdet()==HcalForward && id.depth()==1) escale=m_hf1EScale;
-    if (fId.subdet()==HcalForward && id.depth()==2) escale=m_hf2EScale;
-    float v0=escale*mGains->getValue(fId,0);
-    float v1=escale*mGains->getValue(fId,1);
-    float v2=escale*mGains->getValue(fId,2);
-    float v3=escale*mGains->getValue(fId,3);
-    HcalGains newGains;
-    bool ok = newGains.addValue(fId,v0,v1,v2,v3);
-    newGains.sort();
-    if (ok) return newGains.getValues(fId);
-    else return 0;
+    return mGains->getValues(fId);
   }
   return 0;
 }
