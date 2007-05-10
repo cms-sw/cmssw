@@ -21,14 +21,10 @@
 #include <limits>
 #include <math.h>
 
-using namespace edm;
-using namespace std;
-
-namespace reco { 
   class CombinedTauTagInfo : public JTATagInfo {
   public:
     CombinedTauTagInfo(){}
-    CombinedTauTagInfo(const JetTracksAssociationRef& jtaRef):JTATagInfo(jtaRef){
+    CombinedTauTagInfo(const JetTracksAssociationRef& jtaRef) : JTATagInfo(jtaRef) {
       thecandidate_passed_trackerselection=false;
       thecandidate_is_GoodTauCandidate=false;
       thecandidate_is_infact_GoodElectronCandidate=false;
@@ -66,15 +62,15 @@ namespace reco {
     void setisolatedtautaginfoRef(const IsolatedTauTagInfoRef x) {IsolatedTauTagInfoRef_=x;}
    
     //get the tracks from the JetTag
-    const TrackRefVector& allTks() const {return tracks();}
+    const TrackRefVector& allTks() const { return m_jetTracksAssociation->second; }
    
     //the tracks considered in the isolation strip and signal cone selections
-    const TrackRefVector& selectedTks()const{return filtered_Tks_;}
-    void setselectedTks(const TrackRefVector& x) {filtered_Tks_=x;}
+    const TrackRefVector& selectedTks() const { return filtered_Tks_; }
+    void setselectedTks(const TrackRefVector& x) { filtered_Tks_=x; }
     
     //the tracks in the signal cone
-    const TrackRefVector& signalTks()const{return signal_Tks_;}
-    void setsignalTks(const TrackRefVector& x) {signal_Tks_=x;}
+    const TrackRefVector& signalTks() const { return signal_Tks_; }
+    void setsignalTks(const TrackRefVector& x) { signal_Tks_=x; }
    
     int signalTks_qsum()const{              // NaN : (int)(signal_Tks_.size())=0;   
       int signal_Tks_qsum_=numeric_limits<int>::quiet_NaN();   

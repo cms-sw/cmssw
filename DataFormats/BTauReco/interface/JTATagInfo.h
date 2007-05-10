@@ -19,6 +19,8 @@ public:
   virtual edm::RefToBase<Jet>     jet(void)    const { return m_jetTracksAssociation->first ; }
   virtual TrackRefVector          tracks(void) const { return m_jetTracksAssociation->second; }
   const JetTracksAssociationRef & jtaRef(void) const { return m_jetTracksAssociation; }
+
+  virtual bool hasTracks(void) const { return true; }
   
   void setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation = jtaRef; } 
   
