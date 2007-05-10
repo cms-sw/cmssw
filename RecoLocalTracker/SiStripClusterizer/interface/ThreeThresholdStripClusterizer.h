@@ -10,6 +10,11 @@
 //SiStripNoiseService
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
+//gain
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
+
+
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -26,7 +31,9 @@ public:
  
   void setSiStripNoiseService( SiStripNoiseService* in ){ SiStripNoiseService_=in;}
 
-  void clusterizeDetUnit(const edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&);
+  void clusterizeDetUnit(const 
+edm::DetSet<SiStripDigi>&,edm::DetSet<SiStripCluster>&, const
+edm::ESHandle<SiStripGain>& );
 
   float channelThresholdInNoiseSigma() const { return theChannelThreshold;}
   float seedThresholdInNoiseSigma()    const { return theSeedThreshold;}

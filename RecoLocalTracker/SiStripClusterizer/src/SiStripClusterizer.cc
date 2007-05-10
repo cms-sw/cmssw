@@ -6,6 +6,8 @@
 //--------------------------------------------
 
 #include "RecoLocalTracker/SiStripClusterizer/interface/SiStripClusterizer.h"
+#include "CalibTracker/Records/interface/SiStripGainRcd.h"
+
 
 namespace cms
 {
@@ -15,6 +17,8 @@ namespace cms
     SiStripNoiseService_(conf){
 
     edm::LogInfo("SiStripClusterizer") << "[SiStripClusterizer::SiStripClusterizer] Constructing object...";
+    
+    useGainFromDB_=conf_.getParameter<bool>("UseGainFromDB");
 
     produces< edm::DetSetVector<SiStripCluster> > ();
   }
@@ -37,6 +41,12 @@ namespace cms
     // Step A: Get ESObject 
     SiStripNoiseService_.setESObjects(es);
 
+ //get gain correction ES handle
+  edm::ESHandle<SiStripGain> gainHandle;
+  if(useGainFromDB_) es.get<SiStripGainRcd>().get(gainHandle);
+
+
+
     // Step B: Get Inputs 
     edm::Handle< edm::DetSetVector<SiStripDigi> >  input;
 
@@ -51,7 +61,7 @@ namespace cms
       std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
       e.getByLabel(digiProducer,digiLabel,input);  //FIXME: fix this label	
       if (input->size())
-	SiStripClusterizerAlgorithm_.run(*input,vSiStripCluster);
+	SiStripClusterizerAlgorithm_.run(*input,vSiStripCluster, gainHandle);
     }
     
     // Step D: create and fill output collection

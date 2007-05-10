@@ -22,6 +22,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 //Algorithm
 #include "RecoLocalTracker/SiStripClusterizer/interface/ThreeThresholdStripClusterizer.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
 
 #include <iostream> 
 #include <memory>
@@ -37,7 +38,9 @@ class SiStripClusterizerAlgorithm
   ~SiStripClusterizerAlgorithm();
 
   /// Runs the algorithm
-  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< edm::DetSet<SiStripCluster> >& output);
+  void run(const edm::DetSetVector<SiStripDigi>& input,std::vector< 
+edm::DetSet<SiStripCluster> >& output, const edm::ESHandle<SiStripGain> 
+& gainHandle);
 
   void configure( SiStripNoiseService* );
 

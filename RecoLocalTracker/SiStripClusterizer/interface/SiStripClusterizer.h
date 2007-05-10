@@ -54,6 +54,10 @@ namespace cms
     edm::ParameterSet conf_;
     SiStripClusterizerAlgorithm SiStripClusterizerAlgorithm_;
     SiStripNoiseService SiStripNoiseService_;  
+
+    bool useGainFromDB_;
+
+
   };
 }
 #endif

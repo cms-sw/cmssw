@@ -17,6 +17,8 @@
 <use name=Geometry/TrackerGeometryBuilder>	
 
 <use name=CommonTools/SiStripZeroSuppression>	
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 
 <export>
 <lib name=RecoLocalTrackerSiStripClusterizer>
@@ -35,4 +37,6 @@
 <use name=CondCore/MetaDataService>
 
 <use name=CommonTools/SiStripZeroSuppression>	
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/Records>
 </export>
