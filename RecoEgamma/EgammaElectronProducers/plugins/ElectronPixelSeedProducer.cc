@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedProducer.cc,v 1.6 2006/10/17 09:24:19 uberthon Exp $
+// $Id: ElectronPixelSeedProducer.cc,v 1.1 2007/04/20 14:54:21 uberthon Exp $
 //
 //
 
@@ -50,7 +50,8 @@ ElectronPixelSeedProducer::ElectronPixelSeedProducer(const edm::ParameterSet& iC
 					    iConfig.getParameter<double>("ZMin1"),
 					    iConfig.getParameter<double>("ZMax1"),
 					    iConfig.getParameter<double>("ZMin2"),
-					    iConfig.getParameter<double>("ZMax2") );
+					    iConfig.getParameter<double>("ZMax2"),
+                                            iConfig.getParameter<bool>("dynamicPhiRoad") );
 					      
   matcher_->setup(true); //always set to offline in our case!
  
