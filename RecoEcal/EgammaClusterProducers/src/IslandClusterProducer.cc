@@ -69,7 +69,7 @@ IslandClusterProducer::IslandClusterProducer(const edm::ParameterSet& ps)
   providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
 
   clustershapecollectionEB_ = ps.getParameter<std::string>("clustershapecollectionEB");
   clustershapecollectionEE_ = ps.getParameter<std::string>("clustershapecollectionEE");

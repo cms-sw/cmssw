@@ -8,7 +8,7 @@
  *
  * \author Ted Kolberg, ND
  * 
- * \version $Id: PositionCalc.h,v 1.7 2006/10/29 10:34:52 rahatlou Exp $
+ * \version $Id: PositionCalc.h,v 1.8 2006/11/21 21:09:41 futyand Exp $
  *
  */
 
@@ -41,14 +41,6 @@ class PositionCalc
                                     const CaloSubdetectorGeometry *passedGeometry,
                                     const CaloSubdetectorGeometry *passedGeometryES=0);
 
-  // Calculate_Covariances calculates the variance in eta, variance in phi,
-  // and covariance in eta and phi.  It must be given a vector of DetIds
-  // which are a subset of the DetIds used to Initialize.
-
-  std::map<std::string,double> Calculate_Covariances(math::XYZPoint passedPoint,
-                                                     std::vector<DetId> passedDetIds,
-                                                     const EcalRecHitCollection *passedRecHitsMap,
-                                                     const CaloSubdetectorGeometry *passedGeometry);
  private:
   bool        param_LogWeighted_;
   Double32_t  param_T0_barl_;

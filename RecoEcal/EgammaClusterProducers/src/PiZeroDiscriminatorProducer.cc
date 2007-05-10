@@ -67,7 +67,7 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const edm::ParameterSet
   providedParameters.insert(std::make_pair("T0",ps.getParameter<double>("coretools_t0")));
   providedParameters.insert(std::make_pair("W0",ps.getParameter<double>("coretools_w0")));
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
 
   // Name of a SuperClusterCollection to make associations:
   endcapSClusterCollection_ = ps.getParameter<std::string>("endcapSClusterCollection");

@@ -7,7 +7,7 @@
  *
  * \author Michael A. Balazs, UVa
  * 
- * \version $Id: ClusterShapeAlgo.h,v 1.13 2006/11/06 14:42:38 mabalazs Exp $
+ * \version $Id: ClusterShapeAlgo.h,v 1.14 2006/11/13 18:05:36 futyand Exp $
  *
  */
 
@@ -30,7 +30,7 @@ class ClusterShapeAlgo
 {
 
  public:
-  ClusterShapeAlgo(const PositionCalc& passedPositionCalc);
+  ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap);
   ClusterShapeAlgo() { };
   reco::ClusterShape Calculate(const reco::BasicCluster &passedCluster,
                                const EcalRecHitCollection *hits,
@@ -56,7 +56,7 @@ class ClusterShapeAlgo
   void Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,const EcalRecHitCollection *hits,
                                             const int EtaPhi,const CaloSubdetectorGeometry * geometry);
 
-  PositionCalc posCalculator_;
+  std::map<std::string,double> parameterMap_;
 
   std::pair<DetId, double> energyMap_[5][5];
   int e2x2_Diagonal_X_, e2x2_Diagonal_Y_;

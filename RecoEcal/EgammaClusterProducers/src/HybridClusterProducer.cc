@@ -59,7 +59,7 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
   providedParameters.insert(std::make_pair("X0",ps.getParameter<double>("posCalc_x0")));
 
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
 
   hybrid_p = new HybridClusterAlgo(ps.getParameter<double>("HybridBarrelSeedThr"), 
                                    ps.getParameter<int>("step"),

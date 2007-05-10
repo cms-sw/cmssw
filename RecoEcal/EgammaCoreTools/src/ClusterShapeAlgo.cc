@@ -8,9 +8,12 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
-ClusterShapeAlgo::ClusterShapeAlgo(const PositionCalc& passedPositionCalc) {
-  posCalculator_ = passedPositionCalc;
-}
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+
+
+ClusterShapeAlgo::ClusterShapeAlgo(const std::map<std::string,double> & passedParameterMap) : parameterMap_(passedParameterMap) {}
 
 reco::ClusterShape ClusterShapeAlgo::Calculate(const reco::BasicCluster &passedCluster,
                                                const EcalRecHitCollection *hits,
@@ -298,22 +301,63 @@ double e2x5T=0.0;
   e2x5Top_=e2x5T;
 }
 
-void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, const CaloSubdetectorGeometry* geometry)
+void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, 
+					     const CaloSubdetectorGeometry* geometry)
 {
-  std::vector<DetId> usedDetIds;
-  covEtaEta_ = 0.;
-  covEtaPhi_ = 0.;
-  covPhiPhi_ = 0.;
+  const double w0_ = parameterMap_.find("W0")->second;
 
-  for(int i = 0; i <= 4; i++)
-    for(int j = 0; j <= 4; j++)
-      if(!energyMap_[i][j].first.null()) usedDetIds.push_back(energyMap_[i][j].first);
+  // first find energy-weighted mean position - doing it when filling the energy map might save time
+  math::XYZVector meanPosition(0.0, 0.0, 0.0);
+  for (int i = 0; i < 5; ++i)
+    {
+      for (int j = 0; j < 5; ++j)
+	{
+	  const DetId id = energyMap_[i][j].first;
+	  if (id != DetId(0))
+	    {
+	      const GlobalPoint positionGP = geometry->getGeometry(id)->getPosition();
+	      const math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
+	      meanPosition = meanPosition + energyMap_[i][j].second * position;
+	    }
+	}
+    }
 
-  std::map<std::string,double> covReturned = posCalculator_.Calculate_Covariances(passedCluster.position(),usedDetIds,hits,geometry);
+  meanPosition /= e5x5_;
 
-  covEtaEta_ = covReturned.find("covEtaEta")->second;
-  covEtaPhi_ = covReturned.find("covEtaPhi")->second;
-  covPhiPhi_ = covReturned.find("covPhiPhi")->second;
+  // now we can calculate the covariances
+  double numeratorEtaEta = 0;
+  double numeratorEtaPhi = 0;
+  double numeratorPhiPhi = 0;
+  double denominator     = 0;
+
+  for (int i = 0; i < 5; ++i)
+    {
+      for (int j = 0; j < 5; ++j)
+	{
+	  const DetId id = energyMap_[i][j].first;
+	  if (id != DetId(0))
+	    {
+	      const GlobalPoint position = geometry->getGeometry(id)->getPosition();
+
+	      double dPhi = position.phi() - meanPosition.phi();
+	      if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
+	      if (dPhi < - Geom::pi()) { dPhi = Geom::twoPi() + dPhi; }
+
+	      const double dEta = position.eta() - meanPosition.eta();
+	      
+	      const double w = std::max(0.0, w0_ + log(energyMap_[i][j].second / e5x5_));
+	  
+	      denominator += w;
+	      numeratorEtaEta += w * dEta * dEta;
+	      numeratorEtaPhi += w * dEta * dPhi;
+	      numeratorPhiPhi += w * dPhi * dPhi;
+	    }
+	}
+    }
+
+  covEtaEta_ = numeratorEtaEta / denominator;
+  covEtaPhi_ = numeratorEtaPhi / denominator;
+  covPhiPhi_ = numeratorPhiPhi / denominator;
 }
 
 void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,
