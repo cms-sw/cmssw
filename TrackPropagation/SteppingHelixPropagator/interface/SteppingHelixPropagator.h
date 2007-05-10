@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/04/30 19:07:04 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/04/30 23:14:06 $
+ *  $Revision: 1.20 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.19 2007/04/30 19:07:04 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.20 2007/04/30 23:14:06 slava77 Exp $
 //
 //
 
@@ -217,17 +217,20 @@ class SteppingHelixPropagator : public Propagator {
   //! (Internals) determine distance and direction from the current position to the plane
   Result refToDest(DestType dest, const SteppingHelixPropagator::StateInfo& sv,
 		   const double pars[6], 
-		   double& dist, double& tanDist, PropagationDirection& refDirection) const;
+		   double& dist, double& tanDist, PropagationDirection& refDirection,
+		   double fastSkipDist = 1e12) const;
 
   //! (Internals) determine distance and direction from the current position to the 
   //! boundary of current mag volume
   Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
-			double& dist, double& tanDist) const;
+			double& dist, double& tanDist,
+			double fastSkipDist = 1e12) const;
 
   Result refToMatVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
-			double& dist, double& tanDist) const;
+			double& dist, double& tanDist,
+			double fastSkipDist = 1e12) const;
 
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
