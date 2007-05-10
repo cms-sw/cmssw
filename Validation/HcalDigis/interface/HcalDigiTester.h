@@ -37,8 +37,9 @@ public:
   edm::ESHandle<CaloGeometry> geometry ;
   edm::ESHandle<HcalDbService> conditions;
   float pedvalue;
-
+  int ievent;
   std::map<std::string, HcalSubdetDigiMonitor*> monitors_;
+
 };
 
 #endif
