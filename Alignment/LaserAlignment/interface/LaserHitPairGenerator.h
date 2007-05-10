@@ -4,8 +4,8 @@
 /** \class LaserHitPairGenerator
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/03/18 19:00:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/25 17:26:50 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/RangeMap.h"
 
 #include "Alignment/LaserAlignment/interface/LaserHitPairGeneratorFromLayerPair.h"
+#include "Alignment/LaserAlignment/interface/OrderedLaserHitPairs.h"
 
 #include <vector>
 
@@ -45,8 +46,8 @@ class LaserHitPairGenerator : public HitPairGenerator
   void add(const LayerWithHits * inner, const LayerWithHits * outer, const edm::EventSetup & iSetup);
 
   /// from base class
-  virtual void hitPairs(const TrackingRegion & reg, OrderedHitPairs & prs, const edm::EventSetup & iSetup);
-  virtual void hitPairs(const TrackingRegion & reg, OrderedHitPairs & prs, const edm::Event & ev, const edm::EventSetup & iSetup) {}
+  virtual void hitPairs(const TrackingRegion & reg, OrderedLaserHitPairs & prs, const edm::EventSetup & iSetup);
+  virtual void hitPairs(const TrackingRegion & reg, OrderedLaserHitPairs & prs, const edm::Event & ev, const edm::EventSetup & iSetup) {}
   virtual LaserHitPairGenerator * clone() const { return new LaserHitPairGenerator(*this); }
 
  private:

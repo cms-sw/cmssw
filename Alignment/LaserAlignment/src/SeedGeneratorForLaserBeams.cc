@@ -1,8 +1,8 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: 2007/03/18 19:00:21 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/25 17:26:51 $
+ *  $Revision: 1.4 $
  *  \author Maarten Thomas
  */
 
@@ -64,7 +64,7 @@ void SeedGeneratorForLaserBeams::init(const SiStripRecHit2DCollection &collstere
 
 void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const edm::EventSetup & iSetup)
 {
-	OrderedHitPairs HitPairs;
+	OrderedLaserHitPairs HitPairs;
 	thePairGenerator->hitPairs(region, HitPairs, iSetup);
 
 	if (HitPairs.size() > 0)

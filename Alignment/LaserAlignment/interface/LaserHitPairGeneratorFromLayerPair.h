@@ -4,16 +4,16 @@
 /** \class CompareHitPairsZ
  *  compare hit pairs in z direction
  *
- *  $Date: 2007/05/10 09:30:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/05/10 10:08:35 $
+ *  $Revision: 1.12 $
  *  \author Maarten Thomas
  */
 
 /** \class LaserHitPairGeneratorFromLayerPair
  *  generate hit pairs from hits on consecutive discs in the endcaps used by the LaserSeedGenerator
  *
- *  $Date: 2007/05/10 09:30:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/05/10 10:08:35 $
+ *  $Revision: 1.12 $
  *  \author Maarten Thomas
  */
 
@@ -68,8 +68,8 @@ class LaserHitPairGeneratorFromLayerPair : public HitPairGenerator
   virtual ~LaserHitPairGeneratorFromLayerPair() {}
 
 	/// from base class
-  virtual void hitPairs(const TrackingRegion & ar, OrderedHitPairs & ap, const edm::EventSetup & iSetup);
-  virtual void hitPairs(const TrackingRegion& ar, OrderedHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup) {}
+  virtual void hitPairs(const TrackingRegion & ar, OrderedLaserHitPairs & ap, const edm::EventSetup & iSetup);
+  virtual void hitPairs(const TrackingRegion& ar, OrderedLaserHitPairs & ap, const edm::Event & ev, const edm::EventSetup& iSetup) {}
   virtual LaserHitPairGeneratorFromLayerPair * clone() const 
   {
     return new LaserHitPairGeneratorFromLayerPair(*this);
