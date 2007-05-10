@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.3 2007/03/31 18:36:37 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.5 2007/04/10 17:13:24 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 
@@ -301,10 +301,22 @@ void CosmicGenFilterHelix::createHistsEnd(const char *dirName, TObjArray &hists)
 // ------------ method called once each job just after ending the event loop  ------------
 void CosmicGenFilterHelix::endJob()
 {
+  const char *border = "////////////////////////////////////////////////////////";
+  const char *line = "\n// ";
   edm::LogInfo("Filter") << "@SUB=CosmicGenFilterHelix::endJob"
+			 << border << line
                          << theNumPass << " events out of " << theNumTotal
-                         << " reached target cylinder, i.e. "
-                         << theNumPass*100./theNumTotal << "%.";
+                         << ", i.e. " << theNumPass*100./theNumTotal << "%, "
+			 << "reached target cylinder," 
+			 << line << "defined by r < " 
+			 << theTargetCylinder->radius() << " cm and " 
+			 << theTargetPlaneMin->position().z() << " < z < " 
+			 << theTargetPlaneMax->position().z() << " cm."
+			 << line << "Minimal required (transverse) momentum was "
+			 << theMinP << " (" << theMinPt << ") GeV,"
+			 << line << (theIgnoreMaterial ? "not " : "") 
+			 << "taking into account average energy loss in material."
+			 << "\n" << border;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
