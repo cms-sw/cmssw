@@ -7,8 +7,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2006/10/18 20:39:42 $
- *  $Revision: 1.6 $
+ *  $Date: 2006/10/19 13:53:49 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -63,6 +63,7 @@ public:
   edm::ESHandle<MagneticField> theMGField;
   edm::ESHandle<MuonDetLayerGeometry> theDetLayerGeometry;
   const edm::EventSetup *theEventSetup;
+  bool theMuonNavigationFlag;
   const MuonNavigationSchool* theSchool;
 
   propagators thePropagators;
