@@ -29,7 +29,7 @@ export nsDir=$geomDir/Geometry
 mkdir $mbDir
 mkdir $mbDir/Comparison
 mkdir $mbDir/Comparison/eps
-mkdir $mbDir/Comparison/gif
+#mkdir $mbDir/Comparison/gif
 mkdir $mbDir/Plots
 mkdir $mbDir/Plots/eps
 mkdir $mbDir/Plots/gif
@@ -40,7 +40,7 @@ mkdir $nsDir
 
 # move Material Budget plots
 mv Images/*Comparison*.eps $mbDir/Comparison/eps/.
-mv Images/*Comparison*.gif $mbDir/Comparison/gif/.
+#mv Images/*Comparison*.gif $mbDir/Comparison/gif/.
 mv Images/*.eps            $mbDir/Plots/eps/.
 mv Images/*.gif            $mbDir/Plots/gif/.
 
