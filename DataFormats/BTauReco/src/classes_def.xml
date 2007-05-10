@@ -7,6 +7,25 @@
   <class name="edm::Wrapper<reco::JetTagCollection>"/>
 
   <class name="reco::BaseTagInfo"/>
+  <class name="reco::BaseTagInfoCollection"/>
+  <class name="reco::BaseTagInfoRef"/>
+  <class name="reco::BaseTagInfoRefProd"/>
+  <class name="reco::BaseTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::BaseTagInfoCollection>"/>
+
+  <class name="reco::JetTagInfo"/>
+  <class name="reco::JetTagInfoCollection"/>
+  <class name="reco::JetTagInfoRef"/>
+  <class name="reco::JetTagInfoRefProd"/>
+  <class name="reco::JetTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::JetTagInfoCollection>"/>
+
+  <class name="reco::JTATagInfo"/>
+  <class name="reco::JTATagInfoCollection"/>
+  <class name="reco::JTATagInfoRef"/>
+  <class name="reco::JTATagInfoRefProd"/>
+  <class name="reco::JTATagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
   <class name="reco::CombinedSVTagInfo"/>
   <class name="reco::CombinedSVTagInfoCollection"/>
@@ -142,20 +161,6 @@
 
   <class name="std::vector<Measurement1D>"/>
 
-  <class name="reco::JTATagInfo"/>
-  <class name="reco::JTATagInfoCollection"/>
-  <class name="reco::JTATagInfoRef"/>
-  <class name="reco::JTATagInfoRefProd"/>
-  <class name="reco::JTATagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
-
-  <class name="reco::BaseTagInfo"/>
-  <class name="reco::BaseTagInfoCollection"/>
-  <class name="reco::BaseTagInfoRef"/>
-  <class name="reco::BaseTagInfoRefProd"/>
-  <class name="reco::BaseTagInfoRefVector"/>
-  <class name="edm::Wrapper<reco::BaseTagInfoCollection>"/>
-	
   <!-- RefToBase stuff -->
   <class name="edm::RefToBase<reco::BaseTagInfo>" />
   <class name="edm::reftobase::BaseHolder<reco::BaseTagInfo>" />
