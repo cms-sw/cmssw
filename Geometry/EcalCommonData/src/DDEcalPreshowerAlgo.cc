@@ -26,7 +26,7 @@ namespace std{} using namespace std;
 //using namespace std;
 
 DDEcalPreshowerAlgo::DDEcalPreshowerAlgo() : DDAlgorithm() {
-   edm::LogInfo("EcalGeom") << "DDEcalPreshowerAlgo info: Creating an instance" ;
+   LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: Creating an instance" ;
 }
 
 void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
@@ -36,7 +36,7 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
 			   const DDStringVectorArguments & vsArgs)
 {
 
-  edm::LogInfo("EcalGeom") << "DDEcalPreshowerAlgo info: Initialize" ;
+  LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: Initialize" ;
 
   quadMin_ = vArgs["IQUAD_MIN"];
   LogDebug("SFGeom")<< "DDEcalPreshowerAlgo IQUAD_MIN";
@@ -64,12 +64,12 @@ void DDEcalPreshowerAlgo::initialize(const DDNumericArguments & nArgs,
    zwedge_ceramic_diff = double(nArgs["zwedge_ceramic_diff"]);
    ywedge_ceramic_diff = double(nArgs["ywedge_ceramic_diff"]);
 
-   edm::LogInfo("EcalGeom") << "DDEcalPreshowerAlgo info: end initialize" ;
+   LogDebug("EcalGeom") << "DDEcalPreshowerAlgo info: end initialize" ;
 }
 
 void DDEcalPreshowerAlgo::execute()
 {
-   edm::LogInfo("EcalGeom") << "******** DDEcalPreshowerAlgo execute!";
+   LogDebug("EcalGeom") << "******** DDEcalPreshowerAlgo execute!";
 
   // creates all the tube-like layers of the preshower
    doLayers();

@@ -331,7 +331,7 @@ DDEcalBarrelAlgo::DDEcalBarrelAlgo() :
   m_PincerCutHeight    (0)
 
 {
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Creating an instance" ;
 }
 
 DDEcalBarrelAlgo::~DDEcalBarrelAlgo() {}
@@ -345,7 +345,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDStringArguments       & sArgs,
 				  const DDStringVectorArguments & vsArgs) {
 
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();
    // TRICK!
    m_idNameSpace = parent().name().ns();
@@ -671,7 +671,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
    m_PincerCutHeight    = nArgs["PincerCutHeight"];
 
    
-   edm::LogInfo("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
+   LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: end initialize" ;
 }
 
 ////////////////////////////////////////////////////////////////////
@@ -680,7 +680,7 @@ void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 
 void DDEcalBarrelAlgo::execute() 
 {
-   edm::LogInfo("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl ;
+   LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo execute!" << std::endl ;
 
    if( barHere() != 0 )
    {
