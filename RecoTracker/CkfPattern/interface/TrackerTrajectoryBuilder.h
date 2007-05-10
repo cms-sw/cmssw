@@ -5,13 +5,14 @@
 #include "FWCore/Framework/interface/Event.h"
 
 class Trajectory;
+class TempTrajectory;
 class TrajectorySeed;
 class CkfDebugger;
 class MeasurementTracker;
 class Propagator;
 class Chi2MeasurementEstimatorBase;
 class TransientTrackingRecHitBuilder;
-
+class IntermediateTrajectoryCleaner;
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -24,6 +25,7 @@ class TrackerTrajectoryBuilder {
 public:
 
   typedef std::vector<Trajectory> TrajectoryContainer;
+  typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
 
   virtual ~TrackerTrajectoryBuilder() {};
@@ -37,6 +39,11 @@ public:
  protected:  
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, std::vector<TrajectoryMeasurement> meas,
+					   const MeasurementTracker* theMeasurementTracker, 
+					   const Propagator* theForwardPropagator, 
+					   const Chi2MeasurementEstimatorBase* theEstimator, 
+					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
+  virtual bool analyzeMeasurementsDebugger(TempTrajectory& traj, std::vector<TrajectoryMeasurement> meas,
 					   const MeasurementTracker* theMeasurementTracker, 
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
