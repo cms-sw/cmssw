@@ -11,14 +11,9 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include <vector>
 
 namespace reco {
-//  typedef
-//  edm::AssociationMap<edm::OneToMany<CaloJetCollection, TrackCollection> >
-//    JetTracksAssociationCollection;
- 
   typedef
   std::vector<std::pair<edm::RefToBase<Jet>,reco::TrackRefVector> > 
      JetTracksAssociationCollection;

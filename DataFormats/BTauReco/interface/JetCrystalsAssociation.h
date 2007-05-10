@@ -11,7 +11,6 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/LorentzVectorFwd.h"
 #include <vector>
@@ -23,10 +22,6 @@ namespace reco {
   typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
   typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
         
-  // typedef 
-  // edm::AssociationMap<edm::OneToMany<CaloJetCollection, EMLorentzVectorCollection> >
-  //  JetCrystalsAssociationCollection;
-
   typedef 
   std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>  >
     JetCrystalsAssociationCollection;

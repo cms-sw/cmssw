@@ -10,14 +10,9 @@
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/AssociationMap.h"
 #include <vector>
 
 namespace reco {
-  // typedef
-  // edm::AssociationMap<edm::OneToValue<CaloJetCollection, float> >
-  //   JetEisolAssociationCollection;
-  
   typedef 
   std::vector<std::pair<edm::RefToBase<Jet>, float>  >
     JetEisolAssociationCollection;
