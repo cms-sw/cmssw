@@ -20,6 +20,24 @@ using namespace ctfseeding;
 
 class SeedingHit::SeedingHitImpl {
 public:
+
+  // obsolete - remove asap!
+  SeedingHitImpl(const TrackingRecHit * hit ,  const edm::EventSetup& es)
+    : theRecHit(hit), hasTransientHit(false)
+  {
+    edm::ESHandle<TrackerGeometry> tracker;
+    es.get<TrackerDigiGeometryRecord>().get(tracker);
+    GlobalPoint gp = tracker->idToDet(
+        hit->geographicalId())->surface().toGlobal(hit->localPosition());
+    thePhi = gp.phi();
+    theR = gp.perp();
+    theZ = gp.z();
+    unsigned int subid=hit->geographicalId().subdetId();
+    theRZ = (   subid == PixelSubdetector::PixelBarrel
+             || subid == StripSubdetector::TIB
+             || subid == StripSubdetector::TOB) ? theZ : theR;
+  }
+
   
   SeedingHitImpl(const TrackingRecHit * hit, const SeedingLayer &layer, const edm::EventSetup& es)
     : theLayer(layer), theRecHit(hit), hasTransientHit(false)  
@@ -108,6 +126,10 @@ private:
   mutable float theErrorRZ, theErrorRPhi;
 };
 
+
+
+
+
 SeedingHit::SeedingHit( const TransientTrackingRecHit::ConstRecHitPointer& ttrh, 
     const SeedingLayer& layer)
 {
@@ -121,6 +143,13 @@ SeedingHit::SeedingHit( const TrackingRecHit* hit,
   SeedingHitImpl * h = new SeedingHitImpl(hit,layer,es);
   theImpl = boost::shared_ptr<SeedingHitImpl>(h);
 }
+
+SeedingHit::SeedingHit( const TrackingRecHit* hit, const edm::EventSetup& es)
+{
+  SeedingHitImpl * h = new SeedingHitImpl(hit,es);
+  theImpl = boost::shared_ptr<SeedingHitImpl>(h);
+}
+
 
 float SeedingHit::phi() const { return theImpl->phi(); }
 float SeedingHit::rOrZ() const { return theImpl->rOrZ(); }

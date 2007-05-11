@@ -17,6 +17,9 @@ public:
   SeedingHit(const TrackingRecHit * hit , const SeedingLayer &l,  const edm::EventSetup& iSetup);
   SeedingHit(const TransientTrackingRecHit::ConstRecHitPointer& ttrh, const SeedingLayer &l);
 
+  // temporary FIX for Cosmic/BC!!! to be removed asap.
+  SeedingHit(const TrackingRecHit * hit ,  const edm::EventSetup& iSetup);
+
   float phi() const;
   float rOrZ() const;
   float errorRZ() const;
