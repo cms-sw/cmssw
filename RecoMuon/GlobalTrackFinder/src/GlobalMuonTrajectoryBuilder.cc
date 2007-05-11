@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/05/04 15:57:42 $
- *  $Revision: 1.95 $
+ *  $Date: 2007/05/09 19:32:07 $
+ *  $Revision: 1.96 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -340,14 +340,21 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
 
   vector<TrackCand> result;
 
+  float deltaR = 1.0;
+
   vector<TrackCand>::const_iterator is;
   for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
     //check if each trackCand is in region of interest
     bool inEtaRange = etaRange.inside(is->second->eta());
     bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
 
+    double deltaEta = regionOfInterest.direction().eta() - is->second->eta();
+    double deltaPhi = regionOfInterest.direction().phi() - is->second->phi();
+    double deltaR_tmp = sqrt( deltaEta*deltaEta + deltaPhi*deltaPhi );
+
     //for each trackCand in region, add trajectory and add to result
-    if( inEtaRange && inPhiRange ) {
+    //if( inEtaRange && inPhiRange ) {
+    if(deltaR_tmp < deltaR) {
       TrackCand tmpCand = TrackCand(*is);
       addTraj(tmpCand);
       result.push_back(tmpCand);
