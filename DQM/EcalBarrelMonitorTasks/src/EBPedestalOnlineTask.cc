@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/04/05 13:56:47 $
- * $Revision: 1.21 $
+ * $Date: 2007/04/05 14:54:01 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalOnlineTask.h>
 
@@ -75,7 +77,7 @@ void EBPedestalOnlineTask::setup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalOnlineTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPOT pedestal SM%02d G12", i+1);
+      sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG12_[i], i+1);
     }

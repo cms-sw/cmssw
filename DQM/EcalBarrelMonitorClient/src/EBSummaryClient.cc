@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.17 $
+ * $Date: 2007/04/30 17:37:03 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  *
 */
@@ -28,8 +28,9 @@
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
@@ -41,6 +42,8 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBTriggerTowerClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -445,11 +448,12 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
   for ( short sm=0; sm<36; sm++ ) {
     int x = 1 + sm%18;
-    int y = 2 - sm/18;
-    labelGrid.SetBinContent(x, y, sm+1);
+    //int y = 2 - sm/18;
+    int y = 1 + sm/18;
+    labelGrid.SetBinContent(x, y, Numbers::iEB(superModules_[sm]));
   }
   labelGrid.SetMarkerSize(2);
-  labelGrid.SetMinimum(0.1);
+  labelGrid.SetMinimum(-18.01);
 
   string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgName, meName;
 
@@ -684,7 +688,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   int x1 = A0 + (A1-A0)*(j+1)/18;
   int y0 = B0 + (B1-B0)*i/2;
   int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(i) << "\" coords=\"";
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(1-i) << "\" coords=\"";
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;

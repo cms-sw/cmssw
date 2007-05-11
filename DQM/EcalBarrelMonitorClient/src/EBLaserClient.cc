@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.153 $
+ * $Date: 2007/05/02 09:10:57 $
+ * $Revision: 1.155 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -43,6 +43,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBLaserClient.h>
 
@@ -272,76 +273,76 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EBLT laser quality SM%02d L1A", ism);
+      sprintf(qtname, "EBLT laser quality %s L1A", Numbers::sEB(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L2A", ism);
+      sprintf(qtname, "EBLT laser quality %s L2A", Numbers::sEB(ism).c_str());
       qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L3A", ism);
+      sprintf(qtname, "EBLT laser quality %s L3A", Numbers::sEB(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L4A", ism);
+      sprintf(qtname, "EBLT laser quality %s L4A", Numbers::sEB(ism).c_str());
       qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L1B", ism);
+      sprintf(qtname, "EBLT laser quality %s L1B", Numbers::sEB(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L2B", ism);
+      sprintf(qtname, "EBLT laser quality %s L2B", Numbers::sEB(ism).c_str());
       qth06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L3B", ism);
+      sprintf(qtname, "EBLT laser quality %s L3B", Numbers::sEB(ism).c_str());
       qth07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser quality SM%02d L4B", ism);
+      sprintf(qtname, "EBLT laser quality %s L4B", Numbers::sEB(ism).c_str());
       qth08_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G01", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L1 G01", Numbers::sEB(ism).c_str());
       qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L2 G01", Numbers::sEB(ism).c_str());
       qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G01", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L3 G01", Numbers::sEB(ism).c_str());
       qth11_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L4 G01", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L4 G01", Numbers::sEB(ism).c_str());
       qth12_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L1 G01", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L1 G01", Numbers::sEB(ism).c_str());
       qth13_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L2 G01", Numbers::sEB(ism).c_str());
       qth14_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L3 G01", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L3 G01", Numbers::sEB(ism).c_str());
       qth15_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G01", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L4 G01", Numbers::sEB(ism).c_str());
       qth16_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L1 G16", Numbers::sEB(ism).c_str());
       qth17_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L2 G16", Numbers::sEB(ism).c_str());
       qth18_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L3 G16", Numbers::sEB(ism).c_str());
       qth19_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs %s L4 G16", Numbers::sEB(ism).c_str());
       qth20_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L1 G16", Numbers::sEB(ism).c_str());
       qth21_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L2 G16", Numbers::sEB(ism).c_str());
       qth22_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L3 G16", Numbers::sEB(ism).c_str());
       qth23_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser pedestal quality PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EBLT laser pedestal quality PNs %s L4 G16", Numbers::sEB(ism).c_str());
       qth24_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(100.0, 4096.0*12.);
@@ -448,16 +449,16 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth23_[ism-1]->setErrorProb(1.00);
       qth24_[ism-1]->setErrorProb(1.00);
 
-      sprintf(qtname, "EBLT quality test SM%02d L1", ism);
+      sprintf(qtname, "EBLT quality test %s L1", Numbers::sEB(ism).c_str());
       qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test SM%02d L2", ism);
+      sprintf(qtname, "EBLT quality test %s L2", Numbers::sEB(ism).c_str());
       qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test SM%02d L3", ism);
+      sprintf(qtname, "EBLT quality test %s L3", Numbers::sEB(ism).c_str());
       qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test SM%02d L4", ism);
+      sprintf(qtname, "EBLT quality test %s L4", Numbers::sEB(ism).c_str());
       qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg01_[ism-1]->setMeanRange(1., 6.);
@@ -470,28 +471,28 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qtg03_[ism-1]->setErrorProb(1.00);
       qtg04_[ism-1]->setErrorProb(1.00);
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L1 G01", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L1 G01", Numbers::sEB(ism).c_str());
       qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L2 G01", Numbers::sEB(ism).c_str());
       qtg06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L3 G01", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L3 G01", Numbers::sEB(ism).c_str());
       qtg07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L4 G01", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L4 G01", Numbers::sEB(ism).c_str());
       qtg08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L1 G16", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L1 G16", Numbers::sEB(ism).c_str());
       qtg09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L2 G16", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L2 G16", Numbers::sEB(ism).c_str());
       qtg10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L3 G16", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L3 G16", Numbers::sEB(ism).c_str());
       qtg11_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT quality test PNs SM%02d L4 G16", ism);
+      sprintf(qtname, "EBLT quality test PNs %s L4 G16", Numbers::sEB(ism).c_str());
       qtg12_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg05_[ism-1]->setMeanRange(1., 6.);
@@ -563,166 +564,166 @@ void EBLaserClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 SM%02d", ism);
+    sprintf(histo, "EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G01", ism);
+    sprintf(histo, "EBLT laser quality L1 PNs %s G01", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg06_[ism-1] ) bei->removeElement( meg06_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G01", ism);
+    sprintf(histo, "EBLT laser quality L2 PNs %s G01", Numbers::sEB(ism).c_str());
     meg06_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg07_[ism-1] ) bei->removeElement( meg07_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G01", ism);
+    sprintf(histo, "EBLT laser quality L3 PNs %s G01", Numbers::sEB(ism).c_str());
     meg07_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg08_[ism-1] ) bei->removeElement( meg08_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G01", ism);
+    sprintf(histo, "EBLT laser quality L4 PNs %s G01", Numbers::sEB(ism).c_str());
     meg08_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg09_[ism-1] ) bei->removeElement( meg09_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L1 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L1 PNs %s G16", Numbers::sEB(ism).c_str());
     meg09_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg10_[ism-1] ) bei->removeElement( meg10_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L2 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L2 PNs %s G16", Numbers::sEB(ism).c_str());
     meg10_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg11_[ism-1] ) bei->removeElement( meg11_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L3 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L3 PNs %s G16", Numbers::sEB(ism).c_str());
     meg11_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg12_[ism-1] ) bei->removeElement( meg12_[ism-1]->getName() );
-    sprintf(histo, "EBLT laser quality L4 PNs SM%02d G16", ism);
+    sprintf(histo, "EBLT laser quality L4 PNs %s G16", Numbers::sEB(ism).c_str());
     meg12_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );;
-    sprintf(histo, "EBLT amplitude L1A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L1A %s", Numbers::sEB(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea02_[ism-1] ) bei->removeElement( mea02_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L2A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L2A %s", Numbers::sEB(ism).c_str());
     mea02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea03_[ism-1] ) bei->removeElement( mea03_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L3A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L3A %s", Numbers::sEB(ism).c_str());
     mea03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea04_[ism-1] ) bei->removeElement( mea04_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L4A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L4A %s", Numbers::sEB(ism).c_str());
     mea04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea05_[ism-1] ) bei->removeElement( mea05_[ism-1]->getName() );;
-    sprintf(histo, "EBLT amplitude L1B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L1B %s", Numbers::sEB(ism).c_str());
     mea05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea06_[ism-1] ) bei->removeElement( mea06_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L2B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L2B %s", Numbers::sEB(ism).c_str());
     mea06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea07_[ism-1] ) bei->removeElement( mea07_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L3B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L3B %s", Numbers::sEB(ism).c_str());
     mea07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea08_[ism-1] ) bei->removeElement( mea08_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude L4B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude L4B %s", Numbers::sEB(ism).c_str());
     mea08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1A SM%02d", ism);
+    sprintf(histo, "EBLT timing L1A %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2A SM%02d", ism);
+    sprintf(histo, "EBLT timing L2A %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3A SM%02d", ism);
+    sprintf(histo, "EBLT timing L3A %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met04_[ism-1] ) bei->removeElement( met04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4A SM%02d", ism);
+    sprintf(histo, "EBLT timing L4A %s", Numbers::sEB(ism).c_str());
     met04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met05_[ism-1] ) bei->removeElement( met05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L1B SM%02d", ism);
+    sprintf(histo, "EBLT timing L1B %s", Numbers::sEB(ism).c_str());
     met05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met06_[ism-1] ) bei->removeElement( met06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L2B SM%02d", ism);
+    sprintf(histo, "EBLT timing L2B %s", Numbers::sEB(ism).c_str());
     met06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met07_[ism-1] ) bei->removeElement( met07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L3B SM%02d", ism);
+    sprintf(histo, "EBLT timing L3B %s", Numbers::sEB(ism).c_str());
     met07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( met08_[ism-1] ) bei->removeElement( met08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing L4B SM%02d", ism);
+    sprintf(histo, "EBLT timing L4B %s", Numbers::sEB(ism).c_str());
     met08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( metav01_[ism-1] ) bei->removeElement( metav01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1A SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L1A %s", Numbers::sEB(ism).c_str());
     metav01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav02_[ism-1] ) bei->removeElement( metav02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2A SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L2A %s", Numbers::sEB(ism).c_str());
     metav02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav03_[ism-1] ) bei->removeElement( metav03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3A SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L3A %s", Numbers::sEB(ism).c_str());
     metav03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav04_[ism-1] ) bei->removeElement( metav04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4A SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L4A %s", Numbers::sEB(ism).c_str());
     metav04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav05_[ism-1] ) bei->removeElement( metav05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L1B SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L1B %s", Numbers::sEB(ism).c_str());
     metav05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav06_[ism-1] ) bei->removeElement( metav06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L2B SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L2B %s", Numbers::sEB(ism).c_str());
     metav06_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav07_[ism-1] ) bei->removeElement( metav07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L3B SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L3B %s", Numbers::sEB(ism).c_str());
     metav07_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( metav08_[ism-1] ) bei->removeElement( metav08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing mean L4B SM%02d", ism);
+    sprintf(histo, "EBLT timing mean L4B %s", Numbers::sEB(ism).c_str());
     metav08_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( metrms01_[ism-1] ) bei->removeElement( metrms01_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1A SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L1A %s", Numbers::sEB(ism).c_str());
     metrms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms02_[ism-1] ) bei->removeElement( metrms02_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2A SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L2A %s", Numbers::sEB(ism).c_str());
     metrms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms03_[ism-1] ) bei->removeElement( metrms03_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3A SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L3A %s", Numbers::sEB(ism).c_str());
     metrms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms04_[ism-1] ) bei->removeElement( metrms04_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4A SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L4A %s", Numbers::sEB(ism).c_str());
     metrms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms05_[ism-1] ) bei->removeElement( metrms05_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L1B SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L1B %s", Numbers::sEB(ism).c_str());
     metrms05_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms06_[ism-1] ) bei->removeElement( metrms06_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L2B SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L2B %s", Numbers::sEB(ism).c_str());
     metrms06_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms07_[ism-1] ) bei->removeElement( metrms07_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L3B SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L3B %s", Numbers::sEB(ism).c_str());
     metrms07_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
     if ( metrms08_[ism-1] ) bei->removeElement( metrms08_[ism-1]->getName() );
-    sprintf(histo, "EBLT timing rms L4B SM%02d", ism);
+    sprintf(histo, "EBLT timing rms L4B %s", Numbers::sEB(ism).c_str());
     metrms08_[ism-1] = bei->book1D(histo, histo, 100, 0., 0.5);
 
     if ( meaopn01_[ism-1] ) bei->removeElement( meaopn01_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L1A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L1A %s", Numbers::sEB(ism).c_str());
     meaopn01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn02_[ism-1] ) bei->removeElement( meaopn02_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L2A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L2A %s", Numbers::sEB(ism).c_str());
     meaopn02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn03_[ism-1] ) bei->removeElement( meaopn03_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L3A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L3A %s", Numbers::sEB(ism).c_str());
     meaopn03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn04_[ism-1] ) bei->removeElement( meaopn04_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L4A SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L4A %s", Numbers::sEB(ism).c_str());
     meaopn04_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn05_[ism-1] ) bei->removeElement( meaopn05_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L1B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L1B %s", Numbers::sEB(ism).c_str());
     meaopn05_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn06_[ism-1] ) bei->removeElement( meaopn06_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L2B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L2B %s", Numbers::sEB(ism).c_str());
     meaopn06_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn07_[ism-1] ) bei->removeElement( meaopn07_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L3B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L3B %s", Numbers::sEB(ism).c_str());
     meaopn07_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( meaopn08_[ism-1] ) bei->removeElement( meaopn08_[ism-1]->getName() );
-    sprintf(histo, "EBLT amplitude over PN L4B SM%02d", ism);
+    sprintf(histo, "EBLT amplitude over PN L4B %s", Numbers::sEB(ism).c_str());
     meaopn08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
   }
@@ -1595,106 +1596,106 @@ void EBLaserClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A", ism);
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4B", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -1707,244 +1708,244 @@ void EBLaserClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EBLT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
       me_h04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
       mui_->add(me_h04_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
       me_h05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
       mui_->add(me_h05_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
       me_h06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
       mui_->add(me_h06_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
       me_h07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
       mui_->add(me_h07_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
       me_h08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
       mui_->add(me_h08_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L1A", ism);
+      sprintf(histo, "EBLT timing %s L1A", Numbers::sEB(ism).c_str());
       me_h09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
       mui_->add(me_h09_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L2A", ism);
+      sprintf(histo, "EBLT timing %s L2A", Numbers::sEB(ism).c_str());
       me_h10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
       mui_->add(me_h10_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L3A", ism);
+      sprintf(histo, "EBLT timing %s L3A", Numbers::sEB(ism).c_str());
       me_h11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
       mui_->add(me_h11_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L4A", ism);
+      sprintf(histo, "EBLT timing %s L4A", Numbers::sEB(ism).c_str());
       me_h12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
       mui_->add(me_h12_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
       me_h13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
       mui_->add(me_h13_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
       me_h14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
       mui_->add(me_h14_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
       me_h15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
       mui_->add(me_h15_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
       me_h16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
       mui_->add(me_h16_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
       me_h17_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
       mui_->add(me_h17_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
       me_h18_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
       mui_->add(me_h18_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
       me_h19_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
       mui_->add(me_h19_[ism-1], histo);
 
-      sprintf(histo, "EBLT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
       me_h20_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
       mui_->add(me_h20_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L1B", ism);
+      sprintf(histo, "EBLT timing %s L1B", Numbers::sEB(ism).c_str());
       me_h21_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
       mui_->add(me_h21_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L2B", ism);
+      sprintf(histo, "EBLT timing %s L2B", Numbers::sEB(ism).c_str());
       me_h22_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
       mui_->add(me_h22_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L3B", ism);
+      sprintf(histo, "EBLT timing %s L3B", Numbers::sEB(ism).c_str());
       me_h23_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
       mui_->add(me_h23_[ism-1], histo);
 
-      sprintf(histo, "EBLT timing SM%02d L4B", ism);
+      sprintf(histo, "EBLT timing %s L4B", Numbers::sEB(ism).c_str());
       me_h24_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
       mui_->add(me_h24_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L1A", ism);
+      sprintf(histo, "EBLT shape %s L1A", Numbers::sEB(ism).c_str());
       me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
       mui_->add(me_hs01_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L2A", ism);
+      sprintf(histo, "EBLT shape %s L2A", Numbers::sEB(ism).c_str());
       me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
       mui_->add(me_hs02_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L3A", ism);
+      sprintf(histo, "EBLT shape %s L3A", Numbers::sEB(ism).c_str());
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
       mui_->add(me_hs03_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L4A", ism);
+      sprintf(histo, "EBLT shape %s L4A", Numbers::sEB(ism).c_str());
       me_hs04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4A", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
       mui_->add(me_hs04_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L1B", ism);
+      sprintf(histo, "EBLT shape %s L1B", Numbers::sEB(ism).c_str());
       me_hs05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser1");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
       mui_->add(me_hs05_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L2B", ism);
+      sprintf(histo, "EBLT shape %s L2B", Numbers::sEB(ism).c_str());
       me_hs06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser2");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
       mui_->add(me_hs06_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L3B", ism);
+      sprintf(histo, "EBLT shape %s L3B", Numbers::sEB(ism).c_str());
       me_hs07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser3");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
       mui_->add(me_hs07_[ism-1], histo);
 
-      sprintf(histo, "EBLT shape SM%02d L4B", ism);
+      sprintf(histo, "EBLT shape %s L4B", Numbers::sEB(ism).c_str());
       me_hs08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBLaserTask/Laser4");
-      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4B", ism);
+      sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
       mui_->add(me_hs08_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
       me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
       mui_->add(me_i02_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
       me_i03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
       mui_->add(me_i03_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
       me_i04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
       mui_->add(me_i04_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
       me_i05_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
       mui_->add(me_i05_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
       me_i06_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
       mui_->add(me_i06_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
       me_i07_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
       mui_->add(me_i07_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
       me_i08_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
       mui_->add(me_i08_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
       me_i09_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
       mui_->add(me_i09_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
       me_i10_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
       mui_->add(me_i10_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
       me_i11_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
       mui_->add(me_i11_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
       me_i12_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
       mui_->add(me_i12_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
       me_i13_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
       mui_->add(me_i13_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
       me_i14_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
       mui_->add(me_i14_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
       me_i15_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
       mui_->add(me_i15_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
       me_i16_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
       mui_->add(me_i16_[ism-1], histo);
 
     }
@@ -1956,181 +1957,181 @@ void EBLaserClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
       if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
       if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
       if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
       if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
       if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
       if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
       if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
       if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
       if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
       if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
       if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
       if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
       if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
       if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
       if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
       if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
       if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
       if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
       if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
       if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
+        sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
         if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
         if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
         if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
         if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
         if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
         if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
+        sprintf(histo, "EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
         if ( qth11_[ism-1] ) mui_->useQTest(histo, qth11_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
         if ( qth12_[ism-1] ) mui_->useQTest(histo, qth12_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
         if ( qth13_[ism-1] ) mui_->useQTest(histo, qth13_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
         if ( qth14_[ism-1] ) mui_->useQTest(histo, qth14_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
         if ( qth15_[ism-1] ) mui_->useQTest(histo, qth15_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
         if ( qth16_[ism-1] ) mui_->useQTest(histo, qth16_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
         if ( qth17_[ism-1] ) mui_->useQTest(histo, qth17_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
         if ( qth18_[ism-1] ) mui_->useQTest(histo, qth18_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
         if ( qth19_[ism-1] ) mui_->useQTest(histo, qth19_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
         if ( qth20_[ism-1] ) mui_->useQTest(histo, qth20_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
         if ( qth21_[ism-1] ) mui_->useQTest(histo, qth21_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
         if ( qth22_[ism-1] ) mui_->useQTest(histo, qth22_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
         if ( qth23_[ism-1] ) mui_->useQTest(histo, qth23_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
         if ( qth24_[ism-1] ) mui_->useQTest(histo, qth24_[ism-1]->getName());
       }
     }
 
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 %s", Numbers::sEB(ism).c_str());
     if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 %s", Numbers::sEB(ism).c_str());
     if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 %s", Numbers::sEB(ism).c_str());
     if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 %s", Numbers::sEB(ism).c_str());
     if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
 
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs SM%02d G01", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs %s G01", Numbers::sEB(ism).c_str());
     if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs SM%02d G01", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs %s G01", Numbers::sEB(ism).c_str());
     if ( qtg06_[ism-1] ) mui_->useQTest(histo, qtg06_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs SM%02d G01", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs %s G01", Numbers::sEB(ism).c_str());
     if ( qtg07_[ism-1] ) mui_->useQTest(histo, qtg07_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs SM%02d G01", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs %s G01", Numbers::sEB(ism).c_str());
     if ( qtg08_[ism-1] ) mui_->useQTest(histo, qtg08_[ism-1]->getName());
 
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs SM%02d G16", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L1 PNs %s G16", Numbers::sEB(ism).c_str());
     if ( qtg09_[ism-1] ) mui_->useQTest(histo, qtg09_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs SM%02d G16", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L2 PNs %s G16", Numbers::sEB(ism).c_str());
     if ( qtg10_[ism-1] ) mui_->useQTest(histo, qtg10_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs SM%02d G16", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L3 PNs %s G16", Numbers::sEB(ism).c_str());
     if ( qtg11_[ism-1] ) mui_->useQTest(histo, qtg11_[ism-1]->getName());
-    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs SM%02d G16", ism);
+    sprintf(histo, "EcalBarrel/EBLaserClient/EBLT laser quality L4 PNs %s G16", Numbers::sEB(ism).c_str());
     if ( qtg12_[ism-1] ) mui_->useQTest(histo, qtg12_[ism-1]->getName());
 
   }
@@ -2145,106 +2146,106 @@ void EBLaserClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A", ism);
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4B", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -2333,106 +2334,106 @@ void EBLaserClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A", ism);
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4B", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4A", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4B", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+    sprintf(histo, "*/EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -2490,385 +2491,385 @@ void EBLaserClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude %s L1A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude %s L2A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude %s L3A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude %s L4A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing SM%02d L1A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing %s L1A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing SM%02d L2A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing %s L2A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h10_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing SM%02d L3A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing %s L3A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h11_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing SM%02d L4A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing %s L4A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h12_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude %s L1B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude %s L1B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h13_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT amplitude over PN %s L1B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h14_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude %s L2B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude %s L2B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h15_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT amplitude over PN %s L2B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h16_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude %s L3B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude %s L3B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h17_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h17_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT amplitude over PN %s L3B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h18_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h18_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude %s L4B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude %s L4B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h19_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h19_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT amplitude over PN %s L4B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h20_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h20_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing SM%02d L1B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT timing %s L1B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT timing SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT timing %s L1B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h21_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h21_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing SM%02d L2B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT timing %s L2B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT timing SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT timing %s L2B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h22_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h22_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing SM%02d L3B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT timing %s L3B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT timing SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT timing %s L3B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h23_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h23_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing SM%02d L4B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT timing %s L4B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT timing SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT timing %s L4B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h24_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h24_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT shape SM%02d L1A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT shape %s L1A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT shape SM%02d L2A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT shape %s L2A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT shape SM%02d L3A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT shape %s L3A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT shape SM%02d L4A", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT shape %s L4A", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4A").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4A").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT shape SM%02d L1B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser1/EBLT shape %s L1B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT shape SM%02d L1B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser1/EBLT shape %s L1B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT shape SM%02d L2B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser2/EBLT shape %s L2B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT shape SM%02d L2B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser2/EBLT shape %s L2B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT shape SM%02d L3B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser3/EBLT shape %s L3B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT shape SM%02d L3B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser3/EBLT shape %s L3B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT shape SM%02d L4B", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBLaserTask/Laser4/EBLT shape %s L4B", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT shape SM%02d L4B").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBLaserTask/Laser4/EBLT shape %s L4B").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     hs08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude SM%02d G01 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs amplitude %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude SM%02d G01 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs amplitude %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude SM%02d G01 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs amplitude %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude SM%02d G01 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs amplitude %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal SM%02d G01 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain01/EBPDT PNs pedestal %s G01 L1").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i05_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal SM%02d G01 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain01/EBPDT PNs pedestal %s G01 L2").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i06_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal SM%02d G01 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain01/EBPDT PNs pedestal %s G01 L3").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i07_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal SM%02d G01 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain01/EBPDT PNs pedestal %s G01 L4").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i08_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude SM%02d G16 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs amplitude %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i09_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude SM%02d G16 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs amplitude %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i10_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i10_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude SM%02d G16 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs amplitude %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i11_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i11_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude SM%02d G16 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs amplitude %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i12_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i12_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal SM%02d G16 L1").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser1/Gain16/EBPDT PNs pedestal %s G16 L1").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i13_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i13_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal SM%02d G16 L2").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser2/Gain16/EBPDT PNs pedestal %s G16 L2").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i14_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i14_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal SM%02d G16 L3").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser3/Gain16/EBPDT PNs pedestal %s G16 L3").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i15_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i15_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal SM%02d G16 L4").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Laser4/Gain16/EBPDT PNs pedestal %s G16 L4").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     i16_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i16_[ism-1] );

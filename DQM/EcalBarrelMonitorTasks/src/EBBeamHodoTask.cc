@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.36 $
+ * $Date: 2007/04/05 14:54:00 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -29,6 +29,8 @@
 #include "DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h"
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
 #include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
@@ -125,71 +127,71 @@ void EBBeamHodoTask::setup(void){
     //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
-      sprintf(histo, "EBBHT occup SM%02d %02d", smId, i+1);
+      sprintf(histo, "EBBHT occup %s %02d", Numbers::sEB(smId).c_str(), i+1);
       meHodoOcc_[i] = dbe_->book1D(histo, histo, 30, 0., 30.);
-      sprintf(histo, "EBBHT raw SM%02d %02d", smId, i+1);
+      sprintf(histo, "EBBHT raw %s %02d", Numbers::sEB(smId).c_str(), i+1);
       meHodoRaw_[i] = dbe_->book1D(histo, histo, 64, 0., 64.);
     }
 
-    sprintf(histo, "EBBHT PosX rec SM%02d", smId);
+    sprintf(histo, "EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecX_ = dbe_->book1D(histo, histo, 100, -20, 20);
 
-    sprintf(histo, "EBBHT PosY rec SM%02d", smId);
+    sprintf(histo, "EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecY_ = dbe_->book1D(histo, histo, 100, -20, 20);
 
-    sprintf(histo, "EBBHT PosYX rec SM%02d", smId);
+    sprintf(histo, "EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
     meHodoPosRecXY_ = dbe_->book2D(histo, histo, 100, -20, 20,100, -20, 20);
 
-    sprintf(histo, "EBBHT SloX SM%02d", smId);
+    sprintf(histo, "EBBHT SloX %s", Numbers::sEB(smId).c_str());
     meHodoSloXRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
 
-    sprintf(histo, "EBBHT SloY SM%02d", smId);
+    sprintf(histo, "EBBHT SloY %s", Numbers::sEB(smId).c_str());
     meHodoSloYRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
 
-    sprintf(histo, "EBBHT QualX SM%02d", smId);
+    sprintf(histo, "EBBHT QualX %s", Numbers::sEB(smId).c_str());
     meHodoQuaXRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
 
-    sprintf(histo, "EBBHT QualY SM%02d", smId);
+    sprintf(histo, "EBBHT QualY %s", Numbers::sEB(smId).c_str());
     meHodoQuaYRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
 
-    sprintf(histo, "EBBHT TDC rec SM%02d", smId);
+    sprintf(histo, "EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
     meTDCRec_  = dbe_->book1D(histo, histo, 25, 0, 1);
 
-    sprintf(histo, "EBBHT Hodo-Calo X vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
     meHodoPosXMinusCaloPosXVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EBBHT Hodo-Calo Y vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
     meHodoPosYMinusCaloPosYVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EBBHT TDC-Calo vs Cry SM%02d", smId);
+    sprintf(histo, "EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
     meTDCTimeMinusCaloTimeVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EBBHT Missing Collections SM%02d", smId);
+    sprintf(histo, "EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
     meMissingCollections_ = dbe_->book1D(histo, histo, 7, 0, 7);
 
     // following ME (type II):
     //  *** can be filled only when table is **not** moving
     //  *** need to be reset once table goes from 'moving'->notMoving
 
-    sprintf(histo, "EBBHT prof E1 vs X SM%02d", smId);
+    sprintf(histo, "EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
     meEvsXRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
-    sprintf(histo, "EBBHT prof E1 vs Y SM%02d", smId);
+    sprintf(histo, "EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
     meEvsYRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
-    sprintf(histo, "EBBHT his E1 vs X SM%02d", smId);
+    sprintf(histo, "EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
     meEvsXRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBHT his E1 vs Y SM%02d", smId);
+    sprintf(histo, "EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
     meEvsYRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EBBHT PosX Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsHodoXPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT PosY Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsHodoYPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EBBHT TimeMax TDC-Calo SM%02d", smId);
+    sprintf(histo, "EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
     meCaloVsTDCTime_  = dbe_->book1D(histo, histo, 100, -1, 1);//tentative
 
   }

@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/04/05 13:56:47 $
- * $Revision: 1.56 $
+ * $Date: 2007/04/05 14:54:01 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
@@ -87,39 +89,39 @@ void EBPedestalTask::setup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG01_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G01", Numbers::sEB(i+1).c_str());
       mePed3SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed3SumMapG01_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G01", i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G01", Numbers::sEB(i+1).c_str());
       mePed5SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed5SumMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
+      sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG06_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G06", i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G06", Numbers::sEB(i+1).c_str());
       mePed3SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed3SumMapG06_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G06", i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G06", Numbers::sEB(i+1).c_str());
       mePed5SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed5SumMapG06_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
+      sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG12_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G12", i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G12", Numbers::sEB(i+1).c_str());
       mePed3SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed3SumMapG12_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G12", i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G12", Numbers::sEB(i+1).c_str());
       mePed5SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePed5SumMapG12_[i], i+1);
     }
@@ -128,14 +130,14 @@ void EBPedestalTask::setup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
+      sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
+      sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }

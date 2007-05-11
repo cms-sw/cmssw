@@ -1,8 +1,8 @@
 /*
  * \file EBIntegrityTask.cc
  *
- * $Date: 2007/04/05 13:56:47 $
- * $Revision: 1.36 $
+ * $Date: 2007/04/05 14:54:00 $
+ * $Revision: 1.37 $
  * \author G. Della Ricca
  *
  */
@@ -21,6 +21,8 @@
 
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBIntegrityTask.h>
 
@@ -97,7 +99,7 @@ void EBIntegrityTask::setup(void){
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/Gain");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain SM%02d", i+1);
+      sprintf(histo, "EBIT gain %s", Numbers::sEB(i+1).c_str());
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGain[i], i+1);
     }
@@ -105,7 +107,7 @@ void EBIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/ChId");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT ChId SM%02d", i+1);
+      sprintf(histo, "EBIT ChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityChId[i], i+1);
     }
@@ -113,7 +115,7 @@ void EBIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitch");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain switch SM%02d", i+1);
+      sprintf(histo, "EBIT gain switch %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
     }
@@ -121,7 +123,7 @@ void EBIntegrityTask::setup(void){
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/GainSwitchStay");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT gain switch stay SM%02d", i+1);
+      sprintf(histo, "EBIT gain switch stay %s", Numbers::sEB(i+1).c_str());
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
     }
@@ -129,7 +131,7 @@ void EBIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTId");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT TTId SM%02d", i+1);
+      sprintf(histo, "EBIT TTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       dbe_->tag(meIntegrityTTId[i], i+1);
     }
@@ -137,7 +139,7 @@ void EBIntegrityTask::setup(void){
     // checking when trigger tower has unexpected or invalid size
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/TTBlockSize");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT TTBlockSize SM%02d", i+1);
+      sprintf(histo, "EBIT TTBlockSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
     }
@@ -145,7 +147,7 @@ void EBIntegrityTask::setup(void){
     // checking when mem channels have unexpected ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemChId");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT MemChId SM%02d", i+1);
+      sprintf(histo, "EBIT MemChId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meIntegrityMemChId[i], i+1);
     }
@@ -155,7 +157,7 @@ void EBIntegrityTask::setup(void){
     // but indicates that data are not completely correct
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemGain");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT MemGain SM%02d", i+1);
+      sprintf(histo, "EBIT MemGain %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meIntegrityMemGain[i], i+1);
     }
@@ -163,7 +165,7 @@ void EBIntegrityTask::setup(void){
     // checking when mem tower block has unexpected ID
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemTTId");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT MemTTId SM%02d", i+1);
+      sprintf(histo, "EBIT MemTTId %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
     }
@@ -171,7 +173,7 @@ void EBIntegrityTask::setup(void){
     // checking when mem tower block has invalid size
     dbe_->setCurrentFolder("EcalBarrel/EBIntegrityTask/MemSize");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBIT MemSize SM%02d", i+1);
+      sprintf(histo, "EBIT MemSize %s", Numbers::sEB(i+1).c_str());
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
     }

@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.22 $
+ * $Date: 2007/04/30 17:37:03 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -31,8 +31,11 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
+
 
 using namespace cms;
 using namespace edm;
@@ -118,7 +121,7 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EBTMT quality SM%02d", ism);
+      sprintf(qtname, "EBTMT quality %s", Numbers::sEB(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
@@ -129,7 +132,7 @@ void EBTimingClient::beginJob(MonitorUserInterface* mui){
 
       qth01_[ism-1]->setErrorProb(1.00);
 
-      sprintf(qtname, "EBTMT quality test SM%02d", ism);
+      sprintf(qtname, "EBTMT quality test %s", Numbers::sEB(ism).c_str());
       qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg01_[ism-1]->setMeanRange(1., 6.);
@@ -186,19 +189,19 @@ void EBTimingClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing quality SM%02d", ism);
+    sprintf(histo, "EBTMT timing quality %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing SM%02d", ism);
+    sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing mean SM%02d", ism);
+    sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 0.0, 10.0);
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing rms SM%02d", ism);
+    sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
     mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
@@ -286,7 +289,7 @@ void EBTimingClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -299,9 +302,9 @@ void EBTimingClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EBTMT timing SM%02d", ism);
+      sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBTimingTask");
-      sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+      sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
     }
@@ -313,19 +316,19 @@ void EBTimingClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+        sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+        sprintf(histo, "EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
 
-    sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBTimingClient/EBTMT timing quality %s", Numbers::sEB(ism).c_str());
     if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
 
   }
@@ -340,7 +343,7 @@ void EBTimingClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -375,7 +378,7 @@ void EBTimingClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalBarrel/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -421,9 +424,9 @@ void EBTimingClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing SM%02d", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBTimingTask/EBTMT timing %s", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );

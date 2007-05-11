@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/04/06 18:16:10 $
- * $Revision: 1.23 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -29,8 +29,9 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
-#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+
+#include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -786,7 +787,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       objp->Draw("colz");
-      labelGrid.Draw("text,same");
+      //labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
@@ -846,7 +847,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->Draw("colz");
-    labelGrid.Draw("text,same");
+    //labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
@@ -1032,7 +1033,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       objp->Draw("colz");
-      labelGrid.Draw("text,same");
+      //labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
@@ -1092,7 +1093,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->Draw("colz");
-    labelGrid.Draw("text,same");
+    //labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);

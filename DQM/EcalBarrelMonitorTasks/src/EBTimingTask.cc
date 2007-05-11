@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/04/10 05:40:52 $
- * $Revision: 1.13 $
+ * $Date: 2007/04/10 05:51:30 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 
@@ -74,7 +76,7 @@ void EBTimingTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTMT timing SM%02d", i+1);
+      sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMap_[i], i+1);
     }

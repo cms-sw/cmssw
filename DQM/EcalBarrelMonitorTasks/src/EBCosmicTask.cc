@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/04/05 13:56:46 $
- * $Revision: 1.69 $
+ * $Date: 2007/04/05 14:54:00 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBCosmicTask.h>
 
@@ -78,19 +80,19 @@ void EBCosmicTask::setup(void){
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Cut");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy cut SM%02d", i+1);
+      sprintf(histo, "EBCT energy cut %s", Numbers::sEB(i+1).c_str());
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Sel");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy sel SM%02d", i+1);
+      sprintf(histo, "EBCT energy sel %s", Numbers::sEB(i+1).c_str());
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
+      sprintf(histo, "EBCT energy spectrum %s", Numbers::sEB(i+1).c_str());
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
 

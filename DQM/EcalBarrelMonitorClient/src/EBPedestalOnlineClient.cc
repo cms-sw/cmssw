@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.83 $
+ * $Date: 2007/05/02 09:10:58 $
+ * $Revision: 1.85 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalOnlineClient.h>
 
@@ -119,7 +120,7 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EBPOT quality SM%02d G12", ism);
+      sprintf(qtname, "EBPOT quality %s G12", Numbers::sEB(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth03_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
@@ -130,7 +131,7 @@ void EBPedestalOnlineClient::beginJob(MonitorUserInterface* mui){
 
       qth03_[ism-1]->setErrorProb(1.00);
 
-      sprintf(qtname, "EBPOT quality test SM%02d G12", ism);
+      sprintf(qtname, "EBPOT quality test %s G12", Numbers::sEB(ism).c_str());
       qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qtg03_[ism-1]->setMeanRange(1., 6.);
@@ -187,15 +188,15 @@ void EBPedestalOnlineClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EBPOT pedestal quality G12 SM%02d", ism);
+    sprintf(histo, "EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
-    sprintf(histo, "EBPOT pedestal mean G12 SM%02d", ism);
+    sprintf(histo, "EBPOT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
     if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
-    sprintf(histo, "EBPOT pedestal rms G12 SM%02d", ism);
+    sprintf(histo, "EBPOT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = bei->book1D(histo, histo, 100, 0.,  10.);
 
   }
@@ -343,7 +344,7 @@ void EBPedestalOnlineClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -356,9 +357,9 @@ void EBPedestalOnlineClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
     }
@@ -370,19 +371,19 @@ void EBPedestalOnlineClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+        sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+        sprintf(histo, "EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
       }
     }
 
-    sprintf(histo, "EcalBarrel/EBPedestalOnlineClient/EBPOT pedestal quality G12 SM%02d", ism);
+    sprintf(histo, "EcalBarrel/EBPedestalOnlineClient/EBPOT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
 
   }
@@ -397,7 +398,7 @@ void EBPedestalOnlineClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -432,7 +433,7 @@ void EBPedestalOnlineClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -478,9 +479,9 @@ void EBPedestalOnlineClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalOnlineTask/Gain12/EBPOT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
@@ -732,8 +733,8 @@ void EBPedestalOnlineClient::htmlOutput(int run, string htmlDir, string htmlName
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name=""" << Numbers::sEB(ism) << """></a><strong>Supermodule&nbsp;&nbsp;"
+	     << Numbers::sEB(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
