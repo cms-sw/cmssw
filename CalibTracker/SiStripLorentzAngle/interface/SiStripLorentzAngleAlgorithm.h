@@ -71,7 +71,7 @@ class SiStripLorentzAngleAlgorithm
   typedef std::vector<std::pair<const TrackingRecHit *,float> > hitanglevector;  
   typedef std::map <const reco::Track *, hitanglevector> trackhitmap;
   
-  typedef struct {float thickness; float pitch;} detparameters;
+  typedef struct {float thickness; float pitch; LocalVector magfield;} detparameters;
   typedef std::map <unsigned int, detparameters*> detparmap;
   detparmap detmap;
   detparmap summarydetmap;

@@ -45,6 +45,8 @@ public:
   DetIdLess() {}
   
   bool operator()( const SiStripRecHit2D* a, const SiStripRecHit2D* b) const {
+    //    const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > clua=a->cluster();
+    //const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > club=b->cluster();
     return *(a->cluster())<*(b->cluster());
   }
 };
@@ -72,6 +74,13 @@ void SiStripLorentzAngleAlgorithm::init(const edm::EventSetup& c){
   tracker=&(*estracker); 
   
   //Get Ids;
+  double ModuleRangeMin=conf_.getParameter<double>("ModuleXMin");
+  double ModuleRangeMax=conf_.getParameter<double>("ModuleXMax");
+  double TIBRangeMin=conf_.getParameter<double>("TIBXMin");
+  double TIBRangeMax=conf_.getParameter<double>("TIBXMax");
+  double TOBRangeMin=conf_.getParameter<double>("TOBXMin");
+  double TOBRangeMax=conf_.getParameter<double>("TOBXMax");
+  
   
   const TrackerGeometry::DetIdContainer& Id = estracker->detIds();
   
@@ -89,12 +98,20 @@ void SiStripLorentzAngleAlgorithm::init(const edm::EventSetup& c){
       if(stripdet==0)continue;
       const StripTopology& topol=(StripTopology&)stripdet->topology();
       float thickness=stripdet->specificSurface().bounds().thickness();		
-      TProfile * profile=new TProfile(makename(*Iditer,false,false).c_str(),makename(*Iditer,true,false).c_str(),30,-0.6,0.6);
+      TProfile * profile=new TProfile(makename(*Iditer,false,false).c_str(),makename(*Iditer,true,false).c_str(),30,ModuleRangeMin,ModuleRangeMax);
       detparameters *param=new detparameters;
       histos[Iditer->rawId()] = profile;
       detmap[Iditer->rawId()] = param;
       param->thickness = thickness*10000;
       param->pitch = topol.localPitch(p)*10000;
+
+      LocalPoint localp(0,0,0);
+      const GlobalPoint globalp = (stripdet->surface()).toGlobal(localp);
+      GlobalVector globalmagdir = magfield->inTesla(globalp);
+      param->magfield=(stripdet->surface()).toLocal(globalmagdir);
+
+
+
       profile->GetXaxis()->SetTitle("tan(#theta_{t})");
       profile->GetYaxis()->SetTitle("Cluster size");
       int layer=0;
@@ -118,14 +135,20 @@ void SiStripLorentzAngleAlgorithm::init(const edm::EventSetup& c){
 	layer = TECid.ring();
       }
       if(summaryhisto.find(subid.subdetId()*10+layer)==(summaryhisto.end())){
-	TProfile * summaryprofile=new TProfile(makename(*Iditer,false,true).c_str(),makename(*Iditer,true,true).c_str(),30,-0.6,0.6);
-	detparameters *summaryparam=new detparameters;
-	summaryhisto[subid.subdetId()*10+layer] = summaryprofile;
-	summarydetmap[subid.subdetId()*10+layer] = summaryparam;
-	summaryparam->thickness = thickness*10000;
-	summaryparam->pitch = topol.localPitch(p)*10000;
-	summaryprofile->GetXaxis()->SetTitle("tan(#theta_{t})");
-	summaryprofile->GetYaxis()->SetTitle("Cluster size");
+	TProfile * summaryprofile=0;
+	if (subid.subdetId()==int (StripSubdetector::TIB)||subid.subdetId()==int (StripSubdetector::TID))
+	  summaryprofile=new TProfile(makename(*Iditer,false,true).c_str(),makename(*Iditer,true,true).c_str(),30,TIBRangeMin,TIBRangeMax);
+	else if (subid.subdetId()==int (StripSubdetector::TOB)||subid.subdetId()==int (StripSubdetector::TEC))
+	  summaryprofile=new TProfile(makename(*Iditer,false,true).c_str(),makename(*Iditer,true,true).c_str(),30,TOBRangeMin,TOBRangeMax);
+	if(summaryprofile){
+	  detparameters *summaryparam=new detparameters;
+	  summaryhisto[subid.subdetId()*10+layer] = summaryprofile;
+	  summarydetmap[subid.subdetId()*10+layer] = summaryparam;
+	  summaryparam->thickness = thickness*10000;
+	  summaryparam->pitch = topol.localPitch(p)*10000;
+	  summaryprofile->GetXaxis()->SetTitle("tan(#theta_{t})");
+	  summaryprofile->GetYaxis()->SetTitle("Cluster size");
+	}
       }
     } 
   } 
@@ -277,7 +300,7 @@ void SiStripLorentzAngleAlgorithm::run(const edm::Event& e, const edm::EventSetu
 	  float tanangle = monotkdir.x()/monotkdir.z();
 	  std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator alreadystored=hitangleassociation.find(monohit);
 	  if(alreadystored != hitangleassociation.end()){//decide which hit take
-	    if(itm->estimate() <  alreadystored->second.second) hitangleassociation.insert(make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
+	    if(itm->estimate() <  alreadystored->second.first) hitangleassociation.insert(std::make_pair(monohit, std::make_pair(itm->estimate(),tanangle)));
 	  }
 	  else hitangleassociation.insert(make_pair(monohit, std::make_pair(itm->estimate(),tanangle))); 
 	  
@@ -295,7 +318,7 @@ void SiStripLorentzAngleAlgorithm::run(const edm::Event& e, const edm::EventSetu
 	    float tanangle = stereotkdir.x()/stereotkdir.z();
 	    std::map<const SiStripRecHit2D *,std::pair<float,float>,DetIdLess>::iterator alreadystored=hitangleassociation.find(stereohit);
 	    if(alreadystored != hitangleassociation.end()){//decide which hit take
-	      if(itm->estimate() <  alreadystored->second.second) hitangleassociation.insert(make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
+	      if(itm->estimate() <  alreadystored->second.first) hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle)));
 	    }
 	    else hitangleassociation.insert(std::make_pair(stereohit, std::make_pair(itm->estimate(),tanangle))); 		  
 	  }
@@ -311,7 +334,7 @@ void SiStripLorentzAngleAlgorithm::run(const edm::Event& e, const edm::EventSetu
 	  float tanangle = trackdirection.x()/trackdirection.z();
 	  std::map<const SiStripRecHit2D *,std::pair<float,float>, DetIdLess>::iterator alreadystored=hitangleassociation.find(hit);
 	  if(alreadystored != hitangleassociation.end()){//decide which hit take
-	    if(itm->estimate() <  alreadystored->second.second) hitangleassociation.insert(make_pair(hit, std::make_pair(itm->estimate(),tanangle)));
+	    if(itm->estimate() <  alreadystored->second.first) hitangleassociation.insert(std::make_pair(hit, std::make_pair(itm->estimate(),tanangle)));
 	  }
 	  else hitangleassociation.insert(std::make_pair(hit,std::make_pair(itm->estimate(), tanangle) ) ); 
 	}
@@ -323,7 +346,7 @@ void SiStripLorentzAngleAlgorithm::run(const edm::Event& e, const edm::EventSetu
     
   for(hitsiter=hitangleassociation.begin();hitsiter!=hitangleassociation.end();hitsiter++){
     
-    const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(hitsiter->first);
+    const SiStripRecHit2D* hit=hitsiter->first;
     const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
 
     int size=(cluster->amplitudes()).size();
@@ -337,38 +360,28 @@ void SiStripLorentzAngleAlgorithm::run(const edm::Event& e, const edm::EventSetu
 	  
     //Sign and XZ plane projection correction applied in TrackLocalAngle (TIB|TOB layers)
       
-    const GeomDet *geomdet = tracker->idToDet(hit->geographicalId());
-    LocalPoint localp(0,0,0);
-    const GlobalPoint globalp = (geomdet->surface()).toGlobal(localp);
-    GlobalVector globalmagdir = magfield->inTesla(globalp);
-    LocalVector localmagdir = (geomdet->surface()).toLocal(globalmagdir);
+    detparmap::iterator thedet=detmap.find(detid.rawId());
+    LocalVector localmagdir;
+    if(thedet!=detmap.end())localmagdir=thedet->second->magfield;
     float localmagfield = localmagdir.mag();
     
     if(localmagfield != 0.){
-	    
-      if((detid.subdetId() == int (StripSubdetector::TIB)) || (detid.subdetId() == int (StripSubdetector::TOB))){
-	    
-	LocalVector ylocal(0,1,0);
-	    
-	float normprojection = (localmagdir * ylocal)/(localmagfield);
-            
-	if(normprojection == 0.)LogDebug("SiStripLorentzAngleAlgorithm::analyze")<<"Error: TIB|TOB YBprojection = 0";
-	    
-	else{
-	  float signprojcorrection = 1/normprojection;
-	  tangent*=signprojcorrection;
-	  //  TrackLocalAngle = atan(tangent)*180/TMath::Pi();
-	}
+      
+      LocalVector ylocal(0,1,0);
+      
+      float normprojection = (localmagdir * ylocal)/(localmagfield);
+      
+      if(normprojection == 0.)LogDebug("SiStripLorentzAngleAlgorithm::analyze")<<"Error: YBprojection = 0";
+      
+      else{
+	float signprojcorrection = 1/normprojection;
+	tangent*=signprojcorrection;
       }
     }
 	  
-    float thickness = detmap[detid.rawId()]->thickness;
-    float pitch = detmap[detid.rawId()]->pitch;
-	  
-    //    trackproj=(tangent*thickness)/pitch;
-    
     //Filling histograms
     histomap::iterator thehisto=histos.find(detid.rawId());
+    edm::LogInfo("SiStripLorentzAngleAlgorithm")<<"Cluster size= "<<size;
     if(thehisto==histos.end())edm::LogError("SiStripLorentzAngleAlgorithm::analyze")<<"Error: the profile associated to"<<detid.rawId()<<"does not exist! ";
     else thehisto->second->Fill(tangent,size);
 
@@ -592,12 +605,12 @@ void SiStripLorentzAngleAlgorithm::fit(fitmap & fits){
   fitmap summaryfit;
   //Histograms fit
   TF1 *fitfunc=0;
-  double ModuleRangeMin=conf_.getParameter<double>("ModuleRangeMin");
-  double ModuleRangeMax=conf_.getParameter<double>("ModuleRangeMax");
-  double TIBRangeMin=conf_.getParameter<double>("TIBRangeMin");
-  double TIBRangeMax=conf_.getParameter<double>("TIBRangeMax");
-  double TOBRangeMin=conf_.getParameter<double>("TOBRangeMin");
-  double TOBRangeMax=conf_.getParameter<double>("TOBRangeMax");
+  double ModuleRangeMin=conf_.getParameter<double>("ModuleFitXMin");
+  double ModuleRangeMax=conf_.getParameter<double>("ModuleFitXMax");
+  double TIBRangeMin=conf_.getParameter<double>("TIBFitXMin");
+  double TIBRangeMax=conf_.getParameter<double>("TIBFitXMax");
+  double TOBRangeMin=conf_.getParameter<double>("TOBFitXMin");
+  double TOBRangeMax=conf_.getParameter<double>("TOBFitXMax");
   
   histomap::iterator hist_it;
   fitfunc= new TF1("fitfunc","([4]/[3])*[1]*(TMath::Abs(x-[0]))+[2]",-1,1);
@@ -616,19 +629,22 @@ void SiStripLorentzAngleAlgorithm::fit(fitmap & fits){
       fitfunc->SetParameter(2, 1);
       fitfunc->FixParameter(3, pitch);
       fitfunc->FixParameter(4, thickness);
-      edm::LogInfo("test")<<hist_it->second->GetEntries();
       int fitresult=-1;      
-      fitresult=hist_it->second->Fit(fitfunc,"E","",ModuleRangeMin, ModuleRangeMax);
+      fitresult=hist_it->second->Fit(fitfunc,"N","",ModuleRangeMin, ModuleRangeMax);
+      detparmap::iterator thedet=detmap.find(hist_it->first);
+      LocalVector localmagdir;
+      if(thedet!=detmap.end())localmagdir=thedet->second->magfield;
+      float localmagfield = localmagdir.mag();
 
       histofit *fit= new histofit;
       fits[hist_it->first] =fit;
       
       fit->chi2 = fitfunc->GetChisquare();
       fit->ndf  = fitfunc->GetNDF();
-      fit->p0   = fitfunc->GetParameter(0);
+      fit->p0   = fitfunc->GetParameter(0)/localmagfield;
       fit->p1   = fitfunc->GetParameter(1);
       fit->p2   = fitfunc->GetParameter(2);
-      fit->errp0   = fitfunc->GetParError(0);
+      fit->errp0   = fitfunc->GetParError(0)/localmagfield;
       fit->errp1   = fitfunc->GetParError(1);
       fit->errp2   = fitfunc->GetParError(2);
     }
@@ -652,13 +668,12 @@ void SiStripLorentzAngleAlgorithm::fit(fitmap & fits){
       fitfunc->FixParameter(4, thickness);
       int fitresult=-1;
       if ((summaryhist_it->first)/10==int (StripSubdetector::TIB)||(summaryhist_it->first)/10==int (StripSubdetector::TID))
-	fitresult=summaryhist_it->second->Fit(fitfunc,"E","",TIBRangeMin, TIBRangeMax);
+	fitresult=summaryhist_it->second->Fit(fitfunc,"N","",TIBRangeMin, TIBRangeMax);
       else if ((summaryhist_it->first)/10==int (StripSubdetector::TOB)||(summaryhist_it->first)/10==int (StripSubdetector::TEC))
-	fitresult=summaryhist_it->second->Fit(fitfunc,"E","",TOBRangeMin, TOBRangeMax);
+	fitresult=summaryhist_it->second->Fit(fitfunc,"N","",TOBRangeMin, TOBRangeMax);
       //if(fitresult==0){
 	histofit * summaryfit=new histofit;
 	summaryfits[summaryhist_it->first] = summaryfit;
-	
 	summaryfit->chi2 = fitfunc->GetChisquare();
 	summaryfit->ndf  = fitfunc->GetNDF();
 	summaryfit->p0   = fitfunc->GetParameter(0);

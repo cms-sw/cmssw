@@ -16,7 +16,8 @@ using namespace std;
 
 SiStripLorentzAngleDB::SiStripLorentzAngleDB(edm::ParameterSet const& conf) : 
   conf_(conf){
-  siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
+  if(conf_.getParameter<bool>("DoCalibration")) siStripLorentzAngleAlgorithm_=new SiStripLorentzAngleAlgorithm(conf);
+  else siStripLorentzAngleAlgorithm_=0;
 }
 
   //BeginJob
@@ -32,7 +33,8 @@ void SiStripLorentzAngleDB::beginJob(const edm::EventSetup& c){
   holeSaturationVelocity_ = conf_.getParameter<double>("HoleSaturationVelocity");
   
   //building histograms
-  siStripLorentzAngleAlgorithm_->init(c);
+    if(conf_.getParameter<bool>("DoCalibration"))
+if(conf_.getParameter<bool>("DoCalibration"))siStripLorentzAngleAlgorithm_->init(c);
 
   edm::ESHandle<TrackerGeometry> pDD;
   c.get<TrackerDigiGeometryRecord>().get( pDD );
@@ -74,7 +76,7 @@ void SiStripLorentzAngleDB::analyze(const edm::Event& e, const edm::EventSetup& 
 {
   
   //fill histograms for each module
-  siStripLorentzAngleAlgorithm_->run(e,es);
+  if(conf_.getParameter<bool>("DoCalibration"))siStripLorentzAngleAlgorithm_->run(e,es);
 }
 
 void SiStripLorentzAngleDB::endJob(){
@@ -82,7 +84,7 @@ void SiStripLorentzAngleDB::endJob(){
   SiStripLorentzAngleAlgorithm::fitmap fits;
   SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
   edm::LogInfo("SiStripLorentzAngle") <<"End job ";
-  siStripLorentzAngleAlgorithm_->fit(fits);
+  if(conf_.getParameter<bool>("DoCalibration"))  siStripLorentzAngleAlgorithm_->fit(fits);
   
   for(std::vector<std::pair<uint32_t, float> >::iterator it = detid_la.begin(); it != detid_la.end(); it++){
 
