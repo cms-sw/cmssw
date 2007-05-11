@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.17 $
- *  $Date: 2007/04/19 11:36:58 $
+ *  $Revision: 1.18 $
+ *  $Date: 2007/04/30 16:23:18 $
  *  (last update by $Author: flucke $)
  */
 
@@ -84,18 +84,16 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                              AlignmentParameterStore *store)
 {
   if (muon) {
-    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                               << "Ignoring AlignabeMuon != 0";
+    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                               << "Running with AlignabeMuon not yet tested.";
   }
 
-  theAlignableNavigator = new AlignableNavigator(tracker);
+  theAlignableNavigator = new AlignableNavigator(tracker, muon);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  pedeSteerCfg.addUntrackedParameter("fileDir", theDir);
-  thePedeSteer = new PedeSteerer(tracker, theAlignmentParameterStore, pedeSteerCfg);
-
+  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir);
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -202,6 +200,8 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     } // end loop on hits
 
     if (nValidHitsX >= theMinNumHits) { // enough 'good' alignables hit: increase the hit statistics
+      // FIXME: Add also hit statistics for higher levels in hierarchy? But take care about
+      //        exclusion as for hierarchy constraints...
       for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
         if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
         MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
@@ -325,6 +325,11 @@ bool MillePedeAlignmentAlgorithm
         globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
       }
     }
+    // Exclude mothers if selected to be no part of a hierarchy:
+    // FIXME: Currently full object independent of selection, cf. PedeSteerer::hierarchyConstraint
+    if (!thePedeSteer->noHieraParamSel(ali).empty()) {
+      return true;
+    }
   }
 
   return this->globalDerivativesHierarchy(tsos, ali->mother(), alidet, xOrY,
@@ -365,7 +370,7 @@ void MillePedeAlignmentAlgorithm::callMille
 bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 {
   // FIXME: Check whether this is a reliable and recommended way to find out...
-  // e.g. problem: What about glued detectors where only one module is hit?
+  // e.g. problem: What about glued detectors where only one module is hit? (changed in 13X?)
   // probably downcast the hit to a concrete class (matched?)
   return (recHit->dimension() >=2 && // some muon stuff really has RecHit1D
 	  (!recHit->detUnit() // stereo strips (FIXME: endcap trouble due to non-parallel strips)

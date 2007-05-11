@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.10 $
- *  $Date: 2007/03/16 17:12:31 $
+ *  $Revision: 1.11.2.1 $
+ *  $Date: 2007/05/11 16:14:43 $
  *  (last update by $Author: flucke $)
  */
 
@@ -13,32 +13,50 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
 #include "Alignment/CommonAlignmentParametrization/interface/RigidBodyAlignmentParameters.h"
+
+#include "Alignment/TrackerAlignment/interface/TrackerAlignableId.h"
+// for 'type identification' as Alignable
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+#include "Alignment/MuonAlignment/interface/AlignableMuon.h"
+
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <fstream>
+#include <sstream>
 #include <algorithm>
 
 // from ROOT
 #include <TSystem.h>
 
-const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM;
+// NOTE: The '+4', is backward incompatible for results with older binary files...
+const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 4;
 const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
 
-PedeSteerer::PedeSteerer(Alignable *highestLevelAlignable, AlignmentParameterStore *store,
-			 const edm::ParameterSet &config) :
-  myParameterStore(store), myConfig(config)
+PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
+			 AlignmentParameterStore *store,
+			 const edm::ParameterSet &config, const std::string &defaultDir) :
+  myParameterStore(store), myConfig(config),
+  myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir"))
 {
+  // Correct directory before building maps:
+  if (myDirectory.empty()) myDirectory = defaultDir;
+  if (!myDirectory.empty() && myDirectory.find_last_of('/') != myDirectory.size() - 1) {
+    myDirectory += '/'; // directory may need '/'
+  }
 
-  this->buildMap(highestLevelAlignable); //has to be done first
-  const std::vector<Alignable*> &alis = myParameterStore->alignables();  
+  this->buildMap(aliTracker, aliMuon); //has to be done first
+  const std::vector<Alignable*> &alis = myParameterStore->alignables();
+
+  this->buildNoHierarchyMap(aliTracker, aliMuon, // before hierarchyConstraints(..)
+			    myConfig.getParameter<edm::ParameterSet>("noHierarchyConstraint"));
 
   const std::string nameFixFile(this->fileName("FixPara"));
   const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
@@ -160,6 +178,18 @@ Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
 }
 
 //_________________________________________________________________________
+const std::vector<char>& PedeSteerer::noHieraParamSel(const Alignable* ali) const
+{
+  AlignableSelVecMap::const_iterator iter = myNoHierarchyMap.find(ali);
+  if (iter != myNoHierarchyMap.end()) {
+    return (*iter).second;
+  } else {
+    static const std::vector<char> emptyParSel;
+    return emptyParSel;
+  }
+}
+
+//_________________________________________________________________________
 double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
 {
   return 1.; // mmh, otherwise would need to FIXME hierarchyConstraint...
@@ -187,15 +217,21 @@ double PedeSteerer::parameterSign() const
 }
 
 //_________________________________________________________________________
-unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
+unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli1, Alignable *highestLevelAli2)
 {
 
   myAlignableToIdMap.clear(); // just in case of re-use...
-  if (!highestLevelAli) return 0;
 
   std::vector<Alignable*> allComps;
-  allComps.push_back(highestLevelAli);
-  highestLevelAli->recursiveComponents(allComps);
+
+  if (highestLevelAli1) {
+    allComps.push_back(highestLevelAli1);
+    highestLevelAli1->recursiveComponents(allComps);
+  }
+  if (highestLevelAli2) {
+    allComps.push_back(highestLevelAli2);
+    highestLevelAli2->recursiveComponents(allComps);
+  }
 
   unsigned int id = theMinLabel;
   for (std::vector<Alignable*>::const_iterator iter = allComps.begin();
@@ -203,7 +239,7 @@ unsigned int PedeSteerer::buildMap(Alignable *highestLevelAli)
     myAlignableToIdMap.insert(AlignableToIdPair(*iter, id));
     id += theMaxNumParam;
   }
-
+  
   return allComps.size();
 }
 
@@ -222,6 +258,33 @@ unsigned int PedeSteerer::buildReverseMap()
   }
 
   return myIdToAlignableMap.size();
+}
+
+//_________________________________________________________________________
+void PedeSteerer::buildNoHierarchyMap(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
+				      const edm::ParameterSet &selPSet)
+{
+  myNoHierarchyMap.clear();  // just in case of re-use...
+
+  AlignmentParameterSelector noHieraSelector(aliTracker, aliMuon);
+  noHieraSelector.addSelections(selPSet);
+
+  // These two vectors are granted to be parallel:
+  const std::vector<Alignable*>& noHieraAlis = noHieraSelector.selectedAlignables();
+  const std::vector<std::vector<char> >& noHieraParSel = noHieraSelector.selectedParameters();
+
+  std::vector<Alignable*>::const_iterator iNoHieraAli = noHieraAlis.begin();
+  std::vector<std::vector<char> >::const_iterator iNoHieraParSel = noHieraParSel.begin();
+
+  while (iNoHieraAli != noHieraAlis.end() && iNoHieraParSel != noHieraParSel.end()) {
+    myNoHierarchyMap[*iNoHieraAli] = *iNoHieraParSel; // add paramsel with Alignable* as key
+    ++iNoHieraAli;
+    ++iNoHieraParSel;
+  }
+  if (!myNoHierarchyMap.empty()) {
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyMap"
+			      << myNoHierarchyMap.size() << " alignables to take out of hierarchy.";
+  }
 }
 
 //_________________________________________________________________________
@@ -295,7 +358,7 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
 
 //_________________________________________________________________________
 unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &alis,
-                                               const std::string &fileName)
+					       const std::string &fileName)
 {
   std::ofstream *filePtr = 0;
 
@@ -331,9 +394,10 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
 //_________________________________________________________________________
 void PedeSteerer::hierarchyConstraint(const Alignable *ali,
                                       const std::vector<Alignable*> &components,
-                                      std::ofstream &file) const
+				      std::ofstream &file) const
 {
   typedef AlignmentParameterStore::ParameterId ParameterId;
+  typedef std::vector<Alignable*>::size_type IndexType;
 
   std::vector<std::vector<ParameterId> > paramIdsVec;
   std::vector<std::vector<float> > factorsVec;
@@ -343,30 +407,42 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
   }
 
   for (unsigned int iConstr = 0; iConstr < paramIdsVec.size(); ++iConstr) {
-    if (true) { //debug
-      TrackerAlignableId aliId;
-      file << "\n* Nr. " << iConstr << " of " << aliId.alignableTypeName(ali) << " " 
-	   << this->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	   << ", layer " << aliId.typeAndLayerFromAlignable(ali).second
-	   << ", position " << ali->globalPosition()
-	   << ", r = " << ali->globalPosition().perp();
-    }
-    file << "\nConstraint   0.\n"; // in future 'Wconstraint'?
+    std::ostringstream aConstr;
+
     const std::vector<ParameterId> &parIds = paramIdsVec[iConstr];
     const std::vector<float> &factors = factorsVec[iConstr];
     // parIds.size() == factors.size() granted by myParameterStore->hierarchyConstraints
     for (unsigned int iParam = 0; iParam < parIds.size(); ++iParam) {
-      const unsigned int aliLabel = this->alignableLabel(parIds[iParam].first);
-      const unsigned int paramLabel = this->parameterLabel(aliLabel, parIds[iParam].second);
-      if (true) { // debug
-	file << "* for param " << parIds[iParam].second << " of " << aliLabel << "\n";
+      Alignable *aliSubComp = parIds[iParam].first;
+      const unsigned int compParNum = parIds[iParam].second;
+      const std::vector<char> &noParSel = this->noHieraParamSel(aliSubComp);
+//       if (noParSel.size() > compParNum) && noParSel[compParNum] != '0') { // FIXME: take full...
+      if (!noParSel.empty()) { //...object out, cf.  ...Algorithm::globalDerivativesHierarchy
+	if (0) aConstr << "* Taken out of hierarchy: "; // conflict with !aConstr.str().empty()
+	else continue;
       }
+      const unsigned int aliLabel = this->alignableLabel(aliSubComp);
+      const unsigned int paramLabel = this->parameterLabel(aliLabel, compParNum);
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
-      file << paramLabel << "    " << factors[iParam] << "\n";
+      aConstr << paramLabel << "    " << factors[iParam];
+      if (true) { // debug
+	aConstr << "   ! for param " << compParNum << " of " << aliLabel;
+      }
+      aConstr << "\n";
+    } // end loop on params
+
+    if (!aConstr.str().empty()) {
+      if (true) { //debug
+	TrackerAlignableId aliId;
+	file << "\n* Nr. " << iConstr << " of " << aliId.alignableTypeName(ali) << " " 
+	     << this->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
+	     << ", layer " << aliId.typeAndLayerFromAlignable(ali).second
+	     << ", position " << ali->globalPosition()
+	     << ", r = " << ali->globalPosition().perp();
+      }
+      file << "\nConstraint   0.\n" << aConstr.str(); // in future 'Wconstraint'?
     }
   } // end loop on constraints
-
-
 }
 
 //_________________________________________________________________________
@@ -374,9 +450,10 @@ std::ofstream* PedeSteerer::createSteerFile(const std::string &name, bool addToL
 {
   std::ofstream *result = new std::ofstream(name.c_str(), std::ios::out);
   if (!result || !result->is_open()) {
-    edm::LogError("Alignment") << "@SUB=PedeSteerer::createSteerFile"
-			       << "Could not open " << name << " as output file.";
-    delete result; // in case just open failed
+    delete result; // needed before exception in case just open failed
+    throw cms::Exception("FileOpenProblem") << "[PedeSteerer::createSteerFile]" 
+					    << "Could not open " << name 
+					    << " as output file.";
   } else if (addToList) {
     mySteeringFiles.push_back(name); // keep track
   }
@@ -389,23 +466,12 @@ std::ofstream* PedeSteerer::createSteerFile(const std::string &name, bool addToL
 std::string PedeSteerer::fileName(const std::string &addendum) const
 {
 
-  std::string name(this->directory());
+  std::string name(myDirectory);
   name += myConfig.getParameter<std::string>("steerFile");
   name += addendum;
   name += ".txt";
 
   return name;
-}
-
-//_________________________________________________________________________
-std::string PedeSteerer::directory() const 
-{
-  std::string dir(myConfig.getUntrackedParameter<std::string>("fileDir"));
-  if (!dir.empty() && dir.find_last_of('/') != dir.size() - 1) {
-    dir += '/'; // directory may need '/'
-  }
-
-  return dir;
 }
 
 //_________________________________________________________________________
@@ -462,7 +528,7 @@ bool PedeSteerer::runPede(const std::string &masterSteer) const
   const std::string dump(myConfig.getUntrackedParameter<std::string>("pedeDump"));
   if (!dump.empty()) {
     command += " > ";
-    command += this->directory() += dump;
+    (command += myDirectory) += dump;
   }
 
   edm::LogInfo("Alignment") << "@SUB=PedeSteerer::runPede" << "Start running " << command;
