@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/04/13 09:05:35 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/04/30 15:24:43 $
+ *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -141,7 +141,8 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
   setPropagator();
   
   if(TrackerBounds::isInside(tsos.globalPosition())){
-    
+    LogTrace(metname) << "Trajectory inside the Tracker";
+
     TSCPBuilderNoMaterial tscpBuilder;
     TrajectoryStateClosestToPoint tscp = tscpBuilder(*(tsos.freeState()),
 						     GlobalPoint(0.,0.,0.)); //FIXME Correct?
@@ -154,6 +155,8 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
 			       << " This can cause a severe bug.";
   }
   else{
+    LogTrace(metname) << "Trajectory inside the muon system";
+
     // Define a line using two 3D-points
     GlobalPoint p1(0.,0.,-1500);
     GlobalPoint p2(0.,0.,1500);

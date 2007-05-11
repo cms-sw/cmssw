@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/04/25 13:21:12 $
- *  $Revision: 1.46 $
+ *  $Date: 2007/05/04 18:12:29 $
+ *  $Revision: 1.47 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -319,6 +319,7 @@ pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& trajec
 
 
   // This is needed to extrapolate the tsos at vertex
+  LogTrace(metname) << "Propagate to PCA...";
   pair<bool,FreeTrajectoryState> 
     extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS);  
   FreeTrajectoryState ftsAtVtx;
