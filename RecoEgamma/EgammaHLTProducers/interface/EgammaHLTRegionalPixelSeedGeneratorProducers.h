@@ -17,10 +17,11 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "RecoTracker/TkSeedGenerator/interface/CombinatorialRegionalSeedGeneratorFromPixel.h"
 
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
+
+class SeedGeneratorFromRegionHits;
 
 class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 {
@@ -34,7 +35,7 @@ class EgammaHLTRegionalPixelSeedGeneratorProducers : public edm::EDProducer
 
  private:
   edm::ParameterSet conf_;
-  CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
+  SeedGeneratorFromRegionHits *combinatorialSeedGenerator;
   double ptmin_;
   double vertexz_;
   double originradius_;
