@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.1 $
-///  last update: $Date: 2007/05/02 11:57:00 $
-///  by         : $Author: fronga $
+///  Revision   : $Revision: 1.4 $
+///  last update: $Date: 2007/05/02 20:53:00 $
+///  by         : $Author: cklae $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -60,8 +60,9 @@
 
 //_____________________________________________________________________________
 AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
-  theAlignmentParameterStore(0), theAlignmentParameterBuilder(0),
-  theAlignableTracker(0),theAlignableMuon(0),
+  theAlignmentAlgo(0), theAlignmentParameterStore(0),
+  theAlignableTracker(0), theAlignableMuon(0),
+  nevent_(0), theParameterSet(iConfig),
   theMaxLoops( iConfig.getUntrackedParameter<unsigned int>("maxLoops",0) ),
   stNFixAlignables_(iConfig.getParameter<int>("nFixAlignables") ),
   stRandomShift_(iConfig.getParameter<double>("randomShift")),
@@ -74,8 +75,6 @@ AlignmentProducer::AlignmentProducer(const edm::ParameterSet& iConfig) :
 {
 
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::AlignmentProducer";
-
-  theParameterSet=iConfig;
 
   // Tell the framework what data is being produced
   if (doTracker_) {
@@ -117,7 +116,6 @@ AlignmentProducer::~AlignmentProducer()
 {
 
   if (theAlignmentParameterStore) delete theAlignmentParameterStore;
-  if (theAlignmentParameterBuilder) delete theAlignmentParameterBuilder;
 
   if (theAlignableTracker) delete theAlignableTracker;
   if (theAlignableMuon)    delete theAlignableMuon;
@@ -213,14 +211,14 @@ void AlignmentProducer::beginOfJob( const edm::EventSetup& iSetup )
                             << "Creating AlignmentParameterBuilder";
   edm::ParameterSet aliParamBuildCfg = 
     theParameterSet.getParameter<edm::ParameterSet>("ParameterBuilder");
-  theAlignmentParameterBuilder = new AlignmentParameterBuilder( theAlignableTracker,
-                                                                theAlignableMuon,
-                                                                aliParamBuildCfg );
+  AlignmentParameterBuilder alignmentParameterBuilder(theAlignableTracker,
+                                                      theAlignableMuon,
+                                                      aliParamBuildCfg );
   // Fix alignables if requested
-  if (stNFixAlignables_>0) theAlignmentParameterBuilder->fixAlignables(stNFixAlignables_);
+  if (stNFixAlignables_>0) alignmentParameterBuilder.fixAlignables(stNFixAlignables_);
 
   // Get list of alignables
-  Alignables theAlignables = theAlignmentParameterBuilder->alignables();
+  Alignables theAlignables = alignmentParameterBuilder.alignables();
   edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::beginOfJob" 
                             << "got " << theAlignables.size() << " alignables";
 
