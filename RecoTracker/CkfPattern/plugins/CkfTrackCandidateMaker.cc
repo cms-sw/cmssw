@@ -28,6 +28,8 @@
 #include "RecoTracker/CkfPattern/interface/SeedCleanerBySharedInput.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 
+#include "RecoTracker/TkNavigation/interface/NavigationSchoolFactory.h"
+
 using namespace edm;
 using namespace std;
 
@@ -58,8 +60,13 @@ namespace cms{
     // get nested parameter set for the TransientInitialStateEstimator
     ParameterSet tise_params = conf_.getParameter<ParameterSet>("TransientInitialStateEstimatorParameters") ;
     theInitialState          = new TransientInitialStateEstimator( es,tise_params);
-    theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
     theTrajectoryCleaner     = new TrajectoryCleanerBySharedHits();          
+
+    //theNavigationSchool      = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theMagField));
+    edm::ParameterSet NavigationPSet = conf_.getParameter<edm::ParameterSet>("NavigationPSet");
+    std::string navigationSchoolName = NavigationPSet.getParameter<std::string>("ComponentName");
+    theNavigationSchool = NavigationSchoolFactory::get()->create( navigationSchoolName, &(*theGeomSearchTracker), &(*theMagField));
+
 
     // set the correct navigation
     NavigationSetter setter( *theNavigationSchool);
