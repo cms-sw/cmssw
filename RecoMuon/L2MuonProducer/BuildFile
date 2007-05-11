@@ -3,12 +3,9 @@
 <use name=FWCore/ParameterSet>
 <use name=RecoMuon/TrackingTools>
 <use name=RecoMuon/StandAloneTrackFinder>
+<use name=DataFormats/RecoCandidate>
 
 <use name=CLHEP>
 <use name=root>
 
 <flags EDM_PLUGIN=1>
-
-<export>
-   <lib name=RecoMuonL2MuonProducer>
-</export>
