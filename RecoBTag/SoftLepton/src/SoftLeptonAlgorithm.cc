@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.12 2007/05/11 11:29:04 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.13 2007/05/11 11:47:15 fwyzard Exp $
 //
 
 // STL
@@ -87,7 +87,8 @@ SoftLeptonAlgorithm::tag(
   const GlobalVector chargedAxis = refineJetAxis( jet, tracks );
   double discriminant = 0.0;
 
-  reco::SoftLeptonTagInfo info( jet );
+  reco::SoftLeptonTagInfo info;
+  info.setJtRef( jet );
   
   for (unsigned int i = 0; i < leptons.size(); i++) {
     reco::TrackRef lepton = leptons[i];
