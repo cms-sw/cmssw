@@ -30,6 +30,8 @@ LBRecord::LBRecord(const RPCLinkBoardData & lbData) : DataRecord(0)
   theData |= (partitionData<<PARTITION_DATA_SHIFT);
 }
 
+LBRecord::LBRecord(RecordType lbData) : DataRecord(0) { theData = lbData; }
+
 RPCLinkBoardData LBRecord::lbData() const
 {
    
