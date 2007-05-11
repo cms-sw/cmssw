@@ -13,7 +13,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.23 2007/04/03 09:13:59 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.24 2007/05/10 14:56:36 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
@@ -93,7 +93,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
 
-  theMeasurementTracker->update(e);
+  theMeasurementTracker->updatePixels(e);
   
   NavigationSetter setter(*theNavigationSchool);
 
