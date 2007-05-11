@@ -1,9 +1,9 @@
 #ifndef BTauReco_JetCrystalsAssociation_h
 #define BTauReco_JetCrystalsAssociation_h
 // \class JetCrystalsAssociation
-// 
-// \short association of Ecal Crystals to jet 
-// 
+//
+// \short association of Ecal Crystals to jet
+//
 //
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -22,45 +22,42 @@ namespace reco {
   typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
   typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
 
-  /* silly workaround for a bug in ROOT's dictionaries:
-   * registering for autoload a class whose name is longer than 1035 characters causes a buffer overflow 
+  /* this triggers a bug in ROOM/CMSSW dictionaries:
+   * registering for autoload a class whose name is longer than 1035 characters causes a buffer overflow
+
   typedef
-    std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>  >
-    JetCrystalsAssociationCollection;
+    std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> JetCrystalsAssociationCollection;
+
   */
-        
-  struct JetCrystalsAssociationCollection : 
-    public std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> >
+
+  struct JetCrystalsAssociation :
+    public std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>
   {
-    typedef std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> > base_class;
+    typedef std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> base_class;
 
-    JetCrystalsAssociationCollection() :
+    JetCrystalsAssociation() :
       base_class() { }
-    
-    JetCrystalsAssociationCollection(size_type n) :
-      base_class(n) { }
-    
-    JetCrystalsAssociationCollection(size_type n, const value_type & t) :
-      base_class(n, t) { }
-    
-    JetCrystalsAssociationCollection(const base_class & v) :
-      base_class(v) { }
 
-    template <class InputIterator>
-    JetCrystalsAssociationCollection(InputIterator first, InputIterator last) :
-      base_class(first, last) { }
+    JetCrystalsAssociation(const base_class::first_type & first, const base_class::second_type & second) :
+     base_class(first, second) { }
+
+    JetCrystalsAssociation(const base_class & _pair) :
+      base_class(_pair) { }
+
+    JetCrystalsAssociation(const JetCrystalsAssociation & _pair) :
+      base_class(_pair) { }
   };
-    
+
   typedef
-  JetCrystalsAssociationCollection::value_type JetCrystalsAssociation;
-  
+  std::vector<JetCrystalsAssociation> JetCrystalsAssociationCollection;
+
   typedef
   edm::Ref<JetCrystalsAssociationCollection> JetCrystalsAssociationRef;
-  
+
   typedef
   edm::RefProd<JetCrystalsAssociationCollection> JetCrystalsAssociationRefProd;
-  
+
   typedef
-  edm::RefVector<JetCrystalsAssociationCollection> JetCrystalsAssociationRefVector; 
+  edm::RefVector<JetCrystalsAssociationCollection> JetCrystalsAssociationRefVector;
 }
 #endif
