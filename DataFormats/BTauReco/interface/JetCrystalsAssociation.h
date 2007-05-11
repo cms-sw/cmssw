@@ -21,10 +21,35 @@ namespace reco {
   typedef math::PtEtaPhiELorentzVectorRef        EMLorentzVectorRef;
   typedef math::PtEtaPhiELorentzVectorRefProd    EMLorentzVectorRefProd;
   typedef math::PtEtaPhiELorentzVectorRefVector  EMLorentzVectorRefVector;
-        
-  typedef 
-  std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>  >
+
+  /* silly workaround for a bug in ROOT's dictionaries:
+   * registering for autoload a class whose name is longer than 1035 characters causes a buffer overflow 
+  typedef
+    std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector>  >
     JetCrystalsAssociationCollection;
+  */
+        
+  struct JetCrystalsAssociationCollection : 
+    public std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> >
+  {
+    typedef std::vector<std::pair<edm::RefToBase<Jet>, EMLorentzVectorRefVector> > base_class;
+
+    JetCrystalsAssociationCollection() :
+      base_class() { }
+    
+    JetCrystalsAssociationCollection(size_type n) :
+      base_class(n) { }
+    
+    JetCrystalsAssociationCollection(size_type n, const value_type & t) :
+      base_class(n, t) { }
+    
+    JetCrystalsAssociationCollection(const base_class & v) :
+      base_class(v) { }
+
+    template <class InputIterator>
+    JetCrystalsAssociationCollection(InputIterator first, InputIterator last) :
+      base_class(first, last) { }
+  };
     
   typedef
   JetCrystalsAssociationCollection::value_type JetCrystalsAssociation;
