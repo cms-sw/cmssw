@@ -97,7 +97,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       toGlobal((*(HitTriplets[it].middle())).localPosition());
 
     GlobalPoint outer = tracker->idToDet((*(HitTriplets[it].outer())).geographicalId())->surface().
-      toGlobal((*(HitTriplets[it].inner())).localPosition());   
+      toGlobal((*(HitTriplets[it].outer())).localPosition());   
 
     // TransientTrackingRecHit::ConstRecHitPointer outrhit=TTTRHBuilder->build(HitPairs[is].outer())
 
