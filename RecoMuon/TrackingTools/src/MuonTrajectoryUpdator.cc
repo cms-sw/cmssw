@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/04/27 14:55:16 $
+ *  $Revision: 1.24 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -75,6 +75,11 @@ MuonTrajectoryUpdator::~MuonTrajectoryUpdator(){
   delete theEstimator;
   delete theUpdator;
 }
+
+void MuonTrajectoryUpdator::makeFirstTime(){
+  theFirstTSOSFlag = true;
+}
+
 
 pair<bool,TrajectoryStateOnSurface> 
 MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,

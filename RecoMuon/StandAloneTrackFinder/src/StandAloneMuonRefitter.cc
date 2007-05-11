@@ -1,8 +1,8 @@
 /** \class StandAloneMuonRefitter
  *  The inward-outward fitter (starts from seed state).
  *
- *  $Date: 2007/02/16 13:31:23 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/04/27 14:55:16 $
+ *  $Revision: 1.34 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -119,6 +119,8 @@ void StandAloneMuonRefitter::reset(){
   totalChambers = dtChambers = cscChambers = rpcChambers = 0;
   
   theLastUpdatedTSOS =  theLastButOneUpdatedTSOS = TrajectoryStateOnSurface();
+
+  theMuonUpdator->makeFirstTime();
 
   theDetLayers.clear();
 }
