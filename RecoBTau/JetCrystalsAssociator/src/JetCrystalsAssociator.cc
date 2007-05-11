@@ -73,8 +73,9 @@ class JetCrystalsAssociator : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
-     JetCrystalsAssociationCollection * associate( const edm::Handle<CaloJetCollection> & jets,
-						   const edm::OrphanHandle<EMLorentzVectorCollection>   & myLorentzRecHits) const;
+      std::auto_ptr<JetCrystalsAssociationCollection> associate( 
+          const edm::Handle<CaloJetCollection> & jets,
+	  const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const;
 
 
   // ----------member data ---------------------------
@@ -136,19 +137,19 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEB", EBRecHits );
    iEvent.getByLabel( "ecalRecHit", "EcalRecHitsEE", EERecHits );
    
-   EMLorentzVectorCollection*  myLorentzRecHits = new EMLorentzVectorCollection();
+   std::auto_ptr<EMLorentzVectorCollection> jetRecHits( new EMLorentzVectorCollection() );
    //loop on jets and associate
-  for (size_t t = 0; t < jets->size(); t++)
+   for (size_t t = 0; t < jets->size(); t++)
     {
       const std::vector<CaloTowerRef>  myTowers=(*jets)[t].getConstituents();
       //      cout <<"Jet id "<<t<<endl;
       //      cout <<"Tower size "<<myTowers.size()<<endl;
-      for(int iTower = 0; iTower < myTowers.size();iTower++)
+      for (unsigned int iTower = 0; iTower < myTowers.size(); iTower++)
 	{
 	  CaloTowerRef theTower = myTowers[iTower];
 	  size_t numRecHits = theTower->constituentsSize();
 	// access CaloRecHits
-	for(size_t j = 0; j <numRecHits ; j++) {
+	for (size_t j = 0; j < numRecHits; j++) {
 	  DetId RecHitDetID=theTower->constituent(j);
 	  DetId::Detector DetNum=RecHitDetID.det();
 	  if( DetNum == DetId::Ecal ){
@@ -159,38 +160,36 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
 		const CaloCellGeometry* this_cell = EB->getGeometry(id);
-		if(!this_cell){
-		}else{
+		if (this_cell) {
 		  GlobalPoint posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
-		  		  double eta = posi.eta();
+		  double eta = posi.eta();
 		  double phi = posi.phi();
 		  double theta = posi.theta();
-		  if(theta > 3.14159) theta = 2*3.14159 - theta;
+		  if(theta > M_PI) theta = 2 * M_PI- theta;
 		  double et = energy * sin(theta);
-		  //		    cout <<"Et "<<et<<endl;
+		  // cout <<"Et "<<et<<endl;
 		  EMLorentzVector p(et, eta, phi, energy);
-		  myLorentzRecHits->push_back(p);
+		  jetRecHits->push_back(p);
 		}
 	      }
-	    }else if(  EcalNum == 2 ){
+	    } else if ( EcalNum == 2 ) {
 	      EEDetId EcalID = RecHitDetID;
 	      EERecHitCollection::const_iterator theRecHit=EERecHits->find(EcalID);	    
 	      if(theRecHit != EBRecHits->end()){
 		DetId id = theRecHit->detid();
 		const CaloCellGeometry* this_cell = EE->getGeometry(id);
-		if(!this_cell){
-		}else{
+		if (this_cell) {
 		  GlobalPoint posi = this_cell->getPosition();
-		  		  double energy = theRecHit->energy();
+		  double energy = theRecHit->energy();
 		  double eta = posi.eta();
 		  double phi = posi.phi();
 		  double theta = posi.theta();
-		  if(theta > 3.14159) theta = 2*3.14159 - theta;
+		  if (theta > M_PI) theta = 2 * M_PI - theta;
 		  double et = energy * sin(theta);
-		  //		  		  cout <<"Et "<<et<<endl;
+		  // cout <<"Et "<<et<<endl;
 		  EMLorentzVector p(et, eta, phi, energy);
-		  myLorentzRecHits->push_back(p);
+		  jetRecHits->push_back(p);
 		}
 	      }
 	    }
@@ -199,32 +198,28 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
 
+  edm::OrphanHandle <reco::EMLorentzVectorCollection> myRecHits = iEvent.put(jetRecHits);
 
-
-  std::auto_ptr<EMLorentzVectorCollection> jetRecHits(myLorentzRecHits);
-  edm::OrphanHandle <reco::EMLorentzVectorCollection >  myRecHits =  iEvent.put(jetRecHits);
-  //  iEvent.put(jetRecHits);
-
-  std::auto_ptr<JetCrystalsAssociationCollection> jetCrystals(associate(jets,myRecHits));
-  iEvent.put(jetCrystals);
+  std::auto_ptr<JetCrystalsAssociationCollection> jetCrystals = associate(jets,myRecHits);
+  iEvent.put( jetCrystals );
 }
 
-JetCrystalsAssociationCollection * JetCrystalsAssociator::associate( const edm::Handle<CaloJetCollection> & jets,
-                                                                 const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits  ) const
+std::auto_ptr<JetCrystalsAssociationCollection> JetCrystalsAssociator::associate( 
+        const edm::Handle<CaloJetCollection> & jets,
+        const edm::OrphanHandle<EMLorentzVectorCollection> & myLorentzRecHits) const
 {
-  JetCrystalsAssociationCollection * outputCollection = new JetCrystalsAssociationCollection();
+  // we know we will save an element per input jet
+  std::auto_ptr<JetCrystalsAssociationCollection> outputCollection( new JetCrystalsAssociationCollection( jets->size() ) );
 
   //loop on jets and associate
-  for (size_t j = 0; j < jets->size(); j++)
-    {
-      for (size_t t =0 ; t < myLorentzRecHits->size();t++)
-	{
-	  
-	  double delta  = ROOT::Math::VectorUtil::DeltaR((*jets)[j].p4().Vect(), (*myLorentzRecHits)[t]);
-	  if(delta < m_deltaRCut)
-	    outputCollection->insert(edm::Ref<CaloJetCollection>(jets, j), edm::Ref<EMLorentzVectorCollection>(myLorentzRecHits, t));
-	}
-    }  
+  for (size_t j = 0; j < jets->size(); j++) {
+    (*outputCollection)[j].first = edm::RefToBase<Jet>(CaloJetRef(jets, j));
+    for (size_t t = 0; t < myLorentzRecHits->size(); t++) {
+      double delta = ROOT::Math::VectorUtil::DeltaR((*jets)[j].p4().Vect(), (*myLorentzRecHits)[t]);
+      if (delta < m_deltaRCut)
+        (*outputCollection)[j].second.push_back( EMLorentzVectorRef(myLorentzRecHits, t) );
+    }
+  }  
   return outputCollection;
 }
 
