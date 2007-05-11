@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.13 2007/04/23 18:33:32 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.14 2007/04/30 21:00:40 wsun Exp $
 //
 
 // system include files
@@ -48,6 +48,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_SingleEG25",
    "A_SingleJet15",
    "A_SingleJet20",
+   "A_SingleJet30",
    "A_SingleJet50",
    "A_SingleJet100",
    "A_SingleJet150",
@@ -71,7 +72,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_DoubleMu3",
    "A_DoubleIsoEG10",
    "A_DoubleEG5",
-   "A_DoubleEG20",
+   "A_DoubleEG15",
    "A_DoubleJet100",
    "A_DoubleTauJet20",
    "A_DoubleTauJet30",
@@ -85,6 +86,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_Mu7_TauJet30",
    "A_IsoEG10_EG10",
    "A_IsoEG10_Jet15",
+   "A_IsoEG10_Jet30",
    "A_IsoEG15_Jet20",
    "A_IsoEG15_Jet100",
    "A_IsoEG10_TauJet20",
@@ -125,7 +127,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_DoubleEG10_ETM20",
    "A_DoubleJet50_ETM20",
    "A_DoubleTauJet40_ETM20",
-   "A_QuadJet20",
+   "A_QuadJet30",
    "A_MinBias_HTT10",
    "A_ZeroBias"
 } ;

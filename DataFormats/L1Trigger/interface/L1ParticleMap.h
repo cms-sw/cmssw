@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.16 2007/04/23 18:33:31 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.17 2007/04/30 21:00:39 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.17  2007/04/30 21:00:39  wsun
+// QuadJet50 -> QuadJet20
+//
 // Revision 1.16  2007/04/23 18:33:31  wsun
 // Another iteration of the L1 trigger table.
 //
@@ -119,6 +122,7 @@ namespace l1extra {
 	    kSingleEG25,
 	    kSingleJet15,
 	    kSingleJet20,
+	    kSingleJet30,
 	    kSingleJet50,
 	    kSingleJet100,
 	    kSingleJet150,
@@ -142,7 +146,7 @@ namespace l1extra {
 	    kDoubleMu3,
 	    kDoubleIsoEG10,
 	    kDoubleEG5,
-	    kDoubleEG20,
+	    kDoubleEG15,
 	    kDoubleJet100,
 	    kDoubleTauJet20,
 	    kDoubleTauJet30,
@@ -156,6 +160,7 @@ namespace l1extra {
 	    kMu7_TauJet30,
 	    kIsoEG10_EG10,
 	    kIsoEG10_Jet15,
+	    kIsoEG10_Jet30,
 	    kIsoEG15_Jet20,
 	    kIsoEG15_Jet100,
 	    kIsoEG10_TauJet20,
@@ -196,7 +201,7 @@ namespace l1extra {
 	    kDoubleEG10_ETM20,
 	    kDoubleJet50_ETM20,
 	    kDoubleTauJet40_ETM20,
-	    kQuadJet20,
+	    kQuadJet30,
 	    kMinBias_HTT10,
 	    kZeroBias,
 	    kNumOfL1TriggerTypes
