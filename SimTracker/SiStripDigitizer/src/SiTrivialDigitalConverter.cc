@@ -35,7 +35,7 @@ SiTrivialDigitalConverter::convert(const signal_map_type& analogSignal, edm::ESH
   for ( signal_map_type::const_iterator i=analogSignal.begin(); 
 	i!=analogSignal.end(); i++) {
     float gainFactor  = (gainHandle.isValid()) ? gainHandle->getStripGain((*i).first, detGainRange) : 1;
-    edm::LogInfo("SiTrivialDigitalConverter : Gain factor =") << gainFactor <<std::endl;
+    //    edm::LogInfo("SiTrivialDigitalConverter : Gain factor =") << gainFactor <<std::endl;
 
 
     // convert analog amplitude to digital
