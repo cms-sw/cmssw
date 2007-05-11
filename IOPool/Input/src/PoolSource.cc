@@ -1,9 +1,10 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.1 2007/04/16 19:43:52 wmtan Exp $
+$Id: PoolSource.cc,v 1.48 2007/05/08 16:24:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
 #include "RootTree.h"
+#include "SealBase/Error.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
@@ -85,8 +86,14 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-    if (filePtr != 0) filePtr->Close();
+    try {
+      TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
+      if (filePtr != 0) filePtr->Close();
+    }
+    catch (seal::Error& e) {
+      std::string errorMsg = "File '" + file.fileName() + "' is not found or could not be opened.\n" + e.explainSelf();
+      throw edm::Exception(edm::errors::NotFound, "PoolSource::PoolSource()") << errorMsg;
+    }
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
