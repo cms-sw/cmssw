@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/09 21:48:10 $
- *  $Revision: 1.38 $
+ *  $Date: 2007/05/10 08:58:04 $
+ *  $Revision: 1.39 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.38 2007/05/09 21:48:10 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.39 2007/05/10 08:58:04 slava77 Exp $
 //
 //
 
@@ -21,6 +21,8 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
+#include "MagneticField/Interpolation/interface/MFGrid.h"
+
 #include "Utilities/Timing/interface/TimingReport.h"
 
 #include "DataFormats/GeometrySurface/interface/Cylinder.h"
@@ -56,9 +58,11 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
   noErrorPropagation_ = false;
   applyRadX0Correction_ = false;
   useMagVolumes_ = true;
+  useIsYokeFlag_ = true;
   useMatVolumes_ = true;
   returnTangentPlane_ = true;
   sendLogWarning_ = false;
+  useTuningForL2Speed_ = false;
   for (int i = 0; i <= MAX_POINTS; i++){
     svBuf_[i].cov = AlgebraicSymMatrix66();
     svBuf_[i].matDCov = AlgebraicSymMatrix66();
@@ -272,18 +276,11 @@ void SteppingHelixPropagator::setIState(const SteppingHelixStateInfo& sStart) co
     svBuf_[cIndex_(nPoints_)] = sStart;
     nPoints_++;
   } else {
-    setIState(sStart.p3, sStart.r3, sStart.q, sStart.cov,
+    loadState(svBuf_[cIndex_(nPoints_)], sStart.p3, sStart.r3, sStart.q, sStart.cov,
 	      propagationDirection());
+    nPoints_++;
   }
   svBuf_[cIndex_(0)].hasErrorPropagated_ = sStart.hasErrorPropagated_ & !noErrorPropagation_;
-}
-
-void SteppingHelixPropagator::setIState(const SteppingHelixPropagator::Vector& p3, 
-					const SteppingHelixPropagator::Point& r3, int charge, 
-					const AlgebraicSymMatrix66& cov, PropagationDirection dir) const {
-  nPoints_ = 0;
-  loadState(svBuf_[cIndex_(nPoints_)], p3, r3, charge, cov, dir);
-  nPoints_++;
 }
 
 SteppingHelixPropagator::Result 
@@ -342,6 +339,16 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     double curZ = svCurrent->r3.z();
     double curR = svCurrent->r3.perp();
     if ( fabs(curZ) < 440 && curR < 260) dStep = defaultStep_*2;
+
+    //more such ifs might be scattered around
+    //even though dStep is large, it will still make stops at each volume boundary
+    if (useTuningForL2Speed_){
+      dStep = 100.;
+      if (! useIsYokeFlag_ && fabs(curZ) < 667 && curR > 380 && curR < 850){
+	dStep = 5*(1+0.2*svCurrent->p3.mag());
+      }
+    }
+
     //    refDirection = propagationDirection();
 
     tanDistNextCheck -= oldDStep;
@@ -559,7 +566,6 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   svCurrent.path_ = 0; // this could've held the initial path
   svCurrent.radPath = 0;
 
-  GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
   GlobalPoint gPointNegZ(svCurrent.r3.x(), svCurrent.r3.y(), -fabs(svCurrent.r3.z()));
 
   GlobalVector bf;
@@ -567,6 +573,14 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   if (useMagVolumes_){
     if (vbField_ ){
       svCurrent.magVol = vbField_->findVolume(gPointNegZ);
+      if (useIsYokeFlag_){
+	double curRad = svCurrent.r3.perp();
+	if (curRad > 380 && curRad < 850 && fabs(svCurrent.r3.z()) < 667){
+	  svCurrent.isYokeVol = isYokeVolume(svCurrent.magVol);
+	} else {
+	  svCurrent.isYokeVol = false;
+	}
+      }
     } else {
       edm::LogWarning(metname)<<"Failed to cast into VolumeBasedMagneticField: fall back to the default behavior"<<std::endl;
       svCurrent.magVol = 0;
@@ -578,12 +592,13 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   
   if (useMagVolumes_ && svCurrent.magVol != 0){
     bf = svCurrent.magVol->inTesla(gPointNegZ);
-    if (gPoint.z() > 0){
+    if (r3.z() > 0){
       svCurrent.bf.set(-bf.x(), -bf.y(), bf.z());
     } else {
       svCurrent.bf.set(bf.x(), bf.y(), bf.z());
     }
   } else {
+    GlobalPoint gPoint(r3.x(), r3.y(), r3.z());
     bf = field_->inTesla(gPoint);
     svCurrent.bf.set(bf.x(), bf.y(), bf.z());
   }
@@ -638,6 +653,14 @@ void SteppingHelixPropagator::getNextState(const SteppingHelixPropagator::StateI
   if (useMagVolumes_){
     if (vbField_ != 0){
       svNext.magVol = vbField_->findVolume(gPointNegZ);
+      if (useIsYokeFlag_){
+	double curRad = svNext.r3.perp();
+	if (curRad > 380 && curRad < 850 && fabs(svNext.r3.z()) < 667){
+	  svNext.isYokeVol = isYokeVolume(svNext.magVol);
+	} else {
+	  svNext.isYokeVol = false;
+	}
+      }
     } else {
       LogTrace(metname)<<"Failed to cast into VolumeBasedMagneticField"<<std::endl;
       svNext.magVol = 0;
@@ -1200,11 +1223,16 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
   }
   else {
     if (lZ < 667) {
-      double bMag = sv.bf.mag();
       if (lR < 850){
-	if (bMag > 0.75 && ! (lZ > 500 && lR <500 && bMag < 1.15)
-	    && ! (lZ < 450 && lR > 420 && bMag < 1.15 ) )
-	  { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
+	bool isIron = false;
+	if (useIsYokeFlag_ && useMagVolumes_){
+	  isIron = sv.isYokeVol;
+	} else {
+	  double bMag = sv.bf.mag();
+	  isIron = (bMag > 0.75 && ! (lZ > 500 && lR <500 && bMag < 1.15)
+		    && ! (lZ < 450 && lR > 420 && bMag < 1.15 ) );
+	}
+	if (isIron) { dEdx = dEdX_Fe; radX0 = radX0_Fe; }//iron
 	else { dEdx = dEdX_MCh; radX0 = radX0_MCh; }
       } else {dEdx = 0; radX0 = radX0_Air; }
     } 
@@ -1728,3 +1756,26 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 }
 
 
+bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
+  static const std::string metname = "SteppingHelixPropagator";
+  const MFGrid* mGrid = reinterpret_cast<const MFGrid*>(vol->provider());
+  std::vector<int> dims(mGrid->dimensions());
+  
+  LocalVector lVCen(mGrid->nodeValue(dims[0]/2, dims[1]/2, dims[2]/2));
+  LocalVector lVZLeft(mGrid->nodeValue(dims[0]/2, dims[1]/2, dims[2]/5));
+  LocalVector lVZRight(mGrid->nodeValue(dims[0]/2, dims[1]/2, (dims[2]*4)/5));
+
+  double mag2VCen = lVCen.mag2();
+  double mag2VZLeft = lVZLeft.mag2();
+  double mag2VZRight = lVZRight.mag2();
+
+  bool result = false;
+  if (mag2VCen > 0.6 && mag2VZLeft > 0.6 && mag2VZRight > 0.6){
+    if (debug_) LogTrace(metname)<<"Volume is magnetic, located at "<<vol->position()<<std::endl;    
+    result = true;
+  } else {
+    if (debug_) LogTrace(metname)<<"Volume is not magnetic, located at "<<vol->position()<<std::endl;
+  }
+
+  return result;
+}

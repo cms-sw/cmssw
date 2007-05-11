@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/04/30 20:38:58 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/30 23:14:14 $
+ *  $Revision: 1.7 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.6 2007/04/30 20:38:58 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.7 2007/04/30 23:14:14 slava77 Exp $
 //
 //
 
@@ -18,6 +18,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
+#include "TrackingTools/AnalyticalJacobians/interface/JacobianCartesianToCurvilinear.h"
 
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
@@ -49,8 +50,17 @@ SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
 
 TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf, bool returnTangentPlane) const {
   if (! isValid()) return TrajectoryStateOnSurface();
-  FreeTrajectoryState fts;
-  getFreeState(fts);
+  GlobalVector p3GV(p3.x(), p3.y(), p3.z());
+  GlobalPoint r3GP(r3.x(), r3.y(), r3.z());
+  GlobalTrajectoryParameters tPars(r3GP, p3GV, q, field);
+  CartesianTrajectoryError tCov(cov);
+
+  CurvilinearTrajectoryError tCCov(ROOT::Math::Similarity(JacobianCartesianToCurvilinear(tPars).jacobian(), cov));
+
+  FreeTrajectoryState fts(tPars, tCov, tCCov);
+  if (cov.kRows != 6) fts = FreeTrajectoryState(tPars);
+  //  if (fts.hasError()) fts.curvilinearError(); //call it so it gets created
+  //equivalent to  getFreeState(fts);
 
   return TrajectoryStateOnSurface(fts, returnTangentPlane ? *surf.tangentPlane(fts.position()) : surf);
 }

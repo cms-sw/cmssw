@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/04/30 23:14:06 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/05/10 17:43:04 $
+ *  $Revision: 1.21 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.20 2007/04/30 23:14:06 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.21 2007/05/10 17:43:04 slava77 Exp $
 //
 //
 
@@ -166,14 +166,18 @@ class SteppingHelixPropagator : public Propagator {
   //! flag to send LogWarning on failures
   void setSendLogWarning(bool val){ sendLogWarning_ = val;}
 
+  //! (temporary?) flag to identify if the volume is yoke based on MagVolume internals
+  //! works if useMatVolumes_ is also true
+  void setUseIsYokeFlag(bool val){ useIsYokeFlag_ = val;}
+
+  //! will use bigger steps ~tuned for good-enough L2/Standalone reco
+  //! use this in hope of a speed-up
+  void setUseTuningForL2Speed(bool val){ useTuningForL2Speed_ = val;}
+
  protected:
   typedef SteppingHelixStateInfo::VolumeBounds MatBounds;
   //! (Internals) Init starting point
   void setIState(const SteppingHelixStateInfo& sStart) const;
-  void setIState(const SteppingHelixPropagator::Vector& p3, 
-		 const SteppingHelixPropagator::Point& r3, 
-		 int charge, const AlgebraicSymMatrix66& cov, 
-		 PropagationDirection dir = alongMomentum) const;
 
   //! propagate: chose stop point by type argument
   //! propagate to fixed radius [ r = sqrt(x**2+y**2) ] with precision epsilon
@@ -232,6 +236,10 @@ class SteppingHelixPropagator : public Propagator {
 			double& dist, double& tanDist,
 			double fastSkipDist = 1e12) const;
 
+  //! check if it's a yoke/iron based on this MagVol internals  
+  bool isYokeVolume(const MagVolume* vol) const;
+
+
  private:
   typedef std::pair<TrajectoryStateOnSurface, double> TsosPP;
   typedef std::pair<FreeTrajectoryState, double> FtsPP;
@@ -253,9 +261,11 @@ class SteppingHelixPropagator : public Propagator {
   bool noErrorPropagation_;
   bool applyRadX0Correction_;
   bool useMagVolumes_;
+  bool useIsYokeFlag_;
   bool useMatVolumes_;
   bool returnTangentPlane_;
   bool sendLogWarning_;
+  bool useTuningForL2Speed_;
 
   double defaultStep_;
 };
