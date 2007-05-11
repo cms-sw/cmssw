@@ -1321,7 +1321,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
   const MagneticField & magfield_ (*magfield);
   magfield2_ = &magfield_;
 
-  //StripCPE stripcpe(conf_,&magfield_,tracker2);
+  StripCPE stripcpe(conf_,&magfield_,tracker2);
 
 
   // Mangano's
@@ -1555,7 +1555,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	    Mposition = topol.measurementPosition(position);
 	    Merror = topol.measurementError(position,error);
 
-	    LocalVector drift= driftDirection(stripdet);
+	    //LocalVector drift= driftDirection(stripdet);
+	    LocalVector drift = stripcpe.driftDirection(stripdet);
 	    float thickness=stripdet->surface().bounds().thickness();
 	    rechitrphithickness = thickness;
 
@@ -1672,7 +1673,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      Mposition = topol.measurementPosition(position);
 	      Merror = topol.measurementError(position,error);
 
-	      LocalVector drift= driftDirection(stripdet);
+	      //LocalVector drift= driftDirection(stripdet);
+	      LocalVector drift = stripcpe.driftDirection(stripdet);
 	      float thickness=stripdet->surface().bounds().thickness();
 	      rechitsasthickness = thickness;
 	      //cout<<"thickness = "<<thickness<<endl;
@@ -1797,7 +1799,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	  Mposition = topol.measurementPosition(position);
 	  Merror = topol.measurementError(position,error);
 
-	  LocalVector drift= driftDirection(stripdet);
+	  //LocalVector drift= driftDirection(stripdet);
+	  LocalVector drift = stripcpe.driftDirection(stripdet);
 	  //LocalVector driftcpe = stripcpe.driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitrphithickness = thickness;
@@ -1972,7 +1975,8 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
           Mposition = topol.measurementPosition(position);
           Merror = topol.measurementError(position,error);
 
-	  LocalVector drift= driftDirection(stripdet);
+	  //	  LocalVector drift= driftDirection(stripdet);
+	  LocalVector drift = stripcpe.driftDirection(stripdet);
 	  float thickness=stripdet->surface().bounds().thickness();
 	  rechitsasthickness = thickness;
 	  //cout<<"thickness = "<<thickness<<endl;
@@ -2791,20 +2795,3 @@ std::pair<LocalPoint,LocalVector> SiStripTrackingRecHitsValid::projectHit( const
   
   return std::pair<LocalPoint,LocalVector>( projectedPos, localStripDir);
 }
-
-LocalVector SiStripTrackingRecHitsValid::driftDirection(const StripGeomDetUnit* det)const{
-
-   LocalVector lbfield=(det->surface()).toLocal(magfield2_->inTesla(det->surface().position()));
-   //cout<<"SiStripTrackingRecHitsValid::driftDirection:lbfield.y() = "<<lbfield.y()<<endl;
-
-   //GlobalVector vec = magfield2_->inTesla(det->surface().position());
-   //   float MAG = sqrt((vec.x()*vec.x()+vec.y()*vec.y()+vec.z()*vec.z()));
-   //cout<<"MAG = "<<MAG<<endl;
-   float theTanLorentzAnglePerTesla_ = 0.032;
-   float dir_x = theTanLorentzAnglePerTesla_ * lbfield.y();
-   float dir_y = -theTanLorentzAnglePerTesla_ * lbfield.x();
-   float dir_z = 1.; // E field always in z direction
-   LocalVector drift = LocalVector(dir_x,dir_y,dir_z);
-  return drift;
-}
-
