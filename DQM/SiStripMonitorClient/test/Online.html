@@ -247,21 +247,25 @@
                          checked>
                          Modules
                   </input>
-                  <select name="mod_num" 
-                        id="module_numbers"
-                        style="width:30%;"
-                        onmouseover="ddrivetip('Module Numbers present in the setup', '#EAFFF9', 120);"
-                        onmouseout="hideddrivetip();"
+                  <select name="mod_num"
+                    id="module_numbers"
+                    style="margin-left:2%;position:absolute;z-index:0;width:120px;clip:rect(0px,120px,22px,100px);"
+                    onChange="SetSelectedValue();">
                   </select>
+                  <input type="text"
+                     name="mod_num_edit"
+                     id="module_number_edit"
+                     style="margin-left:2%;position:absolute;z-index:1000;width:100px;">
+                  </input>
                   <input name="listhisto" 
                         id="list_histos"
                         value="Get Histo List" 
-                        style="margin-left:2%;margin-top:2%"
+                        style="margin-left:0%;margin-top:-4%;float:right;"
                         onmouseover="ddrivetip('Get list of histograms for selected choice','#EAFFF9',200);"
                         onmouseout="hideddrivetip();"
                         onClick="RequestHistoList()" 
                         type="submit">
-                    </input>
+                  </input>
 	        </fieldset>
               </div>
               <div class="bloc" id="bloc2_3_2">
