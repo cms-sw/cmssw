@@ -2,6 +2,7 @@
 #define TopObjects_BestMatching_h
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h" // Andrea
 
 inline double theta(double eta) {
   return 2*atan(exp(-eta));
@@ -78,6 +79,54 @@ inline vector<double> BestMatch(TtSemiEvtSolution &sol, bool useSpaceAngle) {
   output.push_back(dRHadqq);
   output.push_back(dRHadb);
   output.push_back(dRLepb);
+  return output;
+}
+
+inline vector<double> BestMatch(StEvtSolution &sol, bool useSpaceAngle) { // Andrea
+  vector<double> output;
+  output.clear(); 
+  double dRBB, dRLL, dRBL, dRLB;
+  if (useSpaceAngle) {
+    dRBB = deltaSpA(sol.getGenBottom().theta(),sol.getGenBottom().phi(), 
+    		       sol.getCalBottom().theta(),sol.getCalBottom().phi());
+    dRLL = deltaSpA(sol.getGenLight().theta(),sol.getGenLight().phi(), 
+    		       sol.getCalLight().theta(),sol.getCalLight().phi());
+    dRBL = deltaSpA(sol.getGenBottom().theta(),sol.getGenBottom().phi(), 
+    		       sol.getCalLight().theta(),sol.getCalLight().phi());
+    dRLB = deltaSpA(sol.getGenLight().theta(),sol.getGenLight().phi(), 
+    		       sol.getCalBottom().theta(),sol.getCalBottom().phi());
+  } else {
+    dRBB = deltaSpA(sol.getGenBottom().eta(),sol.getGenBottom().phi(), 
+    		       sol.getCalBottom().eta(),sol.getCalBottom().phi());
+    dRLL = deltaSpA(sol.getGenLight().eta(),sol.getGenLight().phi(), 
+    		       sol.getCalLight().eta(),sol.getCalLight().phi());
+    dRBL = deltaSpA(sol.getGenBottom().eta(),sol.getGenBottom().phi(), 
+    		       sol.getCalLight().eta(),sol.getCalLight().phi());
+    dRLB = deltaSpA(sol.getGenLight().eta(),sol.getGenLight().phi(), 
+    		       sol.getCalBottom().eta(),sol.getCalBottom().phi());
+    /*
+    dRHadpp  =  deltaR(sol.getGenHadp().eta(),sol.getGenHadp().phi(), 
+    		       sol.getCalHadp().eta(),sol.getCalHadp().phi());
+    dRHadqq  =  deltaR(sol.getGenHadq().eta(),sol.getGenHadq().phi(), 
+    		       sol.getCalHadq().eta(),sol.getCalHadq().phi());
+    dRHadpq  =  deltaR(sol.getGenHadp().eta(),sol.getGenHadp().phi(), 
+    		       sol.getCalHadq().eta(),sol.getCalHadq().phi());
+    dRHadqp  =  deltaR(sol.getGenHadq().eta(),sol.getGenHadq().phi(), 
+    		       sol.getCalHadp().eta(),sol.getCalHadp().phi());
+    dRHadb   =  deltaR(sol.getGenHadb().eta(),sol.getGenHadb().phi(), 
+    		       sol.getCalHadb().eta(),sol.getCalHadb().phi());
+    dRLepb   =  deltaR(sol.getGenLepb().eta(),sol.getGenLepb().phi(), 
+    		       sol.getCalLepb().eta(),sol.getCalLepb().phi());
+    */
+  }
+  Int_t change = 0;
+  double totDR1 = dRBB + dRLL;
+  double totDR2 = dRBL + dRLB;
+  if (totDR1 > totDR2) {totDR1 = totDR2; change = 1; dRBB=dRBL; dRLL =dRLB;};  
+  output.push_back(totDR1);
+  output.push_back(change*1.);
+  output.push_back(dRBB);
+  output.push_back(dRLL);
   return output;
 }
 
