@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.56 2007/03/27 17:23:03 rpw Exp $
+ * $Id: pset_parse.y,v 1.57 2007/04/27 19:54:08 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -944,6 +944,17 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                  }
                | */
                  namedmodule LETTERSTART_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: MODULE");
+                   string type(toString($<str>1));
+                   string name(toString($<str>2));
+                   string classname(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
+                   $<_Node>$ = wn;
+                 } 
+               |
+                 namedmodule SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
                  {
                    DBPRINT("procnode: MODULE");
                    string type(toString($<str>1));
