@@ -34,7 +34,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 {
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "Initializing PV producer algorithm" << "\n";
-  //float testMaxDistanceToBeam = conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam");
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PVSelParameters::maxDistanceToBeam = " 
     << conf.getParameter<edm::ParameterSet>("PVSelParameters").getParameter<double>("maxDistanceToBeam") << "\n";
@@ -58,7 +57,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
-  /*
   // FIXME move vertex chi2 cut in theVertexSelector
   // theFinder should not perform the final vertex cleanup
   float minVertexFitProb 
@@ -91,7 +89,6 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     << "VtxFinderParameters::maxNbVertices = " 
     << conf.getParameter<edm::ParameterSet>("VtxFinderParameters").getParameter<int>("maxNbVertices") << endl;
   theFinder.setMaxNbOfVertices(maxNbVertices);
-  */
 
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "PV producer algorithm initialization: done" << "\n";
@@ -123,23 +120,21 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
   VertexState beamVertexState(beamSpot.position(), beamSpot.error());
 
   if ( fapply_finder) {
-    //    return theFinder.vertices( tracks );
+        return theFinder.vertices( tracks );
   }
   vector<TransientVertex> pvs;
   try {
 
 
     // select tracks
-    vector<reco::TransientTrack> seltks;
-    //vector<BeamTransientTrack> seltks;
+    //vector<reco::TransientTrack> seltks;
+    vector<BeamTransientTrack> seltks;
 
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
-      if (theTrackFilter(*itk)) seltks.push_back(*itk);
-      /*
+      //if (theTrackFilter(*itk)) seltks.push_back(*itk);
       BeamTransientTrack t(*itk, beamSpot.position());
       if (theTrackFilter(t)) seltks.push_back(t);
-      */
     }
 
     if(fVerbose){
@@ -150,32 +145,35 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     vector< vector<reco::TransientTrack> > clusters = 
       theTrackClusterizer.clusterize(seltks);
 
+    /*
     if(fVerbose){
       cout << "PrimaryVertexProducerAlgorithm::vertices  clusters       =" << clusters.size() << endl;
       int i=0;
       for (vector< vector<reco::TransientTrack> >::const_iterator iclus
 	     = clusters.begin(); iclus != clusters.end(); iclus++) {
-	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster  " << i++ << ")  tracks =" << (*iclus).size() << endl;
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster  " 
+	     << i++ << ")  tracks =" << (*iclus).size() << endl;
       }
     }
+    */
 
     // look for primary vertices in each cluster
     vector<TransientVertex> pvCand;
     int nclu=0;
     for (vector< vector<reco::TransientTrack> >::const_iterator iclus
 	   = clusters.begin(); iclus != clusters.end(); iclus++) {
-      if(fVerbose){
-	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" << nclu << "  tracks" << (*iclus).size() << endl;
-      }
 
-      /*
+      if(fVerbose){
+	cout << "PrimaryVertexProducerAlgorithm::vertices  cluster =" 
+	     << nclu << "  tracks" << (*iclus).size() << endl;
+
 	std::cout << "cluster tracks " << std::endl;
-      for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
-        t!=(*iclus).end(); ++t){
-	std::cout << (*t).initialFreeState()
-                << std::endl;
+	for(vector<reco::TransientTrack>::const_iterator t=(*iclus).begin();
+	    t!=(*iclus).end(); ++t){
+	  std::cout << (*t).initialFreeState()
+		    << std::endl;
+	}
       }
-      */
 
       if( fUseBeamConstraint &&((*iclus).size()>0) ){
 	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
@@ -204,9 +202,6 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
 	try {
 
-	  
-
-
 	  TransientVertex v = theFitter->vertex(*iclus); 
 	  if (fVerbose){
 	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
@@ -223,7 +218,6 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
       }
 
 
-
       nclu++;
     }// end of cluster loop
 
@@ -238,11 +232,11 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 	 ipv != pvCand.end(); ipv++) {
       if(fVerbose){
 	cout << "PrimaryVertexProducerAlgorithm::vertices cand " << npv++ << " sel=" <<
-	  //theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
-	  theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
+	  theVertexSelector(*ipv,beamVertexState) << "   z="  << ipv->position().z() << endl;
+	  //theVertexSelector(*ipv) << "   z="  << ipv->position().z() << endl;
       }
-      //if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
-      if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
+      if (theVertexSelector(*ipv,beamVertexState)) pvs.push_back(*ipv);
+      //if (theVertexSelector(*ipv)) pvs.push_back(*ipv);
     }
 
     // sort vertices by pt**2  vertex (aka signal vertex tagging)

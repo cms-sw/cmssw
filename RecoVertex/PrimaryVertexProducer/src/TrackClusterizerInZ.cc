@@ -12,9 +12,9 @@ namespace {
 
 
   bool beamTrackLessZ(const BeamTransientTrack & tk1, 
-		     const BeamTransientTrack & tk2) 
+		      const BeamTransientTrack & tk2) 
   {
-    return tk1.beamState().position().z() < tk2.beamState().position().z();
+    return tk1.zBeam() < tk2.zBeam();
   }
 }
 
