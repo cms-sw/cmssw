@@ -6,7 +6,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
   RecoCandidate( q, p4, vtx, -13 * q ) {
      energyValid_  = false;
      matchesValid_ = false;
-     caloConsistency_ = -9999.;
+     caloCompatibility_ = -9999.;
 }
 
 
@@ -462,4 +462,11 @@ float Muon::trackDyDzErr( int station, int muonSubdetId ) const
    const std::vector<const MuonChamberMatch*> chambers = getChambers(station, muonSubdetId);
    if(chambers.size()==0) return 999999;
    return chambers.front()->dYdZErr;
+}
+
+void Muon::setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 )
+{ 
+   isolationR03_ = isoR03;
+   isolationR05_ = isoR05;
+   isolationValid_ = true; 
 }

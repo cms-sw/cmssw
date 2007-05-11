@@ -1,5 +1,6 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
@@ -22,6 +23,8 @@ namespace {
     edm::Ref<std::vector<reco::MuIsoDeposit> > r2;
     edm::RefProd<std::vector<reco::MuIsoDeposit> > rp2;
     edm::RefVector<std::vector<reco::MuIsoDeposit> > rv2;
+    
+    reco::MuonIsolation rmi;
 
     std::vector<reco::MuonChamberMatch> vmm1;
     std::vector<reco::MuonSegmentMatch> vmm2;

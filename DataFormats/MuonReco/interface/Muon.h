@@ -10,11 +10,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.29 2007/04/17 08:15:53 dmytro Exp $
+ * \version $Id: Muon.h,v 1.30 2007/05/01 08:17:35 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
+#include "DataFormats/MuonReco/interface/MuonIsolation.h"
 
 namespace reco {
  
@@ -62,12 +63,18 @@ namespace reco {
     /// set muon matching information
     void setMatches( const std::vector<MuonChamberMatch>& matches ) { muMatches_ = matches; matchesValid_ = true; }
      
-    /// Muon hypothesis consistency block
+    /// Muon hypothesis compatibility block
     /// Relative likelihood based on ECAL, HCAL, HO energy defined as
     /// L_muon/(L_muon+L_not_muon)
-    float getCaloConsistency(){ return caloConsistency_; }
-    void  setCaloConsistency(float input){ caloConsistency_ = input; }
-    bool  isCaloConsistencyValid(){ return caloConsistency_>=0; } 
+    float getCaloCompatibility(){ return caloCompatibility_; }
+    void  setCaloCompatibility(float input){ caloCompatibility_ = input; }
+    bool  isCaloCompatibilityValid(){ return caloCompatibility_>=0; } 
+    
+    /// Summary of muon isolation information 
+    const MuonIsolation& getIsolationR03(){ return isolationR03_; }
+    const MuonIsolation& getIsolationR05(){ return isolationR05_; }
+    void setIsolation( const MuonIsolation& isoR03, const MuonIsolation& isoR05 );
+    bool isIsolationValid(){ return isolationValid_; }
      
     /// number of chambers
     int numberOfChambers() const { return muMatches_.size(); }
@@ -103,7 +110,13 @@ namespace reco {
     CaloTowerRefs traversedTowers_;
     bool energyValid_;
     bool matchesValid_;
-    float caloConsistency_;
+    bool isolationValid_;
+    /// muon hypothesis compatibility with observer calorimeter energy
+    float caloCompatibility_;
+    /// Isolation information for two cones with dR=0.3 and dR=0.5
+    MuonIsolation isolationR03_;
+    MuonIsolation isolationR05_;
+     
     // FixMe: Still missing trigger information
 
     /// get vector of muon chambers for given station and detector
