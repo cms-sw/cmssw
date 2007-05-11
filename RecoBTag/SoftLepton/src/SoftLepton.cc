@@ -13,14 +13,13 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.15 2007/03/06 17:49:25 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.16 2007/04/20 17:25:48 fwyzard Exp $
 //
 
 
 #include <memory>
 #include <string>
 #include <iostream>
-using namespace std;
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,14 +28,12 @@ using namespace std;
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-using namespace edm;
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-using namespace reco;
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
@@ -45,6 +42,10 @@ using namespace reco;
 #include "RecoBTag/Records/interface/SoftLeptonBTagRecord.h"
 #include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 #include "RecoBTag/SoftLepton/interface/SoftLepton.h"
+
+using namespace std;
+using namespace edm;
+using namespace reco;
 
 const reco::Vertex SoftLepton::s_nominalBeamSpot(
   reco::Vertex::Point( 0, 0, 0 ),
@@ -80,7 +81,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<reco::VertexCollection> primaryVertex;
   iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
 
-  TrackRefVector leptons;
+  reco::TrackRefVector leptons;
   // try to access the input collection as a collection of Electons, Muons or Tracks
   // FIXME: it would be nice not to have to rely on exceptions
   try {
@@ -134,10 +135,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cerr << std::endl;
   std::cerr << "Found " << jetTracksAssociation->size() << " jet with tracks:" << std::endl;
   #endif // DEBUG
-  for (reco::JetTracksAssociationCollection::const_iterator j = jetTracksAssociation->begin();
-       j !=jetTracksAssociation->end();
-       ++j) {
-    unsigned int i = j->key.key();
+  for (unsigned int i = 0; i < jetTracksAssociation->size(); ++i) {
     reco::JetTracksAssociationRef jetRef( jetTracksAssociation, i );
     std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, pv, leptons );
     #ifdef DEBUG

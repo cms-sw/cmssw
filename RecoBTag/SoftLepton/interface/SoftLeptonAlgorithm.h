@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.h,v 1.5 2007/02/12 01:03:50 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.h,v 1.6 2007/03/07 23:40:54 fwyzard Exp $
 //
 
 #include <utility>
@@ -85,9 +85,9 @@ private:
   
 public:
   static GlobalVector refineJetAxis (
-      const reco::CaloJetRef     & jet, 
-      const reco::TrackRefVector & tracks, 
-      const reco::TrackRef       & excluded = reco::TrackRef()
+      const edm::RefToBase<reco::Jet> & jet,
+      const reco::TrackRefVector      & tracks, 
+      const reco::TrackRef            & excluded = reco::TrackRef()
   );
 
   static double relativeEta(

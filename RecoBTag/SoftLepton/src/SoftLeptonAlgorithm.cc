@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.10 2007/03/07 23:40:55 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.11 2007/04/20 17:25:48 fwyzard Exp $
 //
 
 // STL
@@ -67,9 +67,9 @@ SoftLeptonAlgorithm::tag(
   }
   */
 
-  const reco::CaloJetRef     jet    = jetTracks->key;
-  const reco::TrackRefVector tracks = jetTracks->val;
-  #ifdef DEBUG
+  const edm::RefToBase<reco::Jet> & jet    = jetTracks->first;
+  const reco::TrackRefVector      & tracks = jetTracks->second;
+  #if defined DEBUG and defined FIXED_FOR_150
   using namespace std;
   try {
     cerr << "->   Jet " << setw(2) << jet.index() << " pT: " << setprecision(2) << setw(6) << jet->pt() << " eta: " << setprecision(2) << setw(5) << jet->eta() << " phi: " << setprecision(2) << setw(5) << jet->phi() << " has " << tracks.size() << " tracks:" << endl;
@@ -139,9 +139,9 @@ SoftLeptonAlgorithm::tag(
 
 GlobalVector
 SoftLeptonAlgorithm::refineJetAxis (
-    const reco::CaloJetRef     & jet,
-    const reco::TrackRefVector & tracks,
-    const reco::TrackRef       & excluded /* = reco::TrackRef() */
+    const edm::RefToBase<reco::Jet> & jet,
+    const reco::TrackRefVector      & tracks,
+    const reco::TrackRef            & excluded /* = reco::TrackRef() */
 ) {
   math::XYZVector axis = jet->momentum();
 
