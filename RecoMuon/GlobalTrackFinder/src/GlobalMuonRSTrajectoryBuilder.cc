@@ -2,8 +2,8 @@
 
 /** \file RecoMuon/GlobalTrackFinder/src/GlobalMuonRSTrajectoryBuilder.cc
  *
- *  $Date: 2007/04/12 21:27:41 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/30 15:04:12 $
+ *  $Revision: 1.5 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -229,6 +229,10 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
   int indexinpart=0;
   //loop while in a valid part of the tracker
   while(inapart){
+    //check on the trajectory list and stuff
+    if (!checkStep(Trajectories.head())) break;
+    //................
+
     switch (whichpart){
     case fault: /*abort*/ {edm::LogError(theCategory)<<"something's wrong with the seed";return;}
     case PXB: /*abort*/ {edm::LogError(theCategory)<<"PXB no yet implemented";return;}
