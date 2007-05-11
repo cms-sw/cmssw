@@ -21,7 +21,7 @@
 #include "RecoTracker/CkfPattern/interface/MinPtTrajectoryFilter.h"
 #include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
+ #include "RecoTracker/CkfPattern/interface/TempTrajectory.h" 
 
 using namespace std;
 
@@ -60,7 +60,7 @@ CkfTrajectoryBuilderWithSeedAssoc::~CkfTrajectoryBuilderWithSeedAssoc()
 
 void CkfTrajectoryBuilderWithSeedAssoc::setEvent(const edm::Event& event) const
 {
-  theMeasurementTracker->update(event);
+  theMeasurementTracker->updatePixels(event);
 }
 
 CkfTrajectoryBuilderWithSeedAssoc::TrajectoryContainer 
@@ -147,7 +147,7 @@ limitedCandidates( Trajectory& startingTraj,
       }
     
       if ((int)newCand.size() > theMaxCand) {
-	sort( newCand.begin(), newCand.end(), TrajCandLess(theLostHitPenalty));
+        sort( newCand.begin(), newCand.end(),TrajCandLess<Trajectory>(theLostHitPenalty));
 	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
     }
