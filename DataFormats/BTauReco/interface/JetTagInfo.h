@@ -13,6 +13,8 @@ public:
   template <typename T>
   JetTagInfo(const edm::Ref<T> & jetRef) : m_jet(jetRef) { }
 
+  JetTagInfo(const edm::RefToBase<Jet> & jetRef) : m_jet(jetRef) { }
+
   virtual ~JetTagInfo(void) { }
   
   virtual JetTagInfo* clone(void) const { return new JetTagInfo(*this); }
@@ -21,7 +23,9 @@ public:
   
   template <typename T>
   void setJetRef(const edm::Ref<T> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 
-  
+ 
+  void setJetRef(const edm::RefToBase<Jet> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 
+
 protected:
   edm::RefToBase<Jet> m_jet;
 };
