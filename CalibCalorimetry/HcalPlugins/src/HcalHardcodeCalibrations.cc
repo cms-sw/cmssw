@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.8 2006/05/24 19:07:39 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.9 2007/03/25 12:20:45 mansj Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 #include "CondFormats/DataRecord/interface/HcalQIEDataRcd.h"
 
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "HcalHardcodeCalibrations.h"
 //
@@ -41,10 +41,10 @@ using namespace cms;
 
 namespace {
 
-std::vector<HcalDetId> allCells () {
+std::vector<HcalDetId> allCells (bool h2_mode) {
   static std::vector<HcalDetId> result;
   if (result.size () <= 0) {
-    HcalTopology topology;
+    HcalTopology topology(h2_mode);
     for (int eta = -50; eta < 50; eta++) {
       for (int phi = 0; phi < 100; phi++) {
 	for (int depth = 1; depth < 5; depth++) {
@@ -64,8 +64,9 @@ std::vector<HcalDetId> allCells () {
 HcalHardcodeCalibrations::HcalHardcodeCalibrations ( const edm::ParameterSet& iConfig ) 
   
 {
-  std::cout << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::HcalHardcodeCalibrations->...";
   //parsing record parameters
+  h2mode_=iConfig.getUntrackedParameter<bool>("H2Mode",false);
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
   for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
     bool all = *objectName == "all";
@@ -113,14 +114,14 @@ HcalHardcodeCalibrations::~HcalHardcodeCalibrations()
 void 
 HcalHardcodeCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
   std::string record = iKey.name ();
-  std::cout << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID() << '/' << iTime.time ().value () << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID() << '/' << iTime.time ().value ();
   oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
 std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  std::cout << "HcalHardcodeCalibrations::producePedestals-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestals-> ...";
   std::auto_ptr<HcalPedestals> result (new HcalPedestals ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestal item = HcalDbHardcode::makePedestal (*cell);
     result->addValue (*cell, item.getValues ());
@@ -130,9 +131,9 @@ std::auto_ptr<HcalPedestals> HcalHardcodeCalibrations::producePedestals (const H
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  std::cout << "HcalHardcodeCalibrations::producePedestalWidths-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::producePedestalWidths-> ...";
   std::auto_ptr<HcalPedestalWidths> result (new HcalPedestalWidths ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalPedestalWidth item = HcalDbHardcode::makePedestalWidth (*cell);
     result->setWidth (item);
@@ -142,9 +143,9 @@ std::auto_ptr<HcalPedestalWidths> HcalHardcodeCalibrations::producePedestalWidth
 }
 
 std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGainsRcd&) {
-  std::cout << "HcalHardcodeCalibrations::produceGains-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGains-> ...";
   std::auto_ptr<HcalGains> result (new HcalGains ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGain item = HcalDbHardcode::makeGain (*cell);
     result->addValue (*cell, item.getValues ());
@@ -154,9 +155,9 @@ std::auto_ptr<HcalGains> HcalHardcodeCalibrations::produceGains (const HcalGains
 }
 
 std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
-  std::cout << "HcalHardcodeCalibrations::produceGainWidths-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceGainWidths-> ...";
   std::auto_ptr<HcalGainWidths> result (new HcalGainWidths ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalGainWidth item = HcalDbHardcode::makeGainWidth (*cell);
     result->addValue (*cell, item.getValues ());
@@ -166,9 +167,9 @@ std::auto_ptr<HcalGainWidths> HcalHardcodeCalibrations::produceGainWidths (const
 }
 
 std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
-  std::cout << "HcalHardcodeCalibrations::produceQIEData-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceQIEData-> ...";
   std::auto_ptr<HcalQIEData> result (new HcalQIEData ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     HcalQIECoder coder = HcalDbHardcode::makeQIECoder (*cell);
     result->addCoder (*cell, coder);
@@ -178,9 +179,9 @@ std::auto_ptr<HcalQIEData> HcalHardcodeCalibrations::produceQIEData (const HcalQ
 }
 
 std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
-  std::cout << "HcalHardcodeCalibrations::produceChannelQuality-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceChannelQuality-> ...";
   std::auto_ptr<HcalChannelQuality> result (new HcalChannelQuality ());
-  std::vector <HcalDetId> cells = allCells ();
+  std::vector <HcalDetId> cells = allCells(h2mode_);
   for (std::vector <HcalDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
     result->setChannel (cell->rawId (), HcalChannelQuality::GOOD);
   }
@@ -189,7 +190,8 @@ std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQualit
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
-  std::cout << "HcalHardcodeCalibrations::produceElectronicsMap-> ..." << std::endl;
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceElectronicsMap-> ...";
+
   std::auto_ptr<HcalElectronicsMap> result (new HcalElectronicsMap ());
   HcalDbHardcode::makeHardcodeMap(*result);
   return result;
