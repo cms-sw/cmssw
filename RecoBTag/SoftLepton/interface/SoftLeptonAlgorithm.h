@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.h,v 1.6 2007/03/07 23:40:54 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.h,v 1.7 2007/05/11 11:29:03 fwyzard Exp $
 //
 
 #include <utility>
@@ -28,7 +28,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
-#include "DataFormats/JetReco/interface/CaloJetfwd.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 class TransientTrackBuilder;

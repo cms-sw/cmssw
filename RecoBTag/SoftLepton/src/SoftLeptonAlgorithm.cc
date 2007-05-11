@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.11 2007/04/20 17:25:48 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.12 2007/05/11 11:29:04 fwyzard Exp $
 //
 
 // STL
@@ -29,7 +29,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/Jet.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -87,7 +87,8 @@ SoftLeptonAlgorithm::tag(
   const GlobalVector chargedAxis = refineJetAxis( jet, tracks );
   double discriminant = 0.0;
 
-  reco::SoftLeptonTagInfo info;
+  reco::SoftLeptonTagInfo info( jet );
+  
   for (unsigned int i = 0; i < leptons.size(); i++) {
     reco::TrackRef lepton = leptons[i];
 
