@@ -120,8 +120,10 @@ void CSCDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
 
 void CSCDigitizer::setRandomEngine(CLHEP::HepRandomEngine& engine)
 {
+  theWireHitSim->setRandomEngine(engine);
   theWireElectronicsSim->setRandomEngine(engine);
   theStripElectronicsSim->setRandomEngine(engine);
+  if(theNeutronReader) theNeutronReader->setRandomEngine(engine);
 }
 
 
