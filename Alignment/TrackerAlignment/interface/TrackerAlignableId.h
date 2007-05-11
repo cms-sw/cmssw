@@ -1,12 +1,6 @@
 #ifndef Alignment_CommonAlignment_TrackerAlignableId_H
 #define Alignment_CommonAlignment_TrackerAlignableId_H
 
-#include <map>
-
-#include "Alignment/CommonAlignment/interface/Alignable.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
-#include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
-
 /// \class TrackerAlignableId
 ///
 /// Helper class to provide unique numerical ID's for Alignables. 
@@ -16,20 +10,23 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.6 $
-///  $Date: 2006/10/19 17:09:13 $
-///  (last update by $Author: flucke $)
+///  $Revision: 1.7 $
+///  $Date: 2007/05/10 20:19:34 $
+///  (last update by $Author: cklae $)
 
-class GeomDet;
+#include <string>
+#include <utility>
+#include <boost/cstdint.hpp>
+
 class Alignable;
+class DetId;
+class GeomDet;
 
 class TrackerAlignableId
 {
 
 public:
   
-  typedef AlignableObjectId::AlignableObjectIdType idType;
-  typedef std::map<int,std::string> MapEnumType;
   typedef std::pair<uint32_t,int> UniqueId;
 
   /// Return geographical ID of first GeomDet
@@ -51,10 +48,10 @@ public:
   std::pair<int,int> typeAndLayerFromDetId( const DetId& detId ) const;
 
   /// Return string corresponding to given Alignable
-  const std::string alignableTypeName( const Alignable* alignable ) const;
+  const std::string& alignableTypeName( const Alignable* alignable ) const;
 
   /// Return string corresponding to given alignable object ID
-  const std::string alignableTypeIdToName( const int& id ) const;
+  const std::string& alignableTypeIdToName( int id ) const;
   
 
 private:

@@ -973,36 +973,38 @@ Alignable::Alignables AlignableTracker::TIDLayers()
 
 
 //--------------------------------------------------------------------------------------------------
-// void AlignableTracker::dump( void ) const
-// {
+void AlignableTracker::dump( void ) const
+{
 
-//   std::cout << "--------------" << std::endl 
-// 			<< " Tracker components" << std::endl
-// 			<< "--------------" << std::endl;
+  std::cout << "--------------" << std::endl 
+			<< " Tracker components" << std::endl
+			<< "--------------" << std::endl;
 
-//   for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theOuterHalfBarrels.begin();
-// 		iDet != theOuterHalfBarrels.end(); iDet++ )
-// 	(*iDet)->dump();
-//   for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theInnerHalfBarrels.begin();
-// 		iDet != theInnerHalfBarrels.end(); iDet++ )
-// 	(*iDet)->dump();
-//   for ( std::vector<AlignablePixelHalfBarrel*>::const_iterator iDet = thePixelHalfBarrels.begin();
-// 		iDet != thePixelHalfBarrels.end(); iDet++ )
-// 	(*iDet)->dump();
+  for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theOuterHalfBarrels.begin();
+		iDet != theOuterHalfBarrels.end(); iDet++ )
+	(*iDet)->dump();
+  for ( std::vector<AlignableTrackerHalfBarrel*>::const_iterator iDet = theInnerHalfBarrels.begin();
+		iDet != theInnerHalfBarrels.end(); iDet++ )
+	(*iDet)->dump();
+  for ( std::vector<AlignablePixelHalfBarrel*>::const_iterator iDet = thePixelHalfBarrels.begin();
+		iDet != thePixelHalfBarrels.end(); iDet++ )
+	(*iDet)->dump();
 
-//   for ( std::vector<AlignableTrackerEndcap*>::const_iterator iDet = theEndcaps.begin();
-// 		iDet != theEndcaps.end(); iDet++ )
-// 	(*iDet)->dump();
-//   for ( std::vector<AlignableTrackerEndcap*>::const_iterator iDet = thePixelEndcaps.begin();
-// 		iDet != thePixelEndcaps.end(); iDet++ )
-// 	(*iDet)->dump();
-//   for ( std::vector<AlignableTID*>::const_iterator iDet = theTIDs.begin();
-// 		iDet != theTIDs.end(); iDet++ )
-// 	(*iDet)->dump();
+  for ( std::vector<AlignableTrackerEndcap*>::const_iterator iDet = theEndcaps.begin();
+		iDet != theEndcaps.end(); iDet++ )
+	(*iDet)->dump();
 
-//   std::cout << "--------------" << std::endl;
+  const Alignables& pxe = getAlignables("pixelEndcaps");
 
-// }
+  for (unsigned int i = 0; i < pxe.size(); ++i) pxe[i]->dump();
+
+  for ( std::vector<AlignableTID*>::const_iterator iDet = theTIDs.begin();
+		iDet != theTIDs.end(); iDet++ )
+	(*iDet)->dump();
+
+  std::cout << "--------------" << std::endl;
+
+}
 
 
 //__________________________________________________________________________________________________

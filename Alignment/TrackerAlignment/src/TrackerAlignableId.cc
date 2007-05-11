@@ -1,13 +1,13 @@
 /// \file TrackerAlignableId.cc
 ///
-///  $Revision: 1.8 $
-///  $Date: 2007/02/20 22:07:10 $
+///  $Revision: 1.9 $
+///  $Date: 2007/05/10 20:19:35 $
 ///  (last update by $Author: cklae $)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
@@ -39,7 +39,7 @@ int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 
   int alignableObjectId = alignable->alignableObjectId();
 
-  if ( !alignableObjectId ) 
+  if ( AlignableObjectId::invalid == alignableObjectId ) 
 	throw cms::Exception("LogicError") << "Unknown Alignable type";
 
   return alignableObjectId;
@@ -51,7 +51,7 @@ int TrackerAlignableId::alignableTypeId( const Alignable* alignable ) const
 /// first GeomDet and the type ID (i.e. Rod, Layer, etc.) 
 TrackerAlignableId::UniqueId TrackerAlignableId::alignableUniqueId( const Alignable* alignable ) const
 {
-  return std::make_pair(this->alignableId(alignable), this->alignableTypeId(alignable));
+  return UniqueId( alignableId(alignable), alignableTypeId(alignable) );
 }
 
 
@@ -124,7 +124,7 @@ std::pair<int,int> TrackerAlignableId::typeAndLayerFromDetId( const DetId& detId
 
 //__________________________________________________________________________________________________
 // Return string name corresponding to alignable
-const std::string TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
+const std::string& TrackerAlignableId::alignableTypeName( const Alignable* alignable ) const
 {
   if (alignable)
     return this->alignableTypeIdToName( alignable->alignableObjectId() );
@@ -134,8 +134,8 @@ const std::string TrackerAlignableId::alignableTypeName( const Alignable* aligna
 }
 
 //__________________________________________________________________________________________________
-const std::string 
-TrackerAlignableId::alignableTypeIdToName( const int& id ) const
+const std::string&
+TrackerAlignableId::alignableTypeIdToName( int id ) const
 {
 
   static AlignableObjectId alignableObjectId;
@@ -148,7 +148,10 @@ TrackerAlignableId::alignableTypeIdToName( const int& id ) const
 const Alignable* TrackerAlignableId::firstDet( const Alignable* alignable ) const
 {
 
-  if ( alignable->size() == 0 ) return alignable;
+  if ( AlignableObjectId::AlignableDet == alignable->alignableObjectId() )
+    return alignable->components().front();
+  else if ( AlignableObjectId::AlignableDetUnit == alignable->alignableObjectId() )
+    return alignable;
 
   return firstDet( alignable->components().front() );
 

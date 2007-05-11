@@ -30,7 +30,7 @@ public:
   AlignableTracker( const GeometricDet* geometricDet, const TrackerGeometry* trackerGeometry ); 
   
   /// Recursive printout of the tracker structure
-//   void dump( void ) const;
+  void dump( void ) const;
 
   /// Return TOB half barrels
   Alignables outerHalfBarrels();
