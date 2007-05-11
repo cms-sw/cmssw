@@ -4,8 +4,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2006/03/17 13:33:01 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/08/07 15:47:36 $
+ *  $Revision: 1.3 $
  *  \authors: R. Bellan
  */
 
@@ -28,6 +28,7 @@ class DTDigiAnalyzer : public edm::EDAnalyzer{
  public:
   explicit DTDigiAnalyzer(const edm::ParameterSet& pset);
   virtual ~DTDigiAnalyzer();
+  void endJob();
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
   hDigis* WheelHistos(int wheel);
   

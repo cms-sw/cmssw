@@ -1,8 +1,8 @@
 /** \class DTDigiAnalyzer
  *  Analyse the the muon-drift-tubes digitizer. 
  *  
- *  $Date: 2007/03/07 19:17:39 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/04/08 03:59:13 $
+ *  $Revision: 1.8 $
  *  \authors: R. Bellan
  */
 
@@ -63,7 +63,10 @@ DTDigiAnalyzer:: DTDigiAnalyzer(const ParameterSet& pset){
 }
 
 DTDigiAnalyzer::~DTDigiAnalyzer(){
-  //  cout<<"Number of analyzed event: "<<nevts<<endl;
+}
+
+void DTDigiAnalyzer::endJob(){
+  //cout<<"Number of analyzed event: "<<nevts<<endl;
   //HitsAnalysis->Report();
   file->cd();
   DigiTimeBox->Write();
