@@ -29,8 +29,11 @@
   <class name="std::vector<TopMETObject>"/>
 
   <class name="TtGenEvent"/>
+  <class name="StGenEvent"/>
   <class name="TtSemiEvtSolution"/>
   <class name="std::vector<TtSemiEvtSolution>" />
+  <class name="StEvtSolution"/>
+  <class name="std::vector<StEvtSolution>" />
 
 </lcgdict>
 

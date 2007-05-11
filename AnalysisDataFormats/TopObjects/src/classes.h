@@ -3,7 +3,9 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopJetObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMETObject.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
+#include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
@@ -40,8 +42,11 @@ namespace {
     edm::Wrapper<std::vector<TopMETObject> >               dummy210;
 
     edm::Wrapper<TtGenEvent>                               dummy30;
-    edm::Wrapper<TtSemiEvtSolution>                        dummy31;
-    edm::Wrapper<std::vector<TtSemiEvtSolution> >          dummy32;
+    edm::Wrapper<StGenEvent>                               dummy31;
+    edm::Wrapper<TtSemiEvtSolution>                        dummy32;
+    edm::Wrapper<std::vector<TtSemiEvtSolution> >          dummy33;
+    edm::Wrapper<StEvtSolution>                            dummy34;
+    edm::Wrapper<std::vector<StEvtSolution> >              dummy35;
 
   }
 }
