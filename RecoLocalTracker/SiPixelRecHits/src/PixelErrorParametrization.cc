@@ -312,7 +312,7 @@ float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bo
 
   if ( bigInY && sizey == 1 )
     {
-      err_par =  pitch_y/sqrt(12.0);
+      err_par = pitch_y/sqrt(12.0);
     }
   else
     {
@@ -324,7 +324,7 @@ float PixelErrorParametrization::error_YF(int sizey, float alpha, float beta, bo
       float beta_prime = fabs(3.14159/2.-beta);
       if (beta_prime < brange_yf.first) beta_prime = brange_yf.first;
       if (beta_prime > brange_yf.second) beta_prime = brange_yf.second;
-      float err_par = 0;
+      err_par = 0.0;
       for(int ii=0; ii < (int)( (yforward_3D[i_size])[i_alpha] ).size(); ii++){
 	err_par += ( (yforward_3D[i_size])[i_alpha] )[ii] * pow(beta_prime,ii);
       }
