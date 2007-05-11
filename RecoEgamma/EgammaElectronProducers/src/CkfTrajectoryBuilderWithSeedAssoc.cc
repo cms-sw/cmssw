@@ -60,7 +60,7 @@ CkfTrajectoryBuilderWithSeedAssoc::~CkfTrajectoryBuilderWithSeedAssoc()
 
 void CkfTrajectoryBuilderWithSeedAssoc::setEvent(const edm::Event& event) const
 {
-  theMeasurementTracker->updatePixels(event);
+  theMeasurementTracker->update(event);
 }
 
 CkfTrajectoryBuilderWithSeedAssoc::TrajectoryContainer 
