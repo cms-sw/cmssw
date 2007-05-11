@@ -13,7 +13,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Mon Sep 11 12:48:02 CEST 2006
-// $Id: EcalIsolation.cc,v 1.2 2007/01/10 11:12:52 gennai Exp $
+// $Id: EcalIsolation.cc,v 1.3 2007/02/23 11:07:56 gennai Exp $
 //
 //
 #include <string>
@@ -79,7 +79,7 @@ EcalIsolation::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    
    for(;CI!=(jets.product())->end();CI++){
-     int i = CI->key.index();
+     int i = CI->first.castTo<edm::Ref<std::vector<reco::Jet> > >().index();
      //     cout <<"Index "<<i<<endl;
      EMIsolatedTauTagInfo myTag(0,edm::Ref<JetCrystalsAssociationCollection>(jets,i));
      double discriminator = myTag.discriminator(mBigCone,mSmallCone,pIsolCut);
