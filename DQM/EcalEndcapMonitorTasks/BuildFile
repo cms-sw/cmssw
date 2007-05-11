@@ -1,4 +1,4 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorTasks">
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=DataFormats/EcalDetId>
@@ -11,6 +11,7 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
 <use name=TBDataFormats/EcalTBObjects>
+<use name=DQM/EcalCommon>
 <use name=rootcore>
 <export>
   <use name=DQMServices/Core>
