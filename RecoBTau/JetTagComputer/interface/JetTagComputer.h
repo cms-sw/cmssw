@@ -6,6 +6,6 @@ class  JetTagComputer
 {
  public:
   virtual float discriminator(const reco::BaseTagInfo &) const = 0;
-  virtual void setEventSetup(const edm::EventSetup &) {}
+  virtual void setEventSetup(const edm::EventSetup &) const {}
 };
 #endif

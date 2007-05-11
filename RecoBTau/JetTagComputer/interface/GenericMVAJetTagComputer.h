@@ -17,7 +17,7 @@ class GenericMVAJetTagComputer : public JetTagComputer
 	m_mvaComputer(0) {}
    virtual ~GenericMVAJetTagComputer() { delete m_mvaComputer; }
 
-   virtual void setEventSetup(const edm::EventSetup &es);
+   virtual void setEventSetup(const edm::EventSetup &es) const;
 
    virtual float discriminator(const reco::BaseTagInfo &baseTag) const 
     {
@@ -26,7 +26,7 @@ class GenericMVAJetTagComputer : public JetTagComputer
 
  private:
    std::string m_calibrationLabel;
-   GenericMVAComputer * m_mvaComputer;
+   mutable GenericMVAComputer * m_mvaComputer;
   // edm::EventSetup * m_eventSetup;
 };
 #endif

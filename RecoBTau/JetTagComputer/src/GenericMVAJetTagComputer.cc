@@ -12,7 +12,7 @@
 
 using namespace PhysicsTools;
 
-void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es)
+void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 {
 	// Check cacheId of the ES stuff or if m_mvaComputer is null
 	// if needed create a new m_mvaComputer with update calib
