@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2007/04/05 13:56:47 $
- * $Revision: 1.19 $
+ * $Date: 2007/04/05 14:54:01 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBOccupancyTask.h>
 
@@ -77,12 +79,12 @@ void EBOccupancyTask::setup(void){
     dbe_->setCurrentFolder("EcalBarrel/EBOccupancyTask");
 
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBOT occupancy SM%02d", i+1);
+      sprintf(histo, "EBOT occupancy %s", Numbers::sEB(i+1).c_str());
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 36; i++) {
-      sprintf(histo, "EBOT MEM occupancy SM%02d", i+1);
+      sprintf(histo, "EBOT MEM occupancy %s", Numbers::sEB(i+1).c_str());
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meOccupancyMem_[i], i+1);
     }
