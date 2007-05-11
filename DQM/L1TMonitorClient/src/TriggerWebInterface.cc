@@ -77,6 +77,7 @@ void TriggerWebInterface::RetrieveMeList(xgi::Input * in, xgi::Output * out) thr
 
   if(to_open=="L1TECALTPG") printMeListXML(to_open, out); 
   if(to_open=="L1TRCT") printMeListXML(to_open, out); 
+  if(to_open=="GCT")        printMeListXML(to_open, out); 
 
 }
 
