@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/10 08:58:04 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/05/11 04:51:11 $
+ *  $Revision: 1.40 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.39 2007/05/10 08:58:04 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.40 2007/05/11 04:51:11 slava77 Exp $
 //
 //
 
@@ -1758,6 +1758,7 @@ SteppingHelixPropagator::refToMatVolume(const SteppingHelixPropagator::StateInfo
 
 bool SteppingHelixPropagator::isYokeVolume(const MagVolume* vol) const {
   static const std::string metname = "SteppingHelixPropagator";
+  if (vol == 0) return false;
   const MFGrid* mGrid = reinterpret_cast<const MFGrid*>(vol->provider());
   std::vector<int> dims(mGrid->dimensions());
   
