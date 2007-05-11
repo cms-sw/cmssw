@@ -258,7 +258,7 @@ template <class T> void EcalTrigPrimFunctionalAlgo::fillMap(const edm::SortedCol
       //FIXME: temporary protection
       if ((towerMap[coarser])[stripnr-1].size()<EcalTPParameters::nbMaxXtals_ ) {
 	(towerMap[coarser])[stripnr-1].push_back(p);
-      }else {
+      }else if (debug_) {
 	std::cout <<" !!!!!!!!!!!!! Too many xtals for TT "<<coarser<<" stripnr "<<stripnr<<" xtalid "<<p->id()<<std::endl;
 	for (unsigned int kk=0;kk<(towerMap[coarser])[stripnr-1].size();kk++)
 	  std::cout<<"xtal "<<kk<<" detid "<<((towerMap[coarser])[stripnr-1])[kk]->id()<<" towerid "<<(*eTTmap_).towerOf(((towerMap[coarser])[stripnr-1])[kk]->id())<<std::endl;
