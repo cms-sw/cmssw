@@ -4,7 +4,7 @@
 //for tau jet reconstruction studies
 // 50 GeV taus desintegrating hadronically have been studied
 
-TFile *f = new TFile("tauall.root");
+TFile *f = new TFile("tauBenchmark.root");
 
 h_deltaETvisible_MCPF->SetStats(1); 
 h_deltaETvisible_MCPF->GetXaxis()->SetTitle("#DeltaE_{T} (GeV)");
