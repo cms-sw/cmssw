@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.57 2007/04/27 19:54:08 rpw Exp $
+ * $Id: pset_parse.y,v 1.58 2007/05/11 22:30:54 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -1139,6 +1139,8 @@ bangorletter: LETTERSTART_tok
       | BANGSTART_tok
       { $<str>$=$<str>1 }
       | MINUSLETTERSTART_tok
+      { $<str>$=$<str>1 }
+      | SOURCE_tok
       { $<str>$=$<str>1 }
 	  ;
 
