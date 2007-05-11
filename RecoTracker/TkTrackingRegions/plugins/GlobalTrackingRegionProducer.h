@@ -10,7 +10,11 @@ class GlobalTrackingRegionProducer : public TrackingRegionProducer {
 public:
 
   GlobalTrackingRegionProducer(const edm::ParameterSet& cfg) 
-    : theRegionPSet(cfg.getParameter<edm::ParameterSet>("RegionPSet"))
+    : thePtMin(cfg.getParameter<double>("ptMin")),
+      theOriginRadius(cfg.getParameter<double>("originRadius")),
+      theOriginHalfLength(cfg.getParameter<double>("originHalfLength")),
+      theOriginZPos(cfg.getParameter<double>("originZPos")),
+      thePrecise(cfg.getParameter<bool>("precise")) 
   { }   
 
   virtual ~GlobalTrackingRegionProducer(){}
@@ -18,14 +22,13 @@ public:
   virtual std::vector<TrackingRegion* > regions(const edm::Event&, const edm::EventSetup&) const {
     std::vector<TrackingRegion* > result;
     result.push_back( new GlobalTrackingRegion(
-        0.9, 0.2, 0.2, 0.0, true));
-//        theConfig.getUntrackerParameter 
-//        thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos, thePrecise) );
+        thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos, thePrecise) );
     return result;
   }
 
 private:
-  edm::ParameterSet theRegionPSet;
+  double thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos;
+  bool thePrecise;
 };
 
 #endif 
