@@ -5,11 +5,12 @@
 
 static const int IPHI_MAX=72;
 
-HcalTopology::HcalTopology() :
+HcalTopology::HcalTopology(bool h2_mode) :
   excludeHB_(false),
   excludeHE_(false),
   excludeHO_(false),
   excludeHF_(false),
+  h2mode_(h2_mode),
   firstHBRing_(1),
   lastHBRing_(16),
   firstHERing_(16),
@@ -18,9 +19,9 @@ HcalTopology::HcalTopology() :
   lastHFRing_(41),
   firstHORing_(1),
   lastHORing_(15),
-  firstHEDoublePhiRing_(21),
+  firstHEDoublePhiRing_((h2_mode)?(22):(21)),
   firstHFQuadPhiRing_(40),
-  firstHETripleDepthRing_(27),
+  firstHETripleDepthRing_((h2_mode)?(24):(27)),
   singlePhiBins_(72),
   doublePhiBins_(36)
 {
@@ -70,8 +71,6 @@ void HcalTopology::excludeSubdetector(HcalSubdetector subdet) {
   default: break;
   }
 }
-
-
 
 std::vector<DetId> HcalTopology::east(const DetId& id) const
 {
@@ -178,6 +177,13 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 
 
   HO has 15 towers in ieta and 72 in iphi and depth = 4 (one value)
+
+  At H2:
+
+  HE ieta 17 is two depths
+  HE ieta 22- have 36 towers in iphi (starts one higher)
+  HE ieta 24- has three depths
+
   */
 
   /** Is this a valid cell id? */
@@ -195,12 +201,11 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
       if (subdet==HcalBarrel) {
 	if (aieta>16 || depth>2 || (aieta<=14 && depth>1)) ok=false;	    
       } else if (subdet==HcalEndcap) {
-	if (aieta<16 || aieta>29 ||
+	if (depth>3 || aieta<16 || aieta>29 ||
 	    (aieta==16 && depth!=3) ||
-	    (aieta==17 && depth!=1) ||
-	    (((aieta>=18 && aieta<=26) || aieta==29) && depth>2) ||
-	    ((aieta==27 || aieta==28) && depth>3) ||
-	    (aieta>=21 && (iphi%2)==0)) ok=false;
+	    (aieta==17 && depth!=1 && !h2mode_) || // special case at H2
+	    (((aieta>=17 && aieta<firstHETripleDepthRing_) || aieta==29) && depth>2) ||
+	    (aieta>=firstHEDoublePhiRing_ && (iphi%2)==0)) ok=false;
       } else if (subdet==HcalOuter) {
 	if (aieta>15 || iphi>IPHI_MAX || depth!=4) ok=false;
       } else if (subdet==HcalForward) {
