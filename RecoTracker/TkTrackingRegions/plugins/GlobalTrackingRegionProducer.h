@@ -9,13 +9,16 @@ class GlobalTrackingRegionProducer : public TrackingRegionProducer {
 
 public:
 
-  GlobalTrackingRegionProducer(const edm::ParameterSet& cfg) 
-    : thePtMin(cfg.getParameter<double>("ptMin")),
-      theOriginRadius(cfg.getParameter<double>("originRadius")),
-      theOriginHalfLength(cfg.getParameter<double>("originHalfLength")),
-      theOriginZPos(cfg.getParameter<double>("originZPos")),
-      thePrecise(cfg.getParameter<bool>("precise")) 
-  { }   
+  GlobalTrackingRegionProducer(const edm::ParameterSet& cfg) { 
+
+    edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
+
+    thePtMin            = regionPSet.getParameter<double>("ptMin");
+    theOriginRadius     = regionPSet.getParameter<double>("originRadius");
+    theOriginHalfLength = regionPSet.getParameter<double>("originHalfLength");
+    theOriginZPos       = regionPSet.getParameter<double>("originZPos");
+    thePrecise          = regionPSet.getParameter<bool>("precise"); 
+  }   
 
   virtual ~GlobalTrackingRegionProducer(){}
 
@@ -27,7 +30,10 @@ public:
   }
 
 private:
-  double thePtMin, theOriginRadius, theOriginHalfLength, theOriginZPos;
+  double thePtMin; 
+  double theOriginRadius; 
+  double theOriginHalfLength; 
+  double theOriginZPos;
   bool thePrecise;
 };
 
