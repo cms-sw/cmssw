@@ -49,28 +49,31 @@ void testVertexAssociator::beginJob(const EventSetup & setup) {
   rootFile = new TFile("testVertexAssociator.root","RECREATE");
   rootFile->cd();
 
-  xMiss = new TH1F("rs_xmiss","x Miss Distance (cm)",100,-0.02,0.02);
-  yMiss = new TH1F("rs_ymiss","y Miss Distance (cm)",100,-0.02,0.02);
-  zMiss = new TH1F("rs_zmiss","z Miss Distance (cm)",100,-0.02,0.02);
-  rMiss = new TH1F("rs_rmiss","r Miss Distance (cm)",100,-0.02,0.02);
+  xMiss = new TH1F("rs_xmiss","x Miss Distance (cm)",100,-0.05,0.05);
+  yMiss = new TH1F("rs_ymiss","y Miss Distance (cm)",100,-0.05,0.05);
+  zMiss = new TH1F("rs_zmiss","z Miss Distance (cm)",100,-0.05,0.05);
+  rMiss = new TH1F("rs_rmiss","r Miss Distance (cm)",100,-0.05,0.05);
 
-  zVert = new TH1F("rs_zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
-  zTrue = new TH1F("rs_ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
+  zVert = new TH1F("rs_zvert","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
+  zTrue = new TH1F("rs_ztrue","z, Simulated Vertex (cm)",     200, -25.0,25.0);
 
   nTrue = new TH1F("rs_ntrue","# of tracks, Simulated",    51,-0.5,50.5);
   nReco = new TH1F("rs_nreco","# of tracks, Reconstructed",51,-0.5,50.5);
 
-  sr_xMiss = new TH1F("sr_xmiss","x Miss Distance (cm)",100,-0.02,0.02);
-  sr_yMiss = new TH1F("sr_ymiss","y Miss Distance (cm)",100,-0.02,0.02);
-  sr_zMiss = new TH1F("sr_zmiss","z Miss Distance (cm)",100,-0.02,0.02);
-  sr_rMiss = new TH1F("sr_rmiss","r Miss Distance (cm)",100,-0.02,0.02);
+  sr_xMiss = new TH1F("sr_xmiss","x Miss Distance (cm)",100,-0.05,0.05);
+  sr_yMiss = new TH1F("sr_ymiss","y Miss Distance (cm)",100,-0.05,0.05);
+  sr_zMiss = new TH1F("sr_zmiss","z Miss Distance (cm)",100,-0.05,0.05);
+  sr_rMiss = new TH1F("sr_rmiss","r Miss Distance (cm)",100,-0.05,0.05);
 
-  sr_zVert = new TH1F("sr_zvert","z, Reconstructed Vertex (cm)", 200, -1.0,1.0);
-  sr_zTrue = new TH1F("sr_ztrue","z, Simulated Vertex (cm)",     200, -1.0,1.0);
+  sr_zVert = new TH1F("sr_zvert","z, Reconstructed Vertex (cm)", 200, -25.0,25.0);
+  sr_zTrue = new TH1F("sr_ztrue","z, Simulated Vertex (cm)",     200, -25.0,25.0);
 
-  sr_nTrue = new TH1F("sr_ntrue","# of tracks, Simulated",    51,-0.5,50.5);
-  sr_nReco = new TH1F("sr_nreco","# of tracks, Reconstructed",51,-0.5,50.5);
+  sr_nTrue = new TH1F("sr_ntrue","# of tracks, Simulated",    101,-0.5,100.5);
+  sr_nReco = new TH1F("sr_nreco","# of tracks, Reconstructed",101,-0.5,100.5);
 
+  rs_qual = new TH1F("rs_qual","Quality of Match",51,-0.01,1.01);  
+  sr_qual = new TH1F("sr_qual","Quality of Match",51,-0.01,1.01);  
+      
 }
 
 void testVertexAssociator::endJob() {
@@ -137,7 +140,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
         HepLorentzVector simVec = (iMatch->first)->position();
         double ntrue = trueV->daughterTracks().size();
         math::XYZPoint simPos = math::XYZPoint(simVec.x(),simVec.y(),simVec.z());
-
+        double qual  = iMatch->second;
         double xmiss = simPos.X() - recoPos.X();
         double ymiss = simPos.Y() - recoPos.Y();
         double zmiss = simPos.Z() - recoPos.Z();
@@ -153,6 +156,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
         nTrue->Fill(ntrue);
         nReco->Fill(nreco);
+        rs_qual->Fill(qual);
     }
   }
 
@@ -170,6 +174,7 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
     for (std::vector<std::pair<VertexRef, double> >::const_iterator iMatch = recoVertices.begin();
          iMatch != recoVertices.end(); ++iMatch) {
       VertexRef recoV = iMatch->first;
+      double qual  = iMatch->second;
       math::XYZPoint recoPos = (iMatch -> first) -> position();
       double nreco = (iMatch->first)->tracksSize();
 
@@ -188,14 +193,14 @@ void testVertexAssociator::analyze(const edm::Event& event, const edm::EventSetu
 
       sr_nTrue->Fill(ntrue);
       sr_nReco->Fill(nreco);
+      sr_qual->Fill(qual);
     }
   }
 }
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(testVertexAssociator);
+DEFINE_FWK_MODULE(testVertexAssociator);
 
 
 

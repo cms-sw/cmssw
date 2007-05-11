@@ -57,8 +57,8 @@ VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
   const TrackingVertexCollection tVC = *(TVCollectionH.product());
   const   reco::VertexCollection  vC = *(vertexCollectionH.product());
 
-  double minFraction = 0.01;
-  double fraction = 0.8;
+//  double minFraction = 0.01;
+//  double fraction = 0.8;
 
   std::map<TrackingVertexRef,int> tVCount;
 
@@ -142,7 +142,7 @@ VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
           // ... and keep count of it's parent vertex
 
           TrackRef        track = match->first;
-          double   trackQuality = match->second;
+//          double   trackQuality = match->second;
 
           // Find vertex if any where this track comes from
           int iv = 0;
