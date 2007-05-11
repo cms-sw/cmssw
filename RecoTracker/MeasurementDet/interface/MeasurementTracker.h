@@ -48,6 +48,8 @@ public:
   virtual ~MeasurementTracker() { if (dummyStripNoises) delete dummyStripNoises; }
  
   void update( const edm::Event&) const;
+  void updatePixels( const edm::Event&) const;
+  void updateStrips( const edm::Event&) const;
 
   const TrackingGeometry* geomTracker() const { return theTrackerGeom;}
 
@@ -68,8 +70,11 @@ public:
 private:
   const edm::ParameterSet& pset_;
 
-  mutable unsigned int lastEventNumber;
-  mutable unsigned int lastRunNumber;
+  mutable unsigned int lastEventNumberPixels;
+  mutable unsigned int lastEventNumberStrips;
+  mutable unsigned int lastRunNumberPixels;
+  mutable unsigned int lastRunNumberStrips;
+
 
   mutable DetContainer                        theDetMap;
   mutable std::vector<TkStripMeasurementDet*> theStripDets;
