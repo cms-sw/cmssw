@@ -167,6 +167,14 @@ void DCCMemBlock::unpackMemTowerData(){
   
     
   //todo: move EcalPnDiodeDetId to electronics mapper
+
+
+  lastTowerBeforeMem_ = 0;
+  // differentiating the barrel and the endcap case
+  if (9 < mapper_->getActiveSM() || mapper_->getActiveSM() < 46){
+    lastTowerBeforeMem_ = 69; }
+  else {
+    lastTowerBeforeMem_ = 69; } 
   
 
   for(uint expStripId = 1; expStripId<= 5; expStripId++){
@@ -201,8 +209,8 @@ void DCCMemBlock::unpackMemTowerData(){
 	 
      uint ipn, index;
 		
-     if((stripId-1)%2==0){ ipn = (towerId_-69)*5 + xtalId - 1; }
-     else                { ipn = (towerId_-69)*5 + 5 - xtalId; }
+     if((stripId-1)%2==0){ ipn = (towerId_-lastTowerBeforeMem_)*5 + xtalId - 1; }
+     else                { ipn = (towerId_-lastTowerBeforeMem_)*5 + 5 - xtalId; }
 	 
 	  	
       //Cooking samples
@@ -282,7 +290,7 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
 	
     for (uint ts =0; ts <kSamplesPerPn_; ts++){
       
-      short pnDiodeData = pn_[(towerId_-69)*250 + (pnId-1)*kSamplesPerPn_ + ts];
+      short pnDiodeData = pn_[(towerId_-lastTowerBeforeMem_)*250 + (pnId-1)*kSamplesPerPn_ + ts];
       if( pnDiodeData == -1){
         errorOnPn=true;
 	     break;
