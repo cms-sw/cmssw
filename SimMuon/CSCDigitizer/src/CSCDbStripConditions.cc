@@ -14,9 +14,9 @@ CSCDbStripConditions::CSCDbStripConditions()
   theGains(0),
   thePedestals(0),
   theCrosstalk(0),
-  theCapacitiveCrosstalk(5.344),
-  theResistiveCrosstalk(0.02)
+  theCapacitiveCrosstalk(61.9)
 {
+//  theCapacitiveCrosstalk = = 1/maxslope/maxsignal) = 1/ (0.00231/0.143);
 }
 
 
@@ -149,10 +149,17 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
   }
 
   const CSCcrosstalk::Item & item = crosstalkItr->second[channel-1];
-  float fraction = leftRight ? item.xtalk_intercept_right : item.xtalk_intercept_left;
+  // resistive fraction is at the peak, where t=0
+  resistive = leftRight ? item.xtalk_intercept_right 
+                        : item.xtalk_intercept_left;
   
-  capacitive = theCapacitiveCrosstalk * fraction;
-  resistive  = theResistiveCrosstalk;
+  // ns before the peak where slope is max
+  float maxSlopeTime = 60.; 
+  float slope = leftRight ? item.xtalk_slope_right
+                          : item.xtalk_slope_left;
+  float capacitiveFraction = slope*maxSlopeTime;
+  // theCapacitiveCrosstalk is the number needed for 100% xtalk, so
+  capacitive = theCapacitiveCrosstalk * capacitiveFraction;
 }
 
 
