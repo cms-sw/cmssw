@@ -26,7 +26,7 @@ TrajectoryStateCombiner::combine(const TSOS& Tsos1, const TSOS& Tsos2) const {
 
   AlgebraicVector5 xcomb = x1 + K*(x2 - x1);
   //AlgebraicSymMatrix55 Ccomb; Ccomb.assign(K*C2);
-  AlgebraicSymMatrix55 Ccomb = ((const AlgebraicMatrix55 &)(K*C2)).LowerBlock();
+  AlgebraicSymMatrix55 Ccomb = (AlgebraicMatrix55(K*C2)).LowerBlock();
 
   TSOS combTsos( LocalTrajectoryParameters(xcomb, pzSign),
 		 LocalTrajectoryError(Ccomb), Tsos1.surface(),
