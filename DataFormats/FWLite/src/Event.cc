@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id$
+// $Id: Event.cc,v 1.1 2007/05/10 14:13:57 chrjones Exp $
 //
 
 // system include files
@@ -58,7 +58,7 @@ namespace fwlite {
       <<" does not contain a branch named 'EventAuxiliary'";
     }
     auxBranch_->SetAddress(&pAux_);
-    eventTree_->GetEntry();
+    //eventTree_->GetEntry();
     eventIndex_=0;
 }
 
@@ -160,7 +160,8 @@ static
 TBranch* findBranch(TTree* iTree, const std::string& iMainLabels, const std::string& iProcess) {
   std::string branchName(iMainLabels);
   branchName+=iProcess;
-  branchName+=".obj";
+  //branchName+=".obj";
+  branchName+=".";
   return iTree->GetBranch(branchName.c_str());
 }
 void 
@@ -236,8 +237,9 @@ Event::getByLabel(const std::type_info& iInfo,
     newData.branch_ = branch;
     newData.obj_ = obj;
     newData.lastEvent_=-1;
+    newData.pObj_ = obj.Address();
     itFind = data_.insert(std::make_pair(newKey, newData)).first;
-    branch->SetAddress(itFind->second.obj_.Address());
+    branch->SetAddress(&(itFind->second.pObj_));
   }
   if(eventIndex_ != itFind->second.lastEvent_) {
     //haven't gotten the data for this event
@@ -274,4 +276,12 @@ Event::history() const
 //
 // static member functions
 //
+void 
+Event::throwProductNotFoundException(const std::type_info& iType, const char* iModule, const char* iProduct, const char* iProcess)
+{
+    edm::TypeID type(iType);
+  throw edm::Exception(edm::errors::ProductNotFound)<<"A branch was found for \n  type ='"<<type.className()<<"'\n  module='"<<iModule
+    <<"'\n  productInstance='"<<((0!=iProduct)?iProduct:"")<<"'\n  process='"<<((0!=iProcess)?iProcess:"")<<"'\n"
+    "but no data is available for this Event";
+}
 }

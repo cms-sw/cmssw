@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id$
+// $Id: Event.h,v 1.1 2007/05/10 14:13:56 chrjones Exp $
 //
 
 // system include files
@@ -91,6 +91,7 @@ private:
     TBranch* branch_;
     Long64_t lastEvent_;
     ROOT::Reflex::Object obj_;
+    void * pObj_; //ROOT requires the address of the pointer be stable
   };
   }
 class Event
@@ -120,6 +121,7 @@ class Event
       
       Long64_t size() const;
       // ---------- static member functions --------------------
+      static void throwProductNotFoundException(const std::type_info&, const char*, const char*, const char*);
 
       // ---------- member functions ---------------------------
 

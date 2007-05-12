@@ -59,11 +59,19 @@ class Handle
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
                       const char* iProcessLabel=0) {
-        iEvent.getByLabel(edm::Wrapper<T>::productTypeInfo(),
+        edm::Wrapper<T>* temp;
+        iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
                           iModuleLabel,
                           iProductInstanceLabel,
                           iProcessLabel,
-                          data_);
+                          temp);
+        data_ = temp->product();
+        if(data_==0) {
+          iEvent.throwProductNotFoundException(edm::Wrapper<T>::typeInfo(),
+                                               iModuleLabel,
+                                               iProductInstanceLabel,
+                                               iProcessLabel);
+        }
       }
   
    private:
