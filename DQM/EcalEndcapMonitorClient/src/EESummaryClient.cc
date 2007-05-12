@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/12 09:39:06 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/12 09:48:34 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -25,8 +25,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
@@ -136,11 +134,11 @@ void EESummaryClient::setup(void) {
 
   if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EEIT integrity quality summary");
-  meIntegrity_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
   if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EEPOT pedestal quality summary G12");
-  mePedestalOnline_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
 }
 
@@ -220,17 +218,15 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
+              int iex;
+              int ipx;
 
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
-
-              if ( ism <= 9 ) {
-                iex = iex + 85;
+              if ( ism <= 18 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
@@ -260,17 +256,15 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
+              int iex;
+              int ipx;
 
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
-
-              if ( ism <= 9 ) {
-                iex = iex + 85;
+              if ( ism <= 18 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
@@ -331,11 +325,16 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2C labelGrid("labelGrid","label grid for SM", 9, 0., 360., 2, -85., 85.);
   for ( short sm=0; sm<18; sm++ ) {
     int x = 1 + sm%9;
-    int y = 2 + sm/9;
-    labelGrid.SetBinContent(x, y, sm+1);
+    int y = 1 + sm/9;
+//    labelGrid.SetBinContent(x, y, Numbers::iEE(sm+1));
+    if ( (sm+1) <= 9 ) {
+      labelGrid.SetBinContent(x, y, -(sm+1));
+    } else {
+      labelGrid.SetBinContent(x, y, +(sm+1-9));
+    }
   }
   labelGrid.SetMarkerSize(2);
-  labelGrid.SetMinimum(0.1);
+  labelGrid.SetMinimum(-9.01);
 
   string imgNameMapI, imgNameMapPO, imgName, meName;
 
@@ -472,11 +471,11 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
   int i=(superModules_[sm]-1)/9;
   int j=(superModules_[sm]-1)%9;
-  int x0 = A0 + (A1-A0)*j/18;
+  int x0 = A0 + (A1-A0)*j/9;
   int x1 = A0 + (A1-A0)*(j+1)/9;
   int y0 = B0 + (B1-B0)*i/2;
   int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+9*(i) << "\" coords=\"";
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+9*(1-i) << "\" coords=\"";
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
