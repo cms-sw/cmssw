@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/12 09:48:34 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/12 11:18:41 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -221,12 +221,12 @@ void EESummaryClient::analyze(void){
               int iex;
               int ipx;
 
-              if ( ism <= 18 ) {
+              if ( ism <= 9 ) {
                 iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
+                ipx = 1+(20-ip)+20*(ism-10);
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
@@ -259,12 +259,12 @@ void EESummaryClient::analyze(void){
               int iex;
               int ipx;
 
-              if ( ism <= 18 ) {
+              if ( ism <= 9 ) {
                 iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
+                ipx = 1+(20-ip)+20*(ism-10);
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
