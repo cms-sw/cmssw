@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/04/06 18:16:10 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -56,9 +56,9 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   h01_[0] = 0;
@@ -683,7 +683,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // dummy histogram labelling the SM's
   TH2C labelGrid("labelGrid","label grid for SM", 18, -M_PI, M_PI, 2, -1.479, 1.479);
-  for ( short sm=0; sm<36; sm++ ) {
+  for ( short sm=0; sm<18; sm++ ) {
     int x = 1 + sm%18;
     int y = 2 - sm/18;
     labelGrid.SetBinContent(x, y, sm+1);

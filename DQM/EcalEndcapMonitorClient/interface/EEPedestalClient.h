@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.52 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,65 +99,65 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h01_[18];
+CollateMonitorElement* me_h02_[18];
+CollateMonitorElement* me_h03_[18];
 
-MEContentsProf2DWithinRangeROOT* qth01_[36];
-MEContentsProf2DWithinRangeROOT* qth02_[36];
-MEContentsProf2DWithinRangeROOT* qth03_[36];
+MEContentsProf2DWithinRangeROOT* qth01_[18];
+MEContentsProf2DWithinRangeROOT* qth02_[18];
+MEContentsProf2DWithinRangeROOT* qth03_[18];
 
-MEContentsProf2DWithinRangeROOT* qth04_[36];
-MEContentsProf2DWithinRangeROOT* qth05_[36];
+MEContentsProf2DWithinRangeROOT* qth04_[18];
+MEContentsProf2DWithinRangeROOT* qth05_[18];
 
-CollateMonitorElement* me_j01_[36];
-CollateMonitorElement* me_j02_[36];
-CollateMonitorElement* me_j03_[36];
+CollateMonitorElement* me_j01_[18];
+CollateMonitorElement* me_j02_[18];
+CollateMonitorElement* me_j03_[18];
 
-CollateMonitorElement* me_k01_[36];
-CollateMonitorElement* me_k02_[36];
-CollateMonitorElement* me_k03_[36];
+CollateMonitorElement* me_k01_[18];
+CollateMonitorElement* me_k02_[18];
+CollateMonitorElement* me_k03_[18];
 
-TProfile2D* h01_[36];
-TProfile2D* h02_[36];
-TProfile2D* h03_[36];
+TProfile2D* h01_[18];
+TProfile2D* h02_[18];
+TProfile2D* h03_[18];
 
-TProfile2D* j01_[36];
-TProfile2D* j02_[36];
-TProfile2D* j03_[36];
+TProfile2D* j01_[18];
+TProfile2D* j02_[18];
+TProfile2D* j03_[18];
 
-TProfile2D* k01_[36];
-TProfile2D* k02_[36];
-TProfile2D* k03_[36];
+TProfile2D* k01_[18];
+TProfile2D* k02_[18];
+TProfile2D* k03_[18];
 
-MonitorElement* meg01_[36];
-MonitorElement* meg02_[36];
-MonitorElement* meg03_[36];
+MonitorElement* meg01_[18];
+MonitorElement* meg02_[18];
+MonitorElement* meg03_[18];
 
-MonitorElement* meg04_[36];
-MonitorElement* meg05_[36];
+MonitorElement* meg04_[18];
+MonitorElement* meg05_[18];
 
-MonitorElement* mep01_[36];
-MonitorElement* mep02_[36];
-MonitorElement* mep03_[36];
+MonitorElement* mep01_[18];
+MonitorElement* mep02_[18];
+MonitorElement* mep03_[18];
 
-MonitorElement* mer01_[36];
-MonitorElement* mer02_[36];
-MonitorElement* mer03_[36];
+MonitorElement* mer01_[18];
+MonitorElement* mer02_[18];
+MonitorElement* mer03_[18];
 
-MonitorElement* mes01_[36];
-MonitorElement* mes02_[36];
-MonitorElement* mes03_[36];
+MonitorElement* mes01_[18];
+MonitorElement* mes02_[18];
+MonitorElement* mes03_[18];
 
-MonitorElement* met01_[36];
-MonitorElement* met02_[36];
-MonitorElement* met03_[36];
+MonitorElement* met01_[18];
+MonitorElement* met02_[18];
+MonitorElement* met03_[18];
 
-CollateMonitorElement* me_i01_[36];
-CollateMonitorElement* me_i02_[36];
+CollateMonitorElement* me_i01_[18];
+CollateMonitorElement* me_i02_[18];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
+TProfile2D* i01_[18];
+TProfile2D* i02_[18];
 
 // Quality check on crystals, one per each gain
 

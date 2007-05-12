@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/07 12:09:13 $
- * $Revision: 1.5 $
+ * $Date: 2007/04/30 09:24:03 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -66,9 +66,9 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   meIntegrity_      = 0;
@@ -329,7 +329,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   // dummy histogram labelling the SM's
   TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
-  for ( short sm=0; sm<36; sm++ ) {
+  for ( short sm=0; sm<18; sm++ ) {
     int x = 1 + sm%18;
     int y = 2 + sm/18;
     labelGrid.SetBinContent(x, y, sm+1);
