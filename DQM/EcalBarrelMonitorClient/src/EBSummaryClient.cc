@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/04/30 17:37:03 $
- * $Revision: 1.18 $
+ * $Date: 2007/05/11 15:05:04 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -25,8 +25,6 @@
 
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
-
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
 
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/Numbers.h>
@@ -296,17 +294,15 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
-
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
+              int iex;
+              int ipx;
 
               if ( ism <= 18 ) {
-                iex = iex + 85;
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
@@ -319,18 +315,17 @@ void EBSummaryClient::analyze(void){
 
               float xval = h2->GetBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
-
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
+              int iex;
+              int ipx;
 
               if ( ism <= 18 ) {
-                iex = iex + 85;
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
+
 
               meOccupancy_->setBinContent( ipx, iex, xval );
 
@@ -346,18 +341,17 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
-
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
+              int iex;
+              int ipx;
 
               if ( ism <= 18 ) {
-                iex = iex + 85;
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
+
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
 
@@ -373,18 +367,17 @@ void EBSummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
-
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
+              int iex;
+              int ipx;
 
               if ( ism <= 18 ) {
-                iex = iex + 85;
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
               }
+
 
               if ( me->getEntries() != 0 ) {
                 meLaserL1_->setBinContent( ipx, iex, xval );
