@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/05/12 09:28:33 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/12 09:56:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -178,7 +178,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC(); if ( ismt > 9 ) continue;
+      int ismt = id.iDCC(); if ( ismt > 18 ) continue;
 
       int itt = 4*(iet-1)+(ipt-1)+1;
 
@@ -233,7 +233,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 9 ) continue;
+      int ism = id.ism(); if ( ism > 18 ) continue;
 
       int iet = 1 + ((ie-1)/5);
       int ipt = 1 + ((ip-1)/5);

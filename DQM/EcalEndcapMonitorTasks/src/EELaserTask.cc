@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/05/12 09:28:33 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/12 09:56:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -567,7 +567,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 9 ) continue;
+      int ism = id.ism(); if ( ism > 18 ) continue;
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -641,8 +641,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-//      int ism = id.ism(); if ( ism > 9 ) continue;
-      int ism = id.iDCCId(); if ( ism > 9 ) continue;
+//      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = id.iDCCId(); if ( ism > 18 ) continue;
 
       int num = id.iPnId();
 
@@ -746,7 +746,7 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 9 ) continue;
+      int ism = id.ism(); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
