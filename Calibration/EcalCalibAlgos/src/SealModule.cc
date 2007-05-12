@@ -7,4 +7,4 @@
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(miscalibExample);
 DEFINE_ANOTHER_FWK_MODULE(ElectronCalibration);
-DEFINE_ANOTHER_FWK_MODULE(PhiSymmetryCalibration);
+DEFINE_ANOTHER_FWK_LOOPER(PhiSymmetryCalibration);

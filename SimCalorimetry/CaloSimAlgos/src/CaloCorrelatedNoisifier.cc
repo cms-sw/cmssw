@@ -4,31 +4,29 @@
 #include <stdexcept>
 
 CaloCorrelatedNoisifier::CaloCorrelatedNoisifier(int nFrames)
-: theCovarianceMatrix(nFrames, 1.0),
-  theMatrix(nFrames, 1.0),
+: theMatrix(nFrames, 1.0),
   theRandomGaussian(*(HepRandom::getTheEngine())),
-  theSize(nFrames)
+  theSize(nFrames),
+  theNorma(0.,theSize)
 {
+  computeNormalization(); 
 
   isDiagonal_ = true;
   checkOffDiagonal(isDiagonal_);
-
-  computeDecomposition();
 
 }
 
 
 CaloCorrelatedNoisifier::CaloCorrelatedNoisifier(const HepSymMatrix & matrix)
-: theCovarianceMatrix(matrix.num_row(),matrix),
-  theMatrix(matrix.num_row(),1.0),
+: theMatrix(matrix.num_row(),matrix),
   theRandomGaussian(*(HepRandom::getTheEngine())),
-  theSize(theCovarianceMatrix.rank())
+  theSize(theMatrix.rank()),
+  theNorma(0.,theSize)
 {
+  computeNormalization(); 
 
   isDiagonal_ = true;
   checkOffDiagonal(isDiagonal_);
-
-  computeDecomposition();
 
 }
 
@@ -37,13 +35,13 @@ void CaloCorrelatedNoisifier::setDiagonal(double value)
 {
   for(int i = 0; i < theSize; ++i) 
   {
-    theCovarianceMatrix(i,i) = value;
+    theMatrix(i,i) = value;
   }
+
+  computeNormalization(); 
 
   isDiagonal_ = true;
   checkOffDiagonal(isDiagonal_);
-
-  computeDecomposition();
 
 } 
 
@@ -53,15 +51,15 @@ void CaloCorrelatedNoisifier::setOffDiagonal(int distance, double value)
   {
     int row = column - distance;
     if(row < 0) continue;
-    theCovarianceMatrix(row,column) = value;
-    theCovarianceMatrix(column,row) = value;
+    theMatrix(row,column) = value;
+    theMatrix(column,row) = value;
 
   }
 
+  computeNormalization(); 
+
   isDiagonal_ = true;
   checkOffDiagonal(isDiagonal_);
-
-  computeDecomposition();
 
 }
 
@@ -89,50 +87,21 @@ void CaloCorrelatedNoisifier::noisify(CaloSamples & frame)
     // stuff 'em in the frame
     for(int i = 0; i < theSize; ++i)
       {
-        frame[i] += correlated[i];
+        frame[i] += (correlated[i]*theNorma[i]);
       }
   }
 }
 
-void CaloCorrelatedNoisifier::computeDecomposition()
+void CaloCorrelatedNoisifier::computeNormalization() 
 {
-
-  for ( int i = 0 ; i < theSize ; i++ ) {
-    for ( int j = 0 ; j < theSize ; j++ ) {
-      theMatrix(i,j) = 0.;
-    }
-  }
-
-  double sqrtSigma00 = theCovarianceMatrix(0,0);
-  if ( sqrtSigma00 <= 0. ) throw(std::runtime_error("CaloCorrelatedNoisifier: non positive variance."));
-  sqrtSigma00 = std::sqrt(sqrtSigma00);
-
-  for ( int i = 0 ; i < theSize ; i++ )
-    {
-      double hi0 = theCovarianceMatrix(i,0)/sqrtSigma00;
-      theMatrix(i,0) = hi0;
-    }
-
-  for ( int i = 1 ; i < theSize ; i++ ) 
-    {
-
-      for ( int j = 1 ; j < i ; j++ )
-        {
-          double hij = theCovarianceMatrix(i,j);
-          for ( int k = 0 ; k <= j-1 ; k++ ) hij -= theMatrix(i,k)*theMatrix(j,k);
-          hij /= theMatrix(j,j);
-          theMatrix(i,j) = hij;
-        }
-      
-      double hii = theCovarianceMatrix(i,i);
-      for ( int j = 0 ; j <= i-1 ; j++ ) {
-        double hij = theMatrix(i,j);
-        hii -= hij*hij;
-      }
-      hii = sqrt(hii);
-      theMatrix(i,i) = hii;
-
-    }
+  theNorma = 0;
+  caloMath::SparseMatrix<double>::const_iterator p = theMatrix.values().begin();
+  caloMath::SparseMatrix<double>::const_iterator e = theMatrix.values().end();
+  for (;p!=e;p++)
+    theNorma[(*p).i] += (*p).v*(*p).v;
+  for (int i=0; i<theSize; i++)
+    if (theNorma[i] <= 0. ) throw(std::runtime_error("CaloCorrelatedNoisifier:  normalization equal to zero."));
+  theNorma = 1./std::sqrt(theNorma);
 
 }
 
@@ -143,7 +112,7 @@ void CaloCorrelatedNoisifier::checkOffDiagonal(bool & isDiagonal_){
   for ( int i = 0 ; i < theSize ; i++ ) {
     for ( int j = 0 ; j < theSize ; j++ ) {
 
-      if ( i != j && theCovarianceMatrix(i,j) != 0. ) { isDiagonal_ = false ; return ; }
+      if ( i != j && theMatrix(i,j) != 0. ) { isDiagonal_ = false ; return ; }
       
     }
   }

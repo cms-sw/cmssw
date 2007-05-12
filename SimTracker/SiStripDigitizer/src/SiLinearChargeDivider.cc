@@ -2,10 +2,8 @@
 #include "Geometry/Vector/interface/LocalPoint.h"
 #include "Geometry/Vector/interface/LocalVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf,const ParticleDataTable * pdt):conf_(conf),
-													  pdt_(pdt){
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf):conf_(conf){
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   peakMode=conf_.getParameter<bool>("APVpeakmode");
   
@@ -81,17 +79,11 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
   if( length > 0.) dedx = eloss/length;
   else dedx = eloss;
 
-  assert(pdt_ != 0);
-  ParticleData const * particle = pdt_->particle(pid);
   double particleMass = 139.57;              // Mass in MeV, Assume pion
-  if(particle == 0)
-    {
-     edm::LogError("SiLinearChargeDivider") << "Cannot find particle of type "<<pid<< " in the PDT";
-    }
-  else
-    {
-      particleMass = particle->mass()*1000; // Mass in MeV
-    }
+  pid = abs(pid);
+  if(pid==11) particleMass = 0.511;          // Electron
+  else if(pid==13) particleMass = 105.658;   // Muon
+  else if(pid==2212) particleMass = 938.271; // Proton
 
   float segmentLength = length/NumberOfSegs;
 
@@ -112,7 +104,7 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
     elossVector[i]=de;
     sum +=de;
   }
-  
+
   if(sum>0.) {  // If fluctuations give eloss>0.
     // Rescale to the same total eloss
     float ratio = eloss/sum;

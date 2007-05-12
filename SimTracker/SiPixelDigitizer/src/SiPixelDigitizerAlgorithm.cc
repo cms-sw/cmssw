@@ -249,6 +249,9 @@ SiPixelDigitizerAlgorithm::SiPixelDigitizerAlgorithm(const edm::ParameterSet& co
     } // end if readparameters
   } // end if missCalibration 
 
+  //MP DA RISOLVERE
+  //   particleTable =  &HepPDT::theTable();
+
 }
 //=========================================================================
 SiPixelDigitizerAlgorithm::~SiPixelDigitizerAlgorithm() {
@@ -439,14 +442,18 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
   if( length > 0.) dedx = eloss/length;
   else dedx = eloss;
 
-  double particleMass = 139.6; // Mass in MeV, Assume pion
+  double particleMass = 139.57; // Mass in MeV, Assume pion
+  //MP DA RIMUOVERE
+  //   if( particleTable->getParticleData(pid) ) {  // Get mass from the PDTable
+  //     particleMass = 1000. * particleTable->getParticleData(pid)->mass(); //Conv. GeV to MeV
+  //   }
+  
   pid = abs(pid);
-  if(pid!=211) {       // Mass in MeV
-    if(pid==11)        particleMass = 0.511;        
-    else if(pid==13)   particleMass = 105.7;
-    else if(pid==321)  particleMass = 493.7;
-    else if(pid==2212) particleMass = 938.3;
-  }
+  if(pid==11) particleMass = 0.511;         // Mass in MeV
+  else if(pid==13) particleMass = 105.658;
+  else if(pid==211) particleMass = 139.570;
+  else if(pid==2212) particleMass = 938.271;
+
   // What is the track segment length.
   float segmentLength = length/NumberOfSegs;
 

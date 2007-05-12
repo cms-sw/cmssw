@@ -63,10 +63,10 @@ bool HitPattern::hasValidHitInFirstPixelBarrel() const {
   for (int i = 0 ; i < (PatternSize * 32) / HitSize ; i++) {
     uint32_t pattern = getHitPattern(i);
     if (validHitFilter(pattern) && trackerHitFilter(pattern)) {
-      uint32_t substructure = (pattern >> SubstrOffset) & SubstrMask + 1;
+      uint32_t substructure = ((pattern >> SubstrOffset) & SubstrMask) ;
       if (substructure == PixelSubdetector::PixelBarrel) {
-	int layer = (pattern>>LayerOffset) 
-	  & LayerMask + 1;
+	int layer = ((pattern>>LayerOffset) 
+	  & LayerMask) ;
 		      if (layer == 1) return true;
       }
     }

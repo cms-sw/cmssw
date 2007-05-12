@@ -37,6 +37,7 @@ class L1MuDTTrackContainer {
 
   typedef std::vector<L1MuRegionalCand>   TrackContainer;
   typedef TrackContainer::const_iterator  Trackiterator;
+  typedef TrackContainer::iterator        TrackIterator;
 
   //  Constructors
   L1MuDTTrackContainer();
@@ -47,6 +48,10 @@ class L1MuDTTrackContainer {
   void setContainer(TrackContainer inputTracks);
 
   TrackContainer* getContainer() const;
+
+  bool bxEmpty(int step) const;
+
+  int bxSize(int step1, int step2) const;
 
  private:
 

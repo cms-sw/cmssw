@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/06 22:44:34 $
-// $Revision: 1.13 $
+// $Date: 2007/03/01 08:16:17 $
+// $Revision: 1.14 $
 //
 
 #include <string>
@@ -24,7 +24,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
@@ -32,8 +32,8 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"

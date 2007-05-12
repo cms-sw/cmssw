@@ -16,7 +16,7 @@ function usage () {
     echo -e " -firstUpload (otherwise works in append mode) "
     echo -e " -geometry=<TAC>, <MTCC> (default is MTCC)"
     echo -e " -Debug (switch on printout for debug)"
-    echo -e " -RunTable (switch on/off online runtable query - default off)"
+
 
     echo -e "\n\nPlease set your CORAL_AUTH_PATH environment variable, otherwise it will be defined as /afs/cern.ch/cms/DB/conddb\n"
     
@@ -53,7 +53,6 @@ function settings (){
     default_CondDb="sqlite"
     default_firstUpload=0
     default_Debug=0
-    default_RunTable=0
     
     getParameter help $@ 0
     [ "$help" = 1 ] && usage
@@ -61,9 +60,9 @@ function settings (){
     if [ ! -n "$CORAL_AUTH_PATH" ];
 	then
 	export CORAL_AUTH_PATH=/afs/cern.ch/cms/DB/conddb
-	echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH\n"
+	echo -e "\nWARNING: CORAL_AUTH_PATH environment variable is not defined in your shell\n default value will be used CORAL_AUTH_PATH=$CORAL_AUTH_PATH"
     fi
-    echo ""
+
     getParameter doPedNoiseTransfer   $@ ${default_doPedNoiseTransfer}
     getParameter doFedCablingTransfer $@ ${default_doFedCablingTransfer}
     getParameter ConfigDb             $@ ${default_ConfigDb}
@@ -76,7 +75,6 @@ function settings (){
     getParameter firstUpload          $@ ${default_firstUpload} 
     getParameter geometry             $@ MTCC
     getParameter Debug                $@ ${default_Debug}
-    getParameter RunTable             $@ ${default_RunTable}
 
     default_sqliteDb=${test_area}/dummy_${IOV}.db
     default_sqliteCatalog=${test_area}/dummy_${IOV}.xml
@@ -95,8 +93,6 @@ function settings (){
     ConfigDbPath=`echo ${ConfigDb}| awk -F'@' '{print $2}'`
     ConfigDbMajorVersion=`echo ${ConfigDbVersion}| awk -F'.' '{print $1}'`
     ConfigDbMinorVersion=`echo ${ConfigDbVersion}| awk -F'.' '{print $2}'`
-
-    [ "${RunTable}" == "1" ] && QueryOnline
 
     echo -e " -IOV=$IOV"
     echo -e " -ConfigDb=${ConfigDb}"
@@ -117,74 +113,26 @@ function settings (){
     echo " "
 }
 
-
-function QueryOnline(){
-
-    Where="partition,run,state,modetype"
-    Condition="run.runmode=modetype.runmode and state.stateid=run.stateid and state.partitionid=run.partitionid and partition.partitionid=run.partitionid and run.runnumber=$IOV"
-
-    ConfigDbRunMode=`echo "select run.runmode from ${Where} where ${Condition};" | sqlplus -S ${ConfigDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-
-    if  [ "${ConfigDbRunMode}" != "2" ] && [ "${ConfigDbRunMode}" != "11" ] && [ "${ConfigDbRunMode}" != "16" ];
-	then
-	ConfigDbRunDesc=`echo "select modetype.modedescription from ${Where} where ${Condition};" | sqlplus -S ${ConfigDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-	echo -e "\n RunMode from RunTable on $ConfigDb is ${ConfigDbRunMode} = ${ConfigDbRunDesc}"
-	echo -e "\n RunMode doesn't match allowed modes"
-	echo -e "\n\t  2 = Pedestal"
-	echo -e "\n\t 11 = Connection"
-	echo -e "\n\t 16 = Fast_Connection"
-	echo -e "\n EXIT"
-	exit
-    fi
-
-    ConfigDbPartition=`echo "select partitionname from ${Where} where ${Condition};" | sqlplus -S ${ConfigDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-    ConfigDbMajorVersion=`echo "select state.FEDVERSIONMAJORID from ${Where} where ${Condition};" | sqlplus -S ${ConfigDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-    ConfigDbMinorVersion=`echo "select state.FEDVERSIONMINORID from ${Where} where ${Condition};" | sqlplus -S ${ConfigDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-
-    [ "${ConfigDbRunMode}" == "2" ] && doPedNoiseTransfer=1
-    [ "${ConfigDbRunMode}" == "11" ] || [ "${ConfigDbRunMode}" == "16" ] && doFedCablingTransfer=1
-    ConfigDbVersion=${ConfigDbMajorVersion}.${ConfigDbMinorVersion}
-
-}
-
-function VerifyAppendMode(){ 
-    
-    connectionName=$1
-
-    account=`grep -h -A2 "$1" ${CORAL_AUTH_PATH}/*.xml | sed -e 's@<[[:print:]]*value="\([[:print:]]*\)"[[:print:]]*@\1@g' | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-    passwd=`grep -h -A2 "$1" ${CORAL_AUTH_PATH}/*.xml | sed -e 's@<[[:print:]]*value="\([[:print:]]*\)"[[:print:]]*@\1@g' | tail -1 | sed -e "s@[ \t]@@g"`
-
- #   echo $account $passwd
-
-    declare -i value
-    [ "$doFedCablingTransfer" == "1" ] && value=`echo "select count(NAME) from  CMS_COND_STRIP.metadata where name like '${tagCab}';"  | sqlplus -S ${account}/${passwd}@${CondDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-    [ "$doPedNoiseTransfer" == "1" ]   && value=`echo "select count(NAME) from  CMS_COND_STRIP.metadata where name like '${tagPN}_p';" | sqlplus -S ${account}/${passwd}@${CondDb} | tail -2 | head -1 | sed -e "s@[ \t]@@g"`
-
-    append=1
-    [ "$value" == "0" ] && append=0
-}
-
 #################
 ## MAIN
 #################
 
-eval `scramv1 runtime -sh`
-export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
-  
 
 settings "$@"
+
 
 [ ! -e ${test_area} ] && mkdir -p ${test_area}
 
 
+eval `scramv1 runtime -sh`
+export TNS_ADMIN=/afs/cern.ch/project/oracle/admin
+  
 if [ "$CondDb" == "devdb10" ]; then
     DBfile="oracle://devdb10/CMS_COND_STRIP"
     DBcatalog="relationalcatalog_oracle://devdb10/CMS_COND_GENERAL"
-    VerifyAppendMode $DBfile
 elif [ "$CondDb" == "orcon" ]; then
     DBfile="oracle://orcon/CMS_COND_STRIP"
     DBcatalog="relationalcatalog_oracle://orcon/CMS_COND_GENERAL"
-    VerifyAppendMode $DBfile
 elif [ "$CondDb" == "sqlite" ]; then
     DBfile="sqlite_file:${sqliteDb}"
     DBcatalog="file:${sqliteCatalog}"
@@ -205,6 +153,7 @@ else
     exit
 fi
 
+
 o2otrans="dummy"
 if [ "$doPedNoiseTransfer" == "1" ] && [ "$doFedCablingTransfer" == "1" ];
     then 
@@ -224,7 +173,7 @@ echo DBcatalog $DBcatalog
 boolDebug=false
 [ "$Debug" == "1" ] && boolDebug=true
 
-[ "$IOV" -gt "1" ] && let prevIOV=${IOV}-1
+[ "$IOV" > "1" ] && let prevIOV=$IOV-1
 
 templatefile=${CMSSW_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 
 [ ! -e $templatefile ] && templatefile=${CMSSW_RELEASE_BASE}/src/CondTools/SiStrip/scripts/template_SiStripO2O.cfg 

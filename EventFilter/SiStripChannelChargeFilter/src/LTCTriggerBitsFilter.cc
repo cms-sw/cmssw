@@ -7,7 +7,7 @@
 // Original Author:  dkcira
 
 #include "EventFilter/SiStripChannelChargeFilter/interface/LTCTriggerBitsFilter.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 #include <iostream>

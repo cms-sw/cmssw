@@ -11,6 +11,13 @@
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
+#include <vector>
+using std::vector;
+
+#include <iostream>
+using std::cout;
+using std::endl;
+
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rct(0),
   src(conf.getParameter<edm::FileInPath>("src")),

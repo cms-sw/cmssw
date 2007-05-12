@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/02/05 19:07:40 $
- *  $Revision: 1.39 $
+ *  $Date: 2007/02/16 13:32:12 $
+ *  $Revision: 1.40 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -17,6 +17,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -116,12 +117,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // This track has the parameters defined at PCA (no update)
     std::pair<bool,reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(**trajectory);
     
-    // Check if the extrapolation went well
+    // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) continue;
 
-    // "bare" track at PCA
+    // take the "bare" track at PCA
     reco::Track &track = resultOfTrackExtrapAtPCA.second;
-
+       
     // build the "bare" track extra from the trajectory
     reco::TrackExtra trackExtra = buildTrackExtra( **trajectory );
 
@@ -177,10 +178,6 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
   event.put(recHitCollection,instance);
   event.put(trackExtraCollection,instance);
   if ( theTrajectoryFlag ) event.put(trajectoryCollection,instance);
-
-
-
-  
 
   if(theUpdatingAtVtx){
     event.put(trackCollection,instance);
@@ -283,9 +280,8 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
   }
   else LogError(metname)<<"Wrong propagation direction!";
   
-  LogTrace(metname) << "TSOS before the extrapolation at vtx";
+  LogTrace(metname) << "TSOS before the extrapolation at PCA";
   LogTrace(metname) << debug.dumpTSOS(innerTSOS);
-  LogTrace(metname) << "Parameters ";
   LogTrace(metname) << innerTSOS.freeState()->parameters();
   LogTrace(metname) << "Cartesian Errors";
   LogTrace(metname) << innerTSOS.freeState()->cartesianError().matrix();
@@ -294,36 +290,41 @@ std::pair<bool,reco::Track> MuonTrackLoader::buildTrackAtPCA(const Trajectory& t
 
 
   // This is needed to extrapolate the tsos at vertex
-  GlobalPoint vtxPosition(0.,0.,0.);
   std::pair<bool,FreeTrajectoryState> 
-    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS, vtxPosition);
+    extrapolationResult = theUpdatorAtVtx->propagate(innerTSOS);  
+  FreeTrajectoryState ftsAtVtx;
   
-  if(extrapolationResult.first){
-    
-    FreeTrajectoryState ftsAtVtx = extrapolationResult.second;
-    
-    LogTrace(metname) << "TSOS after the extrapolation at vtx";
-    LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
-    
-    GlobalPoint pca = ftsAtVtx.position();
-    math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
-    GlobalVector p = ftsAtVtx.momentum();
-    math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
-    
-    double ndof = computeNDOF(trajectory);
-    
-    reco::Track track(trajectory.chiSquared(), 
-		      ndof,
-		      persistentPCA,
-		      persistentMomentum,
-		      ftsAtVtx.charge(),
-		      ftsAtVtx.curvilinearError());
-
-    return std::pair<bool,reco::Track>(true,track);
+  if(extrapolationResult.first)
+    ftsAtVtx = extrapolationResult.second;
+  else{    
+    if(TrackerBounds::isInside(innerTSOS.globalPosition())){
+      LogWarning(metname) << "Track in the Tracker: taking the innermost state instead of the state at PCA";
+      ftsAtVtx = *innerTSOS.freeState();
+    }
+    else{
+      LogWarning(metname) << "Stand Alone track: this track will be rejected";
+      return std::pair<bool,reco::Track>(false,reco::Track());
+    }
   }
-  else{
-    return std::pair<bool,reco::Track>(false,reco::Track());
-  }
+    
+  LogTrace(metname) << "TSOS after the extrapolation at vtx";
+  LogTrace(metname) << debug.dumpFTS(ftsAtVtx);
+  
+  GlobalPoint pca = ftsAtVtx.position();
+  math::XYZPoint persistentPCA(pca.x(),pca.y(),pca.z());
+  GlobalVector p = ftsAtVtx.momentum();
+  math::XYZVector persistentMomentum(p.x(),p.y(),p.z());
+  
+  double ndof = computeNDOF(trajectory);
+  
+  reco::Track track(trajectory.chiSquared(), 
+		    ndof,
+		    persistentPCA,
+		    persistentMomentum,
+		    ftsAtVtx.charge(),
+		    ftsAtVtx.curvilinearError());
+  
+  return std::pair<bool,reco::Track>(true,track);
 }
 
 

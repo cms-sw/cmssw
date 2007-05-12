@@ -48,7 +48,7 @@ GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
   produces<L1CaloRegionCollection>();
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
-  produces<L1GctInternEmCandCollection>();
+  produces<L1GctEmCandCollection>("GctInterEm");
   produces<L1GctJetCandCollection>("cenJets");
   produces<L1GctJetCandCollection>("forJets");
   produces<L1GctJetCandCollection>("tauJets");
@@ -107,7 +107,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   std::auto_ptr<L1CaloRegionCollection> rctRgn( new L1CaloRegionCollection() ); 
   
   // GCT intermediate data
-  std::auto_ptr<L1GctInternEmCandCollection> gctInternEm( new L1GctInternEmCandCollection() ); 
+  std::auto_ptr<L1GctEmCandCollection> gctInterEm( new L1GctEmCandCollection() ); 
 
   // GCT output data
   std::auto_ptr<L1GctEmCandCollection> gctIsoEm( new L1GctEmCandCollection() ); 
@@ -125,7 +125,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   converter_.setRctEmCollection( rctEm.get() );
   converter_.setIsoEmCollection( gctIsoEm.get() );
   converter_.setNonIsoEmCollection( gctNonIsoEm.get() );
-  converter_.setInternEmCollection( gctInternEm.get() );
+  converter_.setInterEmCollection( gctInterEm.get() );
 
   // unpacking variables
   const unsigned char * data = d.data();
@@ -169,7 +169,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
   os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
   os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
-  os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
+  os << "Read " << gctInterEm.get()->size() << " GCT intermediate EM candidates" << endl;
 
   edm::LogVerbatim("GCT") << os.str();
 
@@ -179,7 +179,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   e.put(rctRgn);
   e.put(gctIsoEm, "isoEm");
   e.put(gctNonIsoEm, "nonIsoEm");
-  e.put(gctInternEm);
+  e.put(gctInterEm, "GctInterEm");
   e.put(gctCenJets,"cenJets");
   e.put(gctForJets,"forJets");
   e.put(gctTauJets,"tauJets");

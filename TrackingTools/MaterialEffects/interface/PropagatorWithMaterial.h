@@ -111,7 +111,7 @@ public:
 
   virtual PropagatorWithMaterial* clone() const
     {
-      return new PropagatorWithMaterial(*theGeometricalPropagator,*theMEUpdator);
+      return new PropagatorWithMaterial(*this);
     }
 
 private:

@@ -72,7 +72,7 @@ void ElectronClassification::classify(const PixelMatchGsfElectron &electron) {
   if (nbrem == 0 && 
       (pin - scEnergy)/pin < 0.1 &&
       fabs(electron.caloPosition().phi() -
-	   electron.track()->outerMomentum().phi() - peak) < 0.15 &&
+	   electron.gsfTrack()->outerMomentum().phi() - peak) < 0.15 &&
       (pin - pout)/pin < 0.2) {    
     electronClass_ += 0;
   } 

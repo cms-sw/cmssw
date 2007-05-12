@@ -1,6 +1,4 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerRod.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerBarrelLayer.h"
 
 

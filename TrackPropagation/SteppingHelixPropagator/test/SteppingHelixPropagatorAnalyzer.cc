@@ -17,7 +17,7 @@ positions of a muon in the detector.
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.10 2007/01/10 02:04:39 slava77 Exp $
+// $Id: SteppingHelixPropagatorAnalyzer.cc,v 1.12 2007/03/07 22:26:42 slava77 Exp $
 //
 //
 
@@ -30,17 +30,18 @@ positions of a muon in the detector.
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
@@ -158,6 +159,7 @@ class SteppingHelixPropagatorAnalyzer : public edm::EDAnalyzer {
   bool testPCAPropagation_;
 
   bool ntupleTkHits_;
+  std::string g4SimName_;
 };
 
 //
@@ -200,6 +202,8 @@ SteppingHelixPropagatorAnalyzer::SteppingHelixPropagatorAnalyzer(const edm::Para
   testPCAPropagation_ = iConfig.getParameter<bool>("testPCAPropagation");
 
   ntupleTkHits_ = iConfig.getParameter<bool>("ntupleTkHits");
+
+  g4SimName_ = iConfig.getParameter<std::string>("g4SimName");
 }
 
 void SteppingHelixPropagatorAnalyzer::beginJob(const edm::EventSetup& es){
@@ -499,7 +503,7 @@ void SteppingHelixPropagatorAnalyzer
 	      const edm::ESHandle<GlobalTrackingGeometry>& geom,
 	      std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
   edm::Handle<edm::PSimHitContainer> handle;
-  iEvent.getByLabel("SimG4Object", instanceName, handle);
+  iEvent.getByLabel(g4SimName_, instanceName, handle);
   if (! handle.isValid() ){
     std::cout<<"No hits found"<<std::endl;
     return;

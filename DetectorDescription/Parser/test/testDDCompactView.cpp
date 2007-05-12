@@ -29,7 +29,7 @@
 #include "DetectorDescription/Algorithm/src/AlgoInit.h"
 #include "DetectorDescription/Core/src/DDCheck.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/src/DDCheckMaterials.cc"
+#include "DetectorDescription/CoreImpl/src/DDCheckMaterials.cc"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDExpandedNode.h"

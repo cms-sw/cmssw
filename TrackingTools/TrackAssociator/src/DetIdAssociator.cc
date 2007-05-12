@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.11 2007/01/30 18:40:01 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.12 2007/02/19 11:57:42 dmytro Exp $
 //
 //
 
@@ -204,9 +204,19 @@ std::vector<DetId> DetIdAssociator::getCrossedDetIdsOrdered(const std::set<DetId
 {
    check_setup();
    std::vector<DetId> output;
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) 
-     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-       if (insideElement(*point_iter, *id_iter))  output.push_back(*id_iter);
+   std::set<DetId> ids(inset);
+   for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); 
+       point_iter != trajectory.end(); point_iter++)
+     {
+	std::set<DetId>::const_iterator id_iter = ids.begin();
+	while ( id_iter != ids.end() ) {
+	   if (insideElement(*point_iter, *id_iter)) {
+	      output.push_back(*id_iter);
+	      ids.erase(id_iter++);
+	   }else
+	     id_iter++;
+	}
+     }
    return output;
 }
 

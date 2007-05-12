@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.144 $
+ * $Date: 2007/02/19 07:14:22 $
+ * $Revision: 1.141 $
  * \author G. Della Ricca
  *
 */
@@ -10,7 +10,6 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 
 #include "TStyle.h"
 
@@ -210,9 +209,8 @@ EBLaserClient::EBLaserClient(const ParameterSet& ps){
 
   percentVariation_ = 0.4;
 
-  amplitudeThresholdPnG01_ = 50.;
-  amplitudeThresholdPnG16_ = 50.;
-  pedestalThresholdPn_ = 200.;
+  amplitudeThresholdPN_ = 50.;
+  meanThresholdPN_ = 200.;
 
 }
 
@@ -264,7 +262,7 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L1 G01", ism);
       qth09_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G01", ism);
+      sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L2 G10", ism);
       qth10_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EBLT laser amplitude quality PNs SM%02d L3 G01", ism);
@@ -318,22 +316,22 @@ void EBLaserClient::beginJob(MonitorUserInterface* mui){
       qth07_[ism-1]->setMeanRange(100.0, 4096.0*12.);
       qth08_[ism-1]->setMeanRange(100.0, 4096.0*12.);
 
-      qth09_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth13_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth14_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth15_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth16_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth22_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth23_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth24_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qth09_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth10_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth11_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth12_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth13_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth14_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth15_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth16_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth17_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth18_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth19_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth20_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qth21_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth22_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth23_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qth24_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
@@ -3300,9 +3298,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean01 < amplitudeThresholdPnG01_ )
+        if ( mean01 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean05 < pedestalThresholdPn_ )
+        if ( mean05 < meanThresholdPN_ )
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
@@ -3313,9 +3311,9 @@ void EBLaserClient::analyze(void){
         float val; 
 
         val = 1.;
-        if ( mean02 < amplitudeThresholdPnG01_ )
+        if ( mean02 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean06 < pedestalThresholdPn_ )
+        if ( mean06 < meanThresholdPN_ )
           val = 0.;
         if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val); 
 
@@ -3326,9 +3324,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean03 < amplitudeThresholdPnG01_ )
+        if ( mean03 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean07 < pedestalThresholdPn_ )
+        if ( mean07 < meanThresholdPN_ )
           val = 0.;
         if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(i, 1, val);
 
@@ -3339,9 +3337,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean04 < amplitudeThresholdPnG01_ )
+        if ( mean04 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean08 < pedestalThresholdPn_ )
+        if ( mean08 < meanThresholdPN_ )
           val = 0.;
         if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent(i, 1, val);
 
@@ -3352,9 +3350,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean09 < amplitudeThresholdPnG16_ )
+        if ( mean09 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean13 < pedestalThresholdPn_ )
+        if ( mean13 < meanThresholdPN_ )
           val = 0.;
         if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val); 
 
@@ -3365,9 +3363,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean10 < amplitudeThresholdPnG16_ )
+        if ( mean10 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean14 < pedestalThresholdPn_ )
+        if ( mean14 < meanThresholdPN_ )
           val = 0.;
         if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val); 
 
@@ -3378,9 +3376,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean11 < amplitudeThresholdPnG16_ )
+        if ( mean11 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean15 < pedestalThresholdPn_ )
+        if ( mean15 < meanThresholdPN_ )
           val = 0.;
         if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent(i, 1, val);
 
@@ -3391,9 +3389,9 @@ void EBLaserClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean12 < amplitudeThresholdPnG16_ )
+        if ( mean12 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean16 < pedestalThresholdPn_ )
+        if ( mean16 < meanThresholdPN_ )
           val = 0.;
         if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent(i, 1, val);
 
@@ -3537,8 +3535,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
-  //htmlFile << "<br>  " << endl;
-  htmlFile << "<a name=""top""></a>" << endl;
+  htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
@@ -3584,13 +3581,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</tbody>" << endl;
   htmlFile << "</table>" << endl;
-  htmlFile << "<br>" << endl;
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
+  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -4284,10 +4275,7 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
-    htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
