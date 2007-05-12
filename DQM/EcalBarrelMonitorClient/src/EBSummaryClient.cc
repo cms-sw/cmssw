@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/12 08:32:57 $
- * $Revision: 1.20 $
+ * $Date: 2007/05/12 10:18:27 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -438,7 +438,6 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
   for ( short sm=0; sm<36; sm++ ) {
     int x = 1 + sm%18;
-    //int y = 2 - sm/18;
     int y = 1 + sm/18;
     labelGrid.SetBinContent(x, y, Numbers::iEB(superModules_[sm]));
   }
