@@ -10,8 +10,8 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.7 $
-///  $Date: 2007/05/10 20:19:34 $
+///  $Revision: 1.8 $
+///  $Date: 2007/05/11 19:59:47 $
 ///  (last update by $Author: cklae $)
 
 #include <string>
@@ -57,10 +57,10 @@ public:
 private:
 
   /// Get first sensor of an Alignable
-  const Alignable* firstDet( const Alignable* alignable ) const;
+  const Alignable& firstDet( const Alignable& alignable ) const;
  
   /// Get unique identifyer of first AlignableDet of alignable
-  uint32_t firstDetId( const Alignable* alignable ) const;
+  uint32_t firstDetId( const Alignable& alignable ) const;
 
 };
 

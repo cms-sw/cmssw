@@ -1,7 +1,7 @@
 /// \file TrackerAlignableId.cc
 ///
-///  $Revision: 1.9 $
-///  $Date: 2007/05/10 20:19:35 $
+///  $Revision: 1.10 $
+///  $Date: 2007/05/11 19:59:48 $
 ///  (last update by $Author: cklae $)
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -26,7 +26,7 @@
 uint32_t TrackerAlignableId::alignableId( const Alignable* alignable ) const
 {
 
-  return alignable ? firstDetId(alignable) : 0;
+  return alignable ? firstDetId(*alignable) : 0;
 
 }
 
@@ -60,7 +60,7 @@ TrackerAlignableId::UniqueId TrackerAlignableId::alignableUniqueId( const Aligna
 std::pair<int,int> TrackerAlignableId::typeAndLayerFromAlignable( const Alignable* alignable) const
 {
 
-  return alignable ? typeAndLayerFromDetId( firstDet(alignable)->geomDetId() ) : std::make_pair(0,0);
+  return alignable ? typeAndLayerFromDetId( firstDet(*alignable).geomDetId() ) : std::make_pair(0,0);
 
 }
 
@@ -145,24 +145,23 @@ TrackerAlignableId::alignableTypeIdToName( int id ) const
 
 //__________________________________________________________________________________________________
 // recursively get first Alignable Det of an Alignable
-const Alignable* TrackerAlignableId::firstDet( const Alignable* alignable ) const
+const Alignable& TrackerAlignableId::firstDet( const Alignable& alignable ) const
 {
 
-  if ( AlignableObjectId::AlignableDet == alignable->alignableObjectId() )
-    return alignable->components().front();
-  else if ( AlignableObjectId::AlignableDetUnit == alignable->alignableObjectId() )
+  if ( AlignableObjectId::AlignableDet == alignable.alignableObjectId() ||
+       AlignableObjectId::AlignableDetUnit == alignable.alignableObjectId() )
     return alignable;
 
-  return firstDet( alignable->components().front() );
+  return firstDet( *alignable.components().front() );
 
 }
 
 //__________________________________________________________________________________________________
 // get integer identifier corresponding to 1st Det of alignable
-uint32_t TrackerAlignableId::firstDetId( const Alignable* alignable ) const
+uint32_t TrackerAlignableId::firstDetId( const Alignable& alignable ) const
 {
 
-  return firstDet( alignable )->geomDetId().rawId();
+  return firstDet( alignable ).geomDetId().rawId();
 
 }
 
