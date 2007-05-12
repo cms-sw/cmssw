@@ -1,7 +1,7 @@
 // -*- C++ -*-
 //
 // Package:    MuonIdentification
-// Class:      MuonCaloConsistency
+// Class:      MuonCaloCompatibility
 // 
 /*
 
@@ -10,14 +10,14 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloConsistency.cc,v 1.1 2007/05/01 18:18:29 dmytro Exp $
+// $Id: MuonCaloCompatibility.cc,v 1.2 2007/05/01 19:43:23 ibloch Exp $
 //
 //
-#include "RecoMuon/MuonIdentification/interface/MuonCaloConsistency.h"
+#include "RecoMuon/MuonIdentification/interface/MuonCaloCompatibility.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-void MuonCaloConsistency::configure(const edm::ParameterSet& iConfig)
+void MuonCaloCompatibility::configure(const edm::ParameterSet& iConfig)
 {
    MuonfileName_ = (iConfig.getParameter<edm::FileInPath>("MuonTemplateFileName")).fullPath();
    PionfileName_ = (iConfig.getParameter<edm::FileInPath>("PionTemplateFileName")).fullPath();
@@ -72,7 +72,7 @@ void MuonCaloConsistency::configure(const edm::ParameterSet& iConfig)
    isConfigured_ = true;
 }
 
-bool MuonCaloConsistency::accessing_overflow( TH2D* histo, double x, double y ) {
+bool MuonCaloCompatibility::accessing_overflow( TH2D* histo, double x, double y ) {
   bool access = false;
 
   if( histo->GetXaxis()->FindBin(x) == 0 || 
@@ -86,9 +86,9 @@ bool MuonCaloConsistency::accessing_overflow( TH2D* histo, double x, double y ) 
   return access;
 }
 
-double MuonCaloConsistency::evaluate( const reco::Muon& amuon ) {
+double MuonCaloCompatibility::evaluate( const reco::Muon& amuon ) {
   if (! isConfigured_) {
-     edm::LogWarning("MuonIdentification") << "MuonCaloConsistency is not configured! Nothing is calculated.";
+     edm::LogWarning("MuonIdentification") << "MuonCaloCompatibility is not configured! Nothing is calculated.";
      return -9999;
   }
    
@@ -197,7 +197,7 @@ double MuonCaloConsistency::evaluate( const reco::Muon& amuon ) {
       muon_template_had = muon_had_etaEpl;
     }
     else {
-      LogTrace("MuonIdentification")<<"Some very weird thing happened in MuonCaloConsistency::evaluate - go figure ;) ";
+      LogTrace("MuonIdentification")<<"Some very weird thing happened in MuonCaloCompatibility::evaluate - go figure ;) ";
       return -999;
     }
   }
