@@ -1,26 +1,45 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
+<use name=DataFormats/TrackReco>
 <use name=DataFormats/TrajectorySeed>
-<use name=DataFormats/Common>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=MagneticField/Engine>
 <use name=RecoTracker/CkfPattern>
-
-<use name=root>
-
-#<flags CXXFLAGS="-g">
-
-
-<flags SEAL_PLUGIN_NAME="RecoTrackerNuclearSeedGenerator">
+<use name=RecoTracker/MeasurementDet>
+<use name=RecoTracker/Record>
+<use name=RecoTracker/TkDetLayers>
+<use name=RecoTracker/TkNavigation>
+<use name=TrackingTools/DetLayers>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/MeasurementDet>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/Records>
+<use name=TrackingTools/TrackFitters>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrackingRecHit>
+<use name=boost>
+<flags EDM_PLUGIN=1>
 <export>
-   <lib name=RecoTrackerNuclearSeedGenerator>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/TrajectorySeed>
-   <use name=RecoTracker/CkfPattern>
-
-   <use name=DataFormats/Common>
-   <use name=Foundation/PluginManager>
-   <use name=root>
-
-
+  <use name=DataFormats/TrackReco>
+  <use name=DataFormats/TrajectorySeed>
+  <use name=FWCore/Framework>
+  <use name=FWCore/ParameterSet>
+  <use name=Geometry/TrackerGeometryBuilder>
+  <use name=MagneticField/Engine>
+  <use name=RecoTracker/MeasurementDet>
+  <use name=RecoTracker/TkDetLayers>
+  <use name=RecoTracker/TkNavigation>
+  <use name=TrackingTools/DetLayers>
+  <use name=TrackingTools/GeomPropagators>
+  <use name=TrackingTools/MeasurementDet>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/TransientTrackingRecHit>
+  <use name=boost>
+  <lib name=RecoTrackerNuclearSeedGenerator>
 </export>
+

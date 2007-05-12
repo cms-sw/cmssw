@@ -1,23 +1,20 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=Geometry/Records>
+<use name=DataFormats/EcalDetId>
+<use name=DataFormats/EcalRecHit>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
+<use name=Geometry/Records>
 <use name=RecoEcal/EgammaCoreTools>
-<use name=DataFormats/EcalRecHit>
-<use name=DataFormats/EcalDetId>
+<use name=rootcore>
 <export>
-   <lib name=RecoLocalCaloEcalDeadChannelRecoveryAlgos>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=Geometry/Records>
-   <use name=Geometry/CaloEventSetup>
-   <use name=Geometry/CaloGeometry>
-   <use name=Geometry/CaloTopology>
-   <use name=RecoEcal/EgammaCoreTools>
-   <use name=DataFormats/EcalRecHit>
-   <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/EcalDetId>
+  <use name=DataFormats/EcalRecHit>
+  <use name=Geometry/CaloEventSetup>
+  <use name=Geometry/CaloGeometry>
+  <use name=Geometry/CaloTopology>
+  <use name=Geometry/Records>
+  <use name=RecoEcal/EgammaCoreTools>
+  <use name=rootcore>
+  <lib name=RecoLocalCaloEcalDeadChannelRecoveryAlgos>
 </export>
+

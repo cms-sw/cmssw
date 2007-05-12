@@ -1,15 +1,12 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/ParameterSet>
 <use name=CondFormats/PhysicsToolsObjects>
+<use name=FWCore/Utilities>
+<use name=rootcore>
 <use name=rootrflx>
 <use name=zlib>
-
 <flags LDFLAGS="-lTMVA">
 <export>
-   <lib name=PhysicsToolsMVAComputer>
-   <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
-   <use name=FWCore/ParameterSet>
+  <use name=CondFormats/PhysicsToolsObjects>
+  <use name=zlib>
+  <lib name=PhysicsToolsMVAComputer>
 </export>
+

@@ -1,14 +1,14 @@
+<use name=FWCore/PluginManager>
+<use name=Foundation/SealBase>
+<use name=Foundation/SealZip>
+<use name=Utilities/DCacheAdaptor>
+<use name=Utilities/RFIOAdaptor>
+<use name=boost>
+<use name=dcap>
 <export>
- <lib name=UtilitiesStorageFactory>
- <use name=Utilities/RFIOAdaptor>
- <use name=Utilities/DCacheAdaptor>
- <use name=Foundation/SealZip>
- <use name=FWCore/PluginManager>
- <use name=boost>
+  <use name=FWCore/PluginManager>
+  <use name=Foundation/SealBase>
+  <use name=boost>
+  <lib name=UtilitiesStorageFactory>
 </export>
 
-<use name=Utilities/RFIOAdaptor>
-<use name=Utilities/DCacheAdaptor>
-<use name=Foundation/SealZip>
-<use name=FWCore/PluginManager>
-<use name=boost>

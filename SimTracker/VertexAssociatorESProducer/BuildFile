@@ -1,21 +1,12 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=SimTracker/VertexAssociation>
-<use name=SimTracker/Records>
-<use name=MagneticField/Records>
 <use name=MagneticField/Engine>
-
-<export>
-   <lib name=SimTrackerVertexAssociatorESProducer>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/Utilities>
-   <use name=FWCore/Services>
-   <use name=SimTracker/VertexAssociation>
-   <use name=SimTracker/Records>
-   <use name=MagneticField/Records>
-   <use name=MagneticField/Engine>
-</export>
-
+<use name=MagneticField/Records>
+<use name=SimTracker/Records>
+<use name=SimTracker/VertexAssociation>
+<use name=boost>
 <flags EDM_PLUGIN=1>
+<export>
+  <lib name=SimTrackerVertexAssociatorESProducer>
+</export>
 
