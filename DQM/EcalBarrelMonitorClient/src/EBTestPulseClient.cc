@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/05/02 09:10:58 $
- * $Revision: 1.136 $
+ * $Date: 2007/05/11 15:05:04 $
+ * $Revision: 1.137 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1791,8 +1791,8 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>"
+	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
