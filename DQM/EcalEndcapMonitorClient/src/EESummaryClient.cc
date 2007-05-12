@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/04/30 09:24:03 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -227,7 +227,7 @@ void EESummaryClient::analyze(void){
               int iex = id.ieta();
               int ipx = id.iphi();
 
-              if ( ism <= 18 ) {
+              if ( ism <= 9 ) {
                 iex = iex + 85;
               } else {
                 iex = iex + 85 + 1;
@@ -267,7 +267,7 @@ void EESummaryClient::analyze(void){
               int iex = id.ieta();
               int ipx = id.iphi();
 
-              if ( ism <= 18 ) {
+              if ( ism <= 9 ) {
                 iex = iex + 85;
               } else {
                 iex = iex + 85 + 1;
@@ -328,10 +328,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
   // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 18, 0., 360., 2, -85., 85.);
+  TH2C labelGrid("labelGrid","label grid for SM", 9, 0., 360., 2, -85., 85.);
   for ( short sm=0; sm<18; sm++ ) {
-    int x = 1 + sm%18;
-    int y = 2 + sm/18;
+    int x = 1 + sm%9;
+    int y = 2 + sm/9;
     labelGrid.SetBinContent(x, y, sm+1);
   }
   labelGrid.SetMarkerSize(2);
@@ -368,7 +368,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
-    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions(9, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(2);
     cMap->SetGridx();
     cMap->SetGridy();
@@ -402,7 +402,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
-    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions(9, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(2);
     cMap->SetGridx();
     cMap->SetGridy();
@@ -470,13 +470,13 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
  hf << "<map name=\"" << mapname << "\">" << std::endl;
  for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
-  int i=(superModules_[sm]-1)/18;
-  int j=(superModules_[sm]-1)%18;
+  int i=(superModules_[sm]-1)/9;
+  int j=(superModules_[sm]-1)%9;
   int x0 = A0 + (A1-A0)*j/18;
-  int x1 = A0 + (A1-A0)*(j+1)/18;
+  int x1 = A0 + (A1-A0)*(j+1)/9;
   int y0 = B0 + (B1-B0)*i/2;
   int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(i) << "\" coords=\"";
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+9*(i) << "\" coords=\"";
   hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;

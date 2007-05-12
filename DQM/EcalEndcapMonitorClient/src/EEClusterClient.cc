@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/04/30 09:24:03 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -682,10 +682,10 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 18, -M_PI, M_PI, 2, -1.479, 1.479);
+  TH2C labelGrid("labelGrid","label grid for SM", 9, -M_PI, M_PI, 2, -1.479, 1.479);
   for ( short sm=0; sm<18; sm++ ) {
-    int x = 1 + sm%18;
-    int y = 2 - sm/18;
+    int x = 1 + sm%9;
+    int y = 2 - sm/9;
     labelGrid.SetBinContent(x, y, sm+1);
   }
   labelGrid.SetMarkerSize(2);
@@ -781,7 +781,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions( 40118, kFALSE);
+      objp->GetXaxis()->SetNdivisions( 40109, kFALSE);
       objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
@@ -841,7 +841,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions( 40118, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions( 40109, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
@@ -1027,7 +1027,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions( 40118, kFALSE);
+      objp->GetXaxis()->SetNdivisions( 40109, kFALSE);
       objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
@@ -1087,7 +1087,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions( 40118, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions( 40109, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
