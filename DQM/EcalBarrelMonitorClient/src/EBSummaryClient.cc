@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/11 15:05:04 $
- * $Revision: 1.19 $
+ * $Date: 2007/05/12 08:32:57 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -326,7 +326,6 @@ void EBSummaryClient::analyze(void){
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
-
               meOccupancy_->setBinContent( ipx, iex, xval );
 
             }
@@ -352,7 +351,6 @@ void EBSummaryClient::analyze(void){
                 ipx = 1+(20-ip)+20*(ism-19);
               }
 
-
               mePedestalOnline_->setBinContent( ipx, iex, xval );
 
             }
@@ -377,7 +375,6 @@ void EBSummaryClient::analyze(void){
                 iex = 85+ie;
                 ipx = 1+(20-ip)+20*(ism-19);
               }
-
 
               if ( me->getEntries() != 0 ) {
                 meLaserL1_->setBinContent( ipx, iex, xval );
