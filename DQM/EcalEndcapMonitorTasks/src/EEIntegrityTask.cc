@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:28:33 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
  */
@@ -279,7 +279,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EBDetId id = (*idItr);
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xism = ism - 0.5;
 
@@ -306,7 +306,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -334,7 +334,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -362,7 +362,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -390,7 +390,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -424,7 +424,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = id.iDCC(); if ( ismt > 9 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -459,7 +459,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = id.iDCC(); if ( ismt > 9 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;

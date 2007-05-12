@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:28:33 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -190,7 +190,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 9 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
