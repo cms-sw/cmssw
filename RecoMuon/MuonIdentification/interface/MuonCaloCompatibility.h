@@ -1,10 +1,10 @@
-#ifndef MuonIdentification_MuonCaloConsistency_h
-#define MuonIdentification_MuonCaloConsistency_h
+#ifndef MuonIdentification_MuonCaloCompatibility_h
+#define MuonIdentification_MuonCaloCompatibility_h
 
 // -*- C++ -*-
 //
 // Package:    MuonIdentification
-// Class:      MuonCaloConsistency
+// Class:      MuonCaloCompatibility
 // 
 /*
 
@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Ingo Bloch
-// $Id: MuonCaloConsistency.h,v 1.11 2007/04/17 08:39:18 dmytro Exp $
+// $Id: MuonCaloCompatibility.h,v 1.1 2007/05/01 18:18:29 dmytro Exp $
 //
 //
 
@@ -24,9 +24,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <string>
 
-class MuonCaloConsistency {
+class MuonCaloCompatibility {
  public:
-   MuonCaloConsistency():isConfigured_(false){}
+   MuonCaloCompatibility():isConfigured_(false){}
    void configure(const edm::ParameterSet&);
    double evaluate( const reco::Muon& );
  private:
