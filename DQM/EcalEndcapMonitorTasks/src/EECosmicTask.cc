@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -44,7 +44,7 @@ EECosmicTask::EECosmicTask(const ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meCutMap_[i] = 0;
     meSelMap_[i] = 0;
     meSpectrumMap_[i] = 0;
@@ -77,19 +77,19 @@ void EECosmicTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy cut SM%02d", i+1);
       meCutMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy sel SM%02d", i+1);
       meSelMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EECT energy spectrum SM%02d", i+1);
       meSpectrumMap_[i] = dbe_->book1D(histo, histo, 100, 0., 1.5);
     }
@@ -106,19 +106,19 @@ void EECosmicTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Cut");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meCutMap_[i] ) dbe_->removeElement( meCutMap_[i]->getName() );
       meCutMap_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Sel");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meSelMap_[i] ) dbe_->removeElement( meSelMap_[i]->getName() );
       meSelMap_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EECosmicTask/Spectrum");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meSpectrumMap_[i] ) dbe_->removeElement( meSpectrumMap_[i]->getName() );
       meSpectrumMap_[i] = 0;
     }

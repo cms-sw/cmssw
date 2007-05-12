@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -45,7 +45,7 @@ EEPedestalTask::EEPedestalTask(const ParameterSet& ps){
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     mePedMapG01_[i] = 0;
     mePedMapG06_[i] = 0;
     mePedMapG12_[i] = 0;
@@ -86,7 +86,7 @@ void EEPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal SM%02d G01", i+1);
       mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG01_[i], i+1);
@@ -99,7 +99,7 @@ void EEPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal SM%02d G06", i+1);
       mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG06_[i], i+1);
@@ -112,7 +112,7 @@ void EEPedestalTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG12_[i], i+1);
@@ -127,14 +127,14 @@ void EEPedestalTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal SM%02d G01", i+1);
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal SM%02d G16", i+1);
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG16_[i], i+1);
@@ -152,7 +152,7 @@ void EEPedestalTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain01");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG01_[i] ) dbe_->removeElement( mePedMapG01_[i]->getName() );
       mePedMapG01_[i] = 0;
       if ( mePed3SumMapG01_[i] ) dbe_->removeElement( mePed3SumMapG01_[i]->getName() );
@@ -162,7 +162,7 @@ void EEPedestalTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain06");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG06_[i] ) dbe_->removeElement( mePedMapG06_[i]->getName() );
       mePedMapG06_[i] = 0;
       if ( mePed3SumMapG06_[i] ) dbe_->removeElement( mePed3SumMapG06_[i]->getName() );
@@ -172,7 +172,7 @@ void EEPedestalTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/Gain12");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
       if ( mePed3SumMapG12_[i] ) dbe_->removeElement( mePed3SumMapG12_[i]->getName() );
@@ -184,13 +184,13 @@ void EEPedestalTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG01_[i]) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG16_[i]) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;
     }
@@ -252,11 +252,11 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
     int nebd = digis->size();
     LogDebug("EEPedestalTask") << "event " << ievt_ << " digi collection size " << nebd;
 
-    float xmap01[36][85][20];
-    float xmap06[36][85][20];
-    float xmap12[36][85][20];
+    float xmap01[18][85][20];
+    float xmap06[18][85][20];
+    float xmap12[18][85][20];
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( int ism = 1; ism <= 18; ism++ ) {
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
 
@@ -319,7 +319,7 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
     // to be re-done using the 3x3 & 5x5 Selectors (if faster)
 
-    for ( int ism = 1; ism <= 36; ism++ ) {
+    for ( int ism = 1; ism <= 18; ism++ ) {
       for ( int ie = 1; ie <= 85; ie++ ) {
         for ( int ip = 1; ip <= 20; ip++ ) {
 

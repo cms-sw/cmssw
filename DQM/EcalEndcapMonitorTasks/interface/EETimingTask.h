@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2007/04/05 13:56:48 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -52,7 +52,7 @@ bool enableCleanup_;
 
 edm::InputTag EcalUncalibratedRecHitCollection_;
 
-MonitorElement* meTimeMap_[36];
+MonitorElement* meTimeMap_[18];
 
 bool init_;
 

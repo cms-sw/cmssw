@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ EEPedestalOnlineTask::EEPedestalOnlineTask(const ParameterSet& ps){
 
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     mePedMapG12_[i] = 0;
   }
 
@@ -74,7 +74,7 @@ void EEPedestalOnlineTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPOT pedestal SM%02d G12", i+1);
       mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
       dbe_->tag(mePedMapG12_[i], i+1);
@@ -92,7 +92,7 @@ void EEPedestalOnlineTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPedestalOnlineTask/Gain12");
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
     }

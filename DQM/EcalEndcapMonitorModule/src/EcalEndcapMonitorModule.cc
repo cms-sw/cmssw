@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/04/05 14:54:01 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/05 15:39:24 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -116,7 +116,7 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   meEEdigi_ = 0;
   meEEhits_ = 0;
 
-  for (int i = 0; i < 36; i++) {
+  for (int i = 0; i < 18; i++) {
     meEvent_[i] = 0;
   }
 
@@ -175,14 +175,14 @@ void EcalEndcapMonitorModule::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EcalInfo");
 
-    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 36, 1, 37.);
+    meEEDCC_ = dbe_->book1D("EEMM SM", "EEMM SM", 18, 1, 19.);
 
     meEEdigi_ = dbe_->book1D("EEMM digi", "EEMM digi", 100, 0., 61201.);
     meEEhits_ = dbe_->book1D("EEMM hits", "EEMM hits", 100, 0., 61201.);
 
     if ( enableEventDisplay_ ) {
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
-      for (int i = 0; i < 36; i++) {
+      for (int i = 0; i < 18; i++) {
         sprintf(histo, "EEMM event SM%02d", i+1);
         meEvent_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
         dbe_->tag(meEvent_[i], i+1);
@@ -229,7 +229,7 @@ void EcalEndcapMonitorModule::cleanup(void){
     if ( enableEventDisplay_ ) {
 
       dbe_->setCurrentFolder("EcalEndcap/EcalEvent");
-      for (int i = 0; i < 36; i++) {
+      for (int i = 0; i < 18; i++) {
 
         if ( meEvent_[i] ) dbe_->removeElement( meEvent_[i]->getName() );
         meEvent_[i] = 0;

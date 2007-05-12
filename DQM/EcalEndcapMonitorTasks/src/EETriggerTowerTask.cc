@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps){
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meEtMap_[i] = 0;
     meVeto_[i] = 0;
     meFlags_[i] = 0;
@@ -79,7 +79,7 @@ void EETriggerTowerTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETTT Et map SM%02d", i+1);
       meEtMap_[i] = dbe_->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0, 512., "s");
       dbe_->tag(meEtMap_[i], i+1);
@@ -93,7 +93,7 @@ void EETriggerTowerTask::setup(void){
 
     dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EETTT Et T SM%02d TT%02d", i+1, j+1);
         meEtMapT_[i][j] = dbe_->book1D(histo, histo, 128, 0.0001, 512.);
@@ -115,7 +115,7 @@ void EETriggerTowerTask::cleanup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
 
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( meEtMap_[i] ) dbe_->removeElement( meEtMap_[i]->getName() );
       meEtMap_[i] = 0;
       if ( meVeto_[i] ) dbe_->removeElement( meVeto_[i]->getName() );
@@ -126,8 +126,8 @@ void EETriggerTowerTask::cleanup(void){
 
     dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
 
-    for ( int i = 0; i < 36; i++ ) {
-      for ( int j = 0; j < 36; j++ ) {
+    for ( int i = 0; i < 18; i++ ) {
+      for ( int j = 0; j < 18; j++ ) {
         if ( meEtMapT_[i][j] ) dbe_->removeElement( meEtMapT_[i][j]->getName() );
         meEtMapT_[i][j] = 0;
         if ( meEtMapR_[i][j] ) dbe_->removeElement( meEtMapR_[i][j]->getName() );
@@ -208,9 +208,9 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EETriggerTowerTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-  float xmap[36][68];
+  float xmap[18][68];
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     for (int j = 0; j < 68 ; j++) {
       xmap[i][j] = 0.;
     }
@@ -256,7 +256,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       for (int j = 0; j < 68 ; j++) {
          float xval = xmap[i][j];
          if ( meEtMapR_[i][j] && xval != 0 ) meEtMapR_[i][j]->Fill(xval);

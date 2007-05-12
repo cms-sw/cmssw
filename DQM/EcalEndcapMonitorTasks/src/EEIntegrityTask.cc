@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
  */
@@ -50,7 +50,7 @@ EEIntegrityTask::EEIntegrityTask(const ParameterSet& ps){
   EcalElectronicsIdCollection4_ = ps.getParameter<edm::InputTag>("EcalElectronicsIdCollection4");
 
   meIntegrityDCCSize = 0;
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meIntegrityGain[i] = 0;
     meIntegrityChId[i] = 0;
     meIntegrityGainSwitch[i] = 0;
@@ -92,11 +92,11 @@ void EEIntegrityTask::setup(void){
 
     // checking when number of towers in data different than expected from header
     sprintf(histo, "EEIT DCC size error");
-    meIntegrityDCCSize = dbe_->book1D(histo, histo, 36, 1, 37.);
+    meIntegrityDCCSize = dbe_->book1D(histo, histo, 18, 1, 19.);
 
     // checking when the gain is 0
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain SM%02d", i+1);
       meIntegrityGain[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGain[i], i+1);
@@ -104,7 +104,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT ChId SM%02d", i+1);
       meIntegrityChId[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityChId[i], i+1);
@@ -112,7 +112,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch SM%02d", i+1);
       meIntegrityGainSwitch[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGainSwitch[i], i+1);
@@ -120,7 +120,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when channel has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT gain switch stay SM%02d", i+1);
       meIntegrityGainSwitchStay[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meIntegrityGainSwitchStay[i], i+1);
@@ -128,7 +128,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when trigger tower has unexpected or invalid ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTId SM%02d", i+1);
       meIntegrityTTId[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       dbe_->tag(meIntegrityTTId[i], i+1);
@@ -136,7 +136,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when trigger tower has unexpected or invalid size
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT TTBlockSize SM%02d", i+1);
       meIntegrityTTBlockSize[i] = dbe_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
       dbe_->tag(meIntegrityTTBlockSize[i], i+1);
@@ -144,7 +144,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when mem channels have unexpected ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemChId SM%02d", i+1);
       meIntegrityMemChId[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meIntegrityMemChId[i], i+1);
@@ -154,7 +154,7 @@ void EEIntegrityTask::setup(void){
     // note: strictly speaking, this does not corrupt the mem sample gain value (since only first bit is considered)
     // but indicates that data are not completely correct
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemGain SM%02d", i+1);
       meIntegrityMemGain[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meIntegrityMemGain[i], i+1);
@@ -162,7 +162,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when mem tower block has unexpected ID
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemTTId SM%02d", i+1);
       meIntegrityMemTTId[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       dbe_->tag(meIntegrityMemTTId[i], i+1);
@@ -170,7 +170,7 @@ void EEIntegrityTask::setup(void){
 
     // checking when mem tower block has invalid size
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEIT MemSize SM%02d", i+1);
       meIntegrityMemTTBlockSize[i] = dbe_->book2D(histo, histo, 2, 0., 2., 1, 0., 1.);
       dbe_->tag(meIntegrityMemTTBlockSize[i], i+1);
@@ -191,61 +191,61 @@ void EEIntegrityTask::cleanup(void){
     meIntegrityDCCSize = 0;
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/Gain");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityGain[i] ) dbe_->removeElement( meIntegrityGain[i]->getName() );
       meIntegrityGain[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/ChId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityChId[i] ) dbe_->removeElement( meIntegrityChId[i]->getName() );
       meIntegrityChId[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitch");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityGainSwitch[i] ) dbe_->removeElement( meIntegrityGainSwitch[i]->getName() );
       meIntegrityGainSwitch[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/GainSwitchStay");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityGainSwitchStay[i] ) dbe_->removeElement( meIntegrityGainSwitchStay[i]->getName() );
       meIntegrityGainSwitchStay[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityTTId[i] ) dbe_->removeElement( meIntegrityTTId[i]->getName() );
       meIntegrityTTId[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/TTBlockSize");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityTTBlockSize[i] ) dbe_->removeElement( meIntegrityTTBlockSize[i]->getName() );
       meIntegrityTTBlockSize[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemChId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityMemChId[i] ) dbe_->removeElement( meIntegrityMemChId[i]->getName() );
       meIntegrityMemChId[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemGain");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityMemGain[i] ) dbe_->removeElement( meIntegrityMemGain[i]->getName() );
       meIntegrityMemGain[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemTTId");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityMemTTId[i] ) dbe_->removeElement( meIntegrityMemTTId[i]->getName() );
       meIntegrityMemTTId[i] = 0;
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEIntegrityTask/MemSize");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meIntegrityMemTTBlockSize[i] ) dbe_->removeElement( meIntegrityMemTTBlockSize[i]->getName() );
       meIntegrityMemTTBlockSize[i] = 0;
     }

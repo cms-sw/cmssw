@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -43,7 +43,7 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meTimeMap_[i] = 0;
   }
 
@@ -73,7 +73,7 @@ void EETimingTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETMT timing SM%02d", i+1);
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMap_[i], i+1);
@@ -90,7 +90,7 @@ void EETimingTask::cleanup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
-    for ( int i = 0; i < 36; i++ ) {
+    for ( int i = 0; i < 18; i++ ) {
       if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }

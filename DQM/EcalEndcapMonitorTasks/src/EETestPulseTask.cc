@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,7 +46,7 @@ EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meShapeMapG01_[i] = 0;
     meAmplMapG01_[i] = 0;
     meAmplErrorMapG01_[i] = 0;
@@ -92,7 +92,7 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape SM%02d G01", i+1);
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG01_[i], i+1);
@@ -105,7 +105,7 @@ void EETestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape SM%02d G06", i+1);
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG06_[i], i+1);
@@ -118,7 +118,7 @@ void EETestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETPT shape SM%02d G12", i+1);
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG12_[i], i+1);
@@ -133,7 +133,7 @@ void EETestPulseTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude SM%02d G01", i+1);
       mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG01_[i], i+1);
@@ -143,7 +143,7 @@ void EETestPulseTask::setup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude SM%02d G16", i+1);
       mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG16_[i], i+1);
@@ -164,7 +164,7 @@ void EETestPulseTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meShapeMapG01_[i] ) dbe_->removeElement( meShapeMapG01_[i]->getName() );
       meShapeMapG01_[i] = 0;
       if ( meAmplMapG01_[i] ) dbe_->removeElement( meAmplMapG01_[i]->getName() );
@@ -174,7 +174,7 @@ void EETestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meShapeMapG06_[i] ) dbe_->removeElement( meShapeMapG06_[i]->getName() );
       meShapeMapG06_[i] = 0;
       if ( meAmplMapG06_[i] ) dbe_->removeElement( meAmplMapG06_[i]->getName() );
@@ -184,7 +184,7 @@ void EETestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( meShapeMapG12_[i] ) dbe_->removeElement( meShapeMapG12_[i]->getName() );
       meShapeMapG12_[i] = 0;
       if ( meAmplMapG12_[i] ) dbe_->removeElement( meAmplMapG12_[i]->getName() );
@@ -196,7 +196,7 @@ void EETestPulseTask::cleanup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
       if ( mePnPedMapG01_[i] ) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
@@ -204,7 +204,7 @@ void EETestPulseTask::cleanup(void){
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;
       if ( mePnPedMapG16_[i] ) dbe_->removeElement( mePnPedMapG16_[i]->getName() );

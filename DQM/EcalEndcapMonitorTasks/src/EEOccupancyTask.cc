@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -45,7 +45,7 @@ EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
   EcalPnDiodeDigiCollection_ = ps.getParameter<edm::InputTag>("EcalPnDiodeDigiCollection");
 
-  for (int i = 0; i < 36; i++) {
+  for (int i = 0; i < 18; i++) {
     meOccupancy_[i]    = 0;
     meOccupancyMem_[i] = 0;
   }
@@ -76,12 +76,12 @@ void EEOccupancyTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT occupancy SM%02d", i+1);
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 18; i++) {
       sprintf(histo, "EEOT MEM occupancy SM%02d", i+1);
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meOccupancyMem_[i], i+1);
@@ -98,7 +98,7 @@ void EEOccupancyTask::cleanup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
-    for (int i = 0; i < 36; i++) {
+    for (int i = 0; i < 18; i++) {
       if ( meOccupancy_[i] ) dbe_->removeElement( meOccupancy_[i]->getName() );
       meOccupancy_[i] = 0;
       if ( meOccupancyMem_[i] ) dbe_->removeElement( meOccupancyMem_[i]->getName() );
