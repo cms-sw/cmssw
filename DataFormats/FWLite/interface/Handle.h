@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id$
+// $Id: Handle.h,v 1.1 2007/05/10 14:13:56 chrjones Exp $
 //
 
 // system include files
@@ -59,7 +59,7 @@ class Handle
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
                       const char* iProcessLabel=0) {
-        iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
+        iEvent.getByLabel(edm::Wrapper<T>::productTypeInfo(),
                           iModuleLabel,
                           iProductInstanceLabel,
                           iProcessLabel,
