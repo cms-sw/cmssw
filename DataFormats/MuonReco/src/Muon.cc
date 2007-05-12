@@ -6,9 +6,16 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
   RecoCandidate( q, p4, vtx, -13 * q ) {
      energyValid_  = false;
      matchesValid_ = false;
+     isolationValid_ = false;
      caloCompatibility_ = -9999.;
 }
 
+Muon::Muon() {
+   energyValid_  = false;
+   matchesValid_ = false;
+   isolationValid_ = false;
+   caloCompatibility_ = -9999.;
+}
 
 bool Muon::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );

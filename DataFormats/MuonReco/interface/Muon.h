@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.30 2007/05/01 08:17:35 dmytro Exp $
+ * \version $Id: Muon.h,v 1.31 2007/05/11 22:48:32 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -21,7 +21,7 @@ namespace reco {
  
   class Muon : public RecoCandidate {
   public:
-    Muon() { }
+    Muon();
     /// constructor from values
     Muon(  Charge, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
     /// create a clone
