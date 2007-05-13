@@ -61,7 +61,6 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator);
 	baseCollectionTmp->push_back(pippoTag);
-	//	const CaloJet pippo = *(i->jet().castTo<CaloJetRef>());
 	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
 	jetCollectionTmp->push_back(*pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
