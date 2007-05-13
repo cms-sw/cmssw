@@ -44,6 +44,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   // cout<<"\n DEBUG : expected strip id "<<expStripID<<" expected xtal id "<<expXtalID<<endl;
   
 
+
   if( !zs_ && (expStripID != stripId || expXtalID != xtalId)){ 
 	 
     edm::LogWarning("EcalRawToDigi")<<"@SUB=DCCFEBlock::unpackXtalData"
@@ -59,36 +60,50 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
     stripId = expStripID;
     xtalId  = expXtalID;
     errorOnXtal = true;
-  
+    // one could return here, so to skip all the rest
+
   }
+
+
   else if(zs_){
+
     // Check for valid Ids	 
     if(stripId == 0 || stripId > 5 || xtalId == 0 || xtalId > 5){
       edm::LogWarning("EcalRawToDigi")<<"@SUB=DCCFEBlock::unpackXtalData"
         <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
         <<"\n Invalid strip : "<<stripId<<" or xtal : "<<xtalId<<" ids"<<std::endl;	
+
       //Todo : add to error collection
+      // one cannot really  say which channel has the problem...
+      // in previous version all the 25 channels of the tower were assigned an integrity error
+
       errorOnXtal = true;
-		
+      // one could return here, so to skip all the rest
+      
     }else{
 	 
 	 
       // check if strip and xtal id increases
       if ( stripId >= lastStripId_ ){
-        if( stripId == lastStripId_ && xtalId < lastXtalId_ ){ 
-		  
+        if( stripId == lastStripId_ && xtalId < lastXtalId_ ){
+                         	  // shouldn't  "<"  rather be  "=<" ?
+
           edm::LogWarning("EcalRawToDigi")<<"@SUB=DCCFEBlock::unpackXtalData"
             <<"\n For event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
             <<"\n Xtal id was expected to increase but it didn't "
             <<"\n Last unpacked xtal was "<<lastXtalId_<<" while current xtal is "<<xtalId<<std::endl;
-		   
-           pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
 
-           (*invalidChIds_)->push_back(*pDetId_);
-		  
-	   errorOnXtal = true;
-       }
+	  // one cannot really  say which channel has the problem...
+	  // in previous version all the 25 channels of the tower were assigned an integrity error
+	  pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+
+	  (*invalidChIds_)->push_back(*pDetId_);
+	  
+	  errorOnXtal = true;
+	  // one could return here, so to skip all the rest
+	}
       }
+
       else if( stripId < lastStripId_){
       
         edm::LogWarning("EcalRawToDigi")<<"@SUB=DCCFEBlock::unpackXtalData"
@@ -96,10 +111,14 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
           <<"\n Strip id was expected to increase but it didn't "
           <<"\n Last unpacked strip was "<<lastStripId_<<" while current strip is "<<stripId<<std::endl;
  
-       pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
-       (*invalidChIds_)->push_back(*pDetId_);
+
+	// one cannot really  say which channel has the problem...
+	// in previous version all the 25 channels of the tower were assigned an integrity error
+	pDetId_ = (EBDetId*) mapper_->getDetIdPointer(towerId_,stripId,xtalId);
+	(*invalidChIds_)->push_back(*pDetId_);
 		
-        errorOnXtal = true;		  
+       errorOnXtal = true;
+       // one could return here, so to skip all the rest
       }
 		
       lastStripId_  = stripId;
@@ -109,10 +128,11 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
  
  
   // if there is an error on xtal id ignore next error checks  
+  // otherwise, assume channel_id is valid and proceed with making and checking the data frame
   if(!errorOnXtal){ 
 
      pDFId_ = (EBDataFrame*) mapper_->getDFramePointer(towerId_,stripId,xtalId);	
-//     if(pDFId_){ //thisis not needed for the EB
+     //     if(pDFId_){ //thisis not needed for the EB
    
       bool wrongGain(false);
 	 
@@ -123,7 +143,12 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         uint gain =  data>>12;
         //xtalGain.push_back(gain);
         xtalGains_[i]=gain;
-        if(gain == 0){ wrongGain = true; } 
+        if(gain == 0){ 
+	  wrongGain = true; 
+	  // one could continue here to skip part of the loop
+	  // as well as add the error to the collection and write the message 
+ 
+	} 
  
         pDFId_->setSample(i,data);
       }
@@ -183,7 +208,7 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
         errorOnXtal = true;  
       }
 
-      //Add frame to collection
+      //Add frame to collection only if all data format and gain rules are respected
       if(!errorOnXtal){ (*digis_)->push_back(*pDFId_);}
 
   
@@ -194,8 +219,3 @@ void DCCTowerBlock::unpackXtalData(uint expStripID, uint expXtalID){
   //Point to begin of next xtal Block
   data_ += numbDWInXtalBlock_;
 }
-
-
-
-
-
