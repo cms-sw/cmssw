@@ -155,26 +155,45 @@ for AnalyzerName in `echo ${AnalyzersList}`; do
   # Loop on runs
   for Run in `echo ${RunsList}`; do
 
-    Datasetpath=`grep -i $Run ${list_path}/${datasets_list}`
-    FlagConfig=`grep -i $Run ${list_path}/${list}`
-    export Flag=`echo $FlagConfig | awk -F- '{print $2}'`
-    export Config=`echo $FlagConfig | awk -F- '{print $1}'`
+#    Datasetpath=`grep -i $Run ${list_path}/${datasets_list}`
+    FlagConfigList=`grep -i $Run ${list_path}/${list}`
 
-    if [ "${Datasetpath}" != "" ] && [ `grep -c ${Run} ${list_path}/${list}` -eq 1 ] && [ `grep -c ${Run} ${list_path}/${datasets_list}` -eq 1 ]; then
+      echo FlagConfigList = $FlagConfigList
 
+    # This loop is needed to avoid multiple names and take correct datasetpaths
+    for FlagConfig in `echo ${FlagConfigList}`; do
+      echo FlagConfig = $FlagConfig
+      export Flag=`echo $FlagConfig | awk -F- '{print $2}'`
+      export Config=`echo $FlagConfig | awk -F- '{print $1}'`
+      # Take the right datasetpath
+      # IMPORTANT: note that TIF is used for TIBTOBTEC in ${list}, because it is the word
+      # found in CMSSW cfgs.
+      if [ ${Config} == "TIF" ]; then
+        Datasetpath=`grep -i $Run ${list_path}/${datasets_list} | grep TIBTOBTEC`
+      elif [ ${Config} == "TIBTOB" ]; then
+        Datasetpath=`grep -i $Run ${list_path}/${datasets_list} | grep -v -i slicetest`
+      else
+        Datasetpath=`grep -i $Run ${list_path}/${datasets_list} | grep -v TIBTOB`
+      fi
+      if [ "${Datasetpath}" != "" ]; then
 
+        echo Run ${Run} found in the database
+        echo Preparing to create jobs
 
-      echo Run ${Run} found in the database
-      echo Preparing to create jobs
+        ## Create and submit jobs
+        #########################
 
-      ## Create and submit jobs
-      #########################
+#    echo for Run = $Run
+#    echo Flag = $Flag
+#    echo Config = $Config
+#    echo Datasetpath = $Datasetpath
 
-      echo "... Doing Production ${AnalyzerName}"
-      Production ${AnalyzerName}
+        echo "... Doing Production ${AnalyzerName}"
+        Production ${AnalyzerName}
 
-    else
-      echo Run ${Run} not found in the database
-    fi
+      else
+        echo Run ${Run} not found in the database
+      fi
+    done
   done
 done

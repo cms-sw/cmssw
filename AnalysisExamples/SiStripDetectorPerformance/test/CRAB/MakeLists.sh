@@ -34,11 +34,15 @@ if [ $1 == "Bari" ]; then
   cat ${list_path}/${datasets_list} | awk -F- '{print $2 "-" $9 "_" $10}' > ${list_path}/${list_temp}
   cat ${list_path}/${list_temp} | while read line; do
     if [ `echo ${line} | grep -c TIBTOBTEC` -ne 0 ]; then
-      echo if ${line}
+#      echo if ${line}
       echo $line | awk -F_ '{print $3 "-" $1}' | awk -F- '{print "TIF-" $3}' >> ${list_path}/${list_temp_temp}
+    elif [ "`echo ${line} | awk -F_ '{print $2}'`" == "" ]; then
+      echo $line | awk -F_ '{print $1}' >> ${list_path}/${list_temp_temp}      
+    elif [ `echo ${line} | grep -c -i slicetest` -ne 0 ]; then
+      echo Run ${Run} is not a TIBTOB run
     else
-      echo else ${line}
-      echo $line | awk -F_ '{print $1}' >> ${list_path}/${list_temp_temp}
+#      echo else ${line}
+      echo $line >> ${list_path}/${list_temp_temp}
     fi
   done
 
@@ -73,7 +77,9 @@ touch ${list_path}/${list}
 for type_ in `echo ${Config_}`; do
   if [ ${type_} != "All" ]; then
     if [ ${type_} == "TIBTOBTEC" ]; then
-      cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
+      # This is a patch for the problem of the different names of TIBTOBTEC (or TIF, or SliceTest) runs
+      cat ${list_path}/${list_temp} | grep TIF >> ${list_path}/${list}
+      #      cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
     elif [ ${type_} == "TIBTOB" ]; then
       echo TIBTOB type_ = ${type_}
       cat ${list_path}/${list_temp} | grep ${type_} >> ${list_path}/${list}
