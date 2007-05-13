@@ -192,6 +192,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
         }
       
       }else if (feUnpacking_ && chStatus != CH_TIMEOUT && chStatus != CH_DISABLED && chStatus != CH_SUPPRESS && i<=68){
+	// if tzs_ data are not really suppresses, even though zs flags are calculated
         if(tzs_){ zs_ = false;}
 	towerBlock_->unpack(&data_,&dwToEnd_,zs_,i);
       }		 
@@ -214,8 +215,33 @@ void DCCEventBlock::addHeaderToCollection(){
   
   
   EcalDCCHeaderBlock theDCCheader;
+
+  // container for fed_id (601-645 for ECAL) 
+  theDCCheader.setFedId(fedId_);
   
-  theDCCheader.setId(fedId_); 
+  
+  // this needs to be migrated to the ECAL mapping package
+
+  // dccId is number internal to ECAL running 1.. 54.
+  // convention is that dccId = (fed_id - 600)
+  int dccId = mapper_->getActiveSM();
+
+  // deriving ism starting from dccId
+  int ism(0);
+  if        (9< dccId && dccId < 28){
+    ism  = dccId-9+18;}
+
+  else if (27 < dccId && dccId< 46){
+    ism  = dccId-9-18;}
+
+  else
+    {ism = -999;}
+  
+  theDCCheader.setId(ism);
+  
+
+
+
   theDCCheader.setRunNumber(runNumber_);  
   theDCCheader.setBasicTriggerType(triggerType_);
   theDCCheader.setLV1(l1_);
