@@ -100,6 +100,7 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
           <<"\nUnable to unpack MEM block for event "<<event_->l1A()<<" in dcc <<"<<mapper_->getActiveDCC()
 	  <<"\n Only "<<((*dwToEnd_)*8)<<" bytes are available while "<<(blockLength_*8)<<" are needed!"<<std::endl;
     //Note : add to error collection 
+    //could this be the same collection as previous case, i.e. invalidMemBlockSizes_  ?
     throw ECALUnpackerException(output.str());
   }
   
@@ -112,7 +113,8 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
       output<<"EcalRawToDigi@SUB=DCCMemBlock::unpack"
         <<"\nSynchronization error for Mem block in event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc <<"<<mapper_->getActiveDCC()
         <<"\nMem local l1A is  "<<l1_<<" Mem local bx is "<<bx_;
-      //Note : add to error collection ?		 
+      //Note : add to error collection ?
+      // need of a new collection
       throw ECALUnpackerException(output.str());
     }
   }  
@@ -141,7 +143,7 @@ void DCCMemBlock::unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID)
     (*invalidMemTtIds_)->push_back(id);
     towerId_=expTowerID_;
     
-    // todo : go to the next mem	
+    // todo : go to the next mem
     error_= true;
   }
    
@@ -190,7 +192,7 @@ void DCCMemBlock::unpackMemTowerData(){
       bool errorOnDecoding(false);
 	  
       if(expStripId != stripId || expXtalId != xtalId){ 
-        // chosing channel 1 as representative of a dummy...
+        // chosing channel and strip as EcalElectronicsId
         EcalElectronicsId id(mapper_->getActiveSM(), towerId_, expStripId, expXtalId);
         edm::LogWarning("EcalRawToDigi")<<"@SUB=DCCMemBlock::unpackPnDiodeData"
 	  <<"\nFor event "<<event_->l1A()<<",dcc "<<mapper_->getActiveDCC()<<" and tower "<<towerId_
@@ -283,7 +285,30 @@ void DCCMemBlock::fillPnDiodeDigisCollection(){
 	 
     // Note : we are assuming always 5 VFE channels enabled 
     // This means we all have 5 pns per tower 
-    EcalPnDiodeDetId PnId(EcalBarrel, mapper_->getActiveSM(), realPnId );
+
+
+    // temporary solution before sending creation of PnDigi's in mapper as done with crystals
+    //     mapper_->getActiveSM()  : this is the 'dccid', number ranging internally in ECAL from 1 to 54
+    //     mapper_->getActiveDCC() : this is the FED_id
+    int ism;
+    int dccId = mapper_->getActiveSM();
+    
+    if        (9< dccId && dccId < 28){
+      ism  = dccId-9+18;}
+    
+    else if (27 < dccId && dccId< 46){
+      ism  = dccId-9-18;}
+    
+    else
+      {ism = -999;}
+    
+    
+    //    EcalPnDiodeDetId PnId(EcalBarrel, mapper_->getActiveSM(), realPnId );
+    // using ism insead of DCCId, to locate pn in the same place as the crystals that receive same laser pulses
+    EcalPnDiodeDetId PnId(EcalBarrel, ism , realPnId );
+    
+
+
     EcalPnDiodeDigi thePnDigi(PnId );
     thePnDigi.setSize(kSamplesPerPn_);
 	 
