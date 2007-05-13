@@ -1,4 +1,4 @@
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilderESProducer.h"
+#include "RecoTracker/TransientTrackingRecHit/plugins/TkTransientTrackingRecHitBuilderESProducer.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
