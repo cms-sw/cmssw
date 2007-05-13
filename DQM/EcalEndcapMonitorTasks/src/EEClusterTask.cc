@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/06 15:28:12 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -116,16 +116,16 @@ void EEClusterTask::setup(void){
     meIslBCry_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EECLT island basic cluster energy map");
-    meIslBEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meIslBEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island basic cluster number map");
-    meIslBNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479);
+    meIslBNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479);
 
     sprintf(histo, "EECLT island basic cluster ET map");
-    meIslBETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meIslBETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island basic cluster size map");
-    meIslBCryMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 100., "s");
+    meIslBCryMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
 
     sprintf(histo, "EECLT island super cluster energy");
     meIslSEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
@@ -137,16 +137,16 @@ void EEClusterTask::setup(void){
     meIslSSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
     sprintf(histo, "EECLT island super cluster energy map");
-    meIslSEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meIslSEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island super cluster number map");
-    meIslSNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479);
+    meIslSNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479);
 
     sprintf(histo, "EECLT island super cluster ET map");
-    meIslSETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meIslSETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT island super cluster size map");
-    meIslSSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI, M_PI, 34, -1.479, 1.479, 100, 0., 500., "s");
+    meIslSSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EECLT hybrid S1toE");
     meHybS1toE_ = dbe_->book1D(histo, histo, 50, 0., 1.);
@@ -252,10 +252,17 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meIslBEne_->Fill(bcluster.energy());
       meIslBCry_->Fill(float(bcluster.getHitsByDetId().size()));
 
-      meIslBEneMap_->Fill(bcluster.phi(), bcluster.eta(), bcluster.energy());
-      meIslBNumMap_->Fill(bcluster.phi(), bcluster.eta());
-      meIslBCryMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-      meIslBETMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
+      if ( bcluster.phi() < M_PI*(9-0.5)/9 ) {
+        meIslBEneMap_->Fill(bcluster.phi(), bcluster.eta(), bcluster.energy());
+        meIslBNumMap_->Fill(bcluster.phi(), bcluster.eta());
+        meIslBCryMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.getHitsByDetId().size()));
+        meIslBETMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
+      } else {
+        meIslBEneMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), bcluster.energy());
+        meIslBNumMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta());
+        meIslBCryMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
+        meIslBETMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
+      }
 
     }
 
@@ -280,10 +287,17 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meIslSEne_->Fill(scluster.energy());
       meIslSSiz_->Fill(float(scluster.clustersSize()));
 
-      meIslSEneMap_->Fill(scluster.phi(), scluster.eta(), scluster.energy());
-      meIslSNumMap_->Fill(scluster.phi(), scluster.eta());
-      meIslSETMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
-      meIslSSizMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.clustersSize()));
+      if ( scluster.phi() < M_PI*(9-0.5)/9 ) {
+        meIslSEneMap_->Fill(scluster.phi(), scluster.eta(), scluster.energy());
+        meIslSNumMap_->Fill(scluster.phi(), scluster.eta());
+        meIslSETMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
+        meIslSSizMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.clustersSize()));
+      } else {
+        meIslSEneMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), scluster.energy());
+        meIslSNumMap_->Fill(scluster.phi()-M_PI*2, scluster.eta());
+        meIslSETMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
+        meIslSSizMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), float(scluster.clustersSize()));
+      }
 
     }
 
@@ -317,7 +331,6 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       //       meHybS1toS9_->Fill(tempClusterShape->eMax()/tempClusterShape->e3x3());
       meHybS1toE_->Fill(tempClusterShape->eMax()/sCluster->energy());
 
-
 //       // for each basic cluster evaluate the distance from the seed
 //       if (sCluster->clustersSize()>1) {
 // 	basicCluster_iterator bc;
@@ -328,7 +341,7 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
 // 	  if (dtheta!=0 && dphi!=0) {
 // 	    meHybDTheta_->Fill( dtheta );
 // 	    meHybDPhi_->Fill( dphi );
-
+//
 // 	    meHybEneVsDTheta_->Fill( dtheta, (*bc)->energy() );
 // 	    meHybEneVsDPhi_->Fill( dphi, (*bc)->energy() );
 // 	  }

@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/05/12 09:39:06 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/12 09:48:34 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -682,16 +682,22 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 9, -M_PI, M_PI, 2, -1.479, 1.479);
+  TH2C labelGrid("labelGrid","label grid for SM", 9, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 2, -1.479, 1.479);
   for ( short sm=0; sm<18; sm++ ) {
     int x = 1 + sm%9;
     int y = 2 - sm/9;
-    labelGrid.SetBinContent(x, y, sm+1);
+    int z = x + 4;
+    if ( z > 9 ) z = z - 9;
+    if ( y == 1 ) {
+      labelGrid.SetBinContent(x, y, -z);
+    } else {
+      labelGrid.SetBinContent(x, y, +z);
+    }
   }
   labelGrid.SetMarkerSize(2);
-  labelGrid.SetMinimum(0.1);
+  labelGrid.SetMinimum(-9.01);
 
-  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 40306, "N");
+  TGaxis axis(-M_PI*(9+0.5)/9, -1.479, M_PI*(9-0.5)/9, -1.479, -M_PI*(9+0.5)/9, M_PI*(9-0.5)/9, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];

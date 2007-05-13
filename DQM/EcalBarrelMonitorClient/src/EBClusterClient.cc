@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.24 $
+ * $Date: 2007/05/11 15:05:04 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -683,16 +683,22 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
 
   // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 18, -M_PI, M_PI, 2, -1.479, 1.479);
+  TH2C labelGrid("labelGrid","label grid for SM", 18, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 2, -1.479, 1.479);
   for ( short sm=0; sm<36; sm++ ) {
     int x = 1 + sm%18;
     int y = 2 - sm/18;
-    labelGrid.SetBinContent(x, y, sm+1);
+    int z = x + 8;
+    if ( z > 18 ) z = z - 18;
+    if ( y == 1 ) {
+      labelGrid.SetBinContent(x, y, -z);
+    } else {
+      labelGrid.SetBinContent(x, y, +z);
+    }
   }
   labelGrid.SetMarkerSize(2);
-  labelGrid.SetMinimum(0.1);
+  labelGrid.SetMinimum(-18.01);
 
-  TGaxis axis(-M_PI, -1.479, M_PI, -1.479, -M_PI, M_PI, 40306, "N");
+  TGaxis axis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
@@ -787,7 +793,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       objp->Draw("colz");
-      //labelGrid.Draw("text,same");
+      labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
@@ -847,7 +853,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->Draw("colz");
-    //labelGrid.Draw("text,same");
+    labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
@@ -1033,7 +1039,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->SetGridx();
       cMap->SetGridy();
       objp->Draw("colz");
-      //labelGrid.Draw("text,same");
+      labelGrid.Draw("text,same");
       axis.Draw();
       cMap->Update();
       objp->GetXaxis()->SetLabelColor(0);
@@ -1093,7 +1099,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->Draw("colz");
-    //labelGrid.Draw("text,same");
+    labelGrid.Draw("text,same");
     axis.Draw();
     cMap->Update();
     obj2f->GetXaxis()->SetLabelColor(0);
