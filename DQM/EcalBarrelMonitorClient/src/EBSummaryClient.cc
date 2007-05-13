@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/12 10:57:46 $
- * $Revision: 1.22 $
+ * $Date: 2007/05/12 11:18:40 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -675,10 +675,10 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   int j=(superModules_[sm]-1)%18;
   int x0 = A0 + (A1-A0)*j/18;
   int x1 = A0 + (A1-A0)*(j+1)/18;
-  int y0 = B0 + (B1-B0)*i/2;
-  int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*(1-i) << "\" coords=\"";
-  hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
+  int y0 = B0 + (B1-B0)*(1-i)/2;
+  int y1 = B0 + (B1-B0)*((1-i)+1)/2;
+  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << (j+1)+18*i << "\" coords=\"";
+  hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
 
