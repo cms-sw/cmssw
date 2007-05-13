@@ -22,7 +22,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode(ulong headerWord, EcalDCCHeaderBlock* E
   uint ThreeBitsMask = 7;
   uint ThirdBitMask = 4;
   
-  EcalDCCHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
+//  EcalDCCHeaderInfos->setId( int ( headerWord & DCCNumberMask) );
   EcalDCCHeaderInfos-> setRtHalf( int ((headerWord / WhichHalfOffSet) & TwoBitsMask) );
   int type = int ((headerWord / TypeOffSet)      & ThreeBitsMask);
   int sequence  = int ((headerWord / SubTypeOffSet)   & ThreeBitsMask);
