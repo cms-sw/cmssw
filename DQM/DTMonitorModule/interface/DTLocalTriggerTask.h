@@ -74,10 +74,14 @@ std::string triggerSource();
 private:
  
   bool debug;
+  edm::ESHandle<DTGeometry> muonGeom;
   std::string dcc_label;
   std::string ros_label;
   std::string seg_label;
   int nevents;
+
+
+
 
   DaqMonitorBEInterface* dbe;
   edm::ParameterSet parameters;
