@@ -61,8 +61,9 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
       if(discriminator > 0) {
 	JetTag pippoTag(discriminator);
 	baseCollectionTmp->push_back(pippoTag);
-	const CaloJet pippo = *(i->jet().castTo<CaloJetRef>());
-	jetCollectionTmp->push_back(pippo );
+	//	const CaloJet pippo = *(i->jet().castTo<CaloJetRef>());
+	const CaloJet* pippo = dynamic_cast<const CaloJet*>((i->jet().get()));
+	jetCollectionTmp->push_back(*pippo );
 	extendedCollection->push_back(*(i)); //to  be used later
       }
 
@@ -90,8 +91,8 @@ void IsolatedTauJetsSelector::produce(edm::Event& iEvent, const edm::EventSetup&
 	    JetTag myTag(1.);
 	    taggedJets++;
 	    myCollection->push_back(myTag);
-	    const CaloJet pippo = *(myIsolJet->jet().castTo<CaloJetRef>());
-	    myJetCollection->push_back(pippo);
+	    const CaloJet* pippo = dynamic_cast<const CaloJet*>(myIsolJet->jet().get());
+	    myJetCollection->push_back(*pippo);
 	  }
       }
       //check if we have at least 2 jets from the same vertex
