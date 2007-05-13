@@ -14,7 +14,8 @@ function checkedcopy(){
     echo "${a}"
     echo "${b}"
     if [ "${a}" == "${b}" ]; then
-      echo copy successfull
+      echo copy successfull removing $1
+      rm -f $1
     elif [ "${counter}" -le 10 ]; then
       echo different md5sum trying again
       checkedcopy $1 $2;
@@ -59,6 +60,18 @@ function Monitor(){
   #echo "crab -status -c ${CrabWorkingDir} > ${log_path}/Status/${job_name}.txt"
   crab -status -c ${CrabWorkingDir} > ${log_path}/Status/${job_name}.txt
   cp ${log_path}/Status/${job_name}.txt ${StoreDir}/logs/status_${job_name}.txt
+
+  # Resubmit aborted jobs only once
+  #################################
+  if [ `grep -c Aborted ${log_path}/Status/${job_name}.txt` -ne 0 ]; then
+    for job_num in `cat ${log_path}/Status/${job_name}.txt | grep Aborted | awk '{print $1}'`; do
+      if [ ! -e ${log_path}/Resubmitted/Grid_${job_name}_${job_num}.txt ]; then
+        crab -resubmit ${job_num} -c ${CrabWorkingDir} > ${log_path}/Resubmitted/Grid_${job_name}_${job_num}.txt
+      else
+        cp ${CrabWorkingDir}/log/crab.log ${StoreDir}/logs/crab.log
+      fi
+    done
+  fi
 
   # Get the output of complete jobs
   #################################
