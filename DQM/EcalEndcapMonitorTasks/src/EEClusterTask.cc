@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/04/06 15:28:12 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/13 07:19:22 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -252,17 +252,13 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meIslBEne_->Fill(bcluster.energy());
       meIslBCry_->Fill(float(bcluster.getHitsByDetId().size()));
 
-      if ( bcluster.phi() < M_PI*(9-0.5)/9 ) {
-        meIslBEneMap_->Fill(bcluster.phi(), bcluster.eta(), bcluster.energy());
-        meIslBNumMap_->Fill(bcluster.phi(), bcluster.eta());
-        meIslBCryMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-        meIslBETMap_->Fill(bcluster.phi(), bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
-      } else {
-        meIslBEneMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), bcluster.energy());
-        meIslBNumMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta());
-        meIslBCryMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
-        meIslBETMap_->Fill(bcluster.phi()-M_PI*2, bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
-      }
+      float xphi = bcluster.phi();
+      if ( xphi > M_PI*(9-0.5)/9 ) xphi = xphi - M_PI*2;
+
+      meIslBEneMap_->Fill(xphi, bcluster.eta(), bcluster.energy());
+      meIslBNumMap_->Fill(xphi, bcluster.eta());
+      meIslBCryMap_->Fill(xphi, bcluster.eta(), float(bcluster.getHitsByDetId().size()));
+      meIslBETMap_->Fill(xphi, bcluster.eta(), float(bcluster.energy()) * sin(bcluster.position().theta()));
 
     }
 
@@ -287,17 +283,13 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
       meIslSEne_->Fill(scluster.energy());
       meIslSSiz_->Fill(float(scluster.clustersSize()));
 
-      if ( scluster.phi() < M_PI*(9-0.5)/9 ) {
-        meIslSEneMap_->Fill(scluster.phi(), scluster.eta(), scluster.energy());
-        meIslSNumMap_->Fill(scluster.phi(), scluster.eta());
-        meIslSETMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
-        meIslSSizMap_->Fill(scluster.phi(), scluster.eta(), float(scluster.clustersSize()));
-      } else {
-        meIslSEneMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), scluster.energy());
-        meIslSNumMap_->Fill(scluster.phi()-M_PI*2, scluster.eta());
-        meIslSETMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
-        meIslSSizMap_->Fill(scluster.phi()-M_PI*2, scluster.eta(), float(scluster.clustersSize()));
-      }
+      float xphi = scluster.phi();
+      if ( xphi > M_PI*(9-0.5)/9 ) xphi = xphi - M_PI*2;
+
+      meIslSEneMap_->Fill(xphi, scluster.eta(), scluster.energy());
+      meIslSNumMap_->Fill(xphi, scluster.eta());
+      meIslSETMap_->Fill(xphi, scluster.eta(), float(scluster.energy()) * sin(scluster.position().theta()));
+      meIslSSizMap_->Fill(xphi, scluster.eta(), float(scluster.clustersSize()));
 
     }
 
