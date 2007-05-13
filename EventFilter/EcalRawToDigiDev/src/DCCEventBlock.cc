@@ -64,7 +64,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Expected FED id is "<<expFedId<<" while current FED id is "<<fedId_
-      <<"\n => Skipping this event..."<<std::endl;
+      <<"\n => Skipping this event...";
     //TODO : add this to a error event collection
 
     throw ECALUnpackerException(output.str());
@@ -75,7 +75,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<" is empty for dcc "<<fedId_
-      <<"\n => Skipping this event..."<<std::endl;
+      <<"\n => Skipping this event...";
     //TODO : add this to a dcc empty event collection 	 
     throw ECALUnpackerException(output.str());
   } 
@@ -86,7 +86,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<", dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while the minimum is "<<HEADERSIZE<<" bytes"
-      <<"\n => Skipping this event..."<<std::endl; 
+      <<"\n => Skipping this event..."; 
     //TODO : add this to a dcc size error collection  
     throw ECALUnpackerException(output.str()); 
   }
@@ -104,7 +104,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
       <<"\n Event "<<l1_<<", dcc "<< fedId_
       <<"\n Event size is "<<eventSize_<<" bytes while "<<(blockLength_*8)<<" are set in the event header "
-      <<"\n => Skipping this event ..."<<std::endl;
+      <<"\n => Skipping this event ...";
     //TODO : add this to a dcc size error collection 
 	 
    throw ECALUnpackerException(output.str());
@@ -173,7 +173,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
     output<<"EcalRawToDigi@SUB=DCCEventBlock:unpack"
      <<"\n Event "<<l1_<<", dcc "<< fedId_
      <<"\n Event has an unsupported trigger type "<<triggerType_
-     <<"\n => Skipping this event "<<std::endl; 
+     <<"\n => Skipping this event "; 
      //TODO : add this to a dcc trigger type error collection 
      throw ECALUnpackerException(output.str());
   }  
@@ -293,7 +293,7 @@ void DCCEventBlock::display(std::ostream& o){
     o<<"\n FEStatus#"<<i<<" "<<(*it);   	
   }
 
-  o<<std::endl;  
+  o<<"\n";  
 } 
     
 

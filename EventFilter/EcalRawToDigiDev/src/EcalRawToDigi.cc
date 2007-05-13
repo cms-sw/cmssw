@@ -55,19 +55,17 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
     std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
-      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
-      <<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
-    edm::LogError("ECAL")<< output.str();
+    output      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
+		<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
+    edm::LogError("EcalRawToDigiDev")<< output.str();
     // todo : throw an execption
   }
   
   if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
     std::ostringstream output;
-    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
-      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
-      <<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
-    edm::LogError("ECAL")<< output.str();
+    output      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
+		<<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
+    edm::LogError("EcalRawToDigiDev")<< output.str();
     // todo : throw an execption
   }
   
@@ -80,20 +78,21 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
     for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
 
-  //print the FEDs to unpack to the loger
+  //print the FEDs to unpack to the logger
   std::ostringstream loggerOutput_;
   if(fedUnpackList_.size()!=0){
     for (uint i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
-    edm::LogInfo("ECAL") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
+    edm::LogInfo("EcalRawToDigiDev") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
   
-  edm::LogInfo("ECAL")<<"\n ECAL RawToDigi configuration :"
+  edm::LogInfo("EcalRawToDigiDev")
+    <<"\n ECAL RawToDigi configuration :"
     <<"\n Header  unpacking is "<<headerUnpacking_
     <<"\n SRP Bl. unpacking is "<<srpUnpacking_
     <<"\n TCC Bl. unpacking is "<<tccUnpacking_  
     <<"\n FE  Bl. unpacking is "<<feUnpacking_
-    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n"<<std::endl;
+    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n";
   
   // Producer products :
   produces<EBDigiCollection>(); 
@@ -127,13 +126,13 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
   bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
   if(!readResult){
-    edm::LogError("EcalRawToDigi") << "@SUB=DCCDataUnpacker"<<"\n unable to read file : "
+    edm::LogError("EcalRawToDigiDev")<<"\n unable to read file : "
       <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
      //throw cms::exception();
   }
   
   // Build a new ECAL DCC data unpacker
-  //edm::LogDebug("EcalRawToDigi") << "@SUB=DCCDataUnpacker"; 
+  //edm::LogDebug("EcalRawToDigiDev") << "@SUB=DCCDataUnpacker"; 
   theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
@@ -265,7 +264,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 		  
 		 
           //for debug purposes
-    	  edm::LogInfo("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length << std::endl;
+    	  edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 	    
           uint64_t * pData = (uint64_t *)(fedData.data());
           theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
@@ -274,7 +273,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 	  
    catch(ECALUnpackerException &e){
-     edm::LogWarning("EcalRawToDigi")<<" exception caught "<<std::endl<<e.what()<<std::endl;
+     edm::LogWarning("EcalRawToDigiDev")<<" exception caught \n"<<e.what();
    }
   
   }

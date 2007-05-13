@@ -259,14 +259,13 @@ bool EcalElectronicsMapper::readDCCMapFile(std::string aPath_){
  
 std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_) {
   //print class information
-  o << "---------------------------------------------------------" << std::endl;
+  o << "---------------------------------------------------------";
 
   if(aMapper_.pathToMapFile_.size() < 1){
-    o << "No correct input for DCC map has been given yet..." << std::endl;
+    o << "No correct input for DCC map has been given yet...";
   }
   else{
-    o << "DCC Map (Map file: " << aMapper_.pathToMapFile_ << " )" << std::endl
-      << "SM id\t\tDCCid " << std::endl;
+    o << "DCC Map (Map file: " << aMapper_.pathToMapFile_ << " )" << "SM id\t\tDCCid ";
 
     //get DCC map and iterator
     std::map<uint ,uint > aMap;
@@ -275,10 +274,10 @@ std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_
 
     //print info contained in map
     for(iter = aMap.begin(); iter != aMap.end(); iter++)
-      o << iter->first << "\t\t" << iter->second << std::endl;
+      o << iter->first << "\t\t" << iter->second;
   }
 
-  o << "---------------------------------------------------------" << std::endl;
+  o << "---------------------------------------------------------";
   return o;
 }
 
@@ -319,7 +318,7 @@ uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
   if(it!= myDCCMap_.end()) return it->second;
  
   //error return
-  edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found" ;
+  edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found";
   return 0;
 }
 
@@ -334,7 +333,7 @@ uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
       return it->first;
 
   //error return
-  edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found" << std::endl;
+  edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found";
   return 0;
 }
 
