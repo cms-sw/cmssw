@@ -9,15 +9,15 @@
  *  Material effects (multiple scattering and energy loss) are based on tuning
  *  to MC and (eventually) data. 
  *
- *  $Date: 2007/05/10 17:43:04 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/05/11 04:51:09 $
+ *  $Revision: 1.22 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.h,v 1.21 2007/05/10 17:43:04 slava77 Exp $
+// $Id: SteppingHelixPropagator.h,v 1.22 2007/05/11 04:51:09 slava77 Exp $
 //
 //
 
@@ -229,7 +229,7 @@ class SteppingHelixPropagator : public Propagator {
   Result refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,
 			double& dist, double& tanDist,
-			double fastSkipDist = 1e12) const;
+			double fastSkipDist = 1e12, bool expectNewMagVolume = false) const;
 
   Result refToMatVolume(const SteppingHelixPropagator::StateInfo& sv,
 			PropagationDirection dir,

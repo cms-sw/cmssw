@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/11 04:51:11 $
- *  $Revision: 1.40 $
+ *  $Date: 2007/05/11 06:18:47 $
+ *  $Revision: 1.41 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.40 2007/05/11 04:51:11 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.41 2007/05/11 06:18:47 slava77 Exp $
 //
 //
 
@@ -296,9 +296,10 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   PropagationDirection refDirection = anyDirection;
   Result result = refToDest(type, (*svCurrent), pars, dist, tanDist, refDirection);
 
-  if (result != SteppingHelixStateInfo::OK ){
+  if (result != SteppingHelixStateInfo::OK || fabs(dist) > 1e6){
     svCurrent->status_ = result;
-    svCurrent->isValid_ = result == SteppingHelixStateInfo::OK;
+    if (fabs(dist) > 1e6) svCurrent->status_ = SteppingHelixStateInfo::INACC;
+    svCurrent->isValid_ = false;
     svCurrent->field = field_;
     if (sendLogWarning_){
       edm::LogWarning(metname)<<" Failed after first refToDest check with status "
@@ -332,7 +333,9 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
   Result resultToMag = SteppingHelixStateInfo::UNDEFINED;
 
   bool isFirstStep = true;
+  bool expectNewMagVolume = false;
 
+  int loopCount = 0;
   while (makeNextStep){
     dStep = defaultStep_;
     svCurrent = &svBuf_[cIndex_(nPoints_-1)];
@@ -377,7 +380,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 
     if (useMagVolumes_ && ! (fabs(dist) < fabs(epsilon))){//need to know the general direction
       if (tanDistMagNextCheck < 0){
-	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(dist));
+	resultToMag = refToMagVolume((*svCurrent), dir, distMag, tanDistMag, fabs(dist), expectNewMagVolume);
 	tanDistMagNextCheck = fabs(tanDistMag)*0.5-0.5; //need a better guess (to-do)
 	//reasonable limit; "turn off" checking if bounds are further than the destination
 	if (tanDistMagNextCheck >  defaultStep_*20. 
@@ -417,11 +420,15 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       dStep = fabs(tanDist) -1e-12;
     }
     double tanDistMin = fabs(tanDist);
-    if (tanDistMin > fabs(tanDistMag)+0.05 && resultToMag == SteppingHelixStateInfo::OK){
+    if (tanDistMin > fabs(tanDistMag)+0.05 && 
+	(resultToMag == SteppingHelixStateInfo::OK || resultToMag == SteppingHelixStateInfo::WRONG_VOLUME)){
       tanDistMin = fabs(tanDistMag)+0.05;     //try to step into the next volume
-    }
+      expectNewMagVolume = true;
+    } else expectNewMagVolume = false;
+
     if (tanDistMin > fabs(tanDistMat)+0.05 && resultToMat == SteppingHelixStateInfo::OK){
       tanDistMin = fabs(tanDistMat)+0.05;     //try to step into the next volume
+      if (expectNewMagVolume) expectNewMagVolume = false;
     }
     if (fabs(tanDistMin) < dStep){
       dStep = fabs(tanDistMin); 
@@ -430,12 +437,25 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
 	dStep = fabs(tanDistMin)*0.5; 
       }
     }
+
     //keep this path length for the next step
     oldDStep = dStep;
 
     if (dStep > 1e-10 && ! (fabs(dist) < fabs(epsilon))){
       StateInfo* svNext = &svBuf_[cIndex_(nPoints_)];
       makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);
+//       if (useMatVolumes_ && expectNewMagVolume 
+// 	  && svCurrent->magVol == svNext->magVol){
+// 	double tmpDist=0;
+// 	double tmpDistMag = 0;
+// 	if (refToMagVolume((*svNext), dir, tmpDist, tmpDistMag, fabs(dist)) != SteppingHelixStateInfo::OK){
+// 	//the point appears to be outside, but findVolume claims the opposite
+// 	  dStep += 0.05*fabs(tanDistMag/distMag); oldDStep = dStep; //do it again with a bigger step
+// 	  if (debug_) LogTrace(metname)
+// 	    <<"Failed to get into new mag volume: will try with new bigger step "<<dStep<<std::endl;
+// 	  makeAtomStep((*svCurrent), (*svNext), dStep, dir, HEL_AS_F);	  
+// 	}
+//       }
       nPoints_++;    svCurrent = &svBuf_[cIndex_(nPoints_-1)];
       if (oldDir != dir){
 	nOsc++;
@@ -477,10 +497,13 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
       }
     }
 
-    if (nPoints_ > MAX_STEPS*1./defaultStep_ || nOsc > 6) result = SteppingHelixStateInfo::FAULT;
+    if (nPoints_ > MAX_STEPS*1./defaultStep_  || loopCount > MAX_STEPS*100
+	|| nOsc > 6 ) result = SteppingHelixStateInfo::FAULT;
 
     if (svCurrent->p3.mag() < 0.1 ) result = SteppingHelixStateInfo::RANGEOUT;
 
+    curZ = svCurrent->r3.z();
+    curR = svCurrent->r3.perp();
     if ( curR > 20000 || fabs(curZ) > 20000 ) result = SteppingHelixStateInfo::INACC;
 
     makeNextStep = result == SteppingHelixStateInfo::UNDEFINED;
@@ -489,6 +512,7 @@ SteppingHelixPropagator::propagate(SteppingHelixPropagator::DestType type,
     svCurrent->field = field_;
 
     isFirstStep = false;
+    loopCount++;
   }
 
   if (sendLogWarning_ && result != SteppingHelixStateInfo::OK){
@@ -1215,8 +1239,11 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
     else { dEdx = 0; radX0 = radX0_Air;}
   }
   else if (lR <380 && lZ < 667){
-    if (lZ < 630) rzLims = MatBounds(287, 380, 0, 630);      
-    else rzLims = MatBounds(287, 380, 630, 667);  
+    if (lZ < 630){
+      if (lR < 315) rzLims = MatBounds(287, 315, 0, 630); 
+      else if (lR < 341 ) rzLims = MatBounds(315, 341, 0, 630); //b-field ~linear rapid fall here
+      else rzLims = MatBounds(341, 380, 0, 630);      
+    } else rzLims = MatBounds(287, 380, 630, 667);  
 
     if (lZ < 630) { dEdx = dEdX_coil; radX0 = radX0_coil; }//a guess for the solenoid average
     else {dEdx = 0; radX0 = radX0_Air; }//endcap gap
@@ -1297,26 +1324,26 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     {
       double cosDPhiPR = cos((sv.r3.deltaPhi(sv.p3)));
       dist = pars[RADIUS_P] - curR;
+      refDirection = dist*cosDPhiPR > 0 ?
+	alongMomentum : oppositeToMomentum;
       if (fabs(dist) > fastSkipDist){
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
       tanDist = dist/sv.p3.perp()*sv.p3.mag();
-      refDirection = dist*cosDPhiPR > 0 ?
-	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
     }
     break;
   case Z_DT:
     {
       dist = pars[Z_P] - curZ;
+      refDirection = sv.p3.z()*dist > 0. ?
+	alongMomentum : oppositeToMomentum;
       if (fabs(dist) > fastSkipDist){
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
       tanDist = dist/sv.p3.z()*sv.p3.mag();
-      refDirection = sv.p3.z()*dist > 0. ?
-	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
     }
     break;
@@ -1328,13 +1355,15 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
       double dRDotN = (sv.r3 - rPlane).dot(nPlane);
       
       dist = fabs(dRDotN);
+      double p0 = sv.p3.mag();
+      double tN = sv.p3.dot(nPlane)/p0;
+      refDirection = tN*dRDotN < 0. ?
+	alongMomentum : oppositeToMomentum;
       if (fabs(dist) > fastSkipDist){
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
-      double p0 = sv.p3.mag();
       double b0 = sv.bf.mag();
-      double tN = sv.p3.dot(nPlane)/p0;
       if (fabs(tN)>1e-24) tanDist = -dRDotN/tN;
       if (fabs(tanDist) > 1e4) tanDist = 1e4;
       if (b0>1.5e-6){
@@ -1354,8 +1383,6 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 				       <<" = "<<aVal<<" * "<<bVal<<" too large:: will not converge"<<std::endl;
 	}
       }
-      refDirection = tN*dRDotN < 0. ?
-	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
     }
     break;
@@ -1372,10 +1399,6 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	  && cos(theta)*cos(relV3.theta()) > 0;
 	dist = isInside || cosDTheta > 0 ? 
 	  relV3.mag()*sinDTheta : relV3.mag();
-	if (fabs(dist) > fastSkipDist){
-	  result = SteppingHelixStateInfo::INACC;
-	  break;
-	}
 	double normPhi = isInside ? 
 	  Geom::pi() - relV3.phi() : relV3.phi();
 	double normTheta = theta > Geom::pi()/2. ? 
@@ -1387,12 +1410,17 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
 	tanDist = dist/fabs(cosDThetaP);
 	refDirection = norm.dot(sv.p3) > 0 ?
 	  oppositeToMomentum : alongMomentum;
+	if (fabs(dist) > fastSkipDist){
+	  result = SteppingHelixStateInfo::INACC;
+	  break;
+	}
 	if (debug_){
 	  LogTrace(metname)<<"refToDest:toCone the point is "
 			   <<(isInside? "in" : "out")<<"side the cone"
 			   <<std::endl;
 	}
       }
+      result = SteppingHelixStateInfo::OK;
     }
     break;
     //   case CYLINDER_DT:
@@ -1401,13 +1429,13 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     {
       double curS = fabs(sv.path_);
       dist = pars[PATHL_P] - curS;
+      refDirection = pars[PATHL_P] > 0 ? 
+	alongMomentum : oppositeToMomentum;
       if (fabs(dist) > fastSkipDist){
 	result = SteppingHelixStateInfo::INACC;
 	break;
       }
       tanDist = dist;
-      refDirection = pars[PATHL_P] > 0 ? 
-	alongMomentum : oppositeToMomentum;
       result = SteppingHelixStateInfo::OK;
     }
     break;
@@ -1415,10 +1443,6 @@ SteppingHelixPropagator::refToDest(SteppingHelixPropagator::DestType dest,
     {
       Point pDest(pars[0], pars[1], pars[2]);
       dist = (sv.r3 - pDest).mag()+ 1e-24;//add a small number to avoid 1/0
-      if (fabs(dist) > fastSkipDist){
-	result = SteppingHelixStateInfo::INACC;
-	break;
-      }
       tanDist = (sv.r3.dot(sv.p3) - pDest.dot(sv.p3))/sv.p3.mag();
       refDirection = tanDist < 0 ?
 	alongMomentum : oppositeToMomentum;
@@ -1475,7 +1499,7 @@ SteppingHelixPropagator::Result
 SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo& sv,
 					PropagationDirection dir,
 					double& dist, double& tanDist,
-					double fastSkipDist) const{
+					double fastSkipDist, bool expectNewMagVolume) const{
 
   static const std::string metname = "SteppingHelixPropagator";
   Result result = SteppingHelixStateInfo::NOT_IMPLEMENTED;
@@ -1489,9 +1513,11 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
   PropagationDirection refDirectionToFace[6];
   Result resultToFace[6];
   int iFDest = -1;
+  int iDistMin = -1;
   
   uint iFDestSorted[6];
   uint nDestSorted =0;
+  uint nearParallels = 0;
 
   if (debug_){
     LogTrace(metname)<<"Trying volume "<<DDSolidShapesName::name(cVol->shapeType())
@@ -1514,9 +1540,9 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     if (typeid(cVolFaces[iFace].surface()) == typeid(const Plane&)){
       cPlane = &cVolFaces[iFace].surface();
     } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cylinder&)){
-      cCyl = reinterpret_cast<const Cylinder*>(&cVolFaces[iFace].surface());
+      cCyl = dynamic_cast<const Cylinder*>(&cVolFaces[iFace].surface());
     } else if (typeid(cVolFaces[iFace].surface()) == typeid(const Cone&)){
-      cCone = reinterpret_cast<const Cone*>(&cVolFaces[iFace].surface());
+      cCone = dynamic_cast<const Cone*>(&cVolFaces[iFace].surface());
     } else {
       edm::LogWarning(metname)<<"Could not cast a volume side surface to a known type"<<std::endl;
     }
@@ -1576,19 +1602,33 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       refToDest(dType, sv, pars, 
 		distToFace[iFace], tanDistToFace[iFace], refDirectionToFace[iFace], fastSkipDist);    
     
+    
     if (resultToFace[iFace] != SteppingHelixStateInfo::OK){
       if (resultToFace[iFace] == SteppingHelixStateInfo::INACC) result = SteppingHelixStateInfo::INACC;
-      continue;
+    }
+
+
+      
+    //keep those in right direction for later use
+    if (resultToFace[iFace] == SteppingHelixStateInfo::OK){
+      bool isNearParallel = fabs(distToFace[iFace]/tanDistToFace[iFace]/tanDistToFace[iFace]) < 0.1/sv.p3.mag()
+	&& fabs(distToFace[iFace]/tanDistToFace[iFace]) < 0.05;
+      if (refDirectionToFace[iFace] == dir || isNearParallel){
+	if (isNearParallel) nearParallels++;
+	iFDestSorted[nDestSorted] = iFace;
+	nDestSorted++;
+      }
     }
     
-    //keep those in right direction for later use
-    if (refDirectionToFace[iFace] == dir || fabs(distToFace[iFace]/tanDistToFace[iFace]) < 2e-2){
-      iFDestSorted[nDestSorted] = iFace;
-      nDestSorted++;
+    //pick a shortest distance here (right dir only for now)
+    if (refDirectionToFace[iFace] == dir){
+      if (iDistMin == -1) iDistMin = iFace;
+      else if (fabs(distToFace[iFace]) < fabs(distToFace[iDistMin])) iDistMin = iFace;
     }
     if (debug_) 
       LogTrace(metname)<<cVol<<" "<<iFace<<" "
 		       <<tanDistToFace[iFace]<<" "<<distToFace[iFace]<<" "<<refDirectionToFace[iFace]<<" "<<dir<<std::endl;
+    
   }
   
   for (uint i = 0;i<nDestSorted; ++i){
@@ -1602,6 +1642,7 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
     iFDestSorted[nDestSorted-i-1] = iFDestSorted[iMax];
     iFDestSorted[iMax] = iTmp;
   }
+
   if (debug_){
     for (uint i=0;i<nDestSorted;++i){
       LogTrace(metname)<<cVol<<" "<<i<<" "<<iFDestSorted[i]<<" "<<tanDistToFace[iFDestSorted[i]]<<std::endl;
@@ -1636,11 +1677,51 @@ SteppingHelixPropagator::refToMagVolume(const SteppingHelixPropagator::StateInfo
       break;
     }
   }
+  
+  if (result != SteppingHelixStateInfo::OK && expectNewMagVolume){
+    double sign = dir == alongMomentum ? 1. : -1.;
 
-  if (iFDest == -1){
-    if (debug_) LogTrace(metname)<<"Failed to find a dest point inside the volume"<<std::endl;
+    //check if it's a wrong volume situation
+    if (nDestSorted-nearParallels > 0) result = SteppingHelixStateInfo::WRONG_VOLUME;
+    else {//get here if all faces in the corr direction were skipped
+      Point gPointEst(sv.r3);
+      double lDist = fabs(distToFace[iDistMin]);
+      if (lDist > fastSkipDist) lDist = fastSkipDist;
+      Vector lDelta(sv.p3); lDelta *= 1./sv.p3.mag()*sign*lDist;
+      gPointEst += lDelta;
+      if (debug_){
+	LogTrace(metname)<<"Linear est point to shortest dist "<<gPointEst
+			 <<" for iFace "<<iDistMin<<" at distance "<<lDist*sign<<std::endl;
+      }
+      GlobalPoint gPointEstNegZ(gPointEst.x(), gPointEst.y(), -fabs(gPointEst.z()));
+      if (cVol->inside(gPointEstNegZ) ){
+	if (debug_){
+	  LogTrace(metname)<<"The point is inside the volume"<<std::endl;
+	}
+
+      }else {
+	result = SteppingHelixStateInfo::WRONG_VOLUME;
+      }
+    }
+
+    if (result == SteppingHelixStateInfo::WRONG_VOLUME){
+      dist = sign*0.05;
+      tanDist = dist*1.01;
+      if( debug_){
+	LogTrace(metname)<<"Wrong volume located: return small dist, tandist"<<std::endl;
+      }
+    }
   }
 
+  if (result == SteppingHelixStateInfo::INACC){
+    if (debug_) LogTrace(metname)<<"All faces are too far"<<std::endl;
+  } else if (result == SteppingHelixStateInfo::WRONG_VOLUME){
+    if (debug_) LogTrace(metname)<<"Appear to be in a wrong volume"<<std::endl;
+  } else if (result != SteppingHelixStateInfo::OK){
+    if (debug_) LogTrace(metname)<<"Something else went wrong"<<std::endl;
+  }
+
+  
   return result;
 }
 

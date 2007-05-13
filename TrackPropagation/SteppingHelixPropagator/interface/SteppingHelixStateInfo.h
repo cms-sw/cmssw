@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/04/30 23:14:07 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/05/11 04:51:09 $
+ *  $Revision: 1.11 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.10 2007/04/30 23:14:07 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.11 2007/05/11 04:51:09 slava77 Exp $
 //
 //
 
@@ -45,6 +45,7 @@ class SteppingHelixStateInfo {
     RANGEOUT,
     INACC,
     NOT_IMPLEMENTED,
+    WRONG_VOLUME,
     UNDEFINED,
     MAX_RESULT
   };
@@ -98,7 +99,7 @@ class SteppingHelixStateInfo {
   const MagVolume* magVol;
   bool isYokeVol;//will be set (most likely) only for the barrel volumes (850>r>3.8, z<667)
   const MagneticField* field;  
-
+  
   VolumeBounds rzLims;
   double dEdx;
   double dEdXPrime;
