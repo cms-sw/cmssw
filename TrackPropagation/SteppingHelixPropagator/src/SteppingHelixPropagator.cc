@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/13 03:28:45 $
- *  $Revision: 1.42 $
+ *  $Date: 2007/05/14 06:29:04 $
+ *  $Revision: 1.43 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.42 2007/05/13 03:28:45 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.43 2007/05/14 06:29:04 slava77 Exp $
 //
 //
 
@@ -1116,7 +1116,13 @@ double SteppingHelixPropagator::getDeDx(const SteppingHelixPropagator::StateInfo
       dEdx = dEdX_HCal*0.96; radX0 = radX0_HCal/0.96; 
     } //HE calor abit less dense
     else {
-      rzLims = MatBounds(2.9, 129, 555, 785);
+      //      rzLims = MatBounds(2.9, 129, 555, 785);
+      if (lZ < 568 ) rzLims = MatBounds(2.9, 129, 555, 568);
+      else if (lZ < 625){
+	if (lR < 85) rzLims = MatBounds(2.9, 85, 568, 625);
+	else rzLims = MatBounds(85, 129, 568, 625);
+      } else if (lZ < 785) rzLims = MatBounds(2.9, 129, 625, 785);
+
       //iron .. don't care about no material in front of HF (too forward)
       if (! (lZ > 568 && lZ < 625 && lR > 85 ) // HE support 
 	  && ! (lZ > 785 && lZ < 850 && lR > 118)) {dEdx = dEdX_Fe; radX0 = radX0_Fe; }
