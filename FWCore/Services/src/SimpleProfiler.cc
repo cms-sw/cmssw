@@ -24,6 +24,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/resource.h>
 #include <fcntl.h>
 #include <ucontext.h>
 #include <execinfo.h>
@@ -41,6 +42,18 @@ namespace INSTR
 {
   typedef unsigned char byte;
   const byte RET = 0xc3;  
+}
+
+namespace
+{
+
+  string makeFileName()
+  {
+    pid_t p = getpid();
+    ostringstream ost;
+    ost << "profdata_" << p;
+    return ost.str();
+  }
 }
 
 // ---------------------------------------------------------------------
@@ -65,13 +78,50 @@ const int REG_EBP = 6;
 const int REG_ESP = 7;
 #endif
 
+#include "sys/types.h"
+#include "unistd.h"
+#include <sstream>
+#include <fstream>
+
+
 namespace 
 {
+
+  struct frame
+  {
+    // member data
+    frame* next;
+    void*  ip;
+
+    // member functions
+    frame() : next(0), ip(0) { }
+    unsigned char instruction() const { return *(unsigned char*)ip; }
+    void print(FILE* out) { fprintf(out, "next: %8.8x  ip: %8.8x  inst: %2.2x\n", next, ip, instruction()); }
+  };
+
+  void write_maps()
+  {
+    pid_t pid = getpid();
+    std::ostringstream number;
+    number << pid;
+    std::string inputname("/proc/");
+    inputname += number.str();
+    inputname += "/maps";
+    std::ifstream input(inputname.c_str());
+    std::ofstream output("map.dump");
+    std::string line;
+    while (std::getline(input, line)) output << line << '\n';
+    input.close();
+    output.close();
+  }
+
   FILE* frame_cond = 0;
 
   void openCondFile()
   {
-    frame_cond = fopen("profdata_condfile","w");
+    std::string filename(makeFileName());
+    filename += "_condfile";
+    frame_cond = fopen(filename.c_str(),"w");
     if(frame_cond==0)
       {
 	cerr << "bad open of profdata_condfile\n";
@@ -89,23 +139,23 @@ namespace
     fclose(frame_cond);
   }
 
-  void dumpStack(unsigned int* esp, unsigned int* ebp, unsigned char* eip)
+  void dumpStack(const char* msg,
+		 unsigned int* esp, unsigned int* ebp, unsigned char* eip)
   {
-    cerr << "after leave:\n"
-	 << " i=" << (void*)eip 
-	 << " b=" << (void*)ebp 
-	 << " s=" << (void*)esp
-	 << " *b=" << (void*)*(ebp+0)
-	 << " " << (void*)*(ebp+1)
-	 << " " << (void*)*(ebp+2)
-	 << "\n";
+    fprintf(frame_cond, msg);
+    fflush(frame_cond);
+    fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
+	    (void*)eip, eip[0], (void*)ebp, (void*)esp, (void*)(ebp[0]), (void*)(ebp[1]), (void*)(ebp[2]));
+    fflush(frame_cond);
+
 
     unsigned int* spp = esp;
 
     for(int i=15;i>-5;--i)
-      cerr << "    " << (void*)(spp+i) 
-	   << " esp[" << i << "]=" << (void*)*(spp+i)
-	   << "\n";
+      {
+	fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
+	fflush(frame_cond);
+      }
   }
 
 }
@@ -153,13 +203,13 @@ extern "C"
 	if(ebp<esp)
 	  {
 	    *cur++ = ((unsigned int)eip);
-	    *cur++ = ((unsigned int)ebp);
-	    //cerr << "early completion\n";
+	    *cur++ = 0U;
+	    cerr << "early completion for eip = " << (unsigned int)eip << '\n';
 	    stack_uninterpretable=true;
 	  }
 	else
 	  {
-	    //cerr << "ebp < esp (but not early completion)\n";
+	    cerr << "ebp < esp (but not early completion)\n";
 	    ebp=(unsigned int*)(*ebp);
 	    ebp=(unsigned int*)(*ebp);
 	  } 
@@ -197,6 +247,14 @@ extern "C"
 	// have been done, then EBP and ESP aren't yet set for the new
 	// function... so set them.
 
+	    if(
+	       (esp)<(unsigned int*)0x0000ffff||
+	       (esp+1)<(unsigned int*)0x0000ffff||
+	       (esp+2)<(unsigned int*)0x0000ffff
+	       )
+	      {
+		dumpStack("bad ebp data ****************\n",esp,ebp,eip); 
+	      }
 	if( *esp==(unsigned int)ebp )
 	  {
 	    condition += 4;	    
@@ -216,41 +274,70 @@ extern "C"
 		*eip!=0xc3 && *eip!=0xe8
 		 )
 	  {
-	    condition += 2;
-	    //cerr << "after the leave but before the ret\n";
-	    *cur++ = *esp;
+	    dumpStack("---------------------\n", esp,ebp,eip);
 
-#if 0
-	    if( *eip==0x40 && *(eip-1)==0xc9 )
+	    if ( (void*)eip > (void*)stacktop)
 	      {
-		dumpStack(esp,ebp,eip);
+		// The current function had no stack frame.
+		condition += 16;
+	    if( (ebp+0)<(unsigned int*)0x0000ffff )
+	      {
+		dumpStack("bad ebp data ****************\n",
+			  esp,ebp,eip); 
+	      }
+		ebp = (unsigned int*)esp[0];
+// 		frame* f = (frame*)(esp[0]);
+// 		while ( f != 0 )
+// 		  {
+// 		    f->print(frame_cond);
+// 		    f = f->next;
+// 		  }
+
+	      }
+	    else
+	      {
+		// The stack frame for the current function has
+		// already been popped.
 		condition += 2;
 		//cerr << "after the leave but before the ret\n";
 		*cur++ = *esp;
 	      }
-	    else
-	      {
-		dumpStack(esp,ebp,eip);
-		//cerr << "mistake about after leave made\n";
-	      }
-	    cerr << " t_sp=" << (void*)this_sp 
-		 << " t_bp=" << (void*)this_bp
-		 << " 1(bp)=" << (void*)*(this_bp+1)
-		 << " 0(1(bp))=" << (void*)*(unsigned int*)(*(this_bp+1))
-		 << "\n";
-#endif
-
 	  }
       
-	int times_through_loop=0;
 	if (ebp<stacktop == false) 
 	  fprintf(stderr, "--- not going through the loop this time\n");
 
-	while(ebp<stacktop)
+	//if (condition!=0) fprintf(stderr, "bad condition: %d\n", condition);
+	//while(ebp<stacktop)
+	int counter = 0;
+	while (ebp)
 	  {
-	    ++times_through_loop;
-	    *cur++ = (*(ebp+1));
-	    ebp=(unsigned int*)(*ebp);
+	    //*cur++   = *(ebp+1);
+	    if( (ebp+1)<(unsigned int*)0x0000ffff )
+	      {
+		dumpStack("bad ebp+1 data ****************\n",
+			  esp,ebp,eip); 
+		break;
+	      }
+	    unsigned int ival = ebp[1];
+	    *cur = ival;
+	    cur++;
+
+	    //ebp=(unsigned int*)(*ebp);
+	    if( (ebp)<(unsigned int*)0x0000ffff )
+	      {
+		dumpStack("bad ebp data ****************\n",
+			  esp,ebp,eip); 
+		break;
+	      }
+	    unsigned int val = ebp[0];
+	    ebp = reinterpret_cast<unsigned int*>(val);
+
+	    if (++counter > 1000)
+	      {
+		cerr << "BAD COUNT!!!!!!\n";
+		break;
+	      }
 	  }
       }
     //writeCond(condition)
@@ -341,16 +428,6 @@ namespace
     return top;
   }
 
-
-  string makeFileName()
-  {
-    pid_t p = getpid();
-    ostringstream ost;
-    ost << "profdata_" << p;
-    return ost.str();
-  }
-
-
   void setupTimer()
   {
 #if USE_SIGALTSTACK
@@ -402,6 +479,25 @@ namespace
 	perror("sigaction failed");
 	abort();
       }
+
+    // Turn off handling of SIGSEGV signal
+    memset(&act,0,sizeof(act));
+    act.sa_handler = SIG_DFL;
+
+    if (sigaction(SIGSEGV, &act, NULL) != 0)
+      {
+	perror("sigaction failed");
+	abort();
+      }
+
+    struct rlimit limits;
+    if (getrlimit(RLIMIT_CORE, &limits) != 0)
+      {
+	perror("getrlimit failed");
+	abort();
+      }
+    cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
+    cerr << "core size limit (hard): " << limits.rlim_max << '\n';
 
     struct itimerval newval;
     struct itimerval oldval;
@@ -605,6 +701,7 @@ void SimpleProfiler::complete()
     }
 
   writeProfileData(fd_,filename_);
+  write_maps();
 }
 
 

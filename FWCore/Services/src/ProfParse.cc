@@ -162,6 +162,13 @@ bool Reader::nextSample(VoidVec& vv)
 std::string make_name(Dl_info const& info, void* where,
 		      std::string const& prefix)
 {
+  std::string object_name;
+  if (info.dli_fname == 0 || info.dli_fname[0] == 0x0)
+    {
+      ostringstream oss;
+      oss << "no_object_" << where;
+      return oss.str();
+    }
   if (info.dli_saddr) return info.dli_sname;
   ostringstream oss;
   oss << prefix << where;
@@ -211,26 +218,24 @@ void writeProfileData(int fd, const std::string& prefix)
 	  unsigned int value = reinterpret_cast<unsigned int>(*c);
 
 	  const Sym* entry = 0;
-	  Dl_info look;
-
-#if 0  
-	  if(dladdr((void*)value,&look)!=0)
-	    {
-	      cerr << look.dli_fname 
-		   << ":" << (look.dli_saddr ? look.dli_sname : "?")
-		   << ":" << look.dli_saddr
-		   << "\n--------\n";      
-	    }
-#endif
+	  Dl_info info;
 	  void* addr = (void*)value;
-	  if(dladdr(addr,&look)!=0)
-	    {
-	      string name = make_name(look, addr, "unknown_");
 
-	      last_good_entry.id_ = 0;
-	      last_good_entry.name_ = name;
-	      last_good_entry.addr_ = (unsigned int)look.dli_saddr;
-	      last_good_entry.size_ = 0;
+	  if(dladdr(addr,&info)!=0)
+	    {
+	      string name = make_name(info, addr, "unknown_");
+
+	      last_good_entry.name_    = name;
+	      last_good_entry.library_ = info.dli_fname;
+	      last_good_entry.id_      = 0;
+	      unsigned int function_address = (unsigned int)info.dli_saddr;
+
+	      // If we find the address of this function, we make  a
+	      // unique VertexTracker for that function. If not,  we
+	      // make a unique VertexTracker for this exact address.
+	      last_good_entry.addr_  =   
+		function_address ? function_address : value;
+
 	      entry = &last_good_entry;
 	    }
 	  else // dladdr has failed
@@ -238,25 +243,24 @@ void writeProfileData(int fd, const std::string& prefix)
 	      cerr << "sample " << total
 		   << ": dladdr failed for address: " << *c
 		   << endl;
-	      string name = make_name(look, addr, "lookup_failure_");
-// 	      ostringstream uost;
-// 	      uost << "dladddr_failure_" << failure_count;
-// 	      ++failure_count;
+
+	      std::ostringstream oss;
+	      oss << "lookup_failure_" << (void*)addr;
+	      last_none_entry.name_    = oss.str();
+	      last_none_entry.library_ = "unknown";
+	      last_none_entry.id_      = Sym::next_id_++;
+	      last_none_entry.addr_    = value;
+
 	      entry = &last_none_entry;
-	      last_none_entry.id_ = Sym::next_id_++;
-	      last_none_entry.name_ = name;
-	      last_none_entry.addr_ = value;
 	    }
 
 	  irc = symset.insert(VertexTracker(*entry));
 	  if(irc.second)
 	    {
 	      irc.first->setID();
-	      //cout << "new node: " << *irc.first << endl;
 	    }
 	  irc.first->incTotal();
 	  ptrack.tree_.push_back(irc.first->id_);
-	  //cout << "added to tree: " << irc.first->id_ << endl;
 
 	  if(!first_pass) ++prev_irc.first->edges_[irc.first->id_];
 	  else first_pass=false;
@@ -271,7 +275,6 @@ void writeProfileData(int fd, const std::string& prefix)
 	{
 	  prc.first->setID();
 	}
-      //cout << "new path \n" << *prc.first << endl;
       prc.first->incTotal();
     }  
 
@@ -341,28 +344,15 @@ void writeProfileData(int fd, const std::string& prefix)
 
   // -------------- write out the vertices ----------------
 
-  // eost << "digraph prof {\n";
 
   sort(vsyms.begin(),vsyms.end(),symSort);
   Viter::reverse_iterator vvi(vsyms.rbegin()),vve(vsyms.rend());
   while(vvi!=vve)
     {
-      EdgeMap::const_iterator id((*vvi)->edges_.begin()),
-	ed((*vvi)->edges_.end());
-      while(id!=ed)
-	{
-	  //eost << "\t" << (*vvi)->id_ << " -> " << id->first 
-	  //     << " [label=\"" << id->second << "\"];\n";
-	  //eost << id->second << " " << (*vvi)->id_ << " " << id->first <<"\n";
-	  ++edgesize;
-	  ++id;
-	}
-
       nost << *(*vvi) << "\n";
       ++vvi;
     }
 
-  // eost << "}" << endl;
 
   // --------------- write out the paths ------------------ 
 

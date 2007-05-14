@@ -6,8 +6,8 @@ parameters = {
         'path_file': 'out_paths'
         },
     'view': {
-        'levels_up':10,
-        'levels_down':10,
+        'levels_up':7,
+        'levels_down':7,
         'out_file_suffix': '_paths'
         }
     }

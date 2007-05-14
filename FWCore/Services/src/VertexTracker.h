@@ -12,48 +12,52 @@ struct VertexTracker
 {
   VertexTracker():
     name_(),
+    library_(),
     addr_(),
     id_(),
     total_as_leaf_(),
     total_seen_(),
     in_path_(),
-    size_(),
+    //size_(),
     percent_leaf_(0.0),
     percent_path_(0.0)
   { } 
 
   explicit VertexTracker(unsigned int id):
     name_(),
+    library_(),
     addr_(),
     id_(id),
     total_as_leaf_(),
     total_seen_(),
     in_path_(),
-    size_(),
+    //size_(),
     percent_leaf_(0.0),
     percent_path_(0.0)
   { }
 
   VertexTracker(unsigned int addr, const std::string& name):
     name_(name),
+    library_(),
     addr_(addr),
     id_(),
     total_as_leaf_(),
     total_seen_(),
     in_path_(),
-    size_(),
+    //size_(),
     percent_leaf_(0.0),
     percent_path_(0.0)
   { }
 
-  explicit VertexTracker(const Sym& e) :
-    name_(e.name_),
-    addr_(e.addr_),
+  explicit VertexTracker(const Sym& sym) :
+    name_(sym.name_),
+    library_(sym.library_),
+    addr_(sym.addr_),
     id_(),
     total_as_leaf_(),
     total_seen_(),
     in_path_(),
-    //size_(e.size_),
+    //size_(sym.size_),
     percent_leaf_(0.0),
     percent_path_(0.0)
   { }
@@ -83,15 +87,16 @@ struct VertexTracker
   { id_=next_id_++; }
 
   std::string name_;
+  std::string library_;
   unsigned int addr_;
   mutable unsigned int id_;
   mutable unsigned int total_as_leaf_;
   mutable unsigned int total_seen_;
   mutable unsigned int in_path_;
-  mutable EdgeMap edges_;
-  mutable int size_;
-  mutable float percent_leaf_;
-  mutable float percent_path_;
+  mutable EdgeMap      edges_;
+  //mutable int          size_;
+  mutable float        percent_leaf_;
+  mutable float        percent_path_;
 
   static unsigned int next_id_;
 };

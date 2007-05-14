@@ -4,21 +4,39 @@
 #include <iosfwd>
 #include <string>
 
+#include <dlfcn.h>
+
 struct Sym
 {
-  Sym() :
+  Sym(Dl_info const& info, void* addr) :
+    name_(),
+    library_(),
     id_(),
-    addr_() { }
+    addr_(reinterpret_cast<unsigned int>(addr))
+  {
+    
+  }
+
+
+
+  Sym() :
+    name_(),
+    library_(),
+    id_(),
+    addr_()
+  {  }
 
   explicit Sym(int id) :
+    name_(),
+    library_(),
     id_(id),
     addr_()
   { }
   
-  int id_;
+  std::string  name_;
+  std::string  library_;
+  int          id_;
   unsigned int addr_;
-  std::string name_;
-  int size_;
 
   static int next_id_;
 
@@ -38,5 +56,6 @@ inline
 bool 
 operator<(unsigned int a, const Sym& b)
 { return a < b.addr_; }
+
 
 #endif 
