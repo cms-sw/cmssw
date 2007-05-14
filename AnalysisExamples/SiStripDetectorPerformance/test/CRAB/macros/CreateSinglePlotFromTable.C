@@ -6,7 +6,7 @@
 std::vector< TString > labels;
 std::vector<float> values;
 
-void CreateSinglePlotFromTable(TString filename,TString XTitle="", TString YTitle=""){
+void CreateSinglePlotFromTable(TString filename,TString XTitle="", TString YTitle="", bool boolLog=true){
   //  TString filename_=filename;
   ifstream infile;
   infile.open(filename.Data());
@@ -51,7 +51,8 @@ void CreateSinglePlotFromTable(TString filename,TString XTitle="", TString YTitl
     //cout << *(&values[0]+i*m)<< " " << *(&values[0]+i*m+j) << endl;
    }
   }
-  c1->SetLogy();
+  if (boolLog)
+    c1->SetLogy();
   mg->Draw("a");
   mg->GetXaxis()->SetTitle(XTitle);
   mg->GetYaxis()->SetTitle(YTitle);

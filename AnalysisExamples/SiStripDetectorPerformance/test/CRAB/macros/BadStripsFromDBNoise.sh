@@ -16,7 +16,7 @@ function CreateHtml(){
 
     rm -f $webfile
     echo "<TABLE  BORDER=1 ALIGN=CENTER> " > $webfile  
-    echo -e "<TD>N $tableSeparator Module $tableSeparator Run Number  $tableSeparator %   All  $tableSeparator N All $tableSeparator % inside $tableSeparator N inside $tableSeparator % leftEdge $tableSeparator N leftEdge $tableSeparator % rightEdge $tableSeparator N rightEdge  <TR> " >> $webfile
+    echo -e "<TD>N $tableSeparator Module $tableSeparator Run Number  $tableSeparator %   All  $tableSeparator N All $tableSeparator N inside $tableSeparator N leftEdge $tableSeparator N rightEdge  <TR> " >> $webfile
 
     cat $path/$2 | grep "|" | grep -v "Run" | sed -e "s@(@|@g" -e "s@)@@g" -e "s@[ \t]*@@g" | awk -F"|" '
 BEGIN{
@@ -31,10 +31,9 @@ if (int($1)!=N) {N=int($1); if (i==0){i=1}else{i=0} }
 pswebadd=sprintf("%s/../ClusterAnalysis_*%d/res/DBBadStrips/DBNoise_SingleDet_%s*.gif",path,$3,$2);
 smrywebadd=sprintf("%s/../ClusterAnalysis_*%d/res/ClusterAnalysis_*%d*DBBadStrips.smry",path,$3,$3);
 #print htmlwebadd
-print "<TD> " fontColor[i] "<a href=pswebadd>" $1 "</a>" Separator[0] fontColor[i] $2 Separator[1] fontColor[i] "<a href=smrywebadd>" $3 "</a>" Separator[1] fontColor[i] $4 Separator[1] fontColor[i] $5 Separator[1] fontColor[i] $6 Separator[1] fontColor[i] $7 Separator[1] fontColor[i] $8 Separator[1] fontColor[i] $9 Separator[1] fontColor[i] $10 Separator[1] fontColor[i] $11"</font> <TR> | " pswebadd " | " smrywebadd  
+print "<TD> " fontColor[i] "<a href=pswebadd>" $1 "</a>" Separator[0] fontColor[i] $2 Separator[1] fontColor[i] "<a href=smrywebadd>" $3 "</a>" Separator[1] fontColor[i] $4 Separator[1] fontColor[i] $5 Separator[1] fontColor[i] $7 Separator[1] fontColor[i] $9 Separator[1] fontColor[i] $11"</font> <TR> | " pswebadd " | " smrywebadd  
 }' path=$path | while read line; do
-        psfile=(`echo $line | awk -F"|" '{print $2" "$3}'`)
-	echo $line | awk -F"|" '{print $1}' | sed -e "s@pswebadd@${psfile[0]}@g" -e "s@smrywebadd@${psfile[1]}@g" -e "s@/data1/@$webadd@g" >> $webfile
+	echo `echo $line | awk -F"|" '{sub("pswebadd",$2,$1);sub("smrywebadd",$3,$1);gsub("/data1/",webadd,$1); print $1}' webadd="$webadd"` >> $webfile
     done
     echo "</TABLE> " >> $webfile
 }
@@ -77,7 +76,7 @@ function extractInfo(){
     for det in `grep "&&&&" $outFile | sort -n -k 2  | awk '{print $2}'` 
       do
       listBad=`grep $det $outFile | awk '{if ($1 != "&&&&&&") print $3}'`
-      grep $det $outFile | awk '{if ($1 == "&&&&&&") print $4"\t"$18"\t"$10"\t"$15"\t"$22"\t|\t" $2} ' | sed -e "s@Det_@@" -e "s@_[0-9]*@ @5" -e "s@_@ @g" | awk '{print "* "$0 "\t|\t" a}' a="`echo $listBad`"
+      grep $det $outFile | awk '{if ($1 == "&&&&&&") print $4"\t"$18"\t"$10"\t"$15"\t"$22"\t|\t" $2} ' | sed -e "s@Det_@@" -e "s@_[0-9]*@ @5" -e "s@_@ @g" | cut -d " " -f "-6"| awk '{print "* "$0 "\t|\t" a}' a="`echo $listBad`"
     done 
 
     echo -e "*------------------------------------------------------------------------------------------------------------------------------------\n"
@@ -128,7 +127,7 @@ function SummaryInfo(){
     
     echo -e "N |\t\t Module |\t Run |\t %(Num Bads) all |\t inside |\t leftEdge |\t rigthEdge" > Asummary_DBBadStrips.txt
 
-    cat $runSmryFile | grep "^*" | awk -F"|" '{print $2" "$1}' | sed -e "s@*@@" | awk 'function perc(n,d){return sprintf("%3.2f",int(n/d*10000)/100);}{if(index($1,"--")){print $1}else if(index($1,"Run")){print $1" "$2}else{print $1"_"$2"_"$3"_"$4"_"$5" "perc($6,$10)"("$6")?"perc($7,$10)"("$7")?"perc($8,$10)"("$8")?"perc($9,$10)"("$9")"}}' | awk '
+    cat $runSmryFile | grep "^*" | awk -F"|" '{print $2" "$1}' | sed -e "s@*@@" | awk 'function perc(n,d){p=-1;if(d>0){p=int(n/d*10000)/100;}; return sprintf("%3.2f",p);}{if(index($1,"--")){print $1}else if(index($1,"Run")){print $1" "$2}else{print $1"_"$2"_"$3"_"$4"_"$5" "perc($6,$10)"("$6")?"perc($7,$10)"("$7")?"perc($8,$10)"("$8")?"perc($9,$10)"("$9")"}}' | awk '
 BEGIN{Run=1} 
 { 
 if( index($1,"--") == 0){
@@ -149,6 +148,9 @@ else{ print $1"\t|"Run"\t|"$2}
 ## MAIN  ###
 ############
 
+Version=""
+[ "$1" != "" ] && Version=$1
+
 export outFile
 basePath=/analysis/sw/CRAB
 Tpath=/data1/CrabAnalysis/ClusterAnalysis
@@ -161,6 +163,7 @@ cd -
 
 for path in `ls $Tpath`
   do
+  [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
   #[ "$path" != "FNAL_pre6_v17" ] && [ "$path" != "FNAL_pre6_v17" ]&& continue  
   echo "...Running on $Tpath/$path"
   for dir in `ls $Tpath/$path`

@@ -231,8 +231,11 @@ void CorrelatePedestals(TH1F *histo,std::map<short,StripStruct>& mBadStrip){
   std::map<short,StripStruct>::const_iterator EndIter=mBadStrip.end();
   for(std::map<short,StripStruct>::const_iterator iter=mBadStrip.begin();iter!=EndIter;++iter){
     i=iter->first;
+    std::cout<< "\tooooo " << hped->GetTitle() << " strip " << i-1 << " apv " << (i-1)/128 << " ped " << hped->GetBinContent(i) << " apvCM " << apvCM[(int)((i-1)/128)] << std::endl;
+
     CollectivePedHisto->Fill(hped->GetBinContent(i),apvCM[(int)((i-1)/128)]);
   }
+  std::cout << "\n--------------------------------------------------\n" << std::endl;
 }
 
 void BadStripsFromPosition(char *input, char* output,double prob=1.e-07){
@@ -241,21 +244,28 @@ void BadStripsFromPosition(char *input, char* output,double prob=1.e-07){
   char inputNoExtention[1024];
   strcat(inputNoExtention,input);
   sprintf(PedHistoName,"%s_HotStrips_PedScatters",strtok(inputNoExtention,"."));  
-  CollectivePedHisto = new TH2F("CollectivePedHisto",PedHistoName,256,0.1,1024.1,512,0.1,2048.1);
+  CollectivePedHisto = new TH2F("CollectivePedHisto",PedHistoName,512,0.1,2048.1,512,0.1,2048.1);
 
   f=new TFile(input,"READ"); 
   _prob=prob;
 
   Navigate();  
 
+  std::cout << "...Creating Collective Histo " << std::endl;
+
   TCanvas C;
+  gStyle->SetOptStat(10);
+  C.SetGridx(1);
+  C.SetGridy(1);
+  CollectivePedHisto->SetMarkerStyle(21);
+  CollectivePedHisto->GetXaxis()->SetTitle("Ped Val (ADC)");      
+  CollectivePedHisto->GetYaxis()->SetTitle("ApvPedMedian (ADC)");      
+  CollectivePedHisto->Draw();
   C.SetLogx();
   C.SetLogy();
-  gStyle->SetOptStat(0);
-  CollectivePedHisto->SetMarkerStyle(20);
-  CollectivePedHisto->Draw();
   C.Print(TString(CollectivePedHisto->GetTitle())+".gif");
-
+  CollectivePedHisto->Draw("contz");
+  C.Print(TString(CollectivePedHisto->GetTitle())+"_cont.gif");
   //cout << "close" << endl;
   //f->Close();     
 
