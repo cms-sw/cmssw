@@ -62,7 +62,7 @@ void TimingReport::dump(std::ostream & ico, bool active) {
   }
 
   std::ostream co(ico.rdbuf());
-  unsigned namew = 20;
+  size_t namew = 20;
   co << "\n";
   if (active) co << "Active ";
   co << "Timing Report  (in "
