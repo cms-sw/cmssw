@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/13 15:02:29 $
- * $Revision: 1.11 $
+ * $Date: 2007/05/14 10:03:16 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -330,11 +330,6 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     int x = 1 + sm%9;
     int y = 1 + sm/9;
     labelGrid.SetBinContent(x, y, Numbers::iEE(sm+1));
-//    if ( (sm+1) <= 9 ) {
-//      labelGrid.SetBinContent(x, y, -(sm+1));
-//    } else {
-//      labelGrid.SetBinContent(x, y, +(sm+1-9));
-//    }
   }
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(-9.01);
