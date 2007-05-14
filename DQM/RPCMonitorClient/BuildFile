@@ -7,7 +7,6 @@
 <use name=DQMServices/Components>
 <use name=DQMServices/WebComponents>
 <use name=DQMServices/ClientConfig>
-<use name=mimetic>
 <use name=xdaq>
 <export>
  <lib name=DQMRPCMonitorClient>
