@@ -1,4 +1,4 @@
-#include "EventFilter/GctRawToDigi/src/GctRawToDigi.h"
+#include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
 
 // system
 #include <vector>
@@ -7,6 +7,9 @@
 
 // framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 // Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -197,4 +200,9 @@ GctRawToDigi::beginJob(const edm::EventSetup&)
 void 
 GctRawToDigi::endJob() {
 }
+
+
+
+/// make this a plugin
+DEFINE_FWK_MODULE(GctRawToDigi);
 
