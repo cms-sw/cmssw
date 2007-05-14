@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2007/05/02 09:10:59 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,6 +31,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 
@@ -254,11 +255,11 @@ void EECosmicClient::subscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo);
 
   }
@@ -271,19 +272,19 @@ void EECosmicClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EECT energy sel SM%02d", ism);
+      sprintf(histo, "EECT energy sel %s", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Sel");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EECT energy cut SM%02d", ism);
+      sprintf(histo, "EECT energy cut %s", Numbers::sEE(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Cut");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EECT energy spectrum SM%02d", ism);
+      sprintf(histo, "EECT energy spectrum %s", Numbers::sEE(ism).c_str());
       me_h03_[ism-1] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EECosmicTask/Spectrum");
-      sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
     }
@@ -300,11 +301,11 @@ void EECosmicClient::subscribeNew(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo);
 
   }
@@ -341,11 +342,11 @@ void EECosmicClient::unsubscribe(void){
 
     int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo);
 
   }
@@ -383,27 +384,27 @@ void EECosmicClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Sel/EECT energy sel SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Sel/EECT energy sel %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Sel/EECT energy sel SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Sel/EECT energy sel %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Cut/EECT energy cut SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Cut/EECT energy cut %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Cut/EECT energy cut SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Cut/EECT energy cut %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Spectrum/EECT energy spectrum SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EECosmicTask/Spectrum/EECT energy spectrum %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EECosmicTask/Spectrum/EECT energy spectrum %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h03_[ism-1] );
@@ -564,7 +565,7 @@ void EECosmicClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+	     << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

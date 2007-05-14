@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/04/05 13:56:49 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -30,8 +30,11 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
-#include <DQM/EcalEndcapMonitorTasks/interface/EEMUtilsTasks.h>
+
 
 using namespace cms;
 using namespace edm;
@@ -125,71 +128,71 @@ void EEBeamHodoTask::setup(void){
     //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
-      sprintf(histo, "EEBHT occup SM%02d %02d", smId, i+1);
+      sprintf(histo, "EEBHT occup %s %02d", Numbers::sEE(smId).c_str(), i+1);
       meHodoOcc_[i] = dbe_->book1D(histo, histo, 30, 0., 30.);
-      sprintf(histo, "EEBHT raw SM%02d %02d", smId, i+1);
+      sprintf(histo, "EEBHT raw %s %02d", Numbers::sEE(smId).c_str(), i+1);
       meHodoRaw_[i] = dbe_->book1D(histo, histo, 64, 0., 64.);
     }
 
-    sprintf(histo, "EEBHT PosX rec SM%02d", smId);
+    sprintf(histo, "EEBHT PosX rec %s", Numbers::sEE(smId).c_str());
     meHodoPosRecX_ = dbe_->book1D(histo, histo, 100, -20, 20);
 
-    sprintf(histo, "EEBHT PosY rec SM%02d", smId);
+    sprintf(histo, "EEBHT PosY rec %s", Numbers::sEE(smId).c_str());
     meHodoPosRecY_ = dbe_->book1D(histo, histo, 100, -20, 20);
 
-    sprintf(histo, "EEBHT PosYX rec SM%02d", smId);
+    sprintf(histo, "EEBHT PosYX rec %s", Numbers::sEE(smId).c_str());
     meHodoPosRecXY_ = dbe_->book2D(histo, histo, 100, -20, 20,100, -20, 20);
 
-    sprintf(histo, "EEBHT SloX SM%02d", smId);
+    sprintf(histo, "EEBHT SloX %s", Numbers::sEE(smId).c_str());
     meHodoSloXRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
 
-    sprintf(histo, "EEBHT SloY SM%02d", smId);
+    sprintf(histo, "EEBHT SloY %s", Numbers::sEE(smId).c_str());
     meHodoSloYRec_ = dbe_->book1D(histo, histo, 50, -0.005, 0.005);
 
-    sprintf(histo, "EEBHT QualX SM%02d", smId);
+    sprintf(histo, "EEBHT QualX %s", Numbers::sEE(smId).c_str());
     meHodoQuaXRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
 
-    sprintf(histo, "EEBHT QualY SM%02d", smId);
+    sprintf(histo, "EEBHT QualY %s", Numbers::sEE(smId).c_str());
     meHodoQuaYRec_ = dbe_->book1D(histo, histo, 50, 0, 5);
 
-    sprintf(histo, "EEBHT TDC rec SM%02d", smId);
+    sprintf(histo, "EEBHT TDC rec %s", Numbers::sEE(smId).c_str());
     meTDCRec_  = dbe_->book1D(histo, histo, 25, 0, 1);
 
-    sprintf(histo, "EEBHT Hodo-Calo X vs Cry SM%02d", smId);
+    sprintf(histo, "EEBHT Hodo-Calo X vs Cry %s", Numbers::sEE(smId).c_str());
     meHodoPosXMinusCaloPosXVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EEBHT Hodo-Calo Y vs Cry SM%02d", smId);
+    sprintf(histo, "EEBHT Hodo-Calo Y vs Cry %s", Numbers::sEE(smId).c_str());
     meHodoPosYMinusCaloPosYVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EEBHT TDC-Calo vs Cry SM%02d", smId);
+    sprintf(histo, "EEBHT TDC-Calo vs Cry %s", Numbers::sEE(smId).c_str());
     meTDCTimeMinusCaloTimeVsCry_  = dbe_->book1D(histo, histo, 50, 0, 50);
 
-    sprintf(histo, "EEBHT Missing Collections SM%02d", smId);
+    sprintf(histo, "EEBHT Missing Collections %s", Numbers::sEE(smId).c_str());
     meMissingCollections_ = dbe_->book1D(histo, histo, 7, 0, 7);
 
     // following ME (type II):
     //  *** can be filled only when table is **not** moving
     //  *** need to be reset once table goes from 'moving'->notMoving
 
-    sprintf(histo, "EEBHT prof E1 vs X SM%02d", smId);
+    sprintf(histo, "EEBHT prof E1 vs X %s", Numbers::sEE(smId).c_str());
     meEvsXRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
-    sprintf(histo, "EEBHT prof E1 vs Y SM%02d", smId);
+    sprintf(histo, "EEBHT prof E1 vs Y %s", Numbers::sEE(smId).c_str());
     meEvsYRecProf_    = dbe_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
 
-    sprintf(histo, "EEBHT his E1 vs X SM%02d", smId);
+    sprintf(histo, "EEBHT his E1 vs X %s", Numbers::sEE(smId).c_str());
     meEvsXRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EEBHT his E1 vs Y SM%02d", smId);
+    sprintf(histo, "EEBHT his E1 vs Y %s", Numbers::sEE(smId).c_str());
     meEvsYRecHis_    = dbe_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
 
-    sprintf(histo, "EEBHT PosX Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EEBHT PosX Hodo-Calo %s", Numbers::sEE(smId).c_str());
     meCaloVsHodoXPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EEBHT PosY Hodo-Calo SM%02d", smId);
+    sprintf(histo, "EEBHT PosY Hodo-Calo %s", Numbers::sEE(smId).c_str());
     meCaloVsHodoYPos_   = dbe_->book1D(histo, histo, 40, -20, 20);
 
-    sprintf(histo, "EEBHT TimeMax TDC-Calo SM%02d", smId);
+    sprintf(histo, "EEBHT TimeMax TDC-Calo %s", Numbers::sEE(smId).c_str());
     meCaloVsTDCTime_  = dbe_->book1D(histo, histo, 100, -1, 1);//tentative
 
   }
@@ -445,13 +448,13 @@ void EEBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // if table has come to rest (from movement), reset concerned ME's
   if (resetNow_)
     {
-      EEMUtilsTasks::resetHisto(    meEvsXRecProf_ );
-      EEMUtilsTasks::resetHisto(    meEvsYRecProf_);
-      EEMUtilsTasks::resetHisto(    meEvsXRecHis_ );
-      EEMUtilsTasks::resetHisto(    meEvsYRecHis_ );
-      EEMUtilsTasks::resetHisto(    meCaloVsHodoXPos_  );
-      EEMUtilsTasks::resetHisto(    meCaloVsHodoYPos_  );
-      EEMUtilsTasks::resetHisto(    meCaloVsTDCTime_  );
+      UtilsClient::resetHisto(    meEvsXRecProf_ );
+      UtilsClient::resetHisto(    meEvsYRecProf_);
+      UtilsClient::resetHisto(    meEvsXRecHis_ );
+      UtilsClient::resetHisto(    meEvsYRecHis_ );
+      UtilsClient::resetHisto(    meCaloVsHodoXPos_  );
+      UtilsClient::resetHisto(    meCaloVsHodoYPos_  );
+      UtilsClient::resetHisto(    meCaloVsTDCTime_  );
 
       resetNow_ = false;
     }

@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/05/02 09:10:59 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,6 +36,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEPedestalClient.h>
 
@@ -162,19 +163,19 @@ void EEPedestalClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EEPT quality SM%02d G01", ism);
+      sprintf(qtname, "EEPT quality %s G01", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEPT quality SM%02d G06", ism);
+      sprintf(qtname, "EEPT quality %s G06", Numbers::sEE(ism).c_str());
       qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEPT quality SM%02d G12", ism);
+      sprintf(qtname, "EEPT quality %s G12", Numbers::sEE(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEPT pedestal quality PNs SM%02d G01", ism);
+      sprintf(qtname, "EEPT pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
       qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEPT pedestal quality PNs SM%02d G16", ism);
+      sprintf(qtname, "EEPT pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
@@ -255,60 +256,60 @@ void EEPedestalClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal quality G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal quality G01 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal quality G06 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal quality G06 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal quality G12 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal quality G12 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal quality PNs G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal quality PNs G01 %s", Numbers::sEE(ism).c_str());
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal quality PNs G16 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal quality PNs G16 %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal mean G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal mean G01 %s", Numbers::sEE(ism).c_str());
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
     if ( mep02_[ism-1] ) bei->removeElement( mep02_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal mean G06 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal mean G06 %s", Numbers::sEE(ism).c_str());
     mep02_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
     if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal mean G12 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal mean G12 %s", Numbers::sEE(ism).c_str());
     mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal rms G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal rms G01 %s", Numbers::sEE(ism).c_str());
     mer01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer02_[ism-1] ) bei->removeElement( mer02_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal rms G06 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal rms G06 %s", Numbers::sEE(ism).c_str());
     mer02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal rms G12 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal rms G12 %s", Numbers::sEE(ism).c_str());
     mer03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( mes01_[ism-1] ) bei->removeElement( mes01_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 3sum G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 3sum G01 %s", Numbers::sEE(ism).c_str());
     mes01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( mes02_[ism-1] ) bei->removeElement( mes02_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 3sum G06 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 3sum G06 %s", Numbers::sEE(ism).c_str());
     mes02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( mes03_[ism-1] ) bei->removeElement( mes03_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 3sum G12 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 3sum G12 %s", Numbers::sEE(ism).c_str());
     mes03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 5sum G01 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 5sum G01 %s", Numbers::sEE(ism).c_str());
     met01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 5sum G06 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 5sum G06 %s", Numbers::sEE(ism).c_str());
     met02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EEPT pedestal 5sum G12 SM%02d", ism);
+    sprintf(histo, "EEPT pedestal 5sum G12 %s", Numbers::sEE(ism).c_str());
     met03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
@@ -635,30 +636,30 @@ void EEPedestalClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -671,59 +672,59 @@ void EEPedestalClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EEPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
       me_j01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_j01_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
       me_j02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_j02_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
       me_j03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_j03_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
       me_k01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_k01_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
       me_k02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_k02_[ism-1], histo);
 
-      sprintf(histo, "EEPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
       me_k03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPedestalTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_k03_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       mui_->add(me_i02_[ism-1], histo);
 
     }
@@ -735,38 +736,38 @@ void EEPedestalClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
+        sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
+        sprintf(histo, "EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
@@ -783,30 +784,30 @@ void EEPedestalClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -854,30 +855,30 @@ void EEPedestalClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -929,89 +930,89 @@ void EEPedestalClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 3sum %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 3sum %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 3sum %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain01/EEPT pedestal 5sum %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain06/EEPT pedestal 5sum %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPedestalTask/Gain12/EEPT pedestal 5sum %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
@@ -1823,7 +1824,7 @@ void EEPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+	     << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

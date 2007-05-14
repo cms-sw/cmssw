@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/05/12 09:56:47 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEOccupancyTask.h>
 
@@ -77,12 +79,12 @@ void EEOccupancyTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEOT occupancy SM%02d", i+1);
+      sprintf(histo, "EEOT occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancy_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meOccupancy_[i], i+1);
     }
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEOT MEM occupancy SM%02d", i+1);
+      sprintf(histo, "EEOT MEM occupancy %s", Numbers::sEE(i+1).c_str());
       meOccupancyMem_[i] = dbe_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
       dbe_->tag(meOccupancyMem_[i], i+1);
     }

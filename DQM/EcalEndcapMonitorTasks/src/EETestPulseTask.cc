@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/05/12 09:56:47 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETestPulseTask.h>
 
@@ -93,39 +95,39 @@ void EETestPulseTask::setup(void){
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain01");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EETPT shape SM%02d G01", i+1);
+      sprintf(histo, "EETPT shape %s G01", Numbers::sEE(i+1).c_str());
       meShapeMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG01_[i], i+1);
-      sprintf(histo, "EETPT amplitude SM%02d G01", i+1);
+      sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(i+1).c_str());
       meAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG01_[i], i+1);
-      sprintf(histo, "EETPT amplitude error SM%02d G01", i+1);
+      sprintf(histo, "EETPT amplitude error %s G01", Numbers::sEE(i+1).c_str());
       meAmplErrorMapG01_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meAmplErrorMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain06");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EETPT shape SM%02d G06", i+1);
+      sprintf(histo, "EETPT shape %s G06", Numbers::sEE(i+1).c_str());
       meShapeMapG06_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG06_[i], i+1);
-      sprintf(histo, "EETPT amplitude SM%02d G06", i+1);
+      sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(i+1).c_str());
       meAmplMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG06_[i], i+1);
-      sprintf(histo, "EETPT amplitude error SM%02d G06", i+1);
+      sprintf(histo, "EETPT amplitude error %s G06", Numbers::sEE(i+1).c_str());
       meAmplErrorMapG06_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meAmplErrorMapG06_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/Gain12");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EETPT shape SM%02d G12", i+1);
+      sprintf(histo, "EETPT shape %s G12", Numbers::sEE(i+1).c_str());
       meShapeMapG12_[i] = dbe_->bookProfile2D(histo, histo, 1700, 0., 1700., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(meShapeMapG12_[i], i+1);
-      sprintf(histo, "EETPT amplitude SM%02d G12", i+1);
+      sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(i+1).c_str());
       meAmplMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096.*12., "s");
       dbe_->tag(meAmplMapG12_[i], i+1);
-      sprintf(histo, "EETPT amplitude error SM%02d G12", i+1);
+      sprintf(histo, "EETPT amplitude error %s G12", Numbers::sEE(i+1).c_str());
       meAmplErrorMapG12_[i] = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
       dbe_->tag(meAmplErrorMapG12_[i], i+1);
    }
@@ -134,20 +136,20 @@ void EETestPulseTask::setup(void){
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01", i+1);
+      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG01_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01", i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
     dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16", i+1);
+      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnAmplMapG16_[i], i+1);
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16", i+1);
+      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG16_[i], i+1);
     }

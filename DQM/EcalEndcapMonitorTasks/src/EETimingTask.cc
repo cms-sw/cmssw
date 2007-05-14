@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/05/12 09:56:47 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 
@@ -74,7 +76,7 @@ void EETimingTask::setup(void){
     dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
     for (int i = 0; i < 18 ; i++) {
-      sprintf(histo, "EETMT timing SM%02d", i+1);
+      sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
       meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
       dbe_->tag(meTimeMap_[i], i+1);
     }

@@ -2,8 +2,8 @@
 /*
  * \file EEIntegrityClient.cc
  *
- * $Date: 2007/05/02 09:10:59 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -42,6 +42,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 
@@ -142,34 +143,34 @@ void EEIntegrityClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EEIT data integrity quality gain SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality gain %s", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality ChId SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality ChId %s", Numbers::sEE(ism).c_str());
       qth02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality gain switch SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality gain switch %s", Numbers::sEE(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality gain switch stay SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality gain switch stay %s", Numbers::sEE(ism).c_str());
       qth04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality TTId SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality TTId %s", Numbers::sEE(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality TTBlockSize SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality TTBlockSize %s", Numbers::sEE(ism).c_str());
       qth06_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality MemChId SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality MemChId %s", Numbers::sEE(ism).c_str());
       qth07_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality MemGain SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality MemGain %s", Numbers::sEE(ism).c_str());
       qth08_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality MemTTId SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality MemTTId %s", Numbers::sEE(ism).c_str());
       qth09_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EEIT data integrity quality MemSize SM%02d", ism);
+      sprintf(qtname, "EEIT data integrity quality MemSize %s", Numbers::sEE(ism).c_str());
       qth10_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(-1.0, threshCry_);
@@ -255,11 +256,11 @@ void EEIntegrityClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EEIT data integrity quality SM%02d", ism);
+    sprintf(histo, "EEIT data integrity quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EEIT data integrity quality MEM SM%02d", ism);
+    sprintf(histo, "EEIT data integrity quality MEM %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
 
   }
@@ -749,32 +750,32 @@ void EEIntegrityClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
     mui_->subscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -792,64 +793,64 @@ void EEIntegrityClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EEOT occupancy SM%02d", ism);
+      sprintf(histo, "EEOT occupancy %s", Numbers::sEE(ism).c_str());
       me_h_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEOccupancyTask");
-      sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h_[ism-1], histo);
 
-      sprintf(histo, "EEOT MEM occupancy SM%02d", ism);
+      sprintf(histo, "EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
       me_hmem_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEOccupancyTask");
-      sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
       mui_->add(me_hmem_[ism-1], histo);
 
-      sprintf(histo, "EEIT gain SM%02d", ism);
+      sprintf(histo, "EEIT gain %s", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/Gain");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EEIT ChId SM%02d", ism);
+      sprintf(histo, "EEIT ChId %s", Numbers::sEE(ism).c_str());
       me_h02_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/ChId");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EEIT gain switch SM%02d", ism);
+      sprintf(histo, "EEIT gain switch %s", Numbers::sEE(ism).c_str());
       me_h03_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EEIT gain switch stay SM%02d", ism);
+      sprintf(histo, "EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
       me_h04_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h04_[ism-1], histo);
 
-      sprintf(histo, "EEIT TTId SM%02d", ism);
+      sprintf(histo, "EEIT TTId %s", Numbers::sEE(ism).c_str());
       me_h05_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/TTId");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h05_[ism-1], histo);
 
-      sprintf(histo, "EEIT TTBlockSize SM%02d", ism);
+      sprintf(histo, "EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
       me_h06_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h06_[ism-1], histo);
 
-      sprintf(histo, "EEIT MemChId SM%02d", ism);
+      sprintf(histo, "EEIT MemChId %s", Numbers::sEE(ism).c_str());
       me_h07_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h07_[ism-1], histo);
 
-      sprintf(histo, "EEIT MemGain SM%02d", ism);
+      sprintf(histo, "EEIT MemGain %s", Numbers::sEE(ism).c_str());
       me_h08_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h08_[ism-1], histo);
 
-      sprintf(histo, "EEIT MemTTId SM%02d", ism);
+      sprintf(histo, "EEIT MemTTId %s", Numbers::sEE(ism).c_str());
       me_h09_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h09_[ism-1], histo);
 
-      sprintf(histo, "EEIT MemSize SM%02d", ism);
+      sprintf(histo, "EEIT MemSize %s", Numbers::sEE(ism).c_str());
       me_h10_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize");
-      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h10_[ism-1], histo);
 
     }
@@ -861,68 +862,68 @@ void EEIntegrityClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
       if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
       if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
       if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
       if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
       if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
       if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
         if ( qth06_[ism-1] ) mui_->useQTest(histo, qth06_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
         if ( qth07_[ism-1] ) mui_->useQTest(histo, qth07_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemGain SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemGain %s", Numbers::sEE(ism).c_str());
         if ( qth08_[ism-1] ) mui_->useQTest(histo, qth08_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
         if ( qth09_[ism-1] ) mui_->useQTest(histo, qth09_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
         if ( qth10_[ism-1] ) mui_->useQTest(histo, qth10_[ism-1]->getName());
       }
     }
@@ -939,32 +940,32 @@ void EEIntegrityClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
     mui_->subscribeNew(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -1013,32 +1014,32 @@ void EEIntegrityClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
     sprintf(histo, "*/EcalEndcap/EEIntegrityTask/EEIT DCC size error");
     mui_->unsubscribe(histo);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -1102,97 +1103,97 @@ void EEIntegrityClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEOccupancyTask/EEOT occupancy SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEOccupancyTask/EEOT occupancy %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT occupancy SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT occupancy %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEOccupancyTask/EEOT MEM occupancy SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEOccupancyTask/EEOT MEM occupancy %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT MEM occupancy SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEOccupancyTask/EEOT MEM occupancy %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hmem_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, hmem_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/Gain/EEIT gain %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/Gain/EEIT gain SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/Gain/EEIT gain %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/ChId/EEIT ChId %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/ChId/EEIT ChId SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/ChId/EEIT ChId %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitch/EEIT gain switch %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitch/EEIT gain switch %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/GainSwitchStay/EEIT gain switch stay %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h04_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h04_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTId/EEIT TTId %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTId/EEIT TTId SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTId/EEIT TTId %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h05_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h05_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/TTBlockSize/EEIT TTBlockSize %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h06_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h06_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemChId/EEIT MemChId %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemChId/EEIT MemChId %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h07_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h07_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain/EEIT MemGain SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemGain/EEIT MemGain %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemGain/EEIT MemGain %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h08_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h08_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemTTId/EEIT MemTTId %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemTTId/EEIT MemTTId %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h09_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h09_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEIntegrityTask/MemSize/EEIT MemSize %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEIntegrityTask/MemSize/EEIT MemSize %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h10_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h10_[ism-1] );
@@ -1883,7 +1884,7 @@ void EEIntegrityClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+	     << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\"> " << endl;
     htmlFile << "<tr align=\"left\">" << endl;

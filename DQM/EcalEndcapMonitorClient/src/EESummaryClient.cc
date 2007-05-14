@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/12 12:37:35 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/13 15:02:29 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -26,8 +26,9 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
@@ -39,6 +40,8 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -326,12 +329,12 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   for ( short sm=0; sm<18; sm++ ) {
     int x = 1 + sm%9;
     int y = 1 + sm/9;
-//    labelGrid.SetBinContent(x, y, Numbers::iEE(sm+1));
-    if ( (sm+1) <= 9 ) {
-      labelGrid.SetBinContent(x, y, -(sm+1));
-    } else {
-      labelGrid.SetBinContent(x, y, +(sm+1-9));
-    }
+    labelGrid.SetBinContent(x, y, Numbers::iEE(sm+1));
+//    if ( (sm+1) <= 9 ) {
+//      labelGrid.SetBinContent(x, y, -(sm+1));
+//    } else {
+//      labelGrid.SetBinContent(x, y, +(sm+1-9));
+//    }
   }
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(-9.01);
@@ -348,6 +351,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f;
 
   imgNameMapI = "";
+
+  gStyle->SetPaintTextFormat("+g");
 
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meIntegrity_ );
@@ -413,6 +418,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SaveAs(imgName.c_str());
 
   }
+
+  gStyle->SetPaintTextFormat();
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;

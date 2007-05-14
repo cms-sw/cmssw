@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2007/05/02 09:10:59 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -37,6 +37,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EETestPulseClient.h>
 
@@ -149,25 +150,25 @@ void EETestPulseClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EETPT quality SM%02d G01", ism);
+      sprintf(qtname, "EETPT quality %s G01", Numbers::sEE(ism).c_str());
       qtha01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT quality SM%02d G06", ism);
+      sprintf(qtname, "EETPT quality %s G06", Numbers::sEE(ism).c_str());
       qtha02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT quality SM%02d G12", ism);
+      sprintf(qtname, "EETPT quality %s G12", Numbers::sEE(ism).c_str());
       qtha03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT amplitude quality PNs SM%02d G01", ism);
+      sprintf(qtname, "EETPT amplitude quality PNs %s G01", Numbers::sEE(ism).c_str());
       qtha04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT amplitude quality PNs SM%02d G16", ism);
+      sprintf(qtname, "EETPT amplitude quality PNs %s G16", Numbers::sEE(ism).c_str());
       qtha05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT pedestal quality PNs SM%02d G01", ism);
+      sprintf(qtname, "EETPT pedestal quality PNs %s G01", Numbers::sEE(ism).c_str());
       qtha06_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EETPT pedestal quality PNs SM%02d G16", ism);
+      sprintf(qtname, "EETPT pedestal quality PNs %s G16", Numbers::sEE(ism).c_str());
       qtha07_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qtha01_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
@@ -256,30 +257,30 @@ void EETestPulseClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse quality G01 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse quality G06 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse quality G12 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse quality PNs G01 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse quality PNs G01 %s", Numbers::sEE(ism).c_str());
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse quality PNs G16 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse quality PNs G16 %s", Numbers::sEE(ism).c_str());
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse amplitude G01 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse amplitude G01 %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea02_[ism-1] ) bei->removeElement( mea02_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse amplitude G06 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse amplitude G06 %s", Numbers::sEE(ism).c_str());
     mea02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
     if ( mea03_[ism-1] ) bei->removeElement( mea03_[ism-1]->getName() );
-    sprintf(histo, "EETPT test pulse amplitude G12 SM%02d", ism);
+    sprintf(histo, "EETPT test pulse amplitude G12 %s", Numbers::sEE(ism).c_str());
     mea03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
   }
@@ -639,32 +640,32 @@ void EETestPulseClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -677,69 +678,69 @@ void EETestPulseClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EETPT amplitude SM%02d G01", ism);
+      sprintf(histo, "EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
       me_ha01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_ha01_[ism-1], histo);
 
-      sprintf(histo, "EETPT amplitude SM%02d G06", ism);
+      sprintf(histo, "EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
       me_ha02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_ha02_[ism-1], histo);
 
-      sprintf(histo, "EETPT amplitude SM%02d G12", ism);
+      sprintf(histo, "EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
       me_ha03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_ha03_[ism-1], histo);
 
-      sprintf(histo, "EETPT shape SM%02d G01", ism);
+      sprintf(histo, "EETPT shape %s G01", Numbers::sEE(ism).c_str());
       me_hs01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_hs01_[ism-1], histo);
 
-      sprintf(histo, "EETPT shape SM%02d G06", ism);
+      sprintf(histo, "EETPT shape %s G06", Numbers::sEE(ism).c_str());
       me_hs02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_hs02_[ism-1], histo);
 
-      sprintf(histo, "EETPT shape SM%02d G12", ism);
+      sprintf(histo, "EETPT shape %s G12", Numbers::sEE(ism).c_str());
       me_hs03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_hs03_[ism-1], histo);
 
-      sprintf(histo, "EETPT amplitude error SM%02d G01", ism);
+      sprintf(histo, "EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
       me_he01_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_he01_[ism-1], histo);
 
-      sprintf(histo, "EETPT amplitude error SM%02d G06", ism);
+      sprintf(histo, "EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
       me_he02_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain06");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
       mui_->add(me_he02_[ism-1], histo);
 
-      sprintf(histo, "EETPT amplitude error SM%02d G12", ism);
+      sprintf(histo, "EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
       me_he03_[ism-1] = mui_->collate2D(histo, histo, "EcalEndcap/Sums/EETestPulseTask/Gain12");
-      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
+      sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
       mui_->add(me_he03_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G01", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs amplitude SM%02d G16", ism);
+      sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       mui_->add(me_i02_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       me_i03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       mui_->add(me_i03_[ism-1], histo);
 
-      sprintf(histo, "EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       me_i04_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16");
-      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       mui_->add(me_i04_[ism-1], histo);
 
     }
@@ -751,50 +752,50 @@ void EETestPulseClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
       if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
       if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
       if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
       if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
       if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
       if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
       if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
         if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+        sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
         if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
         if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
-        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qtha01_[ism-1] ) mui_->useQTest(histo, qtha01_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
         if ( qtha02_[ism-1] ) mui_->useQTest(histo, qtha02_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+        sprintf(histo, "EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
         if ( qtha03_[ism-1] ) mui_->useQTest(histo, qtha03_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
         if ( qtha04_[ism-1] ) mui_->useQTest(histo, qtha04_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
         if ( qtha05_[ism-1] ) mui_->useQTest(histo, qtha05_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
         if ( qtha06_[ism-1] ) mui_->useQTest(histo, qtha06_[ism-1]->getName());
-        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
         if ( qtha07_[ism-1] ) mui_->useQTest(histo, qtha07_[ism-1]->getName());
       }
     }
@@ -811,32 +812,32 @@ void EETestPulseClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -886,32 +887,32 @@ void EETestPulseClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
+    sprintf(histo, "*/EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -975,105 +976,105 @@ void EETestPulseClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT shape SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT shape %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT shape SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT shape %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT shape SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT shape %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT shape SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT shape %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT shape SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT shape %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT shape SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT shape %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain01/EETPT amplitude error %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain01/EETPT amplitude error %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     he01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain06/EETPT amplitude error %s G06", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain06/EETPT amplitude error %s G06").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     he02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETestPulseTask/Gain12/EETPT amplitude error %s G12", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETestPulseTask/Gain12/EETPT amplitude error %s G12").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     he03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude SM%02d G16").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain01/EEPDT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalEndcap/Sums/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal SM%02d G16").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EEPnDiodeTask/Gain16/EEPDT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     i04_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_[ism-1] );
@@ -1736,7 +1737,7 @@ void EETestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+	     << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

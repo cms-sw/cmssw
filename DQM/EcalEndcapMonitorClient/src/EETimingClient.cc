@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/04/30 09:24:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  *
 */
@@ -31,8 +31,11 @@
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
-#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+
 
 using namespace cms;
 using namespace edm;
@@ -116,7 +119,7 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EETMT quality SM%02d", ism);
+      sprintf(qtname, "EETMT quality %s", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
@@ -177,19 +180,19 @@ void EETimingClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing quality SM%02d", ism);
+    sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing SM%02d", ism);
+    sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing mean SM%02d", ism);
+    sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 0.0, 10.0);
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing rms SM%02d", ism);
+    sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
     mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
@@ -275,7 +278,7 @@ void EETimingClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -288,9 +291,9 @@ void EETimingClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EETMT timing SM%02d", ism);
+      sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETimingTask");
-      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
     }
@@ -302,14 +305,14 @@ void EETimingClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
@@ -326,7 +329,7 @@ void EETimingClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -361,7 +364,7 @@ void EETimingClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -407,9 +410,9 @@ void EETimingClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
@@ -708,7 +711,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+	     << Numbers::sEE(ism) << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
