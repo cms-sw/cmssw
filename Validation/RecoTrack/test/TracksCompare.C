@@ -5,7 +5,10 @@ void TracksCompare()
  gROOT ->SetBatch();
  gROOT->SetStyle("Plain");
 
- char*  rfilename = "validationPolts.root";//new release is in red
+ // gROOT->ProcessLine(".L HistoCompare_Tracks.C");
+ // gROOT->ProcessLine(".L TracksCompare.C");
+
+ char*  rfilename = "validationPlots.root";//new release is in red
  char*  sfilename = "../data/validationPlots_REF.root";//reference is in blue
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
@@ -15,7 +18,6 @@ void TracksCompare()
  TFile * rfile = new TFile(rfilename);
  TFile * sfile = new TFile(sfilename);
 
- ///gROOT->ProcessLine(".x HistoCompare_Tracks.C");
  HistoCompare_Tracks * myPV = new HistoCompare_Tracks();
 
  TCanvas *canvas;
