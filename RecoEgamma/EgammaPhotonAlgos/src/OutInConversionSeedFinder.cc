@@ -30,8 +30,8 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field
   LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder CTOR " << "\n";      
   theLayerMeasurements_ =  new LayerMeasurements(theInputMeasurementTracker );
 
-
-  the2ndHitdphi_ = 0.01; 
+  //the2ndHitdphi_ = 0.01; 
+  the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
     
@@ -250,7 +250,9 @@ void OutInConversionSeedFinder::startSeed(const FreeTrajectoryState & fts) const
       
       // allow the z of the hit to be within a straight line from a vertex
       // of +-15 cm to the cluster
-      float dphi = 0.015;
+      //      float dphi = 0.015;
+      float dphi = 0.030;
+
       MeasurementEstimator * newEstimator = makeEstimator(layer, dphi);
 
 

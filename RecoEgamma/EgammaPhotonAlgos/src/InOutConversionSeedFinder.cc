@@ -358,8 +358,8 @@ std::vector<const reco::BasicCluster*> InOutConversionSeedFinder::getSecondBasic
     
     
     if (fabs(theBcPhi-theConvPhi ) < .5 &&
-        ((charge<0 && theBcPhi-theConvPhi >-.3) || 
-         (charge>0 && theBcPhi-theConvPhi <.3))){
+        ((charge<0 && theBcPhi-theConvPhi >-.5) || 
+         (charge>0 && theBcPhi-theConvPhi <.5))){
       //LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::getSecondBasicClusters  Adding bc pointer " << &(*bcItr) << "  to vector:" << "\n";
       
       result.push_back(&(*bcItr));
@@ -407,7 +407,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
   
   thePropagatorWithMaterial_.setPropagationDirection(alongMomentum);
   
-  float dphi = 0.01;
+  //float dphi = 0.01;
+  float dphi = 0.03;
   float zrange = 5.;
   for( unsigned int ilayer = startingLayer; ilayer <= startingLayer+1 && (ilayer < allLayers.size()-2); ++ilayer) {
     const DetLayer * layer = allLayers[ilayer];
