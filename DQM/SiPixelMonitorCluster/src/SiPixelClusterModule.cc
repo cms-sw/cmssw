@@ -1,3 +1,21 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelMonitorCluster
+// Class:      SiPixelClusterSource
+// 
+/**\class 
+
+ Description: Pixel DQM source for Clusters
+
+ Implementation:
+     Note that the x- and y-directions referred to in the cluster description refer to local x- and y-values given by the clusterizer.  Local x corresponds to row value and local y corresponds to column value.
+*/
+//
+// Original Author:  Vincenzo Chiochia & Andrew York
+//         Created:  
+// $Id: SiPixelClusterSource.cc,v 1.8 2007/05/14 16:15:44 andrewdc Exp $
+//
+//
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
@@ -55,24 +73,24 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig) {
   meCharge_->setAxisTitle("Charge size (MeV)",1);
   // Cluster barycenter X position
   hid = theHistogramId->setHistoId("x",id_);
-  meX_ = theDMBE->book1D(hid,"Cluster barycenter X",200,0.,200.);
-  meX_->setAxisTitle("Barycenter x-position",1);
+  meX_ = theDMBE->book1D(hid,"Cluster barycenter X (row #)",200,0.,200.);
+  meX_->setAxisTitle("Barycenter x-position (row #)",1);
   // Cluster barycenter Y position
   hid = theHistogramId->setHistoId("y",id_);
-  meY_ = theDMBE->book1D(hid,"Cluster barycenter Y",500,0.,500.);
-  meY_->setAxisTitle("Barycenter y-position",1);
+  meY_ = theDMBE->book1D(hid,"Cluster barycenter Y (column #)",500,0.,500.);
+  meY_->setAxisTitle("Barycenter y-position (column #)",1);
   // Total cluster size (in pixels)
   hid = theHistogramId->setHistoId("size",id_);
   meSize_ = theDMBE->book1D(hid,"Total cluster size",100,0.,100.);
   meSize_->setAxisTitle("Cluster size (in pixels)",1);
   // Cluster width on the x-axis
   hid = theHistogramId->setHistoId("sizeX",id_);
-  meSizeX_ = theDMBE->book1D(hid,"Cluster x-width",10,0.,10.);
-  meSizeX_->setAxisTitle("Cluster size (x-axis)",1);
+  meSizeX_ = theDMBE->book1D(hid,"Cluster x-width (rows)",10,0.,10.);
+  meSizeX_->setAxisTitle("Cluster x-size (rows)",1);
   // Cluster width on the y-axis
   hid = theHistogramId->setHistoId("sizeY",id_);
-  meSizeY_ = theDMBE->book1D(hid,"Cluster y-width",20,0.,20.);
-  meSizeY_->setAxisTitle("Cluster size (y-axis)",1);
+  meSizeY_ = theDMBE->book1D(hid,"Cluster y-width (columns)",20,0.,20.);
+  meSizeY_->setAxisTitle("Cluster y-size (columns)",1);
   // Lowest cluster row
   hid = theHistogramId->setHistoId("minrow",id_);
   meMinRow_ = theDMBE->book1D(hid,"Lowest cluster row",200,0.,200.);
