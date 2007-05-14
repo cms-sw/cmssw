@@ -181,9 +181,13 @@ function CreateHtml(){
 ##  MAIN  ##
 ############
 
+Version=""
+[ "$1" != "" ] && Version=$1
+ 
 Tpath=/data1/CrabAnalysis/ClusterAnalysis
 for path in `ls $Tpath`
   do
+  [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
   echo CreateHtml $Tpath/$path ClusterAnalysis_$path.html $path  
   CreateHtml $Tpath/$path ClusterAnalysis_$path.html $path
 done
@@ -191,6 +195,7 @@ done
 Tpath=/data1/CrabAnalysis/OLDClusterAnalysis
 for path in `ls $Tpath`
   do
+  [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
   echo CreateHtml $Tpath/$path ClusterAnalysis_$path.html $path
   CreateHtml $Tpath/$path ClusterAnalysis_$path.html $path
 done
@@ -198,6 +203,7 @@ done
 Tpath=/data1/CrabAnalysis/TIFNtupleMaker
 for path in `ls $Tpath`
   do
+  [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
   echo CreateHtml $Tpath/$path TIFNtupleMaker_$path.html $path
   CreateHtml $Tpath/$path TIFNtupleMaker_$path.html $path
 done
@@ -205,6 +211,7 @@ done
 Tpath=/data1/CrabAnalysis/TIFNtupleMakerZS
 for path in `ls $Tpath`
   do
+  [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
   echo CreateHtml $Tpath/$path TIFNtupleMakerZS_$path.html $path
   CreateHtml $Tpath/$path TIFNtupleMakerZS_$path.html $path
 done

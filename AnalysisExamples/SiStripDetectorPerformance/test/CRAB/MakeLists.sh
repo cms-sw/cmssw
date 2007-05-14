@@ -125,13 +125,26 @@ rm -f ${list_path}/${list_temp}
 
 ###############################
 
+export list_phys_tmp=list_phys_tmp.txt
+#export list_phys_old=list_phys_old.txt
+
 # Extract list of physics runs
-wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O ${list_path}/${list_phys}
+wget -q -r "http://cmsdaq.cern.ch/cmsmon/cmsdb/servlet/RunSummaryTIF?RUN_BEGIN=$nextRun&RUN_END=1000000000&RUNMODE=PHYSIC&TEXT=1&DB=omds" -O ${list_path}/${list_phys_tmp}
 
 # temporary patch since cmsmon is not responding
-if [ "`cat ${list_path}/${list_phys}`" == "" ]; then
-  echo list of physics runs is empty
-  echo using list of all runs
-  cp ${list_path}/${list} ${list_path}/${list_phys}
+if [ `grep -c PHYSIC ${list_path}/${list_phys_tmp}` -ne 0 ]; then
+#  mv ${list_path}/${list_phys} ${list_path}/${list_phys_old}
+  mv ${list_path}/${list_phys_tmp} ${list_path}/${list_phys}
+elif [ ! -e ${list_path}/${list_phys} ]; then
+  echo old file does not exist
+  echo using default from 
+  cp ${local_crab_path}/log/${list_phys} ${list_path}/${list_phys}
+else
+  echo list of physics runs not correct
+  echo using old list
+#  cp ${list_path}/${list_phys_old} ${list_path}/${list_phys}
+
+#  echo using list of all runs
+#  cp ${list_path}/${list} ${list_path}/${list_phys}
 fi
 
