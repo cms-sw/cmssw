@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2006/10/05 13:11:55 $
- *  $Revision: 1.16 $
+ *  $Date: 2007/03/28 01:21:32 $
+ *  $Revision: 1.1 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -213,6 +213,12 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
         pt[1] = new_pt*pt[1]/fabs(pt[1]);
       }
     }
+    float ptmax = 2000.;
+    if(pt[0] > ptmax) pt[0] = ptmax;
+    if(pt[0] < -ptmax) pt[0] = -ptmax;
+    if(pt[1] > ptmax) pt[1] = ptmax;
+    if(pt[1] < -ptmax) pt[1] = -ptmax;
+
   }
 }
 
