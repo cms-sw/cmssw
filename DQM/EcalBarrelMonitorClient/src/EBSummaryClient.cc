@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/12 11:18:40 $
- * $Revision: 1.23 $
+ * $Date: 2007/05/13 15:02:29 $
+ * $Revision: 1.24 $
  * \author G. Della Ricca
  *
 */
@@ -457,6 +457,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapI = "";
 
+  gStyle->SetPaintTextFormat("+g");
+
   obj2f = 0;
   obj2f = UtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
@@ -587,6 +589,8 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->SaveAs(imgName.c_str());
 
   }
+
+  gStyle->SetPaintTextFormat();
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
