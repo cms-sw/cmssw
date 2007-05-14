@@ -1,11 +1,8 @@
 #include <iostream>
 #include <algorithm>
-#include <cstring>
 #include <cstddef>
 #include <vector>
 #include <set>
-
-#include <Reflex/Tools.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -18,20 +15,6 @@
 // #define DEBUG_EVAL
 
 namespace PhysicsTools {
-
-template<class T>
-static const char *getCalibrationName(const T *obj)
-{
-	static std::string type;
-	static const char prefix[] = "PhysicsTools::Calibration::";
-	type = ROOT::Reflex::Tools::Demangle(typeid(*obj));
-	const char *fullName = type.c_str();
-	if (std::strncmp(prefix, fullName, sizeof prefix - 1) != 0)
-		return 0;
-
-	fullName += sizeof prefix -1;
-	return fullName;
-}
 
 MVAComputer::MVAComputer(
 			const Calibration::MVAComputer *calib) :
@@ -53,9 +36,9 @@ MVAComputer::setup(const Calibration::MVAComputer *calib)
 	for(std::vector<Calibration::VarProcessor*>::const_iterator iter =
 							processors.begin();
 	    iter != processors.end(); ++iter) {
-		const char *name = getCalibrationName(*iter);
+		std::string name = (*iter)->getInstanceName();
 		VarProcessor *processor =
-				VarProcessor::create(name, *iter, this);
+			VarProcessor::create(name.c_str(), *iter, this);
 		if (!processor)
 			throw cms::Exception("UnknownProcessor")
 				<< name << " could not be instantiated."

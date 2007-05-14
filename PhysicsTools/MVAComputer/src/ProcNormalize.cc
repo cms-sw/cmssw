@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcNormalize.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include <algorithm>
@@ -80,7 +80,7 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 		    value < iter.end(); value++) {
 			double val = *value;
 			val = (val - map->min) / map->width;
-			val = map->spline.eval(val);
+			val = map->spline.integral(val);
 			iter << val;
 		}
 		iter();
