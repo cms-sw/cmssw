@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/08 14:53:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/08 15:04:59 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -41,7 +41,7 @@ void DTTTrigAnalyzer::beginJob(const edm::EventSetup& eventSetup) {
   ESHandle<DTTtrig> tTrig;
   eventSetup.get<DTTtrigRcd>().get(tTrig);
   tTrigMap = &*tTrig;
-  cout << "[DumpDBToFile] TTrig version: " << tTrig->version() << endl;
+  cout << "[DTTTrigAnalyzer] TTrig version: " << tTrig->version() << endl;
 }
 
 void DTTTrigAnalyzer::endJob() {
