@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefBaseCandidate.h,v 1.6 2007/02/26 13:06:31 llista Exp $
+ * \version $Id: CompositeRefBaseCandidate.h,v 1.8 2007/03/05 08:56:51 llista Exp $
  *
  */
 
@@ -25,6 +25,8 @@ namespace reco {
     CompositeRefBaseCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
 			       int pdgId = 0, int status = 0, bool integerCharge = true ) :
       Candidate( q, p4, vtx, pdgId, status, integerCharge ) { }
+    /// constructor from a particle
+    CompositeRefBaseCandidate( const Particle & p ) : Candidate( p ) { }
     /// destructor
     virtual ~CompositeRefBaseCandidate();
     /// returns a clone of the candidate
