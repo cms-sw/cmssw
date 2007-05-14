@@ -167,7 +167,9 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   // Step A: Get Inputs    
 
   edm::Handle<FEDRawDataCollection> rawdata;  
-  e.getByLabel(dataLabel_,rawdata);
+  //  unpractical to do now due to difference collecation labels in sources - to be uniformized
+  //  e.getByLabel(dataLabel_,rawdata);
+  e.getByType(rawdata);
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
