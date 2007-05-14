@@ -14,7 +14,8 @@ CSCDbStripConditions::CSCDbStripConditions()
   theGains(0),
   thePedestals(0),
   theCrosstalk(0),
-  theCapacitiveCrosstalk(61.9)
+  theCapacitiveCrosstalk(61.9),
+  theGainsConstant(0.33)
 {
 //  theCapacitiveCrosstalk = = 1/maxslope/maxsignal) = 1/ (0.00231/0.143);
 }
@@ -48,6 +49,7 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
   edm::ESHandle<CSCNoiseMatrix> hNoiseMatrix;
   es.get<CSCNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = &*hNoiseMatrix.product();
+
 }
 
 
@@ -103,7 +105,7 @@ float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
      << "Cannot find gain for layer " << detId;
   }
 
-  return layerGainsItr->second[channel-1].gain_slope;
+  return layerGainsItr->second[channel-1].gain_slope * theGainsConstant;
 }
 
 

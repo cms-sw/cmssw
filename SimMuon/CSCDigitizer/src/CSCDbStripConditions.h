@@ -49,6 +49,8 @@ private:
 
   // nominal constant to give 100% crosstalk
   float theCapacitiveCrosstalk;
+  // converts DB gains to the gain we expect, 0.5 fC/ADC
+  float theGainsConstant;
 };
 
 #endif
