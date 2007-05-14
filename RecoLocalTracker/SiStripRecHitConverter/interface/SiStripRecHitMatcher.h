@@ -30,12 +30,11 @@ public:
   SiStripRecHitMatcher(const edm::ParameterSet& conf);
   SiStripRecHitMatcher(const double theScale);
   
-  //match a single hit
 
-  const SiStripMatchedRecHit2D& match(const SiStripRecHit2D *monoRH, 
-					      const SiStripRecHit2D *stereoRH,
-					      const GluedGeomDet* gluedDet,
-					      LocalVector trackdirection) const;
+  const SiStripMatchedRecHit2D* match(const SiStripRecHit2D *monoRH, 
+				      const SiStripRecHit2D *stereoRH,
+				      const GluedGeomDet* gluedDet,
+				      LocalVector trackdirection) const;
 
   SiStripMatchedRecHit2D*  match(const SiStripMatchedRecHit2D *originalRH, 
 					      const GluedGeomDet* gluedDet,

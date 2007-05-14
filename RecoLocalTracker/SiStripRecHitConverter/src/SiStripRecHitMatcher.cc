@@ -16,12 +16,11 @@
   }
 
 
-
 //match a single hit
-const SiStripMatchedRecHit2D& SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
-					    const SiStripRecHit2D *stereoRH,
-					    const GluedGeomDet* gluedDet,
-					    LocalVector trackdirection) const{
+const SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH, 
+							  const SiStripRecHit2D *stereoRH,
+							  const GluedGeomDet* gluedDet,
+							  LocalVector trackdirection) const{
   SimpleHitCollection stereoHits;
   stereoHits.push_back(stereoRH);
   //const StripGeomDetUnit* monoDet = dynamic_cast< const StripGeomDetUnit*>(gluedDet->monoDet());
@@ -30,8 +29,11 @@ const SiStripMatchedRecHit2D& SiStripRecHitMatcher::match(const SiStripRecHit2D 
   collection= match( monoRH,
 		     stereoHits.begin(), stereoHits.end(), 
 		     gluedDet,trackdirection);
-  return *collection.begin();
+  if(collection.size()>0){
+    return collection.front().clone();
+  }else return 0;
 }
+
 
 //repeat matching for an already  a single hit
 SiStripMatchedRecHit2D* SiStripRecHitMatcher::match(const SiStripMatchedRecHit2D *origRH, 
