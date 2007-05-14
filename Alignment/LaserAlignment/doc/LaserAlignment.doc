@@ -35,8 +35,12 @@ This package contains the reconstruction code for the Laser Alignment System in 
 - LaserLayerPairs: create pairs of layers (used by the seed finder).
 - LASvec: vector algebra needed by AlignmentAlgorithmBW.
 - LASvec2D: vector and matrix algebra needed by AlignmentAlgorithmBW.
+- LayerWithHits: look for layers with hits (used by the seed finder).
 - Millepede: algorithm used for alignment.
+- OrderedLaserHitPair: ordered pair of laser hits (used by the seed finder).
+- OrderedLaserHitPairs: collection of OrderedLaserHitPairs (used by the seed finder).
 - SeedGeneratorForLaserBeams: seed finder; seeds are used to create reconstructed tracks out of the laser beams in the endcaps.
+- SeedLayerPairs: base class for LaserLayerPairs (used by the seed finder).
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
