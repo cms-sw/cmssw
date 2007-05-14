@@ -9,6 +9,7 @@
 #include "DumpFileToDB.h"
 #include "DTT0Analyzer.h"
 #include "DTTTrigAnalyzer.h"
+#include "DTVDriftAnalyzer.h"
 #include "ProduceFakeDB.h"
 
 
@@ -17,6 +18,7 @@ DEFINE_ANOTHER_FWK_MODULE(DumpDBToFile);
 DEFINE_ANOTHER_FWK_MODULE(DumpFileToDB);
 DEFINE_ANOTHER_FWK_MODULE(DTT0Analyzer);
 DEFINE_ANOTHER_FWK_MODULE(DTTTrigAnalyzer);
+DEFINE_ANOTHER_FWK_MODULE(DTVDriftAnalyzer);
 DEFINE_ANOTHER_FWK_MODULE(ProduceFakeDB);
 
 
