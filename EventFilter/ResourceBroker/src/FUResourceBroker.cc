@@ -45,7 +45,6 @@ using namespace evf;
 FUResourceBroker::FUResourceBroker(xdaq::ApplicationStub *s)
   : xdaq::Application(s)
   , fsm_(this)
-  , lock_(BSem::FULL)
   , gui_(0)
   , log_(getApplicationLogger())
   , bu_(0)
@@ -422,7 +421,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="doDumpEvents") resourceTable_->setDoDumpEvents(doDumpEvents_);
     if (item=="runNumber")    resourceTable_->resetCounters();
   }
-  
+ 
   gui_->unlockInfoSpaces();
 }
 
@@ -459,7 +458,6 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   
   gettimeofday(&monEndTime,&timezone);
   
-  lock_.take();
   unsigned int nbInput             =resourceTable_->nbCompleted();
   unsigned int nbProcessed         =resourceTable_->nbDiscarded();
   uint64_t     nbInputSumOfSquares =resourceTable_->inputSumOfSquares();
@@ -469,7 +467,6 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   unsigned int nbOutputSumOfSizes  =resourceTable_->outputSumOfSizes();
   uint64_t     deltaInputSumOfSquares;
   uint64_t     deltaOutputSumOfSquares;
-  lock_.give();
   
   gui_->lockInfoSpaces();
   

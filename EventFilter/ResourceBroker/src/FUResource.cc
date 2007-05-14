@@ -112,7 +112,11 @@ void FUResource::release()
 
   nbErrors_     =0;
   nbCrcErrors_  =0;
+
+  for (UInt_t i=0;i<1024;i++) fedSize_[i]=0;
   eventSize_    =0;
+  
+
   
   if (0!=shmCell_) {
     shmdt(shmCell_);
@@ -635,12 +639,14 @@ void FUResource::findFEDs() throw (evf::Exception)
     }
   
     // check that fedid is within valid ranges
-    if (doFedIdCheck_&&!FEDNumbering::inRange(fedId)) {
-      LOG4CPLUS_ERROR(log_,"fedid out of valid range."
+    if (fedId>=1024||
+	(doFedIdCheck_&&(!FEDNumbering::inRange(fedId)||fedSize_[fedId]!=0))) {
+      LOG4CPLUS_ERROR(log_,"Invalid fedid."
 		      <<" evtNumber:"<<evtNumber_
 		      <<" fedid:"<<fedId);
       nbErrors_++;
     }
+    if (fedId<1024) fedSize_[fedId]=fedSize;
     
     // crc check
     if (doCrcCheck_) {
