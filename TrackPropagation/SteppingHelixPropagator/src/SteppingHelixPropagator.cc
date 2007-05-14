@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2007/05/11 06:18:47 $
- *  $Revision: 1.41 $
+ *  $Date: 2007/05/13 03:28:45 $
+ *  $Revision: 1.42 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.41 2007/05/11 06:18:47 slava77 Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.42 2007/05/13 03:28:45 slava77 Exp $
 //
 //
 
@@ -847,6 +847,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
       svNext.r3 = drVec;
       svNext.bf = bf;
       svNext.p3 = svCurrent.p3;
+      svNext.isYokeVol = svCurrent.isYokeVol;
       MatBounds rzTmp;
       dEdx = getDeDx(svNext, dEdXPrime, radX0, rzTmp);
       dP = dEdx*dS;      
