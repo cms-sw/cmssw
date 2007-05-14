@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/10 10:58:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/10 13:14:13 $
+ *  $Revision: 1.3 $
  *
  *  \author S. Gennai
  *
@@ -76,7 +76,7 @@ HLTTauL25DoubleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   JetTagCollection::const_iterator jet;
   for (jet = jets.begin(); jet != jets.end(); jet++) {
     LogTrace("") << "Jet " << nJet
-		 << " : Et = " << jet->jet().et()
+		 << " : Et = " << jet->jet()->et()
 		 << " , No. of tracks = " << jet->tracks().size()
 		 << " , tag value = " << jet->discriminator();
     nJet++;
@@ -85,7 +85,7 @@ HLTTauL25DoubleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       nTag++;
     
     // Store (ref to) jets which passed tagging cuts
-    ref=CandidateBaseRef( jet->jet());
+    ref=CandidateBaseRef( jet->jet() );
       filterproduct->putParticle(ref);
       if (nTag==1) { // also store ProductID of Product containing AssociationMap
 	ProductID pid( jet->jet().id() );

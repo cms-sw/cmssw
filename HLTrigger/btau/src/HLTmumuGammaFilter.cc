@@ -2,6 +2,7 @@
 #include "HLTrigger/btau/interface/HLTmumuGammaFilter.h"
 
 #include <iostream>
+#include <Math/VectorUtil.h>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
