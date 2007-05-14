@@ -21,6 +21,7 @@ char * Mask;
 stringstream ss;
 TFile *f;
 double _StoNTh, _NsNbRatio; 
+int _minNentries;
 static const size_t _Mask_LENGTH = 100;
 static const size_t _cbads_LENGTH = 96;
 
@@ -107,7 +108,7 @@ void StoNStudy(TH1F *histo){
     }
   }
 
-  if ( histo->GetEntries() <100 )
+  if ( histo->GetEntries() < _minNentries )
     return;
 
   if (Nb==0)
@@ -147,11 +148,12 @@ void StoNStudy(TH1F *histo){
   }
 }
 
-void BadModulesFromClusters(char *input, char* output,double StoNTh=14, double NsNbRatio=1){
+void BadModulesFromClusters(char *input, char* output,double StoNTh=14, double NsNbRatio=1, int minNentries=100){
   
   f=new TFile(input,"READ"); 
   _StoNTh=StoNTh;
   _NsNbRatio=NsNbRatio;
+  _minNentries=minNentries;
 
   Navigate();  
 
