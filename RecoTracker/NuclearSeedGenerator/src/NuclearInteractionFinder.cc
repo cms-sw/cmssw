@@ -7,7 +7,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
-#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
