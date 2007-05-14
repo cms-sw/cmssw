@@ -36,9 +36,6 @@ Candidate * ShallowCloneCandidate::daughter( size_type i ) {
   return 0;
 }
 
-void ShallowCloneCandidate::clearDaughters() {
-}
-
 bool ShallowCloneCandidate::hasMasterClone() const {
   return true;
 }

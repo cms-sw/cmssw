@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.9 2007/03/05 08:56:51 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.10 2007/05/14 12:04:31 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -40,8 +40,6 @@ namespace reco {
     virtual iterator end();
     /// number of daughters
     virtual size_t numberOfDaughters() const;
-    /// clear daughters
-    virtual void clearDaughters();
     /// return daughter at a given position (throws an exception)
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position (throws an exception)
