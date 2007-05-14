@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.13 2007/03/05 08:56:51 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.14 2007/03/05 13:26:15 llista Exp $
  *
  */
 
@@ -50,6 +50,8 @@ namespace reco {
     void addDaughter( const Candidate & );
     /// add a clone of the passed candidate as daughter 
     void addDaughter( std::auto_ptr<Candidate> );
+    /// clear daughters
+    void clearDaughters() { dau.clear(); }
     /// implementation of const_iterator. 
     /// should be private; declared public only 
     /// for ROOT reflex dictionay problems    

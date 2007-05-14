@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.11 2007/03/05 08:56:51 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.12 2007/05/14 10:47:05 llista Exp $
  *
  */
 
@@ -47,6 +47,8 @@ namespace reco {
     virtual Candidate * daughter( size_type );
     /// add a daughter via a reference
     void addDaughter( const CandidateRef & );    
+    /// clear daughter references
+    void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
     /// implementation of const_iterator. 
