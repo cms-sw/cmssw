@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2007/04/05 14:54:00 $
- * $Revision: 1.37 $
+ * $Date: 2007/05/11 15:05:05 $
+ * $Revision: 1.38 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -31,9 +31,9 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include <DQM/EcalCommon/interface/Numbers.h>
+#include <DQM/EcalCommon/interface/UtilsClient.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBBeamHodoTask.h>
-#include <DQM/EcalBarrelMonitorTasks/interface/EBMUtilsTasks.h>
 
 using namespace cms;
 using namespace edm;
@@ -447,13 +447,13 @@ void EBBeamHodoTask::analyze(const Event& e, const EventSetup& c){
   // if table has come to rest (from movement), reset concerned ME's
   if (resetNow_)
     {
-      EBMUtilsTasks::resetHisto(    meEvsXRecProf_ );
-      EBMUtilsTasks::resetHisto(    meEvsYRecProf_);
-      EBMUtilsTasks::resetHisto(    meEvsXRecHis_ );
-      EBMUtilsTasks::resetHisto(    meEvsYRecHis_ );
-      EBMUtilsTasks::resetHisto(    meCaloVsHodoXPos_  );
-      EBMUtilsTasks::resetHisto(    meCaloVsHodoYPos_  );
-      EBMUtilsTasks::resetHisto(    meCaloVsTDCTime_  );
+      UtilsClient::resetHisto(    meEvsXRecProf_ );
+      UtilsClient::resetHisto(    meEvsYRecProf_);
+      UtilsClient::resetHisto(    meEvsXRecHis_ );
+      UtilsClient::resetHisto(    meEvsYRecHis_ );
+      UtilsClient::resetHisto(    meCaloVsHodoXPos_  );
+      UtilsClient::resetHisto(    meCaloVsHodoYPos_  );
+      UtilsClient::resetHisto(    meCaloVsTDCTime_  );
 
       resetNow_ = false;
     }

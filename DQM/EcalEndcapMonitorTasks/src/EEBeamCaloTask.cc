@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/05/12 09:56:47 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.5 $
  * \author A. Ghezzi
  *
  */
@@ -28,8 +28,9 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
-#include <DQM/EcalEndcapMonitorTasks/interface/EEMUtilsTasks.h>
 
 using namespace cms;
 using namespace edm;
@@ -544,13 +545,13 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     //here the follwowing histos should be reset
     //   for (int u=0;u<cryInArray_;u++){
-    //  EEMUtilsTasks::resetHisto( meBBCaloPulseProfMoving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloPulseProfG12Moving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloGainsMoving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloEneMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloPulseProfMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloPulseProfG12Moving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloGainsMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloEneMoving_[u] );
     // }
-    //EEMUtilsTasks::resetHisto( meBBCaloCryReadMoving_ );
-    EEMUtilsTasks::resetHisto( meBBCaloE3x3Moving_ );
+    //UtilsClient::resetHisto( meBBCaloCryReadMoving_ );
+    UtilsClient::resetHisto( meBBCaloE3x3Moving_ );
 
   }
 
@@ -580,14 +581,14 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       //here the follwowing histos should be reset
       for (int u=0;u<cryInArray_;u++){
-	EEMUtilsTasks::resetHisto( meBBCaloPulseProf_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloPulseProfG12_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloGains_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloEne_[u] );
+	UtilsClient::resetHisto( meBBCaloPulseProf_[u] );
+	UtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
+	UtilsClient::resetHisto( meBBCaloGains_[u] );
+	UtilsClient::resetHisto( meBBCaloEne_[u] );
       }
-      EEMUtilsTasks::resetHisto( meBBCaloCryRead_ );
-      EEMUtilsTasks::resetHisto( meBBCaloE3x3_ );
-      EEMUtilsTasks::resetHisto( meEEBCaloBeamCentered_ );
+      UtilsClient::resetHisto( meBBCaloCryRead_ );
+      UtilsClient::resetHisto( meBBCaloE3x3_ );
+      UtilsClient::resetHisto( meEEBCaloBeamCentered_ );
     }
   }
 
