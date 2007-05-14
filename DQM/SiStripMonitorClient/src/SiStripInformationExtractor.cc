@@ -28,7 +28,7 @@ SiStripInformationExtractor::SiStripInformationExtractor() {
     " Creating SiStripInformationExtractor " << "\n" ;
   layoutParser_ = 0;
   readReference_ = false;
-  canvas_ = new TCanvas("TestCanvas", "Test Canvas");
+  canvas_ = new TCanvas("TestCanvas", "Test Canvas"); 
   layoutMap.clear();
   readConfiguration();
 }
@@ -202,31 +202,19 @@ void SiStripInformationExtractor::fillGlobalHistoList(MonitorUserInterface * mui
 // --  Get Selected Monitor Elements
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
-  string currDir = mui->pwd();
-  if (currDir.find("module_") != string::npos &&
-      currDir.find(mid) != string::npos )  {
-    vector<string> contents = mui->getMEs();    
-    for (vector<string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-      for (vector<string>::const_iterator ih = names.begin();
-	   ih != names.end(); ih++) {
-	string temp_s = (*it).substr(0, (*it).find("__"));
-	//	if ((*it).find((*ih)) != string::npos) {
-	if (temp_s == (*ih)) {
-	  string full_path = currDir + "/" + (*it);
-	  MonitorElement * me = mui->get(full_path.c_str());
-	  if (me) mes.push_back(me);
-	}  
+  DaqMonitorBEInterface * bei = mui->getBEInterface();  
+  unsigned int tag = atoi(mid.c_str());
+  vector<MonitorElement*> all_mes = bei->get(tag);
+  for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
+       it!= all_mes.end(); it++) {
+    if (!(*it)) continue;
+    for (vector<string>::const_iterator ih = names.begin();
+	 ih != names.end(); ih++) {
+      
+      string me_name = (*it)->getName();
+      if (me_name.find(*ih) != string::npos) {
+	mes.push_back((*it));
       }
-    }
-    if (mes.size() >0) return;
-  } else {  
-    vector<string> subdirs = mui->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
-      mui->cd(*it);
-      selectSingleModuleHistos(mui, mid, names, mes);
-      mui->goUp();
     }
   }
 }
