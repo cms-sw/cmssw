@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.1 2007/05/07 18:28:58 saout Exp $
+// $Id: MVAComputer.cc,v 1.2 2007/05/10 13:42:41 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -38,6 +38,19 @@
 
 namespace PhysicsTools {
 namespace Calibration {
+
+std::string VarProcessor::getInstanceName() const
+{
+	static const char prefix[] = "PhysicsTools::Calibration::";
+	std::string type = ROOT::Reflex::Tools::Demangle(typeid(*this));
+	if (type.size() <= sizeof prefix - 1 ||
+	    type.substr(0, sizeof prefix - 1) != prefix)
+		throw cms::Exception("MVAComputerCalibration")
+			<< "getInstanceName failed for "
+			<< typeid(*this).name() << "." << std::endl;
+
+	return type.substr(sizeof prefix - 1);
+}
 
 MVAComputer::~MVAComputer()
 {

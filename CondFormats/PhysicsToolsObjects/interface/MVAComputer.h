@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.2 2007/05/09 23:37:26 saout Exp $
+// $Id: MVAComputer.h,v 1.3 2007/05/10 13:42:41 saout Exp $
 //
 
 #include <string>
@@ -51,6 +51,7 @@ class VarProcessor {
 	BitSet	inputVars;
 
 	virtual ~VarProcessor() {}
+	virtual std::string getInstanceName() const;
 };
 
 class Variable {
