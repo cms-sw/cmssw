@@ -44,7 +44,7 @@ class Node:
         me.ticks_as_child = 0
         me.ticks_as_parent_recur = 0
         me.calls = 0
-        me.children = set()
+        me.children = {} # set() - want to use set, but not until 2.4
 
     def parentTicks(me,count):
         me.ticks_as_parent += int(count)
@@ -58,10 +58,10 @@ class Node:
         me.ticks_as_parent_recur += int(count)
 
     def addChild(me,child_id):
-        me.children.add(child_id)
+        me.children[child_id]=0  # .add(child_id) -cannot use set functions yet
 
     def __str__(me):
-        return "(%d,%s,%d,%d,%s)"%(me.fid,me.name,me.ticks_as_parent,me.ticks_as_child,tostring(me.children))
+        return "(%d,%s,%d,%d,%s)"%(me.fid,me.name,me.ticks_as_parent,me.ticks_as_child,tostring(me.children.keys()))
 
 class EdgeCount:
     def __init__(me):
@@ -142,7 +142,7 @@ for node in names.values():
     print >>outfile,"0 %d"%cost
     #print >>outfile,"\n\n"
     
-    for child in node.children:
+    for child in node.children.keys():
         count = edges[(node.fid,child)].count
         print >>outfile,"cfn=(%d)"%child
         print >>outfile,"calls=%d 0"%count
