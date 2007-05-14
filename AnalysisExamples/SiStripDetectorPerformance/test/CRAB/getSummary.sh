@@ -95,9 +95,16 @@ function CreateSummaries(){
       do
       [ -d $path/AllSummaries/$file ] && continue 
 
-      [ `echo $file | grep -c .txt` != 0 ] && echo "<br><br>""&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$file>$file</a>&nbsp;&nbsp;<a href="`echo $webpath/AllSummaries/$file | sed -e 's@.txt@.html@'`">html</a>""<br><br>" >> ${webfiletmp}_smry
+      if [ `echo $file | grep -c .txt` != 0 ]; then
+	  echo "<hr><br><br>""&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$file>$file</a>&nbsp;&nbsp;<a href="`echo $webpath/AllSummaries/$file | sed -e 's@.txt@.html@'`">html</a>""<br><br>" >> ${webfiletmp}_smry
 
-      [ `echo $file | grep -c .gif` != 0 ] && echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$file>$file</a>&nbsp;&nbsp;" >> ${webfiletmp}_smry #&& echo "<br>" >> ${webfiletmp}_smry 
+	  name=`echo $file | sed -e "s@.txt@*@"`
+	  for giffile in `ls $path/AllSummaries/$name 2>/dev/null | awk -F"/" '{print $NF}'`;
+	    do 
+	    [ `echo $giffile | grep -c .gif` != 0 ] && echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=$webpath/AllSummaries/$giffile>$giffile</a>&nbsp;&nbsp;" >> ${webfiletmp}_smry #&& echo "<br>" >> ${webfiletmp}_smry 
+	    done
+      fi
+
     done
 }
 

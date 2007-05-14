@@ -24,9 +24,16 @@ function Production(){
   created_name=${created_path}/${job_name}
   if [ ! -e ${created_name} ]; then
 
+    # To set the correct name for TIF
+    if [ `echo ${Config}` == "TIF" ]; then
+      UseConfig=""
+    else
+      UseConfig=${Config}
+    fi
+
     echo -e "\n... Create analysis cfg"
     #####################
-    cat ${template_path}/template_$1.cfg | sed -e "s#OUTPUT_FILE#${job_name}#g" -e "s#CONFIG#${Config}#g" \
+    cat ${template_path}/template_$1.cfg | sed -e "s#OUTPUT_FILE#${job_name}#g" -e "s#CONFIG#${UseConfig}#g" \
                                                -e "s/#${Config}//g" > ${cfg_path}/${job_name}.cfg
     cp ${cfg_path}/${job_name}.cfg ${StoreDir}/logs
     echo -e "\n... Create crab cfg"

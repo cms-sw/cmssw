@@ -137,6 +137,11 @@ eval `scramv1 runtime -sh`
     export Type=`echo $FileName | awk -F_ '{print $1}'`
     export Flag=`echo $FileName | awk -F_ '{print $3}'`
     export Config=`echo $FileName | awk -F_ '{print $2}'`
+    export SubFlag=`echo $FileName | awk -F_ '{print $4}'`
+
+    if [ `echo ${SubFlag}` != "" ]; then
+      Flag=${Flag}"_"${SubFlag}
+    fi
 
     ##########
     ## MAIN ##
