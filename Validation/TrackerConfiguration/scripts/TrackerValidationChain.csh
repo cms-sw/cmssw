@@ -63,8 +63,14 @@ source copyWWWStrip.csh
 cd ${DATADIR}/Validation/RecoTrack/test
 
 cp ${DATADIR}/Validation/TrackerConfiguration/test/validationPlots.root .
-
 root -b -p -q TracksCompare.C
 source copyWWWTracks.csh
 
+cp ${DATADIR}/Validation/TrackerConfiguration/test/pixeltrackingrechitshist.root .
+root -b -p -q SiPixelRecoCompare.C 
+source copyWWWPixel.csh
+
+cp ${DATADIR}/Validation/TrackerConfiguration/test/striptrackingrechitshisto.root .
+root -b -p -q SiStripTrackingRecHitsCompare.C 
+source copyWWWStrip.csh
 
