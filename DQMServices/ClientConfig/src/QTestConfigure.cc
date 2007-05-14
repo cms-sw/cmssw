@@ -2,8 +2,8 @@
  *
  *  Implementation of QTestConfigure
  *
- *  $Date: 2006/07/20 16:04:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/20 09:33:41 $
+ *  $Revision: 1.3 $
  *  \author Ilaria Segoni
  */
 #include "DQMServices/ClientConfig/interface/QTestConfigure.h"
@@ -26,6 +26,7 @@ bool QTestConfigure::enableTests(std::map<std::string, std::map<std::string, std
 		if(!std::strcmp(testType.c_str(),DeadChannelROOT::getAlgoName().c_str()))   this->EnableDeadChannelTest(testName, params,mui);       
 		if(!std::strcmp(testType.c_str(),NoisyChannelROOT::getAlgoName().c_str()))  this->EnableNoisyChannelTest(testName, params,mui);       
 		if(!std::strcmp(testType.c_str(),MeanWithinExpectedROOT::getAlgoName().c_str()))  this->EnableMeanWithinExpectedTest(testName, params,mui);       
+                if(!std::strcmp(testType.c_str(),MostProbableLandauROOT::getAlgoName().c_str()))  this->EnableMostProbableLandauTest(testName, params, mui);
 	}
 	
 	return false;	
@@ -159,6 +160,35 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName, std::map
 	}	
 	
 	
+}
+
+void QTestConfigure::EnableMostProbableLandauTest( 
+       const std::string                        &roTEST_NAME,
+       std::map<std::string, std::string> &roMParams,
+       MonitorUserInterface                     *poMui) {
+
+  // Create QTest or Get already assigned one
+  MEMostProbableLandauROOT *poQTest = 0;
+  if( QCriterion *poQCriteration = poMui->getQCriterion( roTEST_NAME)) {
+    // Current already assigned to given ME.
+    poQTest = dynamic_cast<MEMostProbableLandauROOT *>( poQCriteration);
+  } else {
+    // Test does not exist: create one
+    testsConfigured.push_back( roTEST_NAME);
+    poQCriteration = poMui->createQTest( MostProbableLandauROOT::getAlgoName(),
+                                         roTEST_NAME);
+
+    poQTest = dynamic_cast<MEMostProbableLandauROOT *>( poQCriteration);
+  }
+
+  // Set probabilities thresholds.
+  poQTest->setErrorProb    ( atof( roMParams["error"].c_str()) );
+  poQTest->setWarningProb  ( atof( roMParams["warning"].c_str()) );
+  poQTest->setXMin         ( atof( roMParams["xmin"].c_str()) );
+  poQTest->setXMax         ( atof( roMParams["xmax"].c_str()) );
+  poQTest->setNormalization( atof( roMParams["normalization"].c_str()) );
+  poQTest->setMostProbable ( atof( roMParams["mostprobable"].c_str()) );
+  poQTest->setSigma        ( atof( roMParams["sigma"].c_str()) );
 }
 
 void QTestConfigure::desableTests(std::vector<std::string> testsOFFList, MonitorUserInterface * mui){

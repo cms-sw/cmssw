@@ -7,8 +7,8 @@
  *  the xml configuration file parsed by QTestConfigurationParser.
  *
  * 
- *  $Date: 2006/05/09 21:28:24 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/07/20 16:04:05 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
   */
 
@@ -46,7 +46,11 @@ class QTestConfigure{
   void EnableNoisyChannelTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui);
     ///Creates MeanWithinExpectedROOT test
   void EnableMeanWithinExpectedTest(std::string testName, std::map<std::string, std::string> params,MonitorUserInterface * mui);
-
+    ///Creates MostProbableLandauROOT test
+  void EnableMostProbableLandauTest( const std::string &roTEST_NAME,
+                                     std::map<std::string, std::string> 
+                                       &roMParams,
+                                     MonitorUserInterface *poMui);
 
  private:
   std::vector<std::string> testsConfigured;
