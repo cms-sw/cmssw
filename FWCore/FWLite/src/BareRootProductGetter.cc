@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.12 2007/03/04 05:23:51 wmtan Exp $
+// $Id: BareRootProductGetter.cc,v 1.13 2007/05/04 18:41:37 chrjones Exp $
 //
 
 // system include files
@@ -158,8 +158,9 @@ BareRootProductGetter::setupNewFile(TFile* iFile) const
     edm::ProductRegistry* pReg = &reg;
     TTree* metaDataTree = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::metaDataTreeName().c_str()) );
     if ( 0 != metaDataTree) {
-      metaDataTree->SetBranchAddress(edm::poolNames::productDescriptionBranchName().c_str(), &(pReg) );
-      metaDataTree->GetEntry(0);
+      TBranch* bReg = metaDataTree->GetBranch(edm::poolNames::productDescriptionBranchName().c_str());
+      bReg->SetAddress(&(pReg));
+      bReg->GetEntry(0);
       reg.setFrozen();
       
       IdToBranchDesc temp;
