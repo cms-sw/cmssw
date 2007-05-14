@@ -1,4 +1,4 @@
-// $Id: LeafCandidate.cc,v 1.6 2007/02/19 12:59:05 llista Exp $
+// $Id: LeafCandidate.cc,v 1.7 2007/05/08 13:11:17 llista Exp $
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 using namespace reco;
@@ -9,15 +9,25 @@ LeafCandidate * LeafCandidate::clone() const {
   return new LeafCandidate( * this );
 }
 
-Candidate::const_iterator LeafCandidate::begin() const { return const_iterator( new const_iterator_imp_specific ); }
+Candidate::const_iterator LeafCandidate::begin() const { 
+  return const_iterator( new const_iterator_imp_specific ); 
+}
 
-Candidate::const_iterator LeafCandidate::end() const { return  const_iterator( new const_iterator_imp_specific ); }
+Candidate::const_iterator LeafCandidate::end() const { 
+  return  const_iterator( new const_iterator_imp_specific ); 
+}
 
-Candidate::iterator LeafCandidate::begin() { return iterator( new iterator_imp_specific ); }
+Candidate::iterator LeafCandidate::begin() { 
+  return iterator( new iterator_imp_specific ); 
+}
 
-Candidate::iterator LeafCandidate::end() { return iterator( new iterator_imp_specific ); }
+Candidate::iterator LeafCandidate::end() { 
+  return iterator( new iterator_imp_specific ); 
+}
 
-size_t LeafCandidate::numberOfDaughters() const { return 0; }
+size_t LeafCandidate::numberOfDaughters() const { 
+  return 0; 
+}
 
 bool LeafCandidate::overlap( const Candidate & o ) const { 
   return  p4() == o.p4()&&   vertex() == o.vertex() && charge() == o.charge();
@@ -29,6 +39,9 @@ const Candidate * LeafCandidate::daughter( size_type ) const {
 
 Candidate * LeafCandidate::daughter( size_type ) {
   return 0;
+}
+
+void LeafCandidate::clearDaughters() {
 }
 
 void LeafCandidate::fixup() const {

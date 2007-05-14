@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ShallowCloneCandidate.h,v 1.5 2007/02/19 12:59:04 llista Exp $
+ * \version $Id: ShallowCloneCandidate.h,v 1.6 2007/03/26 07:47:34 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -48,6 +48,8 @@ namespace reco {
     virtual const Candidate * daughter( size_type i ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type i );
+    /// clear daughters
+    void clearDaughters();
     /// has master clone
     virtual bool hasMasterClone() const;
     /// returns reference to master clone
