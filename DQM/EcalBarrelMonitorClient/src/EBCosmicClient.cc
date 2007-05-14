@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicClient.cc
  *
- * $Date: 2007/05/11 15:05:04 $
- * $Revision: 1.73 $
+ * $Date: 2007/05/12 11:41:58 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -234,7 +234,7 @@ bool EBCosmicClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ... " << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

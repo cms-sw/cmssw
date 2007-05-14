@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/05/11 15:05:04 $
- * $Revision: 1.137 $
+ * $Date: 2007/05/12 11:41:58 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -591,7 +591,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonPedestalsDat ... " << flush;
-      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -658,7 +658,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonPNPedDat ... " << flush;
-      if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
+      if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

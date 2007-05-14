@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.45 $
+ * $Date: 2007/05/02 09:10:57 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -331,7 +331,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ..." << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

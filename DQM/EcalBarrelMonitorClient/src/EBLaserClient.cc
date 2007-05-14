@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/05/11 15:05:04 $
- * $Revision: 1.156 $
+ * $Date: 2007/05/12 11:41:58 $
+ * $Revision: 1.157 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1321,10 +1321,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   if ( econn ) {
     try {
       cout << "Inserting MonLaserDat ... " << flush;
-      if ( dataset1_bl.size() != 0 ) econn->insertDataSet(&dataset1_bl, moniov);
-      if ( dataset1_ir.size() != 0 ) econn->insertDataSet(&dataset1_ir, moniov);
-      if ( dataset1_gr.size() != 0 ) econn->insertDataSet(&dataset1_gr, moniov);
-      if ( dataset1_rd.size() != 0 ) econn->insertDataSet(&dataset1_rd, moniov);
+      if ( dataset1_bl.size() != 0 ) econn->insertDataArraySet(&dataset1_bl, moniov);
+      if ( dataset1_ir.size() != 0 ) econn->insertDataArraySet(&dataset1_ir, moniov);
+      if ( dataset1_gr.size() != 0 ) econn->insertDataArraySet(&dataset1_gr, moniov);
+      if ( dataset1_rd.size() != 0 ) econn->insertDataArraySet(&dataset1_rd, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -1572,10 +1572,10 @@ bool EBLaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
   if ( econn ) {
     try {
       cout << "Inserting MonPnDat ... " << flush;
-      if ( dataset2_bl.size() != 0 ) econn->insertDataSet(&dataset2_bl, moniov);
-      if ( dataset2_ir.size() != 0 ) econn->insertDataSet(&dataset2_ir, moniov);
-      if ( dataset2_gr.size() != 0 ) econn->insertDataSet(&dataset2_gr, moniov);
-      if ( dataset2_rd.size() != 0 ) econn->insertDataSet(&dataset2_rd, moniov);
+      if ( dataset2_bl.size() != 0 ) econn->insertDataArraySet(&dataset2_bl, moniov);
+      if ( dataset2_ir.size() != 0 ) econn->insertDataArraySet(&dataset2_ir, moniov);
+      if ( dataset2_gr.size() != 0 ) econn->insertDataArraySet(&dataset2_gr, moniov);
+      if ( dataset2_rd.size() != 0 ) econn->insertDataArraySet(&dataset2_rd, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
