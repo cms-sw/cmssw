@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerTC.cc
  *  function to get some information about the TrackCandidates
  *
- *  $Date: Sun Mar 18 19:55:59 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/18 19:00:21 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -12,6 +12,7 @@ void RecoAnalyzer::trackerTC(edm::Event const& theEvent, edm::EventSetup const& 
 {
   // label of the source
   std::string src = "ckfTrackCandidates";
+  std::string srcTracks = "ctfWithMaterialTracks";
   
   // access the tracker
   edm::ESHandle<TrackerGeometry> theTrackerGeometry;
@@ -21,26 +22,48 @@ void RecoAnalyzer::trackerTC(edm::Event const& theEvent, edm::EventSetup const& 
   // get the TrackCandidate Collection
   edm::Handle<TrackCandidateCollection> theTCCollection;
   theEvent.getByLabel(src, theTCCollection );
+  // get the Track Collection
+  edm::Handle<reco::TrackCollection> theTrackCollection;
+  theEvent.getByLabel(srcTracks, theTrackCollection);
   
   int numberOfTC = 0;
 
   for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++)
-    {
-      const TrackCandidate * theTC = &(*i);
-      const TrackCandidate::range& recHitVec=theTC->recHits();
+  {
+    const TrackCandidate * theTC = &(*i);
+    const TrackCandidate::range& recHitVec=theTC->recHits();
 
-      std::cout << " ******* hits of TrackCandidate " << numberOfTC << " *******" << std::endl;
+    std::cout << " ******* hits of TrackCandidate " << numberOfTC << " *******" << std::endl;
       // loop over the RecHits
-      for (edm::OwnVector<TrackingRecHit>::const_iterator j=recHitVec.first; j!=recHitVec.second; j++)
-	{    
-	  if ( (*j).isValid() )
-	    {
-	      GlobalPoint HitPosition = theTracker.idToDet((*j).geographicalId())->surface().toGlobal((*j).localPosition());
-	      
-	      std::cout << " HitPosition (x, y, z, R, phi) = " << HitPosition.x() << " " << HitPosition.y() << " " << HitPosition.z() << " " 
-			<< HitPosition.perp() << " " << HitPosition.phi() << std::endl;
-	    }
-	}
-      numberOfTC++;
+    for (edm::OwnVector<TrackingRecHit>::const_iterator j=recHitVec.first; j!=recHitVec.second; j++)
+    {    
+      if ( (*j).isValid() )
+      {
+        GlobalPoint HitPosition = theTracker.idToDet((*j).geographicalId())->surface().toGlobal((*j).localPosition());
+
+        std::cout << " HitPosition (x, y, z, R, phi) = " << HitPosition.x() << " " << HitPosition.y() << " " << HitPosition.z() << " " 
+          << HitPosition.perp() << " " << HitPosition.phi() << std::endl;
+      }
     }
+    numberOfTC++;
+  }
+
+  int nTracks = 0;
+  std::cout << " Number of Tracks in this event: " << theTrackCollection->size() << std::endl;
+  for( reco::TrackCollection::const_iterator i = theTrackCollection->begin(); i != theTrackCollection->end(); ++i )
+  {
+    nTracks++;
+    std::cout << " Hits in Track " << nTracks << ": " << std::endl;
+    for(  trackingRecHit_iterator j = (*i).recHitsBegin(); j != (*i).recHitsEnd(); ++j )
+    {
+        if ( (*j)->isValid() )
+        {
+          GlobalPoint HitPosition = theTracker.idToDet((*j)->geographicalId())->surface().toGlobal((*j)->localPosition());
+
+          std::cout << "   HitPosition in Track (x, y, z, R, phi) = " << HitPosition.x() << " " << HitPosition.y() << " " << HitPosition.z() << " " 
+            << HitPosition.perp() << " " << HitPosition.phi() << std::endl;
+        }
+    }
+  }
+
 }
