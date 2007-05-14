@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.1 2007/05/08 10:04:48 benigno Exp $
+// $Id: Numbers.cc,v 1.2 2007/05/08 12:07:19 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.1 $
-  \date $Date: 2007/05/08 10:04:48 $
+  \version $Revision: 1.2 $
+  \date $Date: 2007/05/08 12:07:19 $
 */
 
 #include <sstream>
@@ -47,5 +47,41 @@ std::string Numbers::sEB( int ism  ) throw( std::runtime_error ) {
     return( "" );
   }
   
+}
 
+//-------------------------------------------------------------------------
+
+int Numbers::iEE( int ism ) throw( std::runtime_error ) {
+  
+  if( ism < 1 || ism > 18 ) {
+    std::ostringstream s;
+    s << "Wrong SM id determination: iSM = " << ism;
+    throw( std::runtime_error( s.str() ) );
+    return( -999 );
+  }
+
+  return( ism < 10 ? -ism : ism - 9 );
+
+}
+
+//-------------------------------------------------------------------------
+
+std::string Numbers::sEE( int ism  ) throw( std::runtime_error ) {
+
+  try {
+    int iee = Numbers::iEE( ism );
+    std::ostringstream s;
+    s << "EE" << std::setw(3) << std::setfill('0')
+      << std::setiosflags( std::ios::showpos )
+      << std::setiosflags( std::ios::internal )
+      << iee
+      << std::resetiosflags( std::ios::showpos )
+      << std::resetiosflags( std::ios::internal )
+      << std::ends;
+    return( s.str() );
+  } catch( std::runtime_error &e ) {
+    throw( std::runtime_error( e.what() ) );
+    return( "" );
+  }
+  
 }
