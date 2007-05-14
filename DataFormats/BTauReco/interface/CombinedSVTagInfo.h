@@ -24,6 +24,7 @@ namespace reco {
 
     float discriminator() const;
     const TaggingVariableList & variables() const;
+    TaggingVariableList taggingVariables(void) const    { return vars_; }
     virtual CombinedSVTagInfo * clone() const;
 
   private:
