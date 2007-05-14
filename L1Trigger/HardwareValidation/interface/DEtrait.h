@@ -1,7 +1,7 @@
 #ifndef DETRAIT_H
 #define DETRAIT_H
 
-/*\class template DEtraits
+/*\class template DEtrait
  *\description data|emulation auxiliary template
                type associator trait struct 
  *\author Nuno Leonardo (CERN)
@@ -9,10 +9,24 @@
  */
 
 
-enum collSet {RCTem=0, RCTrgn, GCTem, GCTjet, GTdword};
+enum collSet {ECALtp=0, HCALtp, RCTem, RCTrgn, GCTem, GCTjet, GTdword};
 
 template <typename T>
 struct DEtrait {};
+
+template<> 
+struct DEtrait<EcalTrigPrimDigiCollection> {
+  typedef EcalTrigPrimDigiCollection coll_type;
+  typedef EcalTriggerPrimitiveDigi   cand_type;
+  static inline int de_type() {return ECALtp;}
+};
+
+template<> 
+struct DEtrait<HcalTrigPrimDigiCollection> {
+  typedef HcalTrigPrimDigiCollection coll_type;
+  typedef HcalTriggerPrimitiveDigi   cand_type;
+  static inline int de_type() {return HCALtp;}
+};
 
 template<> 
 struct DEtrait<L1CaloEmCollection> {
@@ -43,8 +57,8 @@ struct DEtrait<L1GctJetCandCollection> {
 };
 
 template<> 
-struct DEtrait<L1GlobalTriggerReadoutRecord::DecisionWord> {
-  typedef L1GlobalTriggerReadoutRecord::DecisionWord coll_type;
+struct DEtrait<DecisionWord> {
+  typedef DecisionWord coll_type;
   typedef bool                   cand_type;
   static inline int de_type() {return GTdword;}
 };

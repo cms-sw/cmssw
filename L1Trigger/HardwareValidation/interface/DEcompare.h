@@ -25,20 +25,26 @@ class DEcompare {
   typedef typename T::iterator col_it;
 
   typedef DEtrait<T> de_trait;
-  typedef typename de_trait::cand_type cand_type;
   typedef typename de_trait::coll_type coll_type;
+  typedef typename de_trait::cand_type cand_type;
+  typedef typename std::vector<cand_type> cand_vec;
 
  public:
   
   DEcompare(){};
   DEcompare(edm::Handle<T> dt, edm::Handle<T> em) : 
-    data_(dt), emul_(em), t_match(false) {} 
+    data_(dt), emul_(em), t_match(false) {
+    LogDebug("DEcompare") << "DEcompare()" 
+			  << " : creating instance of type: "
+			  << GetName(0)
+			  << std::endl;
+  } 
   ~DEcompare(){};
 
-  bool do_compare(ofstream&,int);
-  bool CompareCollections(ofstream&,int);
-  bool SortCollections(T& dg, T& eg,T& db, T& eb);
-  bool DumpCandidate(col_cit itd, col_cit itm, ofstream&);
+  bool do_compare(std::ofstream&,int);
+  bool CompareCollections(std::ofstream&,int);
+  bool SortCollections(cand_vec& dg, cand_vec& eg, cand_vec & db, cand_vec& eb);
+  bool DumpCandidate(col_cit itd, col_cit itm, std::ofstream&, int);
   int get_ncand(edm::Handle<T>) const;
   
   std::string GetName(int i=0)  const {return de_utils.GetName(i);}
@@ -58,14 +64,14 @@ class DEcompare {
 
 
 template <typename T> 
-bool DEcompare<T>::do_compare(ofstream& os, int mode=0) {
+bool DEcompare<T>::do_compare(std::ofstream& os, int mode=0) {
   os << "\n  " << GetName() << " candidates...\n";
   t_match = CompareCollections(os,mode);
   char ok[10];
   if(t_match) sprintf(ok,"successful");
   else        sprintf(ok,"failed");
   os << "  ..." << GetName() 
-     << " data and emulator comparison:" << ok << endl;
+     << " data and emulator comparison: " << ok << std::endl;
   return t_match;
 }
 
@@ -77,10 +83,10 @@ int DEcompare<T>::get_ncand(edm::Handle<T> col) const {
   int ncand=0;
   for (col_cit it = col->begin(); it!=col->end(); it++) {
     if(!is_empty(it)) {
-      //if(de_type()==0)
+      //if(de_type()==2)
       //std::cout << "debug type:" << de_type() << ": "
-      //	  << " cand:" << ncand << " "
-      //	  << print(it) 
+      //		<< " cand:" << ncand << " "
+      //		<< print(it) 
       //          << std::endl;
       ncand++;
     }
@@ -90,25 +96,27 @@ int DEcompare<T>::get_ncand(edm::Handle<T> col) const {
 
 
 template <typename T> 
-bool DEcompare<T>::CompareCollections(ofstream& os, int dump_all = 0) {
+bool DEcompare<T>::CompareCollections(std::ofstream& os, int dump_all = 0) {
   
   bool match = true;
   
   int ndata = get_ncand(data_);
   int nemul = get_ncand(emul_);
-  
+
+  if(ndata==0 && nemul==0)
+    dump_all=0;
+
   os << "  number of candidates: " << ndata;
   if(ndata!=nemul) {
     match &= false;
     os << " (data) " << nemul << " (emul) disagree";
   }
-  os << endl;
+  os << std::endl;
 
   /// find matching candidates (ordering required by RCT)
-  T data_good, emul_good, data_bad, emul_bad;
+  cand_vec data_good, emul_good, data_bad, emul_bad;
   match &= SortCollections(data_good,emul_good,data_bad,emul_bad);  
-  
-  ///debug
+  //debug
   //std::cout << "\tStats:  " 
   //	    << " data_bad:"  << data_bad .size()
   //	    << " emul_bad:"  << emul_bad .size()
@@ -116,25 +124,50 @@ bool DEcompare<T>::CompareCollections(ofstream& os, int dump_all = 0) {
   //	    << " emul_good:" << emul_good.size()
   //	    << std::endl;
 
+  int prtmode=0;
+  col_sz ndt=0, nem=0, nde=0;
+  ndt = data_bad.size();
+  nem = emul_bad.size();
+  nde = (ndt>nem)?ndt:nem;
+  //if(ndt==nem)    prtmode=0; //dump      data,     emul
+  //else if(ndt==0) prtmode=1; //dump: not data,     emul
+  //else if(nem==0) prtmode=2; //dump"     data, not emul
+
   /// dump unmatching candidates
   col_cit itd, itm; 
   itd = data_bad.begin();
   itm = emul_bad.begin();
+
   if(dump_all)
-    os << "   un-matched (" <<  data_bad.size() << ")\n";
-  for (col_sz i=0; i<data_bad.size(); i++) {
-    match &= DumpCandidate(itd++,itm++,os);
-  }  
+    os << "   un-matched (" << ndt << ")\n";
+  for (col_sz i=0; i<nde; i++) {
+    if     (i< ndt && i< nem) prtmode=0;
+    else if(i< ndt && i>=nem) prtmode=2;
+    else if(i>=ndt && i< nem) prtmode=1;
+    else continue;  
+    DumpCandidate(itd++,itm++,os,prtmode);
+  }    
 
   if(!dump_all)
     return match; 
 
+  ndt = data_good.size();
+  nem = emul_good.size();
+  nde = (ndt>nem)?ndt:nem;
+  //if(ndt==nem)    prtmode=0;
+  //else if(ndt==0) prtmode=1;
+  //else if(nem==0) prtmode=2;
+
   /// dump matching candidates
   itd = data_good.begin();
   itm = emul_good.begin();
-  os << "   matched (" <<  data_good.size() << ")\n";
-  for (col_sz i=0; i<data_good.size(); i++) {
-    match &= DumpCandidate(itd++,itm++,os);
+  os << "   matched (" << nde << ")\n";
+  for (col_sz i=0; i<ndt; i++) {
+    if     (i< ndt && i< nem) prtmode=0;
+    else if(i< ndt && i>=nem) prtmode=2;
+    else if(i>=ndt && i< nem) prtmode=1;
+    else continue;  
+    DumpCandidate(itd++,itm++,os,prtmode);
   }  
 
   return match; 
@@ -142,28 +175,28 @@ bool DEcompare<T>::CompareCollections(ofstream& os, int dump_all = 0) {
 
 
 template <typename T> 
-bool DEcompare<T>::SortCollections(T& data_good, T& emul_good,
-			      T& data_bad,  T& emul_bad ) {
+bool DEcompare<T>::SortCollections(cand_vec& data_good, cand_vec& emul_good,
+				   cand_vec& data_bad,  cand_vec& emul_bad ) {
   
   bool match = true;
   
   data_good.clear();
   emul_good.clear();
-  data_bad.clear();
-  emul_bad.clear();
+  data_bad .clear();
+  emul_bad .clear();
 
   //emul_bad.reserve(emul_->size());
   //copy(emul_->begin(),emul_->end(),emul_bad.begin());
   for(col_cit ite = emul_->begin(); ite != emul_->end(); ite++) 
     if(!is_empty(ite)) 
       emul_bad.push_back(*ite);
-  
 
   for(col_cit itd = data_->begin(); itd != data_->end(); itd++) {
 
     if(is_empty(itd)) continue;
     /// look for data value among emulator
     col_it ite = emul_bad.end();
+    //if(ite != emul_bad.begin() )
     ite = de_utils.de_find(emul_bad.begin(),emul_bad.end(),*itd);
     /// found data value?
 
@@ -176,12 +209,12 @@ bool DEcompare<T>::SortCollections(T& data_good, T& emul_good,
       match &= false;
     }
   }
-  
+ 
   ///tbd: reorder sets of unmatching collections... find plausible matches!
   sort(data_bad.begin(), data_bad.end(),de_rank<coll_type>());
   sort(emul_bad.begin(), emul_bad.end(),de_rank<coll_type>());
 
-  ///debug
+  /////debug
   //std::cout << "\t Stats2:" 
   //	    << " data_bad:"  << data_bad .size()
   //	    << " emul_bad:"  << emul_bad .size()
@@ -196,15 +229,19 @@ bool DEcompare<T>::SortCollections(T& data_good, T& emul_good,
 
 
 template <typename T> 
-bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ofstream& os) {
+bool DEcompare<T>::DumpCandidate(col_cit itd, col_cit itm, std::ofstream& os, int mode=0) {
 
-  os << "   data: " << print(itd);
-  os << "   emul: " << print(itm) << std::endl;
+  if(mode!=1)
+    os << "   data: " << print(itd);
 
-  if( de_utils.de_equal(*itd,*itm) ) 
-    return true;
+  if(mode!=2)
+    os << "   emul: " << print(itm) << std::endl;
   
-  return false;
+  if(mode==0) 
+    if( !de_utils.de_equal(*itd,*itm) ) 
+      return false;
+
+  return true;
 }
 
 #endif
