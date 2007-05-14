@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.4 2007/02/13 08:48:43 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.1 2007/05/14 10:04:13 jbrooke Exp $
 //
 //
 
@@ -54,6 +54,8 @@ class GctRawToDigi : public edm::EDProducer {
 
   static unsigned MAX_EXCESS;
   static unsigned MAX_BLOCKS;
+
+  bool verbose_;         // print out for each event
 
   int fedId_;            // GCT FED ID
   int nDebugSamples_;    // number of samples per block in debug mode
