@@ -1,7 +1,7 @@
 #ifndef StreamerOutputModule_h_
 #define StreamerOutputModule_h_
 
-// $Id: StreamerOutputModule.h,v 1.24 2007/04/05 17:21:53 klute Exp $
+// $Id: StreamerOutputModule.h,v 1.25 2007/05/01 22:41:11 hcheung Exp $
 
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -239,8 +239,8 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     //  std::string hexy = r1.toString();
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;  
 
-    //Setting protocol version III
-    Version v(3,(uint8*)toplevel.compactForm().c_str());
+    //Setting protocol version IV
+    Version v(4,(uint8*)toplevel.compactForm().c_str());
 
     Strings hlt_names = edm::getAllTriggerNames();
     hltsize_ = hlt_names.size();
@@ -250,10 +250,14 @@ std::auto_ptr<InitMsgBuilder> StreamerOutputModule<Consumer>::serializeRegistry(
     l1_names.push_back("t1");  l1_names.push_back("t10");
     l1_names.push_back("t2");  
 
+
+    //Setting the process name to HLT
+    std::string processName = "HLT";
+
     std::auto_ptr<InitMsgBuilder> init_message(
                                 new InitMsgBuilder(&prod_reg_buf_[0], prod_reg_buf_.size(),
-                                      run, v, edm::getReleaseVersion().c_str() , hlt_names,
-                                      l1_names));
+                                      run, v, edm::getReleaseVersion().c_str() , processName.c_str(),
+				      hlt_names, l1_names));
 
     // the translator already has the product registry (selections_),
     // so it just needs to serialize it to the init message.

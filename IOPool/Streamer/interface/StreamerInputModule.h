@@ -70,6 +70,7 @@ namespace edm
 
   template <typename Producer>
   std::auto_ptr<EventPrincipal> StreamerInputModule<Producer>::read() {
+
     EventMsgView const* eview = pr_->getNextEvent();
 
     if (pr_->newHeader()) {   

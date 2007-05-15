@@ -28,6 +28,7 @@ namespace edm {
 
     static std::auto_ptr<SendJobHeader>
         deserializeRegistry(InitMsgView const& initView);
+
     std::auto_ptr<EventPrincipal>
         deserializeEvent(EventMsgView const& eventView,
                          ProductRegistry const& productRegistry);
@@ -49,11 +50,22 @@ namespace edm {
                                          std::vector<unsigned char> &outputBuffer,
                                          unsigned int expectedFullSize);
 
+   //static std::string processName() { return processName_; }
+   ///static unsigned int protocolVersion() {return protocolVersion_;}
+
+    //Do not like this to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
+    static std::string processName_;
+    static unsigned int protocolVersion_;
+
   private:
     ProcessConfiguration processConfiguration_;
     TClass* tc_;
     std::vector<unsigned char> dest_;
     TBuffer xbuf_;
+
+    //Do not like this to be static, but no choice as deserializeRegistry() that sets it is a static memeber 
+    //static std::string processName_;
+    //static unsigned int protocolVersion_;
   };
 
 }

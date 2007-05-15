@@ -53,19 +53,33 @@ namespace edm {
     // already there? it looks like I replace it.  maybe that it correct
 
     std::string processName;
-    if (i != e) {
-       processName = i->processName();
+
+    //process name is already stored in deserializer_, if for Protocol version 4 and above.
+    //From the INIT Message itself.
+    
+    if ( deserializer_.protocolVersion_ > 3) {
+           processName = deserializer_.processName_;
     }
-    for (; i != e; ++i) {
-	if(processName != i->processName()) {
-	   throw cms::Exception("MultipleProcessNames")
-	      << "at least two different process names ('"
-	      << processName
-	      << "', '"
-	      << i->processName()
-	      << "' found in JobHeader. We can only support one.";
+
+    else { 
+    	if (i != e) {
+       		processName = i->processName();
 	}
+
+    	for (; i != e; ++i) {
+		if(processName != i->processName()) {
+	   	throw cms::Exception("MultipleProcessNames")
+	      		<< "at least two different process names ('"
+	      		<< processName
+	      		<< "', '"
+	      		<< i->processName()
+	      		<< "' found in JobHeader. We can only support one.";
+		}
+    	}
     }
+
+    FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :"<<processName<<std::endl; 
+
     deserializer_.setProcessConfiguration(
 	ProcessConfiguration(processName, ParameterSetID(), ReleaseVersion(), PassID()));
 

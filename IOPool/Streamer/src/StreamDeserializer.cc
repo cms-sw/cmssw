@@ -24,6 +24,9 @@ namespace edm
     const int init_size = 1024*1024;
   }
 
+    std::string StreamDeserializer::processName_;
+    unsigned int StreamDeserializer::protocolVersion_;
+
   /**
    * Creates a translator instance for the specified product registry.
    */
@@ -46,6 +49,16 @@ namespace edm
         << "received wrong message type: expected INIT, got "
         << initView.code() << "\n";
 
+    //Get the process name and store if for Protocol version 4 and above.
+    if ( initView.protocolVersion() > 3) {
+
+         processName_ = initView.processName();
+         protocolVersion_ = initView.protocolVersion();
+
+         FDEBUG(10) << "StreamDeserializer::deserializeRegistry processName = "<< processName_<< std::endl;
+         FDEBUG(10) << "StreamDeserializer::deserializeRegistry protocolVersion_= "<< protocolVersion_<< std::endl;
+    }
+    
     TClass* desc = getTClass(typeid(SendJobHeader));
 
     TBuffer xbuf(TBuffer::kRead, initView.descLength(),
