@@ -1,11 +1,11 @@
-#ifndef Common_RefProd_h
-#define Common_RefProd_h
+#ifndef DataFormats_Common_RefProd_h
+#define DataFormats_Common_RefProd_h
 
 /*----------------------------------------------------------------------
   
 Ref: A template for an interproduct reference to a product.
 
-$Id: RefProd.h,v 1.8 2007/03/23 16:54:31 paterno Exp $
+$Id: RefProd.h,v 1.9 2007/04/20 15:09:09 llista Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -77,10 +77,10 @@ namespace edm {
     ~RefProd() {}
 
     /// Dereference operator
-    C const&  operator*() const {return *(product_.template getProduct<C>());}
+    C const&  operator*() const;
 
     /// Member dereference operator
-    C const* operator->() const {return product_.template getProduct<C>();} 
+    C const* operator->() const;
 
     /// Returns C++ pointer to the product
     /// Will attempt to retrieve product
@@ -126,6 +126,7 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefCoreGet.h"
 
 namespace edm {
 
@@ -139,6 +140,20 @@ namespace edm {
 	       ref.product() : 
 	       0, ref.productGetter()) 
   {  }
+
+  /// Dereference operator
+  template <typename C>
+  inline
+  C const& RefProd<C>::operator*() const {
+    return *(getProduct<C>(product_));
+  }
+
+  /// Member dereference operator
+  template <typename C>
+  inline
+  C const* RefProd<C>::operator->() const {
+    return getProduct<C>(product_);
+  } 
 
   template <typename C>
   inline

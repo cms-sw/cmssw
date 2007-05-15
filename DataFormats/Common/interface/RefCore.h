@@ -1,16 +1,15 @@
-#ifndef Common_RefCore_h
-#define Common_RefCore_h
+#ifndef DataFormats_Common_RefCore_h
+#define DataFormats_Common_RefCore_h
 
 /*----------------------------------------------------------------------
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.10 2007/03/23 23:10:38 wmtan Exp $
+$Id: RefCore.h,v 1.11 2007/03/29 22:57:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 
@@ -47,36 +46,15 @@ namespace edm {
 
     void setProductGetter(EDProductGetter const* prodGetter) const {prodGetter_ = prodGetter;}
 
-    template <typename T>
-    T const*
-    getProduct() const {
-      T const* p = static_cast<T const *>(prodPtr_);
-      return (p != 0)
-  	? p 
-	: this->template getProduct_<T>();
-    }
-    
- private:
+    void setProductPointer(void const* prodPtr) const {prodPtr_ = prodPtr;}
+
 
     void checkDereferenceability() const;
     //    void throwInvalidReference() const;
     void throwWrongReferenceType(std::string const& found,
 				 std::string const& requested) const;
 
-    template <typename T>
-    T const* 
-    getProduct_() const {
-      checkDereferenceability();
-      //if (isNull()) throwInvalidReference();
-
-      EDProduct const* product = productGetter()->getIt(id_);      
-      Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
-      if (wrapper == 0) { throwWrongReferenceType(typeid(product).name(), typeid(T).name()); }
-      prodPtr_ = wrapper->product();
-      return wrapper->product();
-  }
-
-
+ private:
     ProductID id_;
     mutable void const *prodPtr_;               // transient
     mutable EDProductGetter const* prodGetter_; // transient

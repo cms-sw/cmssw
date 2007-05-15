@@ -1,12 +1,12 @@
-#ifndef Common_RefVector_h
-#define Common_RefVector_h
+#ifndef DataFormats_Common_RefVector_h
+#define DataFormats_Common_RefVector_h
 
 /*----------------------------------------------------------------------
   
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.22 2007/05/01 22:08:32 paterno Exp $
+$Id: RefVector.h,v 1.23 2007/05/08 16:54:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -104,7 +104,7 @@ namespace edm {
     /// Accessor for product collection
     // Accessor must get the product if necessary
     C const* product() const {
-      return isNull() ? 0 : refVector_.refCore().template getProduct<C>();
+      return isNull() ? 0 : getProduct<C>(refVector_.refCore());
     }
 
     /// Erase an element from the vector.

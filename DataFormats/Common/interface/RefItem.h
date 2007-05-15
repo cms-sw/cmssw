@@ -1,11 +1,11 @@
-#ifndef Common_RefItem_h
-#define Common_RefItem_h
+#ifndef DataFormats_Common_RefItem_h
+#define DataFormats_Common_RefItem_h
 
 /*----------------------------------------------------------------------
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.7 2007/03/23 16:54:31 paterno Exp $
+$Id: RefItem.h,v 1.8 2007/03/27 16:16:36 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <vector>
@@ -58,35 +58,6 @@ private:
   bool
   operator<(RefItem<KEY> const& lhs, RefItem<KEY> const& rhs) {
     return lhs.key() < rhs.key();
-  }
-
-  namespace refitem {
-    template< typename C, typename T, typename F, typename KEY>
-    struct GetPtrImpl {
-      static T const* getPtr_(RefCore const& product, RefItem<KEY> const& item) {
-        //C const* prod = getProduct<C>(product);
-	C const* prod = product.template getProduct<C>();
-        /*
-        typename C::const_iterator it = prod->begin();
-         std::advance(it, item.key());
-         T const* p = it.operator->();
-        */
-        F func;
-        T const* p = func(*prod, item.key());
-        return p;
-      }
-    };
-  }
-  template <typename C, typename T, typename F, typename KEY>
-  T const* getPtr_(RefCore const& product, RefItem<KEY> const& item) {
-     return refitem::GetPtrImpl<C, T, F, KEY>::getPtr_(product, item);
-  }
-
-  template <typename C, typename T, typename F, typename KEY>
-  inline
-  T const* getPtr(RefCore const& product, RefItem<KEY> const& item) {
-    T const* p = static_cast<T const *>(item.ptr());
-    return (p != 0 ? p : getPtr_<C, T, F>(product, item));
   }
 }
 

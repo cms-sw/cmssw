@@ -1,11 +1,11 @@
-#ifndef Common_Ref_h
-#define Common_Ref_h
+#ifndef DataFormats_Common_Ref_h
+#define DataFormats_Common_Ref_h
 
 /*----------------------------------------------------------------------
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.21 2007/03/27 16:16:36 paterno Exp $
+$Id: Ref.h,v 1.22 2007/03/28 19:23:53 paterno Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -111,9 +111,9 @@ $Id: Ref.h,v 1.21 2007/03/27 16:16:36 paterno Exp $
 #include "boost/mpl/has_xxx.hpp"
 #include "boost/utility/enable_if.hpp"
 
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefBase.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -190,13 +190,7 @@ namespace edm {
         id(), returning a ProductID,
         product(), returning a C*. */
     template <typename HandleC>
-    Ref(HandleC const& handle, key_type itemKey, bool setNow=true) :
-      ref_(handle.id(), handle.product(), itemKey) {
-        checkTypeAtCompileTime(handle.product());
-        assert(ref_.item().key() == itemKey);
-        
-        if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
-      }
+    Ref(HandleC const& handle, key_type itemKey, bool setNow=true);
 
     /** Constructor for those users who do not have a product handle,
         but have a pointer to a product getter (such as the EventPrincipal).
@@ -221,15 +215,11 @@ namespace edm {
 
     /// Dereference operator
     T const&
-    operator*() const {
-      return *getPtr<C, T, F>(ref_.refCore(), ref_.item());
-    }
+    operator*() const;
 
     /// Member dereference operator
     T const*
-    operator->() const {
-      return getPtr<C, T, F>(ref_.refCore(), ref_.item());
-    }
+    operator->() const;
 
     /// Returns C++ pointer to the item
     T const* get() const {
@@ -254,9 +244,7 @@ namespace edm {
 
     /// Accessor for product collection
     // Accessor must get the product if necessary
-    C const* product() const {
-      return isNull() ? 0 : ref_.refCore().template getProduct<C>();
-    }
+    C const* product() const;
 
     /// Accessor for product key.
     key_type key() const {return ref_.item().key();}
@@ -287,17 +275,61 @@ namespace edm {
 }
 
 #include "DataFormats/Common/interface/RefProd.h"
+#include "DataFormats/Common/interface/RefCoreGet.h"
+#include "DataFormats/Common/interface/RefItemGet.h"
 
 namespace edm {
+  /** General purpose constructor from handle like object.
+      The templating is artificial.
+      HandleC must have the following methods:
+      id(), returning a ProductID,
+      product(), returning a C*. */
+  template <typename C, typename T, typename F>
+  template <typename HandleC>
+  inline
+  Ref<C, T, F>::Ref(HandleC const& handle, key_type itemKey, bool setNow) :
+      ref_(handle.id(), handle.product(), itemKey) {
+    checkTypeAtCompileTime(handle.product());
+    assert(ref_.item().key() == itemKey);
+        
+    if (setNow) {ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));}
+  }
+
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>
+  inline
   Ref<C, T, F>::Ref(RefProd<C> const& refProd, key_type itemKey) :
-    ref_(refProd.id(), refProd.refCore().productPtr(), itemKey, 0, refProd.refCore().productGetter()) {
-      assert(ref_.item().key() == itemKey);
-      if (0 != refProd.refCore().productPtr()) {
-	ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));
-      }
+      ref_(refProd.id(), refProd.refCore().productPtr(), itemKey, 0, refProd.refCore().productGetter()) {
+    assert(ref_.item().key() == itemKey);
+    if (0 != refProd.refCore().productPtr()) {
+      ref_.item().setPtr(getPtr_<C, T, F>(ref_.refCore(), ref_.item()));
     }
+  }
+
+  /// Accessor for product collection
+  // Accessor must get the product if necessary
+  template <typename C, typename T, typename F>
+  inline
+  C const*
+  Ref<C, T, F>::product() const {
+      return isNull() ? 0 : getProduct<C>(ref_.refCore());
+  }
+
+  /// Dereference operator
+  template <typename C, typename T, typename F>
+  inline
+  T const&
+  Ref<C, T, F>::operator*() const {
+    return *getPtr<C, T, F>(ref_.refCore(), ref_.item());
+  }
+
+  /// Member dereference operator
+  template <typename C, typename T, typename F>
+  inline
+  T const*
+  Ref<C, T, F>::operator->() const {
+    return getPtr<C, T, F>(ref_.refCore(), ref_.item());
+  }
 
   template <typename C, typename T, typename F>
   inline
