@@ -64,7 +64,9 @@ EcalSimRawData::EcalSimRawData(const edm::ParameterSet& params){
   fe2tcc_ = params.getUntrackedParameter<bool>("fe2tccData", true);
   dccNum_ = params.getUntrackedParameter<int>("dccNum", -1);
   tccNum_ = params.getUntrackedParameter<int>("tccNum", -1);
-  tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff) ;
+  tccInDefaultVal_ = params.getUntrackedParameter<int>("tccInDefaultVal", 0xffff);
+  basename_ = params.getUntrackedParameter<std::string>("outputBaseName");
+
 
   string writeMode = params.getParameter<string>("writeMode");
 
@@ -86,26 +88,26 @@ EcalSimRawData::analyze(const edm::Event& event,
     
   if(xtalVerbose_ | tpVerbose_){
     cout << "======================================================================\n"
-      " Event " << iEvent << "\n"
-	 << "---------------------------------------------------------------------\n";
+	 << " Event " << iEvent << "\n"
+	 << "----------------------------------------------------------------------\n";
   }
 
   if(fe2dcc_){
     vector<uint16_t> adc[nEbEta][nEbPhi];
     getEbDigi(event, adc);
-    genFeData("ecal", iEvent, adc);
+    genFeData(basename_, iEvent, adc);
   }
 
   if(fe2tcc_){
     int tcp[nTtEta][nTtPhi]={{0}};
     getTp(event, tcpDigiCollection_, tcp);
-    genTccIn("data/ecal", iEvent, tcp);
+    genTccIn(basename_, iEvent, tcp);
   }
   
   if(tcc2dcc_){
     int tp[nTtEta][nTtPhi]={{0}};
     getTp(event, tpDigiCollection_, tp); 
-    genTccOut("ecal", iEvent, tp);
+    genTccOut(basename_, iEvent, tp);
   }
   
   //SR flags:
@@ -114,7 +116,7 @@ EcalSimRawData::analyze(const edm::Event& event,
 
   if(srp2dcc_){
     getSrfs(event, ebSrf, eeSrf);
-    genSrData("ecal", iEvent, ebSrf);
+    genSrData(basename_, iEvent, ebSrf);
   }
   
 }
@@ -365,7 +367,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
 	  uint16_t tp_fe2tcc = (tcp[iTtEta0][iTtPhi0] & 0x7ff) ; //keep only Et (9:0) and FineGrain (10)
  	  
-	  if(tpVerbose_){
+	  if(tpVerbose_ && tp_fe2tcc!=0){
 	    cout << dec
 		 << "iTcc1 = " << iTcc1 << "\t"
 		 << "iTtEta0 = " << iTtEta0 << "\t"
@@ -385,6 +387,8 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 	  ++iCh1;
 	} //next TT along phi
       } //next TT along eta
+      fe2tcc << std::flush;
+      fe2tcc.close();
     } //next TCC
   } //next half-barrel
 }
@@ -625,8 +629,9 @@ void EcalSimRawData::getTp(const edm::Event& event,
       tcp[iTtEta0][iTtPhi0] = tp[tp.sampleOfInterest()].raw();
 
       if(tpVerbose_){
+	if(tcp[iTtEta0][iTtPhi0]!=0) //print non-zero values only
 	cout << collName << (collName.size()==0?"":" ")
-	     << "TP(" << iTtEta0 << "," << iTtPhi0 << ") = "
+	     << "TP(" << setw(2) << iTtEta0 << "," << iTtPhi0 << ") = "
 	     << "0x" << setw(4) 
 	     << tcp[iTtEta0][iTtPhi0]
 	     << "\tcmssw indices: "

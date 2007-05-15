@@ -15,9 +15,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-#include "SimCalorimetry/EcalTrigPrimAlgos/interface/DBInterface.h"
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
+//#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h" 
 
 #include <memory>
 #include <iostream>
@@ -29,15 +33,15 @@
 
 struct TCCinput; 
 typedef std::vector<TCCinput> TCCInputData;
-
-const int N_SM = 36;
+class EcalTPParameters;
+const int N_SM = 36; //number of ecal barrel supermodules
 
 class EcalFEtoDigi : public edm::EDProducer {
 
 public:
 
   explicit EcalFEtoDigi(const edm::ParameterSet&);
-  ~EcalFEtoDigi();
+  ~EcalFEtoDigi(){}
   
 private:
 
@@ -48,22 +52,18 @@ private:
   void readInput();
   EcalTrigTowerDetId         create_TTDetId (TCCinput);
   EcalTriggerPrimitiveSample create_TPSample(TCCinput);
+  EcalTriggerPrimitiveSample create_TPSampleTcp(TCCinput);
   int SMidToTCCid(const int) const;
 
-  DBInterface * db_;
-  std::string databaseFileNameEB_;
-  std::string databaseFileNameEE_;
-
-  std::string basename_;
-  bool doCompressEt_;
-
+  EcalTPParameters *ecaltpp_;
   TCCInputData inputdata_[N_SM];
 
+  std::string basename_;
+  bool useIdentityLUT_;
   int sm_;
   bool singlefile;
   int skipEvents_;
-
-  bool debug;
+  bool debug_;
   std::ofstream outfile;
 
 };

@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.7 2007/03/28 14:50:00 pgras Exp $
+ * $Id: EcalSimRawData.h,v 1.8 2007/05/15 13:40:01 nuno Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -36,6 +36,7 @@
  *    <LI>untracked bool tcc2dccData: switch for TCC->DCC data stream production</LI>
  *    <LI>untracked bool srp2dccData: switch for SRP->DCC data stream production</LI>
  *    <LI>untracked int32 tccInDefaultVal: default TriggerPrimitive values if the trigger tower is abscent</LI>
+ *    <LI>untracked string outputBaseName: basename for output files</LI>
  *    </UL>
  */
 class EcalSimRawData: public edm::EDAnalyzer{
@@ -456,11 +457,13 @@ private:
   /** Index of the DCC, FE data must be produced for. -1 for all TTCs
    */
   int dccNum_;
-
+  
   /** default TriggerPrimitive values if the trigger tower is abscent
    */
   int tccInDefaultVal_;
-
-
+  
+  /** basename for output files
+   */
+  std::string basename_;
 };
 

@@ -1,26 +1,19 @@
 
 #include "SimCalorimetry/EcalElectronicsEmulation/interface/EcalFEtoDigi.h"
-//#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h" 
 
 EcalFEtoDigi::EcalFEtoDigi(const edm::ParameterSet& iConfig) {
-  db_ = NULL;
-  databaseFileNameEB_ = iConfig.getParameter<std::string>("DatabaseFileEB");;
-  databaseFileNameEE_ = iConfig.getParameter<std::string>("DatabaseFileEE");;
   basename_           = iConfig.getUntrackedParameter<std::string>("FlatBaseName");
   sm_                 = iConfig.getUntrackedParameter<int>("SuperModuleId");
   skipEvents_         = iConfig.getUntrackedParameter<int>("SkipEvents");
-  doCompressEt_       = iConfig.getUntrackedParameter<bool>("doCompressEt");
-  debug               = iConfig.getUntrackedParameter<bool>("debugPrintFlag");
+  useIdentityLUT_     = iConfig.getUntrackedParameter<bool>("UseIdentityLUT");
+  debug_               = iConfig.getUntrackedParameter<bool>("debugPrintFlag");
 
   singlefile = (sm_==-1)?false:true;
 
   produces<EcalTrigPrimDigiCollection>();
+  produces<EcalTrigPrimDigiCollection >("formatTCP");
+ 
 }
-
-EcalFEtoDigi::~EcalFEtoDigi() {
-  delete db_ ;
-}
-
 
 /// method called to produce the data
 void
@@ -31,12 +24,16 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   static int current_bx = -1;
   current_bx++;
 
-  if(debug)
-    std::cout << "[EcalFEtoDigi::produce] producing event " << current_bx+1 << std::endl;
+  /// re-read input (needed in case of event-by-event input production)
+  readInput();
+
+  if(debug_)
+    std::cout << "[EcalFEtoDigi::produce] producing event " << current_bx << std::endl;
   
   std::auto_ptr<EcalTrigPrimDigiCollection>  
     e_tpdigis (new EcalTrigPrimDigiCollection);
-
+  std::auto_ptr<EcalTrigPrimDigiCollection>  
+    e_tpdigisTcp (new EcalTrigPrimDigiCollection);
 
   std::vector<TCCinput>::const_iterator it;
 
@@ -47,10 +44,10 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for(it = inputdata_[i].begin(); it != inputdata_[i].end(); it++) {
 
-      if(!(*it).is_current(current_bx)) 
+      if(!(*it).is_current(current_bx+skipEvents_)) 
 	continue;
       else
-      	if(debug && (*it).input!=0 )
+      	if(debug_ && (*it).input!=0 )
 	  std::cout << "[EcalFEtoDigi] " 
 	       << "\tsupermodule:" << sm_ 
 	       << "\tevent: "      << current_bx 
@@ -70,10 +67,12 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       /// create EcalTriggerPrimitiveDigi
       EcalTriggerPrimitiveDigi *e_digi = new EcalTriggerPrimitiveDigi(e_id);
+      EcalTriggerPrimitiveDigi *e_digiTcp = new EcalTriggerPrimitiveDigi(e_id);
       
       /// create EcalTriggerPrimitiveSample
       EcalTriggerPrimitiveSample e_sample = create_TPSample(*it);
-      
+      EcalTriggerPrimitiveSample e_sampleTcp = create_TPSampleTcp(*it);
+
       /// set sample
       e_digi->setSize(1); //set sampleOfInterest to 0
       e_digi->setSample(0,e_sample);
@@ -81,29 +80,37 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       /// add to EcalTrigPrimDigiCollection 
       e_tpdigis->push_back(*e_digi);
     
-      if(debug) 
+      /// set sample (uncompressed format)
+      e_digiTcp->setSize(1); //set sampleOfInterest to 0
+      e_digiTcp->setSample(0,e_sampleTcp);
+      
+      /// add to EcalTrigPrimDigiCollection (uncompressed format) 
+      e_tpdigisTcp->push_back(*e_digiTcp);
+
+      if(debug_) 
 	outfile << (*it).tower << '\t' 
 		<< (*it).bunchCrossing << '\t'<< std::setfill('0') << std::hex
 		<< "0x" << std::setw(4) << (*it).input << '\t'
 		<< "0"	<< std::dec << std::setfill(' ') 
 		<< std::endl;
 
-      /// print & debug 
-      if(debug && (*it).input!=0 )
+      /// print & debug
+      if(debug_ && (*it).input!=0 )
 	std::cout << "[EcalFEtoDigi] debug id: " << e_digi->id() << "\n\t" 
-	     << std::dec 
-	     << "\tieta: "     << e_digi->id().ieta()
-	     << "\tiphi: "     << e_digi->id().iphi()
-	     << "\tsize: "     << e_digi->size()
-	     << "\tfg: "       <<(e_digi->fineGrain()?1:0)    
-	     << std::hex 	 
-	     << "\tEt: 0x"     << e_digi->compressedEt() 
-	     << " (0x"         << (*it).get_energy() << ")" 
-	     << "\tttflag: 0x" << e_digi->ttFlag()
-	     << std::dec
-	     << std::endl;
+		  << std::dec 
+		  << "\tieta: "     << e_digi->id().ieta()
+		  << "\tiphi: "     << e_digi->id().iphi()
+		  << "\tsize: "     << e_digi->size()
+		  << "\tfg: "       <<(e_digi->fineGrain()?1:0)    
+		  << std::hex 	 
+		  << "\tEt: 0x"     << e_digi->compressedEt() 
+		  << " (0x"         << (*it).get_energy() << ")" 
+		  << "\tttflag: 0x" << e_digi->ttFlag()
+		  << std::dec
+		  << std::endl;
 
       delete e_digi;
+      delete e_digiTcp;
 
     }
     
@@ -118,8 +125,8 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     e_tpdigis->push_back(*e_digi);
   }
 
-
   iEvent.put(e_tpdigis);
+  iEvent.put(e_tpdigisTcp,"formatTCP");
 
 }
 
@@ -128,9 +135,14 @@ EcalFEtoDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 void 
 EcalFEtoDigi::readInput() {
 
-  if(debug)
+  if(debug_)
     std::cout << "\n[EcalFEtoDigi::readInput] Reading input data\n";
   
+  if(!singlefile)
+    sm_=-1;
+  for(int i=0; i<N_SM; i++)
+    inputdata_[i].clear();
+
   std::stringstream s;
   int tcc;
 
@@ -143,7 +155,7 @@ EcalFEtoDigi::readInput() {
 
     std::ifstream f(s.str().c_str());
     
-    if(debug) {
+    if(debug_) {
       std::cout << "  opening " << s.str().c_str() << "..." << std::endl;
       if(!f.good())
 	std::cout << " skipped!"; 
@@ -166,7 +178,7 @@ EcalFEtoDigi::readInput() {
       TCCinput ttdata(tt,bx,val);
       inputdata_[i].push_back(ttdata);
       
-      if(debug&&val!=0)
+      if(debug_&&val!=0)
 	printf("\treading tower:%d  bx:%d input:0x%x dummy:%2d\n", 
 	       tt, bx, val, dummy);
     } 
@@ -177,7 +189,7 @@ EcalFEtoDigi::readInput() {
       break;    
   }
 
-  if(debug)
+  if(debug_)
     std::cout << "[EcalFEtoDigi::readInput] Done reading." << std::endl;
 
   return; 
@@ -208,7 +220,7 @@ EcalFEtoDigi::create_TTDetId(TCCinput data) {
   if (phiTT <= 0) phiTT = 72+phiTT;
 
   /// construct the EcalTrigTowerDetId object
-  if(debug&&data.get_energy()!=0)
+  if(debug_&&data.get_energy()!=0)
     printf("[EcalFEtoDigi] Creating EcalTrigTowerDetId (SMid,itt)=(%d,%d)->(eta,phi)=(%d,%d) \n", SMid, iTT, etaTT, phiTT);
   
   EcalTrigTowerDetId 
@@ -230,18 +242,20 @@ EcalFEtoDigi::create_TPSample(TCCinput data) {
 
   /// setup look up table
   std::vector<unsigned int> lut_ ;
-  if(doCompressEt_)
-    lut_ = db_->getTowerParameters(sm_, tower) ;
+  if(!useIdentityLUT_) {
+    lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower);
+    //lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower, debug_);
+  }
   else
-    for(int i=0; i<500; i++) lut_.push_back(i); //identity lut!
+    for(int i=0; i<1024; i++) lut_.push_back(i); //identity lut!
   
   /// compress energy 10 -> 8  bit
-  int lut_out = lut_[Et] ;
-  int ttFlag  = (lut_out & 0x700) >> 8 ;
+  int lut_out = lut_[Et];
+  int ttFlag  = (lut_out & 0x700) >> 8;
   int cEt     = (lut_out & 0xff );
 
   ///create sample
-  if(debug&&data.get_energy()!=0)
+  if(debug_&&data.get_energy()!=0)
     printf("[EcalFEtoDigi] Creating sample; input:0x%X (Et:0x%x) cEt:0x%x fg:%d ttflag:0x%x \n",
 	   data.input, Et, cEt, tt_fg, ttFlag);
   
@@ -250,23 +264,50 @@ EcalFEtoDigi::create_TPSample(TCCinput data) {
   return e_sample;
 }
 
+/// create EcalTriggerPrimitiveSample in tcp format (uncomrpessed energy)
+EcalTriggerPrimitiveSample 
+EcalFEtoDigi::create_TPSampleTcp(TCCinput data) {
+
+  int tower      = data.tower;
+  int  Et        = data.get_energy();
+  bool tt_fg     = data.get_fg();
+
+  /// setup look up table
+  std::vector<unsigned int> lut_ ;
+  if(!useIdentityLUT_)
+    lut_ = ecaltpp_->getTowerParameters(SMidToTCCid(sm_), tower) ;
+  else
+    for(int i=0; i<1024; i++) lut_.push_back(i); //identity lut!
+  
+  int lut_out = lut_[Et];
+  int ttFlag  = (lut_out & 0x700) >> 8;
+  int tcpdata = ((ttFlag&0x7)<<11) | ((tt_fg & 0x1)<<10) |  (Et & 0x3ff) ;
+
+  EcalTriggerPrimitiveSample e_sample(tcpdata);
+  
+  return e_sample;
+}
+
 
 /// method called once each job just before starting event loop
 void 
-EcalFEtoDigi::beginJob(const edm::EventSetup&){
+EcalFEtoDigi::beginJob(const edm::EventSetup& setup){
 
-  ///check SM numbering convetion:: here assume 1-38 
-  /// [or -1 flag to indicate all sm's will be read in]
+  ///check SM numbering convetion: 1-38 
+  /// [or -1 flag to indicate all sm's are to be read in]
   if(sm_!=-1 && sm_<1 || sm_>36) 
-    throw cms::Exception("InvalidDetId") 
-      << "EcalFEtoDigi: Adapt SM numbering convention.";
+    throw cms::Exception("EcalFEtoDigiInvalidDetId") 
+      << "EcalFEtoDigi: Adapt SM numbering convention.\n";
 
   ///debug: open file for recreating input copy
-  outfile.open("inputcopy.txt");
+  if(debug_)
+    outfile.open("inputcopy.txt");
 
-  db_ = new DBInterface(databaseFileNameEB_,databaseFileNameEE_);
+  edm::ESHandle<EcalTPParameters> theEcalTPParameters_handle;
+  setup.get<EcalTPParametersRcd>().get(theEcalTPParameters_handle);
+  ecaltpp_=const_cast <EcalTPParameters *> (theEcalTPParameters_handle.product());
 
-  readInput();
+  //readInput();
   
 }  
 
@@ -274,12 +315,11 @@ EcalFEtoDigi::beginJob(const edm::EventSetup&){
 /// method called once each job just after ending the event loop
 void 
 EcalFEtoDigi::endJob() {
-
-  ///debug: close file with recreated input copy
-  outfile.close();
+  if(outfile.is_open())
+    outfile.close();
 }
 
-/// translate input supermodule id into TCC id
+/// translate input supermodule id into TCC id (barrel)
 int 
 EcalFEtoDigi::SMidToTCCid( const int smid ) const {
 
