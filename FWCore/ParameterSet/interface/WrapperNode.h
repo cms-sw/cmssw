@@ -17,7 +17,7 @@ namespace edm {
     public:
       WrapperNode(const std::string& type, const std::string& name,
                   NodePtr w, int line=-1);
-      virtual Node * clone() const { return new WrapperNode(*this);}
+      virtual Node * clone() const;
 
       virtual std::string type() const;
       NodePtr & wrapped() {return wrapped_;}
