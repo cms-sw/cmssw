@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/04/24 08:37:53 $
- * $Revision: 1.20 $
+ * $Date: 2007/05/15 22:20:09 $
+ * $Revision: 1.21 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -20,14 +20,8 @@
 #include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
 #include "sstream"
 
-<<<<<<< ClusterAnalysis.cc
 #include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 
-=======
-//#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
-
->>>>>>> 1.20
 #include "TTree.h"
 #include "TBranch.h"
 #include "TH1F.h"
@@ -114,51 +108,6 @@ namespace cms{
     std::cout << "added TH3D " << std::endl;
     //&&&&&&&&&&&&&&&&&&&&&&&&
 
-<<<<<<< ClusterAnalysis.cc
-=======
-    //Display TProfile
-    name = "ClusterWidhtVsAngle";
-    Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileWidthAngle");
-    Hlist->Add(new TProfile(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax"),
-			    Parameters.getParameter<double>("ymin"),
-			    Parameters.getParameter<double>("ymax"))
-	       );
-    
-    //bookHlist( "TProfileWidthAngle", name, "Nbinx", "xmin", "xmax", "ymin", "ymax" );
-    // Take the pointer (dynamic cast since it is a TObject pointer (polymorphism))
-    TProfile * temp_TProfile_ptrA = dynamic_cast<TProfile*>(Hlist->Last());
-    temp_TProfile_ptrA->SetXTitle("Angle");
-    temp_TProfile_ptrA->SetYTitle("cWidth");
-
-    std::cout << "added TProfile " << std::endl;
-
-    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-    //Display TProfile
-    name = "ResidualVsAngle";
-    Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileResidualAngle");
-    Hlist->Add(new TProfile(name,name,
-			    Parameters.getParameter<int32_t>("Nbinx"),
-			    Parameters.getParameter<double>("xmin"),
-			    Parameters.getParameter<double>("xmax"),
-			    Parameters.getParameter<double>("ymin"),
-			    Parameters.getParameter<double>("ymax"))
-	       );
-    
-    //bookHlist( "TProfileWidthAngle", name, "Nbinx", "xmin", "xmax", "ymin", "ymax" );
-    // Take the pointer (dynamic cast since it is a TObject pointer (polymorphism))
-    TProfile * temp_TProfile_ptrB = dynamic_cast<TProfile*>(Hlist->Last());
-    temp_TProfile_ptrB->SetXTitle("Angle");
-    temp_TProfile_ptrB->SetYTitle("Residual");
-    
-    std::cout << "added TProfile " << std::endl;
-    
-    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
->>>>>>> 1.20
     fFile->cd();fFile->cd("Trigger");
 
     Hlist->Add(new TH1F("FilterBits","FilterBits",10,-0.5,9.5));
@@ -198,20 +147,7 @@ namespace cms{
 	//Cluster Width
     	name="cWidth"+appString;
     	fFile->cd();fFile->cd("ClusterWidth");
-<<<<<<< ClusterAnalysis.cc
     	bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
-=======
-    	bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
-       
-
-	//Cluster Signal corrected
-// 	if(j==0 )   	   
-// 	  {
-// 	    name="cSignalCorr"+SubDet[i]+flags[j];
-// 	    fFile->cd();fFile->cd("ClusterSignal");
-// 	    bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
-// 	  }
->>>>>>> 1.20
 
     	//Loop for cluster width
     	for (int iw=0;iw<5;iw++){
@@ -226,13 +162,8 @@ namespace cms{
      	  //Cluster Signal
      	  name="cSignal"+appString;
      	  fFile->cd();fFile->cd("ClusterSignal");
-<<<<<<< ClusterAnalysis.cc
      	  bookHlist("TH1","TH1ClusterSignal", name, "ADC count" );	  	 
 
-=======
-     	  bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
-	  
->>>>>>> 1.20
 	  //Cluster Signal corrected
 	  if(j==0 && iw==0 ){
 	    name="cSignalCorr"+appString;
@@ -243,41 +174,20 @@ namespace cms{
      	  //Cluster StoN
      	  name="cStoN"+appString;
      	  fFile->cd();fFile->cd("ClusterStoN");
-<<<<<<< ClusterAnalysis.cc
      	  bookHlist("TH1","TH1ClusterStoN", name );
 
-=======
-     	  bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
-	
->>>>>>> 1.20
 	  //Cluster SignaltoNoise corrected
-<<<<<<< ClusterAnalysis.cc
 	  if(j==0 && iw==0 ){	     
 	    name="cStoNCorr"+appString;
 	    fFile->cd();fFile->cd("ClusterStoN");
 	    bookHlist("TH1","TH1ClusterStoNCorr", name );  
 	  }
-	  
-=======
-	  if(j==0 && iw==0 )   	   
-	    {
-	     
-	      name="cStoNCorr"+appString;
-		fFile->cd();fFile->cd("ClusterStoN");
-	      bookHlist( "TH1ClusterStoNCorr", name, "Nbinx", "xmin", "xmax" );  
-	    }
-  
->>>>>>> 1.20
+
      	  //Cluster Position
      	  name="cPos"+appString;
      	  fFile->cd();fFile->cd("ClusterPos");
-<<<<<<< ClusterAnalysis.cc
      	  bookHlist("TH1","TH1ClusterPos", name, "strip Num" );
-	 
-=======
-     	  bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
 
->>>>>>> 1.20
      	  //Cluster Charge Division (only for study on Raw Data Runs)
      	  name="cEta"+appString;
      	  fFile->cd();fFile->cd("ClusterEta");
@@ -285,7 +195,6 @@ namespace cms{
 
      	  name="cEta_scatter"+appString;
      	  fFile->cd();fFile->cd("ClusterEta");
-<<<<<<< ClusterAnalysis.cc
      	  bookHlist("TH2","TH2ClusterEta", name, "" , "");
      	}//end loop on width 
 
@@ -296,20 +205,7 @@ namespace cms{
 	//Residual Vs Angle
 	name = "ResidualVsAngle"+appString;
 	bookHlist("TProfile","TProfileResidualAngle", name, "Angle" , "Residual");
-=======
-     	  bookHlist( "TH2ClusterEta", name, "Nbinx", "xmin", "xmax", "Nbiny", "ymin", "ymax" );
-
-	  //       sprintf(name,"BadStrips_Cumulative_%s_%s",SubDet[i].c_str(),flags[j].c_str());
-	  //       Parameters =  conf_.getParameter<edm::ParameterSet>("TH1BadStrips");
-	  //       fFile->cd();fFile->cd("BadStrips");
-	  //       _TH1F_BadStrips_v.push_back(new TH1F(name,name,
-	  // 					   Parameters.getParameter<int32_t>("Nbinx"),
-	  // 					   Parameters.getParameter<double>("xmin"),
-	  // 					   Parameters.getParameter<double>("xmax")
-	  // 					   )
-	  // 				  );
-     	}//end loop on width 
->>>>>>> 1.20
+      
       } //end loop on det type 
     }//end loop on onTrack,offTrack,all
 
@@ -326,12 +222,7 @@ namespace cms{
 	continue;
       }
       const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
-<<<<<<< ClusterAnalysis.cc
       if (_StripGeomDetUnit==0){
-=======
-
-       if (_StripGeomDetUnit==0){
->>>>>>> 1.20
 	edm::LogError("SiStripCondObjDisplay")<< "[SiStripCondObjDisplay::beginJob] the detID " << detid << " doesn't seem to belong to Tracker" << std::endl; 
 	continue;
       }
@@ -348,7 +239,6 @@ namespace cms{
 
 	DetectedLayers[GetSubDetAndLayer(detid)]=true;
       }
-<<<<<<< ClusterAnalysis.cc
  
       //&&&&&&&&&&&&&&
       // Retrieve information for the module
@@ -357,38 +247,8 @@ namespace cms{
       sprintf(cdetid,"%d",detid);
       char aname[128];
       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-=======
-
-      //       sprintf(name,"Pedestals_%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      //       fFile->cd();fFile->cd("Pedestals");
-      //       _TH1F_PedestalsProfile_m[detid] = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
- 
-   
-      // &&&&&&&&&&&&&&&&&&
-      // Retrieve information for the module
-      // &&&&&&&&&&&&&&&&&&     
-    
-      //       char cdetid[128];
-      //       sprintf(cdetid,"%d",detid);        
-      //       fFile->cd();
-      //       fFile->mkdir(cdetid);    
-      //       fFile->cd(cdetid);    
-      //       char aname[128];
-      //       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      
->>>>>>> 1.20
       char SubStr[128];
-<<<<<<< ClusterAnalysis.cc
-       
-=======
-      
-      // char * ptr = strchr(aname,":");
-      // sprintf(SubStr,"%s",strstr(aname,":"));
-      // TString appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+"_"+cdetid;
-      // TString appString=TString(aname);//+"_"+cdetid;
-      
-           
->>>>>>> 1.20
+
       SiStripDetId a(detid);
       if ( a.subdetId() == 3 ){
 	TIBDetId b(detid);
@@ -405,31 +265,18 @@ namespace cms{
       }
       
       TString appString=TString(SubStr);//+"_"+cdetid;
-<<<<<<< ClusterAnalysis.cc
+
       fFile->cd();
       fFile->mkdir(cdetid);    
       fFile->cd(cdetid);    
-      
-=======
-      fFile->cd();
-      fFile->mkdir(SubStr);    
-      fFile->cd(SubStr);
-      
->>>>>>> 1.20
+
       //Cluster Noise
       name="cNoise"+appString;
       bookHlist("TH1","TH1ClusterNoise", name, "ADC count" );
 
       //Cluster Signal
       name="cSignal"+appString;
-<<<<<<< ClusterAnalysis.cc
       bookHlist("TH1","TH1ClusterSignal", name, "ADC count" );
-=======
-      bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
-
-      //Cluster Signal corrected
-      //bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
->>>>>>> 1.20
 
       //Cluster StoN
       name="cStoN"+appString;
@@ -437,23 +284,10 @@ namespace cms{
 
       //Cluster Width
       name="cWidth"+appString;
-<<<<<<< ClusterAnalysis.cc
       bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
-=======
-      bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
-   
-      //       Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterWidth");
-      //       Hlist->Add(new TH1F(name,name,
-      // 			  Parameters.getParameter<int32_t>("Nbinx"),
-      // 			  Parameters.getParameter<double>("xmin"),
-      // 			  Parameters.getParameter<double>("xmax")
-      // 			  )
-      // 		 );
->>>>>>> 1.20
 
       //Cluster Position
       name="cPos"+appString;
-<<<<<<< ClusterAnalysis.cc
       //bookHlist("TH1","TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
       Hlist->Add(new TH1F(name,name,nstrips,0,nstrips));
 		 
@@ -465,10 +299,6 @@ namespace cms{
       bookHlist("TH2","TH2ClusterEta", name, "" ,  "" );
 
       //&&&&&&&&&&&&&&&&&
-=======
-      Hlist->Add(new TH1F(name,name,nstrips,-0.5,nstrips-.5));
-      
->>>>>>> 1.20
     }//end loop on detector	
 
 
@@ -515,7 +345,6 @@ namespace cms{
 
       //Cluster Position
       name="cPos"+appString;
-<<<<<<< ClusterAnalysis.cc
       bookHlist("TH1","TH1ClusterPos", name, "strip Num" );
 
       //residual
@@ -531,61 +360,12 @@ namespace cms{
       bookHlist("TProfile","TProfileWidthAngle", name, "cos(angle_xz)" , "clusWidth");
 
       //Residuals Vs Angle
-=======
-      bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
-    
-      //&&&&&&&&&&&&&&&&&&&&&&&&
-      
-      //Display TProfile
-      name = "ClusterWidhtVsAngle"+appString+"_onTrack";
-      Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileWidthAngle");
-      Hlist->Add(new TProfile(name,name,
-			      Parameters.getParameter<int32_t>("Nbinx"),
-			      Parameters.getParameter<double>("xmin"),
-			      Parameters.getParameter<double>("xmax"),
-			      Parameters.getParameter<double>("ymin"),
-			      Parameters.getParameter<double>("ymax"))
-		 );
-      
-      //bookHlist( "TProfileWidthAngle", name, "Nbinx", "xmin", "xmax", "ymin", "ymax" );
-      // Take the pointer (dynamic cast since it is a TObject pointer (polymorphism))
-      TProfile * temp_TProfile_ptrA = dynamic_cast<TProfile*>(Hlist->Last());
-      temp_TProfile_ptrA->SetXTitle("Angle");
-      temp_TProfile_ptrA->SetYTitle("cWidth");
-      std::cout << "added TProfile " << std::endl;
-       
-      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      
-      //Display TProfile
->>>>>>> 1.20
       name = "ResidualVsAngle"+appString+"_onTrack";
-<<<<<<< ClusterAnalysis.cc
       bookHlist("TProfile","TProfileResidualAngle", name, "cos(angle_rz)" , "Residual");
 
       //Angle Vs phi
       name = "AngleVsPhi"+appString+"_onTrack";
       bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi" , "Impact angle (rad)");
-=======
-      Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileResidualAngle");
-      Hlist->Add(new TProfile(name,name,
-			      Parameters.getParameter<int32_t>("Nbinx"),
-			      Parameters.getParameter<double>("xmin"),
-			      Parameters.getParameter<double>("xmax"),
-			      Parameters.getParameter<double>("ymin"),
-			      Parameters.getParameter<double>("ymax"))
-		 );
-      
-      //bookHlist( "TProfileWidthAngle", name, "Nbinx", "xmin", "xmax", "ymin", "ymax" );
-      // Take the pointer (dynamic cast since it is a TObject pointer (polymorphism))
-      TProfile * temp_TProfile_ptrB = dynamic_cast<TProfile*>(Hlist->Last());
-      temp_TProfile_ptrB->SetXTitle("Angle");
-      temp_TProfile_ptrB->SetYTitle("Residual");
-      
-      std::cout << "added TProfile " << std::endl;
-      
-      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  
-
->>>>>>> 1.20
     }
   }
 
@@ -601,11 +381,7 @@ namespace cms{
       TPostScript ps(psfilename_.c_str(),psfiletype_);
       TCanvas Canvas("c","c");//("c","c",600,300);
       for (int ih=0; ih<Hlist->GetEntries();ih++){
-<<<<<<< ClusterAnalysis.cc
 	if (psfilemode_>1 || (strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL && strstr((*Hlist)[ih]->GetName(),"_width_")==NULL)){  
-=======
-	if (psfilemode_>1 || strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL){
->>>>>>> 1.20
 	  edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
 	  if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	    if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
@@ -815,83 +591,16 @@ namespace cms{
       edm::LogInfo("ClusterAnalysis") <<"\t\tNumber of RecHits "<<recHitsSize<<std::endl;
       ((TH1F*) Hlist->FindObject("nRecHits"))->Fill(recHitsSize);
 
-<<<<<<< ClusterAnalysis.cc
-      
       //------------------------------RESIDUAL at the layer level ------------
       /*	  
 	    LocalPoint stateposition= 
 	    LocalPoint rechitposition= 
-=======
-
-       //------------------------------RESIDUAL at the layer level ------------
-	  
-      for(_tkinfoCmbiter=trackinforefCmb->trajStateMap().begin();_tkinfoCmbiter!=trackinforefCmb->trajStateMap().end();_tkinfoCmbiter++){
-	
-	const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoCmbiter->first)));
-	const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoCmbiter->first)));
-	
-	if(matchedhit)  
-	  {
-	    //track angle
-	    LocalVector trackdirection=((_tkinfoCmbiter->second.stateOnDet()).parameters()).momentum();
-	    //LocalVector trackdirection=trackinforefCmb->localTrackMomentumOnMono(_tkinfoCmbiter->first);
-	    GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
-	    GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	    float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
-	    
-	    const SiStripRecHit2D *monohit = matchedhit->monoHit();
-	    //const SiStripRecHit2D *stereohit = matchedhit->stereoHit();
-	    const uint32_t& detid = monohit->geographicalId().rawId();
-	    
-	    char cApp[64];
-	    sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
-	    TString appString=TString(GetSubDetAndLayer(detid).first)+cApp; 
-	    // std::cout << "MATCHED::subdet_layer->"<<appString << std::endl;
-	    
-	    //---------------------------
-	    LocalPoint stateposition=trackinforefCmb->localTrackPosition(_tkinfoCmbiter->first);
-	    //LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position();	
-	    LocalPoint rechitposition= matchedhit->localPosition();
->>>>>>> 1.20
 	    fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
 	    fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
 	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-<<<<<<< ClusterAnalysis.cc
 	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
 	    
       */
-=======
-	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);    
-	  }
-	//  std::cout << "detidCmb from track" <<detidCmb << "versus" <<(&(*(*_tkinfoCmbiter).first))->geographicalId().rawId()<< std::endl;
-	else if (hit){
-	  
-	  //track angle
-	  LocalVector trackdirection=((_tkinfoCmbiter->second.stateOnDet()).parameters()).momentum();
-	  // LocalVector trackdirection=(_tkinfoCmbiter->second.parameters()).momentum();
-	  GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(hit->geographicalId());
-	  GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	  float angle = atan(gtrkdir.x()/gtrkdir.z())*180/TMath::Pi();
-	  
-	  char cApp[64];
-	  const uint32_t& detid = hit->geographicalId().rawId();
-	  //const unsigned int detid = ((*_tkinfoCmbiter).second).detId();
-	  sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
-	  TString appString=TString(GetSubDetAndLayer(detid).first)+cApp;
-	  //	  std::cout << " NOT_MATCHED::subdet_layer->"<<appString << std::endl;
-	  
-	  LocalPoint stateposition= trackinforefCmb->localTrackPosition(_tkinfoCmbiter->first);
-	  //LocalPoint  stateposition= (_tkinfoCmbiter->second.parameters()).position(); //trajectory position on the detector
-	  LocalPoint  rechitposition = (_tkinfoCmbiter->first)->localPosition();// rechit position on the detector
-	  fillTH1( stateposition.x()- rechitposition.x(),"res_x"+appString,0);
-	  fillTH1( stateposition.y()- rechitposition.y(),"res_y"+appString,0);
-	  ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	  ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
-	}
-	else {std::cout <<"---No RecHit found-----------"<< std::endl;}
-      }
-  
->>>>>>> 1.20
       //---------------------------------------------------------------------
 
       //       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
@@ -1046,7 +755,6 @@ namespace cms{
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
 
-<<<<<<< ClusterAnalysis.cc
     float cosXZ = 1;
     float cosRZ = 1;
     //std::cout << _HitDir._LV.x() << " " << _HitDir._LV.y() << " " << _HitDir._LV.z() << " " << _HitDir._LV.mag() << std::endl;
@@ -1055,8 +763,6 @@ namespace cms{
       cosRZ= fabs(_HitDir._LV.z())/_HitDir._LV.mag();
     }
 
-=======
->>>>>>> 1.20
     //Display
     ((TH3S*) Hlist->FindObject("ClusterGlobalPos"))
       ->Fill(globalPos.z(),globalPos.x(),globalPos.y());
@@ -1084,22 +790,6 @@ namespace cms{
 
     fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
    
-<<<<<<< ClusterAnalysis.cc
-=======
-     
-    //---- ClusterCharge corrected by angle (Layer)-----
-    char cAppL[64];
-    sprintf(cAppL,"_Layer_%d",GetSubDetAndLayer(detid).second);
-    TString appStringL=TString(GetSubDetAndLayer(detid).first)+cAppL;
-    if (flag=="_onTrack")
-      {
-	fillTH1(cluster->charge()*cos((angle/180)* TMath::Pi()),"cSignalCorr"+appStringL,1,cluster->width());
-	((TProfile*) Hlist->FindObject("ClusterWidhtVsAngle"+appStringL+flag))->Fill(angle,cluster->width(),1);  
-      }
-    if (cluster->noise() && flag=="_onTrack")fillTH1((cluster->charge()/cluster->noise())*cos((angle/180)* TMath::Pi()),"cStoNCorr"+appStringL,1,cluster->width());
-    //---------------------------------------------------
->>>>>>> 1.20
-
     if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
 	
       float Ql=0;
@@ -1120,11 +810,7 @@ namespace cms{
 	Qt=Ql+Qr+cluster->maxCharge();
       }
       else{
-<<<<<<< ClusterAnalysis.cc
 	
-=======
-
->>>>>>> 1.20
 	int Nstrip=cluster->stripAmplitudes().size();
 	float pos=cluster->position()-0.5;
 	for(int is=0;is<Nstrip && cluster->firstStrip()+is<=pos;is++)
@@ -1399,17 +1085,12 @@ namespace cms{
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoiter->first)));
-<<<<<<< ClusterAnalysis.cc
       LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
       
       //Combined State infos
       LocalVector trackdirectionCmb= trackinforefCmb->stateOnDet(_tkinfoiter->first).parameters().momentum();
       //LocalPoint trackPointCmb= trackinforefCmb->stateOnDet(_tkinfoiter->first).parameters().position();
       //
-=======
-      //      LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
-      LocalVector trackdirection=  ((_tkinfoiter->second.stateOnDet()).parameters()).momentum();
->>>>>>> 1.20
 
       if (phit) {
  	//phit = POINTER TO THE PROJECTED RECHIT
@@ -1420,7 +1101,6 @@ namespace cms{
 	LogTrace("ClusterAnalysis")<<"MatchedHit found"<<std::endl;
  	GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
  	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-<<<<<<< ClusterAnalysis.cc
  	GlobalVector gtrkdirCmb=gdet->toGlobal(trackdirectionCmb);
  		
  	// THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT
@@ -1431,32 +1111,7 @@ namespace cms{
 	A._LVcmb=gdet->monoDet()->toLocal(gtrkdirCmb);
 	A._GVcmb=gtrkdirCmb;
 	_tkHitDirs.push_back ( A );
-=======
- 	std::cout<<"Track direction trasformed in global direction"<<std::endl;
-	
- 	//cluster and trackdirection on mono det
-	
- 	// THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT 
- 	const SiStripRecHit2D *monohit=matchedhit->monoHit();
-	
- 	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > monocluster=monohit->cluster();
- 	const GeomDetUnit * monodet=gdet->monoDet();
-	
- 	LocalVector monotkdir=monodet->toLocal(gtrkdir);
- 	//size=(monocluster->amplitudes()).size();
- 	if(monotkdir.z()!=0){
 	  
- 	  // THE LOCAL ANGLE (MONO)
- 	  float angle = atan(monotkdir.x()/ monotkdir.z())*180/TMath::Pi();
- 	  //
- 	  hitangleassociation.push_back(std::make_pair(monohit, angle)); 
- 	  oXZHitAngle.push_back( std::make_pair( monohit, atan( monotkdir.x()/ monotkdir.z())));
- 	  oYZHitAngle.push_back( std::make_pair( monohit, atan( monotkdir.y()/ monotkdir.z())));
- 	  oLocalDir.push_back( std::make_pair( monohit, monotkdir));
- 	  oGlobalDir.push_back( std::make_pair( monohit, gtrkdir));
->>>>>>> 1.20
-	  
-<<<<<<< ClusterAnalysis.cc
 	// THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
 	A._TrackingRecHit=matchedhit->stereoHit();
 	A._LV=gdet->stereoDet()->toLocal(gtrkdir);
@@ -1464,27 +1119,6 @@ namespace cms{
 	A._GV=gtrkdir;
 	A._GVcmb=gtrkdirCmb;
 	_tkHitDirs.push_back ( A );
-=======
-	  
- 	  // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
- 	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
-	  
- 	  const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > stereocluster=stereohit->cluster();
- 	  const GeomDetUnit * stereodet=gdet->stereoDet(); 
- 	  LocalVector stereotkdir=stereodet->toLocal(gtrkdir);
- 	  //size=(stereocluster->amplitudes()).size();
-	  if(stereotkdir.z()!=0){
-	    
- 	    // THE LOCAL ANGLE (STEREO)
- 	    float angle = atan(stereotkdir.x()/ stereotkdir.z())*180/TMath::Pi();
- 	    hitangleassociation.push_back(std::make_pair(stereohit, angle)); 
- 	    oXZHitAngle.push_back( std::make_pair( stereohit, atan( stereotkdir.x()/ stereotkdir.z())));
- 	    oYZHitAngle.push_back( std::make_pair( stereohit, atan( stereotkdir.y()/ stereotkdir.z())));
- 	    oLocalDir.push_back( std::make_pair( stereohit, stereotkdir));
- 	    oGlobalDir.push_back( std::make_pair( stereohit, gtrkdir));
- 	  }
- 	}
->>>>>>> 1.20
       }
       else if(hit) {
 	//  hit= POINTER TO THE RECHIT
