@@ -49,8 +49,11 @@
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
+#include "DataFormats/GeometryVector/interface/LocalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+
 // Function to evaluate the local angles
-#include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackLocalAngleTIF.h"
+//#include "AnalysisExamples/SiStripDetectorPerformance/interface/TrackLocalAngleTIF.h"
 
 #include "TFile.h"
 /* #include "TString.h" */
@@ -68,6 +71,26 @@
 namespace cms{
   class ClusterAnalysis : public edm::EDAnalyzer
     {
+    
+    private:
+      struct HitDir{
+	HitDir(){
+	  _TrackingRecHit=NULL;
+	  _LV=LocalVector(0,0,0);
+	  _GV=GlobalVector(0,0,0);
+	  _LVcmb=LocalVector(0,0,0);
+	  _GVcmb=GlobalVector(0,0,0);
+	  _LPcmb=LocalPoint(0,0,0);
+	  _GPcmb=GlobalPoint(0,0,0);
+	};
+	const TrackingRecHit* _TrackingRecHit;
+	LocalVector _LV, _LVcmb;
+	GlobalVector _GV, _GVcmb;	
+	LocalPoint _LPcmb;
+	GlobalPoint _GPcmb;
+      };
+      typedef std::vector<HitDir> HitDirAssociation;
+
     public:
       
       ClusterAnalysis(const edm::ParameterSet& conf);
@@ -81,21 +104,24 @@ namespace cms{
       void analyze(const edm::Event& e, const edm::EventSetup& c);
 
     private:
-      void bookHlist( char* ParameterSetLabel, TString & HistoName,
-		      char* Nbinx, char* xmin, char* xmax,
-		      char* Nbiny = "", char* ymin = "", char* ymax = "",
-		      char* Nbinz = "", char* zmin = "", char* zmax = "" );
+
+      void bookHlist( char* HistoType, char* ParameterSetLabel, TString & HistoName,
+		      char* xTitle="", char* yTitle="", char* zTitle="");		      
+
       void book();
       void AllClusters();
       void trackStudy();
-      bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag, float angle = 0);	
+
+      bool clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag, const HitDir _HitDir = HitDir() );	
       const SiStripClusterInfo* MatchClusterInfo(const SiStripCluster* cluster, const uint32_t& detid);	
       std::pair<std::string,uint32_t> GetSubDetAndLayer(const uint32_t& detid);
 
       void fillTH1(float,TString,bool,float=0);
       void fillTH2(float,float,TString,bool,float=0);
+      void fillTProfile(float,float,TString,bool,float=0);
+      void fillPedNoiseFromDB();
 
-      std::vector<std::pair<const TrackingRecHit*,float> > SeparateHits( reco::TrackInfoRef & trackinforef );
+      void SeparateHits( reco::TrackRef& trackref );
 
     private:
   
@@ -149,20 +175,11 @@ namespace cms{
       uint32_t istart;
 
       TRandom rnd;
-
-      // For track angles
-      typedef std::vector<std::pair<const TrackingRecHit *, float> > HitAngleAssociation;
-      typedef std::vector<std::pair<const TrackingRecHit *, LocalVector > > HitLclDirAssociation;
-      typedef std::vector<std::pair<const TrackingRecHit *, GlobalVector> > HitGlbDirAssociation;
      
-      TrackLocalAngleTIF * Anglefinder;
       const TrackerGeometry * _tracker;
       reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoiter;
       reco::TrackInfo::TrajectoryInfo::const_iterator _tkinfoCmbiter;
-      HitAngleAssociation oXZHitAngle;
-      HitAngleAssociation oYZHitAngle;
-      HitLclDirAssociation oLocalDir;
-      HitGlbDirAssociation oGlobalDir;
+      HitDirAssociation _tkHitDirs;
     };
 }
 #endif

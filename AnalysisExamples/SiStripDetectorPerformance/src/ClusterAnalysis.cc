@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/04/23 09:39:41 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/24 08:37:53 $
+ * $Revision: 1.20 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -20,9 +20,14 @@
 #include "AnalysisDataFormats/TrackInfo/src/TrackInfo.cc"
 #include "sstream"
 
+<<<<<<< ClusterAnalysis.cc
+#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
+
+=======
 //#include "Geometry/CommonDetAlgo/interface/MeasurementPoint.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementPoint.h"
 
+>>>>>>> 1.20
 #include "TTree.h"
 #include "TBranch.h"
 #include "TH1F.h"
@@ -54,19 +59,17 @@ namespace cms{
     ModulesToBeExcluded_(conf.getParameter< std::vector<uint32_t> >("ModulesToBeExcluded")),
     EtaAlgo_(conf.getParameter<int32_t>("EtaAlgo")),
     NeighStrips_(conf.getParameter<int32_t>("NeighStrips")),
+    not_the_first_event(false),
     tracksCollection_in_EventTree(true),
     trackAssociatorCollection_in_EventTree(true),
     ltcdigisCollection_in_EventTree(true)
   {
-    //     // Create TrackLocalAngle object to evaluate the local angles and separate the matched rechits in clusters
-    //     Anglefinder = new TrackLocalAngleTIF();
   }
 
   ClusterAnalysis::~ClusterAnalysis(){
     std::cout << "Destructing object" << std::endl;
     //Hlist->Delete();
     delete Hlist;
-    //     delete Anglefinder;
   }
   
   void ClusterAnalysis::beginJob( const edm::EventSetup& es ) {
@@ -83,7 +86,6 @@ namespace cms{
   void ClusterAnalysis::book() {
 
     fFile = new TFile(filename_.c_str(),"RECREATE");
-    fFile->mkdir("BadStrips");
     fFile->mkdir("ClusterNoise");
     fFile->mkdir("ClusterSignal");
     fFile->mkdir("ClusterStoN");
@@ -92,7 +94,7 @@ namespace cms{
     fFile->mkdir("ClusterPos");
     fFile->mkdir("Tracks");
     fFile->mkdir("Trigger");
-    fFile->mkdir("Layer");    
+    fFile->mkdir("Layer");
     fFile->cd();
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -107,16 +109,13 @@ namespace cms{
 
     //Display 3D
     name = "ClusterGlobalPos";
-    bookHlist( "TH3ClusterGlobalPos", name, "Nbinx", "xmin", "xmax", "Nbiny", "ymin", "ymax", "Nbinz", "zmin", "zmax" );
-    // Take the pointer (dynamic cast since it is a TObject pointer (polymorphism))
-    TH3S * temp_TH3S_ptr = dynamic_cast<TH3S*>(Hlist->Last());
-    temp_TH3S_ptr->SetXTitle("z (cm)");
-    temp_TH3S_ptr->SetYTitle("x (cm)");
-    temp_TH3S_ptr->SetZTitle("y (cm)");
+    bookHlist("TH3","TH3ClusterGlobalPos", name, "z (cm)","x (cm)","y (cm)"); 
 
     std::cout << "added TH3D " << std::endl;
     //&&&&&&&&&&&&&&&&&&&&&&&&
 
+<<<<<<< ClusterAnalysis.cc
+=======
     //Display TProfile
     name = "ClusterWidhtVsAngle";
     Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileWidthAngle");
@@ -159,32 +158,33 @@ namespace cms{
     
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
+>>>>>>> 1.20
     fFile->cd();fFile->cd("Trigger");
 
     Hlist->Add(new TH1F("FilterBits","FilterBits",10,-0.5,9.5));
 
-    // bookHlist( TObjArray, Name of the parameterset in the cfg, name of the hitsogram, xbinnumber, xmin, xmax )
+    // bookHlist(TObjArray, Name of the parameterset in the cfg, name of the hitsogram, xbinnumber, xmin, xmax )
     name = "TriggerBits";
-    bookHlist( "TH1TriggerBits", name, "Nbinx", "xmin", "xmax" );
+    bookHlist("TH1", "TH1TriggerBits", name);
     fFile->cd();fFile->cd("Tracks");
 
 
     name = "nTracks";
-    bookHlist( "TH1nTracks", name, "Nbinx", "xmin", "xmax" );
+    bookHlist("TH1","TH1nTracks", name, "N Tracks" );
     name = "nRecHits";
-    bookHlist( "TH1nRecHits", name, "Nbinx", "xmin", "xmax" );
+    bookHlist("TH1","TH1nRecHits", name, "N RecHits" );
 
     // Loop on onTrack, offTrack, All
     for (int j=0;j<3;j++){      
       //Number of Cluster 
       name="nClusters"+flags[j];
       fFile->cd();fFile->cd("Tracks");
-      bookHlist( "TH1nClusters", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1nClusters", name, "N Clusters" );
 
       for (int i=0;i<_NUM_SISTRIP_SUBDET_;i++) {
    	//Number of Cluster on each det
 	name="nClusters"+SubDet[i]+flags[j];
-	bookHlist( "TH1nClusters", name, "Nbinx", "xmin", "xmax" );
+	bookHlist("TH1","TH1nClusters", name, "N Clusters" );
       }
     }
 
@@ -198,6 +198,9 @@ namespace cms{
 	//Cluster Width
     	name="cWidth"+appString;
     	fFile->cd();fFile->cd("ClusterWidth");
+<<<<<<< ClusterAnalysis.cc
+    	bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
+=======
     	bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
        
 
@@ -208,6 +211,7 @@ namespace cms{
 // 	    fFile->cd();fFile->cd("ClusterSignal");
 // 	    bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
 // 	  }
+>>>>>>> 1.20
 
     	//Loop for cluster width
     	for (int iw=0;iw<5;iw++){
@@ -217,28 +221,44 @@ namespace cms{
      	  //Cluster Noise
      	  name="cNoise"+appString;
      	  fFile->cd();fFile->cd("ClusterNoise");
-     	  bookHlist( "TH1ClusterNoise", name, "Nbinx", "xmin", "xmax" );
+     	  bookHlist("TH1","TH1ClusterNoise", name, "ADC count" );
 
      	  //Cluster Signal
      	  name="cSignal"+appString;
      	  fFile->cd();fFile->cd("ClusterSignal");
+<<<<<<< ClusterAnalysis.cc
+     	  bookHlist("TH1","TH1ClusterSignal", name, "ADC count" );	  	 
+
+=======
      	  bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
 	  
+>>>>>>> 1.20
 	  //Cluster Signal corrected
-	  if(j==0 && iw==0 )   	   
-	    {
-	   
-	      name="cSignalCorr"+appString;
-	      fFile->cd();fFile->cd("ClusterSignal");
-	      bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );  
-	    }
+	  if(j==0 && iw==0 ){
+	    name="cSignalCorr"+appString;
+	    fFile->cd();fFile->cd("ClusterSignal");
+	    bookHlist("TH1","TH1ClusterSignalCorr", name, "ADC count" );  
+	  }
 	  
      	  //Cluster StoN
      	  name="cStoN"+appString;
      	  fFile->cd();fFile->cd("ClusterStoN");
+<<<<<<< ClusterAnalysis.cc
+     	  bookHlist("TH1","TH1ClusterStoN", name );
+
+=======
      	  bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
 	
+>>>>>>> 1.20
 	  //Cluster SignaltoNoise corrected
+<<<<<<< ClusterAnalysis.cc
+	  if(j==0 && iw==0 ){	     
+	    name="cStoNCorr"+appString;
+	    fFile->cd();fFile->cd("ClusterStoN");
+	    bookHlist("TH1","TH1ClusterStoNCorr", name );  
+	  }
+	  
+=======
 	  if(j==0 && iw==0 )   	   
 	    {
 	     
@@ -247,18 +267,36 @@ namespace cms{
 	      bookHlist( "TH1ClusterStoNCorr", name, "Nbinx", "xmin", "xmax" );  
 	    }
   
+>>>>>>> 1.20
      	  //Cluster Position
      	  name="cPos"+appString;
      	  fFile->cd();fFile->cd("ClusterPos");
+<<<<<<< ClusterAnalysis.cc
+     	  bookHlist("TH1","TH1ClusterPos", name, "strip Num" );
+	 
+=======
      	  bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
 
+>>>>>>> 1.20
      	  //Cluster Charge Division (only for study on Raw Data Runs)
      	  name="cEta"+appString;
      	  fFile->cd();fFile->cd("ClusterEta");
-     	  bookHlist( "TH1ClusterEta", name, "Nbinx", "xmin", "xmax" );
+     	  bookHlist("TH1","TH1ClusterEta", name, "" );
 
      	  name="cEta_scatter"+appString;
      	  fFile->cd();fFile->cd("ClusterEta");
+<<<<<<< ClusterAnalysis.cc
+     	  bookHlist("TH2","TH2ClusterEta", name, "" , "");
+     	}//end loop on width 
+
+	//cWidth Vs Angle
+	name = "ClusterWidthVsAngle"+appString;
+	bookHlist("TProfile","TProfileWidthAngle", name, "cos(angle_xz)", "clusWidth");
+
+	//Residual Vs Angle
+	name = "ResidualVsAngle"+appString;
+	bookHlist("TProfile","TProfileResidualAngle", name, "Angle" , "Residual");
+=======
      	  bookHlist( "TH2ClusterEta", name, "Nbinx", "xmin", "xmax", "Nbiny", "ymin", "ymax" );
 
 	  //       sprintf(name,"BadStrips_Cumulative_%s_%s",SubDet[i].c_str(),flags[j].c_str());
@@ -271,6 +309,7 @@ namespace cms{
 	  // 					   )
 	  // 				  );
      	}//end loop on width 
+>>>>>>> 1.20
       } //end loop on det type 
     }//end loop on onTrack,offTrack,all
 
@@ -287,8 +326,12 @@ namespace cms{
 	continue;
       }
       const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
+<<<<<<< ClusterAnalysis.cc
+      if (_StripGeomDetUnit==0){
+=======
 
        if (_StripGeomDetUnit==0){
+>>>>>>> 1.20
 	edm::LogError("SiStripCondObjDisplay")<< "[SiStripCondObjDisplay::beginJob] the detID " << detid << " doesn't seem to belong to Tracker" << std::endl; 
 	continue;
       }
@@ -305,6 +348,16 @@ namespace cms{
 
 	DetectedLayers[GetSubDetAndLayer(detid)]=true;
       }
+<<<<<<< ClusterAnalysis.cc
+ 
+      //&&&&&&&&&&&&&&
+      // Retrieve information for the module
+      //&&&&&&&&&&&&&&&&&&     
+      char cdetid[128];
+      sprintf(cdetid,"%d",detid);
+      char aname[128];
+      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+=======
 
       //       sprintf(name,"Pedestals_%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       //       fFile->cd();fFile->cd("Pedestals");
@@ -323,7 +376,11 @@ namespace cms{
       //       char aname[128];
       //       sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       
+>>>>>>> 1.20
       char SubStr[128];
+<<<<<<< ClusterAnalysis.cc
+       
+=======
       
       // char * ptr = strchr(aname,":");
       // sprintf(SubStr,"%s",strstr(aname,":"));
@@ -331,6 +388,7 @@ namespace cms{
       // TString appString=TString(aname);//+"_"+cdetid;
       
            
+>>>>>>> 1.20
       SiStripDetId a(detid);
       if ( a.subdetId() == 3 ){
 	TIBDetId b(detid);
@@ -347,38 +405,41 @@ namespace cms{
       }
       
       TString appString=TString(SubStr);//+"_"+cdetid;
+<<<<<<< ClusterAnalysis.cc
+      fFile->cd();
+      fFile->mkdir(cdetid);    
+      fFile->cd(cdetid);    
+      
+=======
       fFile->cd();
       fFile->mkdir(SubStr);    
       fFile->cd(SubStr);
       
+>>>>>>> 1.20
       //Cluster Noise
       name="cNoise"+appString;
-      bookHlist( "TH1ClusterNoise", name, "Nbinx", "xmin", "xmax" );
-
-      //Cluster Position
-      name="cPos"+appString;
-      bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
-
-      //Cluster Charge Division (only for study on Raw Data Runs)
-      name="cEta"+appString;
-      bookHlist( "TH1ClusterEta", name, "Nbinx", "xmin", "xmax" );
-
-      name="cEta_scatter"+appString;
-      bookHlist( "TH2ClusterEta", name, "Nbinx", "xmin", "xmax", "Nbiny", "ymin", "ymax" );
+      bookHlist("TH1","TH1ClusterNoise", name, "ADC count" );
 
       //Cluster Signal
       name="cSignal"+appString;
+<<<<<<< ClusterAnalysis.cc
+      bookHlist("TH1","TH1ClusterSignal", name, "ADC count" );
+=======
       bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
 
       //Cluster Signal corrected
       //bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
+>>>>>>> 1.20
 
       //Cluster StoN
       name="cStoN"+appString;
-      bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1ClusterStoN", name, "" );
 
       //Cluster Width
       name="cWidth"+appString;
+<<<<<<< ClusterAnalysis.cc
+      bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
+=======
       bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
    
       //       Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ClusterWidth");
@@ -388,11 +449,26 @@ namespace cms{
       // 			  Parameters.getParameter<double>("xmax")
       // 			  )
       // 		 );
+>>>>>>> 1.20
 
       //Cluster Position
       name="cPos"+appString;
+<<<<<<< ClusterAnalysis.cc
+      //bookHlist("TH1","TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
+      Hlist->Add(new TH1F(name,name,nstrips,0,nstrips));
+		 
+      //Cluster Charge Division (only for study on Raw Data Runs)
+      name="cEta"+appString;
+      bookHlist("TH1","TH1ClusterEta", name, "" );
+
+      name="cEta_scatter"+appString;
+      bookHlist("TH2","TH2ClusterEta", name, "" ,  "" );
+
+      //&&&&&&&&&&&&&&&&&
+=======
       Hlist->Add(new TH1F(name,name,nstrips,-0.5,nstrips-.5));
       
+>>>>>>> 1.20
     }//end loop on detector	
 
 
@@ -403,48 +479,59 @@ namespace cms{
      
       char cApp[64];
       sprintf(cApp,"_Layer_%d",iter->first.second);
-      TString appString=TString(iter->first.first)+cApp;
+      TString appString="_"+TString(iter->first.first)+cApp;
      
       fFile->cd(); fFile->cd("Layer");    
-
-      //residual
-      name="res_x"+appString;
-      bookHlist( "TH1Residual_x", name, "Nbinx", "xmin", "xmax" );
-      
-      
-      //residual y
-      name="res_y"+appString;
-      bookHlist( "TH1Residual_y", name, "Nbinx", "xmin", "xmax" );
-      
-      
+     
       //Cluster Noise
       name="cNoise"+appString;
-      bookHlist( "TH1ClusterNoise", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1ClusterNoise", name, "ADC count" );
 
       //Cluster Signal
       name="cSignal"+appString;
-      bookHlist( "TH1ClusterSignal", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1ClusterSignal", name, "ADC count" );
 
       //Cluster Signal corrected
-      name="cSignalCorr"+appString;
-      bookHlist( "TH1ClusterSignalCorr", name, "Nbinx", "xmin", "xmax" );
+      name="cSignalCorr"+appString+"_onTrack";
+      bookHlist("TH1","TH1ClusterSignalCorr", name, "ADC count" );
+
+      //Cluster Signal Vs Angle
+      name = "cSignalVsAngle"+appString+"_onTrack";
+      bookHlist("TProfile","TProfilecSignalVsAngle", name, "cos(angle_rz)" , "ADC count");
 
       //Cluster StoN
       name="cStoN"+appString;
-      bookHlist( "TH1ClusterStoN", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1ClusterStoN", name, "" );
 
 
       //Cluster SignaltoNoise corrected
-      name="cStoNCorr"+appString;
-      bookHlist( "TH1ClusterStoNCorr", name, "Nbinx", "xmin", "xmax" );
+      name="cStoNCorr"+appString+"_onTrack";
+      bookHlist("TH1","TH1ClusterStoNCorr", name, "" );
 
 
       //Cluster Width
       name="cWidth"+appString;
-      bookHlist( "TH1ClusterWidth", name, "Nbinx", "xmin", "xmax" );
+      bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
 
       //Cluster Position
       name="cPos"+appString;
+<<<<<<< ClusterAnalysis.cc
+      bookHlist("TH1","TH1ClusterPos", name, "strip Num" );
+
+      //residual
+      name="res_x"+appString;
+      bookHlist("TH1","TH1Residual_x", name, "" );
+            
+      //residual y
+      name="res_y"+appString;
+      bookHlist("TH1","TH1Residual_y", name, "" );
+      
+      //cWidth Vs Angle
+      name = "ClusterWidthVsAngle"+appString+"_onTrack";
+      bookHlist("TProfile","TProfileWidthAngle", name, "cos(angle_xz)" , "clusWidth");
+
+      //Residuals Vs Angle
+=======
       bookHlist( "TH1ClusterPos", name, "Nbinx", "xmin", "xmax" );
     
       //&&&&&&&&&&&&&&&&&&&&&&&&
@@ -470,7 +557,15 @@ namespace cms{
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
       
       //Display TProfile
+>>>>>>> 1.20
       name = "ResidualVsAngle"+appString+"_onTrack";
+<<<<<<< ClusterAnalysis.cc
+      bookHlist("TProfile","TProfileResidualAngle", name, "cos(angle_rz)" , "Residual");
+
+      //Angle Vs phi
+      name = "AngleVsPhi"+appString+"_onTrack";
+      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi" , "Impact angle (rad)");
+=======
       Parameters =  conf_.getParameter<edm::ParameterSet>("TProfileResidualAngle");
       Hlist->Add(new TProfile(name,name,
 			      Parameters.getParameter<int32_t>("Nbinx"),
@@ -490,6 +585,7 @@ namespace cms{
       
       //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&  
 
+>>>>>>> 1.20
     }
   }
 
@@ -505,17 +601,23 @@ namespace cms{
       TPostScript ps(psfilename_.c_str(),psfiletype_);
       TCanvas Canvas("c","c");//("c","c",600,300);
       for (int ih=0; ih<Hlist->GetEntries();ih++){
+<<<<<<< ClusterAnalysis.cc
+	if (psfilemode_>1 || (strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL && strstr((*Hlist)[ih]->GetName(),"_width_")==NULL)){  
+=======
 	if (psfilemode_>1 || strstr((*Hlist)[ih]->GetName(),"SingleDet_")==NULL){
+>>>>>>> 1.20
 	  edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
 	  if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	    if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
 	      (*Hlist)[ih]->Draw();
 	  }
 	  else if (dynamic_cast<TProfile*>((*Hlist)[ih]) !=NULL){
-	    (*Hlist)[ih]->Draw();
+	    if (dynamic_cast<TProfile*>((*Hlist)[ih])->GetEntries() != 0)
+	      (*Hlist)[ih]->Draw();
 	  }   
 	  else if (dynamic_cast<TH3S*>((*Hlist)[ih]) !=NULL){
-	    (*Hlist)[ih]->Draw();
+	    if (dynamic_cast<TH3S*>((*Hlist)[ih])->GetEntries() != 0)
+	      (*Hlist)[ih]->Draw();
 	  }
 	  Canvas.Update();
 	  ps.NewPage();
@@ -537,8 +639,16 @@ namespace cms{
     eventNb = e.id().event();
     edm::LogInfo("ClusterAnalysis") << "Processing run " << runNb << " event " << eventNb << std::endl;
 
-    //SiStripNoiseService_.setESObjects(es);
-    //SiStripPedestalsService_.setESObjects(es);
+    es.get<SiStripDetCablingRcd>().get( SiStripDetCabling_ );
+
+    SiStripNoiseService_.setESObjects(es);
+    SiStripPedestalsService_.setESObjects(es);
+
+    if (!not_the_first_event){
+      fillPedNoiseFromDB();
+      not_the_first_event=true;
+    }
+
     
     //Get input
     e.getByLabel( ClusterInfo_src_, dsv_SiStripClusterInfo);
@@ -613,9 +723,7 @@ namespace cms{
     countOff=0;
     countAll=0;
     // istart=oXZHitAngle.size();  
-    
-    //     Anglefinder->init(es);
-    //
+  
     // get geometry to evaluate local angles
     //
     edm::ESHandle<TrackerGeometry> estracker;
@@ -700,27 +808,20 @@ namespace cms{
       // TrackInfo Map, extract TrackInfo for this track
       reco::TrackRef trackref = reco::TrackRef(trackCollection, i);
       
-      //reco::TrackInfoRef trackinforef=(*TItkAssociatorCollection.product())[trackref];
-      reco::TrackInfoRef trackinforefUpd=(*tkiTkAssCollectionUpd.product())[trackref];      
-      reco::TrackInfoRef trackinforefCmb=(*tkiTkAssCollectionCmb.product())[trackref];
-
-      std::vector<std::pair<const TrackingRecHit*, float> > hitangle;
-      hitangle = SeparateHits(trackinforefUpd);
+      SeparateHits(trackref);
       i++;
       
-      //------------------------------------------------------------------------
-      //
-      // try and access Hits
-      //
-      // WORK IN PROGRESS
-      // Continue from here: when the vPSiStripCluster is filled, could fill also a vPSiStripClusterAngle vector, of maybe
-      // turn vPSiStripCluster into a map.
-      // ---------------------------------
-
       int recHitsSize=track->recHitsSize();
       edm::LogInfo("ClusterAnalysis") <<"\t\tNumber of RecHits "<<recHitsSize<<std::endl;
       ((TH1F*) Hlist->FindObject("nRecHits"))->Fill(recHitsSize);
 
+<<<<<<< ClusterAnalysis.cc
+      
+      //------------------------------RESIDUAL at the layer level ------------
+      /*	  
+	    LocalPoint stateposition= 
+	    LocalPoint rechitposition= 
+=======
 
        //------------------------------RESIDUAL at the layer level ------------
 	  
@@ -751,9 +852,15 @@ namespace cms{
 	    LocalPoint stateposition=trackinforefCmb->localTrackPosition(_tkinfoCmbiter->first);
 	    //LocalPoint stateposition= (_tkinfoCmbiter->second.parameters()).position();	
 	    LocalPoint rechitposition= matchedhit->localPosition();
+>>>>>>> 1.20
 	    fillTH1( stateposition.x() - rechitposition.x(),"res_x"+appString,0);
 	    fillTH1( stateposition.y() - rechitposition.y(),"res_y"+appString,0);
 	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
+<<<<<<< ClusterAnalysis.cc
+	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);
+	    
+      */
+=======
 	    ((TProfile*) Hlist->FindObject("ResidualVsAngle"+appString+"_onTrack"))->Fill(angle,stateposition.x()- rechitposition.x(),1);    
 	  }
 	//  std::cout << "detidCmb from track" <<detidCmb << "versus" <<(&(*(*_tkinfoCmbiter).first))->geographicalId().rawId()<< std::endl;
@@ -784,16 +891,17 @@ namespace cms{
 	else {std::cout <<"---No RecHit found-----------"<< std::endl;}
       }
   
+>>>>>>> 1.20
       //---------------------------------------------------------------------
-  
+
       //       for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
       // Loop directly on the vector
       // We are using clusters now, so no matched hits
-      std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator tkangle_iter;
-      // int iter=0;
-      for ( tkangle_iter = hitangle.begin(); tkangle_iter != hitangle.end(); ++tkangle_iter ) {
-	// 	const TrackingRecHit* trh = &(**it);
-	const TrackingRecHit* trh = tkangle_iter->first;
+      HitDirAssociation::const_iterator tkangle_iter;
+      for ( tkangle_iter = _tkHitDirs.begin(); tkangle_iter != _tkHitDirs.end(); ++tkangle_iter ) {
+
+	const TrackingRecHit* trh = tkangle_iter->_TrackingRecHit;
+	
 	const uint32_t& detid = trh->geographicalId().rawId();
 	if (find(ModulesToBeExcluded_.begin(),ModulesToBeExcluded_.end(),detid)!=ModulesToBeExcluded_.end())
 	  continue;
@@ -802,9 +910,8 @@ namespace cms{
 	  LogTrace("ClusterAnalysis")
 	    <<"\n\t\tRecHit on det "<<trh->geographicalId().rawId()
 	    <<"\n\t\tRecHit in LP "<<trh->localPosition()
-	    <<"\n\t\tRecHit track angle "<<tkangle_iter->second
+	    <<"\n\t\tRecHit trackLocal vector "<<tkangle_iter->_LV.y() << " " << tkangle_iter->_LV.y() << tkangle_iter->_LV.z()
 	    <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(trh->geographicalId())->surface().toGlobal(trh->localPosition()) <<std::endl; 
-	  
 	  
 	  //Get SiStripCluster from SiStripRecHit
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(trh);
@@ -814,23 +921,18 @@ namespace cms{
 	    const SiStripCluster* SiStripCluster_ = &*(hit->cluster());
 	    const SiStripClusterInfo* SiStripClusterInfo_ = MatchClusterInfo(SiStripCluster_,detid);
 	    
-	    // WORK IN PROGRESS
-	    // Pass the angle here
-	    //std::cout << "tkangle_iter->second " << tkangle_iter->second<<std::endl;
-	    
-	    if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack", tkangle_iter->second ) ) {
+	    if ( clusterInfos(SiStripClusterInfo_,detid,"_onTrack", *tkangle_iter ) ) {
 	      vPSiStripCluster.push_back(SiStripCluster_);
 	      countOn++;
-	      
 	    }
 	  }else{
 	    LogTrace("ClusterAnalysis") << "NULL hit" << std::endl;
 	  }
 	  
 	}else{
-	LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit On "<<detid<<std::endl;
+	  LogTrace("ClusterAnalysis") <<"\t\t Invalid Hit On "<<detid<<std::endl;
 	}
-      }   
+      } 
           
     }
   }
@@ -855,14 +957,14 @@ namespace cms{
       for(; ClusIter!=DSViter->data.end(); ClusIter++) {
 
 	const SiStripClusterInfo* SiStripClusterInfo_=MatchClusterInfo(&*ClusIter,detid);
-	if ( clusterInfos(SiStripClusterInfo_,detid,"_All") ){
+	if ( clusterInfos(SiStripClusterInfo_,detid,"_All") ){ 
 	  countAll++;
 
 	  LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"] ClusIter " << &*ClusIter << 
 	    "\t " << std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter)-vPSiStripCluster.begin() << std::endl;
 
 	  if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack") )
+	    if ( clusterInfos(SiStripClusterInfo_,detid,"_offTrack") ) 
 	      countOff++;
 	  }
 	}
@@ -890,7 +992,7 @@ namespace cms{
 
   //------------------------------------------------------------------------
   
-  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , float angle){
+  bool ClusterAnalysis::clusterInfos(const SiStripClusterInfo* cluster, const uint32_t& detid,TString flag , const HitDir _HitDir){
     LogTrace("ClusterAnalysis") << "\n["<<__PRETTY_FUNCTION__<<"]" << std::endl;
     
     if (cluster==0) 
@@ -944,6 +1046,17 @@ namespace cms{
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
 
+<<<<<<< ClusterAnalysis.cc
+    float cosXZ = 1;
+    float cosRZ = 1;
+    //std::cout << _HitDir._LV.x() << " " << _HitDir._LV.y() << " " << _HitDir._LV.z() << " " << _HitDir._LV.mag() << std::endl;
+    if (_HitDir._LV.mag()!=0){
+      cosXZ= (_HitDir._LV.x())/sqrt(_HitDir._LV.x()*_HitDir._LV.x()+_HitDir._LV.z()*_HitDir._LV.z());
+      cosRZ= fabs(_HitDir._LV.z())/_HitDir._LV.mag();
+    }
+
+=======
+>>>>>>> 1.20
     //Display
     ((TH3S*) Hlist->FindObject("ClusterGlobalPos"))
       ->Fill(globalPos.z(),globalPos.x(),globalPos.y());
@@ -955,24 +1068,24 @@ namespace cms{
   
     fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
 
+    fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
 
-    if(flag=="_onTrack"){
-      	fillTH1(cluster->charge()*cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
-	((TProfile*) Hlist->FindObject("ClusterWidhtVsAngle"))
-	  ->Fill(angle,cluster->width(),1);
-    }
-    
+    fillTProfile(cosXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
+        
     fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
-
-    if (cluster->noise() && flag=="_onTrack"){
+    
+    if (cluster->noise()){
       fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
-      fillTH1((cluster->charge()/cluster->noise())*cos((angle/180)* TMath::Pi()),"cStoNCorr"+appString,0);
+
+      fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString,0); //Filled only for ontrack
     }
       
     fillTH1(cluster->width(),"cWidth"+appString,0);
 
     fillTH1(cluster->position(),"cPos"+appString,1,cluster->width());
    
+<<<<<<< ClusterAnalysis.cc
+=======
      
     //---- ClusterCharge corrected by angle (Layer)-----
     char cAppL[64];
@@ -985,6 +1098,7 @@ namespace cms{
       }
     if (cluster->noise() && flag=="_onTrack")fillTH1((cluster->charge()/cluster->noise())*cos((angle/180)* TMath::Pi()),"cStoNCorr"+appStringL,1,cluster->width());
     //---------------------------------------------------
+>>>>>>> 1.20
 
     if (cluster->rawdigiAmplitudesL().size()!=0 ||  cluster->rawdigiAmplitudesR().size()!=0){
 	
@@ -1006,7 +1120,11 @@ namespace cms{
 	Qt=Ql+Qr+cluster->maxCharge();
       }
       else{
+<<<<<<< ClusterAnalysis.cc
+	
+=======
 
+>>>>>>> 1.20
 	int Nstrip=cluster->stripAmplitudes().size();
 	float pos=cluster->position()-0.5;
 	for(int is=0;is<Nstrip && cluster->firstStrip()+is<=pos;is++)
@@ -1030,10 +1148,10 @@ namespace cms{
     
       fillTH2((Ql-Qr)/Qt,(Ql+Qr)/Qt,"cEta_scatter"+appString,1,cluster->width());
     }
-    
+
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    //Detector Detail Plots    
     if(flag=="_All"){
-      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      //Detector Detail Plots
       char aname[128];
       //sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
       SiStripDetId a(detid);
@@ -1055,7 +1173,6 @@ namespace cms{
       //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       fillTH1(cluster->charge(),"cSignal"+appString,0);
-      //fillTH1(cluster->charge()*TMath::Cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
 
       fillTH1(cluster->noise(),"cNoise"+appString,0);
 
@@ -1067,18 +1184,18 @@ namespace cms{
 
 
       fillTH1(cluster->position(),"cPos"+appString,0);
+    }
 
-      //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-      // Layer Detail Plots
+    //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+    // Layer Detail Plots
+    char cApp[64];
+    sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
+    appString="_"+TString(GetSubDetAndLayer(detid).first)+cApp;
 
-      char cApp[64];
-      sprintf(cApp,"_Layer_%d",GetSubDetAndLayer(detid).second);
-      appString=TString(GetSubDetAndLayer(detid).first)+cApp;
+    if(flag=="_All"){
       
       fillTH1(cluster->charge(),"cSignal"+appString,0);
-
-      //fillTH1(cluster->charge()*TMath::Cos((angle/180)* TMath::Pi()),"cSignalCorr"+appString,0);
-
+  
       fillTH1(cluster->noise(),"cNoise"+appString,0);
 
       if (cluster->noise()){
@@ -1088,6 +1205,23 @@ namespace cms{
       fillTH1(cluster->width(),"cWidth"+appString,0);
 
       fillTH1(cluster->position(),"cPos"+appString,0);
+    }      
+
+    if(flag=="_onTrack"){
+
+      fillTProfile(cosXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
+      
+      fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString+"_onTrack",0);
+
+      fillTProfile(cosRZ,cluster->charge(),"cSignalVsAngle"+appString+"_onTrack",0);
+
+      if (cluster->noise()){
+	fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString+"_onTrack",0); 
+      }
+      
+      fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().value(),
+		   _HitDir._LV.theta().value()>Geom::pi()/2?Geom::pi()-_HitDir._LV.theta().value():_HitDir._LV.theta().value(),
+		   "AngleVsPhi"+appString+"_onTrack",0);
     }      
     return true;
   }
@@ -1136,6 +1270,19 @@ namespace cms{
     }
   }
 
+  void ClusterAnalysis::fillTProfile(float xvalue,float yvalue,TString name,bool widthFlag,float cwidth){
+
+    for (int iw=0;iw<5;iw++){
+      if ( iw==0 || (iw==4 && cwidth>3) || ( iw>0 && iw<4 && cwidth==iw) ){     
+	TProfile* hh = (TProfile*) Hlist->FindObject(name+width_flags[iw]);
+	if (hh!=0)  
+	  hh->Fill(xvalue,yvalue);
+      }
+      if (!widthFlag)
+	break;
+    }
+  }
+
   void ClusterAnalysis::fillTH2(float xvalue,float yvalue,TString name,bool widthFlag, float cwidth){
 
     for (int iw=0;iw<5;iw++){
@@ -1149,74 +1296,142 @@ namespace cms{
     }
   }
 
-  // To book histograms
-  void ClusterAnalysis::bookHlist(char* ParameterSetLabel, TString & HistoName,
-				   char* Nbinx, char* xmin, char* xmax,
-				   char* Nbiny, char* ymin, char* ymax,
-				   char* Nbinz, char* zmin, char* zmax ) {
-    if ( Nbiny == "" ) {
+  void ClusterAnalysis::bookHlist(char* HistoType, char* ParameterSetLabel, TString & HistoName, char* xTitle, char* yTitle, char* zTitle){
+    if ( HistoType == "TH1" ) {
       Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-      Hlist->Add(new TH1F(HistoName,HistoName,
-			  Parameters.getParameter<int32_t>(Nbinx),
-			  Parameters.getParameter<double>(xmin),
-			  Parameters.getParameter<double>(xmax)
-			  )
-		 );
-
+      TH1F* p = new TH1F(HistoName,HistoName,
+			 Parameters.getParameter<int32_t>("Nbinx"),
+			 Parameters.getParameter<double>("xmin"),
+			 Parameters.getParameter<double>("xmax")
+			 );
+      if ( xTitle != "" )
+	p->SetXTitle(xTitle);
+      if ( yTitle != "" )
+	p->SetYTitle(yTitle);
+      Hlist->Add(p);
     }
-    else if ( Nbinz == "" ) {
+    else if ( HistoType == "TH2" ) {
       Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-      Hlist->Add(new TH2F(HistoName,HistoName,
-			  Parameters.getParameter<int32_t>(Nbinx),
-			  Parameters.getParameter<double>(xmin),
-			  Parameters.getParameter<double>(xmax),
-			  Parameters.getParameter<int32_t>(Nbiny),
-			  Parameters.getParameter<double>(ymin),
-			  Parameters.getParameter<double>(ymax)
-			  )
-		 );
-
-
+      TH2F* p = new TH2F(HistoName,HistoName,
+			 Parameters.getParameter<int32_t>("Nbinx"),
+			 Parameters.getParameter<double>("xmin"),
+			 Parameters.getParameter<double>("xmax"),
+			 Parameters.getParameter<int32_t>("Nbiny"),
+			 Parameters.getParameter<double>("ymin"),
+			 Parameters.getParameter<double>("ymax")
+			 );
+      if ( xTitle != "" )
+	p->SetXTitle(xTitle);
+      if ( yTitle != "" )
+	p->SetYTitle(yTitle);
+      if ( zTitle != "" )
+	p->SetZTitle(zTitle);
+      Hlist->Add(p);
     }
-    else {
+    else if ( HistoType == "TH2" ) {
       Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-      Hlist->Add(new TH3S(HistoName,HistoName,
-			  Parameters.getParameter<int32_t>(Nbinx),
-			  Parameters.getParameter<double>(xmin),
-			  Parameters.getParameter<double>(xmax),
-			  Parameters.getParameter<int32_t>(Nbiny),
-			  Parameters.getParameter<double>(ymin),
-			  Parameters.getParameter<double>(ymax),
-			  Parameters.getParameter<int32_t>(Nbinz),
-			  Parameters.getParameter<double>(zmin),
-			  Parameters.getParameter<double>(zmax)
-			  )
-		 );
-
+      TH2F* p = new TH2F(HistoName,HistoName,
+			 Parameters.getParameter<int32_t>("Nbinx"),
+			 Parameters.getParameter<double>("xmin"),
+			 Parameters.getParameter<double>("xmax"),
+			 Parameters.getParameter<int32_t>("Nbiny"),
+			 Parameters.getParameter<double>("ymin"),
+			 Parameters.getParameter<double>("ymax")
+			 );
+      if ( xTitle != "" )
+	p->SetXTitle(xTitle);
+      if ( yTitle != "" )
+	p->SetYTitle(yTitle);
+      if ( zTitle != "" )
+	p->SetZTitle(zTitle);
+      Hlist->Add(p);
+    }
+    else if ( HistoType == "TH3" ){
+      Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+      TH3S* p = new TH3S(HistoName,HistoName,
+			 Parameters.getParameter<int32_t>("Nbinx"),
+			 Parameters.getParameter<double>("xmin"),
+			 Parameters.getParameter<double>("xmax"),
+			 Parameters.getParameter<int32_t>("Nbiny"),
+			 Parameters.getParameter<double>("ymin"),
+			 Parameters.getParameter<double>("ymax"),
+			 Parameters.getParameter<int32_t>("Nbinz"),
+			 Parameters.getParameter<double>("zmin"),
+			 Parameters.getParameter<double>("zmax")
+			 );
+      if ( xTitle != "" )
+	p->SetXTitle(xTitle);
+      if ( yTitle != "" )
+	p->SetYTitle(yTitle);
+      if ( zTitle != "" )
+	p->SetZTitle(zTitle);
+      Hlist->Add(p);
+    }
+    else if ( HistoType == "TProfile" ){
+      Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
+      TProfile* p =  new TProfile(HistoName,HistoName,
+				  Parameters.getParameter<int32_t>("Nbinx"),
+				  Parameters.getParameter<double>("xmin"),
+				  Parameters.getParameter<double>("xmax"),
+				  Parameters.getParameter<double>("ymin"),
+				  Parameters.getParameter<double>("ymax")
+				  );
+      if ( xTitle != "" )
+	p->SetXTitle(xTitle);
+      if ( yTitle != "" )
+	p->SetYTitle(yTitle);
+      Hlist->Add(p);
+    }
+    else{
+      edm::LogError("ClusterAnalysis")<< "[" <<__PRETTY_FUNCTION__ << "] invalid HistoType " << HistoType << std::endl;
     }
   }
-  
+
   // Method to separate matched rechits in single clusters and to take
   // the cluster from projected rechits and evaluate the track angle 
   
-  std::vector<std::pair<const TrackingRecHit*,float> > ClusterAnalysis::SeparateHits(reco::TrackInfoRef & trackinforef) {
-    std::vector<std::pair<const TrackingRecHit*,float> >hitangleassociation;
+  void ClusterAnalysis::SeparateHits(reco::TrackRef& trackref) {
+    _tkHitDirs.clear();
+    reco::TrackInfoRef trackinforef=(*tkiTkAssCollectionUpd.product())[trackref];      
+    reco::TrackInfoRef trackinforefCmb=(*tkiTkAssCollectionCmb.product())[trackref];
+
     for(_tkinfoiter=trackinforef->trajStateMap().begin();_tkinfoiter!=trackinforef->trajStateMap().end();++_tkinfoiter) {
       const ProjectedSiStripRecHit2D* phit=dynamic_cast<const ProjectedSiStripRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*(_tkinfoiter->first)));
       const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(&(*(_tkinfoiter->first)));
+<<<<<<< ClusterAnalysis.cc
+      LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
+      
+      //Combined State infos
+      LocalVector trackdirectionCmb= trackinforefCmb->stateOnDet(_tkinfoiter->first).parameters().momentum();
+      //LocalPoint trackPointCmb= trackinforefCmb->stateOnDet(_tkinfoiter->first).parameters().position();
+      //
+=======
       //      LocalVector trackdirection=(_tkinfoiter->second.parameters()).momentum();
       LocalVector trackdirection=  ((_tkinfoiter->second.stateOnDet()).parameters()).momentum();
+>>>>>>> 1.20
 
       if (phit) {
  	//phit = POINTER TO THE PROJECTED RECHIT
  	hit=&(phit->originalHit());
-	std::cout << "ProjectedHit found" << std::endl;
+	LogTrace("ClusterAnalysis") << "ProjectedHit found" << std::endl;
       }
       if(matchedhit){//if matched hit...
-	std::cout<<"MatchedHit found"<<std::endl;
+	LogTrace("ClusterAnalysis")<<"MatchedHit found"<<std::endl;
  	GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
  	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
+<<<<<<< ClusterAnalysis.cc
+ 	GlobalVector gtrkdirCmb=gdet->toGlobal(trackdirectionCmb);
+ 		
+ 	// THIS THE POINTER TO THE MONO HIT OF A MATCHED HIT
+	HitDir A;
+	A._TrackingRecHit=matchedhit->monoHit();
+	A._LV=gdet->monoDet()->toLocal(gtrkdir);
+	A._GV=gtrkdir;
+	A._LVcmb=gdet->monoDet()->toLocal(gtrkdirCmb);
+	A._GVcmb=gtrkdirCmb;
+	_tkHitDirs.push_back ( A );
+=======
  	std::cout<<"Track direction trasformed in global direction"<<std::endl;
 	
  	//cluster and trackdirection on mono det
@@ -1239,7 +1454,17 @@ namespace cms{
  	  oYZHitAngle.push_back( std::make_pair( monohit, atan( monotkdir.y()/ monotkdir.z())));
  	  oLocalDir.push_back( std::make_pair( monohit, monotkdir));
  	  oGlobalDir.push_back( std::make_pair( monohit, gtrkdir));
+>>>>>>> 1.20
 	  
+<<<<<<< ClusterAnalysis.cc
+	// THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
+	A._TrackingRecHit=matchedhit->stereoHit();
+	A._LV=gdet->stereoDet()->toLocal(gtrkdir);
+	A._LVcmb=gdet->stereoDet()->toLocal(gtrkdirCmb);
+	A._GV=gtrkdir;
+	A._GVcmb=gtrkdirCmb;
+	_tkHitDirs.push_back ( A );
+=======
 	  
  	  // THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
  	  const SiStripRecHit2D *stereohit=matchedhit->stereoHit();
@@ -1259,29 +1484,101 @@ namespace cms{
  	    oGlobalDir.push_back( std::make_pair( stereohit, gtrkdir));
  	  }
  	}
+>>>>>>> 1.20
       }
       else if(hit) {
 	//  hit= POINTER TO THE RECHIT
-	const edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > cluster=hit->cluster();
+	LogTrace("ClusterAnalysis")<<"MonoHit found"<<std::endl;
 	GeomDet * gdet=(GeomDet *)_tracker->idToDet(hit->geographicalId());
-	//size=(cluster->amplitudes()).size();
-	  
-	if(trackdirection.z()!=0){
-	    
-	  // THE LOCAL ANGLE (STEREO)
-	  float angle = atan(trackdirection.x()/ trackdirection.z())*180/TMath::Pi();
-	  hitangleassociation.push_back(std::make_pair(hit, angle)); 
-	  oXZHitAngle.push_back( std::make_pair( hit, atan( trackdirection.x()/ trackdirection.z())));
-	  oYZHitAngle.push_back( std::make_pair( hit, atan( trackdirection.y()/ trackdirection.z())));
-	  oLocalDir.push_back( std::make_pair( hit, trackdirection));
-	  GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
-	  oGlobalDir.push_back( std::make_pair( hit, gtrkdir));
-	}
+	HitDir A;
+	A._TrackingRecHit=hit;
+	A._LV=trackdirection;
+	A._GV=gdet->toGlobal(trackdirection);
+	A._LVcmb=trackdirectionCmb;
+	A._GVcmb=gdet->toGlobal(trackdirectionCmb);
+	_tkHitDirs.push_back ( A );
       }
       else {
-	std::cout << "not matched, mono or projected rechit" << std::endl;
+	edm::LogError("ClusterAnalysis") << "not matched, mono or projected rechit" << std::endl;
       }
     } // end loop on rechits
-    return (hitangleassociation);
+  }
+
+  void ClusterAnalysis::fillPedNoiseFromDB(){
+    std::vector<uint32_t> vdetId_;
+    SiStripDetCabling_->addActiveDetectorsRawIds(vdetId_);
+
+    for (std::vector<uint32_t>::const_iterator detid_iter=vdetId_.begin();detid_iter!=vdetId_.end();detid_iter++){
+      
+      uint32_t detid = *detid_iter;
+      
+      if (detid < 1){
+	edm::LogError("ClusterAnalysis")<< "[" <<__PRETTY_FUNCTION__ << "] invalid detid " << detid<< std::endl;
+	continue;
+      }
+      const StripGeomDetUnit* _StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(detid)));
+      if (_StripGeomDetUnit==0){
+	continue;
+      }
+    
+      
+      unsigned int nstrips = _StripGeomDetUnit->specificTopology().nstrips();
+
+      //&&&&&&&&&&&&&&
+      // Retrieve information for the module
+      //&&&&&&&&&&&&&&&&&&     
+      char cdetid[128];
+      sprintf(cdetid,"%d",detid);
+      char aname[128];
+      sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+      char SubStr[128];
+    
+      SiStripDetId a(detid);
+      if ( a.subdetId() == 3 ){
+	TIBDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
+      } else if ( a.subdetId() == 4 ) {
+	TIDDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
+      } else if ( a.subdetId() == 5 ) {
+	TOBDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
+      } else if ( a.subdetId() == 6 ) {
+	TECDetId b(detid);
+	sprintf(SubStr,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
+      }
+      
+      TString appString=TString(SubStr);
+      
+      fFile->cd();fFile->cd(cdetid);
+
+      name="DBPedestals"+appString;
+      TH1F* pPed = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
+      Hlist->Add(pPed);
+    
+      name="DBNoise"+appString;
+      TH1F* pNoi = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
+      Hlist->Add(pNoi);
+    
+      name="DBBadStrips"+appString;
+      TH1F* pBad = new TH1F(name,name,nstrips,-0.5,nstrips-0.5);
+      Hlist->Add(pBad);
+
+	
+      for(size_t istrip=0;istrip<nstrips;istrip++){
+	try{
+	  //Fill Pedestals
+	  pPed->Fill(istrip,SiStripPedestalsService_.getPedestal(detid,istrip));
+	
+	  //Fill Noises
+	  pNoi->Fill(istrip,SiStripNoiseService_.getNoise(detid,istrip));
+	
+	  //Fill BadStripsNoise
+	  pBad->Fill(istrip,SiStripNoiseService_.getDisable(detid,istrip)?1.:0.);
+	}catch(cms::Exception& e){
+	  edm::LogError("SiStripCondObjDisplay") << "[SiStripCondObjDisplay::endJob]  cms::Exception:  DetName " << name << " " << e.what() ;
+	}
+      }
+    }
   }
 }
