@@ -6,8 +6,8 @@
  *  The time box rising edge can be fitted using exactly the same code that is
  *  used by the calibration application.
  *
- *  $Date: 2006/07/03 14:27:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/21 12:26:32 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -54,7 +54,7 @@ public:
   /// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
   void setVerbosity(unsigned int lvl);
   void setInteractiveFit(bool isInteractive);
-    
+  void setRebinning(int rebin);
 
 protected:
 

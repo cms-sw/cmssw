@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/03 14:27:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/07/21 12:26:32 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -211,7 +211,11 @@ void DTTimeBoxPlotter::setVerbosity(unsigned int lvl) {
   theFitter->setVerbosity(lvl);
 }
 
-// Set the verbosity of the output: 0 = silent, 1 = info, 2 = debug
 void DTTimeBoxPlotter::setInteractiveFit(bool isInteractive) {
   theFitter->setInteractiveFit(isInteractive);
 }
+
+void DTTimeBoxPlotter::setRebinning(int rebin) {
+  theFitter->setRebinning(rebin);
+}
+

@@ -5,8 +5,8 @@
  *  Fit the rising edge of the time box with the integral
  *  of a gaussian returning the mean value and the sigma.
  *
- *  $Date: 2006/07/21 12:26:31 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/22 11:10:27 $
+ *  $Revision: 1.3 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -49,6 +49,11 @@ public:
     interactiveFit = isInteractive;
   }
 
+ /// Set the rebin
+  void setRebinning(int reb) {
+    rebin = reb;
+  }
+
 protected:
 
 private:
@@ -57,6 +62,7 @@ private:
 
   unsigned int theVerbosityLevel;
   bool interactiveFit;
+  int rebin;
 };
 
 // Define the integral of the gaussian to be used in the fit
