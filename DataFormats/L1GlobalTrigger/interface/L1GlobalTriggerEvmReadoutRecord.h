@@ -27,6 +27,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
@@ -93,8 +94,8 @@ public:
 
 
     /// get / set GTFE word (record) in the GT readout record
-    const L1GtfeWord gtfeWord() const;
-    void setGtfeWord(const L1GtfeWord&);
+    const L1GtfeExtWord gtfeWord() const;
+    void setGtfeWord(const L1GtfeExtWord&);
 
     /// get / set TCS word (record) in the GT readout record
     const L1TcsWord tcsWord() const;
@@ -118,7 +119,7 @@ public:
 
 private:
 
-    L1GtfeWord m_gtfeWord;
+    L1GtfeExtWord m_gtfeWord;
     L1TcsWord m_tcsWord;
     
     std::vector<L1GtFdlWord> m_gtFdlWord;

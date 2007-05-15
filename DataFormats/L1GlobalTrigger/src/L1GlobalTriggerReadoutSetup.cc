@@ -27,6 +27,22 @@
 L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
 {
 
+    // create boards
+    GtBoard gtfeBoard = {GTFE, 0};
+
+    GtBoard tcsBoard = {TCS, 0};
+
+    GtBoard timBoard = {TIM, 0};
+
+    GtBoard fdlBoard = {FDL, 0};
+
+    // later, loop over (int iPsb = 0; iPsb < NumberPsbBoards;) to set boardIndex
+    GtBoard psbBoard;
+    psbBoard.boardType = PSB;
+
+    GtBoard gmtBoard = {GMT, 0};
+
+
     //populate the maps
 
     // L1 GT DAQ record map
@@ -37,25 +53,40 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     // GTFE position 1
     int iBoard = 1;
 
-    GtBoard gtfeBoard = {GTFE, 0};
     GtDaqRecordMap[iBoard] = gtfeBoard;
     iBoard++;
 
-    GtBoard fdlBoard = {FDL, 0};
     GtDaqRecordMap[iBoard] = fdlBoard;
     iBoard++;
 
-    GtBoard psbBoard;
-    psbBoard.boardType = PSB;
     for (int iPsb = 0; iPsb < NumberPsbBoards; ++iPsb) {
         psbBoard.boardIndex = iPsb;
         GtDaqRecordMap[iBoard] = psbBoard;
         iBoard++;
     }
 
-    GtBoard gmtBoard = {GMT, 0};
     GtDaqRecordMap[iBoard] = gmtBoard;
 
+    // trailer has latest position
+
+    // L1 GT EVM record map
+    //    gives the position of each block in the GT EVM readout record
+
+    // header has position 0
+
+    // GTFE position 1
+    int iBoardEvm = 1;
+
+    GtEvmRecordMap[iBoardEvm] = gtfeBoard;
+    iBoardEvm++;
+
+    GtEvmRecordMap[iBoardEvm] = tcsBoard;
+    iBoardEvm++;
+
+    GtEvmRecordMap[iBoardEvm] = fdlBoard;
+    iBoardEvm++;
+
+    // trailer has latest position
 
 
     // L1 GT active boards map
@@ -78,18 +109,26 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iBit++;
 
     gmtBoard.boardIndex = 1; // spare, not used
-
     GtDaqActiveBoardsMap[gmtBoard] = iBit;
     iBit++;
-
-    GtBoard tcsBoard = {TCS, 0};
 
     GtDaqActiveBoardsMap[tcsBoard] = iBit;
     iBit++;
 
-    GtBoard timBoard = {TIM, 0};
-
     GtDaqActiveBoardsMap[timBoard] = iBit;
+    iBit++;
+
+
+    // L1 GT active boards map
+    //    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
+    //    for the GT EVM readout record
+
+    int iEvmBit = 0;
+
+    GtEvmActiveBoardsMap[tcsBoard] = iEvmBit;
+    iEvmBit++;
+
+    GtEvmActiveBoardsMap[fdlBoard] = iEvmBit;
     iBit++;
 
 
@@ -144,7 +183,7 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     // L1 GT board name in hw record map
     //    gives the bits written for each GT board in the Board_Id
 
-//    GtBoardHexNameMap[GTFE] = 0x00; // not used, as only 8 bits are available
+    GtBoardHexNameMap[GTFE] = 0x00; // not used, as only 8 bits are available
     GtBoardHexNameMap[FDL]  = 0xfd;
     GtBoardHexNameMap[PSB]  = 0xbb;
     GtBoardHexNameMap[GMT]  = 0xdd; // TODO GMT_spare has 0xde FIXME when board available

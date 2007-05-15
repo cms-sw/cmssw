@@ -103,10 +103,19 @@ public:
     ///    gives the position of each block in the GT DAQ readout record
     std::map<int, GtBoard> GtDaqRecordMap;
 
+    /// L1 GT EVM record map
+    ///    gives the position of each block in the GT EVM readout record
+    std::map<int, GtBoard> GtEvmRecordMap;
+
     /// L1 GT active boards map
     ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
     ///    for the GT DAQ readout record
     std::map<GtBoard, int> GtDaqActiveBoardsMap;
+
+    /// L1 GT active boards map
+    ///    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
+    ///    for the GT EVM readout record
+    std::map<GtBoard, int> GtEvmActiveBoardsMap;
 
     /// L1 GT board - slot map
     ///    gives the slot of each GT board (part of Board_Id)

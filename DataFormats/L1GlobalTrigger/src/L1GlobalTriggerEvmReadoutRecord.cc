@@ -29,6 +29,7 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GtfeExtWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtFdlWord.h"
 
@@ -39,7 +40,7 @@
 L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord()
 {
 
-    m_gtfeWord = L1GtfeWord();
+    m_gtfeWord = L1GtfeExtWord();
     m_tcsWord  = L1TcsWord();
 
     // reserve just one L1GtFdlWord
@@ -51,7 +52,7 @@ L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord()
 L1GlobalTriggerEvmReadoutRecord::L1GlobalTriggerEvmReadoutRecord(int NumberBxInEvent)
 {
 
-    m_gtfeWord = L1GtfeWord();
+    m_gtfeWord = L1GtfeExtWord();
     m_tcsWord  = L1TcsWord();
 
     m_gtFdlWord.reserve(NumberBxInEvent);
@@ -335,14 +336,14 @@ void L1GlobalTriggerEvmReadoutRecord::printTechnicalTrigger(std::ostream& myCout
 // get/set hardware-related words
 
 // get / set GTFE word (record) in the GT readout record
-const L1GtfeWord L1GlobalTriggerEvmReadoutRecord::gtfeWord() const
+const L1GtfeExtWord L1GlobalTriggerEvmReadoutRecord::gtfeWord() const
 {
 
     return m_gtfeWord;
 
 }
 
-void L1GlobalTriggerEvmReadoutRecord::setGtfeWord(const L1GtfeWord& gtfeWordValue)
+void L1GlobalTriggerEvmReadoutRecord::setGtfeWord(const L1GtfeExtWord& gtfeWordValue)
 {
 
     m_gtfeWord = gtfeWordValue;
