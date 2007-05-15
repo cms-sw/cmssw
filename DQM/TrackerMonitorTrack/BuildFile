@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQM/SiStripCommon>
 <use name=DQMServices/Core>
@@ -13,11 +13,11 @@
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
-<flags SEAL_PLUGIN_NAME="DQMTrackerMonitorTrack">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMTrackerMonitorTrack>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQM/SiStripCommon>
    <use name=DQMServices/Core>
