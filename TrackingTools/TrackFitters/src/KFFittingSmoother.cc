@@ -54,8 +54,8 @@ fit(const TrajectorySeed& aSeed,
     smoothed = smoothingStep(fitted);
 
     if (smoothed.size()==0) return vector<Trajectory>();
-    if (smoothed[0].foundHits()<theMinNumberOfHits) return vector<Trajectory>();
     if (theEstimateCut>0){
+    if (smoothed[0].foundHits()<theMinNumberOfHits) return vector<Trajectory>();
       //check if there are outliers
       std::vector<TrajectoryMeasurement> vtm = smoothed[0].measurements();
       for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
