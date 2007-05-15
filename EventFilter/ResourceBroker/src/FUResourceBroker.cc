@@ -393,7 +393,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
 {
   if (0==resourceTable_) return;
   
-  gui_->lockInfoSpaces();
+  gui_->monInfoSpace()->lock();
   
   if (e.type()=="ItemRetrieveEvent") {
     
@@ -422,7 +422,7 @@ void FUResourceBroker::actionPerformed(xdata::Event& e)
     if (item=="runNumber")    resourceTable_->resetCounters();
   }
  
-  gui_->unlockInfoSpaces();
+  gui_->monInfoSpace()->unlock();
 }
 
 
@@ -468,7 +468,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   uint64_t     deltaInputSumOfSquares;
   uint64_t     deltaOutputSumOfSquares;
   
-  gui_->lockInfoSpaces();
+  gui_->monInfoSpace()->lock();
   
   deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
   monStartTime_=monEndTime;
@@ -493,7 +493,7 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
   deltaOutputSumOfSizes_.value_=nbOutputSumOfSizes-nbOutputLastSumOfSizes_;
   nbOutputLastSumOfSizes_=nbOutputSumOfSizes;
   
-  gui_->unlockInfoSpaces();
+  //gui_->monInfoSpace()->unlock();
   
   if (nbProcessed!=0)
     ratio_=(double)nbOutput/(double)nbProcessed;
@@ -542,7 +542,9 @@ bool FUResourceBroker::monitoring(toolbox::task::WorkLoop* wl)
     outputAverage_=0.0;
     outputRms_    =0.0;
   }
-  
+
+  gui_->monInfoSpace()->unlock();  
+
   ::sleep(monSleepSec_.value_);
   
   return true;

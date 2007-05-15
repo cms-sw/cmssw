@@ -1,3 +1,11 @@
+2007-05-15  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-12
+	* possibly fixed the dead-lock problem: instead of locking both
+	the application- and monitor-infospace via
+	WebBUI::lockInfoSpaces() [dangerous!], only lock the
+	monitor-inofspace instead.
+
 2007-05-14  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-11
