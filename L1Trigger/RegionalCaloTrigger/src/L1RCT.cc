@@ -15,7 +15,7 @@ using std::endl;
 
 //#include "DataFormats/L1CaloTrigger/interface/L1CaloEmCand.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
 //Main method to process a single event, hence the name.
@@ -138,7 +138,6 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
 
-  //cout << "L1RCT: L1RCT.digiInput() entered" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
@@ -162,13 +161,13 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
     if ((crate<18) && (card<7) && ((tower - 1)<32)) {             // changed 64 to 32 Sept. 19 J. Leonard
       barrel.at(crate).at(card).at(tower - 1) = ecalInput;        // 
     }
-    else { cerr << "L1RCT: out of range!"; }
+    else { std::cerr << "L1RCT: out of range!"; }
   }
 
 //same for hcal, once we get the hcal digis, just need to add 32 to towers:
 // just copied and pasted and changed names where necessary
   int nHcalDigi = hcalCollection.size();
-  if (nHcalDigi != 4176){ cout << "There are " << nHcalDigi << " instead of 4176!" << endl;}
+  if (nHcalDigi != 4176){ std::cout << "There are " << nHcalDigi << " instead of 4176!" << std::endl;}
   // incl HF 4032 + 144 = 4176
   for (int i = 0; i < nHcalDigi; i++){
     short ieta = (short) hcalCollection[i].id().ieta(); 
@@ -200,14 +199,14 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
       if ((crate<18) && (card<7) && ((tower - 1)<32)) {               // changed 64 to 32 Sept. 19 J. Leonard
         barrel.at(crate).at(card).at(tower - 1 + 32) = hcalInput;  // hcal towers are ecal + 32 see RC.cc
       }
-      else { cout << "L1RCT: out of range!"; }
+      else { std::cout << "L1RCT: hcal out of range!"; }
     }
     else if ((absIeta >= 29) && (absIeta <= 32)){
       // put input into correct crate/region of HF
       if ((crate<18) && (tower<8)) {
         hf.at(crate).at(tower) = hcalInput;
       }
-      else { cout << "L1RCT: out of range!"; }
+      else { std::cout << "L1RCT: hf out of range!"; }
     }
   }
   input(barrel,hf);
@@ -385,7 +384,7 @@ void L1RCT::shareNeighbors(){
 
 void L1RCT::print(){
   for(int i = 0; i<18; i++){
-    cout << "Crate " << i << endl;
+    std::cout << "Crate " << i << std::endl;
     crates.at(i).print();
   } 
 }
@@ -483,23 +482,24 @@ unsigned short L1RCT::calcIPhi(unsigned short iCrate, unsigned short iCard, unsi
 L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
   vector<unsigned short> isoEmObjects = crates.at(crate).getIsolatedEGObjects();
   L1CaloEmCollection isoEmCands;
-  // cout << "\nCrate " << crate << endl;
+  // std::cout << "\nCrate " << crate << std::endl;
   for (int i = 0; i < 4; i++){
     unsigned short rgn = ((isoEmObjects.at(i)) & 1);
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((isoEmObjects.at(i))/16);  // up to 8-bits
+    unsigned short energy = ((isoEmObjects.at(i))/16);
     unsigned short rank;
-    if (!patternTest_)
-      {
-	rank = energy / 2;   // Drop the lowest bit
-	if (rank > 0x3f) rank = 0x3f; // Peg it to 6-bits
-      }
-    else
-      {
-	rank = energy;
-	if (rank > 0x3f) rank = 0x3f;
-      }
+    //if (!patternTest_)
+    //  {
+    rank = gctEmScale->rank(energy);
+    //  }
+    //else
+    //{
+    //rank = energy;
+    //if (rank > 0x3f) rank = 0x3f;
+    //  }
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
+    // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
+    // std::cout << "card " << crd << "region " << rgn << "energy " << energy << std::endl;
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;
@@ -514,19 +514,19 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
   for (int i = 0; i < 4; i++){
     unsigned short rgn = ((nonIsoEmObjects.at(i)) & 1);
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((nonIsoEmObjects.at(i))/16);  // up to 8-bits
+    unsigned short energy = ((nonIsoEmObjects.at(i))/16);
     unsigned short rank;
-    if (!patternTest_)
-      {
-	rank = energy / 2;   // Drop the lowest bit
-	if (rank > 0x3f) rank = 0x3f; // Peg it to 6-bits
-      }
-    else
-      {
-	rank = energy;
-	if (rank > 0x3f) rank = 0x3f;
-      }
+    //    if (!patternTest_)
+    //      {
+    rank = gctEmScale->rank(energy);
+    //      }
+    //    else
+    //      {
+    //	rank = energy;
+    //	if (rank > 0x3f) rank = 0x3f;
+    //      }
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
+    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;
@@ -544,7 +544,7 @@ vector<L1CaloRegion> L1RCT::getRegions(int crate){
   for (int card = 0; card < 7; card++){
     for (int rgn = 0; rgn < 2; rgn++){
       unsigned short tau = taus[card*2+rgn];
-      //      cout << "Crate: " << crate << "\tCard: " << card << "\tRegion: " << rgn << "\tTau veto " << tau << endl;
+      //      std::cout << "Crate: " << crate << "\tCard: " << card << "\tRegion: " << rgn << "\tTau veto " << tau << std::endl;
       unsigned short mip = mips[card*2+rgn];
       unsigned short quiet = quiets[card*2+rgn];
       unsigned short overflow = overflows[card*2+rgn];
