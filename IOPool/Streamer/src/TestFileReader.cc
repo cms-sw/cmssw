@@ -52,7 +52,6 @@ namespace edmtestp
 
    const InitMsgView* init =  stream_reader_->startMessage();
    std::auto_ptr<edm::SendJobHeader> p = StreamDeserializer::deserializeRegistry(*init);
-
     /**
     if(!ist_)
       {
