@@ -1,12 +1,12 @@
 /*
  * 
- * $Date: 2007/05/03 13:39:43 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/08 09:09:17 $
+ * $Revision: 1.2 $
  * \author A. Gresele - INFN Trento
  *
  */
 
-#include <DQM/DTMonitorClient/interface/DTNoiseTest.h>
+#include "DQM/DTMonitorClient/src/DTNoiseTest.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
