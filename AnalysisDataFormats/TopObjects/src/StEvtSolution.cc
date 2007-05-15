@@ -24,11 +24,9 @@ StEvtSolution::StEvtSolution()
   jetMatchPur  	= -999.;
   signalPur   	= -999.;
   sumDeltaRjp   = -999.;
-  deltaRhadp   	= -999.;
-  deltaRhadq   	= -999.;
-  deltaRhadb   	= -999.;
-  deltaRlepb   	= -999.;
-  changeWQ     	= -999;
+  deltaRB   	= -999.;
+  deltaRL   	= -999.;
+  changeBL     	= -999;
   bestSol	= false;
 }
 
@@ -62,11 +60,9 @@ void StEvtSolution::setGenEvt(vector<Candidate *> particles){
   genLept = (Particle) (*(particles[5]));
 }
 void StEvtSolution::setSumDeltaRjp(double sdr)		{ sumDeltaRjp = sdr; }
-void StEvtSolution::setDeltaRhadp(double adr)		{ deltaRhadp  = adr; }
-void StEvtSolution::setDeltaRhadq(double adr)		{ deltaRhadq  = adr; }
-void StEvtSolution::setDeltaRhadb(double adr)		{ deltaRhadb  = adr; }
-void StEvtSolution::setDeltaRlepb(double adr)		{ deltaRlepb  = adr; }
-void StEvtSolution::setChangeWQ(int wq)			{ changeWQ    = wq;  }
+void StEvtSolution::setDeltaRB(double adr)		{ deltaRB  = adr; }
+void StEvtSolution::setDeltaRL(double adr)		{ deltaRL  = adr; }
+void StEvtSolution::setChangeBL(int bl)			{ changeBL    = bl;  }
 void StEvtSolution::setBestSol(bool bs)			{ bestSol     = bs;  }
       
 

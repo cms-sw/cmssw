@@ -36,11 +36,9 @@ class StEvtSolution
       
       void setGenEvt(vector<Candidate *>);
       void setSumDeltaRjp(double);
-      void setDeltaRhadp(double);
-      void setDeltaRhadq(double);
-      void setDeltaRhadb(double);
-      void setDeltaRlepb(double);
-      void setChangeWQ(int);
+      void setDeltaRB(double);
+      void setDeltaRL(double);
+      void setChangeBL(int);
       void setBestSol(bool);
 
       
@@ -66,11 +64,9 @@ class StEvtSolution
       Particle 			getGenLepW() const		{ return genLepW; };
       Particle 			getGenLept() const		{ return genLept; };
       double 			getSumDeltaRjp() const		{ return sumDeltaRjp; };
-      double 			getDeltaRhadp() const		{ return deltaRhadp; };
-      double 			getDeltaRhadq() const		{ return deltaRhadq; };
-      double 			getDeltaRhadb() const		{ return deltaRhadb; };
-      double 			getDeltaRlepb() const		{ return deltaRlepb; };
-      int			getChangeWQ() const		{ return changeWQ; };
+      double 			getDeltaRB() const		{ return deltaRB; };
+      double 			getDeltaRL() const		{ return deltaRL; };
+      int			getChangeBL() const		{ return changeBL; };
       bool			getBestSol() const		{ return bestSol; };
       
       JetType		        getRecBottom() const;
@@ -101,9 +97,9 @@ class StEvtSolution
       TopMETObject 	    	met;
       string        		decay;
       double 	    		chi2, jetMatchPur, signalPur, ptrueCombExist, signalLRtot, ptrueBJetSel, ptrueBhadrSel, ptrueJetComb;
-      double			sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
+      double			sumDeltaRjp,deltaRB,deltaRL;
       bool			bestSol;
-      int 			changeWQ;
+      int 			changeBL;
       std::vector<double> 	scanValues;
 };
 

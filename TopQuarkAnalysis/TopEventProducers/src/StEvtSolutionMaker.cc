@@ -102,7 +102,6 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      }
      
      // if asked for, match the event solutions to the gen Event
-     /* to be adapted to ST (Andrea)
      if(matchToGenEvt_){
        Handle<StGenEvent> genEvt;
        iEvent.getByLabel ("genEvt",genEvt);
@@ -111,17 +110,14 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
        for(size_t s=0; s<evtsols->size(); s++) {
          (*evtsols)[s].setGenEvt(genEvt->particles());
          vector<double> bm = BestMatch((*evtsols)[s], false); //false to use DR, true SpaceAngles
-         (*evtsols)[s].setSumDeltaRjp(bm[0]);
-         (*evtsols)[s].setChangeWQ((int) bm[1]);
-         (*evtsols)[s].setDeltaRhadp(bm[2]);
-         (*evtsols)[s].setDeltaRhadq(bm[3]);
-         (*evtsols)[s].setDeltaRhadb(bm[4]);
-         (*evtsols)[s].setDeltaRlepb(bm[5]);
+         (*evtsols)[s].setSumDeltaRjp(bm[0]); // dRBB + dRLL
+         (*evtsols)[s].setChangeBL((int) bm[1]); // has swapped or not
+         (*evtsols)[s].setDeltaRB(bm[2]);
+         (*evtsols)[s].setDeltaRL(bm[3]);
 	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
        }
        (*evtsols)[bestSol].setBestSol(true);
      }
-     */
      
      //store the vector of solutions to the event     
      auto_ptr<vector<StEvtSolution> > pOut(evtsols);
@@ -130,7 +126,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    else
    {
 
-     cout<<"No calibrated solutions build, because:  " << endl;;
+     cout<<"@@@ No calibrated solutions built, because:  " << endl;;
      if(jets->size()<maxJets)      					  cout<<"@ nr sel jets = " << jets->size() << " < " << maxJets <<endl;
      if(leptonFlavour_ == "muon" && muons->size() == 0)    	  cout<<"@ no good muon candidate"<<endl;
      if(leptonFlavour_ == "electron" && electrons->size() == 0)   cout<<"@ no good electron candidate"<<endl;
