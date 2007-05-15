@@ -1,4 +1,5 @@
 #include "IOPool/Streamer/interface/InitMessage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 InitMsgView::InitMsgView(void* buf):
   buf_((uint8*)buf),head_(buf)
@@ -14,7 +15,18 @@ InitMsgView::InitMsgView(void* buf):
   release_len_ = *release_start_;
   release_start_ += sizeof(uint8);
 
-  hlt_trig_start_ = release_start_ + release_len_;
+  //Lets get Process Name from right after Release Name  
+  if (protocolVersion() > 3) {
+	std::cout << "Protocol Version > 3 encountered" << std::endl;
+	processName_len_ = *(release_start_ + release_len_);
+	processName_start_ = (uint8*)(release_start_ + release_len_ + sizeof(uint8));
+
+  	hlt_trig_start_ = processName_start_ + processName_len_;
+
+  } else {
+  	hlt_trig_start_ = release_start_ + release_len_;
+  }
+
   hlt_trig_count_ = convert32(hlt_trig_start_);
   hlt_trig_start_ += sizeof(char_uint32);
   hlt_trig_len_ = convert32(hlt_trig_start_);
@@ -24,7 +36,6 @@ InitMsgView::InitMsgView(void* buf):
   l1_trig_start_ += sizeof(char_uint32);
   l1_trig_len_ = convert32(l1_trig_start_);
   l1_trig_start_ += sizeof(char_uint32);
-
   desc_start_ = l1_trig_start_ + l1_trig_len_;
   desc_len_ = convert32(desc_start_);
   desc_start_ += sizeof(char_uint32);
@@ -52,6 +63,16 @@ std::string InitMsgView::releaseTag() const
 {
   return std::string(reinterpret_cast<char *>(release_start_),release_len_);
 }
+
+std::string InitMsgView::processName() const
+{
+   if (protocolVersion() < 4)
+      throw cms::Exception("Invalid Message Version", "InitMsgView")
+        << "Process Name is only supported in Protocol Version 4 and above" << ".\n";
+
+   return std::string(reinterpret_cast<char *>(processName_start_),processName_len_);
+}
+
 
 void InitMsgView::hltTriggerNames(Strings& save_here) const
 {

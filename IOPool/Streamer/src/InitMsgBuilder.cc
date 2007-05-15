@@ -4,6 +4,7 @@
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,
                                const char* release_tag,
+			       const char* process_name,		       
                                const Strings& hlt_names,
                                const Strings& l1_names):
   buf_((uint8*)buf),size_(size)
@@ -21,12 +22,20 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   memcpy(pos,release_tag,tag_len); // copy release tag in
   pos += tag_len;
 
+  //Lets put Process Name (Length and then Name) right after release_tag
+  uint32 process_name_len = strlen(process_name);
+  assert(process_name_len < 0x00ff);
+  //Put process_name_len
+  *pos++ = process_name_len;
+  //Put process_name
+  memcpy(pos,process_name,process_name_len);
+  pos += process_name_len;
+
   pos = fillNames(hlt_names,pos);
   pos = fillNames(l1_names,pos);
 
   desc_addr_ = pos + sizeof(char_uint32);
   setDescLength(0);
-
 
   // Two news fileds added to InitMsg in Proto V3 init_header_size, and event_header_size.
   //Set the size of Init Header Start of buf to Start of desc.
