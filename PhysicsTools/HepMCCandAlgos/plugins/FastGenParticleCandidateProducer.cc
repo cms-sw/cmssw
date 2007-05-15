@@ -2,10 +2,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.12 2007/05/04 13:44:19 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.13 2007/05/04 13:45:45 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidateFwd.h"
 #include <vector>
@@ -28,7 +29,7 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   /// process one event
   void produce( edm::Event& e, const edm::EventSetup& );
   /// source collection name  
-  std::string src_;
+  edm::InputTag src_;
   /// internal functional decomposition
   void fillIndices( const HepMC::GenEvent *, 
 	     std::vector<const HepMC::GenParticle *> & ) const;
@@ -73,7 +74,7 @@ static const int PDGCacheMax = 32768;
 static const double mmToCm = 0.1;
 
 FastGenParticleCandidateProducer::FastGenParticleCandidateProducer( const ParameterSet & p ) :
-  src_( p.getParameter<string>( "src" ) ),
+  src_( p.getParameter<InputTag>( "src" ) ),
   chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ) {
   produces<CandidateCollection>();
 }

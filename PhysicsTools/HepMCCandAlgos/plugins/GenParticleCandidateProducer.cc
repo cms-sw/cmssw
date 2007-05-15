@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.12 2007/05/04 13:47:37 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.13 2007/05/09 08:11:39 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -33,7 +33,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   /// process one event
   void produce( edm::Event& e, const edm::EventSetup& );
   /// source collection name  
-  std::string src_;
+  edm::InputTag src_;
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
   /// exclude list
@@ -89,6 +89,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -110,7 +111,7 @@ static const int clusterId = 92;
 static const int PDGCacheMax = 32768;
 
 GenParticleCandidateProducer::GenParticleCandidateProducer( const ParameterSet & p ) :
-  src_( p.getParameter<string>( "src" ) ),
+  src_( p.getParameter<InputTag>( "src" ) ),
   stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
   excludeList_( p.getParameter<vpdt>( "excludeList" ) ),
   ptMinNeutral_( p.getParameter<double>( "ptMinNeutral" ) ),
