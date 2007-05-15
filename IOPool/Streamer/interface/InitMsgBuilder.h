@@ -12,6 +12,7 @@ public:
   InitMsgBuilder(void* msg_mem, uint32 size,
                  uint32 run, const Version& v,
                  const char* release_tag,
+		 const char* process_name,
                  const Strings& hlt_names,
                  const Strings& l1_names);
 

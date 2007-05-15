@@ -6,6 +6,10 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 Protocol Version 3:
 code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
 
+Protocol Version 4:
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var | HLT count 4| HLT Trig Legth 4 | HLT Trig names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
+  
+
 */
 
 #ifndef _InitMessage_h
@@ -56,6 +60,7 @@ public:
   uint32 protocolVersion() const;
   void pset(uint8* put_here) const;
   std::string releaseTag() const;
+  std::string processName() const;
 
   void hltTriggerNames(Strings& save_here) const;
   void l1TriggerNames(Strings& save_here) const;
@@ -77,6 +82,11 @@ private:
 
   uint8* release_start_; // points to the string
   uint32 release_len_;
+
+  uint8* processName_start_; // points to the string
+  uint32 processName_len_;
+
+
   uint8* hlt_trig_start_; // points to the string
   uint32 hlt_trig_count_; // number of strings
   uint32 hlt_trig_len_; // length of strings character array only
