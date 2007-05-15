@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2006/10/18 18:00:14 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/13 11:22:18 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -57,7 +57,6 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   if(debug)   cout<<"[DT/DTLocalTriggerTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTLocalTriggerSources.root");
-  logFile.open("DTLocalTriggerTask.log");
 
   dcc_label = ps.getUntrackedParameter<string>("dcc_label", "dttpgprod");
   ros_label = ps.getUntrackedParameter<string>("ros_label", "dtunpacker");
@@ -69,11 +68,6 @@ DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   
   edm::Service<MonitorDaemon> daemon; 	 
   daemon.operator->();    
-  if ( dbe ) {
-    dbe->setVerbose(1);
-    dbe->setCurrentFolder("DT/DTLocalTriggerTask");
-    runId = dbe->bookInt("iRun");
-  }
 
 }
 
@@ -82,7 +76,6 @@ DTLocalTriggerTask::~DTLocalTriggerTask() {
 
 if(debug)
   cout << "DTLocalTriggerTask: analyzed " << nevents << " events" << endl;
- logFile.close();
 
 }
 
