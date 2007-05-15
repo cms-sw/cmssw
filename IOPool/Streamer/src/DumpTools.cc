@@ -14,7 +14,8 @@ void dumpInitHeader(const InitMsgView* view)
     << "size = " << view->size() << "\n"
     << "run = " << view->run() << ", "
     << "proto = " << view->protocolVersion() << "\n"
-    << "release = " << view->releaseTag() << "\n";
+    << "release = " << view->releaseTag() << "\n"
+    << "processName = " << view->processName() << "\n";
 
 
   //PSet 16 byte non-printable representation, stored in message.
@@ -44,6 +45,7 @@ void dumpInitHeader(const InitMsgView* view)
 
 void dumpInitView(const InitMsgView* view)
 {
+
 
   dumpInitHeader(view);
   cout << "desc len = " << view->descLength() << "\n";
@@ -106,7 +108,7 @@ void dumpEventHeader(const EventMsgView* eview)
 
   cout << "\nhlt bits=\n(";
   for(int i=(hlt_out.size()-1); i != -1 ; --i) 
-     printBits(hlt_out[i]);
+    printBits(hlt_out[i]);
   //copy(&hlt_out[0],&hlt_out[0]+bytesForHLT,ostream_iterator<char>(cout,""));
   cout << ")\n";
  }
