@@ -434,7 +434,9 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	*(p->production_vertex()->particles_in_const_begin()) : 0;
       */
 
-      int motherBarcode = p->production_vertex() ?
+      int motherBarcode = p->production_vertex() && 
+	p->production_vertex()->particles_in_const_begin() !=
+	p->production_vertex()->particles_in_const_end() ?
 	(*(p->production_vertex()->particles_in_const_begin()))->barcode() : 0;
 
       int originVertex = 
