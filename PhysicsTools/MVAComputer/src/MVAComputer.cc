@@ -14,6 +14,10 @@
 
 // #define DEBUG_EVAL
 
+#ifdef DEBUG_EVAL
+#	include <Reflex/Tools.h>
+#endif
+
 namespace PhysicsTools {
 
 MVAComputer::MVAComputer(
@@ -72,7 +76,8 @@ MVAComputer::setup(const Calibration::MVAComputer *calib)
 
 	nVars = config.size();
 
-	if (output >= nVars || config[output].mask != Variable::FLAG_NONE)
+	if (output >= nVars)
+			// FIXME || config[output].mask != Variable::FLAG_NONE)
 		throw cms::Exception("InvalidOutput")
 			<< "Output variable at index " << output
 			<< " invalid." << std::endl;
@@ -130,11 +135,14 @@ void MVAComputer::eval(double *values, int *conf,
 
 	for(std::vector<Processor>::const_iterator iter = varProcessors.begin();
 	    iter != varProcessors.end(); iter++) {
-		iter->processor->eval(values, conf, output, outConf);
-
 #ifdef DEBUG_EVAL
 		std::cout << ROOT::Reflex::Tools::Demangle(
 				typeid(*iter->processor)) << std::endl;
+#endif
+
+		iter->processor->eval(values, conf, output, outConf);
+
+#ifdef DEBUG_EVAL
 		for(unsigned int i = 0; i < iter->nOutput; i++, outConf++) {
 			std::cout << "\tVar " << (outConf - conf) << std::endl;
 			for(int j = outConf[0]; j < outConf[1]; j++)

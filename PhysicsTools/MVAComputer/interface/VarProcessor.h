@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: VarProcessor.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <vector>
@@ -186,7 +186,7 @@ class VarProcessor :
 	    private:
 		BitSet::Iterator	cur;
 		double			*values;
-		int			*conf;
+		const int		*conf;
 		double			*output;
 		int			*outConf;
 	};

@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: MVAComputer.icc,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 
@@ -71,7 +71,7 @@ double MVAComputer::eval(Iterator_t first,
 	}
 
 	// allocate value array and fill input variables
-	double *values = __TMP_ALLOC(max + nVars + 1 - size, double);
+	double *values = __TMP_ALLOC(max + nVars + 1, double);
 	values[0] = 0.0;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
