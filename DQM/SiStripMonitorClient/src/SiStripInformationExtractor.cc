@@ -202,9 +202,11 @@ void SiStripInformationExtractor::fillGlobalHistoList(MonitorUserInterface * mui
 // --  Get Selected Monitor Elements
 // 
 void SiStripInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
+  mes.clear();
   DaqMonitorBEInterface * bei = mui->getBEInterface();  
   unsigned int tag = atoi(mid.c_str());
   vector<MonitorElement*> all_mes = bei->get(tag);
+  if (all_mes.size() == 0) return; 
   for (vector<MonitorElement *>::const_iterator it = all_mes.begin();
        it!= all_mes.end(); it++) {
     if (!(*it)) continue;
@@ -255,7 +257,12 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   vector<string> item_list;  
 
   string mod_id = getItemValue(req_map,"ModId");
-  if (mod_id.size() < 9) return;
+  if (mod_id.size() < 9) {
+    setCanvasMessage("Wrong Module Id!!");
+    fillImageBuffer();
+    canvas_->Clear();
+    return;
+  }
   item_list.clear();     
   getItemList(req_map,"histo", item_list);
   vector<MonitorElement*> me_list;
@@ -264,7 +271,11 @@ void SiStripInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   selectSingleModuleHistos(mui, mod_id, item_list, me_list);
   mui->cd();
 
-  plotHistos(req_map,me_list,false);
+  if (me_list.size() == 0) {
+    setCanvasMessage("Wrong Module Id!!");  
+  } else {
+    plotHistos(req_map,me_list,false);
+  }
   fillImageBuffer();
   canvas_->Clear();
 
