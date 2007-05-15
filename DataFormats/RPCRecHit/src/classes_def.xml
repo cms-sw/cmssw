@@ -4,7 +4,9 @@
   <class name="std::vector<RPCRecHit>"/>
   <class name="std::vector<RPCRecHit*>"/>
   <class name="std::pair<unsigned int, unsigned int>"/>
+  <class name="std::pair<unsigned long, unsigned long>"/>
   <class name="std::map<RPCDetId, std::pair<unsigned int, unsigned int> >"/>
+  <class name="std::map<RPCDetId, std::pair<unsigned long, unsigned long> >"/>
   <class name="edm::OwnVector<RPCRecHit, edm::ClonePolicy<RPCRecHit> >"/>
   <class name="edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit, edm::ClonePolicy<RPCRecHit> >, edm::ClonePolicy<RPCRecHit> >"/>
   <class name="edm::Wrapper<edm::RangeMap<RPCDetId, edm::OwnVector<RPCRecHit, 
