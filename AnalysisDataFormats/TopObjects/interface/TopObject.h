@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: ?
 //
-// $Id$
+// $Id: TopObject.h,v 1.3 2007/05/04 01:13:41 lowette Exp $
 //
 
 #ifndef TopObject_h
@@ -15,9 +15,12 @@
    TopObject is the templated base top object that wraps around reco objects
 
   \author   Jan Heyninck
-  \version  $Id$
+  \version  $Id: TopObject.h,v 1.3 2007/05/04 01:13:41 lowette Exp $
 */
 
+#include <vector>
+
+using namespace std;
 
 template <class ObjectType>
 class TopObject : public ObjectType {
@@ -34,6 +37,7 @@ class TopObject : public ObjectType {
     void setResD(double);
     void setResPinv(double);
     void setResTheta(double);
+    void setCovM(vector<double>);
 
     double getResET() const;
     double getResEta() const;
@@ -41,6 +45,7 @@ class TopObject : public ObjectType {
     double getResD() const;
     double getResPinv() const;
     double getResTheta() const;
+    vector<double> getCovM() const;
 
   protected:
 
@@ -50,6 +55,8 @@ class TopObject : public ObjectType {
     double resD_;
     double resPinv_;
     double resTheta_;
+    int    parametrisation_;
+    vector<double> covM_;
 
 };
 
@@ -60,13 +67,18 @@ template <class ObjectType> void TopObject<ObjectType>::setResPhi(double phi)   
 template <class ObjectType> void TopObject<ObjectType>::setResD(double d)         { resD_ = d; }
 template <class ObjectType> void TopObject<ObjectType>::setResPinv(double pinv)   { resPinv_ = pinv; }
 template <class ObjectType> void TopObject<ObjectType>::setResTheta(double theta) { resTheta_ = theta; }
+template <class ObjectType> void TopObject<ObjectType>::setCovM(vector<double> c) { 
+  covM_.clear();
+  for(size_t i = 0; i < c.size(); i++) covM_.push_back(c[i]); 
+}
 
-template <class ObjectType> double TopObject<ObjectType>::getResET() const    { return resET_; }
-template <class ObjectType> double TopObject<ObjectType>::getResEta() const   { return resEta_; }
-template <class ObjectType> double TopObject<ObjectType>::getResPhi() const   { return resPhi_; }
-template <class ObjectType> double TopObject<ObjectType>::getResD() const     { return resD_; }
-template <class ObjectType> double TopObject<ObjectType>::getResPinv() const  { return resPinv_; }
-template <class ObjectType> double TopObject<ObjectType>::getResTheta() const { return resTheta_; }
+template <class ObjectType> double TopObject<ObjectType>::getResET() const    	  	{ return resET_; }
+template <class ObjectType> double TopObject<ObjectType>::getResEta() const    	  	{ return resEta_; }
+template <class ObjectType> double TopObject<ObjectType>::getResPhi() const    	  	{ return resPhi_; }
+template <class ObjectType> double TopObject<ObjectType>::getResD() const         	{ return resD_; }
+template <class ObjectType> double TopObject<ObjectType>::getResPinv() const      	{ return resPinv_; }
+template <class ObjectType> double TopObject<ObjectType>::getResTheta() const     	{ return resTheta_; }
+template <class ObjectType> vector<double> TopObject<ObjectType>::getCovM() const 		{ return covM_; }
 
 
 #endif
