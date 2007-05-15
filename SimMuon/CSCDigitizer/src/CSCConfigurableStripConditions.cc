@@ -83,9 +83,10 @@ void CSCConfigurableStripConditions::makeNoisifier(int chamberType, const std::v
 
   // since I don't know how to correlate the pedestal samples,
   // take as constant
-  matrix[0][0] = thePedestalSigma * thePedestalSigma;
-  matrix[1][1] = thePedestalSigma * thePedestalSigma;
-  matrix[2][2] = thePedestalSigma * thePedestalSigma;
+  double scaVariance = 2. * thePedestalSigma * thePedestalSigma;
+  matrix[0][0] = scaVariance;
+  matrix[1][1] = scaVariance;
+  matrix[2][2] = scaVariance;
   theNoisifiers[chamberType-1] = new CorrelatedNoisifier(matrix);
 
 }
