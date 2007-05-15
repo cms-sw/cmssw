@@ -4,8 +4,8 @@
 /*
  * \file DTLocalTriggerTask.h
  *
- * $Date: 2007/04/02 16:13:00 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/02 16:19:50 $
+ * $Revision: 1.4 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -72,16 +72,20 @@ std::string triggerSource();
   // SM end
 
 private:
-
+ 
   bool debug;
+  edm::ESHandle<DTGeometry> muonGeom;
+  std::string dcc_label;
+  std::string ros_label;
+  std::string seg_label;
   int nevents;
 
-/*   edm::Handle<L1MuDTChambPhContainer> l1dtlocalphi; */
-/*   edm::Handle<L1MuDTChambThContainer> l1dtlocalth; */
+
+
+
   DaqMonitorBEInterface* dbe;
   edm::ParameterSet parameters;
   edm::Handle<LTCDigiCollection> ltcdigis;
-/*  edm::ESHandle<DTGeometry> muonGeom; */
 
   // My monitor elements
   std::string outputFile;  

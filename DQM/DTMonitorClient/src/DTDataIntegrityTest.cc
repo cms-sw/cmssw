@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/03/30 16:10:34 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/19 09:40:45 $
+ * $Revision: 1.4 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -17,6 +17,8 @@
 
 #include <iostream>
 #include <string>
+
+#include "TNamed.h"
 
 using namespace std;
 using namespace edm;
@@ -259,6 +261,14 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
       }
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinContent(counter,evLenght_mean);
       (dduHistos.find(histoType)->second).find(dduId)->second->setBinLabel(counter, evNumber_s.str(), 1);
+
+      //FIXME: it does not reset the histo!!!
+      MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>( const_cast<MonitorElement*>(evLenght_histo) );
+      if( ob ) {
+  	ob->Reset();
+      }
+      
+      
      }
 
      //Monitor the FIFO occupancy VS time 
@@ -290,7 +300,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
   stringstream dduID_s; dduID_s << FEDId;
-  string folderName ="Collector/FU0/DT/FED" + dduID_s.str(); 
+  string folderName ="Collector/FU0/DT/DataIntegrity/FED" + dduID_s.str(); 
 
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;

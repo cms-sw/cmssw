@@ -5,8 +5,8 @@
 //   Description: Matcher 
 //
 //
-//   $Date: 2006/08/21 14:23:13 $
-//   $Revision: 1.2 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   N. Neumeister            CERN EP 
@@ -112,16 +112,16 @@ void L1MuGMTMatcher::reset() {
 //
 void L1MuGMTMatcher::print() {
 
-  edm::LogVerbatim("GMT_Matcher_info") << endl;
+  edm::LogVerbatim("GMT_Matcher_info");
   if ( L1MuGMTConfig::Debug(4) ) {
-    edm::LogVerbatim("GMT_Matcher_info") << "MATCH Quality : " << endl;
+    edm::LogVerbatim("GMT_Matcher_info") << "MATCH Quality : ";
     matchQuality.print();
   }
 
-  edm::LogVerbatim("GMT_Matcher_info") << "PAIR Matrix : " << endl;
+  edm::LogVerbatim("GMT_Matcher_info") << "PAIR Matrix : ";
   pairMatrix.print();
 
-  edm::LogVerbatim("GMT_Matcher_info") << endl;
+  edm::LogVerbatim("GMT_Matcher_info");
 
 }
 

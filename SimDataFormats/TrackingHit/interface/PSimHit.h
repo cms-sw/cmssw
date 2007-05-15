@@ -128,7 +128,7 @@ protected:
   float           thePhiAtEntry;
 
   float           theTof;           // Time Of Flight 
-  short           theParticleType;
+  int             theParticleType;
   unsigned short  theProcessType;   // ID of the process which created the track
                                     // which created the PSimHit
 

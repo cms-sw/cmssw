@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/JetMCAlgos/interface/CandOneToOneDeltaRMatcher.h"
 #include "PhysicsTools/JetMCAlgos/interface/CandOneToManyDeltaRMatcher.h"

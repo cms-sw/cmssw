@@ -9,7 +9,6 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Foundation/PluginManager>
 <use name=TBDataFormats/EcalTBObjects>
 <export>
   <use name=DQMServices/Core>

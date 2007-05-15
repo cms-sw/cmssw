@@ -192,7 +192,7 @@ namespace csc {
 		  << " charge: "   << " " << chargeValue()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
-		  << endl;
+		  << std::endl;
 	std::cout << "\t  Pt(float): "  << " " << ptValue()
 		  << " Phi(float): " << " " << phiValueMid()
 		  << " Eta(float): " << " " << etaValueLow();
@@ -207,7 +207,7 @@ namespace csc {
 		  << " charge: "   << " " << chargeValue()
 		  << " side: "   << " " << endcap()
 		  << " bx: "       << " " << BX()
-		  << endl;
+		  << std::endl;
 	std::cout << "\t  Phi(float): " << " " << phiValueMid()
 		  << " Eta(float): " << " " << etaValueLow();
 	

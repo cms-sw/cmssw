@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/03/27 11:22:52 $
- * $Revision: 1.240 $
+ * $Date: 2007/05/02 09:10:59 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,10 +31,10 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h>
-#include "DQM/EcalEndcapMonitorDisplayPlugins/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
@@ -143,9 +143,15 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
 
-  // enableSubRun switch
+  // enableSubRunDb switch
 
-  enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
+  enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
+  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+
+  // enableSubRunHtml switch
+
+  enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
+  htmlRefreshTime_  = 60 * ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
 
   // location
 
@@ -275,19 +281,20 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
 
   if ( enableServer_ ) {
+    cout << " enableServer switch is ON" << endl;
     if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
       cout << " Forcing the same port for Collector and Server" << endl;
       serverPort_ = hostPort_;
     }
-    cout << " Server on port '" << serverPort_ << "' is ON" << endl;
+    cout << " Running server on port '" << serverPort_ << "'" << endl;
   } else {
-    cout << " Server is OFF" << endl;
+    cout << " enableServer switch is OFF" << endl;
   }
 
-  // vector of selected Super Modules (Defaults to all 36).
+  // vector of selected Super Modules (Defaults to all 18).
 
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
 
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
@@ -307,7 +314,6 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPadColor(10);
   gStyle->SetFillColor(10);
   gStyle->SetStatColor(10);
-  gStyle->SetTitleColor(10);
   gStyle->SetTitleFillColor(10);
 
   TGaxis::SetMaxDigits(4);
@@ -489,6 +495,10 @@ void EcalEndcapMonitorClient::beginJob(void){
   ievt_ = 0;
   jevt_ = 0;
 
+  current_time_ = time(NULL);
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
+
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
@@ -542,6 +552,10 @@ void EcalEndcapMonitorClient::beginRun(void){
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
+
+  current_time_ = time(NULL);
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
 
   this->setup();
 
@@ -606,6 +620,8 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: endRun, jevt = " << jevt_ << endl;
 
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
   if ( subrun_ != -1 ) {
@@ -615,10 +631,8 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   }
 
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
   if ( subrun_ != -1 ) {
-    if ( enableSubRun_ ) {
+    if ( enableSubRunDb_ ) {
       this->softReset();
     }
   }
@@ -681,9 +695,6 @@ void EcalEndcapMonitorClient::cleanup(void) {
 void EcalEndcapMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
-
-  current_time_ = time(NULL);
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -786,6 +797,16 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
   cout << "====================" << endl;
   cout << endl;
 
+  if ( econn ) {
+    try {
+      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
+      LogicID::init( econn );
+      std::cout << "done." << std::endl;
+    } catch( std::runtime_error &e ) {
+      std::cerr << e.what() << std::endl;
+    }
+  }
+
   if ( maskFile_.size() != 0 ) {
     try {
       cout << "Fetching masked channels from file ... " << flush;
@@ -825,8 +846,6 @@ void EcalEndcapMonitorClient::beginRunDb(void) {
 void EcalEndcapMonitorClient::writeDb(void) {
 
   subrun_++;
-
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -929,7 +948,7 @@ void EcalEndcapMonitorClient::writeDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = md;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1009,7 +1028,7 @@ void EcalEndcapMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1193,7 +1212,7 @@ void EcalEndcapMonitorClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
-    h_ = EEMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
+    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUNTYPE").c_str());
     me = mui_->get(histo);
@@ -1307,12 +1326,19 @@ void EcalEndcapMonitorClient::analyze(void){
 
       }
 
-      if ( enableSubRun_ ) {
-        time_t seconds = 15 * 60;
-        if ( (current_time_ - last_time_) > seconds ) {
+      if ( enableSubRunHtml_ ) {
+        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
+          last_time_html_ = current_time_;
+          this->htmlOutput( true );
+        }
+      }
+
+      if ( enableSubRunDb_ ) {
+        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          last_time_db_ = current_time_;
         }
       }
 
@@ -1465,7 +1491,9 @@ void EcalEndcapMonitorClient::analyze(void){
 
 }
 
-void EcalEndcapMonitorClient::htmlOutput(void){
+void EcalEndcapMonitorClient::htmlOutput( bool current ){
+
+  time_t start = time(NULL);
 
   cout << endl;
   cout << "Preparing EcalEndcapMonitorClient html output ..." << endl;
@@ -1474,7 +1502,13 @@ void EcalEndcapMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
-  string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  string htmlDir;
+  if( current ) {
+    htmlDir = baseHtmlDir_ + "/current/";
+  }
+  else {
+    htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  }
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
@@ -1515,11 +1549,13 @@ void EcalEndcapMonitorClient::htmlOutput(void){
     }
   }
 
-#if 0
-  htmlName = "EESummaryClient.html";
-  summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-  htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
+  if ( superModules_.size() > 1 ) {
+
+    htmlName = "EESummaryClient.html";
+    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+
+  }
 
   htmlFile << "</ul>" << endl;
 
@@ -1530,5 +1566,11 @@ void EcalEndcapMonitorClient::htmlOutput(void){
   htmlFile.close();
 
   cout << endl;
+
+  if( current ) {
+    time_t elapsed = time(NULL) - start;
+    std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
+  }
+
 }
 

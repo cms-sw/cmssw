@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,9 +46,13 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EBDigiCollection_;
 
-MonitorElement* mePedMapG12_[36];
+MonitorElement* mePedMapG12_[18];
 
 bool init_;
 

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 10:58:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/30 09:39:31 $
+ *  $Revision: 1.6 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -13,7 +13,9 @@
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -148,7 +150,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >(mySet);
     
-    if (mySet != "SLHAParameters"){
+    if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
     cout << "----------------------------------------------" << endl;
     cout << "Read PYTHIA parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
@@ -166,7 +168,27 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-    }else if(mySet == "SLHAParameters"){   
+    } else if(mySet == "CSAParameters"){   
+
+   // Read CSA parameter
+  
+   pars = pythia_params.getParameter<vector<string> >("CSAParameters");
+
+   cout << "----------------------------------------------" << endl; 
+   cout << "Reading CSA parameter settings. " << endl;
+   cout << "----------------------------------------------" << endl;                                                                           
+
+   call_txgive_init();
+  
+  
+   // Loop over all parameters and stop in case of a mistake
+    for (vector<string>::const_iterator 
+            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+      call_txgive(*itPar); 
+     
+         } 
+     
+   } else if(mySet == "SLHAParameters"){   
 
    // Read SLHA parameter
   
@@ -211,6 +233,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   //********                                      
   
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
   cout << "PythiaSource: starting event generation ... " << endl;
 }
 
@@ -225,6 +248,14 @@ void PythiaSource::clear() {
  
 }
 
+void PythiaSource::endRun(Run & r) {
+ 
+ double cs = pypars.pari[0]; // cross section in mb
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+ r.put(giprod);
+
+}
 
 bool PythiaSource::produce(Event & e) {
 

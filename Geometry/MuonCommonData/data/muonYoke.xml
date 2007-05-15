@@ -283,10 +283,16 @@
   <rSolid name="YE12"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+
+<!-- START COMMENT
+This is never placed and should be removed.
+    Michael Case
  <LogicalPart name="YE12n" category="unspecified"> 
   <rSolid name="YE12"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+END COMMENT -->
+
  <LogicalPart name="YE2p_a" category="unspecified"> 
   <rSolid name="YE2_a"/> 
   <rMaterial name="materials:Iron"/> 
@@ -299,10 +305,16 @@
   <rSolid name="YE23"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+
+<!-- START COMMENT
+This is never placed and should be removed.
+    Michael Case
  <LogicalPart name="YE23n" category="unspecified"> 
   <rSolid name="YE23"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+END COMMENT -->
+
  <LogicalPart name="YE3p_a" category="unspecified"> 
   <rSolid name="YE3_a"/> 
   <rMaterial name="materials:Iron"/> 
@@ -315,26 +327,44 @@
   <rSolid name="YE34"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+
+<!-- START COMMENT
+This is never placed and should be removed.
+    Michael Case
  <LogicalPart name="YE34n" category="unspecified"> 
   <rSolid name="YE34"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+END COMMENT -->
+
  <LogicalPart name="ShieldingME4p" category="unspecified"> 
   <rSolid name="ShieldingME4"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+
+<!-- START COMMENT
+This is never placed and should be removed.  
+    Michael Case
  <LogicalPart name="ShieldingME4n" category="unspecified"> 
   <rSolid name="ShieldingME4"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+END COMMENT-->
+
  <LogicalPart name="YE4p" category="unspecified"> 
   <rSolid name="YE4"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+
+<!-- START COMMENT
+This is never placed and should be removed.  
+    Michael Case
  <LogicalPart name="YE4n" category="unspecified"> 
   <rSolid name="YE4"/> 
   <rMaterial name="materials:Iron"/> 
  </LogicalPart> 
+END COMMENT-->
+
  <LogicalPart name="YB1_w0_b1" category="unspecified"> 
   <rSolid name="YB1_w0_b1"/> 
   <rMaterial name="materials:Iron"/> 

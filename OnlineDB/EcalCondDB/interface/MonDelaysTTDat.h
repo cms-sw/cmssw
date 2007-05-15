@@ -38,6 +38,10 @@ class MonDelaysTTDat : public IDataItem {
   void fetchData(std::map< EcalLogicID, MonDelaysTTDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonDelaysTTDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
   // User data
   float m_delayMean;
   float m_delayRMS;

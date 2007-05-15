@@ -4,7 +4,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
-
+#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 //Anaphe headers
@@ -12,8 +12,6 @@
 #include <iostream>
 #include <iomanip>
 #include <math.h>
-
-//#include "FastSimulation/Utilities/interface/Histos.h"
 
 using std::vector;
 

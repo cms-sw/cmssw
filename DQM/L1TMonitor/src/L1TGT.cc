@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/02/19 19:24:09 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:53 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -117,25 +117,22 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
      e.getByLabel(gtSource_,myGTReadoutRecord);
 
      /// get Global Trigger decision and the decision word
-     L1GlobalTriggerReadoutRecord::DecisionWord 
-      gtDecisionWord = myGTReadoutRecord->decisionWord();
+     DecisionWord gtDecisionWord = myGTReadoutRecord->decisionWord();
      // decisionword is a vector of bools, loop through the vector and
      // accumulate triggers
      int dbitNumber = 0;
-     for( L1GlobalTriggerReadoutRecord::DecisionWord::const_iterator 
-        GTdbitItr =  gtDecisionWord.begin() ;
-        GTdbitItr != gtDecisionWord.end() ;
-        ++GTdbitItr ) 
+     for( DecisionWord::const_iterator GTdbitItr =  gtDecisionWord.begin() ;
+	  GTdbitItr != gtDecisionWord.end() ;
+	  ++GTdbitItr ) 
      {
        if (*GTdbitItr)
        {
         gttriggerdbits->Fill(dbitNumber);     
 
         int dbitNumber1 = 0;
-        for( L1GlobalTriggerReadoutRecord::DecisionWord::const_iterator 
-        GTdbitItr1 =  gtDecisionWord.begin() ;
-        GTdbitItr1 != gtDecisionWord.end() ;
-        ++GTdbitItr1 ) 
+        for( DecisionWord::const_iterator GTdbitItr1 =  
+	       gtDecisionWord.begin() ; GTdbitItr1 != gtDecisionWord.end() ;
+	     ++GTdbitItr1 ) 
         {
          if (*GTdbitItr1) gttriggerdbitscorr->Fill(dbitNumber,dbitNumber1);
          dbitNumber1++; 

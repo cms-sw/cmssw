@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:52:43 CET 2006
-// $Id: SiStripFolderOrganizer.cc,v 1.8 2007/03/16 09:57:15 dkcira Exp $
+// $Id: SiStripFolderOrganizer.cc,v 1.9 2007/03/21 16:39:28 bainbrid Exp $
 //
 
 #include <iostream>
@@ -131,7 +131,7 @@ void SiStripFolderOrganizer::setDetectorFolder(uint32_t rawdetid){
     std::vector<std::string> str_subnames(3); // translate numering of tib std::string-structure in (character) std::strings
     if((tib1.string()).at(0)==1){str_subnames[0]="backward_strings";}else{str_subnames[0]="forward_strings";}
     if((tib1.string()).at(1)==1){str_subnames[1]="internal_strings";}else{str_subnames[1]="external_strings";}
-    rest<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer()<<sep<<str_subnames[0]<<sep<<str_subnames[1]<<sep<<"std::string_"<<(tib1.string()).at(2)<<sep <<"module_"<<rawdetid;
+    rest<<sep<<"TIB"<<sep<<"layer_"<<tib1.layer()<<sep<<str_subnames[0]<<sep<<str_subnames[1]<<sep<<"string_"<<(tib1.string()).at(2)<<sep <<"module_"<<rawdetid;
   }else if( subdetid==4){
   // ---------------------------  TID  --------------------------- //
     TIDDetId tid1 = TIDDetId(rawdetid);

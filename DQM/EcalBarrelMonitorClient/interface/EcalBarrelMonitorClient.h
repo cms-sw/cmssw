@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/03/24 14:36:38 $
- * $Revision: 1.66 $
+ * $Date: 2007/04/10 09:26:38 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -25,6 +25,9 @@
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBClient.h>
+
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
@@ -77,7 +80,7 @@ void setup(void);
 void cleanup(void);
   
 /// HtmlOutput
-void htmlOutput(void);
+void htmlOutput(bool current=false);
   
 /// BeginRunDB
 void beginRunDb(void);
@@ -140,11 +143,15 @@ string maskFile_;
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRun_;
+bool enableSubRunDb_;
+bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
-time_t last_time_;
+time_t last_time_db_;
+time_t last_time_html_;
+time_t dbRefreshTime_;
+time_t htmlRefreshTime_;
  
 string baseHtmlDir_;
 

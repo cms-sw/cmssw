@@ -4,8 +4,8 @@
 /*
  * \file EBBeamHodoTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/05 13:56:46 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,6 +49,10 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;

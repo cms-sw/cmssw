@@ -14,6 +14,7 @@ RunMemChErrorsDat::RunMemChErrorsDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
   m_errorBits = 0;
 }
 
@@ -82,15 +83,15 @@ void RunMemChErrorsDat::fetchData(map< EcalLogicID, RunMemChErrorsDat >* fillMap
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
+
     /* Using TO_CHAR because OCCI does not support 64-bit integers well */
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "to_char(d.error_bits) "
 		 "FROM channelview cv JOIN run_mem_ch_errors_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, RunMemChErrorsDat > p;
     RunMemChErrorsDat dat;
@@ -107,6 +108,8 @@ void RunMemChErrorsDat::fetchData(map< EcalLogicID, RunMemChErrorsDat >* fillMap
       p.second = dat;
       fillMap->insert(p);
     }
+
+
   } catch (SQLException &e) {
     throw(runtime_error("RunMemChErrorsDat::fetchData():  "+e.getMessage()));
   }

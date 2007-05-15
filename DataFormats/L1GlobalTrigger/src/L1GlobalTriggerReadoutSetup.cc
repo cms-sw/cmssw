@@ -27,6 +27,22 @@
 L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
 {
 
+    // create boards
+    GtBoard gtfeBoard = {GTFE, 0};
+
+    GtBoard tcsBoard = {TCS, 0};
+
+    GtBoard timBoard = {TIM, 0};
+
+    GtBoard fdlBoard = {FDL, 0};
+
+    // later, loop over (int iPsb = 0; iPsb < NumberPsbBoards;) to set boardIndex
+    GtBoard psbBoard;
+    psbBoard.boardType = PSB;
+
+    GtBoard gmtBoard = {GMT, 0};
+
+
     //populate the maps
 
     // L1 GT DAQ record map
@@ -37,25 +53,40 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     // GTFE position 1
     int iBoard = 1;
 
-    GtBoard gtfeBoard = {GTFE, 0};
     GtDaqRecordMap[iBoard] = gtfeBoard;
     iBoard++;
 
-    GtBoard fdlBoard = {FDL, 0};
     GtDaqRecordMap[iBoard] = fdlBoard;
     iBoard++;
 
-    GtBoard psbBoard;
-    psbBoard.boardType = PSB;
     for (int iPsb = 0; iPsb < NumberPsbBoards; ++iPsb) {
         psbBoard.boardIndex = iPsb;
         GtDaqRecordMap[iBoard] = psbBoard;
         iBoard++;
     }
 
-    GtBoard gmtBoard = {GMT, 0};
     GtDaqRecordMap[iBoard] = gmtBoard;
 
+    // trailer has latest position
+
+    // L1 GT EVM record map
+    //    gives the position of each block in the GT EVM readout record
+
+    // header has position 0
+
+    // GTFE position 1
+    int iBoardEvm = 1;
+
+    GtEvmRecordMap[iBoardEvm] = gtfeBoard;
+    iBoardEvm++;
+
+    GtEvmRecordMap[iBoardEvm] = tcsBoard;
+    iBoardEvm++;
+
+    GtEvmRecordMap[iBoardEvm] = fdlBoard;
+    iBoardEvm++;
+
+    // trailer has latest position
 
 
     // L1 GT active boards map
@@ -68,7 +99,7 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iBit++;
 
     for (int iPsb = 0; iPsb < NumberPsbBoards; ++iPsb) {
-        psbBoard.boardIndex = iBit;
+        psbBoard.boardIndex = iPsb;
         GtDaqActiveBoardsMap[psbBoard] = iBit;
         iBit++;
     }
@@ -78,26 +109,36 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iBit++;
 
     gmtBoard.boardIndex = 1; // spare, not used
-
     GtDaqActiveBoardsMap[gmtBoard] = iBit;
     iBit++;
 
-    GtBoard tcsBoard = {TCS, 0};
-
     GtDaqActiveBoardsMap[tcsBoard] = iBit;
     iBit++;
-
-    GtBoard timBoard = {TIM, 0};
 
     GtDaqActiveBoardsMap[timBoard] = iBit;
     iBit++;
 
 
+    // L1 GT active boards map
+    //    gives the bit of each GT board in the GTFE ACTIVE_BOARDS
+    //    for the GT EVM readout record
+
+    int iEvmBit = 0;
+
+    GtEvmActiveBoardsMap[tcsBoard] = iEvmBit;
+    iEvmBit++;
+
+    GtEvmActiveBoardsMap[fdlBoard] = iEvmBit;
+    iBit++;
+
+
     // L1 GT board - slot map
     //    gives the slot of each GT board (part of Board_Id)
-    std::map<GtBoard, int> GtBoardSlotMap;
 
-    int iSlot = 10;
+    int iSlot = 17;
+    GtBoardSlotMap[gtfeBoard] = iSlot;
+
+    iSlot = 10;
     GtBoardSlotMap[fdlBoard] = iSlot;
 
     psbBoard.boardIndex = 0;
@@ -128,9 +169,9 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
     iSlot = 18;
     GtBoardSlotMap[gmtBoard] = iSlot;
 
-//    gmtBoard.boardIndex = 1;
-//    iSlot = ?;
-//    GtBoardSlotMap[gmtBoard] = iSlot;
+    gmtBoard.boardIndex = 1;
+    iSlot = 18;
+    GtBoardSlotMap[gmtBoard] = iSlot;
 
     iSlot = 7;
     GtBoardSlotMap[tcsBoard] = iSlot;
@@ -141,14 +182,13 @@ L1GlobalTriggerReadoutSetup::L1GlobalTriggerReadoutSetup()
 
     // L1 GT board name in hw record map
     //    gives the bits written for each GT board in the Board_Id
-    std::map<GtBoardType, int> GtBoardHexNameMap;
 
-    GtBoardHexNameMap[GTFE] = 0xfe;
+    GtBoardHexNameMap[GTFE] = 0x00; // not used, as only 8 bits are available
     GtBoardHexNameMap[FDL]  = 0xfd;
     GtBoardHexNameMap[PSB]  = 0xbb;
-    GtBoardHexNameMap[GMT]  = 0xdd;
-    GtBoardHexNameMap[TCS]  = 0xcc;
-    GtBoardHexNameMap[TIM]  = 0xff;
+    GtBoardHexNameMap[GMT]  = 0xdd; // TODO GMT_spare has 0xde FIXME when board available
+    GtBoardHexNameMap[TCS]  = 0xcc; // TODO TCS_M     has 0xcd FIXME when board available
+    GtBoardHexNameMap[TIM]  = 0xad;
 
     // L1 GT calo input map
     //    gives the mapping of calorimeter objects to GT calorimeter input

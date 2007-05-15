@@ -10,7 +10,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackDetectorAssociator.cc,v 1.5 2007/02/19 12:02:40 dmytro Exp $
+// $Id: TrackAssociatorParameters.cc,v 1.1 2007/03/20 06:49:28 dmytro Exp $
 //
 //
 
@@ -43,6 +43,9 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    theHORecHitCollectionLabel       = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
    theDTRecSegment4DCollectionLabel = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
    theCSCSegmentCollectionLabel     = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
+   
+   accountForTrajectoryChangeCalo   = iConfig.getParameter<bool>("accountForTrajectoryChangeCalo");
+   // accountForTrajectoryChangeMuon   = iConfig.getParameter<bool>("accountForTrajectoryChangeMuon");
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
 }

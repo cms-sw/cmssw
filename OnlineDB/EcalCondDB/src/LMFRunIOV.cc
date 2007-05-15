@@ -27,6 +27,10 @@ LMFRunIOV::~LMFRunIOV()
 {
 }
 
+void LMFRunIOV::setID(int id)
+{
+    m_ID = id;
+}
 
 
 void LMFRunIOV::setLMFRunTag(LMFRunTag tag)
@@ -44,6 +48,10 @@ LMFRunTag LMFRunIOV::getLMFRunTag() const
   return m_lmfRunTag;
 }
 
+RunIOV LMFRunIOV::getRunIOV() 
+{ 
+  return m_runIOV;
+}
 
 
 void LMFRunIOV::setRunIOV(RunIOV iov)

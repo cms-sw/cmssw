@@ -4,8 +4,8 @@
 /*
  * \file EBTestPulseClient.h
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.46 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -166,6 +166,13 @@ float threshold_on_AmplitudeErrorsNumber_;
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
 float pedestalThresholdPn_;
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg04_[36];
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
 
 };
 

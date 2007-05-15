@@ -33,7 +33,6 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
 
   const OrderedSeedingHits & hitss = theHitsGenerator->run(region, ev, es);
 
-  std::cout <<" size of hits is: " << hitss.size() << std::endl;
 
   GlobalError vtxerr( sqr(region.originRBound()), 0, sqr(region.originRBound()),
                                                0, 0, sqr(region.originZBound()));
@@ -44,7 +43,6 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
     if (!theComparitor || theComparitor->compatible( hits ) ) {
       SeedFromConsecutiveHits seedfromhits( hits, region.origin(), vtxerr, es, theConfig);
       if(seedfromhits.isValid()) {
-        std::cout << "seed added!" << std::endl;
         seedCollection.push_back( seedfromhits.TrajSeed() );
       }
     }

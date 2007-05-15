@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/03/20 12:37:27 $
- * $Revision: 1.54 $
+ * $Date: 2007/04/05 14:54:01 $
+ * $Revision: 1.57 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBPedestalTask.h>
 
 using namespace cms;
@@ -35,6 +37,11 @@ using namespace std;
 EBPedestalTask::EBPedestalTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EBDigiCollection_ = ps.getParameter<edm::InputTag>("EBDigiCollection");
@@ -64,14 +71,9 @@ void EBPedestalTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
-    dbe->rmdir("EcalBarrel/EBPedestalTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");
+    dbe_->rmdir("EcalBarrel/EBPedestalTask");
   }
 
 }
@@ -82,67 +84,62 @@ void EBPedestalTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G01", i+1);
-      mePedMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePedMapG01_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G01", i+1);
-      mePed3SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed3SumMapG01_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G01", i+1);
-      mePed5SumMapG01_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed5SumMapG01_[i], i+1);
+      sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
+      mePedMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePedMapG01_[i], i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G01", Numbers::sEB(i+1).c_str());
+      mePed3SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed3SumMapG01_[i], i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G01", Numbers::sEB(i+1).c_str());
+      mePed5SumMapG01_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed5SumMapG01_[i], i+1);
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G06", i+1);
-      mePedMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePedMapG06_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G06", i+1);
-      mePed3SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed3SumMapG06_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G06", i+1);
-      mePed5SumMapG06_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed5SumMapG06_[i], i+1);
+      sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
+      mePedMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePedMapG06_[i], i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G06", Numbers::sEB(i+1).c_str());
+      mePed3SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed3SumMapG06_[i], i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G06", Numbers::sEB(i+1).c_str());
+      mePed5SumMapG06_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed5SumMapG06_[i], i+1);
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPT pedestal SM%02d G12", i+1);
-      mePedMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePedMapG12_[i], i+1);
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G12", i+1);
-      mePed3SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed3SumMapG12_[i], i+1);
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G12", i+1);
-      mePed5SumMapG12_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
-      dbe->tag(mePed5SumMapG12_[i], i+1);
+      sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
+      mePedMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePedMapG12_[i], i+1);
+      sprintf(histo, "EBPT pedestal 3sum %s G12", Numbers::sEB(i+1).c_str());
+      mePed3SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed3SumMapG12_[i], i+1);
+      sprintf(histo, "EBPT pedestal 5sum %s G12", Numbers::sEB(i+1).c_str());
+      mePed5SumMapG12_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+      dbe_->tag(mePed5SumMapG12_[i], i+1);
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", i+1);
-      mePnPedMapG01_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(mePnPedMapG01_[i], i+1);
+      sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
+      mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", i+1);
-      mePnPedMapG16_[i] =  dbe->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
-      dbe->tag(mePnPedMapG16_[i], i+1);
+      sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
+      mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
+      dbe_->tag(mePnPedMapG16_[i], i+1);
     }
 
   }
@@ -151,55 +148,52 @@ void EBPedestalTask::setup(void){
 
 void EBPedestalTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask");
-
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain01");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG01_[i] ) dbe->removeElement( mePedMapG01_[i]->getName() );
+      if ( mePedMapG01_[i] ) dbe_->removeElement( mePedMapG01_[i]->getName() );
       mePedMapG01_[i] = 0;
-      if ( mePed3SumMapG01_[i] ) dbe->removeElement( mePed3SumMapG01_[i]->getName() );
+      if ( mePed3SumMapG01_[i] ) dbe_->removeElement( mePed3SumMapG01_[i]->getName() );
       mePed3SumMapG01_[i] = 0;
-      if ( mePed5SumMapG01_[i] ) dbe->removeElement( mePed5SumMapG01_[i]->getName() );
+      if ( mePed5SumMapG01_[i] ) dbe_->removeElement( mePed5SumMapG01_[i]->getName() );
       mePed5SumMapG01_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain06");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG06_[i] ) dbe->removeElement( mePedMapG06_[i]->getName() );
+      if ( mePedMapG06_[i] ) dbe_->removeElement( mePedMapG06_[i]->getName() );
       mePedMapG06_[i] = 0;
-      if ( mePed3SumMapG06_[i] ) dbe->removeElement( mePed3SumMapG06_[i]->getName() );
+      if ( mePed3SumMapG06_[i] ) dbe_->removeElement( mePed3SumMapG06_[i]->getName() );
       mePed3SumMapG06_[i] = 0;
-      if ( mePed5SumMapG06_[i] ) dbe->removeElement( mePed5SumMapG06_[i]->getName() );
+      if ( mePed5SumMapG06_[i] ) dbe_->removeElement( mePed5SumMapG06_[i]->getName() );
       mePed5SumMapG06_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
+    dbe_->setCurrentFolder("EcalBarrel/EBPedestalTask/Gain12");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePedMapG12_[i] ) dbe->removeElement( mePedMapG12_[i]->getName() );
+      if ( mePedMapG12_[i] ) dbe_->removeElement( mePedMapG12_[i]->getName() );
       mePedMapG12_[i] = 0;
-      if ( mePed3SumMapG12_[i] ) dbe->removeElement( mePed3SumMapG12_[i]->getName() );
+      if ( mePed3SumMapG12_[i] ) dbe_->removeElement( mePed3SumMapG12_[i]->getName() );
       mePed3SumMapG12_[i] = 0;
-      if ( mePed5SumMapG12_[i] ) dbe->removeElement( mePed5SumMapG12_[i]->getName() );
+      if ( mePed5SumMapG12_[i] ) dbe_->removeElement( mePed5SumMapG12_[i]->getName() );
       mePed5SumMapG12_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask");
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain01");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePnPedMapG01_[i]) dbe->removeElement( mePnPedMapG01_[i]->getName() );
+      if ( mePnPedMapG01_[i]) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalBarrel/EBPnDiodeTask/Gain16");
     for ( int i = 0; i < 36; i++ ) {
-      if ( mePnPedMapG16_[i]) dbe->removeElement( mePnPedMapG16_[i]->getName() );
+      if ( mePnPedMapG16_[i]) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;
     }
 

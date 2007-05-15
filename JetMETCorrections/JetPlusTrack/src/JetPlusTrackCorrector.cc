@@ -25,19 +25,15 @@ JetPlusTrackCorrector::JetPlusTrackCorrector(const edm::ParameterSet& iConfig)
 			  theRcalo = iConfig.getParameter<double>("rcalo");
 			  theRvert = iConfig.getParameter<double>("rvert");
 			  theResponseAlgo = iConfig.getParameter<int>("respalgo");
-   m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
+       m_inputTrackLabel = iConfig.getUntrackedParameter<std::string>("inputTrackLabel","ctfWithMaterialTracks");
 
-//   ebrechit = iConfig.getParameter<edm::InputTag>("EBRecHitCollectionLabel");
-//   eerechit = iConfig.getParameter<edm::InputTag>("EERecHitCollectionLabel");
-//   calotower = iConfig.getParameter<edm::InputTag>("CaloTowerCollectionLabel");
-//   hbherechit = iConfig.getParameter<edm::InputTag>("HBHERecHitCollectionLabel");
-//   horechit = iConfig.getParameter<edm::InputTag>("HORecHitCollectionLabel");
-//   dtrecseg = iConfig.getParameter<edm::InputTag>("DTRecSegment4DCollectionLabel");
-//   cscseg = iConfig.getParameter<edm::InputTag>("CSCSegmentCollectionLabel");
        edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
        parameters_.loadParameters( parameters );
                           theSingle = new SingleParticleJetResponseTmp;
 			  setParameters(theRcalo,theRvert,theResponseAlgo);
+       trackAssociator_ =  new TrackDetectorAssociator();
+       trackAssociator_->useDefaultPropagator();
+       
 //    cout<<" JetPlusTrack constructor "<<endl;			  
 }
 
@@ -66,12 +62,6 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
                                          const edm::EventSetup& theEventSetup) const 
 {
 //   cout<<" JetPlusTrackCorrector::correction::starts "<<endl;
-
-// New part
-//
-   TrackDetectorAssociator trackAssociator_;
-   trackAssociator_.useDefaultPropagator();
-
          if(fabs(fJet.eta())>2.1) return 1.;
 // Get Tracker information
 // Take Vertex collection   
@@ -85,15 +75,20 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 
    if( primary_vertices->size() == 0 )
    {
-// No correction for this event
+// No PV correction for this event, try track collection
+     if( tC.size() == 0 ) {
       return 1.;    
+     }
    }	 
 	 
    reco::VertexCollection::const_iterator pvmax = pv;
    
    double ptmax = -1000.;
    vector<reco::Track> theTrack;
-   
+
+
+   if( primary_vertices->size() > 0 )
+   {
    for (; pv != primary_vertices->end(); pv++ )
    {
       double pto = 0.;
@@ -115,16 +110,17 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
    reco::Vertex theRecVertex = *pvmax;
     
     cout<<" Vertex with pt= "<<ptmax<<endl;
+   }// Primary vertex exists
+    else // No primary vetices but tracks are found
+   {
+     for(reco::TrackCollection::const_iterator it = tC.begin(); it != tC.end(); it++)
+     {
+       theTrack.push_back(*it);
+     }
+     cout<<" The number of tracks included in correction "<<theTrack.size()<<endl;
+   } // Track collection was taken
     
-//      setPrimaryVertex(const_cast(*pvmax));
-       
-//      setTracksFromPrimaryVertex(trPV);
 //==================================================================================      
-         TrackDetectorAssociator::AssociatorParameters parameters;
-         parameters.useEcal = true ;
-         parameters.useHcal = false ;
-         parameters.useMuon = false ;
-         parameters.dREcal = 0.03;
 
       double NewResponse = fJet.energy(); double echar = 0.; double echarsum = 0.;
       
@@ -153,12 +149,11 @@ double JetPlusTrackCorrector::correction(const reco::Jet& fJet,
 // extrapolate track to ECAL surface
 //
    
-      const FreeTrajectoryState fts = trackAssociator_.getFreeTrajectoryState(theEventSetup, *track);
-      const TrackDetectorAssociator::AssociatorParameters myparameters = parameters;   
+      const FreeTrajectoryState fts = trackAssociator_->getFreeTrajectoryState(theEventSetup, *track);
 //      std::cout << "Details:\n" <<std::endl;
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, theEventSetup,
+      TrackDetMatchInfo info = trackAssociator_->associate(iEvent, theEventSetup,
 							  fts,
-							  myparameters);
+							  parameters_);
 							  
 //      std::cout << "ECAL, track reach ECAL: "<<info.isGoodEcal<<std::endl;
 //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;

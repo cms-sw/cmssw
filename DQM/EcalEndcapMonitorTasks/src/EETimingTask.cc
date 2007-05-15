@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EETimingTask.h>
 
 using namespace cms;
@@ -36,9 +38,14 @@ EETimingTask::EETimingTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meTimeMap_[i] = 0;
   }
 
@@ -52,14 +59,9 @@ void EETimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
-    dbe->rmdir("EcalEndcap/EETimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
+    dbe_->rmdir("EcalEndcap/EETimingTask");
   }
 
 }
@@ -70,18 +72,13 @@ void EETimingTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
-
-    for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EETMT timing SM%02d", i+1);
-      meTimeMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe->tag(meTimeMap_[i], i+1);
+    for (int i = 0; i < 18 ; i++) {
+      sprintf(histo, "EETMT timing %s", Numbers::sEE(i+1).c_str());
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      dbe_->tag(meTimeMap_[i], i+1);
     }
 
   }
@@ -90,16 +87,13 @@ void EETimingTask::setup(void){
 
 void EETimingTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETimingTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETimingTask");
-
-    for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe->removeElement( meTimeMap_[i]->getName() );
+    for ( int i = 0; i < 18; i++ ) {
+      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 
@@ -140,7 +134,7 @@ void EETimingTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

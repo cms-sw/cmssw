@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
-#include "RecoLocalTracker/Records/interface/TkPixelCPERecord.h"
+#include "RecoLocalTracker/Records/interface/TrackerCPERecord.h"
 
 
 #include <iostream>
@@ -37,7 +37,7 @@ class CPEAccessTester : public edm::EDAnalyzer {
     cout <<" Asking for the CPE with name "<<cpeName<<endl;
 
     edm::ESHandle<PixelClusterParameterEstimator> theEstimator;
-    setup.get<TkPixelCPERecord>().get(cpeName,theEstimator);
+    setup.get<TrackerCPERecord>().get(cpeName,theEstimator);
     
     cout <<" Got a "<<typeid(*theEstimator).name()<<endl;
     

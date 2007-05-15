@@ -1,10 +1,6 @@
 #include "DetectorDescription/Core/interface/Trap.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include <cmath>
-
-using std::sqrt;
-
 
 DDI::Trap::Trap( double pDz, 
                  double pTheta,

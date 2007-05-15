@@ -5,6 +5,7 @@
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <algorithm>
 
 HcalHardcodeGeometryLoader::HcalHardcodeGeometryLoader() {
   init();
@@ -70,7 +71,7 @@ void HcalHardcodeGeometryLoader::fill(HcalSubdetector subdet, int firstEtaRing, 
   for(int etaRing = firstEtaRing; etaRing <= lastEtaRing; ++etaRing) {
     theTopology.depthBinInformation(subdet, etaRing, nDepthSegments, startingDepthSegment);
     unsigned int nPhiBins = theTopology.nPhiBins(etaRing);
-    unsigned int phiInc=72/nPhiBins;
+    unsigned int phiInc=72/std::max(36u,nPhiBins);
     for(int idepth = 0; idepth < nDepthSegments; ++idepth) {
       int depthBin = startingDepthSegment + idepth;
 
@@ -126,10 +127,6 @@ const CaloCellGeometry * HcalHardcodeGeometryLoader::makeCell(const HcalDetId & 
   
   double phi_low = dphi_nominal*(detId.iphi()-1); // low-edge boundaries are constant...
   double phi = phi_low+dphi_half;
-
-  if (theTopology.nPhiBins(etaRing)==18) {
-    phi=phi_low; // except for the highest HF towers
-  }
 
   bool isBarrel = (subdet == HcalBarrel || subdet == HcalOuter);
 

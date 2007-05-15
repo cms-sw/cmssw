@@ -5,7 +5,7 @@
 // Package:     SiPixelMonitorCluster
 // Class  :     SiPixelClusterSource
 // 
-/**
+/*
 
  Description: <one line class summary>
 
@@ -14,9 +14,9 @@
 
 */
 //
-// Original Author:  Vincenzo Chiochia
+// Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.h,v 1.1 2007/03/23 22:16:24 andrewdc Exp $
+// $Id: SiPixelClusterSource.h,v 1.3 2007/04/16 21:35:43 andrewdc Exp $
 //
 
 #include <memory>
@@ -31,7 +31,7 @@
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
-//#include "DataFormats/SiPixelCluster/interface/PixelCluster.h"
+#include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
@@ -62,6 +62,7 @@
 
     private:
        edm::ParameterSet conf_;
+       edm::InputTag src_;
        int eventNo;
        DaqMonitorBEInterface* theDMBE;
        std::map<uint32_t,SiPixelClusterModule*> thePixelStructure;

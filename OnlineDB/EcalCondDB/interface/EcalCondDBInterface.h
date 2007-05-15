@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.5 2007/01/17 16:45:12 egeland Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.4 2006/07/05 15:47:37 egeland Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -14,7 +14,8 @@
 #include <vector>
 #include <map>
 #include <stdexcept>
-#include <OnlineDB/Oracle/interface/Oracle.h>
+#include "OnlineDB/Oracle/interface/Oracle.h"
+
 
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
@@ -25,6 +26,10 @@
 #include "OnlineDB/EcalCondDB/interface/DCUIOV.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/CaliIOV.h"
+#include "OnlineDB/EcalCondDB/interface/RunList.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
+#include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
+#include "OnlineDB/EcalCondDB/interface/DCSPTMTempList.h"
 
 class EcalCondDBInterface : public EcalDBConnection {
  public:
@@ -111,8 +116,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 			      int id1 = EcalLogicID::NULLID,
 			      int id2 = EcalLogicID::NULLID,
 			      int id3 = EcalLogicID::NULLID,
-			      std::string mapsTo = ""
-			      )
+			      std::string mapsTo = "" )
     throw(std::runtime_error);
 
   /**
@@ -137,8 +141,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 					      int fromId1, int toId1,
 					      int fromId2 = EcalLogicID::NULLID, int toId2 = EcalLogicID::NULLID,
 					      int fromId3 = EcalLogicID::NULLID, int toId3 = EcalLogicID::NULLID,
-					      std::string mapsTo = ""
-					      )
+					      std::string mapsTo = "" )
     throw(std::runtime_error);
 
 
@@ -169,7 +172,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
   /**
-   *  Return a moniotring run object
+   *  Return a monitoring run object
    */
   MonRunIOV fetchMonRunIOV(RunTag* runtag, MonRunTag* montag, run_t run, subrun_t monrun)
     throw(std::runtime_error);
@@ -184,7 +187,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
   /**
-   *  Return a laser moniotring farm run object
+   *  Return a laser monitoring farm run object
    */
   LMFRunIOV fetchLMFRunIOV(RunTag* runtag, LMFRunTag* lmftag, run_t run, subrun_t lmfrun)
     throw(std::runtime_error);
@@ -196,6 +199,55 @@ class EcalCondDBInterface : public EcalDBConnection {
    */
   CaliIOV fetchCaliIOV(CaliTag* tag, Tm evenTm)
     throw(std::runtime_error);
+
+
+ /**
+   *   Return a Run List
+   */
+  RunList fetchRunList(RunTag tag) throw(std::runtime_error);
+
+ /**
+   *   Return a PTM Temp List
+   */
+
+  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid)  throw(runtime_error);
+  DCSPTMTempList fetchDCSPTMTempList(EcalLogicID ecid, Tm start, Tm end) throw(runtime_error);
+ /**template<class DATT, class IOVT>
+  void insertDataSet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
+    throw(std::runtime_error)
+  {
+    try {
+      iov->setConnection(env, conn);
+      iov->writeDB();
+      
+      DATT dataIface;
+      dataIface.setConnection(env, conn);
+      dataIface.prepareWrite();
+      
+      const EcalLogicID* channel;
+      const DATT* dataitem;
+      typedef typename std::map< EcalLogicID, DATT >::const_iterator CI;
+      for (CI p = data->begin(); p != data->end(); ++p) {
+	channel = &(p->first);
+	dataitem = &(p->second);
+	dataIface.writeDB( channel, dataitem, iov);
+      }
+      conn->commit();
+      dataIface.terminateWriteStatement();
+    } catch (std::runtime_error &e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+    }
+  }
+   *   Return a LMFRun List
+   */
+  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag) throw(std::runtime_error);
+  LMFRunList fetchLMFRunList(RunTag tag, LMFRunTag lmfruntag,int min_run, int max_run) throw(std::runtime_error);
+  LMFRunList fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag lmfruntag, int max_run, int n_runs) throw(std::runtime_error);
+
 
 
 
@@ -229,6 +281,70 @@ class EcalCondDBInterface : public EcalDBConnection {
 	dataIface.writeDB( channel, dataitem, iov);
       }
       conn->commit();
+      dataIface.terminateWriteStatement();
+    } catch (std::runtime_error &e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+    }
+  }
+  
+  //test for DB Array insertion
+  template<class DATT, class IOVT>
+  void insertDataArraySet(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
+    throw(std::runtime_error)
+  {
+    try {
+      iov->setConnection(env, conn);
+      iov->writeDB();
+      
+      DATT dataIface;
+      dataIface.setConnection(env, conn);
+      dataIface.prepareWrite();
+      
+      dataIface.writeArrayDB(data, iov);
+      conn->commit();
+      
+      dataIface.terminateWriteStatement();
+   
+    } catch (std::runtime_error &e) {
+      conn->rollback();
+      throw(e);
+    } catch (...) {
+      conn->rollback();
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSet:  Unknown exception caught"));
+    }
+  }
+
+ template<class DATT, class IOVT>
+  void insertDataSetVector( std::vector<EcalLogicID> ecid, std::vector<IOVT> run_iov, std::vector<DATT> data )
+    throw(std::runtime_error)
+  {
+   
+    int nruns= run_iov.size();
+   
+    if(run_iov.size()!=ecid.size() &&ecid.size()!=data.size()){
+      throw(std::runtime_error("EcalCondDBInterface::insertDataSetVector:  vector sizes are different.."));
+    } 
+
+
+    try {
+      
+      DATT dataIface;
+      dataIface.setConnection(env, conn);
+      dataIface.prepareWrite();
+
+      for (int i=0; i<nruns; i++){
+
+	run_iov[i].setConnection(env, conn);
+	run_iov[i].writeDB();
+      
+	dataIface.writeDB( &ecid[i], &data[i], &run_iov[i]);
+	
+	conn->commit();
+      }
     } catch (std::runtime_error &e) {
       conn->rollback();
       throw(e);
@@ -240,22 +356,24 @@ class EcalCondDBInterface : public EcalDBConnection {
 
 
 
+
   /*
    *  Fetch a set of data based on an EXACT match of an iov
    */
   template<class DATT, class IOVT>
   void fetchDataSet(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-  throw(std::runtime_error)
+    throw(std::runtime_error)
   {
     fillMap->clear();
 
     DATT datiface;
     datiface.setConnection(env, conn);
-
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
     datiface.fetchData( fillMap, iov );
+    datiface.terminateReadStatement();
+
   }
-
-
 
   /*
    *  Fetch dataset that is valid for the given RunTag and run.
@@ -275,8 +393,38 @@ class EcalCondDBInterface : public EcalDBConnection {
     fillIOV->setConnection(env, conn);
     fillIOV->setByRecentData(datiface.getTable(), tag, run);
     datiface.setConnection(env, conn);
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
     datiface.fetchData( fillMap, fillIOV );
+    datiface.terminateReadStatement();
   }
+
+  /*
+   *  Fetch dataset that is valid for the given location and run.
+   *  Also fills the given IOV object with the IOV associated with the data
+   *  run is optional, by default is set to infinity
+   *  Note:  ONLY works for Run*Dat objects
+   *  TODO:  Make this function (or similar) work for all *Dat objects
+   */
+  template<class DATT, class IOVT>
+  void fetchValidDataSet(std::map< EcalLogicID, DATT >* fillMap,
+                         IOVT* fillIOV,
+                         string location, run_t run = (unsigned int)-1)
+  throw(std::runtime_error)
+  {
+    fillMap->clear();
+    DATT datiface;
+    fillIOV->setConnection(env, conn);
+    fillIOV->setByRecentData(datiface.getTable(), location, run);
+    datiface.setConnection(env, conn);
+    datiface.createReadStatement();
+    datiface.setPrefetchRowCount(1000);
+    datiface.fetchData( fillMap, fillIOV );
+    datiface.terminateReadStatement();
+  }
+
+
+
 
 
   void dummy();

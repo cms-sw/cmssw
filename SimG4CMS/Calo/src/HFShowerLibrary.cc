@@ -322,7 +322,7 @@ bool HFShowerLibrary::rInside(double r) {
 int HFShowerLibrary::getPhoton(TTree* tree, int record) {
 
   int nph = 0;
-  if (tree && record > 0) {
+  if (record > 0) {
     tree->SetBranchAddress("NPH", &nph);
     int nrc = record-1;
     tree->GetEntry(nrc);
@@ -334,7 +334,7 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
 
   int nrc = record-1;
   nPhoton = getPhoton(tree, record);
-  if (nPhoton > 0 && tree && nrc >= 0) {
+  if (nPhoton > 0 && nrc >= 0) {
     photon.clear(); photon.resize(nPhoton);
     LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
 			 << nPhoton << " photons";

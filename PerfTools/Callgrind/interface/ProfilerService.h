@@ -10,7 +10,7 @@
 #include <string>
 
 
-/** \class  ProfilerService
+/* \class  ProfilerService
  * A Service to start and stop calgrind profiling on demand...
  * act also as profiler watchdog 
  * (in the same service to avoid dependency between service)
@@ -50,14 +50,9 @@ public:
 
   // ---- Service Interface: to  be called only by the Framework ----
   
-  void preSourceI() {
-    fullEvent();
-  }
-
   void beginEventI(const edm::EventID&, const edm::Timestamp&) {
     beginEvent();
   }
-
   void endEventI(const edm::Event&, const edm::EventSetup&) {
     endEvent();
   }
@@ -70,15 +65,12 @@ public:
 
 private:
 
-  void fullEvent();
-
   void beginEvent();
   void endEvent();
   
   void beginPath(std::string const & path);
   void endPath(std::string const & path);
 
-  void newEvent();
 
   // configurable
   int m_firstEvent; 

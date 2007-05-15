@@ -91,27 +91,18 @@ private:
   string process_;
 
   MonitorUserInterface* mui_;
-  
-  TH2F* gl_occ_geo[4];
-  TH2F* gl_occ_elec[3];
-  TH1F* gl_occ_eta;
-  TH1F* gl_occ_phi;
-  TH2F* gl_err_geo;
-  TH2F* gl_err_elec[3];
 
-  TH2F* sub_occ_geo[4][4];
-  TH2F* sub_occ_elec[4][3];
-  TH1F* sub_occ_eta[4];
-  TH1F* sub_occ_phi[4];
+  TH2F* occ_geo[3][4];
+  TH2F* occ_elec[3];
 
-  TH2F* sub_err_geo[4];
-  TH2F* sub_err_elec[4][3];
+  TH2F* err_geo[3];
+  TH2F* err_elec[3];
 
   TH2F* geoRef;
 
-  TH1F* qie_adc[4];
-  TH1F* num_digi[4];
-  TH1F* qie_capid[4];
+  TH1F* qie_adc[3];
+  TH1F* num_digi[3];
+  TH1F* qie_capid[3];
 
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;

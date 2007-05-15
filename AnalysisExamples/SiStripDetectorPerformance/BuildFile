@@ -24,7 +24,6 @@
 <use name=Geometry/DTGeometry>
 <use name=SimDataFormats/HepMCProduct>
 
-<use name=AnalysisDataFormats/TrackInfo>
 
 <use name=clhep>
 <use name=boost>
@@ -53,7 +52,6 @@
 <use name=Geometry/DTGeometry>
 <use name=SimDataFormats/HepMCProduct>
 
-<use name=AnalysisDataFormats/TrackInfo>
 
  <use name=clhep>
  <use name=boost>

@@ -6,7 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Utilities/Timing/interface/TimingReport.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 class TrackingTruthProducer : public edm::EDProducer {
 

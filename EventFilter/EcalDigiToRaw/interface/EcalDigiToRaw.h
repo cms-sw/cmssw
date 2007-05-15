@@ -15,7 +15,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id$
+// $Id: EcalDigiToRaw.h,v 1.2 2007/03/26 06:47:13 eperez Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include "EventFilter/EcalDigiToRaw/interface/SRBlockFormatter.h"
 
 
-using namespace std;
 
 //
 // class decleration
@@ -93,9 +92,9 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool doBarrel_;
 	bool doEndCap_;
 
-	string label_;
-	string instanceNameEB_;
-	string instanceNameEE_;
+	std::string label_;
+	std::string instanceNameEB_;
+	std::string instanceNameEE_;
 
         TowerBlockFormatter* Towerblockformatter_;
         TCCBlockFormatter*   TCCblockformatter_;

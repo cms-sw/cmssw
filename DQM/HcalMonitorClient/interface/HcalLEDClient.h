@@ -112,15 +112,19 @@ private:
   int phiMin[4]; int phiMax[4];
   int depMin[4]; int depMax[4];
 
-  TH1F* avg_shape[4];
-  TH1F* avg_time[4];
+  TH1F* avg_shape[3];
+  TH1F* avg_time[3];
 
-  TH1F* rms_shape[4];
-  TH1F* mean_shape[4];
-  TH1F* rms_time[4];
-  TH1F* mean_time[4];
-  TH2F* err_map_geo[4];
-  TH2F* err_map_elec[4];
+  TH1F* rms_ped[3];
+  TH1F* mean_ped[3];
+  TH1F* rms_sig[3];
+  TH1F* mean_sig[3];
+  TH1F* rms_tail[3];
+  TH1F* mean_tail[3];
+  TH1F* rms_time[3];
+  TH1F* mean_time[3];
+  TH2F* err_map_geo[3];
+  TH2F* err_map_elec[3];
 
   // Quality criteria for data integrity
   float rms_thresh_;

@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/17 21:04:17 $
- *  $Revision: 1.21 $
+ *  $Date: 2007/03/12 00:44:18 $
+ *  $Revision: 1.22 $
  *  \author S. Argiro - N. Amapane - M. Zanetti 
  * FRC 060906
  */
@@ -58,6 +58,12 @@ DTUnpackingModule::DTUnpackingModule(const edm::ParameterSet& ps) :
     throw cms::Exception("InvalidParameter") << "DTUnpackingModule: dataType "
 					     << dataType << " is unknown";
   }
+  
+  fedbyType_ = ps.getUntrackedParameter<bool>("fedbyType", true);
+  fedColl_ = ps.getUntrackedParameter<string>("fedColl", "source");
+  useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 731);
+  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
 
   produces<DTDigiCollection>();
   produces<DTLocalTriggerCollection>();
@@ -76,7 +82,12 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 //   e.getByLabel("DaqSource", rawdata);
 
   Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  if (fedbyType_) {
+    e.getByType(rawdata);
+  }
+  else {
+    e.getByLabel(fedColl_, rawdata);
+  }
 
   // Get the mapping from the setup
   ESHandle<DTReadOutMapping> mapping;
@@ -88,7 +99,17 @@ void DTUnpackingModule::produce(Event & e, const EventSetup& context){
 
 
   // Loop over the DT FEDs
-  for (int id=FEDNumbering::getDTFEDIds().first; id<=FEDNumbering::getDTFEDIds().second; ++id){ 
+  int FEDIDmin = 0, FEDIDMax = 0;
+  if (useStandardFEDid_){
+    FEDIDmin = FEDNumbering::getDTFEDIds().first;
+    FEDIDMax = FEDNumbering::getDTFEDIds().second;
+  }
+  else {
+    FEDIDmin = minFEDid_;
+    FEDIDMax = maxFEDid_;
+  }
+  
+  for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
     
     const FEDRawData& feddata = rawdata->FEDData(id);
     

@@ -173,8 +173,9 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
      ieta=27-28 has depth 1-3
 
   HF ieta=29-39 have 36 in iphi
-     ieta=40-41 have 18 in iphi
+     ieta=40-41 have 18 in iphi (71,3,7,11...)
      all have two depths
+
 
   HO has 15 towers in ieta and 72 in iphi and depth = 4 (one value)
   */
@@ -206,7 +207,7 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 	if (aieta<29 || aieta>41 ||
 	    ((iphi%2)==0) ||
 	    (depth>2) ||
-	    (aieta>=40 && ((iphi+1)%4)==0)) ok=false;
+	    (aieta>=40 && ((iphi+1)%4)!=0)) ok=false;
       } else ok=false;
     }
     
@@ -234,7 +235,7 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==IPHI_MAX-3) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
+	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),3,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()+4,id.depth()); 
 	} else {
 	  if (id.iphi()==IPHI_MAX-1) neighbor=HcalDetId(HcalEndcap,id.ieta(),1,id.depth()); 
@@ -267,7 +268,7 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 	break;
       case (HcalForward):
 	if (id.ietaAbs()>=40) {
-	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-3,id.depth()); 
+	  if (id.iphi()==3) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
 	  else neighbor=HcalDetId(HcalEndcap,id.ieta(),id.iphi()-4,id.depth()); 
 	} else {
 	  if (id.iphi()==1) neighbor=HcalDetId(HcalEndcap,id.ieta(),IPHI_MAX-1,id.depth()); 
@@ -297,8 +298,8 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
 
     if (aieta==20 && (id.iphi()%2)==0) 
       neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi()-1,id.depth());
-    else if (aieta==39 && ((id.iphi()+1)%4)==0) 
-      neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi()-2,id.depth());
+    else if (aieta==39 && ((id.iphi()+1)%4)!=0) 
+      neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),((id.iphi()==1)?(71):(id.iphi()-2)),id.depth());
     else
       neighbors[0]=HcalDetId(id.subdet(),(aieta+1)*id.zside(),id.iphi(),id.depth());
     
@@ -318,7 +319,8 @@ int HcalTopology::exclude(HcalSubdetector subdet, int ieta1, int ieta2, int iphi
     } else if (aieta==40) {
       n=2;
       neighbors[0]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi(),id.depth());
-      neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+2,id.depth());
+      if (id.iphi()==IPHI_MAX-1) neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),1,id.depth());
+      else neighbors[1]=HcalDetId(id.subdet(),(aieta-1)*id.zside(),id.iphi()+2,id.depth());
     } else if (aieta==1) {
       neighbors[0]=HcalDetId(id.subdet(),-aieta*id.zside(),id.iphi(),id.depth());
     } else

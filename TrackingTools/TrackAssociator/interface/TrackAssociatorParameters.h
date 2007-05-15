@@ -13,7 +13,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: TrackDetectorAssociator.h,v 1.4 2007/02/19 12:02:41 dmytro Exp $
+// $Id: TrackAssociatorParameters.h,v 1.1 2007/03/20 06:46:32 dmytro Exp $
 //
 //
 
@@ -33,7 +33,19 @@ class TrackAssociatorParameters {
    double dRHcalPreselection;
    double dRMuonPreselection;
    
-   /// maximal distance from a muon chamber. Can be consider as a preselection
+   /// account for trajectory change for calorimeters.
+   /// allows to compute energy around original track direction 
+   /// (for example neutral particles in a jet) as well as energy
+   /// around track projection on the inner surface of a 
+   /// calorimeter. Affects performance, so use wisely.
+   bool accountForTrajectoryChangeCalo;
+   
+   // account for trajectory change in the muon detector
+   // helps to ensure that all chambers are found. 
+   // Recomended to be used in default configuration
+   // bool accountForTrajectoryChangeMuon;
+
+   /// maximal distance from a muon chamber. Can be considered as a preselection
    /// cut and fancier cuts can be applied in a muon producer, since the
    /// distance from a chamber should be available as output of the TrackAssociation
    double muonMaxDistanceX;

@@ -1,0 +1,5 @@
+<use name=FWCore/ServiceRegistry>
+<export>
+<use name=FWCore/ServiceRegistry>
+<lib name=DQMServicesDiagnostic>
+</export>

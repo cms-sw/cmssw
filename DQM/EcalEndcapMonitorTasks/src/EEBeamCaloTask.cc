@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.43 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.5 $
  * \author A. Ghezzi
  *
  */
@@ -28,8 +28,9 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
-#include <DQM/EcalEndcapMonitorTasks/interface/EEMUtilsTasks.h>
 
 using namespace cms;
 using namespace edm;
@@ -38,6 +39,11 @@ using namespace std;
 EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalTBEventHeader_ = ps.getParameter<edm::InputTag>("EcalTBEventHeader");
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
@@ -95,14 +101,10 @@ void EEBeamCaloTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
   profileArranged_ = false;
-  DaqMonitorBEInterface* dbe = 0;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
-    dbe->rmdir("EcalEndcap/EEBeamCaloTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
+    dbe_->rmdir("EcalEndcap/EEBeamCaloTask");
   }
 
 }
@@ -131,202 +133,195 @@ void EEBeamCaloTask::setup(void){
   event_last_reset_ = 0;
   last_cry_in_beam_ = 0;
   previous_cry_in_beam_ = 1;
-  DaqMonitorBEInterface* dbe = 0;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
 
     for (int i = 0; i < cryInArray_ ; i++) {
       sprintf(histo, "EEBCT pulse profile cry %01d", i+1);
       //considering the gain the range is 4096*12 ~ 50000
-      meBBCaloPulseProf_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
+      meBBCaloPulseProf_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
       sprintf(histo, "EEBCT pulse profile in G12 cry %01d", i+1);
-      meBBCaloPulseProfG12_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
+      meBBCaloPulseProfG12_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
       sprintf(histo, "EEBCT found gains cry %01d", i+1);
-      meBBCaloGains_[i] =  dbe->book1D(histo,histo,14,0.,14.);
+      meBBCaloGains_[i] =  dbe_->book1D(histo,histo,14,0.,14.);
       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
       sprintf(histo, "EEBCT rec energy cry %01d", i+1);
-      meBBCaloEne_[i] =  dbe->book1D(histo,histo,500,0.,9000.);
+      meBBCaloEne_[i] =  dbe_->book1D(histo,histo,500,0.,9000.);
       //9000 ADC in G12 equivalent is about 330 GeV
 
       //////////////////////////////// me for the moving table////////////////////////////////////////////
 
 //       sprintf(histo, "EEBCT pulse profile moving table cry %01d", i+1);
 //       //considering the gain the range is 4096*12 ~ 50000
-//       meBBCaloPulseProfMoving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
+//       meBBCaloPulseProfMoving_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,50000,0.,50000.,"s");
 
 //       sprintf(histo, "EEBCT pulse profile in G12 moving table cry %01d", i+1);
-//       meBBCaloPulseProfG12Moving_[i] = dbe->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
+//       meBBCaloPulseProfG12Moving_[i] = dbe_->bookProfile(histo, histo, 10,0.,10.,4096,0.,4096.,"s");
 
 //       sprintf(histo, "EEBCT found gains moving table cry %01d", i+1);
-//       meBBCaloGainsMoving_[i] =  dbe->book1D(histo,histo,14,0.,14.);
+//       meBBCaloGainsMoving_[i] =  dbe_->book1D(histo,histo,14,0.,14.);
 //       // g1-> bin 2, g6-> bin 7, g12-> bin 13
 
 //       sprintf(histo, "EEBCT rec energy moving table cry %01d", i+1);
-//       meBBCaloEneMoving_[i] =  dbe->book1D(histo,histo,2000,0.,9000.);
+//       meBBCaloEneMoving_[i] =  dbe_->book1D(histo,histo,2000,0.,9000.);
 //       //9000 ADC in G12 equivalent is about 330 GeV
 
     }
 
-//     dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
+//     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
 //       sprintf(histo, "EEBCT rec Ene sum 3x3 cry: %04d",u);
-//       meBBCaloE3x3Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
+//       meBBCaloE3x3Cry_[u] = dbe_->book1D(histo,histo,1000,0.,4500.);
 
 //       sprintf(histo, "EEBCT rec Energy1 cry: %04d",u);
-//       meBBCaloE1Cry_[u] = dbe->book1D(histo,histo,1000,0.,4500.);
+//       meBBCaloE1Cry_[u] = dbe_->book1D(histo,histo,1000,0.,4500.);
 //     }
 
-//     dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
+//     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
     sprintf(histo, "EEBCT readout crystals");
-    meBBCaloCryRead_ =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    meBBCaloCryRead_ =  dbe_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     //sprintf(histo, "EEBCT readout crystals table moving");
-    //meBBCaloCryReadMoving_ =  dbe->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
+    //meBBCaloCryReadMoving_ =  dbe_->book2D(histo,histo,9,-4.,5.,9,-4.,5.);
     //matrix of readout crystal around cry in beam
 
     sprintf(histo, "EEBCT all needed crystals readout");
-    meBBCaloAllNeededCry_ = dbe->book1D(histo,histo,3,-1.,2.);
+    meBBCaloAllNeededCry_ = dbe_->book1D(histo,histo,3,-1.,2.);
     // not all needed cry are readout-> bin 1, all needed cry are readout-> bin 3
 
     sprintf(histo, "EEBCT readout crystals number");
-    meBBNumCaloCryRead_ = dbe->book1D(histo,histo,1701,0.,1701.);
+    meBBNumCaloCryRead_ = dbe_->book1D(histo,histo,1701,0.,1701.);
 
     sprintf(histo, "EEBCT rec Ene sum 3x3");
-    meBBCaloE3x3_ = dbe->book1D(histo,histo,500,0.,9000.);
+    meBBCaloE3x3_ = dbe_->book1D(histo,histo,500,0.,9000.);
     //9000 ADC in G12 equivalent is about 330 GeV
 
     sprintf(histo, "EEBCT rec Ene sum 3x3 table moving");
-    meBBCaloE3x3Moving_ = dbe->book1D(histo,histo,500,0.,9000.);
+    meBBCaloE3x3Moving_ = dbe_->book1D(histo,histo,500,0.,9000.);
     //9000 ADC in G12 equivalent is about 330 GeV
 
     sprintf(histo, "EEBCT crystal on beam");
-    meBBCaloCryOnBeam_ = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meBBCaloCryOnBeam_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EEBCT crystal with maximum rec energy");
-    meBBCaloMaxEneCry_ = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meBBCaloMaxEneCry_ = dbe_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     sprintf(histo, "EEBCT table is moving");
-    TableMoving_ = dbe->book1D(histo,histo,2,0.,1.1);
+    TableMoving_ = dbe_->book1D(histo,histo,2,0.,1.1);
     //table is moving-> bin 2, table is not moving-> bin 1
 
     sprintf(histo, "EEBCT crystals done");
-    CrystalsDone_ = dbe->book1D(histo,histo,1700,1.,1701.);
+    CrystalsDone_ = dbe_->book1D(histo,histo,1700,1.,1701.);
     //for a crystal done the corresponing bin is filled with the step in the
     //autoscan pertainig to the given crystales
 
     sprintf(histo, "EEBCT crystal in beam vs event");
-    CrystalInBeam_vs_Event_ = dbe->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
+    CrystalInBeam_vs_Event_ = dbe_->bookProfile(histo, histo, 20000,0.,400000.,1802,-101.,1701.,"s");
     // 1 bin each 20 events
     // when table is moving for just one events fill with -100
 
 
     sprintf(histo, "EEBCT readout crystals errors");
-    meEEBCaloReadCryErrors_ = dbe->book1D(histo, histo, 425,1.,86.);
+    meEEBCaloReadCryErrors_ = dbe_->book1D(histo, histo, 425,1.,86.);
 
     sprintf(histo, "EEBCT average rec energy in the single crystal");
-    //meEEBCaloE1vsCry_ = dbe->book1D(histo, histo, 85,1.,86.);
-    meEEBCaloE1vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    //meEEBCaloE1vsCry_ = dbe_->book1D(histo, histo, 85,1.,86.);
+    meEEBCaloE1vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
 
     sprintf(histo, "EEBCT average rec energy in the 3x3 array");
-    //meEEBCaloE3x3vsCry_= dbe->book1D(histo, histo,85,1.,86.);
-    meEEBCaloE3x3vsCry_ = dbe->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
+    //meEEBCaloE3x3vsCry_= dbe_->book1D(histo, histo,85,1.,86.);
+    meEEBCaloE3x3vsCry_ = dbe_->bookProfile(histo, histo, 1700,1.,1701.,500,0.,9000.,"s");
 
     sprintf(histo, "EEBCT number of entries");
-    meEEBCaloEntriesVsCry_ = dbe->book1D(histo, histo,1700,1.,1701.);
+    meEEBCaloEntriesVsCry_ = dbe_->book1D(histo, histo,1700,1.,1701.);
 
     sprintf(histo, "EEBCT energy deposition in the 3x3");
-    meEEBCaloBeamCentered_ = dbe->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
+    meEEBCaloBeamCentered_ = dbe_->book2D(histo, histo,3,-1.5,1.5,3,-1.5,1.5);
 
     sprintf(histo, "EEBCT E1 in the max cry");
-    meEEBCaloE1MaxCry_= dbe->book1D(histo,histo,500,0.,9000.);
+    meEEBCaloE1MaxCry_= dbe_->book1D(histo,histo,500,0.,9000.);
 
     sprintf(histo, "EEBCT Desynchronization vs step");
-    meEEBCaloDesync_= dbe->book1D(histo, histo, 85 ,1.,86.);
+    meEEBCaloDesync_= dbe_->book1D(histo, histo, 85 ,1.,86.);
   }
 
 }
 
 void EEBeamCaloTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
     for (int i = 0; i < cryInArray_ ; i++) {
-      if ( meBBCaloPulseProf_[i] ) dbe->removeElement( meBBCaloPulseProf_[i]->getName() );
+      if ( meBBCaloPulseProf_[i] ) dbe_->removeElement( meBBCaloPulseProf_[i]->getName() );
       meBBCaloPulseProf_[i] = 0;
-      if ( meBBCaloPulseProfG12_[i] ) dbe->removeElement( meBBCaloPulseProfG12_[i]->getName() );
+      if ( meBBCaloPulseProfG12_[i] ) dbe_->removeElement( meBBCaloPulseProfG12_[i]->getName() );
       meBBCaloPulseProfG12_[i] = 0;
-      if ( meBBCaloGains_[i] ) dbe->removeElement( meBBCaloGains_[i]->getName() );
+      if ( meBBCaloGains_[i] ) dbe_->removeElement( meBBCaloGains_[i]->getName() );
       meBBCaloGains_[i] = 0;
-      if ( meBBCaloEne_[i] ) dbe->removeElement( meBBCaloEne_[i]->getName() );
+      if ( meBBCaloEne_[i] ) dbe_->removeElement( meBBCaloEne_[i]->getName() );
       meBBCaloEne_[i] = 0;
 
-//       if ( meBBCaloPulseProfMoving_[i] ) dbe->removeElement( meBBCaloPulseProfMoving_[i]->getName() );
+//       if ( meBBCaloPulseProfMoving_[i] ) dbe_->removeElement( meBBCaloPulseProfMoving_[i]->getName() );
 //       meBBCaloPulseProfMoving_[i] = 0;
-//       if ( meBBCaloPulseProfG12Moving_[i] ) dbe->removeElement( meBBCaloPulseProfG12Moving_[i]->getName() );
+//       if ( meBBCaloPulseProfG12Moving_[i] ) dbe_->removeElement( meBBCaloPulseProfG12Moving_[i]->getName() );
 //       meBBCaloPulseProfG12Moving_[i] = 0;
-//       if ( meBBCaloGainsMoving_[i] ) dbe->removeElement( meBBCaloGainsMoving_[i]->getName() );
+//       if ( meBBCaloGainsMoving_[i] ) dbe_->removeElement( meBBCaloGainsMoving_[i]->getName() );
 //       meBBCaloGainsMoving_[i] = 0;
-//       if ( meBBCaloEneMoving_[i] ) dbe->removeElement( meBBCaloEneMoving_[i]->getName() );
+//       if ( meBBCaloEneMoving_[i] ) dbe_->removeElement( meBBCaloEneMoving_[i]->getName() );
 //       meBBCaloEneMoving_[i] = 0;
     }
 
-//     dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
+//     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask/EnergyHistos");
 //     for(int u=0; u< 1701;u++){
-//       if ( meBBCaloE3x3Cry_[u] ) dbe->removeElement( meBBCaloE3x3Cry_[u]->getName() );
+//       if ( meBBCaloE3x3Cry_[u] ) dbe_->removeElement( meBBCaloE3x3Cry_[u]->getName() );
 //       meBBCaloE3x3Cry_[u] = 0;
-//       if ( meBBCaloE1Cry_[u] ) dbe->removeElement( meBBCaloE1Cry_[u]->getName() );
+//       if ( meBBCaloE1Cry_[u] ) dbe_->removeElement( meBBCaloE1Cry_[u]->getName() );
 //       meBBCaloE1Cry_[u] = 0;
 //     }
 
-//     dbe->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
-    if ( meBBCaloCryRead_ ) dbe->removeElement( meBBCaloCryRead_->getName() );
+//     dbe_->setCurrentFolder("EcalEndcap/EEBeamCaloTask");
+    if ( meBBCaloCryRead_ ) dbe_->removeElement( meBBCaloCryRead_->getName() );
     meBBCaloCryRead_ = 0;
-    //    if ( meBBCaloCryReadMoving_ ) dbe->removeElement( meBBCaloCryReadMoving_->getName() );
+    //    if ( meBBCaloCryReadMoving_ ) dbe_->removeElement( meBBCaloCryReadMoving_->getName() );
     //meBBCaloCryReadMoving_ = 0;
-    if ( meBBCaloAllNeededCry_ ) dbe->removeElement( meBBCaloAllNeededCry_->getName() );
+    if ( meBBCaloAllNeededCry_ ) dbe_->removeElement( meBBCaloAllNeededCry_->getName() );
     meBBCaloAllNeededCry_ = 0;
-    if ( meBBNumCaloCryRead_ ) dbe->removeElement( meBBNumCaloCryRead_->getName() );
+    if ( meBBNumCaloCryRead_ ) dbe_->removeElement( meBBNumCaloCryRead_->getName() );
     meBBNumCaloCryRead_ = 0;
-    if ( meBBCaloE3x3_ ) dbe->removeElement( meBBCaloE3x3_->getName() );
+    if ( meBBCaloE3x3_ ) dbe_->removeElement( meBBCaloE3x3_->getName() );
     meBBCaloE3x3_ = 0;
-    if ( meBBCaloE3x3Moving_ ) dbe->removeElement( meBBCaloE3x3Moving_->getName() );
+    if ( meBBCaloE3x3Moving_ ) dbe_->removeElement( meBBCaloE3x3Moving_->getName() );
     meBBCaloE3x3Moving_ = 0;
-    if ( meBBCaloCryOnBeam_ ) dbe->removeElement( meBBCaloCryOnBeam_->getName() );
+    if ( meBBCaloCryOnBeam_ ) dbe_->removeElement( meBBCaloCryOnBeam_->getName() );
     meBBCaloCryOnBeam_ = 0;
-    if ( meBBCaloMaxEneCry_ ) dbe->removeElement( meBBCaloMaxEneCry_->getName() );
+    if ( meBBCaloMaxEneCry_ ) dbe_->removeElement( meBBCaloMaxEneCry_->getName() );
     meBBCaloMaxEneCry_ = 0;
-    if ( TableMoving_ ) dbe->removeElement( TableMoving_->getName() );
+    if ( TableMoving_ ) dbe_->removeElement( TableMoving_->getName() );
     TableMoving_ = 0;
-    if ( CrystalsDone_ ) dbe->removeElement( CrystalsDone_->getName() );
+    if ( CrystalsDone_ ) dbe_->removeElement( CrystalsDone_->getName() );
     CrystalsDone_ = 0;
-    if ( CrystalInBeam_vs_Event_ ) dbe->removeElement( CrystalInBeam_vs_Event_->getName() );
+    if ( CrystalInBeam_vs_Event_ ) dbe_->removeElement( CrystalInBeam_vs_Event_->getName() );
     CrystalInBeam_vs_Event_ = 0;
-    if( meEEBCaloReadCryErrors_ ) dbe->removeElement( meEEBCaloReadCryErrors_->getName() );
+    if( meEEBCaloReadCryErrors_ ) dbe_->removeElement( meEEBCaloReadCryErrors_->getName() );
     meEEBCaloReadCryErrors_ = 0;
-    if( meEEBCaloE1vsCry_ ) dbe->removeElement( meEEBCaloE1vsCry_->getName() );
+    if( meEEBCaloE1vsCry_ ) dbe_->removeElement( meEEBCaloE1vsCry_->getName() );
     meEEBCaloE1vsCry_ = 0;
-    if( meEEBCaloE3x3vsCry_ ) dbe->removeElement( meEEBCaloE3x3vsCry_->getName() );
+    if( meEEBCaloE3x3vsCry_ ) dbe_->removeElement( meEEBCaloE3x3vsCry_->getName() );
     meEEBCaloE3x3vsCry_ = 0;
-    if( meEEBCaloEntriesVsCry_ )  dbe->removeElement( meEEBCaloEntriesVsCry_->getName() );
+    if( meEEBCaloEntriesVsCry_ )  dbe_->removeElement( meEEBCaloEntriesVsCry_->getName() );
     meEEBCaloEntriesVsCry_ = 0;
-    if( meEEBCaloBeamCentered_ ) dbe->removeElement( meEEBCaloBeamCentered_->getName() );
+    if( meEEBCaloBeamCentered_ ) dbe_->removeElement( meEEBCaloBeamCentered_->getName() );
     meEEBCaloBeamCentered_ = 0;
-    if( meEEBCaloE1MaxCry_ ) dbe->removeElement(meEEBCaloE1MaxCry_->getName() );
+    if( meEEBCaloE1MaxCry_ ) dbe_->removeElement(meEEBCaloE1MaxCry_->getName() );
     meEEBCaloE1MaxCry_ = 0;
-    if( meEEBCaloDesync_ ) dbe->removeElement(meEEBCaloDesync_->getName() );
+    if( meEEBCaloDesync_ ) dbe_->removeElement(meEEBCaloDesync_->getName() );
     meEEBCaloDesync_ = 0;
   }
 
@@ -550,13 +545,13 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     //here the follwowing histos should be reset
     //   for (int u=0;u<cryInArray_;u++){
-    //  EEMUtilsTasks::resetHisto( meBBCaloPulseProfMoving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloPulseProfG12Moving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloGainsMoving_[u] );
-    //  EEMUtilsTasks::resetHisto( meBBCaloEneMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloPulseProfMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloPulseProfG12Moving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloGainsMoving_[u] );
+    //  UtilsClient::resetHisto( meBBCaloEneMoving_[u] );
     // }
-    //EEMUtilsTasks::resetHisto( meBBCaloCryReadMoving_ );
-    EEMUtilsTasks::resetHisto( meBBCaloE3x3Moving_ );
+    //UtilsClient::resetHisto( meBBCaloCryReadMoving_ );
+    UtilsClient::resetHisto( meBBCaloE3x3Moving_ );
 
   }
 
@@ -586,14 +581,14 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
       //here the follwowing histos should be reset
       for (int u=0;u<cryInArray_;u++){
-	EEMUtilsTasks::resetHisto( meBBCaloPulseProf_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloPulseProfG12_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloGains_[u] );
-	EEMUtilsTasks::resetHisto( meBBCaloEne_[u] );
+	UtilsClient::resetHisto( meBBCaloPulseProf_[u] );
+	UtilsClient::resetHisto( meBBCaloPulseProfG12_[u] );
+	UtilsClient::resetHisto( meBBCaloGains_[u] );
+	UtilsClient::resetHisto( meBBCaloEne_[u] );
       }
-      EEMUtilsTasks::resetHisto( meBBCaloCryRead_ );
-      EEMUtilsTasks::resetHisto( meBBCaloE3x3_ );
-      EEMUtilsTasks::resetHisto( meEEBCaloBeamCentered_ );
+      UtilsClient::resetHisto( meBBCaloCryRead_ );
+      UtilsClient::resetHisto( meBBCaloE3x3_ );
+      UtilsClient::resetHisto( meEEBCaloBeamCentered_ );
     }
   }
 
@@ -642,7 +637,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    //int ism = id.ism();
+    //int ism = id.ism(); if ( ism > 18 ) continue;
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
@@ -745,7 +740,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
-    //int ism = id.ism();
+    //int ism = id.ism(); if ( ism > 18 ) continue;
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 

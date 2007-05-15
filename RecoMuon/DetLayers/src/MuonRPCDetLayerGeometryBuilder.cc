@@ -39,7 +39,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
       std::vector<int> rings;
       int FirstStationRing = 1; 
       rings.push_back(FirstStationRing);
-      for(int roll = RPCDetId::minRollId; 
+      for(int roll = RPCDetId::minRollId+1; 
 	  roll <= RPCDetId::maxRollId; ++roll) {
 	rolls.push_back(roll);
       }
@@ -60,7 +60,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
       for(int ring = 2; ring <= 3; ++ring) {
 	rings.push_back(ring);
       }
-      for(int roll = RPCDetId::minRollId; roll <= RPCDetId::maxRollId; 
+      for(int roll = RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; 
 	  ++roll) {
 	rolls.push_back(roll);
       }
@@ -78,7 +78,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 	for(int ring = RPCDetId::minRingForwardId; ring <= RPCDetId::maxRingForwardId; ++ring) {
 	  rings.push_back(ring);
 	}
-	for(int roll = RPCDetId::minRollId; roll <= RPCDetId::maxRollId; ++roll) {
+	for(int roll = RPCDetId::minRollId+1; roll <= RPCDetId::maxRollId; ++roll) {
 	  rolls.push_back(roll);
 	}
                 
@@ -117,7 +117,7 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 	  if (geomDet) {
 	    
 	    geomDets.push_back(geomDet);
-	    LogTrace(metname) << "get RPC chamber "
+	    LogTrace(metname) << "get RPC Endcap roll "
 			      <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
 			      << " at R=" << geomDet->position().perp()
 			      << ", phi=" << geomDet->position().phi();
@@ -170,7 +170,7 @@ MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
 		  nSubSectors++;
 		}
 		geomDets.push_back(geomDet);
-		LogTrace(metname) << "get RPC roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
+		LogTrace(metname) << "get RPC Barrel roll " <<  RPCDetId(region,wheel,station,sector,layer,subsector,roll)
 				  << " at R=" << geomDet->position().perp()
 				  << ", phi=" << geomDet->position().phi() ;
 	      }

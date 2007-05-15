@@ -10,8 +10,8 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/ServiceRegistry>
-<use name=Foundation/PluginManager>
 <use name=TBDataFormats/EcalTBObjects>
+<use name=DQM/EcalCommon>
 <use name=rootcore>
 <export>
   <use name=DQMServices/Core>

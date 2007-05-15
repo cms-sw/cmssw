@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.9 2007/03/26 23:04:41 hcheung Exp $
+   $Id: StorageManager.h,v 1.13.2.1 2007/05/08 00:12:16 hcheung Exp $
 */
 
 #include <string>
@@ -29,7 +29,7 @@
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
 
-#include "PluginManager/PluginManager.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "toolbox/mem/Reference.h"
 
@@ -93,6 +93,9 @@ namespace stor {
 			    unsigned int, 
 			    std::string);
 
+    void stopAction();
+    void haltAction();
+
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void css(xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception)
@@ -107,6 +110,10 @@ namespace stor {
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
     void consumerWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void DQMeventdataWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
+    void DQMconsumerWebPage
+      (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);
 
     void parseFileEntry(std::string in, std::string &out, unsigned int &nev, unsigned int &sz);
 	
@@ -119,8 +126,7 @@ namespace stor {
     boost::shared_ptr<stor::JobController> jc_;
     boost::mutex                           halt_lock_;
 
-    // added for streamer file writing instead of OutServ
-    xdata::Boolean streamer_only_;
+    xdata::Boolean pushmode2proxy_;
     xdata::Integer nLogicalDisk_;
     xdata::String  fileCatalog_;
 
@@ -128,24 +134,35 @@ namespace stor {
     xdata::String  notifyTier0Script_;
     xdata::String  insertFileScript_;
                                                                                                           
-    bool writeStreamerOnly_;
+    bool pushMode_;
     std::string smConfigString_;
     std::string smFileCatalog_;
+
+    xdata::Boolean collateDQM_;
+    xdata::Boolean archiveDQM_;
+    xdata::String  filePrefixDQM_;
+    xdata::Integer purgeTimeDQM_;
+    xdata::Integer readyTimeDQM_;
+    xdata::Boolean useCompressionDQM_;
+    xdata::Integer compressionLevelDQM_;
 
     evf::Css css_;
     xdata::UnsignedInteger32 receivedFrames_;
     int pool_is_set_;
     toolbox::mem::Pool *pool_;
 
-    // added temporarily for Event Server
-    char serialized_prods_[1000*1000*2];
+    // added for Event Server
+    std::vector<unsigned char> serialized_prods_;
     int  ser_prods_size_;
-    xdata::Integer oneinN_; //place one in eveny oneinN_ into buffer
-    char mybuffer_[7000000]; //temporary buffer instead of using stack
+    std::vector<unsigned char> mybuffer_; //temporary buffer instead of using stack
     xdata::Double maxESEventRate_;  // hertz
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer idleConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
+    xdata::Double DQMmaxESEventRate_;  // hertz
+    xdata::Integer DQMactiveConsumerTimeout_;  // seconds
+    xdata::Integer DQMidleConsumerTimeout_;  // seconds
+    xdata::Integer DQMconsumerQueueSize_;
 
     SMFUSenderList smfusenders_;
     xdata::UnsignedInteger32 connectedFUs_;
@@ -184,6 +201,12 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
+    enum
+    {
+      DEFAULT_PURGE_TIME = 20,
+      DEFAULT_READY_TIME = 10
+    };
+
   }; 
 } 
 

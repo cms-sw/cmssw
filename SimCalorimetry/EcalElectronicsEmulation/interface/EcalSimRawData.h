@@ -1,5 +1,5 @@
 /*  
- * $Id: EcalSimRawData.h,v 1.7 2007/03/28 14:50:00 pgras Exp $
+ * $Id: EcalSimRawData.h,v 1.5 2007/02/20 18:15:25 pgras Exp $
  */
 
 #include "FWCore/Framework/interface/Event.h"
@@ -235,7 +235,7 @@ private:
    * @param std CMSSW TT eta index
    */
   int cIndex2iTtEta(int iTtEta0) const{
-    return (iTtEta0<28)?(iTtEta0-28):(iTtEta0-27);
+    return (iTtEta0<28)?(28-iTtEta0):(iTtEta0-27);
   }
 
   /** Converse of iTtPhi2cIndex

@@ -4,8 +4,8 @@
 /*
  * \file EEBeamHodoTask.h
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.11 $
+ * $Date: 2007/04/05 13:56:48 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -49,6 +49,10 @@ void cleanup(void);
 private:
 
 int ievt_;
+
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
 
 edm::InputTag EcalTBEventHeader_;
 edm::InputTag EcalRawDataCollection_;

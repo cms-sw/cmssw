@@ -890,8 +890,8 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
             widthsp->setSigma(icap2,icap,RefPedSigs[icap2][icap]);
           }
         }
+        fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
       }
-      fValPedestals->addValue(detid,RefPedVals[0],RefPedVals[1],RefPedVals[2],RefPedVals[3]);
     }
   }
 

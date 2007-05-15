@@ -7,8 +7,6 @@
 <use name=DataFormats/EcalDetId>
 <use name=SimDataFormats/CaloHit>
 <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
-<use name=SimCalorimetry/EcalTrigPrimAlgos>
-
 <use name=root>
 
 <flags SEAL_PLUGIN_NAME="SimCalorimetryEcalElectronicsEmulation">
@@ -24,5 +22,4 @@
    <use name=DataFormats/EcalDetId>
    <use name=SimDataFormats/CaloHit>
    <use name=SimCalorimetry/EcalSelectiveReadoutAlgos>
-   <use name=SimCalorimetry/EcalTrigPrimAlgos>
 </export>

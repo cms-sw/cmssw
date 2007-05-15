@@ -6,8 +6,6 @@
 #include "SimMuon/CSCDigitizer/src/CSCCrosstalkGenerator.h"
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseReader.h"
-#include "SimMuon/CSCDigitizer/src/CSCScaNoiseGaussian.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigi.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -21,6 +19,7 @@
 
 CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
 : CSCBaseElectronicsSim(p),
+  theAmpResponse(theShapingTime, CSCStripAmpResponse::RADICAL),
   theComparatorThreshold(20.),
   theComparatorNoise(0.),
   theComparatorRMSOffset(2.),
@@ -34,30 +33,14 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
   doCrosstalk_(p.getParameter<bool>("doCrosstalk")),
   theStripConditions(0),
   theCrosstalkGenerator(0),
-  theScaNoiseGenerator(0),
   theComparatorClockJump(2),
   sca_time_bin_size(50.),
-  theAnalogNoise(p.getParameter<double>("analogNoise")),
-  thePedestal(p.getParameter<double>("pedestal")),
-  thePedestalWidth(p.getParameter<double>("pedestalWidth")),
   sca_peak_bin(p.getParameter<int>("scaPeakBin")),
-  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset")),
-  scaNoiseMode_(p.getParameter<std::string>("scaNoiseMode"))
+  theComparatorTimeBinOffset(p.getParameter<int>("comparatorTimeBinOffset"))
 {
 
   if(doCrosstalk_) {
     theCrosstalkGenerator = new CSCCrosstalkGenerator();
-  }
-  if(doNoise_) {
-    if(scaNoiseMode_ == "file") {
-      theScaNoiseGenerator = new CSCScaNoiseReader(thePedestal, thePedestalWidth);
-    }
-    else if(scaNoiseMode_ == "simple") {
-      theScaNoiseGenerator = new CSCScaNoiseGaussian(theAnalogNoise, thePedestal, thePedestalWidth);
-    }
-    else {
-      edm::LogError("CSCStripElectronicsSim") << "Bad value for SCA noise mode";
-    }
   }
 
   fillAmpResponse();
@@ -65,9 +48,6 @@ CSCStripElectronicsSim::CSCStripElectronicsSim(const edm::ParameterSet & p)
 
 
 CSCStripElectronicsSim::~CSCStripElectronicsSim() {
-  if(doNoise_) {
-    delete theScaNoiseGenerator;
-  }
   if(doCrosstalk_) {
     delete theCrosstalkGenerator;
   }
@@ -78,10 +58,6 @@ void CSCStripElectronicsSim::initParameters() {
   theLayerGeometry = theLayer->geometry();
   nElements = theLayerGeometry->numberOfStrips();
   theComparatorThreshold = 20.;
-  if(doCrosstalk_) {
-    float capacativeConstant = theLayerGeometry->length()/70;
-    theCrosstalkGenerator->setParameters(capacativeConstant, 0., 0.02);
-  }
   //selfTest();
 
   //calculate the offset to the peak
@@ -104,10 +80,16 @@ int CSCStripElectronicsSim::readoutElement(int strip) const {
   return theLayerGeometry->channel(strip);
 }
 
+
+float CSCStripElectronicsSim::calculateAmpResponse(float t) const
+{
+  return theAmpResponse.calculateAmpResponse(t);
+}
+
+
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   std::vector<float> noiseBins(nScaBins_);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
-  //theScaNoiseGenerator->noisify(layerId(), tmpSignal);
   theStripConditions->noisify(layerId(), tmpSignal);
   tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
@@ -159,7 +141,7 @@ CSCStripElectronicsSim::runComparator() {
     // icomp =0->1,2,  =1->3,4,  =2->5,6, ...
     const CSCAnalogSignal & signal1 = find(readoutElement(iComparator*2 + 1));
     const CSCAnalogSignal & signal2 = find(readoutElement(iComparator*2 + 2));
-    for(float time = theSignalStartTime; time < theSignalStopTime; time += theSamplingTime) {
+    for(float time = theSignalStartTime; time < theSignalStopTime-theComparatorWait; time += theSamplingTime) {
       if(comparatorReading(signal1, time) > theComparatorThreshold
       || comparatorReading(signal2, time) > theComparatorThreshold) {
 	 // wait a bit, so we can run the comparator at the signal peak
@@ -176,7 +158,8 @@ CSCStripElectronicsSim::runComparator() {
          // -x-- 101   5
          // --x- 110   6
          // ---x 111   7
-         CSCAnalogSignal mainSignal;
+         // just to prevent a copy
+         const CSCAnalogSignal * mainSignal = 0;
          // pick the higher of the two strips in the pair
          if(height1 > height2) {
            float leftStrip = 0.;
@@ -187,7 +170,7 @@ CSCStripElectronicsSim::runComparator() {
            if(leftStrip < height1) {
              output = (leftStrip < height2);
              strip = iComparator*2 + 1;
-             mainSignal = signal1;
+             mainSignal = &signal1;
            }
          } else {
            float rightStrip = 0.;
@@ -197,7 +180,7 @@ CSCStripElectronicsSim::runComparator() {
            if(rightStrip < height2) {
              output = (height1 < rightStrip);
              strip = iComparator*2 + 2;
-             mainSignal = signal2;
+             mainSignal = &signal2;
            }
          }
          if(strip != 0) {
@@ -205,9 +188,9 @@ CSCStripElectronicsSim::runComparator() {
            // decide how long this comparator and neighboring ones will be locked for
            float lockingTime = time + theComparatorDeadTime;
            // really should be zero, but strip signal doesn't go negative yet
-           float resetThreshold = theComparatorThreshold/2.;
-           while(lockingTime < theNumberOfSamples*theSamplingTime-theComparatorWait
-              && mainSignal.getValue(lockingTime) > resetThreshold) {
+           float resetThreshold = 1;
+           while(lockingTime < theSignalStopTime
+              && mainSignal->getValue(lockingTime) > resetThreshold) {
              lockingTime += theSamplingTime;
            }
            int timeBin = (int)((comparatorTime-theTimingOffset)/theBunchSpacing) + theComparatorTimeBinOffset;
@@ -369,20 +352,36 @@ void CSCStripElectronicsSim::addCrosstalk() {
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
   for(std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin();
       realSignalItr != realSignals.end(); ++realSignalItr) {
-    CSCAnalogSignal crosstalkSignal = theCrosstalkGenerator->getCrosstalk(*realSignalItr);
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
-      find(readoutElement(thisStrip-1)).superimpose(crosstalkSignal);
+      int otherStrip = thisStrip - 1;
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
     if(thisStrip < nElements) {
-      find(readoutElement(thisStrip+1)).superimpose(crosstalkSignal);
+      int otherStrip = thisStrip + 1;
+      addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
-
-    // Now subtract twice the crosstalk signal from the original signal
-    crosstalkSignal *= -2.;
-    find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
   }
+}
+
+
+void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
+       int thisStrip, int otherStrip)
+{
+  float capacitiveCrosstalk, resistiveCrosstalk;
+  bool leftRight = (otherStrip > thisStrip);
+  theStripConditions->crosstalk(layerId(), otherStrip, 
+                                theLayerGeometry->length(), leftRight,
+                                capacitiveCrosstalk, resistiveCrosstalk);
+  theCrosstalkGenerator->setParameters(capacitiveCrosstalk, 0., resistiveCrosstalk);
+  CSCAnalogSignal crosstalkSignal( theCrosstalkGenerator->getCrosstalk(signal) );
+  find(readoutElement(otherStrip)).superimpose(crosstalkSignal);
+
+  // Now subtract the crosstalk signal from the original signal
+  crosstalkSignal *= -1.;
+  find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
+
 }
 
 
@@ -391,14 +390,15 @@ CSCStripDigi CSCStripElectronicsSim::createDigi(int channel, float startTime)
   const CSCAnalogSignal & signal = find(channel);
   // fill in the sca information
   std::vector<int> scaCounts(nScaBins_);
+
+  float pedestal = theStripConditions->pedestal(layerId(), channel);
+  float gain = theStripConditions->smearedGain(layerId(), channel);
+
   for(int scaBin = 0; scaBin < nScaBins_; ++scaBin) {
     scaCounts[scaBin] = static_cast< int >
-      ( signal.getValue(startTime+scaBin*sca_time_bin_size) / theSpecs->chargePerCount() );
+      ( pedestal + signal.getValue(startTime+scaBin*sca_time_bin_size) * gain );
   }
   CSCStripDigi newDigi(channel, scaCounts);
-  if(theScaNoiseGenerator != 0) {
-    theScaNoiseGenerator->addPedestal(layerId(), newDigi);
-  }
 
   // do saturation of 12-bit ADC
   doSaturation(newDigi);

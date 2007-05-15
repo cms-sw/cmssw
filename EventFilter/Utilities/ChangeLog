@@ -1,3 +1,9 @@
+2007-05-10  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-12-05
+	* fix of MicroStateService to avoid synchronization problems with monitoring
+	workloop
+
 2007-03-21  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-12-01

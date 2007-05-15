@@ -143,52 +143,6 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
   //cout<<"...leaving SiPixelInformationExtractor::getModuleME!"<<endl;
 }
 
-/*void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
-                               vector<string>& modules, vector<string>& histos) {
-  cout<<"entering SiPixelInformationExtractor::fillBarrelList..."<<endl;
-  string currDir = mui->pwd();
-  if (currDir.find("Ladder_") != string::npos)  {
-    vector<string> subdirs = mui->getSubdirs();
-    int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin();
-       it != subdirs.end(); it++) {
-      if ( (*it).find("Module_") == string::npos) continue;
-      mui->cd(*it);
-      ndet++;
-      vector<string> contents = mui->getMEs(); 
-      for (vector<string>::const_iterator im = contents.begin();
-	   im != contents.end(); im++) {
-	string hname = (*im).substr(0, (*im).find("_module_"));
-//	cout<<"hname="<<hname<<endl;
-//        histos.push_back(hname);
-	string fullpathname = mui->pwd() + "/" + (*im); 
-	MonitorElement *  me = mui->get(fullpathname);
-//        string mId=" ";
-//	if(hname.find("adc")!=string::npos) mId = fullpathname;
-//	if(hname.find("col")!=string::npos) mId = fullpathname;
-//	if(hname.find("row")!=string::npos) mId = fullpathname;
-//	if(hname.find("ndigis")!=string::npos) mId = fullpathname;
-//        if(mId!=" ") modules.push_back(mId);
-//	cout<<"mId="<<mId<<endl;
-      }      
-      mui->goUp();
-    }
-  } else {  
-    vector<string> subdirs = mui->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-       it != subdirs.end(); it++) {
-      if((*it).find("PixelEndcap")!=string::npos) continue;
-      mui->cd(*it);
-      fillBarrelList(mui, modules, histos);
-      mui->goUp();
-    }
-    //fillGrandBarrelSummaryHistos(mui, me_names);
-  }
-  cout<<"...leaving SiPixelInformationExtractor::fillBarrelList!"<<endl;
-}
-*/
-
-
 
 
 //
@@ -237,7 +191,7 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("_module_") ==0) return;
+  if (dname.find("_siPixelDigis_") ==0) return;
   string image_name;
   selectImage(image_name,mui->getStatus(currDir));
   str_val << "<li><a href=\"#\" id=\"" 
@@ -290,7 +244,7 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
       if((*it).find(mid) != string::npos){
         for (vector<string>::const_iterator ih = names.begin();
 	   ih != names.end(); ih++) {
-	  string temp_s = (*it).substr(0, (*it).find("_module_"));
+	  string temp_s = (*it).substr(0, (*it).find("_siPixelDigis_"));
 	  //	if ((*it).find((*ih)) != string::npos) {
 	  if (temp_s == (*ih)) {
 	    string full_path = currDir + "/" + (*it);
@@ -432,7 +386,7 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
       }else{
 	string hname = ob->operator->()->GetName();
 	//cout<<"histo name:"<<hname<<endl;
-	if(hname.find("pixdigis") != string::npos){
+	if(hname.find("hitmap") != string::npos){
           gROOT->Reset(); gStyle->SetPalette(1); gStyle->SetOptStat(0);
           ob->operator->()->Draw("colz");
 	}else{  
@@ -501,11 +455,11 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       vector<string> contents = mui->getMEs();    
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
-	string hname = (*it).substr(0, (*it).find("_module_"));
+	string hname = (*it).substr(0, (*it).find("_siPixelDigis_"));
 	//cout<<"hname="<<hname<<endl;
         histos.push_back(hname);
         string mId=" ";
-	if(hname.find("adc")!=string::npos) mId = (*it).substr((*it).find("adc_module_")+11, 9);
+	if(hname.find("adc")!=string::npos) mId = (*it).substr((*it).find("adc_siPixelDigis_")+17, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -558,7 +512,7 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
 
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //if (dname.find("_module_") ==0) return;
+  //if (dname.find("_siPixelDigis_") ==0) return;
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a>" << endl;
   vector<string> meVec = mui->getMEs(); 
@@ -570,7 +524,7 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   str_val << "<ul>" << endl; 
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
-    if ((*it).find("_module_")!=string::npos) {
+    if ((*it).find("_siPixelDigis_")!=string::npos) {
       str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
            << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
     }

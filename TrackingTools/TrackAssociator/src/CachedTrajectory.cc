@@ -3,13 +3,13 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.6 2007/03/26 05:48:27 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.7 2007/04/02 17:26:02 dmytro Exp $
 //
 //
 
 
 #include "TrackingTools/TrackAssociator/interface/CachedTrajectory.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/DTGeometry/interface/DTChamber.h"
@@ -61,14 +61,14 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 	TrajectoryStateOnSurface stateOnSurface = propagator_->propagate(fts, *target);
 	state = SteppingHelixStateInfo( *(stateOnSurface.freeState()) );
      }
-   
+   delete target;
    // LogTrace("TrackAssociator")
    // << state.position().mag() << " , "   << state.position().eta() << " , "
    // << state.position().phi();
 }
 
 
-void CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
+bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
 {
    if ( fullTrajectoryFilled_ ) {
       edm::LogWarning("TrackAssociator") << "Reseting all trajectories. Please call reset_trajectory() explicitely to avoid this message";
@@ -91,6 +91,7 @@ void CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
    }
    LogTrace("TrackAssociator") << "Done with the track propagation in the detector. Number of steps: " << fullTrajectory_.size();
    fullTrajectoryFilled_ = true;
+   return ! fullTrajectory_.empty();
 }
 
 TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
@@ -180,6 +181,13 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
 
 std::pair<float,float> CachedTrajectory::trajectoryDelta( TrajectorType trajectoryType )
 {
+   // MEaning of trajectory change depends on its usage. In most cases we measure 
+   // change in a trajectory as difference between final track position and initial 
+   // direction. In some cases such as change of trajectory in the muon detector we 
+   // might want to compare theta-phi of two points or even find local maximum and
+   // mimimum. In general it's not essential what defenition of the trajectory change
+   // is used since we use these numbers only as a rough estimate on how much wider
+   // we should make the preselection region.
    std::pair<float,float> result(0,0);
    if ( ! stateAtIP_.isValid() ) { 
       edm::LogWarning("TrackAssociator") << "State at IP is not known set. Cannot estimate trajectory change. " <<
@@ -191,25 +199,29 @@ std::pair<float,float> CachedTrajectory::trajectoryDelta( TrajectorType trajecto
       if ( ecalTrajectory_.empty() )
 	edm::LogWarning("TrackAssociator") << "ECAL trajector is empty. Cannot estimate trajectory change. " <<
 	"Trajectory change is not taken into account in matching";
-      else return delta( stateAtIP_, ecalTrajectory_.front() );
+      else return delta( stateAtIP_.momentum().theta(), ecalTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(), ecalTrajectory_.front().position().phi() );
       break;
     case IpToHcal:
       if ( hcalTrajectory_.empty() )
 	edm::LogWarning("TrackAssociator") << "HCAL trajector is empty. Cannot estimate trajectory change. " <<
 	"Trajectory change is not taken into account in matching";
-      else return delta( stateAtIP_, hcalTrajectory_.front() );
+      else return delta( stateAtIP_.momentum().theta(), hcalTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(),   hcalTrajectory_.front().position().phi() );
       break;
     case IpToHO:
       if ( hoTrajectory_.empty() )
 	edm::LogWarning("TrackAssociator") << "HO trajector is empty. Cannot estimate trajectory change. " <<
 	"Trajectory change is not taken into account in matching";
-      else return delta( stateAtIP_, hoTrajectory_.front() );
+      else return delta( stateAtIP_.momentum().theta(), hoTrajectory_.front().position().theta(), 
+			 stateAtIP_.momentum().phi(),   hoTrajectory_.front().position().phi() );
       break;
     case FullTrajectory:
       if ( fullTrajectory_.empty() )
 	edm::LogWarning("TrackAssociator") << "Full trajector is empty. Cannot estimate trajectory change. " <<
 	"Trajectory change is not taken into account in matching";
-      else return delta( stateAtIP_, fullTrajectory_.back() );
+      else  return delta( stateAtIP_.momentum().theta(), fullTrajectory_.back().position().theta(), 
+			  stateAtIP_.momentum().phi(),   fullTrajectory_.back().position().phi() );
       break;
     default:
       edm::LogWarning("TrackAssociator") << "Unkown or not supported trajector type. Cannot estimate trajectory change. " <<
@@ -218,12 +230,12 @@ std::pair<float,float> CachedTrajectory::trajectoryDelta( TrajectorType trajecto
    return result;
 }
 
-std::pair<float,float> CachedTrajectory::delta( const SteppingHelixStateInfo& state1, 
-						const SteppingHelixStateInfo& state2)
+std::pair<float,float> CachedTrajectory::delta(const double& theta1,
+					       const double& theta2,
+					       const double& phi1,
+					       const double& phi2)
 {
-   // don't check validity of states, which has to be checked somewhere else.
-   std::pair<float,float> result(state2.momentum().theta() - state1.momentum().theta(),
-				 state2.momentum().phi()   - state1.momentum().phi() );
+   std::pair<float,float> result(theta2 - theta1, phi2 - phi1 );
    // this won't work for loopers, since deltaPhi cannot be larger than Pi.
    if ( fabs(result.second) > 2*3.1416-fabs(result.second) ) {
       if (result.second>0) 
@@ -239,8 +251,10 @@ void CachedTrajectory::getTrajectory(std::vector<SteppingHelixStateInfo>& trajec
 				     int steps)
 {
    if ( ! fullTrajectoryFilled_ ) throw cms::Exception("FatalError") << "trajectory is not defined yet. Please use propagateAll first.";
-   if ( fullTrajectory_.empty() ) edm::LogWarning("TrackAssociator") << "full cached trajectory is empty. This doesn't make sense";
-	
+   if ( fullTrajectory_.empty() ) {
+      LogTrace("TrackAssociator") << "Trajectory is empty. Move on";
+      return;
+   }
    if ( ! volume.isValid() ) {
       LogTrace("TrackAssociator") << "no trajectory is expected to be found since the fiducial volume is not valid";
       return;

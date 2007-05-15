@@ -8,6 +8,8 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
+#include "boost/thread/thread.hpp"
+
 #include <string>
 #include <vector>
 
@@ -19,8 +21,9 @@ namespace evf {
       MicroStateService(const edm::ParameterSet&,edm::ActivityRegistry&);
       ~MicroStateService();
       
-      std::string getMicroState1() const { return microstate1_;}
-      std::string getMicroState2() const { return microstate2_;}
+      std::string getMicroState1();
+      
+      std::string getMicroState2();
 
       void postBeginJob();
       void postEndJob();
@@ -39,6 +42,9 @@ namespace evf {
 
       std::string microstate1_;
       std::string microstate2_;
+
+      boost::mutex lock_;
+
     };
 
 }

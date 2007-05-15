@@ -19,7 +19,6 @@
 
 #include "toolbox/include/toolbox/mem/Reference.h"
 #include "toolbox/include/toolbox/fsm/exception/Exception.h"
-#include "toolbox/include/BSem.h"
 
 #include "interface/shared/include/frl_header.h"
 #include "interface/shared/include/fed_header.h"
@@ -104,9 +103,6 @@ namespace evf {
     // finite state machine
     evf::StateMachine        fsm_;
     
-    // binary semaphore
-    BSem                     lock_;
-    
     // Hyper DAQ web GUI
     WebGUI*                  gui_;
     
@@ -124,7 +120,7 @@ namespace evf {
     
     // managed resources
     FUResourceTable*         resourceTable_;
-
+    
     // workloop / action signature for monitoring
     toolbox::task::WorkLoop *wlMonitoring_;      
     toolbox::task::ActionSignature *asMonitoring_;

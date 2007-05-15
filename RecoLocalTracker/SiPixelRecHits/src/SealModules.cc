@@ -1,5 +1,6 @@
 // SealModules: declarations of our Framework components to the Framework
 
+
 //--- Our components which we want Framework to know about:
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/PixelClusterParameterEstimator.h"
 //--- The CPE ES Producers
@@ -9,6 +10,9 @@
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPETemplateRecoESProducer.h"
 //---- The RecHit ED producer
 #include "RecoLocalTracker/SiPixelRecHits/interface/SiPixelRecHitConverter.h"
+
+
+
 //--- The header files for the Framework infrastructure (macros etc):
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -23,7 +27,7 @@
 
 //--- Now use the Framework macros to set it all up:
 //
-EVENTSETUP_RECORD_REG(TkPixelCPERecord);
+EVENTSETUP_RECORD_REG(TrackerCPERecord);
 using cms::SiPixelRecHitConverter;
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelCPEInitialESProducer);

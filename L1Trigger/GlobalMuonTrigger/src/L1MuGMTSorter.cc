@@ -5,8 +5,8 @@
 //   Description: GMT Muon Sorter
 //
 //
-//   $Date: 2007/03/23 18:51:35 $
-//   $Revision: 1.3 $
+//   $Date: 2007/04/02 15:45:39 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister             CERN EP
@@ -141,7 +141,7 @@ void L1MuGMTSorter::run() {
   // print input data
   if ( L1MuGMTConfig::Debug(5) ) {
     edm::LogVerbatim("GMT_Sorter_info") << "GMT Sorter input: "
-         << mycands.size() << endl;
+         << mycands.size();
     std::vector<L1MuGMTExtendedCand*>::const_iterator iter;
     for ( iter = mycands.begin(); iter != mycands.end(); iter++ ) {
       if (*iter ) (*iter)->print();
@@ -185,15 +185,15 @@ void L1MuGMTSorter::reset() {
 //
 void L1MuGMTSorter::print() {
 
-  edm::LogVerbatim("GMT_Sorter_info") << endl;
+  edm::LogVerbatim("GMT_Sorter_info") << " ";
   edm::LogVerbatim("GMT_Sorter_info") << "Muon candidates found by the L1 Global Muon Trigger : "
-       << numberOfCands() << endl;
+       << numberOfCands();
   std::vector<const L1MuGMTExtendedCand*>::const_iterator iter = m_MuonCands.begin();
   while ( iter != m_MuonCands.end() ) {
     if ( *iter ) (*iter)->print();
     iter++;
   }
-  edm::LogVerbatim("GMT_Sorter_info") << endl;
+  edm::LogVerbatim("GMT_Sorter_info") << " ";
 
 }
 

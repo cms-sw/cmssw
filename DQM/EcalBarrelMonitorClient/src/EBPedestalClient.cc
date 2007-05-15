@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/03/13 10:14:26 $
- * $Revision: 1.130 $
+ * $Date: 2007/05/12 11:41:58 $
+ * $Revision: 1.138 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -33,9 +33,12 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBPedestalClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-#include "DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h"
 
 using namespace cms;
 using namespace edm;
@@ -121,6 +124,13 @@ EBPedestalClient::EBPedestalClient(const ParameterSet& ps){
     qth04_[ism-1] = 0;
     qth05_[ism-1] = 0;
 
+    qtg01_[ism-1] = 0;
+    qtg02_[ism-1] = 0;
+    qtg03_[ism-1] = 0;
+
+    qtg04_[ism-1] = 0;
+    qtg05_[ism-1] = 0;
+
   }
 
   expectedMean_[0] = 200.0;
@@ -160,19 +170,19 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EBPT quality SM%02d G01", ism);
+      sprintf(qtname, "EBPT quality %s G01", Numbers::sEB(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBPT quality SM%02d G06", ism);
+      sprintf(qtname, "EBPT quality %s G06", Numbers::sEB(ism).c_str());
       qth02_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBPT quality SM%02d G12", ism);
+      sprintf(qtname, "EBPT quality %s G12", Numbers::sEB(ism).c_str());
       qth03_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBPT pedestal quality PNs SM%02d G01", ism);
+      sprintf(qtname, "EBPT pedestal quality PNs %s G01", Numbers::sEB(ism).c_str());
       qth04_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
-      sprintf(qtname, "EBPT pedestal quality PNs SM%02d G16", ism);
+      sprintf(qtname, "EBPT pedestal quality PNs %s G16", Numbers::sEB(ism).c_str());
       qth05_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_[0] - discrepancyMean_[0], expectedMean_[0] + discrepancyMean_[0]);
@@ -202,6 +212,35 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
 
       qth04_[ism-1]->setErrorProb(1.00);
       qth05_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBPT quality test %s G01", Numbers::sEB(ism).c_str());
+      qtg01_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBPT quality test %s G06", Numbers::sEB(ism).c_str());
+      qtg02_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      sprintf(qtname, "EBPT quality test %s G12", Numbers::sEB(ism).c_str());
+      qtg03_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg01_[ism-1]->setMeanRange(1., 6.);
+      qtg02_[ism-1]->setMeanRange(1., 6.);
+      qtg03_[ism-1]->setMeanRange(1., 6.);
+
+      qtg01_[ism-1]->setErrorProb(1.00);
+      qtg02_[ism-1]->setErrorProb(1.00);
+      qtg03_[ism-1]->setErrorProb(1.00);
+
+      sprintf(qtname, "EBPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname)); 
+
+      sprintf(qtname, "EBPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
+      qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
+      qtg04_[ism-1]->setMeanRange(1., 6.);
+      qtg05_[ism-1]->setMeanRange(1., 6.);
+
+      qtg04_[ism-1]->setErrorProb(1.00);
+      qtg05_[ism-1]->setErrorProb(1.00);
 
     }
 
@@ -253,60 +292,60 @@ void EBPedestalClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality G06 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
     meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality G12 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
     meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality PNs G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
     meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
     if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal quality PNs G16 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
     meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal mean G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal mean G01 %s", Numbers::sEB(ism).c_str());
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
     if ( mep02_[ism-1] ) bei->removeElement( mep02_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal mean G06 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal mean G06 %s", Numbers::sEB(ism).c_str());
     mep02_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
     if ( mep03_[ism-1] ) bei->removeElement( mep03_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal mean G12 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal mean G12 %s", Numbers::sEB(ism).c_str());
     mep03_[ism-1] = bei->book1D(histo, histo, 100, 150., 250.);
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal rms G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal rms G01 %s", Numbers::sEB(ism).c_str());
     mer01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer02_[ism-1] ) bei->removeElement( mer02_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal rms G06 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal rms G06 %s", Numbers::sEB(ism).c_str());
     mer02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer03_[ism-1] ) bei->removeElement( mer03_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal rms G12 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal rms G12 %s", Numbers::sEB(ism).c_str());
     mer03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( mes01_[ism-1] ) bei->removeElement( mes01_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 3sum G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 3sum G01 %s", Numbers::sEB(ism).c_str());
     mes01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( mes02_[ism-1] ) bei->removeElement( mes02_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 3sum G06 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 3sum G06 %s", Numbers::sEB(ism).c_str());
     mes02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( mes03_[ism-1] ) bei->removeElement( mes03_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 3sum G12 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 3sum G12 %s", Numbers::sEB(ism).c_str());
     mes03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( met01_[ism-1] ) bei->removeElement( met01_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 5sum G01 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 5sum G01 %s", Numbers::sEB(ism).c_str());
     met01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( met02_[ism-1] ) bei->removeElement( met02_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 5sum G06 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 5sum G06 %s", Numbers::sEB(ism).c_str());
     met02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
     if ( met03_[ism-1] ) bei->removeElement( met03_[ism-1]->getName() );
-    sprintf(histo, "EBPT pedestal 5sum G12 SM%02d", ism);
+    sprintf(histo, "EBPT pedestal 5sum G12 %s", Numbers::sEB(ism).c_str());
     met03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   }
@@ -315,9 +354,9 @@ void EBPedestalClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
-    EBMUtilsClient::resetHisto( meg02_[ism-1] );
-    EBMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -336,21 +375,21 @@ void EBPedestalClient::setup(void) {
 
     }
 
-    EBMUtilsClient::resetHisto( mep01_[ism-1] );
-    EBMUtilsClient::resetHisto( mep02_[ism-1] );
-    EBMUtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mep02_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( mer01_[ism-1] );
-    EBMUtilsClient::resetHisto( mer02_[ism-1] );
-    EBMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mer02_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( mes01_[ism-1] );
-    EBMUtilsClient::resetHisto( mes02_[ism-1] );
-    EBMUtilsClient::resetHisto( mes03_[ism-1] );
+    UtilsClient::resetHisto( mes01_[ism-1] );
+    UtilsClient::resetHisto( mes02_[ism-1] );
+    UtilsClient::resetHisto( mes03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( met01_[ism-1] );
-    EBMUtilsClient::resetHisto( met02_[ism-1] );
-    EBMUtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -465,12 +504,19 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
   bool status = true;
 
-  EBMUtilsClient::printBadChannels(qth01_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth02_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth03_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth02_[ism-1]);
+  UtilsClient::printBadChannels(qth03_[ism-1]);
 
-  EBMUtilsClient::printBadChannels(qth04_[ism-1]);
-  EBMUtilsClient::printBadChannels(qth05_[ism-1]);
+  UtilsClient::printBadChannels(qth04_[ism-1]);
+  UtilsClient::printBadChannels(qth05_[ism-1]);
+
+//  UtilsClient::printBadChannels(qtg01_[ism-1]);
+//  UtilsClient::printBadChannels(qtg02_[ism-1]);
+//  UtilsClient::printBadChannels(qtg03_[ism-1]);
+
+//  UtilsClient::printBadChannels(qtg04_[ism-1]);
+//  UtilsClient::printBadChannels(qtg05_[ism-1]);
 
   EcalLogicID ecid;
   MonPedestalsDat p;
@@ -487,9 +533,9 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
       float mean01, mean02, mean03;
       float rms01, rms02, rms03;
 
-      update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-      update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-      update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+      update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+      update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
       if ( update01 || update02 || update03 ) {
 
@@ -522,15 +568,15 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
           p.setTaskStatus(false);
         }
 
-        status = status && EBMUtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
-                           EBMUtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
-                           EBMUtilsClient::getBinQual(meg03_[ism-1], ie, ip);
+        status = status && UtilsClient::getBinQual(meg01_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg02_[ism-1], ie, ip) &&
+                           UtilsClient::getBinQual(meg03_[ism-1], ie, ip);
 
         int ic = (ip-1) + 20*(ie-1) + 1;
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset1[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -545,7 +591,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonPedestalsDat ... " << flush;
-      if ( dataset1.size() != 0 ) econn->insertDataSet(&dataset1, moniov);
+      if ( dataset1.size() != 0 ) econn->insertDataArraySet(&dataset1, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -564,8 +610,8 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
     float mean01, mean02;
     float rms01, rms02;
 
-    update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-    update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+    update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+    update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
     if ( update01 || update02 ) {
 
@@ -593,12 +639,12 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
         pn.setTaskStatus(false);
       }
 
-      status = status && EBMUtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
-                         EBMUtilsClient::getBinQual(meg05_[ism-1], i, 1);
+      status = status && UtilsClient::getBinQual(meg04_[ism-1], i, 1) &&
+                         UtilsClient::getBinQual(meg05_[ism-1], i, 1);
 
       if ( econn ) {
         try {
-          ecid = econn->getEcalLogicID("EB_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", ism, i-1);
           dataset2[ecid] = pn;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;
@@ -612,7 +658,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonPNPedDat ... " << flush;
-      if ( dataset2.size() != 0 ) econn->insertDataSet(&dataset2, moniov);
+      if ( dataset2.size() != 0 ) econn->insertDataArraySet(&dataset2, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -633,30 +679,30 @@ void EBPedestalClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->subscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
+    mui_->subscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -669,59 +715,59 @@ void EBPedestalClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EBPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
       me_h02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
       mui_->add(me_h02_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
       me_h03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
       mui_->add(me_h03_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
       me_j01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
       mui_->add(me_j01_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
       me_j02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
       mui_->add(me_j02_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
       me_j03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
       mui_->add(me_j03_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
       me_k01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
       mui_->add(me_k01_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
       me_k02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain06");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
       mui_->add(me_k02_[ism-1], histo);
 
-      sprintf(histo, "EBPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
       me_k03_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPedestalTask/Gain12");
-      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
       mui_->add(me_k03_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
       me_i01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
       mui_->add(me_i01_[ism-1], histo);
 
-      sprintf(histo, "EBPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
       me_i02_[ism-1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16");
-      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
       mui_->add(me_i02_[ism-1], histo);
 
     }
@@ -733,41 +779,53 @@ void EBPedestalClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
       if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
       if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
       if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
       if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+        sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
         if ( qth02_[ism-1] ) mui_->useQTest(histo, qth02_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+        sprintf(histo, "EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
         if ( qth03_[ism-1] ) mui_->useQTest(histo, qth03_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
         if ( qth04_[ism-1] ) mui_->useQTest(histo, qth04_[ism-1]->getName());
-        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+        sprintf(histo, "EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
         if ( qth05_[ism-1] ) mui_->useQTest(histo, qth05_[ism-1]->getName());
       }
     }
+
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G01 %s", Numbers::sEB(ism).c_str());
+    if ( qtg01_[ism-1] ) mui_->useQTest(histo, qtg01_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G06 %s", Numbers::sEB(ism).c_str());
+    if ( qtg02_[ism-1] ) mui_->useQTest(histo, qtg02_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality G12 %s", Numbers::sEB(ism).c_str());
+    if ( qtg03_[ism-1] ) mui_->useQTest(histo, qtg03_[ism-1]->getName());
+
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G01 %s", Numbers::sEB(ism).c_str());
+    if ( qtg04_[ism-1] ) mui_->useQTest(histo, qtg04_[ism-1]->getName());
+    sprintf(histo, "EcalBarrel/EBPedestalClient/EBPT pedestal quality PNs G16 %s", Numbers::sEB(ism).c_str());
+    if ( qtg05_[ism-1] ) mui_->useQTest(histo, qtg05_[ism-1]->getName());
 
   }
 
@@ -781,30 +839,30 @@ void EBPedestalClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->subscribeNew(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
+    mui_->subscribeNew(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -852,30 +910,30 @@ void EBPedestalClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
-    mui_->unsubscribe(histo, ism);
-
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
-    mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
-    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
+    mui_->unsubscribe(histo, ism);
+    sprintf(histo, "*/EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -927,115 +985,115 @@ void EBPedestalClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal %s G01", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal %s G06", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal %s G06").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
+    h02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal %s G12", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal %s G12").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    h03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
+    h03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 3sum %s G01").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    j01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
+    j01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 3sum %s G06").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    j02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
+    j02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 3sum %s G12").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    j03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
+    j03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, j03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain01/EBPT pedestal 5sum %s G01").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    k01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
+    k01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum SM%02d G06").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain06/EBPT pedestal 5sum %s G06").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    k02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
+    k02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k02_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum SM%02d G12").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPedestalTask/Gain12/EBPT pedestal 5sum %s G12").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    k03_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
+    k03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, k03_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal SM%02d G01").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain01/EBPDT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    i01_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
+    i01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i01_[ism-1] );
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16", ism);
+      sprintf(histo, "EcalBarrel/Sums/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16", Numbers::sEB(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal SM%02d G16").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalBarrel/EBPnDiodeTask/Gain16/EBPDT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
     }
     me = mui_->get(histo);
-    i02_[ism-1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
+    i02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[ism-1] );
 
-    EBMUtilsClient::resetHisto( meg01_[ism-1] );
-    EBMUtilsClient::resetHisto( meg02_[ism-1] );
-    EBMUtilsClient::resetHisto( meg03_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg02_[ism-1] );
+    UtilsClient::resetHisto( meg03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( meg04_[ism-1] );
-    EBMUtilsClient::resetHisto( meg05_[ism-1] );
+    UtilsClient::resetHisto( meg04_[ism-1] );
+    UtilsClient::resetHisto( meg05_[ism-1] );
 
-    EBMUtilsClient::resetHisto( mep01_[ism-1] );
-    EBMUtilsClient::resetHisto( mep02_[ism-1] );
-    EBMUtilsClient::resetHisto( mep03_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mep02_[ism-1] );
+    UtilsClient::resetHisto( mep03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( mer01_[ism-1] );
-    EBMUtilsClient::resetHisto( mer02_[ism-1] );
-    EBMUtilsClient::resetHisto( mer03_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mer02_[ism-1] );
+    UtilsClient::resetHisto( mer03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( mes01_[ism-1] );
-    EBMUtilsClient::resetHisto( mes02_[ism-1] );
-    EBMUtilsClient::resetHisto( mes03_[ism-1] );
+    UtilsClient::resetHisto( mes01_[ism-1] );
+    UtilsClient::resetHisto( mes02_[ism-1] );
+    UtilsClient::resetHisto( mes03_[ism-1] );
 
-    EBMUtilsClient::resetHisto( met01_[ism-1] );
-    EBMUtilsClient::resetHisto( met02_[ism-1] );
-    EBMUtilsClient::resetHisto( met03_[ism-1] );
+    UtilsClient::resetHisto( met01_[ism-1] );
+    UtilsClient::resetHisto( met02_[ism-1] );
+    UtilsClient::resetHisto( met03_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -1052,9 +1110,9 @@ void EBPedestalClient::analyze(void){
         float mean01, mean02, mean03;
         float rms01, rms02, rms03;
 
-        update01 = EBMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
-        update02 = EBMUtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
-        update03 = EBMUtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update02 = UtilsClient::getBinStats(h02_[ism-1], ie, ip, num02, mean02, rms02);
+        update03 = UtilsClient::getBinStats(h03_[ism-1], ie, ip, num03, mean03, rms03);
 
         if ( update01 ) {
 
@@ -1153,8 +1211,8 @@ void EBPedestalClient::analyze(void){
       float mean01, mean02;
       float rms01, rms02;
 
-      update01 = EBMUtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
-      update02 = EBMUtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
+      update01 = UtilsClient::getBinStats(i01_[ism-1], 1, i, num01, mean01, rms01);
+      update02 = UtilsClient::getBinStats(i02_[ism-1], 1, i, num02, mean02, rms02);
 
       if ( update01 ) {
 
@@ -1496,13 +1554,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
           break;
         case 2:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg02_[ism-1] );
           break;
         case 3:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( meg03_[ism-1] );
           break;
         default:
           break;
@@ -1543,13 +1601,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
           break;
         case 2:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep02_[ism-1] );
           break;
         case 3:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mep03_[ism-1] );
           break;
         default:
             break;
@@ -1589,13 +1647,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
           break;
         case 2:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer02_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer02_[ism-1] );
           break;
         case 3:
-          obj1f = EBMUtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
+          obj1f = UtilsClient::getHisto<TH1F*>( mer03_[ism-1] );
           break;
         default:
           break;
@@ -1635,13 +1693,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes01_[ism-1] );
           break;
         case 2:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes02_[ism-1] );
           break;
         case 3:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( mes03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( mes03_[ism-1] );
           break;
         default:
           break;
@@ -1682,13 +1740,13 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
         case 1:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( met01_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met01_[ism-1] );
           break;
         case 2:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( met02_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met02_[ism-1] );
           break;
         case 3:
-          obj2f = EBMUtilsClient::getHisto<TH2F*>( met03_[ism-1] );
+          obj2f = UtilsClient::getHisto<TH2F*>( met03_[ism-1] );
           break;
         default:
           break;
@@ -1735,10 +1793,10 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj2f = 0;
       switch ( iCanvas ) {
       case 1:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg04_[ism-1] );
         break;
       case 2:
-        obj2f = EBMUtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
+        obj2f = UtilsClient::getHisto<TH2F*>( meg05_[ism-1] );
         break;
       default:
         break;
@@ -1820,8 +1878,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>"
+	     << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

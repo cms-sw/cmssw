@@ -34,7 +34,7 @@ public:
   float zAtR (float r) const 
     { return theOrigin.z()+(r-theOrigin.r())*theCotLine; }
   float rAtZ (float z) const 
-    { return theOrigin.r()+(z-theOrigin.z())/theCotLine; }
+    { return (fabs(theCotLine) > 1.e-4) ? theOrigin.r()+(z-theOrigin.z())/theCotLine : 99999.; }
 
 private:
   float initCot (float dz, float dr) {

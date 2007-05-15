@@ -26,6 +26,8 @@ class RunIOV : public IIOV {
   Tm getRunEnd() const;
   void setRunTag(RunTag tag);
   RunTag getRunTag() const;
+  void setID(int id);
+
 
   // Methods from IUniqueDBObject
   int fetchID() throw(std::runtime_error);
@@ -54,6 +56,8 @@ class RunIOV : public IIOV {
   void setByRun(RunTag* tag, run_t run) throw(std::runtime_error);
   void setByRun(std::string location, run_t run) throw(std::runtime_error);
   void setByRecentData(std::string dataTable, RunTag* tag, run_t run = (unsigned int)-1) throw(std::runtime_error);
+  void setByRecentData(std::string dataTable, std::string location, run_t run) throw(std::runtime_error);
+
 
 /*   void fetchEarliest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */
 /*   void fetchLatest(RunIOV* fillIOV, RunTag* tag) const throw(std::runtime_error); */

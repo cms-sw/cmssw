@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.27 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -99,19 +99,19 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h03_[18];
 
-MEContentsProf2DWithinRangeROOT* qth03_[36];
+MEContentsProf2DWithinRangeROOT* qth03_[18];
 
-MonitorElement* meh03_[36];
+MonitorElement* meh03_[18];
 
-TProfile2D* h03_[36];
+TProfile2D* h03_[18];
 
-MonitorElement* meg03_[36];
+MonitorElement* meg03_[18];
 
-MonitorElement* mep03_[36];
+MonitorElement* mep03_[18];
 
-MonitorElement* mer03_[36];
+MonitorElement* mer03_[18];
 
 // Quality check on crystals, one per each gain
 

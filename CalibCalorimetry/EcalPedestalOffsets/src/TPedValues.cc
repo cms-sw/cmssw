@@ -1,4 +1,5 @@
 #include "CalibCalorimetry/EcalPedestalOffsets/interface/TPedValues.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include "TGraphErrors.h"
@@ -13,13 +14,13 @@ TPedValues::TPedValues (double RMSmax, int bestPedestal) :
   m_bestPedestal (bestPedestal) ,
   m_RMSmax (RMSmax) 
 {
-  std::cout << "[TPedValues][ctor]" << std::endl ;
+  LogDebug ("EBPedOffset") << "entering TPedValues ctor ..." ;
 }
 
 
 TPedValues::TPedValues (const TPedValues & orig) 
 {
-  std::cout << "[TPedValues][copyctor]" << std::endl ;
+  LogDebug ("EBPedOffset") << "entering TPedValues copyctor ..." ;
   m_bestPedestal = orig.m_bestPedestal ;
   m_RMSmax = orig.m_RMSmax ;
 
@@ -44,24 +45,24 @@ void TPedValues::insert (const int gainId,
 //  assert (gainId < 4) ;
   if (gainId <= 0 || gainId >= 4)
     {
-      std::cerr << "ERROR : gainId " << gainId
-                << " does not exist, entry skipped\n" ;
+      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : gainId " << gainId
+                                      << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (crystal > 0) ;
 //  assert (crystal <= 1700) ;
   if (crystal <= 0 || crystal > 1700)
     {
-      std::cerr << "ERROR : crystal " << crystal
-                << " does not exist, entry skipped\n" ;
+      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : crystal " << crystal
+                                      << " does not exist, entry skipped" ;
       return ;    
     }
 //  assert (DAC >= 0) ; 
 //  assert (DAC < 256) ;
   if (DAC < 0 || DAC >= 256)
     {
-      std::cerr << "ERROR : DAC value " << DAC
-                << " is out range, entry skipped\n" ;
+      edm::LogWarning ("EBPedOffset") << "WARNING : TPedValues : DAC value " << DAC
+                                      << " is out range, entry skipped" ;
       return ;    
     }
   m_entries[gainId-1][crystal-1][DAC].insert (pedestal) ;
@@ -97,7 +98,23 @@ TPedResult TPedValues::terminate (const int & DACstart, const int & DACend) cons
                   dummyBestDAC = DAC ;
                 }
             } //! loop over DAC values
+
           bestDAC.m_DACvalue[gainId-1][crystal] = dummyBestDAC ;
+	  
+	  if ( dummyBestDAC == (DACend-1) || dummyBestDAC == -1 ) {
+	    int gainHuman;
+	    if      (gainId ==1) gainHuman =12;
+	    else if (gainId ==2) gainHuman =6;
+	    else if (gainId ==3) gainHuman =1;
+	    else                 gainHuman =-1;
+	    
+	    edm::LogWarning ("EBPedOffset") << " TPedValues :  channel: " << (crystal+1)
+					    << " gain: " << gainHuman
+					    << " has offset set to: " << dummyBestDAC << "."
+					    << " The maximum expected value is: " << DACend 
+					    << " (need be corrected by hand? Look at plots)";
+	  }
+	  
         } // loop over crystals
     } // loop over gains
   return bestDAC ;
@@ -176,7 +193,12 @@ int TPedValues::makePlots (TFile * rootFile, const std::string & dirName) const
           } // loop over DAC values          
         TGraphErrors graph (256,asseX,asseY,sigmaX,sigmaY) ;
         char name[120] ;
-        sprintf (name,"XTL%d_GAIN%d",xtl,gain) ;      
+        int gainHuman;
+        if      (gain ==0) gainHuman =12;
+        else if (gain ==1) gainHuman =6;
+        else if (gain ==2) gainHuman =1;
+        else               gainHuman =-1;
+        sprintf (name,"XTL%d_GAIN%d",(xtl+1),gainHuman) ;      
         graph.Write (name) ;
       } // loop over the gains
         // (loop over the crystals)

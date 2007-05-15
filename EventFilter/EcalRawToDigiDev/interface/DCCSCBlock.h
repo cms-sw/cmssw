@@ -16,9 +16,6 @@
 
 #include "DCCFEBlock.h"
 
-using namespace std;
-using namespace edm;
-
 class DCCEventBlock;
 class DCCDataUnpacker;
 
@@ -40,12 +37,12 @@ class DCCSCBlock : public DCCFEBlock {
    EEDetId                                * pDetId_;
    EEDataFrame                            * pDFId_;
 	 
-   auto_ptr<EEDigiCollection>             * digis_;
+   std::auto_ptr<EEDigiCollection>             * digis_;
 	
 	/* 
-	 todo : update this for the endcap...
+    todo : update this for the endcap...
 	 
-	 auto_ptr<EEDetIdCollection>            * invalidGains_;  
+    auto_ptr<EEDetIdCollection>            * invalidGains_;  
     auto_ptr<EEDetIdCollection>            * invalidGainsSwitch_ ;
     auto_ptr<EEDetIdCollection>            * invalidGainsSwitchStay_;
     auto_ptr<EEDetIdCollection>            * invalidChIds_;

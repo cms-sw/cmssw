@@ -15,6 +15,8 @@ class IDBObject {
  public:
   // give the interface class permission to use the functions
   friend class EcalCondDBInterface;
+
+  static int const ECALDB_NROWS=1000;
   
   virtual ~IDBObject() {}
 
@@ -24,6 +26,9 @@ class IDBObject {
       m_env = env;
       m_conn = conn;
     }
+
+  
+
 
  protected:
   // Database connection to use

@@ -14,6 +14,7 @@ DCUIDarkPedDat::DCUIDarkPedDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_ped = 0;
 }
@@ -84,14 +85,14 @@ void DCUIDarkPedDat::fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillMap,
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.capsule_temp "
 		 "FROM channelview cv JOIN dcu_capsule_temp_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, DCUIDarkPedDat > p;
     DCUIDarkPedDat dat;
@@ -110,5 +111,73 @@ void DCUIDarkPedDat::fetchData(std::map< EcalLogicID, DCUIDarkPedDat >* fillMap,
     }
   } catch (SQLException &e) {
     throw(runtime_error("DCUIDarkPedDat::fetchData():  "+e.getMessage()));
+  }
+}
+void DCUIDarkPedDat::writeArrayDB(const std::map< EcalLogicID, DCUIDarkPedDat >* data, DCUIOV* iov)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  int iovID = iov->fetchID();
+  if (!iovID) { throw(runtime_error("DCUIDarkPedDat::writeArrayDB:  IOV not in DB")); }
+
+
+  int nrows=data->size(); 
+  int* ids= new int[nrows];
+  int* iovid_vec= new int[nrows];
+  float* xx= new float[nrows];
+
+  ub2* ids_len= new ub2[nrows];
+  ub2* iov_len= new ub2[nrows];
+  ub2* x_len= new ub2[nrows];
+
+  const EcalLogicID* channel;
+  const DCUIDarkPedDat* dataitem;
+  int count=0;
+  typedef map< EcalLogicID, DCUIDarkPedDat >::const_iterator CI;
+  for (CI p = data->begin(); p != data->end(); ++p) {
+        channel = &(p->first);
+	int logicID = channel->getLogicID();
+	if (!logicID) { throw(runtime_error("DCUIDarkPedDat::writeArrayDB:  Bad EcalLogicID")); }
+	ids[count]=logicID;
+	iovid_vec[count]=iovID;
+
+	dataitem = &(p->second);
+	// dataIface.writeDB( channel, dataitem, iov);
+	float x=dataitem->getPed();
+
+	xx[count]=x;
+
+
+	ids_len[count]=sizeof(ids[count]);
+	iov_len[count]=sizeof(iovid_vec[count]);
+	
+	x_len[count]=sizeof(xx[count]);
+
+
+	count++;
+     }
+
+
+  try {
+    m_writeStmt->setDataBuffer(1, (dvoid*)iovid_vec, OCCIINT, sizeof(iovid_vec[0]),iov_len);
+    m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
+    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIFLOAT , sizeof(xx[0]), x_len );
+   
+
+    m_writeStmt->executeArrayUpdate(nrows);
+
+    delete [] ids;
+    delete [] iovid_vec;
+    delete [] xx;
+
+    delete [] ids_len;
+    delete [] iov_len;
+    delete [] x_len;
+
+
+  } catch (SQLException &e) {
+    throw(runtime_error("DCUIDarkPedDat::writeArrayDB():  "+e.getMessage()));
   }
 }

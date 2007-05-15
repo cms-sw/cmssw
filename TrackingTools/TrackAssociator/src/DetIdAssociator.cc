@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.15 2007/03/27 11:34:57 dmytro Exp $
+// $Id: DetIdAssociator.cc,v 1.16 2007/04/02 17:32:15 dmytro Exp $
 //
 //
 
@@ -144,8 +144,8 @@ std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& point
    double maxEta = -log(tan(minTheta/2));
    unsigned int iNEtaPlus  = abs(int( ( maxEta-point.eta() )/etaBinSize_));
    unsigned int iNEtaMinus = abs(int( ( point.eta() - minEta )/etaBinSize_));
-   unsigned int iNPhiMinus = abs(int( dPhiPlus/(2*3.1416)*nPhi_ ));
-   unsigned int iNPhiPlus  = abs(int( dPhiMinus/(2*3.1416)*nPhi_ ));
+   unsigned int iNPhiPlus = abs(int( dPhiPlus/(2*3.1416)*nPhi_ ));
+   unsigned int iNPhiMinus  = abs(int( dPhiMinus/(2*3.1416)*nPhi_ ));
    // add one more bin in each direction to guaranty that we don't miss anything
    return getDetIdsCloseToAPoint(point, iNEtaPlus+1, iNEtaMinus+1, iNPhiPlus+1, iNPhiMinus+1);
 }
@@ -258,11 +258,15 @@ std::set<DetId> DetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
 					     const std::vector<GlobalPoint>& trajectory,
 					     const double dR)
 {
+   if ( dR > 2*3.1416 && dR > maxEta_ ) return inset;
    check_setup();
    std::set<DetId> outset;
    for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
      for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-       if (nearElement(*point_iter,*id_iter,dR)) outset.insert(*id_iter);
+       if (nearElement(*point_iter,*id_iter,dR)) {
+	  outset.insert(*id_iter);
+	  break;
+       }
    return outset;
 }
 
@@ -273,7 +277,10 @@ std::set<DetId> DetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
    std::set<DetId> outset;
    for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++) 
      for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-       if (insideElement(*point_iter, *id_iter))  outset.insert(*id_iter);
+       if (insideElement(*point_iter, *id_iter))  {
+	  outset.insert(*id_iter);
+	  break;
+       }
    return outset;
 }
 
@@ -331,3 +338,12 @@ const FiducialVolume& DetIdAssociator::DetIdAssociator::volume()
    if (! theMapIsValid_) buildMap(); // volume is computed during buildMap;
    return volume_; 
 }
+
+std::set<DetId> DetIdAssociator::getDetIdsCloseToAPoint(const GlobalPoint& direction,
+							const MapRange& mapRange)
+{
+   return getDetIdsCloseToAPoint(direction, mapRange.dThetaPlus, mapRange.dThetaMinus,
+				 mapRange.dPhiPlus, mapRange.dPhiMinus);
+
+}
+

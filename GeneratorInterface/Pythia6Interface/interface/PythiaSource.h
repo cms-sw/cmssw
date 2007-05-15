@@ -22,7 +22,7 @@
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
 
-
+class Run;
 
 namespace edm
 {
@@ -33,6 +33,8 @@ namespace edm
     PythiaSource(const ParameterSet &, const InputSourceDescription &);
     /// Destructor
     virtual ~PythiaSource();
+
+    void endRun( Run& r);
 
 
   private:

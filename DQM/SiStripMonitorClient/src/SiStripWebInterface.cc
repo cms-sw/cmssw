@@ -1,5 +1,5 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripWebInterface.h"
-#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutor.h"
+#include "DQM/SiStripMonitorClient/interface/SiStripActionExecutorQTest.h"
 #include "DQM/SiStripMonitorClient/interface/SiStripInformationExtractor.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
@@ -28,7 +28,7 @@ SiStripWebInterface::SiStripWebInterface(std::string theContextURL, std::string 
   tkMapCreated = false;
   createAll();
 
-  if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutor();
+  if (actionExecutor_ == 0) actionExecutor_ = new SiStripActionExecutorQTest();
   if (infoExtractor_ == 0) infoExtractor_ = new SiStripInformationExtractor();
 }
 //
@@ -72,17 +72,22 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   // get the string that identifies the request:
   cout << " requestID " << requestID << endl;
   if (requestID == "IsReady") {
-    std::string name = "ReadyState";
-    std::string comment = "wait";
-    if ((*mui_p)->getNumUpdates() > 2) comment = "ready";
-    returnReplyXml(out, name, comment);
     theActionFlag = NoAction;    
+    if ((*mui_p)->getNumUpdates() > 2) {
+      infoExtractor_->readLayoutNames(out);
+    } else {
+      returnReplyXml(out, "ReadyState", "wait");
+    }
   }    
     else if (requestID == "SubscribeAll") {
     theActionFlag = SubscribeAll;
   } 
   else if (requestID == "CheckQTResults") {
-    theActionFlag = QTestResult;
+    out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
+    std::string infoType = get_from_multimap(requestMap_, "InfoType");
+    if (infoType == "Lite") *out <<  actionExecutor_->getQTestSummaryLite((*mui_p)) << endl;
+    else *out <<  actionExecutor_->getQTestSummary((*mui_p)) << endl;
+    theActionFlag = NoAction;
   } 
   else if (requestID == "CreateSummary") {
      theActionFlag = Summary;
@@ -142,15 +147,18 @@ void SiStripWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   else if (requestID == "PlotHistogramFromPath") {
    theActionFlag = PlotHistogramFromPath;
   } 
-   else if (requestID == "PlotTkMapHistogram") {
-   theActionFlag = PlotTkMapHistogram;
+  else if (requestID == "PlotTkMapHistogram") {
+    theActionFlag = PlotTkMapHistogram;
+  }
+  else if (requestID == "PlotHistogramFromLayout") {
+    theActionFlag = PlotHistogramFromLayout;
   } 
- else if (requestID == "UpdatePlot") {
-   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
-   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
-   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
-   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
-   *out << infoExtractor_->getImage().str();
+  else if (requestID == "UpdatePlot") {
+    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+    out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+    out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+    *out << infoExtractor_->getImage().str();
     theActionFlag = NoAction;    
   }
     
@@ -209,11 +217,6 @@ void SiStripWebInterface::performAction() {
       actionExecutor_->createSummary((*mui_p));
       break;
     }
-  case SiStripWebInterface::QTestResult :
-    {
-      actionExecutor_->checkQTestResults((*mui_p));
-      break;
-    }
   case SiStripWebInterface::SaveData :
     {
       cout << " Saving Monitoring Elements " << endl;
@@ -245,6 +248,11 @@ void SiStripWebInterface::performAction() {
   case SiStripWebInterface::PlotHistogramFromPath :
     {
       infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
+      break;
+    }
+  case SiStripWebInterface::PlotHistogramFromLayout :
+    {
+      infoExtractor_->plotHistosFromLayout((*mui_p));
       break;
     }
   case SiStripWebInterface::NoAction :

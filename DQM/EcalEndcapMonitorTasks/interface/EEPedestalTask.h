@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalTask.h
  *
- * $Date: 2007/03/20 12:37:26 $
- * $Revision: 1.22 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -46,24 +46,28 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EBDigiCollection_;
 edm::InputTag EcalPnDiodeDigiCollection_;
 
-MonitorElement* mePedMapG01_[36];
-MonitorElement* mePedMapG06_[36];
-MonitorElement* mePedMapG12_[36];
+MonitorElement* mePedMapG01_[18];
+MonitorElement* mePedMapG06_[18];
+MonitorElement* mePedMapG12_[18];
 
-MonitorElement* mePed3SumMapG01_[36];
-MonitorElement* mePed3SumMapG06_[36];
-MonitorElement* mePed3SumMapG12_[36];
+MonitorElement* mePed3SumMapG01_[18];
+MonitorElement* mePed3SumMapG06_[18];
+MonitorElement* mePed3SumMapG12_[18];
 
-MonitorElement* mePed5SumMapG01_[36];
-MonitorElement* mePed5SumMapG06_[36];
-MonitorElement* mePed5SumMapG12_[36];
+MonitorElement* mePed5SumMapG01_[18];
+MonitorElement* mePed5SumMapG06_[18];
+MonitorElement* mePed5SumMapG12_[18];
 
-MonitorElement* mePnPedMapG01_[36];
-MonitorElement* mePnPedMapG16_[36];
+MonitorElement* mePnPedMapG01_[18];
+MonitorElement* mePnPedMapG16_[18];
 
 bool init_;
 

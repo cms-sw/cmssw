@@ -3,8 +3,8 @@
 /*
  * \file HcalMonitorModule.cc
  * 
- * $Date: 2007/03/21 23:01:06 $
- * $Revision: 1.27 $
+ * $Date: 2007/05/03 22:22:17 $
+ * $Revision: 1.31 $
  * \author W Fisher
  *
 */
@@ -128,7 +128,7 @@ HcalMonitorModule::~HcalMonitorModule(){
   
   if(m_verbose) printf("HcalMonitorModule: Destructor.....");
 
-  if ( offline_ ) sleep(35); 
+  if ( offline_ ) sleep(15); 
 
   if (m_dbe && !offline_){    
     if(m_digiMon!=NULL) {  m_digiMon->clearME();}
@@ -225,7 +225,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
   m_ievt++;
   int evtMask=DO_HCAL_DIGIMON|DO_HCAL_DFMON|DO_HCAL_RECHITMON|DO_HCAL_PED_CALIBMON;
 
-  /*
   int trigMask=0;
   if(m_mtccMon==NULL){
     m_evtSel->processEvent(e);
@@ -238,7 +237,6 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
     if(trigMask&0x08) m_meTrigger->Fill(4);
     if(trigMask&0x10) m_meTrigger->Fill(5);
   }
-  */
 
   edm::EventID id_ = e.id();
   m_runNum = (int)(id_.run());
@@ -319,9 +317,8 @@ void HcalMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& even
 // Here are the necessary incantations to declare your module to the
 // framework, so it can be referenced in a cmsRun file.
 //
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HcalMonitorModule);
-

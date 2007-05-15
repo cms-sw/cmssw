@@ -1,14 +1,15 @@
-<export>
-<lib name=DQMServicesComponents>
-<use name=EventFilter/Utilities>
-<use name=FWCore/MessageLogger>
-</export>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/Framework>
-<use name=EventFilter/Utilities>
-<use name=DQMServices/Core>
-<use name=DQMServices/UI>
 <use name=DQMServices/ClientConfig>
-<use name=boost>
-
+<use name=DQMServices/Core>
+<use name=DQMServices/Daemon>
+<use name=DQMServices/UI>
+<use name=EventFilter/Utilities>
+<use name=FWCore/Framework>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
+<use name=xdaq>
+<export>
+<use name=EventFilter/Utilities>
+<use name=xdaq>
+<lib name=DQMServicesComponents>
+</export>
 <flags SEAL_PLUGIN_NAME="DQMServicesComponents">

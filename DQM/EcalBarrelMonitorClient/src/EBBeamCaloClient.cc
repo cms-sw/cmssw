@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/03/13 10:14:25 $
- * $Revision: 1.42 $
+ * $Date: 2007/05/02 09:10:57 $
+ * $Revision: 1.46 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -29,8 +29,11 @@
 
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"
 
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -164,7 +167,7 @@ void EBBeamCaloClient::setup(void) {
   sprintf(histo, "EBBCT quality");
   meEBBCaloRedGreen_ = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-  EBMUtilsClient::resetHisto( meEBBCaloRedGreen_ );
+  UtilsClient::resetHisto( meEBBCaloRedGreen_ );
 
   for ( int ie = 1; ie <= 85; ie++ ) {
     for ( int ip = 1; ip <= 20; ip++ ) {
@@ -177,13 +180,13 @@ void EBBeamCaloClient::setup(void) {
   if ( meEBBCaloRedGreenReadCry_ ) bei->removeElement( meEBBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EBBCT quality read crystal errors");
   meEBBCaloRedGreenReadCry_ = bei->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
-  EBMUtilsClient::resetHisto( meEBBCaloRedGreenReadCry_ );
+  UtilsClient::resetHisto( meEBBCaloRedGreenReadCry_ );
   meEBBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
   if( meEBBCaloRedGreenSteps_ )  bei->removeElement( meEBBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EBBCT quality entries or read crystals errors");
   meEBBCaloRedGreenSteps_ = bei->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
-  EBMUtilsClient::resetHisto( meEBBCaloRedGreenSteps_ );
+  UtilsClient::resetHisto( meEBBCaloRedGreenSteps_ );
   for( int bin=1; bin <87; bin++){ meEBBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
 }
@@ -313,7 +316,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = econn->getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -328,7 +331,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
   if ( econn ) {
     try {
       cout << "Inserting MonOccupancyDat ..." << flush;
-      if ( dataset.size() != 0 ) econn->insertDataSet(&dataset, moniov);
+      if ( dataset.size() != 0 ) econn->insertDataArraySet(&dataset, moniov);
       cout << "done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;
@@ -584,93 +587,93 @@ void EBBeamCaloClient::analyze(void){
   else{ sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystals done").c_str() ); }
   //meCD = mui_->get(histo);
   me = mui_->get(histo);
-  hBcryDone_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBcryDone_ );
+  hBcryDone_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBcryDone_ );
 
   //MonitorElement* meCryInBeam;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal on beam").c_str() ); }
   //meCryInBeam = mui_->get(histo);
   me = mui_->get(histo);
-  hBCryOnBeam_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hBCryOnBeam_);
+  hBCryOnBeam_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBCryOnBeam_);
 
   //MonitorElement* allNeededCry;
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT all needed crystals readout").c_str() ); }
   //allNeededCry= mui_->get(histo);
   me = mui_->get(histo);
-  hBAllNeededCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
+  hBAllNeededCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBAllNeededCry_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals number").c_str() ); }
   //allNeededCry= mui_->get(histo);
   me = mui_->get(histo);
-  hBNumReadCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
+  hBNumReadCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBNumReadCry_);
 
   //MonitorElement* RecEne3x3;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec Ene sum 3x3").c_str() ); }
   //RecEne3x3= mui_->get(histo);
   me = mui_->get(histo);
-  hBE3x3_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3_);
+  hBE3x3_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBE3x3_);
 
   //MonitorElement* ErrRedCry;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT readout crystals errors").c_str() ); }
   //ErrRedCry = mui_->get(histo);
   me = mui_->get(histo);
-  hBReadCryErrors_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
+  hBReadCryErrors_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBReadCryErrors_);
 
   //  MonitorElement* RecEne1;
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT rec energy cry 5").c_str() ); }
   //RecEne1= mui_->get(histo);
   me = mui_->get(histo);
-  hBEne1_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);
+  hBEne1_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEne1_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal with maximum rec energy").c_str() ); }
   me = mui_->get(histo);
-  hBMaxEneCry_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hBMaxEneCry_);
+  hBMaxEneCry_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBMaxEneCry_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the 3x3 array").c_str() ); }
   me = mui_->get(histo);
-  hBE3x3vsCry_ = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
+  hBE3x3vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE3x3vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT average rec energy in the single crystal").c_str() ); }
   me = mui_->get(histo);
-  hBE1vsCry_ = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
+  hBE1vsCry_ = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBE1vsCry_);
 
   if ( collateSources_ ) {;}
   else {  sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT number of entries").c_str() ); }
   me = mui_->get(histo);
-  hBEntriesvsCry_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBEntriesvsCry_);
+  hBEntriesvsCry_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBEntriesvsCry_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT energy deposition in the 3x3").c_str() ); }
   me = mui_->get(histo);
-  hBBeamCentered_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, hBBeamCentered_);
+  hBBeamCentered_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hBBeamCentered_);
 
   if ( collateSources_ ) {;}
   else { sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT table is moving").c_str() ); }
   me = mui_->get(histo);
-  hbTBmoving_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbTBmoving_);
+  hbTBmoving_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hbTBmoving_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT crystal in beam vs event").c_str() );}
   me = mui_->get(histo);
-  pBCriInBeamEvents_ =  EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
+  pBCriInBeamEvents_ =  UtilsClient::getHisto<TProfile*>( me, cloneME_, pBCriInBeamEvents_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT E1 in the max cry").c_str() );}
   me = mui_->get(histo);
-  hbE1MaxCry_ =  EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
+  hbE1MaxCry_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbE1MaxCry_);
 
   if ( collateSources_ ) {;}
   else {sprintf(histo, (prefixME_+"EcalBarrel/EBBeamCaloTask/EBBCT Desynchronization vs step").c_str() );}
   me = mui_->get(histo);
-  hbDesync_ =  EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
+  hbDesync_ =  UtilsClient::getHisto<TH1F*>( me, cloneME_, hbDesync_);
 
   if ( collateSources_ ){;}
   else {
@@ -679,12 +682,12 @@ void EBBeamCaloClient::analyze(void){
       sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT pulse profile in G12 cry %01d", ind+1);
       sprintf(histo, (prefixME_ + me_name).c_str() );
       me = mui_->get(histo);
-      hBpulse_[ind] = EBMUtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
+      hBpulse_[ind] = UtilsClient::getHisto<TProfile*>( me, cloneME_, hBpulse_[ind]);
 
       sprintf(me_name,"EcalBarrel/EBBeamCaloTask/EBBCT found gains cry %01d", ind+1);
       sprintf(histo, (prefixME_ + me_name).c_str() );
       me = mui_->get(histo);
-      hBGains_[ind] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
+      hBGains_[ind] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBGains_[ind]);
     }
   }
 
@@ -898,7 +901,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   // quality red-green histo
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meEBBCaloRedGreen_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meEBBCaloRedGreen_ );
   if ( obj2f ) {
 
     TCanvas* can = new TCanvas("can", "Temp", 2*csize, csize);
@@ -932,7 +935,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
   //red-green pad
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meEBBCaloRedGreenReadCry_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meEBBCaloRedGreenReadCry_ );
   if ( obj2f ) {
 
     TCanvas* can = new TCanvas("can", "Temp", csize, csize);
@@ -972,7 +975,7 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
   // quality entries and read cry red-green histo for autoscan
-  obj2f = EBMUtilsClient::getHisto<TH2F*>( meEBBCaloRedGreenSteps_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meEBBCaloRedGreenSteps_ );
   if ( obj2f ) {
 
     TCanvas* can = new TCanvas("can", "Temp", 5*csize, csize);
@@ -996,7 +999,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
     obj2f->GetXaxis()->SetTitle("step in the scan");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->Draw("col");
     dummyStep.Draw("text90,same");
     can->Update();
@@ -1043,7 +1045,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("number of read crystals");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1072,7 +1073,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1104,7 +1104,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec Ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1134,7 +1133,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("step");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->GetYaxis()->SetTitle("Desynchronized events");
     obj1f->Draw();
     can->Update();
@@ -1259,7 +1257,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1289,7 +1286,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat(1110);
     AdjustRange(obj1f);
     obj1f->GetXaxis()->SetTitle("rec ene (ADC)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());
@@ -1320,7 +1316,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetLineColor(kRed);
     obj2f->SetFillColor(kRed);
     obj2f->GetXaxis()->SetTitle("\\Delta \\eta");
-    obj2f->GetXaxis()->SetTitleColor(1);
     obj2f->GetYaxis()->SetTitle("\\Delta \\phi");
 
     obj2f->Draw("box");
@@ -1356,7 +1351,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       objp1->SetStats(kTRUE);
       gStyle->SetOptStat("e");
       objp1->GetXaxis()->SetTitle("#sample");
-      objp1->GetXaxis()->SetTitleColor(1);
       objp1->GetYaxis()->SetTitle("ADC");
       objp1->Draw();
       can->Update();
@@ -1381,7 +1375,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
       obj1f->SetStats(kTRUE);
       gStyle->SetOptStat(1110);
       obj1f->GetXaxis()->SetTitle("gain");
-      obj1f->GetXaxis()->SetTitleColor(1);
       if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
       obj1f->Draw();
       can->Update();
@@ -1465,7 +1458,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("crystal");
     obj1f->GetYaxis()->SetTitle("step in the scan");
-    obj1f->GetXaxis()->SetTitleColor(1);
     AdjustRange(obj1f);
     obj1f->Draw();
     can->Update();
@@ -1495,7 +1487,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("crystal");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->GetYaxis()->SetTitle("number of events (prescaled)");
 
     if(obj1f->GetEntries() != 0 ){gStyle->SetOptLogy(1);}
@@ -1532,7 +1523,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     can->cd();
     objp1->SetStats(kTRUE);
     objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     gStyle->SetOptStat("e");
     AdjustRange(objp1);
@@ -1564,7 +1554,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     objp1->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     objp1->GetXaxis()->SetTitle("crystal");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("rec energy (ADC)");
     AdjustRange(objp1);
     objp1->Draw();
@@ -1613,7 +1602,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     if(mbin >0) { objp1->Fill(20*mbin-1,dd);}
 
     objp1->GetXaxis()->SetTitle("event");
-    objp1->GetXaxis()->SetTitleColor(1);
     objp1->GetYaxis()->SetTitle("crystal in beam");
 
     AdjustRange(objp1);
@@ -1664,7 +1652,6 @@ void EBBeamCaloClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj1f->SetStats(kTRUE);
     gStyle->SetOptStat("e");
     obj1f->GetXaxis()->SetTitle("table status (0=stable, 1=moving)");
-    obj1f->GetXaxis()->SetTitleColor(1);
     obj1f->Draw();
     can->Update();
     can->SaveAs(imgName1.c_str());

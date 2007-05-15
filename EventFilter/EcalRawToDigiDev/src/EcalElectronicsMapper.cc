@@ -51,76 +51,76 @@ mappingBuilder_(0)
   
 
   //Fill map sm id to tcc ids
-  vector<uint> * ids;
-  ids = new vector<uint>;
+  std::vector<uint> * ids;
+  ids = new std::vector<uint>;
   ids->push_back(1); ids->push_back(18);ids->push_back(19);ids->push_back(36);
   mapSmIdToTccIds_[1]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(2); ids->push_back(3);ids->push_back(20);ids->push_back(21);
   mapSmIdToTccIds_[2]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(4); ids->push_back(5);ids->push_back(22);ids->push_back(23);
   mapSmIdToTccIds_[3]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(6); ids->push_back(7);ids->push_back(24);ids->push_back(25);
   mapSmIdToTccIds_[4]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(8); ids->push_back(9);ids->push_back(26);ids->push_back(27);
   mapSmIdToTccIds_[5]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(10); ids->push_back(11);ids->push_back(28);ids->push_back(29);
   mapSmIdToTccIds_[6]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(12); ids->push_back(13);ids->push_back(30);ids->push_back(31);
   mapSmIdToTccIds_[7]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(14); ids->push_back(15);ids->push_back(32);ids->push_back(33);
   mapSmIdToTccIds_[8]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(16); ids->push_back(17);ids->push_back(34);ids->push_back(35);
   mapSmIdToTccIds_[9]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(73); ids->push_back(90);ids->push_back(91);ids->push_back(108);
   mapSmIdToTccIds_[46]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(74); ids->push_back(75);ids->push_back(92);ids->push_back(93);
   mapSmIdToTccIds_[47]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(76); ids->push_back(77);ids->push_back(94);ids->push_back(95);
   mapSmIdToTccIds_[48]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(78); ids->push_back(79);ids->push_back(96);ids->push_back(97);
   mapSmIdToTccIds_[49]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(80); ids->push_back(81);ids->push_back(98);ids->push_back(99);  
   mapSmIdToTccIds_[50]= ids;
 		 
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(82); ids->push_back(83);ids->push_back(100);ids->push_back(101);
   mapSmIdToTccIds_[51]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(84); ids->push_back(85);ids->push_back(102);ids->push_back(103);
   mapSmIdToTccIds_[52]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(86); ids->push_back(87);ids->push_back(104);ids->push_back(105);
   mapSmIdToTccIds_[53]= ids;
 		
-  ids = new vector<uint>;
+  ids = new std::vector<uint>;
   ids->push_back(88); ids->push_back(89);ids->push_back(106);ids->push_back(107);
   mapSmIdToTccIds_[54]= ids;
 	
@@ -174,7 +174,7 @@ EcalElectronicsMapper::~EcalElectronicsMapper(){
   pathToMapFile_.clear();
   
   
-  map<uint, vector<uint> *>::iterator it;
+  std::map<uint, std::vector<uint> *>::iterator it;
   for(it = mapSmIdToTccIds_.begin(); it != mapSmIdToTccIds_.end(); it++ ){ delete (*it).second; }
   
   mapSmIdToTccIds_.clear();
@@ -203,11 +203,11 @@ bool EcalElectronicsMapper::setActiveDCC(uint dccId){
  } 
  
  
-bool EcalElectronicsMapper::setDCCMapFilePath(string aPath_){
+bool EcalElectronicsMapper::setDCCMapFilePath(std::string aPath_){
 
   
   //try to open a dccMapFile in the given path
-  ifstream dccMapFile_(aPath_.c_str());
+  std::ifstream dccMapFile_(aPath_.c_str());
 
   //if not successful return false
   if(!dccMapFile_.is_open()) return false;
@@ -224,7 +224,7 @@ bool EcalElectronicsMapper::setDCCMapFilePath(string aPath_){
 bool EcalElectronicsMapper::readDCCMapFile(){
 
   //try to open a dccMapFile in the given path
-  ifstream dccMapFile_(pathToMapFile_.c_str());
+  std::ifstream dccMapFile_(pathToMapFile_.c_str());
   
   //if not successful return false
   if(!dccMapFile_.is_open()) return false;
@@ -232,10 +232,11 @@ bool EcalElectronicsMapper::readDCCMapFile(){
   char lineBuf_[100];
   uint SMId_,DCCId_;
   // loop while extraction from file is possible
+  dccMapFile_.getline(lineBuf_,10);       //read line from file
   while (dccMapFile_.good()) {
-    dccMapFile_.getline(lineBuf_,10);       //read line from file
     sscanf(lineBuf_,"%u:%u",&SMId_,&DCCId_);
     myDCCMap_[SMId_] = DCCId_;
+    dccMapFile_.getline(lineBuf_,10);       //read line from file
   }
   
   
@@ -244,7 +245,7 @@ bool EcalElectronicsMapper::readDCCMapFile(){
 }
 
 
-bool EcalElectronicsMapper::readDCCMapFile(string aPath_){
+bool EcalElectronicsMapper::readDCCMapFile(std::string aPath_){
   //test if path is good
   edm::FileInPath eff(aPath_);
   
@@ -258,26 +259,25 @@ bool EcalElectronicsMapper::readDCCMapFile(string aPath_){
  
 std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_) {
   //print class information
-  o << "---------------------------------------------------------" << endl;
+  o << "---------------------------------------------------------";
 
   if(aMapper_.pathToMapFile_.size() < 1){
-    o << "No correct input for DCC map has been given yet..." << endl;
+    o << "No correct input for DCC map has been given yet...";
   }
   else{
-    o << "DCC Map (Map file: " << aMapper_.pathToMapFile_ << " )" << endl
-      << "SM id\t\tDCCid " << endl;
+    o << "DCC Map (Map file: " << aMapper_.pathToMapFile_ << " )" << "SM id\t\tDCCid ";
 
     //get DCC map and iterator
-    map<uint ,uint > aMap;
+    std::map<uint ,uint > aMap;
     aMap=aMapper_.myDCCMap_;
-    map<uint ,uint >::iterator iter;
+    std::map<uint ,uint >::iterator iter;
 
     //print info contained in map
     for(iter = aMap.begin(); iter != aMap.end(); iter++)
-      o << iter->first << "\t\t" << iter->second << endl;
+      o << iter->first << "\t\t" << iter->second;
   }
 
-  o << "---------------------------------------------------------" << endl;
+  o << "---------------------------------------------------------";
   return o;
 }
 
@@ -312,20 +312,20 @@ uint EcalElectronicsMapper::computeEETCCBlockLength(){
 
 uint EcalElectronicsMapper::getDCCId(uint aSMId_) const{
   //get iterator for SM id
-  map<uint ,uint>::const_iterator it = myDCCMap_.find(aSMId_);
+  std::map<uint ,uint>::const_iterator it = myDCCMap_.find(aSMId_);
 
   //check if SMid exists and return DCC id
   if(it!= myDCCMap_.end()) return it->second;
  
   //error return
-  edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found" ;
+  edm::LogError("EcalElectronicsMapper") << "DCC requested for SM id: " << aSMId_ << " not found";
   return 0;
 }
 
 
 uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
   //get iterator map
-  map<uint ,uint>::const_iterator it;
+  std::map<uint ,uint>::const_iterator it;
 
   //try to find SM id for given DCC id
   for(it = myDCCMap_.begin(); it != myDCCMap_.end(); it++)
@@ -333,7 +333,7 @@ uint EcalElectronicsMapper::getSMId(uint aDCCId_) const {
       return it->first;
 
   //error return
-  edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found" << endl;
+  edm::LogError("EcalEcalElectronicsMapper") << "SM requested DCC id: " << aDCCId_ << " not found";
   return 0;
 }
 
@@ -390,8 +390,8 @@ void EcalElectronicsMapper::fillMaps(){
     
      else{
 	 
-	vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
-	vector<uint>::iterator it;
+	std::vector<uint> * pTCCIds = mapSmIdToTccIds_[smId];
+	std::vector<uint>::iterator it;
 		
 	for(it= pTCCIds->begin(); it!= pTCCIds->end(); it++){
 			
@@ -426,8 +426,8 @@ void EcalElectronicsMapper::fillMaps(){
           EcalScDetId scDetId = mappingBuilder_->getEcalScDetId(smId,feChannel);
           scDetIds_[smId-1][feChannel-1] = new EcalScDetId(scDetId.rawId());;
           srFlags_[smId-1][feChannel-1]  = new EESrFlag( EcalScDetId( scDetId.rawId() ) , 0 ); 
-          vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
-          vector<DetId>::iterator it;
+          std::vector<DetId> ecalDetIds = mappingBuilder_->dccTowerConstituents(smId,feChannel);
+          std::vector<DetId>::iterator it;
 				  
           //EEDetIds	
           for(it = ecalDetIds.begin(); it!= ecalDetIds.end(); it++){

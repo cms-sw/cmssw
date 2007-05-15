@@ -17,9 +17,11 @@
  <class name="std::vector<edm::RefItem<int> >"/>
  <class name="std::vector<edm::RefItem<std::pair<unsigned int,unsigned int> > >"/>
  <class name="edm::RefBase<unsigned int>"/>
+ <class name="edm::RefBase<unsigned long>"/>
  <class name="edm::RefBase<int>"/>
  <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >"/>
  <class name="edm::RefVectorBase<unsigned int>"/>
+ <class name="edm::RefVectorBase<unsigned long>"/>
  <class name="edm::RefVectorBase<int>"/>
  <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>

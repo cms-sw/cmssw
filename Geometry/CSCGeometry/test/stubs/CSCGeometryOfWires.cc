@@ -1,4 +1,4 @@
-//#include <memory>
+// LAST UPDATED 13.04.2007 ptc
 
 #include <FWCore/Framework/interface/Frameworkfwd.h>
 #include <FWCore/Framework/interface/EDAnalyzer.h>
@@ -103,8 +103,8 @@ void
         const CSCLayerGeometry* geom = layer->geometry();
         std::cout << *geom;
 
-        const CSCStripTopology* mest = geom->topology();
-        std::cout << "\n" << *mest;
+        const CSCStripTopology* cst = geom->topology();
+        std::cout << "\n" << *cst;
 
 	// What's its surface?
 	// The surface knows how to transform local <-> global
@@ -218,63 +218,72 @@ void
         float lLGp = lowerLeftGlobal.phi().degrees();
 
 	float ang = nStrips * phiwid;
+	float ctoi = cst->centreToIntersection();
 
-	float ctoi = mest->centreToIntersection();
-	std::cout << "\ncentreToIntersection = " << ctoi << std::endl;
-	std::cout << "Angle subtended by layer = nstrips x stripPhiPitch = " << ang << " rads = " <<
+	std::cout << "\nStrip plane:" << std::endl;
+	std::cout << "============" << std::endl;
+	std::cout << "centreToIntersection, R = " << ctoi << std::endl;
+	std::cout << "local y of centre of strip plane, yOff = " << cst->yCentreOfStripPlane() << std::endl;
+	std::cout << "originToIntersection, R-yOff = " << cst->originToIntersection() << std::endl;
+	std::cout << "extent of strip plane in local y = " << cst->yExtentOfStripPlane() << std::endl;
+	std::cout << "no. of strips = " << nStrips << std::endl;
+	std::cout << "angular width of one strip = " << phiwid << " rads " << std::endl;
+	std::cout << "angle subtended by layer, A = nstrips x stripPhiPitch = " << ang << " rads = " <<
 	  ang * radToDeg  << " deg" << std::endl;
-	std::cout << "Phi width check = (centre strip N - centre strip 1)/(nstrips-1) = " << phiwid_check << std::endl;
+	std::cout << "phi (clockwise from local y axis) of one edge = " << cst->phiOfOneEdge() << " rads " << std::endl;
 
-	std::cout << "Check how well approximate constraints apply: " << std::endl;
+	std::cout << "phi width check: (centre strip N - centre strip 1)/(nstrips-1) = " << phiwid_check << std::endl;
+
+	std::cout << "Check how well approximations work: " << std::endl;
 	std::cout << "[T+B = " << hTopEdge+hBottomEdge <<
-	  "] SHOULD APPROXIMATE [2R*tan(ang/2) = " << 
+	  "] compared with [2R*tan(A/2) = " << 
 	  2.*ctoi*tan(ang/2.) << "]" << std::endl;
 	std::cout << "[T-B = " << hTopEdge-hBottomEdge <<
-	  "] SHOULD APPROXIMATE [2a*tan(ang/2) = " << 
+	  "] compared with [2a*tan(A/2) = " << 
 	  2.*hApothem*tan(ang/2.) << "]" << std::endl;
 	std::cout << "[R = " << ctoi <<
-	  "] SHOULD APPROXIMATE [0.5*(T+B)/tan(ang/2) = " << 
+	  "] compared with [0.5*(T+B)/tan(A/2) = " << 
 	  0.5 *(hTopEdge+hBottomEdge)/tan(ang/2.) << "]" << std::endl;
 
-	std::cout << "Possible definitions of where strips intersect: " << std::endl;
-	std::cout << "RST: match y=0, oi = " << 
+	std::cout << "Approximations to where strips intersect: " << std::endl;
+	std::cout << "RST: match y=0, oi = (hT+hB)/2 / tan(A/2) = " << 
 	  0.5*(hTopEdge+hBottomEdge) / tan(0.5*nStrips*phiwid) << std::endl;
-	std::cout << "RST: match top, oi = " << 
+	std::cout << "RST: match top, oi = hT / tan(A/2) = " << 
 	  hTopEdge / tan(0.5*nStrips*phiwid) << std::endl;
-	std::cout << "TST: oi = " << 
+	std::cout << "TST: oi = hA*(hT+hB)/(hT-hB) = " << 
 	  hApothem * (hTopEdge+hBottomEdge)/(hTopEdge-hBottomEdge) << std::endl;
 
-	//	std::cout << "\nStrip Offset = " << geom->stripOffset() << std::endl;
+	std::cout << "\nstrip offset = " << stripoff << std::endl;
 
 	std::cout << "\nlocal(0,0,-1) = global " << gCentre1 << std::endl;
 	std::cout << "local(0,0)    = global " << gCentre << std::endl;
 	std::cout << "local(0,0,+1) = global " << gCentre2 << std::endl;
    
-	std::cout << "\nCorners in local coordinates: \n UR " <<
+	std::cout << "\nChamber frame corners in local coordinates: \n UR " <<
 	  upperRightLocal << "\n UL " << upperLeftLocal << "\n LR " <<
 	  lowerRightLocal << "\n LL " << lowerLeftLocal << std::endl;
 
-	std::cout << "Corners in global coords: \n UR " << 
+	std::cout << "Chamber frame corners in global coords: \n UR " << 
 	  upperRightGlobal << "\n UL " << upperLeftGlobal << "\n LR " <<
 	  lowerRightGlobal << "\n LL " << lowerLeftGlobal << 
 	  "\n   phi: UR " << uRGp << " UL " << uLGp << " LR " <<
 	  lRGp << " LL " << lLGp << std::endl;
 
-	// MELG::stripAngle(int strip)
-	std::cout << "MELG Angle of strip 1 = " << 
+	// CSCLG::stripAngle(int strip)
+	std::cout << "CSCLG Angle of strip 1 = " << 
 	  geom->stripAngle(1) * radToDeg << " deg " << std::endl;
-	std::cout << "MELG Angle of strip " << nStrips/2 << " = " <<
+	std::cout << "CSCLG Angle of strip " << nStrips/2 << " = " <<
 	  geom->stripAngle( nStrips/2 ) * radToDeg << " deg " << std::endl;
-	std::cout << "MELG Angle of strip " << nStrips << " = " <<
+	std::cout << "CSCLG Angle of strip " << nStrips << " = " <<
 	  geom->stripAngle( nStrips ) * radToDeg << " deg " << std::endl;
 
-	// MEST::stripAngle(float strip) Yes this one's float the MELG is int
-	std::cout << "MEST Angle of centre of strip 1 = " << 
-	  mest->stripAngle(0.5) * radToDeg << " deg " << std::endl;
-	std::cout << "MEST Angle of centre of strip " << nStrips/2 << " = " <<
-	  mest->stripAngle( nStrips/2 -0.5 ) * radToDeg << " deg " << std::endl;
-	std::cout << "MEST Angle of centre of strip " << nStrips << " = " <<
-	  mest->stripAngle( nStrips -0.5 ) * radToDeg << " deg " << std::endl;
+	// CSCST::stripAngle(float strip) Yes this one's float the CSCLG is int
+	std::cout << "CSCST Angle of centre of strip 1 = " << 
+	  cst->stripAngle(0.5) * radToDeg << " deg " << std::endl;
+	std::cout << "CSCST Angle of centre of strip " << nStrips/2 << " = " <<
+	  cst->stripAngle( nStrips/2 -0.5 ) * radToDeg << " deg " << std::endl;
+	std::cout << "CSCST Angle of centre of strip " << nStrips << " = " <<
+	  cst->stripAngle( nStrips -0.5 ) * radToDeg << " deg " << std::endl;
 
 	std::cout << "Local x of strip 1 on x axis = " << 
 	  geom->xOfStrip(1, 0.) << std::endl;
@@ -312,11 +321,11 @@ void
 	std::cout << "Strip pitch at right edge on x axis = " << geom->stripPitch( rightEdgeOnX ) << std::endl;
 
 	// Check input to nearestStrip()
-	std::cout << "Strip units for (0,0) =                " << mest->strip( lCentre ) << std::endl;
-	std::cout << "Strip units for upper edge on y axis = " << mest->strip( upperEdgeOnY ) << std::endl;
-	std::cout << "Strip units for lower edge on y axis = " << mest->strip( lowerEdgeOnY ) << std::endl;
-	std::cout << "Strip units for left edge on x axis  = " << mest->strip( leftEdgeOnX ) << std::endl;
-	std::cout << "Strip units for right edge on x axis = " << mest->strip( rightEdgeOnX ) << std::endl;
+	std::cout << "Strip units for (0,0) =                " << cst->strip( lCentre ) << std::endl;
+	std::cout << "Strip units for upper edge on y axis = " << cst->strip( upperEdgeOnY ) << std::endl;
+	std::cout << "Strip units for lower edge on y axis = " << cst->strip( lowerEdgeOnY ) << std::endl;
+	std::cout << "Strip units for left edge on x axis  = " << cst->strip( leftEdgeOnX ) << std::endl;
+	std::cout << "Strip units for right edge on x axis = " << cst->strip( rightEdgeOnX ) << std::endl;
 
 	std::cout << "Nearest strip to (0,0) =                " << geom->nearestStrip( lCentre ) << std::endl;
 	std::cout << "Nearest strip to upper edge on y axis = " << geom->nearestStrip( upperEdgeOnY ) << std::endl;
@@ -351,7 +360,7 @@ void
 	std::cout << "yOfWire(" << jNLL << " , -hBottomEdge ) = " << 
 	  geom->yOfWire( static_cast<float>(jNLL), -hBottomEdge ) << std::endl;
 
-	std::cout << "Examine global phi along strips:" << std::endl;
+	std::cout << "Examine global phi of strip at top and bottom of chamber frame:" << std::endl;
 	float phi_1_c = (layer->centerOfStrip(1)).phi();
 	float phi_n_c = (layer->centerOfStrip(nStrips)).phi();
 	float phi_c_c = (layer->centerOfStrip(nStrips/2)).phi();
@@ -376,7 +385,29 @@ void
 	std::cout << " strip  1 top: " << phi_1_t << " centre: " << phi_1_c << " bottom: " << phi_1_b << " top-bottom: " << phi_1_t-phi_1_b << std::endl;
 	std::cout << " strip " << nStrips/2 << " top: " << phi_c_t << " centre: " << phi_c_c << " bottom: " << phi_c_b << " top-bottom: " << phi_c_t-phi_c_b << std::endl;
 	std::cout << " strip " << nStrips << " top: " << phi_n_t << " centre: " << phi_n_c << " bottom: " << phi_n_b << " top-bottom: " << phi_n_t-phi_n_b << std::endl;
-    
+
+	int nwg = geom->numberOfWireGroups();
+	int nw = geom->numberOfWires();
+
+	std::cout << "\nWire plane:" << std::endl;
+	std::cout << "===========" << std::endl;
+	std::cout << "wireSpacing = " << geom->wirePitch() << " cm " << std::endl;
+    	std::cout << "wireAngle = " << geom->wireAngle() << " rads " << std::endl;
+	std::cout << "no. of wires = " << geom->numberOfWires() << std::endl;
+	std::cout << "no. of wire groups = " << nwg << std::endl;
+	std::cout << "no. of wires in wg 1 = " << geom->numberOfWiresPerGroup( 1 ) << std::endl;
+	std::cout << "no. of wires in wg " << nwg << " = " << geom->numberOfWiresPerGroup( nwg ) << std::endl;
+	std::cout << "wire group containing wire 1 = " << geom->wireGroup( 1 ) << std::endl;
+	std::cout << "wire group containing wire " << nw  << " = " << geom->wireGroup( nw ) << std::endl;
+	std::cout << "length of wg 1 = " << geom->lengthOfWireGroup( 1 ) << std::endl;
+	std::cout << "length of wg " << nwg << " = " << geom->lengthOfWireGroup( nwg ) << std::endl;
+	std::cout << "middle wire of wg 1 = " << geom->middleWireOfGroup( 1 ) << std::endl;
+	std::cout << "middle wire of wg " << nwg << " = " << geom->middleWireOfGroup( nwg ) << std::endl;
+	std::cout << "y of wg 1 at x=0 is " << geom->yOfWireGroup( 1 ) << std::endl;
+	std::cout << "y of wg " << nwg << " at x=0 is " << geom->yOfWireGroup( nwg ) << std::endl;
+	std::cout << "centre of wg 1 is " << geom->localCenterOfWireGroup( 1 ) << std::endl;
+	std::cout << "centre of wg " << nwg << " is " << geom->localCenterOfWireGroup( nwg ) << std::endl;
+
 	// Check idToDetUnit
 	const GeomDetUnit * gdu = pDD->idToDetUnit(detId);
 	assert(gdu==layer);
