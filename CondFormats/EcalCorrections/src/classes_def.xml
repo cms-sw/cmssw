@@ -1,0 +1,7 @@
+<lcgdict>
+ <class name="EcalShowerContainmentCorrections"/>
+ <class name="EcalShowerContainmentCorrections::Coefficients"/>
+
+ <class pattern="*map*"/>
+ <class pattern="*vector*"/>
+</lcgdict>
