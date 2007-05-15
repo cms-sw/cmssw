@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.15 2007/03/02 01:08:10 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.16 2007/03/26 22:55:58 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.15 2007/03/02 01:08:10 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.16 2007/03/26 22:55:58 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -143,15 +143,23 @@ void ScheduleValidator::validate(){
 	      ostream_iterator<string>(olddepstr,","));
 	copy(dep.begin(), dep.end(), 
 	      ostream_iterator<string>(newdepstr,","));
+        std::string olddeps = olddepstr.str();
+        if(olddeps == "") olddeps = "<NOTHING>";
+        std::string newdeps = newdepstr.str();
+        if(newdeps == "") newdeps = "<NOTHING>";
+
         (*leafIt)->printTrace(traceback);
+        std::string traceStr = traceback.str();
+        if(traceStr == "") traceStr = "<MAIN CFG>";
+
 	throw edm::Exception(errors::Configuration,"InconsistentSchedule")
 	  << "Inconsistent schedule for module "
 	  << leafName
 	  << "\n"
-	  << "Depends on " << olddepstr.str() 
-	  << " but also on " << newdepstr.str()
+	  << "Depends on " << olddeps 
+	  << " but also on " << newdeps
 	  << "\n"
-          << "Second set of dependencies comes from: " << traceback.str() << "\n";
+          << "Second set of dependencies comes from: " << traceStr << "\n";
       }
     }
     else {
