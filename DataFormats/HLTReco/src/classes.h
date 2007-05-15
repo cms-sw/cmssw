@@ -9,6 +9,13 @@
 
 namespace {
   namespace {
+    boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default> hltfubar1;
+    boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default> hltfubar2;
+  }
+}
+
+namespace {
+  namespace {
 
     reco::HLTResult< 8> h1;
     reco::HLTResult<16> h2;
