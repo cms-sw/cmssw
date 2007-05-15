@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/07/03 13:13:09 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/07/21 12:26:32 $
+ *  $Revision: 1.4 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -22,6 +22,7 @@ using namespace std;
 DTTimeBoxFitter::DTTimeBoxFitter() : theVerbosityLevel(0) {
   hDebugFile = new TFile("DTTimeBoxFitter.root", "RECREATE");
   interactiveFit = false;
+  rebin = 1;
 }
 
 
@@ -35,6 +36,9 @@ DTTimeBoxFitter::~DTTimeBoxFitter() {
 
 /// Compute the ttrig (in ns) from the Time Box
 pair<double, double> DTTimeBoxFitter::fitTimeBox(TH1F *hTimeBox) {
+
+    hTimeBox->Rebin(rebin);
+  
   // Check if the histo contains any entry
   if(hTimeBox->GetEntries() == 0) {
     cout << "[DTTimeBoxFitter]***Error: the time box contains no entry!" << endl;
@@ -103,10 +107,7 @@ void DTTimeBoxFitter::getInteractiveFitSeeds(TH1F *hTBox, double& mean, double& 
   cout << "Inser the fit mean:" << endl;
   cin >> mean;
 
-
-
-
-  sigma = 10; //FIXME: estimate it!
+  sigma = 5; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
@@ -213,7 +214,7 @@ void DTTimeBoxFitter::getFitSeeds(TH1F *hTBox, double& mean, double& sigma, doub
   }
 
   mean = xMin + beginning*binValue;
-  sigma = 10; //FIXME: estimate it!
+  sigma = 5; //FIXME: estimate it!
 
   tBoxMax = hTBox->GetMaximum();
 
