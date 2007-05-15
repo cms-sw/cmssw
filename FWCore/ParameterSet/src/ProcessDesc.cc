@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.11 2006/10/03 18:25:05 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.12 2007/01/20 00:09:56 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.11 2006/10/03 18:25:05 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.12 2007/01/20 00:09:56 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -158,22 +158,24 @@ namespace edm
     if (node->type() == "operand") {
       SeqMap::iterator seqIt = sequences.find(node->name()); 
       if (seqIt != sequences.end()) {
-        node = seqIt->second->wrapped();
-        sequenceSubstitution(node, sequences);
+        NodePtr substituteNode = seqIt->second->wrapped();
+        //substituteNode->setParent(node->getParent());
+        sequenceSubstitution(substituteNode, sequences);
       }
     } // if operator
     else {
       edm::pset::OperatorNode* onode = dynamic_cast<edm::pset::OperatorNode*>(node.get());
     
-    
       SeqMap::iterator seqIt = sequences.find(onode->left()->name()); 
       if (seqIt != sequences.end()) {
-        onode->left()= seqIt->second->wrapped();
+        //onode->left()= seqIt->second->wrapped();
+        onode->left()= NodePtr(seqIt->second->wrapped()->clone());
         onode->left()->setParent(onode);
       }
       seqIt = sequences.find(onode->right()->name()); 
       if (seqIt != sequences.end()) {
-        onode->right()= seqIt->second->wrapped(); 
+        //onode->right()= seqIt->second->wrapped(); 
+        onode->right()= NodePtr(seqIt->second->wrapped()->clone());
         onode->right()->setParent(onode);
       }
       sequenceSubstitution(onode->left(), sequences);
