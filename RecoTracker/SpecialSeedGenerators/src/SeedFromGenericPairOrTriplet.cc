@@ -292,17 +292,27 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const FreeTrajectoryStat
 
 CurvilinearTrajectoryError SeedFromGenericPairOrTriplet::initialError(const TrackingRecHit* rechit) {
         TransientTrackingRecHit::RecHitPointer transHit =  theBuilder->build(rechit);
-        AlgebraicSymMatrix C(5,1);
-        C*=0.1;
+        //AlgebraicSymMatrix C(5,1);
+	AlgebraicSymMatrix55 C = AlgebraicMatrixID();
+        //C*=0.1;
         if (theSetMomentum){
+		C(0,0)=1/theP;
+                C(3,3)=transHit->globalPositionError().cxx();
+                C(4,4)=transHit->globalPositionError().czz();
+		/*
                 C[0][0]=1/theP;
                 C[3][3]=transHit->globalPositionError().cxx();
                 C[4][4]=transHit->globalPositionError().czz();
+		*/
         } else {
                 float zErr = transHit->globalPositionError().czz();
                 float transverseErr = transHit->globalPositionError().cxx(); // assume equal cxx cyy
+		C(3,3) = transverseErr;
+                C(4,4) = zErr;
+		/*
                 C[3][3] = transverseErr;
                 C[4][4] = zErr;
+		*/
         }
 
         return CurvilinearTrajectoryError(C);
