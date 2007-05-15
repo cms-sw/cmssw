@@ -32,7 +32,7 @@ public:
   }
   virtual std::vector<reco::MuIsoDeposit> 
     deposits(const edm::Event & ev, const edm::EventSetup & evSetup, const reco::TrackRef & track) const{
-    return std::vector<reco::MuIsoDeposit>(1, deposit(ev, evSetup, track));
+    return deposits(ev, evSetup, *track);
   }
 };
 
