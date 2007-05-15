@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.17 2007/04/30 21:00:39 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.18 2007/05/11 04:59:32 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.18  2007/05/11 04:59:32  wsun
+// Retweaked trigger table.
+//
 // Revision 1.17  2007/04/30 21:00:39  wsun
 // QuadJet50 -> QuadJet20
 //
@@ -151,7 +154,7 @@ namespace l1extra {
 	    kDoubleTauJet20,
 	    kDoubleTauJet30,
 	    kMu3_IsoEG5,
-	    kMu3_IsoEG15,
+	    kMu7_IsoEG10,
 	    kMu3_EG20,
 	    kMu3_Jet15,
 	    kMu3_Jet100,
