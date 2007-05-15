@@ -1,0 +1,10 @@
+<use name=FWCore/Utilities>
+<use name=PhysicsTools/MVAComputer>
+<use name=rootcore>
+<use name=xerces-c>
+<export>
+  <use name=FWCore/Utilities>
+  <use name=PhysicsTools/MVAComputer>
+  <lib name=PhysicsToolsMVATrainer>
+  <use name=xerces-c>
+</export>

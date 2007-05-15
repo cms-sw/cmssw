@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<MVATrainer>
+	<general>
+		<!--
+			called with arguments
+				1. name
+				2. additional name info
+				3. file suffix
+			%n$s retrieves the n'th argument
+		-->
+		<option name="trainfiles">train_%1$s%2$s.%3$s</option>
+	</general>
+	<input id="input">
+		<var name="x" multiple="false" optional="false"/>
+		<var name="y" multiple="false" optional="false"/>
+	</input>
+	<processor id="norm" name="ProcNormalize">
+		<input>
+			<var source="input" name="x"/>
+			<var source="input" name="y"/>
+		</input>
+		<config>
+			<pdf/>
+			<pdf/>
+		</config>
+		<output>
+			<var name="x"/>
+			<var name="y"/>
+		</output>
+	</processor>
+	<processor id="lkh" name="ProcLikelihood">
+		<input>
+			<var source="norm" name="x"/>
+			<var source="norm" name="y"/>
+		</input>
+		<config>
+			<sigbkg/>
+			<sigbkg/>
+		</config>
+		<output>
+			<var name="discriminator"/>
+		</output>
+	</processor>
+	<output>
+		<var source="lkh" name="discriminator"/>
+	</output>
+</MVATrainer>

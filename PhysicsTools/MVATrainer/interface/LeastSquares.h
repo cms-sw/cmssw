@@ -1,0 +1,46 @@
+#ifndef LeastSquares_h
+#define LeastSquares_h
+
+#include <string>
+#include <vector>
+
+#include <TMatrixD.h>
+#include <TVectorD.h>
+
+#include <xercesc/dom/DOM.hpp>
+
+class LeastSquares
+{
+    public:
+	LeastSquares(unsigned int n);
+	virtual ~LeastSquares();
+
+	void add(const std::vector<double> &values, double dest,
+	         double weight = 1.0);
+	void calculate();
+
+	std::vector<double> getWeights() const;
+	std::vector<double> getMeans() const;
+	double getConstant() const;
+
+	inline unsigned int getSize() const { return n; }
+	inline const TMatrixDSym &getCorrelations() const { return corr; }
+	inline const TMatrixD &getRotation() { return rotation; }
+
+	void load(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem);
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *save(
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc) const;
+
+    private:
+	TMatrixDSym		coeffs;
+	TMatrixDSym		covar;
+	TMatrixDSym		corr;
+	TMatrixD		rotation;
+	TVectorD		sums;
+	TVectorD		weights;
+	TVectorD		variance;
+	TVectorD		trace;
+	const unsigned int	n;
+};
+
+#endif // LeastSquares_h
