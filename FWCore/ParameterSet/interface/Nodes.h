@@ -21,6 +21,8 @@
 #include "FWCore/ParameterSet/interface/ModuleNode.h"
 #include "FWCore/ParameterSet/interface/WrapperNode.h"
 #include "FWCore/ParameterSet/interface/VPSetNode.h"
+#include "FWCore/ParameterSet/interface/OperatorNode.h"
+#include "FWCore/ParameterSet/interface/OperandNode.h"
 
 
 namespace edm {
@@ -129,63 +131,6 @@ namespace edm {
     };
 
     typedef boost::shared_ptr<ContentsNode> ContentsNodePtr;
-
-
-    /*
-      -----------------------------------------
-      utility to create a unique name for the operator nodes
-    */
-
-    std::string makeOpName();
-
-    /*
-      -----------------------------------------
-      Operators hold: and/comma type, left and right operands, which
-      are modules/sequences or more operators
-    */
-
-    class OperatorNode : public Node
-    {
-    public:
-      OperatorNode(const std::string& t, NodePtr left, NodePtr right, int line=-1);
-      /// doesn't deep-copy left & right
-      virtual Node * clone() const { return new OperatorNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost, PrintOptions options) const;
-      virtual bool findChild(const std::string & childName, NodePtr & result);
-      NodePtr & left() {return left_;}
-      NodePtr & right() {return right_;}
-      const NodePtr & left() const {return left_;}
-      const NodePtr & right() const {return right_;}
-
-
-      virtual void accept(Visitor& v) const;
-
-    private:
-      std::string type_;
-      NodePtr left_;
-      NodePtr right_;
-    };
-
-    /*
-      -----------------------------------------
-      Operands hold: leaf in the path expression - names of modules/sequences
-    */
-
-    class OperandNode : public Node
-    {
-    public:
-      OperandNode(const std::string& type, const std::string& name, int line=-1);
-      virtual Node * clone() const { return new OperandNode(*this);}
-      virtual std::string type() const;
-      virtual void print(std::ostream& ost, PrintOptions options) const;
- 
-      virtual void accept(Visitor& v) const;
-
-    private:
-      std::string type_;
-    };
-
 
   }
 }
