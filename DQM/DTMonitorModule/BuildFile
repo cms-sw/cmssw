@@ -1,7 +1,7 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMDTMonitorModule">
 <use name=FWCore/Framework>
 <use name=DQMServices/CoreROOT>
-#<use name=EventFilter/DTRawToDigi>
+<use name=EventFilter/DTRawToDigi>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/DTDigi>
 <use name=DataFormats/L1DTTrackFinder>
