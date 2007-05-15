@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.17 2007/05/04 18:14:57 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.1 2007/05/12 22:14:39 dmytro Exp $
 //
 //
 
@@ -25,6 +25,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "Utilities/Timing/interface/TimerStack.h"
@@ -33,6 +34,8 @@
 #include "RecoMuon/MuonIdentification/plugins/MuonIdProducer.h"
 #include "RecoMuon/MuonIdentification/interface/MuonIdTruthInfo.h"
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
+
+#include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
 
 #include <algorithm>
 
@@ -65,6 +68,17 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
       // Load MuonCaloCompatibility parameters
       parameters = iConfig.getParameter<edm::ParameterSet>("MuonCaloCompatibility");
       muonCaloCompatibility_.configure( parameters );
+   }
+
+   if (fillIsolation_){
+      // Load MuIsoExtractor parameters
+      edm::ParameterSet caloExtractorPSet = iConfig.getParameter<edm::ParameterSet>("CaloExtractorPSet");
+      std::string caloExtractorName = caloExtractorPSet.getParameter<std::string>("ComponentName");
+      muIsoExtractorCalo_ = MuIsoExtractorFactory::get()->create( caloExtractorName, caloExtractorPSet);
+
+      edm::ParameterSet trackExtractorPSet = iConfig.getParameter<edm::ParameterSet>("TrackExtractorPSet");
+      std::string trackExtractorName = trackExtractorPSet.getParameter<std::string>("ComponentName");
+      muIsoExtractorTrack_ = MuIsoExtractorFactory::get()->create( trackExtractorName, trackExtractorPSet);
    }
    
    inputTrackCollectionLabel_ = iConfig.getParameter<edm::InputTag>("inputTrackCollection");
@@ -463,8 +477,37 @@ void MuonIdProducer::fillArbitrationInfo( reco::MuonCollection* pOutputMuons )
    } // muonIndex1
 }
 
-void MuonIdProducer::fillMuonIsolation(edm::Event&, const edm::EventSetup&, reco::Muon& aMuon)
+void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup& iSetup, reco::Muon& aMuon)
 {
+   reco::MuonIsolation isoR03, isoR05;
+   // get deposits
+   reco::MuIsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, aMuon.track());
+   std::vector<reco::MuIsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, aMuon.track());
+
+   if(caloDeps.size()!=3) {
+      LogTrace("MuonIdentification") << "Failed to fill vector of calorimeter isolation deposits!";
+      return;
+   }
+
+   reco::MuIsoDeposit depEcal = caloDeps.at(0);
+   reco::MuIsoDeposit depHcal = caloDeps.at(1);
+   reco::MuIsoDeposit depHo   = caloDeps.at(2);
+
+   isoR03.sumPt     = depTrk.depositWithin(0.3);
+   isoR03.emEnergy  = depEcal.depositWithin(0.3);
+   isoR03.hadEnergy = depHcal.depositWithin(0.3);
+   isoR03.hoEnergy  = depHo.depositWithin(0.3);
+   isoR03.nTracks   = depTrk.depositAndCountWithin(0.3).second;
+   isoR03.nJets     = 0;
+
+   isoR05.sumPt     = depTrk.depositWithin(0.5);
+   isoR05.emEnergy  = depEcal.depositWithin(0.5);
+   isoR05.hadEnergy = depHcal.depositWithin(0.5);
+   isoR05.hoEnergy  = depHo.depositWithin(0.5);
+   isoR05.nTracks   = depTrk.depositAndCountWithin(0.5).second;
+   isoR05.nJets     = 0;
+
+   aMuon.setIsolation(isoR03, isoR05);
 }
 
 reco::Muon* MuonIdProducer::makeMuon( const reco::Track& track )
