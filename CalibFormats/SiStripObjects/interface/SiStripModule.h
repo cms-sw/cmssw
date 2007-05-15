@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.h,v 1.8 2007/03/21 09:54:20 bainbrid Exp $
+// Last commit: $Id: SiStripModule.h,v 1.9 2007/03/28 09:11:51 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripModule_H
 #define CalibFormats_SiStripObjects_SiStripModule_H
@@ -70,8 +70,8 @@ class SiStripModule {
       not. Returns device I2C address or zero if not active. */
   const uint16_t& activeApv( const uint16_t& apv_address ) const;
   
-  /** Identifies APV pairs that are active, for a given LLD channel
-      (0->2). Returns device I2C address or zero if not active. */
+  /** Identifies APV pairs that are active for given LLD channel
+      (1->3). Returns device I2C address or zero if not active. */
   PairOfU16 activeApvPair( const uint16_t& lld_channel ) const;
 
   /** Add APV to module using I2C address (32->37). */
@@ -96,8 +96,7 @@ class SiStripModule {
   /** Returns DCU id for this module. */
   inline const uint32_t& dcuId() const;
 
-  /** Returns LLD channel (0->2) for a given APV pair number (0->1 or
-      0->2, depending on number of APV pairs). */
+  /** Returns LLD channel (1->3) for given APV pair (0->1 or 0->2). */
   uint16_t lldChannel( const uint16_t& apv_pair_num ) const;
 
   /** Set DCU id for this module. */
@@ -108,8 +107,7 @@ class SiStripModule {
   /** Returns unique (geometry-based) identifier for this module. */
   inline const uint32_t& detId() const;
   
-  /** Returns APV pair number (0->1 or 0->2, depending on number of
-      APV pairs) for a given LLD channel (0->2). */
+  /** Returns APV pair (0->1 or 0->2) for given LLD channel (1->3). */
   uint16_t apvPairNumber( const uint16_t& lld_channel ) const;
 
   /** Returns number of APV pairs for this module. */

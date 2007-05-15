@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.19 2007/03/21 09:54:21 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.20 2007/03/28 09:13:33 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -56,7 +56,9 @@ void SiStripFecCabling::buildFecCabling( const SiStripFedCabling& fed_cabling ) 
       }
     }
   }
-  
+  LogTrace(mlCabling_)
+    << "[SiStripFecCabling::" << __func__ << "]"
+    << " Finished building FEC cabling";
 }
 
 // -----------------------------------------------------------------------------
@@ -98,6 +100,8 @@ void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) 
 // -----------------------------------------------------------------------------
 //
 const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn ) const {
+
+  std::stringstream ss;
   std::vector<SiStripFecCrate>::const_iterator icrate = crates().begin();
   while ( icrate != crates().end() && icrate->fecCrate() != conn.fecCrate() ) { icrate++; }
   if ( icrate != crates().end() ) { 
@@ -114,26 +118,29 @@ const SiStripModule& SiStripFecCabling::module( const FedChannelConnection& conn
 	  while ( imod != iccu->modules().end() && imod->ccuChan() != conn.ccuChan() ) { imod++; }
 	  if ( imod != iccu->modules().end() ) { 
 	    return *imod;
-	  } else { edm::LogWarning(mlCabling_)
-	    << "[SiStripFecCabling::" << __func__ << "]"
-	    << " CCU channel " << conn.ccuChan() 
-	    << " not found!"; }
-	} else { edm::LogWarning(mlCabling_)
-	  << "[SiStripFecCabling::" << __func__ << "]"
-	  << " CCU address " << conn.ccuAddr() 
-	  << " not found!"; }
-      } else { edm::LogWarning(mlCabling_)
-	<< "[SiStripFecCabling::" << __func__ << "]"
-	<< " FEC ring " << conn.fecRing() 
-	<< " not found!"; }
-    } else { edm::LogWarning(mlCabling_)
-      << "[SiStripFecCabling::" << __func__ << "]"
-      << " FEC slot " << conn.fecSlot() 
-      << " not found!"; }
-  } else { edm::LogWarning(mlCabling_)
-    << "[SiStripFecCabling::" << __func__ << "]"
-    << " FEC crate " << conn.fecCrate() 
-    << " not found!"; }
+	  } else { 
+	    ss << "[SiStripFecCabling::" << __func__ << "]"
+	       << " CCU channel " << conn.ccuChan() 
+	       << " not found!"; }
+	} else { 
+	  ss << "[SiStripFecCabling::" << __func__ << "]"
+	     << " CCU address " << conn.ccuAddr() 
+	     << " not found!"; }
+      } else { 
+	ss << "[SiStripFecCabling::" << __func__ << "]"
+	   << " FEC ring " << conn.fecRing() 
+	   << " not found!"; }
+    } else { 
+      ss << "[SiStripFecCabling::" << __func__ << "]"
+	 << " FEC slot " << conn.fecSlot() 
+	 << " not found!"; }
+  } else { 
+    ss << "[SiStripFecCabling::" << __func__ << "]"
+       << " FEC crate " << conn.fecCrate() 
+       << " not found!"; 
+  }
+
+  if ( !ss.str().empty() ) { edm::LogWarning(mlCabling_) << ss.str(); }
   static FedChannelConnection temp;
   static const SiStripModule module(temp);
   return module;

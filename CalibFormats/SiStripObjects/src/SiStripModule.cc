@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.11 2007/03/28 09:13:33 bainbrid Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.12 2007/03/28 14:54:46 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -191,46 +191,66 @@ void SiStripModule::nApvPairs( const uint16_t& npairs ) {
 
 // -----------------------------------------------------------------------------
 //
-SiStripModule::FedChannel SiStripModule::activeApvPair( const uint16_t& lld_channel ) const {
-  if      ( lld_channel == 0 ) { return FedChannel(apv32_,apv33_); }
-  else if ( lld_channel == 1 ) { return FedChannel(apv34_,apv35_); }
-  else if ( lld_channel == 2 ) { return FedChannel(apv36_,apv37_); }
-  else                         { return FedChannel(0,0); }
+SiStripModule::PairOfU16 SiStripModule::activeApvPair( const uint16_t& lld_channel ) const {
+  if      ( lld_channel == 1 ) { return PairOfU16(apv32_,apv33_); }
+  else if ( lld_channel == 2 ) { return PairOfU16(apv34_,apv35_); }
+  else if ( lld_channel == 3 ) { return PairOfU16(apv36_,apv37_); }
+  else { 
+    edm::LogWarning(mlCabling_)
+      << "SiStripModule::" << __func__ << "]"
+      << " Unexpected LLD channel: " << lld_channel;
+    return PairOfU16(0,0); 
+  }
 }
 
 // -----------------------------------------------------------------------------
 //
 uint16_t SiStripModule::lldChannel( const uint16_t& apv_pair_num ) const {
+  if ( apv_pair_num > 2 ) {
+    edm::LogWarning(mlCabling_)
+      << "SiStripModule::" << __func__ << "]"
+      << " Unexpected APV pair number: " << apv_pair_num;
+    return 0;
+  }
   if ( nApvPairs_ != 2 && nApvPairs_ != 3 ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
       << " Unexpected number of APV pairs: " << nApvPairs_;
     return 0;
   }
-  if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 2; }
+  if ( nApvPairs_ == 2 && apv_pair_num == 1 ) { return 3; }
   else if ( nApvPairs_ == 2 && apv_pair_num == 3 ) { 
-    edm::LogWarning(mlCabling_) << "[SiStripFecCabling::lldChannel]"
-				<< " Unexpected APV pair number!";
+    edm::LogWarning(mlCabling_)
+      << "[SiStripFecCabling::" << __func__ << "]"
+      << " APV pair number is incompatible with"
+      << " respect to number of !";
     return 0;
-  } else { return apv_pair_num; } // is identical in this case
+  } else { return apv_pair_num + 1; } 
 }
 
 // -----------------------------------------------------------------------------
 //
 uint16_t SiStripModule::apvPairNumber( const uint16_t& lld_channel ) const {
+  if ( lld_channel < 1 || lld_channel > 3 ) {
+    edm::LogWarning(mlCabling_)
+      << "SiStripModule::" << __func__ << "]"
+      << " Unexpected LLD channel: " << lld_channel;
+    return 0;
+  }
   if ( nApvPairs_ != 2 && nApvPairs_ != 3 ) {
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
-      << " Unexpected nunber of APV pairs!";
+      << " Unexpected number of APV pairs: " << nApvPairs_;
     return 0;
   }
-  if ( nApvPairs_ == 2 && lld_channel == 2 ) { return 1; }
-  else if ( nApvPairs_ == 2 && lld_channel == 1 ) { 
+  if ( nApvPairs_ == 2 && lld_channel == 3 ) { return 1; }
+  else if ( nApvPairs_ == 2 && lld_channel == 2 ) { 
     edm::LogWarning(mlCabling_)
       << "SiStripModule::" << __func__ << "]"
-      << " Unexpected LLD channel!";
+      << " LLD channel is incompatible with"
+      << " respect to number of APV pairs!";
     return 0;
-  } else { return lld_channel; } // is identical in this case
+  } else { return lld_channel - 1; }
 }
 
 // -----------------------------------------------------------------------------
@@ -251,8 +271,8 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
     uint16_t lld_ch;
     if ( nApvPairs() == 2 ) {
 
-      if      ( apv_pair == 0 ) { lld_ch = 0; }
-      else if ( apv_pair == 1 ) { lld_ch = 2; }
+      if      ( apv_pair == 0 ) { lld_ch = 1; }
+      else if ( apv_pair == 1 ) { lld_ch = 3; }
       else { 
 	edm::LogWarning(mlCabling_)
 	  << "SiStripModule::" << __func__ << "]"
@@ -261,9 +281,9 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
 
     } else if ( nApvPairs() == 3 ) {
 
-      if      ( apv_pair == 0 ) { lld_ch = 0; }
-      else if ( apv_pair == 1 ) { lld_ch = 1; }
-      else if ( apv_pair == 2 ) { lld_ch = 2; }
+      if      ( apv_pair == 0 ) { lld_ch = 1; }
+      else if ( apv_pair == 1 ) { lld_ch = 2; }
+      else if ( apv_pair == 2 ) { lld_ch = 3; }
       else { 
 	edm::LogWarning(mlCabling_)
 	  << "SiStripModule::" << __func__ << "]"
@@ -277,7 +297,7 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
 	<< " Unexpected number of APV pairs: " << nApvPairs();
 
     }
-
+    
     FedCabling::const_iterator ipair = cabling_.find( lld_ch );
     if ( ipair != cabling_.end() ) { return (*ipair).second; }
     else { return fed_ch; }
@@ -291,10 +311,10 @@ SiStripModule::FedChannel SiStripModule::fedCh( const uint16_t& apv_pair ) const
 bool SiStripModule::fedCh( const uint16_t& apv_address, 
 			   const FedChannel& fed_ch ) {
   // Determine LLD channel
-  int16_t lld_ch = 0;
-  if      ( apv_address == 32 || apv_address == 33 ) { lld_ch = 0; }
-  else if ( apv_address == 34 || apv_address == 35 ) { lld_ch = 1; }
-  else if ( apv_address == 36 || apv_address == 37 ) { lld_ch = 2; }
+  int16_t lld_ch = 1;
+  if      ( apv_address == 32 || apv_address == 33 ) { lld_ch = 1; }
+  else if ( apv_address == 34 || apv_address == 35 ) { lld_ch = 2; }
+  else if ( apv_address == 36 || apv_address == 37 ) { lld_ch = 3; }
   else if ( apv_address == 0 ) { ; } //@@ do nothing?
   else { 
     edm::LogWarning(mlCabling_) << "[SiStripModule::fedCh]" 
