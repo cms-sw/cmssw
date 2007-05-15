@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/08 15:04:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/14 16:15:24 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -105,9 +105,9 @@ void DTVDriftAnalyzer::endJob() {
       theFile->cd();
       TString name = getDistribName(wireId).c_str();
       hVDriftDistrib = new TH1D(name+"_VDrift",
-			       "VDrift calibrated from MT per superlayer",  40, 495, 505);
+			       "VDrift calibrated from MT per superlayer", 100, 0.00530, 0.00580);
       hResoDistrib = new TH1D(name+"_Reso",
-			       "Reso calibrated from MT per superlayer", 25, 0, 5);
+			       "Reso calibrated from MT per superlayer", 300, 0.015, 0.045);
       theVDriftDistribMap[Wh_St_SL] = hVDriftDistrib;
       theResoDistribMap[Wh_St_SL] = hResoDistrib;
     }

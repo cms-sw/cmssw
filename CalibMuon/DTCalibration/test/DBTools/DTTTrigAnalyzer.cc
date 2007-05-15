@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/08 15:04:59 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/14 16:16:04 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi - INFN Torino
  */
 
@@ -117,11 +117,11 @@ void DTTTrigAnalyzer::endJob() {
       theFile->cd();
       TString name = getDistribName(wireId).c_str();
       hTTrigDistrib = new TH1D(name+"_TTrig",
-			       "TTrig calibrated from TB per superlayer",  40, 495, 505);
+			       "TTrig calibrated from TB per superlayer",  80, 495, 505);
       hTMeanDistrib = new TH1D(name+"_TMean",
-			       "TMean calibrated from TB per superlayer", 40, 500, 510);
+			       "TMean calibrated from TB per superlayer", 80, 500, 510);
       hSigmaDistrib = new TH1D(name+"_Sigma",
-			       "Sigma calibrated from TB per superlayer", 25, 0, 5);
+			       "Sigma calibrated from TB per superlayer", 50, 0, 5);
       theTTrigDistribMap[Wh_St_SL] = hTTrigDistrib;
       theTMeanDistribMap[Wh_St_SL] = hTMeanDistrib;
       theSigmaDistribMap[Wh_St_SL] = hSigmaDistrib;
