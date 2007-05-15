@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.2 2007/05/04 01:13:08 lowette Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.3 2007/05/09 09:52:08 heyninck Exp $
 //
 
 // system include files
@@ -21,6 +21,7 @@
 TtSemiEvtSolution::TtSemiEvtSolution()
 {
   probChi2 	= -999.;
+  dmtop         = -999.;
   jetMatchPur  	= -999.;
   signalPur   	= -999.;
   sumDeltaRjp   = -999.;
@@ -45,12 +46,16 @@ void TtSemiEvtSolution::setLepb(TopJetObject j)      		{ lepb = j; }
 void TtSemiEvtSolution::setMuon(TopMuonObject m)		{ muon = m; decay = "muon";}
 void TtSemiEvtSolution::setElectron(TopElectronObject e)	{ electron = e;  decay = "electron";}
 void TtSemiEvtSolution::setMET(TopMETObject   n)		{ met = n; }
+void TtSemiEvtSolution::setJetParametrisation(int jp) 		{ jetparam = jp; }
+void TtSemiEvtSolution::setLeptonParametrisation(int lp) 	{ jetparam = lp; }
+void TtSemiEvtSolution::setMETParametrisation(int mp) 		{ jetparam = mp; }
 void TtSemiEvtSolution::setProbChi2(double c)     	        { probChi2 = c; }
 void TtSemiEvtSolution::setPtrueCombExist(double pce)		{ ptrueCombExist= pce; }
 void TtSemiEvtSolution::setPtrueBJetSel(double pbs)		{ ptrueBJetSel= pbs; }
 void TtSemiEvtSolution::setPtrueBhadrSel(double pbh)		{ ptrueBhadrSel= pbh; }
 void TtSemiEvtSolution::setPtrueJetComb(double pt)      	{ ptrueJetComb= pt; }
 void TtSemiEvtSolution::setSignalPurity(double c)		{ signalPur = c; }
+void TtSemiEvtSolution::setMtopUncertainty(double dm)		{ dmtop = dm; }
 void TtSemiEvtSolution::setSignalLRtot(double c)		{ signalLRtot = c; }
 void TtSemiEvtSolution::setScanValues(std::vector<double> v)    {
   for(unsigned int i=0; i<v.size(); i++) scanValues.push_back(v[i]);

@@ -23,14 +23,18 @@ class TtSemiEvtSolution
       void setMuon(TopMuonObject);
       void setElectron(TopElectronObject);
       void setMET(TopMETObject);
+      void setJetParametrisation(int);
+      void setLeptonParametrisation(int);
+      void setMETParametrisation(int);
       void setProbChi2(double);
-      void setScanValues(std::vector<double>);
       void setPtrueCombExist(double);
       void setPtrueBJetSel(double);
       void setPtrueBhadrSel(double);
       void setPtrueJetComb(double);
       void setSignalPurity(double);
       void setSignalLRtot(double);
+      void setMtopUncertainty(double);
+      void setScanValues(std::vector<double>);
       
       void setGenEvt(vector<Candidate *>);
       void setSumDeltaRjp(double);
@@ -49,6 +53,9 @@ class TtSemiEvtSolution
       TopMuonObject	  	getMuon() const  		{ return muon; };
       TopElectronObject  	getElectron() const  		{ return electron; };
       TopMETObject    	  	getMET() const  		{ return met; };
+      int    			getJetParametrisation() const   { return jetparam; };
+      int    			getLeptonParametrisation() const{ return leptonparam; };
+      int    			getMETParametrisation() const   { return metparam; };
       double 	    	  	getProbChi2() const 		{ return probChi2; };
       double 	    	  	getPtrueCombExist() const	{ return ptrueCombExist;};
       double 	    	  	getPtrueBJetSel() const		{ return ptrueBJetSel;};
@@ -56,6 +63,7 @@ class TtSemiEvtSolution
       double 	    	  	getPtrueJetComb() const		{ return ptrueJetComb;};
       double 	    	  	getSignalPur() const		{ return signalPur; };
       double 	    	  	getSignalLRtot() const   	{ return signalLRtot; };
+      double			getMtopUncertainty() const	{ return dmtop; };
       std::vector<double> 	getScanValues() const 		{ return scanValues; };
       string     	  	getDecay() const		{ return decay; };      
       
@@ -119,7 +127,8 @@ class TtSemiEvtSolution
       double 	    		probChi2, jetMatchPur, signalPur, ptrueCombExist, signalLRtot, ptrueBJetSel, ptrueBhadrSel, ptrueJetComb;
       double			sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
       bool			bestSol;
-      int 			changeWQ;
+      int 			changeWQ, jetparam, leptonparam, metparam;
+      double			dmtop;
       std::vector<double> 	scanValues;
 };
 
