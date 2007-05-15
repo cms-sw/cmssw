@@ -13,7 +13,8 @@ SurveyInputBase::~SurveyInputBase()
 
 void SurveyInputBase::addComponent(Alignable* comp)
 {
-  delete theDetector;
-
-  theDetector = comp;
+  if (0 == theDetector)
+    theDetector = comp;
+  else
+    theDetector->addComponent(comp);
 }
