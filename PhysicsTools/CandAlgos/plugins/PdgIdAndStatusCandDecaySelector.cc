@@ -14,12 +14,12 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "PhysicsTools/CandAlgos/interface/CandDecaySelector.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/AndSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PdgIdSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/StatusSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "PhysicsTools/CandAlgos/interface/CandDecaySelector.h"
 
 typedef SingleObjectSelector<
           reco::CandidateCollection,

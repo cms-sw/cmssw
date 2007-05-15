@@ -20,10 +20,12 @@ template<typename InputCollection, typename Selector,
 	 typename OutputCollection = InputCollection,
 	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
 	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
+	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,
+	 typename Base = typename helper::StoreManagerTrait<OutputCollection>::base,
 	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
 class SingleObjectSelector : 
   public ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, StoreContainer, RefAdder>, 
-			OutputCollection, NonNullNumberSelector, PostProcessor> {
+			OutputCollection, NonNullNumberSelector, PostProcessor, StoreManager, Base> {
 public:
   explicit SingleObjectSelector( const edm::ParameterSet & cfg ) :
     ObjectSelector<SingleElementCollectionSelector<InputCollection, Selector, StoreContainer, RefAdder>, 

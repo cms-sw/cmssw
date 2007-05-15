@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.17 $
+ * \version $Revision: 1.18 $
  *
- * $Id: ObjectSelector.h,v 1.17 2007/03/14 12:22:11 llista Exp $
+ * $Id: ObjectSelector.h,v 1.18 2007/03/14 15:01:08 llista Exp $
  *
  */
 
@@ -63,6 +63,7 @@ namespace helper {
     CollectionStoreManager() : selected_( new collection ) { }
     template<typename I>
     void cloneAndStore( const I & begin, const I & end, edm::Event & ) {
+      using namespace std;
       for( I i = begin; i != end; ++ i ) {
 	typename ClonePolicy::value_type v = ClonePolicy::convert( i );
         selected_->push_back( v );
@@ -127,6 +128,7 @@ public:
 private:
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup& ) {
+    using namespace std;
     edm::Handle<typename Selector::collection> source;
     evt.getByLabel( src_, source );
     StoreManager manager;

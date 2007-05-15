@@ -30,6 +30,7 @@ namespace helper {
   private:
     reco::CandidateRef add( reco::CandidateRefProd cands, const reco::Candidate & c ) {
       using namespace reco;
+      using namespace std;
       std::auto_ptr<CompositeRefCandidate> cmp( new CompositeRefCandidate( c ) );
       CompositeRefCandidate * p = cmp.get();
       CandidateRef ref( cands, selCands_->size() );
