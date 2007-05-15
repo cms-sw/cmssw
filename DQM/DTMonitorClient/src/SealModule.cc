@@ -2,7 +2,7 @@
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include <DQM/DTMonitorClient/interface/DTtTrigCalibrationTest.h>
+#include <DQM/DTMonitorClient/src/DTtTrigCalibrationTest.h>
 DEFINE_FWK_MODULE(DTtTrigCalibrationTest);
 
 #include <DQM/DTMonitorClient/src/DTResolutionTest.h>
@@ -23,3 +23,5 @@ DEFINE_ANOTHER_FWK_MODULE(DTNoiseEvaluation);
 #include "DQM/DTMonitorClient/src/DTDeadChannelTest.h"
 DEFINE_ANOTHER_FWK_MODULE(DTDeadChannelTest);
 
+#include "DQM/DTMonitorClient/src/DTNoiseTest.h"
+DEFINE_ANOTHER_FWK_MODULE(DTNoiseTest);
