@@ -13,8 +13,9 @@ class GFlashHomoShowerParamterisation;
 class GFlashHomoShowerParameterisation;
 #endif
 class GFlashHitMaker;
-class GFlashShowerModel;
 class GFlashParticleBounds;
+class GflashEMShowerModel;
+class GflashHadronShowerModel;
 
 /* observes the world volume (standard COBRA  Observer) and creates  
 theFastShowerModel and theParametrisation for the logical volumes 
@@ -31,11 +32,12 @@ private:
 #else
   GFlashHomoShowerParameterisation *theParameterisation;
 #endif
+  edm::ParameterSet m_pCaloModel;
+  G4LogicalVolumeToDDLogicalPartMap map_;
   GFlashHitMaker *theHMaker;
   GFlashParticleBounds *theParticleBounds;
-  GFlashShowerModel *theShowerModel;
-  G4LogicalVolumeToDDLogicalPartMap map_;
-  edm::ParameterSet m_pCaloModel;
+  GflashEMShowerModel *theShowerModel;
+  GflashHadronShowerModel *theHadronShowerModel;
 };
 
 #endif
