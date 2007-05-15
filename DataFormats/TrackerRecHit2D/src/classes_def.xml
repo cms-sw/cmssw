@@ -28,6 +28,7 @@
   <class name="edm::Ref<edm::DetSetVector<SiStripCluster>, SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> >"/>
 
   <class name="std::map<DetId, std::pair<unsigned int, unsigned int> >"/>
+  <class name="std::map<DetId, std::pair<unsigned long, unsigned long> >"/>
 
   <class name="ProjectedSiStripRecHit2D"/>
   <class name="SiPixelRecHit"/>

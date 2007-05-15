@@ -15,6 +15,13 @@
 
 namespace {
   namespace {
+    std::map<DetId, std::pair<unsigned int, unsigned int> > dummytrkrechit2d1;
+    std::map<DetId, std::pair<unsigned long, unsigned long> > dummytrkrechit2d2;
+  }
+}
+
+namespace {
+  namespace {
     ProjectedSiStripRecHit2D projHit;   
     SiStripRecHit2D a1;
     SiStripMatchedRecHit2D a2;
