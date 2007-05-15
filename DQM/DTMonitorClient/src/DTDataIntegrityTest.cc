@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/04/03 13:21:55 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/19 09:40:45 $
+ * $Revision: 1.4 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -300,7 +300,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   //Use the DDU name to find the ME
   stringstream dduID_s; dduID_s << FEDId;
-  string folderName ="Collector/FU0/DT/FED" + dduID_s.str(); 
+  string folderName ="Collector/FU0/DT/DataIntegrity/FED" + dduID_s.str(); 
 
   string histoName = folderName + "/FED" + dduID_s.str() + "_" + histoType;
   return histoName;
