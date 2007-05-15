@@ -49,9 +49,11 @@ int main()
   l1_names.push_back("t20");
 
   char reltag[]="CMSSW_0_6_0_pre45";
+  std::string processName = "HLT";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
                       Version(3,(const uint8*)psetid),(const char*)reltag,
+		      processName.c_str(),
                       hlt_names,l1_names);
 
   init.setDescLength(sizeof(test_value));
@@ -71,6 +73,7 @@ int main()
                        Version(view.protocolVersion(),
                                (const uint8*)psetid2),
                        view.releaseTag().c_str(),
+			processName.c_str(),
                        hlt2,l12);
 
   init2.setDescLength(view.descLength());
