@@ -1,6 +1,6 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=FWCore/PluginManager>
+<use name=Foundation/PluginManager>
 <use name=DataFormats/SiStripCommon>
 <use name=DataFormats/SiStripDetId>
 <use name=DQMServices/Core>
@@ -11,12 +11,10 @@
    <lib name=DQMSiStripCommon>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
-   <use name=FWCore/PluginManager>
+   <use name=Foundation/PluginManager>
    <use name=DataFormats/SiStripCommon>
    <use name=DataFormats/SiStripDetId>
    <use name=DQMServices/Core>
    <use name=boost>
    <use name=root>
 </export>
-
-
