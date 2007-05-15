@@ -110,6 +110,8 @@ LinkDataXMLReader::LinkDataXMLReader(const edm::ParameterSet& iConfig,
     results[id] = std::vector<rpcrawtodigi::EventRecords>();
   }
 
+  clear();
+
   if(m_instanceCount == 0) { 
     try {
       XMLPlatformUtils::Initialize();
@@ -135,7 +137,7 @@ LinkDataXMLReader::~LinkDataXMLReader(){}
 void  LinkDataXMLReader::setRunAndEventInfo(){
 
   bool triggeredOrEmpty = false;
-
+  clear();
 
   if(endOfFile_){
     isOpen_ = false;
@@ -211,18 +213,25 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
 				     const Attributes& attrs) {
   m_CurrElement = xMLCh2String(localname);
   //std::cout<<"Start element: "<<m_CurrElement<<endl;
-
  
-  int rawData;
-  uint16_t rawData1;
+  int lbNum, partitionNum,  endOfData,  halfPartition,  partitionData;
+  uint16_t rawData;
 
   if(m_CurrElement=="tc") triggerCrateNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);
   if(m_CurrElement=="tb") triggerBoardNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);
   if(m_CurrElement=="ol") opticalLinkNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("num"))),1);  
-
   if(m_CurrElement=="lmd"){
-    rawData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("raw"))),0);
- 
+	if(triggerCrateNum==-1 || triggerBoardNum==-1 || opticalLinkNum==-1){
+  	//std::cout<<"TC, TB or OL number not read!."<<std::endl;
+  	return;
+  	}
+    //rawData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("raw"))),0);
+    lbNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("lb"))),0);
+    partitionNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("par"))),0);
+    endOfData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("eod"))),0);
+    halfPartition = 0;
+    partitionData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("dat"))),0);
+
     // BX 
     int trigger_BX =  200;
     int current_BX =  trigger_BX + 0;
@@ -231,29 +240,50 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
     // TB 
     int tbLinkInputNumber = opticalLinkNum;    
     int rmb = getDCCInputChannelNum(triggerCrateNum, triggerBoardNum).second;
+
     cout<<"tc: "<<triggerCrateNum
 	<<" tb: "<<triggerBoardNum
 	<<" rmb: "<<rmb
         <<" fedID: "<<getDCCInputChannelNum(triggerCrateNum, triggerBoardNum).first
 	<<" ol: "<< opticalLinkNum
-	<<" raw data: "<<hex<<rawData<<dec<<endl;
+        <<" partNum: "<<partitionNum
+        <<" eod: "<<endOfData
+        <<" hp: "<<halfPartition
+	<<" raw data: "<<hex<<partitionData<<dec<<endl;
+
     TBRecord tbr( tbLinkInputNumber, rmb);   
 
     // LB record
-    typedef unsigned short Word16;
-    RPCPacData linkData;
-    linkData.fromRaw(rawData);
-    rawData1 = (Word16(linkData.lbNum())<<14)
-      |(Word16(linkData.partitionNum())<<10)
-      |(Word16(linkData.endOfData())<<9)
-      |(Word16(linkData.halfPartition())<<8)
-      |(Word16(linkData.partitionData())<<0);
+  uint16_t theData = 0;
+  static const int PARTITION_DATA_MASK  = 0XFF;
+  static const int PARTITION_DATA_SHIFT =0;
 
-    LBRecord lbr(rawData1);
+  static const int PARTITION_NUMBER_MASK = 0XF;
+  static const int PARTITION_NUMBER_SHIFT =10;
+
+  static const int HALFP_MASK = 0X1;
+  static const int HALFP_SHIFT =8;
+
+  static const int EOD_MASK = 0X1;
+  static const int EOD_SHIFT =9;
+
+  static const int LB_MASK = 0X3;
+  static const int LB_SHIFT =14;
+
+  static const int BITS_PER_PARTITION=8; 
+  
+  theData |= (endOfData<<EOD_SHIFT );
+  theData |= (halfPartition<<HALFP_SHIFT);
+  theData |= (partitionNum<<PARTITION_NUMBER_SHIFT);
+  theData |= (lbNum<<LB_SHIFT);
+  theData |= (partitionData<<PARTITION_DATA_SHIFT);
+
+   LBRecord lbr(theData);
+/*
     cout<<"lbr.Data.lbNumber: "<<lbr.lbData().lbNumber()<<endl;
-    cout<<"lbr.Data.lbData: "<<lbr.lbData().lbData()<<endl;
+    cout<<"lbr.Data.lbData: "<<hex<<lbr.lbData().lbData()<<dec<<endl;
     cout<<"lbr.Data.partNumber: "<<lbr.lbData().partitionNumber()<<endl;
- 
+ */
     int fedId = getDCCInputChannelNum(triggerCrateNum, triggerBoardNum).first;
     
     results[fedId].push_back(  EventRecords(trigger_BX, bxr, tbr, lbr) );
@@ -364,6 +394,10 @@ int  LinkDataXMLReader::stringToInt(std::string str, int opt) {
 
 
 void  LinkDataXMLReader::clear(){ 
+
+ triggerCrateNum = -1;
+ triggerBoardNum = -1;
+ opticalLinkNum  = -1;
 
  pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
   for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
