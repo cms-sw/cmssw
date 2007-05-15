@@ -30,14 +30,16 @@ void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signa
 {
   const int nScaBins = 8;
   const float scaBinSize = 50.;
+  int channel = signal.getElement();
   std::vector<float> binValues(nScaBins, 0.);
   // use a temporary signal, in case we have to rebin
-  CSCAnalogSignal tmpSignal(signal.getElement(), scaBinSize, binValues,
+  CSCAnalogSignal tmpSignal(channel, scaBinSize, binValues,
                             0., signal.getTimeOffset());
 
-  fetchNoisifier(detId, signal.getElement() );
+  fetchNoisifier(detId, channel );
   theNoisifier->noisify(tmpSignal);
-
+  // noise matrix is in ADC counts. onvert to fC
+  tmpSignal *= 1./gain(detId, channel);
   signal.superimpose(tmpSignal);
 }
 
