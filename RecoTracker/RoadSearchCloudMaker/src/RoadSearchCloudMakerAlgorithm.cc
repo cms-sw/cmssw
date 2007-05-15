@@ -47,9 +47,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2007/04/04 17:45:54 $
-// $Revision: 1.40 $
+// $Author: gutsche $
+// $Date: 2007/04/25 20:46:24 $
+// $Revision: 1.41 $
 //
 
 #include <vector>
@@ -303,8 +303,7 @@ void RoadSearchCloudMakerAlgorithm::run(edm::Handle<TrajectorySeedCollection> in
                 makecircle(innerx,innery,outerx,outery,x0,y0);
                 phi0 = phi0h;
                 k0 = omegah;
-              }
-              
+              }              
             }
           }
         } else {
@@ -462,38 +461,16 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
           //
           
           // Adjust matched hit for track angle
+
           const SiStripMatchedRecHit2D *theRH = dynamic_cast<SiStripMatchedRecHit2D*>(*recHitIterator);
-          //const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(tracker->idToDet(theRH->geographicalId()));
-          const GeomDet *recHitGeomDet = tracker->idToDet(hitId);
-          const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(recHitGeomDet);
-          
-          const GeomDetUnit* theMonoDet = theGluedDet->monoDet();
-          const SiStripRecHit2D* theMonoHit   = theRH->monoHit(); 
-          
-          GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
-          //GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
-          //LocalVector ltrackdirection=(theMonoDet->surface()).toLocal(gtrackdirection);
-          
-          float gtrackangle_xy = map_phi2(phi0 + 2.0*asin(0.5*gcenterofstrip.perp()*k0));
-          float rzangle = atan2(gcenterofstrip.perp(),gcenterofstrip.z());
-          
-          //GlobalVector gtrackangle(cos(gtrackangle_xy)*gcenterofstrip.perp(),
-          //			   sin(gtrackangle_xy)*gcenterofstrip.perp(),
-          //			   gcenterofstrip.z());
-          //LocalVector trackdirection=((tracker->idToDet(hitId))->surface()).toLocal(gtrackangle);
-          
-          GlobalVector gtrackangle2(cos(gtrackangle_xy)*sin(rzangle),
-                                    sin(gtrackangle_xy)*sin(rzangle),
-                                    cos(rzangle));
-          LocalVector trackdirection2=((tracker->idToDet(hitId))->surface()).toLocal(gtrackangle2);
-          SiStripMatchedRecHit2D* theCorrectedHit = theHitMatcher->match(theRH,
-                                                                         theGluedDet,
-                                                                         trackdirection2);
-          
-          
+          const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(tracker->idToDet(hitId));
+
+          SiStripMatchedRecHit2D* theCorrectedHit = CorrectMatchedHit(*recHitIterator,theGluedDet,
+                                                                        tracker, theHitMatcher,
+                                                                        k0, phi0);
           if (theCorrectedHit != 0){
-            
-            GlobalPoint ghit = tracker->idToDet(theCorrectedHit->geographicalId())->surface().toGlobal(theCorrectedHit->localPosition());	    
+
+            GlobalPoint ghit = tracker->idToDet(theCorrectedHit->geographicalId())->surface().toGlobal(theCorrectedHit->localPosition());
             double hitRadius = sqrt(ghit.x()*ghit.x()+ghit.y()*ghit.y());
             double hitphi = map_phi(ghit.phi());
             double phi = phiFromExtrapolation(d0,phi0,k0,hitRadius,roadType);
@@ -508,9 +485,9 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
                 //cloud.addHit((TrackingRecHit*)theCorrectedHit->clone());
                 cloud.addHit((TrackingRecHit*)recHit->clone());
                 ++usedRecHits;
-              }
-            }
-            delete theCorrectedHit;
+	      }
+	    }
+	    delete theCorrectedHit;
 	  }
 	} else { // Single layer hits here
 	  if ( isBarrelSensor(hitId) ) {
@@ -547,10 +524,15 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double lowerBoundaryPhi = phiFromExtrapolation(d0,phi0,k0,lowerBoundaryRadius,roadType);
 	    double hitPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(hit).phi());
               
-	    //double midpointRadius = 0.5*(upperBoundaryRadius+lowerBoundaryRadius);
-	    //double midpointPhi = phiFromExtrapolation(d0,phi0,k0,midpointRadius,roadType);
-	    //float dx = midpointRadius*tan(hitPhi-midpointPhi);
+	    double midpointRadius = 0.5*(upperBoundaryRadius+lowerBoundaryRadius);
+	    double midpointPhi = phiFromExtrapolation(d0,phi0,k0,midpointRadius,roadType);
+	    float dx = midpointRadius*tan(hitPhi-midpointPhi);
               
+	    float deltap, deltax, histr;
+	    histr = midpointRadius;
+	    deltax = dx;
+	    deltap = hitPhi-midpointPhi;
+
 	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 	      //
 	      //  This is where the disk (???) rphiRecHits end up for Roads::RPhi
@@ -585,14 +567,15 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  //double hitRadius = tracker->idToDetUnit(id)->surface().toGlobal(recHit->localPosition()).perp();
 	  double hitZ = tracker->idToDet(hitId)->surface().toGlobal(recHit->localPosition()).z();
 	  double phi = phiFromExtrapolation(d0,phi0,k0,hitZ,roadType);
-              
+
 	  //float dp = hitphi-phi;
 	  //float dx = hitZ*tan(dp);
               
 	  //
 	  //  This is where the disk stereoRecHits end up for Roads::ZPhi
 	  //
-	  if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
+	  //if ( std::abs(hitphi-phi) < 6.0*phiMax(seed,roadType,phi0,k0) ) {
+	  if ( std::abs(hitphi-phi) < phiMax(seed,roadType,phi0,k0) ) {
 	    if ((usedRecHits < maxDetHitsInCloudPerDetId) && (cloud.size() < maxRecHitsInCloud_)) {
 	      cloud.addHit((TrackingRecHit*)recHit->clone());
 	      ++usedRecHits;
@@ -650,11 +633,13 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    double lowerBoundaryPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(lowerLocalBoundary).phi());
 	    double roadPhi =  phiFromExtrapolation(d0,phi0,k0,diskZ,roadType);
                 
+	    //double hitPhi = map_phi(tracker->idToDetUnit(hitId)->surface().toGlobal(hit).phi());
 	    //double midpointPhi = 0.5*(upperBoundaryPhi+lowerBoundaryPhi);
 	    //if (fabs(lowerBoundaryPhi-upperBoundaryPhi) > 3.14159
 	    //  midpointPhi= 0.5*(upperBoundaryRadius-lowerBoundaryRadius);
-	    //float dp = midpointPhi-roadPhi;
+	    //float dp = hitPhi-roadPhi;
 	    //float dx = diskZ*tan(dp);
+
 	    if ( lowerBoundaryPhi <= upperBoundaryPhi ) {
 	      //
 	      //  This is where the disk rphiRecHits end up for Roads::ZPhi
@@ -739,7 +724,12 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  //double hitphi = map_phi(ghit.phi());
 	  //float dx = ghit.z()*tan(hitphi-phi);
             
-	  if ( (phi - phiMax(seed,roadType,phi0,k0)) < ringPhi && (phi + phiMax(seed,roadType,phi0,k0))>ringPhi ) {
+	  double hitphi = map_phi(ghit.phi());
+	  float dx = ghit.z()*tan(hitphi-phi);
+            
+	  if ( std::abs(dx) < 0.25 ) {
+	    //if ( std::abs(map_phi2(hitphi-phi)) < phiMax(seed,roadType,phi0,k0) ) {
+	    //if ( (phi - phiMax(seed,roadType,phi0,k0)) < ringPhi && (phi + phiMax(seed,roadType,phi0,k0))>ringPhi ) {
 	    cloud.addHit((TrackingRecHit*)recHit->clone());
 	    ++usedRecHits;
 	  }
@@ -1087,4 +1077,55 @@ RoadSearchCloudCollection RoadSearchCloudMakerAlgorithm::Clean(RoadSearchCloudCo
   LogDebug("RoadSearch") << "Found " << output.size() << " clean clouds.";
     
   return output;
+}
+
+SiStripMatchedRecHit2D* RoadSearchCloudMakerAlgorithm::CorrectMatchedHit(const TrackingRecHit *originalHit,
+                                                                         const GluedGeomDet* gluedDet,
+                                                                         const TrackerGeometry *tracker,
+                                                                         const SiStripRecHitMatcher* theHitMatcher,
+                                                                         double k0, double phi0) {
+ 
+          const SiStripMatchedRecHit2D *theRH = dynamic_cast<const SiStripMatchedRecHit2D*>(originalHit);
+          if (theRH == 0) {
+            std::cout<<" Could not cast original hit" << std::endl;
+          }
+          if (theRH != 0){
+            //const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(tracker->idToDet(theRH->geographicalId()));
+            const GeomDet *recHitGeomDet = tracker->idToDet(theRH->geographicalId());
+            const GluedGeomDet *theGluedDet = dynamic_cast<const GluedGeomDet*>(recHitGeomDet);
+             
+            const GeomDetUnit* theMonoDet = theGluedDet->monoDet();
+            const SiStripRecHit2D* theMonoHit   = theRH->monoHit();
+            GlobalPoint monoRHpos = (theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+            //std::cout<<" RSCMA MATCH:  mono global hit position = "<<monoRHpos << std::endl;
+            //std::cout<<" RSCMA MATCH:  mono local  hit position = "<<theMonoHit->localPosition() << std::endl;
+             
+            GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+             
+            float gtrackangle_xy = map_phi2(phi0 + 2.0*asin(0.5*gcenterofstrip.perp()*k0));
+            float rzangle = atan2(gcenterofstrip.perp(),gcenterofstrip.z());
+ 
+            GlobalVector gtrackangle2(cos(gtrackangle_xy)*sin(rzangle),
+                                      sin(gtrackangle_xy)*sin(rzangle),
+                                      cos(rzangle));
+            LocalVector trackdirection2=((tracker->idToDet(theRH->geographicalId()))->surface()).toLocal(gtrackangle2);
+            //std::cout<<" RSCMA MATCH:  local track direction = " << trackdirection2 << std::endl;
+            GlobalVector gdir = theMonoDet->surface().toGlobal(trackdirection2);
+            //std::cout<<" RSCMA MATCH: global track direction = " << gdir
+            //       << "\t "<<atan2(gdir.y(),gdir.x())
+            //       << "\t "<<atan2(gdir.perp(),gdir.z()) << std::endl;
+ 
+            SiStripMatchedRecHit2D* theCorrectedHit = theHitMatcher->match(theRH,theGluedDet,trackdirection2);
+            /*
+            if (theCorrectedHit!=0){
+              std::cout<<" RSCMA MATCH:  matched  local position = " << theCorrectedHit->localPosition() << std::endl;
+              GlobalPoint matchRHpos = (theGluedDet->surface()).toGlobal(theCorrectedHit->localPosition());
+              std::cout<<" RSCMA MATCH:  matched global position = " << matchRHpos << std::endl;
+            }
+            */
+            //if (theCorrectedHit==0) std::cout <<"Updated matching failed!!!" << std::endl;
+            if (theCorrectedHit!=0) return theCorrectedHit;
+          }
+ 
+          return 0;
 }

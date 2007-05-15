@@ -51,8 +51,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:14:19 $
-// $Revision: 1.19 $
+// $Date: 2007/03/07 21:46:49 $
+// $Revision: 1.20 $
 //
 
 #include <string>
@@ -126,6 +126,12 @@ class RoadSearchCloudMakerAlgorithm
                                              double x3_cs, double y3_cs);
 
   RoadSearchCloudCollection Clean(RoadSearchCloudCollection *rawColl);
+
+  SiStripMatchedRecHit2D*  CorrectMatchedHit(const TrackingRecHit* originalRH,
+                                             const GluedGeomDet* gluedDet,
+                                             const TrackerGeometry *tracker,
+                                             const SiStripRecHitMatcher* theHitMatcher,
+                                             double k0, double phi0);
 
  private:
   edm::ParameterSet conf_;
