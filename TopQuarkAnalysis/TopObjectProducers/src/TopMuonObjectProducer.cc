@@ -41,7 +41,9 @@ void
 TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
-   theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_);
+   if (addLRValues_) {
+     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, "", muonLRFile_);
+   }
   
    // Get the vector of generated particles from the event
    Handle<vector<MuonType> > muons;
@@ -67,7 +69,7 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    // sort muons in pT
    std::sort(topMuons->begin(),topMuons->end(),pTMuonComparator);
 
-   delete theLeptonLRCalc_;
+   if (addLRValues_) delete theLeptonLRCalc_;
 
    // put genEvt object in Event
    auto_ptr<vector<TopMuonObject> > pOutMuon(topMuons);

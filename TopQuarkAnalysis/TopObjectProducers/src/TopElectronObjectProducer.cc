@@ -41,7 +41,9 @@ void
 TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
-   theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, electronLRFile_, "");
+   if (addLRValues_) {
+     theLeptonLRCalc_ = new TopLeptonLRCalc(iSetup, electronLRFile_, "");
+   }
 
    // Get the vector of generated particles from the event
    Handle<vector<ElectronType> > electrons; 
@@ -67,7 +69,7 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    // sort electrons in pT
    std::sort(topElectrons->begin(),topElectrons->end(),pTElectronComparator);
 
-   delete theLeptonLRCalc_;
+   if (addLRValues_) delete theLeptonLRCalc_;
 
    // put genEvt object in Event
    auto_ptr<vector<TopElectronObject> > pOutElectron(topElectrons);
