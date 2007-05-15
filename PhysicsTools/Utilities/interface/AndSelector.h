@@ -1,10 +1,10 @@
-#ifndef RecoAlgos_AndSelector_h
-#define RecoAlgos_AndSelector_h
-/* \class OrSelector
+#ifndef Utilities_AndSelector_h
+#define Utilities_AndSelector_h
+/* \class AndSelector
  *
  * \author Luca Lista, INFN
  *
- * $Id: AndSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
+ * $Id: AndSelector.h,v 1.3 2007/02/26 11:52:01 llista Exp $
  */
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>

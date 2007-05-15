@@ -1,10 +1,10 @@
-#ifndef RecoAlgos_OrSelector_h
-#define RecoAlgos_OrSelector_h
+#ifndef Utilities_OrSelector_h
+#define Utilities__OrSelector_h
 /* \class OrSelector
  *
  * \author Luca Lista, INFN
  *
- * $Id: OrSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
+ * $Id: OrSelector.h,v 1.3 2007/02/26 11:52:01 llista Exp $
  */
 #include <boost/static_assert.hpp>
 #include <boost/type_traits/is_same.hpp>

@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: SortCollectionSelector.h,v 1.7 2006/11/23 14:50:56 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.8 2007/03/09 14:07:08 llista Exp $
  *
  */
 
@@ -20,7 +20,7 @@ namespace edm { class Event; }
 
 template<typename InputCollection, typename Comparator, 
 	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
-	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
+	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SortCollectionSelector {
 public:
   typedef InputCollection collection;

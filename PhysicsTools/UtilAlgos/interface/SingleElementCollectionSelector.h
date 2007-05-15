@@ -2,14 +2,14 @@
 #define RecoAlgos_SingleElementCollectionSelector_h
 /** \class SingleElementCollectionSelector
  *
- * selects a subset of a track collection based
+ * selects a subset of a collection based
  * on single element selection done via functor
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.5 2007/01/31 14:51:37 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.6 2007/03/09 14:07:08 llista Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
@@ -17,7 +17,7 @@
 
 template<typename InputCollection, typename Selector, 
 	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
-	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
+	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 struct SingleElementCollectionSelector {
   typedef InputCollection collection;
   typedef StoreContainer container;
