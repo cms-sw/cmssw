@@ -10,6 +10,17 @@
 #include <vector>
 #include <map>
 
+namespace{
+  namespace {
+    std::map<DTLayerId,std::pair<unsigned int,unsigned int> > dummydtlayerid1;
+    std::map<DTLayerId,std::pair<unsigned long,unsigned long> > dummydtlayerid2;
+    std::map<DTSuperLayerId,std::pair<unsigned int,unsigned int> > dummyslayerid1;
+    std::map<DTSuperLayerId,std::pair<unsigned long,unsigned long> > dummyslayerid2;
+    std::map<DTChamberId,std::pair<unsigned int,unsigned int> > dummychamberid1;
+    std::map<DTChamberId,std::pair<unsigned long,unsigned long> > dummychamberid2;
+  }
+}
+
 namespace{ 
   namespace {
     DTRecHit1D rh1d;
