@@ -1,0 +1,13 @@
+<flags GENREFLEX_ARGS="--">
+<use name=DataFormats/EcalDetId>
+<use name=FWCore/Framework>
+<use name=rootrflx>
+<use name=boost>
+
+<export>
+  <use name=boost>
+  <use name=rootrflx>
+  <use name=DataFormats/EcalDetId>
+  <use name=FWCore/Framework>
+  <lib name=CondFormatsEcalCorrections>
+</export>
