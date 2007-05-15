@@ -13,18 +13,6 @@
 PhotonMCTruthFinder::PhotonMCTruthFinder( ) {
  std::cout << " PhotonMCTruthFinder CTOR " << std::endl;
 
- for (int i=0; i<10; ++i) {
-    mcPhoEnergy_[i]=-99.;
-    mcPhoEt_[i]=-99.;
-    mcPhoPt_[i]=-99.;
-    mcPhoEta_[i]=-99.;
-    mcPhoPhi_[i]=-99.;
-    mcConvR_[i]=-99;
-    mcConvZ_[i]=-999;
-    idTrk1_[i]=-1;
-    idTrk2_[i]=-1;
-    
-  }
  
 }
 
@@ -32,8 +20,6 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
   std::cout << "  PhotonMCTruthFinder::find " << std::endl;
 
   std::vector<PhotonMCTruth> result;
-
-
 
   const float pi = 3.141592653592;
   const float twopi=2*pi;
@@ -117,58 +103,12 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	
 	
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	//h_MCphoPt_->Fill(  momentum.perp());
-	// h_MCphoEta_->Fill( momentum.pseudoRapidity());
-	// h_MCphoE_->Fill( momentum.rho());
-	
-	
-         if ( iPho < 10) {
-           
-	   mcPhoEnergy_[iPho]= momentum.e(); 
-	   mcPhoPt_[iPho]= momentum.perp(); 
-	   mcPhoEt_[iPho]= momentum.et(); 
-	   mcPhoEta_[iPho]= momentum.pseudoRapidity();
-	   mcPhoPhi_[iPho]= momentum.phi();
 
-	 }
-
-	 iPho++;
-
-      } else if ( (*iSimTk).type() == 11 || (*iSimTk).type()==-11 ) {
-	std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
-	
-	
-	
-      } else if ( (*iSimTk).type() == 111 ) {
-	std::cout << " Found a primary pi0 with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;	 
-	
-	
-	pizeroTracks.push_back( &(*iSimTk) );
-	
-	
-	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-	
-	if ( iPizero < 10) {
-	  
-	  mcPizEnergy_[iPizero]= momentum.e(); 
-	  mcPizPt_[iPizero]= momentum.perp(); 
-	  mcPizEt_[iPizero]= momentum.et(); 
-	  mcPizEta_[iPizero]= momentum.pseudoRapidity();
-	   mcPizPhi_[iPizero]= momentum.phi();
-	   
-	}
-	
-	iPizero++;
-
-	
-	
-	
-      }
-
+      } 
       
     }
     
-   } 
+  } 
   
   std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
   
@@ -253,28 +193,14 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	 nConv++;
 	 convInd[iPho]=nConv;         
 
-
-
 	 int convVtxId =  trkFromConversion[0]->vertIndex();
 	 SimVertex convVtx = theSimVertices[convVtxId];
 	 CLHEP::HepLorentzVector vtxPosition = convVtx.position();
 
 	 CLHEP::HepLorentzVector momentum = (*iPhoTk)->momentum();
-	 //h_MCConvPt_->Fill(  momentum.perp());
-	 // h_MCConvEta_->Fill( momentum.pseudoRapidity());
-	 // h_MCConvE_->Fill( momentum.rho());
-	 //h_MCConvR_->Fill ( vtxPosition.perp() ) ;
-
 	 float sign= vtxPosition.y()/fabs(vtxPosition.y() );
 
-	 //	 h_MCConvRvsZ_->Fill( vtxPosition.z(),  sign*(vtxPosition.perp()) ) ;
-
-
-
          if ( nConv <= 10) {         
-	   
-	   mcConvR_[iConv]=vtxPosition.perp() ;
-	   mcConvZ_[iConv]=vtxPosition.z() ;
 	   std::cout  << " MC conversion vertex R " << vtxPosition.perp() << " R " << vtxPosition.z() << "\n";
 	   
 	   if ( trkFromConversion.size() > 1) {
@@ -310,60 +236,6 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
    }   // Event with one or two photons 
 
 
-
-   if(ievflav == PIZERO_FLAV) {
-     std::cout << " It's a primary Pi0 event with " << pizeroTracks.size() << std::endl;
-
-     iPho=0;     
-     for (std::vector<SimTrack*>::iterator iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk){
-       std::cout << " Looping on the primary Pi0 looking for decay products " << (*iPizTk)->momentum() << " Pi0 track ID " << (*iPizTk)->trackId() << std::endl;
-       
-       for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
-	 if ( (*iSimTk).noVertex()     )                continue;
-	 if ( (*iSimTk).vertIndex() == iPV )            continue; 
-	 
-	 int vertexId = (*iSimTk).vertIndex();
-	 SimVertex vertex = theSimVertices[vertexId];
-	 HepLorentzVector vtxshift = vertex.position() - primVtx.position();
-	 if  ( vtxshift.vect().mag() < 0.1 && vtxshift.t() < 1.e-9 ) {
-	   ////  Photons or direct Dalitz from pizero
-	   CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
-
-	   if ( (*iSimTk).type() ==22 ) {
-	     if ( iPho < 10) {
-	       
-	       mcPhoEnergy_[iPho]= momentum.e(); 
-	       mcPhoPt_[iPho]= momentum.perp(); 
-	       mcPhoEt_[iPho]= momentum.et(); 
-	       mcPhoEta_[iPho]= momentum.pseudoRapidity();
-	       mcPhoPhi_[iPho]= momentum.phi();
-	       
-	     }
-	     iPho++;
-	   } else if (  abs((*iSimTk).type()) == 11  ) {
-	     /// Fill in what's missing
-           
-	   }
-
-
-             
-
-	 } else {
-
-	   /// Converted photons from pizero
-
-	 }
-
-
-
-
-       }
-     }
-
-
-
-     
-   }   // Event with one or two Pi0
 
 
 

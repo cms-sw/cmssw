@@ -11,7 +11,9 @@ PhotonMCTruth::PhotonMCTruth(int isAConversion,HepLorentzVector v, float rconv, 
   thePhoton_(v), theR_(rconv), theZ_(zconv), theConvVertex_(convVertex), 
   thePrimaryVertex_(pV), tracks_(tracks)  {
 
-  //  std::cout << " PhotonMCTruth constructor " << std::endl; 
-
   
 }
+
+
+
+

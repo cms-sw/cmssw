@@ -34,16 +34,14 @@ public:
 
 
  HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
- int isAConversion() const { return isAConversion_;}
+  int isAConversion() const { return isAConversion_;}
  float radius() const {return theR_;}
  float z() const {return theZ_;}
  HepLorentzVector fourMomentum() const {return thePhoton_;}
  HepLorentzVector vertex() const {return theConvVertex_;}
-
- 
+ std::vector<const SimTrack *> simTracks() const {return tracks_;} 
+  
  private:
-
-
 
   int isAConversion_;
   HepLorentzVector thePhoton_;

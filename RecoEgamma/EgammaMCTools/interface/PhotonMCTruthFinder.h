@@ -13,8 +13,8 @@
 /** \class PhotonMCTruthFinder
  *   
  *        
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/04/13 12:27:55 $
+ *  $Revision: 1.1 $
  *  \author N. Marinelli  Notre Dame
  *
  */
@@ -38,23 +38,10 @@ public:
  void fill( std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);  
  std::map<unsigned, unsigned> geantToIndex_;
 
- float mcPhoEnergy_[10];
- float mcPhoEt_[10];
- float mcPhoPt_[10];
- float mcPhoEta_[10];
- float mcPhoPhi_[10];
- float mcConvR_[10];
- float mcConvZ_[10];
+
  int   idTrk1_[10];
  int   idTrk2_[10];
  
- float mcPizEnergy_[10];
- float mcPizEt_[10];
- float mcPizPt_[10];
- float mcPizEta_[10];
- float mcPizPhi_[10];
-
-
 
 
 };
