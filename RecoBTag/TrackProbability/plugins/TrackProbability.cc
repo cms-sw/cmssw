@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackProbability.cc,v 1.2 2007/04/23 12:59:26 arizzi Exp $
+// $Id: TrackProbability.cc,v 1.3 2007/05/09 20:41:16 arizzi Exp $
 //
 //
 
@@ -26,7 +26,7 @@
 #include "RecoBTag/TrackProbability/interface/TrackProbability.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
+//#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -208,5 +208,5 @@ TrackProbability::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TrackProbability);
+//DEFINE_FWK_MODULE(TrackProbability);
 
