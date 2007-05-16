@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/10/27 01:35:31 $
- *  $Revision: 1.14 $
+ *  $Date: 2007/04/10 23:10:05 $
+ *  $Revision: 1.15 $
  *  \author N. Amapane - S. Argiro'
  *  \author G. Franzoni
  */
@@ -28,9 +28,8 @@ DAQEcalTBInputService::DAQEcalTBInputService(const ParameterSet& pset,
     LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService" << "ASCII input data file";
   }
   reader_ = new EcalTBDaqFileReader();
-  produces<FEDRawDataCollection>("EcalDaqRawData");
+  produces<FEDRawDataCollection>();
 }
-
 
 
 DAQEcalTBInputService::~DAQEcalTBInputService(){
@@ -89,7 +88,7 @@ bool DAQEcalTBInputService::produce(edm::Event& e)
 
   LogInfo("EcalTBInputService") << "@SUB=DAQEcalTBInputService::produce" << "read run " << reader_->getRunNumber() << " ev " << reader_->getEventNumber();
 
-  e.put(bare_product,"EcalDaqRawData");
+  e.put(bare_product);
 
   return true;
 }
