@@ -5,13 +5,13 @@
 namespace reco {
    struct MuonIsolation {
       float sumPt;
-      float emEnergy;
-      float hadEnergy;
-      float hoEnergy;
+      float emEt;
+      float hadEt;
+      float hoEt;
       int nTracks;
       int nJets;
       MuonIsolation():
-      sumPt(0),emEnergy(0),hadEnergy(0),hoEnergy(0),nTracks(0),nJets(0){};
+      sumPt(0),emEt(0),hadEt(0),hoEt(0),nTracks(0),nJets(0){};
    };
 }
 #endif

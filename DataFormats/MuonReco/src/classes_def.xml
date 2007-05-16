@@ -14,7 +14,7 @@
   <class name="edm::RefProd<std::vector<reco::MuonTrackLinks> >"/>
   <class name="edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
   
-  <class name="reco::Muon::MuonEnergy"/>
+  <class name="reco::MuonEnergy"/>
   <class name="reco::MuonChamberMatch"/>
   <class name="reco::MuonSegmentMatch"/>
   <class name="std::vector<reco::MuonChamberMatch>"/>

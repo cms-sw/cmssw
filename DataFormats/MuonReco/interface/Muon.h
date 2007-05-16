@@ -10,12 +10,13 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.31 2007/05/11 22:48:32 dmytro Exp $
+ * \version $Id: Muon.h,v 1.32 2007/05/12 22:01:23 dmytro Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonChamberMatch.h"
 #include "DataFormats/MuonReco/interface/MuonIsolation.h"
+#include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
 namespace reco {
  
@@ -44,12 +45,6 @@ namespace reco {
     void setCombined( const TrackRef & t ) { combinedMuon_ = t; }
 
     /// energy deposition
-    struct MuonEnergy {
-       MuonEnergy() { had = 0; em = 0; ho = 0; }
-       float had;    // energy deposited in HCAL
-       float em;     // energy deposited in ECAL
-       float ho;     // energy deposited in HO
-    };
     bool isEnergyValid() const { return energyValid_; }
     /// get energy deposition information
     MuonEnergy getCalEnergy() const { return calEnergy_; }
