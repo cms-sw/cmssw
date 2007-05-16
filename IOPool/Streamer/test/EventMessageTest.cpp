@@ -1,4 +1,4 @@
-/** Test code that Creates Init and Event Messages, and 
+/*sageTest and 
     Reads and comapres them.
 
    The Init/EventMessage(s) are ONLY dumped if they are different 
@@ -25,8 +25,8 @@ using namespace std;
 int main()
 { 
   typedef vector<uint8> Buffer;
-  Buffer buf(1024);
-  Buffer buf2(1024);
+  Buffer buf(2024);
+  Buffer buf2(2024);
 
   // ----------- init
 
@@ -52,9 +52,10 @@ int main()
   std::string processName = "HLT";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(3,(const uint8*)psetid),(const char*)reltag,
+                      Version(4,(const uint8*)psetid),(const char*)reltag,
 		      processName.c_str(),
                       hlt_names,l1_names);
+
 
   init.setDescLength(sizeof(test_value));
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
