@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/05/15 15:35:09 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -14,27 +14,32 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
+#include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig) :theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(0), theEstimator(0), theUpdator(0), theVtxUpdator(0), theConfig (iConfig)
 {
 }
 
-TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service), theConfig (iConfig)
+TSGFromPropagation::TSGFromPropagation(const edm::ParameterSet & iConfig, const MuonServiceProxy* service) : theTkLayerMeasurements (0), theTracker(0), theMeasTracker(0), theNavigation(0), theService(service),theEstimator(0), theUpdator(0), theVtxUpdator(0), theConfig (iConfig)
 {
 }
 
 
 TSGFromPropagation::~TSGFromPropagation()
 {
+  const std::string category = "Muon|RecoMuon|TSGFromPropagation";
+
+  LogTrace(category) << " TSGFromPropagation dtor called ";
+
   if ( theNavigation ) delete theNavigation;
   if ( theUpdator ) delete theUpdator;
   if ( theVtxUpdator ) delete theVtxUpdator;
   if ( theEstimator ) delete theEstimator;
   if ( theTkLayerMeasurements ) delete theTkLayerMeasurements;
-  if ( theService ) delete theService;
+  LogTrace(category) << " TSGFromPropagation dtor finished  ";
 
 }
 
@@ -46,7 +51,9 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
 
   LogTrace(category) << " begin of trackerSeed ";
 
-  TrajectoryStateOnSurface staState = innerState(staMuon);
+  TrajectoryStateOnSurface staState = outerTkState(staMuon);
+
+  if ( !staState.isValid() ) staState = innerState(staMuon);
 
   if ( !staState.isValid() ) return result;
 
@@ -165,7 +172,7 @@ void TSGFromPropagation::init(const MuonServiceProxy* service) {
 
   edm::ParameterSet vtxUpdatorParameters = theConfig.getParameter<edm::ParameterSet>("MuonUpdatorAtVertexParameters");
 
-//  theVtxUpdator = new MuonUpdatorAtVertex(vtxUpdatorParameters,theService);
+  theVtxUpdator = new MuonUpdatorAtVertex(vtxUpdatorParameters,theService);
 
 
 }
@@ -224,6 +231,37 @@ TrajectoryStateOnSurface TSGFromPropagation::innerState(const TrackCand& staMuon
     innerTS = tsTransformer.innerStateOnSurface(*(staMuon.second),*theService->trackingGeometry(), &*theService->magneticField());
   }
   return  innerTS;
+
+}
+
+TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMuon) const {
+
+  const string category = "Muon|RecoMuon|TSGFromPropagation";
+  MuonPatternRecoDumper debug;
+ 
+  // build the transient track
+  reco::TransientTrack transientTrack(staMuon.second,
+				      &*theService->magneticField(),
+				      theService->trackingGeometry());
+
+  LogTrace(category) << "Apply the vertex constraint";
+  pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(transientTrack);
+
+  if(!updateResult.first){
+    LogTrace(category) << "vertex constraint failed ";
+    return TrajectoryStateOnSurface(); //FIXME
+  }
+
+  LogTrace(category) << "FTS after the vertex constraint";
+  FreeTrajectoryState &ftsAtVtx = updateResult.second;
+
+  LogTrace(category) << debug.dumpFTS(ftsAtVtx);
+
+  StateOnTrackerBound fromInside(&*theService->propagator("PropagatorWithMaterial"));
+
+  TrajectoryStateOnSurface result = fromInside(ftsAtVtx);
+
+  return result;
 
 }
 

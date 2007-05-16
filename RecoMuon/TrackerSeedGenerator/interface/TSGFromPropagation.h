@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/05/15 15:21:18 $
+ *  $Revision: 1.1 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -43,6 +43,8 @@ public:
 private:
 
   TrajectoryStateOnSurface innerState(const TrackCand&) const;
+
+  TrajectoryStateOnSurface outerTkState(const TrackCand&) const;
 
   const LayerMeasurements* tkLayerMeasurements() const { return theTkLayerMeasurements; } 
 
