@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/16 09:33:02 $
- * $Revision: 1.23 $
+ * $Date: 2007/05/16 10:14:23 $
+ * $Revision: 1.24 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -282,6 +282,10 @@ namespace cms{
       name="cStoN"+appString;
       bookHlist("TH1","TH1ClusterStoN", name, "" );
 
+      //Cluster Signal x Fiber
+      name="cSignalxFiber"+appString+"_onTrack";
+      bookHlist("TProfile","TProfileSignalxFiber", name, "ApvPair", "ADC count" );
+
       //Cluster Width
       name="cWidth"+appString;
       bookHlist("TH1","TH1ClusterWidth", name, "Nstrip" );
@@ -365,7 +369,7 @@ namespace cms{
 
       //Angle Vs phi
       name = "AngleVsPhi"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (rad)");
+      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (deg)");
     }
   }
 
@@ -755,11 +759,11 @@ namespace cms{
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
 
-    float cosXZ = 1;
+    float sinXZ = 1;
     float cosRZ = 1;
     //std::cout << _HitDir._LV.x() << " " << _HitDir._LV.y() << " " << _HitDir._LV.z() << " " << _HitDir._LV.mag() << std::endl;
     if (_HitDir._LV.mag()!=0){
-      cosXZ= (_HitDir._LV.x())/sqrt(_HitDir._LV.x()*_HitDir._LV.x()+_HitDir._LV.z()*_HitDir._LV.z());
+      sinXZ= (_HitDir._LV.x())/sqrt(_HitDir._LV.x()*_HitDir._LV.x()+_HitDir._LV.z()*_HitDir._LV.z());
       cosRZ= fabs(_HitDir._LV.z())/_HitDir._LV.mag();
     }
 
@@ -776,7 +780,7 @@ namespace cms{
 
     fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
 
-    fillTProfile(cosXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
+    fillTProfile(sinXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
         
     fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
     
@@ -837,26 +841,25 @@ namespace cms{
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
     //Detector Detail Plots    
+    char aname[128];
+    //sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
+    SiStripDetId a(detid);
+    if ( a.subdetId() == 3 ){
+      TIBDetId b(detid);
+      sprintf(aname,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
+    } else if ( a.subdetId() == 4 ) {
+      TIDDetId b(detid);
+      sprintf(aname,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
+    } else if ( a.subdetId() == 5 ) {
+      TOBDetId b(detid);
+      sprintf(aname,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
+    } else if ( a.subdetId() == 6 ) {
+      TECDetId b(detid);
+      sprintf(aname,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
+    }        
+    appString=TString(aname);
+        
     if(flag=="_All"){
-      char aname[128];
-      //sprintf(aname,"%s_%d",_StripGeomDetUnit->type().name().c_str(),detid);
-      SiStripDetId a(detid);
-      if ( a.subdetId() == 3 ){
-	TIBDetId b(detid);
-	sprintf(aname,"_SingleDet_%d_TIB_%d_%d_%d_%d",detid,b.layer(),b.string()[0],b.string()[1],b.glued());
-      } else if ( a.subdetId() == 4 ) {
-	TIDDetId b(detid);
-	sprintf(aname,"_SingleDet_%d_TID_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued());
-      } else if ( a.subdetId() == 5 ) {
-	TOBDetId b(detid);
-	sprintf(aname,"_SingleDet_%d_TOB_%d_%d_%d_%d",detid,b.layer(),b.rod()[0],b.rod()[1],b.glued());
-      } else if ( a.subdetId() == 6 ) {
-	TECDetId b(detid);
-	sprintf(aname,"_SingleDet_%d_TEC_%d_%d_%d_%d_%d",detid,b.wheel(),b.ring(),b.side(),b.glued(),b.stereo());
-      }        
-      //TString appString=TString(strstr(aname,":"));
-      TString appString=TString(aname);
-      //appString=TString(_StripGeomDetUnit->type().name()).ReplaceAll("FieldParameters:","_")+cdetid;
 
       fillTH1(cluster->charge(),"cSignal"+appString,0);
 
@@ -870,6 +873,10 @@ namespace cms{
 
 
       fillTH1(cluster->position(),"cPos"+appString,0);
+    }
+
+    if(flag=="_onTrack"){
+      fillTProfile((int)(cluster->position()-.5)/256,cluster->charge()*cosRZ,"cSignalxFiber"+appString+"_onTrack",0);
     }
 
     //&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
@@ -895,7 +902,7 @@ namespace cms{
 
     if(flag=="_onTrack"){
 
-      fillTProfile(cosXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
+      fillTProfile(sinXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
       
       fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString+"_onTrack",0);
 
