@@ -142,6 +142,9 @@ namespace
   void dumpStack(const char* msg,
 		 unsigned int* esp, unsigned int* ebp, unsigned char* eip)
   {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+    throw logic_error("Cannot dumpStack on 64 bit build");
+#else
     fprintf(frame_cond, msg);
     fflush(frame_cond);
     fprintf(frame_cond, "dumpStack:\n i= %x\n eip[0]= %2.2x\nb= %x\n s= %x\n b[0]= %x\n b[1]= %x\n b[2]= %x\n",
@@ -156,8 +159,8 @@ namespace
 	fprintf(frame_cond, "    %x esp[%d]= %x\n", (void*)(spp+i), i, (void*)*(spp+i));
 	fflush(frame_cond);
       }
+#endif
   }
-
 }
 
 // ---------------------------------------------------------------------
