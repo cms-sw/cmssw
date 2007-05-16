@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.1 2007/05/09 14:11:12 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.2 2007/05/10 22:05:03 arizzi Exp $
 //
 //
 
@@ -178,7 +178,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          ip2Dv.push_back(IPTools::signedTransverseImpactParameter(transientTrack,direction,*pv).second);
          dLenv.push_back(IPTools::signedDecayLength3D(transientTrack,direction,*pv).second);
          jetDistv.push_back(IPTools::jetTrackDistance(transientTrack,direction,*pv).second);
-         cout << "nuovo " <<  ip3Dv.back().value() << " " << ip3Dv.back().error() << endl;
          if(m_computeProbabilities) {
               //probability with 3D ip
               pair<bool,double> probability =  m_probabilityEstimator->probability(0,ip3Dv.back().significance(),track,*(it->first),*pv);
