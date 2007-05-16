@@ -16,15 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:26 EDT 2007
-// $Id: Handle.h,v 1.1 2007/05/10 14:13:56 chrjones Exp $
+// $Id: Handle.h,v 1.3 2007/05/12 20:27:06 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #ifndef __CINT__
-#include "DataFormat/Common/interface/Wrapper.h"
-#include "DataFormat/FWLite/interface/Event.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/FWLite/interface/Event.h"
 #endif
 
 // forward declarations
@@ -51,21 +51,24 @@ class Handle
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
+  /*
       void getByBranchName(const fwlite::Event& iEvent, const char* iBranchName) {
         iEvent.getByBranchName(edm::Wrapper<T>::typeInfo(), iBranchName, data_);
       }
+   */
   
       void getByLabel(const fwlite::Event& iEvent, 
                       const char* iModuleLabel,
                       const char* iProductInstanceLabel = 0,
                       const char* iProcessLabel=0) {
         edm::Wrapper<T>* temp;
+        void* pTemp = &temp;
         iEvent.getByLabel(edm::Wrapper<T>::typeInfo(),
                           iModuleLabel,
                           iProductInstanceLabel,
                           iProcessLabel,
-                          temp);
-        data_ = temp->product();
+                          pTemp);
+data_ = temp->product();
         if(data_==0) {
           iEvent.throwProductNotFoundException(edm::Wrapper<T>::typeInfo(),
                                                iModuleLabel,
