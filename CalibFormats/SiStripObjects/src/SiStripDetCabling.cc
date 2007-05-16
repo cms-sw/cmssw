@@ -1,36 +1,19 @@
- // -*- C++ -*-
-//
+// -*- C++ -*-
 // Package:     SiStripObjects
 // Class  :     SiStripDetCabling
-// Implementation:
-//     <Notes on implementation>
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:33 CET 2006
-// $Id: SiStripDetCabling.cc,v 1.6 2007/01/29 15:42:19 dkcira Exp $
-
+// $Id: SiStripDetCabling.cc,v 1.7 2007/02/15 11:22:38 dkcira Exp $
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 using namespace std;
 
+//---- default constructor / destructor
+SiStripDetCabling::SiStripDetCabling() {}
+SiStripDetCabling::~SiStripDetCabling() {}
 
-SiStripDetCabling::SiStripDetCabling()
-{
-}
-
-
-// SiStripDetCabling::SiStripDetCabling(const SiStripDetCabling& rhs)
-// {
-//    // do actual copying here;
-// }
-
-
-SiStripDetCabling::~SiStripDetCabling()
-{
-}
-
-
+//---- construct detector view (DetCabling) out of readout view (FedCabling)
 SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : fullcabling_(), connected_(), detected_(), undetected_()
 {
   // --- CONNECTED = have fedid and i2cAddr
@@ -94,8 +77,8 @@ SiStripDetCabling::SiStripDetCabling(const SiStripFedCabling& fedcabling) : full
   }
 }
 
-
-void SiStripDetCabling::addDevices(const FedChannelConnection & conn, std::map< uint32_t, std::vector<FedChannelConnection> >& chosen_connections_ ){ // add to certain connections
+//---- add to certain connections
+void SiStripDetCabling::addDevices(const FedChannelConnection & conn, std::map< uint32_t, std::vector<FedChannelConnection> >& chosen_connections_ ){
 // separate method in case need to add devices/cabling after object already constructed
   const uint32_t& fedchannelconnection_detid = conn.detId(); // detId of FedChannelConnection that is looped over
   // is this detid already in the map?
@@ -108,20 +91,34 @@ void SiStripDetCabling::addDevices(const FedChannelConnection & conn, std::map< 
   }
 }
 
-
+//----
 void SiStripDetCabling::addDevices(const FedChannelConnection & conn){ // by default add to fullcabling_ connections - special case of above class
  addDevices(conn, fullcabling_ ); // add to fullcabling_
 }
 
-
-void SiStripDetCabling::addActiveDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{ // replace getActiveDetectorRawIds method - avoid use of static
+//---- get vector of connected modules. replaces getActiveDetectorRawIds method - avoid use of static
+void SiStripDetCabling::addActiveDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{
  for(map< uint32_t, vector<int> >::const_iterator conn_it = connected_.begin(); conn_it!=connected_.end(); conn_it++){
    vector_to_fill_with_detids.push_back(conn_it->first);
  }
- // vector_to_fill_with_detids is empty if no elements in fullcabling_
+ // no elements added to vector_to_fill_with_detids is empty connected_
 }
 
+//---- get vector of all modules.
+void SiStripDetCabling::addAllDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const{
+ for(map< uint32_t, vector<int> >::const_iterator conn_it = connected_.begin(); conn_it!=connected_.end(); conn_it++){
+   vector_to_fill_with_detids.push_back(conn_it->first);
+ }
+ for(map< uint32_t, vector<int> >::const_iterator conn_it = detected_.begin(); conn_it!=detected_.end(); conn_it++){
+   vector_to_fill_with_detids.push_back(conn_it->first);
+ }
+ for(map< uint32_t, vector<int> >::const_iterator conn_it = undetected_.begin(); conn_it!=undetected_.end(); conn_it++){
+   vector_to_fill_with_detids.push_back(conn_it->first);
+ }
+ // no elements added to vector_to_fill_with_detids is empty connected_, detected_.begin and undetected_.begin
+}
 
+//----
 const vector<FedChannelConnection>& SiStripDetCabling::getConnections(uint32_t det_id ) const{ // return all connections corresponding to one det_id
   map< uint32_t, vector<FedChannelConnection> >::const_iterator detcabl_it = fullcabling_.find(det_id); // has to be const_iterator because this function cannot change data members
   if( ! (detcabl_it==fullcabling_.end()) ){  // found detid in fullcabling_
@@ -132,7 +129,7 @@ const vector<FedChannelConnection>& SiStripDetCabling::getConnections(uint32_t d
   }
 }
 
-
+//----
 const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, unsigned short apv_pair ) const{
   const vector<FedChannelConnection>& fcconns = getConnections(det_id);
   for(vector<FedChannelConnection>::const_iterator iconn = fcconns.begin(); iconn!=fcconns.end();iconn++){
@@ -145,7 +142,7 @@ const FedChannelConnection& SiStripDetCabling::getConnection( uint32_t det_id, u
   return default_empty_fedchannelconnection;
 }
 
-
+//----
 const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   const vector<FedChannelConnection>& fcconns = getConnections( det_id );
   if(fcconns.size()!=0) {
@@ -156,7 +153,7 @@ const unsigned int SiStripDetCabling::getDcuId( uint32_t det_id ) const{
   return default_zero_value;
 }
 
-    // one can find the nr of apvs from fullcabling_ -> vector<FedChannelConnection> -> size * 2
+//---- one can find the nr of apvs from fullcabling_ -> vector<FedChannelConnection> -> size * 2
 const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  const vector<FedChannelConnection>& fcconns = getConnections( det_id );
  if(fcconns.size()!=0) {
@@ -166,28 +163,28 @@ const uint16_t SiStripDetCabling::nApvPairs(uint32_t det_id) const{
  }
 }
 
-
-void SiStripDetCabling::addConnected ( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{ // map of detector to list of APVs for APVs seen from FECs and FEDs
+//---- map of detector to list of APVs for APVs seen from FECs and FEDs
+void SiStripDetCabling::addConnected ( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{
   addFromSpecificConnection(map_to_add_to, connected_);
 }
 
-
-void SiStripDetCabling::addDetected( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{ // map of detector to list of APVs for APVs seen neither from FECS or FEDs
+//--- map of detector to list of APVs for APVs seen neither from FECS or FEDs
+void SiStripDetCabling::addDetected( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{
   addFromSpecificConnection(map_to_add_to, detected_);
 }
 
-
-void SiStripDetCabling::addUnDetected( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{ // map of detector to list of APVs for APVs seen neither from FECS or FEDs
+//---- map of detector to list of APVs for APVs seen neither from FECS or FEDs
+void SiStripDetCabling::addUnDetected( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{
   addFromSpecificConnection(map_to_add_to, undetected_);
 }
 
-
-void SiStripDetCabling::addNotConnectedAPVs( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{ // map of detector to list of APVs that are not connected - combination of addDetected and addUnDetected
+//----  map of detector to list of APVs that are not connected - combination of addDetected and addUnDetected
+void SiStripDetCabling::addNotConnectedAPVs( std::map<uint32_t, std::vector<int> > & map_to_add_to) const{
   addFromSpecificConnection(map_to_add_to, detected_);
   addFromSpecificConnection(map_to_add_to, undetected_);
 }
 
-
+//----
 void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vector<int> > & map_to_add_to, const std::map< uint32_t, vector<int> > & specific_connection) const{
   for(map< uint32_t, vector<int> >::const_iterator conn_it = specific_connection.begin(); conn_it!=specific_connection.end(); conn_it++){
     uint32_t new_detid = conn_it->first;
@@ -213,6 +210,30 @@ void SiStripDetCabling::addFromSpecificConnection( std::map<uint32_t, std::vecto
           edm::LogWarning("Logical") << "apv "<<*inew<<" already exists in the detector module "<<new_detid;
         }
       }
+    }
+  }
+}
+
+//---- map of all connected, detected, undetected to contiguous Ids - map reset first!
+void SiStripDetCabling::getAllDetectorsContiguousIds(std::map<uint32_t, unsigned int>& allToContiguous) const{
+  allToContiguous.clear(); // reset map
+  std::vector<uint32_t> all; addAllDetectorsRawIds(all); std::sort(all.begin(), all.end()); // get all detids and sort them
+  unsigned int contiguousIndex = 0;
+  for(std::vector<uint32_t>::const_iterator idet = all.begin(); idet!= all.end(); ++idet){
+     ++contiguousIndex;
+     allToContiguous.insert(std::make_pair(*idet,contiguousIndex)); 
+  }
+}
+
+//---- map of all connected - map reset first!
+void SiStripDetCabling::getActiveDetectorsContiguousIds(std::map<uint32_t, unsigned int>& connectedToContiguous) const{
+  connectedToContiguous.clear(); // reset map
+  std::vector<uint32_t> connected; addAllDetectorsRawIds(connected); std::sort(connected.begin(), connected.end()); // get connected detids and sort them (not strictly necessary)
+  std::map<uint32_t, unsigned int> allToContiguous; getAllDetectorsContiguousIds(allToContiguous); // create map of all indices
+  for(std::vector<uint32_t>::const_iterator idet = connected.begin(); idet!= connected.end(); ++idet){ // select only the indices for active detectors
+    std::map<uint32_t, unsigned int>::iterator deco = allToContiguous.find(*idet);
+    if(deco!=allToContiguous.end()){
+       connectedToContiguous.insert(*deco);
     }
   }
 }
