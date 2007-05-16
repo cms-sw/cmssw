@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: ObjectPairCollectionSelector.h,v 1.6 2007/01/31 14:51:37 llista Exp $
+ * $Id: ObjectPairCollectionSelector.h,v 1.7 2007/03/09 14:07:08 llista Exp $
  *
  */
 
@@ -22,7 +22,7 @@ namespace edm { class Event; }
 
 template<typename InputCollection, typename Selector,
 	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
-	 typename RefAdder = typename helper::SelectionAdderTrait<StoreContainer>::type>
+	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class ObjectPairCollectionSelector {
 public:
   typedef InputCollection collection;
