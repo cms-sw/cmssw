@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.31 2007/04/04 22:14:27 hcheung Exp $
+// $Id$
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -35,8 +35,9 @@ namespace stor
     frag_q_(&(h.getFragmentQueue())),
     buffer_deleter_(d),
     prods_(0),
-	info_(&h), 
-    writer_(new edm::ServiceManager(config_str))
+    info_(&h), 
+    writer_(new edm::ServiceManager(config_str)),
+    dqmServiceManager_(new stor::DQMServiceManager())
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -49,8 +50,9 @@ namespace stor
     frag_q_(&(info.get()->getFragmentQueue())),
     buffer_deleter_(d),
     prods_(0),
-	info_(info.get()), 
-    writer_(new edm::ServiceManager(config_str))
+    info_(info.get()), 
+    writer_(new edm::ServiceManager(config_str)),
+    dqmServiceManager_(new stor::DQMServiceManager())
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
@@ -130,6 +132,7 @@ namespace stor
     
     FR_DEBUG << "FragColl: DONE!" << endl;
     writer_->stop();
+    dqmServiceManager_->stop();
   }
 
   void FragmentCollector::stop()
@@ -285,10 +288,11 @@ namespace stor
       }
       */
       // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
-      if (DQMeventServer_.get() != NULL)
-      {
-        DQMeventServer_->processDQMEvent(dqmEventView);
-      }
+      //if (DQMeventServer_.get() != NULL)
+      //{
+      //  DQMeventServer_->processDQMEvent(dqmEventView);
+      //}
+      dqmServiceManager_->manageDQMEventMsg(dqmEventView);
 
       // do the appropriate thing with this DQM_Event
       //std::cout << "FragColl: Got a DQM_Event with one segment" 
@@ -379,10 +383,11 @@ namespace stor
       }
       */
       // Manage this DQMEvent, temporarily just stick it in the DQMEventServer
-      if (DQMeventServer_.get() != NULL)
-      {
-        DQMeventServer_->processDQMEvent(dqmEventView);
-      }
+      //if (DQMeventServer_.get() != NULL)
+      //{
+      //  DQMeventServer_->processDQMEvent(dqmEventView);
+      //}
+      dqmServiceManager_->manageDQMEventMsg(dqmEventView);
 
       // remove the entry from the map
       fragment_area_.erase(rc.first);

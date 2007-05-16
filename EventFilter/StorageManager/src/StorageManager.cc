@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.15 2007/04/05 00:12:58 hcheung Exp $
+// $Id: StorageManager.cc,v 1.18 2007/04/26 07:13:25 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -78,6 +78,13 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
   fsm_(this), 
   ah_(0), 
   pushMode_(false), 
+  collateDQM_(false),
+  archiveDQM_(false),
+  filePrefixDQM_("/tmp/DQM"),
+  purgeTimeDQM_(DEFAULT_PURGE_TIME),
+  readyTimeDQM_(DEFAULT_READY_TIME),
+  useCompressionDQM_(true),
+  compressionLevelDQM_(1),
   serialized_prods_(1000000),
   ser_prods_size_(0),
   mybuffer_(7000000),
@@ -144,6 +151,13 @@ StorageManager::StorageManager(xdaq::ApplicationStub * s)
 
   // Variables needed for streamer file writing
   ispace->fireItemAvailable("pushMode2Proxy", &pushmode2proxy_);
+  ispace->fireItemAvailable("collateDQM",     &collateDQM_);
+  ispace->fireItemAvailable("archiveDQM",     &archiveDQM_);
+  ispace->fireItemAvailable("purgeTimeDQM",   &purgeTimeDQM_);
+  ispace->fireItemAvailable("readyTimeDQM",   &readyTimeDQM_);
+  ispace->fireItemAvailable("filePrefixDQM",  &filePrefixDQM_);
+  ispace->fireItemAvailable("useCompressionDQM",  &useCompressionDQM_);
+  ispace->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
   ispace->fireItemAvailable("nLogicalDisk", &nLogicalDisk_);
 
   boost::shared_ptr<stor::Parameter> smParameter_ = stor::Configurator::instance()->getParameter();
@@ -1805,6 +1819,13 @@ void StorageManager::setupFlashList()
   is->fireItemAvailable("progressMarker",       &progressMarker_);
   is->fireItemAvailable("connectedFUs",         &connectedFUs_);
   is->fireItemAvailable("pushMode2Proxy",       &pushmode2proxy_);
+  is->fireItemAvailable("collateDQM",           &collateDQM_);
+  is->fireItemAvailable("archiveDQM",           &archiveDQM_);
+  is->fireItemAvailable("purgeTimeDQM",         &purgeTimeDQM_);
+  is->fireItemAvailable("readyTimeDQM",         &readyTimeDQM_);
+  is->fireItemAvailable("filePrefixDQM",        &filePrefixDQM_);
+  is->fireItemAvailable("useCompressionDQM",    &useCompressionDQM_);
+  is->fireItemAvailable("compressionLevelDQM",  &compressionLevelDQM_);
   is->fireItemAvailable("nLogicalDisk",         &nLogicalDisk_);
   is->fireItemAvailable("fileCatalog",          &fileCatalog_);
   is->fireItemAvailable("maxESEventRate",       &maxESEventRate_);
@@ -1840,6 +1861,13 @@ void StorageManager::setupFlashList()
   is->addItemRetrieveListener("progressMarker",       this);
   is->addItemRetrieveListener("connectedFUs",         this);
   is->addItemRetrieveListener("pushMode2Proxy",       this);
+  is->addItemRetrieveListener("collateDQM",           this);
+  is->addItemRetrieveListener("archiveDQM",           this);
+  is->addItemRetrieveListener("purgeTimeDQM",         this);
+  is->addItemRetrieveListener("readyTimeDQM",         this);
+  is->addItemRetrieveListener("filePrefixDQM",        this);
+  is->addItemRetrieveListener("useCompressionDQM",    this);
+  is->addItemRetrieveListener("compressionLevelDQM",  this);
   is->addItemRetrieveListener("nLogicalDisk",         this);
   is->addItemRetrieveListener("fileCatalog",          this);
   is->addItemRetrieveListener("maxESEventRate",       this);
@@ -1940,6 +1968,14 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
       jc_->setNumberOfFileSystems(disks);
       jc_->setFileCatalog(smFileCatalog_);
       jc_->setSourceId(sourceId_);
+
+      jc_->setCollateDQM(collateDQM_);
+      jc_->setArchiveDQM(archiveDQM_);
+      jc_->setPurgeTimeDQM(purgeTimeDQM_);
+      jc_->setReadyTimeDQM(readyTimeDQM_);
+      jc_->setFilePrefixDQM(filePrefixDQM_);
+      jc_->setUseCompressionDQM(useCompressionDQM_);
+      jc_->setCompressionLevelDQM(compressionLevelDQM_);
       
       boost::shared_ptr<EventServer>
 	eventServer(new EventServer(maxESEventRate_));
@@ -2066,6 +2102,18 @@ void StorageManager::stopAction()
   jc_->stop();
 
   jc_->join();
+
+  // should clear the event server(s) last event/queue
+  boost::shared_ptr<EventServer> eventServer;
+  boost::shared_ptr<DQMEventServer> dqmeventServer;
+  if (jc_.get() != NULL)
+  {
+    eventServer = jc_->getEventServer();
+    dqmeventServer = jc_->getDQMEventServer();
+  }
+  if (eventServer.get() != NULL) eventServer->clearQueue();
+  if (dqmeventServer.get() != NULL) dqmeventServer->clearQueue();
+
 }
 
 void StorageManager::haltAction()

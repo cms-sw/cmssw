@@ -4,6 +4,7 @@
  * event server part of the storage manager.
  *
  * 16-Aug-2006 - KAB  - Initial Implementation
+ * $Id$
  */
 
 #include "EventFilter/StorageManager/interface/ConsumerPipe.h"
@@ -273,4 +274,10 @@ bool ConsumerPipe::pushEvent()
     }
   }
   return false;
+}
+
+void ConsumerPipe::clearQueue()
+{
+  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
+  latestEvent_.reset();
 }

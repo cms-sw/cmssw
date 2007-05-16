@@ -207,3 +207,15 @@ boost::shared_ptr< std::vector<char> > EventServer::getEvent(uint32 consumerId)
   // return the event buffer
   return bufPtr;
 }
+
+void EventServer::clearQueue()
+{
+  std::map< uint32, boost::shared_ptr<ConsumerPipe> >::const_iterator consIter;
+  for (consIter = consumerTable.begin();
+       consIter != consumerTable.end();
+       consIter++)
+  {
+    boost::shared_ptr<ConsumerPipe> consPipe = consIter->second;
+    consPipe->clearQueue();
+  }
+}

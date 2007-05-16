@@ -55,6 +55,7 @@ namespace stor
     void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getEvent();
     void setPushMode(bool mode) { pushMode_ = mode; }
+    void clearQueue();
 
   private:
     // characteristics of the consumer

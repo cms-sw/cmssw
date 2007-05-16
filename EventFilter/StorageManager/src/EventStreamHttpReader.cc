@@ -16,6 +16,8 @@
                 using this input source is to kill the Storage
                 Manager or specify a maximum number of events for
                 the client to read through a maxEvents parameter.
+
+  $Id$
 */
 
 #include "EventFilter/StorageManager/src/EventStreamHttpReader.h"
@@ -103,15 +105,34 @@ namespace edm
 
   std::auto_ptr<edm::EventPrincipal> EventStreamHttpReader::read()
   {
-    // repeat a http get every 5 seconds until we get an event
+    // repeat a http get every N seconds until we get an event
     // wait for Storage Manager event server buffer to not be empty
     // only way to stop is specify a maxEvents parameter
-    // or kill the STorage Manager so the http get fails.
-    // do it like test for the proof of principle test
+    // or kill the Storage Manager so the http get fails.
 
     // see if already read maxEvents
     if(maxEvents() > 0 && events_read_ >= maxEvents()) 
       return std::auto_ptr<edm::EventPrincipal>();
+
+    // try to get an event repeat until we get one, this allows
+    // re-registration is the SM is halted or stopped
+
+    bool gotEvent = false;
+    std::auto_ptr<EventPrincipal> result(0);
+    while (!gotEvent)
+    {
+       result = getOneEvent();
+       if(result.get() != NULL) gotEvent = true;
+    }
+    return result;
+  }
+
+  std::auto_ptr<edm::EventPrincipal> EventStreamHttpReader::getOneEvent()
+  {
+    // repeat a http get every N seconds until we get an event
+    // wait for Storage Manager event server buffer to not be empty
+    // only way to stop is specify a maxEvents parameter
+    // or kill the Storage Manager so the http get fails.
 
     // check if we need to sleep (to enforce the allowed request rate)
     struct timeval now;
@@ -138,6 +159,7 @@ namespace edm
     }
 
     stor::ReadData data;
+    bool alreadySaidWaiting = false;
     do {
       CURL* han = curl_easy_init();
 
@@ -145,7 +167,10 @@ namespace edm
       {
         cerr << "could not create handle" << endl;
         // this will end cmsRun 
-        return std::auto_ptr<edm::EventPrincipal>();
+        //return std::auto_ptr<edm::EventPrincipal>();
+        throw cms::Exception("getOneEvent","EventStreamHttpReader")
+            << "Could not get event: problem with curl"
+            << "\n";
       }
 
       stor::setopt(han,CURLOPT_URL,eventurl_);
@@ -179,11 +204,17 @@ namespace edm
         cerr << "curl perform failed for event, messageStatus = "
              << messageStatus << endl;
         // this will end cmsRun 
-        return std::auto_ptr<edm::EventPrincipal>();
+        //return std::auto_ptr<edm::EventPrincipal>();
+        throw cms::Exception("getOneEvent","EventStreamHttpReader")
+            << "Could not get event: probably XDAQ not running on Storage Manager "
+            << "\n";
       }
       if(data.d_.length() == 0)
       {
-        std::cout << "...waiting for event from Storage Manager..." << std::endl;
+        if(!alreadySaidWaiting) {
+          std::cout << "...waiting for event from Storage Manager..." << std::endl;
+          alreadySaidWaiting = true;
+        }
         // sleep for the standard request interval
         usleep(static_cast<int>(1000000 * minEventRequestInterval_));
       }
@@ -198,8 +229,8 @@ namespace edm
     OtherMessageView msgView(&buf_[0]);
 
     if (msgView.code() == Header::DONE) {
-      // this will end cmsRun 
-      std::cout << "Storage Manager has halted - ending run" << std::endl;
+      // no need to register again as the SM/EventServer is kept alive on a stopAction
+      std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
       return std::auto_ptr<edm::EventPrincipal>();
     } else {
       events_read_++;
@@ -212,6 +243,7 @@ namespace edm
   {
     // repeat a http get every 5 seconds until we get the registry
     // do it like this for the proof of principle test
+    bool alreadySaidWaiting = false;
     stor::ReadData data;
     do {
       CURL* han = curl_easy_init();
@@ -261,7 +293,10 @@ namespace edm
       }
       if(data.d_.length() == 0)
       {
-        std::cout << "...waiting for header from Storage Manager..." << std::endl;
+        if(!alreadySaidWaiting) {
+          std::cout << "...waiting for header from Storage Manager..." << std::endl;
+          alreadySaidWaiting = true;
+        }
         // sleep for desired amount of time
         sleep(headerRetryInterval_);
       }
@@ -305,6 +340,7 @@ namespace edm
   {
     stor::ReadData data;
     uint32 registrationStatus;
+    bool alreadySaidWaiting = false;
     do {
       data.d_.clear();
       CURL* han = curl_easy_init();
@@ -379,7 +415,10 @@ namespace edm
 
       if (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY)
       {
-        std::cout << "...waiting for registration response from Storage Manager..." << std::endl;
+        if(!alreadySaidWaiting) {
+          std::cout << "...waiting for registration response from Storage Manager..." << std::endl;
+          alreadySaidWaiting = true;
+        }
         // sleep for desired amount of time
         sleep(headerRetryInterval_);
       }

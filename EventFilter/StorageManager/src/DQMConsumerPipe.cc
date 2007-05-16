@@ -6,7 +6,7 @@
  * Initial Implementation based on Kurt's ConsumerPipe
  * make a common class later when all this works
  *
- * $Id: DQMConsumerPipe.cc,v 1.2 2007/04/05 00:12:58 hcheung Exp $
+ * $Id$
  */
 
 #include "EventFilter/StorageManager/interface/DQMConsumerPipe.h"
@@ -246,4 +246,10 @@ bool DQMConsumerPipe::pushEvent()
     }
   }
   return false;
+}
+
+void DQMConsumerPipe::clearQueue()
+{
+  boost::mutex::scoped_lock scopedLockForLatestEvent(latestEventLock_);
+  latestEvent_.reset();
 }

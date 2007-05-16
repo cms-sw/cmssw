@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.12 2007/04/06 22:29:30 hcheung Exp $
+   $Id$
 */
 
 #include <string>
@@ -138,6 +138,14 @@ namespace stor {
     std::string smConfigString_;
     std::string smFileCatalog_;
 
+    xdata::Boolean collateDQM_;
+    xdata::Boolean archiveDQM_;
+    xdata::String  filePrefixDQM_;
+    xdata::Integer purgeTimeDQM_;
+    xdata::Integer readyTimeDQM_;
+    xdata::Boolean useCompressionDQM_;
+    xdata::Integer compressionLevelDQM_;
+
     evf::Css css_;
     xdata::UnsignedInteger32 receivedFrames_;
     int pool_is_set_;
@@ -193,6 +201,12 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
+    enum
+    {
+      DEFAULT_PURGE_TIME = 20,
+      DEFAULT_READY_TIME = 10
+    };
+
   }; 
 } 
 

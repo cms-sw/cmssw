@@ -1,6 +1,8 @@
 #ifndef STREAMER_EVENTSTREAMHTTPREADER_H
 #define STREAMER_EVENTSTREAMHTTPREADER_H
 
+// $Id$
+
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -30,6 +32,8 @@ namespace edm
     virtual void registerWithEventServer();
 
   private:  
+    std::auto_ptr<edm::EventPrincipal> getOneEvent();
+
     std::string sourceurl_;
     char eventurl_[256];
     char headerurl_[256];

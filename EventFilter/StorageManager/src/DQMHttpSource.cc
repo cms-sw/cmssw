@@ -2,7 +2,7 @@
  *  An input source for DQM consumers run in cmsRun that connect to
  *  the StorageManager or SMProxyServer to get DQM data.
  *
- *  $Id: DQMHttpSource.cc,v 1.4 2007/04/26 01:01:54 hcheung Exp $
+ *  $Id$
  */
 
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
@@ -69,6 +69,25 @@ namespace edm
 
 
   std::auto_ptr<Event> DQMHttpSource::readOneEvent()
+  {
+    // repeat a http get every X seconds until we get a DQMevent
+    // only way to stop is specify a maxEvents parameter
+    // or kill the Storage Manager XDAQ application so the http get fails.
+
+    // try to get an event repeat until we get one, this allows
+    // re-registration is the SM is halted or stopped
+
+    bool gotEvent = false;
+    std::auto_ptr<Event> result(0);
+    while (!gotEvent)
+    { 
+       result = getOneDQMEvent();
+       if(result.get() != NULL) gotEvent = true;
+    } 
+    return result;
+  }
+
+  std::auto_ptr<Event> DQMHttpSource::getOneDQMEvent()
   {
     // repeat a http get every X seconds until we get a DQMevent
     // only way to stop is specify a maxEvents parameter
@@ -142,9 +161,9 @@ namespace edm
       {
         cerr << "curl perform failed for DQMevent, messageStatus = "
              << messageStatus << endl;
-        throw cms::Exception("getOneEvent","DQMHttpSource")
-            << "curl perform failed for DQMevent, messageStatus = "
-            << messageStatus << endl;
+        throw cms::Exception("getOneDQMEvent","DQMHttpSource")
+            << "Could not get event: probably XDAQ not running on Storage Manager "
+            << "\n";
         // this will end cmsRun
       }
       if(data.d_.length() == 0)
@@ -172,9 +191,9 @@ namespace edm
 
     if (msgView.code() == Header::DONE) {
       // Continue past run boundaries (SM halt)
-      std::cout << "Storage Manager sent DONE - Probably halted we need to register again" << std::endl;
-      registerWithDQMEventServer();
-      // now need to not make a dummy event but go back and fetch an event!
+      // no need to register again as the SM/EventServer is kept alive on a stopAction
+      std::cout << "Storage Manager has halted - waiting for restart" << std::endl;
+       return std::auto_ptr<edm::Event>();
     } else {
       // counting the updates
       ++updatesCounter_;
@@ -209,8 +228,10 @@ namespace edm
                 << dqmEventView.subFolderCount() << std::endl;
 
       // deserialize and stick into DQM backend
+      // need both types of interfaces as the extractObject I use is
+      // only in DaqMonitorBEInterface
       if (bei_ == NULL) {
-        bei_ = edm::Service<DaqMonitorBEInterface>().operator->();
+        bei_ = dynamic_cast<DaqMonitorROOTBackEnd*>(edm::Service<DaqMonitorBEInterface>().operator->());
       }
       if (bei_ == NULL) {
         throw cms::Exception("readOneEvent", "DQMHttpSource")
@@ -226,22 +247,33 @@ namespace edm
       for (toIter = toTablePtr->begin();
            toIter != toTablePtr->end(); toIter++) {
         std::string subFolderName = toIter->first;
-        //std::cout << "  folder = " << subFolderName << std::endl;
         std::vector<TObject *> toList = toIter->second;
-        MonitorElementRootFolder * dqmdir = bei_->makeDirectory(subFolderName);  // fetch or create
-        //const bool fromRemoteNode = true; // only put in TObjects we asked for
-        const bool fromRemoteNode = false;  // put in all TObjects
+        MonitorElementRootFolder * dqmdir = 
+          dynamic_cast<DaqMonitorBEInterface*>(bei_)->makeDirectory(subFolderName);  // fetch or create
+        const bool fromRemoteNode = true; // Pretend this is like connecting to DQM Collector
         for (int tdx = 0; tdx < (int) toList.size(); tdx++) {
           TObject *toPtr = toList[tdx];
-          //string cls = toPtr->IsA()->GetName();
-          //string nm = toPtr->GetName();
-          //std::cout << "    TObject class = " << cls
-          //          << ", name = " << nm << std::endl;
+          std::string cls = toPtr->IsA()->GetName();
+          std::string nm = toPtr->GetName();
+          FDEBUG(8) << "    TObject class = " << cls << ", name = " << nm << std::endl;
+          // special handling for TObjString - try to use DQM core code for this:
+          if(bei_->isInt(toPtr) || bei_->isFloat(toPtr) ||
+             bei_->isString(toPtr) || bei_->isQReport(toPtr)) {
+            std::string tos_name, tos_value;
+            bool extractOK = bei_->extractObject(toPtr, fromRemoteNode, tos_name, tos_value);
+            if(extractOK) {
+              addMonitorable(tos_name, subFolderName);
+              setIsDesired(dqmdir, tos_name, true);
+            }
+          } else {
+            addMonitorable(nm, subFolderName);
+            setIsDesired(dqmdir, nm, true);
+          }
+          // for TObjString of type String this will complain
           bool success = bei_->extractObject(toPtr, dqmdir,fromRemoteNode);
-          if(success) ++count; // currently success is hardwired to be true on return!
+          if(success) ++count; // success looks to be hardwired to be true on return!
         }
       }
-      //std::cout << "Put " << count << " MEs into the DQM backend" <<std::endl;
 
       // clean up memory by spinning through the DQMEvent::TObjectTable map and
       // deleting each TObject in the std::vector<TObject *> later we will
@@ -253,7 +285,7 @@ namespace edm
       }
     }
 
-    setRunNumber(iRun); // <<=== here is where the run is set
+    setRunNumber(iRun);
     EventID eventId(iRun,iEvent);
 
     // make a fake event containing no data but the evId and runId from DQMEvent
@@ -353,5 +385,42 @@ namespace edm
     } while (registrationStatus == ConsRegResponseBuilder::ES_NOT_READY);
 
     FDEBUG(9) << "Consumer ID = " << DQMconsumerId_ << endl;
+  }
+
+  void DQMHttpSource::addMonitorable(std::string name, std::string dir_path)
+  {
+    if (bei_ == NULL) {
+       std::cerr << " *** DQMHttpSource::addMonitorable: No backend interface defined! " << std::endl;
+       std::cerr << " Ignoring addMonitorable operation... " << std::endl;
+       return;
+    }
+    if(!bei_->findObject(name, dir_path)) bei_->addElement(name, dir_path);
+
+    bei_->lock();
+    // make the monitorable string, <dir_path>:<obj1>,<obj2>,...:<tag> where tag is optional
+    // see StringUtil:::unpackDirFormat
+    std::string new_name = dir_path + ":" + name;
+    bei_->addedMonitorable.push_back(new_name);
+    bei_->unlock();
+  }
+
+  void DQMHttpSource::setIsDesired(MonitorElementRootFolder *folder, std::string ME_name, bool flag)
+  {
+    if(!folder)
+    {
+      std::cerr << " *** Null MonitorElementRootFolder in DQMHttpSource::setIsDesired"
+           << std::endl;
+      return;
+    }
+
+    if(!folder->hasMonitorable(ME_name))
+    {
+      std::cerr << " *** DQMHttpSource::setIsDesired: Object " << ME_name << " does not exist in "
+           << folder->getPathname() << std::endl;
+      std::cerr << " Ignoring setIsDesired operation... " << std::endl;
+      return;
+    }
+  
+    folder->isDesired[ME_name] = flag;
   }
 }

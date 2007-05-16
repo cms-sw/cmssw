@@ -22,7 +22,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include <list>
 #include <string>
 
 namespace stor
@@ -34,24 +33,35 @@ namespace stor
     explicit DQMServiceManager(std::string filePrefix = "/tmp/DQM",
 			       int purgeTime = DEFAULT_PURGE_TIME,
 			       int readyTime = DEFAULT_READY_TIME,
-                               bool collateDQM = true);
+                               bool collateDQM = false,
+                               bool archiveDQM = false,
+			       bool useCompression = true,
+			       int compressionLevel = 1);
      ~DQMServiceManager(); 
     
       void manageDQMEventMsg(DQMEventMsgView& msg);
       void stop();
-      DQMInstance * getLastDQMInstance();
-
+      DQMGroupDescriptor * getBestDQMGroupDescriptor(std::string groupName);
       void setPurgeTime(int purgeTime) { purgeTime_ = purgeTime;}
       void setReadyTime(int readyTime) { readyTime_ = readyTime;}
       void setFilePrefix(std::string filePrefix)
       { filePrefix_ = filePrefix;}
 
       void setCollateDQM(bool collateDQM) { collateDQM_ = collateDQM; }
-      void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es) { DQMeventServer_ = es; }
+      void setArchiveDQM(bool archiveDQM) { archiveDQM_ = archiveDQM; }
+      void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es) 
+      { DQMeventServer_ = es; }
+      void setUseCompression(bool useCompression) 
+      { useCompression_ = useCompression;}
+      void setCompressionLevel(int compressionLevel) 
+      { compressionLevel_ = compressionLevel;}
 
     protected:
 
+      bool          useCompression_;
+      int           compressionLevel_;
       bool          collateDQM_;
+      bool          archiveDQM_;
       int           runNumber_;
       int           lumiSection_;
       int           instance_;

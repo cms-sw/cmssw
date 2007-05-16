@@ -39,6 +39,7 @@ namespace stor
     boost::shared_ptr<DQMConsumerPipe> getConsumer(uint32 consumerId);
     void processDQMEvent(const DQMEventMsgView &eventView);
     boost::shared_ptr< std::vector<char> > getDQMEvent(uint32 consumerId);
+    void clearQueue();
 
   private:
 

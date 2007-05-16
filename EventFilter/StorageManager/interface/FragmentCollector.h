@@ -24,6 +24,7 @@
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
 #include "EventFilter/StorageManager/interface/ServiceManager.h"
+#include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
@@ -61,7 +62,6 @@ namespace stor
     edm::EventBuffer& getCommandQueue() { return *cmd_q_; }
     
     void setEventServer(boost::shared_ptr<EventServer>& es) { eventServer_ = es; }
-    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es) { DQMeventServer_ = es; }
 
   private:
     static void run(FragmentCollector*);
@@ -87,6 +87,35 @@ namespace stor
     void setFileCatalog(std::string catalog) { catalog_      = catalog; }
     void setSourceId(std::string sourceId)   { sourceId_     = sourceId; }
 
+    void setCollateDQM(bool collateDQM)
+    { dqmServiceManager_->setCollateDQM(collateDQM); }
+
+    void setArchiveDQM(bool archiveDQM)
+    { dqmServiceManager_->setArchiveDQM(archiveDQM); }
+
+    void setPurgeTimeDQM(int purgeTimeDQM)
+    { dqmServiceManager_->setPurgeTime(purgeTimeDQM);}
+
+    void setReadyTimeDQM(int readyTimeDQM)
+    { dqmServiceManager_->setReadyTime(readyTimeDQM);}
+
+    void setFilePrefixDQM(std::string filePrefixDQM)
+    { dqmServiceManager_->setFilePrefix(filePrefixDQM);}
+
+    void setUseCompressionDQM(bool useCompressionDQM)
+    { dqmServiceManager_->setUseCompression(useCompressionDQM);}
+
+    void setCompressionLevelDQM(int compressionLevelDQM)
+    { dqmServiceManager_->setCompressionLevel(compressionLevelDQM);}
+
+    void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es)
+    {
+      // The auto_ptr still owns the memory after this get()
+      if (dqmServiceManager_.get() != NULL) dqmServiceManager_->setDQMEventServer(es);
+      DQMeventServer_ = es;
+    }
+    boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
+
     std::list<std::string>& get_filelist() { return writer_->get_filelist();  }
     std::list<std::string>& get_currfiles() { return writer_->get_currfiles(); }
   private:
@@ -96,6 +125,7 @@ namespace stor
     std::string sourceId_;
 
     std::auto_ptr<edm::ServiceManager> writer_;
+    std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
 
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;

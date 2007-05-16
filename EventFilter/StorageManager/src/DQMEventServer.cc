@@ -5,7 +5,7 @@
  * Initial Implementation based on Kurt's EventServer
  * make a common class later when all this works
  *
- * $Id: DQMEventServer.cc,v 1.1 2007/04/04 22:14:27 hcheung Exp $
+ * $Id$
  */
 
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
@@ -238,4 +238,16 @@ boost::shared_ptr< std::vector<char> > DQMEventServer::getDQMEvent(uint32 consum
 
   // return the event buffer
   return bufPtr;
+}
+
+void DQMEventServer::clearQueue()
+{
+  std::map< uint32, boost::shared_ptr<DQMConsumerPipe> >::const_iterator consIter;
+  for (consIter = consumerTable.begin();
+       consIter != consumerTable.end();
+       consIter++)
+  {
+    boost::shared_ptr<DQMConsumerPipe> consPipe = consIter->second;
+    consPipe->clearQueue();
+  }
 }

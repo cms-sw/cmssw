@@ -21,9 +21,42 @@ using edm::debugit;
 using namespace std;
 using namespace stor;
 
-DQMGroup::DQMGroup() {}
+DQMGroupDescriptor::DQMGroupDescriptor(DQMInstance *instance,
+				       DQMGroup * group):
+  instance_(instance),
+  group_(group)
+{}
 
-DQMGroup::~DQMGroup() {}
+DQMGroupDescriptor::~DQMGroupDescriptor() {}
+
+DQMGroup::DQMGroup(int readyTime):
+  nUpdates_(0),
+  readyTime_(readyTime)
+{
+  lastUpdate_  = new TTimeStamp(0,0);
+  lastServed_  = new TTimeStamp(0,0);
+  firstUpdate_ = new TTimeStamp(0,0);
+  firstUpdate_->Set();
+}
+
+void DQMGroup::incrementUpdates() 
+{ 
+  nUpdates_++;
+  wasServedSinceUpdate_ = false;
+  lastUpdate_->Set();  
+}
+
+bool DQMGroup::isReady(int currentTime)
+{
+  return( ( currentTime - lastUpdate_->GetSec() ) > readyTime_);
+}
+
+DQMGroup::~DQMGroup() 
+{
+  if ( firstUpdate_ != NULL ) { delete(firstUpdate_);}
+  if ( lastUpdate_  != NULL ) { delete(lastUpdate_);}
+  if ( lastServed_  != NULL ) { delete(lastServed_);}
+}
 
 
 DQMInstance::DQMInstance(int runNumber, 
@@ -60,17 +93,19 @@ DQMInstance::~DQMInstance()
 
 int DQMInstance::updateObject(std::string groupName,
 			      std::string objectDirectory, 
-			      TObject    *object)
+			      TObject    *object,
+			      int eventNumber)
 {
+  lastEvent_ = eventNumber;
   std::string fullObjectName = objectDirectory+"/"+object->GetName();
-
   DQMGroup * group = dqmGroups_[groupName];
   if ( group == NULL )
   {
-    group = new DQMGroup();
+    group = new DQMGroup(readyTime_);
     dqmGroups_[groupName] = group;
   }
 
+  group->setLastEvent(eventNumber);
   TObject * storedObject = group->dqmObjects_[fullObjectName];
   if ( storedObject == NULL )
   {
@@ -92,6 +127,7 @@ int DQMInstance::updateObject(std::string groupName,
     }
   }
 
+  group->incrementUpdates();
   nUpdates_++;
   lastUpdate_->Set();
   return(nUpdates_);
@@ -101,12 +137,6 @@ bool DQMInstance::isStale(int currentTime)
 {
   return( ( currentTime - lastUpdate_->GetSec() ) > purgeTime_);
 }
-
-bool DQMInstance::isReady(int currentTime)
-{
-  return( ( currentTime - lastUpdate_->GetSec() ) > readyTime_);
-}
-
 
 int DQMInstance::writeFile(std::string filePrefix)
 {

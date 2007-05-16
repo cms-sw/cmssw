@@ -31,9 +31,30 @@ namespace stor
   class DQMGroup
   {
     public:
-      DQMGroup();
+      DQMGroup(int readyTime);
      ~DQMGroup();
       std::map<std::string, TObject *> dqmObjects_;
+      int getNUpdates()             { return(nUpdates_);}
+      int getReadyTime()            { return(readyTime_);}
+      int getLastEvent()            { return(lastEvent_);}
+      void setLastEvent(int lastEvent) { lastEvent_=lastEvent;}
+      TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
+      TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
+      TTimeStamp * getLastServed()  { return(lastServed_);}
+      bool isReady(int currentTime);
+      bool wasServedSinceUpdate()   { return(wasServedSinceUpdate_);}
+      void setServedSinceUpdate()   { wasServedSinceUpdate_=true;}
+      void incrementUpdates();
+      void setLastServed()          { lastServed_->Set();}
+
+    protected:
+      TTimeStamp            *firstUpdate_;
+      TTimeStamp            *lastUpdate_;
+      TTimeStamp            *lastServed_;
+      int                    nUpdates_;
+      int                    readyTime_;
+      int                    lastEvent_;
+      bool                   wasServedSinceUpdate_;
   }; 
 
   class DQMInstance
@@ -48,23 +69,26 @@ namespace stor
      ~DQMInstance();
 
       int getRunNumber()            { return(runNumber_);}
+      int getLastEvent()            { return(lastEvent_);}
       int getLumiSection()          { return(lumiSection_);}
       int getInstance()             { return(instance_);}
-      int getNUpdates()             { return(nUpdates_);}
       int getPurgeTime()            { return(purgeTime_);}
       int getReadyTime()            { return(readyTime_);}
+
       TTimeStamp * getFirstUpdate() { return(firstUpdate_);}
       TTimeStamp * getLastUpdate()  { return(lastUpdate_);}
       int updateObject(std::string groupName,
 		       std::string objectDirectory,
-		       TObject   * object);
+		       TObject   * object,
+		       int         eventNumber);
       int writeFile(std::string filePrefix);
-      bool isStale(int currentTime);
-      bool isReady(int currentTime);
       DQMGroup * getDQMGroup(std::string groupName);
+      bool isStale(int currentTime);
+      std::map<std::string, DQMGroup *> dqmGroups_;
 
     protected:  
       int                    runNumber_;
+      int                    lastEvent_;
       int                    lumiSection_;
       int                    instance_;
       TTimeStamp            *firstUpdate_;
@@ -72,8 +96,16 @@ namespace stor
       int                    nUpdates_;
       int                    purgeTime_;
       int                    readyTime_;
-      std::map<std::string, DQMGroup *> dqmGroups_;
   }; 
+
+  class DQMGroupDescriptor
+  {
+    public:
+      DQMGroupDescriptor(DQMInstance *instance,DQMGroup *group);
+     ~DQMGroupDescriptor();
+      DQMInstance *instance_;
+      DQMGroup    *group_;
+  };
 }
 
 

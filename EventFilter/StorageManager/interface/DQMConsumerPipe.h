@@ -25,7 +25,7 @@
  *
  *  Initial Implementation based on Kurt's ConsumerPipe
  *  We can think about a common class later...
- *  $Id: DQMConsumerPipe.h,v 1.1 2007/04/04 22:12:16 hcheung Exp $
+ *  $Id$
  */
 
 #include <string>
@@ -54,6 +54,7 @@ namespace stor
     void putDQMEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getDQMEvent();
     void setPushMode(bool mode) { pushMode_ = mode; }
+    void clearQueue();
 
   private:
     // characteristics of the consumer
