@@ -13,15 +13,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //Geant4
-#include "G4eTrajStateFree.hh"
-#include "G4eTargetPlaneSurface.hh"
-#include "G4eTargetCylindricalSurface.hh"
+#include "SimG4Core/Geant4e/interface/G4eTrajStateFree.hh"
+#include "SimG4Core/Geant4e/interface/G4eTargetPlaneSurface.hh"
+#include "SimG4Core/Geant4e/interface/G4eTargetCylindricalSurface.hh"
 
 //CLHEP
 #include "CLHEP/Units/SystemOfUnits.h"
-
-//- ROOT
-#include "TMath.h"
 
 
 /** Constructor. 
