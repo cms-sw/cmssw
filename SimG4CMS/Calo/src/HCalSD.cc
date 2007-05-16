@@ -75,7 +75,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::string attribute, value;
   if (useHF) {
     if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-    else                  hfshower      = new HFShower(cpv,p);
+    hfshower  = new HFShower(cpv,p);
 
     // HF volume names
     attribute = "Volume";
@@ -159,14 +159,19 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     G4String nameVolume = 
       aStep->GetPreStepPoint()->GetPhysicalVolume()->GetName();
     if (isItHF(nameVolume) || isItFibre(nameVolume)) {
-      if (useShowerLibrary) {
+      G4String parType = aStep->GetTrack()->GetDefinition()->GetParticleName();
+      bool notaMuon = true;
+      if (parType == "mu+" || parType == "mu-") notaMuon = false;
+     if (useShowerLibrary && notaMuon) {
 	LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
-			    << nameVolume << " for Track "
-			    << aStep->GetTrack()->GetTrackID() <<" ("
-			    << aStep->GetTrack()->GetDefinition()->GetParticleName()
-			    << ")";
+			    << nameVolume 
+			    << " for Track " << aStep->GetTrack()->GetTrackID()
+			    <<" (" << parType << ")";
 	getFromLibrary(aStep);
       } else if (isItFibre(nameVolume)) {
+	LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
+			    << " for Track " << aStep->GetTrack()->GetTrackID()
+			    <<" ("  << parType << ")";
 	hitForFibre(aStep);
       }
     } else {

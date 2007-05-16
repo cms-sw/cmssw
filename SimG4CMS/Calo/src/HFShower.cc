@@ -59,6 +59,7 @@ HFShower::HFShower(const DDCompactView & cpv, edm::ParameterSet const & p) :
   cherenkov = new HFCherenkov(p);
   fibre     = new HFFibre(cpv);
 
+  nHit      = 0;
   clearHits();
 }
 
