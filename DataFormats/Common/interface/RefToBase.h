@@ -19,16 +19,16 @@ std::vector<edm::RefToBase<Bar> > bars;
 bars.push_back(edm::RefToBase<Bar>(foo));
 \endcode
 
-Cast to concrete type can be done via the castTo<TRef> 
+Cast to concrete type can be done via the castTo<REF> 
 function template. This function throws an exception
-if the type passed as TRef does not match the concrete
+if the type passed as REF does not match the concrete
 reference type.
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.13 2007/03/29 22:56:31 wmtan Exp $
+// $Id: RefToBase.h,v 1.14 2007/05/08 16:54:58 paterno Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@ reference type.
 #include "Reflex/Object.h"
 #include "Reflex/Type.h"
 
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -48,31 +49,31 @@ namespace edm {
     template <class T>
     class BaseHolder {
     public:
-      BaseHolder() {}
-      virtual ~BaseHolder() {}
+      BaseHolder() { }
+      virtual ~BaseHolder() { }
       virtual BaseHolder<T>* clone() const = 0;
       virtual const T* getPtr() const = 0;
       virtual ProductID id() const = 0;
       virtual bool isEqualTo(const BaseHolder<T> & rhs) const = 0;
     };
 
-    template <class T, class TRef>
+    template <class T, class REF>
     class Holder : public BaseHolder<T> {
     public:
-      Holder() {}
-      explicit Holder(const TRef& iRef) : ref_(iRef) {}
-      virtual ~Holder() {}
-      virtual BaseHolder<T>* clone() const { return new Holder<T,TRef>(*this); }
+      Holder() { }
+      explicit Holder(const REF& iRef) : ref_(iRef) { }
+      virtual ~Holder() { }
+      virtual BaseHolder<T>* clone() const { return new Holder<T,REF>(*this); }
       virtual const T* getPtr() const { return ref_.operator->(); }
       virtual ProductID id() const { return ref_.id(); }
       virtual bool isEqualTo(const BaseHolder<T> & rhs) const {
-	const Holder<T, TRef> * h = dynamic_cast<const Holder<T, TRef> *>(& rhs);
+	const Holder<T, REF> * h = dynamic_cast<const Holder<T, REF> *>(& rhs);
 	if (h == 0) return false;
 	return getRef() == h->getRef();
       }
-      const TRef & getRef() const { return ref_; }
+      const REF & getRef() const { return ref_; }
     private:
-      TRef ref_;
+      REF ref_;
     };
 
     class IndirectHolderBaseHelper {
@@ -84,6 +85,7 @@ namespace edm {
 	return static_cast<T const*>(pointerToType(s_type));
       }
 
+      virtual ~IndirectHolderBaseHelper() { }
       virtual ProductID id() const = 0;
       virtual bool isEqualTo(IndirectHolderBaseHelper const& rhs) const = 0;
 
@@ -96,6 +98,7 @@ namespace edm {
     class IndirectHolder : public BaseHolder<T> {
     public:
       IndirectHolder(IndirectHolder<T> const& rhs) : helper_(rhs.helper_->clone()) { }
+      virtual ~IndirectHolder() { delete helper_; }
       virtual BaseHolder<T>* clone() const { return new IndirectHolder<T>(*this); }
       virtual T const* getPtr() const { return helper_-> template getPtr<T>(); }
       virtual ProductID id() const { return helper_->id(); }
@@ -118,6 +121,10 @@ namespace edm {
     template <class REF>
     class IndirectHolderHelper : public IndirectHolderBaseHelper {
     public:
+
+      explicit IndirectHolderHelper(REF const& ref) : ref_(ref) { }
+      ~IndirectHolderHelper() { }
+
       virtual ProductID id() const { return ref_.id(); }
 
       virtual bool isEqualTo(IndirectHolderBaseHelper const& rhs) const { 
@@ -128,8 +135,13 @@ namespace edm {
     private:
       void const* pointerToType(ROOT::Reflex::Type const& iToType) const {
 	typedef typename REF::value_type contained_type;
-	static ROOT::Reflex::Type s_type(ROOT::Reflex::Type::ByTypeInfo(typeid(contained_type)));
-	ROOT::Reflex::Object obj(s_type, ref_->get());
+	static const ROOT::Reflex::Type s_type(ROOT::Reflex::Type::ByTypeInfo(typeid(contained_type)));
+
+	// The const_cast below is needed because
+	// ROOT::Reflex::Object's constructor requires a pointer to
+	// non-const void, although the implementation does not, of
+	// course, modify the object to which the pointer points.
+	ROOT::Reflex::Object obj(s_type, const_cast<void*>(static_cast<const void*>(ref_.get())));
 	return obj.CastObject(iToType).Address(); // returns void*, after pointer adjustment
       }
       REF ref_;
@@ -143,8 +155,8 @@ namespace edm {
     RefToBase() : holder_(0) { }
 
 
-    template <class TRef>
-    explicit RefToBase(const TRef& iRef) : holder_(new reftobase::Holder<T,TRef>(iRef)) { }
+    template <class REF>
+    explicit RefToBase(const REF& iRef) : holder_(new reftobase::Holder<T,REF>(iRef)) { }
 
     RefToBase(const RefToBase<T>& iOther): 
       holder_((0==iOther.holder_) ? static_cast<reftobase::BaseHolder<T>*>(0) : iOther.holder_->clone()) {
@@ -168,9 +180,9 @@ namespace edm {
     }
     
     /// cast to a concrete type
-    template<typename TRef>
-    TRef castTo() const {
-      typedef reftobase::Holder<T,TRef> Holder;
+    template<typename REF>
+    REF castTo() const {
+      typedef reftobase::Holder<T,REF> Holder;
       const Holder * h = dynamic_cast<Holder *>(holder_);
       if (h == 0) {
 	throw edm::Exception(errors::InvalidReference) 

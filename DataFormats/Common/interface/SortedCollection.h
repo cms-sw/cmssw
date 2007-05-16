@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.8 2007/01/17 22:07:58 paterno Exp $
+$Id: SortedCollection.h,v 1.9 2007/05/08 16:54:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,6 +32,8 @@ $Id: SortedCollection.h,v 1.8 2007/01/17 22:07:58 paterno Exp $
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
@@ -157,7 +159,8 @@ namespace edm {
     // SortedCollection has been inserted into the Event.
     void post_insert();
 
-    void fillView(std::vector<void const*>& pointers,
+    void fillView(ProductID const& id,
+		  std::vector<void const*>& pointers,
 		  std::vector<helper_ptr>& helpers) const;
 
   private:
@@ -373,12 +376,13 @@ namespace edm {
 
   template <class T, class SORT>
   void
-  SortedCollection<T,SORT>::fillView(std::vector<void const*>& pointers,
+  SortedCollection<T,SORT>::fillView(ProductID const& id, 
+				     std::vector<void const*>& pointers,
 				     std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
-    for(const_iterator i=begin(), e=end(); i!=e; ++i)
-      pointers.push_back(&(*i));
+    for(const_iterator i=begin(), e=end(); i!=e; ++i) pointers.push_back(&(*i));
+    //throw edm::Exception(errors::UnimplementedFeature, "SortedCollection<T>::fillView(...)");
   }
 
   // Free swap function
@@ -438,10 +442,11 @@ namespace edm {
   inline
   void
   fillView(SortedCollection<T,SORT> const& obj,
+	   ProductID const& id,
 	   std::vector<void const*>& pointers,
 	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers, helpers);
+    obj.fillView(id, pointers, helpers);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)

@@ -6,18 +6,19 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.5 2007/01/11 23:39:17 paterno Exp $
+$Id: EDProduct.h,v 1.6 2007/05/08 16:54:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include "boost/shared_ptr.hpp"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {
 
-  class IndirectHolderBaseHelper;
 
-  typedef boost::shared_ptr<IndirectHolderBaseHelper> helper_ptr;
+  typedef boost::shared_ptr<reftobase::IndirectHolderBaseHelper> helper_ptr;
 
   class EDProduct {
   public:
@@ -27,7 +28,8 @@ namespace edm {
 
     // We have to use vector<void*> to keep the type information out
     // of the EDProduct class.
-    void fillView(std::vector<void const*>& view,
+    void fillView(ProductID const& id,
+		  std::vector<void const*>& view,
 		  std::vector<helper_ptr>& helpers) const;
 
   private:
@@ -36,7 +38,8 @@ namespace edm {
     // declare it = 0.
     virtual bool isPresent_() const {return true;}
 
-    virtual void do_fillView(std::vector<void const*>& pointers,
+    virtual void do_fillView(ProductID const& id,
+			     std::vector<void const*>& pointers,
 			     std::vector<helper_ptr>& helpers) const = 0;
   };
 }

@@ -48,16 +48,6 @@ namespace edm {
 //   }
 
   void
-  RefCore::throwWrongReferenceType(std::string const& found, 
-				   std::string const& requested)  const {
-    throw edm::Exception(errors::InvalidReference,"WrongType")
-      << "RefCore: A request to convert a contained product of type: "
-      << found << "\n"
-      << " to type " << requested 
-      << "\ncan not be satisfied\n";
-  }
-
-  void
   checkProduct(RefCore const& productToBeInserted, RefCore & commonProduct) {
     if (productToBeInserted.isNull()) {
       throw edm::Exception(errors::InvalidReference,"Inconsistency")

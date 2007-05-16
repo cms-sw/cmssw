@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.23 2007/05/08 16:54:59 paterno Exp $
+$Id: DataViewImpl.h,v 1.24 2007/05/10 22:46:55 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -568,7 +568,7 @@ namespace edm {
   {
     std::vector<void const*> pointersToElements;
     std::vector<helper_ptr>  helpers;
-    bh.wrapper()->fillView(pointersToElements, helpers);
+    bh.wrapper()->fillView(bh.id(), pointersToElements, helpers);
 
     boost::shared_ptr<View<ELEMENT> > 
       newview(new View<ELEMENT>(pointersToElements));

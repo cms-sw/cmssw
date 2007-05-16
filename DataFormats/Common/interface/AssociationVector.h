@@ -9,13 +9,17 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.12 $
+ * \version $Revision: 1.13 $
  */
+
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_same.hpp"
@@ -59,7 +63,8 @@ namespace edm {
       transientVector_[ i ].first = KeyRef(ref_, i);
       transientVector_[ i ].second = data_[ i ];
     }   
-    void fillView(std::vector<void const*>& pointers,
+    void fillView(ProductID const& id,
+		  std::vector<void const*>& pointers,
 		  std::vector<helper_ptr>& helpers) const;
 
     typedef typename transient_vector_type::const_iterator const_iterator;
@@ -138,13 +143,15 @@ namespace edm {
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::fillView(std::vector<void const*>& pointers, 
+  void AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::fillView(ProductID const& id,
+								       std::vector<void const*>& pointers, 
 								       std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
     for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
       pointers.push_back(&(*i));
     // helpers is not yet filled in.
+    //throw edm::Exception(errors::UnimplementedFeature, "AssociationVector<T>::fillView(...)");
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
@@ -161,9 +168,10 @@ namespace edm {
   inline
   void
   fillView(AssociationVector<KeyRefProd,CVal, KeyRef, SizeType> const& obj,
+	   ProductID const& id,
 	   std::vector<void const*>& pointers,
 	   std::vector<helper_ptr>& helpers) {
-    obj.fillView(pointers, helpers);
+    obj.fillView(id, pointers, helpers);
   }
 
   template <typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>

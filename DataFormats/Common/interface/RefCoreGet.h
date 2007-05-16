@@ -5,7 +5,7 @@
   
 RefCoreGet: Free function to get the pointer to a referenced product.
 
-$Id: RefCoreGet.h,v 1.11 2007/03/29 22:57:25 wmtan Exp $
+$Id: RefCoreGet.h,v 1.1 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,7 +25,14 @@ namespace edm {
 
       EDProduct const* product = ref.productGetter()->getIt(ref.id());      
       Wrapper<T> const* wrapper = dynamic_cast<Wrapper<T> const*>(product);
-      if (wrapper == 0) { ref.throwWrongReferenceType(typeid(product).name(), typeid(T).name()); }
+
+      if (wrapper == 0) { 
+	throw edm::Exception(errors::InvalidReference,"WrongType")
+	  << "RefCore: A request to convert a contained product of type: "
+	  << typeid(product).name() << "\n"
+	  << " to type " << typeid(T).name()
+	  << "\ncan not be satisfied\n";
+      }
       ref.setProductPtr(wrapper->product());
       return wrapper->product();
     }

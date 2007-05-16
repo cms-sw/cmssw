@@ -1,5 +1,5 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.4 2007/01/22 23:56:59 wmtan Exp $
+ *  $Id: Wrapper_t.cpp,v 1.5 2007/01/23 00:25:53 wmtan Exp $
  *  CMSSW
  *
  */
@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "DataFormats/Common/interface/Wrapper.h"
-
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 class CopyNoSwappy

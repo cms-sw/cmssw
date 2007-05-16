@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.15 2007/05/02 13:37:55 paterno Exp $
+$Id: DetSetVector.h,v 1.16 2007/05/08 16:54:58 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,6 +37,7 @@ $Id: DetSetVector.h,v 1.15 2007/05/02 13:37:55 paterno Exp $
 #include "boost/mpl/if.hpp"
 #include "boost/type_traits.hpp"
 
+#include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/RefItem.h"
@@ -182,7 +183,8 @@ namespace edm {
     /// DetSetVector has been inserted into the Event.
     void post_insert();
 
-    void fillView(std::vector<void const*>& pointers,
+    void fillView(ProductID const& id,
+		  std::vector<void const*>& pointers,
 		  std::vector<helper_ptr>& helpers) const;
 
   private:
@@ -388,12 +390,13 @@ namespace edm {
   }
 
   template<class T>
-  void DetSetVector<T>::fillView(std::vector<void const*>& pointers,
+  void DetSetVector<T>::fillView(ProductID const& id,
+				 std::vector<void const*>& pointers,
 				 std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
-    for(const_iterator i=begin(), e=end(); i!=e; ++i)
-      pointers.push_back(&(*i));
+    for(const_iterator i=begin(), e=end(); i!=e; ++i) pointers.push_back(&(*i));
+    //throw edm::Exception(errors::UnimplementedFeature, "DetSetVector<T>::fillView(...)");
   }
 
   //----------------------------------------------------------------------
@@ -404,10 +407,11 @@ namespace edm {
   inline
   void
   fillView(DetSetVector<T> const& obj,
+	   ProductID const& id,
 	   std::vector<void const*>& pointers,
 	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers, helpers);
+    obj.fillView(id, pointers, helpers);
   }
 
   template <class T>

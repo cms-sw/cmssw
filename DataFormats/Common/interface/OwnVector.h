@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.24 2007/05/01 22:08:32 paterno Exp $
+// $Id: OwnVector.h,v 1.25 2007/05/08 16:54:58 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
+
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -161,7 +163,8 @@ namespace edm {
 
     void swap(OwnVector<T, P> & other);
 
-  void fillView(std::vector<void const*>& pointers,
+  void fillView(ProductID const& id,
+		std::vector<void const*>& pointers,
 		std::vector<helper_ptr>& helpers) const;
 
   private:
@@ -386,7 +389,8 @@ namespace edm {
   }
 
   template<typename T, typename P>
-  void OwnVector<T, P>::fillView(std::vector<void const*>& pointers,
+  void OwnVector<T, P>::fillView(ProductID const& id,
+				 std::vector<void const*>& pointers,
 				 std::vector<helper_ptr>& helpers) const
   {
     pointers.reserve(this->size());
@@ -400,6 +404,7 @@ namespace edm {
       }
       else pointers.push_back(*i);
     }
+    //throw edm::Exception(errors::UnimplementedFeature, "OwnVector<T>::fillView(...)");
   }
 
   template<typename T, typename P>
@@ -415,10 +420,11 @@ namespace edm {
   inline
   void
   fillView(OwnVector<T,P> const& obj,
+	   ProductID const& id,
 	   std::vector<void const*>& pointers,
 	   std::vector<helper_ptr>& helpers)
   {
-    obj.fillView(pointers, helpers);
+    obj.fillView(id, pointers, helpers);
   }
 
   template <typename T, typename P>

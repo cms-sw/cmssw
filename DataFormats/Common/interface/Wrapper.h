@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.15 2007/05/08 16:54:58 paterno Exp $
+$Id: Wrapper.h,v 1.16 2007/05/10 23:45:11 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -21,84 +21,13 @@ $Id: Wrapper.h,v 1.15 2007/05/08 16:54:58 paterno Exp $
 #include "boost/mpl/if.hpp"
 
 #include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
-
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
-
-  // The following function objects are used by Wrapper::do_fillView,
-  // under the control of a metafunction if, to either call the given
-  // object's fillView function (if it has one) or do nothing (if it
-  // does not).
-  // TODO: Maybe we should throw an exception if DoThing is called?
-
-  template <class T>
-  struct DoFillView
-  {
-    void operator()(T const& obj, 
-		    std::vector<void const*>& pointers,
-		    std::vector<helper_ptr>& helpers) const
-    {
-      fillView(obj, pointers, helpers);
-    }
-  };
-
-  template <class T, class A>
-  void
-  fillView(std::vector<T,A> const& obj,
-	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
-  {
-    typedef typename std::vector<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-  }
-
-  template <class T, class A>
-  void
-  fillView(std::list<T,A> const& obj,
-	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
-  {
-    typedef typename std::list<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-  }
-
-  template <class T, class A>
-  void
-  fillView(std::deque<T,A> const& obj,
-	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
-  {
-    typedef typename std::deque<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-  }
-
-  template <class T, class A>
-  void
-  fillView(std::set<T,A> const& obj,
-	   std::vector<void const*>& ptrs,
-	   std::vector<helper_ptr>& helpers)
-  {
-    typedef typename std::set<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-  }
-
-  template <class T>
-  struct DoNotFillView
-  {
-    void operator()(T const&, 
-		    std::vector<void const*>&,
-		    std::vector<helper_ptr>& ) const 
-    {
-      throw Exception(errors::ProductDoesNotSupportViews)
-	<< "The product type " 
-	<< typeid(T).name()
-	<< "\ndoes not support Views\n";
-    }
-  };
 
   template <class T>
   class Wrapper : public EDProduct {
@@ -117,14 +46,9 @@ namespace edm {
     
   private:
     virtual bool isPresent_() const {return present;}
-    void do_fillView(std::vector<void const*>& pointers,
-		     std::vector<helper_ptr>& helpers) const
-    {
-      typename boost::mpl::if_c<has_fillView<T>::value,
-                                DoFillView<T>,
-                                DoNotFillView<T> >::type maybe_filler;
-      maybe_filler(obj, pointers, helpers);
-    }
+    virtual void do_fillView(ProductID const& id,
+			     std::vector<void const*>& pointers,
+			     std::vector<helper_ptr>& helpers) const;
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
     Wrapper(Wrapper<T> const& rh); // disallow copy construction
@@ -133,6 +57,51 @@ namespace edm {
     //   T const obj;
     T obj;
   };
+
+} //namespace edm
+
+#include "DataFormats/Common/interface/Ref.h"
+
+namespace edm {
+
+  template <class T>
+  struct DoFillView
+  {
+    void operator()(T const& obj,
+		    ProductID const& id,
+		    std::vector<void const*>& pointers,
+		    std::vector<helper_ptr>& helpers) const
+    {
+      fillView(obj, id, pointers, helpers);
+    }
+  };
+
+  template <class T>
+  struct DoNotFillView
+  {
+    void operator()(T const&,
+		    ProductID const&,
+		    std::vector<void const*>&,
+		    std::vector<helper_ptr>& ) const 
+    {
+      throw Exception(errors::ProductDoesNotSupportViews)
+	<< "The product type " 
+	<< typeid(T).name()
+	<< "\ndoes not support Views\n";
+    }
+  };
+
+    template <typename T>
+    inline
+    void Wrapper<T>::do_fillView(ProductID const& id,
+			     std::vector<void const*>& pointers,
+			     std::vector<helper_ptr>& helpers) const
+    {
+      typename boost::mpl::if_c<has_fillView<T>::value,
+	DoFillView<T>,
+	DoNotFillView<T> >::type maybe_filler;
+      maybe_filler(obj, id, pointers, helpers);
+    }
 
   // This is an attempt to optimize for speed, by avoiding the copying
   // of large objects of type T. In this initial version, we assume
@@ -160,13 +129,13 @@ namespace edm {
   {
 
 #if GCC_PREREQUISITE(3,4,4)
-  //------------------------------------------------------------
-  // WHEN WE MOVE to a newer compiler version, the following code
-  // should be activated. This code causes compilation failures under
-  // GCC 3.2.3, because of a compiler error in dealing with our
-  // application of SFINAE. GCC 3.4.2 is known to deal with this code
-  // correctly.
-  //------------------------------------------------------------
+    //------------------------------------------------------------
+    // WHEN WE MOVE to a newer compiler version, the following code
+    // should be activated. This code causes compilation failures under
+    // GCC 3.2.3, because of a compiler error in dealing with our
+    // application of SFINAE. GCC 3.4.2 is known to deal with this code
+    // correctly.
+    //------------------------------------------------------------
     typedef char (& no_tag)[1]; // type indicating FALSE
     typedef char (& yes_tag)[2]; // type indicating TRUE
 
@@ -187,14 +156,14 @@ namespace edm {
     // THE FOLLOWING SHOULD BE REMOVED when we move to a newer
     // compiler; see the note above.
     //------------------------------------------------------------
-  // has_swap_function is a metafunction of one argument, the type T.
-  // As with many metafunctions, it is implemented as a class with a data
-  // member 'value', which contains the value 'returned' by the
-  // metafunction.
-  //
-  // has_swap_function<T>::value is 'true' if T has the has_swap
-  // member function (with the right signature), and 'false' if T has
-  // no such member function.
+    // has_swap_function is a metafunction of one argument, the type T.
+    // As with many metafunctions, it is implemented as a class with a data
+    // member 'value', which contains the value 'returned' by the
+    // metafunction.
+    //
+    // has_swap_function<T>::value is 'true' if T has the has_swap
+    // member function (with the right signature), and 'false' if T has
+    // no such member function.
 
 
     template<typename T>
@@ -212,17 +181,22 @@ namespace edm {
     obj()
   { 
     if (present) {
-       // The following will call swap if T has such a function,
-       // and use assignment if T has no such function.
+      // The following will call swap if T has such a function,
+      // and use assignment if T has no such function.
       typename boost::mpl::if_c<detail::has_swap_function<T>::value, 
-                                DoSwap<T>, 
-                                DoAssign<T> >::type swap_or_assign;
+	DoSwap<T>, 
+	DoAssign<T> >::type swap_or_assign;
       swap_or_assign(obj, *ptr);	
     }
   }
 
   std::string
   wrappedClassName(std::string const& className);
+
+
+
 }
+
+#include "DataFormats/Common/interface/FillView.h"
 
 #endif

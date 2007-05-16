@@ -5,7 +5,7 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.11 2007/03/29 22:57:25 wmtan Exp $
+$Id: RefCore.h,v 1.12 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <typeinfo>
@@ -48,13 +48,10 @@ namespace edm {
 
     void setProductPointer(void const* prodPtr) const {prodPtr_ = prodPtr;}
 
-
     void checkDereferenceability() const;
-    //    void throwInvalidReference() const;
-    void throwWrongReferenceType(std::string const& found,
-				 std::string const& requested) const;
 
  private:
+
     ProductID id_;
     mutable void const *prodPtr_;               // transient
     mutable EDProductGetter const* prodGetter_; // transient

@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.22 2007/03/28 19:23:53 paterno Exp $
+$Id: Ref.h,v 1.23 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -114,7 +114,6 @@ $Id: Ref.h,v 1.22 2007/03/28 19:23:53 paterno Exp $
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefBase.h"
-
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)
@@ -198,6 +197,7 @@ namespace edm {
     Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
       ref_(productID, 0, itemKey, 0, prodGetter) {
       }
+
 
     /** Constructor that creates an invalid ("null") Ref that is
 	associated with a given product (denoted by that product's
