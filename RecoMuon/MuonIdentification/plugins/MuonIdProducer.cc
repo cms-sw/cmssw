@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.1 2007/05/12 22:14:39 dmytro Exp $
+// $Id: MuonIdProducer.cc,v 1.2 2007/05/15 18:31:33 jribnik Exp $
 //
 //
 
@@ -481,8 +481,8 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
 {
    reco::MuonIsolation isoR03, isoR05;
    // get deposits
-   reco::MuIsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, aMuon.track());
-   std::vector<reco::MuIsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, aMuon.track());
+   reco::MuIsoDeposit depTrk = muIsoExtractorTrack_->deposit(iEvent, iSetup, *(aMuon.track()));
+   std::vector<reco::MuIsoDeposit> caloDeps = muIsoExtractorCalo_->deposits(iEvent, iSetup, *(aMuon.track()));
 
    if(caloDeps.size()!=3) {
       LogTrace("MuonIdentification") << "Failed to fill vector of calorimeter isolation deposits!";
