@@ -12,7 +12,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: SMProxyServer.h,v 1.2 2007/05/01 22:38:54 hcheung Exp $
+   $Id$
 */
 
 #include <string>
@@ -30,7 +30,6 @@
 #include "EventFilter/SMProxyServer/interface/DataProcessManager.h"
 #include "EventFilter/StorageManager/interface/SMPerformanceMeter.h"
 #include "EventFilter/StorageManager/interface/SMFUSenderList.h"
-
 
 #include "xdaq/Application.h"
 #include "xdaq/ApplicationContext.h"
@@ -122,6 +121,14 @@ namespace stor {
 
     //std::string smFileCatalog_;
 
+    xdata::Boolean collateDQM_;
+    xdata::Boolean archiveDQM_;
+    xdata::String  filePrefixDQM_;
+    xdata::Integer purgeTimeDQM_;
+    xdata::Integer readyTimeDQM_;
+    xdata::Boolean useCompressionDQM_;
+    xdata::Integer compressionLevelDQM_;
+
     evf::Css css_;
     xdata::UnsignedInteger32 receivedEvents_;
     xdata::UnsignedInteger32 receivedDQMEvents_;
@@ -151,8 +158,6 @@ namespace stor {
     //xdata::Vector<xdata::String> fileList_;
     //xdata::Vector<xdata::UnsignedInteger32> eventsInFile_;
     //xdata::Vector<xdata::UnsignedInteger32> fileSize_;
-
-    xdata::UnsignedInteger32 curlTimeout_;
 
     // *** for performance measurements
     void addMeasurement(unsigned long size);
@@ -193,6 +198,11 @@ namespace stor {
     xdata::Double            storedVolume_;
     xdata::UnsignedInteger32 memoryUsed_;
     xdata::String            progressMarker_;
+    enum
+    {
+      DEFAULT_PURGE_TIME = 20,
+      DEFAULT_READY_TIME = 10
+    };
   }; 
 } 
 

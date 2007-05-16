@@ -4,6 +4,7 @@
 
 #include "EventFilter/StorageManager/interface/EventServer.h"
 #include "EventFilter/StorageManager/interface/DQMEventServer.h"
+#include "EventFilter/StorageManager/interface/DQMServiceManager.h"
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "IOPool/Streamer/interface/EventMessage.h"
@@ -39,11 +40,35 @@ namespace stor
     }
     boost::shared_ptr<EventServer>& getEventServer() { return eventServer_; }
 
+    void setCollateDQM(bool collateDQM)
+    { dqmServiceManager_->setCollateDQM(collateDQM); }
+
+    void setArchiveDQM(bool archiveDQM)
+    { dqmServiceManager_->setArchiveDQM(archiveDQM); }
+
+    void setPurgeTimeDQM(int purgeTimeDQM)
+    { dqmServiceManager_->setPurgeTime(purgeTimeDQM);}
+
+    void setReadyTimeDQM(int readyTimeDQM)
+    { dqmServiceManager_->setReadyTime(readyTimeDQM);}
+
+    void setFilePrefixDQM(std::string filePrefixDQM)
+    { dqmServiceManager_->setFilePrefix(filePrefixDQM);}
+
+    void setUseCompressionDQM(bool useCompressionDQM)
+    { dqmServiceManager_->setUseCompression(useCompressionDQM);}
+
+    void setCompressionLevelDQM(int compressionLevelDQM)
+    { dqmServiceManager_->setCompressionLevel(compressionLevelDQM);}
+
     void setDQMEventServer(boost::shared_ptr<DQMEventServer>& es)
     {
+      // The auto_ptr still owns the memory after this get()
+      if (dqmServiceManager_.get() != NULL) dqmServiceManager_->setDQMEventServer(es);
       DQMeventServer_ = es;
     }
     boost::shared_ptr<DQMEventServer>& getDQMEventServer() { return DQMeventServer_; }
+    boost::shared_ptr<stor::DQMServiceManager>& getDQMServiceManager() { return dqmServiceManager_; }
 
     edm::EventBuffer& getCommandQueue() { return *cmd_q_; }
 
@@ -73,6 +98,7 @@ namespace stor
 
     edm::EventBuffer* cmd_q_;
 
+    bool alreadyRegistered_;
     unsigned int  ser_prods_size_;
     std::vector<unsigned char> serialized_prods_;
     std::vector<unsigned char> buf_;
@@ -93,6 +119,9 @@ namespace stor
     std::string DQMconsumerName_;
     std::string DQMconsumerPriority_;
     std::string consumerTopFolderName_;
+
+    //std::auto_ptr<stor::DQMServiceManager> dqmServiceManager_;
+    boost::shared_ptr<stor::DQMServiceManager> dqmServiceManager_;
 
     boost::shared_ptr<EventServer> eventServer_;
     boost::shared_ptr<DQMEventServer> DQMeventServer_;
