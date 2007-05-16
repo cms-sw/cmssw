@@ -13,7 +13,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Wed May 31 10:37:45 CEST 2006
-// $Id: CaloMiscalibTools.cc,v 1.1 2006/05/31 10:11:04 lorenzo Exp $
+// $Id: CaloMiscalibTools.cc,v 1.2 2006/09/11 12:52:05 malgeri Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -49,8 +49,9 @@ CaloMiscalibTools::CaloMiscalibTools(const edm::ParameterSet& iConfig)
    map_.prefillMap();
    barrelfile_=iConfig.getUntrackedParameter<std::string> ("fileNameBarrel","");
    endcapfile_=iConfig.getUntrackedParameter<std::string> ("fileNameEndcap","");
-   setWhatProduced(this);
-
+   // added by Zhen (changed since 1_2_0)
+   setWhatProduced(this,&CaloMiscalibTools::produce);
+   findingRecord<EcalIntercalibConstantsRcd>();
    //now do what ever other initialization is needed
 }
 
@@ -78,7 +79,11 @@ CaloMiscalibTools::produce(const EcalIntercalibConstantsRcd& iRecord)
     if(!barrelfile_.empty()) barrelreader_.parseXMLMiscalibFile(barrelfile_);
     if(!endcapfile_.empty())endcapreader_.parseXMLMiscalibFile(endcapfile_);
     map_.print();
-    return & (map_.get());
+    // Added by Zhen, need a new object so to not be deleted at exit
+    //    std::cout<<"about to copy"<<std::endl;
+    EcalIntercalibConstants* mydata=new EcalIntercalibConstants(map_.get());
+    //    std::cout<<"mydata "<<mydata<<std::endl;
+    return mydata;
 }
 
  void CaloMiscalibTools::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
