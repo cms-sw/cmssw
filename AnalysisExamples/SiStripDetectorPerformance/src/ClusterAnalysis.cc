@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/15 22:20:09 $
- * $Revision: 1.21 $
+ * $Date: 2007/05/15 22:46:44 $
+ * $Revision: 1.22 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -357,7 +357,7 @@ namespace cms{
       
       //cWidth Vs Angle
       name = "ClusterWidthVsAngle"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileWidthAngle", name, "cos(angle_xz)" , "clusWidth");
+      bookHlist("TProfile","TProfileWidthAngle", name, "sin(angle_xz)" , "clusWidth");
 
       //Residuals Vs Angle
       name = "ResidualVsAngle"+appString+"_onTrack";
@@ -365,7 +365,7 @@ namespace cms{
 
       //Angle Vs phi
       name = "AngleVsPhi"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi" , "Impact angle (rad)");
+      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (rad)");
     }
   }
 
@@ -905,7 +905,7 @@ namespace cms{
 	fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString+"_onTrack",0); 
       }
       
-      fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().value(),
+      fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
 		   _HitDir._LV.theta().value()>Geom::pi()/2?Geom::pi()-_HitDir._LV.theta().value():_HitDir._LV.theta().value(),
 		   "AngleVsPhi"+appString+"_onTrack",0);
     }      
