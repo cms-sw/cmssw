@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.12 2007/01/20 00:09:56 wmtan Exp $
+   \version $Id: ProcessDesc.cc,v 1.13 2007/05/15 22:02:54 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.12 2007/01/20 00:09:56 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.13 2007/05/15 22:02:54 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -158,9 +158,8 @@ namespace edm
     if (node->type() == "operand") {
       SeqMap::iterator seqIt = sequences.find(node->name()); 
       if (seqIt != sequences.end()) {
-        NodePtr substituteNode = seqIt->second->wrapped();
-        //substituteNode->setParent(node->getParent());
-        sequenceSubstitution(substituteNode, sequences);
+        node = seqIt->second->wrapped();
+        sequenceSubstitution(node, sequences);
       }
     } // if operator
     else {
