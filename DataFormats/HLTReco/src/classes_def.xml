@@ -53,7 +53,6 @@
 
   <class name="HLTPerformanceInfo::Path::Adapter"/>
   <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned int*,std::vector<unsigned int> >,boost::use_default,boost::use_default>" />
-  <class name="boost::transform_iterator<HLTPerformanceInfo::Path::Adapter,__gnu_cxx::__normal_iterator<const unsigned long*,std::vector<unsigned long> >,boost::use_default,boost::use_default>" />
 
 
 </lcgdict>

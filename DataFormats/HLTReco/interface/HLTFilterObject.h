@@ -27,7 +27,7 @@
 #include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTParticle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/ProductID.h"
 
 #include <algorithm>
 #include <cassert>
