@@ -210,7 +210,7 @@ void DDHCalTBCableAlgo::execute() {
   //Now the cable of type 1
   name = idName + "Cable1";
   double phi  = atan((dx2-dx1)/(2*dz));
-  double xmid = 0.5*(dx1+dx2);
+  double xmid = 0.5*(dx1+dx2)-1.0;
   solid = DDSolidFactory::box(DDName(name, idNameSpace), 0.5*width1,
 			      0.5*thick, 0.5*length1);
   LogDebug("HCalGeom") << "DDHCalTBCableAlgo test: " << solid.name() 
