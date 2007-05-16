@@ -65,6 +65,7 @@ function MergePlots(){
 	  cp ${FulljobsList} ${Name}.root
 	  mv ${FulljobsList} Basket
 	  mv `echo ${FulljobsList} | sed -e "s@.root@.ps@g"` Basket
+	  gzip Basket/*.ps
 	  #ls *root #RIMUOVI
       fi
       return
