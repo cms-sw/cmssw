@@ -8,7 +8,7 @@
 //
 // Original Author:  dkcira
 //         Created:  Thu Jun 15 09:32:49 CEST 2006
-// $Id: SiStripHistoricInfoClient.cc,v 1.14 2007/02/16 15:59:34 dkcira Exp $
+// $Id: SiStripHistoricInfoClient.cc,v 1.15 2007/04/24 09:40:46 dkcira Exp $
 //
 
 #include "DQM/SiStripHistoricInfoClient/interface/SiStripHistoricInfoClient.h"
@@ -43,6 +43,7 @@
 #include "TSQLServer.h"
 #include "TSQLResult.h"
 
+
 using namespace std;
 using namespace cgicc;
 
@@ -58,6 +59,18 @@ SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub
   // Instantiate a web interface:
   webInterface_p = new SiStripHistoricInfoWebInterface(getContextURL(),getApplicationURL(), & mui_);
   xgi::bind(this, &SiStripHistoricInfoClient::handleWebRequest, "Request");
+  firstTime = true;
+  pSummary_ = new SiStripPerformanceSummary();
+  // configure the database
+ /*
+  db_ = new SiStripConfigDb( pset.getUntrackedParameter<string>("User",""),
+				 pset.getUntrackedParameter<string>("Passwd",""),
+				 pset.getUntrackedParameter<string>("Path",""),
+				 pset.getUntrackedParameter<string>("Partition",""),
+				 pset.getUntrackedParameter<unsigned int>("MajorVersion",0),
+				 pset.getUntrackedParameter<unsigned int>("MinorVersion",0) );
+*/
+  db_ = new SiStripConfigDb( "dorian", "test", "sqlite_file:HistoricPerformance.db", "TEST_PARTITION",0,0);
 }
 
 
@@ -65,8 +78,7 @@ SiStripHistoricInfoClient::SiStripHistoricInfoClient(xdaq::ApplicationStub *stub
 /*
   implement the method that outputs the page with the widgets (declared in DQMBaseClient):
 */
-void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception)
-{
+void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) throw (xgi::exception::Exception) {
   // the web interface should know what to do:
   webInterface_p->Default(in, out);
 }
@@ -74,8 +86,7 @@ void SiStripHistoricInfoClient::general(xgi::Input * in, xgi::Output * out ) thr
 
 //-----------------------------------------------------------------------------------------------
 /* the method called on all HTTP requests of the form ".../Request?RequestID=..." */
-void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * out)
-{
+void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * out) {
   // the web interface should know what to do:
   webInterface_p->handleRequest(in, out);
 }
@@ -83,52 +94,44 @@ void SiStripHistoricInfoClient::handleWebRequest(xgi::Input * in, xgi::Output * 
 
 //-----------------------------------------------------------------------------------------------
 /* this obligatory method is called whenever the client enters the "Configured" state: */
-void SiStripHistoricInfoClient::configure()
-{
+void SiStripHistoricInfoClient::configure() {
 }
 
 
 //-----------------------------------------------------------------------------------------------
 /* this obligatory method is called whenever the client enters the "Enabled" state: */
-void SiStripHistoricInfoClient::newRun()
-{
+void SiStripHistoricInfoClient::newRun() {
   upd_->registerObserver(this);   // upd_ is a pointer to dqm::Updater, protected data member of DQMBaseClient
 }
 
 
 //-----------------------------------------------------------------------------------------------
 //  this obligatory method is called whenever the client enters the "Halted" state:
-void SiStripHistoricInfoClient::endRun()
-{
+void SiStripHistoricInfoClient::endRun(){
   cout<<"SiStripHistoricInfoClient::endRun() : called"<<endl;
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-  cout<<"SiStripHistoricInfoClient::endRun ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
-  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
-     cout<<"      ++++++detid  "<<imapmes->first<<endl;
-     vector<MonitorElement*> locvec = imapmes->second;
-     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
-     vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
-     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-       cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
-     }
-     for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
-       cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
-     }
-  }
-  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+//  printMEs();
+  retrievePointersToModuleMEs();
+  fillSummaryObjects();
+  pSummary_->print();
   std::string final_filename = "endRun_SiStripHistoricInfoClient.root"; // run specific filename would be better
   std::cout<<"Saving all histograms in "<<final_filename<<std::endl;
   mui_->save(final_filename);
+  std::cout<<"Writing objects to DB"<<std::endl;
+  writeToDB();
 }
 
 
 //-----------------------------------------------------------------------------------------------
 /* this obligatory method is called by the Updater component, whenever there is an update */
-void SiStripHistoricInfoClient::onUpdate() const
-{
+void SiStripHistoricInfoClient::onUpdate() const{
+  //
+  int nr_updates = mui_->getNumUpdates();
+  std::cout<<" onUpdate = "<<nr_updates<<std::endl;
+  retrievePointersToModuleMEs();
+
   //
   if(firstTime){
-    firstUpdate = mui_->getNumUpdates();
+    firstUpdate = nr_updates;
     cout<<"SiStripHistoricInfoClient::onUpdate() first time call. Subscribing. firstUpdate="<<firstUpdate<<endl;
     mui_->subscribe("Collector/*/SiStrip/*");
     firstTime = false; // done, set flag to false again
@@ -142,38 +145,12 @@ void SiStripHistoricInfoClient::onUpdate() const
   }
 
   //
-  int nr_updates = mui_->getNumUpdates();
-  cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
-  if(nr_updates==4){
-    cout<<"SiStripHistoricInfoClient::onUpdate() : retrieving pointers to histograms"<<std::endl;
+  if( nr_updates == 10 ){
+    cout<<"SiStripHistoricInfoClient::onUpdate() : nr_updates="<<nr_updates<<" "<<nr_updates-firstUpdate<<endl;
     retrievePointersToModuleMEs();
-/*
-    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-    cout<<"SiStripHistoricInfoClient::retrievePointersToModuleMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
-    for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
-       cout<<"      ++++++detid  "<<imapmes->first<<endl;
-       // MEs from pointer map
-       vector<MonitorElement*> locvec = imapmes->second;
-       for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
-         cout<<"          ++  "<<(*imep)->getName()<<endl;
-       }
-       //  tagged MEs
-       DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
-       std::vector<MonitorElement *> taggedMEs = dbe_->get(imapmes->first);
-       for(std::vector<MonitorElement *>::const_iterator itme = taggedMEs.begin(); itme != taggedMEs.end(); itme++){
-         cout<<"          --  "<<(*itme)->getName()<<endl;
-       }
-    }
-    cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
-*/
+    fillSummaryObjects();
+    pSummary_->print();
   }
-}
-
-
-//-----------------------------------------------------------------------------------------------
-void SiStripHistoricInfoClient::fillSummaryObjects() {
-//   map<uint32_t, pair<double, double>> ClusterChargeMeanRMS;
-//   map<uint32_t, pair<double, double>> OccupancyMeanRMS;
 }
 
 
@@ -229,9 +206,84 @@ void SiStripHistoricInfoClient::retrievePointersToModuleMEs() const{
 
 
 //-----------------------------------------------------------------------------------------------
-void SiStripHistoricInfoClient::writeToDB() const{
+//  this obligatory method is called whenever the client enters the "Halted" state:
+void SiStripHistoricInfoClient::printMEs() const {
+  cout<<"SiStripHistoricInfoClient::printMEs() : called"<<endl;
+  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+  cout<<"SiStripHistoricInfoClient::printMEs ClientPointersToModuleMEs.size()="<<ClientPointersToModuleMEs.size()<<endl;
+  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+     cout<<"      ++++++detid  "<<imapmes->first<<endl;
+     vector<MonitorElement*> locvec = imapmes->second;
+     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+       cout<<"          ++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
+     }
+/*
+     DaqMonitorBEInterface * dbe_ = mui_->getBEInterface();
+     vector<MonitorElement*> tagged_mes = dbe_->get(imapmes->first);
+     for(vector<MonitorElement*>::const_iterator imep = tagged_mes.begin(); imep != tagged_mes.end() ; imep++){
+       cout<<"tagged_mes++  "<<(*imep)->getName()<<" entries/mean/rms : "<<(*imep)->getEntries()<<" / "<<(*imep)->getMean()<<" / "<<(*imep)->getRMS()<<endl;
+     }
+*/
+  }
+  cout<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<endl;
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::fillSummaryObjects() const {
+  cout<<"SiStripHistoricInfoClient::fillSummaryObjects() : called"<<endl;
+  for(std::map<uint32_t , vector<MonitorElement *> >::iterator imapmes = ClientPointersToModuleMEs.begin(); imapmes != ClientPointersToModuleMEs.end(); imapmes++){
+     uint32_t local_detid = imapmes->first;
+     vector<MonitorElement*> locvec = imapmes->second;
+     for(vector<MonitorElement*>::const_iterator imep = locvec.begin(); imep != locvec.end() ; imep++){
+       std::string MEName = (*imep)->getName(); unsigned int ipos = MEName.find("ClusterCharge__");
+       if(ipos != std::string::npos){
+         std::vector<float> summary_values;
+         summary_values.push_back((*imep)->getEntries());
+         summary_values.push_back((*imep)->getMean());
+         summary_values.push_back((*imep)->getRMS());
+         pSummary_->setDet(local_detid, summary_values);
+       }
+     }
+  }
+}
+
+
+//-----------------------------------------------------------------------------------------------
+void SiStripHistoricInfoClient::writeToDB() const {
+/* // old TStore stuff
    TSQLServer  *dbserver = TSQLServer::Connect("oracle://devb10","CMS_TRACKER_GBRUNO","client4histoplot");
    TSQLResult* res = dbserver->Query( "SELECT * FROM PEDESTALS");
    delete res;
    delete dbserver;
+*/
+  bool appendMode_ = false;
+  edm::Service<cond::service::PoolDBOutputService> mydbservice;
+  if( mydbservice.isAvailable() ){
+    try{
+
+      unsigned long long tillTime;
+      if ( appendMode_){
+        tillTime = mydbservice->currentTime();
+      } else {
+        tillTime = mydbservice->endOfTime();
+      }
+      std::cout<<"SiStripHistoricInfoClient::writeToDB tillTime = " << tillTime << std::endl;
+
+      if( mydbservice->isNewTagRequest("SiStripPerformanceSummaryRcd") ){
+        mydbservice->createNewIOV<SiStripPerformanceSummary>(pSummary_,mydbservice->endOfTime(),"SiStripPerformanceSummaryRcd");      
+      } else {
+        mydbservice->appendSinceTime<SiStripPerformanceSummary>(pSummary_,mydbservice->currentTime(),"SiStripPerformanceSummaryRcd");      
+      }
+    }catch(const cond::Exception& er){
+      std::cout<<"error SiStripHistoricInfoClient::writeToDB "<<er.what()<<std::endl;
+    }catch(const std::exception& er){
+      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB caught std::exception "<<er.what()<<std::endl;
+    }catch(...){
+      std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB strange error"<<std::endl;
+    }
+  }else{
+    std::cout<<"ERROR SiStripHistoricInfoClient::writeToDB PoolDBOutputService is unavailable"<<std::endl;
+  }
 }
+
