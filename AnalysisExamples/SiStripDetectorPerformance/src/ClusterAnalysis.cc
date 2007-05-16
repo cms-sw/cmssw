@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/15 22:46:44 $
- * $Revision: 1.22 $
+ * $Date: 2007/05/16 09:33:02 $
+ * $Revision: 1.23 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -906,7 +906,9 @@ namespace cms{
       }
       
       fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
-		   _HitDir._LV.theta().value()>Geom::pi()/2?Geom::pi()-_HitDir._LV.theta().value():_HitDir._LV.theta().value(),
+		   _HitDir._LV.theta().value()>Geom::pi()/2 ? 
+		   (Geom::pi()-_HitDir._LV.theta().value())*180/Geom::pi() :
+		   _HitDir._LV.theta().value()*180/Geom::pi(),
 		   "AngleVsPhi"+appString+"_onTrack",0);
     }      
     return true;
