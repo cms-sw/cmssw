@@ -42,20 +42,21 @@ public :
 
 private :
   TSOS                updatedTSOS; 
-  const TM*           theNewTM;
+  const TM*           outerTM;
   recHitContainer     _hits;
   bool                isValid_;
   ConstRecHitPointer innerHit;
   ConstRecHitPointer outerHit;
   boost::shared_ptr<PTrajectoryStateOnDet> pTraj;
 
-  edm::ESHandle<TrackerGeometry>                 tracker;
   const Propagator*                              thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder>  theBuilder;
+  edm::ESHandle<TrackerGeometry>                 pDD;
 
   bool construct();
 
   double rescaleDirectionFactor;
   double rescalePositionFactor;
+  double rescaleCurvatureFactor;
 };
 #endif

@@ -22,6 +22,7 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=boost>
+<flags CXXFLAGS="-g">
 <flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/TrackReco>

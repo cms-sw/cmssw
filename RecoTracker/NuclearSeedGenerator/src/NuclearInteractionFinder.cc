@@ -23,14 +23,12 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTrackerHandle;
 
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
-   es.get<TrackingComponentsRecord>().get("KFUpdator",upd);
    es.get<TrackingComponentsRecord>().get("Chi2",est);
    es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
 
    thePropagator = prop.product();
-   theUpdator = upd.product();
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
    theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);

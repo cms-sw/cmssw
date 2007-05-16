@@ -11,55 +11,75 @@
 
 SeedFromNuclearInteraction::SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig) : 
 rescaleDirectionFactor(iConfig.getParameter<double>("rescaleDirectionFactor")),
-rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")) {
+rescalePositionFactor(iConfig.getParameter<double>("rescalePositionFactor")),
+rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")) {
 
   edm::ESHandle<Propagator>  thePropagatorHandle;
   es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",thePropagatorHandle);
   thePropagator = &(*thePropagatorHandle);
-  es.get<TrackerDigiGeometryRecord>().get(tracker);
   es.get<TransientRecHitRecord>().get("WithTrackAngle",theBuilder);
   isValid_=true;
+
+  es.get<TrackerDigiGeometryRecord> ().get (pDD);
 }
 
 //----------------------------------------------------------------------
-void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint, const TM& outerTM) {
-
-       // increase errors on the initial TSOS
-       updatedTSOS = stateWithError(tmAtInteractionPoint.updatedState());
-       theNewTM = &outerTM;
+void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint, const TM& theNewTM) {
 
        // delete pointer to TrackingRecHits
        _hits.clear();
 
        // get the inner and outer transient TrackingRecHits
        innerHit = tmAtInteractionPoint.recHit().get();
-       outerHit = outerTM.recHit().get();
+       outerHit = theNewTM.recHit().get();
 
        _hits.push_back( innerHit->hit()->clone() );
        _hits.push_back( outerHit->hit()->clone() );
+
+       // increase errors on the initial TSOS
+       updatedTSOS = stateWithError(tmAtInteractionPoint.updatedState());
+       outerTM = &theNewTM;
+
 
        isValid_ = construct();
 }
 
 //----------------------------------------------------------------------
 TrajectoryStateOnSurface SeedFromNuclearInteraction::stateWithError(const TSOS& state) const {
-   // Modification of the momentum = ~infinite
-   LocalTrajectoryParameters ltp = state.localParameters();
-   AlgebraicVector5 v = ltp.vector();
-   v[0] = 1E-8;
-   LocalTrajectoryParameters newltp(v, ltp.pzSign(), true);
+   // Calculation of the curvature assuming that the secondary track has the same direction
+   // than the primary track and pass through the inner and outer hits.
+   const double PI = 3.1415926;
+   GlobalVector direction = state.globalDirection();
+   GlobalPoint inner = state.globalPosition();
+   double x1 = inner.x();
+   double y1 = inner.y();
+   //LogDebug("NuclearSeedGenerator") << "test 1b : " << outerHit->geographicalId() <<" \n";
+ 
+   GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
+   double x2 = outer.x();
+   double y2 = outer.y();
+   double alpha1 = (direction.y() != 0) ? atan(-direction.x()/direction.y()) : PI/2 ;
+   double denominator = 2*((x1-x2)*cos(alpha1)+(y1-y2)*sin(alpha1));
+   double R = (denominator != 0) ? ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))/denominator : 1E12;
+   double transverseCurvature = 1/R;
 
-   AlgebraicSymMatrix55 m(state.localError().matrix());
-   m(0,0)=m(0,0)*1E6; 
+   // Get the global parameters of the trajectory
+   GlobalTrajectoryParameters gtp(state.globalPosition(), direction, transverseCurvature, 0, &(state.globalParameters().magneticField()));
+
+   // Rescale the error matrix
+   TSOS result(gtp, state.cartesianError(), state.surface(), state.surfaceSide());
+   AlgebraicSymMatrix55 m(result.localError().matrix());
+   m(0,0)=m(0,0)*rescaleCurvatureFactor*rescaleCurvatureFactor;
    m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
    m(2,2)=m(2,2)*rescalePositionFactor*rescalePositionFactor;
-   return TSOS(newltp, m, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
+
+   return TSOS(result.localParameters(), LocalTrajectoryError(m), result.surface(), &(result.globalParameters().magneticField()), result.surfaceSide());
 }
 
 //----------------------------------------------------------------------
 bool SeedFromNuclearInteraction::construct() {
 
-   TSOS outerState = theNewTM->updatedState();
+   TSOS outerState = outerTM->updatedState();
    updatedTSOS = thePropagator->propagate(updatedTSOS, outerState.surface());
 
    if ( !updatedTSOS.isValid()) { 
@@ -67,7 +87,7 @@ bool SeedFromNuclearInteraction::construct() {
            return false; }
 
    KFUpdator     theUpdator;
-   updatedTSOS = theUpdator.update( updatedTSOS, *(theNewTM->recHit()));
+   updatedTSOS = theUpdator.update( updatedTSOS, *(outerTM->recHit()));
 
    if ( !updatedTSOS.isValid()) { 
           LogDebug("SeedFromNuclearInteraction") << "Propagated state is invalid" << "\n";

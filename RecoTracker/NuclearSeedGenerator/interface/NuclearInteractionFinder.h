@@ -48,14 +48,12 @@ public:
 private:
 
   const Propagator*               thePropagator;
-  const TrajectoryStateUpdator*   theUpdator;
   const MeasurementEstimator*     theEstimator;
   const MeasurementTracker*       theMeasurementTracker;
   const LayerMeasurements*        theLayerMeasurements;
   const GeometricSearchTracker*   theGeomSearchTracker;
   const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
-  edm::ESHandle<TrackerGeometry>  trackerGeom;
 
   NuclearTester*  nuclTester;
 
