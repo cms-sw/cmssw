@@ -215,11 +215,11 @@ void writeProfileData(int fd, const std::string& prefix)
 
       while(c!=e)
 	{
-	  unsigned int value = reinterpret_cast<unsigned int>(*c);
+	  Sym::address_type value = reinterpret_cast<Sym::address_type>(*c);
 
 	  const Sym* entry = 0;
 	  Dl_info info;
-	  void* addr = (void*)value;
+	  void* addr = static_cast<void*>(value);
 
 	  if(dladdr(addr,&info)!=0)
 	    {
@@ -228,7 +228,7 @@ void writeProfileData(int fd, const std::string& prefix)
 	      last_good_entry.name_    = name;
 	      last_good_entry.library_ = info.dli_fname;
 	      last_good_entry.id_      = 0;
-	      unsigned int function_address = (unsigned int)info.dli_saddr;
+	      void* function_address = info.dli_saddr;
 
 	      // If we find the address of this function, we make  a
 	      // unique VertexTracker for that function. If not,  we
@@ -245,7 +245,7 @@ void writeProfileData(int fd, const std::string& prefix)
 		   << endl;
 
 	      std::ostringstream oss;
-	      oss << "lookup_failure_" << (void*)addr;
+	      oss << "lookup_failure_" << addr;
 	      last_none_entry.name_    = oss.str();
 	      last_none_entry.library_ = "unknown";
 	      last_none_entry.id_      = Sym::next_id_++;

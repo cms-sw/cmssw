@@ -18,7 +18,7 @@ class SimpleProfiler
   void start();
   void stop();
 
-  unsigned int* stackTop() { return stacktop_; }
+  void* stackTop() { return stacktop_; }
   void** tempStack() { return &tmp_stack_[0]; }
   void commitFrame(void** first, void** last);
 
@@ -41,7 +41,7 @@ class SimpleProfiler
   bool installed_;
   bool running_;
   pthread_t owner_;
-  unsigned int* stacktop_;
+  void* stacktop_;
 };
 
 #endif

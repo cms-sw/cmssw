@@ -169,6 +169,8 @@ extern "C"
   void sigFunc(int sig, siginfo_t* info, void* context)
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+    return;
+#else
     int condition = 0;
     //fprintf(stderr, "--------------------\n");
     unsigned int* this_sp;
@@ -180,7 +182,7 @@ extern "C"
     SimpleProfiler* prof = SimpleProfiler::instance();
     ucontext_t* ucp = (ucontext_t*)context;
     unsigned char* eip=(unsigned char*)ucp->uc_mcontext.gregs[REG_EIP];
-    unsigned int* stacktop = prof->stackTop();
+    void* stacktop = prof->stackTop();
     void** arr = prof->tempStack();
 
 #if 0
@@ -277,7 +279,7 @@ extern "C"
 	  {
 	    dumpStack("---------------------\n", esp,ebp,eip);
 
-	    if ( (void*)eip > (void*)stacktop)
+	    if ( (void*)eip > stacktop)
 	      {
 		// The current function had no stack frame.
 		condition += 16;
@@ -305,7 +307,7 @@ extern "C"
 	      }
 	  }
       
-	if (ebp<stacktop == false) 
+	if (ebp<reinterpret_cast<unsigned int*>(stacktop) == false) 
 	  fprintf(stderr, "--- not going through the loop this time\n");
 
 	//if (condition!=0) fprintf(stderr, "bad condition: %d\n", condition);
@@ -347,7 +349,6 @@ extern "C"
   }
 }
 
-
 namespace
 {
   
@@ -355,9 +356,12 @@ namespace
 
   void setupTimer();
 
-  unsigned int* setStacktop()
+  void* setStacktop()
   {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+    throw std::logic_error("setStacktop not callable on 64 bit platform");
+    return 0;
+#else
     const string target_name("__libc_start_main");
     unsigned int* ebp_reg;
     getBP(ebp_reg);
@@ -428,14 +432,11 @@ namespace
     top=(unsigned int*)(*top);
 
     return top;
-#else
-    return 0;
 #endif
   }
 
   void setupTimer()
   {
-#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
 #if USE_SIGALTSTACK
     static std::vector<char> charbuffer(SIGSTKSZ);
     //ss_area.ss_sp = new char[SIGSTKSZ];
@@ -452,6 +453,7 @@ namespace
     MUST_BE_ZERO(sigfillset(&myset));
     MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&myset,&oldset));
 
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     // ignore all the RT signals
     struct sigaction tmpact;
     memset(&tmpact,0,sizeof(tmpact));
@@ -462,6 +464,7 @@ namespace
 	MUST_BE_ZERO(sigaddset(&oldset,num));
 	MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }
+#endif
 
 #if USE_SIGALTSTACK
     if(sigaltstack(&ss_area,0)!=0)
@@ -522,7 +525,6 @@ namespace
     // reenable the signals, including my interval timer
     MUST_BE_ZERO(sigdelset(&oldset,mysig));
     MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&oldset,0));
-#endif
   }
 
 
@@ -530,7 +532,6 @@ namespace
   {
     AdjustSigs()
     {
-#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
       sigset_t myset,oldset;
       // all blocked for now
       MUST_BE_ZERO(sigfillset(&myset));
@@ -541,15 +542,16 @@ namespace
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
     
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
       for(int num=SIGRTMIN;num<SIGRTMAX;++num)
 	{
 	  MUST_BE_ZERO(sigaddset(&oldset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
 	}
+#endif
     
       MUST_BE_ZERO(sigaddset(&oldset,SIGPROF));
       MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&oldset,0));
-#endif
     }
   };
 
@@ -612,8 +614,8 @@ SimpleProfiler::~SimpleProfiler()
 
 void SimpleProfiler::commitFrame(void** first, void** last)
 {
-  unsigned int* cnt_ptr = (unsigned int*)curr_; 
-  *cnt_ptr = distance(first,last);
+  void** cnt_ptr = curr_; 
+  *cnt_ptr = reinterpret_cast<void*>(distance(first,last));
   ++curr_;
   curr_ = copy(first,last,curr_);
   if(curr_ > high_water_) doWrite();
@@ -641,7 +643,7 @@ void SimpleProfiler::start()
 {
 #if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
   throw std::logic_error("SimpleProfiler not available on 64 bit platform");
-#else
+#endif
   {
     boost::mutex::scoped_lock sl(lock_);
 
@@ -661,7 +663,6 @@ void SimpleProfiler::start()
   owner_ = pthread_self();
   setupTimer();
   running_ = true;
-#endif
 }
 
 void SimpleProfiler::stop()

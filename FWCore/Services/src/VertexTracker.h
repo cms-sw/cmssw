@@ -10,6 +10,7 @@
 // ------------------- Vertex Tracker class ----------------
 struct VertexTracker
 {
+  typedef void* address_type;
   VertexTracker():
     name_(),
     library_(),
@@ -36,7 +37,7 @@ struct VertexTracker
     percent_path_(0.0)
   { }
 
-  VertexTracker(unsigned int addr, const std::string& name):
+  VertexTracker(address_type addr, const std::string& name):
     name_(name),
     library_(),
     addr_(addr),
@@ -88,7 +89,7 @@ struct VertexTracker
 
   std::string name_;
   std::string library_;
-  unsigned int addr_;
+  address_type addr_;
   mutable unsigned int id_;
   mutable unsigned int total_as_leaf_;
   mutable unsigned int total_seen_;

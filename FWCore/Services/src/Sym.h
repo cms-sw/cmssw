@@ -8,11 +8,13 @@
 
 struct Sym
 {
+  typedef void* address_type;
+
   Sym(Dl_info const& info, void* addr) :
     name_(),
     library_(),
     id_(),
-    addr_(reinterpret_cast<unsigned int>(addr))
+    addr_(reinterpret_cast<address_type>(addr))
   {
     
   }
@@ -36,12 +38,12 @@ struct Sym
   std::string  name_;
   std::string  library_;
   int          id_;
-  unsigned int addr_;
+  address_type addr_;
 
   static int next_id_;
 
   bool 
-  operator<(unsigned int b) const
+  operator<(address_type b) const
   { return addr_ < b; }
 
   bool 
@@ -54,7 +56,7 @@ operator<< (std::ostream& os, Sym const& s);
 
 inline 
 bool 
-operator<(unsigned int a, const Sym& b)
+operator<(Sym::address_type a, const Sym& b)
 { return a < b.addr_; }
 
 
