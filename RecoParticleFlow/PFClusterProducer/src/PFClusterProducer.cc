@@ -1,5 +1,7 @@
 #include "RecoParticleFlow/PFClusterProducer/interface/PFClusterProducer.h"
 
+#include <memory>
+
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
@@ -963,41 +965,36 @@ PFClusterProducer::findRecHitNeighbours
   double posy = cpos.Y();
   double posz = cpos.Z();
 
-  
-
   DetId detid( rh.detId() );
 
-  CaloNavigator<DetId>* navigator = 0;
+  CaloNavigator<DetId>* p_navigator = 0;
   CaloSubdetectorGeometry* geometry = 0;
   CaloSubdetectorGeometry* othergeometry = 0;
-
-
-
   
   switch( rh.layer()  ) {
   case PFLayer::ECAL_ENDCAP: 
-    navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
+    p_navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     break;
   case PFLayer::ECAL_BARREL: 
-    navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
+    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
     break;
   case PFLayer::HCAL_ENDCAP:
-    navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
+    p_navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     othergeometry 
       = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
     break;
   case PFLayer::HCAL_BARREL1:
-    navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
+    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
     othergeometry 
       = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
     break;
   case PFLayer::PS1:
   case PFLayer::PS2:
-    navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
+    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
     geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
     othergeometry 
       = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
@@ -1006,8 +1003,9 @@ PFClusterProducer::findRecHitNeighbours
     assert(0);
   }
 
-  assert( navigator && geometry );
+  assert( p_navigator && geometry );
 
+  std::auto_ptr<CaloNavigator<DetId> > navigator(p_navigator);
 
   DetId north = navigator->north();  
   
