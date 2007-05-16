@@ -168,6 +168,7 @@ extern "C"
 {
   void sigFunc(int sig, siginfo_t* info, void* context)
   {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     int condition = 0;
     //fprintf(stderr, "--------------------\n");
     unsigned int* this_sp;
@@ -342,7 +343,7 @@ extern "C"
       }
     //writeCond(condition)
     prof->commitFrame((void**)fir,(void**)cur);    
-
+#endif
   }
 }
 
@@ -356,6 +357,7 @@ namespace
 
   unsigned int* setStacktop()
   {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
     const string target_name("__libc_start_main");
     unsigned int* ebp_reg;
     getBP(ebp_reg);
@@ -426,10 +428,14 @@ namespace
     top=(unsigned int*)(*top);
 
     return top;
+#else
+    return 0;
+#endif
   }
 
   void setupTimer()
   {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
 #if USE_SIGALTSTACK
     static std::vector<char> charbuffer(SIGSTKSZ);
     //ss_area.ss_sp = new char[SIGSTKSZ];
@@ -516,6 +522,7 @@ namespace
     // reenable the signals, including my interval timer
     MUST_BE_ZERO(sigdelset(&oldset,mysig));
     MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&oldset,0));
+#endif
   }
 
 
@@ -523,6 +530,7 @@ namespace
   {
     AdjustSigs()
     {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
       sigset_t myset,oldset;
       // all blocked for now
       MUST_BE_ZERO(sigfillset(&myset));
@@ -541,6 +549,7 @@ namespace
     
       MUST_BE_ZERO(sigaddset(&oldset,SIGPROF));
       MUST_BE_ZERO(pthread_sigmask(SIG_SETMASK,&oldset,0));
+#endif
     }
   };
 
@@ -630,6 +639,9 @@ void SimpleProfiler::doWrite()
 
 void SimpleProfiler::start()
 {
+#if defined(__x86_64__) || defined(__LP64__) || defined(_LP64)
+  throw std::logic_error("SimpleProfiler not available on 64 bit platform");
+#else
   {
     boost::mutex::scoped_lock sl(lock_);
 
@@ -649,6 +661,7 @@ void SimpleProfiler::start()
   owner_ = pthread_self();
   setupTimer();
   running_ = true;
+#endif
 }
 
 void SimpleProfiler::stop()
