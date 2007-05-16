@@ -8,12 +8,13 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: AutoLibraryLoader.cc,v 1.17 2007/04/09 23:05:30 chrjones Exp $
+// $Id: AutoLibraryLoader.cc,v 1.18 2007/05/16 14:32:32 chrjones Exp $
 //
 
 // system include files
 #include <iostream>
 #include "TROOT.h"
+#include "TInterpreter.h"
 
 // user include files
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
@@ -56,6 +57,32 @@ AutoLibraryLoader::enable()
    // so that the Reflex dictionaries will be converted to ROOT 
    // dictionaries and the TClass we need will be available
    fwlite::setRefStreamer(&s_getter);
+   
+   //Make it easy to load our headers
+   TInterpreter* intrp= gROOT->GetInterpreter();
+   bool foundCMSIncludes = false;
+   const char* env = getenv("CMSSW_BASE");
+   if( 0 != env) {
+     foundCMSIncludes = true;
+     std::string dir(env);
+     dir += "/src";
+     intrp->AddIncludePath(dir.c_str());
+   }
+
+   env = getenv("CMSSW_RELEASE_BASE");
+   if( 0 != env) {
+     foundCMSIncludes = true;
+     std::string dir(env);
+     dir += "/src";
+     intrp->AddIncludePath(dir.c_str());
+   }
+   if( not foundCMSIncludes) {
+     std::cerr <<"Could not find the environment variables \n"
+     <<"  CMSSW_BASE or\n"
+     <<"  CMSSW_RELEASE_BASE\n"
+     <<" therefore attempting to '#include' any CMS headers will not work"<<std::endl;
+   }
+   
 }
 
 
