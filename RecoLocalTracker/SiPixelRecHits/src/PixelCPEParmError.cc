@@ -128,9 +128,9 @@ PixelCPEParmError::xpos(const SiPixelCluster& cluster) const {
   
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, imin, imax);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
+  float q1 = 0.;
+  float q2 = 0.;
+  xCharge(pixelsVec, imin, imax, q1, q2); // get q1 and q2
   
   // Estimate the charge width from track angle
   float width = chargeWidthX() * thePitchX; // chargewidth still in pitch units
@@ -179,8 +179,8 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
   //calculate center
   int imin = cluster.minPixelCol();
   int imax = cluster.maxPixelCol();
-  float min = float(imin) + 0.5; // center of the edge
-  float max = float(imax) + 0.5; // center of the edge
+  //float min = float(imin) + 0.5; // center of the edge
+  //float max = float(imax) + 0.5; // center of the edge
   float minEdge = theTopol->localY(float(imin+1)); // left inner edge
   float maxEdge = theTopol->localY(float(imax));   // right inner edge
   float center = (minEdge + maxEdge)/2.; // center of inner part in LC
@@ -188,9 +188,9 @@ PixelCPEParmError::ypos(const SiPixelCluster& cluster) const
     
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = yCharge(pixelsVec, min, max);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
+  float q1 = 0.;
+  float q2 = 0.;
+  yCharge(pixelsVec, imin, imax, q1, q2);
     
   // Estimate the charge width using the track angle
   float width = (chargeWidthY()) * thePitchY;

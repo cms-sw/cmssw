@@ -190,9 +190,9 @@ PixelCPEInitial::xpos(const SiPixelCluster& cluster) const {
    
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = xCharge(pixelsVec, imin, imax);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
+  float q1 = 0.;
+  float q2 = 0.;
+  xCharge(pixelsVec, imin, imax, q1, q2); // get q1 and q2
    
   // Estimate the charge width. main contribution + 2nd order geom corr.
   float tmp = (max+min)/2.;
@@ -240,9 +240,9 @@ PixelCPEInitial::ypos(const SiPixelCluster& cluster) const {
    
   // get the charge in the edge pixels
   const vector<SiPixelCluster::Pixel>& pixelsVec = cluster.pixels();
-  vector<float> chargeVec = yCharge(pixelsVec, imin, imax);
-  float q1 = chargeVec[0];
-  float q2 = chargeVec[1];
+  float q1 = 0.;
+  float q2 = 0.;
+  yCharge(pixelsVec, imin, imax, q1, q2);
     
   float pitch1 = thePitchY;
   float pitch2 = thePitchY;

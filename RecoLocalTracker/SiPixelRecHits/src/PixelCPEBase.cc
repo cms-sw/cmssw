@@ -363,65 +363,51 @@ float PixelCPEBase::lorentzShiftY() const
 //  a vector of three elements with q_first, q_last and q_total.
 //  &&& Really need a simpler & cleaner way, this is very confusing...
 //-----------------------------------------------------------------------------
-vector<float> 
-PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
-		      const int& imin, const int& imax) const {
-  vector<float> charge; 
-  
+void PixelCPEBase::xCharge(const vector<SiPixelCluster::Pixel>& pixelsVec, 
+			   const int& imin, const int& imax,
+			   float& q1, float& q2) const {
   //calculate charge in the first and last pixel in y
   // and the total cluster charge
-  float q1 = 0.0; 
-  float q2 = 0.0;
+  q1 = 0.0; 
+  q2 = 0.0;
   float qm = 0.0;
   int isize = pixelsVec.size();
-  for (int i=0;  i<isize; ++i) 
-    {
-      if ( int(pixelsVec[i].x) == imin )
-	q1 += pixelsVec[i].adc;
-      else if ( int(pixelsVec[i].x) == imax) 
-	q2 += pixelsVec[i].adc;
-      else 
-	qm += pixelsVec[i].adc;
-    }
-  charge.clear();
-  charge.push_back(q1); 
-  charge.push_back(q2); 
-  charge.push_back(qm);
-  return charge;
+  for (int i=0;  i<isize; ++i) {
+    if ( int(pixelsVec[i].x) == imin )
+      q1 += pixelsVec[i].adc;
+    else if ( int(pixelsVec[i].x) == imax) 
+      q2 += pixelsVec[i].adc;
+    else 
+      qm += pixelsVec[i].adc;
+  }
+  return;
 } 
-
 //-----------------------------------------------------------------------------
 //  Sum the pixels in the first and the last column, and the total.  Returns
 //  a vector of three elements with q_first, q_last and q_total.
 //  &&& Really need a simpler & cleaner way, this is very confusing...
 //-----------------------------------------------------------------------------
-vector<float> 
-PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
-		      const int& imin, const int& imax) const {
-  vector<float> charge; 
+void PixelCPEBase::yCharge(const vector<SiPixelCluster::Pixel>& pixelsVec,
+			   const int& imin, const int& imax,
+			   float& q1, float& q2) const {
   
   //calculate charge in the first and last pixel in y
   // and the inner cluster charge
-  float q1 = 0, q2 = 0, qm=0;
+  q1 = 0;
+  q2 = 0;
+  float qm=0;
   int isize = pixelsVec.size();
-  for (int i=0;  i<isize; ++i) 
-    {
-      if ( int(pixelsVec[i].y) == imin) 
-	q1 += pixelsVec[i].adc;
-      else if ( int(pixelsVec[i].y) == imax) 
-	q2 += pixelsVec[i].adc;
-      //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
-      else  
-	qm += pixelsVec[i].adc;
-    }
-  charge.clear();
-  charge.push_back(q1); 
-  charge.push_back(q2); 
-  charge.push_back(qm);
-  
-  return charge;
+  for (int i=0;  i<isize; ++i) {
+    if ( int(pixelsVec[i].y) == imin) 
+      q1 += pixelsVec[i].adc;
+    else if ( int(pixelsVec[i].y) == imax) 
+      q2 += pixelsVec[i].adc;
+    //else if (pixelsVec[i].y < ymax && pixelsVec[i].y > ymin ) 
+    else  
+      qm += pixelsVec[i].adc;
+  }
+  return;
 } 
-
 //-----------------------------------------------------------------------------
 //  Drift direction.
 //  Works OK for barrel and forward.
