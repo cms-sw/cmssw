@@ -13,6 +13,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   //
   mapProcesses["Primary"] = "Primary";
   // nuclear stuff
+  mapProcesses["HadronCapture"]  = "Hadronic";
   mapProcesses["AntiNeutronInelastic"] = "Hadronic";
   mapProcesses["PositronNuclear"] = "Hadronic";
   mapProcesses["ElectroNuclear"] = "Hadronic";
