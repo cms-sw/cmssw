@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.10 2007/03/04 05:25:01 wmtan Exp $
+$Id: test.cppunit.cpp,v 1.1 2007/05/16 14:37:44 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -46,7 +46,7 @@ public:
       gSystem->Load("libFWCoreFWLite.so");
       AutoLibraryLoader::enable();
       
-      char* argv[] = {"testFWCoreFWLite","/bin/bash","FWCore/FWLite/test","RefTest.sh"};
+      char* argv[] = {"TestRunnerDataFormatsFWLite","/bin/bash","DataFormats/FWLite/test","RefTest.sh"};
       argv[0] = gArgV;
       if(0!=ptomaine(sizeof(argv)/sizeof(const char*), argv) ) {
         std::cerr <<"could not run script needed to make test files\n";
