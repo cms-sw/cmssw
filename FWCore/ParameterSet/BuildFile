@@ -1,18 +1,19 @@
+<use name=boost_python>
+<use name=boost>
 <use name=Foundation/SealZip>
-<use name=DataFormats/Provenance>
 <use name=FWCore/Utilities>
 <use name=FWCore/PluginManager>
 <use name=FWCore/MessageLogger>
-<use name=boost>
-<use name=boost_filesystem> 
-<use name=boost_python>
-<use name=boost_regex> 
+<use name=DataFormats/Common>
+<use name=boost_filesystem>
+<use name=boost_regex>
+
 <export>
- <use name=DataFormats/Provenance>
+ <lib name=FWCoreParameterSet>
  <use name=FWCore/Utilities>
  <use name=FWCore/PluginManager>
+ <use name=DataFormats/Common>
  <use name=boost_python>
  <use name=boost>
- <lib name=FWCoreParameterSet>
 </export>
 
