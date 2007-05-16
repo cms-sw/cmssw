@@ -13,7 +13,7 @@
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Fri Apr 27 17:05:15 CEST 2007
-// $Id$
+// $Id: MuEnrichType1Filter.cc,v 1.1 2007/05/14 14:33:42 muriel Exp $
 //
 //
 
@@ -74,7 +74,6 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    using namespace std;
    using namespace HepMC;
-   if (type !=1 ) return true;
 
    Handle< HepMCProduct > EvtHandle ;
    iEvent.getByLabel( "VtxSmeared", EvtHandle ) ;
@@ -87,11 +86,19 @@ MuEnrichType1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 if ( abs((*part)->pdg_id()) == 13 ) {
 	   double pt=(*part)->momentum().perp();
            edm::LogVerbatim ("MuEnrichFltr")  << "Found a muon with pt"<<pt;
-	   if ( pt>4 ) {
+	   if ( pt>4 && type == 1) {
 	     nrejected++;
 	     return false;
 	     break;
-	   }
+	   } else if ( pt>2 && pt<4 && type == 2 ) {
+	     nrejected++;
+	     return false;
+	     break;
+	   } else if ( pt>2 && pt<10 && type == 3 ) {
+	     nrejected++;
+	     return false;
+	     break;
+	   } 
 	 }
        }
    }
@@ -114,3 +121,4 @@ MuEnrichType1Filter::endJob() {
 }
 
 //define this as a plug-in
+DEFINE_FWK_MODULE(MuEnrichType1Filter);

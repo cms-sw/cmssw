@@ -90,3 +90,4 @@ void MuEnrichRenormalizer::endJob()
   return ;
 }
  
+DEFINE_FWK_MODULE(MuEnrichRenormalizer);
