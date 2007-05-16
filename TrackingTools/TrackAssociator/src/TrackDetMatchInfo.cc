@@ -294,22 +294,22 @@ double TrackDetMatchInfo::nXnEnergy(EnergyType type, int gridSize )
     case TowerHcal:
     case TowerEcal:
     case TowerHO:
-      if( crossedTowerIds.empty() ) return -9999;
+      if( crossedTowerIds.empty() ) return 0;
       if( crossedTowers.empty() ) return nXnEnergy(crossedTowerIds.front(), type, gridSize);
       return nXnEnergy(crossedTowers.front().id(), type, gridSize);
       break;
     case EcalRecHits:
-      if( crossedEcalIds.empty() ) return -9999;
+      if( crossedEcalIds.empty() ) return 0;
       if( crossedEcalRecHits.empty() )	return nXnEnergy(crossedEcalIds.front(), type, gridSize);
       return nXnEnergy(crossedEcalRecHits.front().id(), type, gridSize);
       break;
     case HcalRecHits:
-      if( crossedHcalIds.empty() ) return -9999;
+      if( crossedHcalIds.empty() ) return 0;
       if( crossedHcalRecHits.empty() )	return nXnEnergy(crossedHcalIds.front(), type, gridSize);
       return nXnEnergy(crossedHcalRecHits.front().id(), type, gridSize);
       break;
     case HORecHits:
-      if( crossedHOIds.empty() ) return -9999;
+      if( crossedHOIds.empty() ) return 0;
       if( crossedHORecHits.empty() ) 	return nXnEnergy(crossedHOIds.front(), type, gridSize);
       return nXnEnergy(crossedHORecHits.front().id(), type, gridSize);
       break;

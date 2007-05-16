@@ -14,7 +14,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.h,v 1.7 2007/04/02 17:36:55 dmytro Exp $
+// $Id: TrackDetectorAssociator.h,v 1.8 2007/04/13 03:09:27 dmytro Exp $
 //
 //
 
@@ -125,7 +125,7 @@ class TrackDetectorAssociator {
 					   const FreeTrajectoryState&,
 					   const double dR = -1 );
    /// use a user configured propagator
-   void setPropagator( Propagator* );
+   void setPropagator( const Propagator* );
    
    /// use the default propagator
    void useDefaultPropagator();
@@ -199,7 +199,7 @@ class TrackDetectorAssociator {
 	return math::XYZVector(vec.x(),vec.y(),vec.z());
      }
    
-   Propagator* ivProp_;
+   const Propagator* ivProp_;
    Propagator* defProp_;
    CachedTrajectory cachedTrajectory_;
    bool useDefaultPropagator_;

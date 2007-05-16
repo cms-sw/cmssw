@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.16 2007/05/07 20:50:12 jribnik Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.17 2007/05/09 22:55:46 jribnik Exp $
 //
 //
 
@@ -104,7 +104,7 @@ TrackDetectorAssociator::~TrackDetectorAssociator()
    if (defProp_) delete defProp_;
 }
 
-void TrackDetectorAssociator::setPropagator( Propagator* ptr)
+void TrackDetectorAssociator::setPropagator( const Propagator* ptr)
 {
    ivProp_ = ptr;
    cachedTrajectory_.setPropagator(ivProp_);
@@ -266,9 +266,10 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
    } else ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(trajectory[0], parameters.dREcalPreselection);
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching::cone");
    LogTrace("TrackAssociator") << "ECAL hits in the region: " << ecalIdsInRegion.size();
-   std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, trajectory, parameters.dREcal);
+   if (parameters.dREcalPreselection > parameters.dREcal)
+     ecalIdsInRegion =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, trajectory, parameters.dREcal);
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::matching::crossed");
-   LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInACone.size();
+   LogTrace("TrackAssociator") << "ECAL hits in the cone: " << ecalIdsInRegion.size();
    std::vector<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIdsOrdered(ecalIdsInRegion, trajectory);
    timers.pop();
    LogTrace("TrackAssociator") << "ECAL crossed hits " << crossedEcalIds.size();
@@ -289,7 +290,7 @@ void TrackDetectorAssociator::fillEcal( const edm::Event& iEvent,
          LogTrace("TrackAssociator") << "Crossed EcalRecHit is not found for DetId: " << itr->rawId();
    }
    timers.pop_and_push("TrackDetectorAssociator::fillEcal::addHitsInTheRegion");
-   for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++)
+   for(std::set<DetId>::const_iterator itr=ecalIdsInRegion.begin(); itr!=ecalIdsInRegion.end();itr++)
    {
       std::vector<EcalRecHit>::const_iterator ebHit = (*EBRecHits).find(*itr);
       std::vector<EcalRecHit>::const_iterator eeHit = (*EERecHits).find(*itr);

@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.3 2007/04/02 17:26:01 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.5 2007/04/13 02:52:10 dmytro Exp $
 //
 //
 
@@ -49,7 +49,7 @@ class CachedTrajectory {
    /// delta = final - original
    std::pair<float,float> trajectoryDelta( TrajectorType );
    
-   void setPropagator(Propagator* ptr){	propagator_ = ptr; }
+   void setPropagator(const Propagator* ptr){	propagator_ = ptr; }
    void setStateAtIP(const SteppingHelixStateInfo& state){ stateAtIP_ = state; }
    
    /// get a set of points representing the trajectory between two cylinders
@@ -107,7 +107,7 @@ class CachedTrajectory {
    
    bool fullTrajectoryFilled_;
    
-   Propagator* propagator_;
+   const Propagator* propagator_;
    
    float maxRho_;
    float maxZ_;

@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.9 2007/04/13 02:52:10 dmytro Exp $
+// $Id: CachedTrajectory.cc,v 1.10 2007/05/07 20:45:59 jribnik Exp $
 //
 //
 
@@ -43,7 +43,7 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 				  r21, r22, r23,
 				  r31, r32, r33);
    Surface* target = new Plane(state.position()+vector*distance, rotation);
-   if( SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_) )
+   if( const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_) )
      {
 	try {
 	   state = shp->propagate(state, *target);
@@ -158,7 +158,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane)
      
    // propagate to the plane
    timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
-   if (SteppingHelixPropagator* shp = dynamic_cast<SteppingHelixPropagator*>(propagator_))
+   if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_))
      {
 	SteppingHelixStateInfo state;
 	try { 
