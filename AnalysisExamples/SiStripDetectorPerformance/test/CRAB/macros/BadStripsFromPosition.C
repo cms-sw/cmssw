@@ -151,7 +151,7 @@ void badStripStudy(TH1F *histo){
   for (size_t i=0;i<_cbads_LENGTH;++i)
     memcpy((void*)&cbads[i],(void*)&uno,1);
 
-  if ( histo->GetEntries() == 0 )
+  if ( histo->GetEntries() < 100 )
     return;
 
   std::map<short,StripStruct> mBadStrip;

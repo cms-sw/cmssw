@@ -89,8 +89,8 @@ for path in `ls $Tpath`
   rm -vf SummaryTable.*
   count=0
   TotFlag="ID \t|\t Run \t|\t Module "
-  for file in `ls Asummary_*.txt | grep -v "DBBadStrips"`
-#  for file in `ls Asummary_*.txt `
+#  for file in `ls Asummary_*.txt | grep -v "DBBadStrips"`
+  for file in `ls Asummary_*.txt `
     do
     let count++
     flag=`echo $file | sed -e "s@Asummary_@@g" -e "s@.txt@@g"`
