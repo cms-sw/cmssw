@@ -16,13 +16,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.1 2007/05/10 14:13:56 chrjones Exp $
+// $Id: Event.h,v 1.2 2007/05/12 20:27:06 chrjones Exp $
 //
-
+#ifndef __CINT__
 // system include files
 #include <typeinfo>
 #include <map>
 #include <vector>
+#include <boost/shared_ptr.hpp>
+#include <memory>
 
 #include "TFile.h"
 #include "TTree.h"
@@ -34,8 +36,16 @@
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
 
 // forward declarations
+namespace edm {
+  class EDProduct;
+  class ProductRegistry;
+  class BranchDescription;
+  class EDProductGetter;
+}
+
 namespace fwlite {
   namespace internal {
   class DataKey {
@@ -92,7 +102,14 @@ private:
     Long64_t lastEvent_;
     ROOT::Reflex::Object obj_;
     void * pObj_; //ROOT requires the address of the pointer be stable
+    edm::EDProduct* pProd_;
+    
+    ~Data() {
+      obj_.Destruct();
+    }
   };
+  
+  class ProductGetter;
   }
 class Event
 {
@@ -105,14 +122,15 @@ class Event
 
       const Event& operator++();
 
-      const Event& to(Long64_t);
+      ///Go to the event at index iIndex
+      const Event& to(Long64_t iIndex);
       
       /** Go to the very first Event*/
       const Event& toBegin();
       
       // ---------- const member functions ---------------------
       /** This function should only be called by fwlite::Handle<>*/
-      void getByLabel(const std::type_info&, const char*, const char*, const char*, void*&) const;
+      void getByLabel(const std::type_info&, const char*, const char*, const char*, void*) const;
       //void getByBranchName(const std::type_info&, const char*, void*&) const;
 
       bool isValid() const;
@@ -126,24 +144,38 @@ class Event
       // ---------- member functions ---------------------------
 
    private:
+        friend class internal::ProductGetter;
+      
       Event(const Event&); // stop default
 
       const Event& operator=(const Event&); // stop default
 
       const edm::ProcessHistory& history() const;
+      
+      edm::EDProduct const* getByProductID(edm::ProductID const&) const;
       // ---------- member data --------------------------------
       TFile* file_;
       TTree* eventTree_;
       Long64_t eventIndex_;
 
-      mutable std::map<internal::DataKey, internal::Data> data_;
+      typedef std::map<internal::DataKey, boost::shared_ptr<internal::Data> > KeyToDataMap;
+      mutable KeyToDataMap data_;
       //takes ownership of the strings used by the DataKey keys in data_
       mutable std::vector<const char*> labels_;
       mutable edm::ProcessHistoryMap historyMap_;
       mutable edm::EventAuxiliary aux_;
       edm::EventAuxiliary* pAux_;
-      TBranch* auxBranch_; 
+      TBranch* auxBranch_;
+      
+      //references data in data_;
+      mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 
+      mutable edm::ProductRegistry* prodReg_;
+      //references branch descriptions in prodReg_;
+      mutable std::map<edm::ProductID,const edm::BranchDescription*> idToBD_;
+      
+      std::auto_ptr<edm::EDProductGetter> getter_;
 };
 
 }
+#endif /*__CINT__ */
 #endif
