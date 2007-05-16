@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.2 2007/05/15 18:31:33 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.3 2007/05/16 00:36:14 jribnik Exp $
 //
 //
 
@@ -36,6 +36,7 @@
 #include "RecoMuon/MuonIdentification/interface/MuonArbitrationMethods.h"
 
 #include "RecoMuon/MuonIsolation/interface/MuIsoExtractorFactory.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include <algorithm>
 
@@ -93,8 +94,6 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
      << "========================================================================\n" 
      << "Debugging mode with truth matching is turned on!!! Make sure you understand what you are doing!\n"
      << "========================================================================\n";
-   
-   trackAssociator_.useDefaultPropagator();
 }
 
 
@@ -105,9 +104,19 @@ MuonIdProducer::~MuonIdProducer()
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+   TimerStack timers;
+   timers.push("MuonIdProducer::produce::init");
+   timers.push("MuonIdProducer::produce::init::getPropagator");
+   edm::ESHandle<Propagator> propagator;
+   iSetup.get<TrackingComponentsRecord>().get("SteppingHelixPropagatorAny", propagator);
+   trackAssociator_.setPropagator(propagator.product());
+   
+   timers.pop_and_push("MuonIdProducer::produce::init::getInputCollections");
    try { iEvent.getByLabel(inputTrackCollectionLabel_, trackCollectionHandle_); } catch(...){} ;
    try { iEvent.getByLabel(inputMuonCollectionLabel_, muonCollectionHandle_); } catch(...){} ;
    try { iEvent.getByLabel(inputLinkCollectionLabel_, linkCollectionHandle_); } catch(...){} ;
+   
+   timers.pop_and_push("MuonIdProducer::produce::init::misc");
    switch ( mode_ ){
     case TrackCollection:
       if (! trackCollectionHandle_.isValid()) 
@@ -193,9 +202,7 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    TimerStack timers;
    timers.push("MuonIdProducer::produce");
-   timers.push("MuonIdProducer::produce::init");
    init(iEvent, iSetup);
-   timers.pop();
 
    // loop over input collection
    while(reco::Muon* aMuon = nextMuon(iEvent, iSetup) )
@@ -229,7 +236,9 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	
 	// Fill muonID
+	timers.push("MuonIdProducer::produce::fillMuonId");
 	if ( fillMatching_ || fillEnergy_) fillMuonId(iEvent, iSetup, *muon);
+	timers.pop();
 	   
 	bool stiffMuon = (muon->track().get()->pt() > stiffMinPt_ ) && ( muon->track().get()->p() > stiffMinP_ );
 	
@@ -268,14 +277,20 @@ void MuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	   MuonIdTruthInfo::truthMatchMuon(iEvent, iSetup, *muon);
 	}
 	
+	timers.push("MuonIdProducer::produce::fillCaloCompatibility");
 	if ( fillCaloCompatibility_ ) muon->setCaloCompatibility( muonCaloCompatibility_.evaluate(*muon) );
+	timers.pop();
 	
+	timers.push("MuonIdProducer::produce::fillIsolation");
 	if ( fillIsolation_ ) fillMuonIsolation(iEvent, iSetup, *muon);
+	timers.pop();
 	
 	outputMuons->push_back(*muon);
      }
    LogTrace("MuonIdentification") << "number of muons produced: " << outputMuons->size();
+   timers.push("MuonIdProducer::produce::fillArbitration");
    if ( fillMatching_ ) fillArbitrationInfo( outputMuons.get() );
+   timers.pop();
    iEvent.put(outputMuons);
 }
 
@@ -286,10 +301,13 @@ void MuonIdProducer::fillMuonId(edm::Event& iEvent, const edm::EventSetup& iSetu
    TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *(aMuon.track().get()), parameters_);
    
    if ( fillEnergy_ ) {
-      reco::Muon::MuonEnergy muonEnergy;
+      reco::MuonEnergy muonEnergy;
       muonEnergy.em  = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
       muonEnergy.had = info.crossedEnergy(TrackDetMatchInfo::HcalRecHits);
       muonEnergy.ho  = info.crossedEnergy(TrackDetMatchInfo::HORecHits);
+      muonEnergy.emS9  = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits,1); // 3x3 energy
+      muonEnergy.hadS9 = info.nXnEnergy(TrackDetMatchInfo::HcalRecHits,1); // 3x3 energy
+      muonEnergy.hoS9  = info.nXnEnergy(TrackDetMatchInfo::HORecHits,1);   // 3x3 energy
       aMuon.setCalEnergy( muonEnergy );
    }
    if ( fillMatching_ ) {
@@ -494,16 +512,16 @@ void MuonIdProducer::fillMuonIsolation(edm::Event& iEvent, const edm::EventSetup
    reco::MuIsoDeposit depHo   = caloDeps.at(2);
 
    isoR03.sumPt     = depTrk.depositWithin(0.3);
-   isoR03.emEnergy  = depEcal.depositWithin(0.3);
-   isoR03.hadEnergy = depHcal.depositWithin(0.3);
-   isoR03.hoEnergy  = depHo.depositWithin(0.3);
+   isoR03.emEt      = depEcal.depositWithin(0.3);
+   isoR03.hadEt     = depHcal.depositWithin(0.3);
+   isoR03.hoEt      = depHo.depositWithin(0.3);
    isoR03.nTracks   = depTrk.depositAndCountWithin(0.3).second;
    isoR03.nJets     = 0;
 
    isoR05.sumPt     = depTrk.depositWithin(0.5);
-   isoR05.emEnergy  = depEcal.depositWithin(0.5);
-   isoR05.hadEnergy = depHcal.depositWithin(0.5);
-   isoR05.hoEnergy  = depHo.depositWithin(0.5);
+   isoR05.emEt      = depEcal.depositWithin(0.5);
+   isoR05.hadEt     = depHcal.depositWithin(0.5);
+   isoR05.hoEt      = depHo.depositWithin(0.5);
    isoR05.nTracks   = depTrk.depositAndCountWithin(0.5).second;
    isoR05.nJets     = 0;
 
