@@ -967,51 +967,48 @@ PFClusterProducer::findRecHitNeighbours
 
   DetId detid( rh.detId() );
 
-  CaloNavigator<DetId>* p_navigator = 0;
-  CaloSubdetectorGeometry* geometry = 0;
-  CaloSubdetectorGeometry* othergeometry = 0;
+  const CaloSubdetectorTopology* topology = 0;
+  const CaloSubdetectorGeometry* geometry = 0;
+  const CaloSubdetectorGeometry* othergeometry = 0;
   
-  switch( rh.layer()  ) {
+  switch( rh.layer() ) {
   case PFLayer::ECAL_ENDCAP: 
-    p_navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
-    geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
+    topology = &endcapTopology;
+    geometry = &endcapGeometry;
     break;
   case PFLayer::ECAL_BARREL: 
-    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
-    geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
+    topology = &barrelTopology;
+    geometry = &barrelGeometry;
     break;
   case PFLayer::HCAL_ENDCAP:
-    p_navigator = new CaloNavigator<DetId>(detid, &endcapTopology);
-    geometry = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
-    othergeometry 
-      = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
+    topology = &endcapTopology;
+    geometry = &endcapGeometry;
+    othergeometry = &barrelGeometry;
     break;
   case PFLayer::HCAL_BARREL1:
-    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
-    geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
-    othergeometry 
-      = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
+    topology = &barrelTopology;
+    geometry = &barrelGeometry;
+    othergeometry = &endcapGeometry;
     break;
   case PFLayer::PS1:
   case PFLayer::PS2:
-    p_navigator = new CaloNavigator<DetId>(detid, &barrelTopology);
-    geometry = const_cast< CaloSubdetectorGeometry* > (&barrelGeometry);
-    othergeometry 
-      = const_cast< CaloSubdetectorGeometry* > (&endcapGeometry);
+    topology = &barrelTopology;
+    geometry = &barrelGeometry;
+    othergeometry = &endcapGeometry;
     break;
   default:
     assert(0);
   }
+  
+  assert( topology && geometry );
 
-  assert( p_navigator && geometry );
+  CaloNavigator<DetId> navigator(detid, topology);
 
-  std::auto_ptr<CaloNavigator<DetId> > navigator(p_navigator);
-
-  DetId north = navigator->north();  
+  DetId north = navigator.north();  
   
   DetId northeast(0);
   if( north != DetId(0) ) {
-    northeast = navigator->east();  
+    northeast = navigator.east();  
     if( northeast != DetId(0) ) {
 
 
@@ -1035,17 +1032,17 @@ PFClusterProducer::findRecHitNeighbours
       }
     }
   }
-  navigator->home();
+  navigator.home();
 
 
-  DetId south = navigator->south();
+  DetId south = navigator.south();
 
   
 
   DetId southwest(0); 
   if( south != DetId(0) ) {
   
-    southwest = navigator->west();
+    southwest = navigator.west();
     if( southwest != DetId(0) ) {
       const CaloCellGeometry * nbcell = geometry->getGeometry(southwest);
 
@@ -1072,13 +1069,13 @@ PFClusterProducer::findRecHitNeighbours
       }
     }
   }
-  navigator->home();
+  navigator.home();
 
 
-  DetId east = navigator->east();
+  DetId east = navigator.east();
   DetId southeast;
   if( east != DetId(0) ) {
-    southeast = navigator->south(); 
+    southeast = navigator.south(); 
     if( southeast != DetId(0) ) {
       const CaloCellGeometry * nbcell = geometry->getGeometry(southeast);
       if(!nbcell) 
@@ -1100,11 +1097,11 @@ PFClusterProducer::findRecHitNeighbours
       }
     }
   }
-  navigator->home();
-  DetId west = navigator->west();
+  navigator.home();
+  DetId west = navigator.west();
   DetId northwest;
   if( west != DetId(0) ) {   
-    northwest = navigator->north();  
+    northwest = navigator.north();  
     if( northwest != DetId(0) ) {
       const CaloCellGeometry * nbcell = geometry->getGeometry(northwest);
       if(!nbcell) 
@@ -1126,7 +1123,7 @@ PFClusterProducer::findRecHitNeighbours
       }
     }
   }
-  navigator->home();
+  navigator.home();
     
   PFClusterAlgo::IDH i = sortedHits.find( north.rawId() );
   if(i != sortedHits.end() ) 
