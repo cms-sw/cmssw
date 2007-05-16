@@ -304,9 +304,12 @@ UInt_t FUResourceTable::allocateResource()
   UInt_t fuResourceId=cell->fuResourceId();
   
   resources_[fuResourceId]->allocate(cell);
+
+  lock();
   nbPending_++;
   nbAllocated_++;
-  
+  unlock();
+
   if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_) {
     resources_[fuResourceId]->doCrcCheck(true);
   }

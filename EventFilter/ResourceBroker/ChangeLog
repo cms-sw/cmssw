@@ -1,3 +1,9 @@
+2007-05-16  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-06-13
+	* protect FUResourceTable::nbPending_ by lock()/unlock() when
+	being incremented.
+
 2007-05-15  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-12
