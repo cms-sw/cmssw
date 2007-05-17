@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.7 2007/05/09 20:28:04 fedor Exp $
+// $Id: Jet.cc,v 1.8 2007/05/09 21:53:26 fedor Exp $
 
 #include <sstream>
 #include "PhysicsTools/Utilities/interface/Math.h"
@@ -18,7 +18,9 @@ Jet::Jet (const LorentzVector& fP4,
 	  const std::vector<reco::CandidateRef>& fConstituents)
   :  CompositeRefCandidate (0, fP4, fVertex)
 {
-  for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
+  for (unsigned i = 0; i < fConstituents.size (); i++) {
+    addDaughter (fConstituents [i]);
+  }
 }  
 
 /// eta-phi statistics
@@ -138,7 +140,7 @@ int Jet::nCarrying (float fFraction) const {
   double fractionEnergy = totalEt * fFraction;
   unsigned result = 0;
   for (; result < towers.size(); ++result) {
-    fractionEnergy -= towers[result]->energy();
+    fractionEnergy -= towers[result]->et();
     if (fractionEnergy <= 0) return result+1;
   }
   return 0;
@@ -165,11 +167,11 @@ Jet::Constituents Jet::getJetConstituents () const {
 
 std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   std::vector<const Candidate*> result;
-  int i = numberOfDaughters();
-  if (i > 0) {
+  int nDaughters = numberOfDaughters();
+  if (nDaughters > 0) {
     CandidateRef ref = daughterRef (0);
     const CandidateCollection* container = ref.product();
-    while (--i >= 0) {
+    for (int i = 0; i < nDaughters; ++i) { 
       result.push_back (&((*container)[daughterRef (i).key()]));
     }
   }
@@ -182,13 +184,12 @@ std::string Jet::print () const {
       << "    eta/phi: " << eta () << '/' << phi () << std::endl
        << "    # of constituents: " << nConstituents () << std::endl;
   out << "    Constituents:" << std::endl;
-  Candidate::const_iterator daugh = begin ();
-  int index = 0;
-  for (; daugh != end (); daugh++, index++) {
-    const Candidate* constituent = &*daugh; // deref
-    if (constituent) {
+  for (unsigned index = 0; index < numberOfDaughters(); index++) {
+    CandidateRef constituent = daughterRef (index); // deref
+    if (constituent.isNonnull()) {
       out << "      #" << index << " p/pt/eta/phi: " 
-	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi() << std::endl; 
+	  << constituent->p() << '/' << constituent->pt() << '/' << constituent->eta() << '/' << constituent->phi() 
+	  << "    productId/index: " << constituent.id() << '/' << constituent.key() << std::endl; 
     }
     else {
       out << "      #" << index << " constituent is not available in the event"  << std::endl;
