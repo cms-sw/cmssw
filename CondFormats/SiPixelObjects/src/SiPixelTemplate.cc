@@ -1,10 +1,12 @@
 //
-//  SiPixelTemplate.cc  Version 2.41 
+//  SiPixelTemplate.cc  Version 2.42 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small index searching bug in interpolate method
+//  Change interpolation indexing to avoid complier complaining about possible un-initialized variables
+//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -665,17 +667,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
         
 // next, loop over all y-angle entries   
 
-       if(abs_cotb < thePixelTemp[index_id].entfy[0].cotbeta) {
-	
-	       ilow = 0;
-		   yratio = 0.;
+	   ilow = 0;
+	   yratio = 0.;
 
-	   } else if(abs_cotb >= thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
+	   if(abs_cotb >= thePixelTemp[index_id].entfy[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
 		
-	   } else {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entfy[0].cotbeta) {
 
           for (i=0; i<Ny-1; ++i) { 
     
@@ -742,80 +742,60 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 		  }
 	   }
 	   
-// Do the spares next
+//// Do the spares next
 
-       for(i=0; i<10; ++i) {
-		  pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yspare[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yspare[i];
-       }
+//       for(i=0; i<10; ++i) {
+//		    pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].yspare[i] + yratio*thePixelTemp[index_id].entfy[ihigh].yspare[i];
+//       }
 			  
 // Interpolate and build the y-template 
 	
 	   for(i=0; i<9; ++i) {
-          pytemp[i+16][0] = 0.;
-          pytemp[i+16][1] = 0.;
-	      pytemp[i+16][23] = 0.;
-	      pytemp[i+16][24] = 0.;
+          pytemp[i+8][0] = 0.;
+          pytemp[i+8][1] = 0.;
+	      pytemp[i+8][23] = 0.;
+	      pytemp[i+8][24] = 0.;
 	      for(j=0; j<21; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+	            pytemp[16-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 } else {
-	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+	            pytemp[i+8][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pytemp[i+8][0] = 0.;
-          pytemp[i+8][22] = 0.;
-	      pytemp[i+8][23] = 0.;
-	      pytemp[i+8][24] = 0.;
-	      for(j=0; j<21; ++j) {
-	        pytemp[i+8][j+1]=pytemp[i+16][j+2];
-	      }
-	   }
-	   for(i=0; i<8; ++i) {
-          pytemp[i][21] = 0.;
+          pytemp[i][0] = 0.;
           pytemp[i][22] = 0.;
 	      pytemp[i][23] = 0.;
 	      pytemp[i][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i][j]=pytemp[i+16][j+2];
+	        pytemp[i][j+1]=pytemp[i+8][j+2];
 	      }
 	   }
   	   for(i=1; i<9; ++i) {
-          pytemp[i+24][0] = 0.;
-	      pytemp[i+24][1] = 0.;
-	      pytemp[i+24][2] = 0.;
-	      pytemp[i+24][24] = 0.;
+          pytemp[i+16][0] = 0.;
+	      pytemp[i+16][1] = 0.;
+	      pytemp[i+16][2] = 0.;
+	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	         pytemp[i+24][j+3]=pytemp[i+16][j+2];
-	      }
-	   }
-  	   for(i=1; i<9; ++i) {
-          pytemp[i+32][0] = 0.;
-	      pytemp[i+32][1] = 0.;
-	      pytemp[i+32][2] = 0.;
-	      pytemp[i+32][3] = 0.;
-	      for(j=0; j<21; ++j) {
-	         pytemp[i+32][j+4]=pytemp[i+16][j+2];
+	         pytemp[i+16][j+3]=pytemp[i+8][j+2];
 	      }
 	   }
 	
 // next, loop over all x-angle entries, first, find relevant y-slices   
-
-       if(abs_cotb < thePixelTemp[index_id].entfx[0][0].cotbeta) {
 	
-	       iylow = 0;
-		   yxratio = 0.;
+	   iylow = 0;
+	   yxratio = 0.;
 
-	   } else if(abs_cotb >= thePixelTemp[index_id].entfx[Nyx-1][0].cotbeta) {
+	   if(abs_cotb >= thePixelTemp[index_id].entfx[Nyx-1][0].cotbeta) {
 	
 	       iylow = Nyx-2;
 		   yxratio = 1.;
 		
-	   } else {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entfx[0][0].cotbeta) {
 
           for (i=0; i<Nyx-1; ++i) { 
     
@@ -830,17 +810,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	   iyhigh=iylow + 1;
 
-       if(cotalpha < thePixelTemp[index_id].entfx[0][0].cotalpha) {
-	
-	       ilow = 0;
-		   xxratio = 0.;
+	   ilow = 0;
+	   xxratio = 0.;
 
-	   } else if(cotalpha >= thePixelTemp[index_id].entfx[0][Nxx-1].cotalpha) {
+	   if(cotalpha >= thePixelTemp[index_id].entfx[0][Nxx-1].cotalpha) {
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
 		
-	   } else {
+	   } else if(cotalpha >= thePixelTemp[index_id].entfx[0][0].cotalpha) {
 
           for (i=0; i<Nxx-1; ++i) { 
     
@@ -906,56 +884,38 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   
 // Do the spares next
 
-       for(i=0; i<10; ++i) {
-	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xspare[i])
-		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xspare[i]);
-       }
+//       for(i=0; i<10; ++i) {
+//	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entfx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iylow][ihigh].xspare[i])
+//		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entfx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entfx[iyhigh][ihigh].xspare[i]);
+//       }
 			  
 // Interpolate and build the x-template 
 	
 	   for(i=0; i<9; ++i) {
-          pxtemp[i+16][0] = 0.;
-          pxtemp[i+16][1] = 0.;
-	      pxtemp[i+16][9] = 0.;
-	      pxtemp[i+16][10] = 0.;
-	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
-	      }
-	   }
-	   for(i=0; i<8; ++i) {
           pxtemp[i+8][0] = 0.;
-	      pxtemp[i+8][8] = 0.;
-          pxtemp[i+8][9] = 0.;
+          pxtemp[i+8][1] = 0.;
+	      pxtemp[i+8][9] = 0.;
 	      pxtemp[i+8][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+8][j+1]=pxtemp[i+16][j+2];
+	        pxtemp[i+8][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pxtemp[i][7] = 0.;
+          pxtemp[i][0] = 0.;
 	      pxtemp[i][8] = 0.;
           pxtemp[i][9] = 0.;
 	      pxtemp[i][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i][j]=pxtemp[i+16][j+2];
+	        pxtemp[i][j+1]=pxtemp[i+8][j+2];
 	      }
 	   }
 	   for(i=1; i<9; ++i) {
-          pxtemp[i+24][0] = 0.;
-	      pxtemp[i+24][1] = 0.;
-          pxtemp[i+24][2] = 0.;
-	      pxtemp[i+24][10] = 0.;
+          pxtemp[i+16][0] = 0.;
+	      pxtemp[i+16][1] = 0.;
+          pxtemp[i+16][2] = 0.;
+	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+24][j+3]=pxtemp[i+16][j+2];
-	      }
-	   }
-	   for(i=1; i<9; ++i) {
-          pxtemp[i+32][0] = 0.;
-	      pxtemp[i+32][1] = 0.;
-          pxtemp[i+32][2] = 0.;
-	      pxtemp[i+32][3] = 0.;
-	      for(j=0; j<7; ++j) {
-	        pxtemp[i+32][j+4]=pxtemp[i+16][j+2];
+	        pxtemp[i+16][j+3]=pxtemp[i+8][j+2];
 	      }
 	   }
 	} else {
@@ -971,17 +931,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
         
 // next, loop over all y-angle entries   
 
-       if(abs_cotb < thePixelTemp[index_id].entby[0].cotbeta) {
-	
-	       ilow = 0;
-		   yratio = 0.;
+	   ilow = 0;
+	   yratio = 0.;
 
-	   } else if(abs_cotb >= thePixelTemp[index_id].entby[Ny-1].cotbeta) {
+	   if(abs_cotb >= thePixelTemp[index_id].entby[Ny-1].cotbeta) {
 	
 	       ilow = Ny-2;
 		   yratio = 1.;
 		
-	   } else {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entby[0].cotbeta) {
 
           for (i=0; i<Ny-1; ++i) { 
     
@@ -1050,78 +1008,58 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   
 // Do the spares next
 
-       for(i=0; i<10; ++i) {
-		  pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yspare[i] + yratio*thePixelTemp[index_id].entby[ihigh].yspare[i];
-       }
+//       for(i=0; i<10; ++i) {
+//		  pyspare[i]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].yspare[i] + yratio*thePixelTemp[index_id].entby[ihigh].yspare[i];
+//       }
 			  
 // Interpolate and build the y-template 
 	
 	   for(i=0; i<9; ++i) {
-          pytemp[i+16][0] = 0.;
-          pytemp[i+16][1] = 0.;
-	      pytemp[i+16][23] = 0.;
-	      pytemp[i+16][24] = 0.;
+          pytemp[i+8][0] = 0.;
+          pytemp[i+8][1] = 0.;
+	      pytemp[i+8][23] = 0.;
+	      pytemp[i+8][24] = 0.;
 	      for(j=0; j<21; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+	            pytemp[16-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 } else {
-	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+	            pytemp[i+8][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pytemp[i+8][0] = 0.;
-          pytemp[i+8][22] = 0.;
-	      pytemp[i+8][23] = 0.;
-	      pytemp[i+8][24] = 0.;
-	      for(j=0; j<21; ++j) {
-	        pytemp[i+8][j+1]=pytemp[i+16][j+2];
-	      }
-	   }
-	   for(i=0; i<8; ++i) {
-          pytemp[i][21] = 0.;
+          pytemp[i][0] = 0.;
           pytemp[i][22] = 0.;
 	      pytemp[i][23] = 0.;
 	      pytemp[i][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i][j]=pytemp[i+16][j+2];
+	        pytemp[i][j+1]=pytemp[i+8][j+2];
 	      }
 	   }
   	   for(i=1; i<9; ++i) {
-          pytemp[i+24][0] = 0.;
-	      pytemp[i+24][1] = 0.;
-	      pytemp[i+24][2] = 0.;
-	      pytemp[i+24][24] = 0.;
+          pytemp[i+16][0] = 0.;
+	      pytemp[i+16][1] = 0.;
+	      pytemp[i+16][2] = 0.;
+	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	         pytemp[i+24][j+3]=pytemp[i+16][j+2];
-	      }
-	   }
-  	   for(i=1; i<9; ++i) {
-          pytemp[i+32][0] = 0.;
-	      pytemp[i+32][1] = 0.;
-	      pytemp[i+32][2] = 0.;
-	      pytemp[i+32][3] = 0.;
-	      for(j=0; j<21; ++j) {
-	         pytemp[i+32][j+4]=pytemp[i+16][j+2];
+	         pytemp[i+16][j+3]=pytemp[i+8][j+2];
 	      }
 	   }
 	
 // next, loop over all x-angle entries, first, find relevant y-slices   
 
-       if(abs_cotb < thePixelTemp[index_id].entbx[0][0].cotbeta) {
-	
-	       iylow = 0;
-		   yxratio = 0.;
+	   iylow = 0;
+	   yxratio = 0.;
 
-	   } else if(abs_cotb >= thePixelTemp[index_id].entbx[Nyx-1][0].cotbeta) {
+	   if(abs_cotb >= thePixelTemp[index_id].entbx[Nyx-1][0].cotbeta) {
 	
 	       iylow = Nyx-2;
 		   yxratio = 1.;
 		
-	   } else {
+	   } else if(abs_cotb >= thePixelTemp[index_id].entbx[0][0].cotbeta) {
 
           for (i=0; i<Nyx-1; ++i) { 
     
@@ -1136,17 +1074,15 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	
 	   iyhigh=iylow + 1;
 
-       if(cotalpha < thePixelTemp[index_id].entbx[0][0].cotalpha) {
-	
-	       ilow = 0;
-		   xxratio = 0.;
+	   ilow = 0;
+	   xxratio = 0.;
 
-	   } else if(cotalpha >= thePixelTemp[index_id].entbx[0][Nxx-1].cotalpha) {
+	   if(cotalpha >= thePixelTemp[index_id].entbx[0][Nxx-1].cotalpha) {
 	
 	       ilow = Nxx-2;
 		   xxratio = 1.;
 		
-	   } else {
+	   } else if(cotalpha >= thePixelTemp[index_id].entbx[0][0].cotalpha) {
 
           for (i=0; i<Nxx-1; ++i) { 
     
@@ -1212,56 +1148,38 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   
 // Do the spares next
 
-       for(i=0; i<10; ++i) {
-	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xspare[i])
-		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xspare[i]);
-       }
+//       for(i=0; i<10; ++i) {
+//	      pxspare[i]=(1. - yxratio)*((1. - xxratio)*thePixelTemp[index_id].entbx[iylow][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iylow][ihigh].xspare[i])
+//		          +yxratio*((1. - xxratio)*thePixelTemp[index_id].entbx[iyhigh][ilow].xspare[i] + xxratio*thePixelTemp[index_id].entbx[iyhigh][ihigh].xspare[i]);
+//       }
 			  
 // Interpolate and build the x-template 
 	
 	   for(i=0; i<9; ++i) {
-          pxtemp[i+16][0] = 0.;
-          pxtemp[i+16][1] = 0.;
-	      pxtemp[i+16][9] = 0.;
-	      pxtemp[i+16][10] = 0.;
-	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
-	      }
-	   }
-	   for(i=0; i<8; ++i) {
           pxtemp[i+8][0] = 0.;
-	      pxtemp[i+8][8] = 0.;
-          pxtemp[i+8][9] = 0.;
+          pxtemp[i+8][1] = 0.;
+	      pxtemp[i+8][9] = 0.;
 	      pxtemp[i+8][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+8][j+1]=pxtemp[i+16][j+2];
+	        pxtemp[i+8][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pxtemp[i][7] = 0.;
+          pxtemp[i][0] = 0.;
 	      pxtemp[i][8] = 0.;
           pxtemp[i][9] = 0.;
 	      pxtemp[i][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i][j]=pxtemp[i+16][j+2];
+	        pxtemp[i][j+1]=pxtemp[i+8][j+2];
 	      }
 	   }
 	   for(i=1; i<9; ++i) {
-          pxtemp[i+24][0] = 0.;
-	      pxtemp[i+24][1] = 0.;
-          pxtemp[i+24][2] = 0.;
-	      pxtemp[i+24][10] = 0.;
+          pxtemp[i+16][0] = 0.;
+	      pxtemp[i+16][1] = 0.;
+          pxtemp[i+16][2] = 0.;
+	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+24][j+3]=pxtemp[i+16][j+2];
-	      }
-	   }
-	   for(i=1; i<9; ++i) {
-          pxtemp[i+32][0] = 0.;
-	      pxtemp[i+32][1] = 0.;
-          pxtemp[i+32][2] = 0.;
-	      pxtemp[i+32][3] = 0.;
-	      for(j=0; j<7; ++j) {
-	        pxtemp[i+32][j+4]=pxtemp[i+16][j+2];
+	        pxtemp[i+16][j+3]=pxtemp[i+8][j+2];
 	      }
 	   }
 	}
@@ -1280,7 +1198,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! \param ysum - (input) 25-element vector of pixel signals
 //! \param ysig2 - (output) 25-element vector of y errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::ysigma2(int fypix, int lypix, std::vector<float> ysum, std::vector<float>& ysig2)
+  void SiPixelTemplate::ysigma2(int fypix, int lypix, std::vector<float>& ysum, std::vector<float>& ysig2)
   
 {
     // Interpolate using quantities already stored in the private variables
@@ -1349,7 +1267,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! \param xsum - (input) 11-element vector of pixel signals
 //! \param xsig2 - (output) 11-element vector of x errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, std::vector<float> xsum, std::vector<float>& xsig2)
+  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, std::vector<float>& xsum, std::vector<float>& xsig2)
   
 {
     // Interpolate using quantities already stored in the private variables

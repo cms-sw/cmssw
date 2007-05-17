@@ -1,10 +1,12 @@
 //
-//  SiPixelTemplate.h (v2.41)
+//  SiPixelTemplate.h (v3.0)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small index searching bug in interpolate method
+//  Change interpolation indexing to avoid complier complaining about possible un-initialized variables
+//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -123,9 +125,9 @@ class SiPixelTemplate {
   void interpolate(int id, bool fpix, float cotalpha, float cotbeta);
   
   // Convert vector of projected signals into uncertainties for fitting. 
-  void ysigma2(int fypix, int lypix, std::vector<float> ysum, std::vector<float>& ysig2);
+  void ysigma2(int fypix, int lypix, std::vector<float>& ysum, std::vector<float>& ysig2);
   
-  void xsigma2(int fxpix, int lxpix, std::vector<float> xsum, std::vector<float>& xsig2);
+  void xsigma2(int fxpix, int lxpix, std::vector<float>& xsum, std::vector<float>& xsig2);
   
   // Interpolate qfl correction in y. 
   float yflcorr(int binq, float qfly);
@@ -147,11 +149,11 @@ class SiPixelTemplate {
   float sxtwo() {return psxtwo;}             //!< rms for one double-pixel x-clusters 
   float yratio() {return pyratio;}            //!< fractional distance in y between cotbeta templates 
   float ytemp(int i, int j) 
-  {assert(i>=0 && i<41 && j>= 0 && j<25); return pytemp[i][j];}     //!< templates for y-reconstruction (binned over 5 central pixels) 
+  {assert(i>=0 && i<25 && j>= 0 && j<25); return pytemp[i][j];}     //!< templates for y-reconstruction (binned over 3 central pixels) 
   float yxratio() {return pyxratio;}           //!< fractional distance in y between cotalpha templates slices
   float xxratio() {return pxxratio;}           //!< fractional distance in x between cotalpha templates 
   float xtemp(int i, int j) 
-  {assert(i>=0 && i<41 && j>= 0 && j<25); return pxtemp[i][j];}     //!< templates for x-reconstruction (binned over 5 central pixels) 
+  {assert(i>=0 && i<25 && j>= 0 && j<11); return pxtemp[i][j];}     //!< templates for x-reconstruction (binned over 3 central pixels) 
   float yavg(int i) {assert(i>=0 && i<4); return pyavg[i];}         //!< average y-bias of reconstruction binned in 4 charge bins 
   float yrms(int i) {assert(i>=0 && i<4); return pyrms[i];}         //!< average y-rms of reconstruction binned in 4 charge bins 
   float ygx0(int i) {assert(i>=0 && i<4); return pygx0[i];}         //!< average y0 from Gaussian fit binned in 4 charge bins 
@@ -164,8 +166,8 @@ class SiPixelTemplate {
   float chi2ymin(int i) {assert(i>=0 && i<4); return pchi2ymin[i];} //!< minimum y chi^2 in 4 charge bins 
   float chi2xavg(int i) {assert(i>=0 && i<4); return pchi2xavg[i];} //!< averaage x chi^2 in 4 charge bins
   float chi2xmin(int i) {assert(i>=0 && i<4); return pchi2xmin[i];} //!< minimum y chi^2 in 4 charge bins
-  float yspare(int i) {assert(i>=0 && i<10); return pyspare[i];}    //!< vector of 10 spares interpolated in beta only
-  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
+//  float yspare(int i) {assert(i>=0 && i<10); return pyspare[i];}    //!< vector of 10 spares interpolated in beta only
+//  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
   
   
  private:
@@ -200,13 +202,13 @@ class SiPixelTemplate {
   float pyparh[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta 
   float pxparly0[2][5];     //!< projected x-pixel uncertainty parameterization for smaller cotbeta (central alpha)
   float pxparhy0[2][5];     //!< projected x-pixel uncertainty parameterization for larger cotbeta (central alpha)
-  float pytemp[41][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
+  float pytemp[25][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
   float pyxratio;           //!< fractional distance in y between x-slices of cotalpha templates 
   float pxxratio;           //!< fractional distance in x between cotalpha templates 
   float pxpar0[2][5];       //!< projected x-pixel uncertainty parameterization for central cotalpha 
   float pxparl[2][5];       //!< projected x-pixel uncertainty parameterization for smaller cotalpha 
   float pxparh[2][5];       //!< projected x-pixel uncertainty parameterization for larger cotalpha 
-  float pxtemp[41][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
+  float pxtemp[25][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
   float pyavg[4];           //!< average y-bias of reconstruction binned in 4 charge bins 
   float pyrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float pygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
