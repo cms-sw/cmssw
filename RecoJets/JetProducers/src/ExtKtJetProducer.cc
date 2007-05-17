@@ -4,6 +4,7 @@
 //--------------------------------------------
 #include <memory>
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/interface/ExtKtJetProducer.h"
 
 //  Wrapper around ktjet-package (http://projects.hepforge.org/ktjet)
@@ -37,3 +38,5 @@ namespace cms
     return true;
   }
 }
+
+DEFINE_FWK_MODULE( cms::ExtKtJetProducer );

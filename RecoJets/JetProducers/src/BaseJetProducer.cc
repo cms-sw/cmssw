@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.16 2007/05/08 05:39:53 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.17 2007/05/08 21:43:07 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -146,7 +146,7 @@ namespace cms
       int index = 0;
       for (InputCollection::const_iterator constituent = input.begin();
        constituent != input.end(); ++constituent, ++index) {
-	std::cout << "  Constituent " << index << ", px/py/pz/pt/e: "
+	std::cout << "  Input " << index << ", px/py/pz/pt/e: "
 		  << (*constituent)->px() << '/' << (*constituent)->py() << '/' << (*constituent)->pz() << '/' 
 		  << (*constituent)->pt() << '/' << (*constituent)->energy()
  		  << std::endl;

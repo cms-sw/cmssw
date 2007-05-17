@@ -5,6 +5,7 @@
 //--------------------------------------------
 #include <memory>
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/interface/FastJetProducer.h"
 
 using namespace std;
@@ -33,3 +34,5 @@ namespace cms
     return true;
   }
 }
+
+DEFINE_FWK_MODULE( cms::FastJetProducer );

@@ -1,3 +1,4 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoJets/JetProducers/interface/IterativeConeJetProducer.h"
 
 using namespace std;
@@ -23,5 +24,7 @@ namespace cms {
     return true;
   }
 }
+
+DEFINE_FWK_MODULE( cms::IterativeConeJetProducer );
 
 
