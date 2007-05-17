@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.3 2007/05/10 13:42:41 saout Exp $
+// $Id: MVAComputer.h,v 1.4 2007/05/14 00:06:00 saout Exp $
 //
 
 #include <string>
@@ -155,8 +155,11 @@ class MVAComputerContainer {
     public:
 	typedef std::pair<std::string, MVAComputer> Entry;
 
+	MVAComputerContainer() {}
+	virtual ~MVAComputerContainer() {}
+
 	MVAComputer &add(const std::string &label);
-	const MVAComputer &find(const std::string &label) const;
+	virtual const MVAComputer &find(const std::string &label) const;
 
     private:
 	std::vector<Entry>	entries;
