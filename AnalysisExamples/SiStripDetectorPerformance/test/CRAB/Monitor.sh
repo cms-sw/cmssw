@@ -6,6 +6,40 @@
 # Checked Copy: it uses md5sum to check if the copy is identical to the original
 
 function checkedcopy(){
+
+dest=`echo $@ | cut -d " " -f "$#"`
+let i=$#-1  
+masters=`echo $@ | cut -d " " -f "-$i"`
+for arg in `echo $masters`
+  do
+  if [ -e "$arg" ]; then
+      cp -vr $arg $dest
+      ((++counter))
+      a=`md5sum $arg | awk '{print $1}'`
+      if [ -d $dest ]; then
+	  file=`echo $arg | awk -F "/" '{print $NF}'`
+	  b=`md5sum ${dest}/$file | awk '{print $1}'`
+      else
+	  b=`md5sum $dest | awk '{print $1}'`
+      fi
+#      echo "${a}"
+#      echo "${b}"
+      if [ "${a}" == "${b}" ]; then
+	  echo copy successfull removing $arg
+	  rm -f $arg
+      elif [ "${counter}" -le 10 ]; then
+	  echo different md5sum trying again
+	  checkedcopy $arg $dest;
+      else
+	  echo bad md5sum after 10 tries exiting
+	  break
+      fi
+  else
+      echo File does not exist
+  fi
+done
+   
+    return
   if [ -e $1 ]; then
     cp -r $1 $2
     ((++counter))
@@ -31,7 +65,7 @@ function checkedcopy(){
 # This is needed to set the counter to zero everytime the ccp is called.
 function ccp(){
   export counter=0
-  checkedcopy $1 $2
+  checkedcopy $@
 }
 ##########################
 
@@ -88,7 +122,9 @@ function Monitor(){
           crab -getoutput ${job_num} -c ${CrabWorkingDir}
           crab -status -c ${CrabWorkingDir} > ${log_path}/Done/${job_name}_${job_num}
           cp ${log_path}/Done/${job_name}_${job_num} ${StoreDir}/logs/status_${job_name}.txt
-          cat ${log_path}/Done/${job_name}_${job_num} | mail -s "Output Retrieved ${Type} for job number ${job_num}" marco.de.mattia@cern.ch
+          ccp ${CrabWorkingDir}/res/*stderr ${StoreDir}/logs
+          ccp ${CrabWorkingDir}/res/*stdout ${StoreDir}/logs
+	  cat ${log_path}/Done/${job_name}_${job_num} | mail -s "Output Retrieved ${Type} for job number ${job_num}" marco.de.mattia@cern.ch
           # If it has crashed
           ###################
           for zeros in `cat ${log_path}/Done/${job_name}_${job_num} | awk '$2 ~ /Cleared/ {print $4 $5}'`
@@ -128,6 +164,7 @@ source ${MYHOME}/crab.sh
 echo Doing eval in ${CMSSW_DIR}
 cd ${CMSSW_DIR}/src
 eval `scramv1 runtime -sh`
+cd -
 
 #while true;
 #  do
@@ -139,7 +176,9 @@ eval `scramv1 runtime -sh`
     export Config=`echo $FileName | awk -F_ '{print $2}'`
     export SubFlag=`echo $FileName | awk -F_ '{print $4}'`
 
-    if [ `echo ${SubFlag}` != "" ]; then
+    echo $FileName
+    echo SubFlag $SubFlag
+    if [ "${SubFlag}" != "" ]; then
       Flag=${Flag}"_"${SubFlag}
     fi
 
