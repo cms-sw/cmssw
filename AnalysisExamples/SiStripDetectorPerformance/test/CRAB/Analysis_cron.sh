@@ -99,29 +99,12 @@ cat ${LOCALHOME}/Analysis_cron.cfg | grep -v "#" | grep -v "=" | while read Full
             ${LOCALHOME}/MakeLists.sh ${Site} "${Config_}" > ${MainStoreDir}/logs/${Version}/LogProducer/list_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 
 	    echo -e "\nExecuting producer: creating and submitting new jobs"
-#      if [ ! -e ${LOCALHOME}/lock ]; then
-#        touch ${LOCALHOME}/lock
-
 	    echo -e "\n${LOCALHOME}/Producer.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogProducer/prod_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
-
 	    ${LOCALHOME}/Producer.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogProducer/prod_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
-#        rm -f ${LOCALHOME}/lock
-#      fi
 
 	    echo -e "\nExecuting monitor: checking jobs status, retrieving and publishing output"
-#      if [ ! -e ${LOCALHOME}/lock ]; then
-#        touch ${LOCALHOME}/lock
-
 	    echo -e "\n${LOCALHOME}/Monitor.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
-
-	    ${LOCALHOME}/Monitor.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
-
-#        rm -f ${LOCALHOME}/lock
-#      fi
-
-	    #moved in summary cron
-	    #echo -e "\n${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`"
-	    #${LOCALHOME}/MakePlots.sh ${Version} > ${MainStoreDir}/logs/${Version}/LogMonitor/plots_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
+	    ${LOCALHOME}/Monitor.sh ${Version} #> ${MainStoreDir}/logs/${Version}/LogMonitor/monitor_log_`date +\%Y-\%m-\%d_\%H-\%M-\%S`
 
 	else
 	    if [ `echo ${AnalyzersList} | awk '{print $1}'` == "" ]; then

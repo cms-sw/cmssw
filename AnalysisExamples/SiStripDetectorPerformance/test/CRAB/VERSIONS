@@ -41,3 +41,22 @@ Bari_TIB_TOB_v1
         input: Bari processing
         cmssw release: 130
         AnalysisExamples tag: V01-01-09
+
+Bari_130_v8
+
+        input: Bari processing
+        cmssw release: 130
+        AnalysisExamples tag: V01-01-09
+
+Bari_130_v9
+
+        input: Bari processing
+        cmssw release: 130
+        AnalysisExamples tag: V01-01-11
+
+	Important changes in ClusterAnalysis
+
+Bari_130_v10
+
+	as Bari_130_v9, only for test
+
