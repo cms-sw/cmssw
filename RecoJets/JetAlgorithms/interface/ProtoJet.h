@@ -34,8 +34,7 @@ public:
   ProtoJet(const Constituents& theConstituents);
 
  //**Full Constructor */
- ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) 
-   : mP4 (fP4), mConstituents (fConstituents) {}
+  ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents); 
 
   /**  Destructor*/
   ~ProtoJet() {}

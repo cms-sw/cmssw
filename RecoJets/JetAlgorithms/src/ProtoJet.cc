@@ -55,6 +55,12 @@ ProtoJet::ProtoJet(const Constituents& fConstituents)
   calculateLorentzVector(); 
 }//end of constructor
 
+ProtoJet::ProtoJet(const LorentzVector& fP4, const Constituents& fConstituents) 
+  : mP4 (fP4), mConstituents (fConstituents) 
+{
+  reorderTowers ();
+}
+
 void ProtoJet::putTowers(const Constituents& towers) {
   mConstituents = towers; 
   reorderTowers ();
