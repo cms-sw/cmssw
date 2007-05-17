@@ -4,10 +4,10 @@
  *
  * \author Luca Lista, INFN
  */
-#include <vector>
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "boost/static_assert.hpp"
 
 namespace helper {
 
@@ -20,7 +20,7 @@ namespace helper {
   };
 
   template<typename SC>
-  struct SelectionFirstRefAdder {
+  struct SelectionFirstPointerAdder {
     template<typename C>
     void operator()( SC & selected, const edm::Handle<C> & c, size_t idx ) {
       selected.push_back( & * ( ( * c )[ idx ].first ) );
@@ -35,9 +35,17 @@ namespace helper {
     }
   };
 
+  template<typename SC>
+  struct SelectionFirstRefAdder {
+    template<typename C>
+    void operator()( SC & selected, const edm::Handle<C> & c, size_t idx ) {
+      selected.push_back( ( * c )[ idx ].first );
+    }
+  };
+
   template<typename InputCollection, typename StoreContainer>
   struct SelectionAdderTrait {
-    // typedef ... type;
+    BOOST_STATIC_ASSERT(sizeof(InputCollection) == 0); 
   };
 
   template<typename InputCollection, typename T>
@@ -47,12 +55,17 @@ namespace helper {
 
   template<typename R, typename C, typename T>
   struct SelectionAdderTrait<edm::AssociationVector<R, C>, std::vector<const T *> > {
-    typedef SelectionFirstRefAdder<std::vector<const T *> > type;
+    typedef SelectionFirstPointerAdder<std::vector<const T *> > type;
   };
 
   template<typename InputCollection, typename C>
   struct SelectionAdderTrait<InputCollection, edm::RefVector<C> > {
     typedef SelectionRefAdder<edm::RefVector<C> > type;
+  };
+
+  template<typename R, typename C>
+  struct SelectionAdderTrait<edm::AssociationVector<R, C>, edm::RefVector<typename R::product_type> > {
+    typedef SelectionFirstRefAdder<edm::RefVector<typename R::product_type> > type;
   };
 
 }

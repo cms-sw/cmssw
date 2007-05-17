@@ -1,11 +1,13 @@
-/* \class PtMinAssociatedVariableCandSelector
+/* \class AssociatedVariableMaxCutCandRefVectorSelector
  * 
- * Candidate Selector based on a minimum pt cut.
+ * Candidate Selector based on a maximun cut on an
+ * associated variable (e.g.: isolation), and saver a 
+ * collection of references.
+ *
  * Usage:
  * 
- * module selectedCands = PtMinAssociatedVariableCandSelector {
+ * module selectedCands = AssociatedVariableMaxCutCandRefVectorSelector {
  *   InputTag src = myCollection
- *   double ptMin = 15.0
  *   double max = 0.2
  * }
  *
@@ -16,7 +18,7 @@
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PairSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/RefSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/AnySelector.h"
 #include "PhysicsTools/UtilAlgos/interface/MaxSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -25,9 +27,10 @@ typedef double isolation;
 typedef SingleObjectSelector<
           edm::AssociationVector<reco::CandidateRefProd, std::vector<isolation> >,
           PairSelector<
-            RefSelector<PtMinSelector<reco::Candidate> >,
+            RefSelector<AnySelector<reco::Candidate> >,
             MaxSelector<isolation>
-          >
-        > PtMinAssociatedVariableCandSelector;
+          >,
+          reco::CandidateRefVector
+        > AssociatedVariableMaxCutCandRefVectorSelector;
 
-DEFINE_FWK_MODULE( PtMinAssociatedVariableCandSelector );
+DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandRefVectorSelector );

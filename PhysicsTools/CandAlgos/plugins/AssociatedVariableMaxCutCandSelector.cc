@@ -1,9 +1,11 @@
-/* \class AssociatedVariableCandSelector
+/* \class AssociatedVariableMaxCutCandSelector
  * 
- * Candidate Selector based on a minimum pt cut.
+ * Candidate Selector based on a maximum cut on 
+ * an associated variable (e.g.: isolation).
+ *
  * Usage:
  * 
- * module selectedCands = AssociatedVariableCandSelector {
+ * module selectedCands = AssociatedVariableMaxCutCandSelector {
  *   InputTag src = myCollection
  *   double max = 0.2
  * }
@@ -27,6 +29,6 @@ typedef SingleObjectSelector<
             RefSelector<AnySelector<reco::Candidate> >,
             MaxSelector<isolation>
           >
-        > AssociatedVariableCandSelector;
+        > AssociatedVariableMaxCutCandSelector;
 
-DEFINE_FWK_MODULE( AssociatedVariableCandSelector );
+DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandSelector );
