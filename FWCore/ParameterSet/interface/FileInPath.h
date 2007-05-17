@@ -1,7 +1,7 @@
 #ifndef ParameterSet_FileInPath_h
 #define ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.6 2005/11/15 14:38:57 paterno Exp $
+/// $Id: FileInPath.h,v 1.7 2006/08/10 23:18:36 wmtan Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -11,10 +11,11 @@
 /// non-event-data file searching mechanism".
 ///
 /// The mechanism using the environment variables:
-///    CMSSW_SEARCH_PATH: may be set by the end-user
+///    CMSSW_SEARCH_PATH:       may be set by the end-user
+///    CMSSW_RELEASE_BASE:      should be set by a site administrator
 ///    CMSSW_DATA_PATH:         should be set by a site administrator
 ///
-///  CMSSW_SEARCH_PATH is a 'search path' limited to either 1 or 2
+///  CMSSW_SEARCH_PATH is a 'search path' limited to 1 to 3
 ///  components. The legal values are:
 ///
 ///
@@ -22,13 +23,25 @@
 ///            the top level of the "local working area", which is
 ///            defined as ${SCRAMRT_LOCALRT}/src
 ///
+///       "CMSSW_RELEASE_BASE", which means search the "official place",
+///             defined by the value of the CMSSW_RELEASE_BASE environment
+///             variable, for files.
+///
 ///       "CMSSW_DATA_PATH", which means search the "official place",
 ///             defined by the value of the CMSSW_DATA_PATH environment
 ///             variable, for files.
 ///
+///       ".:CMSSW_RELEASE_BASE" or "LOCAL:CMSSW_RELEASE_BASE",
+///              which means look first in the current working
+///              directory, then in the "official place", for files.
+///
 ///       ".:CMSSW_DATA_PATH" or "LOCAL:CMSSW_DATA_PATH",
 ///              which means look first in the current working
 ///              directory, then in the "official place", for files.
+///
+///       ".:CMSSW_RELEASE_BASE:CMSSW_DATA_PATH" or "LOCAL:CMSSW_RELEASE_BASE:CMSSW_DATA_PATH",
+///              which means look first in the current working
+///              directory, then in both "official places", for files.
 ///
 
 // Notes:
@@ -37,6 +50,10 @@
 //     of the way the ParameterSet system's 'encode' and 'decode' functions
 //     are implemented for FileInPath objects. This could be fixed, if it
 //     is important to handle filenames or paths with embedded spaces.
+//
+//  2. All environment variables are read only once, when the FileInPath object is constructed.
+//     Therefore, any changes made to these variables externally during the lifetime of
+//     a FileInPath object will have no effect.
 
 
 // TODO: Find the correct package for this class to reside. It
@@ -54,6 +71,13 @@ namespace edm
   {
   public:
 
+    enum LocationCode {
+      Unknown = 0,
+      Local = 1,
+      Release = 2,
+      Data = 3
+    };
+
     /// Default c'tor does no file-existence check; what file would it
     /// check for existence?
     FileInPath();
@@ -70,6 +94,9 @@ namespace edm
     /// *relative* path. DO NOT USE THIS AS THE FILENAME for any file
     /// operations; use fullPath() for that purpose.
     std::string relativePath() const;
+
+    /// Where was the file found?
+    LocationCode location() const;
 
     /// Was the file found under the "local" area?
     bool isLocal() const;
@@ -95,10 +122,14 @@ namespace edm
   private:
     std::string    relativePath_;
     std::string    canonicalFilename_;
-    bool           isLocal_;
-
+    LocationCode   location_;
+    std::string    localTop_;
+    std::string    releaseTop_;
+    std::string    dataTop_;
+    std::string    searchPath_;
 
     // Helper function for construction.
+    void getEnvironment();
     void initialize_();
   };
 
@@ -128,7 +159,7 @@ namespace edm
   operator== (edm::FileInPath const& a,
 	      edm::FileInPath const& b)
   {
-    return a.isLocal() == b.isLocal() && a.relativePath() == b.relativePath();      
+    return a.location() == b.location() && a.relativePath() == b.relativePath();      
   }
 
 }
