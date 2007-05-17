@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.13 2007/05/09 08:11:39 llista Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.14 2007/05/15 07:55:34 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -229,7 +229,7 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
   for( size_t i = 0; i < size; ++ i ) {
     const GenParticle * part = particles[ i ];
     const GenVertex * productionVertex = part-> production_vertex();
-    if ( productionVertex != 0 ) {
+    if ( productionVertex == 0 ) {
       throw edm::Exception( edm::errors::InvalidReference ) 
 	<< "particle has no production vertex. PDG id: " << part->pdg_id() << endl;
     } else {
@@ -242,7 +242,9 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
 	  ++ motherIt;
 	  const GenParticle * mother2 = * motherIt;
 	  mothers2[ i ] = mother2->barcode() - 1;
-	}
+	} else {
+          mothers2[ i ] = -1;
+        }
       } else {
 	mothers[ i ] = -1;
 	mothers2[ i ] = -1;
