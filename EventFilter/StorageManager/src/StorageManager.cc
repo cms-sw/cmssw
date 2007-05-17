@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.18 2007/04/26 07:13:25 hcheung Exp $
+// $Id: StorageManager.cc,v 1.19 2007/05/16 22:55:03 hcheung Exp $
 
 #include <iostream>
 #include <iomanip>
@@ -1921,7 +1921,9 @@ bool StorageManager::configuring(toolbox::task::WorkLoop* wl)
     // Get into the Ready state from Halted state
     
     try {
-      edmplugin::PluginManager::configure(edmplugin::standard::config());
+      if(!edmplugin::PluginManager::isAvailable()) {
+        edmplugin::PluginManager::configure(edmplugin::standard::config());
+      }
     }
     catch(cms::Exception& e)
     {
