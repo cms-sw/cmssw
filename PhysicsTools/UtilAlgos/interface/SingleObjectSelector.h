@@ -1,29 +1,16 @@
 #ifndef UtilAlgos_SingleObjectSelector_h
 #define UtilAlgos_SingleObjectSelector_h
+/* \class SingleObjectSelector
+ *
+ * \author Luca Lista, INFN
+ */
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/StoreContainerTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
 #include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/AssociationVector.h"
-
-namespace helper {
-  template<typename OutputCollection>
-    struct StoreContainerTrait {
-      typedef std::vector<const typename OutputCollection::value_type *> type;
-  };
-
-  template<typename C>
-  struct StoreContainerTrait<edm::RefVector<C> > {
-    typedef edm::RefVector<C> type;
-  };
-
-  template<typename R, typename C>
-   struct StoreContainerTrait<edm::AssociationVector<R, C> > {
-     typedef typename StoreContainerTrait<typename R::product_type>::type type;
-  };
-}
 
 template<typename InputCollection, typename Selector, 
-	 typename OutputCollection = InputCollection,
+	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
 	 typename PostProcessor = helper::NullPostProcessor<OutputCollection>,
 	 typename StoreManager = typename helper::StoreManagerTrait<OutputCollection>::type,

@@ -5,7 +5,8 @@
 <use name=PhysicsTools/CandAlgos>
 <library file=CandSelector.cc></library>
 <library file=PtMinCandSelector.cc></library>
-<library file=PtMinIsolatedCandSelector.cc></library>
+<library file=AssociatedVariableCandSelector.cc></library>
+<library file=PtMinAssociatedVariableCandSelector.cc></library>
 <library file=LargestPtCandSelector.cc></library>
 <library file=EtaPtMinCandSelector.cc></library>
 <library file=EtaPtMinCandViewSelector.cc></library>

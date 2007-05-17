@@ -1,12 +1,13 @@
-/* \class PtMinIsolatedCandSelector
+/* \class PtMinAssociatedVariableCandSelector
  * 
  * Candidate Selector based on a minimum pt cut.
  * Usage:
  * 
- * module selectedCands = PtMinIsolatedCandSelector {
+ * module selectedCands = PtMinAssociatedVariableCandSelector {
  *   InputTag src = myCollection
  *   double ptMin = 15.0
- * };
+ *   double max = 0.2
+ * }
  *
  * \author: Luca Lista, INFN
  *
@@ -26,8 +27,7 @@ typedef SingleObjectSelector<
           PairSelector<
             RefSelector<PtMinSelector<reco::Candidate> >,
             MaxSelector<isolation>
-          >,
-          reco::CandidateCollection
-        > PtMinIsolatedCandSelector;
+          >
+        > PtMinAssociatedVariableCandSelector;
 
-DEFINE_FWK_MODULE( PtMinIsolatedCandSelector );
+DEFINE_FWK_MODULE( PtMinAssociatedVariableCandSelector );
