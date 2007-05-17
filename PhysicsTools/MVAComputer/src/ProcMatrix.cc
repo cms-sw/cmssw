@@ -11,7 +11,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcMatrix.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include <stdlib.h>
@@ -19,7 +19,9 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 
-namespace PhysicsTools {
+using namespace PhysicsTools;
+
+namespace { // anonymous
 
 class ProcMatrix : public VarProcessor {
     public:
@@ -95,4 +97,4 @@ void ProcMatrix::eval(ValueIterator iter, unsigned int n) const
 		iter(sums[row]);
 }
 
-} // namespace PhysicsTools
+} // anonymous namespace

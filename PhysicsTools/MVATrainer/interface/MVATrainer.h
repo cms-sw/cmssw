@@ -1,5 +1,5 @@
-#ifndef MVATrainer_h
-#define MVATrainer_h
+#ifndef PhysicsTools_MVATrainer_MVATrainer_h
+#define PhysicsTools_MVATrainer_MVATrainer_h
 
 #include <sstream>
 #include <memory>
@@ -18,6 +18,8 @@
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariableSet.h"
 
+namespace PhysicsTools {
+
 class Source;
 class Processor;
 
@@ -26,25 +28,23 @@ class MVATrainer {
 	MVATrainer(const std::string &fileName);
 	~MVATrainer();
 
-	PhysicsTools::Calibration::MVAComputer *getTrainCalibration() const;
-	PhysicsTools::Calibration::MVAComputer *getCalibration() const;
+	Calibration::MVAComputer *getTrainCalibration() const;
+	Calibration::MVAComputer *getCalibration() const;
 
-	static const PhysicsTools::AtomicId kTargetId;
+	static const AtomicId kTargetId;
 
 	std::string trainFileName(const Processor *proc,
 	                          const std::string &ext,
 	                          const std::string &arg = "") const;
 
     private:
-	SourceVariable *getVariable(PhysicsTools::AtomicId source,
-	                            PhysicsTools::AtomicId name) const;
+	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
 
-	SourceVariable *createVariable(Source *source,
-	                               PhysicsTools::AtomicId name,
-	                               PhysicsTools::Variable::Flags flags);
+	SourceVariable *createVariable(Source *source, AtomicId name,
+	                               Variable::Flags flags);
 
 	typedef std::pair<Processor*,
-		PhysicsTools::Calibration::VarProcessor*> CalibratedProcessor;
+	                  Calibration::VarProcessor*> CalibratedProcessor;
 
 	void fillInputVars(SourceVariableSet &vars,
 	                   XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
@@ -53,28 +53,30 @@ class MVATrainer {
 	                    XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
 
 	void makeProcessor(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                   PhysicsTools::AtomicId id, const char *name);
+	                   AtomicId id, const char *name);
 
-	void connectProcessors(PhysicsTools::Calibration::MVAComputer *calib,
+	void connectProcessors(Calibration::MVAComputer *calib,
 	                       const std::vector<CalibratedProcessor> &procs,
 	                       bool withTarget) const;
 
-	PhysicsTools::Calibration::MVAComputer *
-	makeTrainCalibration(const PhysicsTools::AtomicId *compute,
-	                     const PhysicsTools::AtomicId *train) const;
+	Calibration::MVAComputer *
+	makeTrainCalibration(const AtomicId *compute,
+	                     const AtomicId *train) const;
 
 	void
-	findUntrainedComputers(std::vector<PhysicsTools::AtomicId> &compute,
-	                       std::vector<PhysicsTools::AtomicId> &train) const;
+	findUntrainedComputers(std::vector<AtomicId> &compute,
+	                       std::vector<AtomicId> &train) const;
 
-	std::map<PhysicsTools::AtomicId, Source*>	sources;
-	std::vector<SourceVariable*>			variables;
-	std::vector<PhysicsTools::AtomicId>		processors;
-	Source						*input;
-	Source						*output;
+	std::map<AtomicId, Source*>	sources;
+	std::vector<SourceVariable*>	variables;
+	std::vector<AtomicId>		processors;
+	Source				*input;
+	Source				*output;
 
-	std::auto_ptr<XMLDocument>			xml;
-	std::string					trainFileMask;
+	std::auto_ptr<XMLDocument>	xml;
+	std::string			trainFileMask;
 };
 
-#endif // MVATrainer_h
+} // namespace PhysicsTools
+
+#endif // PhysicsTools_MVATrainer_MVATrainer_h

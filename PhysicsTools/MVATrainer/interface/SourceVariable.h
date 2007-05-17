@@ -1,5 +1,5 @@
-#ifndef SourceVariable_h
-#define SourceVariable_h
+#ifndef PhysicsTools_MVATrainer_SourceVariable_h
+#define PhysicsTools_MVATrainer_SourceVariable_h
 
 #include <vector>
 #include <set>
@@ -7,13 +7,15 @@
 #include "PhysicsTools/MVAComputer/interface/AtomicId.h"
 #include "PhysicsTools/MVAComputer/interface/Variable.h"
 
+namespace PhysicsTools {
+
 class Source;
 
-class SourceVariable : public PhysicsTools::Variable {
+class SourceVariable : public Variable {
     public:
-	SourceVariable(Source *source, PhysicsTools::AtomicId name,
-	               PhysicsTools::Variable::Flags flags) :
-		PhysicsTools::Variable(name, flags), source(source) {}
+	SourceVariable(Source *source, AtomicId name,
+	               Variable::Flags flags) :
+		Variable(name, flags), source(source) {}
 	~SourceVariable() {}
 
 	Source *getSource() const { return source; }
@@ -22,4 +24,6 @@ class SourceVariable : public PhysicsTools::Variable {
 	Source	*source;
 };
 
-#endif // SourceVariable_h
+} // namespace PhysicsTools
+
+#endif // PhysicsTools_MVATrainer_SourceVariable_h

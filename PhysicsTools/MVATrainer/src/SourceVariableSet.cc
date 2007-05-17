@@ -7,7 +7,7 @@
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariableSet.h"
 
-using namespace PhysicsTools;
+namespace PhysicsTools {
 
 bool SourceVariableSet::append(SourceVariable *var, int offset)
 {
@@ -49,3 +49,5 @@ std::vector<SourceVariable*> SourceVariableSet::get() const
 
 	return result;
 }
+
+} // namespace PhysicsTools

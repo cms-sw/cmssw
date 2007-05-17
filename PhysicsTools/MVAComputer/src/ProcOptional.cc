@@ -9,7 +9,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcOptional.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -17,7 +17,9 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 
-namespace PhysicsTools {
+using namespace PhysicsTools;
+
+namespace { // anonymous
 
 class ProcOptional : public VarProcessor {
     public:
@@ -74,4 +76,4 @@ void ProcOptional::eval(ValueIterator iter, unsigned int n) const
 	}
 }
 
-} // namespace PhysicsTools
+} // anonymous namespace

@@ -1,5 +1,5 @@
-#ifndef Interceptor_h
-#define Interceptor_h
+#ifndef PhysicsTools_MVATrainer_Interceptor_h
+#define PhysicsTools_MVATrainer_Interceptor_h
 
 #include <vector>
 #include <string>
@@ -26,4 +26,4 @@ class Interceptor : public VarProcessor {
 } // namespace Calibration
 } // namespace PhysicsTools
 
-#endif // Interceptor_h
+#endif // PhysicsTools_MVATrainer_Interceptor_h

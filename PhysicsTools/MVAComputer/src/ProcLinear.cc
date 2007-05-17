@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcLinear.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include <vector>
@@ -18,7 +18,9 @@
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 
-namespace PhysicsTools {
+using namespace PhysicsTools;
+
+namespace { // anonymous
 
 class ProcLinear : public VarProcessor {
     public:
@@ -68,4 +70,4 @@ void ProcLinear::eval(ValueIterator iter, unsigned int n) const
 	iter(sum);
 }
 
-} // namespace PhysicsTools
+} // anonymous namespace

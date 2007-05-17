@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcNormalize.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id: ProcNormalize.cc,v 1.2 2007/05/14 00:07:43 saout Exp $
 //
 
 #include <algorithm>
@@ -23,7 +23,9 @@
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 #include "PhysicsTools/MVAComputer/interface/Spline.h"
 
-namespace PhysicsTools {
+using namespace PhysicsTools;
+
+namespace { // anonymous
 
 class ProcNormalize : public VarProcessor {
     public:
@@ -87,4 +89,4 @@ void ProcNormalize::eval(ValueIterator iter, unsigned int n) const
 	}
 }
 
-} // namespace PhysicsTools
+} // anonymous namespace

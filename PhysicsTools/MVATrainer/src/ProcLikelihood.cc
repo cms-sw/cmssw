@@ -22,6 +22,8 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
+namespace { // anonymous
+
 class ProcLikelihood : public Processor {
     public:
 	typedef Processor::Registry<ProcLikelihood>::Type Registry;
@@ -30,8 +32,8 @@ class ProcLikelihood : public Processor {
 	               MVATrainer *trainer);
 	virtual ~ProcLikelihood();
 
-	virtual PhysicsTools::Variable::Flags getDefaultFlags() const
-	{ return PhysicsTools::Variable::FLAG_ALL; }
+	virtual Variable::Flags getDefaultFlags() const
+	{ return Variable::FLAG_ALL; }
 
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalib() const;
@@ -423,3 +425,5 @@ void ProcLikelihood::save() const
 		elem->appendChild(xmlStorePDF(doc, iter->background));
 	}
 }
+
+} // anonymous namespace

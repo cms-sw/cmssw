@@ -1,5 +1,5 @@
-#ifndef XMLDocument_h
-#define XMLDocument_h
+#ifndef PhysicsTools_MVATrainer_XMLDocument_h
+#define PhysicsTools_MVATrainer_XMLDocument_h
 
 #include <iomanip>
 #include <sstream>
@@ -102,4 +102,4 @@ class XMLDocument {
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement			*rootNode;
 };
 
-#endif // XMLDocument_h
+#endif // PhysicsTools_MVATrainer_XMLDocument_h

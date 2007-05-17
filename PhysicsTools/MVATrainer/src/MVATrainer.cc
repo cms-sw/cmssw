@@ -32,7 +32,7 @@
 
 XERCES_CPP_NAMESPACE_USE
 
-using namespace PhysicsTools;
+namespace PhysicsTools {
 
 namespace { // anonymous
 	class MVATrainerComputer;
@@ -143,7 +143,16 @@ void TrainInterceptor::init()
 double
 TrainInterceptor::intercept(const std::vector<double> *values) const
 {
-	assert(values[0].size() == 1);
+	if (values[0].size() != 1) {
+		if (values[0].size() == 0)
+			throw cms::Exception("MVATrainer")
+				<< "Trainer input lacks target variable."
+				<< std::endl;
+		else
+			throw cms::Exception("MVATrainer")
+				<< "Multiple targets supplied in input."
+				<< std::endl;
+	}
 	double target = values[0].front();
 	proc->trainData(values + 1, target > 0.5);
 	return target;
@@ -203,7 +212,7 @@ void MVATrainerComputer::configured(TrainInterceptor *interceptor) const
 
 // implementation for MVATrainer
 
-const PhysicsTools::AtomicId MVATrainer::kTargetId("__TARGET__");
+const AtomicId MVATrainer::kTargetId("__TARGET__");
 
 MVATrainer::MVATrainer(const std::string &fileName) :
 	input(0), output(0), trainFileMask("train_%s%s.%s")
@@ -419,7 +428,7 @@ SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const
 }
 
 SourceVariable *MVATrainer::createVariable(Source *source, AtomicId name,
-                                           PhysicsTools::Variable::Flags flags)
+                                           Variable::Flags flags)
 {
 	SourceVariable *var = getVariable(source->getName(), name);
 	if (var)
@@ -520,7 +529,7 @@ void MVATrainer::fillOutputVars(SourceVariableSet &vars, Source *source,
 }
 
 void
-MVATrainer::connectProcessors(PhysicsTools::Calibration::MVAComputer *calib,
+MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
                               const std::vector<CalibratedProcessor> &procs,
                               bool withTarget) const
 {
@@ -663,7 +672,7 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 	std::auto_ptr<Calibration::MVAComputer> calib(
 						new Calibration::MVAComputer);
 
-	for(std::vector<PhysicsTools::AtomicId>::const_iterator iter =
+	for(std::vector<AtomicId>::const_iterator iter =
 						this->processors.begin();
 	    iter != this->processors.end(); iter++) {
 		std::map<AtomicId, Source*>::const_iterator pos =
@@ -685,9 +694,8 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 	return calib.release();
 }
 
-void MVATrainer::findUntrainedComputers(
-			std::vector<PhysicsTools::AtomicId> &compute,
-			std::vector<PhysicsTools::AtomicId> &train) const
+void MVATrainer::findUntrainedComputers(std::vector<AtomicId> &compute,
+                                        std::vector<AtomicId> &train) const
 {
 	compute.clear();
 	train.clear();
@@ -695,7 +703,7 @@ void MVATrainer::findUntrainedComputers(
 	std::set<Source*> trainedSources;
 	trainedSources.insert(input);
 
-	for(std::vector<PhysicsTools::AtomicId>::const_iterator iter =
+	for(std::vector<AtomicId>::const_iterator iter =
 		processors.begin(); iter != processors.end(); iter++) {
 		std::map<AtomicId, Source*>::const_iterator pos =
 							sources.find(*iter);
@@ -739,3 +747,5 @@ Calibration::MVAComputer *MVATrainer::getTrainCalibration() const
 
 	return makeTrainCalibration(&compute.front(), &train.front());
 }
+
+} // namespace PhysicsTools

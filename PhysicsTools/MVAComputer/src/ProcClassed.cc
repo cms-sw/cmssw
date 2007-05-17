@@ -12,13 +12,15 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcClassed.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
 
-namespace PhysicsTools {
+using namespace PhysicsTools;
+
+namespace { // anonymous
 
 class ProcClassed : public VarProcessor {
     public:
@@ -65,4 +67,4 @@ void ProcClassed::eval(ValueIterator iter, unsigned int n) const
 		iter(i == value ? 1.0 : 0.0);
 }
 
-} // namespace PhysicsTools
+} // anonymous namespace

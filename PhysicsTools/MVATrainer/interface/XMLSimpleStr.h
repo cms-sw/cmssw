@@ -1,5 +1,5 @@
-#ifndef XMLSimpleStr_h
-#define XMLSimpleStr_h
+#ifndef PhysicsTools_MVATrainer_XMLSimpleStr_h
+#define PhysicsTools_MVATrainer_XMLSimpleStr_h
 
 #include <string>
 
@@ -25,4 +25,4 @@ class XMLSimpleStr {
 	char	*string;
 };
 
-#endif // XMLSimpleStr_h
+#endif // PhysicsTools_MVATrainer_XMLSimpleStr_h

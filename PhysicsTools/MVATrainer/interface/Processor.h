@@ -1,5 +1,5 @@
-#ifndef Processor_h
-#define Processor_h
+#ifndef PhysicsTools_MVATrainer_Processor_h
+#define PhysicsTools_MVATrainer_Processor_h
 
 #include <vector>
 #include <string>
@@ -13,34 +13,35 @@
 
 #include "PhysicsTools/MVATrainer/interface/Source.h"
 
+namespace PhysicsTools {
+
 class MVATrainer;
 
 class Processor : public Source,
-	public PhysicsTools::ProcessRegistry<Processor, PhysicsTools::AtomicId,
-	                                     MVATrainer>::Factory {
+	public ProcessRegistry<Processor, AtomicId, MVATrainer>::Factory {
     public:
 	template<typename Instance_t>
 	struct Registry {
-		typedef typename PhysicsTools::ProcessRegistry<
+		typedef typename ProcessRegistry<
 			Processor,
-			PhysicsTools::AtomicId,
+			AtomicId,
 			MVATrainer
-		>::Registry<Instance_t, PhysicsTools::AtomicId> Type;
+		>::Registry<Instance_t, AtomicId> Type;
 	};
 
 	inline Processor(const char *name,
-	                 const PhysicsTools::AtomicId *id,
+	                 const AtomicId *id,
 	                 MVATrainer *trainer) :
 		Source(*id), name(name), trainer(trainer) {}
 	virtual ~Processor() {}
 
-	virtual PhysicsTools::Variable::Flags getDefaultFlags() const
-	{ return PhysicsTools::Variable::FLAG_NONE; }
+	virtual Variable::Flags getDefaultFlags() const
+	{ return Variable::FLAG_NONE; }
 
 	virtual void
 	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) = 0;
 
-	virtual PhysicsTools::Calibration::VarProcessor *getCalib() const = 0;
+	virtual Calibration::VarProcessor *getCalib() const = 0;
 
 	virtual void trainBegin() = 0;
 	virtual void trainData(const std::vector<double> *values,
@@ -57,4 +58,6 @@ class Processor : public Source,
 	MVATrainer	*trainer;
 };
 
-#endif // Processor_h
+} // namespace PhysicsTools
+
+#endif // PhysicsTools_MVATrainer_Processor_h

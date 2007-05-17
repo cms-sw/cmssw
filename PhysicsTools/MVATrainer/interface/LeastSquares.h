@@ -1,5 +1,5 @@
-#ifndef LeastSquares_h
-#define LeastSquares_h
+#ifndef PhysicsTools_MVATrainer_LeastSquares_h
+#define PhysicsTools_MVATrainer_LeastSquares_h
 
 #include <string>
 #include <vector>
@@ -8,6 +8,8 @@
 #include <TVectorD.h>
 
 #include <xercesc/dom/DOM.hpp>
+
+namespace PhysicsTools {
 
 class LeastSquares
 {
@@ -43,4 +45,6 @@ class LeastSquares
 	const unsigned int	n;
 };
 
-#endif // LeastSquares_h
+} // namespace PhysicsTools
+
+#endif // PhysicsTools_MVATrainer_LeastSquares_h

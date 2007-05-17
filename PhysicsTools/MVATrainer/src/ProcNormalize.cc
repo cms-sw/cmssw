@@ -24,6 +24,8 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
+namespace { // anonymous
+
 class ProcNormalize : public Processor {
     public:
 	typedef Processor::Registry<ProcNormalize>::Type Registry;
@@ -32,8 +34,8 @@ class ProcNormalize : public Processor {
 	              MVATrainer *trainer);
 	virtual ~ProcNormalize();
 
-	virtual PhysicsTools::Variable::Flags getDefaultFlags() const
-	{ return PhysicsTools::Variable::FLAG_ALL; }
+	virtual Variable::Flags getDefaultFlags() const
+	{ return Variable::FLAG_ALL; }
 
 	virtual void configure(DOMElement *elem);
 	virtual Calibration::VarProcessor *getCalib() const;
@@ -330,3 +332,5 @@ void ProcNormalize::save() const
 		}
 	}
 }
+
+} // anonymous namespace

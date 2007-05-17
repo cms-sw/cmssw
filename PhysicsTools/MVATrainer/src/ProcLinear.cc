@@ -17,6 +17,8 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
+namespace { // anonymous
+
 class ProcLinear : public Processor {
     public:
 	typedef Processor::Registry<ProcLinear>::Type Registry;
@@ -172,3 +174,5 @@ void ProcLinear::save() const
 
 	xml.getRootNode()->appendChild(ls->save(doc));
 }
+
+} // anonymous namespace

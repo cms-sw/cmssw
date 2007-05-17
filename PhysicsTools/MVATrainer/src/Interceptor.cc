@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat May 05 09:05 CEST 2007
-// $Id$
+// $Id: Interceptor.cc,v 1.1 2007/05/15 21:37:57 saout Exp $
 //
 
 #include <vector>
@@ -21,7 +21,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/Interceptor.h"
 
-using namespace PhysicsTools;
+namespace PhysicsTools {
 
 class Interceptor : public VarProcessor {
     public:
@@ -76,13 +76,9 @@ void Interceptor::eval(ValueIterator iter, unsigned int n) const
 {
 	std::vector<double> *var = values;
 
-//std::cout << "-------------" << std::endl;
 	for(unsigned int i = 0; i < n; i++) {
-//std::cout << i << std::endl;
 		var->resize(iter.size());
 		std::copy(iter.begin(), iter.end(), var->begin());
-//for(unsigned int j = 0; j < var->size(); j++)
-//	std::cout << var->at(j) << std::endl;
 		iter++;
 		var++;
 	}
@@ -91,3 +87,5 @@ void Interceptor::eval(ValueIterator iter, unsigned int n) const
 
 	iter(0.0);
 }
+
+} // namespace PhysicsTools

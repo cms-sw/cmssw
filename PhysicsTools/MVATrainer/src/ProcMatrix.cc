@@ -19,6 +19,8 @@ XERCES_CPP_NAMESPACE_USE
 
 using namespace PhysicsTools;
 
+namespace { // anonymous
+
 class ProcMatrix : public Processor {
     public:
 	typedef Processor::Registry<ProcMatrix>::Type Registry;
@@ -181,3 +183,5 @@ void ProcMatrix::save() const
 
 	xml.getRootNode()->appendChild(ls->save(doc));
 }
+
+} // anonymous namespace

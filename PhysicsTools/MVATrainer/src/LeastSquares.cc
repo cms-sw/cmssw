@@ -18,6 +18,8 @@
 
 XERCES_CPP_NAMESPACE_USE
 
+namespace PhysicsTools {
+
 LeastSquares::LeastSquares(unsigned int n) :
 	coeffs(n + 1), covar(n), corr(n), rotation(n, n),
 	sums(n + 1), weights(n + 1), variance(n), trace(n), n(n)
@@ -335,3 +337,5 @@ DOMElement *LeastSquares::save(DOMDocument *doc) const
 
 	return root;
 }
+
+} // namespace PhysicsTools

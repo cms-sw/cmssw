@@ -1,5 +1,5 @@
-#ifndef XMLUniStr_h
-#define XMLUniStr_h
+#ifndef PhysicsTools_MVATrainer_XMLUniStr_h
+#define PhysicsTools_MVATrainer_XMLUniStr_h
 
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
@@ -20,4 +20,4 @@ class XMLUniStr {
 	XMLCh	*unicode;
 };
 
-#endif // XMLUniStr_h
+#endif // PhysicsTools_MVATrainer_XMLUniStr_h
