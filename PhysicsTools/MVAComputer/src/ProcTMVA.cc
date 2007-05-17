@@ -12,15 +12,16 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcTMVA.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id$
 //
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include <TMVA/DataSet.h>
 #include <TMVA/Types.h>
-#include <TMVA/IMethod.h>
+#include <TMVA/MethodBase.h>
 #include <TMVA/Methods.h>
 
 #include "PhysicsTools/MVAComputer/interface/memstream.h"
@@ -48,7 +49,7 @@ class ProcTMVA : public VarProcessor {
 
     private:
 	mutable TMVA::DataSet		data;
-	TMVA::IMethod			*method;
+	std::auto_ptr<TMVA::MethodBase>	method;
 	unsigned int			nVars;
 };
 
@@ -58,7 +59,7 @@ static ProcTMVA::Registry registry("ProcTMVA");
 	case (TMVA::Types::k##name):				\
 		return new TMVA::Method##name(*data, "");
 
-static TMVA::IMethod *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
+static TMVA::MethodBase *methodInst(TMVA::DataSet *data, TMVA::Types::EMVA type)
 {
 	switch(type) {
 		SWITCH_METHOD(Cuts)
@@ -98,7 +99,8 @@ ProcTMVA::ProcTMVA(const char *name,
 	TMVA::Types::EMVA methodType =
 			TMVA::Types::Instance().GetMethodType(calib->method);
 
-	method = methodInst(&data, methodType);
+	method = std::auto_ptr<TMVA::MethodBase>(
+					methodInst(&data, methodType));
 
 	method->ReadStateFromStream(izs);
 }

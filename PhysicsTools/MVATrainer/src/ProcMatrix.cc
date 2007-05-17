@@ -48,8 +48,8 @@ class ProcMatrix : public Processor {
 	bool load();
 	void save() const;
 
-	std::auto_ptr<LeastSquares>		ls;
-	std::auto_ptr< std::vector<double> >	vars;
+	std::auto_ptr<LeastSquares>	ls;
+	std::vector<double>		vars;
 };
 
 static ProcMatrix::Registry registry("ProcMatrix");
@@ -98,8 +98,7 @@ Calibration::VarProcessor *ProcMatrix::getCalib() const
 void ProcMatrix::trainBegin()
 {
 	if (iteration == ITER_FILL)
-		vars = std::auto_ptr< std::vector<double> >(
-				new std::vector<double>(ls->getSize()));
+		vars.resize(ls->getSize());
 }
 
 void ProcMatrix::trainData(const std::vector<double> *values, bool target)
@@ -108,16 +107,16 @@ void ProcMatrix::trainData(const std::vector<double> *values, bool target)
 		return;
 
 	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
-		vars->at(i) = values->front();
+		vars[i] = values->front();
 
-	ls->add(*vars, target);
+	ls->add(vars, target);
 }
 
 void ProcMatrix::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_FILL:
-		vars.reset();
+		vars.clear();
 		ls->calculate();
 
 		save();

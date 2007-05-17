@@ -46,8 +46,8 @@ class ProcLinear : public Processor {
 	bool load();
 	void save() const;
 
-	std::auto_ptr<LeastSquares>		ls;
-	std::auto_ptr< std::vector<double> >	vars;
+	std::auto_ptr<LeastSquares>	ls;
+	std::vector<double>		vars;
 };
 
 static ProcLinear::Registry registry("ProcLinear");
@@ -89,8 +89,7 @@ Calibration::VarProcessor *ProcLinear::getCalib() const
 void ProcLinear::trainBegin()
 {
 	if (iteration == ITER_FILL)
-		vars = std::auto_ptr< std::vector<double> >(
-				new std::vector<double>(ls->getSize()));
+		vars.resize(ls->getSize());
 }
 
 void ProcLinear::trainData(const std::vector<double> *values, bool target)
@@ -99,16 +98,16 @@ void ProcLinear::trainData(const std::vector<double> *values, bool target)
 		return;
 
 	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
-		vars->at(i) = values->front();
+		vars[i] = values->front();
 
-	ls->add(*vars, target);
+	ls->add(vars, target);
 }
 
 void ProcLinear::trainEnd()
 {
 	switch(iteration) {
 	    case ITER_FILL:
-		vars.reset();
+		vars.clear();
 		ls->calculate();
 
 		save();

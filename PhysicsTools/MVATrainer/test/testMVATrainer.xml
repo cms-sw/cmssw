@@ -28,6 +28,7 @@
 			<var name="y"/>
 		</output>
 	</processor>
+<!--
 	<processor id="lkh" name="ProcLikelihood">
 		<input>
 			<var source="norm" name="x"/>
@@ -43,5 +44,21 @@
 	</processor>
 	<output>
 		<var source="lkh" name="discriminator"/>
+	</output>
+-->
+	<processor id="tmva" name="ProcTMVA">
+		<input>
+			<var source="norm" name="x"/>
+			<var source="norm" name="y"/>
+		</input>
+		<config>
+			<method type="MLP" name="MLP">!V:NCycles=50:HiddenLayers=5:TestRate=10</method>
+		</config>
+		<output>
+			<var name="discriminator"/>
+		</output>
+	</processor>
+	<output>
+		<var source="tmva" name="discriminator"/>
 	</output>
 </MVATrainer>

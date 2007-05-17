@@ -16,6 +16,12 @@
 
 using namespace PhysicsTools;
 
+static double gauss()
+{
+	return std::sqrt(-2.0 * std::log((random() + 0.5) / RAND_MAX))
+	       * std::cos(random() * (2 * M_PI / RAND_MAX));
+}
+
 static void train(MVAComputer *computer)
 {
 	static const AtomicId idX("x");
@@ -23,11 +29,11 @@ static void train(MVAComputer *computer)
 
 	srandom(0);
 
-	for(unsigned int i = 0; i < 100000; i++) {
+	for(unsigned int i = 0; i < 20000; i++) {
 		double x, y;
 
-		x = +2.0 + 2.5 * std::log(random() * 1.0 / RAND_MAX) * cos(random() * M_2_PI);
-		y = +1.0 + 2.5 * std::log(random() * 1.0 / RAND_MAX) * cos(random() * M_2_PI);
+		x = +2 + 2 * gauss();
+		y = +1 + 2 * gauss();
 
 		Variable::Value sig[] = {
 			Variable::Value(MVATrainer::kTargetId, true),
@@ -35,8 +41,8 @@ static void train(MVAComputer *computer)
 			Variable::Value(idY, y)
 		};
 
-		x = -1.0 + 2.5 * std::log(random() * 1.0 / RAND_MAX) * cos(random() * M_2_PI);
-		y = -2.0 + 2.5 * std::log(random() * 1.0 / RAND_MAX) * cos(random() * M_2_PI);
+		x = -1 + 2 * gauss();
+		y = -2 + 2 * gauss();
 
 		Variable::Value bkg[] = {
 			Variable::Value(MVATrainer::kTargetId, false),
@@ -44,10 +50,8 @@ static void train(MVAComputer *computer)
 			Variable::Value(idY, y)
 		};
 
-		computer->eval(sig,
-		               sig + (sizeof sig / sizeof sig[0]));
-		computer->eval(bkg,
-		               bkg + (sizeof bkg / sizeof bkg[0]));
+		computer->eval(sig, sig + 3);
+		computer->eval(bkg, bkg + 3);
 	}
 }
 
@@ -78,23 +82,23 @@ void test()
 
 	test[0].value = 2;
 	test[1].value = 2;
-	std::cout << computer->eval(test) << std::endl;
+	std::cout << "at (+2.0, +2.0): " << computer->eval(test) << std::endl;
 
 	test[0].value = 0.1;
 	test[1].value = 0.1;
-	std::cout << computer->eval(test) << std::endl;
+	std::cout << "at (+0.1, +0.1): " << computer->eval(test) << std::endl;
 
 	test[0].value = 0;
 	test[1].value = 0;
-	std::cout << computer->eval(test) << std::endl;
+	std::cout << "at (+2.0, +2.0): " << computer->eval(test) << std::endl;
 
 	test[0].value = -0.1;
 	test[1].value = -0.1;
-	std::cout << computer->eval(test) << std::endl;
+	std::cout << "at (-0.1, -0.1): " << computer->eval(test) << std::endl;
 
 	test[0].value = -2;
 	test[1].value = -2;
-	std::cout << computer->eval(test) << std::endl;
+	std::cout << "at (-2.0, -2.0): " << computer->eval(test) << std::endl;
 
 	delete computer;
 
