@@ -42,7 +42,7 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
     eta2 = theHBHEEtaBounds[etaRing];
   }
   double eta = 0.5*(eta1+eta2);
-  double deta = 0.5*(eta2-eta1);  
+  double deta = (eta2-eta1);  
 
   // in radians
   double dphi_nominal = 2.0*M_PI / limits.nPhiBins(1); // always the same
