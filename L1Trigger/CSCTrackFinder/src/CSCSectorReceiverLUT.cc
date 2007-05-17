@@ -20,6 +20,33 @@
 lclphidat* CSCSectorReceiverLUT::me_lcl_phi = NULL;
 bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
+///KK
+#include "CondFormats/L1TObjects/interface/L1MuCSCDTLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCDTLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCLocalPhiLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCLocalPhiLutRcd.h"
+#include "CondFormats/L1TObjects/interface/L1MuCSCGlobalLuts.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCGlobalLutsRcd.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
+					   const edm::EventSetup& c):_endcap(endcap),_sector(sector),
+									   _subsector(subsector),
+									   _station(station)
+{
+	mb_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
+	me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
+/*
+	edm::ESHandle<L1MuCSCPtLut> ptLUT;
+	es.get<L1MuCSCPtLutRcd>().get(ptLUT);
+	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
+
+	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
+	lut_read_in = true;
+*/
+}
+///
+
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset):_endcap(endcap),_sector(sector),
 									   _subsector(subsector),

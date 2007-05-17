@@ -12,12 +12,18 @@
 #include <L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
+///KK
+#include <FWCore/Framework/interface/EventSetup.h>
+///
 
 class CSCLayer;
 
 class CSCSectorReceiverLUT
 {
  public:
+///KK
+  CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::EventSetup& c);
+///
 
   CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station, const edm::ParameterSet &pset);
   CSCSectorReceiverLUT(const CSCSectorReceiverLUT&);
@@ -32,11 +38,11 @@ class CSCSectorReceiverLUT
   lclphidat localPhi(int strip, int pattern, int quality, int lr) const;
   lclphidat localPhi(unsigned address) const;
   lclphidat localPhi(lclphiadd address) const;
-  
+
   gblphidat globalPhiME(int phi_local, int wire_group, int cscid) const;
   gblphidat globalPhiME(unsigned address) const;
   gblphidat globalPhiME(gblphiadd address) const;
-  
+
   gblphidat globalPhiMB(int phi_local,int wire_group, int cscid) const;
   gblphidat globalPhiMB(unsigned address) const;
   gblphidat globalPhiMB(gblphiadd address) const;
@@ -51,9 +57,9 @@ class CSCSectorReceiverLUT
  private:
   int _endcap, _sector, _subsector, _station;
 
-  /// Local Phi LUT 
+  /// Local Phi LUT
   lclphidat calcLocalPhi(const lclphiadd& address) const;
-  
+
   /// Global Phi LUT
   gblphidat calcGlobalPhiME(const gblphiadd& address) const;
   gblphidat calcGlobalPhiMB(const gblphidat& me_gphi_data) const;
@@ -64,7 +70,7 @@ class CSCSectorReceiverLUT
   double getGlobalEtaValue(const unsigned& cscid, const unsigned& wire_group, const unsigned& phi_local) const;
 
   void fillLocalPhiLUT();
-  
+
   edm::FileInPath me_lcl_phi_file;
   edm::FileInPath me_gbl_phi_file;
   edm::FileInPath mb_gbl_phi_file;
@@ -75,7 +81,7 @@ class CSCSectorReceiverLUT
   /// Arrays for holding read in LUT information.
   /// MB LUT arrays only initialized in ME1
   void readLUTsFromFile();
-  
+
   static bool me_lcl_phi_loaded;
   static lclphidat* me_lcl_phi;
   gblphidat* me_global_phi, *mb_global_phi;

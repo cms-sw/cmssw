@@ -6,10 +6,17 @@
 #include <CondFormats/L1TObjects/interface/L1MuTriggerScales.h>
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtMethods.h>
 #include <FWCore/ParameterSet/interface/FileInPath.h>
+///KK
+#include <FWCore/Framework/interface/EventSetup.h>
+///
 
 class CSCTFPtLUT
 {
- public:
+public:
+///KK
+  CSCTFPtLUT(const edm::EventSetup& c);
+///
+
   CSCTFPtLUT(const edm::ParameterSet&);
   CSCTFPtLUT(const CSCTFPtLUT&);
   ~CSCTFPtLUT() { if(pt_lut) delete pt_lut; pt_lut = NULL; }
@@ -24,8 +31,8 @@ class CSCTFPtLUT
 	   const unsigned& track_eta, const unsigned& track_mode,
 	   const unsigned& track_fr, const unsigned& delta_phi_sign) const;
 
-  ptdat Pt(const unsigned& delta_phi_12, const unsigned& track_eta, 
-	   const unsigned& track_mode, const unsigned& track_fr, 
+  ptdat Pt(const unsigned& delta_phi_12, const unsigned& track_eta,
+	   const unsigned& track_mode, const unsigned& track_fr,
 	   const unsigned& delta_phi_sign) const;
 
  private:
@@ -33,11 +40,11 @@ class CSCTFPtLUT
   static bool lut_read_in;
   static L1MuTriggerScales trigger_scale;
   static CSCTFPtMethods ptMethods;
-  
+
   bool read_pt_lut, isBinary;
   edm::FileInPath pt_lut_file;
   unsigned pt_method, lowQualityFlag;
-  
+
 
   ptdat calcPt(const ptadd&) const;
   unsigned trackQuality(const unsigned& eta, const unsigned& mode) const;

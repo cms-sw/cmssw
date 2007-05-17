@@ -33,6 +33,10 @@ CSCTFTrackProducer::~CSCTFTrackProducer()
   my_builder = NULL;
 }
 
+void CSCTFTrackProducer::beginJob(const edm::EventSetup& es){
+  my_builder->initialize(es);
+}
+
 void CSCTFTrackProducer::produce(edm::Event & e, const edm::EventSetup& c)
 {
   // set geometry pointer
