@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplateReco.cc (Version 2.42)
+//  SiPixelTemplateReco.cc (Version 3.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -7,6 +7,7 @@
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small double pixel bug with decapitation (2.41 5-Mar-2007).
 //  Fix pseudopixel bug causing possible memory overwrite (2.42 12-Mar-2007)
+//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -28,8 +29,9 @@ static int theVerboseLevel = {2};
 #include <iostream>
 // ROOT::Math has a c++ function that does the probability calc, but only in v5.12 and later
 //#include "Math/DistFunc.h"
+#include "TMath.h"
 // Use current version of gsl instead of ROOT::Math
-#include <gsl/gsl_cdf.h>
+//#include <gsl/gsl_cdf.h>
 
 using namespace SiPixelTemplateReco;
 
@@ -65,8 +67,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	unsigned int nclusx, nclusy;
 	float sythr, sxthr, rnorm, delta, sigma, sigavg, pseudopix;
 	float ss2, ssa, sa2, ssba, saba, sba2, rat, fq;
-	float originx, originy, qfy, qly, qfx, qlx, bias, maxpix;
+	float originx, originy, qfy, qly, qfx, qlx, bias, err, maxpix;
 	double chi2x, meanx, chi2y, meany, chi2ymin, chi2xmin, chi2;
+	double hchi2, hndof;
 	const float ysize={150.}, xsize={100.};
 	
 // The minimum chi2 for a valid one pixel cluster = pseudopixel contribution only
@@ -83,15 +86,15 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	
 // Next, copy the y- and x-templates to matrix containers     
    
-	array_2d ytemp(boost::extents[41][25]);
-    for(i=0; i<41; ++i) {
+	array_2d ytemp(boost::extents[25][25]);
+    for(i=0; i<25; ++i) {
 	   for(j=0; j<25; ++j) {
 	      ytemp[i][j]=templ.ytemp(i,j);
 	   }
 	}
    
-	array_2d xtemp(boost::extents[41][11]);
-    for(i=0; i<41; ++i) {
+	array_2d xtemp(boost::extents[25][11]);
+    for(i=0; i<25; ++i) {
 	   for(j=0; j<11; ++j) {
 	      xtemp[i][j]=templ.xtemp(i,j);
 	   }
@@ -113,10 +116,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // First, sum the total charge and "decapitate" big pixels         
 
 	float qtotal = 0.;
-	for(i=0; i<(int)nclusy; ++i) {
+    for(i=0; i<nclusy; ++i) {
 	   maxpix = templ.symax();
 	   if(ydouble[i]) {maxpix *=2.;}
-	   for(j=0; j<(int)nclusx; ++j) {
+	   for(j=0; j<nclusx; ++j) {
 		  qtotal += cluster[j][i];
 		  if(cluster[j][i] > maxpix) {cluster[j][i] = maxpix;}
 	   }
@@ -127,8 +130,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	std::vector<float> ysum(25, 0.);
 	std::vector<bool> yd(25, false);
 	k=0;
-	for(i=0; i<(int)nclusy; ++i) {
-	  for(j=0; j<(int)nclusx; ++j) {
+    for(i=0; i<nclusy; ++i) {
+	   for(j=0; j<nclusx; ++j) {
 		  ysum[k] += cluster[j][i];
 	   }
     
@@ -152,8 +155,8 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	std::vector<float> xsum(11, 0.);
 	std::vector<bool> xd(11, false);
 	k=0;
-	for(j=0; j<(int)nclusx; ++j) {
-	  for(i=0; i<(int)nclusy; ++i) {
+    for(j=0; j<nclusx; ++j) {
+	   for(i=0; i<nclusy; ++i) {
 		  xsum[k] += cluster[j][i];
 	   }
     
@@ -391,7 +394,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		i=fypix;
 		while(i < lypix) {
 		   if(yd[i] && !yd[i+1]) {
-			  for(j=0; j<41; ++j) {
+			  for(j=0; j<25; ++j) {
 		
 // Sum the adjacent cells and put the average signal in both   
 
@@ -425,23 +428,34 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // Find the template bin that minimizes the Chi^2 
 
 	chi2ymin = 1.e15;
+	std::vector<float> chi2ybin(25, -1.e15);
 	minbin = -1;
-	for(j=0; j<41; ++j) {
-		ss2 = 0.;
-		ssa = 0.;
-		sa2 = 0.;
-		for(i=fypix-2; i<=lypix+2; ++i) {
-			ss2 += ysum[i]*ysum[i]/ysig2[i];
-			ssa += ysum[i]*ytemp[j][i]/ysig2[i];
-			sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
-		}
-		rat=ssa/ss2;
-		if(rat <= 0.) {std::cout << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
-		chi2=ss2-2.*ssa/rat+sa2/(rat*rat);
-		if(chi2 < chi2ymin) {
-			chi2ymin = chi2;
-			minbin = j;
-		}
+	int deltaj = 4;
+	int jmin = 0;
+	int jmax = 24;
+	while(deltaj > 0) {
+	   for(j=jmin; j<=jmax; j+=deltaj) {
+	      if(chi2ybin[j] < -100.) {
+		     ss2 = 0.;
+		     ssa = 0.;
+		     sa2 = 0.;
+		     for(i=fypix-2; i<=lypix+2; ++i) {
+			     ss2 += ysum[i]*ysum[i]/ysig2[i];
+			     ssa += ysum[i]*ytemp[j][i]/ysig2[i];
+			     sa2 += ytemp[j][i]*ytemp[j][i]/ysig2[i];
+		     }
+		     rat=ssa/ss2;
+		     if(rat <= 0.) {std::cout << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
+		     chi2ybin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
+		  }
+		  if(chi2ybin[j] < chi2ymin) {
+			  chi2ymin = chi2ybin[j];
+			  minbin = j;
+		  }
+	   } 
+	   deltaj /= 2;
+	   if(minbin > 0) {jmin = minbin - deltaj;} else {jmin = 0;}
+	   if(minbin < 24) {jmax = minbin + deltaj;} else {jmax = 24;}
 	}
 	
 // Do not apply final template pass to 1-pixel clusters (use calibrated offset) 
@@ -468,7 +482,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 
        chi2ymin -=chi21min;
 	   if(chi2ymin < 0.) {chi2ymin = 0.;}
-	   proby = gsl_cdf_chisq_Q(chi2ymin, mean1pix);
+//	   proby = gsl_cdf_chisq_Q(chi2ymin, mean1pix);
+       hchi2 = chi2ymin/2.; hndof = mean1pix/2.;
+	   proby = 1. - TMath::Gamma(hndof, hchi2);
 	   
 	} else {
 	   
@@ -477,7 +493,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
        binl = minbin - 1;
 	   binh = binl + 2;
 	   if(binl < 0) { binl = 0;}
-	   if(binh > 40) { binh = 40;}	  
+	   if(binh > 24) { binh = 24;}	  
 	   ss2 = 0.;
 	   ssa = 0.;
 	   sa2 = 0.;
@@ -518,7 +534,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		   	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   yrec = (0.125*binl+9.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - bias;
+	   yrec = (0.125*binl+10.5+rat*(binh-binl)*0.125-(float)shifty+originy)*ysize - bias;
 	   sigmay = templ.yrms(binq);
 	   
 // Do goodness of fit test in y  
@@ -529,8 +545,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   meany = templ.chi2yavg(binq);
 	   if(meany < 0.01) {meany = 0.01;}
 // gsl function that calculates the chi^2 tail prob for non-integral dof
-	   proby = gsl_cdf_chisq_Q(chi2y, meany);
+//	   proby = gsl_cdf_chisq_Q(chi2y, meany);
 //	   proby = ROOT::Math::chisquared_cdf_c(chi2y, meany);
+       hchi2 = chi2y/2.; hndof = meany/2.;
+	   proby = 1. - TMath::Gamma(hndof, hchi2);
 	}
 	
 // Do the x-reconstruction next 
@@ -543,7 +561,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 		i=fxpix;
 		while(i < lxpix) {
 		   if(xd[i] && !xd[i+1]) {
-			  for(j=0; j<41; ++j) {
+			  for(j=0; j<25; ++j) {
 		
 // Sum the adjacent cells and put the average signal in both   
 
@@ -577,23 +595,34 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 // Find the template bin that minimizes the Chi^2 
 
 	chi2xmin = 1.e15;
+	std::vector<float> chi2xbin(25, -1.e15);
 	minbin = -1;
-	for(j=0; j<41; ++j) {
-		ss2 = 0.;
-		ssa = 0.;
-		sa2 = 0.;
-		for(i=fxpix-2; i<=lxpix+2; ++i) {
-			ss2 += xsum[i]*xsum[i]/xsig2[i];
-			ssa += xsum[i]*xtemp[j][i]/xsig2[i];
-			sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
-		}
-		rat=ssa/ss2;
-		if(rat <= 0.) {std::cout << "illegal chi2xmin normalization = " << rat << std::endl; rat = 1.;}
-		chi2=ss2-2.*ssa/rat+sa2/(rat*rat);
-		if(chi2 < chi2xmin) {
-			chi2xmin = chi2;
-			minbin = j;
-		}
+	deltaj = 4;
+	jmin = 0;
+	jmax = 24;
+	while(deltaj > 0) {
+	   for(j=jmin; j<=jmax; j+=deltaj) {
+	      if(chi2xbin[j] < -100.) {
+		     ss2 = 0.;
+		     ssa = 0.;
+		     sa2 = 0.;
+		     for(i=fxpix-2; i<=lxpix+2; ++i) {
+			     ss2 += xsum[i]*xsum[i]/xsig2[i];
+			     ssa += xsum[i]*xtemp[j][i]/xsig2[i];
+			     sa2 += xtemp[j][i]*xtemp[j][i]/xsig2[i];
+			 }
+		     rat=ssa/ss2;
+		     if(rat <= 0.) {std::cout << "illegal chi2ymin normalization = " << rat << std::endl; rat = 1.;}
+		     chi2xbin[j]=ss2-2.*ssa/rat+sa2/(rat*rat);
+		  }
+		  if(chi2xbin[j] < chi2xmin) {
+			  chi2xmin = chi2xbin[j];
+			  minbin = j;
+		  }
+	   } 
+	   deltaj /= 2;
+	   if(minbin > 0) {jmin = minbin - deltaj;} else {jmin = 0;}
+	   if(minbin < 24) {jmax = minbin + deltaj;} else {jmax = 24;}
 	}
 
 // Do not apply final template pass to 1-pixel clusters (use calibrated offset)
@@ -618,7 +647,9 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 
        chi2xmin -=chi21min;
 	   if(chi2xmin < 0.) {chi2xmin = 0.;}
-	   probx = gsl_cdf_chisq_Q(chi2xmin, mean1pix);
+//	   probx = gsl_cdf_chisq_Q(chi2xmin, mean1pix);
+       hchi2 = chi2xmin/2.; hndof = mean1pix/2.;
+	   probx = 1. - TMath::Gamma(hndof, hchi2);
 	   
 	} else {
 	   
@@ -627,7 +658,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
        binl = minbin - 1;
 	   binh = binl + 2;
 	   if(binl < 0) { binl = 0;}
-	   if(binh > 40) { binh = 40;}	  
+	   if(binh > 24) { binh = 24;}	  
 	   ss2 = 0.;
 	   ssa = 0.;
 	   sa2 = 0.;
@@ -668,7 +699,7 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   
 // uncertainty and final correction depend upon charge bin 	   
 	   
-	   xrec = (0.125*binl+2.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - bias;
+	   xrec = (0.125*binl+3.5+rat*(binh-binl)*0.125-(float)shiftx+originx)*xsize - bias;
 	   sigmax = templ.xrms(binq);
 	   
 // Do goodness of fit test in x  
@@ -679,8 +710,10 @@ int SiPixelTemplateReco::PixelTempReco2D(int id, bool fpix, float cotalpha, floa
 	   meanx = templ.chi2xavg(binq);
 	   if(meanx < 0.01) {meanx = 0.01;}
 // gsl function that calculates the chi^2 tail prob for non-integral dof
-	   probx = gsl_cdf_chisq_Q(chi2x, meanx);
+//	   probx = gsl_cdf_chisq_Q(chi2x, meanx);
 //	   probx = ROOT::Math::chisquared_cdf_c(chi2x, meanx, trx0);
+       hchi2 = chi2x/2.; hndof = meanx/2.;
+	   probx = 1. - TMath::Gamma(hndof, hchi2);
 	}
 	
     return 0;

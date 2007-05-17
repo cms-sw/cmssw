@@ -1,5 +1,5 @@
 //
-//   SiPixelTemplateReco.h (v2.42)
+//   SiPixelTemplateReco.h (v3.00)
 //
 //  Add goodness-of-fit to algorithm, include single pixel clusters in chi2 calculation
 //  Try "decapitation" of large single pixels
@@ -7,6 +7,7 @@
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small double pixel bug with decapitation (2.41 5-Mar-2007).
 //  Fix pseudopixel bug causing possible memory overwrite (2.42 12-Mar-2007)
+//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
 //
 //    Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
