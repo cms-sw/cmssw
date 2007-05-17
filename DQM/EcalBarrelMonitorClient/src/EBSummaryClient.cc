@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/13 15:02:29 $
- * $Revision: 1.24 $
+ * $Date: 2007/05/14 08:54:07 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  *
 */
@@ -76,11 +76,13 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meOccupancy_      = 0;
   mePedestalOnline_ = 0;
   meLaserL1_        = 0;
+  mePedestal_       = 0;
 
   qtg01_ = 0;
   qtg02_ = 0;
   qtg03_ = 0;
   qtg04_ = 0;
+  qtg05_ = 0;
 
 }
 
@@ -113,15 +115,20 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBLT summary quality test L1");
     qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EBPT summary quality test");
+    qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     qtg01_->setMeanRange(1., 6.);
     qtg02_->setMeanRange(1., 6.);
     qtg03_->setMeanRange(1., 6.);
     qtg04_->setMeanRange(1., 6.);
+    qtg05_->setMeanRange(1., 6.);
 
     qtg01_->setErrorProb(1.00);
     qtg02_->setErrorProb(1.00);
     qtg03_->setErrorProb(1.00);
     qtg04_->setErrorProb(1.00);
+    qtg05_->setErrorProb(1.00);
 
   }
 
@@ -154,7 +161,7 @@ void EBSummaryClient::endRun(void) {
   if ( verbose_ ) cout << "EBSummaryClient: endRun, jevt = " << jevt_ << endl;
 
   this->unsubscribe();
-
+  
   this->cleanup();
 
 }
@@ -182,6 +189,10 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBLT laser quality summary L1");
   meLaserL1_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
+  if( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
+  sprintf(histo, "EBPT pedestal quality summary");
+  mePedestal_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+
 }
 
 void EBSummaryClient::cleanup(void) {
@@ -200,6 +211,9 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
+
+  if ( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
+  mePedestal_ = 0;
 
 }
 
@@ -230,6 +244,8 @@ void EBSummaryClient::subscribe(void){
   if ( qtg03_ ) mui_->useQTest(histo, qtg03_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
   if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
+  if ( qtg05_ ) mui_->useQTest(histo, qtg05_->getName());
 
 }
 
@@ -263,11 +279,13 @@ void EBSummaryClient::analyze(void){
       mePedestalOnline_->setBinContent( ipx, iex, -1. );
 
       meLaserL1_->setBinContent( ipx, iex, -1. );
+      mePedestal_->setBinContent( ipx, iex, -1. );
 
     }
   }
 
   meLaserL1_->setEntries( 0 );
+  mePedestal_->setEntries( 0 );
 
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
 
@@ -275,8 +293,11 @@ void EBSummaryClient::analyze(void){
     EBPedestalOnlineClient* ebpoc = dynamic_cast<EBPedestalOnlineClient*>(clients_[i]);
 
     EBLaserClient* eblc = dynamic_cast<EBLaserClient*>(clients_[i]);
+    
+    EBPedestalClient* ebpc = dynamic_cast<EBPedestalClient*>(clients_[i]);
 
     MonitorElement* me;
+    MonitorElement *me_01, *me_02, *me_03;
     TH2F* h2;
 
     for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -298,7 +319,8 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-                iex = 1+(85-ie);
+		//                iex = 1+(85-ie);
+		iex = ie;
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -319,7 +341,8 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-                iex = 1+(85-ie);
+		iex = ie;
+		//                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -344,7 +367,8 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-                iex = 1+(85-ie);
+		//                iex = 1+(85-ie);
+		iex = ie;
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -369,7 +393,8 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-                iex = 1+(85-ie);
+		iex = ie;
+		//                iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -383,6 +408,58 @@ void EBSummaryClient::analyze(void){
             }
 
           }
+
+	  if ( ebpc ) {
+	    
+	    me_01 = ebpc->meg01_[ism-1];
+	    me_02 = ebpc->meg02_[ism-1];
+	    me_03 = ebpc->meg03_[ism-1];
+	    
+	    if (me_01 && me_02 && me_03 ) {
+	      float xval=2;
+	      // same values: take it
+	      if((me_01->getBinContent(ie,ip)==me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)==me_03->getBinContent(ie,ip))  ) xval=me_01->getBinContent(ie,ip);
+	      else if(std::min(std::min(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip) )==0) xval=0; // red wins against all
+	      else {
+		// count number of masked gains
+		int nMasked=0;
+		if(me_01->getBinContent(ie,ip)>2) nMasked++;
+		if(me_02->getBinContent(ie,ip)>2) nMasked++;
+		if(me_03->getBinContent(ie,ip)>2) nMasked++;
+		switch (nMasked) {
+		case 3:
+		  // here wins the best quality to trigger that a known problem is solved, else the yellow wins
+		  if(me_01->getBinContent(ie,ip)==4. || me_02->getBinContent(ie,ip)==4. || me_03->getBinContent(ie,ip)==4.) xval=4.;
+		  else xval = std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)),me_03->getBinContent(ie,ip) );
+		  break;
+		case 2:
+		  // the majority decides if masked or unmasked
+		  // dark yellow->green->red
+		  xval=std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip) );
+		  break;
+		case 1:
+		  // light yellow -> green
+		  if(me_01->getBinContent(ie,ip)==2. || me_02->getBinContent(ie,ip)==2. || me_03->getBinContent(ie,ip)==2.) xval=2.;
+		  break;
+		}
+	      }
+	      
+              int iex;
+              int ipx;
+	      
+              if ( ism <= 18 ) {
+		iex = ie;
+                ipx = ip+20*(ism-1);
+              } else {
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-19);
+              }
+	      if ( me_01->getEntries() != 0 && me_02->getEntries() != 0 && me_03->getEntries() != 0 ) {
+		mePedestal_->setBinContent( ipx, iex, xval );
+	      }
+	    }
+	    
+	  }
 
         }
       }
@@ -444,7 +521,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGrid.SetMarkerSize(2);
   labelGrid.SetMinimum(-18.01);
 
-  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgName, meName;
+  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapP, imgName, meName;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
 
@@ -590,6 +667,40 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   }
 
+  imgNameMapP = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestal_ );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapP = meName + ".png";
+    imgName = htmlDir + imgNameMapP;
+
+    cMap->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2);
+    cMap->SetGridx();
+    cMap->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->Draw("col");
+    labelGrid.Draw("text,same");
+    cMap->Update();
+    cMap->SaveAs(imgName.c_str());
+
+  }
+
+
   gStyle->SetPaintTextFormat();
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
@@ -642,12 +753,26 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapP.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapP << "\" usemap=""#Pedestal"" border=0></td>" << endl;
+  
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+  
+
+
   delete cMap;
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );
   if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
   if ( imgNameMapLL1.size() != 0 ) this->writeMap( htmlFile, "LaserL1" );
+  if ( imgNameMapP.size() != 0 ) this->writeMap( htmlFile, "Pedestal" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -667,6 +792,7 @@ void EBSummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
  refhtml["Occupancy"] = "EBIntegrityClient.html";
  refhtml["PedestalOnline"] = "EBPedestalOnlineClient.html";
  refhtml["LaserL1"] = "EBLaserClient.html";
+ refhtml["Pedestal"] = "EBPedestalClient.html";
 
  const int A0 =  85;
  const int A1 = 759;
