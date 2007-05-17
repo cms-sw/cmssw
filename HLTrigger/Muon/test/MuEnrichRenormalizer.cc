@@ -5,7 +5,6 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
  
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 #include "FWCore/Framework/interface/MakerMacros.h"
