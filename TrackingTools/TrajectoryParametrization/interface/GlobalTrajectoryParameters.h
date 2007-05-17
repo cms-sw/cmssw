@@ -26,7 +26,7 @@ public:
                              TrackCharge aCharge, 
 			     const MagneticField* fieldProvider) :
     theX(aX), theP(aP), theCharge(aCharge), theField(fieldProvider),
-    hasCurvature_(false) {}
+    hasCurvature_(false), cachedCurvature_(1.0) {} // we must initialize cache to non-NAN to avoid FPE
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 
