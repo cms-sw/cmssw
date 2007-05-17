@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.16 2006/10/19 04:15:57 wmtan Exp $
+// $Id: FileInPath.cc,v 1.17 2007/05/17 20:10:48 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -373,37 +373,38 @@ namespace edm
 
 	// From the current path element, find the branch path (basically the path minus the
 	// last directory, e.g. /src or /share):
-	bf::path br = pathPrefix.branch_path();	   	    
+	for (bf::path br = pathPrefix.branch_path(); !br.normalize().string().empty(); br = br.branch_path()) {
 
-	if (!localTop_.empty()) {
-	  // Create a path object for our local path LOCALTOP:
-	  bf::path local_(localTop_, bf::no_check);
-	  // If the branch path matches the local path, the file was found locally:
-	  if (br == local_) {
-	    location_ = Local;
-	    return;
+	  if (!localTop_.empty()) {
+	    // Create a path object for our local path LOCALTOP:
+	    bf::path local_(localTop_, bf::no_check);
+	    // If the branch path matches the local path, the file was found locally:
+	    if (br == local_) {
+	      location_ = Local;
+	      return;
+	    }
 	  }
-        }
 
-	if (!releaseTop_.empty()) {
-	  // Create a path object for our release path RELEASETOP:
-	  bf::path release_(releaseTop_, bf::no_check);
-	  // If the branch path matches the release path, the file was found in the release:
-	  if (br == release_) {
-	    location_ = Release;
-	    return;
+	  if (!releaseTop_.empty()) {
+	    // Create a path object for our release path RELEASETOP:
+	    bf::path release_(releaseTop_, bf::no_check);
+	    // If the branch path matches the release path, the file was found in the release:
+	    if (br == release_) {
+	      location_ = Release;
+	      return;
+	    }
 	  }
-        }
 
-	if (!dataTop_.empty()) {
-	  // Create a path object for our data path DATATOP:
-	  bf::path data_(dataTop_, bf::no_check);
-	  // If the branch path matches the data path, the file was found in the data area:
-	  if (br == data_) {
-	    location_ = Data;
-	    return;
+	  if (!dataTop_.empty()) {
+	    // Create a path object for our data path DATATOP:
+	    bf::path data_(dataTop_, bf::no_check);
+	    // If the branch path matches the data path, the file was found in the data area:
+	    if (br == data_) {
+	      location_ = Data;
+	      return;
+	    }
 	  }
-        }
+	}
 	    
 	// This is really gross --- this organization of if/else
 	// inside the while-loop should be changed so that
