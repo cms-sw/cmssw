@@ -28,7 +28,7 @@
 class SiPixelTrackResModule { 
   public:
     SiPixelTrackResModule();
-    SiPixelTrackResModule(uint32_t id);
+    SiPixelTrackResModule(const uint32_t id);
    ~SiPixelTrackResModule();
 
     void book();
@@ -36,7 +36,7 @@ class SiPixelTrackResModule {
   
   private:
     uint32_t id_; 
- 
+
     MonitorElement* meHitResidualX_;
     MonitorElement* meHitResidualY_;
 };

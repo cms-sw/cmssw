@@ -1,18 +1,19 @@
-// Package:    TrackerMonitorTrack
-// Class:      SiPixelSiPixelMonitorTrackResiduals
+// Package:    SiPixelMonitorTrack
+// Class:      SiPixelMonitorTrackResiduals
 // 
 // class SiPixelMonitorTrackResiduals SiPixelMonitorTrackResiduals.cc 
-//       DQM/TrackerMonitorTrack/src/SiPixelMonitorTrackResiduals.cc
+//       DQM/SiPixelMonitorTrack/src/SiPixelMonitorTrackResiduals.cc
 //
 // Description:    <one line class summary>
 // Implementation: <Notes on implementation>
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc, v0.0 2007/03/23 18:41:42 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.1 2007/04/26 22:50:55 schuang Exp $
 
 
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelMonitorTrackResiduals.h"
+#include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
 
 
 using namespace std;
@@ -43,28 +44,29 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
     if (dynamic_cast<PixelGeomDetUnit*>((*it))!=0) {
       DetId detId = (*it)->geographicalId();
 
-      // const GeomDetUnit* geoUnit = pDD->idToDetUnit(detId);
-      // const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
-      // int nrows = (pixDet->specificTopology()).nrows();
-      // int ncols = (pixDet->specificTopology()).ncolumns();
-      
       if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelBarrel)) {
 	uint32_t id = detId();
-	SiPixelTrackResModule* pippo = new SiPixelTrackResModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, pippo));
+	SiPixelTrackResModule* module = new SiPixelTrackResModule(id);
+	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, module));
       }	
       else if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	uint32_t id = detId();
-	SiPixelTrackResModule* pippo = new SiPixelTrackResModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, pippo));
+	SiPixelTrackResModule* module = new SiPixelTrackResModule(id);
+	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, module));
       }
     }
   }
   std::cout << " *** size of thePixelStructure is " << thePixelStructure.size() << std::endl; 
   dbe_->setVerbose(0);
-  std::string rootDir = "SiPixel";
 
-  dbe_->setCurrentFolder(rootDir.c_str()); 
+  // create a folder tree and book histograms 
+  SiPixelFolderOrganizer theSiPixelFolder;
+  std::map<uint32_t, SiPixelTrackResModule*>::iterator struct_iter;
+  for (struct_iter = thePixelStructure.begin(); struct_iter!=thePixelStructure.end(); struct_iter++) {
+    if (theSiPixelFolder.setModuleFolder((*struct_iter).first)) (*struct_iter).second->book();
+    else throw cms::Exception("LogicError") << " *** creation of SiPixelMonitorTrackResiduals folder failed"; 
+  }
+  dbe_->setCurrentFolder("Tracker"); 
   char hkey[80]; 
   for (int sub=0; sub<3; sub++) {
     sprintf(hkey,"hitResidual-x_subdet%i",sub); 
@@ -73,49 +75,6 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
     sprintf(hkey,"hitResidual-y_subdet%i",sub); 
     meSubpixelHitResidualY[sub] = dbe_->book1D(hkey,"Hit Residual in Y",1000,-5.,5.);  
   }
-  std::map<uint32_t, SiPixelTrackResModule*>::iterator struct_iter;
-  for (struct_iter = thePixelStructure.begin(); struct_iter!=thePixelStructure.end(); struct_iter++) {
-    if (DetId::DetId((*struct_iter).first).subdetId()==static_cast<int>(PixelSubdetector::PixelBarrel)) {
-      PixelBarrelName::Shell 
-          DBshell  = PixelBarrelName::PixelBarrelName(DetId::DetId((*struct_iter).first)).shell();
-      int DBlayer  = PixelBarrelName::PixelBarrelName(DetId::DetId((*struct_iter).first)).layerName();
-      int DBladder = PixelBarrelName::PixelBarrelName(DetId::DetId((*struct_iter).first)).ladderName();
-      int DBmodule = PixelBarrelName::PixelBarrelName(DetId::DetId((*struct_iter).first)).moduleName();
-      
-      std::string ssubdet = "Barrel"; 
-      char slayer[80];  sprintf(slayer, "Layer_%i",   DBlayer );
-      char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
-      char smodule[80]; sprintf(smodule,"Module_%i",  DBmodule);
-
-      std::ostringstream sfolder;
-      sfolder << rootDir << "/" << ssubdet << "/Shell_" << DBshell << "/" << slayer << "/" << sladder;
-      if (PixelBarrelName::PixelBarrelName(DetId::DetId((*struct_iter).first)).isHalfModule()) sfolder << "H"; 
-      else sfolder << "F";
-      sfolder << "/" << smodule;
-
-      dbe_->setCurrentFolder(sfolder.str().c_str());
-      (*struct_iter).second->book();
-    } 
-    else if (DetId::DetId((*struct_iter).first).subdetId()==static_cast<int>(PixelSubdetector::PixelEndcap)) {
-      std::string ssubdet = "Endcap";
-      PixelEndcapName::HalfCylinder 
-          side   = PixelEndcapName::PixelEndcapName(DetId::DetId((*struct_iter).first)).halfCylinder();
-      int disk   = PixelEndcapName::PixelEndcapName(DetId::DetId((*struct_iter).first)).diskName();
-      int blade  = PixelEndcapName::PixelEndcapName(DetId::DetId((*struct_iter).first)).bladeName();
-      int panel  = PixelEndcapName::PixelEndcapName(DetId::DetId((*struct_iter).first)).pannelName();
-      int module = PixelEndcapName::PixelEndcapName(DetId::DetId((*struct_iter).first)).plaquetteName();
-
-      char sdisk[80];   sprintf(sdisk,  "Disk_%i",   disk);
-      char sblade[80];  sprintf(sblade, "Blade_%02i",blade);
-      char spanel[80];  sprintf(spanel, "Panel_%i",  panel);
-      char smodule[80]; sprintf(smodule,"Module_%i", module);
-
-      std::ostringstream sfolder;
-      sfolder << rootDir << "/" << ssubdet << "/HalfCylinder_" << side << "/" << sdisk << "/" << sblade << "/" << spanel << "/" << smodule;
-      dbe_->setCurrentFolder(sfolder.str().c_str());
-      (*struct_iter).second->book();
-    }
-  } 
 }
 
 
@@ -218,4 +177,4 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
 
 
 // define this as a plug-in
-// DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals) 
+DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals);

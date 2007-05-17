@@ -27,11 +27,11 @@
 
 // constructors
 //
-SiPixelTrackResModule::SiPixelTrackResModule() {
+SiPixelTrackResModule::SiPixelTrackResModule() : id_(0) {
 }
 
 
-SiPixelTrackResModule::SiPixelTrackResModule(uint32_t id): id_(id) { 
+SiPixelTrackResModule::SiPixelTrackResModule(uint32_t id) : id_(id) { 
 }
 
 
