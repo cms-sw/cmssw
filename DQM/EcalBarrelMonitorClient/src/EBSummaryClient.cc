@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/14 08:54:07 $
- * $Revision: 1.25 $
+ * $Date: 2007/05/17 17:43:08 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -319,8 +319,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		//                iex = 1+(85-ie);
-		iex = ie;
+		iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -341,8 +340,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = ie;
-		//                iex = 1+(85-ie);
+		iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -367,8 +365,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		//                iex = 1+(85-ie);
-		iex = ie;
+		iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -393,8 +390,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 
               if ( ism <= 18 ) {
-		iex = ie;
-		//                iex = 1+(85-ie);
+		iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
@@ -426,21 +422,15 @@ void EBSummaryClient::analyze(void){
 		if(me_01->getBinContent(ie,ip)>2) nMasked++;
 		if(me_02->getBinContent(ie,ip)>2) nMasked++;
 		if(me_03->getBinContent(ie,ip)>2) nMasked++;
-		switch (nMasked) {
-		case 3:
-		  // here wins the best quality to trigger that a known problem is solved, else the yellow wins
-		  if(me_01->getBinContent(ie,ip)==4. || me_02->getBinContent(ie,ip)==4. || me_03->getBinContent(ie,ip)==4.) xval=4.;
+		if(nMasked==3) {
+		  // here wins the best quality to trigger that a known problem is solved (except vrg->g: be conservative), else the yellow wins
+		  if( (me_01->getBinContent(ie,ip)!=me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) && (me_02->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) ) xval=5.;
+		  else if(me_01->getBinContent(ie,ip)==4. || me_02->getBinContent(ie,ip)==4. || me_03->getBinContent(ie,ip)==4.) xval=4.;
 		  else xval = std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)),me_03->getBinContent(ie,ip) );
-		  break;
-		case 2:
-		  // the majority decides if masked or unmasked
-		  // dark yellow->green->red
-		  xval=std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip) );
-		  break;
-		case 1:
-		  // light yellow -> green
-		  if(me_01->getBinContent(ie,ip)==2. || me_02->getBinContent(ie,ip)==2. || me_03->getBinContent(ie,ip)==2.) xval=2.;
-		  break;
+		}
+		else {
+		  // the channel is dark, the color decided by the worst (r->y->g)
+		  xval=(int)std::min(std::min(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip)) % 3 + 3;
 		}
 	      }
 	      
@@ -448,7 +438,7 @@ void EBSummaryClient::analyze(void){
               int ipx;
 	      
               if ( ism <= 18 ) {
-		iex = ie;
+		iex = 1+(85-ie);
                 ipx = ip+20*(ism-1);
               } else {
                 iex = 85+ie;
