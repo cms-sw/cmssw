@@ -127,7 +127,7 @@ void iterate(TH1F* histo,std::map<short,StripStruct>& mBadStrip){
   for (Int_t i=ibinStart; i<ibinStop; ++i){
     if (mBadStrip.find(i)==mBadStrip.end()){
       unsigned int pos= (unsigned int)histo->GetBinContent(i);
-      if(diff<Poisson[pos]){
+      if(diff<Poisson[pos] && pos>10){
 	
 	StripStruct a;
 	a.N=histo->GetBinContent(i);
@@ -151,7 +151,7 @@ void badStripStudy(TH1F *histo){
   for (size_t i=0;i<_cbads_LENGTH;++i)
     memcpy((void*)&cbads[i],(void*)&uno,1);
 
-  if ( histo->GetEntries() < 100 )
+  if ( histo->GetEntries() == 0 )
     return;
 
   std::map<short,StripStruct> mBadStrip;
@@ -175,7 +175,7 @@ void badStripStudy(TH1F *histo){
   }
 
   if(Nbads ){ 
-    std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << histo->GetNbinsX() <<"\n-----------------------------------------------\n"<< std::endl;
+    std::cout<< "&&&&&& " << strstr(histo->GetTitle(),"Det_") <<" \thas "<<Nbads<< " bad strips, on First Edge " << NbadsFirstEdge << " , on Second Edge " << NbadsSecondEdge << " , centrally " << Nbads - NbadsSecondEdge - NbadsFirstEdge << " , out of " << histo->GetNbinsX() << " nEntries " <<  (int) histo->GetEntries() << "\n-----------------------------------------------\n"<< std::endl;
     
     TCanvas C;
     C.SetLogy();
