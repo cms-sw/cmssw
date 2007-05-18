@@ -226,9 +226,9 @@ void LinkDataXMLReader::startElement(const XMLCh* const uri,
   	return;
   	}
     //rawData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("raw"))),0);
-    lbNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("lb"))),0);
-    partitionNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("par"))),0);
-    endOfData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("eod"))),0);
+    lbNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("lb"))),1);
+    partitionNum = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("par"))),1);
+    endOfData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("eod"))),1);
     halfPartition = 0;
     partitionData = stringToInt(xMLCh2String(attrs.getValue(Char2XMLCh("dat"))),0);
 
