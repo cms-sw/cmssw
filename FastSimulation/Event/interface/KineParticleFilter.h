@@ -19,7 +19,7 @@ public:
 
   void setMainVertex(const XYZTLorentzVector& mv) { mainVertex=mv; }
 
-  const XYZTLorentzVector& vertex() { return mainVertex; }
+  const XYZTLorentzVector& vertex() const { return mainVertex; }
 
 private:
   /// the real selection is done here

@@ -16,10 +16,12 @@
 #include "FastSimulation/EventProducer/interface/FamosProducer.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
+#include "FastSimulation/Event/interface/KineParticleFilter.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 
 #include "HepMC/GenEvent.h"
+//#include "HepMC/FourVector.h"
 
 #include <iostream>
 #include <memory>
@@ -63,8 +65,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    //    a. Take the VtxSmeared if it exists
    //    b. Take the source  otherwise
    // 2. Otherwise go for the CandidateCollection
-   Handle<HepMCProduct> evtSource;
-   Handle<HepMCProduct> evtVtxSmeared;
+   Handle<HepMCProduct> theHepMCProduct;
    bool genPart = false;
    bool source = false;
    bool vtxSmeared = false;
@@ -78,21 +79,24 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    for ( unsigned i=0; i<evts.size(); ++i ) {
      if (!vtxSmeared && evts[i].provenance()->moduleLabel()=="VtxSmeared") {
        vtxSmeared = true;      
-       evtVtxSmeared = evts[i];
+       theHepMCProduct = evts[i];
        break;
      } else if (!source &&  evts[i].provenance()->moduleLabel()=="source") {
        source = true;
-       evtSource = evts[i];
+       theHepMCProduct = evts[i];
      }
    }
    
    // Take the VtxSmeared if it exists, the source otherwise
    // (The vertex smearing is done in Famos only in the latter case)
+   /*
    if ( vtxSmeared ) {
      myGenEvent = evtVtxSmeared->GetEvent();
    } else if ( source ) {
      myGenEvent = evtSource->GetEvent();
    }
+   */
+   if ( vtxSmeared || source ) myGenEvent = theHepMCProduct->GetEvent();
 
    if ( !myGenEvent ) { 
      // Look for the particle CandidateCollection
@@ -114,6 +118,13 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
+   
+   // Set the vertex back to the HepMCProduct
+   HepMC::FourVector theVertex(fevt->filter().vertex().X(),
+			       fevt->filter().vertex().Y(),
+			       fevt->filter().vertex().Z(),
+			       fevt->filter().vertex().T());
+   if ( !myGenEvent ) theHepMCProduct->applyVtxGen( &theVertex );
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
