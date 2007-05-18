@@ -14,6 +14,8 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCCFEBStatusDigiCollection.h>
+#include <DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h>
+#include <DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h>
 #include <DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h>
@@ -37,6 +39,8 @@ namespace{
   CSCCFEBStatusDigi cCSD_;
   CSCTMBStatusDigi cTMBSD_;
   CSCDCCFormatStatusDigi cDFSD_; 
+  CSCDMBStatusDigi cDMBSD_;
+
 
   std::vector<CSCWireDigi>  vWD_;
   std::vector<CSCRPCDigi>   vRD_;
@@ -48,6 +52,8 @@ namespace{
   std::vector<CSCCFEBStatusDigi>  vCSD_;
   std::vector<CSCTMBStatusDigi>  vTMBSD_;
   std::vector<CSCDCCFormatStatusDigi>  vDFSD_;
+  std::vector<CSCDMBStatusDigi>  vDMBSD_;
+
 
   std::vector<std::vector<CSCWireDigi> >  vvWD_; 
   std::vector<std::vector<CSCRPCDigi>  >  vvRD_;
@@ -58,6 +64,7 @@ namespace{
   std::vector<std::vector<CSCCorrelatedLCTDigi> > vvCorLCTD_;
   std::vector<std::vector<CSCCFEBStatusDigi> >  vvCSD_;
   std::vector<std::vector<CSCTMBStatusDigi> >  vvTMBSD_;  
+  std::vector<std::vector<CSCDMBStatusDigi> >  vvDMBSD_;
   std::vector<std::vector<CSCDCCFormatStatusDigi> >  vvDFSD_;
 
   CSCWireDigiCollection clWD_;
@@ -70,6 +77,7 @@ namespace{
   CSCCFEBStatusDigiCollection clCSD_;
   CSCTMBStatusDigiCollection clTMBSD_;
   CSCDCCFormatStatusDigiCollection clDFSD_;
+  CSCDMBStatusDigiCollection clDMBSD_;
 
   edm::Wrapper<CSCWireDigiCollection> wWD_;
   edm::Wrapper<CSCRPCDigiCollection> wRD_;
@@ -81,6 +89,8 @@ namespace{
   edm::Wrapper<CSCCFEBStatusDigiCollection> wCSD_;
   edm::Wrapper<CSCTMBStatusDigiCollection> wTMBSD_;  
   edm::Wrapper<CSCDCCFormatStatusDigiCollection> wDFSD_;
+  edm::Wrapper<CSCDMBStatusDigiCollection> wDMBSD_;
+
 
   }
 }

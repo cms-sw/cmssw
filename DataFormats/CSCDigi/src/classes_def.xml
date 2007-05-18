@@ -8,6 +8,7 @@
    <class name="CSCALCTDigi"/>
    <class name="CSCCFEBStatusDigi"/>
    <class name="CSCTMBStatusDigi"/>
+   <class name="CSCDMBStatusDigi"/>
    <class name="CSCDCCFormatStatusDigi"/>
 
    <class name="std::vector<CSCWireDigi>"/>
@@ -19,6 +20,7 @@
    <class name="std::vector<CSCALCTDigi>"/>
    <class name="std::vector<CSCCFEBStatusDigi>"/>
    <class name="std::vector<CSCTMBStatusDigi>"/>
+   <class name="std::vector<CSCDMBStatusDigi>"/>
    <class name="std::vector<CSCDCCFormatStatusDigi>"/>
 
    <class name="std::map<CSCDetId,std::vector<CSCWireDigi> >"/>
@@ -31,6 +33,7 @@
    <class name="std::map<CSCDetId,std::vector<CSCCFEBStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCTMBStatusDigi> >"/>
    <class name="std::map<CSCDetId,std::vector<CSCDCCFormatStatusDigi> >"/>
+   <class name="std::map<CSCDetId,std::vector<CSCDMBStatusDigi> >"/>
 
    <class name="MuonDigiCollection<CSCDetId,CSCWireDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCRPCDigi>"/>
@@ -42,6 +45,8 @@
    <class name="MuonDigiCollection<CSCDetId,CSCCFEBStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCTMBStatusDigi>"/>
    <class name="MuonDigiCollection<CSCDetId,CSCDCCFormatStatusDigi>"/>
+   <class name="MuonDigiCollection<CSCDetId,CSCDMBStatusDigi>"/>
+
 
    <class name="edm::Wrapper<MuonDigiCollection<CSCDetId,CSCWireDigi>>"  
             id="44B8B226-38C3-41D1-B899-51FF287E7B12"/>
