@@ -44,9 +44,11 @@ Generator::~Generator()
 { 
 }
 
-void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
+void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 {
 
+  HepMC::GenEvent* evt = new HepMC::GenEvent(*evt_orig) ;
+    
   //M. Vander Donckt : modified to take the generator event weight  
   if ( evt->weights().size() > 0 )
     {
@@ -193,6 +195,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 
       g4evt->AddPrimaryVertex(g4vtx);
     }
+    
+  delete evt ;  
+    
   return ;
 }
 
