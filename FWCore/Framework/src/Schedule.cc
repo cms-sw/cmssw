@@ -640,320 +640,325 @@ namespace edm
 
     // The trigger report (pass/fail etc.):
 
-    cout << endl;
-    cout << "TrigReport " << "---------- Event  Summary ------------\n";
-    cout << "TrigReport"
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TrigReport " << "---------- Event  Summary ------------";
+    LogVerbatim("Summary") << "TrigReport"
 	 << " Events total = " << totalEvents()
 	 << " passed = " << totalEventsPassed()
 	 << " failed = " << (totalEventsFailed())
-	 << "\n";
+	 << "";
 
-    cout << endl;
-    cout << "TrigReport " << "---------- Path   Summary ------------\n";
-    cout << "TrigReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TrigReport " << "---------- Path   Summary ------------";
+    LogVerbatim("Summary") << "TrigReport "
 	 << right << setw(10) << "Trig Bit#" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
 	 << right << setw(10) << "Failed" << " "
 	 << right << setw(10) << "Error" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << "TrigReport "
+      LogVerbatim("Summary") << "TrigReport "
 	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
 	   << right << setw(10) << pi->timesPassed() << " "
 	   << right << setw(10) << pi->timesFailed() << " "
 	   << right << setw(10) << pi->timesExcept() << " "
-	   << pi->name() << "\n";
+	   << pi->name() << "";
     }
 
-    cout << endl;
-    cout << "TrigReport " << "-------End-Path   Summary ------------\n";
-    cout << "TrigReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TrigReport " << "-------End-Path   Summary ------------";
+    LogVerbatim("Summary") << "TrigReport "
 	 << right << setw(10) << "Trig Bit#" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
 	 << right << setw(10) << "Failed" << " "
 	 << right << setw(10) << "Error" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << "TrigReport "
+      LogVerbatim("Summary") << "TrigReport "
 	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
 	   << right << setw(10) << pi->timesPassed() << " "
 	   << right << setw(10) << pi->timesFailed() << " "
 	   << right << setw(10) << pi->timesExcept() << " "
-	   << pi->name() << "\n";
+	   << pi->name() << "";
     }
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << endl;
-      cout << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------\n";
-      cout << "TrigReport "
+      LogVerbatim("Summary") << "";
+      LogVerbatim("Summary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
+      LogVerbatim("Summary") << "TrigReport "
 	   << right << setw(10) << "Trig Bit#" << " "
 	   << right << setw(10) << "Visited" << " "
 	   << right << setw(10) << "Passed" << " "
 	   << right << setw(10) << "Failed" << " "
 	   << right << setw(10) << "Error" << " "
-	   << "Name" << "\n";
+	   << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	cout << "TrigReport "
+	LogVerbatim("Summary") << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
 	     << right << setw(10) << pi->timesPassed(i) << " "
 	     << right << setw(10) << pi->timesFailed(i) << " "
 	     << right << setw(10) << pi->timesExcept(i) << " "
-	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << endl;
-      cout << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------\n";
-      cout << "TrigReport "
+      LogVerbatim("Summary") << "";
+      LogVerbatim("Summary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
+      LogVerbatim("Summary") << "TrigReport "
 	   << right << setw(10) << "Trig Bit#" << " "
 	   << right << setw(10) << "Visited" << " "
 	   << right << setw(10) << "Passed" << " "
 	   << right << setw(10) << "Failed" << " "
 	   << right << setw(10) << "Error" << " "
-	   << "Name" << "\n";
+	   << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	cout << "TrigReport "
+	LogVerbatim("Summary") << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
 	     << right << setw(10) << pi->timesPassed(i) << " "
 	     << right << setw(10) << pi->timesFailed(i) << " "
 	     << right << setw(10) << pi->timesExcept(i) << " "
-	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
 
-    cout << endl;
-    cout << "TrigReport " << "---------- Module Summary ------------\n";
-    cout << "TrigReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TrigReport " << "---------- Module Summary ------------";
+    LogVerbatim("Summary") << "TrigReport "
 	 << right << setw(10) << "Visited" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
 	 << right << setw(10) << "Failed" << " "
 	 << right << setw(10) << "Error" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      cout << "TrigReport "
+      LogVerbatim("Summary") << "TrigReport "
 	   << right << setw(10) << (*ai)->timesVisited() << " "
 	   << right << setw(10) << (*ai)->timesRun() << " "
 	   << right << setw(10) << (*ai)->timesPassed() << " "
 	   << right << setw(10) << (*ai)->timesFailed() << " "
 	   << right << setw(10) << (*ai)->timesExcept() << " "
-	   << (*ai)->description().moduleLabel_ << "\n";
+	   << (*ai)->description().moduleLabel_ << "";
 
     }
-    cout << endl;
+    LogVerbatim("Summary") << "";
 
     // The timing report (CPU and Real Time):
 
-    cout << setprecision(6) << fixed << endl;
-    cout << "TimeReport " << "---------- Event  Summary ---[sec]----\n";
-    cout << "TimeReport"
+    LogVerbatim("Summary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
+    LogVerbatim("Summary") << "TimeReport"
+	 << setprecision(6) << fixed
 	 << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
 	 << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
-	 << "\n";
+	 << "";
 
-    cout << endl;
-    cout << "TimeReport " << "---------- Path   Summary ---[sec]----\n";
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per path-run "
-	 << "\n";
-    cout << "TimeReport "
+	 << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << "TimeReport "
+      LogVerbatim("Summary") << "TimeReport "
+	   << setprecision(6) << fixed
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
-	   << pi->name() << "\n";
+	   << pi->name() << "";
     }
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
-    cout << "TimeReport "
+	 << "Name" << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per path-run "
-	 << "\n";
+	 << "";
 
-    cout << endl;
-    cout << "TimeReport " << "-------End-Path   Summary ---[sec]----\n";
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per endpath-run "
-	 << "\n";
-    cout << "TimeReport "
+	 << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << "TimeReport "
+      LogVerbatim("Summary") << "TimeReport "
+	   << setprecision(6) << fixed
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,pi->timesRun()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
-	   << pi->name() << "\n";
+	   << pi->name() << "";
     }
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
-    cout << "TimeReport "
+	 << "Name" << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per endpath-run "
-	 << "\n";
+	 << "";
 
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << endl;
-      cout << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----\n";
-      cout << "TimeReport "
+      LogVerbatim("Summary") << "";
+      LogVerbatim("Summary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("Summary") << "TimeReport "
 	   << right << setw(22) << "per event "
 	   << right << setw(22) << "per module-visit "
-	   << "\n";
-      cout << "TimeReport "
+	   << "";
+      LogVerbatim("Summary") << "TimeReport "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
-	   << "Name" << "\n";
+	   << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	cout << "TimeReport "
+	LogVerbatim("Summary") << "TimeReport "
+	     << setprecision(6) << fixed
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
-	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
-    cout << "TimeReport "
+	 << "Name" << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-visit "
-	 << "\n";
+	 << "";
 
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      cout << endl;
-      cout << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----\n";
-      cout << "TimeReport "
+      LogVerbatim("Summary") << "";
+      LogVerbatim("Summary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("Summary") << "TimeReport "
 	   << right << setw(22) << "per event "
 	   << right << setw(22) << "per module-visit "
-	   << "\n";
-      cout << "TimeReport "
+	   << "";
+      LogVerbatim("Summary") << "TimeReport "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
-	   << "Name" << "\n";
+	   << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	cout << "TimeReport "
+	LogVerbatim("Summary") << "TimeReport "
+	     << setprecision(6) << fixed
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,pi->timesVisited(i)) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,pi->timesVisited(i)) << " "
-	     << pi->getWorker(i)->description().moduleLabel_ << "\n";
+	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
-    cout << "TimeReport "
+	 << "Name" << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-visit "
-	 << "\n";
+	 << "";
 
-    cout << endl;
-    cout << "TimeReport " << "---------- Module Summary ---[sec]----\n";
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "TimeReport " << "---------- Module Summary ---[sec]----";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-run "
 	 << right << setw(22) << "per module-visit "
-	 << "\n";
-    cout << "TimeReport "
+	 << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
+	 << "Name" << "";
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      cout << "TimeReport "
+      LogVerbatim("Summary") << "TimeReport "
+	   << setprecision(6) << fixed
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesRun()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesRun()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,(*ai)->timesVisited()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
-	   << (*ai)->description().moduleLabel_ << "\n";
+	   << (*ai)->description().moduleLabel_ << "";
     }
-    cout << "TimeReport "
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
-	 << "Name" << "\n";
-    cout << "TimeReport "
+	 << "Name" << "";
+    LogVerbatim("Summary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-run "
 	 << right << setw(22) << "per module-visit "
-	 << "\n";
+	 << "";
 
-    cout << endl;
-    cout << "T---Report end!" << endl;
-    cout << endl;
+    LogVerbatim("Summary") << "";
+    LogVerbatim("Summary") << "T---Report end!" << "";
+    LogVerbatim("Summary") << "";
 
   }
 

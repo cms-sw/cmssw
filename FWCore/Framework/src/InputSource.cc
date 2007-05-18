@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.21 2007/03/22 06:09:28 wmtan Exp $
+$Id: InputSource.cc,v 1.22 2007/05/01 23:22:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -16,6 +16,18 @@ namespace edm {
 
   namespace {
 	int const improbable = -65783927;
+	std::string const& suffix(int count) {
+	  static std::string const st("st");
+	  static std::string const nd("nd");
+	  static std::string const rd("rd");
+	  static std::string const th("th");
+	  // *0, *4 - *9 use "th".
+	  int lastDigit = count % 10;
+	  if (lastDigit >= 4 || lastDigit == 0) return th;
+	  // *11, *12, or *13 use "th".
+	  if (count % 100 - lastDigit == 10) return th;
+	  return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
+        }
   }
   InputSource::InputSource(ParameterSet const& pset, InputSourceDescription const& desc) :
       ProductRegistryHelper(),
@@ -104,7 +116,7 @@ namespace edm {
   void
   InputSource::issueReports(EventID const& eventID) {
     LogInfo("FwkReport") << "Begin processing the " << readCount_
-			 << "th record. Run " <<  eventID.run()
+			 << suffix(readCount_) << " record. Run " << eventID.run()
 			 << ", Event " << eventID.event();
       // At some point we may want to initiate checkpointing here
   }
