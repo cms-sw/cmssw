@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
+typedef ROOT::Math::Transform3D::Point Point;
+
 HcalHitMaker::HcalHitMaker(EcalHitMaker& grid,unsigned shower)
   :CaloHitMaker(grid.getCalorimeter(),DetId::Hcal,HcalHitMaker::getSubHcalDet(grid.getFSimTrack()),
 		grid.getFSimTrack()->onHcal()?grid.getFSimTrack()->onHcal():grid.getFSimTrack()->onVFcal()+1,shower),
@@ -11,7 +13,7 @@ HcalHitMaker::HcalHitMaker(EcalHitMaker& grid,unsigned shower)
 {
   // normalize the direction
   ecalEntrance_=myGrid.ecalEntrance();
-  particleDirection=myTrack->ecalEntrance().vect().unit();
+  particleDirection=myTrack->ecalEntrance().Vect().Unit();
   radiusFactor_=(EMSHOWER)? moliereRadius:interactionLength;
   mapCalculated_=false;
   //std::cout << " Famos HCAL " << grid.getTrack()->onHcal() << " " <<  grid.getTrack()->onVFcal() << " " << showerType << std::endl;
@@ -21,16 +23,18 @@ HcalHitMaker::HcalHitMaker(EcalHitMaker& grid,unsigned shower)
     }
 }
 
-bool HcalHitMaker::addHit(double r,double phi,unsigned layer)
+bool 
+HcalHitMaker::addHit(double r,double phi,unsigned layer)
 {
     //  std::cout << " FamosHcalHitMaker::addHit - radiusFactor = " << radiusFactor
   //	    << std::endl;
 
-  HepPoint3D point(r*radiusFactor_*std::cos(phi),r*radiusFactor_*std::sin(phi),0.);
+  XYZPoint point(r*radiusFactor_*std::cos(phi),r*radiusFactor_*std::sin(phi),0.);
 
   //  std::cout << " FamosHcalHitMaker::addHit - point before " << point << std::endl;
 
-  point.transform(locToGlobal_);
+  point = locToGlobal_((Point)point);
+  point = locToGlobal_ * point;
 
   //  std::cout << " FamosHcalHitMaker::addHit - point after  " << point << std::endl;
 
@@ -64,7 +68,8 @@ bool HcalHitMaker::addHit(double r,double phi,unsigned layer)
   return false;
 }
 
-bool HcalHitMaker::setDepth(double depth)
+bool 
+HcalHitMaker::setDepth(double depth)
 {
   currentDepth_=depth;
   std::vector<CaloSegment>::const_iterator segiterator;
@@ -81,18 +86,22 @@ bool HcalHitMaker::setDepth(double depth)
       std::cout << " Track " << *(myGrid.getFSimTrack()) << std::endl;
       return false;
     }
-  HepPoint3D origin;
+  XYZPoint origin;
   if(EMSHOWER)
     origin=segiterator->positionAtDepthinX0(currentDepth_);
   if(HADSHOWER)
     origin=segiterator->positionAtDepthinL0(currentDepth_);
 
   //  std::cout << " Origin " << origin << std::endl;
-  HepVector3D zaxis(0,0,1);
-  HepVector3D planeVec1=(zaxis.cross(particleDirection)).unit();
+  XYZVector zaxis(0,0,1);
+  XYZVector planeVec1=(zaxis.Cross(particleDirection)).Unit();
   
-  locToGlobal_=HepTransform3D(HepPoint3D(0,0,0),HepPoint3D(0,0,1),HepPoint3D(1,0,0),
-			     origin,origin+particleDirection,origin+planeVec1);
+  locToGlobal_=Transform3D(Point(0,0,0),
+			   Point(0,0,1),
+			   Point(1,0,0),
+			   (Point)origin,
+			   (Point)(origin+particleDirection),
+			   (Point)(origin+planeVec1));
 
   return true;
 }

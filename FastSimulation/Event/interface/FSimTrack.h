@@ -1,8 +1,7 @@
 #ifndef FastSimulation_Event_FSimTrack_H
 #define FastSimulation_Event_FSimTrack_H
 
-// CLHEP Headers
-#include "CLHEP/Vector/LorentzVector.h"
+// HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // CMSSW Headers
@@ -10,14 +9,12 @@
 
 // FAMOS headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
 
 #include <map>
 #include <iostream>
 
-//class FSimVertex;
-//class FBaseSimEvent;
+class FSimVertex;
+class FBaseSimEvent;
 
 namespace HepMC {
   class GenParticle;
@@ -53,67 +50,37 @@ class FSimTrack : public SimTrack {
   
 
   /// Origin vertex
-  inline const FSimVertex& vertex() const{ 
-    return mom_->vertex(vertIndex()); 
-  }
+  inline const FSimVertex& vertex() const;
 
   /// end vertex
-  inline const FSimVertex& endVertex() const { 
-    return mom_->vertex(endv_); 
-  }
+  inline const FSimVertex& endVertex() const;
 
   /// mother
-  inline const FSimTrack& mother() const{ 
-    return vertex().parent(); 
-  }
+  inline const FSimTrack& mother() const;
 
   /// Ith daughter
-  inline const FSimTrack& daughter(int i) const { 
-    return abs(type()) != 11 ? 
-      endVertex().daughter(i) : mom_->track(daugh_[i]); 
-  }
+  inline const FSimTrack& daughter(int i) const;
 
   /// Number of daughters
-  inline int nDaughters() const { 
-    return abs(type()) != 11 ? 
-      endVertex().nDaughters() : daugh_.size(); 
-  }
+  inline int nDaughters() const;
 
   /// Vector of daughter indices
-  inline const std::vector<int>& daughters() const { 
-    return abs(type()) != 11 ? 
-      endVertex().daughters() : daugh_; 
-  }
+  inline const std::vector<int>& daughters() const;
 
   /// no end vertex
-  inline bool  noEndVertex() const { 
-    return 
-      // The particle either has no end vertex index
-      endv_ == -1 || 
-      // or it's an electron that has just brem'ed, but continues its way
-      ( abs(type())==11 && 
-	endVertex().nDaughters()>0 && 
-	endVertex().daughter(endVertex().nDaughters()-1).type()==22); 
-  } 
-
+  inline bool  noEndVertex() const;
 
   /// Compare the end vertex position with another position.
-  bool notYetToEndVertex(const HepLorentzVector& pos) const;
+  bool notYetToEndVertex(const XYZTLorentzVector& pos) const;
 
   /// no mother particle
-  inline bool  noMother() const { 
-    return noVertex() || vertex().noParent(); 
-  }
+  inline bool  noMother() const; 
 
   /// no daughters
-  inline bool  noDaughter() const { 
-    return noEndVertex() || !nDaughters(); 
-  }
+  inline bool  noDaughter() const;
 
   /// The original GenParticle
-  inline const HepMC::GenParticle* genParticle() const { 
-    return mom_->embdGenpart(genpartIndex()); 
-  }
+  inline const HepMC::GenParticle* genParticle() const;
    
   /// the index in FBaseSimEvent and other vectors
   inline int id() const { return id_; }
@@ -209,6 +176,12 @@ class FSimTrack : public SimTrack {
   /// Update the vactors of daughter's id
   inline void addDaughter(int i) { daugh_.push_back(i); }
 
+  /// Temporary (until move of SimTrack to Mathcore)
+  const XYZTLorentzVector& momentum() const { return momentum_; }
+
+  /// Simply returns the SimTrack
+  inline const SimTrack& simTrack() const { return *this; }
+
  private:
 
   //  HepMC::GenParticle* me_;
@@ -237,10 +210,55 @@ class FSimTrack : public SimTrack {
 
   const HepPDT::ParticleData* info_; // The PDG info
 
+  XYZTLorentzVector momentum_;
+
 };
 
 #include<iosfwd>
 std::ostream& operator <<(std::ostream& o , const FSimTrack& t);
+
+#include "FastSimulation/Event/interface/FBaseSimEvent.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
+
+inline const FSimVertex& FSimTrack::vertex() const{ return mom_->vertex(vertIndex()); }
+
+inline const FSimVertex& FSimTrack::endVertex() const { return mom_->vertex(endv_); }
+
+inline const FSimTrack& FSimTrack::mother() const{ return vertex().parent(); }
+
+inline const FSimTrack& FSimTrack::daughter(int i) const { 
+  return abs(type()) != 11 ? endVertex().daughter(i) : mom_->track(daugh_[i]); 
+}
+
+inline int FSimTrack::nDaughters() const { 
+  return abs(type()) != 11 ? endVertex().nDaughters() : daugh_.size(); 
+}
+
+inline const std::vector<int>& FSimTrack::daughters() const { 
+  return abs(type()) != 11 ? endVertex().daughters() : daugh_; 
+}
+
+inline bool FSimTrack::noEndVertex() const { 
+  return 
+    // The particle either has no end vertex index
+    endv_ == -1 || 
+    // or it's an electron that has just brem'ed, but continues its way
+    ( abs(type())==11 && 
+      endVertex().nDaughters()>0 && 
+      endVertex().daughter(endVertex().nDaughters()-1).type()==22); 
+} 
+
+inline bool FSimTrack::noMother() const { return noVertex() || vertex().noParent(); }
+
+inline bool FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
+
+inline const HepMC::GenParticle* FSimTrack::genParticle() const { 
+  return mom_->embdGenpart(genpartIndex()); 
+}
+   
+
+
+
 
 #endif // FSimTrack_H
 

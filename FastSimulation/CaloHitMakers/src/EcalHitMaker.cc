@@ -18,11 +18,17 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
 
+#include "Math/GenVector/Transform3D.h"
+
 #include <algorithm>
 #include <cmath>
 
+typedef ROOT::Math::Plane3D::Vector Vector;
+typedef ROOT::Math::Plane3D::Point Point;
+typedef ROOT::Math::Transform3D Transform3D;
+
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
-			   const HepPoint3D& ecalentrance, 
+			   const XYZPoint& ecalentrance, 
 			   const DetId& cell, int onEcal,
 			   unsigned size, unsigned showertype,
 			   const RandomEngine* engine):
@@ -115,7 +121,8 @@ EcalHitMaker::~EcalHitMaker()
     }
 }
 
-bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
+bool 
+EcalHitMaker::addHitDepth(double r,double phi,double depth)
 {
 //  std::cout << " Add hit depth called; Current deph is "  << currentdepth_;
 //  std::cout << " Required depth is " << depth << std::endl;
@@ -174,7 +181,8 @@ bool EcalHitMaker::addHitDepth(double r,double phi,double depth)
 //  return true;
 //}
 
-bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
+bool 
+EcalHitMaker::addHit(double r,double phi,unsigned layer)
 {
   //  std::cout <<" Addhit " << std::endl;
   //  std::cout << " Before insideCell " << std::endl;
@@ -222,7 +230,8 @@ bool EcalHitMaker::addHit(double r,double phi,unsigned layer)
 //}
 
 
-unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
+unsigned 
+EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool debug) 
 {
 
   //  debug = true;
@@ -305,9 +314,10 @@ unsigned EcalHitMaker::fastInsideCell(const Hep2Vector & point,double & sp,bool 
 }
 
 
-void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
-				   double X0depthoffset,
-				   const FSimTrack& theTrack)
+void 
+EcalHitMaker::setTrackParameters(const XYZNormal& normal,
+				 double X0depthoffset,
+				 const FSimTrack& theTrack)
 {
   //  myHistos->debug("setTrackParameters");
   //  std::cout << " Track " << theTrack << std::endl;
@@ -315,7 +325,7 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
   // This is certainly enough
   intersections_.resize(50);
   myTrack_=&theTrack;
-  normal_=normal.unit();
+  normal_=normal.Unit();
   X0depthoffset_=X0depthoffset;
   cellLine(intersections_);
   buildSegments(intersections_);
@@ -334,15 +344,15 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
 	{
 	  for(unsigned idir=0;idir<4;++idir)
 	    {
-	      HepVector3D norm=regionOfInterest_[ic].exitingNormal(CaloDirectionOperations::Side(idir));
-	      regionOfInterest_[ic].crystalNeighbour(idir).setToBeGlued((norm*normal_<0.));
+	      XYZVector norm=regionOfInterest_[ic].exitingNormal(CaloDirectionOperations::Side(idir));
+	      regionOfInterest_[ic].crystalNeighbour(idir).setToBeGlued((norm.Dot(normal_)<0.));
 	    }
 	  // Now calculate the distance in X0 of the back sides of the crystals
 	  // (only for EM showers)
 	  if(EMSHOWER)
 	    {
-	      HepVector3D dir=regionOfInterest_[ic].getBackCenter()-segments_[ecalFirstSegment_].entrance();
-	      double dist=dir.dot(normal_);
+	      XYZVector dir=regionOfInterest_[ic].getBackCenter()-segments_[ecalFirstSegment_].entrance();
+	      double dist=dir.Dot(normal_);
 	      double absciss= dist+segments_[ecalFirstSegment_].sEntrance();
 	      std::vector<CaloSegment>::const_iterator segiterator;
 	      // First identify the correct segment
@@ -387,7 +397,8 @@ void EcalHitMaker::setTrackParameters(const HepNormal3D& normal,
 }
 
 
-void EcalHitMaker::cellLine(std::vector<CaloPoint>& cp) 
+void 
+EcalHitMaker::cellLine(std::vector<CaloPoint>& cp) 
 {
   cp.clear();
   //  if(myTrack->onVFcal()!=2)
@@ -396,33 +407,34 @@ void EcalHitMaker::cellLine(std::vector<CaloPoint>& cp)
   if(onEcal_)ecalCellLine(EcalEntrance_,EcalEntrance_+normal_,cp);
   //    }
   
-  HepPoint3D vertex(myTrack_->vertex().position());;
+  XYZPoint vertex(myTrack_->vertex().position().Vect());
+
   //sort the points by distance (in the ECAL they are not necessarily ordered)
-  HepVector3D dir(0.,0.,0.);
+  XYZVector dir(0.,0.,0.);
   if(myTrack_->onLayer1())
     {
-      vertex=(myTrack_->layer1Entrance().vertex()).vect();
-      dir=myTrack_->layer1Entrance().vect().unit();
+      vertex=(myTrack_->layer1Entrance().vertex()).Vect();
+      dir=myTrack_->layer1Entrance().Vect().Unit();
     }
   else if(myTrack_->onLayer2())
     {
-      vertex=(myTrack_->layer2Entrance().vertex()).vect();
-      dir=myTrack_->layer2Entrance().vect().unit();
+      vertex=(myTrack_->layer2Entrance().vertex()).Vect();
+      dir=myTrack_->layer2Entrance().Vect().Unit();
     }  
   else if(myTrack_->onEcal())
     {
-      vertex=(myTrack_->ecalEntrance().vertex()).vect();
-      dir=myTrack_->ecalEntrance().vect().unit();
+      vertex=(myTrack_->ecalEntrance().vertex()).Vect();
+      dir=myTrack_->ecalEntrance().Vect().Unit();
     }
   else if(myTrack_->onHcal())
     {
-      vertex=(myTrack_->hcalEntrance().vertex()).vect();
-      dir=myTrack_->hcalEntrance().vect().unit();
+      vertex=(myTrack_->hcalEntrance().vertex()).Vect();
+      dir=myTrack_->hcalEntrance().Vect().Unit();
     }
   else if(myTrack_->onVFcal()==2)
     {
-      vertex=(myTrack_->vfcalEntrance().vertex()).vect();
-      dir=myTrack_->vfcalEntrance().vect().unit();
+      vertex=(myTrack_->vfcalEntrance().vertex()).Vect();
+      dir=myTrack_->vfcalEntrance().Vect().Unit();
     }
   else
     {
@@ -442,13 +454,14 @@ void EcalHitMaker::cellLine(std::vector<CaloPoint>& cp)
 //
 //  for (unsigned ic=0;ic<cp.size();++ic)
 //    {
-//      HepVector3D t=cp[ic]-vertex;
+//      XYZVector t=cp[ic]-vertex;
 //      std::cout << cp[ic] << " " << t.mag() << std::endl;
 //    }
 }
 
 
-void EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const
+void 
+EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const
 {
   //  FSimEvent& mySimEvent = myEventMgr->simSignal();
   //  FSimTrack myTrack = mySimEvent.track(fsimtrack_);
@@ -457,15 +470,15 @@ void EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const
   // std::cout << " preshowerCellLine " << std::endl; 
   if(myTrack_->onLayer1())
     {
-      HepPoint3D point1=(myTrack_->layer1Entrance().vertex()).vect();
+      XYZPoint point1=(myTrack_->layer1Entrance().vertex()).Vect();
       double phys_eta=myTrack_->layer1Entrance().eta();
       double cmthickness = 
 	myCalorimeter->layer1Properties(1)->thickness(phys_eta);
 
       if(cmthickness>0)
 	{
-	  HepVector3D dir=myTrack_->layer1Entrance().vect().unit();
-	  HepPoint3D point2=point1+dir*cmthickness;
+	  XYZVector dir=myTrack_->layer1Entrance().Vect().Unit();
+	  XYZPoint point2=point1+dir*cmthickness;
 	  
 	  CaloPoint cp1(DetId::Ecal,EcalPreshower,1,point1);
 	  CaloPoint cp2(DetId::Ecal,EcalPreshower,1,point2);
@@ -481,14 +494,14 @@ void EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const
   //  std::cout << " On layer 2 " << myTrack.onLayer2() << std::endl;
   if(myTrack_->onLayer2())
     {
-      HepPoint3D point1=(myTrack_->layer2Entrance().vertex()).vect();
+      XYZPoint point1=(myTrack_->layer2Entrance().vertex()).Vect();
       double phys_eta=myTrack_->layer2Entrance().eta();
       double cmthickness = 
 	myCalorimeter->layer2Properties(1)->thickness(phys_eta);
       if(cmthickness>0)
 	{
-	  HepVector3D dir=myTrack_->layer2Entrance().vect().unit();
-	  HepPoint3D point2=point1+dir*cmthickness;
+	  XYZVector dir=myTrack_->layer2Entrance().Vect().Unit();
+	  XYZPoint point2=point1+dir*cmthickness;
 	  
 
 	  CaloPoint cp1(DetId::Ecal,EcalPreshower,2,point1);
@@ -505,7 +518,8 @@ void EcalHitMaker::preshowerCellLine(std::vector<CaloPoint>& cp) const
   //  std::cout << " Exit preshower CellLine " << std::endl;
 }
 
-void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
+void 
+EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
 {
   //  FSimEvent& mySimEvent = myEventMgr->simSignal();
   //  FSimTrack myTrack = mySimEvent.track(fsimtrack_);
@@ -513,14 +527,14 @@ void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
 
   if(onHcal<=2&&onHcal>0)
     {
-      HepPoint3D point1=(myTrack_->hcalEntrance().vertex()).vect();
+      XYZPoint point1=(myTrack_->hcalEntrance().vertex()).Vect();
 
       double eta=point1.eta();
       // HCAL thickness in cm (assuming that the particle is coming from 000)
       double thickness= myCalorimeter->hcalProperties(onHcal)->thickness(eta);
       cp.push_back(CaloPoint(DetId::Hcal,point1));
-      HepVector3D dir=myTrack_->hcalEntrance().vect().unit();
-      HepPoint3D point2=point1+dir*thickness;
+      XYZVector dir=myTrack_->hcalEntrance().Vect().Unit();
+      XYZPoint point2=point1+dir*thickness;
 
       cp.push_back(CaloPoint(DetId::Hcal,point2));
       
@@ -528,38 +542,39 @@ void EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
   int onVFcal=myTrack_->onVFcal();
   if(onVFcal==2)
     {
-      HepPoint3D point1=(myTrack_->vfcalEntrance().vertex()).vect();
+      XYZPoint point1=(myTrack_->vfcalEntrance().vertex()).Vect();
       double eta=point1.eta();
       // HCAL thickness in cm (assuming that the particle is coming from 000)
       double thickness= myCalorimeter->hcalProperties(3)->thickness(eta);
       cp.push_back(CaloPoint(DetId::Hcal,point1));
-      HepVector3D dir=myTrack_->vfcalEntrance().vect().unit();
+      XYZVector dir=myTrack_->vfcalEntrance().Vect().Unit();
       if(thickness>0)
 	{
-	  HepPoint3D point2=point1+dir*thickness;
+	  XYZPoint point2=point1+dir*thickness;
 	  cp.push_back(CaloPoint(DetId::Hcal,point2));
 	}
 
     }
 }
 
-void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vector<CaloPoint>& cp) const
+void 
+EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloPoint>& cp) const
 {
-  std::vector<HepPoint3D> corners;
+  std::vector<XYZPoint> corners;
   corners.resize(4);
   unsigned ic=0;
   double t;
-  HepPoint3D xp;
+  XYZPoint xp;
   DetId c_entrance,c_exit;
   bool entrancefound(false),exitfound(false);
   //  std::cout << " Look for intersections " << ncrystals_ << std::endl;
   //  std::cout << " regionOfInterest_ " << truncatedGrid_ << " " << regionOfInterest_.size() << std::endl;
   // try to determine the number of crystals to test
   // First determine the incident angle
-  double angle=std::acos(normal_.dot(regionOfInterest_[0].getAxis().unit()));
+  double angle=std::acos(normal_.Dot(regionOfInterest_[0].getAxis().Unit()));
 
-  //  std::cout << " Normal " << normal_<< " Axis " << regionOfInterest_[0].getAxis().unit() << std::endl;
-  double backdistance=regionOfInterest_[0].getAxis().mag()*std::tan(angle);
+  //  std::cout << " Normal " << normal_<< " Axis " << regionOfInterest_[0].getAxis().Unit() << std::endl;
+  double backdistance=std::sqrt(regionOfInterest_[0].getAxis().mag2())*std::tan(angle);
   // 1/2.2cm = 0.45
 //   std::cout << " Angle " << angle << std::endl;
 //   std::cout << " Back distance " << backdistance << std::endl;
@@ -576,9 +591,9 @@ void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vec
       // Check front side
       //      if(!entrancefound)
 	{
-	  HepPlane3D plan=regionOfInterest_[ic].getFrontPlane();
-	  HepVector3D axis1=(plan.normal());
-	  HepVector3D axis2=regionOfInterest_[ic].getFirstEdge();
+	  Plane3D plan=regionOfInterest_[ic].getFrontPlane();
+	  XYZVector axis1=(plan.Normal());
+	  XYZVector axis2=regionOfInterest_[ic].getFirstEdge();
 	  xp=intersect(plan,a,b,t,false);
 	  regionOfInterest_[ic].getFrontSide(corners);
 	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(0),axis1,axis2);
@@ -594,9 +609,9 @@ void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vec
       // check rear side
 	//	if(!exitfound)
 	{
-	  HepPlane3D plan=regionOfInterest_[ic].getBackPlane();
-	  HepVector3D axis1=(plan.normal());
-	  HepVector3D axis2=regionOfInterest_[ic].getFifthEdge();
+	  Plane3D plan=regionOfInterest_[ic].getBackPlane();
+	  XYZVector axis1=(plan.Normal());
+	  XYZVector axis2=regionOfInterest_[ic].getFifthEdge();
 	  xp=intersect(plan,a,b,t,false);
 	  regionOfInterest_[ic].getBackSide(corners);
 	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(4),axis1,axis2);
@@ -614,10 +629,10 @@ void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vec
       // check lateral sides 
       for(unsigned iside=0;iside<4;++iside)
 	{
-	  HepPlane3D plan=regionOfInterest_[ic].getLateralPlane(iside);
+	  Plane3D plan=regionOfInterest_[ic].getLateralPlane(iside);
 	  xp=intersect(plan,a,b,t,false);
-	  HepVector3D axis1=(plan.normal());
-	  HepVector3D axis2=regionOfInterest_[ic].getLateralEdge(iside);
+	  XYZVector axis1=(plan.Normal());
+	  XYZVector axis2=regionOfInterest_[ic].getLateralEdge(iside);
 	  regionOfInterest_[ic].getLateralSide(iside,corners);
 	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(iside),axis1,axis2);
 	  if(pad.globalinside(xp)) 
@@ -632,7 +647,8 @@ void EcalHitMaker::ecalCellLine(const HepPoint3D& a,const HepPoint3D& b,std::vec
 }
 
 
-void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
+void 
+EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
 {
   //  myHistos->debug();
   //  TimeMe theT("FamosGrid::buildSegments");
@@ -835,7 +851,8 @@ void EcalHitMaker::buildSegments(const std::vector<CaloPoint>& cp)
     
 }
 
-void EcalHitMaker::buildGeometry()
+void 
+EcalHitMaker::buildGeometry()
 {
   configuredGeometry_ = false;
   ncrystals_ = CellsWindow_.size();
@@ -871,7 +888,8 @@ void EcalHitMaker::buildGeometry()
 
 
 // depth is in X0 
-bool EcalHitMaker::getPads(double depth) 
+bool 
+EcalHitMaker::getPads(double depth) 
 {
   //std::cout << " New depth " << depth << std::endl;
   // The first time, the relationship between crystals must be calculated
@@ -928,32 +946,33 @@ bool EcalHitMaker::getPads(double depth)
   //  std::cout << *segiterator << std::endl;
   // get the position of the origin
   
-  HepPoint3D origin;
+  XYZPoint origin;
   if(EMSHOWER)
     origin=segiterator->positionAtDepthinX0(currentdepth_);
   if(HADSHOWER)
     origin=segiterator->positionAtDepthinL0(currentdepth_);
 
   //  std::cout << " currentdepth_ " << currentdepth_ << " " << origin << std::endl;
-  HepVector3D newaxis=pivot_.getFirstEdge().cross(normal_);
+  XYZVector newaxis=pivot_.getFirstEdge().Cross(normal_);
 
 //  std::cout  << "Normal " << normal_ << std::endl;
 //  std::cout << " New axis " << newaxis << std::endl;
 
 //  std::cout << " ncrystals  " << ncrystals << std::endl;
-  plan_ = HepPlane3D(normal_,origin);
+  plan_ = Plane3D((Vector)normal_,(Point)origin);
 
   unsigned nquads=0;
   double sign=(central_) ? -1.: 1.;
-  HepTransform3D trans(origin,origin+normal_,origin+newaxis,HepPoint3D(0,0,0),HepPoint3D(0.,0.,sign),HepPoint3D(0.,1.,0.));
+  Transform3D trans((Point)origin,(Point)(origin+normal_),(Point)(origin+newaxis),
+		     Point(0,0,0), Point(0.,0.,sign),      Point(0.,1.,0.));
   for(unsigned ic=0;ic<ncrystals_;++ic)
     {
       //      std::cout << " Building geometry for " << regionOfInterest_[ic].getCellID() << std::endl;
-      HepPoint3D a,b;
+      XYZPoint a,b;
 
       //      std::cout << " Origin " << origin << std::endl;
 
-      std::vector<HepPoint3D> corners;
+      std::vector<XYZPoint> corners;
       corners.reserve(4);
       double dummyt;
       bool hasbeenpulled=false;
@@ -964,7 +983,7 @@ bool EcalHitMaker::getPads(double depth)
 	  regionOfInterest_[ic].getLateralEdges(il,a,b);
 	  
 	  // pull the surface if necessary (only in the front of the crystals) 
-	  HepPoint3D aprime=a;
+	  XYZPoint aprime=a;
 	  if(pulled(origin,normal_,a)) 
 	    {
 	      b=aprime;
@@ -974,7 +993,7 @@ bool EcalHitMaker::getPads(double depth)
 	  // compute the intersection. 
 	  // Check that the intersection is in the [a,b] segment  if HADSHOWER
 	  // if EMSHOWER the intersection is calculated as if the crystals were infinite
-	  HepPoint3D xx=(EMSHOWER)?intersect(plan_,a,b,dummyt,false):intersect(plan_,a,b,dummyt,true);
+	  XYZPoint xx=(EMSHOWER)?intersect(plan_,a,b,dummyt,false):intersect(plan_,a,b,dummyt,true);
 	  
 	  if(dummyt>1) behindback=true;
 	  //	  std::cout << " Intersect " << il << " " << a << " " << b << " " << plan_ << " " << xx << std::endl;
@@ -1046,7 +1065,8 @@ bool EcalHitMaker::getPads(double depth)
 
 
 
-void EcalHitMaker::configureGeometry()
+void 
+EcalHitMaker::configureGeometry()
 { 
   configuredGeometry_=true;
   for(unsigned ic=0;ic<ncrystals_;++ic)
@@ -1112,18 +1132,19 @@ void EcalHitMaker::configureGeometry()
 }
 
 // project fPoint on the plane (original,normal)
-bool EcalHitMaker::pulled(const HepPoint3D & origin, const HepNormal3D& normal, HepPoint3D & fPoint) const 
+bool 
+EcalHitMaker::pulled(const XYZPoint & origin, const XYZNormal& normal, XYZPoint & fPoint) const 
 {
-  HepVector3D vec1=fPoint-origin;
+  XYZVector vec1=fPoint-origin;
   // check if fPoint is behind the origin
-  double dotproduct=normal*vec1;
+  double dotproduct=normal.Dot(vec1);
   if(dotproduct<=0.) 
     {
       //      std::cout << " Pulled : nothing done " << std::endl;
       return false;
     }
   //norm of normal is 1 
-  HepVector3D vec2=vec1-dotproduct*normal;
+  XYZVector vec2=vec1-dotproduct*normal;
   //  std::cout << " Pulled : " << fPoint << " " << origin+vec2 -normal<< std::endl;  
   fPoint = origin+vec2-normal;
   //                  ^^^^^^^ security margin when the intersection is computed
@@ -1131,7 +1152,8 @@ bool EcalHitMaker::pulled(const HepPoint3D & origin, const HepNormal3D& normal, 
 }
 
 
-void EcalHitMaker::prepareCrystalNumberArray()
+void 
+EcalHitMaker::prepareCrystalNumberArray()
 {
   for(unsigned iq=0;iq<npadsatdepth_;++iq)
     {
@@ -1165,7 +1187,8 @@ const std::map<uint32_t,float>& EcalHitMaker::getHits()
 
 ///////////////////////////// GAPS/CRACKS TREATMENT////////////
 
-void EcalHitMaker::reorganizePads()
+void 
+EcalHitMaker::reorganizePads()
 {
 
   // Some cleaning first 
@@ -1226,7 +1249,8 @@ void EcalHitMaker::reorganizePads()
 }
 
 //dir 2 = N,E,W,S
-Hep2Vector & EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) 
+Hep2Vector & 
+EcalHitMaker::correspondingEdge(neighbour& myneighbour,CaloDirection dir2 ) 
 {
   CaloDirection dir=CaloDirectionOperations::oppositeSide(myneighbour.first);
   CaloDirection corner=CaloDirectionOperations::add2d(dir,dir2);
@@ -1277,7 +1301,8 @@ bool EcalHitMaker::unbalancedDirection(const std::vector<neighbour>& dirs,unsign
 }
 
 
-void EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
+void 
+EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 {
   //  std::cout << " Entering gapsLifting "  << std::endl;
   CrystalPad & myPad = padsatdepth_[iq];
@@ -1412,7 +1437,8 @@ void EcalHitMaker::gapsLifting(std::vector<neighbour>& gaps,unsigned iq)
 	  }   
 }
 
-void EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
+void 
+EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
 {
   //  std::cout << " myPad " << &myPad << std::endl;
   unsigned ncracks=cracks.size();

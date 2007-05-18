@@ -14,9 +14,7 @@
 // Vectors
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-
-// CLHEP
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+//#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // STL
 #include <vector>

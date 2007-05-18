@@ -29,6 +29,7 @@
 #include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 
+#include <iomanip>
 #include <iostream>
 #include <list>
 #include <cmath>
@@ -38,10 +39,9 @@
 TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent, 
 				     const edm::ParameterSet& matEff,
 				     const edm::ParameterSet& simHits,
-				     bool activateDecays,
+				     const edm::ParameterSet& decays,
 				     const RandomEngine* engine) : 
   mySimEvent(aSimEvent), 
-  mySimTracks(mySimEvent->tracks()),
   _theGeometry(0), 
   theMaterialEffects(0), 
   myDecayEngine(0), 
@@ -55,7 +55,8 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
 {
   
   // Initialize Bthe stable particle decay engine 
-  if ( activateDecays ) myDecayEngine = new Pythia6Decays();
+  if ( decays.getParameter<bool>("ActivateDecays") )
+       myDecayEngine = new Pythia6Decays();
 
   // Initialize the Material Effects updator, if needed
   if ( matEff.getParameter<bool>("PairProduction") || 
@@ -127,7 +128,7 @@ TrajectoryManager::reconstruct()
   thePSimHits.clear();
 
   // The new event
-  HepLorentzVector myBeamPipe = HepLorentzVector(0.,25., 9999999.,0.);
+  XYZTLorentzVector myBeamPipe = XYZTLorentzVector(0.,25., 9999999.,0.);
 
   std::list<TrackerLayer>::iterator cyliter;
 
@@ -138,13 +139,13 @@ TrajectoryManager::reconstruct()
 
     // If the particle has decayed inside the beampipe, or decays 
     // immediately, there is nothing to do
-    if( !track(fsimi).notYetToEndVertex(myBeamPipe) ) continue;
-    track(fsimi).setPropagate();
+    if( !mySimEvent->track(fsimi).notYetToEndVertex(myBeamPipe) ) continue;
+    mySimEvent->track(fsimi).setPropagate();
 
     // Get the geometry elements 
     cyliter = _theGeometry->cylinderBegin();
     // Prepare the propagation  
-    ParticlePropagator PP(track(fsimi),random);
+    ParticlePropagator PP(mySimEvent->track(fsimi),random);
 
     //The real work starts here
     int success = 1;
@@ -165,14 +166,13 @@ TrajectoryManager::reconstruct()
     // in excess of 3.0. Just simply go to the last tracker layer
     // without bothering with all the details of the propagation and 
     // material effects.
-    if ( PP.vect().cos2Theta() > 0.99 && 
-	 ( cyl == 0 || PP.vertex().vect().cos2Theta() > 0.99 ) ) 
+    if ( PP.cos2Theta() > 0.99 && ( cyl == 0 || PP.cos2ThetaV() > 0.99 ) ) 
       cyliter = _theGeometry->cylinderEnd();
 
     // Loop over the cylinders
     while ( cyliter != _theGeometry->cylinderEnd() &&
 	    loop<100 &&                            // No more than 100 loops
-	    track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
+	    mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex())) { // The particle decayed
 
       // To prevent from interacting twice in a row with the same layer
       bool escapeBarrel    = (PP.getSuccess() == -1 && success == 1);
@@ -195,7 +195,7 @@ TrajectoryManager::reconstruct()
 
       // Remember last propagation outcome
       success = PP.getSuccess();
-	  
+
       // Propagation was not successful :
       // Change the sign of the cylinder increment and count the loops
       if ( !PP.propagateToBoundSurface(*cyliter) || 
@@ -221,7 +221,7 @@ TrajectoryManager::reconstruct()
 	  ( (loop==0 && sign>0) || !firstLoop ) &&   // Save only first half loop
 	  PP.charge()!=0. &&                         // Consider only charged particles
 	  cyliter->sensitive() &&                    // Consider only sensitive layers
-	  PP.perp()>pTmin;                           // Consider only pT > pTmin
+	  PP.Perp2()>pTmin*pTmin;                    // Consider only pT > pTmin
 
         // Material effects are simulated there
 	if ( theMaterialEffects ) 
@@ -237,7 +237,7 @@ TrajectoryManager::reconstruct()
 	    // Return one or two (for overlap regions) PSimHits in the full 
 	    // tracker geometry
 	    if ( theGeomTracker ) 
-	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,track(fsimi).type());
+	      createPSimHits(*cyliter, PP, thePSimHits[fsimi], fsimi,mySimEvent->track(fsimi).type());
 
 	  }
 	}
@@ -252,14 +252,14 @@ TrajectoryManager::reconstruct()
 	*/
 
 	//The particle may have lost its energy in the material
-	if ( track(fsimi).notYetToEndVertex(PP.vertex()) && 
+	if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) && 
 	     !mySimEvent->filter().accept(PP)  ) 
 	  mySimEvent->addSimVertex(PP.vertex(),fsimi);
 	  
       }
 
       // Stop here if the particle has reached an end
-      if ( track(fsimi).notYetToEndVertex(PP.vertex()) ) {
+      if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) ) {
 
 	// Otherwise increment the cylinder iterator
 	//	do { 
@@ -297,7 +297,7 @@ TrajectoryManager::reconstruct()
 
     // Propagate all particles without a end vertex to the Preshower, 
     // theECAL and the HCAL.
-    if ( track(fsimi).notYetToEndVertex(PP.vertex()) )
+    if ( mySimEvent->track(fsimi).notYetToEndVertex(PP.vertex()) )
       propagateToCalorimeters(PP,fsimi);
 
   }
@@ -427,10 +427,9 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   InsideBoundsMeasurementEstimator est;
 
   typedef GeometricSearchDet::DetWithState   DetWithState;
-  const DetLayer* tkLayer = detLayer(layer,PP.z());
+  const DetLayer* tkLayer = detLayer(layer,PP.Z());
 
   TrajectoryStateOnSurface trajState = makeTrajectoryState( tkLayer, PP, &mf);
-  
   float thickness = theMaterialEffects ? theMaterialEffects->thickness() : 0.;
   float eloss = theMaterialEffects ? theMaterialEffects->energyLoss() : 0.;
 
@@ -463,8 +462,8 @@ TrajectoryManager::makeTrajectoryState( const DetLayer* layer,
 					const ParticlePropagator& pp,
 					const MagneticField* field) const
 {
-  GlobalPoint  pos( pp.x(), pp.y(), pp.z());
-  GlobalVector mom( pp.px(), pp.py(), pp.pz());
+  GlobalPoint  pos( pp.X(), pp.Y(), pp.Z());
+  GlobalVector mom( pp.Px(), pp.Py(), pp.Pz());
   ReferenceCountingPointer<TangentPlane> plane = layer->surface().tangentPlane(pos);
   return TrajectoryStateOnSurface
     (GlobalTrajectoryParameters( pos, mom, TrackCharge( pp.charge()), field), *plane);

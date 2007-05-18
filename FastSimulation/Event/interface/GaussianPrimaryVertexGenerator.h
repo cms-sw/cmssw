@@ -1,7 +1,7 @@
 #ifndef FastSimulation_Event_GaussianPrimaryVertexGenerator_H
 #define FastSimulation_Event_GaussianPrimaryVertexGenerator_H
 
-// CLHEP Headers
+// Famos Headers
 #include "FastSimulation/Event/interface/PrimaryVertexGenerator.h"
 
 /** A class that generates a primary vertex with a Gaussian profile, in cm*/ 

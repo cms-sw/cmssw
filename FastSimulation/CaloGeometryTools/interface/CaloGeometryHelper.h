@@ -5,7 +5,7 @@
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "FastSimulation/CaloGeometryTools/interface/BaseCrystal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 
 #include <vector>
 
@@ -14,14 +14,19 @@ class Crystal;
 
 class CaloGeometryHelper:public Calorimeter
 {
+
  public:
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+
   CaloGeometryHelper();
   CaloGeometryHelper(const edm::ParameterSet& fastCalo);
   ~CaloGeometryHelper();
 
 
   // more user friendly getClosestCell  
-  DetId getClosestCell(const HepPoint3D& point, bool ecal, bool central) const;
+  DetId getClosestCell(const XYZPoint& point, bool ecal, bool central) const;
 
   // more user friendly getWindow
   void getWindow(const DetId& pivot,int s1,int s2,std::vector<DetId> &) const;

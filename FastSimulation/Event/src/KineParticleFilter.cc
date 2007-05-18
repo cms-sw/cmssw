@@ -56,12 +56,12 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     if (!eneCut) return false;
 
     // Cut on the transverse momentum of charged particles
-    bool pTCut = p->charge()==0 || p->perp2()>=pTMin;
+    bool pTCut = p->charge()==0 || p->Perp2()>=pTMin;
     if (!pTCut) return false;
 
     // Cut on eta if the origin vertex is close to the beam
     //    bool etaCut = (p->vertex()-mainVertex).perp()>5. || fabs(p->eta())<=etaMax;
-    bool etaCut = (p->vertex()-mainVertex).perp2()>25. || p->vect().cos2Theta()<= cos2Max;
+    bool etaCut = (p->vertex()-mainVertex).Perp2()>25. || p->cos2Theta()<= cos2Max;
 
     /*
     if ( etaCut != etaCut2 ) 
@@ -79,10 +79,9 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
 
   // Cut on the origin vertex position (prior to the ECAL for all 
   // particles, except for muons  ! Just modified: Muons included as well !
-  HepLorentzVector position = p->vertex();
-  double radius = position.perp();
-  double zed = fabs(position.z());
-  double cos2Tet = position.vect().cos2Theta();
+  double radius = p->R();
+  double zed = fabs(p->Z());
+  double cos2Tet = p->cos2ThetaV();
   // Ecal entrance
   bool ecalAcc = ( (radius<129.01 && zed<317.01) ||
 		   (cos2Tet>cos2PreshMin && cos2Tet<cos2PreshMax 

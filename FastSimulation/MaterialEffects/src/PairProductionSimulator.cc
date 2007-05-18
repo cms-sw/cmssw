@@ -1,9 +1,6 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include <iostream>
 #include <cmath>
 
@@ -18,10 +15,11 @@ PairProductionSimulator::PairProductionSimulator(double photonEnergyCut,
 }
 
 
-void PairProductionSimulator::compute(ParticlePropagator& Particle)
+void 
+PairProductionSimulator::compute(ParticlePropagator& Particle)
 {
 
-  double eGamma = Particle.vect().mag(); 
+  double eGamma = Particle.e(); 
 
   // The photon has enough energy to create a pair
   if ( eGamma>=photonEnergy ) { 
@@ -75,25 +73,27 @@ void PairProductionSimulator::compute(ParticlePropagator& Particle)
       
       double chi = Particle.theta();
       double psi = Particle.phi();
+      RawParticle::RotationZ rotZ(psi);
+      RawParticle::RotationY rotY(chi);
+     
+      RawParticle* E1 = 
+	new RawParticle(11,XYZTLorentzVector(pElectron*stheta1*cphi,
+					     pElectron*stheta1*sphi,
+					     pElectron*ctheta1,
+					     eElectron));
       
-      HepLorentzVector PartP(pElectron*stheta1*cphi,
-			     pElectron*stheta1*sphi,
-			     pElectron*ctheta1,eElectron);
-      
-      PartP = PartP.rotateY(chi);
-      PartP = PartP.rotateZ(psi);
-      
-      RawParticle * E1 = new RawParticle(11,PartP);
+      E1->rotate(rotY);
+      E1->rotate(rotZ);
       
       // Create the positron
-      HepLorentzVector PartP2(-pPositron*stheta2*cphi,
-			      -pPositron*stheta2*sphi,
-	  		       pPositron*ctheta2,ePositron);
+      RawParticle* E2 = 
+	new RawParticle(-11,XYZTLorentzVector(-pPositron*stheta2*cphi,
+					      -pPositron*stheta2*sphi,
+					       pPositron*ctheta2,
+					       ePositron));
       
-      PartP2 = PartP2.rotateY(chi);
-      PartP2 = PartP2.rotateZ(psi);
-      
-      RawParticle * E2 =new  RawParticle (-11,PartP2);
+      E2->rotate(rotY);
+      E2->rotate(rotZ);
       
       _theUpdatedState.push_back(E1);
       _theUpdatedState.push_back(E2);
@@ -102,7 +102,8 @@ void PairProductionSimulator::compute(ParticlePropagator& Particle)
   }
 }
 
-double PairProductionSimulator::gbteth(double ener,double partm,double efrac)
+double 
+PairProductionSimulator::gbteth(double ener,double partm,double efrac)
 {
   const double alfa = 0.625;
 

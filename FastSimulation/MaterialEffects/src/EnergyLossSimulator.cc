@@ -4,7 +4,7 @@
 
 //#include "FamosGeneric/FamosUtils/interface/FamosHistos.h"
 
-#include "CLHEP/Units/PhysicalConstants.h"
+//#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <iostream>
 #include <cmath>
@@ -24,7 +24,8 @@ EnergyLossSimulator::~EnergyLossSimulator() {
 
 }
 
-void EnergyLossSimulator::compute(ParticlePropagator &Particle)
+void 
+EnergyLossSimulator::compute(ParticlePropagator &Particle)
 {
 
   //  FamosHistos* myHistos = FamosHistos::instance();
@@ -38,14 +39,12 @@ void EnergyLossSimulator::compute(ParticlePropagator &Particle)
   // It replaces the buggy GEANT3 -> C++ former version.
   // Author : Patrick Janot - 8-Jan-2004
 
-  double p    = Particle.vect().mag();
-  double mass = Particle.mass();
-  double e    = std::sqrt(p*p+mass*mass);
+  double p2  = Particle.Vect().Mag2();
+  double m2  = Particle.mass() * Particle.mass();
+  double e2  = p2+m2;
 
-  double beta2 = p/e;
-  double gama2 = e/mass;
-  beta2 *= beta2;
-  gama2 *= gama2;
+  double beta2 = p2/e2;
+  double gama2 = e2/m2;
   
   double charge2 = Particle.charge() * Particle.charge();
   
@@ -61,22 +60,13 @@ void EnergyLossSimulator::compute(ParticlePropagator &Particle)
   // Generate the energy loss with Landau fluctuations
   double dedx = mostProbableLoss + eSpread * theGenerator->landau();
 
-  /*
-  myHistos->fill("h100",log10(Particle.vect().mag()),
-		        log10(1000.*mostProbableLoss/rho()/thick));
-  myHistos->fill("h101",log10(Particle.vect().mag()),
-		        log10(1000.*dedx/rho()/thick));
-  */
-
   // Compute the new energy and momentum
-  double newEnergy = std::max(mass,e-dedx);
-  double fac   = std::sqrt(newEnergy*newEnergy-mass*mass)/p;
+  double newE = std::max(Particle.mass(),Particle.e()-dedx);
+  double fac  = std::sqrt((newE*newE-m2)/p2);
   
   // Update the momentum
-  Particle.setPx(Particle.px()*fac); 
-  Particle.setPy(Particle.py()*fac); 
-  Particle.setPz(Particle.pz()*fac);
-  Particle.setE(newEnergy);
+  Particle.SetXYZT(Particle.Px()*fac,Particle.Py()*fac, 
+		   Particle.Pz()*fac,newE);
   
 }
 

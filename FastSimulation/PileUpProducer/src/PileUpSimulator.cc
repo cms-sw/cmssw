@@ -10,10 +10,6 @@
 #include "FastSimulation/Particle/interface/RawParticle.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include <iostream>
 #include <sys/stat.h>
 #include <cmath>
@@ -134,14 +130,17 @@ void PileUpSimulator::produce()
 
     // Smear the primary vertex
     mySimEvent->thePrimaryVertexGenerator()->generate();
-    HepLorentzVector smearedVertex =  
-      HepLorentzVector(*(mySimEvent->thePrimaryVertexGenerator()));
+    XYZTLorentzVector smearedVertex =  
+      XYZTLorentzVector(mySimEvent->thePrimaryVertexGenerator()->X(),
+			mySimEvent->thePrimaryVertexGenerator()->Y(),
+			mySimEvent->thePrimaryVertexGenerator()->Z(),
+			0.);
     int mainVertex = mySimEvent->addSimVertex(smearedVertex);
 
     // Some rotation around the z axis, for more randomness
-    Hep3Vector theAxis(0.,0.,1.);
+    XYZVector theAxis(0.,0.,1.);
     double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
-    HepRotation theRotation(theAxis,theAngle);
+    RawParticle::Rotation theRotation(theAxis,theAngle);
     
     /*
     if ( debug ) 
@@ -156,18 +155,18 @@ void PileUpSimulator::produce()
     // Check we are not either at the end of a minbias bunch 
     // or at the end of a file
     if ( theCurrentMinBiasEvt[file] == theNumberOfMinBiasEvts[file] ) {
-      //      if ( debug ) std::cout << "End of MinBias bunch ! ";
+      // if ( debug ) std::cout << "End of MinBias bunch ! ";
       ++theCurrentEntry[file];
-      //      if ( debug) std::cout << "Read the next entry " << theCurrentEntry[file] << std::endl;
+      // if ( debug) std::cout << "Read the next entry " << theCurrentEntry[file] << std::endl;
       theCurrentMinBiasEvt[file] = 0;
       if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
 	theCurrentEntry[file] = 0;
-	//       	if ( debug ) std::cout << "End of file - Rewind! " << std::endl;
+	// if ( debug ) std::cout << "End of file - Rewind! " << std::endl;
       }
-      //      if ( debug ) std::cout << "The PUEvent is reset ... "; 
+      //if ( debug ) std::cout << "The PUEvent is reset ... "; 
       thePUEvents[file]->reset();
       unsigned myEntry = theCurrentEntry[file];
-      /*
+      /* 
       if ( debug ) std::cout << "The new entry " << myEntry 
 			     << " is read ... in TTree " << theTrees[file] << " "; 
       */
@@ -177,7 +176,7 @@ void PileUpSimulator::produce()
 	std::cout << "The number of interactions in the new entry is ... "; 	
       */
       theNumberOfMinBiasEvts[file] = thePUEvents[file]->nMinBias();
-      //      if ( debug ) std::cout << theNumberOfMinBiasEvts[file] << std::endl;
+      // if ( debug ) std::cout << theNumberOfMinBiasEvts[file] << std::endl;
   }
   
     // Read a minbias event chunk
@@ -197,7 +196,7 @@ void PileUpSimulator::produce()
       
       const PUEvent::PUParticle& aParticle 
 	= thePUEvents[file]->thePUParticles()[iTrack];
-      /*
+      /* 
       if ( debug) 
 	std::cout << "Track " << iTrack 
 		  << " id/px/py/pz/mass "
@@ -213,15 +212,15 @@ void PileUpSimulator::produce()
 				 + aParticle.py*aParticle.py
 				 + aParticle.pz*aParticle.pz
 				 + aParticle.mass*aParticle.mass );
-      RawParticle myPart(HepLorentzVector(aParticle.px,
-					  aParticle.py,
-					  aParticle.pz,
-					  energy), 
+      RawParticle myPart(XYZTLorentzVector(aParticle.px,
+					   aParticle.py,
+					   aParticle.pz,
+					   energy), 
 			 smearedVertex);
       myPart.setID(aParticle.id);
       
       // Rotate around the z axis
-      myPart *= theRotation;
+      myPart.rotate(theRotation);
       
       // Add the particle to the event (with a genpartIndex 
       // indicating the pileup event index)

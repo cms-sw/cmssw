@@ -27,7 +27,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
-// CLHEP headers
+// HepMC headers
 #include "HepMC/GenEvent.h"
 
 // FAMOS Header
@@ -81,7 +81,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
     new TrajectoryManager(mySimEvent,
 			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
-			  p.getParameter<bool>("ActivateDecays"),
+			  p.getParameter<edm::ParameterSet>("ActivateDecays"),
 			  random);
 
   // Initialize PileUp Producer (if requested)
@@ -178,8 +178,12 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
     else
       mySimEvent->fill(*particles,id);
 
+
     //    mySimEvent->printMCTruth(*evt);
-    //    std::cout << "----------------------------------------" << std::endl;
+    /* 
+    mySimEvent->print();
+    std::cout << "----------------------------------------" << std::endl;
+    */
 
     // Get the pileup events and add the particles to the main event
     if ( myPileUpSimulator ) { 
@@ -187,7 +191,10 @@ FamosManager::reconstruct(const HepMC::GenEvent* evt,
       myPileUpSimulator->save();
     }
 
-    //    mySimEvent->print();
+    /*
+    mySimEvent->print();
+    std::cout << "----------------------------------------" << std::endl;
+    */
 
     // And propagate the particles through the detector
     myTrajectoryManager->reconstruct();

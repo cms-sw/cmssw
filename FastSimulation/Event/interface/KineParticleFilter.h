@@ -17,9 +17,9 @@ public:
   KineParticleFilter(const edm::ParameterSet& kine); 
   virtual ~KineParticleFilter(){;};
 
-  void setMainVertex(const HepLorentzVector& mv) { mainVertex=mv; }
+  void setMainVertex(const XYZTLorentzVector& mv) { mainVertex=mv; }
 
-  const HepLorentzVector& vertex() { return mainVertex; }
+  const XYZTLorentzVector& vertex() { return mainVertex; }
 
 private:
   /// the real selection is done here
@@ -27,7 +27,7 @@ private:
 
   double etaMin, etaMax, phiMin, phiMax, pTMin, pTMax, EMin, EMax;
   double cos2Max, cos2PreshMin, cos2PreshMax;
-  HepLorentzVector mainVertex;
+  XYZTLorentzVector mainVertex;
 
 };
 

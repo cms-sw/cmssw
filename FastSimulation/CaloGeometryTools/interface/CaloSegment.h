@@ -11,7 +11,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 
 #include <string>
 #include <iostream>
@@ -19,7 +19,10 @@ class CaloGeometryHelper;
 class CaloSegment 
 {
 
-  public: 
+ public: 
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
 
   enum Material{PbWO4=0,CRACK=1,GAP=2,PS=3,HCAL=4,ECALHCALGAP=5};
   
@@ -57,11 +60,11 @@ class CaloSegment
   /// In which detector
   inline DetId::Detector whichDetector() const {return detector_;};
   /// space point corresponding to this depth (in cm)
-  HepPoint3D positionAtDepthincm(double depth) const ;
+  XYZPoint positionAtDepthincm(double depth) const ;
   /// space point corresponding to this depth (in X0)
-  HepPoint3D positionAtDepthinX0(double depth) const;
+  XYZPoint positionAtDepthinX0(double depth) const;
   /// space point corresponding to this depth (in L0)
-  HepPoint3D positionAtDepthinL0(double depth) const;
+  XYZPoint positionAtDepthinL0(double depth) const;
 
   /// cm to X0 conversion
   double x0FromCm(double cm) const;

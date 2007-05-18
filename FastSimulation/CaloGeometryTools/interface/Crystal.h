@@ -2,9 +2,12 @@
 #define FastSimulation_GeometryTool_Crystal_h
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Plane3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Vector3D.h"
+//#include "CLHEP/Geometry/Plane3D.h"
+//#include "DataFormats/Math/interface/Point3D.h"
+#include "Math/GenVector/Plane3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 // Unfortunately, GlobalPoints are also needed
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
@@ -21,7 +24,13 @@ class DetId;
 
 class Crystal
 {
+
  public:
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Plane3D Plane3D;
+
   // side numbering
   //  enum CrystalSide{EAST=0,NORTH=1,WEST=2,SOUTH=3,FRONT=4,BACK=5};
   /// Empty constructor 
@@ -30,54 +39,54 @@ class Crystal
   Crystal(const DetId&  cell,const BaseCrystal* bc=0);
 
   /// get the i-th corner
-  inline const HepPoint3D& getCorner(unsigned i) const { return myCrystal_->getCorner(i);};
+  inline const XYZPoint& getCorner(unsigned i) const { return myCrystal_->getCorner(i);};
   /// get 1/8*(Sum of corners)
-  inline const HepPoint3D& getCenter() const {return myCrystal_->getCenter();};
+  inline const XYZPoint& getCenter() const {return myCrystal_->getCenter();};
   /// get front center
-  inline const HepPoint3D& getFrontCenter() const {return myCrystal_->getFrontCenter();};
+  inline const XYZPoint& getFrontCenter() const {return myCrystal_->getFrontCenter();};
   /// get front center
-  inline const HepPoint3D & getBackCenter() const {return myCrystal_->getBackCenter();}
+  inline const XYZPoint & getBackCenter() const {return myCrystal_->getBackCenter();}
   /// Direction of the first edge 
-  inline const HepVector3D& getFirstEdge() const {return  myCrystal_->getFirstEdge();}
+  inline const XYZVector& getFirstEdge() const {return  myCrystal_->getFirstEdge();}
   /// Direction of the fifth edge 
-  inline const HepVector3D& getFifthEdge() const {return myCrystal_->getFifthEdge();}
+  inline const XYZVector& getFifthEdge() const {return myCrystal_->getFifthEdge();}
   /// get the DetId
   inline const DetId & getDetId() const {return cellid_;};
   /// get the subdector
   inline const int getSubdetNumber() const {return myCrystal_->getSubdetNumber();}
   void print() const {return myCrystal_->print();}
   /// get the lateral edges
-  void getLateralEdges(unsigned i,HepPoint3D& a,HepPoint3D& b) const {myCrystal_->getLateralEdges(i,a,b); };
+  void getLateralEdges(unsigned i,XYZPoint& a,XYZPoint& b) const {myCrystal_->getLateralEdges(i,a,b); };
   /// coordinates of the front side
-  void getFrontSide(HepPoint3D &a,HepPoint3D &b,HepPoint3D &c,HepPoint3D &d) const {myCrystal_->getFrontSide(a,b,c,d); }
-  void getFrontSide(std::vector<HepPoint3D>& corners) const {myCrystal_->getFrontSide(corners);}
+  void getFrontSide(XYZPoint &a,XYZPoint &b,XYZPoint &c,XYZPoint &d) const {myCrystal_->getFrontSide(a,b,c,d); }
+  void getFrontSide(std::vector<XYZPoint>& corners) const {myCrystal_->getFrontSide(corners);}
   /// Coordinates of the back side
-  void getBackSide(HepPoint3D &a,HepPoint3D &b,HepPoint3D &c,HepPoint3D &d) const {myCrystal_->getBackSide(a,b,c,d);}
-  void getBackSide(std::vector<HepPoint3D>& corners) const {myCrystal_->getBackSide(corners);}
+  void getBackSide(XYZPoint &a,XYZPoint &b,XYZPoint &c,XYZPoint &d) const {myCrystal_->getBackSide(a,b,c,d);}
+  void getBackSide(std::vector<XYZPoint>& corners) const {myCrystal_->getBackSide(corners);}
   /// Coordinates of the i=th lateral side
-  void getLateralSide(unsigned i,HepPoint3D &a,HepPoint3D &b,HepPoint3D &c,HepPoint3D &d) const {myCrystal_->getLateralSide(i,a,b,c,d);}
-  void getLateralSide(unsigned i,std::vector<HepPoint3D>& corners) const {myCrystal_->getLateralSide(i,corners);}
+  void getLateralSide(unsigned i,XYZPoint &a,XYZPoint &b,XYZPoint &c,XYZPoint &d) const {myCrystal_->getLateralSide(i,a,b,c,d);}
+  void getLateralSide(unsigned i,std::vector<XYZPoint>& corners) const {myCrystal_->getLateralSide(i,corners);}
   /// generic access
-  void getSide(const CaloDirection& side, HepPoint3D &a,HepPoint3D &b,HepPoint3D &c,HepPoint3D &d) const
+  void getSide(const CaloDirection& side, XYZPoint &a,XYZPoint &b,XYZPoint &c,XYZPoint &d) const
   {myCrystal_->getSide(side,a,b,c,d);}
-  void getSide(const CaloDirection& side, std::vector<HepPoint3D>& corners) const
+  void getSide(const CaloDirection& side, std::vector<XYZPoint>& corners) const
   {myCrystal_->getSide(side,corners);}
 
 
   /// front plane
-  const HepPlane3D& getFrontPlane() const {return myCrystal_->getFrontPlane();}
+  const Plane3D& getFrontPlane() const {return myCrystal_->getFrontPlane();}
   /// back plane
-  const HepPlane3D& getBackPlane() const {return myCrystal_->getBackPlane();}
+  const Plane3D& getBackPlane() const {return myCrystal_->getBackPlane();}
   /// lateral planes
-  const HepPlane3D& getLateralPlane(unsigned i) const {return myCrystal_->getLateralPlane(i);}
+  const Plane3D& getLateralPlane(unsigned i) const {return myCrystal_->getLateralPlane(i);}
   /// generic access
-  const HepPlane3D& getPlane(const CaloDirection& side) const { return myCrystal_->getPlane(side);}
+  const Plane3D& getPlane(const CaloDirection& side) const { return myCrystal_->getPlane(side);}
 
   /// lateral directions
- inline const HepVector3D& getLateralEdge(unsigned i) const {return myCrystal_->getLateralEdge(i);}
+ inline const XYZVector& getLateralEdge(unsigned i) const {return myCrystal_->getLateralEdge(i);}
 
   /// normal exiting vector for the surface
- inline const HepVector3D& exitingNormal(const CaloDirection& side) const {return myCrystal_->exitingNormal(side);}
+ inline const XYZVector& exitingNormal(const CaloDirection& side) const {return myCrystal_->exitingNormal(side);}
 
   static unsigned oppositeDirection(unsigned iside);
 
@@ -98,7 +107,7 @@ class Crystal
   inline CrystalNeighbour & crystalNeighbour(unsigned iq) { return  neighbours_[iq];}
   
   /// get crystal axis
-  inline const HepVector3D & getAxis() const { return myCrystal_->getAxis();}
+  inline const XYZVector & getAxis() const { return myCrystal_->getAxis();}
 
   /// set X0back (it depends on the choosen origin, it isn't purely geometrical)
   inline void setX0Back(double val) {X0back_=val;}

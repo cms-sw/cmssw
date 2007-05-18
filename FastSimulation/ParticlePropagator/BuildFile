@@ -5,13 +5,11 @@
 <use name=FastSimulation/TrackerSetup>
 <use name=FastSimulation/Utilities>
 <use name=MagneticField/Engine>
-<use name=clhep>
 <use name=rootcore>
 
 <export>
   <use name=DataFormats/GeometryVector>
   <use name=FastSimulation/BaseParticlePropagator>
   <use name=FastSimulation/TrackerSetup>
-  <use name=clhep>
   <lib name=FastSimulationParticlePropagator>
 </export>

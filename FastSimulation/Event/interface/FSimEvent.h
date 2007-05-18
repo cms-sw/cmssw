@@ -53,17 +53,17 @@ public:
 	  const std::vector<SimVertex>& simVertices);
 
   ///Method to return the EventId
-  virtual edm::EventID id() const;
+  edm::EventID id() const;
 
   ///Method to return the event weight
-  virtual float weight() const;
+  float weight() const;
     
   /// Number of tracks
-  virtual unsigned int nTracks() const;
+  unsigned int nTracks() const;
   /// Number of vertices
-  virtual unsigned int nVertices() const;
+  unsigned int nVertices() const;
   /// Number of MC particles
-  virtual unsigned int nGenParts() const;
+  unsigned int nGenParts() const;
 
   /// Load containers of tracks and vertices for the edm::Event
   void load(edm::SimTrackContainer & c) const;

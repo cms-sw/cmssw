@@ -5,7 +5,7 @@
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
-#include <list>
+#include <vector>
 #include <utility>
 
 /** 
@@ -52,18 +52,19 @@ class MaterialEffectsSimulator
   void updateState(ParticlePropagator& myTrack, double radlen);
   
   /// Returns const iterator to the beginning of the daughters list
-  RHEP_const_iter beginDaughters() const {return _theUpdatedState.begin();};
+  inline RHEP_const_iter beginDaughters() const {return _theUpdatedState.begin();}
 
   /// Returns const iterator to the end of the daughters list
-  RHEP_const_iter endDaughters() const {return _theUpdatedState.end();};
+  inline RHEP_const_iter endDaughters() const {return _theUpdatedState.end();}
 
   /// Returns the number of daughters 
-  unsigned nDaughters() const {return _theUpdatedState.size();};
+  inline unsigned nDaughters() const {return _theUpdatedState.size();}
 
   /// Sets the vector normal to the surface traversed 
-  void setNormalVector(const GlobalVector& normal) { 
-    theNormalVector = normal;
-  }
+  inline void setNormalVector(const GlobalVector& normal) { theNormalVector = normal; }
+  
+  /// A vector orthogonal to another one (because it's not in XYZTLorentzVector)
+  XYZVector orthogonal(const XYZVector&) const; 
 
  private:
 
@@ -76,7 +77,7 @@ class MaterialEffectsSimulator
 
  protected:
 
-  mutable std::list<const RawParticle*> _theUpdatedState;
+  std::list<const RawParticle*> _theUpdatedState;
 
   double radLengths;
 

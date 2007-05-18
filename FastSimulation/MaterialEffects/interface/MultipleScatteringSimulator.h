@@ -38,6 +38,11 @@ class MultipleScatteringSimulator : public MaterialEffectsSimulator
   /// The real dE/dx generation and particle update
   void compute(ParticlePropagator &Particle);
 
+ private: 
+  
+  /// Save (a tiny bit of) time
+  double sqr12;
+
 };
 
 #endif

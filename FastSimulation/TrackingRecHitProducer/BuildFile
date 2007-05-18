@@ -21,20 +21,8 @@
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/TrackingHit>
-<use name=clhep>
 <use name=rootcore>
 
 <export>
-#  <use name=DataFormats/CLHEP>
-#  <use name=DataFormats/DetId>
-#  <use name=DataFormats/GeometrySurface>
-#  <use name=DataFormats/GeometryVector>
-#  <use name=DataFormats/TrackerRecHit2D>
-#  <use name=FWCore/Framework>
-#  <use name=FWCore/ParameterSet>
-#  <use name=Geometry/CommonDetUnit>
-#  <use name=Geometry/TrackerGeometryBuilder>
-#  <use name=SimDataFormats/CrossingFrame>
-#  <use name=SimDataFormats/TrackingHit>
   <lib name=FastSimulationTrackingRecHitProducer>
 </export>

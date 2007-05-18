@@ -5,8 +5,8 @@
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Vector3D.h"
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;
@@ -15,11 +15,14 @@ class PreshowerHitMaker : public CaloHitMaker
 {
  public:
 
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+
   PreshowerHitMaker(CaloGeometryHelper * calo, 
-		    const HepPoint3D & , 
-		    const HepVector3D& ,
-		    const HepPoint3D& ,
-		    const HepVector3D&,
+		    const XYZPoint & , 
+		    const XYZVector& ,
+		    const XYZPoint& ,
+		    const XYZVector&,
 		    const LandauFluctuationGenerator* aGenerator);
 
   ~PreshowerHitMaker() {;}
@@ -31,10 +34,10 @@ class PreshowerHitMaker : public CaloHitMaker
 
  private:
 
-  HepPoint3D psLayer1Entrance_;
-  HepVector3D psLayer1Dir_;
-  HepPoint3D psLayer2Entrance_;
-  HepVector3D psLayer2Dir_;
+  XYZPoint psLayer1Entrance_;
+  XYZVector psLayer1Dir_;
+  XYZPoint psLayer2Entrance_;
+  XYZVector psLayer2Dir_;
   double invcostheta1x;
   double invcostheta1y;
   double invcostheta2x;

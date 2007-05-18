@@ -8,14 +8,14 @@ std::ostream & operator<<(std::ostream& ost ,const CaloPoint& cid)
     ost <<  (uint32_t)cid.getDetId()();
   else
     ost << cid.whichDetector();
-  //  ost << " Side " << cid.getSide() << " Point " << (HepPoint3D)cid;
-  ost << " Point " << (HepPoint3D)cid;
+  //  ost << " Side " << cid.getSide() << " Point " << (XYZPoint)cid;
+  ost << " Point " << (math::XYZVector)cid;
   return ost;
 }
 
 // For the ECAL
-CaloPoint::CaloPoint(const DetId & cell, CaloDirection side, const HepPoint3D& position):
-  HepPoint3D(position),cellid_(cell),side_(side)
+CaloPoint::CaloPoint(const DetId & cell, CaloDirection side, const XYZPoint& position):
+  XYZPoint(position),cellid_(cell),side_(side)
 {
   detector_=cell.det();
   subdetector_=cell.subdetId();
@@ -23,16 +23,16 @@ CaloPoint::CaloPoint(const DetId & cell, CaloDirection side, const HepPoint3D& p
 }
 
 //hcal
-CaloPoint::CaloPoint(DetId::Detector det,const HepPoint3D& position)
-  :HepPoint3D(position),detector_(det)
+CaloPoint::CaloPoint(DetId::Detector det,const XYZPoint& position)
+  :XYZPoint(position),detector_(det)
 {
   subdetector_=0;
   layer_=0;
 }
 
 //preshower
-CaloPoint::CaloPoint(DetId::Detector detector,int subdetn, int layer,const HepPoint3D& position)
-  :HepPoint3D(position),detector_(detector),subdetector_(subdetn),layer_(layer)
+CaloPoint::CaloPoint(DetId::Detector detector,int subdetn, int layer,const XYZPoint& position)
+  :XYZPoint(position),detector_(detector),subdetector_(subdetn),layer_(layer)
 {
   cellid_=DetId();
 }

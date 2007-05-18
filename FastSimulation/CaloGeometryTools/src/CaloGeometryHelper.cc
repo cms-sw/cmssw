@@ -53,7 +53,7 @@ CaloGeometryHelper::~CaloGeometryHelper()
 {;
 }
 
-DetId CaloGeometryHelper::getClosestCell(const HepPoint3D& point, bool ecal, bool central) const
+DetId CaloGeometryHelper::getClosestCell(const XYZPoint& point, bool ecal, bool central) const
 {
   DetId result;
   if(ecal)
@@ -61,10 +61,10 @@ DetId CaloGeometryHelper::getClosestCell(const HepPoint3D& point, bool ecal, boo
       if(central)
 	{
 	  //	  std::cout << "EcalBarrelGeometry_" << " " << EcalBarrelGeometry_ << std::endl;
-	  result = EcalBarrelGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
+	  result = EcalBarrelGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
 #ifdef DEBUGGCC
 	  if(result.null()) return result;
-	  GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
+	  GlobalPoint ip=GlobalPoint(point.X(),point.Y(),point.Z());
 	  GlobalPoint cc=EcalBarrelGeometry_->getGeometry(result)->getPosition();
 	  float deltaeta2 = ip.eta()-cc.eta();
 	  deltaeta2 *= deltaeta2;
@@ -75,13 +75,13 @@ DetId CaloGeometryHelper::getClosestCell(const HepPoint3D& point, bool ecal, boo
 	}
       else
 	{
-	  result = EcalEndcapGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
+	  result = EcalEndcapGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
 #ifdef DEBUGGCC
 	  if(result.null()) 
 	    {
 	      return result;
 	    }
-	  GlobalPoint ip=GlobalPoint(point.x(),point.y(),point.z());
+	  GlobalPoint ip=GlobalPoint(point.X(),point.Y(),point.Z());
 	  GlobalPoint cc=EcalEndcapGeometry_->getGeometry(result)->getPosition();
 	  Histos::instance()->fill("h110",point.eta(),(ip-cc).perp());
 #endif
@@ -89,7 +89,7 @@ DetId CaloGeometryHelper::getClosestCell(const HepPoint3D& point, bool ecal, boo
     }
   else
     {
-      result=HcalGeometry_->getClosestCell(GlobalPoint(point.x(),point.y(),point.z()));
+      result=HcalGeometry_->getClosestCell(GlobalPoint(point.X(),point.Y(),point.Z()));
 #ifdef DEBUGGCC
       if(result.null()) 
 	{

@@ -162,6 +162,14 @@ FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
   // Add the particles in the FSimEvent
   addParticles(myGenEvent);
 
+  /*
+  std::cout << "The MC truth! " << std::endl;
+  printMCTruth(myGenEvent);
+
+  std::cout << std::endl  << "The FAMOS event! " << std::endl;
+  print();
+  */
+
 }
 
 void
@@ -202,11 +210,26 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     geantToIndex[ simTracks[it].trackId() ] = it;
   }  
 
+  // Create also a map associating a SimTrack with its endVertex
+  /*
+  std::map<unsigned, unsigned> endVertex;
+  for ( unsigned iv=0; iv<simVertices.size(); ++iv ) { 
+    endVertex[ simVertices[iv].parentIndex() ] = iv;
+  }
+  */
+
   // Set the main vertex for the kine particle filter
   // SimVertices were in mm until 110_pre2
   //  HepLorentzVector primaryVertex = simVertices[0].position()/10.;
   // SImVertices are now in cm
-  HepLorentzVector primaryVertex = simVertices[0].position();
+  // Also : position is copied until SimVertex switches to Mathcore.
+  //  XYZTLorentzVector primaryVertex = simVertices[0].position();
+  // The next 5 lines to be then replaced by the previous line
+  XYZTLorentzVector primaryVertex(simVertices[0].position().x(),
+				  simVertices[0].position().y(),
+				  simVertices[0].position().z(),
+				  simVertices[0].position().t());
+  //
   myFilter->setMainVertex(primaryVertex);
   // Add the main vertex to the list.
   addSimVertex(myFilter->vertex());
@@ -216,10 +239,12 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 
     // The track
     const SimTrack& track = simTracks[trackId];
+    //    std::cout << std::endl << "SimTrack " << trackId << " " << track << std::endl;
 
     // The origin vertex
     int vertexId = track.vertIndex();
     const SimVertex& vertex = simVertices[vertexId];
+    //std::cout << "Origin vertex " << vertexId << " " << vertex << std::endl;
 
     // The mother track 
     int motherId = -1;
@@ -232,21 +257,44 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
 	motherId = association->second;
     }
     int originId = motherId == - 1 ? -1 : myTracks[motherId];
+    //std::cout << "Origin id " << originId << std::endl;
+
+    /*
+    if ( endVertex.find(trackId) != endVertex.end() ) 
+      std::cout << "End vertex id = " << endVertex[trackId] << std::endl;
+    else
+      std::cout << "No endVertex !!! " << std::endl;
+    std::cout << "Tracker surface position " << track.trackerSurfacePosition() << std::endl;
+    */
 
     // Add the vertex (if it does not already exist!)
-    if ( myVertices[vertexId] == -1 )
-      myVertices[vertexId] = addSimVertex(vertex.position(),originId); 
+    XYZTLorentzVector position(vertex.position().px(),vertex.position().py(),
+			       vertex.position().pz(),vertex.position().e());
+    if ( myVertices[vertexId] == -1 ) 
+      // Momentum and position are copied until SimTrack and SimVertex
+      // switch to Mathcore.
+      //      myVertices[vertexId] = addSimVertex(vertex.position(),originId); 
+      // The next line to be then replaced by the previous line
+      myVertices[vertexId] = addSimVertex(position,originId); 
 
     // Add the track (with protection for brem'ing electrons)
     int motherType = motherId == -1 ? 0 : simTracks[motherId].type();
 
     if ( abs(motherType) != 11 || motherType != track.type() ) {
-      // SimVertices were in mm until 110_pre2
-      // RawParticle part(track.momentum(), vertex.position()/10.);
-      // SImVertices are now in cm
-      RawParticle part(track.momentum(), vertex.position());
+      // Momentum and position are copied until SimTrack and SimVertex
+      // switch to Mathcore.
+      //      RawParticle part(track.momentum(), vertex.position());
+      // The next 3 lines to be then replaced by the previous line
+      XYZTLorentzVector momentum(track.momentum().px(),track.momentum().py(),
+				 track.momentum().pz(),track.momentum().e());
+      RawParticle part(momentum,position);
+      //
       part.setID(track.type()); 
-      myTracks[trackId] = addSimTrack(&part,myVertices[vertexId]);
+      //std::cout << "Ctau  = " << part.PDGcTau() << std::endl;
+      // Don't save tracks that have decayed immediately but for which no daughters
+      // were saved (probably due to cuts on E, pT and eta)
+      //  if ( part.PDGcTau() > 0.1 || endVertex.find(trackId) != endVertex.end() ) 
+	myTracks[trackId] = addSimTrack(&part,myVertices[vertexId],track.genpartIndex());
     } else {
       myTracks[trackId] = myTracks[motherId];
     }
@@ -276,14 +324,19 @@ FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks,
     int originId = motherId == - 1 ? -1 : myTracks[motherId];
 
     // Add the vertex
-    myVertices[vertexId] = 
-      addSimVertex(vertex.position(),originId);
+    // Momentum and position are copied until SimTrack and SimVertex
+    // switch to Mathcore.
+    //    myVertices[vertexId] = addSimVertex(vertex.position(),originId);
+    // The next 3 lines to be then replaced by the previous line
+    XYZTLorentzVector position(vertex.position().px(),vertex.position().py(),
+			       vertex.position().pz(),vertex.position().e());
+    myVertices[vertexId] = addSimVertex(position,originId); 
   }
 
   // Finally, propagate all particles to the calorimeters
   BaseParticlePropagator myPart;
-  HepLorentzVector mom;
-  HepLorentzVector pos;
+  XYZTLorentzVector mom;
+  XYZTLorentzVector pos;
   double enele, enegam;
 
   // Loop over the tracks
@@ -356,16 +409,19 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 
   // Primary vertex (already smeared by the SmearedVtx module)
   GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
-  HepLorentzVector primaryVertexPosition(primaryVertex->position().x()/10.,
-					 primaryVertex->position().y()/10.,
-					 primaryVertex->position().z()/10.,
-					 primaryVertex->position().t()/10.);
+  XYZTLorentzVector primaryVertexPosition(primaryVertex->position().x()/10.,
+					  primaryVertex->position().y()/10.,
+					  primaryVertex->position().z()/10.,
+					  primaryVertex->position().t()/10.);
 
   // Smear the main vertex if needed
-  HepLorentzVector smearedVertex; 
+  XYZTLorentzVector smearedVertex; 
   if ( primaryVertex->point3d().mag() < 1E-10 ) {
     theVertexGenerator->generate();
-    smearedVertex = HepLorentzVector(*theVertexGenerator);
+    smearedVertex = XYZTLorentzVector(theVertexGenerator->x(),
+				      theVertexGenerator->y(),
+				      theVertexGenerator->z(), 
+				      0.);
   }
 
   // Set the main vertex
@@ -374,11 +430,11 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   // This is the smeared main vertex
   int mainVertex = addSimVertex(myFilter->vertex());
 
+  HepMC::GenEvent::particle_const_iterator piter;
+  HepMC::GenEvent::particle_const_iterator pbegin = myGenEvent.particles_begin();
+  HepMC::GenEvent::particle_const_iterator pend = myGenEvent.particles_end();
   // Loop on the particles of the generated event
-  for ( HepMC::GenEvent::particle_const_iterator 
-	  piter  = myGenEvent.particles_begin();
-	  piter != myGenEvent.particles_end(); 
-	++piter ) {
+  for ( piter = pbegin; piter != pend; ++piter ) {
 
     // This is the generated particle pointer - for the signal event only
     GenParticle* p = *piter;
@@ -393,10 +449,10 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     }
 
     // Keep only: 
-    // 1) Stable particles
-    bool testStable = p->status()==1;
+    // 1) Stable particles (watch out! New status code = 1001!)
+    bool testStable = p->status()%1000==1;
 
-    // 2) or particles with stable daughters
+    // 2) or particles with stable daughters (watch out! New status code = 1001!)
     bool testDaugh = false;
     if ( !testStable && 
 	 p->end_vertex() && 
@@ -407,7 +463,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	p->end_vertex()->particles_out_const_end();
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
 	GenParticle* daugh = *firstDaughterIt;
-	if ( daugh->status()==1 ) {
+	if ( daugh->status()%1000==1 ) {
 	  testDaugh=true;
 	  break;
 	}
@@ -417,14 +473,14 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     // 3) or particles that fly more than one micron.
     double dist = 0.;
     if ( !testStable && !testDaugh && p->production_vertex() ) {
-      HepLorentzVector 
+      XYZTLorentzVector 
 	productionVertexPosition(p->production_vertex()->position().x()/10.,
 				 p->production_vertex()->position().y()/10.,
 				 p->production_vertex()->position().z()/10.,
 				 p->production_vertex()->position().t()/10.);
-      dist = (primaryVertexPosition-productionVertexPosition).vect().mag();
+      dist = (primaryVertexPosition-productionVertexPosition).Vect().Mag2();
     }
-    bool testDecay = ( dist > 0.0001 ) ? true : false; 
+    bool testDecay = ( dist > 1e-8 ) ? true : false; 
 
     // Save the corresponding particle and vertices
     if ( testStable || testDaugh || testDecay ) {
@@ -443,25 +499,25 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
 	motherBarcode && myGenVertices[motherBarcode] ?
 	myGenVertices[motherBarcode] : mainVertex;
 
-      HepLorentzVector momentum(p->momentum().px(),
-				p->momentum().py(),
-				p->momentum().pz(),
-				p->momentum().e());
+      XYZTLorentzVector momentum(p->momentum().px(),
+				 p->momentum().py(),
+				 p->momentum().pz(),
+				 p->momentum().e());
       RawParticle part(momentum, vertex(originVertex).position());
       part.setID(p->pdg_id());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nGenParts()-1-offset);
+      int theTrack = addSimTrack(&part,originVertex, nGenParts()-offset);
 
       // It there an end vertex ?
       if ( !p->end_vertex() ) continue; 
 
       // Add the vertex to the event and to the various lists
-      HepLorentzVector decayVertex = 
-	HepLorentzVector(p->end_vertex()->position().x()/10.,
-			 p->end_vertex()->position().y()/10.,
-			 p->end_vertex()->position().z()/10.,
-			 p->end_vertex()->position().t()/10.) +
+      XYZTLorentzVector decayVertex = 
+	XYZTLorentzVector(p->end_vertex()->position().x()/10.,
+			  p->end_vertex()->position().y()/10.,
+			  p->end_vertex()->position().z()/10.,
+			  p->end_vertex()->position().t()/10.) +
 	smearedVertex;
       //	vertex(mainVertex).position();
       int theVertex = addSimVertex(decayVertex,theTrack);
@@ -485,7 +541,7 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
   std::map<const reco::Candidate*,int> myGenVertices;
 
   // Are there particles in the FSimEvent already ? 
-  int offset = nGenParts();
+  int offset = nTracks();
 
   // Skip the incoming protons
   unsigned int ip = 0;
@@ -494,16 +550,19 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
        myGenParticles[1].pdgId() == 2212 ) ip = 2;
 
   // Primary vertex (already smeared by the SmearedVtx module)
-  HepLorentzVector primaryVertex (myGenParticles[ip].vx(),
-				  myGenParticles[ip].vy(),
-				  myGenParticles[ip].vz(),
-				  0.);
+  XYZTLorentzVector primaryVertex (myGenParticles[ip].vx(),
+				   myGenParticles[ip].vy(),
+				   myGenParticles[ip].vz(),
+				   0.);
 
   // Smear the main vertex if needed
-  HepLorentzVector smearedVertex;
+  XYZTLorentzVector smearedVertex;
   if ( primaryVertex.mag() < 1E-10 ) {
     theVertexGenerator->generate();
-    smearedVertex = (HepLorentzVector) *theVertexGenerator;
+    smearedVertex = XYZTLorentzVector(theVertexGenerator->x(),
+				      theVertexGenerator->y(),
+				      theVertexGenerator->z(),
+				      0.);
   } 
 
   // Set the main vertex
@@ -539,10 +598,10 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
     // 3) or particles that fly more than one micron.
     double dist = 0.;
     if ( !testStable && !testDaugh ) {
-      HepLorentzVector productionVertex(p.vx(),p.vy(),p.vz(),0.);
-      dist = (primaryVertex-productionVertex).vect().mag();
+      XYZTLorentzVector productionVertex(p.vx(),p.vy(),p.vz(),0.);
+      dist = (primaryVertex-productionVertex).Vect().Mag2();
     }
-    bool testDecay = ( dist > 0.0001 ) ? true : false; 
+    bool testDecay = ( dist > 1e-8 ) ? true : false; 
 
     // Save the corresponding particle and vertices
     if ( testStable || testDaugh || testDecay ) {
@@ -554,22 +613,21 @@ FBaseSimEvent::addParticles(const reco::CandidateCollection& myGenParticles) {
 	myGenVertices.find(mother) != myGenVertices.end() ? 
       	myGenVertices[mother] : mainVertex;
       
-      HepLorentzVector momentum(p.px(),p.py(),p.pz(),p.energy());
+      XYZTLorentzVector momentum(p.px(),p.py(),p.pz(),p.energy());
       RawParticle part(momentum, vertex(originVertex).position());
       part.setID(p.pdgId());
 
       // Add the particle to the event and to the various lists
-      int theTrack = addSimTrack(&part,originVertex, nGenParts()-1-offset);
+      int theTrack = addSimTrack(&part,originVertex, nTracks()-offset);
 
       // It there an end vertex ?
       if ( !nDaughters ) continue; 
       const reco::Candidate* daughter = p.daughter(0);
 
       // Add the vertex to the event and to the various lists
-      HepLorentzVector decayVertex = 
-	HepLorentzVector(daughter->vx(), daughter->vy(),
-			 daughter->vz(), 0.) +
-	smearedVertex;
+      XYZTLorentzVector decayVertex = 
+	XYZTLorentzVector(daughter->vx(), daughter->vy(),
+			  daughter->vz(), 0.) + smearedVertex;
       int theVertex = addSimVertex(decayVertex,theTrack);
 
       if ( theVertex != -1 ) myGenVertices[&p] = theVertex;
@@ -615,10 +673,10 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig) {
 }
 
 int
-FBaseSimEvent::addSimVertex(const HepLorentzVector& v,int im) {
+FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v,int im) {
   
   // Check that the vertex is in the Famos "acceptance"
-  if ( !myFilter->accept(RawParticle(HepLorentzVector(),v)) ) return -1;
+  if ( !myFilter->accept(RawParticle(XYZTLorentzVector(),v)) ) return -1;
 
   // The number of vertices
   int vertexId = nSimVertices++;
@@ -660,24 +718,24 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       name = "none";
     }
   
-    HepLorentzVector momentum1(p->momentum().px(),
-			       p->momentum().py(),
-			       p->momentum().pz(),
-			       p->momentum().e());
+    XYZTLorentzVector momentum1(p->momentum().px(),
+				p->momentum().py(),
+				p->momentum().pz(),
+				p->momentum().e());
 
     int vertexId1 = 0;
 
     if ( !p->production_vertex() ) continue;
 
-    Hep3Vector vertex1 = Hep3Vector(p->production_vertex()->position().x()/10.,
-				    p->production_vertex()->position().y()/10.,
-				    p->production_vertex()->position().z()/10.);
+    XYZVector vertex1 (p->production_vertex()->position().x()/10.,
+		       p->production_vertex()->position().y()/10.,
+		       p->production_vertex()->position().z()/10.);
     vertexId1 = p->production_vertex()->barcode();
     
     std::cout.setf(std::ios::fixed, std::ios::floatfield);
     std::cout.setf(std::ios::right, std::ios::adjustfield);
     
-    std::cout << std::setw(4) << p->barcode()-1 << " " 
+    std::cout << std::setw(4) << p->barcode() << " " 
 	 << name;
     
     for(unsigned int k=0;k<11-name.length() && k<12; k++) std::cout << " ";  
@@ -687,7 +745,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
     if ( eta < -10. ) eta = -10.;
     std::cout << std::setw(6) << std::setprecision(2) << eta << " " 
 	      << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-	      << std::setw(7) << std::setprecision(2) << momentum1.perp() << " " 
+	      << std::setw(7) << std::setprecision(2) << momentum1.pt() << " " 
 	      << std::setw(7) << std::setprecision(2) << momentum1.e() << " " 
 	      << std::setw(4) << vertexId1 << " " 
 	      << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
@@ -698,15 +756,15 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       *(p->production_vertex()->particles_in_const_begin());
 
     if ( mother )
-      std::cout << std::setw(4) << mother->barcode()-1 << " ";
+      std::cout << std::setw(4) << mother->barcode() << " ";
     else 
       std::cout << "     " ;
     
     if ( p->end_vertex() ) {  
-      HepLorentzVector vertex2(p->end_vertex()->position().x()/10.,
-			       p->end_vertex()->position().y()/10.,
-			       p->end_vertex()->position().z()/10.,
-			       p->end_vertex()->position().t()/10.);
+      XYZTLorentzVector vertex2(p->end_vertex()->position().x()/10.,
+				p->end_vertex()->position().y()/10.,
+				p->end_vertex()->position().z()/10.,
+				p->end_vertex()->position().t()/10.);
       int vertexId2 = p->end_vertex()->barcode();
 
       std::vector<const GenParticle*> children;
@@ -721,10 +779,10 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       std::cout << std::setw(4) << vertexId2 << " "
 		<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
 		<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-		<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+		<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
 		<< std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
       for ( unsigned id=0; id<children.size(); ++id )
-	std::cout << std::setw(4) << children[id]->barcode()-1 << " ";
+	std::cout << std::setw(4) << children[id]->barcode() << " ";
     }
     std::cout << std::endl;
 
@@ -763,18 +821,6 @@ FBaseSimEvent::addChargedTrack(int id) {
   }
 }
 
-static FSimTrack oTrack;
-FSimTrack&
-FBaseSimEvent::track(int id) const { 
-  return  id>=0 && id<(int)nSimTracks ? 
-    (*theSimTracks)[id] : oTrack; }
-
-static FSimVertex oVertex;
-FSimVertex&
-FBaseSimEvent::vertex(int id) const { 
-  return   id>=0 && id<(int)nSimVertices ? 
-    (*theSimVertices)[id] : oVertex; }
-
 int
 FBaseSimEvent::chargedTrack(int id) const {
   if (id>=0 && id<(int)nChargedParticleTracks) 
@@ -783,29 +829,32 @@ FBaseSimEvent::chargedTrack(int id) const {
     return -1;
 }
 
-static  const SimVertex zeroVertex;
+/* 
+const SimTrack & 
+FBaseSimEvent::embdTrack(int i) const {  
+  return (*theSimTracks)[i].simTrack();
+}
+
 const SimVertex & 
 FBaseSimEvent::embdVertex(int i) const { 
-  if (i>=0 && i<(int)nSimVertices) 
-    return (*theSimVertices)[i]; 
-  else 
-    return zeroVertex;
+  return (*theSimVertices)[i].simVertex();
 }
-
-static  const SimTrack zeroTrack;
-const SimTrack & 
-FBaseSimEvent::embdTrack(int i) const { 
-  if (i>=0 && i<(int)nSimTracks) 
-    return (*theSimTracks)[i]; 
-  else 
-    return zeroTrack;
-}
+*/
 
 const HepMC::GenParticle* 
-FBaseSimEvent::embdGenpart(int i) const { 
-  if (i>=0 && i<(int)nGenParticles) 
-    return (*theGenParticles)[i]; 
-  else 
-    return 0;
+FBaseSimEvent::embdGenpart(int i) const {
+  return (*theGenParticles)[i]; 
 }
 
+/*
+FSimTrack&  
+FBaseSimEvent::track(int id) const { 
+  return (*theSimTracks)[id];
+}
+
+
+FSimVertex&  
+FBaseSimEvent::vertex(int id) const { 
+  return (*theSimVertices)[id];
+}
+*/

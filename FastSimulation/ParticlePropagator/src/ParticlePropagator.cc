@@ -18,12 +18,12 @@ ParticlePropagator::ParticlePropagator() :
   BaseParticlePropagator(), random(0) {;}
 
 ParticlePropagator::ParticlePropagator(const RawParticle& myPart,
-				       double R, double Z, double B,
+				       double RCyl, double ZCyl, double B,
 				       const RandomEngine* engine) :
-  BaseParticlePropagator(myPart,R,Z,B),
+  BaseParticlePropagator(myPart,RCyl,ZCyl,B),
   random(engine)
 {
-  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
   initProperDecayTime();
 }
 
@@ -33,26 +33,27 @@ ParticlePropagator::ParticlePropagator( const RawParticle& myPart,
   random(engine)
  
 {
-  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
   initProperDecayTime();
 }
 
-ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
-				       const HepLorentzVector& vert, float q) :
+ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
+				       const XYZTLorentzVector& vert, float q) :
   BaseParticlePropagator(RawParticle(mom,vert),0.,0.,0.),
   random(0)
 {
   setCharge(q);
-  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
 }
 
-ParticlePropagator::ParticlePropagator(const HepLorentzVector& mom, 
-				       const Hep3Vector& vert, float q) :
-  BaseParticlePropagator(RawParticle(mom,HepLorentzVector(vert,0.0)),0.,0.,0.),
+ParticlePropagator::ParticlePropagator(const XYZTLorentzVector& mom, 
+				       const XYZVector& vert, float q) :
+  BaseParticlePropagator(
+    RawParticle(mom,XYZTLorentzVector(vert.X(),vert.Y(),vert.Z(),0.0)),0.,0.,0.),
   random(0)
 {
   setCharge(q);
-  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
 }
 
 ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
@@ -62,7 +63,7 @@ ParticlePropagator::ParticlePropagator(const FSimTrack& simTrack,
   random(engine)
 {
   setVertex(simTrack.vertex().position());
-  setMagneticField(fieldMap(x(),y(),z()));
+  setMagneticField(fieldMap(X(),Y(),Z()));
   initProperDecayTime();
 }
 
@@ -100,7 +101,7 @@ ParticlePropagator::propagateToClosestApproach(bool first) {
 }
 
 bool
-ParticlePropagator::propagateToNominalVertex(const HepLorentzVector& v) {
+ParticlePropagator::propagateToNominalVertex(const XYZTLorentzVector& v) {
   setMagneticField(fieldMap(0.,0.,0.));
   return BaseParticlePropagator::propagateToNominalVertex(v);
 }
@@ -150,14 +151,14 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
   // Set the magnetic field at the new location (if succesfully propagated)
   if ( done && !hasDecayed() ) { 
     if ( success == 2 ) 
-      setMagneticField(fieldMap(layer,vertex().perp(),success));
+      setMagneticField(fieldMap(layer,r(),success));
     else if ( success == 1 )
       setMagneticField(fieldMap(layer,z(),success));
   }	
        
   // There is some real material here
   fiducial = !(!disk &&  success!=1) &&
-	     !( disk && (success!=2  || vertex().vect().perp()<innerradius));
+	     !( disk && (success!=2  || r()<innerradius));
 
   return done;
 }

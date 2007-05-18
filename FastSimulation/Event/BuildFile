@@ -8,7 +8,7 @@
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
-<use name=clhep>
+<use name=rootmath>
 <use name=hepmc>
 <export>
   <use name=DataFormats/Provenance>
@@ -17,7 +17,7 @@
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>
   <use name=SimGeneral/HepPDTRecord>
-  <use name=clhep>
+  <use name=rootmath>
   <lib name=FastSimulationEvent>
 </export>
 

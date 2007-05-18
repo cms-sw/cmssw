@@ -21,15 +21,13 @@ MaterialEffectsSimulator::~MaterialEffectsSimulator() {
 }
 
 void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
-					 double radlen)
-
+					   double radlen)
 {
-  // delete the pointeurs
-  for( RHEP_const_iter deleteiter = beginDaughters(); 
-       deleteiter!=endDaughters(); 
-       ++deleteiter ) {
-    delete (*deleteiter);
-  }
+
+  // delete the pointers
+  RHEP_const_iter deleteiter = beginDaughters();
+  RHEP_const_iter enditer = endDaughters();
+  for ( ; deleteiter!=enditer; ++deleteiter ) delete (*deleteiter);
 
   _theUpdatedState.clear();
 
@@ -37,3 +35,22 @@ void MaterialEffectsSimulator::updateState(ParticlePropagator & Particle,
   if ( radLengths > 0. ) compute(Particle);
 
 }
+
+XYZVector 
+MaterialEffectsSimulator::orthogonal(const XYZVector& aVector) const { 
+
+  double x = fabs(aVector.X());
+  double y = fabs(aVector.Y());
+  double z = fabs(aVector.Z());
+
+  if ( x < y ) 
+    return x < z ? 
+      XYZVector(0.,aVector.Z(),-aVector.Y()) :
+      XYZVector(aVector.Y(),-aVector.X(),0.);
+  else
+    return y < z ? 
+      XYZVector(-aVector.Z(),0.,aVector.X()) :
+      XYZVector(aVector.Y(),-aVector.X(),0.);
+
+}
+

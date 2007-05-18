@@ -16,9 +16,6 @@
 * $Date : 19-Aug-2002, with subsequent modification for FAMOS
 * \version 15-Dec-2003 */
 
-//CLHEP
-#include "CLHEP/Units/PhysicalConstants.h" // for c_light
-
 // FAMOS Headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
@@ -44,15 +41,15 @@ public:
   ParticlePropagator(const RawParticle& myPart,
 		     const RandomEngine* engine);
 
-  /** Constructor with two HepLorentzVector (momentum and vertex (in cm)) and 
+  /** Constructor with two LorentzVector (momentum and vertex (in cm)) and 
       an electric charge propagation to known surfaces (ECAL, HCAL ...) */
-  ParticlePropagator(const HepLorentzVector& p, 
-		     const HepLorentzVector& v, float q);
+  ParticlePropagator(const XYZTLorentzVector& p, 
+		     const XYZTLorentzVector& v, float q);
 
-  /** Constructor with a HepLorentzVector (momentum), a Hep3Vector (vertex in cm)
+  /** Constructor with a LorentzVector (momentum), a Hep3Vector (vertex in cm)
       and an electric charge propagation to known surfaces (ECAL, HCAL ...) */
-  ParticlePropagator(const HepLorentzVector& p, 
-		     const Hep3Vector& v, float q);
+  ParticlePropagator(const XYZTLorentzVector& p, 
+		     const XYZVector& v, float q);
 
   /** Constructor with a FSimTrack from the FSimEvent*/
   ParticlePropagator(const FSimTrack& simTrack,
@@ -75,8 +72,8 @@ public:
       HCAL entrance, the HCAL 2nd and 3rd layer (not coded yet), the VFCAL 
       entrance, or any BoundSurface(disk or cylinder)*/
   bool propagateToClosestApproach(bool first=true);
-  bool propagateToNominalVertex(const HepLorentzVector& hit2=
-				HepLorentzVector(0.,0.,0.,0.));
+  bool propagateToNominalVertex(const XYZTLorentzVector& hit2=
+			              XYZTLorentzVector(0.,0.,0.,0.));
 
   /** The fieldMap given by the detector geormetry */
   double fieldMap(double x,double y,double z);

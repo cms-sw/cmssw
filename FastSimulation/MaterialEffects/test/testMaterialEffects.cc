@@ -631,10 +631,10 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
     //    std::cout << "Event number " << ievt << std::endl;
     //    mySimEvent[ievt]->print();
 
-    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
-    for(unsigned i=0; i<fsimVertices.size(); i++) {
-      h0[ievt]->Fill(fabs(fsimVertices[i].position().z()),
-	    	          fsimVertices[i].position().perp());
+    int nvertices = mySimEvent[ievt]->nVertices();
+    for(int i=0; i<nvertices; ++i) {
+      FSimVertex& vertex = mySimEvent[ievt]->vertex(i);
+      h0[ievt]->Fill(fabs(vertex.position().z()),vertex.position().pt());
     }
     
     // Loop over all tracks 
@@ -660,7 +660,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	  lastDaughter = myTrack.daughters()[myTrack.nDaughters()-1];
 	}
 	
-	HepLorentzVector theElectron=myTrack.momentum();
+	XYZTLorentzVector theElectron=myTrack.momentum();
 	//	std::cout << " The starting electron " << theElectron << " " 
 	//		  << myTrack.vertex().position() << " " 
 	//		  << myTrack.endVertex().position() << " "
@@ -675,7 +675,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	  for(int igamma=firstDaughter;igamma<=lastDaughter;++igamma) {
 	    FSimTrack myGamma = mySimEvent[ievt]->track(igamma);
 	    if(myGamma.type()!=22) continue;
-	    HepLorentzVector theFather=theElectron;
+	    XYZTLorentzVector theFather=theElectron;
 	    theElectron=theElectron-myGamma.momentum();
 	    nbrems++;
 	    if(myGamma.momentum().e() < 0.5 || 
@@ -698,7 +698,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
       // Loop over all stored brems
       for(unsigned ig=0;ig<myGammas.size();++ig) {
 	FSimTrack theGamma=mySimEvent[ievt]->track(myGammas[ig]);
-	float radius = theGamma.vertex().position().perp();
+	float radius = theGamma.vertex().position().pt();
 	float zed    = fabs(theGamma.vertex().position().z());
 	float eta    = fabs(theGamma.vertex().position().eta());
 

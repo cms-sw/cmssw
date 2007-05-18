@@ -1,9 +1,9 @@
 
 <use name=SimGeneral/HepPDTRecord>
-<use name=clhep>
+<use name=DataFormats/Math>
 
 <export>
- <use name=clhep>
  <lib name=FastSimulationParticle>
  <use name=SimGeneral/HepPDTRecord>
+ <use name=DataFormats/Math>
 </export>

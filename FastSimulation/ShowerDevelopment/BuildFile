@@ -3,11 +3,11 @@
 <use name=FastSimulation/CaloHitMakers>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/Particle>
-<use name=clhep>
+<use name=rootmath>
 <export>
   <use name=FWCore/ParameterSet>
   <use name=FastSimulation/CalorimeterProperties>
   <use name=FastSimulation/Particle>
-  <use name=clhep>
+  <use name=rootmath>
   <lib name=FastSimulationShowerDevelopment>
 </export>

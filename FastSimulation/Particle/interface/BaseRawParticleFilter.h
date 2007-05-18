@@ -18,12 +18,12 @@ public:
 
 public:
 
-  virtual bool accept(const RawParticle& p) const;
+  bool accept(const RawParticle& p) const;
 
-  virtual bool accept(const RawParticle* p) const;
+  bool accept(const RawParticle* p) const;
 
   /// Add a BaseRawParticleFilter to be run after executing this one.
-  virtual void addFilter(BaseRawParticleFilter* f);
+  void addFilter(BaseRawParticleFilter* f);
 
 protected:
 

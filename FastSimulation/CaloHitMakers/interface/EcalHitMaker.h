@@ -12,8 +12,8 @@
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 // CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Plane3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Plane3D.h"
 
 #include <boost/cstdint.hpp>
 
@@ -28,8 +28,13 @@ class EcalHitMaker: public CaloHitMaker
 {
  public:
 
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+  typedef math::XYZVector XYZNormal;
+  typedef ROOT::Math::Plane3D Plane3D;
+
   EcalHitMaker(CaloGeometryHelper * calo,
-	       const HepPoint3D& ecalentrance,
+	       const XYZPoint& ecalentrance,
 	       const DetId& cell,
 	       int onEcal,
 	       unsigned size,
@@ -39,7 +44,7 @@ class EcalHitMaker: public CaloHitMaker
   ~EcalHitMaker();
 
   // This is not part of the constructor but it has to be called very early
-  void setTrackParameters(const HepNormal3D& normal,
+  void setTrackParameters(const XYZNormal& normal,
 			  double X0depthoffset,
 			  const FSimTrack& theTrack);
   
@@ -116,7 +121,7 @@ class EcalHitMaker: public CaloHitMaker
   const FSimTrack* getFSimTrack() const {return myTrack_;}
 
   ///   used in FamosHcalHitMaker
-  inline const HepPoint3D& ecalEntrance() const {return EcalEntrance_;};
+  inline const XYZPoint& ecalEntrance() const {return EcalEntrance_;};
 
   inline void setRadiusFactor(double r) {radiusCorrectionFactor_ = r;}
 
@@ -140,7 +145,7 @@ class EcalHitMaker: public CaloHitMaker
 
  void hcalCellLine(std::vector<CaloPoint>& cp) const;
 
- void ecalCellLine(const HepPoint3D&, const HepPoint3D&,std::vector<CaloPoint>& cp) const; 
+ void ecalCellLine(const XYZPoint&, const XYZPoint&,std::vector<CaloPoint>& cp) const; 
 
  void buildSegments(const std::vector<CaloPoint>& cp);
 
@@ -151,7 +156,7 @@ class EcalHitMaker: public CaloHitMaker
  void configureGeometry();
 
  // project fPoint on the plane (origin,normal)
- bool pulled(const HepPoint3D & origin, const HepNormal3D& normal, HepPoint3D & fPoint) const ;
+ bool pulled(const XYZPoint & origin, const XYZNormal& normal, XYZPoint & fPoint) const ;
  
  //  the numbering within the grid
  void prepareCrystalNumberArray();
@@ -204,8 +209,8 @@ class EcalHitMaker: public CaloHitMaker
 
   // Grid construction 
   Crystal pivot_;
-  HepPoint3D EcalEntrance_;
-  HepNormal3D normal_;
+  XYZPoint EcalEntrance_;
+  XYZNormal normal_;
   int central_;
   int onEcal_;
 
@@ -251,7 +256,7 @@ class EcalHitMaker: public CaloHitMaker
   // pads-depth specific quantities 
   unsigned ncrackpadsatdepth_;
   unsigned npadsatdepth_;
-  HepPlane3D plan_;
+  Plane3D plan_;
   // spot survival probability for a pulled pad - corresponding to the front face of a crystal
   // on the plan located in front of the crystal - Front leaking
   double pulledPadProbability_;

@@ -16,7 +16,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 
 //C++ headers 
 #include <vector>

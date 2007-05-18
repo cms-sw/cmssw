@@ -7,12 +7,10 @@
 <use name=FastSimulation/TrackerSetup>
 <use name=FastSimulation/Utilities>
 <use name=TrackingTools/PatternTools>
-<use name=clhep>
 <use name=rootcore>
 <export>
   <use name=DataFormats/GeometryVector>
   <use name=FastSimulation/ParticlePropagator>
-  <use name=clhep>
   <lib name=FastSimulationMaterialEffects>
 </export>
 

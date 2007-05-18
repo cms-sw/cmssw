@@ -153,6 +153,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
+    const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 
     SiTrackerGSRecHit2DCollection::range theRecHitRange = theGSRecHits->get(simTrackId);
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
@@ -168,15 +169,24 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     ++nTracksWithHits;
 
     // Request a minimum pT for the sim track
-    if ( (*theSimTracks)[simTrackId].momentum().perp2() < pTMin ) continue;
+    if ( theSimTrack.momentum().perp2() < pTMin ) continue;
     ++nTracksWithPT;
 
     // Check that the sim track comes from the main vertex (loose cut)
-    int vertexIndex = (*theSimTracks)[simTrackId].vertIndex();
+    int vertexIndex = theSimTrack.vertIndex();
+    const SimVertex& theSimVertex = (*theSimVtx)[vertexIndex]; 
+    
     BaseParticlePropagator theParticle = 
-      BaseParticlePropagator( RawParticle( (*theSimTracks)[simTrackId].momentum(),
-					   (*theSimVtx)[vertexIndex].position() ),
-			      0.,0.,4.);
+      BaseParticlePropagator( 
+        RawParticle(XYZTLorentzVector(theSimTrack.momentum().px(),
+				      theSimTrack.momentum().py(),
+				      theSimTrack.momentum().pz(),
+				      theSimTrack.momentum().e()),
+		    XYZTLorentzVector(theSimVertex.position().x(),
+				      theSimVertex.position().y(),
+				      theSimVertex.position().z(),
+				      theSimVertex.position().t())),
+	0.,0.,4.);
     theParticle.setCharge((*theSimTracks)[simTrackId].charge());
     if ( theParticle.xyImpactParameter() > maxD0 ) continue;
     if ( fabs( theParticle.zImpactParameter() ) > maxZ0 ) continue;
@@ -389,8 +399,8 @@ GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
 
   float localErrors[15];
   int k = 0;
-  for (int i=0; i<dim; i++) {
-    for (int j=0; j<=i; j++) {
+  for (int i=0; i<dim; ++i) {
+    for (int j=0; j<=i; ++j) {
       localErrors[k++] = m(i,j);
     }
   }

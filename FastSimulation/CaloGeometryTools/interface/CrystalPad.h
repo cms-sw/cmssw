@@ -4,10 +4,12 @@
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Vector3D.h"
+//#include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/TwoVector.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/Transform3D.h"
 
 //C++ headers
 #include <vector>
@@ -16,22 +18,39 @@
 class CrystalPad
 {
  public:
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Transform3D Transform3D;
+  typedef ROOT::Math::Transform3D::Point Point;
+
+
   CrystalPad() { dummy_ = true;};
   /// Order matters. 1234 2341 3412 4123 are ok but not 1324 ....
   CrystalPad(unsigned number, const std::vector<Hep2Vector>& corners);
-  /// Constructor from space points, with the description of the local frame (origin,vec1,vec2) where vec1 is normal to the plane and vec2 in the plane
+  /// Constructor from space points, with the description of the local 
+  /// frame (origin,vec1,vec2) where vec1 is normal to the plane and vec2 
+  /// in the plane
+  CrystalPad(unsigned number, int onEcal, 
+	     const std::vector<XYZPoint>& corners, 
+	     const XYZPoint& origin, 
+	     const XYZVector& vec1, 
+	     const XYZVector& vec2);
 
-  CrystalPad(unsigned number, int onEcal, const std::vector<HepPoint3D>& corners,HepPoint3D origin, HepVector3D vec1,HepVector3D vec2);
-  CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,const HepTransform3D&,double scaf=1.);
+  CrystalPad(unsigned number, 
+	     const std::vector<XYZPoint>& corners,
+	     const Transform3D&,
+	     double scaf=1.);
+
   ~CrystalPad(){;};
   
   /// Check that the point (in the local frame) is inside the crystal. 
   bool inside(const Hep2Vector & point,bool debug=false) const;
   /// Check that the point (in the global frame) is inside the crystal. 
-  bool globalinside(HepPoint3D) const;
+  bool globalinside(XYZPoint) const;
 
   /// coordinates of the point in the local frame
-  Hep2Vector localPoint(HepPoint3D point) const;
+  Hep2Vector localPoint(XYZPoint point) const;
 
   /// get the corners 
   inline const std::vector<Hep2Vector> & getCorners() const {return corners_;}
@@ -56,10 +75,10 @@ class CrystalPad
   inline unsigned getNumber() const{return number_;};
 
   /// get the coordinates in the original frame
-  inline HepPoint3D originalCoordinates(Hep2Vector point) const
+  inline XYZPoint originalCoordinates(Hep2Vector point) const
     {
-      HepPoint3D p(point);
-      return p.transform(trans_.inverse());
+      XYZPoint p(point.x(),point.y(),0.);
+      return trans_.Inverse() * p;
     }
   
   inline bool operator==(const CrystalPad& quad) const
@@ -87,7 +106,9 @@ class CrystalPad
   std::vector<Hep2Vector> corners_;
   std::vector<Hep2Vector> dir_;
   unsigned number_; 
-  HepTransform3D trans_;
+  Transform3D trans_;
+  ROOT::Math::Rotation3D rotation_;
+  XYZVector translation_;
   double survivalProbability_;
   Hep2Vector center_;
   double epsilon_;

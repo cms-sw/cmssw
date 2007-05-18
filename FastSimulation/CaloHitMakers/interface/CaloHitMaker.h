@@ -2,10 +2,13 @@
 #define CaloHitMaker_h
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "Math/GenVector/Plane3D.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Plane3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Plane3D.h"
+
 
 //STL headers
 #include <string>
@@ -18,6 +21,11 @@ class CalorimeterProperties;
 class CaloHitMaker
 {
  public:
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Plane3D Plane3D;
+
   CaloHitMaker(const CaloGeometryHelper * calo,DetId::Detector det,int subdetn,int cal,unsigned sht=0);
   virtual ~CaloHitMaker(){;}
   
@@ -34,7 +42,7 @@ class CaloHitMaker
  protected:
   /// computes the intersection between a straight line defined by a & b
   /// and a plan
-  static HepPoint3D intersect(const HepPlane3D& p,const HepPoint3D& a,const HepPoint3D& b,double& t,bool segment,bool debug=false) ;
+  static XYZPoint intersect(const Plane3D& p,const XYZPoint& a,const XYZPoint& b,double& t,bool segment,bool debug=false);
 
   const CaloGeometryHelper * myCalorimeter;    
   const CalorimeterProperties * theCaloProperties;

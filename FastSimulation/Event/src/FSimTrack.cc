@@ -21,8 +21,11 @@ FSimTrack:: FSimTrack() :
 FSimTrack::FSimTrack(const RawParticle* p, 
 		     int iv, int ig, int id, 
 		     FBaseSimEvent* mom) :
-  SimTrack(p->pid(),*p,iv,ig), mom_(mom), id_(id), endv_(-1),
-  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false) 
+  //  SimTrack(p->pid(),*p,iv,ig),   // to uncomment once Mathcore is installed 
+  SimTrack(p->pid(),HepLorentzVector(p->Px(),p->Py(),p->Pz(),p->E()),iv,ig), 
+  mom_(mom), id_(id), endv_(-1),
+  layer1(0), layer2(0), ecal(0), hcal(0), vfcal(0), prop(false),
+  momentum_(p->momentum())
 { 
   setTrackId(id);
   info_ = mom_->theTable()->particle(HepPDT::ParticleID(type()));
@@ -31,16 +34,16 @@ FSimTrack::FSimTrack(const RawParticle* p,
 FSimTrack::~FSimTrack() {;}
 
 bool 
-FSimTrack::notYetToEndVertex(const HepLorentzVector& pos) const {
+FSimTrack::notYetToEndVertex(const XYZTLorentzVector& pos) const {
   // If there is no end vertex, nothing to compare to
   if ( noEndVertex() ) return true;
   // If the particle immediately decays, no need to propagate
-  if ( (endVertex().position()-vertex().position()).vect().mag() < 0.01 )
+  if ( (endVertex().position()-vertex().position()).Vect().Mag2() < 1e-4 )
     return false;
   // If the end vertex has a larger radius, not yet there
-  if ( endVertex().position().perp() > pos.perp()+0.00001 ) return true;
+  if ( endVertex().position().Perp2() > pos.Perp2()+1e-10 ) return true;
   // If the end vertex has a larger z, not yet there
-  if ( fabs(endVertex().position().z()) > fabs(pos.z())+0.00001 ) return true;
+  if ( fabs(endVertex().position().Z()) > fabs(pos.Z())+1e-5 ) return true;
   // Otherwise, the end vertex is overtaken already
   return false;
 }
@@ -89,8 +92,8 @@ FSimTrack::setVFcal(const RawParticle& pp, int success) {
 std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
   std::string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
-  HepLorentzVector momentum1 = t.momentum();
-  Hep3Vector vertex1 = t.vertex().position().vect();
+  XYZTLorentzVector momentum1 = t.momentum();
+  XYZVector vertex1 = t.vertex().position().Vect();
   int vertexId1 = t.vertex().id();
 
   o.setf(std::ios::fixed, std::ios::floatfield);
@@ -104,7 +107,7 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
   o << std::setw(6) << std::setprecision(2) << momentum1.eta() << " " 
     << std::setw(6) << std::setprecision(2) << momentum1.phi() << " " 
-    << std::setw(6) << std::setprecision(2) << momentum1.perp() << " " 
+    << std::setw(6) << std::setprecision(2) << momentum1.pt() << " " 
     << std::setw(6) << std::setprecision(2) << momentum1.e() << " " 
     << std::setw(4) << vertexId1 << " " 
     << std::setw(6) << std::setprecision(1) << vertex1.x() << " " 
@@ -113,13 +116,13 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
     << std::setw(4) << t.mother().id() << " ";
   
   if ( !t.noEndVertex() ) {
-    HepLorentzVector vertex2 = t.endVertex().position();
+    XYZTLorentzVector vertex2 = t.endVertex().position();
     int vertexId2 = t.endVertex().id();
     
     o << std::setw(4) << vertexId2 << " "
       << std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
       << std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-      << std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+      << std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
       << std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
     for (int i=0; i<t.nDaughters(); ++i)
       o << std::setw(4) << t.daughter(i).id() << " ";
@@ -128,26 +131,26 @@ std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
     if ( t.onLayer1() ) {
 
-      HepLorentzVector vertex2 = t.layer1Entrance().vertex();
+      XYZTLorentzVector vertex2 = t.layer1Entrance().vertex();
       
       o << std::setw(4) << -t.onLayer1() << " " 
 	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
 	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-	<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+	<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
 	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
-	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().perp() << " " 
+	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().pt() << " " 
 	<< std::setw(6) << std::setprecision(2) << t.layer1Entrance().e() << " ";
       
     } else if ( t.onEcal() ) { 
 
-      HepLorentzVector vertex2 = t.ecalEntrance().vertex();
+      XYZTLorentzVector vertex2 = t.ecalEntrance().vertex();
       
       o << std::setw(4) << -t.onEcal() << " " 
 	<< std::setw(6) << std::setprecision(2) << vertex2.eta() << " " 
 	<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
-	<< std::setw(5) << std::setprecision(1) << vertex2.perp() << " " 
+	<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
 	<< std::setw(6) << std::setprecision(1) << vertex2.z() << " "
-	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().perp() << " " 
+	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().pt() << " " 
 	<< std::setw(6) << std::setprecision(2) << t.ecalEntrance().e() << " ";
     }
   }

@@ -16,10 +16,9 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-// CLHEP
+// Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/HistogramGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
 
 // STL
 #include <vector>

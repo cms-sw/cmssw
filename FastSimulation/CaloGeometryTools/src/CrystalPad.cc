@@ -2,9 +2,9 @@
 
 #include <iostream> 
 
-
-
-CrystalPad::CrystalPad(unsigned number, const std::vector<Hep2Vector>& corners):survivalProbability_(1.),epsilon_(0.001)
+CrystalPad::CrystalPad(unsigned number, 
+		       const std::vector<Hep2Vector>& corners) 
+  : survivalProbability_(1.),epsilon_(0.001)
 {
   number_=number;
   //  std::cout << " Hello " << std::endl;
@@ -35,7 +35,12 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<Hep2Vector>& corners):
 //  std::cout << " Ndirs " << dir_.size() << std::endl;
 }
 
-CrystalPad::CrystalPad(unsigned number, int onEcal, const std::vector<HepPoint3D>& corners,HepPoint3D origin,HepVector3D vec1,HepVector3D vec2):number_(number),survivalProbability_(1.),epsilon_(0.001)
+CrystalPad::CrystalPad(unsigned number, int onEcal, 
+		       const std::vector<XYZPoint>& corners,
+		       const XYZPoint& origin, 
+		       const XYZVector& vec1,
+		       const XYZVector& vec2) 
+  : number_(number),survivalProbability_(1.),epsilon_(0.001)
 {
   //  std::cout << " We are in the 2nd constructor " << std::endl;
   if(corners.size()!=4)
@@ -48,17 +53,22 @@ CrystalPad::CrystalPad(unsigned number, int onEcal, const std::vector<HepPoint3D
       dummy_=false;
       double sign=(onEcal==1) ? -1.: 1.;
       center_=Hep2Vector(0.,0.);
+
       // the good one in the central
-      // trans_=HepTransform3D(origin,origin+vec1,origin+vec2,HepPoint3D(0,0,0),HepPoint3D(0.,0.,-1.),HepPoint3D(0.,1.,0.));
-      trans_=HepTransform3D(origin,origin+vec1,origin+vec2,HepPoint3D(0,0,0),HepPoint3D(0.,0.,sign),HepPoint3D(0.,1.,0.));
+      trans_=Transform3D((Point)origin,
+			 (Point)(origin+vec1),
+			 (Point)(origin+vec2),
+			  Point(0.,0.,0.),
+			  Point(0.,0.,sign),
+			  Point(0.,1.,0.));
+      trans_.GetDecomposition(rotation_,translation_);
       //      std::cout << " Constructor 2; input corners "  << std::endl;
       for(unsigned ic=0;ic<4;++ic)
 	{	
-	  HepPoint3D corner=corners[ic];
-	  //	  std::cout << corner << " " ;
-	  corner.transform(trans_);
+	  //	  std::cout << corners[ic]<< " " ;
+	  XYZPoint corner = rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_.push_back(Hep2Vector(corner.x(),corner.y()));
+	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()));
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
@@ -75,7 +85,10 @@ CrystalPad::CrystalPad(unsigned number, int onEcal, const std::vector<HepPoint3D
 //  std::cout << corners_[2] << std::endl;
 //  std::cout << corners_[3] << std::endl;
 }
-CrystalPad::CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,const HepTransform3D & trans,double scaf):number_(number),survivalProbability_(1.),epsilon_(0.001),yscalefactor_(scaf)
+CrystalPad::CrystalPad(unsigned number, 
+		       const std::vector<XYZPoint>& corners,
+		       const Transform3D & trans,double scaf) 
+  : number_(number),survivalProbability_(1.),epsilon_(0.001),yscalefactor_(scaf)
 {
   //  std::cout << " We are in the 2nd constructor " << std::endl;
   if(corners.size()!=4)
@@ -90,16 +103,15 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,c
       dir_.reserve(4);
       center_=Hep2Vector(0.,0.);
       // the good one in the central
-      // trans_=HepTransform3D(origin,origin+vec1,origin+vec2,HepPoint3D(0,0,0),HepPoint3D(0.,0.,-1.),HepPoint3D(0.,1.,0.));
       trans_=trans;
       //      std::cout << " Constructor 2; input corners "  << std::endl;
+      trans_.GetDecomposition(rotation_,translation_);
       for(unsigned ic=0;ic<4;++ic)
 	{	
-	  HepPoint3D corner(corners[ic]);
-	  //	  std::cout << corner << " " ;
-	  corner.transform(trans_);
+
+	  XYZPoint corner=rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_.push_back(Hep2Vector(corner.x(),corner.y()*yscalefactor_));
+	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()*yscalefactor_));
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
@@ -111,7 +123,8 @@ CrystalPad::CrystalPad(unsigned number, const std::vector<HepPoint3D>& corners,c
     }  
 }
 
-bool CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
+bool 
+CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
 {
 //  std::cout << "Inside " << ppoint <<std::endl;
 //  std::cout << "Corners " << corners_.size() << std::endl;
@@ -171,14 +184,17 @@ bool CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
   return inside2;
 }
 
-bool CrystalPad::globalinside(HepPoint3D point) const
+bool 
+CrystalPad::globalinside(XYZPoint point) const
 {
   //  std::cout << " Global inside " << std::endl;
   //  std::cout << point << " " ;
-  point.transform(trans_);
+  ROOT::Math::Rotation3D r;
+  XYZVector t;
+  point = rotation_(point)+translation_;
   //  std::cout << point << std::endl;
   //  print();
-  Hep2Vector ppoint(point.x(),point.y());
+  Hep2Vector ppoint(point.X(),point.Y());
   bool result=inside(ppoint);
   //  std::cout << " Result " << result << std::endl;
   return result;
@@ -193,10 +209,11 @@ void CrystalPad::print() const
   std::cout << corners_[3] << std::endl;
 }
 
-Hep2Vector CrystalPad::localPoint(HepPoint3D point) const
+Hep2Vector 
+CrystalPad::localPoint(XYZPoint point) const
 {
-  point.transform(trans_);
-  return Hep2Vector(point);
+  point = rotation_(point)+translation_;
+  return Hep2Vector(point.X(),point.Y());
 }
 
 Hep2Vector& CrystalPad::edge(unsigned iside,int n) 
@@ -230,7 +247,8 @@ Hep2Vector & CrystalPad::edge(CaloDirection dir)
 }
 
 
-void CrystalPad::extrems(double &xmin,double& xmax,double &ymin, double& ymax) const
+void 
+CrystalPad::extrems(double &xmin,double& xmax,double &ymin, double& ymax) const
 {
   xmin=ymin=999;
   xmax=ymax=-999;
@@ -243,7 +261,8 @@ void CrystalPad::extrems(double &xmin,double& xmax,double &ymin, double& ymax) c
     }
 }
 
-void CrystalPad::resetCorners() {
+void 
+CrystalPad::resetCorners() {
 
   // Find the centre-of-gravity of the Quad (after re-organization)
   center_ = Hep2Vector(0.,0.);
@@ -268,7 +287,8 @@ std::ostream & operator << (std::ostream& ost,  CrystalPad & quad)
   return ost;
 }
 
-void CrystalPad::getDrawingCoordinates(std::vector<float> &x, std::vector<float>&y) const
+void 
+CrystalPad::getDrawingCoordinates(std::vector<float> &x, std::vector<float>&y) const
 {
   x.clear();
   y.clear();

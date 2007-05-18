@@ -1,4 +1,3 @@
- <use name=clhep>
  <use name=DataFormats/DetId>
  <use name=DataFormats/EcalDetId>
  <use name=FWCore/MessageLogger>
@@ -14,6 +13,5 @@
  <use name=DataFormats/DetId>
  <use name=FWCore/ParameterSet>
  <use name=Geometry/CaloGeometry>
- <use name=clhep>
 </export>
 

@@ -8,13 +8,11 @@
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
 #include "FastSimulation/Utilitiess/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilitiess/interface/Histos.h"
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
+#include "DataFormats/Math/interface/Vector3D.h"
 
-typedef pair<HepPoint3D,double> Spot;
-typedef pair<unsigned int, double> Step;
-typedef vector<Step> Steps;
-typedef Steps::const_iterator step_iterator;
+#include <vector>
 
 /** 
  * \author Patrick Janot
@@ -29,6 +27,13 @@ class FamosEMShower
 {
 
  public:
+
+  typedef math::XYZVector XYZPoint;
+
+  typedef std::pair<XYZPoint,double> Spot;
+  typedef std::pair<unsigned int, double> Step;
+  typedef std::vector<Step> Steps;
+  typedef Steps::const_iterator step_iterator;
 
   FamosEMShower(EMECALShowerParametrization* const myParam,
 	      vector<const RawParticle*>* const myPart,

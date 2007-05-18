@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2006/08/24 10:06:25 $
-//  $Revision: 1.2 $
+//  $Date: 2007/04/04 19:34:53 $
+//  $Revision: 1.3 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
@@ -13,7 +13,7 @@
 #include "FastSimulation/Particle/interface/RawParticleTypeFilter.h"
 
 RawParticleTypeFilter::RawParticleTypeFilter(const std::string& particleName) {
-  HepLorentzVector one;
+  XYZTLorentzVector one;
   RawParticle tmp(particleName,one);
 //    cout << tmp.pid() << endl;
   myAcceptIDs.push_back(tmp.pid());
@@ -21,7 +21,7 @@ RawParticleTypeFilter::RawParticleTypeFilter(const std::string& particleName) {
 
 RawParticleTypeFilter::RawParticleTypeFilter(const std::string& particleName1, 
 					     const std::string& particleName2) {
-  HepLorentzVector one;
+  XYZTLorentzVector one;
   RawParticle tmp1(particleName1,one),tmp2(particleName2,one);
 //    cout << tmp1.pid() << endl;
 //    cout << tmp2.pid() << endl;
@@ -44,7 +44,7 @@ void RawParticleTypeFilter::addAccept(const int pid) {
 }
 
 void RawParticleTypeFilter::addAccept(const std::string& name) {
-  HepLorentzVector one;
+  XYZTLorentzVector one;
   RawParticle tmp(name,one);
   this->addAccept(tmp.pid());
 }
@@ -55,7 +55,7 @@ void RawParticleTypeFilter::addReject(const int pid) {
 }
 
 void RawParticleTypeFilter::addReject(const std::string& name) {
-  HepLorentzVector one;
+  XYZTLorentzVector one;
   RawParticle tmp(name,one);
   this->addReject(tmp.pid());
 }

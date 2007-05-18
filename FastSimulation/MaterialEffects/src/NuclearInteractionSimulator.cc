@@ -7,10 +7,6 @@
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/Rotation.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 //#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 //#include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -99,13 +95,13 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
 
   // Compute the corresponding cm energies of the nuclear interactions
-  HepLorentzVector Proton(0.,0.,0.,0.986);
+  XYZTLorentzVector Proton(0.,0.,0.,0.986);
   for ( unsigned file=0; file<thePionCM.size(); ++file ) {
 
     double thePionMass2 = 0.13957*0.13957;
     double thePionMomentum2 = thePionCM[file]*thePionCM[file] - thePionMass2;
-    HepLorentzVector Reference(0.,0.,std::sqrt(thePionMomentum2),thePionCM[file]);
-    thePionCM[file] = (Reference+Proton).mag();
+    XYZTLorentzVector Reference(0.,0.,std::sqrt(thePionMomentum2),thePionCM[file]);
+    thePionCM[file] = (Reference+Proton).M();
 
   }
 
@@ -149,7 +145,7 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 
   // Read a Nuclear Interaction in a random manner
 
-  double pHadron = Particle.vect().mag(); 
+  double pHadron = std::sqrt(Particle.Vect().Mag2()); 
   //  htot->Fill(pHadron);
 
   // The hadron has enough momentum to create some relevant final state
@@ -188,12 +184,11 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	double phi = 2. * 3.14159265358979323 * random->flatShoot();
 	
 	// Rotate the particle accordingly
-	Hep3Vector axis1 = Particle.vect().orthogonal();
-       	HepRotation theRotation1(axis1,theta);
-       	HepRotation theRotation2(Particle.vect(),phi);
-       	Particle *= theRotation1;
-	Particle *= theRotation2;
-
+	RawParticle::Rotation rotation1(orthogonal(Particle.Vect()),theta);
+	RawParticle::Rotation rotation2(Particle.Vect(),phi);
+	Particle.rotate(rotation1);
+	Particle.rotate(rotation2);
+	
 	//	hscatter->Fill(myTheta);
 	//	hscatter2->Fill(pHadron,myTheta);
 	
@@ -203,9 +198,9 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
       else {
     
 	// Find the file with the closest c.m energy
-	HepLorentzVector Proton(0.,0.,0.,0.986);
-	const HepLorentzVector& Hadron = (const HepLorentzVector&)Particle;
-	double ecm = (Proton+Hadron).mag();
+	XYZTLorentzVector Proton(0.,0.,0.,0.986);
+	const XYZTLorentzVector& Hadron = (const XYZTLorentzVector&)Particle;
+	double ecm = std::sqrt((Proton+Hadron).M2());
 	// Get the files of interest (closest c.m. energies)
 	unsigned file1=0;
 	unsigned file2=0;
@@ -236,7 +231,8 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	} 
 	
 	// The inelastic part of the cross section depends cm energy
-	double slope = (std::log10(ecm)-std::log10(ecm1)) / (std::log10(ecm2)-std::log10(ecm1));
+	double slope = (std::log10(ecm )-std::log10(ecm1)) 
+	             / (std::log10(ecm2)-std::log10(ecm1));
 	double inelastic = ratio1 + (ratio2-ratio1) * slope;
 	//      std::cout << "Energy/Inelastic : " 
 	//		<< Hadron.e() << " " << inelastic << std::endl;
@@ -260,33 +256,39 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	  //		  << std::endl;
 	  
 	  // The boost characteristics
-	  HepLorentzVector theBoost = Proton + Hadron;
+	  XYZTLorentzVector theBoost = Proton + Hadron;
 	  theBoost /= theBoost.e();
 	  
 	  // Some rotation arount the boost axis, for more randomness
-	  Hep3Vector theAxis = theBoost.vect().unit();
+	  XYZVector theAxis = theBoost.Vect().Unit();
 	  double theAngle = random->flatShoot() * 2. * 3.14159265358979323;
-	  HepRotation theRotation(theAxis,theAngle);
-	  //      std::cerr << "File chosen : " << file 
-	  //		<< " Current interaction = " << theCurrentInteraction[file] 
-	  //		<< " Total interactions = " << theNumberOfInteractions[file] << std::endl;
+	  RawParticle::Rotation axisRotation(theAxis,theAngle);
+	  RawParticle::Boost axisBoost(theBoost.x(),theBoost.y(),theBoost.z());
+
+	  // std::cerr << "File chosen : " << file 
+	  //	   << " Current interaction = " << theCurrentInteraction[file] 
+	  //	   << " Total interactions = " << theNumberOfInteractions[file]
+          //       << std::endl;
 	  //      theFiles[file]->cd();
 	  //      gDirectory->ls();
+
 	  // Check we are not either at the end of an interaction bunch 
 	  // or at the end of a file
 	  if ( theCurrentInteraction[file] == theNumberOfInteractions[file] ) {
 	    //	std::cerr << "End of interaction bunch ! ";
 	    ++theCurrentEntry[file];
-	    //	std::cerr << "Read the next entry " << theCurrentEntry[file] << std::endl;
+	    //	std::cerr << "Read the next entry " 
+            //            << theCurrentEntry[file] << std::endl;
 	    theCurrentInteraction[file] = 0;
 	    if ( theCurrentEntry[file] == theNumberOfEntries[file] ) { 
 	      theCurrentEntry[file] = 0;
-	      //	  std::cerr << "End of file - Rewind! " << std::endl;
+	      //  std::cerr << "End of file - Rewind! " << std::endl;
 	    }
 	    //	std::cerr << "The NUEvent is reset ... "; 
 	    //	theNUEvents[file]->reset();
 	    unsigned myEntry = theCurrentEntry[file];
-	    //	std::cerr << "The new entry " << myEntry << " is read ... in TTree " << theTrees[file] << " "; 
+	    //	std::cerr << "The new entry " << myEntry 
+            //     << " is read ... in TTree " << theTrees[file] << " "; 
 	    theTrees[file]->GetEntry(myEntry);
 	    //	std::cerr << "The number of interactions in the new entry is ... "; 	
 	    theNumberOfInteractions[file] = theNUEvents[file]->nInteractions();
@@ -320,14 +322,14 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 				     + aParticle.mass*aParticle.mass/(ecm*ecm) );
 	    RawParticle * myPart 
 	      = new  RawParticle (aParticle.id,
-				  HepLorentzVector(aParticle.px,aParticle.py,
-						   aParticle.pz,energy)*ecm);
+				  XYZTLorentzVector(aParticle.px,aParticle.py,
+						    aParticle.pz,energy)*ecm);
 	    
 	    // Rotate around the boost axis
-	    (*myPart) *= theRotation;
+	    myPart->rotate(axisRotation);
 	    
 	    // Boost it in the lab frame
-	    myPart->boost(theBoost.x(),theBoost.y(),theBoost.z());
+	    myPart->boost(axisBoost);
 	    
 	    // Update the daughter list
 	    _theUpdatedState.push_back(myPart);

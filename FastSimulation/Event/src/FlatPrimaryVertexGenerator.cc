@@ -20,8 +20,8 @@ FlatPrimaryVertexGenerator::FlatPrimaryVertexGenerator(
 void
 FlatPrimaryVertexGenerator::generate() {
 
-  this->setX(random->flatShoot(minX,maxX));
-  this->setY(random->flatShoot(minY,maxY));
-  this->setZ(random->flatShoot(minZ,maxZ));
+  this->SetX(random->flatShoot(minX,maxX));
+  this->SetY(random->flatShoot(minY,maxY));
+  this->SetZ(random->flatShoot(minZ,maxZ));
 
 }

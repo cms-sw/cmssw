@@ -7,10 +7,11 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Vector3D.h"
+//#include "CLHEP/Geometry/Transform3D.h"
 
+#include "Math/GenVector/Transform3D.h"
 #include <boost/cstdint.hpp>
 
 #include <iostream>
@@ -22,6 +23,11 @@ class CaloGeometryHelper;
 class HcalHitMaker : public CaloHitMaker
 {
  public:
+ 
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
+  typedef ROOT::Math::Transform3D Transform3D;
+
   HcalHitMaker(EcalHitMaker &, unsigned );
   ~HcalHitMaker() {;}
   
@@ -41,12 +47,12 @@ class HcalHitMaker : public CaloHitMaker
     EcalHitMaker& myGrid;
     
     const FSimTrack * myTrack;
-    HepPoint3D ecalEntrance_;
-    HepVector3D particleDirection;
+    XYZPoint ecalEntrance_;
+    XYZVector particleDirection;
     int onHcal;
     
     double currentDepth_;
-    HepTransform3D locToGlobal_;
+    Transform3D locToGlobal_;
     double radiusFactor_;
     bool mapCalculated_;
     

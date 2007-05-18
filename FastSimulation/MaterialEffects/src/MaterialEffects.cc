@@ -119,26 +119,6 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
   theNormalVector = normalVector(layer,myTrack);
   radlen = radLengths(layer,myTrack);
 
-  /* For radiation length tuning */
-  /* 
-  FamosHistos* myHistos = FamosHistos::instance();
-
-  bool plot = 
-    ( myTrack.vect().mag() > 1.5 && 
-      abs(myTrack.pid()) == 11 && 
-      itrack < 2 ) ? 
-    true : false;
-
-  double radius = myTrack.position().perp();
-  double zed = fabs(myTrack.position().z());
-
-  if ( plot && radius < 2.6 ) { 
-    myEta = myTrack.eta();
-    myHistos->fill("h404",myEta);
-  }
-  */
-
-
 //-------------------
 //  Photon Conversion
 //-------------------
@@ -151,7 +131,6 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
     if ( PairProduction->nDaughters() ) {	
       //add a vertex to the mother particle
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
-      //Fill("h200",myTrack.vertex().z(),myTrack.vertex().perp());
       
       // This was a photon that converted
       for ( DaughterIter = PairProduction->beginDaughters();
@@ -180,10 +159,10 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
     if ( !layer.sensitive() ) { 
       if ( layer.layerNumber() == 107 ) { 
-	double eta = myTrack.vertex().eta();
+	double eta = myTrack.vertex().Eta();
 	factor = eta > 2.2 ? 1.0 +(eta-2.2)*3.0 : 1.0;
       }	else if ( layer.layerNumber() == 113 ) { 
-	double zed = fabs(myTrack.vertex().z());
+	double zed = fabs(myTrack.Z());
 	factor = zed > 116. ? 0.6 : 1.4;
       } else if ( layer.layerNumber() == 115 ) {
 	factor = 0.0;
@@ -224,22 +203,11 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
         
     Bremsstrahlung->updateState(myTrack,radlen);
 
-    /* For radiation length tuning */
-    /*
-    if ( plot ) {
-      if ( radius <  20. && zed <  70. ) myHistos->fill("h401",myEta,radlen);
-      if ( radius <  55. && zed < 120. ) myHistos->fill("h402",myEta,radlen);
-      if ( radius < 115. && zed < 280. ) myHistos->fill("h403",myEta,radlen);
-      myHistos->fill("h400",myEta,radlen);
-    }
-    */
-
     if ( Bremsstrahlung->nDaughters() ) {
       
       // Add a vertex, but do not attach it to the electron, because it 
       // continues its way...
       int ivertex = mySimEvent.addSimVertex(myTrack.vertex(),itrack);
-       //myHistos->fill("h200",myTrack.vertex().z(),myTrack.vertex().perp());
 
       for ( DaughterIter = Bremsstrahlung->beginDaughters();
 	    DaughterIter != Bremsstrahlung->endDaughters(); 
@@ -258,9 +226,9 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 
   if ( EnergyLoss )
   {
-    theEnergyLoss = myTrack.e();
+    theEnergyLoss = myTrack.E();
     EnergyLoss->updateState(myTrack,radlen);
-    theEnergyLoss -= myTrack.e();
+    theEnergyLoss -= myTrack.E();
   }
   
 
@@ -268,7 +236,7 @@ void MaterialEffects::interact(FSimEvent& mySimEvent,
 ////  Multiple scattering
 ///-----------------------
 
-  if ( MultipleScattering && myTrack.perp() > pTmin ) {
+  if ( MultipleScattering && myTrack.Pt() > pTmin ) {
     //    MultipleScattering->setNormalVector(normalVector(layer,myTrack));
     MultipleScattering->setNormalVector(theNormalVector);
     MultipleScattering->updateState(myTrack,radlen);
@@ -280,29 +248,19 @@ double
 MaterialEffects::radLengths(const TrackerLayer& layer,
 			    ParticlePropagator& myTrack) {
 
-  //  const Surface& surface = layer.surface();
-  //  const MediumProperties& mp = *surface.mediumProperties();
-  //  double radlen = mp.radLen();
-
   // Thickness of layer
   theThickness = layer.surface().mediumProperties()->radLen();
 
-  GlobalVector P(myTrack.px(),myTrack.py(),myTrack.pz());
+  GlobalVector P(myTrack.Px(),myTrack.Py(),myTrack.Pz());
   
-  //  GlobalVector normal =   layer.forward() ?  
-  //    ((BoundPlane*)&surface)->normalVector() : 
-  //    GlobalVector(myTrack.x()/myTrack.vertex().perp(),
-  //		 myTrack.y()/myTrack.vertex().perp(),
-  //		 0.0);
-  //  GlobalVector normal = normalVector(layer,myTrack);
-
   // Effective length of track inside layer (considering crossing angle)
-  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
+  //  double radlen = theThickness / fabs(P.dot(theNormalVector)/(P.mag()*theNormalVector.mag()));
+  double radlen = theThickness / fabs(P.dot(theNormalVector)) * P.mag();
 
   // This is disgusting. It should be in the geometry description, by there
   // is no way to define a cylinder with a hole in the middle...
-  double rad = myTrack.vertex().perp();
-  double zed = fabs(myTrack.vertex().z());
+  double rad = myTrack.R();
+  double zed = fabs(myTrack.Z());
 
   double factor = 1;
 
@@ -344,11 +302,8 @@ GlobalVector
 MaterialEffects::normalVector(const TrackerLayer& layer,
 			      ParticlePropagator& myTrack ) const {
   return layer.forward() ?  
-    //    (dynamic_cast<const Plane*>(&(layer.surface())))->normalVector() : 
     layer.disk()->normalVector() :
-    GlobalVector(myTrack.x(),myTrack.y(),0.)/myTrack.vertex().perp();
-  //		 myTrack.y()/myTrack.vertex().perp(),
-  //		 0.0);
+    GlobalVector(myTrack.X(),myTrack.Y(),0.)/myTrack.R();
 }
 
 void 

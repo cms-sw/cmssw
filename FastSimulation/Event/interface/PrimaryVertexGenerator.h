@@ -1,14 +1,14 @@
 #ifndef FastSimulation_Event_PrimaryVertexGenerator_H
 #define FastSimulation_Event_PrimaryVertexGenerator_H
 
-// CLHEP Headers
-#include "CLHEP/Vector/ThreeVector.h"
+// Data Format Headers
+#include "DataFormats/Math/interface/Vector3D.h"
 
 class RandomEngine;
 
 /** A class that generates a primary vertex for the event, in cm*/ 
 
-class PrimaryVertexGenerator : public Hep3Vector {
+class PrimaryVertexGenerator : public math::XYZVector {
 
 public:
   /// Default constructor

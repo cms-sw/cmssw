@@ -10,7 +10,6 @@
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/CaloHit>
 <use name=boost>
-<use name=clhep>
 <export>
   <use name=FWCore/ParameterSet>
   <use name=FastSimulation/Particle>

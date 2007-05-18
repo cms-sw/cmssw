@@ -5,6 +5,7 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+typedef ROOT::Math::Plane3D::Point Point;
 
 CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector basedet,int subdetn,int cal,unsigned sht)
   :myCalorimeter(theCalo),theCaloProperties(NULL),base_(basedet),subdetn_(subdetn),onCal_(cal),showerType_(sht)
@@ -32,31 +33,41 @@ CaloHitMaker::CaloHitMaker(const CaloGeometryHelper * theCalo,DetId::Detector ba
 }
 
 
-HepPoint3D CaloHitMaker::intersect(const HepPlane3D& p,const HepPoint3D& a,const HepPoint3D& b, double& t,bool segment, bool debug) 
+CaloHitMaker::XYZPoint 
+CaloHitMaker::intersect(const Plane3D& p,const XYZPoint& a,const XYZPoint& b, 
+			double& t,bool segment, bool debug) 
 {
   t=-9999.;
-  double denom=p.a()*(b.x()-a.x()) + p.b()*(b.y()-a.y()) +p.c()*(b.z()-a.z());
+  // En Attendant //
+  XYZVector normal = p.Normal();
+  double AAA = normal.X();
+  double BBB = normal.Y();
+  double CCC = normal.Z();
+  double DDD = p.Distance(Point(0.,0.,0.));
+  //  double denom = p.A()*(b.x()-a.x()) + p.B()*(b.y()-a.y()) + p.C()*(b.z()-a.z());
+  double denom = AAA*(b.X()-a.X()) + BBB*(b.Y()-a.Y()) + CCC*(b.Z()-a.Z());
   if(denom!=0.)
     {
-      t=-(p.a()*a.x()+p.b()*a.y()+p.c()*a.z()+p.d());
+      // t=-(p.A()*a.x()+p.B()*a.y()+p.C()*a.z()+p.D());
+      t=-(AAA*a.X()+BBB*a.Y()+CCC*a.Z()+DDD);
       t/=denom;
       if(debug) std::cout << " T = " << t <<std::endl; 
       if(segment)
 	{
 	  if(t>=0&&t<=1)
-	    return HepPoint3D(a.x()+(b.x()-a.x())*t,
-			      a.y()+(b.y()-a.y())*t,
-			      a.z()+(b.z()-a.z())*t);      
+	    return XYZPoint(a.X()+(b.X()-a.X())*t,
+			    a.Y()+(b.Y()-a.Y())*t,
+			    a.Z()+(b.Z()-a.Z())*t);      
 	}
       else
 	{
-	  return HepPoint3D(a.x()+(b.x()-a.x())*t,
-			    a.y()+(b.y()-a.y())*t,
-			    a.z()+(b.z()-a.z())*t);      
+	  return XYZPoint(a.X()+(b.X()-a.X())*t,
+			  a.Y()+(b.Y()-a.Y())*t,
+			  a.Z()+(b.Z()-a.Z())*t);      
 	}
 	  
      
     }
 
-  return HepPoint3D(0.,0.,0.);
+  return XYZPoint(0.,0.,0.);
 }

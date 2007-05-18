@@ -10,35 +10,38 @@
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 //CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
 #include <iostream>
 #include <string>
 
+//ideally this class should inherit from XYZPoint & CellID 
 
-//ideally this class should inherit from HepPoint3D & CellID 
-
-class CaloPoint : public HepPoint3D
+class CaloPoint : public math::XYZVector
 {
 
-  public: 
+ public: 
+
+  typedef math::XYZVector XYZVector;
+  typedef math::XYZVector XYZPoint;
 
   /// Empty constructor
-  CaloPoint():HepPoint3D(){;};
+  CaloPoint():XYZPoint(){;};
 //  /// Constructor from DetId, side and position. 
-//  CaloPoint(DetId cell, CaloDirection side, const HepPoint3D& position);
+//  CaloPoint(DetId cell, CaloDirection side, const XYZPoint& position);
 //
 //  /// Constructor side and position
-//  CaloPoint( CaloDirection side, const HepPoint3D& position):HepPoint3D(position),side_(side){;};
+//  CaloPoint( CaloDirection side, const XYZPoint& position):XYZPoint(position),side_(side){;};
 
   /// constructor for ECAL
-  CaloPoint(const  DetId& cell, CaloDirection side, const HepPoint3D& position);
+  CaloPoint(const  DetId& cell, CaloDirection side, const XYZPoint& position);
 
   /// constructor for HCAL
-  CaloPoint(DetId::Detector detector,const HepPoint3D& position);
+  CaloPoint(DetId::Detector detector,const XYZPoint& position);
 
   /// constructor for preshower
-  CaloPoint(DetId::Detector detector,int subdetn,int layer, const HepPoint3D & position);
+  CaloPoint(DetId::Detector detector,int subdetn,int layer, const XYZPoint & position);
 
   ~CaloPoint(){;}
   /// returns the cellID
@@ -47,7 +50,7 @@ class CaloPoint : public HepPoint3D
   inline CaloDirection getSide() const {return side_;};
 
   inline bool operator<(const CaloPoint & p) const
-    {return this->mag()<p.mag() ;};
+    {return this->mag2()<p.mag2() ;};
       
   inline void setDetId(DetId::Detector det) {detector_=det;}
   inline DetId::Detector whichDetector() const {return detector_;};
@@ -76,14 +79,14 @@ class CaloPoint : public HepPoint3D
   class DistanceToVertex
     {
     public:
-      DistanceToVertex(const   HepPoint3D & vert):vertex(vert) {};
+      DistanceToVertex(const XYZPoint & vert):vertex(vert) {};
       ~DistanceToVertex(){};
       bool operator() (const CaloPoint& point1,const CaloPoint& point2)
 	{
 	  return ((point1-vertex).mag2()<(point2-vertex).mag2());
 	}
     private:
-      HepPoint3D vertex;
+      XYZPoint vertex;
     };
 };
 #include <iosfwd>

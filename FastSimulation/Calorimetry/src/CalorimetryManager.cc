@@ -23,7 +23,7 @@
 #include <iostream>
 
 // CLHEP headers
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"
@@ -33,6 +33,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace edm;
+
+typedef math::XYZVector XYZVector;
+typedef math::XYZVector XYZPoint;
 
 CalorimetryManager::CalorimetryManager() : 
   myCalorimeter_(0),
@@ -161,7 +164,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   int onLayer2 = myTrack.onLayer2();
 
   // The entrance in ECAL
-  HepPoint3D ecalentrance = myPart.vertex().vect();
+  XYZPoint ecalentrance = myPart.vertex().Vect();
   
   //  std::cout << " Ecal entrance " << ecalentrance << std::endl;
   
@@ -169,17 +172,17 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   PreshowerHitMaker * myPreshower = NULL ;
   if(onLayer1 || onLayer2)
     {
-      HepPoint3D layer1entrance,layer2entrance;
-      HepVector3D dir1,dir2;
+      XYZPoint layer1entrance,layer2entrance;
+      XYZVector dir1,dir2;
       if(onLayer1) 
 	{
-	  layer1entrance = HepPoint3D(myTrack.layer1Entrance().vertex().vect());
-	  dir1 = HepVector3D(myTrack.layer1Entrance().vect().unit());
+	  layer1entrance = XYZPoint(myTrack.layer1Entrance().vertex().Vect());
+	  dir1 = XYZVector(myTrack.layer1Entrance().Vect().Unit());
 	}
       if(onLayer2) 
 	{
-	  layer2entrance = HepPoint3D(myTrack.layer2Entrance().vertex().vect());
-	  dir2 = HepVector3D(myTrack.layer2Entrance().vect().unit());
+	  layer2entrance = XYZPoint(myTrack.layer2Entrance().vertex().Vect());
+	  dir2 = XYZVector(myTrack.layer2Entrance().Vect().Unit());
 	}
       //      std::cout << " Layer1entrance " << layer1entrance << std::endl;
       //      std::cout << " Layer2entrance " << layer2entrance << std::endl;
@@ -263,7 +266,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
 
   double depth((X0depth+theShower.getMaximumOfShower())*myCalorimeter_->ecalProperties(onEcal)->radLenIncm());
-  HepPoint3D meanShower=ecalentrance+myPart.vect().unit()*depth;
+  XYZPoint meanShower=ecalentrance+myPart.Vect().Unit()*depth;
   
   //  if(onEcal!=1) return ; 
 
@@ -280,7 +283,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
   myGrid.setRadiusFactor(radiusFactor_);
   
   // The shower simulation
-  myGrid.setTrackParameters(myPart.vect().unit(),X0depth,myTrack);
+  myGrid.setTrackParameters(myPart.Vect().Unit(),X0depth,myTrack);
 
 //  std::cout << " PS ECAL GAP HCAL X0 " << myGrid.ps1TotalX0()+myGrid.ps2TotalX0() << " " << myGrid.ecalTotalX0();
 //  std::cout << " " << myGrid.ecalHcalGapTotalX0() << " " << myGrid.hcalTotalX0() << std::endl;
@@ -337,11 +340,11 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 // Simulation of electromagnetic showers in VFCAL
 void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   if(debug_) {
-    HepLorentzVector moment = track.momentum();
+    XYZTLorentzVector moment = track.momentum();
     std::cout << "FASTEnergyReconstructor::reconstructECAL - " << std::endl
 	 << "  eta " << moment.eta() << std::endl
          << "  phi " << moment.phi() << std::endl
-         << "   et " << moment.et()  << std::endl;
+         << "   et " << moment.Et()  << std::endl;
   }
   
   int hit; 
@@ -357,7 +360,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
   //                    0 <-> Barrel
   //                    1 <-> EC
   //                    2 <-> VF
-  HepLorentzVector trackPosition;
+  XYZTLorentzVector trackPosition;
   if( track.onEcal() ) {
     hit=track.onEcal()-1;
     trackPosition=track.ecalEntrance().vertex();
@@ -398,13 +401,13 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
 
   if(debug_)
     std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
-	 << " Track position - " << trackPosition.vect() 
+	 << " Track position - " << trackPosition.Vect() 
 	 << "   bool central - " << central
          << "   hit - " << hit   << std::endl;  
 
   DetId detid;  
   if( hit==2 ) 
-      detid = myCalorimeter_->getClosestCell(trackPosition.vect(),false,central);
+      detid = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,central);
   // Check that the detid is HCAL forward
   HcalDetId hdetid(detid);
   if(!hdetid.subdetId()!=HcalForward) return;
@@ -431,7 +434,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   //  int pid=abs(myTrack.type());
   //  std::cout << "reconstructHCAL " << std::endl;
   
-  HepLorentzVector trackPosition;
+  XYZTLorentzVector trackPosition;
   if (myTrack.onHcal()) {
     trackPosition=myTrack.hcalEntrance().vertex();
     hit = myTrack.onHcal()-1;
@@ -484,7 +487,7 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 				<< "  Emeas = " << emeas << std::endl;
 
   if(emeas > 0.) {  
-    DetId cell = myCalorimeter_->getClosestCell(trackPosition.vect(),false,false);
+    DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
     updateMap(cell.rawId(), emeas, HMapping_);
   }
 }
@@ -492,19 +495,19 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
 void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 {
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
-  HepLorentzVector moment = myTrack.momentum();
+  XYZTLorentzVector moment = myTrack.momentum();
 
   if(debug_)
     LogDebug("FastCalorimetry") << "CalorimetryManager::HDShowerSimulation - track param."
          << std::endl
 	 << "  eta = " << moment.eta() << std::endl
          << "  phi = " << moment.phi() << std::endl
-         << "   et = " << moment.et()  << std::endl;
+         << "   et = " << moment.Et()  << std::endl;
 
   int hit;
   //  int pid = abs(myTrack.type());
 
-  HepLorentzVector trackPosition;
+  XYZTLorentzVector trackPosition;
   if ( myTrack.onEcal() ) {
     trackPosition=myTrack.ecalEntrance().vertex();
     hit = myTrack.onEcal()-1;                               //
@@ -557,7 +560,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 
     // Special case - temporary protection until fix in Grid will be done
 //    if(fabs(pathEta) > 1.44 && fabs(pathEta) < 1.45) {
-//      CellID cell = myCalorimeter->getClosestCell(trackPosition.vect(),false);
+//      CellID cell = myCalorimeter->getClosestCell(trackPosition.Vect(),false);
 //      updateMap(cell,emeas);
 //
 //    } 
@@ -572,22 +575,22 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 		       myHSParameters_);
     
     //Making ECAL Grid (and segments calculation)
-    HepPoint3D caloentrance;
-    HepVector3D direction;
+    XYZPoint caloentrance;
+    XYZVector direction;
     if(myTrack.onEcal()) 
       {	
-	caloentrance = myTrack.ecalEntrance().vertex().vect();
-	direction = myTrack.ecalEntrance().vect().unit();
+	caloentrance = myTrack.ecalEntrance().vertex().Vect();
+	direction = myTrack.ecalEntrance().Vect().Unit();
       }
     else if(myTrack.onHcal())
       {
-	caloentrance = myTrack.hcalEntrance().vertex().vect();
-	direction = myTrack.hcalEntrance().vect().unit();
+	caloentrance = myTrack.hcalEntrance().vertex().Vect();
+	direction = myTrack.hcalEntrance().Vect().Unit();
       }
     else
       {
-	caloentrance = myTrack.vfcalEntrance().vertex().vect();
-	direction = myTrack.vfcalEntrance().vect().unit();
+	caloentrance = myTrack.vfcalEntrance().vertex().Vect();
+	direction = myTrack.vfcalEntrance().Vect().Unit();
       }
 
     DetId pivot;
@@ -668,7 +671,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
       }
     }      
     else {  // shower simulation failed 
-      DetId cell = myCalorimeter_->getClosestCell(trackPosition.vect(),false,false);
+      DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
       updateMap(cell.rawId(),emeas,HMapping_);
       if(debug_)
 	LogDebug("FastCalorimetry") << " HCAL simple cell "   

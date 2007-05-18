@@ -48,7 +48,8 @@ CrystalWindowMap::CrystalWindowMap(const CaloGeometryHelper *calo,const std::vec
     }
 }
 
-bool CrystalWindowMap::getCrystalWindow(unsigned iq,std::vector<unsigned>&  cw ) const
+bool 
+CrystalWindowMap::getCrystalWindow(unsigned iq,std::vector<unsigned>&  cw ) const
 {
   if(iq>=0&&iq<size_)
     {
@@ -59,7 +60,8 @@ bool CrystalWindowMap::getCrystalWindow(unsigned iq,std::vector<unsigned>&  cw )
     return false;
 }
 
-bool CrystalWindowMap::getCrystalWindow(unsigned iq,const std::vector<unsigned>*  cw) const
+bool 
+CrystalWindowMap::getCrystalWindow(unsigned iq,const std::vector<unsigned>*  cw) const
 {
   
   if(iq>=0&&iq<size_)
@@ -72,7 +74,8 @@ bool CrystalWindowMap::getCrystalWindow(unsigned iq,const std::vector<unsigned>*
     //  std::map<CrystalID,CrystalWindow>::const_iterator itcheck=myMap.find(cell);
 }
 
-const std::vector<unsigned>& CrystalWindowMap::getCrystalWindow(unsigned iq, bool& status) const
+const std::vector<unsigned>& 
+CrystalWindowMap::getCrystalWindow(unsigned iq, bool& status) const
 {
   return myNeighbours_[iq];
 }

@@ -34,19 +34,19 @@ public:
 
   /** Accept in addition particles with id \a id. <b> The list of
    *  particles to reject will be cleared and no longer used.</b> */
-  virtual void addAccept(const int id);
+  void addAccept(const int id);
 
   /** Accept in addition particles with name \a name. <b> The list of
    *  particles to reject will be cleared and no longer used.</b> */
-  virtual void addAccept(const std::string& name);
+  void addAccept(const std::string& name);
 
   /** Reject in addition particles with id \a id. <b> The list of
    *  particles to accept will be cleared and no longer used.</b> */
-  virtual void addReject(const int id);
+  void addReject(const int id);
 
   /** Reject in addition particles with name \a name. <b> The list of
    *  particles to accept will be cleared and no longer used.</b> */
-  virtual void addReject(const std::string& name);
+  void addReject(const std::string& name);
 
 private:
 

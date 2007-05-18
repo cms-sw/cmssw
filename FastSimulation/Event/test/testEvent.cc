@@ -43,8 +43,7 @@ testEvent::testEvent(const edm::ParameterSet& p) :
   mySimEvent(2, static_cast<FSimEvent*>(0))
 {
   
-  particleFilter_ = p.getParameter<edm::ParameterSet>
-    ( "TestParticleFilter" );   
+  particleFilter_ = p.getParameter<edm::ParameterSet> ( "ParticleFilter" );   
   // For the full sim
   mySimEvent[0] = new FSimEvent(particleFilter_);
   // For the fast sim
@@ -77,15 +76,19 @@ testEvent::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   edm::Handle<std::vector<SimVertex> > fullSimVertices;
   iEvent.getByLabel("g4SimHits",fullSimVertices);
   mySimEvent[0]->fill( *fullSimTracks, *fullSimVertices );
+
+  //  for ( unsigned i=0; i< (*fullSimTracks).size(); ++i ) { 
+  //    std::cout << (*fullSimTracks)[i] << std::endl;
+  //  }
   
-  /*
-  std::cout << "Fill full event " << std::endl;
+  /* */
+  std::cout << "Fill fast event " << std::endl;
   edm::Handle<std::vector<SimTrack> > fastSimTracks;
   iEvent.getByLabel("famosSimHits",fastSimTracks);
   edm::Handle<std::vector<SimVertex> > fastSimVertices;
   iEvent.getByLabel("famosSimHits",fastSimVertices);
   mySimEvent[1]->fill( *fastSimTracks, *fastSimVertices );
-  */
+  /* */
   
   for ( unsigned ievt=0; ievt<2; ++ievt ) {
 

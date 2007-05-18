@@ -19,10 +19,6 @@ class MagneticField;
 class CalorimetryManager;
 class RandomEngine;
 
-namespace CLHEP {
-  class HepLorentzVector;
-}
-
 // using trailing _ for private data members, m_p prefix for PSet variables (MSt)
 
 class FamosManager
@@ -72,7 +68,6 @@ class FamosManager
   bool m_Tracking;
   bool m_Calorimetry;
   bool m_PileUp;
-  CLHEP::HepLorentzVector * vtx_;
   double weight_;    
   int m_pRunNumber;
   int m_pVerbose;

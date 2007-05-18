@@ -22,11 +22,9 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
-
-// CLHEP
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+//#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // STL
 #include <vector>

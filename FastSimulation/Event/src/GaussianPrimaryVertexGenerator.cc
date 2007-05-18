@@ -20,8 +20,8 @@ GaussianPrimaryVertexGenerator::GaussianPrimaryVertexGenerator(
 void
 GaussianPrimaryVertexGenerator::generate() {
 
-  this->setX(random->gaussShoot(meanX,sigmaX));
-  this->setY(random->gaussShoot(meanY,sigmaY));
-  this->setZ(random->gaussShoot(meanZ,sigmaZ));
+  this->SetX(random->gaussShoot(meanX,sigmaX));
+  this->SetY(random->gaussShoot(meanY,sigmaY));
+  this->SetZ(random->gaussShoot(meanZ,sigmaZ));
 
 }

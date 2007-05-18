@@ -5,12 +5,10 @@
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 
 // Anapher Headers
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
 
-typedef std::pair<HepPoint3D,double> Spot;
-typedef std::pair<unsigned int, double> Step;
-typedef std::vector<Step> Steps;
-typedef Steps::const_iterator step_iterator;
+#include <vector>
 
 /** 
  * \author Salavat Abdullin
@@ -27,6 +25,13 @@ class HDShower
 {
 
  public:
+
+  typedef math::XYZVector XYZPoint;
+
+  typedef std::pair<XYZPoint,double> Spot;
+  typedef std::pair<unsigned int, double> Step;
+  typedef std::vector<Step> Steps;
+  typedef Steps::const_iterator step_iterator;
 
   HDShower(const RandomEngine* engine,
 	   HDShowerParametrization* myParam,

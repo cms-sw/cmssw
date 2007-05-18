@@ -1,7 +1,6 @@
-// CLHEP Headers
-#include "CLHEP/config/CLHEP.h"
-#include "CLHEP/Vector/LorentzVector.h"
+// HepMC Headers
 #include "HepMC/PythiaWrapper6_2.h"
+
 // FAMOS Headers
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
@@ -36,15 +35,15 @@ Pythia6Decays::particleDaughters(ParticlePropagator& particle)
 
   pyjets->k(1,1) = 1;
   pyjets->k(1,2) = particle.pid();
-  pyjets->p(1,1) = particle.px();
-  pyjets->p(1,2) = particle.py();
-  pyjets->p(1,3) = particle.pz();
+  pyjets->p(1,1) = particle.Px();
+  pyjets->p(1,2) = particle.Py();
+  pyjets->p(1,3) = particle.Pz();
   pyjets->p(1,4) = std::max(particle.mass(),particle.e());
   pyjets->p(1,5) = particle.mass();
-  pyjets->v(1,1) = particle.x();
-  pyjets->v(1,2) = particle.y();
-  pyjets->v(1,3) = particle.z();
-  pyjets->v(1,4) = particle.t();
+  pyjets->v(1,1) = particle.X();
+  pyjets->v(1,2) = particle.Y();
+  pyjets->v(1,3) = particle.Z();
+  pyjets->v(1,4) = particle.T();
   pyjets->n() = 1;
   
   ip = 1;
@@ -62,16 +61,10 @@ Pythia6Decays::particleDaughters(ParticlePropagator& particle)
 
   for (int i=2;i<=pyjets->n();++i) {
     
-    HepLorentzVector fourvector, fourvector1;
+    XYZTLorentzVector fourvector, fourvector1;
     
-    fourvector.setPx(pyjets->p(i,1));
-    fourvector.setPy(pyjets->p(i,2));
-    fourvector.setPz(pyjets->p(i,3));
-    fourvector.setE(pyjets->p(i,4));
-    fourvector1.setX(pyjets->v(i,1));
-    fourvector1.setY(pyjets->v(i,2));
-    fourvector1.setZ(pyjets->v(i,3));
-    fourvector1.setT(pyjets->v(i,4));
+    fourvector.SetXYZT(pyjets->p(i,1),pyjets->p(i,2),pyjets->p(i,3),pyjets->p(i,4));
+    fourvector1.SetXYZT(pyjets->v(i,1),pyjets->v(i,2),pyjets->v(i,3),pyjets->v(i,4));
     RawParticle *aNewParticle = new RawParticle(fourvector,fourvector1);
     aNewParticle->setID(pyjets->k(i,2));
     aNewParticle->setMass(pyjets->p(i,5));

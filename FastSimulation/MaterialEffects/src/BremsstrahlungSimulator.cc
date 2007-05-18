@@ -2,18 +2,12 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-//CLHEP Headers
-#include "CLHEP/Geometry/Vector3D.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
 #include <iostream>
 #include <cmath>
 
 BremsstrahlungSimulator::BremsstrahlungSimulator(double photonEnergyCut, 
-					     double photonFractECut,
-					     const RandomEngine* engine) : 
+						 double photonFractECut,
+						 const RandomEngine* engine) : 
   MaterialEffectsSimulator(engine) 
 {
 
@@ -24,18 +18,14 @@ BremsstrahlungSimulator::BremsstrahlungSimulator(double photonEnergyCut,
 }
 
 
-void BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
+void 
+BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
 {
 
   // Protection : Just stop the electron if more that 1 radiation lengths.
   // This case corresponds to an electron entering the layer parallel to 
   // the layer axis - no reliable simulation can be done in that case...
-  if ( radLengths > 1. ) {
-    Particle.setPx(0.);
-    Particle.setPy(0.);
-    Particle.setPz(0.);
-    Particle.setE (0.);
-  }
+  if ( radLengths > 1. ) Particle.SetXYZT(0.,0.,0.,0.);
 
   // Hard brem probability with a photon Energy above photonEnergy.
   xmin = std::max(photonEnergy/Particle.e(),photonFractE);
@@ -48,7 +38,14 @@ void BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
   
   // Number of photons to be radiated.
   unsigned int nPhotons = poisson(bremProba);
+  if ( !nPhotons ) return;
 
+  //Rotate to the lab frame
+  double chi = Particle.theta();
+  double psi = Particle.phi();
+  RawParticle::RotationZ rotZ(psi);
+  RawParticle::RotationY rotY(chi);
+    
   // Energy of these photons
   for ( unsigned int i=0; i<nPhotons; ++i ) {
 
@@ -56,30 +53,22 @@ void BremsstrahlungSimulator::compute(ParticlePropagator &Particle)
     if ( Particle.e() < photonEnergy ) break;
 
     // Create a New Photon
-    HepLorentzVector PartP = brem(Particle);
+    RawParticle* thePhoton = new RawParticle(22,brem(Particle));
     
-    //Rotate to the lab frame
-    double chi = Particle.theta();
-    double psi = Particle.phi();
-    
-    PartP = PartP.rotateY(chi);
-    PartP = PartP.rotateZ(psi);
-    
-	
+    thePhoton->rotate(rotY);
+    thePhoton->rotate(rotZ);
+
     // Put the brem photon in the list
-    RawParticle *thePhoton = new RawParticle(22,PartP);
     _theUpdatedState.push_back(thePhoton);
 	
     // Update the original e+/-
-    Particle.setPx(Particle.px()-PartP.x());
-    Particle.setPy(Particle.py()-PartP.y());
-    Particle.setPz(Particle.pz()-PartP.z());
-    Particle.setE (Particle.e() -PartP.e());
-      
+    Particle -= thePhoton->momentum();
+
   }	
 }
 
-HepLorentzVector BremsstrahlungSimulator::brem(HepLorentzVector pp) {
+XYZTLorentzVector 
+BremsstrahlungSimulator::brem(ParticlePropagator& pp) const {
 
   // This is a simple version (a la PDG) of a Brem generator.
   // It replaces the buggy GEANT3 -> C++ former version.
@@ -108,13 +97,14 @@ HepLorentzVector BremsstrahlungSimulator::brem(HepLorentzVector pp) {
   double sphi   = std::sin(phi);
   double cphi   = std::cos(phi);
   
-  return xp * pp.e() * HepLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
+  return xp * pp.e() * XYZTLorentzVector(stheta*cphi,stheta*sphi,ctheta,1.);
   
 }
 
-double BremsstrahlungSimulator::gbteth(const double ener,
-					  const double partm,
- 					  const double efrac) const {
+double
+BremsstrahlungSimulator::gbteth(const double ener,
+				const double partm,
+				const double efrac) const {
   const double alfa = 0.625;
 
   const double d = 0.13*(0.8+1.3/theZ())*(100.0+(1.0/ener))*(1.0+efrac);

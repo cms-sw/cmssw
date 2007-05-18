@@ -71,6 +71,9 @@
 // class decleration
 //
 
+typedef math::XYZVector XYZVector;
+typedef math::XYZVector XYZPoint;
+
 class testCaloGeometryTools : public edm::EDAnalyzer {
 public:
   explicit testCaloGeometryTools( const edm::ParameterSet& );
@@ -80,7 +83,7 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void testpoint(const HepPoint3D& , std::string name, bool barrel);
+  void testpoint(const XYZPoint& , std::string name, bool barrel);
   void checkSM();
   void checkSC();
   void testBorderCrossing();
@@ -152,9 +155,9 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
    myGeometry.initialize();
    
    // Take a point in the barrel
-   HepPoint3D p1(129,0.,-50);
+   XYZPoint p1(129,0.,-50);
    testpoint(p1,"barrel",true);
-   HepPoint3D p2(60,60,-317);
+   XYZPoint p2(60,60,-317);
    testpoint(p1,"endcap",false);
 
    checkSM();
@@ -170,7 +173,7 @@ void testCaloGeometryTools::checkSM()
     {
       const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
       GlobalPoint p=geom->getPosition();
-      HepPoint3D pp(p.x(),p.y(),p.z());
+      XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
       std::ostringstream oss,oss2;
       oss << "iM"<< ic;
@@ -192,7 +195,7 @@ void testCaloGeometryTools::checkSC()
     {
       const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
       GlobalPoint p=geom->getPosition();
-      HepPoint3D pp(p.x(),p.y(),p.z());
+      XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
       std::ostringstream oss,oss2;
       if(p.z()>0)
@@ -200,7 +203,7 @@ void testCaloGeometryTools::checkSC()
       else
 	oss << "iSCN" << ic ;
       TMarker * myMarker= new TMarker(pp.x(),pp.y(),1);
-      if(pp.perp()<10)
+      if(pp.perp2()<100.)
 	std::cout << EEDetId(vec[ic]) << " " << pp.x() << " " << pp.y() << std::endl;
       myMarker->SetMarkerColor(EEDetId(vec[ic]).isc()%100);
       myMarker->SetMarkerStyle(22);
@@ -210,7 +213,7 @@ void testCaloGeometryTools::checkSC()
 
 
 
-void testCaloGeometryTools::testpoint(const HepPoint3D& point, std::string name, bool barrel)
+void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel)
 {
    DetId myCell = myGeometry.getClosestCell(point,true,barrel);
    EcalHitMaker myGrid(&myGeometry,point,myCell,1,7,0,random);
@@ -226,7 +229,7 @@ void testCaloGeometryTools::testpoint(const HepPoint3D& point, std::string name,
    
    for(unsigned ic=0;ic<nxtal;++ic)
      {
-       HepPoint3D p= myCrystals[ic].getCenter();
+       XYZPoint p= myCrystals[ic].getCenter();
 
        myCrystals[ic].getDrawingCoordinates(xp,yp,zp);
        TPolyLine3D * myxtal= new TPolyLine3D(xp.size(),&xp[0],&yp[0],&zp[0]);
@@ -266,10 +269,10 @@ void testCaloGeometryTools::testBorderCrossing()
 	    {
 	      const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
 	      GlobalPoint p1=geom->getPosition();
-	      HepPoint3D pp1(p1.x(),p1.y(),p1.z());
+	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
 	      geom=myGeometry.getEcalBarrelGeometry()->getGeometry(neighbours[in]);
 	      GlobalPoint p2=geom->getPosition();
-	      HepPoint3D pp2(p2.x(),p2.y(),p2.z());
+	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
 	      TMarker * myMarker= new TMarker((pp1+pp2).eta()*0.5,((pp1+pp2)*0.5).phi(),22);
 	      std::ostringstream oss;
 	      oss << "iBCB"<< counter;
@@ -293,10 +296,10 @@ void testCaloGeometryTools::testBorderCrossing()
 	    {
 	      const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
 	      GlobalPoint p1=geom->getPosition();
-	      HepPoint3D pp1(p1.x(),p1.y(),p1.z());
+	      XYZPoint pp1(p1.x(),p1.y(),p1.z());
 	      geom=myGeometry.getEcalEndcapGeometry()->getGeometry(neighbours[in]);
 	      GlobalPoint p2=geom->getPosition();
-	      HepPoint3D pp2(p2.x(),p2.y(),p2.z());
+	      XYZPoint pp2(p2.x(),p2.y(),p2.z());
 	      TMarker * myMarker= new TMarker((pp1+pp2).x()*0.5,(pp1+pp2).y()*0.5,22);
 	      std::ostringstream oss;
 	      if(p1.z()>0)

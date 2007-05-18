@@ -3,13 +3,13 @@
 
   /// Default constructor
 PrimaryVertexGenerator::PrimaryVertexGenerator() : 
-  Hep3Vector(), 
+  math::XYZVector(), 
   random(0)  
 {
 }
 
 PrimaryVertexGenerator::PrimaryVertexGenerator(const RandomEngine* engine) : 
-  Hep3Vector(), 
+  math::XYZVector(), 
   random(engine)  
 {
 }

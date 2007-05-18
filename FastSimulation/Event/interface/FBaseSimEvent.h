@@ -7,9 +7,11 @@
 // Data Formats
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-// CLHEP Headers
-#include "CLHEP/Vector/LorentzVector.h"
+// HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
+// Famos Headers
+#include "FastSimulation/Particle/interface/RawParticle.h"
 
 
 #include <map>
@@ -21,10 +23,9 @@
  * \date: 9-Dec-2003
  */
 
-class FSimEvent;
+//class FSimEvent;
 class FSimTrack;
 class FSimVertex;
-class RawParticle;
 class KineParticleFilter;
 
 class SimTrack;
@@ -105,6 +106,37 @@ public:
     return nChargedParticleTracks;
   }
 
+  /// Return track with given Id 
+  inline FSimTrack& track(int id) const;
+
+  /// Return vertex with given Id 
+  inline FSimVertex& vertex(int id) const;
+
+  /// return "reconstructed" charged tracks index.
+  int chargedTrack(int id) const;
+
+  /// return embedded track with given id
+  inline const SimTrack & embdTrack(int i) const;
+
+  /// return embedded vertex with given id
+  inline const SimVertex & embdVertex(int i) const;
+
+  /// return MC track with a given id
+  const HepMC::GenParticle* embdGenpart(int i) const;
+
+  /// Add a new track to the Event and to the various lists
+  int addSimTrack(const RawParticle* p, int iv, int ig=-1);
+
+  /// Add a new vertex to the Event and to the various lists
+  int addSimVertex(const XYZTLorentzVector& decayVertex,int im=-1);
+
+  const KineParticleFilter& filter() const { return *myFilter; } 
+
+  PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
+
+
+ protected:
+
   /// The pointer to the vector of FSimTrack's 
   inline std::vector<FSimTrack>* tracks() const { 
     return theSimTracks; 
@@ -120,29 +152,7 @@ public:
     return theGenParticles; 
   }
 
-  /// Return track with given Id 
-  FSimTrack& track(int id) const;
-  /// Return vertex with given Id 
-  FSimVertex& vertex(int id) const;
-  /// return "reconstructed" charged tracks index.
-  int chargedTrack(int id) const;
 
-  /// return embedded track with given id
-  const SimTrack & embdTrack(int i) const;
-  /// return embedded vertex with given id
-  const SimVertex & embdVertex(int i) const;
-  /// return MC track with a given id
-  const HepMC::GenParticle* embdGenpart(int i) const;
-
-  /// Add a new track to the Event and to the various lists
-  int addSimTrack(const RawParticle* p, int iv, int ig=-1);
-
-  /// Add a new vertex to the Event and to the various lists
-  int addSimVertex(const CLHEP::HepLorentzVector& decayVertex,int im=-1);
-
-  const KineParticleFilter& filter() const { return *myFilter; } 
-
-  PrimaryVertexGenerator* thePrimaryVertexGenerator() const { return theVertexGenerator; }
 
  private:
 
@@ -179,5 +189,23 @@ public:
   //  Histos* myHistos;
 
 };
+
+#include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
+
+static FSimTrack oTrack;
+inline FSimTrack& FBaseSimEvent::track(int i) const { 
+  return (i>=0 && i<(int)nTracks()) ? (*theSimTracks)[i] : oTrack; }
+
+static FSimVertex oVertex;
+inline FSimVertex& FBaseSimEvent::vertex(int i) const { 
+  return (i>=0 && i<(int)nVertices()) ? (*theSimVertices)[i] : oVertex; }
+
+inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { 
+  return (*theSimTracks)[i].simTrack(); }
+
+inline const SimVertex& FBaseSimEvent::embdVertex(int i) const { 
+  return (*theSimVertices)[i].simVertex(); }
+
 
 #endif // FBaseSimEvent_H

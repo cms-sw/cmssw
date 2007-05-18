@@ -1,8 +1,6 @@
 #ifndef BREMSSTRAHLUNGSIMULATOR_H
 #define BREMSSTRAHLUNGSIMULATOR_H
 
-#include "CLHEP/Vector/LorentzVector.h"
-
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
 
 /** 
@@ -31,8 +29,8 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
 
   /// Constructor
   BremsstrahlungSimulator(double photonEnergyCut, 
-			double photonFractECut,
-			const RandomEngine* engine); 
+			  double photonFractECut,
+			  const RandomEngine* engine); 
 
   /// Default destructor
   ~BremsstrahlungSimulator() {}
@@ -55,10 +53,12 @@ class BremsstrahlungSimulator : public MaterialEffectsSimulator
   void compute(ParticlePropagator &Particle);
 
   /// Compute Brem photon energy and angles, if any.
-  HepLorentzVector brem(HepLorentzVector p);
+  XYZTLorentzVector brem(ParticlePropagator& p) const;
 
   /// A universal angular distribution - still from GEANT.
-  double gbteth(const double ener,const double partm,const double efrac) const;
+  double gbteth(const double ener,
+		const double partm,
+		const double efrac) const;
 
 };
 #endif

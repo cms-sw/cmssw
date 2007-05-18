@@ -17,7 +17,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
-// CLHEP
+// Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // STL

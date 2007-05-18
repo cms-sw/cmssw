@@ -717,7 +717,7 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   /* */
   
   //  mySimEvent[0]->print();
-  HepLorentzVector theProtonMomentum(0.,0.,0.,0.986);
+  XYZTLorentzVector theProtonMomentum(0.,0.,0.,0.986);
 
   // Save the object number count for a new NUevent
   if ( saveNU ) { 
@@ -732,24 +732,27 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     //    std::cout << "Event number " << ievt << std::endl;
     //    mySimEvent[ievt]->print();
 
-    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
-    if ( !fsimVertices.size() ) continue;
+    //    const std::vector<FSimVertex>& fsimVertices = *(mySimEvent[ievt]->vertices() );
+    //    if ( !fsimVertices.size() ) continue;
+    if ( !mySimEvent[ievt]->nVertices() ) continue; 
 
-    h1[ievt]->Fill(fsimVertices.size());
-    if ( fsimVertices.size() == 1 ) continue;  
+    //    h1[ievt]->Fill(fsimVertices.size());
+    //    if ( fsimVertices.size() == 1 ) continue;  
+    h1[ievt]->Fill(mySimEvent[ievt]->nVertices());
+    if ( mySimEvent[ievt]->nVertices() == 1 ) continue;  
 
+    FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
 
-    double zed = fsimVertices[1].position().z();
-    double radius = fsimVertices[1].position().perp();
-    double eta = fsimVertices[1].position().eta();
+    double zed = thePionVertex.position().z();
+    double radius = thePionVertex.position().pt();
+    double eta = thePionVertex.position().eta();
 
-    h0[ievt]->Fill(fabs(fsimVertices[1].position().z()),
-		        fsimVertices[1].position().perp());
+    h0[ievt]->Fill(fabs(thePionVertex.position().z()),
+		        thePionVertex.position().pt());
 
     // Pion's number of daughters
     FSimTrack& thePion = mySimEvent[ievt]->track(0);
  
-    FSimVertex& thePionVertex = mySimEvent[ievt]->vertex(1);
     unsigned ndaugh = thePionVertex.nDaughters();
     h2[ievt]->Fill(ndaugh);
 
@@ -776,10 +779,10 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     if(!(firstDaughter<0||lastDaughter<0)) {
 	  
       // Compute the boost for the cm frame, and the cm energy.
-      HepLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
+      XYZTLorentzVector theBoost = thePion.momentum()+theProtonMomentum;
       double ecm = theBoost.mag();
       theBoost /=  theBoost.e();
-      HepLorentzVector theTotal(0.,0.,0.,0.);
+      RawParticle theTotal(XYZTLorentzVector(0.,0.,0.,0.));
 
       if ( ievt == 0 && saveNU ) {
 	NUEvent::NUInteraction interaction;
@@ -794,28 +797,28 @@ testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	// Boost the tracks
 	FSimTrack myDaugh = mySimEvent[ievt]->track(idaugh);
 	//	std::cout << "Daughter " << idaugh << " " << myDaugh << std::endl;
-	HepLorentzVector theMom = myDaugh.momentum();
+        RawParticle theMom(myDaugh.momentum());
 	theMom.boost(-theBoost.x(),-theBoost.y(),-theBoost.z());
 	theTotal += theMom;
 
  	// Save the fully simulated tracks
 	if ( ievt == 0 && saveNU ) { 
 	  NUEvent::NUParticle particle;
-	  particle.px = theMom.x()/ecm;
-	  particle.py = theMom.y()/ecm;
-	  particle.pz = theMom.z()/ecm;
+	  particle.px = theMom.px()/ecm;
+	  particle.py = theMom.py()/ecm;
+	  particle.pz = theMom.pz()/ecm;
 	  particle.mass = theMom.mag();
 	  particle.id = myDaugh.type();
 	  nuEvent->addNUParticle(particle);
-	  SimTrack nuclSimTrack(myDaugh.type(),theMom/ecm,-1,-1);
-	  nuclSimTracks->push_back(nuclSimTrack);
+	  //	  SimTrack nuclSimTrack(myDaugh.type(),theMom/ecm,-1,-1);
+	  //	  nuclSimTracks->push_back(nuclSimTrack);
 	}
       }
 
       // Save some histograms
       h3[ievt]->Fill(ecm);
       h4[ievt]->Fill(theTotal.mag()/ecm);
-      h5[ievt]->Fill(theTotal.vect().mag());
+      h5[ievt]->Fill(sqrt(theTotal.Vect().mag2()));
 
       // Fill the individual layer histograms !
       bool filled = false;

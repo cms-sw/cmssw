@@ -17,7 +17,6 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CrossingFrame>
 <use name=boost>
-<use name=clhep>
 <export>
   <use name=DataFormats/Common>
   <use name=DataFormats/EcalRecHit>

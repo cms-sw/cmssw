@@ -6,8 +6,11 @@
 //Famos Headers
 #include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
+#include "DataFormats/Math/interface/Vector3D.h"
+
+#include <vector>
 
 /** 
  * \author Patrick Janot
@@ -24,7 +27,9 @@ class GammaFunctionGenerator;
 class EMShower 
 {
 
-  typedef std::pair<HepPoint3D,double> Spot;
+  typedef math::XYZVector XYZPoint;
+
+  typedef std::pair<XYZPoint,double> Spot;
   typedef std::pair<unsigned int, double> Step;
   typedef std::vector<Step> Steps;
   typedef Steps::const_iterator step_iterator;

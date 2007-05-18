@@ -21,7 +21,7 @@ CaloSegment::CaloSegment(const CaloPoint& in,
 
 {
 
-  sexit_= sentrance_+(exit_-entrance_).mag();
+  sexit_= sentrance_+std::sqrt((exit_-entrance_).mag2());
   // Change this. CaloProperties from FamosShower should be used instead 
   double radLenIncm=999999;
   double intLenIncm=999999;
@@ -84,25 +84,29 @@ CaloSegment::CaloSegment(const CaloPoint& in,
   L0length_ = sL0exit_-sL0entrance_;
 }
 
-HepPoint3D CaloSegment::positionAtDepthincm(double depth) const
+CaloSegment::XYZPoint 
+CaloSegment::positionAtDepthincm(double depth) const
 {
-  if (depth<sentrance_||depth>sexit_) return HepPoint3D();
-  return HepPoint3D(entrance_+((depth-sentrance_)/(sexit_-sentrance_)*(exit_-entrance_)));
+  if (depth<sentrance_||depth>sexit_) return XYZPoint();
+  return XYZPoint(entrance_+((depth-sentrance_)/(sexit_-sentrance_)*(exit_-entrance_)));
 }
 
-HepPoint3D CaloSegment::positionAtDepthinX0(double depth) const
+CaloSegment::XYZPoint 
+CaloSegment::positionAtDepthinX0(double depth) const
 {
-  if (depth<sX0entrance_||depth>sX0exit_) return HepPoint3D();
-  return HepPoint3D(entrance_+((depth-sX0entrance_)/(sX0exit_-sX0entrance_)*(exit_-entrance_)));
+  if (depth<sX0entrance_||depth>sX0exit_) return XYZPoint();
+  return XYZPoint(entrance_+((depth-sX0entrance_)/(sX0exit_-sX0entrance_)*(exit_-entrance_)));
 }
 
-HepPoint3D CaloSegment::positionAtDepthinL0(double depth) const
+CaloSegment::XYZPoint 
+CaloSegment::positionAtDepthinL0(double depth) const
 {
-  if (depth<sL0entrance_||depth>sL0exit_) return HepPoint3D();
-  return HepPoint3D(entrance_+((depth-sL0entrance_)/(sL0exit_-sL0entrance_)*(exit_-entrance_)));
+  if (depth<sL0entrance_||depth>sL0exit_) return XYZPoint();
+  return XYZPoint(entrance_+((depth-sL0entrance_)/(sL0exit_-sL0entrance_)*(exit_-entrance_)));
 }
 
-double CaloSegment::x0FromCm(double cm) const{
+double 
+CaloSegment::x0FromCm(double cm) const{
   return sX0entrance_+cm/length_*X0length_;
 }
 
@@ -115,7 +119,7 @@ std::ostream & operator<<(std::ostream& ost ,const CaloSegment& seg)
     {
       ost << seg.entrance().whichDetector() ;
       //  ost<< " Entrance side " << seg.entrance().getSide()
-      ost << " Point " << (HepPoint3D)seg.entrance() << std::endl;
+      ost << " Point " << (math::XYZVector)seg.entrance() << std::endl;
     }
   ost  << "DetId " ;
   if(!seg.exit().getDetId().null()) 
@@ -124,7 +128,10 @@ std::ostream & operator<<(std::ostream& ost ,const CaloSegment& seg)
     ost << seg.exit().whichDetector() ;
 
   //  ost << " Exit side " << seg.exit().getSide() 
-  ost << " Point " << (HepPoint3D)seg.exit() << " " << seg.length() << " cm " << seg.X0length() << " X0 " <<  seg.L0length() << " Lambda0 " ;
+  ost << " Point " << (math::XYZVector)seg.exit() << " " 
+      << seg.length() << " cm " 
+      << seg.X0length() << " X0 " 
+      <<  seg.L0length() << " Lambda0 " ;
   switch (seg.material())
     {
     case CaloSegment::PbWO4:

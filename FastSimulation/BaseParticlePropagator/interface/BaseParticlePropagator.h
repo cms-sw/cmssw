@@ -79,9 +79,6 @@
 //FAMOS
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-//CLHEP
-#include "CLHEP/Units/PhysicalConstants.h" // for c_light
-
 class BaseParticlePropagator : public RawParticle {
   
 public:
@@ -125,7 +122,7 @@ public:
   bool propagateToVFcalEntrance(bool first=true);
   bool propagateToHcalExit(bool first=true);
   bool propagateToNominalVertex(
-      const HepLorentzVector& hit2=HepLorentzVector(0.,0.,0.,0.));
+      const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
 
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)
   void setPropagationConditions(double r, double z, bool firstLoop=true);
@@ -135,6 +132,7 @@ private:
   //  RawParticle   particle;
   /// Radius of the cylinder (centred at 0,0,0) to which propagation is done
   double rCyl;
+  double rCyl2;
   /// Half-height of the cylinder (centred at 0,0,0) to which propagation is done
   double zCyl;
   /// Magnetic field in the cylinder, oriented along the Z axis
@@ -148,6 +146,8 @@ protected:
   /// The particle traverses some real material
   bool fiducial;
 
+  /// The speed of light in mm/ns (!) without clhep (yeaaahhh!)
+  inline double c_light() const { return 299.792458; }
 
 private:
   /// Do only the first half-loop
@@ -165,20 +165,20 @@ public:
   inline void setProperDecayTime(double t) { properDecayTime = t; }
 
   /// Just an internal trick
-  inline void increaseRCyl(double delta) {rCyl = rCyl + delta;}
+  inline void increaseRCyl(double delta) {rCyl = rCyl + delta; rCyl2 = rCyl*rCyl; }
 
   /// Transverse impact parameter
   inline double xyImpactParameter() const {
     // Transverse impact parameter
     return ( charge() != 0.0 && bField != 0.0 ) ? 
       helixCentreDistToAxis() - fabs( helixRadius() ) :
-      fabs( px() * y() - py() * x() ) / perp(); 
+      fabs( Px() * Y() - Py() * X() ) / Pt(); 
   }
 
   /// Longitudinal impact parameter
   inline double zImpactParameter() const {
     // Longitudinal impact parameter
-    return vertex().z() - vertex().perp() * pz() / perp();
+    return Z() - Pz() * std::sqrt(R2()/Perp2());
   }
 
   /// The helix Radius
@@ -191,40 +191,40 @@ public:
     // Positive means anti-clockwise, negative means clockwise rotation.
     //
     // The radius is returned in cm to match the units in RawParticle.
-    return charge() == 0 ? 0.0 : - perp() / ( c_light * 1e-5 * bField * charge() );
+    return charge() == 0 ? 0.0 : - Pt() / ( c_light() * 1e-5 * bField * charge() );
   }
 
   inline double helixRadius(double pT) const { 
-    // a faster version of helixRadius, once perp() has been computed
-    return charge() == 0 ? 0.0 : - pT / ( c_light * 1e-5 * bField * charge() );
+    // a faster version of helixRadius, once Perp() has been computed
+    return charge() == 0 ? 0.0 : - pT / ( c_light() * 1e-5 * bField * charge() );
   }
 
   /// The azimuth of the momentum at the vertex
   inline double helixStartPhi() const { 
     // The azimuth of the momentum at the vertex
-    return px() == 0.0 && py() == 0.0 ? 0.0 : std::atan2(py(),px());
+    return Px() == 0.0 && Py() == 0.0 ? 0.0 : std::atan2(Py(),Px());
   }
   
   /// The x coordinate of the helix axis
   inline double helixCentreX() const { 
     // The x coordinate of the helix axis
-    return x() - helixRadius() * std::sin ( helixStartPhi() );
+    return X() - helixRadius() * std::sin ( helixStartPhi() );
   }
 
   inline double helixCentreX(double radius, double phi) const { 
     // Fast version of helixCentreX()
-    return x() - radius * std::sin (phi);
+    return X() - radius * std::sin (phi);
   }
 
   /// The y coordinate of the helix axis
   inline double helixCentreY() const { 
     // The y coordinate of the helix axis
-    return y() + helixRadius() * std::cos ( helixStartPhi() );
+    return Y() + helixRadius() * std::cos ( helixStartPhi() );
 }
 
   inline double helixCentreY(double radius, double phi) const { 
     // Fast version of helixCentreX()
-    return y() + radius * std::cos (phi);
+    return Y() + radius * std::cos (phi);
   }
 
   /// The distance between the cylinder and the helix axes
@@ -237,8 +237,6 @@ public:
 
   inline double helixCentreDistToAxis(double xC, double yC) const { 
     // Faster version of helixCentreDistToAxis
-    //  double xC = helixCentreX();
-    //  double yC = helixCentreY();
     return std::sqrt( xC*xC + yC*yC );
   }
 
@@ -252,17 +250,15 @@ public:
   
   inline double helixCentrePhi(double xC, double yC) const { 
     // Faster version of helixCentrePhi() 
-    //  double xC = helixCentreX();
-    //  double yC = helixCentreY();
     return xC == 0.0 && yC == 0.0 ? 0.0 : std::atan2(yC,xC);
   }
 
   /// Is the vertex inside the cylinder ? (stricly inside : true) 
   inline bool inside() const {
-    return (vertex().vect().perp()<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
+    return (R2()<rCyl2-0.00001*rCyl && fabs(Z())<zCyl-0.00001);}
 
-  inline bool inside(double rPos) const {
-    return (rPos<rCyl-0.00001 && fabs(z())<zCyl-0.00001);}
+  inline bool inside(double rPos2) const {
+    return (rPos2<rCyl2-0.00001*rCyl && fabs(Z())<zCyl-0.00001);}
 
 
   /// Is the vertex already on the cylinder surface ? 
@@ -270,26 +266,27 @@ public:
     return ( onBarrel() || onEndcap() ); 
   }
 
-  inline bool onSurface(double rPos) const {
-    return ( onBarrel(rPos) || onEndcap(rPos) ); 
+  inline bool onSurface(double rPos2) const {
+    return ( onBarrel(rPos2) || onEndcap(rPos2) ); 
   }
 
   /// Is the vertex already on the cylinder barrel ? 
   inline bool onBarrel() const {
-    return ( fabs(vertex().vect().perp()-rCyl) < 0.00001 && fabs(z()) <= zCyl );
+    double rPos2 = R2();
+    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(Z()) <= zCyl );
   }
 
-  inline bool onBarrel(double rPos) const {
-    return ( fabs(rPos-rCyl) < 0.00001 && fabs(z()) <= zCyl );
+  inline bool onBarrel(double rPos2) const {
+    return ( fabs(rPos2-rCyl2) < 0.00001*rCyl && fabs(Z()) <= zCyl );
   }
 
   /// Is the vertex already on the cylinder endcap ? 
   inline bool onEndcap() const {
-    return ( fabs(fabs(z())-zCyl) < 0.00001 && vertex().vect().perp() <= rCyl ); 
+    return ( fabs(fabs(Z())-zCyl) < 0.00001 && R2() <= rCyl2 ); 
   }
   
-  inline bool onEndcap(double rPos) const {
-    return ( fabs(fabs(z())-zCyl) < 0.00001 && rPos <= rCyl ); 
+  inline bool onEndcap(double rPos2) const {
+    return ( fabs(fabs(Z())-zCyl) < 0.00001 && rPos2 <= rCyl2 ); 
   }
 
   /// Is the vertex on some material ?

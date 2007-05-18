@@ -5,7 +5,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 //#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "CLHEP/Geometry/Point3D.h"
+//#include "CLHEP/Geometry/Point3D.h"
 class PreshowerLayer1Properties;
 class PreshowerLayer2Properties;
 class ECALProperties;
