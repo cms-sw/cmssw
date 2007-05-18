@@ -316,6 +316,24 @@
      </row>
   </layout>
 
+  
+  <layout name="Summary_ChamberEfficiencyTest">
+     <row>
+      <column> 
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station1/$1/$1"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station2/$1/$1"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station3/$1/$1"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station4/$1/$1"/>
+      </column>
+      <column>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station1/$1/$3"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station2/$1/$3"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station3/$1/$3"/>
+        <monitorable name="DTDQMClient/DT/Tests/DTChamberEfficiency/$1/Station4/$1/$3"/>
+      </column>
+     </row>
+  </layout>
+
 
   <layout name="Summary_ResidualsTest">
      <row>
@@ -328,6 +346,105 @@
      </row>
   </layout>
 
+   
+  <layout name="Summary_DeadChannelTest_St1">
+     <row>
+       <column> 
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$1"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$5"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$9"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$2"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$6"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$10"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$3"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$7"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$11"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$4"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$8"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station1/$1/$12"/>
+      </column>
+   </row>
+ </layout>   
 
+
+ <layout name="Summary_DeadChannelTest_St2">
+     <row>
+       <column> 
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$1"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$5"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$9"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$2"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$6"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$10"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$3"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$7"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$11"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$4"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$8"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station2/$1/$12"/>
+      </column>
+   </row>
+ </layout>  
+  
+
+ <layout name="Summary_DeadChannelTest_St3">
+     <row>
+       <column> 
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$1"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$5"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$9"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$2"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$6"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$10"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$3"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$7"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$11"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$4"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$8"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station3/$1/$12"/>
+      </column>
+   </row>
+ </layout>
+
+ 
+  <layout name="Summary_DeadChannelTest_St4">
+     <row>
+       <column> 
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$1"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$5"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$2"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$6"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$3"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$7"/>
+      </column>
+      <column>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$4"/>
+          <monitorable name="DTDQMClient/DT/Tests/DTDeadChannel/$1/Station4/$1/$8"/>
+      </column>
+   </row>
+ </layout>
+ 
 
 </layouts>
