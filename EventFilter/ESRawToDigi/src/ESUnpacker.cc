@@ -179,13 +179,14 @@ void ESUnpacker::word2digi(int kchip, const Word64 & word, ESDigiCollection & di
   //static const Word64 mKFLAG2  = ~(~Word64(0) << bKFLAG2);
   //static const Word64 mKEC     = ~(~Word64(0) << bKEC);
 
+  int adc[3];
   int strip = (word >> sSTRIP) & mSTRIP;
   int pace  = (word >> sPACE) & mPACE;
-  int adc2  = (word >> sADC2) & mADC2;
-  int adc1  = (word >> sADC1) & mADC1;
-  int adc0  = (word >> sADC0) & mADC0;
+  adc[2]    = (word >> sADC2) & mADC2;
+  adc[1]    = (word >> sADC1) & mADC1;
+  adc[0]    = (word >> sADC0) & mADC0;
 
-  if (debug_) cout<<kchip<<" "<<strip<<" "<<pace<<" "<<adc2<<" "<<adc1<<" "<<adc0<<endl;
+  if (debug_) cout<<kchip<<" "<<strip<<" "<<pace<<" "<<adc[2]<<" "<<adc[1]<<" "<<adc[0]<<endl;
 
   int zside, plane, ix, iy;
 
@@ -220,11 +221,14 @@ void ESUnpacker::word2digi(int kchip, const Word64 & word, ESDigiCollection & di
 
   ESDetId detId(strip+1, ix, iy, plane, zside);
   ESDataFrame df(detId);
-  df.setSample(0, adc0);
-  df.setSample(1, adc1);
-  df.setSample(2, adc2);
+
+  for (int i=0; i<3; i++) df.setSample(i, adc[i]);  
 
   digis.push_back(df);
+
+  if (debug_) 
+    cout<<"Si : "<<detId.zside()<<" "<<detId.plane()<<" "<<detId.six()<<" "<<detId.siy()<<" "<<detId.strip()<<" ("<<kchip<<","<<pace<<") "<<df.sample(0).adc()<<" "<<df.sample(1).adc()<<" "<<df.sample(2).adc()<<endl;
+
 }
 
 string ESUnpacker::print(const  Word64 & word) const
