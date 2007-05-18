@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/16 10:14:23 $
- * $Revision: 1.24 $
+ * $Date: 2007/05/16 16:59:35 $
+ * $Revision: 1.25 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -332,6 +332,8 @@ namespace cms{
       //Cluster Signal Vs Angle
       name = "cSignalVsAngle"+appString+"_onTrack";
       bookHlist("TProfile","TProfilecSignalVsAngle", name, "cos(angle_rz)" , "ADC count");
+      name = "cSignalVsAngleH"+appString+"_onTrack";
+      bookHlist("TH2","TH2cSignalVsAngle", name, "cos(angle_rz)" , "ADC count");
 
       //Cluster StoN
       name="cStoN"+appString;
@@ -369,7 +371,7 @@ namespace cms{
 
       //Angle Vs phi
       name = "AngleVsPhi"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (deg)");
+      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (sin(angle_xz))");
     }
   }
 
@@ -389,6 +391,10 @@ namespace cms{
 	  edm::LogInfo("ClusterAnalysis") << "Histos " << ih << " name " << (*Hlist)[ih]->GetName() << " title " <<  (*Hlist)[ih]->GetTitle() << std::endl;
 	  if (dynamic_cast<TH1F*>((*Hlist)[ih]) !=NULL){
 	    if (dynamic_cast<TH1F*>((*Hlist)[ih])->GetEntries() != 0)
+	      (*Hlist)[ih]->Draw();
+	  }
+	  if (dynamic_cast<TH2F*>((*Hlist)[ih]) !=NULL){
+	    if (dynamic_cast<TH2F*>((*Hlist)[ih])->GetEntries() != 0)
 	      (*Hlist)[ih]->Draw();
 	  }
 	  else if (dynamic_cast<TProfile*>((*Hlist)[ih]) !=NULL){
@@ -907,17 +913,23 @@ namespace cms{
       fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString+"_onTrack",0);
 
       fillTProfile(cosRZ,cluster->charge(),"cSignalVsAngle"+appString+"_onTrack",0);
+      fillTH2(cosRZ,cluster->charge(),"cSignalVsAngleH"+appString+"_onTrack",0);
 
       if (cluster->noise()){
 	fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString+"_onTrack",0); 
       }
-      
-      fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
-		   _HitDir._LV.theta().value()>Geom::pi()/2 ? 
-		   (Geom::pi()-_HitDir._LV.theta().value())*180/Geom::pi() :
-		   _HitDir._LV.theta().value()*180/Geom::pi(),
-		   "AngleVsPhi"+appString+"_onTrack",0);
-    }      
+
+      //***Only for TIB and TOB modules***//      
+      if ( (a.subdetId() == 3 && TIBDetId(detid).stereo() == 0) || (a.subdetId() == 5 && TOBDetId(detid).stereo() == 0)){
+	fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
+		     //Changing that in sin(angle_xz)
+		     //		   _HitDir._LV.theta().value()>Geom::pi()/2 ? 
+		     //		   (Geom::pi()-_HitDir._LV.theta().value())*180/Geom::pi() :
+		     //		   _HitDir._LV.theta().value()*180/Geom::pi(),
+		     sinXZ,
+		     "AngleVsPhi"+appString+"_onTrack",0);
+      }      
+    }
     return true;
   }
   
