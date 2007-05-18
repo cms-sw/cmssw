@@ -2,6 +2,7 @@
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -40,9 +41,9 @@ AlCaElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    using namespace std;
 
   // Get siStripElectrons
-  Handle<reco::ElectronCollection> pElectrons;
+  Handle<reco::PixelMatchGsfElectronCollection> pElectrons;
   iEvent.getByLabel(electronLabel_, pElectrons);
-  const reco::ElectronCollection* electronCollection = pElectrons.product();
+  const reco::PixelMatchGsfElectronCollection* electronCollection = pElectrons.product();
   
   // get RecHits
   Handle<EBRecHitCollection> barrelRecHitsHandle;
@@ -54,11 +55,12 @@ AlCaElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 //  loop on SiStrip Electrons
   
-  reco::ElectronCollection::const_iterator eleIt;
+  reco::PixelMatchGsfElectronCollection::const_iterator eleIt;
   int ii=0;
   
   for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
-    if (fabs(eleIt->eta()) <= 1.479) 
+    if (fabs(eleIt->eta()) <= 10){
+      //1.479) 
       {
 	
 	ii++;         
