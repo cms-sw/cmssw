@@ -11,13 +11,22 @@
 
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
+#include <vector>
+using std::vector;
+
+#include <iostream>
+using std::cout;
+using std::endl;
+
 L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) : 
   rct(0),
   src(conf.getParameter<edm::FileInPath>("src")),
   orcaFileInput(conf.getUntrackedParameter<bool>("orcaFileInput")),
   lutFile(conf.getParameter<edm::FileInPath>("lutFile")),
   rctTestInputFile(conf.getParameter<std::string>("rctTestInputFile")),
-  rctTestOutputFile(conf.getParameter<std::string>("rctTestOutputFile"))
+  rctTestOutputFile(conf.getParameter<std::string>("rctTestOutputFile")),
+  patternTest(conf.getUntrackedParameter<bool>("patternTest")),
+  lutFile2(conf.getParameter<edm::FileInPath>("lutFile2"))
 {
   //produces<JSCOutput>();
   
@@ -36,9 +45,16 @@ L1RCTProducer::~L1RCTProducer()
 
 void L1RCTProducer::beginJob(const edm::EventSetup& eventSetup)
 {
-  edm::ESHandle<CaloTPGTranscoder> transcoder;
-  eventSetup.get<CaloTPGRecord>().get(transcoder);
-  rct = new L1RCT(lutFile.fullPath(), transcoder, rctTestInputFile, rctTestOutputFile);
+  if (patternTest)
+    {
+      rct = new L1RCT(lutFile.fullPath(), lutFile2.fullPath(), rctTestInputFile, rctTestOutputFile,true);
+    }
+  else
+    {
+      edm::ESHandle<CaloTPGTranscoder> transcoder;
+      eventSetup.get<CaloTPGRecord>().get(transcoder);
+      rct = new L1RCT(lutFile.fullPath(), transcoder, rctTestInputFile, rctTestOutputFile);
+    }
 }
 
 void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
@@ -46,7 +62,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
   //vector<vector<vector<unsigned short> > > barrel;
   //vector<vector<unsigned short> > hf;
   
-  //std::cout << "produce method entered" << std::endl;
+  //cout << "L1RCT: produce method entered" << endl;
 
   if (!orcaFileInput){
     // my try:
@@ -63,6 +79,7 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
       rct->setGctEmScale(emScale.product());
     }
     rct->digiInput(*ecal, *hcal);
+    //cout << "L1RCT: digis have been filled in" << endl;
   }
   
   else if (orcaFileInput){
@@ -72,11 +89,11 @@ void L1RCTProducer::produce(edm::Event& e, const edm::EventSetup& c)
     //std::cout << "filename is " << filename << endl;
     rct->fileInput(src.fullPath().c_str());
     //rct->fileInput(filename);
-    //std::cout << "file has been inputted" << std::endl;
+    //cout << "L1RCT: file has been input" << endl;
   } 
 
   rct->processEvent();
-  //std::cout << "event has been processed" << std::endl;
+  //cout << "L1RCT: event has been processed" << endl;
   //rct->printJSC();
   
   

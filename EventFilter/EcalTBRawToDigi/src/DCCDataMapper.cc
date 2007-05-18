@@ -7,20 +7,20 @@
 DCCDataMapper::DCCDataMapper( DCCDataParser * myParser)
 : parser_(myParser){
   
-  dccFields_        = new set<DCCDataField  * , DCCDataFieldComparator>;
-  emptyEventFields_ = new set<DCCDataField  * , DCCDataFieldComparator>;
+  dccFields_        = new std::set<DCCDataField  * , DCCDataFieldComparator>;
+  emptyEventFields_ = new std::set<DCCDataField  * , DCCDataFieldComparator>;
   
-  tcc68Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>; 
-  tcc32Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>;
-  tcc16Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>;
+  tcc68Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>; 
+  tcc32Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>;
+  tcc16Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>;
 
-  srp68Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>;
-  srp32Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>;
-  srp16Fields_    = new set<DCCDataField  * , DCCDataFieldComparator>;
+  srp68Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>;
+  srp32Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>;
+  srp16Fields_    = new std::set<DCCDataField  * , DCCDataFieldComparator>;
   
-  towerFields_  = new set<DCCDataField  * , DCCDataFieldComparator>;   
-  xtalFields_   = new set<DCCDataField  * , DCCDataFieldComparator>;
-  trailerFields_= new set<DCCDataField  * , DCCDataFieldComparator>;
+  towerFields_  = new std::set<DCCDataField  * , DCCDataFieldComparator>;   
+  xtalFields_   = new std::set<DCCDataField  * , DCCDataFieldComparator>;
+  trailerFields_= new std::set<DCCDataField  * , DCCDataFieldComparator>;
 	
   buildDCCFields();
   buildTCCFields(); 
@@ -36,7 +36,7 @@ DCCDataMapper::DCCDataMapper( DCCDataParser * myParser)
 /*---------------------------------------------*/
 DCCDataMapper::~DCCDataMapper(){
   
-  set<DCCDataField *,DCCDataFieldComparator>::iterator it;
+  std::set<DCCDataField *,DCCDataFieldComparator>::iterator it;
   
   for(it = dccFields_->begin()    ;it != dccFields_->end();     it++){ delete (*it);}
   for(it = emptyEventFields_->begin()    ;it != emptyEventFields_->end();     it++){ delete (*it);}
@@ -135,7 +135,7 @@ void DCCDataMapper::buildDCCFields(){
 
   //add Headers Qualifiers: 8 words with 6 bits each written on the 2nd 32bit words
   for(ulong i=1;i<=8;i++){
-    string header = string("H") + parser_->getDecString(i);
+    std::string header = std::string("H") + parser_->getDecString(i);
     dccFields_->insert( new DCCDataField(header,HD_WPOSITION + (i-1)*2 ,HD_BPOSITION,HD_MASK));		
 
     //fill only for empty events
@@ -148,13 +148,13 @@ void DCCDataMapper::buildDCCFields(){
 
     //1st word 32 bit
     for(ulong i=1;i<=8;i++){
-      string chStatus = string("FE_CHSTATUS#") + parser_->getDecString( (wcount-1)*14 + i );
+      std::string chStatus = std::string("FE_CHSTATUS#") + parser_->getDecString( (wcount-1)*14 + i );
       dccFields_->insert( new DCCDataField(chStatus, FE_CHSTATUS_WPOSITION +(wcount-1)*2, 4*(i-1),FE_CHSTATUS_MASK));	
     }
 
     //2nd word 32 bit
     for(ulong i=9;i<=14;i++){
-      string chStatus = string("FE_CHSTATUS#") + parser_->getDecString((wcount-1)*14 + i);
+      std::string chStatus = std::string("FE_CHSTATUS#") + parser_->getDecString((wcount-1)*14 + i);
       dccFields_->insert( new DCCDataField(chStatus, FE_CHSTATUS_WPOSITION + (wcount-1)*2 + 1,4*(i-9),FE_CHSTATUS_MASK));	
     }
     
@@ -168,7 +168,7 @@ void DCCDataMapper::buildDCCFields(){
 /*-------------------------------------------------*/
 void DCCDataMapper::buildTCCFields(){
 	
-  vector<set<DCCDataField *, DCCDataFieldComparator> *> pVector;
+  std::vector<std::set<DCCDataField *, DCCDataFieldComparator> *> pVector;
   pVector.push_back(tcc16Fields_);
   pVector.push_back(tcc32Fields_);
   pVector.push_back(tcc68Fields_);
@@ -196,8 +196,8 @@ void DCCDataMapper::buildTCCFields(){
 	
   // Fill block with TT definition 
   for(ulong tt=1; tt<=totalTT; tt++){
-    string tpg    = string("TPG#") + parser_->getDecString(tt);
-    string ttFlag = string("TTF#") + parser_->getDecString(tt);
+    std::string tpg    = std::string("TPG#") + parser_->getDecString(tt);
+    std::string ttFlag = std::string("TTF#") + parser_->getDecString(tt);
 
     if(tt<=filter1){ 
       tcc16Fields_->insert( new DCCDataField(tpg, TPG_WPOSITION -1 + count/2, TPG_BPOSITION + 16*( (count+2)%2 ),TPG_MASK));
@@ -217,7 +217,7 @@ void DCCDataMapper::buildTCCFields(){
 
 // ---> update with the correct number of SRP fields
 void DCCDataMapper::buildSRPFields(){
-  vector<set<DCCDataField *, DCCDataFieldComparator> * > pVector;
+  std::vector<std::set<DCCDataField *, DCCDataFieldComparator> * > pVector;
   pVector.push_back(srp68Fields_);
   pVector.push_back(srp32Fields_);
   pVector.push_back(srp16Fields_);
@@ -240,7 +240,7 @@ void DCCDataMapper::buildSRPFields(){
   ulong count1(1), count2(1), srSize(3), factor(0), wcount(0);
   for(ulong nsr =1; nsr<=srpFlags; nsr++){
     
-    string sr = string("SR#") + parser_->getDecString(nsr);
+    std::string sr = std::string("SR#") + parser_->getDecString(nsr);
     
     srp68Fields_->insert( new DCCDataField(sr,SRF_WPOSITION + wcount, SRF_BPOSITION + SRPBOFFSET*factor + (count2-1)*srSize,SRF_MASK));
     if( nsr<=32 ){ srp32Fields_->insert( new DCCDataField(sr,SRF_WPOSITION + wcount, SRF_BPOSITION + SRPBOFFSET*factor + (count2-1)*srSize,SRF_MASK));}
@@ -298,7 +298,7 @@ void DCCDataMapper::buildXtalFields(){
 	
   //add the rest of the ADCs 
   for(ulong i=2; i <= parser_->numbXtalSamples();i++){
-    string adc = string("ADC#") + parser_->getDecString(i);
+    std::string adc = std::string("ADC#") + parser_->getDecString(i);
     if(i%2){ xtalFields_->insert(new DCCDataField(adc,ADC_WPOSITION + i/2, ADCBOFFSET,ADC_MASK)); }
     else   { xtalFields_->insert(new DCCDataField(adc,ADC_WPOSITION + i/2, 0,ADC_MASK)); }
   }

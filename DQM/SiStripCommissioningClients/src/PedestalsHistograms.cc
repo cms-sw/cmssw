@@ -22,6 +22,17 @@ PedestalsHistograms::PedestalsHistograms( MonitorUserInterface* mui )
 
 // -----------------------------------------------------------------------------
 /** */
+PedestalsHistograms::PedestalsHistograms( DaqMonitorBEInterface* bei ) 
+  : CommissioningHistograms( bei, sistrip::PEDESTALS ),
+    factory_( new Factory )
+{
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistograms::" << __func__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 PedestalsHistograms::~PedestalsHistograms() {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistograms::" << __func__ << "]"
@@ -31,50 +42,60 @@ PedestalsHistograms::~PedestalsHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void PedestalsHistograms::histoAnalysis( bool debug ) {
+
+  uint16_t valid = 0;
   
   // Clear map holding analysis objects
   data_.clear();
-
-  // Iterate through map containing vectors of profile histograms
-  CollationsMap::const_iterator iter = collations().begin();
-  for ( ; iter != collations().end(); iter++ ) {
+  
+  // Iterate through map containing histograms
+  HistosMap::const_iterator iter = histos().begin();
+  for ( ; iter != histos().end(); iter++ ) {
     
-    // Check vector of histos is not empty (should be 4 histos)
+    // Check vector of histos is not empty
     if ( iter->second.empty() ) {
       edm::LogWarning(mlDqmClient_) 
 	<< "[PedestalsHistograms::" << __func__ << "]"
-	<< " Zero collation histograms found!" << endl;
+	<< " Zero histograms found!";
       continue;
     }
     
-    // Retrieve pointers to profile histos for this FED channel 
-    vector<TH1*> profs;
-    Collations::const_iterator ihis = iter->second.begin(); 
+    // Retrieve pointers to profile histos
+    std::vector<TH1*> profs;
+    Histos::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {
-      TProfile* prof = ExtractTObject<TProfile>().extract( ihis->second->getMonitorElement() );
+      TProfile* prof = ExtractTObject<TProfile>().extract( (*ihis)->me_ );
       if ( prof ) { profs.push_back(prof); }
-    } 
+    }
     
     // Perform histo analysis
     PedestalsAnalysis anal( iter->first );
     anal.analysis( profs );
     data_[iter->first] = anal; 
     if ( debug ) {
-      static uint16_t cntr = 0;
-      stringstream ss;
-      anal.print( ss, 0 ); 
+      std::stringstream ss;
       anal.print( ss, 1 ); 
-      cout << ss.str() << endl;
-      cntr++;
+      anal.print( ss, 2 ); 
+      if ( anal.isValid() ) { 
+	LogTrace(mlDqmClient_) << ss.str(); 
+	valid++;
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
     
   }
-
-  LogTrace(mlDqmClient_) 
-    << "[PedestalsHistograms::" << __func__ << "]"
-    << " Analyzed histograms for " 
-    << collations().size() 
-    << " FED channels" << endl;
+  
+  if ( !histos().empty() ) {
+    edm::LogVerbatim(mlDqmClient_) 
+      << "[PedestalsHistograms::" << __func__ << "]"
+      << " Analyzed histograms for " << histos().size() 
+      << " FED channels, of which " << valid 
+      << " (" << 100 * valid / histos().size()
+      << "%) are valid.";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[PedestalsHistograms::" << __func__ << "]"
+      << " No histograms to analyze!";
+  }
   
 }
 
@@ -82,12 +103,13 @@ void PedestalsHistograms::histoAnalysis( bool debug ) {
 /** */
 void PedestalsHistograms::createSummaryHisto( const sistrip::Monitorable& histo, 
 					      const sistrip::Presentation& type, 
-					      const string& directory,
+					      const std::string& directory,
 					      const sistrip::Granularity& gran ) {
-  LogTrace(mlDqmClient_) << "[PedestalsHistograms::" << __func__ << "]";
+  LogTrace(mlDqmClient_)
+    << "[PedestalsHistograms::" << __func__ << "]";
   
   // Check view 
-  sistrip::View view = SiStripHistoNamingScheme::view(directory);
+  sistrip::View view = SiStripEnumsAndStrings::view(directory);
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
 
   // Analyze histograms

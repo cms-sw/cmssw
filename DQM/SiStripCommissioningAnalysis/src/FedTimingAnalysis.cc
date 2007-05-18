@@ -1,17 +1,19 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/FedTimingAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
 FedTimingAnalysis::FedTimingAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key),
+  : CommissioningAnalysis(key,"FedTimingAnalysis"),
     time_(sistrip::invalid_), 
     max_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -26,7 +28,7 @@ FedTimingAnalysis::FedTimingAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 FedTimingAnalysis::FedTimingAnalysis() 
-  : CommissioningAnalysis(),
+  : CommissioningAnalysis("FedTimingAnalysis"),
     time_(sistrip::invalid_), 
     max_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -40,13 +42,8 @@ FedTimingAnalysis::FedTimingAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void FedTimingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  if ( key() ) {
-    ss << "FED TIMING monitorables for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec << "\n";
-  } else {
-    ss << "FED TIMING monitorables" << "\n";
-  }
+void FedTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
   ss << " Time of tick rising edge [ns]      : " << time_ << "\n" 
      << " Maximum time (sampling point) [ns] : " << max_ << "\n" 
      << " Delay required wrt max time [ns]   : " << delay_ << "\n" 
@@ -81,35 +78,38 @@ void FedTimingAnalysis::max( const float& max ) {
 
 // ----------------------------------------------------------------------------
 // 
-void FedTimingAnalysis::extract( const vector<TH1*>& histos ) { 
+void FedTimingAnalysis::extract( const std::vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::APV_TIMING ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::APV_TIMING ) {
+      edm::LogWarning(mlCommissioning_)
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
 
@@ -126,8 +126,9 @@ void FedTimingAnalysis::extract( const vector<TH1*>& histos ) {
 void FedTimingAnalysis::analyse() { 
 
   if ( !histo_.first ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to histogram!" << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to histogram!";
     return;
   }
   
@@ -136,9 +137,9 @@ void FedTimingAnalysis::analyse() {
   float max = -1.e9;
   float min =  1.e9;
   uint16_t nbins = static_cast<uint16_t>( histo_.first->GetNbinsX() );
-  vector<float> bin_contents; 
-  vector<float> bin_errors;
-  vector<float> bin_entries;
+  std::vector<float> bin_contents; 
+  std::vector<float> bin_errors;
+  std::vector<float> bin_entries;
   bin_contents.reserve( nbins );
   bin_errors.reserve( nbins );
   bin_entries.reserve( nbins );
@@ -153,11 +154,12 @@ void FedTimingAnalysis::analyse() {
     }
   }
 
-  //cout << " Number of bins with non-zero entries: " << non_zero << endl;
+  //LogTrace(mlCommissioning_) << " Number of bins with non-zero entries: " << non_zero;
   if ( bin_contents.size() < 100 ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Too few bins! Number of bins: " 
- 	 << bin_contents.size() << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Too few bins! Number of bins: " 
+      << bin_contents.size();
     return; 
   }
   
@@ -165,16 +167,17 @@ void FedTimingAnalysis::analyse() {
   float range = max - min;
   float threshold = min + range / 2.;
   if ( range < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Signal range (max - min) is too small: " << range << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Signal range (max - min) is too small: " << range;
     return; 
   }
-  //cout << " ADC samples: max/min/range/threshold: " 
-  //<< max << "/" << min << "/" << range << "/" << threshold << endl;
+  //LogTrace(mlCommissioning_) << " ADC samples: max/min/range/threshold: " 
+  //<< max << "/" << min << "/" << range << "/" << threshold;
   
   // Associate samples with either "tick mark" or "baseline"
-  vector<float> tick;
-  vector<float> base;
+  std::vector<float> tick;
+  std::vector<float> base;
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) { 
     if ( bin_entries[ibin] ) {
       if ( bin_contents[ibin] < threshold ) { 
@@ -184,8 +187,8 @@ void FedTimingAnalysis::analyse() {
       }
     }
   }
-  //cout << " Number of 'tick mark' samples: " << tick.size() 
-  //<< " Number of 'baseline' samples: " << base.size() << endl;
+  //LogTrace(mlCommissioning_) << " Number of 'tick mark' samples: " << tick.size() 
+  //<< " Number of 'baseline' samples: " << base.size();
   
   // Find median level of tick mark and baseline
   float tickmark = 0.;
@@ -194,14 +197,15 @@ void FedTimingAnalysis::analyse() {
   sort( base.begin(), base.end() );
   if ( !tick.empty() ) { tickmark = tick[ tick.size()%2 ? tick.size()/2 : tick.size()/2 ]; }
   if ( !base.empty() ) { baseline = base[ base.size()%2 ? base.size()/2 : base.size()/2 ]; }
-  //cout << " Tick mark level: " << tickmark << " Baseline level: " << baseline
-  //<< " Range: " << (tickmark-baseline) << endl;
+  //LogTrace(mlCommissioning_) << " Tick mark level: " << tickmark << " Baseline level: " << baseline
+  //<< " Range: " << (tickmark-baseline);
   if ( (tickmark-baseline) < 50. ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Range b/w tick mark height ("  << tickmark
-	 << ") and baseline ("  << baseline
-	 << ") is too small ("  << (tickmark-baseline)
-	 << ")." << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Range b/w tick mark height ("  << tickmark
+      << ") and baseline ("  << baseline
+      << ") is too small ("  << (tickmark-baseline)
+      << ").";
     return; 
   }
   
@@ -222,27 +226,27 @@ void FedTimingAnalysis::analyse() {
   float baseline_rms = 0.;
   if (  mean2 > mean*mean ) { baseline_rms = sqrt( mean2 - mean*mean ); }
   else { baseline_rms = 0.; }
-  //cout << " Spread in baseline samples: " << baseline_rms << endl;
+  //LogTrace(mlCommissioning_) << " Spread in baseline samples: " << baseline_rms;
   
   // Find rising edges (derivative across two bins > range/2) 
-  map<uint16_t,float> edges;
+  std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
     if ( bin_entries[ibin+1] && 
 	 bin_entries[ibin-1] ) {
       float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
       if ( derivative > 5.*baseline_rms ) {
 	edges[ibin] = derivative;
-	//cout << " Found edge #" << edges.size() << " at bin " << ibin 
-	//<< " and with derivative " << derivative << endl;
+	//LogTrace(mlCommissioning_) << " Found edge #" << edges.size() << " at bin " << ibin 
+	//<< " and with derivative " << derivative;
       }
     }
   }
   
-  // Iterate through "edges" map
+  // Iterate through "edges" std::map
   bool found = false;
   uint16_t deriv_bin = sistrip::invalid_;
   float max_deriv = -1.*sistrip::invalid_;
-  map<uint16_t,float>::iterator iter = edges.begin();
+  std::map<uint16_t,float>::iterator iter = edges.begin();
   while ( !found && iter != edges.end() ) {
 
     // Iterate through 50 subsequent samples
@@ -287,8 +291,9 @@ void FedTimingAnalysis::analyse() {
     peak_      = tickmark;
     height_    = tickmark - baseline;
   } else {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " No tick marks found!" << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " No tick marks found!";
     base_   = baseline;
     peak_   = tickmark;
     height_ = tickmark - baseline;

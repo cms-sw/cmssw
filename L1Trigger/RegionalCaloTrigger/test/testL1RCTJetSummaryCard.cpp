@@ -1,6 +1,9 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTJetSummaryCard.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
+#include <vector>
+using std::vector;
+
 int main() {
   std::string filename("../data/TPGcalc.txt");
   L1RCTLookupTables lut(filename);

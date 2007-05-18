@@ -4,9 +4,9 @@
 /**
  * \class L1GlobalTriggerLogicParser
  * 
- * 
- * 
- * Description: class for parsing logic expressions 
+ *  
+ * Description: class for parsing logic expressions.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
@@ -109,7 +109,7 @@ private:
         L1GlobalTriggerConditions* operand;  // a possible operand 
     } TokenRPN;
 
-    typedef vector<TokenRPN> RPNVector;
+    typedef std::vector<TokenRPN> RPNVector;
     RPNVector p_rpnvector;
 
 

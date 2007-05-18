@@ -135,11 +135,24 @@ DTTracoCard::DTTracoCard(DTTrigGeom* geo, DTBtiCard* bticard,
 // Destructor --
 //--------------
 
-DTTracoCard::~DTTracoCard(){}
+DTTracoCard::~DTTracoCard(){
+
+  localClear();
+  delete _configTraco;
+
+}
 
 //--------------
 // Operations --
 //--------------
+
+void
+DTTracoCard::clearCache(){
+
+  TRACOCache::clearCache();
+  localClear();
+
+}
 
 void
 DTTracoCard::localClear(){

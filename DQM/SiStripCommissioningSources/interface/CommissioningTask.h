@@ -4,7 +4,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
-#include "DataFormats/SiStripDigi/interface/SiStripEventSummary.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include "boost/cstdint.hpp"
 #include <vector>

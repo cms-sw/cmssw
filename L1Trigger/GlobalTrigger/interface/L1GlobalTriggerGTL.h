@@ -1,19 +1,20 @@
 #ifndef GlobalTrigger_L1GlobalTriggerGTL_h
 #define GlobalTrigger_L1GlobalTriggerGTL_h
+
 /**
  * \class L1GlobalTriggerGTL
  * 
  * 
- * 
- * Description: Global Trigger Logic board
+ * Description: Global Trigger Logic board.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -23,9 +24,10 @@
 #include <set>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"

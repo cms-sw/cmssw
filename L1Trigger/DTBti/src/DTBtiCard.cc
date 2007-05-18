@@ -70,6 +70,7 @@ DTBtiCard::DTBtiCard(DTTrigGeom* geom,edm::ParameterSet& bti_pset) : DTGeomSuppl
 
 DTBtiCard::~DTBtiCard(){
 
+  localClear();
   delete _configBti;
 
 }
@@ -77,6 +78,14 @@ DTBtiCard::~DTBtiCard(){
 //--------------
 // Operations --
 //--------------
+
+void
+DTBtiCard::clearCache(){
+
+  BTICache::clearCache();
+  localClear();
+  
+}
 
 void
 DTBtiCard::localClear(){

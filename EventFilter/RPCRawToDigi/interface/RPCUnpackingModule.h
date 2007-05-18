@@ -5,25 +5,19 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2006/03/30 14:37:00 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/20 09:18:53 $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni - CERN
  */
 
-#include <EventFilter/RPCRawToDigi/interface/RPCFEDData.h>
+#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include <FWCore/Framework/interface/MakerMacros.h>
-#include <FWCore/Framework/interface/EDProducer.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
+namespace edm { class Event; class EventSetup; }
 
-
-class RPCDetId;
-
-
-class RPCMonitorInterface;
 
 class RPCUnpackingModule: public edm::EDProducer {
-  public:
+public:
     
     ///Constructor
     RPCUnpackingModule(const edm::ParameterSet& pset);
@@ -36,22 +30,10 @@ class RPCUnpackingModule: public edm::EDProducer {
       and attaches it to the Event. */
     void produce(edm::Event & e, const edm::EventSetup& c); 
   
-    /// Unpacks FED Header(s), returns number of Headers 
-    int unpackHeader(const unsigned char* headerIndex, RPCFEDData & rawData);
-
-    /// Unpacks FED Trailer(s), returns number of Trailers 
-    int unpackTrailer(const unsigned char* trailererIndex, RPCFEDData & rawData);
-    
-          
-  private:
-  
-    bool printout;
-    int nEvents;
-    
-    bool instatiateDQM;   
-    RPCMonitorInterface * monitor;
-
-  };
+private:
+  edm::InputTag dataLabel_;
+  unsigned long eventCounter_;
+};
 
 
 #endif

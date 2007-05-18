@@ -53,14 +53,18 @@ CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::
   	//cout << "upperPosition" << upperScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
   	lowerScintillator = new BoundPlane(lowerPosition, rot, &lowerBounds);	
   	//cout << "lowerPosition" << lowerScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
-  } 
+  } else {
+	upperScintillator = 0;
+	lowerScintillator = 0;
+  }
+
   		
   produces<TrajectorySeedCollection>();
 }
 
 CombinatorialSeedGeneratorForCosmics::~CombinatorialSeedGeneratorForCosmics(){
-	if (upperScintillator) delete upperScintillator;
-	if (lowerScintillator) delete lowerScintillator;
+	if (upperScintillator) {delete upperScintillator; upperScintillator = 0;}
+	if (lowerScintillator) {delete lowerScintillator; lowerScintillator = 0;}
 }
 
 void CombinatorialSeedGeneratorForCosmics::produce(edm::Event& e, const edm::EventSetup& es)

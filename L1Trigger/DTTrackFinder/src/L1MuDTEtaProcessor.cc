@@ -9,8 +9,8 @@
 //                one Eta Track Finder (ETF) and 
 //                one Eta Matching Unit (EMU) 
 //
-//   $Date: 2007/01/18 17:37:33 $
-//   $Revision: 1.3 $
+//   $Date: 2007/02/27 11:44:00 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -36,7 +36,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTrackSegEta.h"

@@ -33,7 +33,7 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 
 // constructor
-L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType, string jetEtLutFile) :
+L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFinderType jfType, string jetEtLutFile, bool useOrcaCalib) :
   readFromFile(useFile),
   theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
@@ -46,7 +46,7 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(bool useFile, L1GctJetLeafCard::jetFind
   // m_defaultJetEtScale = 
 
   // Jet Et LUT
-  m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile);
+  m_jetEtCalLut = new L1GctJetEtCalibrationLut(jetEtLutFile, useOrcaCalib);
   //  m_jetEtCalLut->setOutputEtScale(m_defaultJetEtScale);
 
   // construct hardware

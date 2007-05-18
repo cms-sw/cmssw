@@ -10,6 +10,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/GlobalMixedSeedGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/CosmicSeedGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/RegionalPixelSeedGeneratorFromTrk.h"
+#include "RecoTracker/TkSeedGenerator/interface/RegionalPixelSeedGeneratorFromCandidate.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelSeedGenerator);
@@ -19,4 +20,5 @@ DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGeneratorFromRectangularTrackingRegio
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelLessSeedGenerator);
 DEFINE_ANOTHER_FWK_MODULE(GlobalMixedSeedGenerator);
 DEFINE_ANOTHER_FWK_MODULE(CosmicSeedGenerator);
+DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGeneratorFromCandidate);
 DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGeneratorFromTrk);

@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.6 2006/05/05 09:04:56 meridian Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.7 2007/01/08 15:30:49 meridian Exp $
  */
 
 #include <vector>
@@ -59,9 +59,16 @@ class EcalDCCHeaderBlock
 
   EcalDCCHeaderBlock();
   EcalDCCHeaderBlock(const int& dccId);
-  
+
+  // partitional and geometrical      CMS: 1-9 EE-, 10-45 EB, 46-54 EE+        TB and COSM: 1  (10 in case of EcalRawToDigiDev)
   const int& id() const { return dccId_; }
+
+  // as found in raw data, namely     CMS: 601-654                             TB and COSM: 0-35
+  const int fedId() const { return fedId_; }
+
   void setId(const int& dccId) { dccId_=dccId; };
+  void setFedId(const int& fedId) { fedId_=fedId; };
+
   void setErrors(const int& dccErrors) { dccErrors_=dccErrors; };
   void setRunNumber(const int& run){runNumber_ = run;}
   void setLV1(const int& LV1){LV1event_ = LV1;}
@@ -102,6 +109,7 @@ class EcalDCCHeaderBlock
  private:
 
   int dccId_;  //to be used as the Key
+  int fedId_;
   int dccErrors_;
   int orbitNumber_; // do we need it here?
   short runType_;

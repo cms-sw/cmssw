@@ -269,8 +269,8 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
     
   result.front_rank = front_pt | front_quality << 5;
   result.rear_rank  = rear_pt  | rear_quality << 5;
-  result.charge_valid_front = ptMethods.chargeValid(front_pt, quality, eta, pt_method);
-  result.charge_valid_rear  = ptMethods.chargeValid(rear_pt, quality, eta, pt_method);  
+  result.charge_valid_front = 1; //ptMethods.chargeValid(front_pt, quality, eta, pt_method);
+  result.charge_valid_rear  = 1; //ptMethods.chargeValid(rear_pt, quality, eta, pt_method);  
 
   return result;
 }
@@ -280,7 +280,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode) con
  // eta and mode should be only 4-bits, since that is the input to the large LUT
     if (eta>15 || mode>15) 
       {
-        cout << "Error: Eta or Mode out of range in AU quality assignment" <<endl;
+        std::cout << "Error: Eta or Mode out of range in AU quality assignment" << std::endl;
         return 0;
       }
     unsigned int quality;

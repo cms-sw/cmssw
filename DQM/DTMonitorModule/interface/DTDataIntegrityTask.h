@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2006/10/18 18:03:50 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/03/27 14:10:22 $
+ *  $Revision: 1.10 $
  *
  * \author Marco Zanetti  - INFN Padova
  *
@@ -28,6 +28,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <list>
 
 class DTROS25Data;
 class DTDDUData;
@@ -44,7 +45,7 @@ public:
   void bookHistos(std::string folder, DTROChainCoding code);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
-  void processFED(DTDDUData & data, int dduID);
+  void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
   void postEndJob();
 
@@ -61,6 +62,8 @@ private:
   // Monitor Elements
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
+  // <histoType, histo> >    
+  std::map<std::string, MonitorElement*> rosSHistos;
   // <histoType, <index , histo> >    
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
   // <histoType, <tdcID, histo> >   
@@ -69,7 +72,19 @@ private:
   int neventsDDU;
   int neventsROS25;
   std::string outputFile;
-
+  
+  //Event counter for the graphs VS time
+  int myPrevEv;
+  
+  //Monitor TTS,ROS,FIFO VS time
+  int myPrevTtsVal;
+  int myPrevRosVal;
+  int myPrevFifoVal[7];
+  //list of pair<events, values>
+  std::list<std::pair<int,int> > ttsVSTime;
+  std::list<std::pair<int,int> > rosVSTime;
+  std::list<std::pair<int,int*> > fifoVSTime;
+ 
 };
 
 

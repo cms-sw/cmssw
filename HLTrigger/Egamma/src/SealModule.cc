@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilter.h"
@@ -14,6 +14,9 @@
 #include "HLTrigger/Egamma/interface/HLTPMMassFilter.h"
 #include "HLTrigger/Egamma/interface/HLTPMDocaFilter.h"
 
+#include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilterRegional.h"
+#include "HLTrigger/Egamma/interface/HLTElectronEoverpFilterRegional.h"
+#include "HLTrigger/Egamma/interface/HLTElectronTrackIsolFilterRegional.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilter);
@@ -28,3 +31,8 @@ DEFINE_ANOTHER_FWK_MODULE(HLTElectronPixelMatchFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTPMMassFilter);
 DEFINE_ANOTHER_FWK_MODULE(HLTPMDocaFilter);
+
+
+DEFINE_ANOTHER_FWK_MODULE(HLTEgammaL1MatchFilterRegional);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronEoverpFilterRegional);
+DEFINE_ANOTHER_FWK_MODULE(HLTElectronTrackIsolFilterRegional);

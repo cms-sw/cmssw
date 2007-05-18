@@ -9,8 +9,8 @@
  *  for single objects of the same physics type, allowing to cut on
  *  variables relating to their 4-momentum representation
  *
- *  $Date: 2006/08/27 08:20:28 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/04/13 15:57:57 $
+ *  $Revision: 1.22 $
  *
  *  \author Martin Grunewald
  *

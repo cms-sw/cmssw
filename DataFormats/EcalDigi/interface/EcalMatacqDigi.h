@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalMatacqDigi.h,v 1.2 2006/09/08 09:50:06 pgras Exp $
+//$Id: EcalMatacqDigi.h,v 1.3 2006/09/08 13:22:26 pgras Exp $
 
 #ifndef ECALMATACQDIGI_H
 #define ECALMATACQDIGI_H 1
@@ -37,8 +37,8 @@ public:
    * @param version Matacq raw data private version
    * @param tTrigg time position of the trigger in seconds
    */
-  EcalMatacqDigi(const std::vector<Short_t>& samples, int chId, double ts,
-		 short version=-1, double tTrig=999.)
+  EcalMatacqDigi(const std::vector<Short_t>& samples, const int& chId, const double& ts,
+		 const short& version=-1, const double& tTrig=999.)
     : chId_(chId), data_(samples), ts_(ts), tTrigS_(tTrig),
       version_(version){};
   
@@ -46,12 +46,12 @@ public:
   /** Gets amplitude in ADC count of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
-  const float adcCount(int i) const { return data_[i]; }
+  const float adcCount(const int& i) const { return data_[i]; }
 
   /** Gets amplitude in Volt of time sample i. i between 0 and size()-1.
    * Note: Amplitude is pedestal subtracted at acquisition time.
    */
-  const float amplitudeV(int i) const { return data_[i]*lsb_;}
+  const float amplitudeV(const int& i) const { return data_[i]*lsb_;}
 
   /** Gets Matacq electronics channel id
    */
@@ -74,7 +74,7 @@ public:
    * @param samples new time samples in unit used in raw data
    * (a priori ADC count).
    */
-  void swap(std::vector<short> samples){ std::swap(data_, samples);}
+  void swap(std::vector<short>& samples){ std::swap(data_, samples);}
 
   void swap(EcalMatacqDigi& a);
   

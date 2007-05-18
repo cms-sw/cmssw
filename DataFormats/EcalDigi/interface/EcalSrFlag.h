@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: EcalSrFlag.h,v 1.3 2007/03/08 11:41:41 pgras Exp $
 
 #ifndef ECALSRFLAG
 #define ECALSRFLAG
@@ -39,10 +39,15 @@ public:
    */
   virtual const DetId& id() const=0;
 
-  /** Srp flag value. See SRF_XXX constants.
+  /** SR flag value. See SRF_XXX constants.
    * @return the flag value
    */
   int value() const{ return flag_;}
+
+  /** Set the SR flag value. See SRF_XXX constants.
+   * @param flag new flag value. Must be between 0 and 7.
+   */
+  void setValue(const int& flag) { flag_ = (unsigned char) flag; }
 
   /** Cast to int: same as value().
    * @return the SR flag value
@@ -55,7 +60,7 @@ public:
    * @param flag the flag value
    * @return the human readable string (which can contain space).
    */
-  static std::string flagName(int flag){
+  static std::string flagName(const int& flag){
     return (flag==flag&0x7)?srfNames[flag]:"Invalid";
   }
 

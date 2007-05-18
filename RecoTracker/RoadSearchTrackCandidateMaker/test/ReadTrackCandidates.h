@@ -9,7 +9,7 @@
 // Created:         Wed Mar 29 20:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2006/03/28 23:15:44 $
+// $Date: 2006/03/29 20:10:38 $
 // $Revision: 1.1 $
 //
 
@@ -18,7 +18,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"

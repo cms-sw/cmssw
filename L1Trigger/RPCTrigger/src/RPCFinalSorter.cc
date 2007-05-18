@@ -31,15 +31,18 @@ L1RpcTBMuonsVec2 RPCFinalSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
     
   runFinalSorter(tcsMuonsVec2); // modyfies  tcsMuonsVec2
 
+
   if (m_TrigCnfg->getDebugLevel()!=0){
-    for (unsigned  int iTC = 0; iTC < m_GBOutputMuons.size(); iTC++){
-        for (unsigned  int iTB = 0; iTB < m_GBOutputMuons[iTC].size(); iTB++){
+    for (unsigned  int region = 0; region < tcsMuonsVec2.size(); ++region){
+        for (unsigned  int iTB = 0; iTB < tcsMuonsVec2[region].size(); iTB++){
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 4 "
-                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+            LogDebug("RPCHwDebug")<<"GB 4" << region
+	        << "0 " << iTB << " "
+                << tcsMuonsVec2[region][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
-            std::cout<<"GB 4 "
-                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
+            std::cout<<"GB 4" << region 
+	        << "0 " << iTB << " "
+                << tcsMuonsVec2[region][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif
         }

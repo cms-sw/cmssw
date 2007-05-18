@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
 LongitudinalBendingCorrection::LongitudinalBendingCorrection(float pt, const edm::EventSetup& es)

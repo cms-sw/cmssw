@@ -1,12 +1,11 @@
-// Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
+// Last commit: $Id: SiStripNoiseBuilderFromDb.cc,v 1.1 2006/12/22 12:22:15 bainbrid Exp $
+// Latest tag:  $Name: TIF_190307 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripNoiseBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripNoiseBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"

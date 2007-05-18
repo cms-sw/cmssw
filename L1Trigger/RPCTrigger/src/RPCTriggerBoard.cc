@@ -56,16 +56,20 @@ bool RPCTriggerBoard::runCone(const RPCLogCone& cone)  {
     }
     
     RPCTBMuon tbMuon(m_pacs[cone.getTower()][cone.getLogSegment()]->run(cone));  
-  
+    //Reference: RPCTBMuon(int ptCode, int quality, int sign, int patternNum, unsigned short firedPlanes);
+
+    //RPCPacMuon pmuon = m_pacs[cone.getTower()][cone.getLogSegment()]->run(cone);
+    //RPCTBMuon tbMuon(pmuon.getPtCode(), pmuon.getQuality(), pmuon.getSign(), pmuon.getPatternNum(), pmuon.getFiredPlanes());
+    
 
     if(tbMuon.getCode() > 0) {
         m_PacsMuonsVec.push_back(tbMuon);
         if (m_TriggerConfig->getDebugLevel()!=0){
 #ifndef _STAND_ALONE
-	  LogDebug("RPCHwDebug") << "GB 0"
+	  LogDebug("RPCHwDebug") << "GB 0 -1 "
 			         << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel());
 #else
-	  std::cout << "GB 0"
+	  std::cout << "GB 0 -1 "
   	  	    << tbMuon.printDebugInfo(m_TriggerConfig->getDebugLevel())
 		    << std::endl;
 #endif //_STAND_ALONE

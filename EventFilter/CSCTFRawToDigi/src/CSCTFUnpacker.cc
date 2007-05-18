@@ -1,7 +1,7 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFUnpacker.h"
 
 //Framework stuff
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -44,18 +44,18 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet & pset):ptlut(pset)
   instantiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   testBeam = pset.getUntrackedParameter<bool>("TestBeamData",false);
   std::string mapPath = "/" + pset.getUntrackedParameter<std::string>("MappingFile","");
-  if(testBeam)
-    {
+//  if(testBeam)
+///    {
       TBFEDid = pset.getUntrackedParameter<int>("TBFedId");
       TBendcap = pset.getUntrackedParameter<int>("TBEndcap");
       TBsector = pset.getUntrackedParameter<int>("TBSector");
-    }
-  else
-    {
-      TBFEDid = 0;
-      TBsector = 0;
-      TBendcap = 0;
-    }
+//    }
+//  else
+//    {
+//      TBFEDid = 0;
+//      TBsector = 0;
+//      TBendcap = 0;
+//    }
   debug = pset.getUntrackedParameter<bool>("debug",false);
   TFmapping = new CSCTriggerMappingFromFile(getenv("CMSSW_BASE")+mapPath);
 
@@ -176,8 +176,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 							std::vector<CSCSP_MEblock> lct = sp->record(tbin).LCT(FPGA,MPClink);
 							if( lct.size()==0 ) continue;
 							int station = ( FPGA ? FPGA : 1 );
-							int endcap  = 1;//(sp->header().endcap()?1:2); // Currently map file knows only endcap=1
-							int sector  = 5;// sp->header().sector();      // Currently map file knows only sector=5
+							int endcap  = (TBendcap?TBendcap:(sp->header().endcap()?1:2)); // Make use of TBendcap for now
+							int sector  = (TBsector?TBsector: sp->header().sector());      // Make use of TBsector until SP will be correctly set up
 							int subsector = ( FPGA>1 ? 0 : FPGA+1 );
 							int cscid   = lct[0].csc() ;
 
@@ -197,8 +197,8 @@ void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 					std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
 					for(std::vector<CSCSP_SPblock>::const_iterator iter=tracks.begin(); iter!=tracks.end(); iter++){
 					        L1CSCTrack track;
-						track.first.m_endcap = 1;//(sp->header().endcap()?1:2);  // Currently map file knows only endcap=1
-						track.first.m_sector = 5;// sp->header().sector();       // Currently map file knows only sector=5
+						track.first.m_endcap = (TBendcap?TBendcap:(sp->header().endcap()?1:2)); // Make use of TBendcap for now
+						track.first.m_sector = (TBsector?TBsector: sp->header().sector());      // Make use of TBsector until SP will be correctly set up
 						track.first.m_lphi      = iter->phi();
 						track.first.m_ptAddress = iter->ptLUTaddress();
 						track.first.setStationIds(iter->ME1_id(),iter->ME2_id(),iter->ME3_id(),iter->ME4_id(),iter->MB_id());

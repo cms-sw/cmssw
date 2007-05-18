@@ -8,14 +8,14 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 200
-// $Id: PreshowerAnalyzer.cc,v 1.2 2006/07/21 00:15:04 dbanduri Exp $
+// $Id: PreshowerAnalyzer.cc,v 1.3 2006/12/06 16:48:37 dbanduri Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/PreshowerAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"

@@ -8,7 +8,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
@@ -22,9 +22,8 @@ class EMIsolatedTauJetsSelector: public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-  edm::InputTag singleTau;
-  edm::InputTag doubleTau;
-  edm::InputTag l1Code;
+  std::vector<edm::InputTag> tauSrc ;
+
 
 
 };

@@ -1,8 +1,8 @@
 /*
  * \file DTTestPulsesTask.cc
  * 
- * $Date: 2006/05/24 17:21:38 $
- * $Revision: 1.7 $
+ * $Date: 2006/10/17 18:14:56 $
+ * $Revision: 1.8 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -11,7 +11,7 @@
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include <FWCore/Framework/interface/EventSetup.h>

@@ -1,16 +1,19 @@
 <flags SEAL_PLUGIN_NAME="EventFilterRPCRawToDigi">
+
 <use name=FWCore/Framework>
 <use name=DataFormats/FEDRawData>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=DataFormats/RPCDigi>
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/RPCObjects>
 <use name=FWCore/MessageLogger>
 <use name=boost>
-
 <export>
  <lib name=EventFilterRPCRawToDigi>
  <use name=FWCore/Framework>
  <use name=DataFormats/FEDRawData>	
+ <use name=Foundation/PluginManager>
  <use name=DataFormats/RPCDigi>
  <use name=CondFormats/RPCObjects>
  <use name=CondFormats/DataRecord>

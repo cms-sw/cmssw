@@ -4,8 +4,8 @@
  *     Contains active L1MuDTBtiChips
  *
  *
- *   $Date: 2006/07/19 10:18:31 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/09 11:20:06 $
+ *   $Revision: 1.2 $
  *
  *   \author C. Grandi, S. Vanini
  *
@@ -66,6 +66,9 @@ class DTBtiCard : public BTICache, public DTGeomSupplier {
 
     /// Returns configuration
     inline DTConfigBti* config() const { return _configBti; }
+
+    /// Clear all BTI stuff (map & cache)
+    void clearCache();
 
     /// Returns the required BTI. Return 0 if it doesn't exist
     DTBtiChip* getBTI(int sl, int n) const; 

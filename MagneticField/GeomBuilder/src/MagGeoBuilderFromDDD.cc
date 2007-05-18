@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/05/31 13:52:51 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/02/03 16:19:08 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -39,6 +39,7 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
 #include <vector>
@@ -51,10 +52,13 @@
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
 
+bool MagGeoBuilderFromDDD::debug;
+
 using namespace std;
 
-MagGeoBuilderFromDDD::MagGeoBuilderFromDDD()  {
-  if (bldVerb::debugOut) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
+MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(bool debug_)  {  
+  debug = debug_;
+  if (debug) cout << "Constructing a MagGeoBuilderFromDDD" <<endl;
 }
 
 MagGeoBuilderFromDDD::~MagGeoBuilderFromDDD(){
@@ -120,7 +124,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 //    DDCompactView cpv;
   DDExpandedView fv(cpva);
 
-  if (bldVerb::debugOut) cout << "**********************************************************" <<endl;
+  if (debug) cout << "**********************************************************" <<endl;
 
   // The actual field interpolators
   map<string, MagProviderInterpol*> bInterpolators;
@@ -152,12 +156,12 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
      }
   }
   // Loop over MAGF volumes and create volumeHandles. 
-  if (bldVerb::debugOut) cout << endl << "*** In MAGF: " << endl;
+  if (debug) cout << endl << "*** In MAGF: " << endl;
   bool doSubDets = fv.firstChild();
   while (doSubDets){
     
     string name = fv.logicalPart().name().name();
-    if (bldVerb::debugOut) cout << endl << "Name: " << name << endl
+    if (debug) cout << endl << "Name: " << name << endl
 			       << "      " << fv.geoHistory() <<endl;
 
     // Build only the z-negative volumes, assuming symmetry
@@ -177,7 +181,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     if (mergeCylinders) {
       if (name == "V_ZN_1"
 	  || name == "V_ZN_2") {
-	if (bldVerb::debugOut && fv.logicalPart().solid().shape()!=ddtubs) {
+	if (debug && fv.logicalPart().solid().shape()!=ddtubs) {
 	  cout << "ERROR: MagGeoBuilderFromDDD::build: volume " << name
 	       << " should be a cylinder" << endl;
 	}
@@ -201,7 +205,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     // volume #7, centered at 6477.5
     // FIXME: misalignment?
     if (fabs(Z)<647. || (R>350. && fabs(Z)<662.)) { // Barrel
-      if (bldVerb::debugOut) cout << " (Barrel)" <<endl;
+      if (debug) cout << " (Barrel)" <<endl;
       bVolumes.push_back(v);
       // Build the interpolator of the "master" volume (the one which is
       // not replicated, i.e. copy number #1)
@@ -210,7 +214,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 	++bVolCount;
       }
     } else {               // Endcaps
-      if (bldVerb::debugOut) cout << " (Endcaps)" <<endl;
+      if (debug) cout << " (Endcaps)" <<endl;
       eVolumes.push_back(v);
       if (v->copyno==1) { 
 	buildInterpolator(v, eInterpolators);
@@ -221,7 +225,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     doSubDets = fv.nextSibling(); // end of loop over MAGF
   }
     
-  if (bldVerb::debugOut) {
+  if (debug) {
     cout << "Number of volumes (barrel): " << bVolumes.size() <<endl
 		  << "Number of volumes (endcap): " << eVolumes.size() <<endl;
     cout << "**********************************************************" <<endl;
@@ -233,7 +237,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   //----------------------------------------------------------------------
   // Print summary information
 
-  if (bldVerb::debugOut) {
+  if (debug) {
     cout << "-----------------------" << endl;
     cout << "SUMMARY: Barrel " << endl;
     summary(bVolumes);
@@ -256,7 +260,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   float rmax = bVolumes.back()->RN()+resolution;
   ClusterizingHistogram  hisR( int((rmax-rmin)/resolution) + 1, rmin, rmax);
 
-  if (bldVerb::debugOut) cout << " R layers: " << rmin << " " << rmax << endl;
+  if (debug) cout << " R layers: " << rmin << " " << rmax << endl;
 
   handles::const_iterator first = bVolumes.begin();
   handles::const_iterator last = bVolumes.end();  
@@ -270,7 +274,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   handles::const_iterator separ = first;
 
   for (unsigned int i=0; i<rClust.size() - 1; ++i) {
-    if (bldVerb::debugOut) cout << " Layer at RN = " << rClust[i];
+    if (debug) cout << " Layer at RN = " << rClust[i];
     float rSepar = (rClust[i] + rClust[i+1])/2.f;
     while ((*separ)->RN() < rSepar) ++separ;
 
@@ -279,12 +283,12 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     ringStart = separ;
   }
   {
-    if (bldVerb::debugOut) cout << " Layer at RN = " << rClust.back();
+    if (debug) cout << " Layer at RN = " << rClust.back();
     bLayer thislayer(separ, last);
     layers.push_back(thislayer);
   }
 
-  if (bldVerb::debugOut) cout << "Barrel: Found " << rClust.size() << " clusters in R, "
+  if (debug) cout << "Barrel: Found " << rClust.size() << " clusters in R, "
 		  << layers.size() << " layers " << endl << endl;
 
 
@@ -298,14 +302,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
   for (int i = 0; i<12; ++i) {
     int offset = eVolumes.size()/12;
     //    int isec = (i+binOffset)%12;
-    if (bldVerb::debugOut) cout << " Sector at phi = "
+    if (debug) cout << " Sector at phi = "
 		    << (*(eVolumes.begin()+((i)*offset)))->center().phi()
 		    << endl;
     sectors.push_back(eSector(eVolumes.begin()+((i)*offset),
 			      eVolumes.begin()+((i+1)*offset)));
   }
    
-  if (bldVerb::debugOut) cout << "Endcap: Found " 
+  if (debug) cout << "Endcap: Found " 
 		  << sectors.size() << " sectors " << endl;
  
   
@@ -357,7 +361,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     mBLayers.push_back((*ilay).buildMagBLayer());
   }
 
-  if (bldVerb::debugOut) {  
+  if (debug) {  
     cout << "*** BARREL ********************************************" << endl
 	 << "Number of different volumes   = " << bVolCount << endl
 	 << "Number of interpolators built = " << bInterpolators.size() << endl
@@ -376,7 +380,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
     mESectors.push_back((*isec).buildMagESector());
   }
 
-  if (bldVerb::debugOut) {
+  if (debug) {
     cout << "*** ENDCAP ********************************************" << endl
 	 << "Number of different volumes   = " << eVolCount << endl
 	 << "Number of interpolators built = " << eInterpolators.size() << endl
@@ -409,7 +413,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
 					    (*vol)->sides(),
 					    mp);
 
-    // FIXME: bldVerb::debugOut, to be removed
+    // FIXME: debug, to be removed
     (*vol)->magVolume->name = (*vol)->name;  
   }
 }
@@ -421,14 +425,14 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
   if (vol->center().z()>0) return;
 
   // Remember: should build for volumes with negative Z only (Z simmetry)
-  if (bldVerb::debugOut) cout << "Building interpolator from "
+  if (debug) cout << "Building interpolator from "
 		  << vol->name << " copyno " << vol->copyno
 		  << " at " << vol->center()
 		  << " phi: " << vol->center().phi()
 		  << " file: " << vol->magFile
 		  << endl;
   
-  if(bldVerb::debugOut && ( fabs(vol->center().phi() - Geom::pi()/2) > Geom::pi()/9.)){
+  if(debug && ( fabs(vol->center().phi() - Geom::pi()/2) > Geom::pi()/9.)){
     cout << "***WARNING wrong sector? " << endl;
   }
 

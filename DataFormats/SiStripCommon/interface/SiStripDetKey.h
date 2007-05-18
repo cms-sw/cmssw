@@ -1,80 +1,134 @@
+// Last commit: $Id: $
+
 #ifndef DataFormats_SiStripCommon_SiStripDetKey_h
 #define DataFormats_SiStripCommon_SiStripDetKey_h
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
-#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/SiStripCommon/interface/Constants.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
+#include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include <boost/cstdint.hpp>
 #include <ostream>
+#include <string>
+
+class SiStripDetKey;
+
+/** Debug info for SiStripDetKey class. */
+std::ostream& operator<< ( std::ostream&, const SiStripDetKey& );
 
 /*
-  WHAT ABOUT GOING TO LEVEL OF APV????
-  WHAT ABOUT LEVELS ABOVE MODULE??? NEEDS WORK!!!
+   @class SiStripDetKey
+   @author R.Bainbridge
 
-  can generate another key that is NOT DetId and packs
-  sistrip-specific data in a more condensed way, so that all levels
-  can be encoded with "all" and "invalid" values, down to level of
-  apv. also, need "conversion tool" that re-generates DetId key from
-  this new key. this is only way...!!!  maybe can "safeguard" use of
-  this key as a DetId by reserving bits 22-24 as a flag (eg, set all
-  high), so that if an attempt to build DetId using SiStripDetId
-  class, we can understand if key is real DetId or not...
+   @brief Utility class that identifies a position within the strip
+   tracker geometrical structure, down to the level of an APV25 chip.
 
+   NOTA BENE: *** NOT FINISHED ***
+   
+   can generate another key that is NOT DetId and packs
+   sistrip-specific data in a more condensed way, so that all levels
+   can be encoded with "all" and "invalid" values, down to level of
+   apv. also, need "conversion tool" that re-generates DetId key from
+   this new key. this is only way...!!!  maybe can "safeguard" use of
+   this key as a DetId by reserving bits 22-24 as a flag (eg, set all
+   high), so that if an attempt to build DetId using SiStripDetId
+   class, we can understand if key is real DetId or not... what about
+   going to level of apv?... what about levels about module?...
 */
-
-/** */
-class SiStripDetKey {
+class SiStripDetKey : public SiStripKey {
   
  public:
+
+  // ---------- Constructors ----------
+
+  /** Constructor using DetId, APV pair and APV pos within pair. */
+  SiStripDetKey( const DetId& det_id,
+		 const uint16_t& apv_pair_number = 0,
+		 const uint16_t& apv_within_pair = 0 );
   
-  /** Container class holding parameters that identify a logical
-      position within the detector to the level of an APV pair. */
-  class Path {
-  public:
-    uint32_t detId_;
-    uint16_t apvPair_;
-    Path();
-    Path( const uint32_t& det_id,
-	  const uint16_t& apv_pair );
-    bool isEqual( const Path& );
-    bool isConsistent( const Path& );
-    bool isInvalid() const;
-    bool isInvalid( const sistrip::Granularity& ) const;
-  };
-
-  // ---------- Returns 32-bit keys based on paths ----------
+  /** Constructor using SiStripDetId. */
+  SiStripDetKey( const SiStripDetId& det_id );
   
-  /** Returns 32-bit key based on Path object. */
-  static uint32_t key( const Path& );
+  /** Constructor using 32-bit "DET key". */
+  SiStripDetKey( const uint32_t& det_key );
   
-  /** Returns 32-bit key based on DetId raw value and "APV pair" number. */
-  static uint32_t key( const uint32_t& det_id,
-		       const uint16_t& apv_pair );
+  /** Constructor using directory path. */
+  SiStripDetKey( const std::string& directory_path );
 
-  /** Returns 32-bit key based on DetId object and "APV pair" number. */
-  static uint32_t key( const DetId& det_id,
-		       const uint16_t& apv_pair );
+  /** Copy constructor. */
+  SiStripDetKey( const SiStripDetKey& );
 
-  // ---------- Returns paths based on 32-bit keys ----------
+  /** Copy constructor using base class. */
+  SiStripDetKey( const SiStripKey& );
   
-  /** Extracts DetId and "APV pair" number from 32-bit key. */
-  static Path path( const uint32_t& det_key );
-
-  /** Extracts DetId and "APV pair" number from DetId object. */
-  static Path path( const SiStripDetId& det_id );
-
-  // ---------- Consistency checks between 32-bit keys ----------
-
-  static bool isEqual( const uint32_t& first_key, 
-		       const uint32_t& second_key );
+  /** Default constructor */
+  SiStripDetKey();
   
-  static bool isConsistent( const uint32_t& first_key, 
-			    const uint32_t& second_key );
+  // ---------- Public interface to member data ----------
+  
+  /** Returns APV pair number. */
+  inline const uint16_t& apvPairNumber() const;
+  
+  /** Returns APV position within pair. */
+  inline const uint16_t& apvWithinPair() const;
+  
+  // ---------- Numbering schemes ---------- 
+  
+  //@@ nothing yet
+  //@@ switch b/w det_id and det_key
+  //@@ switch b/w strip, pair, apv, etc...
+
+  // ---------- Utility methods ---------- 
+
+  /** Identifies key objects with identical member data. */
+  bool isEqual( const SiStripKey& ) const;
+  
+  /** "Consistent" means identical and/or null (ie, "all") data. */
+  bool isConsistent( const SiStripKey& ) const;
+  
+  /** Identifies all member data as being "valid" or null ("all"). */
+  bool isValid() const;
+  
+  /** All member data to level of "Granularity" are valid. If
+      sistrip::Granularity is "undefined", returns false. */
+  bool isValid( const sistrip::Granularity& ) const;
+  
+  /** Identifies all member data as being invalid. */
+  bool isInvalid() const;
+  
+  /** All member data to level of "Granularity" are invalid. If
+      sistrip::Granularity is "undefined", returns true.  */
+  bool isInvalid( const sistrip::Granularity& ) const;
+  
+ private: 
+
+  // ---------- Private methods ----------
+
+  void initFromValue();
+  void initFromKey();
+  void initFromPath();
+  void initGranularity();
+  
+  // ---------- Private member data ----------
+
+  /** APV pair number [0,1-3,invalid]. */
+  uint16_t apvPairNumber_; 
+
+  /** APV position within pair [0,1-2,invalid]. */
+  uint16_t apvWithinPair_; 
+  
+  // Definition of bit field positions for 32-bit key 
+  static const uint16_t tempOffset_ = 0;
+
+  // Definition of bit field masks for 32-bit key 
+  static const uint16_t tempMask_ = 0x00F; // (4 bits)
   
 };
 
-/** Debug info for Path container class. */
-std::ostream& operator<< ( std::ostream&, const SiStripDetKey::Path& );
+// ---------- inline methods ----------
+
+const uint16_t& SiStripDetKey::apvPairNumber() const { return apvPairNumber_; }
+const uint16_t& SiStripDetKey::apvWithinPair() const { return apvWithinPair_; }
 
 #endif // DataFormats_SiStripCommon_SiStripDetKey_h
 

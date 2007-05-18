@@ -4,8 +4,8 @@
 /*
  * \file EBPedestalClient.h
  *
- * $Date: 2007/02/20 15:42:17 $
- * $Revision: 1.49 $
+ * $Date: 2007/01/27 11:03:39 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,8 +34,6 @@ class EcalCondDBInterface;
 class MonRunIOV;
 
 class EBPedestalClient : public EBClient {
-
-friend class EBSummaryClient;
 
 public:
 
@@ -171,7 +169,7 @@ float RMSThreshold_[3];
 
 // Quality check on PNs
 
-float pedestalThresholdPn_;
+float meanThresholdPN_;
 
 };
 

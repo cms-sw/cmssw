@@ -1,0 +1,14 @@
+<export>
+<lib name=EventFilterRawDataCollector>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Framework>
+<use name=xdaq>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>
+</export>
+<flags SEAL_PLUGIN_NAME="EventFilterRawDataCollector">
+<use name=xdaq>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Framework>
+<use name=DataFormats/FEDRawData>

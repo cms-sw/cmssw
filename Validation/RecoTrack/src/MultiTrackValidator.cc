@@ -126,20 +126,24 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_hits_eta.push_back( dbe_->book1D("hits_eta","hits_eta",nint,min,max) );
 
       //resolution of track parameters
-      d0res_vs_eta.push_back(new TH2F("d0res_vs_eta","d0res_vs_eta",nint,min,max, 500, -0.015, 0.015 ));//GC:100,-0.1,0.1; NIC:500,-0.015,0.015
-      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
-
-      ptres_vs_eta.push_back(new TH2F("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.4, 0.4));//GC:100,-0.4,0.4; NIC:500,-0.2,0.2
+      //                       dPt/Pt    cotTheta        Phi            TIP            LIP
+      // log10(pt)<0.5        100,0.1    240,0.08     100,0.015      100,0.1000    150,0.3000
+      // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
+      // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
+      ptres_vs_eta.push_back(new TH2F("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.1, 0.1));
       h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigmapt vs #eta",nint,min,max) );
 
-      z0res_vs_eta.push_back(new TH2F("z0res_vs_eta","z0res_vs_eta",nint,min,max, 500, -0.04, 0.04));//GC:100,-1,1; NIC:500,-0.04,0.04
-      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigmaz0 vs #eta",nint,min,max) );
+      cotThetares_vs_eta.push_back(new TH2F("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 120, -0.01, 0.01));
+      h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigmacotTheta vs #eta",nint,min,max) );
 
-      phires_vs_eta.push_back(new TH2F("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.02, 0.02));//GC:100,-0.02,0.02; NIC:500,-0.0015,0.0015
+      phires_vs_eta.push_back(new TH2F("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.003, 0.003));
       h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigmaphi vs #eta",nint,min,max) );
 
-      cotThetares_vs_eta.push_back(new TH2F("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 100, -0.02, 0.02));//GC:100,-0.02,0.02; NIC:500,-0.004,0.004
-      h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigmacotTheta vs #eta",nint,min,max) );
+      d0res_vs_eta.push_back(new TH2F("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
+      h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigmad0 vs #eta",nint,min,max) );
+
+      z0res_vs_eta.push_back(new TH2F("z0res_vs_eta","z0res_vs_eta",nint,min,max, 150, -0.05, 0.05));
+      h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigmaz0 vs #eta",nint,min,max) );
 
       j++;
     }

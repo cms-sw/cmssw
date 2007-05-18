@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.12 2007/02/15 20:09:14 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.14.2.1 2007/04/20 09:13:32 fwyzard Exp $
 //
 
 
@@ -78,7 +78,8 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(m_jetTracksAssociator, jetTracksAssociation);
 
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
+  if (m_primaryVertexProducer != "none")
+    iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
 
   TrackRefVector leptons;
   // try to access the input collection as a collection of Electons, Muons or Tracks
@@ -101,7 +102,10 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as MuonCollection" << endl;
       #endif
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
-        leptons.push_back( muon->combinedMuon() );
+        if(! muon->combinedMuon().isNull() )
+          leptons.push_back( muon->combinedMuon() );
+        else 
+          cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptonProducer << ", skipping it" << endl;
     }
     catch(edm::Exception e) {
       // electrons or muons not found, look for tracks
@@ -120,7 +124,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<reco::SoftLeptonTagInfoCollection> extCollection(  new reco::SoftLeptonTagInfoCollection() );
 
   reco::Vertex pv;
-  if (primaryVertex->size()) {
+  if (primaryVertex.isValid() && primaryVertex->size()) {
     PrimaryVertexSorter pvs;
     pv = pvs.sortedList(*(primaryVertex.product())).front();
   } else {

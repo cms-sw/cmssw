@@ -5,8 +5,8 @@
  * \class L1GtLogicParser
  * 
  * 
- * 
- * Description: parses the logical and numerical expressions for an algorithm 
+ * Description: parses the logical and numerical expressions for an algorithm.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   

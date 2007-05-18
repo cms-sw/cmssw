@@ -37,9 +37,9 @@ public :
   
   
 
-  vector< pair<int, bool> > triggerSamples();
+  std::vector< std::pair<int, bool> > triggerSamples();
   
-  vector<int> triggerFlags();
+  std::vector<int> triggerFlags();
   
 protected :
   /**

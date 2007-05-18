@@ -13,8 +13,8 @@
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/RPCObjects/interface/DccSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
-#include "CondFormats/RPCObjects/interface/LinkBoardChannelCoding.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardPackedStrip.h"
 class LinkBoardSpec;
 
 
@@ -25,6 +25,7 @@ public:
   typedef std::pair<uint32_t,int> StripInDetUnit;
 
   RPCReadOutMapping(const std::string & version = ""); 
+  virtual ~RPCReadOutMapping(){}
 
   /// FED identified by ID
   const DccSpec * dcc( int dccId) const;
@@ -35,8 +36,6 @@ public:
   /// all FEDs in map
   std::vector<const DccSpec*> dccList() const;
 
-  /// conversion between electronic and detector indexing
-  const LinkBoardSpec* location (const ChamberRawDataSpec & ele) const;  
 
   /// attach FED to map
   void add(const DccSpec & dcc);
@@ -44,21 +43,25 @@ public:
   /// version as string
   const std::string & version() const { return theVersion; }
 
-  /// get linkboards for given chamber name
-  std::vector<const LinkBoardSpec*> getLBforChamber(const std::string & name) const;
+  /// conversion between electronic and detector indexing
+  virtual const LinkBoardSpec* location (const LinkBoardElectronicIndex & ele) const;  
 
-  /// get RAW data specification for a given CMS strip in given chamber
-  std::pair<ChamberRawDataSpec, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip,  int dccInputChannel) const;
+  /// convert strip location as in raw data (LB and LBchannel) to detUnit frame
+  virtual StripInDetUnit detUnitFrame(
+      const LinkBoardSpec& location, const LinkBoardPackedStrip & packedStrip) const;
 
-  /// get strip info for given LB channel in given LB location.
-  StripInDetUnit strip(const ChamberRawDataSpec & linkboard, int chanelLB) const;
-
-  /// convert strip location as in raw data to detUnit frame
-  StripInDetUnit detUnitFrame(const LinkBoardSpec* location, 
-      int febInLB, int stripPinInFeb) const;
-
-  std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> rawDataFrame (uint32_t rawDetId, int stripInDU) const;
+  /// connection "paths" that lead from one digi to one strip
+  std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> >
+       rawDataFrame (const StripInDetUnit & duFrame) const;
   
+
+
+
+
+  // TEMPORARY
+  std::vector<const LinkBoardSpec*> getLBforChamber(const std::string & name) const;
+  std::pair<LinkBoardElectronicIndex, int> getRAWSpecForCMSChamberSrip(uint32_t  detId, 
+                            int strip,  int dccInputChannel) const;
 
 private:
    typedef std::map<int, DccSpec>::const_iterator IMAP;

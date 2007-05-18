@@ -28,6 +28,7 @@ class EcalTriggerPrimitiveDigi {
     
   void setSize(int size);
   void setSample(int i, const EcalTriggerPrimitiveSample& sam) { data_[i]=sam; }
+  void setSampleValue(int i, uint16_t value) { data_[i].setValue(value); }
     
   static const int MAXSAMPLES = 20;
 

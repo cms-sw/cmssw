@@ -1,6 +1,7 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
+//#include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
@@ -112,7 +113,6 @@ void SiPixelActionExecutor::fillBarrelSummary(MonitorUserInterface* mui,
                                string dir_name,vector<string>& me_names) {
   //cout<<"entering SiPixelActionExecutor::fillBarrelSummary..."<<endl;
   string currDir = mui->pwd();
-  //cout<<"currDir="<<currDir<<endl;
   if (currDir.find(dir_name) != string::npos)  {
     vector<MonitorElement*> sum_mes;
     for (vector<string>::const_iterator iv = me_names.begin();
@@ -229,22 +229,14 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
   vector<MonitorElement*> gsum_mes;
   string path_name = mui->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
-/*  if ((dir_name.find("Tracker") == 0) ||
-geo   (dir_name.find("Collector") == 0) ||
+  if ((dir_name.find("Tracker") == 0) ||
+      (dir_name.find("Collector") == 0) ||
       (dir_name.find("PixelEndcap") == 0) ||
       (dir_name.find("Side") == 0) ||
       (dir_name.find("Disk") == 0) ||
       (dir_name.find("Blade") == 0) ||
       (dir_name.find("Panel") == 0) ||
-      (dir_name.find("FU") == 0) ) return;*/
-  if ((dir_name.find("Collector") == 0) ||
-      (dir_name.find("FU") == 0) ||
-      (dir_name.find("Tracker") == 0) ||
-      (dir_name.find("PixelEndcap") == 0) ||
-      (dir_name.find("HalfCylinder") == 0) ||
-      (dir_name.find("Disk") == 0) ||
-      (dir_name.find("Blade") == 0) ||
-      (dir_name.find("Panel") == 0) ) return;
+      (dir_name.find("FU") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
   int nDirs = subdirs.size();
   int iDir =0;
@@ -275,7 +267,6 @@ geo   (dir_name.find("Collector") == 0) ||
 	     } else nbin = 7777;
              string me_name = "Summary_" + (*iv) + "_in_" + dir_name;
              if(dir_name=="PixelBarrel") nbin=768;
-	     else if(dir_name.find("Shell")!=string::npos) nbin=192;
 	     else nbin=nbin*nDirs;
 	     getGrandSummaryME(mui, nbin, me_name, gsum_mes);
            }
@@ -283,27 +274,15 @@ geo   (dir_name.find("Collector") == 0) ||
 		igm != gsum_mes.end(); igm++) {
              if ((*igm)->getName().find((*iv)) != string::npos) {
 	       if((*igm)->getName().find("Ladder") != string::npos){
-//geo		 nbin_i=0; nbin_f=8;
-		 nbin_i=0; nbin_f=4;
+		 nbin_i=0; nbin_f=8;
 	       }else if((*igm)->getName().find("Layer") != string::npos){
-//geo		 nbin_i=(cnt-1)*8; nbin_f=160;
-//geo		 if(cnt>=21) nbin_f += 96;
-//geo		 if(cnt>=33) nbin_f += 96;
-		 nbin_i=(cnt-1)*4; nbin_f=40;
-		 if(cnt>=11) nbin_f += 24;
-		 if(cnt>=17) nbin_f += 24;
-	       }else if((*igm)->getName().find("Shell") != string::npos){
-	         if(iDir==0){ nbin_i=0; nbin_f=40; }
-	         else if(iDir==1){ nbin_i=40; nbin_f=64; }
-	         else if(iDir==2){ nbin_i=104; nbin_f=88; }
+		 nbin_i=(cnt-1)*8; nbin_f=160;
+		 if(cnt>=21) nbin_f += 96;
+		 if(cnt>=33) nbin_f += 96;
 	       }else if((*igm)->getName().find("PixelBarrel") != string::npos){
-//geo	         if(iDir==0){ nbin_i=0; nbin_f=160; }
-//geo		 else if(iDir==1){ nbin_i=160; nbin_f=256; }
-//geo		 else if(iDir==2){ nbin_i=416; nbin_f=352; }
-	         if(iDir==0){ nbin_i=0; nbin_f=192; }
-		 else if(iDir==1){ nbin_i=192; nbin_f=192; }
-		 else if(iDir==2){ nbin_i=384; nbin_f=192; }
-		 else if(iDir==3){ nbin_i=576; nbin_f=192; }
+	         if(iDir==0){ nbin_i=0; nbin_f=160; }
+		 else if(iDir==1){ nbin_i=160; nbin_f=256; }
+		 else if(iDir==2){ nbin_i=416; nbin_f=352; }
 	       }
 	       for (int k = 1; k < nbin_f+1; k++) {
 		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
@@ -324,19 +303,12 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
   vector<MonitorElement*> gsum_mes;
   string path_name = mui->pwd();
   string dir_name =  path_name.substr(path_name.find_last_of("/")+1);
-/*  if ((dir_name.find("Collector") == 0) ||
-geo      (dir_name.find("Tracker") == 0) ||
+  if ((dir_name.find("Collector") == 0) ||
+      (dir_name.find("Tracker") == 0) ||
       (dir_name.find("PixelBarrel") == 0) ||
       (dir_name.find("Layer") == 0) ||
       (dir_name.find("Ladder") == 0) ||
-      (dir_name.find("FU") == 0) ) return;*/
-  if ((dir_name.find("Collector") == 0) ||
-      (dir_name.find("FU") == 0) ||
-      (dir_name.find("Tracker") == 0) ||
-      (dir_name.find("PixelBarrel") == 0) ||
-      (dir_name.find("Shell") == 0) ||
-      (dir_name.find("Layer") == 0) ||
-      (dir_name.find("Ladder") == 0) ) return;
+      (dir_name.find("FU") == 0) ) return;
   vector<string> subdirs = mui->getSubdirs();
   int iDir =0;
   int nbin = 0;
@@ -367,10 +339,8 @@ geo      (dir_name.find("Tracker") == 0) ||
 	     } else nbin = 7777;
              string me_name = "Summary_" + (*iv) + "_in_" + dir_name;
              if(dir_name=="PixelEndcap") nbin=672;
-//geo	     else if(dir_name.find("Side")!=string::npos) nbin=336;
-	     else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
-//geo	     else if(dir_name.find("Disk")!=string::npos) nbin=168;
-	     else if(dir_name.find("Disk")!=string::npos) nbin=84;
+	     else if(dir_name.find("Side")!=string::npos) nbin=336;
+	     else if(dir_name.find("Disk")!=string::npos) nbin=168;
 	     else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	     else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	     else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
@@ -388,20 +358,13 @@ geo      (dir_name.find("Tracker") == 0) ||
 	         nbin_f=7;
 	         if((*im).find("_2") != string::npos) nbin_i=4;
 	       }else if((*igm)->getName().find("Disk") != string::npos){
-//geo	         nbin_i=((cnt-1)%24)*7; nbin_f=168;
-	         nbin_i=((cnt-1)%12)*7; nbin_f=84;
-//geo	       }else if((*igm)->getName().find("Side") != string::npos){
-//geo	         nbin_f=336;
-//geo	         if((*im).find("_2") != string::npos) nbin_i=168;
-	       }else if((*igm)->getName().find("HalfCylinder") != string::npos){
-	         nbin_f=168;
-	         if((*im).find("_2") != string::npos) nbin_i=84;
+	         nbin_i=((cnt-1)%24)*7; nbin_f=168;
+	       }else if((*igm)->getName().find("Side") != string::npos){
+	         nbin_f=336;
+	         if((*im).find("_2") != string::npos) nbin_i=168;
 	       }else if((*igm)->getName().find("PixelEndcap") != string::npos){
 	         nbin_f=672;
-//geo	         if((*im).find("_2") != string::npos) nbin_i=336;
-	         if((*im).find("_mO") != string::npos) nbin_i=168;
-	         if((*im).find("_pI") != string::npos) nbin_i=336;
-	         if((*im).find("_pO") != string::npos) nbin_i=504;
+	         if((*im).find("_2") != string::npos) nbin_i=336;
 	       }
 	       for (int k = 1; k < nbin_f+1; k++) {
 		 (*igm)->setBinContent(k+nbin_i, me->getBinContent(k));
@@ -467,8 +430,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(MonitorUserInterface* mui,st
   }
   DaqMonitorBEInterface * bei = mui->getBEInterface();
   //default histo with 8 bins for barrel ladder, should be 3 or 4 for endcap panels...
-//geo  me = bei->book1D(me_name.c_str(), me_name.c_str(),8,0.5,8.5);
-  me = bei->book1D(me_name.c_str(), me_name.c_str(),4,0.5,4.5);
+  me = bei->book1D(me_name.c_str(), me_name.c_str(),8,0.5,8.5);
   return me;
   //cout<<"...leaving SiPixelActionExecutor::getSummaryME!"<<endl;
 }
@@ -483,7 +445,6 @@ void SiPixelActionExecutor::drawMEs(int idet,
   if (mon_elements.size() == 2) canvas.Divide(1,2);
   if (mon_elements.size() == 3) canvas.Divide(1,3);
   if (mon_elements.size() == 4) canvas.Divide(2,2);
-  if (mon_elements.size() == 5) canvas.Divide(2,3);
   int status;
   int icol;
   string tag;
@@ -535,7 +496,7 @@ void SiPixelActionExecutor::setupQTests(MonitorUserInterface * mui) {
   if (collationDone) mui->cd("Collector/Collated/SiPixel");
   qtester.setupQTests(mui);
   mui->cd();
-  //cout << " Setting Up Quality Tests " << endl;
+  cout << " Setting Up Quality Tests " << endl;
   //  QTestHandle qtester;
   //  if(!qtester.configureTests("sistrip_qualitytest_config.xml", mui)){
   //    cout << " Attaching Qtests to MEs" << endl;

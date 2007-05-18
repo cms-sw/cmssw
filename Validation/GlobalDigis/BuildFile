@@ -6,9 +6,6 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=CalibCalorimetry/EcalTrivialCondModules>
-<use name=DataFormats/HcalDetId>
-<use name=DataFormats/HcalDigi>
-<use name=CalibFormats/HcalObjects>
 <use name=SimDataFormats/GlobalDigiValidation>
 <use name=SimDataFormats/CrossingFrame>
 <use name=SimDataFormats/CaloHit>
@@ -26,9 +23,6 @@
  <use name=DataFormats/EcalDigi>
  <use name=DataFormats/EcalDetId>
  <use name=CalibCalorimetry/EcalTrivialCondModules>
- <use name=DataFormats/HcalDetId>
- <use name=DataFormats/HcalDigi>
- <use name=CalibFormats/HcalObjects>
  <use name=SimDataFormats/GlobalDigiValidation>
  <use name=SimDataFormats/CrossingFrame>
  <use name=SimDataFormats/CaloHit>

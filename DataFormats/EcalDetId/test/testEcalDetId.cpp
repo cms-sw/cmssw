@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.2 2006/05/29 09:48:33 meridian Exp $
+   \version $Id: testEcalDetId.cpp,v 1.3 2006/08/23 15:40:06 meridian Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.2 2006/05/29 09:48:33 meridian Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.3 2006/08/23 15:40:06 meridian Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -29,7 +29,7 @@ class testEcalDetId: public CppUnit::TestFixture {
   CPPUNIT_TEST(testEEDetId);
   CPPUNIT_TEST(testESDetId);
   CPPUNIT_TEST(testEcalTrigTowerDetId);
-  CPPUNIT_TEST(testEcalElectronicsId);
+  // CPPUNIT_TEST(testEcalElectronicsId);
   CPPUNIT_TEST(testPnDiodeDetId);
 
   CPPUNIT_TEST_SUITE_END();
@@ -43,7 +43,7 @@ public:
   void testEEDetId();
   void testESDetId();
   void testEcalTrigTowerDetId();
-  void testEcalElectronicsId();
+  // void testEcalElectronicsId();
   void testPnDiodeDetId();
  
 }; 
@@ -245,6 +245,7 @@ void testEcalDetId::testEcalTrigTowerDetId() {
       }
 }
 
+/*
 void testEcalDetId::testEcalElectronicsId() {
   for (int idcc=EcalElectronicsId::MIN_DCCID;idcc<=EcalElectronicsId::MAX_DCCID;idcc++)
     for (int itower=EcalElectronicsId::MIN_TOWERID;itower<EcalElectronicsId::MAX_TOWERID;itower++)
@@ -262,6 +263,7 @@ void testEcalDetId::testEcalElectronicsId() {
 	    }
 	}
 }
+*/
 
 void testEcalDetId::testPnDiodeDetId() {
 

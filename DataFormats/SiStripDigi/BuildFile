@@ -1,14 +1,8 @@
 <use name=DataFormats/Common>
-<use name=DataFormats/FEDRawData>
-<use name=DataFormats/SiStripCommon>
-<use name=FWCore/MessageLogger>
 <use name=boost>
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
-  <use name=DataFormats/FEDRawData>
-  <use name=DataFormats/SiStripCommon>
   <use name=boost>
   <lib name=DataFormatsSiStripDigi>
 </export>
-

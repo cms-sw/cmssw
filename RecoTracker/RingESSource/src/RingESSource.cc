@@ -9,8 +9,8 @@
 // Created:         Thu Oct  5 01:35:14 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/02/05 19:01:46 $
-// $Revision: 1.1 $
+// $Date: 2007/03/01 07:40:16 $
+// $Revision: 1.2 $
 //
 
 #include "RecoTracker/RingESSource/interface/RingESSource.h"
@@ -22,11 +22,17 @@ RingESSource::RingESSource(const edm::ParameterSet& iConfig) : fileName_((iConfi
   setWhatProduced(this, componentName);
     
   findingRecord<RingRecord>();
+  
+  rings_ = 0;
 }
 
 
 RingESSource::~RingESSource()
 {
+  
+  if ( rings_ != 0 ) {
+    delete rings_;
+  }
  
 }
 
@@ -35,7 +41,9 @@ RingESSource::produce(const RingRecord& iRecord)
 {
   using namespace edm::es;
 
-  std::auto_ptr<Rings> rings(new Rings(fileName_));
+  rings_ = new Rings(fileName_);
+  
+  std::auto_ptr<Rings> rings(rings_);
 
   return rings ;
 }

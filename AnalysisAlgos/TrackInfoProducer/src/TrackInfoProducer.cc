@@ -2,7 +2,7 @@
 // system include files
 #include <memory>
 // user include files
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/Common/interface/EDProduct.h" 

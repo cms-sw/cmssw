@@ -2,7 +2,7 @@
 #define CamacTBDataFormatter_H
 /** \class CamacTBDataFormatter
  *
- *  $Id: CamacTBDataFormatter.h,v 1.4 2006/08/09 14:19:22 dellaric Exp $
+ *  $Id: CamacTBDataFormatter.h,v 1.5 2006/10/16 21:52:58 franzoni Exp $
  *
  *  \author G. Franzoni
  */
@@ -22,8 +22,6 @@
 
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCSample.h"
 
-using namespace edm;
-using namespace std;
 
 
 
@@ -62,6 +60,6 @@ class CamacTBDataFormatter   {
   int hodoAll[nHodoPlanes*nHodoFibers];
   bool statusWords[148+4];
 
-  vector<int> scalers_;
+  std::vector<int> scalers_;
 };
 #endif

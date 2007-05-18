@@ -21,8 +21,8 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 /** */
 SiStripCommissioningWebClient::SiStripCommissioningWebClient( SiStripCommissioningClient* client,
-							      string context_url, 
-							      string application_url, 
+							      std::string context_url, 
+							      std::string application_url, 
 							      MonitorUserInterface** mui ) 
   : WebInterface( context_url, application_url, mui ),
     client_(client),
@@ -36,7 +36,7 @@ SiStripCommissioningWebClient::SiStripCommissioningWebClient( SiStripCommissioni
 void SiStripCommissioningWebClient::defineWidgets() {
   
   // Define web page
-  string url = this->getApplicationURL();
+  std::string url = this->getApplicationURL();
   page_p = new WebPage( url );
   
   // Commissioning-specific buttons 
@@ -68,22 +68,22 @@ void SiStripCommissioningWebClient::defineWidgets() {
 }
 
 // -----------------------------------------------------------------------------
-/** Retrieve and handle strings that identify custom request(s). */
+/** Retrieve and handle std::strings that identify custom request(s). */
 void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
 							 xgi::Output* out ) throw ( xgi::exception::Exception ) {
   
   // Retrieve requests
   CgiReader reader(in);
-  multimap<string,string> requests;
+  std::multimap<std::string,std::string> requests;
   reader.read_form(requests);
   if ( requests.empty() ) { 
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Unable to handle empty request map!";
+      << " Unable to handle empty request std::map!";
     return; 
   }
   
-  string request = get_from_multimap( requests, "RequestID" );
+  std::string request = get_from_multimap( requests, "RequestID" );
   if ( request == "" ) { 
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -92,10 +92,10 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   }
 
   //@@ temporary
-  string filename = "";
+  std::string filename = "";
   sistrip::Monitorable mon = sistrip::APV_TIMING_DELAY;
   sistrip::Presentation pres = sistrip::SUMMARY_HISTO;
-  string dir = "SiStrip/ControlView/FecCrate0/";
+  std::string dir = "SiStrip/ControlView/FecCrate0/";
   sistrip::Granularity gran = sistrip::MODULE;
   
   // Handle requests

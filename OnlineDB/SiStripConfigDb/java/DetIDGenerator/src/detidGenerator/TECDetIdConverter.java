@@ -7,9 +7,12 @@ package detidGenerator;
 **/
 
 /*
-  $Date: 2006/06/28 11:42:24 $
+  $Date: 2006/08/30 15:21:12 $
   
   $Log: TECDetIdConverter.java,v $
+  Revision 1.2  2006/08/30 15:21:12  gbaulieu
+  Add the TOB analyzer
+
   Revision 1.1  2006/06/28 11:42:24  gbaulieu
   First import of the sources
 
@@ -41,23 +44,24 @@ public class TECDetIdConverter extends DetIdConverter{
     private int modNumber;
     private int stereo;
 
-    private final short sideStartBit = 23;
-    private final short wheelStartBit = 16;  
-    private final short petal_fw_bwStartBit = 15;
-    private final short petalStartBit = 8;
-    private final short ringStartBit = 5;
-    //private final short det_fw_bwStartBit = 4;
-    private final short detStartBit = 2;
-    private final short sterStartBit = 0;
+    /// two bits would be enough, but  we could use the number "0" as a wildcard
+    private final short sideStartBit =           18;
+    private final short wheelStartBit =          14;
+    private final short petal_fw_bwStartBit =    12;
+    private final short petalStartBit =          8;
+    private final short ringStartBit =           5;
+    private final short detStartBit =         2;
+    private final short sterStartBit =           0;
+    
+    /// two bits would be enough, but  we could use the number "0" as a wildcard
+    private final short sideMask =          0x3;
+    private final short wheelMask =         0xF;
+    private final short petal_fw_bwMask =   0x3;
+    private final short petalMask =         0xF;
+    private final short ringMask =          0x7;
+    private final short detMask =        0x7;
+    private final short sterMask =          0x3;
 
-    private final short sideMask = 0x3;
-    private final short wheelMask = 0xF;
-    private final short petal_fw_bwMask = 0x1;
-    private final short petalMask = 0x7F;
-    private final short ringMask = 0x7;
-    //private final short det_fw_bwMask = 0x1;
-    private final short detMask = 0x7;
-    private final short sterMask = 0x3;
 
     public TECDetIdConverter(int t, int w, int fb, int p, int r, int mn, int s){
 	super(1, 6);
@@ -147,7 +151,7 @@ public class TECDetIdConverter extends DetIdConverter{
 	return "TEC"+
 	    ((getTEC()==1)?"-":"+")+
 	    " Wheel "+getWheel()+" "+
-	    ((getFrontBack()==1)?"front":"back")+" petal "
+	    ((getFrontBack()==1)?"back":"front")+" petal "
 	    +getPetal()+
 	    " Ring "+getRing()+
 	    " module "+getModNumber()+

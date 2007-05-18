@@ -7,8 +7,8 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  Level-1 bits and extraction of seed objects.
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/04/13 15:57:57 $
+ *  $Revision: 1.19 $
  *
  *  \author Martin Grunewald
  *

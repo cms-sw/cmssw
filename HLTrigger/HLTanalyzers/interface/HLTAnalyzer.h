@@ -45,7 +45,7 @@ private:
 
   std::string recjets_,genjets_,recmet_,genmet_,calotowers_,hltobj_,hltresults_;
   std::string pixElectron_,silElectron_,Photon_,muon_;
-  std::string l1extramc_; 
+  std::string l1extramc_,particleMapSource_; 
   int errCnt;
   const int errMax(){return 100;}
 

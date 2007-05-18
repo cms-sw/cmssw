@@ -7,6 +7,7 @@
 #include "DQM/SiStripCommissioningClients/interface/FedTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/VpspScanHistograms.h"
+#include "DQM/SiStripCommissioningClients/interface/FineDelayHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/PedestalsHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/DaqScopeModeHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/HistogramDisplayHandler.h"
@@ -28,7 +29,6 @@ XDAQ_INSTANTIATOR_IMPL(SiStripCommissioningClient)
 
 using namespace std;
 using namespace sistrip;
-using edm::service::MessageLogger;
 
 // -----------------------------------------------------------------------------
 /** */
@@ -36,7 +36,7 @@ SiStripCommissioningClient::SiStripCommissioningClient( xdaq::ApplicationStub* s
   : DQMBaseClient( stub, "SiStripCommissioningClient", "localhost", 9090 ),
     web_(0),
     histos_(0),
-    task_(sistrip::UNKNOWN_TASK),
+    runType_(sistrip::UNKNOWN_RUN_TYPE),
     first_(true),
     cfgFile_(""),
     handler_(0),
@@ -81,10 +81,10 @@ void SiStripCommissioningClient::configure() {
   } catch (...) { handleException( __func__ ); }
   
   // Make ParameterSet based on .cfg file 
-  string param_set;
+  std::string param_set;
   bool log4cplus = parameterSetToString( cfgFile_.value_, param_set );
   if ( param_set.empty() ) { 
-    stringstream ss;
+    std::stringstream ss;
     ss << endl
        << "[SiStripCommissioningClient::" << __func__ << "]"
        << " Unable to retrieve ParameterSet from .cfg file!";
@@ -93,7 +93,7 @@ void SiStripCommissioningClient::configure() {
   }
   
   boost::shared_ptr<edm::ParameterSet> params; 
-  boost::shared_ptr< vector<edm::ParameterSet> > pServiceSets;
+  boost::shared_ptr< std::vector<edm::ParameterSet> > pServiceSets;
   makeParameterSets( param_set, params, pServiceSets );
 
   // Create service token and 
@@ -106,7 +106,7 @@ void SiStripCommissioningClient::configure() {
   
   // Register this xdaq appl with the ML service
   try {
-    if ( !log4cplus ) { edm::Service<MessageLogger>(); }
+    if ( !log4cplus ) { edm::Service<edm::service::MessageLogger>(); }
     else { edm::Service<ML::MLlog4cplus>()->setAppl(this); }
   } catch (...) { handleException( __func__ ); }
 
@@ -150,6 +150,7 @@ void SiStripCommissioningClient::endRun() {
   LogTrace(mlDqmClient_) 
     << "[SiStripCommissioningClient::" << __func__ << "]"
     << " Halting present run...";
+  removeAll();
   unsubscribeAll(); 
   
   if ( histos_ ) { delete histos_; histos_ = 0; }
@@ -174,22 +175,22 @@ void SiStripCommissioningClient::onUpdate() const {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningClient::" << __func__ << "]"
     << " Number of updates: " << mui_->getNumUpdates();
+
+  // Retrieve list of added contents
+  std::vector<std::string> contents;
+  mui_->getAddedContents( contents ); 
   
-  // Retrieve a list of all subscribed histograms
-  vector<string> contents;
-  mui_->getContents( contents ); 
-  if ( contents.empty() ) { 
-    LogTrace(mlDqmClient_)
-      << "[SiStripCommissioningClient::" << __func__ << "]"
-      << " Nothing to update...";
-    return; 
+  // Extract run type from added contents
+  if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
+    runType_ = CommissioningHistograms::runType( mui_->getBEInterface(),
+						 contents ); 
   }
   
-  // Extract commissioning task from added contents
-  if ( task_ == sistrip::UNKNOWN_TASK ) { task_ = extractTask( contents ); }
-  
   // Create histograms for given commissioning task
-  createHistograms( task_ );
+  createHistograms( runType_ );
+  
+  // Extract histograms based on added contents
+  if ( histos_ ) { histos_->extractHistograms( contents ); }
   
   // Create collation histograms based on added contents
   if ( histos_ ) { histos_->createCollations( contents ); }
@@ -197,56 +198,23 @@ void SiStripCommissioningClient::onUpdate() const {
 }
 
 // -----------------------------------------------------------------------------
-/** Extract "commissioning task" string from "added contents". */
-sistrip::Task SiStripCommissioningClient::extractTask( const vector<string>& contents ) const {
-  LogTrace(mlDqmClient_)
-    << "[SiStripCommissioningClient::" << __func__ << "]"
-    << " Extracting commissioning task...";
-  
-  // Iterate through added contents
-  vector<string>::const_iterator istr = contents.begin();
-  while ( istr != contents.end() ) {
-    
-    // Search for "commissioning task" string
-    string::size_type pos = istr->find( sistrip::commissioningTask_ );
-    if ( pos != string::npos ) { 
-      // Extract commissioning task from string 
-      string value = istr->substr( pos+sistrip::commissioningTask_.size()+1, string::npos ); 
-      if ( !value.empty() ) { 
-	edm::LogVerbatim(mlDqmClient_)
-	  << "[SiStripCommissioningClient::" << __func__ << "]"
-	  << " Found string \"" <<  istr->substr(pos,string::npos)
-	  << "\" with value " << value << "\"";
-	if ( !(mui_->get(sistrip::root_+"/"+istr->substr(pos,string::npos))) ) { 
-	  mui_->setCurrentFolder(sistrip::root_);
-	  mui_->getBEInterface()->bookString( istr->substr(pos,string::npos), value ); 
-	}
-	return SiStripHistoNamingScheme::task( value ); 
-      }
-    }
-    istr++;
-    
-  }
-  return sistrip::UNKNOWN_TASK;
-}
-
-// -----------------------------------------------------------------------------
 /** Create histograms for given commissioning task. */
-void SiStripCommissioningClient::createHistograms( const sistrip::Task& task ) const {
+void SiStripCommissioningClient::createHistograms( const sistrip::RunType& task ) const {
 
   // Check if object already exists
   if ( histos_ ) { return; }
   
   // Create corresponding "commissioning histograms" object 
-  if      ( task == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( task == sistrip::FED_TIMING ) { histos_ = new FedTimingHistograms( mui_ ); }
-  else if ( task == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistograms( mui_ ); }
-  else if ( task == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistograms( mui_ ); }
-  else if ( task == sistrip::PEDESTALS ) { histos_ = new PedestalsHistograms( mui_ ); }
-  else if ( task == sistrip::DAQ_SCOPE_MODE ) { histos_ = new DaqScopeModeHistograms( mui_ ); }
-  else if ( task == sistrip::UNDEFINED_TASK ) { histos_ = 0; }
-  else if ( task == sistrip::UNKNOWN_TASK ) {
+  if      ( task == sistrip::APV_TIMING )         { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_CABLING )        { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( task == sistrip::FED_TIMING )         { histos_ = new FedTimingHistograms( mui_ ); }
+  else if ( task == sistrip::OPTO_SCAN )          { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( task == sistrip::VPSP_SCAN )          { histos_ = new VpspScanHistograms( mui_ ); }
+  else if ( task == sistrip::PEDESTALS )          { histos_ = new PedestalsHistograms( mui_ ); }
+  else if ( task == sistrip::FINE_DELAY )         { histos_ = new FineDelayHistograms( mui_ ); }
+  else if ( task == sistrip::DAQ_SCOPE_MODE )     { histos_ = new DaqScopeModeHistograms( mui_ ); }
+  else if ( task == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
+  else if ( task == sistrip::UNKNOWN_RUN_TYPE )   {
     histos_ = 0;
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -338,7 +306,7 @@ void SiStripCommissioningClient::histoAnalysis( bool debug ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::subscribeAll( string pattern ) {
+void SiStripCommissioningClient::subscribeAll( std::string pattern ) {
 
   if ( pattern == "" ) { pattern = "*/" + sistrip::root_ + "/*"; }
 
@@ -385,7 +353,7 @@ void SiStripCommissioningClient::updateHistos() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
+void SiStripCommissioningClient::unsubscribeAll( std::string pattern ) {
   
   if ( pattern == "" ) { pattern = "*/" + sistrip::root_ + "/*"; }
   
@@ -410,7 +378,7 @@ void SiStripCommissioningClient::unsubscribeAll( string pattern ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::removeAll( string pattern ) {
+void SiStripCommissioningClient::removeAll( std::string pattern ) {
   
   if ( pattern == "" ) { pattern = "*"; }
   
@@ -435,7 +403,7 @@ void SiStripCommissioningClient::removeAll( string pattern ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::saveHistos( string name ) {
+void SiStripCommissioningClient::saveHistos( std::string name ) {
 
   seal::Callback action;
   action = seal::CreateCallback( this, 
@@ -460,7 +428,7 @@ void SiStripCommissioningClient::saveHistos( string name ) {
 /** */
 void SiStripCommissioningClient::createSummaryHisto( sistrip::Monitorable histo, 
 						     sistrip::Presentation type, 
-						     string top_level_dir,
+						     std::string top_level_dir,
 						     sistrip::Granularity gran ) {
   
   if ( !histos_ ) { 
@@ -471,7 +439,7 @@ void SiStripCommissioningClient::createSummaryHisto( sistrip::Monitorable histo,
   }
   
   pair<sistrip::Monitorable,sistrip::Presentation> summ0(histo,type);
-  pair<string,sistrip::Granularity> summ1(top_level_dir,gran);
+  pair<std::string,sistrip::Granularity> summ1(top_level_dir,gran);
   seal::Callback action;
   action = seal::CreateCallback( histos_, 
 				 &CommissioningHistograms::createSummaryHisto,
@@ -501,7 +469,7 @@ void SiStripCommissioningClient::uploadToConfigDb() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::subscribe( string pattern ) {
+void SiStripCommissioningClient::subscribe( std::string pattern ) {
   if ( mui_ ) { 
     LogTrace(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -526,7 +494,7 @@ void SiStripCommissioningClient::update() {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::unsubscribe( string pattern ) {
+void SiStripCommissioningClient::unsubscribe( std::string pattern ) {
   if ( mui_ ) { 
     LogTrace(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -542,13 +510,28 @@ void SiStripCommissioningClient::unsubscribe( string pattern ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::remove( string pattern ) {
+void SiStripCommissioningClient::remove( std::string pattern ) {
   if ( mui_ ) { 
     LogTrace(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
       << " Removing all histograms within structure \""
       << pattern << "\"";
-    mui_->getBEInterface()->rmdir(pattern); 
+    mui_->getBEInterface()->setVerbose(0);
+    mui_->getBEInterface()->cd(); // cd to top dir
+    mui_->getBEInterface()->removeContents(); 
+    //if( mui_->getBEInterface()->dirExists(pattern) ) {
+    //mui_->getBEInterface()->rmdir(pattern); 
+    //}
+    if( mui_->getBEInterface()->dirExists("Collector") ) {
+      mui_->getBEInterface()->rmdir("Collector");
+    }
+    if( mui_->getBEInterface()->dirExists("EvF") ) {
+      mui_->getBEInterface()->rmdir("EvF");
+    }
+    if( mui_->getBEInterface()->dirExists("SiStrip") ) {
+      mui_->getBEInterface()->rmdir("SiStrip");
+    }
+    mui_->getBEInterface()->setVerbose(1);
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningClient::" << __func__ << "]"
@@ -558,8 +541,8 @@ void SiStripCommissioningClient::remove( string pattern ) {
 
 // -----------------------------------------------------------------------------
 /** */
-void SiStripCommissioningClient::save( string name ) {
-  stringstream ss; 
+void SiStripCommissioningClient::save( std::string name ) {
+  std::stringstream ss; 
   if ( name == "" ) { ss << "Client.root"; }
   else { ss << name; }
   if ( mui_ ) { 
@@ -577,11 +560,11 @@ void SiStripCommissioningClient::save( string name ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripCommissioningClient::handleException( const string& method,
-						  const string& message ) {
+void SiStripCommissioningClient::handleException( const std::string& method,
+						  const std::string& message ) {
   
-  string name = "SiStripCommissioningClient::" + method;
-  stringstream ss;
+  std::string name = "SiStripCommissioningClient::" + method;
+  std::stringstream ss;
 
   try {
     //throw; // rethrow caught exception to be dealt with below
@@ -618,20 +601,20 @@ void SiStripCommissioningClient::handleException( const string& method,
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripCommissioningClient::parameterSetToString( const string& cfg,
-						       string& params ) {
+bool SiStripCommissioningClient::parameterSetToString( const std::string& cfg,
+						       std::string& params ) {
   
   // Reset
   params.clear();
 
   // Environmetal variables
-  string cmssw_base = "CMSSW_BASE";
+  std::string cmssw_base = "CMSSW_BASE";
   if ( getenv(cmssw_base.c_str()) ) { cmssw_base = getenv(cmssw_base.c_str()); }
-  string cmssw_release = "CMSSW_RELEASE_BASE";
+  std::string cmssw_release = "CMSSW_RELEASE_BASE";
   if ( getenv(cmssw_release.c_str()) ) { cmssw_release = getenv(cmssw_release.c_str()); }
   
   // Find .cfg file for MessageLogger service
-  string path; path.clear();
+  std::string path; path.clear();
   if ( !cfg.empty() && !ifstream( cfg.c_str() ).fail() ) {
     path = cfg; 
   } else if ( !ifstream( (cmssw_base+"/src/DQM/SiStripCommon/data/Log4cplus.cfg").c_str() ).fail() ) { 
@@ -641,7 +624,7 @@ bool SiStripCommissioningClient::parameterSetToString( const string& cfg,
   } else if ( !ifstream( (cmssw_release+"/src/DQM/SiStripCommon/data/MessageLogger.cfg").c_str() ).fail() ) { 
     path = cmssw_release+"/src/DQM/SiStripCommon/data/MessageLogger.cfg";
   } else {
-    stringstream ss;
+    std::stringstream ss;
     ss << endl
        << "[SiStripCommissioningClient::" << __func__ << "]"
        << " No .cfg file has been found!";
@@ -649,17 +632,17 @@ bool SiStripCommissioningClient::parameterSetToString( const string& cfg,
   }
   
   // Read the ParameterSet from the .cfg file
-  stringstream config; 
+  std::stringstream config; 
   if ( !path.empty() ) {
     ifstream in( path.c_str() );
     if( in.is_open() ) {
       while ( !in.eof() ) {
-	string data;
+	std::string data;
 	getline(in,data);
 	config << data << "\n"; 
       }
       in.close();
-      stringstream ss;
+      std::stringstream ss;
       ss << endl 
 	 << "[SiStripCommissioningClient::" << __func__ << "]"
 	 << " Found .cfg file at '" << path
@@ -670,7 +653,7 @@ bool SiStripCommissioningClient::parameterSetToString( const string& cfg,
   }  
   
   params = config.str();
-  return ( config.str().find( "MLlog4cplus" ) != string::npos );
+  return ( config.str().find( "MLlog4cplus" ) != std::string::npos );
   
 }
 

@@ -1,6 +1,6 @@
 /** \class HLTPhotonTrackIsolFilter
  *
- * $Id: HLTPhotonTrackIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTPhotonTrackIsolFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTPhotonTrackIsolFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -26,8 +26,10 @@
 HLTPhotonTrackIsolFilter::HLTPhotonTrackIsolFilter(const edm::ParameterSet& iConfig){
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
+  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   numtrackisolcut_  = iConfig.getParameter<double> ("numtrackisolcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
@@ -54,6 +56,9 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);
   
+  //get hold of track isolation association map
+  edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
+  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
   
   // look at all photons,  check cuts and add to filter object
   int n = 0;
@@ -68,6 +73,11 @@ HLTPhotonTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSet
     
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( phr );
     
+    if(mapi==(*depMap).end()) {
+      if(!doIsolated_) mapi = (*depNonIsoMap).find( phr ); 
+      //std::cout<<"MARCO HLTEgammaEcalIsolFilter 100 "<<std::endl;
+    }
+
     float vali = mapi->val;
     
     if ( vali < numtrackisolcut_) {

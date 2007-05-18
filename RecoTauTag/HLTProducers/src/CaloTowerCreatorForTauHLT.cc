@@ -5,7 +5,7 @@
 #include <cmath>
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTauTag/HLTProducers/interface/CaloTowerCreatorForTauHLT.h"
@@ -54,11 +54,6 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 	{
 	  double Sum08 = 0.;
 	  
-	  if (mVerbose == 3) {
-	    std::cout <<" L1 jet et = " << (*myL1Jet).et()
-		      <<" eta = " << myL1Jet->eta()
-		      <<" phi = " << myL1Jet->phi() << endl;
-	  }
 	  unsigned idx = 0;
 	  for (; idx < caloTowers->size (); idx++) {
 	    const CaloTower* cal = &((*caloTowers) [idx]);
@@ -76,24 +71,13 @@ void CaloTowerCreatorForTauHLT::produce( Event& evt, const EventSetup& ) {
 		c->setCaloTower (CaloTowerRef( caloTowers, idx) );
 		Sum08 += c->et(); 
 		cands->push_back( c );
-		if (mVerbose == 3) std::cout << "accepted: pT/eta/phi:" 
-					     << cal->et() << '/' 
-					     << cal->eta() <<  '/' 
-					     << cal->phi()
-					     <<" emEt()= " << (*caloTowers)[idx].emEt() 
-					     <<" ehEt()= " << (*caloTowers)[idx].hadEt() 
-					     <<" deltar= " << delta 
-					     << " Sum08= " << Sum08 << std::endl;
 	      }
 	    }
 	    else {
 	      if (mVerbose == 2) std::cout << "rejected " << std::endl;
 	    }
 	  }
-	  if (mVerbose == 3) {
-	  std::cout << "CaloTowerCreatorForTauHLT::produce-> " << cands->size () << " candidates created" << std::endl;
-	  std::cout << " Sum08 = " << Sum08 << std::endl;
-	  }
+
 	}
       idTau++;
     }

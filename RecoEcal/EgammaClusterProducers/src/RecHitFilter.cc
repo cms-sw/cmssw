@@ -1,9 +1,9 @@
 /** \class RecHitFilter
  **   simple filter of EcalRecHits
  **
- **  $Id: $
- **  $Date: $
- **  $Revision: $
+ **  $Id: RecHitFilter.cc,v 1.1 2006/05/04 18:05:44 rahatlou Exp $
+ **  $Date: 2006/05/04 18:05:44 $
+ **  $Revision: 1.1 $
  **  \author Shahram Rahatlou, University of Rome & INFN, May 2006
  **
  ***/
@@ -15,7 +15,7 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // Reconstruction Classes

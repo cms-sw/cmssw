@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilter
  *
- * $Id: HLTEgammaL1MatchFilter.cc,v 1.2 2007/02/01 15:17:47 monicava Exp $
+ * $Id: HLTEgammaL1MatchFilter.cc,v 1.4 2007/03/07 10:44:05 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-
+#define TWOPI 6.283185308
 //
 // constructors and destructor
 //
@@ -93,11 +93,13 @@ HLTEgammaL1MatchFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 	  etaBinLow = emItr->eta() - region_eta_size_ecap_/2.;
 	  etaBinHigh = etaBinLow + region_eta_size_ecap_;
 	}
-	double phiBinLow  = emItr->phi() - region_phi_size_/2.;
-	double phiBinHigh = phiBinLow + region_phi_size_; 
+
+	float deltaphi=fabs(recoecalcand->phi() - emItr->phi());
+	if(deltaphi>TWOPI) deltaphi-=TWOPI;
+	if(deltaphi>TWOPI/2.) deltaphi=TWOPI-deltaphi;
 
 	if(recoecalcand->eta() < etaBinHigh && recoecalcand->eta() > etaBinLow &&
-	   recoecalcand->phi() < phiBinHigh && recoecalcand->phi() > phiBinLow){
+	  deltaphi <region_phi_size_/2. )  {
 	  MATCHEDSC = true;
 	}
 	

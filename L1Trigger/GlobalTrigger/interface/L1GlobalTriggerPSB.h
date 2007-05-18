@@ -1,23 +1,22 @@
 #ifndef GlobalTrigger_L1GlobalTriggerPSB_h
 #define GlobalTrigger_L1GlobalTriggerPSB_h
+
 /**
  * \class L1GlobalTriggerPSB
  * 
  * 
- * 
- * Description: Pipelined Synchronising Buffer 
+ * Description: Pipelined Synchronising Buffer.  
+ *
  * Implementation:
- *    <TODO: enter implementation details>
  *    GT PSB receives data from
  *      - Global Calorimeter Trigger
  *      - Technical Trigger
- *   
- *   
+ *      
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -25,6 +24,7 @@
 #include <vector>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -57,8 +57,6 @@ public:
     
 public:
   
-    typedef L1GlobalTriggerReadoutSetup::CaloDataWord CaloDataWord;
-
     typedef std::vector<L1GctCand*> CaloVector;
 
 public:

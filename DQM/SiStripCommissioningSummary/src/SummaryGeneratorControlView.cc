@@ -1,27 +1,29 @@
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGeneratorControlView.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 #include "TProfile.h"
 #include "TH1F.h"
 #include "TH2F.h"
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-void SummaryGeneratorControlView::fill( const string& top_level_dir,
+void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
 					const sistrip::Granularity& granularity,
 					const uint32_t& device_key, 
 					const float& value,
 					const float& error ) {
   
   // Check granularity is recognised
-  string gran = SiStripHistoNamingScheme::granularity( granularity );
-
+  std::string gran = SiStripEnumsAndStrings::granularity( granularity );
+  
   if ( granularity != sistrip::UNKNOWN_GRAN &&
        granularity != sistrip::FEC_CRATE &&
        granularity != sistrip::FEC_SLOT &&
@@ -30,50 +32,60 @@ void SummaryGeneratorControlView::fill( const string& top_level_dir,
        granularity != sistrip::CCU_CHAN &&
        granularity != sistrip::LLD_CHAN && 
        granularity != sistrip::APV ) {
-    string temp = SiStripHistoNamingScheme::granularity( sistrip::LLD_CHAN );
-    cerr << "[SummaryGeneratorControlView::" << __func__ << "]"
-	 << " Unexpected granularity requested: " << gran
-	 << endl;
+    std::string temp = SiStripEnumsAndStrings::granularity( sistrip::LLD_CHAN );
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryGeneratorControlView::" << __func__ << "]"
+      << " Unexpected granularity requested: " << gran;
     return;
   }
   
   // Create key representing "top level" directory 
-  SiStripFecKey::Path top = SiStripHistoNamingScheme::controlPath( top_level_dir );
-
-  // Path and string for "present working directory" as defined by device key
-  SiStripFecKey::Path path = SiStripFecKey::path( device_key );
-  string pwd = SiStripHistoNamingScheme::controlPath( path );
+  SiStripFecKey top( top_level_dir );
+  
+  // Path and std::string for "present working directory" as defined by device key
+  SiStripFecKey path( device_key );
+  std::string pwd = path.path();
   
   // Check path is "within" top-level directory structure 
-  if ( ( ( path.fecCrate_ == top.fecCrate_ ) || ( top.fecCrate_ == sistrip::invalid_ ) ) && path.fecCrate_ != sistrip::invalid_ &&
-       ( ( path.fecSlot_  == top.fecSlot_  ) || ( top.fecSlot_  == sistrip::invalid_ ) ) && path.fecSlot_  != sistrip::invalid_ &&
-       ( ( path.fecRing_  == top.fecRing_  ) || ( top.fecRing_  == sistrip::invalid_ ) ) && path.fecRing_  != sistrip::invalid_ && 
-       ( ( path.ccuAddr_  == top.ccuAddr_  ) || ( top.ccuAddr_  == sistrip::invalid_ ) ) && path.ccuAddr_  != sistrip::invalid_ &&
-       ( ( path.ccuChan_  == top.ccuChan_  ) || ( top.ccuChan_  == sistrip::invalid_ ) ) && path.ccuChan_  != sistrip::invalid_ ) { 
+  if ( ( ( path.fecCrate() == top.fecCrate() ) || 
+	 ( top.fecCrate() == sistrip::invalid_ ) ) && 
+       path.fecCrate() != sistrip::invalid_ &&
+       ( ( path.fecSlot()  == top.fecSlot()  ) || 
+	 ( top.fecSlot()  == sistrip::invalid_ ) ) && 
+       path.fecSlot()  != sistrip::invalid_ &&
+       ( ( path.fecRing()  == top.fecRing()  ) || 
+	 ( top.fecRing()  == sistrip::invalid_ ) ) && 
+       path.fecRing()  != sistrip::invalid_ && 
+       ( ( path.ccuAddr()  == top.ccuAddr()  ) || 
+	 ( top.ccuAddr()  == sistrip::invalid_ ) ) && 
+       path.ccuAddr()  != sistrip::invalid_ &&
+       ( ( path.ccuChan()  == top.ccuChan()  ) || 
+	 ( top.ccuChan()  == sistrip::invalid_ ) ) && 
+       path.ccuChan()  != sistrip::invalid_ ) { 
     
-    // Extract path and string corresponding to "top-level down to granularity" 
-    string sub_dir = pwd;
+    // Extract path and std::string corresponding to "top-level down to granularity" 
+    std::string sub_dir = pwd;
     uint32_t pos = pwd.find( gran );
-    if ( pos != string::npos ) {
+    if ( pos != std::string::npos ) {
       sub_dir = pwd.substr( 0, pwd.find(sistrip::dir_,pos) );
     } else if ( granularity == sistrip::UNKNOWN_GRAN ) {
       sub_dir = pwd;
     }
 
-    SiStripFecKey::Path sub_path = SiStripHistoNamingScheme::controlPath( sub_dir );
+    SiStripFecKey sub_path( sub_dir );
     
     // Construct bin label
-    stringstream bin;
-    if ( sub_path.fecCrate_ != sistrip::invalid_ ) { bin << sub_path.fecCrate_; }
-    if ( sub_path.fecSlot_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.fecSlot_; }
-    if ( sub_path.fecRing_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.fecRing_; }
-    if ( sub_path.ccuAddr_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.ccuAddr_; }
-    if ( sub_path.ccuChan_  != sistrip::invalid_ ) { bin << sistrip::dot_ << sub_path.ccuChan_; }
+    std::stringstream bin;
+    if ( sub_path.fecCrate() != sistrip::invalid_ ) { bin << std::setw(1) << std::setfill('0') << sub_path.fecCrate(); }
+    if ( sub_path.fecSlot()  != sistrip::invalid_ ) { bin << sistrip::dot_ << std::setw(2) << std::setfill('0') << sub_path.fecSlot(); }
+    if ( sub_path.fecRing()  != sistrip::invalid_ ) { bin << sistrip::dot_ << std::setw(1) << std::setfill('0') << sub_path.fecRing(); }
+    if ( sub_path.ccuAddr()  != sistrip::invalid_ ) { bin << sistrip::dot_ << std::setw(3) << std::setfill('0') << sub_path.ccuAddr(); }
+    if ( sub_path.ccuChan()  != sistrip::invalid_ ) { bin << sistrip::dot_ << std::setw(2) << std::setfill('0') << sub_path.ccuChan(); }
     if ( ( granularity == sistrip::LLD_CHAN || 
 	   granularity == sistrip::APV ) && 
-	 path.channel_ != sistrip::invalid_ ) { bin << sistrip::dot_ << path.channel_; }
+	 path.channel() != sistrip::invalid_ ) { bin << sistrip::dot_ << path.channel(); }
     
-    // Store "value" in appropriate vector within map (key is bin label)
+    // Store "value" in appropriate std::vector within std::map (key is bin label)
     map_[bin.str()].push_back( Data(value,error) );
     entries_++;
 

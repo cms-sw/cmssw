@@ -8,8 +8,8 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCConstants.h>
 
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
-#include <Geometry/Vector/interface/LocalPoint.h>
-#include <Geometry/Vector/interface/GlobalPoint.h>
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 
@@ -34,15 +34,15 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector
     {
       me_lcl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("LocalPhiLUT", edm::FileInPath(std::string("L1Trigger/CSCTrackFinder/LUTs/LocalPhiLUT"
 													       + (isBinary ? std::string(".bin") : std::string(".dat")))));
-      me_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTME", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiME") 
-												       + encodeFileIndex() 
+      me_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTME", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiME")
+												       + encodeFileIndex()
 												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
       if(station == 1)
-	mb_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTMB", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiMB") 
-													 + encodeFileIndex() 
+	mb_gbl_phi_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalPhiLUTMB", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalPhiMB")
+													 + encodeFileIndex()
 													 + (isBinary ? std::string(".bin") : std::string(".dat")))));
       me_gbl_eta_file = pset.getUntrackedParameter<edm::FileInPath>("GlobalEtaLUTME", edm::FileInPath((std::string("L1Trigger/CSCTrackFinder/LUTs/GlobalEtaME")
-												       + encodeFileIndex() 
+												       + encodeFileIndex()
 												       + (isBinary ? std::string(".bin") : std::string(".dat")))));
       readLUTsFromFile();
     }
@@ -78,7 +78,7 @@ CSCSectorReceiverLUT::CSCSectorReceiverLUT(const CSCSectorReceiverLUT& lut):_end
     }
   else me_global_eta = NULL;
 }
-										       
+
 CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT& lut)
 {
   if(this != &lut)
@@ -100,14 +100,14 @@ CSCSectorReceiverLUT& CSCSectorReceiverLUT::operator=(const CSCSectorReceiverLUT
 	  memcpy(mb_global_phi, lut.mb_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
 	}
       else mb_global_phi = NULL;
-      
+
       if(lut.me_global_phi)
 	{
 	  me_global_phi = new gblphidat[1<<CSCBitWidths::kGlobalPhiAddressWidth];
 	  memcpy(me_global_phi, lut.me_global_phi, (1<<CSCBitWidths::kGlobalPhiAddressWidth)*sizeof(gblphidat));
 	}
       else me_global_phi = NULL;
-      
+
       if(lut.me_global_eta)
 	{
 	  me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
@@ -188,7 +188,7 @@ lclphidat CSCSectorReceiverLUT::calcLocalPhi(const lclphiadd& theadd) const
 
 
 void CSCSectorReceiverLUT::fillLocalPhiLUT()
-{ 
+{
   // read data in from a file... Add this later.
 }
 
@@ -221,10 +221,10 @@ lclphidat CSCSectorReceiverLUT::localPhi(unsigned address) const
 lclphidat CSCSectorReceiverLUT::localPhi(lclphiadd address) const
 {
   lclphidat result;
-  
+
   if(LUTsFromFile) result = me_lcl_phi[address.toint()];
   else result = calcLocalPhi(address);
-  
+
   return result;
 }
 
@@ -263,7 +263,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
   unsigned wire_group = address.wire_group;
   unsigned local_phi = address.phi_local;
   const double sectorOffset = (CSCTFConstants::SECTOR1_CENT_RAD-CSCTFConstants::SECTOR_RAD/2.) + (_sector-1)*M_PI/3.;
-  
+
   //Number of global phi units per radian.
   static int maxPhiG = 1<<CSCBitWidths::kGlobalPhiDataBitWidth;
   double binPhiG = static_cast<double>(maxPhiG)/CSCTFConstants::SECTOR_RAD;
@@ -302,7 +302,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	<< " is out of bounds [0-" << maxPhiL << ")\n";
       local_phi = maxPhiL - 1;
     }
-  
+
   try
     {
       thechamber = thegeom->chamber(_endcap,_station,_sector,_subsector,cscid);
@@ -349,22 +349,22 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	  // of the strips to their outer edges.
 	  bool   clockwiseOrder;
 	  double leftEdge, rightEdge;
-	  if (fabs(phi_f - phi_l) < M_PI) 
+	  if (fabs(phi_f - phi_l) < M_PI)
 	    {
 	      if (phi_f < phi_l) clockwiseOrder = true;
 	      else clockwiseOrder = false;
 	    }
-	  else 
+	  else
 	    { // the chamber crosses the phi = pi boundary
 	      if (phi_f < phi_l) clockwiseOrder = false;
 	      else clockwiseOrder = true;
 	    }
-	  if (clockwiseOrder) 
+	  if (clockwiseOrder)
 	    {
 	      leftEdge  = phi_f - hsWidth_f;
 	      rightEdge = phi_l + hsWidth_l;
 	    }
-	  else 
+	  else
 	    {
 	      leftEdge  = phi_l - hsWidth_l;
 	      rightEdge = phi_f + hsWidth_f;
@@ -378,8 +378,8 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
 	  double temp_phi = 0.0, strip_phi = 0.0, delta_phi = 0.0;
 	  double distFromHalfStripCenter = 0.0, halfstripWidth = 0.0;
-	  
-	  if (strip < nStrips) 
+
+	  if (strip < nStrips)
 	    {
 	      // Approximate distance from the center of the half-strip to the center
 	      // of this phil bin, in units of half-strip width.
@@ -389,12 +389,12 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	      // the half-strip width changes from strip to strip, base the choice
 	      // of the adjacent strip on the half-strip number.
 	      if ((halfstrip%2 == 0 && halfstrip != 0) || halfstrip == 2*nStrips-1) {
-		halfstripWidth = 
+		halfstripWidth =
 		  fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip, wire_group)) / 2.;
 	      }
-	      else 
+	      else
 		{
-		  halfstripWidth = 
+		  halfstripWidth =
 		    fabs(getGlobalPhiValue(thelayer, strip+1, wire_group) - getGlobalPhiValue(thelayer, strip+2, wire_group)) / 2.;
 		}
 	      // Correction for the strips crossing the 180 degree boundary.
@@ -408,7 +408,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 	      else
 		temp_phi = strip_phi- delta_phi;
 	    }
-	  else 
+	  else
 	    {
 	      // PhiL values that do not have corresponding strips (the chamber
 	      // has less than 80 strips assumed in fillLocalPhi).  It does not
@@ -420,22 +420,22 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
 
 	  // Finally, subtract the sector offset and convert to the scale of
 	  // the global phi.
-	  
+
 	  temp_phi -= sectorOffset;
 
 	  if (temp_phi < 0.) temp_phi += 2.*M_PI;
 
 	  temp_phi *= binPhiG;
 
-	  if (temp_phi < 0.) 
+	  if (temp_phi < 0.)
 	    {
 	      result.global_phi = 0;
 	    }
-	  else if (temp_phi >= maxPhiG) 
+	  else if (temp_phi >= maxPhiG)
 	    {
 	      result.global_phi = maxPhiG - 1;
 	    }
-	  else 
+	  else
 	    {
 	     result.global_phi = static_cast<unsigned short>(temp_phi);
 	    }
@@ -467,7 +467,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiME(int phi_local, int wire_group, int c
   theadd.phi_local = phi_local;
   theadd.wire_group = ((1<<5)-1)&(wire_group >> 2); // want 2-7 of wg
   theadd.cscid = cscid;
-  
+
   if(LUTsFromFile) result = me_global_phi[theadd.toint()];
   else result = calcGlobalPhiME(theadd);
 
@@ -480,7 +480,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiME(unsigned address) const
 
   if(LUTsFromFile) result = me_global_phi[address];
   else result = calcGlobalPhiME(gblphiadd(address));
-  
+
   return result;
 }
 
@@ -499,10 +499,10 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiMB(const gblphidat &csclut) const
   gblphidat dtlut;
 
   // The following method was ripped from D. Holmes' LUT conversion program
-  
+
   int GlobalPhiMin = (_subsector == 1) ? 0x42 : 0x800;
   int GlobalPhiMax = (_subsector == 1) ? 0x7ff : 0xfbd;
-  double GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0); 
+  double GlobalPhiShift = (GlobalPhiMin + (GlobalPhiMax - GlobalPhiMin)/2.0);
 
   double dt_out = static_cast<double>(csclut.global_phi) - GlobalPhiShift;
 
@@ -533,7 +533,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(int phi_local,int wire_group, int cs
 
   if(LUTsFromFile) result = mb_global_phi[address.toint()];
   else result = calcGlobalPhiMB(globalPhiME(address));
-  
+
   return result;
 }
 
@@ -543,7 +543,7 @@ gblphidat CSCSectorReceiverLUT::globalPhiMB(unsigned address) const
   gblphiadd theadd(address);
 
   if(LUTsFromFile) result = mb_global_phi[theadd.toint()];
-  else result = calcGlobalPhiMB(globalPhiME(address));  
+  else result = calcGlobalPhiMB(globalPhiME(address));
 
   return result;
 }
@@ -673,17 +673,17 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
   const double etaPerBin = (CSCTFConstants::maxEta - CSCTFConstants::minEta)/CSCTFConstants::etaBins;
   const unsigned me12EtaCut = 56;
 
-  if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta)) 
+  if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta))
     {
       edm::LogWarning("CSCSectorReceiverLUT:OutOfBounds")
 	<< "CSCSectorReceiverLUT warning: float_eta = " << float_eta
 	<< " minEta = " << CSCTFConstants::minEta << " maxEta = " << CSCTFConstants::maxEta
 	<< "   station " << _station << " sector " << _sector
 	<< " chamber "   << address.cscid << " wire group " << address.wire_group;
-      
-      if (float_eta < CSCTFConstants::minEta) 
+
+      if (float_eta < CSCTFConstants::minEta)
 	result.global_eta = 0;
-      else if (float_eta >= CSCTFConstants::maxEta) 
+      else if (float_eta >= CSCTFConstants::maxEta)
 	result.global_eta = CSCTFConstants::etaBins - 1;
     }
   else
@@ -699,7 +699,7 @@ gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 	intEta = static_cast<int>(bitEta);
       }
       */
-      if (_station == 1 && address.cscid >= static_cast<unsigned>(CSCTriggerNumbering::minTriggerCscId()) 
+      if (_station == 1 && address.cscid >= static_cast<unsigned>(CSCTriggerNumbering::minTriggerCscId())
 	  && address.cscid <= static_cast<unsigned>(CSCTriggerNumbering::maxTriggerCscId()) )
 	{
 	  unsigned ring = CSCTriggerNumbering::ringFromTriggerLabels(_station, address.cscid);
@@ -723,7 +723,7 @@ gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int t
   theadd.phi_local = (tphi_local>>(CSCBitWidths::kLocalPhiDataBitWidth - 2)) & 0x3; // want 2 msb of local phi
   theadd.wire_group = twire_group;
   theadd.cscid = tcscid;
-  
+
   if(LUTsFromFile) result = me_global_eta[theadd.toint()];
   else result = calcGlobalEtaME(theadd);
 
@@ -783,7 +783,7 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
       std::string fName(me_lcl_phi_file.fullPath());
       std::ifstream LocalPhiLUT;
 
-      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName; 
+      edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName;
 
       if(isBinary)
 	{
@@ -885,13 +885,13 @@ void CSCSectorReceiverLUT::readLUTsFromFile()
           GlobalPhiLUT.close();
         }
     }
-  if(!me_global_eta) 
+  if(!me_global_eta)
     {
       me_global_eta = new gbletadat[1<<CSCBitWidths::kGlobalEtaAddressWidth];
       memset(me_global_eta, 0, (1<<CSCBitWidths::kGlobalEtaAddressWidth)*sizeof(short));
       std::string fName = me_gbl_eta_file.fullPath();
       std::ifstream GlobalEtaLUT;
-      
+
       edm::LogInfo("CSCSectorReceiverLUT") << "Loading SR LUT: " << fName;
 
       if(isBinary)

@@ -36,6 +36,8 @@ class HLTMuonDimuonFilter : public HLTFilter {
       double max_InvMass_;      // maximum invariant mass of pair
       double min_Acop_;         // minimum acoplanarity
       double max_Acop_;         // maximum acoplanarity
+      double min_PtBalance_;    // minimum Pt difference
+      double max_PtBalance_;    // maximum Pt difference
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
 
 };

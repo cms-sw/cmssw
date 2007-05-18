@@ -5,8 +5,8 @@
  *  The unpacker for DTs' ROS25: 
  *  final version of Read Out Sector board with 25 channels.
  *
- *  $Date: 2006/07/28 17:59:27 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/04/26 18:53:06 $
+ *  $Revision: 1.14 $
  * \author M. Zanetti INFN Padova
  * FRC 060906
  */
@@ -16,6 +16,7 @@
 #include <EventFilter/DTRawToDigi/src/DTUnpacker.h>
 
 class DTDataMonitorInterface;
+class DTROS25Data;
 
 class DTROS25Unpacker : public DTUnpacker {
 
@@ -35,6 +36,10 @@ public:
 				std::auto_ptr<DTLocalTriggerCollection>& product2,
 				uint16_t rosList = 0);
 
+  inline const std::vector<DTROS25Data> & getROSsControlData() const {
+    return controlDataFromAllROS;
+  }
+
 private:
 
   int swap(int x);
@@ -47,6 +52,8 @@ private:
   bool writeSC;
 
   DTDataMonitorInterface * dataMonitor;
+
+  std::vector<DTROS25Data> controlDataFromAllROS; 
 
 };
 

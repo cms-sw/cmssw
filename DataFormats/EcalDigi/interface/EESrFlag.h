@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: EESrFlag.h,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #ifndef EESRFLAG_H
 #define EESRFLAG_H
@@ -26,7 +26,7 @@ public:
    * @param sc supercrystal det id
    * @param flag the srp flag, an integer in [0,7]. See constants SRF_xxx in EcalSrFlags class.
    */
-  EESrFlag(const EcalScDetId& sc, int flag): scId_(sc){
+  EESrFlag(const EcalScDetId& sc, const int& flag): scId_(sc){
     //SRP flag is coded on 3 bits:
     if(flag<0  || flag>0x7) throw cms::Exception("InvalidValue", "srp flag greater than 0x7 or negative.");
     flag_ = (unsigned char) flag;

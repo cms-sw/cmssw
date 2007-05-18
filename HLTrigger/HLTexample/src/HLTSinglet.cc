@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.17 $
+ *  $Date: 2007/04/13 15:57:58 $
+ *  $Revision: 1.20 $
  *
  *  \author Martin Grunewald
  *

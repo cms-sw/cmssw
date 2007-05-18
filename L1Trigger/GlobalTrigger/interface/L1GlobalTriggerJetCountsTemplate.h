@@ -4,17 +4,17 @@
 /**
  * \class L1GlobalTriggerJetCountsTemplate
  * 
+ *  
+ * Description: Single particle chip - jet counts conditions.
  * 
- * 
- * Description: Single particle chip - jet counts conditions
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M.Eder               - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

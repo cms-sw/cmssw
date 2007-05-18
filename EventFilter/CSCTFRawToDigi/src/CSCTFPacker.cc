@@ -1,14 +1,15 @@
 #include "EventFilter/CSCTFRawToDigi/interface/CSCTFPacker.h"
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <strings.h>
-
+#include <errno.h>
 #include <iostream>
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
-CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDAnalyzer(){
+CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	std::string mapPath = "/"+conf.getUntrackedParameter<std::string>("MappingFile","");
 	TFMapping = new CSCTriggerMappingFromFile(getenv("CMSSW_BASE") + mapPath);
 
@@ -16,18 +17,21 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDAnalyzer(){
 	nTBINs          = conf.getUntrackedParameter<int> ("nTBINs");
 	activeSectors   = conf.getUntrackedParameter<int> ("activeSectors");
 
-	std::string outputFile = conf.getUntrackedParameter<std::string> ("outputFile");
+	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
+	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile");
 
-	if( (file = fopen(outputFile.c_str(),"wt"))==NULL ){
-		exit(0);
-	}
+	file = 0;
+	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
+		throw cms::Exception("OutputFile ")<<"CSCTFPacker: cannot open output file (errno="<<errno<<"). Try outputFile=\"\"";
+
+	produces<FEDRawDataCollection>("CSCTFRawData");
 }
 
 CSCTFPacker::~CSCTFPacker(void){
 	if( file ) fclose(file);
 }
 
-void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
+void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
 	e.getByLabel("csctfunpacker","MuonCSCTFCorrelatedLCTDigi",corrlcts);
 
@@ -43,15 +47,15 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 		for(CSCCorrelatedLCTDigiCollection::const_iterator lct=range1.first; lct!=range1.second; lct++,lctId++){
 			int station = (*csc).first.station()-1;
 			int cscId   = (*csc).first.triggerCscId()-1;
-			int sector  = (*csc).first.triggerSector()-1;
+			int sector  = (*csc).first.triggerSector()-1 + ( (*csc).first.endcap()==1 ? 0 : 6 );
 			int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels((*csc).first);
 			int tbin    = lct->getBX();
 			int fpga    = ( subSector ? subSector-1 : station+1 );
 //std::cout<<"Front data station: "<<station<<"  sector: "<<sector<<"  subSector: "<<subSector<<"  tbin: "<<tbin<<"  cscId: "<<cscId<<"  fpga: "<<fpga<<endl;
 
 			// If Det Id is within range
-			if( sector<0 || sector>5 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
-				edm::LogInfo("CSCTFPacker: CSC digi are out of range");
+			if( sector<0 || sector>11 || station<0 || station>3 || cscId<0 || cscId>8 || lctId<0 || lctId>1){
+				edm::LogInfo("CSCTFPacker: CSC digi are out of range: ");
 				continue;
 			}
 
@@ -188,11 +192,13 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 	*pos++ = 0x0000; *pos++ = 0x8000; *pos++ = 0x0001; *pos++ = 0x8000;
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
-	memcpy(pos,&header,16);
-	pos+=8;
-
 	for(int sector=0; sector<12; sector++){
 		if( !(activeSectors & (1<<sector)) ) continue;
+		if( sector<6 ) header.sp_logical_address =  sector+1;
+		else           header.sp_logical_address = (sector-5)|0x8;
+		memcpy(pos,&header,16);
+		pos+=8;
+
 		for(int tbin=0; tbin<nTBINs; tbin++){
 				memcpy(pos,&meDataHeader[sector][tbin],16);
 				pos+=8;
@@ -217,14 +223,21 @@ void CSCTFPacker::analyze(edm::Event const& e, edm::EventSetup const& iSetup){
 					}
 				}
 		}
+		memcpy(pos,&trailer,16);
+		pos+=8;
 	}
-
-	memcpy(pos,&trailer,16);
-	pos+=8;
 
 	*pos++ = 0x8000; *pos++ = 0x8000; *pos++ = 0xFFFF; *pos++ = 0x8000;
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
-	fwrite(spDDUrecord,2,pos-spDDUrecord,file);
+	if( putBufferToEvent ){
+		auto_ptr<FEDRawDataCollection> data(new FEDRawDataCollection);
+		FEDRawData& fedRawData = data->FEDData((unsigned int)FEDNumbering::getCSCTFFEDIds().first);
+		fedRawData.resize((pos-spDDUrecord)*sizeof(unsigned short));
+		std::copy((unsigned char*)spDDUrecord,(unsigned char*)pos,fedRawData.data());
+		e.put(data,"CSCTFRawData");
+	}
+
+	if(file) fwrite(spDDUrecord,2,pos-spDDUrecord,file);
 }

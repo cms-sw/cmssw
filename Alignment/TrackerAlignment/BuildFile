@@ -17,7 +17,6 @@
 <use name=Geometry/Records>
 <use name=DataFormats/SiPixelDigi>
 <use name=FWCore/Framework>
-<use name=FWCore/Utilities>
 <use name=CondCore/DBCommon>
 <use name=CondCore/DBOutputService>
 <flags SEAL_PLUGIN_NAME="AlignmentTrackerAlignment">

@@ -5,8 +5,8 @@
  * \class L1GlobalTrigger
  * 
  * 
- * 
- * Description: L1 Global Trigger 
+ * Description: L1 Global Trigger producer.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
@@ -24,13 +24,15 @@
 // system include files
 #include <string>
 
+#include <boost/cstdint.hpp>
+
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -74,7 +76,21 @@ private:
     L1GlobalTriggerGTL* m_gtGTL;
     L1GlobalTriggerFDL* m_gtFDL;
     
+    /// total Bx's in the event
     int m_totalBxInEvent;
+
+    /// min Bx's in the event, computed from m_totalBxInEvent
+    /// assume symmetrical number of BX around L1Accept
+    int m_minBxInEvent;
+
+    /// max Bx's in the event, computed from m_totalBxInEvent
+    /// assume symmetrical number of BX around L1Accept
+    int m_maxBxInEvent;
+
+    /// active boards
+    boost::uint16_t m_activeBoards; 
+    
+    
     
 };
 

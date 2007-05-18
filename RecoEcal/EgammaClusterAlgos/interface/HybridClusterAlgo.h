@@ -10,6 +10,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 #include <vector>
 #include <set>
 
@@ -83,7 +84,11 @@ class HybridClusterAlgo
 		    DebugLevel debugLevel = pINFO);
 
   //Hand over the map, the geometry, and I'll hand you back clusters.
-  void makeClusters(const EcalRecHitCollection* , const CaloSubdetectorGeometry * geometry, reco::BasicClusterCollection &basicClusters);
+  void makeClusters(const EcalRecHitCollection*,
+		    const CaloSubdetectorGeometry * geometry,
+		    reco::BasicClusterCollection &basicClusters,
+		    bool regional = false,
+		    const std::vector<EcalEtaPhiRegion>& regions = std::vector<EcalEtaPhiRegion>());
 
   //Make superclusters from the references to the BasicClusters in the event.
   reco::SuperClusterCollection makeSuperClusters(const reco::BasicClusterRefVector&);

@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id$
+//$Id: EBSrFlag.h,v 1.1 2007/02/09 10:46:03 meridian Exp $
 
 #ifndef EBSRFLAG_H
 #define EBSRFLAG_H
@@ -25,7 +25,7 @@ public:
    * @param tt trigger tower det id.
    * @param flag the srp flag, an integer in [0,7]. See constants SRF_xxx in EcalSrFlags class.
    */
-  EBSrFlag(const EcalTrigTowerDetId& tt, int flag): ttId_(tt){
+  EBSrFlag(const EcalTrigTowerDetId& tt, const int& flag): ttId_(tt){
     //SRP flag is coded on 3 bits:
     if(flag<0  || flag>0x7) throw cms::Exception("InvalidValue", "srp flag greater than 0x7 or negative.");
     flag_ = (unsigned char) flag;

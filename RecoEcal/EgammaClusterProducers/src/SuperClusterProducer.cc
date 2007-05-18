@@ -7,7 +7,7 @@
 // Framework
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -38,6 +38,10 @@ SuperClusterProducer::SuperClusterProducer(const edm::ParameterSet& ps)
 
   endcapSuperclusterCollection_ = ps.getParameter<std::string>("endcapSuperclusterCollection");
   barrelSuperclusterCollection_ = ps.getParameter<std::string>("barrelSuperclusterCollection");
+
+  doBarrel_ = ps.getParameter<bool>("doBarrel");
+  doEndcaps_ = ps.getParameter<bool>("doEndcaps");
+
 
   barrelEtaSearchRoad_ = ps.getParameter<double>("barrelEtaSearchRoad");
   barrelPhiSearchRoad_ = ps.getParameter<double>("barrelPhiSearchRoad");
@@ -81,8 +85,11 @@ SuperClusterProducer::endJob() {
 
 void SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
-  produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
-  produceSuperclustersForECALPart(evt, barrelClusterProducer_, barrelClusterCollection_, barrelSuperclusterCollection_);
+  if(doEndcaps_)
+    produceSuperclustersForECALPart(evt, endcapClusterProducer_, endcapClusterCollection_, endcapSuperclusterCollection_);
+
+  if(doBarrel_)
+    produceSuperclustersForECALPart(evt, barrelClusterProducer_, barrelClusterCollection_, barrelSuperclusterCollection_);
 
   nEvt_++;
 }

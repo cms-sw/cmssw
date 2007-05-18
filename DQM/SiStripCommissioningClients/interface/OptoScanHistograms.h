@@ -6,12 +6,14 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/OptoScanAnalysis.h"
 
 class MonitorUserInterface;
+class DaqMonitorBEInterface;
 
 class OptoScanHistograms : public CommissioningHistograms {
 
  public:
 
   OptoScanHistograms( MonitorUserInterface* );
+  OptoScanHistograms( DaqMonitorBEInterface* );
   virtual ~OptoScanHistograms();
 
   typedef SummaryHistogramFactory<OptoScanAnalysis> Factory;

@@ -5,8 +5,8 @@
  *  reconstruct muons using dt,csc,rpc and tracker starting from cosmic muon
  *  tracks
  *
- * $Date: 2006/11/06 18:42:20 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/24 09:41:06 $
+ * $Revision: 1.3 $
  * \author:  Chang Liu  - Purdue University <Chang.Liu@cern.ch>
 **/
 
@@ -77,7 +77,7 @@ void
 GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   const std::string metname = "Muon|RecoMuon|GlobalCosmicMuonProducer";  
-  LogTrace(metname)<<"Global Cosmic Muon Reconstruction started";  
+  LogDebug(metname)<<"Global Cosmic Muon Reconstruction started";  
   
   edm::Handle<reco::TrackCollection> cosMuons;
   iEvent.getByLabel(theTrackCollectionLabel,cosMuons);
@@ -86,13 +86,13 @@ GlobalCosmicMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   theService->update(iSetup);
   
   // Reconstruct the tracks in the tracker+muon system
-  LogTrace(metname)<<"Track Reconstruction";
+  LogDebug(metname)<<"Track Reconstruction";
 
   // The trajectory can be taken from the event!
   edm::Handle<std::vector<Trajectory> > staMuonsTraj;
   theTrackFinder->reconstruct(cosMuons,staMuonsTraj,iEvent);
   
-  LogTrace(metname)<<"Event loaded";
+  LogDebug(metname)<<"Event loaded";
 
 }
 

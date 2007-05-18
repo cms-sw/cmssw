@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/27 01:35:34 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/01/12 00:03:23 $
+ *  $Revision: 1.7 $
  */
 
 #include "MagneticField/GeomBuilder/src/VolumeBasedMagneticFieldESProducer.h"
@@ -34,7 +34,7 @@ std::auto_ptr<MagneticField> VolumeBasedMagneticFieldESProducer::produce(const I
 {
   edm::ESHandle<DDCompactView> cpv;
   iRecord.get("magfield",cpv );
-  MagGeoBuilderFromDDD builder;
+  MagGeoBuilderFromDDD builder(pset.getUntrackedParameter<bool>("debugBuilder", false));
   builder.build(*cpv);
   
   std::auto_ptr<MagneticField> s(new VolumeBasedMagneticField(pset,

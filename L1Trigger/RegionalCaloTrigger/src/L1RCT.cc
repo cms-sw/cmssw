@@ -1,5 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCT.h"
 
+#include <vector>
+using std::vector;
+
 #include <fstream>
 #include <string>
 
@@ -54,6 +57,21 @@ L1RCT::L1RCT(std::string lutFile) : empty(),neighborMap(){
 }
 
 L1RCT::L1RCT(std::string lutFile, 
+	     std::string lutFile2,
+	     std::string rctTestInputFile,
+	     std::string rctTestOutputFile,
+	     bool patternTest) : 
+  empty(),
+  neighborMap(),
+  rctTestInputFile_(rctTestInputFile),
+  rctTestOutputFile_(rctTestOutputFile),
+  patternTest_(patternTest)
+{
+  lut = new L1RCTLookupTables(lutFile, lutFile2, patternTest_);
+  makeCrates();
+}
+
+L1RCT::L1RCT(std::string lutFile, 
 	     edm::ESHandle<CaloTPGTranscoder> transcoder, 
 	     std::string rctTestInputFile, 
 	     std::string rctTestOutputFile) : 
@@ -65,6 +83,7 @@ L1RCT::L1RCT(std::string lutFile,
   transcoder_ = transcoder;
   lut = new L1RCTLookupTables(lutFile, transcoder);
   makeCrates();
+  patternTest_ = false;
 }
 
 void L1RCT::setGctEmScale(const L1CaloEtScale* scale){
@@ -119,6 +138,7 @@ void L1RCT::digiInput(EcalTrigPrimDigiCollection ecalCollection, HcalTrigPrimDig
   vector<vector<vector<unsigned short> > > barrel(18,vector<vector<unsigned short> >(7,vector<unsigned short>(64)));
   vector<vector<unsigned short> > hf(18,vector<unsigned short>(8));
 
+  //cout << "L1RCT: L1RCT.digiInput() entered" << endl;
   int nEcalDigi = ecalCollection.size();
   if (nEcalDigi>4032) {nEcalDigi=4032;}
   for (int i = 0; i < nEcalDigi; i++){
@@ -467,11 +487,19 @@ L1CaloEmCollection L1RCT::getIsolatedEGObjects(int crate){
   for (int i = 0; i < 4; i++){
     unsigned short rgn = ((isoEmObjects.at(i)) & 1);
     unsigned short crd = (((isoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((isoEmObjects.at(i))/16);
-    unsigned short rank = gctEmScale->rank(energy);
+    unsigned short energy = ((isoEmObjects.at(i))/16);  // up to 8-bits
+    unsigned short rank;
+    if (!patternTest_)
+      {
+	rank = energy / 2;   // Drop the lowest bit
+	if (rank > 0x3f) rank = 0x3f; // Peg it to 6-bits
+      }
+    else
+      {
+	rank = energy;
+	if (rank > 0x3f) rank = 0x3f;
+      }
     L1CaloEmCand isoCand(rank, rgn, crd, crate, 1);
-    // L1CaloEmCand isoCand(energy, rgn, crd, crate, 1);  // uses 7-bit energy as rank here, temporarily
-    // cout << "card " << crd << "region " << rgn << "energy " << energy << endl;
     isoEmCands.push_back(isoCand);
   }
   return isoEmCands;
@@ -486,10 +514,19 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
   for (int i = 0; i < 4; i++){
     unsigned short rgn = ((nonIsoEmObjects.at(i)) & 1);
     unsigned short crd = (((nonIsoEmObjects.at(i))/2) & 7);
-    unsigned short energy = ((nonIsoEmObjects.at(i))/16);
-    unsigned short rank = gctEmScale->rank(energy);
+    unsigned short energy = ((nonIsoEmObjects.at(i))/16);  // up to 8-bits
+    unsigned short rank;
+    if (!patternTest_)
+      {
+	rank = energy / 2;   // Drop the lowest bit
+	if (rank > 0x3f) rank = 0x3f; // Peg it to 6-bits
+      }
+    else
+      {
+	rank = energy;
+	if (rank > 0x3f) rank = 0x3f;
+      }
     L1CaloEmCand nonIsoCand(rank, rgn, crd, crate, 0);
-    //L1CaloEmCand nonIsoCand(energy, rgn, crd, crate, 0);  // uses 7-bit energy as rank here, temporarily
     nonIsoEmCands.push_back(nonIsoCand);
   }
   return nonIsoEmCands;
@@ -498,10 +535,10 @@ L1CaloEmCollection L1RCT::getNonisolatedEGObjects(int crate){
 
 vector<L1CaloRegion> L1RCT::getRegions(int crate){
   // barrel regions
-  bitset<14> taus( (long) crates.at(crate).getTauBits());
-  bitset<14> mips( (long) crates.at(crate).getMIPBits());
-  bitset<14> quiets( (long) crates.at(crate).getQuietBits());
-  bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
+  std::bitset<14> taus( (long) crates.at(crate).getTauBits());
+  std::bitset<14> mips( (long) crates.at(crate).getMIPBits());
+  std::bitset<14> quiets( (long) crates.at(crate).getQuietBits());
+  std::bitset<14> overflows( (long) crates.at(crate).getOverFlowBits());
   vector<unsigned short> barrelEnergies = crates.at(crate).getBarrelRegions();
   vector<L1CaloRegion> regionCollection;
   for (int card = 0; card < 7; card++){

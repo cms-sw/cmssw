@@ -4,7 +4,7 @@
 //
 // Package:         RecoTracker/RegionalPixelSeedGeneratorFromTrk
 // Class:           RegionalPixelSeedGeneratorFromTrk
-// 
+//
 // Description:     Calls RoadSeachSeedFinderAlgorithm
 //                  to find TrackingSeeds.
 
@@ -34,9 +34,11 @@ class RegionalPixelSeedGeneratorFromTrk : public edm::EDProducer
 
  private:
   edm::ParameterSet conf_;
-  CombinatorialRegionalSeedGeneratorFromPixel  combinatorialSeedGenerator;
+  CombinatorialRegionalSeedGeneratorFromPixel   combinatorialSeedGenerator;
   double ptmin;
-  double vertexz;
+  bool vertexZconstrained;
+  double vertexzDefault;
+  std::string vertexSrc;
   double originradius;
   double halflength;
   double originz;
@@ -46,3 +48,4 @@ class RegionalPixelSeedGeneratorFromTrk : public edm::EDProducer
 };
 
 #endif
+

@@ -2,7 +2,7 @@
 #define EcalSupervisorDataFormatter_H
 /** \class EcalSupervisorDataFormatter
  *
- *  $Id: EcalSupervisorDataFormatter.h,v 1.1 2006/07/21 12:36:25 meridian Exp $
+ *  $Id: EcalSupervisorDataFormatter.h,v 1.2 2006/07/27 23:43:04 meridian Exp $
  */
 
 #include <TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h>
@@ -11,8 +11,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace edm;
-using namespace std;
 
 class FEDRawData;
 class EcalSupervisorDataFormatter   {

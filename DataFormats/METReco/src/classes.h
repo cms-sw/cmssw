@@ -34,6 +34,15 @@ namespace {
     std::vector<reco::GenMET> dummy13;
     edm::reftobase::Holder<reco::Candidate,reco::GenMETRef> rtb2;
 
+    METRef r3;
+    METRefProd rp3;
+    METRefVector rv3;
+    edm::Wrapper<reco::MET> dummy14;
+    edm::Wrapper<reco::METCollection> dummy15;
+    edm::Wrapper< std::vector<reco::MET> > dummy16;
+    std::vector<reco::MET> dummy17;
+    edm::reftobase::Holder<reco::Candidate,reco::METRef> rtb3;
+
     // used for backward compatibility
     std::vector<CommonMETData> bcv1;
   }

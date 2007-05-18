@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.20 2007/02/05 14:07:17 rahatlou Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.22 2007/03/14 09:30:27 rahatlou Exp $
 //
 
 // system include files
@@ -170,9 +170,48 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     errors(3,3) = 0.0001;  // uncertainty**2 in phi
     errors(4,4) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
     errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
-      
-    std::sort(outputHits_neg_.begin(), outputHits_neg_.end(),
+
+    // JED Debugging possible double hit sort problem
+    LogDebug("") <<" HERE BEFORE SORT electron case "<<std::endl;
+    for (std::vector<const TrackingRecHit*>::iterator itHit=outputHits_neg_.begin();
+		  itHit != outputHits_neg_.end(); ++itHit) {
+       LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<std::endl;
+       LogDebug("") <<"    Local Position:"
+ 		<<(*itHit)->localPosition()<<std::endl;
+       LogDebug("") <<"    Global Perp: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())<<std::endl; 
+       LogDebug("") <<"    Global Z: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
+     }
+     // end of dump 
+ 
+     // attempt to sort the vector outputHits_neg_  locally
+     LogDebug("") << " Calling local STL sort and making hits unique " << std::endl;
+     std::sort(outputHits_neg_.begin(), outputHits_neg_.end());
+     outputHits_neg_.erase(
+ 			  std::unique(outputHits_neg_.begin(), outputHits_neg_.end()), outputHits_neg_.end());
+     LogDebug("") <<" sorted and uniqued hits electron case "<<std::endl;
+     for (std::vector<const TrackingRecHit*>::iterator itHit=outputHits_neg_.begin();
+ 	 itHit != outputHits_neg_.end(); ++itHit) {
+       LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<std::endl;
+       LogDebug("") <<"    Local Position:"
+ 		<<(*itHit)->localPosition()<<std::endl;
+       LogDebug("") <<"    Global Perp: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())<<std::endl; 
+       LogDebug("") <<"    Global Z: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
+     }
+ 
+     // JED call dump 
+     LogDebug("") << " Calling sort " << std::endl; 
+ 
+     std::sort(outputHits_neg_.begin(), outputHits_neg_.end(),
 	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
+
+     //JED Debug of double hit sort problem
+     LogDebug("") << " Done with sort " << std::endl;
+     // JED end of debug for double hit problem
+ 
 
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
@@ -213,6 +252,8 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						numberOfBarrelRphiHits_neg_,
 						numberOfEndcapZphiHits_neg_));
 
+    delete PTraj; // ShR: fix memory leak reported per perfrmance task force
+
     return true;
   }
 
@@ -228,8 +269,46 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     errors(4,4) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
     errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
 
+     // JED Debugging possible double hit sort problem
+     LogDebug("") <<" HERE BEFORE SORT Positron case "<<std::endl;
+     for (std::vector<const TrackingRecHit*>::iterator itHit = outputHits_pos_.begin();
+ 	 itHit != outputHits_pos_.end(); ++itHit) {
+       LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<std::endl;
+       LogDebug("") <<"    Local Position: "<<(*itHit)->localPosition()<<std::endl;
+       LogDebug("") <<"    Global Perp:  "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())<<std::endl; 
+       LogDebug("") <<"    Global Z: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
+     }
+     // end of dump 
+     // attempt to sort the vector outputHits_pos_  locally
+     LogDebug("") << " Calling local STL sort " << std::endl;
+     std::sort(outputHits_pos_.begin(), outputHits_pos_.end());
+     outputHits_pos_.erase(
+ 			  std::unique(outputHits_pos_.begin(), outputHits_pos_.end()), outputHits_pos_.end());
+ 
+     LogDebug("") <<" sorted and uniqued positron case "<<std::endl;
+     for (std::vector<const TrackingRecHit*>::iterator itHit=outputHits_pos_.begin();
+ 	 itHit != outputHits_pos_.end(); ++itHit) {
+       LogDebug("") <<" HIT "<<((*itHit)->geographicalId()).rawId()<<std::endl;
+       LogDebug("") <<"    Local Position:"
+ 		<<(*itHit)->localPosition()<<std::endl;
+       LogDebug("") <<"    Global Perp: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).perp())<<std::endl; 
+       LogDebug("") <<"    Global Z: "
+ 		<<(((TrackingGeometry*)(tracker_p_))->idToDet((*itHit)->geographicalId())->surface().toGlobal((*itHit)->localPosition()).z())<<std::endl; 
+     }
+ 
+
+
     std::sort(outputHits_pos_.begin(), outputHits_pos_.end(),
 	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
+
+     //JED Debug of double hit sort problem
+     LogDebug("") << " Done with sort " << std::endl;
+     // JED end of debug for double hit problem
+ 
+
 
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;

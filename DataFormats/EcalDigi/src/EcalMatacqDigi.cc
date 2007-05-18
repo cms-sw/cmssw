@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id$
+// $Id: EcalMatacqDigi.cc,v 1.2 2006/09/08 09:50:07 pgras Exp $
 #include <algorithm>
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 
@@ -8,7 +8,7 @@ using namespace std;
 const double EcalMatacqDigi::lsb_ = 0.25e-3;//V
 
 #if 0
-void EcalMatacqDigi::setSize(int size) {
+void EcalMatacqDigi::setSize(const int& size) {
   if (size<0) size_=0;
   else if (size>MAXSAMPLES) size_=MAXSAMPLES;
   else size_=size;

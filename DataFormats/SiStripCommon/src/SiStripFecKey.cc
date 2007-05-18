@@ -1,94 +1,312 @@
+// Last commit: $Id: SiStripFecKey.cc,v 1.5 2007/03/26 10:12:43 bainbrid Exp $
+
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForView.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include <iomanip>
+#include <sstream>
 
 // -----------------------------------------------------------------------------
 //
-SiStripFecKey::Path::Path() 
-  : fecCrate_(sistrip::invalid_), 
-    fecSlot_(sistrip::invalid_),
-    fecRing_(sistrip::invalid_), 
-    ccuAddr_(sistrip::invalid_),
-    ccuChan_(sistrip::invalid_), 
-    channel_(sistrip::invalid_) {;}
-
-// -----------------------------------------------------------------------------
-//
-/*
-  FEC crate [1-4]:     3-bits, 0=all, 0x07=invalid
-  FEC slot [1-21]:     5-bits, 0=all, 0x1F=invalid
-  FEC ring [1-8]:      4-bits, 0=all, 0x0F=invalid
-  CCU module [1-127]:  8-bits, 0=all, 0xFF=invalid
-  FE module [16-31]:   5-bits, 0=all, 0x1F=invalid
-  LLD/APV [1-3,32-37]: 7-bits, 0=all, 0x7F=invalid
-*/
-SiStripFecKey::Path::Path( const uint16_t& fec_crate, 
-			   const uint16_t& fec_slot, 
-			   const uint16_t& fec_ring, 
-			   const uint16_t& ccu_addr, 
-			   const uint16_t& ccu_chan,
-			   const uint16_t& channel ) 
-  : fecCrate_(fec_crate), 
-    fecSlot_(fec_slot),
-    fecRing_(fec_ring), 
-    ccuAddr_(ccu_addr),
-    ccuChan_(ccu_chan), 
-    channel_(channel) {;}
+SiStripFecKey::SiStripFecKey( const uint16_t& fec_crate, 
+			      const uint16_t& fec_slot, 
+			      const uint16_t& fec_ring, 
+			      const uint16_t& ccu_addr, 
+			      const uint16_t& ccu_chan,
+			      const uint16_t& lld_chan,
+			      const uint16_t& i2c_addr ) :
+  SiStripKey(),
+  fecCrate_(fec_crate), 
+  fecSlot_(fec_slot),
+  fecRing_(fec_ring), 
+  ccuAddr_(ccu_addr),
+  ccuChan_(ccu_chan),
+  lldChan_(lld_chan),
+  i2cAddr_(i2c_addr)
+{
+  // order is important!
+  initFromValue();
+  initFromKey();
+  initFromPath();
+  initGranularity();
+}
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripFecKey::Path::isEqual( const Path& input ) const {
-  if ( fecCrate_ == input.fecCrate_ &&
-       fecSlot_ == input.fecSlot_ &&
-       fecRing_ == input.fecRing_ &&
-       ccuAddr_ == input.ccuAddr_ &&
-       ccuChan_ == input.ccuChan_ &&
-       channel_ == input.channel_ ) { 
+SiStripFecKey::SiStripFecKey( const uint32_t& fec_key ) :
+  SiStripKey(fec_key),
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_),
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_),
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_),
+  i2cAddr_(sistrip::invalid_)
+{
+  // order is important!
+  initFromKey(); 
+  initFromValue();
+  initFromPath();
+  initGranularity();
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripFecKey::SiStripFecKey( const std::string& path ) :
+  SiStripKey(path),
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_),
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_),
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_),
+  i2cAddr_(sistrip::invalid_)
+{
+  // order is important!
+  initFromPath();
+  initFromValue();
+  initFromKey(); 
+  initGranularity();
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripFecKey::SiStripFecKey( const SiStripFecKey& input ) :
+  SiStripKey(),
+  fecCrate_(input.fecCrate()), 
+  fecSlot_(input.fecSlot()),
+  fecRing_(input.fecRing()), 
+  ccuAddr_(input.ccuAddr()),
+  ccuChan_(input.ccuChan()), 
+  lldChan_(input.lldChan()), 
+  i2cAddr_(input.i2cAddr())
+{
+  key(input.key());
+  path(input.path());
+  granularity(input.granularity());
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripFecKey::SiStripFecKey( const SiStripKey& input ) :
+  SiStripKey(),
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_),
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_),
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_),
+  i2cAddr_(sistrip::invalid_)
+{
+  SiStripKey& temp = const_cast<SiStripKey&>(input);
+  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  if ( (&fec_key) ) {
+    key(fec_key.key());
+    path(fec_key.path());
+    granularity(fec_key.granularity());
+    fecCrate_ = fec_key.fecCrate(); 
+    fecSlot_ = fec_key.fecSlot();
+    fecRing_ = fec_key.fecRing(); 
+    ccuAddr_ = fec_key.ccuAddr();
+    ccuChan_ = fec_key.ccuChan(); 
+    lldChan_ = fec_key.lldChan();
+    i2cAddr_ = fec_key.i2cAddr();
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripFecKey::SiStripFecKey( const SiStripKey& input,
+			      const sistrip::Granularity& gran ) :
+  SiStripKey(),
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_),
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_),
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_),
+  i2cAddr_(sistrip::invalid_)
+{
+  SiStripKey& temp = const_cast<SiStripKey&>(input);
+  SiStripFecKey& fec_key = dynamic_cast<SiStripFecKey&>(temp);
+  if ( (&fec_key) ) {
+    
+    if ( gran == sistrip::FEC_CRATE || gran == sistrip::FEC_SLOT ||
+	 gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
+	 gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+	 gran == sistrip::APV ) {
+      fecCrate_ = fec_key.fecCrate(); 
+    }
+
+    if ( gran == sistrip::FEC_SLOT || gran == sistrip::FEC_RING ||
+	 gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
+	 gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+      fecSlot_ = fec_key.fecSlot();
+    }
+
+    if ( gran == sistrip::FEC_RING || gran == sistrip::CCU_ADDR ||
+	 gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+	 gran == sistrip::APV ) {
+      fecRing_ = fec_key.fecRing(); 
+    }
+
+    if ( gran == sistrip::CCU_ADDR || gran == sistrip::CCU_CHAN ||
+	 gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+      ccuAddr_ = fec_key.ccuAddr();
+    }
+
+    if ( gran == sistrip::CCU_CHAN || gran == sistrip::LLD_CHAN ||
+	 gran == sistrip::APV ) {
+      ccuChan_ = fec_key.ccuChan(); 
+    }
+
+    if ( gran == sistrip::LLD_CHAN || gran == sistrip::APV ) {
+      lldChan_ = fec_key.lldChan();
+    }
+
+    if ( gran == sistrip::APV ) {
+      i2cAddr_ = fec_key.i2cAddr();
+    }
+
+    initFromValue();
+    initFromKey();
+    initFromPath();
+    initGranularity();
+    
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+// 
+SiStripFecKey::SiStripFecKey() :
+  SiStripKey(),
+  fecCrate_(sistrip::invalid_), 
+  fecSlot_(sistrip::invalid_),
+  fecRing_(sistrip::invalid_), 
+  ccuAddr_(sistrip::invalid_),
+  ccuChan_(sistrip::invalid_), 
+  lldChan_(sistrip::invalid_),
+  i2cAddr_(sistrip::invalid_)
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+uint16_t SiStripFecKey::hybridPos( const uint16_t& i2c_addr ) {
+  if ( i2c_addr < sistrip::APV_I2C_MIN ||
+       i2c_addr > sistrip::APV_I2C_MAX ) {
+    return sistrip::invalid_;
+  }
+  return ( i2c_addr - sistrip::APV_I2C_MIN + 1 );
+}
+
+// -----------------------------------------------------------------------------
+// 
+uint16_t SiStripFecKey::i2cAddr( const uint16_t& hybrid_pos ) {
+  if ( !hybrid_pos ||
+       hybrid_pos > 
+       ( sistrip::APV_I2C_MAX - 
+	 sistrip::APV_I2C_MIN + 1 ) ) {
+    return sistrip::invalid_;
+  }
+  return ( hybrid_pos + sistrip::APV_I2C_MIN - 1 );
+}
+
+// -----------------------------------------------------------------------------
+// 
+uint16_t SiStripFecKey::i2cAddr( const uint16_t& lld_chan,
+				 const bool& first_apv ) {
+  if ( lld_chan < sistrip::LLD_CHAN_MIN ||
+       lld_chan > sistrip::LLD_CHAN_MAX ) {
+    return sistrip::invalid_; 
+  }
+  return ( lld_chan * sistrip::APVS_PER_CHAN + (first_apv?1:2) );
+}
+
+// -----------------------------------------------------------------------------
+// 
+uint16_t SiStripFecKey::lldChan( const uint16_t& i2c_addr ) {
+  if ( i2c_addr < sistrip::APV_I2C_MIN ||
+       i2c_addr > sistrip::APV_I2C_MAX ) {
+    return sistrip::invalid_;
+  }
+  return ( ( i2c_addr - sistrip::APV_I2C_MIN ) / 2 + 1 );
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripFecKey::firstApvOfPair( const uint16_t& i2c_addr ) {
+  if ( i2c_addr < sistrip::APV_I2C_MIN ||
+       i2c_addr > sistrip::APV_I2C_MAX ) {
+    return sistrip::invalid_;
+  }
+  return ( ( ( i2c_addr - sistrip::APV_I2C_MIN ) % 2 ) == 0 );
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripFecKey::isEqual( const SiStripKey& key ) const {
+  SiStripKey& temp = const_cast<SiStripKey&>(key);
+  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  if ( !(&input) ) { return false; }
+  if ( fecCrate_ == input.fecCrate() &&
+       fecSlot_ == input.fecSlot() &&
+       fecRing_ == input.fecRing() &&
+       ccuAddr_ == input.ccuAddr() &&
+       ccuChan_ == input.ccuChan() &&
+       lldChan_ == input.lldChan() &&
+       i2cAddr_ == input.i2cAddr() ) { 
     return true;
   } else { return false; }
 }
 
 // -----------------------------------------------------------------------------
 // 
-bool SiStripFecKey::Path::isConsistent( const Path& input ) const {
+bool SiStripFecKey::isConsistent( const SiStripKey& key ) const {
+  SiStripKey& temp = const_cast<SiStripKey&>(key);
+  SiStripFecKey& input = dynamic_cast<SiStripFecKey&>(temp);
+  if ( !(&input) ) { return false; }
   if ( isEqual(input) ) { return true; }
-  else if ( ( fecCrate_ == 0 || input.fecCrate_ == 0 ) &&
-	    ( fecSlot_ == 0 || input.fecSlot_ == 0 ) &&
-	    ( fecRing_ == 0 || input.fecRing_ == 0 ) &&
-	    ( ccuAddr_ == 0 || input.ccuAddr_ == 0 ) &&
-	    ( channel_ == 0 || input.channel_ == 0 ) ) {
+  else if ( ( fecCrate_ == 0 || input.fecCrate() == 0 ) &&
+	    ( fecSlot_ == 0 || input.fecSlot() == 0 ) &&
+	    ( fecRing_ == 0 || input.fecRing() == 0 ) &&
+	    ( ccuAddr_ == 0 || input.ccuAddr() == 0 ) &&
+	    ( lldChan_ == 0 || input.lldChan() == 0 ) &&
+	    ( i2cAddr_ == 0 || input.i2cAddr() == 0 ) ) {
     return true;
   } else { return false; }
 }
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripFecKey::Path::isInvalid() const {
-  if ( fecCrate_ == sistrip::invalid_ &&
-       fecSlot_ == sistrip::invalid_ &&
-       fecRing_ == sistrip::invalid_ &&
-       ccuAddr_ == sistrip::invalid_ &&
-       ccuChan_ == sistrip::invalid_ &&
-       channel_ == sistrip::invalid_ ) {
-    return true;
-  } else { return false; }
+bool SiStripFecKey::isValid() const { 
+  return isValid(sistrip::APV); 
 }
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripFecKey::Path::isInvalid( const sistrip::Granularity& gran ) const {
-  if ( fecCrate_ == sistrip::invalid_ ) {
+bool SiStripFecKey::isValid( const sistrip::Granularity& gran ) const {
+  if ( gran == sistrip::FEC_SYSTEM ) { return true; }
+  else if ( gran == sistrip::UNDEFINED_GRAN ||
+	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
+  
+  if ( fecCrate_ != sistrip::invalid_ ) {
     if ( gran == sistrip::FEC_CRATE ) { return true; }
-    if ( fecSlot_ == sistrip::invalid_ ) {
+    if ( fecSlot_ != sistrip::invalid_ ) {
       if ( gran == sistrip::FEC_RING ) { return true; }
-      if ( fecRing_ == sistrip::invalid_ ) {
+      if ( fecRing_ != sistrip::invalid_ ) {
 	if ( gran == sistrip::FEC_RING ) { return true; }
-	if ( ccuAddr_ == sistrip::invalid_ ) {
+	if ( ccuAddr_ != sistrip::invalid_ ) {
 	  if ( gran == sistrip::CCU_ADDR ) { return true; }
-	  if ( ccuChan_ == sistrip::invalid_ ) {
+	  if ( ccuChan_ != sistrip::invalid_ ) {
 	    if ( gran == sistrip::CCU_CHAN ) { return true; }
-	    if ( channel_ == sistrip::invalid_ ) {
-	      if ( gran == sistrip::LLD_CHAN  || 
-		   gran == sistrip::APV ) { return true; }
+	    if ( lldChan_ != sistrip::invalid_ ) {
+	      if ( gran == sistrip::LLD_CHAN ) { return true; }
+	      if ( i2cAddr_ != sistrip::invalid_ ) {
+		if ( gran == sistrip::APV ) { return true; }
+	      }
 	    }
 	  }
 	}
@@ -100,141 +318,462 @@ bool SiStripFecKey::Path::isInvalid( const sistrip::Granularity& gran ) const {
 
 // -----------------------------------------------------------------------------
 //
-uint32_t SiStripFecKey::key( uint16_t fec_crate,
-			     uint16_t fec_slot,
-			     uint16_t fec_ring,
-			     uint16_t ccu_addr,
-			     uint16_t ccu_chan,
-			     uint16_t channel ) {
+bool SiStripFecKey::isInvalid() const { 
+  return isValid(sistrip::APV); 
+}
 
-  uint32_t temp = 0;
-
-  if ( fec_crate > sistrip::FEC_CRATE_MAX ) { temp |= (fecCrateMask_<<fecCrateOffset_); }
-  else { temp |= (fec_crate<<fecCrateOffset_); }
-
-  if ( fec_slot > sistrip::CRATE_SLOT_MAX ) { temp |= (fecSlotMask_<<fecSlotOffset_); } 
-  else { temp |= (fec_slot<<fecSlotOffset_); }
-
-  if ( fec_ring > sistrip::FEC_RING_MAX ) { temp |= (fecRingMask_<<fecRingOffset_); }
-  else { temp |= (fec_ring<<fecRingOffset_); }
-
-  if ( ccu_addr > sistrip::CCU_ADDR_MAX ) { temp |= (ccuAddrMask_<<ccuAddrOffset_); }
-  else { temp |= (ccu_addr<<ccuAddrOffset_); 
+// -----------------------------------------------------------------------------
+//
+bool SiStripFecKey::isInvalid( const sistrip::Granularity& gran ) const {
+  if ( gran == sistrip::FEC_SYSTEM ) { return false; }
+  else if ( gran == sistrip::UNDEFINED_GRAN ||
+	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
+  
+  if ( fecCrate_ == sistrip::invalid_ ) {
+    if ( gran == sistrip::FEC_CRATE ) { return true; }
+    if ( fecSlot_ == sistrip::invalid_ ) {
+      if ( gran == sistrip::FEC_RING ) { return true; }
+      if ( fecRing_ == sistrip::invalid_ ) {
+	if ( gran == sistrip::FEC_RING ) { return true; }
+	if ( ccuAddr_ == sistrip::invalid_ ) {
+	  if ( gran == sistrip::CCU_ADDR ) { return true; }
+	  if ( ccuChan_ == sistrip::invalid_ ) {
+	    if ( gran == sistrip::CCU_CHAN ) { return true; }
+	    if ( lldChan_ == sistrip::invalid_ ) {
+	      if ( gran == sistrip::LLD_CHAN  ) { return true; }
+	      if ( i2cAddr_ == sistrip::invalid_ ) {
+		if ( gran == sistrip::APV  ) { return true; }
+	      }
+	    }
+	  }
+	}
+      }
+    }
   }
+  return false;
+}
 
-  if ( ccu_chan >= sistrip::CCU_CHAN_MIN &&
-       ccu_chan <= sistrip::CCU_CHAN_MAX ) { 
-    temp |= ( (ccu_chan-(sistrip::CCU_CHAN_MIN-1)) << ccuChanOffset_ ); 
-  } else if ( !ccu_chan ) {
-    temp |= ( ccu_chan << ccuChanOffset_ ); 
-  } else { 
-    temp |= ( ccuChanMask_ << ccuChanOffset_ ); 
-  }
+// -----------------------------------------------------------------------------
+//
+void SiStripFecKey::initFromValue() {
 
-  if ( channel >= sistrip::LLD_CHAN_MIN && 
-       channel <= sistrip::LLD_CHAN_MAX ) { 
-    temp |= ( (channel-sistrip::LLD_CHAN_MIN+1) << channelOffset_ ); 
-  } else if ( channel >= sistrip::APV_I2C_MIN && 
-	      channel <= sistrip::APV_I2C_MAX  ) { 
-    temp |= ( (channel-(sistrip::APV_I2C_MIN-sistrip::LLD_CHAN_MAX-1)) << channelOffset_ ); 
-  } else if ( !channel ) {
-    temp |= ( channel << channelOffset_ ); 
+  // FEC crate  
+  if ( fecCrate_ >= sistrip::FEC_CRATE_MIN &&
+       fecCrate_ <= sistrip::FEC_CRATE_MAX ) {
+    fecCrate_ = fecCrate_;
+  } else if ( fecCrate_ == 0 ) { 
+    fecCrate_ = 0;
+  } else { fecCrate_ = sistrip::invalid_; }
+
+  // FEC slot
+  if ( fecSlot_ >= sistrip::CRATE_SLOT_MIN &&
+       fecSlot_ <= sistrip::CRATE_SLOT_MAX ) {
+    fecSlot_ = fecSlot_;
+  } else if ( fecSlot_ == 0 ) { 
+    fecSlot_ = 0;
+  } else { fecSlot_ = sistrip::invalid_; }
+
+  // FEC ring
+  if ( fecRing_ >= sistrip::FEC_RING_MIN &&
+       fecRing_ <= sistrip::FEC_RING_MAX ) {
+    fecRing_ = fecRing_;
+  } else if ( fecRing_ == 0 ) { 
+    fecRing_ = 0;
+  } else { fecRing_ = sistrip::invalid_; }
+
+  // CCU addr
+  if ( ccuAddr_ >= sistrip::CCU_ADDR_MIN &&
+       ccuAddr_ <= sistrip::CCU_ADDR_MAX ) {
+    ccuAddr_ = ccuAddr_;
+  } else if ( ccuAddr_ == 0 ) { 
+    ccuAddr_ = 0;
+  } else { ccuAddr_ = sistrip::invalid_; }
+
+  // CCU chan
+  if ( ccuChan_ >= sistrip::CCU_CHAN_MIN &&
+       ccuChan_ <= sistrip::CCU_CHAN_MAX ) {
+    ccuChan_ = ccuChan_;
+  } else if ( ccuChan_ == 0 ) { 
+    ccuChan_ = 0;
+  } else { ccuChan_ = sistrip::invalid_; }
+  
+  // LLD channel
+  if ( lldChan_ >= sistrip::LLD_CHAN_MIN &&
+       lldChan_ <= sistrip::LLD_CHAN_MAX ) {
+    lldChan_ = lldChan_;
+  } else if ( lldChan_ == 0 ) { 
+    lldChan_ = 0;
+  } else { lldChan_ = sistrip::invalid_; }
+  
+  // APV I2C address
+  if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
+       i2cAddr_ <= sistrip::APV_I2C_MAX ) { 
+    i2cAddr_ = i2cAddr_;
+//     // Consistency check wrt LLD channel
+//     if ( lldChan(i2cAddr_) && lldChan_ &&
+// 	 lldChan(i2cAddr_) != lldChan_ ) {
+//       i2cAddr_ = sistrip::invalid_;
+//     }
+  } else if ( i2cAddr_ == 0 ) { 
+    i2cAddr_ = 0;
+  } else { i2cAddr_ = sistrip::invalid_; }
+  
+}
+
+// -----------------------------------------------------------------------------
+//
+void SiStripFecKey::initFromKey() {
+  
+  if ( key() == sistrip::invalid32_ ) { 
+
+    // ---------- Set FecKey based on member data ----------
+    
+    // Initialise to null value
+    key(0);
+    
+    // Extract FEC crate  
+    if ( fecCrate_ >= sistrip::FEC_CRATE_MIN &&
+	 fecCrate_ <= sistrip::FEC_CRATE_MAX ) {
+      key( key() | (fecCrate_<<fecCrateOffset_) );
+    } else if ( fecCrate_ == 0 ) { 
+      key( key() | (fecCrate_<<fecCrateOffset_) );
+    } else { 
+      key( key() | (fecCrateMask_<<fecCrateOffset_) ); 
+    }
+
+    // Extract FEC slot
+    if ( fecSlot_ >= sistrip::CRATE_SLOT_MIN &&
+	 fecSlot_ <= sistrip::CRATE_SLOT_MAX ) {
+      key( key() | (fecSlot_<<fecSlotOffset_) );
+    } else if ( fecSlot_ == 0 ) { 
+      key( key() | (fecSlot_<<fecSlotOffset_) );
+    } else { 
+      key( key() | (fecSlotMask_<<fecSlotOffset_) ); 
+    }
+
+    // Extract FEC ring
+    if ( fecRing_ >= sistrip::FEC_RING_MIN &&
+	 fecRing_ <= sistrip::FEC_RING_MAX ) {
+      key( key() | (fecRing_<<fecRingOffset_) );
+    } else if ( fecRing_ == 0 ) { 
+      key( key() | (fecRing_<<fecRingOffset_) );
+    } else { 
+      key( key() | (fecRingMask_<<fecRingOffset_) ); 
+    }
+
+    // Extract CCU addr
+    if ( ccuAddr_ >= sistrip::CCU_ADDR_MIN &&
+	 ccuAddr_ <= sistrip::CCU_ADDR_MAX ) {
+      key( key() | (ccuAddr_<<ccuAddrOffset_) );
+    } else if ( ccuAddr_ == 0 ) { 
+      key( key() | (ccuAddr_<<ccuAddrOffset_) );
+    } else { 
+      key( key() | (ccuAddrMask_<<ccuAddrOffset_) ); 
+    }
+
+    // Extract CCU chan
+    if ( ccuChan_ >= sistrip::CCU_CHAN_MIN &&
+	 ccuChan_ <= sistrip::CCU_CHAN_MAX ) {
+      key( key() | ( (ccuChan_-(sistrip::CCU_CHAN_MIN-1)) << ccuChanOffset_ ) ); 
+    } else if ( ccuChan_ == 0 ) { 
+      key( key() | (ccuChan_<<ccuChanOffset_) );
+    } else { 
+      key( key() | (ccuChanMask_<<ccuChanOffset_) ); 
+    }
+    
+    // Extract LLD channel
+    if ( lldChan_ >= sistrip::LLD_CHAN_MIN &&
+	 lldChan_ <= sistrip::LLD_CHAN_MAX ) {
+      key( key() | (lldChan_<<lldChanOffset_) ); 
+    } else if ( lldChan_ == 0 ) { 
+      key( key() | (lldChan_<<lldChanOffset_) );
+    } else { 
+      key( key() | (lldChanMask_<<lldChanOffset_) ); 
+    }
+    
+    // Extract APV I2C address
+    if ( i2cAddr_ >= sistrip::APV_I2C_MIN &&
+	 i2cAddr_ <= sistrip::APV_I2C_MAX ) {
+      key( key() | ( hybridPos(i2cAddr_) << i2cAddrOffset_ ) ); 
+//       // Consistency check wrt LLD channel
+//       if ( lldChan(i2cAddr_) && lldChan_ &&
+// 	   lldChan(i2cAddr_) != lldChan_ ) {
+// 	i2cAddr_ |= (i2cAddrMask_<<i2cAddrOffset_) ); 
+//       }
+    } else if ( i2cAddr_ == 0 ) { 
+      key( key() | (i2cAddr_<<i2cAddrOffset_) );
+    } else { 
+      key( key() | (i2cAddrMask_<<i2cAddrOffset_) ); 
+    }
+    
   } else {
-    temp |= ( channelMask_ << channelOffset_ ); 
+    
+    // ---------- Set member data based on FEC key ----------
+
+    fecCrate_ = ( key()>>fecCrateOffset_ ) & fecCrateMask_;
+    fecSlot_  = ( key()>>fecSlotOffset_ )  & fecSlotMask_;
+    fecRing_  = ( key()>>fecRingOffset_ )  & fecRingMask_;
+    ccuAddr_  = ( key()>>ccuAddrOffset_ )  & ccuAddrMask_;
+    ccuChan_  = ( key()>>ccuChanOffset_ )  & ccuChanMask_;
+    lldChan_  = ( key()>>lldChanOffset_ )  & lldChanMask_;
+    i2cAddr_  = ( key()>>i2cAddrOffset_ )  & i2cAddrMask_;
+
+    if ( fecCrate_ == fecCrateMask_ ) { fecCrate_ = sistrip::invalid_; } 
+    if ( fecSlot_ == fecSlotMask_ )   { fecSlot_ = sistrip::invalid_; } 
+    if ( fecRing_ == fecRingMask_ )   { fecRing_ = sistrip::invalid_; } 
+    if ( ccuAddr_ == ccuAddrMask_ )   { ccuAddr_ = sistrip::invalid_; } 
+    if ( ccuChan_ == ccuChanMask_ )   { ccuChan_ = sistrip::invalid_; }
+    else if ( ccuChan_ )              { ccuChan_ += (sistrip::CCU_CHAN_MIN-1); }
+    if ( lldChan_ == lldChanMask_ )   { lldChan_ = sistrip::invalid_; }
+    if ( i2cAddr_ == i2cAddrMask_ )   { i2cAddr_ = sistrip::invalid_; }
+    else if ( i2cAddr_ )              { i2cAddr_ = i2cAddr(i2cAddr_); }
+    
+//     // Consistency check wrt LLD channel
+//     if ( lldChan(i2cAddr_) && lldChan_ &&
+// 	 lldChan(i2cAddr_) != lldChan_ ) {
+//       i2cAddr_ = sistrip::invalid_;
+//     }
+    
   }
   
-  return temp;
-
 }
 
 // -----------------------------------------------------------------------------
 // 
-uint32_t SiStripFecKey::key( const Path& path ) {
-  return SiStripFecKey::key( path.fecCrate_,
-			     path.fecSlot_,
-			     path.fecRing_,
-			     path.ccuAddr_,
-			     path.ccuChan_,
-			     path.channel_ );
+void SiStripFecKey::initFromPath() {
+  
+  if ( path() == sistrip::null_ ) {
+    
+    // ---------- Set directory path based on member data ----------
+
+    std::stringstream dir;
+    
+    dir << sistrip::root_ << sistrip::dir_ 
+	<< sistrip::controlView_ << sistrip::dir_;
+
+    // Add FEC crate
+    if ( fecCrate_ ) {
+      dir << sistrip::fecCrate_ << fecCrate_ << sistrip::dir_;
+      
+      // Add FEC slot
+      if ( fecSlot_ ) {
+	dir << sistrip::fecSlot_ << fecSlot_ << sistrip::dir_;
+	
+	// Add FEC ring
+	if ( fecRing_ ) {
+	  dir << sistrip::fecRing_ << fecRing_ << sistrip::dir_;
+	  
+	  // Add CCU address
+	  if ( ccuAddr_ ) {
+	    dir << sistrip::ccuAddr_ << ccuAddr_ << sistrip::dir_;
+	    
+	    // Add CCU channel
+	    if ( ccuChan_ ) {
+	      dir << sistrip::ccuChan_ << ccuChan_ << sistrip::dir_;
+
+	      // Add LLD channel
+	      if ( lldChan_ ) {
+		dir << sistrip::lldChan_ << lldChan_ << sistrip::dir_;
+
+		// Add APV I2C address
+		if ( i2cAddr_ ) {
+		  dir << sistrip::apv_ << i2cAddr_ << sistrip::dir_;
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    
+    std::string temp( dir.str() );
+    path( temp );
+
+  } else {
+    
+    // ---------- Set member data based on directory path ----------
+    
+    fecCrate_ = 0;
+    fecSlot_  = 0;
+    fecRing_  = 0;
+    ccuAddr_  = 0;
+    ccuChan_  = 0;
+    lldChan_  = 0;
+    i2cAddr_  = 0;
+    
+    uint32_t curr = 0; // current string position
+    uint32_t next = 0; // next string position
+    next = path().find( sistrip::controlView_, curr );
+
+    // Extract view 
+    curr = next;
+    if ( curr != std::string::npos ) { 
+      next = path().find( sistrip::fecCrate_, curr );
+      std::string control_view( path(), 
+				curr+sistrip::controlView_.size(), 
+				(next-sistrip::dir_.size())-curr );
+      
+      // Extract FEC crate
+      curr = next;
+      if ( curr != std::string::npos ) { 
+	next = path().find( sistrip::fecSlot_, curr );
+	std::string fec_crate( path(), 
+			       curr+sistrip::fecCrate_.size(), 
+			       (next-sistrip::dir_.size())-curr );
+	fecCrate_ = std::atoi( fec_crate.c_str() );
+
+	// Extract FEC slot
+	curr = next;
+	if ( curr != std::string::npos ) { 
+	  next = path().find( sistrip::fecRing_, curr );
+	  std::string fec_slot( path(), 
+				curr+sistrip::fecSlot_.size(), 
+				(next-sistrip::dir_.size())-curr );
+	  fecSlot_ = std::atoi( fec_slot.c_str() );
+
+	  // Extract FEC ring
+	  curr = next;
+	  if ( curr != std::string::npos ) { 
+	    next = path().find( sistrip::ccuAddr_, curr );
+	    std::string fec_ring( path(), 
+				  curr+sistrip::fecRing_.size(),
+				  (next-sistrip::dir_.size())-curr );
+	    fecRing_ = std::atoi( fec_ring.c_str() );
+
+	    // Extract CCU address
+	    curr = next;
+	    if ( curr != std::string::npos ) { 
+	      next = path().find( sistrip::ccuChan_, curr );
+	      std::string ccu_addr( path(), 
+				    curr+sistrip::ccuAddr_.size(), 
+				    (next-sistrip::dir_.size())-curr );
+	      ccuAddr_ = std::atoi( ccu_addr.c_str() );
+
+	      // Extract CCU channel
+	      curr = next;
+	      if ( curr != std::string::npos ) { 
+		next = path().find( sistrip::lldChan_, curr );
+		std::string ccu_chan( path(), 
+				      curr+sistrip::ccuChan_.size(), 
+				      (next-sistrip::dir_.size())-curr );
+		ccuChan_ = std::atoi( ccu_chan.c_str() );
+		
+		// Extract LLD channel
+		curr = next;
+		if ( curr != std::string::npos ) { 
+		  next = path().find( sistrip::apv_, curr );
+		  std::string lld_chan( path(), 
+					curr+sistrip::lldChan_.size(), 
+					(next-sistrip::dir_.size())-curr );
+		  lldChan_ = std::atoi( lld_chan.c_str() );
+		  
+		  // Extract I2C address
+		  curr = next;
+		  if ( curr != std::string::npos ) { 
+		    next = std::string::npos;
+		    std::string i2c_addr( path(), 
+					  curr+sistrip::apv_.size(),
+					  next-curr );
+		    i2cAddr_ = std::atoi( i2c_addr.c_str() );
+		  }
+		}
+	      }
+	    }
+	  }
+	}
+      }
+    } else {
+      std::stringstream ss;
+      ss << sistrip::root_ << sistrip::dir_ 
+	 << sistrip::unknownView_ << sistrip::dir_;
+      std::string temp( ss.str() );
+      path( temp );
+    }
+    
+  }
+  
 }
 
 // -----------------------------------------------------------------------------
-//
-SiStripFecKey::Path SiStripFecKey::path( uint32_t key ) {
-
-  Path tmp;
-
-  tmp.fecCrate_ = ( key>>fecCrateOffset_ ) & fecCrateMask_;
-  tmp.fecSlot_ = ( key>>fecSlotOffset_ ) & fecSlotMask_;
-  tmp.fecRing_ = ( key>>fecRingOffset_ ) & fecRingMask_;
-  tmp.ccuAddr_ = ( key>>ccuAddrOffset_ ) & ccuAddrMask_;
-  tmp.ccuChan_ = ( key>>ccuChanOffset_ ) & ccuChanMask_;
-  tmp.channel_ = ( key>>channelOffset_ ) & channelMask_;
-
-  if ( tmp.fecCrate_ == fecCrateMask_ ) { tmp.fecCrate_ = sistrip::invalid_; } 
-  if ( tmp.fecSlot_ == fecSlotMask_ ) { tmp.fecSlot_ = sistrip::invalid_; } 
-  if ( tmp.fecRing_ == fecRingMask_ ) { tmp.fecRing_ = sistrip::invalid_; } 
-  if ( tmp.ccuAddr_ == ccuAddrMask_ ) { tmp.ccuAddr_ = sistrip::invalid_; } 
-
-  if ( tmp.ccuChan_ == ccuChanMask_ ) { 
-    tmp.ccuChan_ = sistrip::invalid_; 
-  } else if ( tmp.ccuChan_ ) { 
-    tmp.ccuChan_ += (sistrip::CCU_CHAN_MIN-1); 
-  } 
-
-  if ( tmp.channel_ == channelMask_ ) { 
-    tmp.channel_ = sistrip::invalid_; 
-  } else if ( tmp.channel_ >= sistrip::LLD_CHAN_MIN && 
-	      tmp.channel_ <= sistrip::LLD_CHAN_MAX ) { 
-    tmp.channel_ += (sistrip::LLD_CHAN_MIN-1); 
-  } else if ( tmp.channel_ >= (sistrip::LLD_CHAN_MAX+1) && 
-	      tmp.channel_ <= (sistrip::LLD_CHAN_MAX+1+sistrip::APV_I2C_MAX-sistrip::APV_I2C_MIN) ) { 
-    tmp.channel_ += (sistrip::APV_I2C_MIN-sistrip::LLD_CHAN_MAX-1); 
+// 
+void SiStripFecKey::initGranularity() {
+  
+  granularity( sistrip::FEC_SYSTEM );
+  channel(0);
+  if ( fecCrate_ && fecCrate_ != sistrip::invalid_ ) {
+    granularity( sistrip::FEC_CRATE ); 
+    channel(fecCrate_);
+    if ( fecSlot_ && fecSlot_ != sistrip::invalid_ ) {
+      granularity( sistrip::FEC_SLOT );
+      channel(fecSlot_);
+      if ( fecRing_ && fecRing_ != sistrip::invalid_ ) {
+	granularity( sistrip::FEC_RING );
+	channel(fecRing_);
+	if ( ccuAddr_ && ccuAddr_ != sistrip::invalid_ ) {
+	  granularity( sistrip::CCU_ADDR );
+	  channel(ccuAddr_);
+	  if ( ccuChan_ && ccuChan_ != sistrip::invalid_ ) {
+	    granularity( sistrip::CCU_CHAN );
+	    channel(ccuChan_);
+	    if ( lldChan_ && lldChan_ != sistrip::invalid_ ) {
+	      granularity( sistrip::LLD_CHAN );
+	      channel(lldChan_);
+	      if ( i2cAddr_ && i2cAddr_ != sistrip::invalid_ ) {
+		granularity( sistrip::APV );
+		channel(i2cAddr_);
+	      } else if ( i2cAddr_ == sistrip::invalid_ ) { 
+		granularity( sistrip::UNKNOWN_GRAN ); 
+		channel(sistrip::invalid_);
+	      }
+	    } else if ( lldChan_ == sistrip::invalid_ ) { 
+	      granularity( sistrip::UNKNOWN_GRAN ); 
+	      channel(sistrip::invalid_);
+	    }
+	  } else if ( ccuChan_ == sistrip::invalid_ ) { 
+	    granularity( sistrip::UNKNOWN_GRAN ); 
+	    channel(sistrip::invalid_);
+	  }
+	} else if ( ccuAddr_ == sistrip::invalid_ ) { 
+	  granularity( sistrip::UNKNOWN_GRAN ); 
+	  channel(sistrip::invalid_);
+	}
+      } else if ( fecRing_ == sistrip::invalid_ ) { 
+	granularity( sistrip::UNKNOWN_GRAN ); 
+	channel(sistrip::invalid_);
+      }
+    } else if ( fecSlot_ == sistrip::invalid_ ) { 
+      granularity( sistrip::UNKNOWN_GRAN ); 
+      channel(sistrip::invalid_);
+    }
+  } else if ( fecCrate_ == sistrip::invalid_ ) { 
+    granularity( sistrip::UNKNOWN_GRAN ); 
+    channel(sistrip::invalid_);
   }
 
-  return tmp;  
 }
 
 // -----------------------------------------------------------------------------
 //
-bool SiStripFecKey::isEqual( const uint32_t& key1, 
-			     const uint32_t& key2 ) {
-  SiStripFecKey::Path path1 = SiStripFecKey::path( key1 ) ;
-  SiStripFecKey::Path path2 = SiStripFecKey::path( key2 ) ;
-  return path1.isEqual( path2 );
-}
-
-// -----------------------------------------------------------------------------
-//
-bool SiStripFecKey::isConsistent( const uint32_t& key1, 
-				  const uint32_t& key2 ) {
-  SiStripFecKey::Path path1 = SiStripFecKey::path( key1 ) ;
-  SiStripFecKey::Path path2 = SiStripFecKey::path( key2 ) ;
-  return path1.isConsistent( path2 );
-}
-
-// -----------------------------------------------------------------------------
-//
-std::ostream& operator<< ( std::ostream& os, const SiStripFecKey::Path& path ) {
-
-  return os << std::hex
-	    << " FecKey: 0x" << std::setfill('0') << std::setw(8) << SiStripFecKey::key(path)
+std::ostream& operator<< ( std::ostream& os, const SiStripFecKey& input ) {
+  return os << std::endl
+	    << " [SiStripFecKey::print]" << std::endl
+	    << std::hex
+	    << " FEC key              : 0x" 
+	    << std::setfill('0') 
+	    << std::setw(8) << input.key() << std::endl
+	    << std::setfill(' ') 
 	    << std::dec
-	    << " Crate/FEC/Ring/CCU/Module/Channel: " 
-	    << path.fecCrate_ << "/"
-	    << path.fecSlot_ << "/"
-	    << path.fecRing_ << "/"
-	    << path.ccuAddr_ << "/"
-	    << path.ccuChan_ << "/"
-	    << path.channel_;
-
+	    << " FEC VME crate        : " << input.fecCrate() << std::endl
+	    << " FEC VME slot         : " << input.fecSlot() << std::endl 
+	    << " FEC control ring     : " << input.fecRing() << std::endl
+	    << " CCU I2C address      : " << input.ccuAddr() << std::endl
+	    << " CCU chan (FE module) : " << input.ccuChan() << std::endl
+	    << " LaserDriver channel  : " << input.lldChan() << std::endl 
+	    << " APV I2C address      : " << input.i2cAddr() << std::endl 
+	    << " Directory            : " << input.path() << std::endl
+	    << " Granularity          : "
+	    << SiStripEnumsAndStrings::granularity( input.granularity() ) << std::endl
+ 	    << " Channel              : " << input.channel() << std::endl
+	    << " isValid              : " << input.isValid();
 }
-
-
-
-
-
-
-
-
 

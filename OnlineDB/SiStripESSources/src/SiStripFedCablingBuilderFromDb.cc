@@ -1,15 +1,15 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.29 2006/12/22 12:21:55 bainbrid Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.32 2007/03/19 13:23:07 bainbrid Exp $
+// Latest tag:  $Name: TIF_210307 $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <cstdlib>
 #include <iostream>
@@ -32,13 +32,13 @@ SiStripFedCablingBuilderFromDb::SiStripFedCablingBuilderFromDb( const edm::Param
   
   // Defined cabling "source" (connections, devices, detids)
   string source = pset.getUntrackedParameter<string>( "CablingSource", "UNDEFINED" );
-  source_ = SiStripHistoNamingScheme::cablingSource( source );
+  source_ = SiStripEnumsAndStrings::cablingSource( source );
 
   LogTrace(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " CablingSource configurable set to \"" << source << "\""
     << ". CablingSource member data set to: \"" 
-    << SiStripHistoNamingScheme::cablingSource( source_ ) << "\"";
+    << SiStripEnumsAndStrings::cablingSource( source_ ) << "\"";
 }
 
 // -----------------------------------------------------------------------------
@@ -61,7 +61,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
   
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->(); //@@ NOT GUARANTEED TO BE THREAD SAFE! 
-  LogWarning(mlCabling_) 
+  edm::LogWarning(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Nota bene: using the SiStripConfigDb API"
     << " as a \"service\" does not presently guarantee"
@@ -76,7 +76,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::makeFedCabling() {
       SiStripFecCabling fec_cabling;
       SiStripConfigDb::DcuDetIdMap dcu_detid_map;
       buildFecCabling( db_, fec_cabling, dcu_detid_map, source_ );
-
+      
       // Populate FED cabling object
       getFedCabling( fec_cabling, *fed_cabling );
       
@@ -131,7 +131,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
     LogTrace(mlCabling_)
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Unexpected value for CablingSource: \"" 
-      << SiStripHistoNamingScheme::cablingSource( source )
+      << SiStripEnumsAndStrings::cablingSource( source )
       << "\" Querying DB in order to build cabling from one of connections, devices or DetIds...";
     buildFecCabling( db, fec_cabling, new_map );
     return;
@@ -142,7 +142,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCabling( SiStripConfigDb* const db,
       << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
       << " Cannot build SiStripFecCabling object!"
       << " sistrip::CablingSource has value: "  
-      << SiStripHistoNamingScheme::cablingSource( source );
+      << SiStripEnumsAndStrings::cablingSource( source );
     return;
 
   }
@@ -257,9 +257,9 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
 
   SiStripConfigDb::FedConnections::const_iterator ifed = conns.begin();
   for ( ; ifed != conns.end(); ifed++ ) {
-    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() );
+    uint16_t fec_crate = static_cast<uint16_t>( (*ifed)->getFecInstance() + sistrip::FEC_CRATE_OFFSET ); //@@ temporary offset!
     uint16_t fec_slot  = static_cast<uint16_t>( (*ifed)->getSlot() );
-    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() );
+    uint16_t fec_ring  = static_cast<uint16_t>( (*ifed)->getRing() + sistrip::FEC_RING_OFFSET ); //@@ temporary offset!
     uint16_t ccu_addr  = static_cast<uint16_t>( (*ifed)->getCcu() );
     uint16_t ccu_chan  = static_cast<uint16_t>( (*ifed)->getI2c() );
     uint16_t apv0      = static_cast<uint16_t>( (*ifed)->getApv() );
@@ -268,14 +268,14 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections( SiStripC
     uint32_t det_id    = static_cast<uint32_t>( (*ifed)->getDetId() );
     uint16_t npairs    = static_cast<uint16_t>( (*ifed)->getApvPairs() );
     uint16_t fed_id    = static_cast<uint16_t>( (*ifed)->getFedId() );
-    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() );
+    uint16_t fed_ch    = static_cast<uint16_t>( (*ifed)->getFedChannel() ); // "internal" numbering scheme
     FedChannelConnection conn( fec_crate, fec_slot, fec_ring, ccu_addr, ccu_chan,
 			       apv0, apv1,
 			       dcu_id, det_id, npairs,
 			       fed_id, fed_ch );
     fec_cabling.addDevices( conn );
   }
-
+  
   // ---------- Assign DCU and DetIds and then FED cabling ----------
   
   assignDcuAndDetIds( fec_cabling, cached_map, used_map );
@@ -538,11 +538,11 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds( SiStripConfigDb*
     // --- Check if DCU, DetId and nApvPairs are null ---
 
     if ( !dcu_id ) {
-      dcu_id = SiStripFecKey::key( fec_crate,
-				   fec_slot,
-				   fec_ring,
-				   ccu_addr,
-				   ccu_chan );
+      dcu_id = SiStripFecKey( fec_crate,
+			      fec_slot,
+			      fec_ring,
+			      ccu_addr,
+			      ccu_chan ).key();
     }
     if ( !det_id ) { det_id = 0xFFFF + imodule; } 
     if ( !npairs ) { npairs = rand()/2 ? 2 : 3; }
@@ -615,16 +615,16 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 
 	    //@@ TEMP FIX UNTIL LAURENT DEBUGS FedChannelConnectionDescription CLASS
 	    module.nApvPairs(0);
-
+	    
 	    // --- Check for null DCU ---
-
+	    
 	    if ( !module.dcuId() ) { 
-	      SiStripFecKey::Path path( icrate->fecCrate(),
-					ifec->fecSlot(), 
-					iring->fecRing(), 
-					iccu->ccuAddr(), 
-					imod->ccuChan() );
-	      uint32_t module_key = SiStripFecKey::key( path );
+	      SiStripFecKey path( icrate->fecCrate(),
+				  ifec->fecSlot(), 
+				  iring->fecRing(), 
+				  iccu->ccuAddr(), 
+				  imod->ccuChan() );
+	      uint32_t module_key = path.key();
 	      module.dcuId( module_key ); // Assign DCU id equal to control key
 	      stringstream ss;
 	      ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -643,7 +643,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 	      if ( iter != in.end() ) { 
 
 		// --- Assign DetId and set nApvPairs based on APVs found in given Module ---
-
+		
 		module.detId( iter->second->getDetId() ); 
 		module.nApvPairs(0); 
 		
@@ -654,7 +654,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		   << " from static table for module with DCU id 0x"
 		   << hex << setw(8) << setfill('0') << module.dcuId() << dec;
 		LogTrace(mlCabling_) << ss.str();
-
+		
 		// --- Check number of APV pairs is valid and consistent with cached map ---
 
 		if ( module.nApvPairs() != 2 &&
@@ -665,9 +665,11 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
-		      << " has unexpected number of APV pairs (" << module.nApvPairs()
-		      << ")." << endl
-		      << " Setting to value found in static map (" << iter->second->getApvNumber()/2 << ")";
+		      << " has unexpected number of APV pairs (" 
+		      << module.nApvPairs()
+		      << "). Some APV pairs may have not been detected by the FEC scan."
+		      << " Setting to value found in static map (" 
+		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss1.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}
@@ -679,10 +681,14 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		      << hex << setw(8) << setfill('0') << module.dcuId() << dec
 		      << " and DetId 0x"
 		      << hex << setw(8) << setfill('0') << module.detId() << dec
-		      << " has number of APV pairs (" << module.nApvPairs()
-		      << " that does not match value found in static map (" << iter->second->getApvNumber()/2 
-		      << ")." << endl
-		      << " Setting to value found in static map.";
+		      << " has number of APV pairs (" 
+		      << module.nApvPairs()
+		      << ") that does not match value found in DCU-DetId map (" 
+		      << iter->second->getApvNumber()/2 
+		      << "). Some APV pairs may have not been detected by"
+		      << " the FEC scan or the DCU-DetId map may be incorrect."
+		      << " Setting to value found in static map ("
+		      << iter->second->getApvNumber()/2 << ")...";
 		  edm::LogWarning(mlCabling_) << ss2.str();
 		  module.nApvPairs( iter->second->getApvNumber()/2 ); 
 		}

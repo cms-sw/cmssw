@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.h,v 1.18 2006/11/24 11:41:57 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h,v $
+// Last commit: $Id: $
 
 #ifndef SiStripConfigDb_H
 #define SiStripConfigDb_H
@@ -185,7 +183,7 @@ class SiStripConfigDb {
   const DeviceDescriptions& createDeviceDescriptions( const SiStripFecCabling& );
   
   /** Extracts unique hardware address of device from description. */
-  const DeviceAddress& deviceAddress( const deviceDescription& );
+  const DeviceAddress& deviceAddress( const deviceDescription& ); //@@ uses temp offsets!
   
   // -------------------- FED descriptions --------------------
 
@@ -369,6 +367,9 @@ class SiStripConfigDb {
   
   /** Switch to enable/disable transfer of strip information. */
   bool usingStrips_;
+
+  /** */
+  bool openConnection_;
   
   /** Static counter of instances of this class. */
   static uint32_t cntr_;

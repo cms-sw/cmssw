@@ -1,6 +1,4 @@
 // Last commit: $Id: $
-// Latest tag:  $Name: $
-// Location:    $Source: $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -33,7 +31,8 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   resetDcuDetIdMap_(true), 
   resetDcuConvs_(true),
   // Misc
-  usingStrips_(true)
+  usingStrips_(true),
+  openConnection_(false)
 {
   cntr_++;
   LogTrace(mlConfigDb_)
@@ -207,7 +206,7 @@ SiStripConfigDb::SiStripConfigDb( string input_module_xml,
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::~SiStripConfigDb() {
-  //closeDbConnection();
+  if ( openConnection_ ) { closeDbConnection(); }
   LogTrace(mlConfigDb_)
     << "[SiStripConfigDb::" << __func__ << "]"
     << " Destructing object...";
@@ -323,7 +322,7 @@ void SiStripConfigDb::DbParams::confdb( const string& user,
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::DbParams::print( stringstream& ss ) const {
-  ss << " Using database            : " << usingDb_ << endl
+  ss << " Using database            : " << std::boolalpha << usingDb_ << std::noboolalpha << endl
      << " ConfDb                    : " << confdb_ << endl
      << " User/Passwd@Path          : " << user_ << "/" << passwd_ << "@" << path_ << endl
      << " Partition                 : " << partition_ << endl
@@ -358,6 +357,15 @@ ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::openDbConnection() {
+
+  // Check
+  if ( openConnection_ ) {
+    edm::LogWarning(mlConfigDb_) 
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Connection already open!";
+    return;
+  }
+  openConnection_ = true;
   
   // Establish database connection
   if ( dbParams_.usingDb_ ) { 
@@ -374,6 +382,16 @@ void SiStripConfigDb::openDbConnection() {
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::closeDbConnection() {
+
+  // Check
+  if ( !openConnection_ ) {
+    edm::LogWarning(mlConfigDb_) 
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " No connection open!";
+    return;
+  }
+  openConnection_ = true;
+
   try { 
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }

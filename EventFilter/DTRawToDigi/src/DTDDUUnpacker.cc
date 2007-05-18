@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/09/19 14:09:11 $
- *  $Revision: 1.15 $
+ *  $Date: 2007/04/26 18:53:06 $
+ *  $Revision: 1.19 $
  *  \author  M. Zanetti - INFN Padova 
  * FRC 060906
  */
@@ -128,10 +128,6 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
     theROSList =  dduStatusWord.rosList();
   }
 
-  // Perform dqm if requested
-  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
-    dataMonitor->processFED(controlData, dduID);  
-
 
   //////////////////////
   /*  R O S   d a t a */
@@ -147,5 +143,9 @@ void DTDDUUnpacker::interpretRawData(const unsigned int* index32, int datasize,
 
   // unpacking the ROS payload
   ros25Unpacker->interpretRawData(index32, datasize, dduID, mapping, product, product2, theROSList);
+
+  // Perform dqm if requested
+  if (pset.getUntrackedParameter<bool>("performDataIntegrityMonitor",false)) 
+    dataMonitor->processFED(controlData, ros25Unpacker->getROSsControlData(),dduID);  
   
 }

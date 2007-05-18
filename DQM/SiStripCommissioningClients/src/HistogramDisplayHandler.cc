@@ -54,7 +54,7 @@ void HistogramDisplayHandler::HistogramViewer(xgi::Input * in, xgi::Output * out
       // Create a new Cgicc object containing all the CGI data
       cgicc::Cgicc cgi(in);
 const CgiEnvironment& env = cgi.getEnvironment();
-    string qString = form_urldecode(env.getQueryString());
+    std::string qString = form_urldecode(env.getQueryString());
      cerr << qString << endl;
 
     fillMap(qString);
@@ -62,7 +62,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
     if (hasKey("command")) fCommand = getValue("command");
     cout <<"The command is " <<fCommand<<endl;
     if (fCommand == "filelist") {
-	ostringstream xmlstr;
+	std::ostringstream xmlstr;
   	out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   	*out << "<?xml version=\"1.0\" ?>" << endl;
   	xmlstr << "<fileList>" << endl;
@@ -73,11 +73,11 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	  // 	 cout << " Histogram Viewer filelist call " << endl;
     } 
     else if (fCommand == "mod_histo_list") {
-	vector<string> histolist;
+	std::vector<std::string> histolist;
  
-       vector<string> contents;
+       std::vector<std::string> contents;
        mui_->getContents( contents ); 
-	ostringstream xmlstr;
+	std::ostringstream xmlstr;
 	bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   	//*out << "<?xml version=\"1.0\" ?>" << endl;
@@ -85,13 +85,13 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	xmlstr << endl;
 	xmlstr << "<ModuleAndHistoList>" << endl;
 	xmlstr << "<ModuleList>" << endl;
-	for (vector<string>::iterator it = contents.begin(); 
+	for (std::vector<std::string>::iterator it = contents.begin(); 
 	it != contents.end(); it++) {
-	string::size_type pos = (*it).find("Fec", 0);
+	std::string::size_type pos = (*it).find("Fec", 0);
 	//	cout << (*it) <<endl;
 	//	cout <<"Fec position " <<pos <<endl;
 	if (pos<=0 || pos>512) continue;
- 	string::size_type histopos = (*it).find_first_of(":", 0);
+ 	std::string::size_type histopos = (*it).find_first_of(":", 0);
 	//	cout <<"Hisoto position " <<pos <<endl;
 
 	//	cout << (*it).substr(pos,histopos-pos)<<endl;
@@ -104,7 +104,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	}
 	xmlstr << "</ModuleList>" << endl;
 	xmlstr << "<HistoList>" << endl;
-	for (vector<string>::iterator im = histolist.begin(); 
+	for (std::vector<std::string>::iterator im = histolist.begin(); 
 	im != histolist.end(); im++) {
 	xmlstr << " <Histo>" << *im << "</Histo>" << endl;
 	}
@@ -118,9 +118,9 @@ const CgiEnvironment& env = cgi.getEnvironment();
     else if (fCommand == "mod_list") {
 
  
-       vector<string> contents;
+       std::vector<std::string> contents;
        mui_->getContents( contents ); 
-	ostringstream xmlstr;
+	std::ostringstream xmlstr;
 	//bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   	//*out << "<?xml version=\"1.0\" ?>" << endl;
@@ -128,13 +128,13 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	xmlstr << endl;
 	xmlstr << "<ModuleAndHistoList>" << endl;
 	xmlstr << "<ModuleList>" << endl;
-	for (vector<string>::iterator it = contents.begin(); 
+	for (std::vector<std::string>::iterator it = contents.begin(); 
 	it != contents.end(); it++) {
-	string::size_type pos = (*it).find("Fec", 0);
+	std::string::size_type pos = (*it).find("Fec", 0);
 	//	cout << (*it) <<endl;
 	//	cout <<"Fec position " <<pos <<endl;
 	if (pos<=0 || pos>512) continue;
- 	string::size_type histopos = (*it).find_first_of(":", 0);
+ 	std::string::size_type histopos = (*it).find_first_of(":", 0);
 	//	cout <<"Hisoto position " <<pos <<endl;
 
 	//	cout << (*it).substr(pos,histopos-pos)<<endl;
@@ -148,11 +148,11 @@ const CgiEnvironment& env = cgi.getEnvironment();
       //readModuleAndHistoList();
     }
     else if (fCommand == "histo_list") {
-	vector<string> histolist;
+	std::vector<std::string> histolist;
  
-       vector<string> contents;
+       std::vector<std::string> contents;
        mui_->getContents( contents ); 
-	ostringstream xmlstr;
+	std::ostringstream xmlstr;
 	bool modulefound=false;
 	//out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   	//*out << "<?xml version=\"1.0\" ?>" << endl;
@@ -160,13 +160,13 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	xmlstr << endl;
 	xmlstr << "<ModuleAndHistoList>" << endl;
 
-	for (vector<string>::iterator it = contents.begin(); 
+	for (std::vector<std::string>::iterator it = contents.begin(); 
 	it != contents.end(); it++) {
-	string::size_type pos = (*it).find("Fec", 0);
+	std::string::size_type pos = (*it).find("Fec", 0);
 	//	cout << (*it) <<endl;
 	//	cout <<"Fec position " <<pos <<endl;
 	if (pos<=0 || pos>512) continue;
- 	string::size_type histopos = (*it).find_first_of(":", 0);
+ 	std::string::size_type histopos = (*it).find_first_of(":", 0);
 	//	cout <<"Hisoto position " <<pos <<endl;
 
 	//	cout << (*it).substr(pos,histopos-pos)<<endl;
@@ -180,7 +180,7 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	}
 
 	xmlstr << "<HistoList>" << endl;
-	for (vector<string>::iterator im = histolist.begin(); 
+	for (std::vector<std::string>::iterator im = histolist.begin(); 
 	im != histolist.end(); im++) {
 	xmlstr << " <Histo>" << *im << "</Histo>" << endl;
 	}
@@ -193,8 +193,8 @@ const CgiEnvironment& env = cgi.getEnvironment();
     } 
     else if (fCommand == "plot_as_module") {
       
-      string mod_id = getValue("module");
-      vector<string> hlist;
+      std::string mod_id = getValue("module");
+      std::vector<std::string> hlist;
       getHistogramList(hlist);
       fCanvas->Clear();
       int ncol, nrow;
@@ -221,11 +221,11 @@ const CgiEnvironment& env = cgi.getEnvironment();
 	  mui_->setCurrentFolder( "SiStrip/ControlView/"+mod_id );
 	  cout << mui_->pwd()<<endl;
 
-	  vector<string> tme = mui_->getMEs();
+	  std::vector<std::string> tme = mui_->getMEs();
 	  for (unsigned int j=0;j<tme.size();j++)
 	    cout << tme[j] <<endl;
 
-	  string  hname="SiStrip/ControlView/"+mod_id+"/"+hlist[i];
+	  std::string  hname="SiStrip/ControlView/"+mod_id+"/"+hlist[i];
     
 	  
 	MonitorElement* me = mui_->get( hname ); // path + name
@@ -295,72 +295,72 @@ const CgiEnvironment& env = cgi.getEnvironment();
 //
 // -- Fill ReqMap 
 //
-void HistogramDisplayHandler::fillMap(const string& urlstr){
+void HistogramDisplayHandler::fillMap(const std::string& urlstr){
   fReqMap.clear();
-  vector<string> tokens;
+  std::vector<std::string> tokens;
   HistogramDisplayHandler::tokenize(urlstr, tokens, "&");
-  for (vector<string>::const_iterator it = tokens.begin();
+  for (std::vector<std::string>::const_iterator it = tokens.begin();
        it != tokens.end(); it++)  {
-    string item = *it;
-    string key, value;
+    std::string item = *it;
+    std::string key, value;
     getPair(item, "=", key, value);
     fReqMap.insert(make_pair(key, value));
   }
 
   // print content
   if (0) {
-    multimap<string,string>::iterator pos;
+    std::multimap<std::string,std::string>::iterator pos;
     for (pos = fReqMap.begin(); pos != fReqMap.end(); ++pos) {
       cerr << "'[" << pos->first << "]' => '[" << pos->second << "]'"<< endl;
     }
     cerr << endl;
   }
 }
-void HistogramDisplayHandler::getPair(const string& urlParam, const string& pat, string& key, string& value) {
+void HistogramDisplayHandler::getPair(const std::string& urlParam, const std::string& pat, std::string& key, std::string& value) {
   int index = urlParam.find(pat);
-  if (index != (int) string::npos) {
+  if (index != (int) std::string::npos) {
     key   = urlParam.substr(0, index);
     value = urlParam.substr(index+1);
   }
 }
-string HistogramDisplayHandler::getValue(const string& key) {
-  multimap<string,string>::iterator pos = fReqMap.find(key);
-  string value = " ";
+std::string HistogramDisplayHandler::getValue(const std::string& key) {
+  std::multimap<std::string,std::string>::iterator pos = fReqMap.find(key);
+  std::string value = " ";
   if (pos != fReqMap.end()) {
     value = pos->second;
   }
   return value;
 }
-bool HistogramDisplayHandler::hasKey(const string& key) {
-  multimap<string,string>::iterator pos = fReqMap.find(key);
+bool HistogramDisplayHandler::hasKey(const std::string& key) {
+  std::multimap<std::string,std::string>::iterator pos = fReqMap.find(key);
   if (pos != fReqMap.end()) return true;
   return false;  
 }
-void HistogramDisplayHandler::getHistogramList(vector<string>& hlist) {
+void HistogramDisplayHandler::getHistogramList(std::vector<std::string>& hlist) {
   hlist.clear();
-  for (multimap<string,string>::iterator it = fReqMap.begin();
+  for (std::multimap<std::string,std::string>::iterator it = fReqMap.begin();
        it != fReqMap.end(); it++) {
     if (it->first == "hist") {
       hlist.push_back(it->second);
     }
   }
 }
-void HistogramDisplayHandler::tokenize(const string& str, vector<string>& tokens,
-                               const string& delimiters)
+void HistogramDisplayHandler::tokenize(const std::string& str, std::vector<std::string>& tokens,
+                               const std::string& delimiters)
 {
   // ----------------------------
   // Skip delimiters at beginning.
   // ----------------------------
-  string::size_type lastPos = str.find_first_not_of(delimiters, 0);
+  std::string::size_type lastPos = str.find_first_not_of(delimiters, 0);
 
   // ----------------------------
   // Find first "non-delimiter".
   // ----------------------------
-  string::size_type pos = str.find_first_of(delimiters, lastPos);
+  std::string::size_type pos = str.find_first_of(delimiters, lastPos);
 
-  while (string::npos != pos || string::npos != lastPos) {
+  while (std::string::npos != pos || std::string::npos != lastPos) {
     // ------------------------------------
-    // Found a token, add it to the vector.
+    // Found a token, add it to the std::vector.
     // ------------------------------------
       tokens.push_back(str.substr(lastPos, pos - lastPos));
 
@@ -389,7 +389,7 @@ void HistogramDisplayHandler::printImage(TCanvas* c1,xgi::Output * out) {
   int sz;
   image->GetImageBuffer(&buf, &sz);         /* raw buffer */
 
-  ostringstream xmlstr;
+  std::ostringstream xmlstr;
   // xmlstr << "Content-Type: image/png\n Cache-Control: no-store, no-cache, must-revalidate, max-age=0" << endl;
   // xmlstr << "Expires: Mon, 26 Jul 1997 05:00:00 GMT" << endl
   //       << endl;

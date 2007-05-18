@@ -1,9 +1,11 @@
-#<use name=FWCore/Utilities>
-<use name=FWCore/Framework>
 <use name=CondFormats/DataRecord>
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
 <use name=boost>
+
 <export>
-   <lib name=CalibTrackerRecords>
-   <use name=FWCore/Framework>
-   <use name=CondFormats/DataRecord>
+  <lib name=CalibTrackerRecords>
+  <use name=CondFormats/DataRecord>
+  <use name=FWCore/Framework>
+  <use name=Geometry/Records>
 </export>

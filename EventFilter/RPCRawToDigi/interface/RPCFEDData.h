@@ -2,27 +2,27 @@
 #define RPCFEDData_h
 
 /** \class RPCFEDData
+ *
+ * TEMPORARY CLASS - WILL BE REMOVED OR HIGHLY REDESIGNED
+ *
  *  Container for the RPC Pay Load unpacked by RPCFormatter. 
  *  The RPCUnpackingModule creates the container and fills it with the DCC
  *  header and trailer info. The RPCRecordFormatter fills it
  *  with the RPC RMB Data.
  *  
  *
- *  $Date: 2006/05/29 08:38:38 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/08 12:07:14 $
+ *  $Revision: 1.3 $
  * \author Ilaria Segoni - CERN
  */
 
-#include <EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
+#include "EventFilter/RPCRawToDigi/interface/RPCLinkBoardData.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
 
 #include <map>
 #include <vector>
-
-class FEDHeader;
-class FEDTrailer;
 
 struct RPCFEDData{
 

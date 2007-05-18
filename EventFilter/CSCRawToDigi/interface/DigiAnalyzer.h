@@ -11,7 +11,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include <string.h>
 
 class DigiAnalyzer : public edm::EDAnalyzer {
 public:
@@ -22,6 +22,7 @@ private:
   // variables persistent across events should be declared here.
   //
   int eventNumber;
+  std::string digiCreator;
 };
 
 

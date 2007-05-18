@@ -8,8 +8,14 @@ DEFINE_FWK_MODULE(DTDigiTask);
 #include <DQM/DTMonitorModule/interface/DTTestPulsesTask.h>
 DEFINE_ANOTHER_FWK_MODULE(DTTestPulsesTask);
 
-#include "DQM/DTMonitorModule/interface/DTLocalRecoTask.h"
-DEFINE_ANOTHER_FWK_MODULE(DTLocalRecoTask);
+#include <DQM/DTMonitorModule/src/DTSegmentAnalysisTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTSegmentAnalysisTask);
+
+#include <DQM/DTMonitorModule/src/DTResolutionAnalysisTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTResolutionAnalysisTask);
+
+#include <DQM/DTMonitorModule/src/DTEfficiencyTask.h>
+DEFINE_ANOTHER_FWK_MODULE(DTEfficiencyTask);
 
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 DEFINE_ANOTHER_FWK_MODULE(DTTriggerCheck);

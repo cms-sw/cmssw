@@ -8,23 +8,24 @@
 
 namespace HcalUnpacker_impl {
   template <class DigiClass>
-  const HcalQIESample* unpack(const HcalQIESample* startPoint, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample) {
+  const HcalQIESample* unpack(const HcalQIESample* startPoint, const HcalQIESample* limit, DigiClass& digi, int presamples, const HcalElectronicsId& eid, int startSample, int endSample) {
     // set parameters
     digi.setPresamples(presamples);
     digi.setReadoutIds(eid);
 
     // what is my sample number?
     int myFiberChan=startPoint->fiberAndChan();
-    int ncurr=0;
+    int ncurr=0,ntaken=0;
     const HcalQIESample* qie_work=startPoint;
-    while (qie_work->fiberAndChan()==myFiberChan) {
+    while (qie_work!=limit && qie_work->fiberAndChan()==myFiberChan) {
       if (ncurr>=startSample && ncurr<=endSample) {
-	digi.setSample(digi.size(),*qie_work);
-	digi.setSize(digi.size()+1);
+	digi.setSample(ntaken,*qie_work);
+	++ntaken;
       }
       ncurr++;
       qie_work++;
     }
+    digi.setSize(ntaken);
     return qie_work;
   }
 }
@@ -150,24 +151,24 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	case (HcalBarrel):
 	case (HcalEndcap): {
 	  colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
+	  qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalOuter): {
 	  colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, colls.hoCont->back(), nps, eid, startSample_, endSample_);
+	  qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalForward): {
 	  colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, colls.hfCont->back(), nps, eid, startSample_, endSample_);
+	  qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_);
 	} break;
 	case (HcalOther) : {
 	  HcalOtherDetId odid(did);
 	  if (odid.subdet()==HcalCalibration) {
 	    colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	    qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
 	  } else if (odid.subdet()==HcalZDC) {
 	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
 	  }
 	} break;
 	case (HcalEmpty): 

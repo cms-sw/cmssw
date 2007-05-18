@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2006/05/05 09:09:31 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/26 23:35:39 $
+ * $Revision: 1.5 $
  *
  * \author A. Ghezzi
  *
@@ -17,9 +17,6 @@
 #include <iostream>
 #include <vector>
 
-
-using namespace cms;
-using namespace std;
 
 
 class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
@@ -35,8 +32,8 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
     e.getByLabel("ecalEBunpacker", DCCHeaders);
     
 
-    cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDCCHeaderDumperModule]  DCCHeaders collection size " << DCCHeaders->size() << endl;
-    cout << "          [EcalDCCHeaderDumperModule]  the Header(s)\n"  << endl;
+    std::cout << "\n\n ^^^^^^^^^^^^^^^^^^ [EcalDCCHeaderDumperModule]  DCCHeaders collection size " << DCCHeaders->size() << std::endl;
+    std::cout << "          [EcalDCCHeaderDumperModule]  the Header(s)\n"  << std::endl;
     //short dumpConter =0;      
 
     for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
@@ -62,49 +59,49 @@ class EcalDCCHeaderDumperModule: public edm::EDAnalyzer{
 
     if(skip){continue;}
       // if(nevt > 60 ){break;}
-      cout<<"###################################################################### \n";
-      cout << "DCCid: "<< headerItr->id()<<"\n";
+      std::cout<<"###################################################################### \n";
+      std::cout << "DCCid: "<< headerItr->id()<<"\n";
       
-      cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
-      cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
-      cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
-      cout<<"BX: "<<headerItr->getBX()<<"\n";
-      cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
+      std::cout << "DCCErrors: "<<headerItr->getDCCErrors()<<"\n";
+      std::cout<<"Run Number: "<<headerItr->getRunNumber()<<"\n";
+      std::cout<<"Event number (LV1): "<<headerItr->getLV1()<<"\n";
+      std::cout<<"BX: "<<headerItr->getBX()<<"\n";
+      std::cout<<"TRIGGER TYPE: "<< headerItr->getBasicTriggerType()<<"\n";
       
-      cout<<"RUNTYPE: "<< headerItr->getRunType()<<"\n";
-      cout<<"Half: "<<headerItr->getRtHalf()<<"\n";
-      cout<<"MGPA gain: "<<headerItr->getMgpaGain()<<"\n";
-      cout<<"MEM gain: "<<headerItr->getMemGain()<<"\n";
+      std::cout<<"RUNTYPE: "<< headerItr->getRunType()<<"\n";
+      std::cout<<"Half: "<<headerItr->getRtHalf()<<"\n";
+      std::cout<<"MGPA gain: "<<headerItr->getMgpaGain()<<"\n";
+      std::cout<<"MEM gain: "<<headerItr->getMemGain()<<"\n";
       EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
-      cout<<"LaserPower: "<<  settings.LaserPower<<"\n";
-      cout <<"LAserFilter: "<<settings.LaserFilter<<"\n";
-      cout<<"Wavelenght: "<<settings.wavelength<<"\n";
-      cout<<"delay: "<<settings.delay<<"\n";
-      cout<<"MEM Vinj: "<< settings.MEMVinj<<"\n";
-      cout<<"MGPA content: "<<settings.mgpa_content<<"\n";
-      cout<<"Ped offset dac: "<<settings.ped_offset<<"\n";
+      std::cout<<"LaserPower: "<<  settings.LaserPower<<"\n";
+      std::cout <<"LAserFilter: "<<settings.LaserFilter<<"\n";
+      std::cout<<"Wavelenght: "<<settings.wavelength<<"\n";
+      std::cout<<"delay: "<<settings.delay<<"\n";
+      std::cout<<"MEM Vinj: "<< settings.MEMVinj<<"\n";
+      std::cout<<"MGPA content: "<<settings.mgpa_content<<"\n";
+      std::cout<<"Ped offset dac: "<<settings.ped_offset<<"\n";
 
-      cout<<"Selective Readout: "<<headerItr->getSelectiveReadout()<<"\n";
-      cout<<"ZS: "<<headerItr->getZeroSuppression()<<"\n";
-      cout <<"TZS: "<<headerItr->getTestZeroSuppression()<<"\n";
-      cout<<"SRStatus: "<<headerItr->getSrpStatus()<<"\n";
+      std::cout<<"Selective Readout: "<<headerItr->getSelectiveReadout()<<"\n";
+      std::cout<<"ZS: "<<headerItr->getZeroSuppression()<<"\n";
+      std::cout <<"TZS: "<<headerItr->getTestZeroSuppression()<<"\n";
+      std::cout<<"SRStatus: "<<headerItr->getSrpStatus()<<"\n";
 
       std::vector<short> TCCStatus = headerItr->getTccStatus();
-      cout<<"TCC Status size: "<<TCCStatus.size()<<endl;
-      cout<<"TCC Status: ";
+      std::cout<<"TCC Status size: "<<TCCStatus.size()<<std::endl;
+      std::cout<<"TCC Status: ";
       for(unsigned u =0;u<TCCStatus.size();u++){
-	cout<<TCCStatus[u]<<" ";
+	std::cout<<TCCStatus[u]<<" ";
       }
-      cout<<endl;
+      std::cout<<std::endl;
       
       std::vector<short> TTStatus = headerItr->getTriggerTowerStatus();
-      cout<<"TT Status size: "<<TTStatus.size()<<endl;
-      cout<<"TT Status: ";
+      std::cout<<"TT Status size: "<<TTStatus.size()<<std::endl;
+      std::cout<<"TT Status: ";
       for(unsigned u =0;u<TTStatus.size();u++){
-	cout<<TTStatus[u]<<" ";
+	std::cout<<TTStatus[u]<<" ";
       }
-      cout<<endl;
-      cout<<"######################################################################"<<endl;;
+      std::cout<<std::endl;
+      std::cout<<"######################################################################"<<std::endl;;
       //if( (dumpConter++) > 10) break;
 
     }	

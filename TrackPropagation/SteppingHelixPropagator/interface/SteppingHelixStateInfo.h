@@ -6,15 +6,15 @@
 /** \class SteppingHelixStateInfo
  *  Holder of SteppingHelixState information
  *
- *  $Date: 2007/02/06 20:49:17 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/02/14 06:16:46 $
+ *  $Revision: 1.7 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.h,v 1.6 2007/02/06 20:49:17 slava77 Exp $
+// $Id: SteppingHelixStateInfo.h,v 1.7 2007/02/14 06:16:46 slava77 Exp $
 //
 //
 
@@ -45,13 +45,17 @@ class SteppingHelixStateInfo {
     RANGEOUT,
     INACC,
     NOT_IMPLEMENTED,
-    UNDEFINED
+    WRONG_VOLUME,
+    UNDEFINED,
+    MAX_RESULT
   };
+
+  static const std::string ResultName[MAX_RESULT];
 
   SteppingHelixStateInfo(): isComplete(0), isValid_(0), status_(UNDEFINED) {}
   SteppingHelixStateInfo(const FreeTrajectoryState& fts);
 
-  TrajectoryStateOnSurface getStateOnSurface(const Surface& surf) const;
+  TrajectoryStateOnSurface getStateOnSurface(const Surface& surf, bool returnTangentPlane = false) const;
 
   ///convert internal structure into the fts
   void getFreeState(FreeTrajectoryState& fts) const;
@@ -62,6 +66,7 @@ class SteppingHelixStateInfo {
   double path() const {return isValid_ ? path_ : 0;}
 
   bool isValid() const {return isValid_;}
+  bool hasErrorPropagated() const {return hasErrorPropagated_;}
 
   Result status() const {return status_;}
 
@@ -92,8 +97,9 @@ class SteppingHelixStateInfo {
   Vector bf;
   Vector bfGradLoc;
   const MagVolume* magVol;
+  bool isYokeVol;//will be set (most likely) only for the barrel volumes (850>r>3.8, z<667)
   const MagneticField* field;  
-
+  
   VolumeBounds rzLims;
   double dEdx;
   double dEdXPrime;
@@ -101,6 +107,8 @@ class SteppingHelixStateInfo {
 
   bool isComplete;
   bool isValid_;
+  bool hasErrorPropagated_;
+
   Result status_;
 };
 #endif

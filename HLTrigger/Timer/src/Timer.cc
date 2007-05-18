@@ -14,13 +14,12 @@
 //
 // Original Author:  Christos Leonidopoulos
 //         Created:  Mon Jul 10 14:13:58 CEST 2006
-// $Id: Timer.cc,v 1.6 2006/08/14 15:26:49 gruen Exp $
+// $Id: Timer.cc,v 1.8 2007/03/27 16:49:47 cleonido Exp $
 //
 //
 
 
 #include "HLTrigger/Timer/interface/Timer.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 
 #include <iostream>
 
@@ -44,17 +43,17 @@ Timer::Timer(const ParameterSet& iConfig)
   timing.reset();
 
   // attach method to Timing service's "new measurement" signal
-  Service<edm::service::Timing> time;
+  Service<TimerService> time;
   time->newMeasurementSignal.connect(boost::bind(boost::mem_fn(&Timer::newTimingMeasurement), this, _1, _2) );
-
+  
   self_module_name = string(iConfig.getParameter<string>("@module_type"));
 }
 
-
 Timer::~Timer()
 {
+  using namespace std;
+
   if(!includeSelf){
-    using namespace std;
     string longLine("=========================================================="); 
     cout << longLine << endl;
     cout << " Timer Info:\n";
@@ -62,6 +61,7 @@ Timer::~Timer()
     cout << " (to include, set 'bool includeSelf = true' in .cfg file)\n";
     cout << longLine << endl << endl;
   }
+
 }
 
 // fwk calls this method when new module measurement arrives
@@ -92,5 +92,3 @@ Timer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.put(out);
 }
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(Timer);

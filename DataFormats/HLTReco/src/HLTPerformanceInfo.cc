@@ -1,4 +1,4 @@
-// $Id: HLTPerformanceInfo.cc,v 1.4 2007/01/10 06:10:11 dlange Exp $
+// $Id: HLTPerformanceInfo.cc,v 1.6 2007/03/27 01:05:07 bdahmes Exp $
 #include <functional>
 #include <algorithm>
 #include <numeric>
@@ -7,6 +7,7 @@
 #include <boost/lambda/bind.hpp> 
 #include <boost/bind.hpp> 
 
+#include "DataFormats/Common/interface/HLTenums.h"
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 
 
@@ -48,7 +49,7 @@ double HLTPerformanceInfo::Path::time() const
   // we only want to add those up to the last one run.
   HLTPerformanceInfo::Path::const_iterator iter ;
   for (iter=this->begin(); iter!=this->end(); iter++) 
-    t += iter->time(); 
+      if (iter->indexInPath(*this) <= int(this->status().index())) t += iter->time(); 
 
   return t;
 }
@@ -57,6 +58,7 @@ double HLTPerformanceInfo::Path::time() const
 void HLTPerformanceInfo::addModuleToPath(const char *mod, Path *p ) 
 {
   Modules::const_iterator m = this->findModule(mod);
+
   if ( m != modules_.end() ) {
     size_t a = m - modules_.begin();
     p->addModuleRef(a);
@@ -74,7 +76,32 @@ void HLTPerformanceInfo::addPath(Path & p )
 {
   // need this to get back at the modules that we don't own
   p.setModules_(&modules_);
+    
   paths_.push_back(p);
+}
+
+void HLTPerformanceInfo::Module::setStatusByPath(Path* path)
+{
+  //--- Based on path status, define module status ---//
+  unsigned int ctr = 0 ; 
+  for ( HLTPerformanceInfo::Path::const_iterator iter = path->begin();
+	iter!=path->end(); iter++ ) {
+    edm::hlt::HLTState modState = edm::hlt::Ready ; 
+    unsigned int modIndex = 0 ; 
+
+    if (path->status().accept()) {
+      modState = edm::hlt::Pass ;
+    } else {
+      if ( path->status().index() > ctr ) {
+	modState = edm::hlt::Pass ; 
+      } else if ( path->status().index() == ctr ) {
+	modState = path->status().state() ; 
+      }
+    }
+    if (iter->name() == this->name())
+      this->setStatus(edm::HLTPathStatus(modState,modIndex)) ; 
+    ctr++ ; 
+  }
 }
 
 double HLTPerformanceInfo::totalTime() const
@@ -90,17 +117,28 @@ HLTPerformanceInfo::Modules::const_iterator
 HLTPerformanceInfo::findModule(const char* moduleInstanceName) 
 {
   return std::find(modules_.begin(), modules_.end(),
-		     moduleInstanceName);
+		   moduleInstanceName);
 }
 
 HLTPerformanceInfo::PathList::const_iterator 
-HLTPerformanceInfo::findPath(const char* pathName) 
+HLTPerformanceInfo::findPath(const char* pathName)
 {
   PathList::const_iterator l = std::find(paths_.begin(), paths_.end(),
 					 pathName);
   return l; 
 }
 
+int HLTPerformanceInfo::Module::indexInPath(Path path) const
+{
+  int ctr = 0 ; 
+  for ( HLTPerformanceInfo::Path::const_iterator iter = path.begin();
+	iter!=path.end(); iter++ ) {
+    if (iter->name() == this->name()) return ctr ; 
+    ctr++ ; 
+  }
+  //--- Module not found in path ---//
+  return -1 ; 
+}
 
 double HLTPerformanceInfo::Path::lastModuleTime() const
 {
@@ -113,7 +151,6 @@ double HLTPerformanceInfo::Path::lastModuleTime() const
   }
   return -2; // no modules on the path
 }
-
 
 double HLTPerformanceInfo::longestModuleTime() const
 {
