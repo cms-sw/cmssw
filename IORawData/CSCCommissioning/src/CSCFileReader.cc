@@ -92,7 +92,7 @@ int CSCFileReader::readEvent(int rui, const unsigned short* &buf, size_t &length
 				try {
 					RUI[rui].open(currentFile[rui]->c_str());
 				} catch ( std::runtime_error err ){
-					throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+					throw cms::Exception("InputFileMissing")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
 		}
