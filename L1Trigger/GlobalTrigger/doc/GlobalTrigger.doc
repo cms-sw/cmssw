@@ -37,7 +37,7 @@ L1 Global Trigger emulator.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
-\htmlinclude L1GtEmul.cfi
+\htmlinclude l1GtEmulDigis.cfi
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
