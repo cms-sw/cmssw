@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -96,17 +96,9 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
 
     std::string defXmlFile = f1.fullPath();
     
-    if (f1.isLocal()) {
-        edm::LogInfo("L1GlobalTriggerSetup") 
-            << "\n\n  Trigger menu and configuration: XML file: \n  " << defXmlFile << "\n\n" 
-            << std::endl;        
-	} else {
-        // FileInPath throw exception if the file is not found;
-        // here the exception is thrown only if the file was deleted in the meantime
-        throw cms::Exception("FileInPathError")
-            << "\nError: XML configuration file not found. Requested file:\n  "
-            << defXmlFile << std::endl;
-    }
+    edm::LogInfo("L1GlobalTriggerSetup") 
+        << "\n\n  Trigger menu and configuration: XML file: \n  " << defXmlFile << "\n\n" 
+        << std::endl;        
                         
     std::string vmeXmlFile;
     
@@ -116,17 +108,9 @@ void L1GlobalTriggerSetup::setTriggerMenu(std::string& menuDir) {
 
         vmeXmlFile = f2.fullPath();
 
-        if (f2.isLocal()) {
-            LogDebug("L1GlobalTriggerSetup") 
-                << "FileInPath: XML File for VME-bus preamble: \n  " << vmeXmlFile 
-                << std::endl;        
-        } else {
-            // FileInPath throw exception if the file is not found;
-            // here the exception is thrown only if the file was deleted in the meantime
-            throw cms::Exception("FileInPathError")
-                << "\nError: XML File for VME-bus preamble not found. Requested file:\n  "
-                << vmeXmlFile << std::endl;
-        }
+        LogDebug("L1GlobalTriggerSetup") 
+            << "FileInPath: XML File for VME-bus preamble: \n  " << vmeXmlFile 
+            << std::endl;        
     } 
 
     // get the new trigger configuration
