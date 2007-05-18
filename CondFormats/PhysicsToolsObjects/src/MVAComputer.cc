@@ -18,7 +18,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.cc,v 1.2 2007/05/10 13:42:41 saout Exp $
+// $Id: MVAComputer.cc,v 1.3 2007/05/14 00:06:01 saout Exp $
 //
 #include <functional>
 #include <algorithm>
@@ -50,6 +50,17 @@ std::string VarProcessor::getInstanceName() const
 			<< typeid(*this).name() << "." << std::endl;
 
 	return type.substr(sizeof prefix - 1);
+}
+
+static MVAComputer::CacheId getNextMVAComputerCacheId()
+{
+	static MVAComputer::CacheId nextCacheId = 0;
+	return nextCacheId++;
+}
+
+MVAComputer::MVAComputer() :
+	cacheId(getNextMVAComputerCacheId())
+{
 }
 
 MVAComputer::~MVAComputer()
@@ -119,6 +130,8 @@ std::vector<VarProcessor*> MVAComputer::getProcessors() const
 
 void MVAComputer::addProcessor(const VarProcessor *proc)
 {
+	cacheId = getNextMVAComputerCacheId();
+
 	ROOT::Reflex::Type thisType =
 				ROOT::Reflex::GetType<MVAComputer>();
 	ROOT::Reflex::Type baseType = ROOT::Reflex::GetType<VarProcessor>();
@@ -191,8 +204,21 @@ void MVAComputer::addProcessor(const VarProcessor *proc)
 		<< std::endl;
 }
 
+static MVAComputerContainer::CacheId getNextMVAComputerContainerCacheId()
+{
+	static MVAComputerContainer::CacheId nextCacheId = 0;
+	return nextCacheId++;
+}
+
+MVAComputerContainer::MVAComputerContainer() :
+	cacheId(getNextMVAComputerContainerCacheId())
+{
+}
+
 MVAComputer &MVAComputerContainer::add(const std::string &label)
 {
+	cacheId = getNextMVAComputerContainerCacheId();
+
 	entries.push_back(std::make_pair(label, MVAComputer()));
 	return entries.back().second;
 }

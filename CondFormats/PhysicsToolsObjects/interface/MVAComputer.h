@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.4 2007/05/14 00:06:00 saout Exp $
+// $Id: MVAComputer.h,v 1.5 2007/05/17 15:00:35 saout Exp $
 //
 
 #include <string>
@@ -66,9 +66,11 @@ class ProcOptional : public VarProcessor {
 	std::vector<double>		neutralPos;
 };
 
+class ProcCount : public VarProcessor {};
+
 class ProcClassed : public VarProcessor {
     public:
-	unsigned int	nClasses;
+	unsigned int			nClasses;
 };
 
 class ProcNormalize : public VarProcessor {
@@ -125,6 +127,7 @@ class ProcMLP : public VarProcessor {
 
 class MVAComputer {
     public:
+	MVAComputer();
 	virtual ~MVAComputer();
 
 	std::vector<Variable>		inputSet;
@@ -133,6 +136,11 @@ class MVAComputer {
 	void				addProcessor(const VarProcessor *proc);
 	unsigned int			output;
 
+	// cacheId stuff to detect changes
+	typedef unsigned int CacheId;
+	inline CacheId getCacheId() const { return cacheId; }
+	inline bool changed(CacheId old) const { return old != cacheId; }
+
 	// these variables are read/written only via get/setProcessor()
 	// ordering is relevant for the persistent storage
     private:
@@ -140,6 +148,7 @@ class MVAComputer {
 
 	std::vector<ProcOptional>	vProcOptional_;
 	std::vector<ProcClassed>	vProcClassed_;
+	std::vector<ProcCount>		vProcCount_;
 	std::vector<ProcNormalize>	vProcNormalize_;
 	std::vector<ProcLikelihood>	vProcLikelihood_;
 	std::vector<ProcLinear>		vProcLinear_;
@@ -147,6 +156,8 @@ class MVAComputer {
 	std::vector<ProcMatrix>		vProcMatrix_;
 	std::vector<ProcTMVA>		vProcTMVA_;
 	std::vector<ProcMLP>		vProcMLP_;
+
+	CacheId				cacheId;	// transient
 };
 
 // this is a temporary hack used in RecoBTau until ESSources can be
@@ -155,14 +166,21 @@ class MVAComputerContainer {
     public:
 	typedef std::pair<std::string, MVAComputer> Entry;
 
-	MVAComputerContainer() {}
+	MVAComputerContainer();
 	virtual ~MVAComputerContainer() {}
 
 	MVAComputer &add(const std::string &label);
 	virtual const MVAComputer &find(const std::string &label) const;
 
+	// cacheId stuff to detect changes
+	typedef unsigned int CacheId;
+	inline CacheId getCacheId() const { return cacheId; }
+	inline bool changed(CacheId old) const { return old != cacheId; }
+
     private:
 	std::vector<Entry>	entries;
+
+	CacheId			cacheId;	// transient
 };
 
 } // namespace Calibration
