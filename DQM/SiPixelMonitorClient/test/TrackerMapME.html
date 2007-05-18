@@ -1,0 +1,168 @@
+<html>
+<!--
+ Author: D. Menasce
+ Mockup for the Pixel Tracker Map
+-->
+
+<meta http-equiv="pragma" 
+      content   ="no-cache">
+
+<head>
+ <link   rel  = "stylesheet" 
+         type = "text/css" 
+	 href = "css_files/trace.css">
+ <link   rel  = "stylesheet" 
+         type = "text/css" 
+	 href = "css_files/wz_dragdrop.css">
+ <link   rel  = "stylesheet" 
+         type = "text/css" 
+	 href = "css_files/magnifier.css">
+ <link   rel  = "stylesheet" 
+         type = "text/css" 
+	 href = "css_files/right.css">
+
+ <script type = "text/javascript"
+         src  = "js_files/magnifier.js">
+ </script>
+ <script type = "text/javascript" 
+         src  = "js_files/wz_dragdrop.js">
+ </script>
+ <script type = "text/javascript"
+         src  = "js_files/DMLibrary.js">
+ </script>
+ 
+</head>
+ 
+<body bgcolor="#414141">
+
+ <center>
+  <table id          = "pictTable"   
+         border      = "1"
+	 width       = "100%"	     
+	 cellpadding = "2"	     
+	 cellspacing = "2">	     
+   <tr>
+    <td align="center">
+     <h1>Currently selected MEs</h1>
+    </td>
+    <td align="center">
+     <h1>Currently selected ME Summary</h1> 
+    </td>
+   </tr>
+   
+   <tr align="center">
+    <td width="325">
+     <iframe src	="rightEmbedded.html"	  
+     	     id 	="superFrame"
+     	     width	="320"
+     	     height	="240"
+     	     scrolling  ="auto" 
+     	     frameborder="1">
+     </iframe>
+    </td>
+
+    <td>
+     <div   id          = "binding"
+            name        = "bindingTwo"> 			
+      <img  id          = "baseImage0"			
+            src         = "images/EmptyPlot.png" 
+            name        = "baseImage0"			
+	    alt         = "picture geometry:737x563"
+	    onload      = "loading('bindingTwo','baseImage0')"
+	    onclick     = "transport(event)"			
+	    onmouseover = "this.T_SHADOWWIDTH=4; 
+	                   this.T_OPACITY    =70;
+			   this.T_FONTCOLOR  ='#000000';
+			   this.T_WIDTH      =320;
+			   return escape('Click to send to pan/zoom area');"
+ 	    width       = "320"   			      
+ 	    height      = "210" />			      
+     </div>
+    </td>
+   </tr>
+   <tr>
+    <td colspan="2">
+     <table border="0" cellpadding="4">
+      <tr>
+       <td>
+     	<form name   = "MEListForm"
+     	      action = "javascript:void()">
+     	 <h1>MEs:
+     	  <select id	   = "MEListCB"
+     		  class    = "comboBox"
+     		  name     = "MEListCB" 
+     		  onchange = "movePlotTo()">
+     	   <option   value = "-">-</option>
+     	  </select>
+     	 </h1>
+     	</form>
+       </td>
+       <td>
+     	<form	 action = "javascript:resizeToDefault()">
+     	 <input  type	= "submit"
+     		 class  = "button" 
+     		 name	= "resizeToDefault"
+		 value  = "Resize to default"></button>
+     	</form>
+       </td>
+       <td>
+        <form name   = "resizeByForm"
+              action = "javascript:void()">
+         <h1>Resize by:
+          <select id	   = "resizeBy"
+        	  class    = "comboBox"
+        	  name     = "resizeBy" 
+        	  onchange = "resizeByStep()">
+           <option          value = "0.1" >0.1</option>
+           <option          value = "0.5" >0.5</option>
+           <option selected value = "1.5" >1.5</option>
+           <option          value = "2.0" >2.0</option>
+           <option   	    value = "2.5" >2.5</option>
+           <option   	    value = "3.0" >3.0</option>
+           <option   	    value = "3.5" >3.5</option>
+           <option   	    value = "4.0" >4.0</option>
+          </select>
+         </h1>
+        </form>
+       </td>
+      </tr>
+     <table>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <div   id     	= "zoomedImgDiv"				     
+	    align       = "center"> 
+      <img  id     	= "zoomedImg"					     
+            name   	= "zoomedImg"	
+	    alt         = "picture geometry:500x300"				     
+	    src    	= "images/EmptyPlot.png"			     
+ 	    width    	= "500"   				       
+ 	    height   	= "300" />				       
+     </div>
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <img   id     	= "placeHolder"					     
+            name   	= "placeHolder"					     
+	    src    	= "images/EmptyPlot.png"			     
+            onload      = "swapImage()"
+ 	    width    	= "0"   				       
+ 	    height   	= "0" />
+    </td>				       
+   </tr>
+  </table>
+ </center>
+
+ <script type = "text/javascript"
+         src  = "js_files/right.js">
+ </script>
+
+ <script type="text/javascript" 
+   	 src ="js_files/wz_tooltip.js">
+ </script>
+
+</body>
+
+</html>

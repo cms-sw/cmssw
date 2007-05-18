@@ -1,0 +1,43 @@
+      <svg:g id="theSpot" transform="translate(0, 0)">
+ 	   <svg:polygon id="spot" fill="black" points="0 0 0 0" />
+      </svg:g>
+
+     </svg:g>
+
+    </svg:svg>
+
+    </td>
+   </tr>
+   <tr>
+    <td>
+     <form action  = "javascript:void(0)"
+ 	   class   = "inputBox"
+ 	   style   = "color:red;">
+      <h3>
+       Detector element selected: 
+       <input id    = "selectedElementText"
+ 	      class = "inputBox"
+ 	      type  = "text" 
+ 	      value = ""
+ 	      style = "font-weight:bold;"
+ 	      name  = "currentElementText" 
+ 	      size  = "60">
+       </input>
+      </h3>
+     </form>
+    </td>
+   </tr> 
+   <tr style="height:400px">
+    <td>
+    </td>
+   </tr> 
+  </table>
+  
+  <input type="hidden" name="MEReference" value=""/>
+  <input type="hidden" name="MEReference" value=""/>
+  <input type="hidden" name="MEReference" value=""/>
+  <input type="hidden" name="MEReference" value=""/>
+  <input type="hidden" name="MEReference" value=""/>
+     
+ </body>
+</html>
