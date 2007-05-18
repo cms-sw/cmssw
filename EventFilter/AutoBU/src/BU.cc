@@ -70,6 +70,7 @@ BU::BU(xdaq::ApplicationStub *s)
   , mode_("RANDOM")
   , replay_(false)
   , crc_(true)
+  , firstEvent_(1)
   , queueSize_(32)
   , eventBufferSize_(0x400000)
   , msgBufferSize_(32768)
@@ -338,7 +339,7 @@ void BU::I2O_BU_DISCARD_Callback(toolbox::mem::Reference *bufRef)
 //______________________________________________________________________________
 void BU::actionPerformed(xdata::Event& e)
 {
-  gui_->lockInfoSpaces();
+  gui_->monInfoSpace()->lock();
   if (e.type()=="ItemRetrieveEvent") {
     string item=dynamic_cast<xdata::ItemRetrieveEvent&>(e).itemName();
     if (item=="mode") {
@@ -353,7 +354,7 @@ void BU::actionPerformed(xdata::Event& e)
     string item=dynamic_cast<xdata::ItemChangedEvent&>(e).itemName();
     if (item=="crc") BUEvent::setComputeCrc(crc_.value_);
   }
-  gui_->unlockInfoSpaces();
+  gui_->monInfoSpace()->unlock();
 }
 
 
@@ -514,7 +515,7 @@ bool BU::monitoring(toolbox::task::WorkLoop* wl)
   uint64_t     deltaSumOfSquares;
   unlock();
   
-  gui_->lockInfoSpaces();
+  gui_->monInfoSpace()->lock();
   
   deltaT_.value_=deltaT(&monStartTime_,&monEndTime);
   monStartTime_=monEndTime;
@@ -528,8 +529,6 @@ bool BU::monitoring(toolbox::task::WorkLoop* wl)
   
   deltaSumOfSizes_.value_=monSumOfSizes-monLastSumOfSizes_;
   monLastSumOfSizes_=monSumOfSizes;
-  
-  gui_->unlockInfoSpaces();
   
   if (deltaT_.value_!=0) {
     throughput_=deltaSumOfSizes_.value_/deltaT_.value_;
@@ -554,6 +553,8 @@ bool BU::monitoring(toolbox::task::WorkLoop* wl)
     average_=0.0;
     rms_    =0.0;
   }
+
+  gui_->monInfoSpace()->unlock();
   
   ::sleep(monSleepSec_.value_);
 
@@ -599,6 +600,7 @@ void BU::exportParameters()
   gui_->addStandardParam("mode",              &mode_);
   gui_->addStandardParam("replay",            &replay_);
   gui_->addStandardParam("crc",               &crc_);
+  gui_->addStandardParam("firstEvent_",       &firstEvent_);
   gui_->addStandardParam("queueSize_",        &queueSize_);
   gui_->addStandardParam("eventBufferSize",   &eventBufferSize_);
   gui_->addStandardParam("msgBufferSize",     &msgBufferSize_);
@@ -701,7 +703,7 @@ bool BU::generateEvent(BUEvent* evt)
   }
   // RANDOM mode
   else {
-    unsigned int evtNumber=(++evtNumber_)%0x1000000;
+    unsigned int evtNumber=(firstEvent_+evtNumber_++)%0x1000000;
     evt->initialize(evtNumber);
     unsigned int fedSizeMin=fedHeaderSize_+fedTrailerSize_;
     for (unsigned int i=0;i<validFedIds_.size();i++) {
