@@ -6,15 +6,15 @@ from SequenceTypes import _Sequenceable
 from ExceptionHandling import *
 
 class Service(_ConfigureComponent,_TypedParameterizable,_Unlabelable):
-    def __init__(self,type,*arg,**kargs):
-        super(Service,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(Service,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeService(self.type_(),self)
 
 
 class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESSource,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(ESSource,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         if name == '':
             name=self.type_()
@@ -22,8 +22,8 @@ class ESSource(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
 
 
 class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESProducer,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(ESProducer,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         if name == '':
             name=self.type_()
@@ -31,8 +31,8 @@ class ESProducer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelab
 
 
 class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable):
-    def __init__(self,type,*arg,**kargs):
-        super(ESPrefer,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(ESPrefer,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         if name == '':
             name=self.type_()
@@ -41,8 +41,8 @@ class ESPrefer(_ConfigureComponent,_TypedParameterizable,_Unlabelable,_Labelable
 
 class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable):
     """base class for classes which denote framework event based 'modules'"""
-    def __init__(self,type,*arg,**kargs):
-        super(_Module,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(_Module,self).__init__(type_,*arg,**kargs)
     def _clonesequence(self, lookuptable):
         try:
             return lookuptable[id(self)]
@@ -54,43 +54,43 @@ class _Module(_ConfigureComponent,_TypedParameterizable,_Labelable,_Sequenceable
         return "%s('%s', ...)" %(typename, self.type_())
 
 class EDProducer(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDProducer,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(EDProducer,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeProducer(name,self)
 
 
 class EDFilter(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDFilter,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(EDFilter,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeFilter(name,self)
 
 
 class EDAnalyzer(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(EDAnalyzer,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(EDAnalyzer,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeAnalyzer(name,self)
 
 
 class OutputModule(_Module):
-    def __init__(self,type,*arg,**kargs):
-        super(OutputModule,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(OutputModule,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeOutputModule(name,self)
 
 
 class Source(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type,*arg,**kargs):
-        super(Source,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(Source,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeSource(name,self)
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type,*arg,**kargs):
-        super(Looper,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
 
@@ -107,6 +107,8 @@ if __name__ == "__main__":
             aCopy = withParam.copy()
             self.assertEqual(aCopy.foo.value(), 1)
             self.assertEqual(aCopy.bar.value(), "it")
+            withType = EDAnalyzer("Test",type = int32(1))
+            self.assertEqual(withType.type.value(),1)
         
         def testService(self):
             empty = Service("Empty")

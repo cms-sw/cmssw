@@ -158,9 +158,9 @@ class InputTag(_ParameterTypeBase):
         return value.configValue('','')
 
 class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
-    def __init__(self,type,*arg,**args):
+    def __init__(self,type_,*arg,**args):
         #need to call the inits separately
-        self.__dict__['_SecSource__type']=type
+        self.__dict__['_SecSource__type']=type_
         _ParameterTypeBase.__init__(self)
         _Parameterizable.__init__(self,*arg,**args)
     def value(self):
@@ -417,6 +417,7 @@ vstring fileNames = {
 
 }
 """)
-
+            s1=SecSource("PoolSource",type=int32(1))
+            self.assertEqual(s1.type.value(),1)
             
     unittest.main()

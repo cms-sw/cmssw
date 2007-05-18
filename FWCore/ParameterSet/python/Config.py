@@ -346,8 +346,8 @@ class FileInPath(_SimpleParameterTypeBase):
 
 
 class Looper(_ConfigureComponent,_TypedParameterizable):
-    def __init__(self,type,*arg,**kargs):
-        super(Looper,self).__init__(type,*arg,**kargs)
+    def __init__(self,type_,*arg,**kargs):
+        super(Looper,self).__init__(type_,*arg,**kargs)
     def _placeImpl(self,name,proc):
         proc._placeLooper(name,self)
 
