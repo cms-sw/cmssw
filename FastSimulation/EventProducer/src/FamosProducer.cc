@@ -124,7 +124,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
 			       fevt->filter().vertex().Y(),
 			       fevt->filter().vertex().Z(),
 			       fevt->filter().vertex().T());
-   if ( !myGenEvent ) theHepMCProduct->applyVtxGen( &theVertex );
+   if ( myGenEvent ) theHepMCProduct->applyVtxGen( &theVertex );
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();
