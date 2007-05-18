@@ -10,6 +10,7 @@ template <typename T, typename C>
 class PtIsolationAlgo {
 public:
   typedef double value_type;
+  PtIsolationAlgo() { }
   PtIsolationAlgo( double dRMin, double dRMax, double dzMax ) :
     dRMin_( dRMin ), dRMax_( dRMax ), dzMax_( dzMax ) { }
   double operator()(const T &, const C &) const;

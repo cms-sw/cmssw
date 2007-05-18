@@ -1,4 +1,6 @@
 <use name=PhysicsTools/Utilities>
+<use name=DataFormats/Candidate>
 <export>
+  <lib name=PhysicsToolsIsolationUtils>
   <use name=PhysicsTools/Utilities>
 </export>
