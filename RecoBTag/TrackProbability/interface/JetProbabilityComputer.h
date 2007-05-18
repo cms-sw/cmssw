@@ -8,7 +8,7 @@ class JetProbabilityComputer : public JetTagComputer
   JetProbabilityComputer(const edm::ParameterSet  & parameters )
   { 
      m_ipType           = parameters.getParameter<int>("impactParamterType");
-     m_minTrackProb     = parameters.getParameter<float>("minimumProbability");
+     m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
 
   }
  
@@ -69,5 +69,6 @@ double jetProbability( const std::vector<float> & v ) const
       return -log10(ProbJet)/4.;
   }
  private:
-   float m_minTrackProb;
+   double m_minTrackProb;
+   int m_ipType;
 };
