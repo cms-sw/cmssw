@@ -53,7 +53,7 @@ BEGIN{
 	[ "$aline" != "" ] && echo  `echo $aline | awk -F"|" '{i=2;while(match($1,"pswebadd")){sub("pswebadd",$i,$1);i++};gsub("/data1/",webadd,$1);print $1}' webadd="$webadd"` >> $webfile
 
 	aline=`echo "$line" | grep "???"`
-	[ "$aline" != "" ] && echo  `echo $aline | awk -F"|" '{i=2;while(match($1,"pswebadd")){sub("<a href=pswebadd> X </a>",$i,$1);i++};gsub("/data1/",webadd,$1);print $1}' webadd="$webadd"` | sed -e "s@???@@g" -e "s@,@@" | sqlite3 /tmp/cmstac/prova.db
+	[ "$aline" != "" ] && echo  `echo $aline | awk -F"|" '{i=2;while(match($1,"pswebadd")){sub("<a href=pswebadd> X </a>",$i,$1);i++};gsub("/data1/",webadd,$1);print $1}' webadd="$webadd"` | sed -e "s@???@@g" -e "s@,@@" | sqlite3 /tmp/cmstac/prova_${Version}.db
     done
     echo "</TABLE> " >> $webfile
 }
@@ -62,7 +62,7 @@ BEGIN{
 ## MAIN  ###
 ############
 
-Version=""
+export Version=""
 [ "$1" != "" ] && Version=$1
 
 export outFile
@@ -89,8 +89,8 @@ for path in `ls $Tpath`
   rm -vf SummaryTable.*
   count=0
   TotFlag="ID \t|\t Run \t|\t Module "
-#  for file in `ls Asummary_*.txt | grep -v "DBBadStrips"`
-  for file in `ls Asummary_*.txt `
+  for file in `ls Asummary_*.txt | grep -v "DBBadStrips"`
+#  for file in `ls Asummary_*.txt `
     do
     let count++
     flag=`echo $file | sed -e "s@Asummary_@@g" -e "s@.txt@@g"`
@@ -125,8 +125,9 @@ labels=sprintf("%s\t| %s ",labels,$4);
 
   rm -vf  SummaryTable.tmp
 
-  sqlite3 /tmp/cmstac/prova.db < /analysis/sw/CRAB/macros/SummaryTable.sql
+  sqlite3 /tmp/cmstac/prova_$Version.db < /analysis/sw/CRAB/macros/SummaryTable.sql
 
+  echo "...   CreateHtml `pwd` SummaryTable.txt"
   CreateHtml `pwd` SummaryTable.txt
   cd -
 done  
