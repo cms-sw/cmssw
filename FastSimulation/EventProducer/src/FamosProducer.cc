@@ -120,10 +120,11 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    FSimEvent* fevt = famosManager_->simEvent();
    
    // Set the vertex back to the HepMCProduct
-   HepMC::FourVector theVertex(fevt->filter().vertex().X(),
-			       fevt->filter().vertex().Y(),
-			       fevt->filter().vertex().Z(),
-			       fevt->filter().vertex().T());
+   HepMC::FourVector theVertex(fevt->filter().vertex().X()*10.,
+			       fevt->filter().vertex().Y()*10.,
+			       fevt->filter().vertex().Z()*10.,
+			       fevt->filter().vertex().T()*10.);
+   stc::cout << "The vertex avant! " << 
    if ( myGenEvent ) theHepMCProduct->applyVtxGen( &theVertex );
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
