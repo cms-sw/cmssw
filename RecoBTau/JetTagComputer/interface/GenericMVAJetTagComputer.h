@@ -2,6 +2,7 @@
 #define RecoBTau_GenericMVAJetTagComputer_h
 
 #include <string>
+#include <memory>
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -13,9 +14,8 @@ class GenericMVAJetTagComputer : public JetTagComputer
 {
  public:
    GenericMVAJetTagComputer(const edm::ParameterSet & parameters) :
-	m_calibrationLabel(parameters.getParameter<std::string>("calibrationRecord")),
-	m_mvaComputer(0) {}
-   virtual ~GenericMVAJetTagComputer() { delete m_mvaComputer; }
+	m_calibrationLabel(parameters.getParameter<std::string>("calibrationRecord")) {}
+   virtual ~GenericMVAJetTagComputer() {}
 
    virtual void setEventSetup(const edm::EventSetup &es) const;
 
@@ -26,7 +26,8 @@ class GenericMVAJetTagComputer : public JetTagComputer
 
  private:
    std::string m_calibrationLabel;
-   mutable GenericMVAComputer * m_mvaComputer;
+   mutable std::auto_ptr<GenericMVAComputer> m_mvaComputer;
   // edm::EventSetup * m_eventSetup;
 };
+
 #endif

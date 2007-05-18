@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <string>
+#include <memory>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -20,12 +21,9 @@ void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 
 	// m_eventSetup = &es;
 
-	if (m_mvaComputer)
-//FIXME		return;
-		delete m_mvaComputer;
-
 	edm::ESHandle<Calibration::MVAComputerContainer> calib;
 	es.get<BTauGenericMVAJetTagComputerRcd>().get(calib);
-	m_mvaComputer = new GenericMVAComputer(
-				&calib.product()->find(m_calibrationLabel));
+	m_mvaComputer =
+		std::auto_ptr<GenericMVAComputer>(new GenericMVAComputer(
+				&calib.product()->find(m_calibrationLabel)));
 }
