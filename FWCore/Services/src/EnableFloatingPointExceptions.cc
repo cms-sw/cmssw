@@ -9,22 +9,10 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.5 2006/12/19 00:35:38 wmtan Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.6 2007/03/04 05:55:26 wmtan Exp $
 //
 
 // system include files
-#ifdef __linux__
-#include <features.h>
-//#if defined(__GLIBC__)&&(__GLIBC__>2 || __GLIBC__==2 && __GLIBC_MINOR__>=1)
-//#define _GNU_SOURCE
-#include <fenv.h>
-//#endif
-#endif /* LINUX */
-
-#ifdef SunOS
-#include <ieeefp.h>
-#include <assert.h>
-#endif
 
 #ifdef __linux__
 #ifdef __i386__
@@ -32,12 +20,14 @@
 #endif
 #endif
 
+#include <iostream>
+#include <iomanip>
+
 #include <limits> // For testing
 #include <cmath>
 
 // user include files
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"
-
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 using namespace edm::service;
@@ -46,111 +36,83 @@ using namespace edm::service;
 //
 
 //
-// local static functions for testing
-//
-static float divideByZero(float zero)
-{
-  float x = 1.0/zero;
-  
-  return x;
-}
-static float useNan()
-{
-  // libstd++ lies and says that intel doesn't have one of these so we do it ourselves
-  //float x = 1.0*std::numeric_limits<float>::quiet_NaN();
-  
-  //union { unsigned int u; float f; } aNaN;
-  //aNaN.u = 0x7fc00000U;
-  //we found out that propagating nans doesn't cause the exception so we'll do something
-  //that will generate a nan
-  union { unsigned int u; float f; } inf;
-  inf.u = 0x7f800000U;
-  float x = 0.0*inf.f;
-
-  return x;
-}
-static float generateOverFlow()
-{
-  float x = 2.0*std::numeric_limits<float>::max();
-  
-  return x;
-}
-static float generateUnderFlow()
-{
-  float x = std::numeric_limits<float>::min()/2.0;
-  
-  return x;
-}
-
-//
 // constructors and destructor
 //
 EnableFloatingPointExceptions::EnableFloatingPointExceptions(const ParameterSet& iPS, ActivityRegistry&iRegistry):
-enableDivByZeroEx_(iPS.getUntrackedParameter<bool>("enableDivByZeroEx", false)),
-enableInvalidEx_(iPS.getUntrackedParameter<bool>("enableInvalidEx", false)),
-enableOverFlowEx_(iPS.getUntrackedParameter<bool>("enableOverFlowEx", false)),
-enableUnderFlowEx_(iPS.getUntrackedParameter<bool>("enableUnderFlowEx", false)),
-setPrecisionDouble_(iPS.getUntrackedParameter<bool>("setPrecisionDouble", true))
+enableDivByZeroEx_(false),
+enableInvalidEx_(false),
+enableOverFlowEx_(false),
+enableUnderFlowEx_(false),
+setPrecisionDouble_(true),
+reportSettings_(false)
 {
+
+  reportSettings_     = iPS.getUntrackedParameter<bool>("reportSettings",false);
+  setPrecisionDouble_ = iPS.getUntrackedParameter<bool>("setPrecisionDouble",true);
+
+// Get the state of the fpu and save it as the "OSdefault" state. The language here
+// is a bit odd.  We use "OSdefault" to label the fpu state we inherit from the OS on
+// job startup.  By contrast, "default" is the label we use for the fpu state when either
+// we or the user has specified a state for modules not appearing in the module list.
+// Generally, "OSdefault" and "default" are the same but are not required to be so.
+
+  fegetenv( &fpuState_ );
+  stateMap_[String("OSdefault")] =  fpuState_;
+  if( reportSettings_ )  std::cout << "Calling controlFpe for OSdefault" << std::endl;
   controlFpe();
-  //iRegistry.watchPreModule(this,&EnableFloatingPointExceptions::preModule);
-  //iRegistry.watchPostModule(this,&EnableFloatingPointExceptions::postModule);
-  // Now run tests if requested
-  if(iPS.getUntrackedParameter("runTest",false))
-  {
-    if (setPrecisionDouble_) {
 
-      // If the FPU is using 64 bit double precision this test should always pass.
-      // It is not clear if it will always fail if the FP processor is not
-      // using 64 bit double precision (for example if it is using
-      // 80 bit extended double precision).  In that case, optimizations
-      // and other things might cause the result to also be 0 anyway (but
-      // they do not on the machine I tested this on ...).
-      // This test may fail if we ever start using a new CPU other than
-      // 32 bit Intel or AMD CPUs and the associated FPU doesn't by default
-      // use 64 bit precision for floating point calculations.
-      double t1 = 1.0;
-      double t2 = pow(2.0, -54.0);
-      double val = (t1 + t2) - t1; // rounding down should cause (t1 + t2) -> t1
-      if (val != 0.0) {
-        throw edm::Exception(edm::errors::LogicError) << "Floating point precision should be"
-          << " rounded to 64 bits, but it is not.\nPlease send email to the framework developers";
-      }
+// Then go handle the specific cases as described in the cfg file
 
-      // Above we checked that the FPU does not use more than 64 bits of precision,
-      // Here we check that the FPU uses at least 64 bits of precision.
-      t1 = 1.0;
-      t2 = pow(2.0, -52.0);
-      val = (t1 + t2) - t1;
-      if (val != pow(2.0, -52.0)) {
-        throw edm::Exception(edm::errors::LogicError) << "Floating point precision should be"
-          << " at least 64 bits, but it is not.\nPlease send email to the framework developers";
-      }
-    }
+  PSet    empty_PSet;
+  VString empty_VString;
 
-    if(enableDivByZeroEx_)
-    {
-      float y = divideByZero(0.0);
-      throw edm::Exception(edm::errors::LogicError) <<"SIGFPE was not activated."
-       <<"While doing a test of divide by zero, we get the answer "<<y<<"\n  Please send email to the framework developers";
-    }
-    if(enableInvalidEx_)
-    {
-      float y = useNan();
-      throw edm::Exception(edm::errors::LogicError) <<"SIGFPE was not activated."
-      <<"While doing a test of invalid arguements we get the answer "<<y<<"\n  Please send email to the framework developers";
-    }
-    if(enableOverFlowEx_)
-    {
-      float y = generateOverFlow();
-      throw edm::Exception(edm::errors::LogicError) <<"SIGFPE was not activated."
-      <<"While doing a test of an overflow we get the answer "<<y<<"\n  Please send email to the framework developers";
-    }
-    if(enableUnderFlowEx_)
-    {
-      float y = generateUnderFlow();
-      throw edm::Exception(edm::errors::LogicError) <<"SIGFPE was not activated."
-      <<"While doing a test of an underflow we get the answer "<<y<<"\n  Please send email to the framework developers";
+  VString moduleNames = iPS.getUntrackedParameter<VString>("moduleNames",empty_VString);
+
+// If the module name list is missing or empty, set default values for all parameters
+
+  if( moduleNames.empty() ) {
+    enableDivByZeroEx_  = false;
+    enableInvalidEx_    = false;
+    enableOverFlowEx_   = false;
+    enableUnderFlowEx_  = false;
+    setPrecisionDouble_ = true;
+
+    if( reportSettings_ ) std::cout << "Calling controlFpe for default" << std::endl;
+    controlFpe();
+    fegetenv( &fpuState_ );
+    stateMap_["default"] =  fpuState_;
+  } else {
+
+// Otherwise, scan the module name list and set per-module values.  Be careful to treat
+// any user-specified default first.  If there is one, use it to override our default.
+// Then remove it from the list so we don't see it again while handling everything else.
+
+    VString::iterator pos = find(moduleNames.begin(), moduleNames.end(), "default");
+    if( pos != moduleNames.end() ) {
+      PSet secondary = iPS.getUntrackedParameter<PSet>(*pos, empty_PSet);
+      enableDivByZeroEx_  = secondary.getUntrackedParameter<bool>("enableDivByZeroEx", false);
+      enableInvalidEx_    = secondary.getUntrackedParameter<bool>("enableInvalidEx",   false);
+      enableOverFlowEx_   = secondary.getUntrackedParameter<bool>("enableOverFlowEx",  false);
+      enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
+      if( reportSettings_ ) std::cout << "Calling controlFpe for unnamed module" << std::endl;
+      controlFpe();
+      fegetenv( &fpuState_ );
+      stateMap_["default"] =  fpuState_;
+      moduleNames.erase(pos);
+    }        
+
+// Then handle the rest.
+
+    for( VString::const_iterator it(moduleNames.begin()), itEnd=moduleNames.end(); it != itEnd; ++it) {
+      PSet secondary = iPS.getUntrackedParameter<PSet>(*it, empty_PSet);
+      enableDivByZeroEx_  = secondary.getUntrackedParameter<bool>("enableDivByZeroEx", false);
+      enableInvalidEx_    = secondary.getUntrackedParameter<bool>("enableInvalidEx",   false);
+      enableOverFlowEx_   = secondary.getUntrackedParameter<bool>("enableOverFlowEx",  false);
+      enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
+      if( reportSettings_ ) std::cout << "Calling controlFpe for module " << *it << std::endl;
+      controlFpe();
+      fegetenv( &fpuState_ );
+      stateMap_[*it] =  fpuState_;
     }
   }
 }
@@ -180,29 +142,52 @@ setPrecisionDouble_(iPS.getUntrackedParameter<bool>("setPrecisionDouble", true))
 // member functions
 //
 
-void 
-EnableFloatingPointExceptions::preModule(const ModuleDescription& iDescription)
+void
+EnableFloatingPointExceptions::postEndJob()
 {
-  // For future dev.
+
+// At EndJob, put the state of the fpu back to "OSdefault"
+
+	fpuState_ = stateMap_[String("OSdefault")];
+	fesetenv( &fpuState_ );
 }
 
 void 
+EnableFloatingPointExceptions::preModule(const ModuleDescription& iDescription)
+{
+
+// On entry to a module, find the desired state of the fpu and set it accordingly.
+// Note that any module whose label does not appear in our list gets the default settings.
+
+	String modName = iDescription.moduleLabel();
+        if( stateMap_.find(modName) == stateMap_.end() )  {
+	  fpuState_ = stateMap_[String("default")];
+        } else {
+	  fpuState_ = stateMap_[modName];
+	}
+	fesetenv( &fpuState_ );
+}
+void 
 EnableFloatingPointExceptions::postModule(const ModuleDescription& iDescription)
 {
-  // For future dev
+
+// On exit from a module, set the state of the fpu back to default
+
+	fpuState_ = stateMap_[String("default")];
+	fesetenv( &fpuState_ );
 }
+
 void 
 EnableFloatingPointExceptions::controlFpe()
 {
   // Local Declarations
-#ifdef SunOS
-	fp_except fpu_exceptions;
-#endif
+
 #ifdef __linux__
 
 	/*
 	 * NB: We are not letting users control signaling inexact (FE_INEXACT).
 	 */
+
 	if ( enableDivByZeroEx_ )
 	  (void) feenableexcept( FE_DIVBYZERO );
 	else 
@@ -223,36 +208,31 @@ EnableFloatingPointExceptions::controlFpe()
 	else 
 	  (void) fedisableexcept( FE_UNDERFLOW );
 
-#endif /* LINUX */
+	if( reportSettings_ ) {
+	  int femask = fegetexcept();
+	  std::cout << "Floating point exception mask is " << std::hex << femask << std::endl;
 
-#ifdef SunOS
-	/*
-	 * NB: We are not letting users control signaling Imprecise (FP_X_IMP).
-	 */
+	  if( femask & FE_DIVBYZERO )
+	    std::cout << "\tDivByZero exception is on" << std::endl;
+	  else
+	    std::cout << "\tDivByZero exception is off" << std::endl;
 
-	if ( enableDivByZeroEx_ )
-	  (void) fpsetmask( (fpu_exceptions | FP_X_DZ) );
-	else 
-	  (void) fpsetmask( (fpu_exceptions & ~FP_X_DZ) );
+	  if( femask & FE_INVALID )
+	    std::cout << "\tInvalid exception is on" << std::endl;
+	  else
+	    std::cout << "\tInvalid exception is off" << std::endl;
 
-	if ( enableInvalidEx_ )
-	  (void) fpsetmask( (fpu_exceptions | FP_X_INV) );
-	else 
-	  (void) fpsetmask( (fpu_exceptions & ~FP_X_INV) );
+	  if( femask & FE_OVERFLOW )
+	    std::cout << "\tOverFlow exception is on" << std::endl;
+	  else
+	    std::cout << "\tOverflow exception is off" << std::endl;
 
-	if ( enableOverFlowEx_ )
-	  (void) fpsetmask( (fpu_exceptions | FP_X_OFL) );
-	else 
-	  (void) fpsetmask( (fpu_exceptions & ~FP_X_OFL) );
+	  if( femask & FE_UNDERFLOW )
+	    std::cout << "\tUnderFlow exception is on" << std::endl;
+	  else
+	    std::cout << "\tUnderFlow exception is off" << std::endl;
+        }
 
-	if ( enableUnderFlowEx_ )
-	  (void) fpsetmask( (fpu_exceptions | FP_X_UFL) );
-	else 
-	  (void) fpsetmask( (fpu_exceptions & ~FP_X_UFL) );
-
-#endif  /* SunOS */
-
-#ifdef __linux__
 #ifdef __i386__
 
         if (setPrecisionDouble_) {
