@@ -2,10 +2,16 @@
 #define PhysicsTools_MVATrainer_MVATrainerLooperImpl_h
 
 #include <string>
+#include <memory>
 
 #include <boost/shared_ptr.hpp>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/IOVSyncValue.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
+#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainerLooper.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainerContainer.h"
@@ -23,6 +29,21 @@ class MVATrainerLooperImpl : public MVATrainerLooper {
 
 	TrainObject produce(const Record_t &record)
 	{ return getCalibration(); }
+
+    protected:
+	virtual void
+	storeCalibration(std::auto_ptr<Calibration::MVAComputer> calib) const
+	{
+		edm::Service<cond::service::PoolDBOutputService> dbService;
+		if (!dbService.isAvailable())
+			throw cms::Exception("MVATrainerLooper")
+				<< "No PoolDBOutputService available!"
+				<< std::endl;
+
+		dbService->createNewIOV<Calibration::MVAComputerContainer>(
+			calib.release(), dbService->endOfTime(),
+			"BTagCombinedSVDiscriminatorComputerRcd");
+	}
 };
 
 template<class Record_t>
@@ -45,8 +66,43 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 		return container;
 	}
 
+	virtual Status duringLoop(const edm::Event &event,
+	                         const edm::EventSetup &es)
+	{
+#if 0
+		if (!dbService.get()) {
+			dbService = std::auto_ptr<DBService>(new DBService);
+
+			if (!dbService->isAvailable())
+				throw cms::Exception("MVATrainerLooper")
+					<< "No PoolDBOutputService available!"
+					<< std::endl;
+		}
+#endif
+
+		return MVATrainerLooper::duringLoop(event, es);
+	}
+
+    protected:
+	virtual void
+	storeCalibration(std::auto_ptr<Calibration::MVAComputer> calib) const
+	{
+#if 0
+		Calibration::MVAComputerContainer *container =
+					new Calibration::MVAComputerContainer;
+		container->add(calibrationRecord) = *calib;
+
+		(*dbService)->createNewIOV<Calibration::MVAComputerContainer>(
+			container, (*dbService)->endOfTime(),
+			Record_t::keyForClass().type().name());
+#endif	
+	}
+
     private:
-	std::string	calibrationRecord;
+	typedef edm::Service<cond::service::PoolDBOutputService> DBService;
+
+	std::string			calibrationRecord;
+	std::auto_ptr<DBService>	dbService;
 };
 
 } // namespace PhysicsTools

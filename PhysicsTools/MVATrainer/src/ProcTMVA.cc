@@ -50,7 +50,7 @@ class ProcTMVA : public Processor {
 	typedef Processor::Registry<ProcTMVA>::Type Registry;
 
 	ProcTMVA(const char *name, const AtomicId *id,
-	           MVATrainer *trainer);
+	         MVATrainer *trainer);
 	virtual ~ProcTMVA();
 
 	virtual void configure(DOMElement *elem);

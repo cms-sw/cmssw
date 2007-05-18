@@ -1,3 +1,6 @@
+#ifndef PhysicsTools_MVATrainer_MVATrainerContainer_h
+#define PhysicsTools_MVATrainer_MVATrainerContainer_h
+
 #include <vector>
 #include <string>
 #include <memory>
@@ -34,3 +37,5 @@ class MVATrainerContainer : public Calibration::MVAComputerContainer {
 };
 
 } // namespace PhysicsTools
+
+#endif // PhysicsTools_MVATrainer_MVATrainerContainer_h

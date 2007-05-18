@@ -1,15 +1,19 @@
+<use name=CondCore/DBOutputService>
 <use name=CondFormats/PhysicsToolsObjects>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/ServiceRegistry>
 <use name=FWCore/Utilities>
 <use name=PhysicsTools/MVAComputer>
 <use name=boost>
 <use name=rootcore>
 <use name=xerces-c>
 <export>
+  <use name=CondCore/DBOutputService>
   <use name=CondFormats/PhysicsToolsObjects>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
+  <use name=FWCore/ServiceRegistry>
   <use name=FWCore/Utilities>
   <use name=PhysicsTools/MVAComputer>
   <use name=boost>
@@ -17,4 +21,3 @@
   <use name=xerces-c>
   <lib name=PhysicsToolsMVATrainer>
 </export>
-

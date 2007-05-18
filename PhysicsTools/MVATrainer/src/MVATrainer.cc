@@ -72,6 +72,7 @@ namespace { // anonymous
 		getProcessors() const;
 
 		void configured(TrainInterceptor *interceptor) const;
+		void done();
 
 		inline bool isConfigured() const
 		{ return nConfigured == interceptors.size(); }
@@ -183,9 +184,7 @@ MVATrainerComputer::MVATrainerComputer(const std::vector<TrainInterceptor*>
 
 MVATrainerComputer::~MVATrainerComputer()
 {
-	if (isConfigured())
-		std::for_each(interceptors.begin(), interceptors.end(),
-		              std::mem_fun(&TrainInterceptor::finish));
+	done();
 	std::for_each(interceptors.begin(), interceptors.end(),
 	              deleter<TrainInterceptor>());
 }
@@ -208,6 +207,15 @@ void MVATrainerComputer::configured(TrainInterceptor *interceptor) const
 	if (isConfigured())
 		std::for_each(interceptors.begin(), interceptors.end(),
 		              std::mem_fun(&TrainInterceptor::init));
+}
+
+void MVATrainerComputer::done()
+{
+	if (isConfigured()) {
+		std::for_each(interceptors.begin(), interceptors.end(),
+		              std::mem_fun(&TrainInterceptor::finish));
+		nConfigured = 0;
+	}
 }
 
 // implementation for MVATrainer
@@ -663,6 +671,19 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 	connectProcessors(calib.get(), processors, true);
 
 	return calib.release();
+}
+
+void MVATrainer::doneTraining(Calibration::MVAComputer *trainCalibration) const
+{
+	MVATrainerComputer *calib =
+			dynamic_cast<MVATrainerComputer*>(trainCalibration);
+
+	if (!calib)
+		throw cms::Exception("MVATrainer")
+			<< "Invalid training calibration passed to "
+			   "doneTraining()" << std::endl;
+
+	calib->done();
 }
 
 Calibration::MVAComputer *MVATrainer::getCalibration() const

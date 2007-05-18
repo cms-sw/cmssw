@@ -4,9 +4,11 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
+
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainerLooper.h"
 
@@ -36,13 +38,25 @@ edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
                                                   unsigned int iteration)
 {
 	updateTrainer();
-	return trainCalib ? kContinue : kStop;
+	if (trainCalib)
+		return kContinue;
+
+	std::auto_ptr<Calibration::MVAComputer> calib =
+				std::auto_ptr<Calibration::MVAComputer>(
+						trainer->getCalibration());
+	if (calib.get())
+		storeCalibration(calib);
+	else
+		throw cms::Exception("MVATrainerLooper")
+			<< "No calibration object obtained." << std::endl;
+
+	return kStop;
 }
 
 void MVATrainerLooper::updateTrainer()
 {
-	assert(trainCalib.use_count() <= 1);
-	trainCalib.reset();
+	if (trainCalib)
+		trainer->doneTraining(trainCalib.get());
 	trainCalib = TrainObject(trainer->getTrainCalibration());
 }
 

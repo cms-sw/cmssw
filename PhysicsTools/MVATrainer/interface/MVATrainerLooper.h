@@ -27,6 +27,9 @@ class MVATrainerLooper : public edm::ESProducerLooper {
 	typedef boost::shared_ptr<Calibration::MVAComputer> TrainObject;
 
     protected:
+	virtual void
+	storeCalibration(std::auto_ptr<Calibration::MVAComputer> calib) const = 0;
+
 	inline const MVATrainer *getTrainer() const { return trainer.get(); }
 	inline TrainObject getCalibration() const { return trainCalib; }
 

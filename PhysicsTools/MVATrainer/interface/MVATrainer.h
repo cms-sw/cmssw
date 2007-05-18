@@ -29,13 +29,15 @@ class MVATrainer {
 	~MVATrainer();
 
 	Calibration::MVAComputer *getTrainCalibration() const;
-	Calibration::MVAComputer *getCalibration() const;
+	void doneTraining(Calibration::MVAComputer *trainCalibration) const;
 
-	static const AtomicId kTargetId;
+	Calibration::MVAComputer *getCalibration() const;
 
 	std::string trainFileName(const Processor *proc,
 	                          const std::string &ext,
 	                          const std::string &arg = "") const;
+
+	static const AtomicId kTargetId;
 
     private:
 	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
