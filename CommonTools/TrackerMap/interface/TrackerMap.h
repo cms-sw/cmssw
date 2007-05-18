@@ -256,16 +256,16 @@ void defwindow(int num_lay){
   int nlay;
   double xmin,xmax,ymin,ymax;
   int xsize,ysize,ix,iy;
-  
- private:
-  
-  float oldz;
   bool posrel;
   bool firstcall;
   std::ofstream * svgfile;
   std::ifstream * jsfile;
   float minvalue,maxvalue;
   int number_modules;
+  
+ private:
+  
+  float oldz;
 };
 
 
