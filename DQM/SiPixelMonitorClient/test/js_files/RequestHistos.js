@@ -6,13 +6,18 @@ function RequestModuleHistoList() {
   url += queryString; 
   makeRequest(url, FillModuleHistoList);     
 }
-function RequestMEList() {
+function RequestMEList(what) {
   var queryString;
   var url = getApplicationURL2();
   url += "/Request?";
   queryString = "RequestID=GetMEList";
   url += queryString; 
-  makeRequest(url, FillMEList);     
+  if( what == 'CB' )
+  { 
+   makeRequest(url, FillMEList); 
+  } else {
+   makeRequest(url, ReturnMEList); 
+  }    
 }
 function RequestSummaryHistoList() {
   var queryString;
@@ -121,7 +126,30 @@ function FillMEList() {
         }
       }
       catch (err) {
-        alert ("Error detail: " + err.message); 
+        alert ("[RequestHistos.js::FillMEList()] Error detail: " + err.message); 
+      }
+    }
+  }
+}
+function ReturnMEList() 
+{
+  if (http_request.readyState == 4) 
+  {
+    if (http_request.status == 200) 
+    {
+      try 
+      {
+        var doc   = http_request.responseXML;
+        var root  = doc.documentElement;
+        var theME = document.getElementsByName("MEReference");
+        var hrows = root.getElementsByTagName('Histo');
+
+        for (var j= 0; j < hrows.length; j++) 
+	{
+	  theME[j].setAttribute("value",hrows[j].childNodes[0].nodeValue) ;
+        }
+      } catch (err) {
+        alert ("[RequestHistos.js::ReturnMEList()] Error detail: " + err.message); 
       }
     }
   }

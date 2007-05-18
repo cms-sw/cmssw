@@ -16,6 +16,8 @@
 #include <map>
 #include <iostream>
 
+using namespace std ;
+
 
 /*
   Create your widgets in the constructor of your web interface
@@ -120,6 +122,11 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
    theActionFlag = PlotSingleHistogram;
   } else if (requestID == "PlotTkMapHistogram") {
    theActionFlag = PlotTkMapHistogram;
+   cout << ACYellow << ACBold 
+        << "[SiPixelWebInterface::handleCustomRequest()]" 
+	<< ACPlain
+	<< " Requested PlotTkMapHistogram" 
+	<< endl ;
   } else if (requestID == "UpdatePlot") {
    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
    out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
@@ -233,7 +240,13 @@ void SiPixelWebInterface::performAction() {
 	    it != mes.end(); it++) {
 	requestMap_.insert(pair<string,string>("histo",(*it)));  
       }
-      infoExtractor_->plotSingleModuleHistos((*mui_p), requestMap_);
+      string sname = get_from_multimap(requestMap_, "MEName");
+      cout << ACYellow << ACBold 
+           << "[SiPixelWebInterface::PlotTkMapHistogram()]"
+           << ACPlain
+           << " ... further processing request..." 
+           << endl ;
+      infoExtractor_->plotTkMapHistos((*mui_p), requestMap_, sname);
       break;
     }
   case SiPixelWebInterface::PlotSingleHistogram :

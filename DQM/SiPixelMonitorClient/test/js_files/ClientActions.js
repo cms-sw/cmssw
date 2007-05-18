@@ -93,7 +93,19 @@ function ReadResponseAndOpenTkMap() {
         if ( rows.length == 1) { 
           var name  = rows[0].childNodes[0].nodeValue;
           if (name == "Successful" ) {            
-             var win = window.open('embedded_svg.html','trackerMapWindow');
+             var win = window.open("TrackerMapFrame.html",
+	                           "trackerMapWindow"    ,
+                                   "menubar   = no,  "   +
+                                   "location  = no,  "   +
+                                   "resizable = no,  "   +
+                                   "scrollbars= yes, "   +
+                                   "titlebar  = yes, "   +
+                                   "status    = yes, "   +
+                                   "left      =  10, "   +
+                                   "top       =  10, "   +
+                                   "height    = 768, "   +
+                                   "width     = 1280 ")  ;
+	     win.moveTo(0,0) ;
              win.focus();            
           } else {
             alert(" Creation of Tracker Map Failed !! ");	

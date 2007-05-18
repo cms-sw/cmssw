@@ -9,14 +9,10 @@
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="col"></MonElement> 
-     <MonElement name="row"></MonElement> 
 </SubStructureBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
      <MonElement name="adc"></MonElement> 
-     <MonElement name="col"></MonElement> 
-     <MonElement name="row"></MonElement> 
 </SubStructureEndcapLevel> 
 </SummaryPlot>
 </MonElementConfiguration> 

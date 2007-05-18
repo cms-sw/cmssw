@@ -30,6 +30,8 @@ class SiPixelInformationExtractor {
   void readModuleAndHistoList(MonitorUserInterface* mui,xgi::Output * out, bool coll_flag);
   void plotSingleModuleHistos(MonitorUserInterface * mui,
                       std::multimap<std::string, std::string>& req_map);
+  void plotTkMapHistos(MonitorUserInterface * mui,
+                      std::multimap<std::string, std::string>& req_map, string sname);
   const std::ostringstream& getImage() const;
   void readModuleHistoTree(MonitorUserInterface* mui, 
     std::string& str_name, xgi::Output * out, bool coll_flag);

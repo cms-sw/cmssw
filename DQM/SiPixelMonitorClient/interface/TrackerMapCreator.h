@@ -3,7 +3,7 @@
 
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "CommonTools/TrackerMap/interface/TrackerMap.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
 #include <fstream>
 #include <map>
 #include <vector>
@@ -23,7 +23,7 @@ class TrackerMapCreator {
 
   void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
 
-  TrackerMap* trackerMap;
+  SiPixelTrackerMap* trackerMap;
   
   std::string mEName ;
   

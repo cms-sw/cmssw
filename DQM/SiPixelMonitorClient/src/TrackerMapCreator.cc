@@ -2,72 +2,94 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
+#include <qstring.h>
+#include <qregexp.h>
 #include <iostream>
 #include <sstream>
 #include "TText.h"
 using namespace std;
-//
+
+//==============================================================================
 // -- Constructor
 // 
-TrackerMapCreator::TrackerMapCreator(string themEName) {
+TrackerMapCreator::TrackerMapCreator(string themEName) 
+{
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::TrackerMapCreator()]" 
        << ACPlain << " ctor" << endl ;
-//  trackerMap = new TrackerMap("Interactive Pixel Tracker Map");
   stringstream title ;
   title.str("") ; title << "Interactive Pixel Tracker Map. Monitoring element displayed: "
                         << themEName ;
-  trackerMap = new TrackerMap(title.str());
+  trackerMap = new SiPixelTrackerMap(title.str());
 }
-//
+
+//==============================================================================
 // -- Destructor
 //
 TrackerMapCreator::~TrackerMapCreator() {
   if (trackerMap) delete trackerMap;
 }
+
+//==============================================================================
+// -- Browse through monitorable and get values needed by TrackerMap
 //
-// -- Browse through monitorable and get values need for TrackerMap
-//
-void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_names, string themEName) {
+void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_names, string themEName) 
+{
+  cout << ACYellow << ACBold
+       << "[TrackerMapCreator::create()] Enter"
+       << ACPlain << endl ;
+  QRegExp rx("siPixelDigis_(\\d+)") ;
+  QString theME ;
 
   mEName = themEName ;
-//  cout << ACYellow << ACBold
-//       << "[TrackerMapCreator::create()]"
-//       << ACRed << ACReverse 
-//       << " ----------- Filling colors ------------" << ACPlain
-//       << endl ;
   vector<string> tempVec, contentVec;
   mui->getContents(tempVec);
-  for (vector<string>::iterator it = tempVec.begin();
-       it != tempVec.end(); it++) {
-    if ((*it).find("module_") != string::npos) contentVec.push_back(*it);
-//     cout << ACYellow << ACBold
-//          << "[TrackerMapCreator::create()]"
-// 	 << ACRed << ACReverse 
-//          << "mui content: " << *it << endl ;
+  
+  // Filter out just Pixel-typew MEs (use handy regular expressions from Qt)
+  for (vector<string>::iterator it = tempVec.begin(); it != tempVec.end(); it++) 
+  {
+    theME         = *it ;
+    if( rx.search(theME) != -1 )
+    {
+     contentVec.push_back(*it);
+    }
   }
   int ndet = contentVec.size();
-  tempVec.clear();
+
   int ibin = 0;
   string gname = "GobalFlag";
-  MonitorElement* tkmap_gme = getTkMapMe(mui,gname,ndet); 
-  for (vector<string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
+  MonitorElement* tkmap_gme = getTkMapMe(mui,gname,ndet);
+  for (vector<string>::iterator it = contentVec.begin(); it != contentVec.end(); it++) 
+  {
     ibin++;
     vector<string> contents;
     int nval = SiPixelUtility::getMEList((*it), contents);
     if (nval == 0) continue;
-    // get module id
-    string det_id = ((*it).substr((*it).find("module_")+7, 9)).c_str();
+    string det_id = "Not found";
+    theME         = *it ;
+    if( rx.search(theME) != -1 )
+    {
+     det_id = rx.cap(1).latin1();
+    }
+//    cout << ACCyan << ACBold
+//         << "[TrackerMapCreator::create()]"
+//         << ACRed << ACReverse 
+//	 << det_id
+//	 << ACPlain << "] "
+//	 << ACYellow << ACBold
+//         << theME 
+//	 << ACPlain
+//	 << endl ;
     
     map<MonitorElement*,int> local_mes;
     int gstat = 0;
     //  browse through monitorable; check  if required MEs exist    
-    for (vector<string>::const_iterator ic = contents.begin();
-	      ic != contents.end(); ic++) {
+
+    for (vector<string>::const_iterator ic = contents.begin(); ic != contents.end(); ic++) 
+    {
       int istat = 0;
-      for (vector<string>::const_iterator im = me_names.begin();
-	   im != me_names.end(); im++) {
+      for (vector<string>::const_iterator im = me_names.begin(); im != me_names.end(); im++) 
+      {
 	string me_name = (*im);
 	if ((*ic).find(me_name) == string::npos) continue;
 	MonitorElement * me = mui->get((*ic));
@@ -76,7 +98,8 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
 	local_mes.insert(pair<MonitorElement*, int>(me, istat));
 	if (istat > gstat) gstat = istat;
 	MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
-	if (tkmap_me){
+	if (tkmap_me)
+	{
 //     cout << ACYellow << ACBold
 //          << "[TrackerMapCreator::create()]"
 // 	 << ACRed << ACBold 
@@ -87,7 +110,9 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
 	}
       }
     }
-    if (tkmap_gme) {
+    
+    if (tkmap_gme) 
+    {
 //     cout << ACYellow << ACBold
 //          << "[TrackerMapCreator::create()]"
 // 	 << ACCyan << ACBold 
@@ -95,14 +120,18 @@ void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_nam
        tkmap_gme->Fill(ibin, gstat);
        tkmap_gme->setBinLabel(ibin, det_id.c_str());
     }	 
+
     paintTkMap(atoi(det_id.c_str()), local_mes);
   }
+
   trackerMap->print(true);  
 }
-//
+
+//==============================================================================
 // -- Draw Monitor Elements
 //
-void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map) {
+void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map) 
+{
   int icol;
   string tag;
   
@@ -115,26 +144,35 @@ void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map
 
   MonitorElement* me;
   int me_size = me_map.size() ;
-//  cout << "\n" << ACGreen << ACBold
+//  cout << "\n" << ACRed << ACBold
 //       << "[TrackerMapCreator::paintTkMap()] "
 //       << ACPlain
-//       << "det_id: " 
-//       << det_id
-//       << ACYellow 
-//       << " Me: " << ACPlain
-//       << mEName.c_str()
+//       << "me_size: " 
+//       <<  me_size
+//       << ACPlain
 //       << endl ;
-  for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); 
-	      it != me_map.end(); it++) {
+  for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); it != me_map.end(); it++) 
+  {
     me = it->first;
     if (!me) continue;
+//    cout << "\n" << ACGreen << ACBold
+//    	 << "[TrackerMapCreator::paintTkMap()] "
+//    	 << ACPlain
+//    	 << "me->getName(): " 
+//    	 <<  me->getName()
+//    	 << ACYellow 
+//    	 << " mEName: " << ACPlain
+//    	 << mEName.c_str()
+//    	 << endl ;
     float mean = me->getMean();
     media = (int)mean;
     comment <<   mean <<  " : " ;
     // global status 
     if (it->second > gstatus ) gstatus = it->second;
     SiPixelUtility::getStatusColor(it->second, icol, tag);
-    if( !me->getName().find(mEName.c_str()) )
+    QRegExp rx(mEName) ;
+    QString sMEName = me->getName() ;
+    if( rx.search(sMEName) != -1 )
     {
 //      cout << ACYellow << ACBold
 //           << "[TrackerMapCreator::paintTkMap()] "
@@ -159,14 +197,17 @@ void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map
   SiPixelUtility::getStatusColor(gstatus, rval, gval, bval);
   SiPixelUtility::getStatusColor(sts,     rval, gval, bval);
   trackerMap->fillc(det_id, rval, gval, bval);
-//     cout << ACYellow << ACBold
-//          << "[TrackerMapCreator::create()]"
-// 	 << ACRed << ACBold 
-//          << " det_id " << ACPlain
-// 	 << det_id
-// 	 << " rgb: " << rval << ":" << gval << ":" << bval << endl ;
+//  cout << ACYellow << ACBold
+//       << "[TrackerMapCreator::create()]"
+//       << ACRed << ACBold 
+//       << " det_id " << ACPlain
+//       << det_id
+//       << " sts: "
+//       << sts
+//       << " rgb: " << rval << ":" << gval << ":" << bval << endl ;
 }
-//
+
+//==============================================================================
 // -- get Tracker Map ME 
 //
 MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui, 

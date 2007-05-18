@@ -16,6 +16,9 @@
 #include "TPaveText.h"
 #include "TImageDump.h"
 
+#include <qstring.h>
+#include <qregexp.h>
+
 #include <iostream>
 using namespace std;
 
@@ -231,35 +234,52 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 //
 // --  Get Selected Monitor Elements
 // 
-void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) {
+void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) 
+{
 //cout<<"entering SiPixelInformationExtractor::selectSingleModuleHistos"<<endl;
   string currDir = mui->pwd();
   //cout<<"currDir="<<currDir<<endl;
 //  if (currDir.find("Module_") != string::npos &&
 //      currDir.find(mid) != string::npos )  {
-  if (currDir.find("Module_") != string::npos)  {
+  QRegExp rx("(\\w+)_siPixelDigis_") ;
+  QString theME ;
+  if (currDir.find("Module_") != string::npos)  
+  {
     vector<string> contents = mui->getMEs();    
-    for (vector<string>::const_iterator it = contents.begin();
-	 it != contents.end(); it++) {
-      if((*it).find(mid) != string::npos){
-        for (vector<string>::const_iterator ih = names.begin();
-	   ih != names.end(); ih++) {
-	  string temp_s = (*it).substr(0, (*it).find("_siPixelDigis_"));
+    for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
+    {
+      if((*it).find(mid) != string::npos)
+      {
+        for (vector<string>::const_iterator ih = names.begin(); ih != names.end(); ih++) 
+	{
+	  theME = *it ;
+          string temp_s ; 
+          if( rx.search(theME) != -1 )
+          {
+	   temp_s = rx.cap(1).latin1() ;
+	  }
 	  //	if ((*it).find((*ih)) != string::npos) {
-	  if (temp_s == (*ih)) {
+	  if (temp_s == (*ih)) 
+	  {
 	    string full_path = currDir + "/" + (*it);
 	    //cout<<"full_path="<<full_path<<endl;
 	    MonitorElement * me = mui->get(full_path.c_str());
-	    if (me) mes.push_back(me);
-	  }  
+	    if (me) 
+	    {
+	     mes.push_back(me);
+	    }
+	  }
         }
       }
     }
-    if (mes.size() >0) return;
+    if (mes.size() >0) 
+    {
+     return;
+    }
   } else {  
     vector<string> subdirs = mui->getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin();
-	 it != subdirs.end(); it++) {
+    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
+    {
       mui->cd(*it);
       selectSingleModuleHistos(mui, mid, names, mes);
       mui->goUp();
@@ -286,6 +306,48 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   mui->cd();
 
   plotHistos(req_map,me_list);
+//cout<<"leaving SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
+}
+//============================================================================================================
+// --  Plot Selected Monitor Elements
+// 
+void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface* mui, multimap<string, string>& req_map, string sname) 
+{
+//cout<<"entering SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
+  cout << ACYellow << ACBold << ACReverse
+       << "[SiPixelInformationExtractor::plotTkMapHistos()]"
+       << ACPlain << " Registering call for "
+       << sname
+       << endl ;
+  vector<string> item_list;  
+
+  string mod_id = getItemValue(req_map,"ModId");
+  //cout<<"mod_id in plotSingleModuleHistos:"<<mod_id<<endl;
+  if (mod_id.size() < 9) return;
+  item_list.clear();     
+  getItemList(req_map,"histo", item_list); // item_list holds all histos to plot
+  vector<MonitorElement*> me_list;
+
+  mui->cd();
+  selectSingleModuleHistos(mui, mod_id, item_list, me_list);
+  mui->cd();
+
+  QRegExp rx(sname) ;
+  QString meName ;
+
+  for( vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
+  {
+   meName = (*it)->getName() ;
+   if( rx.search(meName) == -1 ) {continue;}
+   cout << ACYellow << ACBold << ACReverse
+        << "[SiPixelInformationExtractor::plotTkMapHistos()]"
+	<< ACPlain << " "
+	<< (*it)->getName()
+	<< endl ;
+   vector<MonitorElement*> one_me ;
+   one_me.push_back(*it) ;
+   plotHistos(req_map,one_me);
+  }
 //cout<<"leaving SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
 }
 //
