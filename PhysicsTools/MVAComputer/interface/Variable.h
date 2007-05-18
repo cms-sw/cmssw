@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: Variable.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <string>
@@ -49,8 +49,12 @@ class Variable {
 	 *
 	 ************************************************************/
 	struct Value {
+		inline Value() {}
 		inline Value(AtomicId name, double value) :
 			name(name), value(value) {}
+
+		inline Value &operator = (const Value &orig)
+		{ name = orig.name; value = orig.value; return *this; }
 
 		inline AtomicId getName() const { return name; }
 		inline double getValue() const { return value; }
