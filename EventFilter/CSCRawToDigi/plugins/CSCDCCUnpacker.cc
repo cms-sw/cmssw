@@ -28,6 +28,9 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
+
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
@@ -120,6 +123,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
+  std::auto_ptr<CSCDMBStatusDigiCollection> dmbStatusProduct(new CSCDMBStatusDigiCollection);
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id)
@@ -276,8 +280,10 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				cfebStatusProduct->
 				  insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
 			    }
+			  ///put dmb status digi
+			  dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader().data(),
+									       cscData[iCSC].dmbTrailer().data()));
 			}
-
 
 		      ///this loop stores wire, strip and comparator digis:
 		      for (int ilayer = 1; ilayer <= 6; ++ilayer) 
