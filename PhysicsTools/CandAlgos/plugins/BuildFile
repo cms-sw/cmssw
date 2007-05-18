@@ -27,4 +27,4 @@
 <library file=CandCountFilter.cc></library>
 <library file=CandReducer.cc></library>
 <library file=TrivialDeltaRMatcher.cc></library>
-
+<library file=CandMatchedCloneProducer.cc></library>

@@ -116,10 +116,11 @@ void CandMatcherBase<C>::initMaps() {
       candRefs_[ & (*cands)[ i ] ] = reference_type( cands, i );
     } 
     const CandidateCollection & matched = * matched_;
-    for( size_t i = 0; i < matched.size(); ++ i )
+    size_t matchedSize = matched.size();
+    for( size_t i = 0; i < matchedSize; ++ i )
       matchedRefs_[ & matched[ i ] ] = CandidateRef( matched_, i );
-    matchedMothers_.resize( matched.size() );
-    for( size_t i = 0; i < matched.size(); ++ i ) {
+    matchedMothers_.resize( matchedSize );
+    for( size_t i = 0; i < matchedSize; ++ i ) {
       const Candidate & c = matched[ i ];
       for( Candidate::const_iterator d = c.begin(); d != c.end(); ++ d ) {
 	vector<const Candidate *> daus = getDaughters( & * d );
