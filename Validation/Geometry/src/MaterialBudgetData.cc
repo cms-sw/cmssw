@@ -1,5 +1,3 @@
-//#include "Utilities/UI/interface/SimpleConfigurable.h"
-
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,12 +9,14 @@
 
 //#define TREE_DEBUG
 
-MaterialBudgetData::MaterialBudgetData()
+MaterialBudgetData::MaterialBudgetData() 
 {
-
   //instantiate categorizer to assing an ID to volumes and materials
   myMaterialBudgetCategorizer = 0;
   allStepsToTree = false;
+}
+
+MaterialBudgetData::~MaterialBudgetData() {
 }
 
 void MaterialBudgetData::SetAllStepsToTree()
@@ -307,7 +307,9 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
     theStepFinalPz[theStepN]        = postPoint->GetMomentum().z();
     theStepFinalBeta[theStepN]      = postPoint->GetBeta();
     theStepFinalGamma[theStepN]     = postPoint->GetGamma();
-    theStepProcess[theStepN] = interactionPre->GetProcessType();
+    int procType = -99;
+    if (interactionPre) procType = interactionPre->GetProcessType();
+    theStepProcess[theStepN]        = procType;
 #ifdef TREE_DEBUG
     std::cout << " step " << theStepN
 	      << "\tDelta MB = " << theDmb[theStepN]
@@ -427,4 +429,5 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   theStepN++;
   
 }
+
 

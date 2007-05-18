@@ -19,7 +19,7 @@ class MaterialBudgetData {
 public:
 
   MaterialBudgetData();
-  ~MaterialBudgetData(){ }
+  ~MaterialBudgetData();
 
   void dataStartTrack( const G4Track* aTrack );
   void dataEndTrack( const G4Track* aTrack );
