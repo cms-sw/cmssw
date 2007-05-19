@@ -72,7 +72,8 @@ void SRBlockFormatter::DigiToRaw(int dccid, int dcc_channel, int flag, FEDRawDat
 		// -- lines in the TCC and the SRP blocks
 		unsigned char* Data = rawdata.data();
 	 	for (int iline=SRP_index; iline < SRP_index+Nrows_SRP; iline++) {
- 		 Data[8*iline + 7] = 0x80;
+ 		 Data[8*iline + 7] |= 0x80;
+		 Data[8*iline + 3] |= 0x80;
 		}
 	}
 
