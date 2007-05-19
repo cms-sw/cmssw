@@ -384,7 +384,8 @@ vstringParameter =pp.Group(untracked+pp.Keyword("vstring")+label+_equalTo
 fileInPathParameter = pp.Group(untracked+pp.Keyword('FileInPath')+label+_equalTo+
                            quotedString).setParseAction(_makeParameter)
 
-inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.Word(pp.alphanums))))
+inputTagFormat = pp.Group(letterstart+pp.Optional(pp.Suppress(':')+pp.Optional(pp.Word(pp.alphanums))+
+    pp.Optional(pp.Suppress(':')+pp.Optional(pp.Word(pp.alphanums)))))
 inputTagParameter = pp.Group(untracked+pp.Keyword('InputTag')+label+_equalTo+
                              inputTagFormat
                              ).setParseAction(_makeLabeledInputTag)
@@ -1142,6 +1143,13 @@ if __name__=="__main__":
             self.assertEqual(d['blah'].moduleLabel,'tag')
             self.assertEqual(d['blah'].productInstanceLabel,'youIt')
 
+            t = onlyParameters.parseString("InputTag blah = tag:youIt:Now")
+            d=dict(iter(t))
+            self.assertEqual(type(d['blah']),cms.InputTag)
+            self.assertEqual(d['blah'].moduleLabel,'tag')
+            self.assertEqual(d['blah'].productInstanceLabel,'youIt')
+            self.assertEqual(d['blah'].processName,'Now')
+
             t=onlyParameters.parseString("VInputTag blah = {}")
             d=dict(iter(t))
             self.assertEqual(type(d['blah']),cms.VInputTag)
@@ -1171,6 +1179,13 @@ if __name__=="__main__":
             self.assertEqual(type(d['blah']),cms.PSet)
             self.assertEqual(d['blah'].ick.value(), 1)            
             print t
+
+#            t=onlyParameters.parseString("""PSet blah = {
+#                                         InputTag t1 = abc: 
+#                                         InputTag t2 = def:GHI
+#                                         }""")
+#            d=dict(iter(t))
+#            self.assertEqual(type(d['blah']),cms.PSet)
 
             t=onlyParameters.parseString("VPSet blah = {}")
             d=dict(iter(t))

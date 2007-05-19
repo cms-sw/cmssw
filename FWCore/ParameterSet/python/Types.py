@@ -133,10 +133,11 @@ class string(_SimpleParameterTypeBase):
 
 
 class InputTag(_ParameterTypeBase):
-    def __init__(self,moduleLabel,productInstanceLabel=''):
+    def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
+        self.__processName=processName
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
@@ -147,15 +148,22 @@ class InputTag(_ParameterTypeBase):
     def setProductInstanceLabel(self,label):
         self.__productInstance = label
     productInstanceLabel = property(getProductInstanceLabel,setProductInstanceLabel,"product instance label for the product")
+    def getProcessName(self):
+        return self.__processName
+    def setProcessName(self,label):
+        self.__processName = label
+    processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self,indent,deltaIndent):
-        return self.__moduleLabel+':'+self.__productInstance
+        return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
     @staticmethod
     def _isValid(value):
         return True
     def __cmp__(self,other):
         v = self.__moduleLabel <> other.__moduleLabel
         if not v:
-            return self.__productInstance <> other.__productInstance
+            v= self.__productInstance <> other.__productInstance
+            if not v:
+                v=self.__processName <> other.__processName
         return v
     @staticmethod
     def formatValueForConfig(value):
