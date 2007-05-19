@@ -1,6 +1,6 @@
 /*
- * $Date: 2007/05/16 16:59:35 $
- * $Revision: 1.25 $
+ * $Date: 2007/05/18 18:48:48 $
+ * $Revision: 1.26 $
  *
  * \author: D. Giordano, domenico.giordano@cern.ch
  * Modified: M.De Mattia 2/3/2007 & R.Castello 5/4/2007
@@ -363,7 +363,7 @@ namespace cms{
       
       //cWidth Vs Angle
       name = "ClusterWidthVsAngle"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileWidthAngle", name, "sin(angle_xz)" , "clusWidth");
+      bookHlist("TProfile","TProfileWidthAngle", name, "angle_xz" , "clusWidth");
 
       //Residuals Vs Angle
       name = "ResidualVsAngle"+appString+"_onTrack";
@@ -371,7 +371,8 @@ namespace cms{
 
       //Angle Vs phi
       name = "AngleVsPhi"+appString+"_onTrack";
-      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle (sin(angle_xz))");
+      bookHlist("TProfile","TProfileAngleVsPhi", name, "Phi (deg)" , "Impact angle angle_xz (deg)");
+
     }
   }
 
@@ -629,8 +630,8 @@ namespace cms{
 	  LogTrace("ClusterAnalysis")
 	    <<"\n\t\tRecHit on det "<<trh->geographicalId().rawId()
 	    <<"\n\t\tRecHit in LP "<<trh->localPosition()
-	    <<"\n\t\tRecHit trackLocal vector "<<tkangle_iter->_LV.y() << " " << tkangle_iter->_LV.y() << tkangle_iter->_LV.z()
-	    <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(trh->geographicalId())->surface().toGlobal(trh->localPosition()) <<std::endl; 
+	    <<"\n\t\tRecHit in GP "<<tkgeom->idToDet(trh->geographicalId())->surface().toGlobal(trh->localPosition()) 
+	    <<"\n\t\tRecHit trackLocal vector "<<tkangle_iter->_LV.x() << " " << tkangle_iter->_LV.y() << " " << tkangle_iter->_LV.z() <<std::endl; 
 	  
 	  //Get SiStripCluster from SiStripRecHit
 	  const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>(trh);
@@ -765,12 +766,17 @@ namespace cms{
       << "\n\t\tcluster GlobalPos "     << globalPos
       << std::endl;
 
-    float sinXZ = 1;
-    float cosRZ = 1;
-    //std::cout << _HitDir._LV.x() << " " << _HitDir._LV.y() << " " << _HitDir._LV.z() << " " << _HitDir._LV.mag() << std::endl;
+    long double tanXZ = -999;
+    float cosRZ = -2;
+    long double atanXZ = -200;
+    LogTrace("ClusterAnalysis")<< "\n\tLV " << _HitDir._LV.x() << " " << _HitDir._LV.y() << " " << _HitDir._LV.z() << " " << _HitDir._LV.mag() << std::endl;
     if (_HitDir._LV.mag()!=0){
-      sinXZ= (_HitDir._LV.x())/sqrt(_HitDir._LV.x()*_HitDir._LV.x()+_HitDir._LV.z()*_HitDir._LV.z());
+      double proj_yZ=_StripGeomDetUnit->surface().toGlobal(LocalVector(0.,1.,0.)).z();
+      tanXZ= _HitDir._LV.x() /_HitDir._LV.z() * (-1) * proj_yZ/fabs(proj_yZ);
       cosRZ= fabs(_HitDir._LV.z())/_HitDir._LV.mag();
+      atanXZ=atan(tanXZ)*189/Geom::pi();
+
+      LogTrace("ClusterAnalysis")<< "\n\t tanXZ " << tanXZ << " cosRZ " << cosRZ << std::endl;
     }
 
     //Display
@@ -784,16 +790,20 @@ namespace cms{
   
     fillTH1(cluster->charge(),"cSignal"+appString,1,cluster->width());
 
-    fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
+    if (_HitDir._LV.mag()!=0){
+      
+      fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString,0); //Filled only for ontrack
+      
+      fillTProfile(atanXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
 
-    fillTProfile(sinXZ,cluster->width(),"ClusterWidthVsAngle"+appString,0); //Filled only for ontrack
-        
+      fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString,0); //Filled only for ontrack
+    } 
+       
     fillTH1(cluster->noise(),"cNoise"+appString,1,cluster->width());
     
     if (cluster->noise()){
       fillTH1(cluster->charge()/cluster->noise(),"cStoN"+appString,1,cluster->width());
-
-      fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString,0); //Filled only for ontrack
+      
     }
       
     fillTH1(cluster->width(),"cWidth"+appString,0);
@@ -881,7 +891,7 @@ namespace cms{
       fillTH1(cluster->position(),"cPos"+appString,0);
     }
 
-    if(flag=="_onTrack"){
+    if(flag=="_onTrack" && cosRZ>-2){
       fillTProfile((int)(cluster->position()-.5)/256,cluster->charge()*cosRZ,"cSignalxFiber"+appString+"_onTrack",0);
     }
 
@@ -906,28 +916,31 @@ namespace cms{
       fillTH1(cluster->position(),"cPos"+appString,0);
     }      
 
-    if(flag=="_onTrack"){
-
-      fillTProfile(sinXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
+    if(flag=="_onTrack" && _HitDir._LV.mag()!=0){
+      fillTProfile(atanXZ,cluster->width(),"ClusterWidthVsAngle"+appString+"_onTrack",0);
       
       fillTH1(cluster->charge()*cosRZ,"cSignalCorr"+appString+"_onTrack",0);
-
+	
       fillTProfile(cosRZ,cluster->charge(),"cSignalVsAngle"+appString+"_onTrack",0);
       fillTH2(cosRZ,cluster->charge(),"cSignalVsAngleH"+appString+"_onTrack",0);
-
+	
       if (cluster->noise()){
 	fillTH1((cluster->charge()/cluster->noise())*cosRZ,"cStoNCorr"+appString+"_onTrack",0); 
       }
+      
 
-      //***Only for TIB and TOB modules***//      
-      if ( (a.subdetId() == 3 && TIBDetId(detid).stereo() == 0) || (a.subdetId() == 5 && TOBDetId(detid).stereo() == 0)){
-	fillTProfile(tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
-		     //Changing that in sin(angle_xz)
-		     //		   _HitDir._LV.theta().value()>Geom::pi()/2 ? 
-		     //		   (Geom::pi()-_HitDir._LV.theta().value())*180/Geom::pi() :
-		     //		   _HitDir._LV.theta().value()*180/Geom::pi(),
-		     sinXZ,
-		     "AngleVsPhi"+appString+"_onTrack",0);
+      //***Only for TIB and TOB rphi modules***//      
+      if ( StripSubdetector(detid).stereo() == 0 ){
+	
+	fillTProfile(
+		     tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees(),
+		     atanXZ,
+		     "AngleVsPhi"+appString+"_onTrack",0
+		     );
+	
+	//std::cout << " detid phi sinxz " <<  appString << " R " << tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).mag() << "\t |  phi " << tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees() << " anglexz " << atanXZ << " | tanxz " << tanXZ << " x " << _HitDir._LV.x() << " z " << _HitDir._LV.z() << " mag " << sqrt(_HitDir._LV.x()*_HitDir._LV.x()+_HitDir._LV.z()*_HitDir._LV.z()) << " \t | " << tkgeom->idToDet(DetId(detid))->surface().toGlobal(LocalVector(0,0,1)) << " " << tkgeom->idToDet(DetId(detid))->surface().toGlobal(LocalVector(1,0,0)) << std::endl;
+
+	//LogTrace("ClusterAnalysis") << " det " << appString << " angle Ph " << tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()).phi().degrees() << " " << _HitDir._TrackingRecHit->localPosition() << "   " <<  tkgeom->idToDet(DetId(detid))->surface().toGlobal(_HitDir._TrackingRecHit->localPosition()) << std::endl; 
       }      
     }
     return true;
@@ -1113,12 +1126,38 @@ namespace cms{
       //LocalPoint trackPointCmb= trackinforefCmb->stateOnDet(_tkinfoiter->first).parameters().position();
       //
 
+      LocalVector Normale(0,0,1);
+      LocalVector Vx(1,0,0);
+      LocalVector Vxz(1,0,1);      
+      LocalVector Vxmz(-1,0,1);
+      LocalVector Vxzm(1,0,-1);
+
       if (phit) {
- 	//phit = POINTER TO THE PROJECTED RECHIT
+ 	//phit = POINTER TO THE PROJECTED RECHIT  
  	hit=&(phit->originalHit());
+ 	GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(phit->geographicalId());
+	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
+        GlobalVector gtrkdirCmb=gdet->toGlobal(trackdirectionCmb);
+
+	HitDir A;
+	A._TrackingRecHit=hit;
+	if(!StripSubdetector(hit->geographicalId().rawId()).stereo()){
+	  A._LV=gdet->monoDet()->toLocal(gtrkdir);
+	  A._GV=gtrkdir;
+	  A._LVcmb=gdet->monoDet()->toLocal(gtrkdirCmb);
+	  A._GVcmb=gtrkdirCmb;
+	}else{
+	  A._LV=gdet->stereoDet()->toLocal(gtrkdir);
+	  A._GV=gtrkdir;
+	  A._LVcmb=gdet->stereoDet()->toLocal(gtrkdirCmb);
+	  A._GVcmb=gtrkdirCmb;
+	}
+	_tkHitDirs.push_back ( A );
+	
 	LogTrace("ClusterAnalysis") << "ProjectedHit found" << std::endl;
-      }
-      if(matchedhit){//if matched hit...
+	LogTrace("ClusterAnalysis")<< "\n\tRecHit trackLocal vector "<< A._TrackingRecHit->geographicalId().rawId() << " " << A._LV.x() << " " << A._LV.y() << A._LV.z() <<std::endl; 	  
+
+      }else if(matchedhit){//if matched hit...
 	LogTrace("ClusterAnalysis")<<"MatchedHit found"<<std::endl;
  	GluedGeomDet * gdet=(GluedGeomDet *)_tracker->idToDet(matchedhit->geographicalId());
  	GlobalVector gtrkdir=gdet->toGlobal(trackdirection);
@@ -1132,7 +1171,9 @@ namespace cms{
 	A._LVcmb=gdet->monoDet()->toLocal(gtrkdirCmb);
 	A._GVcmb=gtrkdirCmb;
 	_tkHitDirs.push_back ( A );
-	  
+
+	LogTrace("ClusterAnalysis")<< "\n\tRecHit trackLocal vector "<< A._TrackingRecHit->geographicalId().rawId() << " " << A._LV.x() << " " << A._LV.y() << " " << A._LV.z() <<std::endl; 	  
+
 	// THIS THE POINTER TO THE STEREO HIT OF A MATCHED HIT 
 	A._TrackingRecHit=matchedhit->stereoHit();
 	A._LV=gdet->stereoDet()->toLocal(gtrkdir);
@@ -1140,8 +1181,10 @@ namespace cms{
 	A._GV=gtrkdir;
 	A._GVcmb=gtrkdirCmb;
 	_tkHitDirs.push_back ( A );
-      }
-      else if(hit) {
+
+	LogTrace("ClusterAnalysis")<< "\n\tRecHit trackLocal vector "<< A._TrackingRecHit->geographicalId().rawId() << " " << A._LV.x() << " " << A._LV.y() << " " << A._LV.z() <<std::endl; 	  
+
+      }else if(hit) {
 	//  hit= POINTER TO THE RECHIT
 	LogTrace("ClusterAnalysis")<<"MonoHit found"<<std::endl;
 	GeomDet * gdet=(GeomDet *)_tracker->idToDet(hit->geographicalId());
@@ -1152,6 +1195,9 @@ namespace cms{
 	A._LVcmb=trackdirectionCmb;
 	A._GVcmb=gdet->toGlobal(trackdirectionCmb);
 	_tkHitDirs.push_back ( A );
+
+	LogTrace("ClusterAnalysis")<< "\n\tRecHit trackLocal vector "<< A._TrackingRecHit->geographicalId().rawId() << " " << A._LV.x() << " " << A._LV.y() << " " << A._LV.z() <<std::endl; 	  
+
       }
       else {
 	edm::LogError("ClusterAnalysis") << "not matched, mono or projected rechit" << std::endl;
