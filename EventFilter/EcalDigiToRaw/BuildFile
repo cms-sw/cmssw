@@ -7,7 +7,7 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/EcalMapping>
 <use name=rootrflx>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="EventFilterEcalDigiToRaw">
 <export>
    <lib name=EventFilterEcalDigiToRaw>
    <use name=DataFormats/EcalDigi>
