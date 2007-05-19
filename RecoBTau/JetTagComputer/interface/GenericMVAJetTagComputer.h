@@ -27,7 +27,9 @@ class GenericMVAJetTagComputer : public JetTagComputer
  private:
    std::string m_calibrationLabel;
    mutable std::auto_ptr<GenericMVAComputer> m_mvaComputer;
-  // edm::EventSetup * m_eventSetup;
+
+   mutable PhysicsTools::Calibration::MVAComputer::CacheId m_mvaComputerCacheId;
+   mutable PhysicsTools::Calibration::MVAComputerContainer::CacheId m_mvaContainerCacheId;
 };
 
 #endif
