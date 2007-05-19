@@ -6,7 +6,7 @@
        =================================================
        
 %MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1th record. Run 1, Event 1
+Begin processing the 1st record. Run 1, Event 1
 %MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1 UnitTestClient_A.cc:21
 LogDebug was used to send this message
 %MSG-! cat_B:  
@@ -26,7 +26,7 @@ LogInfo was used to send this message
 %MSG-i cat_B:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 1
 LogInfo was used to send this other message
 %MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2th record. Run 1, Event 2
+Begin processing the 2nd record. Run 1, Event 2
 %MSG-! cat_A:  UnitTestClient_A:sendSomeMessages Run: 1 Event: 2 UnitTestClient_A.cc:21
 LogDebug was used to send this message
 %MSG-! cat_B:  

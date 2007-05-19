@@ -6,7 +6,7 @@
        =================================================
        
 %MSG-i FwkReport:  main_input:source BeforeEvents
-Begin processing the 1th record. Run 1, Event 1
+Begin processing the 1st record. Run 1, Event 1
 LogPrint: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 0
@@ -33,7 +33,7 @@ LogPrint: 9
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 9
 %MSG-i FwkReport:  main_input:source Run: 1 Event: 1
-Begin processing the 2th record. Run 1, Event 2
+Begin processing the 2nd record. Run 1, Event 2
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
