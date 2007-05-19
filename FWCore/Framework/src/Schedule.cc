@@ -640,17 +640,17 @@ namespace edm
 
     // The trigger report (pass/fail etc.):
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TrigReport " << "---------- Event  Summary ------------";
-    LogVerbatim("Summary") << "TrigReport"
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Event  Summary ------------";
+    LogVerbatim("FwkSummary") << "TrigReport"
 	 << " Events total = " << totalEvents()
 	 << " passed = " << totalEventsPassed()
 	 << " failed = " << (totalEventsFailed())
 	 << "";
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TrigReport " << "---------- Path   Summary ------------";
-    LogVerbatim("Summary") << "TrigReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Path   Summary ------------";
+    LogVerbatim("FwkSummary") << "TrigReport "
 	 << right << setw(10) << "Trig Bit#" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
@@ -660,7 +660,7 @@ namespace edm
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "TrigReport "
+      LogVerbatim("FwkSummary") << "TrigReport "
 	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
@@ -670,9 +670,9 @@ namespace edm
 	   << pi->name() << "";
     }
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TrigReport " << "-------End-Path   Summary ------------";
-    LogVerbatim("Summary") << "TrigReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TrigReport " << "-------End-Path   Summary ------------";
+    LogVerbatim("FwkSummary") << "TrigReport "
 	 << right << setw(10) << "Trig Bit#" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
@@ -682,7 +682,7 @@ namespace edm
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "TrigReport "
+      LogVerbatim("FwkSummary") << "TrigReport "
 	   << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	   << right << setw( 5) << pi->bitPosition() << " "
 	   << right << setw(10) << pi->timesRun() << " "
@@ -695,9 +695,9 @@ namespace edm
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "";
-      LogVerbatim("Summary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
-      LogVerbatim("Summary") << "TrigReport "
+      LogVerbatim("FwkSummary") << "";
+      LogVerbatim("FwkSummary") << "TrigReport " << "---------- Modules in Path: " << pi->name() << " ------------";
+      LogVerbatim("FwkSummary") << "TrigReport "
 	   << right << setw(10) << "Trig Bit#" << " "
 	   << right << setw(10) << "Visited" << " "
 	   << right << setw(10) << "Passed" << " "
@@ -706,7 +706,7 @@ namespace edm
 	   << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("Summary") << "TrigReport "
+	LogVerbatim("FwkSummary") << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
@@ -720,9 +720,9 @@ namespace edm
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "";
-      LogVerbatim("Summary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
-      LogVerbatim("Summary") << "TrigReport "
+      LogVerbatim("FwkSummary") << "";
+      LogVerbatim("FwkSummary") << "TrigReport " << "------ Modules in End-Path: " << pi->name() << " ------------";
+      LogVerbatim("FwkSummary") << "TrigReport "
 	   << right << setw(10) << "Trig Bit#" << " "
 	   << right << setw(10) << "Visited" << " "
 	   << right << setw(10) << "Passed" << " "
@@ -731,7 +731,7 @@ namespace edm
 	   << "Name" << "";
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("Summary") << "TrigReport "
+	LogVerbatim("FwkSummary") << "TrigReport "
 	     << right << setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
 	     << right << setw( 5) << pi->bitPosition() << " "
 	     << right << setw(10) << pi->timesVisited(i) << " "
@@ -742,9 +742,9 @@ namespace edm
       }
     }
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TrigReport " << "---------- Module Summary ------------";
-    LogVerbatim("Summary") << "TrigReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TrigReport " << "---------- Module Summary ------------";
+    LogVerbatim("FwkSummary") << "TrigReport "
 	 << right << setw(10) << "Visited" << " "
 	 << right << setw(10) << "Run" << " "
 	 << right << setw(10) << "Passed" << " "
@@ -754,7 +754,7 @@ namespace edm
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      LogVerbatim("Summary") << "TrigReport "
+      LogVerbatim("FwkSummary") << "TrigReport "
 	   << right << setw(10) << (*ai)->timesVisited() << " "
 	   << right << setw(10) << (*ai)->timesRun() << " "
 	   << right << setw(10) << (*ai)->timesPassed() << " "
@@ -763,24 +763,24 @@ namespace edm
 	   << (*ai)->description().moduleLabel_ << "";
 
     }
-    LogVerbatim("Summary") << "";
+    LogVerbatim("FwkSummary") << "";
 
     // The timing report (CPU and Real Time):
 
-    LogVerbatim("Summary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
-    LogVerbatim("Summary") << "TimeReport"
+    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Event  Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport"
 	 << setprecision(6) << fixed
 	 << " CPU/event = " << timeCpuReal().first/max(1,totalEvents())
 	 << " Real/event = " << timeCpuReal().second/max(1,totalEvents())
 	 << "";
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Path   Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per path-run "
 	 << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
@@ -789,7 +789,7 @@ namespace edm
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << setprecision(6) << fixed
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -797,24 +797,24 @@ namespace edm
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	   << pi->name() << "";
     }
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per path-run "
 	 << "";
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TimeReport " << "-------End-Path   Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per endpath-run "
 	 << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
@@ -823,7 +823,7 @@ namespace edm
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << setprecision(6) << fixed
 	   << right << setw(10) << pi->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -831,13 +831,13 @@ namespace edm
 	   << right << setw(10) << pi->timeCpuReal().second/max(1,pi->timesRun()) << " "
 	   << pi->name() << "";
     }
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per endpath-run "
 	 << "";
@@ -845,20 +845,20 @@ namespace edm
     pi=trig_paths_.begin();
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "";
-      LogVerbatim("Summary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "";
+      LogVerbatim("FwkSummary") << "TimeReport " << "---------- Modules in Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << right << setw(22) << "per event "
 	   << right << setw(22) << "per module-visit "
 	   << "";
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("Summary") << "TimeReport "
+	LogVerbatim("FwkSummary") << "TimeReport "
 	     << setprecision(6) << fixed
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
@@ -867,13 +867,13 @@ namespace edm
 	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-visit "
 	 << "";
@@ -881,20 +881,20 @@ namespace edm
     pi=end_paths_.begin();
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
-      LogVerbatim("Summary") << "";
-      LogVerbatim("Summary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "";
+      LogVerbatim("FwkSummary") << "TimeReport " << "------ Modules in End-Path: " << pi->name() << " ---[sec]----";
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << right << setw(22) << "per event "
 	   << right << setw(22) << "per module-visit "
 	   << "";
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << right << setw(10) << "CPU" << " "
 	   << right << setw(10) << "Real" << " "
 	   << "Name" << "";
       for (unsigned int i = 0; i < pi->size(); ++i) {
-	LogVerbatim("Summary") << "TimeReport "
+	LogVerbatim("FwkSummary") << "TimeReport "
 	     << setprecision(6) << fixed
 	     << right << setw(10) << pi->timeCpuReal(i).first/max(1,totalEvents()) << " "
 	     << right << setw(10) << pi->timeCpuReal(i).second/max(1,totalEvents()) << " "
@@ -903,25 +903,25 @@ namespace edm
 	     << pi->getWorker(i)->description().moduleLabel_ << "";
       }
     }
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-visit "
 	 << "";
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "TimeReport " << "---------- Module Summary ---[sec]----";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "TimeReport " << "---------- Module Summary ---[sec]----";
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-run "
 	 << right << setw(22) << "per module-visit "
 	 << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
@@ -932,7 +932,7 @@ namespace edm
     ai=workersBegin();
     ae=workersEnd();
     for(; ai != ae; ++ai) {
-      LogVerbatim("Summary") << "TimeReport "
+      LogVerbatim("FwkSummary") << "TimeReport "
 	   << setprecision(6) << fixed
 	   << right << setw(10) << (*ai)->timeCpuReal().first/max(1,totalEvents()) << " "
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,totalEvents()) << " "
@@ -942,7 +942,7 @@ namespace edm
 	   << right << setw(10) << (*ai)->timeCpuReal().second/max(1,(*ai)->timesVisited()) << " "
 	   << (*ai)->description().moduleLabel_ << "";
     }
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << right << setw(10) << "CPU" << " "
@@ -950,15 +950,15 @@ namespace edm
 	 << right << setw(10) << "CPU" << " "
 	 << right << setw(10) << "Real" << " "
 	 << "Name" << "";
-    LogVerbatim("Summary") << "TimeReport "
+    LogVerbatim("FwkSummary") << "TimeReport "
 	 << right << setw(22) << "per event "
 	 << right << setw(22) << "per module-run "
 	 << right << setw(22) << "per module-visit "
 	 << "";
 
-    LogVerbatim("Summary") << "";
-    LogVerbatim("Summary") << "T---Report end!" << "";
-    LogVerbatim("Summary") << "";
+    LogVerbatim("FwkSummary") << "";
+    LogVerbatim("FwkSummary") << "T---Report end!" << "";
+    LogVerbatim("FwkSummary") << "";
 
   }
 
