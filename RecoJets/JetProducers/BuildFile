@@ -6,6 +6,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/Records>
 <use name=Geometry/CaloEventSetup>
+<use name=PhysicsTools/UtilAlgos>
 <export>
  <lib name=RecoJetsJetProducers>
  <use name=boost>

@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.17 2007/05/08 21:43:07 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.18 2007/05/17 23:56:48 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -21,7 +21,7 @@
 #include "RecoJets/JetAlgorithms/interface/JetMaker.h"
 #include "RecoJets/JetAlgorithms/interface/JetAlgoHelper.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
-#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -69,24 +69,24 @@ namespace {
     edm::ProductID mId;
   };
 
-  class FakeCandidate : public RecoCandidate {
-  public:
-     FakeCandidate( Charge q , const LorentzVector& p4, const Point& vtx) : RecoCandidate( q, p4, vtx ) {}
-  private:
-    virtual bool overlap( const Candidate & ) const {return false;}
-  };
-  
   template <class HandleC>
   void fillInputs (const HandleC& fData, JetReco::InputCollection* fInput, double fEtCut, double fECut) {
     for (unsigned i = 0; i < fData.product ()->size (); i++) {
-      const reco::Candidate* constituent = &((*(fData.product ()))[i]);
-      if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
+      // if clone, trace back till the original
+      CandidateRef constituent (fData, i);
+      while (constituent.isNonnull() && constituent->hasMasterClone ()) {
+	CandidateBaseRef baseRef = constituent->masterClone ();
+	constituent = baseRef.castTo<CandidateRef>();
+      }
+      if (constituent.isNull()) {
+	edm::LogWarning("Missing MasterClone") << "Constituent is ignored..." << std::endl;
+      }
+      else if ((fEtCut <= 0 || constituent->et() > fEtCut) &&
 	  (fECut <= 0 || constituent->energy() > fECut)) {
-	fInput->push_back (InputItem (fData, i));
+	fInput->push_back (constituent);
       }
     }
   }
-
 }
 
 namespace cms
@@ -128,7 +128,7 @@ namespace cms
       e.getByLabel( mSrc, genericInputs ); 
       for (unsigned i = 0; i < genericInputs->size (); ++i) {
 	const Candidate* ref = &((*genericInputs)[i]);
-	Candidate* c = new FakeCandidate (ref->charge (), ref->p4 (), ref->vertex ());
+	Candidate* c = new LeafCandidate (ref->charge (), ref->p4 (), ref->vertex ());
 	inputCache.push_back (c);
       }
       FakeHandle handle (&inputCache, genericInputs.id ());

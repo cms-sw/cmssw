@@ -33,6 +33,6 @@ namespace cms
 
     return true;
   }
+  //  DEFINE_FWK_MODULE( FastJetProducer );
 }
 
-DEFINE_FWK_MODULE( cms::FastJetProducer );

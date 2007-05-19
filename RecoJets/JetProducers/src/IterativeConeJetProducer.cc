@@ -25,6 +25,5 @@ namespace cms {
   }
 }
 
-DEFINE_FWK_MODULE( cms::IterativeConeJetProducer );
 
 
