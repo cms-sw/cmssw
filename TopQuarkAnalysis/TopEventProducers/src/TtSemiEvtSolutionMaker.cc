@@ -15,8 +15,6 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    param_           = iConfig.getParameter< int >         ("parametrisation");
    constraints_     = iConfig.getParameter< vector<int> > ("constraints");
    matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
-
-   produces<vector<TtSemiEvtSolution> >();
    
    // define kinfitter
    if(doKinFit_){
@@ -24,11 +22,20 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
      if(param_ == 2) myKinFitterEtThetaPhi = new TtSemiKinFitterEtThetaPhi(maxNrIter_, maxDeltaS_, maxF_, constraints_);
      if(param_ == 3) myKinFitterEMom       = new TtSemiKinFitterEMom(maxNrIter_, maxDeltaS_, maxF_, constraints_);
    }
+   
+   // define jet combinations related calculators
+   mySimpleBestJetComb = new TtSemiSimpleBestJetComb();
+   goodEvts = 0;
+   goodEvtsFound = 0;
+   
+   produces<vector<TtSemiEvtSolution> >();
 }
 
 
 TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
 {
+  cout<<"Total of good events:"<< goodEvts <<endl;
+  cout<<"  of wich are found :"<< goodEvtsFound <<"   ("<<(goodEvtsFound*100.)/(goodEvts*1.)<<"%)"<<endl;
 }
 
 
@@ -90,6 +97,9 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
       		   if(param_ == 1) asol = myKinFitterEtEtaPhi->addKinFitInfo(&asol);
       		   if(param_ == 2) asol = myKinFitterEtThetaPhi->addKinFitInfo(&asol);
       		   if(param_ == 3) asol = myKinFitterEMom->addKinFitInfo(&asol);
+		   asol.setJetParametrisation(param_);
+		   asol.setLeptonParametrisation(param_);
+		   asol.setMETParametrisation(param_);
       		 }
 		/*if(addJetCombProb_){
       		  asol.setPtrueCombExist(jetCombProbs[m].getPTrueCombExist(&afitsol));
@@ -104,6 +114,9 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
          } 
        }
      }
+     
+     // add TtSemiSimpleBestJetComb to solutions
+     int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
      
      // if asked for, match the event solutions to the gen Event
      if(matchToGenEvt_){
@@ -123,7 +136,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
        }
        (*evtsols)[bestSol].setBestSol(true);
+       
+       if(bestSolDR<0.5) ++goodEvts;
+       if(bestSolDR<0.5 && (simpleBestJetComb == bestSol)) ++goodEvtsFound;
      }
+     
      
      //store the vector of solutions to the event     
      auto_ptr<vector<TtSemiEvtSolution> > pOut(evtsols);

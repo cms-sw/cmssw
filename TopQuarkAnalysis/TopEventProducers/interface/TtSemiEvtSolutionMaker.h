@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.1 2007/04/30 10:45:30 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
 //
 //
 
@@ -34,7 +34,7 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtThetaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEMom.h"
 #include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
-//#include "TopQuarkAnalysis/TopJetCombination/interface/TtJetCombinationProbability.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -67,4 +67,6 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       double maxDeltaS_, maxF_;
       int param_;
       vector<int> constraints_;
+      TtSemiSimpleBestJetComb *mySimpleBestJetComb;
+      int goodEvts, goodEvtsFound;
 };
