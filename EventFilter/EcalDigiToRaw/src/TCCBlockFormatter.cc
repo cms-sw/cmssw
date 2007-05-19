@@ -109,8 +109,9 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 		// -- put the B011 already, since for Endcap there can be empty
 		// -- lines in the TCC and the SRP blocks
 		unsigned char* ppData = rawdata.data();
-		for (int iline=FE_index; iline < FE_index + Nrows_TCC; iline++) {
-                 ppData[8*iline + 7] = 0x60;
+		for (int iline=FE_index-1; iline < FE_index + (Nrows_TCC+1)*NTCC -1 ; iline++) {
+                 ppData[8*iline + 7] |= 0x60;
+		 ppData[8*iline + 3] = 0x60;
 		}
 	}
 
@@ -138,8 +139,11 @@ void TCCBlockFormatter::DigiToRaw(const EcalTriggerPrimitiveDigi& trigprim,
 	pData[8*FE_index + ival*2+1] = (ttflag<<1) + (fg&0x1); 
 	if (IsEndCap) {
 		// re-write the TCCid  and N_Tower_Max :
-		pData[8*(FE_index-1)] = TCCid & 0xFF;
-		pData[8*(FE_index-1)+6] = NTT_max;
+		int ibase = 8*(FE_index - (int)(jTT/4) -1);
+		pData[ibase] = TCCid & 0xFF;
+                pData[ibase+6] = NTT_max;
+                pData[ibase+6] |= ((nsamples & 0x1)<<7);
+                pData[ibase+7] |= ((nsamples & 0xE)>>1);
 	}
 	if (debug_) cout << "pData[8*FE_index + ival*2+1] = " << hex << (int)pData[8*FE_index + ival*2+1] << endl;
 	if (debug_) cout << "ttflag ttflag<<1 " << hex << ttflag << " " << hex << (ttflag<<1) << endl;
