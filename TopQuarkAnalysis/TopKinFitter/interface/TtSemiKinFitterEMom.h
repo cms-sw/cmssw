@@ -58,6 +58,7 @@ class TtSemiKinFitterEMom {
     double maxDeltaS;
     double maxF;  
     vector<int> constraints;
+    vector<double> translateCovM(TMatrixD &);
 };
 
 

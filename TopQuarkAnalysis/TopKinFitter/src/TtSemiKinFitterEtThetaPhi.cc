@@ -105,29 +105,35 @@ TtSemiEvtSolution TtSemiKinFitterEtThetaPhi::addKinFitInfo(TtSemiEvtSolution * a
     TMatrixD Vp(3,3);  Vp  = (*fitHadp->getCovMatrixFit()); 
     TMatrixD Vq(3,3);  Vq  = (*fitHadq->getCovMatrixFit()); 
     TMatrixD Vbh(3,3); Vbh = (*fitHadb->getCovMatrixFit()); 
-    TMatrixD Vbl(3,3); Vbl = (*fitLepb->getCovMatrixFit()); 
-    aFitHadp.setResET (Vp(0,0));  
-    aFitHadp.setResTheta(Vp(1,1));
-    aFitHadp.setResPhi(Vp(2,2)); 
-    aFitHadq.setResET (Vq(0,0));  
-    aFitHadq.setResTheta(Vq(1,1));
-    aFitHadq.setResPhi(Vq(2,2));
-    aFitHadb.setResET (Vbh(0,0));  
-    aFitHadb.setResTheta(Vbh(1,1));
-    aFitHadb.setResPhi(Vbh(2,2));
-    aFitLepb.setResET (Vbl(0,0));  
-    aFitLepb.setResTheta(Vbl(1,1));
-    aFitLepb.setResPhi(Vbl(2,2));
+    TMatrixD Vbl(3,3); Vbl = (*fitLepb->getCovMatrixFit());
+    aFitHadp.setCovM(this->translateCovM(Vp));
+    aFitHadq.setCovM(this->translateCovM(Vq));
+    aFitHadb.setCovM(this->translateCovM(Vbh));
+    aFitLepb.setCovM(this->translateCovM(Vbl));
+    aFitHadp.setResET (sqrt(Vp(0,0)));  
+    aFitHadp.setResTheta(sqrt(Vp(1,1)));
+    aFitHadp.setResPhi(sqrt(Vp(2,2)));
+    aFitHadq.setResET (sqrt(Vq(0,0)));  
+    aFitHadq.setResTheta(sqrt(Vq(1,1)));
+    aFitHadq.setResPhi(sqrt(Vq(2,2)));
+    aFitHadb.setResET (sqrt(Vbh(0,0)));  
+    aFitHadb.setResTheta(sqrt(Vbh(1,1)));
+    aFitHadb.setResPhi(sqrt(Vbh(2,2)));
+    aFitLepb.setResET (sqrt(Vbl(0,0)));  
+    aFitLepb.setResTheta(sqrt(Vbl(1,1)));
+    aFitLepb.setResPhi(sqrt(Vbl(2,2)));
     
     TMatrixD Vl(3,3); Vl = (*fitLepl->getCovMatrixFit()); 
-    aFitLepl.setResET (Vl(0,0));  
-    aFitLepl.setResTheta(Vl(1,1));
-    aFitLepl.setResPhi(Vl(2,2));
+    aFitLepl.setCovM(this->translateCovM(Vl));
+    aFitLepl.setResET (sqrt(Vl(0,0)));  
+    aFitLepl.setResTheta(sqrt(Vl(1,1)));
+    aFitLepl.setResPhi(sqrt(Vl(2,2)));
     
     TMatrixD Vn(3,3); Vn = (*fitLepn->getCovMatrixFit()); 
-    aFitLepn.setResET (Vn(0,0));  
-    aFitLepn.setResTheta(Vn(1,1));
-    aFitLepn.setResPhi(Vn(2,2));
+    aFitLepn.setCovM(this->translateCovM(Vn));
+    aFitLepn.setResET (sqrt(Vn(0,0)));  
+    aFitLepn.setResTheta(sqrt(Vn(1,1)));
+    aFitLepn.setResPhi(sqrt(Vn(2,2)));
     
     TopJetObject  aFitHadpObj(fitsol.getHadp()); aFitHadpObj.setFitJet(aFitHadp); fitsol.setHadp(aFitHadpObj);
     TopJetObject  aFitHadqObj(fitsol.getHadq()); aFitHadqObj.setFitJet(aFitHadq); fitsol.setHadq(aFitHadqObj);
@@ -192,4 +198,13 @@ void TtSemiKinFitterEtThetaPhi::setupFitter() {
   theFitter->setMaxF(maxF);
   theFitter->setVerbosity(0);
   
+}
+
+
+vector<double> TtSemiKinFitterEtThetaPhi::translateCovM(TMatrixD &V){
+  vector<double> covM; 
+  for(int ii=0; ii<V.GetNrows(); ii++){
+    for(int jj=0; jj<V.GetNcols(); jj++) covM.push_back(V(ii,jj));
+  }
+  return covM;
 }
