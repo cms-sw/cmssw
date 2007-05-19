@@ -95,10 +95,11 @@ class RoadSearchCloudMakerAlgorithm
 	   const edm::EventSetup& es,
 	   RoadSearchCloudCollection &output);
 
-  unsigned int FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
-                                   const TrajectorySeed* seed,
-                                   const TrackerGeometry *tracker, const SiStripRecHitMatcher* theHitMatcher, RoadSearchCloud &cloud);
- 
+  unsigned int FillRecHitsIntoCloudGeneral(DetId id, double d0, double phi0, double k0, double phi1, double k1,
+					   Roads::type roadType, double ringPhi,
+					   const TrajectorySeed* seed,
+					   const TrackerGeometry *tracker, const SiStripRecHitMatcher* theHitMatcher, RoadSearchCloud &cloud);
+
   unsigned int FillRecHitsIntoCloud(DetId id, const SiStripRecHit2DCollection* inputRecHits, 
 				    double d0, double phi0, double k0, Roads::type roadType, double ringPhi,
 				    const TrajectorySeed* seed, 
