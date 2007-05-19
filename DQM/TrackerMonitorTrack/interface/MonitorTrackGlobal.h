@@ -6,39 +6,23 @@
 // Class:      MonitorTrackGlobal
 // 
 /**\class MonitorTrackGlobal MonitorTrackGlobal.cc DQM/TrackerMonitorTrack/src/MonitorTrackGlobal.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
+Monitoring source for general quantities related to tracks.
 */
-//
 // Original Author:  Israel Goitom
 //         Created:  Tue May 23 18:35:30 CEST 2006
-// $Id: MonitorTrackGlobal.h,v 1.6 2007/02/12 13:37:09 goitom Exp $
-//
-//
+// $Id: MonitorTrackGlobal.h,v 1.7 2007/03/06 19:56:39 goitom Exp $
 
-
-// system include files
 #include <memory>
 #include <fstream>
-
-// user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-//
-// class declaration
-//
 
 class MonitorTrackGlobal : public edm::EDAnalyzer {
    public:
