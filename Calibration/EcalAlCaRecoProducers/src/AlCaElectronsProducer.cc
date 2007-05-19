@@ -61,7 +61,6 @@ AlCaElectronsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for (eleIt=electronCollection->begin(); eleIt!=electronCollection->end(); eleIt++) {
     if (fabs(eleIt->eta()) <= 10){
       //1.479) 
-      {
 	
 	ii++;         
 	const reco::SuperCluster& sc = *(eleIt->superCluster()) ;
