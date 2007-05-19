@@ -1,7 +1,7 @@
 /// Algorithm to convert transient protojets into persistent jets
 /// Author: F.Ratnikov, UMd
 /// Mar. 8, 2006
-/// $Id: JetMaker.cc,v 1.23 2007/05/08 05:39:52 fedor Exp $
+/// $Id: JetMaker.cc,v 1.24 2007/05/08 21:41:21 fedor Exp $
 
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -127,11 +127,11 @@ namespace {
     // 2.- Get the corresponding PFCandidate
     // 3.- Calculate the different PFJet specific quantities
 
-    float chargedHadronPt=0.;
-    float neutralHadronPt=0.;
-    float chargedEmPt=0.;
-    float neutralEmPt=0.;
-    float chargedMuPt=0.;
+    float chargedHadronEnergy=0.;
+    float neutralHadronEnergy=0.;
+    float chargedEmEnergy=0.;
+    float neutralEmEnergy=0.;
+    float chargedMuEnergy=0.;
     int   chargedMultiplicity=0;
     int   neutralMultiplicity=0;
     int   muonMultiplicity=0;
@@ -144,28 +144,28 @@ namespace {
 	if (pfCand) {
 	  switch ( PFCandidate::ParticleType (pfCand->particleId())) {
 	  case PFCandidate::h:       // charged hadron
-	    chargedHadronPt += pfCand->pt();
+	    chargedHadronEnergy += pfCand->energy();
 	    chargedMultiplicity++;
 	    break;
 	    
 	  case PFCandidate::e:       // electron 
-	    chargedEmPt += pfCand->pt(); 
+	    chargedEmEnergy += pfCand->energy(); 
 	    chargedMultiplicity++;
 	    break;
 	    
 	  case PFCandidate::mu:      // muon
-	    chargedMuPt += pfCand->pt();
+	    chargedMuEnergy += pfCand->energy();
 	    chargedMultiplicity++;
 	    muonMultiplicity++;
 	    break;
 	    
 	  case PFCandidate::gamma:   // photon
-	    neutralEmPt += pfCand->pt();
+	    neutralEmEnergy += pfCand->energy();
 	    neutralMultiplicity++;
 	    break;
 	    
 	  case  PFCandidate::h0 :    // neutral hadron
-	    neutralHadronPt += pfCand->pt();
+	    neutralHadronEnergy += pfCand->energy();
 	    neutralMultiplicity++;
 	    break;
 	  
@@ -182,11 +182,11 @@ namespace {
 	std::cerr << "JetMaker::makeSpecific (PFJetJet)-> Referred constituent is not available in the event" << std::endl;
       }
     }
-    fJetSpecific->mChargedHadronPt=chargedHadronPt;
-    fJetSpecific->mNeutralHadronPt= neutralHadronPt;
-    fJetSpecific->mChargedEmPt=chargedEmPt;
-    fJetSpecific->mChargedMuPt=chargedMuPt;
-    fJetSpecific->mNeutralEmPt=neutralEmPt;
+    fJetSpecific->mChargedHadronEnergy=chargedHadronEnergy;
+    fJetSpecific->mNeutralHadronEnergy= neutralHadronEnergy;
+    fJetSpecific->mChargedEmEnergy=chargedEmEnergy;
+    fJetSpecific->mChargedMuEnergy=chargedMuEnergy;
+    fJetSpecific->mNeutralEmEnergy=neutralEmEnergy;
     fJetSpecific->mChargedMultiplicity=chargedMultiplicity;
     fJetSpecific->mNeutralMultiplicity=neutralMultiplicity;
     fJetSpecific->mMuonMultiplicity=muonMultiplicity;

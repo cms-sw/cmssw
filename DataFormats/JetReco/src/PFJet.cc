@@ -1,6 +1,6 @@
 // PFJet.cc
 // Fedor Ratnikov UMd
-// $Id: PFJet.cc,v 1.1 2007/04/24 21:53:08 fedor Exp $
+// $Id: PFJet.cc,v 1.3 2007/05/08 05:34:59 fedor Exp $
 #include <sstream>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -60,9 +60,9 @@ std::string PFJet::print () const {
   std::ostringstream out;
   out << Jet::print () // generic jet info
       << "    PFJet specific:" << std::endl
-      << "      charged/neutral hadrons pT: " << chargedHadronPt () << '/' << neutralHadronPt () << std::endl
-      << "      charged/neutral em pT: " << chargedEmPt () << '/' << neutralEmPt () << std::endl
-      << "      charged muon pT: " << chargedMuPt () << '/' << std::endl
+      << "      charged/neutral hadrons energy: " << chargedHadronEnergy () << '/' << neutralHadronEnergy () << std::endl
+      << "      charged/neutral em energy: " << chargedEmEnergy () << '/' << neutralEmEnergy () << std::endl
+      << "      charged muon energy: " << chargedMuEnergy () << '/' << std::endl
       << "      charged/neutral multiplicity: " << chargedMultiplicity () << '/' << neutralMultiplicity () << std::endl;
   out << "      PF Blocks: Nothing specific is implemented" << std::endl;
 //   std::vector <PFBlockRef> towers = getConstituents ();

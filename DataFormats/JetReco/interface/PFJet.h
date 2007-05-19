@@ -10,7 +10,7 @@
  * in addition to generic Jet parameters
  *
  * \author Fedor Ratnikov, UMd, Apr 24, 2007
-  * \version   $Id: PFJet.h,v 1.3 2007/05/08 05:34:59 fedor Exp $
+  * \version   $Id: PFJet.h,v 1.4 2007/05/08 21:36:51 fedor Exp $
  ************************************************************/
 
 
@@ -24,20 +24,20 @@ class PFJet : public Jet {
  public:
   struct Specific {
     Specific () :
-	 mChargedHadronPt (0),
-	 mNeutralHadronPt (0),
-	 mChargedEmPt (0),
-	 mChargedMuPt (0),
-	 mNeutralEmPt (0),
+	 mChargedHadronEnergy (0),
+	 mNeutralHadronEnergy (0),
+	 mChargedEmEnergy (0),
+	 mChargedMuEnergy (0),
+	 mNeutralEmEnergy (0),
 	 mChargedMultiplicity (0),
 	 mNeutralMultiplicity (0),
 	 mMuonMultiplicity (0)
     {}
-    float mChargedHadronPt;
-    float mNeutralHadronPt;
-    float mChargedEmPt;
-    float mChargedMuPt;
-    float mNeutralEmPt;
+    float mChargedHadronEnergy;
+    float mNeutralHadronEnergy;
+    float mChargedEmEnergy;
+    float mChargedMuEnergy;
+    float mNeutralEmEnergy;
     int mChargedMultiplicity;
     int mNeutralMultiplicity;
     int mMuonMultiplicity;
@@ -57,26 +57,26 @@ class PFJet : public Jet {
   
   virtual ~PFJet() {};
 
-  /// chargedHadronPt 
-  float chargedHadronPt () const {return m_specific.mChargedHadronPt;}
-  ///  chargedHadronPtFraction
-  float  chargedHadronPtFraction () const {return chargedHadronPt () / pt ();}
-  /// neutralHadronPt
-  float neutralHadronPt () const {return m_specific.mNeutralHadronPt;}
-  /// neutralHadronPtFraction
-  float neutralHadronPtFraction () const {return neutralHadronPt () / pt ();}
-  /// chargedEmPt
-  float chargedEmPt () const {return m_specific.mChargedEmPt;}
-  /// chargedEmPtFraction
-  float chargedEmPtFraction () const {return chargedEmPt () / pt ();}
-  /// chargedMuPt
-  float chargedMuPt () const {return m_specific.mChargedMuPt;}
-  /// chargedMuPtFraction
-  float chargedMuPtFraction () const {return chargedMuPt () / pt ();}
-  /// neutralEmPt
-  float neutralEmPt () const {return m_specific.mNeutralEmPt;}
-  /// neutralEmPtFraction
-  float neutralEmPtFraction () const {return neutralEmPt () / pt ();}
+  /// chargedHadronEnergy 
+  float chargedHadronEnergy () const {return m_specific.mChargedHadronEnergy;}
+  ///  chargedHadronEnergyFraction
+  float  chargedHadronEnergyFraction () const {return chargedHadronEnergy () / energy ();}
+  /// neutralHadronEnergy
+  float neutralHadronEnergy () const {return m_specific.mNeutralHadronEnergy;}
+  /// neutralHadronEnergyFraction
+  float neutralHadronEnergyFraction () const {return neutralHadronEnergy () / energy ();}
+  /// chargedEmEnergy
+  float chargedEmEnergy () const {return m_specific.mChargedEmEnergy;}
+  /// chargedEmEnergyFraction
+  float chargedEmEnergyFraction () const {return chargedEmEnergy () / energy ();}
+  /// chargedMuEnergy
+  float chargedMuEnergy () const {return m_specific.mChargedMuEnergy;}
+  /// chargedMuEnergyFraction
+  float chargedMuEnergyFraction () const {return chargedMuEnergy () / energy ();}
+  /// neutralEmEnergy
+  float neutralEmEnergy () const {return m_specific.mNeutralEmEnergy;}
+  /// neutralEmEnergyFraction
+  float neutralEmEnergyFraction () const {return neutralEmEnergy () / energy ();}
   /// chargedMultiplicity
   float chargedMultiplicity () const {return m_specific.mChargedMultiplicity;}
   /// neutralMultiplicity
