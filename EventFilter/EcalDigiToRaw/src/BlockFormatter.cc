@@ -160,7 +160,22 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
   	// cout << " in BlockFormatter::CleanUp. FEDid = " << FEDid << " event_length*8 " << dec << event_length*8 << endl;
 
 	map<int, map<int,int> >::iterator fen = FEDorder -> find(FEDid);
-	map<int, int>& FEorder = (*fen).second;
+
+        bool FED_has_data = true;
+        if (fen == FEDorder->end()) FED_has_data = false;
+        if (debug_ && (! FED_has_data)) cout << " FEDid is not in FEDorder ! " << endl;
+        if ( ! FED_has_data) {
+                int ch_status = 7;
+                for (int iFE=1; iFE <= 68; iFE++) {
+                        int irow = (iFE-1) / 14;
+                        int kval = ( (iFE-1) % 14) / 2;
+                        if (iFE % 2 ==1) pData[32 + 8*irow + kval] |= ch_status & 0xFF;
+                        else pData[32 + 8*irow + kval] |= ((ch_status <<4) & 0xFF);
+                }
+        }
+
+        if (FED_has_data) {
+        map<int, int>& FEorder = (*fen).second;
 
 	for (int iFE=1; iFE <= 68; iFE++) {
 	  map<int,int>::iterator fe = FEorder.find(iFE);
@@ -172,6 +187,7 @@ void BlockFormatter::CleanUp(FEDRawDataCollection* productRawData,
 	  if (iFE % 2 ==1) pData[32 + 8*irow + kval] |= ch_status & 0xFF;
 	  else pData[32 + 8*irow + kval] |= ((ch_status <<4) & 0xFF);
 
+	}
 	}
  	
  }
