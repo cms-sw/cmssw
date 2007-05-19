@@ -89,7 +89,7 @@ class double(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return double(float(value))
 
-
+import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
@@ -101,6 +101,10 @@ class bool(_SimpleParameterTypeBase):
             return bool(True)
         if value.lower() in ('false','f','off','no', '0'):
             return bool(False)
+        try:
+            return bool(__builtin__.bool(eval(value)))
+        except:
+            pass
         raise RuntimeError('can not make bool from string '+value)
 
 
@@ -382,7 +386,13 @@ if __name__ == "__main__":
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
             self.assertRaises(TypeError,v.append,('blah'))
-
+        def testbool(self):
+            b = bool(True)
+            self.assertEqual(b.value(),True)
+            b = bool(False)
+            self.assertEqual(b.value(),False)
+            b = bool._valueFromString("2")
+            self.assertEqual(b.value(),True)
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
