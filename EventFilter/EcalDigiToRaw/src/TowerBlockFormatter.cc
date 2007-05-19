@@ -125,7 +125,7 @@ void TowerBlockFormatter::DigiToRaw(const EBDataFrame& dataframe, FEDRawData& ra
         if (n_add % 8 != 0) n_add = n_add/8 +1;
 	else
 	n_add = n_add/8;
-	if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << 8*(FE_index+1) << endl;
+	if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
         rawdata.resize( rawdata.size() + 8*n_add );
 	unsigned char* ppData = rawdata.data();
 
@@ -515,7 +515,7 @@ void TowerBlockFormatter::DigiToRaw(const EEDataFrame& dataframe, FEDRawData& ra
         else
         n_add = n_add/8;
 	if (debug_) cout << "nsamples = " << dec << nsamples << endl;
-        if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << 8*(FE_index+1) << endl;
+        if (debug_) cout << "will add " << n_add << " lines of 64 bits at line " << (FE_index+1) << endl;
         rawdata.resize( rawdata.size() + 8*n_add );
         unsigned char* ppData = rawdata.data();
 
