@@ -10,13 +10,13 @@ L1GctElectronFinalSort::L1GctElectronFinalSort(bool iso, L1GctEmLeafCard* card1,
   m_outputCands(4)
 {
   if(card1!=0){
-    m_theLeafCards[0] = card1;
+    m_theLeafCards.at(0) = card1;
   }else{
     throw cms::Exception("L1GctSetupError")
       <<"L1GctElectronFinalSort::Constructor() : 1st EmLeafCard passed is zero";
       }
   if(card2!=0){
-    m_theLeafCards[1] = card2;
+    m_theLeafCards.at(1) = card2;
   }else{
     throw cms::Exception("L1GctSetupError")
       <<"L1GctElectronFinalSort::Constructor() : 2nd EmLeafCard passed is zero";
@@ -40,10 +40,10 @@ void L1GctElectronFinalSort::fetchInput() {
     for (int j=0; j<2; j++) { /// loop over FPGAs
       for (int k=0; k<4; k++) {  /// loop over candidates
 	if (m_emCandsType) {
-	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards[i]->getOutputIsoEmCands(j)[k]); 
+	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards.at(i)->getOutputIsoEmCands(j).at(k)); 
 	}
 	else {
-	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards[i]->getOutputNonIsoEmCands(j)[k]);
+	  setInputEmCand((i*8)+(j*4)+k, m_theLeafCards.at(i)->getOutputNonIsoEmCands(j).at(k));
 	}
       }
     }     
@@ -60,7 +60,7 @@ void L1GctElectronFinalSort::process(){
   
   //Copy data to output buffer
   for(int i = 0; i<4; i++){
-    m_outputCands[i] = data[i];
+    m_outputCands.at(i) = data.at(i);
   }
 }
 
@@ -74,7 +74,7 @@ std::ostream& operator<<(std::ostream& s, const L1GctElectronFinalSort& cand) {
   s << "No of Electron Leaf Cards " << cand.m_theLeafCards.size() << std::endl;
   s << "Pointers to the Electron Leaf cards are: "<<std::endl;
   for (unsigned i=0; i<cand.m_theLeafCards.size(); i++) {
-    s << cand.m_theLeafCards[i]<<"  ";
+    s << cand.m_theLeafCards.at(i)<<"  ";
   }
   s << std::endl;
   s << "No of Electron Input Candidates " << cand.m_inputCands.size() << std::endl;
