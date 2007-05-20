@@ -23,6 +23,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es){
 	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
 
 	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
+
 	lut_read_in = true;
 }
 ///
