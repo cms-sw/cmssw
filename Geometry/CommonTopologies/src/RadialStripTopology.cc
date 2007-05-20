@@ -85,7 +85,8 @@ RadialStripTopology::localError(const MeasurementPoint& mp,
   // Here we need to allow the possibility of correlated errors, since
   // that may happen during Kalman filtering
 
-  float phi = phiOfOneEdge() + yAxisOrientation() * mp.x() * angularWidth();
+  //  float phi = phiOfOneEdge() + yAxisOrientation() * mp.x() * angularWidth();
+  float phi = stripAngle( mp.x() );
 
   float t = tan( phi );                        // tan(angle between strip and y)
   float c2 = 1./(1. + t*t);                    // cos(angle)**2
