@@ -4,10 +4,8 @@
 
 function MakePlots(){
 
-  StoreDir=/data1/CrabAnalysis/$1/${Version}/$1_${Config}_${Flag}/res
+  StoreDir=$1
   echo $StoreDir
-
-  cd ${StoreDir}
 
   FileNum=`ls *.root 2>/dev/null | grep -c root`
 
@@ -34,39 +32,31 @@ function MakePlots(){
 
 function MergePlots(){
 
-  StoreDir=/data1/CrabAnalysis/$1/${Version}/$1_${Config}_${Flag}/res
+  StoreDir=$1
   echo $StoreDir
 
-  cd ${StoreDir}
-    
-  Name=$1_${Config}_${Flag}
+  [ ! -e  ${StoreDir} ] && return
 
-  #rm -v ${Name}.root   #RIM
-  #mv -v Basket/*root . #RIM
-  #return #RIM
-  
-  #ls ${Name}*.root #RIM
-
+  Name=$2
 
   FileNum=`ls ${Name}*.root 2>/dev/null | grep -c root`
   #echo FileNum $FileNum #RIM
 
   [ "$FileNum" == "0" ] && return
 
-  jobsList=`ls ${Name}*.root 2>/dev/null | awk -F_ '{print $4}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
-  FulljobsList=`ls ${Name}*.root 2>/dev/null | cut -d. -f1 | awk -F_ '{if($4) print $0".root"}' | tr '\n' ' '`
+  jobsList=`ls ${Name}*.root 2>/dev/null | awk -F"${Name}_" '{print $2}' | awk -F. '{print $1}' | tr '\n' - | sed -e 's/-*$//'`
+  FulljobsList=`ls ${Name}*.root 2>/dev/null | cut -d. -f1 | awk -F"${Name}_" '{if($2) print $0".root"}' | tr '\n' ' '`
   #echo joblist $jobsList #RIM
   #echo Full $FulljobsList #RIMU
-
+  
   if [ "$FileNum" == "1" ]; then
       if [ "$jobsList" != "" ]; then
-	  echo $jobsList
+	  echo joblist $jobsList
 	  mkdir -p  ${StoreDir}/Basket
 	  cp ${FulljobsList} ${Name}.root
 	  mv ${FulljobsList} Basket
 	  mv `echo ${FulljobsList} | sed -e "s@.root@.ps@g"` Basket
 	  gzip Basket/*.ps
-	  #ls *root #RIMUOVI
       fi
       return
   fi
@@ -93,64 +83,48 @@ function MergePlots(){
   fi
 }
 
-#source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
-#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
-#source ~/public/crab.sh
+############
+## MAIN  ###
+############
 
-#source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
+Version=""
+[ "$1" != "" ] && Version=$1
 
-########################################
-## Patch to make it work with crontab ##
-########################################
-#export MYHOME=/analysis/sw/CRAB/
-#export MYHOME="${HOME}"
-#source /analysis/sw/CRAB/crab.sh
-########################################
+export outFile
+basePath=/analysis/sw/CRAB
+Tpath=/data1/CrabAnalysis
 
-cd /analysis/sw/CRAB/CMSSW/CMSSW_1_3_0/src/
+macroPath=${basePath}/macros
+
+cd ${basePath}/CMSSW/CMSSW_1_3_0/src
 eval `scramv1 runtime -sh`
+cd -
 
-#export X509_USER_PROXY=`cat /analysis/sw/CRAB/log/X509_USER_PROXY.txt`
-#export X509_USER_PROXY=~/public/x509up_u405
-#export X509_VOMS_DIR=`cat /analysis/sw/CRAB/log/X509_VOMS_DIR.txt`
-#export X509_CERT_DIR=`cat /analysis/sw/CRAB/log/X509_CERT_DIR.txt`
-
-#echo $X509_USER_PROXY
-#echo $X509_VOMS_DIR
-#echo $X509_CERT_DIR
-
-export Version=$1
-
-export local_crab_path=/analysis/sw/CRAB
-export cfg_path=${local_crab_path}/cfg
-export template_path=${local_crab_path}/templates/${Version}
-export log_path=${local_crab_path}/log/${Version}
-
-#while true;
-#  do
-
-  for FileName in `ls ${log_path}/Submitted`
+for Type in `ls $Tpath`
+  do
+  for path in `ls $Tpath/$Type`
     do
-    export Type=`echo $FileName | awk -F_ '{print $1}'`
-    export Flag=`echo $FileName | awk -F_ '{print $3}'`
-    export Config=`echo $FileName | awk -F_ '{print $2}'`
+    [ "$Version" != "" ] && [ "$Version" != "$path" ] && continue
+  #[ "$path" != "FNAL_pre6_v17" ] && [ "$path" != "FNAL_pre6_v17" ]&& continue  
+    echo "...Running on $Tpath/$path"
+    for dir in `ls $Tpath/$Type/$path`
+      do
 
-#if [ ${Flag} == "00006217" ]; then
-    ##########
-    ## MAIN ##
-    ##########
+    workdir=$Tpath/$Type/$path/$dir/res
+
+    [ ! -e $workdir ] && continue 
+    cd $workdir
 
     # Make the plots for TIFNtupleMaker
     #if [ $Type == "TIFNtupleMaker" ] || [ $Type == "TIFNtupleMakerZS" ]; then
-    #  MakePlots ${Type}
+    #  MakePlots $workdir
     #fi
 
     # Merge the plots for ClusterAnalysis
     if [ $Type == "ClusterAnalysis" ]; then
-      MergePlots "ClusterAnalysis"
+	MergePlots $workdir $dir
     fi
-#fi
-
-
-
+    cd -
+    done
+  done
 done
