@@ -140,6 +140,10 @@ void L1GlobalCaloTrigger::process() {
 
 /// setup the Jet Calibration Lut
 void L1GlobalCaloTrigger::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut) {
+
+  // delete old LUT
+  if (m_jetEtCalLut != 0) delete m_jetEtCalLut;
+
   m_jetEtCalLut = lut;
   // Need to propagate the new lut to all the JetFinders
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
