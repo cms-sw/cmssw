@@ -4,7 +4,7 @@
 <use name=hepmc>
 <use name=clhep> 
 <use name=root>
-<use name=pythia6_227>
+<use name=pythia6>
 
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceBeamHaloGenerator">
 <export>
@@ -15,7 +15,7 @@
  <use name=hepmc>
  <use name=clhep> 
  <use name=root>
- <use name=pythia6_227>
+ <use name=pythia6>
 </export>
 
  <lib name=g2c></lib>
