@@ -38,8 +38,6 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
  {
 
-  std::cout << "Constructing GCT Emulator" << std::endl;
-
   // list of products
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
