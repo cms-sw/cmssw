@@ -27,7 +27,7 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
   }
 
   for (unsigned i=0; i<N_SOURCE_CARDS; i++) {
-    if (m_sourceCards[i]==0) {
+    if (m_sourceCards.at(i)==0) {
      throw cms::Exception("L1GctSetupError")
        << "L1GctEmLeafCard::L1GctEmLeafCard() : EM Leaf Card ID " << m_id << " has been incorrectly constructed!" << endl
        << "SourceCard pointer " << i << " is null" << endl;
@@ -37,56 +37,56 @@ L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
 
   for(unsigned i=0;i!=m_sourceCards.size();i++){
     if(i<4){
-      firstHalf[i] = m_sourceCards[i];
+      firstHalf.at(i) = m_sourceCards.at(i);
     }else{
-      secondHalf[i-4] = m_sourceCards[i];
+      secondHalf.at(i-4) = m_sourceCards.at(i);
     }
   }
 
   // sorters 0 and 1 are in FPGA 0
-  m_sorters[0] = new L1GctElectronSorter(4,true, firstHalf);
-  m_sorters[1] = new L1GctElectronSorter(4,false,firstHalf);
+  m_sorters.at(0) = new L1GctElectronSorter(4,true, firstHalf);
+  m_sorters.at(1) = new L1GctElectronSorter(4,false,firstHalf);
   
   // sorters 2 and 3 are in FPGA 1
-  m_sorters[2] = new L1GctElectronSorter(5,true, secondHalf);
-  m_sorters[3] = new L1GctElectronSorter(5,false,secondHalf);
+  m_sorters.at(2) = new L1GctElectronSorter(5,true, secondHalf);
+  m_sorters.at(3) = new L1GctElectronSorter(5,false,secondHalf);
 }
 
 
 L1GctEmLeafCard::~L1GctEmLeafCard() 
 {
-  delete m_sorters[0];
-  delete m_sorters[1];
-  delete m_sorters[2];
-  delete m_sorters[3];
+  delete m_sorters.at(0);
+  delete m_sorters.at(1);
+  delete m_sorters.at(2);
+  delete m_sorters.at(3);
 }
 
 
 /// clear buffers
 void L1GctEmLeafCard::reset() {
   for (unsigned i=0; i<N_SORTERS; i++) {
-    m_sorters[i]->reset();
+    m_sorters.at(i)->reset();
   }
 }
 
 /// fetch input data
 void L1GctEmLeafCard::fetchInput() {
   for (unsigned i=0; i<N_SORTERS; i++) {
-    m_sorters[i]->fetchInput();
+    m_sorters.at(i)->fetchInput();
   }
 }
 
 /// process the event
 void L1GctEmLeafCard::process() {
   for (unsigned i=0; i<N_SORTERS; i++) {
-    m_sorters[i]->process();
+    m_sorters.at(i)->process();
   }
 }
 
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
   if (fpga<2) {
-    return m_sorters[2*fpga]->getOutputCands();
+    return m_sorters.at(2*fpga)->getOutputCands();
   }
   else {
     return vector<L1GctEmCand>(0);
@@ -96,7 +96,7 @@ vector<L1GctEmCand> L1GctEmLeafCard::getOutputIsoEmCands(int fpga) {
 /// get the output candidates
 vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
   if (fpga<2) {
-    return m_sorters[2*fpga+1]->getOutputCands();
+    return m_sorters.at(2*fpga+1)->getOutputCands();
   }
   else {
     return vector<L1GctEmCand>(0);
@@ -108,13 +108,13 @@ ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
   s << "ID = "<<card.m_id<<endl;
   s << "No of Source Cards = " <<card.m_sourceCards.size() << endl;
   for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    s << "SourceCard* " << i << " = " << card.m_sourceCards[i] << endl;
+    s << "SourceCard* " << i << " = " << card.m_sourceCards.at(i) << endl;
   }
   s << "No of Electron Sorters = " << card.m_sorters.size() << endl;
   for (unsigned i=0; i<card.m_sorters.size(); i++) {
     s << std::endl;
     s << "===ElectronSorter===" << std::endl;
-    s << "ElectronSorter no: " << i << endl << (*card.m_sorters[i]);
+    s << "ElectronSorter no: " << i << endl << (*card.m_sorters.at(i));
   }
   s << endl;
   return s;
