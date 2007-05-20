@@ -55,8 +55,49 @@ Bari_130_v9
         AnalysisExamples tag: V01-01-11
 
 	Important changes in ClusterAnalysis
-
+	
+	Analysis of HotStrips with cut at 100 events for Histo
+	
 Bari_130_v10
 
 	as Bari_130_v9, only for test
 
+
+Stable_Bari_130_v1
+
+        input: Bari processing
+        cmssw release: 130
+        AnalysisExamples tag: V01-01-13
+
+	Added plot for gain study
+	
+	Analysis of HotStrips with cut at 100 events for Histo ***REMOVED***
+	
+Stable_FNAL_130_v1
+
+	as Stable_Bari_130_v1
+
+	input: FNAL processing
+
+Stable_Bari_130_v3
+
+        input: Bari processing
+        cmssw release: 130
+        AnalysisExamples tag: V01-01-14
+
+	Analysis of HotStrips with cut at 10 entries min for a strip
+	Added new Histo for SignalVsAngle
+	Modified angle for AngleVsPhi plot
+	
+
+Stable_Bari_130_v5
+
+        input: Bari processing
+        cmssw release: 130
+        AnalysisExamples tag: V01-01-15
+
+	Found misunderstang in definition of local angle repsect to local frame,
+	due to not exact knowledge of geometry definitions.
+	Now hope it is correct.
+	
+	
