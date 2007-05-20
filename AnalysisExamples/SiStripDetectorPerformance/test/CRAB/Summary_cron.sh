@@ -52,6 +52,8 @@ for Version in `cat ${LOCALHOME}/Summary_cron.cfg | grep -v "#"`
   echo -e "\n...Running SummaryTable.sh $Version"
   ${LOCALHOME}/macros/SummaryTable.sh ${Version}
 
+  ${LOCALHOME}/StatisticsCRAB.sh ${Version}
+
 done
 
 echo -e "\n...Creating Summaries"
