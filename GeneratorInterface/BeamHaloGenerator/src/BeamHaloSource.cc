@@ -93,33 +93,28 @@ void BeamHaloSource::clear()
 
 bool BeamHaloSource::produce(Event & e) {
 
-	cout << "in produce " << endl;
+	// cout << "in produce " << endl;
 
     	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
-	cout << "apres autoptr " << endl;
+	// cout << "apres autoptr " << endl;
 
 	int iret=0;
         float weight = 0;
     	call_ki_bhg_fill(iret, weight);
 
-	cout << "apres fortran " << endl;
+	// cout << "apres fortran " << endl;
 
 
     	// HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
 	HepMC::GenEvent* evt = conv.read_next_event();
 
-	cout << "ici " << endl;
 	HepMC::WeightContainer& weights = evt -> weights();
-	cout << " la " << endl;
 	weights.push_back(weight);
-	cout << " la2 " << endl;
 
 	if(evt)  bare_product->addHepMCData(evt );
-	cout << "apres add " << endl;
 
     	e.put(bare_product);
-	cout << "apres put " << endl;
 
     return true;
 }
