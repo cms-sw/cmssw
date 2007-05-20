@@ -127,7 +127,7 @@ void iterate(TH1F* histo,std::map<short,StripStruct>& mBadStrip){
   for (Int_t i=ibinStart; i<ibinStop; ++i){
     if (mBadStrip.find(i)==mBadStrip.end()){
       unsigned int pos= (unsigned int)histo->GetBinContent(i);
-      if(diff<Poisson[pos] && pos>10){
+      if(diff<Poisson[pos] && pos>5){
 	
 	StripStruct a;
 	a.N=histo->GetBinContent(i);
