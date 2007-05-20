@@ -49,6 +49,9 @@ for Version in `cat ${LOCALHOME}/Summary_cron.cfg | grep -v "#"`
   echo -e "\n...Running BadModulesFromClusters $Version"
   ${LOCALHOME}/macros/BadModulesFromClusters.sh ${Version}
 
+  echo -e "\n...Running TracksQT $Version"
+  ${LOCALHOME}/macros/TracksQT.sh ${Version}
+
   echo -e "\n...Running SummaryTable.sh $Version"
   ${LOCALHOME}/macros/SummaryTable.sh ${Version}
 
