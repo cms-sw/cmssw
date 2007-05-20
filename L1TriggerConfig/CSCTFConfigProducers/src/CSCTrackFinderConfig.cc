@@ -1,5 +1,6 @@
 #include <L1TriggerConfig/CSCTFConfigProducers/interface/CSCTFConfigProducer.h>
-#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h> //21 and 19
+#include <FWCore/MessageLogger/interface/MessageLogger.h>
+//#include <DataFormats/L1CSCTrackFinder/interface/CSCBitWidths.h> //21 and 19
 
 #include <stdio.h>
 #include <errno.h>
@@ -24,13 +25,14 @@ CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCPtLutRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCLocalPhiLutRcd);
 	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCGlobalLutsRcd);
+	setWhatProduced(this, &CSCTFConfigProducer::produceL1MuCSCDTLutRcd);
 }
 
 std::auto_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord){
 	std::auto_ptr<L1MuCSCPtLut> pt_lut = std::auto_ptr<L1MuCSCPtLut>( new L1MuCSCPtLut() );
 
 	if( ptLUT_path.length() ){
-			readLUT(ptLUT_path, (unsigned short *)pt_lut->pt_lut, 1<<21);
+			readLUT(ptLUT_path, (unsigned short *)pt_lut->pt_lut, 1<<21); //CSCBitWidths::kPtAddressWidth
 	} else {
 		// Generating
 		//pt_lut->pt_lut[] = 0;
@@ -91,17 +93,19 @@ void CSCTFConfigProducer::readLUT(std::string path, unsigned short* lut, unsigne
 	// Reading
 	if( path.find(".bin") != std::string::npos ) { // Binary format
 		std::ifstream file(path.c_str(), std::ios::binary);
-		try {
-			file.read((char*)lut,length);
-		} catch (...) {
-			//edm::LogError("CSCTFConfigProducer") << "Cannot read 1<<21 words from the file (incorrect Pt LUT size?)\n";
-			throw cms::Exception("Incorrect Pt LUT size?")<<"CSCTFConfigProducer errno="<<errno;
-		}
+		file.read((char*)lut,length*sizeof(unsigned short));
+		if( file.fail() )
+			throw cms::Exception("Reading error")<<"CSCTFConfigProducer cannot read "<<length<<" words from "<<path<<" (errno="<<errno<<")";
+		if( (unsigned int)file.gcount() != length*sizeof(unsigned short) )
+			throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<(file.gcount()/sizeof(unsigned short))<<" words from "<<path<<" instead of "<<length<<" (errno="<<errno<<")";
 		file.close();
 	} else {
 		std::ifstream file(path.c_str());
-		for(unsigned int address=0; !file.eof() && address<length; address++) //CSCBitWidths::kPtAddressWidth
-			file >> lut[address];
+		unsigned int address=0;
+		for(address=0; !file.eof() && address<length; address++)
+			file >> lut[address]; // Warning: this may throw non-cms like exception
+		if( address!=length ) throw cms::Exception("Incorrect LUT size")<<"CSCTFConfigProducer read "<<address<<" words from "<<path<<" instead of "<<length;
 		file.close();
 	}
+	LogDebug("CSCTFConfigProducer::readLUT")<<" read from "<<path<<" "<<length<<" words"<<std::endl;
 }
