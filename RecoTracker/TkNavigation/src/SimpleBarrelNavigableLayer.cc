@@ -161,7 +161,10 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
 
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
-  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
+  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
+  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+  bool isInOutTrack  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
 
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
@@ -255,8 +258,10 @@ SimpleBarrelNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
 
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
-  bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-
+  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
+  //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
+  //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
+  bool isInOutTrack  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
   bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
