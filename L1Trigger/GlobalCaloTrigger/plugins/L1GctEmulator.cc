@@ -3,6 +3,7 @@
 // system includes
 #include <memory>
 #include <vector>
+#include <iostream>
 
 // EDM includes
 #include "FWCore/PluginManager/interface/ModuleDef.h"
@@ -37,6 +38,8 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
  {
 
+  std::cout << "Constructing GCT Emulator" << std::endl;
+
   // list of products
   produces<L1GctEmCandCollection>("isoEm");
   produces<L1GctEmCandCollection>("nonIsoEm");
@@ -66,8 +69,7 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
 }
 
 L1GctEmulator::~L1GctEmulator() {
-  delete m_jetEtCalibLut;
-  delete m_gct;
+  if (m_gct != 0) { delete m_gct; }  
 }
 
 
@@ -95,9 +97,9 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   }
 
   // make a jet Et Lut and tell it about the scales
-  m_jetEtCalibLut = L1GctJetEtCalibrationLut::setupLut(calibFun.product());
-  m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
-
+  L1GctJetEtCalibrationLut* jetLut = new L1GctJetEtCalibrationLut(calibFun.product());
+  m_gct->setJetEtCalibrationLut(jetLut);
+  
 }
 
 void L1GctEmulator::produce(edm::Event& e, const edm::EventSetup& c) {
