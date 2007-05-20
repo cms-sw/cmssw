@@ -128,6 +128,12 @@ unsigned int PixelCalib::vcal(unsigned int state) const{
     return vcal;
 
 }
+unsigned int PixelCalib::vcal_fromeventno(unsigned int evtno) const {
+  // added by Freya, calculates state and uses PixelCalib::vcal.
+  
+  unsigned int state = evtno/ntrigger_;
+  return vcal(state);
+}
 
 std::ostream& operator<<(std::ostream& s, const PixelCalib& calib){
 

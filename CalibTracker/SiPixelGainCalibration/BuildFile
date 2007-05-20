@@ -2,8 +2,13 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/MessageLogger>
-<use name=DataFormats/FEDRawData>
-<flags SEAL_PLUGIN_NAME="CalibTrackerSiPixelGainCalibration">
+<use name=DataFormats/FEDRawData> 
+<use name=CondTools/SiPixel>
+<use name=CondFormats/DataRecord>
+<use name=CondFormats/SiPixelObjects>
+<use name=CondCore/DBOutputService>
+<use name=root>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibTrackerSiPixelGainCalibration>
    <use name=FWCore/Framework>
@@ -11,4 +16,6 @@
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/FEDRawData>
+   <use name=CondTools/SiPixel>
+   <use name=CondFormats/DataRecord>
 </export>

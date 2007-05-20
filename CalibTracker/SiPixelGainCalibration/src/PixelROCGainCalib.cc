@@ -1,46 +1,96 @@
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
-#include "TH1F.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+//---------------------------------------------------
 
-PixelROCGainCalib::PixelROCGainCalib(){
-  std::cout << "In PixelROCGainCalib"<<std::endl;
-  for(unsigned int row=0;row<10;row++){
-    for(unsigned int col=0;col<10;col++){
-      adc_hist[row][col]=0;
-    }
-  }
+// Author : Freya.Blekman@cern.ch
+// Name   : PixelROCGainCalib
+
+//---------------------------------------------------
+
+
+PixelROCGainCalib::PixelROCGainCalib(): 
+vcalrangemin_(0),vcalrangestep_(256),vcalrangemax_(256),nrowsmax_(80),ncolsmax_(52),
+linkid_(0),rocid_(0),nvcal_(1), thisROCTitle_("")
+{
+  // some ugly asserts to make sure none of the arrays run over limits
+  assert(nrowsmax_<=80);
+  assert(ncolsmax_<=52);
+ 
 }
-
-void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned int nvcal){
+//*********************
+void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned int nvcal,unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep){
   linkid_=linkid;
   rocid_=rocid;
-  nvcal_=nvcal;
-}
+  nvcal_=nvcal; 
+  vcalrangemin_=vcalRangeMin;
+  vcalrangemax_=vcalRangeMax; 
+  vcalrangestep_=vcalRangeStep;
+  thisROCTitle_="Channel_";
+  thisROCTitle_+=linkid_;
+  thisROCTitle_+="_ROC_";
+  thisROCTitle_+=rocid_;
 
-bool PixelROCGainCalib::filled(unsigned int row,unsigned int col){
-  return (adc_hist[row][col]!=0);
-}
-
-
-void PixelROCGainCalib::draw(unsigned int row,unsigned int col){
-  adc_hist[row][col]->Draw();
-}
-
-
-void PixelROCGainCalib::fill(unsigned int row,unsigned int col,unsigned int vcal,unsigned int adc){
-  TH1F* hist=adc_hist[row][col];
-  if (hist==0) {
-    TString name="Channel=";
-    name+=(linkid_);
-    name=name+" ROC=";
-    name+=(rocid_);
-    name=name+" row=";
-    name+=(row);
-    name=name+" col=";
-    name+=(col);
-    hist=adc_hist[row][col]=new TH1F(name,name,nvcal_,0.0,255.0);
+  for(unsigned int irow=0; irow<nrowsmax_;++irow){
+    for(unsigned int icol=0; icol<ncolsmax_;++icol){
+      pixelUsed_[irow][icol]=false;
+    }
   }
-  hist->Fill(vcal,adc/256);
+  unsigned int iwork=0;
+  for(unsigned int vcalwork = vcalrangemin_; vcalwork<=vcalrangemax_;vcalwork+=vcalrangestep_){
+    vcalmap_[vcalwork]=iwork;
+    iwork++;
+  }
 }
 
 
+//**********************
+void PixelROCGainCalib::fill(unsigned int row,unsigned int col,unsigned int vcal,unsigned int adc){
+  if(!checkRowCols(row,col)){
+    edm::LogVerbatim("") << "PixelROCGainCalibHists::fill() WARNING, column or row out of range" << std::endl;
+    return ;
+  }
+  if(!pixelUsed_[row][col]){
+    // actually create the PixelROCGainCalibPixel object
+    thePixels_[row][col].init(nvcal_);
+   
+    pixelUsed_[row][col]=true;
+  }
+  // now fill the object:
+  //  std::cout <<"Filling PixelROCGainCalibObject "  <<  vcalmap_[vcal] << " " << vcal << std::endl;
+  thePixels_[row][col].addPoint(vcalmap_[vcal],adc,vcal); 
+  return;
+}
+//**********************
+TH1F* PixelROCGainCalib::gethisto(unsigned int row, unsigned int col){
+  if(!pixelUsed_[row][col])
+    return 0;
+  
+  TH1F *result = (TH1F*) thePixels_[row][col].createHistogram(createTitle(row,col),createTitle(row,col),nvcal_,vcalrangemin_,vcalrangemax_);
+  //  std::cout << createTitle(row,col) << " " << nvcal_ << " " << vcalrangemin_ << " " << vcalrangemax_ << std::endl;
+  return result;
+}
+//**********************
+void PixelROCGainCalib::fit(unsigned int row,unsigned int col, TF1* function){
+  gethisto(row,col)->Fit(function,"R");
+  return;
+}
+//**********************
+bool PixelROCGainCalib::checkRowCols(unsigned int row, unsigned int col){
+  if(row>=nrowsmax_)
+    return false;
+  if(col>=ncolsmax_)
+    return false;
+  
+  return true;
+}
+//**********************
+TString PixelROCGainCalib::createTitle(unsigned int row, unsigned int col){
+ 
+  TString result = thisROCTitle_;
+  result+="_row_";
+  result+=row;
+  result+="_col_";
+  result+=col;
+  return result;
+}

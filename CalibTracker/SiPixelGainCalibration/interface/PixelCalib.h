@@ -6,7 +6,7 @@
 // as e.g. an S-curve
 // 
 //
-//
+// some additional functionality added by F.Blekman, dd April 18, 2007.
 //
 
 #include <vector>
@@ -50,9 +50,12 @@ class PixelCalib: public PixelConfigBase {
     unsigned int vcal_last()  {return vcal_last_;}
     unsigned int vcal_step() {return vcal_step_;}
     double vcal_step2() {return vcal_step_;}
-    unsigned int nVcal() const { return (vcal_last_-vcal_first_)/vcal_step_+1; }    unsigned int nConfigurations() const {return nPixelPatterns()*nVcal();}
+    unsigned int nVcal() const { return (vcal_last_-vcal_first_)/vcal_step_+1; }    
+    unsigned int nConfigurations() const {return nPixelPatterns()*nVcal();}
     unsigned int nTriggersTotal() const {return nConfigurations()*nTriggersPerPattern();}
     unsigned int vcal(unsigned int state) const;
+    unsigned int vcal_fromeventno(unsigned int evtno) const;
+    
     unsigned int nTriggers() {return ntrigger_;}
     const std::vector<std::string>& rocList(){return rocs_;}
 
