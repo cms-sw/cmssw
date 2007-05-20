@@ -87,7 +87,7 @@ L1GctJetEtCalibrationLut* produceTrivialCalibrationLut::produce()
 
   calibFun->setCorrectionFunctionType(m_corrFunType);
 
-  L1GctJetEtCalibrationLut* lut = L1GctJetEtCalibrationLut::setupLut(calibFun);
+  L1GctJetEtCalibrationLut* lut = new L1GctJetEtCalibrationLut(calibFun);
 
   return lut;
 }

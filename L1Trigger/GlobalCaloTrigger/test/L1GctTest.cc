@@ -161,7 +161,7 @@ L1GctTest::configureGct(const edm::EventSetup& c)
   }
 
   // make a jet Et Lut and tell it about the scales
-  m_jetEtCalibLut = L1GctJetEtCalibrationLut::setupLut(calibFun.product());
+  m_jetEtCalibLut = new L1GctJetEtCalibrationLut(calibFun.product());
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
 
 }

@@ -8,16 +8,16 @@ const int L1GctJetEtCalibrationLut::NAddress=JET_ET_CAL_LUT_ADD_BITS;
 const int L1GctJetEtCalibrationLut::NData=JET_ET_CAL_LUT_DAT_BITS;
 const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJetEtCalibrationFunction::JET_ENERGY_BITWIDTH;
 
-L1GctJetEtCalibrationLut* L1GctJetEtCalibrationLut::setupLut(const L1GctJetEtCalibrationFunction* lutfn)
-{
-  L1GctJetEtCalibrationLut* newLut = new L1GctJetEtCalibrationLut();
-  newLut->setFunction(lutfn);
-  return newLut;
-}
+//L1GctJetEtCalibrationLut* L1GctJetEtCalibrationLut::setupLut(const L1GctJetEtCalibrationFunction* lutfn)
+//{
+//  L1GctJetEtCalibrationLut* newLut = new L1GctJetEtCalibrationLut();
+//  return newLut;
+//}
 
-L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut() :
+L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn) :
   L1GctLut<NAddress,NData>()
 {
+  setFunction(lutfn);
 }
 
 
