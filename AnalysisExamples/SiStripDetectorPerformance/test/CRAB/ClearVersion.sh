@@ -12,22 +12,25 @@ function Clear(){
 
   # First kill submitted jobs
   if [ -e  ${log_path}/Submitted/${Name} ]; then
-    crab -kill all -c $2
+      echo crab -kill all -c $2
+      crab -kill all -c $2
   fi
 
   echo Deleting directories
 
-  rm -v -r -f $2
-  rm -v -r -f ${StoreDir}
-  rm -v -r -f ${log_path}/Created/${Name}
-  rm -v -r -f ${log_path}/Submitted/${Name}
-  rm -v -r -f ${log_path}/Not_Created/${Name}
-  rm -v -r -f ${log_path}/Not_Submitted/${Name}
-  rm -v -r -f ${log_path}/Status/${Name}
-  rm -v -r -f ${log_path}/Scheduled/${Name}
-  rm -v -r -f ${log_path}/Done/${Name}
-  rm -v -r -f ${log_path}/Cleared/${Name}
-  rm -v -r -f ${log_path}/Crashed/${Name}
+  if [ "$2" == "all" ]; then
+      rm -v -r -f $2
+      rm -v -r -f ${StoreDir}
+      rm -v -r -f ${log_path}/Created/${Name}
+      rm -v -r -f ${log_path}/Submitted/${Name}
+      rm -v -r -f ${log_path}/Not_Created/${Name}
+      rm -v -r -f ${log_path}/Not_Submitted/${Name}
+      rm -v -r -f ${log_path}/Status/${Name}
+      rm -v -r -f ${log_path}/Scheduled/${Name}
+      rm -v -r -f ${log_path}/Done/${Name}
+      rm -v -r -f ${log_path}/Cleared/${Name}
+      rm -v -r -f ${log_path}/Crashed/${Name}
+  fi
 }
 
 ######################
@@ -35,33 +38,41 @@ function Clear(){
 #####################
 
 [ "$1" == "" ] && echo "Please specify the version to be removed " && exit
+[ "$2" == "" ] && echo "Please specify if only <crab> or <all>  " && exit
 
+####################################
+#//////////////////////////////////#
+####################################
+##           LOCAL PATHS          ##
+## change this for your local dir ##
+####################################
 
-#source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
-#source /afs/cern.ch/cms/ccs/wm/scripts/Crab/crab.sh
-#source ~/public/crab.sh
+## Where to find all the templates and to write all the logs
+export LOCALHOME=/analysis/sw/CRAB
+## Where to copy all the results
+export MainStoreDir=/data1/CrabAnalysis
+## Where to create crab jobs
+export WorkingDir=/tmp/${USER}
+## Leave python path as it is to source in standard (local) area
+export python_path=/analysis/sw/CRAB
 
-#source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
-
-########################################
-## Patch to make it work with crontab ##
-########################################
-#export MYHOME=/analysis/sw/CRAB/
-#export MYHOME="${HOME}"
-#source /analysis/sw/CRAB/crab.sh
-########################################
+####################################
+#//////////////////////////////////#
+####################################
 
 cd /analysis/sw/CRAB/CMSSW/CMSSW_1_3_0/src/
 eval `scramv1 runtime -sh`
+cd -
 
-#export X509_USER_PROXY=`cat /analysis/sw/CRAB/log/X509_USER_PROXY.txt`
-#export X509_USER_PROXY=~/public/x509up_u405
-#export X509_VOMS_DIR=`cat /analysis/sw/CRAB/log/X509_VOMS_DIR.txt`
-#export X509_CERT_DIR=`cat /analysis/sw/CRAB/log/X509_CERT_DIR.txt`
+source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.sh
 
-#echo $X509_USER_PROXY
-#echo $X509_VOMS_DIR
-#echo $X509_CERT_DIR
+########################################
+## Patch to make it work with crontab ##
+###########################################
+export MYHOME=/analysis/sw/CRAB
+# the scritps will source ${MYHOME}/crab.sh
+source ${MYHOME}/crab.sh
+########################################
 
 export Version=$1
 
@@ -86,10 +97,10 @@ for FileName in `ls ${log_path}/Created`
 
   # Call the Clear function
   Clear ${Type} ${Working_path}
-
-  rm -vfr /data1/CrabAnalysis/${Type}/${Version}
+  
+  [ "$2" == "all" ] && rm -vfr /data1/CrabAnalysis/${Type}/${Version}
 done
 
-rm -vfr /data1/CrabAnalysis/logs/${Version}
-rm -vrf /data1/CrabAnalysis/*/${Version}
-rm -vrf ${log_path}
+[ "$2" == "all" ] && rm -vfr /data1/CrabAnalysis/logs/${Version}
+[ "$2" == "all" ] && rm -vrf /data1/CrabAnalysis/*/${Version}
+[ "$2" == "all" ] && rm -vrf ${log_path}
