@@ -190,7 +190,7 @@ for path in `ls $Tpath`
 
     if [ ! -e $outFile ]; then
 
-	rm -fv *_HotStrips.*
+	rm -fv *_HotStrips*
 
         ############
         # root macro
