@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/04/30 09:39:31 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/04/30 10:28:06 $
+ *  $Revision: 1.7 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -8,6 +8,9 @@
  *  Patrick Janot : added the PYTHIA card reading
  *
  *  Sasha Nikitenko : added single/double particle gun
+ *
+ *  Holger Pieta : added FileInPath for SLHA
+ *
  */
 
 
@@ -18,6 +21,8 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
+
 
 #include <iostream>
 #include "time.h"
@@ -373,14 +378,43 @@ PythiaSource::call_txgive_init() {
 	return 1;  
 }
 
-bool
+
 PythiaSource::call_slhagive(const std::string& iParm ) {
-  	 
-  SLHAGIVE( iParm.c_str(), iParm.length() );
-  cout << "     " <<  iParm.c_str() << endl;
-  	 
-        return 1;
+	if( iParm.find( "SLHAFILE", 0 ) != string::npos ) {
+		string::size_type start = iParm.find_first_of( "=" ) + 1;
+		string::size_type end = iParm.length() - 1;
+		string::size_type temp = iParm.find_first_of( "'", start );
+		if( temp != string::npos ) {
+			start = temp + 1;
+			end = iParm.find_last_of( "'" ) - 1;
+		}
+		start = iParm.find_first_not_of( " ", start );
+		end = iParm.find_last_not_of( " ", end );
+		string shortfile = iParm.substr( start, end - start + 1 );
+		string file;
+		if( shortfile[0] == '/' ) {
+			cout << "SLHA file given with absolut path." << endl;
+			file = shortfile;
+		} else {
+			try {
+				FileInPath f1( shortfile );
+				file = f1.fullPath();
+			} catch(...) {
+				cout << "SLHA file not in path. Trying anyway." << endl;
+				file = shortfile;
+			}
+		}
+		file = "SLHAFILE = '" + file + "'";
+		SLHAGIVE( file.c_str(), file.length() );
+		cout << "     " <<  file.c_str() << endl;
+		
+	} else {
+		SLHAGIVE( iParm.c_str(), iParm.length() );
+		cout << "     " <<  iParm.c_str() << endl; 
+	}
+	return 1;
 }
+
 
 bool 
 PythiaSource::call_slha_init() {
