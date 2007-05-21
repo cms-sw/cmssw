@@ -10,6 +10,10 @@
 <use name=SimCalorimetry/CaloSimAlgos>
 <use name=SimCalorimetry/EcalSimAlgos>
 <use name=Geometry/CaloEventSetup>
+<use name=CondFormats/L1TObjects>
+<use name=CondFormats/DataRecord>
+<use name=Geometry/Records>
+<use name=Geometry/EcalMapping>
 <use name=boost>
 <use name=root>
 
@@ -28,6 +32,10 @@
    <use name=SimCalorimetry/CaloSimAlgos>
    <use name=SimCalorimetry/EcalSimAlgos>
    <use name=Geometry/CaloEventSetup>
+   <use name=CondFormats/L1TObjects>
+   <use name=CondFormats/DataRecord>
+   <use name=Geometry/Records>
+   <use name=Geometry/EcalMapping>
    <use name=boost>                       
    <use name=root>                        
 </export>
