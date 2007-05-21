@@ -4,12 +4,16 @@
 #include <iostream>
 
 
-PhotonMCTruth::PhotonMCTruth(int isAConversion,HepLorentzVector v, float rconv, float zconv,
-					       HepLorentzVector convVertex,  
-                                               HepLorentzVector pV,  std::vector<const SimTrack *> tracks  ) :
+PhotonMCTruth::PhotonMCTruth(int isAConversion,
+			     HepLorentzVector v, 
+			     HepLorentzVector convVertex,  
+			     HepLorentzVector pV,  
+			     std::vector<const SimTrack *> tracks  ) :
   isAConversion_(isAConversion),
-  thePhoton_(v), theR_(rconv), theZ_(zconv), theConvVertex_(convVertex), 
-  thePrimaryVertex_(pV), tracks_(tracks)  {
+  thePhoton_(v), 
+  theConvVertex_(convVertex), 
+  thePrimaryVertex_(pV), 
+  tracks_(tracks)  {
 
   
 }

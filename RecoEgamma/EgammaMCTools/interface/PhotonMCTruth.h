@@ -12,8 +12,8 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2007/04/17 08:55:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/15 13:00:16 $
+ *  $Revision: 1.4 $
  *  \author N. Marinelli  IASA-Athens
  *
  */
@@ -23,15 +23,18 @@
 
 class PhotonMCTruth {
 public:
-  PhotonMCTruth() : isAConversion_(0),thePhoton_(0.,0.,0.), theR_(0.), theZ_(0.), 
+  PhotonMCTruth() : isAConversion_(0),thePhoton_(0.,0.,0.), 
                        theConvVertex_(0.,0.,0.) {};
 
   PhotonMCTruth(HepLorentzVector v) : thePhoton_(v) {};
 
 
-  PhotonMCTruth(int isAConversion,HepLorentzVector v, float rconv, float zconv,
-			 HepLorentzVector convVertex, HepLorentzVector pV, std::vector<const SimTrack *> tracks );
-
+  PhotonMCTruth(int isAConversion,
+		HepLorentzVector v,
+		HepLorentzVector convVertex, 
+		HepLorentzVector pV, 
+		std::vector<const SimTrack *> tracks );
+  
 
  HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
   int isAConversion() const { return isAConversion_;}
