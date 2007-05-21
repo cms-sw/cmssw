@@ -31,7 +31,7 @@ Generator::Generator(const ParameterSet & p) :
   //theMaxPtCut(p.getParameter<double>("MaxPtCut")*MeV),   
   theMinPtCut(p.getParameter<double>("MinPtCut")),    // now operates in GeV (CMS standard)
   theMaxPtCut(p.getParameter<double>("MaxPtCut")),   
-  theDecLenCut(p.getUntrackedParameter<double>("DecLenCut",2.9)*cm),
+  theDecLenCut(p.getParameter<double>("DecLenCut")*cm),
   verbose(p.getUntrackedParameter<int>("Verbosity",0)),
   evt_(0),
   vtx_(0) ,
