@@ -12,7 +12,7 @@
 <script type="text/javascript" src="WebLib.js"></script> 
 <body>
 <form name="TheWholeForm" action="javascript:void%200">
-  <div class="bloc" id="bloc1" style="width:56%; height:100%; float:left;">
+  <div class="bloc" id="bloc1" style="width:56%; height=100%; float:left;">
     <fieldset style="background:#225587;">
       <legend >Drawing Canvas</legend>
       <img id="drawingcanvas"
@@ -33,7 +33,7 @@
       </button>
     </fieldset>
   </div>
-  <div class="bloc"  id="bloc2" style="width:44%; height:100%; float:right;">
+  <div class="bloc"  id="bloc2" style="width:44%; height=100%; float:right;">
     <fieldset style="background:#DDEFFF;">
         <div class="bloc"  id="bloc2_1" style="background:#C093FF;">
 	  <fieldset>
@@ -100,7 +100,7 @@
                         id="list_ME_command"
                         value="Get ME List" 
                         style="width:30%;margin-left:2%;margin-top:2%"
-                        onClick="RequestMEList('CB')" 
+                        onClick="RequestMEList()" 
                         type="submit">
                    </input>
                </fieldset>
@@ -118,9 +118,15 @@
                   <select name="struc_name" 
                        id="structure_for_module"
                        style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
-                       <option value="Tracker/PixelEndcap"> FPIX </option>
-                  </select>
+                       <option value="Tracker/PixelBarrel/Shell_mI" SELECTED> BPIX/Shell_mI </option>
+                       <option value="Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO </option>
+                       <option value="Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI </option>
+                       <option value="Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO </option>
+                       <option value="Tracker/PixelEndcap/HalfCylinder_mI"> FPIX/HalfCylinder_mI </option>
+                       <option value="Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO </option>
+                       <option value="Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI </option>
+                       <option value="Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO </option>
+		  </select>
                   <input name="listmodule" 
                         id="list_module"
                         value="Get Tree" 
