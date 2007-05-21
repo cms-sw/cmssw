@@ -7,7 +7,7 @@
  * It handles generic manipulations of input and output collections
  *
  * \author Fedor Ratnikov (UMd) Aug. 22, 2006
- * $Id: BasePilupSubtractionJetProducer.h,v 1.3 2007/05/04 09:53:17 kodolova Exp $
+ * $Id: BasePilupSubtractionJetProducer.h,v 1.5 2007/05/04 11:59:24 kodolova Exp $
  *
  ************************************************************/
 
@@ -62,6 +62,7 @@ namespace cms
     double mEtInputCut;
     double mEInputCut;
     double mEtJetInputCut;
+    double nSigmaPU;
     std::map<int,double> esigma;
     std::map<int,double> emean;  
     const CaloGeometry* geo;
