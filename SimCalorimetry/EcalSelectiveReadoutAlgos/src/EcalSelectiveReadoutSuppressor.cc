@@ -355,7 +355,7 @@ vector<int> EcalSelectiveReadoutSuppressor::getFIRWeigths() {
   if(firWeights.size()==0){
     firWeights = vector<int>(nFIRTaps, 0); //default weight: 0;
     const static int maxWeight = 0xEFF; //weights coded on 11+1 signed bits
-    for(unsigned i=0; i < min((unsigned)nFIRTaps,weights.size()); ++i){ 
+    for(unsigned i=0; i < min((size_t)nFIRTaps,weights.size()); ++i){ 
       firWeights[i] = lround(weights[i] * (1<<10));
       if(abs(firWeights[i])>maxWeight){//overflow
 	firWeights[i] = firWeights[i]<0?-maxWeight:maxWeight;
