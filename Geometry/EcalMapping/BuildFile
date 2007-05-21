@@ -1,13 +1,7 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
-<use name=FWCore/ParameterSet>
 <use name=DataFormats/EcalDetId>
 <use name=boost>
-<flags EDM_PLUGIN=1>
 <export>
-  <use name=FWCore/Framework>
-  <use name=FWCore/PluginManager>
-  <use name=FWCore/ParameterSet>
   <use name=DataFormats/EcalDetId>
   <use name=boost>
   <lib name=GeometryEcalMapping>

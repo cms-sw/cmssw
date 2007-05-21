@@ -1,6 +1,6 @@
 
 // user include files
-#include "Geometry/EcalMapping/interface/EcalElectronicsMappingBuilder.h"
+#include "EcalElectronicsMappingBuilder.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
