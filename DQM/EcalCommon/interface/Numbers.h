@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.3 2007/05/14 09:00:22 benigno Exp $
+// $Id: Numbers.h,v 1.4 2007/05/21 08:29:43 benigno Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/05/14 09:00:22 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/05/21 08:29:43 $
 */
 
 #ifndef Numbers_H
@@ -18,6 +18,7 @@
 #include <DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h>
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
+#include <DataFormats/EcalRawData/interface/EcalDCCHeaderBlock.h>
 
 class Numbers {
 
@@ -33,11 +34,13 @@ class Numbers {
 
   static int         iSM( const EBDetId&               id );
 
-  static int         iSM( const EcalTrigTowerDetId& id );
+  static int         iSM( const EcalTrigTowerDetId&    id );
 
   static int         iSM( const EcalElectronicsId&     id );
 
   static int         iSM( const EcalPnDiodeDetId&      id );
+
+  static int         iSM( const EcalDCCHeaderBlock&    id );
 
 };
 

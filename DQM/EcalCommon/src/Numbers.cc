@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.3 2007/05/14 09:00:22 benigno Exp $
+// $Id: Numbers.cc,v 1.4 2007/05/21 08:29:44 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.3 $
-  \date $Date: 2007/05/14 09:00:22 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/05/21 08:29:44 $
 */
 
 #include <sstream>
@@ -108,4 +108,10 @@ int Numbers::iSM( const EcalElectronicsId& id ) {
 
 int Numbers::iSM( const EcalPnDiodeDetId& id ) {
   return( id.iDCCId() );
+}
+
+//-------------------------------------------------------------------------
+
+int NumbersiSM( const EcalDCCHeaderBlock& id ) {
+  return( id.id() );
 }
