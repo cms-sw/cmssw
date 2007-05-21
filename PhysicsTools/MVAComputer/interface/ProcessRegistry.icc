@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcessRegistry.icc,v 1.1 2007/05/07 18:30:54 saout Exp $
+// $Id: ProcessRegistry.icc,v 1.2 2007/05/18 14:11:30 saout Exp $
 //
 
 #include <string>
@@ -46,6 +46,11 @@ template<class Base_t, class CalibBase_t, class Parent_t>
 void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::registerProcess(
 			const char *name, const ProcessRegistry *process)
 { getRegistry()[name] = process; }
+
+template<class Base_t, class CalibBase_t, class Parent_t>
+void ProcessRegistry<Base_t, CalibBase_t, Parent_t>::unregisterProcess(
+							const char *name)
+{ getRegistry().erase(name); }
 
 template<class Base_t, class CalibBase_t, class Parent_t>
 std::map<std::string, const ProcessRegistry<Base_t, CalibBase_t, Parent_t>*>

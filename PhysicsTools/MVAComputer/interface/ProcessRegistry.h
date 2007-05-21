@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: ProcessRegistry.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <string>
@@ -77,8 +77,9 @@ class ProcessRegistry {
 	friend class Factory;
 
 	/// instantiate registry and registers itself with \a name
-	ProcessRegistry(const char *name)
+	ProcessRegistry(const char *name) : name(name)
 	{ registerProcess(name, this); }
+	virtual ~ProcessRegistry() { unregisterProcess(name); }
 
 	/// create an instance of \a name, given a calibration \a calib and parent \a parent
 	static Base_t *create(const char *name, const CalibBase_t *calib,
@@ -89,13 +90,17 @@ class ProcessRegistry {
 	                         Parent_t *parent) const = 0;
 
     private:
-	static void registerProcess(const char *name, const ProcessRegistry *process);
+	static void registerProcess(const char *name,
+	                            const ProcessRegistry *process);
+	static void unregisterProcess(const char *name);
 
 	/// return map of all registered processes, allocate if necessary
 	static std::map<std::string, const ProcessRegistry*> &getRegistry();
 
 	/// pointer to the allocates registry map
 	static std::map<std::string, const ProcessRegistry*> *registry;
+
+	const char *name;
 };
 
 } // namespace PhysicsTools
