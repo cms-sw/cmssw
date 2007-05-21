@@ -3,7 +3,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=hepmc>
-<use name=pythia6_227>
+<use name=pythia>
 <use name=pyquen1_1>
 
 <flags SEAL_PLUGIN_NAME="GeneratorInterfacePyquenInterface">
@@ -14,7 +14,7 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
  <use name=hepmc>	 
- <use name=pythia6_227>
+ <use name=pythia>
  <use name=pyquen1_1>
 </export>
 
