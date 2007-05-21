@@ -12,6 +12,8 @@
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcCount&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcClassed"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcClassed&gt;"/>
+	<class name="PhysicsTools::Calibration::ProcSplitter"/>
+	<class name="std::vector&lt;PhysicsTools::Calibration::ProcSplitter&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcNormalize"/>
 	<class name="std::vector&lt;PhysicsTools::Calibration::ProcNormalize&gt;"/>
 	<class name="PhysicsTools::Calibration::ProcLikelihood::SigBkg"/>

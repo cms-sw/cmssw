@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.h,v 1.5 2007/05/17 15:00:35 saout Exp $
+// $Id: MVAComputer.h,v 1.6 2007/05/18 19:09:43 saout Exp $
 //
 
 #include <string>
@@ -71,6 +71,11 @@ class ProcCount : public VarProcessor {};
 class ProcClassed : public VarProcessor {
     public:
 	unsigned int			nClasses;
+};
+
+class ProcSplitter : public VarProcessor {
+    public:
+	unsigned int			nFirst;
 };
 
 class ProcNormalize : public VarProcessor {
@@ -147,8 +152,9 @@ class MVAComputer {
 	std::vector<unsigned int>	processors_;
 
 	std::vector<ProcOptional>	vProcOptional_;
-	std::vector<ProcClassed>	vProcClassed_;
 	std::vector<ProcCount>		vProcCount_;
+	std::vector<ProcClassed>	vProcClassed_;
+	std::vector<ProcSplitter>	vProcSplitter_;
 	std::vector<ProcNormalize>	vProcNormalize_;
 	std::vector<ProcLikelihood>	vProcLikelihood_;
 	std::vector<ProcLinear>		vProcLinear_;
