@@ -1,4 +1,5 @@
 <use name=DataFormats/EcalRawData>
+<use name=DataFormats/EcalDetId>
 <use name=DQMServices/Core>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>

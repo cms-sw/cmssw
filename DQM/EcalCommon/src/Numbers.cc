@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.2 2007/05/08 12:07:19 benigno Exp $
+// $Id: Numbers.cc,v 1.3 2007/05/14 09:00:22 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.2 $
-  \date $Date: 2007/05/08 12:07:19 $
+  \version $Revision: 1.3 $
+  \date $Date: 2007/05/14 09:00:22 $
 */
 
 #include <sstream>
@@ -84,4 +84,28 @@ std::string Numbers::sEE( int ism  ) throw( std::runtime_error ) {
     return( "" );
   }
   
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSM( const EBDetId& id ) {
+  return( id.ism() );
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSM( const EcalTrigTowerDetId& id ) {
+  return( id.iDCC() );
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSM( const EcalElectronicsId& id ) {
+  return( id.dccId() );
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSM( const EcalPnDiodeDetId& id ) {
+  return( id.iDCCId() );
 }
