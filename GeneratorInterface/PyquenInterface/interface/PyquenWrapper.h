@@ -12,12 +12,17 @@
                                                                                
 // PYQUEN routine declaration
 
+extern "C" {
+  void pyquen_(float& a,int& ifb,float& bfix);
+}
 #define PYQUEN pyquen_ 
-    extern "C" {
-      void PYQUEN(int& a,int& ifb,double& bfix);
 
-    }
+extern "C" {
+  extern struct{
+    float bgen;
+  }plfpar_;
+}
+#define plfpar plfpar_
 
 
-
-#endif  // HYQUEN_WRAPPER_H
+#endif  // PYQUEN_WRAPPER_H
