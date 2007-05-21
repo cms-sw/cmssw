@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/05/15 15:35:09 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/16 20:23:06 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -66,6 +66,8 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
   std::vector<const DetLayer*> nls = theNavigation->compatibleLayers(*(staState.freeState()), oppositeToMomentum);
 
   LogTrace(category) << " compatible layers: "<<nls.size();
+
+  if ( nls.empty() ) return result;
 
 //// debug only ===========
 /*
@@ -268,9 +270,7 @@ TrajectoryStateOnSurface TSGFromPropagation::outerTkState(const TrackCand& staMu
 
 TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) const {
 
-  TrajectoryStateOnSurface tsos = theUpdator->update(tm.updatedState(), *tm.recHit());
-
-  if ( !tsos.isValid() ) tsos = tm.updatedState();
+  TrajectoryStateOnSurface tsos = tm.updatedState(); 
 
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
@@ -278,10 +278,26 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) c
   LogTrace(category)<<"mom: "<<tsos.globalMomentum()<<" eta: "<<tsos.globalMomentum().eta();
   LogTrace(category)<<"pos: " << tsos.globalPosition()<<" eta: "<<tsos.globalPosition().eta(); 
 
+/*
+  LogTrace(category) << "createSeed: Apply the vertex constraint";
+  pair<bool,FreeTrajectoryState> updateResult = theVtxUpdator->update(*(tsos.freeState()));
+
+  if(!updateResult.first){
+    LogTrace(category) << "createSeed: vertex constraint failed ";
+  } else {
+
+    LogTrace(category) << "FTS after the vertex constraint";
+    FreeTrajectoryState &ftsAtVtx = updateResult.second;
+    LogTrace(category) << ftsAtVtx;
+    tsos = theService->propagator("PropagatorWithMaterial")->propagate(ftsAtVtx, tm.layer()->surface());
+
+  }
+*/
+
   TrajectoryStateTransform tsTransform;
     
   PTrajectoryStateOnDet *seedTSOS =
-    tsTransform.persistentState(tm.updatedState(),tm.recHit()->geographicalId().rawId());
+    tsTransform.persistentState(tsos,tm.recHit()->geographicalId().rawId());
     
   edm::OwnVector<TrackingRecHit> container;
 
@@ -315,7 +331,8 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
       if ( !mask[j] ) { j++; continue; }
       if (
            ( (iter->updatedState().globalPosition() - jter->updatedState().globalPosition()).mag() < 1e-3 ) && 
-           ( (iter->updatedState().globalMomentum() - jter->updatedState().globalMomentum()).mag() < 1e-3 ) )  {
+           ( ( (iter->updatedState().globalMomentum() - jter->updatedState().globalMomentum()).mag() < 1.0 ) || 
+               ( fabs(iter->updatedState().globalMomentum().eta() - jter->updatedState().globalMomentum().eta()) < 0.01 ) ) )  {
       
           if ( iter->estimate() > jter->estimate() ) 
             mask[i] = false;
@@ -328,6 +345,14 @@ void TSGFromPropagation::selectMeasurements(std::vector<TrajectoryMeasurement>& 
 
   i = 0;
   for ( iter = tms.begin(); iter != tms.end(); iter++ ) {
+
+  LogTrace(category)<<"select mom eta: "<<iter->updatedState().globalMomentum().eta();
+  LogTrace(category)<<"select pos eta: " << iter->updatedState().globalPosition().eta();
+
+  LogTrace(category)<<"select delta eta: " <<fabs(iter->updatedState().globalMomentum().eta() - iter->updatedState().globalPosition().eta() );
+
+    if ( fabs(iter->updatedState().globalMomentum().eta() - iter->updatedState().globalPosition().eta() ) > 0.2 ) continue;
+
     if ( mask[i] ) result.push_back(*iter);
     i++;
   }
