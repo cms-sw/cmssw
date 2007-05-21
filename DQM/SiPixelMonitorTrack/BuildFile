@@ -12,7 +12,8 @@
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
-<flags EDM_PLUGINS=1>
+# <flags EDM_PLUGINS=1>
+<flags SEAL_PLUGIN_NAME="DQMSiPixelMonitorTrack">
 <export>
    <lib name=DQMSiPixelMonitorTrack>
    <use name=FWCore/Framework>
