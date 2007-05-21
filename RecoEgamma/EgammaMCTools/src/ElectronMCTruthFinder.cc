@@ -1,9 +1,5 @@
 #include "RecoEgamma/EgammaMCTools/interface/ElectronMCTruthFinder.h"
 
-// #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
-// #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-// #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-// #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include <algorithm>                                                          
 
@@ -16,9 +12,6 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 
   std::vector<ElectronMCTruth> result;
 
-  // const float pi = 3.141592653592;
-  // const float twopi=2*pi;
-
   // Local variables  
   const int SINGLE=1;
   const int DOUBLE=2;
@@ -30,13 +23,10 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   int ievtype=0;
   int ievflav=0;
   
-  std::vector<SimTrack*> photonTracks;
-  std::vector<SimTrack*> electronTracks;
-  std::vector<SimTrack*> pizeroTracks;
-  std::vector<const SimTrack *> trkFromConversion;
+  std::vector<SimTrack> electronTracks;
   SimVertex primVtx;   
-  std::vector<int> convInd;
   
+    
   fill(theSimTracks,  theSimVertices);
   
   int iPV=-1;   
@@ -55,6 +45,8 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
     std::cout << " First track has no vertex " << std::endl;
   }
   
+  HepLorentzVector primVtxPos= primVtx.position();           
+
   // Look at a second track
   iFirstSimTk++;
   if ( iFirstSimTk!=  theSimTracks.end() ) {
@@ -72,35 +64,28 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
   
   int npv=0;
   int iElec=0;
-  //   theSimTracks.reset();
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+   for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
     if (  (*iSimTk).noVertex() ) continue;
 
     int vertexId = (*iSimTk).vertIndex();
     SimVertex vertex = theSimVertices[vertexId];
  
-    // std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << std::endl;  
+    std::cout << " Particle type " <<  (*iSimTk).type() << " Sim Track ID " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  " vertex position " << vertex.position() << std::endl;  
     if ( (*iSimTk).vertIndex() == iPV ) {
       npv++;
-      if ( (*iSimTk).type() == 22) {
+      if ( fabs((*iSimTk).type() ) == 11) {
 
-	std::cout << " Found a primary photon with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl; 
-	
-      } else if ( (*iSimTk).type() == 11 || (*iSimTk).type()==-11 ) {
 	std::cout << " Found a primary electron with ID  " << (*iSimTk).trackId() << " momentum " << (*iSimTk).momentum() <<  std::endl;
 	
-	electronTracks.push_back( &(*iSimTk) );
+	electronTracks.push_back( *iSimTk );
 
 	CLHEP::HepLorentzVector momentum = (*iSimTk).momentum();
 
 	iElec++;
-	
-      } else if ( (*iSimTk).type() == 111 ) {
-     
       }	
     }
-    
-   } 
+   }
+ 
   
   std::cout << " There are " << npv << " particles originating in the PV " << std::endl;
   
@@ -124,81 +109,97 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
      }
    }
 
-   if (ievflav == PHOTON_FLAV) {
-     std::cout << " It's a primary PHOTON event with " << photonTracks.size() << " photons " << std::endl;
-   }
 
    if (ievflav == ELECTRON_FLAV) {
      std::cout << " It's a primary ELECTRON event with " << electronTracks.size() << " electrons " << std::endl;
    }
 
-   if (ievflav == PIZERO_FLAV) {
-     std::cout << " It's a primary PIZERO event with " << pizeroTracks.size() << " pizeros " << std::endl;
-   }
 
-   std::cout << "Loop over vertices and find brem events:" << std::endl;
+   std::vector<Hep3Vector> bremPos;  
+   std::vector<HepLorentzVector> pBrem;
+   std::vector<float> xBrem;
 
-   int jPartType, kPartType;
-   int jVtxId, kVtxId;
-   int nBrems = 0;
 
-   CLHEP::HepLorentzVector jMomentum, kMomentum, vtxPosition;
+   for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk){
+     std::cout << " Looping on the primary electron pt  " << (*iEleTk).momentum().perp() << " electron track ID " << (*iEleTk).trackId() << std::endl;
+    
+     SimTrack trLast =(*iEleTk); 
+     int eleId = (*iEleTk).trackId();
+     float remainingEnergy =trLast.momentum().e();
+     HepLorentzVector motherMomentum=(*iEleTk).momentum();
+     HepLorentzVector primEleMom=(*iEleTk).momentum();
 
-   SimVertex bremVtx;
+     bremPos.clear();
+     pBrem.clear();
+     xBrem.clear();     
 
-   float jE, kE, phoFrac, r, z, eGamma, eElectron;
+     for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk){
+     if (  (*iSimTk).noVertex() )                    continue;
+     if ( (*iSimTk).vertIndex() == iPV )             continue;
+     std::cout << " (*iEleTk)->trackId() " << (*iEleTk).trackId() << " (*iEleTk)->vertIndex() "<< (*iEleTk).vertIndex()  << " (*iSimTk).vertIndex() "  <<  (*iSimTk).vertIndex() << " (*iSimTk).type() " <<   (*iSimTk).type() << std::endl;
 
-   ElectronMCTruth brem;
+     int vertexId1 = (*iSimTk).vertIndex();
+     SimVertex vertex1 = theSimVertices[vertexId1];
+     int vertexId2 = trLast.vertIndex();
+     SimVertex vertex2 = theSimVertices[vertexId2];
+
+
+     int motherId=-1;
    
-   for (std::vector<SimTrack>::iterator jSimTk = theSimTracks.begin(); jSimTk != theSimTracks.end(); ++jSimTk) {
-     
-     jPartType = (*jSimTk).type();
-     jVtxId = (*jSimTk).vertIndex(); 
-     
-     if (abs(jPartType) == 11 || jPartType == 22) {
-       for (std::vector<SimTrack>::iterator kSimTk = jSimTk; kSimTk != theSimTracks.end(); ++kSimTk) {
-     
-	 kPartType = (*kSimTk).type();
-	 kVtxId = (*kSimTk).vertIndex();
+     if(  (  vertexId1 ==  vertexId2 ) && ( (*iSimTk).type() == (*iEleTk).type() ) && trLast.type() == 22   ) {
+       std::cout << " Here a e/gamma brem vertex " << std::endl;
+       std::cout << " Secondary from electron:  particle1  type " << (*iSimTk).type() << " trackId " <<  (*iSimTk).trackId() << " vertex ID " << vertexId1 << " vertex position " << vertex1.position().perp() << std::endl;
+       std::cout << " Secondary from electron:  particle2  type " << trLast.type() << " trackId " <<  trLast.trackId() << " vertex ID " << vertexId2 << " vertex position " << vertex2.position().perp() << std::endl;
+       
+       std::cout << " Electron pt " << (*iSimTk).momentum().perp() << " photon pt " <<  trLast.momentum().perp() << " Mother electron pt " <<  motherMomentum.perp() << std::endl;
+       std::cout << " eleId " << eleId << std::endl;
+       float eLoss = remainingEnergy - ( (*iSimTk).momentum() + trLast.momentum()).e();
+       std::cout << " eLoss " << eLoss << std::endl;              
 
-         // std::cout << jVtxId << " " << kVtxId << " " << jPartType << " " << kPartType << std::endl;
+       if ( vertex1.parentIndex()  ) {
+       
+	 unsigned  motherGeantId = vertex1.parentIndex(); 
+	 std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantId );
+	 if(association != geantToIndex_.end() )
+	   motherId = association->second;
 	 
-	 if (jVtxId == kVtxId) {
-           if ((abs(jPartType) == 11 && kPartType == 22) || (jPartType == 22 && abs(kPartType) == 11)) {
+	 int motherType = motherId == -1 ? 0 : theSimTracks[motherId].type();
+	 std::cout << " Parent to this vertex   motherId " << motherId << " mother type " <<  motherType << " Sim track ID " <<  theSimTracks[motherId].trackId() << std::endl; 
+	 if ( theSimTracks[motherId].trackId() == eleId ) {
 
-	     jMomentum = (*jSimTk).momentum();
-	     kMomentum = (*kSimTk).momentum();
+	   std::cout << " Found the Mother Electron " << std::endl;
+	   eleId= (*iSimTk).trackId();
+	   remainingEnergy =   (*iSimTk).momentum().e();
+           motherMomentum = (*iSimTk).momentum();
 
-	     bremVtx = theSimVertices[jVtxId];
-	     vtxPosition = bremVtx.position();
+           
+           pBrem.push_back(trLast.momentum());
+	   bremPos.push_back(vertex1.position());
+	   xBrem.push_back(eLoss);
 
-	     r = vtxPosition.perp();
-	     z = vtxPosition.z();
+	 }
+       
+	 
+	 
+	 
+       } else {
+	 std::cout << " This vertex has no parent tracks " <<  std::endl;
+       }
+       
+     }
+     trLast=(*iSimTk);
 
-	     jE = jMomentum.e();
-	     kE = kMomentum.e();
+     } // End loop over all SimTracks 
+     std::cout << " Going to build the ElectronMCTruth: pBrem size " << pBrem.size() << std::endl;
+     /// here fill the electron
 
-	     if (jPartType == 22) {
-	       phoFrac = jE / (jE + kE);
-	       eGamma = jE;
-	       eElectron = kE;
-	     } else {
-	       phoFrac = kE / (jE + kE);
-	       eGamma = kE;
-	       eElectron = jE;
-	     }
-	     
-	     brem.SetBrem(r, z, phoFrac, eGamma, eElectron);
-	     result.push_back(brem);
-	     
-	     nBrems++;
-	     std::cout << nBrems << " brem " << jPartType << " " << (*jSimTk).trackId() << " " << kPartType << " " << (*kSimTk).trackId() << " " << phoFrac << std::endl;
-	   }
-	 } 
-       }       
-     }	     
-   }
-          
+   
+
+     result.push_back ( ElectronMCTruth( primEleMom, bremPos, pBrem, xBrem,  primVtxPos,  (*iEleTk)  )  ) ;
+    
+   } // End loop over primary electrons 
+   
+   
    return result;
 }
 
@@ -207,5 +208,20 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(std::vector<SimTrack> t
 void ElectronMCTruthFinder::fill(std::vector<SimTrack>& simTracks, 
                                  std::vector<SimVertex>& simVertices ) {
   std::cout << "  ElectronMCTruthFinder::fill " << std::endl;
+
+  unsigned nVtx = simVertices.size();
+  unsigned nTks = simTracks.size();
+
+  // Empty event, do nothin'
+  if ( nVtx == 0 ) return;
+
+  // create a map associating geant particle id and position in the 
+  // event SimTrack vector
+  for( unsigned it=0; it<nTks; ++it ) {
+    geantToIndex_[ simTracks[it].trackId() ] = it;
+    std::cout << " ElectronMCTruthFinder::fill it " << it << " simTracks[it].trackId() " <<  simTracks[it].trackId() << std::endl;
+ 
+  }  
+
 
 }
