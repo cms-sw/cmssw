@@ -5,8 +5,8 @@
  *
  *  Digi for CSC DMB info available in DDU
  *  
- *  $Date: 2007/04/04 14:40:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/18 18:52:02 $
+ *  $Revision: 1.1 $
  *
  */
 
@@ -18,7 +18,7 @@ class CSCDMBStatusDigi{
 public:
 
   /// Constructor for all variables 
-  CSCDMBStatusDigi (uint16_t * header, uint16_t * trailer );
+  CSCDMBStatusDigi (const uint16_t * header, const uint16_t * trailer );
 
   /// Default constructor.
   CSCDMBStatusDigi () {}
