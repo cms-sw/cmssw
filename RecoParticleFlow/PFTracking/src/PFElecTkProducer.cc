@@ -28,7 +28,9 @@
 
 using namespace std;
 using namespace edm;
-PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):conf_(iConfig)
+PFElecTkProducer::PFElecTkProducer(const ParameterSet& iConfig):
+  conf_(iConfig),
+  pfTransformer_(0)
 {
   LogInfo("PFElecTkProducer")<<"PFElecTkProducer started";
   gsfTrackModule_ = iConfig.getParameter<string>

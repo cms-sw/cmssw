@@ -35,6 +35,8 @@ PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;
 PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
 GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
+  maxShPropagator_(0),
+  pfTransformer_(0),
   conf_(iConfig)
 {
   LogInfo("GoodSeedProducer")<<"Electron PreIdentification started  ";
