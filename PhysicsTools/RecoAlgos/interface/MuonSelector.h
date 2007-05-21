@@ -8,9 +8,9 @@
  * 
  * \author Javier Fernandez, IFCA
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.3 $
  *
- * $Id: MuonSelector.h,v 1.1 2007/04/16 09:56:07 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.3 2007/05/21 17:56:07 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -39,17 +39,17 @@ namespace helper {
     void cloneAndStore( const I & begin, const I & end, edm::Event & evt ) {
       using namespace reco;
 
-      TrackingRecHitRefProd rHits = evt.template getRefBeforePut<TrackingRecHitCollection>("");
+      TrackingRecHitRefProd rHits = evt.template getRefBeforePut<TrackingRecHitCollection>("TrackerOnly");
       TrackingRecHitRefProd rGBHits = evt.template getRefBeforePut<TrackingRecHitCollection>("GlobalMuon");
       TrackingRecHitRefProd rSAHits = evt.template getRefBeforePut<TrackingRecHitCollection>("StandAlone");
-      TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("");
+      TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("TrackerOnly");
       TrackExtraRefProd rGBTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("GlobalMuon");
       TrackExtraRefProd rSATrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("StandAlone");
-      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>("");      
+      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>("TrackerOnly");      
       TrackRefProd rGBTracks = evt.template getRefBeforePut<TrackCollection>("GlobalMuon");      
       TrackRefProd rSATracks = evt.template getRefBeforePut<TrackCollection>("StandAlone");      
 
-      MuonRefProd rMuons = evt.template getRefBeforePut<MuonCollection>();      
+      MuonRefProd rMuons = evt.template getRefBeforePut<MuonCollection>("SelectedMuons");      
 
 	int c=0;
       size_t id=0, igbd=0, isad=0, idx = 0, igbdx=0, isadx=0, hidx = 0, higbdx=0, hisadx=0;
@@ -125,14 +125,10 @@ namespace helper {
     }
     
     edm::OrphanHandle<reco::MuonCollection> put( edm::Event & evt ) {
-      evt.put( selTracks_ );
-      evt.put( selTracksExtras_ );
-      evt.put( selTracksHits_ );
-      edm::OrphanHandle<reco::MuonCollection> h =       evt.put( selMuons_ );
-/*      edm::OrphanHandle<reco::MuonCollection> h = evt.put( selMuons_ , "SelectedMuons");
+      edm::OrphanHandle<reco::MuonCollection> h = evt.put( selMuons_ , "SelectedMuons");
       evt.put( selTracks_ , "TrackerOnly");
       evt.put( selTracksExtras_ , "TrackerOnly");
-      evt.put( selTracksHits_ ,"TrackerOnly");*/
+      evt.put( selTracksHits_ ,"TrackerOnly");
       evt.put( selGlobalMuonTracks_,"GlobalMuon" );
       evt.put( selGlobalMuonTracksExtras_ ,"GlobalMuon");
       evt.put( selGlobalMuonTracksHits_,"GlobalMuon" );
@@ -160,14 +156,11 @@ namespace helper {
     MuonSelectorBase( const edm::ParameterSet & cfg ) {
       std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
 
-      produces<reco::MuonCollection>().setBranchAlias( alias + "Muons" );
-      produces<reco::TrackCollection>().setBranchAlias( alias + "TrackerOnlyTracks" );
-      produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackerOnlyExtras" );
-      produces<TrackingRecHitCollection>().setBranchAlias( alias +      "TrackerOnlyHits" );
-/*      produces<reco::MuonCollection>("SelectedMuons").setBranchAlias( alias + "Muons" );
+
+      produces<reco::MuonCollection>("SelectedMuons").setBranchAlias( alias + "SelectedMuons" );
       produces<reco::TrackCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyTracks" );
       produces<reco::TrackExtraCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyExtras" );
-      produces<TrackingRecHitCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyHits" );*/
+      produces<TrackingRecHitCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyHits" );
       produces<reco::TrackCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonTracks" );
       produces<reco::TrackExtraCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonExtras" );
       produces<TrackingRecHitCollection>("GlobalMuon").setBranchAlias( alias + "GlobalMuonHits" );
