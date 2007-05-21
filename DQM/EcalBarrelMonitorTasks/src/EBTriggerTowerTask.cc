@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/04/05 14:54:01 $
- * $Revision: 1.31 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -180,7 +180,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = Numbers::iSM( id );
+      int ismt = id.iDCC();
 
       int itt = 4*(iet-1)+(ipt-1)+1;
 
@@ -235,7 +235,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = Numbers::iSM( id );
+      int ism = id.ism();
 
       int iet = 1 + ((ie-1)/5);
       int ipt = 1 + ((ip-1)/5);

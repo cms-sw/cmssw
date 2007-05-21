@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/05/14 11:46:44 $
- * $Revision: 1.46 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.47 $
  * \author A. Ghezzi
  *
  */
@@ -741,6 +741,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
+
     //int ism = Numbers::iSM( id );
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype

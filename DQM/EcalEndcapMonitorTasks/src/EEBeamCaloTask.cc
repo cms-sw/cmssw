@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/05/14 11:46:45 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/21 09:57:46 $
+ * $Revision: 1.7 $
  * \author A. Ghezzi
  *
  */
@@ -741,6 +741,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
+
     //int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype

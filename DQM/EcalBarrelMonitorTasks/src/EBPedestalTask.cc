@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.58 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.59 $
  * \author G. Della Ricca
  *
 */
@@ -407,7 +407,6 @@ void EBPedestalTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-//      int ism = Numbers::iSM( id );
       int ism = Numbers::iSM( id );
 
       int num = id.iPnId();
