@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/04/10 05:51:30 $
- * $Revision: 1.14 $
+ * $Date: 2007/05/11 15:05:05 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -135,7 +135,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -211,7 +211,7 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
