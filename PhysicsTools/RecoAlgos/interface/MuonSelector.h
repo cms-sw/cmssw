@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: MuonSelector.h,v 1.0 2007/03/22 12:22:11 jfernan2 Exp $
+ * $Id: MuonSelector.h,v 1.1 2007/04/16 09:56:07 jfernan2 Exp $
  *
  */
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -39,9 +39,15 @@ namespace helper {
     void cloneAndStore( const I & begin, const I & end, edm::Event & evt ) {
       using namespace reco;
 
-      TrackingRecHitRefProd rHits = evt.template getRefBeforePut<TrackingRecHitCollection>();
-      TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>();
-      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();      
+      TrackingRecHitRefProd rHits = evt.template getRefBeforePut<TrackingRecHitCollection>("");
+      TrackingRecHitRefProd rGBHits = evt.template getRefBeforePut<TrackingRecHitCollection>("GlobalMuon");
+      TrackingRecHitRefProd rSAHits = evt.template getRefBeforePut<TrackingRecHitCollection>("StandAlone");
+      TrackExtraRefProd rTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("");
+      TrackExtraRefProd rGBTrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("GlobalMuon");
+      TrackExtraRefProd rSATrackExtras = evt.template getRefBeforePut<TrackExtraCollection>("StandAlone");
+      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>("");      
+      TrackRefProd rGBTracks = evt.template getRefBeforePut<TrackCollection>("GlobalMuon");      
+      TrackRefProd rSATracks = evt.template getRefBeforePut<TrackCollection>("StandAlone");      
 
       MuonRefProd rMuons = evt.template getRefBeforePut<MuonCollection>();      
 
@@ -50,15 +56,11 @@ namespace helper {
       for( I i = begin; i != end; ++ i ) {
 	c++;
 	const Muon & mu = * * i;
-
 	selMuons_->push_back( Muon( mu ) );
-
 	// only tracker Muon Track	
 	selMuons_->back().setTrack( TrackRef( rTracks, id ++ ) );
 	TrackRef trkRef = mu.track();
 	if(trkRef.isNonnull()){
-//	id++;
-//	selMuons_->back().setTrack( trkRef);
 
 	selTracks_->push_back(Track( *trkRef) );
 
@@ -81,11 +83,9 @@ namespace helper {
 	}
 
 	// global Muon Track	
-	selMuons_->back().setCombined( TrackRef( rTracks, igbd ++ ) );
+	selMuons_->back().setCombined( TrackRef( rGBTracks, igbd ++ ) );
 	trkRef = mu.combinedMuon();
 	if(trkRef.isNonnull()){
-//	igbd++;
-//	selMuons_->back().setCombined(trkRef);
 	selGlobalMuonTracks_->push_back(Track( *trkRef) );
 	Track & trk = selGlobalMuonTracks_->back();
 		
@@ -96,18 +96,16 @@ namespace helper {
 	TrackExtra & tx = selGlobalMuonTracksExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selGlobalMuonTracksHits_->push_back( (*hit)->clone() );
-	  tx.add( TrackingRecHitRef( rHits, higbdx ++ ) );
+	  tx.add( TrackingRecHitRef( rGBHits, higbdx ++ ) );
 	}
-	trk.setExtra( TrackExtraRef( rTrackExtras, igbdx ++ ) );
+	trk.setExtra( TrackExtraRef( rGBTrackExtras, igbdx ++ ) );
 
 	}
 
 	// stand alone Muon Track	
-	selMuons_->back().setStandAlone( TrackRef( rTracks, isad ++ ) );
+	selMuons_->back().setStandAlone( TrackRef( rSATracks, isad ++ ) );
 	trkRef = mu.standAloneMuon();
 	if(trkRef.isNonnull()){
-//	isad++;
-//	selMuons_->back().setStandAlone( trkRef );
 	selStandAloneTracks_->push_back(Track( *trkRef) );
 	Track & trk = selStandAloneTracks_->back();
 		
@@ -118,18 +116,12 @@ namespace helper {
 	TrackExtra & tx = selStandAloneTracksExtras_->back();
 	for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	  selStandAloneTracksHits_->push_back( (*hit)->clone() );
-	  tx.add( TrackingRecHitRef( rHits, hisadx ++ ) );
+	  tx.add( TrackingRecHitRef( rSAHits, hisadx ++ ) );
 	}
-	trk.setExtra( TrackExtraRef( rTrackExtras, isadx ++ ) );
+	trk.setExtra( TrackExtraRef( rSATrackExtras, isadx ++ ) );
 
 	}
       }
-//     edm::LogDebug("AlignmentMuonSelector") 
-/*	std::cout<<"##################"<<std::endl;
-//      edm::LogDebug("AlignmentMuonSelector") 
-	std::cout<<"c="<< c<<" id="<< id <<" igbd="<<igbd<<" isad="<< isad<<"
-	idx="<< idx<< " igdbx="<< igbdx<< " isadx="<< isadx <<" hidx=" <<hidx<<
-	" higbdx="<< higbdx<< " hisadx="<<hisadx<<std::endl;*/
     }
     
     edm::OrphanHandle<reco::MuonCollection> put( edm::Event & evt ) {
@@ -137,8 +129,8 @@ namespace helper {
       evt.put( selTracksExtras_ );
       evt.put( selTracksHits_ );
       edm::OrphanHandle<reco::MuonCollection> h =       evt.put( selMuons_ );
-//      edm::OrphanHandle<reco::MuonCollection> h = evt.put( selMuons_ , "SelectedMuons");
-/*      evt.put( selTracks_ , "TrackerOnly");
+/*      edm::OrphanHandle<reco::MuonCollection> h = evt.put( selMuons_ , "SelectedMuons");
+      evt.put( selTracks_ , "TrackerOnly");
       evt.put( selTracksExtras_ , "TrackerOnly");
       evt.put( selTracksHits_ ,"TrackerOnly");*/
       evt.put( selGlobalMuonTracks_,"GlobalMuon" );
@@ -171,7 +163,7 @@ namespace helper {
       produces<reco::MuonCollection>().setBranchAlias( alias + "Muons" );
       produces<reco::TrackCollection>().setBranchAlias( alias + "TrackerOnlyTracks" );
       produces<reco::TrackExtraCollection>().setBranchAlias( alias + "TrackerOnlyExtras" );
-      produces<TrackingRecHitCollection>().setBranchAlias( alias + "TrackerOnlyHits" );
+      produces<TrackingRecHitCollection>().setBranchAlias( alias +      "TrackerOnlyHits" );
 /*      produces<reco::MuonCollection>("SelectedMuons").setBranchAlias( alias + "Muons" );
       produces<reco::TrackCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyTracks" );
       produces<reco::TrackExtraCollection>("TrackerOnly").setBranchAlias( alias + "TrackerOnlyExtras" );
