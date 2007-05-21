@@ -1,8 +1,8 @@
 /*
  * \file EcalSelectiveReadoutValidation.cc
  *
- * $Date: 2007/05/10 15:06:41 $
- * $Revision: 1.1 $
+ * $Date: 2007/05/21 13:21:52 $
+ * $Revision: 1.2 $
  *
  */
 
@@ -598,11 +598,7 @@ EcalSelectiveReadoutValidation::analyzeTP(const edm::Event& event,
     const int iTT = elecMap_->iTT(it->id());
     const double tpEt = tpParam_->getTPGinGeVEB(iTcc, iTT,
 						it->compressedEt());
-    
-    if(it->compressedEt()!=0){
-      cout << "et/tp = " << tpEt/it->compressedEt() << "\n";
-    }
-    
+        
     const int iEta0 = iTTEta2cIndex(it->id().ieta());
     const int iPhi0 = iTTEta2cIndex(it->id().iphi());
     const double etSum = ttEtSums[iEta0][iPhi0];
