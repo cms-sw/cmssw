@@ -11,7 +11,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 //
 // Original Author:  Alex Tapper
 //         Created:  Fri Mar  9 19:11:51 CET 2007
-// $Id: RctTextToRctDigi.cc,v 1.1 2007/04/19 22:27:20 tapper Exp $
+// $Id: RctTextToRctDigi.cc,v 1.2 2007/05/08 15:07:23 nuno Exp $
 
 // Rct Input File Format 
 // Line 1: Crossing no as "Crossing x" (2)     
@@ -31,6 +31,7 @@ Description: Makes RCT digis from the file format specified by Pam Klabbers
 #include "RctTextToRctDigi.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" // Framework services
 #include "FWCore/MessageLogger/interface/MessageLogger.h" // Logger
+#include <iomanip>
 
 using namespace edm;
 using namespace std;
@@ -50,7 +51,7 @@ RctTextToRctDigi::RctTextToRctDigi(const edm::ParameterSet& iConfig):
   // Open the input files
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){
     stringstream fileStream;
-    fileStream << m_textFileName << i;
+    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i << ".txt";
     string fileName(fileStream.str());
     m_file[i].open(fileName.c_str(),ios::in);
 

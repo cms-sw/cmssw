@@ -17,7 +17,7 @@ RctDigiToRctText::RctDigiToRctText(const edm::ParameterSet& iConfig) :
   /// open output text files
   for (unsigned i=0; i<NUM_RCT_CRATES; i++){
     std::stringstream fileStream;
-    fileStream << m_textFileName << i;
+    fileStream << m_textFileName << std::setw(2) << std::setfill('0') << i << ".txt";
     std::string fileName(fileStream.str());
     m_file[i].open(fileName.c_str(),std::ios::out);
     
