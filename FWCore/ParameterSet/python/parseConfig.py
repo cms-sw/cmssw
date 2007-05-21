@@ -703,7 +703,9 @@ class _ReplaceSetter(object):
         #setattr(obj,attr,theAt._valueFromString(self.value).value())
         #by replacing the actual parameter we isolate ourselves from
         # 'replace' commands done by others on shared using blocks
-        setattr(obj,attr,theAt._valueFromString(self.value))
+        v=theAt._valueFromString(self.value)
+        v.setIsTracked(theAt.isTracked())
+        setattr(obj,attr,v)
 
 class _ParameterReplaceSetter(_ReplaceSetter):
     """Base used to 'set' a PSet or VPSet replace node""" 
@@ -1678,6 +1680,15 @@ process USER =
             self.assertEqual(type(process.a.b),cms.PSet)
             self.assertEqual(process.a.b.c.value(),1.359)
             #print t
+            process.a = cms.EDProducer('FooProd', b=cms.PSet(c=cms.untracked.double(2)))
+            self.assertEqual(process.a.b.c.value(),2.0)
+            self.assertEqual(process.a.b.c.isTracked(),False)
+            t=replace.parseString('replace a.b.c = 1')
+            t[0][1].do(process)
+            self.assertEqual(type(process.a.b),cms.PSet)
+            self.assertEqual(process.a.b.c.value(),1.0)
+            self.assertEqual(process.a.b.c.isTracked(),False)
+
             t=replace.parseString('replace a.b = "all that"')
             self.assertEqual(t[0][0],'a.b')
             self.assertEqual(t[0][1].path, ['a','b'])
