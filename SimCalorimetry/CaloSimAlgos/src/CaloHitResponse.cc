@@ -47,6 +47,9 @@ void CaloHitResponse::run(MixCollection<PCaloHit> & hits) {
     // check the bunch crossing range
     if ( hitItr.bunch() < theMinBunch || hitItr.bunch() > theMaxBunch ) 
       { continue; }
+  
+    // check the hit time makes sense
+    if ( isnan(((*hitItr).time())) ) { continue; }
 
     // maybe it's not from this subdetector
     if(theHitFilter == 0 || theHitFilter->accepts(*hitItr)) {
