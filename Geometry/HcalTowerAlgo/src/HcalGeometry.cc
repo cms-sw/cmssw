@@ -116,6 +116,7 @@ int HcalGeometry::phiBin(double phi, int etaring) const
   if(phi<0.0) phi += twopi;
   int nphibins = theTopology->nPhiBins(etaring);
   int phibin= static_cast<int>(phi/twopi*nphibins)+1;
+  int iphi;
 
   // rings 40 and 41 are offset wrt the other phi numbering
   //  1        1         1         2
@@ -123,12 +124,15 @@ int HcalGeometry::phiBin(double phi, int etaring) const
   //  72       36        36        1
   if(etaring >= theTopology->firstHFQuadPhiRing())
   {
-    ++phibin;
-    if(phibin > nphibins) phibin -= nphibins;
+    phi+=(twopi/36); //shift by half tower.    
+    phibin=static_cast<int>(phi/twopi*nphibins);
+    if (phibin==0) phibin=18;
+    iphi=phibin*4-1; // 71,3,5,
+  } else {
+    // convert to the convention of numbering 1,3,5, in 36 phi bins
+    iphi=(phibin-1)*(72/nphibins) + 1;
   }
 
-  // convert to the convention of numbering 1,3,5, in 36 phi bins
-  // and 1,5,9 in 18 phi bins
-  return (phibin-1)*(72/nphibins) + 1;
+  return iphi;
 }
 
