@@ -6,34 +6,19 @@ ElectronMCTruth::ElectronMCTruth() {
 
 }
 
-void ElectronMCTruth::SetBrem(float r, float z, float phoFrac, float eGamma, float eElectron) {
 
-  r_=r;
-  z_=z;
-  phoFrac_=phoFrac;
-  eGamma_=eGamma;
-  eElectron_=eElectron;
+ElectronMCTruth::ElectronMCTruth( HepLorentzVector& v, 
+				  std::vector<Hep3Vector>& bremPos, 
+				  std::vector<HepLorentzVector>& pBrem, 
+				  std::vector<float>& xBrem, 
+				  HepLorentzVector& pV,  
+				  SimTrack& eTrack ) :
 
-}
+      theElectron_(v), theBremPosition_(bremPos), theBremMomentum_(pBrem), theELoss_(xBrem),  thePrimaryVertex_(pV), eTrack_(eTrack) 
+{
 
-float ElectronMCTruth::GetBremR() {
-  return r_;
-}
-
-float ElectronMCTruth::GetBremZ() {
-  return z_;
-}
-
-float ElectronMCTruth::GetBremFraction() {
-  return phoFrac_;
-}
-
-float ElectronMCTruth::GetBremPhotonE() {
-  return eGamma_;
-}
-
-float ElectronMCTruth::GetBremElectronE() {
-  return eElectron_;
-}
+    }
 
 
+
+ 
