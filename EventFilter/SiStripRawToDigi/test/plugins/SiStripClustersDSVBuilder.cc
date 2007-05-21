@@ -57,7 +57,7 @@ void SiStripClustersDSVBuilder::produce( edm::Event& event,
   //Retrieve RefGetter with demand from event
   edm::Handle< RefGetter > demandclusters;
   event.getByLabel(inputModuleLabel_,demandclusters);
-  
+ 
   //Construct product
   auto_ptr<DSV> dsv(new DSV);
   RefGetter::const_iterator iregion = demandclusters->begin();
