@@ -52,7 +52,9 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	//edm::LogWarning("TSiStripMatchedRecHit") << "Refitting of a matched rechit returns NULL";
 	return this->clone();        
       }
-      return TSiStripMatchedRecHit::build( gdet, better, theMatcher,theCPE );
+      RecHitPointer result = TSiStripMatchedRecHit::build( gdet, better, theMatcher,theCPE );
+      delete better; //the ownership of the object is passed to the caller of the matcher
+      return result;
     }
   }
   return this->clone();
