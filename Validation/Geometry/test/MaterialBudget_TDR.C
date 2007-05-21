@@ -366,10 +366,10 @@ void createPlots(TString plot){
   hist_x0_ELE->SetFillColor(30); // Electronics = green
   hist_x0_OTH->SetFillColor(42); // Other+Air   = orange
   //
-  //  float mbmin  =  0.0;
-  //  float mbmax  =  1.8;
-  //  float etamin = -3.5;
-  //  float etamax =  3.5;
+  float mbmin  =  0.0;
+  float mbmax  =  2.0;
+  float etamin = -4.0;
+  float etamax =  4.0;
   //  
   
   // First Plot: BeamPipe + Pixel + TIB/TID + TOB + TEC + Outside
@@ -392,10 +392,10 @@ void createPlots(TString plot){
   //
   
   // Draw
-  //  stack_x0_SubDetectors.SetMinimum(mbmin);
-  //  stack_x0_SubDetectors.SetMaximum(mbmax);
+  stack_x0_SubDetectors.SetMinimum(mbmin);
+  stack_x0_SubDetectors.SetMaximum(mbmax);
   stack_x0_SubDetectors.Draw("HIST");
-  //  stack_x0_SubDetectors.GetXaxis()->SetLimits(etamin,etamax);
+  stack_x0_SubDetectors.GetXaxis()->SetLimits(etamin,etamax);
   //
   
   // Legenda
@@ -438,10 +438,10 @@ void createPlots(TString plot){
   //
   
   // Draw
-  //  stack_x0_Materials.SetMinimum(mbmin);
-  //  stack_x0_Materials.SetMaximum(mbmax);
+  stack_x0_Materials.SetMinimum(mbmin);
+  stack_x0_Materials.SetMaximum(mbmax);
   stack_x0_Materials.Draw("HIST");
-  //  stack_x0_Materials.GetXaxis()->SetLimits(etamin,etamax);
+  stack_x0_Materials.GetXaxis()->SetLimits(etamin,etamax);
   //
   
   // Legenda
