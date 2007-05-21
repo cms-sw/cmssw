@@ -12,8 +12,8 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2007/05/15 13:00:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/21 19:08:05 $
+ *  $Revision: 1.5 $
  *  \author N. Marinelli  IASA-Athens
  *
  */
@@ -37,9 +37,7 @@ public:
   
 
  HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
-  int isAConversion() const { return isAConversion_;}
- float radius() const {return theR_;}
- float z() const {return theZ_;}
+ int isAConversion() const { return isAConversion_;}
  HepLorentzVector fourMomentum() const {return thePhoton_;}
  HepLorentzVector vertex() const {return theConvVertex_;}
  std::vector<const SimTrack *> simTracks() const {return tracks_;} 
@@ -48,8 +46,6 @@ public:
 
   int isAConversion_;
   HepLorentzVector thePhoton_;
-  float theR_;
-  float theZ_;
   HepLorentzVector theConvVertex_;
   HepLorentzVector thePrimaryVertex_;
   std::vector<const SimTrack *> tracks_;
