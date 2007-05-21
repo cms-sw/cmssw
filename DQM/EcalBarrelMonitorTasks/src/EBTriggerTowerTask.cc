@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/04/05 13:56:47 $
- * $Revision: 1.30 $
+ * $Date: 2007/04/05 14:54:01 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTriggerTowerTask.h>
 
@@ -178,7 +180,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = Numbers::iSM( id );
 
       int itt = 4*(iet-1)+(ipt-1)+1;
 
@@ -233,7 +235,7 @@ void EBTriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       int iet = 1 + ((ie-1)/5);
       int ipt = 1 + ((ip-1)/5);

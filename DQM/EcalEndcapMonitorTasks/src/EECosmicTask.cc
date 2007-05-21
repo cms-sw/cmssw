@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/05/12 09:56:47 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 12:12:25 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -25,6 +25,8 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EECosmicTask.h>
 
@@ -151,10 +153,12 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      int ism = Numbers::iSM( dcch );
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[dcch.id()] = dcch;
+      dccMap[ ism ] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
            dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
@@ -190,7 +194,7 @@ void EECosmicTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

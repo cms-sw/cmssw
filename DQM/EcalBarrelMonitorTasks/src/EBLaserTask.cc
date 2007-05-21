@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2007/04/05 14:54:01 $
- * $Revision: 1.78 $
+ * $Date: 2007/05/11 15:05:05 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -531,10 +531,12 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
 
       EcalDCCHeaderBlock dcch = (*dcchItr);
 
-      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(dcch.id());
+      int ism = Numbers::iSM( dcch );
+
+      map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find( ism );
       if ( i != dccMap.end() ) continue;
 
-      dccMap[dcch.id()] = dcch;
+      dccMap[ ism ] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
 
@@ -569,7 +571,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
@@ -643,8 +645,8 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       EcalPnDiodeDigi pn = (*pnItr);
       EcalPnDiodeDetId id = pn.id();
 
-//      int ism = id.ism();
-      int ism = id.iDCCId();
+//      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id );
 
       int num = id.iPnId();
 
@@ -748,7 +750,7 @@ void EBLaserTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

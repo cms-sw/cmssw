@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalOnlineTask.cc
  *
- * $Date: 2007/05/12 12:12:25 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/14 10:03:16 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -136,7 +136,7 @@ void EEPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

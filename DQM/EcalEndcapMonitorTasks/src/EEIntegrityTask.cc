@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/05/12 12:12:25 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/14 10:03:16 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
  */
@@ -281,7 +281,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EBDetId id = (*idItr);
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xism = ism - 0.5;
 
@@ -308,7 +308,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -336,7 +336,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -364,7 +364,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -392,7 +392,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism(); if ( ism > 18 ) continue;
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;
@@ -426,7 +426,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC(); if ( ismt > 18 ) continue;
+      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -461,7 +461,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC(); if ( ismt > 18 ) continue;
+      int ismt = Numbers::iSM( id ); if ( ismt > 18 ) continue;
 
       float xiet = iet - 0.5;
       float xipt = ipt - 0.5;
@@ -487,7 +487,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id );
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -510,7 +510,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id );
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 
@@ -531,7 +531,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id );
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
@@ -562,7 +562,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = id.dccId();
+      int ism = Numbers::iSM( id );
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];

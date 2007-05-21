@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineTask.cc
  *
- * $Date: 2007/04/05 14:54:01 $
- * $Revision: 1.22 $
+ * $Date: 2007/05/11 15:05:05 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  *
 */
@@ -136,7 +136,7 @@ void EBPedestalOnlineTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = Numbers::iSM( id );
 
       float xie = ie - 0.5;
       float xip = ip - 0.5;

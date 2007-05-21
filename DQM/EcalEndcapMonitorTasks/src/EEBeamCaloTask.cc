@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/05/12 12:12:25 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/14 11:46:45 $
+ * $Revision: 1.6 $
  * \author A. Ghezzi
  *
  */
@@ -29,6 +29,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+//#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
 
@@ -637,7 +638,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDataFrame dataframe = (*digiItr);
     EBDetId id = dataframe.id();
 
-    //int ism = id.ism(); if ( ism > 18 ) continue;
+    //int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
@@ -740,7 +741,7 @@ void EEBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId id = hit.id();
-    //int ism = id.ism(); if ( ism > 18 ) continue;
+    //int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
     //    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
