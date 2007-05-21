@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.5 2007/05/02 16:17:39 mironov Exp $
+// $Id: HydjetSource.h,v 1.6 2007/05/02 22:25:44 mballint Exp $
 
 /** \class HydjetSource
 *
@@ -40,8 +40,8 @@ namespace edm
     bool						call_pygive(const std::string& iParm);
     void						clear();
     bool						get_hydjet_particles(HepMC::GenEvent* evt);
-    bool						hyjhydro_init();
-    bool						hyjpythia_init();
+    bool						hyjhydro_init(const ParameterSet &pset);
+    bool						hyjpythia_init(const ParameterSet &pset);
     inline double			nuclear_radius() const;
     virtual bool        produce(Event & e);
     

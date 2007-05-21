@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetSource.cc,v 1.4 2007/05/02 16:19:09 mironov Exp $
+ * $Id: HydjetSource.cc,v 1.5 2007/05/02 22:25:45 mballint Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -13,6 +13,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -52,7 +53,7 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
 
   // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
   const float ra = nuclear_radius();
-  cout<<"RA= "<<ra<<endl;
+  LogDebug("RAScaling")<<"Nuclear radius(RA) =  "<<ra;
   bmin_     /= ra;
   bmax_     /= ra;
   bfixed_   /= ra;
@@ -60,54 +61,18 @@ HydjetSource::HydjetSource(const ParameterSet &pset, InputSourceDescription cons
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-  cout << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
+  LogDebug("PYLISTverbosity") << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_;
 
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
+  LogDebug("Events2Print") << "Number of events to be printed = " << maxEventsToPrint_;
 
   //initialize pythia
-  hyjpythia_init();
+  hyjpythia_init(pset);
 
-  //initialize hydro part
-  hyjhydro_init();
+  //initialize hydjet
+  hyjhydro_init(pset);
 
-  // Read PYTHIA parameters
-  ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
-  vector<string> pars = pythia_params.getParameter<vector<string> >("pythia");
-    
-  // Loop over all parameters and stop in case of mistake
-  for (vector<string>::const_iterator itPar = pars.begin();
-        itPar != pars.end(); ++itPar ) {
-
-    static string sRandomValueSetting("MRPY(1)");
-    if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
-      throw edm::Exception(edm::errors::Configuration,"PythiaError")
-            << " attempted to set random number seed.";
-    }
-
-    if( ! call_pygive(*itPar) ) {
-      throw edm::Exception(edm::errors::Configuration,"PythiaError") 
-            << " pythia did not accept the following \""<<*itPar<<"\"";
-    }
-  }
-
-  // Read HYDJET parameters 
-  ParameterSet hydjet_params = pset.getParameter<ParameterSet>("HydjetParameters") ;
-    
-  // Read the HYDJET parameters from the set
-  vector<string> pars_hyj = hydjet_params.getParameter<vector<string> >("hydjet");
-    
-  // Loop over all parameters and stop in case of mistake
-  for( vector<string>::const_iterator  itPar = pars_hyj.begin();
-       itPar != pars_hyj.end(); ++itPar ) {     
-
-    if( ! call_hyjgive(*itPar) ) {
-      throw edm::Exception(edm::errors::Configuration,"HYDJET Error") 
-        <<" HYDJET did not accept the following \""<<*itPar<<"\"";
-    }
-  }
-    
   if( hymode_ != "kHydroOnly" ) { 
     call_pyinit("CMS", "p", "p", comenergy);
   }
@@ -126,6 +91,29 @@ HydjetSource::~HydjetSource()
   call_pystat(1);
 
   clear();
+}
+
+
+//_____________________________________________________________________
+void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
+{
+  HepMC::HeavyIon *hi = new HepMC::HeavyIon(
+    hyfpar.nbcol,                       // Ncoll_hard
+    hyfpar.npart / 2,                   // Npart_proj
+    hyfpar.npart / 2,                   // Npart_targ
+    hyfpar.nbcol,                       // Ncoll
+    -1,                                 // spectator_neutrons
+    -1,                                 // spectator_protons
+    -1,                                 // N_Nwounded_collisions
+    -1,                                 // Nwounded_N_collisions
+    -1,                                 // Nwounded_Nwounded_collisions
+    hyfpar.bgen * nuclear_radius(),     // impact_parameter in [fm]
+    0,                                  // event_plane_angle
+    0,                                  // eccentricity
+    hyipar.sigin                        // sigma_inel_NN
+  );
+
+  evt->set_heavy_ion(hi);
 }
 
 
@@ -213,7 +201,7 @@ bool HydjetSource::call_hyjgive(const std::string& param )
 
   string::size_type loc = param.find('=', 0);
   if(loc == string::npos) {
-    throw edm::Exception(edm::errors::Configuration, "PythiaError")
+    throw edm::Exception(edm::errors::Configuration, "HydjetError")
           << " no '=' in parameter string '" << param << "'.";
   }
 
@@ -224,19 +212,19 @@ bool HydjetSource::call_hyjgive(const std::string& param )
 
   if(tag == "nhsel") {
       hyjpar.nhsel = boost::lexical_cast<int>(val);
-cout << "nhsel = " << hyjpar.nhsel << endl;
+      edm::LogInfo("HYDJETnhsel") << "nhsel = " << hyjpar.nhsel;
   } else if(tag == "ptmin") {
       hyjpar.ptmin = boost::lexical_cast<float>(val);
-cout << "ptmin = " << hyjpar.ptmin << endl;
+      edm::LogInfo("HYDJETptmin") << "ptmin = " << hyjpar.ptmin;
   } else if(tag == "fpart") {
       hyflow.fpart = boost::lexical_cast<float>(val);
-cout << "fpart = " << hyflow.fpart << endl;
+      edm::LogInfo("HYDJETfpart") << "fpart = " << hyflow.fpart;
   } else if(tag == "ylfl") {
       hyflow.ylfl  = boost::lexical_cast<float>(val);
-cout << "ylfl = " << hyflow.ylfl << endl;
+      edm::LogInfo("HYDJETylfl") << "ylfl = " << hyflow.ylfl;
   } else if(tag == "ytfl") {
       hyflow.ytfl  = boost::lexical_cast<float>(val);
-cout << "ytfl = " << hyflow.ytfl << endl;
+      edm::LogInfo("HYDJETytfl") << "ytfl = " << hyflow.ytfl;
   } else
       accepted = false;
 
@@ -253,6 +241,7 @@ bool HydjetSource::call_pygive(const std::string& iParm )
   int numErr = pydat1.mstu[22];// # errors
   // call the fortran routine pygive with a fortran string
   PYGIVE( iParm.c_str(), iParm.length() );  
+
   // if an error or warning happens it is problem
   return pydat1.mstu[26] == numWarn && pydat1.mstu[22] == numErr;   
 }
@@ -310,7 +299,7 @@ bool HydjetSource::get_hydjet_particles(HepMC::GenEvent *evt)
 
 
 //______________________________________________________________
-bool HydjetSource::hyjhydro_init()
+bool HydjetSource::hyjhydro_init(const ParameterSet &pset)
 {
   //initialize hydjet HYDRO part
 
@@ -320,6 +309,22 @@ bool HydjetSource::hyjhydro_init()
   // kHydroQJet --- nhsel=2 jet production & jet quenching on (HYDRO+njet*PYQUEN events)
   // kJetsOnly  --- nhsel=3 jet production on, jet quenching off, HYDRO off (njet*PYTHIA events)
   // kQJetsOnly --- nhsel=4 jet production & jet quenching on, HYDRO off (njet*PYQUEN events)
+
+  // Read HYDJET parameters 
+  ParameterSet hydjet_params = pset.getParameter<ParameterSet>("HydjetParameters") ;
+    
+  // Read the HYDJET parameters from the set
+  vector<string> pars_hyj = hydjet_params.getParameter<vector<string> >("hydjet");
+    
+  // Loop over all parameters and stop in case of mistake
+  for( vector<string>::const_iterator  itPar = pars_hyj.begin();
+       itPar != pars_hyj.end(); ++itPar ) {     
+
+    if( ! call_hyjgive(*itPar) ) {
+      throw edm::Exception(edm::errors::Configuration,"HYDJET Error") 
+        <<" HYDJET did not accept the following \""<<*itPar<<"\"";
+    }
+  }
 
   if(hymode_ == "kHydroOnly")       
     call_hyjgive("nhsel=0");
@@ -336,22 +341,12 @@ bool HydjetSource::hyjhydro_init()
   // minimum pT hard
   hyjpar.ptmin = ptmin_;
 
-  // fraction of soft (hydro-induced) hadronic multiplicity, 
-  // proportional to the number of nucleons-participants
-  call_hyjgive("fpart=0.");
-
-  // max longitudinal flow rapidity
-  call_hyjgive("ylfl=5.");
- 
-  // max transverse flow rapidity
-  call_hyjgive("ytfl=1.");
-
   return true;
 }
 
 
 //____________________________________________________________________
-bool HydjetSource::hyjpythia_init()
+bool HydjetSource::hyjpythia_init(const ParameterSet &pset)
 {
   //initialize PYTHIA
 
@@ -362,42 +357,37 @@ bool HydjetSource::hyjpythia_init()
   sRandomSet << "MRPY(1)=" << seed;
   call_pygive(sRandomSet.str());
 
-  // QCD dijet production
-  call_pygive("MSEL=1");
+    // Set PYTHIA parameters in a single ParameterSet
+  ParameterSet pythia_params = pset.getParameter<ParameterSet>("PythiaParameters") ;
+  // The parameter sets to be read 
+  vector<string> setNames = pythia_params.getParameter<vector<string> >("parameterSets");
 
-  // to avoid stopping run
-  call_pygive("MSTU(21)=1");
-
-  // tolerance parameter to adjust fragmentation
-  call_pygive("PARU(14)=1.");
-
-  // pp multiple scattering off
-  call_pygive("MSTP(81)=0");
+    // Loop over the sets
+  for ( unsigned i=0; i<setNames.size(); ++i ) {
+    string mySet = setNames[i];
+    
+    // Read the PYTHIA parameters for each set of parameters
+    vector<string> pars = pythia_params.getParameter<vector<string> >(mySet);
+    
+    cout << "----------------------------------------------" << endl;
+    cout << "Read PYTHIA parameter set " << mySet << endl;
+    cout << "----------------------------------------------" << endl;
+    
+    // Loop over all parameters and stop in case of mistake
+    for( vector<string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar ) {
+      static string sRandomValueSetting("MRPY(1)");
+      if( 0 == itPar->compare(0,sRandomValueSetting.size(),sRandomValueSetting) ) {
+	throw edm::Exception(edm::errors::Configuration,"PythiaError")
+	  <<" Attempted to set random number using 'MRPY(1)'. NOT ALLOWED! \n Use RandomNumberGeneratorService to set the random number seed.";
+      }
+      if( !call_pygive(*itPar) ) {
+	throw edm::Exception(edm::errors::Configuration,"PythiaError") 
+	  <<"PYTHIA did not accept \""<<*itPar<<"\"";
+      }
+    }
+  }
 
   return true;
-}
-
-
-//_____________________________________________________________________
-void HydjetSource::add_heavy_ion_rec(HepMC::GenEvent *evt)
-{
-  HepMC::HeavyIon *hi = new HepMC::HeavyIon(
-    hyfpar.nbcol,                       // Ncoll_hard
-    hyfpar.npart / 2,                   // Npart_proj
-    hyfpar.npart / 2,                   // Npart_targ
-    hyfpar.nbcol,                       // Ncoll
-    -1,                                 // spectator_neutrons
-    -1,                                 // spectator_protons
-    -1,                                 // N_Nwounded_collisions
-    -1,                                 // Nwounded_N_collisions
-    -1,                                 // Nwounded_Nwounded_collisions
-    hyfpar.bgen * nuclear_radius(),     // impact_parameter in [fm]
-    0,                                  // event_plane_angle
-    0,                                  // eccentricity
-    hyipar.sigin                        // sigma_inel_NN
-  );
-
-  evt->set_heavy_ion(hi);
 }
 
 
@@ -406,19 +396,19 @@ bool HydjetSource::produce(Event & e)
 {
   // generate single event
 
-  cout<<".";
+ 
   
   nsoft_    = 0;
   nhard_    = 0;
 
-  cout << "abeamtarget_ " << abeamtarget_ << endl;
-  cout << "cflag_ " << cflag_ << endl;
-  cout << "bmin_ " << bmin_ << endl;
-  cout << "bmax_ " << bmax_ << endl;
-  cout << "bfixed_ " << bfixed_ << endl;
-  cout << "nmultiplicity_ " << nmultiplicity_ << endl;
-  cout << "hydjet mode_ " << hyjpar.nhsel << endl;
-  cout << "##### Calling HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_) ####" << endl;
+  LogDebug("HYDJETabeamtarget") << "abeamtarget_ =  " << abeamtarget_;
+  edm::LogInfo("HYDJETcflag") << "cflag_ = " << cflag_;
+  edm::LogInfo("HYDJETbmin") << "bmin_ = " << bmin_;
+  edm::LogInfo("HYDJETbmax") << "bmax_ = " << bmax_;
+  edm::LogInfo("HYDJETbfixed") << "bfixed_ = " << bfixed_;
+  edm::LogInfo("HYDJETmultiplicity") << "nmultiplicity_ = " << nmultiplicity_;
+  edm::LogInfo("HYDJETmode") << "hydjet mode_ = " << hyjpar.nhsel;
+  LogDebug("HYDJETinAction") << "##### Calling HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_) ####" << endl;
 
   HYDRO(abeamtarget_,cflag_,bmin_,bmax_,bfixed_,nmultiplicity_);
 
