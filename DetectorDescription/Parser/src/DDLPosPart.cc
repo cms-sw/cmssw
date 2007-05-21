@@ -119,35 +119,23 @@ void DDLPosPart::processElement (const std::string& type, const std::string& nms
 
   DCOUT_V('P', "DDLPosPart::processElement:  Final Translation info x=" << x << " y=" << y << " z=" << z);
 
-  // Mike Case: 2006-11-14 HOWTO do rotations
-  // if there is no rotation whatsoever, then use a DEFAULT
-  // identity rotation.
-  // if there is a named rotation, whether defined or not, do
-  // use that one.
   DDRotation* myDDRotation;
+  // if rotation is named ...
   if ( rotn.name() != "" && rotn.ns() != "" ) {
-    //    std::cout << "rotn is NOT blank = " << rotn << std::endl;
-//     try {
-    myDDRotation = new DDRotation(rotn);
-//     }
-//     catch (DDException & e) {
-//       // ignore it ... I think this is what I want to do...
-//     }
-  } else {
-    //    std::cout << "rotn is blank." << std::endl;
-    static DDRotationMatrix* dmr = new DDRotationMatrix;
-    //    std::cout << dmr <<  " address of dmr." << std::endl;
-    //    static DDRotationMatrix* dmr = new DDRotationMatrix(DDRotationMatrix::IDENTITY);
-    myDDRotation = new DDRotation(DDName("identity","generatedForDDD"));
+    DDRotation temp(rotn);
+    myDDRotation = &temp;
+  } else { 
+    // rotn is not assigned a name anywhere therefore the DDPos assumes the identity matrix.
+    DDRotation temp(DDName(std::string("identity"),std::string("generatedForDDD")));
+    myDDRotation = &temp;
+    // if the identity is not yet defined, then...
     if ( !myDDRotation->isValid() ) {
-      //      std::cout << "MAKING generatedForDDD !!! rotation!!!" << std::endl;
-      DDrot(DDName("identity","generatedForDDD"), dmr );
+      DDRotationMatrix* dmr = new DDRotationMatrix;
+      temp = DDrot(DDName(std::string("identity"),std::string("generatedForDDD")), dmr );
+      myDDRotation = &temp;
     }
-    //90*deg, 0*deg, 90*deg, 90*deg, 0*deg, 0*deg);
-    //    myDDRotation = DDrot(DDName("generated","identity"), dmr);
   }
 
-  //  std::cout << myDDRotation << std::endl;
 
   DDTranslation myDDTranslation(x, y, z);
 

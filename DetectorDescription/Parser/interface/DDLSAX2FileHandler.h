@@ -17,9 +17,7 @@
 #include "SealUtil/TimingReport.h"
 #include <string>
 #include <vector>
-#include <iostream>
 #include <map>
-#include <stack>
 
 /// DDLSAX2FileHandler is the SAX2 Handler for XML files found in the configuration file.
 /** @class DDLSAX2FileHandler
@@ -78,7 +76,7 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
     void createDDConstants() const; 
     //  Map that holds name and number of elements processed.
     std::map < std::string, int> elementTypeCounter_;
-    //std::tack < std::string > names_;
+    //  std::vector < std::string > names_;
     std::map < std::string, std::string* > namesMap_;
     std::vector < std::string* > names_;
     seal::TimingReport t_;

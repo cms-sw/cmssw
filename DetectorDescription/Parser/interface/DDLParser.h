@@ -4,9 +4,6 @@
 // ---------------------------------------------------------------------------
 //  Includes
 // ---------------------------------------------------------------------------
-//#include "DetectorDescription/Core/interface/DDLParserI.h"
-
-//#include "DetectorDescription/Parser/interface/DDLDocumentProvider.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2Handler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2ExpressionHandler.h"
@@ -23,9 +20,6 @@
 #include <iosfwd>
 
 class DDLDocumentProvider;
-/* class DDLSAX2FileHandler; */
-/* class DDLSAX2Handler; */
-/* class DDLSAX2ExpressionHandler; */
 
 /// DDLParser is the main class of Detector Description Language Parser.
 /** @class DDLParser

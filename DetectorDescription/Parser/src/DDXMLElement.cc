@@ -23,6 +23,7 @@
 #include <map>
 #include <vector>
 #include <iostream>
+#include <sstream>
 
 //#include <strstream>
 
@@ -62,10 +63,9 @@ void DDXMLElement::loadAttributes (const std::string& elemName
   // adds attributes
   for (size_t i = 0; i < names.size(); ++i)
     {
-      //   tAttributes[ names[i] ] = values[i];
-      tAttributes[ names[i] ] = values[i];
+      //      tAttributes[ names[i] ] = values[i];
+      tAttributes.insert(std::make_pair(names[i], values[i]));
     }
-
 
   preProcessElement( elemName, nmspace );
   DCOUT_V('P', "DDXMLElement::loadAttributes completed. " << *this);
@@ -317,60 +317,11 @@ const std::string& DDXMLElement::parent() const {
 }
 
 // yet another :-)
-std::string DDXMLElement::itostr(int i)
+std::string DDXMLElement::itostr(int in)
 {
-  if (i < 0) return std::string("-") + itostr(i * -1);
-
-  if (i > 9)
-    return itostr(i/10) + itostr(i % 10);
-  else 
-    {
-      switch (i)
-	{
-	case 0: 
-	  return std::string("0");
-	  break;
-	
-	case 1: 
-	  return std::string("1");
-	  break;
-	
-	case 2: 
-	  return std::string("2");
-	  break;
-	
-	case 3: 
-	  return std::string("3");
-	  break;
-	
-	case 4: 
-	  return std::string("4");
-	  break;
-	
-	case 5: 
-	  return std::string("5");
-	  break;
-	
-	case 6: 
-	  return std::string("6");
-	  break;
-	
-	case 7: 
-	  return std::string("7");
-	  break;
-	
-	case 8: 
-	  return std::string("8");
-	  break;
-	
-	case 9: 
-	  return std::string("9");
-	  break;
-	
-	default:
-	  return std::string(" ");
-	}
-    }
+  std::ostringstream ostr;
+  ostr << in;
+  return ostr.str();
 }
 
 bool DDXMLElement::isEmpty () const

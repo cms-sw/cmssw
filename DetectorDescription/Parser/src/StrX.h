@@ -30,12 +30,12 @@
 // ---------------------------------------------------------------------------
 class StrX
 {
-  public :
-    typedef xercesc_2_7::XMLString XMLString;
-    // -----------------------------------------------------------------------
-    //  Constructors and Destructor
-    // -----------------------------------------------------------------------
-    StrX(const XMLCh* const toTranscode)// : fXMLChForm(toTranscode)
+ public:
+  typedef xercesc_2_7::XMLString XMLString;
+  // -----------------------------------------------------------------------
+  //  Constructors and Destructor
+  // -----------------------------------------------------------------------
+  StrX(const XMLCh* const toTranscode)// : fXMLChForm(toTranscode)
     {
       fLocalForm = XMLString::transcode(toTranscode);
       fXMLChForm = XMLString::transcode(fLocalForm);
@@ -49,10 +49,10 @@ class StrX
 
   StrX( const std::string& toTranscode )
     {
-     fXMLChForm = XMLString::transcode(toTranscode.c_str());
+      fXMLChForm = XMLString::transcode(toTranscode.c_str());
       fLocalForm = XMLString::transcode(fXMLChForm);
     }
-
+  
   ~StrX()
     {
       XMLString::release(&fLocalForm);
@@ -72,12 +72,8 @@ class StrX
       return fXMLChForm;
     }
 
-  std::string stringForm() const {
-    return std::string(fLocalForm);
-  }
-
-  private :
-    XMLCh * fXMLChForm;
+ private:
+  XMLCh * fXMLChForm;
   char * fLocalForm;
   
 };
