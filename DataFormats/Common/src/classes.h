@@ -75,6 +75,7 @@ namespace {
   edm::Wrapper<std::map<std::basic_string<char>,int> > dummyypwmv7;
   edm::Wrapper<std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > > > dummyypwmv8;
   edm::Wrapper<std::map<int,std::pair<unsigned int,unsigned int> > > dummyypwmv9;
+  edm::Wrapper<std::map<int,std::pair<unsigned long,unsigned long> > > dummyypwmv10;
 
 
   edm::Wrapper<unsigned long> dummyw1;
