@@ -270,7 +270,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(MonitorUserInterface* m
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-	string var = "_" + (*iv) = "_";
+	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
 	   MonitorElement * me = mui->get(full_path.c_str());
@@ -350,7 +350,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(MonitorUserInterface* m
 	 im != contents.end(); im++) {
       for (vector<string>::const_iterator iv = me_names.begin();
 	   iv != me_names.end(); iv++) {
-	string var = "_" + (*iv) = "_";
+	string var = "_" + (*iv) + "_";
 	if ((*im).find(var) != string::npos) {
 	  string full_path = path_name + "/" + (*it) + "/" +(*im);
 	   MonitorElement * me = mui->get(full_path.c_str());

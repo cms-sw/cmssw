@@ -194,7 +194,7 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
 
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("_siPixelDigis_") ==0) return;
+  if (dname.find("_siPixel") ==0) return;
   string image_name;
   selectImage(image_name,mui->getStatus(currDir));
   str_val << "<li><a href=\"#\" id=\"" 
@@ -241,7 +241,7 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
   //cout<<"currDir="<<currDir<<endl;
 //  if (currDir.find("Module_") != string::npos &&
 //      currDir.find(mid) != string::npos )  {
-  QRegExp rx("(\\w+)_siPixelDigis_") ;
+  QRegExp rx("(\\w+)_siPixel") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos)  
   {
@@ -517,11 +517,12 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
       vector<string> contents = mui->getMEs();    
       for (vector<string>::const_iterator it = contents.begin();
 	   it != contents.end(); it++) {
-	string hname = (*it).substr(0, (*it).find("_siPixelDigis_"));
+	string hname = (*it).substr(0, (*it).find("_siPixel"));
 	//cout<<"hname="<<hname<<endl;
         histos.push_back(hname);
         string mId=" ";
-	if(hname.find("adc")!=string::npos) mId = (*it).substr((*it).find("adc_siPixelDigis_")+17, 9);
+	if(hname.find("ndigis")!=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
+	if(mId==" " && hname.find("nclusters")!=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -553,13 +554,13 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
   }
   cout << ACYellow << ACBold
        << "[SiPixelInformationExtractor::readModuleHistoTree()]"
-       << ACPlain
-       << "html string follows: " << endl ;
-  cout << modtree.str() << endl ;
-  cout << ACYellow << ACBold
-       << "[SiPixelInformationExtractor::readModuleHistoTree()]"
-       << ACPlain
-       << "String complete " << endl ;
+       << ACPlain << endl ;
+  //     << "html string follows: " << endl ;
+  //cout << modtree.str() << endl ;
+  //cout << ACYellow << ACBold
+  //     << "[SiPixelInformationExtractor::readModuleHistoTree()]"
+  //     << ACPlain
+  //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << modtree.str();
    mui->cd();
@@ -574,7 +575,7 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
 
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //if (dname.find("_siPixelDigis_") ==0) return;
+  //if (dname.find("_siPixel") ==0) return;
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a>" << endl;
   vector<string> meVec = mui->getMEs(); 
@@ -586,7 +587,7 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   str_val << "<ul>" << endl; 
   for (vector<string>::const_iterator it = meVec.begin();
        it != meVec.end(); it++) {
-    if ((*it).find("_siPixelDigis_")!=string::npos) {
+    if ((*it).find("_siPixel")!=string::npos) {
       str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
            << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
     }
