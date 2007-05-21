@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/04/05 06:46:32 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/04/16 16:04:05 $
+ *  $Revision: 1.1 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -17,7 +17,9 @@
 
 
 
-RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
+RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
+   m_pacTrigger(0),
+   m_trigConfig(0)
 {
   produces<std::vector<L1MuRegionalCand> >("RPCb");
   produces<std::vector<L1MuRegionalCand> >("RPCf");
@@ -40,8 +42,8 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
 
 
 RPCTrigger::~RPCTrigger(){ 
-  delete m_pacTrigger;
-  delete m_trigConfig;
+   if (m_pacTrigger != 0) delete m_pacTrigger;
+   if (m_trigConfig != 0) delete m_trigConfig;
 }
 
 
