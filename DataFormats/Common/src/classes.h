@@ -104,8 +104,10 @@ namespace {
   edm::RefItem<unsigned long> dummyRefItem1_1;
   edm::RefItem<int> dummyRefItem3;
   edm::RefItem<std::pair<unsigned int, unsigned int> > dummyRefItem2;
+  edm::RefItem<std::pair<unsigned int, unsigned long> > dummyRefItem2a;
   edm::RefBase<std::vector<unsigned int>::size_type> dummRefBase1;
   edm::RefBase<std::pair<unsigned int, unsigned int> > dummRefBase2;
+  edm::RefBase<std::pair<unsigned int, unsigned long> > dummRefBase2a;
   edm::RefBase<int> dummyRefBase3;
   edm::RefBase<unsigned int> dummyRefBase3_1;
   edm::RefBase<unsigned long> dummyRefBase3_2;

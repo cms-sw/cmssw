@@ -11,7 +11,13 @@
  <class name="edm::RefItem<int>">
    <field name="ptr_" transient="true"/>
  </class>
+ <class name="edm::RefItem<unsigned long>">
+   <field name="ptr_" transient="true"/>
+ </class>
  <class name="edm::RefItem<std::pair<unsigned int,unsigned int> >">
+   <field name="ptr_" transient="true"/>
+ </class>
+ <class name="edm::RefItem<std::pair<unsigned int,unsigned long> >">
    <field name="ptr_" transient="true"/>
  </class>
  <class name="std::vector<edm::RefItem<int> >"/>
@@ -20,6 +26,7 @@
  <class name="edm::RefBase<unsigned long>"/>
  <class name="edm::RefBase<int>"/>
  <class name="edm::RefBase<std::pair<unsigned int,unsigned int> >"/>
+ <class name="edm::RefBase<std::pair<unsigned int,unsigned long> >"/>
  <class name="edm::RefVectorBase<unsigned int>"/>
  <class name="edm::RefVectorBase<unsigned long>"/>
  <class name="edm::RefVectorBase<int>"/>
@@ -27,6 +34,7 @@
  <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
  <class name="edm::Wrapper<edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> > >"/>
  <class name="std::vector<edm::RefItem<unsigned int> >"/>
+ <class name="std::vector<edm::RefItem<unsigned long> >"/>
  <class name="std::vector<float>"/>
  <class name="std::vector<double>"/>
  <class name="std::vector<long double>"/>
@@ -52,6 +60,7 @@
  <class name="std::pair<int,int>"/>
  <class name="std::pair<unsigned long,unsigned long>"/>
  <class name="std::pair<unsigned int,unsigned int>"/>
+ <class name="std::pair<unsigned int,unsigned long>"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
  <class name="std::pair<unsigned int,float>"/>
  <class name="std::pair<unsigned int,bool>"/>
@@ -77,6 +86,7 @@
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::map<std::basic_string<char>,int>"/>
  <class name="std::map<int,std::pair<unsigned int,unsigned int> >"/>
+ <class name="std::map<int,std::pair<unsigned long,unsigned long> >"/>
  <class name="edm::Wrapper<std::basic_string<char> >"/>
  <class name="edm::Wrapper<float>"/>
  <class name="edm::Wrapper<double>"/>
