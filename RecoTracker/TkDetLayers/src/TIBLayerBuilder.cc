@@ -54,10 +54,10 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
     if( (*it)->positionBounds().perp() > meanPerp) theOuterGeometricRods.push_back(*it);
   }
 
-  unsigned int innerLeftRodMaxSize  = 0;
-  unsigned int innerRightRodMaxSize = 0;
-  unsigned int outerLeftRodMaxSize  = 0;
-  unsigned int outerRightRodMaxSize = 0;
+  size_t innerLeftRodMaxSize  = 0;
+  size_t innerRightRodMaxSize = 0;
+  size_t outerLeftRodMaxSize  = 0;
+  size_t outerRightRodMaxSize = 0;
 
   for(vector<const GeometricDet*>::const_iterator it=theInnerGeometricRods.begin(); 
       it!= theInnerGeometricRods.end();it++){
