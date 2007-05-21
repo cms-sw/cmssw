@@ -30,6 +30,14 @@
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCDMBStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigiCollection.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigiCollection.h"
 
 
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
@@ -79,8 +87,15 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
-  if (unpackStatusDigis) produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
-
+  if (unpackStatusDigis) 
+    {
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCTMBStatusDigi");
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCDMBStatusDigi");
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCALCTStatusDigi");
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCDDUStatusDigi");
+      produces<CSCCFEBStatusDigiCollection>("MuonCSCDCCStatusDigi");
+    }
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);
   CSCCLCTData::setDebug(debug);
@@ -124,6 +139,11 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
   std::auto_ptr<CSCDMBStatusDigiCollection> dmbStatusProduct(new CSCDMBStatusDigiCollection);
+  std::auto_ptr<CSCTMBStatusDigiCollection> tmbStatusProduct(new CSCTMBStatusDigiCollection);
+  std::auto_ptr<CSCDDUStatusDigiCollection> dduStatusProduct(new CSCDDUStatusDigiCollection);
+  std::auto_ptr<CSCDCCStatusDigiCollection> dccStatusProduct(new CSCDCCStatusDigiCollection);
+  std::auto_ptr<CSCALCTStatusDigiCollection> alctStatusProduct(new CSCALCTStatusDigiCollection);
+
 
   for (int id=FEDNumbering::getCSCFEDIds().first;
        id<=FEDNumbering::getCSCFEDIds().second; ++id)
@@ -169,12 +189,19 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	      ///get a reference to dduData
 	      const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
 
+	      /// this is some default value of CSCDetID
+	      CSCDetId layer(1, //endcap
+			     1, //station
+			     1, //ring
+			     1, //chamber
+			     1); //layer
+
+	      if (unpackStatusDigis) dccStatusProduct->
+				       insertDigi(layer, CSCDCCStatusDigi(dccData.dccHeader().data(),
+									  dccData.dccTrailer().data()));
+
 	      for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) 
 		{  ///loop over DDUs
-
-		  ///get a reference to chamber data
-		  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
-		  
 		  ///skip the DDU if its data has serious errors
 		  /// define a mask for serious errors  (currently DFCFEFFF)
 		  if (dduData[iDDU].trailer().errorstat()&errorMask) 
@@ -183,6 +210,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			std::hex << dduData[iDDU].trailer().errorstat();
 		      continue;
 		    }
+		  
+		  if (unpackStatusDigis) dduStatusProduct->
+					   insertDigi(layer, CSCDDUStatusDigi(dduData[iDDU].header().data(),
+									      dduData[iDDU].trailer().data()));
+	  
+		  ///get a reference to chamber data
+                  const std::vector<CSCEventData> & cscData = dduData[iDDU].cscData();
+
+
 		  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC) 
 		    { //loop over CSCs
 
@@ -197,13 +233,6 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 		      if (debug)
 			edm::LogInfo ("CSCDCCUnpacker") << "crate = " << vmecrate << "; dmb = " << dmb;
-
-		      /// this is some default value of CSCDetID
-		      CSCDetId layer(1, //endcap
-				     1, //station
-				     1, //ring
-				     1, //chamber
-				     1); //layer
 
 		      if ( (vmecrate>=0)&&(vmecrate<=200) && (dmb>=0)&&(dmb<=10) ) 
 			{
@@ -283,6 +312,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  ///put dmb status digi
 			  dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader().data(),
 									       cscData[iCSC].dmbTrailer().data()));
+			  if (goodTMB)
+			    {
+			      tmbStatusProduct->
+				insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader().data(),
+								   cscData[iCSC].tmbData().tmbTrailer().data()));
+			      alctStatusProduct->
+				insertDigi(layer, CSCALCTStatusDigi(cscData[iCSC].alctHeader().data(),
+								    cscData[iCSC].alctTrailer().data()));
+			    }
 			}
 
 		      ///this loop stores wire, strip and comparator digis:
@@ -332,8 +370,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
-  if (unpackStatusDigis) e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
-
+  if (unpackStatusDigis) 
+    {
+      e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
+      e.put(dmbStatusProduct,     "MuonCSCDMBStatusDigi");
+      e.put(tmbStatusProduct,     "MuonCSCTMBStatusDigi");
+      e.put(dduStatusProduct,     "MuonCSCDDUStatusDigi");
+      e.put(dccStatusProduct,     "MuonCSCDCCStatusDigi");
+      e.put(alctStatusProduct,    "MuonCSCALCTStatusDigi");
+    }
   //if (PrintEventNumber) edm::LogInfo("CSCDCCUnpacker") 
   //  <<"**************[DCCUnpackingModule]:" << numOfEvents<<" events analyzed ";
 }
