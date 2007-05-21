@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/CoreROOT>
 <use name=DQM/SiPixelCommon>
@@ -7,11 +7,11 @@
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=boost>
-<flags SEAL_PLUGIN_NAME="DQMSiPixelMonitorCluster">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiPixelMonitorCluster>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQMServices/CoreROOT>
    <use name=DQM/SiPixelCommon>
