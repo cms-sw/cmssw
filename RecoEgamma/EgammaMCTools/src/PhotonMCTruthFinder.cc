@@ -216,14 +216,13 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(std::vector<SimTrack> theSi
 	 
          iConv++;
 	   
-         result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(),   vtxPosition.perp(),  vtxPosition.z() , vtxPosition,   primVtx.position(), trkFromConversion ));
+         result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(), vtxPosition,   primVtx.position(), trkFromConversion ));
 
        } else {
          isAconversion=0;
 	 std::cout  << " UNCONVERTED photon " <<   "\n";    
 	 CLHEP::HepLorentzVector vtxPosition(0.,0.,0.,0.);
-	 // PhotonMCTruth* aPho = new PhotonMCTruth(isAConversion, (*iPhoTk)->momentum(), 0., 0.,   vtxPosition,    primVtx.position() );    
-         result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(),   vtxPosition.perp(),  vtxPosition.z() , vtxPosition,   primVtx.position(), trkFromConversion ));
+	 result.push_back( PhotonMCTruth(isAconversion, (*iPhoTk)->momentum(),  vtxPosition,   primVtx.position(), trkFromConversion ));
 	
        }
        
