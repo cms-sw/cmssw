@@ -28,55 +28,46 @@
 
 //ecal tpg
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
-//#include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveSample.h"
-//#include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 
 //hcal tpg
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 
 //rct
 #include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
-//#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
 //gct
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
-//dttf, csctf, rpctf
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-
-//dttpg
+//dtp
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhDigi.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
-#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThDigi.h"
 
-//csctpg
-#include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+//dtf
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
+
+//ctp
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
-//rpctpg
+//csctf
+#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
 
-//gmt
+//rpc,..
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuRegionalCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 //ltc
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
+//gmt
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
 
 //gt
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerSetup.h"
-//#include "L1Trigger/GlobalTrigger/interface/L1GlobalTrigger.h"
-
-//typedef std::vector<bool> DecisionWord; 
 
 
 #include "L1Trigger/HardwareValidation/interface/DEcompare.h"
 
-enum compareMode {ETP=0, HTP, RCT, GCT, DTT, RPC, LTC, iGMT, GT};
+enum compareMode {ETP=0, HTP, RCT, GCT, DTP, DTF, CTP, CTF, RPC, LTC, GMTi, GT};
 
 template <class T> class DEcompare;
  
@@ -92,65 +83,55 @@ private:
   virtual void endJob();
 
   /// member data
-  std::string ETP_data_Label_;
-  std::string ETP_emul_Label_;
-  std::string HTP_data_Label_;
-  std::string HTP_emul_Label_;
-  std::string RCT_data_Label_;
-  std::string RCT_emul_Label_;
-  std::string GCT_data_Label_;
-  std::string GCT_emul_Label_;
-  /*
-  std::string DTP_data_Label_;
-  std::string DTP_emul_Label_;
-  std::string DTF_data_Label_;
-  std::string DTF_emul_Label_;
-  std::string CTP_data_Label_;
-  std::string CTP_emul_Label_;
-  std::string CTF_data_Label_;
-  std::string CTF_emul_Label_;
-  std::string RTP_data_Label_;
-  std::string RTP_emul_Label_;
-  std::string RTF_data_Label_;
-  std::string RTF_emul_Label_;
-  std::string LTC_data_Label_;
-  std::string LTC_emul_Label_;
-  std::string GMT_data_Label_;
-  std::string GMT_emul_Label_;
-  */
-  std::string GT_data_Label_;
-  std::string GT_emul_Label_;
+  edm::InputTag ETP_data_Label_;
+  edm::InputTag ETP_emul_Label_;
+  edm::InputTag HTP_data_Label_;
+  edm::InputTag HTP_emul_Label_;
+  edm::InputTag RCT_data_Label_;
+  edm::InputTag RCT_emul_Label_;
+  edm::InputTag GCT_data_Label_;
+  edm::InputTag GCT_emul_Label_;
+  edm::InputTag DTP_data_Label_;
+  edm::InputTag DTP_emul_Label_;
+  edm::InputTag DTF_data_Label_;
+  edm::InputTag DTF_emul_Label_;
+  edm::InputTag CTP_data_Label_;
+  edm::InputTag CTP_emul_Label_;
+  edm::InputTag CTF_data_Label_;
+  edm::InputTag CTF_emul_Label_;
+  edm::InputTag RPC_data_Label_;
+  edm::InputTag RPC_emul_Label_;
+  edm::InputTag LTC_data_Label_;
+  edm::InputTag LTC_emul_Label_;
+  edm::InputTag GMT_data_Label_;
+  edm::InputTag GMT_emul_Label_;
+  edm::InputTag GT_data_Label_;
+  edm::InputTag GT_emul_Label_;
 
   bool doEtp_;
   bool doHtp_;
   bool doRct_;
   bool doGct_;
-  /*
   bool doDtp_;
   bool doDtf_;
   bool doCtp_;
   bool doCtf_;
-  bool doRtp_;
-  bool doRtf_;
+  bool doRpc_;
   bool doLtc_;
   bool doGmt_;
-  */
   bool doGt_;
 
   bool etp_match;
   bool htp_match;
   bool rct_match;
   bool gct_match;
-  /*
   bool dtp_match;
   bool dtf_match;
   bool ctp_match;
   bool ctf_match;
-  bool rtp_match;
-  bool rtf_match;
+  bool rpc_match;
   bool ltc_match;
   bool gmt_match;
-  */
   bool gt_match;
   bool evt_match;
   bool all_match;

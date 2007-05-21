@@ -24,7 +24,7 @@ struct DEutils {
   public:
   
   DEutils() {
-    if(de_type()>4)
+    if(de_type()>16)
       throw cms::Exception("ERROR") 
 	<< "DEutils::DEutils() :: "
 	<< "specialization is still missing for collection of type:" 
@@ -172,7 +172,8 @@ inline bool DEutils<L1GctJetCandCollection>::is_empty(col_cit it) const {
 template <typename T> 
 std::string DEutils<T>::print(col_cit it) const {
   std::stringstream ss;
-  ss << *it;
+  ss << "[DEutils<T>::print()] specialization still missing for collection!";
+  //ss << *it; //default
   ss << std::endl;
   return ss.str();
 }
@@ -220,13 +221,64 @@ inline std::string DEutils<L1CaloEmCollection>::print(col_cit it) const {
      << std::endl;
   return ss.str();
 }
+template <> 
+inline std::string DEutils<L1CaloRegionCollection>::print(col_cit it) const {
+  std::stringstream ss;
+  ss << *it << std::endl;
+  return ss.str();
+}
+
+template <> 
+inline std::string DEutils<L1GctEmCandCollection>::print(col_cit it) const {
+  std::stringstream ss;
+  ss << *it << std::endl;
+  return ss.str();
+}
+template <> 
+inline std::string DEutils<L1GctJetCandCollection>::print(col_cit it) const {
+  std::stringstream ss;
+  ss << *it << std::endl;
+  return ss.str();
+}
+
+template <> 
+inline std::string DEutils<L1MuDTChambPhDigiCollection>::print(col_cit it) const {
+  std::stringstream ss;
+  ss << ""
+     << " bxNum:"  << it->bxNum()  
+     << " whNum:"  << it->whNum()  
+     << " scNum:"  << it->scNum()  
+     << " stNum:"  << it->stNum()  
+     << " phi:"    << it->phi()    
+     << " phiB:"   << it->phiB()   
+     << " code:"   << it->code()   
+     << " Ts2Tag:" << it->Ts2Tag() 
+     << " BxCnt:"  << it->BxCnt()  
+     << std::endl;
+  //nb: operator << not implemented in base class L1MuDTChambPhDigi
+  return ss.str();
+}
+
+template <> 
+inline std::string DEutils<L1MuDTChambThDigiCollection>::print(col_cit it) const {
+  std::stringstream ss;
+  ss << ""
+     << " bxNum:"  << it->bxNum()  
+     << " whNum:"  << it->whNum()  
+     << " scNum:"  << it->scNum()  
+     << " stNum:"  << it->stNum()  
+     << std::endl;
+  //nb: operator << not implemented in base class L1MuDTChambThDigi
+  return ss.str();
+}
+
 
 //--//--//--//--//--//--//--//--//--//--//--//
 
 template <typename T> 
 std::string DEutils<T>::GetName(int i=0) const {
 
-  const int nlabel = 5;
+  const int nlabel = 8;
   if(!(i<nlabel)) 
     return                  "un-defined" ;
   std::string str[nlabel]= {"un-registered"};
@@ -261,6 +313,56 @@ std::string DEutils<T>::GetName(int i=0) const {
     str[0] = "GCT jet";
     str[1] = "L1GctJetCandCollection";
     str[2] = "L1GctJetCand";
+   break;
+  case DTtpPh:
+    str[0] = "DT tp phi";
+    str[1] = "L1MuDTChambPhDigiCollection";
+    str[2] = "L1MuDTChambPhDigi";
+   break;
+  case DTtpTh:
+    str[0] = "DT tp theta";
+    str[1] = "L1MuDTChambThDigiCollection";
+    str[2] = "L1MuDTChambThDigi";
+   break;
+  case CSCtp:
+    str[0] = "CSC tp";
+    str[1] = "CSCCorrelatedLCTDigiCollection";
+    str[2] = "CSCCorrelatedLCTDigi";
+   break;
+  case CSCtf:
+    str[0] = "CSC track";
+    str[1] = "L1CSCTrackCollection";
+    str[2] = "L1CSCTrack";
+   break;
+  case RPCb:
+    str[0] = "RPC barrel";
+    str[1] = "L1MuRegionalCandCollection";
+    str[2] = "L1MuRegionalCand";
+   break;
+  case RPCf:
+    str[0] = "RPC tf forward";
+    str[1] = "L1MuRegionalCandCollection";
+    str[2] = "L1MuRegionalCand";
+   break;
+  case LTCi:
+    str[0] = "LTC";
+    str[1] = "LTCDigiCollection";
+    str[2] = "LTCDigi";
+   break;
+  case GMTcnd:
+    str[0] = "GMT cand";
+    str[1] = "L1MuGMTCandCollection";
+    str[2] = "L1MuGMTCand";
+   break;
+  case GMTrdt:
+    str[0] = "GMT record";
+    str[1] = "L1MuGMTReadoutRecordCollection";
+    str[2] = "L1MuGMTReadoutRecord";
+   break;
+  case GTdword:
+    str[0] = "";
+    str[1] = "";
+    str[2] = "";
    break;
    //default:
   }

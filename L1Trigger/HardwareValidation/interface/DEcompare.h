@@ -29,11 +29,17 @@ class DEcompare {
   typedef typename de_trait::cand_type cand_type;
   typedef typename std::vector<cand_type> cand_vec;
 
+  typedef typename de_trait::coll_type const* typeT;
+
  public:
   
   DEcompare(){};
+
+  DEcompare(typeT dt, typeT em) : 
+    data_(dt), emul_(em), t_match(false){};
+    
   DEcompare(edm::Handle<T> dt, edm::Handle<T> em) : 
-    data_(dt), emul_(em), t_match(false) {
+    data_(dt.product()), emul_(em.product()), t_match(false) {
     LogDebug("DEcompare") << "DEcompare()" 
 			  << " : creating instance of type: "
 			  << GetName(0)
@@ -45,7 +51,8 @@ class DEcompare {
   bool CompareCollections(std::ofstream&,int);
   bool SortCollections(cand_vec& dg, cand_vec& eg, cand_vec & db, cand_vec& eb);
   bool DumpCandidate(col_cit itd, col_cit itm, std::ofstream&, int);
-  int get_ncand(edm::Handle<T>) const;
+  //int get_ncand(edm::Handle<T>) const;
+  int get_ncand(typeT) const;
   
   std::string GetName(int i=0)  const {return de_utils.GetName(i);}
   std::string print(col_cit it) const {return de_utils.print(it);}
@@ -53,10 +60,15 @@ class DEcompare {
   inline int de_type()          const {return de_trait::de_type();}
   bool get_match()              const {return t_match;}
 
+  //typeT getData() {return data_.product();}
+  //T  getDataT() {return static_cast<T>(data_.product());}
+
  private:
 
-  edm::Handle<T> data_;
-  edm::Handle<T> emul_;
+  //edm::Handle<T> data_;
+  //edm::Handle<T> emul_;
+  typeT data_;
+  typeT emul_;
   DEutils<T> de_utils;
   bool t_match;
 
@@ -77,7 +89,8 @@ bool DEcompare<T>::do_compare(std::ofstream& os, int mode=0) {
 
 
 template <typename T> 
-int DEcompare<T>::get_ncand(edm::Handle<T> col) const {
+int DEcompare<T>::get_ncand(typeT col) const {
+  //int DEcompare<T>::get_ncand(edm::Handle<T> col) const {
   ///count non empty candidates in collection
   //col_sz ncand=ncand=col.size();
   int ncand=0;

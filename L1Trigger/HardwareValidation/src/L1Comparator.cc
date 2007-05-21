@@ -2,41 +2,39 @@
  
 L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
-  ETP_data_Label_ = iConfig.getUntrackedParameter<std::string>("ETP_dataLabel");
-  ETP_emul_Label_ = iConfig.getUntrackedParameter<std::string>("ETP_emulLabel");
+  ETP_data_Label_ = iConfig.getParameter<edm::InputTag>("ETP_dataLabel");
+  ETP_emul_Label_ = iConfig.getParameter<edm::InputTag>("ETP_emulLabel");
 
-  HTP_data_Label_ = iConfig.getUntrackedParameter<std::string>("HTP_dataLabel");
-  HTP_emul_Label_ = iConfig.getUntrackedParameter<std::string>("HTP_emulLabel");
+  HTP_data_Label_ = iConfig.getParameter<edm::InputTag>("HTP_dataLabel");
+  HTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("HTP_emulLabel");
 
-  RCT_data_Label_ = iConfig.getUntrackedParameter<std::string>("RCT_dataLabel");
-  RCT_emul_Label_ = iConfig.getUntrackedParameter<std::string>("RCT_emulLabel");
-  
-  GCT_data_Label_ = iConfig.getUntrackedParameter<std::string>("GCT_dataLabel");
-  GCT_emul_Label_ = iConfig.getUntrackedParameter<std::string>("GCT_emulLabel");
-  /*
-  DTP_data_Label_ = iConfig.getUntrackedParameter<std::string>("DTP_dataLabel");
-  DTP_emul_Label_ = iConfig.getUntrackedParameter<std::string>("DTP_emulLabel");
-  DTF_data_Label_ = iConfig.getUntrackedParameter<std::string>("DTF_dataLabel");
-  DTF_emul_Label_ = iConfig.getUntrackedParameter<std::string>("DTF_emulLabel");
-  
-  CTP_data_Label_ = iConfig.getUntrackedParameter<std::string>("CTP_dataLabel");
-  CTP_emul_Label_ = iConfig.getUntrackedParameter<std::string>("CTP_emulLabel");
-  CTF_data_Label_ = iConfig.getUntrackedParameter<std::string>("CTF_dataLabel");
-  CTF_emul_Label_ = iConfig.getUntrackedParameter<std::string>("CTF_emulLabel");
-  
-  RTP_data_Label_ = iConfig.getUntrackedParameter<std::string>("RTP_dataLabel");
-  RTP_emul_Label_ = iConfig.getUntrackedParameter<std::string>("RTP_emulLabel");
-  RTF_data_Label_ = iConfig.getUntrackedParameter<std::string>("RTF_dataLabel");
-  RTF_emul_Label_ = iConfig.getUntrackedParameter<std::string>("RTF_emulLabel");
-  
-  LTC_data_Label_ = iConfig.getUntrackedParameter<std::string>("LTC_dataLabel");
-  LTC_emul_Label_ = iConfig.getUntrackedParameter<std::string>("LTC_emulLabel");
-  
-  GMT_data_Label_ = iConfig.getUntrackedParameter<std::string>("GMT_dataLabel");
-  GMT_emul_Label_ = iConfig.getUntrackedParameter<std::string>("GMT_emulLabel");
-  */
-  GT_data_Label_  = iConfig.getUntrackedParameter<std::string>("GT_dataLabel");
-  GT_emul_Label_  = iConfig.getUntrackedParameter<std::string>("GT_emulLabel");
+  RCT_data_Label_ = iConfig.getParameter<edm::InputTag>("RCT_dataLabel");
+  RCT_emul_Label_ = iConfig.getParameter<edm::InputTag>("RCT_emulLabel");
+
+  GCT_data_Label_ = iConfig.getParameter<edm::InputTag>("GCT_dataLabel");
+  GCT_emul_Label_ = iConfig.getParameter<edm::InputTag>("GCT_emulLabel");
+
+  DTP_data_Label_ = iConfig.getParameter<edm::InputTag>("DTP_dataLabel");
+  DTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("DTP_emulLabel");
+  DTF_data_Label_ = iConfig.getParameter<edm::InputTag>("DTF_dataLabel");
+  DTF_emul_Label_ = iConfig.getParameter<edm::InputTag>("DTF_emulLabel");
+  	
+  CTP_data_Label_ = iConfig.getParameter<edm::InputTag>("CTP_dataLabel");
+  CTP_emul_Label_ = iConfig.getParameter<edm::InputTag>("CTP_emulLabel");
+  CTF_data_Label_ = iConfig.getParameter<edm::InputTag>("CTF_dataLabel");
+  CTF_emul_Label_ = iConfig.getParameter<edm::InputTag>("CTF_emulLabel");
+
+  RPC_data_Label_ = iConfig.getParameter<edm::InputTag>("RPC_dataLabel");
+  RPC_emul_Label_ = iConfig.getParameter<edm::InputTag>("RPC_emulLabel");
+
+  LTC_data_Label_ = iConfig.getParameter<edm::InputTag>("LTC_dataLabel");
+  LTC_emul_Label_ = iConfig.getParameter<edm::InputTag>("LTC_emulLabel");
+
+  GMT_data_Label_ = iConfig.getParameter<edm::InputTag>("GMT_dataLabel");
+  GMT_emul_Label_ = iConfig.getParameter<edm::InputTag>("GMT_emulLabel");
+
+  GT_data_Label_  = iConfig.getParameter<edm::InputTag>("GT_dataLabel");
+  GT_emul_Label_  = iConfig.getParameter<edm::InputTag>("GT_emulLabel");
   
   std::vector<unsigned int> compColls 
     = iConfig.getUntrackedParameter<std::vector<unsigned int> >("COMPARE_COLLS");
@@ -44,16 +42,13 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   doHtp_ = (bool)compColls[HTP];
   doRct_ = (bool)compColls[RCT];
   doGct_ = (bool)compColls[GCT];
-  /*
   doDtp_ = (bool)compColls[DTP];
   doDtf_ = (bool)compColls[DTF];
   doCtp_ = (bool)compColls[CTP];
   doCtf_ = (bool)compColls[CTF];
-  doRtp_ = (bool)compColls[RTP];
-  doRtf_ = (bool)compColls[RTF];
+  doRpc_ = (bool)compColls[RPC];
   doLtc_ = (bool)compColls[LTC];
-  doGmt_ = (bool)compColls[GMT];
-  */
+  doGmt_ = (bool)compColls[GMTi];
   doGt_  = (bool)compColls[GT];
   
   dumpFileName = iConfig.getUntrackedParameter<std::string>("DumpFile");
@@ -89,26 +84,22 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   nevent++;
   dumpFile << "\nEvent: " << nevent << std::endl;
 
-
-  //  e.getByLabel(gctSource_.label(), "Tau", l1eTauJets);
-
-  
   ///  Get the data and emulated collections 
 
   // -- ECAL TP [electromagnetic calorimeter trigger primitives]
   edm::Handle<EcalTrigPrimDigiCollection> ecal_tp_data;
   edm::Handle<EcalTrigPrimDigiCollection> ecal_tp_emul;
   if(doEtp_) {
-    iEvent.getByLabel(ETP_data_Label_, "", ecal_tp_data);
-    iEvent.getByLabel(ETP_emul_Label_, "", ecal_tp_emul);
+    iEvent.getByLabel(ETP_data_Label_.label(),"", ecal_tp_data);
+    iEvent.getByLabel(ETP_emul_Label_.label(),"", ecal_tp_emul);
   }
 
   // -- HCAL TP [hadronic calorimeter trigger primitives]
   edm::Handle<HcalTrigPrimDigiCollection> hcal_tp_data;
   edm::Handle<HcalTrigPrimDigiCollection> hcal_tp_emul;
   if(doHtp_) {
-    iEvent.getByLabel(HTP_data_Label_, "", hcal_tp_data);
-    iEvent.getByLabel(HTP_emul_Label_, "", hcal_tp_emul);
+    iEvent.getByLabel(HTP_data_Label_, hcal_tp_data);
+    iEvent.getByLabel(HTP_emul_Label_, hcal_tp_emul);
   }
 
   // -- RCT [regional calorimeter trigger]
@@ -117,10 +108,10 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1CaloRegionCollection> rct_rgn_data;
   edm::Handle<L1CaloRegionCollection> rct_rgn_emul;
   if(doRct_) {
-    iEvent.getByLabel(RCT_data_Label_, "", rct_em_data);
-    iEvent.getByLabel(RCT_emul_Label_, "", rct_em_emul);
-    iEvent.getByLabel(RCT_data_Label_, "", rct_rgn_data);
-    iEvent.getByLabel(RCT_emul_Label_, "", rct_rgn_emul);
+    iEvent.getByLabel(RCT_data_Label_, rct_em_data);
+    iEvent.getByLabel(RCT_emul_Label_, rct_em_emul);
+    iEvent.getByLabel(RCT_data_Label_, rct_rgn_data);
+    iEvent.getByLabel(RCT_emul_Label_, rct_rgn_emul);
   }
 
   // -- GCT [global calorimeter trigger]
@@ -135,58 +126,137 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<L1GctJetCandCollection> gct_taujets_data;
   edm::Handle<L1GctJetCandCollection> gct_taujets_emul;
   if(doGct_) {
-    iEvent.getByLabel(GCT_data_Label_,"isoEm",   gct_isolaem_data);
-    iEvent.getByLabel(GCT_emul_Label_,"isoEm",   gct_isolaem_emul);
-    iEvent.getByLabel(GCT_data_Label_,"nonIsoEm",gct_noisoem_data);
-    iEvent.getByLabel(GCT_emul_Label_,"nonIsoEm",gct_noisoem_emul);
-    iEvent.getByLabel(GCT_data_Label_,"cenJets", gct_cenjets_data);
-    iEvent.getByLabel(GCT_emul_Label_,"cenJets", gct_cenjets_emul);
-    iEvent.getByLabel(GCT_data_Label_,"forJets", gct_forjets_data);
-    iEvent.getByLabel(GCT_emul_Label_,"forJets", gct_forjets_emul);
-    iEvent.getByLabel(GCT_data_Label_,"tauJets", gct_taujets_data);
-    iEvent.getByLabel(GCT_emul_Label_,"tauJets", gct_taujets_emul);
+    iEvent.getByLabel(GCT_data_Label_.label(),"isoEm",   gct_isolaem_data);
+    iEvent.getByLabel(GCT_emul_Label_.label(),"isoEm",   gct_isolaem_emul);
+    iEvent.getByLabel(GCT_data_Label_.label(),"nonIsoEm",gct_noisoem_data);
+    iEvent.getByLabel(GCT_emul_Label_.label(),"nonIsoEm",gct_noisoem_emul);
+    iEvent.getByLabel(GCT_data_Label_.label(),"cenJets", gct_cenjets_data);
+    iEvent.getByLabel(GCT_emul_Label_.label(),"cenJets", gct_cenjets_emul);
+    iEvent.getByLabel(GCT_data_Label_.label(),"forJets", gct_forjets_data);
+    iEvent.getByLabel(GCT_emul_Label_.label(),"forJets", gct_forjets_emul);
+    iEvent.getByLabel(GCT_data_Label_.label(),"tauJets", gct_taujets_data);
+    iEvent.getByLabel(GCT_emul_Label_.label(),"tauJets", gct_taujets_emul);
   }
 
+  // -- DTP [drift tube] trigger primitive
 
-  // -- Tbd get remaining collections here
+  edm::Handle<L1MuDTChambPhContainer> dtp_ph_data_;
+  edm::Handle<L1MuDTChambPhContainer> dtp_ph_emul_;
+  edm::Handle<L1MuDTChambThContainer> dtp_th_data_;
+  edm::Handle<L1MuDTChambThContainer> dtp_th_emul_;
+  if(doDtp_) {
+    iEvent.getByLabel(DTP_data_Label_,dtp_ph_data_);
+    iEvent.getByLabel(DTP_data_Label_,dtp_ph_emul_);
+    iEvent.getByLabel(DTP_data_Label_,dtp_th_data_);
+    iEvent.getByLabel(DTP_data_Label_,dtp_th_emul_);
+  }
+  L1MuDTChambPhDigiCollection const* dtp_ph_data = dtp_ph_data_->getContainer();
+  L1MuDTChambPhDigiCollection const* dtp_ph_emul = dtp_ph_emul_->getContainer();
+  L1MuDTChambThDigiCollection const* dtp_th_data = dtp_th_data_->getContainer();
+  L1MuDTChambThDigiCollection const* dtp_th_emul = dtp_th_emul_->getContainer();
+  //typedef std::vector<L1MuDTChambPhDigi>  Phi_Container;
+  //typedef std::vector<L1MuDTChambPhDigi>  L1MuDTChambPhDigiCollection; 
+  //edm::Handle<L1MuDTChambPhDigiCollection> dtp_ph_data;
+  //L1MuDTChambPhDigiCollection dtp_ph_data = static_cast<L1MuDTChambPhContainer::Phi_Container const*> ( dtp_ph_data_->getContainer());
 
-  /*  
-  // -- DTT [drift tube trigger]
-  edm::Handle<L1MuDTChambPhContainer> dt_ph_data;
-  edm::Handle<L1MuDTChambPhContainer> dt_ph_emul;
-  edm::Handle<L1MuDTChambThContainer> dt_th_data;
-  edm::Handle<L1MuDTChambThContainer> dt_th_emul;
-  if(doDtt_) {
-    iEvent.getByLabel(DTT_data_Label_,dt_ph_data);
-    iEvent.getByLabel(DTT_emul_Label_,dt_ph_emul);
-    iEvent.getByLabel(DTT_data_Label_,dt_th_data);
-    iEvent.getByLabel(DTT_emul_Label_,dt_th_emul);
+
+  // -- DTF [drift tube] track finder
+  edm::Handle<L1MuRegionalCandCollection> dtf_data;
+  edm::Handle<L1MuRegionalCandCollection> dtf_emul;
+  edm::Handle<L1MuDTTrackContainer>       dtf_trk_data_;
+  edm::Handle<L1MuDTTrackContainer>       dtf_trk_emul_;
+  if(doDtf_) {
+    iEvent.getByLabel(DTF_data_Label_.label(),"DT",dtf_data);
+    iEvent.getByLabel(DTF_emul_Label_.label(),"DT",dtf_emul);
+    iEvent.getByLabel(DTF_data_Label_.label(),"DTTF",dtf_trk_data_);
+    iEvent.getByLabel(DTF_emul_Label_.label(),"DTTF",dtf_trk_emul_);
+  }
+  L1MuRegionalCandCollection const* dtf_trk_data = dtf_trk_data_->getContainer();
+  L1MuRegionalCandCollection const* dtf_trk_emul = dtf_trk_emul_->getContainer();
+
+
+  // -- CSC trigger primitive
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_data_;
+  edm::Handle<CSCCorrelatedLCTDigiCollection> ctp_emul_;
+  if(doCtp_) {
+    iEvent.getByLabel(CTP_data_Label_,ctp_data_);
+    iEvent.getByLabel(CTP_emul_Label_,ctp_emul_);
+  }
+  //CSCCorrelatedLCTDigiCollection_ * ctp_data__ = 0;
+  //CSCCorrelatedLCTDigiCollection_ * ctp_emul__ = 0;
+  //typedef CSCCorrelatedLCTDigiCollection::DigiRangeIterator ctpIt;
+  //typedef CSCCorrelatedLCTDigiCollection::const_iterator    ctpIt1;
+  //std::cout << "debug L1Comparator ctp 0" << std::endl;
+  //for (ctpIt ctpItr = ctp_data_->begin(); ctpItr != ctp_data_->end(); ctpItr++) {
+  //  CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_data_->get((*ctpItr).first);
+  //  for (ctpIt1 ctpItr1 = ctpRange.first; ctpItr1 != ctpRange.second; ctpItr1++) {
+  //    ctp_data__->push_back(*ctpItr1);
+  //  }
+  //}
+  //std::cout << "debug L1Comparator ctp 1" << std::endl; 
+  //for (ctpIt ctpItr = ctp_emul_->begin(); ctpItr != ctp_emul_->end(); ctpItr++) {
+  //  CSCCorrelatedLCTDigiCollection::Range ctpRange = ctp_emul_->get((*ctpItr).first);
+  //  for (ctpIt1 ctpItr1 = ctpRange.first; ctpItr1 != ctpRange.second; ctpItr1++) {
+  //    //ctp_emul__->push_back(*ctpItr1);
+  //  }
+  //}
+  //std::cout << "debug L1Comparator ctp 2" << std::endl; 
+  //CSCCorrelatedLCTDigiCollection_ const* ctp_data(ctp_data__);
+  //CSCCorrelatedLCTDigiCollection_ const* ctp_emul(ctp_emul__);
+  //std::cout << "debug L1Comparator ctp 3" << std::endl; 
+
+  // -- CSC track finder
+  edm::Handle<L1CSCTrackCollection> ctf_data;
+  edm::Handle<L1CSCTrackCollection> ctf_emul;
+  //edm::Handle<L1MuRegionalCandCollection> ctf_data;
+  //edm::Handle<L1MuRegionalCandCollection> ctf_emul;
+  if(doCtf_) {
+    iEvent.getByLabel(CTF_data_Label_,ctf_data);
+    iEvent.getByLabel(CTF_emul_Label_,ctf_emul);
   }
 
-  // -- RPC [resistive plate chambers]
-  edm::Handle<std::vector<L1MuRegionalCand> > rpc_data;
-  edm::Handle<std::vector<L1MuRegionalCand> > rpc_emul;
+  // -- RPC [resistive plate chambers] 
+  edm::Handle<L1MuRegionalCandCollection> rpc_cen_data;
+  edm::Handle<L1MuRegionalCandCollection> rpc_cen_emul;
+  edm::Handle<L1MuRegionalCandCollection> rpc_for_data;
+  edm::Handle<L1MuRegionalCandCollection> rpc_for_emul;
   if(doRpc_) {
-    e.getByLabel(RPC_data_Label_,rpc_data);
-    e.getByLabel(RPC_emul_Label_,rpc_emul);
+    iEvent.getByLabel(RPC_data_Label_.label(),"RPCb",rpc_cen_data);
+    iEvent.getByLabel(RPC_emul_Label_.label(),"RPCb",rpc_cen_emul);
+    iEvent.getByLabel(RPC_data_Label_.label(),"RPCf",rpc_for_data);
+    iEvent.getByLabel(RPC_emul_Label_.label(),"RPCf",rpc_for_emul);
   }
 
   // -- LTC [local trigger controler]
   edm::Handle<LTCDigiCollection> ltc_data;
   edm::Handle<LTCDigiCollection> ltc_emul;
   if(doLtc_) {
-    e.getByLabel(LTC_data_Label_,ltc_data);
-    e.getByLabel(LTC_emul_Label_,ltc_emul);
+    iEvent.getByLabel(LTC_data_Label_,ltc_data);
+    iEvent.getByLabel(LTC_emul_Label_,ltc_emul);
   }
 
   // -- GMT [global muon trigger]
-  edm::Handle<L1MuGMTReadoutCollection> gmt_data;
-  edm::Handle<L1MuGMTReadoutCollection> gmt_emul;
+  edm::Handle<L1MuGMTCandCollection> gmt_data;
+  edm::Handle<L1MuGMTCandCollection> gmt_emul;
+  edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_data_;
+  edm::Handle<L1MuGMTReadoutCollection> gmt_rdt_emul_;
   if(doGmt_) {
     iEvent.getByLabel(GMT_data_Label_, gmt_data);
     iEvent.getByLabel(GMT_emul_Label_, gmt_emul);
+    iEvent.getByLabel(GMT_data_Label_, gmt_rdt_data_);
+    iEvent.getByLabel(GMT_emul_Label_, gmt_rdt_emul_);
   }
-  */
+  //std::cout << "debug L1Comparator gmt 0" << std::endl; 
+  // get record for a given bx
+  //L1MuGMTReadoutRecordCollection * gmt_rdt_data__ = 0;
+  //L1MuGMTReadoutRecordCollection * gmt_rdt_emul__ = 0; 
+  //std::cout << "debug L1Comparator gmt 1" << std::endl; 
+  //const int NBX = 10; //?
+  //for(int nbx=1; nbx<NBX; nbx++) gmt_rdt_data__->push_back(gmt_rdt_data_->getRecord(nbx));
+  //for(int nbx=1; nbx<NBX; nbx++) gmt_rdt_emul__->push_back(gmt_rdt_emul_->getRecord(nbx));
+  //L1MuGMTReadoutRecordCollection const* gmt_rdt_data(gmt_rdt_data__);
+  //L1MuGMTReadoutRecordCollection const* gmt_rdt_emul(gmt_rdt_emul__);
+  //std::cout << "debug L1Comparator gmt 2" << std::endl; 
 
   // -- GT [global trigger]
   edm::Handle<L1GlobalTriggerReadoutRecord> gt_em_data;
@@ -195,22 +265,18 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     iEvent.getByLabel(GT_data_Label_, gt_em_data);
     iEvent.getByLabel(GT_emul_Label_, gt_em_emul);
   }
-
   
   etp_match = true;
   htp_match = true;
   rct_match = true;
   gct_match = true;
-  /*
   dtp_match = true;
   dtf_match = true;
   ctp_match = true;
   ctf_match = true;
-  rtp_match = true;
-  rtf_match = true;
+  rpc_match = true;
   ltc_match = true;
   gmt_match = true;
-  */
   gt_match  = true;
 
   char dumptofile[1000];
@@ -221,10 +287,15 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // >>---- Ecal Trigger Primmitive ---- <<  
   if(doEtp_) {
     /// ETP 
-    //std:: cout << "SIZE data:" << ecal_tp_data.size() << " emul:" << ecal_tp_emul.size() << std::endl;
+    //std::vector<>
+    //EcalTrigPrimDigiCollection const* ecal_tp_emul_ = ecal_tp_emul.product();
+    //EcalTrigPrimDigiCollection const* ecal_tp_data_ = ecal_tp_data.product();
+    ////static_const<EcalTrigPrimDigiCollection const*>(ecal_tp_emul_));
+    //DEcompare<EcalTrigPrimDigiCollection> EtpEmCompare(ecal_tp_data_, ecal_tp_emul_);
     DEcompare<EcalTrigPrimDigiCollection> EtpEmCompare(ecal_tp_data, ecal_tp_emul);
     etp_match &= EtpEmCompare.do_compare(dumpFile,dumpMode);
   }
+
   // >>---- Hcal Trigger Primmitive ---- <<  
   if(doHtp_) {
     /// HTP 
@@ -234,44 +305,93 @@ L1Comparator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // >>---- RCT ---- <<  
   if(doRct_) {
-
-
     /// RCT em
     DEcompare<L1CaloEmCollection>     RctEmCompare(rct_em_data, rct_em_emul);
     rct_match &= RctEmCompare.do_compare(dumpFile,dumpMode);
-    
     /// RCT regions
     DEcompare<L1CaloRegionCollection> RctRgnCompare(rct_rgn_data, rct_rgn_emul);
     rct_match &= RctRgnCompare.do_compare(dumpFile,dumpMode);
-    
     //debug&alternative computations
     //bool rct_match_1 = compareCollections(rct_em_data, rct_em_emul);  
     //bool rct_match_2 = CompareCollections<L1CaloEmCollection>(rct_em_data, rct_em_emul);
   }
   
-  
   // >>---- GCT ---- <<  
   if(doGct_) {
-    /// GCT em iso
-    DEcompare<L1GctEmCandCollection>  GctIsolaEmCompare(gct_isolaem_data, gct_isolaem_emul);
-    //DEcompare<L1GctEmCandCollection>  GctNoIsoEmCompare(gct_noisoem_data, gct_noisoem_emul);
-    //DEcompare<L1GctJetCandCollection> GctCenJetsCompare(gct_cenjets_data, gct_cenjets_emul);
-    //DEcompare<L1GctJetCandCollection> GctForJetsCompare(gct_forjets_data, gct_forjets_emul);
-    //DEcompare<L1GctJetCandCollection> GctTauJetsCompare(gct_taujets_data, gct_taujets_emul);
-
-    gct_match &= GctIsolaEmCompare.do_compare(dumpFile,dumpMode);
-    //gct_match &= GctNoIsoEmCompare.do_compare(dumpFile,dumpMode);
-    //gct_match &= GctCenJetsCompare.do_compare(dumpFile,dumpMode);
-    //gct_match &= GctForJetsCompare.do_compare(dumpFile,dumpMode);
-    //gct_match &= GctTauJetsCompare.do_compare(dumpFile,dumpMode);
-
+    if(gct_isolaem_data.isValid() || gct_isolaem_emul.isValid()) {
+      DEcompare<L1GctEmCandCollection>  GctIsolaEmCompare(gct_isolaem_data, gct_isolaem_emul);
+      gct_match &= GctIsolaEmCompare.do_compare(dumpFile,dumpMode);
+    }
+    if(gct_noisoem_data.isValid() || gct_noisoem_emul.isValid()) {
+      DEcompare<L1GctEmCandCollection>  GctNoIsoEmCompare(gct_noisoem_data, gct_noisoem_emul);
+      gct_match &= GctNoIsoEmCompare.do_compare(dumpFile,dumpMode);
+    }
+    if(gct_cenjets_data.isValid() || gct_cenjets_emul.isValid()) {
+      DEcompare<L1GctJetCandCollection> GctCenJetsCompare(gct_cenjets_data, gct_cenjets_emul);
+      gct_match &= GctCenJetsCompare.do_compare(dumpFile,dumpMode);
+    }
+    if(gct_forjets_data.isValid() || gct_forjets_emul.isValid()) {
+      DEcompare<L1GctJetCandCollection> GctForJetsCompare(gct_forjets_data, gct_forjets_emul);
+      gct_match &= GctForJetsCompare.do_compare(dumpFile,dumpMode);
+    }
+    if(gct_taujets_data.isValid() || gct_taujets_emul.isValid()) {
+      DEcompare<L1GctJetCandCollection> GctTauJetsCompare(gct_taujets_data, gct_taujets_emul);
+      gct_match &= GctTauJetsCompare.do_compare(dumpFile,dumpMode);
+    }
     //debug&alternative computations
     //bool gct_match_1 = compareCollections(gct_em_data, gct_em_emul);  
     //bool gct_match_2 = CompareCollections<L1GctEmCandCollection>(gct_em_data, gct_em_emul);  
   }
  
-  // >>---- Tbd include here remaining collections ---- <<  
- 
+  // >>---- DTP ---- <<  
+  if(doDtp_) {
+    DEcompare<L1MuDTChambPhDigiCollection> DtpPhCompare(dtp_ph_data, dtp_ph_emul);
+    dtp_match &= DtpPhCompare.do_compare(dumpFile,dumpMode);
+    DEcompare<L1MuDTChambThDigiCollection> DtpThCompare(dtp_th_data, dtp_th_emul);
+    dtp_match &= DtpThCompare.do_compare(dumpFile,dumpMode);
+  }
+  // >>---- DTF ---- <<  
+  if(doDtf_) {
+    DEcompare<L1MuRegionalCandCollection> DtfCompare(dtf_data, dtf_emul);
+    dtf_match &= DtfCompare.do_compare(dumpFile,dumpMode);
+    DEcompare<L1MuRegionalCandCollection> DtfTrkCompare(dtf_trk_data, dtf_trk_emul);
+    dtf_match &= DtfTrkCompare.do_compare(dumpFile,dumpMode);
+  }
+
+//  // >>---- CTP ---- <<  
+//  if(doCtp_) {
+//    DEcompare<CSCCorrelatedLCTDigiCollection_> CtpCompare(ctp_data, ctp_emul);
+//    ctp_match &= CtpCompare.do_compare(dumpFile,dumpMode);
+//  }
+
+  // >>---- CTF ---- <<  
+  if(doCtf_) {
+  //DEcompare<L1MuRegionalCandCollection> CtfCompare(ctf_data, ctf_emul);
+    DEcompare<L1CSCTrackCollection> CtfCompare(ctf_data, ctf_emul);
+    ctf_match &= CtfCompare.do_compare(dumpFile,dumpMode);
+  }
+
+  // >>---- RPC ---- <<  
+  if(doRpc_) {
+    DEcompare<L1MuRegionalCandCollection> RpcCenCompare(rpc_cen_data, rpc_cen_emul);
+    rpc_match &= RpcCenCompare.do_compare(dumpFile,dumpMode);
+    DEcompare<L1MuRegionalCandCollection> RpcForCompare(rpc_for_data, rpc_for_emul);
+    rpc_match &= RpcForCompare.do_compare(dumpFile,dumpMode);
+  }
+
+  // >>---- LTC ---- <<  
+  if(doLtc_) {
+    DEcompare<LTCDigiCollection> LtcCompare(ltc_data, ltc_emul);
+    ltc_match &= LtcCompare.do_compare(dumpFile,dumpMode);
+  }
+
+  // >>---- GMT ---- <<  
+//  if(doGmt_) {
+//    DEcompare<L1MuGMTCandCollection> GmtCompare(gmt_data, gmt_emul);
+//    gmt_match &= GmtCompare.do_compare(dumpFile,dumpMode);
+//    DEcompare<L1MuGMTReadoutRecordCollection> GmtRdtCompare(gmt_rdt_data, gmt_rdt_emul);
+//    gmt_match &= GmtRdtCompare.do_compare(dumpFile,dumpMode);
+//  }
 
   // >>---- GT ---- <<  
   if(doGt_) {
