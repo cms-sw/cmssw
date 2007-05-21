@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_MVATrainer_Processor_h
-#define PhysicsTools_MVATrainer_Processor_h
+#ifndef PhysicsTools_MVATrainer_TrainProcessor_h
+#define PhysicsTools_MVATrainer_TrainProcessor_h
 
 #include <vector>
 #include <string>
@@ -17,23 +17,23 @@ namespace PhysicsTools {
 
 class MVATrainer;
 
-class Processor : public Source,
-	public ProcessRegistry<Processor, AtomicId, MVATrainer>::Factory {
+class TrainProcessor : public Source,
+	public ProcessRegistry<TrainProcessor, AtomicId, MVATrainer>::Factory {
     public:
 	template<typename Instance_t>
 	struct Registry {
 		typedef typename ProcessRegistry<
-			Processor,
+			TrainProcessor,
 			AtomicId,
 			MVATrainer
 		>::Registry<Instance_t, AtomicId> Type;
 	};
 
-	inline Processor(const char *name,
-	                 const AtomicId *id,
-	                 MVATrainer *trainer) :
+	inline TrainProcessor(const char *name,
+	                      const AtomicId *id,
+	                      MVATrainer *trainer) :
 		Source(*id), name(name), trainer(trainer) {}
-	virtual ~Processor() {}
+	virtual ~TrainProcessor() {}
 
 	virtual Variable::Flags getDefaultFlags() const
 	{ return Variable::FLAG_NONE; }
@@ -41,12 +41,16 @@ class Processor : public Source,
 	virtual void
 	configure(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *config) = 0;
 
-	virtual Calibration::VarProcessor *getCalib() const = 0;
+	virtual Calibration::VarProcessor *getCalibration() const = 0;
 
-	virtual void trainBegin() = 0;
+	virtual void trainBegin() {}
 	virtual void trainData(const std::vector<double> *values,
-	                       bool target) = 0;
-	virtual void trainEnd() = 0;
+	                       bool target, double weight) {}
+	virtual void trainEnd() {}
+
+	virtual bool load() { return true; }
+	virtual void save() {}
+	virtual void cleanup() {}
 
 	inline const char *getId() const { return name.c_str(); }
 
@@ -60,4 +64,4 @@ class Processor : public Source,
 
 } // namespace PhysicsTools
 
-#endif // PhysicsTools_MVATrainer_Processor_h
+#endif // PhysicsTools_MVATrainer_TrainProcessor_h

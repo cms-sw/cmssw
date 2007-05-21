@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <memory>
 
@@ -6,6 +8,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -14,50 +17,112 @@
 
 namespace PhysicsTools {
 
+namespace {
+	template<typename T>
+	struct deleter : public std::unary_function<T*, void> {
+		inline void operator() (T *ptr) const { delete ptr; }
+	};
+}
+
+// MVATrainerLooper::Trainer implementation
+
+MVATrainerLooper::Trainer::Trainer(const edm::ParameterSet &params)
+{
+	std::string trainDescription =
+			params.getUntrackedParameter<std::string>(
+							"trainDescription");
+	bool doLoad = params.getUntrackedParameter<bool>("loadState");
+	bool doSave = params.getUntrackedParameter<bool>("saveState");
+
+	trainer = std::auto_ptr<MVATrainer>(new MVATrainer(trainDescription));
+
+	if (doLoad)
+		trainer->loadState();
+
+	trainer->setAutoSave(doSave);
+	trainer->setCleanup(!doSave);
+}
+
+// MVATrainerLooper::MVATrainerContainer implementation
+
+MVATrainerLooper::TrainerContainer::~TrainerContainer()
+{
+	clear();
+}
+
+void MVATrainerLooper::TrainerContainer::clear()
+{
+	std::for_each(begin(), end(), deleter<Trainer>());
+	content.clear();
+}
+
+// MVATrainerLooper implementation
+
 MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig)
 {
-	std::string trainFile =
-			iConfig.getParameter<std::string>("trainDescription");
+}
 
-	trainer = std::auto_ptr<MVATrainer>(new MVATrainer(trainFile));
+MVATrainerLooper::~MVATrainerLooper()
+{
 }
 
 void MVATrainerLooper::startingNewLoop(unsigned int iteration)
 {
-	updateTrainer();
+	for(TrainerContainer::const_iterator iter = trainers.begin();
+	    iter != trainers.end(); iter++) {
+		Trainer *trainer = *iter;
+
+		trainer->trainCalib =
+			TrainObject(trainer->trainer->getTrainCalibration());
+	}
 }
 
 edm::EDLooper::Status
 MVATrainerLooper::duringLoop(const edm::Event &event,
                                    const edm::EventSetup &es)
 {
-	return trainCalib ? kContinue : kStop;
+// FIXME: edm aborts when kStop is returned
+//        with a bad state transition from Running, message Finished
+//        probably need to add entry to EventProcessor FSM
+
+	if (trainers.empty())
+//		return kStop;
+		return kContinue;
+
+	for(TrainerContainer::const_iterator iter = trainers.begin();
+	    iter != trainers.end(); iter++)
+		if ((*iter)->getCalibration())
+			return kContinue;
+
+	trainers.clear();
+//	return kStop;
+
+	edm::LogWarning("BugWarning")
+		<< "*** Normally I would stop the execution of CMSSW at\n"
+		   "    this point, but a bug in EDLooper currently\n"
+		   "    prevents me from doing so - see MVATrainerLooper.cc";
+
+	return kContinue;
 }
 
 edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
                                                   unsigned int iteration)
 {
-	updateTrainer();
-	if (trainCalib)
-		return kContinue;
+	if (trainers.empty())
+		return kStop;
 
-	std::auto_ptr<Calibration::MVAComputer> calib =
-				std::auto_ptr<Calibration::MVAComputer>(
-						trainer->getCalibration());
-	if (calib.get())
-		storeCalibration(calib);
-	else
-		throw cms::Exception("MVATrainerLooper")
-			<< "No calibration object obtained." << std::endl;
+	for(TrainerContainer::const_iterator iter = trainers.begin();
+	    iter != trainers.end(); iter++) {
+		Trainer *trainer = *iter;
 
-	return kStop;
-}
+		if (trainer->trainCalib)
+			trainer->trainer->doneTraining(
+						trainer->trainCalib.get());
 
-void MVATrainerLooper::updateTrainer()
-{
-	if (trainCalib)
-		trainer->doneTraining(trainCalib.get());
-	trainCalib = TrainObject(trainer->getTrainCalibration());
+		trainer->trainCalib.reset();
+	}
+
+	return kContinue;
 }
 
 } // namespace PhysicsTools

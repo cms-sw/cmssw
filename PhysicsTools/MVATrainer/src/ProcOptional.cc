@@ -14,7 +14,7 @@
 #include "PhysicsTools/MVATrainer/interface/XMLSimpleStr.h"
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -22,9 +22,9 @@ using namespace PhysicsTools;
 
 namespace { // anonymous
 
-class ProcOptional : public Processor {
+class ProcOptional : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcOptional>::Type Registry;
+	typedef TrainProcessor::Registry<ProcOptional>::Type Registry;
 
 	ProcOptional(const char *name, const AtomicId *id,
 	             MVATrainer *trainer);
@@ -34,11 +34,7 @@ class ProcOptional : public Processor {
 	{ return Variable::FLAG_ALL; }
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
-
-	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
-	virtual void trainEnd();
+	virtual Calibration::VarProcessor *getCalibration() const;
 
     private:
 	std::vector<double>	neutrals;
@@ -48,7 +44,7 @@ static ProcOptional::Registry registry("ProcOptional");
 
 ProcOptional::ProcOptional(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
-	Processor(name, id, trainer)
+	TrainProcessor(name, id, trainer)
 {
 }
 
@@ -86,7 +82,7 @@ void ProcOptional::configure(DOMElement *elem)
 			<< std::endl;
 }
 
-Calibration::VarProcessor *ProcOptional::getCalib() const
+Calibration::VarProcessor *ProcOptional::getCalibration() const
 {
 	Calibration::ProcOptional *calib = new Calibration::ProcOptional;
 
@@ -94,18 +90,6 @@ Calibration::VarProcessor *ProcOptional::getCalib() const
 	          std::back_inserter(calib->neutralPos));
 
 	return calib;
-}
-
-void ProcOptional::trainBegin()
-{
-}
-
-void ProcOptional::trainData(const std::vector<double> *values, bool target)
-{
-}
-
-void ProcOptional::trainEnd()
-{
 }
 
 } // anonymous namespace

@@ -2,7 +2,6 @@
 #include <iterator>
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cstring>
 #include <vector>
 #include <string>
@@ -18,7 +17,7 @@
 #include "PhysicsTools/MVATrainer/interface/XMLUniStr.h"
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -26,9 +25,9 @@ using namespace PhysicsTools;
 
 namespace { // anonymous
 
-class ProcNormalize : public Processor {
+class ProcNormalize : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcNormalize>::Type Registry;
+	typedef TrainProcessor::Registry<ProcNormalize>::Type Registry;
 
 	ProcNormalize(const char *name, const AtomicId *id,
 	              MVATrainer *trainer);
@@ -38,12 +37,16 @@ class ProcNormalize : public Processor {
 	{ return Variable::FLAG_ALL; }
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
+	virtual Calibration::VarProcessor *getCalibration() const;
 
 	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight);
 	virtual void trainEnd();
 
+	virtual bool load();
+	virtual void save();
+	
     private:
 	enum Iteration {
 		ITER_EMPTY,
@@ -57,9 +60,6 @@ class ProcNormalize : public Processor {
 		Iteration	iteration;
 	};
 
-	bool load();
-	void save() const;
-	
 	std::vector<PDF> pdfs;
 };
 
@@ -67,7 +67,7 @@ static ProcNormalize::Registry registry("ProcNormalize");
 
 ProcNormalize::ProcNormalize(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
-	Processor(name, id, trainer)
+	TrainProcessor(name, id, trainer)
 {
 }
 
@@ -109,13 +109,6 @@ void ProcNormalize::configure(DOMElement *elem)
 		pdfs.push_back(pdf);
 	}
 
-	if (load()) {
-		trained = true;
-		std::cout << "ProcNormalize configuration for \""
-		          << getName() << "\" loaded from file."
-		          << std::endl;
-	}
-
 	if (pdfs.size() != getInputs().size())
 		throw cms::Exception("ProcNormalize")
 			<< "Got " << pdfs.size() << " pdf configs for "
@@ -123,7 +116,7 @@ void ProcNormalize::configure(DOMElement *elem)
 			<< std::endl;
 }
 
-Calibration::VarProcessor *ProcNormalize::getCalib() const
+Calibration::VarProcessor *ProcNormalize::getCalibration() const
 {
 	Calibration::ProcNormalize *calib = new Calibration::ProcNormalize;
 	std::copy(pdfs.begin(), pdfs.end(), std::back_inserter(calib->distr));
@@ -134,7 +127,8 @@ void ProcNormalize::trainBegin()
 {
 }
 
-void ProcNormalize::trainData(const std::vector<double> *values, bool target)
+void ProcNormalize::trainData(const std::vector<double> *values,
+                              bool target, double weight)
 {
 	for(std::vector<PDF>::iterator iter = pdfs.begin();
 	    iter != pdfs.end(); iter++, values++) {
@@ -175,7 +169,7 @@ void ProcNormalize::trainData(const std::vector<double> *values, bool target)
 			else if (x >= 1.0)
 				x = 1.0;
 
-			iter->distr[(unsigned int)(x * n + 0.5)]++;
+			iter->distr[(unsigned int)(x * n + 0.5)] += weight;
 		}
 	}
 }
@@ -226,10 +220,8 @@ void ProcNormalize::trainEnd()
 		}
 	}
 
-	if (done) {
+	if (done)
 		trained = true;
-		save();
-	}
 }
 
 bool ProcNormalize::load()
@@ -289,11 +281,8 @@ bool ProcNormalize::load()
 
 			elem = static_cast<DOMElement*>(node);
 
-			std::istringstream ss(XMLSimpleStr(
-						subNode->getTextContent()));
-			double value;
-			ss >> value;
-			pdf.distr.push_back(value);
+			pdf.distr.push_back(
+				XMLDocument::readContent<double>(subNode));
 		}
 
 		*cur++ = pdf;
@@ -303,10 +292,11 @@ bool ProcNormalize::load()
 		throw cms::Exception("ProcNormalize")
 			<< "Missing PDF in train data." << std::endl;
 
+	trained = true;
 	return true;
 }
 
-void ProcNormalize::save() const
+void ProcNormalize::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcNormalize");
@@ -325,10 +315,7 @@ void ProcNormalize::save() const
 					doc->createElement(XMLUniStr("value"));
 			elem->appendChild(value);	
 
-			std::ostringstream os;
-			os << std::setprecision(16) << *iter2;
-			value->appendChild(doc->createTextNode(
-						XMLUniStr(os.str().c_str())));
+			XMLDocument::writeContent<double>(value, doc, *iter2);
 		}
 	}
 }

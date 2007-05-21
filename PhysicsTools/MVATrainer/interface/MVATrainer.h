@@ -1,8 +1,8 @@
 #ifndef PhysicsTools_MVATrainer_MVATrainer_h
 #define PhysicsTools_MVATrainer_MVATrainer_h
 
-#include <sstream>
 #include <memory>
+#include <string>
 #include <map>
 
 #include <xercesc/dom/DOM.hpp>
@@ -21,23 +21,36 @@
 namespace PhysicsTools {
 
 class Source;
-class Processor;
+class TrainProcessor;
 
 class MVATrainer {
     public:
 	MVATrainer(const std::string &fileName);
 	~MVATrainer();
 
+	inline void setAutoSave(bool autoSave) { doAutoSave = autoSave; }
+	inline void setCleanup(bool cleanup) { doCleanup = cleanup; }
+
+	void loadState();
+	void saveState();
+
 	Calibration::MVAComputer *getTrainCalibration() const;
 	void doneTraining(Calibration::MVAComputer *trainCalibration) const;
 
 	Calibration::MVAComputer *getCalibration() const;
 
-	std::string trainFileName(const Processor *proc,
+	// used by TrainProcessors
+
+	std::string trainFileName(const TrainProcessor *proc,
 	                          const std::string &ext,
 	                          const std::string &arg = "") const;
 
+	inline const std::string &getName() const { return name; }
+
+	// constants
+
 	static const AtomicId kTargetId;
+	static const AtomicId kWeightId;
 
     private:
 	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
@@ -45,8 +58,14 @@ class MVATrainer {
 	SourceVariable *createVariable(Source *source, AtomicId name,
 	                               Variable::Flags flags);
 
-	typedef std::pair<Processor*,
-	                  Calibration::VarProcessor*> CalibratedProcessor;
+	struct CalibratedProcessor {
+		CalibratedProcessor(TrainProcessor *processor,
+		                    Calibration::VarProcessor *calib) :
+			processor(processor), calib(calib) {}
+
+		TrainProcessor			*processor;
+		Calibration::VarProcessor	*calib;
+	};
 
 	void fillInputVars(SourceVariableSet &vars,
 	                   XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *xml);
@@ -77,6 +96,9 @@ class MVATrainer {
 
 	std::auto_ptr<XMLDocument>	xml;
 	std::string			trainFileMask;
+	std::string			name;
+	bool				doAutoSave;
+	bool				doCleanup;
 };
 
 } // namespace PhysicsTools

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cstring>
 #include <vector>
 #include <cmath>
@@ -149,14 +148,8 @@ static void loadMatrix(DOMElement *elem, unsigned int n, TMatrixDBase &matrix)
 					<< "Too many columns in data file."
 					<< std::endl;
 
-			elem = static_cast<DOMElement*>(subNode);
-
-			std::istringstream ss(XMLSimpleStr(
-						subNode->getTextContent()));
-			double value;
-			ss >> value;
-
-			matrix(row, col) = value;
+			matrix(row, col) =
+				XMLDocument::readContent<double>(subNode);
 			col++;
 		}
 
@@ -198,14 +191,7 @@ static void loadVector(DOMElement *elem, unsigned int n, TVectorD &vector)
 				<< "Too many columns in data file."
 				<< std::endl;
 
-		elem = static_cast<DOMElement*>(node);
-
-		std::istringstream ss(XMLSimpleStr(
-					node->getTextContent()));
-		double value;
-		ss >> value;
-
-		vector(col) = value;
+		vector(col) = XMLDocument::readContent<double>(node);
 		col++;
 	}
 
@@ -230,10 +216,8 @@ static DOMElement *saveMatrix(DOMDocument *doc, unsigned int n,
 				doc->createElement(XMLUniStr("value"));
 			row->appendChild(value);
 
-			std::ostringstream os;
-			os << std::setprecision(16) << matrix(i, j);
-			value->appendChild(doc->createTextNode(
-						XMLUniStr(os.str().c_str())));
+			XMLDocument::writeContent<double>(value, doc,
+			                                  matrix(i, j));
 		}
 	}
 
@@ -251,10 +235,7 @@ static DOMElement *saveVector(DOMDocument *doc, unsigned int n,
 			doc->createElement(XMLUniStr("value"));
 		root->appendChild(value);
 
-		std::ostringstream os;
-		os << std::setprecision(16) << vector(i);
-		value->appendChild(doc->createTextNode(
-					XMLUniStr(os.str().c_str())));
+		XMLDocument::writeContent<double>(value, doc, vector(i));
 	}
 
 	return root;

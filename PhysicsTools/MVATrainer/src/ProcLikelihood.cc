@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cstring>
 #include <vector>
 #include <string>
@@ -16,7 +15,7 @@
 #include "PhysicsTools/MVATrainer/interface/XMLUniStr.h"
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -24,9 +23,9 @@ using namespace PhysicsTools;
 
 namespace { // anonymous
 
-class ProcLikelihood : public Processor {
+class ProcLikelihood : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcLikelihood>::Type Registry;
+	typedef TrainProcessor::Registry<ProcLikelihood>::Type Registry;
 
 	ProcLikelihood(const char *name, const AtomicId *id,
 	               MVATrainer *trainer);
@@ -36,11 +35,15 @@ class ProcLikelihood : public Processor {
 	{ return Variable::FLAG_ALL; }
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
+	virtual Calibration::VarProcessor *getCalibration() const;
 
 	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight);
 	virtual void trainEnd();
+
+	virtual bool load();
+	virtual void save();
 
     private:
 	enum Iteration {
@@ -55,9 +58,6 @@ class ProcLikelihood : public Processor {
 		Iteration	iteration;
 	};
 
-	bool load();
-	void save() const;
-	
 	std::vector<SigBkg> pdfs;
 };
 
@@ -65,7 +65,7 @@ static ProcLikelihood::Registry registry("ProcLikelihood");
 
 ProcLikelihood::ProcLikelihood(const char *name, const AtomicId *id,
                                MVATrainer *trainer) :
-	Processor(name, id, trainer)
+	TrainProcessor(name, id, trainer)
 {
 }
 
@@ -113,13 +113,6 @@ void ProcLikelihood::configure(DOMElement *elem)
 		pdfs.push_back(pdf);
 	}
 
-	if (load()) {
-		trained = true;
-		std::cout << "ProcLikelihood configuration for \""
-		          << getName() << "\" loaded from file."
-		          << std::endl;
-	}
-
 	if (pdfs.size() != getInputs().size())
 		throw cms::Exception("ProcLikelihood")
 			<< "Got " << pdfs.size() << " pdf configs for "
@@ -127,7 +120,7 @@ void ProcLikelihood::configure(DOMElement *elem)
 			<< std::endl;
 }
 
-Calibration::VarProcessor *ProcLikelihood::getCalib() const
+Calibration::VarProcessor *ProcLikelihood::getCalibration() const
 {
 	Calibration::ProcLikelihood *calib = new Calibration::ProcLikelihood;
 
@@ -174,7 +167,8 @@ void ProcLikelihood::trainBegin()
 {
 }
 
-void ProcLikelihood::trainData(const std::vector<double> *values, bool target)
+void ProcLikelihood::trainData(const std::vector<double> *values,
+                               bool target, double weight)
 {
 	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
 	    iter != pdfs.end(); iter++, values++) {
@@ -219,7 +213,7 @@ void ProcLikelihood::trainData(const std::vector<double> *values, bool target)
 			else if (x >= 1.0)
 				x = 1.0;
 
-			pdf.distr[(unsigned int)(x * n + 0.5)]++;
+			pdf.distr[(unsigned int)(x * n + 0.5)] += weight;
 		}
 	}
 }
@@ -277,10 +271,8 @@ void ProcLikelihood::trainEnd()
 		}
 	}
 
-	if (done) {
+	if (done)
 		trained = true;
-		save();
-	}
 }
 
 static void xmlParsePDF(Calibration::PDF &pdf, DOMElement *elem) {
@@ -304,12 +296,7 @@ static void xmlParsePDF(Calibration::PDF &pdf, DOMElement *elem) {
 				<< "Expected value tag in train file."
 				<< std::endl;
 
-		elem = static_cast<DOMElement*>(node);
-
-		std::istringstream ss(XMLSimpleStr(node->getTextContent()));
-		double value;
-		ss >> value;
-		pdf.distr.push_back(value);
+		pdf.distr.push_back(XMLDocument::readContent<double>(node));
 	}
 }
 
@@ -387,6 +374,7 @@ bool ProcLikelihood::load()
 		throw cms::Exception("ProcLikelihood")
 			<< "Missing SigBkg in train data." << std::endl;
 
+	trained = true;
 	return true;
 }
 
@@ -402,16 +390,13 @@ static DOMElement *xmlStorePDF(DOMDocument *doc, const Calibration::PDF &pdf)
 		DOMElement *value = doc->createElement(XMLUniStr("value"));
 		elem->appendChild(value);	
 
-		std::ostringstream os;
-		os << std::setprecision(16) << *iter;
-		value->appendChild(doc->createTextNode(
-						XMLUniStr(os.str().c_str())));
+		XMLDocument::writeContent<double>(value, doc, *iter);
 	}
 
 	return elem;
 }
 
-void ProcLikelihood::save() const
+void ProcLikelihood::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcLikelihood");

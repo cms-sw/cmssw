@@ -8,10 +8,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
+#include "FWCore/Framework/interface/ESProducts.h"
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainerLooper.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainerContainer.h"
@@ -22,87 +19,91 @@ template<class Record_t>
 class MVATrainerLooperImpl : public MVATrainerLooper {
     public:
 	MVATrainerLooperImpl(const edm::ParameterSet &params) :
-		MVATrainerLooperImpl(params)
-	{ setWhatProduced(this); }
+		MVATrainerLooper(params)
+	{
+		setWhatProduced(this, "trainer");
+		addTrainer(new Trainer(params));
+	}
 
 	virtual ~MVATrainerLooperImpl() {}
 
-	TrainObject produce(const Record_t &record)
-	{ return getCalibration(); }
-
-    protected:
-	virtual void
-	storeCalibration(std::auto_ptr<Calibration::MVAComputer> calib) const
-	{
-		edm::Service<cond::service::PoolDBOutputService> dbService;
-		if (!dbService.isAvailable())
-			throw cms::Exception("MVATrainerLooper")
-				<< "No PoolDBOutputService available!"
-				<< std::endl;
-
-		dbService->createNewIOV<Calibration::MVAComputerContainer>(
-			calib.release(), dbService->endOfTime(),
-			"BTagCombinedSVDiscriminatorComputerRcd");
-	}
+	boost::shared_ptr<Calibration::MVAComputer>
+	produce(const Record_t &record)
+	{ return (*getTrainers().begin())->getCalibration(); }
 };
 
 template<class Record_t>
 class MVATrainerContainerLooperImpl : public MVATrainerLooper {
     public:
+	enum { kTrainer, kTrained };
+
 	MVATrainerContainerLooperImpl(const edm::ParameterSet &params) :
-		MVATrainerLooper(params),
-		calibrationRecord(params.getParameter<std::string>(
-							"calibrationRecord"))
-	{ setWhatProduced(this); }
+		MVATrainerLooper(params)
+	{
+		setWhatProduced(this, edm::es::label("trainer", kTrainer)
+		                                    ("trained", kTrained));
+
+		std::vector<edm::ParameterSet> trainers =
+			params.getParameter<std::vector<edm::ParameterSet> >(
+								"trainers");
+
+		for(std::vector<edm::ParameterSet>::const_iterator iter =
+			trainers.begin(); iter != trainers.end(); iter++)
+
+			addTrainer(new Trainer(*iter));
+	}
 
 	virtual ~MVATrainerContainerLooperImpl() {}
 
-	boost::shared_ptr<Calibration::MVAComputerContainer>
+	edm::ESProducts<
+		edm::es::L<Calibration::MVAComputerContainer, kTrainer>,
+		edm::es::L<Calibration::MVAComputerContainer, kTrained> >
 	produce(const Record_t &record)
 	{
-		boost::shared_ptr<MVATrainerContainer> container(
+		boost::shared_ptr<MVATrainerContainer> trainerCalib(
 						new MVATrainerContainer());
-		container->addTrainer(calibrationRecord, getCalibration());
-		return container;
-	}
+		TrainContainer trainedCalib;
 
-	virtual Status duringLoop(const edm::Event &event,
-	                         const edm::EventSetup &es)
-	{
-#if 0
-		if (!dbService.get()) {
-			dbService = std::auto_ptr<DBService>(new DBService);
+		for(TrainerContainer::const_iterator iter =
+							getTrainers().begin();
+		    iter != getTrainers().end(); iter++) {
+			Trainer *trainer = dynamic_cast<Trainer*>(*iter);
+			TrainObject calib = trainer->getCalibration();
 
-			if (!dbService->isAvailable())
-				throw cms::Exception("MVATrainerLooper")
-					<< "No PoolDBOutputService available!"
-					<< std::endl;
+			trainerCalib->addTrainer(trainer->calibrationRecord,
+			                         calib);
+			if (calib)
+				continue;
+
+			if (!trainedCalib)
+				trainedCalib = TrainContainer(
+					new Calibration::MVAComputerContainer);
+
+			trainedCalib->add(trainer->calibrationRecord) =
+				*trainer->getTrainer()->getCalibration();
 		}
-#endif
 
-		return MVATrainerLooper::duringLoop(event, es);
+		if (!trainedCalib)
+			trainedCalib = TrainContainer(
+					new UntrainedMVAComputerContainer);
+
+		edm::es::L<Calibration::MVAComputerContainer, kTrainer>
+						trainedESLabel(trainerCalib);
+
+		return edm::es::products(trainedESLabel,
+		                         edm::es::l<kTrained>(trainedCalib));
 	}
 
     protected:
-	virtual void
-	storeCalibration(std::auto_ptr<Calibration::MVAComputer> calib) const
-	{
-#if 0
-		Calibration::MVAComputerContainer *container =
-					new Calibration::MVAComputerContainer;
-		container->add(calibrationRecord) = *calib;
+	class Trainer : public MVATrainerLooper::Trainer {
+	    public:
+		Trainer(const edm::ParameterSet &params) :
+			MVATrainerLooper::Trainer(params),
+			calibrationRecord(params.getParameter<std::string>(
+						"calibrationRecord")) {}
 
-		(*dbService)->createNewIOV<Calibration::MVAComputerContainer>(
-			container, (*dbService)->endOfTime(),
-			Record_t::keyForClass().type().name());
-#endif	
-	}
-
-    private:
-	typedef edm::Service<cond::service::PoolDBOutputService> DBService;
-
-	std::string			calibrationRecord;
-	std::auto_ptr<DBService>	dbService;
+		std::string calibrationRecord;
+	};
 };
 
 } // namespace PhysicsTools

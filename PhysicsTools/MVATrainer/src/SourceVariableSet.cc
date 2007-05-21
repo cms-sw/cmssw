@@ -41,11 +41,11 @@ SourceVariable *SourceVariableSet::find(AtomicId name) const
 
 std::vector<SourceVariable*> SourceVariableSet::get() const
 {
-	std::vector<SourceVariable*> result;
+	std::vector<SourceVariable*> result(vars.size());
 
 	for(std::vector<PosVar>::const_iterator iter = vars.begin();
 	    iter != vars.end(); iter++)
-		result.push_back(vars[iter->pos].var);
+		result[iter->pos] = iter->var;
 
 	return result;
 }

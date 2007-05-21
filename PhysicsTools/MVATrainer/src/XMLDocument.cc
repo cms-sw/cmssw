@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <iostream>
-#include <cstdio>
+#include <iomanip>
+#include <sstream>
 #include <memory>
 #include <string>
 
@@ -16,6 +17,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
+#include "PhysicsTools/MVATrainer/interface/XMLSimpleStr.h"
 #include "PhysicsTools/MVATrainer/interface/XMLUniStr.h"
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 
@@ -38,7 +40,7 @@ XMLDocument::XercesPlatform::XercesPlatform()
 		try {
 			XMLPlatformUtils::Initialize();
 		} catch(...) {
-			throw cms::Exception("MVATrainer")
+			throw cms::Exception("XMLDocument")
 				<< "XMLPlatformUtils::Initialize failed."
 				<< std::endl;
 		}
@@ -104,16 +106,16 @@ void XMLDocument::openForRead(const std::string &fileName)
 	try {
 		parser->parse(fileName.c_str());
 		if (parser->getErrorCount())
-			throw cms::Exception("MVATrainer")
+			throw cms::Exception("XMLDocument")
 				<< "XML parser reported errors."
 				<< std::endl;
 	} catch(const XMLException &e) {
-		throw cms::Exception("MVATrainer")
+		throw cms::Exception("XMLDocument")
 			<< "XML parser reported DOM error no. "
 			<< (unsigned long)e.getCode()
 			<< "." << std::endl;
 	} catch(...) {
-		throw cms::Exception("MVATrainer")
+		throw cms::Exception("XMLDocument")
 			<< "XML parser reported an unknown error."
 			<< std::endl;
 	}
@@ -125,7 +127,7 @@ void XMLDocument::openForRead(const std::string &fileName)
 		node = node->getNextSibling();
 
 	if (!node)
-		throw cms::Exception("MVATrainer")
+		throw cms::Exception("XMLDocument")
 			<< "XML document didn't contain a valid "
 			<< "root node." << std::endl;
 
@@ -150,4 +152,80 @@ DOMDocument *XMLDocument::createDocument(const std::string &root)
 	rootNode = doc->getDocumentElement();
 
 	return doc;
+}
+
+// specialization of read/write method templates for bool
+
+static bool isBool(std::string value)
+{
+	for(unsigned int i = 0; i < value.size(); i++)
+		if (value[i] >= 'A' && value[i] <= 'Z')
+			value[i] += 'a' - 'A';
+
+	if (value == "1" || value == "y" || value == "yes" ||
+	    value == "true" || value == "ok")
+		return true;
+
+	if (value == "0" || value == "n" || value == "no" || value == "false")
+		return false;
+
+	throw cms::Exception("XMLDocument")
+		<< "Invalid boolean value in XML document" << std::endl;
+}
+
+static const char *makeBool(bool value)
+{
+	return value ? "true" : "false";
+}
+
+template<>
+bool XMLDocument::readAttribute(
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+			const char *name)
+{
+	XMLUniStr uniName(name);
+	if (!elem->hasAttribute(uniName))
+		throw cms::Exception("MVAComputer")
+			<< "Missing attribute " << name << " in tag "
+			<< XMLSimpleStr(elem->getNodeName())
+			<< "." << std::endl;
+	const XMLCh *attribute = elem->getAttribute(uniName);
+	return isBool(XMLSimpleStr(attribute));
+}
+
+template<>
+bool XMLDocument::readAttribute(
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+			const char *name, const bool &defValue)
+{
+	XMLUniStr uniName(name);
+	if (!elem->hasAttribute(uniName))
+		return defValue;
+	const XMLCh *attribute = elem->getAttribute(uniName);
+	return isBool(XMLSimpleStr(attribute));
+}
+
+template<>
+void XMLDocument::writeAttribute(
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
+			const char *name, const bool &value)
+{
+	elem->setAttribute(XMLUniStr(name), XMLUniStr(makeBool(value)));
+}
+
+template<>
+bool XMLDocument::readContent(
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node)
+{
+	const XMLCh *content = node->getTextContent();
+	return isBool(XMLSimpleStr(content));
+}
+
+template<>
+void XMLDocument::writeContent(
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node,
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc,
+			const bool &value)
+{
+	node->appendChild(doc->createTextNode(XMLUniStr(makeBool(value))));
 }

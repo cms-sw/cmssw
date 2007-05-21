@@ -1,8 +1,6 @@
 #ifndef PhysicsTools_MVATrainer_XMLDocument_h
 #define PhysicsTools_MVATrainer_XMLDocument_h
 
-#include <iomanip>
-#include <sstream>
 #include <string>
 #include <memory>
 
@@ -11,11 +9,6 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
-
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "PhysicsTools/MVATrainer/interface/XMLSimpleStr.h"
-#include "PhysicsTools/MVATrainer/interface/XMLUniStr.h"
 
 class XMLDocument {
     public:
@@ -33,44 +26,20 @@ class XMLDocument {
 
 	template<typename T>
 	static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                       const char *name)
-	{
-		XMLUniStr uniName(name);
-		if (!elem->hasAttribute(uniName))
-			throw cms::Exception("MVAComputer")
-				<< "Missing attribute " << name << " in tag "
-				<< XMLSimpleStr(elem->getNodeName())
-				<< "." << std::endl;
-		const XMLCh *attribute = elem->getAttribute(uniName);
-		T value = T();
-		std::istringstream buffer((const char*)XMLSimpleStr(attribute));
-		buffer >> value;
-		return value;
-	}
-
+	                       const char *name);
 	template<typename T>
 	static T readAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                       const char *name, const T &defValue)
-	{
-		XMLUniStr uniName(name);
-		if (!elem->hasAttribute(uniName))
-			return defValue;
-		const XMLCh *attribute = elem->getAttribute(uniName);
-		std::istringstream buffer((const char*)XMLSimpleStr(attribute));
-		T value = defValue;
-		buffer >> value;
-		return value;
-	}
-
+	                       const char *name, const T &defValue);
 	template<typename T>
 	static void writeAttribute(XERCES_CPP_NAMESPACE_QUALIFIER DOMElement *elem,
-	                           const char *name, const T &value)
-	{
-		std::ostringstream os;
-		os << std::setprecision(16) << value;
-		elem->setAttribute(XMLUniStr(name),
-		                   XMLUniStr(os.str().c_str()));
-	}
+	                           const char *name, const T &value);
+
+	template<typename T>
+	static T readContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node);
+	template<typename T>
+	static void writeContent(XERCES_CPP_NAMESPACE_QUALIFIER DOMNode *node,
+			XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *doc,
+			const T &value);
 
     private:
 	class XercesPlatform {
@@ -101,5 +70,7 @@ class XMLDocument {
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument			*doc;
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMElement			*rootNode;
 };
+
+#include "PhysicsTools/MVATrainer/interface/XMLDocument.icc"
 
 #endif // PhysicsTools_MVATrainer_XMLDocument_h

@@ -1,9 +1,11 @@
+#include <unistd.h>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstddef>
 #include <cstring>
+#include <cstdio>
 #include <vector>
 #include <memory>
 
@@ -27,7 +29,7 @@
 #include "PhysicsTools/MVATrainer/interface/XMLSimpleStr.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/SourceVariable.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 
 XERCES_CPP_NAMESPACE_USE
 
@@ -45,23 +47,35 @@ class ROOTContextSentinel {
 	TFile		*file;
 };
 
-class ProcTMVA : public Processor {
+class ProcTMVA : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcTMVA>::Type Registry;
+	typedef TrainProcessor::Registry<ProcTMVA>::Type Registry;
 
 	ProcTMVA(const char *name, const AtomicId *id,
 	         MVATrainer *trainer);
 	virtual ~ProcTMVA();
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
+	virtual Calibration::VarProcessor *getCalibration() const;
 
 	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight);
 	virtual void trainEnd();
+
+	virtual bool load();
+	virtual void cleanup();
 
     private:
 	void runTMVATrainer();
+
+	std::string getTreeName() const
+	{ return trainer->getName() + '_' + (const char*)getName(); }
+	std::string getWeightsFile(const char *ext) const
+	{
+		return "weights/" + getTreeName() + '_' +
+		       methodName + ".weights." + ext;
+	}
 
 	enum Iteration {
 		ITER_EXPORT,
@@ -75,16 +89,19 @@ class ProcTMVA : public Processor {
 	std::auto_ptr<TFile>		file;
 	TTree				*tree;
 	Bool_t				target;
+	Double_t			weight;
 	std::vector<Double_t>		vars;
+	bool				needCleanup;
+	unsigned int			nSignal;
+	unsigned int			nBackground;
 };
 
 static ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
-	Processor(name, id, trainer),
-	iteration(ITER_EXPORT),
-	tree(0)
+	TrainProcessor(name, id, trainer),
+	iteration(ITER_EXPORT), tree(0), needCleanup(false)
 {
 }
 
@@ -148,42 +165,46 @@ void ProcTMVA::configure(DOMElement *elem)
 		throw cms::Exception("ProcTMVA")
 			<< "Superfluous tags in config section."
 			<< std::endl;
+}
 
+bool ProcTMVA::load()
+{
 	bool ok = false;
 	/* test for weights file */ {
-		std::string fileName = std::string("weights/MVATrainer_") +
-	                                   methodName + ".weights.txt";
-		std::ifstream in(fileName.c_str());
+		std::ifstream in(getWeightsFile("txt").c_str());
 		ok = in.good();
 	}
 
-	if (ok) {
-		iteration = ITER_DONE;
-		trained = true;
-		std::cout << "ProcTMVA training data for \""
-		          << getName() << "\" found." << std::endl;
-	}
+	if (!ok)
+		return false;
+
+	iteration = ITER_DONE;
+	trained = true;
+	return true;
 }
 
-Calibration::VarProcessor *ProcTMVA::getCalib() const
+static std::size_t getStreamSize(std::ifstream &in)
 {
-	Calibration::ProcTMVA *calib = new Calibration::ProcTMVA;
-
-	std::string fileName = std::string("weights/MVATrainer_") +
-	                                   methodName + ".weights.txt";
-	std::ifstream in(fileName.c_str(), std::ios::binary | std::ios::in);
-	if (!in.good())
-		throw cms::Exception("ProcTMVA")
-			<< "Weights file " << fileName
-			<< "cannot be opened for reading." << std::endl;
-
-	in.seekg(0, std::ios::beg);
 	std::ifstream::pos_type begin = in.tellg();
 	in.seekg(0, std::ios::end);
 	std::ifstream::pos_type end = in.tellg();
-	in.seekg(0, std::ios::beg);
+	in.seekg(begin, std::ios::beg);
 
-	std::size_t size = end - begin;
+	return (std::size_t)(end - begin);
+}
+
+Calibration::VarProcessor *ProcTMVA::getCalibration() const
+{
+	Calibration::ProcTMVA *calib = new Calibration::ProcTMVA;
+
+	std::ifstream in(getWeightsFile("txt").c_str(),
+	                 std::ios::binary | std::ios::in);
+	if (!in.good())
+		throw cms::Exception("ProcTMVA")
+			<< "Weights file " << getWeightsFile("txt")
+			<< " cannot be opened for reading." << std::endl;
+
+	std::size_t size = getStreamSize(in);
 	size = size + (size / 32) + 128;
 
 	char *buffer = 0;
@@ -226,9 +247,10 @@ void ProcTMVA::trainBegin()
 				<< std::endl;
 
 		file->cd();
-		tree = new TTree("MVATrainer", "MVATrainer");
+		tree = new TTree(getTreeName().c_str(), "MVATrainer");
 
 		tree->Branch("__TARGET__", &target, "__TARGET__/B");
+		tree->Branch("__WEIGHT__", &weight, "__WEIGHT__/D");
 
 		vars.resize(names.size());
 
@@ -237,23 +259,39 @@ void ProcTMVA::trainBegin()
 			names.begin(); iter != names.end(); iter++, pos++)
 			tree->Branch(iter->c_str(), &*pos,
 			             (*iter + "/D").c_str());
+
+		nSignal = nBackground = 0;
 	}
 }
 
-void ProcTMVA::trainData(const std::vector<double> *values, bool target)
+void ProcTMVA::trainData(const std::vector<double> *values,
+                         bool target, double weight)
 {
 	if (iteration != ITER_EXPORT)
 		return;
 
 	this->target = target;
+	this->weight = weight;
 	for(unsigned int i = 0; i < vars.size(); i++, values++)
 		vars[i] = values->front();
 
 	tree->Fill();
+
+	if (target)
+		nSignal++;
+	else
+		nBackground++;
 }
 
 void ProcTMVA::runTMVATrainer()
 {
+	needCleanup = true;
+
+	if (nSignal < 1 || nBackground < 1)
+		throw cms::Exception("ProcTMVA")
+			<< "Not going to run TMVA: "
+			   "No signal or background events!" << std::endl;
+
 	std::auto_ptr<TFile> file(std::auto_ptr<TFile>(TFile::Open(
 		trainer->trainFileName(this, "root", "output").c_str(),
 		"RECREATE")));
@@ -263,7 +301,7 @@ void ProcTMVA::runTMVATrainer()
 			<< std::endl;
 
 	std::auto_ptr<TMVA::Factory> factory(
-			new TMVA::Factory("MVATrainer", file.get(), ""));
+		new TMVA::Factory(getTreeName().c_str(), file.get(), ""));
 
 	if (!factory->SetInputTrees(tree, TCut("__TARGET__"),
 	                                  TCut("!__TARGET__")))
@@ -273,6 +311,8 @@ void ProcTMVA::runTMVATrainer()
 	for(std::vector<std::string>::const_iterator iter = names.begin();
 	    iter != names.end(); iter++)
 		factory->AddVariable(iter->c_str(), 'D');
+
+	factory->SetWeightExpression("__WEIGHT__");
 
 	factory->PrepareTrainingAndTestTree("", -1);
 
@@ -306,6 +346,18 @@ void ProcTMVA::trainEnd()
 	    default:
 		/* shut up */;
 	}
+}
+
+void ProcTMVA::cleanup()
+{
+	if (!needCleanup)
+		return;
+
+	std::remove(trainer->trainFileName(this, "root", "input").c_str());
+	std::remove(trainer->trainFileName(this, "root", "output").c_str());
+	std::remove(getWeightsFile("txt").c_str());
+	std::remove(getWeightsFile("root").c_str());
+	rmdir("weights");
 }
 
 } // anonymous namespace

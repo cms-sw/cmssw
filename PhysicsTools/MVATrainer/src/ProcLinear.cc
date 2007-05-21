@@ -10,7 +10,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 #include "PhysicsTools/MVATrainer/interface/LeastSquares.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -19,20 +19,24 @@ using namespace PhysicsTools;
 
 namespace { // anonymous
 
-class ProcLinear : public Processor {
+class ProcLinear : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcLinear>::Type Registry;
+	typedef TrainProcessor::Registry<ProcLinear>::Type Registry;
 
 	ProcLinear(const char *name, const AtomicId *id,
 	           MVATrainer *trainer);
 	virtual ~ProcLinear();
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
+	virtual Calibration::VarProcessor *getCalibration() const;
 
 	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight);
 	virtual void trainEnd();
+
+	virtual bool load();
+	virtual void save();
 
     protected:
 	virtual void *requestObject(const std::string &name) const;
@@ -43,9 +47,6 @@ class ProcLinear : public Processor {
 		ITER_DONE
 	} iteration;
 
-	bool load();
-	void save() const;
-
 	std::auto_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 };
@@ -54,7 +55,7 @@ static ProcLinear::Registry registry("ProcLinear");
 
 ProcLinear::ProcLinear(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
-	Processor(name, id, trainer),
+	TrainProcessor(name, id, trainer),
 	iteration(ITER_FILL)
 {
 }
@@ -66,17 +67,9 @@ ProcLinear::~ProcLinear()
 void ProcLinear::configure(DOMElement *elem)
 {
 	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
-
-	if (load()) {
-		iteration = ITER_DONE;
-		trained = true;
-		std::cout << "ProcNormalize configuration for \""
-		          << getName() << "\" loaded from file."
-		          << std::endl;
-	}
 }
 
-Calibration::VarProcessor *ProcLinear::getCalib() const
+Calibration::VarProcessor *ProcLinear::getCalibration() const
 {
 	Calibration::ProcLinear *calib = new Calibration::ProcLinear;
 
@@ -92,7 +85,8 @@ void ProcLinear::trainBegin()
 		vars.resize(ls->getSize());
 }
 
-void ProcLinear::trainData(const std::vector<double> *values, bool target)
+void ProcLinear::trainData(const std::vector<double> *values,
+                           bool target, double weight)
 {
 	if (iteration != ITER_FILL)
 		return;
@@ -100,7 +94,7 @@ void ProcLinear::trainData(const std::vector<double> *values, bool target)
 	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
 		vars[i] = values->front();
 
-	ls->add(vars, target);
+	ls->add(vars, target, weight);
 }
 
 void ProcLinear::trainEnd()
@@ -110,7 +104,6 @@ void ProcLinear::trainEnd()
 		vars.clear();
 		ls->calculate();
 
-		save();
 		iteration = ITER_DONE;
 		trained = true;
 		break;
@@ -163,10 +156,12 @@ bool ProcLinear::load()
 			<< "Train data file contains superfluous tags."
 			<< std::endl;
 
+	iteration = ITER_DONE;
+	trained = true;
 	return true;
 }
 
-void ProcLinear::save() const
+void ProcLinear::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcLinear");

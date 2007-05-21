@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 #include <vector>
 #include <memory>
 
@@ -12,7 +13,7 @@
 
 #include "PhysicsTools/MVATrainer/interface/XMLDocument.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
-#include "PhysicsTools/MVATrainer/interface/Processor.h"
+#include "PhysicsTools/MVATrainer/interface/TrainProcessor.h"
 #include "PhysicsTools/MVATrainer/interface/LeastSquares.h"
 
 XERCES_CPP_NAMESPACE_USE
@@ -21,20 +22,24 @@ using namespace PhysicsTools;
 
 namespace { // anonymous
 
-class ProcMatrix : public Processor {
+class ProcMatrix : public TrainProcessor {
     public:
-	typedef Processor::Registry<ProcMatrix>::Type Registry;
+	typedef TrainProcessor::Registry<ProcMatrix>::Type Registry;
 
 	ProcMatrix(const char *name, const AtomicId *id,
 	           MVATrainer *trainer);
 	virtual ~ProcMatrix();
 
 	virtual void configure(DOMElement *elem);
-	virtual Calibration::VarProcessor *getCalib() const;
+	virtual Calibration::VarProcessor *getCalibration() const;
 
 	virtual void trainBegin();
-	virtual void trainData(const std::vector<double> *values, bool target);
+	virtual void trainData(const std::vector<double> *values,
+	                       bool target, double weight);
 	virtual void trainEnd();
+
+	virtual bool load();
+	virtual void save();
 
     protected:
 	virtual void *requestObject(const std::string &name) const;
@@ -45,19 +50,18 @@ class ProcMatrix : public Processor {
 		ITER_DONE
 	} iteration;
 
-	bool load();
-	void save() const;
-
 	std::auto_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
+	bool				fillSignal;
+	bool				fillBackground;
 };
 
 static ProcMatrix::Registry registry("ProcMatrix");
 
 ProcMatrix::ProcMatrix(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
-	Processor(name, id, trainer),
-	iteration(ITER_FILL)
+	TrainProcessor(name, id, trainer),
+	iteration(ITER_FILL), fillSignal(true), fillBackground(true)
 {
 }
 
@@ -69,16 +73,41 @@ void ProcMatrix::configure(DOMElement *elem)
 {
 	ls = std::auto_ptr<LeastSquares>(new LeastSquares(getInputs().size()));
 
-	if (load()) {
-		iteration = ITER_DONE;
-		trained = true;
-		std::cout << "ProcNormalize configuration for \""
-		          << getName() << "\" loaded from file."
-		          << std::endl;
-	}
+	DOMNode *node = elem->getFirstChild();
+	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+		node = node->getNextSibling();
+
+	if (!node)
+		return;
+
+	if (std::strcmp(XMLSimpleStr(node->getNodeName()), "fill") != 0)
+		throw cms::Exception("ProcMatrix")
+				<< "Expected fill tag in config section."
+				<< std::endl;
+
+	elem = static_cast<DOMElement*>(node);
+
+	fillSignal =
+		XMLDocument::readAttribute<bool>(elem, "signal", false);
+	fillBackground =
+		XMLDocument::readAttribute<bool>(elem, "background", false);
+
+	node = node->getNextSibling();
+	while(node && node->getNodeType() != DOMNode::ELEMENT_NODE)
+		node = node->getNextSibling();
+
+	if (node)
+		throw cms::Exception("ProcMatrix")
+			<< "Superfluous tags in config section."
+			<< std::endl;
+
+	if (!fillSignal && !fillBackground)
+		throw cms::Exception("ProcMatrix")
+			<< "Filling neither background nor signal in config."
+			<< std::endl;
 }
 
-Calibration::VarProcessor *ProcMatrix::getCalib() const
+Calibration::VarProcessor *ProcMatrix::getCalibration() const
 {
 	Calibration::ProcMatrix *calib = new Calibration::ProcMatrix;
 
@@ -101,15 +130,19 @@ void ProcMatrix::trainBegin()
 		vars.resize(ls->getSize());
 }
 
-void ProcMatrix::trainData(const std::vector<double> *values, bool target)
+void ProcMatrix::trainData(const std::vector<double> *values,
+                           bool target, double weight)
 {
 	if (iteration != ITER_FILL)
+		return;
+
+	if (!(target ? fillSignal : fillBackground))
 		return;
 
 	for(unsigned int i = 0; i < ls->getSize(); i++, values++)
 		vars[i] = values->front();
 
-	ls->add(vars, target);
+	ls->add(vars, target, weight);
 }
 
 void ProcMatrix::trainEnd()
@@ -119,7 +152,6 @@ void ProcMatrix::trainEnd()
 		vars.clear();
 		ls->calculate();
 
-		save();
 		iteration = ITER_DONE;
 		trained = true;
 		break;
@@ -172,10 +204,12 @@ bool ProcMatrix::load()
 			<< "Train data file contains superfluous tags."
 			<< std::endl;
 
+	iteration = ITER_DONE;
+	trained = true;
 	return true;
 }
 
-void ProcMatrix::save() const
+void ProcMatrix::save()
 {
 	XMLDocument xml(trainer->trainFileName(this, "xml"), true);
 	DOMDocument *doc = xml.createDocument("ProcMatrix");
