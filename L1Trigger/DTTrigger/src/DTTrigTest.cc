@@ -7,8 +7,8 @@
  *   studies
  *
  *
- *   $Date: 2007/04/10 09:54:35 $
- *   $Revision: 1.5 $
+ *   $Date: 2007/04/27 08:52:21 $
+ *   $Revision: 1.6 $
  *
  *   \author C. Battilana
  */
@@ -49,7 +49,7 @@ using namespace edm;
 
 const double DTTrigTest::my_TtoTDC = 32./25.;
 
-DTTrigTest::DTTrigTest(const ParameterSet& pset){ 
+DTTrigTest::DTTrigTest(const ParameterSet& pset): my_trig(0) { 
 
   //SV obsolete, now configuration is read from EventSetup
   //my_debug= pset.getUntrackedParameter<bool>("debug");
@@ -87,7 +87,7 @@ DTTrigTest::DTTrigTest(const ParameterSet& pset){
 
 DTTrigTest::~DTTrigTest(){ 
 
-  delete my_trig;
+  if (my_trig != 0) delete my_trig;
   delete my_rootfile;
   if (my_debug) 
     cout << "[DTTrigTest] Destructor executed!!!" << endl;

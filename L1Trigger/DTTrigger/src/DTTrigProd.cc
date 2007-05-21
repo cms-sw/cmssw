@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2007/04/10 09:54:35 $
- *   $Revision: 1.6 $
+ *   $Date: 2007/04/27 08:52:21 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Battilana
  *
@@ -43,7 +43,7 @@ typedef SectCollPhiColl::const_iterator SectCollPhiColl_iterator;
 typedef vector<DTSectCollThSegm>  SectCollThetaColl;
 typedef SectCollThetaColl::const_iterator SectCollThetaColl_iterator;
 
-DTTrigProd::DTTrigProd(const ParameterSet& pset){
+DTTrigProd::DTTrigProd(const ParameterSet& pset): my_trig(0) {
   
   produces<L1MuDTChambPhContainer>();
   produces<L1MuDTChambThContainer>();
@@ -62,7 +62,7 @@ DTTrigProd::~DTTrigProd(){
 
   if (my_debug)
     cout <<" [DTTrigProd] Deleting DTTPG class instance" <<endl;
-  delete my_trig;
+  if (my_trig != 0) delete my_trig;
 
 }
 
