@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-//#define DEBUG
+//#define MYDEB
 
 G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["Undefined"] = "Undefined";
@@ -105,14 +105,14 @@ unsigned int G4ProcessTypeEnumerator::processId(const G4VProcess* process){
     // it is primary!
     //
     std::string temp = "Primary";
-#ifdef DEBUG
+#ifdef MYDEB
     std::cout <<" G4ProcessTypeEnumerator : Primary process, returning "<<
       theProcessTypeEnumerator->processId(temp)<<std::endl;
 #endif
     return theProcessTypeEnumerator->processId(temp);
   }else{
     std::string temp = process->GetProcessName();
-#ifdef DEBUG
+#ifdef MYDEB
     std::cout <<" G4ProcessTypeEnumerator : G4Process "<<temp<<" mapped to "<<
       processCMSName(temp)<<
       "; returning "<<
