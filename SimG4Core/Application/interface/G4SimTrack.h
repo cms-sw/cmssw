@@ -11,12 +11,14 @@ public:
 
     G4SimTrack(int iid, int ipart, const Hep3Vector & ip, double ie) 
 	: id_(iid),ipart_(ipart),ip_(ip),ie_(ie),ivert_(-1),igenpart_(-1),
-	  parentID_(-1),parentMomentum_(0.),tkSurfacePosition_(0.),tkSurfaceMomentum_(0.) {}
+	  parentID_(-1),parentMomentum_(0.),tkSurfacePosition_(Hep3Vector(0.,0.,0.)),
+	  tkSurfaceMomentum_(HepLorentzVector(0.,0.,0.,0.)) {}
 
     G4SimTrack(int iid, int ipart, const Hep3Vector & ip, double ie,
 	       int iv,  int ig,    const Hep3Vector & ipmom) 
 	: id_(iid),ipart_(ipart),ip_(ip),ie_(ie),ivert_(iv),igenpart_(ig),
-	  parentMomentum_(ipmom),tkSurfacePosition_(0.),tkSurfaceMomentum_(0.) {}
+	  parentMomentum_(ipmom),tkSurfacePosition_(Hep3Vector(0.,0.,0.)),
+	  tkSurfaceMomentum_(HepLorentzVector(0.,0.,0.,0.)) {}
 
     G4SimTrack(int iid, int ipart, const Hep3Vector & ip, double ie,
 	       int iv,  int ig,    const Hep3Vector & ipmom, 
