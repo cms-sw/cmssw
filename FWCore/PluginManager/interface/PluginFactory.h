@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Apr  5 12:10:23 EDT 2007
-// $Id: PluginFactory.h,v 1.3 2007/04/13 10:39:42 wmtan Exp $
+// $Id: PluginFactory.h,v 1.4 2007/04/17 22:15:45 wmtan Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class PluginFactory<R * (void)> : public PluginFactoryBase
    public:
       struct PMakerBase {
         virtual R* create(void) const = 0;
+        virtual ~PMakerBase() {}
       };
       template<class TPlug>
       struct PMaker : public PMakerBase {
@@ -96,6 +97,7 @@ class PluginFactory<R * (Arg)> : public PluginFactoryBase
 public:
   struct PMakerBase {
     virtual R* create(Arg) const = 0;
+    virtual ~PMakerBase() {}
   };
   template<class TPlug>
     struct PMaker : public PMakerBase {
@@ -152,6 +154,7 @@ class PluginFactory<R * (Arg1, Arg2)> : public PluginFactoryBase
 public:
   struct PMakerBase {
     virtual R* create(Arg1, Arg2) const = 0;
+    virtual ~PMakerBase() {}
   };
   template<class TPlug>
     struct PMaker : public PMakerBase {
