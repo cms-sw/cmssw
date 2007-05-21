@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.15 $
+ * $Date: 2007/05/21 11:45:10 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -116,83 +116,6 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
-
-#if 0
-  try {
-
-    Handle<EBDigiCollection> digis;
-    e.getByLabel(EBDigiCollection_, digis);
-
-    int nebd = digis->size();
-    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
-
-    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
-
-      EBDataFrame dataframe = (*digiItr);
-      EBDetId id = dataframe.id();
-
-      int ic = id.ic();
-      int ie = (ic-1)/20 + 1;
-      int ip = (ic-1)%20 + 1;
-
-      int ism = Numbers::iSM( id );
-
-      float xie = ie - 0.5;
-      float xip = ip - 0.5;
-
-      LogDebug("EBTimingTask") << " det id = " << id;
-      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
-
-      MonitorElement* meTimeMap = 0;
-
-      meTimeMap = meTimeMap_[ism-1];
-
-      float xvalped = 0.;
-
-      for (int i = 0; i < 3; i++) {
-
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-
-        float xval = float(adc);
-
-        xvalped = xvalped + xval;
-
-      }
-
-      xvalped = xvalped / 3;
-
-      float yval = 0.;
-      float ysum = 0.;
-
-      for (int i = 0; i < 10; i++) {
-
-        EcalMGPASample sample = dataframe.sample(i);
-        int adc = sample.adc();
-
-        float xval = float(adc);
-
-        if ( (xval-xvalped) >= 0 ) {
-          yval = yval + (i+0.5)*(xval-xvalped)*(xval-xvalped);
-          ysum = ysum +         (xval-xvalped)*(xval-xvalped);
-        }
-
-      }
-
-      if ( ysum > 0. ) yval = yval/ysum - 1.0;
-
-      LogDebug("EBTimingTask") << " hit jitter " << yval;
-
-      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
-
-    }
-
-  } catch ( exception& ex) {
-
-    LogWarning("EBTimingTask") << EBDigiCollection_ << " not available";
-
-  }
-#endif
 
   try {
 
