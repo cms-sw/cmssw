@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.9 2007/01/05 15:13:20 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.10 2007/01/23 13:41:04 fambrogl Exp $
 //
 
 // system include files
@@ -72,6 +72,7 @@ SimTrackManager::reset()
 	m_trksForThisEvent = new TrackContainer();
     }
     cleanVertexMap();
+    cleanTkCaloStateInfoMap();
 }
 
 void
