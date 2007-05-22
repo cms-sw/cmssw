@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/07 19:17:37 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/05/11 14:43:48 $
+ *  $Revision: 1.25 $
  *  \authors: G. Bevilacqua, N. Amapane, G. Cerminara, R. Bellan
  */
 
@@ -62,6 +62,9 @@ using namespace std;
 // Constructor
 DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
+  // Set verbose output
+  debug=conf_.getUntrackedParameter<bool>("debug"); 
+    
   if (debug) cout<<"Creating a DTDigitizer"<<endl;
   
   //register the Producer with a label
@@ -75,9 +78,6 @@ DTDigitizer::DTDigitizer(const ParameterSet& conf_) {
   
   // interpolate parametrization function
   interpolate=conf_.getParameter<bool>("interpolate");
-  
-  // Set verbose output
-  debug=conf_.getUntrackedParameter<bool>("debug"); 
   
   // Velocity of signal propagation along the wire (cm/ns)
   // For the default value
