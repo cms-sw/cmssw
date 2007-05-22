@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/04/19 09:40:45 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/15 17:08:40 $
+ * $Revision: 1.5 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -14,6 +14,7 @@
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <string>
@@ -25,9 +26,7 @@ using namespace edm;
 
 DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTDataIntegrityTest]: Constructor"<<endl;
+  edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: Constructor";
 
   nTimeBin =  ps.getUntrackedParameter<int>("nTimeBin", 10);
 
@@ -38,13 +37,14 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
 }
 
 DTDataIntegrityTest::~DTDataIntegrityTest(){
-  if(debug)
-    cout << "DataIntegrityTest: analyzed " << nevents << " events" << endl;
+
+  edm::LogVerbatim ("dataIntegrity") << "DataIntegrityTest: analyzed " << nevents << " events";
+
 }
 
 void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
-  if(debug)
-    cout<<"[DTtTrigCalibrationTest]: BeginJob"<<endl;
+
+  edm::LogVerbatim ("dataIntegrity") << "[DTtTrigCalibrationTest]: BeginJob";
 
   nevents = 0;
 }
@@ -52,8 +52,7 @@ void DTDataIntegrityTest::beginJob(const edm::EventSetup& context){
 
 void DTDataIntegrityTest::endJob(){
 
-  if(debug)
-    cout<<"[DTDataIntegrityTest] endjob called!"<<endl;
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest] endjob called!";
 
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
@@ -83,8 +82,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
   stringstream dduId_s; dduId_s << dduId;
   stringstream evNumber_s; evNumber_s << evNumber;
   string histoName;
-  if(debug)
-    cout<<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from event "<<evNumber<<endl;
+  edm::LogVerbatim ("dataIntegrity") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from event "<<evNumber;
 
   //Counter for x bin in the timing histos
   counter = 1;//assuming synchronixed booking for all histo VS time
@@ -142,14 +140,11 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
   int evNumber = e.id().event();
   stringstream evNumber_s; evNumber_s << evNumber;
  
-  if (nevents%1 == 0 && debug) {
-    cout<<"[DTDataIntegrityTest]: "<<nevents<<" updates"<<endl;
-    cout<<"[DTDataIntegrityTest]: "<<evNumber<<" event number"<<endl;
-  }
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<nevents<<" updates";
+  edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: "<<evNumber<<" event number";
 
   if(nevents%nTimeBin == 0){
-    if(debug)
-      cout<<"[DTDataIntegrityTest]: saving all histos"<<endl;
+    edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: saving all histos";
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTDataIntegrityTest.root"));
    }
   
@@ -158,14 +153,12 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 
   //Loop on FED id
   for (int dduId=FEDNumbering::getDTFEDIds().first; dduId<=FEDNumbering::getDTFEDIds().second; ++dduId){
-    if(debug)
-      cout<<"[DTDataIntegrityTest]:FED Id: "<<dduId<<endl;
+    edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:FED Id: "<<dduId;
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
     if(nevents%nTimeBin == 0){
-      if(debug)
-	cout<<"[DTDataIntegrityTest]: booking a new bunch of time histos"<<endl;
+      edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
       dbe->rmdir("DT/FED" + dduId_s.str() + "/TimeInfo");
       (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
       bookTimeHistos("TTSVSTime",dduId, evNumber);
@@ -178,8 +171,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
     //1D histo: % of tts values 
     MonitorElement * tts_histo = dbe->get(getMEName("TTSValues",dduId));
     if (tts_histo) {
-        if(debug)
-	  cout<<"[DTDataIntegrityTest]:histo DDUTTSValues found"<<endl;
+        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUTTSValues found";
 
 	histoType = "TTSValues_Percent";   
 	if (dduHistos[histoType].find(dduId) == dduHistos[histoType].end()) {
@@ -203,39 +195,39 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 	//Check if there are too many events with wrong tts value
 	double alert_tts1 = 0.5, alert_tts4 = 0.5, alert_tts20 = 0.5;
 	if((dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(2) > alert_tts1)
-	  cout<<"[DTDataIntegrityTest]:WARNING: "<<
-	    (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(2)<<" % events with warning overflow"<<endl;
+	  edm::LogWarning ("dataIntegrity") <<"[DTDataIntegrityTest]:WARNING: "<<
+	    (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(2)<<" % events with warning overflow";
 
    	if(((dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(1) +
 	    (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(3)) > alert_tts20 )
-	  cout<<"[DTDataIntegrityTest]:WARNING: "<<
+	  edm::LogWarning ("dataIntegrity") <<"[DTDataIntegrityTest]:WARNING: "<<
 	    ((dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(1) +
-	     (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(3))<<" % events with out of synch or disconnected"<<endl;
+	     (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(3))<<" % events with out of synch or disconnected";
 
 	if((dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(4) > alert_tts4)
-	  cout<<"[DTDataIntegrityTest]:WARNING: "<<
-	    (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(4)<<" % events with busy"<<endl;
+	  edm::LogWarning ("dataIntegrity") <<"[DTDataIntegrityTest]:WARNING: "<<
+	    (dduHistos.find(histoType)->second).find(dduId)->second->getBinContent(4)<<" % events with busy";
 	//FIXME: how to notify this warning in a LogFile?
          }
 
     //Check if the list of ROS is compatible with the channels enabled
     MonitorElement * ros_histo = dbe->get(getMEName("ROSStatus",dduId));
     if (ros_histo) {
-        if(debug)
-	  cout<<"[DTDataIntegrityTest]:histo DDUChannelStatus found"<<endl;
+        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUChannelStatus found";
 
  	for(int i=1;i<13;i++){
 	  if(ros_histo->getBinContent(1,i) != ros_histo->getBinContent(9,i))
-	    cout<<"[DTDataIntegrityTest]:WARNING: ROS"<<i<<" in "<<tts_histo->getBinContent(9,i)<<" events"<<endl
-		<<"               but channel"<<i<<" enabled in "<<tts_histo->getBinContent(1,i)<<" events"<<endl;
+	    edm::LogError ("dataIntegrity") <<"[DTDataIntegrityTest]:WARNING: ROS"<<i<<" in "
+					    <<tts_histo->getBinContent(9,i)<<" events"<<endl
+					    <<"               but channel"<<i<<" enabled in "
+					    <<tts_histo->getBinContent(1,i)<<" events";
 	  //FIXME: how to notify this warning in a LogFile?
 	}
     }
     //Monitor the number of ROS VS time
      MonitorElement * rosNumber_histo = dbe->get(getMEName("ROSList",dduId));
     if (rosNumber_histo) {
-      if(debug)
-	cout<<"[DTDataIntegrityTest]:histo DDUROSList found"<<endl;
+      edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUROSList found";
 
       double rosNumber_mean = rosNumber_histo->getMean();
       //Fill timing histos and set x label with event number
@@ -250,8 +242,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
     //Monitor the event lenght VS time
      MonitorElement * evLenght_histo = dbe->get(getMEName("EventLenght",dduId));
      if (evLenght_histo) {
-       if(debug)
-	 cout<<"[DTDataIntegrityTest]:histo DDUEventLenght found"<<endl;
+       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
 
       double evLenght_mean = evLenght_histo->getMean();
       //Fill timing histos and set x label with event number
@@ -274,8 +265,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
      //Monitor the FIFO occupancy VS time 
      MonitorElement * fifo_histo = dbe->get(getMEName("FIFOStatus",dduId));
      if (fifo_histo) {
-       if(debug)
-	 cout<<"[DTDataIntegrityTest]:histo DDUFIFOStatus found"<<endl;
+       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUFIFOStatus found";
        
        //Fill timing histos and set x label with event number
        histoType = "FIFOVSTime";
