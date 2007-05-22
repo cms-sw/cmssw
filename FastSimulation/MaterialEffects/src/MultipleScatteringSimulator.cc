@@ -46,13 +46,13 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle)
                          * radLengths * radLenIncm();
 
   XYZVector normal(theNormalVector.x(),theNormalVector.y(),theNormalVector.z());
-  XYZVector tangent = orthogonal(normal); // This vector is unitary because normal is
-                                          // either (0,0,1) Endcap or (x,y,0) Barrel !
+  XYZVector tangent = orthogonal(normal); // This vector is unitary because 
+                                          // normal is
+                                          // either (0,0,1) in the Endcap 
+                                          // or     (x,y,0) in the Barrel !
   XYZVector delta = xp*tangent + yp*normal.Cross(tangent);
 
-  Particle.setVertex(Particle.X()+delta.X(),
-		     Particle.Y()+delta.Y(),
-		     Particle.Z()+delta.Z(),
-		     Particle.T());
+  Particle.translate(delta);
+
 }
 
