@@ -139,18 +139,26 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   else {
     try {
       if (cell->type()==0) {
-	lock();
-	sendInitMessage(cell->index(),cell->payloadAddr(),cell->eventSize());
+	UInt_t   cellIndex       = cell->index();
+	UChar_t* cellPayloadAddr = cell->payloadAddr();
+	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);
-	unlock();
+	
+	sendInitMessage(cellIndex,cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==1) {
 	lock();
 	nbAccepted_++;
-	sendDataEvent(cell->index(),cell->runNumber(),cell->evtNumber(),
-		      cell->payloadAddr(),cell->eventSize());
-	shmBuffer_->finishReadingRecoCell(cell);
 	unlock();
+	UInt_t   cellIndex       = cell->index();
+	UInt_t   cellRunNumber   = cell->runNumber();
+	UInt_t   cellEvtNumber   = cell->evtNumber();
+	UChar_t *cellPayloadAddr = cell->payloadAddr();
+	UInt_t   cellEventSize   = cell->eventSize();
+	shmBuffer_->finishReadingRecoCell(cell);	
+
+	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,
+		      cellPayloadAddr,cellEventSize);
       }
       else {
 	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
@@ -158,8 +166,6 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
       }
     }
     catch (xcept::Exception& e) {
-      shmBuffer_->finishReadingRecoCell(cell);
-      unlock();
       LOG4CPLUS_FATAL(log_,"Failed to send EVENT DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
@@ -206,16 +212,18 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   }
   else {
     try {
-      lock();
-      sendDqmEvent(cell->index(),
-		   cell->runNumber(),cell->evtAtUpdate(),cell->folderId(),
-		   cell->payloadAddr(),cell->eventSize());
-      shmBuffer_->finishReadingDqmCell(cell);
-      unlock();
+      UInt_t   cellIndex       = cell->index();
+      UInt_t   cellRunNumber   = cell->runNumber();
+      UInt_t   cellEvtAtUpdate = cell->evtAtUpdate();
+      UInt_t   cellFolderId    = cell->folderId();
+      UChar_t *cellPayloadAddr = cell->payloadAddr();
+      UInt_t   cellEventSize   = cell->eventSize();
+      shmBuffer_->finishReadingDqmCell(cell);      
+
+      sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
+		   cellPayloadAddr,cellEventSize);
     }
     catch (xcept::Exception& e) {
-      shmBuffer_->finishReadingDqmCell(cell);
-      unlock();
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
@@ -362,8 +370,8 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     bool lastMsg=isLastMessageOfEvent(bufRef);
     bufRef->release();
     if (lastMsg) {
-      lock();
       bu_->sendDiscard(buResourceId);
+      lock();
       nbDiscarded_++;
       nbLost_++;
       nbPending_--;
@@ -384,13 +392,12 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
     return false;
   }
 
-  lock();
+  
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t recoIndex=msg->fuID;
   shmBuffer_->discardRecoCell(recoIndex);
   bufRef->release();
-  unlock();
   return true;
 }
 
@@ -403,13 +410,12 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
     return false;
   }
   
-  lock();
+
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->fuID;
   shmBuffer_->discardDqmCell(dqmIndex);
   bufRef->release();
-  unlock();
   return true;
 }
 
@@ -459,8 +465,6 @@ void FUResourceTable::halt()
 {
   lock();
   isHalting_=true;
-  //shmBuffer_->discardSentRecoEvents();
-  //shmBuffer_->discardSentDqmEvents();
   unlock();
   shutDownClients();
 }
