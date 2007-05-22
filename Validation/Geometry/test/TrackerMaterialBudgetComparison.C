@@ -278,7 +278,10 @@ void createPlots(TString plot) {
     }
   }
   //
+  
   // Draw
+
+  // Comparison
   // canvas
   TCanvas can_comparison("TkMB_Comparison","TkMB_Comparison",1200,800);
   can_comparison.Range(0,0,25,25);
@@ -286,7 +289,13 @@ void createPlots(TString plot) {
   can_comparison.SetFillColor(kWhite);
   can_comparison.SetGridy(1);
   can_comparison.SetLogy(0);
-  can_comparison.cd();
+  // canvas
+  TCanvas can_ratio("TkMB_ComparisonRatio","TkMB_ComparisonRatio",1200,800);
+  can_ratio.Range(0,0,25,25);
+  can_ratio.Divide(4,2);
+  can_ratio.SetFillColor(kWhite);
+  can_ratio.SetGridy(1);
+  can_ratio.SetLogy(0);
   // settings
   gStyle->SetOptStat(0);
   gStyle->SetOptFit(0);
@@ -338,6 +347,7 @@ void createPlots(TString plot) {
     }
     
     // canvas
+    can_comparison.cd();
     can_comparison.cd(i_category);
     //
     // Compare
@@ -354,6 +364,12 @@ void createPlots(TString plot) {
     // Draw
     histo_old->GetXaxis()->SetTitle(abscissaName);
     histo_old->GetYaxis()->SetTitle(ordinateName);
+    // edges
+    histo_old->GetMaximum() > histo_new->GetMaximum() ?
+      ( histo_new->SetMaximum(histo_old->GetMaximum()) ) :
+      ( histo_old->SetMaximum(histo_new->GetMaximum()) );
+    //
+    //
     histo_old->Draw("HIST");
     histo_new->Draw("HIST P E1 SAME");
     //
@@ -370,12 +386,40 @@ void createPlots(TString plot) {
     theLegend->SetHeader( Form("KF: %f",compatibilityFactor) );
     theLegend->Draw();
     //
+    
+    // Ratio
+    // canvas
+    can_ratio.cd();
+    can_ratio.cd(i_category);
+    //
+    // Compare
+    TH1D* histo_ratio = new TH1D(*histo_new);
+    histo_ratio->Divide(histo_old);
+    histo_ratio->SetMarkerColor(4);   // blue
+    histo_ratio->SetLineColor(102);   // dark red
+    histo_ratio->SetFillColor(0);     // white
+    histo_ratio->SetMarkerStyle(20);  // cyrcles
+    histo_ratio->SetMarkerSize(0.2);  // 
+    histo_ratio->SetLineWidth(0.8);  // 
+    //
+    // Draw
+    histo_ratio->GetXaxis()->SetTitle(abscissaName);
+    histo_ratio->GetYaxis()->SetTitle( Form( "%s Ratio (New/Old)",  ordinateName.Data() ));
+    histo_ratio->Draw("HIST P E1");
+    //
+    
   }
   
-  // Store
+  // Store Comparison
   can_comparison.Update();
   can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //  can_comparison.SaveAs( Form( "%s/%s_Comparison_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //
+  
+  // Store Ratio
+  can_ratio.Update();
+  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.eps",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
+  //  can_ratio.SaveAs( Form( "%s/%s_ComparisonRatio_%s.gif",  theDirName.Data(), theDetector.Data(), plot.Data() ) );
   //
   
 }
