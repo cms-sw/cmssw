@@ -1,0 +1,219 @@
+#! /usr/bin/env python
+#pylint: disable-msg=W0403
+"""
+BuildSet - utilizes dependency discovery mechanism for Partial Releases.
+"""
+# TO ADD: check and report unknown packages. 
+#
+__revision__ = "$Id: BuildSet,v 1.4 2007/05/03 21:02:23 natasha Exp $"
+__version__ = "$Revision: 1.4 $"
+
+import os
+import sys
+import getopt
+import string
+import re
+
+programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
+programName = os.path.basename( sys.argv[0] )
+
+global verbose
+verbose               = 1
+packageListInFile     = 0
+dependencyAnalysisDir = ""
+dependencies          = []
+
+# Format specific patterns:
+dependencyFormat      = "xdeps.all"
+beginBlock = re.compile('# Merged dependencies\t*')
+endBlock   = re.compile('.*#.*')
+depEntry   = re.compile('(\d*/\d*)\s*(\S*)\s*(\S*)')
+
+##############################################################
+# Internal utility functions:
+
+def usage():
+    """
+    Prints out usage help
+    """
+    # Require minimum arguments and use options only to
+    # override the defaults
+    print """
+USAGE:
+    """ + programName + """ <release name>  [<package>]+
+OPTIONS:
+   -d dir     - get dependency information from directory dir
+   -f file    - read list of packages from file
+   -h         - print this help and exit
+   -v         - display version number
+   -q         - run quietly, suppressing info output.
+
+"""
+
+def usageError ( message, programName) :
+    """
+    usageError:
+      Call it to quit in case of usage error
+    """
+    if verbose:
+        print "Usage error: ", message, \
+              "\nTry \'" + programName + " -h\' for help"
+    sys.exit ( 2 )
+ 
+def infoOut(infoString):
+    """
+    Informative printout with verbosity control.
+    """
+    if verbose:
+        print "##", programName, "info: ", infoString
+
+##############################################################
+# Interface functions:
+
+def readPackageFromFile(line, list):
+    """
+      Reads package name in the line (from file object) and adds it
+      to the packages list.
+      Ignores comments started with hash (#).
+      More checks (e.g. validate package names) could be added.
+    """
+    # Discard comments
+    line = re.sub('\t*#.*', '', line)
+    blankLine = re.compile('(\t*\n)')
+    # Skip blank lines
+    result = blankLine.match(line)
+    if result:
+        return 0
+    else:
+        list.append(line.strip())
+
+def readDependencies(line, list):
+    """
+    Parses the line from the file that provides dependency info, and
+    updates dependency list accordingly.
+    Uses format of xdeps.all file produced by Ignominy.
+    """
+    result = depEntry.match(line)
+    if result:
+        (statistics, package, requires) = depEntry.match(line).groups()
+        list.append(package+":"+requires)
+
+# Handle options and arguments:
+try:
+    opts, args = getopt.getopt( sys.argv[1:], "hnqvf:d:" )
+
+except getopt.error:
+    usageError( sys.exc_info()[1], programName)
+
+for o, a in opts:
+    if o == "-q":
+        infoOut("run quietly suppressing any further info output...")
+        verbose=0  # really quiet
+    if o == "-n":
+        testmode = "on"
+        infoOut(" run in test mode ...")
+    if o == "-v":
+        print __version__
+        sys.exit()
+    if o == "-h":
+        usage()
+        sys.exit()
+    if o == "-f":
+        packageListInFile = a
+        if not os.path.isfile(a):
+            usageError( "file " + a + " does not exist!", programName)
+    if o == "-d":
+        dependencyAnalysisDir = a
+        if not os.path.isdir(a):
+            usageError( "directory " + a + " does not exist!", programName)
+    
+# Require at least one argument:
+
+if not args:
+    usageError("Please specify an argument!  ", programName)
+
+release = args[0];
+packages = args[1:]
+
+# Add packages from file: 
+if (packageListInFile):
+    f = open(packageListInFile,'r')
+    for line in f.readlines():
+        readPackageFromFile(line, packages)
+    f.close()
+infoOut( "Running " + programName)
+infoOut( "Release: " + release)
+infoOut( "Packages: " + string.join(packages))
+infoOut( "Dependency dir: " + dependencyAnalysisDir)
+
+# Get dependency info:
+if (dependencyAnalysisDir):
+    # Assume the directory structure as produced by Ignominy,
+    # The dependencyFormat variable specifies the file name from 
+    # which dependency information is to be extracted.
+    depFile=os.path.join (dependencyAnalysisDir, dependencyFormat)
+    f = open(depFile,'r')
+    # Skip lines outside the block:
+    inBlock    = 0
+    for line in f.readlines():
+        if inBlock:
+            # check if we're still in block
+            if endBlock.match(line):
+                inBlock = 0
+            else:
+                readDependencies(line, dependencies)
+        else:
+            if beginBlock.match(line):
+                inBlock = 1
+    f.close()
+
+
+# First get all required CMSSW packages: 
+
+count = 0
+step = 0
+while count != len(packages):
+    step = step + 1
+    count=len(packages)
+    # Update list of packages using direct dependency info: 
+    for line in dependencies:
+        (p,d)=line.split(':')        
+        # Filter out non-CMSSW packages and dependencies: 
+        if p[-7:] == '(CMSSW)': # this is a CMSSW package!
+            p = p[:-7]
+        else:
+            continue
+        if d[-7:] == '(CMSSW)': # this is a CMSSW package!
+            d = d[:-7]
+        else:
+            continue
+        if (p in packages) and (d not in packages):
+            packages.append(d)
+
+
+for p in packages:
+    print p
+  
+# Now get direct external dependencies:
+
+externals=[]
+for line in dependencies:
+    (p,d)=line.split(':')
+    if not p[:-7] in packages:
+        continue
+    # Filter out CMSSW dependencies: 
+    if (d[-7:] == '(CMSSW)') or (d in externals): # this is a CMSSW package!
+        continue
+    else:
+        externals.append(d)
+
+
+
+
+print "Required EXTERNALS:"
+externals.sort()
+for e in externals:
+    print e
+
+print "Total number of packages:", count
+print "Total number of externals:", len(externals)
