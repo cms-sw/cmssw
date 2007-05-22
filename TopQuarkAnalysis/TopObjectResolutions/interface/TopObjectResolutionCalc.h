@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.h,v 1.2 2007/05/04 00:58:05 heyninck Exp $
+// $Id: TopObjectResolutionCalc.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
 //
 
 #ifndef TopObjectResolutionCalc_h
@@ -16,7 +16,7 @@
    likelihood as defined in CMS Note 2006/024
 
   \author   Jan Heyninck
-  \version  $Id: TopObjectResolutionCalc.h,v 1.2 2007/05/04 00:58:05 lowette Exp $
+  \version  $Id: TopObjectResolutionCalc.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
 */
 
 
@@ -24,7 +24,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "Utilities/General/interface/envUtil.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"

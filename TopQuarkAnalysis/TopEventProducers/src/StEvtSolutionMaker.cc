@@ -39,34 +39,33 @@ StEvtSolutionMaker::~StEvtSolutionMaker()
 // ------------ method called to produce the data  ------------
 void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   Handle<vector<TopMuonObject> >  muons;
+   edm::Handle<vector<TopMuon> >  muons;
    if(leptonFlavour_ == "muon") iEvent.getByType(muons);
-   Handle<vector<TopElectronObject> >  electrons;
+   edm::Handle<vector<TopElectron> >  electrons;
    if(leptonFlavour_ == "electron") iEvent.getByType(electrons);
-   Handle<vector<TopMETObject> >  mets;
+   edm::Handle<vector<TopMET> >  mets;
    iEvent.getByType(mets);
-   Handle<vector<TopJetObject> >  jets;
+   edm::Handle<vector<TopJet> >  jets;
    iEvent.getByLabel(jetInput_,jets);
 
    //select lepton (the TtLepton vectors are, for the moment, sorted on pT)
-   TopMuonObject selMuon;
-   TopElectronObject selElectron;
+   TopMuon selMuon;
+   TopElectron selElectron;
    bool leptonFound = false;
    if(leptonFlavour_ == "muon"     &&     muons->size()>=1) { selMuon     = (*muons)[0];     leptonFound = true;};    
    if(leptonFlavour_ == "electron" && electrons->size()>=1) { selElectron = (*electrons)[0]; leptonFound = true;};  
 
    //select MET (TopMET vector is sorted on ET)
-   TopMETObject selMET;
+   TopMET selMET;
    bool METFound = false;
    if(mets -> size()>=1) { selMET = (*mets)[0]; METFound = true;};  
 
    //select Jets (TopJet vector is sorted on ET)
-   vector<TopJetObject> selJets;
+   vector<TopJet> selJets;
    bool jetsFound = false;
    unsigned int maxJets=2;//this has to become a custom-defined parameter (we may want 2 or 3 jets)
    if(jets -> size()>=maxJets) { 
-     for(int j=0; j<maxJets; j++) selJets.push_back((*jets)[j]);
+     for(unsigned int j=0; j<maxJets; j++) selJets.push_back((*jets)[j]);
      jetsFound = true;
    }
    
@@ -103,7 +102,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
      
      // if asked for, match the event solutions to the gen Event
      if(matchToGenEvt_){
-       Handle<StGenEvent> genEvt;
+       edm::Handle<StGenEvent> genEvt;
        iEvent.getByLabel ("genEvt",genEvt);
        double bestSolDR = 9999.;
        int bestSol = 0;

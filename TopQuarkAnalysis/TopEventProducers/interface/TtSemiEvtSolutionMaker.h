@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.2 2007/05/19 09:54:37 heyninck Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include <fstream>
 
 using namespace std;
-using namespace reco;
 
 
 //
@@ -61,12 +60,11 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       TtSemiKinFitterEMom       * myKinFitterEMom;
       //std::vector<TtJetCombinationProbability> jetCombProbs;
       string leptonFlavour_;
-      string jetInput_;
+      string lJetInput_,bJetInput_;
       bool addJetCombProb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
       vector<int> constraints_;
       TtSemiSimpleBestJetComb *mySimpleBestJetComb;
-      int goodEvts, goodEvtsFound;
 };

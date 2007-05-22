@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
+// $Id: StEvtSolutionMaker.h,v 1.1 2007/05/11 15:33:34 giamman Exp $
 //
 //
 
@@ -41,7 +41,6 @@
 #include <fstream>
 
 using namespace std;
-using namespace reco;
 
 
 //

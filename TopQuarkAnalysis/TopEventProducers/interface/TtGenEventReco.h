@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TtGenEventReco.h,v 1.6 2007/04/18 10:28:55 heyninck Exp $
+// $Id: TtGenEventReco.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
 //
 //
 
@@ -34,7 +34,6 @@
 #include <vector>
 
 using namespace std;
-using namespace edm;
 
 //
 // class decleration

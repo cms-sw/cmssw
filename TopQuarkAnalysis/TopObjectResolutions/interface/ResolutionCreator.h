@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/General/interface/envUtil.h"
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -29,13 +28,12 @@
 #include <Math/VectorUtil.h>
 
 
-using namespace edm;
 using namespace std;
 
-typedef PixelMatchGsfElectron electronType;
-typedef Muon muonType;
-typedef CaloJet jetType;
-typedef CaloMET metType;
+typedef reco::PixelMatchGsfElectron electronType;
+typedef reco::Muon muonType;
+typedef reco::CaloJet jetType;
+typedef reco::CaloMET metType;
 
 //
 // class declaration

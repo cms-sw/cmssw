@@ -80,7 +80,7 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
     etabins    = new double[2];
     etabins[0] = 0; etabins[1] = 5.;
   }
-  TString outputFileName = envUtil("LOCALRT").getEnv()+"/src/TopQuarkAnalysis/TopObjectResolutions/data/Resolutions_"; outputFileName += objectType_;
+  TString outputFileName = "/src/TopQuarkAnalysis/TopObjectResolutions/data/Resolutions_"; outputFileName += objectType_;
   if(objectType_ == "lJets" || objectType_ == "bJets") { outputFileName += "_"; outputFileName += jetmetLabel_; }; 
   outputFileName += ".root"; 
   outfile = new TFile(outputFileName, "RECREATE");
@@ -169,69 +169,69 @@ ResolutionCreator::~ResolutionCreator()
 void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // Get the gen and cal object fourvector
-   vector<Particle *> p4gen, p4rec;
+   vector<reco::Particle *> p4gen, p4rec;
    
-   Handle<TtGenEvent> genEvt;
+   edm::Handle<TtGenEvent> genEvt;
    iEvent.getByLabel ("genEvt",genEvt);
    
    if(genEvt->particles().size()<10) return;
    
    if(objectType_ == "electron"){
-     Handle<vector<electronType> >  electrons;
+     edm::Handle<vector<electronType> >  electrons;
      iEvent.getByType(electrons);
-     p4gen.push_back(new Particle(*(genEvt->particles()[4])));
+     p4gen.push_back(new reco::Particle(*(genEvt->particles()[4])));
      if(electrons->size()>=1) {
        if( ROOT::Math::VectorUtil::DeltaR( genEvt->particles()[4]->p4(),(*electrons)[0].p4()) < minDR_)  {
-         p4gen.push_back(new Particle(*(genEvt->particles()[4]))); 
-         p4rec.push_back(new Particle((electronType)((*electrons)[0])));
+         p4gen.push_back(new reco::Particle(*(genEvt->particles()[4]))); 
+         p4rec.push_back(new reco::Particle((electronType)((*electrons)[0])));
        }
      }
    }
    else if(objectType_ == "muon"){
-     Handle<vector<muonType> >  muons;
+     edm::Handle<vector<muonType> >  muons;
      iEvent.getByType(muons);
      if(muons->size()>=1) { 
        if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[4]->p4(), (*muons)[0].p4()) < minDR_){
-         p4gen.push_back(new Particle(*(genEvt->particles()[4]))); 
-         p4rec.push_back(new Particle((muonType)((*muons)[0]))); 
+         p4gen.push_back(new reco::Particle(*(genEvt->particles()[4]))); 
+         p4rec.push_back(new reco::Particle((muonType)((*muons)[0]))); 
        }
      }
    }
    else if(objectType_ == "lJets"){
-     Handle<vector<jetType> >  ljets;
+     edm::Handle<vector<jetType> >  ljets;
      iEvent.getByLabel(jetmetLabel_,ljets);
      if(ljets->size()>=4) { 
        for(unsigned int p = 0; p<2; p++){
          for(unsigned int j = 0; j<4; j++){
            if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p]->p4(), (*ljets)[j].p4())< minDR_)  {
-	      p4gen.push_back(new Particle(*(genEvt->particles()[p]))); 
-	      p4rec.push_back(new Particle((jetType)(*ljets)[j])); 
+	      p4gen.push_back(new reco::Particle(*(genEvt->particles()[p]))); 
+	      p4rec.push_back(new reco::Particle((jetType)(*ljets)[j])); 
 	   }
 	 }
        }
      }
    }
    else if(objectType_ == "bJets"){
-     Handle<vector<jetType> >  bjets;
+     edm::Handle<vector<jetType> >  bjets;
      iEvent.getByLabel(jetmetLabel_,bjets);
      if(bjets->size()>=4) { 
        for(unsigned int p = 2; p<4; p++){
          for(unsigned int j = 0; j<4; j++){
            if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p]->p4(), (*bjets)[j].p4())< minDR_)  {
-	      p4gen.push_back(new Particle(*(genEvt->particles()[p]))); 
-	      p4rec.push_back(new Particle((jetType)(*bjets)[j])); 
+	      p4gen.push_back(new reco::Particle(*(genEvt->particles()[p]))); 
+	      p4rec.push_back(new reco::Particle((jetType)(*bjets)[j])); 
 	   }
 	 }
        }
      }
    }
    else if(objectType_ == "met"){
-     Handle<vector<metType> >  mets;
+     edm::Handle<vector<metType> >  mets;
      iEvent.getByLabel(jetmetLabel_,mets);
      if(mets->size()>=1) { 
        if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[5]->p4(), (*mets)[0].p4()) < minDR_){
-         p4gen.push_back(new Particle(*(genEvt->particles()[5]))); 
-         p4rec.push_back(new Particle((metType)((*mets)[0]))); 
+         p4gen.push_back(new reco::Particle(*(genEvt->particles()[5]))); 
+         p4rec.push_back(new reco::Particle((metType)((*mets)[0]))); 
        }
      }
    }

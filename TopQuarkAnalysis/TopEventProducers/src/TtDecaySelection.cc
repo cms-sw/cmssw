@@ -26,7 +26,7 @@ bool TtDecaySelection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(decay_ == -1) return true;   
 
    // check the event decay
-   Handle<TtGenEvent>  genEvt;
+   edm::Handle<TtGenEvent>  genEvt;
    iEvent.getByLabel ("genEvt",genEvt);
    
    int channel  = (int) (decay_*1./10.);

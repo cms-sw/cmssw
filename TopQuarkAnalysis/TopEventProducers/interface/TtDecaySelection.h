@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr 10 18:17:49 CEST 2007
-// $Id: TtDecaySelection.h,v 1.3 2007/04/13 00:38:13 heyninck Exp $
+// $Id: TtDecaySelection.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
 //
 //
 
@@ -33,7 +33,6 @@
 #include<string>
 #include<vector>
 
-using namespace edm;
 using namespace std;
 
 

@@ -24,12 +24,12 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    // Get the vector of generated particles from the event
-   Handle<CandidateCollection> genParticles;
+   edm::Handle<reco::CandidateCollection> genParticles;
    iEvent.getByLabel( "genParticleCandidates", genParticles );
    if(genParticles->size() == 0) cout<<"No GenParticle Candidates found..."<<endl;  
    
    // search top quarks
-   vector<const Candidate *> tvec;
+   vector<const reco::Candidate *> tvec;
    for( size_t p=0; (p<genParticles->size() && tvec.size()<1); p++) {
      if(status((*genParticles)[p]) == 3 && abs((*genParticles)[p].pdgId()) == 6) tvec.push_back(&((*genParticles)[p]));
    }
@@ -41,7 +41,7 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    */
    
    // search W-bosons and b-quarks coming from top
-   vector<const Candidate *> Wvec, bvec;
+   vector<const reco::Candidate *> Wvec, bvec;
    if(tvec.size() == 1){
      for( size_t t=0; t<tvec.size(); t++) {
        for( size_t d=0; d<tvec[t]->numberOfDaughters(); d++) {
@@ -55,7 +55,7 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    
    // search W-decay products
-   vector<const Candidate *> lvec, nvec;
+   vector<const reco::Candidate *> lvec, nvec;
    if(Wvec.size() ==1 && bvec.size() ==1){
      for( size_t w=0; w<tvec.size(); w++) {
        for( size_t d=0; d<Wvec[w]->numberOfDaughters(); d++) {
@@ -69,7 +69,7 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    cout<<"found "<<nvec.size()<<" neutrinos..."<<endl; 
 
    // search recoil quark:
-   vector<const Candidate *> qvec;
+   vector<const reco::Candidate *> qvec;
    if (Wvec.size() ==1 && tvec.size() ==1) {
      for( size_t p=0; p<genParticles->size(); p++) {
        if(status((*genParticles)[p]) == 3 && abs((*genParticles)[p].pdgId()) <4) {
@@ -87,7 +87,7 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // fill StGenEvent object depending on decay
    int decay = -999;
-   vector<const Candidate *> evtvec;
+   vector<const reco::Candidate *> evtvec;
    //  only one possibility considered so far
    if(qvec.size() > 0 && bvec.size() > 0 && lvec.size() == 1 && nvec.size() == 1){
      decay = 1;

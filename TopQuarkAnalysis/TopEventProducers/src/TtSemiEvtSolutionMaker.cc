@@ -6,7 +6,8 @@
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
    leptonFlavour_   = iConfig.getParameter< string > 	  ("leptonFlavour");
-   jetInput_        = iConfig.getParameter< string > 	  ("jetInput");
+   lJetInput_       = iConfig.getParameter< string > 	  ("lJetInput");
+   bJetInput_       = iConfig.getParameter< string > 	  ("bJetInput");
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
    addJetCombProb_  = iConfig.getParameter< bool >        ("addJetCombProb");
    maxNrIter_       = iConfig.getParameter< int >         ("maxNrIter");
@@ -25,18 +26,12 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    
    // define jet combinations related calculators
    mySimpleBestJetComb = new TtSemiSimpleBestJetComb();
-   goodEvts = 0;
-   goodEvtsFound = 0;
    
    produces<vector<TtSemiEvtSolution> >();
 }
 
 
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
-{
-  cout<<"Total of good events:"<< goodEvts <<endl;
-  cout<<"  of wich are found :"<< goodEvtsFound <<"   ("<<(goodEvtsFound*100.)/(goodEvts*1.)<<"%)"<<endl;
-}
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {}
 
 
 //
@@ -46,33 +41,37 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
 // ------------ method called to produce the data  ------------
 void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-   Handle<vector<TopMuonObject> >  muons;
+   edm::Handle<vector<TopMuon> >  muons;
    if(leptonFlavour_ == "muon") iEvent.getByType(muons);
-   Handle<vector<TopElectronObject> >  electrons;
+   edm::Handle<vector<TopElectron> >  electrons;
    if(leptonFlavour_ == "electron") iEvent.getByType(electrons);
-   Handle<vector<TopMETObject> >  mets;
+   edm::Handle<vector<TopMET> >  mets;
    iEvent.getByType(mets);
-   Handle<vector<TopJetObject> >  jets;
-   iEvent.getByLabel(jetInput_,jets);
+   edm::Handle<vector<TopJet> >  lJets;
+   iEvent.getByLabel(lJetInput_,lJets);
+   edm::Handle<vector<TopJet> >  bJets;
+   iEvent.getByLabel(bJetInput_,bJets);
 
    //select lepton (the TtLepton vectors are, for the moment, sorted on pT)
-   TopMuonObject selMuon;
-   TopElectronObject selElectron;
+   TopMuon selMuon;
+   TopElectron selElectron;
    bool leptonFound = false;
    if(leptonFlavour_ == "muon"     &&     muons->size()>=1) { selMuon     = (*muons)[0];     leptonFound = true;};    
    if(leptonFlavour_ == "electron" && electrons->size()>=1) { selElectron = (*electrons)[0]; leptonFound = true;};  
 
    //select MET (TopMET vector is sorted on ET)
-   TopMETObject selMET;
+   TopMET selMET;
    bool METFound = false;
    if(mets -> size()>=1) { selMET = (*mets)[0]; METFound = true;};  
 
-   //select Jets (TopJet vector is sorted on ET)
-   vector<TopJetObject> selJets;
+   //select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
+   vector<TopJet> lSelJets, bSelJets;
    bool jetsFound = false;
-   if(jets -> size()>=4) { 
-     for(int j=0; j<4; j++) selJets.push_back((*jets)[j]);
+   if(lJets -> size()>=4 && bJets -> size()>=4 ) { 
+     for(int j=0; j<4; j++) {
+       lSelJets.push_back((*lJets)[j]);
+       bSelJets.push_back((*bJets)[j]);
+     }
      jetsFound = true;
    }
    
@@ -89,10 +88,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 		 if(leptonFlavour_ == "muon")     asol.setMuon(selMuon);
 		 if(leptonFlavour_ == "electron") asol.setElectron(selElectron);
 		 asol.setMET(selMET);
-		 asol.setHadp(selJets[p]);
-		 asol.setHadq(selJets[q]);
-		 asol.setHadb(selJets[bh]);
-		 asol.setLepb(selJets[bl]);
+		 asol.setHadp(lSelJets[p]);
+		 asol.setHadq(lSelJets[q]);
+		 asol.setHadb(bSelJets[bh]);
+		 asol.setLepb(bSelJets[bl]);
    		 if(doKinFit_){
       		   if(param_ == 1) asol = myKinFitterEtEtaPhi->addKinFitInfo(&asol);
       		   if(param_ == 2) asol = myKinFitterEtThetaPhi->addKinFitInfo(&asol);
@@ -117,10 +116,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
      
      // add TtSemiSimpleBestJetComb to solutions
      int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
+     for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleBestSol(simpleBestJetComb);
      
      // if asked for, match the event solutions to the gen Event
      if(matchToGenEvt_){
-       Handle<TtGenEvent> genEvt;
+       edm::Handle<TtGenEvent> genEvt;
        iEvent.getByLabel ("genEvt",genEvt);
        double bestSolDR = 9999.;
        int bestSol = 0;
@@ -135,10 +135,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
          (*evtsols)[s].setDeltaRlepb(bm[5]);
 	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
        }
-       (*evtsols)[bestSol].setBestSol(true);
-       
-       if(bestSolDR<0.5) ++goodEvts;
-       if(bestSolDR<0.5 && (simpleBestJetComb == bestSol)) ++goodEvtsFound;
+       for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setMCBestSol(bestSol);
      }
      
      

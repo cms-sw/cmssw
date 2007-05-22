@@ -96,12 +96,12 @@ StEvtSolution StKinFitterEMom::addKinFitInfo(StEvtSolution * asol) {
   
   // add fitted information to the solution
   if ( theFitter->getStatus() == 0 ) {
-    TopParticle aFitBottom(Particle(0,math::XYZTLorentzVector(fitBottom->getCurr4Vec()->X(), fitBottom->getCurr4Vec()->Y(), fitBottom->getCurr4Vec()->Z(), fitBottom->getCurr4Vec()->E()),math::XYZPoint()));
-    TopParticle aFitLight(Particle(0,math::XYZTLorentzVector(fitLight->getCurr4Vec()->X(), fitLight->getCurr4Vec()->Y(), fitLight->getCurr4Vec()->Z(), fitLight->getCurr4Vec()->E()),math::XYZPoint()));
-    //    TopParticle aFitHadb(Particle(0,math::XYZTLorentzVector(fitHadb->getCurr4Vec()->X(), fitHadb->getCurr4Vec()->Y(), fitHadb->getCurr4Vec()->Z(), fitHadb->getCurr4Vec()->E()),math::XYZPoint()));
-    //    TopParticle aFitLepb(Particle(0,math::XYZTLorentzVector(fitLepb->getCurr4Vec()->X(), fitLepb->getCurr4Vec()->Y(), fitLepb->getCurr4Vec()->Z(), fitLepb->getCurr4Vec()->E()),math::XYZPoint()));
-    TopParticle aFitLepl(Particle(0,math::XYZTLorentzVector(fitLepl->getCurr4Vec()->X(), fitLepl->getCurr4Vec()->Y(), fitLepl->getCurr4Vec()->Z(), fitLepl->getCurr4Vec()->E()),math::XYZPoint()));
-    TopParticle aFitLepn(Particle(0,math::XYZTLorentzVector(fitLepn->getCurr4Vec()->X(), fitLepn->getCurr4Vec()->Y(), fitLepn->getCurr4Vec()->Z(), fitLepn->getCurr4Vec()->E()),math::XYZPoint()));   
+    TopParticle aFitBottom(reco::Particle(0,math::XYZTLorentzVector(fitBottom->getCurr4Vec()->X(), fitBottom->getCurr4Vec()->Y(), fitBottom->getCurr4Vec()->Z(), fitBottom->getCurr4Vec()->E()),math::XYZPoint()));
+    TopParticle aFitLight(reco::Particle(0,math::XYZTLorentzVector(fitLight->getCurr4Vec()->X(), fitLight->getCurr4Vec()->Y(), fitLight->getCurr4Vec()->Z(), fitLight->getCurr4Vec()->E()),math::XYZPoint()));
+    //    TopParticle aFitHadb(reco::Particle(0,math::XYZTLorentzVector(fitHadb->getCurr4Vec()->X(), fitHadb->getCurr4Vec()->Y(), fitHadb->getCurr4Vec()->Z(), fitHadb->getCurr4Vec()->E()),math::XYZPoint()));
+    //    TopParticle aFitLepb(reco::Particle(0,math::XYZTLorentzVector(fitLepb->getCurr4Vec()->X(), fitLepb->getCurr4Vec()->Y(), fitLepb->getCurr4Vec()->Z(), fitLepb->getCurr4Vec()->E()),math::XYZPoint()));
+    TopParticle aFitLepl(reco::Particle(0,math::XYZTLorentzVector(fitLepl->getCurr4Vec()->X(), fitLepl->getCurr4Vec()->Y(), fitLepl->getCurr4Vec()->Z(), fitLepl->getCurr4Vec()->E()),math::XYZPoint()));
+    TopParticle aFitLepn(reco::Particle(0,math::XYZTLorentzVector(fitLepn->getCurr4Vec()->X(), fitLepn->getCurr4Vec()->Y(), fitLepn->getCurr4Vec()->Z(), fitLepn->getCurr4Vec()->E()),math::XYZPoint()));   
 
     TMatrixD Vb(4,4);  Vb  = (*fitBottom->getCovMatrixFit()); 
     TMatrixD Vq(4,4);  Vq  = (*fitLight->getCovMatrixFit()); 
@@ -124,15 +124,15 @@ StEvtSolution StKinFitterEMom::addKinFitInfo(StEvtSolution * asol) {
     aFitLepn.setResTheta(Vn(1,1));
     aFitLepn.setResPhi(Vn(2,2));
     
-    TopJetObject  aFitBottomObj(fitsol.getBottom()); aFitBottomObj.setFitJet(aFitBottom); fitsol.setBottom(aFitBottomObj);
-    TopJetObject  aFitLightObj(fitsol.getLight()); aFitLightObj.setFitJet(aFitLight); fitsol.setLight(aFitLightObj);
+    TopJet  aFitBottomObj(fitsol.getBottom()); aFitBottomObj.setFitJet(aFitBottom); fitsol.setBottom(aFitBottomObj);
+    TopJet  aFitLightObj(fitsol.getLight()); aFitLightObj.setFitJet(aFitLight); fitsol.setLight(aFitLightObj);
     if(fitsol.getDecay() == "muon"){
-      TopMuonObject aFitLeplObj(fitsol.getMuon()); aFitLeplObj.setFitMuon(aFitLepl); fitsol.setMuon(aFitLeplObj);
+      TopMuon aFitLeplObj(fitsol.getMuon()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setMuon(aFitLeplObj);
     }
     else if(fitsol.getDecay() == "electron"){
-      TopElectronObject aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitElectron(aFitLepl); fitsol.setElectron(aFitLeplObj);
+      TopElectron aFitLeplObj(fitsol.getElectron()); aFitLeplObj.setFitLepton(aFitLepl); fitsol.setElectron(aFitLeplObj);
     }
-    TopMETObject  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
+    TopMET  aFitLepnObj(fitsol.getMET()); aFitLepnObj.setFitMET(aFitLepn); fitsol.setMET(aFitLepnObj);
     fitsol.setChi2(TMath::Prob(theFitter->getS(), theFitter->getNDF()));
   }
   return fitsol;
