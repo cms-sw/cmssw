@@ -14,7 +14,7 @@
 // Original Author:  Dmytro Kovalskyi
 // Modified for ECAL+HCAL by:  Michal Szleper
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: DetIdAssociator.cc,v 1.1 2007/03/08 23:03:18 michals Exp $
+// $Id: DetIdAssociator.cc,v 1.2 2007/03/09 21:16:28 michals Exp $
 //
 //
 
@@ -41,6 +41,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 				       Surface::RotationType());
       Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
 					Surface::RotationType());
+
       
       LogTrace("StartingPoint")<< "Propagate from "<< "\n"
 	<< "\tx: " << ftsStart.position().x()<< "\n"
@@ -49,40 +50,77 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 	<< "\tmomentum eta: " << ftsStart.momentum().eta()<< "\n"
 	<< "\tmomentum phi: " << ftsStart.momentum().phi()<< "\n"
 	<< "\tmomentum: " << ftsStart.momentum().mag()<< "\n";
-      
+     
+         float tanTheta = ftsCurrent.momentum().perp()/ftsCurrent.momentum().z();
+         float corner = surface_iter->perp()/surface_iter->z();
+/*
+      std::cout<<"Propagate from "<< "\n"
+        << "\tx: " << ftsCurrent.position().x()<< "\n"
+        << "\ty: " << ftsCurrent.position().y()<< "\n"
+        << "\tz: " << ftsCurrent.position().z()<< "\n"
+        << "\tz: " << ftsCurrent.position().perp()<< "\n"
+        << "\tz: " << tanTheta<<" "<< corner <<"\n"
+        << "\tmomentum eta: " << ftsCurrent.momentum().eta()<< "\n"
+        << "\tmomentum phi: " << ftsCurrent.momentum().phi()<< "\n"
+        << "\tmomentum: " << ftsCurrent.momentum().mag()<<std::endl;
+*/ 
       // First propage the track to the cylinder if |eta|<1, othewise to the encap
       // and correct depending on the result
-      if (fabs(ftsCurrent.momentum().eta())<1)
-	tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
-      else if(ftsCurrent.momentum().eta()>1)
-	tSOSDest = ivProp_->propagate(ftsCurrent, *forwardEndcap);
+      int ibar = 0;
+      if (fabs(tanTheta) > corner)
+	{
+                   tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder); 
+                   std::cout<<" Propagate to cylinder "<<std::endl;
+        }
+      else if(tanTheta > 0.)
+	{tSOSDest = ivProp_->propagate(ftsCurrent, *forwardEndcap); ibar=1; std::cout<<" Propagate to forward "<<std::endl;}
       else
-	tSOSDest = ivProp_->propagate(ftsCurrent, *backwardEndcap);
+	{tSOSDest = ivProp_->propagate(ftsCurrent, *backwardEndcap); ibar=-1; std::cout<<" Propagate to backward "<<std::endl;}
 
-      if (! tSOSDest.isValid()) {
-         LogTrace("FailedPropagation") << "Failed to propagate the track; moving on\n";
-         continue;
-      }
+       std::cout<<" Trajectory valid? "<<tSOSDest.isValid()<<" First propagation in "<<ibar<<std::endl;
 
-      GlobalPoint point = tSOSDest.freeState()->position();
+      if(! tSOSDest.isValid() )
+      {
+// barrel
+       if(ibar = 0){ 
+           if (tanTheta < 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*forwardEndcap);
+           if (tanTheta >= 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*backwardEndcap);
+       }
+         else
+         {
+                tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
+         }
+      } else
+          {
+// missed target
+            if(abs(ibar) > 0)
+            {
+              if(tSOSDest.globalPosition().perp() > surface_iter->perp())
+              {
+                tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
+              }           
+            }
+              else
+              {
+                if (tanTheta < 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*forwardEndcap);
+                if (tanTheta >= 0 ) tSOSDest = ivProp_->propagate( ftsCurrent,*backwardEndcap);
+              }
+          }
 
-      // If missed the target, propagate to again
-      if (point.perp() > surface_iter->perp())
-	tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
-      if (point.z() > surface_iter->z()) 
-	tSOSDest = ivProp_->propagate(ftsStart, *forwardEndcap);
-      if (point.z() < -surface_iter->z()) 
-	tSOSDest = ivProp_->propagate(ftsStart, *backwardEndcap);
 
-      if (! tSOSDest.isValid()) throw cms::Exception("FatalError") << "Failed to propagate the track\n";
+      if (! tSOSDest.isValid()) return trajectory;
       
+      std::cout<<" Propagate reach something"<<std::endl; 
       LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
 	<< "\tx: " << tSOSDest.freeState()->position().x() << "\n"
 	<< "\ty: " << tSOSDest.freeState()->position().y() << "\n"
 	<< "\tz: " << tSOSDest.freeState()->position().z() << "\n"
 	<< "\teta: " << tSOSDest.freeState()->position().eta() << "\n"
 	<< "\tphi: " << tSOSDest.freeState()->position().phi() << "\n";
-      
+
+      std::cout<<" The position of trajectory "<<tSOSDest.freeState()->position().perp()<<" "<<tSOSDest.freeState()->position().z()<<std::endl;  
+
+      GlobalPoint point = tSOSDest.freeState()->position(); 
       point = tSOSDest.freeState()->position();
       ftsCurrent = *tSOSDest.freeState();
       trajectory.push_back(point);
