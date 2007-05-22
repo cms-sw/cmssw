@@ -141,9 +141,9 @@ void TruncatedPyramid::init(double dz, double theta, double phi,
   
   //--------------------
 
-  thetaAxis =  ( dz > 11.2*cm ? M_PI/2 - theta : theta ) ;
+  thetaAxis =  ( dz > 11.2*cm ? M_PI   - theta : theta ) ;
   phiAxis   =  ( dz > 11.2*cm ? M_PI   + phi   : phi   ) ;
-  if( 2*M_PI < phiAxis ) phiAxis -= 2*M_PI ;
+  if( M_PI < phiAxis ) phiAxis -= 2*M_PI ;
 
   // create the boundary planes, the first boundary plane will be the
   // front side
