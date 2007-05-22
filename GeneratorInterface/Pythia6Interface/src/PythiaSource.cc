@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/21 08:26:16 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/05/22 13:39:22 $
+ *  $Revision: 1.9 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -74,8 +74,6 @@ extern "C" {
    void SLHA_INIT();
 }
 
-
-HepMC::IO_HEPEVT conv;
 
 //used for defaults
   static const unsigned long kNanoSecPerSec = 1000000000;
@@ -313,7 +311,9 @@ bool PythiaSource::produce(Event & e) {
       }
 
     call_pyhepc( 1 );
-    
+
+
+    HepMC::IO_HEPEVT conv;
     //HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
     HepMC::GenEvent* evt = conv.read_next_event();
     evt->set_signal_process_id(pypars.msti[0]);
