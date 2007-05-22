@@ -70,14 +70,14 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
       if (fabs(tanTheta) > corner)
 	{
                    tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder); 
-                   std::cout<<" Propagate to cylinder "<<std::endl;
+ //                  std::cout<<" Propagate to cylinder "<<std::endl;
         }
       else if(tanTheta > 0.)
-	{tSOSDest = ivProp_->propagate(ftsCurrent, *forwardEndcap); ibar=1; std::cout<<" Propagate to forward "<<std::endl;}
+	{tSOSDest = ivProp_->propagate(ftsCurrent, *forwardEndcap); ibar=1; }
       else
-	{tSOSDest = ivProp_->propagate(ftsCurrent, *backwardEndcap); ibar=-1; std::cout<<" Propagate to backward "<<std::endl;}
+	{tSOSDest = ivProp_->propagate(ftsCurrent, *backwardEndcap); ibar=-1; }
 
-       std::cout<<" Trajectory valid? "<<tSOSDest.isValid()<<" First propagation in "<<ibar<<std::endl;
+//       std::cout<<" Trajectory valid? "<<tSOSDest.isValid()<<" First propagation in "<<ibar<<std::endl;
 
       if(! tSOSDest.isValid() )
       {
@@ -108,9 +108,21 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
           }
 
 
+      // If missed the target, propagate to again
+//      if ((!tSOSDest.isValid()) && point.perp() > surface_iter->perp())
+//	{tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);std::cout<<" Propagate again 1 "<<std::endl;}
+//         std::cout<<" Track is ok after repropagation to cylinder or not? "<<tSOSDest.isValid()<<std::endl;
+//      if ((!tSOSDest.isValid()) && ftsStart.momentum().eta()>0. && fabs(ftsStart.momentum().eta())>1.) 
+//	{tSOSDest = ivProp_->propagate(ftsStart, *forwardEndcap);std::cout<<" Propagate again 2 "<<std::endl;}
+//       std::cout<<" Track is ok after repropagation forward or not? "<<tSOSDest.isValid()<<std::endl;
+//      if ((!tSOSDest.isValid()) && ftsStart.momentum().eta()<0.&&fabs(ftsStart.momentum().eta())>1.) 
+//	{tSOSDest = ivProp_->propagate(ftsStart, *backwardEndcap);std::cout<<" Propagate again 3 "<<std::endl;}
+//       std::cout<<" Track is after repropagation backward ok or not? "<<tSOSDest.isValid()<<std::endl; 
+
+
       if (! tSOSDest.isValid()) return trajectory;
       
-      std::cout<<" Propagate reach something"<<std::endl; 
+//      std::cout<<" Propagate reach something"<<std::endl; 
       LogTrace("SuccessfullPropagation") << "Great, I reached something." << "\n"
 	<< "\tx: " << tSOSDest.freeState()->position().x() << "\n"
 	<< "\ty: " << tSOSDest.freeState()->position().y() << "\n"
@@ -118,7 +130,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 	<< "\teta: " << tSOSDest.freeState()->position().eta() << "\n"
 	<< "\tphi: " << tSOSDest.freeState()->position().phi() << "\n";
 
-      std::cout<<" The position of trajectory "<<tSOSDest.freeState()->position().perp()<<" "<<tSOSDest.freeState()->position().z()<<std::endl;  
+//      std::cout<<" The position of trajectory "<<tSOSDest.freeState()->position().perp()<<" "<<tSOSDest.freeState()->position().z()<<std::endl;  
 
       GlobalPoint point = tSOSDest.freeState()->position(); 
       point = tSOSDest.freeState()->position();
