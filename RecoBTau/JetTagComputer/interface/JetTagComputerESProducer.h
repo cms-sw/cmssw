@@ -2,6 +2,8 @@
 #define RecoBTau_JetTagComputerESProducer_h
 
 #include <string>
+#include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -11,6 +13,10 @@
 
 template <typename ConcreteJetTagComputer>
 class JetTagComputerESProducer: public edm::ESProducer {
+private:
+  // check that the template parameter inherits from JetTagComputer
+  BOOST_STATIC_ASSERT( boost::is_convertible<ConcreteJetTagComputer*, JetTagComputer*>::value );
+  
 public:
   JetTagComputerESProducer(const edm::ParameterSet & pset) : m_pset(pset) {
     setWhatProduced(this, m_pset.retrieve("ComponentName").getString());
@@ -31,4 +37,4 @@ private:
   edm::ParameterSet m_pset;
 };
 
-#endif // RecoBTag_SoftLepton_JetTagComputerESProducer_h
+#endif // RecoBTau_JetTagComputerESProducer_h
