@@ -1,4 +1,4 @@
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronObjectProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 
@@ -6,7 +6,7 @@
 //
 // constructors and destructor
 //
-TopElectronObjectProducer::TopElectronObjectProducer(const edm::ParameterSet& iConfig)
+TopElectronProducer::TopElectronProducer(const edm::ParameterSet& iConfig)
 {
    electronPTcut_  	= iConfig.getParameter< double > ("electronPTcut");
    electronEtacut_ 	= iConfig.getParameter< double > ("electronEtacut");
@@ -22,11 +22,11 @@ TopElectronObjectProducer::TopElectronObjectProducer(const edm::ParameterSet& iC
    }
 
    //produces vector of electrons
-   produces<vector<TopElectronObject > >("electrons");
+   produces<vector<TopElectron > >("electrons");
 }
 
 
-TopElectronObjectProducer::~TopElectronObjectProducer()
+TopElectronProducer::~TopElectronProducer()
 {
    if(addResolutions_) delete elResCalc;
 }
@@ -38,7 +38,7 @@ TopElectronObjectProducer::~TopElectronObjectProducer()
 
 // ------------ method called to produce the data  ------------
 void
-TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TopElectronProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    if (addLRValues_) {
@@ -46,11 +46,11 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    // Get the vector of generated particles from the event
-   Handle<vector<ElectronType> > electrons; 
+   edm::Handle<vector<ElectronType> > electrons; 
    iEvent.getByLabel("pixelMatchGsfElectrons", electrons );
    
    //loop over electrons
-   vector<TopElectronObject> * topElectrons = new vector<TopElectronObject>(); 
+   vector<TopElectron> * topElectrons = new vector<TopElectron>(); 
    for(size_t e=0; e<electrons->size(); e++){
      if( (*electrons)[e].pt()>electronPTcut_ && fabs((*electrons)[e].eta())<electronEtacut_ ){
 
@@ -63,7 +63,7 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
        if (addLRValues_) {
          theLeptonLRCalc_->calcLikelihood(anElectron, iEvent);
        }
-       topElectrons->push_back(TopElectronObject(anElectron));
+       topElectrons->push_back(TopElectron(anElectron));
      }
    }
    // sort electrons in pT
@@ -72,6 +72,6 @@ TopElectronObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
    if (addLRValues_) delete theLeptonLRCalc_;
 
    // put genEvt object in Event
-   auto_ptr<vector<TopElectronObject> > pOutElectron(topElectrons);
+   auto_ptr<vector<TopElectron> > pOutElectron(topElectrons);
    iEvent.put(pOutElectron,"electrons");
 }

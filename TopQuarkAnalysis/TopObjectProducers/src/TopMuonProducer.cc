@@ -1,4 +1,4 @@
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonObjectProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
 
 #include "TopQuarkAnalysis/TopLeptonSelection/interface/TopLeptonLRCalc.h"
 
@@ -6,7 +6,7 @@
 //
 // constructors and destructor
 //
-TopMuonObjectProducer::TopMuonObjectProducer(const edm::ParameterSet& iConfig)
+TopMuonProducer::TopMuonProducer(const edm::ParameterSet& iConfig)
 {
    muonPTcut_      = iConfig.getParameter< double > ("muonPTcut");
    muonEtacut_     = iConfig.getParameter< double > ("muonEtacut");
@@ -22,11 +22,11 @@ TopMuonObjectProducer::TopMuonObjectProducer(const edm::ParameterSet& iConfig)
    }
    
    //produces vector of muons
-   produces<vector<TopMuonObject > >("muons");
+   produces<vector<TopMuon > >("muons");
 }
 
 
-TopMuonObjectProducer::~TopMuonObjectProducer()
+TopMuonProducer::~TopMuonProducer()
 {
    if(addResolutions_) delete muResCalc;
 }
@@ -38,7 +38,7 @@ TopMuonObjectProducer::~TopMuonObjectProducer()
 
 // ------------ method called to produce the data  ------------
 void
-TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TopMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    if (addLRValues_) {
@@ -46,11 +46,11 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    }
   
    // Get the vector of generated particles from the event
-   Handle<vector<MuonType> > muons;
+   edm::Handle<vector<MuonType> > muons;
    iEvent.getByLabel("globalMuons", muons );
 
    //loop over muons
-   vector<TopMuonObject> * topMuons = new vector<TopMuonObject>(); 
+   vector<TopMuon> * topMuons = new vector<TopMuon>(); 
    for(size_t m=0; m<muons->size(); m++){
      if( (*muons)[m].pt()>muonPTcut_ && fabs((*muons)[m].eta())<muonEtacut_ ){
        
@@ -63,7 +63,7 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        if (addLRValues_) {
          theLeptonLRCalc_->calcLikelihood(aMuon, iEvent);
        }
-       topMuons->push_back(TopMuonObject(aMuon));
+       topMuons->push_back(TopMuon(aMuon));
      }
    }
    // sort muons in pT
@@ -72,6 +72,6 @@ TopMuonObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    if (addLRValues_) delete theLeptonLRCalc_;
 
    // put genEvt object in Event
-   auto_ptr<vector<TopMuonObject> > pOutMuon(topMuons);
+   auto_ptr<vector<TopMuon> > pOutMuon(topMuons);
    iEvent.put(pOutMuon,"muons");
 }

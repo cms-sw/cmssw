@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    TopElectronObjectProducer
-// Class:      TopElectronObjectProducer
+// Package:    TopElectronProducer
+// Class:      TopElectronProducer
 // 
-/**\class TopElectronObjectProducer TopElectronObjectProducer.cc Top/TopEventProducers/src/TopElectronObjectProducer.cc
+/**\class TopElectronProducer TopElectronProducer.cc Top/TopEventProducers/src/TopElectronProducer.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopElectronObjectProducer.h,v 1.2 2007/05/04 01:04:16 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.3 2007/05/08 14:01:20 heyninck Exp $
 //
 //
 
@@ -29,8 +29,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopElectronObject.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+#include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include <vector>
 #include <string>
@@ -40,17 +41,15 @@ class TopLeptonLRCalc;
 
 
 using namespace std;
-using namespace edm;
-using namespace reco;
 
 //
 // class decleration
 //
 
-class TopElectronObjectProducer : public edm::EDProducer {
+class TopElectronProducer : public edm::EDProducer {
    public:
-      explicit TopElectronObjectProducer(const edm::ParameterSet&);
-      ~TopElectronObjectProducer();
+      explicit TopElectronProducer(const edm::ParameterSet&);
+      ~TopElectronProducer();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
@@ -60,15 +59,8 @@ class TopElectronObjectProducer : public edm::EDProducer {
      bool   addResolutions_;
      bool   addLRValues_;
      string electronLRFile_, electronResoFile_;
-
-     TopLeptonLRCalc * theLeptonLRCalc_;
-     
-     struct ComparePtElectron {
-       bool operator()( TopElectronObject e1, TopElectronObject e2 ) const {
-         return e1.getRecElectron().pt() > e2.getRecElectron().pt();
-       }
-     };
-     ComparePtElectron pTElectronComparator;
+     TopLeptonLRCalc 	     * theLeptonLRCalc_;
+     PtInverseComparator<TopElectron>     pTElectronComparator;
      TopObjectResolutionCalc *elResCalc;
 
 };

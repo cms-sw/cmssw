@@ -1,9 +1,9 @@
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETObjectProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
 
 //
 // constructors and destructor
 //
-TopMETObjectProducer::TopMETObjectProducer(const edm::ParameterSet& iConfig)
+TopMETProducer::TopMETProducer(const edm::ParameterSet& iConfig)
 {
    METLabel_   	   = iConfig.getParameter< string > ("METInput");
    METcut_         = iConfig.getParameter< double > ("METcut");
@@ -16,11 +16,11 @@ TopMETObjectProducer::TopMETObjectProducer(const edm::ParameterSet& iConfig)
    }
    
    //produces vector of mets
-   produces<vector<TopMETObject> >();
+   produces<vector<TopMET> >();
 }
 
 
-TopMETObjectProducer::~TopMETObjectProducer()
+TopMETProducer::~TopMETProducer()
 {
    if(addResolutions_) delete metResCalc;
 }
@@ -32,15 +32,15 @@ TopMETObjectProducer::~TopMETObjectProducer()
 
 // ------------ method called to produce the data  ------------
 void
-TopMETObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TopMETProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    // Get the vector of generated particles from the event
-   Handle<vector<METType> > METs;
+   edm::Handle<vector<METType> > METs;
    iEvent.getByLabel(METLabel_, METs );
    
    // define vector of selected TopJet objects
-   vector<TopMETObject> * ttMETs = new vector<TopMETObject>(); 
+   vector<TopMET> * ttMETs = new vector<TopMET>(); 
    for(size_t j=0; j<METs->size(); j++){
      if( (*METs)[j].et()>METcut_ ){
        
@@ -49,7 +49,7 @@ TopMETObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if(addResolutions_){
          (*metResCalc)(amet);
        }
-       ttMETs->push_back(TopMETObject(amet));
+       ttMETs->push_back(TopMET(amet));
      }
    }
 
@@ -57,7 +57,7 @@ TopMETObjectProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::sort(ttMETs->begin(),ttMETs->end(),eTComparator);
 
    // put genEvt object in Event
-   auto_ptr<vector<TopMETObject> > myTopMETObjectProducer(ttMETs);
-   iEvent.put(myTopMETObjectProducer);
+   auto_ptr<vector<TopMET> > myTopMETProducer(ttMETs);
+   iEvent.put(myTopMETProducer);
 
 }

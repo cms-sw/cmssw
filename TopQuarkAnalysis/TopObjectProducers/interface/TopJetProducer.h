@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    TopJetObjectProducer
-// Class:      TopJetObjectProducer
+// Package:    TopJetProducer
+// Class:      TopJetProducer
 // 
-/**\class TopJetObjectProducer TopJetObjectProducer.cc Top/TopEventProducers/src/TopJetObjectProducer.cc
+/**\class TopJetProducer TopJetProducer.cc Top/TopEventProducers/src/TopJetProducer.cc
 
  Description: <one line class summary>
 
@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopJetObjectProducer.h,v 1.1 2007/05/02 15:10:51 lowette Exp $
+// $Id: TopJetProducer.h,v 1.2 2007/05/08 14:01:21 heyninck Exp $
 //
 //
 
@@ -29,47 +29,37 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopJetObject.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+#include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 
 #include <vector>
 #include <Math/VectorUtil.h>
 
 using namespace std;
-using namespace edm;
 
 //
 // class decleration
 //
 
-class TopJetObjectProducer : public edm::EDProducer {
+class TopJetProducer : public edm::EDProducer {
    public:
-      explicit TopJetObjectProducer(const edm::ParameterSet&);
-      ~TopJetObjectProducer();
+      explicit TopJetProducer(const edm::ParameterSet&);
+      ~TopJetProducer();
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
      string jetTagsLabel_;
      string recJetsLabel_;
-     string lcaliJetsLabel_;
-     string bcaliJetsLabel_;
-     string lcaliJetResoFile_;
-     string bcaliJetResoFile_;
+     string caliJetsLabel_;
+     string caliJetResoFile_;
      double recJetETcut_;
-     double calJetETcut_;
      double jetEtaCut_;
      int minNrConstis_;
      bool addResolutions_;  
-     
-     // compare two jets in ET
-     struct CompareET {
-       bool operator()( TopJetObject j1, TopJetObject j2 ) const {
-         return j1.getRecJet().et() > j2.getRecJet().et();
-       }
-     };
-     CompareET eTComparator;
-     TopObjectResolutionCalc *lJetsResCalc, *bJetsResCalc;
+     EtInverseComparator<TopJet> eTComparator;
+     TopObjectResolutionCalc *jetsResCalc;
 
 };

@@ -1,14 +1,14 @@
 #include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetObjectProducer.h"
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonObjectProducer.h"
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronObjectProducer.h"
-#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETObjectProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
+#include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
 
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(TopJetObjectProducer);
-DEFINE_ANOTHER_FWK_MODULE(TopMuonObjectProducer);
-DEFINE_ANOTHER_FWK_MODULE(TopElectronObjectProducer);
-DEFINE_ANOTHER_FWK_MODULE(TopMETObjectProducer);
+DEFINE_ANOTHER_FWK_MODULE(TopJetProducer);
+DEFINE_ANOTHER_FWK_MODULE(TopMuonProducer);
+DEFINE_ANOTHER_FWK_MODULE(TopElectronProducer);
+DEFINE_ANOTHER_FWK_MODULE(TopMETProducer);
 
 
