@@ -141,8 +141,9 @@ void TruncatedPyramid::init(double dz, double theta, double phi,
   
   //--------------------
 
-  thetaAxis = theta;
-  phiAxis = phi;
+  thetaAxis =  ( dz > 11.2*cm ? M_PI/2 - theta : theta ) ;
+  phiAxis   =  ( dz > 11.2*cm ? M_PI   + phi   : phi   ) ;
+  if( 2*M_PI < phiAxis ) phiAxis -= 2*M_PI ;
 
   // create the boundary planes, the first boundary plane will be the
   // front side
@@ -294,12 +295,7 @@ TruncatedPyramid::getPosition(float depth) const
   // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
   // to avoid compiler warning
 
-  // Brian Heltsley 05/21/2007
-  // Fix when front face is positive z
-
-  const double sign ( thetaAxis< M_PI/2 ? 1.0 : -1.0 ) ;
-
-  point = point + sign*GlobalVector(move.x(),move.y(),move.z());
+  point = point + GlobalVector(move.x(),move.y(),move.z());
 
   return point;
 }
