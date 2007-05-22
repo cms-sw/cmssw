@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/05/08 09:09:17 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/15 17:21:35 $
+ * $Revision: 1.3 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -29,7 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -43,9 +43,7 @@ using namespace std;
 
 DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTNoiseTest]: Constructor"<<endl;
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: Constructor";
 
   parameters = ps;
   
@@ -57,15 +55,13 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
 
 DTNoiseTest::~DTNoiseTest(){
 
-  if(debug)
-    cout << "DTNoiseTest: analyzed " << updates << " events" << endl;
+  edm::LogVerbatim ("noise") <<"DTNoiseTest: analyzed " << updates << " events";
 
 }
 
 void DTNoiseTest::endJob(){
 
-  if(debug)
-    cout<<"[DTNoiseTest] endjob called!"<<endl;
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest] endjob called!";
 
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
@@ -75,8 +71,7 @@ void DTNoiseTest::endJob(){
 
 void DTNoiseTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTNoiseTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: BeginJob";
 
   updates = 0;
   nevents = 0;
@@ -110,8 +105,7 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
   updates++;
 
-  if (updates%1 == 0 && debug) 
-    cout<<"[DTNoiseTest]: "<<updates<<" updates"<<endl;
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<updates<<" updates";
 
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);

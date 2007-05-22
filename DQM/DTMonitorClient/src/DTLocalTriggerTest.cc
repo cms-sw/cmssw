@@ -2,7 +2,7 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 07:40:04 $
+ *  $Date: 2007/05/18 08:07:47 $
  *  $Revision: 1.1 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
@@ -19,6 +19,7 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DQMServices/Core/interface/MonitorElementBaseT.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Geometry
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -31,10 +32,8 @@ using namespace std;
 
 DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
 
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
   sourceFolder = ps.getUntrackedParameter<string>("sourceFolder", ""); 
-  if(debug)
-    cout<<"[DTLocalTriggerTest]: Constructor"<<endl;
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: Constructor";
 
   parameters = ps;
 
@@ -45,15 +44,13 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
 
 DTLocalTriggerTest::~DTLocalTriggerTest(){
 
-  if(debug)
-    cout << "[DTLocalTriggerTest]: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: analyzed " << nevents << " events";
 
 }
 
 void DTLocalTriggerTest::endJob(){
 
-  if(debug)
-    cout<<"[DTLocalTriggerTest] endjob called!"<<endl;
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTLocalTrigger");
 
@@ -61,8 +58,7 @@ void DTLocalTriggerTest::endJob(){
 
 void DTLocalTriggerTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTLocalTriggerTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: BeginJob";
 
   nevents = 0;
 
@@ -114,8 +110,8 @@ void DTLocalTriggerTest::bookWheelHistos(int wheel, string folder) {
 void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
   nevents++;
-  if (nevents%1000 == 0 && debug) 
-    cout<<"[DTLocalTriggerTest]: "<<nevents<<" updates"<<endl;
+  if (nevents%1000 == 0) 
+    edm::LogVerbatim ("localTrigger") <<"[DTLocalTriggerTest]: "<<nevents<<" updates";
   
   // Loop over the chambers
   for (int stat=1; stat<=4; ++stat){
