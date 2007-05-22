@@ -685,6 +685,7 @@ namespace edm {
   void
   EventProcessor::rewind()
   {
+    changeState(mStopAsync);
     changeState(mInputRewind);
     ServiceRegistry::Operate operate(serviceToken_);
     input_->repeat();
@@ -856,6 +857,8 @@ namespace edm {
     if(looper_) {
        EDLooperHelper looperHelper(this);
        looper_->loop(looperHelper,numberToProcess);
+       //make sure we are in the stop state
+       changeState(mStopAsync);
     } else {
        rc = run_p(numberToProcess,mRunCount);
     }
