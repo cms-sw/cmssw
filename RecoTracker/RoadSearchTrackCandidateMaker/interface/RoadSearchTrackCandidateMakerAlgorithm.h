@@ -12,9 +12,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/03/15 22:33:27 $
-// $Revision: 1.8 $
+// $Author: burkett $
+// $Date: 2007/03/28 18:09:57 $
+// $Revision: 1.9 $
 //
 
 #include <string>
@@ -103,9 +103,12 @@ class CosmicCompareY {
   bool operator()( const TrackingRecHit& rh1,
 		   const TrackingRecHit& rh2) const
   {
-    GlobalPoint gp1=_tracker.idToDet(rh1.geographicalId())->surface().toGlobal(rh1.localPosition());
-    GlobalPoint gp2=_tracker.idToDet(rh2.geographicalId())->surface().toGlobal(rh2.localPosition());
-    return gp1.y()<gp2.y();};
+    bool result = 
+      static_cast<unsigned int>(std::abs(_tracker.idToDet(rh1.geographicalId())->surface().toGlobal(rh1.localPosition()).y())) <
+      static_cast<unsigned int>(std::abs(_tracker.idToDet(rh2.geographicalId())->surface().toGlobal(rh2.localPosition()).y())) ;
+    return result;
+  };
+
  private:
   const TrackerGeometry& _tracker;
 };
