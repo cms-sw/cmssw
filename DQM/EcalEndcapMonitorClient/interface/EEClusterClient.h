@@ -4,8 +4,8 @@
 /*
  * \file EEClusterClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -100,29 +100,20 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h01_[3];
-CollateMonitorElement* me_h02_[2];
-CollateMonitorElement* me_h03_;
-CollateMonitorElement* me_h04_;
+CollateMonitorElement* me_allEE_[3];
+CollateMonitorElement* me_eneEE_[2];
+CollateMonitorElement* me_numEE_[2];
+CollateMonitorElement* me_enePolarEE_[2];
+CollateMonitorElement* me_numPolarEE_[2];
 
-CollateMonitorElement* me_i01_[3];
-CollateMonitorElement* me_i02_[2];
-CollateMonitorElement* me_i03_;
-CollateMonitorElement* me_i04_;
+CollateMonitorElement* me_s_;
 
-CollateMonitorElement* me_s01_[2];
-
-TH1F* h01_[3];
-TProfile2D* h02_[2];
-TH2F* h03_;
-TProfile2D* h04_;
-
-TH1F* i01_[3];
-TProfile2D* i02_[2];
-TH2F* i03_;
-TProfile2D* i04_;
-
-TH1F* s01_[2];
+TH1F* allEE_[3];
+TProfile2D* eneEE_[2];
+TH2F* numEE_[2];
+TProfile2D* enePolarEE_[2];
+TH2F* numPolarEE_[2];
+TH1F* s_;
 
 };
 
