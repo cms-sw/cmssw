@@ -13,10 +13,10 @@ CSCConfigurableStripConditions::CSCConfigurableStripConditions(const edm::Parame
   theResistiveCrosstalk(0.02)
 {
   theNoisifiers.resize(9);
-  makeNoisifier(1, p.getParameter<std::vector<double> >("me11") );
-  makeNoisifier(2, p.getParameter<std::vector<double> >("me12") );
-  makeNoisifier(3, p.getParameter<std::vector<double> >("me13") );
-  makeNoisifier(4, p.getParameter<std::vector<double> >("me11a") ); // not sure about this one
+  makeNoisifier(1, p.getParameter<std::vector<double> >("me11a") );
+  makeNoisifier(2, p.getParameter<std::vector<double> >("me11") );
+  makeNoisifier(3, p.getParameter<std::vector<double> >("me12") );
+  makeNoisifier(4, p.getParameter<std::vector<double> >("me13") ); // not sure about this one
   makeNoisifier(5, p.getParameter<std::vector<double> >("me21") );
   makeNoisifier(6, p.getParameter<std::vector<double> >("me22") );
   makeNoisifier(7, p.getParameter<std::vector<double> >("me31") );
