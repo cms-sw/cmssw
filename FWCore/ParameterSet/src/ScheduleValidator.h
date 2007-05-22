@@ -6,7 +6,7 @@
    Declaration of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.h,v 1.2 2005/09/01 23:30:49 wmtan Exp $
+   \version $Id: ScheduleValidator.h,v 1.3 2005/09/07 20:59:29 wmtan Exp $
    \date 10 Jun 2005
 */
 
@@ -51,7 +51,6 @@ namespace edm {
     /// validates the schedule, throws in case of inconsitency
     void validate();
 
-    
   private:
 
     /// fill the list of leaves of the basenode
@@ -62,6 +61,15 @@ namespace edm {
    
     /// find dependencies (module names) from this node down
     void  findDeps(edm::pset::NodePtr& node, DependencyList& dep);
+
+    void validateDependencies(const std::string & leafName, 
+                              const pset::NodePtr & leafNode, const DependencyList& deps);
+    void mergeDependencies(const std::string & leafName, DependencyList& deps);
+    void validatePaths();
+
+    /// checks the path to see if the DependencyList is satisfied
+    void validatePath(const std::string & path);
+
 
     /// The tree
     PathContainer                      nodes_; 

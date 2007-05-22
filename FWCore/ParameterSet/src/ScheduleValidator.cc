@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.16 2007/03/26 22:55:58 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.17 2007/05/15 22:58:50 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.16 2007/03/26 22:55:58 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.17 2007/05/15 22:58:50 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -130,45 +130,111 @@ void ScheduleValidator::validate(){
     if (leafName.length() > 0 && 
         (leafName[0] == '!' || leafName[0] == '-')) leafName.erase(0,1);
 
-    Dependencies::iterator depIt = dependencies_.find(leafName);
-    if (depIt != dependencies_.end()) {
-      DependencyList& old_deplist = (*depIt).second;
-    
-      // if the list is different from an existing one
-      // then we have an inconsitency
-      if (old_deplist != dep) {
-
-	ostringstream olddepstr,newdepstr, traceback;
-	copy(old_deplist.begin(), old_deplist.end(), 
-	      ostream_iterator<string>(olddepstr,","));
-	copy(dep.begin(), dep.end(), 
-	      ostream_iterator<string>(newdepstr,","));
-        std::string olddeps = olddepstr.str();
-        if(olddeps == "") olddeps = "<NOTHING>";
-        std::string newdeps = newdepstr.str();
-        if(newdeps == "") newdeps = "<NOTHING>";
-
-        (*leafIt)->printTrace(traceback);
-        std::string traceStr = traceback.str();
-        if(traceStr == "") traceStr = "<MAIN CFG>";
-
-	throw edm::Exception(errors::Configuration,"InconsistentSchedule")
-	  << "Inconsistent schedule for module "
-	  << leafName
-	  << "\n"
-	  << "Depends on " << olddeps 
-	  << " but also on " << newdeps
-	  << "\n"
-          << "Second set of dependencies comes from: " << traceStr << "\n";
-      }
-    }
-    else {
-      dependencies_[leafName] = dep;
-    }
+  //  validateDependencies(leafName, *leafIt,  dep);
+    mergeDependencies(leafName, dep);
 
   }//for leaf
+
+  validatePaths();
      
 }// validate
+
+
+void ScheduleValidator::validateDependencies(const std::string & leafName, const NodePtr & leafNode, const DependencyList& dep)
+{
+  Dependencies::iterator depIt = dependencies_.find(leafName);
+std::cout << leafName << " " << std::endl;
+  if (depIt != dependencies_.end()) {
+    DependencyList& old_deplist = (*depIt).second;
+    // if the list is different from an existing one
+    // then we have an inconsitency
+    if (old_deplist != dep) {
+
+      ostringstream olddepstr,newdepstr, traceback;
+      copy(old_deplist.begin(), old_deplist.end(),
+            ostream_iterator<string>(olddepstr,","));
+      copy(dep.begin(), dep.end(),
+            ostream_iterator<string>(newdepstr,","));
+      std::string olddeps = olddepstr.str();
+      if(olddeps == "") olddeps = "<NOTHING>";
+      std::string newdeps = newdepstr.str();
+      if(newdeps == "") newdeps = "<NOTHING>";
+
+      leafNode->printTrace(traceback);
+      std::string traceStr = traceback.str();
+      if(traceStr == "") traceStr = "<MAIN CFG>";
+
+      throw edm::Exception(errors::Configuration,"InconsistentSchedule")
+        << "Inconsistent schedule for module "
+        << leafName
+        << "\n"
+        << "Depends on " << olddeps
+        << " but also on " << newdeps
+        << "\n"
+        << "Second set of dependencies comes from: " << traceStr << "\n";
+    }
+  }
+  else {
+    dependencies_[leafName] = dep;
+  }
+
+}
+
+
+void ScheduleValidator::mergeDependencies(const std::string & leafName, DependencyList& deps)
+{
+  dependencies_[leafName].merge(deps);
+  dependencies_[leafName].unique();
+}
+
+
+void ScheduleValidator::validatePaths()
+{
+ vector<string> paths = processPSet_.getParameter<vector<string> >("@paths");
+  for(vector<string>::const_iterator pathItr = paths.begin(); pathItr != paths.end(); ++pathItr)
+  {
+    validatePath(*pathItr);
+  }
+}
+
+
+void ScheduleValidator::validatePath(const std::string & path) 
+{
+  std::vector<std::string> schedule = processPSet_.getParameter<vector<string> >(path);
+  std::vector<std::string>::iterator module = schedule.begin(),
+    lastModule = schedule.end();
+  for( ; module != lastModule; ++module)
+  {
+     Dependencies::iterator depList = dependencies_.find(*module);
+     if(depList == dependencies_.end())
+     {
+        throw edm::Exception(errors::Configuration,"InconsistentSchedule")
+         << "No dependecies calculated for " << *module;
+     }
+     else 
+     {
+       DependencyList::iterator depItr = depList->second.begin(),
+          lastDep = depList->second.end();
+       for( ; depItr != lastDep; ++depItr)
+       {
+         // make sure each dependency is in the schedule before module
+         if(std::find(schedule.begin(), module, *depItr) == module)
+         {
+           ostringstream pathdump;
+           copy(schedule.begin(), schedule.end(),
+             ostream_iterator<string>(pathdump," "));
+           
+           throw edm::Exception(errors::Configuration,"InconsistentSchedule")
+          << "Module " << *module << " depends on " << *depItr
+          << "\n"
+          << " but path " << path << "  contains "  << pathdump.str()
+          << "\n";
+         }
+       }
+     }
+  }
+}
+
 
 void ScheduleValidator::findDeps(NodePtr& node, DependencyList& dep){
 
