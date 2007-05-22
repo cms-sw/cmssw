@@ -2,8 +2,8 @@
  *  Class: GlobalMuonTrackMatcher
  *
  * 
- *  $Date: 2007/03/16 18:57:05 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/04/30 15:02:32 $
+ *  $Revision: 1.44 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -257,11 +257,11 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
     bool same1, same2;
     //propagate tk to same surface as muon
     TrajectoryStateOnSurface newTkTsosFromTk, newTkTsosFromMu;
-    newTkTsosFromTk = theService->propagator(theOutPropagatorName)->propagate(outerTkTsos,tkTsosFromMu.surface());
+    if( tkTsosFromMu.isValid() ) newTkTsosFromTk = theService->propagator(theOutPropagatorName)->propagate(outerTkTsos,tkTsosFromMu.surface());
     same1 =  samePlane(newTkTsosFromTk,tkTsosFromMu);
     LogDebug(category) << "Propagating to same surface (Mu):" << same1;
     if( !same1 ) {
-      TrajectoryStateOnSurface newTkTsosFromMu = theService->propagator(theOutPropagatorName)->propagate(initMuFTS,tkTsosFromTk.surface());
+      if( tkTsosFromTk.isValid() ) newTkTsosFromMu = theService->propagator(theOutPropagatorName)->propagate(initMuFTS,tkTsosFromTk.surface());
       same2 =  samePlane(newTkTsosFromMu,tkTsosFromTk);
       LogDebug(category) << "Propagating to same surface (Tk):" << same2;
     }
