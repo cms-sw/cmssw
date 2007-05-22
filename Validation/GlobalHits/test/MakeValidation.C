@@ -180,7 +180,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(1,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Monte Carlo RawGenPart");
+      //label->DrawLatex(0.5,1.00,"Monte Carlo RawGenPart");
     }
     if (i == 1) {
       names = vtxhistname;
@@ -188,7 +188,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,3);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Geant4 Vertices");
+      //label->DrawLatex(0.5,1.00,"Geant4 Vertices");
     }
     if (i == 2) {
       names = trkhistname;
@@ -196,7 +196,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Geant4 Tracks");
+      //label->DrawLatex(0.5,1.00,"Geant4 Tracks");
     }
     if (i == 3) {
       names = ecalhistname;
@@ -204,7 +204,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,4);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"ECal Information");
+      //label->DrawLatex(0.5,1.00,"ECal Information");
     }
     if (i == 4) {
       names = preshhistname;
@@ -212,7 +212,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,4);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"PreShower Information");
+      //label->DrawLatex(0.5,1.00,"PreShower Information");
     }
     if (i == 5) {
       names = hcalhistname;
@@ -220,7 +220,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,4);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"HCal Information");
+      //label->DrawLatex(0.5,1.00,"HCal Information");
     }
     if (i == 6) {
       names = pxlhistname;
@@ -228,7 +228,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,4);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Pixel Information");
+      //label->DrawLatex(0.5,1.00,"Pixel Information");
     }
     if (i == 7) {
       names = sihistname;
@@ -236,7 +236,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,4);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Strip Information");
+      //label->DrawLatex(0.5,1.00,"Strip Information");
     }
     if (i == 8) {
       names = muonhistname;
@@ -244,7 +244,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Muon Information");
+      //label->DrawLatex(0.5,1.00,"Muon Information");
     }
     if (i == 9) {
       names = cschistname;
@@ -252,7 +252,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Muon CSC Information");
+      //label->DrawLatex(0.5,1.00,"Muon CSC Information");
     }
     if (i == 10) {
       names = dthistname;
@@ -260,7 +260,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Muon DT Information");
+      //label->DrawLatex(0.5,1.00,"Muon DT Information");
     }
     if (i == 11) {
       names = rpchistname;
@@ -268,7 +268,7 @@ void MakeValidation(TString sfilename = "GlobalHitsHistograms.root",
       Canvas->Divide(2,2);
       myCanvas = Canvas;
       myCanvas->cd(0);
-      label->DrawLatex(0.5,1.00,"Muon RPC Information");
+      //label->DrawLatex(0.5,1.00,"Muon RPC Information");
     }
 
     // loop through plots
