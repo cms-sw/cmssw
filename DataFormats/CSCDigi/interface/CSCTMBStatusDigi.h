@@ -5,8 +5,8 @@
  *
  *  Digi for CSC TMB info available in DDU
  *  
- *  $Date: 2007/05/18 18:52:02 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/21 20:05:07 $
+ *  $Revision: 1.4 $
  *
  */
 
@@ -22,6 +22,10 @@ public:
 
   /// Default constructor.
   CSCTMBStatusDigi () {}
+
+  /// Data Accessors
+  uint16_t * header() {return header_;}
+  uint16_t * trailer() {return trailer_;}
 
 private:
 

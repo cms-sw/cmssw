@@ -4,13 +4,17 @@
 
 #ifndef CSCDDUHeader_h
 #define CSCDDUHeader_h
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
 
 class CSCDDUHeader {
 
  public:
   CSCDDUHeader();
   CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId);
-
+  CSCDDUHeader(CSCDDUStatusDigi & digi)
+    {
+      memcpy(this, digi.header(), sizeInWords()*2);
+    }
   int s_link_status() const { return s_link_status_;}
   int format_version() const { return format_version_;}
   int source_id() const { return source_id_;}

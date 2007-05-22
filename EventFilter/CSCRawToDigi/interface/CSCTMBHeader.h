@@ -4,6 +4,7 @@
 #include <iostream>
 #include <iosfwd>
 #include <vector>
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 
 class CSCCLCTDigi;
 class CSCDMBHeader;
@@ -12,6 +13,13 @@ class CSCTMBHeader {
 
  public:
   CSCTMBHeader();
+  CSCTMBHeader(CSCTMBStatusDigi & digi)
+    {
+      memcpy(this, digi.header(), sizeInBytes()); 
+    }
+
+  uint16_t sizeInBytes() const {return 54;}
+
   /// fills fields like bxn and l1a
   void setEventInformation(const CSCDMBHeader &);
   short unsigned int FIFOMode()        const {return fifoMode;}

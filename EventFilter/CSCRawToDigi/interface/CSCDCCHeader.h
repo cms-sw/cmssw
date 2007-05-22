@@ -6,12 +6,14 @@
 #define CSCDCCHeader_h
 
 #include <string> //for bzero
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
 class CSCDCCHeader {
 
  public:
   CSCDCCHeader(int bx, int l1a, int sourceId);
   CSCDCCHeader();
+  CSCDCCHeader(CSCDCCStatusDigi & digi);
 
   int getCDFEventNumber() const; 
   int getCDFSourceId() const; 

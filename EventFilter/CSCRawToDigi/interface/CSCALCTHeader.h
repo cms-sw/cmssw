@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <vector>
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 
 class CSCDMBHeader;
 
@@ -19,6 +20,8 @@ class CSCALCTHeader
 public:
   explicit CSCALCTHeader(int chamberType); 
   explicit CSCALCTHeader(const unsigned short * buf);
+  CSCALCTHeader(CSCALCTStatusDigi & digi);
+
 
 /** turns on the debug flag for this class */
   static void setDebug(bool value){debug = value;};

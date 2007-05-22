@@ -2,6 +2,7 @@
 #define CSCTMBTrailer_h
 
 #include <string.h> // bzero
+#include "DataFormats/CSCDigi/interface/CSCTMBStatusDigi.h"
 
 /** Defined to begin at the 6E0C word 
 6E0C
@@ -20,6 +21,12 @@ public:
 
   CSCTMBTrailer(unsigned short * buf);
 
+  CSCTMBTrailer(CSCTMBStatusDigi & digi)
+    {
+      memcpy(this, digi.trailer(), sizeInBytes());
+    }
+
+  uint16_t sizeInBytes() const {return 16;}
   int crc22() const;
   bool check() const {return theData[0]==0x6e0c && theData[3+thePadding] == 0xde0f;}
   /// in 16-bit frames

@@ -5,18 +5,23 @@
 
 #include <iostream>
 #include <string.h> // bzero
-
+#include "DataFormats/CSCDigi/interface/CSCDCCStatusDigi.h"
 
 
 /** documented at  http://www.physics.ohio-state.edu/~cms/ddu/ddu2.html
  */
 
 struct CSCDCCTrailer {
-  CSCDCCTrailer() {
+  CSCDCCTrailer() 
+  {
     bzero(this, sizeInWords()*2);
     dcc_trail1 = 0xEF;
   }
-
+  
+  CSCDCCTrailer(CSCDCCStatusDigi & digi)
+  {
+    memcpy(this, digi.trailer(), sizeInWords()*2);
+  }
   /// for reference www.physics.ohio-state.edu/%7Ecms/dcc/outdatafmt.html
   /// dcc_trail1 should be EF
   unsigned dcc_trail1       : 8;

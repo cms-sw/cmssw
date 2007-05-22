@@ -2,7 +2,9 @@
 #define CSCDDUTrailer_h
 
 #include <iostream>
-#include<string.h> // bzero
+#include <string.h> // bzero
+#include "DataFormats/CSCDigi/interface/CSCDDUStatusDigi.h"
+
 /** documented at  http://www.physics.ohio-state.edu/~cms/ddu/ddu2.html
  */
 
@@ -12,11 +14,16 @@ class CSCDDUTrailer {
 
  public:
 
-  CSCDDUTrailer() {
-    bzero(this, sizeInWords()*2);
-    trailer2_1 = trailer2_2 = trailer2_4 = 0x8000;
-    trailer2_3 = 0xFFFF;
-  }
+  CSCDDUTrailer() 
+    {
+      bzero(this, sizeInWords()*2);
+      trailer2_1 = trailer2_2 = trailer2_4 = 0x8000;
+      trailer2_3 = 0xFFFF;
+    }
+  CSCDDUTrailer(CSCDDUStatusDigi & digi)
+    {
+      memcpy(this, digi.trailer(), sizeInWords()*2);
+    }
   
   static unsigned sizeInWords() {return 12;}
   

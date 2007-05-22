@@ -33,6 +33,15 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf)
   //printf("%04x %04x %04x %04x\n",buf[4],buf[5],buf[6],buf[7]);
 }
 
+CSCALCTHeader::CSCALCTHeader(CSCALCTStatusDigi & digi)
+{
+  memcpy(this, digi.header(), sizeInWords()*2);
+}
+
+
+
+
+
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) 
 {
   l1Acc = dmb.l1a();

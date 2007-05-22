@@ -6,6 +6,7 @@
 */
 
 #include <string.h> // memcpy
+#include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 
 class CSCALCTTrailer
 {
@@ -14,6 +15,12 @@ public:
   explicit CSCALCTTrailer(const unsigned short * buf) {
     memcpy(this, buf, sizeInWords()*2);
   }
+
+  CSCALCTTrailer(CSCALCTStatusDigi & digi) 
+    {
+      memcpy(this, digi.trailer() , sizeInWords()*2);
+    }
+
   unsigned short * data() {return (unsigned short *) this;}
   /// in 16-bit frames
   static int sizeInWords() {return 4;}

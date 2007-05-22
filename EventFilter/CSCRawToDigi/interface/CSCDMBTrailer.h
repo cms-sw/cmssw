@@ -1,15 +1,23 @@
 #ifndef CSCDMBTrailer_h
 #define CSCDMBTrailer_h
 
+#include "DataFormats/CSCDigi/interface/CSCDMBStatusDigi.h"
 class CSCDMBHeader;
 
 class CSCDMBTrailer {
 public:
-  CSCDMBTrailer() {
-    bzero(this, sizeInWords()*2);
-    ddu_code_1 = ddu_code_2 = ddu_code_2 = ddu_code_4 = 0xF;
-    ddu_code_5 = ddu_code_6 = ddu_code_7 = ddu_code_8 = 0xE;
-  }
+  CSCDMBTrailer()
+    {
+      bzero(this, sizeInWords()*2);
+      ddu_code_1 = ddu_code_2 = ddu_code_2 = ddu_code_4 = 0xF;
+      ddu_code_5 = ddu_code_6 = ddu_code_7 = ddu_code_8 = 0xE;
+    }
+  
+  CSCDMBTrailer(CSCDMBStatusDigi & digi) 
+    {
+      memcpy(this, digi.trailer(), sizeInWords()*2);
+    }
+
 
   ///@@ NEEDS TO BE DONE
   void setEventInformation(const CSCDMBHeader &) {};

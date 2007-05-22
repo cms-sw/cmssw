@@ -1,6 +1,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCHeader.h"
 #include <iostream>
 
+
+
+
 CSCDCCHeader::CSCDCCHeader(int bx, int l1a, int sourceId) 
 {
   bzero(this, sizeInWords()*2);
@@ -18,6 +21,12 @@ CSCDCCHeader::CSCDCCHeader()
   dcc_code1 = 0xD9;
   dcc_code2 = 0x97;
 }
+
+CSCDCCHeader::CSCDCCHeader(CSCDCCStatusDigi & digi)
+{
+  memcpy(this, digi.header(), sizeInWords()*2);
+}
+
 
 
 int CSCDCCHeader::getCDFEventNumber() const 

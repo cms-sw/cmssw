@@ -5,7 +5,7 @@
  *
  *  Digi for CSC DDU info available in DDU
  *  
- *  $Date: 2007/05/18 18:52:02 $
+ *  $Date: 2007/05/21 20:06:55 $
  *  $Revision: 1.1 $
  *
  */
@@ -22,6 +22,10 @@ public:
 
   /// Default constructor.
   CSCDDUStatusDigi () {}
+
+  /// Data Accessors
+  uint16_t * header() {return header_;}
+  uint16_t * trailer() {return trailer_;}
 
 private:
 
