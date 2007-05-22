@@ -6,6 +6,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include <iostream>
@@ -59,13 +60,10 @@ namespace edm {
     
     if ( deserializer_.protocolVersion_ > 3) {
            processName = deserializer_.processName_;
-    }
-
-    else { 
+    } else { 
     	if (i != e) {
        		processName = i->processName();
 	}
-
     	for (; i != e; ++i) {
 		if(processName != i->processName()) {
 	   	throw cms::Exception("MultipleProcessNames")
@@ -80,8 +78,12 @@ namespace edm {
 
     FDEBUG(10) << "StreamerInputSource::mergeWithRegistry :"<<processName<<std::endl; 
 
-    deserializer_.setProcessConfiguration(
-	ProcessConfiguration(processName, ParameterSetID(), ReleaseVersion(), PassID()));
+    edm::ProcessHistory ph;
+    ph.reserve(1);
+    ph.push_back(edm::ProcessConfiguration(processName, ParameterSetID(), ReleaseVersion(), PassID()));
+    edm::ProcessHistoryRegistry::instance()->insertMapped(ph);
+    deserializer_.setProcessConfiguration(processConfiguration());
+    deserializer_.setProcessHistoryID(ph.id());
 
   }
 
