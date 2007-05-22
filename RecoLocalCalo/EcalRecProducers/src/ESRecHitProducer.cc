@@ -22,7 +22,7 @@ ESRecHitProducer::ESRecHitProducer(edm::ParameterSet const& ps) : theGeometry(0)
   int ESGain = ps.getUntrackedParameter<int>("ESGain", 1);
   int ESBaseline = ps.getUntrackedParameter<int>("ESBaseline", 1000);
   double ESMIPADC = ps.getUntrackedParameter<double>("ESMIPADC", 9);
-  double ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 78.47);
+  double ESMIPkeV = ps.getUntrackedParameter<double>("ESMIPkeV", 81.08);
 
   algo_ = new ESRecHitSimAlgo(ESGain, ESBaseline, ESMIPADC, ESMIPkeV); 
 }
@@ -36,21 +36,21 @@ void ESRecHitProducer::produce(edm::Event& e, const edm::EventSetup& es)
   checkGeometry(es);
 
   // Get input
-   edm::Handle<ESDigiCollection> digiHandle;  
-   const ESDigiCollection* digi=0;
-   //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
-   e.getByLabel( digiCollection_, digiHandle);
-   digi=digiHandle.product();
+  edm::Handle<ESDigiCollection> digiHandle;  
+  const ESDigiCollection* digi=0;
+  //evt.getByLabel( digiProducer_, digiCollection_, pDigis);
+  e.getByLabel( digiCollection_, digiHandle);
+  digi=digiHandle.product();
 
-   edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  
-   // Create empty output
-   std::auto_ptr<ESRecHitCollection> rec(new EcalRecHitCollection());
+  edm::LogInfo("ESRecHitInfo") << "total # ESdigis: " << digi->size() ;  
+  // Create empty output
+  std::auto_ptr<ESRecHitCollection> rec(new EcalRecHitCollection());
 
-   // run the algorithm
-   ESDigiCollection::const_iterator i;
-   for (i=digi->begin(); i!=digi->end(); i++) {    
-     rec->push_back(algo_->reconstruct(*i, true));
-   }
+  // run the algorithm
+  ESDigiCollection::const_iterator i;
+  for (i=digi->begin(); i!=digi->end(); i++) {    
+    rec->push_back(algo_->reconstruct(*i, true));
+  }
 
   e.put(rec,rechitCollection_);
 }
@@ -74,5 +74,6 @@ void ESRecHitProducer::updateGeometry()
 {
   algo_->setGeometry(theGeometry);
 }
+
 
 
