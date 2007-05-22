@@ -72,6 +72,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     edm::Handle<reco::TrackCollection> tks;
     iEvent.getByLabel(trackLabel(), tks);
 
+
     // interface RECO tracks to vertex reconstruction
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Found: " << (*tks).size() << " reconstructed tracks" << "\n";
@@ -91,67 +92,69 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    try{
      iEvent.getByType(recoBeamSpotHandle);
      vertexBeamSpot = BeamSpot(*recoBeamSpotHandle);
-   }catch(std::exception & err){
-     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-       << "Exception occured retrieving BeamSpot in event: " << iEvent.id() 
-       << "\n" << err.what() << "\n"
-       << "continue using default BeamSpot" << endl;
+     std::cout << "PrimaryVertexProducer: found BeamSpot" << std::endl;
+     std::cout << *recoBeamSpotHandle << std::endl;
+   }catch(const edm::Exception & err){
+     if ( err.categoryCode() != edm::errors::ProductNotFound ) {
+       edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
+	 << "Unexpected exception occured retrieving BeamSpot in event: " 
+	 << iEvent.id() << "\n" << err.what() << "\n";
+	 throw;
+     }
      if(fVerbose){
-     cout << "RecoVertex/PrimaryVertexProducer"
-       << "Exception occured retrieving BeamSpot in event: " << iEvent.id() 
-       << "\n" << err.what() << "\n"
-       << "continue using default BeamSpot" << endl;
+       cout << "RecoVertex/PrimaryVertexProducer: "
+	    << "No beam spot available from EventSetup \n"
+	    << "continue using default BeamSpot" 
+	    << endl;
      }
    }
 
 
-    // here call vertex reconstruction
-    
-    //vector<TransientVertex> t_vts = theAlgo.vertices(t_tks);
-    vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
+   // call vertex reconstruction
+   vector<TransientVertex> t_vts = theAlgo.vertices(t_tks, vertexBeamSpot);
+   if(fVerbose){
+     std::cout <<"RecoVertex/PrimaryVertexProducer: "
+	       << " found " << t_vts.size() << " reconstructed vertices" << "\n";
+   }
+   
+   // convert transient vertices returned by the theAlgo to (reco) vertices
+   for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
+	iv != t_vts.end(); iv++) {
+     reco::Vertex v = *iv;
+     vColl.push_back(v);
+   }
+   
 
-    edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
-      << "Found: " << t_vts.size() << " reconstructed vertices" << "\n";
-
-    // convert transient vertices returned by the theAlgo to (reco) vertices
-    for (vector<TransientVertex>::const_iterator iv = t_vts.begin();
-	 iv != t_vts.end(); iv++) {
-      reco::Vertex v = *iv;
-      vColl.push_back(v);
-    }
-
-
-
-    if(fVerbose){
-      cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
-      int ivtx=0;
-      for(reco::VertexCollection::const_iterator v=vColl.begin(); 
-	  v!=vColl.end(); ++v){
-	std::cout << "recvtx "<< ivtx++ 
-		  << "#trk " << std::setw(3) << v->tracksSize()
-		  << " chi2 " << std::setw(4) << v->chi2() 
-		  << " ndof " << std::setw(3) << v->ndof() 
-		  << " x "  << std::setw(6) << v->position().x() 
-		  << " dx " << std::setw(6) << v->xError()
-		  << " y "  << std::setw(6) << v->position().y() 
-		  << " dy " << std::setw(6) << v->yError()
-		  << " z "  << std::setw(6) << v->position().z() 
-		  << " dz " << std::setw(6) << v->zError()
-		  << std::endl;
-      }
-    }
+   if(fVerbose){
+     cout << "RecoVertex/PrimaryVertexProducer:   nv=" <<vColl.size()<< endl;
+     int ivtx=0;
+     for(reco::VertexCollection::const_iterator v=vColl.begin(); 
+	 v!=vColl.end(); ++v){
+       std::cout << "recvtx "<< ivtx++ 
+		 << "#trk " << std::setw(3) << v->tracksSize()
+		 << " chi2 " << std::setw(4) << v->chi2() 
+		 << " ndof " << std::setw(3) << v->ndof() 
+		 << " x "  << std::setw(6) << v->position().x() 
+		 << " dx " << std::setw(6) << v->xError()
+		 << " y "  << std::setw(6) << v->position().y() 
+		 << " dy " << std::setw(6) << v->yError()
+		 << " z "  << std::setw(6) << v->position().z() 
+		 << " dz " << std::setw(6) << v->zError()
+		 << std::endl;
+     }
+   }
 
   }
-
+  
   catch (std::exception & err) {
     edm::LogInfo("RecoVertex/PrimaryVertexProducer") 
       << "Exception during event number: " << iEvent.id() 
       << "\n" << err.what() << "\n";
     cout << "RecoVertex/PrimaryVertexProducer"
-      << "Exception during event number: " << iEvent.id() 
-      << "\n" << err.what() << "\n";
+	 << "Exception during event number: " << iEvent.id() 
+	 << "\n" << err.what() << "\n";
   }
-
+  
   *result = vColl;
   //  iEvent.put(result, "PrimaryVertex");
   iEvent.put(result);
