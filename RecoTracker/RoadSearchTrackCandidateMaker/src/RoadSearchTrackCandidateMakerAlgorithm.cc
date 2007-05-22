@@ -9,9 +9,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: gpetrucc $
-// $Date: 2007/04/29 23:21:44 $
-// $Revision: 1.36 $
+// $Author: burkett $
+// $Date: 2007/05/10 17:36:17 $
+// $Revision: 1.37 $
 //
 
 #include <vector>
@@ -479,13 +479,25 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
           std::vector<Trajectory> rawTrajectories;
           
           // Need to put the first hit on the trajectory
+	  const GeomDet* innerDet = geom->idToDet(innerHit->geographicalId());
           const TrajectoryStateOnSurface innerState = 
-            thePropagator->propagate(fts,tracker->idToDet(innerHit->geographicalId())->surface());
+            thePropagator->propagate(fts,innerDet->surface());
           if ( !innerState.isValid()) {
             if (debug_) std::cout<<"*******DISASTER ********* seed doesn't make it to first hit!!!!!" << std::endl;
             continue;
           }
           TransientTrackingRecHit::RecHitPointer intrhit = ttrhBuilder->build(&(*innerHit));
+	  // if this first hit is a matched hit, it should be updated for the trajectory
+	  const SiStripMatchedRecHit2D *origHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&(*innerHit));
+	  if (origHit !=0){
+	    const GluedGeomDet *gdet = dynamic_cast<const GluedGeomDet*>(innerDet);
+	    const SiStripMatchedRecHit2D *corrHit = theHitMatcher->match(origHit,gdet,innerState.localDirection());
+	    if (corrHit!=0){
+	      intrhit = ttrhBuilder->build(&(*corrHit));
+	      delete corrHit;
+	    }
+	  }
+
           MeasurementEstimator::HitReturnType est = theEstimator->estimate(innerState, *intrhit);
           if (!est.first) continue;	    
           TrajectoryStateOnSurface innerUpdated= theUpdator->update( innerState,*intrhit);                         
