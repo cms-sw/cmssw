@@ -59,7 +59,10 @@ namespace edm
     bool pythiaHepMCVerbosity_;
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
-    
+   
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;    
  
     // for single particle generation in pythia
     int    particleID;

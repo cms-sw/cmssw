@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/04/30 10:28:06 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/05/21 08:26:16 $
+ *  $Revision: 1.8 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -87,7 +87,9 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.))
+  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
   
 {
   
@@ -258,6 +260,8 @@ void PythiaSource::endRun(Run & r) {
  double cs = pypars.pari[0]; // cross section in mb
  auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
  giprod->set_cross_section(cs);
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
  r.put(giprod);
 
 }
@@ -378,7 +382,7 @@ PythiaSource::call_txgive_init() {
 	return 1;  
 }
 
-
+bool
 PythiaSource::call_slhagive(const std::string& iParm ) {
 	if( iParm.find( "SLHAFILE", 0 ) != string::npos ) {
 		string::size_type start = iParm.find_first_of( "=" ) + 1;
