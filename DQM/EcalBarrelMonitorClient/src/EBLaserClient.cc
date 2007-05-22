@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/05/14 18:21:25 $
- * $Revision: 1.158 $
+ * $Date: 2007/05/22 09:53:48 $
+ * $Revision: 1.159 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -3895,7 +3895,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
   htmlFile << "<table border=1>" << std::endl;
   for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">"
+    htmlFile << "<td bgcolor=white><a href=""#"
+	     << Numbers::sEB(superModules_[i]).c_str() << ">"
              << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
   }
   htmlFile << std::endl << "</table>" << std::endl;
@@ -4710,7 +4711,8 @@ void EBLaserClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>"
+    htmlFile << "<h3><a name="""
+	     << Numbers::sEB(ism).c_str() << """></a><strong>"
              << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
