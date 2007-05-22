@@ -3,7 +3,7 @@
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/EgammaCandidates>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=HLTrigger/HLTcore>
 <use name=L1TriggerConfig/L1Geometry>
@@ -14,7 +14,7 @@
 <export>
    <lib name=HLTriggerEgamma>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=HLTrigger/HLTcore>
    <use name=L1TriggerConfig/L1Geometry>

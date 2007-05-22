@@ -28,11 +28,11 @@ TH1F* getHisto(string name, string process, MonitorUserInterface* mui_, bool ver
 TH2F* getHisto2(const MonitorElement* me, bool verb=false, bool clone=false, TH2F* out=NULL);
 TH1F* getHisto(const MonitorElement* me, bool verb=false, bool clone=false, TH1F* out=NULL);
 
-string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab);
-string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab, bool color=false);
+string getIMG(TH1F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool save=true);
+string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const char* ylab,bool save = true);
   
 void histoHTML(TH1F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
-void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir, bool color=false);
+void histoHTML2(TH2F* hist, const char* xlab, const char* ylab, int width, ofstream& htmlFile, string htmlDir);
 
 void htmlErrors(string htmlDir, string client, string process, MonitorUserInterface* mui, map<string, vector<QReport*> > mapE, map<string, vector<QReport*> > mapW, map<string, vector<QReport*> > mapO);
 

@@ -203,7 +203,7 @@ void HcalHotCellClient::report(){
   //  this->setup();  
   
   char name[256];
-  sprintf(name, "%sHcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
+  sprintf(name, "Collector/%s/HcalMonitor/HotCellMonitor/HotCell Task Event Number",process_.c_str());
   MonitorElement* me = mui_->get(name);
   if ( me ) {
     string s = me->valueString();
@@ -257,9 +257,15 @@ void HcalHotCellClient::resetME(){
   MonitorElement* me;
 
   for(int i=0; i<4; i++){
-    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Layer %d Occupancy Map",process_.c_str(),i);
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    string type = "HB";
+    if(i==1) type = "HO"; 
+    if(i==2) type = "HE"; 
+    if(i==3) type = "HF"; 
+    
+    //    sprintf(name,"Collector/%s/HcalMonitor/HotCellMonitor/%s/%s HotCell Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    //    me = mui_->get(name);
+    //    if(me) mui_->softReset(me);
+
   }
   return;
 }
@@ -348,8 +354,8 @@ void HcalHotCellClient::htmlOutput(int run, string htmlDir, string htmlName){
 }
 
 void HcalHotCellClient::createTests(){
-  //  char meTitle[250], name[250];    
-  //  vector<string> params;
+  char meTitle[250], name[250];    
+  vector<string> params;
   
   printf("Creating Hot Cell tests...\n");
    
@@ -357,6 +363,7 @@ void HcalHotCellClient::createTests(){
 }
 
 void HcalHotCellClient::loadHistograms(TFile* infile){
+  char name[150];    
 
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/HotCellMonitor/HotCell Task Event Number");
   if(tnd){
@@ -364,8 +371,6 @@ void HcalHotCellClient::loadHistograms(TFile* infile){
     ievt_ = -1;
     sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ievt_);
   }
-
-  char name[150];    
   for(int i=0; i<4; i++){
     string type = "HB";
     if(i==1) type = "HE"; 

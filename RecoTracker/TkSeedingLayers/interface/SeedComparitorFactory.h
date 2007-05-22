@@ -4,7 +4,7 @@
 #include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
 namespace edm {class ParameterSet;}
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class SeedComparitorFactory
    : public seal::PluginFactory< SeedComparitor * (const edm::ParameterSet&) > {

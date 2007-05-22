@@ -1,14 +1,14 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/03/23 17:04:05 $
- * $Revision: 1.2 $
+ * $Date: 2007/03/30 16:10:06 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN
  *
  */
 
 
-#include <DQM/DTMonitorClient/interface/DTtTrigCalibrationTest.h>
+#include "DQM/DTMonitorClient/src/DTtTrigCalibrationTest.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>

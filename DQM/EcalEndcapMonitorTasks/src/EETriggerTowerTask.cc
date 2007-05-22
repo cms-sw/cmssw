@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.29 $
+ * $Date: 2007/05/12 09:56:47 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  *
 */
@@ -35,10 +35,15 @@ EETriggerTowerTask::EETriggerTowerTask(const ParameterSet& ps){
 
   init_ = false;
 
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
   EcalTrigPrimDigiCollection_ = ps.getParameter<edm::InputTag>("EcalTrigPrimDigiCollection");
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     meEtMap_[i] = 0;
     meVeto_[i] = 0;
     meFlags_[i] = 0;
@@ -58,14 +63,9 @@ void EETriggerTowerTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-    dbe->rmdir("EcalEndcap/EETriggerTowerTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
+    dbe_->rmdir("EcalEndcap/EETriggerTowerTask");
   }
 
 }
@@ -76,36 +76,31 @@ void EETriggerTowerTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EETTT Et map SM%02d", i+1);
-      meEtMap_[i] = dbe->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0, 512., "s");
-      dbe->tag(meEtMap_[i], i+1);
+      meEtMap_[i] = dbe_->bookProfile2D(histo, histo, 17, 0., 17., 4, 0., 4., 128, 0, 512., "s");
+      dbe_->tag(meEtMap_[i], i+1);
       sprintf(histo, "EETTT FineGrainVeto SM%02d", i+1);
-      meVeto_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
-      dbe->tag(meVeto_[i], i+1);
+      meVeto_[i] = dbe_->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 2, 0., 2.);
+      dbe_->tag(meVeto_[i], i+1);
       sprintf(histo, "EETTT Flags SM%02d", i+1);
-      meFlags_[i] = dbe->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 8, 0., 8.);
-      dbe->tag(meFlags_[i], i+1);
+      meFlags_[i] = dbe_->book3D(histo, histo, 17, 0., 17., 4, 0., 4., 8, 0., 8.);
+      dbe_->tag(meFlags_[i], i+1);
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       for (int j = 0; j < 68 ; j++) {
         sprintf(histo, "EETTT Et T SM%02d TT%02d", i+1, j+1);
-        meEtMapT_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
-        dbe->tag(meEtMapT_[i][j], i+1);
+        meEtMapT_[i][j] = dbe_->book1D(histo, histo, 128, 0.0001, 512.);
+        dbe_->tag(meEtMapT_[i][j], i+1);
         sprintf(histo, "EETTT Et R SM%02d TT%02d", i+1, j+1);
-        meEtMapR_[i][j] = dbe->book1D(histo, histo, 128, 0.0001, 512.);
-        dbe->tag(meEtMapR_[i][j], i+1);
+        meEtMapR_[i][j] = dbe_->book1D(histo, histo, 128, 0.0001, 512.);
+        dbe_->tag(meEtMapR_[i][j], i+1);
       }
     }
 
@@ -115,30 +110,27 @@ void EETriggerTowerTask::setup(void){
 
 void EETriggerTowerTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
 
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask");
-
-    for ( int i = 0; i < 36; i++ ) {
-      if ( meEtMap_[i] ) dbe->removeElement( meEtMap_[i]->getName() );
+    for ( int i = 0; i < 18; i++ ) {
+      if ( meEtMap_[i] ) dbe_->removeElement( meEtMap_[i]->getName() );
       meEtMap_[i] = 0;
-      if ( meVeto_[i] ) dbe->removeElement( meVeto_[i]->getName() );
+      if ( meVeto_[i] ) dbe_->removeElement( meVeto_[i]->getName() );
       meVeto_[i] = 0;
-      if ( meFlags_[i] ) dbe->removeElement( meFlags_[i]->getName() );
+      if ( meFlags_[i] ) dbe_->removeElement( meFlags_[i]->getName() );
       meFlags_[i] = 0;
     }
 
-    dbe->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
+    dbe_->setCurrentFolder("EcalEndcap/EETriggerTowerTask/EnergyMaps");
 
-    for ( int i = 0; i < 36; i++ ) {
-      for ( int j = 0; j < 36; j++ ) {
-        if ( meEtMapT_[i][j] ) dbe->removeElement( meEtMapT_[i][j]->getName() );
+    for ( int i = 0; i < 18; i++ ) {
+      for ( int j = 0; j < 18; j++ ) {
+        if ( meEtMapT_[i][j] ) dbe_->removeElement( meEtMapT_[i][j]->getName() );
         meEtMapT_[i][j] = 0;
-        if ( meEtMapR_[i][j] ) dbe->removeElement( meEtMapR_[i][j]->getName() );
+        if ( meEtMapR_[i][j] ) dbe_->removeElement( meEtMapR_[i][j]->getName() );
         meEtMapR_[i][j] = 0;
       }
     }
@@ -186,7 +178,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       //    if ( id.zside() >0)
       //      { ipt = 5 - ipt;      }
 
-      int ismt = id.iDCC();
+      int ismt = id.iDCC(); if ( ismt > 18 ) continue;
 
       int itt = 4*(iet-1)+(ipt-1)+1;
 
@@ -216,9 +208,9 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
     LogWarning("EETriggerTowerTask") << EcalTrigPrimDigiCollection_ << " not available";
   }
 
-  float xmap[36][68];
+  float xmap[18][68];
 
-  for (int i = 0; i < 36 ; i++) {
+  for (int i = 0; i < 18 ; i++) {
     for (int j = 0; j < 68 ; j++) {
       xmap[i][j] = 0.;
     }
@@ -241,7 +233,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
       int ie = (ic-1)/20 + 1;
       int ip = (ic-1)%20 + 1;
 
-      int ism = id.ism();
+      int ism = id.ism(); if ( ism > 18 ) continue;
 
       int iet = 1 + ((ie-1)/5);
       int ipt = 1 + ((ip-1)/5);
@@ -264,7 +256,7 @@ void EETriggerTowerTask::analyze(const Event& e, const EventSetup& c){
 
     }
 
-    for (int i = 0; i < 36 ; i++) {
+    for (int i = 0; i < 18 ; i++) {
       for (int j = 0; j < 68 ; j++) {
          float xval = xmap[i][j];
          if ( meEtMapR_[i][j] && xval != 0 ) meEtMapR_[i][j]->Fill(xval);

@@ -25,21 +25,8 @@ using namespace std;
     doRunData_(false),doTriggerData_(false),doEventPosition_(false),doTiming_(false),doSourcePos_(false),doBeamADC_(false)
   {
 
-    calibLines_.clear();
-    if(calibFile_.size()>0){
-      parseCalib();
-    //  printf("I got %d lines!\n",calibLines_.size());
-    if(calibLines_.size()==0)
-	throw cms::Exception("Incomplete configuration") << 
-	  "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found or is empty: "<<calibFile_<<endl;
-    }
-    else{
-	throw cms::Exception("Incomplete configuration") << 
-	  "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found: "<<calibFile_<<endl;
-    }
-
     if (triggerFed_ >=0) {
-      std::cout << "HcalTBObjectUnpacker will unpack FED ";
+      std::cout << "HcalTBObjectUnpacker will unpack Trigger FED ";
       std::cout << triggerFed_ << endl;
       doTriggerData_=true;
     }
@@ -69,6 +56,23 @@ using namespace std;
       std::cout << spdFed_ << endl;
       doSourcePos_=true;
     }
+
+
+    if (tdcFed_ >= 0 || qadcFed_ >=0 ) {
+      calibLines_.clear();
+      if(calibFile_.size()>0){
+	parseCalib();
+	//  printf("I got %d lines!\n",calibLines_.size());
+	if(calibLines_.size()==0)
+	  throw cms::Exception("Incomplete configuration") << 
+	    "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found or is empty: "<<calibFile_<<endl;
+      }
+      else{
+	throw cms::Exception("Incomplete configuration") << 
+	  "HcalTBObjectUnpacker: TDC/QADC/WC configuration file not found: "<<calibFile_<<endl;
+      }
+    }
+
 
     if (doTriggerData_) produces<HcalTBTriggerData>();
     if (doRunData_) produces<HcalTBRunData>();

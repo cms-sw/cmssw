@@ -147,7 +147,9 @@ PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 <tr><th>Run Selection:</th><td><?php draw_run_select_box(); ?></td></tr>
 <tr><th>Run Order:</th><td><?php draw_ordering_box(); ?></td></tr>
 <tr><th>Data:</th><td><?php draw_interested_box(); ?></td></tr>
-<tr><td colspan='2' align='right'><input type='submit' value='Submit'></td></tr>
+<!--<tr><td align='left'><input type='checkbox' name='compact'>Compact view</td>-->
+<tr><td align='left'><input type='checkbox' name='expanded'>Expanded view</td>
+<td colspan='2' align='right'><input type='submit' value='Submit'></td></tr>
 </table>
 </form>
 

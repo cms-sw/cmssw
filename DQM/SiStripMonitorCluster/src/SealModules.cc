@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorCluster.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorHLT.h"
 #include "DQM/SiStripMonitorCluster/interface/SiStripMonitorFilter.h"

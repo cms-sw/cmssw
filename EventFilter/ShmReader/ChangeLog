@@ -1,3 +1,8 @@
+2007-04-30  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-04-04
+	* remove shmem segment initialization from constructor
+
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-01

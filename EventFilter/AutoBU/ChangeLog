@@ -1,3 +1,44 @@
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-10
+	* scripts/initialize: remove two parameters from the
+	StorageManager configuration (streamerOnly and oneinN).
+
+2007-04-27  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-09
+	* add counters nbEventsRequested, nbEventsSent
+	* fix stopping/halting bug: need to call postSend(); postBuild();
+	* fix stopping/halting behaviour: stop building/sending/discarding
+	if 'halting', but cleanly flush for 'stopping'
+
+2007-04-19  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-04-08
+	* added include to BU.cc to reflect changes to Playback
+
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-07
+	* fixed 'makeXmlComm' in scripts/initialize
+	* changed scripts/initialize such that for option '-noSM', the
+	OutputModule(s) are still part of the configuration, but the EP
+	property 'outputEnabled' is set to false.
+
+2007-04-05  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-06
+	* wait 10 seconds after halting the BU, to give it time to flush
+	* adjust RB parameters to
+	  nbCells =      32/     3/      3
+	  cellSize=0x30000/0x30000/0x30000
+	
+2007-04-04  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-04-05
+	* replace DQMExampleSource with SMDQMExampleSource
+	* fix 'destroy' script to properly clean up shared memory
+
 2007-04-02  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-04

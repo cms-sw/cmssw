@@ -15,8 +15,8 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Date: 2006/02/23 09:48:30 $
-$Revision: 1.1 $
+$Date: 2006/10/26 08:57:10 $
+$Revision: 1.2 $
 \author F. Cossutti
    
 */
@@ -56,4 +56,5 @@ protected:
 
 };
 
+std::ostream& operator<<(std::ostream& s,const PreshowerStrip& cell);
 #endif

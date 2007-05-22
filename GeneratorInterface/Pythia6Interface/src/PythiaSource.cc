@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 10:58:25 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/21 08:26:16 $
+ *  $Revision: 1.8 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -8,14 +8,21 @@
  *  Patrick Janot : added the PYTHIA card reading
  *
  *  Sasha Nikitenko : added single/double particle gun
+ *
+ *  Holger Pieta : added FileInPath for SLHA
+ *
  */
 
 
 #include "GeneratorInterface/Pythia6Interface/interface/PythiaSource.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "Utilities/General/interface/FileInPath.h"
+
 
 #include <iostream>
 #include "time.h"
@@ -80,7 +87,9 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1)),
-  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.))
+  comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
   
 {
   
@@ -148,7 +157,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >(mySet);
     
-    if (mySet != "SLHAParameters"){
+    if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
     cout << "----------------------------------------------" << endl;
     cout << "Read PYTHIA parameter set " << mySet << endl;
     cout << "----------------------------------------------" << endl;
@@ -166,7 +175,27 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-    }else if(mySet == "SLHAParameters"){   
+    } else if(mySet == "CSAParameters"){   
+
+   // Read CSA parameter
+  
+   pars = pythia_params.getParameter<vector<string> >("CSAParameters");
+
+   cout << "----------------------------------------------" << endl; 
+   cout << "Reading CSA parameter settings. " << endl;
+   cout << "----------------------------------------------" << endl;                                                                           
+
+   call_txgive_init();
+  
+  
+   // Loop over all parameters and stop in case of a mistake
+    for (vector<string>::const_iterator 
+            itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+      call_txgive(*itPar); 
+     
+         } 
+     
+   } else if(mySet == "SLHAParameters"){   
 
    // Read SLHA parameter
   
@@ -211,6 +240,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   //********                                      
   
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
   cout << "PythiaSource: starting event generation ... " << endl;
 }
 
@@ -225,6 +255,16 @@ void PythiaSource::clear() {
  
 }
 
+void PythiaSource::endRun(Run & r) {
+ 
+ double cs = pypars.pari[0]; // cross section in mb
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(cs);
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+
+}
 
 bool PythiaSource::produce(Event & e) {
 
@@ -344,12 +384,41 @@ PythiaSource::call_txgive_init() {
 
 bool
 PythiaSource::call_slhagive(const std::string& iParm ) {
-  	 
-  SLHAGIVE( iParm.c_str(), iParm.length() );
-  cout << "     " <<  iParm.c_str() << endl;
-  	 
-        return 1;
+	if( iParm.find( "SLHAFILE", 0 ) != string::npos ) {
+		string::size_type start = iParm.find_first_of( "=" ) + 1;
+		string::size_type end = iParm.length() - 1;
+		string::size_type temp = iParm.find_first_of( "'", start );
+		if( temp != string::npos ) {
+			start = temp + 1;
+			end = iParm.find_last_of( "'" ) - 1;
+		}
+		start = iParm.find_first_not_of( " ", start );
+		end = iParm.find_last_not_of( " ", end );
+		string shortfile = iParm.substr( start, end - start + 1 );
+		string file;
+		if( shortfile[0] == '/' ) {
+			cout << "SLHA file given with absolut path." << endl;
+			file = shortfile;
+		} else {
+			try {
+				FileInPath f1( shortfile );
+				file = f1.fullPath();
+			} catch(...) {
+				cout << "SLHA file not in path. Trying anyway." << endl;
+				file = shortfile;
+			}
+		}
+		file = "SLHAFILE = '" + file + "'";
+		SLHAGIVE( file.c_str(), file.length() );
+		cout << "     " <<  file.c_str() << endl;
+		
+	} else {
+		SLHAGIVE( iParm.c_str(), iParm.length() );
+		cout << "     " <<  iParm.c_str() << endl; 
+	}
+	return 1;
 }
+
 
 bool 
 PythiaSource::call_slha_init() {

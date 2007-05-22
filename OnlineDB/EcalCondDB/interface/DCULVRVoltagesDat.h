@@ -71,6 +71,9 @@ class DCULVRVoltagesDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const DCULVRVoltagesDat* item, DCUIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, DCULVRVoltagesDat>* data, DCUIOV* iov)
+    throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, DCULVRVoltagesDat >* fillVec, DCUIOV* iov)
      throw(std::runtime_error);
 

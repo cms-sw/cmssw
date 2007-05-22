@@ -111,10 +111,6 @@ private:
   MonitorUserInterface* mui_;
   const HcalElectronicsMap* readoutMap_;
 
-  int nCrates_;
-  TH1F* htrMean[1000];
-  TH1F* htrRMS[1000];
-
   TH1F* all_peds[3];
   TH1F* ped_rms[3];
   TH1F* ped_mean[3];
@@ -122,8 +118,8 @@ private:
   TH1F* capid_rms[3];
   TH1F* qie_mean[3];
   TH1F* qie_rms[3];
-  TH2F* pedMapMean[4];
-  TH2F* pedMapRMS[4];
+  //  TH1F* pedMapMean[2][4];
+  //  TH1F* pedMapRMS[2][4];
 
   TH2F* err_map_geo[3];
   TH2F* err_map_elec[3];

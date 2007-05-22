@@ -11,14 +11,13 @@
 #define CBOLTZ (1.38E-23)
 #define e_SI (1.6E-19)
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,const ParticleDataTable * pdt):conf_(conf),
-															 pdt_(pdt){
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det):conf_(conf){
 
   //
   // Construct default classes
   //
   
-  theSiChargeDivider = new SiLinearChargeDivider(conf_,pdt_);
+  theSiChargeDivider = new SiLinearChargeDivider(conf_);
   
   depletionVoltage = conf_.getParameter<double>("DepletionVoltage");
   appliedVoltage   = conf_.getParameter<double>("AppliedVoltage");
@@ -99,4 +98,8 @@ LocalVector SiHitDigitizer::DriftDirection(const StripGeomDetUnit* _detp,GlobalV
   }
   return theDriftDirection;
 
+}
+void SiHitDigitizer::setParticleDataTable(const ParticleDataTable * pdt)
+{
+ theSiChargeDivider->setParticleDataTable(pdt);
 }

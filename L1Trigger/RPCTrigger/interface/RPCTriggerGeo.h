@@ -37,6 +37,8 @@ class RPCTriggerGeo {
     L1RpcLogConesVec getCones(edm::Handle<RPCDigiCollection> rpcDigis);
     void printLinks();   
 
+    RPCRingFromRolls::RPCLinks getLinks() const {return m_links;};
+
     std::vector<int> getTowersForStrip(RPCDetId detID, int strip);
     //int getTowersForStrip(RPCDetId detID, int strip);
   private:

@@ -8,8 +8,8 @@
  *
  * \file DCCTCCBlock.h
  *
- * $Date: 2007/03/28 00:43:17 $
- * $Revision: 1.1.2.2 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.4 $
  *
  * \author N. Almeida
  * \author G. Franzoni
@@ -30,9 +30,6 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include "DCCDataBlockPrototype.h"
 
-using namespace std;
-using namespace edm;
-
 class DCCEventBlock;
 class DCCDataUnpacker;
 
@@ -46,7 +43,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 	 
     void updateCollectors();
     
-    void display(ostream & o); 
+    void display(std::ostream & o); 
     
     void unpack(uint64_t ** data, uint * dwToEnd, uint expectedTowerID);   
     			
@@ -54,7 +51,7 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 	 
     void unpackMemTowerData();
     void fillPnDiodeDigisCollection();
-    vector<short> pn_;
+    std::vector<short> pn_;
 
     uint expTowerID_;
     uint expXtalTSamples_;
@@ -62,7 +59,8 @@ class DCCMemBlock : public DCCDataBlockPrototype {
 	 
     uint lastStripId_;
     uint lastXtalId_;
- 
+    uint lastTowerBeforeMem_;
+
     uint towerId_;	
     uint numbDWInXtalBlock_;
     uint xtalBlockSize_;
@@ -72,11 +70,11 @@ class DCCMemBlock : public DCCDataBlockPrototype {
     uint bx_;
     uint l1_;
 	 
-    auto_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
-    auto_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
-    auto_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
-    auto_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
-    auto_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
+    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemChIds_;  
+    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemBlockSizes_; 
+    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemTtIds_; 
+    std::auto_ptr<EcalElectronicsIdCollection>   * invalidMemGains_;
+    std::auto_ptr<EcalPnDiodeDigiCollection>     * pnDiodeDigis_;
 	
 };
 

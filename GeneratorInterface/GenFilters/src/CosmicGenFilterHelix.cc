@@ -2,7 +2,7 @@
 //
 // Original Author:  Gero FLUCKE
 //         Created:  Mon Mar  5 16:32:01 CET 2007
-// $Id: CosmicGenFilterHelix.cc,v 1.2 2007/03/31 17:25:09 flucke Exp $
+// $Id: CosmicGenFilterHelix.cc,v 1.3 2007/03/31 18:36:37 flucke Exp $
 
 #include "GeneratorInterface/GenFilters/interface/CosmicGenFilterHelix.h"
 

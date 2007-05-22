@@ -92,6 +92,7 @@ namespace evf {
     UInt_t    nbCrcErrors_;
     UInt_t    nbBytes_;
 
+    UInt_t    fedSize_[1024];
     UInt_t    superFragSize_;
     UInt_t    eventSize_;
     

@@ -4,8 +4,8 @@
 /*
  * \file EEIntegrityTask.h
  *
- * $Date: 2007/03/26 17:34:07 $
- * $Revision: 1.15 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
  */
@@ -47,6 +47,10 @@ private:
 
 int ievt_;
 
+DaqMonitorBEInterface* dbe_;
+
+bool enableCleanup_;
+
 edm::InputTag EBDetIdCollection0_;
 edm::InputTag EBDetIdCollection1_;
 edm::InputTag EBDetIdCollection2_;
@@ -59,16 +63,16 @@ edm::InputTag EcalElectronicsIdCollection2_;
 edm::InputTag EcalElectronicsIdCollection3_;
 edm::InputTag EcalElectronicsIdCollection4_;
 
-MonitorElement* meIntegrityChId[36];
-MonitorElement* meIntegrityGain[36];
-MonitorElement* meIntegrityGainSwitch[36];
-MonitorElement* meIntegrityGainSwitchStay[36];
-MonitorElement* meIntegrityTTId[36];
-MonitorElement* meIntegrityTTBlockSize[36];
-MonitorElement* meIntegrityMemChId[36];
-MonitorElement* meIntegrityMemGain[36];
-MonitorElement* meIntegrityMemTTId[36];
-MonitorElement* meIntegrityMemTTBlockSize[36];
+MonitorElement* meIntegrityChId[18];
+MonitorElement* meIntegrityGain[18];
+MonitorElement* meIntegrityGainSwitch[18];
+MonitorElement* meIntegrityGainSwitchStay[18];
+MonitorElement* meIntegrityTTId[18];
+MonitorElement* meIntegrityTTBlockSize[18];
+MonitorElement* meIntegrityMemChId[18];
+MonitorElement* meIntegrityMemGain[18];
+MonitorElement* meIntegrityMemTTId[18];
+MonitorElement* meIntegrityMemTTBlockSize[18];
 MonitorElement* meIntegrityDCCSize;
 
 bool init_;

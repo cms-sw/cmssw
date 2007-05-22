@@ -35,6 +35,7 @@
   <ZSection z="[CastorL2]"  rMin="[cms:ForwdBeamR4]" rMax="[cms:ForwdDetsR1]"/>
   <ZSection z="[CastorL1]"  rMin="[cms:ForwdDetsR1]" rMax="[cms:ForwdDetsR1]"/>
  </Polycone> 
+</SolidSection>
 
 <LogicalPartSection label="forward.xml">
  <LogicalPart name="TotemT1" category="unspecified">

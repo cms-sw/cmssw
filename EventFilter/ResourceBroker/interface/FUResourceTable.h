@@ -74,13 +74,12 @@ namespace evf {
     void   dumpEvent(evf::FUShmRawCell* cell);
     
     // send empty events to notify clients to shutdown
+    void   stop();
+    void   halt();
     void   shutDownClients();
     
     // emtpy all containers (resources & ids)
     void   clear();
-
-    // reset the resource table to start over (in its current configuration)
-    void   reset();
 
     // reset event & error counters
     void   resetCounters();
@@ -91,9 +90,12 @@ namespace evf {
     // tell resources wether to dump events to an ascii file
     void   setDoDumpEvents(UInt_t doDumpEvents) { doDumpEvents_=doDumpEvents; }
 
+    // check if resource table is active (enabled)
+    bool   isActive() const { return isActive_; }
+
     // check if resource table can be savely destroyed
     bool   isReadyToShutDown() const { return isReadyToShutDown_; }
-    
+
     
     // various counters
     UInt_t   nbResources()        const { return resources_.size(); }
@@ -102,7 +104,6 @@ namespace evf {
     UInt_t   nbAllocated()        const { return nbAllocated_; }
     UInt_t   nbPending()          const { return nbPending_; }
     UInt_t   nbCompleted()        const { return nbCompleted_; }
-    UInt_t   nbProcessed()        const { return nbProcessed_; }
     UInt_t   nbAccepted()         const { return nbAccepted_; }
     UInt_t   nbSent()             const { return nbSent_; }
     UInt_t   nbSentDqm()          const { return nbSentDqm_; }
@@ -178,7 +179,6 @@ namespace evf {
     UInt_t             nbAllocated_;
     UInt_t             nbPending_;
     UInt_t             nbCompleted_;
-    UInt_t             nbProcessed_;
     UInt_t             nbAccepted_;
     UInt_t             nbSent_;
     UInt_t             nbSentDqm_;
@@ -187,6 +187,8 @@ namespace evf {
     
     UInt_t             nbClientsToShutDown_;
     bool               isReadyToShutDown_;
+    bool               isActive_;
+    bool               isHalting_;
     
     UInt_t             nbErrors_;
     UInt_t             nbCrcErrors_;

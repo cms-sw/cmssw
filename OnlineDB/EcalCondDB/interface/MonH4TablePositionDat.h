@@ -33,6 +33,9 @@ class MonH4TablePositionDat : public IDataItem {
   void fetchData(std::map< EcalLogicID, MonH4TablePositionDat >* fillMap, MonRunIOV* iov)
      throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonH4TablePositionDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
   // User data
   float m_tableX;
   float m_tableY;

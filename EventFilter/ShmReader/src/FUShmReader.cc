@@ -39,7 +39,7 @@ FUShmReader::FUShmReader()
   , evtNumber_(0xffffffff)
   , fuResourceId_(0xffffffff)
 {
-  shmBuffer_=FUShmBuffer::getShmBuffer();
+
 }
 
 

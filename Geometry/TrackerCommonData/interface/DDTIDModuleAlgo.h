@@ -61,6 +61,7 @@ private:
   std::string              pitchMat;          //              material
   double                   pitchHeight;       //              height
   double                   pitchThick;        //              thickness
+  double                   tol;               //Tolerance in size
 };
 
 #endif

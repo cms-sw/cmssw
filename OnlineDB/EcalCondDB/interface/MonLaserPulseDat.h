@@ -36,6 +36,9 @@ class MonLaserPulseDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonLaserPulseDat* item, MonRunIOV* iov )
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonLaserPulseDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, MonLaserPulseDat >* fillMap, MonRunIOV* iov)
      throw(std::runtime_error);
 

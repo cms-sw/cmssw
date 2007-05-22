@@ -134,7 +134,7 @@ void CaloTowerMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 void CaloTowerMETAnalyzer::WriteCaloTowers(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  Handle<reco::CandidateCollection> to;
+  edm::Handle<reco::CandidateCollection> to;
   iEvent.getByLabel( "caloTowers", to );
   const CandidateCollection *towers = (CandidateCollection *)to.product();
   reco::CandidateCollection::const_iterator tower = towers->begin();

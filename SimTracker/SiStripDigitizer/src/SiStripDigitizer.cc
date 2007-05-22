@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea GIAMMANCO
 //         Created:  Thu Sep 22 14:23:22 CEST 2005
-// $Id: SiStripDigitizer.cc,v 1.27 2007/02/05 11:37:17 fambrogl Exp $
+// $Id: SiStripDigitizer.cc,v 1.28 2007/02/06 16:28:16 fambrogl Exp $
 //
 //
 
@@ -125,8 +125,10 @@ void SiStripDigitizer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       uint32_t idForNoise = (*iu)->geographicalId().rawId();
       if(theAlgoMap.find(&(sgd->type())) == theAlgoMap.end()) {
 	theAlgoMap[&(sgd->type())] = boost::shared_ptr<SiStripDigitizerAlgorithm>(new SiStripDigitizerAlgorithm(conf_, sgd,
-														idForNoise,&SiStripNoiseService_,&*pdt));
+														idForNoise,&SiStripNoiseService_));
       }
+
+      ((theAlgoMap.find(&(sgd->type())))->second)->setParticleDataTable(&*pdt);
       
       collector.data= ((theAlgoMap.find(&(sgd->type())))->second)->run(SimHitMap[(*iu)->geographicalId().rawId()], sgd, bfield);
       

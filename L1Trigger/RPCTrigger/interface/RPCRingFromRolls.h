@@ -14,9 +14,10 @@
 
 #include "L1Trigger/RPCTrigger/interface/RPCDetInfo.h"
 
-
 class RPCRingFromRolls {
   public:
+
+friend class RPCVHDLConeMaker;
     
     enum { IROLL_MAX = 17, NPOS = 3, NHPLANES  = 6, TOWERMAX = 16 };  
     
