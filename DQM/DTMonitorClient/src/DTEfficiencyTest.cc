@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/18 07:17:09 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/04/27 10:56:25 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -42,8 +42,6 @@ using namespace edm;
 using namespace std;
 
 DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
-
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Constructor";
 

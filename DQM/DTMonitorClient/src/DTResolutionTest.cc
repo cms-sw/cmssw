@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/12 07:36:55 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/04/27 10:57:33 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -43,8 +43,6 @@ using namespace std;
 
 
 DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
-
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Constructor";
   parameters = ps;

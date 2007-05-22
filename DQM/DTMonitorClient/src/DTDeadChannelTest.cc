@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/18 12:46:51 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/27 10:58:07 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -45,8 +45,6 @@ using namespace std;
 
 
 DTDeadChannelTest::DTDeadChannelTest(const edm::ParameterSet& ps){
-
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
  
   edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: Constructor";
 

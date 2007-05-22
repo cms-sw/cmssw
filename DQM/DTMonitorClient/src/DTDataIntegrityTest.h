@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/03/15 16:51:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/30 16:11:21 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -46,8 +46,6 @@ protected:
   void bookTimeHistos(std::string histoType, int dduId, int evNumber);
 
 private:
-
-  bool debug;
 
   //Number of onUpdates
   int nevents;
