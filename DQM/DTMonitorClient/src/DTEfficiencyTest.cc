@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/27 10:56:25 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/05/22 07:02:55 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -213,6 +213,7 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
+    edm::LogStatistics();
   }
 }
 
