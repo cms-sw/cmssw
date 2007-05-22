@@ -148,10 +148,12 @@ FBaseSimEvent::initializePdt(const HepPDT::ParticleDataTable* aPdt) {
 
 }
 
+/*
 const HepPDT::ParticleDataTable*
 FBaseSimEvent::theTable() const {
   return pdt;
 }
+*/
 
 void
 FBaseSimEvent::fill(const HepMC::GenEvent& myGenEvent) {
@@ -676,7 +678,7 @@ int
 FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v,int im) {
   
   // Check that the vertex is in the Famos "acceptance"
-  if ( !myFilter->accept(RawParticle(XYZTLorentzVector(),v)) ) return -1;
+  if ( !myFilter->accept(v) ) return -1;
 
   // The number of vertices
   int vertexId = nSimVertices++;

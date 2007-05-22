@@ -58,7 +58,9 @@ public:
   void initializePdt(const HepPDT::ParticleDataTable* aPdt);
 
   /// Get the pointer to the particle data table
-  const HepPDT::ParticleDataTable* theTable() const;
+  inline const HepPDT::ParticleDataTable* theTable() const { 
+    return pdt;
+  }
 
   /// fill the FBaseSimEvent from the current HepMC::GenEvent
   void fill(const HepMC::GenEvent& hev);

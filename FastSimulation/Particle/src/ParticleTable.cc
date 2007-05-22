@@ -8,8 +8,3 @@ ParticleTable::instance(const HepPDT::ParticleDataTable* pdt) {
   if (!myself) myself = new ParticleTable(pdt);
   return myself;
 }
-
-ParticleTable* 
-ParticleTable::instance() {
-  return myself;
-}

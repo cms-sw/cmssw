@@ -12,7 +12,7 @@ public:
   const HepPDT::ParticleDataTable* theTable() const {return pdt_;}
 
   static ParticleTable* instance(const HepPDT::ParticleDataTable* pdt);
-  static ParticleTable* instance() ;
+  static inline ParticleTable* instance() { return myself; }
 
 private:
 

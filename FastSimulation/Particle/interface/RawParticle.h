@@ -152,6 +152,9 @@ public:
   void rotateZ(double rphi);
   void rotate(const RotationZ& r);
 
+  /** Translate the vertex by a given space amount */
+  void translate(const XYZVector& t);
+
   //  inline RawParticle & transform(const HepRotation &rot);
   //  inline RawParticle & transform(const HepLorentzRotation &rot);
 
@@ -307,6 +310,10 @@ inline void RawParticle::rotate(const RawParticle::RotationZ& r) {
 
 inline void RawParticle::boost(const RawParticle::Boost& b) { 
   XYZTLorentzVector p ( b(momentum()) ); SetXYZT(p.Px(),p.Py(),p.Pz(),p.E());
+}
+
+inline void RawParticle::translate(const XYZVector& tr) { 
+  myVertex.SetXYZT(X()+tr.X(),Y()+tr.Y(),Z()+tr.Z(),T());
 }
 
 
