@@ -73,7 +73,6 @@ protected:
 
 private:
 
-  bool debug;
   int nevents;
 
   DaqMonitorBEInterface* dbe;

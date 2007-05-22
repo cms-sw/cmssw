@@ -5,7 +5,7 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/03 13:39:51 $
+ *  $Date: 2007/05/15 17:21:35 $
  *  $Revision: 1.1 $
  *  \author  M. Zanetti CERN
  *
@@ -77,7 +77,6 @@ protected:
 
 private:
 
-  bool debug;
   int nevents;
   int updates;
   DaqMonitorBEInterface* dbe;

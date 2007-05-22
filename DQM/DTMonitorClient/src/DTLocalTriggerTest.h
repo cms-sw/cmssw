@@ -6,7 +6,7 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/03/30 16:10:06 $
+ *  $Date: 2007/05/18 08:07:47 $
  *  $Revision: 1.1 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
@@ -61,7 +61,6 @@ protected:
 
 private:
 
-  bool debug;
   int nevents;
 
   DaqMonitorBEInterface* dbe;
