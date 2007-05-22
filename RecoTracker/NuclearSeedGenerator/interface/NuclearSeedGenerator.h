@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincent ROBERFROID
 //         Created:  Wed Feb 28 12:05:36 CET 2007
-// $Id: NuclearSeedGenerator.h,v 1.1 2007/04/24 16:51:16 roberfro Exp $
+// $Id: NuclearSeedGenerator.h,v 1.2 2007/04/24 17:34:24 roberfro Exp $
 //
 //
 
@@ -35,11 +35,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
-#include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include <boost/shared_ptr.hpp>
 
 namespace reco {class TransientTrack;}
 
@@ -48,9 +45,6 @@ class Trajectory;
 /** \class NuclearSeedGenerator
  *
  */
-
- typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
- typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
 class NuclearSeedGenerator : public edm::EDProducer {
    public:
@@ -65,6 +59,5 @@ class NuclearSeedGenerator : public edm::EDProducer {
       // ----------member data ---------------------------
       edm::ParameterSet conf_;
       std::auto_ptr<NuclearInteractionFinder>     theNuclearInteractionFinder;
-      boost::shared_ptr<SeedFromNuclearInteraction>  theSeed;
 };
 #endif

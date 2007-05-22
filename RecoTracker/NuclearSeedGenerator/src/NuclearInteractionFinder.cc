@@ -43,6 +43,8 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
    nuclTester = new NuclearTester(es, iConfig);
+
+   theSeed = boost::shared_ptr<SeedFromNuclearInteraction>(new SeedFromNuclearInteraction(es, iConfig));
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -56,7 +58,7 @@ NuclearInteractionFinder::~NuclearInteractionFinder() {
 }
 
 //----------------------------------------------------------------------
-bool  NuclearInteractionFinder::run(const Trajectory& traj, std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& result) const {
+bool  NuclearInteractionFinder::run(const Trajectory& traj, std::auto_ptr<TrajectorySeedCollection>& output) {
 
         nuclTester->reset();
 
@@ -92,10 +94,29 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj, std::pair<Trajectory
            if(nuclTester->isNuclearInteraction()) NIfound=true;
 
            ++it_meas;
-        }
+         }
+
         if(NIfound) {
             LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
-            result = nuclTester->goodTMPair();
+            const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs = nuclTester->goodTMPair();
+
+            const TM& innerHit = tmPairs.first;
+            const std::vector<TM>& outerHits = tmPairs.second;
+
+            for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
+               if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
+                     theSeed->setMeasurements(innerHit, *outhit);
+                     if(theSeed->isValid()) {
+                          TrajectorySeed ptraj = theSeed->TrajSeed();
+                          output->push_back(ptraj);
+                          LogDebug("NuclearInteractionFinder") << "Seed put in event: " << "\n"
+                                                           << "Nhits : " << ptraj.nHits() << "\n"
+                                                           << "Initial state : " << (ptraj.startingState()).parameters().position() << "\n";
+                     }
+                     else LogDebug("NuclearInteractionFinder") << "The seed is invalid" << "\n";
+                }
+                else  LogDebug("NuclearInteractionFinder") << "The initial hits for seeding are invalid" << "\n";
+             }
             return true;
         }
 

@@ -31,7 +31,12 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
+
+#include <boost/shared_ptr.hpp>
 
 class NuclearInteractionFinder {
 private:
@@ -47,7 +52,7 @@ public:
   NuclearInteractionFinder(){}
   NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
   virtual ~NuclearInteractionFinder();
-  bool  run(const Trajectory& traj, std::pair< TM, std::vector<TM> >& result) const;
+  bool  run(const Trajectory& traj, std::auto_ptr<TrajectorySeedCollection>& output);
   std::vector<TrajectoryMeasurement>
          findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
   std::vector<TrajectoryMeasurement>
@@ -66,6 +71,7 @@ private:
   edm::ESHandle<MagneticField>    theMagField;
 
   NuclearTester*  nuclTester;
+  boost::shared_ptr<SeedFromNuclearInteraction>  theSeed;
 
   // parameters
   double ptMin;
