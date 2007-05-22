@@ -293,7 +293,13 @@ TruncatedPyramid::getPosition(float depth) const
 
   // Bart Van de Vyver 10/5/2002 explicit GlobalPoint constructor 
   // to avoid compiler warning
-  point = point + GlobalVector(move.x(),move.y(),move.z());
+
+  // Brian Heltsley 05/21/2007
+  // Fix when front face is positive z
+
+  const double sign ( thetaAxis< M_PI/2 ? 1.0 : -1.0 ) ;
+
+  point = point + sign*GlobalVector(move.x(),move.y(),move.z());
 
   return point;
 }
