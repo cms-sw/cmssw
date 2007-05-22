@@ -30,7 +30,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   static const int NData;
   static const unsigned JET_ENERGY_BITWIDTH;
   //  static L1GctJetEtCalibrationLut* setupLut(const L1GctJetEtCalibrationFunction* lutfn);
-  L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn);
+  L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn=0);
   virtual ~L1GctJetEtCalibrationLut();
 
   void setFunction(const L1GctJetEtCalibrationFunction* lutfn);

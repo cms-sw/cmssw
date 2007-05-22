@@ -35,8 +35,8 @@
 using std::vector;
 
 L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
-  m_verbose(ps.getUntrackedParameter<bool>("verbose", false)),
-  m_jetEtCalibLut(0)
+  m_jetEtCalibLut(new L1GctJetEtCalibrationLut()),
+  m_verbose(ps.getUntrackedParameter<bool>("verbose", false))
  {
 
   // list of products
@@ -97,10 +97,10 @@ void L1GctEmulator::configureGct(const edm::EventSetup& c)
   }
 
   // delete old LUT if it's there
-  if (m_jetEtCalibLut != 0) delete m_jetEtCalibLut;
+  // if (m_jetEtCalibLut != 0) delete m_jetEtCalibLut;
 
-  // make a jet Et Lut and tell it about the scales
-  m_jetEtCalibLut = new L1GctJetEtCalibrationLut(calibFun.product());
+  // tell the jet Et Lut about the scales
+  m_jetEtCalibLut->setFunction(calibFun.product());
   m_gct->setJetEtCalibrationLut(m_jetEtCalibLut);
   
 }
