@@ -101,10 +101,16 @@ class PixelHitMatcher{
   std::vector<Hep3Vector> predicted2Hits();
   float getVertex();
  
-  void setphi1min (float dummyphi1min) { phi1min = dummyphi1min ;}
-  void setphi1max (float dummyphi1max) { phi1max = dummyphi1max ;}
-  void setphi2min (float dummyphi2min) { phi2min = dummyphi2min ;}
-  void setphi2max (float dummyphi2max) { phi2max = dummyphi2max ;}
+  void set1stLayer (float dummyphi1min, float dummyphi1max)
+                                       { 
+                                         meas1stBLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+                                         meas1stFLayer.setPhiRange(dummyphi1min,dummyphi1max) ;
+				       }
+  void set2ndLayer (float dummyphi2min, float dummyphi2max)
+                                       { 
+                                         meas2ndBLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
+                                         meas2ndFLayer.setPhiRange(dummyphi2min,dummyphi2max) ;
+				       }
  
  private:
   //vector<TSiPixelRecHit> hitsInTrack;

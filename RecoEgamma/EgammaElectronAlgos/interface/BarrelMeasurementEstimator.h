@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.3 2007/02/05 17:53:51 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.4 2007/03/08 18:34:11 futyand Exp $
 //
 //
 
@@ -33,16 +33,22 @@ class BarrelMeasurementEstimator : public MeasurementEstimator {
 public:
   BarrelMeasurementEstimator() {};
   BarrelMeasurementEstimator( float phiRangeMin, float phiRangeMax, 
-                                 float zRangeMin, float zRangeMax ) : 
+                              float zRangeMin, float zRangeMax ) : 
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
                            theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) { }
 
+  void setPhiRange (float dummyphiRangeMin , float dummyphiRangeMax) 
+  { 
+    thePhiRangeMin = dummyphiRangeMin ; 
+    thePhiRangeMax = dummyphiRangeMax ; 
+  }
+  
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
 				      //			   const RecHit& hit) const;
   virtual bool estimate( const TrajectoryStateOnSurface& ts, 
-			   const BoundPlane& plane) const;
+			 const BoundPlane& plane) const;
 
   virtual BarrelMeasurementEstimator* clone() const
     {
@@ -50,7 +56,7 @@ public:
     }
 MeasurementEstimator::Local2DVector 
 maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
-							    const BoundPlane& plane) const;
+			  const BoundPlane& plane) const;
 
 private:
 

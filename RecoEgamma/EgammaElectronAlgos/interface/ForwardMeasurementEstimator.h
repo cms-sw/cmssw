@@ -16,7 +16,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.2 2006/06/30 12:36:56 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.3 2007/03/08 18:34:11 futyand Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
@@ -32,6 +32,12 @@ public:
                            thePhiRangeMin( phiRangeMin), thePhiRangeMax( phiRangeMax),
                            theZRangeMin( zRangeMin), theZRangeMax( zRangeMax) {}
 
+  void setPhiRange (float dummyphiRangeMin , float dummyphiRangeMax) 
+  { 
+    thePhiRangeMin = dummyphiRangeMin ; 
+    thePhiRangeMax = dummyphiRangeMax ; 
+  }
+  
   // zero value indicates incompatible ts - hit pair
   virtual std::pair<bool,double> estimate( const TrajectoryStateOnSurface& ts, 
 			   const TransientTrackingRecHit& hit) const;
