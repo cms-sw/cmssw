@@ -15,6 +15,15 @@ public:
   std::vector<MyHcalDetId> getDetIdsForType(HistType ht, EventType et);
   TH1* GetAHistogram(const MyHcalDetId& id, HistType ht, EventType et);
 
+
+ 
+
+ std::vector<MyElectronicsId> getElecIdsForType(HistType ht, EventType et);
+  TH1* GetAHistogram(const MyElectronicsId& id, HistType ht, EventType et);
+
+
+ 
+
   static std::string nameForFlavor(HistType ht);
   static std::string nameForEvent(EventType et);
 private:

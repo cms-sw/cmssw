@@ -83,6 +83,52 @@ TH1* HistoManager::GetAHistogram(const MyHcalDetId& id,
 }
 
 
+
+
+TH1* HistoManager::GetAHistogram(const MyElectronicsId& eid,
+				 HistType ht,
+				 EventType et)
+{
+  std::string flavor=nameForFlavor(ht);
+  TDirectory* td;
+
+  switch (et) {
+  case(PEDESTAL): td=pedHistDir; break;
+  case(LED): td=ledHistDir; break;
+  case(LASER): td=laserHistDir; break;
+  case(BEAM): td=beamHistDir; break;
+  case(UNKNOWN): td=otherHistDir; break;
+  default: td=0; break;
+  }
+
+  if (td==0) {
+    printf("Unknown %d !\n", et);
+    return 0;
+  }
+
+  char name[120];
+
+
+  char topbot;
+  if (eid.tb==0){topbot = 'b';}
+  else{topbot='t';}
+  TH1* retval=0;
+  sprintf(name,"%d_%d_HTR_%d:%d%c",
+	  eid.fiber, eid.fiberChan, eid.crate, eid.Slot,topbot);
+  TList* keyList = td->GetListOfKeys();
+  
+  for(int keyindex = 0; keyindex<keyList->GetEntries(); ++keyindex) {
+    std::string keyname = keyList->At(keyindex)->GetName();
+    if ((strstr(keyname.c_str(),name))&&(strstr(keyname.c_str(),flavor.c_str()))) {
+      retval=(TH1*)td->Get(keyname.c_str());
+      break;
+    }
+  }
+
+  return retval;
+}
+
+
 std::vector<MyHcalDetId> HistoManager::getDetIdsForType(HistType ht,
 							EventType et)
 {
@@ -134,4 +180,80 @@ std::vector<MyHcalDetId> HistoManager::getDetIdsForType(HistType ht,
 
   return retvals;
 }
+
+
+std::vector<MyElectronicsId> HistoManager::getElecIdsForType(HistType ht,
+							EventType et)
+{
+  char keyflavor[100];
+  char keysubDet[100];
+  MyElectronicsId mydeteid;
+  TDirectory* td;
+  TList* keyList;
+  std::vector<MyElectronicsId> retvals;
+
+  std::string flavor=nameForFlavor(ht);
+
+  switch (et) {
+  case(PEDESTAL): td=pedHistDir; break;
+  case(LED): td=ledHistDir; break;
+  case(LASER): td=laserHistDir; break;
+  case(BEAM): td=beamHistDir; break;
+  case(UNKNOWN): td=otherHistDir; break;
+  default: td=0; break;
+  }
+  if (!td) {
+    printf("Event type not known, et=%d\n", et);
+    return retvals;
+  }
+
+  keyList = td->GetListOfKeys();
+  if (keyList==0) return retvals;
+  
+  for(int keyindex = 0; keyindex<keyList->GetEntries(); ++keyindex) {
+    int converted;
+    std::string keyname = keyList->At(keyindex)->GetName();
+    while (keyname.find("_")!=std::string::npos)
+      keyname.replace(keyname.find("_"),1," ");
+    int dumeta,dumphi,dumdepth,dumdcc,dumspig; 
+    char bottop;
+    char unknown[100];
+    char calib[100];
+    
+    //printf("%s\n",keyname.c_str());
+ 
+    if(strstr(keyname.c_str(),"CALIB")){
+       converted = sscanf(keyname.c_str(),"%s %s %s rbx=%d chan=%s eid=%d %d %d %d HTR %d:%d%c ",
+			  keyflavor,keysubDet,calib,&dumeta,unknown,&dumdcc,&dumspig, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
+            
+   if (bottop=='t')
+      {mydeteid.tb=1;}
+    else
+      {mydeteid.tb=0;} 
+
+   // printf("%d converts to %d %d %d %d %c\n",converted,mydeteid.fiber,mydeteid.fiberChan,mydeteid.crate,mydeteid.Slot,bottop);
+
+    }else{
+      converted = sscanf(keyname.c_str(),"%s %s %d %d %d eid=%d %d %d %d HTR %d:%d%c ",
+			 keyflavor,keysubDet,&dumeta,&dumphi,&dumdepth,&dumdcc,&dumspig, &mydeteid.fiber,&mydeteid.fiberChan,&mydeteid.crate,&mydeteid.Slot,&bottop);
+      
+        
+    if (bottop=='t')
+      {mydeteid.tb=1;}
+    else
+      {mydeteid.tb=0;}
+    }
+    //printf("converts to %d %d %d %d %d\n",mydeteid.fiber,mydeteid.fiberChan,mydeteid.crate,mydeteid.Slot,mydeteid.tb);
+
+
+    if( (flavor==keyflavor) && (converted==12) )
+
+      retvals.push_back(mydeteid);
+    
+  }
+
+  
+  return retvals;
+}
+
 
