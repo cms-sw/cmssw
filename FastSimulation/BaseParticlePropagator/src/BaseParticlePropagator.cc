@@ -158,24 +158,34 @@ BaseParticlePropagator::propagate() {
     // Does the helix cross the cylinder barrel ? If not, do the first half-loop
     //
     double rProp = std::min(fabs(radius)+dist-0.000001, rCyl);
+
+    // Check for rounding errors in the ArcSin.
+    double sinPhiProp = 
+      (rProp*rProp-radius*radius-dist*dist)/( 2.*dist*radius);
+    //
+    phiProp =  fabs(sinPhiProp) < 0.99999999  ? 
+      std::asin(sinPhiProp) : M_PI/2. * sinPhiProp;
+
     //
     // Compute phi after propagation (two solutions, but the asin definition
     // (between -pi/2 and +pi/2) takes care of the wrong one.
     //
-    phiProp = helixCentrePhi(xC,yC) + ( inside(rPos2) || onSurface(rPos2) ? 
-	    std::asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) :
-       M_PI-std::asin ( (rProp*rProp-radius*radius-dist*dist) / (2*dist*radius) ) );
+    phiProp = helixCentrePhi(xC,yC) + 
+      ( inside(rPos2) || onSurface(rPos2) ? phiProp : M_PI-phiProp ); 
+
     //
     // Solve the obvious two-pi ambiguities: more than one turn!
     //
     if ( fabs(phiProp - phi0) > 2.*M_PI )
-      phiProp += phiProp > phi0 ? -2.*M_PI : +2.*M_PI;
+      phiProp += ( phiProp > phi0 ? -2.*M_PI : +2.*M_PI );
+
     //
     // Check that the phi difference has the right sign, according to Q*B
     // (Another two pi ambuiguity, slightly more subtle)
     //
     if ( (phiProp-phi0)*radius < 0.0 )
       radius > 0.0 ? phiProp += 2 * M_PI : phiProp -= 2 * M_PI;
+
     //
     // Check that the particle does not exit from the endcaps first.
     //
@@ -230,6 +240,7 @@ BaseParticlePropagator::propagate() {
     }
 
     zProp = Z() + (zProp-Z())*factor;
+
     phiProp = phi0 + (zProp - Z()) / radius * pT / pZ;
 
     double sProp = std::sin(phiProp);
@@ -239,6 +250,7 @@ BaseParticlePropagator::propagate() {
     double tProp = T() + (zProp-T())*E()/pZ;
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
+
     //
     // Last check : Although propagated to the endcaps, R could still be
     // larger than rCyl because the cylinder was too short...
@@ -264,12 +276,10 @@ BaseParticlePropagator::backPropagate() {
 
   // Backpropagate
   SetXYZT(-Px(),-Py(),-Pz(),E());
-  //  SetPx(-Px()); SetPy(-Py()); SetPz(-Pz()); 
   setCharge(-charge());
   propDir = -1;
   bool done = propagate();
   SetXYZT(-Px(),-Py(),-Pz(),E());
-  //  SetPx(-Px()); SetPy(-Py()); SetPz(-Pz()); 
   setCharge(-charge());
   propDir = +1;
 
