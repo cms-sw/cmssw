@@ -10,6 +10,7 @@ class HcalVisualSelector {
 public:
   class Callbacks {
   public:
+    virtual ~Callbacks() { }
     virtual void plot(const MyHcalDetId& id) = 0;
     virtual MyHcalSubdetector getSubdet(int ieta, int depth) = 0;
   };
