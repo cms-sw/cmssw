@@ -4,8 +4,8 @@
 /*
  * \file EEClusterTask.h
  *
- * $Date: 2007/04/05 13:56:48 $
- * $Revision: 1.2 $
+ * $Date: 2007/04/05 14:54:03 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
  */
@@ -50,32 +50,21 @@ DaqMonitorBEInterface* dbe_;
 
 bool enableCleanup_;
 
-edm::InputTag islandBarrelBasicClusterCollection_;
-edm::InputTag islandBarrelSuperClusterCollection_;
+edm::InputTag islandEndcapSuperClusterCollection_;
 
-edm::InputTag hybridSuperClusterCollection_;
+MonitorElement* meEne_;
+MonitorElement* meNum_;
+MonitorElement* meSiz_;
 
-edm::InputTag hybridBarrelClusterShapeAssociation_;
+MonitorElement* meEneFwdMap_;
+MonitorElement* meNumFwdMap_;
+MonitorElement* meEneFwdPolarMap_;
+MonitorElement* meNumFwdPolarMap_;
+MonitorElement* meEneBwdMap_;
+MonitorElement* meNumBwdMap_;
+MonitorElement* meEneBwdPolarMap_;
+MonitorElement* meNumBwdPolarMap_;
 
-MonitorElement* meIslBEne_;
-MonitorElement* meIslBNum_;
-MonitorElement* meIslBCry_;
-
-MonitorElement* meIslBEneMap_;
-MonitorElement* meIslBNumMap_;
-MonitorElement* meIslBETMap_;
-MonitorElement* meIslBCryMap_;
-
-MonitorElement* meIslSEne_;
-MonitorElement* meIslSNum_;
-MonitorElement* meIslSSiz_;
-
-MonitorElement* meIslSEneMap_;
-MonitorElement* meIslSNumMap_;
-MonitorElement* meIslSETMap_;
-MonitorElement* meIslSSizMap_;
-
-MonitorElement* meHybS1toE_;
 MonitorElement* meInvMass_;
 
 bool init_;
