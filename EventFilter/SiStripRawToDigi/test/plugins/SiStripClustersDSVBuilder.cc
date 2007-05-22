@@ -64,7 +64,7 @@ void SiStripClustersDSVBuilder::produce( edm::Event& event,
   for(;iregion!=demandclusters->end();++iregion) {
     vector<SiStripCluster>::const_iterator icluster = iregion->first;
     for (;icluster!=iregion->second;icluster++) {
-      DetSet detset = dsv->find_or_insert(icluster->geographicalId());
+      DetSet& detset = dsv->find_or_insert(icluster->geographicalId());
       detset.push_back(*icluster);
     }
   }
