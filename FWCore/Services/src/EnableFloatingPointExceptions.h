@@ -64,7 +64,7 @@
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.4 2006/12/18 16:23:27 wdd Exp $
+// $Id: EnableFloatingPointExceptions.h,v 1.5 2007/05/18 20:36:41 marafino Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -87,6 +87,7 @@ public:
 
 private:
 	 void controlFpe();
+	 void echoState();
 
          bool enableDivByZeroEx_;
          bool enableInvalidEx_;

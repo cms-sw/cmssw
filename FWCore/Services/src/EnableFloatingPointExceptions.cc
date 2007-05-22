@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.6 2007/03/04 05:55:26 wmtan Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.7 2007/05/18 20:36:41 marafino Exp $
 //
 
 // system include files
@@ -46,6 +46,9 @@ enableUnderFlowEx_(false),
 setPrecisionDouble_(true),
 reportSettings_(false)
 {
+  iRegistry.watchPostEndJob(this,&EnableFloatingPointExceptions::postEndJob);
+  iRegistry.watchPreModule(this, &EnableFloatingPointExceptions::preModule);
+  iRegistry.watchPostModule(this, &EnableFloatingPointExceptions::postModule);
 
   reportSettings_     = iPS.getUntrackedParameter<bool>("reportSettings",false);
   setPrecisionDouble_ = iPS.getUntrackedParameter<bool>("setPrecisionDouble",true);
@@ -60,6 +63,7 @@ reportSettings_(false)
   stateMap_[String("OSdefault")] =  fpuState_;
   if( reportSettings_ )  std::cout << "Calling controlFpe for OSdefault" << std::endl;
   controlFpe();
+  echoState();
 
 // Then go handle the specific cases as described in the cfg file
 
@@ -79,6 +83,7 @@ reportSettings_(false)
 
     if( reportSettings_ ) std::cout << "Calling controlFpe for default" << std::endl;
     controlFpe();
+    echoState();
     fegetenv( &fpuState_ );
     stateMap_["default"] =  fpuState_;
   } else {
@@ -96,6 +101,7 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       if( reportSettings_ ) std::cout << "Calling controlFpe for unnamed module" << std::endl;
       controlFpe();
+      echoState();
       fegetenv( &fpuState_ );
       stateMap_["default"] =  fpuState_;
       moduleNames.erase(pos);
@@ -111,10 +117,16 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       if( reportSettings_ ) std::cout << "Calling controlFpe for module " << *it << std::endl;
       controlFpe();
+      echoState();
       fegetenv( &fpuState_ );
       stateMap_[*it] =  fpuState_;
     }
   }
+
+// And finally, put the state back to the way we found it originally
+
+    fpuState_ = stateMap_[String("OSdefault")];
+    fesetenv( &fpuState_ );
 }
 
 // EnableFloatingPointExceptions::EnableFloatingPointExceptions(const EnableFloatingPointExceptions& rhs)
@@ -208,6 +220,7 @@ EnableFloatingPointExceptions::controlFpe()
 	else 
 	  (void) fedisableexcept( FE_UNDERFLOW );
 
+#ifdef NEVER
 	if( reportSettings_ ) {
 	  int femask = fegetexcept();
 	  std::cout << "Floating point exception mask is " << std::hex << femask << std::endl;
@@ -232,6 +245,7 @@ EnableFloatingPointExceptions::controlFpe()
 	  else
 	    std::cout << "\tUnderFlow exception is off" << std::endl;
         }
+#endif
 
 #ifdef __i386__
 
@@ -246,4 +260,33 @@ EnableFloatingPointExceptions::controlFpe()
 #endif
 #endif
 
+}
+
+void
+EnableFloatingPointExceptions::echoState()
+{
+	if( reportSettings_ ) {
+	  int femask = fegetexcept();
+	  std::cout << "Floating point exception mask is " << std::hex << femask << std::endl;
+
+	  if( femask & FE_DIVBYZERO )
+	    std::cout << "\tDivByZero exception is on" << std::endl;
+	  else
+	    std::cout << "\tDivByZero exception is off" << std::endl;
+
+	  if( femask & FE_INVALID )
+	    std::cout << "\tInvalid exception is on" << std::endl;
+	  else
+	    std::cout << "\tInvalid exception is off" << std::endl;
+
+	  if( femask & FE_OVERFLOW )
+	    std::cout << "\tOverFlow exception is on" << std::endl;
+	  else
+	    std::cout << "\tOverflow exception is off" << std::endl;
+
+	  if( femask & FE_UNDERFLOW )
+	    std::cout << "\tUnderFlow exception is on" << std::endl;
+	  else
+	    std::cout << "\tUnderFlow exception is off" << std::endl;
+        }
 }
