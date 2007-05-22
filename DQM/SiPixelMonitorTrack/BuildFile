@@ -2,7 +2,6 @@
 <use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQM/SiPixelCommon>
-<use name=DQM/TrackerMonitorTrack>
 <use name=DQMServices/Core>
 <use name=CalibTracker/Records>
 <use name=Geometry/CommonDetUnit>
@@ -12,15 +11,13 @@
 <use name=TrackingTools/TransientTrackingRecHit> 
 <use name=TrackingTools/TransientTrack> 
 <use name=TrackingTools/TrackFitters>
-# <flags EDM_PLUGINS=1>
-<flags SEAL_PLUGIN_NAME="DQMSiPixelMonitorTrack">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiPixelMonitorTrack>
    <use name=FWCore/Framework>
    <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQM/SiPixelCommon>
-   <use name=DQM/TrackerMonitorTrack>
    <use name=DQMServices/Core>
    <use name=CalibTracker/Records>
    <use name=Geometry/CommonDetUnit>
