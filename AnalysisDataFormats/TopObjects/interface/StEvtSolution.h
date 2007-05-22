@@ -2,13 +2,10 @@
 #define TopObjects_StEvtSolution_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "StGenEvent.h"
-#include "TopJetObject.h"
-#include "TopMuonObject.h"
-#include "TopElectronObject.h"
-#include "TopMETObject.h"
+#include "TopJet.h"
+#include "TopLepton.h"
+#include "TopMET.h"
 #include <vector>
-
-using namespace reco;
 
 class StEvtSolution
 {
@@ -16,15 +13,15 @@ class StEvtSolution
       StEvtSolution();
       virtual ~StEvtSolution();
       
-      //      void setHadp(TopJetObject);
-      //      void setHadq(TopJetObject);
-      //      void setHadb(TopJetObject);
-      //      void setLepb(TopJetObject);
-      void setBottom(TopJetObject);
-      void setLight(TopJetObject);
-      void setMuon(TopMuonObject);
-      void setElectron(TopElectronObject);
-      void setMET(TopMETObject);
+      //      void setHadp(TopJet);
+      //      void setHadq(TopJet);
+      //      void setHadb(TopJet);
+      //      void setLepb(TopJet);
+      void setBottom(TopJet);
+      void setLight(TopJet);
+      void setMuon(TopMuon);
+      void setElectron(TopElectron);
+      void setMET(TopMET);
       void setChi2(double);
       void setScanValues(std::vector<double>);
       void setPtrueCombExist(double);
@@ -34,7 +31,7 @@ class StEvtSolution
       void setSignalPurity(double);
       void setSignalLRtot(double);
       
-      void setGenEvt(vector<Candidate *>);
+      void setGenEvt(std::vector<reco::Candidate *>);
       void setSumDeltaRjp(double);
       void setDeltaRB(double);
       void setDeltaRL(double);
@@ -42,11 +39,11 @@ class StEvtSolution
       void setBestSol(bool);
 
       
-      TopJetObject         	getBottom() const  		{ return bottom; };
-      TopJetObject         	getLight() const  		{ return light; };
-      TopMuonObject	  	getMuon() const  		{ return muon; };
-      TopElectronObject  	getElectron() const  		{ return electron; };
-      TopMETObject    	  	getMET() const  		{ return met; };
+      TopJet         		getBottom() const  		{ return bottom; };
+      TopJet         		getLight() const  		{ return light; };
+      TopMuon	  		getMuon() const  		{ return muon; };
+      TopElectron  		getElectron() const  		{ return electron; };
+      TopMET    	  	getMET() const  		{ return met; };
       double 	    	  	getChi2() const 		{ return chi2; };
       double 	    	  	getPtrueCombExist() const	{ return ptrueCombExist;};
       double 	    	  	getPtrueBJetSel() const		{ return ptrueBJetSel;};
@@ -55,14 +52,14 @@ class StEvtSolution
       double 	    	  	getSignalPur() const		{ return signalPur; };
       double 	    	  	getSignalLRtot() const   	{ return signalLRtot; };
       std::vector<double> 	getScanValues() const 		{ return scanValues; };
-      string     	  	getDecay() const		{ return decay; };      
+      std::string     	  	getDecay() const		{ return decay; };      
       
-      Particle 			getGenBottom() const		{ return genBottom; };
-      Particle 			getGenLight() const		{ return genLight; };
-      Particle 			getGenLepl() const		{ return genLepl; };
-      Particle 			getGenLepn() const		{ return genLepn; };
-      Particle 			getGenLepW() const		{ return genLepW; };
-      Particle 			getGenLept() const		{ return genLept; };
+      reco::Particle 		getGenBottom() const		{ return genBottom; };
+      reco::Particle 		getGenLight() const		{ return genLight; };
+      reco::Particle 		getGenLepl() const		{ return genLepl; };
+      reco::Particle 		getGenLepn() const		{ return genLepn; };
+      reco::Particle 		getGenLepW() const		{ return genLepW; };
+      reco::Particle 		getGenLept() const		{ return genLept; };
       double 			getSumDeltaRjp() const		{ return sumDeltaRjp; };
       double 			getDeltaRB() const		{ return deltaRB; };
       double 			getDeltaRL() const		{ return deltaRL; };
@@ -71,31 +68,31 @@ class StEvtSolution
       
       JetType		        getRecBottom() const;
       JetType                   getRecLight() const;
-      TopMuon                    getRecLepm() const;
-      TopElectron                getRecLepe() const;
-      TopMET                     getRecLepn() const;  
-      Particle                  getRecLepW() const;  
-      Particle                  getRecLept() const;
+      TopMuon                   getRecLepm() const;
+      TopElectron               getRecLepe() const;
+      TopMET                    getRecLepn() const;  
+      reco::Particle            getRecLepW() const;  
+      reco::Particle            getRecLept() const;
       
-      TopJet                     getCalBottom() const;
-      TopJet                     getCalLight() const;
-      Particle                  getCalLept() const;
+      TopJet                    getCalBottom() const;
+      TopJet                    getCalLight() const;
+      reco::Particle            getCalLept() const;
       
-      TopParticle                getFitBottom() const;
-      TopParticle                getFitLight() const;
-      TopParticle                getFitLepm() const; 
-      TopParticle                getFitLepe() const;      
-      TopParticle                getFitLepn() const;    
-      Particle	                getFitLepW() const;
-      Particle	                getFitLept() const;
+      TopParticle         	getFitBottom() const;
+      TopParticle         	getFitLight() const;
+      TopParticle         	getFitLepm() const; 
+      TopParticle         	getFitLepe() const;      
+      TopParticle         	getFitLepn() const;    
+      reco::Particle	        getFitLepW() const;
+      reco::Particle	        getFitLept() const;
         
    private:
-      Particle         		genBottom, genLight, genLepl, genLepn, genLepW, genLept;
-      TopJetObject         	bottom, light;
-      TopMuonObject        	muon;
-      TopElectronObject    	electron;
-      TopMETObject 	    	met;
-      string        		decay;
+      reco::Particle         	genBottom, genLight, genLepl, genLepn, genLepW, genLept;
+      TopJet         		bottom, light;
+      TopMuon        		muon;
+      TopElectron    		electron;
+      TopMET 	    		met;
+      std::string      		decay;
       double 	    		chi2, jetMatchPur, signalPur, ptrueCombExist, signalLRtot, ptrueBJetSel, ptrueBhadrSel, ptrueJetComb;
       double			sumDeltaRjp,deltaRB,deltaRL;
       bool			bestSol;

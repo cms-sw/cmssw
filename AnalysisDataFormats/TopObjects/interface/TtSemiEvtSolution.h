@@ -2,13 +2,11 @@
 #define TopObjects_TtSemiEvtSolution_h
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TtGenEvent.h"
-#include "TopJetObject.h"
-#include "TopMuonObject.h"
-#include "TopElectronObject.h"
-#include "TopMETObject.h"
+#include "TopJet.h"
+#include "TopLepton.h"
+#include "TopMET.h"
 #include <vector>
-
-using namespace reco;
+#include "DataFormats/Candidate/interface/Particle.h"
 
 class TtSemiEvtSolution
 {
@@ -16,13 +14,13 @@ class TtSemiEvtSolution
       TtSemiEvtSolution();
       virtual ~TtSemiEvtSolution();
       
-      void setHadp(TopJetObject);
-      void setHadq(TopJetObject);
-      void setHadb(TopJetObject);
-      void setLepb(TopJetObject);
-      void setMuon(TopMuonObject);
-      void setElectron(TopElectronObject);
-      void setMET(TopMETObject);
+      void setHadp(TopJet);
+      void setHadq(TopJet);
+      void setHadb(TopJet);
+      void setLepb(TopJet);
+      void setMuon(TopMuon);
+      void setElectron(TopElectron);
+      void setMET(TopMET);
       void setJetParametrisation(int);
       void setLeptonParametrisation(int);
       void setMETParametrisation(int);
@@ -33,103 +31,99 @@ class TtSemiEvtSolution
       void setPtrueJetComb(double);
       void setSignalPurity(double);
       void setSignalLRtot(double);
-      void setMtopUncertainty(double);
-      void setScanValues(std::vector<double>);
       
-      void setGenEvt(vector<Candidate *>);
+      void setGenEvt(std::vector<reco::Candidate *>);
       void setSumDeltaRjp(double);
       void setDeltaRhadp(double);
       void setDeltaRhadq(double);
       void setDeltaRhadb(double);
       void setDeltaRlepb(double);
       void setChangeWQ(int);
-      void setBestSol(bool);
+      void setMCBestSol(int);
+      void setSimpleBestSol(int);
 
       
-      TopJetObject         	getHadp() const  		{ return hadp; };
-      TopJetObject         	getHadq() const  		{ return hadq; };
-      TopJetObject         	getHadb() const  		{ return hadb; };
-      TopJetObject         	getLepb() const  		{ return lepb; };
-      TopMuonObject	  	getMuon() const  		{ return muon; };
-      TopElectronObject  	getElectron() const  		{ return electron; };
-      TopMETObject    	  	getMET() const  		{ return met; };
-      int    			getJetParametrisation() const   { return jetparam; };
-      int    			getLeptonParametrisation() const{ return leptonparam; };
-      int    			getMETParametrisation() const   { return metparam; };
-      double 	    	  	getProbChi2() const 		{ return probChi2; };
-      double 	    	  	getPtrueCombExist() const	{ return ptrueCombExist;};
-      double 	    	  	getPtrueBJetSel() const		{ return ptrueBJetSel;};
-      double 	    	  	getPtrueBhadrSel() const	{ return ptrueBhadrSel;};
-      double 	    	  	getPtrueJetComb() const		{ return ptrueJetComb;};
-      double 	    	  	getSignalPur() const		{ return signalPur; };
-      double 	    	  	getSignalLRtot() const   	{ return signalLRtot; };
-      double			getMtopUncertainty() const	{ return dmtop; };
-      std::vector<double> 	getScanValues() const 		{ return scanValues; };
-      string     	  	getDecay() const		{ return decay; };      
+      TopJet         			getHadp() const  		{ return hadp; };
+      TopJet         			getHadq() const  		{ return hadq; };
+      TopJet         			getHadb() const  		{ return hadb; };
+      TopJet         			getLepb() const  		{ return lepb; };
+      TopMuon	  			getMuon() const  		{ return muon; };
+      TopElectron  			getElectron() const  		{ return electron; };
+      std::string  			getDecay() const  		{ return decay; };
+      TopMET    	  		getMET() const  		{ return met; };
+      int    				getJetParametrisation() const   { return jetparam; };
+      int    				getLeptonParametrisation() const{ return leptonparam; };
+      int    				getMETParametrisation() const   { return metparam; };
+      double 	    	  		getProbChi2() const 		{ return probChi2; };
+      double 	    	  		getPtrueCombExist() const	{ return ptrueCombExist;};
+      double 	    	  		getPtrueBJetSel() const		{ return ptrueBJetSel;};
+      double 	    	  		getPtrueBhadrSel() const	{ return ptrueBhadrSel;};
+      double 	    	  		getPtrueJetComb() const		{ return ptrueJetComb;};
+      double 	    	  		getSignalPur() const		{ return signalPur; };
+      double 	    	  		getSignalLRtot() const   	{ return signalLRtot; };
       
-      Particle 			getGenHadp() const		{ return genHadp; };
-      Particle 			getGenHadq() const		{ return genHadq; };
-      Particle 			getGenHadb() const		{ return genHadb; };
-      Particle 			getGenLepb() const		{ return genLepb; };
-      Particle 			getGenLepl() const		{ return genLepl; };
-      Particle 			getGenLepn() const		{ return genLepn; };
-      Particle 			getGenHadW() const		{ return genHadW; };
-      Particle 			getGenLepW() const		{ return genLepW; };
-      Particle 			getGenHadt() const		{ return genHadt; };
-      Particle 			getGenLept() const		{ return genLept; };
-      double 			getSumDeltaRjp() const		{ return sumDeltaRjp; };
-      double 			getDeltaRhadp() const		{ return deltaRhadp; };
-      double 			getDeltaRhadq() const		{ return deltaRhadq; };
-      double 			getDeltaRhadb() const		{ return deltaRhadb; };
-      double 			getDeltaRlepb() const		{ return deltaRlepb; };
-      int			getChangeWQ() const		{ return changeWQ; };
-      bool			getBestSol() const		{ return bestSol; };
-      
-      JetType		        getRecHadp() const;
-      JetType                   getRecHadq() const;
-      JetType                   getRecHadb() const;
-      JetType                   getRecLepb() const; 
-      TopMuon                   getRecLepm() const;
-      TopElectron               getRecLepe() const;
-      TopMET                    getRecLepn() const;  
-      Particle                  getRecLepW() const;  
-      Particle                  getRecHadW() const;       
-      Particle                  getRecHadt() const;
-      Particle                  getRecLept() const;
-      
-      TopJet                    getCalHadp() const;
-      TopJet                    getCalHadq() const;
-      TopJet                    getCalHadb() const;
-      TopJet                    getCalLepb() const;
-      Particle                  getCalHadW() const; 
-      Particle                  getCalHadt() const;
-      Particle                  getCalLept() const;
-      
-      TopParticle               getFitHadp() const;
-      TopParticle               getFitHadq() const;
-      TopParticle               getFitHadb() const;
-      TopParticle               getFitLepb() const;
-      TopParticle               getFitLepm() const; 
-      TopParticle               getFitLepe() const;      
-      TopParticle               getFitLepn() const;    
-      Particle 	                getFitHadW() const;
-      Particle	                getFitLepW() const;
-      Particle	                getFitHadt() const;
-      Particle	                getFitLept() const;
+      reco::Particle 			getGenHadp() const		{ return genHadp; };
+      reco::Particle 			getGenHadq() const		{ return genHadq; };
+      reco::Particle 			getGenHadb() const		{ return genHadb; };
+      reco::Particle 			getGenLepb() const		{ return genLepb; };
+      reco::Particle 			getGenLepl() const		{ return genLepl; };
+      reco::Particle 			getGenLepn() const		{ return genLepn; };
+      reco::Particle 			getGenHadW() const		{ return genHadW; };
+      reco::Particle 			getGenLepW() const		{ return genLepW; };
+      reco::Particle 			getGenHadt() const		{ return genHadt; };
+      reco::Particle 			getGenLept() const		{ return genLept; };
+      double 				getSumDeltaRjp() const		{ return sumDeltaRjp; };
+      double 				getDeltaRhadp() const		{ return deltaRhadp; };
+      double 				getDeltaRhadq() const		{ return deltaRhadq; };
+      double 				getDeltaRhadb() const		{ return deltaRhadb; };
+      double 				getDeltaRlepb() const		{ return deltaRlepb; };
+      int				getChangeWQ() const		{ return changeWQ; };
+      int				getMCBestSol() const		{ return mcBestSol; };
+      int				getSimpleBestSol() const	{ return simpleBestSol; };
+      	
+      JetType		        	getRecHadp() const;
+      JetType                   	getRecHadq() const;
+      JetType                   	getRecHadb() const;
+      JetType                   	getRecLepb() const; 
+      TopMuon                   	getRecLepm() const;
+      TopElectron               	getRecLepe() const;
+      TopMET                    	getRecLepn() const;  
+      reco::Particle                  	getRecLepW() const;  
+      reco::Particle                  	getRecHadW() const;       
+      reco::Particle                  	getRecHadt() const;
+      reco::Particle                  	getRecLept() const;
+      	
+      TopJet                    	getCalHadp() const;
+      TopJet                    	getCalHadq() const;
+      TopJet                    	getCalHadb() const;
+      TopJet                    	getCalLepb() const;
+      reco::Particle                  	getCalHadW() const; 
+      reco::Particle                  	getCalHadt() const;
+      reco::Particle                  	getCalLept() const;
+      	
+      TopParticle               	getFitHadp() const;
+      TopParticle               	getFitHadq() const;
+      TopParticle               	getFitHadb() const;
+      TopParticle               	getFitLepb() const;
+      TopParticle               	getFitLepm() const; 
+      TopParticle               	getFitLepe() const;      
+      TopParticle               	getFitLepn() const;    
+      reco::Particle 	                getFitHadW() const;
+      reco::Particle	                getFitLepW() const;
+      reco::Particle	                getFitHadt() const;
+      reco::Particle	                getFitLept() const;
         
    private:
-      Particle         		genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
-      TopJetObject         	hadp, hadq, hadb, lepb;
-      TopMuonObject        	muon;
-      TopElectronObject    	electron;
-      TopMETObject 	    	met;
-      string        		decay;
-      double 	    		probChi2, jetMatchPur, signalPur, ptrueCombExist, signalLRtot, ptrueBJetSel, ptrueBhadrSel, ptrueJetComb;
-      double			sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
-      bool			bestSol;
-      int 			changeWQ, jetparam, leptonparam, metparam;
-      double			dmtop;
-      std::vector<double> 	scanValues;
+      reco::Particle		        genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
+      TopJet         			hadp, hadq, hadb, lepb;
+      TopMuon        			muon;
+      TopElectron    			electron;
+      TopMET 	    			met;
+      std::string        		decay;
+      double 	    			probChi2, jetMatchPur, signalPur, ptrueCombExist, signalLRtot, ptrueBJetSel, ptrueBhadrSel, ptrueJetComb;
+      double				sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
+      int				mcBestSol, simpleBestSol;
+      int 				changeWQ, jetparam, leptonparam, metparam;
 };
 
 #endif

@@ -3,7 +3,7 @@
   <class pattern="edm::Wrapper<*>" />
 
   <class name="std::vector<std::pair<double, double> >" />
-
+  
   <class name="TopElectron" />
   <class name="TopMuon" />
   <class name="TopJet" />
@@ -11,10 +11,8 @@
   <class name="TopParticle" />
   <class name="TopObject<ElectronType>" />
   <class name="TopObject<MuonType>" />
-  <class name="TopElectronObject"/>
-  <class name="TopMuonObject"/>
-  <class name="TopJetObject"/>
-  <class name="TopMETObject"/>
+  <class name="TopObject<JetType>" />
+  <class name="TopObject<METType>" />
   
   <class name="std::vector<TopElectron>" />
   <class name="std::vector<TopMuon>" />
@@ -23,10 +21,8 @@
   <class name="std::vector<TopParticle>" />
   <class name="std::vector<TopObject<ElectronType> >" />
   <class name="std::vector<TopObject<MuonType> >" />
-  <class name="std::vector<TopElectronObject>"/>
-  <class name="std::vector<TopMuonObject>"/>
-  <class name="std::vector<TopJetObject>"/>
-  <class name="std::vector<TopMETObject>"/>
+  <class name="std::vector<TopObject<JetType> >" />
+  <class name="std::vector<TopObject<METType> >" />
 
   <class name="TtGenEvent"/>
   <class name="StGenEvent"/>
@@ -34,6 +30,6 @@
   <class name="std::vector<TtSemiEvtSolution>" />
   <class name="StEvtSolution"/>
   <class name="std::vector<StEvtSolution>" />
-
+  <class name="TtSemiMassSolution"/>
 </lcgdict>
 
