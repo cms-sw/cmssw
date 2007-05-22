@@ -24,6 +24,13 @@ then
     source ./reco_setup.rc
 fi
 
+if (( ${#DOCALIB} > 1 ))
+then
+    UNPACKCALIB=true
+else
+    UNPACKCALIB=false
+fi
+
 # ARG1 determines the file selection mode
 #
 if [[ "${ARG1}" == *[[:alpha:]]* ]]
@@ -99,7 +106,7 @@ cat >> ${CFGFILE}<<EOF
     module hcaldigi = HcalRawToDigi {
 	int32 firstSample = 0
 	int32 lastSample = 9
-	untracked bool UnpackCalib = false
+	untracked bool UnpackCalib = ${UNPACKCALIB}
 	bool FilterDataQuality = true
 	untracked int32 HcalFirstFED = ${FIRSTFED}
 	untracked vint32 FEDs = { ${FEDS} }
@@ -177,7 +184,7 @@ cat >> ${CFGFILE}<<EOF
 	 module hcaldigi = HcalRawToDigi {
 	     int32 firstSample = 0
 	     int32 lastSample = 9
-	     untracked bool UnpackCalib = false
+	     untracked bool UnpackCalib = ${UNPACKCALIB}
 	     bool FilterDataQuality = true
 	     untracked int32 HcalFirstFED = ${FIRSTFED}
 	     untracked vint32 FEDs = { ${FEDS} }
@@ -214,7 +221,7 @@ cat >> ${CFGFILE}<<EOF
     module hcaldigi = HcalRawToDigi {
 	int32 firstSample = 0
 	int32 lastSample = 9
-	untracked bool UnpackCalib = false
+	untracked bool UnpackCalib = ${UNPACKCALIB}
 	bool FilterDataQuality = true
 	// untracked int32 HcalFirstFED = ${FIRSTFED} # use default!
 	untracked vint32 FEDs = {}
@@ -291,6 +298,9 @@ cat >> ${CFGFILE}<<EOF99
      untracked InputTag hcalDigiTag = hcaldigi
      untracked InputTag hcalTrigTag = tbunpacker
      untracked string outputFilename = "${OUTPUTFILE}"
+     untracked bool     doCalib   = ${UNPACKCALIB} // false is the default
+
+//   untracked double calibFC2GeV = 0.2   // 0.2 is the default
 
      PSet HistoParameters = 
      {
