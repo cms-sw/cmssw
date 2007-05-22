@@ -17,13 +17,13 @@ void plot_HE(TString  inputfile="HE_ref.root",
   TTree * tree = dynamic_cast<TTree*>(myf->Get("Events"));
   assert(tree != 0);
 
-  TBranch * branchLayer = tree->GetBranch("PHcalValidInfoLayer_g4SimHits__CaloTest.obj");
+  TBranch * branchLayer = tree->GetBranch("PHcalValidInfoLayer_g4SimHits_HcalInfoLayer_CaloTest.obj");
   assert(branchLayer != 0);
 
-  TBranch * branchNxN = tree->GetBranch("PHcalValidInfoNxN_g4SimHits__CaloTest.obj");
+  TBranch * branchNxN = tree->GetBranch("PHcalValidInfoNxN_g4SimHits_HcalInfoNxN_CaloTest.obj");
   assert(branchNxN != 0);
 
-  TBranch * branchJets = tree->GetBranch( "PHcalValidInfoJets_g4SimHits__CaloTest.obj");  assert(branchJets != 0);
+  TBranch * branchJets = tree->GetBranch( "PHcalValidInfoJets_g4SimHits_HcalInfoJets_CaloTest.obj");  assert(branchJets != 0);
 
   // Just number of entries (same for all branches)
   int  nent = branchLayer->GetEntries();

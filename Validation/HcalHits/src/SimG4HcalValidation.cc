@@ -50,10 +50,13 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p):
   eta0          = m_Anal.getParameter<double>("Eta0");
   phi0          = m_Anal.getParameter<double>("Phi0");
   names         = m_Anal.getParameter<std::vector<std::string> >("Names");
+  labelLayer    = m_Anal.getUntrackedParameter<std::string>("LabelLayerInfo","HcalInfoLayer");
+  labelNxN      = m_Anal.getUntrackedParameter<std::string>("LabelNxNInfo","HcalInfoNxN");
+  labelJets     = m_Anal.getUntrackedParameter<std::string>("LabelJetsInfo","HcalInfoJets");
 
-  produces<PHcalValidInfoLayer>();
-  if (infolevel > 0) produces<PHcalValidInfoNxN>();
-  if (infolevel > 1) produces<PHcalValidInfoJets>();
+  produces<PHcalValidInfoLayer>(labelLayer);
+  if (infolevel > 0) produces<PHcalValidInfoNxN>(labelNxN);
+  if (infolevel > 1) produces<PHcalValidInfoJets>(labelJets);
 
   edm::LogInfo("ValidHcal") << "HcalTestAnalysis:: Initialised as observer of "
 			    << "begin/end events and of G4step with Parameter "
@@ -66,7 +69,10 @@ SimG4HcalValidation::SimG4HcalValidation(const edm::ParameterSet &p):
 			    << "\n\tttimeLowlim   = " << timeLowlim
 			    << "\n\tttimeUplim    = " << timeUplim
 			    << "\n\teta0          = " << eta0
-			    << "\n\tphi0          = " << phi0;
+			    << "\n\tphi0          = " << phi0
+			    << "\nLabels (Layer): " << labelLayer
+			    << " (NxN): " << labelNxN << " (Jets): "
+			    << labelJets;
 
   init();
 } 
@@ -93,18 +99,18 @@ void SimG4HcalValidation::produce(edm::Event& e, const edm::EventSetup&) {
 
   std::auto_ptr<PHcalValidInfoLayer> productLayer(new PHcalValidInfoLayer);
   layerAnalysis(*productLayer);
-  e.put(productLayer);
+  e.put(productLayer,labelLayer);
 
   if (infolevel > 0) {
     std::auto_ptr<PHcalValidInfoNxN> productNxN(new PHcalValidInfoNxN);
     nxNAnalysis(*productNxN);
-    e.put(productNxN);
+    e.put(productNxN,labelNxN);
   }
 
   if (infolevel > 1) {
     std::auto_ptr<PHcalValidInfoJets> productJets(new PHcalValidInfoJets);
     jetAnalysis(*productJets);
-    e.put(productJets);
+    e.put(productJets,labelJets);
   }
 }
 

@@ -95,6 +95,7 @@ private:
   float                     timeLowlim, timeUplim, eta0, phi0, jetThreshold; 
   bool                      applySampling, hcalOnly;
   int                       infolevel;
+  std::string               labelLayer, labelNxN, labelJets;
 
   // eta and phi size of windows around eta0, phi0
   std::vector<double>       dEta;
