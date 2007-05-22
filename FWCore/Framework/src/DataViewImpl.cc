@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.16 2007/05/10 12:27:03 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.17 2007/05/10 22:46:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -13,6 +13,7 @@ $Id: DataViewImpl.cc,v 1.16 2007/05/10 12:27:03 wmtan Exp $
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Framework/interface/Selector.h"
 
 using namespace std;
 
@@ -131,6 +132,22 @@ namespace edm {
                                     results,
                                     stopIfProcessHasMatch);
   }
+
+  int 
+  DataViewImpl::getMatchingSequenceByLabel_(TypeID const& typeID,
+                                            std::string const& label,
+                                            std::string const& productInstanceName,
+                                            BasicHandleVec& results,
+                                            bool stopIfProcessHasMatch) const
+{
+  edm::Selector sel(edm::ModuleLabelSelector(label) &&
+                    edm::ProductInstanceNameSelector(productInstanceName));
+  
+  return dbk_.getMatchingSequence(typeID,
+                                  sel,
+                                  results,
+                                  stopIfProcessHasMatch);
+}
 
   Provenance const&
   DataViewImpl::getProvenance(ProductID const& oid) const

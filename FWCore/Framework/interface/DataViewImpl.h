@@ -81,7 +81,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.24 2007/05/10 22:46:55 wmtan Exp $
+$Id: DataViewImpl.h,v 1.25 2007/05/16 22:32:01 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
@@ -106,7 +106,6 @@ $Id: DataViewImpl.h,v 1.24 2007/05/10 22:46:55 wmtan Exp $
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
 #include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -116,6 +115,7 @@ $Id: DataViewImpl.h,v 1.24 2007/05/10 22:46:55 wmtan Exp $
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
+  class SelectorBase;
 
   class DataViewImpl {
   public:
@@ -266,6 +266,13 @@ namespace edm {
                          BasicHandleVec& results,
                          bool stopIfProcessHasMatch) const;
 
+    int 
+    getMatchingSequenceByLabel_(TypeID const& typeID,
+                                std::string const& label,
+                                std::string const& productInstanceName,
+                                BasicHandleVec& results,
+                                bool stopIfProcessHasMatch) const;
+    
     template <typename ELEMENT>
     void
     fillView_(BasicHandle & bh,
@@ -533,14 +540,12 @@ namespace edm {
 
     TypeID typeID(typeid(ELEMENT));
 
-    edm::Selector sel(edm::ModuleLabelSelector(moduleLabel) &&
-                      edm::ProductInstanceNameSelector(productInstanceName));
-
     BasicHandleVec bhv;
-    int nFound = getMatchingSequence_(typeID, 
-			              sel,
-                                      bhv,
-                                      true);
+    int nFound = getMatchingSequenceByLabel_(typeID,
+                                             moduleLabel,
+                                             productInstanceName,
+                                             bhv,
+                                             true);
 
     if (nFound == 0) {
       throw edm::Exception(edm::errors::ProductNotFound)
