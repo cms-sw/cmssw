@@ -107,18 +107,18 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   for ( std::vector<TrajectorySeed>::const_iterator iSeed= theSeeds_.begin(); iSeed != theSeeds_.end(); ++iSeed) {
     nSeed++;
     PTrajectoryStateOnDet  ptsod=iSeed->startingState();
-    std::cout << nSeed << ")  Direction " << iSeed->direction() << " Num of hits " << iSeed->nHits() <<  " starting state position " << ptsod.parameters().position() << " R " << ptsod.parameters().position().perp() << " phi " << ptsod.parameters().position().phi() << " eta " << ptsod.parameters().position().eta() << "\n" ;
+    LogDebug("OutInConversionSeedFinder") << nSeed << ")  Direction " << iSeed->direction() << " Num of hits " << iSeed->nHits() <<  " starting state position " << ptsod.parameters().position() << " R " << ptsod.parameters().position().perp() << " phi " << ptsod.parameters().position().phi() << " eta " << ptsod.parameters().position().eta() << "\n" ;
     
     
     DetId tmpId = DetId( iSeed->startingState().detId());
     const GeomDet* tmpDet  = this->getMeasurementTracker()->geomTracker()->idToDet( tmpId );
     GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
     
-    std::cout << "seed perp,phi,eta : " 
-	      << gv.perp() << " , " 
-	      << gv.phi() << " , " 
-	      << gv.eta() << "\n" ; ;
-
+    LogDebug("OutInConversionSeedFinder") << "seed perp,phi,eta : " 
+					  << gv.perp() << " , " 
+					  << gv.phi() << " , " 
+					  << gv.eta() << "\n" ; ;
+    
 
 
 
@@ -127,7 +127,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
    
       if ( ihit->isValid() ) {
 
-	std::cout << " Valid hit global position " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()) << " R " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).perp() << " phi " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).phi() << " eta " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).eta() <<    "\n" ;
+	LogDebug("OutInConversionSeedFinder") << " Valid hit global position " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()) << " R " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).perp() << " phi " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).phi() << " eta " << this->getMeasurementTracker()->geomTracker()->idToDet((ihit)->geographicalId())->surface().toGlobal((ihit)->localPosition()).eta() <<    "\n" ;
 
       }
     }
