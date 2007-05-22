@@ -95,6 +95,10 @@ void SiLinearChargeDivider::fluctuateEloss(int pid, float particleMomentum,
       particleMass = particle->mass()*1000; // Mass in MeV
     }
 
+  //This is a temporary fix for protect from particles with Mass = 0
+  if(fabs(particleMass)<1.e-6|| pid == 22)
+    particleMass = 139.57;
+
   float segmentLength = length/NumberOfSegs;
 
   // Generate charge fluctuations.
