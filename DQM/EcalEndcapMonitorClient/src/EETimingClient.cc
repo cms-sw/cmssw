@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/05/14 13:45:48 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/22 14:23:38 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -470,7 +470,7 @@ void EETimingClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;

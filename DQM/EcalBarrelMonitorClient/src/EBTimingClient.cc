@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2007/05/12 11:41:59 $
- * $Revision: 1.25 $
+ * $Date: 2007/05/22 13:57:55 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  *
 */
@@ -484,7 +484,7 @@ void EBTimingClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;

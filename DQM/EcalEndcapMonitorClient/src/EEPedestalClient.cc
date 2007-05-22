@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2007/05/22 09:53:49 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/22 14:23:38 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1117,7 +1117,7 @@ void EEPedestalClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1189,7 +1189,7 @@ void EEPedestalClient::analyze(void){
 
           EcalLogicID ecid = m->first;
 
-          if ( ecid.getID1() == ism && ecid.getID2() == i-1 ) {
+          if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == i-1 ) {
             if ( (m->second).getErrorBits() & bits01 ) {
               if ( meg04_[ism-1] ) {
                 float val = int(meg04_[ism-1]->getBinContent(i, 1)) % 3;

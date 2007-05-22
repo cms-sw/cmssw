@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/05/22 09:53:48 $
- * $Revision: 1.148 $
+ * $Date: 2007/05/22 13:57:54 $
+ * $Revision: 1.149 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1328,7 +1328,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = (ip-1) + 20*(ie-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1350,7 +1350,7 @@ void EBIntegrityClient::analyze(void){
             int ipt = 1 + ((ip-1)/5);
             int itt = (ipt-1) + 4*(iet-1) + 1;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg01_[ism-1] ) {
                   float val = int(meg01_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1457,7 +1457,7 @@ void EBIntegrityClient::analyze(void){
 
             int ic = EBIntegrityClient::chNum[ (ie-1)%5 ][ (ip-1) ] + (ie-1)/5 * 25;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == ic ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == ic ) {
               if ( (m->second).getErrorBits() & bits01 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
@@ -1477,7 +1477,7 @@ void EBIntegrityClient::analyze(void){
             int iet = 1 + ((ie-1)/5);
             int itt = 68 + iet;
 
-            if ( ecid.getID1() == ism && ecid.getID2() == itt ) {
+            if ( ecid.getID1() == Numbers::iSM(ism) && ecid.getID2() == itt ) {
               if ( (m->second).getErrorBits() & bits02 ) {
                 if ( meg02_[ism-1] ) {
                   float val = int(meg02_[ism-1]->getBinContent(ie, ip)) % 3;
