@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2007/05/02 09:10:57 $
- * $Revision: 1.46 $
+ * $Date: 2007/05/14 18:21:25 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -32,6 +32,7 @@
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBBeamCaloClient.h>
 
@@ -316,7 +317,7 @@ bool EBBeamCaloClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset[ecid] = o;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/05/12 11:41:58 $
- * $Revision: 1.146 $
+ * $Date: 2007/05/14 18:21:25 $
+ * $Revision: 1.147 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -482,7 +482,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1[ecid] = c1;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -567,7 +567,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_trigger_tower", ism, itt);
+            ecid = LogicID::getEcalLogicID("EB_trigger_tower", Numbers::iSM(ism), itt);
             dataset2[ecid] = c2;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -644,7 +644,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_mem_channel", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_mem_channel", Numbers::iSM(ism), ic);
             dataset3[ecid] = c3;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -728,7 +728,7 @@ bool EBIntegrityClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonR
 
       if ( econn ) {
         try {
-          ecid = LogicID::getEcalLogicID("EB_mem_TT", ism, itt);
+          ecid = LogicID::getEcalLogicID("EB_mem_TT", Numbers::iSM(ism), itt);
           dataset4[ecid] = c4;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;

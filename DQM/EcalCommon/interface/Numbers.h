@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.4 2007/05/21 08:29:43 benigno Exp $
+// $Id: Numbers.h,v 1.5 2007/05/21 09:06:20 benigno Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.4 $
-  \date $Date: 2007/05/21 08:29:43 $
+  \version $Revision: 1.5 $
+  \date $Date: 2007/05/21 09:06:20 $
 */
 
 #ifndef Numbers_H
@@ -31,6 +31,8 @@ class Numbers {
   static int         iEE( int ism ) throw( std::runtime_error );
 
   static std::string sEE( int ism ) throw( std::runtime_error );
+
+  static int         iSM( int ism ) throw( std::runtime_error );
 
   static int         iSM( const EBDetId&               id );
 

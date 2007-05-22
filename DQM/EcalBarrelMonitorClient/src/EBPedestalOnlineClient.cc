@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalOnlineClient.cc
  *
- * $Date: 2007/05/12 11:41:58 $
- * $Revision: 1.87 $
+ * $Date: 2007/05/14 18:21:26 $
+ * $Revision: 1.88 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -308,7 +308,7 @@ bool EBPedestalOnlineClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov,
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;

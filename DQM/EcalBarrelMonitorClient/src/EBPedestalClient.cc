@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/05/12 11:41:58 $
- * $Revision: 1.138 $
+ * $Date: 2007/05/14 18:21:26 $
+ * $Revision: 1.139 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -576,7 +576,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
         if ( econn ) {
           try {
-            ecid = LogicID::getEcalLogicID("EB_crystal_number", ism, ic);
+            ecid = LogicID::getEcalLogicID("EB_crystal_number", Numbers::iSM(ism), ic);
             dataset1[ecid] = p;
           } catch (runtime_error &e) {
             cerr << e.what() << endl;
@@ -644,7 +644,7 @@ bool EBPedestalClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRu
 
       if ( econn ) {
         try {
-          ecid = LogicID::getEcalLogicID("EB_LM_PN", ism, i-1);
+          ecid = LogicID::getEcalLogicID("EB_LM_PN", Numbers::iSM(ism), i-1);
           dataset2[ecid] = pn;
         } catch (runtime_error &e) {
           cerr << e.what() << endl;

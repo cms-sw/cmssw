@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.5 2007/05/21 09:06:20 benigno Exp $
+// $Id: Numbers.cc,v 1.6 2007/05/21 09:57:45 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/05/21 09:06:20 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/05/21 09:57:45 $
 */
 
 #include <sstream>
@@ -84,6 +84,20 @@ std::string Numbers::sEE( int ism  ) throw( std::runtime_error ) {
     return( "" );
   }
   
+}
+
+//-------------------------------------------------------------------------
+
+int Numbers::iSM( int ism ) throw( std::runtime_error ) {
+  if( ism < 1 || ism > 36 ) {
+    std::ostringstream s;
+    s << "Wrong SM id determination: iSM = " << ism;
+    throw( std::runtime_error( s.str() ) );
+    return( -999 );
+  }
+
+  //return( ism < 19 ? ism+18 : ism-18 );
+  return( ism );
 }
 
 //-------------------------------------------------------------------------
