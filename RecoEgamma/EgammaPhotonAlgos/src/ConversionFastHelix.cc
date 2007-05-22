@@ -114,7 +114,7 @@ FreeTrajectoryState ConversionFastHelix::helixStateAtVertex()  {
     
     //std::cout << " ConversionFastHelix:helixStateAtVertex  flfit.n2() " <<  flfit.n2() << " flfit.c() " << flfit.c() << " flfit.n2() " << flfit.n2() << std::endl;
     if ( flfit.n2() !=0 && !isnan( flfit.c()) && !isnan(flfit.n2())   ) {
-      std::cout << " Accepted " << std::endl;
+      //  std::cout << " Accepted " << std::endl;
       z_0 = -flfit.c()/flfit.n2();
       double dzdrphi = -flfit.n1()/flfit.n2();
       double pz = pt*dzdrphi;
