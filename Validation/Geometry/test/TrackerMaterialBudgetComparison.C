@@ -346,6 +346,10 @@ void createPlots(TString plot) {
     }
     }
     
+    // Ratio
+    TH1D* histo_ratio = new TH1D(*histo_new);
+    //
+    
     // canvas
     can_comparison.cd();
     can_comparison.cd(i_category);
@@ -393,7 +397,6 @@ void createPlots(TString plot) {
     can_ratio.cd(i_category);
     //
     // Compare
-    TH1D* histo_ratio = new TH1D(*histo_new);
     histo_ratio->Divide(histo_old);
     histo_ratio->SetMarkerColor(4);   // blue
     histo_ratio->SetLineColor(102);   // dark red
