@@ -56,20 +56,15 @@ NuclearInteractionFinder::~NuclearInteractionFinder() {
 }
 
 //----------------------------------------------------------------------
-std::vector<std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> > > NuclearInteractionFinder::run(const TrajectoryContainer& vTraj) const {
+bool  NuclearInteractionFinder::run(const Trajectory& traj, std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& result) const {
 
-    int ite=0;
-    std::vector<std::pair<TM, std::vector<TM> > > result;
+        nuclTester->reset();
 
-    // Loop on all trajectories
-    for (TrajectoryContainer::const_iterator traj=vTraj.begin();
-         traj!=vTraj.end(); traj++, ite++) {
+        if(traj.empty() || !traj.isValid()) return false;
 
-        if(traj->empty() || !traj->isValid()) break;
+        std::vector<TrajectoryMeasurement> measurements = traj.measurements();
 
-        std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-
-        if(traj->direction()==alongMomentum)  {
+        if(traj.direction()==alongMomentum)  {
                 LogDebug("NuclearInteractionFinder") << "NEW TRACK with direction along the momentum\n";
                 std::reverse(measurements.begin(), measurements.end());
         }
@@ -81,14 +76,12 @@ std::vector<std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> 
         std::vector<double> ncompatibleHits;
         bool NIfound = false;
 
-        nuclTester->reset();
-
         // Loop on all the RecHits. 
         while(!NIfound)
          {
            if(it_meas == measurements.end()) break;
 
-           nuclTester->push_back(findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
+           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
            LogDebug("NuclearInteractionFinder") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanEstimate() << "\n";
@@ -102,12 +95,11 @@ std::vector<std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> 
         }
         if(NIfound) {
             LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
-            TM nuclearTM = *(measurements.begin()+nuclTester->nuclearIndex()-1);
-            result.push_back(std::make_pair( nuclearTM,  findCompatibleMeasurements(nuclearTM, rescaleErrorFactor )));
+            result = nuclTester->goodTMPair();
+            return true;
         }
 
-    }
-    return result;
+    return false;
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>

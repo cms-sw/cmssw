@@ -1,6 +1,16 @@
 #ifndef CD_NuclearInteractionFinder_H_
 #define CD_NuclearInteractionFinder_H_
 
+//----------------------------------------------------------------------------
+//! \class NuclearInteractionFinder
+//! \brief Class used to obtain vector of all compatible TMs associated to a trajectory to be used by the NuclearTester.
+//! 
+//!
+//! \description The method run gets all compatible TMs of all TMs associated of a trajectory. 
+//! Then it uses the NuclearTester class to decide whether the trajectory has interacted nuclearly or not.
+//! It finally returns a pair of the TM where the nuclear interaction occurs and all compatible TMs associated.
+//-----------------------------------------------------------------------------
+
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -37,7 +47,7 @@ public:
   NuclearInteractionFinder(){}
   NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
   virtual ~NuclearInteractionFinder();
-  std::vector<std::pair< TM, std::vector<TM> > > run(const TrajectoryContainer& vTraj) const;
+  bool  run(const Trajectory& traj, std::pair< TM, std::vector<TM> >& result) const;
   std::vector<TrajectoryMeasurement>
          findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
   std::vector<TrajectoryMeasurement>

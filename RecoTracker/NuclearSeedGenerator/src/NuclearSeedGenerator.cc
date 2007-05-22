@@ -51,14 +51,14 @@ NuclearSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // Run the nuclear finder algorithm
    theNuclearInteractionFinder->setEvent(iEvent);
 
-   std::vector<std::pair<TM, std::vector<TM> > >  tmPairs;
-   if(!m_TrajectoryCollection->empty())
-          tmPairs = theNuclearInteractionFinder->run( *(m_TrajectoryCollection.product())  );
+   for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++) {
 
-   LogDebug("NuclearSeedGenerator") << "Size of the vector of pairs: " << tmPairs.size() << "\n";
-   for(std::vector<std::pair<TM, std::vector<TM> > >::const_iterator itp = tmPairs.begin(); itp!=tmPairs.end(); itp++) {
-         const TM& innerHit = itp->first;
-         const std::vector<TM>& outerHits = itp->second;
+         std::pair<TM, std::vector<TM> > tmPairs; 
+         if( !theNuclearInteractionFinder->run( *iTraj, tmPairs ) ) continue;
+
+         const TM& innerHit = tmPairs.first;
+         const std::vector<TM>& outerHits = tmPairs.second;
+
          LogDebug("NuclearSeedGenerator") << "Size of the vector of outer hits : " << outerHits.size() << "\n";
          for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
                if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
