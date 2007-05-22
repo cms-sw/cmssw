@@ -242,6 +242,10 @@ void L1GctJetFinderBase::sortJets()
   //transform the jets to the final GCT output format
   for (unsigned j=0; j<MAX_JETS_OUT; ++j) {
     m_sortedJets.at(j) = m_outputJets.at(j).jetCand(m_jetEtCalLut);
+    if (!m_outputJets.at(j).isNullJet()) {
+      std::cout << "!!!sortJets!!!  non-zero jet found with energy sum " << m_outputJets.at(j).rawsum() 
+                << " rank is " << m_outputJets.at(j).rank(m_jetEtCalLut)
+                << " Et is " << m_outputJets.at(j).calibratedEt(m_jetEtCalLut) << std::endl; }
   }
   //presort the jets into descending order of energy
   sort(m_sortedJets.begin(), m_sortedJets.end(), rankGreaterThan());
