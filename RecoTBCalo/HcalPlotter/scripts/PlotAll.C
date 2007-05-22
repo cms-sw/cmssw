@@ -3,6 +3,7 @@ void PlotAll() {
 
   gROOT->ProcessLine(".L HistoManager.cc+");
   gROOT->ProcessLine(".L HcalVisualSelector.C+");
+  gROOT->ProcessLine(".L HcalElectronicsSelector.C+");
   gROOT->ProcessLine(".L PlotAllDisplay.C+");
   gROOT->ProcessLine(".L PlotAllMenu.C+");
   // Popup the GUI...
