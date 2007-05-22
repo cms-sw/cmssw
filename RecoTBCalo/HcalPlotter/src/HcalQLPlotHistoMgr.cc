@@ -44,9 +44,54 @@ std::string HcalQLPlotHistoMgr::nameForEvent(EventType et) {
 
 TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
 				       const HcalElectronicsId& eid,
-				       HistType ht, EventType et) {
-
+				       HistType ht, EventType et)
+{
   std::string flavor=nameForFlavor(ht);
+
+  char name[120];
+
+  std::string subdetStr;
+  switch (id.subdet()) {
+  case (HcalBarrel)  : subdetStr="HB"; break;
+  case (HcalEndcap)  : subdetStr="HE"; break;
+  case (HcalOuter)   : subdetStr="HO"; break;
+  case (HcalForward) : subdetStr="HF"; break;
+  default: subdetStr="Other"; break;
+  }
+
+  sprintf(name,"%s_%s_%d_%d_%d_eid=%d_%d_%d_%d_HTR_%d:%d%c",
+	  flavor.c_str(),subdetStr.c_str(),id.ieta(),id.iphi(),id.depth(),
+	  eid.dccid(),eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+	  eid.readoutVMECrateId(), eid.htrSlot(),(eid.htrTopBottom()==1)?('t'):('b') );
+
+  return GetAHistogramImpl(name,ht,et);
+}
+
+TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalCalibDetId& id,
+				       const HcalElectronicsId& eid,
+				       HistType ht, EventType et)
+{
+  std::string flavor=nameForFlavor(ht);
+
+  char name[120];
+
+  std::string chanstring = id.cboxChannelString();
+  if (!chanstring.size()) {
+    chanstring = "Unknown";
+    edm::LogInfo("HcalQLPlotHistoMgr::GetAHistogram") << "Unknown calibration channel " << id.cboxChannel();
+  }
+
+  sprintf(name,"%s_CALIB_%s_rbx=%d_chan=%s_eid=%d_%d_%d_%d_HTR_%d:%d%c",
+	  flavor.c_str(),id.sectorString().c_str(),id.rbx(),chanstring.c_str(),
+	  eid.dccid(),eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
+	  eid.readoutVMECrateId(), eid.htrSlot(),(eid.htrTopBottom()==1)?('t'):('b') );
+
+  return GetAHistogramImpl(name,ht,et);
+}
+
+TH1* HcalQLPlotHistoMgr::GetAHistogramImpl(const char *name,
+					   HistType ht, EventType et)
+{
   TDirectory* td;
 
   switch (et) {
@@ -63,22 +108,7 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
     return 0;
   }
 
-  char name[120];
-
-  std::string subdetStr;
-  switch (id.subdet()) {
-  case (HcalBarrel) : subdetStr="HB"; break;
-  case (HcalEndcap) : subdetStr="HE"; break;
-  case (HcalOuter) : subdetStr="HO"; break;
-  case (HcalForward) : subdetStr="HF"; break;
-  default: subdetStr="Other"; break;
-  }
-
   TH1* retval=0;
-  sprintf(name,"%s_%s_%d_%d_%d_eid=%d_%d_%d_%d_HTR_%d:%d%c",
-	  flavor.c_str(),subdetStr.c_str(),id.ieta(),id.iphi(),id.depth(),
-	  eid.dccid(),eid.spigot(), eid.fiberIndex(), eid.fiberChanId(),
-	  eid.readoutVMECrateId(), eid.htrSlot(),(eid.htrTopBottom()==1)?('t'):('b') );
 
   retval=(TH1*)td->Get(name);
   int bins=0; double lo=0, hi=0;
@@ -117,7 +147,7 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
 	  lo=histoParams_.getParameter<double>("laserGeVlo");
 	  hi=histoParams_.getParameter<double>("laserGeVhi");
         } catch (std::exception& e) { // can't find it!
-	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) pedGeVlo/hi not found.";
+	  edm::LogError("HcalQLPlotHistoMgr::GetAHistogram") << "Parameter(s) laserGeVlo/hi not found.";
 	  throw e;
 	}
 	break;
@@ -193,52 +223,5 @@ TH1* HcalQLPlotHistoMgr::GetAHistogram(const HcalDetId& id,
     } 
   }
 
-  
   return retval;
 }
-
-
-std::vector<HcalDetId> HcalQLPlotHistoMgr::getDetIdsForType(HistType ht, EventType et) {
-  char keyflavor[100];
-  char keysubDet[100];
-  int ieta, iphi, depth;
-  TDirectory* td;
-  TList* keyList;
-  std::vector<HcalDetId> retvals;
-
-  std::string flavor=nameForFlavor(ht);
-
-  switch (et) {
-  case(PEDESTAL): td=pedHistDir; break;
-  case(LED): td=ledHistDir; break;
-  case(LASER): td=laserHistDir; break;
-  case(BEAM): td=beamHistDir; break;
-  case(UNKNOWN): td=otherHistDir; break;
-  default: td=0; break;
-  }
-
-  keyList = td->GetListOfKeys();
-  
-  for(int keyindex = 0; keyindex<keyList->GetEntries(); ++keyindex) {
-    int converted;
-    std::string keyname = keyList->At(keyindex)->GetName();
-    while (keyname.find("_")!=std::string::npos)
-      keyname.replace(keyname.find("_"),1," ");
-    converted = sscanf(keyname.c_str(),"%s %s %d %d %d",
-		       keyflavor,keysubDet,&ieta,&iphi,&depth);
-    if( (flavor==keyflavor) && (converted==5) ) {
-      HcalSubdetector subDet;
-
-      if (!strcmp(keysubDet,"HB")) subDet=HcalBarrel;
-      else if (!strcmp(keysubDet,"HE")) subDet=HcalEndcap;
-      else if (!strcmp(keysubDet,"HO")) subDet=HcalOuter;
-      else if (!strcmp(keysubDet,"HF")) subDet=HcalForward;
-      else continue; // and do not include this in the list!
-
-      retvals.push_back(HcalDetId(subDet,ieta,iphi,depth));
-    }
-  }
-
-  return retvals;
-}
-

@@ -52,6 +52,8 @@ class HcalQLPlotAnal : public edm::EDAnalyzer {
       // ----------member data ---------------------------
   edm::InputTag hbheRHLabel_,hoRHLabel_,hfRHLabel_;
   edm::InputTag hcalDigiLabel_, hcalTrigLabel_;
+  bool doCalib_;
+  double calibFC2GeV_;
   HcalQLPlotAnalAlgos * algo_;
 
 };
@@ -72,7 +74,9 @@ HcalQLPlotAnal::HcalQLPlotAnal(const edm::ParameterSet& iConfig) :
   hoRHLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hoRHtag")),
   hfRHLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hfRHtag")),
   hcalDigiLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hcalDigiTag")),
-  hcalTrigLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hcalTrigTag"))
+  hcalTrigLabel_(iConfig.getUntrackedParameter<edm::InputTag>("hcalTrigTag")),
+  doCalib_(iConfig.getUntrackedParameter<bool>("doCalib",false)),
+  calibFC2GeV_(iConfig.getUntrackedParameter<double>("calibFC2GeV",0.2))
 {
   algo_ = new
     HcalQLPlotAnalAlgos(iConfig.getUntrackedParameter<std::string>("outputFilename").c_str(),
@@ -130,6 +134,17 @@ HcalQLPlotAnal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     algo_->processRH(*hfrh,*hfdg);
   } catch (std::exception& e) { // can't find it!
     edm::LogWarning("HcalQLPlotAnal::analyze") << "One of HF Digis/RecHits not found";
+  }
+
+  if (doCalib_) {
+    try {
+      // No rechits as of yet...
+      edm::Handle<HcalCalibDigiCollection> calibdg;
+      iEvent.getByLabel(hcalDigiLabel_,calibdg);
+      algo_->processDigi(*calibdg,calibFC2GeV_);
+    } catch (std::exception& e) { // can't find it!
+      edm::LogWarning("HcalQLPlotAnal::analyze") << "Hcal Calib Digis not found";
+    }
   }
 
 }
