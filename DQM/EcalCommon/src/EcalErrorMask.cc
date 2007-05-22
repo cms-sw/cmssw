@@ -1,17 +1,19 @@
-// $Id: EcalErrorMask.cc,v 1.3 2007/05/02 16:41:16 dellaric Exp $
+// $Id: EcalErrorMask.cc,v 1.4 2007/05/03 08:19:14 dellaric Exp $
 
 /*!
   \file EcalErrorMask.cc
   \brief Error mask from text file or database
   \author B. Gobbo
-  \version $Revision: 1.3 $
-  \date $Date: 2007/05/02 16:41:16 $
+  \version $Revision: 1.4 $
+  \date $Date: 2007/05/03 08:19:14 $
 */
 
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 #include <regex.h>
 #include <CondTools/Ecal/interface/EcalErrorDictionary.h>
 
@@ -75,7 +77,18 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
     if( verbose ) std::cout << is.str() << std::endl;
 
-    int sm; is >> sm;
+    // get SM number (1...36 or EB+1...EB-18)
+    is >> s;
+    int sm;
+    if( s.substr( 0, 2 ) == "EB" ) {
+      sm = atoi( s.substr(2, s.size()-2).c_str() );
+      sm = (sm>0) ? sm : 18-sm;
+    }
+    else {
+      sm = atoi( s.c_str() );
+    }
+
+    //int sm; is >> sm;
     if( sm < 1 || sm > 36 ) {
       std::ostringstream os;
       os << "line " << linecount << " --> SM must be a number between 1 and 36: " << sm << std::ends;
@@ -386,6 +399,22 @@ void EcalErrorMask::readFile( std::string inFile, bool verbose, bool verifySynta
 
 //---------------------------------------------------------------------------------------------
 
+std::string EcalErrorMask::sEB( int sm ) {
+  if( sm > 18 ) sm = 18-sm;
+  std::ostringstream s;
+  s << "EB" << std::setw(3) << std::setfill('0')
+    << std::setiosflags( std::ios::showpos )
+    << std::setiosflags( std::ios::internal )
+    << sm
+    << std::resetiosflags( std::ios::showpos )
+    << std::resetiosflags( std::ios::internal )
+    << std::ends;
+  return( s.str() );
+
+}
+
+//---------------------------------------------------------------------------------------------
+
 void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error ) {
 
   std::ifstream inf( outFile.c_str() );
@@ -425,7 +454,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+      f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -438,7 +467,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << sm << " " << it << " " << errors[j].shortDesc << std::endl;
+      f << type << " " << EcalErrorMask::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -451,7 +480,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+      f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -464,7 +493,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << sm << " " << ic << " " << errors[j].shortDesc << std::endl;
+      f << type << " " << EcalErrorMask::sEB(sm) << " " << ic << " " << errors[j].shortDesc << std::endl;
     }
   }
 
@@ -477,7 +506,7 @@ void EcalErrorMask::writeFile( std::string outFile ) throw( std::runtime_error )
     std::vector<EcalErrorDictionary::errorDef_t> errors;
     EcalErrorDictionary::getErrors( errors, (i->second).getErrorBits() );
     for( unsigned int j=0; j<errors.size(); j++ ) {
-      f << type << " " << sm << " " << it << " " << errors[j].shortDesc << std::endl;
+      f << type << " " << EcalErrorMask::sEB(sm) << " " << it << " " << errors[j].shortDesc << std::endl;
     }
   }
 
