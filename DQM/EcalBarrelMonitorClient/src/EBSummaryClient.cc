@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/18 10:54:13 $
- * $Revision: 1.28 $
+ * $Date: 2007/05/22 13:57:55 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  *
 */
@@ -422,6 +422,15 @@ void EBSummaryClient::analyze(void){
 
           }
 
+	  // fill the gain value priority map<id,priority>
+	  std::map<float,float> priority;
+	  priority.insert( make_pair(0,3) );
+	  priority.insert( make_pair(1,1) );
+	  priority.insert( make_pair(2,2) );
+	  priority.insert( make_pair(3,2) );
+	  priority.insert( make_pair(4,3) );
+	  priority.insert( make_pair(5,1) );
+
 	  if ( ebpc ) {
 	    
 	    me_01 = ebpc->meg01_[ism-1];
@@ -430,27 +439,32 @@ void EBSummaryClient::analyze(void){
 	    
 	    if (me_01 && me_02 && me_03 ) {
 	      float xval=2;
-	      // same values: take it
-	      if((me_01->getBinContent(ie,ip)==me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)==me_03->getBinContent(ie,ip))  ) xval=me_01->getBinContent(ie,ip);
-	      else if(std::min(std::min(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip) )==0) xval=0; // red wins against all
-	      else {
-		// count number of masked gains
-		int nMasked=0;
-		if(me_01->getBinContent(ie,ip)>2) nMasked++;
-		if(me_02->getBinContent(ie,ip)>2) nMasked++;
-		if(me_03->getBinContent(ie,ip)>2) nMasked++;
-		if(nMasked==3) {
-		  // here wins the best quality to trigger that a known problem is solved (except vrg->g: be conservative), else the yellow wins
-		  if( (me_01->getBinContent(ie,ip)!=me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) && (me_02->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) ) xval=5.;
-		  else if(me_01->getBinContent(ie,ip)==4. || me_02->getBinContent(ie,ip)==4. || me_03->getBinContent(ie,ip)==4.) xval=4.;
-		  else xval = std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)),me_03->getBinContent(ie,ip) );
-		}
-		else {
-		  // the channel is dark, the color decided by the worst (r->y->g)
-		  xval=std::min(std::min((int)me_01->getBinContent(ie,ip)%3,(int)me_02->getBinContent(ie,ip)%3), (int)me_03->getBinContent(ie,ip)%3) + 3;
-		}
-	      }
+	      float val_01=me_01->getBinContent(ie,ip);
+	      float val_02=me_02->getBinContent(ie,ip);
+	      float val_03=me_03->getBinContent(ie,ip);
+
+	      std::vector<float> maskedVal, unmaskedVal;
+	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
 	      
+	      float brightColor=-1, darkColor=-1;
+	      float maxPriority=-1;
+	      std::vector<float>::const_iterator Val;
+	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+		if(priority[*Val]>maxPriority) brightColor=*Val;
+	      }
+	      maxPriority=-1;
+	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+		if(priority[*Val]>maxPriority) darkColor=*Val;
+	      }
+	      if(unmaskedVal.size()==3)  xval = brightColor;
+	      else if(maskedVal.size()==3)  xval = darkColor;
+	      else {
+		if(brightColor==1 && darkColor==5) xval = 5;
+		else xval = brightColor;
+	      }
+
               int iex;
               int ipx;
 	      
@@ -475,25 +489,30 @@ void EBSummaryClient::analyze(void){
 	    
 	    if (me_01 && me_02 && me_03 ) {
 	      float xval=2;
-	      // same values: take it
-	      if((me_01->getBinContent(ie,ip)==me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)==me_03->getBinContent(ie,ip))  ) xval=me_01->getBinContent(ie,ip);
-	      else if(std::min(std::min(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip) )==0) xval=0; // red wins against all
+	      float val_01=me_01->getBinContent(ie,ip);
+	      float val_02=me_02->getBinContent(ie,ip);
+	      float val_03=me_03->getBinContent(ie,ip);
+
+	      std::vector<float> maskedVal, unmaskedVal;
+	      (val_01>2) ? maskedVal.push_back(val_01) : unmaskedVal.push_back(val_01);
+	      (val_02>2) ? maskedVal.push_back(val_02) : unmaskedVal.push_back(val_02);
+	      (val_03>2) ? maskedVal.push_back(val_03) : unmaskedVal.push_back(val_03);
+
+	      float brightColor=-1, darkColor=-1;
+	      float maxPriority=-1;
+	      std::vector<float>::const_iterator Val;
+	      for(Val=unmaskedVal.begin(); Val<unmaskedVal.end(); Val++) {
+		if(priority[*Val]>maxPriority) brightColor=*Val;
+	      }
+	      maxPriority=-1;
+	      for(Val=maskedVal.begin(); Val<maskedVal.end(); Val++) {
+		if(priority[*Val]>maxPriority) darkColor=*Val;
+	      }
+	      if(unmaskedVal.size()==3) xval = brightColor;
+	      else if(maskedVal.size()==3) xval = darkColor;
 	      else {
-		// count number of masked gains
-		int nMasked=0;
-		if(me_01->getBinContent(ie,ip)>2) nMasked++;
-		if(me_02->getBinContent(ie,ip)>2) nMasked++;
-		if(me_03->getBinContent(ie,ip)>2) nMasked++;
-		if(nMasked==3) {
-		  // here wins the best quality to trigger that a known problem is solved (except vrg->g: be conservative), else the yellow wins
-		  if( (me_01->getBinContent(ie,ip)!=me_02->getBinContent(ie,ip)) && (me_01->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) && (me_02->getBinContent(ie,ip)!=me_03->getBinContent(ie,ip)) ) xval=5.;
-		  else if(me_01->getBinContent(ie,ip)==4. || me_02->getBinContent(ie,ip)==4. || me_03->getBinContent(ie,ip)==4.) xval=4.;
-		  else xval = std::max(std::max(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)),me_03->getBinContent(ie,ip) );
-		}
-		else {
-		  // the channel is dark, the color decided by the worst (r->y->g)
-		  xval=(int)std::min(std::min(me_01->getBinContent(ie,ip),me_02->getBinContent(ie,ip)), me_03->getBinContent(ie,ip)) % 3 + 3;
-		}
+		if(brightColor==1 && darkColor==5) xval = 5;
+		else xval = brightColor;
 	      }
 	      
               int iex;
