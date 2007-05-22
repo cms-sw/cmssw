@@ -22,16 +22,25 @@ namespace sim {
 		      const G4LogicalVolumeToDDLogicalPartMap&, 
 		      const edm::ParameterSet&);
 	 //~FieldBuilder();
+
 	 void readFieldParameters(DDLogicalPart theLogicalPart,
 				  const std::string& keywordField);
+
          void build(G4FieldManager* fM = 0,
                     G4PropagatorInField* fP = 0) ;
+
 	 void configure(const std::string& keywordField,
 			G4FieldManager * fM = 0,
 			G4PropagatorInField * fP = 0);
+/*
 	 void configureLocalFM( const std::string& volName,
 	                        G4FieldManager * fM = 0,
 	                        G4PropagatorInField * fP = 0);
+*/
+	 void configureForVolume( const std::string& volName, 
+	                          edm::ParameterSet& volPSet,
+				  G4FieldManager * fM = 0,
+				  G4PropagatorInField * fP = 0);
 	 G4LogicalVolume * fieldTopVolume();
       private:
 	 void configureFieldManager(G4FieldManager * fM);
