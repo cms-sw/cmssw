@@ -17,7 +17,7 @@
 // Change the input threshold from noise units to electrons.
 // Lower the amount of static dead pixels from 0.01 to 0.001.
 // Modify to the new random number services. d.k. 5/07
-
+// Protect against sigma=0 (delta tracks on the surface). d.k.5/07
  
 #include <vector>
 #include <iostream>
@@ -571,10 +571,12 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     return;
   }  
 
-  //float TanLorenzAngleX = driftDir.x()/driftDir.z(); // tangen of Lorentz angle
+  // tangen of Lorentz angl
+  //float TanLorenzAngleX = driftDir.x()/driftDir.z(); 
   //float TanLorenzAngleY = 0.; // force to 0, driftDir.y()/driftDir.z();
 
-  float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,CosLorenzAngleY;
+  float TanLorenzAngleX, TanLorenzAngleY,dir_z, CosLorenzAngleX,
+    CosLorenzAngleY;
   if ( alpha2Order) {
 
       TanLorenzAngleX = driftDir.x(); // tangen of Lorentz angle
@@ -619,9 +621,17 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
     // Include explixitely the E drift direction (for CMS dir_z=-1)
     DriftDistance = moduleThickness/2. - (dir_z * SegZ); // Drift to -z 
    
-    if( DriftDistance < 0.)
+    //if( DriftDistance <= 0.) 
+    //cout<<" <=0 "<<DriftDistance<<" "<<i<<" "<<SegZ<<" "<<dir_z<<" "
+    //  <<SegX<<" "<<SegY<<" "<<(moduleThickness/2)<<" "
+    //  <<_ionization_points[i].energy()<<" "
+    //  <<hit.particleType()<<" "<<hit.pabs()<<" "<<hit.energyLoss()<<" "
+    //  <<hit.entryPoint()<<" "<<hit.exitPoint()
+    //  <<endl;
+
+    if( DriftDistance < 0.) {
       DriftDistance = 0.;
-    else if ( DriftDistance > moduleThickness )
+    } else if ( DriftDistance > moduleThickness )
       DriftDistance = moduleThickness;
     
     // Assume full depletion now, partial depletion will come later.
@@ -684,7 +694,14 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      float SigmaX = i->sigma_x();            // Charge spread in x
      float SigmaY = i->sigma_y();            //               in y
      float Charge = i->amplitude();          // Charge amplitude
-     
+
+
+     //if(SigmaX==0 || SigmaY==0) {
+     //cout<<SigmaX<<" "<<SigmaY
+     //   << " cloud " << i->position().x() << " " << i->position().y() << " " 
+     //   << i->sigma_x() << " " << i->sigma_y() << " " << i->amplitude()<<endl;
+     //}
+
 #ifdef TP_DEBUG
        LogDebug ("Pixel Digitizer") 
 	 << " cloud " << i->position().x() << " " << i->position().y() << " " 
@@ -745,32 +762,38 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
      for (ix=IPixLeftDownX; ix<=IPixRightUpX; ix++) {  // loop over x index
        float xUB, xLB, UpperBound, LowerBound;
       
-       if (ix == 0) LowerBound = 0.;
+       // Why is set to 0 if ix=0, does it meen that we accept charge 
+       // outside the sensor? CHeck How it was done in ORCA? 
+       //if (ix == 0) LowerBound = 0.;
+       if (ix == 0 || SigmaX==0. )  // skip for surface segemnts 
+	 LowerBound = 0.;
        else {
 	 mp = MeasurementPoint( float(ix), 0.0);
 	 xLB = topol->localPosition(mp).x();
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xLB-CloudCenterX)/SigmaX, &result);
-
-	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
+	 if (status != 0)  
+	   LogWarning ("Integration")<<"could not compute gaussian probability";
 	 LowerBound = 1-result.val;
-
        }
      
-       if (ix == numRows-1) UpperBound = 1.;
+       if (ix == numRows-1 || SigmaX==0. ) 
+	 UpperBound = 1.;
        else {
 	 mp = MeasurementPoint( float(ix+1), 0.0);
 	 xUB = topol->localPosition(mp).x();
 	 gsl_sf_result result;
 	 int status = gsl_sf_erf_Q_e( (xUB-CloudCenterX)/SigmaX, &result);
-	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
-
-	UpperBound = 1. - result.val;
-
+	 if (status != 0)  
+	   LogWarning ("Integration")<<"could not compute gaussian probability";
+	 UpperBound = 1. - result.val;
        }
        
        float   TotalIntegrationRange = UpperBound - LowerBound; // get strip
        x[ix] = TotalIntegrationRange; // save strip integral 
+       //if(SigmaX==0 || SigmaY==0) 
+       //cout<<TotalIntegrationRange<<" "<<ix<<endl;
+
      }
 
     // Now integarte strips in y
@@ -778,35 +801,34 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
     for (iy=IPixLeftDownY; iy<=IPixRightUpY; iy++) { //loope over y ind  
       float yUB, yLB, UpperBound, LowerBound;
 
-      if (iy == 0) LowerBound = 0.;
+      if (iy == 0 || SigmaY==0.) 
+	LowerBound = 0.;
       else {
         mp = MeasurementPoint( 0.0, float(iy) );
         yLB = topol->localPosition(mp).y();
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yLB-CloudCenterY)/SigmaY, &result);
-	 if (status != 0)  LogWarning ("Integration")<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
-
+	if (status != 0)  
+	  LogWarning ("Integration")<<"could not compute gaussian probability";
 	LowerBound = 1. - result.val;
-
-
-
       }
 
-      if (iy == numColumns-1) UpperBound = 1.;
+      if (iy == numColumns-1 || SigmaY==0. ) 
+	UpperBound = 1.;
       else {
         mp = MeasurementPoint( 0.0, float(iy+1) );
         yUB = topol->localPosition(mp).y();
 	gsl_sf_result result;
 	int status = gsl_sf_erf_Q_e( (yUB-CloudCenterY)/SigmaY, &result);
-
-	if (status != 0) LogWarning ("Integration") <<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen";
-
+	if (status != 0)  
+	  LogWarning ("Integration")<<"could not compute gaussian probability";
 	UpperBound = 1. - result.val;
-
       }
 
       float   TotalIntegrationRange = UpperBound - LowerBound;
       y[iy] = TotalIntegrationRange; // save strip integral
+      //if(SigmaX==0 || SigmaY==0) 
+      //cout<<TotalIntegrationRange<<" "<<iy<<endl;
     }       
 
     // Get the 2D charge integrals by folding x and y strips
@@ -818,12 +840,10 @@ void SiPixelDigitizerAlgorithm::induce_signal( const PSimHit& hit) {
 
         if( ChargeFraction > 0. ) {
 	  chan = PixelDigi::pixelToChannel( ix, iy);  // Get index 
-
           // Load the amplitude						 
           hit_signal[chan] += ChargeFraction;
 	} // endif
 
-	
 	
 	mp = MeasurementPoint( float(ix), float(iy) );
 	LocalPoint lp = topol->localPosition(mp);
