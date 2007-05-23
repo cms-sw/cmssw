@@ -6,7 +6,16 @@ use SCRAMGenUtils;
 $|=1;
 
 my $curdir=`/bin/pwd`; chomp $curdir;
-my $dir=shift || $curdir;
+my $dir=shift;
+
+if($dir eq ""){$dir=$curdir;}
+if($dir ne "INTERNAL_RUNNING_OF_SCRIPT")
+{
+  system("$0 INTERNAL_RUNNING_OF_SCRIPT $dir @ARGV 2>&1 | grep '^DATA:' | sed 's|^DATA:||'");
+  exit $?;
+}
+else{$dir=shift;}
+
 if($dir=~/^[^\/]/){$dir=&SCRAMGenUtils::fixPath("${curdir}/${dir}");}
 my $arch=shift || "";
 my $scram_list_skip=5;
@@ -40,15 +49,37 @@ $flags="-I${release}/${src}";
 if($releasetop ne $release){print "DATA:BASE_DIR=${releasetop}/${src}\n";$flags.=" -I${releasetop}/${src}";}
 
 my $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop);
-system("cd $tmprel; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
-if(-f "${release}/tmp/${arch}/Makefile"){system("cp ${release}/tmp/${arch}/Makefile ${tmprel}/tmp/${arch}");}
+{
+  if(-f "${release}/tmp/${arch}/Makefile")
+  {
+    system("cd $tmprel; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
+    system("cp ${release}/tmp/${arch}/Makefile ${tmprel}/tmp/${arch}");
+  }
+  else
+  {
+    system("rm -rf ${tmprel}/src; cp -r ${release}/src ${tmprel}");
+    system("cd $tmprel; $SCRAM_CMD b -r echo_CXX 2>&1 > /dev/null");
+    open(MAKEIN,"${tmprel}/tmp/${arch}/Makefile") || die "can not open ${tmprel}/tmp/${arch}/Makefile file for reading";
+    open(MAKEOUT,">${tmprel}/tmp/${arch}/Makefile.new") || die "can not open ${tmprel}/tmp/${arch}/Makefile.new file for reading";
+    while(my $line=<MAKEIN>)
+    {
+      chomp $line;
+      $line=~s/$tmprel/$release/g;
+      print MAKEOUT "$line\n";
+    }
+    close(MAKEIN);
+    close(MAKEOUT);
+    system("mv ${tmprel}/tmp/${arch}/Makefile.new ${tmprel}/tmp/${arch}/Makefile");
+  }
+}
+
 my $cxx=&SCRAMGenUtils::getBuildVariable($tmprel,"CXX") || "/usr/bin/c++";
 my $cxx_ver="";
 if(-x $cxx){$cxx_ver=`$cxx --version | head -1 | awk '{print \$3}'`;chomp $cxx_ver;}
 
 print "DATA:COMPILER=$cxx\n";
 print "DATA:COMPILER_VERSION=$cxx_ver\n";
-  
+
 &genConfig ($dir);
 
 foreach my $t (`cd $tmprel; $SCRAM_CMD tool list | tail +$scram_list_skip | awk '{print \$1}'`)
@@ -71,7 +102,9 @@ foreach my $inc (split /\s+/, &SCRAMGenUtils::getBuildVariable($tmprel,"CPPDEFIN
 $flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CPPFLAGS"));
 $flags="$flags ".&postProcessFlag(&SCRAMGenUtils::getBuildVariable($tmprel,"CXXFLAGS"));
 print "DATA:COMPILER_FLAGS=$flags\n";
-&genSkip ("${release}/${src}");
+my $tmpl_compile_support=&checkTemplateCompilationSupport ();
+my $def_compile_support=&checkDefineCompilationSupport ();
+if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ("${release}/${src}");}
 &final_exit(0);
 
 sub final_exit ()
@@ -108,20 +141,16 @@ sub genSkip ()
     }
     elsif($file=~/.*\.(h|hpp|hh)$/)
     {
-      my $def=0;
-      my $tmpl=0;
-      if(($cxx_ver=~/^3\.[4-9]/) || ($cxx_ver=~/^[4-9]\.\d+/))
-      {$tmpl=1;}
       foreach my $line (`cat $file`)
       {
         chomp $line;
-	if(($def==0) && ($line=~/^\s*\#\s*define\s+.+?\\$/))
+	if(($def_compile_support==0) && ($line=~/^\s*\#\s*define\s+.+?\\$/))
 	{
 	  $file=~s/${release}\/${src}\///;
 	  print "DATA:SKIP_FILES=$file\n";
 	  last;
 	}
-	if(($tmpl==0) && ($line=~/^\s*template\s*<.+/))
+	if(($tmpl_compile_support==0) && ($line=~/^\s*template\s*<.+/))
 	{
 	  $file=~s/${release}\/${src}\///;
 	  print "DATA:SKIP_FILES=$file\n";
@@ -280,5 +309,20 @@ sub safename_based_on_subsystem_package ()
   {return "${1}${2}";}
   return "";
 }
+########################################################################
 
+sub checkTemplateCompilationSupport ()
+{
+  my $dir=&SCRAMGenUtils::getTmpDir();
+  system("echo \"template <class  T>class A{A(T t){std::cout <<std::endl;}};\" > ${dir}/test.cc");
+  my $data=`cd ${dir}; $cxx -c -fsyntax-only test.cc 2>&1`;
+  my $tmpl=$?;
+  system("rm -rf $dir");
+  if($tmpl != 0){$tmpl=1;}
+  return $tmpl;
+}
 
+sub checkDefineCompilationSupport ()
+{
+  return 0;
+}
