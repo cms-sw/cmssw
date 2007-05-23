@@ -75,9 +75,13 @@ void TriggerWebInterface::RetrieveMeList(xgi::Input * in, xgi::Output * out) thr
   
 //  std::cout << "Enter RetrieveMeList" <<std::endl;
 
-  if(to_open=="L1TECALTPG") printMeListXML(to_open, out); 
-  if(to_open=="L1TRCT") printMeListXML(to_open, out); 
-  if(to_open=="GCT")        printMeListXML(to_open, out); 
+  if(to_open=="L1TECALTPG")   printMeListXML(to_open, out); 
+  if(to_open=="L1TRCT")       printMeListXML(to_open, out); 
+  if(to_open=="GCT")          printMeListXML(to_open, out); 
+  if(to_open=="L1TDTTPG")     printMeListXML(to_open, out); 
+  if(to_open=="L1TGT")        printMeListXML(to_open, out); 
+  if(to_open=="L1TDTTF")      printMeListXML(to_open, out); 
+  if(to_open=="L1TGMT")       printMeListXML(to_open, out); 
 
 }
 
@@ -305,15 +309,15 @@ void TriggerWebInterface::CreateMenu(xgi::Input * in, xgi::Output * out) throw (
        
        DisplaySystemME * Gct = new DisplaySystemME(getApplicationURL() , "200px", "10px","GCT");
        
-       DisplaySystemME * rpc = new DisplaySystemME(getApplicationURL() , "230px", "10px","RPC");
+       DisplaySystemME * rpc = new DisplaySystemME(getApplicationURL() , "230px", "10px","L1TDTTPG");
        
-       DisplaySystemME * csc = new DisplaySystemME(getApplicationURL() , "260px", "10px","CSC");
+       DisplaySystemME * csc = new DisplaySystemME(getApplicationURL() , "260px", "10px","L1TGT");
        
-       DisplaySystemME * dt = new DisplaySystemME(getApplicationURL() , "290px", "10px","DT");
+       DisplaySystemME * dt = new DisplaySystemME(getApplicationURL() , "290px", "10px","L1TDTTF");
        
-       DisplaySystemME * Gmt = new DisplaySystemME(getApplicationURL() , "320px", "10px","GMT");
+       DisplaySystemME * Gmt = new DisplaySystemME(getApplicationURL() , "320px", "10px","L1TGMT");
        
-       DisplaySystemME * Gt = new DisplaySystemME(getApplicationURL() , "350px", "10px","GT");
+       DisplaySystemME * Gt = new DisplaySystemME(getApplicationURL() , "350px", "10px","RPC");
        
        DisplaySystemME * Emulator = new DisplaySystemME(getApplicationURL(), "380px", "10px","Emulator");
 
