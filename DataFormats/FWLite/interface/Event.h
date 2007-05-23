@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.2 2007/05/12 20:27:06 chrjones Exp $
+// $Id: Event.h,v 1.3 2007/05/16 14:37:18 chrjones Exp $
 //
 #ifndef __CINT__
 // system include files
@@ -44,6 +44,7 @@ namespace edm {
   class ProductRegistry;
   class BranchDescription;
   class EDProductGetter;
+  class EventAux;
 }
 
 namespace fwlite {
@@ -165,7 +166,9 @@ class Event
       mutable edm::ProcessHistoryMap historyMap_;
       mutable edm::EventAuxiliary aux_;
       edm::EventAuxiliary* pAux_;
+      edm::EventAux* pOldAux_;
       TBranch* auxBranch_;
+      int fileVersion_;
       
       //references data in data_;
       mutable std::map<edm::ProductID,boost::shared_ptr<internal::Data> > idToData_; 

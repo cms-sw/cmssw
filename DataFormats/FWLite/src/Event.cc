@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:07:03 EDT 2007
-// $Id: Event.cc,v 1.2 2007/05/12 20:27:09 chrjones Exp $
+// $Id: Event.cc,v 1.3 2007/05/16 14:37:18 chrjones Exp $
 //
 
 // system include files
@@ -24,10 +24,14 @@
 #include "DataFormats/Common/interface/EDProductGetter.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Provenance/interface/FileFormatVersion.h"
 
 #include "FWCore/FWLite/interface/setRefStreamer.h"
 
 #include "DataFormats/Common/interface/Wrapper.h"
+
+//used for backwards compatability
+#include "DataFormats/Provenance/interface/EventAux.h"
 
 //
 // constants, enums and typedefs
@@ -62,6 +66,8 @@ private:
   eventTree_(0),
   eventIndex_(-1),
   pAux_(&aux_),
+  pOldAux_(0),
+  fileVersion_(-1),
   prodReg_(0)
 {
     if(0==file_) {
@@ -72,13 +78,38 @@ private:
     if(0==eventTree_) {
       throw cms::Exception("NoEventTree")<<"The TFile contains no TTree named "<<edm::poolNames::eventTreeName();
     }
-    auxBranch_ = eventTree_->GetBranch("EventAuxiliary");
-    if(0==auxBranch_) {
-      throw cms::Exception("NoEventAuxilliary")<<"The TTree "
-      <<edm::poolNames::eventTreeName()
-      <<" does not contain a branch named 'EventAuxiliary'";
+    //need to know file version in order to determine how to read the basic event info
+    {
+      TTree* metaDataTree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::metaDataTreeName().c_str()) );
+      assert(0!=metaDataTree);
+      
+      edm::FileFormatVersion v;
+      edm::FileFormatVersion* pV=&v;
+      TBranch* bVer = metaDataTree->GetBranch(edm::poolNames::fileFormatVersionBranchName().c_str());
+      bVer->SetAddress(&pV);
+      bVer->GetEntry(0);
+      fileVersion_ = v.value_;
     }
-    auxBranch_->SetAddress(&pAux_);
+    //got this logic from IOPool/Input/src/RootFile.cc
+    
+    if(fileVersion_ >= 3 ) {
+      auxBranch_ = eventTree_->GetBranch("EventAuxiliary");
+      if(0==auxBranch_) {
+        throw cms::Exception("NoEventAuxilliary")<<"The TTree "
+        <<edm::poolNames::eventTreeName()
+        <<" does not contain a branch named 'EventAuxiliary'";
+      }
+      auxBranch_->SetAddress(&pAux_);
+    } else {
+      pOldAux_ = new edm::EventAux();
+      auxBranch_ = eventTree_->GetBranch("EventAux");
+      if(0==auxBranch_) {
+        throw cms::Exception("NoEventAux")<<"The TTree "
+          <<edm::poolNames::eventTreeName()
+          <<" does not contain a branch named 'EventAux'";
+      }
+      auxBranch_->SetAddress(&pOldAux_);
+    }
     eventIndex_=0;
     
     getter_ = std::auto_ptr<edm::EDProductGetter>(new internal::ProductGetter(this));
@@ -97,6 +128,7 @@ Event::~Event()
     delete [] *it;
   }
   delete prodReg_;
+  delete pOldAux_;
 }
 
 //
@@ -327,6 +359,10 @@ Event::history() const
 
   if(auxBranch_->GetEntryNumber() != eventIndex_) {
     auxBranch_->GetEntry(eventIndex_);
+    //handling dealing with old version
+    if(0 != pOldAux_) {
+      conversion(*pOldAux_,aux_);
+    }
   }
   
   return historyMap_[aux_.processHistoryID()];
