@@ -10,6 +10,7 @@
 
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -40,7 +41,7 @@ namespace reco {
       theTksEt_o_JetEt=NAN;
       theneutralE=NAN;
       theisolneutralE=NAN;
-      theneutralECALClus_number=numeric_limits<int>::quiet_NaN();
+      theneutralECALClus_number=std::numeric_limits<int>::quiet_NaN();
       theneutralECALClus_radius=NAN;
       theneutralE_o_TksEneutralE=NAN;
       theisolneutralE_o_TksEneutralE=NAN;
@@ -75,7 +76,7 @@ namespace reco {
     void setsignalTks(const TrackRefVector& x) { signal_Tks_=x; }
    
     int signalTks_qsum()const{              // NaN : (int)(signal_Tks_.size())=0;   
-      int signal_Tks_qsum_=numeric_limits<int>::quiet_NaN();   
+      int signal_Tks_qsum_=std::numeric_limits<int>::quiet_NaN();   
       if((int)(signal_Tks_.size())!=0){   
 	signal_Tks_qsum_=0;   
 	for(TrackRefVector::const_iterator iTk=signal_Tks_.begin();iTk!=signal_Tks_.end();iTk++){   
