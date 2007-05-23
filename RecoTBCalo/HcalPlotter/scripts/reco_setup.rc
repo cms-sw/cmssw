@@ -3,7 +3,7 @@ EVENTLIMIT=1000
 
 # Set the name of the map file to use
 #MAPFILE=CondFormats/HcalObjects/data/emap_tb2006_v7.txt
-MAPFILE=RecoTBCalo/HcalPlotter/data/hfplusmapCalib.txt
+MAPFILE=RecoTBCalo/HcalPlotter/data/emap_hcal_generic.txt
 
 # Set the name of a pedestals file to use (if desired)
 #PEDESTALFILE=a.txt
