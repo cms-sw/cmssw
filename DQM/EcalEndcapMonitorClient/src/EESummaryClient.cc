@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/14 16:17:58 $
- * $Revision: 1.13 $
+ * $Date: 2007/05/22 14:23:38 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -477,7 +477,8 @@ void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
   int x1 = A0 + (A1-A0)*(j+1)/9;
   int y0 = B0 + (B1-B0)*(1-i)/2;
   int y1 = B0 + (B1-B0)*((1-i)+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#"
+  hf << "<area title=\"" << Numbers::sEE((j+1)+9*i).c_str()
+     << "\" shape=\"rect\" href=\"" << refhtml[mapname] << "#"
      << Numbers::sEE((j+1)+9*i).c_str() << "\" coords=\"";
   hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
