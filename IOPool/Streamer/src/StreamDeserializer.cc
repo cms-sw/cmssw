@@ -32,6 +32,7 @@ namespace edm
    */
   StreamDeserializer::StreamDeserializer():
     processConfiguration_(),
+    processHistoryID_(),
     tc_(getTClass(typeid(SendEvent))),
     dest_(init_size),
     xbuf_(TBuffer::kRead, init_size)
