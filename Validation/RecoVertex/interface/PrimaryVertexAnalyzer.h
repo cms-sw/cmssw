@@ -13,7 +13,7 @@
 //
 // Original Author:  Wolfram Erdmann
 //         Created:  Fri Jun  2 10:54:05 CEST 2006
-// $Id: PrimaryVertexAnalyzer.h,v 1.9 2007/03/14 10:27:05 werdmann Exp $
+// $Id: PrimaryVertexAnalyzer.h,v 1.10 2007/03/26 08:07:46 werdmann Exp $
 //
 //
 
@@ -53,7 +53,7 @@
 // Root
 #include <TH1.h>
 #include <TFile.h>
-
+#include <TDirectory.h>
 
 
 
@@ -97,14 +97,15 @@ private:
   void printRecVtxs(const edm::Handle<reco::VertexCollection> recVtxs);
   void printSimVtxs(const edm::Handle<edm::SimVertexContainer> simVtxs);
   void printSimTrks(const edm::Handle<edm::SimTrackContainer> simVtrks);
-  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC);
+  std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evtMC, std::string suffix);
   std::vector<simPrimaryVertex> getSimPVs(const edm::Handle<edm::HepMCProduct> evt, 
 					  const edm::Handle<edm::SimVertexContainer> simVtxs, 
 					  const edm::Handle<edm::SimTrackContainer> simTrks);
   // ----------member data ---------------------------
   std::string recoTrackProducer_;
   std::string outputFile_;       // output file
-  std::string vtxSample_;        // which vertices to analyze
+  std::vector<std::string> vtxSample_;        // which vertices to analyze
+  std::vector<std::string> suffixSample_;
   TFile*  rootFile_;             
   bool verbose_;
   edm::InputTag simG4_;
@@ -112,6 +113,8 @@ private:
   edm::ESHandle < ParticleDataTable > pdt;
      
 
-  std::map<std::string, TH1*> h;
+	std::map<std::string, TH1*> h;
+	std::map<std::string, TDirectory*> hdir;
+	
 };
 
