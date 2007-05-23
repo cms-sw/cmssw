@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/05/15 17:08:40 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/22 07:00:15 $
+ * $Revision: 1.6 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -29,6 +29,7 @@ DTDataIntegrityTest::DTDataIntegrityTest(const ParameterSet& ps){
   edm::LogVerbatim ("dataIntegrity") << "[DTDataIntegrityTest]: Constructor";
 
   nTimeBin =  ps.getUntrackedParameter<int>("nTimeBin", 10);
+  doTimeHisto =  ps.getUntrackedParameter<bool>("doTimeHisto", true);
 
   parameters = ps;
 
@@ -85,7 +86,7 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
   edm::LogVerbatim ("dataIntegrity") <<"Booking time histo "<<histoType<<" for ddu "<<dduId<<" from event "<<evNumber;
 
   //Counter for x bin in the timing histos
-  counter = 1;//assuming synchronixed booking for all histo VS time
+  counter = 1;//assuming synchronized booking for all histo VS time
 
   if(histoType == "TTSVSTime"){
     dbe->setCurrentFolder("DT/Test/FED" + dduId_s.str()+ "/TimeInfo/TTSVSTime");
@@ -157,7 +158,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
  
     //Each nTimeBin onUpdate remove timing histos and book a new bunch of them
     stringstream dduId_s; dduId_s << dduId;
-    if(nevents%nTimeBin == 0){
+    if(nevents%nTimeBin == 0 && doTimeHisto){
       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]: booking a new bunch of time histos";
       dbe->rmdir("DT/FED" + dduId_s.str() + "/TimeInfo");
       (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second.clear();
@@ -182,14 +183,16 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 	  (dduHistos.find(histoType)->second).find(dduId)->second->
 	    setBinContent(i,tts_histo->getBinContent(i)/tts_histo->getEntries());
 
-	  //Fill timing histos and set x label with event number
-	  if( dduVectorHistos["TTSVSTime"].find(dduId) == dduVectorHistos["TTSVSTime"].end() ){
-	    bookTimeHistos("TTSVSTime",dduId,evNumber); 
+	  if(doTimeHisto){
+	    //Fill timing histos and set x label with event number
+	    if( dduVectorHistos["TTSVSTime"].find(dduId) == dduVectorHistos["TTSVSTime"].end() ){
+	      bookTimeHistos("TTSVSTime",dduId,evNumber); 
+	    }
+	    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
+	      setBinContent(counter,tts_histo->getBinContent(i)/tts_histo->getEntries());
+	    (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
+	      setBinLabel(counter, evNumber_s.str(), 1);
 	  }
-	  (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
-	    setBinContent(counter,tts_histo->getBinContent(i)/tts_histo->getEntries());
-	  (dduVectorHistos.find("TTSVSTime")->second).find(dduId)->second[i-1]->
-	    setBinLabel(counter, evNumber_s.str(), 1);
 	}
 
 	//Check if there are too many events with wrong tts value
@@ -226,7 +229,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
     }
     //Monitor the number of ROS VS time
      MonitorElement * rosNumber_histo = dbe->get(getMEName("ROSList",dduId));
-    if (rosNumber_histo) {
+    if (rosNumber_histo && doTimeHisto) {
       edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUROSList found";
 
       double rosNumber_mean = rosNumber_histo->getMean();
@@ -241,7 +244,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 
     //Monitor the event lenght VS time
      MonitorElement * evLenght_histo = dbe->get(getMEName("EventLenght",dduId));
-     if (evLenght_histo) {
+     if (evLenght_histo && doTimeHisto) {
        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUEventLenght found";
 
       double evLenght_mean = evLenght_histo->getMean();
@@ -264,7 +267,7 @@ void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){
 
      //Monitor the FIFO occupancy VS time 
      MonitorElement * fifo_histo = dbe->get(getMEName("FIFOStatus",dduId));
-     if (fifo_histo) {
+     if (fifo_histo && doTimeHisto) {
        edm::LogVerbatim ("dataIntegrity") <<"[DTDataIntegrityTest]:histo DDUFIFOStatus found";
        
        //Fill timing histos and set x label with event number

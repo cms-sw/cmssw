@@ -5,8 +5,8 @@
  * *
  *  DQM Client to check the data integrity
  *
- *  $Date: 2007/03/30 16:11:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/22 07:00:53 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN TO
  *   
  */
@@ -50,6 +50,8 @@ private:
   //Number of onUpdates
   int nevents;
   
+  //If you want info VS time histos
+  bool doTimeHisto;
   //Number of bin in time histo
   int nTimeBin;
   //Counter between 0 and nTimeBin
