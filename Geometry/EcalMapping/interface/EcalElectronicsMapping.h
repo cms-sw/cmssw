@@ -16,12 +16,15 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/composite_key.hpp>
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
+
+
 #include <vector>
 
 
 /** \class EcalElectronicsMapping
   *  
-  * $Id: EcalElectronicsMapping.h,v 1.1 2007/03/09 07:31:42 eperez Exp $
+  * $Id: EcalElectronicsMapping.h,v 1.2 2007/04/11 10:36:45 eperez Exp $
   * \author P.Meridiani (INFN Roma1),  E. Perez (CERN)  
   */
 
@@ -99,6 +102,12 @@ class EcalElectronicsMapping {
   int zside(int dcctcc, int mode) const;
 
   bool rightTower(int tower) const;
+
+  // methods used for regional unpacking :
+  std::vector<int> GetListofFEDs(const EcalEtaPhiRegion region) ;
+  int GetFED(double eta, double phi) ;
+  int DCCBoundary(int FED);
+
 
 
  // Geometry of SM in EB :
