@@ -6,7 +6,7 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: BTagValidator.cc,v 1.6 2007/02/20 02:00:46 yumiceva Exp $
+ version $Id: BTagValidator.cc,v 1.7 2007/03/01 21:18:07 bazterra Exp $
 
 ________________________________________________________________**/
 
@@ -48,11 +48,11 @@ BTagValidator::BTagValidator(const edm::ParameterSet& iConfig) {
 					
 	if (doAnalysis_) {
 		if (algorithm_ == "TrackCounting") 
-			petBase_ = new BTagPABase<reco::TrackCountingTagInfoCollection, TrackCountingTagPlotter>(iConfig);
+			petBase_ = new BTagPABase< TrackCountingTagPlotter>(iConfig);
 		else if (algorithm_ == "TrackProbability")
-			petBase_ = new BTagPABase<reco::TrackProbabilityTagInfoCollection, TrackProbabilityTagPlotter>(iConfig);
+			petBase_ = new BTagPABase< TrackProbabilityTagPlotter>(iConfig);
 		else if (algorithm_ == "SoftLepton")
-			petBase_ = new BTagPABase<reco::SoftLeptonTagInfoCollection, SoftLeptonTagPlotter>(iConfig);
+			petBase_ = new BTagPABase< SoftLeptonTagPlotter>(iConfig);
 		else 
 			throw cms::Exception("UnknownAlgorithm") << algorithm_ << " possible options are TrackCounting, TrackProbability and SoftLepton. ";
 	}
