@@ -21,37 +21,38 @@ void MultipleScatteringSimulator::compute(ParticlePropagator &Particle)
   double pbeta = p2/e;  // This is p*beta
 
   // Average multiple scattering angle from Moliere radius
+  // The sqrt(2) factor is because of the *space* angle
   double theta0 = 0.0136 / pbeta * Particle.charge() 
-                                 * std::sqrt(radLengths) 
+                                 * std::sqrt(2.*radLengths) 
                                  * (1. + 0.038*std::log(radLengths));
 
-  // Generate multiple scattering angles in the two directions 
-  // perpendicular to the particle motion
-  double theta1 = random->gaussShoot(0.,theta0); 
-  double theta2 = random->gaussShoot(0.,theta0); 
-
-  XYZVector axis1 = orthogonal(Particle.Vect());
-  XYZVector axis2 = Particle.Vect().Cross(axis1);
-  RawParticle::Rotation rotation1(axis1,theta1);
-  RawParticle::Rotation rotation2(axis2,theta2);
+  // Generate multiple scattering space angle perpendicular to the particle motion
+  double theta = random->gaussShoot(0.,theta0); 
+  // Plus a random rotation angle around the particle motion
+  double phi = 2. * 3.14159265358979323 * random->flatShoot();
+  // The two rotations
+  RawParticle::Rotation rotation1(orthogonal(Particle.Vect()),theta);
+  RawParticle::Rotation rotation2(Particle.Vect(),phi);
+  // Rotate!
   Particle.rotate(rotation1); 
   Particle.rotate(rotation2);
 
-  // Generate mutiple scattering displacements in mm (assuming the detectors
+  // Generate mutiple scattering displacements in cm (assuming the detectors
   // are silicon only to determine the thickness) in the directions orthogonal
   // to the vector normal to the surface
-  double xp = (theta1/2. + random->gaussShoot(0.,theta0)/sqr12)
-                         * radLengths * radLenIncm();		 
-  double yp = (theta2/2. + random->gaussShoot(0.,theta0)/sqr12)
-                         * radLengths * radLenIncm();
+  double xp = (cos(phi)*theta/2. + random->gaussShoot(0.,theta0)/sqr12)
+              * radLengths * radLenIncm();		 
+  double yp = (sin(phi)*theta/2. + random->gaussShoot(0.,theta0)/sqr12)
+              * radLengths * radLenIncm();
 
+  // Determine a unitary vector tangent to the surface
+  // This tangent vector is unitary because "normal" is
+  // either (0,0,1) in the Endcap  or (x,y,0) in the Barrel !
   XYZVector normal(theNormalVector.x(),theNormalVector.y(),theNormalVector.z());
-  XYZVector tangent = orthogonal(normal); // This vector is unitary because 
-                                          // normal is
-                                          // either (0,0,1) in the Endcap 
-                                          // or     (x,y,0) in the Barrel !
+  XYZVector tangent = orthogonal(normal); 
+  // The total displacement 
   XYZVector delta = xp*tangent + yp*normal.Cross(tangent);
-
+  // Translate!
   Particle.translate(delta);
 
 }
