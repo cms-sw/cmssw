@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.19 2007/05/23 20:27:50 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.20 2007/05/23 21:51:23 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.19 2007/05/23 20:27:50 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.20 2007/05/23 21:51:23 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -211,13 +211,12 @@ void ScheduleValidator::validatePath(const std::string & path)
     lastModule = schedule.end();
   for( ; module != lastModule; ++module)
   {
-     string moduleName = *module;
-     removeUnaries(moduleName);
-     Dependencies::iterator depList = dependencies_.find(moduleName);
+     removeUnaries(*module);
+     Dependencies::iterator depList = dependencies_.find(*module);
      if(depList == dependencies_.end())
      {
         throw edm::Exception(errors::Configuration,"InconsistentSchedule")
-         << "No dependecies calculated for " << moduleName;
+         << "No dependecies calculated for " << *module;
      }
      else 
      {
@@ -233,7 +232,7 @@ void ScheduleValidator::validatePath(const std::string & path)
              ostream_iterator<string>(pathdump," "));
            
            throw edm::Exception(errors::Configuration,"InconsistentSchedule")
-          << "Module " << moduleName << " depends on " << *depItr
+          << "Module " << *module << " depends on " << *depItr
           << "\n"
           << " but path " << path << "  contains "  << pathdump.str()
           << "\n";
