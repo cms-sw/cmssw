@@ -21,7 +21,7 @@
 <use name=Geometry/EcalMapping>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/EcalRawData>
-<flags SEAL_PLUGIN_NAME="RecoEgammaEgammaHLTProducers">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
    <use name=FWCore/Framework>
