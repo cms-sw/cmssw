@@ -127,14 +127,16 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   
   if (0==cell->eventSize()) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendData workloop.");
+    UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingRecoCell(cell);
-    shmBuffer_->discardRecoCell(cell->index());
+    shmBuffer_->discardRecoCell(cellIndex);
     reschedule=false;
   }
   else if (isHalting_) {
-    cout<<"sendData: isHalting."<<endl;
+    LOG4CPLUS_INFO(log_,"sendData: isHalting, discard recoCell.");
+    UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingRecoCell(cell);
-    shmBuffer_->discardRecoCell(cell->index());
+    shmBuffer_->discardRecoCell(cellIndex);
   }
   else {
     try {
@@ -202,13 +204,15 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   
   if (state==dqm::EMPTY) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendDqm workloop.");
+    UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingDqmCell(cell);
-    shmBuffer_->discardDqmCell(cell->index());
+    shmBuffer_->discardDqmCell(cellIndex);
     reschedule=false;
   }
   else if (isHalting_) {
+    UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingDqmCell(cell);
-    shmBuffer_->discardDqmCell(cell->index());
+    shmBuffer_->discardDqmCell(cellIndex);
   }
   else {
     try {
@@ -463,9 +467,7 @@ void FUResourceTable::stop()
 //______________________________________________________________________________
 void FUResourceTable::halt()
 {
-  lock();
   isHalting_=true;
-  unlock();
   shutDownClients();
 }
 
@@ -476,11 +478,14 @@ void FUResourceTable::shutDownClients()
   nbClientsToShutDown_ = nbShmClients();
   isReadyToShutDown_   = false;
   
+  LOG4CPLUS_INFO(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
+
   if (nbClientsToShutDown_==0) {
     shmBuffer_->scheduleRawEmptyCellForDiscard();
   }
   else {
     for (UInt_t i=0;i<nbClientsToShutDown_;++i) {
+      LOG4CPLUS_INFO(log_,"Post a ZERO event.");
       shmBuffer_->writeRawEmptyEvent();
     }
   }
