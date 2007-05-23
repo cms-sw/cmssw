@@ -9,24 +9,13 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/EgammaReco/interface/BasicCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
-/*
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-*/
 
 using namespace std;
+using namespace reco;
 
 namespace cms
 {
@@ -39,13 +28,13 @@ ProducerAnalyzer::ProducerAnalyzer(const edm::ParameterSet& iConfig)
   // get name of output file with histogramms  
    
    nameProd_ = iConfig.getUntrackedParameter<std::string>("nameProd");
-   jetCalo_ = iConfig.getUntrackedParameter<std::string>("jetCalo");
-   gammaClus_ = iConfig.getUntrackedParameter<std::string>("gammaClus");
-   ecalInput_=iConfig.getUntrackedParameter<std::string>("ecalInput");
+   jetCalo_ = iConfig.getUntrackedParameter<std::string>("jetCalo","GammaJetJetBackToBackCollection");
+   gammaClus_ = iConfig.getUntrackedParameter<std::string>("gammaClus","GammaJetGammaBackToBackCollection");
+   ecalInput_=iConfig.getUntrackedParameter<std::string>("ecalInput","GammaJetEcalRecHitCollection");
    hbheInput_ = iConfig.getUntrackedParameter<std::string>("hbheInput");
    hoInput_ = iConfig.getUntrackedParameter<std::string>("hoInput");
    hfInput_ = iConfig.getUntrackedParameter<std::string>("hfInput");
-   egammaJetTracks_ = iConfig.getUntrackedParameter<std::string>("egammaJetTrack"); 
+   Tracks_ = iConfig.getUntrackedParameter<std::string>("Tracks","GammaJetTracksCollection"); 
 
 }
 
@@ -84,24 +73,54 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
   }
+
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
+   std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
+
+
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(nameProd_,hoInput_, ho);
    const HORecHitCollection Hitho = *(ho.product());
+   std::cout<<" Size of HO "<<(Hitho).size()<<std::endl;
+
+
    edm::Handle<HFRecHitCollection> hf;
    iEvent.getByLabel(nameProd_,hfInput_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
+   std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
+
+   if(nameProd_ == "GammaJet" || nameProd_ == "DiJProd")
+   {
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByLabel(nameProd_,ecalInput_, ecal);
+   std::cout<<" Size of ECAL "<<(*ecal).size()<<std::endl;
+
    edm::Handle<reco::CaloJetCollection> jets;
    iEvent.getByLabel(nameProd_,jetCalo_, jets);
+   std::cout<<" Jet size "<<(*jets).size()<<std::endl; 
+   reco::CaloJetCollection::const_iterator jet = jets->begin ();
+          for (; jet != jets->end (); jet++)
+         {
+           cout<<" Et jet "<<(*jet).et()<<" eta "<<(*jet).eta()<<" phi "<<(*jet).phi()<<endl;
+         }  
+
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(nameProd_,egammaJetTracks_, tracks);
-   
-   cout<<" Size of collections "<<(*ecal).size()<<" "<<Hithbhe.size()<<" "<<Hitho.size()<<" "<<
-   Hithf.size()<<" "<<(*jets).size()<<" "<<(*tracks).size()<<endl;
+   iEvent.getByLabel(nameProd_,Tracks_, tracks);
+   std::cout<<" Tracks size "<<(*tracks).size()<<std::endl; 
+   }
+   if( nameProd_ == "GammaJet")
+   {
+   edm::Handle<reco::SuperClusterCollection> eclus;
+   iEvent.getByLabel(nameProd_,gammaClus_, eclus);
+   std::cout<<" GammaClus size "<<(*eclus).size()<<std::endl;
+      reco::SuperClusterCollection::const_iterator iclus = eclus->begin ();
+          for (; iclus != eclus->end (); iclus++)
+         {
+           cout<<" Et gamma "<<(*iclus).energy()/cosh((*iclus).eta())<<" eta "<<(*iclus).eta()<<" phi "<<(*iclus).phi()<<endl;
+         }
+   }
 
 }
 //define this as a plug-in

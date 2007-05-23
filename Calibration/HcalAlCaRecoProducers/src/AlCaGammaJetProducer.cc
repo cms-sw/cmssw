@@ -48,7 +48,7 @@ AlCaGammaJetProducer::AlCaGammaJetProducer(const edm::ParameterSet& iConfig)
    produces<CaloJetCollection>("GammaJetJetBackToBackCollection");
    produces<reco::SuperClusterCollection>("GammaJetGammaBackToBackCollection");
 
-   
+    
    
 }
 void AlCaGammaJetProducer::beginJob( const edm::EventSetup& iSetup)
@@ -103,7 +103,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
                                                            aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
     double vet = aClus->energy()/cosh(aClus->eta());
-    cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
+//    cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
     if(vet>20.) {
        if(vet > vetmax)
        {
@@ -132,7 +132,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
                                                            aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
     double vet = aClus->energy()/cosh(aClus->eta());
-    cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
+ //   cout<<" Endcap supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
     if(vet>20.) {
        if(vet > vetmaxe)
        {
@@ -147,7 +147,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
    
-  cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
+  //cout<<" Number of gammas "<<nclusb<<" "<<ncluse<<endl;  
   
   if( nclusb == 0 && ncluse == 0 ) {
    
@@ -177,7 +177,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     etagamma = (*maxclusbarrel).eta();
   }
   
-  cout<<" Size of egamma clusters "<<result->size()<<endl;
+//  cout<<" Size of egamma clusters "<<result->size()<<endl;
    
 //  
 // Jet Collection
@@ -189,62 +189,71 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double phijet0 =  -100.;
     double etajet0 = -100.;
     
-    int iii = 0;
     std::vector<edm::InputTag>::const_iterator ic;
     for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
+
+
      try {
        edm::Handle<reco::CaloJetCollection> jets;
        iEvent.getByLabel(*ic, jets);
        reco::CaloJetCollection::const_iterator jet = jets->begin ();
-       cout<<" Size of jets "<<jets->size()<<endl;
+
+ //      cout<<" Size of jets "<<jets->size()<<endl;
+
        if( jets->size() == 0 ) continue;
-       
-       if(jets->size() > 0 )
-       {
+
+         int iejet = 0;   
+         int numjet = 0;
+ 
          for (; jet != jets->end (); jet++)
          {
            phijet0 = (*jet).phi();
            etajet0 = (*jet).eta();
-           if(iii == 0)
-	   {
-             phijet = (*jet).phi();
-             etajet = (*jet).eta();
-	   }
-	   
+
+// Only 3 jets are kept
+           numjet++;
+           if(numjet > 3) break;
+
+  //         cout<<" phi,eta "<< phigamma<<" "<< etagamma<<" "<<phijet0<<" "<<etajet0<<endl;
+
+// Find jet back to gamma
+ 	   
 	   double dphi = fabs(phigamma-phijet0); 
 	   if(dphi > 4.*atan(1.)) dphi = 8.*atan(1.) - dphi;
+           double deta = fabs(etagamma-etajet0);
+           double dr = sqrt(dphi*dphi+deta*deta);
+           if(dr < 0.5 ) continue;
+           resultjet->push_back ((*jet));
+
 	   dphi = dphi*180./(4.*atan(1.));
 	   if( fabs(dphi-180) < 30. )
 	   {
-	      if(iii == 0) resultjet->push_back ((*jet));
-	   }
-	      else
-	      {
-	         if(iii != 0) resultjet->push_back ((*jet));
-	      }
-//  New collection name	      
-	    
-         } 
-       }   
+   //           cout<<" Jet is found "<<endl;
+              iejet = 1;
+              phijet = (*jet).phi();
+              etajet = (*jet).eta();
+	   } // dphi
+         } //jet collection
+         if(iejet == 0) resultjet->clear(); 
        } 
 	catch (std::exception& e) { // can't find it!
             if (!allowMissingInputs_) throw e;
        }
-       iii++;
      } // Jet collection
      
-    cout<<" Size of jets "<<resultjet->size()<<endl;
-
      if( resultjet->size() == 0 ) {
+
       iEvent.put( outputTColl, "GammaJetTracksCollection");
       iEvent.put( miniEcalRecHitCollection, "GammaJetEcalRecHitCollection");
       iEvent.put( miniHBHERecHitCollection, "GammaJetHBHERecHitCollection");
       iEvent.put( miniHORecHitCollection, "GammaJetHORecHitCollection");
-      iEvent.put( miniHFRecHitCollection, "GammaJetHORecHitCollection");
+      iEvent.put( miniHFRecHitCollection, "GammaJetHFRecHitCollection");
       iEvent.put( result, "GammaJetGammaBackToBackCollection");
       iEvent.put( resultjet, "GammaJetJetBackToBackCollection");
+
      return;
      }
+    // cout<<" Accepted event "<<resultjet->size()<<" PHI gamma "<<phigamma<<std::endl;
 //
 // Add Ecal, Hcal RecHits around Egamma caluster
 //
@@ -289,7 +298,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     }
 
-   cout<<" Ecal is done "<<endl; 
+//   cout<<" Ecal is done "<<endl; 
 
     try {
 
@@ -321,7 +330,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
-   cout<<" HBHE is done "<<endl; 
+//   cout<<" HBHE is done "<<endl; 
 	
     try {
       edm::Handle<HORecHitCollection> ho;
@@ -350,13 +359,13 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
-   cout<<" HO is done "<<endl; 
+ //  cout<<" HO is done "<<endl; 
    
   try {
   edm::Handle<HFRecHitCollection> hf;
   iEvent.getByLabel(hfLabel_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
-  cout<<" Size of HF collection "<<Hithf.size()<<endl;
+//  cout<<" Size of HF collection "<<Hithf.size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
       {
           GlobalPoint pos = geo->getPosition(hfItr->detid());
@@ -380,7 +389,7 @@ AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
-   cout<<" Size of mini HF collection "<<miniHFRecHitCollection->size()<<endl;
+ //  cout<<" Size of mini HF collection "<<miniHFRecHitCollection->size()<<endl;
      
 
 // Track Collection   

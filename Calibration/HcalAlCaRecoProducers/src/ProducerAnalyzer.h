@@ -46,7 +46,7 @@ class ProducerAnalyzer : public edm::EDAnalyzer {
   std::string hbheInput_;
   std::string hoInput_;
   std::string hfInput_;
-  std::string egammaJetTracks_;
+  std::string Tracks_;
 };
 }// end namespace cms
 #endif

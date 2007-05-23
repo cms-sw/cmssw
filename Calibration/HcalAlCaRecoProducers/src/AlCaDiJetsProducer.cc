@@ -26,8 +26,8 @@ AlCaDiJetsProducer::AlCaDiJetsProducer(const edm::ParameterSet& iConfig)
    hfInput_ = iConfig.getParameter<edm::InputTag>("hfInput"); 
    allowMissingInputs_ = true;
 //register your products
-   produces<reco::TrackCollection>("JetTracksCollection");
-   produces<CaloJetCollection>("DijetBackToBackCollection");
+   produces<reco::TrackCollection>("DiJetsTracksCollection");
+   produces<CaloJetCollection>("DiJetsBackToBackCollection");
    produces<EcalRecHitCollection>("DiJetsEcalRecHitCollection");
    produces<HBHERecHitCollection>("DiJetsHBHERecHitCollection");
    produces<HORecHitCollection>("DiJetsHORecHitCollection");
@@ -54,7 +54,7 @@ AlCaDiJetsProducer::~AlCaDiJetsProducer()
 void
 AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   cout<<" Start produce in AlCaDiJetsProducer "<<endl;
+// cout<<" Start produce in AlCaDiJetsProducer "<<endl;
 // Jet Collections
    double myvalue = 4.*atan(1.);
    double twomyvalue = 8.*atan(1.);
@@ -68,93 +68,81 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
     std::vector<edm::InputTag>::const_iterator ic;
-    int iii = 0;
     for (ic=mInputCalo_.begin(); ic!=mInputCalo_.end(); ic++) {
-     cout<<" Read jet collection "<<endl;
+//     cout<<" Read jet collection "<<endl;
      try {
 
           edm::Handle<CaloJetCollection> jets;                        //Define Inputs
           iEvent.getByLabel(*ic, jets);                            //Get Inputs
 
-          CaloJet fJet1n,fJet2n;
-          cout<<" Number of jets "<<jets->size()<<endl;
-	  
-          if(jets->size() > 1 )
+          CaloJet fJet1n,fJet2n,fJet3n;
+//          cout<<" Number of jets "<<jets->size()<<endl;
+	  if( jets->size() < 2 ) 
           {
+            iEvent.put( outputTColl, "DiJetsTracksCollection");
+            iEvent.put( result, "DiJetsBackToBackCollection");
+            iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+            iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+            iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+            iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+
+                            return;
+          }
              fJet1n = (*jets)[0];
              fJet2n = (*jets)[1];
-             
-	     if( iii == 0 )
-	     {
-               fJet1 = (*jets)[0];
-               fJet2 = (*jets)[1];
-             }
 
              double phi1=fabs(fJet1n.phi());
              double phi2=fabs(fJet2n.phi());
              double dphi = fabs(phi1-phi2);
              if (dphi > myvalue) dphi = twomyvalue-dphi;
              double degreedphi = dphi*180./myvalue;
-	     
-	     cout<<" Angle between jets "<<degreedphi<<" the difference "<<fabs(degreedphi-180.)<<endl;
-	     
-             if (fabs(degreedphi-180.) > 30. ) 
-             {
-                            if(iii == 0) {
-			    cout<<" The event is rejected by the angle"<<endl; 
-  iEvent.put( outputTColl, "JetTracksCollection");
-  iEvent.put( result, "DijetBackToBackCollection");
-  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
-  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
-  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
-  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
-			    
-			    return;
-			    }
-             }
+           int iejet = 0;
+           if( fabs(degreedphi-180) < 30. )
+           {
+               cout<<" Jet is found "<<endl;
+               iejet = 1;
+               fJet1 = (*jets)[0];
+               fJet2 = (*jets)[1];
+           } // dphi
+              else
+           {
+
+            iEvent.put( outputTColl, "DiJetsTracksCollection");
+            iEvent.put( result, "DiJetsBackToBackCollection");
+            iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+            iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+            iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+            iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+                            return;
+           }
              result->push_back (fJet1n);
              result->push_back (fJet2n);
-	     cout<<" Add jets to the pocket "<<result->size()<<endl;
-          } 
-            else
-            {
-               if(iii == 0) {
-  iEvent.put( outputTColl, "JetTracksCollection");
-  iEvent.put( result, "DijetBackToBackCollection");
-  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
-  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
-  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
-  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
-	       
-	        cout<<" The event is rejected by the number of jets"<<endl; return;
-		}
-            }
+             if(jets->size()>2) {fJet3n = (*jets)[2];result->push_back (fJet3n);}
        }
         catch (std::exception& e) { // can't find it!
             if (!allowMissingInputs_) {
 	      throw e;
 	    }  
        }
-        iii++;
    } // Jet collection
 
-   cout<<" Read track collection for accepted events "<<result->size()<<endl;
+//   cout<<" Read track collection for accepted events "<<result->size()<<endl;
    if(result->size() == 0) {
-  iEvent.put( outputTColl, "JetTracksCollection");
-  iEvent.put( result, "DijetBackToBackCollection");
-  iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
-  iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
-  iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
-  iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
-   return;
+     iEvent.put( outputTColl, "DiJetsTracksCollection");
+     iEvent.put( result, "DiJetsBackToBackCollection");
+     iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
+     iEvent.put( miniDiJetsHBHERecHitCollection, "DiJetsHBHERecHitCollection");
+     iEvent.put( miniDiJetsHORecHitCollection, "DiJetsHORecHitCollection");
+     iEvent.put( miniDiJetsHFRecHitCollection, "DiJetsHFRecHitCollection");
+      return;
    }
-   cout<<" Eta of jets "<<fJet1.eta()<<" "<<fJet2.eta()<<" "<<fJet1.phi()<<" "<<fJet2.phi()<<endl; 
+//   cout<<" Eta of jets "<<fJet1.eta()<<" "<<fJet2.eta()<<" "<<fJet1.phi()<<" "<<fJet2.phi()<<endl; 
 // Track Collection 
    try{
    edm::Handle<reco::TrackCollection> trackCollection;
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
    const reco::TrackCollection tC = *(trackCollection.product());
-   cout<<" Number of tracks "<<tC.size()<<endl; 
+//   cout<<" Number of tracks "<<tC.size()<<endl; 
    //Create empty output collections
 
    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++)
@@ -183,7 +171,7 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     std::vector<edm::InputTag>::const_iterator i;
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    cout<<" Read ECAL collection "<<endl;
+//   cout<<" Read ECAL collection "<<endl;
     try {
 
       edm::Handle<EcalRecHitCollection> ec;
@@ -213,13 +201,13 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!allowMissingInputs_) throw e;
     }
     }
-    cout<<" Size of ECAL minicollection "<<miniDiJetsEcalRecHitCollection->size()<<endl;
+//    cout<<" Size of ECAL minicollection "<<miniDiJetsEcalRecHitCollection->size()<<endl;
    
   try {
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel(hbheInput_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
+  //cout<<" Size of HBHE collection "<<Hithbhe.size()<<endl;
    
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
         {
@@ -241,13 +229,13 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (!allowMissingInputs_) {cout<<"No HBHE collection "<<endl; throw e;}
     }
 
-   std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
+ //  std::cout<<" Size of mini HCAL collection "<<miniDiJetsHBHERecHitCollection->size()<<std::endl;
 
   try{  
    edm::Handle<HORecHitCollection> ho;
    iEvent.getByLabel(hoInput_,ho);
    const HORecHitCollection Hitho = *(ho.product());
-   cout<<" Size of HO collection "<<Hitho.size()<<endl;
+   //cout<<" Size of HO collection "<<Hitho.size()<<endl;
   for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
         {
 
@@ -271,12 +259,12 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } catch (std::exception& e) { // can't find it!
         if (!allowMissingInputs_) {cout<<" No HO collection "<<endl; throw e;}
     }
-  cout<<" Size of mini HO collection "<<miniDiJetsHORecHitCollection->size()<<endl;
+//  cout<<" Size of mini HO collection "<<miniDiJetsHORecHitCollection->size()<<endl;
   try {
   edm::Handle<HFRecHitCollection> hf;
   iEvent.getByLabel(hfInput_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
-  cout<<" Size of HF collection "<<Hithf.size()<<endl;
+//  cout<<" Size of HF collection "<<Hithf.size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
       {
           GlobalPoint pos = geo->getPosition(hfItr->detid());
@@ -296,12 +284,12 @@ AlCaDiJetsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
     }
-   cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
+ //  cout<<" Size of mini HF collection "<<miniDiJetsHFRecHitCollection->size()<<endl;
 
   //Put selected information in the event
-  iEvent.put( outputTColl, "JetTracksCollection");
+  iEvent.put( outputTColl, "DiJetsTracksCollection");
 //   cout<<" Point 1 "<<endl;
-  iEvent.put( result, "DijetBackToBackCollection");
+  iEvent.put( result, "DiJetsBackToBackCollection");
 //    cout<<" Point 2 "<<endl;
 
   iEvent.put( miniDiJetsEcalRecHitCollection,"DiJetsEcalRecHitCollection");
