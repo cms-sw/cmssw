@@ -247,7 +247,7 @@ BaseParticlePropagator::propagate() {
     double cProp = std::cos(phiProp);
     double xProp = xC + radius * sProp;
     double yProp = yC - radius * cProp;
-    double tProp = T() + (zProp-T())*E()/pZ;
+    double tProp = T() + (zProp-Z())*E()/pZ;
     double pxProp = pT * cProp;
     double pyProp = pT * sProp;
 
