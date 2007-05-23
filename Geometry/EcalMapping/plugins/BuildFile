@@ -3,5 +3,5 @@
 <use name=FWCore/ParameterSet>
 <use name=Geometry/EcalMapping>
 <library name=GeometryEcalMappingPlugins file="*.cc">
-  <flags EDM_PLUGIN=1>
+ <flags SEAL_PLUGIN_NAME="GeometryEcalMappingPlugins">
 </library>
