@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.18 2007/05/22 21:47:13 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.19 2007/05/23 20:27:50 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.18 2007/05/22 21:47:13 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.19 2007/05/23 20:27:50 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -250,7 +250,7 @@ void ScheduleValidator::findDeps(NodePtr& node, DependencyList& dep){
   if (node->type() == "operand") {
     std::string nodeName = node->name();
     removeUnaries(nodeName);
-    dep.push_back(node->name());
+    dep.push_back(nodeName);
   }
   // else follow the tree, unless the leaf is contained in the node
   else{
