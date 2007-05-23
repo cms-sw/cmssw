@@ -9,6 +9,9 @@
 #include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 
+#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
+
+
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   
@@ -42,6 +45,10 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   put_(conf.getUntrackedParameter<bool>("eventPut",false)),
   
   dataLabel_(conf.getUntrackedParameter<std::string>("InputLabel","source")),
+
+  REGIONAL_(conf.getUntrackedParameter<bool>("DoRegional",false)),
+
+  fedsLabel_(conf.getUntrackedParameter<std::string>("FedLabel","listfeds")),
 
   myMap_(0),
   
@@ -163,6 +170,15 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 
   }
 
+  // Get list of FEDS :
+  std::vector<int> FEDS_to_unpack;
+  if (REGIONAL_) {
+        edm::Handle<EcalListOfFEDS> listoffeds;
+        e.getByLabel(fedsLabel_, listoffeds);
+        FEDS_to_unpack = listoffeds -> GetList();
+  }
+
+
 
   // Step A: Get Inputs    
 
@@ -250,6 +266,12 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
   
   // Step C: unpack all requested FEDs    
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
+
+    if (REGIONAL_) {
+      std::vector<int>::const_iterator fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
+      if (fed_it == FEDS_to_unpack.end()) continue;
+    }
+
     try{
       // get fed raw data and SM id
       const FEDRawData & fedData = rawdata->FEDData(*i);
