@@ -34,7 +34,7 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field
   the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-    
+  maxNumberOfOutInSeedsPerBC_=10;    
    
     
 }
@@ -79,6 +79,8 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   LogDebug("OutInConversionSeedFinder") << "  OutInConversionSeedFinder::makeSeeds() All BC in the event " << "\n";
 
   for(bcItr = allBC.begin(); bcItr != allBC.end(); bcItr++) {
+    nSeedsPerBC_=0;
+
     theBCEnergy_=bcItr->energy();
     theBCPosition_ = GlobalPoint(bcItr->position().x(), bcItr->position().y(), bcItr->position().z() ) ;
     float theBcEta=  theBCPosition_.eta();
@@ -445,7 +447,11 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  from state " << state2.globalPosition()  <<  "\n";
 	LogDebug("OutInConversionSeedFinder") << "OutInConversionSeedFinder::createSeed new seed  ptsod " <<  ptsod->parameters().position() << " R " << ptsod->parameters().position().perp() << " phi " << ptsod->parameters().position().phi() << " eta " << ptsod->parameters().position().eta() << "\n" ;
 	
-	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum )); 
+        if ( nSeedsPerBC_ >= maxNumberOfOutInSeedsPerBC_ ) return;
+
+	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, oppositeToMomentum ));
+        nSeedsPerBC_++;
+ 
         delete ptsod;  
         
 

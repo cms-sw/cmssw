@@ -4,9 +4,9 @@
 /** \class OutInConversionSeedFinder
  **  
  **
- **  $Id: OutInConversionSeedFinder.h,v 1.4 2007/02/05 13:22:47 nancy Exp $ 
- **  $Date: 2007/02/05 13:22:47 $ 
- **  $Revision: 1.4 $
+ **  $Id: OutInConversionSeedFinder.h,v 1.5 2007/03/14 20:34:30 nancy Exp $ 
+ **  $Date: 2007/03/14 20:34:30 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -80,7 +80,9 @@ class OutInConversionSeedFinder : public ConversionSeedFinder {
   float   the2ndHitdzConst_;    
   float  the2ndHitdznSigma_; 
   mutable std::vector<TrajectoryMeasurement> theFirstMeasurements_;
-  
+  mutable int nSeedsPerBC_;
+  int maxNumberOfOutInSeedsPerBC_;
+
   const LayerMeasurements*      theLayerMeasurements_;
   
 
