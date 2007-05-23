@@ -54,6 +54,10 @@
   <class name="reco::IsolatedTauTagInfoRefProd"/>
   <class name="reco::IsolatedTauTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::IsolatedTauTagInfoCollection>"/>
+  <class name="Angle<math::XYZVector,math::XYZVector>"/>
+  <class name="DeltaR<math::XYZVector,math::XYZVector>"/>
+  <class name="TauConeIsolationAlgo<math::XYZVector,reco::TrackCollection,Angle<math::XYZVector,math::XYZVector> >"/>
+  <class name="TauConeIsolationAlgo<math::XYZVector,reco::TrackCollection,DeltaR<math::XYZVector,math::XYZVector> >"/>
 
   <class name="reco::SoftLeptonProperties"/>
   <class name="std::pair<reco::TrackRef, reco::SoftLeptonProperties>"/>
