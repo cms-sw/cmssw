@@ -7,8 +7,8 @@
 //
 //   Author List: S. Valuev, UCLA.
 //
-//   $Date: 2007/03/07 10:14:19 $
-//   $Revision: 1.11 $
+//   $Date: 2007/03/27 10:27:55 $
+//   $Revision: 1.12 $
 //
 //   Modifications:
 //
@@ -776,7 +776,8 @@ void CSCTriggerPrimitivesReader::compareALCTs(
                                  const CSCALCTDigiCollection* alcts_data,
 				 const CSCALCTDigiCollection* alcts_emul) {
   // (Empirical) offset between 12-bit fullBX and Tbin0 of raw anode hits.
-  const int tbin_anode_offset = 10; // why not 6???
+  //const int tbin_anode_offset = 10; // why not 6??? MTCC-II
+  const int tbin_anode_offset = 4; // starting with run 539
 
   // Loop over all chambers in search for ALCTs.
   CSCALCTDigiCollection::const_iterator digiIt;
@@ -840,9 +841,10 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 	  int csctype = getCSCType(detid);
 	  hAlctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
-	      << "    +++ Different numbers of ALCTs found: data = " << ndata
-	      << " emulator = " << nemul << " +++";
+	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	      << "   +++ Different numbers of ALCTs found in ME"
+	      << endc << "-" << stat << "/" << ring << "/" << cham
+	      << ": data = " << ndata << " emulator = " << nemul << " +++\n";
 	  }
 	  else {
 	    hAlctCompSameNCsc[csctype]->Fill(cham);
@@ -880,11 +882,12 @@ void CSCTriggerPrimitivesReader::compareALCTs(
 		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hAlctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Identical ALCTs #" << data_trknmb;
+		    << "       Identical ALCTs #" << data_trknmb;
 		}
 		else {
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Different ALCTs #" << data_trknmb;
+		  edm::LogWarning("CSCTriggerPrimitivesReader")
+		    << "       Different ALCTs #" << data_trknmb << " in ME"
+		    << endc << "-" << stat << "/" << ring << "/" << cham;
 		}
 		break;
 	      }
@@ -964,9 +967,10 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 	  int csctype = getCSCType(detid);
 	  hClctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
-	      << "    +++ Different numbers of CLCTs found: data = " << ndata
-	      << " emulator = " << nemul << " +++";
+	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	      << "   +++ Different numbers of CLCTs found in ME"
+	      << endc << "-" << stat << "/" << ring << "/" << cham
+	      << ": data = " << ndata << " emulator = " << nemul << " +++\n";
 	  }
 	  else {
 	    hClctCompSameNCsc[csctype]->Fill(cham);
@@ -1012,11 +1016,12 @@ void CSCTriggerPrimitivesReader::compareCLCTs(
 		    {
 		  if (ndata == nemul) hClctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Identical CLCTs #" << data_trknmb;
+		    << "       Identical CLCTs #" << data_trknmb;
 		}
 		else {
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Different CLCTs #" << data_trknmb;
+		  edm::LogWarning("CSCTriggerPrimitivesReader")
+		    << "       Different CLCTs #" << data_trknmb << " in ME"
+		    << endc << "-" << stat << "/" << ring << "/" << cham;
 		}
 		break;
 	      }
@@ -1093,9 +1098,10 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 	  int csctype = getCSCType(detid);
 	  hLctCompFoundCsc[csctype]->Fill(cham);
 	  if (ndata != nemul) {
-	    if (debug) LogDebug("CSCTriggerPrimitivesReader")
-	      << "    +++ Different numbers of LCTs found: data = " << ndata
-	      << " emulator = " << nemul << " +++";
+	    edm::LogWarning("CSCTriggerPrimitivesReader")
+	      << "   +++ Different numbers of LCTs found in ME"
+	      << endc << "-" << stat << "/" << ring << "/" << cham
+	      << ": data = " << ndata << " emulator = " << nemul << " +++\n";
 	  }
 	  else {
 	    hLctCompSameNCsc[csctype]->Fill(cham);
@@ -1137,11 +1143,12 @@ void CSCTriggerPrimitivesReader::compareLCTs(
 		    data_bx        == emul_corr_bx) {
 		  if (ndata == nemul) hLctCompMatchCsc[csctype]->Fill(cham);
 		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Identical LCTs #" << data_trknmb;
+		    << "       Identical LCTs #" << data_trknmb;
 		}
 		else {
-		  if (debug) LogDebug("CSCTriggerPrimitivesReader")
-		    << "        Different LCTs #" << data_trknmb;
+		  edm::LogWarning("CSCTriggerPrimitivesReader")
+		    << "       Different LCTs #" << data_trknmb << " in ME"
+		    << endc << "-" << stat << "/" << ring << "/" << cham;
 		}
 		break;
 	      }
