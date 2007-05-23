@@ -5,6 +5,7 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
  
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -47,20 +48,24 @@ void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
   const HepMC::GenEvent* Gevt = EvtHandle->GetEvent() ;
   bool mybc=false;
   int npart=0;
+  int nb=0;
+  int nc=0;
   if (Gevt != 0 ) {   
     for ( HepMC::GenEvent::particle_const_iterator
-	    particle=Gevt->particles_begin(); particle!=Gevt->particles_end()&& npart<10; ++particle )
+	    particle=Gevt->particles_begin(); particle!=Gevt->particles_end(); ++particle )
       {
 	++npart;
 	int id=abs((*particle)->pdg_id());
 	int status=(*particle)->status();
-	if (id < 6 && status>1){
-	  if (id>3){
+	if (id==5 || id== 4){
+	  if (npart==6 || npart ==7){
 	    mybc=true;
 	    break;
-	  }
+	  } else if ((*particle)->mother()->pdg_id() == 21 && id==5 ) nb++;
+	  else if ((*particle)->mother()->pdg_id() == 21 && id==4 ) nc++;
 	}
       }
+    if (nb>1 || nc>1) mybc=true;
     if (mybc)++anaBC;
     else ++anaLight;
   }
