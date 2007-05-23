@@ -510,7 +510,7 @@ void MultiTrackValidator::endJob() {
       TH2F* ptres_pt = new TH2F("ptres_pt","ptres_pt",nintpT,minpT,maxpT, 100, -0.1, 0.1);
       copy2D(ptres_pt,ptres_vs_pt[w]);
       FitSlicesYTool fsyt_ptPt(ptres_pt);
-      fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
+      fsyt_ptPt.getFittedSigmaWithError(h_ptrmshPt[w]);
       delete ptres_pt;
       TH2F* z0res_eta = new TH2F("z0res_eta","z0res_eta",nint,min,max, 150, -0.05, 0.05);
       copy2D(z0res_eta,z0res_vs_eta[w]);
@@ -520,7 +520,7 @@ void MultiTrackValidator::endJob() {
       TH2F* z0res_pt = new TH2F("z0res_pt","z0res_pt",nintpT,minpT,maxpT, 150, -0.05, 0.05);
       copy2D(z0res_pt,z0res_vs_pt[w]);
       FitSlicesYTool fsyt_z0Pt(z0res_pt);
-      fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
+      fsyt_z0Pt.getFittedSigmaWithError(h_z0rmshPt[w]);
       delete z0res_pt;
       TH2F* phires_eta = new TH2F("phires_eta","phires_eta",nint,min,max, 100, -0.003, 0.003);
       copy2D(phires_eta,phires_vs_eta[w]);
@@ -530,7 +530,7 @@ void MultiTrackValidator::endJob() {
       TH2F* phires_pt = new TH2F("phires_pt","phires_pt",nintpT,minpT,maxpT, 100, -0.003, 0.003);
       copy2D(phires_pt,phires_vs_pt[w]);
       FitSlicesYTool fsyt_phiPt(phires_pt);
-      fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
+      fsyt_phiPt.getFittedSigmaWithError(h_phirmshPt[w]);
       delete phires_pt;
       TH2F* cotThetares_eta = new TH2F("cotThetares_eta","cotThetares_eta",nint,min,max, 120, -0.01, 0.01);
       copy2D(cotThetares_eta,cotThetares_vs_eta[w]);
@@ -540,7 +540,7 @@ void MultiTrackValidator::endJob() {
       TH2F* cotThetares_pt = new TH2F("cotThetares_pt","cotThetares_pt",nintpT,minpT,maxpT, 120, -0.01, 0.01);
       copy2D(cotThetares_pt,cotThetares_vs_pt[w]);
       FitSlicesYTool fsyt_cotThetaPt(cotThetares_pt);
-      fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
+      fsyt_cotThetaPt.getFittedSigmaWithError(h_cotThetarmshPt[w]);
       delete cotThetares_pt;
 
       //chi2 and #hit vs eta: get mean from 2D histos
