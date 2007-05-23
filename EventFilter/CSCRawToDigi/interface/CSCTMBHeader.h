@@ -13,7 +13,7 @@ class CSCTMBHeader {
 
  public:
   CSCTMBHeader();
-  CSCTMBHeader(CSCTMBStatusDigi & digi)
+  CSCTMBHeader(const CSCTMBStatusDigi & digi)
     {
       memcpy(this, digi.header(), sizeInBytes()); 
     }

@@ -18,7 +18,7 @@ struct CSCDCCTrailer {
     dcc_trail1 = 0xEF;
   }
   
-  CSCDCCTrailer(CSCDCCStatusDigi & digi)
+  CSCDCCTrailer(const CSCDCCStatusDigi & digi)
   {
     memcpy(this, digi.trailer(), sizeInWords()*2);
   }

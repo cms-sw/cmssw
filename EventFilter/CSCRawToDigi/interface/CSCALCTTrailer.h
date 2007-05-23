@@ -16,7 +16,7 @@ public:
     memcpy(this, buf, sizeInWords()*2);
   }
 
-  CSCALCTTrailer(CSCALCTStatusDigi & digi) 
+  CSCALCTTrailer(const CSCALCTStatusDigi & digi) 
     {
       memcpy(this, digi.trailer() , sizeInWords()*2);
     }

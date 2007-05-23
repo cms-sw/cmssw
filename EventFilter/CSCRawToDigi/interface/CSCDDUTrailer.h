@@ -20,7 +20,7 @@ class CSCDDUTrailer {
       trailer2_1 = trailer2_2 = trailer2_4 = 0x8000;
       trailer2_3 = 0xFFFF;
     }
-  CSCDDUTrailer(CSCDDUStatusDigi & digi)
+  CSCDDUTrailer(const CSCDDUStatusDigi & digi)
     {
       memcpy(this, digi.trailer(), sizeInWords()*2);
     }

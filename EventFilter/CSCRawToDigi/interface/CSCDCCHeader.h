@@ -13,7 +13,7 @@ class CSCDCCHeader {
  public:
   CSCDCCHeader(int bx, int l1a, int sourceId);
   CSCDCCHeader();
-  CSCDCCHeader(CSCDCCStatusDigi & digi);
+  CSCDCCHeader(const CSCDCCStatusDigi & digi);
 
   int getCDFEventNumber() const; 
   int getCDFSourceId() const; 

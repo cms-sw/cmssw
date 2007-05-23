@@ -21,7 +21,7 @@ public:
 
   CSCTMBTrailer(unsigned short * buf);
 
-  CSCTMBTrailer(CSCTMBStatusDigi & digi)
+  CSCTMBTrailer(const CSCTMBStatusDigi & digi)
     {
       memcpy(this, digi.trailer(), sizeInBytes());
     }

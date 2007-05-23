@@ -90,11 +90,11 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   if (unpackStatusDigis) 
     {
       produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
-      produces<CSCCFEBStatusDigiCollection>("MuonCSCTMBStatusDigi");
-      produces<CSCCFEBStatusDigiCollection>("MuonCSCDMBStatusDigi");
-      produces<CSCCFEBStatusDigiCollection>("MuonCSCALCTStatusDigi");
-      produces<CSCCFEBStatusDigiCollection>("MuonCSCDDUStatusDigi");
-      produces<CSCCFEBStatusDigiCollection>("MuonCSCDCCStatusDigi");
+      produces<CSCTMBStatusDigiCollection>("MuonCSCTMBStatusDigi");
+      produces<CSCDMBStatusDigiCollection>("MuonCSCDMBStatusDigi");
+      produces<CSCALCTStatusDigiCollection>("MuonCSCALCTStatusDigi");
+      produces<CSCDDUStatusDigiCollection>("MuonCSCDDUStatusDigi");
+      produces<CSCDCCStatusDigiCollection>("MuonCSCDCCStatusDigi");
     }
   CSCAnodeData::setDebug(debug);
   CSCALCTHeader::setDebug(debug);

@@ -20,7 +20,7 @@ class CSCALCTHeader
 public:
   explicit CSCALCTHeader(int chamberType); 
   explicit CSCALCTHeader(const unsigned short * buf);
-  CSCALCTHeader(CSCALCTStatusDigi & digi);
+  CSCALCTHeader(const CSCALCTStatusDigi & digi);
 
 
 /** turns on the debug flag for this class */

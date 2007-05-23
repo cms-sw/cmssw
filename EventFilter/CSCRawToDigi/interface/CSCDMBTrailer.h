@@ -13,7 +13,7 @@ public:
       ddu_code_5 = ddu_code_6 = ddu_code_7 = ddu_code_8 = 0xE;
     }
   
-  CSCDMBTrailer(CSCDMBStatusDigi & digi) 
+  CSCDMBTrailer(const CSCDMBStatusDigi & digi) 
     {
       memcpy(this, digi.trailer(), sizeInWords()*2);
     }

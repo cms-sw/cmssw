@@ -22,7 +22,7 @@ CSCDCCHeader::CSCDCCHeader()
   dcc_code2 = 0x97;
 }
 
-CSCDCCHeader::CSCDCCHeader(CSCDCCStatusDigi & digi)
+CSCDCCHeader::CSCDCCHeader(const CSCDCCStatusDigi & digi)
 {
   memcpy(this, digi.header(), sizeInWords()*2);
 }

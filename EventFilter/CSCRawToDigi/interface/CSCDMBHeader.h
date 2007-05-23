@@ -13,7 +13,7 @@ public:
   
   CSCDMBHeader(unsigned short * buf);
 
-  CSCDMBHeader(CSCDMBStatusDigi & digi)
+  CSCDMBHeader(const CSCDMBStatusDigi & digi)
     {
       memcpy(this, digi.header(), sizeInWords()*2);
     }
