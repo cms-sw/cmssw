@@ -9,7 +9,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    lJetInput_       = iConfig.getParameter< string > 	  ("lJetInput");
    bJetInput_       = iConfig.getParameter< string > 	  ("bJetInput");
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
-   addJetCombProb_  = iConfig.getParameter< bool >        ("addJetCombProb");
+   addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
    maxNrIter_       = iConfig.getParameter< int >         ("maxNrIter");
    maxDeltaS_       = iConfig.getParameter< double >      ("maxDeltaS");
    maxF_            = iConfig.getParameter< double >      ("maxF");
@@ -25,13 +25,17 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    }
    
    // define jet combinations related calculators
-   mySimpleBestJetComb = new TtSemiSimpleBestJetComb();
+   mySimpleBestJetComb      = new TtSemiSimpleBestJetComb();
+   myLRJetCombObservables   = new TtSemiLRJetCombObservables();
    
    produces<vector<TtSemiEvtSolution> >();
 }
 
 
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {}
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
+   delete mySimpleBestJetComb;
+   delete myLRJetCombObservables;
+}
 
 
 //
@@ -100,12 +104,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 		   asol.setLeptonParametrisation(param_);
 		   asol.setMETParametrisation(param_);
       		 }
-		/*if(addJetCombProb_){
-      		  asol.setPtrueCombExist(jetCombProbs[m].getPTrueCombExist(&afitsol));
-      		  asol.setPtrueBJetSel(jetCombProbs[m].getPTrueBJetSel(&afitsol));
-      		  asol.setPtrueBhadrSel(jetCombProbs[m].getPTrueBhadrSel(&afitsol));
-      		  asol.setPtrueJetComb(afitsol.getPtrueCombExist()*afitsol.getPtrueBJetSel()*afitsol.getPtrueBhadrSel());
-      		 }*/
+		 // these lines calculate the observables to be used in the JetCombination
+		 (*myLRJetCombObservables)(asol);
+		 //if asked for, calculate with these observable values the LRvalue and probability a jet combination is correct
+		 //if(addLRJetComb_) ...
 	         evtsols->push_back(asol);
 	       } 
 	     }
@@ -116,7 +118,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
      
      // add TtSemiSimpleBestJetComb to solutions
      int simpleBestJetComb = (*mySimpleBestJetComb)(*evtsols);
-     for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleBestSol(simpleBestJetComb);
+     for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setSimpleCorrJetComb(simpleBestJetComb);
      
      // if asked for, match the event solutions to the gen Event
      if(matchToGenEvt_){
@@ -135,7 +137,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
          (*evtsols)[s].setDeltaRlepb(bm[5]);
 	 if(bm[0]<bestSolDR) { bestSolDR =  bm[0]; bestSol = s; }
        }
-       for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setMCBestSol(bestSol);
+       for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setMCCorrJetComb(bestSol);
      }
      
      

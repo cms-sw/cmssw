@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.2 2007/05/19 09:54:37 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.3 2007/05/22 16:43:34 heyninck Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEMom.h"
 #include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
+#include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include <string>
 #include <vector>
 #include <iostream>
@@ -61,10 +62,11 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       //std::vector<TtJetCombinationProbability> jetCombProbs;
       string leptonFlavour_;
       string lJetInput_,bJetInput_;
-      bool addJetCombProb_, doKinFit_, matchToGenEvt_;
+      bool addLRJetComb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
       vector<int> constraints_;
-      TtSemiSimpleBestJetComb *mySimpleBestJetComb;
+      TtSemiSimpleBestJetComb      *mySimpleBestJetComb;
+      TtSemiLRJetCombObservables   *myLRJetCombObservables;
 };
