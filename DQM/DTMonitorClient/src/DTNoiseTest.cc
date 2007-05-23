@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/05/15 17:21:35 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/22 07:14:45 $
+ * $Revision: 1.4 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -92,11 +92,11 @@ void DTNoiseTest::bookHistos(const DTChamberId & ch, string folder, string histo
 
   string histoName =  histoTag + "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
  
-  if ( folder == "Dead Channels")
-  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
- 
-  if ( folder == "New Noisy Channels")
-  (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
+  if ( folder == "NoiseAverage")
+    (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
+  
+  if ( folder == "NewNoisyChannels")
+    (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
   
 }
 
@@ -130,8 +130,8 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
       if (ob) {
 	TH2F * noiseHisto = dynamic_cast<TH2F*> (ob->operator->());
 	
-	double nevents=noiseHisto->GetEntries();
-	
+	// WARNING uncorrect normalization!! TO BE PROVIDED CENTRALLY
+	nevents = (int) noiseHisto->GetEntries();
 	double normalization =0;
 	
 	if (noiseHisto) {
@@ -157,13 +157,10 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 	    noiseHisto->Scale(normalization);
 	    
 	    // loop over layers
-	    
 	    for (int binY=(slID.superLayer()-1)*4+1 ; binY <= (slID.superLayer()-1)*4+4; binY++) {
 	      
-	      int Y = binY - 4*(slID.superLayer()-1);
-	      
 	      // the layer
-	      
+	      int Y = binY - 4*(slID.superLayer()-1);
 	      const DTLayerId theLayer(slID,Y);
 	      
 	      // loop over channels 
@@ -182,9 +179,9 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 	    
 	    if (nOfChannels) noiseStatistics = average/nOfChannels;
 	    	    
-	    histoTag = "Dead Channels";
+	    histoTag = "NoiseAverage";
 
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("Dead Channels"), histoTag );
+	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NoiseAverage"), histoTag );
 	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(),noiseStatistics); 
 	    
 	    for ( vector<DTWireId>::const_iterator nb_it = theNoisyChannels.begin();
@@ -203,8 +200,8 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
 	    theNoisyChannels.clear();
 
-	    histoTag = "New Noisy Channels";
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("New Noisy Channels"), histoTag );
+	    histoTag = "NewNoisyChannels";
+	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NewNoisyChannels"), histoTag );
 	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), newNoiseChannels); 
 	    
 	  }
