@@ -51,13 +51,16 @@ double reco::TauMassTagInfo::getInvariantMass(const double rm_cone, const double
                         const double rs_cone, const double track_cone) const {
   double invariantMass = -1.0;
 
-  const TrackRef leadTk= isolatedTau->leadingSignalTrack(rm_cone, pt_cut);
+  int errorFlag = 0;
+  const TrackRef leadTk= isolatedTau->leadingSignalTrack(rm_cone, IsolatedTauTagInfo::kEtaPhiCone, pt_cut, errorFlag);
   if(!leadTk) {
     cout <<" TauMassTagInfo::  No Leading Track !!  " << endl;    
     return invariantMass;
   }
+
   math::XYZVector momentum = (*leadTk).momentum();
-  const RefVector<TrackCollection> signalTracks = isolatedTau->tracksInCone(momentum,rs_cone,pt_cut);
+
+  const RefVector<TrackCollection> signalTracks = isolatedTau->tracksInCone(momentum, rs_cone, IsolatedTauTagInfo::kEtaPhiCone, pt_cut, errorFlag);
   if (signalTracks.size() == 0) return invariantMass;
 
   double px_inv = 0.0;
