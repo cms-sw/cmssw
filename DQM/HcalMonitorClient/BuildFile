@@ -1,3 +1,4 @@
+<flags SEALPLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/CoreROOT>
