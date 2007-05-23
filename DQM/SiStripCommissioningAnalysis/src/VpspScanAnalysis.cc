@@ -14,7 +14,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
-  : CommissioningAnalysis(key,"VPSP SCAN"),
+  : CommissioningAnalysis(key,"VpspScanAnalysis"),
     vpsp0_(sistrip::invalid_), 
     vpsp1_(sistrip::invalid_),
     hVpsp0_(0,""), 
@@ -24,7 +24,7 @@ VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
 // -----------------------------------------------------------------------------
 //
 VpspScanAnalysis::VpspScanAnalysis()
-  : CommissioningAnalysis("VPSP SCAN"),
+  : CommissioningAnalysis("VpspScanAnalysis"),
     vpsp0_(sistrip::invalid_), 
     vpsp1_(sistrip::invalid_),
     hVpsp0_(0,""), 
@@ -35,8 +35,8 @@ VpspScanAnalysis::VpspScanAnalysis()
 // 
 void VpspScanAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
-  ss << " VPSP setting APV0: " << vpsp0_ << "\n" 
-     << " VPSP setting APV1: " << vpsp1_ << "\n" ;
+  ss << " VPSP setting APV0: " << vpsp0_ << std::endl 
+     << " VPSP setting APV1: " << vpsp1_ << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -113,11 +113,12 @@ void VpspScanAnalysis::extract( const std::vector<TH1*>& histos ) {
 // -----------------------------------------------------------------------------
 //
 void VpspScanAnalysis::analyse() {
-  deprecated(); //@@ use matt's method...
+
+  //@@ use matt's method...
+  deprecated(); 
+  
 }
 
-// -----------------------------------------------------------------------------
-// -----------------------------------------------------------------------------
 // -----------------------------------------------------------------------------
 //
 void VpspScanAnalysis::deprecated() {
@@ -132,6 +133,7 @@ void VpspScanAnalysis::deprecated() {
     } else if ( iapv == 1 ) {
       histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp1_.first) ) );
     } 
+
     if ( !histos[0] ) {
       edm::LogWarning(mlCommissioning_)
 	<< "[" << myName() << "::" << __func__ << "]"
