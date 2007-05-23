@@ -10,8 +10,28 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
+
 using boost::multi_index_container;
 using namespace boost::multi_index;
+
+	// -----------------------------------------------------------------------
+	//
+	// -- Conventions :
+	//
+	//    DCCid and TCCid numbering : cf slides of Ph. Gras :
+	//     in EE- : DCCid between 1 and 8.
+	//              DCCid number 1 covers the range -30 deg < phi < 10 deg.
+	//     in EB- : DCCid between 10 and 27.
+	//	        DCCid number 10 covers the range -10 deg < phi < 10 deg.
+	//     in EB+:  DCCid between 28 and 45.
+	//              DCCid number 28 covers the range -10 deg < phi < 10 deg.
+	//     in EE+:  DCCid between 46 and 54;
+	// 	        DCCid number 46 covers the range -30 deg < phi < 10 deg.
+	//
+	//    SMid : 1-18 correspond to EB+   (SMid 1 corresponds to DCC 28)
+	//           19-36 correspond to EB-
+	//
+	// ------------------------------------------------------------------------
 
 EcalElectronicsMapping::EcalElectronicsMapping() {
 }
@@ -825,6 +845,189 @@ bool EcalElectronicsMapping::rightTower(int tower) const {
   else
     return false;
 }
+
+
+int EcalElectronicsMapping::DCCBoundary(int FED) {
+
+ if (FED >= MIN_DCCID_EEM && FED <= MAX_DCCID_EEM) return MIN_DCCID_EEM;
+ if (FED >= MIN_DCCID_EBM && FED <= MAX_DCCID_EBM) return MIN_DCCID_EBM;
+ if (FED >= MIN_DCCID_EBP && FED <= MAX_DCCID_EBP) return MIN_DCCID_EBP;
+ if (FED >= MIN_DCCID_EEP && FED <= MAX_DCCID_EEP) return MIN_DCCID_EEP;
+ return -1;
+
+}
+
+
+std::vector<int> EcalElectronicsMapping::GetListofFEDs(const EcalEtaPhiRegion region) {
+
+	// for regional unpacking.
+	// get list of FEDs corresponding to a region in (eta,phi)
+
+	std::vector<int> FEDs;
+	double radTodeg = 180. / Geom::pi();
+
+	bool debug = false;
+
+	double etalow = region.etaLow();
+	double philow = region.phiLow() * radTodeg;
+ 	if (debug) std::cout << " etalow philow " << etalow << " " << philow << std::endl;
+	int FED_LB = GetFED(etalow,philow);	// left, bottom
+
+        double phihigh = region.phiHigh() * radTodeg;
+	if (debug) std::cout << " etalow phihigh " << etalow << " " << phihigh << std::endl;
+        int FED_LT = GetFED(etalow,phihigh);	// left, top
+
+	int DCC_BoundaryL = DCCBoundary(FED_LB);
+	int deltaL = 18;
+	if (FED_LB < MIN_DCCID_EBM || FED_LB > MAX_DCCID_EBP) deltaL=9;
+
+	if (philow < -170 && phihigh > 170) {
+		FED_LB = DCC_BoundaryL;
+		FED_LT = DCC_BoundaryL + deltaL -1;
+	}
+	if (debug) std::cout << " FED_LB FED_LT " << FED_LB << " " << FED_LT << std::endl;
+
+
+	int iL=FED_LB;
+	bool dummy = true;
+	int idx = 0;
+	while (  dummy ) {
+		iL = (FED_LB - DCC_BoundaryL + idx ) % deltaL + DCC_BoundaryL;
+		FEDs.push_back(iL);
+		if (debug) std::cout << "   add fed " << iL << std::endl;
+		if ( iL == FED_LT) break;
+		idx ++;
+	}
+ 
+	double etahigh = region.etaHigh();
+	int FED_RB = GetFED(etahigh, philow);	// right, bottom
+	if (FED_RB == FED_LB) return FEDs;
+
+	int FED_RT = GetFED(etahigh, phihigh);	// right, top
+
+	if (debug) std::cout << "etahigh philow phihigh " << etahigh << " " << philow << " " << phihigh << std::endl;
+	int DCC_BoundaryR = DCCBoundary(FED_RB);
+	int deltaR = 18;
+	if (FED_RB < MIN_DCCID_EBM || FED_RB > MAX_DCCID_EBP) deltaR=9;
+
+        if (philow < -170 && phihigh > 170) {
+                FED_RB = DCC_BoundaryR;
+                FED_RT = DCC_BoundaryR + deltaR-1;
+        }
+	if (debug) std::cout << " FED_RB FED_RT " << FED_RB << " " << FED_RT << std::endl;
+
+	int iR=FED_RB;
+	idx = 0;
+	while ( dummy ) {
+		iR = (FED_RB - DCC_BoundaryR + idx) % deltaR + DCC_BoundaryR;
+                FEDs.push_back(iR);
+		if (debug) std::cout << "   add fed " << iR << std::endl;
+		if ( iR == FED_RT) break;
+		idx ++;
+	}
+
+
+	if (FED_LB >= MIN_DCCID_EBM && FED_LB <= MAX_DCCID_EBM   &&
+            FED_RB >= MIN_DCCID_EEP && FED_RB <= MAX_DCCID_EEP) {
+		int minR = FED_LB + 18;
+		int maxR = FED_LT + 18;
+		int iR = minR;
+		int idx = 0;
+		while ( dummy ) {
+			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
+			FEDs.push_back(iR);
+			if (debug) std::cout << "   add fed " << iR << std::endl;
+			if ( iR == maxR) break;
+			idx ++;
+		}
+		return FEDs;
+	}
+
+	if (FED_LB >= MIN_DCCID_EEM && FED_LB <= MAX_DCCID_EEM &&
+	    FED_RB >= MIN_DCCID_EBP && FED_RB <= MAX_DCCID_EBP) {
+		int minL = FED_RB - 18;
+		int maxL = FED_RT - 18;
+		int iL = minL;
+		int idx = 0;
+                while ( dummy ) {
+			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
+                        FEDs.push_back(iL);
+			if (debug) std::cout << "   add fed " << iL << std::endl;
+			if (iL == maxL) break;
+			idx ++;
+                }
+		return FEDs;
+	} 
+
+	if (FED_LB >= MIN_DCCID_EEM && FED_LB <= MAX_DCCID_EEM &&
+	    FED_RB >= MIN_DCCID_EEP && FED_RB <= MAX_DCCID_EEP) {
+		int minL = (FED_LB-1)*2 + MIN_DCCID_EBM;
+		if (minL == MIN_DCCID_EBM) minL=MAX_DCCID_EBM;
+		else minL = minL -1;
+		int maxL = (FED_LT-1)*2 + MIN_DCCID_EBM;
+		int iL = minL;
+		int idx = 0;
+		while (dummy) {
+			iL = (minL - MIN_DCCID_EBM + idx) % 18 + MIN_DCCID_EBM;
+			FEDs.push_back(iL);
+			if (debug) std::cout << "   add fed " << iL << std::endl;
+			if (iL == maxL) break;
+			idx ++;
+		}
+		int minR = minL + 18;
+		int maxR = maxL + 18;
+		int iR = minR;
+		idx = 0;
+		while (dummy) {
+			iR = (minR - MIN_DCCID_EBP + idx) % 18 + MIN_DCCID_EBP;
+                        FEDs.push_back(iR);
+			if (debug) std::cout << "   add fed " << iR << std::endl;
+			if (iR == maxR) break;
+			idx ++;
+                }
+	}
+
+	return FEDs;
+
+}
+
+int EcalElectronicsMapping::GetFED(double eta, double phi)  {
+
+	// for regional unpacking.
+	// eta is signed, phi is in degrees.
+
+	int DCC_Phi0 = 0;
+	bool IsBarrel = true;
+	if (fabs(eta) > 1.479) IsBarrel = false;
+	bool Positive = (eta > 0);
+
+	if (IsBarrel && Positive) DCC_Phi0 = DCCID_PHI0_EBP;
+	if (IsBarrel && (!Positive)) DCC_Phi0 = DCCID_PHI0_EBM;
+	if ((!IsBarrel) && Positive) DCC_Phi0 = MIN_DCCID_EEP;
+	if ((!IsBarrel) && (!Positive)) DCC_Phi0 = MIN_DCCID_EEM;
+
+	// phi between 0 and 360 deg :
+	if (phi < 0) phi += 360;
+	if (phi > 360.) phi = 360. ;
+	if (phi < 0) phi = 0. ;
+
+	if (IsBarrel) phi = phi - 350;
+	else phi = phi - 330;
+	if (phi < 0) phi += 360;
+	int iphi = -1;
+	if (IsBarrel) iphi = (int)(phi / 20.);
+	else iphi = (int)(phi / 40.);
+
+	// std::cout << " in GetFED : phi iphi DCC0 " << phi << " " << iphi << " " << DCC_Phi0 << std::endl;
+	
+	int DCC = iphi + DCC_Phi0;
+	// std::cout << "  eta phi " << eta << " " << " " << phi << " is in FED " << DCC << std::endl;
+	return DCC;
+}
+
+
+
+
 
 
 
