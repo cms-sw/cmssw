@@ -64,14 +64,14 @@
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.5 2007/05/18 20:36:41 marafino Exp $
+// $Id: EnableFloatingPointExceptions.h,v 1.6 2007/05/22 13:27:25 marafino Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
 #include <map>
-#include <vector>
+#include <stack>
 #include <fenv.h>
 
 namespace edm {
@@ -102,7 +102,9 @@ private:
 	 typedef std::vector<std::string> VString;
 	 typedef ParameterSet             PSet;
 	 fenv_t fpuState_;
+	 fenv_t OSdefault_;
          std::map<String, fenv_t> stateMap_;
+	 std::stack<fenv_t> stateStack_;
       };
    }
 }
