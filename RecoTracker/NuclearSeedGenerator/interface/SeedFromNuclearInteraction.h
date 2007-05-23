@@ -26,6 +26,7 @@ private :
 public :
   SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
  
+  /// Fill all data members from 2 TM's
   void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
 
   PTrajectoryStateOnDet trajectoryState(){ return *pTraj; }
@@ -38,15 +39,19 @@ public :
 
   TrajectorySeed TrajSeed(){ return TrajectorySeed(trajectoryState(),hits(),direction()); }
  
-  bool isValid() { return isValid_; }
+  bool isValid() const { return isValid_; }
+
+  const TSOS& updatedState() const { return updatedTSOS; }
+
+  const TM* outerMeasurement() const { return outerTM; }
 
 private :
-  TSOS                updatedTSOS; 
-  const TM*           outerTM;
-  recHitContainer     _hits;
-  bool                isValid_;
-  ConstRecHitPointer innerHit;
-  ConstRecHitPointer outerHit;
+  TSOS                                     updatedTSOS; 
+  const TM*                                outerTM;
+  recHitContainer                          _hits;
+  bool                                     isValid_;
+  ConstRecHitPointer                       innerHit;
+  ConstRecHitPointer                       outerHit;
   boost::shared_ptr<PTrajectoryStateOnDet> pTraj;
 
   const Propagator*                              thePropagator;
@@ -55,8 +60,8 @@ private :
 
   bool construct();
 
-  double rescaleDirectionFactor;
-  double rescalePositionFactor;
-  double rescaleCurvatureFactor;
+  double rescaleDirectionFactor; /**< Rescale the direction error */
+  double rescalePositionFactor;  /**< Rescale the position error */
+  double rescaleCurvatureFactor; /**< Rescale the curvature error */
 };
 #endif
