@@ -1,11 +1,13 @@
-#ifndef Utilities_DeltaR_h
-#define Utilities_DeltaR_h
+#ifndef PhysicsTools_Utilities_DeltaR_h
+#define PhysicsTools_Utilities_DeltaR_h
+
 /* \class DeltaR
  *
  * returns DeltaR between two objects
  *
  * \author Luca Lista, INFN
  */
+
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "PhysicsTools/Utilities/interface/Math.h"
 
