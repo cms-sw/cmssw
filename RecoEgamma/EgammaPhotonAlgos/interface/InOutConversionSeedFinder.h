@@ -4,9 +4,9 @@
 /** \class InOutConversionSeedFinder
  **  
  **
- **  $Id: InOutConversionSeedFinder.h,v 1.6 2007/02/05 13:22:58 nancy Exp $ 
- **  $Date: 2007/02/05 13:22:58 $ 
- **  $Revision: 1.6 $
+ **  $Id: InOutConversionSeedFinder.h,v 1.7 2007/03/26 22:16:46 nancy Exp $ 
+ **  $Date: 2007/03/26 22:16:46 $ 
+ **  $Revision: 1.7 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -81,6 +81,8 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   float  the2ndHitdznSigma_;
   mutable int track2Charge_;
   mutable GlobalVector track2InitialMomentum_; 
+  mutable int nSeedsPerInputTrack_;
+  int maxNumberOfInOutSeedsPerInputTrack_;
      
   const TrackingGeometry* theTrackerGeom_;
 
@@ -92,6 +94,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
   const LayerMeasurements*      theLayerMeasurements_;
   mutable reco::BasicCluster theSecondBC_;
   mutable reco::BasicClusterCollection  bcCollection_;
+  
 
   
 };

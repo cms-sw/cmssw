@@ -37,7 +37,7 @@ InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* fiel
   the2ndHitdphi_ = 0.01; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  
+  maxNumberOfInOutSeedsPerInputTrack_=10; 
   
 }
 
@@ -82,6 +82,8 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
   
   ///// This bit is for debugging; it will go away  
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
+    nSeedsPerInputTrack_=0;
+
     LogDebug("InOutConversionSeedFinder") << " InOutConversionSeedFinder::fillClusterSeeds out in input track hits " << (*outInTrackItr).foundHits() << "\n";
     DetId tmpId = DetId( (*outInTrackItr).seed().startingState().detId());
     const GeomDet* tmpDet  = this->getMeasurementTracker()->geomTracker()->idToDet( tmpId );
@@ -628,7 +630,12 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
 	TrajectoryStateTransform tsTransform;
 	PTrajectoryStateOnDet* ptsod= tsTransform.persistentState(state2, meas2.recHit()->hit()->geographicalId().rawId()  );
 	LogDebug("InOutConversionSeedFinder") << "  InOutConversionSeedFinder::createSeed New seed parameters " << state2 << "\n";
+       
+	if ( nSeedsPerInputTrack_ >= maxNumberOfInOutSeedsPerInputTrack_ ) return;
+       
 	theSeeds_.push_back(TrajectorySeed( *ptsod, myHits, alongMomentum ));
+	nSeedsPerInputTrack_++;
+
         delete ptsod;
        
 	LogDebug("InOutConversionSeedFinder") << "InOutConversionSeedFinder::createSeed New seed hit 1 position " << m1.recHit()->globalPosition() << "\n";
