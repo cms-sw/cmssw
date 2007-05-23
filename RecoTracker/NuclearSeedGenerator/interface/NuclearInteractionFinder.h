@@ -47,17 +47,30 @@ private:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef TrajectoryMeasurement::ConstRecHitPointer    ConstRecHitPointer;
 
+  /// get the seeds at the interaction point
+  void getSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs, TrajectorySeedCollection& output);
+
+  /// Improve the current seed with a third RecHit
+  void improveSeeds();
+
+  /// Find compatible TM of a TM with error rescaled by rescaleFactor
+  std::vector<TrajectoryMeasurement>
+         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
+
+  std::vector<TrajectoryMeasurement>
+         findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
+
 public:
 
   NuclearInteractionFinder(){}
+
   NuclearInteractionFinder(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
+
   virtual ~NuclearInteractionFinder();
+
+  /// Get the TrajectorySeed's at the nuclear interaction point 
   bool  run(const Trajectory& traj, std::auto_ptr<TrajectorySeedCollection>& output);
-  std::vector<TrajectoryMeasurement>
-         findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
-  std::vector<TrajectoryMeasurement>
-         findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
-  //TSOS stateWithLargeError(const TSOS& state, double min_pt,  int sign) const;
+
   void setEvent(const edm::Event& event) const;
 
 private:
@@ -70,14 +83,14 @@ private:
   const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
 
-  NuclearTester*  nuclTester;
-  boost::shared_ptr<SeedFromNuclearInteraction>  theSeed;
+  NuclearTester*                  nuclTester;
+  SeedFromNuclearInteraction*     currentSeed;
 
   // parameters
-  double ptMin;
-  unsigned int maxPrimaryHits;
-  double rescaleErrorFactor;
-  bool checkCompletedTrack;
+  double        ptMin;
+  unsigned int  maxPrimaryHits;
+  double        rescaleErrorFactor;
+  bool          checkCompletedTrack; /**< If set to true check all the tracks, even those reaching the edge of the tracker */
 
 };
 #endif

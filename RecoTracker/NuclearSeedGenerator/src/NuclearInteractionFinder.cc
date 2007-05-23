@@ -44,7 +44,7 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
    nuclTester = new NuclearTester(es, iConfig);
 
-   theSeed = boost::shared_ptr<SeedFromNuclearInteraction>(new SeedFromNuclearInteraction(es, iConfig));
+   currentSeed = new SeedFromNuclearInteraction(es, iConfig);
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -55,6 +55,8 @@ void NuclearInteractionFinder::setEvent(const edm::Event& event) const
 //----------------------------------------------------------------------
 NuclearInteractionFinder::~NuclearInteractionFinder() {
   delete theNavigationSchool;
+  delete nuclTester;
+  delete currentSeed;
 }
 
 //----------------------------------------------------------------------
@@ -98,25 +100,9 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj, std::auto_ptr<Trajec
 
         if(NIfound) {
             LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
-            const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs = nuclTester->goodTMPair();
-
-            const TM& innerHit = tmPairs.first;
-            const std::vector<TM>& outerHits = tmPairs.second;
-
-            for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
-               if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
-                     theSeed->setMeasurements(innerHit, *outhit);
-                     if(theSeed->isValid()) {
-                          TrajectorySeed ptraj = theSeed->TrajSeed();
-                          output->push_back(ptraj);
-                          LogDebug("NuclearInteractionFinder") << "Seed put in event: " << "\n"
-                                                           << "Nhits : " << ptraj.nHits() << "\n"
-                                                           << "Initial state : " << (ptraj.startingState()).parameters().position() << "\n";
-                     }
-                     else LogDebug("NuclearInteractionFinder") << "The seed is invalid" << "\n";
-                }
-                else  LogDebug("NuclearInteractionFinder") << "The initial hits for seeding are invalid" << "\n";
-             }
+            TrajectorySeedCollection seeds;
+            this->getSeeds( nuclTester->goodTMPair(), seeds );
+            output->insert( output->end(), seeds.begin(), seeds.end() );
             return true;
         }
 
@@ -126,15 +112,9 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj, std::auto_ptr<Trajec
 std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale) const
 {
-//  double min_pt=1;
-
   TSOS currentState = lastMeas.updatedState();
   LogDebug("NuclearInteractionFinder") << "currentState :" << currentState << "\n";
-/*
-  TSOS currentStateError = stateWithLargeError(currentState, min_pt, rescale);
-  LogDebug("NuclearInteractionFinder") << "currentStateError :" << currentStateError << "\n";
- //TSOS currentStateErrorInv = stateWithLargeError(currentState, min_pt, -1);
-*/
+
   currentState.rescaleError(rescale);
   return findMeasurementsFromTSOS(currentState, lastMeas);
 }
@@ -152,7 +132,6 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
 
   if(lastLayer) { 
           nl = lastLayer->nextLayers( *currentState.freeState(), alongMomentum);
-          LogDebug("NuclearInteractionFinder") << "In findCompatibleMeasurements :  number of compatible layers : " << nl.size() << "\n";
   }
   else {
       edm::LogError("NuclearInteractionFinder") << "In findCompatibleMeasurements : lastLayer not accessible";
@@ -186,21 +165,28 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
 }
 
 //----------------------------------------------------------------------
-/*
-TrajectoryStateOnSurface NuclearInteractionFinder::stateWithLargeError(const TSOS& state, double min_pt,  int rescale) const {
-   // Modification of the momentum = momentum/2
-   LocalTrajectoryParameters ltp = state.localParameters();
-   AlgebraicVector v = ltp.vector();
-   //v[0] = 2*sign*v[0];
-   LocalTrajectoryParameters newltp(v, ltp.pzSign(), true);
+void NuclearInteractionFinder::getSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs, TrajectorySeedCollection& vecSeeds) {
+            const TM& innerHit = tmPairs.first;
+            const std::vector<TM>& outerHits = tmPairs.second;
 
-   // Modification of the error : on the all the parameters by a factor 10
-   // on the momentum by a factor 10000  
-   AlgebraicSymMatrix m(state.localError().matrix());
-   //double sigma = (v[0] > 0) ? fabs(v[0]-1/min_pt) : fabs(v[0]+1/min_pt);
-   m*=rescale*rescale;
-   //m[0][0] = v[0];
-
-   return TSOS(newltp, m, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
+            for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
+               if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
+                     currentSeed->setMeasurements(innerHit, *outhit);
+                     if(currentSeed->isValid()) {
+                          TrajectorySeed ptraj = currentSeed->TrajSeed();
+                          vecSeeds.push_back(ptraj);
+                          LogDebug("NuclearInteractionFinder") << "Seed put in event: " << "\n"
+                                                           << "Nhits : " << ptraj.nHits() << "\n"
+                                                           << "Initial state : " << (ptraj.startingState()).parameters().position() << "\n";
+                     }
+                     else LogDebug("NuclearInteractionFinder") << "The seed is invalid" << "\n";
+                }
+                else  LogDebug("NuclearInteractionFinder") << "The initial hits for seeding are invalid" << "\n";
+             } 
+             return;
 }
-*/
+//----------------------------------------------------------------------
+void NuclearInteractionFinder::improveSeeds() {
+      std::vector<TM> thirdTMs = findMeasurementsFromTSOS( currentSeed->updatedState(), *(currentSeed->outerMeasurement()) );
+      
+}     
