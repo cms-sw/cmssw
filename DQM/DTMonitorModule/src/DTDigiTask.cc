@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/04/10 13:43:43 $
- * $Revision: 1.20 $
+ * $Date: 2007/05/03 07:20:22 $
+ * $Revision: 1.21 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -278,18 +278,15 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
       
+      bool isNoisy = false;
+      bool isFEMasked = false;
+      bool isTDCMasked = false;
+      bool isTrigMask = false;
+      bool isDead = false;
+      bool isNohv = false;
       if(checkNoisyChannels) {
 	const DTWireId wireId(((*dtLayerId_It).first), (*digiIt).wire());
-	bool isNoisy = false;
-	bool isFEMasked = false;
-	bool isTDCMasked = false;
-	bool isTrigMask = false;
-	bool isDead = false;
-	bool isNohv = false;
 	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	if(isNoisy) {
-	  continue;
-	}      
       }
       
       // for clearness..
@@ -321,26 +318,30 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       
       string histoTag;
 
-      // TimeBoxes per SL
-      histoTag = "TimeBox" + triggerSource();
-      if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	bookHistos( dtSLId, string("TimeBoxes"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
+      // avoid to fill TB and PhotoPeak with noise. Occupancy are anyway filled 
+      if ( !isNoisy ) {
+
+	// TimeBoxes per SL
+	histoTag = "TimeBox" + triggerSource();
+	if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+	  bookHistos( dtSLId, string("TimeBoxes"), histoTag );
+	(digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
 
       
-      // 2nd - 1st (CathodPhotoPeak) per SL
-      if ( (*digiIt).number() == 1 ) {
+	// 2nd - 1st (CathodPhotoPeak) per SL
+	if ( (*digiIt).number() == 1 ) {
 	
-	DTDigiCollection::const_iterator firstDigiIt = digiIt;
-	firstDigiIt--;
+	  DTDigiCollection::const_iterator firstDigiIt = digiIt;
+	  firstDigiIt--;
 	
-	histoTag = "CathodPhotoPeak";
-	if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	  bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
-									(*firstDigiIt).countsTDC());
-      }
+	  histoTag = "CathodPhotoPeak";
+	  if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+	    bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
+	  (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
+									  (*firstDigiIt).countsTDC());
+	}
 
+      }
 
       // only when tTrig is not available 
       if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
