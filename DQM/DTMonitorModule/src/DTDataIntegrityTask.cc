@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2007/04/20 16:58:50 $
- * $Revision: 1.26 $
+ * $Date: 2007/05/15 17:02:14 $
+ * $Revision: 1.27 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino)
  *
  */
@@ -33,21 +33,13 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
   
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
+  debug = ps.getUntrackedParameter<bool>("debug", false);
   if (debug)
     cout<<"[DTDataIntegrityTask]: Constructor"<<endl;
 
   neventsDDU = 0;
   neventsROS25 = 0;
   
-  //Counter and containers for info(tts,ros,fifo) VS time
-  //  myPrevEv=0;
-  //   myPrevTtsVal = -999;
-  //   myPrevRosVal = -999;
-  //   for (int i=0;i<7;i++){
-  //     myPrevFifoVal[i] = -999;
-  //   }
-
   //Root output file with histograms
   outputFile = ps.getUntrackedParameter<string>("outputFile", "ROS25Test.root");
 
@@ -725,62 +717,66 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
   }
 
 
-  /// SC Data
-  int stationGroup = 0 ; //= ((*sc_it).second)%2;
-  for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
-       sc_it != data.getSCData().end(); sc_it++) {
+  if ( parameters.getUntrackedParameter<bool>("getSCInfo", false) ) {
 
-    // SC Data words are devided into 2 parts each of 8 bits:
-    //  LSB refers to MB1 and MB3
-    //  MSB refers to MB2 and MB4
+    /// SC Data
+    int stationGroup = 0 ; //= ((*sc_it).second)%2;
+    for (vector<DTSectorCollectorData>::const_iterator sc_it = data.getSCData().begin();
+	 sc_it != data.getSCData().end(); sc_it++) {
 
-    // fill only the information regarding SC words with trigger
-    bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
-    bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
+      // SC Data words are devided into 2 parts each of 8 bits:
+      //  LSB refers to MB1 and MB3
+      //  MSB refers to MB2 and MB4
 
-    // the quality
-    int quality_LSB = ((*sc_it).first).trackQuality(0);
-    int quality_MSB = ((*sc_it).first).trackQuality(1);
+      // fill only the information regarding SC words with trigger
+      bool hasTrigger_LSB = ((*sc_it).first).hasTrigger(0);
+      bool hasTrigger_MSB = ((*sc_it).first).hasTrigger(1);
+
+      // the quality
+      int quality_LSB = ((*sc_it).first).trackQuality(0);
+      int quality_MSB = ((*sc_it).first).trackQuality(1);
 
     
-    if (hasTrigger_LSB) {
+      if (hasTrigger_LSB) {
 
-      histoType = "SCTriggerBX";
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-      else {									       
-	bookHistos( string("SC"), code);
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
-      }										       
+	histoType = "SCTriggerBX";
+	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+	else {									       
+	  bookHistos( string("SC"), code);
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 1+stationGroup*2);
+	}										       
 
-      histoType = "SCTriggerQuality";						       
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
-      else {									       
-	bookHistos( string("SC"), code);						       
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+	histoType = "SCTriggerQuality";						       
+	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+	else {									       
+	  bookHistos( string("SC"), code);						       
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(1+stationGroup*2,quality_LSB);
+	}
       }
-    }
     
-    if (hasTrigger_MSB) {
+      if (hasTrigger_MSB) {
 
-      histoType = "SCTriggerBX";
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-      else {									       
-	bookHistos( string("SC"), code);	
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
-      }										       
+	histoType = "SCTriggerBX";
+	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+	else {									       
+	  bookHistos( string("SC"), code);	
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill((*sc_it).second, 2+stationGroup*2);
+	}										       
       
-      histoType = "SCTriggerQuality";						       
-      if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
-      else {									       
-	bookHistos( string("SC"), code);						       
-	(rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+	histoType = "SCTriggerQuality";						       
+	if (rosHistos[histoType].find(code.getSCID()) != rosHistos[histoType].end())      
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+	else {									       
+	  bookHistos( string("SC"), code);						       
+	  (rosHistos.find(histoType)->second).find(code.getSCID())->second->Fill(2+stationGroup*2,quality_MSB);
+	}
       }
+      stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
     }
-    stationGroup = (stationGroup == 0 ? 1 : 0);  //switch between MB1-2 and MB3-4 data
+
   }
   
   if ((neventsROS25%parameters.getUntrackedParameter<int>("saveResultsFrequency", 10000)==0) 
