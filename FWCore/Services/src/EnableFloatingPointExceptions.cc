@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.8 2007/05/22 13:27:25 marafino Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.9 2007/05/23 16:55:36 marafino Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ reportSettings_(false)
   OSdefault_ = fpuState_;
   stateStack_.push(OSdefault_);
   if( reportSettings_ )  {
-    LogInfo("FPE_Enable") << "Settings for OSdefault";
+    LogVerbatim("FPE_Enable") << "\nSettings for OSdefault";
     echoState();
   }
 
@@ -83,7 +83,7 @@ reportSettings_(false)
 
     controlFpe();
     if( reportSettings_ ) {
-      LogInfo("FPE_Enable") << "Settings for default";
+      LogVerbatim("FPE_Enable") << "\nSettings for default";
       echoState();
     }
     fegetenv( &fpuState_ );
@@ -103,7 +103,7 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
-        LogInfo("FPE_Enable") << "Settings for unnamed module";
+        LogVerbatim("FPE_Enable") << "\nSettings for unnamed module";
         echoState();
       }
       fegetenv( &fpuState_ );
@@ -121,7 +121,7 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
-        LogInfo("FPE_Enable") << "Settings for module " << *it;
+        LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
         echoState();
       }
       fegetenv( &fpuState_ );
@@ -167,7 +167,7 @@ EnableFloatingPointExceptions::postEndJob()
 
 	fpuState_ = stateMap_[String("OSdefault")];
 	fesetenv( &OSdefault_ );
-        if( reportSettings_ ) LogInfo("FPE_Enable") << "Settings at end job ";
+        if( reportSettings_ ) LogVerbatim("FPE_Enable") << "\nSettings at end job ";
         echoState();
 }
 
@@ -187,7 +187,7 @@ EnableFloatingPointExceptions::preModule(const ModuleDescription& iDescription)
 	fesetenv( &fpuState_ );
         stateStack_.push(fpuState_);
         if( reportSettings_ ) {
-          LogInfo("FPE_Enable") << "Settings at begin module " << modName;
+          LogVerbatim("FPE_Enable") << "\nSettings at begin module " << modName;
           echoState();
         }
 }
@@ -201,7 +201,7 @@ EnableFloatingPointExceptions::postModule(const ModuleDescription& iDescription)
         fpuState_ = stateStack_.top();
 	fesetenv( &fpuState_ );
         if( reportSettings_ ) {
-          LogInfo("FPE_Enable") << "Settings after end module ";
+          LogVerbatim("FPE_Enable") << "\nSettings after end module ";
           echoState();
         }
 }
@@ -257,26 +257,26 @@ EnableFloatingPointExceptions::echoState()
 {
 	if( reportSettings_ ) {
 	  int femask = fegetexcept();
-	  LogInfo("FPE_Enable") << "Floating point exception mask is " << std::hex << femask;
+	  LogVerbatim("FPE_Enable") << "Floating point exception mask is " << std::hex << femask;
 
 	  if( femask & FE_DIVBYZERO )
-	    LogInfo("FPE_Enable") << "\tDivByZero exception is on";
+	    LogVerbatim("FPE_Enable") << "\tDivByZero exception is on";
 	  else
-	    LogInfo("FPE_Enable") << "\tDivByZero exception is off";
+	    LogVerbatim("FPE_Enable") << "\tDivByZero exception is off";
 
 	  if( femask & FE_INVALID )
-	    LogInfo("FPE_Enable") << "\tInvalid exception is on";
+	    LogVerbatim("FPE_Enable") << "\tInvalid exception is on";
 	  else
-	    LogInfo("FPE_Enable") << "\tInvalid exception is off";
+	    LogVerbatim("FPE_Enable") << "\tInvalid exception is off";
 
 	  if( femask & FE_OVERFLOW )
-	    LogInfo("FPE_Enable") << "\tOverFlow exception is on";
+	    LogVerbatim("FPE_Enable") << "\tOverFlow exception is on";
 	  else
-	    LogInfo("FPE_Enable") << "\tOverflow exception is off";
+	    LogVerbatim("FPE_Enable") << "\tOverflow exception is off";
 
 	  if( femask & FE_UNDERFLOW )
-	    LogInfo("FPE_Enable") << "\tUnderFlow exception is on";
+	    LogVerbatim("FPE_Enable") << "\tUnderFlow exception is on";
 	  else
-	    LogInfo("FPE_Enable") << "\tUnderFlow exception is off";
+	    LogVerbatim("FPE_Enable") << "\tUnderFlow exception is off";
         }
 }
