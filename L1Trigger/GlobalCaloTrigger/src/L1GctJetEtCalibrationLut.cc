@@ -1,117 +1,66 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
-#include "L1Trigger/L1Scales/interface/L1CaloEtScale.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-
-#include <math.h>
-
-using namespace std;
-using std::cout;
+#include "CondFormats/L1TObjects/interface/L1GctJetEtCalibrationFunction.h"
 
 //DEFINE STATICS
-const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJet::RAWSUM_BITWIDTH;
-const unsigned L1GctJetEtCalibrationLut::NUMBER_ETA_VALUES = 11;
+const int L1GctJetEtCalibrationLut::NAddress=JET_ET_CAL_LUT_ADD_BITS;
+const int L1GctJetEtCalibrationLut::NData=JET_ET_CAL_LUT_DAT_BITS;
+const unsigned L1GctJetEtCalibrationLut::JET_ENERGY_BITWIDTH = L1GctJetEtCalibrationFunction::JET_ENERGY_BITWIDTH;
 
-L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut()
+//L1GctJetEtCalibrationLut* L1GctJetEtCalibrationLut::setupLut(const L1GctJetEtCalibrationFunction* lutfn)
+//{
+//  L1GctJetEtCalibrationLut* newLut = new L1GctJetEtCalibrationLut();
+//  return newLut;
+//}
+
+L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(const L1GctJetEtCalibrationFunction* lutfn) :
+  L1GctLut<NAddress,NData>()
 {
+  setFunction(lutfn);
 }
 
-L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string fileName, bool useOrcaCalib) :
-  m_orcaCalib(useOrcaCalib)
-{
-  //Opens the file
-  ifstream ifs(fileName.c_str(),ios::in);
-
-  if(!ifs.good())
-    {
-      throw cms::Exception("L1GctFileReadError")
-        << "L1GctJetEtCalibrationLut::L1GctJetEtCalibrationLut(string filename)"
-        << " couldn't open the file " + fileName + " for reading!\n";
-    }
-
-  // Read in the parameters (11 regions of eta from 0-10 corresponding to eta values of 0 to 5)
-  string line;
-  float tmp;
-
-  m_calibFunc.resize(NUMBER_ETA_VALUES);
-
-  for (unsigned i=0; i<NUMBER_ETA_VALUES; i++){
-    getline(ifs,line);
-    istringstream iss(line);
-    do {
-      iss >> tmp;
-      m_calibFunc.at(i).push_back(tmp);
-    } while (iss.good()); 
-  }
-}    
-
-void L1GctJetEtCalibrationLut::setOutputEtScale(const L1CaloEtScale* scale) {
-  m_outputEtScale = scale;
-}
-
-ostream& operator << (ostream& os, const L1GctJetEtCalibrationLut& lut)
-{
-  os << "===L1GctJetEtCalibrationLut===" << endl;
-  for (unsigned i=0; i<lut.m_calibFunc.size(); i++){
-    os << "Eta = " << i << " Coefficients = ";
-    for (unsigned j=0; j<lut.m_calibFunc.at(i).size();j++){
-      os << lut.m_calibFunc.at(i).at(j) << " "; 
-    }
-    os << endl;
-  }
-  return os;
-}
 
 L1GctJetEtCalibrationLut::~L1GctJetEtCalibrationLut()
 {
 }
 
-uint16_t L1GctJetEtCalibrationLut::rank(uint16_t jetEt, unsigned eta) const
+void L1GctJetEtCalibrationLut::setFunction(const L1GctJetEtCalibrationFunction* lutfn)
 {
-  return m_outputEtScale->rank(this->calibratedEt(jetEt, eta));
+  m_lutFunction = lutfn;
+  m_setupOk = (lutfn!=0);
 }
 
-uint16_t L1GctJetEtCalibrationLut::calibratedEt(uint16_t jetEt, unsigned eta) const
+uint16_t L1GctJetEtCalibrationLut::value (const uint16_t lutAddress) const
 {
-  double corrEt = 0;
-
-  // switch between ORCA and no calibration
-  if (m_orcaCalib) {
-    corrEt = orcaCalibFn(jetEt*m_outputEtScale->linearLsb(), eta);
-  }
-  else {
-    if (eta>(NUMBER_ETA_VALUES-1)) eta=eta-NUMBER_ETA_VALUES; 
-
-    if(eta>(NUMBER_ETA_VALUES-1))
-      {
-	throw cms::Exception("L1GctJetEtCalibraionLut")
-	  << "L1GctJetEtCalibrationLut::convertToTebBitRank(uint16_t jetEt, unsigned eta)"
-	  << " eta value out of range eta=" <<  eta <<  "\n";
-      }
-
-    for (unsigned i=0; i<m_calibFunc.at(eta).size();i++){
-      corrEt += m_calibFunc.at(eta).at(i)*pow(jetEt*m_outputEtScale->linearLsb(),(int)i); 
-    }
-  }
-
-  uint16_t jetEtOut = (uint16_t) ( corrEt/m_outputEtScale->linearLsb() );
-
-  if(jetEtOut < (1 << JET_ENERGY_BITWIDTH)) {
-    return jetEtOut;
-  }
-  return 1023;
+  return m_lutFunction->lutValue(lutAddress);
 }
 
-float L1GctJetEtCalibrationLut::orcaCalibFn(float et, unsigned eta) const {
+std::ostream& operator << (std::ostream& os, const L1GctJetEtCalibrationLut& lut)
+{
+  os << std::endl;
+  os << "==================================================" << std::endl;
+  os << "===Level-1 Trigger:  GCT Jet Et Calibration Lut===" << std::endl;
+  os << "==================================================" << std::endl;
+  os << "===Parameter settings" << std::endl;
+  os << *lut.getFunction() << std::endl;
+  os << "===Lookup table contents" << std::endl;
+  const L1GctLut<L1GctJetEtCalibrationLut::NAddress,L1GctJetEtCalibrationLut::NData>* temp=&lut;
+  os << *temp;
+  return os;
+}
+
+template class L1GctLut<L1GctJetEtCalibrationLut::NAddress,L1GctJetEtCalibrationLut::NData>;
+
+//=============================================================================
+/// THIS CODE FOR THE orcaCalibFn NEEDS TO MIGRATE
+/// TO THE L1GctJetEtCalibrationFunction IN CondFormats/L1TObjects
+//=============================================================================
+//
+// === Left here and commented for now. ===
+//
+
+/*float L1GctJetEtCalibrationLut::orcaCalibFn(float et, unsigned eta) const {
 
   float domainbin_L[22] = {6.52223337753073373e+00,6.64347505748981959e+00,6.78054870174118296e+00,6.75191887554567405e+00,6.60891660595437802e+00,6.57813476381055473e+00,6.96764764481347232e+00,6.77192746888150943e+00,7.16209661824076260e+00,7.09640803784948027e+00,7.29886808171882517e+00,7.29883431473330546e+00,7.24561741344293875e+00,7.05381822724987995e+00,6.52340799679028827e+00,6.96091042775473401e+00,6.69803071767842262e+00,7.79138848427964259e+00,6.78565437835616603e+00,6.71201461174192904e+00,6.60832257380386334e+00,6.54875448717649267e+00};
   
@@ -137,4 +86,5 @@ float L1GctJetEtCalibrationLut::orcaCalibFn(float et, unsigned eta) const {
   }
   else return et;
   
-}
+}*/
+
