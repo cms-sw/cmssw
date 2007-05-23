@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.13 $
+ * \version $Revision: 1.14 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -39,7 +39,6 @@ namespace edm {
     typedef typename KeyRef::value_type key_type;
     typedef typename std::pair<KeyRef, typename CVal::value_type> value_type;
     typedef std::vector<value_type> transient_vector_type;
-    typedef value_type & reference;
     typedef const value_type & const_reference;
     AssociationVector();
     AssociationVector(KeyRefProd ref);
@@ -48,7 +47,6 @@ namespace edm {
     
     size_type size() const;
     bool empty() const;
-    reference operator[](size_type n) { fixup(); return transientVector_[ n ]; }
     const_reference operator[](size_type n) const { fixup(); return transientVector_[ n ]; }
     
     self & operator=(const self & );
@@ -82,8 +80,7 @@ namespace edm {
 	fixed_ = true;
 	transientVector_.resize( size() );
 	for( size_type i = 0; i != size(); ++ i ) {
-	  transientVector_[ i ].first = KeyRef(ref_, i);
-	  transientVector_[ i ].second = data_[ i ];
+	  transientVector_[ i ] = make_pair( KeyRef(ref_, i), data_[ i ] );
 	}
       }
     }
