@@ -58,8 +58,8 @@ void SiStripRawToClustersDummyUnpacker::analyze( const edm::Event& event,
   
   RefGetter::const_iterator iregion = demandclusters->begin();
   for(;iregion!=demandclusters->end();++iregion) {
-    vector<SiStripCluster>::const_iterator icluster = iregion->first;
-    for (;icluster!=iregion->second;icluster++) {
+    vector<SiStripCluster>::const_iterator icluster = iregion->begin();
+    for (;icluster!=iregion->end();icluster++) {
       icluster->geographicalId();
     }
   }
