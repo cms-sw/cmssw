@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.17 2007/05/15 22:58:50 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.18 2007/05/22 21:47:13 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.17 2007/05/15 22:58:50 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.18 2007/05/22 21:47:13 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -108,12 +108,10 @@ void ScheduleValidator::validate(){
       // make sure we don't redescend where we came from
 
       sonName = son->name();
-      if (sonName.size() > 0 &&
-          (sonName[0] == '!' || sonName[0] == '-')) sonName.erase(0,1);
+      removeUnaries(sonName);
 
       leftName = node->left()->name();
-      if (leftName.size() > 0 &&
-          (leftName[0] == '!' || leftName[0] == '-')) leftName.erase(0,1);
+      removeUnaries(leftName);
 
       if (sonName != leftName) findDeps(node->left(), dep);
       
@@ -127,8 +125,7 @@ void ScheduleValidator::validate(){
     // insert the list of deps
 
     leafName = (*leafIt)->name();
-    if (leafName.length() > 0 && 
-        (leafName[0] == '!' || leafName[0] == '-')) leafName.erase(0,1);
+    removeUnaries(leafName);
 
   //  validateDependencies(leafName, *leafIt,  dep);
     mergeDependencies(leafName, dep);
@@ -140,10 +137,19 @@ void ScheduleValidator::validate(){
 }// validate
 
 
+void ScheduleValidator::removeUnaries(std::string & name)
+{
+  if(name.size() > 0
+    && (name[0] == '!' || name[0] == '-') )
+  {
+    name.erase(0,1);
+  }
+}
+
+
 void ScheduleValidator::validateDependencies(const std::string & leafName, const NodePtr & leafNode, const DependencyList& dep)
 {
   Dependencies::iterator depIt = dependencies_.find(leafName);
-std::cout << leafName << " " << std::endl;
   if (depIt != dependencies_.end()) {
     DependencyList& old_deplist = (*depIt).second;
     // if the list is different from an existing one
@@ -205,11 +211,13 @@ void ScheduleValidator::validatePath(const std::string & path)
     lastModule = schedule.end();
   for( ; module != lastModule; ++module)
   {
-     Dependencies::iterator depList = dependencies_.find(*module);
+     string moduleName = *module;
+     removeUnaries(moduleName);
+     Dependencies::iterator depList = dependencies_.find(moduleName);
      if(depList == dependencies_.end())
      {
         throw edm::Exception(errors::Configuration,"InconsistentSchedule")
-         << "No dependecies calculated for " << *module;
+         << "No dependecies calculated for " << moduleName;
      }
      else 
      {
@@ -225,7 +233,7 @@ void ScheduleValidator::validatePath(const std::string & path)
              ostream_iterator<string>(pathdump," "));
            
            throw edm::Exception(errors::Configuration,"InconsistentSchedule")
-          << "Module " << *module << " depends on " << *depItr
+          << "Module " << moduleName << " depends on " << *depItr
           << "\n"
           << " but path " << path << "  contains "  << pathdump.str()
           << "\n";
@@ -240,14 +248,9 @@ void ScheduleValidator::findDeps(NodePtr& node, DependencyList& dep){
 
   // if we have an operand, add it to the list of dependencies
   if (node->type() == "operand") {
-
-    if (node->name().size() > 0 &&
-        (node->name()[0] == '!' || node->name()[0] == '-')) {
-      std::string nodeName = node->name();
-      nodeName.erase(0,1);
-      dep.push_back(nodeName);
-    }
-    else dep.push_back(node->name());
+    std::string nodeName = node->name();
+    removeUnaries(nodeName);
+    dep.push_back(node->name());
   }
   // else follow the tree, unless the leaf is contained in the node
   else{

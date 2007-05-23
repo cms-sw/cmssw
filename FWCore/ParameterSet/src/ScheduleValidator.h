@@ -6,7 +6,7 @@
    Declaration of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.h,v 1.3 2005/09/07 20:59:29 wmtan Exp $
+   \version $Id: ScheduleValidator.h,v 1.4 2007/05/22 21:47:13 rpw Exp $
    \date 10 Jun 2005
 */
 
@@ -52,6 +52,8 @@ namespace edm {
     void validate();
 
   private:
+    /// if the module name begins with '!' or '-', erase the character
+    void removeUnaries(std::string & moduleName);
 
     /// fill the list of leaves of the basenode
     void gatherLeafNodes(pset::NodePtr& basenode);
