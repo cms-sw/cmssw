@@ -71,7 +71,9 @@ TrajectoryStateOnSurface SeedFromNuclearInteraction::stateWithError(const TSOS& 
    AlgebraicSymMatrix55 m(result.localError().matrix());
    m(0,0)=m(0,0)*rescaleCurvatureFactor*rescaleCurvatureFactor;
    m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
-   m(2,2)=m(2,2)*rescalePositionFactor*rescalePositionFactor;
+   m(2,2)=m(2,2)*rescaleDirectionFactor*rescaleDirectionFactor;
+   m(3,3)=m(3,3)*rescalePositionFactor*rescalePositionFactor;
+   m(4,4)=m(4,4)*rescalePositionFactor*rescalePositionFactor;
 
    return TSOS(result.localParameters(), LocalTrajectoryError(m), result.surface(), &(result.globalParameters().magneticField()), result.surfaceSide());
 }
