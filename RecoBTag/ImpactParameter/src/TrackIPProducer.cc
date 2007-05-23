@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.2 2007/05/10 22:05:03 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.3 2007/05/16 11:39:49 arizzi Exp $
 //
 //
 
@@ -82,6 +82,7 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_cutMaxChiSquared =  m_config.getParameter<double>("maximumChiSquared"); //used
   m_cutMaxLIP        =  m_config.getParameter<double>("maximumLongitudinalImpactParameter"); //used
   m_cutMaxDistToAxis =  m_config.getParameter<double>("maximumDistanceToJetAxis"); //used
+  m_directionWithTracks =  m_config.getParameter<bool>("jetDirectionUsingTracks"); //used
 
 
    produces<reco::TrackIPTagInfoCollection>();
@@ -147,9 +148,19 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
    for(; it != jetTracksAssociation->end(); it++, i++)
      {
-
-        GlobalVector direction(it->first->px(),it->first->py(),it->first->pz());
         TrackRefVector tracks = it->second;
+        math::XYZVector jetMomentum;
+        if(m_directionWithTracks) 
+         {
+           for (TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) {
+              jetMomentum+=(**itTrack).innerMomentum();
+             }
+         }
+          else
+         {
+            jetMomentum=it->first->momentum();
+         } 
+        GlobalVector direction(jetMomentum.x(),jetMomentum.y(),jetMomentum.z());
         
         TrackRefVector selectedTracks;
         vector<Measurement1D> ip3Dv,ip2Dv,dLenv,jetDistv;
