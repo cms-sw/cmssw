@@ -50,74 +50,86 @@
 using namespace std;
 using namespace edm;
 
-void SiPixelErrorEstimation::endJob() 
+SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), ttree_track_hits_(0) 
 {
-  tfile_->Write();
-  tfile_->Close();
+  //Read config file
+  outputFile_ = ps.getUntrackedParameter<string>( "outputFile", "SiPixelErrorEstimation_Ntuple.root" );
+  src_ = ps.getUntrackedParameter<std::string>( "src", "ctfWithMaterialTracks" );
+  checkType_ = ps.getParameter<bool>( "checkType" );
+  genType_ = ps.getParameter<int>( "genType" );
+  include_trk_hits_ = ps.getParameter<bool>( "include_trk_hits" );
 }
+
+SiPixelErrorEstimation::~SiPixelErrorEstimation()
+{}
 
 void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
 {
   int bufsize = 64000;
 
-  tfile_ = new TFile ("SiPixelErrorEstimation_Ntuple.root" , "RECREATE");
-
-  ttree_track_hits_ = new TTree("TrackHitNtuple", "TrackHitNtuple");
-
-  ttree_track_hits_->Branch("evt", &evt, "evt/I", bufsize);
-  ttree_track_hits_->Branch("run", &run, "run/I", bufsize);
-  
-  ttree_track_hits_->Branch("subdetId", &subdetId, "subdetId/I", bufsize);
-
-  ttree_track_hits_->Branch("layer" , &layer , "layer/I" , bufsize);
-  ttree_track_hits_->Branch("ladder", &ladder, "ladder/I", bufsize);
-  ttree_track_hits_->Branch("mod"   , &mod   , "mod/I"   , bufsize);
-  
-  ttree_track_hits_->Branch("side"  , &side  , "side/I"  , bufsize);
-  ttree_track_hits_->Branch("disk"  , &disk  , "disk/I"  , bufsize);
-  ttree_track_hits_->Branch("blade" , &blade , "blade/I" , bufsize);
-  ttree_track_hits_->Branch("panel" , &panel , "panel/I" , bufsize);
-  ttree_track_hits_->Branch("plaq"  , &plaq  , "plaq/I"  , bufsize);
-
-  ttree_track_hits_->Branch("half"   , &half   , "half/I"   , bufsize);
-  ttree_track_hits_->Branch("flipped", &flipped, "flipped/I", bufsize);
-
-  ttree_track_hits_->Branch("rechitx", &rechitx, "rechitx/F"    , bufsize);
-  ttree_track_hits_->Branch("rechity", &rechity, "rechity/F"    , bufsize);
-  ttree_track_hits_->Branch("rechitz", &rechitz, "rechitz/F"    , bufsize);
- 
-  ttree_track_hits_->Branch("rechiterrx", &rechiterrx, "rechiterrx/F" , bufsize);
-  ttree_track_hits_->Branch("rechiterry", &rechiterry, "rechiterry/F" , bufsize);
-  
-  ttree_track_hits_->Branch("rechitresx", &rechitresx, "rechitresx/F" , bufsize);
-  ttree_track_hits_->Branch("rechitresy", &rechitresy, "rechitresy/F" , bufsize);
-  
-  ttree_track_hits_->Branch("rechitpullx", &rechitpullx, "rechitpullx/F", bufsize);
-  ttree_track_hits_->Branch("rechitpully", &rechitpully, "rechitpully/F", bufsize);
-
-  ttree_track_hits_->Branch("npix"  , &npix  , "npix/I"  , bufsize);
-  ttree_track_hits_->Branch("nxpix" , &nxpix , "nxpix/I" , bufsize);
-  ttree_track_hits_->Branch("nypix" , &nypix , "nypix/I" , bufsize);
-  ttree_track_hits_->Branch("charge", &charge, "charge/F", bufsize);
-
-  ttree_track_hits_->Branch("edgex", &edgex, "edgex/I", bufsize);
-  ttree_track_hits_->Branch("edgey", &edgey, "edgey/I", bufsize);
- 
-  ttree_track_hits_->Branch("bigx", &bigx, "bigx/I", bufsize);
-  ttree_track_hits_->Branch("bigy", &bigy, "bigy/I", bufsize);
-  
-  ttree_track_hits_->Branch("alpha", &alpha, "alpha/F", bufsize);
-  ttree_track_hits_->Branch("beta" , &beta , "beta/F" , bufsize);
-
-  ttree_track_hits_->Branch("phi", &phi, "phi/F", bufsize);
-  ttree_track_hits_->Branch("eta", &eta, "eta/F", bufsize);
-
-  ttree_track_hits_->Branch("simhitx", &simhitx, "simhitx/F", bufsize);
-  ttree_track_hits_->Branch("simhity", &simhity, "simhity/F", bufsize);
-
-  ttree_track_hits_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
-  ttree_track_hits_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
-  ttree_track_hits_->Branch("simproc", &simproc, "simproc/I", bufsize);
+  if ( include_trk_hits_ )
+    {
+      //tfile_ = new TFile ("SiPixelErrorEstimation_Ntuple.root" , "RECREATE");
+      //const char* tmp_name = outputFile_.c_str();
+      tfile_ = new TFile ( outputFile_.c_str() , "RECREATE");
+      
+      ttree_track_hits_ = new TTree("TrackHitNtuple", "TrackHitNtuple");
+      
+      ttree_track_hits_->Branch("evt", &evt, "evt/I", bufsize);
+      ttree_track_hits_->Branch("run", &run, "run/I", bufsize);
+      
+      ttree_track_hits_->Branch("subdetId", &subdetId, "subdetId/I", bufsize);
+      
+      ttree_track_hits_->Branch("layer" , &layer , "layer/I" , bufsize);
+      ttree_track_hits_->Branch("ladder", &ladder, "ladder/I", bufsize);
+      ttree_track_hits_->Branch("mod"   , &mod   , "mod/I"   , bufsize);
+      
+      ttree_track_hits_->Branch("side"  , &side  , "side/I"  , bufsize);
+      ttree_track_hits_->Branch("disk"  , &disk  , "disk/I"  , bufsize);
+      ttree_track_hits_->Branch("blade" , &blade , "blade/I" , bufsize);
+      ttree_track_hits_->Branch("panel" , &panel , "panel/I" , bufsize);
+      ttree_track_hits_->Branch("plaq"  , &plaq  , "plaq/I"  , bufsize);
+      
+      ttree_track_hits_->Branch("half"   , &half   , "half/I"   , bufsize);
+      ttree_track_hits_->Branch("flipped", &flipped, "flipped/I", bufsize);
+      
+      ttree_track_hits_->Branch("rechitx", &rechitx, "rechitx/F"    , bufsize);
+      ttree_track_hits_->Branch("rechity", &rechity, "rechity/F"    , bufsize);
+      ttree_track_hits_->Branch("rechitz", &rechitz, "rechitz/F"    , bufsize);
+      
+      ttree_track_hits_->Branch("rechiterrx", &rechiterrx, "rechiterrx/F" , bufsize);
+      ttree_track_hits_->Branch("rechiterry", &rechiterry, "rechiterry/F" , bufsize);
+      
+      ttree_track_hits_->Branch("rechitresx", &rechitresx, "rechitresx/F" , bufsize);
+      ttree_track_hits_->Branch("rechitresy", &rechitresy, "rechitresy/F" , bufsize);
+      
+      ttree_track_hits_->Branch("rechitpullx", &rechitpullx, "rechitpullx/F", bufsize);
+      ttree_track_hits_->Branch("rechitpully", &rechitpully, "rechitpully/F", bufsize);
+      
+      ttree_track_hits_->Branch("npix"  , &npix  , "npix/I"  , bufsize);
+      ttree_track_hits_->Branch("nxpix" , &nxpix , "nxpix/I" , bufsize);
+      ttree_track_hits_->Branch("nypix" , &nypix , "nypix/I" , bufsize);
+      ttree_track_hits_->Branch("charge", &charge, "charge/F", bufsize);
+      
+      ttree_track_hits_->Branch("edgex", &edgex, "edgex/I", bufsize);
+      ttree_track_hits_->Branch("edgey", &edgey, "edgey/I", bufsize);
+      
+      ttree_track_hits_->Branch("bigx", &bigx, "bigx/I", bufsize);
+      ttree_track_hits_->Branch("bigy", &bigy, "bigy/I", bufsize);
+      
+      ttree_track_hits_->Branch("alpha", &alpha, "alpha/F", bufsize);
+      ttree_track_hits_->Branch("beta" , &beta , "beta/F" , bufsize);
+      
+      ttree_track_hits_->Branch("phi", &phi, "phi/F", bufsize);
+      ttree_track_hits_->Branch("eta", &eta, "eta/F", bufsize);
+      
+      ttree_track_hits_->Branch("simhitx", &simhitx, "simhitx/F", bufsize);
+      ttree_track_hits_->Branch("simhity", &simhity, "simhity/F", bufsize);
+      
+      ttree_track_hits_->Branch("nsimhit", &nsimhit, "nsimhit/I", bufsize);
+      ttree_track_hits_->Branch("pidhit" , &pidhit , "pidhit/I" , bufsize);
+      ttree_track_hits_->Branch("simproc", &simproc, "simproc/I", bufsize);
+    } // if ( include_trk_hits_ )
 
   // ----------------------------------------------------------------------
   
@@ -245,18 +257,10 @@ void SiPixelErrorEstimation::beginJob(const edm::EventSetup& es)
 
 }
 
-SiPixelErrorEstimation::SiPixelErrorEstimation(const edm::ParameterSet& ps):tfile_(0), ttree_all_hits_(0), ttree_track_hits_(0) 
+void SiPixelErrorEstimation::endJob() 
 {
-  //Read config file
-  //outputFile_ = ps.getUntrackedParameter<string>("outputFile", "out_file.root");
-  src_ = ps.getUntrackedParameter<std::string>( "src" );
-  checkType_ = ps.getParameter<bool>("checkType");
-  genType_ = ps.getParameter<int>("genType");
-}
-
-SiPixelErrorEstimation::~SiPixelErrorEstimation()
-{
-  //  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  tfile_->Write();
+  tfile_->Close();
 }
 
 void
@@ -691,257 +695,265 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
  
   // ------------------------------------------------ all hits ---------------------------------------------------------------
   
+
+  // ------------------------------------------------ track hits only -------------------------------------------------------- 
   
-  // Get tracks
-  edm::Handle<reco::TrackCollection> trackCollection;
-  e.getByLabel(src_, trackCollection);
-  const reco::TrackCollection *tracks = trackCollection.product();
-  reco::TrackCollection::const_iterator tciter;
-  
-  if ( tracks->size() > 0 )
+  if ( include_trk_hits_ )
     {
-      // Loop on tracks
-      for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)
+      // Get tracks
+      edm::Handle<reco::TrackCollection> trackCollection;
+      e.getByLabel(src_, trackCollection);
+      const reco::TrackCollection *tracks = trackCollection.product();
+      reco::TrackCollection::const_iterator tciter;
+      
+      if ( tracks->size() > 0 )
 	{
-	  // First loop on hits: find matched hits
-	  for ( trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) 
+	  // Loop on tracks
+	  for ( tciter=tracks->begin(); tciter!=tracks->end(); ++tciter)
 	    {
-	      const TrackingRecHit &thit = **it;
-	      // Is it a matched hit?
-	      const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&thit);
-	      
-	      if ( matchedhit ) 
+	      // First loop on hits: find matched hits
+	      for ( trackingRecHit_iterator it = tciter->recHitsBegin(); it != tciter->recHitsEnd(); ++it) 
 		{
-		  rechitx = -9999.9;
-		  rechity = -9999.9;
-		  rechitz = -9999.9;
-		  rechiterrx = -9999.9;
-		  rechiterry = -9999.9;		      
-		  rechitresx = -9999.9;
-		  rechitresy = -9999.9;
-		  rechitpullx = -9999.9;
-		  rechitpully = -9999.9;
+		  const TrackingRecHit &thit = **it;
+		  // Is it a matched hit?
+		  const SiPixelRecHit* matchedhit = dynamic_cast<const SiPixelRecHit*>(&thit);
 		  
-		  npix = -9999;
-		  nxpix = -9999;
-		  nypix = -9999;
-		  charge = -9999.9;
-		  
-		  edgex = -9999;
-		  edgey = -9999;
-		  
-		  bigx = -9999;
-		  bigy = -9999;
-		  
-		  alpha = -9999.9;
-		  beta  = -9999.9;
-		  
-		  phi = -9999.9;
-		  eta = -9999.9;
-		  
-		  subdetId = -9999;
-		  
-		  layer  = -9999; 
-		  ladder = -9999; 
-		  mod    = -9999; 
-		  side   = -9999;  
-		  disk   = -9999;  
-		  blade  = -9999; 
-		  panel  = -9999; 
-		  plaq   = -9999; 
-		  
-		  half = -9999;
-		  flipped = -9999;
-		  
-		  nsimhit = -9999;
-		  pidhit  = -9999;
-		  simproc = -9999;
-		  
-		  simhitx = -9999.9;
-		  simhity = -9999.9;
-		  
-		  position = (*it)->localPosition();
-		  error = (*it)->localPositionError();
-		  
-		  rechitx = position.x();
-		  rechity = position.y();
-		  rechitz = position.z();
-		  rechiterrx = sqrt(error.xx());
-		  rechiterry = sqrt(error.yy());
-		  
-		  npix = matchedhit->cluster()->size();
-		  nxpix = matchedhit->cluster()->sizeX();
-		  nypix = matchedhit->cluster()->sizeY();
-		  charge = matchedhit->cluster()->charge();
-		  
-		  //Association of the rechit to the simhit
-		  matched.clear();
-		  matched = associate.associateHit(*matchedhit);
-		  
-		  nsimhit = (int)matched.size();
-		  
-		  if ( !matched.empty() ) 
+		  if ( matchedhit ) 
 		    {
-		      mindist = 999999.9;
-		      float distx, disty, dist;
-		      bool found_hit_from_generated_particle = false;
+		      rechitx = -9999.9;
+		      rechity = -9999.9;
+		      rechitz = -9999.9;
+		      rechiterrx = -9999.9;
+		      rechiterry = -9999.9;		      
+		      rechitresx = -9999.9;
+		      rechitresy = -9999.9;
+		      rechitpullx = -9999.9;
+		      rechitpully = -9999.9;
 		      
-		      int n_assoc_muon = 0;
+		      npix = -9999;
+		      nxpix = -9999;
+		      nypix = -9999;
+		      charge = -9999.9;
 		      
-		      vector<PSimHit>::const_iterator closestit = matched.begin();
-		      for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); ++m)
+		      edgex = -9999;
+		      edgey = -9999;
+		      
+		      bigx = -9999;
+		      bigy = -9999;
+		      
+		      alpha = -9999.9;
+		      beta  = -9999.9;
+		      
+		      phi = -9999.9;
+		      eta = -9999.9;
+		      
+		      subdetId = -9999;
+		      
+		      layer  = -9999; 
+		      ladder = -9999; 
+		      mod    = -9999; 
+		      side   = -9999;  
+		      disk   = -9999;  
+		      blade  = -9999; 
+		      panel  = -9999; 
+		      plaq   = -9999; 
+		      
+		      half = -9999;
+		      flipped = -9999;
+		      
+		      nsimhit = -9999;
+		      pidhit  = -9999;
+		      simproc = -9999;
+		      
+		      simhitx = -9999.9;
+		      simhity = -9999.9;
+		      
+		      position = (*it)->localPosition();
+		      error = (*it)->localPositionError();
+		      
+		      rechitx = position.x();
+		      rechity = position.y();
+		      rechitz = position.z();
+		      rechiterrx = sqrt(error.xx());
+		      rechiterry = sqrt(error.yy());
+		      
+		      npix = matchedhit->cluster()->size();
+		      nxpix = matchedhit->cluster()->sizeX();
+		      nypix = matchedhit->cluster()->sizeY();
+		      charge = matchedhit->cluster()->charge();
+		      
+		      //Association of the rechit to the simhit
+		      matched.clear();
+		      matched = associate.associateHit(*matchedhit);
+		      
+		      nsimhit = (int)matched.size();
+		      
+		      if ( !matched.empty() ) 
 			{
-			  if ( checkType_ )
-			    { // only consider associated simhits with the generated pid (muons)
-			      int pid = (*m).particleType();
-			      if ( abs(pid) != genType_ )
-				continue;
-			    }
+			  mindist = 999999.9;
+			  float distx, disty, dist;
+			  bool found_hit_from_generated_particle = false;
 			  
-			  float simhitx = 0.5 * ( (*m).entryPoint().x() + (*m).exitPoint().x() );
-			  float simhity = 0.5 * ( (*m).entryPoint().y() + (*m).exitPoint().y() );
+			  int n_assoc_muon = 0;
 			  
-			  distx = fabs(rechitx - simhitx);
-			  disty = fabs(rechity - simhity);
-			  dist = sqrt( distx*distx + disty*disty );
-			  
-			  if ( dist < mindist )
+			  vector<PSimHit>::const_iterator closestit = matched.begin();
+			  for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); ++m)
 			    {
-			      n_assoc_muon++;
+			      if ( checkType_ )
+				{ // only consider associated simhits with the generated pid (muons)
+				  int pid = (*m).particleType();
+				  if ( abs(pid) != genType_ )
+				    continue;
+				}
 			      
-			      mindist = dist;
-			      closestit = m;
-			      found_hit_from_generated_particle = true;
+			      float simhitx = 0.5 * ( (*m).entryPoint().x() + (*m).exitPoint().x() );
+			      float simhity = 0.5 * ( (*m).entryPoint().y() + (*m).exitPoint().y() );
+			      
+			      distx = fabs(rechitx - simhitx);
+			      disty = fabs(rechity - simhity);
+			      dist = sqrt( distx*distx + disty*disty );
+			      
+			      if ( dist < mindist )
+				{
+				  n_assoc_muon++;
+				  
+				  mindist = dist;
+				  closestit = m;
+				  found_hit_from_generated_particle = true;
+				}
+			    } // for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
+			  
+			  // This recHit does not have any simHit with the same particleType as the particles generated
+			  // Ignore it as most probably come from delta rays.
+			  if ( checkType_ && !found_hit_from_generated_particle )
+			    continue; 
+			  
+			  if ( n_assoc_muon > 1 )
+			    {
+			      cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
+			      cout << "evt = " << evt << endl;
 			    }
-			} // for (vector<PSimHit>::const_iterator m=matched.begin(); m<matched.end(); m++)
-		      
-		      // This recHit does not have any simHit with the same particleType as the particles generated
-		      // Ignore it as most probably come from delta rays.
-		      if ( checkType_ && !found_hit_from_generated_particle )
-			continue; 
-		      
-		      if ( n_assoc_muon > 1 )
-			{
-			  cout << " ----- This is not good: n_assoc_muon = " << n_assoc_muon << endl;
-			  cout << "evt = " << evt << endl;
-			}
-		      
-		      pidhit = (*closestit).particleType();
-		      simproc = (int)(*closestit).processType();
-		      
-		      simhitx = 0.5*( (*closestit).entryPoint().x() + (*closestit).exitPoint().x() );
-		      simhity = 0.5*( (*closestit).entryPoint().y() + (*closestit).exitPoint().y() );
-		      
-		      rechitresx = rechitx - simhitx;
-		      rechitresy = rechity - simhity;
-		      rechitpullx = ( rechitx - simhitx ) / sqrt(error.xx());
-		      rechitpully = ( rechity - simhity ) / sqrt(error.yy());
-		      
-		      float simhitpx = (*closestit).momentumAtEntry().x();
-		      float simhitpy = (*closestit).momentumAtEntry().y();
-		      float simhitpz = (*closestit).momentumAtEntry().z();
-		      
-		      beta  = atan2(simhitpz, simhitpy) * radtodeg;
-		      alpha = atan2(simhitpz, simhitpx) * radtodeg;
-		      
-		      //beta  = fabs(atan2(simhitpz, simhitpy)) * radtodeg;
-		      //alpha = fabs(atan2(simhitpz, simhitpx)) * radtodeg;
-		
-		      phi = tciter->momentum().phi() / math_pi*180.0;
-		      eta = tciter->momentum().eta();
-      
-		      detId = (*it)->geographicalId();
-		      
-		      const int maxPixelCol = (*matchedhit).cluster()->maxPixelCol();
-		      const int maxPixelRow = (*matchedhit).cluster()->maxPixelRow();
-		      const int minPixelCol = (*matchedhit).cluster()->minPixelCol();
-		      const int minPixelRow = (*matchedhit).cluster()->minPixelRow();
-		      
-		      const PixelGeomDetUnit* theGeomDet =
-			dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );
-		      
-		      const RectangularPixelTopology* theTopol = 
-			dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
-		      
-		      // check whether the cluster is at the module edge 
-		      if ( theTopol->isItEdgePixelInX( minPixelRow ) || 
-			   theTopol->isItEdgePixelInX( maxPixelRow ) )
-			edgex = 1;
-		      else 
-			edgex = 0;
-		      
-		      if ( theTopol->isItEdgePixelInY( minPixelCol ) || 
-			   theTopol->isItEdgePixelInY( maxPixelCol ) )
-			edgey = 1;
-		      else 
-			edgey = 0;
-		      
-		      // check whether this rechit contains big pixels
-		      if ( theTopol->containsBigPixelInX(minPixelRow, maxPixelRow) )
-			bigx = 1;
-		      else 
-			bigx = 0;
-		      		      
-		      if ( theTopol->containsBigPixelInY(minPixelCol, maxPixelCol) )
-			bigy = 1;
-		      else 
-			bigy = 0;
-		      		      
-		      subdetId = (int)detId.subdetId();
-		      
-		      if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
-			{
-			  //const PixelGeomDetUnit* theGeomDet 
-			  //= dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
-			  //const RectangularPixelTopology * topol 
-			  //= dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
 			  
-			  int tmp_nrows = theGeomDet->specificTopology().nrows();
-			  if ( tmp_nrows == 80 ) 
-			    half = 1;
-			  else if ( tmp_nrows == 160 ) 
-			    half = 0;
+			  pidhit = (*closestit).particleType();
+			  simproc = (int)(*closestit).processType();
+			  
+			  simhitx = 0.5*( (*closestit).entryPoint().x() + (*closestit).exitPoint().x() );
+			  simhity = 0.5*( (*closestit).entryPoint().y() + (*closestit).exitPoint().y() );
+			  
+			  rechitresx = rechitx - simhitx;
+			  rechitresy = rechity - simhity;
+			  rechitpullx = ( rechitx - simhitx ) / sqrt(error.xx());
+			  rechitpully = ( rechity - simhity ) / sqrt(error.yy());
+			  
+			  float simhitpx = (*closestit).momentumAtEntry().x();
+			  float simhitpy = (*closestit).momentumAtEntry().y();
+			  float simhitpz = (*closestit).momentumAtEntry().z();
+			  
+			  beta  = atan2(simhitpz, simhitpy) * radtodeg;
+			  alpha = atan2(simhitpz, simhitpx) * radtodeg;
+			  
+			  //beta  = fabs(atan2(simhitpz, simhitpy)) * radtodeg;
+			  //alpha = fabs(atan2(simhitpz, simhitpx)) * radtodeg;
+			  
+			  phi = tciter->momentum().phi() / math_pi*180.0;
+			  eta = tciter->momentum().eta();
+			  
+			  detId = (*it)->geographicalId();
+			  
+			  const int maxPixelCol = (*matchedhit).cluster()->maxPixelCol();
+			  const int maxPixelRow = (*matchedhit).cluster()->maxPixelRow();
+			  const int minPixelCol = (*matchedhit).cluster()->minPixelCol();
+			  const int minPixelRow = (*matchedhit).cluster()->minPixelRow();
+			  
+			  const PixelGeomDetUnit* theGeomDet =
+			    dynamic_cast<const PixelGeomDetUnit*> ((*tracker).idToDet(detId) );
+			  
+			  const RectangularPixelTopology* theTopol = 
+			    dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+			  
+			  // check whether the cluster is at the module edge 
+			  if ( theTopol->isItEdgePixelInX( minPixelRow ) || 
+			       theTopol->isItEdgePixelInX( maxPixelRow ) )
+			    edgex = 1;
 			  else 
-			    cout << "-------------------------------------------------- Wrong module size !!!" << endl;
+			    edgex = 0;
 			  
-			  float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
-			  float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
-			  
-			  if ( tmp2<tmp1 ) 
-			    flipped = 1;
+			  if ( theTopol->isItEdgePixelInY( minPixelCol ) || 
+			       theTopol->isItEdgePixelInY( maxPixelCol ) )
+			    edgey = 1;
 			  else 
-			    flipped = 0;
+			    edgey = 0;
 			  
-			  PXBDetId  bdetid(detId);
-			  layer  = bdetid.layer();   // Layer: 1,2,3.
-			  ladder = bdetid.ladder();  // Ladder: 1-20, 32, 44. 
-			  mod   = bdetid.module();  // Mod: 1-8.
-			}			  
-		      else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
-			{
-			  PXFDetId fdetid(detId);
-			  side  = fdetid.side();
-			  disk  = fdetid.disk();
-			  blade = fdetid.blade();
-			  panel = fdetid.panel();
-			  plaq  = fdetid.module(); // also known as plaquette
+			  // check whether this rechit contains big pixels
+			  if ( theTopol->containsBigPixelInX(minPixelRow, maxPixelRow) )
+			    bigx = 1;
+			  else 
+			    bigx = 0;
 			  
-			} // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
-		      //else std::cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
+			  if ( theTopol->containsBigPixelInY(minPixelCol, maxPixelCol) )
+			    bigy = 1;
+			  else 
+			    bigy = 0;
+			  
+			  subdetId = (int)detId.subdetId();
+			  
+			  if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
+			    {
+			      //const PixelGeomDetUnit* theGeomDet 
+			      //= dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
+			      //const RectangularPixelTopology * topol 
+			      //= dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+			      
+			      int tmp_nrows = theGeomDet->specificTopology().nrows();
+			      if ( tmp_nrows == 80 ) 
+				half = 1;
+			      else if ( tmp_nrows == 160 ) 
+				half = 0;
+			      else 
+				cout << "-------------------------------------------------- Wrong module size !!!" << endl;
+			      
+			      float tmp1 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,0.)).perp();
+			      float tmp2 = theGeomDet->surface().toGlobal(Local3DPoint(0.,0.,1.)).perp();
+			      
+			      if ( tmp2<tmp1 ) 
+				flipped = 1;
+			      else 
+				flipped = 0;
+			      
+			      PXBDetId  bdetid(detId);
+			      layer  = bdetid.layer();   // Layer: 1,2,3.
+			      ladder = bdetid.ladder();  // Ladder: 1-20, 32, 44. 
+			      mod   = bdetid.module();  // Mod: 1-8.
+			    }			  
+			  else if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelEndcap )
+			    {
+			      PXFDetId fdetid(detId);
+			      side  = fdetid.side();
+			      disk  = fdetid.disk();
+			      blade = fdetid.blade();
+			      panel = fdetid.panel();
+			      plaq  = fdetid.module(); // also known as plaquette
+			      
+			    } // else if ( detId.subdetId()==PixelSubdetector::PixelEndcap )
+			  //else std::cout << "We are not in the pixel detector. detId.subdetId() = " << (int)detId.subdetId() << endl;
+			  
+			  ttree_track_hits_->Fill();
+			  
+			} // if ( !matched.empty() )
+		      else
+			cout << "---------------- RecHit with no associated SimHit !!! -------------------------- " << endl;
 		      
-		      ttree_track_hits_->Fill();
-		      
-		    } // if ( !matched.empty() )
-		  else
-		    cout << "---------------- RecHit with no associated SimHit !!! -------------------------- " << endl;
+		    } // if ( matchedhit )
 		  
-		} // if ( matchedhit )
+		} // end of loop on hits
 	      
-	    } // end of loop on hits
-	  
-	} //end of loop on track 
+	    } //end of loop on track 
       
-    } // tracks > 0.
+	} // tracks > 0.
+     
+    } // if ( include_trk_hits_ )
+
+  // ----------------------------------------------- track hits only -----------------------------------------------------------
   
 }
 

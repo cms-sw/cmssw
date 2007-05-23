@@ -133,7 +133,9 @@ analyse_residuals::analyse_residuals(TTree *tree)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("TrackHitNtuple","");
+    
       chain->Add("./SiPixelErrorEstimation_Ntuple.root/TrackHitNtuple");
+
       tree = chain;
 #endif // SINGLE_TREE
 

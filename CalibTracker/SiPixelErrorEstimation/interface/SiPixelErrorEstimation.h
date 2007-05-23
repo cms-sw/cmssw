@@ -76,11 +76,11 @@ class SiPixelErrorEstimation : public edm::EDAnalyzer
  private: 
   
   edm::ParameterSet conf_;
-  //std::string outputFile_;
+  std::string outputFile_;
   std::string src_;
-  
   bool checkType_; // do we check that the simHit associated with recHit is of the expected particle type ?
   int genType_; // the type of particle that the simHit associated with recHits should be
+  bool include_trk_hits_; // if set to false, take only hits directly from detector modules (don't ntuplize hits from tracks)
 
   // variables that go in the output ttree_track_hits_
   float rechitx; // x position of hit 
