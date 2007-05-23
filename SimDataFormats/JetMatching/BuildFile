@@ -1,0 +1,13 @@
+<use name=DataFormats/JetReco>
+<use name=FWCore/Utilities>
+<use name=boost>
+<use name=clhep>
+<export>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/JetReco>
+  <use name=boost>
+  <use name=clhep>
+  <use name=rootmath>
+  <lib name=SimDataFormatsJetMatching>
+</export>
+
