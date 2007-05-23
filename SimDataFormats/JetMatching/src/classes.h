@@ -11,7 +11,6 @@ namespace {
 	JetFlavourMatchingRefProd jf3;
 	JetFlavourMatchingRefVector jf4;
 	edm::Wrapper<JetFlavourMatchingCollection> jf5;
-
 //std::pair<edm::Ref<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet, edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet> >, int> aaaa;
   }
 }

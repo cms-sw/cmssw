@@ -7,6 +7,7 @@
   <class name="JetFlavourMatchingRefProd"/>
   <class name="JetFlavourMatchingRefVector"/>
   <class name="edm::Wrapper<JetFlavourMatchingCollection>"/>
+   <class name="std::pair<reco::CaloJetRef, int>"/>
 <!-- <class name="std::pair<edm::Ref<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet, edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet, std::allocator<reco::CaloJet> >, reco::CaloJet> >, int>"/>
 --> 
 </lcgdict>
