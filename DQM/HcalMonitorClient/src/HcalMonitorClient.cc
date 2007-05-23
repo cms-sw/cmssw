@@ -4,12 +4,14 @@
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
   mui_ = mui;
   trigger_=0;
+  subscribed_=0;
   this->initialize(ps);
 }
 
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
   mui_ = 0;
   trigger_=0;
+  subscribed_=0;
   this->initialize(ps);
 }
 
@@ -17,6 +19,7 @@ HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
 HcalMonitorClient::HcalMonitorClient(){
   mui_ = 0;
   trigger_=0;
+  subscribed_=0;
   verbose_ =false;
 }
 
@@ -56,7 +59,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   offline_ = false;
 
   status_  = "unknown"; runtype_ = "UNKNOWN";
-  run_     = 0; mon_evt_     = -1;
+  run_     = -1; mon_evt_     = -1;
   timeout_ = 0;
 
   last_jevt_   = -1; last_update_ = 0;
@@ -107,7 +110,7 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   // start DQM user interface instance
   if( ! mui_ ){
     if( inputFile_.size() != 0 ) mui_ = new MonitorUIRoot();
-    else mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+    else mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5);
   }
   if( verbose_ && mui_ ) mui_->setVerbose(1);
   else if(mui_) mui_->setVerbose(0);
@@ -262,10 +265,11 @@ void HcalMonitorClient::report(bool doUpdate) {
   
   if( verbose_ ) cout << "HcalMonitorClient: creating report, ievt = " << ievt_ << endl;
   
-  if(doUpdate && status_!="unknown"){
+  if(doUpdate && status_!="unknown" && mui_){
     this->createTests();  
-    if(mui_) mui_->update();
-    if(mui_) mui_->doMonitoring();
+    mui_->update();
+    mui_->doMonitoring();
+    mui_->runQTests();
   }
 
   if( hot_client_ ) hot_client_->report();
@@ -275,11 +279,13 @@ void HcalMonitorClient::report(bool doUpdate) {
   if( rechit_client_ ) rechit_client_->report();
   if( dataformat_client_ ) dataformat_client_->report();
   
+  /*
   if(doUpdate && mui_){
     mui_->update();
     mui_->doMonitoring();
     mui_->runQTests();
   }
+  */
 
   map<string, vector<QReport*> > errE, errW, errO;
   if( hot_client_ ) hot_client_->getErrors(errE,errW,errO);
@@ -297,14 +303,11 @@ void HcalMonitorClient::report(bool doUpdate) {
       }
     }
     char tmp[150];
-    sprintf(tmp,"%09d.root", run_);
+    if(run_!=-1) sprintf(tmp,"%09d.root", run_);
+    else sprintf(tmp,"%09d.root", 0);
     string saver = outputFile_+tmp;
     if(mui_) mui_->save(saver);
     
-    //    TFile* rootOut = new TFile(saver.c_str(),"UPDATE");
-    //    rootOut->cd();    
-    //    rootOut->Write();
-    //    rootOut->Close();
   }
 
   if( baseHtmlDir_.size() != 0 ) this->htmlOutput();
@@ -329,7 +332,7 @@ void HcalMonitorClient::endRun(void) {
   if( pedestal_client_ )   pedestal_client_->endRun();
   if( led_client_ )        led_client_->endRun();
   
-  this->cleanup();
+  //  this->cleanup();
   
   status_  = "unknown";
   mon_evt_     = -1;
@@ -337,7 +340,7 @@ void HcalMonitorClient::endRun(void) {
   
   last_jevt_ = -1;
   last_update_ = 0;
-  run_=0;
+  run_=-1;
   
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
@@ -366,6 +369,15 @@ void HcalMonitorClient::subscribe(void){
 
   if( verbose_ ) cout << "HcalMonitorClient: subscribe" << endl;
 
+  if(mui_){
+    Char_t histo[150];
+    mui_->subscribe("*/HcalMonitor/STATUS");
+    sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
+    MonitorElement* me = mui_->get(histo);
+    if(!me) return;
+  }
+
+
   // subscribe to monitorable matching pattern
   if(mui_){
     mui_->subscribe("*/HcalMonitor/STATUS");
@@ -374,13 +386,16 @@ void HcalMonitorClient::subscribe(void){
     mui_->subscribe("*/HcalMonitor/EVT MASK");
     mui_->subscribe("*/HcalMonitor/RUN TYPE");
   }
+
+  //  if( tb_client_ ) tb_client_->subscribe();
+  if( hot_client_ ) hot_client_->subscribe();
   if( dataformat_client_ ) dataformat_client_->subscribe();
   if( digi_client_ ) digi_client_->subscribe();
   if( rechit_client_ ) rechit_client_->subscribe();
   if( pedestal_client_ ) pedestal_client_->subscribe();  
   if( led_client_ ) led_client_->subscribe();
-  //  if( tb_client_ ) tb_client_->subscribe();
-  if( hot_client_ ) hot_client_->subscribe();
+
+  subscribed_ = true;
 
   return;
 }
@@ -428,6 +443,8 @@ void HcalMonitorClient::unsubscribe(void) {
   if( pedestal_client_ ) pedestal_client_->unsubscribe();  
   if( led_client_ ) led_client_->unsubscribe();
   
+  subscribed_ = false;
+
   return;
 }
 
@@ -436,19 +453,20 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   ievt_++;
   
   printf("Client heartbeat....\n");
+  if(!mui_){
+    printf("HcalMonitorClient:  MonitorUserInterface NULL!!\n");
+    return;
+  }
   
   Char_t histo[150];
   MonitorElement* me =0;
   string s;  
   
   // # of full monitoring cycles processed
-  int updates = 0;
-  if(mui_){
-    mui_->getNumUpdates();
-    mui_->update();
-    mui_->doMonitoring();
-    this->subscribeNew();
-  }
+  int updates = mui_->getNumUpdates();
+  mui_->doMonitoring();
+  this->subscribeNew();
+
 
   bool force_update = false;
   if(timeout_>=timeout_thresh_ || inputFile_.size()!=0){
@@ -456,20 +474,33 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     force_update = true;
     status_ = "end-of-run";
   }
-  
+
   if( updates != last_update_ || force_update) {
-    int lastRun = run_;  
+    int lastRun = run_;
+    
     sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
-    if(mui_) me = mui_->get(histo);
+    me = mui_->get(histo);    
     if( me ) {
       s = me->valueString();
       run_ = -1;
       sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
       if( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
-    
+    /*
+      else{
+      this->subscribe();    
+      me = mui_->get(histo);    
+      if( me ) {
+      s = me->valueString();
+      run_ = -1;
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+      if( verbose_ ) cout << "Found '" << histo << "'" << endl;
+      }
+      }
+    */
+
     sprintf(histo, "%sHcalMonitor/EVT NUMBER",process_.c_str());
-    if(mui_) me = mui_->get(histo);
+    me = mui_->get(histo);
     if( me ) {
       s = me->valueString();
       mon_evt_ = -1;
@@ -478,7 +509,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     }
     
     sprintf(histo, "%sHcalMonitor/EVT MASK",process_.c_str());
-    if(mui_) me = mui_->get(histo);
+    me = mui_->get(histo);
     if( me ) {
       s = me->valueString();
       int mask = -1;
@@ -486,7 +517,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if( verbose_ ) cout << "Found '" << histo << "'" << endl;
       if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM RUN";
       if(mask&DO_HCAL_PED_CALIBMON){ runtype_ = "PEDESTAL RUN";
-      if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM AND PEDESTALS";
+	if(mask&HCAL_BEAM_TRIGGER) runtype_ = "BEAM AND PEDESTALS";
       }
       if(mask&DO_HCAL_LED_CALIBMON) runtype_ = "LED RUN";
       if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
@@ -495,7 +526,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     if(!force_update){
       status_="unknown";
       sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-      if(mui_) me = mui_->get(histo);
+      me = mui_->get(histo);
       if( me ) {
 	s = me->valueString();
 	status_ = "unknown";
@@ -506,6 +537,8 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       }
       if( verbose_ ) printf("Status: %s\n",status_.c_str());  
     }
+    
+    printf("HcalClient: iter: %d, run: %d, evts: %d, type: %s, status: %s\n",ievt_, run_, mon_evt_, runtype_.c_str(),status_.c_str());
 
     if(status_=="begin-of-run") this->beginRun();
     if(status_=="running"){
@@ -517,21 +550,23 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       //      if( tb_client_ )         tb_client_->analyze(); 
       if( hot_client_ )         hot_client_->analyze(); 
     }    
-    if(status_ == "end-of-run") this->endRun();
+
     if(status_!="unknown") 
       if(run_!=lastRun && lastRun!=0 && mon_evt_>1) this->report(false);    
     if((ievt_%update_freq_)==0 && mon_evt_>1 && status_=="running") this->report(true);
+    if(status_ == "end-of-run") this->endRun();
+
     if(status_!="unknown" && (ievt_%10)==0 ){
       if((ievt_%update_freq_)!=0 || status_ == "begin-of-run"){ 
 	createTests();  
-	if(mui_) mui_->update();
+	mui_->update();
       }
     }
     
     timeout_=0;
   }
   else timeout_++;
-  
+
   last_update_ = updates;
   
   return;
@@ -555,8 +590,8 @@ void HcalMonitorClient::htmlOutput(void){
   cout << "Preparing HcalMonitorClient html output ..." << endl;
 
   char tmp[10];
-  sprintf(tmp, "%09d", run_);
-
+  if(run_!=-1) sprintf(tmp, "%09d", run_);
+  else sprintf(tmp, "%09d", 0);
   string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
@@ -704,7 +739,7 @@ void HcalMonitorClient::offlineSetup(){
   offline_ = true;
 
   status_  = "unknown"; runtype_ = "UNKNOWN";
-  run_     = 0; mon_evt_     = -1;
+  run_     = -1; mon_evt_     = -1;
   timeout_ = 0;
 
   last_jevt_   = -1; last_update_ = 0;
@@ -766,8 +801,6 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   //  if ( me ) trigger_ = getHisto(me,verbose_,cloneME_);
   trigger_ = (TH1F*)infile->Get("DQMData/HcalMonitor/TB Trigger Type");
   if(trigger_!=NULL) labelBins(trigger_);
-
-  //  printf("HcalOfflineClient: run: %d, evts: %d, type: %s, status: %s\n",run_, mon_evt_, runtype_.c_str(),status_.c_str());
 
 
   //  if(tb_client_) tb_client_->loadHistograms(infile);

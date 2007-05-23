@@ -95,6 +95,51 @@ vector<int> inputEMAP(vector<int> compVar, vector<int> compIdx){
   return notFound;
 }
 
+vector<int> inputEMAP2(vector<int> compVar, vector<int> compIdx){
+  
+  vector<string> lines;
+  std::string line;
+  lines.clear();
+  std::ifstream infile(gl_emap, std::ios_base::in);
+  if (!infile) {
+    cout<<"Cannot open file "<<gl_emap<<endl;
+    return false;
+  }
+  
+  while(getline(infile, line, '\n')) {
+
+    TString conv = TString(line.c_str());
+    TObjArray* aline = conv.Tokenize(" ");
+    bool foundIt = true;
+    for(int idx=0; idx<compVar.size() && foundIt; idx++){
+      TString s = ((TObjString*)(aline->At(compIdx[idx])))->GetString();
+      if( compVar[idx] != atoi(s.Data())) foundIt = false;
+    }
+    if(foundIt){
+      vector<int> found;
+      for(int l=0; l<aline->GetEntriesFast(); l++){
+	TString s = ((TObjString*)(aline->At(l)))->GetString();
+	if(l!=3 && l!=8) found.push_back(atoi(s.Data()));
+	else{
+	  if(l==3){
+	    if(s==TString("t")) found.push_back(0);
+	    else if(s==TString("b")) found.push_back(1);
+	  }
+	  if(l==8){
+	    if(s==TString("HB")) found.push_back(0);
+	    else if(s==TString("HE")) found.push_back(1);
+	    else if(s==TString("HF")) found.push_back(2);
+	    else if(s==TString("HO")) found.push_back(3);
+	  }
+	}
+      }
+      printf("Found: line\n");
+    }
+  }
+  vector<int> notFound;
+  return notFound;
+}
+
 void makePedestalHistos(vector<int> inLine, const char* histFile){
   TFile* infile = new TFile(histFile);
   if(!infile){
@@ -198,6 +243,14 @@ vector<int> findLine_Elec(int dcc,int spigot,int fib,int fchan){
   return inputEMAP(testVar, testIdx);
 }
 
+vector<int> findLine_Elec2(int dcc,int crate,int slot){
+  vector<int> testVar; vector<int> testIdx;
+  testVar.push_back(dcc); testIdx.push_back(4);
+  testVar.push_back(crate); testIdx.push_back(1);
+  testVar.push_back(slot); testIdx.push_back(2);
+  return inputEMAP2(testVar, testIdx);
+}
+
 void plotGeometric(const char* histFile){
 
   printf("\n\n*****************************************\n");
@@ -214,8 +267,6 @@ void plotGeometric(const char* histFile){
   printf("Enter Depth: ");
   scanf("%d",&depth);  
   printf("You have entered %d, %d, %d\n",ieta,iphi,depth);
-
-  vector<vector<int> > mapLines;
 
   vector<int> cLine = findLine_Geo(ieta,iphi,depth);
   if(cLine.size()==0){
@@ -249,8 +300,6 @@ void plotElectronic(const char* histFile){
   
   printf("You have entered %d, %d, %d, %d\n",dcc,spigot,fib,fchan);
 
-  vector<vector<int> > mapLines;
-
   vector<int> cLine = findLine_Elec(dcc,spigot,fib,fchan);
   if(cLine.size()==0){
      cout<<"Electronics map did not contain specified point!"<<endl;
@@ -259,6 +308,28 @@ void plotElectronic(const char* histFile){
   
   makePedestalHistos(cLine,histFile);
   makeLEDHistos(cLine,histFile);  
+
+  return;
+}
+
+void plotElectronic2(const char* histFile){
+
+  printf("\n\n*****************************************\n");
+  printf("***        HCAL Channel Plotter       ***\n");
+  printf("***                                   ***\n");
+  printf("***     Plotting by Electronics(#2)   ***\n");
+  printf("*****************************************\n");
+
+  int dcc, crate, slot;
+  printf("Enter dcc-ID: ");
+  scanf("%d",&dcc);  
+  printf("Enter crate: ");
+  scanf("%d",&crate);  
+  printf("Enter slot: ");
+  scanf("%d",&slot);
+  printf("You have entered %d, %d, %d\n",dcc,crate,slot);
+
+  vector<int> cLine = findLine_Elec2(dcc,crate,slot);
 
   return;
 }
