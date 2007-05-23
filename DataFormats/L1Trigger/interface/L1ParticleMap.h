@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.18 2007/05/11 04:59:32 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.19 2007/05/15 14:52:40 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.19  2007/05/15 14:52:40  wsun
+// A_Mu3_IsoEG15 -> A_Mu7_IsoEG10
+//
 // Revision 1.18  2007/05/11 04:59:32  wsun
 // Retweaked trigger table.
 //
@@ -108,13 +111,16 @@ namespace l1extra {
 	 enum L1TriggerType
 	 {
 	    kSingleMu3,
+	    kSingleMu5,
 	    kSingleMu7,
 	    kSingleMu10,
 	    kSingleMu14,
 	    kSingleMu20,
 	    kSingleMu25,
 	    kSingleIsoEG5,
+	    kSingleIsoEG8,
 	    kSingleIsoEG10,
+	    kSingleIsoEG12,
 	    kSingleIsoEG15,
 	    kSingleIsoEG20,
 	    kSingleIsoEG25,
@@ -127,6 +133,7 @@ namespace l1extra {
 	    kSingleJet20,
 	    kSingleJet30,
 	    kSingleJet50,
+	    kSingleJet70,
 	    kSingleJet100,
 	    kSingleJet150,
 	    kSingleJet200,
@@ -147,16 +154,21 @@ namespace l1extra {
 	    kETM50,
 	    kETM60,
 	    kDoubleMu3,
+	    kDoubleIsoEG8,
 	    kDoubleIsoEG10,
 	    kDoubleEG5,
+	    kDoubleEG10,
 	    kDoubleEG15,
+	    kDoubleJet70,
 	    kDoubleJet100,
 	    kDoubleTauJet20,
 	    kDoubleTauJet30,
+	    kDoubleTauJet40,
 	    kMu3_IsoEG5,
 	    kMu7_IsoEG10,
 	    kMu3_EG20,
 	    kMu3_Jet15,
+	    kMu7_Jet15,
 	    kMu3_Jet100,
 	    kMu10_Jet20,
 	    kMu7_TauJet20,

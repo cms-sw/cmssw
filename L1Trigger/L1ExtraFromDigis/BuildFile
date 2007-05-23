@@ -1,14 +1,14 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
+<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=clhep>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
-<use name=CondFormats/L1TObjects>
-<use name=CondFormats/DataRecord>
-<flags EDM_PLUGIN=1>
+<use name=L1Trigger/L1Scales>
+<flags SEAL_PLUGIN_NAME="L1TriggerL1ExtraFromDigis">
 <export>
    <lib name=L1TriggerL1ExtraFromDigis>
    <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
+   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
 </export>
