@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.4 2007/05/15 16:06:19 heyninck Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.5 2007/05/22 16:36:50 heyninck Exp $
 //
 
 // system include files
@@ -20,17 +20,20 @@
 
 TtSemiEvtSolution::TtSemiEvtSolution()
 {
-  probChi2 	= -999.;
-  jetMatchPur  	= -999.;
-  signalPur   	= -999.;
-  sumDeltaRjp   = -999.;
-  deltaRhadp   	= -999.;
-  deltaRhadq   	= -999.;
-  deltaRhadb   	= -999.;
-  deltaRlepb   	= -999.;
-  changeWQ     	= -999;
-  mcBestSol	= -999;
-  simpleBestSol	= -999;
+  probChi2 		= -999.;
+  sumDeltaRjp   	= -999.;
+  deltaRhadp   		= -999.;
+  deltaRhadq   		= -999.;
+  deltaRhadb   		= -999.;
+  deltaRlepb   		= -999.;
+  changeWQ     		= -999;
+  mcCorrJetComb		= -999;
+  simpleCorrJetComb	= -999;
+  lrCorrJetComb		= -999;
+  lrCorrJetCombLRval	= -999.;
+  lrCorrJetCombProb	= -999.;
+  lrSignalEvtLRval	= -999.;
+  lrSignalEvtProb	= -999.;
 }
 
 
@@ -50,12 +53,7 @@ void TtSemiEvtSolution::setJetParametrisation(int jp) 		{ jetparam = jp; }
 void TtSemiEvtSolution::setLeptonParametrisation(int lp) 	{ jetparam = lp; }
 void TtSemiEvtSolution::setMETParametrisation(int mp) 		{ jetparam = mp; }
 void TtSemiEvtSolution::setProbChi2(double c)     	        { probChi2 = c; }
-void TtSemiEvtSolution::setPtrueCombExist(double pce)		{ ptrueCombExist= pce; }
-void TtSemiEvtSolution::setPtrueBJetSel(double pbs)		{ ptrueBJetSel= pbs; }
-void TtSemiEvtSolution::setPtrueBhadrSel(double pbh)		{ ptrueBhadrSel= pbh; }
-void TtSemiEvtSolution::setPtrueJetComb(double pt)      	{ ptrueJetComb= pt; }
-void TtSemiEvtSolution::setSignalPurity(double c)		{ signalPur = c; }
-void TtSemiEvtSolution::setSignalLRtot(double c)		{ signalLRtot = c; }
+
 void TtSemiEvtSolution::setGenEvt(std::vector<reco::Candidate *> particles){
   genHadp = (reco::Particle) (*(particles[0]));
   genHadq = (reco::Particle) (*(particles[1]));
@@ -74,9 +72,21 @@ void TtSemiEvtSolution::setDeltaRhadq(double adr)		{ deltaRhadq    = adr;  }
 void TtSemiEvtSolution::setDeltaRhadb(double adr)		{ deltaRhadb    = adr;  }
 void TtSemiEvtSolution::setDeltaRlepb(double adr)		{ deltaRlepb    = adr;  }
 void TtSemiEvtSolution::setChangeWQ(int wq)			{ changeWQ      = wq;   }
-void TtSemiEvtSolution::setMCBestSol(int mcbs)			{ mcBestSol     = mcbs; }
-void TtSemiEvtSolution::setSimpleBestSol(int sbs)		{ simpleBestSol = sbs;  }
-      
+
+void TtSemiEvtSolution::setMCCorrJetComb(int mcbs)		{ mcCorrJetComb = mcbs; }
+void TtSemiEvtSolution::setSimpleCorrJetComb(int sbs)		{ simpleCorrJetComb = sbs;  }
+void TtSemiEvtSolution::setLRCorrJetComb(int lrbs)		{ lrCorrJetComb = lrbs;  }
+void TtSemiEvtSolution::setLRCorrJetCombVarVal(std::vector<std::pair<double, double> > varval) {
+  for(size_t i = 0; i<varval.size(); i++) lrCorrJetCombVarVal.push_back(varval[i]);
+}
+void TtSemiEvtSolution::setLRCorrJetCombLRval(double clr) {lrCorrJetCombLRval = clr;}
+void TtSemiEvtSolution::setLRCorrJetCombProb(double plr)  {lrCorrJetCombProb = plr;}
+void TtSemiEvtSolution::setLRSignalEvtVarVal(std::vector<std::pair<double, double> > varval) {
+  for(size_t i = 0; i<varval.size(); i++) lrSignalEvtVarVal.push_back(varval[i]);
+}
+void TtSemiEvtSolution::setLRSignalEvtLRval(double clr) {lrSignalEvtLRval = clr;}
+void TtSemiEvtSolution::setLRSignalEvtProb(double plr)  {lrSignalEvtProb = plr;}
+  
 
 
 // return functions for reconstructed fourvectors

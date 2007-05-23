@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+// $Id: TopJet.h,v 1.2 2007/05/22 16:36:50 heyninck Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -15,7 +15,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+  \version  $Id: TopJet.h,v 1.2 2007/05/22 16:36:50 heyninck Exp $
 */
 
 
@@ -39,17 +39,25 @@ class TopJet : public TopObject<JetType>
       void    		setRecJet(JetType);
       void    		setFitJet(TopParticle);
       void    		setBdiscriminant(double);
+      void 		setLRPhysicsJetVarVal(std::vector<std::pair<double, double> >);
+      void 		setLRPhysicsJetLRval(double);
+      void 		setLRPhysicsJetProb(double);
       
       reco::Particle	getGenJet() const;
       JetType 		getRecJet() const;
       TopParticle  	getFitJet() const;
       double  		getBdiscriminant() const;
-      
+      double            getLRPhysicsJetVar(unsigned int i) const;
+      double            getLRPhysicsJetVal(unsigned int i) const;
+      double            getLRPhysicsJetLRval() const;
+      double            getLRPhysicsJetProb() const;
+
    protected:
       Particle   	genJet;
       JetType     	recJet;
       TopParticle 	fitJet;
-      double      	bdiscr;
+      double      	bdiscr, lrPhysicsJetLRval, lrPhysicsJetProb;     
+      std::vector<std::pair<double, double> > lrPhysicsJetVarVal;
       
 };
 
