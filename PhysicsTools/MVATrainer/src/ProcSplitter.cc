@@ -38,7 +38,7 @@ class ProcSplitter : public TrainProcessor {
 static ProcSplitter::Registry registry("ProcSplitter");
 
 ProcSplitter::ProcSplitter(const char *name, const AtomicId *id,
-                             MVATrainer *trainer) :
+                           MVATrainer *trainer) :
 	TrainProcessor(name, id, trainer)
 {
 }

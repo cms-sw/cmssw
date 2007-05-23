@@ -300,7 +300,7 @@ MVATrainer::MVATrainer(const std::string &fileName) :
 				if (std::strcmp(XMLSimpleStr(
 					subNode->getNodeName()), "option") != 0)
 					throw cms::Exception("MVATrainer")
-						<< "Expection option tag."
+						<< "Expected option tag."
 						<< std::endl;
 
 				elem = static_cast<DOMElement*>(subNode);
