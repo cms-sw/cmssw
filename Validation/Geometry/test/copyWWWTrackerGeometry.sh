@@ -17,7 +17,7 @@ if [ ! -d $geomDir ]; then
 fi
 
 # Copy logfile
-mv TrackerGeometryValidation.log $geomDir/.
+cp TrackerGeometryValidation.log $geomDir/.
 #
 
 # Material Budget
@@ -39,14 +39,14 @@ mkdir $nsDir
 
 
 # move Material Budget plots
-mv Images/*Comparison*.eps $mbDir/Comparison/eps/.
-#mv Images/*Comparison*.gif $mbDir/Comparison/gif/.
-mv Images/*.eps            $mbDir/Plots/eps/.
-mv Images/*.gif            $mbDir/Plots/gif/.
+cp Images/*Comparison*.eps $mbDir/Comparison/eps/.
+#cp Images/*Comparison*.gif $mbDir/Comparison/gif/.
+cp Images/*.eps            $mbDir/Plots/eps/.
+cp Images/*.gif            $mbDir/Plots/gif/.
 
 # move geometry diff files
-mv diff_info.temp     $nsDir/ModulePositioning.diff
-mv diff_num.temp      $nsDir/ModuleNumbering.diff
-mv NumberingInfo.log  $nsDir/.
-mv num.log            $nsDir/.
-mv trackerOverlap.log $nsDir/.
+cp diff_info.temp     $nsDir/ModulePositioning.diff
+cp diff_num.temp      $nsDir/ModuleNumbering.diff
+cp NumberingInfo.log  $nsDir/.
+cp num.log            $nsDir/.
+cp trackerOverlap.log $nsDir/.
