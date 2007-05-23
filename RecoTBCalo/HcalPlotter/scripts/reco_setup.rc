@@ -3,7 +3,7 @@ EVENTLIMIT=1000
 
 # Set the name of the map file to use
 #MAPFILE=CondFormats/HcalObjects/data/emap_tb2006_v7.txt
-MAPFILE=RecoTBCalo/HcalPlotter/data/emap_hcal_generic.txt
+MAPFILE=RecoTBCalo/HcalPlotter/data/hfplusmapCalib.txt
 
 # Set the name of a pedestals file to use (if desired)
 #PEDESTALFILE=a.txt
@@ -34,6 +34,13 @@ FEDS=20
 #           - unpacks trigger data
 #
 MODE=USC
+
+# To unpack calibration channels and plot them, 
+# give this variable a string with more than 1 character,
+# OTHERWISE LEAVE IT BLANK, or comment it out, as in:
+#DOCALIB=
+#
+DOCALIB=1234
 
 # "Printf"-style format string for the input filename -
 #                     allows input of run number only
