@@ -44,13 +44,14 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 void ApvTimingHistograms::histoAnalysis( bool debug ) {
   
   uint16_t valid = 0;
+  HistosMap::const_iterator iter = 0;
+  Analyses::iterator ianal = 0;
   
-  std::map<uint32_t,ApvTimingAnalysis*>::iterator ianal;
-
   // Clear map holding analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
     if ( ianal->second ) { delete ianal->second; }
   } 
+  data_.clear();
   
   // Reset minimum / maximum delays
   float time_min =  1. * sistrip::invalid_;
@@ -59,8 +60,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   uint32_t device_max = sistrip::invalid_;
   
   // Iterate through map containing histograms
-  HistosMap::const_iterator iter = histos().begin();
-  for ( ; iter != histos().end(); iter++ ) {
+  for ( iter = histos().begin();
+	iter != histos().end(); iter++ ) {
     
     // Check vector of histos is not empty
     if ( iter->second.empty() ) {
@@ -150,16 +151,15 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   // Set maximum time for all analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
     ianal->second->maxTime( time_max ); 
+    if ( ianal->second->isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
       ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { 
-	LogTrace(mlDqmClient_) << ss.str(); 
-	valid++;
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
+      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
   }
-
+  
   if ( !histos().empty() ) {
     edm::LogVerbatim(mlDqmClient_) 
       << "[ApvTimingHistograms::" << __func__ << "]"
@@ -189,7 +189,7 @@ void ApvTimingHistograms::createSummaryHisto( const sistrip::Monitorable& mon,
   if ( view == sistrip::UNKNOWN_VIEW ) { return; }
   
   // Analyze histograms
-  histoAnalysis( false );
+  if ( data_.empty() ) { histoAnalysis( false ); }
   
   // Extract data to be histogrammed
   uint32_t bins = factory_->init( mon, pres, view, dir, gran, data_ );

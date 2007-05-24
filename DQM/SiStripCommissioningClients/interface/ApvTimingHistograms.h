@@ -17,6 +17,7 @@ class ApvTimingHistograms : public CommissioningHistograms {
   virtual ~ApvTimingHistograms();
   
   typedef SummaryPlotFactory<ApvTimingAnalysis*> Factory;
+  typedef std::map<uint32_t,ApvTimingAnalysis*> Analyses;
   
   /** */
   void histoAnalysis( bool debug );
@@ -29,7 +30,7 @@ class ApvTimingHistograms : public CommissioningHistograms {
   
  protected: 
   
-  std::map<uint32_t,ApvTimingAnalysis*> data_;
+  Analyses data_;
   
   std::auto_ptr<Factory> factory_;
   

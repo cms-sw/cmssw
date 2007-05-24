@@ -144,7 +144,12 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
 						   const std::vector<std::string>& contents ) {
   
   // Check if histograms present
-  if ( contents.empty() ) { return sistrip::UNKNOWN_RUN_TYPE; }
+  if ( contents.empty() ) { 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Found no histograms!";
+    return sistrip::UNKNOWN_RUN_TYPE; 
+  }
   
   // Iterate through added contents
   std::vector<std::string>::const_iterator istr = contents.begin();
@@ -155,9 +160,14 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
     
     // Generate corresponding client path (removing trailing "/")
     SiStripFecKey path( source_dir );
-    //std::string client_dir = path.path();
-    std::string client_dir = sistrip::root_ + "/"; //@@ 
+    std::string client_dir = path.path();
+    //std::string client_dir = sistrip::root_ + "/"; //@@ 
     client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
+
+//     LogTrace(mlDqmClient_)
+//       << "[CommissioningHistograms::" << __func__ << "]"
+//       << " source dir: " << source_dir
+//       << " client dir: " << client_dir;
     
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
@@ -171,11 +181,11 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
 	continue;
       }
 
-      // Search for "commissioning task" std::string
+      // Search for run type in string
       std::string title = (*ime)->getName();
       std::string::size_type pos = title.find( sistrip::taskId_ );
 
-      // Extract commissioning task from std::string 
+      // Extract commissioning task from string 
       if ( pos != std::string::npos ) { 
 	std::string value = title.substr( pos+sistrip::taskId_.size()+1, std::string::npos ); 
 	if ( !value.empty() ) { 
@@ -200,6 +210,81 @@ sistrip::RunType CommissioningHistograms::runType( DaqMonitorBEInterface* const 
 }
 
 // -----------------------------------------------------------------------------
+//
+uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
+					     const std::vector<std::string>& contents ) {
+  
+  // Check if histograms present
+  if ( contents.empty() ) { 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Found no histograms!";
+    return 0; 
+  }
+  
+  // Iterate through added contents
+  std::vector<std::string>::const_iterator istr = contents.begin();
+  while ( istr != contents.end() ) {
+    
+    // Extract source directory path 
+    std::string source_dir = istr->substr( 0, istr->find(":") );
+    
+    // Generate corresponding client path (removing trailing "/")
+    SiStripFecKey path( source_dir );
+    std::string client_dir = path.path();
+    //std::string client_dir = sistrip::root_ + "/"; //@@ 
+    client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
+    
+//     LogTrace(mlDqmClient_)
+//       << "[CommissioningHistograms::" << __func__ << "]"
+//       << " source dir: " << source_dir
+//       << " client dir: " << client_dir;
+    
+    // Iterate though MonitorElements from source directory
+    std::vector<MonitorElement*> me_list = bei->getContents( source_dir );
+    std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
+    for ( ; ime != me_list.end(); ime++ ) {
+      
+      if ( !(*ime) ) {
+	edm::LogWarning(mlDqmClient_)
+	  << "[CommissioningHistograms::" << __func__ << "]"
+	  << " NULL pointer to MonitorElement!";
+	continue;
+      }
+
+      // Search for run type in string
+      std::string title = (*ime)->getName();
+      std::string::size_type pos = title.find( sistrip::runNumber_ );
+      
+      // Extract run number from string 
+      if ( pos != std::string::npos ) { 
+	std::string value = title.substr( pos+sistrip::runNumber_.size()+1, std::string::npos ); 
+	if ( !value.empty() ) { 
+	  edm::LogVerbatim(mlDqmClient_)
+	    << "[CommissioningHistograms::" << __func__ << "]"
+	    << " Found string \"" <<  title.substr(pos,std::string::npos)
+	    << "\" with value \"" << value << "\"";
+	  if ( !(bei->get(client_dir+"/"+title.substr(pos,std::string::npos))) ) { 
+	    bei->cd(client_dir);
+	    bei->bookString( title.substr(pos,std::string::npos), value ); 
+	  }
+	  uint32_t run;
+	  std::stringstream ss;
+	  ss << value;
+	  ss >> std::dec >> run;
+	  return run; 
+	}
+      }
+
+    }
+
+    istr++;
+    
+  }
+  return 0;
+}
+
+// -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::extractHistograms( const std::vector<std::string>& contents ) {
   LogTrace(mlDqmClient_)
@@ -211,7 +296,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     edm::LogWarning(mlDqmClient_)
       << "[CommissioningHistograms::" << __func__ << "]"
       << " NON-ZERO pointer to MonitorUserInterface!"
-      << " Should use createCollactions() instead!";
+      << " Should use createCollations() instead!";
     return;
   }
 
@@ -238,11 +323,18 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     std::string source_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey path( source_dir );
 
-    // Check path is valid to level of a module
-    //if ( path.granularity() != sistrip::CCU_CHAN ) { continue; } //@@
+    // Check path is valid 
+    if ( path.granularity() == sistrip::FEC_SYSTEM ||
+	 path.granularity() == sistrip::UNKNOWN_GRAN ||
+	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
+      //LogTrace(mlDqmClient_)
+      //<< "[CommissioningHistograms::" << __func__ << "]"
+      //<< " Unexpected granularity for path: " << path;
+      continue; 
+    }
     
     // Generate corresponding client path (removing trailing "/")
-    std::string client_dir = path.path();
+    std::string client_dir = SiStripFecKey(path.key()).path();
     client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
 
     // Iterate though MonitorElements from source directory
@@ -250,18 +342,19 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     std::vector<MonitorElement*>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
       
-      // Retrieve granularity from histogram title (necessary?)
+      // Check granularity
       SiStripHistoTitle title( (*ime)->getName() );
       uint16_t channel = sistrip::invalid_;
       if ( title.granularity() == sistrip::APV ) {
-	channel = SiStripFecKey::lldChan(title.channel())-1; //@@ temporary!!!
-      } else if ( title.granularity() == sistrip::LLD_CHAN ) {
-	channel = title.channel();
-      } else {
+	channel = SiStripFecKey::lldChan( title.channel() );
+      } else if ( title.granularity() == sistrip::UNKNOWN_GRAN || 
+		  title.granularity() == sistrip::UNDEFINED_GRAN ) {
 	edm::LogWarning(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
-	  << " Unexpected histogram granularity: "
-	  << title.granularity();
+	  << " Unexpected granularity for histogram title: "
+	  << title << " found in path " << path;
+      } else {
+	channel = title.channel();
       }
       
       // Build FEC key
@@ -274,14 +367,14 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
       
       // Fill FED-FEC map
       mapping_[title.keyValue()] = fec_key;
-
+      
       // Find histogram in map
       Histo* histo = 0;
       HistosMap::iterator ihistos = histos_.find( fec_key );
       if ( ihistos != histos_.end() ) { 
 	Histos::iterator ihis = ihistos->second.begin();
-	while ( ihis < ihistos->second.end() ) {
-	  if ( (*ime)->getName() == (*ihis)->title_ ) { break; }
+	while ( !histo && ihis < ihistos->second.end() ) {
+	  if ( (*ime)->getName() == (*ihis)->title_ ) { histo = *ihis; }
 	  ihis++;
 	}
       }
@@ -306,7 +399,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     }
   }
 
-  printHistosMap();
+  //printHistosMap();
   
 }
 
@@ -315,7 +408,7 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 void CommissioningHistograms::createCollations( const std::vector<std::string>& contents ) {
   LogTrace(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Creating collated histograms...";
+    << " Creating CollateMonitorElements...";
 
   // Check pointer
   if ( !mui_ ) {
@@ -334,39 +427,66 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     
     // Ignore directories on client side
     if ( idir->find("Collector") == std::string::npos &&
-	 idir->find("EvF") == std::string::npos ) { continue; }
+ 	 idir->find("EvF") == std::string::npos &&
+	 idir->find("FU") == std::string::npos ) { continue; }
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
     SiStripFecKey path( source_dir );
+
+//     std::stringstream ss;
+//     ss << ">>> TEST1 " << std::endl
+//        << " source_dir: " << source_dir << std::endl
+//        << " path: " << path;
+//     LogTrace(mlDqmClient_) << ss.str();
     
-    // Check path is valid to level of a module
-    if ( path.granularity() != sistrip::CCU_CHAN ) { continue; } //@@ 
+    // Check path is valid
+    if ( path.granularity() == sistrip::FEC_SYSTEM ||
+	 path.granularity() == sistrip::UNKNOWN_GRAN ||
+	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
+      //LogTrace(mlDqmClient_)
+      //<< "[CommissioningHistograms::" << __func__ << "]"
+      //<< " Unexpected granularity for path: " << path;
+      continue; 
+    }
     
     // Generate corresponding client path (removing trailing "/")
-    std::string client_dir = path.path();
+    std::string client_dir = SiStripFecKey(path.key()).path();
     client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
     
-    // Iterate through MonitorElements from pwd directory
+//     std::stringstream sss;
+//     sss << ">>> TEST2 " << std::endl
+//        << " client_dir: " << client_dir;
+//     LogTrace(mlDqmClient_) << sss.str();
+
+    // Retrieve MonitorElements from pwd directory
     mui_->setCurrentFolder( source_dir );
     std::vector<std::string> me_list = mui_->getMEs();
+
+    // Iterate through MonitorElements and create CMEs
     std::vector<std::string>::iterator ime = me_list.begin(); 
     for ( ; ime != me_list.end(); ime++ ) {
       
-      // Retrieve granularity from histogram title (necessary?)
+      // Retrieve histogram title
       SiStripHistoTitle title( *ime );
+
+      // Ignore summary plots
+      //@@ what?? if ( 1 ) {;}
+      
+      // Check granularity
       uint16_t channel = sistrip::invalid_;
       if ( title.granularity() == sistrip::APV ) {
-	channel = SiStripFecKey::lldChan(title.channel());
-      } else if ( title.granularity() == sistrip::LLD_CHAN ) {
-	channel = title.channel();
-      } else {
+	channel = SiStripFecKey::lldChan( title.channel() );
+      } else if ( title.granularity() == sistrip::UNKNOWN_GRAN || 
+		  title.granularity() == sistrip::UNDEFINED_GRAN ) {
 	edm::LogWarning(mlDqmClient_)
 	  << "[CommissioningHistograms::" << __func__ << "]"
-	  << " Unexpected histogram granularity: "
-	  << title.granularity();
+	  << " Unexpected granularity for histogram title: "
+	  << title << " found in path " << path;
+      } else {
+	channel = title.channel();
       }
-
+      
       // Build FEC key
       uint32_t fec_key = SiStripFecKey( path.fecCrate(),
 					path.fecSlot(),
@@ -374,32 +494,41 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 					path.ccuAddr(),
 					path.ccuChan(),
 					channel ).key();
-
+      
       // Fill FED-FEC map
       mapping_[title.keyValue()] = fec_key;
 
-      // Find histogram in map
+      // Find CollateME in histos map
       Histo* histo = 0;
       HistosMap::iterator ihistos = histos_.find( fec_key );
       if ( ihistos != histos_.end() ) { 
 	Histos::iterator ihis = ihistos->second.begin();
-	while ( ihis < ihistos->second.end() ) {
-	  if ( (*ime) == (*ihis)->title_ ) { break; }
+	while ( !histo && ihis < ihistos->second.end() ) {
+	  if ( (*ime) == (*ihis)->title_ ) { histo = *ihis; }
 	  ihis++;
 	}
       }
       
-      // Insert CollateME into map if missing
+      // Create CollateME if it doesn't exist
       if ( !histo ) {
+
+// 	LogTrace(mlTest_) 
+// 	  << ">>> TEST " << std::endl
+// 	  << " fec_key: " << SiStripFecKey( fec_key );
 
 	// Retrieve ME pointer
 	MonitorElement* me = mui_->get( mui_->pwd()+"/"+(*ime) );
+	
+// 	std::stringstream ssss;
+// 	ssss << ">>> TEST3 " << std::endl
+// 	   << " pwd: " << mui_->pwd()+"/"+(*ime);
+// 	LogTrace(mlDqmClient_) << ssss.str();
 	
 	// Check if profile or 1D
 	TProfile* prof = ExtractTObject<TProfile>().extract( me );
 	TH1F* his = ExtractTObject<TH1F>().extract( me );
 
-	// Create CME and extract ME*
+	// Create CollateME and extract pointer to ME
 	if ( prof || his ) { 
 	  histos_[fec_key].push_back( new Histo() );
 	  histo = histos_[fec_key].back();
@@ -411,14 +540,14 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	    histo->cme_ = mui_->collate1D( (*ime), (*ime), client_dir ); 
 	  }
 	  if ( histo->cme_ ) { 
-	    histo->me_ = histo->cme_->getMonitorElement(); 
 	    mui_->add( histo->cme_, mui_->pwd()+"/"+(*ime) );
+	    histo->me_ = histo->cme_->getMonitorElement(); 
 	  }
 	}
 	
       }
 
-      // Add to CollateME
+      // Add to CollateME if found in histos map
       HistosMap::iterator jhistos = histos_.find( fec_key );
       if ( jhistos != histos_.end() ) { 
 	Histos::iterator ihis = jhistos->second.begin();
@@ -436,7 +565,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     }
   }
   
-  printHistosMap();
+  //printHistosMap();
   
 }
 
@@ -482,9 +611,9 @@ void CommissioningHistograms::printHistosMap() {
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::histoAnalysis( bool debug ) {
-  cout << endl // LogTrace(mlDqmClient_)
-       << "[CommissioningHistograms::" << __func__ << "]"
-       << " (Derived) implementation to come...";
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " (Derived) implementation to come...";
 }
 
 // -----------------------------------------------------------------------------
@@ -552,3 +681,103 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
 }
 
 
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::remove( std::string pattern ) {
+  
+  if ( !mui_ ) { 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " NULL pointer to MonitorUserInterface!"; 
+    return;
+  }
+  
+  mui_->getBEInterface()->setVerbose(0);
+  
+  if ( !pattern.empty() ) {
+    
+    if ( mui_->getBEInterface()->dirExists(pattern) ) {
+      mui_->getBEInterface()->rmdir(pattern); 
+    }
+    
+    LogTrace(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Removing directories (and MonitorElements"
+      << " therein) that match the pattern \""
+      << pattern << "\"";
+    
+  } else {
+    
+    mui_->getBEInterface()->cd();
+    mui_->getBEInterface()->removeContents(); 
+    
+    if( mui_->getBEInterface()->dirExists("Collector") ) {
+      mui_->getBEInterface()->rmdir("Collector");
+    }
+    if( mui_->getBEInterface()->dirExists("EvF") ) {
+      mui_->getBEInterface()->rmdir("EvF");
+    }
+    if( mui_->getBEInterface()->dirExists("SiStrip") ) {
+      mui_->getBEInterface()->rmdir("SiStrip");
+    }
+
+    LogTrace(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " Removing all directories (and MonitorElements therein)";
+    
+  }
+
+  mui_->getBEInterface()->setVerbose(1);
+
+}
+
+// -----------------------------------------------------------------------------
+/** */
+void CommissioningHistograms::save( std::string path,
+				    uint32_t run_number ) {
+  
+  if ( !mui_ ) { 
+    edm::LogWarning(mlDqmClient_)
+      << "[CommissioningHistograms::" << __func__ << "]"
+      << " NULL pointer to MonitorUserInterface!"; 
+    return;
+  }
+
+  // Construct path and filename
+  std::stringstream ss; 
+
+  if ( !path.empty() ) { 
+
+    ss << path; 
+    if ( ss.str().find(".root") == std::string::npos ) { ss << ".root"; }
+
+  } else {
+
+    // Retrieve SCRATCH directory
+    std::string scratch = "SCRATCH";
+    std::string dir = "";
+    if ( getenv(scratch.c_str()) != NULL ) { 
+      dir = getenv(scratch.c_str()); 
+    }
+    
+    // Add directory path 
+    if ( !dir.empty() ) { ss << dir; }
+    else { ss << "/tmp/"; }
+    
+    // Add filename with run number and ".root" extension
+    ss << "SiStripCommissioningClient_" 
+       << std::setfill('0') << std::setw(7) << run_number
+       << ".root";
+    
+  }
+
+  // Save file with appropriate filename
+  mui_->save( ss.str() ); 
+  
+  LogTrace(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Saved all MonitorElements to root file \""
+    << ss.str() << "\"";
+  
+}

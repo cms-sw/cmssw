@@ -17,6 +17,7 @@ class VpspScanHistograms : public CommissioningHistograms {
   virtual ~VpspScanHistograms();
   
   typedef SummaryHistogramFactory<VpspScanAnalysis> Factory;
+  typedef std::map<uint32_t,VpspScanAnalysis> Analyses;
   
   /** */
   void histoAnalysis( bool debug );
@@ -29,7 +30,7 @@ class VpspScanHistograms : public CommissioningHistograms {
 
  protected:
 
-  std::map<uint32_t,VpspScanAnalysis> data_;
+  Analyses data_;
 
   std::auto_ptr<Factory> factory_;
 

@@ -104,22 +104,22 @@ void FedTimingHistograms::histoAnalysis( bool debug ) {
   
   SiStripFecKey max( device_max );
   cout << " Device (FEC/slot/ring/CCU/module/channel) " 
-       << max.fecCrate_ << "/" 
-       << max.fecSlot_ << "/" 
-       << max.fecRing_ << "/" 
-       << max.ccuAddr_ << "/"
-	 << max.ccuChan_ << "/"
+       << max.fecCrate() << "/" 
+       << max.fecSlot() << "/" 
+       << max.fecRing() << "/" 
+       << max.ccuAddr() << "/"
+       << max.ccuChan() << "/"
        << " has maximum delay (rising edge) [ns]:" << time_max << endl;
   
   SiStripFecKey min( device_min );
   cout << " Device (FEC/slot/ring/CCU/module/channel): " 
-       << min.fecCrate_ << "/" 
-       << min.fecSlot_ << "/" 
-       << min.fecRing_ << "/" 
-       << min.ccuAddr_ << "/"
-       << min.ccuChan_ << "/"
+       << min.fecCrate() << "/" 
+       << min.fecSlot() << "/" 
+       << min.fecRing() << "/" 
+       << min.ccuAddr() << "/"
+       << min.ccuChan() << "/"
        << " has minimum delay (rising edge) [ns]:" << time_min << endl;
-  
+ 
   // Set maximum time for all analysis objects
   std::map<uint32_t,FedTimingAnalysis>::iterator ianal = data_.begin();
   for ( ; ianal != data_.end(); ianal++ ) { 
