@@ -1,8 +1,8 @@
 /*
  * \file EEClusterTask.cc
  *
- * $Date: 2007/05/13 08:24:33 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/22 15:08:13 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -49,12 +49,17 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   // parameters...
+  islandEndcapBasicClusterCollection_ = ps.getParameter<edm::InputTag>("islandEndcapBasicClusterCollection");
   islandEndcapSuperClusterCollection_ = ps.getParameter<edm::InputTag>("islandEndcapSuperClusterCollection");
 
   // histograms...
   meEne_ = 0;
   meNum_ = 0;
   meSiz_ = 0;
+
+  meEneBasic_ = 0;
+  meNumBasic_ = 0;
+  meSizBasic_ = 0;
 
   meEneFwdMap_ = 0;
   meNumFwdMap_ = 0;
@@ -65,6 +70,16 @@ EEClusterTask::EEClusterTask(const ParameterSet& ps){
   meNumBwdMap_ = 0;
   meEneBwdPolarMap_ = 0;
   meNumBwdPolarMap_ = 0;
+
+  meEneFwdMapBasic_ = 0;
+  meNumFwdMapBasic_ = 0;
+  meEneFwdPolarMapBasic_ = 0;
+  meNumFwdPolarMapBasic_ = 0;
+
+  meEneBwdMapBasic_ = 0;
+  meNumBwdMapBasic_ = 0;
+  meEneBwdPolarMapBasic_ = 0;
+  meNumBwdPolarMapBasic_ = 0;
 
   meInvMass_ = 0;
 
@@ -103,6 +118,15 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT SC size");
     meSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
+    sprintf(histo, "EECLT BC energy");
+    meEneBasic_ = dbe_->book1D(histo, histo, 100, 0., 20.);
+
+    sprintf(histo, "EECLT BC number");
+    meNumBasic_ = dbe_->book1D(histo, histo, 100, 100., 1200.);
+
+    sprintf(histo, "EECLT BC size");
+    meSizBasic_ = dbe_->book1D(histo, histo, 10, 0., 10.);
+
     sprintf(histo, "EECLT SC energy map EE +");
     meEneFwdMap_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
 
@@ -127,6 +151,30 @@ void EEClusterTask::setup(void){
     sprintf(histo, "EECLT SC number polar map EE -");
     meNumBwdPolarMap_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
 
+    sprintf(histo, "EECLT BC energy map EE +");
+    meEneFwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+
+    sprintf(histo, "EECLT BC number map EE +");
+    meNumFwdMapBasic_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+
+    sprintf(histo, "EECLT BC energy polar map EE +");
+    meEneFwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+
+    sprintf(histo, "EECLT BC number polar map EE +");
+    meNumFwdPolarMapBasic_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+
+    sprintf(histo, "EECLT BC energy map EE -");
+    meEneBwdMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1, 100, 0., 500., "s");
+
+    sprintf(histo, "EECLT BC number map EE -");
+    meNumBwdMapBasic_ = dbe_->book2D(histo, histo, 144, -171.1, 171.1, 144, -171.1, 171.1);
+
+    sprintf(histo, "EECLT BC energy polar map EE -");
+    meEneBwdPolarMapBasic_ = dbe_->bookProfile2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI, 100, 0., 500., "s");
+
+    sprintf(histo, "EECLT BC number polar map EE -");
+    meNumBwdPolarMapBasic_ = dbe_->book2D(histo, histo, 144, 0., 171.1, 180, -M_PI, M_PI);
+
     sprintf(histo, "EECLT dicluster invariant mass");
     meInvMass_ = dbe_->book1D(histo, histo, 100, 0., 200.);
 
@@ -149,6 +197,15 @@ void EEClusterTask::cleanup(void){
 
     if ( meSiz_ ) dbe_->removeElement( meSiz_->getName() );
     meSiz_ = 0;
+
+    if ( meEneBasic_ ) dbe_->removeElement( meEneBasic_->getName() );
+    meEneBasic_ = 0;
+
+    if ( meNumBasic_ ) dbe_->removeElement( meNumBasic_->getName() );
+    meNumBasic_ = 0;
+
+    if ( meSizBasic_ ) dbe_->removeElement( meSizBasic_->getName() );
+    meSizBasic_ = 0;
 
     if ( meEneFwdMap_ ) dbe_->removeElement( meEneFwdMap_->getName() );
     meEneFwdMap_ = 0;
@@ -174,6 +231,30 @@ void EEClusterTask::cleanup(void){
     if ( meNumBwdPolarMap_ ) dbe_->removeElement( meNumBwdPolarMap_->getName() );
     meNumBwdPolarMap_ = 0;
 
+    if ( meEneFwdMapBasic_ ) dbe_->removeElement( meEneFwdMapBasic_->getName() );
+    meEneFwdMapBasic_ = 0;
+
+    if ( meNumFwdMapBasic_ ) dbe_->removeElement( meNumFwdMapBasic_->getName() );
+    meNumFwdMapBasic_ = 0;
+
+    if ( meEneFwdPolarMapBasic_ ) dbe_->removeElement( meEneFwdPolarMapBasic_->getName() );
+    meEneFwdPolarMapBasic_ = 0;
+
+    if ( meNumFwdPolarMapBasic_ ) dbe_->removeElement( meNumFwdPolarMapBasic_->getName() );
+    meNumFwdPolarMapBasic_ = 0;
+
+    if ( meEneBwdMapBasic_ ) dbe_->removeElement( meEneBwdMapBasic_->getName() );
+    meEneBwdMapBasic_ = 0;
+
+    if ( meNumBwdMapBasic_ ) dbe_->removeElement( meNumBwdMapBasic_->getName() );
+    meNumBwdMapBasic_ = 0;
+
+    if ( meEneBwdPolarMapBasic_ ) dbe_->removeElement( meEneBwdPolarMapBasic_->getName() );
+    meEneBwdPolarMapBasic_ = 0;
+
+    if ( meNumBwdPolarMapBasic_ ) dbe_->removeElement( meNumBwdPolarMapBasic_->getName() );
+    meNumBwdPolarMapBasic_ = 0;
+
     if ( meInvMass_ ) dbe_->removeElement( meInvMass_->getName() );
     meInvMass_ = 0;
 
@@ -196,6 +277,39 @@ void EEClusterTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // --- Endcap "Island" Basic Clusters ---
+  try {
+
+    Handle<BasicClusterCollection> pIslandEndcapBasicClusters;
+    e.getByLabel(islandEndcapBasicClusterCollection_, pIslandEndcapBasicClusters);
+
+    meNumBasic_->Fill(float(pIslandEndcapBasicClusters->size()));
+
+    BasicClusterCollection::const_iterator bCluster;
+    for ( bCluster = pIslandEndcapBasicClusters->begin(); bCluster != pIslandEndcapBasicClusters->end(); bCluster++ ) {
+
+      meEneBasic_->Fill(bCluster->energy());
+      meSizBasic_->Fill(float(bCluster->getHitsByDetId().size()));
+
+      if(bCluster->eta()>0) {
+	meEneFwdMapBasic_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+	meNumFwdMapBasic_->Fill(bCluster->x(), bCluster->y());
+	meEneFwdPolarMapBasic_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->phi(), bCluster->energy());
+	meNumFwdPolarMapBasic_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->phi());
+      }
+      else {
+	meEneBwdMapBasic_->Fill(bCluster->x(), bCluster->y(), bCluster->energy());
+	meNumBwdMapBasic_->Fill(bCluster->x(), bCluster->y());
+	meEneBwdPolarMapBasic_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->phi(), bCluster->energy());
+	meNumBwdPolarMapBasic_->Fill(sqrt(pow(bCluster->x(),2)+pow(bCluster->y(),2)), bCluster->phi());
+      }
+
+    }
+
+  } catch ( exception& ex ) {
+    LogWarning("EEClusterTask") << " BasicClusterCollection: " << islandEndcapBasicClusterCollection_ << " not in event.";
+  }
 
   // --- Endcap "Island" Super Clusters ----
   try {
