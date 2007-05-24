@@ -40,17 +40,22 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " NULL pointer to SummaryGenerator object!";
     return;
   }
   
 //   // Check if std::map needs to be cleared
-//   if ( mon != mon_ || view != view_ || level != level_ || gran != gran_ ) {
+//   if ( mon != mon_ || 
+//        view != view_ || 
+//        level != level_ || 
+//        gran != gran_ ) {
 //     generator_->clearMap();
 //   }
 
-  // should always be cleared?... (what if std::map data change? yes!)
+  // should always be cleared?... 
+  // (what if std::map data change? yes!)
   generator_->clearMap();
   
   // Set parameters
@@ -60,6 +65,15 @@ void SummaryPlotFactoryBase::init( const sistrip::Monitorable& mon,
   level_ = level;
   gran_ = gran;
 
+  std::stringstream ss;
+  ss << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+     << " Dump of parameters defining summary plot:" << std::endl
+     << " Monitorable   : " << SiStripEnumsAndStrings::monitorable( mon_ ) << std::endl
+     << " Presentation  : " << SiStripEnumsAndStrings::presentation( pres_ ) << std::endl
+     << " Logical view  : " << SiStripEnumsAndStrings::view( view_ ) << std::endl
+     << " Top level dir : " << level_ << std::endl
+     << " Granularity   : " << SiStripEnumsAndStrings::granularity( gran_ );
+  LogTrace(mlSummaryPlots_) << ss.str();
   
 }
 
@@ -69,25 +83,28 @@ void SummaryPlotFactoryBase::fill( TH1& summary_histo ) {
   
   // Check if instance of generator class exists
   if ( !generator_ ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
+    edm::LogWarning(mlSummaryPlots_) 
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " NULL pointer to SummaryGenerator object!";
     return;
   }
   
-  // Check if std::map is filled
+  // Check if map is filled
   if ( !generator_->nBins() ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-	 << " SummaryGenerator::map_ is empty!";
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " SummaryGenerator::map_ is empty!";
     return; 
   } 
   
   // Check if instance of generator class exists
   if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-	 << " NULL pointer to TH1 object!";
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " NULL pointer to TH1 object!";
     return;
   }
-
+  
   // Generate appropriate summary histogram 
   if ( pres_ == sistrip::SUMMARY_HISTO ) {
     generator_->summaryHisto( summary_histo );
@@ -98,10 +115,10 @@ void SummaryPlotFactoryBase::fill( TH1& summary_histo ) {
   } else if ( pres_ == sistrip::SUMMARY_PROF ) {
     generator_->summaryProf( summary_histo );
   } else { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-	 << " Unexpected presentation type: "
-	 << SiStripEnumsAndStrings::presentation( pres_ )
-	;
+    edm::LogWarning(mlSummaryPlots_)
+      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
+      << " Unexpected presentation type: "
+      << SiStripEnumsAndStrings::presentation( pres_ );
     return; 
   }
   

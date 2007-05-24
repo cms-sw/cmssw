@@ -15,11 +15,13 @@ uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorabl
 						       const sistrip::Granularity& gran,
 						       const std::map<uint32_t,ApvTimingAnalysis*>& data ) {
   
+  // Check if generator object exists
+  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
+  
   // Some initialisation
   SummaryPlotFactoryBase::init( mon, pres, view, level, gran );
   
-  // Transfer appropriate monitorables info to generator object
-  if ( !SummaryPlotFactoryBase::generator_ ) { return 0; }
+  // Extract monitorable and fill map
   std::map<uint32_t,ApvTimingAnalysis*>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     static float value = 1.*sistrip::invalid_;
@@ -45,11 +47,13 @@ uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorabl
 //
 void SummaryPlotFactory<ApvTimingAnalysis*>::fill( TH1& summary_histo ) {
 
-  // Hitsogram filling and formating
+  // Histogram filling and formating
   SummaryPlotFactoryBase::fill( summary_histo );
-  
-  // Histogram formatting
+
+  // Check if generator object exists
   if ( !SummaryPlotFactoryBase::generator_ ) { return; }
+
+  // Histogram formatting
   if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) {
     SummaryPlotFactoryBase::generator_->axisLabel( "Timing delay [ns]" );
   } else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { 
@@ -69,5 +73,5 @@ void SummaryPlotFactory<ApvTimingAnalysis*>::fill( TH1& summary_histo ) {
 
 // -----------------------------------------------------------------------------
 //
-template class SummaryPlotFactory<ApvTimingAnalysis>;
+template class SummaryPlotFactory<ApvTimingAnalysis*>;
 
