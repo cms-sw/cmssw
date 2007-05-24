@@ -1,8 +1,21 @@
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/GeometrySurface>
+<use name=TrackPropagation/SteppingHelixPropagator>
+<use name=MagneticField/Records>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=PhysicsTools/IsolationUtils>
+<use name=PhysicsTools/Utilities>
 <export>
+  <lib name=PhysicsToolsIsolationAlgos>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=PhysicsTools/IsolationUtils>
+  <use name=PhysicsTools/Utilities>
 </export>
+
+
+
