@@ -4,16 +4,35 @@
 // class SiPixelMonitorTrackResiduals SiPixelMonitorTrackResiduals.cc 
 //       DQM/SiPixelMonitorTrack/src/SiPixelMonitorTrackResiduals.cc
 //
-// Description:    <one line class summary>
-// Implementation: <Notes on implementation>
+// Description: SiPixel hit-to-track residual data quality monitoring modules
+// Implementation: prototype -> improved -> never final - end of the 1st step 
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.1 2007/04/26 22:50:55 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.2 2007/05/17 15:01:03 schuang Exp $
 
 
-#include "DQM/SiPixelMonitorTrack/interface/SiPixelMonitorTrackResiduals.h"
+#include <boost/cstdint.hpp>
+#include <iostream>
+#include <map>
+#include <string>
+#include <vector>
+#include <utility>
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "DQM/SiPixelCommon/interface/SiPixelFolderOrganizer.h"
+#include "DQM/SiPixelMonitorTrack/interface/SiPixelMonitorTrackResiduals.h"
 
 
 using namespace std;
@@ -46,13 +65,13 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
 
       if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelBarrel)) {
 	uint32_t id = detId();
-	SiPixelTrackResModule* module = new SiPixelTrackResModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, module));
+	SiPixelResidualModule* module = new SiPixelResidualModule(id);
+	thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
       }	
       else if (detId.subdetId()==static_cast<int>(PixelSubdetector::PixelEndcap)) {
 	uint32_t id = detId();
-	SiPixelTrackResModule* module = new SiPixelTrackResModule(id);
-	thePixelStructure.insert(pair<uint32_t, SiPixelTrackResModule*> (id, module));
+	SiPixelResidualModule* module = new SiPixelResidualModule(id);
+	thePixelStructure.insert(pair<uint32_t, SiPixelResidualModule*> (id, module));
       }
     }
   }
@@ -60,20 +79,21 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
   dbe_->setVerbose(0);
 
   // create a folder tree and book histograms 
+  // 
   SiPixelFolderOrganizer theSiPixelFolder;
-  std::map<uint32_t, SiPixelTrackResModule*>::iterator struct_iter;
+  std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin(); struct_iter!=thePixelStructure.end(); struct_iter++) {
     if (theSiPixelFolder.setModuleFolder((*struct_iter).first)) (*struct_iter).second->book();
     else throw cms::Exception("LogicError") << " *** creation of SiPixelMonitorTrackResiduals folder failed"; 
   }
   dbe_->setCurrentFolder("Tracker"); 
-  char hkey[80]; 
-  for (int sub=0; sub<3; sub++) {
-    sprintf(hkey,"hitResidual-x_subdet%i",sub); 
-    meSubpixelHitResidualX[sub] = dbe_->book1D(hkey,"Hit Residual in X",1000,-5.,5.);
+  char hisID[80]; 
+  for (int s=0; s<3; s++) {
+    sprintf(hisID,"residual_x_subdet_%i",s); 
+    meSubpixelResidualX[s] = dbe_->book1D(hisID,"Hit-to-Track Residual in X",500,-5.,5.);
     
-    sprintf(hkey,"hitResidual-y_subdet%i",sub); 
-    meSubpixelHitResidualY[sub] = dbe_->book1D(hkey,"Hit Residual in Y",1000,-5.,5.);  
+    sprintf(hisID,"residual_y_subdet_%i",s); 
+    meSubpixelResidualY[s] = dbe_->book1D(hisID,"Hit-to-Track Residual in Y",500,-5.,5.);  
   }
 }
 
@@ -118,8 +138,7 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
     const TrajectorySeed& seed = theTC->seed();
     std::cout <<" with "<< (int)(recHitVec.second - recHitVec.first) <<" hits "<< std::endl;
 
-    // convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
-    TrajectoryStateTransform transformer;
+    TrajectoryStateTransform transformer; // to convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
 
     DetId detId(state.detId());
     TrajectoryStateOnSurface theTSOS = transformer.transientState(state, &(theG->idToDet(detId)->surface()), theMF);
@@ -140,34 +159,33 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
         const TrajectoryMeasurement tm = *fit;
         TrajectoryStateOnSurface theCombinedPredictedState = TrajectoryStateCombiner().combine(tm.forwardPredictedState(),
 	                                                                                       tm.backwardPredictedState());
-        TransientTrackingRecHit::ConstRecHitPointer hit = tm.recHit();
+        TransientTrackingRecHit::ConstRecHitPointer hit = tm.recHit();	
         const GeomDet* det = hit->det();
-                  
-        // check that the detector module belongs to the Silicon Pixel detector
+        	
         if (det->components().empty() && (det->subDetector()==GeomDetEnumerators::PixelBarrel ||
                 			  det->subDetector()==GeomDetEnumerators::PixelEndcap)) {
           const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
           const Topology* theTopol = &(du->topology());
-
-          // calculate hit residuals in the measurement frame 
-          MeasurementPoint theMeasHitPos = theTopol->measurementPosition(hit->localPosition());
-          MeasurementPoint theMeasStatePos = theTopol->measurementPosition(theCombinedPredictedState.localPosition());
-          Measurement2DVector hitResidual = theMeasHitPos - theMeasStatePos;
 	  
-	  // fill histograms by module id and then by subdetector
-	  DetId hit_detId = hit->geographicalId(); 
-	  int IntRawDetID = hit_detId.rawId();           
-          std::map<uint32_t, SiPixelTrackResModule*>::iterator struct_iter = thePixelStructure.find(IntRawDetID);
-	  if (struct_iter!=thePixelStructure.end()) (*struct_iter).second->fill(hitResidual);
+          if (hit->isValid() && theCombinedPredictedState.isValid()) { 
+	    MeasurementPoint theMeasHitPos = theTopol->measurementPosition(hit->localPosition());
+	    MeasurementPoint theMeasStatePos = theTopol->measurementPosition(theCombinedPredictedState.localPosition());
+	    Measurement2DVector hitResidual = theMeasHitPos - theMeasStatePos;
+	    
+	    DetId hit_detId = hit->geographicalId();
+	    int IntRawDetID = hit_detId.rawId();
+	    std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter = thePixelStructure.find(IntRawDetID);
+	    if (struct_iter!=thePixelStructure.end()) (*struct_iter).second->fill(hitResidual);
 	  
-	  if (det->subDetector()==GeomDetEnumerators::PixelEndcap) {
-            PXFDetId pxf(hit_detId);
-            meSubpixelHitResidualX[pxf.side()]->Fill(hitResidual.x());
-	    meSubpixelHitResidualY[pxf.side()]->Fill(hitResidual.y());	  
-	  }
-	  else {
-            meSubpixelHitResidualX[0]->Fill(hitResidual.x());
-	    meSubpixelHitResidualY[0]->Fill(hitResidual.y());	  
+	    if (det->subDetector()==GeomDetEnumerators::PixelEndcap) {
+              PXFDetId pxf(hit_detId);
+              meSubpixelResidualX[pxf.side()]->Fill(hitResidual.x());
+	      meSubpixelResidualY[pxf.side()]->Fill(hitResidual.y());	  
+	    }
+	    else {
+              meSubpixelResidualX[0]->Fill(hitResidual.x());
+	      meSubpixelResidualY[0]->Fill(hitResidual.y());	  
+	    }
 	  }
      	}
       }
@@ -176,5 +194,4 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
 }
 
 
-// define this as a plug-in
-DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals);
+DEFINE_FWK_MODULE(SiPixelMonitorTrackResiduals); // define this as a plug-in
