@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripModule.cc,v 1.12 2007/03/28 14:54:46 bainbrid Exp $
+// Last commit: $Id: SiStripModule.cc,v 1.13 2007/05/15 13:20:14 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/SiStripModule.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -17,8 +17,16 @@ SiStripModule::SiStripModule( const FedChannelConnection& conn )
 	  conn.fecRing(), 
 	  conn.ccuAddr(), 
 	  conn.ccuChan() ),
-    apv32_(0), apv33_(0), apv34_(0), apv35_(0), apv36_(0), apv37_(0), 
-    dcu0x00_(0), mux0x43_(0), pll0x44_(0), lld0x60_(0), 
+    apv32_(0), 
+    apv33_(0), 
+    apv34_(0), 
+    apv35_(0), 
+    apv36_(0), 
+    apv37_(0), 
+    dcu0x00_(0), 
+    mux0x43_(0), 
+    pll0x44_(0), 
+    lld0x60_(0), 
     dcuId_(0), 
     detId_(0), 
     nApvPairs_(0),
@@ -161,11 +169,11 @@ void SiStripModule::addApv( const uint16_t& apv_address ) {
   if ( added_apv ) { ss << " Added new APV for"; }
   else { ss << " APV already exists for"; }
   ss << " Crate/FEC/Ring/CCU/Module: "
-     << key_.fecCrate_ << "/"
-     << key_.fecSlot_ << "/"
-     << key_.fecRing_ << "/"
-     << key_.ccuAddr_ << "/"
-     << key_.ccuChan_ << "/"
+     << key_.fecCrate() << "/"
+     << key_.fecSlot() << "/"
+     << key_.fecRing() << "/"
+     << key_.ccuAddr() << "/"
+     << key_.ccuChan() << "/"
      << apv_address;
   //if ( added_apv ) { LogTrace(mlCabling_) << ss.str(); }
   /* else */ if ( !added_apv ) { edm::LogWarning(mlCabling_) << ss.str(); }

@@ -85,7 +85,8 @@ uint16_t FedChannelConnection::lldChannel() const {
   if      ( apv0_ == 32 || apv1_ == 33 ) { return 1; }
   else if ( apv0_ == 34 || apv1_ == 35 ) { return 2; }
   else if ( apv0_ == 36 || apv1_ == 37 ) { return 3; }
-  else {
+  else if ( apv0_ != sistrip::invalid_ ||
+	    apv1_ != sistrip::invalid_ ) {
     edm::LogWarning(mlCabling_)
       << "[FedChannelConnection::" << __func__ << "]"
       << " Unexpected APV I2C addresses!" 

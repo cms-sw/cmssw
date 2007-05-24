@@ -1,4 +1,4 @@
-// Last commit: $Id: NumberOfDevices.cc,v 1.7 2007/03/21 09:54:21 bainbrid Exp $
+// Last commit: $Id: NumberOfDevices.cc,v 1.8 2007/03/28 09:13:33 bainbrid Exp $
 
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
 #include <iomanip>
@@ -44,6 +44,7 @@ void NumberOfDevices::print( std::stringstream& ss ) const {
      << "  DET ids      : " << nDetIds_ << std::endl
      << "  APV pairs    : " << nApvPairs_ << std::endl
      << "  APVs         : " << nApvs_ << std::endl
+     << "  FED ids      : " << nFedIds_ << std::endl
      << "  FED channels : " << nFedChans_ << std::endl
      << "  Number of APV pairs (0/1/2/3/>3) per module     : " 
      << nApvPairs0_ << "/" 

@@ -84,9 +84,9 @@ class FedChannelConnection {
       either 0->1 or 0->2, depending on number of detector strips. */
   uint16_t apvPairNumber() const;
 
-  /** Returns Linear Laser Driver channel (0->2) for this connection. */
-  uint16_t lldChannel() const; //@@ SHOULD RETURN 1->3 !!!
-
+  /** Returns Laser Driver channel (1->3) for this channel. */
+  uint16_t lldChannel() const;
+  
   /** Returns FED id for this channel. */
   inline const uint16_t& fedId() const;
 

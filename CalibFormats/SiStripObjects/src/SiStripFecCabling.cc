@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecCabling.cc,v 1.20 2007/03/28 09:13:33 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.cc,v 1.21 2007/05/15 13:20:14 bainbrid Exp $
 
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -171,7 +171,8 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
   
   NumberOfDevices num_of_devices; // simple container class used for counting
 
-  std::vector<uint16_t> fed_ids; std::vector<uint16_t>::iterator ifed;
+  std::vector<uint16_t> fed_ids; 
+  std::vector<uint16_t>::iterator ifed;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = this->crates().begin(); icrate != this->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
@@ -200,9 +201,12 @@ NumberOfDevices SiStripFecCabling::countDevices() const {
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
 	      uint16_t fed_id = imod->fedCh(ipair).first;
 	      if ( fed_id ) { 
-		ifed = find ( fed_ids.begin(), fed_ids.end(), fed_id );
-		if ( ifed != fed_ids.end() ) { num_of_devices.nFedIds_++; }
 		num_of_devices.nFedChans_++;
+		ifed = find( fed_ids.begin(), fed_ids.end(), fed_id );
+		if ( ifed == fed_ids.end() ) { 
+		  num_of_devices.nFedIds_++; 
+		  fed_ids.push_back(fed_id); 
+		}
 	      }
 	    }
 

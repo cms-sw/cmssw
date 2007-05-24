@@ -1,12 +1,12 @@
-// Last commit: $Id: SiStripFecCabling.h,v 1.15 2007/03/21 09:54:20 bainbrid Exp $
+// Last commit: $Id: SiStripFecCabling.h,v 1.16 2007/03/28 09:11:51 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripFecCabling_H
 #define CalibFormats_SiStripObjects_SiStripFecCabling_H
 
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-#include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
 #include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCrate.h"
+#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
 #include <sstream>
 #include <ostream>
