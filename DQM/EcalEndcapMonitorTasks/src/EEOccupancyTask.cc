@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/05/14 10:03:16 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/21 09:57:46 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -178,7 +178,7 @@ void EEOccupancyTask::analyze(const Event& e, const EventSetup& c){
 
     for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr ) {
 
-      int   ism   = Numbers::iSM( (*pnItr).id() );
+      int   ism   = Numbers::iSM( (*pnItr).id() ); if ( ism > 18 ) continue;
       float PnId  = (*pnItr).id().iPnId();
       PnId        = PnId - 0.5;
       float st    = 0.0;
