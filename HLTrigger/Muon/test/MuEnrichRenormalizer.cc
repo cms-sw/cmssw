@@ -5,7 +5,6 @@
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
  
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
  
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -61,14 +60,21 @@ void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
 	  if (npart==6 || npart ==7){
 	    mybc=true;
 	    break;
-	  } else if ((*particle)->mother()->pdg_id() == 21 && id==5 ) nb++;
-	  else if ((*particle)->mother()->pdg_id() == 21 && id==4 ) nc++;
+	  } else {
+	    HepMC::GenVertex* parent=(*particle)->production_vertex();
+	    for (HepMC::GenVertex::particles_in_const_iterator ic=parent->particles_in_const_begin() ; ic!=parent->particles_in_const_end() ; ic++ )
+	      {
+		int pid=(*ic)->pdg_id(); 
+		if (pid == 21 && id==5 ) nb++;
+		else if (pid == 21 && id==4 ) nc++;
+	      }
+	  }
 	}
       }
-    if (nb>1 || nc>1) mybc=true;
-    if (mybc)++anaBC;
-    else ++anaLight;
   }
+  if (nb>1 || nc>1) mybc=true;
+  if (mybc)++anaBC;
+  else ++anaLight;
   return ;
 }
 
