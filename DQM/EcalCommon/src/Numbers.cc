@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.6 2007/05/21 09:57:45 benigno Exp $
+// $Id: Numbers.cc,v 1.7 2007/05/22 09:53:49 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.6 $
-  \date $Date: 2007/05/21 09:57:45 $
+  \version $Revision: 1.7 $
+  \date $Date: 2007/05/22 09:53:49 $
 */
 
 #include <sstream>
@@ -96,36 +96,36 @@ int Numbers::iSM( int ism ) throw( std::runtime_error ) {
     return( -999 );
   }
 
-  //return( ism < 19 ? ism+18 : ism-18 );
-  return( ism );
+  return( ism < 19 ? ism+18 : ism-18 );
+  //return( ism );
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EBDetId& id ) {
-  return( id.ism() );
+  return( Numbers::iSM( id.ism() ) );
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalTrigTowerDetId& id ) {
-  return( id.iDCC() );
+  return( Numbers::iSM( id.iDCC() ) );
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalElectronicsId& id ) {
-  return( id.dccId() );
+  return( Numbers::iSM( id.dccId() ) );
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalPnDiodeDetId& id ) {
-  return( id.iDCCId() );
+  return( Numbers::iSM( id.iDCCId() ) );
 }
 
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( const EcalDCCHeaderBlock& id ) {
-  return( id.id() );
+  return( Numbers::iSM( id.id() ) );
 }
