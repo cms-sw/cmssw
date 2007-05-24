@@ -1,3 +1,12 @@
+2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-03-05
+	* add FUShmRawCell::index_, which is not necessarily equal to
+	FUShmRawCell::fuResourceId_ anymore.
+	* add method FUShmRawCell::setFuResourceId(uint).
+	* call cell->clear() in FUShmBuffer::releaseRawCell();
+	* remove FUShmRawCell::nSkip_ and anything related.
+
 2007-03-29  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-03-04
