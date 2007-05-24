@@ -26,17 +26,13 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalEtaPhiRegion.h"
 
 // Muon stuff
-// #include "RecoMuon/MuonIsolation/interface/Direction.h"
-// #include "RecoMuon/L2MuonIsolationProducer/src/L2MuonIsolationProducer.h"
-
-// #include "DataFormats/Common/interface/AssociationMap.h"
-// #include "DataFormats/TrackReco/interface/Track.h"
-// #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
+#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
 #include <vector>
 
-// using namespace reco;
-// using namespace muonisolation;
+using namespace l1extra;
 
 
 EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
@@ -66,10 +62,10 @@ EcalListOfFEDSProducer::EcalListOfFEDSProducer(const edm::ParameterSet& pset) {
  }
 
  if (Muon_) {
- 	MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin_",1.0);
+ 	MUregionEtaMargin_ = pset.getUntrackedParameter<double>("MU_regionEtaMargin",1.0);
  	MUregionPhiMargin_ = pset.getUntrackedParameter<double>("MU_regionPhiMargin",1.0);
  	Ptmin_muon_ = pset.getUntrackedParameter<double>("Ptmin_muon",0.);
-	theSACollectionLabel_ = pset.getUntrackedParameter<edm::InputTag>("StandAloneCollectionLabel");
+	MuonSource_ = pset.getUntrackedParameter<edm::InputTag>("MuonSource");
  }
 
  OutputLabel_ = pset.getUntrackedParameter<std::string>("OutputLabel");
@@ -114,11 +110,9 @@ void EcalListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSet
   feds = Egamma(e, iSetup);
  }
 
-/*
  else if (Muon_) {
    feds = Muon(e, iSetup);
  }
-*/
 
  else {
    for (int i=1; i <= 54; i++) {
@@ -225,36 +219,36 @@ std::vector<int> EcalListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventS
 }
 
 
-/*
 std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es) {
 
  std::vector<int> FEDs;
 
  if (debug_) std::cout << std::endl << std::endl << " enter in EcalListOfFEDSProducer::Muon" << std::endl;
 
- edm::Handle<TrackCollection> tracks;
- e.getByLabel(theSACollectionLabel_,tracks);
+  edm::Handle<L1MuonParticleCollection> muColl;
+  e.getByLabel(MuonSource_, muColl);
 
- // theCalExtractor.fillVetos(e,es,*tracks);
 
   double epsilon = 0.01;
 
-  for (unsigned int i=0; i<tracks->size(); i++) {
-      	TrackRef tk(tracks,i);
+  for (L1MuonParticleCollection::const_iterator it=muColl->begin(); it != muColl->end(); it++) {
+                                                                                                                       
+        const L1MuGMTExtendedCand muonCand = (*it).gmtMuonCand();
+        double pt    =  (*it).pt();
+        double eta   =  (*it).eta();
+        double phi   =  (*it).phi();
+                                                                                                                       
+        if (debug_) std::cout << " here is a L1 muon Seed  with (eta,phi) = " << 
+		eta << " " << phi << " and pt " << pt << std::endl;
+        if (pt < Ptmin_muon_ ) continue;
+                                                                                                                       
+        std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, MUregionEtaMargin_, MUregionPhiMargin_);
 
-      // MuIsoDeposit calDeposit = theCalExtractor.deposit(event, eventSetup, *tk);
-	double eta_track = tk -> eta();
-	double phi_track = tk -> phi();
-	double pt = tk -> pt();
-	if (debug_) std::cout << " here is a muon Seed  with (eta,phi) = " << eta_track << " " << phi_track << " and pt " << pt << std::endl;
-	if (pt < Ptmin_muon_ ) continue;
-
-	std::vector<int> feds = ListOfFEDS(eta_track, eta_track, phi_track-epsilon, phi_track+epsilon, MUregionEtaMargin_, MUregionPhiMargin_);
         for (int i=0; i < (int)feds.size(); i++) {
                 if (std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end()) FEDs.push_back(feds[i]);
         }
   }
-
+                                                                                                                       
  if (debug_) {
         std::cout << std::endl;
         for (int i=0; i < (int)FEDs.size(); i++) {
@@ -262,11 +256,11 @@ std::vector<int> EcalListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSet
         }
         std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
  }
+                                                                                                                       
 
  return FEDs;
 
 }
-*/
 
 
 

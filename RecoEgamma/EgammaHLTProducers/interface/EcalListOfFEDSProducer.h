@@ -42,7 +42,7 @@ private:
 	double MUregionEtaMargin_;
 	double MUregionPhiMargin_;
 	double Ptmin_muon_ ;
-	edm::InputTag theSACollectionLabel_ ;
+	edm::InputTag MuonSource_ ;
 
 	std::string OutputLabel_;
 	EcalElectronicsMapping* TheMapping;
