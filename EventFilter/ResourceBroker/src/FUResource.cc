@@ -48,8 +48,9 @@ bool FUResource::doFedIdCheck_ = true;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
   : log_(logger)
+  , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
@@ -73,10 +74,10 @@ FUResource::~FUResource()
 //______________________________________________________________________________
 void FUResource::allocate(FUShmRawCell* shmCell)
 {
-  release();
+  //release();
   shmCell_=shmCell;
   shmCell_->clear();
-  fuResourceId_    =shmCell_->fuResourceId();
+  shmCell_->setFuResourceId(fuResourceId_);
   eventPayloadSize_=shmCell_->payloadSize();
   nFedMax_         =shmCell_->nFed();
   nSuperFragMax_   =shmCell_->nSuperFrag();
@@ -115,9 +116,7 @@ void FUResource::release()
 
   for (UInt_t i=0;i<1024;i++) fedSize_[i]=0;
   eventSize_    =0;
-  
-
-  
+    
   if (0!=shmCell_) {
     shmdt(shmCell_);
     shmCell_=0;

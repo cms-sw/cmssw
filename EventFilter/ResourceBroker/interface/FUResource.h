@@ -20,7 +20,7 @@ namespace evf {
     //
     // construction/destruction
     //
-    FUResource(log4cplus::Logger logger);
+    FUResource(UInt_t fuResourceId,log4cplus::Logger logger);
     virtual ~FUResource();
     
     
@@ -48,6 +48,7 @@ namespace evf {
     bool   crcBeingChecked() { return doCrcCheck_; }
 
     bool   fatalError()   const { return fatalError_; }
+    bool   isAllocated()  const { return 0!=shmCell_; }
     bool   isComplete()   const;
         
     UInt_t fuResourceId() const { return fuResourceId_; }

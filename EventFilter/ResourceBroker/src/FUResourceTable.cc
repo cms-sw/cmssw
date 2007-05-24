@@ -95,7 +95,10 @@ void FUResourceTable::initialize(bool   segmentationMode,
     return;
   }
   
-  for (UInt_t i=0;i<nbRawCells;i++) resources_.push_back(new FUResource(log_));
+  for (UInt_t i=0;i<nbRawCells;i++) {
+    resources_.push_back(new FUResource(i,log_));
+    freeResourceIds_.push(i);
+  }
   
   resetCounters();
 }
@@ -126,7 +129,7 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   FUShmRecoCell* cell=shmBuffer_->recoCellToRead();
   
   if (0==cell->eventSize()) {
-    LOG4CPLUS_WARN(log_,"Don't reschedule sendData workloop.");
+    LOG4CPLUS_INFO(log_,"Don't reschedule sendData workloop.");
     UInt_t cellIndex=cell->index();
     shmBuffer_->finishReadingRecoCell(cell);
     shmBuffer_->discardRecoCell(cellIndex);
@@ -278,11 +281,19 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
     }
   }
   
-  resources_[fuResourceId]->release();
   shmBuffer_->discardRawCell(cell);
-  if (!shutDown&&!isHalting_) {
-    sendDiscard(buResourceId);
-    sendAllocate();
+  
+  if (!shutDown) {
+    resources_[fuResourceId]->release();
+    lock();
+    freeResourceIds_.push(fuResourceId);
+    assert(freeResourceIds_.size()<=resources_.size());
+    unlock();
+    
+    if (!isHalting_) {
+      sendDiscard(buResourceId);
+      sendAllocate();
+    }
   }
   
   if (!reschedule) {
@@ -312,23 +323,15 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 //______________________________________________________________________________
 UInt_t FUResourceTable::allocateResource()
 {
-  FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
-  UInt_t fuResourceId=cell->fuResourceId();
-  
-  resources_[fuResourceId]->allocate(cell);
+  assert(!freeResourceIds_.empty());
 
   lock();
+  UInt_t fuResourceId=freeResourceIds_.front();
+  freeResourceIds_.pop();
   nbPending_++;
   nbAllocated_++;
   unlock();
-
-  if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_) {
-    resources_[fuResourceId]->doCrcCheck(true);
-  }
-  else {
-    resources_[fuResourceId]->doCrcCheck(false);
-  }
-
+  
   return fuResourceId;
 }
 
@@ -345,12 +348,21 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   UInt_t      buResourceId=(UInt_t)block->buResourceId;
   FUResource* resource    =resources_[fuResourceId];
   
+  // allocate resource
+  if (!resource->isAllocated()) {
+    FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
+    resource->allocate(cell);
+    if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_)  resource->doCrcCheck(true);
+    else                                             resource->doCrcCheck(false);
+  }
+  
+  
   // keep building this resource if it is healthy
   if (!resource->fatalError()) {
     resource->process(bufRef);
     lock();
-    nbErrors_         +=resource->nbErrors();
-    nbCrcErrors_      +=resource->nbCrcErrors();
+    nbErrors_   +=resource->nbErrors();
+    nbCrcErrors_+=resource->nbCrcErrors();
     unlock();
     
     // make resource available for pick-up
@@ -375,12 +387,14 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     bufRef->release();
     if (lastMsg) {
       bu_->sendDiscard(buResourceId);
+      shmBuffer_->releaseRawCell(resource->shmCell());
+      resource->release();
       lock();
+      freeResourceIds_.push(fuResourceId);
       nbDiscarded_++;
       nbLost_++;
       nbPending_--;
       unlock();
-      shmBuffer_->releaseRawCell(resource->shmCell());
     }
   }
   
@@ -396,7 +410,6 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
     return false;
   }
 
-  
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t recoIndex=msg->fuID;
@@ -414,7 +427,6 @@ bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
     return false;
   }
   
-
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->fuID;
@@ -478,17 +490,8 @@ void FUResourceTable::shutDownClients()
   nbClientsToShutDown_ = nbShmClients();
   isReadyToShutDown_   = false;
   
-  LOG4CPLUS_INFO(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
-
-  if (nbClientsToShutDown_==0) {
-    shmBuffer_->scheduleRawEmptyCellForDiscard();
-  }
-  else {
-    for (UInt_t i=0;i<nbClientsToShutDown_;++i) {
-      LOG4CPLUS_INFO(log_,"Post a ZERO event.");
-      shmBuffer_->writeRawEmptyEvent();
-    }
-  }
+  if (nbClientsToShutDown_==0) shmBuffer_->scheduleRawEmptyCellForDiscard();
+  else for (UInt_t i=0;i<nbClientsToShutDown_;++i) shmBuffer_->writeRawEmptyEvent();
 }
 
 
@@ -500,6 +503,7 @@ void FUResourceTable::clear()
     delete resources_[i];
   }
   resources_.clear();
+  while (!freeResourceIds_.empty()) freeResourceIds_.pop();
 }
 
 

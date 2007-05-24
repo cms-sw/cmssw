@@ -1,3 +1,16 @@
+2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-00
+	* requires EventFilter/ShmBuffer V00-04-00
+	* add std::queue<uint> FUShmResourceTable::freeResourceIds_;
+	FUShmResourceTable::allocateResource draws an id from it, but
+	doesn't call FUResource::allocate(cell) yet; only upon receiving
+	the first data msg from the BU will allocate be called and thus
+	the shm lock be taken. Thus, the pending requests block maximally
+	one shm (write-raw) lock.
+	* this design fixes the halting/stopping problem, where no locks
+	were available to post the ZERO event upon shut-down.
+
 2007-05-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-06-14

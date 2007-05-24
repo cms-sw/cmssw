@@ -16,6 +16,7 @@
 #include "toolbox/include/BSem.h"
 
 #include <vector>
+#include <queue>
 
 
 namespace evf {
@@ -99,7 +100,8 @@ namespace evf {
     
     // various counters
     UInt_t   nbResources()        const { return resources_.size(); }
-    UInt_t   nbFreeSlots()        const { return shmBuffer_->nbRawCellsToWrite(); }
+    //UInt_t   nbFreeSlots()        const { return shmBuffer_->nbRawCellsToWrite(); }
+    UInt_t   nbFreeSlots()        const { return freeResourceIds_.size(); }
     UInt_t   nbShmClients()       const;
     UInt_t   nbAllocated()        const { return nbAllocated_; }
     UInt_t   nbPending()          const { return nbPending_; }
@@ -172,6 +174,7 @@ namespace evf {
 
     FUShmBuffer       *shmBuffer_;
     FUResourceVec_t    resources_;
+    std::queue<UInt_t> freeResourceIds_;
     
     UInt_t             doCrcCheck_;
     UInt_t             doDumpEvents_;
