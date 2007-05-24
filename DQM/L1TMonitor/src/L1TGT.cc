@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/04/04 11:33:39 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/24 06:59:22 $
+ * $Revision: 1.4 $
  * \author J. Berryhill
  *
  */
@@ -205,7 +205,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
        if (*GTdbitItr)
        {
         gttriggerdbits->Fill(dbitNumber);
-        dword += pow(2,dbitNumber);     
+        dword += pow(2.0,dbitNumber);     
         int dbitNumber1 = 0;
         for( DecisionWord::const_iterator GTdbitItr1 =  
 	       gtDecisionWord.begin() ; GTdbitItr1 != gtDecisionWord.end() ;
