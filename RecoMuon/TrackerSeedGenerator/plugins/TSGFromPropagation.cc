@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/05/16 20:23:06 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/21 20:31:35 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -275,8 +275,12 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryMeasurement& tm) c
   const std::string category = "Muon|RecoMuon|TSGFromPropagation";
 
   LogTrace(category)<<"Trajectory State on Surface of Seed";
-  LogTrace(category)<<"mom: "<<tsos.globalMomentum()<<" eta: "<<tsos.globalMomentum().eta();
-  LogTrace(category)<<"pos: " << tsos.globalPosition()<<" eta: "<<tsos.globalPosition().eta(); 
+  LogTrace(category)<<"original seed TSOS: " << tsos;
+
+  resetError(tsos);
+
+  LogTrace(category)<<"reseted seed TSOS: " << tsos;
+
 
 /*
   LogTrace(category) << "createSeed: Apply the vertex constraint";
@@ -469,3 +473,20 @@ void TSGFromPropagation::findSecondMeasurements(std::vector<TrajectoryMeasuremen
   return; 
 }
 
+void TSGFromPropagation::resetError(TrajectoryStateOnSurface& tsos) const {
+
+   AlgebraicSymMatrix55 matrix = AlgebraicMatrixID();
+
+   matrix(0,0) = 0.01; //charge/momentum
+   matrix(1,1) = 0.02; //lambda
+   matrix(2,2) = 0.05; // phi
+   matrix(3,3) = 10.0; //x
+   matrix(4,4) = 10.0; //y
+
+   CurvilinearTrajectoryError error(matrix);
+ 
+   TrajectoryStateOnSurface newTsos(tsos.globalParameters(), error, tsos.surface()); 
+   tsos = newTsos;
+   return;
+
+}

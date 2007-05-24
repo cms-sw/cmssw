@@ -5,8 +5,8 @@
  *  Tracker Seed Generator by propagating and updating a standAlone muon
  *  to the first 2 (or 1) rechits it meets in tracker system 
  *
- *  $Date: 2007/05/15 15:21:18 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/16 20:21:49 $
+ *  $Revision: 1.2 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -63,6 +63,9 @@ private:
   std::vector<TrajectoryMeasurement> findMeasurements(const DetLayer*, const TrajectoryStateOnSurface&) const;
 
   void findSecondMeasurements(std::vector<TrajectoryMeasurement>&, const std::vector<const DetLayer*>& ) const;
+
+  void resetError(TrajectoryStateOnSurface& tsos) const;
+
 
   struct IncreasingEstimate{
     bool operator()(const TrajectoryMeasurement& lhs,
