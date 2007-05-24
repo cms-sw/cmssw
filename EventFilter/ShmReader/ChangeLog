@@ -1,3 +1,11 @@
+2007-05-24  Philipp Schieferdecker  <philipp.schieferdecker@cern.ch>
+
+	* tag V01-01-00
+	* note that V01-00-00 was tagged by whomever for the plugins
+	framework change
+	* this version is in line with EventFilter/FUShmBuffer V00-04-00
+	and EventFilter/ResourceBroker V00-07-00
+
 2007-03-26  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-04-01

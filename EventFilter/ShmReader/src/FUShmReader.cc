@@ -37,7 +37,7 @@ FUShmReader::FUShmReader()
   , shmBuffer_(0)
   , runNumber_(0xffffffff)
   , evtNumber_(0xffffffff)
-  , fuResourceId_(0xffffffff)
+  , lastCellIndex_(0xffffffff)
 {
   shmBuffer_=FUShmBuffer::getShmBuffer();
 }
@@ -70,7 +70,7 @@ bool FUShmReader::fillRawData(EventID& eID,
   
   // discard old event
   if(0!=event_) {
-    shmBuffer_->scheduleRawCellForDiscard(fuResourceId_);
+    shmBuffer_->scheduleRawCellForDiscard(lastCellIndex_);
     event_ = 0;
   }
   
@@ -85,14 +85,15 @@ bool FUShmReader::fillRawData(EventID& eID,
     shmdt(shmBuffer_);
     shmBuffer_=0;
     event_=0;
+    lastCellIndex_=0xffffffff;
     return false;
   }
   else assert(state==evt::RAWREADING);
   
   // read the event data into the fwk raw data format
-  evtNumber_   =newCell->evtNumber();
-  fuResourceId_=newCell->fuResourceId();
-  event_       =new FEDRawDataCollection();
+  evtNumber_    =newCell->evtNumber();
+  lastCellIndex_=newCell->index();
+  event_        =new FEDRawDataCollection();
   for (unsigned int i=0;i<newCell->nFed();i++) {
     unsigned int fedSize=newCell->fedSize(i);
     if (fedSize>0) {
