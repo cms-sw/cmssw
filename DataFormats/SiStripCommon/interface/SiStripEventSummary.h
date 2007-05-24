@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripEventSummary.h,v 1.1 2007/03/21 16:29:39 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -90,15 +90,18 @@ class SiStripEventSummary {
   /** Returns TTCrx delay setting. */
   inline const uint32_t& ttcrx() const;
   
-  /** Returns APV VPSP setting. */
+  /** Returns VPSP setting. */
   inline const uint32_t& vpsp() const;
+  
+  /** Returns CCU channel of module being tuned for VPSP. */
+  inline const uint32_t& vpspCcuChan() const;
   
   /** Returns LLD gain setting. */
   inline const uint32_t& lldGain() const;
 
   /** Returns LLD bias setting. */
   inline const uint32_t& lldBias() const;
-
+  
   /** Returns device id. */
   inline const uint32_t& deviceId() const;
   
@@ -189,6 +192,7 @@ const uint32_t& SiStripEventSummary::calChan() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::calSel() const { return params_[2]; }
 const uint32_t& SiStripEventSummary::ttcrx() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::vpsp() const { return params_[0]; }
+const uint32_t& SiStripEventSummary::vpspCcuChan() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::lldGain() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::lldBias() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::deviceId() const { return params_[0]; }

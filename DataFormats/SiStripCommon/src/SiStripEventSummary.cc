@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.1 2007/03/21 16:29:39 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -117,7 +117,8 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 
   } else if ( buffer[10] == 14 ) { // VPSP scan
 
-    params_[0] = buffer[11]; // vpsp
+    params_[0] = buffer[11]; // vpsp value
+    params_[1] = buffer[12]; // ccu channel (I2C of module)
 
   } else if ( buffer[10] == 15 ) { // DAQ scope mode readout
 
