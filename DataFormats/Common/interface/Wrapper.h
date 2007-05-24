@@ -5,7 +5,7 @@
   
 Wrapper: A template wrapper around EDProducts to hold the product ID.
 
-$Id: Wrapper.h,v 1.16 2007/05/10 23:45:11 chrjones Exp $
+$Id: Wrapper.h,v 1.17 2007/05/16 22:32:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -72,7 +72,12 @@ namespace edm {
 		    std::vector<void const*>& pointers,
 		    std::vector<helper_ptr>& helpers) const
     {
+      // fillView is the name of an overload set; each concrete
+      // collection T should supply a fillView function, in the same
+      // namespace at that in which T is defined, or in the 'edm'
+      // namespace.
       fillView(obj, id, pointers, helpers);
+      assert( pointers.size() == helpers.size());
     }
   };
 

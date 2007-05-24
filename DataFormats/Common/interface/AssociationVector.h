@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.14 $
+ * \version $Revision: 1.15 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -18,6 +18,7 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/FillView.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -144,11 +145,12 @@ namespace edm {
 								       std::vector<void const*>& pointers, 
 								       std::vector<helper_ptr>& helpers) const
   {
-    pointers.reserve(this->size());
-    for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
-      pointers.push_back(&(*i));
-    // helpers is not yet filled in.
-    //throw edm::Exception(errors::UnimplementedFeature, "AssociationVector<T>::fillView(...)");
+    detail::reallyFillView(*this, id, pointers, helpers);
+//     pointers.reserve(this->size());
+//     for(typename CVal::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i)
+//       pointers.push_back(&(*i));
+//     // helpers is not yet filled in.
+//     //throw edm::Exception(errors::UnimplementedFeature, "AssociationVector<T>::fillView(...)");
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>

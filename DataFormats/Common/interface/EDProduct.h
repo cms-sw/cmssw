@@ -6,7 +6,7 @@
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.6 2007/05/08 16:54:58 paterno Exp $
+$Id: EDProduct.h,v 1.7 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,7 @@ $Id: EDProduct.h,v 1.6 2007/05/08 16:54:58 paterno Exp $
 namespace edm {
 
 
-  typedef boost::shared_ptr<reftobase::IndirectHolderBaseHelper> helper_ptr;
+  typedef boost::shared_ptr<reftobase::RefHolderBase> helper_ptr;
 
   class EDProduct {
   public:

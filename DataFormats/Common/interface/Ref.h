@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.23 2007/05/15 17:10:24 wmtan Exp $
+$Id: Ref.h,v 1.24 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -198,6 +198,15 @@ namespace edm {
       ref_(productID, 0, itemKey, 0, prodGetter) {
       }
 
+    /** Constructor for use in the various X::fillView(...) functions.
+	It is an error (not diagnosable at compile- or run-time) to call
+	this constructor with a pointer to a T unless the pointed-to T
+	object is already in a collection of type C stored in the
+	Event. The given ProductID must be the id of the collection in
+	the Event. */
+    
+    Ref(ProductID const& productID, T const* item, key_type item_key) :
+      ref_(productID, 0, item_key, item, 0) { }
 
     /** Constructor that creates an invalid ("null") Ref that is
 	associated with a given product (denoted by that product's

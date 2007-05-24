@@ -5,7 +5,7 @@
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.6 2007/03/14 22:09:14 paterno Exp $
+$Id: RefBase.h,v 1.7 2007/03/27 16:16:36 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,18 +18,10 @@ namespace edm {
   template<typename KEY>
   class RefBase {
   public:
+    typedef KEY key_type;
+
     /// Default constructor needed for reading from persistent store. Not for direct use.
     RefBase() : product_(), item_() {}
-    /// Destructor
-    ~RefBase() {}
-
-    /// Accessor for product ID and product getter.
-    RefCore const& refCore() const { return product_;}
-
-    /// Accessor for index and pointer
-    RefItem<KEY> const& item() const {return item_;}
-
-    typedef typename RefItem<KEY>::key_type key_type;
 
     /// General purpose constructor. 
     RefBase(ProductID const& productID, void const* prodPtr, key_type itemKey,
@@ -39,6 +31,18 @@ namespace edm {
     /// Constructor from RefVector. 
     RefBase(RefCore const& prod, RefItem<KEY> const& itm) :
       product_(prod), item_(itm) {}
+
+    /// Compiler-generated copy constructor, assignment operator, and
+    /// destructor do the right thing.
+
+    /// Accessor for product ID and product getter.
+    RefCore const& refCore() const { return product_;}
+
+    /// Accessor for index and pointer
+    RefItem<KEY> const& item() const {return item_;}
+
+    typedef typename RefItem<KEY>::key_type key_type;
+
 
     // /// Return the index for the referenced element.
     // key_type key() const { return item_.key(); }

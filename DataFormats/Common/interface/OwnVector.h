@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.25 2007/05/08 16:54:58 paterno Exp $
+// $Id: OwnVector.h,v 1.26 2007/05/16 22:31:59 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -9,6 +9,8 @@
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -393,8 +395,14 @@ namespace edm {
 				 std::vector<void const*>& pointers,
 				 std::vector<helper_ptr>& helpers) const
   {
-    pointers.reserve(this->size());
-    for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i) {
+    typedef Ref<OwnVector>      ref_type ;
+    typedef reftobase::RefHolder<ref_type> holder_type;
+
+    size_type numElements = this->size();
+    pointers.reserve(numElements);
+    helpers.reserve(numElements);
+    size_type key = 0;
+    for(typename base::const_iterator i=data_.begin(), e=data_.end(); i!=e; ++i, ++key) {
 
       if (*i == 0) {
         throw edm::Exception(errors::NullPointerError)
@@ -402,9 +410,11 @@ namespace edm {
 	  << "into a View and that is not allowed.  It is probably an error that the null\n"
 	  << "pointer was in the OwnVector in the first place.\n";
       }
-      else pointers.push_back(*i);
+      else {
+	pointers.push_back(*i);
+	helpers.push_back(helper_ptr(new holder_type(ref_type(id, *i, key))));
+      }
     }
-    //throw edm::Exception(errors::UnimplementedFeature, "OwnVector<T>::fillView(...)");
   }
 
   template<typename T, typename P>

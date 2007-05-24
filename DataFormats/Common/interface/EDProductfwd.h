@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.9 2007/03/23 16:53:27 paterno Exp $
+$Id: EDProductfwd.h,v 1.10 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ namespace edm
   class RefCore;
 
   template <typename C, typename T, typename F> class Ref;
+  template <typename T> class RefToBase;
   template <typename K> class RefBase;
   template <typename K> class RefItem;
   template <typename T> class RefProd;
@@ -28,16 +29,13 @@ namespace edm
   template <typename T> class Handle;
   template <typename T> class OrphanHandle;
 
-
-
   namespace reftobase
   {
     template <typename T>  class BaseHolder;
     template <typename T, class REF> class Holder;
-    class IndirectHolderBaseHelper;
+    class RefHolderBase;
     template <typename T> class IndirectHolder;
-    template <typename REF> class IndirectHolderHelper;
-
+    template <typename REF> class RefHolder;
   }
 }
 

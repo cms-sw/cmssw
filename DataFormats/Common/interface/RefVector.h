@@ -6,7 +6,7 @@
 RefVector: A template for a vector of interproduct references.
 	Each vector element is a reference to a member of the same product.
 
-$Id: RefVector.h,v 1.24 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefVector.h,v 1.25 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -153,14 +153,20 @@ namespace edm {
 			     std::vector<void const*>& pointers,
 			     std::vector<helper_ptr>& helpers) const
   {
+    typedef Ref<C,T,F>                     ref_type;
+    typedef reftobase::RefHolder<ref_type> holder_type;
+
     pointers.reserve(this->size());
     helpers.reserve(this->size());
-    for (const_iterator i=begin(), e=end(); i!=e; ++i)
+
+    size_type key = 0;
+    for (const_iterator i=begin(), e=end(); i!=e; ++i, ++key)
       {
-	member_type const* p = i->isNull() ? 0 : &**i;
-	pointers.push_back(p);
+	member_type const* address = i->isNull() ? 0 : &**i;
+	pointers.push_back(address);
+	helper_ptr ptr(new holder_type(ref_type(id, address, key)));
+	helpers.push_back(ptr);	
       }
-    // We are not yet filling helpers...
   }
 
 

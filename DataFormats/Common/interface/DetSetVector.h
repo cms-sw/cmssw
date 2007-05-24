@@ -23,7 +23,7 @@ to be returned, *not* the ordinal number of the T to be returned.
    DetSet object in a DetSetVector.
 			  ------------------
 
-$Id: DetSetVector.h,v 1.16 2007/05/08 16:54:58 paterno Exp $
+$Id: DetSetVector.h,v 1.17 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -38,10 +38,12 @@ $Id: DetSetVector.h,v 1.16 2007/05/08 16:54:58 paterno Exp $
 #include "boost/type_traits.hpp"
 
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/traits.h"
+
 #include "DataFormats/Common/interface/DetSet.h"
-#include "DataFormats/Common/interface/RefItem.h"
+#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/RefItem.h"
+#include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -394,9 +396,7 @@ namespace edm {
 				 std::vector<void const*>& pointers,
 				 std::vector<helper_ptr>& helpers) const
   {
-    pointers.reserve(this->size());
-    for(const_iterator i=begin(), e=end(); i!=e; ++i) pointers.push_back(&(*i));
-    //throw edm::Exception(errors::UnimplementedFeature, "DetSetVector<T>::fillView(...)");
+    detail::reallyFillView(*this, id, pointers, helpers);
   }
 
   //----------------------------------------------------------------------

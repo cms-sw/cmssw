@@ -23,7 +23,7 @@ unreliable if such duplicate entries are made.
 
 **************** Much more is needed here! ****************
 
-$Id: SortedCollection.h,v 1.9 2007/05/08 16:54:58 paterno Exp $
+$Id: SortedCollection.h,v 1.10 2007/05/16 22:32:00 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -32,6 +32,8 @@ $Id: SortedCollection.h,v 1.9 2007/05/08 16:54:58 paterno Exp $
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/traits.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -380,9 +382,7 @@ namespace edm {
 				     std::vector<void const*>& pointers,
 				     std::vector<helper_ptr>& helpers) const
   {
-    pointers.reserve(this->size());
-    for(const_iterator i=begin(), e=end(); i!=e; ++i) pointers.push_back(&(*i));
-    //throw edm::Exception(errors::UnimplementedFeature, "SortedCollection<T>::fillView(...)");
+    detail::reallyFillView(*this, id, pointers, helpers);
   }
 
   // Free swap function

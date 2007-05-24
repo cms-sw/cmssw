@@ -14,7 +14,7 @@ Description: Provide access to any EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.3 2006/12/22 02:26:44 paterno Exp $
+// $Id: View.h,v 1.4 2007/01/11 23:39:19 paterno Exp $
 //
 
 #include <algorithm>
@@ -23,6 +23,8 @@ Description: Provide access to any EDProduct that is a sequence.
 #include "boost/iterator/indirect_iterator.hpp"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm
 {
@@ -59,45 +61,63 @@ namespace edm
     // Compiler-generated copy, and assignment each does the right
     // thing.
 
-    View() : data_() { }
+    View() : items_() { }
 
     // This function is dangerous, and should only be called from the
     // infrastructure code.
-    explicit View(std::vector<void const*> const& pointers) : data_()
+    explicit View(std::vector<void const*> const& pointers,
+		  std::vector<helper_ptr> const& helpers) : 
+      items_(),
+      refs_()
     {
-      data_.reserve(pointers.size());
+      size_type numElements = pointers.size();
+
+      // If the two input vectors are not of the same size, there is a
+      // logic error in the framework code that called this
+      // constructor.
+      assert (numElements == helpers.size());
+
+      items_.reserve(numElements);
+      refs_.reserve(numElements);
       for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i)
-	data_.push_back(static_cast<pointer>(pointers[i]));
+	{
+	  items_.push_back(static_cast<pointer>(pointers[i]));
+	  refs_.push_back(RefToBase<T>(helpers[i]));
+	}
+      // Sanity check...
+      assert(items_.size() == refs_.size());
     }
 
     virtual ~View() { }
 
-    size_type capacity() const { return data_.capacity(); }
+    size_type capacity() const { return items_.capacity(); }
 
     // Most non-const member functions not present.
     // No access to non-const contents provided.
 
-    const_iterator begin() const { return data_.begin(); }
-    const_iterator end() const { return data_.end(); }
+    const_iterator begin() const { return items_.begin(); }
+    const_iterator end() const { return items_.end(); }
 
-    const_reverse_iterator rbegin() const { return data_.rbegin(); }
-    const_reverse_iterator rend() const { return data_.rend(); }
+    const_reverse_iterator rbegin() const { return items_.rbegin(); }
+    const_reverse_iterator rend() const { return items_.rend(); }
 
-    size_type size() const { return data_.size(); }
+    size_type size() const { return items_.size(); }
 
-    size_type max_size() const { return data_.max_size(); }
+    size_type max_size() const { return items_.max_size(); }
 
-    bool empty() const { return data_.empty(); }
+    bool empty() const { return items_.empty(); }
 
-    const_reference at(size_type pos) const { return *data_.at(pos); }
+    const_reference at(size_type pos) const { return *items_.at(pos); }
 
-    const_reference operator[](size_type pos) const { return *data_[pos]; }
+    const_reference operator[](size_type pos) const { return *items_[pos]; }
 
-    const_reference front() const { return *data_.front(); }
+    RefToBase<value_type> refAt(size_type i) const { return refs_[i]; }
 
-    const_reference back() const {return *data_.back(); }
+    const_reference front() const { return *items_.front(); }
 
-    void pop_back() { data_.pop_back(); }
+    const_reference back() const {return *items_.back(); }
+
+    void pop_back() { items_.pop_back(); }
 
     // No erase, because erase is required to return an *iterator*,
     // not a *const_iterator*.
@@ -105,14 +125,15 @@ namespace edm
     // The following is for testing only.
     static void fill_from_range(T* first, T* last, View& output)
     {
-      output.data_.resize(std::distance(first,last));
+      output.items_.resize(std::distance(first,last));
       for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
-	output.data_[i] = first;
+	output.items_[i] = first;
     }
 
   private:
+    seq_t                      items_;
+    std::vector<RefToBase<T> > refs_;
 
-    seq_t  data_;
 
   };
 
@@ -176,6 +197,5 @@ namespace edm
   }
 
 }
-
 
 #endif

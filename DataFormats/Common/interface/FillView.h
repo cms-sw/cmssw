@@ -6,7 +6,7 @@
 Several fillView function templates, to provide View support for 
 Standard Library containers.
 
-$Id: Wrapper.h,v 1.16 2007/05/10 23:45:11 chrjones Exp $
+$Id: FillView.h,v 1.1 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,7 +19,40 @@ $Id: Wrapper.h,v 1.16 2007/05/10 23:45:11 chrjones Exp $
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-namespace edm {
+namespace edm 
+{
+
+  namespace detail 
+  {
+
+    // Function template reallyFillView<C> can fill views for
+    // standard-library collections of appropriate types (vector, list,
+    // deque, set).
+    
+    template <class COLLECTION>
+    void
+    reallyFillView(COLLECTION const& coll,
+		   ProductID const& id,
+		   std::vector<void const*>& ptrs,
+		   std::vector<helper_ptr>& helpers)
+    {
+      typedef COLLECTION                            product_type;
+      typedef typename product_type::value_type     element_type;
+      typedef typename product_type::const_iterator iter;
+      typedef typename product_type::size_type      size_type;
+      typedef Ref<product_type>                     ref_type;
+      typedef reftobase::RefHolder<ref_type>        holder_type;
+      
+      size_type key = 0;
+      for (iter i = coll.begin(), e = coll.end(); i!=e; ++i, ++key)
+	{
+	  element_type const* address = &*i;
+	  ptrs.push_back(address);
+	  helper_ptr ptr(new holder_type(ref_type(id, address, key)));
+	  helpers.push_back(ptr);
+	}
+    }
+  }
 
   template <class T, class A>
   void
@@ -28,20 +61,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs,
 	   std::vector<helper_ptr>& helpers)
   {
-    typedef std::vector<T,A>   product_type;
-    typedef Ref<product_type>  ref_type;
-    typedef typename product_type::const_iterator  iter;
-
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) 
-      {
-	ptrs.push_back(&*i);
-	// How do we make the helper_ptr objects which point to the
-	// elements of the vector?
-	typedef reftobase::IndirectHolderHelper<ref_type> ihh_type;
-	//helper_ptr p(new ihh_type(ref_type()));
-	//helpers.push_back(p);
-      }
-    //throw edm::Exception(errors::UnimplementedFeature, "fillView(vector,...)");
+    detail::reallyFillView(obj, id, ptrs, helpers);
   }
 
   template <class T, class A>
@@ -51,9 +71,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs,
 	   std::vector<helper_ptr>& helpers)
   {
-    typedef typename std::list<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-    //throw edm::Exception(errors::UnimplementedFeature, "fillView(list,...)");
+    detail::reallyFillView(obj, id, ptrs, helpers);
   }
 
   template <class T, class A>
@@ -63,9 +81,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs,
 	   std::vector<helper_ptr>& helpers)
   {
-    typedef typename std::deque<T,A>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-    //throw edm::Exception(errors::UnimplementedFeature, "fillView(deque,...)");
+    detail::reallyFillView(obj, id, ptrs, helpers);
   }
 
   template <class T, class A, class Comp>
@@ -75,9 +91,7 @@ namespace edm {
 	   std::vector<void const*>& ptrs,
 	   std::vector<helper_ptr>& helpers)
   {
-    typedef typename std::set<T,A,Comp>::const_iterator iter;
-    for (iter i = obj.begin(), e = obj.end(); i != e; ++i) ptrs.push_back(&*i);
-    //throw edm::Exception(errors::UnimplementedFeature, "fillView(set,...)");
+    detail::reallyFillView(obj, id, ptrs, helpers);
   }
 
 }

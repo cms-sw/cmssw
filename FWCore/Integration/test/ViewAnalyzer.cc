@@ -9,6 +9,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -97,6 +98,14 @@ namespace edmtest
         assert(product_item == view_item);
 	++i_product; ++i_view; ++slot;
       }
+
+    // Make sure the references are right.
+    size_t numElements = hview->size();
+    for (size_t i = 0; i < numElements; ++i)
+      {
+    	RefToBase<value_t> ref = hview->refAt(i);
+	assert(ref.isNonnull());
+      }	  
   }
 
   void
