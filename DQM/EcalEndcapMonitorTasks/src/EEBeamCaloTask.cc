@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/21 11:43:19 $
+ * $Revision: 1.8 $
  * \author A. Ghezzi
  *
  */
@@ -29,7 +29,7 @@
 #include "TBDataFormats/EcalTBObjects/interface/EcalTBCollections.h"
 
 #include <DQM/EcalCommon/interface/UtilsClient.h>
-//#include <DQM/EcalCommon/interface/Numbers.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamCaloTask.h>
 
@@ -38,6 +38,8 @@ using namespace edm;
 using namespace std;
 
 EEBeamCaloTask::EEBeamCaloTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 

@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/24 12:21:42 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -36,6 +36,8 @@ using namespace edm;
 using namespace std;
 
 EEOccupancyTask::EEOccupancyTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 

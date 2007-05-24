@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/02 09:10:59 $
- * $Revision: 1.14 $
+ * $Date: 2007/05/12 09:39:06 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -34,6 +34,7 @@
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
@@ -79,6 +80,8 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps){
 }
 
 void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   cout << endl;
   cout << " *** Ecal Endcap Generic Monitor Client ***" << endl;

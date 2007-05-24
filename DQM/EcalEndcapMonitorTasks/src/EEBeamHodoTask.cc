@@ -1,8 +1,8 @@
 /*
  * \file EEBeamHodoTask.cc
  *
- * $Date: 2007/04/05 14:54:03 $
- * $Revision: 1.3 $
+ * $Date: 2007/05/14 10:03:16 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -35,12 +35,13 @@
 
 #include <DQM/EcalEndcapMonitorTasks/interface/EEBeamHodoTask.h>
 
-
 using namespace cms;
 using namespace edm;
 using namespace std;
 
 EEBeamHodoTask::EEBeamHodoTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 

@@ -1,8 +1,8 @@
 /*
  * \file EECosmicTask.cc
  *
- * $Date: 2007/05/21 09:57:46 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/24 12:28:49 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,8 @@ using namespace edm;
 using namespace std;
 
 EECosmicTask::EECosmicTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 

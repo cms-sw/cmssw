@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/05/21 11:43:19 $
- * $Revision: 1.9 $
+ * $Date: 2007/05/24 12:28:49 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,8 @@ using namespace edm;
 using namespace std;
 
 EETestPulseTask::EETestPulseTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 

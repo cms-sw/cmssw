@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2007/05/14 10:03:16 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/21 09:57:46 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -35,6 +35,8 @@ using namespace edm;
 using namespace std;
 
 EETimingTask::EETimingTask(const ParameterSet& ps){
+
+  Numbers::maxSM = 18;
 
   init_ = false;
 
