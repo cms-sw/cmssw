@@ -1,6 +1,6 @@
 2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
-	* tag V00-03-05
+	* tag V00-04-00
 	* add FUShmRawCell::index_, which is not necessarily equal to
 	FUShmRawCell::fuResourceId_ anymore.
 	* add method FUShmRawCell::setFuResourceId(uint).
