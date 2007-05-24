@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/13 07:19:20 $
- * $Revision: 1.26 $
+ * $Date: 2007/05/24 13:20:55 $
+ * $Revision: 1.27 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -712,6 +712,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* obj2f = 0;
   TH1D* obj1dX;
   TH1D* obj1dY;
+
+  gStyle->SetPaintTextFormat("+g");
 
   // ==========================================================================
   // basic clusters

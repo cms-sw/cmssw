@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/05/13 07:19:21 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/22 15:44:13 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -566,6 +566,8 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   TH2F* objfPolar;
   TH1D* obj1dX;
   TH1D* obj1dY;
+
+  //gStyle->SetPaintTextFormat("+g");
 
   // ==========================================================================
   // all Ecal Endcap 1D plots
