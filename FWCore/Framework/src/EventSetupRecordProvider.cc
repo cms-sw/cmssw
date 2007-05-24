@@ -146,7 +146,8 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
     }
     finder_ = chosen[0];
   }
-  multipleFinders_.release();
+  //now we get rid of the temporary
+  multipleFinders_.reset(0);
 }
 
 //
