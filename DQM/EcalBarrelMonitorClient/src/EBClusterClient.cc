@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/11 15:05:04 $
- * $Revision: 1.25 $
+ * $Date: 2007/05/13 07:19:20 $
+ * $Revision: 1.26 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -212,46 +212,46 @@ void EBClusterClient::subscribe(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
   mui_->subscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
   mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
@@ -264,74 +264,74 @@ void EBClusterClient::subscribe(void){
 
     if ( verbose_ ) cout << "EBClusterClient: collate" << endl;
 
-    sprintf(histo, "EBCLT island basic cluster energy");
+    sprintf(histo, "EBCLT island BC energy");
     me_h01_[0] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
     mui_->add(me_h01_[0], histo);
 
-    sprintf(histo, "EBCLT island basic cluster number");
+    sprintf(histo, "EBCLT island BC number");
     me_h01_[1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
     mui_->add(me_h01_[1], histo);
 
-    sprintf(histo, "EBCLT island basic cluster crystals");
+    sprintf(histo, "EBCLT island BC crystals");
     me_h01_[2] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
     mui_->add(me_h01_[2], histo);
 
-    sprintf(histo, "EBCLT island basic cluster energy map");
+    sprintf(histo, "EBCLT island BC energy map");
     me_h02_[0] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
     mui_->add(me_h02_[0], histo);
 
-    sprintf(histo, "EBCLT island basic cluster ET map");
+    sprintf(histo, "EBCLT island BC ET map");
     me_h02_[1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
     mui_->add(me_h02_[1], histo);
 
-    sprintf(histo, "EBCLT island basic cluster number map");
+    sprintf(histo, "EBCLT island BC number map");
     me_h03_ = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
     mui_->add(me_h03_, histo);
 
-    sprintf(histo, "EBCLT island basic cluster size map");
+    sprintf(histo, "EBCLT island BC size map");
     me_h04_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
     mui_->add(me_h04_, histo);
 
-    sprintf(histo, "EBCLT island super cluster energy");
+    sprintf(histo, "EBCLT island SC energy");
     me_i01_[0] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
     mui_->add(me_i01_[0], histo);
 
-    sprintf(histo, "EBCLT island super cluster number");
+    sprintf(histo, "EBCLT island SC number");
     me_i01_[1] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
     mui_->add(me_i01_[1], histo);
 
-    sprintf(histo, "EBCLT island super cluster size");
+    sprintf(histo, "EBCLT island SC size");
     me_i01_[2] = mui_->collate1D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
     mui_->add(me_i01_[2], histo);
 
-    sprintf(histo, "EBCLT island super cluster energy map");
+    sprintf(histo, "EBCLT island SC energy map");
     me_i02_[0] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
     mui_->add(me_i02_[0], histo);
 
-    sprintf(histo, "EBCLT island super cluster ET map");
+    sprintf(histo, "EBCLT island SC ET map");
     me_i02_[1] = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
     mui_->add(me_i02_[1], histo);
 
-    sprintf(histo, "EBCLT island super cluster number map");
+    sprintf(histo, "EBCLT island SC number map");
     me_i03_ = mui_->collate2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
     mui_->add(me_i03_, histo);
 
-    sprintf(histo, "EBCLT island super cluster size map");
+    sprintf(histo, "EBCLT island SC size map");
     me_i04_ = mui_->collateProf2D(histo, histo, "EcalBarrel/Sums/EBClusterTask");
-    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+    sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
     mui_->add(me_i04_, histo);
 
     sprintf(histo, "EBCLT hybrid S1toE");
@@ -351,46 +351,46 @@ void EBClusterClient::subscribeNew(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
   mui_->subscribeNew(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
   mui_->subscribeNew(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
@@ -436,46 +436,46 @@ void EBClusterClient::unsubscribe(void){
 
   Char_t histo[200];
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC crystals");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC energy map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC ET map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC number map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island basic cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island BC size map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster energy map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC energy map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster ET map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC ET map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster number map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC number map");
   mui_->unsubscribe(histo);
 
-  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island super cluster size map");
+  sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT island SC size map");
   mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalBarrel/EBClusterTask/EBCLT hybrid S1toE");
@@ -503,113 +503,113 @@ void EBClusterClient::analyze(void){
   MonitorElement* me;
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster energy");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC energy");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy").c_str());
   }
   me = mui_->get(histo);
   h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC number");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number").c_str());
   }
   me = mui_->get(histo);
   h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster crystals");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC crystals");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC crystals").c_str());
   }
   me = mui_->get(histo);
   h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster energy map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC energy map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC energy map").c_str());
   }
   me = mui_->get(histo);
   h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster ET map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC ET map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC ET map").c_str());
   }
   me = mui_->get(histo);
   h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC number map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC number map").c_str());
   }
   me = mui_->get(histo);
   h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster size map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island BC size map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster size map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island BC size map").c_str());
   }
   me = mui_->get(histo);
   h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC energy");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy").c_str());
   }
   me = mui_->get(histo);
   i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC number");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number").c_str());
   }
   me = mui_->get(histo);
   i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC size");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size").c_str());
   }
   me = mui_->get(histo);
   i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC energy map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC energy map").c_str());
   }
   me = mui_->get(histo);
   i02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster ET map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC ET map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster ET map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC ET map").c_str());
   }
   me = mui_->get(histo);
   i02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC number map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC number map").c_str());
   }
   me = mui_->get(histo);
   i03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
 
   if ( collateSources_ ) {
-    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size map");
+    sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island SC size map");
   } else {
-    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size map").c_str());
+    sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island SC size map").c_str());
   }
   me = mui_->get(histo);
   i04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );

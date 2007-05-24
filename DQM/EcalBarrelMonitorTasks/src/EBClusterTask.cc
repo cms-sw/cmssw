@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/05/13 07:19:21 $
- * $Revision: 1.22 $
+ * $Date: 2007/05/13 08:24:32 $
+ * $Revision: 1.23 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -106,46 +106,46 @@ void EBClusterTask::setup(void){
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalBarrel/EBClusterTask");
 
-    sprintf(histo, "EBCLT island basic cluster energy");
+    sprintf(histo, "EBCLT island BC energy");
     meIslBEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
-    sprintf(histo, "EBCLT island basic cluster number");
+    sprintf(histo, "EBCLT island BC number");
     meIslBNum_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
-    sprintf(histo, "EBCLT island basic cluster crystals");
+    sprintf(histo, "EBCLT island BC crystals");
     meIslBCry_ = dbe_->book1D(histo, histo, 100, 0., 100.);
 
-    sprintf(histo, "EBCLT island basic cluster energy map");
+    sprintf(histo, "EBCLT island BC energy map");
     meIslBEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT island basic cluster number map");
+    sprintf(histo, "EBCLT island BC number map");
     meIslBNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
 
-    sprintf(histo, "EBCLT island basic cluster ET map");
+    sprintf(histo, "EBCLT island BC ET map");
     meIslBETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT island basic cluster size map");
+    sprintf(histo, "EBCLT island BC size map");
     meIslBCryMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 100., "s");
 
-    sprintf(histo, "EBCLT island super cluster energy");
+    sprintf(histo, "EBCLT island SC energy");
     meIslSEne_ = dbe_->book1D(histo, histo, 100, 0., 150.);
 
-    sprintf(histo, "EBCLT island super cluster number");
+    sprintf(histo, "EBCLT island SC number");
     meIslSNum_ = dbe_->book1D(histo, histo, 50, 0., 50.);
 
-    sprintf(histo, "EBCLT island super cluster size");
+    sprintf(histo, "EBCLT island SC size");
     meIslSSiz_ = dbe_->book1D(histo, histo, 10, 0., 10.);
 
-    sprintf(histo, "EBCLT island super cluster energy map");
+    sprintf(histo, "EBCLT island SC energy map");
     meIslSEneMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT island super cluster number map");
+    sprintf(histo, "EBCLT island SC number map");
     meIslSNumMap_ = dbe_->book2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479);
 
-    sprintf(histo, "EBCLT island super cluster ET map");
+    sprintf(histo, "EBCLT island SC ET map");
     meIslSETMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
-    sprintf(histo, "EBCLT island super cluster size map");
+    sprintf(histo, "EBCLT island SC size map");
     meIslSSizMap_ = dbe_->bookProfile2D(histo, histo, 72, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 34, -1.479, 1.479, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT hybrid S1toE");
