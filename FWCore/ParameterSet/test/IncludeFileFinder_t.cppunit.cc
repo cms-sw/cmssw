@@ -1,5 +1,5 @@
 /*
- * $Id: IncludeFileFinder_t.cppunit.cc,v 1.4 2007/04/20 20:53:06 rpw Exp $
+ * $Id: IncludeFileFinder_t.cppunit.cc,v 1.5 2007/05/15 18:59:38 rpw Exp $
  */
 
 #include <algorithm>
@@ -81,11 +81,11 @@ void IncludeFileFinderTest::ultimateTest()
 {
   string moduleClass = "CSCDigiProducer";
   IncludeFileFinder finder;
-  string library = finder.libraryOf(moduleClass);
+//  string library = finder.libraryOf(moduleClass);
 //  CPPUNIT_ASSERT (library == "libSimMuonCSCDigitizer.so");
 
   string moduleLabel = "muoncscdigi";
-  edm::FileInPath file = finder.find(moduleClass, moduleLabel);
+//  edm::FileInPath file = finder.find(moduleClass, moduleLabel);
   // will throw if can't find
 }
 
