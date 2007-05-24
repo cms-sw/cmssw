@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia & Andrew York
 //         Created:  
-// $Id: SiPixelClusterSource.cc,v 1.8 2007/05/14 16:15:44 andrewdc Exp $
+// $Id: SiPixelClusterModule.cc,v 1.8 2007/05/14 20:24:44 andrewdc Exp $
 //
 //
 #include "DQM/SiPixelMonitorCluster/interface/SiPixelClusterModule.h"
@@ -155,7 +155,7 @@ void SiPixelClusterModule::fill(const edm::DetSetVector<SiPixelCluster>& input) 
       (meMaxRow_)->Fill((int)maxPixelRow);
       (meMinCol_)->Fill((int)minPixelCol);
       (meMaxCol_)->Fill((int)maxPixelCol);
-      (mePixClusters_)->Fill((float)x,(float)y);
+      (mePixClusters_)->Fill((float)y,(float)x);
       //      (meEdgeHitX_)->Fill((int)edgeHitX);
       //      (meEdgeHitY_)->Fill((int)edgeHitY);
 
