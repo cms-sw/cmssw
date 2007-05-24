@@ -1,8 +1,8 @@
 /*
  * \file EEIntegrityTask.cc
  *
- * $Date: 2007/05/14 10:03:16 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/21 09:57:46 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
  */
@@ -487,7 +487,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTId[ism-1] ) meIntegrityMemTTId[ism-1]->Fill(iTt,0);
 
@@ -510,7 +510,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       int itt   = id.towerId();
       float iTt = itt + 0.5 - 69;
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       if ( meIntegrityMemTTBlockSize[ism-1] ) meIntegrityMemTTBlockSize[ism-1]->Fill(iTt,0);
 
@@ -531,7 +531,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
@@ -562,7 +562,7 @@ void EEIntegrityTask::analyze(const Event& e, const EventSetup& c){
 
       EcalElectronicsId id = (*idItr);
 
-      int ism = Numbers::iSM( id );
+      int ism = Numbers::iSM( id ); if ( ism > 18 ) continue;
 
       int chid = id.channelId();
       int ie = EEIntegrityTask::chMemAbscissa[chid-1];
