@@ -1,16 +1,21 @@
-// $Id: Numbers.cc,v 1.7 2007/05/22 09:53:49 benigno Exp $
+// $Id: Numbers.cc,v 1.8 2007/05/24 11:01:07 benigno Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.7 $
-  \date $Date: 2007/05/22 09:53:49 $
+  \version $Revision: 1.8 $
+  \date $Date: 2007/05/24 11:01:07 $
 */
 
 #include <sstream>
 #include <iomanip>
 #include "DQM/EcalCommon/interface/Numbers.h"
+
+//-------------------------------------------------------------------------
+// To be removed in a (short) future... 
+// Initialized for Barrel, Endcaps should set it by themselves
+int Numbers::maxSM = 36;
 
 //-------------------------------------------------------------------------
 
@@ -89,14 +94,16 @@ std::string Numbers::sEE( int ism  ) throw( std::runtime_error ) {
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( int ism ) throw( std::runtime_error ) {
-  if( ism < 1 || ism > 36 ) {
+  //if( ism < 1 || ism > 36 ) {
+  if( ism < 1 || ism > Numbers::maxSM ) {
     std::ostringstream s;
     s << "Wrong SM id determination: iSM = " << ism;
     throw( std::runtime_error( s.str() ) );
     return( -999 );
   }
 
-  return( ism < 19 ? ism+18 : ism-18 );
+  return( ism < (Numbers::maxSM/2+1) ? ism+Numbers::maxSM/2 : ism-Numbers::maxSM/2 ); 
+  //return( ism < 19 ? ism+18 : ism-18 );
   //return( ism );
 }
 

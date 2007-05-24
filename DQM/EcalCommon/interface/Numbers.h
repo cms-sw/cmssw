@@ -1,11 +1,11 @@
-// $Id: Numbers.h,v 1.5 2007/05/21 09:06:20 benigno Exp $
+// $Id: Numbers.h,v 1.6 2007/05/22 09:53:49 benigno Exp $
 
 /*!
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.5 $
-  \date $Date: 2007/05/21 09:06:20 $
+  \version $Revision: 1.6 $
+  \date $Date: 2007/05/22 09:53:49 $
 */
 
 #ifndef Numbers_H
@@ -43,6 +43,9 @@ class Numbers {
   static int         iSM( const EcalPnDiodeDetId&      id );
 
   static int         iSM( const EcalDCCHeaderBlock&    id );
+
+  // To be removed in a (short) future...
+  static int         maxSM;
 
 };
 
