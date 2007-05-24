@@ -1,6 +1,7 @@
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "Math/GenVector/VectorUtil.h"
 
 class JetProbabilityComputer : public JetTagComputer
 {
@@ -9,6 +10,7 @@ class JetProbabilityComputer : public JetTagComputer
   { 
      m_ipType           = parameters.getParameter<int>("impactParamterType");
      m_minTrackProb     = parameters.getParameter<double>("minimumProbability");
+     m_deltaR          = parameters.getParameter<double>("deltaR");
 
   }
  
@@ -16,13 +18,16 @@ class JetProbabilityComputer : public JetTagComputer
    {
       const reco::TrackIPTagInfo * tkip = dynamic_cast<const reco::TrackIPTagInfo *>(&ti);
       if(tkip!=0)  {
+          const edm::RefVector<reco::TrackCollection> & tracks(tkip->selectedTracks());
           const std::vector<float> & allProbabilities((tkip->probabilities(m_ipType)));
           std::vector<float> probabilities;
-          for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it)
+          int i=0;
+          for(std::vector<float>::const_iterator it = allProbabilities.begin(); it!=allProbabilities.end(); ++it, i++)
            {
               float p;
               if (*it >=0){p=*it/2.;}else{p=1.+*it/2.;}
-             //FIXME:add extra cuts here
+              double delta  = ROOT::Math::VectorUtil::DeltaR((*tkip->jet()).p4().Vect(), (*tracks[i]).momentum());
+              if(delta < m_deltaR)
              probabilities.push_back(p);
            }
            return jetProbability(probabilities); 
@@ -71,4 +76,5 @@ double jetProbability( const std::vector<float> & v ) const
  private:
    double m_minTrackProb;
    int m_ipType;
+   double m_deltaR;
 };
