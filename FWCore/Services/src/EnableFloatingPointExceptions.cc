@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.9 2007/05/23 16:55:36 marafino Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.10 2007/05/23 18:34:24 marafino Exp $
 //
 
 // system include files
@@ -61,7 +61,7 @@ reportSettings_(false)
   OSdefault_ = fpuState_;
   stateStack_.push(OSdefault_);
   if( reportSettings_ )  {
-    LogVerbatim("FPE_Enable") << "\nSettings for OSdefault";
+    edm::LogVerbatim("FPE_Enable") << "\nSettings for OSdefault";
     echoState();
   }
 
@@ -83,7 +83,7 @@ reportSettings_(false)
 
     controlFpe();
     if( reportSettings_ ) {
-      LogVerbatim("FPE_Enable") << "\nSettings for default";
+      edm::LogVerbatim("FPE_Enable") << "\nSettings for default";
       echoState();
     }
     fegetenv( &fpuState_ );
@@ -103,7 +103,7 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
-        LogVerbatim("FPE_Enable") << "\nSettings for unnamed module";
+        edm::LogVerbatim("FPE_Enable") << "\nSettings for unnamed module";
         echoState();
       }
       fegetenv( &fpuState_ );
@@ -121,7 +121,7 @@ reportSettings_(false)
       enableUnderFlowEx_  = secondary.getUntrackedParameter<bool>("enableUnderFlowEx", false);
       controlFpe();
       if( reportSettings_ ) {
-        LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
+        edm::LogVerbatim("FPE_Enable") << "\nSettings for module " << *it;
         echoState();
       }
       fegetenv( &fpuState_ );
@@ -165,10 +165,10 @@ EnableFloatingPointExceptions::postEndJob()
 
 // At EndJob, put the state of the fpu back to "OSdefault"
 
-	fpuState_ = stateMap_[String("OSdefault")];
-	fesetenv( &OSdefault_ );
-        if( reportSettings_ ) LogVerbatim("FPE_Enable") << "\nSettings at end job ";
-        echoState();
+  fpuState_ = stateMap_[String("OSdefault")];
+  fesetenv( &OSdefault_ );
+  if( reportSettings_ ) edm::LogVerbatim("FPE_Enable") << "\nSettings at end job ";
+  echoState();
 }
 
 void 
@@ -178,18 +178,18 @@ EnableFloatingPointExceptions::preModule(const ModuleDescription& iDescription)
 // On entry to a module, find the desired state of the fpu and set it accordingly.
 // Note that any module whose label does not appear in our list gets the default settings.
 
-	String modName = iDescription.moduleLabel();
-        if( stateMap_.find(modName) == stateMap_.end() )  {
-	  fpuState_ = stateMap_[String("default")];
-        } else {
-	  fpuState_ = stateMap_[modName];
-	}
-	fesetenv( &fpuState_ );
-        stateStack_.push(fpuState_);
-        if( reportSettings_ ) {
-          LogVerbatim("FPE_Enable") << "\nSettings at begin module " << modName;
-          echoState();
-        }
+  String modName = iDescription.moduleLabel();
+  if( stateMap_.find(modName) == stateMap_.end() )  {
+    fpuState_ = stateMap_[String("default")];
+  } else {
+    fpuState_ = stateMap_[modName];
+  }
+  fesetenv( &fpuState_ );
+  stateStack_.push(fpuState_);
+  if( reportSettings_ ) {
+    edm::LogVerbatim("FPE_Enable") << "\nSettings at begin module " << modName;
+    echoState();
+  }
 }
 void 
 EnableFloatingPointExceptions::postModule(const ModuleDescription& iDescription)
@@ -197,13 +197,13 @@ EnableFloatingPointExceptions::postModule(const ModuleDescription& iDescription)
 
 // On exit from a module, set the state of the fpu back to what it was before entry
 
-        stateStack_.pop();
-        fpuState_ = stateStack_.top();
-	fesetenv( &fpuState_ );
-        if( reportSettings_ ) {
-          LogVerbatim("FPE_Enable") << "\nSettings after end module ";
-          echoState();
-        }
+  stateStack_.pop();
+  fpuState_ = stateStack_.top();
+  fesetenv( &fpuState_ );
+  if( reportSettings_ ) {
+    edm::LogVerbatim("FPE_Enable") << "\nSettings after end module ";
+    echoState();
+  }
 }
 
 void 
@@ -213,40 +213,39 @@ EnableFloatingPointExceptions::controlFpe()
 
 #ifdef __linux__
 
-	/*
-	 * NB: We are not letting users control signaling inexact (FE_INEXACT).
-	 */
+/*
+ * NB: We are not letting users control signaling inexact (FE_INEXACT).
+ */
 
-	if ( enableDivByZeroEx_ )
-	  (void) feenableexcept( FE_DIVBYZERO );
-	else 
-	  (void) fedisableexcept( FE_DIVBYZERO );
+  if ( enableDivByZeroEx_ )
+    (void) feenableexcept( FE_DIVBYZERO );
+  else 
+    (void) fedisableexcept( FE_DIVBYZERO );
 
-	if ( enableInvalidEx_ )
-	  (void) feenableexcept( FE_INVALID );
-	else 
-	  (void) fedisableexcept( FE_INVALID );
+  if ( enableInvalidEx_ )
+    (void) feenableexcept( FE_INVALID );
+  else 
+    (void) fedisableexcept( FE_INVALID );
 
-	if ( enableOverFlowEx_ )
-	  (void) feenableexcept( FE_OVERFLOW );
-	else 
-	  (void) fedisableexcept( FE_OVERFLOW );
+  if ( enableOverFlowEx_ )
+    (void) feenableexcept( FE_OVERFLOW );
+  else 
+    (void) fedisableexcept( FE_OVERFLOW );
 
-	if ( enableUnderFlowEx_ )
-	  (void) feenableexcept( FE_UNDERFLOW );
-	else 
-	  (void) fedisableexcept( FE_UNDERFLOW );
+  if ( enableUnderFlowEx_ )
+    (void) feenableexcept( FE_UNDERFLOW );
+  else 
+    (void) fedisableexcept( FE_UNDERFLOW );
 
 #ifdef __i386__
 
-        if (setPrecisionDouble_) {
+  if (setPrecisionDouble_) {
+    fpu_control_t cw;
+    _FPU_GETCW(cw);
 
-          fpu_control_t cw;
-          _FPU_GETCW(cw);
-
-          cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
-          _FPU_SETCW(cw);
-       }
+    cw = (cw & ~_FPU_EXTENDED) | _FPU_DOUBLE;
+    _FPU_SETCW(cw);
+  }
 #endif
 #endif
 
@@ -255,28 +254,29 @@ EnableFloatingPointExceptions::controlFpe()
 void
 EnableFloatingPointExceptions::echoState()
 {
-	if( reportSettings_ ) {
-	  int femask = fegetexcept();
-	  LogVerbatim("FPE_Enable") << "Floating point exception mask is " << std::hex << femask;
+  if( reportSettings_ ) {
+    int femask = fegetexcept();
+    edm::LogVerbatim("FPE_Enable") << "Floating point exception mask is " 
+                                   << std::showbase << std::hex << femask;
 
-	  if( femask & FE_DIVBYZERO )
-	    LogVerbatim("FPE_Enable") << "\tDivByZero exception is on";
-	  else
-	    LogVerbatim("FPE_Enable") << "\tDivByZero exception is off";
+    if( femask & FE_DIVBYZERO )
+      edm::LogVerbatim("FPE_Enable") << "\tDivByZero exception is on";
+    else
+      edm::LogVerbatim("FPE_Enable") << "\tDivByZero exception is off";
 
-	  if( femask & FE_INVALID )
-	    LogVerbatim("FPE_Enable") << "\tInvalid exception is on";
-	  else
-	    LogVerbatim("FPE_Enable") << "\tInvalid exception is off";
+    if( femask & FE_INVALID )
+      edm::LogVerbatim("FPE_Enable") << "\tInvalid exception is on";
+    else
+      edm::LogVerbatim("FPE_Enable") << "\tInvalid exception is off";
 
-	  if( femask & FE_OVERFLOW )
-	    LogVerbatim("FPE_Enable") << "\tOverFlow exception is on";
-	  else
-	    LogVerbatim("FPE_Enable") << "\tOverflow exception is off";
+    if( femask & FE_OVERFLOW )
+      edm::LogVerbatim("FPE_Enable") << "\tOverFlow exception is on";
+    else
+      edm::LogVerbatim("FPE_Enable") << "\tOverflow exception is off";
 
-	  if( femask & FE_UNDERFLOW )
-	    LogVerbatim("FPE_Enable") << "\tUnderFlow exception is on";
-	  else
-	    LogVerbatim("FPE_Enable") << "\tUnderFlow exception is off";
-        }
+    if( femask & FE_UNDERFLOW )
+      edm::LogVerbatim("FPE_Enable") << "\tUnderFlow exception is on";
+    else
+      edm::LogVerbatim("FPE_Enable") << "\tUnderFlow exception is off";
+  }
 }
