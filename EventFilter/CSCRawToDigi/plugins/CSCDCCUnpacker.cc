@@ -74,6 +74,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
+  unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
 
   if(instatiateDQM)
     {
@@ -254,6 +255,28 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    {
 			      std::vector <CSCALCTDigi>  alctDigis =
 				cscData[iCSC].alctHeader().ALCTDigis();
+
+			      ///ugly kludge to fix wiregroup numbering in MTCC data
+			      if ((((layer.ring()==3)&&(layer.station()==1))||
+				   ((layer.ring()==1)&&(layer.station()==3))||
+				   ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+				{
+				  for (int unsigned i=0; i<alctDigis.size(); ++i) 
+				    {
+				      if (alctDigis[i].isValid()) 
+					{
+					  int wiregroup = alctDigis[i].getKeyWG();
+					  if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
+					    << "ALCT digi: wire group " << wiregroup
+					    << " is out of range!";
+					  else 
+					    {
+					      wiregroup -= 16; /// adjust by 16
+					      alctDigis[i].setWireGroup(wiregroup);
+					    }
+					}
+				    }
+				}
 			      alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 			    }
 			  else  edm::LogError ("CSCDCCUnpacker") << 
@@ -280,8 +303,32 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			{ 
 			  std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 			    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
-			  corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
-							     correlatedlctDigis.end()),layer);
+
+			  ///ugly kludge to fix wiregroup numbering in MTCC data
+			  if ((((layer.ring()==3)&&(layer.station()==1))||
+			       ((layer.ring()==1)&&(layer.station()==3))||
+			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			    {
+			      for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) 
+				{
+				  if (correlatedlctDigis[i].isValid()) 
+				    {
+				      int wiregroup = correlatedlctDigis[i].getKeyWG();
+				      if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
+					<< "CorrelatedLCT digi: wire group " << wiregroup
+					<< " is out of range!";
+				      else 
+					{
+					  wiregroup -= 16; /// adjust by 16
+					  correlatedlctDigis[i].setWireGroup(wiregroup);
+					}
+				    }
+				}
+			    }
+                          corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
+                                                             correlatedlctDigis.end()),layer);
+
+
 			  std::vector <CSCCLCTDigi>  clctDigis =
 			    cscData[iCSC].tmbHeader().CLCTDigis();
 			  clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
@@ -330,8 +377,29 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 
 			  std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
+
+			  ///ugly kludge to fix wire group numbers for ME3/1, ME4/1 and ME1/3 chambers in MTCC data
+			  if ((((layer.ring()==3)&&(layer.station()==1))||
+			       ((layer.ring()==1)&&(layer.station()==3))||
+			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			    {
+			      for (int unsigned i=0; i<wireDigis.size(); ++i) 
+				{
+				  int wiregroup = wireDigis[i].getWireGroup();
+				  if (wiregroup <= 16) edm::LogError("CSCDCCUnpacker")
+				    << "Wire digi: wire group " << wiregroup
+				    << " is out of range!";
+				  else 
+				    {
+				      wiregroup -= 16; /// adjust by 16
+				      wireDigis[i].setWireGroup(wiregroup);
+				    }
+				}
+			    }
 			  wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
 			  
+
+
 			  for ( icfeb = 0; icfeb < 5; ++icfeb )
 			    {
 			      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
