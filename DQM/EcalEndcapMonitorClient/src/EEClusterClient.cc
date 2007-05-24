@@ -59,6 +59,10 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   allEE_[1] = 0;
   allEE_[2] = 0;
 
+  allEEBasic_[0] = 0;
+  allEEBasic_[1] = 0;
+  allEEBasic_[2] = 0;
+
   eneEE_[0] = 0;
   eneEE_[1] = 0;
   enePolarEE_[0] = 0;
@@ -67,6 +71,15 @@ EEClusterClient::EEClusterClient(const ParameterSet& ps){
   numEE_[1] = 0;
   numPolarEE_[0] = 0;
   numPolarEE_[1] = 0;
+
+  eneEEBasic_[0] = 0;
+  eneEEBasic_[1] = 0;
+  enePolarEEBasic_[0] = 0;
+  enePolarEEBasic_[1] = 0;
+  numEEBasic_[0] = 0;
+  numEEBasic_[1] = 0;
+  numPolarEEBasic_[0] = 0;
+  numPolarEEBasic_[1] = 0;
 
   s_ = 0;
 
@@ -117,6 +130,19 @@ void EEClusterClient::setup(void) {
 
 void EEClusterClient::cleanup(void) {
   if ( cloneME_ ) {
+    if ( allEEBasic_[0] ) delete allEEBasic_[0];
+    if ( allEEBasic_[1] ) delete allEEBasic_[1];
+    if ( allEEBasic_[2] ) delete allEEBasic_[2];
+
+    if ( eneEEBasic_[0] ) delete eneEEBasic_[0];
+    if ( eneEEBasic_[1] ) delete eneEEBasic_[1];
+    if ( enePolarEEBasic_[0] ) delete enePolarEEBasic_[0];
+    if ( enePolarEEBasic_[1] ) delete enePolarEEBasic_[1];
+    if ( numEEBasic_[0] ) delete numEEBasic_[0];
+    if ( numEEBasic_[1] ) delete numEEBasic_[1];
+    if ( numPolarEEBasic_[0] ) delete numPolarEEBasic_[0];
+    if ( numPolarEEBasic_[1] ) delete numPolarEEBasic_[1];
+
     if ( allEE_[0] ) delete allEE_[0];
     if ( allEE_[1] ) delete allEE_[1];
     if ( allEE_[2] ) delete allEE_[2];
@@ -132,6 +158,19 @@ void EEClusterClient::cleanup(void) {
 
     if ( s_ ) delete s_;
   }
+
+  allEEBasic_[0] = 0;
+  allEEBasic_[1] = 0;
+  allEEBasic_[2] = 0;
+
+  eneEEBasic_[0] = 0;
+  eneEEBasic_[1] = 0;
+  enePolarEEBasic_[0] = 0;
+  enePolarEEBasic_[1] = 0;
+  numEEBasic_[0] = 0;
+  numEEBasic_[1] = 0;
+  numPolarEEBasic_[0] = 0;
+  numPolarEEBasic_[1] = 0;
 
   allEE_[0] = 0;
   allEE_[1] = 0;
@@ -159,6 +198,39 @@ void EEClusterClient::subscribe(void){
   if ( verbose_ ) cout << "EEClusterClient: subscribe" << endl;
 
   Char_t histo[200];
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE +");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -");
+  mui_->subscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE -");
+  mui_->subscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->subscribe(histo);
@@ -200,6 +272,61 @@ void EEClusterClient::subscribe(void){
   if ( collateSources_ ) {
 
     if ( verbose_ ) cout << "EEClusterClient: collate" << endl;
+
+    sprintf(histo, "EECLT BC energy");
+    me_allEEBasic_[0] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
+    mui_->add(me_allEEBasic_[0], histo);
+
+    sprintf(histo, "EECLT BC number");
+    me_allEEBasic_[1] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+    mui_->add(me_allEEBasic_[1], histo);
+
+    sprintf(histo, "EECLT BC size");
+    me_allEEBasic_[2] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
+    mui_->add(me_allEEBasic_[2], histo);
+
+    sprintf(histo, "EECLT BC energy map EE +");
+    me_eneEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
+    mui_->add(me_eneEEBasic_[0], histo);
+
+    sprintf(histo, "EECLT BC number map EE +");
+    me_numEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+    mui_->add(me_numEEBasic_[0], histo);
+
+    sprintf(histo, "EECLT BC energy polar map EE +");
+    me_enePolarEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +");
+    mui_->add(me_enePolarEEBasic_[0], histo);
+
+    sprintf(histo, "EECLT BC number polar map EE +");
+    me_numPolarEEBasic_[0] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+    mui_->add(me_numPolarEEBasic_[0], histo);
+
+    sprintf(histo, "EECLT BC energy map EE -");
+    me_eneEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
+    mui_->add(me_eneEEBasic_[1], histo);
+
+    sprintf(histo, "EECLT BC number map EE -");
+    me_numEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
+    mui_->add(me_numEEBasic_[1], histo);
+
+    sprintf(histo, "EECLT BC energy polar map EE -");
+    me_enePolarEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -");
+    mui_->add(me_enePolarEEBasic_[1], histo);
+
+    sprintf(histo, "EECLT BC number polar map EE -");
+    me_numPolarEEBasic_[1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
+    sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE -");
+    mui_->add(me_numPolarEEBasic_[1], histo);
 
     sprintf(histo, "EECLT SC energy");
     me_allEE_[0] = mui_->collate1D(histo, histo, "EcalEndcap/Sums/EEClusterTask");
@@ -268,6 +395,39 @@ void EEClusterClient::subscribeNew(void){
 
   Char_t histo[200];
 
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE +");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -");
+  mui_->subscribeNew(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE -");
+  mui_->subscribeNew(histo);
+
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->subscribeNew(histo);
 
@@ -311,6 +471,18 @@ void EEClusterClient::unsubscribe(void){
   if ( collateSources_ ) {
     if ( verbose_ ) cout << "EEClusterClient: uncollate" << endl;
     if ( mui_ ) {
+      mui_->removeCollate(me_allEEBasic_[0]);
+      mui_->removeCollate(me_allEEBasic_[1]);
+      mui_->removeCollate(me_allEEBasic_[2]);
+      mui_->removeCollate(me_eneEEBasic_[0]);
+      mui_->removeCollate(me_eneEEBasic_[1]);
+      mui_->removeCollate(me_enePolarEEBasic_[0]);
+      mui_->removeCollate(me_enePolarEEBasic_[1]);
+      mui_->removeCollate(me_numEEBasic_[0]);
+      mui_->removeCollate(me_numEEBasic_[1]);
+      mui_->removeCollate(me_numPolarEEBasic_[0]);
+      mui_->removeCollate(me_numPolarEEBasic_[1]);
+
       mui_->removeCollate(me_allEE_[0]);
       mui_->removeCollate(me_allEE_[1]);
       mui_->removeCollate(me_allEE_[2]);
@@ -327,6 +499,39 @@ void EEClusterClient::unsubscribe(void){
   }
 
   Char_t histo[200];
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC size");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE +");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE +");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE +");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy map EE -");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number map EE -");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -");
+  mui_->unsubscribe(histo);
+
+  sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT BC number polar map EE -");
+  mui_->unsubscribe(histo);
 
   sprintf(histo, "*/EcalEndcap/EEClusterTask/EECLT SC energy");
   mui_->unsubscribe(histo);
@@ -382,6 +587,94 @@ void EEClusterClient::analyze(void){
   Char_t histo[200];
 
   MonitorElement* me;
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy").c_str());
+  }
+  me = mui_->get(histo);
+  allEEBasic_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number").c_str());
+  }
+  me = mui_->get(histo);
+  allEEBasic_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC size");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC size").c_str());
+  }
+  me = mui_->get(histo);
+  allEEBasic_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, allEEBasic_[2] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy map EE +");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE +").c_str());
+  }
+  me = mui_->get(histo);
+  eneEEBasic_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEEBasic_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number map EE +");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE +").c_str());
+  }
+  me = mui_->get(histo);
+  numEEBasic_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEEBasic_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy polar map EE +");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE +").c_str());
+  }
+  me = mui_->get(histo);
+  enePolarEEBasic_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEEBasic_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number polar map EE +");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE +").c_str());
+  }
+  me = mui_->get(histo);
+  numPolarEEBasic_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEEBasic_[0] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy map EE -");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy map EE -").c_str());
+  }
+  me = mui_->get(histo);
+  eneEEBasic_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, eneEEBasic_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number map EE -");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number map EE -").c_str());
+  }
+  me = mui_->get(histo);
+  numEEBasic_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numEEBasic_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC energy polar map EE -");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC energy polar map EE -").c_str());
+  }
+  me = mui_->get(histo);
+  enePolarEEBasic_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, enePolarEEBasic_[1] );
+
+  if ( collateSources_ ) {
+    sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT BC number polar map EE -");
+  } else {
+    sprintf(histo, (prefixME_+"EcalEndcap/EEClusterTask/EECLT BC number polar map EE -").c_str());
+  }
+  me = mui_->get(histo);
+  numPolarEEBasic_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, numPolarEEBasic_[1] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalEndcap/Sums/EEClusterTask/EECLT SC energy");
@@ -510,10 +803,9 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   //  htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   //  htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
   //  htmlFile << "<hr>" << endl;
-
-  htmlFile <<  "<a href=\"#allEE_plots\"> Global Endcap plots </a>" << endl;
+  htmlFile <<  "<a href=\"#bc_plots\"> Basic Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;
-  htmlFile <<  "<a href=\"#mapEE_plots\"> Endcap cluster maps </a>" << endl;
+  htmlFile <<  "<a href=\"#sc_plots\"> Super Clusters plots </a>" << endl;
   htmlFile << "<p>" << endl;
   htmlFile <<  "<a href=\"#hl_plots\"> Higher Level Quantities plots </a>" << endl;
   htmlFile << "<p>" << endl;
@@ -569,6 +861,282 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   //gStyle->SetPaintTextFormat("+g");
 
+  // ====> B A S I C     C L U S T E R S <===
+  // ==========================================================================
+  // all Ecal Endcap 1D plots
+  // ==========================================================================
+
+  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
+
+    imgNameAll[iCanvas-1] = "";
+
+    obj1f = allEEBasic_[iCanvas-1];
+
+    if ( obj1f ) {
+
+      meName = obj1f->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1, "_");
+        }
+      }
+      imgNameAll[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameAll[iCanvas-1];
+
+      cEne->cd();
+      gStyle->SetOptStat("euomr");
+      obj1f->SetStats(kTRUE);
+      obj1f->Draw();
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
+  }
+
+  ///*****************************************************************************///
+  htmlFile << "<br>" << endl;
+  htmlFile <<  "<a name=\"bc_plots\"> <B> Basic Clusters plots </B> </a> " << endl;
+  htmlFile << "</br>" << endl;
+  ///*****************************************************************************///
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
+
+    if ( imgNameAll[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameAll[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+  // Energy profiles
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+
+    imgNameEneMap[iCanvas-1] = "";
+
+    objp = eneEEBasic_[iCanvas-1];
+    objpPolar = enePolarEEBasic_[iCanvas-1];
+
+    if ( objp ) {
+
+      meName = objp->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameEneMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameEneMap[iCanvas-1];
+
+      cMap->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      objp->GetXaxis()->SetNdivisions( 80118, kFALSE);
+      objp->GetYaxis()->SetNdivisions( 80118, kFALSE);
+      objp->GetZaxis()->SetLabelSize(0.02);
+      cMap->SetGridx();
+      cMap->SetGridy();
+      objp->Draw("colz");
+      //      labelGrid.Draw("text,same");
+      Xaxis.Draw();
+      Yaxis.Draw();
+      cMap->Update();
+      objp->GetXaxis()->SetLabelColor(0);
+      objp->GetYaxis()->SetLabelColor(0);
+      cMap->SaveAs(imgName.c_str());
+      objp->GetXaxis()->SetLabelColor(1);
+      objp->GetYaxis()->SetLabelColor(1);
+    }
+
+    if ( objpPolar ) {
+      meName = objpPolar->GetName();
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameEnePolarMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameEnePolarMap[iCanvas-1];
+
+      char projXName[100];
+      char projYName[100];
+      sprintf(projXName,"%s_px",meName.c_str());
+      imgNameEneXproj[iCanvas-1] = string(projXName) + ".png";
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameEneYproj[iCanvas-1] = string(projYName) + ".png";
+
+      obj1dX = objpPolar->ProjectionX(projXName,1,objpPolar->GetNbinsY(),"e");
+      obj1dY = objpPolar->ProjectionY(projYName,1,objpPolar->GetNbinsX(),"e");
+
+      cEne->cd();
+      gStyle->SetOptStat("emr");
+      obj1dX->GetXaxis()->SetNdivisions(80306, kFALSE);
+      obj1dY->GetXaxis()->SetNdivisions(80306, kFALSE);
+
+      imgName = htmlDir + imgNameEneXproj[iCanvas-1];
+      obj1dX->SetStats(kTRUE);
+      obj1dX->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+
+      imgName = htmlDir + imgNameEneYproj[iCanvas-1];
+      obj1dY->SetStats(kTRUE);
+      obj1dY->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
+  }
+
+  // Cluster occupancy profiles
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+
+    imgNameNumMap[iCanvas-1] = "";
+
+    objf = numEEBasic_[iCanvas-1];
+    objfPolar = numPolarEEBasic_[iCanvas-1];
+
+    if ( objf ) {
+
+      meName = objf->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameNumMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameNumMap[iCanvas-1];
+
+      cMap->cd();
+      gStyle->SetOptStat(" ");
+      gStyle->SetPalette(10, pCol4);
+      objf->GetXaxis()->SetNdivisions( 80118, kFALSE);
+      objf->GetYaxis()->SetNdivisions( 80118, kFALSE);
+      objf->GetZaxis()->SetLabelSize(0.02);
+      cMap->SetGridx();
+      cMap->SetGridy();
+      objf->Draw("colz");
+//       labelGrid.Draw("text,same");
+      Xaxis.Draw();
+      Yaxis.Draw();
+      cMap->Update();
+      objf->GetXaxis()->SetLabelColor(0);
+      objf->GetYaxis()->SetLabelColor(0);
+      cMap->SaveAs(imgName.c_str());
+      objf->GetXaxis()->SetLabelColor(1);
+      objf->GetYaxis()->SetLabelColor(1);
+    }
+    
+    if ( objfPolar ) {
+
+      meName = objfPolar->GetName();
+
+      for ( unsigned int i = 0; i < meName.size(); i++ ) {
+        if ( meName.substr(i, 1) == " " )  {
+          meName.replace(i, 1 ,"_" );
+        }
+      }
+      imgNameNumPolarMap[iCanvas-1] = meName + ".png";
+      imgName = htmlDir + imgNameNumPolarMap[iCanvas-1];
+
+      char projXName[100];
+      char projYName[100];
+      sprintf(projXName,"%s_px",meName.c_str());
+      imgNameNumXproj[iCanvas-1] = string(projXName) + ".png";
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameNumYproj[iCanvas-1] = string(projYName) + ".png";
+
+      obj1dX = objfPolar->ProjectionX(projXName,1,objfPolar->GetNbinsY(),"e");
+      obj1dY = objfPolar->ProjectionY(projYName,1,objfPolar->GetNbinsX(),"e");
+
+      cEne->cd();
+      gStyle->SetOptStat("emr");
+      obj1dX->GetXaxis()->SetNdivisions(80306, kFALSE);
+      obj1dY->GetXaxis()->SetNdivisions(80306, kFALSE);
+
+      imgName = htmlDir + imgNameNumXproj[iCanvas-1];
+      obj1dX->SetStats(kTRUE);
+      obj1dX->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+
+      imgName = htmlDir + imgNameNumYproj[iCanvas-1];
+      obj1dY->SetStats(kTRUE);
+      obj1dY->Draw("pe");
+      cEne->Update();
+      cEne->SaveAs(imgName.c_str());
+    }
+  }
+
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+    if ( imgNameEneMap[iCanvas-1].size() != 0)
+      htmlFile << "<td><img src=\"" << imgNameEneMap[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+  htmlFile << "</tr>" << endl;
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+    if ( imgNameNumMap[iCanvas-1].size() != 0)
+      htmlFile << "<td><img src=\"" << imgNameNumMap[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+  // projections...
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+    if ( imgNameEneXproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameEneXproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    if ( imgNameEneYproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameEneYproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+
+  htmlFile << "</tr>" << endl;
+  for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
+    if ( imgNameNumXproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameNumXproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+    if ( imgNameNumYproj[iCanvas-1].size() != 0 )
+      htmlFile << "<td><img src=\"" << imgNameNumYproj[iCanvas-1] << "\"></td>" << endl;
+    else
+      htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+  }
+
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
+
+
+
+  // ====>  S U P E R   C L U S T E R S   <====
+
   // ==========================================================================
   // all Ecal Endcap 1D plots
   // ==========================================================================
@@ -602,7 +1170,7 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   ///*****************************************************************************///
   htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"allEE_plots\"> <B> Global Ecal Endcap plots </B> </a> " << endl;
+  htmlFile <<  "<a name=\"sc_plots\"> <B> Super Clusters plots </B> </a> " << endl;
   htmlFile << "</br>" << endl;
   ///*****************************************************************************///
 
@@ -622,14 +1190,6 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
-
-
-
-  ///*****************************************************************************///
-  htmlFile << "<br>" << endl;
-  htmlFile <<  "<a name=\"mapEE_plots\"> <B> Endcap cluster maps </B> </a> " << endl;
-  htmlFile << "</br>" << endl;
-  ///*****************************************************************************///
 
   // Energy profiles
   for ( int iCanvas = 1; iCanvas <= 2; iCanvas++ ) {
