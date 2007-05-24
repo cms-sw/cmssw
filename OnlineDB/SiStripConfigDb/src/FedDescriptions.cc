@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.7 2006/11/03 11:17:24 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.8 2006/11/24 11:41:58 bainbrid Exp $
 // Latest tag:  $Name:  $
 // Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripConfigDb/src/FedDescriptions.cc,v $
 
@@ -128,8 +128,11 @@ const vector<uint16_t>& SiStripConfigDb::getFedIds() {
   
   static vector<uint16_t> fed_ids;
   fed_ids.clear();
-
+  
+  bool using_strips = usingStrips_;
+  deviceFactory(__func__)->setUsingStrips( false );
   getFedDescriptions();
+  deviceFactory(__func__)->setUsingStrips( using_strips );
   FedDescriptions::iterator ifed = feds_.begin();
   for ( ; ifed != feds_.end(); ifed++ ) { 
     fed_ids.push_back( (*ifed)->getFedId() );
