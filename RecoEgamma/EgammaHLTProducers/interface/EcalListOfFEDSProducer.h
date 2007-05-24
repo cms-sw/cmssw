@@ -25,7 +25,7 @@ public:
 	void beginJob(const edm::EventSetup& c);
 	void endJob(void);
 	std::vector<int> Egamma(edm::Event& e, const edm::EventSetup& es);
-	std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es);;
+	std::vector<int> Muon(edm::Event& e, const edm::EventSetup& es);
 
 private:
 	bool EGamma_;
