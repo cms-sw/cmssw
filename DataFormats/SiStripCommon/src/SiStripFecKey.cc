@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.5 2007/03/26 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.6 2007/04/04 06:56:18 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -222,7 +222,7 @@ uint16_t SiStripFecKey::i2cAddr( const uint16_t& lld_chan,
        lld_chan > sistrip::LLD_CHAN_MAX ) {
     return sistrip::invalid_; 
   }
-  return ( lld_chan * sistrip::APVS_PER_CHAN + (first_apv?1:2) );
+  return ( sistrip::APV_I2C_MIN + lld_chan * sistrip::APVS_PER_CHAN - (first_apv?2:1) );
 }
 
 // -----------------------------------------------------------------------------
@@ -319,7 +319,7 @@ bool SiStripFecKey::isValid( const sistrip::Granularity& gran ) const {
 // -----------------------------------------------------------------------------
 //
 bool SiStripFecKey::isInvalid() const { 
-  return isValid(sistrip::APV); 
+  return isInvalid(sistrip::APV); 
 }
 
 // -----------------------------------------------------------------------------
