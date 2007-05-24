@@ -1,0 +1,16 @@
+<use name=DataFormats/Common>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=FWCore/Utilities>
+
+<use name=Geometry/Records>
+<use name=DataFormats/EgammaCandidates>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/JetReco>
+
+<flags SEALPLUGIN=1>
+<export>
+   <lib name=HiggsAnalysisSkimming>
+</export>
