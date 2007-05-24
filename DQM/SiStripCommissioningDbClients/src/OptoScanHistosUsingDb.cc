@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -21,10 +21,14 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
+OptoScanHistosUsingDb::OptoScanHistosUsingDb( MonitorUserInterface* mui,
+					      SiStripConfigDb* const db )
+  : OptoScanHistograms( mui ),
+    CommissioningHistosUsingDb( db )
+{
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistosUsingDb::" << __func__ << "]"
-    << " Destructing object...";
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -41,6 +45,14 @@ OptoScanHistosUsingDb::OptoScanHistosUsingDb( DaqMonitorBEInterface* bei,
 
 // -----------------------------------------------------------------------------
 /** */
+OptoScanHistosUsingDb::~OptoScanHistosUsingDb() {
+  LogTrace(mlDqmClient_) 
+    << "[OptoScanHistosUsingDb::" << __func__ << "]"
+    << " Destructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
 void OptoScanHistosUsingDb::uploadToConfigDb() {
   
   if ( !db_ ) {
@@ -53,13 +65,21 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
 
   // Update LLD descriptions with new bias/gain settings
   db_->resetDeviceDescriptions();
-  SiStripConfigDb::DeviceDescriptions devices;
-  db_->getDeviceDescriptions( devices, LASERDRIVER ); 
-  update( devices );
-  if ( !test_ ) { db_->uploadDeviceDescriptions(false); }
-  LogTrace(mlDqmClient_) 
-    << "[OptoScanHistosUsingDb::" << __func__ << "]"
-    << "Upload of LLD settings to DB finished!";
+  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions(); 
+  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
+  if ( !test_ ) { 
+    LogTrace(mlDqmClient_) 
+      << "[OptoScanHistosUsingDb::" << __func__ << "]"
+      << " Uploading LLD settings to DB...";
+    db_->uploadDeviceDescriptions(true); 
+    LogTrace(mlDqmClient_) 
+      << "[OptoScanHistosUsingDb::" << __func__ << "]"
+      << " Upload of LLD settings to DB finished!";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[OptoScanHistosUsingDb::" << __func__ << "]"
+      << " TEST only! No LLD settings will be uploaded to DB...";
+  }
   
 }
 
@@ -68,26 +88,16 @@ void OptoScanHistosUsingDb::uploadToConfigDb() {
 void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices ) {
   
   // Iterate through devices and update device descriptions
+  uint16_t updated = 0;
   SiStripConfigDb::DeviceDescriptions::iterator idevice;
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
-    if ( (*idevice)->getDeviceType() != LASERDRIVER ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[OptoScanHistosUsingDb::" << __func__ << "]"
-	<< " Unexpected device type: " 
-	<< (*idevice)->getDeviceType();
-      continue;
-    }
+    if ( (*idevice)->getDeviceType() != LASERDRIVER ) { continue; }
     
     // Cast to retrieve appropriate description object
     laserdriverDescription* desc = dynamic_cast<laserdriverDescription*>( *idevice );
-    if ( !desc ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[OptoScanHistosUsingDb::" << __func__ << "]"
-	<< " Unable to dynamic cast to laserdriverDescription*";
-      continue;
-    }
+    if ( !desc ) { continue; }
     
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
@@ -95,51 +105,64 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
     
     // Iterate through LLD channels
     for ( uint16_t ichan = 0; ichan < sistrip::CHANS_PER_LLD; ichan++ ) {
-
+      
       // Construct key from device description
       uint32_t fec_key = SiStripFecKey( addr.fecCrate_, 
 					addr.fecSlot_, 
 					addr.fecRing_, 
 					addr.ccuAddr_, 
 					addr.ccuChan_,
-					ichan ).key();
+					ichan+1 ).key();
       fec_path = SiStripFecKey( fec_key );
       
       // Iterate through all channels and extract LLD settings 
       map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) {
 
-	LogTrace(mlDqmClient_) 
-	  << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	  << " Initial bias/gain settings for LLD channel " << ichan << ": " 
-	  << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
-	  << static_cast<uint16_t>(desc->getBias(ichan));
+	//@@ check if analysis isValid() ??
 
 	uint16_t gain = iter->second.gain();
+	std::stringstream ss;
+	ss << "[OptoScanHistosUsingDb::" << __func__ << "]"
+	   << " Updating gain/bias LLD settings for crate/FEC/slot/ring/CCU/LLD "
+	   << fec_path.fecCrate() << "/"
+	   << fec_path.fecSlot() << "/"
+	   << fec_path.fecRing() << "/"
+	   << fec_path.ccuAddr() << "/"
+	   << fec_path.ccuChan() 
+	   << fec_path.channel() 
+	   << " from "
+	   << static_cast<uint16_t>( desc->getGain(ichan) ) << "/" 
+	   << static_cast<uint16_t>( desc->getBias(ichan) );
 	desc->setGain( ichan, gain );
 	desc->setBias( ichan, iter->second.bias()[gain] );
+	updated++;
+	ss << " to "
+	   << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
+	   << static_cast<uint16_t>(desc->getBias(ichan));
+	LogTrace(mlDqmClient_) << ss.str();
 	
-	LogTrace(mlDqmClient_) 
-	  << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	  << " Updated bias/gain settings for LLD channel " << ichan << ": " 
-	  << static_cast<uint16_t>(desc->getGain(ichan)) << "/" 
-	  << static_cast<uint16_t>(desc->getBias(ichan));
-      
       } else {
 	edm::LogWarning(mlDqmClient_) 
 	  << "[OptoScanHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan: " 
-	  << fec_path.fecCrate_ << "/"
-	  << fec_path.fecSlot_ << "/"
-	  << fec_path.fecRing_ << "/"
-	  << fec_path.ccuAddr_ << "/"
-	  << fec_path.ccuChan_ << "/"
+	  << " Unable to find FEC key with params FEC/slot/ring/CCU/LLD " 
+	  << fec_path.fecCrate() << "/"
+	  << fec_path.fecSlot() << "/"
+	  << fec_path.fecRing() << "/"
+	  << fec_path.ccuAddr() << "/"
+	  << fec_path.ccuChan() << "/"
 	  << fec_path.channel();
       }
       
     }
 
   }
+
+  edm::LogVerbatim(mlDqmClient_) 
+    << "[OptoScanHistosUsingDb::" << __func__ << "]"
+    << " Updated PLL settings for " 
+    << updated << " modules";
+  
 
 }
 

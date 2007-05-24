@@ -1,4 +1,4 @@
-// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.2 2007/03/21 16:55:06 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_CommissioningHistosUsingDb_H
@@ -7,6 +7,7 @@
 #include <string>
 
 class SiStripConfigDb;
+class SiStripFedCabling;
 
 class CommissioningHistosUsingDb {
   
@@ -39,6 +40,9 @@ class CommissioningHistosUsingDb {
 
   /** */
   SiStripConfigDb* db_;
+
+  /** */
+  SiStripFedCabling* cabling_;
 
   bool test_;
   

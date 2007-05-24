@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.2 2007/03/21 16:55:06 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.h,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
 #define DQM_SiStripCommissioningClients_OptoScanHistosUsingDb_H
@@ -16,7 +16,10 @@ class OptoScanHistosUsingDb : public OptoScanHistograms, public CommissioningHis
   
   OptoScanHistosUsingDb( MonitorUserInterface*,
 			 const DbParams& );
-
+  
+  OptoScanHistosUsingDb( MonitorUserInterface*,
+			 SiStripConfigDb* const );
+  
   OptoScanHistosUsingDb( DaqMonitorBEInterface*,
 			 SiStripConfigDb* const );
 

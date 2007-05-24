@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -14,6 +14,18 @@ PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
 						const DbParams& params )
   : PedestalsHistograms( mui ),
     CommissioningHistosUsingDb( params )
+{
+  LogTrace(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Constructing object...";
+}
+
+// -----------------------------------------------------------------------------
+/** */
+PedestalsHistosUsingDb::PedestalsHistosUsingDb( MonitorUserInterface* mui,
+						SiStripConfigDb* const db )
+  : PedestalsHistograms( mui ),
+    CommissioningHistosUsingDb( db )
 {
   LogTrace(mlDqmClient_) 
     << "[PedestalsHistosUsingDb::" << __func__ << "]"
@@ -54,12 +66,22 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
   
   // Update FED descriptions with new peds/noise values
   db_->resetFedDescriptions();
-  const SiStripConfigDb::FedDescriptions& devices = db_->getFedDescriptions(); 
-  update( const_cast<SiStripConfigDb::FedDescriptions&>(devices) );
-  if ( !test_ ) { db_->uploadFedDescriptions(false); }
-  LogTrace(mlDqmClient_) 
-    << "[PedestalsHistosUsingDb::" << __func__ << "]"
-    << "Upload of peds/noise constants to DB finished!";
+  const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
+  update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
+  if ( !test_ ) { 
+    LogTrace(mlDqmClient_) 
+      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << " Uploading pedestals/noise to DB...";
+    db_->uploadFedDescriptions(true); 
+    LogTrace(mlDqmClient_) 
+      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << " Completed database upload of " << feds.size() 
+      << " FED descriptions!";
+  } else {
+    edm::LogWarning(mlDqmClient_) 
+      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << " TEST only! No pedestals/noise values will be uploaded to DB...";
+  }
   
 }
 
@@ -68,29 +90,34 @@ void PedestalsHistosUsingDb::uploadToConfigDb() {
 void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
  
   // Iterate through feds and update fed descriptions
+  uint16_t updated = 0;
   SiStripConfigDb::FedDescriptions::iterator ifed;
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
 
-      // Retrieve FEC key from FED-FEC map
-      uint32_t fec_key = 0;
-      uint32_t fed_key = SiStripFedKey( static_cast<uint16_t>((*ifed)->getFedId()), 
-					SiStripFedKey::feUnit(ichan),
-					SiStripFedKey::feChan(ichan) ).key();
-      FedToFecMap::const_iterator ifec = mapping().find(fed_key);
-      if ( ifec != mapping().end() ) { fec_key = ifec->second; }
-      else {
-	edm::LogWarning(mlDqmClient_)
-	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find FEC key for FED id/ch: "
-	  << (*ifed)->getFedId() << "/" << ichan;
-	continue; //@@ write defaults here?... 
-      }
-      
-      map<uint32_t,PedestalsAnalysis>::const_iterator iter = data_.find( fec_key );
-      if ( iter != data_.end() ) {
+      // Build FED and FEC keys
+      const FedChannelConnection& conn = cabling_->connection( (*ifed)->getFedId(), ichan );
+      if ( conn.fecCrate() == sistrip::invalid_ ||
+	   conn.fecSlot() == sistrip::invalid_ ||
+	   conn.fecRing() == sistrip::invalid_ ||
+	   conn.ccuAddr() == sistrip::invalid_ ||
+	   conn.ccuChan() == sistrip::invalid_ ||
+	   conn.lldChannel() == sistrip::invalid_ ) { continue; }
+      SiStripFedKey fed_key( conn.fedId(), 
+			     SiStripFedKey::feUnit( conn.fedCh() ),
+			     SiStripFedKey::feChan( conn.fedCh() ) );
+      SiStripFecKey fec_key( conn.fecCrate(), 
+			     conn.fecSlot(), 
+			     conn.fecRing(), 
+			     conn.ccuAddr(), 
+			     conn.ccuChan(), 
+			     conn.lldChannel() );
 
+      // Locate appropriate analysis object 
+      map<uint32_t,PedestalsAnalysis>::const_iterator iter = data_.find( fec_key.key() );
+      if ( iter != data_.end() ) {
+	
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {
 	  for ( uint16_t istr = 0; istr < iter->second.peds()[iapv].size(); istr++ ) { 
@@ -108,23 +135,29 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
 
 	  }
 	}
+	updated++;
       
       } else {
-	SiStripFecKey path( fec_key );
-	edm::LogWarning(mlDqmClient_)
+	edm::LogWarning(mlDqmClient_) 
 	  << "[PedestalsHistosUsingDb::" << __func__ << "]"
-	  << " Unable to find ticker thresholds for FED id/ch: " 
+	  << " Unable to find pedestals/noise for FedKey/Id/Ch: " 
+	  << hex << setw(8) << setfill('0') << fed_key.key() << dec << "/"
 	  << (*ifed)->getFedId() << "/"
-	  << ichan << "/"
-	  << " and device with at FEC/slot/ring/CCU/LLD channel: " 
-	  << path.fecCrate_ << "/"
-	     << path.fecSlot_ << "/"
-	  << path.fecRing_ << "/"
-	  << path.ccuAddr_ << "/"
-	  << path.ccuChan_ << "/"
-	  << path.channel();
+	  << ichan
+	  << " and device with FEC/slot/ring/CCU/LLD " 
+	  << fec_key.fecCrate() << "/"
+	  << fec_key.fecSlot() << "/"
+	  << fec_key.fecRing() << "/"
+	  << fec_key.ccuAddr() << "/"
+	  << fec_key.ccuChan() << "/"
+	  << fec_key.channel();
       }
     }
   }
+
+  edm::LogVerbatim(mlDqmClient_) 
+    << "[PedestalsHistosUsingDb::" << __func__ << "]"
+    << " Updated FED pedestals/noise for " 
+    << updated << " channels";
 
 }

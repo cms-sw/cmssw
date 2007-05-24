@@ -1,17 +1,21 @@
-// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
+// Last commit: $Id: CommissioningHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
+#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CalibFormats/SiStripObjects/interface/NumberOfDevices.h"
+#include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
+#include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
   : db_(0),
+    cabling_(0),
     test_(false)
 {
   LogTrace(mlDqmClient_) 
@@ -21,9 +25,9 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
   if ( params.usingDb_ ) {
 
     // Extract db connections params from CONFDB
-    string login = "";
-    string passwd = "";
-    string path = "";
+    std::string login = "";
+    std::string passwd = "";
+    std::string path = "";
     uint32_t ipass = params.confdb_.find("/");
     uint32_t ipath = params.confdb_.find("@");
     if ( ( ipass != std::string::npos ) && 
@@ -80,11 +84,27 @@ CommissioningHistosUsingDb::CommissioningHistosUsingDb( const DbParams& params )
 /** */
 CommissioningHistosUsingDb::CommissioningHistosUsingDb( SiStripConfigDb* const db )
   : db_(db),
+    cabling_(0),
     test_(false)
 {
   LogTrace(mlDqmClient_) 
     << "[CommissioningHistosUsingDb::" << __func__ << "]"
     << " Constructing object...";
+  
+  // Retrieve DCU-DetId map from DB
+  SiStripConfigDb::DcuDetIdMap dcuid_detid_map = db->getDcuDetIdMap();
+  
+  // Build FEC cabling object from connections found in DB
+  SiStripFecCabling fec_cabling;
+  SiStripFedCablingBuilderFromDb::buildFecCabling( db_,
+						   fec_cabling,
+						   dcuid_detid_map );
+  
+  // Build FED cabling from FEC cabling
+  cabling_ = new SiStripFedCabling();
+  SiStripFedCablingBuilderFromDb::getFedCabling( fec_cabling, 
+						 *cabling_ );
+  
 }
 
 // -----------------------------------------------------------------------------
