@@ -64,8 +64,8 @@
 
 
 CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
-  numOfEvents(0){
-
+  numOfEvents(0) 
+{
   PrintEventNumber = pset.getUntrackedParameter<bool>("PrintEventNumber", true);
   debug = pset.getUntrackedParameter<bool>("Debug", false);
   useExaminer = pset.getUntrackedParameter<bool>("UseExaminer", true);
@@ -75,12 +75,12 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   unpackStatusDigis = pset.getUntrackedParameter<bool>("UnpackStatusDigis", false);
   inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
   unpackMTCCData = pset.getUntrackedParameter<bool>("isMTCCData", false);
-
+  
   if(instatiateDQM)
     {
       monitor = edm::Service<CSCMonitorInterface>().operator->();
     }
-
+  
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
@@ -88,6 +88,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
+  
   if (unpackStatusDigis) 
     {
       produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
@@ -110,12 +111,11 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   CSCDDUEventData::setErrorMask(errorMask);
 
   theMapping  = CSCReadoutMappingFromFile(pset);
-
+  
 }
 
 CSCDCCUnpacker::~CSCDCCUnpacker()
-{
-  
+{ 
   //fill destructor here
 
 }
@@ -123,13 +123,11 @@ CSCDCCUnpacker::~CSCDCCUnpacker()
 
 void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 {
-
   //++numOfEvents;
   /// Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
   e.getByLabel(inputObjectsTag, rawdata);
-  //e.getByLabel("source", rawdata);
-
+    
   /// create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
   std::auto_ptr<CSCStripDigiCollection> stripProduct(new CSCStripDigiCollection);
@@ -178,13 +176,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		  goodEvent=!(examiner.errors()&examinerMask);
 		}
 	    }
-
+	  
       
 	  if (goodEvent) 
 	    {
 	      ///get a pointer to data and pass it to constructor for unpacking
 	      CSCDCCEventData dccData((short unsigned int *) fedData.data());
-
+	      
 	      if(instatiateDQM) monitor->process(dccData);
 
 	      ///get a reference to dduData
@@ -247,43 +245,56 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			}
 
 
-		      /// fill alct digi
+		      ///check alct data integrity 
 		      int nalct = cscData[iCSC].dmbHeader().nalct();
-		      if (nalct) 
-			{
-			  if (cscData[iCSC].alctHeader().check()) 
-			    {
-			      std::vector <CSCALCTDigi>  alctDigis =
-				cscData[iCSC].alctHeader().ALCTDigis();
+		      bool goodALCT=false;
+                      if (nalct)
+                        {
+                          if (cscData[iCSC].alctHeader().check())
+                            {
+                              goodALCT=true;
+                            }
+                          else
+                            {
+			      edm::LogError ("CSCDCCUnpacker") <<
+                                "ALCT check failed! not storing ALCT digis ";
+                            }
+                        }
 
-			      ///ugly kludge to fix wiregroup numbering in MTCC data
-			      if ((((layer.ring()==3)&&(layer.station()==1))||
-				   ((layer.ring()==1)&&(layer.station()==3))||
-				   ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+		      /// fill alct digi
+		      if (goodALCT) 
+			{
+			  std::vector <CSCALCTDigi>  alctDigis =
+			    cscData[iCSC].alctHeader().ALCTDigis();
+			  
+			  ///ugly kludge to fix wiregroup numbering in MTCC data
+			  if ((((layer.ring()==3)&&(layer.station()==1))||
+			       ((layer.ring()==1)&&(layer.station()==3))||
+			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			    {
+			      for (int unsigned i=0; i<alctDigis.size(); ++i) 
 				{
-				  for (int unsigned i=0; i<alctDigis.size(); ++i) 
+				  if (alctDigis[i].isValid()) 
 				    {
-				      if (alctDigis[i].isValid()) 
+				      int wiregroup = alctDigis[i].getKeyWG();
+				      if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
+					<< "ALCT digi: wire group " << wiregroup
+					<< " is out of range!";
+				      else 
 					{
-					  int wiregroup = alctDigis[i].getKeyWG();
-					  if (wiregroup < 16) edm::LogError("CSCDCCUnpacker")
-					    << "ALCT digi: wire group " << wiregroup
-					    << " is out of range!";
-					  else 
-					    {
-					      wiregroup -= 16; /// adjust by 16
-					      alctDigis[i].setWireGroup(wiregroup);
-					    }
+					  wiregroup -= 16; /// adjust by 16
+					  alctDigis[i].setWireGroup(wiregroup);
 					}
 				    }
 				}
-			      alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 			    }
-			  else  edm::LogError ("CSCDCCUnpacker") << 
-				  "ALCT check failed! not storing ALCT digi ";
+			  alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 			}
-
-		      ///fill correlatedlct and clct digi
+		      else  edm::LogError ("CSCDCCUnpacker") << 
+			      "ALCT check failed! not storing ALCT digi ";
+		    
+		  
+		      ///check TMB data integrity
 		      int nclct = cscData[iCSC].dmbHeader().nclct();
 		      bool goodTMB=false;
 		      if (nclct) 
@@ -298,12 +309,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				"one of TMB checks failed! not storing TMB digis ";
 			    }
 			}
-
+		      ///fill correlatedlct and clct digi
 		      if (goodTMB) 
 			{ 
 			  std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
 			    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
-
+		      
 			  ///ugly kludge to fix wiregroup numbering in MTCC data
 			  if ((((layer.ring()==3)&&(layer.station()==1))||
 			       ((layer.ring()==1)&&(layer.station()==3))||
@@ -325,14 +336,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				    }
 				}
 			    }
-                          corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
-                                                             correlatedlctDigis.end()),layer);
+			  corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(),
+							     correlatedlctDigis.end()),layer);
 
-
+		      
 			  std::vector <CSCCLCTDigi>  clctDigis =
 			    cscData[iCSC].tmbHeader().CLCTDigis();
 			  clctProduct->put(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
-			
+		      
 			  /// fill cscRpc digi
 			  if (cscData[iCSC].tmbData().checkSize()) 
 			    {
@@ -344,9 +355,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				}
 			    } 
 			  else edm::LogError("CSCDCCUnpacker") <<" TMBData check size failed!";
-			  
-			}
-		      
+			} 
+		    
+		  
 		      /// fill CFEBStatusDigi
 		      if (unpackStatusDigis) 
 			{
@@ -359,16 +370,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  ///put dmb status digi
 			  dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader().data(),
 									       cscData[iCSC].dmbTrailer().data()));
-			  if (goodTMB)
-			    {
-			      tmbStatusProduct->
-				insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader().data(),
-								   cscData[iCSC].tmbData().tmbTrailer().data()));
-			      alctStatusProduct->
-				insertDigi(layer, CSCALCTStatusDigi(cscData[iCSC].alctHeader().data(),
-								    cscData[iCSC].alctTrailer().data()));
-			    }
+			  if (goodTMB)  tmbStatusProduct->
+					  insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader().data(),
+									     cscData[iCSC].tmbData().tmbTrailer().data()));
+			  if (goodALCT) alctStatusProduct->
+					  insertDigi(layer, CSCALCTStatusDigi(cscData[iCSC].alctHeader().data(),
+									      cscData[iCSC].alctTrailer().data()));
 			}
+		
 
 		      ///this loop stores wire, strip and comparator digis:
 		      for (int ilayer = 1; ilayer <= 6; ++ilayer) 
@@ -397,9 +406,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				}
 			    }
 			  wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
-			  
-
-
+		 
 			  for ( icfeb = 0; icfeb < 5; ++icfeb )
 			    {
 			      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
@@ -410,13 +417,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 				  stripProduct->put(std::make_pair(stripDigis.begin(), 
 								   stripDigis.end()),layer);
 				}
-
+			      
 			      if (goodTMB) 
 				{
 				  std::vector <CSCComparatorDigi>  comparatorDigis =
 				    cscData[iCSC].clctData().comparatorDigis(ilayer, icfeb);
 				  comparatorProduct->put(std::make_pair(comparatorDigis.begin(), 
-									    comparatorDigis.end()),layer);
+									comparatorDigis.end()),layer);
 				}
 			    }///end of loop over cfebs
 			}///end of loop over layers
