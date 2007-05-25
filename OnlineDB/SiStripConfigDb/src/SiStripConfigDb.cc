@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.30 2007/04/04 06:57:57 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -52,7 +52,7 @@ SiStripConfigDb::SiStripConfigDb( const edm::ParameterSet& pset,
   
   // Open connection
   openDbConnection();
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -358,6 +358,10 @@ ostream& operator<< ( ostream& os, const SiStripConfigDb::DbParams& params ) {
 // 
 void SiStripConfigDb::openDbConnection() {
 
+  edm::LogVerbatim(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Opening connection to database...";
+
   // Check
   if ( openConnection_ ) {
     edm::LogWarning(mlConfigDb_) 
@@ -377,11 +381,19 @@ void SiStripConfigDb::openDbConnection() {
   // Refresh local cache
   refreshLocalCaches();
 
+  edm::LogVerbatim(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Opened connection to database!";
+  
 }
 
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::closeDbConnection() {
+
+  edm::LogVerbatim(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Closing connection to database...";
 
   // Check
   if ( !openConnection_ ) {
@@ -396,6 +408,11 @@ void SiStripConfigDb::closeDbConnection() {
     if ( factory_ ) { delete factory_; }
   } catch (...) { handleException( __func__, "Attempting to close database connection..." ); }
   factory_ = 0; 
+
+  edm::LogVerbatim(mlConfigDb_) 
+    << "[SiStripConfigDb::" << __func__ << "]"
+    << " Closed connection to database!";
+
 }
 
 // -----------------------------------------------------------------------------
@@ -416,9 +433,6 @@ DeviceFactory* const SiStripConfigDb::deviceFactory( string method_name ) const 
 // -----------------------------------------------------------------------------
 //
 void SiStripConfigDb::usingDatabase() {
-  LogTrace(mlConfigDb_)
-    << "[SiStripConfigDb::" << __func__ << "]"
-    << " Using a database account...";
   
   // Check TNS_ADMIN env var
   string tns_admin = "TNS_ADMIN";
@@ -527,9 +541,15 @@ void SiStripConfigDb::usingDatabase() {
   
   // Create device factory object
   try { 
+    edm::LogVerbatim(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Creating DeviceFactory object...";
     factory_ = new DeviceFactory( dbParams_.user_, 
 				  dbParams_.passwd_, 
 				  dbParams_.path_ ); 
+    edm::LogVerbatim(mlConfigDb_)
+      << "[SiStripConfigDb::" << __func__ << "]"
+      << " Created DeviceFactory object!";
   } catch (...) { 
     stringstream ss; 
     ss << "Failed to connect to database using parameters '" 
@@ -590,9 +610,9 @@ void SiStripConfigDb::usingDatabase() {
   }
 
   try {
-    deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
-						dbParams_.major_,
-						dbParams_.minor_ );
+     deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
+						 dbParams_.major_,
+						 dbParams_.minor_ );
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
