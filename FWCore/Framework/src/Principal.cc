@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.4 2007/05/01 22:08:33 paterno Exp $
+  $Id: Principal.cc,v 1.5 2007/05/10 12:27:03 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -41,8 +41,6 @@ namespace edm {
     groups_(),
     branchDict_(),
     productDict_(),
-    productLookup_(),
-    elementLookup_(),
     preg_(&reg),
     store_(rtrv)
   {
@@ -106,53 +104,6 @@ namespace edm {
 
     //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
 
-
-    ProcessLookup& processLookup = productLookup_[bk.friendlyClassName_];
-    vector<int>& vint = processLookup[bk.processName_];
-    vint.push_back(slotNumber);
-
-    Type type(Type::ByName(g->productDescription().className()));
-    if (bool(type)) {
-
-      // Here we look in the object named "type" for a typedef
-      // named "value_type" and get the Reflex::Type for it.
-      // Then check to ensure the Reflex dictionary is defined
-      // for this value_type.
-      // I do not throw an exception here if the check fails
-      // because there are known cases where the dictionary does
-      // not exist and we do not need to support those cases.
-      Type valueType;
-      //        if (edm::value_type_of(type, valueType) && bool(valueType)) {
-      if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
-	  && bool(valueType)) {
-
-        fillElementLookup(valueType, slotNumber, bk);
-
-        // Repeat this for all public base classes of the value_type
-        std::vector<Type> baseTypes;
-        edm::public_base_classes(valueType, baseTypes);
-
-        for (std::vector<Type>::iterator iter = baseTypes.begin(),
-	       iend = baseTypes.end();
-               iter != iend;
-               ++iter) {
-          fillElementLookup(*iter, slotNumber, bk);
-        }
-      }
-    }
-  }
-
-  void
-  Principal::fillElementLookup(const Type & type,
-			       int slotNumber,
-			       const BranchKey& bk) {
-
-    TypeID typeID(type.TypeInfo());
-    std::string friendlyClassName = typeID.friendlyClassName();
-
-    ProcessLookup& processLookup = elementLookup_[friendlyClassName];
-    vector<int>& vint = processLookup[bk.processName_];
-    vint.push_back(slotNumber);
   }
 
   void
@@ -257,7 +208,7 @@ namespace edm {
     BasicHandleVec results;
 
     int nFound = findGroups(productType,
-                            productLookup_,
+                            preg_->productLookup(),
                             sel,
                             results,
                             true);
@@ -286,7 +237,7 @@ namespace edm {
                       edm::ProductInstanceNameSelector(productInstanceName));
 
     int nFound = findGroups(productType,
-                            productLookup_,
+                            preg_->productLookup(),
                             sel,
                             results,
                             true);
@@ -322,7 +273,7 @@ namespace edm {
                       edm::ProcessNameSelector(processName));
 
     int nFound = findGroups(productType,
-                            productLookup_,
+                            preg_->productLookup(),
                             sel,
                             results,
                             true);
@@ -353,7 +304,7 @@ namespace edm {
 		     BasicHandleVec& results) const {
 
     findGroups(productType,
-               productLookup_,
+               preg_->productLookup(),
                sel,
                results,
                false);
@@ -369,7 +320,7 @@ namespace edm {
     edm::MatchAllSelector sel;
 
     int nFound = findGroups(productType,
-                            productLookup_,
+                            preg_->productLookup(),
                             sel,
                             results,
                             true);
@@ -394,7 +345,7 @@ namespace edm {
     edm::MatchAllSelector sel;
 
     findGroups(productType,
-               productLookup_,
+               preg_->productLookup(),
                sel,
                results,
                false);
@@ -410,7 +361,7 @@ namespace edm {
     // One new argument is the element lookup container
     // Otherwise this just passes through the arguments to findGroups
     return findGroups(typeID,
-                      elementLookup_,
+                      preg_->elementLookup(),
                       selector,
                       results,
                       stopIfProcessHasMatch);
@@ -517,17 +468,21 @@ namespace edm {
 
     if (j == processLookup.end()) return;
 
-    // This is a vector of indexes into the groups_ vector
+    // This is a vector of indexes into the productID vector
     // These indexes point to groups with desired process name (and
     // also type when this function is called from findGroups)
-    vector<int> const& vindex = j->second;
+    vector<ProductID> const& vindex = j->second;
 
-    for (vector<int>::const_iterator ib(vindex.begin()), ie(vindex.end());
+    for (vector<ProductID>::const_iterator ib(vindex.begin()), ie(vindex.end());
 	 ib != ie;
 	 ++ib) {
-
-      assert(static_cast<unsigned>(*ib) < groups_.size());
-      SharedGroupPtr const& group = groups_[*ib];
+      ProductDict::const_iterator itGID = productDict_.find(*ib);
+      if(itGID == productDict_.end() ) {
+        continue;
+      }
+      int groupID = itGID->second;
+      assert(static_cast<unsigned>(groupID) < groups_.size());
+      SharedGroupPtr const& group = groups_[groupID];
 
       if (selector.match(group->provenance())) {
 

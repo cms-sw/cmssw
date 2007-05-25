@@ -4,16 +4,17 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.2 2007/05/10 22:46:54 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2007/05/10 22:46:54 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include <algorithm>
 #include <sstream>
 
@@ -133,9 +134,56 @@ namespace edm {
     constProductList_.clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
       constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
+
+      ProcessLookup& processLookup = productLookup_[i->first.friendlyClassName_];
+      std::vector<ProductID>& vint = processLookup[i->first.processName_];
+      vint.push_back(i->second.productID());
+      //[could use productID instead]
+        
+      ROOT::Reflex::Type type(ROOT::Reflex::Type::ByName(i->second.className()));
+      if (bool(type)) {
+        
+        // Here we look in the object named "type" for a typedef
+        // named "value_type" and get the Reflex::Type for it.
+        // Then check to ensure the Reflex dictionary is defined
+        // for this value_type.
+        // I do not throw an exception here if the check fails
+        // because there are known cases where the dictionary does
+        // not exist and we do not need to support those cases.
+        ROOT::Reflex::Type valueType;
+        //        if (edm::value_type_of(type, valueType) && bool(valueType)) {
+        if ((edm::is_RefVector(type, valueType) || edm::value_type_of(type, valueType)) 
+            && bool(valueType)) {
+          
+          fillElementLookup(valueType, i->second.productID(), i->first);
+          
+          // Repeat this for all public base classes of the value_type
+          std::vector<ROOT::Reflex::Type> baseTypes;
+          edm::public_base_classes(valueType, baseTypes);
+          
+          for (std::vector<ROOT::Reflex::Type>::iterator iter = baseTypes.begin(),
+	       iend = baseTypes.end();
+               iter != iend;
+               ++iter) {
+            fillElementLookup(*iter, i->second.productID(), i->first);
+          }
+        }
+      }
     }
   }
 
+  void ProductRegistry::fillElementLookup(const ROOT::Reflex::Type & type,
+                                          const edm::ProductID& id,
+                                          const BranchKey& bk) const
+  {
+    TypeID typeID(type.TypeInfo());
+    std::string friendlyClassName = typeID.friendlyClassName();
+    
+    ProcessLookup& processLookup = elementLookup_[friendlyClassName];
+    std::vector<ProductID>& vint = processLookup[bk.processName_];
+    vint.push_back(id);    
+  }
+  
   void ProductRegistry::print(std::ostream& os) const {
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
 	os << i->second << "\n-----\n";

@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.3 2007/05/01 22:08:33 paterno Exp $
+$Id: Principal.h,v 1.4 2007/05/10 12:27:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <list>
@@ -151,7 +151,7 @@ namespace edm {
     virtual bool unscheduledFill(Group const& group) const = 0;
 
     // Used for indices to find groups by type and process
-    typedef std::map<std::string, std::vector<int> > ProcessLookup;
+    typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
     typedef std::map<std::string, ProcessLookup> TypeLookup;
 
     size_t findGroups(TypeID const& typeID,
@@ -176,10 +176,6 @@ namespace edm {
     // for a group.
     void resolveProvenance(Group const& g) const;
 
-    void fillElementLookup(const ROOT::Reflex::Type & type,
-                           int slotNumber,
-                           const BranchKey& bk);
-
     mutable ProcessHistoryID processHistoryID_;
 
     boost::shared_ptr<ProcessHistory> processHistoryPtr_;
@@ -201,14 +197,7 @@ namespace edm {
     // by the product ID.  Each EDProduct has a unique product ID.
     typedef std::map<ProductID, int> ProductDict;
     ProductDict productDict_; // 1->1
-
-    // indices used to quickly find a group in the vector groups_
-    // by type, first one by the type of the EDProduct and the
-    // second by the type of object contained in a sequence in
-    // an EDProduct
-    TypeLookup productLookup_; // 1->many
-    TypeLookup elementLookup_; // 1->many
-
+    
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
     ProductRegistry const* preg_;

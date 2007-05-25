@@ -7,17 +7,20 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.2 2007/05/10 22:46:54 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include <map>
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include "DataFormats/Provenance/interface/BranchKey.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+
+#include "Reflex/Type.h"
 
 namespace edm {
 
@@ -40,6 +43,10 @@ namespace edm {
     typedef std::map<BranchKey, BranchDescription> ProductList;
 
     typedef std::map<BranchKey, ConstBranchDescription> ConstProductList;
+    
+    // Used for indices to find product IDs by type and process
+    typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
+    typedef std::map<std::string, ProcessLookup> TypeLookup;
 
     void addProduct(BranchDescription const& productdesc, bool iFromListener=false);
 
@@ -67,6 +74,12 @@ namespace edm {
 
     void setNextID(unsigned int next) {nextID_ = next;}
 
+    const TypeLookup& productLookup() const {
+      return productLookup_;
+    }
+    const TypeLookup& elementLookup() const {
+      return elementLookup_;
+    }
 
     //NOTE: this is not const since we only want items that have non-const access to this class to be 
     // able to call this internal iteration
@@ -85,15 +98,27 @@ namespace edm {
     void print(std::ostream& os) const;
 
   private:
+    
     void initializeConstProductList() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
-
+    void fillElementLookup(const ROOT::Reflex::Type & type,
+                           const ProductID& slotNumber,
+                           const BranchKey& bk) const;
+    
     ProductList productList_;
     unsigned int nextID_;
     mutable bool frozen_;
     mutable ConstProductList constProductList_;
+    
+    // indices used to quickly find a group in the vector groups_
+    // by type, first one by the type of the EDProduct and the
+    // second by the type of object contained in a sequence in
+    // an EDProduct
+    mutable TypeLookup productLookup_; // 1->many
+    mutable TypeLookup elementLookup_; // 1->many
+    
   };
 
   inline
