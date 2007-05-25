@@ -78,13 +78,12 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
   int nElectronAbovePt = 0;
   
 
-  // Get the muon track collection from the event
-  edm::Handle<reco::TrackCollection> muTracks;
+  // First look at muons:
 
-  string rtrk = "recoTracks";
-  string gmu = "globalMuons";
   try {
-    event.getByLabel(rtrk, gmu, muTracks);
+  // Get the muon track collection from the event
+    edm::Handle<reco::TrackCollection> muTracks;
+    event.getByLabel(theGLBMuonLabel.label(), muTracks);
     
     reco::TrackCollection::const_iterator muons;
         
@@ -105,20 +104,21 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
   } 
   
   catch ( cms::Exception& ex ) {
-    edm::LogError("HiggsTo4LeptonsSkim") << "Error! cannot get collection with label " 
-					 << theGLBMuonLabel.label();
+    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
+			    		   << theGLBMuonLabel.label();
   }
 
-
-  // 2 muon HLT equivalent trigger:
+  // 2 muon HLT equivalent trigger (mock):
   if ( nMuonAbovePt > 1 ) twoMuon = true;
 
 
-  // Get the electron track collection from the event
-  edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+  // Now look at electrons:
 
   try {
-    event.getByLabel(thePixelGsfELabel,pTracks);
+    // Get the electron track collection from the event
+    edm::Handle<reco::PixelMatchGsfElectronCollection> pTracks;
+
+    event.getByLabel(thePixelGsfELabel.label(),pTracks);
     const reco::PixelMatchGsfElectronCollection* eTracks = pTracks.product();
 
     reco::PixelMatchGsfElectronCollection::const_iterator electrons;
@@ -140,8 +140,8 @@ bool HiggsToZZ4LeptonsSkim::skim(edm::Event& event, const edm::EventSetup& setup
   }
   
   catch ( cms::Exception& ex ) {
-    edm::LogError("HiggsTo4LeptonsSkim") << "Error! cannot get collection with label " 
-					 << thePixelGsfELabel.label();
+    edm::LogError("HiggsToZZ4LeptonsSkim") << "Warning: cannot get collection with label " 
+					   << thePixelGsfELabel.label();
   }
 
   // 2 electron HLT equivalent trigger:
