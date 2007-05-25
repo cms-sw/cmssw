@@ -18,7 +18,7 @@ namespace cond{
     std::pair<cond::Time_t, cond::Time_t> 
       validity( const std::string& iovToken, cond::Time_t currenttime );
     std::string payloadContainerName( const std::string& iovtoken );
-    void deleteAll();
+    void deleteAll( bool withPayload=false );
     /**
     create an iterator to on the iov selected by the token
     user aquires the ownership of the pointer. Need explicit delete after usage

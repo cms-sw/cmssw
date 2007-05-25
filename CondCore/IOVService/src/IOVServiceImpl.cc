@@ -7,7 +7,9 @@
 #include "IOVServiceImpl.h"
 #include "IOVIteratorImpl.h"
 #include "IOVEditorImpl.h"
-//#include "IOV.h"
+#include "POOLCore/Token.h"
+#include "DataSvc/RefBase.h"
+
 cond::IOVServiceImpl::IOVServiceImpl( cond::PoolStorageManager& pooldb ,
 				      cond::TimeType timetype ): 
   m_pooldb(pooldb), m_timetype(timetype){
@@ -91,10 +93,22 @@ cond::IOVServiceImpl::payloadContainerName( const std::string& iovToken ){
   return result;
 }
 void 
-cond::IOVServiceImpl::deleteAll(){
+cond::IOVServiceImpl::deleteAll(bool withPayload){
   cond::ContainerIterator<cond::IOV> it(m_pooldb,cond::IOVNames::container());
   while ( it.next() ) {
-     it.dataRef().markDelete();
+    if(withPayload){
+      std::string tokenStr;
+      std::map<cond::Time_t,std::string>::iterator payloadIt;
+      std::map<cond::Time_t,std::string>::iterator payloadItEnd=it.dataRef()->iov.end();
+      for(payloadIt=it.dataRef()->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
+	tokenStr=payloadIt->second;
+	pool::Token token;
+	const pool::Guid& classID=token.fromString(tokenStr).classID();
+	pool::RefBase ref(&m_pooldb.DataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+	ref.markDelete();
+      }
+    }
+    it.dataRef().markDelete();
   }
 }
 cond::IOVIterator* 

@@ -29,8 +29,8 @@ cond::IOVService::payloadContainerName( const std::string& token ){
   return m_impl->payloadContainerName(token);
 }
 void 
-cond::IOVService::deleteAll(){
-  m_impl->deleteAll();
+cond::IOVService::deleteAll( bool withPayload ){
+  m_impl->deleteAll( withPayload );
 }
 cond::IOVIterator* 
 cond::IOVService::newIOVIterator( const std::string& token ){
