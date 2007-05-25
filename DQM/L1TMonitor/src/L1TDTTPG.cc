@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/15 19:27:02 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -136,11 +136,28 @@ void L1TDTTPG::analyze(const Event& e, const EventSetup& c)
   if(verbose_) cout << "L1TDTTPG: analyze...." << endl;
 
   edm::Handle<L1MuDTChambPhContainer > myL1MuDTChambPhContainer;  
+
+  try {
   e.getByLabel(dttpgSource_,myL1MuDTChambPhContainer);
+  }
+  catch (...) {
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambPhContainer with label "
+			       << dttpgSource_.label() ;
+    return;
+  }
   vector<L1MuDTChambPhDigi>* myPhContainer =  myL1MuDTChambPhContainer->getContainer();
+
   edm::Handle<L1MuDTChambThContainer > myL1MuDTChambThContainer;  
+  try {
   e.getByLabel(dttpgSource_,myL1MuDTChambThContainer);
+  }
+  catch (...) {
+    edm::LogInfo("L1TDTTPG") << "can't find L1MuDTChambThContainer with label "
+			       << dttpgSource_.label() ;
+    return;
+  }
   vector<L1MuDTChambThDigi>* myThContainer =  myL1MuDTChambThContainer->getContainer();
+
   int ndttpgphtrack = 0;
   int ndttpgthtrack = 0; 
 

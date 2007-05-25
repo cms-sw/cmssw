@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/05/24 06:59:22 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/24 07:49:08 $
+ * $Revision: 1.5 $
  * \author J. Berryhill
  *
  */
@@ -128,8 +128,14 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
   //	}
 
      Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
-     e.getByLabel(gtSource_,myGTReadoutRecord);
-   
+     try {
+      e.getByLabel(gtSource_,myGTReadoutRecord);
+     }
+     catch (...) {
+     edm::LogInfo("L1TGT") << "can't find L1GlobalTriggerReadoutRecord with label "
+			       << gtSource_.label() ;
+     return;
+     }
 
      L1GtfeWord mygtfeWord = myGTReadoutRecord->gtfeWord();
     if(verbose_) cout << "L1TGT: gtfe board Id " << mygtfeWord.boardId() << endl;
