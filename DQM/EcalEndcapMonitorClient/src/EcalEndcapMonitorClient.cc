@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/24 13:26:11 $
- * $Revision: 1.16 $
+ * $Date: 2007/05/25 09:03:14 $
+ * $Revision: 1.17 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1241,6 +1241,8 @@ void EcalEndcapMonitorClient::analyze(void){
 
     if ( verbose_ ) cout << " updates = " << updates << endl;
 
+    if ( run_ != last_run_ ) forced_update_ = true;
+
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " run = "      << run_      <<
@@ -1272,8 +1274,6 @@ void EcalEndcapMonitorClient::analyze(void){
     last_update_ = updates;
 
     last_jevt_ = jevt_;
-
-    if ( run_ != last_run_ ) forced_update_ = true;
 
   }
 
