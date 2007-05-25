@@ -1,3 +1,4 @@
+<use name=DataFormats/GeometryVector>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/TrajectorySeed>
 <use name=FWCore/Framework>
@@ -12,6 +13,7 @@
 <use name=RecoTracker/Record>
 <use name=RecoTracker/TkDetLayers>
 <use name=RecoTracker/TkNavigation>
+<use name=RecoTracker/TkSeedGenerator>
 <use name=TrackingTools/DetLayers>
 <use name=TrackingTools/GeomPropagators>
 <use name=TrackingTools/KalmanUpdators>
@@ -22,9 +24,8 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrackingRecHit>
 <use name=boost>
-<flags CXXFLAGS="-g">
-<flags EDM_PLUGIN=1>
 <export>
+  <use name=DataFormats/GeometryVector>
   <use name=DataFormats/TrackReco>
   <use name=DataFormats/TrajectorySeed>
   <use name=FWCore/Framework>
@@ -34,6 +35,7 @@
   <use name=RecoTracker/MeasurementDet>
   <use name=RecoTracker/TkDetLayers>
   <use name=RecoTracker/TkNavigation>
+  <use name=RecoTracker/TkSeedGenerator>
   <use name=TrackingTools/DetLayers>
   <use name=TrackingTools/GeomPropagators>
   <use name=TrackingTools/MeasurementDet>

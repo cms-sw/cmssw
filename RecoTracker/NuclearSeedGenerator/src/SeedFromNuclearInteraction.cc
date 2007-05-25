@@ -1,4 +1,5 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/TangentCircle.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
@@ -48,20 +49,11 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint,
 TrajectoryStateOnSurface SeedFromNuclearInteraction::stateWithError(const TSOS& state) const {
    // Calculation of the curvature assuming that the secondary track has the same direction
    // than the primary track and pass through the inner and outer hits.
-   const double PI = 3.1415926;
    GlobalVector direction = state.globalDirection();
    GlobalPoint inner = state.globalPosition();
-   double x1 = inner.x();
-   double y1 = inner.y();
-   //LogDebug("NuclearSeedGenerator") << "test 1b : " << outerHit->geographicalId() <<" \n";
- 
    GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-   double x2 = outer.x();
-   double y2 = outer.y();
-   double alpha1 = (direction.y() != 0) ? atan(-direction.x()/direction.y()) : PI/2 ;
-   double denominator = 2*((x1-x2)*cos(alpha1)+(y1-y2)*sin(alpha1));
-   double R = (denominator != 0) ? ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))/denominator : 1E12;
-   double transverseCurvature = 1/R;
+   TangentCircle circle(direction, inner, outer);
+   double transverseCurvature = 1/circle.rho();
 
    // Get the global parameters of the trajectory
    GlobalTrajectoryParameters gtp(state.globalPosition(), direction, transverseCurvature, 0, &(state.globalParameters().magneticField()));
