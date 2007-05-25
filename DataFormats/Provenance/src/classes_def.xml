@@ -16,6 +16,8 @@
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
    <field name="constProductList_" transient="true"/>
+   <field name="productLookup_" transient="true"/>
+   <field name="elementLookup_" transient="true"/>
  </class>
  <class name="std::map<edm::BranchKey,edm::BranchDescription>"/>
  <class name="std::pair<edm::BranchKey,edm::BranchDescription>"/>
