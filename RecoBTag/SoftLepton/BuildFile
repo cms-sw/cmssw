@@ -13,17 +13,15 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
 <use name=RecoBTag/BTagTools>
-<use name=RecoBTag/Records>
+<use name=RecoBTau/JetTagComputer>
 <use name=RecoCaloTools/MetaCollections>
 <use name=RecoCaloTools/Selectors>
 <use name=RecoVertex/PrimaryVertexProducer>
 <use name=TrackingTools/Records>
 <use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TransientTrack>
-<use name=boost>
 <use name=boost_regex>
 <use name=rootcore>
-<use name=root>
 <flags EDM_PLUGIN=1>
 <export>
   <use name=DataFormats/BTauReco>
@@ -35,9 +33,6 @@
   <use name=DataFormats/VertexReco>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=RecoBTag/Records>
-  <use name=boost>
-  <use name=rootcore>
+  <use name=RecoBTau/JetTagComputer>
   <lib name=RecoBTagSoftLepton>
 </export>
-

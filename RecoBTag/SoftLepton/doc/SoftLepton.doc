@@ -20,7 +20,6 @@ This package provides b tagging using the lepton from b decays.
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- LeptonTaggerBase
 - LeptonTaggerDistanceESProducer
 - LeptonTaggerDistance
 - MuonTaggerESProducer

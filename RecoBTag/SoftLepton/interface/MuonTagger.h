@@ -1,37 +1,36 @@
 #ifndef RecoBTag_SoftLepton_MuonTagger_h
 #define RecoBTag_SoftLepton_MuonTagger_h
 
-#include "TVector3.h"
-#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 #include "RecoBTag/SoftLepton/src/MuonTaggerMLP.h"
 
 /**  \class MuonTagger
  *
  *   Implementation of muon b-tagging using a softmax multilayer perceptron neural network
  *
- *   $Date: 2006/10/31 02:53:09 $
+ *   $Date: 2006/12/07 02:53:05 $
  *   $Revision: 1.1 $
  *
  *   \author Andrea 'fwyzard' Bocci, Universita' di Firenze
  */
 
-class MuonTagger : public LeptonTaggerBase {
+class MuonTagger : public JetTagComputer {
 public:
-  MuonTagger (void) : theNet() {}
-  virtual ~MuonTagger (void) {}
 
-  /// b-tag a jet based on track-to-jet parameters:
-  virtual double discriminant (
-      const TVector3 & axis,
-      const TVector3 & lepton,
-      const reco::SoftLeptonProperties & properties
-  ) const 
-  {
-    return theNet.value( 0, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta(), properties.sip3d) +
-           theNet.value( 1, properties.ptRel, properties.ratioRel, properties.deltaR, axis.Mag(), axis.Eta(), properties.sip3d);
-  }
+  /// default ctor
+  MuonTagger(void) : theNet() { }
+
+  /// explicit ctor 
+  explicit MuonTagger( __attribute__((unused)) const edm::ParameterSet & configuration) : theNet() { }
+  
+  /// dtor
+  virtual ~MuonTagger() { }
+
+  /// b-tag a jet based on track-to-jet parameters in the extened info collection
+  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
 
 private:
+
   mutable MuonTaggerMLP theNet;
 
 };

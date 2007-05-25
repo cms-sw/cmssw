@@ -1,33 +1,38 @@
 #ifndef RecoBTag_SoftLepton_LeptonTaggerDistance_h
 #define RecoBTag_SoftLepton_LeptonTaggerDistance_h
 
-#include "TVector3.h"
-#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
 
 /**  \class LeptonTaggerDistance
  *
  *   Implementation of muon b-tagging returning 1 if a lepton is present in the jet, 0 otherwise
  *
- *   $Date: 2006/12/07 02:53:05 $
+ *   $Date: 2007/01/09 01:17:22 $
  *   $Revision: 1.1 $
  *
  *   \author Andrea 'fwyzard' Bocci, Scuola Normale Superiore, Pisa
  */
 
-class LeptonTaggerDistance : public LeptonTaggerBase {
+class LeptonTaggerDistance : public JetTagComputer {
 public:
-  LeptonTaggerDistance (void) {}
-  virtual ~LeptonTaggerDistance (void) {}
 
-  /// b-tag a jet based on track-to-jet parameters
-  virtual double discriminant (
-      const TVector3 & axis,
-      const TVector3 & lepton,
-      const reco::SoftLeptonProperties & properties
-  ) const 
-  {
-    return 1.0;
+  /// default ctor
+  LeptonTaggerDistance(void) : m_maxDistance(0.5) { }
+
+  /// explicit ctor
+  explicit LeptonTaggerDistance(const edm::ParameterSet & configuration) {
+    m_maxDistance = configuration.getParameter<double>("distance");
   }
+
+  /// dtor
+  virtual ~LeptonTaggerDistance() { }
+
+  /// b-tag a jet based on track-to-jet pseudo-angular distance
+  virtual float discriminator(const reco::BaseTagInfo & tagInfo) const;
+
+private:
+  
+  float m_maxDistance;
 
 };
 

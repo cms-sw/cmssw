@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.h,v 1.7 2007/05/11 11:29:03 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.h,v 1.8 2007/05/11 11:47:14 fwyzard Exp $
 //
 
 #include <utility>
@@ -32,7 +32,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 class TransientTrackBuilder;
-class LeptonTaggerBase;
+class JetTagComputer;
 class TVector3;
 
 class SoftLeptonAlgorithm {
@@ -52,7 +52,7 @@ public:
     m_transientTrackBuilder = builder; 
   }
 
-  void setConcreteTagger( const LeptonTaggerBase * tagger ) {
+  void setConcreteTagger( const JetTagComputer * tagger ) {
     m_concreteTagger = tagger;
   }
 
@@ -77,7 +77,7 @@ private:
   const TransientTrackBuilder * m_transientTrackBuilder;
 
   // service used to compute the discriminator from the tagging variables
-  const LeptonTaggerBase * m_concreteTagger;
+  const JetTagComputer * m_concreteTagger;
 
   // algorithm configuration
   unsigned int m_refineJetAxis;

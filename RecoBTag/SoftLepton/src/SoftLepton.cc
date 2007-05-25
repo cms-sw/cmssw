@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.16 2007/04/20 17:25:48 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.17 2007/05/11 11:29:04 fwyzard Exp $
 //
 
 
@@ -38,9 +38,9 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexSorter.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
+#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
-#include "RecoBTag/Records/interface/SoftLeptonBTagRecord.h"
-#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 #include "RecoBTag/SoftLepton/interface/SoftLepton.h"
 
 using namespace std;
@@ -162,8 +162,8 @@ SoftLepton::beginJob(const edm::EventSetup& iSetup) {
   m_algo.setTransientTrackBuilder( builder.product() );
 
   // grab the concrete soft lepton b tagger from the Event Setup
-  edm::ESHandle<LeptonTaggerBase> tagger;
-  iSetup.get<SoftLeptonBTagRecord>().get( m_concreteTagger, tagger );
+  edm::ESHandle<JetTagComputer> tagger;
+  iSetup.get<JetTagComputerRecord>().get( m_concreteTagger, tagger );
   m_algo.setConcreteTagger( tagger.product() );
 }
 

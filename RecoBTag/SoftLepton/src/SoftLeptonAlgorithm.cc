@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.14 2007/05/11 12:00:01 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.15 2007/05/11 12:00:24 fwyzard Exp $
 //
 
 // STL
@@ -35,7 +35,6 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoBTag/BTagTools/interface/SignedImpactParameter3D.h"
 #include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
-#include "RecoBTag/SoftLepton/interface/LeptonTaggerBase.h"
 
 // ROOT TVector3 - used internally
 #include "TVector3.h"
@@ -128,7 +127,7 @@ SoftLeptonAlgorithm::tag(
     properties.etaRel   = relativeEta(_lepton, _axis);
     properties.ratio    = _lepton.Mag() / _axis.Mag();
     properties.ratioRel = _lepton.Dot(_axis) / _axis.Mag2();
-    properties.tag      = m_concreteTagger->discriminant( _axis, _lepton, properties);
+    properties.tag      = 0.0;  // tags should not be in extended collections
     info.insert( lepton, properties );
 
     if (properties.tag > discriminant)
