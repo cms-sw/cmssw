@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: VarProcessor.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
 //
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
@@ -34,22 +34,36 @@ VarProcessor::~VarProcessor()
 	nInputVars = 0;
 }
 
-void VarProcessor::configure(Config_t &config)
+void VarProcessor::configure(ConfigCtx &config)
 {
-	if (config.size() != inputVars.size())
+	ConfigCtx::size_type pos = config.size();
+	if (pos != inputVars.size())
 		return;
 
 	ConfIterator iter(inputVars.iter(), config);
 	configure(iter, nInputVars);
+
+	VarProcessor *loop = config.loop ? config.loop : this;
+	ConfigCtx::Context *ctx =
+		loop->configureLoop(config.ctx, config.begin(),
+		                    config.begin() + pos, config.end());
+
+	if (ctx != config.ctx) {
+		delete config.ctx;
+		config.ctx = ctx;
+	}
+
+	if (config.loop && !ctx)
+		config.loop = 0;
+	else if (!config.loop && ctx)
+		config.loop = this;
 }
 
-void VarProcessor::eval(double *values, int *conf,
-                        double *output, int *outConf) const
+VarProcessor::ConfigCtx::Context *
+VarProcessor::configureLoop(ConfigCtx::Context *ctx, ConfigCtx::iterator begin,
+                            ConfigCtx::iterator cur, ConfigCtx::iterator end)
 {
-	outConf[1] = outConf[0];
-
-	ValueIterator iter(inputVars.iter(), values, conf, output, outConf);
-	eval(iter, nInputVars);
+	return 0;
 }
 
 } // namespace PhysicsTools

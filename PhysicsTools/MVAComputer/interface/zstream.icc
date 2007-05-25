@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_zstream_icc
-#define PhysicsTools_Discriminator_zstream_icc
+#ifndef PhysicsTools_MVAComputer_zstream_icc
+#define PhysicsTools_MVAComputer_zstream_icc
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: zstream.icc,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <iostream>
@@ -232,4 +232,4 @@ void basic_izstreambuf<Item_t, Traits_t, Allocator_t>::putbackFromZStream()
 
 } // namespace ext
 
-#endif // PhysicsTools_Discriminator_zstream_icc
+#endif // PhysicsTools_MVAComputer_zstream_icc

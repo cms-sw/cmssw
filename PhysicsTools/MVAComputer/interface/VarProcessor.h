@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_VarProcessor_h
-#define PhysicsTools_Discriminator_VarProcessor_h
+#ifndef PhysicsTools_MVAComputer_VarProcessor_h
+#define PhysicsTools_MVAComputer_VarProcessor_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -9,9 +9,10 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.h,v 1.1 2007/05/07 18:30:54 saout Exp $
+// $Id: VarProcessor.h,v 1.2 2007/05/15 21:35:51 saout Exp $
 //
 
+#include <algorithm>
 #include <vector>
 
 #include "PhysicsTools/MVAComputer/interface/ProcessRegistry.h"
@@ -56,16 +57,59 @@ class VarProcessor :
 		unsigned int	origin;
 	};
 
-	typedef std::vector<Config> Config_t;
+	class ConfigCtx {
+	    public:
+		typedef std::vector<Config>		Config_t;
+
+		typedef Config_t::value_type		value_type;
+		typedef Config_t::size_type		size_type;
+		typedef Config_t::iterator		iterator;
+		typedef Config_t::const_iterator	const_iterator;
+
+		struct Context { virtual ~Context() {} };
+
+		ConfigCtx(unsigned int nVars) :
+			configs(nVars, Config(Variable::FLAG_ALL, 1)),
+			loop(0), ctx(0) {}
+		~ConfigCtx() { delete ctx; }
+
+		inline size_type size() const { return configs.size(); }
+		inline const_iterator begin() const { return configs.begin(); }
+		inline iterator begin() { return configs.begin(); }
+		inline const_iterator end() const { return configs.end(); }
+		inline iterator end() { return configs.end(); }
+		inline void push_back(const Config &config) { configs.push_back(config); }
+		inline Config &operator [] (size_type i) { return configs[i]; }
+
+	    private:		
+		friend class VarProcessor;
+
+		Config_t	configs;
+		VarProcessor	*loop;
+		Context		*ctx;
+	};
 
 	virtual ~VarProcessor();
 
 	/// called from the discriminator computer to configure processor
-	void configure(Config_t &config);
+	void configure(ConfigCtx &config);
 
 	/// run the processor evaluation pass on this processor
-	void eval(double *input, int *conf,
-	          double *output, int *outConf) const;
+	inline void
+	eval(double *input, int *conf, double *output, int *outConf,
+	     int *loop, unsigned int offset) const
+	{
+		ValueIterator iter(inputVars.iter(), input, conf,
+		                   output, outConf, loop, offset);
+		eval(iter, nInputVars);
+	}
+
+	enum LoopStatus { kStop, kNext, kReset, kSkip };
+
+	virtual LoopStatus loop(double *output, int *outConf,
+	                        unsigned int nOutput,
+	                        unsigned int &nOffset) const
+	{ return kStop; }
 
     protected:
 	/** \class ConfIterator
@@ -108,12 +152,12 @@ class VarProcessor :
 	    protected:
 		friend class VarProcessor;
 
-		ConfIterator(BitSet::Iterator cur, Config_t &config) :
+		ConfIterator(BitSet::Iterator cur, ConfigCtx &config) :
 			cur(cur), config(config) {}
 
 	    private:
 		BitSet::Iterator	cur;
-		Config_t		&config;
+		ConfigCtx		&config;
 	};
 
 	/** \class ConfIterator
@@ -125,7 +169,7 @@ class VarProcessor :
 	    public:
 		/// number of values for current input variable
 		inline unsigned int size() const
-		{ return conf[1] - conf[0]; }
+		{ return loop ? (conf[1] - conf[0]) : 1; }
 
 		/// begin of value array for current input variable
 		inline double *begin() const { return values; }
@@ -143,11 +187,17 @@ class VarProcessor :
 
 		/// add computed value to current output variable
 		inline ValueIterator &operator << (double value)
-		{ *output++ = value; outConf[1]++; return *this; }
+		{ *output++ = value; return *this; }
 
 		/// finish current output variable, move to next slot
 		inline void operator () ()
-		{ outConf++; outConf[1] = outConf[0]; }
+		{
+			int pos = output - start;
+			if (*++outConf > pos)
+				output = start + *outConf;
+			else
+				*outConf = pos;
+		}
 
 		/// add \a value as output variable and move to next slot
 		inline void operator () (double value)
@@ -160,9 +210,15 @@ class VarProcessor :
 		ValueIterator &operator ++ ()
 		{
 			BitSet::size_t orig = cur();
-			unsigned int prev = *conf;
-			conf += (++cur)() - orig; 
-			values += *conf - prev;
+			if (++cur) {
+				unsigned int prev = *conf;
+				conf += cur() - orig; 
+				values += *conf - prev;
+				if (loop && conf >= loop) {
+					values += offset;
+					loop = 0;
+				}
+			}
 			return *this;
 		}
 
@@ -173,20 +229,28 @@ class VarProcessor :
 	    protected:
 		friend class VarProcessor;
 
-		ValueIterator(BitSet::Iterator cur, double *values, int *conf,
-		              double *output, int *outConf) :
-			cur(cur), values(values), conf(conf),
-			output(output), outConf(outConf)
+		ValueIterator(BitSet::Iterator cur, double *values,
+		              int *conf, double *output, int *outConf,
+		              int *loop, unsigned int offset) :
+			cur(cur), offset(offset), start(values + offset),
+			values(values), conf(conf), loop(loop),
+			output(output + offset), outConf(outConf)
 		{
-			outConf[1] = outConf[0];
 			this->conf += cur();
 			this->values += *this->conf;
+			if (loop && this->conf >= loop) {
+				this->values += offset;
+				this->loop = 0;
+			}
 		}
 
 	    private:
 		BitSet::Iterator	cur;
+		const unsigned int	offset;
+		double			*const start;
 		double			*values;
 		const int		*conf;
+		const int		*loop;
 		double			*output;
 		int			*outConf;
 	};
@@ -200,6 +264,11 @@ class VarProcessor :
 
 	/// virtual configure method, implemented in actual processor
 	virtual void configure(ConfIterator iter, unsigned int n) = 0;
+
+	/// virtual loop configure method
+	virtual ConfigCtx::Context *
+	configureLoop(ConfigCtx::Context *ctx, ConfigCtx::iterator begin,
+	              ConfigCtx::iterator cur, ConfigCtx::iterator end);
 
 	/// virtual evaluation method, implemented in actual processor
 	virtual void eval(ValueIterator iter, unsigned int n) const = 0;
@@ -215,4 +284,4 @@ class VarProcessor :
 
 } // namespace PhysicsTools
 
-#endif // PhysicsTools_Discriminator_VarProcessor_h
+#endif // PhysicsTools_MVAComputer_VarProcessor_h

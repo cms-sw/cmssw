@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_MVAComputer_h
-#define PhysicsTools_Discriminator_MVAComputer_h
+#ifndef PhysicsTools_MVAComputer_MVAComputer_h
+#define PhysicsTools_MVAComputer_MVAComputer_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: MVAComputer.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <vector>
@@ -120,4 +120,4 @@ class MVAComputer {
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.icc"
 
-#endif // PhysicsTools_Discriminator_MVAComputer_h
+#endif // PhysicsTools_MVAComputer_MVAComputer_h

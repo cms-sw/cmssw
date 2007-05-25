@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_zstream_h
-#define PhysicsTools_Discriminator_zstream_h
+#ifndef PhysicsTools_MVAComputer_zstream_h
+#define PhysicsTools_MVAComputer_zstream_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: zstream.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <iostream>
@@ -162,4 +162,4 @@ typedef basic_izstream<wchar_t> wizstream;
 
 #include "PhysicsTools/MVAComputer/interface/zstream.icc"
 
-#endif // PhysicsTools_Discriminator_zstream_h
+#endif // PhysicsTools_MVAComputer_zstream_h

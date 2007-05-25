@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_AtomicId_h
-#define PhysicsTools_Discriminator_AtomicId_h
+#ifndef PhysicsTools_MVAComputer_AtomicId_h
+#define PhysicsTools_MVAComputer_AtomicId_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: AtomicId.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <ostream>
@@ -75,4 +75,4 @@ class AtomicId {
 inline std::ostream &operator << (std::ostream &os, const PhysicsTools::AtomicId &id)
 { return os << (const char*)id; }
 
-#endif // PhysicsTools_Discriminator_AtomicId_h
+#endif // PhysicsTools_MVAComputer_AtomicId_h

@@ -27,16 +27,15 @@ MVAComputer::MVAComputer(
 	setup(calib);
 }
 
-void
-MVAComputer::setup(const Calibration::MVAComputer *calib)
+void MVAComputer::setup(const Calibration::MVAComputer *calib)
 {
 	nVars = calib->inputSet.size();
 	output = calib->output;
 
-	VarProcessor::Config_t config(nVars,
-				VarProcessor::Config(Variable::FLAG_ALL, 1));
+	VarProcessor::ConfigCtx config(nVars);
 	std::vector<Calibration::VarProcessor*> processors =
 							calib->getProcessors();
+
 	for(std::vector<Calibration::VarProcessor*>::const_iterator iter =
 							processors.begin();
 	    iter != processors.end(); ++iter) {
@@ -48,7 +47,7 @@ MVAComputer::setup(const Calibration::MVAComputer *calib)
 				<< name << " could not be instantiated."
 				<< std::endl;
 
-		VarProcessor::Config_t::iterator::difference_type pos =
+		VarProcessor::ConfigCtx::iterator::difference_type pos =
 						config.end() - config.begin();
 		processor->configure(config);
 		unsigned int nOutput = (config.end() - config.begin()) - pos;
@@ -60,18 +59,17 @@ MVAComputer::setup(const Calibration::MVAComputer *calib)
 		varProcessors.push_back(Processor(processor, nOutput));
 	}
 
-	for(VarProcessor::Config_t::iterator iter = config.begin() + nVars;
+	for(VarProcessor::ConfigCtx::iterator iter = config.begin() + nVars;
 	    iter != config.end(); iter++) {
-		if (!(iter->mask & Variable::FLAG_MULTIPLE))
-			continue;
-
 		VarProcessor::Config *origin = &config[iter->origin];
-		iter->mask = (Variable::Flags)(iter->mask & origin->mask);
 		if (iter->origin >= nVars)
 			iter->origin = origin->origin;
 
-		if (iter->mask & Variable::FLAG_MULTIPLE)
+		if (iter->mask & Variable::FLAG_MULTIPLE) {
+			iter->mask = (Variable::Flags)(iter->mask &
+			                               origin->mask);
 			config[iter->origin].origin++;
+		}
 	}
 
 	nVars = config.size();
@@ -117,8 +115,7 @@ unsigned int MVAComputer::getVariableId(AtomicId name) const
 	return pos->index;
 }
 
-void MVAComputer::eval(double *values, int *conf,
-                                 unsigned int n) const
+void MVAComputer::eval(double *values, int *conf, unsigned int n) const
 {
 	double *output = values + n;
 	int *outConf = conf + inputVariables.size();
@@ -132,27 +129,60 @@ void MVAComputer::eval(double *values, int *conf,
 			std::cout << "\t\t" << *v++ << std::endl;
 	}
 #endif
+	std::vector<Processor>::const_iterator iter = varProcessors.begin();
+	while(iter != varProcessors.end()) {
+		std::vector<Processor>::const_iterator loop = iter;
+		int *loopOutConf = outConf;
+		int *loopStart = 0;
+		double *loopOutput = output;
 
-	for(std::vector<Processor>::const_iterator iter = varProcessors.begin();
-	    iter != varProcessors.end(); iter++) {
+		VarProcessor::LoopStatus status = VarProcessor::kNext;
+		unsigned int offset = 0;
+		while(status != VarProcessor::kStop) {
+			std::vector<Processor>::const_iterator next = iter + 1;
+			unsigned int nextOutput = (next != varProcessors.end())
+			                          ? next->nOutput : 0;
+
 #ifdef DEBUG_EVAL
-		std::cout << ROOT::Reflex::Tools::Demangle(
+			std::cout << ROOT::Reflex::Tools::Demangle(
 				typeid(*iter->processor)) << std::endl;
 #endif
-
-		iter->processor->eval(values, conf, output, outConf);
+			if (status != VarProcessor::kSkip)
+				iter->processor->eval(
+					values, conf, output, outConf,
+					loopStart ? loopStart : loopOutConf,
+					offset);
 
 #ifdef DEBUG_EVAL
-		for(unsigned int i = 0; i < iter->nOutput; i++, outConf++) {
-			std::cout << "\tVar " << (outConf - conf) << std::endl;
-			for(int j = outConf[0]; j < outConf[1]; j++)
-				std::cout << "\t\t" << *output++ << std::endl;
-		}
+			for(unsigned int i = 0; i < iter->nOutput;
+			    i++, outConf++) {
+				std::cout << "\tVar " << (outConf - conf)
+				          << std::endl;
+				for(int j = outConf[0]; j < outConf[1]; j++)
+					std::cout << "\t\t" << *output++
+					          << std::endl;
+			}
 #else
-		int orig = *outConf;
-		outConf += iter->nOutput;
-		output += *outConf - orig;
+			int orig = *outConf;
+			outConf += iter->nOutput;
+			output += *outConf - orig;
 #endif
+
+			status = loop->processor->loop(output, outConf,
+			                               nextOutput, offset);
+
+			if (status == VarProcessor::kReset) {
+				outConf = loopOutConf;
+				output = loopOutput;
+				loopStart = 0;
+				offset = 0;
+				iter = loop;
+			} else {
+				if (loop == iter)
+					loopStart = outConf;
+				iter = next;
+			}
+		}
 	}
 }
 

@@ -10,7 +10,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcSplitter.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
+// $Id: ProcSplitter.cc,v 1.1 2007/05/21 02:02:01 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -69,7 +69,8 @@ void ProcSplitter::eval(ValueIterator iter, unsigned int n) const
 		}
 		while(i++ < count)
 			iter();
-		iter++();
+		iter();
+		iter++;
 	}
 }
 

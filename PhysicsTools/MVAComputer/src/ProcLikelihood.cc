@@ -12,7 +12,7 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: ProcLikelihood.cc,v 1.1 2007/05/07 18:30:55 saout Exp $
+// $Id: ProcLikelihood.cc,v 1.2 2007/05/17 15:04:08 saout Exp $
 //
 
 #include <algorithm>
@@ -104,14 +104,16 @@ void ProcLikelihood::eval(ValueIterator iter, unsigned int n) const
 		for(double *value = iter.begin();
 		    value < iter.end(); value++) {
 			empty = false;
-			signal *= pdf->signal.eval(*value);
-			background *= pdf->background.eval(*value);
+			double signalProb = pdf->signal.eval(*value);
+			double backgroundProb = pdf->background.eval(*value);
+			signal *= std::max(0.0, signalProb);
+			background *= std::max(0.0, backgroundProb);
 		}
 	}
 
 	if (empty)
 		iter();
-	else if (signal + background > 1.0e-9)
+	else if (signal + background > 1.0e-20)
 		iter(signal / (signal + background));
 	else
 		iter(0.5);

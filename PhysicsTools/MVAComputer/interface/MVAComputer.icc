@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_MVAComputer_icc
-#define PhysicsTools_Discriminator_MVAComputer_icc
+#ifndef PhysicsTools_MVAComputer_MVAComputer_icc
+#define PhysicsTools_MVAComputer_MVAComputer_icc
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -8,11 +8,12 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.icc,v 1.1 2007/05/07 18:30:54 saout Exp $
+// $Id: MVAComputer.icc,v 1.2 2007/05/15 21:35:51 saout Exp $
 //
 
 
 #include <stdlib.h>
+#include <cstring>
 
 #include "PhysicsTools/MVAComputer/interface/MVAComputer.h"
 
@@ -41,14 +42,12 @@ namespace PhysicsTools {
 //                 variable i is then (conf[i + 1] - conf[i])
 
 template<typename Iterator_t>
-double MVAComputer::eval(Iterator_t first,
-                                   Iterator_t last) const
+double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 {
 	unsigned int size = inputVariables.size();
 
 	int *conf = __TMP_ALLOC(nVars + 2, int);
-	for(unsigned int i = 0; i <= size; i++)
-		conf[i] = 0;
+	std::memset(conf, 0, (nVars + 2) * sizeof(int));
 
 	// collect information about variables:
 	// * count values in input variables and store in conf array
@@ -87,4 +86,4 @@ double MVAComputer::eval(Iterator_t first,
 
 } // namespace PhysicsTools
 
-#endif // PhysicsTools_Discriminator_MVAComputer_icc
+#endif // PhysicsTools_MVAComputer_MVAComputer_icc

@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_Spline_h
-#define PhysicsTools_Discriminator_Spline_h
+#ifndef PhysicsTools_MVAComputer_Spline_h
+#define PhysicsTools_MVAComputer_Spline_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -9,7 +9,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: Spline.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 namespace PhysicsTools {
@@ -63,4 +63,4 @@ class Spline {
 
 } // namespace PhysicsTools
 
-#endif // PhysicsTools_Discriminator_Spline_h
+#endif // PhysicsTools_MVAComputer_Spline_h

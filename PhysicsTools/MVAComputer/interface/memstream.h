@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_Discriminator_memstream_h
-#define PhysicsTools_Discriminator_memstream_h
+#ifndef PhysicsTools_MVAComputer_memstream_h
+#define PhysicsTools_MVAComputer_memstream_h
 // -*- C++ -*-
 //
 // Package:     Discriminator
@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id$
+// $Id: memstream.h,v 1.1 2007/05/07 18:30:54 saout Exp $
 //
 
 #include <iostream>
@@ -97,4 +97,4 @@ typedef basic_imemstream<wchar_t>	wimemstream;
 
 } // namespace ext
 
-#endif // PhysicsTools_Discriminator_memstream_h
+#endif // PhysicsTools_MVAComputer_memstream_h
