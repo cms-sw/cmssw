@@ -71,24 +71,17 @@ void SiPixelRecoCompare()
   TFile* rfile = new TFile(rfilename);
   TFile* sfile = new TFile(sfilename);
   Char_t histo[200];
-  
-  rfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_all");
-  //gDirectory->ls();
-  
-  sfile->cd("DQMData/TrackingRecHits/Pixel/Histograms_all");
-  //gDirectory->ls();
-  
+    
   gROOT->ProcessLine(".x HistoCompare_Pixels.C");
   HistoCompare_Pixels* myPV = new HistoCompare_Pixels("RecoTrack_SiPixelRecoCompare.txt");
   //myPV->setName("RecoTrack_SiPixelRecoCompare");
 
-  int n_bins = 159;
+  int n_bins = 194;
   double low = 0.5;
   double high = (double)n_bins + 0.5;
   TH1F* h_pv = new TH1F("h_pv", "#Chi^{2} results for each distribution", n_bins, low, high);
   int bin = 0;
   double value_pv = -9999.9;
-
 
 
   if (1) 
@@ -107,7 +100,7 @@ void SiPixelRecoCompare()
       
       sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meTracksPerEvent", newmeTracksPerEvent );
       sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/mePixRecHitsPerTrack", newmePixRecHitsPerTrack );
-      
+
       TLegend* leg1 = new TLegend(0.3, 0.7, 0.6, 0.9);
       can_meControl->cd(1);
       //gPad->SetLogy();
@@ -736,7 +729,8 @@ void SiPixelRecoCompare()
   double lwpull = 0.0;
   double hwpull = 2.0;
 
-  if (   0   ) 
+  //if (   0   ) 
+  if (   1   ) 
     {
       TCanvas* can_PullXvsAlpha = new TCanvas("can_PullXvsAlpha", "can_PullXvsAlpha", 1200, 800);
       can_PullXvsAlpha->Divide(3,2);
@@ -811,7 +805,8 @@ void SiPixelRecoCompare()
       can_PullXvsAlpha->SaveAs("mePullXvsAlpha_compare.gif");
     }
   
-  if (0) 
+  //if (   0   ) 
+  if (   1   ) 
     {
       TCanvas* can_PullXvsBeta = new TCanvas("can_PullXvsBeta", "can_PullXvsBeta", 1200, 800);
       can_PullXvsBeta->Divide(3,2);
@@ -921,8 +916,10 @@ void SiPixelRecoCompare()
       rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel1", meWPullXvsAlphaZpPanel1);
       rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel2", meWPullXvsAlphaZpPanel2);
       
-      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", newmeWPullXvsAlphaBarrelNFP  );
-      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , newmeWPullXvsAlphaBarrelFP   );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelNonFlippedLadders", 
+		       newmeWPullXvsAlphaBarrelNFP  );
+      sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaBarrelFlippedLadders"   , 
+		       newmeWPullXvsAlphaBarrelFP   );
       sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel1", newmeWPullXvsAlphaZmPanel1);
       sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZmPanel2", newmeWPullXvsAlphaZmPanel2);
       sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullXvsAlphaZpPanel1", newmeWPullXvsAlphaZpPanel1);
@@ -941,7 +938,8 @@ void SiPixelRecoCompare()
 
       can_WPullXvsAlpha->cd(2);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, 
+			     "panel1, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
       meWPullXvsAlphaZmPanel1->Draw("e");
       newmeWPullXvsAlphaZmPanel1->Draw("samee"); 
       myPV->PVCompute(meWPullXvsAlphaZmPanel1, newmeWPullXvsAlphaZmPanel1, te );
@@ -949,7 +947,8 @@ void SiPixelRecoCompare()
 
       can_WPullXvsAlpha->cd(3);
       //gPad->SetLogy();
-      SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
+      SetUpProfileHistograms(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, 
+			     "panel2, z<0, |alpha| (deg)", "< | pull x | >", lwpull, hwpull );
       meWPullXvsAlphaZmPanel2->Draw("e");
       newmeWPullXvsAlphaZmPanel2->Draw("samee"); 
       myPV->PVCompute(meWPullXvsAlphaZmPanel2, newmeWPullXvsAlphaZmPanel2, te );
@@ -986,8 +985,9 @@ void SiPixelRecoCompare()
       can_WPullXvsAlpha->SaveAs("meWPullXvsAlpha_compare.gif");
     }
   
-if (0) 
-  {
+ //if (   0   ) 
+ if (1) 
+ {
     TCanvas* can_PullXvsPhi = new TCanvas("can_PullXvsPhi", "can_PullXvsPhi", 1200, 800);
     can_PullXvsPhi->Divide(3,2);
     
@@ -1061,8 +1061,9 @@ if (0)
     can_PullXvsPhi->SaveAs("mePullXvsPhi_compare.gif");
   }
 
-if (0) 
-  {
+ //if (   0   ) 
+ if (1) 
+ {
     TCanvas* can_PullYvsAlpha = new TCanvas("can_PullYvsAlpha", "can_PullYvsAlpha", 1200, 800);
     can_PullYvsAlpha->Divide(3,2);
     
@@ -1136,8 +1137,9 @@ if (0)
     can_PullYvsAlpha->SaveAs("mePullYvsAlpha_compare.gif");
   }
 
-if (   0   ) 
-  {
+//if (   0   ) 
+ if (   1   ) 
+   {
     TCanvas* can_PullYvsBeta = new TCanvas("can_PullYvsBeta", "can_PullYvsBeta", 1200, 800);
     can_PullYvsBeta->Divide(3,2);
     
@@ -1242,7 +1244,6 @@ if (   1   )
 
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelNonFlippedLadders", newmeWPullYvsBetaBarrelNFP  );
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrelFlippedLadders"   , newmeWPullYvsBetaBarrelFP  );
-    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaBarrel"  , newmeWPullYvsBetaBarrel  ); 
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel1", newmeWPullYvsBetaZmPanel1);
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZmPanel2", newmeWPullYvsBetaZmPanel2);
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meWPullYvsBetaZpPanel1", newmeWPullYvsBetaZpPanel1);
@@ -1261,7 +1262,8 @@ if (   1   )
 
     can_WPullYvsBeta->cd(2);
     //gPad->SetLogy();
-    SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
+    SetUpProfileHistograms(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, 
+			   "panel1, z<0, |beta| (deg)", "< | pull y | > ", lwpull, hwpull );
     meWPullYvsBetaZmPanel1->Draw("e");
     newmeWPullYvsBetaZmPanel1->Draw("samee"); 
     myPV->PVCompute(meWPullYvsBetaZmPanel1, newmeWPullYvsBetaZmPanel1, te );
@@ -1308,13 +1310,9 @@ if (   1   )
   }
 
 
-
-
-
-
-
-if (0) 
-  {
+//if (   0   ) 
+ if (1) 
+   {
     TCanvas* can_PullYvsEta = new TCanvas("can_PullYvsEta", "can_PullYvsEta", 1200, 800);
     can_PullYvsEta->Divide(3,2);
     
@@ -1388,8 +1386,9 @@ if (0)
     can_PullYvsEta->SaveAs("mePullYvsEta_compare.gif");
   }
 
-if (0) 
-  {
+ //if (   0   ) 
+ if (1) 
+ {
     TCanvas* can_PullYvsPhi = new TCanvas("can_PullYvsPhi", "can_PullYvsPhi", 1200, 800);
     can_PullYvsPhi->Divide(3,2);
     
@@ -1643,8 +1642,10 @@ if (1)
     rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel1", meResXvsAlphaZpPanel1);
     rfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZpPanel2", meResXvsAlphaZpPanel2);
 
-    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelFlippedLadders"   , newmeResXvsAlphaBarrelFlippedLadders     );
-    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders", newmeResXvsAlphaBarrelNonFlippedLadders  );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelFlippedLadders"   , 
+		     newmeResXvsAlphaBarrelFlippedLadders     );
+    sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaBarrelNonFlippedLadders", 
+		     newmeResXvsAlphaBarrelNonFlippedLadders  );
  
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel1", newmeResXvsAlphaZmPanel1);
     sfile->GetObject("DQMData/TrackingRecHits/Pixel/Histograms_all/meResXvsAlphaZmPanel2", newmeResXvsAlphaZmPanel2);
@@ -2124,8 +2125,12 @@ if (1)
  for (Int_t i=0; i<3; i++) // loop ovel layers
    for (Int_t j=0; j<8; j++) // loop ovel rings
      {
-       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeBarrelLayerModule_%d_%d", i+1, j+1);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeBarrelLayerModule_%d_%d", 
+	       i+1, j+1);
        rfile->GetObject(histo, meChargeLayerModule[i][j]);
+
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeBarrelLayerModule_%d_%d", 
+	       i+1, j+1);
        sfile->GetObject(histo, newmeChargeLayerModule[i][j]); 
        SetUpHistograms(meChargeLayerModule[i][j], newmeChargeLayerModule[i][j], "barrel, charge (elec)" );
        can_meChargeRingLayer->cd(8*i + j + 1);
@@ -2152,11 +2157,12 @@ if (1)
  TH1F* meChargeZmPanel1DiskPlaq[2][4];
  TH1F* newmeChargeZmPanel1DiskPlaq[2][4];
 
- for (Int_t i=0; i<2; i++) // loop ovel disks
-   for (Int_t j=0; j<4; j++) // loop ovel plaguetes
+ for (Int_t i=0; i<2; i++) // loop over disks
+   for (Int_t j=0; j<4; j++) // loop over plaquetes
      {
        sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel1DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZmPanel1DiskPlaq[i][j]);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel1DiskPlaq_%d_%d", i+1, j+1);
        sfile->GetObject(histo, newmeChargeZmPanel1DiskPlaq[i][j]); 
        
        can_meChargeZmPanel1DiskPlaq->cd(4*i + j + 1);
@@ -2173,8 +2179,8 @@ if (1)
  leg27->AddEntry(newmeChargeZmPanel1DiskPlaq[0][0], "new release", "l");
  leg27->Draw();
  
- can_meChargeZmPanel1DiskPlaq->SaveAs("meChargeBarrelZmPanel1DiskPlaq_compare.eps");
- can_meChargeZmPanel1DiskPlaq->SaveAs("meChargeBarrelZmPanel1DiskPlaq_compare.gif");
+ can_meChargeZmPanel1DiskPlaq->SaveAs("meChargeZmPanel1DiskPlaq_compare.eps");
+ can_meChargeZmPanel1DiskPlaq->SaveAs("meChargeZmPanel1DiskPlaq_compare.gif");
 
 
  TCanvas* can_meChargeZmPanel2DiskPlaq = new TCanvas("can_meChargeZmPanel2DiskPlaq", "can_meChargeZmPanel2DiskPlaq", 600, 800);
@@ -2188,6 +2194,7 @@ if (1)
      {
        sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel2DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZmPanel2DiskPlaq[i][j]);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZmPanel2DiskPlaq_%d_%d", i+1, j+1);
        sfile->GetObject(histo, newmeChargeZmPanel2DiskPlaq[i][j]); 
        
        can_meChargeZmPanel2DiskPlaq->cd(3*i + j + 1);
@@ -2204,8 +2211,8 @@ if (1)
  leg28->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
  leg28->Draw();
 
- can_meChargeZmPanel2DiskPlaq->SaveAs("meChargeBarrelZmPanel2DiskPlaq_compare.eps");
- can_meChargeZmPanel2DiskPlaq->SaveAs("meChargeBarrelZmPanel2DiskPlaq_compare.gif");
+ can_meChargeZmPanel2DiskPlaq->SaveAs("meChargeZmPanel2DiskPlaq_compare.eps");
+ can_meChargeZmPanel2DiskPlaq->SaveAs("meChargeZmPanel2DiskPlaq_compare.gif");
 
 
  TCanvas* can_meChargeZpPanel1DiskPlaq = new TCanvas("can_meChargeZpPanel1DiskPlaq", "can_meChargeZpPanel1DiskPlaq", 600, 800);
@@ -2219,6 +2226,7 @@ if (1)
      {
        sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel1DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZpPanel1DiskPlaq[i][j]);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel1DiskPlaq_%d_%d", i+1, j+1);
        sfile->GetObject(histo, newmeChargeZpPanel1DiskPlaq[i][j]); 
        
        can_meChargeZpPanel1DiskPlaq->cd(4*i + j + 1);
@@ -2235,8 +2243,8 @@ if (1)
  leg29->AddEntry(newmeChargeZmPanel1DiskPlaq[0][0], "new release", "l");
  leg29->Draw();
  
- can_meChargeZpPanel1DiskPlaq->SaveAs("meChargeBarrelZpPanel1DiskPlaq_compare.eps");
- can_meChargeZpPanel1DiskPlaq->SaveAs("meChargeBarrelZpPanel1DiskPlaq_compare.gif");
+ can_meChargeZpPanel1DiskPlaq->SaveAs("meChargeZpPanel1DiskPlaq_compare.eps");
+ can_meChargeZpPanel1DiskPlaq->SaveAs("meChargeZpPanel1DiskPlaq_compare.gif");
 
 
  TCanvas* can_meChargeZpPanel2DiskPlaq = new TCanvas("can_meChargeZpPanel2DiskPlaq", "can_meChargeZpPanel2DiskPlaq", 600, 800);
@@ -2250,6 +2258,7 @@ if (1)
      {
        sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel2DiskPlaq_%d_%d", i+1, j+1);
        rfile->GetObject(histo, meChargeZpPanel2DiskPlaq[i][j]);
+       sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meChargeZpPanel2DiskPlaq_%d_%d", i+1, j+1);
        sfile->GetObject(histo, newmeChargeZpPanel2DiskPlaq[i][j]); 
        
        can_meChargeZpPanel2DiskPlaq->cd(3*i + j + 1);
@@ -2266,8 +2275,8 @@ if (1)
  leg30->AddEntry(newmeChargeZmPanel2DiskPlaq[0][0], "new release", "l");
  leg30->Draw();
 
- can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.eps");
- can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeBarrelZpPanel2DiskPlaq_compare.gif");
+ can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeZpPanel2DiskPlaq_compare.eps");
+ can_meChargeZpPanel2DiskPlaq->SaveAs("meChargeZpPanel2DiskPlaq_compare.gif");
 
 
  TCanvas* can_meResLayers = new TCanvas("can_meResLayers", "can_meResLayers", 1200, 800);
@@ -2282,6 +2291,7 @@ if (1)
    {
      sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResxBarrelLayer_%d", i+1);
      rfile->GetObject(histo, meResxBarrelLayer[i]);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResxBarrelLayer_%d", i+1);
      sfile->GetObject(histo, newmeResxBarrelLayer[i]); 
      
      can_meResLayers->cd(i+1);
@@ -2306,6 +2316,7 @@ if (1)
    {
      sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResyBarrelLayer_%d", i+1);
      rfile->GetObject(histo, meResyBarrelLayer[i]);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/meResyBarrelLayer_%d", i+1);
      sfile->GetObject(histo, newmeResyBarrelLayer[i]); 
        
      can_meResLayers->cd(3+i+1);
@@ -2335,6 +2346,7 @@ if (1)
    {
      sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullxBarrelLayer_%d", i+1);
      rfile->GetObject(histo, mePullxBarrelLayer[i]);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullxBarrelLayer_%d", i+1);
      sfile->GetObject(histo, newmePullxBarrelLayer[i]); 
      
      can_mePullLayers->cd(i+1);
@@ -2359,6 +2371,7 @@ if (1)
    {
      sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullyBarrelLayer_%d", i+1);
      rfile->GetObject(histo, mePullyBarrelLayer[i]);
+     sprintf(histo, "DQMData/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette/mePullyBarrelLayer_%d", i+1);
      sfile->GetObject(histo, newmePullyBarrelLayer[i]); 
        
      can_mePullLayers->cd(3+i+1);
