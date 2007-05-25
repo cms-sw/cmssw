@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/22 14:23:38 $
- * $Revision: 1.14 $
+ * $Date: 2007/05/23 10:04:05 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -443,6 +443,8 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<br>" << endl;
 
   delete cMap;
+
+  gStyle->SetPaintTextFormat();
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );

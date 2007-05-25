@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/22 15:05:59 $
- * $Revision: 1.30 $
+ * $Date: 2007/05/23 10:04:05 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  *
 */
@@ -879,8 +879,9 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-
   delete cMap;
+
+  gStyle->SetPaintTextFormat();
 
   if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
   if ( imgNameMapO.size() != 0 ) this->writeMap( htmlFile, "Occupancy" );

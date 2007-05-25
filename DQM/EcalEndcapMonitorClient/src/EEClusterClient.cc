@@ -1,8 +1,8 @@
 /*
  * \file EEClusterClient.cc
  *
- * $Date: 2007/05/22 15:44:13 $
- * $Revision: 1.9 $
+ * $Date: 2007/05/24 17:10:53 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -1453,6 +1453,8 @@ void EEClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cEne;
   delete cMap;
+
+  //gStyle->SetPaintTextFormat();
 
   // html page footer
   htmlFile << "</body> " << endl;

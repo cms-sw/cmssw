@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/05/24 13:20:55 $
- * $Revision: 1.27 $
+ * $Date: 2007/05/24 14:15:38 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -1263,6 +1263,8 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cEne;
   delete cMap;
+
+  gStyle->SetPaintTextFormat();
 
   // html page footer
   htmlFile << "</body> " << endl;
