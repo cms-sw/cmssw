@@ -9,7 +9,7 @@
 <use name=L1TriggerConfig/L1Geometry>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="HLTriggerEgamma">
 <export>
    <lib name=HLTriggerEgamma>
    <use name=FWCore/Framework>
