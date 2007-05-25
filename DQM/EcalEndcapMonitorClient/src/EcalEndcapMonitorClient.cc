@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/25 09:03:14 $
- * $Revision: 1.17 $
+ * $Date: 2007/05/25 09:43:55 $
+ * $Revision: 1.18 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1241,8 +1241,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
     if ( verbose_ ) cout << " updates = " << updates << endl;
 
-    if ( run_ != last_run_ ) forced_update_ = true;
-
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
       cout << " run = "      << run_      <<
@@ -1274,6 +1272,8 @@ void EcalEndcapMonitorClient::analyze(void){
     last_update_ = updates;
 
     last_jevt_ = jevt_;
+
+    if ( run_ != last_run_ ) forced_update_ = true;
 
   }
 
@@ -1516,19 +1516,26 @@ void EcalEndcapMonitorClient::analyze(void){
 
         if ( run_ != last_run_ ) {
 
+          // save run_
+          int new_run_ = run_;
+
+          // use last_run_
+          run_ = last_run_;
+
           if ( ! mergeRuns_ ) {
 
             cout << endl;
             cout << " A new run has just started, issuing endRun() ... " << endl;
             cout << endl;
 
-            // re-use old run_
-            run_ = last_run_;
-
             forced_status_ = false;
             this->endRun();
 
           }
+
+          // restore run_
+          run_ = new_run_;
+          last_run_ = new_run_;
 
         }
 
