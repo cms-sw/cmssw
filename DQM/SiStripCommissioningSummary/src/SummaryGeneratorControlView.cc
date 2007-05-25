@@ -45,23 +45,36 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
   // Path and std::string for "present working directory" as defined by device key
   SiStripFecKey path( device_key );
   std::string pwd = path.path();
+
+  LogTrace(mlTest_)
+    << "TEST " 
+    << "top " << top 
+    << "path " << path;
   
   // Check path is "within" top-level directory structure 
-  if ( ( ( path.fecCrate() == top.fecCrate() ) || 
-	 ( top.fecCrate() == sistrip::invalid_ ) ) && 
-       path.fecCrate() != sistrip::invalid_ &&
-       ( ( path.fecSlot()  == top.fecSlot()  ) || 
-	 ( top.fecSlot()  == sistrip::invalid_ ) ) && 
-       path.fecSlot()  != sistrip::invalid_ &&
-       ( ( path.fecRing()  == top.fecRing()  ) || 
-	 ( top.fecRing()  == sistrip::invalid_ ) ) && 
-       path.fecRing()  != sistrip::invalid_ && 
-       ( ( path.ccuAddr()  == top.ccuAddr()  ) || 
-	 ( top.ccuAddr()  == sistrip::invalid_ ) ) && 
-       path.ccuAddr()  != sistrip::invalid_ &&
-       ( ( path.ccuChan()  == top.ccuChan()  ) || 
-	 ( top.ccuChan()  == sistrip::invalid_ ) ) && 
-       path.ccuChan()  != sistrip::invalid_ ) { 
+//   if ( ( ( path.fecCrate() == top.fecCrate() ) || 
+// 	 ( top.fecCrate() == sistrip::invalid_ ) ) && 
+//        path.fecCrate() != sistrip::invalid_ &&
+//        ( ( path.fecSlot()  == top.fecSlot()  ) || 
+// 	 ( top.fecSlot()  == sistrip::invalid_ ) ) && 
+//        path.fecSlot()  != sistrip::invalid_ &&
+//        ( ( path.fecRing()  == top.fecRing()  ) || 
+// 	 ( top.fecRing()  == sistrip::invalid_ ) ) && 
+//        path.fecRing()  != sistrip::invalid_ && 
+//        ( ( path.ccuAddr()  == top.ccuAddr()  ) || 
+// 	 ( top.ccuAddr()  == sistrip::invalid_ ) ) && 
+//        path.ccuAddr()  != sistrip::invalid_ &&
+//        ( ( path.ccuChan()  == top.ccuChan()  ) || 
+// 	 ( top.ccuChan()  == sistrip::invalid_ ) ) && 
+//        path.ccuChan()  != sistrip::invalid_ ) { 
+  
+  if ( top.isValid() &&
+       path.isValid() &&
+       ( path.fecCrate() == top.fecCrate() || !top.fecCrate() ) && 
+       ( path.fecSlot() == top.fecSlot() || !top.fecSlot() ) && 
+       ( path.fecRing() == top.fecRing() || !top.fecRing() ) && 
+       ( path.ccuAddr() == top.ccuAddr() || !top.ccuAddr() ) && 
+       ( path.ccuChan() == top.ccuChan() || !top.ccuChan() ) ) {
     
     // Extract path and std::string corresponding to "top-level down to granularity" 
     std::string sub_dir = pwd;
@@ -73,6 +86,10 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
     }
 
     SiStripFecKey sub_path( sub_dir );
+
+    LogTrace(mlTest_)
+      << "TEST " 
+      << "sub_path " << sub_path; 
     
     // Construct bin label
     std::stringstream bin;
@@ -88,6 +105,9 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
     // Store "value" in appropriate std::vector within std::map (key is bin label)
     map_[bin.str()].push_back( Data(value,error) );
     entries_++;
+    LogTrace(mlTest_)
+      << "TEST " 
+      << " filling " << bin.str() << " " << value << " " << error << " ";
 
   }
   

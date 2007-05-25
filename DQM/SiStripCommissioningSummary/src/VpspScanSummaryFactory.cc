@@ -68,12 +68,12 @@ uint32_t SummaryHistogramFactory<VpspScanAnalysis>::extract( const std::map<uint
   std::map<uint32_t,VpspScanAnalysis>::const_iterator iter = data.begin();
   for ( ; iter != data.end(); iter++ ) {
     if ( mon_ == sistrip::VPSP_SCAN_BOTH_APVS ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp0() ); 
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp1() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[0] ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[1] ); 
     } else if ( mon_ == sistrip::VPSP_SCAN_APV0 ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp0() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[0] ); 
     } else if ( mon_ == sistrip::VPSP_SCAN_APV1 ) {
-      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp1() ); 
+      generator_->fillMap( level_, gran_, iter->first, iter->second.vpsp()[1] ); 
     } else { 
       edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
 	   << " Unexpected SummaryHisto value:"
