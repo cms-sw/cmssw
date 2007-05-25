@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.30 2007/04/25 17:15:56 pwing Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.31 2007/04/30 13:49:07 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -84,17 +84,34 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       << " Found " << feds.size() << " FED buffers with non-zero size!";
   }
 
+  // Some temporary debug
+  if ( !(event_%100) ) {
+    std::stringstream ss;
+    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+       << " Contents of FEDRawDataCollection (FedId/#chars): ";
+    for ( uint16_t ifed = 0; ifed < sistrip::CMS_FED_ID_MAX; ifed++ ) {
+      uint16_t size = buffers.FEDData( static_cast<int>(ifed) ).size();
+      if ( size ) { ss << ifed << "/" << size << " "; }
+    }
+    LogTrace(mlRawToDigi_) << ss.str();
+  }
+  
   // Retrieve FED ids from cabling map and iterate through 
   std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
   for ( ; ifed != cabling.feds().end(); ifed++ ) {
-
-    //LogTrace(mlRawToDigi_)
-    //<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-    //<< " Extracting payload from FED id: " << *ifed;
     
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
+    // Some temporary debug
+    if ( !(event_%100) && input.data() ) {
+      LogTrace(mlRawToDigi_)
+	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	<< " Found data for FED id " << *ifed
+	<< " with ptr 0x" << input.data()
+	<< " and size (char) " << input.size();
+    }	
+
     // Dump of FEDRawData to stdout
     if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
       std::stringstream ss;
@@ -129,9 +146,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Initialise Fed9UEvent using present FED buffer
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
-      //fedEvent_->checkEvent();
-    } catch(...) { handleException( __func__, "Problem when creating and checking Fed9UEvent" ); } 
-
+      fedEvent_->checkEvent();
+    } catch(...) { 
+      handleException( __func__, "Problem when creating Fed9UEvent" ); 
+      continue;
+    } 
+    
     // Retrive readout mode
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
     try {
@@ -660,7 +680,7 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
   catch ( const ICUtils::ICException& e ) {
     std::stringstream ss;
     ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught exception!" << std::endl;
+       << " Caught ICUtils::ICException exception!" << std::endl;
     if ( extra_info != "" ) { 
       ss << " Information: " << extra_info << std::endl;
     }
@@ -673,7 +693,7 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
   catch ( const std::exception& e ) {
     std::stringstream ss;
     ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught exception!" << std::endl;
+       << " Caught std::exception!" << std::endl;
     if ( extra_info != "" ) { 
       ss << " Information: " << extra_info << std::endl;
     }
@@ -686,7 +706,7 @@ void SiStripRawToDigiUnpacker::handleException( std::string method_name,
   catch (...) {
     std::stringstream ss;
     ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Caught exception!" << std::endl;
+       << " Caught unknown exception!" << std::endl;
     if ( extra_info != "" ) { 
       ss << " Information: " << extra_info << std::endl;
     }
