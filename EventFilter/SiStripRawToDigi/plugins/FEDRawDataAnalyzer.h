@@ -8,7 +8,6 @@
 #include "boost/cstdint.hpp"
 #include <vector>
 #include <string>
-#include <time.h>
 
 /**
    @class FEDRawDataAnalyzer 
@@ -42,12 +41,6 @@ class FEDRawDataAnalyzer : public edm::EDAnalyzer {
   std::string label_;
   std::string instance_;
   int32_t sleep_;
-  int32_t initial_;
-  int32_t increment_;
-  int32_t period_;
-  float   meas_;
-  clock_t last_;
-  int32_t event_;
   
 };
 
