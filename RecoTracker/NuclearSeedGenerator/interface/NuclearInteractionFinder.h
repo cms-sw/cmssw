@@ -35,6 +35,7 @@
 
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/TangentCircle.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -48,9 +49,9 @@ private:
   typedef TrajectoryMeasurement::ConstRecHitPointer    ConstRecHitPointer;
 
   /// get the seeds at the interaction point
-  void getSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs, TrajectorySeedCollection& output);
+  void fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs );
 
-  /// Improve the current seed with a third RecHit
+  /// Improve the seeds with a third RecHit
   void improveSeeds();
 
   /// Find compatible TM of a TM with error rescaled by rescaleFactor
@@ -60,6 +61,9 @@ private:
   std::vector<TrajectoryMeasurement>
          findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
 
+  /// Calculate the parameters of the circle representing the primary track at the interaction point
+  void definePrimaryCircle(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
+
 public:
 
   NuclearInteractionFinder(){}
@@ -68,10 +72,13 @@ public:
 
   virtual ~NuclearInteractionFinder();
 
-  /// Get the TrajectorySeed's at the nuclear interaction point 
-  bool  run(const Trajectory& traj, std::auto_ptr<TrajectorySeedCollection>& output);
+  /// Run the Finder
+  bool  run(const Trajectory& traj);
 
   void setEvent(const edm::Event& event) const;
+
+  /// Fill output with persistent nuclear seeds
+  void getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output );
 
 private:
 
@@ -83,8 +90,10 @@ private:
   const NavigationSchool*         theNavigationSchool;
   edm::ESHandle<MagneticField>    theMagField;
 
-  NuclearTester*                  nuclTester;
-  SeedFromNuclearInteraction*     currentSeed;
+  NuclearTester*                             nuclTester;
+  SeedFromNuclearInteraction*                currentSeed;
+  std::vector<SeedFromNuclearInteraction>    allSeeds;
+  TangentCircle*                             thePrimaryCircle;
 
   // parameters
   double        ptMin;

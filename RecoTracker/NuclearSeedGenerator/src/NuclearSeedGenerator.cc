@@ -45,14 +45,16 @@ NuclearSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
 
-   // Run the nuclear finder algorithm
+   // Update the measurement 
    theNuclearInteractionFinder->setEvent(iEvent);
 
    for(std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++) {
 
-         std::pair<TM, std::vector<TM> > tmPairs; 
+         // run the finder
+         theNuclearInteractionFinder->run( *iTraj );
 
-         theNuclearInteractionFinder->run( *iTraj, output );
+         // push back the new persistent seeds in output
+         theNuclearInteractionFinder->getPersistentSeeds( output );
    }
 
    iEvent.put(output);
