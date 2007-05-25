@@ -77,9 +77,12 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
     if ( anal.isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
-      anal.print( ss ); 
-      if ( anal.isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+      anal.print( ss, 1 ); 
+      anal.print( ss, 2 ); 
+      if ( anal.isValid() ) { 
+	LogTrace(mlDqmClient_) << ss.str(); 
+	valid++;
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
     
   }

@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -134,8 +134,8 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
 	<< " Initial VPSP setting: " << desc->getVpsp();
       
-      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp0() ); }
-      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp1() ); }
+      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp()[0] ); }
+      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp()[1] ); }
       
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"

@@ -613,6 +613,22 @@ void SiStripCommissioningClient::save( std::string filename ) {
   std::string dir = "";
   if ( getenv(scratch.c_str()) != NULL ) { 
     dir = getenv(scratch.c_str()); 
+    return;
+  }
+
+  // Set default filename
+  if ( filename == "" ) { filename = "SiStripCommissioningClient"; }
+  
+  // Strip filename of ".root" extension
+  std::string name;
+  if ( filename.find(".root",0) == std::string::npos ) { name = filename; }
+  else { name = filename.substr( 0, filename.find(".root",0) ); }
+  
+  // Retrieve SCRATCH directory
+  std::string scratch = "SCRATCH";
+  std::string dir = "";
+  if ( getenv(scratch.c_str()) != NULL ) { 
+    dir = getenv(scratch.c_str()); 
   }
 
   // Add directory path 
