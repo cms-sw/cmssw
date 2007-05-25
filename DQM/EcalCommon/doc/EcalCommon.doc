@@ -22,10 +22,15 @@
 
 - ColorPalette
 - EcalErrorMask
+- EcalMonitorPrescaler
+- LogicID
+- Numbers
+- UtilsClient
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
+- EcalMonitorPrescaler
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
