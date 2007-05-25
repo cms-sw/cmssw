@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/04/10 09:01:48 $
- * $Revision: 1.3 $
+ * $Date: 2007/04/10 09:26:39 $
+ * $Revision: 1.4 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -137,6 +137,8 @@ string dbUserName_;
 string dbPassword_;
 
 string maskFile_;
+
+bool mergeRuns_;
  
 RunIOV runiov_;
 MonRunIOV moniov_;

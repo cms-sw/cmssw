@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/05/02 09:10:58 $
- * $Revision: 1.259 $
+ * $Date: 2007/05/25 07:04:17 $
+ * $Revision: 1.260 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -147,14 +147,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
 
-  // collateRuns switch
+  // mergeRuns switch
 
-  collateRuns_ = ps.getUntrackedParameter<bool>("collateRuns", false);
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
 
-  if ( collateRuns_ ) {
-    cout << " collateRuns switch is ON" << endl;
+  if ( mergeRuns_ ) {
+    cout << " mergeRuns switch is ON" << endl;
   } else {
-    cout << " collateRuns switch is OFF" << endl;
+    cout << " mergeRuns switch is OFF" << endl;
   } 
 
   // enableSubRunDb switch
@@ -497,10 +497,11 @@ void EcalBarrelMonitorClient::beginJob(void){
   evt_     = -1;
   runtype_ = -1;
 
+  last_run_ = -1;
+
   subrun_  = -1;
 
   last_jevt_   = -1;
-  last_run_    = -1;
   last_update_ =  0;
 
   unknowns_ = 0;
@@ -1278,6 +1279,8 @@ void EcalBarrelMonitorClient::analyze(void){
 
     last_jevt_ = jevt_;
 
+    if ( run_ != last_run_ ) forced_update_ = true;
+
   }
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
@@ -1523,7 +1526,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
-  // missing 'end-of-run' state, use new run number
+  // missing 'end-of-run' state, use run number change
 
   if ( status_ == "running" ) {
 
@@ -1533,11 +1536,14 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( run_ != last_run_ ) {
 
-          if ( ! collateRuns_ ) {
+          if ( ! mergeRuns_ ) {
 
             cout << endl;
             cout << " A new run has just started, issuing endRun() ... " << endl;
             cout << endl;
+
+            // re-use old run_
+            run_ = last_run_;
 
             forced_status_ = false;
             this->endRun();

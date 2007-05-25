@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/12 09:39:06 $
- * $Revision: 1.15 $
+ * $Date: 2007/05/24 13:26:11 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -144,6 +144,16 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   if ( maskFile_.size() != 0 ) {
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
+  }
+
+  // mergeRuns switch
+
+  mergeRuns_ = ps.getUntrackedParameter<bool>("mergeRuns", false);
+
+  if ( mergeRuns_ ) {
+    cout << " mergeRuns switch is ON" << endl;
+  } else {
+    cout << " mergeRuns switch is OFF" << endl;
   }
 
   // enableSubRunDb switch
@@ -486,6 +496,8 @@ void EcalEndcapMonitorClient::beginJob(void){
   evt_     = -1;
   runtype_ = -1;
 
+  last_run_ = -1;
+
   subrun_  = -1;
 
   last_jevt_   = -1;
@@ -551,6 +563,8 @@ void EcalEndcapMonitorClient::beginRun(void){
 
   begin_run_ = true;
   end_run_   = false;
+
+  last_run_  = run_;
 
   if ( verbose_ ) cout << "EcalEndcapMonitorClient: beginRun" << endl;
 
@@ -1259,6 +1273,8 @@ void EcalEndcapMonitorClient::analyze(void){
 
     last_jevt_ = jevt_;
 
+    if ( run_ != last_run_ ) forced_update_ = true;
+
   }
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
@@ -1481,6 +1497,38 @@ void EcalEndcapMonitorClient::analyze(void){
 
           forced_status_ = false;
           this->endRun();
+
+        }
+
+      }
+
+    }
+
+  }
+
+  // missing 'end-of-run' state, use run number change
+
+  if ( status_ == "running" ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( begin_run_ && ! end_run_ ) {
+
+        if ( run_ != last_run_ ) {
+
+          if ( ! mergeRuns_ ) {
+
+            cout << endl;
+            cout << " A new run has just started, issuing endRun() ... " << endl;
+            cout << endl;
+
+            // re-use old run_
+            run_ = last_run_;
+
+            forced_status_ = false;
+            this->endRun();
+
+          }
 
         }
 

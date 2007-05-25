@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/04/29 22:25:12 $
- * $Revision: 1.71 $
+ * $Date: 2007/05/25 07:04:16 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -140,7 +140,7 @@ string dbPassword_;
 
 string maskFile_;
 
-bool collateRuns_;
+bool mergeRuns_;
  
 RunIOV runiov_;
 MonRunIOV moniov_;
