@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/04/10 09:26:39 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/25 09:03:13 $
+ * $Revision: 1.5 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -185,6 +185,8 @@ bool forced_update_;
 bool enableExit_;
  
 int last_update_;
+
+int last_run_;
  
 int last_jevt_;
  
