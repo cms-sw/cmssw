@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/05/12 09:32:24 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/12 09:56:46 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -46,11 +46,20 @@ EcalEndcapMonitorModule::EcalEndcapMonitorModule(const ParameterSet& ps){
   cout << " *** Ecal Endcap Generic Monitor ***" << endl;
   cout << endl;
 
-  // this should come from the EcalEndcap run header
+  // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
+
+  fixedRunNumber_ = true;
+  if ( runNumber_ != 0 ) fixedRunNumber_ = false;
+
+  if ( fixedRunNumber_ ) {
+    LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
+  }
+
+  // this should come from the event header
   evtNumber_ = 0;
 
-  // this should come from the EcalEndcap run header
+  // this should come from the EcalEndcap event header
   runType_ = ps.getUntrackedParameter<int>("runType", -1);
   evtType_ = runType_;
 
@@ -277,7 +286,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalEndcapMonitor") << "processing event " << ievt_;
 
-  if ( runNumber_ == 0 ) {
+  if ( fixedRunNumber_ ) {
     if ( e.id().run() != 0 ) runNumber_ = e.id().run();
   }
 
@@ -304,7 +313,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEEDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( runNumber_ == 0 ) {
+      if ( fixedRunNumber_ ) {
         if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
       }
 
@@ -333,7 +342,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEEDCC_->Fill(1);
 
-      if ( runNumber_ == 0 ) {
+      if ( fixedRunNumber_ ) {
         if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
       }
 

@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorModule.h
  *
- * $Date: 2007/04/05 14:54:00 $
- * $Revision: 1.2 $
+ * $Date: 2007/05/12 09:32:24 $
+ * $Revision: 1.3 $
  * \author G. Della Ricca
  *
 */
@@ -53,6 +53,8 @@ int evtType_;
 
 int runNumber_;
 int evtNumber_;
+
+bool fixedRunNumber_;
 
 int ievt_;
 
