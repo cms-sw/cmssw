@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.2 2007/05/10 22:46:54 wmtan Exp $
+   \version $Id: ProductRegistry.cc,v 1.3 2007/05/25 18:10:25 chrjones Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.2 2007/05/10 22:46:54 wmtan Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.3 2007/05/25 18:10:25 chrjones Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -55,16 +55,7 @@ namespace edm {
   
   void
   ProductRegistry::setFrozen() const {
-    if (frozen_) return;
-/*
-    for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end();
-        it != itEnd; ++it) {
-      if (it->second.productID_.id_ == 0) {
-       throw cms::Exception("ProductRegistry", "setFrozen")
-          << "cannot read the ProductRegistry because it is not yet frozen.";
-      }
-    }
-*/
+    if(frozen_) return;
     frozen_ = true;
     initializeConstProductList();
   }
@@ -132,6 +123,8 @@ namespace edm {
 
   void ProductRegistry::initializeConstProductList() const {
     constProductList_.clear();
+    productLookup_.clear();
+    elementLookup_.clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
       constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
 
