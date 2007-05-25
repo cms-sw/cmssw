@@ -74,6 +74,11 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
       << "[FedCablingTask::" << __func__ << "]"
       << " No FED channels with high signal!";
     return; 
+  } else {
+    LogTrace(mlDqmSource_)  
+      << "[FedCablingTask::" << __func__ << "]"
+      << " Found " << fed_ch.size()
+      << " FED channels with high signal!";
   }
   
   std::map<uint16_t,float>::const_iterator ichan = fed_ch.begin();

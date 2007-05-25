@@ -30,10 +30,10 @@ void ApvTimingTask::book() {
   uint16_t nbins = 24 * nBins_;
   
   std::string title = SiStripHistoTitle( sistrip::APV_TIMING, 
-				    sistrip::FED_KEY, 
-				    fedKey(),
-				    sistrip::LLD_CHAN, 
-				    connection().lldChannel() ).title();
+					 sistrip::FED_KEY, 
+					 fedKey(),
+					 sistrip::LLD_CHAN, 
+					 connection().lldChannel() ).title();
   
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nBins_*25.-0.5, 

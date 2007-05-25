@@ -202,7 +202,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set,
   // Set sum of contents and squares
   histo_set.vSumOfContents_[bin] += value;
   histo_set.vSumOfSquares_[bin] += value*value;
-  
+
 }
 
 // -----------------------------------------------------------------------------
@@ -235,7 +235,7 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
     for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
       histo_set.histo_->setBinContent( ibin+1, histo_set.vNumOfEntries_[ibin] );
     }
-
+    
   }
   
 }
