@@ -45,7 +45,7 @@ void VpspScanHistograms::histoAnalysis( bool debug ) {
 
   uint16_t valid = 0;
   HistosMap::const_iterator iter = 0;
-  Analyses::iterator ianal = 0;
+  //Analyses::iterator ianal = 0;
 
   // Clear map holding analysis objects
   data_.clear();
