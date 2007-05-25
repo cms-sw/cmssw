@@ -6,29 +6,29 @@
 #include "TopQuarkAnalysis/TopSkimming/interface/TtDecayChannelSelector.h"
 
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
-  topChn_( cfg.getParameter<int >("chn") ),
-  invChn_( cfg.getParameter<bool>("invert_chn") ),
-  subChn_( cfg.getParameter<bool>("enable_subchn")),
-  invSub_( cfg.getParameter<bool>("invert_subchn")),
-  lepVec_( cfg.getParameter<std::vector<int> >("subchn"))
+  invert_( cfg.getParameter<bool>("invert") ),
+  oneLep_( cfg.getParameter<std::vector<int> >("one_lepton_channels")),
+  twoLep_( cfg.getParameter<std::vector<int> >("two_lepton_channels"))
 {
-  if( !(0<=topChn_ && topChn_<=2) ){
-    throw edm::Exception( edm::errors::Configuration,
-			  "value of 'selectChn' may only be between 0 and 2" );
+  if( oneLep_.size()!=3 )
+    throw edm::Exception( edm::errors::Configuration, "'one_lepton_channel' must contain 3 values" );
+  if( twoLep_.size()!=3 )
+    throw edm::Exception( edm::errors::Configuration, "'two_lepton_channel' must contain 3 values" );
+
+  Decay::const_iterator leaf1=oneLep_.begin(),leaf2=twoLep_.begin(); 
+  for( ; leaf1!=oneLep_.end(), leaf2!=twoLep_.end(); ++leaf1, ++leaf2){
+    if( !(0<=(*leaf1) && (*leaf1)<=1) )
+      throw edm::Exception( edm::errors::Configuration, "values of 'one_lepton_channel' may only be 0 or 1" );
+    if( !(0<=(*leaf2) && (*leaf2)<=1) )
+      throw edm::Exception( edm::errors::Configuration, "values of 'two_lepton_channel' may only be 0 or 1" );
   }
-  if( lepVec_.size()!=3 ){
-    throw edm::Exception( edm::errors::Configuration,
-			  "vector<int> 'leptonCannel' must contain 3 values" );
-  }
-  std::vector<int>::const_iterator v;
-  for(v=lepVec_.begin(); v<lepVec_.end(); ++v)
-    if( !(0<=(*v) && (*v)<=1) )
-      throw edm::Exception( edm::errors::Configuration,
-			    "values of vector<int> 'leptonChannel' may only be 0 or 1" );
-  
-  //invChn_ switches subChn_ automatically off
-  if(topChn_==0) subChn_= false;
-  if(invChn_   ) subChn_= false;
+
+  channel_=0;
+  if( count(oneLep_.begin(), oneLep_.end(), 1)>0 ){ channel_+=1; }
+  if( count(twoLep_.begin(), twoLep_.end(), 1)>0 ){ channel_+=2; }
+
+  if( channel_>2 )
+    throw edm::Exception( edm::errors::Configuration, "switch one of the 'lepton_channel`s' to (0,0,0), please" );
 }
 
 TtDecayChannelSelector::~TtDecayChannelSelector()
@@ -61,27 +61,29 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
 
   bool accept=false;
   if( (iTop==2) && (iBeauty==2) ){
-    if( iLep==topChn_){
-      accept=true;
-      if( subChn_&& topChn_>0 ){
-	accept=((iElec==iLep && lepVec_[0]) || 
-		(iMuon==iLep && lepVec_[1]) ||
-		(iTau ==iLep && lepVec_[2]));
-	accept=((  !invSub_  && accept)|| 
-		(!(!invSub_) &&!accept));
-      }
-    }
-    accept=( (!invChn_&& accept) || (!(!invChn_)&& !accept) );
+    if( channel_==iLep )
+      if( (channel_==0)
+	  ||
+	  (channel_==1) &&
+	  ( ((oneLep_[Elec]==1) && (iElec==iLep))||
+	    ((oneLep_[Muon]==1) && (iMuon==iLep))||
+	    ((oneLep_[Tau ]==1) && (iTau ==iLep)))
+	  ||
+	  (channel_==2) &&
+	  ( ((twoLep_[Elec]==1) && (iElec==iLep))||
+	    ((twoLep_[Muon]==1) && (iMuon==iLep))||
+	    ((twoLep_[Tau ]==1) && (iTau ==iLep))))
+	accept=true;
+    accept=( (!invert_&& accept) || (!(!invert_)&& !accept) );
   }
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
-//  if(accept){
-//    std::cout << "iElec: " << iElec << "\n"
-//	      << "iMuon: " << iMuon << "\n"
-//	      << "iTau : " << iTau  << "\n"
-//	      << "accept " << accept<< "\n"
-//	      << std::endl;
-//  }  
-  return accept;
+ if(accept){
+   std::cout << "iElec  : " << iElec   << "\n"
+	     << "iMuon  : " << iMuon   << "\n"
+	     << "iTau   : " << iTau    << "\n"
+	     << std::endl;
+ }  
+ return accept;
 }
