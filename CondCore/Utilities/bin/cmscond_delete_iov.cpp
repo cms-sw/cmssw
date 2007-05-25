@@ -21,6 +21,7 @@ int main( int argc, char** argv ){
     ("catalog,f",boost::program_options::value<std::string>(),"file catalog contact string (default $POOL_CATALOG)")
     ("all,a","delete all tags")
     ("tag,t",boost::program_options::value<std::string>(),"delete the specified tag and IOV")
+    ("withPayload","delete payload data associated with the specified tag (default off)")
     ("debug,d","switch on debug mode")
     ("help,h", "help message")
     ;
@@ -43,6 +44,7 @@ int main( int argc, char** argv ){
   std::string pass("");
   bool deleteAll=true;
   bool debug=false;
+  bool withPayload=false;
   std::string tag;
   if(!vm.count("connect")){
     std::cerr <<"[Error] no connect[c] option given \n";
@@ -64,9 +66,13 @@ int main( int argc, char** argv ){
     tag=vm["tag"].as<std::string>();
     deleteAll=false;
   }
+  if(vm.count("withPayload")){
+    withPayload=true;
+  }
   if(vm.count("debug")){
     debug=true;
   }
+  
   cond::DBSession* session=new cond::DBSession(true);
   session->sessionConfiguration().setAuthenticationMethod( cond::Env );
   if(debug){
@@ -88,7 +94,7 @@ int main( int argc, char** argv ){
       cond::IOVService iovservice(pooldb);
       pooldb.connect();
       pooldb.startTransaction(false);
-      iovservice.deleteAll();
+      iovservice.deleteAll(withPayload);
       pooldb.commit();
       pooldb.disconnect();
       cond::RelationalStorageManager coraldb(connect,session);
@@ -126,7 +132,7 @@ int main( int argc, char** argv ){
       cond::IOVEditor* ioveditor=iovservice.newIOVEditor(token);
       pooldb.connect();
       pooldb.startTransaction(false);
-      ioveditor->deleteEntries();
+      ioveditor->deleteEntries(withPayload);
       pooldb.commit();
       pooldb.disconnect();
       coraldb.connect(cond::ReadWrite);
