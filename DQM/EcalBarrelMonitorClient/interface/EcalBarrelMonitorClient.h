@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/04/10 09:26:38 $
- * $Revision: 1.70 $
+ * $Date: 2007/04/29 22:25:12 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -139,6 +139,8 @@ string dbUserName_;
 string dbPassword_;
 
 string maskFile_;
+
+bool collateRuns_;
  
 RunIOV runiov_;
 MonRunIOV moniov_;
@@ -186,8 +188,10 @@ bool enableExit_;
  
 int last_update_;
  
-int last_jevt_;
+int last_run_;
  
+int last_jevt_;
+
 int unknowns_;
  
 CollateMonitorElement* me_h_;

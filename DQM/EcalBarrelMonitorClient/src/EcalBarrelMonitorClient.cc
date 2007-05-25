@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.258 $
+ * $Date: 2007/05/02 09:10:58 $
+ * $Revision: 1.259 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -146,6 +146,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   if ( maskFile_.size() != 0 ) {
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
+
+  // collateRuns switch
+
+  collateRuns_ = ps.getUntrackedParameter<bool>("collateRuns", false);
+
+  if ( collateRuns_ ) {
+    cout << " collateRuns switch is ON" << endl;
+  } else {
+    cout << " collateRuns switch is OFF" << endl;
+  } 
 
   // enableSubRunDb switch
 
@@ -490,6 +500,7 @@ void EcalBarrelMonitorClient::beginJob(void){
   subrun_  = -1;
 
   last_jevt_   = -1;
+  last_run_    = -1;
   last_update_ =  0;
 
   unknowns_ = 0;
@@ -552,6 +563,8 @@ void EcalBarrelMonitorClient::beginRun(void){
 
   begin_run_ = true;
   end_run_   = false;
+
+  last_run_  = run_;
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
@@ -1501,6 +1514,35 @@ void EcalBarrelMonitorClient::analyze(void){
 
           forced_status_ = false;
           this->endRun();
+
+        }
+
+      }
+
+    }
+
+  }
+
+  // missing 'end-of-run' state, use new run number
+
+  if ( status_ == "running" ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( begin_run_ && ! end_run_ ) {
+
+        if ( run_ != last_run_ ) {
+
+          if ( ! collateRuns_ ) {
+
+            cout << endl;
+            cout << " A new run has just started, issuing endRun() ... " << endl;
+            cout << endl;
+
+            forced_status_ = false;
+            this->endRun();
+
+          }
 
         }
 
