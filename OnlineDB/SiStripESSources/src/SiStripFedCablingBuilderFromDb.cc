@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.33 2007/03/28 10:30:13 bainbrid Exp $
-// Latest tag:  $Name:  $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/src/SiStripFedCablingBuilderFromDb.cc,v $
+// Last commit: $Id: $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -473,6 +471,8 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     fec_cabling.dcuId( conn );
   }
 
+  // ---------- Counters used in assigning "dummy" FED ids and channels ----------
+
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Finished building FEC cabling object from APV and DCU descriptions!";
@@ -483,7 +483,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
     << time(NULL) - SiStripFedCablingBuilderFromDb::timer_;
 
   // ---------- Counters used in assigning "dummy" FED ids and channels ----------
-  
+
   vector<uint16_t>::iterator ifed = fed_ids.begin();
   uint16_t fed_ch = 0;
 
@@ -541,7 +541,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
       }
     }
   }
- 
+
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Finished assigning \"dummy\" FED ids/channels to constructed modules...";
@@ -556,7 +556,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices( SiStripConfigDb
   edm::LogVerbatim(mlCabling_) 
     << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
     << " Assigning \"dummy\" devices to remaining FED ids/channels...";
-  
+
   uint16_t module = 0;
   bool complete = false;
   while ( !complete ) { 

@@ -1,6 +1,4 @@
-// Last commit: $Id: SiStripFedCablingBuilderFromDb.h,v 1.11 2007/03/19 13:23:06 bainbrid Exp $
-// Latest tag:  $Name: TIF_210307 $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h,v $
+// Last commit: $Id: $
 
 #ifndef OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripFedCablingBuilderFromDb_H
