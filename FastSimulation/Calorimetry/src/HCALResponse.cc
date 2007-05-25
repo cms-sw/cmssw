@@ -2,8 +2,10 @@
 #include "FastSimulation/Calorimetry/interface/HCALResponse.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-//CMSSW headers
+// CMSSW Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include<iostream>
 #include <math.h>
 

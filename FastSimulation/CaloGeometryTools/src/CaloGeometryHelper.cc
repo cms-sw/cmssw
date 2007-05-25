@@ -1,16 +1,16 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 // needed for the debugging
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/EcalBarrelAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalEndcapAlgo/interface/EcalEndcapGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/EcalPreshowerAlgo/interface/EcalPreshowerGeometry.h"
 
@@ -30,7 +30,7 @@ CaloGeometryHelper::CaloGeometryHelper():Calorimeter()
 
 CaloGeometryHelper::CaloGeometryHelper(const edm::ParameterSet& fastCalo):Calorimeter(fastCalo)
 {
-  std::cout << " In the constructor with ParameterSet " << std::endl;
+  //  std::cout << " In the constructor with ParameterSet " << std::endl;
   psLayer1Z_ = 303;
   psLayer2Z_ = 307;
 }
@@ -45,7 +45,7 @@ void CaloGeometryHelper::initialize()
   ESDetId cps2(getEcalPreshowerGeometry()->getClosestCellInPlane(GlobalPoint(80.,80.,307.),2));
   psLayer2Z_ = getEcalPreshowerGeometry()->getGeometry(cps2)->getPosition().z();
   LogDebug("CaloGeometryTools")  << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
-  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
+  //  std::cout << " Preshower layer positions " << psLayer1Z_ << " " << psLayer2Z_ << std::endl;
 
 }
 
@@ -145,7 +145,7 @@ void CaloGeometryHelper::buildNeighbourArray()
   // Barrel first. The hashed index runs from 0 to 61199
   barrelNeighbours_.resize(nbarrel);
   
-  std::cout << " Building the array of neighbours (barrel) " ;
+  //std::cout << " Building the array of neighbours (barrel) " ;
 
   std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
@@ -197,8 +197,8 @@ void CaloGeometryHelper::buildNeighbourArray()
 
   // Moved to the endcap
 
-  std::cout << " done " << size << std::endl;
-  std::cout << " Building the array of neighbours (endcap) " ;
+  //  std::cout << " done " << size << std::endl;
+  //  std::cout << " Building the array of neighbours (endcap) " ;
 
   vec.clear();
   vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
@@ -246,7 +246,7 @@ void CaloGeometryHelper::buildNeighbourArray()
 
 	}
     }
-  std::cout << " done " << size <<std::endl;
+  //  std::cout << " done " << size <<std::endl;
   neighbourmapcalculated_ = true;
 }
 
@@ -403,7 +403,7 @@ void CaloGeometryHelper::buildCrystalArray()
   // Barrel first. The hashed index runs from 0 to 61199
   barrelCrystals_.resize(nbarrel,BaseCrystal());
 
-  std::cout << " Building the array of crystals (barrel) " ;
+  //std::cout << " Building the array of crystals (barrel) " ;
   std::vector<DetId> vec(EcalBarrelGeometry_->getValidDetIds(DetId::Ecal,EcalBarrel));
   unsigned size=vec.size();    
   const CaloCellGeometry * geom=0;
@@ -416,8 +416,8 @@ void CaloGeometryHelper::buildCrystalArray()
       barrelCrystals_[hashedindex]=xtal;
     }
   
-  std::cout << " done " << size << std::endl;
-  std::cout << " Building the array of crystals (endcap) " ;
+  //  std::cout << " done " << size << std::endl;
+  //  std::cout << " Building the array of crystals (endcap) " ;
   
   vec.clear();
   vec=EcalEndcapGeometry_->getValidDetIds(DetId::Ecal,EcalEndcap);
@@ -435,5 +435,5 @@ void CaloGeometryHelper::buildCrystalArray()
       xtal.setCorners(geom->getCorners(),geom->getPosition());
       endcapCrystals_[hashedindex]=xtal;
     }
-  std::cout << " done " << size << std::endl;
+  //  std::cout << " done " << size << std::endl;
 }

@@ -9,12 +9,9 @@
 <use name=FastSimulation/ShowerDevelopment>
 <use name=FastSimulation/Utilities>
 <use name=SimDataFormats/CaloHit>
-<use name=boost>
 <export>
-  <use name=FWCore/ParameterSet>
   <use name=FastSimulation/Particle>
   <use name=FastSimulation/Utilities>
   <use name=SimDataFormats/CaloHit>
-  <use name=boost>
   <lib name=FastSimulationCalorimetry>
 </export>

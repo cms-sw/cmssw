@@ -1,10 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 
-#include <iomanip>
-//#include <fstream>
-//#include <iostream>
-
 BaseParticlePropagator::BaseParticlePropagator() :
   RawParticle(), rCyl(0.), rCyl2(0.), zCyl(0.), bField(0), properDecayTime(1E99)
 {;}

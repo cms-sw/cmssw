@@ -6,9 +6,6 @@
 #include "FastSimulation/ParticleDecay/interface/Pythia6Decays.h"
 #include "FastSimulation/ParticleDecay/interface/Pythia6jets.h"
 
-#include <list>
-#include <algorithm>
-
 #define PYTHIA6PYDECY pythia6pydecy_
 
 extern "C" {

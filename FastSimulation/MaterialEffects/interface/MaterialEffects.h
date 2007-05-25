@@ -30,8 +30,6 @@
 // Geometry Headers
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
-#include <iostream>
-
 class FSimEvent;
 class TrackerLayer;
 class ParticlePropagator;
@@ -41,7 +39,10 @@ class BremsstrahlungSimulator;
 class EnergyLossSimulator;
 class NuclearInteractionSimulator;
 class RandomEngine;
-class ParameterSet;
+
+namespace edm {
+  class ParameterSet;
+}
 
 class MaterialEffects
 {

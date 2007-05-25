@@ -1,9 +1,8 @@
+<use name=DataFormats/Candidate>
 <use name=DataFormats/Common>
 <use name=DataFormats/Provenance>
-<use name=DataFormats/Candidate>
 <use name=DetectorDescription/Core>
 <use name=FWCore/Framework>
-<use name=FWCore/Sources>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
@@ -18,26 +17,17 @@
 <use name=FastSimulation/Utilities>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/CaloGeometry>
-<use name=Geometry/CaloTopology>
 <use name=Geometry/Records>
-<use name=Geometry/TrackerGeometryBuilder>
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
-<use name=RecoTracker/GeometryESProducer>
 <use name=RecoTracker/Record>
-<use name=RecoTracker/TkDetLayers>
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/HepMCProduct>
-<use name=SimDataFormats/Track>
 <use name=SimDataFormats/TrackingHit>
-<use name=SimDataFormats/Vertex>
 <use name=SimGeneral/HepPDTRecord>
 <use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>
-#  <use name=DataFormats/Common>
-#  <use name=FWCore/Framework>
-#  <use name=FWCore/ParameterSet>
   <lib name=FastSimulationEventProducer>
 </export>
 

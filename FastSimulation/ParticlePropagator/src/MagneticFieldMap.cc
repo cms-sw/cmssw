@@ -2,8 +2,6 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerInteractionGeometry.h"
 
-#include "TH1.h"
-#include "TAxis.h"
 #include <iostream>
 #include <string>
 
@@ -46,8 +44,6 @@ MagneticFieldMap::initialize()
   std::list<TrackerLayer>::iterator cyliter;
   std::list<TrackerLayer>::iterator cylitBeg=geometry_->cylinderBegin();
   std::list<TrackerLayer>::iterator cylitEnd=geometry_->cylinderEnd();
-
-  gROOT->cd();
   
   // Prepare the histograms
   std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;
@@ -73,7 +69,6 @@ MagneticFieldMap::initialize()
     double step;
 
     // Disk histogram characteristics
-    std::string histEndcap = Form("LayerEndCap_%u",layer);
     step = (rmax-rmin)/(bins-1);
     fieldEndcapBinWidth[layer] = step;
     fieldEndcapRMin[layer] = rmin;
@@ -86,7 +81,6 @@ MagneticFieldMap::initialize()
     }
 
     // Barrel Histogram characteritics
-    std::string histBarrel = Form("LayerBarrel_%u",layer);
     step = (zmax-zmin)/(bins-1);
     fieldBarrelBinWidth[layer] = step;
     fieldBarrelZMin[layer] = zmin;

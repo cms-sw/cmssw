@@ -1,4 +1,5 @@
 #include "FastSimulation/ShowerDevelopment/interface/HSParameters.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 HSParameters::HSParameters(const edm::ParameterSet& param)
 {

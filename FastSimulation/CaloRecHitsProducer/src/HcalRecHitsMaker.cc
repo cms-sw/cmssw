@@ -1,9 +1,11 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/HcalRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -13,9 +15,6 @@
 #include "CLHEP/GenericFunctions/Erf.hh"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
-
-#include <algorithm>
-#include <iostream>
 
 class RandomEngine;
 

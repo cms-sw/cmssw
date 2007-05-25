@@ -3,6 +3,7 @@
 
 #include "FastSimulation/Utilities/interface/BaseNumericalRandomGenerator.h"
 
+#include <cmath>
 
 /** Numerical Random Generator for Landau Fluctuations.
  * The constructor integrates and inverses the Ersaztz for the 

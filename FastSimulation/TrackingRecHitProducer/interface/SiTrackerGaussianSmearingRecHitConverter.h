@@ -10,21 +10,15 @@
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // Data Formats
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "DataFormats/GeometryVector/interface/Point3DBase.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
-//#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // STL
 #include <vector>
@@ -37,6 +31,12 @@ class TrackerGeometry;
 class SiPixelGaussianSmearingRecHitConverterAlgorithm;
 class SiStripGaussianSmearingRecHitConverterAlgorithm;
 class RandomEngine;
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 
 class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
@@ -73,7 +73,6 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   //
   //
   // parameters
-  edm::ParameterSet conf_;
   std::vector<std::string> trackerContainers;
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)

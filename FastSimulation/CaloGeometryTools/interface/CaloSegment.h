@@ -8,13 +8,9 @@
 
 //FAMOS headers
 #include "FastSimulation/CaloGeometryTools/interface/CaloPoint.h"
-#include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
-
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
 
 #include <string>
-#include <iostream>
+
 class CaloGeometryHelper;
 class CaloSegment 
 {

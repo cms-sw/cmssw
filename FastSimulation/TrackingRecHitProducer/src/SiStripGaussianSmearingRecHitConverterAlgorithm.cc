@@ -9,22 +9,12 @@
 
 // SiStrip Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
-//#include "CommonTools/Statistics/interface/RandomMultiGauss.h"
-
-// Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "DataFormats/DetId/interface/DetId.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 // Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // STL
-#include <vector>
-#include <memory>
 #include <string>
-#include <iostream>
 
 //#define FAMOS_DEBUG
 

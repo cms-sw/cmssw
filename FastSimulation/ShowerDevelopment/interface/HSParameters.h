@@ -1,10 +1,13 @@
 #ifndef FastSimulation_ShowerDevelopment_HSParameters_H
 #define FastSimulation_ShowerDevelopment_HSParameters_H
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 /** 
  *  Parameters used in the hadron fast simulation 
  */ 
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class HSParameters
 {

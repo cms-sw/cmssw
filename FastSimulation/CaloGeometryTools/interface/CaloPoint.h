@@ -9,11 +9,8 @@
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "DataFormats/DetId/interface/DetId.h"
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
-#include <iostream>
 #include <string>
 
 //ideally this class should inherit from XYZPoint & CellID 

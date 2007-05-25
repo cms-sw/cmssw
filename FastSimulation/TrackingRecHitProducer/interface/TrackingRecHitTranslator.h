@@ -11,15 +11,18 @@
 
 // Framework
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Data Formats
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 
 class TrackerGeometry;
 class DetId;
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 class TrackingRecHitTranslator : public edm::EDProducer
 {
@@ -40,8 +43,6 @@ class TrackingRecHitTranslator : public edm::EDProducer
     std::map<DetId,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
     SiTrackerFullGSRecHit2DCollection& theRecHitCollection) const;
 
-  // parameters
-  edm::ParameterSet conf_;
   //
   const TrackerGeometry* geometry;
   //

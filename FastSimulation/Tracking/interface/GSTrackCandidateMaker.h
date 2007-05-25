@@ -2,13 +2,9 @@
 #define FastSimulation_Tracking_GSTrackCandidateMaker_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+
+#include <string>
 
 class TransientInitialStateEstimator;
 class MagneticField;
@@ -16,6 +12,12 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PTrajectoryStateOnDet;
 class ParticlePropagator; 
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 class GSTrackCandidateMaker : public edm::EDProducer
 {
@@ -39,8 +41,6 @@ class GSTrackCandidateMaker : public edm::EDProducer
 
  private:
 
-  edm::ParameterSet conf_;
-  
   const MagneticField*  theMagField;
   const TrackerGeometry*  theGeometry;
 
@@ -48,7 +48,8 @@ class GSTrackCandidateMaker : public edm::EDProducer
   double maxD0;
   double maxZ0;
   unsigned minRecHits;
-  GlobalPoint gpos1,gpos2;  
+  std::string hitProducer;
+
 };
 
 #endif

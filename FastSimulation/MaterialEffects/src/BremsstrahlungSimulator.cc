@@ -2,7 +2,6 @@
 #include "FastSimulation/MaterialEffects/interface/BremsstrahlungSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iostream>
 #include <cmath>
 
 BremsstrahlungSimulator::BremsstrahlungSimulator(double photonEnergyCut, 

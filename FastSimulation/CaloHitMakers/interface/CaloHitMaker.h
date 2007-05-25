@@ -13,7 +13,6 @@
 //STL headers
 #include <string>
 #include <map>
-#include <iostream>
 
 class CaloGeometryHelper;
 class CalorimeterProperties;

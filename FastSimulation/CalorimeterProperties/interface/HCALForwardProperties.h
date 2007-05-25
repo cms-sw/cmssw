@@ -2,7 +2,12 @@
 #define HCALForwardProperties_H
 
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include <cmath>
+
+namespace edm { 
+  class ParameterSet;
+}
 
 /** 
  * Functions to return atomic properties of the material
@@ -36,7 +41,7 @@ class HCALForwardProperties : public HCALProperties
 
   double thickness(double eta) const 
     { 
-      double e  = exp(-eta);
+      double e  = std::exp(-eta);
       double e2 = e*e;
       // 1 / cos theta
       double cinv  = (1.+e2)/(1.-e2);

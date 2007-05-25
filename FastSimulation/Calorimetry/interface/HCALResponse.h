@@ -7,10 +7,6 @@
  * 
  */
 
-// CMSSW Headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-
 #include <map>
 
 #define maxHDeB   12
@@ -28,6 +24,10 @@ enum part{hcbarrel=0, hcendcap=1, hcforward=2};
 enum type{ECAL=0, HCAL=1, VFCAL=2};
 
 class RandomEngine;
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class HCALResponse
 {

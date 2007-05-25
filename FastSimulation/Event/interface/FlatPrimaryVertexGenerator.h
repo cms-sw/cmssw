@@ -8,6 +8,10 @@
 
 class RandomEngine;
 
+namespace edm { 
+  class ParameterSet;
+}
+
 class FlatPrimaryVertexGenerator : public PrimaryVertexGenerator {
 
 public:

@@ -1,13 +1,18 @@
 #ifndef FastSimulation__EcalBarrelRecHitsMaker__h
 #define FastSimulation__EcalBarrelRecHitsMaker__h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Framework/interface/Event.h"
+
 #include <map>
-#include <boost/cstdint.hpp>
+//#include <boost/cstdint.hpp>
 
 class RandomEngine;
+
+namespace edm { 
+  class ParameterSet;
+  class Event;  
+  class EventSetup;
+}
 
 class EcalBarrelRecHitsMaker
 {

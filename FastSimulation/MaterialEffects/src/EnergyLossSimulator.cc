@@ -1,14 +1,8 @@
 #include "FastSimulation/MaterialEffects/interface/EnergyLossSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+//#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
 
-//#include "FamosGeneric/FamosUtils/interface/FamosHistos.h"
-
-//#include "CLHEP/Units/PhysicalConstants.h"
-
-#include <iostream>
 #include <cmath>
-#include <cstring>
 
 EnergyLossSimulator::EnergyLossSimulator(const RandomEngine* engine) :
     MaterialEffectsSimulator(engine) 

@@ -3,7 +3,7 @@
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 
-#include "FastSimulation/Event/interface/FSimTrack.h"
+//#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloPoint.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
@@ -11,11 +11,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
-// CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Plane3D.h"
-
-#include <boost/cstdint.hpp>
+//#include <boost/cstdint.hpp>
 
 #include <vector>
 
@@ -23,6 +19,7 @@ class CaloGeometryHelper;
 class CrystalWindowMap;
 class Histos;
 class RandomEngine;
+class FSimTrack;
 
 class EcalHitMaker: public CaloHitMaker
 {

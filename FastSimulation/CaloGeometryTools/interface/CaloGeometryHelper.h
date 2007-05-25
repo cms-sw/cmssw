@@ -4,13 +4,15 @@
 #include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "FastSimulation/CaloGeometryTools/interface/BaseCrystal.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-//#include "CLHEP/Geometry/Point3D.h"
 
 #include <vector>
 
 class DetId;
 class Crystal;
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class CaloGeometryHelper:public Calorimeter
 {

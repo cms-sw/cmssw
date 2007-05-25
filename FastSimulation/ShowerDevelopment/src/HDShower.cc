@@ -1,6 +1,6 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShower.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
+//#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 
@@ -10,9 +10,6 @@
 
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
-
-//Anaphe headers
-#include "CLHEP/Units/PhysicalConstants.h"
 
 // CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

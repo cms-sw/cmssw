@@ -20,7 +20,10 @@ class TTree;
 class TBranch;
 class PUEvent;
 
-class ParameterSet;
+namespace edm { 
+  class ParameterSet;
+} 
+
 class ParticlePropagator;
 class RandomEngine;
 class FSimEvent;

@@ -1,27 +1,17 @@
 // -----------------------------------------------------------------------------
 //  Prototype for a particle class
 // -----------------------------------------------------------------------------
-//  $Date: 2007/05/08 17:25:51 $
-//  $Revision: 1.10 $
+//  $Date: 2007/05/18 09:12:46 $
+//  $Revision: 1.11 $
 // -----------------------------------------------------------------------------
 //  Author: Stephan Wynhoff - RWTH-Aachen (Email: Stephan.Wynhoff@cern.ch)
 // -----------------------------------------------------------------------------
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-//#include "Rtypes.h"
-#include "Math/AxisAngle.h"
-#include "Math/RotationX.h"
-#include "Math/RotationY.h"
-#include "Math/RotationZ.h"
-#include "Math/Boost.h"
-
-#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <cstdlib>
-#include <algorithm>
 
 //using namespace HepPDT;
 

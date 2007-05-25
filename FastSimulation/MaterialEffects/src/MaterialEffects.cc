@@ -6,7 +6,6 @@
 
 // Famos Headers
 #include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
@@ -18,8 +17,6 @@
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
 
 #include <list>
-#include <utility>
-#include <iostream>
 #include <vector>
 #include <string>
 

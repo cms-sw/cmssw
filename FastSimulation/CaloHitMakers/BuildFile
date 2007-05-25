@@ -1,25 +1,22 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/HcalDetId>
+<use name=DataFormats/Math>
 <use name=FastSimulation/CaloGeometryTools>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/Event>
 <use name=FastSimulation/Utilities>
-<use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
-<use name=Geometry/EcalBarrelAlgo>
-<use name=Geometry/EcalEndcapAlgo>
 <use name=Geometry/EcalPreshowerAlgo>
-<use name=boost>
-<use name=clhep>
+<use name=rootmath>
 <export>
   <use name=DataFormats/DetId>
   <use name=DataFormats/HcalDetId>
+  <use name=DataFormats/Math>
   <use name=FastSimulation/CaloGeometryTools>
-  <use name=FastSimulation/Utilities>
   <use name=FastSimulation/Event>
+  <use name=FastSimulation/Utilities>
   <use name=Geometry/CaloTopology>
-  <use name=boost>
-  <use name=clhep>
+  <use name=rootmath>
   <lib name=FastSimulationCaloHitMakers>
 </export>

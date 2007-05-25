@@ -1,31 +1,24 @@
 #include <memory>
-#include <string>
 
-#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OwnVector.h"
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "FastSimulation/Tracking/interface/GSTrackCandidateMaker.h"
-#include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 
-#include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -35,32 +28,45 @@
 
 
 //for debug only 
+//#define FAMOS_DEBUG
+
+#ifdef FAMOS_DEBUG
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#endif
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 //
 
-//#define FAMOS_DEBUG
 
-GSTrackCandidateMaker::GSTrackCandidateMaker(edm::ParameterSet const& conf) : 
-  conf_(conf)
+GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf) 
 {  
 #ifdef FAMOS_DEBUG
-    std::cout << "GSTrackCandidateMaker created" << std::endl;
+  std::cout << "GSTrackCandidateMaker created" << std::endl;
 #endif
-    produces<TrackCandidateCollection>();
+  produces<TrackCandidateCollection>();
+  
+  // The smallest true pT for a track candidate
+  pTMin = conf.getParameter<double>("pTMin");
+  pTMin *= pTMin;  // Cut is done of perp2() - CPU saver
+  
+  // The smallest number of Rec Hits for a track candidate
+  minRecHits = conf.getParameter<unsigned int>("MinRecHits");
 
-    
+  // The smallest true impact parameters (d0 and z0) for a track candidate
+  maxD0 = conf.getParameter<double>("MaxD0");
+  maxZ0 = conf.getParameter<double>("MaxZ0");
+
+  // The name of the hit producer
+  hitProducer = conf.getParameter<std::string>("HitProducer");
 
 }
 
@@ -89,17 +95,6 @@ GSTrackCandidateMaker::beginJob (edm::EventSetup const & es) {
 
   theMagField = &(*magField);
   theGeometry = &(*geometry);
-
-  // The smallest true pT for a track candidate
-  pTMin = conf_.getParameter<double>("pTMin");
-  pTMin *= pTMin;  // Cut is done of perp2() - CPU saver
-
-  // The smallest number of Rec Hits for a track candidate
-  minRecHits = conf_.getParameter<unsigned int>("MinRecHits");
-
-  // The smallest true impact parameters (d0 and z0) for a track candidate
-  maxD0 = conf_.getParameter<double>("MaxD0");
-  maxZ0 = conf_.getParameter<double>("MaxZ0");
 
 }
   
@@ -132,7 +127,6 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 #endif
   
   edm::Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
   e.getByLabel(hitProducer, theGSRecHits);
   
   // No tracking attempted if no hits !
@@ -208,14 +202,14 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	 (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap){
 	const DetId& detId = hit1->geographicalId();
 	const GeomDet* geomDet( theGeometry->idToDet(detId) );
-	gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+	GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
 	for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
 	  hit2 = &(*iterRecHit2);
 	  if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
 	     (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
 	    const DetId& detId = hit2->geographicalId();
 	    const GeomDet* geomDet( theGeometry->idToDet(detId) );
-	    gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
+	    GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
 
 	    compatible = compatibleWithVertex(gpos1,gpos2);
 	    
@@ -447,15 +441,8 @@ GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpo
 
 
  // The hits 1 and 2 positions, in HepLorentzVector's
-  XYZTLorentzVector thePos1(gpos1.x(),
-			   gpos1.y(),
-			   gpos1.z(),
-			   0.);
-
-  XYZTLorentzVector thePos2(gpos2.x(),
-			   gpos2.y(),
-			   gpos2.z(),
-			   0.);
+  XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
+  XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
 
   // Create new particles that pass through the second hit with pT = ptMin 
   // and charge = +/-1

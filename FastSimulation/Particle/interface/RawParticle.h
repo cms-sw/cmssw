@@ -14,7 +14,6 @@
 
 class ParticleTable;
 
-#include <vector>
 #include <string>
 #include <iosfwd>
 

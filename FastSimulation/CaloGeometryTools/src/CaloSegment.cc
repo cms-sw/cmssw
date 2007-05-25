@@ -2,8 +2,9 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloSegment.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer1Properties.h"
-#include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
+//#include "FastSimulation/CalorimeterProperties/interface/PreshowerLayer2Properties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
+#include "FastSimulation/CalorimeterProperties/interface/ECALProperties.h"
 
 CaloSegment::CaloSegment(const CaloPoint& in,
 			 const CaloPoint& out,

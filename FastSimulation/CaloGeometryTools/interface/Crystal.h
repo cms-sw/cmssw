@@ -1,16 +1,11 @@
 #ifndef FastSimulation_GeometryTool_Crystal_h
 #define FastSimulation_GeometryTool_Crystal_h
 
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Plane3D.h"
-//#include "DataFormats/Math/interface/Point3D.h"
+// Data Formats
 #include "Math/GenVector/Plane3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 // Unfortunately, GlobalPoints are also needed
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 #include "DataFormats/DetId/interface/DetId.h"
 

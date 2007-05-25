@@ -2,7 +2,6 @@
 #define HCALBarrelProperties_H
 
 #include "FastSimulation/CalorimeterProperties/interface/HCALProperties.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /** 
  * Functions to return atomic properties of the material
@@ -14,6 +13,10 @@
  */ 
 
 #include <cmath>
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class HCALBarrelProperties : public HCALProperties 
 {

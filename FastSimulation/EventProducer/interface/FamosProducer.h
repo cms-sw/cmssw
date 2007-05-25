@@ -2,15 +2,11 @@
 #define FastSimulation_EventProducer_FamosProducer_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Common/interface/EDProduct.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 class FamosManager;
+class ParameterSet;
+class Event;
+class EventSetup;
 
 namespace HepMC { 
   class GenEvent;

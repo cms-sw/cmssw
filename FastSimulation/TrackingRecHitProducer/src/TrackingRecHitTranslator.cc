@@ -11,41 +11,26 @@
 #include "FastSimulation/TrackingRecHitProducer/interface/TrackingRecHitTranslator.h"
 
 // Geometry
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 // Data Formats
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 // Framework
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Data Formats
 #include "DataFormats/DetId/interface/DetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
-// Random engine
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 // STL
 #include <memory>
 #include <string>
-#include <iostream>
 
-TrackingRecHitTranslator::TrackingRecHitTranslator(
-  edm::ParameterSet const& conf) 
-  : conf_(conf)
+TrackingRecHitTranslator::TrackingRecHitTranslator(edm::ParameterSet const& conf) 
 {
   produces<SiTrackerFullGSRecHit2DCollection>();
 }

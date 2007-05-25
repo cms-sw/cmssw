@@ -2,10 +2,6 @@
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iostream>
-
-// GammaFunctionGenerator* GammaFunctionGenerator::myself = 0;
-
 GammaFunctionGenerator::GammaFunctionGenerator(const RandomEngine* engine) :
   random(engine)
 {

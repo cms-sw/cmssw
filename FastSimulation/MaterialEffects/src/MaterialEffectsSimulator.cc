@@ -1,10 +1,8 @@
 
 #include "FastSimulation/MaterialEffects/interface/MaterialEffectsSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+//#include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <list>
-#include <utility>
-#include <iostream>
 
 using std::list;
 using std::pair;

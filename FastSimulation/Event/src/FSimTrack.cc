@@ -1,15 +1,8 @@
-//#include "CommonReco/PatternTools/interface/TTrack.h"
-
-#include "HepMC/GenParticle.h"
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
 #include "FastSimulation/Event/interface/FSimTrack.h"
 
 //C++ Headers
 #include <iomanip>
-#include <fstream>
-#include <iostream>
 #include <string>
-#include <vector>
 
 //using namespace HepPDT;
 

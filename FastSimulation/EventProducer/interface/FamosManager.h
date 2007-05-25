@@ -1,15 +1,17 @@
 #ifndef FastSimulation_EventProducer_FamosManager_H
 #define FastSimulation_EventProducer_FamosManager_H
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
-#include <fstream>
 #include <string>
 
 namespace HepMC {
   class GenEvent;
+}
+
+namespace edm { 
+  class ParameterSet;
+  class EventSetup;
 }
 
 class FSimEvent;

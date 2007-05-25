@@ -8,10 +8,8 @@
 
 //FAMOS Headers
 #include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
-#include "FastSimulation/TrackerSetup/interface/TrackerRing.h"
 
 #include <list>
-#include <map>
 
 class MediumProperties;
 class GeometricSearchTracker;

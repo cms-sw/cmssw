@@ -1,12 +1,12 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
+//#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+//#include "FWCore/Framework/interface/EventSetup.h"
+//#include "FWCore/Framework/interface/ESHandle.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
@@ -21,6 +21,7 @@
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
 
 #include "HepMC/GenEvent.h"
+#include "HepMC/GenVertex.h"
 //#include "HepMC/FourVector.h"
 
 #include <iostream>
@@ -119,12 +120,17 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    // Put info on to the end::Event
    FSimEvent* fevt = famosManager_->simEvent();
    
-   // Set the vertex back to the HepMCProduct
-   HepMC::FourVector theVertex(fevt->filter().vertex().X()*10.,
-			       fevt->filter().vertex().Y()*10.,
-			       fevt->filter().vertex().Z()*10.,
-			       fevt->filter().vertex().T()*10.);
-   if ( myGenEvent ) theHepMCProduct->applyVtxGen( &theVertex );
+   // Set the vertex back to the HepMCProduct (except if it was smeared already)
+   if ( myGenEvent ) { 
+     HepMC::GenVertex* primaryVertex =  *(myGenEvent->vertices_begin());
+     if ( primaryVertex && fabs(primaryVertex->position().z()) > 1e-9 ) {  
+       HepMC::FourVector theVertex(fevt->filter().vertex().X()*10.,
+				   fevt->filter().vertex().Y()*10.,
+				   fevt->filter().vertex().Z()*10.,
+				   fevt->filter().vertex().T()*10.);
+       theHepMCProduct->applyVtxGen( &theVertex );
+     }
+   }
    
    CalorimetryManager * calo = famosManager_->calorimetryManager();
    TrajectoryManager * tracker = famosManager_->trackerManager();

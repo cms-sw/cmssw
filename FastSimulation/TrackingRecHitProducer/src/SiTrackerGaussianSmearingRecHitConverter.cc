@@ -8,11 +8,9 @@
 
 // SiTracker Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiTrackerGaussianSmearingRecHitConverter.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 
 // SiPixel Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
-#include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
 // SiStripGaussianSmearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiStripGaussianSmearingRecHitConverterAlgorithm.h"
@@ -21,23 +19,22 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 // Data Formats
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 // Numbering scheme
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
@@ -52,18 +49,15 @@
 // STL
 #include <memory>
 #include <string>
-#include <iostream>
 
 // ROOT
 #include <TFile.h>
 #include <TH1F.h>
-#include <TAxis.h>
 
 //#define FAMOS_DEBUG
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
-  : conf_(conf)
 {
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
@@ -291,7 +285,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   // Initialize and open relevant files for the pixel barrel error parametrization
   thePixelBarrelParametrization = 
     new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        conf_,
+        conf,
 	GeomDetEnumerators::PixelBarrel,
 	theBarrelMultiplicityAlphaCumulativeProbabilities,
 	theBarrelMultiplicityBetaCumulativeProbabilities,
@@ -300,7 +294,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   // Initialize and open relevant files for the pixel forward error parametrization 
   thePixelEndcapParametrization = 
     new SiPixelGaussianSmearingRecHitConverterAlgorithm(
-        conf_,
+        conf,
 	GeomDetEnumerators::PixelEndcap,
 	theForwardMultiplicityAlphaCumulativeProbabilities,
 	theForwardMultiplicityBetaCumulativeProbabilities,

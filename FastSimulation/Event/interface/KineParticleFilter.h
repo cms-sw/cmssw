@@ -1,9 +1,6 @@
 #ifndef FastSimulation_Event_KineParticleFilter_H
 #define FastSimulation_Event_KineParticleFilter_H
 
-//Framework Headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 //FAMOS Headers
 #include "FastSimulation/Particle/interface/BaseRawParticleFilter.h"
 
@@ -11,6 +8,10 @@
  * A filter for particles in the user-defined kinematic acceptabce.
  * \author Patrick Janot
  */
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class KineParticleFilter : public BaseRawParticleFilter {
 public:

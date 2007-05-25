@@ -2,24 +2,25 @@
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/GeometryVector>
 <use name=DataFormats/Math>
-<use name=DataFormats/HcalDetId>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/ParticlePropagator>
+<use name=FastSimulation/Utilities>
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloTopology>
 <use name=Geometry/EcalBarrelAlgo>
 <use name=Geometry/EcalEndcapAlgo>
 <use name=Geometry/EcalPreshowerAlgo>
+<use name=clhep>
 <use name=rootmath>
 <export>
   <use name=DataFormats/DetId>
   <use name=DataFormats/GeometryVector>
   <use name=DataFormats/Math>
-  <use name=FWCore/ParameterSet>
   <use name=FastSimulation/CalorimeterProperties>
   <use name=Geometry/CaloTopology>
+  <use name=clhep>
   <use name=rootmath>
   <lib name=FastSimulationCaloGeometryTools>
 </export>

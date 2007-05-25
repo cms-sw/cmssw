@@ -1,7 +1,6 @@
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iostream>
 #include <cmath>
 
 MultipleScatteringSimulator::MultipleScatteringSimulator(

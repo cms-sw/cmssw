@@ -1,12 +1,7 @@
 #ifndef PreshowerHitMaker_h
 #define PreshowerHitMaker_h
 
-#include "FastSimulation/Event/interface/FSimTrack.h"
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
-
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
 
 class CaloGeometryHelper;
 class LandauFluctuationGenerator;

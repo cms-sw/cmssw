@@ -1,7 +1,5 @@
 #include "FastSimulation/Particle/interface/BaseRawParticleFilter.h"
 
-#include <iostream>
-
 bool BaseRawParticleFilter::accept(const RawParticle& p) const
 {
   return this->accept(&p);

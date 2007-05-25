@@ -8,28 +8,25 @@
 
 // SiPixel Gaussian Smearing
 #include "FastSimulation/TrackingRecHitProducer/interface/SiPixelGaussianSmearingRecHitConverterAlgorithm.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+//#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelErrorParametrization.h"
 
 // Geometry
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+//#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 
 // Famos
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/HistogramGenerator.h"
 
 // STL
-#include <vector>
-#include <memory>
 #include <string>
-#include <iostream>
 
 // ROOT
 #include <TFile.h>
-#include <TH1F.h>
-#include <TAxis.h>
+//#include <TH1F.h>
+//#include <TAxis.h>
 
 //#define FAMOS_DEBUG
 

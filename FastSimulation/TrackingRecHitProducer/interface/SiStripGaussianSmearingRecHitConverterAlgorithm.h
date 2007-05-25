@@ -17,7 +17,6 @@
 //#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 // STL
-#include <vector>
 #include <string>
 
 class RandomEngine;

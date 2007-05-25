@@ -8,8 +8,6 @@
  * \date: 25-Jan-2004
  */ 
 
-#include <iostream>
-
 class CalorimeterProperties
 {
  public:

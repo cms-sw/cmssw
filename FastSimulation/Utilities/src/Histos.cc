@@ -2,9 +2,11 @@
 #include "FastSimulation/Utilities/interface/Histos.h"
 
 #include "TFile.h"
-#include "TH1.h"
+//#include "TH1.h"
 #include "TH2.h"
 #include "TProfile.h"
+
+#include <sstream>
 
 Histos* Histos::myself = 0;
 

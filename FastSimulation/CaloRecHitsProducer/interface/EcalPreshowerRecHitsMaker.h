@@ -1,19 +1,22 @@
 #ifndef FastSimulation__EcalPreshowerRecHitsMaker__h
 #define FastSimulation__EcalPreshowerRecHitsMaker__h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include <map>
 #include <vector>
 
-#include <boost/cstdint.hpp>
+//#include <boost/cstdint.hpp>
 
 class CaloGeometry;
 class RandomEngine;
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 class EcalPreshowerRecHitsMaker
 {

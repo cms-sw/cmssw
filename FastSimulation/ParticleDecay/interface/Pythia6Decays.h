@@ -5,6 +5,7 @@
 
 class ParticlePropagator;
 class Pythia6jets;
+class RawParticle;
 
 typedef std::list<const RawParticle *> DaughterParticleList;
 typedef DaughterParticleList::const_iterator DaughterParticleIterator; 

@@ -8,8 +8,6 @@
 /** A class that gives some properties of the Tracker Layers in FAMOS
  */
 
-#include <iostream>
-
 class TrackerLayer {
 public:
   

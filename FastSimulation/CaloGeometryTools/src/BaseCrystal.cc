@@ -1,10 +1,7 @@
-//CMSSW headers
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-
 //FAMOS headers
 #include "FastSimulation/CaloGeometryTools/interface/BaseCrystal.h"
-#include "FastSimulation/CaloGeometryTools/interface/CrystalPad.h"
-#include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
+
+// Data Formats
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 typedef ROOT::Math::Plane3D::Point Point;
@@ -19,7 +16,7 @@ void BaseCrystal::setCorners(const std::vector<GlobalPoint>& vec,const GlobalPoi
   unsigned ncorners= vec.size();
   if(ncorners!=8) return;
 
-  // This is really a pity to have to make the conversion GlobalPoint to CLHEP , but the latter have many
+  // This is really a pity to have to make the conversion GlobalPoint to XYZPoint, but the latter have many
   // useful properties (transformations, conversions....) that aren't implemented
   // for the GlobalPoints and GlobalVectors. 
 

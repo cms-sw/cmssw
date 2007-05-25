@@ -1,11 +1,7 @@
 #ifndef FastSimulation_GeometryTool_BaseCrystal_h
 #define FastSimulation_GeometryTool_BaseCrystal_h
 
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Plane3D.h"
-//#include "DataFormats/Math/interface/Point3D.h"
+//Data Formats
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/Plane3D.h"
 
@@ -15,11 +11,7 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-//FAMOS
-#include "FastSimulation/CaloGeometryTools/interface/CrystalNeighbour.h"
-
 #include <vector>
-#include <iostream>
 
 class DetId;
 

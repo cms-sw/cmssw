@@ -1,0 +1,16 @@
+#include "FastSimulation/Event/interface/FSimTrack.h"
+#include "FastSimulation/Event/interface/FSimVertex.h"
+
+static FSimTrack oTrack;
+inline FSimTrack& FBaseSimEvent::track(int i) const { 
+  return (i>=0 && i<(int)nTracks()) ? (*theSimTracks)[i] : oTrack; }
+
+static FSimVertex oVertex;
+inline FSimVertex& FBaseSimEvent::vertex(int i) const { 
+  return (i>=0 && i<(int)nVertices()) ? (*theSimVertices)[i] : oVertex; }
+
+inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { 
+  return (*theSimTracks)[i].simTrack(); }
+
+inline const SimVertex& FBaseSimEvent::embdVertex(int i) const { 
+  return (*theSimVertices)[i].simVertex(); }

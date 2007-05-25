@@ -3,10 +3,6 @@
 
 #include "Geometry/CaloTopology/interface/CaloDirection.h"
 
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Vector/TwoVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "Math/GenVector/Transform3D.h"

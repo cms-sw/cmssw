@@ -3,14 +3,13 @@
 #include "FastSimulation/Utilities/interface/BaseNumericalRandomGenerator.h"
 
 #include "TH1.h"
-#include "TAxis.h"
-#include <iostream>
-#include <cmath>
+
 /** Numerical Random Generator for Gamma distribution.
  *  Copy of LandauFluctuations
  */
 
 class RandomEngine;
+class TAxis;
 
 class HistogramGenerator : public BaseNumericalRandomGenerator
 {

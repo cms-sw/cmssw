@@ -10,8 +10,7 @@
 // FAMOS headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-#include <map>
-#include <iostream>
+#include <vector>
 
 class FSimVertex;
 class FBaseSimEvent;
@@ -128,24 +127,6 @@ class FSimTrack : public SimTrack {
   /// The particle at VFCAL entrance
   inline const RawParticle& vfcalEntrance() const { return VFCAL_Entrance; }
 
-  /// The RecHits in the Tracker
-  // const map<unsigned,const FamosBasicRecHit*>& recHits() const {return theRecHits;}
-
-  /// The SimHits in the Tracker
-  //  inline const std::map<unsigned,RawParticle>& simHits() const {return theSimHits;}
-
-  /// Is there a RecHit on this layer?
-  //  bool isARecHit(const unsigned layer) const;
-
-  /// If yes, here it is.
-  //  const FamosBasicRecHit* recHit(unsigned layer) const; 
-
-  /// Is there a SimHit on this layer?
-  //  bool isASimHit(const unsigned layer) const;
-
-  /// If yes, here is the corresponding RawParticle
-  //  const RawParticle& simHit(unsigned layer) const;
-
   /// Set the end vertex
   inline void setEndVertex(int endv) { endv_ = endv; } 
 
@@ -217,46 +198,7 @@ class FSimTrack : public SimTrack {
 #include<iosfwd>
 std::ostream& operator <<(std::ostream& o , const FSimTrack& t);
 
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
-
-inline const FSimVertex& FSimTrack::vertex() const{ return mom_->vertex(vertIndex()); }
-
-inline const FSimVertex& FSimTrack::endVertex() const { return mom_->vertex(endv_); }
-
-inline const FSimTrack& FSimTrack::mother() const{ return vertex().parent(); }
-
-inline const FSimTrack& FSimTrack::daughter(int i) const { 
-  return abs(type()) != 11 ? endVertex().daughter(i) : mom_->track(daugh_[i]); 
-}
-
-inline int FSimTrack::nDaughters() const { 
-  return abs(type()) != 11 ? endVertex().nDaughters() : daugh_.size(); 
-}
-
-inline const std::vector<int>& FSimTrack::daughters() const { 
-  return abs(type()) != 11 ? endVertex().daughters() : daugh_; 
-}
-
-inline bool FSimTrack::noEndVertex() const { 
-  return 
-    // The particle either has no end vertex index
-    endv_ == -1 || 
-    // or it's an electron that has just brem'ed, but continues its way
-    ( abs(type())==11 && 
-      endVertex().nDaughters()>0 && 
-      endVertex().daughter(endVertex().nDaughters()-1).type()==22); 
-} 
-
-inline bool FSimTrack::noMother() const { return noVertex() || vertex().noParent(); }
-
-inline bool FSimTrack::noDaughter() const { return noEndVertex() || !nDaughters(); }
-
-inline const HepMC::GenParticle* FSimTrack::genParticle() const { 
-  return mom_->embdGenpart(genpartIndex()); 
-}
-   
-
+#include "FastSimulation/Event/interface/FSimTrack.icc"
 
 
 

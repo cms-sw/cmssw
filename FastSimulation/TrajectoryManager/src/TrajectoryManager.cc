@@ -1,3 +1,6 @@
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 //CMSSW Headers
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
@@ -13,7 +16,6 @@
 #include "FastSimulation/TrajectoryManager/interface/InsideBoundsMeasurementEstimator.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 //FAMOS Headers
@@ -26,13 +28,10 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-#include "FastSimulation/Utilities/interface/Histos.h"
+//#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
 
-#include <iomanip>
-#include <iostream>
 #include <list>
-#include <cmath>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -132,7 +131,7 @@ TrajectoryManager::reconstruct()
 
   std::list<TrackerLayer>::iterator cyliter;
 
-  //  bool debug = mySimEvent->id().event() == 62;
+  //  bool debug = mySimEvent->id().event() == 3;
 
   // Loop over the particles (watch out: increasing upper limit!)
   for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {

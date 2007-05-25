@@ -10,10 +10,6 @@
 #include "FastSimulation/Event/interface/FSimVertex.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iomanip>
-#include <iostream>
-
-
 ParticlePropagator::ParticlePropagator() : 
   BaseParticlePropagator(), random(0) {;}
 

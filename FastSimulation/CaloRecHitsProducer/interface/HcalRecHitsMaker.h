@@ -1,19 +1,23 @@
 #ifndef FastSimulation__HcalRecHitsMaker__h
 #define FastSimulation__HcalRecHitsMaker__h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "FWCore/Framework/interface/Event.h"
 
 #include "FastSimulation/Utilities/interface/GaussianTail.h"
 
 #include <map>
 #include <vector>
 
-#include <boost/cstdint.hpp>
+//#include <boost/cstdint.hpp>
 
 class CaloGeometry;
 class RandomEngine;
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
 
 class HcalRecHitsMaker
 {

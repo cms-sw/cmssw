@@ -3,13 +3,11 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 //CMSSW Data Formats
 #include "DataFormats/Candidate/interface/Candidate.h"
-
-// CMSSW Sim headers
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-
 
 //FAMOS Headers
 #include "FastSimulation/Event/interface/FBaseSimEvent.h"
@@ -22,14 +20,12 @@
 #include "FastSimulation/Event/interface/NoPrimaryVertexGenerator.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
-using namespace HepMC;
 using namespace HepPDT;
 
 // system include
 #include <iostream>
 #include <iomanip>
 #include <map>
-#include <vector>
 #include <string>
 
 FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine) 
@@ -45,7 +41,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& kine)
   theVertexGenerator = new NoPrimaryVertexGenerator();
 
   // Initialize the vectors of particles and vertices
-  theGenParticles = new std::vector<GenParticle*>(); 
+  theGenParticles = new std::vector<HepMC::GenParticle*>(); 
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
@@ -90,7 +86,7 @@ FBaseSimEvent::FBaseSimEvent(const edm::ParameterSet& vtx,
     theVertexGenerator = new NoPrimaryVertexGenerator();
 
   // Initialize the vectors of particles and vertices
-  theGenParticles = new std::vector<GenParticle*>(); 
+  theGenParticles = new std::vector<HepMC::GenParticle*>(); 
   theSimTracks = new std::vector<FSimTrack>;
   theSimVertices = new std::vector<FSimVertex>;
   theChargedTracks = new std::vector<unsigned>();
@@ -410,7 +406,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   int offset = nGenParts();
 
   // Primary vertex (already smeared by the SmearedVtx module)
-  GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
+  HepMC::GenVertex* primaryVertex = *(myGenEvent.vertices_begin());
   XYZTLorentzVector primaryVertexPosition(primaryVertex->position().x()/10.,
 					  primaryVertex->position().y()/10.,
 					  primaryVertex->position().z()/10.,
@@ -439,7 +435,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
   for ( piter = pbegin; piter != pend; ++piter ) {
 
     // This is the generated particle pointer - for the signal event only
-    GenParticle* p = *piter;
+    HepMC::GenParticle* p = *piter;
 
     if  ( !offset ) {
       (*theGenParticles)[nGenParticles++] = p;
@@ -459,12 +455,12 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     if ( !testStable && 
 	 p->end_vertex() && 
 	 p->end_vertex()->particles_out_size() ) { 
-      GenVertex::particles_out_const_iterator firstDaughterIt = 
+      HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = 
 	p->end_vertex()->particles_out_const_begin();
-      GenVertex::particles_out_const_iterator lastDaughterIt = 
+      HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = 
 	p->end_vertex()->particles_out_const_end();
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
-	GenParticle* daugh = *firstDaughterIt;
+	HepMC::GenParticle* daugh = *firstDaughterIt;
 	if ( daugh->status()%1000==1 ) {
 	  testDaugh=true;
 	  break;
@@ -488,7 +484,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     if ( testStable || testDaugh || testDecay ) {
       
       /*
-      const GenParticle* mother = p->production_vertex() ?
+      const HepMC::GenParticle* mother = p->production_vertex() ?
 	*(p->production_vertex()->particles_in_const_begin()) : 0;
       */
 
@@ -754,7 +750,7 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 	      << std::setw(6) << std::setprecision(1) << vertex1.y() << " " 
 	      << std::setw(6) << std::setprecision(1) << vertex1.z() << " ";
 
-    const GenParticle* mother = 
+    const HepMC::GenParticle* mother = 
       *(p->production_vertex()->particles_in_const_begin());
 
     if ( mother )
@@ -769,10 +765,10 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 				p->end_vertex()->position().t()/10.);
       int vertexId2 = p->end_vertex()->barcode();
 
-      std::vector<const GenParticle*> children;
-      GenVertex::particles_out_const_iterator firstDaughterIt = 
+      std::vector<const HepMC::GenParticle*> children;
+      HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = 
         p->end_vertex()->particles_out_const_begin();
-      GenVertex::particles_out_const_iterator lastDaughterIt = 
+      HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = 
         p->end_vertex()->particles_out_const_end();
       for ( ; firstDaughterIt != lastDaughterIt ; ++firstDaughterIt ) {
 	children.push_back(*firstDaughterIt);

@@ -1,16 +1,12 @@
 //FAMOS Headers
 #include "FastSimulation/ShowerDevelopment/interface/EMShower.h"
-#include "FastSimulation/CalorimeterProperties/interface/Calorimeter.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
-//Anaphe headers
-#include "CLHEP/Units/PhysicalConstants.h"
-#include <iostream>
-#include <iomanip>
+
 #include <cmath>
 
 //#include "FastSimulation/Utilities/interface/Histos.h"

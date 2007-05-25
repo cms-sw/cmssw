@@ -1,9 +1,6 @@
 //FAMOS headers
 #include "FastSimulation/CaloGeometryTools/interface/CrystalWindowMap.h"
-#include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 

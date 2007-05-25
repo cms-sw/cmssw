@@ -6,17 +6,8 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-//#include "CLHEP/Geometry/Vector3D.h"
-//#include "CLHEP/Geometry/Transform3D.h"
-
 #include "Math/GenVector/Transform3D.h"
-#include <boost/cstdint.hpp>
-
-#include <iostream>
-
-
+//#include <boost/cstdint.hpp>
 
 class CaloGeometryHelper;
 

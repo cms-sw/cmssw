@@ -5,7 +5,6 @@
  */
 
 #include "FastSimulation/TrajectoryManager/interface/LocalMagneticField.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 

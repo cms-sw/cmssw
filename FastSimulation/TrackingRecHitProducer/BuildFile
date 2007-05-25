@@ -1,11 +1,7 @@
-<flags EDM_PLUGIN=1>
-
-<use name=DataFormats/CLHEP>
 <use name=DataFormats/Common>
 <use name=DataFormats/DetId>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
-<use name=DataFormats/SiPixelDetId>
 <use name=DataFormats/SiStripDetId>
 <use name=DataFormats/TrackerRecHit2D>
 <use name=FWCore/Framework>
@@ -20,8 +16,10 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=SimDataFormats/CrossingFrame>
+<use name=SimDataFormats/EncodedEventId>
 <use name=SimDataFormats/TrackingHit>
 <use name=rootcore>
+<flags EDM_PLUGIN="1">
 
 <export>
   <lib name=FastSimulationTrackingRecHitProducer>

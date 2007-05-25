@@ -4,7 +4,7 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 
-#include "CLHEP/Geometry/Point3D.h"
+#include <vector>
 
 /** 
  * \date: 09-Feb-2005

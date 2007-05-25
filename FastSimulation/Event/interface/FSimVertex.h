@@ -3,6 +3,9 @@
 
 // CMSSW Headers
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
+
+#include <vector>
 
 class FBaseSimEvent;
 class FSimTrack;
@@ -20,7 +23,7 @@ public:
   FSimVertex();
   
   /// constructor from the embedded vertex index in the FBaseSimEvent
-  FSimVertex(const XYZTLorentzVector& v, int im, int id, FBaseSimEvent* mom);
+  FSimVertex(const math::XYZTLorentzVector& v, int im, int id, FBaseSimEvent* mom);
 
   /// parent track
   inline const FSimTrack& parent() const;
@@ -43,7 +46,7 @@ public:
   inline void addDaughter(int i) { daugh_.push_back(i); }
 
   /// Temporary (until CMSSW moves to Mathcore)
-  inline const XYZTLorentzVector& position() const { return position_; }
+  inline const math::XYZTLorentzVector& position() const { return position_; }
 
   /// Simply returns the SimVertex
   inline const SimVertex& simVertex() const { return *this; }
@@ -54,19 +57,13 @@ public:
   int id_;    // The index in the FSimVertex vector
   std::vector<int> daugh_; // The indices of the daughters in FSimTrack
 
-  XYZTLorentzVector position_;
+  math::XYZTLorentzVector position_;
 
 };
 
 #include<iosfwd>
 std::ostream& operator <<(std::ostream& o , const FSimVertex& t);
 
-#include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FBaseSimEvent.h"
-
-inline const FSimTrack& FSimVertex::parent() const{ return mom_->track(parentIndex()); }
-
-inline const FSimTrack& FSimVertex::daughter(int i) const { return mom_->track(daugh_[i]); }
-
+#include "FastSimulation/Event/interface/FSimVertex.icc"
 
 #endif // FSimVertex_H

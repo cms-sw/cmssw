@@ -1,7 +1,11 @@
 #include "FastSimulation/CaloRecHitsProducer/interface/EcalPreshowerRecHitsMaker.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h" 	 
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
@@ -9,9 +13,6 @@
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include <iostream>
-
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
 

@@ -4,8 +4,6 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDShowerParametrization.h"
 
-// Anapher Headers
-//#include "CLHEP/Geometry/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 
 #include <vector>

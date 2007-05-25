@@ -2,7 +2,6 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
 #include <cmath>
-#include <iostream>
 
 BaseNumericalRandomGenerator::BaseNumericalRandomGenerator(
 			      const RandomEngine* engine,

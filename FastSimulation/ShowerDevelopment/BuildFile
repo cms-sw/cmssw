@@ -1,13 +1,16 @@
+<use name=DataFormats/Math>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/CaloHitMakers>
 <use name=FastSimulation/CalorimeterProperties>
 <use name=FastSimulation/Particle>
-<use name=rootmath>
+<use name=FastSimulation/Utilities>
+<use name=clhep>
+
 <export>
-  <use name=FWCore/ParameterSet>
+  <use name=DataFormats/Math>
   <use name=FastSimulation/CalorimeterProperties>
   <use name=FastSimulation/Particle>
-  <use name=rootmath>
+  <use name=clhep>
   <lib name=FastSimulationShowerDevelopment>
 </export>

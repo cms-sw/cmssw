@@ -1,11 +1,8 @@
 #ifndef FastSimulation_CalorimeterProperties_Calorimeter_h
 #define FastSimulation_CalorimeterProperties_Calorimeter_h
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/Vector/interface/GlobalPoint.h"
-//#include "CLHEP/Geometry/Point3D.h"
+
 class PreshowerLayer1Properties;
 class PreshowerLayer2Properties;
 class ECALProperties;
@@ -21,6 +18,10 @@ class CaloSubdetectorTopology;
 class EcalBarrelGeometry;
 class EcalEndcapGeometry;
 class EcalPreshowerGeometry;
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class Calorimeter{
  public:

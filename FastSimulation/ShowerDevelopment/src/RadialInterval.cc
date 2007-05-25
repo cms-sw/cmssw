@@ -2,11 +2,8 @@
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-//CLHECP headers
-#include <iostream>
 #include <cmath>
 
-#include <iomanip>
 RadialInterval::RadialInterval(double RC,unsigned nSpots,double energy,
 			       const RandomEngine* engine)
   :

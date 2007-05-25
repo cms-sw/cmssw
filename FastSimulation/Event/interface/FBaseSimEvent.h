@@ -1,9 +1,6 @@
 #ifndef FastSimulation_Event_FBaseSimEvent_H
 #define FastSimulation_Event_FBaseSimEvent_H
 
-//Framework Headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 // Data Formats
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
@@ -13,8 +10,6 @@
 // Famos Headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
 
-
-#include <map>
 #include <vector>
 
 /** FSimEvent special features for FAMOS
@@ -33,6 +28,10 @@ class SimVertex;
 class PrimaryVertexGenerator;
 class RandomEngine;
 //class Histos;
+
+namespace edm {
+  class ParameterSet;
+}
 
 namespace HepMC {
   class GenEvent;
@@ -192,22 +191,6 @@ public:
 
 };
 
-#include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Event/interface/FSimVertex.h"
-
-static FSimTrack oTrack;
-inline FSimTrack& FBaseSimEvent::track(int i) const { 
-  return (i>=0 && i<(int)nTracks()) ? (*theSimTracks)[i] : oTrack; }
-
-static FSimVertex oVertex;
-inline FSimVertex& FBaseSimEvent::vertex(int i) const { 
-  return (i>=0 && i<(int)nVertices()) ? (*theSimVertices)[i] : oVertex; }
-
-inline const SimTrack& FBaseSimEvent::embdTrack(int i) const { 
-  return (*theSimTracks)[i].simTrack(); }
-
-inline const SimVertex& FBaseSimEvent::embdVertex(int i) const { 
-  return (*theSimVertices)[i].simVertex(); }
-
+#include "FastSimulation/Event/interface/FBaseSimEvent.icc"
 
 #endif // FBaseSimEvent_H

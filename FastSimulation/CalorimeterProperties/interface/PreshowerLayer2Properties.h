@@ -3,8 +3,6 @@
 
 #include "FastSimulation/CalorimeterProperties/interface/PreshowerProperties.h"
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 /** 
  * Functions to return atomic properties of the material
  * A_eff and Z_eff are computed as the A-weighted sums 
@@ -13,6 +11,10 @@
  * \author Patrick Janot
  * \date: 25-Jan-2004
  */ 
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class PreshowerLayer2Properties : public PreshowerProperties 
 {

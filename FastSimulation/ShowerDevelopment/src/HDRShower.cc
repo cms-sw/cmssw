@@ -1,12 +1,8 @@
 //FastSimulation Headers
 #include "FastSimulation/ShowerDevelopment/interface/HDRShower.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
-
-//Anaphe headers
-#include "CLHEP/Units/PhysicalConstants.h"
 
 //CMSSW headers
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -16,8 +12,6 @@ using namespace edm;
 ////////////////////////////////////////////////////////////////////////////////
 // What's this? Doesn't seem to be needed. Maybe Geometry/CaloGeometry/interface/CaloCellGeometry.h?
 //#include "Calorimetry/CaloDetector/interface/CellGeometry.h"
-
-#include <cmath>
 
 // number attempts for transverse distribution if exit on a spec. condition
 #define infinity 5000

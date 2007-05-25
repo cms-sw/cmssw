@@ -1,3 +1,6 @@
+//Framework headers 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 // Fast Simulation headers
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
@@ -12,7 +15,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/HcalHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/PreshowerHitMaker.h"
-#include "FastSimulation/Utilities/interface/Histos.h"
+//#include "FastSimulation/Utilities/interface/Histos.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/Utilities/interface/GammaFunctionGenerator.h"
 #include "FastSimulation/Utilities/interface/LandauFluctuationGenerator.h"
@@ -21,9 +24,6 @@
 // STL headers 
 #include <vector>
 #include <iostream>
-
-// CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
 
 //CMSSW headers 
 #include "DataFormats/DetId/interface/DetId.h"

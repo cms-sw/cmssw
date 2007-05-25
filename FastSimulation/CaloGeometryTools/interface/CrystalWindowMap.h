@@ -15,12 +15,8 @@
 // FAMOS headers
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 
-//CLHEP headers
-//#include "CLHEP/Geometry/Point3D.h"
-
 //C++ headers 
 #include <vector>
-#include <map>
 
 class CaloGeometryHelper;
 

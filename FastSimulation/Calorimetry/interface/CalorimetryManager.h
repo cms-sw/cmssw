@@ -1,10 +1,7 @@
 #ifndef CALORIMETRYMANAGER_H
 #define CALORIMETRYMANAGER_H
 
-//CMSSW headerders 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
-
 
 // FastSimulation headers
 #include "FastSimulation/Particle/interface/RawParticle.h"
@@ -13,7 +10,7 @@
 #include "FastSimulation/Utilities/interface/FamosDebug.h"
 
 // For the uint32_t
-#include <boost/cstdint.hpp>
+//#include <boost/cstdint.hpp>
 #include <map>
 
 class FSimEvent;
@@ -25,6 +22,10 @@ class HSParameters;
 class RandomEngine;
 class LandauFluctuationGenerator;
 class GammaFunctionGenerator;
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class CalorimetryManager{
 

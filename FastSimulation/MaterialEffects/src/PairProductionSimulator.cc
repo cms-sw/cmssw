@@ -1,7 +1,6 @@
 #include "FastSimulation/MaterialEffects/interface/PairProductionSimulator.h"
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 
-#include <iostream>
 #include <cmath>
 
 PairProductionSimulator::PairProductionSimulator(double photonEnergyCut,

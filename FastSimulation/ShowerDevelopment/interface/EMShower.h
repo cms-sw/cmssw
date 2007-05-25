@@ -6,7 +6,6 @@
 //Famos Headers
 #include "FastSimulation/ShowerDevelopment/interface/EMECALShowerParametrization.h"
 #include "FastSimulation/ShowerDevelopment/interface/RadialInterval.h"
-//#include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/GenericFunctions/IncompleteGamma.hh"
 #include "DataFormats/Math/interface/Vector3D.h"
 

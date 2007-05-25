@@ -1,15 +1,20 @@
 #include "FastSimulation/Event/interface/KineParticleFilter.h"
 
-#include <iostream>
+//Framework Headers
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 KineParticleFilter::KineParticleFilter(const edm::ParameterSet& kine) 
   : BaseRawParticleFilter() 
 {
 
   // Set the kinematic cuts
-  etaMax = kine.getParameter<double>("etaMax"); // Upper abs(eta) bound
-  pTMin  = kine.getParameter<double>("pTMin");  // Lower pT  bound (charged, in GeV/c)
-  EMin   = kine.getParameter<double>("EMin");   // Lower E  bound (all, in GeV)
+  // Upper abs(eta) bound
+  etaMax = kine.getParameter<double>("etaMax"); 
+  // Lower pT  bound (charged, in GeV/c)
+  pTMin  = kine.getParameter<double>("pTMin");
+  // Lower E  bound (all, in GeV)
+  EMin   = kine.getParameter<double>("EMin");
 
   // Change eta cuts to cos**2(theta) cuts (less CPU consuming)
   if ( etaMax > 20. ) etaMax = 20.; // Protection against paranoid people.
@@ -73,8 +78,8 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     */
     if (!etaCut) return false;
 
-  // Cut on the origin vertex position (prior to the ECAL for all 
-  // particles, except for muons  ! Just modified: Muons included as well !
+    // Cut on the origin vertex position (prior to the ECAL for all 
+    // particles, except for muons  ! Just modified: Muons included as well !
     double radius2 = p->R2();
     double zed = fabs(p->Z());
     double cos2Tet = p->cos2ThetaV();
@@ -90,6 +95,7 @@ bool KineParticleFilter::isOKForMe(const RawParticle* p) const
     double radius2 = p->Perp2();
     double zed = fabs(p->Pz());
     double cos2Tet = p->cos2Theta();
+
     // Vertices must be before the Ecal entrance
     bool ecalAcc = ( (radius2<129.01*129.01 && zed<317.01) ||
 		     (cos2Tet>cos2PreshMin && cos2Tet<cos2PreshMax 

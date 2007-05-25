@@ -1,4 +1,3 @@
-<flags EDM_PLUGIN=1>
 <use name=DataFormats/Common>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/EcalRecHit>
@@ -17,14 +16,8 @@
 <use name=SimDataFormats/CaloHit>
 <use name=SimDataFormats/CrossingFrame>
 <use name=boost>
+<use name=clhep>
+<flags EDM_PLUGIN="1">
 <export>
-  <use name=DataFormats/Common>
-  <use name=DataFormats/EcalRecHit>
-  <use name=DataFormats/HcalRecHit>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=FastSimulation/Utilities>
-  <use name=Geometry/Records>
-  <use name=boost>
   <lib name=FastSimulationCaloRecHitsProducer>
 </export>

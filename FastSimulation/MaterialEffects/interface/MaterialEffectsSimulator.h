@@ -5,9 +5,6 @@
 
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 
-#include <vector>
-#include <utility>
-
 /** 
  * This is the generic class for Material Effects in the tracker material, 
  * from which FamosPairProductionSimulator, FamosBremsstrahlungSimulator, 

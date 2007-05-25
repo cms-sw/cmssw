@@ -1,3 +1,4 @@
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 //This class header
 #include "FastSimulation/CalorimeterProperties/interface/ECALBarrelProperties.h"

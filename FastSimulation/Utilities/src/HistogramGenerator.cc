@@ -1,6 +1,7 @@
 #include "FastSimulation/Utilities/interface/HistogramGenerator.h"
 
-#include <iostream>
+//#include "TAxis.h"
+
 double HistogramGenerator::ersatzt(double x)
 {
   int ibin=theXaxis->FindBin(x);

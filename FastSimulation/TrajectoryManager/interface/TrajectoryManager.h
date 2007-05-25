@@ -1,17 +1,12 @@
 #ifndef TRAJECTORYMANAGER_H
 #define TRAJECTORYMANAGER_H
 
-//Framework Headers
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 //DataFormats
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 //FAMOS Headers
-#include "FastSimulation/TrackerSetup/interface/TrackerLayer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
-#include "FastSimulation/Event/interface/FSimTrack.h"
 
 /**
  * This class takes all the particles of a FSimEvent with no end vertex, 
@@ -44,7 +39,7 @@ class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
-class Histos;
+//class Histos;
 class RandomEngine;
 class TrajectoryStateOnSurface;
 class DetLayer;
@@ -53,6 +48,10 @@ class GeomDetUnit;
 class MagneticField;
 class GeometricSearchTracker;
 class TrackerGeometry;
+
+namespace edm { 
+  class ParameterSet;
+}
 
 class TrajectoryManager
 

@@ -1,23 +1,23 @@
+<use name=DataFormats/Candidate>
+<use name=DataFormats/Math>
 <use name=DataFormats/Provenance>
 <use name=FWCore/ParameterSet>
 <use name=FastSimulation/BaseParticlePropagator>
 <use name=FastSimulation/Particle>
 <use name=FastSimulation/Utilities>
-<use name=DataFormats/Candidate>
 <use name=SimDataFormats/Track>
 <use name=SimDataFormats/Vertex>
 <use name=SimDataFormats/HepMCProduct>
 <use name=SimGeneral/HepPDTRecord>
-<use name=rootmath>
 <use name=hepmc>
 <export>
+  <use name=DataFormats/Candidate>
+  <use name=DataFormats/Math>
   <use name=DataFormats/Provenance>
-  <use name=FWCore/ParameterSet>
   <use name=FastSimulation/Particle>
   <use name=SimDataFormats/Track>
   <use name=SimDataFormats/Vertex>
   <use name=SimGeneral/HepPDTRecord>
-  <use name=rootmath>
   <lib name=FastSimulationEvent>
 </export>
 

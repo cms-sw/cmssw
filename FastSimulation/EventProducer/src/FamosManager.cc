@@ -1,34 +1,31 @@
 // CMSSW Header
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+//#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
+//#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 // HepMC headers
-#include "HepMC/GenEvent.h"
+//#include "HepMC/GenEvent.h"
 
 // FAMOS Header
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
