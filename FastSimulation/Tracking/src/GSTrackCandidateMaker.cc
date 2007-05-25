@@ -47,6 +47,7 @@
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
 //
 
 //#define FAMOS_DEBUG
@@ -159,6 +160,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorBegin = theRecHitRange.first;
     SiTrackerGSRecHit2DCollection::const_iterator theRecHitRangeIteratorEnd   = theRecHitRange.second;
     SiTrackerGSRecHit2DCollection::const_iterator iterRecHit;
+    SiTrackerGSRecHit2DCollection::const_iterator iterRecHit2;
 
     // Request a minimum number of RecHits
     unsigned numberOfRecHits = 0;
@@ -192,22 +194,50 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     if ( fabs( theParticle.zImpactParameter() ) > maxZ0 ) continue;
     ++nTracksWithD0Z0;
 
+
+    //Check Seeding requirements (GlobalPixel only for now)
+    
+    bool compatible = false;
+    const SiTrackerGSRecHit2D *hit1;
+    const SiTrackerGSRecHit2D *hit2;
+    for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	  iterRecHit != theRecHitRangeIteratorEnd; 
+	  ++iterRecHit) {
+      hit1 = &(*iterRecHit);
+      if((unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelBarrel || 
+	 (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap){
+	const DetId& detId = hit1->geographicalId();
+	const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+	for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
+	  hit2 = &(*iterRecHit2);
+	  if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
+	     (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
+	    const DetId& detId = hit2->geographicalId();
+	    const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	    gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
+
+	    compatible = compatibleWithVertex(gpos1,gpos2);
+	    
+	    if(compatible) break;
+	  }
+	}
+	if(compatible) break;
+      }
+    }
+    if(!compatible) continue;
+    
     // Create OwnVector with sorted GSRecHit's
     edm::OwnVector<TrackingRecHit> recHits;
-    //    recHits.clear();
-
-    // loop over RecHits of the same detector
     for ( iterRecHit = theRecHitRangeIteratorBegin; 
 	   iterRecHit != theRecHitRangeIteratorEnd; 
 	   ++iterRecHit) {
-	
-      //      unsigned simtrackId = iterRecHit->simtrackId();
       const DetId& detId =  iterRecHit->geographicalId();
       const GeomDet* geomDet( theGeometry->idToDet(detId) );
       TrackingRecHit* aTrackingRecHit = 
       	GenericTransientTrackingRecHit::build(geomDet,&(*iterRecHit))->hit()->clone();
       recHits.push_back(aTrackingRecHit);
-
+      
 #ifdef FAMOS_DEBUG
       unsigned int subdetId = detId.subdetId(); 
       int layerNumber=0;
@@ -409,4 +439,72 @@ GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
   pts = PTrajectoryStateOnDet( ts.localParameters(),
 			       localErrors, detid,
 			       surfaceSide);
+}
+
+
+bool
+GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpos2) {
+
+
+ // The hits 1 and 2 positions, in HepLorentzVector's
+  XYZTLorentzVector thePos1(gpos1.x(),
+			   gpos1.y(),
+			   gpos1.z(),
+			   0.);
+
+  XYZTLorentzVector thePos2(gpos2.x(),
+			   gpos2.y(),
+			   gpos2.z(),
+			   0.);
+
+  // Create new particles that pass through the second hit with pT = ptMin 
+  // and charge = +/-1
+  XYZTLorentzVector theMom2 = (thePos2-thePos1);
+
+  theMom2 /= theMom2.Pt();
+  theMom2.SetE(sqrt(theMom2.Vect().Mag2()));
+
+  // The corresponding RawParticles (to be propagated) for e- and e+
+  ParticlePropagator myElecL(theMom2,thePos2,-1.);
+  ParticlePropagator myPosiL(theMom2,thePos2,+1.);
+
+
+  // Propagate to the closest approach point, with the constraint that 
+  // the particles should pass through the  first hit
+  myElecL.propagateToNominalVertex(thePos1);
+  myPosiL.propagateToNominalVertex(thePos1);
+
+  theMom2 *= 1000.0;//ptmax
+  // The corresponding RawParticles (to be propagated) for e- and e+
+  ParticlePropagator myElecH(theMom2,thePos2,-1.);
+  ParticlePropagator myPosiH(theMom2,thePos2,+1.);
+
+  // Propagate to the closest approach point, with the constraint that 
+  // the particles should pass through the  first hit
+  myElecH.propagateToNominalVertex(thePos1);
+  myPosiH.propagateToNominalVertex(thePos1);
+
+  // And check at least one of the particles statisfy the SeedGenerator
+  // constraint (originRadius, originHalfLength)
+
+  double originRadius = 0.2;
+  double originHalfLength = 15.;
+
+  /*
+  std::cout << " Neg Charge L R = " << myElecL.R() << "\t Z = " << fabs(myElecL.Z()) << std::endl;
+  std::cout << " Pos Charge L R = " << myPosiL.R() << "\t Z = " << fabs(myPosiL.Z()) << std::endl;
+  std::cout << " Neg Charge H R = " << myElecH.R() << "\t Z = " << fabs(myElecH.Z()) << std::endl;
+  std::cout << " Pos Charge H R = " << myPosiH.R() << "\t Z = " << fabs(myPosiH.Z()) << std::endl;
+  */
+
+  if ( myElecL.R() < originRadius && 
+       fabs(myElecL.Z()) < originHalfLength ) return true;
+  if ( myPosiL.R() < originRadius && 
+       fabs(myPosiL.Z()) < originHalfLength ) return true;
+  if ( myElecH.R() < originRadius && 
+       fabs(myElecH.Z()) < originHalfLength ) return true;
+  if ( myPosiH.R() < originRadius && 
+       fabs(myPosiH.Z()) < originHalfLength ) return true;
+
+  return false;
 }

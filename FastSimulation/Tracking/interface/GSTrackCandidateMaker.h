@@ -7,12 +7,15 @@
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class TransientInitialStateEstimator;
 class MagneticField;
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PTrajectoryStateOnDet;
+class ParticlePropagator; 
 
 class GSTrackCandidateMaker : public edm::EDProducer
 {
@@ -31,7 +34,9 @@ class GSTrackCandidateMaker : public edm::EDProducer
   void stateOnDet(const TrajectoryStateOnSurface& ts,
 		  unsigned int detid,
 		  PTrajectoryStateOnDet& pts) const;
- 
+  
+  bool compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpos2); 
+
  private:
 
   edm::ParameterSet conf_;
@@ -43,7 +48,7 @@ class GSTrackCandidateMaker : public edm::EDProducer
   double maxD0;
   double maxZ0;
   unsigned minRecHits;
-    
+  GlobalPoint gpos1,gpos2;  
 };
 
 #endif
