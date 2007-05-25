@@ -1,6 +1,3 @@
-#include "Alignment/CommonAlignment/interface/AlignableDetUnit.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerPetal.h"
 
 #include <algorithm>

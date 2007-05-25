@@ -38,6 +38,8 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   inline const Histo& hPeds() const;
   inline const Histo& hNoise() const;
   
+  bool isValid();
+
   void print( std::stringstream&, uint32_t apv_number = 0 );
 
  private:

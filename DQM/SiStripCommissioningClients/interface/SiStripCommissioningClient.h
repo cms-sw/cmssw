@@ -5,10 +5,10 @@
 #include "DQMServices/Components/interface/UpdateObserver.h"
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 
-#include "FWCore/Utilities/interface/ProblemTracker.h"
-#include "FWCore/Utilities/interface/PresenceFactory.h"
+#include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -54,7 +54,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   
   // -------------------- Client "actions" --------------------
-
   
   /** */
   void subscribeAll( std::string match_pattern = "" );
@@ -120,13 +119,9 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
 
   
   // ---------- Management of client histograms ----------  
-
-
-  /** Extracts run type. */
-  sistrip::Task extractTask( const std::vector<std::string>& contents ) const;
   
   /** */
-  virtual void createHistograms( const sistrip::Task& task ) const;
+  virtual void createHistograms( const sistrip::RunType& task ) const;
   
   /** */
   void handleException( const std::string& method_name,
@@ -146,8 +141,7 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   /** Action "executor" */
   mutable CommissioningHistograms* histos_;
   
-  
-  mutable sistrip::Task task_;
+  mutable sistrip::RunType runType_;
   
   mutable bool first_;
 

@@ -1,37 +1,36 @@
 /** \file
  * Implementation of class RPCUnpackingModule
  *
- *  $Date: 2007/01/04 21:29:04 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/03/20 09:18:53 $
+ *  $Revision: 1.28 $
  *
  * \author Ilaria Segoni
  */
 
 
-//#define DEBUG_RPCUNPACKER
 
-#include <EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCUnpackingParameters.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCRecord.h>
-#include <EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h>
-
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h> 
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
-#include <FWCore/Framework/interface/Handle.h>
-#include <FWCore/Framework/interface/Event.h>
+#include "EventFilter/RPCRawToDigi/interface/RPCUnpackingModule.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "EventFilter/RPCRawToDigi/interface/RPCMonitorInterface.h"
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/DataRecord/interface/RPCReadOutMappingRcd.h"
+#include "RPCReadOutMappingWithFastSearch.h"
+#include "EventFilter/RPCRawToDigi/interface/DataRecord.h"
+#include "EventFilter/RPCRawToDigi/interface/EventRecords.h"
 
 
 #include <iostream>
@@ -39,27 +38,19 @@
 
 using namespace edm;
 using namespace std;
+using namespace rpcrawtodigi;
+
+typedef uint64_t Word64;
+
 
 RPCUnpackingModule::RPCUnpackingModule(const edm::ParameterSet& pset) 
-:nEvents(0){
-  
-  printout = pset.getUntrackedParameter<bool>("PrintOut", false); 
-  
-  instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
-  if(instatiateDQM){   
-     monitor = edm::Service<RPCMonitorInterface>().operator->();   
-  }
-  
+  : dataLabel_(pset.getUntrackedParameter<edm::InputTag>("InputLabel",edm::InputTag("source"))),
+    eventCounter_(0)
+{
   produces<RPCDigiCollection>();
-
 }
 
-RPCUnpackingModule::~RPCUnpackingModule(){
-
-  if(instatiateDQM) delete monitor;
-  monitor = 0;
-
-}
+RPCUnpackingModule::~RPCUnpackingModule(){ }
 
 
 void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
@@ -68,182 +59,105 @@ void RPCUnpackingModule::produce(Event & e, const EventSetup& c){
  
  /// Get Data from all FEDs
   Handle<FEDRawDataCollection> allFEDRawData; 
-  e.getByType(allFEDRawData); 
+  e.getByLabel(dataLabel_,allFEDRawData); 
 
   edm::ESHandle<RPCReadOutMapping> readoutMapping;
   c.get<RPCReadOutMappingRcd>().get(readoutMapping);
+  static RPCReadOutMappingWithFastSearch readoutMappingSearch;
+  readoutMappingSearch.init(readoutMapping.product());
 
   edm::LogInfo ("RPCUnpacker") <<"Got FEDRawData";
  
   std::auto_ptr<RPCDigiCollection> producedRPCDigis(new RPCDigiCollection);
 
+
   std::pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
  
-  nEvents++; 
+  eventCounter_++; 
  
-  edm::LogInfo ("RPCUnpacker") <<"Beginning To Unpack Event: "<<nEvents;
+  edm::LogInfo ("RPCUnpacker") <<"Beginning To Unpack Event: "<<eventCounter_;
 
-  for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){  
+  for (int fedId= rpcFEDS.first; fedId<=rpcFEDS.second; ++fedId){  
 
-    const FEDRawData & fedData = allFEDRawData->FEDData(id);
-    RPCRecordFormatter interpreter(id, readoutMapping.product()) ;
-    RPCFEDData rpcRawData;
-  
-    edm::LogInfo ("RPCUnpacker") <<"Beginning to Unpack FED number "<<id<<", FED size: "<<fedData.size()<<" bytes";			 
+    const FEDRawData & rawData = allFEDRawData->FEDData(fedId);
+    //RPCRecordFormatter interpreter(fedId, readoutMapping.product()) ;
+    RPCRecordFormatter interpreter(fedId, &readoutMappingSearch) ;
+    int currentBX =0;
+    try {
+      int nWords = rawData.size()/sizeof(Word64);
+      if (nWords==0) continue;
 
-    if(fedData.size()){
+      //
+      // check headers
+      //
+      const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
+      bool moreHeaders = true;
+      while (moreHeaders) {
+        header++;
+        FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
+        if ( !fedHeader.check() ) break; // throw exception?
+        if ( fedHeader.sourceID() != fedId) throw cms::Exception("PROBLEM with header!");
+        currentBX = fedHeader.bxID();
+        moreHeaders = fedHeader.moreHeaders();
+        {
+          ostringstream str;
+          str <<"  header: "<< *reinterpret_cast<const bitset<64>*> (header) << endl;
+          str <<"  header triggerType: " << fedHeader.triggerType()<<endl;
+          str <<"  header lvl1ID:      " << fedHeader.lvl1ID() << endl;
+          str <<"  header bxID:        " << fedHeader.bxID() << endl;
+          str <<"  header sourceID:    " << fedHeader.sourceID() << endl;
+          str <<"  header version:     " << fedHeader.version() << endl;
+          LogTrace("") << str.str();
+        }
+      }
 
-      const unsigned char* index = fedData.data();
+      //
+      // check trailers
+      //
+      const Word64* trailer=reinterpret_cast<const Word64* >(rawData.data())+(nWords-1); trailer++;
+      bool moreTrailers = true;
+      while (moreTrailers) {
+        trailer--;
+        FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer));
+        if ( !fedTrailer.check()) { trailer++; break; } // throw exception?
+        if ( fedTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM with trailer!!");
+        moreTrailers = fedTrailer.moreTrailers();
+        {
+          ostringstream str;
+          str <<" trailer: "<<  *reinterpret_cast<const bitset<64>*> (trailer) << endl; 
+          str <<"  trailer lenght:    "<<fedTrailer.lenght()<<endl;
+          str <<"  trailer crc:       "<<fedTrailer.crc()<<endl;
+          str <<"  trailer evtStatus: "<<fedTrailer.evtStatus()<<endl;
+          str <<"  trailer ttsBits:   "<<fedTrailer.ttsBits()<<endl;
+          LogTrace("") << str.str();
+        }
+      }
 
+      //
+      // data records
+      //
       {
         ostringstream str;
-        str <<"  header: "<< *reinterpret_cast<const bitset<64>*> (index) << endl;
-        FEDHeader header(index);
-        str <<"  header triggerType: " << header.triggerType()<<endl;
-        str <<"  header lvl1ID:      " << header.lvl1ID() << endl;
-        str <<"  header bxID:        " << header.bxID() << endl;
-        str <<"  header sourceID:    " << header.sourceID() << endl;       
-        str <<"  header version:    " << header.version() << endl;       
-        for (unsigned int idata = 1; idata <= ( fedData.size()/8-2); idata ++) {
-          str<<"    data: "<<*reinterpret_cast<const bitset<64>*> (index+idata*8) << endl; 
+        for (const Word64* word = header+1; word != trailer; word++) {
+          str<<"    data: "<<*reinterpret_cast<const bitset<64>*>(word) << endl; 
         }
-        str <<" trailer: "<<  *reinterpret_cast<const bitset<64>*> (index+fedData.size()-8); 
-        FEDTrailer trailer(index+fedData.size()-8);
-        str <<"  trailer lenght:    "<< trailer.lenght()<<endl;
-        str <<"  trailer crc:       "<<trailer.crc()<<endl;
-        str <<"  trailer evtStatus: "<<trailer.evtStatus()<<endl;
-        str <<"  trailer ttsBits:   "<<trailer.ttsBits()<<endl;
-        
-        edm::LogInfo ("RPCUnpacker FED data:") << str.str();
+        LogTrace("") << str.str();
       }
-       
-      /// Unpack FED Header(s)
-      int numberOfHeaders= this->unpackHeader(index, rpcRawData);
-      int currentBX = rpcRawData.fedHeaders()[numberOfHeaders-1].bxID(); 
- 
-      /// Unpack FED Trailer(s)
-      const unsigned char* trailerIndex=index+fedData.size()- rpc::unpacking::SLINK_WORD_SIZE;
-      int ttsSTatus=this->unpackTrailer(trailerIndex, rpcRawData);
-      if(ttsSTatus){
-        edm::LogError ("RPCUnpacker") <<"ERROR REPORTED FROM TTS Status= "<< ttsSTatus;
-        break;
+      EventRecords event(currentBX);
+      for (const Word64* word = header+1; word != trailer; word++) {
+	  for( int iRecord=1; iRecord<=4; iRecord++){
+          typedef DataRecord::RecordType Record;
+          const Record* pRecord = reinterpret_cast<const Record* >(word+1)-iRecord;
+          DataRecord data(*pRecord);
+          LogTrace("")<<"record: " <<data.print()<<" record type:"<<data.type(); 
+          event.add(data);
+          try {
+            if (event.complete()) interpreter.recordUnpack(event, producedRPCDigis);
+          } catch ( cms::Exception & err) { LogError("exception from interpreter") <<err.what(); }
+        }
       }
-
-     				
-      /// Beginning of RPC Records Unpacking
-      index += numberOfHeaders* rpc::unpacking::SLINK_WORD_SIZE; 
-       
-      /// Loop on S-LINK words        
-      while( index != trailerIndex ){            
-       
-	  /// Loop on RPC Records
-        int numOfRecords=0;
-	  enum RPCRecord::recordTypes previousRecord=RPCRecord::UndefinedType;
-
-	  for( int nRecord=0; nRecord<4; nRecord++){
-          
-	    const unsigned char* recordIndex = index+ rpc::unpacking::SLINK_WORD_SIZE -(nRecord+1)* rpc::unpacking::RPC_RECORD_SIZE;
-
-          edm::LogInfo ("RPCUnpacker RECORD: ")<<"===> INTERPRET RECORD: " <<*reinterpret_cast<const bitset<16>*>(recordIndex);
-#ifdef DEBUG_RPCUNPACKER	  
-	    numOfRecords++;
-	    const unsigned int* word=reinterpret_cast<const unsigned int*>(recordIndex);
-	    std::cout<<oct<<*word<<" ";
-	    if(numOfRecords==4) { cout<<std::endl; }		
-#endif	
-	    RPCRecord theRecord(recordIndex,printout,previousRecord);
-        
-          /// Find out type of record
-          RPCRecord::recordTypes typeOfRecord = theRecord.computeType();					
-
-	    /// Check Record is of expected type
-	    bool missingRecord = theRecord.check();
-	    /// Unpack the Record 	  
-	    try{
-            interpreter.recordUnpack(theRecord,producedRPCDigis,rpcRawData,currentBX);
-          }
-          catch (cms::Exception & e) { LogError("Exception catched, skip digi")<<e.what(); }		  
-	  
-        } 
-          
-        ///Go to beginning of next word
-        index+= rpc::unpacking::SLINK_WORD_SIZE;
-      }
-		
-      ///Send information to DQM
-      if(instatiateDQM) monitor->process(rpcRawData);
-		
     }
-  }       
-  // Insert the new product in the event  
-  e.put(producedRPCDigis);  
-     
-}
-
-
-
-
-
-int RPCUnpackingModule::unpackHeader(const unsigned char* headerIndex, RPCFEDData & rawData) {
- 
- int numberOfHeaders=0;
- bool moreHeaders=true;
- 
- while(moreHeaders){
-  FEDHeader fedHeader(headerIndex); 
-  rawData.addCdfHeader(fedHeader);
-  numberOfHeaders++;
-  edm::LogInfo ("RPCUnpacker") <<"Trigger type: "<<fedHeader.triggerType()
-     <<", L1A: "<<fedHeader.lvl1ID()
-     <<", BX: "<<fedHeader.bxID()
-     <<", soucre ID: "<<fedHeader.sourceID()
-     <<", version: "<<fedHeader.version()
-     <<", more headers: "<<fedHeader.moreHeaders();
-  
-  moreHeaders=fedHeader.moreHeaders();
-  headerIndex++;
- 
- }
-        edm::LogInfo ("RPCUnpacker") <<"Found "<< numberOfHeaders<<" Headers";
-  
- return numberOfHeaders;    		
-
-}
-
-
-
-
-int RPCUnpackingModule::unpackTrailer(const unsigned char* trailerIndex, RPCFEDData & rawData) {
- 
- int numberOfTrailers=0;
- int tts=0;
- bool moreTrailers = true;
- 
- while(moreTrailers){
- 
-  FEDTrailer fedTrailer(trailerIndex);
-  rawData.addCdfTrailer(fedTrailer);
-  
-  if(fedTrailer.check())  {
-       
-       numberOfTrailers++;	   
-       trailerIndex -= rpc::unpacking::SLINK_WORD_SIZE;     
-
-       edm::LogInfo ("RPCUnpacker") <<"Trailer length: "<< fedTrailer.lenght()<<
-          " CRC "<<fedTrailer.crc()<<
-          " Event Fragment Status "<< fedTrailer.evtStatus()<<
-          " Value of Trigger Throttling System "<<fedTrailer.ttsBits()<<
-          " more Trailers: "<<fedTrailer.moreTrailers();
-        
-	if(fedTrailer.ttsBits()) tts=fedTrailer.ttsBits();
-  
-  }else{
-       moreTrailers=false;
+    catch ( cms::Exception & err) { LogError("RPCUnpacker exception") <<err.what(); }
   }
-
- }
- 
-        edm::LogInfo ("RPCUnpacker") <<"Found "<< numberOfTrailers<<" Trailers";
- 
- return tts;
+  e.put(producedRPCDigis);  
 }

@@ -2,8 +2,7 @@
 EVENTLIMIT=1000
 
 # Set the name of the map file to use
-#MAPFILE=CondFormats/HcalObjects/data/emap_tb2006_v7.txt
-MAPFILE=RecoTBCalo/HcalPlotter/data/emap_hcal_generic.txt
+MAPFILE=CondFormats/HcalObjects/data/emap_tb2006_v7.txt
 
 # Set the name of a pedestals file to use (if desired)
 #PEDESTALFILE=a.txt
@@ -14,19 +13,16 @@ MAPFILE=RecoTBCalo/HcalPlotter/data/emap_hcal_generic.txt
 # FED list to unpack
 FEDS=20
 
-# First FED
-#FIRSTFED=
-
-# Mode of operation [MTCC|TB06|TESTSTAND]
-MODE=TESTSTAND
+# Mode of operation [MTCC|TB06|TB04]
+MODE=TB04
 
 # "Printf"-style format string for the input filename -
 #                     allows input of run number only
 #      - include the full path to the file in the string.
 #
+FORMAT="/tmp/HTB_%06d.root"
 #FORMAT="~/cms/data/tb06/dirTest/h2.%08d.combined.OutServ_0.0.root"
 #FORMAT="HTB_%06d.root"
-FORMAT="/tmp/HTB_%06d.root"
 
 # Declare Histogram Bound parameters
 PED_E_GEV_LO=-5

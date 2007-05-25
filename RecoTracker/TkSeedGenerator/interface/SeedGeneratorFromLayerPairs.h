@@ -8,7 +8,7 @@
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairsConsecutiveHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 //class TrackingRegionFactory;
 class SeedLayerPairs;

@@ -5,8 +5,8 @@
  * \class L1GlobalTriggerObjectMap
  * 
  * 
- * 
- * Description: forward file for typedefs used by L1GlobalTriggerObjectMap 
+ * Description: group typedefs used by L1GlobalTriggerObjectMap.  
+ *
  * Implementation:
  *    <TODO: enter implementation details>
  *   

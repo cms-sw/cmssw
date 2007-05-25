@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:18:39 $
-// $Revision: 1.8 $
+// $Author: noeding $
+// $Date: 2007/02/23 00:48:30 $
+// $Revision: 1.9 $
 //
 
 #include <iostream>
@@ -263,6 +263,7 @@ void RoadMaker::collectInnerSeedRings() {
     collectInnerTIBSeedRings();
   } else if(structure_==TIF) {
     collectInnerTIBSeedRings();
+    collectInnerTOBSeedRings();
     collectInnerTIDSeedRings();
     collectInnerTECSeedRings(); 
   } else if(structure_==TIFTOB) {
@@ -273,6 +274,7 @@ void RoadMaker::collectInnerSeedRings() {
   } else if(structure_==TIFTIBTOB) {
     collectInnerTIBSeedRings();
     collectInnerTIDSeedRings();
+    collectInnerTOBSeedRings();
   } else if(structure_==TIFTOBTEC) {
     collectInnerTOBSeedRings();
     collectInnerTECSeedRings();
@@ -472,7 +474,7 @@ void RoadMaker::collectInnerTOBSeedRings() {
     rod_fw_bw_min   = 1;
     rod_fw_bw_max   = 2;
     detector_max    = 6;
-  } else if (structure_==TIFTOB) { 
+  } else if (structure_==TIFTOB || structure_==TIFTIBTOB || structure_==TIF) { 
     layer_min       = 0; 
     layer_max       = 2;
     rod_fw_bw_max   = 2;
@@ -543,6 +545,7 @@ void RoadMaker::collectInnerSeedRings1() {
     collectInnerTIBSeedRings1();
   } else if(structure_==TIF) {
     collectInnerTIBSeedRings1();
+    collectInnerTOBSeedRings1();
     collectInnerTIDSeedRings1();
     collectInnerTECSeedRings1(); 
  } else if(structure_==TIFTOB) {
@@ -553,6 +556,7 @@ void RoadMaker::collectInnerSeedRings1() {
   } else if(structure_==TIFTIBTOB) {
     collectInnerTIBSeedRings1();
     collectInnerTIDSeedRings1();
+    collectInnerTOBSeedRings1();
   } else if(structure_==TIFTOBTEC) {
     collectInnerTOBSeedRings1();
     collectInnerTECSeedRings1();
@@ -751,12 +755,12 @@ void RoadMaker::collectInnerTOBSeedRings1() {
     rod_fw_bw_min   = 1;
     rod_fw_bw_max   = 2;
     detector_max    = 6;
-  } else if (structure_==TIFTOB) { 
+  } else if (structure_==TIFTOB || structure_==TIFTIBTOB || structure_==TIF) { 
     layer_min       = 0; 
     layer_max       = 1;
     rod_fw_bw_max   = 2;
     detector_max    = 6;
-  } else if (structure_==TIFTOB) { 
+  } else if (structure_==TIFTOBTEC) { 
     layer_min       = 0; 
     layer_max       = 1;
     rod_fw_bw_max   = 2;
@@ -822,6 +826,7 @@ void RoadMaker::collectInnerSeedRings2() {
     collectInnerTIBSeedRings2();
   } else if(structure_==TIF) {
     collectInnerTIBSeedRings2();
+    collectInnerTOBSeedRings2();
     collectInnerTIDSeedRings2();
     collectInnerTECSeedRings2(); 
   } else if(structure_==TIFTOB) {
@@ -832,6 +837,7 @@ void RoadMaker::collectInnerSeedRings2() {
   } else if(structure_==TIFTIBTOB) {
     collectInnerTIBSeedRings2();
     collectInnerTIDSeedRings2();
+    collectInnerTOBSeedRings2();
   } else if(structure_==TIFTOBTEC) {
     collectInnerTOBSeedRings2();
     collectInnerTECSeedRings2();
@@ -1038,7 +1044,7 @@ void RoadMaker::collectInnerTOBSeedRings2() {
     rod_fw_bw_min   = 1;
     rod_fw_bw_max   = 2;
     detector_max    = 6;
-  } else if (structure_==TIFTOB) { 
+  } else if (structure_==TIFTOB || structure_==TIFTIBTOB || structure_==TIFTOBTEC || structure_==TIF) { 
     layer_min       = 1; 
     layer_max       = 2;
     rod_fw_bw_max   = 2;

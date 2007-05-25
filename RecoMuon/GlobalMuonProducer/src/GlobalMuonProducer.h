@@ -9,8 +9,8 @@
  *   starting from a standalone reonstructed muon.
  *
  *
- *   $Date: 2006/11/22 17:55:12 $
- *   $Revision: 1.7 $
+ *   $Date: 2007/03/20 13:38:12 $
+ *   $Revision: 1.9 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -47,6 +47,13 @@ class GlobalMuonProducer : public edm::EDProducer {
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;
     
+  std::string theAlias;
+
+  void setAlias( std::string alias ){
+    alias.erase( alias.size() - 1, alias.size() );
+    theAlias=alias;
+  }
+
 };
 
 #endif

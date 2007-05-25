@@ -48,7 +48,8 @@ MeasurementTracker::MeasurementTracker(const edm::ParameterSet&              con
 				       const GeometricSearchTracker* geometricSearchTracker,
 				       const SiStripDetCabling *stripCabling,
 				       const SiStripNoises *stripNoises) :
-  pset_(conf),lastEventNumber(0),lastRunNumber(0),
+  pset_(conf),lastEventNumberPixels(0),lastEventNumberStrips(0),
+  lastRunNumberPixels(0),lastRunNumberStrips(0),
   thePixelCPE(pixelCPE),theStripCPE(stripCPE),theHitMatcher(hitMatcher),
   theTrackerGeom(trackerGeom),theGeometricSearchTracker(geometricSearchTracker)
   ,dummyStripNoises(0)
@@ -151,15 +152,63 @@ void MeasurementTracker::addGluedDet( const GluedGeomDet* gd,
 
 void MeasurementTracker::update( const edm::Event& event) const
 {
+  updatePixels(event);
+  updateStrips(event);
+}
+
+
+void MeasurementTracker::updatePixels( const edm::Event& event) const
+{
   // avoid to update twice from the same event
-  if( (lastEventNumber == event.id().event()) && 
-      (lastRunNumber   == event.id().run() )     ) return;
+  if( (lastEventNumberPixels == event.id().event()) && 
+      (lastRunNumberPixels   == event.id().run() )     ) return;
   
-  lastEventNumber = event.id().event();
-  lastRunNumber = event.id().run();
+  lastEventNumberPixels = event.id().event();
+  lastRunNumberPixels = event.id().run();
+
+  typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
+
+  // Pixel Clusters
+  std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
+  if( !pixelClusterProducer.compare("") ) { //clusters have not been produced
+    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+	 i!=thePixelDets.end(); i++) {
+      (**i).setEmpty();
+    }
+  }else{  
+    edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
+    event.getByLabel(pixelClusterProducer, pixelClusters);
+    const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
+    
+    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+	 i!=thePixelDets.end(); i++) {
+
+      // foreach det get cluster range
+      unsigned int id = (**i).geomDet().geographicalId().rawId();
+      edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
+      if ( it != pixelCollection->end() ){            
+	const PixelDetSet & detSet = (*pixelCollection)[ id ];
+	// push cluster range in det
+	(**i).update( detSet, pixelClusters, id );
+      }else{
+	(**i).setEmpty();
+      }
+    }
+  }
+  
+}
+
+void MeasurementTracker::updateStrips( const edm::Event& event) const
+{
+  // avoid to update twice from the same event
+  if( (lastEventNumberStrips == event.id().event()) && 
+      (lastRunNumberStrips   == event.id().run() )     ) return;
+  
+  lastEventNumberStrips = event.id().event();
+  lastRunNumberStrips = event.id().run();
+
 
   typedef edm::DetSetVector<SiStripCluster> ::detset   StripDetSet;
-  typedef edm::DetSetVector<SiPixelCluster> ::detset   PixelDetSet;
 
   // Strip Clusters
   std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
@@ -190,34 +239,6 @@ void MeasurementTracker::update( const edm::Event& event) const
     }
   }
 
-
-  // Pixel Clusters
-  std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
-  if( !pixelClusterProducer.compare("") ) { //clusters have not been produced
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-	 i!=thePixelDets.end(); i++) {
-      (**i).setEmpty();
-    }
-  }else{  
-    edm::Handle<edm::DetSetVector<SiPixelCluster> > pixelClusters;
-    event.getByLabel(pixelClusterProducer, pixelClusters);
-    const  edm::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
-    
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-	 i!=thePixelDets.end(); i++) {
-
-      // foreach det get cluster range
-      unsigned int id = (**i).geomDet().geographicalId().rawId();
-      edm::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
-      if ( it != pixelCollection->end() ){            
-	const PixelDetSet & detSet = (*pixelCollection)[ id ];
-	// push cluster range in det
-	(**i).update( detSet, pixelClusters, id );
-      }else{
-	(**i).setEmpty();
-      }
-    }
-  }
 
   /// or maybe faster: loop over all strip dets and clear them
   /// loop over dets with clusters and set range

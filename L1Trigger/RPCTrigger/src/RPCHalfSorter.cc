@@ -105,6 +105,9 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   }
 
   runHalf(firstHalfTcsMuonsVec2);
+
+  unsigned int fhBMuons = m_GBOutputMuons[0].size(); // Number of first half barrel muons
+  unsigned int fhEMuons = m_GBOutputMuons[1].size(); // Number of first half endcap muons
   
   L1RpcTBMuonsVec2 secondHalfTcsMuonsVec2;
   for(int iTC = m_TrigCnfg->getTCsCnt()/2-1; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
@@ -117,14 +120,29 @@ L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   runHalf(secondHalfTcsMuonsVec2);
   // Debug
   if (m_TrigCnfg->getDebugLevel()!=0){
-    for (unsigned  int iTC = 0; iTC < m_GBOutputMuons.size(); iTC++){
-        for (unsigned  int iTB = 0; iTB < m_GBOutputMuons[iTC].size(); iTB++){
+    for (unsigned  int region = 0; region < m_GBOutputMuons.size(); ++region){ // region: 0- barrel,1-endcaps
+        for (unsigned  int i = 0; i < m_GBOutputMuons[region].size(); ++i)
+	{
+	
+	  unsigned int halfNum = 0; // Number of halfsorter: 0 - first half, 1 - second half
+	  int iMod=0;
+
+	  // After second call of runHalf muons are written at the end of m_GBOutputMuons[0,1] vector
+	  // not needed - fhBMuons ==4 (always)
+  	  if ( (region == 0 && i >= fhBMuons ) ||
+	       (region == 1 && i >= fhEMuons ) )
+	  {
+	    halfNum = 1;
+	    iMod=4;
+	  }
 #ifndef _STAND_ALONE
-            LogDebug("RPCHwDebug")<<"GB 3 "
-                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel());
+            LogDebug("RPCHwDebug")<<"GB 3"<< region <<halfNum  
+	        << " " << i - iMod << " "
+                << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel());
 #else
-            std::cout <<"GB 3 "
-                << m_GBOutputMuons[iTC][iTB].printDebugInfo(m_TrigCnfg->getDebugLevel())
+            std::cout <<"GB 3" << region<< halfNum
+	        << " " << i - iMod << " "
+                << m_GBOutputMuons[region][i].printDebugInfo(m_TrigCnfg->getDebugLevel())
                 << std::endl;
 #endif 
         }

@@ -1,5 +1,5 @@
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "MagneticField/Engine/interface/MagneticField.h"

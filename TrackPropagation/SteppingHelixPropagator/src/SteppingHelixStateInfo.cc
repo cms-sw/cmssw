@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/02/05 18:48:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/14 10:19:36 $
+ *  $Revision: 1.4 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.3 2007/02/05 18:48:08 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.4 2007/02/14 10:19:36 slava77 Exp $
 //
 //
 
@@ -19,20 +19,35 @@
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixStateInfo.h"
 
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+
+const std::string SteppingHelixStateInfo::ResultName[MAX_RESULT] = {
+  "RESULT_OK",
+  "RESULT_FAULT",
+  "RESULT_RANGEOUT",
+  "RESULT_INACC",
+  "RESULT_NOT_IMPLEMENTED",
+  "RESULT_UNDEFINED"
+};
 
 SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
   p3.set(fts.momentum().x(), fts.momentum().y(), fts.momentum().z());
   r3.set(fts.position().x(), fts.position().y(), fts.position().z());
   q = fts.charge();
 
-  if (fts.hasError()) cov = fts.cartesianError().matrix();
-  else cov = HepSymMatrix(1, 0);
+  if (fts.hasError()){
+    cov = fts.cartesianError().matrix();
+    hasErrorPropagated_ = true;
+  }else{
+    cov = HepSymMatrix(1, 0);
+    hasErrorPropagated_ = false;
+  }
 
   isComplete = false;
   isValid_ = true;
 }
 
-TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf) const {
+TrajectoryStateOnSurface SteppingHelixStateInfo::getStateOnSurface(const Surface& surf, bool returnTangentPlane) const {
   if (! isValid()) return TrajectoryStateOnSurface();
   FreeTrajectoryState fts;
   getFreeState(fts);

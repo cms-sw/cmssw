@@ -1,8 +1,8 @@
 #ifndef PixelTrackFitting_RZLine_H
 #define PixelTrackFitting_RZLine_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include <vector>
 
 class RZLine {

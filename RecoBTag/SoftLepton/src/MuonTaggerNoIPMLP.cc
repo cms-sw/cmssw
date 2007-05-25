@@ -72,7 +72,7 @@ double MuonTaggerNoIPMLP::input0xb50d328() {
 
 double MuonTaggerNoIPMLP::neuron0xb50d328() {
    double input = input0xb50d328();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50d550() {
@@ -87,7 +87,7 @@ double MuonTaggerNoIPMLP::input0xb50d550() {
 
 double MuonTaggerNoIPMLP::neuron0xb50d550() {
    double input = input0xb50d550();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50d810() {
@@ -102,7 +102,7 @@ double MuonTaggerNoIPMLP::input0xb50d810() {
 
 double MuonTaggerNoIPMLP::neuron0xb50d810() {
    double input = input0xb50d810();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50dad0() {
@@ -117,7 +117,7 @@ double MuonTaggerNoIPMLP::input0xb50dad0() {
 
 double MuonTaggerNoIPMLP::neuron0xb50dad0() {
    double input = input0xb50dad0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50de18() {
@@ -132,7 +132,7 @@ double MuonTaggerNoIPMLP::input0xb50de18() {
 
 double MuonTaggerNoIPMLP::neuron0xb50de18() {
    double input = input0xb50de18();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50e090() {
@@ -147,7 +147,7 @@ double MuonTaggerNoIPMLP::input0xb50e090() {
 
 double MuonTaggerNoIPMLP::neuron0xb50e090() {
    double input = input0xb50e090();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50e350() {
@@ -162,7 +162,7 @@ double MuonTaggerNoIPMLP::input0xb50e350() {
 
 double MuonTaggerNoIPMLP::neuron0xb50e350() {
    double input = input0xb50e350();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50e6c8() {
@@ -177,7 +177,7 @@ double MuonTaggerNoIPMLP::input0xb50e6c8() {
 
 double MuonTaggerNoIPMLP::neuron0xb50e6c8() {
    double input = input0xb50e6c8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50e968() {
@@ -192,7 +192,7 @@ double MuonTaggerNoIPMLP::input0xb50e968() {
 
 double MuonTaggerNoIPMLP::neuron0xb50e968() {
    double input = input0xb50e968();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50ec28() {
@@ -207,7 +207,7 @@ double MuonTaggerNoIPMLP::input0xb50ec28() {
 
 double MuonTaggerNoIPMLP::neuron0xb50ec28() {
    double input = input0xb50ec28();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50eee8() {
@@ -222,7 +222,7 @@ double MuonTaggerNoIPMLP::input0xb50eee8() {
 
 double MuonTaggerNoIPMLP::neuron0xb50eee8() {
    double input = input0xb50eee8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50f1a8() {
@@ -237,7 +237,7 @@ double MuonTaggerNoIPMLP::input0xb50f1a8() {
 
 double MuonTaggerNoIPMLP::neuron0xb50f1a8() {
    double input = input0xb50f1a8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50f4f0() {
@@ -252,7 +252,7 @@ double MuonTaggerNoIPMLP::input0xb50f4f0() {
 
 double MuonTaggerNoIPMLP::neuron0xb50f4f0() {
    double input = input0xb50f4f0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50e5c0() {
@@ -267,7 +267,7 @@ double MuonTaggerNoIPMLP::input0xb50e5c0() {
 
 double MuonTaggerNoIPMLP::neuron0xb50e5c0() {
    double input = input0xb50e5c0();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50fae8() {
@@ -282,7 +282,7 @@ double MuonTaggerNoIPMLP::input0xb50fae8() {
 
 double MuonTaggerNoIPMLP::neuron0xb50fae8() {
    double input = input0xb50fae8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb50fda8() {
@@ -297,7 +297,7 @@ double MuonTaggerNoIPMLP::input0xb50fda8() {
 
 double MuonTaggerNoIPMLP::neuron0xb50fda8() {
    double input = input0xb50fda8();
-   return ((1/(1+exp(-input))) * 1)+0;
+   return (input < -100) ? 0 : (input > 100) ? 1 : (1/(1+exp(-input)));
 }
 
 double MuonTaggerNoIPMLP::input0xb510310() {

@@ -11,26 +11,26 @@ Compatibility: CMSSW_1_1_1
 Setup
 -----
 
-1) The correct versions of CMSSW software should already exist in the daqowner
-   "dist" tree. If this is not the case, contact information is listed above.
+1) Create a CMSSW_1_1_1 working area using the "scramv1 project" command.
+   Examples for previous versions are given below. (At most teststands,
+   this will be done by user daqowner.)
+2) Under this area, check out from CMSSW CVS the package
+   RecoTBCalo/HcalPlotter. No specific tag is needed for the present.
+3) Execute
 
-2) Ensure the root scripts from the daqowner dist tree are copied to a
-   local directory of your choice:
+  eval `scramv1 runtime -csh`   [if you run tcsh or csh as shell, as daq does]
+  eval `scramv1 runtime -sh`    [if you run bash or zsh as shell]
 
-mylocalmachine> cp ~daqowner/dist/src/CMSSW_1_1_1/src/RecoTBCalo/HcalPlotter/scripts/*.* .
+  in the CMSSW_1_1_1/src directory. This must be done once per login.
 
-   (to get a copy of this README:)
-mylocalmachine> cp ~daqowner/dist/src/CMSSW_1_1_1/src/RecoTBCalo/HcalPlotter/scripts/README .
-
-
-Running
--------
-
-1) Edit the "reco_setup.rc" file as appropriate. (The variable settings
-   contained therein may already be to your liking.)   Select the
-   appropriate map file for the data you are interested in, and specify
-   a pedestal file or gains file if you have one to use. In addition, to
-   use the "Process run number" feature, specify a printf-style format string
+4) "cd" to "RecoTBCalo/HcalPlotter" and build this package by executing
+   "scramv1 build". 
+5) Under the CMSSW_1_1_1/src directory, create an area that will hold the
+   CMSSWPlotAll files.
+6) Now you can edit the "reco_setup.rc" file to select the appropriate
+   map file for the data you are interested in, and to specify a pedestal
+   file or gains file if you have one to use. In addition, to use the
+   "Process run number" feature, specify a printf-style format string
    that gives the full path to the directory where raw data files will be
    placed. Examples include
 
@@ -41,6 +41,16 @@ Running
    (The "%06d" part of the format string indicates where the run number will be
    placed, and that it will have 6 total digits zero-padded on the left. This
    is a common filename format used at Hcal test stands.)
+
+Running
+-------
+
+1) Before you do anything, you must go to "CMSSW_1_1_1/src" and run
+
+  eval `scramv1 runtime -csh`   [if you run tcsh or csh as shell, as daq does]
+  eval `scramv1 runtime -sh`    [if you run bash or zsh as shell]
+
+  This must be done once per login.
 
 2) To plot:
 

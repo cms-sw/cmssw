@@ -1,5 +1,8 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTORCAMap.h"
 
+#include <vector>
+using std::vector;
+
 L1RCTORCAMap::L1RCTORCAMap(){
   rawEMET = vector<unsigned short>(56*72);
   rawHDET = vector<unsigned short>(56*72);

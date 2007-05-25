@@ -1,6 +1,6 @@
 /** \class HLTElectronTrackIsolFilter
  *
- * $Id: HLTElectronTrackIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $ 
+ * $Id: HLTElectronTrackIsolFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $ 
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTElectronTrackIsolFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -30,8 +30,10 @@
 HLTElectronTrackIsolFilter::HLTElectronTrackIsolFilter(const edm::ParameterSet& iConfig){
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
+  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   pttrackisolcut_  = iConfig.getParameter<double> ("pttrackisolcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
   //register your products
   produces<reco::HLTFilterObjectWithRefs>();
@@ -58,6 +60,9 @@ HLTElectronTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::ElectronIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);
   
+  //get hold of track isolation association map
+  edm::Handle<reco::ElectronIsolationMap> depNonIsoMap;
+  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
   
   // look at all electrons,  check cuts and add to filter object
   int n = 0;
@@ -83,11 +88,27 @@ HLTElectronTrackIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 	  n++;
 	  filterproduct->putParticle(ref);
 	}
-	
-      }
-      
+      }   
     }
-    
+    if(!doIsolated_) {
+     for(reco::ElectronIsolationMap::const_iterator it = depNonIsoMap->begin(); it != depNonIsoMap->end(); it++){
+      
+      reco::ElectronRef theElectronRef =  it->key;   
+      const reco::SuperClusterRef theClus = theElectronRef->superCluster();
+      ref=edm::RefToBase<reco::Candidate>(theElectronRef);
+
+      if(&(*recr2) ==  &(*theClus)) {
+
+	float vali = it->val;
+	
+	if(vali <= pttrackisolcut_){
+	  n++;
+	  filterproduct->putParticle(ref);
+	}
+      }   
+     }
+    }
+   
   }
   
   

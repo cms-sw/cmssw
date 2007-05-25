@@ -1,11 +1,9 @@
 /**
  *  Class: GlobalMuonTrackMatcher
  *
- *  Description:
- *    Match standalone muon track with tracker tracks
- *
- *  $Date: 2007/02/16 23:41:47 $
- *  $Revision: 1.40 $
+ * 
+ *  $Date: 2007/03/15 21:02:00 $
+ *  $Revision: 1.42 $
  *
  *  Authors :
  *  \author Chang Liu  - Purdue University
@@ -42,6 +40,8 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
+#include "DataFormats/GeometrySurface/interface/TangentPlane.h"
+
 using namespace std;
 using namespace reco;
 
@@ -58,8 +58,6 @@ GlobalMuonTrackMatcher::GlobalMuonTrackMatcher(const edm::ParameterSet& par,
   theMinP = par.getParameter<double>("MinP");
   theMinPt = par.getParameter<double>("MinPt");
   
-  matchAtSurface_ = par.getUntrackedParameter<bool>("MatchAtSurface",true);
-
   theOutPropagatorName = par.getParameter<string>("StateOnTrackerBoundOutPropagator");
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
@@ -78,14 +76,14 @@ GlobalMuonTrackMatcher::~GlobalMuonTrackMatcher() {
 }
 
 
-//
-// choose the tracker Track from a TrackCollection which has smallest chi2 with
-// a given standalone Track
-//
+/*!
+ * Choose the Track from a TrackCollection which has smallest chi2 with
+ * a given standalone muon Track.
+ */
 pair<bool, GlobalMuonTrackMatcher::TrackCand> 
-GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand, 
-                                 const vector<TrackCand>& tkTs) const {
-
+GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
+				 const vector<TrackCand>& tkTs) const {
+  
   bool hasMatchTk = false;
   TrackCand result = staCand;
   double minChi2 = theMaxChi2;
@@ -108,10 +106,16 @@ GlobalMuonTrackMatcher::matchOne(const TrackCand& staCand,
 }
 
 
-//
-// choose a vector of tracker Tracks from a TrackCollection that has Chi2 
-// less than theMaxChi2, for a given standalone Track
-//
+/*!
+ * Choose a vector of Tracks from a TrackCollection that are compatible
+ * with a given standalone Track.  The order of checks for compatability are
+ * \li matching-chi2 less than MaxChi2
+ * \li gloabl position of TSOS on tracker bound
+ * \li global momentum direction
+ * \see matchChi()
+ * \see matchPos()
+ * \see matchMomAtIP()
+ */
 vector<GlobalMuonTrackMatcher::TrackCand>
 GlobalMuonTrackMatcher::match(const TrackCand& staCand, 
                               const vector<TrackCand>& tkTs) const {
@@ -155,10 +159,10 @@ GlobalMuonTrackMatcher::match(const TrackCand& staCand,
 }
 
 
-//
-// determine if two TrackRefs are compatible
-// by comparing their TSOSs on the outer Tracker surface
-//
+/*!  
+  \return pair<match result, chi2>
+  \see matchChiAtSurface()
+ */
 pair<bool,double> 
 GlobalMuonTrackMatcher::matchChi(const TrackCand& staCand, 
                                  const TrackCand& tkCand) const {
@@ -166,31 +170,35 @@ GlobalMuonTrackMatcher::matchChi(const TrackCand& staCand,
   const string category = "GlobalMuonTrackMatcher";
   double chi2 = -1;
   
-  if ( matchAtSurface_ ) {
-    LogDebug(category) << "Match at surface";
-    pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = 
-      convertToTSOS(staCand,tkCand);
+  pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair =   
+    convertToTSOS(staCand,tkCand);
+  
+  bool sameSurface = samePlane(tsosPair.first,tsosPair.second);
+  
+  LogDebug(category) << "Match at surface";
+  if( sameSurface ) 
     chi2 = matchChiAtSurface(tsosPair.first, tsosPair.second);
-  } else {    
-    LogDebug(category) << "Match at IP" ;
-    chi2 = matchChiAtIP(staCand, tkCand);    
-  }
   
   bool chi2Match = ( chi2 > 0. && chi2 <= theMaxChi2 ) ? true : false;
-
+  
   if (theMIMFlag) {
     dataMonitor->book1D("matchChi2_all","#chi^{2} of all tracks",500,0,1000);
     dataMonitor->fill1("matchChi2_all",chi2);
+    if( !chi2Match ) {
+      dataMonitor->book1D("matchChi2_fail_surf","Failed Surface",3,-0.5,2.5);
+      dataMonitor->fill1("matchChi2_fail_surf",samePlane(tsosPair.first,tsosPair.second));
+    }    
   }
   
   return pair<bool,double>(chi2Match,chi2);
-
+  
 }
 
 
-//
-// compare the global position of to track candidatas at a given surface
-//
+/*!
+ * Compare the global position of two track candidates on tracker bound
+ * \return true if gloabl positions are less than DeltaEta or DeltaPhi
+ */
 bool
 GlobalMuonTrackMatcher::matchPos(const TrackCand& staCand,
 				 const TrackCand& tkCand) const {
@@ -205,10 +213,10 @@ GlobalMuonTrackMatcher::matchPos(const TrackCand& staCand,
 }
 
 
-//
-// take two TrackCands and calcultae their 
-// TSOSs on the outer tracker surface
-//
+/*!
+ * Take two TrackCands and calculate their TSOSs on the outer tracker
+ * surface.
+ */
 pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>
 GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
 				      const TrackCand& tkCand) const {
@@ -244,14 +252,34 @@ GlobalMuonTrackMatcher::convertToTSOS(const TrackCand& staCand,
   TrajectoryStateOnSurface tkTsosFromMu = fromInside(initMuFTS);
   TrajectoryStateOnSurface tkTsosFromTk = fromInside(outerTkTsos);
 
+    
+  if( !samePlane(tkTsosFromMu,tkTsosFromTk)) {
+    bool same1, same2;
+    //propagate tk to same surface as muon
+    TrajectoryStateOnSurface newTkTsosFromTk, newTkTsosFromMu;
+    newTkTsosFromTk = theService->propagator(theOutPropagatorName)->propagate(outerTkTsos,tkTsosFromMu.surface());
+    same1 =  samePlane(newTkTsosFromTk,tkTsosFromMu);
+    LogDebug(category) << "Propagating to same surface (Mu):" << same1;
+    if( !same1 ) {
+      TrajectoryStateOnSurface newTkTsosFromMu = theService->propagator(theOutPropagatorName)->propagate(initMuFTS,tkTsosFromTk.surface());
+      same2 =  samePlane(newTkTsosFromMu,tkTsosFromTk);
+      LogDebug(category) << "Propagating to same surface (Tk):" << same2;
+    }
+    if(same1) tkTsosFromTk = newTkTsosFromTk;
+    else if(same2) tkTsosFromMu = newTkTsosFromMu;
+    else  LogDebug(category) << "Could not propagate Muon and Tracker track to the same tracker bound!";
+  }
+  
+
   return pair<TrajectoryStateOnSurface,TrajectoryStateOnSurface>(tkTsosFromMu, tkTsosFromTk);
 
 }
 
 
-//
-// determine if two TSOSs are compatible; they should be on same surface
-// 
+/*!
+ * Determine if two TSOSs are compatible; they should be on same surface.
+ * \return chi2
+ */ 
 double 
 GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1, 
 					  const TrajectoryStateOnSurface& tsos2) const {
@@ -283,35 +311,10 @@ GlobalMuonTrackMatcher::matchChiAtSurface(const TrajectoryStateOnSurface& tsos1,
 }
 
 
-//
-// check if two Tracks match at IP
-//
-double
-GlobalMuonTrackMatcher::matchChiAtIP(const TrackCand& staCand, 
-                                     const TrackCand& tkCand) const {
 
-  const string category = "GlobalMuonTrackMatcher";  
-
-  TrackBase::ParameterVector delta = staCand.second->parameters() - tkCand.second->parameters();
-  LogDebug(category) << "Parameter Vector " << delta;
-  TrackBase::CovarianceMatrix cov = staCand.second->covariance()+tkCand.second->covariance();
-
-  cov.Invert();
-  double chi2 = 0.;
-  for (unsigned int i=0; i<TrackBase::dimension; i++) {
-    for (unsigned int j=0; j<TrackBase::dimension; j++) {
-      chi2 += delta[i]*cov(i,j)*delta[j];
-    }
-  }
-
-  return chi2;  
-
-}
-
-
-//
-// compare global position of two TSOSs
-//
+/*!
+ * Compare global eta-phi position of two TSOSs.
+ */
 bool
 GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
                                           const TrajectoryStateOnSurface& tsos2) const {
@@ -336,9 +339,11 @@ GlobalMuonTrackMatcher::matchPosAtSurface(const TrajectoryStateOnSurface& tsos1,
 }
 
 
-//
-// compare global directions of track candidates
-//
+/*!  Find the one TrackCand in a collection of TrackCands with the global
+  direction closest to the given standalone muon.  
+  \param staCand given strandalone muon.
+  \return TrackCand with momentum direction closest to that of staCand
+ */
 GlobalMuonTrackMatcher::TrackCand
 GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
                                      const std::vector<TrackCand>& tkTs) const {
@@ -375,4 +380,25 @@ GlobalMuonTrackMatcher::matchMomAtIP(const TrackCand& staCand,
 
   return returnVal;  
 
+}
+
+/*!
+ * In the case that the TSOS is on a cylinder, check the TSOS' TangentialPlane.
+ */
+bool GlobalMuonTrackMatcher::samePlane(const TrajectoryStateOnSurface& tsos1,
+				       const TrajectoryStateOnSurface& tsos2) const
+{
+  if( !tsos1.isValid() || !tsos2.isValid()) return false;
+  const string category = "GlobalMuonTrackMatcher";
+
+  const float maxtilt = 0.999;
+  const float maxdist = 0.01; // in cm
+
+  ReferenceCountingPointer<TangentPlane> p1(tsos1.surface().tangentPlane(tsos1.localPosition()));
+  ReferenceCountingPointer<TangentPlane> p2(tsos2.surface().tangentPlane(tsos2.localPosition()));
+
+  bool returnValue =  ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt) || (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) ? true : false;
+
+  return returnValue; 
+  
 }

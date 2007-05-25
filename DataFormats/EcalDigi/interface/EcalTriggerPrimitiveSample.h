@@ -17,7 +17,9 @@ class EcalTriggerPrimitiveSample {
   EcalTriggerPrimitiveSample();
   EcalTriggerPrimitiveSample(uint16_t data);
   EcalTriggerPrimitiveSample(int encodedEt, bool finegrain, int triggerFlag);
-    
+
+  ///Set data
+  void setValue(uint16_t data){ theSample = data;}
   /// get the raw word
   uint16_t raw() const { return theSample; }
   /// get the encoded/compressed Et (8 bits)

@@ -61,6 +61,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   examinerMask = pset.getUntrackedParameter<unsigned int>("ExaminerMask",0x7FB7BF6);
   instatiateDQM = pset.getUntrackedParameter<bool>("runDQM", false);
   errorMask = pset.getUntrackedParameter<unsigned int>("ErrorMask",0xDFCFEFFF);
+  inputObjectsTag = pset.getParameter<edm::InputTag>("InputObjects");
 
   if(instatiateDQM){
    monitor = edm::Service<CSCMonitorInterface>().operator->();
@@ -73,7 +74,7 @@ CSCDCCUnpacker::CSCDCCUnpacker(const edm::ParameterSet & pset) :
   produces<CSCCLCTDigiCollection>("MuonCSCCLCTDigi");
   produces<CSCRPCDigiCollection>("MuonCSCRPCDigi");
   produces<CSCCorrelatedLCTDigiCollection>("MuonCSCCorrelatedLCTDigi");
-  produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
+  //produces<CSCCFEBStatusDigiCollection>("MuonCSCCFEBStatusDigi");
 
 
   CSCAnodeData::setDebug(debug);
@@ -106,7 +107,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  e.getByType(rawdata);
+  e.getByLabel(inputObjectsTag, rawdata);
 
   // create the collection of CSC wire and strip Digis
   std::auto_ptr<CSCWireDigiCollection> wireProduct(new CSCWireDigiCollection);
@@ -116,7 +117,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   std::auto_ptr<CSCComparatorDigiCollection> comparatorProduct(new CSCComparatorDigiCollection);
   std::auto_ptr<CSCRPCDigiCollection> rpcProduct(new CSCRPCDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> corrlctProduct(new CSCCorrelatedLCTDigiCollection);
-  std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
+  //std::auto_ptr<CSCCFEBStatusDigiCollection> cfebStatusProduct(new CSCCFEBStatusDigiCollection);
 
 
 
@@ -198,7 +199,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
                            1, //chamber
 			   1); //layer
 
-	    if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	    if (((vmecrate>=0)&&(vmecrate<=100)) && (dmb>=0)&&(dmb<=10)) {
 	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	    } else {
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
@@ -214,7 +215,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  cscData[iCSC].alctHeader().ALCTDigis();
 	
 		///ugly kludge to fix wiregroup numbering - need to remove as soon as new firmware is uploaded
-		if (((layer.ring()==3)&&(layer.station()==1))||
+		/*if (((layer.ring()==3)&&(layer.station()==1))||
 		    ((layer.ring()==1)&&(layer.station()==3))||
 		    ((layer.ring()==1)&&(layer.station()==4)))
 		  {
@@ -230,7 +231,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			}
 		      }
 		    }
-		  }
+		    }*/
+		    
 
 		alctProduct->put(std::make_pair(alctDigis.begin(), alctDigis.end()),layer);
 	      }
@@ -263,7 +265,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		  cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
 
                 ///ugly kludge to fix wiregroup numbering - need to remove as soon as new firmware is uploaded
-                if (((layer.ring()==3)&&(layer.station()==1))||
+                /*if (((layer.ring()==3)&&(layer.station()==1))||
                     ((layer.ring()==1)&&(layer.station()==3))||
                     ((layer.ring()==1)&&(layer.station()==4)))
                   {
@@ -279,7 +281,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 			}
 		      }
                     }
-                  }
+		    }*/
 		corrlctProduct->put(std::make_pair(correlatedlctDigis.begin(), 
 						   correlatedlctDigis.end()),layer);
 	      }
@@ -287,14 +289,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    }
 
 
-	    for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
-	      cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
-	    }
+	    //for ( icfeb = 0; icfeb < 5; ++icfeb ) {///loop over status digis
+	    //  cfebStatusProduct->insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
+	    //}
 
 	    //this loop stores wire strip and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) {
 
-	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	      if (((vmecrate>=0)&&(vmecrate<=100)) && (dmb>=0)&&(dmb<=10)) {
 		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	      } else {
 		edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
@@ -304,7 +306,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	      std::vector <CSCWireDigi>  wireDigis =  cscData[iCSC].wireDigis(ilayer);
 	      /// kludge to fix wire group numbers for ME3/1, ME4/1 and ME1/3 chambers
-
+	      /*
 	      if (((layer.ring()==3)&&(layer.station()==1))||
 		  ((layer.ring()==1)&&(layer.station()==3))||
 	          ((layer.ring()==1)&&(layer.station()==4)))
@@ -319,7 +321,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 		    wireDigis[i].setWireGroup(wiregroup);
 		  }
 		}	
-	      }
+	      }*/
 
 	      wireProduct->put(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
              
@@ -327,7 +329,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
 
-		if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+		if (((vmecrate>=0)&&(vmecrate<=100)) && (dmb>=0)&&(dmb<=10)) {
 		  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 		} else {
 		  edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
@@ -371,7 +373,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
   e.put(comparatorProduct,    "MuonCSCComparatorDigi");
   e.put(rpcProduct,           "MuonCSCRPCDigi");
   e.put(corrlctProduct,       "MuonCSCCorrelatedLCTDigi");
-  e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
+  //e.put(cfebStatusProduct,    "MuonCSCCFEBStatusDigi");
 
 }
 

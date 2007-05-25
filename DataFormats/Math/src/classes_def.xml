@@ -9,6 +9,9 @@
   <class pattern="ROOT::Math::DisplacementVector3D<*>" />
   <class pattern="ROOT::Math::PositionVector3D<*>" />
   <class pattern="ROOT::Math::SMatrix<*>" />
+  <class pattern="ROOT::Math::MatRepStd<*>" />
+  <class pattern="ROOT::Math::MatRepSym<*>" />
+  <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />

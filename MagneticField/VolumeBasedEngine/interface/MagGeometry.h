@@ -4,8 +4,8 @@
 /** \class MagGeometry
  *  Entry point to the geometry of magnetic volumes.
  *
- *  $Date: 2006/04/20 10:15:10 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/09 15:09:30 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -44,8 +44,8 @@ public:
   MagVolume * findVolume(const GlobalPoint & gp) const;
 
   // FIXME: only for temporary tests, should be removed.
-  const std::vector<MagVolume6Faces*> & barrelVolumes() {return theBVolumes;}
-  const std::vector<MagVolume6Faces*> & endcapVolumes() {return theEVolumes;}
+  const std::vector<MagVolume6Faces*> & barrelVolumes() const {return theBVolumes;}
+  const std::vector<MagVolume6Faces*> & endcapVolumes() const {return theEVolumes;}
 
 private:
 //  friend class DDI::Singleton<MagGeometry>;
@@ -59,6 +59,10 @@ private:
   MagVolume * findVolume2(const GlobalPoint & gp, double tolerance=0.) const;
 
   bool inBarrel(const GlobalPoint& gp) const;
+
+  bool trackerField(const GlobalPoint& gp, GlobalVector& bxyz) const ;
+
+  void ffunkti(float u, float* ff) const;
 
   mutable MagVolume * lastVolume; // Cache last volume found
 
@@ -75,6 +79,7 @@ private:
   double tolerance;
   bool cacheLastVolume;
   bool timerOn;
+  bool useParametrizedTrackerField;
 };
 #endif
 

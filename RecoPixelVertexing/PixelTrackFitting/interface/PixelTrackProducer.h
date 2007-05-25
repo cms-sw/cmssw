@@ -2,17 +2,16 @@
 #define PixelTrackProducer_H
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 
 class PixelFitter;
 class PixelTrackCleaner;
 class PixelTrackFilter;
-class PixelHitTripletGenerator;
+class OrderedHitsGenerator;
+class TrackingRegionProducer;
 
-#include<vector>
+namespace edm { class Event; class EventSetup; }
 
 class PixelTrackProducer :  public edm::EDProducer {
 
@@ -20,6 +19,8 @@ public:
   explicit PixelTrackProducer(const edm::ParameterSet& conf);
 
   ~PixelTrackProducer();
+
+  virtual void beginJob(const edm::EventSetup& es);
 
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 
@@ -32,7 +33,7 @@ private:
   const PixelFitter       * theFitter;
   const PixelTrackFilter  * theFilter;
         PixelTrackCleaner * theCleaner;  
-        PixelHitTripletGenerator * theGenerator;
-
+        OrderedHitsGenerator * theGenerator;
+        TrackingRegionProducer* theRegionProducer;
 };
 #endif

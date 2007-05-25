@@ -1,9 +1,11 @@
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.14 2007/03/21 16:38:13 bainbrid Exp $
+
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -12,7 +14,6 @@
 namespace Fed9U { class Fed9UEvent; }
 class FEDRawDataCollection;
 class FEDRawData;
-class SiStripDigiCollection;
 class SiStripDigi;
 class SiStripRawDigi;
 class SiStripEventSummary;
@@ -25,6 +26,9 @@ class SiStripFedCabling;
 */
 class SiStripRawToDigiUnpacker {
   
+  friend class SiStripRawToClustersModule;
+  friend class SiStripRawToClustersLazyUnpacker;
+
  public:
   
   /** */
@@ -36,16 +40,10 @@ class SiStripRawToDigiUnpacker {
   /** */
   ~SiStripRawToDigiUnpacker();
 
-  typedef edm::DetSetVector<SiStripDigi> Digis;
-  typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
+  typedef std::vector< edm::DetSet<SiStripDigi> > Digis;
+  typedef std::vector< edm::DetSet<SiStripRawDigi> > RawDigis;
   
-  /** Creates "pseudo" digis. */
-  void createDigis( const SiStripFedCabling&,
-  		    const edm::Handle<FEDRawDataCollection>&,
-  		    const SiStripEventSummary&,
-		    std::auto_ptr<SiStripDigiCollection>& );
-  
-  /** Creates "real" digis. */
+  /** Creates digis. */
   void createDigis( const SiStripFedCabling&,
 		    const FEDRawDataCollection&,
 		    const SiStripEventSummary&,
@@ -69,7 +67,7 @@ class SiStripRawToDigiUnpacker {
 
   inline sistrip::FedBufferFormat fedBufferFormat( const uint16_t& register_value );
   inline sistrip::FedReadoutMode fedReadoutMode( const uint16_t& register_value );
-  
+
   void locateStartOfFedBuffer( const uint16_t& fed_id, const FEDRawData& input, FEDRawData& output );
   void dumpRawData( uint16_t fed_id, const FEDRawData&, std::stringstream& );
   
@@ -116,11 +114,11 @@ sistrip::FedBufferFormat SiStripRawToDigiUnpacker::fedBufferFormat( const uint16
 }
 
 sistrip::FedReadoutMode SiStripRawToDigiUnpacker::fedReadoutMode( const uint16_t& register_value ) {
-  if      ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::SCOPE_MODE; }
-  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::VIRGIN_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::PROC_RAW; }
-  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::ZERO_SUPPR; }
-  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::ZERO_SUPPR_LITE; }
+  if      ( ((register_value>>1)&0x7) == 0x0 ) { return sistrip::FED_SCOPE_MODE; }
+  else if ( ((register_value>>1)&0x7) == 0x1 ) { return sistrip::FED_VIRGIN_RAW; }
+  else if ( ((register_value>>1)&0x7) == 0x3 ) { return sistrip::FED_PROC_RAW; }
+  else if ( ((register_value>>1)&0x7) == 0x5 ) { return sistrip::FED_ZERO_SUPPR; }
+  else if ( ((register_value>>1)&0x7) == 0x6 ) { return sistrip::FED_ZERO_SUPPR_LITE; }
   else                                         { return sistrip::UNKNOWN_FED_READOUT_MODE; }
 }
 

@@ -1,8 +1,8 @@
 /** \class StandAloneTrajectoryBuilder
  *  Concrete class for the STA Muon reco 
  *
- *  $Date: 2007/01/17 16:18:04 $
- *  $Revision: 1.37 $
+ *  $Date: 2007/02/16 13:31:23 $
+ *  $Revision: 1.38 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author Stefano Lacaprara - INFN Legnaro
  */
@@ -23,7 +23,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 
-#include "Utilities/Timing/interface/TimingReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
@@ -112,10 +111,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   const std::string metname = "Muon|RecoMuon|StandAloneMuonTrajectoryBuilder";
   MuonPatternRecoDumper debug;
 
-  // FIXME put a flag
-  bool timing = false;
-  TimeMe time_STABuilder_tot(metname,timing);
-
   // the trajectory container. In principle starting from one seed we can
   // obtain more than one trajectory. TODO: this feature is not yet implemented!
   TrajectoryContainer trajectoryContainer;
@@ -126,8 +121,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   DetLayerWithState inputFromSeed = propagateTheSeedTSOS(seed); // it returns DetLayer-TSOS pair
   
   // refine the FTS given by the seed
-  static const string t1 = "StandAloneMuonTrajectoryBuilder::refitter";
-  TimeMe timer1(t1,timing);
 
   // the trajectory is filled in the refitter::refit
   refitter()->refit(inputFromSeed.second,inputFromSeed.first,trajectoryFW);
@@ -212,9 +205,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
   PropagationDirection bwDirection = (theSeedPosition == recoMuon::in) ?  oppositeToMomentum : alongMomentum;
   Trajectory trajectoryBW(seedForBW,bwDirection);
 
-  static const string t2 = "StandAloneMuonTrajectoryBuilder::backwardfiltering";
-  TimeMe timer2(t2,timing);
-
   // FIXME! under check!
   bwfilter()->refit(tsosAfterRefit,refitter()->lastDetLayer(),trajectoryBW);
 
@@ -265,9 +255,6 @@ StandAloneMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed){
     // measure. As first step I will port the ORCA algo, then I will move to the
     // above pattern.
     
-    const string t2a="StandAloneMuonTrajectoryBuilder::backwardfilteringMuonTrackFinder:SecondAttempt";
-    TimeMe timer2a(t2a,timing);
-
   }
   else
     LogTrace(metname)<< "Trajectory NOT saved" << endl;

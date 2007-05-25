@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai and Suchandra Dutta
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorPedestals.cc,v 1.13 2007/02/15 15:32:19 dutta Exp $
+// $Id: SiStripMonitorPedestals.cc,v 1.12 2006/11/02 19:23:49 dutta Exp $
 //
 //
 
@@ -90,7 +90,8 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
   // create SiStripFolderOrganizer
   SiStripFolderOrganizer folder_organizer;
 
-  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){
+  // for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(), iEnd=SelectedDetIds.end();idetid!=iEnd;++idetid){
+  for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(); idetid!=SelectedDetIds.end();idetid++){
     
     uint32_t detid = *idetid;
     if ((detid) == 0){
@@ -169,14 +170,10 @@ void SiStripMonitorPedestals::beginJob(const edm::EventSetup& es){
 void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-  std::cout << "Run " << iEvent.id().run() << " Event " << iEvent.id().event() << std::endl;
-
-  
   if (firstEvent){
     SiStripNoiseService_.setESObjects(iSetup);
     SiStripPedestalsService_.setESObjects(iSetup);
   }
-  iSetup.get<SiStripDetCablingRcd>().get( detcabling );
 
   //Increment # of Events
   nEvTot_++;
@@ -192,13 +189,11 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 
   //Increase the number of iterations ...
   if((nEvTot_ - theEventInitNumber_)%theEventIterNumber_ == 1) nIteration_++;
-  
 
   for (std::map<uint32_t, ModMEs >::const_iterator i = PedMEs.begin() ; i!=PedMEs.end() ; i++) {
     uint32_t detid = i->first; ModMEs local_modmes = i->second;
+ 
     if (firstEvent){
-      //edm::LogInfo("SiStripMonitorPedestals") 
-      std::cout << "[SiStripMonitorPedestals::analyze] Get Ped/Noise/Bad Strips from CondDb for DetId " << detid << std::endl;
       int nStrip  = detcabling->nApvPairs(detid) * 256;
       for(int istrip=0;istrip<nStrip;++istrip){
 	try{
@@ -208,14 +203,14 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	catch(cms::Exception& e){
 	  edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripPedestalsService_.getPedestal("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;
 	}
- 	try{
+ 	 try{
 	   //Fill Noises
 	  (local_modmes.CMSubNoisePerStripDB)->Fill(istrip+1,SiStripNoiseService_.getNoise(detid,istrip));
-	}
-	catch(cms::Exception& e){
-	  edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripNoiseService_.getNoise("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;
-	}
- 	try{
+	 }
+	 catch(cms::Exception& e){
+	   edm::LogError("SiStripMonitorPedestals") << "[SiStripMonitorPedestals::analyze]  cms::Exception accessing SiStripNoiseService_.getNoise("<<detid<<","<<istrip<<") :  "  << " " << e.what() ;
+	 }
+ 	  try{
 	    //Fill BadStripsNoise
 	  (local_modmes.CMSubNoisePerStripDB)->Fill(istrip+1,SiStripNoiseService_.getDisable(detid,istrip)?1.:0.);
 	}
@@ -225,8 +220,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       }//close istrip loop
     } // firstEvent
 
-    
-    // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
+   // get iterators for digis belonging to one DetId, it is an iterator, i.e. one element of the vector      
     std::vector< edm::DetSet<SiStripRawDigi> >::const_iterator digis = digi_collection->find( detid );
     if ( digis->data.empty() ) { 
       edm::LogError("MonitorDigi_tmp") << "[SiStripRawDigiToRaw::createFedBuffers] Zero digis found!"; 
@@ -341,10 +335,10 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
 	}
 
 
-      }    
+      }
   }
   if (firstEvent)
-    firstEvent=false;  
+    firstEvent=false;
   usleep(500000);
 }
     

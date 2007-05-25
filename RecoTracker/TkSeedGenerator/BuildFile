@@ -1,6 +1,7 @@
 <flags SEAL_PLUGIN_NAME="RecoTrackerTkSeedGenerator">
 <use name=root>
 <use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
 <use name=DataFormats/Common>
 <use name=FWCore/ParameterSet>
 <use name=Geometry/Records>
@@ -8,7 +9,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=DataFormats/TrajectorySeed>
 <use name=DataFormats/TrackerRecHit2D>
-<use name=Foundation/PluginManager>
 <use name=Geometry/CommonTopologies>
 <use name=Geometry/Surface>
 <use name=Geometry/TrackerGeometryBuilder>
@@ -26,13 +26,13 @@
  <lib name=RecoTrackerTkSeedGenerator>
  <use name=DataFormats/Common>
  <use name=FWCore/Framework>
+ <use name=FWCore/PluginManager>
  <use name=FWCore/ParameterSet>
  <use name=Geometry/Records>
  <use name=Geometry/CommonDetUnit>
  <use name=TrackingTools/MaterialEffects>
  <use name=DataFormats/TrajectorySeed>
  <use name=DataFormats/TrackerRecHit2D>
- <use name=Foundation/PluginManager>
  <use name=Geometry/CommonTopologies>
  <use name=Geometry/Surface>
  <use name=Geometry/TrackerGeometryBuilder>

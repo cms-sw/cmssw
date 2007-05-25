@@ -9,15 +9,9 @@
  <class name="edm::SortedCollection<edmtest::Simple, edm::StrictWeakOrdering<edmtest::Simple> >"/>
  <class name="edm::OwnVector<edmtest::Simple, edm::ClonePolicy<edmtest::Simple> >"/>
  <class name="std::vector<edmtest::Simple>"/>
- <class name="std::vector<edmtest::Simple*>"/>
- <class name="edm::RefProd<std::vector<edmtest::Simple> >"/>
  <class name="edm::AssociationVector<std::vector<edmtest::Simple>, std::vector<edmtest::Simple> >"/>
  <class name="edm::DetSet<edmtest::Sortable>"/>
- <class name="std::vector<edm::DetSet<edmtest::Sortable> >"/>
  <class name="edm::DetSet<edmtest::Unsortable>"/>
- <class name="std::vector<edm::DetSet<edmtest::Unsortable> >"/>
- <class name="std::vector<edmtest::Sortable>"/>
- <class name="std::vector<edmtest::Unsortable>"/>
  <class name="edm::DetSetVector<edmtest::Sortable>"/>
  <class name="edm::DetSetVector<edmtest::Unsortable>"/>
  <class name="edm::Wrapper<edmtest::DummyProduct>"/>
@@ -38,6 +32,9 @@
  <class name="edm::RefVector<std::vector<edmtest::Thing>,edmtest::Thing,edm::refhelper::FindUsingAdvance<std::vector<edmtest::Thing>,edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::Thing> >"/>
  <class name="edm::Wrapper<std::vector<edmtest::OtherThing> >"/>
+
+ <class name="edm::Ref<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
+ <class name="edm::RefVector<std::vector<int>,int,edm::refhelper::FindUsingAdvance<std::vector<int>,int> >"/>
 
  <class name="edmtestprod::Simple"/>
  <class name="edmtestprod::Ord<edmtestprod::Simple>"/>

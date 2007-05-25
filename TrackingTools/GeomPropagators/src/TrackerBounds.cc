@@ -6,8 +6,8 @@
 
 
 //Ported from ORCA
-//  $Date: $
-//  $Revision: $
+//  $Date: 2006/04/21 14:30:42 $
+//  $Revision: 1.1 $
 
 void TrackerBounds::initialize() 
 {
@@ -31,6 +31,12 @@ void TrackerBounds::initialize()
 
   theInit = true;
 }
+
+bool TrackerBounds::isInside(const GlobalPoint &point){
+  return (point.perp() <= radius() &&
+	  fabs(point.z()) <= halfLength());
+}
+
 
 // static initializers
 

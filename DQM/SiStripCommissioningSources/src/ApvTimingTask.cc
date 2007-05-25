@@ -1,11 +1,10 @@
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -30,11 +29,11 @@ void ApvTimingTask::book() {
   
   uint16_t nbins = 24 * nBins_;
   
-  string title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::APV_TIMING, 
-								   sistrip::FED_KEY, 
-								   fedKey(),
-								   sistrip::LLD_CHAN, 
-								   connection().lldChannel() ) );
+  std::string title = SiStripHistoTitle( sistrip::APV_TIMING, 
+				    sistrip::FED_KEY, 
+				    fedKey(),
+				    sistrip::LLD_CHAN, 
+				    connection().lldChannel() ).title();
   
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nBins_*25.-0.5, 
@@ -73,9 +72,9 @@ void ApvTimingTask::fill( const SiStripEventSummary& summary,
     return;
   }
   
-  pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
+  uint32_t pll_fine = summary.pllFine();
   for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-    uint16_t fine = (coarse+1)*24 - (skews.second+1);
+    uint16_t fine = (coarse+1)*24 - (pll_fine+1);
     updateHistoSet( timing_, fine, digis.data[coarse].adc() );
   }
   

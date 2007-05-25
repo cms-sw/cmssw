@@ -6,8 +6,8 @@
  *   starting from internal seeds (L2 muon track segments).
  *
  *
- *   $Date: 2007/02/01 18:05:33 $
- *   $Revision: 1.21 $
+ *   $Date: 2007/03/13 10:26:12 $
+ *   $Revision: 1.25 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -16,7 +16,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoMuon/StandAloneMuonProducer/src/StandAloneMuonProducer.h"
@@ -30,8 +29,9 @@
 // Input and output collection
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include <string>
 
@@ -60,13 +60,16 @@ StandAloneMuonProducer::StandAloneMuonProducer(const ParameterSet& parameterSet)
   // instantiate the concrete trajectory builder in the Track Finder
   theTrackFinder = new MuonTrackFinder(new StandAloneMuonTrajectoryBuilder(trajectoryBuilderParameters,theService),
 				       new MuonTrackLoader(trackLoaderParameters,theService));
+
+  setAlias(parameterSet.getParameter<std::string>("@module_label"));
   
-  produces<reco::TrackCollection>();
-  produces<reco::TrackCollection>("UpdatedAtVtx");
-  produces<TrackingRecHitCollection>();
-  produces<reco::TrackExtraCollection>();
+  produces<reco::TrackCollection>().setBranchAlias(theAlias + "Tracks");
+  produces<reco::TrackCollection>("UpdatedAtVtx").setBranchAlias(theAlias + "UpdatedAtVtxTracks");
+  produces<TrackingRecHitCollection>().setBranchAlias(theAlias + "RecHits");
+  produces<reco::TrackExtraCollection>().setBranchAlias(theAlias + "TrackExtras");
+  produces<reco::TrackToTrackMap>().setBranchAlias(theAlias + "TrackToTrackMap");
   
-  produces<std::vector<Trajectory> >();
+  produces<std::vector<Trajectory> >().setBranchAlias(theAlias + "Trajectories");
 }
   
 /// destructor

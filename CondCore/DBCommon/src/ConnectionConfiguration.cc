@@ -1,11 +1,8 @@
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
-cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false),m_enablePoolAutomaticCleanUp(false){}
+cond::ConnectionConfiguration::ConnectionConfiguration():m_enableConSharing(false),m_connectionRetrialPeriod(0),m_connectionRetrialTimeOut(0),m_connectionTimeOut(0),m_enableCommonConnection(false){}
 cond::ConnectionConfiguration::~ConnectionConfiguration(){}
 void cond::ConnectionConfiguration::enableConnectionSharing(){
   m_enableConSharing=true;
-}
-void cond::ConnectionConfiguration::disableConnectionSharing(){
-  m_enableConSharing=false;
 }
 bool cond::ConnectionConfiguration::isConnectionSharingEnabled() const{
   return m_enableConSharing;
@@ -36,13 +33,4 @@ void cond::ConnectionConfiguration::disableReadOnlySessionOnUpdateConnections(){
 }
 bool cond::ConnectionConfiguration::isReadOnlySessionOnUpdateConnectionsEnabled(){
   return m_enableCommonConnection;
-}
-void cond::ConnectionConfiguration::enablePoolAutomaticCleanUp(){
-  m_enablePoolAutomaticCleanUp=true;
-}
-void cond::ConnectionConfiguration::disablePoolAutomaticCleanUp(){
-  m_enablePoolAutomaticCleanUp=false;
-}
-bool cond::ConnectionConfiguration::isPoolAutomaticCleanUpEnabled() const{
-  return m_enablePoolAutomaticCleanUp;
 }

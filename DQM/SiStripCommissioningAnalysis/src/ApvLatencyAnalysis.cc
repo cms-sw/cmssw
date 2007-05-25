@@ -1,24 +1,34 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvLatencyAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
-ApvLatencyAnalysis::ApvLatencyAnalysis() 
-  : CommissioningAnalysis(),
+ApvLatencyAnalysis::ApvLatencyAnalysis( const uint32_t& key ) 
+  : CommissioningAnalysis(key,"ApvLatencyAnalysis"),
     latency_(sistrip::invalid_),
     histo_(0,"")
 {;}
 
 // ----------------------------------------------------------------------------
 // 
-void ApvLatencyAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  ss << "APV LATENCY Monitorables:" << "\n"
-     << " APV latency setting : " << latency_ << "\n";
+ApvLatencyAnalysis::ApvLatencyAnalysis() 
+  : CommissioningAnalysis("ApvLatencyAnalysis"),
+    latency_(sistrip::invalid_),
+    histo_(0,"")
+{;}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvLatencyAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
+  ss << " APV latency setting : " << latency_ << "\n";
 }
 
 // ----------------------------------------------------------------------------
@@ -30,44 +40,47 @@ void ApvLatencyAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void ApvLatencyAnalysis::extract( const vector<TH1*>& histos ) { 
+void ApvLatencyAnalysis::extract( const std::vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::APV_LATENCY ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::APV_LATENCY ) {
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
-
+    
     // Extract timing histo
     histo_.first = *ihis;
     histo_.second = (*ihis)->GetName();
     
   }
-
+  
 }
 
 // ----------------------------------------------------------------------------
@@ -82,14 +95,15 @@ void ApvLatencyAnalysis::analyse() {
 //
 void ApvLatencyAnalysis::deprecated() {
   
-  vector<const TProfile*> histos; 
-  vector<unsigned short> monitorables;
+  std::vector<const TProfile*> histos; 
+  std::vector<unsigned short> monitorables;
     
   histos.clear();
   histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histo_.first) ) );
   if ( !histos[0] ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to latency histo!" << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to latency histo!";
     return;
   }
   
@@ -101,14 +115,14 @@ void ApvLatencyAnalysis::deprecated() {
 
 // -----------------------------------------------------------------------------
 //
-void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos, 
-				   vector<unsigned short>& monitorables ) {
+void ApvLatencyAnalysis::analysis( const std::vector<const TProfile*>& histos, 
+				   std::vector<unsigned short>& monitorables ) {
   //LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]";
 
     //extract root histogram
     //check 
   if (histos.size() != 1) { 
-//     edm::LogWarning("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+//     edm::LogWarning("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Requires \"const std::vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
     monitorables.push_back(0);
     return; 
   }
@@ -117,11 +131,11 @@ void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos,
   //monitorable
   unsigned short latency;
 
- vector<unsigned short> binContent; binContent.reserve((unsigned short)histo->GetNbinsX()); binContent.resize((unsigned short)histo->GetNbinsX(), 0);
+ std::vector<unsigned short> binContent; binContent.reserve((unsigned short)histo->GetNbinsX()); binContent.resize((unsigned short)histo->GetNbinsX(), 0);
 
  for (unsigned short k = 0; k < (unsigned short)histo->GetNbinsX(); k++) { // k is bin number
 
-//fill vector with histogram contents
+//fill std::vector with histogram contents
     binContent.push_back((unsigned int)(histo->GetBinContent(k)));}
 
  //calculate median
@@ -155,7 +169,7 @@ void ApvLatencyAnalysis::analysis( const vector<const TProfile*>& histos,
  }
  
  if (!count) {
- //   LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: no signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits." << endl;
+ //   LogDebug("Commissioning|Analysis") << "[ApvLatencyAnalysis::analysis]: Warning: no signal found > mean + 5*sigma(noise). Returning latency of highest number of recorded hits.";
    latency = maxlatency;
  }
  

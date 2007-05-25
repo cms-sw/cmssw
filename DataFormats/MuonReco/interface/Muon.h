@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Muon.h,v 1.19 2007/01/17 10:23:30 llista Exp $
+ * \version $Id: Muon.h,v 1.18 2006/05/02 10:19:13 llista Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

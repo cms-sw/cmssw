@@ -6,7 +6,6 @@
 <use name=TrackingTools/TrajectoryCleaning>
 <use name=TrackingTools/PatternTools>
 <use name=TrackingTools/TransientTrackingRecHit>
-<use name=TrackingTools/TrackAssociator>
 <use name=TrackingTools/TrackRefitter>
 <use name=RecoMuon/DetLayers>
 <use name=RecoMuon/Navigation>
@@ -23,7 +22,6 @@
 <use name=CommonTools/Statistics>
 <use name=Geometry/CommonDetUnit>
 
-<flags SEAL_PLUGIN_NAME="RecoMuonGlobalTrackFinder">
 <export>
    <lib name=RecoMuonGlobalTrackFinder>
 </export>

@@ -13,7 +13,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 24 19:13:25 EDT 2005
-// $Id: HcalDbAnalyzer.cc,v 1.16 2006/10/18 23:37:51 fedor Exp $
+// $Id: HcalDbAnalyzer.cc,v 1.17 2006/10/26 23:35:32 wmtan Exp $
 //
 //
 
@@ -170,6 +170,14 @@ HcalDbAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     std::cout << " ADC: " << i << " q1:" << q0 << " q2:" << q1 << " q3:" << q2 << " q4:" << q3 << std::endl;
     std::cout << " reverse ADC: " << i << " q1:" << adc0 << " q2:" << adc1 << " q3:" << adc2 << " q4:" << adc3 << std::endl;
+  }
+
+  std::cout << "Electronics map: " << std::endl;
+  const HcalElectronicsMap* emap=pSetup->getHcalMapping();
+  std::vector<HcalElectronicsId> eids=emap->allElectronicsId();
+  for (std::vector<HcalElectronicsId>::const_iterator j=eids.begin(); j!=eids.end(); ++j) {
+    DetId did=emap->lookup(*j);
+    std::cout << *j << " " << did << std::endl;
   }
 }
 

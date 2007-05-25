@@ -24,6 +24,9 @@
   <class name="RPCReadOutMapping"/>
   <class name="std::map<int,DccSpec>"/>
 
+  <class name="L1RPCConfig"/>
+
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
+
 </lcgdict>

@@ -73,6 +73,7 @@ public:
 private:
 
   /// Utility functions 
+  bool isHitNearSegment(const CSCRecHit2D* h) const;
 
   /**
    * Try adding non-used hits to segment<BR>
@@ -90,24 +91,35 @@ private:
                                const ChamberHitContainerCIt i1, const ChamberHitContainerCIt i2);
 
   /**
+   * Return true if segment is 'good'.
+   * In this algorithm, 'good' means has sufficient hits
+   */
+  bool isSegmentGood(const ChamberHitContainer& rechitsInChamber) const;
+
+  /**
    * Flag hits on segment as used
    */
   void flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber);
 	
   /// Utility functions 	
-  bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
   void updateParameters(void);
+  void fitSlopes(void);
+  void fillChiSquared(void);
+  void fillLocalDirection(void);
   bool hasHitOnLayer(int layer) const;
+  bool replaceHit(const CSCRecHit2D* h, int layer);
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
+  void increaseProtoSegment(const CSCRecHit2D* h, int layer);
+  HepMatrix derivativeMatrix(void) const;
+  AlgebraicSymMatrix weightMatrix(void) const;
   AlgebraicSymMatrix calculateError(void) const;
+  void flipErrors(AlgebraicSymMatrix&) const;		
 
   // Member variables
   const std::string myName; 
   const CSCChamber* theChamber;
   BoolContainer usedHits;
-
-  ChamberHitContainer closeHits;
 
   ChamberHitContainer protoSegment;
   float       protoSlope_u;
@@ -117,15 +129,12 @@ private:
   LocalVector protoDirection;
 
   // input from .cfi file
-  bool   debug;
-  int    minLayersApart;
-  float  nSigmaFromSegment;
-  int    minHitsPerSegment;
-  int    muonsPerChamberMax;
-  double dRPhiFineMax;
-  double dPhiFineMax;
-  float tanPhiMax;
-  float tanThetaMax;
+  bool  debug;
+  int   minLayersApart;
+  float nSigmaFromSegment;
+  int   minHitsPerSegment;
+  int   muonsPerChamberMax;
+  float chi2Max;
 };
 
 #endif

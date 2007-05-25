@@ -1,10 +1,10 @@
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
@@ -29,14 +29,14 @@ void FedTimingTask::book() {
   LogDebug("Commissioning") << "[FedTimingTask::book]";
 
   uint16_t nbins = 24 * nBins_; // 24 "fine" pll skews possible
-
-  string title;
   
-  title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::FED_TIMING, 
-							    sistrip::FED_KEY, 
-							    fedKey(),
-							    sistrip::LLD_CHAN, 
-							    connection().lldChannel() ) );
+  std::string title;
+  
+  title = SiStripHistoTitle( sistrip::FED_TIMING, 
+			     sistrip::FED_KEY, 
+			     fedKey(),
+			     sistrip::LLD_CHAN, 
+			     connection().lldChannel() ).title();
 
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nbins*1.-0.5,
@@ -69,11 +69,13 @@ void FedTimingTask::fill( const SiStripEventSummary& summary,
 				     << " Unexpected number of digis! " 
 				     << digis.data.size(); 
   } else {
-    pair<uint32_t,uint32_t> skews = const_cast<SiStripEventSummary&>(summary).pll();
+    
+    uint32_t pll_fine = summary.pllFine();
     for ( uint16_t coarse = 0; coarse < nBins_/*digis.data.size()*/; coarse++ ) {
-      uint16_t fine = (coarse+1)*24 - (skews.second+1);
+      uint16_t fine = (coarse+1)*24 - (pll_fine+1);
       updateHistoSet( timing_, fine, digis.data[coarse].adc() );
     }
+
   }
 
 }

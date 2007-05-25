@@ -243,22 +243,8 @@ void PFClusterProducer::produce(edm::Event& iEvent,
 void PFClusterProducer::produceEcal( edm::Event& iEvent, 
 				     const edm::EventSetup& iSetup ) {
 
-  //C this vector will be passed to the clustering algorithm
-  //C can be created from the Ecal rechits, 
-  //C or directly read from the Event (PFRecHitCollection) 
-  //C Should this be an auto_ptr to a vector of rechits? 
-  vector<reco::PFRecHit> rechits;
-
-
-  //C this map is necessary to find the rechit neighbours efficiently
-  //C but I should think about using Florian's hashed index to do this.
-  //C in which case the map might not be necessary anymore
-  //C 
-  //C the key of this map is detId. 
-  //C the value is the index in the rechits vector
   map<unsigned,  reco::PFRecHit* > idSortedRecHits;
   
-
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<IdealGeometryRecord>().get(geoHandle);
   
@@ -301,12 +287,6 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
       if(energy < threshEcalBarrel_ ) continue;
 
 
-      //C replace this by a 
-      //C addEcalRecHit(blabla, rechits, idSortedRecHits)
-      //C this function will push_back the rechit in the rechits vector, 
-      //C and insert it in the idSortedRecHits map:
-      //C key: detId - value: index in rechits vector
-
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,  
 					      PFLayer::ECAL_BARREL,
 					      ecalBarrelGeometry);
@@ -323,7 +303,7 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
   }
 
 
-  //C proceed as for the barrel
+
   // process ecal endcap rechits
 
   try {
@@ -361,15 +341,11 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
   }
 
 
-  //C assert( rechits.size() == idSortedRecHits.size() );
-  //C 
+
+
   // find rechits neighbours
   for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
        ih != idSortedRecHits.end(); ih++) {
-    
-    //C get the pointer to rechit from rechits
-    //C using the index in idSortedRecHits
-    //C this function should work almost without any modification !
     findRecHitNeighbours( ih->second, idSortedRecHits, 
 			  ecalBarrelTopology, 
 			  *ecalBarrelGeometry, 
@@ -378,7 +354,6 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
   }
     
   if(clusteringEcal_) {
-    //C replace by PFClusterAlgo clusteralgo(rechits); 
     PFClusterAlgo clusteralgo; 
       
     clusteralgo.setThreshBarrel( threshEcalBarrel_ );
@@ -392,7 +367,7 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
     clusteralgo.setPosCalcP1( posCalcP1Ecal_ );
     clusteralgo.setShowerSigma( showerSigmaEcal_ );
       
-    //C remove
+
     clusteralgo.init( idSortedRecHits ); 
     clusteralgo.doClustering();
 
@@ -410,17 +385,9 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
 
   // if requested, get rechits passing the threshold from algo, 
   // and pass them to the event.
-  //C this if is probably not necessary. People are free to drop the branch 
-  //C if they do not want it. On another hand, there should be no reason to 
-  //C store the PFRecHits in the event, since they're so big, and since they
-  //C are in fact a copy of existing objects.
   if(produceRecHits_) {
+      
 
-    //C replace all this by 
-    //C   auto_ptr< vector<reco::PFRecHit> > 
-    //C    recHits( &rechits ); ?? 
-    //C or work directly on a rechit auto_ptr from the 
-    //C beginning
     auto_ptr< vector<reco::PFRecHit> > 
       recHits( new vector<reco::PFRecHit> ); 
       
@@ -434,10 +401,8 @@ void PFClusterProducer::produceEcal( edm::Event& iEvent,
     iEvent.put( recHits, "ECAL" );
   }
     
-  //C put the following in an else. 
-  //C when we start using a rechits vector, 
-  //C the vector will be passed to the Event using an auto_ptr.
-  //C clearing is necessary only if the rechits are not passed to the event.
+    
+
   // clear all rechits
   for( PFClusterAlgo::IDH ih = idSortedRecHits.begin(); 
        ih != idSortedRecHits.end(); ih++) {  
@@ -1242,9 +1207,6 @@ PFClusterProducer::findRecHitNeighbours
   if(i != rechits.end() ) 
     rhnorthwest = i->second;
     
-  //C everything should be ok here.
-  //C the vector is now a vector<unsigned>
-  //C and that's indeed an unsigned which is found in the map.
   vector<reco::PFRecHit*> neighbours;
   neighbours.reserve(8);
   neighbours.push_back( rhnorth );

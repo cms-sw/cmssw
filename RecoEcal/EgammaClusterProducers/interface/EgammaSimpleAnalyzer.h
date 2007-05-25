@@ -8,7 +8,7 @@
      \\\author: Shahram Rahatlou, May 2006
 */
 //
-// $Id: EgammaSimpleAnalyzer.h,v 1.5 2006/06/18 18:21:12 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.h,v 1.6 2006/11/28 18:06:33 rahatlou Exp $
 //
 
 
@@ -49,12 +49,6 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
       std::string islandBarrelBasicClusterProducer_;
       std::string islandBarrelBasicClusterShapes_;
 
-      std::string islandBarrelSuperClusterCollection_;
-      std::string islandBarrelSuperClusterProducer_;
-
-      std::string correctedIslandBarrelSuperClusterCollection_;
-      std::string correctedIslandBarrelSuperClusterProducer_;
-
       std::string islandEndcapBasicClusterCollection_;
       std::string islandEndcapBasicClusterProducer_;
       std::string islandEndcapBasicClusterShapes_;
@@ -84,7 +78,6 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
       // per event quantities
       TH1F* h1_nIslandEBBC_;
       TH1F* h1_nIslandEEBC_;
-      TH1F* h1_nIslandEBSC_;
       TH1F* h1_nIslandEESC_;
       TH1F* h1_nHybridSC_;
 
@@ -93,16 +86,13 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_islandEBBCEnergy_;
       TH1F* h1_islandEBBCXtals_;
 
-      TH1F* h1_islandEBSCEnergy_;
-      TH1F* h1_corrIslandEBSCEnergy_;
-      TH1F* h1_islandEBSCClusters_;
-
       TH1F* h1_islandEEBCe5x5_;
       TH1F* h1_islandEEBCEnergy_;
       TH1F* h1_islandEEBCXtals_;
 
       TH1F* h1_islandEESCEnergy_;
       TH1F* h1_corrIslandEESCEnergy_;
+      TH1F* h1_corrIslandEESCET_;
       TH1F* h1_islandEESCClusters_;
 
       TH1F* h1_hybridSCEnergy_;
@@ -111,10 +101,6 @@ class EgammaSimpleAnalyzer : public edm::EDAnalyzer {
       TH1F* h1_corrHybridSCEta_;
       TH1F* h1_corrHybridSCPhi_;
       TH1F* h1_hybridSCClusters_;
-
-      TH1F* h1_eCorrIslandEB;
-      TH1F* h1_eCorrIslandEE;
-      TH1F* h1_eCorrHybrid;
 
 };
 #endif

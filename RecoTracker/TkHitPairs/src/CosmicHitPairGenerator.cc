@@ -46,7 +46,7 @@ void CosmicHitPairGenerator::hitPairs(
 
   Container::const_iterator i;
   for (i=theGenerators.begin(); i!=theGenerators.end(); i++) {
-    (**i).hitPairs( region, pairs,iSetup); 
+    (**i).hitPairs( region, pairs, iSetup); 
   }
  
 }

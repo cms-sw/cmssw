@@ -15,7 +15,7 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
   theLuminosity(pset.getParameter<double>("luminosity")), // in units of 10^34
   theStartTime(pset.getParameter<double>("startTime")), 
   theEndTime(pset.getParameter<double>("endTime")),
-  theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy")) // TODO make map
+  theEventOccupancy(pset.getParameter<vector<double> >("eventOccupancy"))
 {
   // 17.3 collisions per live bx, 79.5% of bx live
   float collisionsPerCrossing = 13.75 * theLuminosity;
@@ -23,9 +23,11 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
   theEventsInWindow = collisionsPerCrossing * windowSize;
   string reader = pset.getParameter<string>("reader");
   edm::FileInPath input = pset.getParameter<edm::FileInPath>("input");
+  int nChamberTypes = pset.getParameter<int>("nChamberTypes");
+
   if(reader == "ASCII")
   {
-    theHitReader = new AsciiNeutronReader(input.fullPath());
+    theHitReader = new AsciiNeutronReader(input.fullPath(), nChamberTypes);
   }
   else if (reader == "ROOT")
   {
@@ -35,6 +37,7 @@ SubsystemNeutronReader::SubsystemNeutronReader(const edm::ParameterSet & pset)
 
 
 SubsystemNeutronReader::~SubsystemNeutronReader() {
+std::cout << "DELETING NEUTRONREADER " << std::endl;
   delete theHitReader;
 }
 
@@ -47,12 +50,12 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
   if(find(theChambersDone.begin(), theChambersDone.end(), chamberIndex) 
      == theChambersDone.end()) 
   {
-    float meanNumberOfEvents = theEventOccupancy[chamberType-1] 
+    float meanNumberOfEvents = theEventOccupancy[chamberType] 
                              * theEventsInWindow;
     int nEventsToAdd = RandPoisson::shoot(meanNumberOfEvents);
 //    LogDebug("NeutronReader") << "Number of neutron events to add: " 
-//std::cout << "Number of neutron events to add for chamber type " << chamberType << " : " 
-// << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
+std::cout << "Number of neutron events to add: "
+ << nEventsToAdd <<  " mean " << meanNumberOfEvents << std::endl;
 //                   << nEventsToAdd <<  " mean " << meanNumberOfEvents;
 
     for(int i = 0; i < nEventsToAdd; ++i) {
@@ -73,7 +76,7 @@ SubsystemNeutronReader::generateChamberNoise(int chamberType, int chamberIndex,
                      rawHit.energyLoss(), rawHit.particleType(),
                      det, rawHit.trackId(),
                      rawHit.thetaAtEntry(),  rawHit.phiAtEntry(), rawHit.processType());
-//std::cout << "NEWHIT " << hit << std::endl;
+std::cout << "NEWHIT " << hit << std::endl;
          result.push_back(hit);
       }
 

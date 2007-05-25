@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
@@ -22,11 +22,11 @@ void sistrip::LinearFit::add( const float& x,
 			      const float& y,
 			      const float& e ) {
   if ( e > 0. ) { 
-//     cout << "[" << __PRETTY_FUNCTION__ << "] n/x/y/e: " 
+//     LogTrace(mlCommissioning_) << "[" << __PRETTY_FUNCTION__ << "] n/x/y/e: " 
 // 	 << x_.size() << "/" 
 // 	 << x << "/"
 // 	 << y << "/"
-// 	 << e << endl;
+// 	 << e;
     x_.push_back(x);
     y_.push_back(y);
     e_.push_back(e);
@@ -36,7 +36,7 @@ void sistrip::LinearFit::add( const float& x,
     sy_ += y*wt;
   } 
 //   else {
-//     cout << "******  ERROR <= 0.  !!!!!!!!!!   " << e << endl;
+//     LogTrace(mlCommissioning_) << "******  ERROR <= 0.  !!!!!!!!!!   " << e;
 //   }
 }
 
@@ -142,9 +142,9 @@ uint16_t LinearFit::fit( float& intercept, float& gradient ) {
   gradient = xy / xx;
   intercept = y_/n - gradient*x_/n;
 
-  cout << " here "
+  LogTrace(mlCommissioning_) << " here "
        << (1./n)*xx_ - ( (x_*x_) / (n/n) ) << " " 
-       << 1./(n*xx_) - ( (x_*x_) / (n/n) ) << endl;
+       << 1./(n*xx_) - ( (x_*x_) / (n/n) );
   return n_; 
 }
 

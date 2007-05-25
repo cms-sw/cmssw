@@ -1,17 +1,19 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/ApvTimingAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
 ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key),
+  : CommissioningAnalysis(key,"ApvTimingAnalysis"),
     time_(sistrip::invalid_), 
     maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -25,7 +27,7 @@ ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 ApvTimingAnalysis::ApvTimingAnalysis() 
-  : CommissioningAnalysis(),
+  : CommissioningAnalysis("ApvTimingAnalysis"),
     time_(sistrip::invalid_), 
     maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -39,13 +41,8 @@ ApvTimingAnalysis::ApvTimingAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  if ( key() ) {
-    ss << "APV TIMING monitorables for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec << "\n";
-  } else {
-    ss << "APV TIMING monitorables" << "\n";
-  }
+void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
   float adjust = sistrip::invalid_;
   if ( time_ <= sistrip::maximum_ && 
        delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
@@ -88,35 +85,38 @@ void ApvTimingAnalysis::maxTime( const float& time ) {
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::extract( const vector<TH1*>& histos ) { 
+void ApvTimingAnalysis::extract( const std::vector<TH1*>& histos ) { 
   
   // Check
   if ( histos.size() != 1 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) { extractFedKey( histos.front() ); }
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::APV_TIMING ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::APV_TIMING ) {
+      edm::LogWarning(mlCommissioning_)
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     
@@ -132,15 +132,17 @@ void ApvTimingAnalysis::extract( const vector<TH1*>& histos ) {
 // 
 void ApvTimingAnalysis::analyse() { 
   if ( !histo_.first ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to histogram!" << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to histogram!";
     return;
   }
 
   TProfile* histo = dynamic_cast<TProfile*>(histo_.first);
   if ( !histo ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " NULL pointer to TProfile histogram!" << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " NULL pointer to TProfile histogram!";
     return;
   }
   
@@ -149,9 +151,9 @@ void ApvTimingAnalysis::analyse() {
   float max = -1.e9;
   float min =  1.e9;
   uint16_t nbins = static_cast<uint16_t>( histo->GetNbinsX() );
-  vector<float> bin_contents; 
-  vector<float> bin_errors;
-  vector<float> bin_entries;
+  std::vector<float> bin_contents; 
+  std::vector<float> bin_errors;
+  std::vector<float> bin_entries;
   bin_contents.reserve( nbins );
   bin_errors.reserve( nbins );
   bin_entries.reserve( nbins );
@@ -165,11 +167,11 @@ void ApvTimingAnalysis::analyse() {
       non_zero++;
     }
   }
-  //cout << " Number of bins with non-zero entries: " << non_zero << endl;
   if ( bin_contents.size() < 100 ) { 
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
- 	 << " Too few bins! Number of bins: " 
- 	 << bin_contents.size() << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Too few bins! Number of bins: " 
+      << bin_contents.size();
     return; 
   }
   
@@ -177,24 +179,30 @@ void ApvTimingAnalysis::analyse() {
   float range = max - min;
   float threshold = min + range / 2.;
   if ( range < 50. ) {
-    cerr << "[ApvTimingAnalysis::" << __func__ << "]"
- 	 << " Device with Crate/FEC/Ring/CCU/module/channel "
-	 << path().fecCrate_ << "/"
-	 << path().fecSlot_ << "/"
-	 << path().fecRing_ << "/"
-	 << path().ccuAddr_ << "/"
-	 << path().ccuChan_ << "/"
-	 << path().channel_ 
-	 << " has too small signal range (max-min): " 
-	 << range << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Device with crate/FEC/Ring/CCU/module/channel "
+      << fec().fecCrate() << "/"
+      << fec().fecSlot() << "/"
+      << fec().fecRing() << "/"
+      << fec().ccuAddr() << "/"
+      << fec().ccuChan() << "/"
+      << fec().channel() 
+      << " connected to FED id/ch " 
+      << fed().fedId() << "/"
+      << fed().fedChannel() 
+      << " has a small signal range [ADC] of " 
+      << range;
+    // Records levels anyway
+    base_   = min;
+    peak_   = max;
+    height_ = max - min;
     return; 
   }
-  //cout << " ADC samples: max/min/range/threshold: " 
-  //<< max << "/" << min << "/" << range << "/" << threshold << endl;
   
   // Associate samples with either "tick mark" or "baseline"
-  vector<float> tick;
-  vector<float> base;
+  std::vector<float> tick;
+  std::vector<float> base;
   for ( uint16_t ibin = 0; ibin < nbins; ibin++ ) { 
     if ( bin_entries[ibin] ) {
       if ( bin_contents[ibin] < threshold ) { 
@@ -204,8 +212,6 @@ void ApvTimingAnalysis::analyse() {
       }
     }
   }
-  //cout << " Number of 'tick mark' samples: " << tick.size() 
-  //<< " Number of 'baseline' samples: " << base.size() << endl;
   
   // Find median level of tick mark and baseline
   float tickmark = 0.;
@@ -214,21 +220,25 @@ void ApvTimingAnalysis::analyse() {
   sort( base.begin(), base.end() );
   if ( !tick.empty() ) { tickmark = tick[ tick.size()%2 ? tick.size()/2 : tick.size()/2 ]; }
   if ( !base.empty() ) { baseline = base[ base.size()%2 ? base.size()/2 : base.size()/2 ]; }
-  //cout << " Tick mark level: " << tickmark << " Baseline level: " << baseline
-  //<< " Range: " << (tickmark-baseline) << endl;
   if ( (tickmark-baseline) < 50. ) {
-    cerr << "[ApvTimingAnalysis::" << __func__ << "]"
- 	 << " Device with Crate/FEC/Ring/CCU/module/channel "
-	 << path().fecCrate_ << "/"
-	 << path().fecSlot_ << "/"
-	 << path().fecRing_ << "/"
-	 << path().ccuAddr_ << "/"
-	 << path().ccuChan_ << "/"
-	 << path().channel_ 
-	 << " has too small range " << (tickmark-baseline)
-	 << " between tick mark height (" << tickmark
-	 << ") and baseline ("  << baseline << ")." 
-	 << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Device with Crate/FEC/Ring/CCU/module/channel "
+      << fec().fecCrate() << "/"
+      << fec().fecSlot() << "/"
+      << fec().fecRing() << "/"
+      << fec().ccuAddr() << "/"
+      << fec().ccuChan() << "/"
+      << fec().channel() 
+      << " connected to FED id/ch " 
+      << fed().fedId() << "/"
+      << fed().fedChannel() 
+      << " has a small range [ADC] of " << (tickmark-baseline)
+      << " (with the tick mark peak at " << tickmark
+      << " and baseline at "  << baseline << ")"; 
+    base_   = baseline;
+    peak_   = tickmark;
+    height_ = tickmark - baseline;
     return; 
   }
   
@@ -249,27 +259,24 @@ void ApvTimingAnalysis::analyse() {
   float baseline_rms = 0.;
   if (  mean2 > mean*mean ) { baseline_rms = sqrt( mean2 - mean*mean ); }
   else { baseline_rms = 0.; }
-  //cout << " Spread in baseline samples: " << baseline_rms << endl;
   
   // Find rising edges (derivative across two bins > range/2) 
-  map<uint16_t,float> edges;
+  std::map<uint16_t,float> edges;
   for ( uint16_t ibin = 1; ibin < nbins-1; ibin++ ) {
     if ( bin_entries[ibin+1] && 
 	 bin_entries[ibin-1] ) {
       float derivative = bin_contents[ibin+1] - bin_contents[ibin-1];
-      if ( derivative > 5.*baseline_rms ) {
-	edges[ibin] = derivative;
-	//cout << " Found edge #" << edges.size() << " at bin " << ibin 
-	//<< " and with derivative " << derivative << endl;
+      if ( derivative > 5.*baseline_rms ) { 
+	edges[ibin] = derivative; 
       }
     }
   }
   
-  // Iterate through "edges" map
+  // Iterate through "edges" std::map
   bool found = false;
   uint16_t deriv_bin = sistrip::invalid_;
   float max_deriv = -1.*sistrip::invalid_;
-  map<uint16_t,float>::iterator iter = edges.begin();
+  std::map<uint16_t,float>::iterator iter = edges.begin();
   while ( !found && iter != edges.end() ) {
 
     // Iterate through 50 subsequent samples
@@ -343,8 +350,9 @@ void ApvTimingAnalysis::analyse() {
     peak_      = tickmark;
     height_    = tickmark - baseline;
   } else {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " No tick marks found!" << endl;
+    edm::LogWarning(mlCommissioning_) 
+      << "[" << myName() << "::" << __func__ << "]"
+      << " No tick marks found!";
     base_   = baseline;
     peak_   = tickmark;
     height_ = tickmark - baseline;

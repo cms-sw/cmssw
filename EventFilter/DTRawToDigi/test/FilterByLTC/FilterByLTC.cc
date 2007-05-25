@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/11/15 17:45:36 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/11/16 13:33:20 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi - INFN TO
  */
 
@@ -10,7 +10,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-// #include "FWCore/Framework/interface/Handle.h"
+// #include "DataFormats/Common/interface/Handle.h"
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 

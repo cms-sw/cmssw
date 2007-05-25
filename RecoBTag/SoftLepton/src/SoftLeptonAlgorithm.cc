@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.cc,v 1.8 2007/02/12 01:03:51 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.cc,v 1.10 2007/03/07 23:40:55 fwyzard Exp $
 //
 
 // STL
@@ -40,32 +40,6 @@
 // ROOT TVector3 - used internally
 #include "TVector3.h"
 #include "TMath.h"
-
-std::pair < reco::JetTag, reco::SoftLeptonTagInfo >
-SoftLeptonAlgorithm::tag(
-    const reco::JetTracksAssociationRef & jetTracks,
-    const reco::Vertex                  & primaryVertex,
-    const reco::MuonCollection          & leptons
-) {
-  reco::TrackRefVector tracks;
-  for (reco::MuonCollection::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
-    tracks.push_back( lepton->combinedMuon() );
-
-  return tag( jetTracks, primaryVertex, tracks );
-}
-  
-std::pair < reco::JetTag, reco::SoftLeptonTagInfo >
-SoftLeptonAlgorithm::tag(
-    const reco::JetTracksAssociationRef & jetTracks,
-    const reco::Vertex                  & primaryVertex,
-    const reco::ElectronCollection      & leptons
-) {
-  reco::TrackRefVector tracks;
-  for (reco::ElectronCollection::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
-    tracks.push_back( lepton->track() );
-
-  return tag( jetTracks, primaryVertex, tracks );
-}
 
 std::pair < reco::JetTag, reco::SoftLeptonTagInfo >
 SoftLeptonAlgorithm::tag(

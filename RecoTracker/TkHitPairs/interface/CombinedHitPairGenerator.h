@@ -4,55 +4,54 @@
 #include <vector>
 #include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "RecoTracker/TkHitPairs/interface/LayerHitMapCache.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "DataFormats/Common/interface/RangeMap.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-class SeedLayerPairs;
-class LayerWithHits;
-class DetLayer;
-class TrackingRegion;
-class HitPairGeneratorFromLayerPair;
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+class TrackingRegion;
+class OrderedHitPairs;
+class HitPairGeneratorFromLayerPair;
+namespace ctfseeding { class SeedingLayer;}
+namespace edm { class Event; class EventSetup; }
+
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSets.h"
 
 /** \class CombinedHitPairGenerator
  * Hides set of HitPairGeneratorFromLayerPair generators.
  */
 
-class CombinedHitPairGenerator : public HitPairGenerator{
-
-  typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
-
+class CombinedHitPairGenerator : public HitPairGenerator {
 public:
-  CombinedHitPairGenerator(SeedLayerPairs& layers, const edm::EventSetup& iSetup);
-  CombinedHitPairGenerator(SeedLayerPairs& layers);
   typedef LayerHitMapCache LayerCacheType;
 
-  
-  //  CombinedHitPairGenerator(const SeedLayerPairs & layers);
-  
+public:
+  CombinedHitPairGenerator(const edm::ParameterSet & cfg);
 
-  // copy configuration but empty cache
-  // CombinedHitPairGenerator(const CombinedHitPairGenerator&);
+  CombinedHitPairGenerator(const ctfseeding::SeedingLayerSets & layerSets);
 
-  ~CombinedHitPairGenerator();
 
-  /// add generators based on layers
-    //  void  add(const DetLayer* inner, const DetLayer* outer);
-    void  add(const LayerWithHits* inner, 
-	      const LayerWithHits* outer,
-	      const edm::EventSetup& iSetup);
+  virtual ~CombinedHitPairGenerator();
+
+  void  add(const ctfseeding::SeedingLayer & inner, 
+	      const ctfseeding::SeedingLayer & outer);
+
   /// form base class
   virtual void hitPairs( const TrackingRegion& reg, 
-			 OrderedHitPairs & prs, 
-			 const edm::EventSetup& iSetup);
+      OrderedHitPairs & result, const edm::Event& ev, const edm::EventSetup& es);
 
   /// from base class
   virtual CombinedHitPairGenerator * clone() const 
     { return new CombinedHitPairGenerator(*this); }
 
 private:
+  void init(const ctfseeding::SeedingLayerSets & layerSets);
+  void init(const edm::ParameterSet & cfg, const edm::EventSetup& es);
+
+  mutable bool initialised;
+  edm::ParameterSet theConfig;
 
   LayerCacheType   theLayerCache;
+
+  typedef std::vector<HitPairGeneratorFromLayerPair *>   Container;
   Container        theGenerators;
 
 };

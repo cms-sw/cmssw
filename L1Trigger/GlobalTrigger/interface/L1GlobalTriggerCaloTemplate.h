@@ -5,16 +5,16 @@
  * \class L1GlobalTriggerCaloTemplate
  * 
  * 
+ * Description: Single particle chip - description for calo conditions.
  * 
- * Description: Single particle chip - description for calo conditions
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M.Eder, H. Rohringer - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

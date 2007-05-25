@@ -1,4 +1,4 @@
-#include "PluginManager/ModuleDef.h"
+//#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticlesProd.h"
 #include "L1Trigger/L1ExtraFromDigis/interface/L1ExtraParticleMapProd.h"

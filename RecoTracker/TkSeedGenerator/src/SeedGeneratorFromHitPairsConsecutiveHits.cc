@@ -1,6 +1,6 @@
 #include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromHitPairsConsecutiveHits.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 //#include "RecoTracker/TkMSParametrization/interface/PixelRecoUtilities.h"
@@ -33,7 +33,7 @@ SeedGeneratorFromHitPairsConsecutiveHits::seeds(TrajectorySeedCollection &output
   SeedHitPairs::const_iterator ip;
 
   for (ip = hitPairs.begin(); ip != hitPairs.end(); ip++) {                
-    SeedFromConsecutiveHits seedfromhits( ip->outer(), ip->inner(),
+    SeedFromConsecutiveHits seedfromhits( ip->outer().RecHit(), ip->inner().RecHit(),
 					  region.origin(), vtxerr,iSetup,pSet());
     if(seedfromhits.isValid()) output.push_back( seedfromhits.TrajSeed() );
   }

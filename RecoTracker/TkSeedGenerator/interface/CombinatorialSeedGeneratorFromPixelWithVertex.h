@@ -22,7 +22,7 @@ class CombinatorialSeedGeneratorFromPixelWithVertex : public SeedGeneratorFromLa
   ~CombinatorialSeedGeneratorFromPixelWithVertex(){delete pixelLayers;} 
   
   void init(const SiPixelRecHitCollection &coll, const reco::VertexCollection &vtxcoll, const edm::EventSetup& c);
-  void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
+  void  run(TrajectorySeedCollection &,  const edm::EventSetup& c);
  private:
   //  edm::ParameterSet conf_;
   GlobalTrackingRegion region;

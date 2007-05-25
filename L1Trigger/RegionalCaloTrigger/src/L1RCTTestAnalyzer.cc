@@ -21,7 +21,9 @@ using std::endl;
 //
 // constructors and destructor
 //
-L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig)
+L1RCTTestAnalyzer::L1RCTTestAnalyzer(const edm::ParameterSet& iConfig) :
+  showEmCands(iConfig.getUntrackedParameter<bool>("showEmCands")),
+  showRegionSums(iConfig.getUntrackedParameter<bool>("showRegionSums"))
 {
    //now do what ever initialization is needed
 
@@ -67,44 +69,50 @@ L1RCTTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    iEvent.getByType(rctEmCands);
    iEvent.getByType(rctRegions);
 
-   cout << endl << "L1 RCT EmCand objects" << endl;
-   for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
-     //  cout << "(Analyzer)\n" << (*em) << endl;
-     unsigned short n_emcands = 0;
-     cout << endl << "rank: " << (*em).rank() ;
-     if ((*em).rank() > 0){
-       unsigned short rgnPhi = 999;
-       unsigned short rgn = (unsigned short) (*em).rctRegion();
-       unsigned short card = (unsigned short) (*em).rctCard();
-       unsigned short crate = (unsigned short) (*em).rctCrate();
-
-       if (card == 6){
-	 rgnPhi = rgn;
+   if(showEmCands)
+     {
+       cout << endl << "L1 RCT EmCand objects" << endl;
+       for (em=rctEmCands->begin(); em!=rctEmCands->end(); em++){
+	 //  cout << "(Analyzer)\n" << (*em) << endl;
+	 unsigned short n_emcands = 0;
+	 cout << endl << "rank: " << (*em).rank() ;
+	 if ((*em).rank() > 0){
+	   unsigned short rgnPhi = 999;
+	   unsigned short rgn = (unsigned short) (*em).rctRegion();
+	   unsigned short card = (unsigned short) (*em).rctCard();
+	   unsigned short crate = (unsigned short) (*em).rctCrate();
+	   
+	   if (card == 6){
+	     rgnPhi = rgn;
+	   }
+	   else if (card < 6){
+	     rgnPhi = (card % 2);
+	   }
+	   else {
+	     cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
+	   }
+	   unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
+	   short eta_bin = (card/2) * 2 + 1;
+	   if (card < 6){
+	     eta_bin = eta_bin + rgn;
+	   }
+	   if (crate < 9){
+	     eta_bin = -eta_bin;
+	   }
+	   n_emcands++;
+	   cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin << ".  crate: " << crate << "  card: " << card << "  region: " << rgn << ".  isolated: " << (*em).isolated();
+	 }
        }
-       else if (card < 6){
-	 rgnPhi = (card % 2);
-       }
-       else {
-	 cout << "rgnPhi not assigned (still " << rgnPhi << ") -- Weird card number! " << card ;
-       }
-       unsigned short phi_bin = ((crate % 9) * 2) + rgnPhi;
-       short eta_bin = (card/2) * 2 + 1;
-       if (card < 6){
-	 eta_bin = eta_bin + rgn;
-       }
-       if (crate < 9){
-	 eta_bin = -eta_bin;
-       }
-       n_emcands++;
-       cout << /* "rank: " << (*em).rank() << */ "  eta_bin: " << eta_bin << "  phi_bin: " << phi_bin;
+       cout << endl;
      }
-   }
-   cout << endl;
 
-   cout << "Regions" << endl;
-   for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++){
-     cout << "(Analyzer)\n" << (*rgn) << endl;
-   }
-   cout << endl;
+   if(showRegionSums)
+     {
+       cout << "Regions" << endl;
+       for (rgn=rctRegions->begin(); rgn!=rctRegions->end(); rgn++){
+	 cout << /* "(Analyzer)\n" << */ (*rgn) << endl;
+       }
+       cout << endl;
+     }
 
 }

@@ -5,19 +5,42 @@
 // Package:     L1Trigger
 // Class  :     L1ParticleMap
 // 
-/**\class L1ParticleMap L1ParticleMap.h DataFormats/L1Trigger/interface/L1ParticleMap.h
+/**\class L1ParticleMap \file L1ParticleMap.h DataFormats/L1Trigger/interface/L1ParticleMap.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra class for map between triggers and L1Extra particles.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.10 2006/08/28 03:10:40 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.19 2007/05/15 14:52:40 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.19  2007/05/15 14:52:40  wsun
+// A_Mu3_IsoEG15 -> A_Mu7_IsoEG10
+//
+// Revision 1.18  2007/05/11 04:59:32  wsun
+// Retweaked trigger table.
+//
+// Revision 1.17  2007/04/30 21:00:39  wsun
+// QuadJet50 -> QuadJet20
+//
+// Revision 1.16  2007/04/23 18:33:31  wsun
+// Another iteration of the L1 trigger table.
+//
+// Revision 1.15  2007/04/22 22:35:47  wsun
+// Updated L1 trigger table yet again.
+//
+// Revision 1.14  2007/04/16 21:15:46  wsun
+// Tweaks to trigger table for 131HLT.
+//
+// Revision 1.13  2007/04/13 17:50:46  wsun
+// New trigger table for HLT exercise.
+//
+// Revision 1.12  2007/04/02 08:03:13  wsun
+// Updated Doxygen documentation.
+//
+// Revision 1.11  2006/08/31 10:23:32  wsun
+// Added MinBias trigger.
+//
 // Revision 1.10  2006/08/28 03:10:40  wsun
 // Revamped L1ParticleMap to handle OR triggers.
 //
@@ -87,34 +110,115 @@ namespace l1extra {
 
 	 enum L1TriggerType
 	 {
-	    kSingleIsoEM,
-	    kDoubleIsoEM,
-	    kSingleRelaxedEM,
-	    kDoubleRelaxedEM,
-	    kSingleMuon,
-	    kDoubleMuon,
-	    kSingleTau,
-	    kDoubleTau,
-	    kSingleJet,
-	    kDoubleJet,
-	    kTripleJet,
-	    kQuadJet,
-	    kHT,
-	    kMET,
-	    kHTMET,
-	    kJetMET,
-	    kTauMET,
-	    kMuonMET,
-	    kIsoEMMET,
-	    kMuonJet,
-	    kIsoEMJet,
-	    kMuonTau,
-	    kIsoEMTau,
-	    kIsoEMMuon,
-	    kSingleJet140,
-	    kSingleJet60,
+	    kSingleMu3,
+	    kSingleMu5,
+	    kSingleMu7,
+	    kSingleMu10,
+	    kSingleMu14,
+	    kSingleMu20,
+	    kSingleMu25,
+	    kSingleIsoEG5,
+	    kSingleIsoEG8,
+	    kSingleIsoEG10,
+	    kSingleIsoEG12,
+	    kSingleIsoEG15,
+	    kSingleIsoEG20,
+	    kSingleIsoEG25,
+	    kSingleEG5,
+	    kSingleEG10,
+	    kSingleEG15,
+	    kSingleEG20,
+	    kSingleEG25,
+	    kSingleJet15,
 	    kSingleJet20,
-	    kMinBias,
+	    kSingleJet30,
+	    kSingleJet50,
+	    kSingleJet70,
+	    kSingleJet100,
+	    kSingleJet150,
+	    kSingleJet200,
+	    kSingleTauJet10,
+	    kSingleTauJet20,
+	    kSingleTauJet30,
+	    kSingleTauJet40,
+	    kSingleTauJet80,
+	    kSingleTauJet100,
+	    kHTT100,
+	    kHTT200,
+	    kHTT300,
+	    kHTT400,
+	    kHTT500,
+	    kETM20,
+	    kETM30,
+	    kETM40,
+	    kETM50,
+	    kETM60,
+	    kDoubleMu3,
+	    kDoubleIsoEG8,
+	    kDoubleIsoEG10,
+	    kDoubleEG5,
+	    kDoubleEG10,
+	    kDoubleEG15,
+	    kDoubleJet70,
+	    kDoubleJet100,
+	    kDoubleTauJet20,
+	    kDoubleTauJet30,
+	    kDoubleTauJet40,
+	    kMu3_IsoEG5,
+	    kMu7_IsoEG10,
+	    kMu3_EG20,
+	    kMu3_Jet15,
+	    kMu7_Jet15,
+	    kMu3_Jet100,
+	    kMu10_Jet20,
+	    kMu7_TauJet20,
+	    kMu7_TauJet30,
+	    kIsoEG10_EG10,
+	    kIsoEG10_Jet15,
+	    kIsoEG10_Jet30,
+	    kIsoEG15_Jet20,
+	    kIsoEG15_Jet100,
+	    kIsoEG10_TauJet20,
+	    kIsoEG10_TauJet30,
+	    kEG10_Jet15,
+	    kEG20_Jet20,
+	    kEG20_Jet100,
+	    kEG20_TauJet40,
+	    kJet100_TauJet40,
+	    kMu3_HTT300,
+	    kIsoEG15_HTT300,
+	    kEG20_HTT300,
+	    kJet100_HTT300,
+	    kTauJet40_HTT300,
+	    kMu3_ETM30,
+	    kIsoEG15_ETM30,
+	    kEG20_ETM30,
+	    kJet100_ETM40,
+	    kTauJet20_ETM20,
+	    kTauJet30_ETM30,
+	    kHTT200_ETM40,
+	    kTripleMu3,
+	    kTripleIsoEG5,
+	    kTripleEG10,
+	    kTripleJet50,
+	    kTripleTauJet40,
+	    kDoubleMu3_IsoEG5,
+	    kDoubleMu3_EG10,
+	    kDoubleIsoEG5_Mu3,
+	    kDoubleEG10_Mu3,
+	    kDoubleMu3_HTT200,
+	    kDoubleIsoEG5_HTT200,
+	    kDoubleEG10_HTT200,
+	    kDoubleJet50_HTT200,
+	    kDoubleTauJet40_HTT200,
+	    kDoubleMu3_ETM20,
+	    kDoubleIsoEG5_ETM20,
+	    kDoubleEG10_ETM20,
+	    kDoubleJet50_ETM20,
+	    kDoubleTauJet40_ETM20,
+	    kQuadJet30,
+	    kMinBias_HTT10,
+	    kZeroBias,
 	    kNumOfL1TriggerTypes
 	 } ;
 
@@ -128,9 +232,9 @@ namespace l1extra {
 	    bool triggerDecision,
 	    const L1ObjectTypeVector& objectTypes,
 	    const L1EmParticleVectorRef& emParticles =
-	       L1EmParticleVectorRef(),
+	    L1EmParticleVectorRef(),
 	    const L1JetParticleVectorRef& jetParticles =
-	       L1JetParticleVectorRef(),
+	    L1JetParticleVectorRef(),
 	    const L1MuonParticleVectorRef& muonParticles =
 	       L1MuonParticleVectorRef(),
 	    const L1EtMissParticleRefProd& etMissParticle =

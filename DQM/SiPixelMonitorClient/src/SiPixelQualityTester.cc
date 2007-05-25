@@ -2,8 +2,8 @@
  *
  *  Implementation of SiPixelQualityTester
  *
- *  $Date: 2007/02/01 16:41:58 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/19 14:10:06 $
+ *  $Revision: 1.1 $
  *  \author Petra Merkel
  */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelQualityTester.h"
@@ -51,10 +51,10 @@ void SiPixelQualityTester::setupQTests(MonitorUserInterface* mui) {
       setMeanWithinExpectedTest(mui, qTestName, qTestParams);
     }
   }
-//  cout << " Attaching Quality Tests " << endl;
+  cout << " Attaching Quality Tests " << endl;
   
   attachTests(mui);
-//  cout <<  " Quality Tests attached to MEs properly" << endl;
+  cout <<  " Quality Tests attached to MEs properly" << endl;
 }
 //
 // -- Read Test Name and Parameters
@@ -105,7 +105,8 @@ void SiPixelQualityTester::setXRangeTest(MonitorUserInterface * mui,
 
   MEContentsXRangeROOT * me_qc = (MEContentsXRangeROOT *) qc;
   if (params.size() < 4) return;
-//  cout << " Setting Parameters for " <<ContentsXRangeROOT::getAlgoName() << endl; 
+  cout << " Setting Parameters for " <<ContentsXRangeROOT::getAlgoName()
+       << endl; 
   // set allowed range in X-axis (default values: histogram's X-range)
   float xmin =  atof(params["xmin"].c_str());
   float xmax =  atof(params["xmax"].c_str());
@@ -123,7 +124,8 @@ void SiPixelQualityTester::setMeanWithinExpectedTest(MonitorUserInterface* mui,
   QCriterion* qc = mui->createQTest(MeanWithinExpectedROOT::getAlgoName(),name);
   MEMeanWithinExpectedROOT * me_qc = (MEMeanWithinExpectedROOT *) qc;
   if (params.size() < 6 ) return;
-//  cout << " Setting Parameters for " <<MeanWithinExpectedROOT::getAlgoName() << endl; 
+  cout << " Setting Parameters for " <<MeanWithinExpectedROOT::getAlgoName()
+       << endl; 
   //set probability limit for test warning
   me_qc->setWarningProb(atof(params["warning"].c_str()));
   //set probability limit for test error

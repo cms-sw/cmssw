@@ -34,6 +34,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelChannelIdentifier.h"
 #include <iostream>
 #include <iomanip>
+using namespace std;
 
 namespace {
   const float EPS = 0.001; // accuray in pixel units, so about 0.1 um
@@ -57,9 +58,6 @@ public:
     m_nrows(nrows), m_ncols(ncols), 
     m_pitchx(pitchx), m_pitchy(pitchy) {
 				
-    //using std::cout;
-    //using std::endl;
-
     // Calculate the edge of the active sensor with respect to the center,
     // that is simply the half-size.       
     // Take into account large pixels
@@ -68,12 +66,12 @@ public:
     m_yoffset = -(m_ncols + BIG_PIX_PER_ROC_Y*m_ncols/COLS_PER_ROC)/2. * 
       m_pitchy;
 
-    if(TP_DEBUG) std::cout<<" RectangularPixelTopology: "
+    if(TP_DEBUG) cout<<" RectangularPixelTopology: "
 		  <<m_nrows<<" "<<m_ncols<<" "
 		  <<m_pitchx<<" "<<m_pitchy<<" "<<m_xoffset<<" "<<m_yoffset
 		  <<BIG_PIX_PER_ROC_X<<" "<<BIG_PIX_PER_ROC_Y<<" "
 		  <<ROWS_PER_ROC<<" "<<COLS_PER_ROC<<std::endl;
-  }
+				   }
 
   // Topology interface, go from Masurement to Local corrdinates
   // pixel coordinates (mp) -> cm (LocalPoint)

@@ -5,8 +5,8 @@
  *  Class to load the tracks in the event, it provide some common functionalities
  *  both for all the RecoMuon producers.
  *
- *  $Date: 2007/02/01 17:57:59 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/04/10 13:34:10 $
+ *  $Revision: 1.16 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackExtraFwd.h"
-#include "FWCore/Framework/interface/OrphanHandle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
@@ -24,6 +24,7 @@ class Trajectory;
 class Propagator;
 class MuonServiceProxy;
 class MuonUpdatorAtVertex;
+class TrajectorySmoother;
 
 class MuonTrackLoader {
   public:
@@ -38,11 +39,12 @@ class MuonTrackLoader {
     virtual ~MuonTrackLoader() {}
   
     /// Convert the trajectories into tracks and load the tracks in the event
-    edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&);
+/*     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&,  */
+/*                                                         edm::Event&); */
 
     edm::OrphanHandle<reco::TrackCollection> loadTracks(const TrajectoryContainer&, 
-                                                        edm::Event&,const std::string&);
+                                                        edm::Event&,const std::string& = "", 
+							bool = true);
 
     /// Convert the trajectories into tracks and load the tracks in the event
     edm::OrphanHandle<reco::MuonCollection> loadTracks(const CandidateContainer&,
@@ -67,9 +69,13 @@ class MuonTrackLoader {
 
     bool theTrajectoryFlag;
 
+    bool theSmoothingStep;
+    std::string theSmootherName;
+    edm::ESHandle<TrajectorySmoother> theSmoother;
+
     /// Label for L2SeededTracks
     std::string theL2SeededTkLabel; 
-    bool thePutTkTrackFlag_;
-
+    bool thePutTkTrackFlag;
+    bool theSmoothTkTrackFlag;
 };
 #endif

@@ -6,17 +6,17 @@
     hit compatibility by OuterHitCompatibility and 
     det compatibility by OuterDetCompatibility */
 
-//#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include "RecoTracker/TkTrackingRegions/interface/OuterDetCompatibility.h"
 #include "RecoTracker/TkTrackingRegions/interface/OuterHitCompatibility.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 //#include <utility>
 
-class OuterEstimator{
-// : public MeasurementEstimator {
+class OuterEstimator : public MeasurementEstimator {
 
 public:
   OuterEstimator(
@@ -26,6 +26,13 @@ public:
    : theDetCompatibility(detCompatibility), 
      theHitCompatibility (hitCompatibility) { }
   virtual ~OuterEstimator(){}
+  virtual std::pair<bool,double> estimate(
+      const TrajectoryStateOnSurface& ts, 
+      const TransientTrackingRecHit& hit)  
+    const {
+       return theHitCompatibility(&hit) ? std::make_pair(true,1.) : std::make_pair(false,0.) ;
+  }
+
   virtual std::pair<bool,double> estimate(
       const TrajectoryStateOnSurface& ts, 
       const TrackingRecHit& hit,  

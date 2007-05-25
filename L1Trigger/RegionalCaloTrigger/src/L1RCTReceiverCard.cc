@@ -1,6 +1,20 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTReceiverCard.h"
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTLookupTables.h"
 
+#include <vector>
+using std::vector;
+
+#include <bitset>
+using std::bitset;
+
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
+
+#include <string>
+using std::string;
+
 L1RCTReceiverCard::L1RCTReceiverCard(int crateNumber,int cardNumber) :
   regions(2),crtNo(crateNumber),cardNo(cardNumber),etIn10Bits(2),
   overFlowBits(2),muonBits(2),tauBits(2)

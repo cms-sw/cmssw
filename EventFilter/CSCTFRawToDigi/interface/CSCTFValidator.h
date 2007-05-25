@@ -1,17 +1,17 @@
 #ifndef CSCTFRawToDigi_CSCTFValidator_h
 #define CSCTFRawToDigi_CSCTFValidator_h
 
-/** 
+/**
  * A basic analyzer used to validate Digis written into
  * the event by CSCTFUnpacker.
- * \author L. Gray 2/26/06 
- *   
+ * \author L. Gray 2/26/06
+ *
  */
 
 #include <iostream>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"

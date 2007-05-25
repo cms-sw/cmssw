@@ -56,9 +56,11 @@ void CaloExtractor::fillVetos(const edm::Event& event, const edm::EventSetup& ev
             if (deltar0>theDR_Max) continue;
 
             double etecal = cal->emEt();
-            bool doEcal = theWeight_E>0 && etecal>theThreshold_E && etecal>3*noiseEcal(*cal);
+            double eecal = cal->emEnergy();
+            bool doEcal = theWeight_E>0 && etecal>theThreshold_E && eecal>3*noiseEcal(*cal);
             double ethcal = cal->hadEt();
-            bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ethcal>3*noiseHcal(*cal);
+            double ehcal = cal->hadEnergy();
+            bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ehcal>3*noiseHcal(*cal);
             if ((!doEcal) && (!doHcal)) continue;
 
             DetId calId = cal->id();
@@ -96,9 +98,11 @@ MuIsoDeposit CaloExtractor::deposit( const Event & event, const EventSetup& even
       if (deltar0>theDR_Max) continue;
 
       double etecal = cal->emEt();
-      bool doEcal = theWeight_E>0 && etecal>theThreshold_E && etecal>3*noiseEcal(*cal);
+      double eecal = cal->emEnergy();
+      bool doEcal = theWeight_E>0 && etecal>theThreshold_E && eecal>3*noiseEcal(*cal);
       double ethcal = cal->hadEt();
-      bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ethcal>3*noiseHcal(*cal);
+      double ehcal = cal->hadEnergy();
+      bool doHcal = theWeight_H>0 && ethcal>theThreshold_H && ehcal>3*noiseHcal(*cal);
       if ((!doEcal) && (!doHcal)) continue;
 
       DetId calId = cal->id();

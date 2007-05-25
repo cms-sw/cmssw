@@ -75,9 +75,11 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("TowOE",towoe,"TowOE[NobjTowCal]/F");
   HltTree->Branch("MetCal",&mcalmet,"MetCal/F");
   HltTree->Branch("MetCalPhi",&mcalphi,"MetCalPhi/F");
+  HltTree->Branch("MetCalEta",&mcaleta,"MetCalEta/F");
   HltTree->Branch("MetCalSum",&mcalsum,"MetCalSum/F");
   HltTree->Branch("MetGen",&mgenmet,"MetGen/F");
   HltTree->Branch("MetGenPhi",&mgenphi,"MetGenPhi/F");
+  HltTree->Branch("MetGenEta",&mgeneta,"MetGenEta/F");
   HltTree->Branch("MetGenSum",&mgensum,"MetGenSum/F");
 
   //for(int ieta=0;ieta<NETA;ieta++){cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<endl;}
@@ -99,17 +101,23 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
     CaloJetCollection mycalojets;
     mycalojets=calojets;
     std::sort(mycalojets.begin(),mycalojets.end(),PtGreater());
-    njetcal = mycalojets.size();
+//     njetcal = mycalojets.size();
     typedef CaloJetCollection::const_iterator cjiter;
     int jcal=0;
     for ( cjiter i=mycalojets.begin(); i!=mycalojets.end(); i++) {
-      jcalpt[jcal] = i->pt();
-      jcalphi[jcal] = i->phi();
-      jcaleta[jcal] = i->eta();
-      jcalet[jcal] = i->et();
-      jcale[jcal] = i->energy();
-      jcal++;
+
+//       if (i->pt()>_CalJetMin){
+      if (i->pt()>10.){
+	jcalpt[jcal] = i->pt();
+	jcalphi[jcal] = i->phi();
+	jcaleta[jcal] = i->eta();
+	jcalet[jcal] = i->et();
+	jcale[jcal] = i->energy();
+	jcal++;
+      }
+
     }
+    njetcal = jcal;
   }
   else {njetcal = 0;}
 
@@ -134,6 +142,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
     for ( cmiter i=recmets.begin(); i!=recmets.end(); i++) {
       mcalmet = i->pt();
       mcalphi = i->phi();
+      mcaleta = i->eta();
       mcalsum = i->sumEt();
     }
   }
@@ -144,17 +153,23 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
       GenJetCollection mygenjets;
       mygenjets=genjets;
       std::sort(mygenjets.begin(),mygenjets.end(),PtGreater());
-      njetgen = mygenjets.size();
+//       njetgen = mygenjets.size();
       typedef GenJetCollection::const_iterator gjiter;
       int jgen=0;
       for ( gjiter i=mygenjets.begin(); i!=mygenjets.end(); i++) {
-	jgenpt[jgen] = i->pt();
-	jgenphi[jgen] = i->phi();
-	jgeneta[jgen] = i->eta();
-	jgenet[jgen] = i->et();
-	jgene[jgen] = i->energy();
-	jgen++;
+
+// 	if (i->pt()>_GenJetMin){
+	if (i->pt()>10.){
+	  jgenpt[jgen] = i->pt();
+	  jgenphi[jgen] = i->phi();
+	  jgeneta[jgen] = i->eta();
+	  jgenet[jgen] = i->et();
+	  jgene[jgen] = i->energy();
+	  jgen++;
+	}
+
       }
+      njetgen = jgen;
     }
     else {njetgen = 0;}
     
@@ -163,6 +178,7 @@ void HLTJets::analyze(const CaloJetCollection& calojets,
       for ( gmiter i=genmets.begin(); i!=genmets.end(); i++) {
 	mgenmet = i->pt();
 	mgenphi = i->phi();
+	mgeneta = i->eta();
 	mgensum = i->sumEt();
       }
     }

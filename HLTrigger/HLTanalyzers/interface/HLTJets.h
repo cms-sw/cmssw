@@ -53,8 +53,8 @@ private:
   float *jcalpt, *jcalphi, *jcaleta, *jcalet, *jcale;
   float *jgenpt, *jgenphi, *jgeneta, *jgenet, *jgene;
   float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
-  float mcalmet,mcalphi,mcalsum;
-  float mgenmet,mgenphi,mgensum;
+  float mcalmet,mcalphi,mcaleta,mcalsum;
+  float mgenmet,mgenphi,mgeneta,mgensum;
   int njetcal,njetgen,ntowcal;
 
   // input variables

@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -11,6 +12,8 @@
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h" 
+
+#include <typeinfo>
 
 EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
 {
@@ -25,7 +28,8 @@ EgammaObjects::EgammaObjects( const edm::ParameterSet& ps )
   loadCMSSWObjects(ps);
   loadHistoParameters(ps);
 
-  rootFile_ = TFile::Open(ps.getParameter<std::string>("outputFile").c_str(),"RECREATE"); 
+  outputFile_ = ps.getParameter<std::string>("outputFile");
+  rootFile_   = TFile::Open(outputFile_.c_str(),"RECREATE"); 
 }
 
 void EgammaObjects::loadCMSSWObjects(const edm::ParameterSet& ps)
@@ -97,141 +101,237 @@ void EgammaObjects::beginJob(edm::EventSetup const&)
 void EgammaObjects::createBookedHistoObjects()
 {
   hist_Et_ 
-    = new TH1D("hist_Et_",("Et Distribution of "+particleString).c_str(),
+    = new TH1F("hist_Et_",("Et Distribution of "+particleString).c_str(),
       hist_bins_Et_,hist_min_Et_,hist_max_Et_);
   hist_EtOverTruth_ 
-    = new TH1D("hist_EtOverTruth_",("Reco Et over True Et of "+particleString).c_str(),
+    = new TH1F("hist_EtOverTruth_",("Reco Et over True Et of "+particleString).c_str(),
       hist_bins_EtOverTruth_,hist_min_EtOverTruth_,hist_max_EtOverTruth_);
   hist_EtEfficiency_ 
-    = new TH1D("hist_EtEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Et of "+particleString).c_str(),
+    = new TH1F("hist_EtEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Et of "+particleString).c_str(),
       hist_bins_Et_,hist_min_Et_,hist_max_Et_); 
   hist_EtNumRecoOverNumTrue_ 
-    = new TH1D("hist_EtNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Et of "+particleString).c_str(),
+    = new TH1F("hist_EtNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Et of "+particleString).c_str(),
       hist_bins_Et_,hist_min_Et_,hist_max_Et_);      
-      
+  hist_EtOverTruthVsEt_ 
+    = new TH1F("hist_EtOverTruthVsEt_",("Reco Et over True Et VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_EtOverTruthVsE_ 
+    = new TH1F("hist_EtOverTruthVsE_",("Reco Et over True Et VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_EtOverTruthVsEta_ 
+    = new TH1F("hist_EtOverTruthVsEta_",("Reco Et over True Et VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_EtOverTruthVsPhi_ 
+    = new TH1F("hist_EtOverTruthVsPhi_",("Reco Et over True Et VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+  hist_resolutionEtVsEt_ 
+    = new TH1F("hist_resolutionEtVsEt_",("#sigma of Reco Et over True Et VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_resolutionEtVsE_ 
+    = new TH1F("hist_resolutionEtVsE_",("#sigma of Reco Et over True Et VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_resolutionEtVsEta_ 
+    = new TH1F("hist_resolutionEtVsEta_",("#sigma of Reco Et over True Et VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_resolutionEtVsPhi_ 
+    = new TH1F("hist_resolutionEtVsPhi_",("#sigma of Reco Et over True Et VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+  
   hist_E_ 
-    = new TH1D("hist_E_",("E Distribution of "+particleString).c_str(),
+    = new TH1F("hist_E_",("E Distribution of "+particleString).c_str(),
       hist_bins_E_,hist_min_E_,hist_max_E_);
   hist_EOverTruth_ 
-    = new TH1D("hist_EOverTruth_",("Reco E over True E of "+particleString).c_str(),
+    = new TH1F("hist_EOverTruth_",("Reco E over True E of "+particleString).c_str(),
       hist_bins_EOverTruth_,hist_min_EOverTruth_,hist_max_EOverTruth_);
   hist_EEfficiency_ 
-    = new TH1D("hist_EEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS E of "+particleString).c_str(),
+    = new TH1F("hist_EEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS E of "+particleString).c_str(),
       hist_bins_E_,hist_min_E_,hist_max_E_); 
   hist_ENumRecoOverNumTrue_ 
-    = new TH1D("hist_ENumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS E of "+particleString).c_str(),
-      hist_bins_E_,hist_min_E_,hist_max_E_);      
+    = new TH1F("hist_ENumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);  
+  hist_EOverTruthVsEt_ 
+    = new TH1F("hist_EOverTruthVsEt_",("Reco E over True E VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_EOverTruthVsE_ 
+    = new TH1F("hist_EOverTruthVsE_",("Reco E over True E VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_EOverTruthVsEta_ 
+    = new TH1F("hist_EOverTruthVsEta_",("Reco E over True E VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_EOverTruthVsPhi_ 
+    = new TH1F("hist_EOverTruthVsPhi_",("Reco E over True E VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);   
+  hist_resolutionEVsEt_ 
+    = new TH1F("hist_resolutionEVsEt_",("#sigma of Reco E over True E VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_resolutionEVsE_ 
+    = new TH1F("hist_resolutionEVsE_",("#sigma of Reco E over True E VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_resolutionEVsEta_ 
+    = new TH1F("hist_resolutionEVsEta_",("#sigma of Reco E over True E VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_resolutionEVsPhi_ 
+    = new TH1F("hist_resolutionEVsPhi_",("#sigma of Reco E over True E VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
        
   hist_Eta_ 
-    = new TH1D("hist_Eta_",("Eta Distribution of "+particleString).c_str(),
+    = new TH1F("hist_Eta_",("Eta Distribution of "+particleString).c_str(),
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
   hist_EtaOverTruth_ 
-    = new TH1D("hist_EtaOverTruth_",("Reco Eta over True Eta of "+particleString).c_str(),
+    = new TH1F("hist_EtaOverTruth_",("Reco Eta over True Eta of "+particleString).c_str(),
       hist_bins_EtaOverTruth_,hist_min_EtaOverTruth_,hist_max_EtaOverTruth_);
   hist_EtaEfficiency_ 
-    = new TH1D("hist_EtaEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Eta of "+particleString).c_str(),
+    = new TH1F("hist_EtaEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Eta of "+particleString).c_str(),
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);       
   hist_EtaNumRecoOverNumTrue_ 
-    = new TH1D("hist_EtaNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Eta of "+particleString).c_str(),
+    = new TH1F("hist_EtaNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Eta of "+particleString).c_str(),
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_deltaEtaVsEt_ 
+    = new TH1F("hist_deltaEtaVsEt_",("delta Eta VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_deltaEtaVsE_ 
+    = new TH1F("hist_deltaEtaVsE_",("delta Eta VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_deltaEtaVsEta_ 
+    = new TH1F("hist_deltaEtaVsEta_",("delta Eta VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_deltaEtaVsPhi_ 
+    = new TH1F("hist_deltaEtaVsPhi_",("delta Eta VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+  hist_resolutionEtaVsEt_ 
+    = new TH1F("hist_resolutionEtaVsEt_",("#sigma of delta Eta VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_resolutionEtaVsE_ 
+    = new TH1F("hist_resolutionEtaVsE_",("#sigma of delta Eta VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_resolutionEtaVsEta_ 
+    = new TH1F("hist_resolutionEtaVsEta_",("#sigma of delta Eta VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_resolutionEtaVsPhi_ 
+    = new TH1F("hist_resolutionEtaVsPhi_",("#sigma of delta Eta VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
       
   hist_Phi_ 
-    = new TH1D("hist_Phi_",("Phi Distribution of "+particleString).c_str(),
+    = new TH1F("hist_Phi_",("Phi Distribution of "+particleString).c_str(),
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
   hist_PhiOverTruth_ 
-    = new TH1D("hist_PhiOverTruth_",("Reco Phi over True Phi of "+particleString).c_str(),
+    = new TH1F("hist_PhiOverTruth_",("Reco Phi over True Phi of "+particleString).c_str(),
       hist_bins_PhiOverTruth_,hist_min_PhiOverTruth_,hist_max_PhiOverTruth_);
   hist_PhiEfficiency_ 
-    = new TH1D("hist_PhiEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Phi of "+particleString).c_str(),
+    = new TH1F("hist_PhiEfficiency_",("# of True "+particleString+" Reconstructed over # of True "+particleString+" VS Phi of "+particleString).c_str(),
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);  
    hist_PhiNumRecoOverNumTrue_ 
-    = new TH1D("hist_PhiNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Phi of "+particleString).c_str(),
+    = new TH1F("hist_PhiNumRecoOverNumTrue_",("# of Reco "+particleString+" over # of True "+particleString+" VS Phi of "+particleString).c_str(),
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);     
-      
+  hist_deltaPhiVsEt_ 
+    = new TH1F("hist_deltaPhiVsEt_",("delta Phi VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_deltaPhiVsE_ 
+    = new TH1F("hist_deltaPhiVsE_",("delta Phi VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_deltaPhiVsEta_ 
+    = new TH1F("hist_deltaPhiVsEta_",("delta Phi VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_deltaPhiVsPhi_ 
+    = new TH1F("hist_deltaPhiVsPhi_",("delta Phi VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+  hist_resolutionPhiVsEt_ 
+    = new TH1F("hist_resolutionPhiVsEt_",("#sigma of delta Phi VS Et of "+particleString).c_str(),
+      hist_bins_Et_,hist_min_Et_,hist_max_Et_);
+  hist_resolutionPhiVsE_ 
+    = new TH1F("hist_resolutionPhiVsE_",("#sigma of delta Phi VS E of "+particleString).c_str(),
+      hist_bins_E_,hist_min_E_,hist_max_E_);
+  hist_resolutionPhiVsEta_ 
+    = new TH1F("hist_resolutionPhiVsEta_",("#sigma of delta Phi VS Eta of "+particleString).c_str(),
+      hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_);
+  hist_resolutionPhiVsPhi_ 
+    = new TH1F("hist_resolutionPhiVsPhi_",("#sigma of delta Phi VS Phi of "+particleString).c_str(),
+      hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_);
+  
   std::string recoParticleName;
   
   if( particleID == 22 ) recoParticleName = "Higgs";
   else if( particleID == 11 ) recoParticleName = "Z";
       
   hist_All_recoMass_ 
-    = new TH1D("hist_All_recoMass_",(recoParticleName+" Mass from "+particleString+" in All Regions").c_str(),
+    = new TH1F("hist_All_recoMass_",(recoParticleName+" Mass from "+particleString+" in All Regions").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);    
   hist_BarrelOnly_recoMass_ 
-    = new TH1D("hist_BarrelOnly_recoMass_",(recoParticleName+" Mass from "+particleString+" in Barrel").c_str(),
+    = new TH1F("hist_BarrelOnly_recoMass_",(recoParticleName+" Mass from "+particleString+" in Barrel").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);
   hist_EndcapOnly_recoMass_ 
-    = new TH1D("hist_EndcapOnly_recoMass_",(recoParticleName+" Mass from "+particleString+" in EndCap").c_str(),
+    = new TH1F("hist_EndcapOnly_recoMass_",(recoParticleName+" Mass from "+particleString+" in EndCap").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);
   hist_Mixed_recoMass_ 
-    = new TH1D("hist_Mixed_recoMass_",(recoParticleName+" Mass from "+particleString+" in Split Detectors").c_str(),
+    = new TH1F("hist_Mixed_recoMass_",(recoParticleName+" Mass from "+particleString+" in Split Detectors").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);  
 
   hist_recoMass_withBackgroud_NoEtCut_
-    = new TH1D("hist_recoMass_withBackgroud_NoEtCut_",(recoParticleName+" Mass from "+particleString+" with Background, No Et Cut").c_str(),
+    = new TH1F("hist_recoMass_withBackgroud_NoEtCut_",(recoParticleName+" Mass from "+particleString+" with Background, No Et Cut").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);
   hist_recoMass_withBackgroud_5EtCut_
-    = new TH1D("hist_recoMass_withBackgroud_5EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 5 Et Cut").c_str(),
+    = new TH1F("hist_recoMass_withBackgroud_5EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 5 Et Cut").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);
   hist_recoMass_withBackgroud_10EtCut_
-    = new TH1D("hist_recoMass_withBackgroud_10EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 10 Et Cut").c_str(),
+    = new TH1F("hist_recoMass_withBackgroud_10EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 10 Et Cut").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_);
   hist_recoMass_withBackgroud_20EtCut_
-    = new TH1D("hist_recoMass_withBackgroud_20EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 20 Et Cut").c_str(),
+    = new TH1F("hist_recoMass_withBackgroud_20EtCut_",(recoParticleName+" Mass from "+particleString+" with Background, 20 Et Cut").c_str(),
       hist_bins_recoMass_,hist_min_recoMass_,hist_max_recoMass_); 
 }
 
 void EgammaObjects::createTempHistoObjects()
 {
   _TEMP_scatterPlot_EtOverTruthVsEt_
-    = new TH2D("_TEMP_scatterPlot_EtOverTruthVsEt_","_TEMP_scatterPlot_EtOverTruthVsEt_",
+    = new TH2F("_TEMP_scatterPlot_EtOverTruthVsEt_","_TEMP_scatterPlot_EtOverTruthVsEt_",
       hist_bins_Et_,hist_min_Et_,hist_max_Et_,hist_bins_EtOverTruth_,hist_min_EtOverTruth_,hist_max_EtOverTruth_);
   _TEMP_scatterPlot_EtOverTruthVsE_
-    = new TH2D("_TEMP_scatterPlot_EtOverTruthVsE_","_TEMP_scatterPlot_EtOverTruthVsE_",
+    = new TH2F("_TEMP_scatterPlot_EtOverTruthVsE_","_TEMP_scatterPlot_EtOverTruthVsE_",
       hist_bins_E_,hist_min_E_,hist_max_E_,hist_bins_EtOverTruth_,hist_min_EtOverTruth_,hist_max_EtOverTruth_);
   _TEMP_scatterPlot_EtOverTruthVsEta_
-    = new TH2D("_TEMP_scatterPlot_EtOverTruthVsEta_","_TEMP_scatterPlot_EtOverTruthVsEta_",
+    = new TH2F("_TEMP_scatterPlot_EtOverTruthVsEta_","_TEMP_scatterPlot_EtOverTruthVsEta_",
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_,hist_bins_EtOverTruth_,hist_min_EtOverTruth_,hist_max_EtOverTruth_);
   _TEMP_scatterPlot_EtOverTruthVsPhi_
-    = new TH2D("_TEMP_scatterPlot_EtOverTruthVsPhi_","_TEMP_scatterPlot_EtOverTruthVsPhi_",
+    = new TH2F("_TEMP_scatterPlot_EtOverTruthVsPhi_","_TEMP_scatterPlot_EtOverTruthVsPhi_",
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_,hist_bins_EtOverTruth_,hist_min_EtOverTruth_,hist_max_EtOverTruth_);
 
   _TEMP_scatterPlot_EOverTruthVsEt_
-    = new TH2D("_TEMP_scatterPlot_EOverTruthVsEt_","_TEMP_scatterPlot_EOverTruthVsEt_",
+    = new TH2F("_TEMP_scatterPlot_EOverTruthVsEt_","_TEMP_scatterPlot_EOverTruthVsEt_",
       hist_bins_Et_,hist_min_Et_,hist_max_Et_,hist_bins_EOverTruth_,hist_min_EOverTruth_,hist_max_EOverTruth_);
   _TEMP_scatterPlot_EOverTruthVsE_
-    = new TH2D("_TEMP_scatterPlot_EOverTruthVsE_","_TEMP_scatterPlot_EOverTruthVsE_",
+    = new TH2F("_TEMP_scatterPlot_EOverTruthVsE_","_TEMP_scatterPlot_EOverTruthVsE_",
       hist_bins_E_,hist_min_E_,hist_max_E_,hist_bins_EOverTruth_,hist_min_EOverTruth_,hist_max_EOverTruth_);
   _TEMP_scatterPlot_EOverTruthVsEta_
-    = new TH2D("_TEMP_scatterPlot_EOverTruthVsEta_","_TEMP_scatterPlot_EOverTruthVsEta_",
+    = new TH2F("_TEMP_scatterPlot_EOverTruthVsEta_","_TEMP_scatterPlot_EOverTruthVsEta_",
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_,hist_bins_EOverTruth_,hist_min_EOverTruth_,hist_max_EOverTruth_);
   _TEMP_scatterPlot_EOverTruthVsPhi_
-    = new TH2D("_TEMP_scatterPlot_EOverTruthVsPhi_","_TEMP_scatterPlot_EOverTruthVsPhi_",
+    = new TH2F("_TEMP_scatterPlot_EOverTruthVsPhi_","_TEMP_scatterPlot_EOverTruthVsPhi_",
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_,hist_bins_EOverTruth_,hist_min_EOverTruth_,hist_max_EOverTruth_);
       
   _TEMP_scatterPlot_deltaEtaVsEt_
-    = new TH2D("_TEMP_scatterPlot_deltaEtaVsEt_","_TEMP_scatterPlot_deltaEtaVsEt_",
+    = new TH2F("_TEMP_scatterPlot_deltaEtaVsEt_","_TEMP_scatterPlot_deltaEtaVsEt_",
       hist_bins_Et_,hist_min_Et_,hist_max_Et_,hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
   _TEMP_scatterPlot_deltaEtaVsE_
-    = new TH2D("_TEMP_scatterPlot_deltaEtaVsE_","_TEMP_scatterPlot_deltaEtaVsE_",
+    = new TH2F("_TEMP_scatterPlot_deltaEtaVsE_","_TEMP_scatterPlot_deltaEtaVsE_",
       hist_bins_E_,hist_min_E_,hist_max_E_,hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
   _TEMP_scatterPlot_deltaEtaVsEta_
-    = new TH2D("_TEMP_scatterPlot_deltaEtaVsEta_","_TEMP_scatterPlot_deltaEtaVsEta_",
+    = new TH2F("_TEMP_scatterPlot_deltaEtaVsEta_","_TEMP_scatterPlot_deltaEtaVsEta_",
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_,hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
   _TEMP_scatterPlot_deltaEtaVsPhi_
-    = new TH2D("_TEMP_scatterPlot_deltaEtaVsPhi_","_TEMP_scatterPlot_deltaEtaVsPhi_",
+    = new TH2F("_TEMP_scatterPlot_deltaEtaVsPhi_","_TEMP_scatterPlot_deltaEtaVsPhi_",
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_,hist_bins_deltaEta_,hist_min_deltaEta_,hist_max_deltaEta_);
       
   _TEMP_scatterPlot_deltaPhiVsEt_
-    = new TH2D("_TEMP_scatterPlot_deltaPhiVsEt_","_TEMP_scatterPlot_deltaPhiVsEt_",
+    = new TH2F("_TEMP_scatterPlot_deltaPhiVsEt_","_TEMP_scatterPlot_deltaPhiVsEt_",
       hist_bins_Et_,hist_min_Et_,hist_max_Et_,hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
   _TEMP_scatterPlot_deltaPhiVsE_
-    = new TH2D("_TEMP_scatterPlot_deltaPhiVsE_","_TEMP_scatterPlot_deltaPhiVsE_",
+    = new TH2F("_TEMP_scatterPlot_deltaPhiVsE_","_TEMP_scatterPlot_deltaPhiVsE_",
       hist_bins_E_,hist_min_E_,hist_max_E_,hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
   _TEMP_scatterPlot_deltaPhiVsEta_
-    = new TH2D("_TEMP_scatterPlot_deltaPhiVsEta_","_TEMP_scatterPlot_deltaPhiVsEta_",
+    = new TH2F("_TEMP_scatterPlot_deltaPhiVsEta_","_TEMP_scatterPlot_deltaPhiVsEta_",
       hist_bins_Eta_,hist_min_Eta_,hist_max_Eta_,hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
   _TEMP_scatterPlot_deltaPhiVsPhi_
-    = new TH2D("_TEMP_scatterPlot_deltaPhiVsPhi_","_TEMP_scatterPlot_deltaPhiVsPhi_",
+    = new TH2F("_TEMP_scatterPlot_deltaPhiVsPhi_","_TEMP_scatterPlot_deltaPhiVsPhi_",
       hist_bins_Phi_,hist_min_Phi_,hist_max_Phi_,hist_bins_deltaPhi_,hist_min_deltaPhi_,hist_max_deltaPhi_);
 }
 
@@ -593,8 +693,11 @@ void EgammaObjects::endJob()
   
   applyLabels();
   setDrawOptions();
-  saveHistos();  
+
+  saveHistosToRoot();  
   rootFile_->Close();
+  
+  covertRootFileToDQMFile();
 }
 
 void EgammaObjects::getDeltaResHistosViaSlicing()
@@ -619,85 +722,45 @@ void EgammaObjects::getDeltaResHistosViaSlicing()
   _TEMP_scatterPlot_deltaPhiVsEta_->FitSlicesY(0,1,hist_bins_Eta_,10,"QRG2");
   _TEMP_scatterPlot_deltaPhiVsPhi_->FitSlicesY(0,1,hist_bins_Phi_,10,"QRG2");
 
-  hist_EtOverTruthVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEt__1");
-  hist_EtOverTruthVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsE__1");
-  hist_EtOverTruthVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEta__1");
-  hist_EtOverTruthVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsPhi__1");
-  
-  hist_EOverTruthVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEt__1");
-  hist_EOverTruthVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsE__1");
-  hist_EOverTruthVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEta__1");
-  hist_EOverTruthVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsPhi__1");
+  hist_EtOverTruthVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEt__1")),1);
+  hist_EtOverTruthVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsE__1")),1);
+  hist_EtOverTruthVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEta__1")),1);
+  hist_EtOverTruthVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsPhi__1")),1);
 
-  hist_deltaEtaVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEt__1");
-  hist_deltaEtaVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsE__1");
-  hist_deltaEtaVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEta__1");
-  hist_deltaEtaVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsPhi__1");
+  hist_EOverTruthVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEt__1")),1);
+  hist_EOverTruthVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsE__1")),1);
+  hist_EOverTruthVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEta__1")),1);
+  hist_EOverTruthVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsPhi__1")),1);
 
-  hist_deltaPhiVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEt__1");
-  hist_deltaPhiVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsE__1");
-  hist_deltaPhiVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEta__1");
-  hist_deltaPhiVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsPhi__1");
-  
-  hist_EtOverTruthVsEt_->SetNameTitle("hist_EtOverTruthVsEt_",("Reco Et over True Et VS Et of "+particleString).c_str());
-  hist_EtOverTruthVsE_->SetNameTitle("hist_EtOverTruthVsE_",("Reco Et over True Et VS E of "+particleString).c_str());  
-  hist_EtOverTruthVsEta_->SetNameTitle("hist_EtOverTruthVsEta_",("Reco Et over True Et VS Eta of "+particleString).c_str());
-  hist_EtOverTruthVsPhi_->SetNameTitle("hist_EtOverTruthVsPhi_",("Reco Et over True Et VS Phi of "+particleString).c_str());
-  
-  hist_EOverTruthVsEt_->SetNameTitle("hist_EOverTruthVsEt_",("Reco E over True E VS Et of "+particleString).c_str());
-  hist_EOverTruthVsE_->SetNameTitle("hist_EOverTruthVsE_",("Reco E over True E VS E of "+particleString).c_str());  
-  hist_EOverTruthVsEta_->SetNameTitle("hist_EOverTruthVsEta_",("Reco E over True E VS Eta of "+particleString).c_str());
-  hist_EOverTruthVsPhi_->SetNameTitle("hist_EOverTruthVsPhi_",("Reco E over True E VS Phi of "+particleString).c_str());
-  
-  hist_deltaEtaVsEt_->SetNameTitle("hist_deltaEtaVsEt_",("delta Eta VS Et of "+particleString).c_str());
-  hist_deltaEtaVsE_->SetNameTitle("hist_deltaEtaVsE_",("delta Eta VS E of "+particleString).c_str());
-  hist_deltaEtaVsEta_->SetNameTitle("hist_deltaEtaVsEta_",("delta Eta VS Eta of "+particleString).c_str());
-  hist_deltaEtaVsPhi_->SetNameTitle("hist_deltaEtaVsPhi_",("delta Eta VS Phi of "+particleString).c_str());
+  hist_deltaEtaVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEt__1")),1);
+  hist_deltaEtaVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsE__1")),1);
+  hist_deltaEtaVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEta__1")),1);
+  hist_deltaEtaVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsPhi__1")),1);
 
-  hist_deltaPhiVsEt_->SetNameTitle("hist_deltaPhiVsEt_",("delta Phi VS Et of "+particleString).c_str());
-  hist_deltaPhiVsE_->SetNameTitle("hist_deltaPhiVsE_",("delta Phi VS E of "+particleString).c_str());
-  hist_deltaPhiVsEta_->SetNameTitle("hist_deltaPhiVsEta_",("delta Phi VS Eta of "+particleString).c_str());
-  hist_deltaPhiVsPhi_->SetNameTitle("hist_deltaPhiVsPhi_",("delta Phi VS Phi of "+particleString).c_str());
+  hist_deltaPhiVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEt__1")),1);
+  hist_deltaPhiVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsE__1")),1);
+  hist_deltaPhiVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEta__1")),1);
+  hist_deltaPhiVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsPhi__1")),1);
+    
+  hist_resolutionEtVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEt__2")),1);
+  hist_resolutionEtVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsE__2")),1);
+  hist_resolutionEtVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEta__2")),1);
+  hist_resolutionEtVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsPhi__2")),1);
   
-  hist_resolutionEtVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEt__2");
-  hist_resolutionEtVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsE__2");  
-  hist_resolutionEtVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsEta__2");
-  hist_resolutionEtVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EtOverTruthVsPhi__2");
-  
-  hist_resolutionEVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEt__2");
-  hist_resolutionEVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsE__2");
-  hist_resolutionEVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEta__2");
-  hist_resolutionEVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsPhi__2");
+  hist_resolutionEVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEt__2")),1);
+  hist_resolutionEVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsE__2")),1);
+  hist_resolutionEVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsEta__2")),1);
+  hist_resolutionEVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_EOverTruthVsPhi__2")),1);
 
-  hist_resolutionEtaVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEt__2");
-  hist_resolutionEtaVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsE__2");  
-  hist_resolutionEtaVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEta__2");
-  hist_resolutionEtaVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsPhi__2");
+  hist_resolutionEtaVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEt__2")),1);
+  hist_resolutionEtaVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsE__2")),1);
+  hist_resolutionEtaVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsEta__2")),1);
+  hist_resolutionEtaVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaEtaVsPhi__2")),1);
 
-  hist_resolutionPhiVsEt_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEt__2");
-  hist_resolutionPhiVsE_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsE__2");
-  hist_resolutionPhiVsEta_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEta__2");
-  hist_resolutionPhiVsPhi_ = (TH1D*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsPhi__2");
-  
-  hist_resolutionEtVsEt_->SetNameTitle("hist_resolutionEtVsEt_",("#sigma of Reco Et over True Et VS Et of "+particleString).c_str());
-  hist_resolutionEtVsE_->SetNameTitle("hist_resolutionEtVsE_",("#sigma of Reco Et over True Et VS E of "+particleString).c_str());  
-  hist_resolutionEtVsEta_->SetNameTitle("hist_resolutionEtVsEta_",("#sigma of Reco Et over True Et VS Eta of "+particleString).c_str());
-  hist_resolutionEtVsPhi_->SetNameTitle("hist_resolutionEtVsPhi_",("#sigma of Reco Et over True Et VS Phi of "+particleString).c_str());
-  
-  hist_resolutionEVsEt_->SetNameTitle("hist_resolutionEVsEt_",("#sigma of Reco E over True E VS Et of "+particleString).c_str());
-  hist_resolutionEVsE_->SetNameTitle("hist_resolutionEVsE_",("#sigma of Reco E over True E VS E of "+particleString).c_str());  
-  hist_resolutionEVsEta_->SetNameTitle("hist_resolutionEVsEta_",("#sigma of Reco E over True E VS Eta of "+particleString).c_str());
-  hist_resolutionEVsPhi_->SetNameTitle("hist_resolutionEVsPhi_",("#sigma of Reco E over True E VS Phi of "+particleString).c_str());
-  
-  hist_resolutionEtaVsEt_->SetNameTitle("hist_resolutionEtaVsEt_",("#sigma of delta Eta VS Et of "+particleString).c_str());
-  hist_resolutionEtaVsE_->SetNameTitle("hist_resolutionEtaVsE_",("#sigma of delta Eta VS E of "+particleString).c_str());  
-  hist_resolutionEtaVsEta_->SetNameTitle("hist_resolutionEtaVsEta_",("#sigma of delta Eta VS Eta of "+particleString).c_str());
-  hist_resolutionEtaVsPhi_->SetNameTitle("hist_resolutionEtaVsPhi_",("#sigma of delta Eta VS Phi of "+particleString).c_str());
-
-  hist_resolutionPhiVsEt_->SetNameTitle("hist_resolutionPhiVsEt_",("#sigma of delta Phi VS Et of "+particleString).c_str());
-  hist_resolutionPhiVsE_->SetNameTitle("hist_resolutionPhiVsE_",("#sigma of delta Phi VS E of "+particleString).c_str());  
-  hist_resolutionPhiVsEta_->SetNameTitle("hist_resolutionPhiVsEta_",("#sigma of delta Phi VS Eta of "+particleString).c_str());
-  hist_resolutionPhiVsPhi_->SetNameTitle("hist_resolutionPhiVsPhi_",("#sigma of delta Phi VS Phi of "+particleString).c_str());
+  hist_resolutionPhiVsEt_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEt__2")),1);
+  hist_resolutionPhiVsE_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsE__2")),1);
+  hist_resolutionPhiVsEta_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsEta__2")),1);
+  hist_resolutionPhiVsPhi_->Add(((TH1F*)gDirectory->Get("_TEMP_scatterPlot_deltaPhiVsPhi__2")),1);
 }
 
 void EgammaObjects::getEfficiencyHistosViaDividing()
@@ -947,7 +1010,7 @@ void EgammaObjects::setDrawOptions()
   hist_recoMass_withBackgroud_20EtCut_->SetOption("e");
 }
 
-void EgammaObjects::saveHistos() 
+void EgammaObjects::saveHistosToRoot() 
 {
   rootFile_->cd();
   rootFile_->GetDirectory(particleString.c_str())->mkdir("ET");
@@ -957,7 +1020,7 @@ void EgammaObjects::saveHistos()
   hist_EtOverTruth_->Write();
   hist_EtEfficiency_->Write();
   hist_EtNumRecoOverNumTrue_->Write();
-  hist_EtOverTruthVsEt_->Write();
+  ((TH1F*)hist_EtOverTruthVsEt_)->Write();
   hist_EtOverTruthVsE_->Write();  
   hist_EtOverTruthVsEta_->Write();
   hist_EtOverTruthVsPhi_->Write();
@@ -1062,3 +1125,11 @@ void EgammaObjects::saveHistos()
   rootFile_->cd();
 }
 
+void EgammaObjects::covertRootFileToDQMFile() 
+{
+  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+
+  dbe->open(outputFile_);
+  dbe->showDirStructure();
+  dbe->save(outputFile_);
+}

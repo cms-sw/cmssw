@@ -1,6 +1,11 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTRegion.h"
+
 #include <vector>
 using std::vector;
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
 
 int main(){
   //Create a vector to be used in the borders and then set it to be

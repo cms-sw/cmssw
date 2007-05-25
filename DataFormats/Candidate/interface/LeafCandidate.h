@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.6 2007/02/19 12:59:04 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.5 2006/12/07 18:06:40 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"

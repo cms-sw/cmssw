@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1EmParticle
 // 
-/**\class L1EmParticle L1EmParticle.h DataFormats/L1Trigger/interface/L1EmParticle.h
+/**\class L1EmParticle \file L1EmParticle.h DataFormats/L1Trigger/interface/L1EmParticle.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra particle class for EM objects.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EmParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
+// $Id: L1EmParticle.h,v 1.5 2006/08/10 18:47:41 wsun Exp $
 //
 
 // system include files

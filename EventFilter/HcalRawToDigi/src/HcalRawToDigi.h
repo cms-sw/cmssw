@@ -16,7 +16,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,6 +31,7 @@ public:
   virtual ~HcalRawToDigi();
   virtual void produce(edm::Event& e, const edm::EventSetup& c);
 private:
+  edm::InputTag dataTag_;
   HcalUnpacker unpacker_;
   HcalDataFrameFilter filter_;
   std::vector<int> fedUnpackList_;

@@ -7,3 +7,8 @@ DEFINE_SEAL_MODULE();
 #include "RecoPixelVertexing/PixelTriplets/src/PixelTripletHLTGenerator.h"
 DEFINE_SEAL_PLUGIN(HitTripletGeneratorFromPairAndLayersFactory, PixelTripletHLTGenerator, "PixelTripletHLTGenerator");
 
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "RecoPixelVertexing/PixelTriplets/interface/CombinedHitTripletGenerator.h"
+
+DEFINE_SEAL_PLUGIN(OrderedHitsGeneratorFactory, CombinedHitTripletGenerator, "StandardHitTripletGenerator");

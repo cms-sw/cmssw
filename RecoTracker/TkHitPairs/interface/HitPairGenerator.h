@@ -3,28 +3,38 @@
 
 #include <vector>
 
-#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 /** abstract interface for generators of ordered RecHit pairs
  *  compatible with a TrackingRegion. 
  *  This is used by the HitPairSeedGenerator to produce TrajectorySeeds
  */
 
-class TrackingRegion;
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 
-class HitPairGenerator {
+class TrackingRegion;
+namespace edm { class Event; class EventSetup; }
+
+class HitPairGenerator : public OrderedHitsGenerator {
 public:
+
+  HitPairGenerator(unsigned int size=30000);
 
   virtual ~HitPairGenerator() { }
 
-  virtual OrderedHitPairs hitPairs( const TrackingRegion& region,const edm::EventSetup& iSetup ) {
-    OrderedHitPairs pairs; 
-    hitPairs(region, pairs, iSetup);
-    return pairs;
-  } 
-  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs,const edm::EventSetup& iSetup) = 0;
+  virtual const OrderedHitPairs & run(
+    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+
+  // temporary interface for backward compatibility only
+  virtual void hitPairs( 
+    const TrackingRegion& reg, OrderedHitPairs & prs, const edm::EventSetup& es) {}
+
+  virtual void hitPairs( const TrackingRegion& reg, OrderedHitPairs & prs, 
+      const edm::Event & ev,  const edm::EventSetup& es) = 0;
 
   virtual HitPairGenerator* clone() const = 0;
+
+private:
+  OrderedHitPairs thePairs;
 
 };
 

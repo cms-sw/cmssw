@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/01/26 22:11:03 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/01/26 19:39:42 $
+ *  $Revision: 1.12 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -37,10 +37,10 @@
 //__________________________________________________________________________________________________
 MisalignedMuonESProducer::MisalignedMuonESProducer(const edm::ParameterSet& p) :
   theParameterSet( p ),
-  theDTAlignRecordName( "DTAlignmentRcd" ),
-  theDTErrorRecordName( "DTAlignmentErrorRcd" ),
-  theCSCAlignRecordName( "CSCAlignmentRcd" ),
-  theCSCErrorRecordName( "CSCAlignmentErrorRcd" )
+  theDTAlignRecordName( "DTAlignments" ),
+  theDTErrorRecordName( "DTAlignmentErrors" ),
+  theCSCAlignRecordName( "CSCAlignments" ),
+  theCSCErrorRecordName( "CSCAlignmentErrors" )
 {
   
   setWhatProduced(this);

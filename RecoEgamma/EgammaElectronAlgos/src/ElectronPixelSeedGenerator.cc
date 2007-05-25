@@ -13,15 +13,15 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ElectronPixelSeedGenerator.cc,v 1.16 2006/10/25 08:51:54 uberthon Exp $
+// $Id: ElectronPixelSeedGenerator.cc,v 1.23 2007/04/03 09:13:59 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h" 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronPixelSeedGenerator.h" 
+
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h" 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h" 
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHits.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastHelix.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 
@@ -39,7 +39,7 @@
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -91,7 +91,7 @@ void ElectronPixelSeedGenerator::setupES(const edm::EventSetup& setup, const edm
 
 void  ElectronPixelSeedGenerator::run(edm::Event& e, const edm::Handle<reco::SuperClusterCollection> &clusters, reco::ElectronPixelSeedCollection & out){
 
-  theMeasurementTracker->update(e);
+  theMeasurementTracker->updatePixels(e);
   
   NavigationSetter setter(*theNavigationSchool);
 
@@ -158,6 +158,8 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
       if (valid) {
         reco::ElectronPixelSeed s(seedCluster,*pts_,recHits_,dir);
         result.push_back(s);
+	delete pts_;
+	pts_=0;
       }
     }
   }  
@@ -174,7 +176,11 @@ void ElectronPixelSeedGenerator::seedsFromThisCluster( edm::Ref<reco::SuperClust
     std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >::iterator v;
     for (v = posPixelHits.begin(); v != posPixelHits.end(); v++) {
       bool valid = prepareElTrackSeed((*v).first.recHit(),(*v).second,posVertex);
-      if (valid) result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+      if (valid) {
+	result.push_back(reco::ElectronPixelSeed(seedCluster,*pts_,recHits_,dir));
+	delete pts_;
+	pts_=0;
+      }
     }
   } 
 
@@ -190,6 +196,7 @@ bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] inner PixelHit   x,y,z "<<innerhit->globalPosition();
   LogDebug("") <<"[ElectronPixelSeedGenerator::prepareElTrackSeed] outer PixelHit   x,y,z "<<outerhit->globalPosition();
 
+  pts_=0;
   recHits_.clear();
     
   SiPixelRecHit *hit;
@@ -221,5 +228,4 @@ bool ElectronPixelSeedGenerator::prepareElTrackSeed(ConstRecHitPointer innerhit,
   pts_ =  transformer_.persistentState(updatedState_out, outerhit->geographicalId().rawId());
 
   return true;
-  
 }

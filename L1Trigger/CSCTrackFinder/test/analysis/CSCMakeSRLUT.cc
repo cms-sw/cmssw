@@ -1,15 +1,15 @@
-/** 
+/**
  *
  * Analyzer that writes LUTs.
  *
  *\author L. Gray (4/13/06)
- *   
+ *
  */
 
 #include <fstream>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -35,22 +35,22 @@ CSCMakeSRLUT::CSCMakeSRLUT(edm::ParameterSet const& conf)
   writeGlobalEta = conf.getUntrackedParameter<bool>("WriteGlobalEta",true);
   binary = conf.getUntrackedParameter<bool>("BinaryOutput",true);
   LUTparam = conf.getParameter<edm::ParameterSet>("lutParam");
-  
+
   //init Sector Receiver LUTs
   for(int e = CSCDetId::minEndcapId(); e <= CSCDetId::maxEndcapId(); ++e)
     for(int se = CSCTriggerNumbering::minTriggerSectorId(); se <= CSCTriggerNumbering::maxTriggerSectorId(); ++se)
       for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
-	{	
+	{
 	  if(st == 1)
 	    for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
-	      {		
+	      {
 		mySR[e-1][se-1][ss-1][st-1] = new CSCSectorReceiverLUT(e,se,ss,st,LUTparam);
 	      }
 	  else
 	    {
 	      mySR[e-1][se-1][0][st-1] = new CSCSectorReceiverLUT(e,se,0,st,LUTparam);
 	      mySR[e-1][se-1][1][st-1] = NULL; // Save space.
-	    }	  
+	    }
 	}
 }
 
@@ -60,8 +60,8 @@ CSCMakeSRLUT::~CSCMakeSRLUT()
     for(int se = CSCTriggerNumbering::minTriggerSectorId(); se <= CSCTriggerNumbering::maxTriggerSectorId(); ++se)
       for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
 	for(int st = CSCDetId::minStationId(); st <= CSCDetId::maxStationId(); ++st)
-	  {  
-	    if(mySR[e-1][se-1][ss-1][st-1]) 
+	  {
+	    if(mySR[e-1][se-1][ss-1][st-1])
 	      {
 		delete mySR[e-1][se-1][ss-1][st-1];
 		mySR[e-1][se-1][ss-1][st-1] = NULL;
@@ -69,7 +69,7 @@ CSCMakeSRLUT::~CSCMakeSRLUT()
 	  }
 }
 
-void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup) 
+void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 {
   edm::ESHandle<CSCGeometry> pDD;
 
@@ -115,7 +115,7 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
                               else GlobalPhiLUT << std::dec << thedata << std::endl;
 			    }
                           GlobalPhiLUT.close();
-			  
+
 			  // Write MB global phi LUTs
 
 			  fname = MBprefix + mySR[e-1][se-1][ss-1][st-1]->encodeFileIndex() + fileSuffix();
@@ -146,7 +146,7 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
                         }
                     }
     }
-  
+
 
   if(writeGlobalEta)
     {
@@ -161,10 +161,10 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		if(station == -1 || station == st)
 		  for(int ss = CSCTriggerNumbering::minTriggerSubSectorId(); ss <= CSCTriggerNumbering::maxTriggerSubSectorId(); ++ss)
 		    {
-		      
+
 		      unsigned short thedata;
 		      if(st == 1)
-			{		    
+			{
 			  std::string fname = prefix + mySR[e-1][se-1][ss-1][st-1]->encodeFileIndex() + fileSuffix();
 			  GlobalEtaLUT.open(fname.c_str());
 			  for(int i=0; i < 1 << CSCBitWidths::kGlobalEtaAddressWidth; ++i)
@@ -178,7 +178,7 @@ void CSCMakeSRLUT::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		      else
 			{
 			  if(ss == 1)
-			    {		
+			    {
 			      std::string fname = prefix + mySR[e-1][se-1][0][st-1]->encodeFileIndex() + fileSuffix();
 			      GlobalEtaLUT.open(fname.c_str());
 			      for(int i=0; i < 1<<CSCBitWidths::kGlobalEtaAddressWidth; ++i)

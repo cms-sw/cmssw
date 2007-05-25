@@ -8,8 +8,8 @@
  *   starting from Level-1 trigger seeds.
  *
  *
- *   $Date: 2007/02/01 18:06:57 $
- *   $Revision: 1.17 $
+ *   $Date: 2007/03/06 08:49:22 $
+ *   $Revision: 1.19 $
  *
  *   \author  R.Bellan - INFN TO
  */
@@ -22,7 +22,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // TrackFinder and Specific STA/L2 Trajectory Builder
@@ -32,8 +31,9 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include <string>
 
@@ -67,6 +67,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
   produces<reco::TrackCollection>("UpdatedAtVtx");
   produces<TrackingRecHitCollection>();
   produces<reco::TrackExtraCollection>();
+  produces<reco::TrackToTrackMap>();
 
   produces<std::vector<Trajectory> >();
 }

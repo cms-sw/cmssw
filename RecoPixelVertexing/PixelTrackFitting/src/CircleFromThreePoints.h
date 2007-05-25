@@ -1,8 +1,8 @@
 #ifndef CircleFromThreePoints_H
 #define CircleFromThreePoints_H
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/Basic2DVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 
 /** Computes the curvature (1/radius) and, if possible, the center
  *  of the circle passing through three points.

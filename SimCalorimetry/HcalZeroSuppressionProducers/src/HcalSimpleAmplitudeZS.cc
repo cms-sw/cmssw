@@ -1,8 +1,8 @@
 using namespace std;
-#include "SimCalorimetry/HcalZeroSuppressionProducers/interface/HcalSimpleAmplitudeZS.h"
+#include "SimCalorimetry/HcalZeroSuppressionProducers/src/HcalSimpleAmplitudeZS.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "DataFormats/Common/interface/EDCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -20,17 +20,24 @@ HcalSimpleAmplitudeZS::HcalSimpleAmplitudeZS(edm::ParameterSet const& conf):
   inputLabel_(conf.getParameter<edm::InputTag>("digiLabel"))
 {
   std::string subd=conf.getParameter<std::string>("Subdetector");
-  if (!strcasecmp(subd.c_str(),"HBHE")) {
-    subdet_=HcalBarrel;
+  if (!strcasecmp(subd.c_str(),"ALL")) {
+    subdets_.insert(HcalBarrel);
+    subdets_.insert(HcalOuter);
+    subdets_.insert(HcalForward);
+    produces<HBHEDigiCollection>();
+    produces<HODigiCollection>();
+    produces<HFDigiCollection>();
+  } else if (!strcasecmp(subd.c_str(),"HBHE")) {
+    subdets_.insert(HcalBarrel);
     produces<HBHEDigiCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
-    subdet_=HcalOuter;
+    subdets_.insert(HcalOuter);
     produces<HODigiCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
-    subdet_=HcalForward;
+    subdets_.insert(HcalForward);
     produces<HFDigiCollection>();
   } else {
-    throw cms::Exception("Configuration") << "HcalSimpleAmplitudeZS is not associated with a specific subdetector!";
+    throw cms::Exception("Configuration") << "HcalSimpleAmplitudeZS is not associated with a specific subdetector or with ALL!";
   }       
   
 }
@@ -44,7 +51,8 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
   
-  if (subdet_==HcalBarrel || subdet_==HcalEndcap) {
+  if (subdets_.find(HcalBarrel)!=subdets_.end() ||
+      subdets_.find(HcalEndcap)!=subdets_.end()) {
     edm::Handle<HBHEDigiCollection> digi;
     
     e.getByLabel(inputLabel_,digi);
@@ -53,12 +61,13 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
     std::auto_ptr<HBHEDigiCollection> zs(new HBHEDigiCollection);
     // run the algorithm
     algo_.suppress(*conditions,*(digi.product()),*zs);
-
+    
     edm::LogInfo("HcalZeroSuppression") << "Suppression (HBHE) input " << digi->size() << " digis, output " << zs->size() << " digis";
-
+    
     // return result
     e.put(zs);
-  } else if (subdet_==HcalOuter) {
+  } 
+  if (subdets_.find(HcalOuter)!=subdets_.end()) {
     edm::Handle<HODigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
     
@@ -71,7 +80,8 @@ void HcalSimpleAmplitudeZS::produce(edm::Event& e, const edm::EventSetup& eventS
 
     // return result
     e.put(zs);    
-  } else if (subdet_==HcalForward) {
+  } 
+  if (subdets_.find(HcalForward)!=subdets_.end()) {
     edm::Handle<HFDigiCollection> digi;
     e.getByLabel(inputLabel_,digi);
     

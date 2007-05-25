@@ -4,24 +4,27 @@
 /** \class TrackingRegion
  * The ABC class to define the region of interest for regional seeding
  */
-#include <utility>
-#include "Geometry/Vector/interface/GlobalVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+
+#include <vector>
 #include <string>
 
-//#include "CommonDet/BasicDet/interface/RecHit.h"
-//#include "CommonDet/DetLayout/interface/DetLayer.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
-//#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-//#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZCompatibility.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-//#include "CARF/Reco/interface/RecObj.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHit.h"
 
-//class TrackingRegion : public RecObj {
+
+class DetLayer;
+class TrackingRecHit;
+class HitRZCompatibility;
+namespace edm { class Event; class EventSetup; }
+
 class TrackingRegion{
 public:
 
@@ -45,37 +48,26 @@ public:
   /// minimal pt of interest 
   virtual float ptMin()  const = 0;
 
-  /// (signed) inverse pt range 
- /*  virtual Range  invPtRange() const = 0; */
+   /// get hits from layer compatible with region constraints 
+   virtual std::vector<ctfseeding::SeedingHit> hits(
+       const edm::Event& ev, 
+       const edm::EventSetup& es, 
+       const ctfseeding::SeedingLayer* layer) const = 0; 
 
-/*   /// get hits from layer compatible with region constraints */
-/*   virtual vector<RecHit> hits(const DetLayer* layer) const = 0; */
-
-
-
-
-
-
-/*   /// utility to check eta/theta hit compatibility with region constraints */
-/*   /// and outer hit constraint  */
-/*  virtual HitRZCompatibility * checkRZ( */
-/*       const DetLayer* layer, SiPixelRecHit  outerHit) const = 0; */
+   /// utility to check eta/theta hit compatibility with region constraints 
+   /// and outer hit constraint  */
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const TrackingRecHit*  outerHit,
 				       const edm::EventSetup& iSetup) const = 0;
+
   /// new region with updated vertex position 
   virtual TrackingRegion* restrictedRegion( const GlobalPoint &  originPos, 
       const float & originRBound, const float & originZBound) const = 0;
 
   /// clone region
       virtual TrackingRegion* clone() const = 0;
-
-  ///from RecObj
-  static std::string const & name() 
-    { static std::string local("TrackingRegion"); return local; }
-  virtual std::string const & getName() const {return name();}
-
   
+  virtual std::string name() const { return "TrackingRegion"; }
 };
 
 #endif

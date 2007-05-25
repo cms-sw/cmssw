@@ -3,7 +3,7 @@ using namespace std;
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
@@ -11,6 +11,7 @@ using namespace std;
 #include <iostream>
 
 HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
+  dataTag_(conf.getParameter<edm::InputTag>("InputLabel")),
   unpacker_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::getHcalFEDIds().first),conf.getParameter<int>("firstSample"),conf.getParameter<int>("lastSample")),
   filter_(conf.getParameter<bool>("FilterDataQuality"),conf.getParameter<bool>("FilterDataQuality"),
 	  false,
@@ -52,8 +53,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
 {
   // Step A: Get Inputs 
   edm::Handle<FEDRawDataCollection> rawraw;  
-  // edm::ProcessNameSelector s("PROD"); 
-  e.getByType(rawraw);           // HACK!
+  e.getByLabel(dataTag_,rawraw);
   // get the mapping
   edm::ESHandle<HcalDbService> pSetup;
   es.get<HcalDbRecord>().get( pSetup );

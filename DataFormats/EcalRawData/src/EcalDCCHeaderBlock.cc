@@ -2,7 +2,8 @@
 
 EcalDCCHeaderBlock::EcalDCCHeaderBlock()
 {
-  dccId_= -1;
+  dccId_ = -1; // initialize
+  fedId_ = -1; // initialize
   tccStatus_.reserve(MAX_TCC_SIZE);
   triggerTowerStatus_.reserve(MAX_TT_SIZE);
   dccErrors_=-1;
@@ -35,7 +36,8 @@ EcalDCCHeaderBlock::EcalDCCHeaderBlock()
 
 EcalDCCHeaderBlock::EcalDCCHeaderBlock(const int& dccId)
 {
-  dccId_=dccId;
+  dccId_ = dccId;
+  fedId_ = -1;  // initialize
   tccStatus_.reserve(MAX_TCC_SIZE);
   triggerTowerStatus_.reserve(MAX_TT_SIZE);
   dccErrors_=-1;

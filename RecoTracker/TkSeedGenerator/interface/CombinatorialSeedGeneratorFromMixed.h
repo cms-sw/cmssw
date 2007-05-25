@@ -27,7 +27,7 @@ class CombinatorialSeedGeneratorFromMixed : public SeedGeneratorFromLayerPairs {
 	    const SiStripRecHit2DCollection &collstereo ,
 	    const SiStripRecHit2DCollection &collrphi,
 	    const edm::EventSetup& c);
-  void  run(TrajectorySeedCollection &,const edm::EventSetup& c);
+  void  run(TrajectorySeedCollection &, const edm::EventSetup& c);
  private:
   //  edm::ParameterSet conf_;
   GlobalTrackingRegion region;

@@ -26,20 +26,21 @@ public:
       Range( -1/ptMin, 1/ptMin), originRadius, originHalfLength),
       thePrecise(precise) { }
 
+  virtual std::vector<ctfseeding::SeedingHit> hits(
+      const edm::Event& ev,  
+      const edm::EventSetup& es, 
+      const ctfseeding::SeedingLayer* layer) const;
+
  
-/*   virtual HitRZCompatibility* checkRZ( */
-/* 				      const DetLayer* layer, SiPixelRecHit outerHit) const; */
   virtual HitRZCompatibility * checkRZ(const DetLayer* layer,  
 				       const TrackingRecHit*  outerHit,
 				       const edm::EventSetup& iSetup) const;
+
   virtual GlobalTrackingRegion* clone() const { 
     return new GlobalTrackingRegion(*this);
   }
 
-  static std::string const & name() 
-    { static std::string local("GlobalTrackingRegion"); return local; }
-  virtual std::string const & getName() const {return name();}
-
+  virtual std::string name() const { return "GlobalTrackingRegion"; }
 
 private:
   bool  thePrecise;

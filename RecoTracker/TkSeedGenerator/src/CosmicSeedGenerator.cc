@@ -10,7 +10,7 @@
 #include "RecoTracker/TkSeedGenerator/interface/CosmicSeedGenerator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,7 +31,7 @@ CosmicSeedGenerator::CosmicSeedGenerator(edm::ParameterSet const& conf) :
 CosmicSeedGenerator::~CosmicSeedGenerator() { }  
 
 // Functions that gets called by framework every event
-void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
+void CosmicSeedGenerator::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   // get Inputs
   edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
@@ -39,17 +39,17 @@ void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
 
   edm::Handle<SiStripRecHit2DCollection> rphirecHits;
-  e.getByLabel( rphirecHitsTag, rphirecHits );
+  ev.getByLabel( rphirecHitsTag, rphirecHits );
   edm::Handle<SiStripRecHit2DCollection> stereorecHits;
-  e.getByLabel( stereorecHitsTag ,stereorecHits );
+  ev.getByLabel( stereorecHitsTag ,stereorecHits );
   edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits; 	 
-  e.getByLabel( matchedrecHitsTag ,matchedrecHits );
+  ev.getByLabel( matchedrecHitsTag ,matchedrecHits );
  
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection);
   //
  
-  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits,es);
+  cosmic_seed.init(*stereorecHits,*rphirecHits,*matchedrecHits, es);
  
   // invoke the seed finding algorithm
   cosmic_seed.run(*output,es);
@@ -58,5 +58,5 @@ void CosmicSeedGenerator::produce(edm::Event& e, const edm::EventSetup& es)
   LogDebug("Algorithm Performance")<<" number of seeds = "<< output->size();
 
 
-  e.put(output);
+  ev.put(output);
 }

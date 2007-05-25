@@ -3,12 +3,12 @@
 // Package:     L1Trigger
 // Class  :     L1JetParticle
 // 
-// Implementation:
-//     <Notes on implementation>
+/**\class L1JetParticle \file L1JetParticle.cc DataFormats/L1Trigger/src/L1JetParticle.cc \author Werner Sun
+*/
 //
 // Original Author:  Werner Sun
 //         Created:  Tue Jul 25 17:51:21 EDT 2006
-// $Id: L1JetParticle.cc,v 1.2 2006/08/02 14:22:33 wsun Exp $
+// $Id: L1JetParticle.cc,v 1.3 2006/08/10 18:47:42 wsun Exp $
 //
 
 // system include files

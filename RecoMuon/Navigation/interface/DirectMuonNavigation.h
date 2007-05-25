@@ -5,13 +5,13 @@
  *  do a straight line extrapolation to
  *  find out compatible DetLayers with a given FTS 
  *
- *  $Date: 2006/09/01 19:02:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2006/10/18 17:06:46 $
+ *  $Revision: 1.3 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -35,6 +35,11 @@ class DirectMuonNavigation{
     std::vector<const DetLayer*> 
       compatibleLayers( const FreeTrajectoryState& fts, 
                         PropagationDirection timeDirection) const;
+
+
+    std::vector<const DetLayer*>
+      compatibleEndcapLayers( const FreeTrajectoryState& fts,
+                              PropagationDirection timeDirection) const;
 
   private:
 

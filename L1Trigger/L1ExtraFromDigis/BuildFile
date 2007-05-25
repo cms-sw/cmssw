@@ -1,6 +1,7 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
+<use name=clhep>
 <use name=DataFormats/L1Trigger>
 <use name=DataFormats/L1GlobalTrigger>
 <use name=L1Trigger/L1Scales>
