@@ -1,9 +1,10 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.8 2007/05/09 21:53:26 fedor Exp $
+// $Id: Jet.cc,v 1.9 2007/05/17 23:47:34 fedor Exp $
 
 #include <sstream>
-#include "PhysicsTools/Utilities/interface/Math.h"
+#include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 //Own header file
 #include "DataFormats/JetReco/interface/Jet.h"
