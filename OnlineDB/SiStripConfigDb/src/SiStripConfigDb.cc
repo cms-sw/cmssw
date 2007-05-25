@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConfigDb.cc,v 1.30 2007/04/04 06:57:57 bainbrid Exp $
+// Last commit: $Id: SiStripConfigDb.cc,v 1.31 2007/05/25 13:08:15 bainbrid Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -608,11 +608,11 @@ void SiStripConfigDb::usingDatabase() {
   } catch (...) { 
     handleException( __func__, "Attempted to 'createInputDBAccess' for FED-FEC connections!" );
   }
-
+  
   try {
-     deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
-						 dbParams_.major_,
-						 dbParams_.minor_ );
+    deviceFactory(__func__)->setInputDBVersion( dbParams_.partition_,
+						dbParams_.major_,
+						dbParams_.minor_ );
   } catch (...) { 
     stringstream ss;
     ss << "Attempted to 'setInputDBVersion; for partition: " << dbParams_.partition_;
