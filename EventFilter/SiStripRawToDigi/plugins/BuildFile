@@ -17,5 +17,5 @@
   <use name=TkOnlineSw>
   <use name=boost>
   <use name=xdaq>
-  <flags SEALPLUGIN=1>
+  <flags EDM_PLUGIN=1>
 </library>
