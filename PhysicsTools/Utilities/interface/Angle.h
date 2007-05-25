@@ -11,7 +11,7 @@
  */
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "PhysicsTools/Utilities/interface/Math.h"
+#include "DataFormats/Math/interface/angle.h"
 
 template<typename T1, typename T2 = T1>
 struct Angle {
