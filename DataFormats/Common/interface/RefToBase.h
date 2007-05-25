@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.15 2007/05/16 22:31:59 paterno Exp $
+// $Id: RefToBase.h,v 1.16 2007/05/24 16:35:46 paterno Exp $
 //
 
 // system include files
@@ -281,7 +281,7 @@ namespace edm {
     void
     Holder<T,REF>::swap(Holder& other)
     {
-      swap(ref_, other.ref_);
+      std::swap(ref_, other.ref_);
     }
 
     template <class T, class REF>
