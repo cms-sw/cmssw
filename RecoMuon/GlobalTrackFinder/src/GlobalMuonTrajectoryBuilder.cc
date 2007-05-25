@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/05/09 19:32:07 $
- *  $Revision: 1.96 $
+ *  $Date: 2007/05/11 21:15:14 $
+ *  $Revision: 1.97 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -49,6 +49,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -228,7 +229,9 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       << " tracker Tracks with label "<< theTkTrackLabel;  
     if ( theTkTrajsAvailableFlag ) {
       event.getByLabel(theTkTrackLabel,handleTrackerTrajs);
-      allTrackerTrajs = &*handleTrackerTrajs;         
+      allTrackerTrajs = &*handleTrackerTrajs;  
+   
+      event.getByLabel(theTkTrackLabel,tkAssoMap);   
       if ( theFirstEvent ) LogInfo(category) << "Tk Trajectories Found! ";
     }
   }
@@ -356,6 +359,7 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
     //if( inEtaRange && inPhiRange ) {
     if(deltaR_tmp < deltaR) {
       TrackCand tmpCand = TrackCand(*is);
+      LogTrace("GlobalMuonTrajectoryBuilder") << "Adding Traj to Tk";
       addTraj(tmpCand);
       result.push_back(tmpCand);
     }
@@ -1159,19 +1163,23 @@ vector<GlobalMuonTrajectoryBuilder::TrackCand> GlobalMuonTrajectoryBuilder::make
     timerName = category + "::trackCollection";
     times.push(timerName);
     vector<TrackCand> tkTrackCands;
-    for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
-      reco::TrackRef tkTrackRef(allTrackerTracks,position);
-      TrackCand tkCand = TrackCand(0,tkTrackRef);
-      if ( theTkTrajsAvailableFlag ) {
-	timerName = category + "::addTrajectory";
-	times.push(timerName);
-	std::vector<Trajectory>::const_iterator it = allTrackerTrajs->begin()+position;
-	const Trajectory* trajRef(&*it);
-	if( trajRef->isValid() ) tkCand.first = trajRef;
-	times.pop();
-      } 
-      tkTrackCands.push_back(tkCand);          
+
+    if ( theTkTrajsAvailableFlag ) {
+      for(TrajTrackAssociationCollection::const_iterator it = tkAssoMap->begin(); it != tkAssoMap->end(); ++it){	
+	const Ref<vector<Trajectory> > traj = it->key;
+	const reco::TrackRef tk = it->val;
+	TrackCand tkCand = TrackCand(0,tk);
+	if( traj->isValid() ) tkCand.first = &*traj ;
+	tkTrackCands.push_back(tkCand);
+      }
+    } else {
+      for ( unsigned int position = 0; position != allTrackerTracks->size(); ++position ) {
+	reco::TrackRef tkTrackRef(allTrackerTracks,position);
+	TrackCand tkCand = TrackCand(0,tkTrackRef);
+	tkTrackCands.push_back(tkCand);          
+      }
     }
+
     timerName = category + "::chooseRegionalTrackerTracks";
     times.push(timerName);
     if(theMIMFlag && tkTrackCands.size() > 0 ) dataMonitor->fill1("cuts",4);

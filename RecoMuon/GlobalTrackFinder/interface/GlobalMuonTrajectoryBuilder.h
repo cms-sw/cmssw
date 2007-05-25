@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/04/26 19:28:42 $
- *  $Revision: 1.55 $
+ *  $Date: 2007/05/04 15:57:41 $
+ *  $Revision: 1.56 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -22,6 +22,8 @@
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
+
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 namespace edm {class Event;}
 
@@ -46,8 +48,6 @@ class TrackTransformer;
 class GlobalMuonRSTrajectoryBuilder;
 class TrajectoryFitter;
 class MuonTrackingRegionBuilder;
-//class CkfTrajectoryBuilder;
-
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -170,6 +170,7 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
     edm::ESHandle<TrajectoryFitter> theKFFitter;
+    edm::Handle<TrajTrackAssociationCollection> tkAssoMap;
 
     const std::vector<Trajectory>* allTrackerTrajs;
  
