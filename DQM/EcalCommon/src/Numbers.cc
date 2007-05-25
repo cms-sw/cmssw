@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.9 2007/05/24 13:04:56 benigno Exp $
+// $Id: Numbers.cc,v 1.10 2007/05/24 20:53:23 dellaric Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.9 $
-  \date $Date: 2007/05/24 13:04:56 $
+  \version $Revision: 1.10 $
+  \date $Date: 2007/05/24 20:53:23 $
 */
 
 #include <sstream>
@@ -94,16 +94,12 @@ std::string Numbers::sEE( int ism  ) throw( std::runtime_error ) {
 //-------------------------------------------------------------------------
 
 int Numbers::iSM( int ism ) throw( std::runtime_error ) {
+// the case ( ism > Numbers::maxSM ) is fixed in the EE code
   if( ism < 1 || ism > 36 ) {
     std::ostringstream s;
     s << "Wrong SM id determination: iSM = " << ism;
     throw( std::runtime_error( s.str() ) );
     return( -999 );
-  }
-
-// To be removed in a (short) future... 
-  if( ism > Numbers::maxSM ) {
-    return (Numbers::maxSM+1);
   }
 
   return( ism < (Numbers::maxSM/2+1) ? ism+Numbers::maxSM/2 : ism-Numbers::maxSM/2 ); 
