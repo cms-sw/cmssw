@@ -59,10 +59,6 @@ function FillModuleHistoList() {
             aobj.add(aoption, -1);
           }
         }
-	var cobj = document.getElementById("module_number_edit");
-   	if (cobj != null) {
-          cobj.value = aobj.options[0].value;
-        } 
         // Select the first option and set to editable text  
         var cobj = document.getElementById("module_number_edit");
         if (cobj != null) {
