@@ -2,6 +2,9 @@
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "IOVEditorImpl.h"
 #include "IOV.h"
+#include "POOLCore/Token.h"
+#include "DataSvc/RefBase.h"
+#include "StorageSvc/DbReflex.h"
 cond::IOVEditorImpl::IOVEditorImpl( cond::PoolStorageManager& pooldb,
 				    const std::string& token,
 				    cond::Time_t globalSince, 
@@ -23,7 +26,7 @@ void cond::IOVEditorImpl::insert( cond::Time_t tillTime,
 				  const std::string& payloadToken
 				  ){
   if(!m_isActive) this->init();
-  //fix me: throw if beyond global range!!! 
+  //fix me: throw if beyond global range! 
   m_iov->iov.insert(std::make_pair<cond::Time_t, std::string>(tillTime, payloadToken));
   if(m_token.empty()){
     m_iov.markWrite(cond::IOVNames::container());
@@ -65,9 +68,22 @@ void cond::IOVEditorImpl::append(  cond::Time_t sinceTime ,
   m_iov->iov.insert( std::make_pair((sinceTime-1),lastPayload) );
   m_iov.markUpdate();
 }
-void cond::IOVEditorImpl::deleteEntries(){
+void cond::IOVEditorImpl::deleteEntries(bool withPayload){
   if( m_token.empty() ) throw cond::Exception("cond::IOVEditorImpl::deleteEntries cannot delete to non-existing IOV index");
   if(!m_isActive) this->init();
+  if(withPayload){
+    std::string tokenStr;
+    std::map<cond::Time_t,std::string>::iterator payloadIt;
+    std::map<cond::Time_t,std::string>::iterator payloadItEnd=m_iov->iov.end();
+    for(payloadIt=m_iov->iov.begin();payloadIt!=payloadItEnd;++payloadIt){
+      tokenStr=payloadIt->second;
+      pool::Token token;
+      const pool::Guid& classID=token.fromString(tokenStr).classID();
+      pool::RefBase ref(&m_pooldb.DataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
+      ref.markDelete();
+      ref.reset();
+    }
+  }
   m_iov.markDelete();
 }
 void cond::IOVEditorImpl::import( const std::string& sourceIOVtoken ){

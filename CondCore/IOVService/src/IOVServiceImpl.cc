@@ -106,6 +106,7 @@ cond::IOVServiceImpl::deleteAll(bool withPayload){
 	const pool::Guid& classID=token.fromString(tokenStr).classID();
 	pool::RefBase ref(&m_pooldb.DataSvc(),tokenStr,pool::DbReflex::forGuid(classID).TypeInfo());
 	ref.markDelete();
+	ref.reset();
       }
     }
     it.dataRef().markDelete();

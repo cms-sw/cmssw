@@ -20,7 +20,7 @@ namespace cond{
     virtual void append(  cond::Time_t sinceTime,
 			  const std::string& payloadToken
 			  );
-    virtual void deleteEntries();
+    virtual void deleteEntries( bool withPayload=false );
     virtual void import( const std::string& sourceIOVtoken );
     std::string token() const {
       return m_token;
