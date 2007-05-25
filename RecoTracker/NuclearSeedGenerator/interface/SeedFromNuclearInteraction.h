@@ -29,15 +29,15 @@ public :
   /// Fill all data members from 2 TM's
   void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
 
-  PTrajectoryStateOnDet trajectoryState(){ return *pTraj; }
+  PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
 
   TSOS stateWithError(const TSOS& state) const;
 
-  PropagationDirection direction(){ return alongMomentum; }
+  PropagationDirection direction() const { return alongMomentum; }
 
-  recHitContainer hits(){ return _hits; }
+  recHitContainer hits() const { return _hits; }
 
-  TrajectorySeed TrajSeed(){ return TrajectorySeed(trajectoryState(),hits(),direction()); }
+  TrajectorySeed TrajSeed() const { return TrajectorySeed(trajectoryState(),hits(),direction()); }
  
   bool isValid() const { return isValid_; }
 
