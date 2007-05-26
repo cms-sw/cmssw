@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // EdmFileUtil.cpp
 //
-// $Id: EdmFileUtil.cpp,v 1.8 2007/03/04 06:24:11 wmtan Exp $
+// $Id: EdmFileUtil.cpp,v 1.9 2007/04/11 23:14:52 wmtan Exp $
 //
 // Author: Chih-hsiang Cheng, LLNL
 //         Chih-Hsiang.Cheng@cern.ch
@@ -26,6 +26,9 @@
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "TFile.h"
 
@@ -96,7 +99,17 @@ int main(int argc, char* argv[]) {
   }
 
   //dl  std::string datafile = vm["file"].as<std::string>(); 
-
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  } catch(cms::Exception& e) {
+    std::cout << "cms::Exception caught in "
+    <<"EdmFileUtil"
+    << '\n'
+    << e.what();
+    return 1;
+  }
+  
+  
   edm::RootAutoLibraryLoader::enable();
 
   int rc = 0;
