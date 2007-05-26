@@ -8,7 +8,7 @@
 //
 // Author:	Christophe Saout <christophe.saout@cern.ch>
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: MVAComputer.icc,v 1.2 2007/05/15 21:35:51 saout Exp $
+// $Id: MVAComputer.icc,v 1.3 2007/05/25 16:37:58 saout Exp $
 //
 
 
@@ -53,12 +53,12 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	// * count values in input variables and store in conf array
 	// * estimate maximal size of value array
 	unsigned int n = 0;
-	unsigned int max = 0;
+	unsigned int max = nVars;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());
 		conf[id + 1]++;
-		n++;
 		max += inputVariables[id].multiplicity;
+		n++;
 	}
 
 	// integrate entries conf array to compute value offsets
@@ -70,7 +70,7 @@ double MVAComputer::eval(Iterator_t first, Iterator_t last) const
 	}
 
 	// allocate value array and fill input variables
-	double *values = __TMP_ALLOC(max + nVars + 1, double);
+	double *values = __TMP_ALLOC(max + 1, double);
 	values[0] = 0.0;
 	for(Iterator_t cur = first; cur < last; ++cur) {
 		int id = getVariableId(cur->getName());

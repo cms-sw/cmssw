@@ -88,13 +88,15 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 		InputVar var;
 		var.var = Variable(iter->name, config[i].mask);
 		var.index = i;
-		var.multiplicity = config[i].origin;
 		variables.insert(var);
 	}
 
 	inputVariables.resize(i);
 	std::copy(variables.begin(), variables.end(),
 	          inputVariables.begin());
+
+	for(unsigned int j = 0; j < i; j++)
+		inputVariables[j].multiplicity = config[j].origin;
 }
 
 MVAComputer::~MVAComputer()
