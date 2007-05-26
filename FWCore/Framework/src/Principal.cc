@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.5 2007/05/10 12:27:03 wmtan Exp $
+  $Id: Principal.cc,v 1.6 2007/05/25 18:07:54 chrjones Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -22,7 +22,6 @@
 #include "FWCore/Utilities/interface/for_all.h"
 #include "FWCore/Framework/interface/Selector.h"
 
-using namespace std;
 using ROOT::Reflex::Type;
 
 //using boost::lambda::_1;
@@ -39,10 +38,9 @@ namespace edm {
     processConfiguration_(pc),
     processHistoryModified_(false),
     groups_(),
-    branchDict_(),
-    productDict_(),
     preg_(&reg),
-    store_(rtrv)
+    store_(rtrv),
+    size_(0)
   {
     if (processHistoryID_ != ProcessHistoryID()) {
       ProcessHistoryRegistry& history(*ProcessHistoryRegistry::instance());
@@ -50,7 +48,7 @@ namespace edm {
       bool found = history.getMapped(processHistoryID_, *processHistoryPtr_);
       assert(found);
     }
-    groups_.reserve(reg.productList().size());
+    groups_.resize(reg.maxID());
   }
 
   Principal::~Principal() {
@@ -58,52 +56,37 @@ namespace edm {
 
   Principal::size_type
   Principal::numEDProducts() const {
-    return groups_.size();
+    return size();
   }
    
   void 
-  Principal::addGroup(auto_ptr<Group> group) {
-    assert (!group->productDescription().className().empty());
-    assert (!group->productDescription().friendlyClassName().empty());
-    assert (!group->productDescription().moduleLabel().empty());
-    assert (!group->productDescription().processName().empty());
+  Principal::addGroup(std::auto_ptr<Group> group) {
+    BranchDescription const& bd = group->productDescription();
+    assert (!bd.className().empty());
+    assert (!bd.friendlyClassName().empty());
+    assert (!bd.moduleLabel().empty());
+    assert (!bd.processName().empty());
+    assert (bd.productID().isValid());
+    assert (bd.productID().id() <= groups_.size());
+    unsigned int index = bd.productID().id()-1;
     SharedGroupPtr g(group);
-
-    BranchKey const bk = BranchKey(g->productDescription());
-    //cerr << "addGroup DEBUG 2---> " << bk.friendlyClassName_ << endl;
-    //cerr << "addGroup DEBUG 3---> " << bk << endl;
-
-    BranchDict::iterator itFound = branchDict_.find(bk);
-    if (itFound != branchDict_.end()) {
-      if(groups_[itFound->second]->replace(*g)) {
-	return;
-      } else {
-	// the products are lost at this point!
+    if (groups_[index].get() != 0) {
+      if(!groups_[index]->replace(*g)) {
 	throw edm::Exception(edm::errors::InsertFailure,"AlreadyPresent")
 	  << "addGroup: Problem found while adding product provanence, "
 	  << "product already exists for ("
-	  << bk.friendlyClassName_ << ","
-	  << bk.moduleLabel_ << ","
-	  << bk.productInstanceName_ << ","
-	  << bk.processName_
+	  << bd.friendlyClassName() << ","
+	  << bd.moduleLabel() << ","
+	  << bd.productInstanceName() << ","
+	  << bd.processName()
 	  << ")\n";
       }
+    } else {
+      groups_[index] = g;
     }
-
-    // a memory allocation failure in modifying the product
-    // data structures will cause things to be out of sync
-    // we do not have any rollback capabilities as products 
-    // and the indices are updated
-
-    size_type slotNumber = groups_.size();
-    groups_.push_back(g);
-
-    branchDict_[bk] = slotNumber;
-
-    productDict_[g->productDescription().productID()] = slotNumber;
-
-    //cerr << "addGroup DEBUG 4---> " << bk.friendlyClassName_ << endl;
-
+    if (!g->onDemand()) {
+      ++size_;
+    }
   }
 
   void
@@ -137,8 +120,8 @@ namespace edm {
   }
 
   void 
-  Principal::put(auto_ptr<EDProduct> edp,
-		 auto_ptr<Provenance> prov) {
+  Principal::put(std::auto_ptr<EDProduct> edp,
+		 std::auto_ptr<Provenance> prov) {
 
     if (!prov->productID().isValid()) {
       throw edm::Exception(edm::errors::InsertFailure,"Null Product ID")
@@ -151,45 +134,38 @@ namespace edm {
 	<< "\n";
     }
     // Group assumes ownership
-    auto_ptr<Group> g(new Group(edp, prov));
+    std::auto_ptr<Group> g(new Group(edp, prov));
     this->addGroup(g);
     this->addToProcessHistory();
   }
 
   Principal::SharedConstGroupPtr const
-  Principal::getGroup(ProductID const& oid, bool resolve) const {
-    ProductDict::const_iterator i = productDict_.find(oid);
-    if (i == productDict_.end()) {
+  Principal::getGroup(ProductID const& oid, bool resolve, bool resolveProvenance, bool fillOnDemand) const {
+    unsigned int index = oid.id()-1;
+    if (index < 0 || index >= groups_.size() || groups_[index].get() == 0) {
       return SharedConstGroupPtr();
     }
-    size_type slotNumber = i->second;
-    assert(slotNumber < groups_.size());
-
-    SharedConstGroupPtr const& g = groups_[slotNumber];
-    this->resolveProvenance(*g);
-    if (resolve && g->productAvailable()) {
-      this->resolveProduct(*g);
+    SharedConstGroupPtr const& g = groups_[index];
+    if (resolveProvenance) {
+      this->resolveProvenance(*g);
+      if (resolve && g->productAvailable()) {
+        this->resolveProduct(*g, fillOnDemand);
+      }
     }
     return g;
   }
 
   BasicHandle
   Principal::get(ProductID const& oid) const {
-    if (oid == ProductID())
+    SharedConstGroupPtr const& g = getGroup(oid, true, true, true);
+    if (g.get() == 0) {
+      if (!oid.isValid()) {
+        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	  << "get by product ID: invalid ProductID supplied\n";
+      }
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "get by product ID: invalid ProductID supplied\n";
-
-    ProductDict::const_iterator i = productDict_.find(oid);
-    if (i == productDict_.end()) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "get by product ID: no product with given id: "<<oid<<"\n";
+	<< "get by product ID: no product with given id: "<< oid << "\n";
     }
-    size_type slotNumber = i->second;
-    assert(slotNumber < groups_.size());
-
-    SharedConstGroupPtr const& g = groups_[slotNumber];
-    this->resolveProvenance(*g);
-    this->resolveProduct(*g);
 
     // Check for case where we tried on demand production and
     // it failed to produce the object
@@ -228,8 +204,8 @@ namespace edm {
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType, 
-			string const& label,
-			string const& productInstanceName) const {
+			std::string const& label,
+			std::string const& productInstanceName) const {
 
     BasicHandleVec results;
 
@@ -261,9 +237,9 @@ namespace edm {
 
   BasicHandle
   Principal::getByLabel(TypeID const& productType,
-			string const& label,
-			string const& productInstanceName,
-			string const& processName) const
+			std::string const& label,
+			std::string const& productInstanceName,
+			std::string const& processName) const
   {
 
     BasicHandleVec results;
@@ -369,20 +345,15 @@ namespace edm {
 
   Provenance const&
   Principal::getProvenance(ProductID const& oid) const {
-    if (oid == ProductID())
+    SharedConstGroupPtr const& g = getGroup(oid, false, true, true);
+    if (g.get() == 0) {
+      if (!oid.isValid()) {
+        throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
+	  << "getProvenance: invalid ProductID supplied\n";
+      }
       throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "getProvenance: invalid ProductID supplied\n";
-
-    ProductDict::const_iterator i = productDict_.find(oid);
-    if (i == productDict_.end()) {
-      throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
-	<< "getProvenance: no product with given id : "<< oid <<"\n";
+	<< "getProvenance: no product with given id: "<< oid << "\n";
     }
-
-    size_type slotNumber = i->second;
-    assert(slotNumber < groups_.size());
-
-    SharedConstGroupPtr const& g = groups_[slotNumber];
 
     if (g->onDemand()) {
       unscheduledFill(*g);
@@ -394,7 +365,6 @@ namespace edm {
 	<< "getProvenance: no product with given ProductID: "<< oid <<"\n";
     }
 
-    this->resolveProvenance(*g);
     return g->provenance();
   }
 
@@ -402,9 +372,9 @@ namespace edm {
   // No attempt to trigger on demand execution
   // Skips provenance when the EDProduct is not there
   void
-  Principal::getAllProvenance(vector<Provenance const*> & provenances) const {
+  Principal::getAllProvenance(std::vector<Provenance const*> & provenances) const {
     provenances.clear();
-    for (Principal::const_iterator i = groups_.begin(), iEnd = groups_.end(); i != iEnd; ++i) {
+    for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       SharedConstGroupPtr g = *i;
       this->resolveProvenance(*g);
       if ((*i)->provenanceAvailable()) provenances.push_back(&(*i)->provenance());
@@ -471,18 +441,15 @@ namespace edm {
     // This is a vector of indexes into the productID vector
     // These indexes point to groups with desired process name (and
     // also type when this function is called from findGroups)
-    vector<ProductID> const& vindex = j->second;
+    std::vector<ProductID> const& vindex = j->second;
 
-    for (vector<ProductID>::const_iterator ib(vindex.begin()), ie(vindex.end());
+    for (std::vector<ProductID>::const_iterator ib(vindex.begin()), ie(vindex.end());
 	 ib != ie;
 	 ++ib) {
-      ProductDict::const_iterator itGID = productDict_.find(*ib);
-      if(itGID == productDict_.end() ) {
+      SharedConstGroupPtr const& group = getGroup(*ib, false, false, false);
+      if(group.get() == 0) {
         continue;
       }
-      int groupID = itGID->second;
-      assert(static_cast<unsigned>(groupID) < groups_.size());
-      SharedGroupPtr const& group = groups_[groupID];
 
       if (selector.match(group->provenance())) {
 
@@ -490,7 +457,7 @@ namespace edm {
 
 	// Skip product if not available.
         if (group->productAvailable()) {
-          this->resolveProduct(*group);
+          this->resolveProduct(*group, true);
           // Unscheduled execution can fail to produce the EDProduct so check
           if (!group->onDemand()) {
             // Found a good match, save it
@@ -503,7 +470,7 @@ namespace edm {
   }
 
   void
-  Principal::resolveProduct(Group const& g) const {
+  Principal::resolveProduct(Group const& g, bool fillOnDemand) const {
     if (!g.productAvailable()) {
       throw edm::Exception(errors::ProductNotFound,"InaccessibleProduct")
 	<< "resolve_: product is not accessible\n"
@@ -514,13 +481,13 @@ namespace edm {
 
     // Try unscheduled production.
     if (g.onDemand()) {
-      unscheduledFill(g);
+      if (fillOnDemand) unscheduledFill(g);
       return;
     }
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
+    std::auto_ptr<EDProduct> edp(store_->getProduct(bk, this));
 
     // Now fix up the Group
     g.setProduct(edp);
@@ -532,7 +499,7 @@ namespace edm {
 
     // must attempt to load from persistent store
     BranchKey const bk = BranchKey(g.productDescription());
-    auto_ptr<BranchEntryDescription> prov(store_->getProvenance(bk, this));
+    std::auto_ptr<BranchEntryDescription> prov(store_->getProvenance(bk, this));
 
     // Now fix up the Group
     g.setProvenance(prov);

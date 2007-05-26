@@ -16,9 +16,10 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.4 2007/05/10 12:27:03 wmtan Exp $
+$Id: Principal.h,v 1.5 2007/05/25 18:07:57 chrjones Exp $
 
 ----------------------------------------------------------------------*/
+#include <iterator>
 #include <list>
 #include <map>
 #include <memory>
@@ -48,7 +49,6 @@ namespace edm {
   class Principal : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
-    typedef GroupVec::const_iterator               const_iterator;
     typedef ProcessHistory::const_iterator         ProcessNameConstIterator;
     typedef boost::shared_ptr<const Group>         SharedConstGroupPtr;
     typedef std::vector<BasicHandle>               BasicHandleVec;
@@ -57,13 +57,34 @@ namespace edm {
     typedef boost::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
 
+    // We need a custom iterator to skip non-existent groups.
+    class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
+    public:
+      typedef GroupVec::value_type value_type;
+      typedef GroupVec::const_iterator Iter;
+      const_iterator(Iter const& it, Iter const& itEnd) : iter_(it), iterEnd_(itEnd) {}
+      value_type const& operator*() const { return *iter_; }
+      value_type const * operator->() const { return &*iter_; }
+      const_iterator & operator++() {
+        ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return *this;
+      }
+      const_iterator operator++(int) {
+        const_iterator it(*this); ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return it;
+      }
+      bool operator==(const_iterator const& rhs) const {return this->iter_ == rhs.iter_;}
+      bool operator!=(const_iterator const& rhs) const {return this->iter_ != rhs.iter_;}
+    private:
+      Iter iter_;
+      Iter iterEnd_;
+    };
+
     Principal(ProductRegistry const& reg,
 	      ProcessConfiguration const& pc,
               ProcessHistoryID const& hist = ProcessHistoryID(),
               boost::shared_ptr<DelayedReader> rtrv = boost::shared_ptr<DelayedReader>(new NoDelayedReader));
 
     virtual ~Principal();
-    size_t  size() const { return groups_.size(); }
+    size_t  size() const { return size_; }
 
     EDProductGetter const* prodGetter() const {return this;}
 
@@ -78,7 +99,9 @@ namespace edm {
 	     std::auto_ptr<Provenance> prov);
 
     SharedConstGroupPtr const getGroup(ProductID const& oid,
-                                       bool resolve = true) const;
+                                       bool resolve = true,
+                                       bool resolveProvenance = true,
+				       bool fillOnDemand = false) const;
 
     BasicHandle  get(ProductID const& oid) const;
 
@@ -122,8 +145,12 @@ namespace edm {
 
     // ----- access to all products
 
-    const_iterator begin() const { return groups_.begin(); }
-    const_iterator end() const { return groups_.end(); }
+    const_iterator begin() const {
+      GroupVec::const_iterator iter(groups_.begin());
+      while (iter != groups_.end() && iter->get() == 0) ++iter; 
+      return const_iterator(iter, groups_.end());
+    }
+    const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
 
     ProcessHistory const& processHistory() const;    
 
@@ -170,7 +197,7 @@ namespace edm {
     // a cache, and so can be modified through the const reference.
     // We do not change the *number* of groups through this call, and so
     // *this is const.
-    void resolveProduct(Group const& g) const;
+    void resolveProduct(Group const& g, bool fillOnDemand) const;
 
     // Make my DelayedReader get the BranchEntryDescription
     // for a group.
@@ -187,17 +214,6 @@ namespace edm {
     // A vector of groups.
     GroupVec groups_; // products and provenances are persistent
 
-    // indices used to quickly find a group in the vector groups_
-    // by branch (branch includes module label, instance name,
-    // friendly class name (type), and process name.
-    typedef std::map<BranchKey, int> BranchDict;
-    BranchDict branchDict_; // 1->1
-
-    // indices used to quickly find a group in the vector groups_
-    // by the product ID.  Each EDProduct has a unique product ID.
-    typedef std::map<ProductID, int> ProductDict;
-    ProductDict productDict_; // 1->1
-    
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
     ProductRegistry const* preg_;
@@ -205,6 +221,9 @@ namespace edm {
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store.
     boost::shared_ptr<DelayedReader> store_;
+
+    // Number of groups in the event (excluding on-demand groups not yet produced).
+    size_t size_;
   };
 }
 #endif
