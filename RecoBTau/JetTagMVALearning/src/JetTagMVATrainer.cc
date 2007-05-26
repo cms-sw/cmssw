@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <map>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -11,6 +12,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+
+#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -21,12 +24,16 @@
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 #include "RecoBTau/JetTagMVALearning/interface/JetTagMVATrainer.h"
 
+using namespace reco;
+using namespace PhysicsTools;
+
+static const AtomicId kJetPt(TaggingVariableTokens[btau::jetPt]);
+static const AtomicId kJetEta(TaggingVariableTokens[btau::jetEta]);
+
 JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
-	jetId(JetFlavourIdentifier(
-		params.getParameter<edm::ParameterSet>("jetIdParameters"))),
+	jetFlavour(params.getParameter<edm::InputTag>("jetFlavourMatching")),
 	tagInfo(params.getParameter<edm::InputTag>("tagInfo")),
 	calibrationLabel(params.getParameter<std::string>("calibrationRecord")),
 	minPt(params.getParameter<double>("minimumTransverseMomentum")),
@@ -46,17 +53,15 @@ JetTagMVATrainer::~JetTagMVATrainer()
 bool JetTagMVATrainer::updateComputer(const edm::EventSetup& es)
 {
 	// retrieve MVAComputer calibration container
-	edm::ESHandle<PhysicsTools::Calibration::MVAComputerContainer>
-								calibHandle;
+	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
 	es.get<BTauGenericMVAJetTagComputerRcd>().get("trainer", calibHandle);
-	const PhysicsTools::Calibration::MVAComputerContainer *calib =
-							calibHandle.product();
+	const Calibration::MVAComputerContainer *calib = calibHandle.product();
 
 	// check container for changes
 	if (mvaComputer.get() && calib->changed(containerCacheId)) {
 		containerCacheId = calib->getCacheId();
 
-		const PhysicsTools::Calibration::MVAComputer *computerCalib = 
+		const Calibration::MVAComputer *computerCalib = 
 						&calib->find(calibrationLabel);
 
 		if (!computerCalib) {
@@ -70,7 +75,7 @@ bool JetTagMVATrainer::updateComputer(const edm::EventSetup& es)
 	}
 
 	if (!mvaComputer.get()) {
-		const PhysicsTools::Calibration::MVAComputer *computerCalib = 
+		const Calibration::MVAComputer *computerCalib = 
 						&calib->find(calibrationLabel);
 
 		if (!computerCalib)
@@ -111,30 +116,43 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 	if (!updateComputer(es))
 		return;
 
-	// pass event to JetFlavourIdentifier
-	jetId.readEvent(event);
+	// retrieve jet flavours;
+	edm::Handle<JetFlavourMatchingCollection> jetFlavourHandle;
+	event.getByLabel(jetFlavour, jetFlavourHandle);
+
+	typedef std::map<CaloJetRef, unsigned int> Map_t;
+	Map_t flavours;
+	for(JetFlavourMatchingCollection::const_iterator iter =
+		jetFlavourHandle->begin(); iter != jetFlavourHandle->end(); iter++)
+		flavours.insert(*iter);
 
 	// retrieve JetTagInfos
-	edm::Handle< edm::View<reco::BaseTagInfo> > tagInfoHandle;
+	edm::Handle< edm::View<BaseTagInfo> > tagInfoHandle;
 	event.getByLabel(tagInfo, tagInfoHandle);
 
 	// cached array containing MVAComputer value list
-	std::vector<PhysicsTools::Variable::Value> values;
-	values.push_back(PhysicsTools::Variable::Value(
-				PhysicsTools::MVATrainer::kTargetId, 0));
+	std::vector<Variable::Value> values;
+	values.push_back(Variable::Value(MVATrainer::kTargetId, 0));
+	values.push_back(Variable::Value(kJetPt, 0));
+	values.push_back(Variable::Value(kJetEta, 0));
 
-	for(edm::View<reco::BaseTagInfo>::const_iterator iter =
+	for(edm::View<BaseTagInfo>::const_iterator iter =
 		tagInfoHandle->begin(); iter != tagInfoHandle->end(); iter++) {
 
-		double pt = iter->jet()->pt();
-		double eta = std::abs(iter->jet()->eta());
-		if (pt < minPt || eta < minEta || eta > maxEta)
+		edm::RefToBase<Jet> jet = iter->jet();
+
+		if (jet->pt() < minPt ||
+		    std::abs(jet->eta()) < minEta ||
+		    std::abs(jet->eta()) > maxEta)
 			continue;
 
 		// identify jet flavours
-		JetFlavour jetFlavour =
-				jetId.identifyBasedOnPartons(*iter->jet());
-		unsigned int flavour = jetFlavour.flavour();
+		Map_t::const_iterator pos =
+			flavours.find(jet.castTo<CaloJetRef>());
+		if (pos == flavours.end())
+			continue;
+
+		unsigned int flavour = pos->second;
 
 		// do not train with unknown jet flavours
 		if (isIgnoreFlavour(flavour))
@@ -143,17 +161,17 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 		// is it a b-jet?
 		bool target = isSignalFlavour(flavour);
 
-		reco::TaggingVariableList vars = iter->taggingVariables();
+		TaggingVariableList vars = iter->taggingVariables();
 
-		values.resize(1 + vars.size());
-		std::vector<PhysicsTools::Variable::Value>::iterator
-						insert = values.begin();
+		values.resize(3 + vars.size());
+		std::vector<Variable::Value>::iterator insert = values.begin();
 
 		(insert++)->value = target;
+		(insert++)->value = jet->pt();
+		(insert++)->value = jet->eta();
 		std::copy(mvaComputer->iterator(vars.begin()),
 		          mvaComputer->iterator(vars.end()), insert);
 
-		static_cast<PhysicsTools::MVAComputer*>(
-					mvaComputer.get())->eval(values);
+		static_cast<MVAComputer*>(mvaComputer.get())->eval(values);
 	}
 }

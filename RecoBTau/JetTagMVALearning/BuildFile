@@ -6,13 +6,12 @@
 <use name=PhysicsTools/MVATrainer>
 <use name=DataFormats/BTauReco>
 <use name=RecoBTau/JetTagComputer>
-<use name=RecoBTag/MCTools>
+<use name=SimDataFormats/JetMatching>
 <export>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
   <use name=CondFormats/PhysicsToolsObjects>
   <use name=RecoBTau/JetTagComputer>
-  <use name=RecoBTag/MCTools>
   <lib name=RecoBTauJetTagMVALearning>
 </export>
 

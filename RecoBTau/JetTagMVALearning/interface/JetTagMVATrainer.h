@@ -13,7 +13,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 class JetTagMVATrainer : public edm::EDAnalyzer {
     public:
@@ -29,7 +28,7 @@ class JetTagMVATrainer : public edm::EDAnalyzer {
 	bool isSignalFlavour(int flavour) const;
 	bool isIgnoreFlavour(int flavour) const;
 
-	JetFlavourIdentifier			jetId;
+	edm::InputTag				jetFlavour;
 	edm::InputTag				tagInfo;
 	std::string				calibrationLabel;
 	std::auto_ptr<GenericMVAComputer>	mvaComputer;
