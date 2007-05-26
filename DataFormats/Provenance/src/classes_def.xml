@@ -15,6 +15,7 @@
  <class name="edm::RunAux"/>
  <class name="edm::ProductRegistry">
    <field name="frozen_" transient="true"/>
+   <field name="maxID_" transient="true"/>
    <field name="constProductList_" transient="true"/>
    <field name="productLookup_" transient="true"/>
    <field name="elementLookup_" transient="true"/>

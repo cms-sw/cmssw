@@ -4,11 +4,11 @@
 
    \Original author Stefano ARGIRO
    \Current author Bill Tanenbaum
-   \version $Id: ProductRegistry.cc,v 1.3 2007/05/25 18:10:25 chrjones Exp $
+   \version $Id: ProductRegistry.cc,v 1.4 2007/05/25 23:18:33 wmtan Exp $
    \date 19 Jul 2005
 */
 
-static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.3 2007/05/25 18:10:25 chrjones Exp $";
+static const char CVSId[] = "$Id: ProductRegistry.cc,v 1.4 2007/05/25 23:18:33 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -50,14 +50,14 @@ namespace edm {
       }
     }
     frozen_ = true;
-    initializeConstProductList();
+    initializeTransients();
   }
   
   void
   ProductRegistry::setFrozen() const {
     if(frozen_) return;
     frozen_ = true;
-    initializeConstProductList();
+    initializeTransients();
   }
   
   void
@@ -117,16 +117,20 @@ namespace edm {
 	++j;
       }
     }
-    initializeConstProductList();
+    initializeTransients();
     return differences.str();
   }
 
-  void ProductRegistry::initializeConstProductList() const {
+  void ProductRegistry::initializeTransients() const {
     constProductList_.clear();
     productLookup_.clear();
     elementLookup_.clear();
     for (ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i) {
       constProductList_.insert(std::make_pair(i->first, ConstBranchDescription(i->second)));
+      if (i->second.productID().id() > maxID_) {
+        maxID_ = i->second.productID().id();    
+      }
+	
 
       ProcessLookup& processLookup = productLookup_[i->first.friendlyClassName_];
       std::vector<ProductID>& vint = processLookup[i->first.processName_];

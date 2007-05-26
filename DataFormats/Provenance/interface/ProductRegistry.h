@@ -7,7 +7,7 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.2 2007/05/10 22:46:54 wmtan Exp $
+   \version $Id: ProductRegistry.h,v 1.3 2007/05/25 18:10:22 chrjones Exp $
    \date 19 Jul 2005
 */
 
@@ -36,7 +36,14 @@ namespace edm {
   class ProductRegistry {
 
   public:
-    ProductRegistry() : productList_(), nextID_(1), frozen_(false) {}
+    ProductRegistry() : 
+      productList_(),
+      nextID_(1),
+      maxID_(0),
+      frozen_(false),
+      constProductList_(),
+      productLookup_(),
+      elementLookup_() {}
 
     virtual ~ProductRegistry() {}
 
@@ -74,6 +81,8 @@ namespace edm {
 
     void setNextID(unsigned int next) {nextID_ = next;}
 
+    unsigned int maxID() const {return maxID_;}
+
     const TypeLookup& productLookup() const {
       return productLookup_;
     }
@@ -99,7 +108,7 @@ namespace edm {
 
   private:
     
-    void initializeConstProductList() const;
+    void initializeTransients() const;
     virtual void addCalled(BranchDescription const&, bool iFromListener);
     void throwIfNotFrozen() const;
     void throwIfFrozen() const;
@@ -109,6 +118,7 @@ namespace edm {
     
     ProductList productList_;
     unsigned int nextID_;
+    mutable unsigned int maxID_;
     mutable bool frozen_;
     mutable ConstProductList constProductList_;
     
