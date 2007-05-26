@@ -332,6 +332,18 @@ void ProcTMVA::trainEnd()
 			file->cd();
 			tree->Write();
 
+			file->Close();
+			file.reset();
+			file = std::auto_ptr<TFile>(TFile::Open(
+				trainer->trainFileName(this, "root",
+				                       "input").c_str()));
+			if (!file.get())
+				throw cms::Exception("ProcTMVA")
+					<< "Could not open ROOT file for "
+					   "reading." << std::endl;
+			tree = dynamic_cast<TTree*>(
+					file->Get(getTreeName().c_str()));
+
 			runTMVATrainer();
 
 			file->Close();
