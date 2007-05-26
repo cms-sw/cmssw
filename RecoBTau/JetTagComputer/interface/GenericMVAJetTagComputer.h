@@ -13,16 +13,12 @@
 class GenericMVAJetTagComputer : public JetTagComputer
 {
  public:
-   GenericMVAJetTagComputer(const edm::ParameterSet & parameters) :
-	m_calibrationLabel(parameters.getParameter<std::string>("calibrationRecord")) {}
+   GenericMVAJetTagComputer(const edm::ParameterSet & parameters);
    virtual ~GenericMVAJetTagComputer() {}
 
    virtual void setEventSetup(const edm::EventSetup &es) const;
 
-   virtual float discriminator(const reco::BaseTagInfo &baseTag) const 
-    {
-      return m_mvaComputer->eval(baseTag.taggingVariables());
-    }
+   virtual float discriminator(const reco::BaseTagInfo &baseTag) const;
 
  private:
    std::string m_calibrationLabel;

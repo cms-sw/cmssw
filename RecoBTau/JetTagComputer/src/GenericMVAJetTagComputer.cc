@@ -8,10 +8,21 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "CondFormats/DataRecord/interface/BTauGenericMVAJetTagComputerRcd.h"
+#include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAJetTagComputer.h"
 
+using namespace reco;
 using namespace PhysicsTools;
+
+GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet & parameters) :
+	m_calibrationLabel(parameters.getParameter<std::string>("calibrationRecord")),
+	m_mvaComputerCacheId(Calibration::MVAComputer::CacheId()),
+	m_mvaContainerCacheId(Calibration::MVAComputerContainer::CacheId())
+{
+}
 
 void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 {
@@ -50,4 +61,15 @@ void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 
 		m_mvaComputerCacheId = computerCalib->getCacheId();
 	}
+}
+
+float GenericMVAJetTagComputer::discriminator(const BaseTagInfo &baseTag) const
+{
+	TaggingVariableList variables = baseTag.taggingVariables();
+	edm::RefToBase<Jet> jet = baseTag.jet();
+
+	variables.push_back(TaggingVariable(btau::jetPt, jet->pt()));
+	variables.push_back(TaggingVariable(btau::jetEta, jet->eta()));
+
+	return m_mvaComputer->eval(variables);
 }
