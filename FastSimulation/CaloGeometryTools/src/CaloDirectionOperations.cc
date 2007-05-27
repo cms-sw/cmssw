@@ -1,23 +1,23 @@
 #include "FastSimulation/CaloGeometryTools/interface/CaloDirectionOperations.h"
 
+
 CaloDirection CaloDirectionOperations::add2d(const CaloDirection& dir1, const CaloDirection & dir2)
 {
-  unsigned d1=Side(dir1);
-  unsigned d2=Side(dir2);
+  //  unsigned d1=Side(dir1);
+  //  unsigned d2=Side(dir2);
   static CaloDirection tab[4][4]={{NORTH,NORTHEAST,NONE,NORTHWEST},
 				  {NORTHEAST,EAST,SOUTHEAST,NONE},
 				  {NONE,SOUTHEAST,SOUTH,SOUTHWEST},
 				  {NORTHWEST,NONE,SOUTHWEST,WEST}};
-  return tab[d1][d2];
+  return tab[Side(dir1)][Side(dir2)];
 }
 
 CaloDirection CaloDirectionOperations::Side(unsigned i) 
 {
   static CaloDirection sides[6]={NORTH,EAST,SOUTH,WEST,UP,DOWN};
-  if(i<0||i>5) return DOWN;
+  //  if(i<0||i>5) return DOWN;
   return sides[i];
 }
-
 
 unsigned CaloDirectionOperations::neighbourDirection(const CaloDirection& side)
 {
@@ -59,10 +59,9 @@ unsigned CaloDirectionOperations::neighbourDirection(const CaloDirection& side)
 CaloDirection CaloDirectionOperations::neighbourDirection(unsigned i)
 {
   static CaloDirection sides[8]={NORTH,EAST,SOUTH,WEST,NORTHEAST,SOUTHEAST,SOUTHWEST,NORTHWEST};
-  if(i<0||i>7) return SOUTH;
+  //  if(i<0||i>7) return SOUTH;
   return sides[i];
 }
-
 
 
 unsigned CaloDirectionOperations::Side(const CaloDirection& side)
@@ -141,7 +140,7 @@ CaloDirection CaloDirectionOperations::oppositeSide(const CaloDirection& side)
 unsigned CaloDirectionOperations::oppositeDirection(unsigned iside)
 {
   static unsigned od[8]={2,3,0,1,6,7,4,5};
-  if(iside>=0&&iside<8) return od[iside];
-  return 999;
+  return od[iside];
+  //  if(iside>=0&&iside<8) return od[iside];
+  //  return 999;
 }
-

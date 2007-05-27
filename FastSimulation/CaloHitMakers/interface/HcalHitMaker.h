@@ -6,7 +6,9 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-#include "Math/GenVector/Transform3D.h"
+//#include "Math/GenVector/Transform3D.h"
+#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
+
 //#include <boost/cstdint.hpp>
 
 class CaloGeometryHelper;
@@ -17,7 +19,7 @@ class HcalHitMaker : public CaloHitMaker
  
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
-  typedef ROOT::Math::Transform3D Transform3D;
+  typedef ROOT::Math::Transform3DPJ Transform3D;
 
   HcalHitMaker(EcalHitMaker &, unsigned );
   ~HcalHitMaker() {;}
@@ -28,7 +30,7 @@ class HcalHitMaker : public CaloHitMaker
   /// add the hit in the HCAL
   bool addHit(double r,double phi,unsigned layer=0);
   
-   /// get the hits
+  // get the hits
   const std::map<uint32_t,float>& getHits() { return hitMap_ ;} ;
 
   /// set the depth in X0 or Lambda0 units depending on showerType

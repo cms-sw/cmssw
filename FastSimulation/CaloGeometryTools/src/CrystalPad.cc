@@ -50,17 +50,19 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
     }
   else
     {
+      corners_.reserve(4);
+      dir_.reserve(4);
       dummy_=false;
       double sign=(onEcal==1) ? -1.: 1.;
-      center_=Hep2Vector(0.,0.);
+      // center_=Hep2Vector(0.,0.);
 
       // the good one in the central
       trans_=Transform3D((Point)origin,
 			 (Point)(origin+vec1),
 			 (Point)(origin+vec2),
-			  Point(0.,0.,0.),
-			  Point(0.,0.,sign),
-			  Point(0.,1.,0.));
+			 Point(0.,0.,0.),
+			 Point(0.,0.,sign),
+			 Point(0.,1.,0.));
       trans_.GetDecomposition(rotation_,translation_);
       //      std::cout << " Constructor 2; input corners "  << std::endl;
       for(unsigned ic=0;ic<4;++ic)
@@ -68,13 +70,15 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 	  //	  std::cout << corners[ic]<< " " ;
 	  XYZPoint corner = rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
+	  //	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()));
 	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()));
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
 	{
-	  Hep2Vector tmp((corners_[(ic+1)%4]-corners_[ic]).unit());
-	  dir_.push_back(tmp);
+	  //	  Hep2Vector tmp();
+	  //	  dir_.push_back(tmp);
+	  dir_.push_back((corners_[(ic+1)%4]-corners_[ic]).unit());
 	}
       center_*=0.25;
     }  
@@ -101,7 +105,7 @@ CrystalPad::CrystalPad(unsigned number,
       dummy_=false;
       corners_.reserve(4);
       dir_.reserve(4);
-      center_=Hep2Vector(0.,0.);
+      //      center_=Hep2Vector(0.,0.);
       // the good one in the central
       trans_=trans;
       //      std::cout << " Constructor 2; input corners "  << std::endl;
@@ -116,8 +120,7 @@ CrystalPad::CrystalPad(unsigned number,
 	}
       for(unsigned ic=0;ic<4;++ic)
 	{
-	  Hep2Vector tmp((corners_[(ic+1)%4]-corners_[ic]).unit());
-	  dir_.push_back(tmp);
+	  dir_.push_back((corners_[(ic+1)%4]-corners_[ic]).unit());
 	}
       center_*=0.25;
     }  

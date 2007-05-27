@@ -142,7 +142,7 @@ class EcalHitMaker: public CaloHitMaker
 
  void hcalCellLine(std::vector<CaloPoint>& cp) const;
 
- void ecalCellLine(const XYZPoint&, const XYZPoint&,std::vector<CaloPoint>& cp) const; 
+ void ecalCellLine(const XYZPoint&, const XYZPoint&,std::vector<CaloPoint>& cp); 
 
  void buildSegments(const std::vector<CaloPoint>& cp);
 
@@ -277,6 +277,11 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CrystalPad> crackpadsatdepth_;
 
   bool hitmaphasbeencalculated_ ;
+
+  // A local vector of corners, to avoid reserving, newing and mallocing
+  std::vector<Hep2Vector> mycorners;
+  std::vector<XYZPoint> corners;
+
 
   const RandomEngine* random;
 

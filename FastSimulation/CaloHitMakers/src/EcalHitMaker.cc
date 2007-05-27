@@ -19,14 +19,15 @@
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 //#include "FastSimulation/Utilities/interface/Histos.h"
 
-#include "Math/GenVector/Transform3D.h"
+//#include "Math/GenVector/Transform3D.h"
+#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 
 #include <algorithm>
 #include <cmath>
 
 typedef ROOT::Math::Plane3D::Vector Vector;
 typedef ROOT::Math::Plane3D::Point Point;
-typedef ROOT::Math::Transform3D Transform3D;
+typedef ROOT::Math::Transform3DPJ Transform3D;
 
 EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
 			   const XYZPoint& ecalentrance, 
@@ -91,6 +92,10 @@ EcalHitMaker::EcalHitMaker(CaloGeometryHelper * theCalo,
   //  std::cout << " Geometry built " << regionOfInterest_.size() << std::endl;
 
   truncatedGrid_ = CellsWindow_.size()!=(etasize_*phisize_);
+
+  // A local vector of corners
+  mycorners.resize(4);
+  corners.resize(4);
   
 #ifdef DEBUGGW
   myHistos->fill("h10",EcalEntrance_.eta(),CellsWindow_.size());
@@ -559,10 +564,10 @@ EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
 }
 
 void 
-EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloPoint>& cp) const
+EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloPoint>& cp) 
 {
-  std::vector<XYZPoint> corners;
-  corners.resize(4);
+  //  std::vector<XYZPoint> corners;
+  //  corners.resize(4);
   unsigned ic=0;
   double t;
   XYZPoint xp;
@@ -973,8 +978,8 @@ EcalHitMaker::getPads(double depth)
 
       //      std::cout << " Origin " << origin << std::endl;
 
-      std::vector<XYZPoint> corners;
-      corners.reserve(4);
+      //      std::vector<XYZPoint> corners;
+      //      corners.reserve(4);
       double dummyt;
       bool hasbeenpulled=false;
       bool behindback=false;
@@ -1001,7 +1006,7 @@ EcalHitMaker::getPads(double depth)
 	  // check that the intersection actually exists 
 	  if(xx.mag2()!=0)
 	    {
-	      corners.push_back(xx);
+	      corners[il] = xx;
 	    }	  
 	}    
       //      std::cout << " ncorners " << corners.size() << std::endl;
@@ -1446,40 +1451,40 @@ EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
   CrystalPad & myPad = padsatdepth_[iq];
   for(unsigned ic=0;ic<ncracks;++ic)
     {
-      std::vector<Hep2Vector> mycorners;
-      mycorners.reserve(4);
+      //      std::vector<Hep2Vector> mycorners;
+      //      mycorners.reserve(4);
       switch(cracks[ic].first)
 	{
 	case NORTH:
 	  {
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
-	    mycorners.push_back(myPad.edge(NORTHEAST));
-	    mycorners.push_back(myPad.edge(NORTHWEST));
+	    mycorners[0] = (padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
+	    mycorners[1] = (padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
+	    mycorners[2] = (myPad.edge(NORTHEAST));
+	    mycorners[3] = (myPad.edge(NORTHWEST));
 	  }
 	  break;
 	case SOUTH:
 	  {
-	    mycorners.push_back(myPad.edge(SOUTHWEST));
-	    mycorners.push_back(myPad.edge(SOUTHEAST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHEAST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHWEST));
+	    mycorners[0] = (myPad.edge(SOUTHWEST));
+	    mycorners[1] = (myPad.edge(SOUTHEAST));
+	    mycorners[2] = (padsatdepth_[cracks[ic].second].edge(NORTHEAST));
+	    mycorners[3] = (padsatdepth_[cracks[ic].second].edge(NORTHWEST));
 	  }
 	  break;
 	case EAST:
 	  {
-	    mycorners.push_back(myPad.edge(NORTHEAST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHWEST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
-	    mycorners.push_back(myPad.edge(SOUTHEAST));
+	    mycorners[0] = (myPad.edge(NORTHEAST));
+	    mycorners[1] = (padsatdepth_[cracks[ic].second].edge(NORTHWEST));
+	    mycorners[2] = (padsatdepth_[cracks[ic].second].edge(SOUTHWEST));
+	    mycorners[3] = (myPad.edge(SOUTHEAST));
 	  }
 	  break;
 	case WEST:
 	  {
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(NORTHEAST));
-	    mycorners.push_back(myPad.edge(NORTHWEST));
-	    mycorners.push_back(myPad.edge(SOUTHWEST));
-	    mycorners.push_back(padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
+	    mycorners[0] = (padsatdepth_[cracks[ic].second].edge(NORTHEAST));
+	    mycorners[1] = (myPad.edge(NORTHWEST));
+	    mycorners[2] = (myPad.edge(SOUTHWEST));
+	    mycorners[3] = (padsatdepth_[cracks[ic].second].edge(SOUTHEAST));
 	  }
 	  break;
 	default:

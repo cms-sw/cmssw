@@ -5,8 +5,8 @@
 
 #include "CLHEP/Vector/TwoVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "Math/GenVector/Transform3D.h"
-
+//#include "Math/GenVector/Transform3D.h"
+#include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
 //C++ headers
 #include <vector>
 
@@ -17,8 +17,8 @@ class CrystalPad
 
   typedef math::XYZVector XYZVector;
   typedef math::XYZVector XYZPoint;
-  typedef ROOT::Math::Transform3D Transform3D;
-  typedef ROOT::Math::Transform3D::Point Point;
+  typedef ROOT::Math::Transform3DPJ Transform3D;
+  typedef ROOT::Math::Transform3DPJ::Point Point;
 
 
   CrystalPad() { dummy_ = true;};

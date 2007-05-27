@@ -43,12 +43,13 @@ CaloHitMaker::intersect(const Plane3D& p,const XYZPoint& a,const XYZPoint& b,
   double AAA = normal.X();
   double BBB = normal.Y();
   double CCC = normal.Z();
-  double DDD = p.Distance(Point(0.,0.,0.));
-  //  double denom = p.A()*(b.x()-a.x()) + p.B()*(b.y()-a.y()) + p.C()*(b.z()-a.z());
+  //  double DDD = p.Distance(Point(0.,0.,0.));
+  double DDD = p.HesseDistance();
+  //  double denom = p.A()*(b.X()-a.X()) + p.B()*(b.Y()-a.Y()) + p.C()*(b.Z()-a.Z());
   double denom = AAA*(b.X()-a.X()) + BBB*(b.Y()-a.Y()) + CCC*(b.Z()-a.Z());
   if(denom!=0.)
     {
-      // t=-(p.A()*a.x()+p.B()*a.y()+p.C()*a.z()+p.D());
+      // t=-(p.A()*a.X()+p.B()*a.Y()+p.C()*a.Z()+p.D());
       t=-(AAA*a.X()+BBB*a.Y()+CCC*a.Z()+DDD);
       t/=denom;
       if(debug) std::cout << " T = " << t <<std::endl; 
