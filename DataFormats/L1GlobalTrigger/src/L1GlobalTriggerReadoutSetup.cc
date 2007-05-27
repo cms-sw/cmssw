@@ -232,6 +232,41 @@ L1GlobalTriggerReadoutSetup::~L1GlobalTriggerReadoutSetup()
 
 }
 
+boost::uint16_t L1GlobalTriggerReadoutSetup::GtBoard::boardId() const
+{
+    boost::uint16_t boardIdValue = 0;
+    int boardHexName = 0;
+    int boardSlot = 0;
+
+    typedef std::map<L1GlobalTriggerReadoutSetup::GtBoard, int>::const_iterator CItBoardInt;
+    typedef std::map<GtBoardType, int>::const_iterator CItBoardTypeInt;
+
+    L1GlobalTriggerReadoutSetup tmpGtSetup; // TODO FIXME temporary event setup
+
+    std::map<GtBoardType, int> hexNameMap = tmpGtSetup.GtBoardHexNameMap;
+    std::map<L1GlobalTriggerReadoutSetup::GtBoard, int> slotMap = tmpGtSetup.GtBoardSlotMap;
+
+    CItBoardTypeInt itHex = hexNameMap.find(boardType);
+    if (itHex != hexNameMap.end()) {
+        boardHexName = itHex->second;
+    }
+
+    CItBoardInt itSlot = slotMap.find(*this);
+    if (itSlot != slotMap.end()) {
+        boardSlot = itSlot->second;
+    }
+
+    if (boardType == GTFE) {
+        boardIdValue = boardIdValue | boardSlot;
+    } else {
+        boardIdValue = boardIdValue | (boardHexName << 8) | boardSlot;
+    }
+
+
+    return boardIdValue;
+
+}
+
 bool L1GlobalTriggerReadoutSetup::GtBoard::operator< (
     const L1GlobalTriggerReadoutSetup::GtBoard& gtb) const
 {

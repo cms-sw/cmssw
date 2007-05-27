@@ -19,6 +19,7 @@
 
 // system include files
 #include <boost/cstdint.hpp>
+#include <iostream>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -209,6 +210,9 @@ public:
     /// reset the content of a L1GtPsbWord
     void reset();
 
+    /// pretty print
+    void print(std::ostream& myCout) const;
+
 private:
 
     // block description in the raw GT record
@@ -238,6 +242,7 @@ private:
 
     // assume uniform size od A_Data and B_Data
     static const int DataCHSize = 16; // bits
+    static const boost::uint64_t DataCHMask = 0x000000000000FFFFULL;
 
     // word 1
     static const int ADataCH0Word =  1;

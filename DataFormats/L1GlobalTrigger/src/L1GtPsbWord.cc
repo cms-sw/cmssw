@@ -18,10 +18,13 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 // system include files
+#include <iostream>
+#include <iomanip>
 #include <boost/cstdint.hpp>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 // constructors
@@ -257,20 +260,30 @@ void L1GtPsbWord::setAData(const boost::uint64_t& word64, int iWord)
 
     int sizeW64 = sizeof(word64)*8;
     int nSubWords = sizeW64/DataCHSize;
-    int dataMask = 2 << DataCHSize;
 
     if (iWord == ADataCH0Word) {
 
         for (int i = 0; i < nSubWords; ++i) {
             int dataShift = i*DataCHSize;
-            m_aData[i] = (word64 & (dataMask << dataShift)) >> dataShift;
+            m_aData[i] = (word64 & (DataCHMask << dataShift)) >> dataShift;
+
+            //            LogTrace("L1GtPsbWord")
+            //            << "\n  A_Data_CH" << i << " = "
+            //            << m_aData[i]
+            //            << std::endl;
+
         }
 
     } else if (iWord == ADataCH4Word) {
 
         for (int i = 0; i < nSubWords; ++i) {
             int dataShift = i*DataCHSize;
-            m_aData[i + nSubWords] = (word64 & (dataMask << dataShift)) >> dataShift;
+            m_aData[i + nSubWords] = (word64 & (DataCHMask << dataShift)) >> dataShift;
+
+            //            LogTrace("L1GtPsbWord")
+            //            << "\n  A_Data_CH" << i + nSubWords << " = "
+            //            << m_aData[i]
+            //            << std::endl;
         }
 
     }
@@ -342,20 +355,19 @@ void L1GtPsbWord::setBData(const boost::uint64_t& word64, int iWord)
 
     int sizeW64 = sizeof(word64)*8;
     int nSubWords = sizeW64/DataCHSize;
-    int dataMask = 2 << DataCHSize;
 
     if (iWord == BDataCH0Word) {
 
         for (int i = 0; i < nSubWords; ++i) {
             int dataShift = i*DataCHSize;
-            m_bData[i] = (word64 & (dataMask << dataShift)) >> dataShift;
+            m_bData[i] = (word64 & (DataCHMask << dataShift)) >> dataShift;
         }
 
     } else if (iWord == BDataCH4Word) {
 
         for (int i = 0; i < nSubWords; ++i) {
             int dataShift = i*DataCHSize;
-            m_bData[i + nSubWords] = (word64 & (dataMask << dataShift)) >> dataShift;
+            m_bData[i + nSubWords] = (word64 & (DataCHMask << dataShift)) >> dataShift;
         }
 
     }
@@ -437,6 +449,150 @@ void L1GtPsbWord::reset()
 
 }
 
+// pretty print
+void L1GtPsbWord::print(std::ostream& myCout) const
+{
+
+    myCout << "\n L1GtPsbWord::print \n" << std::endl;
+
+    myCout << "  Board Id:  "
+    << std::hex << " hex:     " << std::setw(4) << std::setfill('0') << m_boardId
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_boardId
+    << std::endl;
+    //
+
+    int baseValue = 16; // using hexadecimal values;
+    int hexBxInEvent = (m_bxInEvent + baseValue)%baseValue;
+
+    myCout << "  BxInEvent: "
+    << std::hex << " hex:     " << "   " << std::setw(1) << hexBxInEvent
+    << std::dec << " dec: " << m_bxInEvent
+    << std::endl;
+
+    myCout << "  BxNr:      "
+    << std::hex << " hex:     "  << " " << std::setw(3) << std::setfill('0') << m_bxNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_bxNr
+    << std::endl;
+
+
+    myCout << "  EventNr:   "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_eventNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_eventNr
+    << std::endl;
+
+    int sizeW64 = 64;
+    int dataBlocksPerLine = sizeW64/DataCHSize; // 4x16 bits per line
+
+    myCout << "\n        "
+    << "A_Data_CH3 "
+    << "A_Data_CH2 "
+    << "A_Data_CH1 "
+    << "A_Data_CH0 " << "\n"
+    << std::hex << "  hex:  " << std::setfill('0');
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(4) <<  m_aData[iCh] << "       ";
+
+    }
+
+    myCout << "\n"
+    << std::dec << "  dec:  ";
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(5) <<  m_aData[iCh] << "      ";
+
+    }
+
+    myCout << "\n\n        "
+    << "A_Data_CH7 "
+    << "A_Data_CH6 "
+    << "A_Data_CH5 "
+    << "A_Data_CH4 " << "\n"
+    << std::hex << "  hex:  " << std::setfill('0');
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(4) <<  m_aData[iCh + dataBlocksPerLine] << "       ";
+
+    }
+
+    myCout << "\n"
+    << std::dec << "  dec:  ";
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(5) <<  m_aData[iCh + dataBlocksPerLine] << "      ";
+
+    }
+
+    myCout << std::endl;
+
+    myCout << "\n        "
+    << "B_Data_CH3 "
+    << "B_Data_CH2 "
+    << "B_Data_CH1 "
+    << "B_Data_CH0 " << "\n"
+    << std::hex << "  hex:  " << std::setfill('0');
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(4) <<  m_bData[iCh] << "       ";
+
+    }
+
+    myCout << "\n"
+    << std::dec << "  dec:  ";
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(5) <<  m_bData[iCh] << "      ";
+
+    }
+
+    myCout << "\n\n        "
+    << "B_Data_CH7 "
+    << "B_Data_CH6 "
+    << "B_Data_CH5 "
+    << "B_Data_CH4 " << "\n"
+    << std::hex << "  hex:  " << std::setfill('0');
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(4) <<  m_bData[iCh + dataBlocksPerLine] << "       ";
+
+    }
+
+    myCout << "\n"
+    << std::dec << "  dec:  ";
+
+    for (int i = 0; i < dataBlocksPerLine; ++i) {
+
+        int iCh = dataBlocksPerLine - (i + 1); // reverse
+        myCout << std::setw(5) <<  m_bData[iCh + dataBlocksPerLine] << "      ";
+
+    }
+
+    myCout << "\n" << std::endl;
+
+    myCout << "  LocalBxNr: "
+    << std::hex << " hex:     "  << " " << std::setw(3) << std::setfill('0') << m_localBxNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_localBxNr
+    << std::endl;
+
+}
 // static class members
 const int L1GtPsbWord::NumberAData;
 const int L1GtPsbWord::NumberBData;

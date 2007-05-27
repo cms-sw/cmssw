@@ -93,6 +93,8 @@ public:
         GtBoardType boardType;
         int boardIndex;
         
+        boost::uint16_t boardId() const;
+        
         bool operator< (const GtBoard&) const; 
     };
 

@@ -23,6 +23,8 @@
 #include <vector>
 #include <iostream>
 
+#include <boost/cstdint.hpp>
+
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -79,17 +81,17 @@ public:
     /// get Global Trigger decision and the decision word
     ///   overloaded w.r.t. bxInEvent argument
     ///   bxInEvent not given: for bunch cross with L1Accept
-    const bool decision(int bxInEvent) const;
+    const bool decision(int bxInEventValue) const;
     const bool decision() const;
 
-    const DecisionWord decisionWord(int bxInEvent) const;
+    const DecisionWord decisionWord(int bxInEventValue) const;
     const DecisionWord decisionWord() const;
   
     /// set global decision and the decision word
-    void setDecision(const bool& t, int bxInEvent);
+    void setDecision(const bool& t, int bxInEventValue);
     void setDecision(const bool& t);
 
-    void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEvent);
+    void setDecisionWord(const DecisionWord& decisionWordValue, int bxInEventValue);
     void setDecisionWord(const DecisionWord& decisionWordValue);
 
     /// print global decision and algorithm decision word
@@ -125,62 +127,62 @@ public:
     void setMuCollectionRefProd(edm::Handle<L1MuGMTReadoutCollection>&);
     void setMuCollectionRefProd(const edm::RefProd<L1MuGMTReadoutCollection>&);    
     
-    const L1MuGMTExtendedCand muonCand(unsigned int indexCand, int bxInEvent) const;
+    const L1MuGMTExtendedCand muonCand(unsigned int indexCand, int bxInEventValue) const;
     const L1MuGMTExtendedCand muonCand(unsigned int indexCand) const;
 
-    std::vector<L1MuGMTExtendedCand> muonCands(int bxInEvent) const;
+    std::vector<L1MuGMTExtendedCand> muonCands(int bxInEventValue) const;
     std::vector<L1MuGMTExtendedCand> muonCands() const;
 
     /// electron
 
-    const L1GctEmCand electronCand(unsigned int indexCand, int bxInEvent) const;
+    const L1GctEmCand electronCand(unsigned int indexCand, int bxInEventValue) const;
     const L1GctEmCand electronCand(unsigned int indexCand) const;
 
-    std::vector<L1GctEmCand> electronCands(int bxInEvent) const;
+    std::vector<L1GctEmCand> electronCands(int bxInEventValue) const;
     std::vector<L1GctEmCand> electronCands() const;
 
     /// isolated electron
-    const L1GctEmCand isolatedElectronCand(unsigned int indexCand, int bxInEvent) const;
+    const L1GctEmCand isolatedElectronCand(unsigned int indexCand, int bxInEventValue) const;
     const L1GctEmCand isolatedElectronCand(unsigned int indexCand) const;
 
-    std::vector<L1GctEmCand> isolatedElectronCands(int bxInEvent) const;
+    std::vector<L1GctEmCand> isolatedElectronCands(int bxInEventValue) const;
     std::vector<L1GctEmCand> isolatedElectronCands() const;
 
     /// central jet
-    const L1GctJetCand centralJetCand(unsigned int indexCand, int bxInEvent) const;
+    const L1GctJetCand centralJetCand(unsigned int indexCand, int bxInEventValue) const;
     const L1GctJetCand centralJetCand(unsigned int indexCand) const;
 
-    std::vector<L1GctJetCand> centralJetCands(int bxInEvent) const;
+    std::vector<L1GctJetCand> centralJetCands(int bxInEventValue) const;
     std::vector<L1GctJetCand> centralJetCands() const;
 
     /// forward jet
-    const L1GctJetCand forwardJetCand(unsigned int indexCand, int bxInEvent) const;
+    const L1GctJetCand forwardJetCand(unsigned int indexCand, int bxInEventValue) const;
     const L1GctJetCand forwardJetCand(unsigned int indexCand) const;
 
-    std::vector<L1GctJetCand> forwardJetCands(int bxInEvent) const;
+    std::vector<L1GctJetCand> forwardJetCands(int bxInEventValue) const;
     std::vector<L1GctJetCand> forwardJetCands() const;
 
     /// tau jet
-    const L1GctJetCand tauJetCand(unsigned int indexCand, int bxInEvent) const;
+    const L1GctJetCand tauJetCand(unsigned int indexCand, int bxInEventValue) const;
     const L1GctJetCand tauJetCand(unsigned int indexCand) const;
 
-    std::vector<L1GctJetCand> tauJetCands(int bxInEvent) const;
+    std::vector<L1GctJetCand> tauJetCands(int bxInEventValue) const;
     std::vector<L1GctJetCand> tauJetCands() const;
 
     /// missing Et
-    const L1GctEtMiss missingEt(int bxInEvent) const;
+    const L1GctEtMiss missingEt(int bxInEventValue) const;
     const L1GctEtMiss missingEt() const;
 
     /// total Et
-    const L1GctEtTotal totalEt(int bxInEvent) const;
+    const L1GctEtTotal totalEt(int bxInEventValue) const;
     const L1GctEtTotal totalEt() const;
 
     /// total calibrated Et in jets
-    const L1GctEtHad totalHt(int bxInEvent) const;
+    const L1GctEtHad totalHt(int bxInEventValue) const;
     const L1GctEtHad totalHt() const;
 
     /// jet counts
-    const L1GctJetCounts jetCounts(int bxInEvent) const;
+    const L1GctJetCounts jetCounts(int bxInEventValue) const;
     const L1GctJetCounts jetCounts() const;
   
     /// set candidate data words (all non-empty candidates)
@@ -189,43 +191,43 @@ public:
   
     /// muon
 
-    void setMuons(const std::vector<MuonDataWord>&, int bxInEvent);
+    void setMuons(const std::vector<MuonDataWord>&, int bxInEventValue);
     void setMuons(const std::vector<MuonDataWord>&);
 
     /// electron
-    void setElectrons(const std::vector<CaloDataWord>&, int bxInEvent);
+    void setElectrons(const std::vector<CaloDataWord>&, int bxInEventValue);
     void setElectrons(const std::vector<CaloDataWord>&);
   
     /// isolated electron
-    void setIsolatedElectrons(const std::vector<CaloDataWord>&, int bxInEvent); 
+    void setIsolatedElectrons(const std::vector<CaloDataWord>&, int bxInEventValue); 
     void setIsolatedElectrons(const std::vector<CaloDataWord>&); 
   
     /// central jets
-    void setCentralJets(const std::vector<CaloDataWord>&, int bxInEvent); 
+    void setCentralJets(const std::vector<CaloDataWord>&, int bxInEventValue); 
     void setCentralJets(const std::vector<CaloDataWord>&); 
   
     /// forward jets
-    void setForwardJets(const std::vector<CaloDataWord>&, int bxInEvent);
+    void setForwardJets(const std::vector<CaloDataWord>&, int bxInEventValue);
     void setForwardJets(const std::vector<CaloDataWord>&);
   
     /// tau jets
-    void setTauJets(const std::vector<CaloDataWord>&, int bxInEvent);
+    void setTauJets(const std::vector<CaloDataWord>&, int bxInEventValue);
     void setTauJets(const std::vector<CaloDataWord>&);
   
     /// missing Et
-    void setMissingEt(const CaloMissingEtWord&, int bxInEvent);
+    void setMissingEt(const CaloMissingEtWord&, int bxInEventValue);
     void setMissingEt(const CaloMissingEtWord&);
   
     /// total Et
-    void setTotalEt(const CaloDataWord&, int bxInEvent);
+    void setTotalEt(const CaloDataWord&, int bxInEventValue);
     void setTotalEt(const CaloDataWord&);
 
     /// total calibrated Et
-    void setTotalHt(const CaloDataWord&, int bxInEvent);
+    void setTotalHt(const CaloDataWord&, int bxInEventValue);
     void setTotalHt(const CaloDataWord&);
   
     /// jet count
-    void setJetCounts(const CaloJetCountsWord&, int bxInEvent);
+    void setJetCounts(const CaloJetCountsWord&, int bxInEventValue);
     void setJetCounts(const CaloJetCountsWord&);
 
     
@@ -245,18 +247,18 @@ public:
     void setGtfeWord(const L1GtfeWord&);
 
     /// get / set FDL word (record) in the GT readout record
-    const L1GtFdlWord gtFdlWord(int bxInEvent) const;
+    const L1GtFdlWord gtFdlWord(int bxInEventValue) const;
     const L1GtFdlWord gtFdlWord() const;
 
-    void setGtFdlWord(const L1GtFdlWord&, int bxInEvent);
+    void setGtFdlWord(const L1GtFdlWord&, int bxInEventValue);
     void setGtFdlWord(const L1GtFdlWord&);
 
     /// get / set PSB word (record) in the GT readout record
-    const L1GtPsbWord gtPsbWord(int bxInEvent) const;
-    const L1GtPsbWord gtPsbWord() const;
+    const L1GtPsbWord gtPsbWord(boost::uint16_t boardIdValue, int bxInEventValue) const;
+    const L1GtPsbWord gtPsbWord(boost::uint16_t boardIdValue) const;
 
-    void setGtPsbWord(const L1GtPsbWord&, int bxInEvent);
-    void setGtPsbWord(const L1GtPsbWord&);
+    void setGtPsbWord(const L1GtPsbWord&, boost::uint16_t boardIdValue, int bxInEventValue);
+    void setGtPsbWord(const L1GtPsbWord&, boost::uint16_t boardIdValue);
 
     // other methods
     
