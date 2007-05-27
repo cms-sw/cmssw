@@ -221,6 +221,7 @@ void ESUnpacker::word2digi(int kchip, const Word64 & word, ESDigiCollection & di
 
   ESDetId detId(strip+1, ix, iy, plane, zside);
   ESDataFrame df(detId);
+  df.setSize(3);
 
   for (int i=0; i<3; i++) df.setSample(i, adc[i]);  
 
