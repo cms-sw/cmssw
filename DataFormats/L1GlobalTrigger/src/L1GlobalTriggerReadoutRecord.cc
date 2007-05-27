@@ -1122,8 +1122,9 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(
 
         if ( (*itBx).bxInEvent() == bxInEventValue ) {
             *itBx = gtFdlWordValue;
-            LogDebug("L1GlobalTriggerReadoutRecord")
-            << "Replacing L1GtFdlWord for bunch bxInEvent = " << bxInEventValue << "\n"
+            LogTrace("L1GlobalTriggerReadoutRecord")
+            << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bunch bxInEvent = " 
+            << bxInEventValue << "\n"
             << std::endl;
             return;
         }
@@ -1199,8 +1200,8 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
 
             *itBx = gtPsbWordValue;
 
-            LogDebug("L1GlobalTriggerReadoutRecord")
-            << "\nReplacing L1GtPsbWord with boardId = "
+            LogTrace("L1GlobalTriggerReadoutRecord")
+            << "\nL1GlobalTriggerReadoutRecord: replacing L1GtPsbWord with boardId = "
             << std::hex << boardIdValue << std::dec
             << " and bunch bxInEvent = " << bxInEventValue
             << "\n"
@@ -1221,8 +1222,9 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
 
             *itBx = gtPsbWordValue;
 
-            LogDebug("L1GlobalTriggerReadoutRecord")
-            << "\nFilling an empty L1GtPsbWord for PSB with boardId = "
+            LogTrace("L1GlobalTriggerReadoutRecord")
+            << "\nL1GlobalTriggerReadoutRecord: filling an empty L1GtPsbWord" 
+            << " for PSB with boardId = "
             << std::hex << boardIdValue << std::dec
             << " and bunch bxInEvent = " << bxInEventValue
             << "\n"

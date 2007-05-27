@@ -186,6 +186,9 @@ public:
     /// reset the content of a L1GtfeWord
     void reset();
 
+    /// pretty print the content of a L1GtfeWord
+    void print(std::ostream& myCout) const;
+
 private:
 
     // block description in the raw GT record

@@ -18,6 +18,9 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtfeWord.h"
 
 // system include files
+#include <iostream>
+#include <iomanip>
+#include <boost/cstdint.hpp>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -172,7 +175,7 @@ void L1GtfeWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
 }
 
 
-// set the SetupVersion value from a 64-bits word, 
+// set the SetupVersion value from a 64-bits word,
 // having the index iWord in the GTFE raw record
 void L1GtfeWord::setSetupVersion(const boost::uint64_t& word64, int iWord)
 {
@@ -194,7 +197,7 @@ void L1GtfeWord::setSetupVersionWord64(boost::uint64_t& word64, int iWord)
 
 }
 
-// set the ActiveBoards value from a 64-bits word, 
+// set the ActiveBoards value from a 64-bits word,
 // having the index iWord in the GTFE raw record
 void L1GtfeWord::setActiveBoards(const boost::uint64_t& word64, int iWord)
 {
@@ -264,6 +267,51 @@ void L1GtfeWord::reset()
     m_totalTriggerNr = 0;
 }
 
+// pretty print the content of a L1GtfeWord
+void L1GtfeWord::print(std::ostream& myCout) const
+{
+
+    myCout << "\n L1GtfeWord::print \n" << std::endl;
+
+    myCout << "  BoardId:        "
+    << std::hex << " hex: " << "      " << std::setw(2) << std::setfill('0') << m_boardId
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_boardId
+    << std::endl;
+
+    myCout << "  RecordLength:   "
+    << std::hex << " hex: " << "       " << std::setw(1) <<  m_recordLength
+    << std::dec << " dec: " <<  m_recordLength
+    << std::endl;
+
+    myCout << "  BxNr:           "
+    << std::hex << " hex: "  << "     " << std::setw(3) << std::setfill('0') << m_bxNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_bxNr
+    << std::endl;
+
+    myCout << "  SetupVersion:   "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_setupVersion
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_setupVersion
+    << std::endl;
+
+    //
+
+    myCout << "  ActiveBoards:   "
+    << std::hex << " hex: " << "    " << std::setw(4) << std::setfill('0') << m_activeBoards
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_activeBoards
+    << std::endl;
+
+    myCout << "  TotalTriggerNr: "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_totalTriggerNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_totalTriggerNr
+    << std::endl;
+
+
+}
 
 // static class members
 const int L1GtfeWord::BlockSize;        // 2 x 64bits
