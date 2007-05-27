@@ -207,7 +207,6 @@ void SiStripRecHitsCompare()
   Strip3->Print("ErrxTIBCompare.eps");
   Strip3->Print("ErrxTIBCompare.gif");
   
-  /*
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer1tib",restib[0]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer2tib",restib[1]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Res_rphi_layer3tib",restib[2]);
@@ -239,7 +238,7 @@ void SiStripRecHitsCompare()
   
   Strip4->Print("ResTIBCompare.eps");
   Strip4->Print("ResTIBCompare.gif");
-  */
+
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer1tib",pulltib[0]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer2tib",pulltib[1]);
  rfile->GetObject("DQMData/TrackerRecHits/Strip/TIB/Pull_MF_rphi_layer3tib",pulltib[2]);
