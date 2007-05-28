@@ -47,5 +47,4 @@ void SeedGeneratorFromRegionHits::run(TrajectorySeedCollection & seedCollection,
       }
     }
   }
-  std::cout <<" number of seeds: " << seedCollection.size() << std::endl; 
 }
