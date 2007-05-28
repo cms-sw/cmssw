@@ -175,6 +175,7 @@ double EcalCoder::decode(const EcalMGPASample & sample, const DetId & id) const
 {
   double Emax = fullScaleEnergy(id); 
   int gainNumber  = sample.gainId();
+  if(gainNumber==0){gainNumber=3;}
   assert( gainNumber >=1 && gainNumber <=3);
   double gains[NGAINS+1];
   findGains(id, gains);
