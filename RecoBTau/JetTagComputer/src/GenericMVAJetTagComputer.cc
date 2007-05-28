@@ -17,59 +17,70 @@
 using namespace reco;
 using namespace PhysicsTools;
 
-GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet & parameters) :
-	m_calibrationLabel(parameters.getParameter<std::string>("calibrationRecord")),
-	m_mvaComputerCacheId(Calibration::MVAComputer::CacheId()),
-	m_mvaContainerCacheId(Calibration::MVAComputerContainer::CacheId())
+static std::vector<std::string>
+getCalibrationLabels(const edm::ParameterSet &params,
+                     std::auto_ptr<TagInfoMVACategorySelector> &selector)
+{
+	if (params.getParameter<bool>("useCategories")) {
+		selector = std::auto_ptr<TagInfoMVACategorySelector>(
+				new TagInfoMVACategorySelector(params));
+
+		return selector->getCategoryLabels();
+	} else {
+		std::string calibrationRecord =
+			params.getParameter<std::string>("calibrationRecord");
+
+		std::vector<std::string> calibrationLabels;
+		calibrationLabels.push_back(calibrationRecord);
+		return calibrationLabels;
+	}
+}
+
+GenericMVAJetTagComputer::GenericMVAJetTagComputer(
+					const edm::ParameterSet &params) :
+	computerCache(getCalibrationLabels(params, categorySelector))
+{
+}
+
+GenericMVAJetTagComputer::~GenericMVAJetTagComputer()
 {
 }
 
 void GenericMVAJetTagComputer::setEventSetup(const edm::EventSetup &es) const
 {
-	// Check cacheId of the ES stuff or if m_mvaComputer is null
-	// if needed create a new m_mvaComputer with update calib
-
 	// retrieve MVAComputer calibration container
 	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
 	es.get<BTauGenericMVAJetTagComputerRcd>().get(calibHandle);
 	const Calibration::MVAComputerContainer *calib = calibHandle.product();
 
-	// check container for changes
-	if (m_mvaComputer.get() && calib->changed(m_mvaContainerCacheId)) {
-		const Calibration::MVAComputer *computerCalib = 
-					&calib->find(m_calibrationLabel);
-
-		// check container content for changes
-		if (computerCalib->changed(m_mvaComputerCacheId))
-			m_mvaComputer.reset();
-
-		m_mvaContainerCacheId = calib->getCacheId();
-	}
-
-	if (!m_mvaComputer.get()) {
-		const Calibration::MVAComputer *computerCalib = 
-					&calib->find(m_calibrationLabel);
-
-		if (!computerCalib)
-			throw cms::Exception("GenericMVAJetTagComputer")
-				<< "No training calibration obtained for "
-				<< m_calibrationLabel << std::endl;
-
-		// instantiate new MVAComputer with uptodate calibration
-		m_mvaComputer = std::auto_ptr<GenericMVAComputer>(
-					new GenericMVAComputer(computerCalib));
-
-		m_mvaComputerCacheId = computerCalib->getCacheId();
-	}
+	// check for updates
+	computerCache.update(calib);
 }
 
 float GenericMVAJetTagComputer::discriminator(const BaseTagInfo &baseTag) const
 {
 	TaggingVariableList variables = baseTag.taggingVariables();
-	edm::RefToBase<Jet> jet = baseTag.jet();
 
+	// retrieve index of computer in case categories are used
+	int index = 0;
+	if (categorySelector.get()) {
+		index = categorySelector->findCategory(variables);
+		if (index < 0)
+			return -1.0;
+	}
+
+	GenericMVAComputer *computer = computerCache.getComputer(index);
+
+	if (!computer)
+		throw cms::Exception("GenericMVAJetTagComputer")
+			<< "No MVA computer obtained for record \""
+			<< categorySelector->getCategoryLabels()[index]
+			<< "\"." << std::endl;
+
+	// add jet pt and jet eta variables (ordering irrelevant)
+	edm::RefToBase<Jet> jet = baseTag.jet();
 	variables.push_back(TaggingVariable(btau::jetPt, jet->pt()));
 	variables.push_back(TaggingVariable(btau::jetEta, jet->eta()));
 
-	return m_mvaComputer->eval(variables);
+	return computer->eval(variables);
 }
