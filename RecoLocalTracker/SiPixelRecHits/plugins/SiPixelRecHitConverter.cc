@@ -111,44 +111,31 @@ namespace cms
     
     if ( cpeName_ == "FromDetPosition" ) 
       {
-	cout << endl;
-	cout << "--------------------------- Using CPE FromDetPosition ---------------------------------------------" << endl;
 	cpe_ = new CPEFromDetPosition(conf_,mag);
 	ready_ = true;
       } 
     else if ( cpeName_ == "Initial" ) 
       {
-	cout << endl;
-	cout << "--------------------------- Using CPE Initial ---------------------------------------------" << endl;
 	cpe_ = new PixelCPEInitial(conf_,mag);
 	ready_ = true;
       } 
     else if ( cpeName_ == "ParmError" ) 
       {
-	cout << endl;
-	cout << "--------------------------- Using CPE ParmError ---------------------------------------------" << endl;
 	cpe_ = new PixelCPEParmError(conf_,mag);
 	ready_ = true;
       } 
     else if ( cpeName_ == "TemplateReco" ) 
       {
-	cout << endl;
-	cout << "--------------------------- Using CPE TemplateReco ---------------------------------------------" << endl;
 	cpe_ = new PixelCPETemplateReco(conf_,mag);
 	ready_ = true;
       } 
     else if ( cpeName_ == "Generic" ) 
       {
-	cout << endl;
-	cout << "--------------------------- Using CPE Generic --------------------------------------------------" << endl;
 	cpe_ = new PixelCPEGeneric(conf_,mag);
 	ready_ = true;
       } 
     else 
       {
-	cout << endl;
-	cout << "--------------------------- No valid CPE !!!!!!!!!! ---------------------------------------------" << endl;
-
 	edm::LogError("SiPixelRecHitConverter") 
 	  <<" Cluster parameter estimator " << cpeName_ << " is invalid.\n"
 	  << "Possible choices:\n" 
