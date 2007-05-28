@@ -2,7 +2,6 @@
 #define TrackerStablePhiSort_H
 // #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-// because of cout
 #include<iostream>
 
 #include <utility>
@@ -97,7 +96,6 @@ void TrackerStablePhiSort(RandomAccessIterator begin,
     phiZeroCase = !(p!=tmpvec.end() && (*p).value<phiMax);
     
     // go on if this is the petal phi~0 case, restricted to the case where all the |phi| are in range [0,phiMin]
-    //    std::cout << "TrackerStablePhiSort::phiZeroCase = " << phiZeroCase << std::endl;
     if(phiZeroCase) {
       // in this case the ordering must be: ('negative' values, >) and then ('positive' values, >) in (-pi,pi] mapping
       // already sorted, just swap ranges
