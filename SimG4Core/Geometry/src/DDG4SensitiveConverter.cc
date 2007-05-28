@@ -51,7 +51,6 @@ std::string DDG4SensitiveConverter::getString(const std::string & s,
   if (foundIt) { 
     temp = val.strings(); 
     if (temp.size() != 1) {
-      // cout << " ERROR: I need 1 " << s << " tags" << endl;
       edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << s << " tags" ;
       abort();
     }

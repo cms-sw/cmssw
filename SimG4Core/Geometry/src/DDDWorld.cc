@@ -32,6 +32,5 @@ DDDWorld::~DDDWorld() {}
 void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
   G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (kernel != 0) kernel->DefineWorldVolume(pv);
-  std::cout << " World volume defined " << std::endl;
 }
 
