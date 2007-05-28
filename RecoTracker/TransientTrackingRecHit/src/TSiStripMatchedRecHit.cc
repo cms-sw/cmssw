@@ -45,7 +45,10 @@ TSiStripMatchedRecHit::clone( const TrajectoryStateOnSurface& ts) const
 	return this->clone();
       }
 
-      return TSiStripMatchedRecHit::build( gdet, better, theMatcher,theCPE );
+      RecHitPointer result = TSiStripMatchedRecHit::build( gdet, better, theMatcher,theCPE );
+      delete better; //the ownership of the object is passed to the caller of the matcher
+      return result;
+
     }else{
       const SiStripMatchedRecHit2D *better = theMatcher->match(orig,gdet,tkDir);
       if (better == 0) {
