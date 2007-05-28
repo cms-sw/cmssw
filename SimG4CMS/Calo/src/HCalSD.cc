@@ -177,7 +177,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     } else {
       getStepInfo(aStep);
       if (hitExists() == false && edepositEM+edepositHAD>0.) 
-	createNewHit();
+	currentHit = createNewHit();
     }
     return true;
   }
@@ -366,9 +366,9 @@ void HCalSD::getFromLibrary (G4Step* aStep) {
    
     // check if it is in the same unit and timeslice as the previosus one
     if (currentID == previousID) {
-      updateHit();
+      updateHit(currentHit);
     } else {
-      if (!checkHit()) createNewHit();
+      if (!checkHit()) currentHit = createNewHit();
     }
   }
 
@@ -423,10 +423,10 @@ void HCalSD::hitForFibre (G4Step* aStep) {
 
       // check if it is in the same unit and timeslice as the previosus one
       if (currentID == previousID) {
-        updateHit();
+        updateHit(currentHit);
       } else {
         posGlobal = preStepPoint->GetPosition();
-        if (!checkHit()) createNewHit();
+        if (!checkHit()) currentHit = createNewHit();
       }
     }
   }

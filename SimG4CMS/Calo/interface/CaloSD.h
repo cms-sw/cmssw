@@ -67,8 +67,8 @@ protected:
   G4ThreeVector setToLocal(G4ThreeVector, const G4VTouchable*);
   G4bool        hitExists();
   G4bool        checkHit();
-  void          createNewHit();
-  void          updateHit();
+  CaloG4Hit*    createNewHit();
+  void          updateHit(CaloG4Hit*);
   void          resetForNewPrimary(G4ThreeVector, double);
   double        getAttenuation(G4Step* aStep, double birk1, double birk2);
 
@@ -107,6 +107,7 @@ protected:
   bool                   useMap;
 
   const SimTrackManager* m_trackManager;
+  CaloG4Hit*             currentHit;
 //  TimerProxy           theHitTimer;
 
   bool                   corrTOFBeam;
@@ -119,7 +120,6 @@ private:
   CaloG4HitCollection*   theHC; 
   std::map<CaloHitID,CaloG4Hit*>  hitMap;
 
-  CaloG4Hit*                      currentHit;
   std::vector<CaloG4Hit*>         hitvec;
   std::map<int,TrackWithHistory*> tkMap;
 };
