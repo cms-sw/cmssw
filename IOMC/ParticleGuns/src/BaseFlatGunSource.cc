@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/07/10 20:58:31 $
- *  $Revision: 1.13 $
+ *  $Date: 2006/07/19 02:08:50 $
+ *  $Revision: 1.14 $
  *  \author Julia Yarba
  */
 
@@ -75,13 +75,10 @@ BaseFlatGunSource::BaseFlatGunSource( const ParameterSet& pset,
 
    Service<RandomNumberGenerator> rng;
    long seed = (long)(rng->mySeed()) ;
-//   cout << " seed= " << seed << endl ;
    fRandomEngine = new HepJamesRandom(seed) ;
    fRandomGenerator = new RandFlat(fRandomEngine) ;
    
    fAddAntiParticle = pset.getUntrackedParameter("AddAntiParticle", false) ;
-   
-   cout << "Internal BaseFlatGunSource is initialzed" << endl ;
    
 }
 

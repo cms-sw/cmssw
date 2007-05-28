@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/20 19:40:22 $
- *  $Revision: 1.13 $
+ *  $Date: 2007/03/21 20:32:21 $
+ *  $Revision: 1.14 $
  *  \author Julia Yarba
  */
 
@@ -34,9 +34,6 @@ FlatRandomPtGunSource::FlatRandomPtGunSource(const ParameterSet& pset,
    fMaxPt = pgun_params.getUntrackedParameter<double>("MaxPt",1.01);
   
   produces<HepMCProduct>();
-
-  cout << "Internal FlatRandomPtGun is initialzed" << endl ;
-  cout << "It is going to generate " << remainingEvents() << " events" << endl ;
    
 }
 

@@ -48,9 +48,6 @@ FlatEGunASCIIWriter::FlatEGunASCIIWriter( const ParameterSet& pset )
   fMaxPhi     = pgun_params.getParameter<double>("MaxPhi");
   fMinE       = pgun_params.getParameter<double>("MinE");
   fMaxE       = pgun_params.getParameter<double>("MaxE");
-  
-  cout << "HepMC Particle Gun ASCII Writer is initialized" << endl ;
-  cout << "Requested # of Particles : " << fPartIDs.size() << endl ;
             
 }
    
@@ -81,9 +78,6 @@ void FlatEGunASCIIWriter::analyze( const Event& ,
                                    const EventSetup& /* not used so far, thus is "empty" */ ) 
 {
          
-   // for testing purpose
-   // cout << "Event # " << fCurrentEvent << endl ;
-   
    // clean up GenEvent memory : also deletes all vtx/part in it
    // 
    if ( fEvt != NULL ) delete fEvt ;
