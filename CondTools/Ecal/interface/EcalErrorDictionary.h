@@ -72,57 +72,76 @@ class EcalErrorDictionary {
     const static errorDef_t ERRORDICT[DICTSIZE] =
       {
 
-	{ ((uint64_t)1<<0) , "PEDESTAL_LOW_GAIN_MEAN_WARNING" , "Pedestal low gain mean amplitude outside range"},
-	{ ((uint64_t)1<<1) , "PEDESTAL_MIDDLE_GAIN_MEAN_WARNING" , "Pedestal middle gain mean amplitude outside range"},
-	{ ((uint64_t)1<<2) , "PEDESTAL_HIGH_GAIN_MEAN_WARNING" , "Pedestal high gain mean amplitude outside range"},
-	{ ((uint64_t)1<<3) , "PEDESTAL_LOW_GAIN_MEAN_ERROR" , "Pedestal low gain mean amplitude error"},
-	{ ((uint64_t)1<<4) , "PEDESTAL_MIDDLE_GAIN_MEAN_ERROR" , "Pedestal middle gain mean amplitude error"},
-	{ ((uint64_t)1<<5) , "PEDESTAL_HIGH_GAIN_MEAN_ERROR" , "Pedestal high gain mean amplitude error"},
+	{ ((uint64_t)1<<0), "CH_ID_WARNING" , "Channel id warning"},
+	{ ((uint64_t)1<<1), "CH_GAIN_ZERO_WARNING" , "Channel gain zero warning"},
+	{ ((uint64_t)1<<2), "CH_GAIN_SWITCH_WARNING" , "Channel gain switch warning"},
+	{ ((uint64_t)1<<3), "CH_ID_ERROR" , "Channel id error"},
+	{ ((uint64_t)1<<4), "CH_GAIN_ZERO_ERROR" , "Channel gain zero error"},
+	{ ((uint64_t)1<<5), "CH_GAIN_SWITCH_ERROR" , "Channel gain switch error"},
 
-	{ ((uint64_t)1<<6) , "PEDESTAL_LOW_GAIN_RMS_WARNING" , "Pedestal low gain rms amplitude outside range"},
-	{ ((uint64_t)1<<7) , "PEDESTAL_MIDDLE_GAIN_RMS_WARNING" , "Pedestal middle gain rms amplitude outside range"},
-	{ ((uint64_t)1<<8) , "PEDESTAL_HIGH_GAIN_RMS_WARNING" , "Pedestal high gain rms amplitude outside range"},
-	{ ((uint64_t)1<<9) , "PEDESTAL_LOW_GAIN_RMS_ERROR" , "Pedestal low gain rms amplitude error"},
-	{ ((uint64_t)1<<10), "PEDESTAL_MIDDLE_GAIN_RMS_ERROR" , "Pedestal middle gain rms amplitude error"},
-	{ ((uint64_t)1<<11), "PEDESTAL_HIGH_GAIN_RMS_ERROR" , "Pedestal high gain rms amplitude error"},
+	{ ((uint64_t)1<<6), "TT_ID_WARNING" , "TT id warning"},
+	{ ((uint64_t)1<<7), "TT_SIZE_WARNING" , "TT size warning"},
+	{ ((uint64_t)1<<8), "TT_LV1_WARNING" , "TT LV1 warning"},
+	{ ((uint64_t)1<<9), "TT_BUNCH_X_WARNING" , "TT bunch-x warning"},
+	{ ((uint64_t)1<<10), "TT_ID_ERROR" , "TT id error"},
+	{ ((uint64_t)1<<11), "TT_SIZE_ERROR" , "TT size error"},
+	{ ((uint64_t)1<<12), "TT_LV1_ERROR" , "TT LV1 error"},
+	{ ((uint64_t)1<<13), "TT_BUNCH_X_ERROR" , "TT bunch-x error"},
 
-	{ ((uint64_t)1<<12), "PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING" , "Pedestal online high gain mean amplitude outside range"},
-	{ ((uint64_t)1<<13), "PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING" , "Pedestal online high gain rms amplitude outside range"},
-	{ ((uint64_t)1<<14), "PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR" ,  "Pedestal online high gain mean amplitude error"},
-	{ ((uint64_t)1<<15), "PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR" , "Pedestal online high gain rms amplitude error"},
+	{ ((uint64_t)1<<16) , "PEDESTAL_LOW_GAIN_MEAN_WARNING" , "Pedestal low gain mean amplitude outside range"},
+	{ ((uint64_t)1<<17) , "PEDESTAL_MIDDLE_GAIN_MEAN_WARNING" , "Pedestal middle gain mean amplitude outside range"},
+	{ ((uint64_t)1<<18) , "PEDESTAL_HIGH_GAIN_MEAN_WARNING" , "Pedestal high gain mean amplitude outside range"},
+	{ ((uint64_t)1<<19) , "PEDESTAL_LOW_GAIN_MEAN_ERROR" , "Pedestal low gain mean amplitude error"},
+	{ ((uint64_t)1<<20) , "PEDESTAL_MIDDLE_GAIN_MEAN_ERROR" , "Pedestal middle gain mean amplitude error"},
+	{ ((uint64_t)1<<21) , "PEDESTAL_HIGH_GAIN_MEAN_ERROR" , "Pedestal high gain mean amplitude error"},
 
-	{ ((uint64_t)1<<16), "TESTPULSE_LOW_GAIN_MEAN_WARNING" , "Testpulse low gain mean amplitude outside range"},
-	{ ((uint64_t)1<<17), "TESTPULSE_MIDDLE_GAIN_MEAN_WARNING" , "Testpulse middle gain mean amplitude outside range"},
-	{ ((uint64_t)1<<18), "TESTPULSE_HIGH_GAIN_MEAN_WARNING" , "Testpulse high gain mean amplitude outside range"},
-	{ ((uint64_t)1<<19), "TESTPULSE_LOW_GAIN_RMS_WARNING" , "Testpulse low gain rms amplitude outside range"},
-	{ ((uint64_t)1<<20), "TESTPULSE_MIDDLE_GAIN_RMS_WARNING" , "Testpulse middle gain rms amplitude outside range"},
-	{ ((uint64_t)1<<21), "TESTPULSE_HIGH_GAIN_RMS_WARNING" , "Testpulse high gain rms amplitude outside range"},
+	{ ((uint64_t)1<<22) , "PEDESTAL_LOW_GAIN_RMS_WARNING" , "Pedestal low gain rms amplitude outside range"},
+	{ ((uint64_t)1<<23) , "PEDESTAL_MIDDLE_GAIN_RMS_WARNING" , "Pedestal middle gain rms amplitude outside range"},
+	{ ((uint64_t)1<<24) , "PEDESTAL_HIGH_GAIN_RMS_WARNING" , "Pedestal high gain rms amplitude outside range"},
+	{ ((uint64_t)1<<25) , "PEDESTAL_LOW_GAIN_RMS_ERROR" , "Pedestal low gain rms amplitude error"},
+	{ ((uint64_t)1<<26), "PEDESTAL_MIDDLE_GAIN_RMS_ERROR" , "Pedestal middle gain rms amplitude error"},
+	{ ((uint64_t)1<<27), "PEDESTAL_HIGH_GAIN_RMS_ERROR" , "Pedestal high gain rms amplitude error"},
 
-	{ ((uint64_t)1<<22), "LASER_MEAN_WARNING" , "Laser mean amplitude outside range"},
-	{ ((uint64_t)1<<23), "LASER_RMS_WARNING" , "Laser rms amplitude outside range"},
+	{ ((uint64_t)1<<28), "PEDESTAL_ONLINE_HIGH_GAIN_MEAN_WARNING" , "Pedestal online high gain mean amplitude outside range"},
+	{ ((uint64_t)1<<29), "PEDESTAL_ONLINE_HIGH_GAIN_RMS_WARNING" , "Pedestal online high gain rms amplitude outside range"},
+	{ ((uint64_t)1<<30), "PEDESTAL_ONLINE_HIGH_GAIN_MEAN_ERROR" ,  "Pedestal online high gain mean amplitude error"},
+	{ ((uint64_t)1<<31), "PEDESTAL_ONLINE_HIGH_GAIN_RMS_ERROR" , "Pedestal online high gain rms amplitude error"},
 
-	{ ((uint64_t)1<<24), "LASER_MEAN_OVER_PN_WARNING" , "Laser mean amplitude over PN outside range"},
-	{ ((uint64_t)1<<25), "LASER_RMS_OVER_PN_WARNING" , "Laser rms amplitude over PN outside range"},
+	{ ((uint64_t)1<<32), "TESTPULSE_LOW_GAIN_MEAN_WARNING" , "Testpulse low gain mean amplitude outside range"},
+	{ ((uint64_t)1<<33), "TESTPULSE_MIDDLE_GAIN_MEAN_WARNING" , "Testpulse middle gain mean amplitude outside range"},
+	{ ((uint64_t)1<<34), "TESTPULSE_HIGH_GAIN_MEAN_WARNING" , "Testpulse high gain mean amplitude outside range"},
+	{ ((uint64_t)1<<35), "TESTPULSE_LOW_GAIN_RMS_WARNING" , "Testpulse low gain rms amplitude outside range"},
+	{ ((uint64_t)1<<36), "TESTPULSE_MIDDLE_GAIN_RMS_WARNING" , "Testpulse middle gain rms amplitude outside range"},
+	{ ((uint64_t)1<<37), "TESTPULSE_HIGH_GAIN_RMS_WARNING" , "Testpulse high gain rms amplitude outside range"},
 
-	{ ((uint64_t)1<<32), "CH_ID_WARNING" , "Channel id warning"},
-	{ ((uint64_t)1<<33), "CH_GAIN_ZERO_WARNING" , "Channel gain zero warning"},
-	{ ((uint64_t)1<<34), "CH_GAIN_SWITCH_WARNING" , "Channel gain switch warning"},
-	{ ((uint64_t)1<<35), "CH_ID_ERROR" , "Channel id error"},
-	{ ((uint64_t)1<<36), "CH_GAIN_ZERO_ERROR" , "Channel gain zero error"},
-	{ ((uint64_t)1<<37), "CH_GAIN_SWITCH_ERROR" , "Channel gain switch error"},
+	{ ((uint64_t)1<<38), "LASER_MEAN_WARNING" , "Laser mean amplitude outside range"},
+	{ ((uint64_t)1<<39), "LASER_RMS_WARNING" , "Laser rms amplitude outside range"},
 
-	{ ((uint64_t)1<<38), "TT_ID_WARNING" , "TT id warning"},
-	{ ((uint64_t)1<<39), "TT_SIZE_WARNING" , "TT size warning"},
-	{ ((uint64_t)1<<40), "TT_LV1_WARNING" , "TT LV1 warning"},
-	{ ((uint64_t)1<<41), "TT_BUNCH_X_WARNING" , "TT bunch-x warning"},
-	{ ((uint64_t)1<<42), "TT_ID_ERROR" , "TT id error"},
-	{ ((uint64_t)1<<43), "TT_SIZE_ERROR" , "TT size error"},
-	{ ((uint64_t)1<<44), "TT_LV1_ERROR" , "TT LV1 error"},
-	{ ((uint64_t)1<<45), "TT_BUNCH_X_ERROR" , "TT bunch-x error"}
+	{ ((uint64_t)1<<40), "LASER_MEAN_OVER_PN_WARNING" , "Laser mean amplitude over PN outside range"},
+	{ ((uint64_t)1<<41), "LASER_RMS_OVER_PN_WARNING" , "Laser rms amplitude over PN outside range"},
+
+	{ ((uint64_t)1<<42), "LASER_MEAN_TIMING_WARNING" , "Laser channel mean timing outside range"},
+	{ ((uint64_t)1<<43), "LASER_RMS_TIMING_WARNING" , "Laser channel rms timing outside range"},
+
+	{ ((uint64_t)1<<44), "LASER_MEAN_TT_TIMING_WARNING" , "Laser tower mean timing outside range"},
+	{ ((uint64_t)1<<45), "LASER_RMS_TT_TIMING_WARNING" , "Laser tower rms timing outside range"},
+
+	{ ((uint64_t)1<<46), "PHYSICS_MEAN_TIMING_WARNING" , "Channel mean timing outside range for physics events"},
+	{ ((uint64_t)1<<47), "PHYSICS_RMS_TIMING_WARNING" , "Channel rms timing outside range for physics events"},
+
+	{ ((uint64_t)1<<48), "PHYSICS_MEAN_TT_TIMING_WARNING" , "TT mean timing outside range for physics events"},
+	{ ((uint64_t)1<<49), "PHYSICS_RMS_TT_TIMING_WARNING" , "TT rms timing outside range for physics events"},
+
+	{ ((uint64_t)1<<50), "PHYSICS_BAD_CHANNEL_WARNING" , "Bad signal for physics events"}
+	{ ((uint64_t)1<<51), "PHYSICS_BAD_CHANNEL_ERROR" , "No signal for physics events"}
+
+
 
       };
 
     return ERRORDICT[i];
   }
+
+
 };
 #endif
