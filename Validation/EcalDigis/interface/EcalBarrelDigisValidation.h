@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelDigisValidation.h
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.3 $
+ * $Date: 2006/10/26 08:30:31 $
+ * $Revision: 1.4 $
  * \author F. Cossutti
  *
 */
@@ -81,6 +81,7 @@ private:
 
  MonitorElement* meEBDigiADCAnalog_[10];
 
+ MonitorElement* meEBDigiADCgS_[10];
  MonitorElement* meEBDigiADCg1_[10];
  MonitorElement* meEBDigiADCg6_[10];
  MonitorElement* meEBDigiADCg12_[10];

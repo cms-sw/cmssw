@@ -1,8 +1,8 @@
 /*
  * \file EcalDigisValidation.cc
  *
- * $Date: 2007/01/04 09:34:08 $
- * $Revision: 1.19 $
+ * $Date: 2007/03/20 13:06:45 $
+ * $Revision: 1.20 $
  * \author F. Cossutti
  *
 */
@@ -60,10 +60,10 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
   gainConv_[3] = 12.;
+  gainConv_[0] = 12.;   // saturated channels
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -80,7 +80,7 @@ EcalDigisValidation::EcalDigisValidation(const ParameterSet& ps):
   meEBDigiSimRatiogt100ADC_ = 0;
   meEEDigiSimRatiogt100ADC_ = 0;
 
-  Char_t histo[20];
+  Char_t histo[200];
  
   
   if ( dbe_ ) {
@@ -296,6 +296,7 @@ void EcalDigisValidation::analyze(const Event& e, const EventSetup& c){
             }
             LogDebug("DigiInfo") << "EB sample " << sample << " ADC counts = " << ebADCCounts[sample] << " Gain Id = " << ebADCGains[sample] << " Analog eq = " << ebAnalogSignal[sample];
           }
+
         pedestalPreSample /= 3. ; 
         pedestalPreSampleAnalog /= 3. ; 
         double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
@@ -436,12 +437,13 @@ void  EcalDigisValidation::checkCalibrations(const edm::EventSetup & eventSetup)
   
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6() ;
   gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+  gainConv_[0] = gainConv_[2]*(defaultRatios->gain6Over1()) ;  // saturated channels
 
   LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
+  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " saturation = " << gainConv_[0];
 
   delete defaultRatios;
 

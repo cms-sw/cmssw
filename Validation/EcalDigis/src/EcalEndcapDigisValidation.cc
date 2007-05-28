@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapDigisValidation.cc
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.13 $
+ * $Date: 2006/10/26 08:30:32 $
+ * $Revision: 1.14 $
  * \author F. Cossutti
  *
 */
@@ -44,10 +44,10 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
   gainConv_[3] = 12.;
+  gainConv_[0] = 12.;  // saturated channels
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -61,8 +61,9 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
 
   for (int i = 0; i < 10 ; i++ ) {
     meEEDigiADCAnalog_[i] = 0;
-    meEEDigiADCg1_[i] = 0;
-    meEEDigiADCg6_[i] = 0;
+    meEEDigiADCgS_[i]  = 0;
+    meEEDigiADCg1_[i]  = 0;
+    meEEDigiADCg6_[i]  = 0;
     meEEDigiADCg12_[i] = 0;
     meEEDigiGain_[i] = 0;
   }
@@ -75,7 +76,7 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
 
   meEEnADCafterSwitch_ = 0;
  
-  Char_t histo[20];
+  Char_t histo[200];
  
   
   if ( dbe_ ) {
@@ -100,6 +101,9 @@ EcalEndcapDigisValidation::EcalEndcapDigisValidation(const ParameterSet& ps):
 
       sprintf (histo, "EcalDigiTask Endcap analog pulse %02d", i+1) ;
       meEEDigiADCAnalog_[i] = dbe_->book1D(histo, histo, 4000, 0., 400.);
+
+      sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 0 - Saturated", i+1) ;
+      meEEDigiADCgS_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
 
       sprintf (histo, "EcalDigiTask Endcap ADC pulse %02d Gain 1", i+1) ;
       meEEDigiADCg1_[i] = dbe_->book1D(histo, histo, 4096, -0.5, 4095.5);
@@ -203,30 +207,34 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
           eeADCCounts[sample] = (digis->sample (sample).adc ()) ;
           eeADCGains[sample] = (digis->sample (sample).gainId ()) ;
           eeAnalogSignal[sample] = (eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_);
+
           if (Emax < eeAnalogSignal[sample] ) {
             Emax = eeAnalogSignal[sample] ;
             Pmax = sample ;
           }
+
           if ( sample < 3 ) {
             pedestalPreSample += eeADCCounts[sample] ;
             pedestalPreSampleAnalog += eeADCCounts[sample]*gainConv_[(int)eeADCGains[sample]]*endcapADCtoGeV_ ;
           }
-          if ( sample > 0 && eeADCGains[sample] > eeADCGains[sample-1] ) {
+
+	  if (sample > 0 && ( ((eeADCGains[sample] > eeADCGains[sample-1]) && (eeADCGains[sample-1]!=0)) || (countsAfterGainSwitch<0 && eeADCGains[sample]==0)) ){  
             higherGain = eeADCGains[sample];
             higherGainSample = sample;
             countsAfterGainSwitch = 1;
           }
-          if ( higherGain > 1 && higherGainSample != sample && eeADCGains[sample] == higherGain) countsAfterGainSwitch++ ;
-        }
+
+          if ( (higherGain > 1 && (higherGainSample != sample) && (eeADCGains[sample] == higherGain)) || (higherGain==3 && (higherGainSample != sample) && (eeADCGains[sample]==0)) || (higherGain==0 && (higherGainSample != sample) && ((eeADCGains[sample]==0) || (eeADCGains[sample]==3))) ) countsAfterGainSwitch++ ;
+	}
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
 
       LogDebug("DigiInfo") << "Endcap Digi for EEDetId = " << eeid.rawId() << " x,y " << eeid.ix() << " " << eeid.iy() ;
       for ( int i = 0; i < 10 ; i++ ) {
-        LogDebug("DigiInfo") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i] ;
+	LogDebug("DigiInfo") << "sample " << i << " ADC = " << eeADCCounts[i] << " gain = " << eeADCGains[i] << " Analog = " << eeAnalogSignal[i] ;
       }
-      LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;
-      if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch;
+      LogDebug("DigiInfo") << "Maximum energy = " << Emax << " in sample " << Pmax << " Pedestal from pre-sample = " << pedestalPreSampleAnalog;  
+      if ( countsAfterGainSwitch > 0 ) LogDebug("DigiInfo") << "Counts after switch " << countsAfterGainSwitch; 
 
       if ( countsAfterGainSwitch > 0 && countsAfterGainSwitch < 5 ) {
         edm::LogWarning("DigiWarning") << "Wrong number of counts after gain switch before next switch! " << countsAfterGainSwitch ;
@@ -238,7 +246,10 @@ void EcalEndcapDigisValidation::analyze(const Event& e, const EventSetup& c){
       for ( int i = 0 ; i < 10 ; i++ ) {
         if (meEEDigiADCGlobal_ && (Emax-pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]]) > 100.*endcapADCtoGeV_) meEEDigiADCGlobal_->Fill( i , eeAnalogSignal[i] ) ;
         if (meEEDigiADCAnalog_[i]) meEEDigiADCAnalog_[i]->Fill( eeAnalogSignal[i] ) ;
-        if ( eeADCGains[i] == 3 ) {
+        if ( eeADCGains[i] == 0 ) {
+          if (meEEDigiADCgS_[i]) meEEDigiADCgS_[i]->Fill( eeADCCounts[i] ) ;
+        }
+        else if ( eeADCGains[i] == 3 ) {
           if (meEEDigiADCg1_[i]) meEEDigiADCg1_[i]->Fill( eeADCCounts[i] ) ;
         }
         else if ( eeADCGains[i] == 2 ) {
@@ -272,12 +283,12 @@ void  EcalEndcapDigisValidation::checkCalibrations(const edm::EventSetup & event
   
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6() ;
   gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+  gainConv_[0] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
 
-  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
+  LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g0 = " << gainConv_[0] << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3]; 
 
   delete defaultRatios;
 

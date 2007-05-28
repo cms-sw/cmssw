@@ -1,8 +1,8 @@
 /*
  * \file EcalPreshowerDigisValidation.cc
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.7 $
+ * $Date: 2006/10/26 08:30:32 $
+ * $Revision: 1.8 $
  * \author F. Cossutti
  *
 */
@@ -49,7 +49,7 @@ EcalPreshowerDigisValidation::EcalPreshowerDigisValidation(const ParameterSet& p
     meESDigiADC_[i] = 0;
   }
 
-  Char_t histo[20];
+  Char_t histo[200];
  
   if ( dbe_ ) {
     dbe_->setCurrentFolder("EcalDigiTask");

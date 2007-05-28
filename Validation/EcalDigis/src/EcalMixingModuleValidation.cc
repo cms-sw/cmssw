@@ -1,8 +1,8 @@
 /*
  * \file EcalMixingModuleValidation.cc
  *
- * $Date: 2007/01/04 09:34:08 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/20 13:06:45 $
+ * $Revision: 1.9 $
  * \author F. Cossutti
  *
 */
@@ -102,10 +102,10 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
     if ( verbose_ ) dbe_->showDirStructure();
   }
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = 2.;
   gainConv_[3] = 12.;
+  gainConv_[0] = 12.;
   barrelADCtoGeV_ = 0.035;
   endcapADCtoGeV_ = 0.06;
  
@@ -134,7 +134,7 @@ EcalMixingModuleValidation::EcalMixingModuleValidation(const ParameterSet& ps):
   meESShapeRatio_ = 0;
     
 
-  Char_t histo[20];
+  Char_t histo[200];
  
   
   if ( dbe_ ) {
@@ -631,10 +631,10 @@ void  EcalMixingModuleValidation::checkCalibrations(const edm::EventSetup & even
   
   EcalMGPAGainRatio * defaultRatios = new EcalMGPAGainRatio();
 
-  gainConv_[0] = 0.;
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6() ;
   gainConv_[3] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
+  gainConv_[0] = gainConv_[2]*(defaultRatios->gain6Over1()) ;
 
   LogDebug("EcalDigi") << " Gains conversions: " << "\n" << " g1 = " << gainConv_[1] << "\n" << " g2 = " << gainConv_[2] << "\n" << " g3 = " << gainConv_[3];
 
@@ -670,7 +670,7 @@ void EcalMixingModuleValidation::findPedestal(const DetId & detId, int gainId, d
 
     switch(gainId) {
     case 0:
-      ped = 0.;
+      ped = item.mean_x1;
     case 1:
       ped = item.mean_x12;
       break;

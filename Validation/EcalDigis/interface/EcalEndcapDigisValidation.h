@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapDigisValidation.h
  *
- * $Date: 2006/10/13 13:13:14 $
- * $Revision: 1.4 $
+ * $Date: 2006/10/26 08:30:31 $
+ * $Revision: 1.5 $
  * \author F. Cossutti
  *
 */
@@ -84,6 +84,7 @@ private:
 
  MonitorElement* meEEDigiADCAnalog_[10];
 
+ MonitorElement* meEEDigiADCgS_[10];
  MonitorElement* meEEDigiADCg1_[10];
  MonitorElement* meEEDigiADCg6_[10];
  MonitorElement* meEEDigiADCg12_[10];
