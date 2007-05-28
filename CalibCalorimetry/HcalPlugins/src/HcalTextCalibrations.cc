@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.3 2006/01/10 19:29:40 fedor Exp $
+// $Id: HcalTextCalibrations.cc,v 1.4 2006/03/09 20:42:46 fedor Exp $
 //
 //
 
@@ -51,8 +51,6 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     std::string objectName = request->getParameter<std::string> ("object");
     edm::FileInPath fp = request->getParameter<edm::FileInPath>("file");
     mInputs [objectName] = fp.fullPath();
-    std::cout << "HcalTextCalibrations::HcalTextCalibrations-> will read constants for " 
-	      << objectName << " from " << fp.fullPath() << std::endl;
     if (objectName == "Pedestals") {
       setWhatProduced (this, &HcalTextCalibrations::producePedestals);
       findingRecord <HcalPedestalsRcd> ();
@@ -103,7 +101,6 @@ HcalTextCalibrations::~HcalTextCalibrations()
 void 
 HcalTextCalibrations::setIntervalFor( const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) {
   std::string record = iKey.name ();
-  std::cout << "HcalTextCalibrations::setIntervalFor-> key: " << record << " time: " << iTime.eventID() << '/' << iTime.time ().value () << std::endl;
   oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
 }
 
@@ -124,37 +121,30 @@ std::auto_ptr<T> produce_impl (const std::string& fFile) {
 
 
 std::auto_ptr<HcalPedestals> HcalTextCalibrations::producePedestals (const HcalPedestalsRcd&) {
-  std::cout << "HcalTextCalibrations::producePedestals-> ..." << std::endl;
   return produce_impl<HcalPedestals> (mInputs ["Pedestals"]);
 }
 
 std::auto_ptr<HcalPedestalWidths> HcalTextCalibrations::producePedestalWidths (const HcalPedestalWidthsRcd&) {
-  std::cout << "HcalTextCalibrations::producePedestalWidths-> ..." << std::endl;
   return produce_impl<HcalPedestalWidths> (mInputs ["PedestalWidths"]);
 }
 
 std::auto_ptr<HcalGains> HcalTextCalibrations::produceGains (const HcalGainsRcd&) {
-  std::cout << "HcalTextCalibrations::produceGains-> ..." << std::endl;
   return produce_impl<HcalGains> (mInputs ["Gains"]);
 }
 
 std::auto_ptr<HcalGainWidths> HcalTextCalibrations::produceGainWidths (const HcalGainWidthsRcd&) {
-  std::cout << "HcalTextCalibrations::produceGainWidths-> ..." << std::endl;
   return produce_impl<HcalGainWidths> (mInputs ["GainWidths"]);
 }
 
 std::auto_ptr<HcalQIEData> HcalTextCalibrations::produceQIEData (const HcalQIEDataRcd& rcd) {
-  std::cout << "HcalTextCalibrations::produceQIEData-> ..." << std::endl;
   return produce_impl<HcalQIEData> (mInputs ["QIEData"]);
 }
 
 std::auto_ptr<HcalChannelQuality> HcalTextCalibrations::produceChannelQuality (const HcalChannelQualityRcd& rcd) {
-  std::cout << "HcalTextCalibrations::produceChannelQuality-> ..." << std::endl;
   return produce_impl<HcalChannelQuality> (mInputs ["ChannelQuality"]);
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalTextCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
-  std::cout << "HcalTextCalibrations::produceElectronicsMap-> ..." << std::endl;
   return produce_impl<HcalElectronicsMap> (mInputs ["ElectronicsMap"]);
 }
 

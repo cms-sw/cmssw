@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.cc,v 1.15 2007/04/12 16:52:24 michals Exp $
+// $Id: HcalDbProducer.cc,v 1.16 2007/04/27 23:38:02 michals Exp $
 //
 //
 
@@ -92,12 +92,10 @@ HcalDbProducer::~HcalDbProducer()
 // ------------ method called to produce the data  ------------
 boost::shared_ptr<HcalDbService> HcalDbProducer::produce( const HcalDbRecord&)
 {
-  std::cout << "HcalDbProducer::produce..." << std::endl;
   return mService;
 }
 
 void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
-  std::cout << "HcalDbProducer::poolPedestalsCallback->..." << std::endl;
   edm::ESHandle <HcalPedestals> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -108,7 +106,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 }
 
   void HcalDbProducer::pedestalWidthsCallback (const HcalPedestalWidthsRcd& fRecord) {
-  std::cout << "HcalDbProducer::poolPedestalWidthsCallback->..." << std::endl;
   edm::ESHandle <HcalPedestalWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -120,7 +117,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 
 
   void HcalDbProducer::gainsCallback (const HcalGainsRcd& fRecord) {
-  std::cout << "HcalDbProducer::poolGainsCallback->..." << std::endl;
   edm::ESHandle <HcalGains> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -132,7 +128,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 
 
   void HcalDbProducer::gainWidthsCallback (const HcalGainWidthsRcd& fRecord) {
-  std::cout << "HcalDbProducer::poolGainWidthsCallback->..." << std::endl;
   edm::ESHandle <HcalGainWidths> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -143,7 +138,6 @@ void HcalDbProducer::pedestalsCallback (const HcalPedestalsRcd& fRecord) {
 }
 
 void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
-  std::cout << "HcalDbProducer::QIEDataCallback->..." << std::endl;
   edm::ESHandle <HcalQIEData> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -154,7 +148,6 @@ void HcalDbProducer::QIEDataCallback (const HcalQIEDataRcd& fRecord) {
 }
 
 void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecord) {
-  std::cout << "HcalDbProducer::channelQualityCallback->..." << std::endl;
   edm::ESHandle <HcalChannelQuality> item;
   fRecord.get (item);
   mService->setData (item.product ());
@@ -165,7 +158,6 @@ void HcalDbProducer::channelQualityCallback (const HcalChannelQualityRcd& fRecor
 }
 
 void HcalDbProducer::electronicsMapCallback (const HcalElectronicsMapRcd& fRecord) {
-  std::cout << "HcalDbProducer::electronicsMapCallback->..." << std::endl;
   edm::ESHandle <HcalElectronicsMap> item;
   fRecord.get (item);
   mService->setData (item.product ());
