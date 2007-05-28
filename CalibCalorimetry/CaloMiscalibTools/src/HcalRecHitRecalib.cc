@@ -128,7 +128,6 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	float icalconst=(mapHcal_.get().find(itHBHE->id().rawId()))->second;
           // make the rechit with rescaled energy and put in the output collection
 
-	std::cout << "Recalibrating HBHE hit " << itHBHE->energy() << " * " << icalconst << std::endl;
 	HBHERecHit aHit(itHBHE->id(),itHBHE->energy()*icalconst,itHBHE->time());
 	
 	RecalibHBHERecHitCollection->push_back( aHit);
@@ -159,7 +158,6 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // make the rechit with rescaled energy and put in the output collection
 	
 	float icalconst=(mapHcal_.get().find(itHF->id().rawId()))->second;
-	std::cout << "Recalibrating HF hit " << itHF->energy() << " * " << icalconst << std::endl;
 	HFRecHit aHit(itHF->id(),itHF->energy()*icalconst,itHF->time());
 	
 	RecalibHFRecHitCollection->push_back( aHit);
@@ -190,7 +188,6 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
           // make the rechit with rescaled energy and put in the output collection
 
 	float icalconst=(mapHcal_.get().find(itHO->id().rawId()))->second;
-	std::cout << "Recalibrating HO hit " << itHO->energy() << " * " << icalconst << std::endl;
 	HORecHit aHit(itHO->id(),itHO->energy()*icalconst,itHO->time());
 	  
 	  RecalibHORecHitCollection->push_back( aHit);
@@ -202,6 +199,5 @@ HcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put( RecalibHBHERecHitCollection, RecalibHBHEHits_);
   iEvent.put( RecalibHFRecHitCollection, RecalibHFHits_);
   iEvent.put( RecalibHORecHitCollection, RecalibHOHits_);
-  std::cout << " new collections are in the event " << std::endl;
 }
 

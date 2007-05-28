@@ -27,16 +27,16 @@ TimingReport * TimingReport::current() {
 }
 
 TimingReport::TimingReport() : on(true), inTicks_(false) {
-    std::cout << "Creating a new Timing Report" << std::endl;    
-    std::cout <<"StopWatch bias " << PentiumTimer::bias()<<std::endl;
-    std::cout <<"CPUWatch bias " << LinuxCPUTimer::bias()<<std::endl;
+    //std::cout << "Creating a new Timing Report" << std::endl;    
+    //std::cout <<"StopWatch bias " << PentiumTimer::bias()<<std::endl;
+    //std::cout <<"CPUWatch bias " << LinuxCPUTimer::bias()<<std::endl;
 }
 
 void TimingReport::switchOn(bool ion) {
     if (on==ion) return;
     on = ion;
-    std::cout << "switching Timing Report " 
-	    << (on ? "on" : "off") << std::endl;
+    //std::cout << "switching Timing Report " 
+    //        << (on ? "on" : "off") << std::endl;
   SMAP::iterator p = registry.begin();
   SMAP::iterator e = registry.end();
   for (;p!=e; ++p) (*p).second.switchOn(on);
