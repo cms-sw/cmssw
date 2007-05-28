@@ -64,6 +64,7 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 						new MVATrainerContainer());
 		TrainContainer trainedCalib;
 
+		bool untrained = false;
 		for(TrainerContainer::const_iterator iter =
 							getTrainers().begin();
 		    iter != getTrainers().end(); iter++) {
@@ -72,8 +73,10 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 
 			trainerCalib->addTrainer(trainer->calibrationRecord,
 			                         calib);
-			if (calib)
+			if (calib) {
+				untrained = true;
 				continue;
+			}
 
 			if (!trainedCalib)
 				trainedCalib = TrainContainer(
@@ -83,7 +86,7 @@ class MVATrainerContainerLooperImpl : public MVATrainerLooper {
 				*trainer->getTrainer()->getCalibration();
 		}
 
-		if (!trainedCalib)
+		if (untrained)
 			trainedCalib = TrainContainer(
 					new UntrainedMVAComputerContainer);
 

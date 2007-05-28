@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <algorithm>
-#include <iostream>
 #include <string>
 #include <memory>
 
@@ -8,7 +7,6 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 
@@ -81,13 +79,8 @@ edm::EDLooper::Status
 MVATrainerLooper::duringLoop(const edm::Event &event,
                                    const edm::EventSetup &es)
 {
-// FIXME: edm aborts when kStop is returned
-//        with a bad state transition from Running, message Finished
-//        probably need to add entry to EventProcessor FSM
-
 	if (trainers.empty())
-//		return kStop;
-		return kContinue;
+		return kStop;
 
 	for(TrainerContainer::const_iterator iter = trainers.begin();
 	    iter != trainers.end(); iter++)
@@ -95,14 +88,7 @@ MVATrainerLooper::duringLoop(const edm::Event &event,
 			return kContinue;
 
 	trainers.clear();
-//	return kStop;
-
-	edm::LogWarning("BugWarning")
-		<< "*** Normally I would stop the execution of CMSSW at\n"
-		   "    this point, but a bug in EDLooper currently\n"
-		   "    prevents me from doing so - see MVATrainerLooper.cc";
-
-	return kContinue;
+	return kStop;
 }
 
 edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,

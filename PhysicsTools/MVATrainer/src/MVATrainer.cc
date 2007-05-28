@@ -496,8 +496,9 @@ void MVATrainer::makeProcessor(DOMElement *elem, AtomicId id, const char *name)
 	fillInputVars(proc->getInputs(), xmlInput);
 	fillOutputVars(proc->getOutputs(), proc.get(), xmlOutput);
 
-	std::cout << "Configuring " << (const char*)proc->getId()
-	 	<< " \"" << proc->getName() << "\"." << std::endl;
+	edm::LogInfo("MVATrainer")
+		<< "Configuring " << (const char*)proc->getId()
+		<< " \"" << (const char*)proc->getName() << "\".";
 	proc->configure(xmlConfig);
 
 	sources.insert(std::make_pair(id, proc.release()));
