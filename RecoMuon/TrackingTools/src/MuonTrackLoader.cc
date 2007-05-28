@@ -3,8 +3,8 @@
  *  Class to load the product in the event
  *
 
- *  $Date: 2007/05/04 18:12:29 $
- *  $Revision: 1.47 $
+ *  $Date: 2007/05/11 14:21:58 $
+ *  $Revision: 1.48 $
 
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -61,12 +61,9 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, const MuonServicePr
   theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack",false);
 }
 
-
-// OrphanHandle<reco::TrackCollection> 
-// MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
-// 			    Event& event) {
-//   return loadTracks(trajectories,event,string());
-// }
+MuonTrackLoader::~MuonTrackLoader(){
+  if(theUpdatorAtVtx) delete theUpdatorAtVtx;
+}
 
 OrphanHandle<reco::TrackCollection> 
 MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,

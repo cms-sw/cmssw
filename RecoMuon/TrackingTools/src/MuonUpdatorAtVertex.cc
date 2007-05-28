@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/04/30 15:24:43 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/05/11 14:21:58 $
+ *  $Revision: 1.26 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -79,7 +79,7 @@ MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
 
 /// Destructor
 MuonUpdatorAtVertex::~MuonUpdatorAtVertex(){
-  delete thePropagator;
+  if (thePropagator) delete thePropagator;
 }
 
 // Operations
