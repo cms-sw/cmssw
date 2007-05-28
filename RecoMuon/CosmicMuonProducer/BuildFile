@@ -11,18 +11,5 @@
 <use name=rootrflx>
 <use name=root>
 <use name=clhep>
+
 <flags EDM_PLUGIN=1>
-<export>
-   <lib name=RecoMuonCosmicMuonProducer>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/Utilities>
-   <use name=DataFormats/Common>
-   <use name=RecoMuon/DetLayers>
-   <use name=RecoMuon/Navigation>
-   <use name=RecoMuon/TrackingTools>
-   <use name=rootrflx>
-   <use name=root>
-   <use name=clhep>
-</export>
