@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: IntegralOverPhiFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: IntegralOverPhiFunction.cc,v 1.1 2007/05/23 20:21:38 veelken Exp $
 //
 //
 
@@ -31,7 +31,7 @@
 // CMSSW include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "PhysicsTools/IsolationUtils/interface/auxiliaryFunctions.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 //
 // declaration of auxiliary functions
@@ -90,7 +90,7 @@ void IntegralOverPhiFunction::SetParameterTheta0(double theta0)
 
 void IntegralOverPhiFunction::SetParameterPhi0(double phi0)
 {
-  phi0_ = getNormPhi(phi0); // map azimuth angle into interval [-pi,+pi]
+  phi0_ = normalizedPhi(phi0); // map azimuth angle into interval [-pi,+pi]
 }
 
 void IntegralOverPhiFunction::SetParameterAlpha(double alpha)
@@ -187,7 +187,7 @@ double IntegralOverPhiFunction::DoEval(double x) const
 //    and are on either side
       double dPhi_i = phi[i] - phi0_;
       double dPhi_j = phi0_ - phi[j];
-      if ( TMath::Abs(getNormPhi(dPhi_i - dPhi_j)) < epsilon ) { // map difference in azimuth angle into interval [-pi,+pi] and require it to be negligible
+      if ( TMath::Abs(normalizedPhi(dPhi_i - dPhi_j)) < epsilon ) { // map difference in azimuth angle into interval [-pi,+pi] and require it to be negligible
       //if ( TMath::Abs((phi[i] - phi0_) - (phi0_ - phi[j])) < epsilon ) { // map difference in azimuth angle into interval [-pi,+pi] and require it to be negligible
 	phiMin = TMath::Min(phi[i], phi[j]);
 	phiMax = TMath::Max(phi[i], phi[j]);
@@ -206,7 +206,7 @@ double IntegralOverPhiFunction::DoEval(double x) const
     edm::LogError("") << "failed to compute Return Value !" << std::endl;
   }
 
-  return TMath::Abs(getNormPhi(phi0_ - phiMin)) + TMath::Abs(getNormPhi(phiMax - phi0_));
+  return TMath::Abs(normalizedPhi(phi0_ - phiMin)) + TMath::Abs(normalizedPhi(phiMax - phi0_));
 }  
 
 double IntegralOverPhiFunction::DoDerivative(double x) const

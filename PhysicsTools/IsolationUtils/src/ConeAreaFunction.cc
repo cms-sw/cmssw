@@ -16,7 +16,7 @@
 //
 // Original Author:  Christian Veelken, UC Davis
 //         Created:  Thu Nov  2 13:47:40 CST 2006
-// $Id: ConeAreaFunction.cc,v 1.3 2006/11/30 17:07:28 dwjang Exp $
+// $Id: ConeAreaFunction.cc,v 1.1 2007/05/23 20:21:37 veelken Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/IsolationUtils/interface/IntegrandThetaFunction.h"
-#include "PhysicsTools/IsolationUtils/interface/auxiliaryFunctions.h"
+#include "DataFormats/Math/interface/normalizedPhi.h"
 
 //
 // constructors and destructor
@@ -95,7 +95,7 @@ void ConeAreaFunction::SetParameterTheta0(double theta0)
 
 void ConeAreaFunction::SetParameterPhi0(double phi0)
 {
-  phi0_ = getNormPhi(phi0); // map azimuth angle into interval [-pi,+pi]
+  phi0_ = normalizedPhi(phi0); // map azimuth angle into interval [-pi,+pi]
 }
 
 void ConeAreaFunction::SetParameters(double* param)
