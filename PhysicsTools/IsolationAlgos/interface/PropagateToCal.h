@@ -10,7 +10,6 @@
  */
 #include <algorithm>
 #include <vector>
-#include "PhysicsTools/Utilities/interface/Math.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"

@@ -5,6 +5,7 @@
  * Ported from original code in RecoJets 
  * by Fedor Ratnikov, FNAL
  */
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include <cmath>
 
 template <class T>

@@ -4,7 +4,7 @@
  *
  * \author Francesco Fabozzi, INFN
  */
-#include "PhysicsTools/Utilities/interface/Math.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 template <typename T, typename C>
 class PtIsolationAlgo {
