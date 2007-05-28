@@ -24,6 +24,8 @@
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
+#include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
+#include "RecoBTau/JetTagComputer/interface/TagInfoMVACategorySelector.h"
 #include "RecoBTau/JetTagMVALearning/interface/JetTagMVATrainer.h"
 
 using namespace reco;
@@ -35,7 +37,6 @@ static const AtomicId kJetEta(TaggingVariableTokens[btau::jetEta]);
 JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 	jetFlavour(params.getParameter<edm::InputTag>("jetFlavourMatching")),
 	tagInfo(params.getParameter<edm::InputTag>("tagInfo")),
-	calibrationLabel(params.getParameter<std::string>("calibrationRecord")),
 	minPt(params.getParameter<double>("minimumTransverseMomentum")),
 	minEta(params.getParameter<double>("minimumPseudoRapidity")),
 	maxEta(params.getParameter<double>("maximumPseudoRapidity")),
@@ -44,51 +45,26 @@ JetTagMVATrainer::JetTagMVATrainer(const edm::ParameterSet &params) :
 {
 	std::sort(signalFlavours.begin(), signalFlavours.end());
 	std::sort(ignoreFlavours.begin(), ignoreFlavours.end());
+
+	std::vector<std::string> calibrationLabels;
+	if (params.getParameter<bool>("useCategories")) {
+		categorySelector = std::auto_ptr<TagInfoMVACategorySelector>(
+				new TagInfoMVACategorySelector(params));
+
+		calibrationLabels = categorySelector->getCategoryLabels();
+	} else {
+		std::string calibrationRecord =
+			params.getParameter<std::string>("calibrationRecord");
+
+		calibrationLabels.push_back(calibrationRecord);
+	}
+
+	computerCache = std::auto_ptr<GenericMVAComputerCache>(
+			new GenericMVAComputerCache(calibrationLabels));
 }
 
 JetTagMVATrainer::~JetTagMVATrainer()
 {
-}
-
-bool JetTagMVATrainer::updateComputer(const edm::EventSetup& es)
-{
-	// retrieve MVAComputer calibration container
-	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
-	es.get<BTauGenericMVAJetTagComputerRcd>().get("trainer", calibHandle);
-	const Calibration::MVAComputerContainer *calib = calibHandle.product();
-
-	// check container for changes
-	if (mvaComputer.get() && calib->changed(containerCacheId)) {
-		containerCacheId = calib->getCacheId();
-
-		const Calibration::MVAComputer *computerCalib = 
-						&calib->find(calibrationLabel);
-
-		if (!computerCalib) {
-			mvaComputer.reset();
-			return false;
-		}
-
-		// check container content for changes
-		if (computerCalib->changed(computerCacheId))
-			mvaComputer.reset();
-	}
-
-	if (!mvaComputer.get()) {
-		const Calibration::MVAComputer *computerCalib = 
-						&calib->find(calibrationLabel);
-
-		if (!computerCalib)
-			return false;
-
-		// instantiate new MVAComputer with uptodate calibration
-		mvaComputer = std::auto_ptr<GenericMVAComputer>(
-					new GenericMVAComputer(computerCalib));
-
-		computerCacheId = computerCalib->getCacheId();
-	}
-
-	return true;
 }
 
 bool JetTagMVATrainer::isSignalFlavour(int flavour) const
@@ -112,8 +88,14 @@ bool JetTagMVATrainer::isIgnoreFlavour(int flavour) const
 void JetTagMVATrainer::analyze(const edm::Event& event,
                                const edm::EventSetup& es)
 {
-	// check for uptodate MVAComputer
-	if (!updateComputer(es))
+	// retrieve MVAComputer calibration container
+	edm::ESHandle<Calibration::MVAComputerContainer> calibHandle;
+	es.get<BTauGenericMVAJetTagComputerRcd>().get("trainer", calibHandle);
+	const Calibration::MVAComputerContainer *calib = calibHandle.product();
+
+	// check container for changes
+	computerCache->update(calib);
+	if (computerCache->isEmpty())
 		return;
 
 	// retrieve jet flavours;
@@ -161,17 +143,31 @@ void JetTagMVATrainer::analyze(const edm::Event& event,
 		// is it a b-jet?
 		bool target = isSignalFlavour(flavour);
 
-		TaggingVariableList vars = iter->taggingVariables();
+		TaggingVariableList variables = iter->taggingVariables();
 
-		values.resize(3 + vars.size());
+		// retrieve index of computer in case categories are used
+		int index = 0;
+		if (categorySelector.get()) {
+			index = categorySelector->findCategory(variables);
+			if (index < 0)
+				continue;
+		}
+
+		GenericMVAComputer *computer =
+					computerCache->getComputer(index);
+		if (!computer)
+			continue;
+
+		// composite full array of MVAComputer values
+		values.resize(3 + variables.size());
 		std::vector<Variable::Value>::iterator insert = values.begin();
 
 		(insert++)->value = target;
 		(insert++)->value = jet->pt();
 		(insert++)->value = jet->eta();
-		std::copy(mvaComputer->iterator(vars.begin()),
-		          mvaComputer->iterator(vars.end()), insert);
+		std::copy(computer->iterator(variables.begin()),
+		          computer->iterator(variables.end()), insert);
 
-		static_cast<MVAComputer*>(mvaComputer.get())->eval(values);
+		static_cast<MVAComputer*>(computer)->eval(values);
 	}
 }
