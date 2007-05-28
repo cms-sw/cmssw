@@ -7,8 +7,8 @@
  *  the granularity of the updating (i.e.: segment position or 1D rechit position), which can be set via
  *  parameter set, and the propagation direction which is embeded in the propagator set in the c'tor.
  *
- *  $Date: 2007/04/27 14:55:16 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/05/11 18:27:48 $
+ *  $Revision: 1.25 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro
  */
@@ -224,6 +224,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
       }
     }
   }
+  recHitsForFit.clear();
   return pair<bool,TrajectoryStateOnSurface>(updated,lastUpdatedTSOS);
 }
 
