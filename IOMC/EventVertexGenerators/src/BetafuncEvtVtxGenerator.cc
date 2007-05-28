@@ -1,5 +1,5 @@
 
-// $Id: BetafuncEvtVtxGenerator.cc,v 1.4 2007/03/22 02:28:46 yarba Exp $
+// $Id: BetafuncEvtVtxGenerator.cc,v 1.5 2007/04/27 14:25:35 yumiceva Exp $
 /*
 ________________________________________________________________________
 
@@ -136,12 +136,9 @@ TMatrixD* BetafuncEvtVtxGenerator::GetInvLorentzBoost() {
 	tmpboost(3,2) = sin(alpha_)*tan(phi_);
 	tmpboost(3,3) = 1.;
 
-	//std::cout << "matrix initialized: "<< std::endl;
-
 	tmpboost.Invert();
 	boost_ = new TMatrixD(tmpboost);
 	//boost_->Print();
-
 	
 	return boost_;
 }
