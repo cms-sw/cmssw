@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/13 00:55:06 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/03/09 00:40:41 $
+ *  $Revision: 1.6 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -90,8 +90,6 @@ DTGeometry* DTGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv
 
   DTGeometry* theGeometry = new DTGeometry;
 
-  cout << "Starting from " << fv.logicalPart().name().name() << endl;
-
   bool doChamber = fv.firstChild();
 
   // Loop on chambers
@@ -136,7 +134,6 @@ DTGeometry* DTGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fv
     fv.parent();
     doChamber = fv.nextSibling(); // go to next chamber
   } // chambers
-  cout << "Built " << ChamCounter << " drift tube chambers." << endl;
   return theGeometry;
 }
 
@@ -147,12 +144,6 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTChamberId detId(rawid);  
 
-  // cout << " DTDetBuilder::buildChamber type: " << type
-  //   << " id: " << detId << endl;  
-  // fv.print();
-  // cout << "Category " << int(fv.logicalPart().category()) << endl;
-  // cout << "Shape " << int(fv.logicalPart().solid().shape()) << endl;
-
   // Chamber specific parameter (size) 
   // FIXME: some trouble for boolean solids?
   vector<double> par = extractParameters(fv);
@@ -160,8 +151,6 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   float width = par[0]/cm;     // r-phi  dimension - different in different chambers
   float length = par[1]/cm;    // z      dimension - constant 125.55 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 18 cm
-
-  //cout << "width " << width << " length " << length << " thickness " << thickness << endl;
 
   ///SL the definition of length, width, thickness depends on the local reference frame of the Det
   // width is along local X
@@ -172,7 +161,6 @@ DTChamber* DTGeometryBuilderFromDDD::buildChamber(DDFilteredView& fv,
   RCPPlane surf(plane(fv,bound));
 
   DTChamber* chamber = new DTChamber(detId, surf);
-  //cout << "ChamberSurf " << &(chamber->surface())<< endl;
 
   return chamber;
 }
@@ -187,18 +175,14 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTSuperLayerId slId(rawid);
 
-  //cout << " DTDetBuilder::buildSuperLayer type: " << type << " id: " << slId << endl;  
   // Slayer specific parameter (size)
   vector<double> par = extractParameters(fv);
 
   float width = par[0]/cm;     // r-phi  dimension - changes in different chambers
   float length = par[1]/cm;    // z      dimension - constant 126.8 cm
   float thickness = par[2]/cm; // radial thickness - almost constant about 20 cm
-  //cout << "width " << width << " length " << length << " thickness " << thickness << endl;
 
   RectangularPlaneBounds bound(width, length, thickness);
-  // cout << "SL: width " << bound.width() << " length " << bound.length() << 
-  //   " thickness " << bound.thickness() << endl;
 
   // Ok this is the slayer position...
   RCPPlane surf(plane(fv,bound));
@@ -207,10 +191,6 @@ DTSuperLayer* DTGeometryBuilderFromDDD::buildSuperLayer(DDFilteredView& fv,
 
   //LocalPoint lpos(10,20,30);
   //GlobalPoint gpos=slayer->toGlobal(lpos);
-  // cout << "Chamber global pos " << chamber->position() << endl;
-  // cout << "SLayer  global pos " << slayer->position()  << endl;
-  // cout << "SLayer  local  pos " << chamber->toLocal(slayer->position()) << endl;
-  // cout << "Local pos " << lpos << " global " << (gpos-slayer->position()) << endl;
 
   // add to the chamber
   chamber->add(slayer);
@@ -227,8 +207,6 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   DTNumberingScheme dtnum(muonConstants);
   int rawid = dtnum.getDetId(mdddnum.geoHistoryToBaseNumber(fv.geoHistory()));
   DTLayerId layId(rawid);
-
-  //cout << " DTDetBuilder::buildLayer type: " << type << " id: " << layId << endl;  
 
   // Layer specific parameter (size)
   vector<double> par = extractParameters(fv);
@@ -247,15 +225,11 @@ DTLayer* DTGeometryBuilderFromDDD::buildLayer(DDFilteredView& fv,
   int firstWire=fv.copyno();
   par = extractParameters(fv);
   float wireLength = par[1]/cm;
-//   cout << " first wire: " << firstWire << " " << fv.logicalPart().name().name();
-//   cout << " lenght: " << wireLength << " layer lenght: " << length;
   while (doWire) {
     WCounter++;
     doWire = fv.nextSibling(); // next wire
   }
   //int lastWire=fv.copyno();
-  // cout << " last wire: " << fv.copyno()
-  //   << " total: " << WCounter << endl;
   DTTopology topology(firstWire, WCounter, wireLength);
 
   DTLayerType layerType;
