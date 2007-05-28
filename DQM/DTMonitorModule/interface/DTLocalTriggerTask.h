@@ -37,7 +37,6 @@
 
 class DTGeometry;
 class DTChamberId;
-//class DTTtrig;   CB is it needed
 
 class DTLocalTriggerTask: public edm::EDAnalyzer{
 
@@ -57,7 +56,7 @@ protected:
 void beginJob(const edm::EventSetup& c);
 
 //SM Book the histograms
-void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag, std::string triggerSource);
+void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
 //SM end
 
 /// Analyze
@@ -89,10 +88,8 @@ private:
 
   // My monitor elements
   std::string outputFile;  
-  std::ofstream logFile;
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
-  MonitorElement * runId;
-  
+
 };
 
 #endif
