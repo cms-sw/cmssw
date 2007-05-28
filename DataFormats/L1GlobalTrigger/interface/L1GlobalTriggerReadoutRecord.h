@@ -246,12 +246,18 @@ public:
     const L1GtfeWord gtfeWord() const;
     void setGtfeWord(const L1GtfeWord&);
 
+    /// get the vector of L1GtFdlWord    
+    std::vector<L1GtFdlWord>& gtFdlVector() {return m_gtFdlWord;}
+         
     /// get / set FDL word (record) in the GT readout record
     const L1GtFdlWord gtFdlWord(int bxInEventValue) const;
     const L1GtFdlWord gtFdlWord() const;
 
     void setGtFdlWord(const L1GtFdlWord&, int bxInEventValue);
     void setGtFdlWord(const L1GtFdlWord&);
+
+    /// get the vector of L1GtPsbWord    
+    std::vector<L1GtPsbWord>& gtPsbVector() {return m_gtPsbWord;}
 
     /// get / set PSB word (record) in the GT readout record
     const L1GtPsbWord gtPsbWord(boost::uint16_t boardIdValue, int bxInEventValue) const;
@@ -264,6 +270,9 @@ public:
     
     /// clear the record
     void reset(); 
+
+    /// pretty print the content of a L1GlobalTriggerReadoutRecord
+    void print(std::ostream& myCout) const;
   
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GlobalTriggerReadoutRecord&);

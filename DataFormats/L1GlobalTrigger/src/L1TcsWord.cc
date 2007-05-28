@@ -18,6 +18,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1TcsWord.h"
 
 // system include files
+#include <iostream>
+#include <iomanip>
 #include <boost/cstdint.hpp>
 
 // user include files
@@ -361,3 +363,74 @@ void L1TcsWord::reset()
 }
 
 
+// pretty print
+void L1TcsWord::print(std::ostream& myCout) const
+{
+
+    myCout << "\n L1TcsWord::print \n" << std::endl;
+
+//    myCout << "  Board Id:  "
+//    << std::hex << " hex:     " << std::setw(4) << std::setfill('0') << m_boardId
+//    << std::setfill(' ')
+//    << std::dec << " dec: " << m_boardId
+//    << std::endl;
+
+
+    myCout << "  DaqNr:              "
+    << std::hex << " hex: " << "       " << std::setw(1) << m_daqNr
+    << std::dec << " dec: " << m_daqNr
+    << std::endl;
+
+    myCout << "  TriggerType:        "
+    << std::hex << " hex: " << "       " << std::setw(1) << m_triggerType
+    << std::dec << " dec: " << m_triggerType
+    << std::endl;
+
+    myCout << "  Status:             "
+    << std::hex << " hex: " << "       " << std::setw(1) << m_status
+    << std::dec << " dec: " << m_status
+    << std::endl;
+
+    myCout << "  BxNr:               "
+    << std::hex << " hex: "  << "     " << std::setw(3) << std::setfill('0') << m_bxNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_bxNr
+    << std::endl;
+
+
+    myCout << "  PartTrigNr:         "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_partTrigNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_partTrigNr
+    << std::endl;
+
+    myCout << std::endl;
+    
+    myCout << "  EventNr:            "
+    << std::hex << " hex: " << "  " << std::setw(6) << std::setfill('0') << m_eventNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_eventNr
+    << std::endl;
+
+    myCout << "  AssignedPartitions: "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_assignedPartitions
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_assignedPartitions
+    << std::endl;
+
+    myCout << std::endl;
+
+    myCout << "  PartRunNr:          "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_partTrigNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_partTrigNr
+    << std::endl;
+    
+    myCout << "  OrbitNr:            "
+    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_orbitNr
+    << std::setfill(' ')
+    << std::dec << " dec: " << m_orbitNr
+    << std::endl;
+    
+
+}

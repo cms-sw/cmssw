@@ -460,7 +460,6 @@ void L1GtPsbWord::print(std::ostream& myCout) const
     << std::setfill(' ')
     << std::dec << " dec: " << m_boardId
     << std::endl;
-    //
 
     int baseValue = 16; // using hexadecimal values;
     int hexBxInEvent = (m_bxInEvent + baseValue)%baseValue;
@@ -478,7 +477,7 @@ void L1GtPsbWord::print(std::ostream& myCout) const
 
 
     myCout << "  EventNr:   "
-    << std::hex << " hex: " << std::setw(8) << std::setfill('0') << m_eventNr
+    << std::hex << " hex: " << "  " << std::setw(6) << std::setfill('0') << m_eventNr
     << std::setfill(' ')
     << std::dec << " dec: " << m_eventNr
     << std::endl;
@@ -593,6 +592,7 @@ void L1GtPsbWord::print(std::ostream& myCout) const
     << std::endl;
 
 }
+
 // static class members
 const int L1GtPsbWord::NumberAData;
 const int L1GtPsbWord::NumberBData;

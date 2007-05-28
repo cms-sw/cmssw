@@ -257,11 +257,21 @@ void L1GtFdlWord::setEventNrWord64(boost::uint64_t& word64, int iWord)
 void L1GtFdlWord::printGtTechnicalTriggerWord(std::ostream& myCout) const
 {
 
+    myCout << "  Technical triggers (bitset style):    \n  " ;
+
+    int sizeW64 = 64; // 64 bits words
+    int iBit = 0;
+
     for (std::vector<bool>::const_reverse_iterator ritBit = m_gtTechnicalTriggerWord.rbegin();
             ritBit != m_gtTechnicalTriggerWord.rend(); ++ritBit) {
 
         myCout << (*ritBit ? '1' : '0');
 
+        if ( (((iBit + 1)%16) == (sizeW64%16)) && (iBit != 63) ) {
+            myCout << " ";
+        }
+
+        iBit++;
     }
 
 
@@ -325,13 +335,28 @@ void L1GtFdlWord::setGtTechnicalTriggerWordWord64(boost::uint64_t& word64, int i
 void L1GtFdlWord::printGtDecisionWord(std::ostream& myCout) const
 {
 
+    // decision word (in two 64bits words)
+    myCout << "  DecisionWord (bitset style): bits 63:0 \n  ";
+
+    int sizeW64 = 64; // 64 bits words
+    int iBit = 0;
+
     for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWord.rbegin();
             ritBit != m_gtDecisionWord.rend(); ++ritBit) {
 
         myCout << (*ritBit ? '1' : '0');
 
-    }
+        if (iBit == (sizeW64 - 1)) {
+            myCout << std::endl;
+            myCout << "  DecisionWord (bitset style): bits 127:64 \n  ";
+        }
 
+        if ( (((iBit + 1)%16) == (sizeW64%16)) && (iBit != 63) ) {
+            myCout << " ";
+        }
+
+        iBit++;
+    }
 
 }
 
@@ -447,7 +472,31 @@ void L1GtFdlWord::setGtDecisionWordBWord64(boost::uint64_t& word64, int iWord)
 
 }
 
+// print GT decision word extended in bitset style
+//    depend on the type of DecisionWord
+//    this version: <vector<bool>
+void L1GtFdlWord::printGtDecisionWordExtended(std::ostream& myCout) const
+{
 
+    myCout << "  DecisionWordExtended (bitset style):    \n  " ;
+
+    int sizeW64 = 64; // 64 bits words
+    int iBit = 0;
+
+    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWordExtended.rbegin();
+            ritBit != m_gtDecisionWordExtended.rend(); ++ritBit) {
+
+        myCout << (*ritBit ? '1' : '0');
+
+        if ( (((iBit + 1)%16) == (sizeW64%16)) && (iBit != 63) ) {
+            myCout << " ";
+        }
+
+        iBit++;
+
+    }
+
+}
 
 // set the GtDecisionWordExtended value from a 64-bits word,
 // having the index iWord in the GTFE raw record
@@ -610,6 +659,10 @@ void L1GtFdlWord::print(std::ostream& myCout) const
 
     myCout << "\n L1GtFdlWord::print \n" << std::endl;
 
+    int iWord = 0;
+
+    myCout << "\n Word " << iWord << std::endl;
+
     myCout << "  Board Id:         "
     << std::hex << " hex: " << "    " << std::setw(4) << std::setfill('0') << m_boardId
     << std::setfill(' ')
@@ -638,34 +691,35 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     << std::dec << " dec: " << m_eventNr
     << std::endl;
 
-    myCout << "  TechnicalTrigger: " << std::endl;
+    // technical triggers
+
+    iWord++;
+    myCout << "\n Word " << iWord << std::endl;
+
     printGtTechnicalTriggerWord(myCout);
+    myCout << std::endl;
 
-    // decision word (in two 64bits words)
-    myCout << "  DecisionWord:     " << std::endl;
+    // physics triggers (2 words!)
 
-    int sizeW64 = 64;
-    int iBit = 0;
-    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWord.rbegin();
-            ritBit != m_gtDecisionWord.rend(); ++ritBit) {
+    iWord++;
+    myCout << "\n Word " << iWord;
+    iWord++;
+    myCout << " and word " << iWord << std::endl;
 
-        myCout << (*ritBit ? '1' : '0');
-
-        if (iBit == (sizeW64 - 1)) {
-            myCout << std::endl;
-        }
-        
-        iBit++;
-    }
+    printGtDecisionWord(myCout);
+    myCout << std::endl;
 
     // decision word extended (64 bits)
-    myCout << "  DecisionWordExt:  " << std::endl;
-    for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWordExtended.rbegin();
-            ritBit != m_gtDecisionWordExtended.rend(); ++ritBit) {
 
-        myCout << (*ritBit ? '1' : '0');
+    iWord++;
+    myCout << "\n Word " << iWord << std::endl;
 
-    }
+    printGtDecisionWordExtended(myCout);
+    myCout << std::endl;
+
+    //
+    iWord++;
+    myCout << "\n Word " << iWord << std::endl;
 
     myCout << "  NoAlgo:           "
     << std::hex << " hex: "  << "       " << std::setw(1) << std::setfill('0') << m_noAlgo
@@ -678,6 +732,9 @@ void L1GtFdlWord::print(std::ostream& myCout) const
     << std::setfill(' ')
     << std::dec << " dec: " << m_finalOR
     << std::endl;
+
+    iWord++;
+    myCout << "\n Word " << iWord << std::endl;
 
     myCout << "  LocalBxNr:        "
     << std::hex << " hex: "  << "     " << std::setw(3) << std::setfill('0') << m_localBxNr

@@ -215,6 +215,8 @@ public:
         m_gtDecisionWordExtended = gtDecisionWordExtendedValue;
     }
 
+    void printGtDecisionWordExtended(std::ostream& myCout) const;
+
     /// set the extended algorithms bits from a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setGtDecisionWordExtended(const boost::uint64_t& word64, int iWord);

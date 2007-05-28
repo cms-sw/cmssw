@@ -19,6 +19,7 @@
 
 // system include files
 #include <boost/cstdint.hpp>
+#include <iostream>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -248,6 +249,9 @@ public:
 
     /// reset the content of a L1TcsWord
     void reset();
+
+    /// pretty print the content of a L1TcsWord
+    void print(std::ostream& myCout) const;
 
 private:
 

@@ -1123,7 +1123,7 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(
         if ( (*itBx).bxInEvent() == bxInEventValue ) {
             *itBx = gtFdlWordValue;
             LogTrace("L1GlobalTriggerReadoutRecord")
-            << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bunch bxInEvent = " 
+            << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bxInEvent = " 
             << bxInEventValue << "\n"
             << std::endl;
             return;
@@ -1170,7 +1170,7 @@ const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(
     throw cms::Exception("NotFound")
     << "\nError: requested L1GtPsbWord for boardId = "
     << std::hex << boardIdValue << std::dec
-    << " and bunch bxInEvent = " << bxInEventValue
+    << " and bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << std::endl;
 
@@ -1203,7 +1203,7 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
             LogTrace("L1GlobalTriggerReadoutRecord")
             << "\nL1GlobalTriggerReadoutRecord: replacing L1GtPsbWord with boardId = "
             << std::hex << boardIdValue << std::dec
-            << " and bunch bxInEvent = " << bxInEventValue
+            << " and bxInEvent = " << bxInEventValue
             << "\n"
             << std::endl;
             return;
@@ -1226,7 +1226,7 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
             << "\nL1GlobalTriggerReadoutRecord: filling an empty L1GtPsbWord" 
             << " for PSB with boardId = "
             << std::hex << boardIdValue << std::dec
-            << " and bunch bxInEvent = " << bxInEventValue
+            << " and bxInEvent = " << bxInEventValue
             << "\n"
             << std::endl;
             return;
@@ -1239,7 +1239,7 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
     throw cms::Exception("NotFound")
     << "\nError: Cannot set L1GtPsbWord for PSB with boardId = "
     << std::hex << boardIdValue << std::dec
-    << " and bunch bxInEvent = " << bxInEventValue
+    << " and bxInEvent = " << bxInEventValue
     << "\n  No PSB to replace and no empty PSB found!\n"
     << std::endl;
 
@@ -1280,6 +1280,35 @@ void L1GlobalTriggerReadoutRecord::reset()
 
     // TODO FIXME reset m_muCollRefProd
 
+}
+
+/// pretty print the content of a L1GlobalTriggerReadoutRecord
+void L1GlobalTriggerReadoutRecord::print(std::ostream& myCout) const {
+    
+    myCout << "\n L1GlobalTriggerReadoutRecord::print \n" << std::endl;
+    
+    m_gtfeWord.print(myCout);
+    
+    for (std::vector<L1GtFdlWord>::const_iterator itFdl = m_gtFdlWord.begin();
+            itFdl != m_gtFdlWord.end(); ++itFdl) {
+
+        itFdl->print(myCout);
+
+    }
+
+    for (std::vector<L1GtPsbWord>::const_iterator itPsb = m_gtPsbWord.begin();
+            itPsb != m_gtPsbWord.end(); ++itPsb) {
+
+        itPsb->print(myCout);
+
+    }
+
+    // FIXME add  L1MuGMTReadoutCollection printing
+//    edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;        
+       
+    
+
+    
 }
 
 // output stream operator
