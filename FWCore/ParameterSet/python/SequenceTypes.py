@@ -29,14 +29,35 @@ class _ModuleSequenceType(_ConfigureComponent, _Labelable):
                 msg += "    %i) %s \n"  %(i, item._errorstr())
             msg += "Maybe you forgot to combine them via '*' or '+'."     
             raise TypeError(msg)
+        if not isinstance(arg[0],_Sequenceable):
+            typename = format_typename(self)
+            msg = format_outerframe(2)
+            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
+            msg +=format_typename(arg[0])
+            msg +="\nPlease remove the problematic object from the argument list"
+            raise TypeError(msg)
 
         self._seq = arg[0]
     def _place(self,name,proc):
         self._placeImpl(name,proc)
     def __imul__(self,rhs):
+        if not isinstance(rhs,_Sequenceable):
+            typename = format_typename(self)
+            msg = format_outerframe(2)
+            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
+            msg +=format_typename(rhs)
+            msg +="\nPlease remove the problematic object from the argument list"
+            raise TypeError(msg)
         self._seq = _SequenceOpAids(self._seq,rhs)
         return self
     def __iadd__(self,rhs):
+        if not isinstance(rhs,_Sequenceable):
+            typename = format_typename(self)
+            msg = format_outerframe(2)
+            msg += "%s only takes arguments of types which are allowed in a sequence, but was given:\n" %typename
+            msg +=format_typename(rhs)
+            msg +="\nPlease remove the problematic object from the argument list"
+            raise TypeError(msg)
         self._seq = _SequenceOpFollows(self._seq,rhs)
         return self
     def __str__(self):
