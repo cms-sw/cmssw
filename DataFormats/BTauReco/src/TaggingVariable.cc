@@ -97,19 +97,24 @@ bool TaggingVariableList::checkTag( TaggingVariableName tag ) const {
   return binary_search( m_list.begin(), m_list.end(), tag, TaggingVariableCompare() );
 }
 
-void TaggingVariableList::insert( const TaggingVariable& variable ) {
+void TaggingVariableList::insert( const TaggingVariable & variable, bool delayed /* = false */ ) {
   m_list.push_back( variable );
-  stable_sort( m_list.begin(), m_list.end(), TaggingVariableCompare() );
+  if (not delayed) finalize();
 }
 
-void TaggingVariableList::insert( TaggingVariableName tag, const vector<TaggingValue> values ) {
+void TaggingVariableList::insert( TaggingVariableName tag, TaggingValue value, bool delayed /* = false */ ) {
+  m_list.push_back( TaggingVariable( tag, value ) );
+  if (not delayed) finalize();
+}
+
+void TaggingVariableList::insert( TaggingVariableName tag, const vector<TaggingValue> & values, bool delayed /* = false */ ) {
   for (vector<TaggingValue>::const_iterator i = values.begin(); i != values.end(); i++) {
     m_list.push_back( TaggingVariable(tag, *i) );
   }
-  stable_sort( m_list.begin(), m_list.end(), TaggingVariableCompare() );
+  if (not delayed) finalize();
 }
 
-void TaggingVariableList::insert( const TaggingVariableList& list ) {
+void TaggingVariableList::insert( const TaggingVariableList & list ) {
   vector<TaggingVariable>::size_type size = m_list.size();
   m_list.insert( m_list.end(), list.m_list.begin(), list.m_list.end() );
   inplace_merge( m_list.begin(), m_list.begin() + size, m_list.end(), TaggingVariableCompare() );

@@ -118,9 +118,14 @@ namespace reco {
   public:
     bool checkTag( TaggingVariableName tag ) const;
     
-    void insert( const TaggingVariable& variable );
-    void insert( TaggingVariableName tag, const std::vector<TaggingValue> values );
-    void insert( const TaggingVariableList& list );
+    void insert( const TaggingVariable & variable, bool delayed = false );
+    void insert( const TaggingVariableList & list );
+    void insert( TaggingVariableName tag, TaggingValue value, bool delayed = false );
+    void insert( TaggingVariableName tag, const std::vector<TaggingValue> & values, bool delayed = false );
+
+    void finalize( void ) {
+      stable_sort( m_list.begin(), m_list.end(), TaggingVariableCompare() );
+    }
     
     TaggingValue get( TaggingVariableName tag ) const;
     std::vector<TaggingValue> getList( TaggingVariableName tag ) const;
