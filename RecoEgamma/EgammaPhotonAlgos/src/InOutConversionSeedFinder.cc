@@ -37,7 +37,7 @@ InOutConversionSeedFinder::InOutConversionSeedFinder(  const MagneticField* fiel
   the2ndHitdphi_ = 0.01; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  maxNumberOfInOutSeedsPerInputTrack_=10; 
+  maxNumberOfInOutSeedsPerInputTrack_=50; 
   
 }
 

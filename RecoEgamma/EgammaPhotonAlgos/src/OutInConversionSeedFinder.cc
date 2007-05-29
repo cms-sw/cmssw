@@ -34,7 +34,7 @@ OutInConversionSeedFinder::OutInConversionSeedFinder( const MagneticField* field
   the2ndHitdphi_ = 0.03; 
   the2ndHitdzConst_ = 5.;
   the2ndHitdznSigma_ = 2.;
-  maxNumberOfOutInSeedsPerBC_=10;    
+  maxNumberOfOutInSeedsPerBC_=50;    
    
     
 }
