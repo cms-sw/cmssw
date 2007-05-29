@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.15 2007/04/05 13:14:52 meridian Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.16 2007/04/05 14:39:33 meridian Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -184,13 +184,10 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
     if(iEta==0) continue;
     for(int iPhi=EBDetId::MIN_IPHI; iPhi<=EBDetId::MAX_IPHI; ++iPhi) {
       // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
-      try 
+      if (EBDetId::validDetId(iEta,iPhi))
 	{
 	  EBDetId ebdetid(iEta,iPhi);
 	  peds->m_pedestals.insert(std::make_pair(ebdetid.rawId(),EBitem));
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -198,15 +195,15 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
+      if (EEDetId::validDetId(iX,iY,1))
 	{
 	  EEDetId eedetidpos(iX,iY,1);
 	  peds->m_pedestals.insert(std::make_pair(eedetidpos.rawId(),EEitem));
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+	{
 	  EEDetId eedetidneg(iX,iY,-1);
 	  peds->m_pedestals.insert(std::make_pair(eedetidneg.rawId(),EEitem));
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -220,17 +217,15 @@ EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtal
 {
   std::auto_ptr<EcalWeightXtalGroups> xtalGroups = std::auto_ptr<EcalWeightXtalGroups>( new EcalWeightXtalGroups() );
   EcalXtalGroupId defaultGroupId(1);
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
 	{
 	  EBDetId ebid(ieta,iphi);
 	  //	  xtalGroups->setValue(ebid.rawId(), EcalXtalGroupId(ieta) ); // define rings in eta
 	  xtalGroups->setValue(ebid.rawId(), defaultGroupId ); // define rings in eta
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -238,15 +233,15 @@ EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtal
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
+      if (EEDetId::validDetId(iX,iY,1))
 	{
 	  EEDetId eedetidpos(iX,iY,1);
 	  xtalGroups->setValue(eedetidpos.rawId(), defaultGroupId ); 
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+	{
 	  EEDetId eedetidneg(iX,iY,-1);
 	  xtalGroups->setValue(eedetidneg.rawId(), defaultGroupId ); 
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -257,17 +252,16 @@ std::auto_ptr<EcalIntercalibConstants>
 EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& )
 {
   std::auto_ptr<EcalIntercalibConstants>  ical = std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
-  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
+
+  for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
+      // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
+      if (EBDetId::validDetId(ieta,iphi))
 	{
 	  EBDetId ebid(ieta,iphi);
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  ical->setValue( ebid.rawId(), intercalibConstantMean_ + r*intercalibConstantSigma_ );
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -275,17 +269,17 @@ EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalInterca
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
+      if (EEDetId::validDetId(iX,iY,1))
 	{
 	  double r = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  EEDetId eedetidpos(iX,iY,1);
 	  ical->setValue( eedetidpos.rawId(), intercalibConstantMean_ + r*intercalibConstantSigma_ );
+	}
+      if(EEDetId::validDetId(iX,iY,-1))
+        {
 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  EEDetId eedetidneg(iX,iY,-1);
 	  ical->setValue( eedetidneg.rawId(), intercalibConstantMean_ + r1*intercalibConstantSigma_ );
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -304,13 +298,10 @@ EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
-      try
+      if (EBDetId::validDetId(ieta,iphi))
 	{
 	  EBDetId ebid(ieta,iphi);
 	  gratio->setValue( ebid.rawId(), gr );
-	}
-      catch (...)
-	{
 	}
     }
   }
@@ -318,19 +309,19 @@ EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
   for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
     for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
-      try 
+      if (EEDetId::validDetId(iX,iY,1))
 	{
 	  EEDetId eedetidpos(iX,iY,1);
 	  gratio->setValue( eedetidpos.rawId(), gr );
+	}
+      if (EEDetId::validDetId(iX,iY,-1))
+	{
 	  EEDetId eedetidneg(iX,iY,-1);
 	  gratio->setValue( eedetidneg.rawId(), gr );
 	}
-      catch (...)
-	{
-	}
     }
   }
-
+  
   return gratio;
 }
 
