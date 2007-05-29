@@ -52,9 +52,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   }
 
   emTree  = (TTree *) hf->Get(emTree_name.c_str());
-  emTree->Print();
   hadTree = (TTree *) hf->Get(hadTree_name.c_str());
-  hadTree->Print();
   edm::LogInfo("HFShower") << "HFShowerLibrary:Ntuple " << emTree_name 
 			   << " has " << emTree->GetEntries() 
 			   << " entries and Ntuple "  << hadTree_name 
