@@ -72,8 +72,7 @@ namespace edm {
     // Loop over provenance
     BranchMap::const_iterator pit = branches_->begin(), pitEnd = branches_->end();
     for (; pit != pitEnd; ++pit) {
-      std::auto_ptr<Group> g(new Group(pit->second.branchDescription_));
-      item.addGroup(g);
+      item.addGroup(pit->second.branchDescription_);
     }
   }
 

@@ -1,5 +1,5 @@
-#ifndef Framework_LuminosityBlockPrincipal_h
-#define Framework_LuminosityBlockPrincipal_h
+#ifndef FWCore_Framework_LuminosityBlockPrincipal_h
+#define FWCore_Framework_LuminosityBlockPrincipal_h
 
 /*----------------------------------------------------------------------
   
@@ -10,7 +10,7 @@ such code sees the LuminosityBlock class, which is a proxy for LuminosityBlockPr
 The major internal component of the LuminosityBlockPrincipal
 is the DataBlock.
 
-$Id: LuminosityBlockPrincipal.h,v 1.11 2007/03/27 23:06:57 wmtan Exp $
+$Id: LuminosityBlockPrincipal.h,v 1.13 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -78,8 +78,8 @@ namespace edm {
     using Base::get;
     using Base::getBySelector;
     using Base::getByType;
-    using Base::getGroup;
     using Base::getIt;
+    using Base::getForOutput;
     using Base::getMany;
     using Base::getManyByType;
     using Base::getProvenance;
@@ -94,7 +94,7 @@ namespace edm {
     using Base::store;
 
   private:
-    virtual bool unscheduledFill(Group const&) const {return false;}
+    virtual bool unscheduledFill(Provenance const&) const {return false;}
 
     boost::shared_ptr<RunPrincipal> runPrincipal_;
     LuminosityBlockAuxiliary aux_;

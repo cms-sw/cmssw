@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 27 17:58:10 EDT 2006
-// $Id: TFWLiteSelectorBasic.cc,v 1.16 2007/04/01 16:36:04 wmtan Exp $
+// $Id: TFWLiteSelectorBasic.cc,v 1.17 2007/05/10 12:27:04 wmtan Exp $
 //
 
 // system include files
@@ -45,7 +45,7 @@ namespace edm {
      public:
       FWLiteDelayedReader(): entry_(-1),eventTree_(0),reg_(0) {}
       virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
-      virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const&, EDProductGetter const*) const {
+      virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const&) const {
         return std::auto_ptr<BranchEntryDescription>();
       }
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
@@ -277,8 +277,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
 	    BranchDescription &product = m_->productMap_[pit->productID_];
 	    std::auto_ptr<Provenance> prov(new Provenance(product, *pit));
             //std::cout<< "adding group for ID "<<prov->event.productID_<<std::endl;
-	    std::auto_ptr<Group> g(new Group(prov, prov->isPresent()));
-	    ep.addGroup(g);
+	    ep.addGroup(prov);
 	 }
 
 	 edm::ModuleDescription md;

@@ -81,41 +81,41 @@ edm::Ref<AppleCollection> ref(refApples, index);
 */
 /*----------------------------------------------------------------------
 
-$Id: DataViewImpl.h,v 1.26 2007/05/22 22:28:10 chrjones Exp $
+$Id: DataViewImpl.h,v 1.27 2007/05/24 16:35:47 paterno Exp $
 
 ----------------------------------------------------------------------*/
 #include <cassert>
 #include <memory>
 #include <typeinfo>
+#include <string>
+#include <vector>
 
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits.hpp"
 
+#include "DataFormats/Common/interface/EDProductfwd.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Common/interface/traits.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
-#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/Framework/interface/View.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 namespace edm {
-  class SelectorBase;
 
   class DataViewImpl {
   public:
@@ -206,7 +206,6 @@ namespace edm {
   private:
 
     typedef std::vector<ProductID>       ProductIDVec;
-    //typedef std::vector<const Group*> GroupPtrVec;
     typedef std::vector<std::pair<EDProduct*, ConstBranchDescription const *> >  ProductPtrVec;
     typedef std::vector<BasicHandle>  BasicHandleVec;
 
@@ -316,26 +315,6 @@ namespace edm {
     // We own the retrieved Views, and have to destroy them.
     mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
   };
-
-
-  //------------------------------------------------------------
-  //
-  // Utilities for creation of handles.
-  //
-  
-  template <typename PROD>
-  Handle<PROD> make_handle(const Group& g)
-  {
-    return Handle<PROD>(g.product(), g.provenance());
-  }
- 
-  template <typename PROD>
-  struct makeHandle
-  {
-    Handle<PROD> operator()(const Group& g) { return make_handle<PROD>(g); }
-    Handle<PROD> operator()(const Group* g) { return make_handle<PROD>(*g); }
-  };
-
 
   //------------------------------------------------------------
   // Metafunction support for compile-time selection of code used in

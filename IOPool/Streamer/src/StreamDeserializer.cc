@@ -11,6 +11,9 @@
 #include "IOPool/Streamer/interface/ClassFiller.h"
 
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "DataFormats/Common/interface/EDProduct.h"
+#include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
 
@@ -170,13 +173,13 @@ namespace edm
         if(aprov->isPresent()) {
           FDEBUG(10) << "addgroup next " << aprov->productID() << endl;
           FDEBUG(10) << "addgroup next " << aprov->event().productID_ << endl;
-          ep->addGroup(auto_ptr<Group>(new Group(aprod,aprov)));
+          ep->addGroup(aprod, aprov);
           FDEBUG(10) << "addgroup done" << endl;
         } else {
           FDEBUG(10) << "addgroup empty next " << aprov->productID() << endl;
           FDEBUG(10) << "addgroup empty next " << aprov->event().productID_ 
                                                << endl;
-          ep->addGroup(auto_ptr<Group>(new Group(aprov, false)));
+          ep->addGroup(aprov);
           FDEBUG(10) << "addgroup empty done" << endl;
         }
         spi->clear();

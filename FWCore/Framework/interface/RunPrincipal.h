@@ -1,5 +1,5 @@
-#ifndef Framework_RunPrincipal_h
-#define Framework_RunPrincipal_h
+#ifndef FWCore_Framework_RunPrincipal_h
+#define FWCore_Framework_RunPrincipal_h
 
 /*----------------------------------------------------------------------
   
@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.7 2007/03/04 06:00:22 wmtan Exp $
+$Id: RunPrincipal.h,v 1.9 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -50,7 +50,7 @@ namespace edm {
     using Base::get;
     using Base::getBySelector;
     using Base::getByType;
-    using Base::getGroup;
+    using Base::getForOutput;
     using Base::getIt;
     using Base::getMany;
     using Base::getManyByType;
@@ -66,7 +66,7 @@ namespace edm {
     using Base::store;
 
   private:
-    virtual bool unscheduledFill(Group const&) const {return false;}
+    virtual bool unscheduledFill(Provenance const&) const {return false;}
 
     RunAuxiliary aux_;
   };

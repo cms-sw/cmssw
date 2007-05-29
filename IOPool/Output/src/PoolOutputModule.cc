@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.70 2007/04/01 15:59:42 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.71 2007/04/09 19:12:31 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -18,6 +18,7 @@
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -319,9 +320,9 @@ namespace edm {
       }
 
       EDProduct const* product = 0;
-      Principal::SharedConstGroupPtr const g = dataBlock.getGroup(id, i->selected_);
-      if (g.get() == 0) {
-	// No Group with this ID is in the event.
+      BasicHandle const bh = dataBlock.getForOutput(id, i->selected_);
+      if (bh.provenance() == 0) {
+	// No group with this ID is in the event.
 	// Create and write the provenance.
 	if (i->branchDescription_->produced_) {
           BranchEntryDescription provenance;
@@ -340,20 +341,21 @@ namespace edm {
 	      << "No group for branch" << i->branchDescription_->branchName_ << '\n';
 	}
       } else {
-	// There is a Group with this ID is in the event.  Write the provenance.
-	bool present = i->selected_ && g->product() && g->product()->isPresent();
-	if (present == g->provenance().isPresent()) {
+	product = bh.wrapper();
+        BranchEntryDescription const& provenance = bh.provenance()->event();
+	// There is a group with this ID is in the event.  Write the provenance.
+	bool present = i->selected_ && product && product->isPresent();
+	if (present == provenance.isPresent()) {
 	  // The provenance can be written out as is, saving a copy. 
-          pool::Ref<BranchEntryDescription const> refp(context(), &g->provenance().event());
+          pool::Ref<BranchEntryDescription const> refp(context(), &provenance);
           refp.markWrite(i->provenancePlacement_);
 	} else {
 	  // We need to make a private copy of the provenance so we can set isPresent_ correctly.
-	  provenances_.push_front(g->provenance().event());
+	  provenances_.push_front(provenance);
 	  provenances_.begin()->isPresent_ = present;
           pool::Ref<BranchEntryDescription const> refp(context(), &*provenances_.begin());
           refp.markWrite(i->provenancePlacement_);
 	}
-	product = g->product();
       }
       if (i->selected_) {
 	if (product == 0) {

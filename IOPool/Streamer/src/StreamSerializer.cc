@@ -11,6 +11,7 @@
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 
 #include "zlib.h"
 #include <cstdlib>
@@ -134,8 +135,8 @@ namespace edm
         throw Exception(errors::ProductNotFound,"InvalidID")
           << "StreamSerializer::serializeEvent: invalid ProductID supplied in productRegistry\n";
       }
-      EventPrincipal::SharedConstGroupPtr const group = eventPrincipal.getGroup(id);
-      if (group.get() == 0) {
+      BasicHandle const bh = eventPrincipal.getForOutput(id, true);
+      if (bh.provenance() == 0) {
         std::string const& name = desc.className();
         std::string const className = wrappedClassName(name);
         TClass *cp = gROOT->GetClass(className.c_str());
@@ -148,9 +149,9 @@ namespace edm
 
 
         EDProduct *p = static_cast<EDProduct *>(cp->New());
-        se.prods_.push_back(ProdPair(p, &group->provenance()));
+        se.prods_.push_back(ProdPair(p, bh.provenance()));
       } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+        se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
       }
      }
 

@@ -1,13 +1,14 @@
 
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: EventStreamOutput.cc,v 1.26 2007/03/04 06:36:12 wmtan Exp $
+// $Id: EventStreamOutput.cc,v 1.27 2007/05/01 03:11:48 wmtan Exp $
 //
 // Class EventStreamOutput module
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -153,10 +154,10 @@ namespace edm
 	throw edm::Exception(edm::errors::ProductNotFound,"InvalidID")
 	  << "EventStreamOutput::serialize: invalid ProductID supplied in productRegistry\n";
       }
-      EventPrincipal::SharedConstGroupPtr const group = e.getGroup(id);
-      assert(group.get());
+      BasicHandle const bh = e.getForOutput(id, true);
+      assert(bh.provenance());
       // ModuleDescription md = group->provenance().moduleDescription();
-      if (group->product() == 0) {
+      if (bh.wrapper() == 0) {
         std::string const& name = desc.className();
         std::string const className = wrappedClassName(name);
         TClass *cp = gROOT->GetClass(className.c_str());
@@ -168,9 +169,9 @@ namespace edm
         }
         EDProduct *p = static_cast<EDProduct *>(cp->New());
 
-        se.prods_.push_back(ProdPair(p, &group->provenance()));
+        se.prods_.push_back(ProdPair(p, bh.provenance()));
       } else {
-        se.prods_.push_back(ProdPair(group->product(), &group->provenance()));
+        se.prods_.push_back(ProdPair(bh.wrapper(), bh.provenance()));
       }
     }
 

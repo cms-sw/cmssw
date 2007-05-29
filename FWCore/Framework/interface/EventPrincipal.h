@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.50 2007/03/27 23:06:57 wmtan Exp $
+$Id: EventPrincipal.h,v 1.52 2007/04/09 22:18:55 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -93,7 +93,7 @@ namespace edm {
     using Base::get;
     using Base::getBySelector;
     using Base::getByType;
-    using Base::getGroup;
+    using Base::getForOutput;
     using Base::getIt;
     using Base::getMany;
     using Base::getManyByType;
@@ -112,7 +112,7 @@ namespace edm {
 
   private:
 
-    virtual bool unscheduledFill(Group const& group) const;
+    virtual bool unscheduledFill(Provenance const& prov) const;
 
     EventAuxiliary aux_;
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;

@@ -1,5 +1,5 @@
-#ifndef Framework_Principal_h
-#define Framework_Principal_h
+#ifndef FWCore_Framework_Principal_h
+#define FWCore_Framework_Principal_h
 
 /*----------------------------------------------------------------------
   
@@ -16,36 +16,23 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.5 2007/05/25 18:07:57 chrjones Exp $
+$Id: Principal.h,v 1.6 2007/05/26 18:58:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
-#include <iterator>
-#include <list>
 #include <map>
 #include <memory>
-#include <stdexcept>
 #include <string>
-#include <typeinfo>
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
-
-#include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Common/interface/EDProduct.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/interface/NoDelayedReader.h"
-#include "FWCore/Framework/interface/DelayedReader.h"
-#include "FWCore/Framework/interface/SelectorBase.h"
 
-#include "FWCore/Framework/interface/Group.h"
-#include "FWCore/Utilities/interface/TypeID.h"
 
 namespace edm {
-  class ProductRegistry;
   class Principal : public EDProductGetter {
   public:
     typedef std::vector<boost::shared_ptr<Group> > GroupVec;
@@ -98,12 +85,9 @@ namespace edm {
     void put(std::auto_ptr<EDProduct> edp,
 	     std::auto_ptr<Provenance> prov);
 
-    SharedConstGroupPtr const getGroup(ProductID const& oid,
-                                       bool resolve = true,
-                                       bool resolveProvenance = true,
-				       bool fillOnDemand = false) const;
-
     BasicHandle  get(ProductID const& oid) const;
+
+    BasicHandle  getForOutput(ProductID const& oid, bool selected) const;
 
     BasicHandle  getBySelector(TypeID const& tid,
                                SelectorBase const& s) const;
@@ -158,10 +142,11 @@ namespace edm {
       return processHistoryID_;   
     }
 
-    // ----- Add a new Group
-    // *this takes ownership of the Group, which in turn owns its
-    // data.
-    void addGroup(std::auto_ptr<Group> g);
+    void addGroup(ConstBranchDescription const& bd);
+
+    void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
+
+    void addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov);
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 
@@ -175,7 +160,17 @@ namespace edm {
 
   private:
 
-    virtual bool unscheduledFill(Group const& group) const = 0;
+    // ----- Add a new Group
+    // *this takes ownership of the Group, which in turn owns its
+    // data.
+    void addGroup_(std::auto_ptr<Group> g);
+
+    SharedConstGroupPtr const getGroup(ProductID const& oid,
+                                       bool resolveProd,
+                                       bool resolveProv,
+				       bool fillOnDemand) const;
+
+    virtual bool unscheduledFill(Provenance const& prov) const = 0;
 
     // Used for indices to find groups by type and process
     typedef std::map<std::string, std::vector<ProductID> > ProcessLookup;
