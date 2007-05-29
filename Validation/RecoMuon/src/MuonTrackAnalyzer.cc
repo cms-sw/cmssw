@@ -1,8 +1,8 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the Muon tracks
  *
- *  $Date: 2006/09/01 14:35:48 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/13 09:39:22 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -18,6 +18,11 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "TrackingTools/DetLayers/interface/DetLayer.h"
+
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -46,18 +51,20 @@ MuonTrackAnalyzer::MuonTrackAnalyzer(const ParameterSet& pset){
   // the services
   theService = new MuonServiceProxy(serviceParameters);
   
-  theUpdatorAtVtx = new MuonUpdatorAtVertex("SteppingHelixPropagatorOpposite",theService);
-  
-  theMuonTrackLabel = pset.getParameter<InputTag>("MuonTrack");
-  theSeedCollectionLabel = pset.getParameter<InputTag>("MuonSeed");
+  theTracksLabel = pset.getParameter<InputTag>("Tracks");
+  doTracksAnalysis = pset.getUntrackedParameter<bool>("DoTracksAnalysis",true);
+
+  doSeedsAnalysis = pset.getUntrackedParameter<bool>("DoSeedsAnalysis",false);
+  if(doSeedsAnalysis){
+    theSeedsLabel = pset.getParameter<InputTag>("MuonSeed");
+    ParameterSet updatorPar = pset.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
+    theSeedPropagatorName = updatorPar.getParameter<string>("Propagator");
+
+    theUpdator = new MuonUpdatorAtVertex(updatorPar,theService);
+  }
 
   theRootFileName = pset.getUntrackedParameter<string>("rootFileName");
   
-  // Sim or Real
-  theDataType = pset.getParameter<InputTag>("DataType");
-  if(theDataType.label() != "RealData" && theDataType.label() != "SimData")
-    cout<<"Error in Data Type!!"<<endl;
-
   theCSCSimHitLabel = pset.getParameter<InputTag>("CSCSimHit");
   theDTSimHitLabel = pset.getParameter<InputTag>("DTSimHit");
   theRPCSimHitLabel = pset.getParameter<InputTag>("RPCSimHit");
@@ -81,125 +88,219 @@ void MuonTrackAnalyzer::beginJob(const EventSetup& eventSetup){
 
   hSimTracks = new HTrackVariables("SimTracks"); 
 
-  hRecoTracksExtrAtPCA = new HTrack("RecoTracks","ExtrAtPCA"); 
-  hRecoTracksUpdatedAtVTX = new HTrack("RecoTracks","UpdatedAtVTX"); 
-
-  hRecoTracksVTX = new HTrack("RecoTracks","VTX"); 
-  hRecoTracksInner = new HTrack("RecoTracks","Inner"); 
-  hRecoTracksOuter = new HTrack("RecoTracks","Outer"); 
-
-  // General Histos
-  hChi2 = new TH1F("chi2","#chi^2",200,0,200);
-  hChi2VsEta = new TH2F("chi2VsEta","#chi^2 VS #eta",120,-3.,3.,200,0,200);
+  if(doSeedsAnalysis){
+    hRecoSeedInner = new HTrack("RecoSeed","Inner");
+    hRecoSeedPCA = new HTrack("RecoSeed","PCA");
+  }
   
-  hChi2Norm = new TH1F("chi2Norm","Normalized #chi^2",400,0,100);
-  hChi2NormVsEta = new TH2F("chi2NormVsEta","Normalized #chi^2 VS #eta",120,-3.,3.,400,0,100);
-  
-  hHitsPerTrack  = new TH1F("HitsPerTrack","Number of hits per track",55,0,55);
-  hHitsPerTrackVsEta  = new TH2F("HitsPerTrackVsEta","Number of hits per track VS #eta",
-				 120,-3.,3.,55,0,55);
-  
-  hDof  = new TH1F("dof","Number of Degree of Freedom",55,0,55);
-  hDofVsEta  = new TH2F("dofVsEta","Number of Degree of Freedom VS #eta",120,-3.,3.,55,0,55);
+  if(doTracksAnalysis){
 
-  hChi2Prob = new TH1F("chi2Prob","#chi^2 probability",200,0,1);
-  hChi2ProbVsEta = new TH2F("chi2ProbVsEta","#chi^2 probability VS #eta",120,-3.,3.,200,0,1);
+    hRecoTracksPCA = new HTrack("RecoTracks","PCA"); 
+    hRecoTracksInner = new HTrack("RecoTracks","Inner"); 
+    hRecoTracksOuter = new HTrack("RecoTracks","Outer"); 
 
-  hNumberOfTracks = new TH1F("NumberOfTracks","Number of reconstructed tracks per event",200,0,200);
-  hNumberOfTracksVsEta = new TH2F("NumberOfTracksVsEta",
-				  "Number of reconstructed tracks per event VS #eta",
-				  120,-3.,3.,10,0,10);
+    
+    // General Histos
+    hChi2 = new TH1F("chi2","#chi^2",200,0,200);
+    hChi2VsEta = new TH2F("chi2VsEta","#chi^2 VS #eta",120,-3.,3.,200,0,200);
+    
+    hChi2Norm = new TH1F("chi2Norm","Normalized #chi^2",400,0,100);
+    hChi2NormVsEta = new TH2F("chi2NormVsEta","Normalized #chi^2 VS #eta",120,-3.,3.,400,0,100);
+    
+    hHitsPerTrack  = new TH1F("HitsPerTrack","Number of hits per track",55,0,55);
+    hHitsPerTrackVsEta  = new TH2F("HitsPerTrackVsEta","Number of hits per track VS #eta",
+				   120,-3.,3.,55,0,55);
+    
+    hDof  = new TH1F("dof","Number of Degree of Freedom",55,0,55);
+    hDofVsEta  = new TH2F("dofVsEta","Number of Degree of Freedom VS #eta",120,-3.,3.,55,0,55);
+    
+    hChi2Prob = new TH1F("chi2Prob","#chi^2 probability",200,0,1);
+    hChi2ProbVsEta = new TH2F("chi2ProbVsEta","#chi^2 probability VS #eta",120,-3.,3.,200,0,1);
+    
+    hNumberOfTracks = new TH1F("NumberOfTracks","Number of reconstructed tracks per event",200,0,200);
+    hNumberOfTracksVsEta = new TH2F("NumberOfTracksVsEta",
+				    "Number of reconstructed tracks per event VS #eta",
+				    120,-3.,3.,10,0,10);
+    
+    hChargeVsEta = new TH2F("ChargeVsEta","Charge vs #eta gen",120,-3.,3.,4,-2.,2.);
+    hChargeVsPt = new TH2F("ChargeVsPt","Charge vs P_{T} gen",250,0,200,4,-2.,2.);
+    hPtRecVsPtGen = new TH2F("PtRecVsPtGen","P_{T} rec vs P_{T} gen",250,0,200,250,0,200);
 
-  hChargeVsEta = new TH2F("ChargeVsEta","Charge vs #eta gen",120,-3.,3.,4,-2.,2.);
-  hChargeVsPt = new TH2F("ChargeVsPt","Charge vs P_{T} gen",250,0,200,4,-2.,2.);
-  hPtRecVsPtGen = new TH2F("PtRecVsPtGen","P_{T} rec vs P_{T} gen",250,0,200,250,0,200);
+    hDeltaPtVsEta = new TH2F("DeltaPtVsEta","#Delta P_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
+    hDeltaPt_In_Out_VsEta = new TH2F("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
+  }    
 
-  hDeltaPtVsEta = new TH2F("DeltaPtVsEta","#Delta P_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
-  hDeltaPt_In_Out_VsEta = new TH2F("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
-  
   theFile->cd();
 }
 
 void MuonTrackAnalyzer::endJob(){
-  if(theDataType.label() == "SimData"){
-    cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
-  }
+  cout << endl << endl << "Number of Sim tracks: " << numberOfSimTracks << endl;
+
   cout << "Number of Reco tracks: " << numberOfRecTracks << endl;
 
   // Write the histos to file
   theFile->cd();
   
-  hChi2->Write();
-  hNumberOfTracks->Write();
-  hNumberOfTracksVsEta->Write();
-  hChargeVsEta->Write();
-  hChargeVsPt->Write();
-  hPtRecVsPtGen->Write();
-  hChi2Norm->Write();
-  hHitsPerTrack->Write();
-  hDof->Write();
-  hChi2Prob->Write();
-  hChi2VsEta->Write();
-  hChi2NormVsEta->Write();
-  hHitsPerTrackVsEta->Write();
-  hDofVsEta->Write(); 
-  hChi2ProbVsEta->Write(); 
-  hDeltaPtVsEta->Write();  
-  hDeltaPt_In_Out_VsEta->Write();
-
-  if(theDataType.label() == "SimData"){
-    double eff = hRecoTracksVTX->computeEfficiency(hSimTracks);
-    hRecoTracksUpdatedAtVTX->computeEfficiency(hSimTracks);
-    cout<<" *Efficiency* = "<< eff <<"%"<<endl<<endl;;
+  if(doTracksAnalysis){
+    hChi2->Write();
+    hNumberOfTracks->Write();
+    hNumberOfTracksVsEta->Write();
+    hChargeVsEta->Write();
+    hChargeVsPt->Write();
+    hPtRecVsPtGen->Write();
+    hChi2Norm->Write();
+    hHitsPerTrack->Write();
+    hDof->Write();
+    hChi2Prob->Write();
+    hChi2VsEta->Write();
+    hChi2NormVsEta->Write();
+    hHitsPerTrackVsEta->Write();
+    hDofVsEta->Write(); 
+    hChi2ProbVsEta->Write(); 
+    hDeltaPtVsEta->Write();  
+    hDeltaPt_In_Out_VsEta->Write();
+    
+    double eff = hRecoTracksPCA->computeEfficiency(hSimTracks);
+    cout<<" *Track Efficiency* = "<< eff <<"%"<<endl<<endl;
+    hRecoTracksPCA->Write(theFile);
+    hRecoTracksInner->Write(theFile); 
+    hRecoTracksOuter->Write(theFile);
   }
-  
+
+  if(doSeedsAnalysis){
+    double eff = hRecoSeedInner->computeEfficiency(hSimTracks);
+    cout<<" *Seed Efficiency* = "<< eff <<"%"<<endl<<endl;
+    hRecoSeedInner->Write(theFile);
+    hRecoSeedPCA->Write(theFile);
+  }
+
   TDirectory * sim = theFile->mkdir("SimTrack");
   sim->cd();
   
   hSimTracks->Write(); 
 
-  hRecoTracksExtrAtPCA->Write(theFile);
-  hRecoTracksUpdatedAtVTX->Write(theFile);
-  hRecoTracksVTX->Write(theFile);  
-  hRecoTracksInner->Write(theFile); 
-  hRecoTracksOuter->Write(theFile);
-
   theFile->Close();
 }
 
-
 void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetup){
+  
+  cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
   // Update the services
   theService->update(eventSetup);
 
+  Handle<SimTrackContainer> simTracks;
+  event.getByLabel("g4SimHits",simTracks);  
+  fillPlots(event,simTracks);
+
+  
+  if(doTracksAnalysis)
+    tracksAnalysis(event,eventSetup,simTracks);
+  
+  if(doSeedsAnalysis)
+    seedsAnalysis(event,eventSetup,simTracks);
+  
+
+}
+
+void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eventSetup,
+				      Handle<SimTrackContainer> simTracks){
+
   MuonPatternRecoDumper debug;
 
-  cout << "Run: " << event.id().run() << " Event: " << event.id().event() << endl;
-
   // Get the RecTrack collection from the event
-  Handle<reco::TrackCollection> staTracks;
-  event.getByLabel(theMuonTrackLabel, staTracks);
+  Handle<TrajectorySeedCollection> seeds;
+  event.getByLabel(theSeedsLabel, seeds);
   
-  Handle<SimTrackContainer> simTracks;
+  cout<<"Number of reconstructed seeds: " << seeds->size()<<endl;
+
+  for(TrajectorySeedCollection::const_iterator seed = seeds->begin(); 
+      seed != seeds->end(); ++seed){
+    TrajectoryStateOnSurface seedTSOS = getSeedTSOS(*seed);
+    pair<SimTrack,double> sim = getSimTrack(seedTSOS,simTracks);
+    fillPlots(seedTSOS, sim.first,
+	      hRecoSeedInner, debug);
+    
+    std::pair<bool,FreeTrajectoryState> propSeed =
+      theUpdator->propagate(seedTSOS);
+    if(propSeed.first)
+      fillPlots(propSeed.second, sim.first,
+		hRecoSeedPCA, debug);
+    else
+      cout<<"Error in seed propagation"<<endl;
+   
+  }
+}
+
+
+void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& eventSetup,
+				      Handle<SimTrackContainer> simTracks){
+  MuonPatternRecoDumper debug;
   
-  if(theDataType.label() == "SimData"){
+  
+  // Get the RecTrack collection from the event
+  Handle<reco::TrackCollection> tracks;
+  event.getByLabel(theTracksLabel, tracks);
 
-    if(!checkMuonSimHitPresence(event)) return;
+  cout<<"Reconstructed tracks: " << tracks->size() << endl;
+  hNumberOfTracks->Fill(tracks->size());
+  
+  if(tracks->size()) numberOfRecTracks++;
+  
+  // Loop over the Rec tracks
+  for(reco::TrackCollection::const_iterator t = tracks->begin(); t != tracks->end(); ++t) {
     
-    // Get the SimTrack collection from the event
-    //    event.getByLabel("g4SimHits",simTracks);
-    event.getByLabel(theDataType.instance(),simTracks);
-    
-    // Loop over the Sim tracks
-    SimTrackContainer::const_iterator simTrack;
-    cout<<"Simulated tracks: "<<simTracks->size()<<endl;
-    
-    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
-      if (abs((*simTrack).type()) == 13) {
+    reco::TransientTrack track(*t,&*theService->magneticField(),theService->trackingGeometry()); 
 
-	if( !isInTheAcceptance( (*simTrack).momentum().eta()) ) continue; // FIXME!!
-	
+    TrajectoryStateOnSurface outerTSOS = track.outermostMeasurementState();
+    TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
+    TrajectoryStateOnSurface pcaTSOS   = track.impactPointState();
+
+    pair<SimTrack,double> sim = getSimTrack(pcaTSOS,simTracks);
+    SimTrack simTrack = sim.first;
+    hNumberOfTracksVsEta->Fill(simTrack.momentum().eta(), tracks->size());
+    fillPlots(track,simTrack);
+    
+    cout << "State at the outer surface: " << endl; 
+    fillPlots(outerTSOS,simTrack,hRecoTracksOuter,debug);
+
+    cout << "State at the inner surface: " << endl; 
+    fillPlots(innerTSOS,simTrack,hRecoTracksInner,debug);
+
+    cout << "State at PCA: " << endl; 
+    fillPlots(pcaTSOS,simTrack,hRecoTracksPCA,debug);
+    
+    double deltaPt_in_out = innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp();
+    hDeltaPt_In_Out_VsEta->Fill(simTrack.momentum().eta(),deltaPt_in_out);
+
+    double deltaPt_pca_sim = pcaTSOS.globalMomentum().perp()-simTrack.momentum().perp();
+    hDeltaPtVsEta->Fill(simTrack.momentum().eta(),deltaPt_pca_sim);
+    
+    hChargeVsEta->Fill(simTrack.momentum().eta(),pcaTSOS.charge());
+    
+    hChargeVsPt->Fill(simTrack.momentum().perp(),pcaTSOS.charge());
+    
+    hPtRecVsPtGen->Fill(simTrack.momentum().perp(),pcaTSOS.globalMomentum().perp());    
+  }
+  cout<<"--------------------------------------------"<<endl;  
+}
+
+
+
+
+void  MuonTrackAnalyzer::fillPlots(const Event &event, edm::Handle<edm::SimTrackContainer> &simTracks){
+  
+  if(!checkMuonSimHitPresence(event,simTracks)) return;
+  
+  // Loop over the Sim tracks
+  SimTrackContainer::const_iterator simTrack;
+  cout<<"Simulated tracks: "<<simTracks->size()<<endl;
+  
+  for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
+    if (abs((*simTrack).type()) == 13) {
+      
+      if( !isInTheAcceptance( (*simTrack).momentum().eta()) ) continue; // FIXME!!
+      
 	numberOfSimTracks++;
 	
 	cout<<"Simualted muon:"<<endl;
@@ -210,186 +311,103 @@ void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetu
 			 (*simTrack).momentum().perp(), 
 			 (*simTrack).momentum().eta(), 
 			 (*simTrack).momentum().phi(), 
-			 -(*simTrack).type()/ abs((*simTrack).type()) ); // Double FIXME
-	
-	hNumberOfTracksVsEta->Fill((*simTrack).momentum().eta(), staTracks->size());	
-      }    
-    cout << endl; 
-  }
+			 -(*simTrack).type()/ abs((*simTrack).type()) ); // Double FIXME  
+    }    
+  cout << endl; 
+}
   
-  if(staTracks->size())
-    numberOfRecTracks++;
+
+void  MuonTrackAnalyzer::fillPlots(reco::TransientTrack &track, SimTrack &simTrack){
+
+  cout<<"Analizer: New track, chi2: "<<track.chi2()<<" dof: "<<track.ndof()<<endl;
+  hChi2->Fill(track.chi2());
+  hDof->Fill(track.ndof());
+  hChi2Norm->Fill(track.normalizedChi2());
+  hHitsPerTrack->Fill(track.recHitsSize());
   
-  reco::TrackCollection::const_iterator staTrack;
-  
-  cout<<"Reconstructed tracks: " << staTracks->size() << endl;
-  hNumberOfTracks->Fill(staTracks->size());
-    
-  // Loop over the Rec tracks
-  for (staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
-    
-    reco::TransientTrack track(*staTrack,&*theService->magneticField(),theService->trackingGeometry()); 
-    
-    cout<<"Analizer: New track, chi2: "<<track.chi2()<<" dof: "<<track.ndof()<<endl;
-    hChi2->Fill(track.chi2());
-    hDof->Fill(track.ndof());
-    hChi2Norm->Fill(track.normalizedChi2());
-    hHitsPerTrack->Fill(track.recHitsSize());
+  hChi2Prob->Fill( ChiSquaredProbability(track.chi2(),track.ndof()) );
 
-    hChi2Prob->Fill( ChiSquaredProbability(track.chi2(),track.ndof()) );
-
-    cout << "State at the outer surface: " << endl; 
-    TrajectoryStateOnSurface outerTSOS = track.outermostMeasurementState();
-    cout << debug.dumpTSOS(outerTSOS)<<endl;
-    hRecoTracksOuter->Fill(outerTSOS);
-    
-    cout << "State at the inner surface: " << endl; 
-    TrajectoryStateOnSurface innerTSOS = track.innermostMeasurementState();
-    cout << debug.dumpTSOS(innerTSOS)<<endl;
-    hRecoTracksInner->Fill(innerTSOS);
-    
-    cout << "State at VTX (WRONG!): " << endl; 
-    TrajectoryStateOnSurface vtxTSOS_wrong   = track.impactPointState();
-    cout << debug.dumpTSOS(vtxTSOS_wrong)<<endl;
-    // hRecoTracksVTX->Fill(vtxTSOS);
-
-
-    // Propagate the state at PCA
-    pair<bool,FreeTrajectoryState> resultOfExtrAtPCA = theUpdatorAtVtx->propagate(innerTSOS,GlobalPoint(0.,0.,0.));
-    
-    if(resultOfExtrAtPCA.first){
-     
-      FreeTrajectoryState ftsAtPCA = resultOfExtrAtPCA.second;
-
-      cout << "State at PCA (NOT updated): " << endl; 
-      cout << debug.dumpFTS(ftsAtPCA) <<endl;
-
-      // FIXME: rename it
-      hRecoTracksExtrAtPCA->Fill(ftsAtPCA);
-    
-    }
-    
-    // Update
-    pair<bool,FreeTrajectoryState> resultOfUpdateAtVtx = theUpdatorAtVtx->update(track);
-    
-    if(resultOfUpdateAtVtx.first){
-      
-      FreeTrajectoryState ftsAtVTX = resultOfUpdateAtVtx.second;
-      
-      cout << "State at VTX (updated): " << endl;      
-      cout << debug.dumpFTS(ftsAtVTX)<<endl;
-      
-      // FIXME: rename it
-      hRecoTracksUpdatedAtVTX->Fill(ftsAtVTX);
-    }
-    
-    
-    // Loop over the RecHits
-    trackingRecHit_iterator rhbegin = staTrack->recHitsBegin();
-    trackingRecHit_iterator rhend = staTrack->recHitsEnd();
-    
-    int i=1;
-
-    cout<<"Valid RecHits: "<<staTrack->found()<<" invalid RecHits: "<<staTrack->lost()<<endl;
-    for(trackingRecHit_iterator recHit = rhbegin; recHit != rhend; ++recHit){
-      if((*recHit)->isValid()){
-	const GeomDet* geomDet = theService->trackingGeometry()->idToDet((*recHit)->geographicalId());
-	double r = geomDet->surface().position().perp();
-	double z = geomDet->toGlobal((*recHit)->localPosition()).z();
-	cout<< i++ <<" r: "<< r <<" z: "<<z <<" "<<geomDet->toGlobal((*recHit)->localPosition())
-	  // <<" Id: "<<debug.dumpMuonId((*recHit)->geographicalId())
-	    <<endl;
-      }
-    }
-    if(theDataType.label() == "SimData" && staTracks->size() ){  
-
-      if(resultOfExtrAtPCA.first && resultOfUpdateAtVtx.first){
-
-	FreeTrajectoryState &ftsAtPCA = resultOfExtrAtPCA.second;
-	FreeTrajectoryState &ftsAtVTX = resultOfUpdateAtVtx.second;
-	
-	SimTrack simTrack = getSimTrack(ftsAtVTX,simTracks);
-	
-	hRecoTracksExtrAtPCA->computeResolutionAndPull(ftsAtPCA,simTrack);
-	hRecoTracksUpdatedAtVTX->computeResolutionAndPull(ftsAtVTX,simTrack);
-	
-	hChargeVsEta->Fill(simTrack.momentum().eta(),ftsAtVTX.charge());
-	hChargeVsPt->Fill(simTrack.momentum().perp(),ftsAtVTX.charge());
-	hPtRecVsPtGen->Fill(simTrack.momentum().perp(),ftsAtVTX.momentum().perp());  
-	
-	hChi2VsEta->Fill(simTrack.momentum().eta(),track.chi2());
-	hChi2NormVsEta->Fill(simTrack.momentum().eta(),track.normalizedChi2());
-	hChi2ProbVsEta->Fill(simTrack.momentum().eta(),ChiSquaredProbability(track.chi2(),track.ndof()));     
-	hHitsPerTrackVsEta->Fill(simTrack.momentum().eta(),track.recHitsSize());
-	hDofVsEta->Fill(simTrack.momentum().eta(),track.ndof()); 
-	
-	hDeltaPtVsEta->Fill(simTrack.momentum().eta(),ftsAtVTX.momentum().perp()-simTrack.momentum().perp());
-	hDeltaPt_In_Out_VsEta->Fill(simTrack.momentum().eta(),
-				    innerTSOS.globalMomentum().perp()-outerTSOS.globalMomentum().perp());
-	
-	hRecoTracksVTX->computeResolutionAndPull(ftsAtVTX,simTrack);
-	hRecoTracksInner->computeResolutionAndPull(innerTSOS,simTrack);
-	hRecoTracksOuter->computeResolutionAndPull(outerTSOS,simTrack);
-      }
-    }   
-  }
-  cout<<"---"<<endl;  
+  hChi2VsEta->Fill(simTrack.momentum().eta(),track.chi2());
+  hChi2NormVsEta->Fill(simTrack.momentum().eta(),track.normalizedChi2());
+  hChi2ProbVsEta->Fill(simTrack.momentum().eta(),ChiSquaredProbability(track.chi2(),track.ndof()));     
+  hHitsPerTrackVsEta->Fill(simTrack.momentum().eta(),track.recHitsSize());
+  hDofVsEta->Fill(simTrack.momentum().eta(),track.ndof()); 
 }
 
-SimTrack MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
-    Handle<SimTrackContainer> simTracks){
 
-  return getSimTrack(*tsos.freeState(),simTracks);
+void  MuonTrackAnalyzer::fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &simTrack,
+				   HTrack *histo, MuonPatternRecoDumper &debug){
+  
+  cout << debug.dumpTSOS(recoTSOS)<<endl;
+  histo->Fill(recoTSOS);
+  
+  GlobalVector tsosVect = recoTSOS.globalMomentum();
+  Hep3Vector reco(tsosVect.x(), tsosVect.y(), tsosVect.z());
+  double deltaR = reco.deltaR(simTrack.momentum().vect());
+  histo->FillDeltaR(deltaR);
+
+  histo->computeResolutionAndPull(recoTSOS,simTrack);
+}
+
+
+void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTrack,
+				   HTrack *histo, MuonPatternRecoDumper &debug){
+  
+  cout << debug.dumpFTS(recoFTS)<<endl;
+  histo->Fill(recoFTS);
+  
+  GlobalVector ftsVect = recoFTS.momentum();
+  Hep3Vector reco(ftsVect.x(), ftsVect.y(), ftsVect.z());
+  double deltaR = reco.deltaR(simTrack.momentum().vect());
+  histo->FillDeltaR(deltaR);
+
+  histo->computeResolutionAndPull(recoFTS,simTrack);
 }
 
 
 
-SimTrack MuonTrackAnalyzer::getSimTrack(FreeTrajectoryState &fts,
-					Handle<SimTrackContainer> simTracks){
-  
-  // Loop over the Sim tracks
-  SimTrackContainer::const_iterator simTrack;
-  
-  SimTrack result;
-  int mu=0;
-  for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
-    if (abs((*simTrack).type()) == 13) { 
-      result = *simTrack;
-      ++mu;
-    }
-  
-  if(mu != 1) cout << "WARNING!! more than 1 simulated muon!!" <<endl;
-  return result;
-}
 
-// SimTrack MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
-// 					Handle<SimTrackContainer> simTracks){
+pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
+						     Handle<SimTrackContainer> simTracks){
   
 //   // Loop over the Sim tracks
 //   SimTrackContainer::const_iterator simTrack;
   
 //   SimTrack result;
 //   int mu=0;
-//   double deltaR_rif = 9999.;
 //   for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
 //     if (abs((*simTrack).type()) == 13) { 
-
-//       double deltaR = 0.;
-//       if(tsos.isValid())
-// 	deltaR = sqrt( pow(tsos.globalMomentum().eta()-simTrack->momentum().eta(),2)+
-// 		       pow(tsos.globalMomentum().phi()-simTrack->momentum().phi(),2));    
-
-//       if(deltaR < deltaR_rif){
-// 	deltaR_rif = deltaR;
-// 	result = *simTrack;
-//       }
+//       result = *simTrack;
 //       ++mu;
 //     }
-//   cout<<"Delta R: "<<deltaR_rif<<endl;
   
 //   if(mu != 1) cout << "WARNING!! more than 1 simulated muon!!" <<endl;
 //   return result;
-// }
+
+
+  // Loop over the Sim tracks
+  SimTrackContainer::const_iterator simTrack;
+  
+  SimTrack result;
+
+  double bestDeltaR = 10e5;
+  for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
+    if (abs((*simTrack).type()) != 13) continue;
+    
+    //    double newDeltaR = tsos.globalMomentum().basicVector().deltaR(simTrack->momentum().vect());
+    GlobalVector tsosVect = tsos.globalMomentum();
+    Hep3Vector vect(tsosVect.x(), tsosVect.y(), tsosVect.z());
+    double newDeltaR = vect.deltaR(simTrack->momentum().vect());
+
+    if (  newDeltaR < bestDeltaR ) {
+      cout << "Matching Track with DeltaR = " << newDeltaR<<endl;
+      bestDeltaR = newDeltaR;
+      result  = *simTrack;
+    }
+  } 
+  return pair<SimTrack,double>(result,bestDeltaR);
+}
+
 
 bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
   switch(theEtaRange){
@@ -404,7 +422,8 @@ bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
   }
 }
 
-bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event){
+bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event,
+						edm::Handle<edm::SimTrackContainer> simTracks){
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> dtSimHits;
@@ -415,9 +434,6 @@ bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event){
   
   Handle<PSimHitContainer> rpcSimHits;
   event.getByLabel(theRPCSimHitLabel.instance(),theRPCSimHitLabel.label(), rpcSimHits);  
-
-  Handle<SimTrackContainer> simTracks;
-  event.getByLabel(theDataType.instance(),simTracks);
   
   map<unsigned int, vector<const PSimHit*> > mapOfMuonSimHits;
   
@@ -454,4 +470,38 @@ bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event){
   }
   
   return presence;
+}
+
+TrajectoryStateOnSurface MuonTrackAnalyzer::getSeedTSOS(const TrajectorySeed& seed){
+
+  // Get the Trajectory State on Det (persistent version of a TSOS) from the seed
+  PTrajectoryStateOnDet pTSOD = seed.startingState();
+
+  // Transform it in a TrajectoryStateOnSurface
+  TrajectoryStateTransform tsTransform;
+
+  DetId seedDetId(pTSOD.detId());
+
+  const GeomDet* gdet = theService->trackingGeometry()->idToDet( seedDetId );
+
+  TrajectoryStateOnSurface initialState = tsTransform.transientState(pTSOD, &(gdet->surface()), &*theService->magneticField());
+
+  // Get the layer on which the seed relies
+  const DetLayer *initialLayer = theService->detLayerGeometry()->idToLayer( seedDetId );
+
+  PropagationDirection detLayerOrder = oppositeToMomentum;
+
+  // ask for compatible layers
+  vector<const DetLayer*> detLayers;
+  detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder);
+  
+  TrajectoryStateOnSurface result = initialState;
+  if(detLayers.size()){
+    const DetLayer* finalLayer = detLayers.back();
+    const TrajectoryStateOnSurface propagatedState = theService->propagator(theSeedPropagatorName)->propagate(initialState, finalLayer->surface());
+    if(propagatedState.isValid())
+      result = propagatedState;
+  }
+  
+  return result;
 }

@@ -42,6 +42,7 @@ class HTrack{
   
   void Fill(TrajectoryStateOnSurface &);
   void Fill(FreeTrajectoryState &);
+  void FillDeltaR(double);
 
   double computeEfficiency(HTrackVariables *sim);
 
@@ -119,4 +120,6 @@ class HTrack{
 
   TString theName;
   TString where;
+
+  bool doSubHisto;
 };

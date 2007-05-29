@@ -4,7 +4,7 @@
 /** \class MuonTrackAnalyzer
  *  Analyzer of the StandAlone muon tracks
  *
- *  $Date: 2006/09/01 14:35:48 $
+ *  $Date: 2007/03/13 09:39:37 $
  *  $Revision: 1.2 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -17,11 +17,8 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
-namespace edm {
-  class ParameterSet;
-  class Event;
-  class EventSetup;
-}
+namespace edm {class ParameterSet; class Event; class EventSetup;}
+namespace reco {class TransientTrack;}
 
 class TFile;
 class TH1F; 
@@ -29,10 +26,11 @@ class TH2F;
 class HTrackVariables;
 class HTrack;
 
-namespace reco {class TransientTrack;}
-
 class TrajectoryStateOnSurface;
+class FreeTrajectoryState;
 class MuonServiceProxy;
+class MuonPatternRecoDumper;
+class TrajectorySeed;
 class MuonUpdatorAtVertex;
 
 class MuonTrackAnalyzer: public edm::EDAnalyzer {
@@ -50,6 +48,11 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   // Operations
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
+  void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
+		      edm::Handle<edm::SimTrackContainer> simTracks);
+  void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
+		     edm::Handle<edm::SimTrackContainer> simTracks);
+    
 
   virtual void beginJob(const edm::EventSetup& eventSetup) ;
   virtual void endJob() ;
@@ -57,29 +60,39 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
  private:
   bool isInTheAcceptance(double eta);
-  bool checkMuonSimHitPresence(const edm::Event&);
+  bool checkMuonSimHitPresence(const edm::Event & event,
+			       edm::Handle<edm::SimTrackContainer> simTracks);
 
-  SimTrack getSimTrack(TrajectoryStateOnSurface &tsos,
-		       edm::Handle<edm::SimTrackContainer> simTracks);
+  std::pair<SimTrack,double> getSimTrack(TrajectoryStateOnSurface &tsos,
+				       edm::Handle<edm::SimTrackContainer> simTracks);  
 
-  SimTrack getSimTrack(FreeTrajectoryState &tsos,
-		       edm::Handle<edm::SimTrackContainer> simTracks);
-  
+  void fillPlots(const edm::Event &event, edm::Handle<edm::SimTrackContainer> &simTracks);
+  void fillPlots(reco::TransientTrack &track, SimTrack &simTrack);
+  void fillPlots(TrajectoryStateOnSurface &recoTSOS,SimTrack &simState,
+		 HTrack*, MuonPatternRecoDumper&);
+  void fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTrack,
+		 HTrack *histo, MuonPatternRecoDumper &debug);
+
+
+  TrajectoryStateOnSurface getSeedTSOS(const TrajectorySeed& seed);
 
   std::string theRootFileName;
   TFile* theFile;
 
-  edm::InputTag theDataType;
   EtaRange theEtaRange;
   
-  edm::InputTag theMuonTrackLabel;
-  edm::InputTag theSeedCollectionLabel;
+  edm::InputTag theTracksLabel;
+  edm::InputTag theSeedsLabel;
   edm::InputTag theCSCSimHitLabel;
   edm::InputTag theDTSimHitLabel; 
   edm::InputTag theRPCSimHitLabel;
 
+  bool doTracksAnalysis;
+  bool doSeedsAnalysis;
+  std::string theSeedPropagatorName;
+
   MuonServiceProxy *theService;
-  MuonUpdatorAtVertex *theUpdatorAtVtx;
+  MuonUpdatorAtVertex *theUpdator;
 
   // Histograms
   TH1F *hChi2;
@@ -104,13 +117,12 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   HTrackVariables *hSimTracks;
 
-  HTrack *hRecoTracksExtrAtPCA;
-  HTrack *hRecoTracksUpdatedAtVTX;
-
-  HTrack *hRecoTracksVTX; 
+  HTrack *hRecoSeedInner;
+  HTrack *hRecoSeedPCA;
+  HTrack *hRecoTracksPCA; 
   HTrack *hRecoTracksInner;
   HTrack *hRecoTracksOuter;
-  
+
   // Counters
   int numberOfSimTracks;
   int numberOfRecTracks;

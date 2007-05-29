@@ -4,8 +4,8 @@
 /** \class Histograms
  *  No description available.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2007/01/24 10:30:21 $
+ *  $Revision: 1.1 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -14,7 +14,7 @@
 #include "TString.h"
 #include "TFile.h"
 
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include <iostream>
 
 class HTrackVariables{
@@ -24,13 +24,15 @@ public:
 
     hEta = new TH1F(theName+"_Eta_"+where,"#eta at "+where,120,-3.,3.);
     hPhi = new TH1F(theName+"_Phi_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
-    hP   = new TH1F(theName+"_P_"+where,"p_{t} at "+where,250,0,200);
-    hPt  = new TH1F(theName+"_Pt_"+where,"p_{t} at "+where,250,0,200);
+    hP   = new TH1F(theName+"_P_"+where,"p_{t} at "+where,1000,0,2000);
+    hPt  = new TH1F(theName+"_Pt_"+where,"p_{t} at "+where,1000,0,2000);
     hCharge = new TH1F(theName+"_charge_"+where,"Charge at "+where,4,-2.,2.);
 
     hEtaVsGen = new TH1F(theName+"_EtaVsGen_"+where,"#eta at "+where,120,-3.,3.);
     hPhiVsGen = new TH1F(theName+"_PhiVsGen_"+where,"#phi at "+where,100,-Geom::pi(),Geom::pi());
-    hPtVsGen  = new TH1F(theName+"_PtVsGen_"+where,"p_{t} at "+where,250,0,200);
+    hPtVsGen  = new TH1F(theName+"_PtVsGen_"+where,"p_{t} at "+where,1000,0,2000);
+
+    hDeltaR = new TH1F(theName+"_DeltaR_"+where,"Delta R w.r.t. sim track for "+where,1000,0,20);
 
     theEntries = 0;
   }
@@ -68,6 +70,10 @@ public:
     hPtVsGen->Fill(pt);
   }
 
+  void FillDeltaR(double deltaR){
+    hDeltaR->Fill(deltaR);
+  }
+
 
 
   void Write(){
@@ -77,6 +83,7 @@ public:
     hPt->Write();
     hCharge->Write();
 
+    hDeltaR->Write();
     // hEtaVsGen->Write();
     // hPhiVsGen->Write();
     // hPtVsGen->Write();
@@ -150,6 +157,8 @@ private:
   TH1F *hPhiVsGen;
   TH1F *hPtVsGen;
   
+  TH1F* hDeltaR;
+  
   std::vector<TH1F*> efficiencyHistos;
 
   
@@ -161,29 +170,33 @@ public:
   
   HResolution(std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
  
-    hEta = new TH1F(theName+"_Eta_"+where,"#eta "+theName,800,-1,1); // 400
-    hPhi = new TH1F(theName+"_Phi_"+where,"#phi "+theName,200,-2,2); // 100
+    double eta = 15.; int neta = 800;
+    double phi = 12.; int nphi = 400;
+    double pt = 60.; int npt = 2000;
+
+    hEta = new TH1F(theName+"_Eta_"+where,"#eta "+theName,neta,-eta,eta); // 400
+    hPhi = new TH1F(theName+"_Phi_"+where,"#phi "+theName,nphi,-phi,phi); // 100
 
     hP = new TH1F(theName+"_P_"+where,"P "+theName,400,-4,4);  // 200
-    hPt = new TH1F(theName+"_Pt_"+where,"P_{t} "+theName,800,-4,4); // 200
+    hPt = new TH1F(theName+"_Pt_"+where,"P_{t} "+theName,npt,-pt,pt); // 200
 
     hCharge = new TH1F(theName+"_charge_"+where,"Charge "+theName,4,-2.,2.);
 
 
-    h2Eta = new TH2F(theName+"_Eta_vs_Eta"+where,"#eta "+theName+" as a function of #eta",200,-2.5,2.5,800,-1,1);
-    h2Phi = new TH2F(theName+"_Phi_vs_Phi"+where,"#phi "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),200,-2,2);
+    h2Eta = new TH2F(theName+"_Eta_vs_Eta"+where,"#eta "+theName+" as a function of #eta",200,-2.5,2.5,neta,-eta,eta);
+    h2Phi = new TH2F(theName+"_Phi_vs_Phi"+where,"#phi "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),nphi,-phi,phi);
     
-    h2P = new TH2F(theName+"_P_vs_P"+where,"P "+theName+" as a function of P",250,0,200,400,-4,4);
-    h2Pt = new TH2F(theName+"_Pt_vs_Pt"+where,"P_{t} "+theName+" as a function of P_{t}",250,0,200,800,-4,4);
+    h2P = new TH2F(theName+"_P_vs_P"+where,"P "+theName+" as a function of P",1000,0,2000,400,-4,4);
+    h2Pt = new TH2F(theName+"_Pt_vs_Pt"+where,"P_{t} "+theName+" as a function of P_{t}",1000,0,2000,npt,-pt,pt);
     
-    h2PtVsEta = new TH2F(theName+"_Pt_vs_Eta"+where,"P_{t} "+theName+" as a function of #eta",200,-2.5,2.5,800,-4,4);
-    h2PtVsPhi = new TH2F(theName+"_Pt_vs_Phi"+where,"P_{t} "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),800,-4,4);
+    h2PtVsEta = new TH2F(theName+"_Pt_vs_Eta"+where,"P_{t} "+theName+" as a function of #eta",200,-2.5,2.5,npt,-pt,pt);
+    h2PtVsPhi = new TH2F(theName+"_Pt_vs_Phi"+where,"P_{t} "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),npt,-pt,pt);
 
-    h2EtaVsPt = new TH2F(theName+"_Eta_vs_Pt"+where,"#eta "+theName+" as a function of P_{t}",250,0,200,800,-1,1);
-    h2EtaVsPhi = new TH2F(theName+"_Eta_vs_Phi"+where,"#eta "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),800,-1,1);
-
-    h2PhiVsPt = new TH2F(theName+"_Phi_vs_Pt"+where,"#phi "+theName+" as a function of P_{t}",250,0,200,200,-2,2);
-    h2PhiVsEta = new TH2F(theName+"_Phi_vs_Eta"+where,"#phi "+theName+" as a function of #eta",200,-2.5,2.5,200,-2,2);
+    h2EtaVsPt = new TH2F(theName+"_Eta_vs_Pt"+where,"#eta "+theName+" as a function of P_{t}",1000,0,2000,neta,-eta,eta);
+    h2EtaVsPhi = new TH2F(theName+"_Eta_vs_Phi"+where,"#eta "+theName+" as a function of #phi",100,-Geom::pi(),Geom::pi(),neta,-eta,eta);
+    
+    h2PhiVsPt = new TH2F(theName+"_Phi_vs_Pt"+where,"#phi "+theName+" as a function of P_{t}",1000,0,2000,nphi,-phi,phi);
+    h2PhiVsEta = new TH2F(theName+"_Phi_vs_Eta"+where,"#phi "+theName+" as a function of #eta",200,-2.5,2.5,nphi,-phi,phi);
   }
   
   HResolution(std::string name, TFile* file):theName(name.c_str()){ 
@@ -214,8 +227,23 @@ public:
     h2PhiVsPt ->Fill(pt,rphi);
     h2PhiVsEta->Fill(eta,rphi);
   }
-  
-  
+
+
+  void Fill(double p, double pt, double eta, double phi,
+	    double rp, double rpt){
+   
+    hP->Fill(rp); 
+    hPt->Fill(rpt);
+    
+    h2P->Fill(p,rp); 
+    // h2PVsEta->Fill(eta,rp);
+    // h2PVsPhi->Fill(phi,rp);
+
+    h2Pt->Fill(pt,rpt);
+    h2PtVsEta->Fill(eta,rpt);
+    h2PtVsPhi->Fill(phi,rpt);
+  }
+    
   void Fill(double rp, double rpt, 
 	    double reta, double rphi, double rcharge){
     

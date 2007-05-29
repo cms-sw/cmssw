@@ -71,13 +71,13 @@ class HResolution
     const double recPhi = tsos.globalMomentum().phi();
     const double recQPt = recQ/recPt;
 
-    AlgebraicSymMatrix cartErr = tsos.cartesianError().matrix();
+    AlgebraicSymMatrix cartErr = tsos.cartesianError().matrix_old();
     const double px = tsos.globalMomentum().x();
     const double py = tsos.globalMomentum().y();
     //const double pz = tsos.globalMomentum().z();
     const double errPt  = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py)/tsos.globalMomentum().perp();
     //const double errP   = sqrt(cartErr[3][3]*px*px+cartErr[4][4]*py*py+cartErr[5][5]*pz*pz)/tsos.globalMomentum().mag();
-    AlgebraicSymMatrix curvErr = tsos.curvilinearError().matrix();
+    AlgebraicSymMatrix curvErr = tsos.curvilinearError().matrix_old();
     const double errEta = sqrt(curvErr[1][1])*fabs(sin(tsos.globalMomentum().theta()));
     const double errPhi = sqrt(curvErr[2][2]);
     hEtaVsErrQPt_ ->Fill(simEta, (recQPt-simQPt)/simQPt);
