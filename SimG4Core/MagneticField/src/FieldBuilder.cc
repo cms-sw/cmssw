@@ -72,8 +72,6 @@ void FieldBuilder::readFieldParameters(DDLogicalPart lp,
 
 void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
 {
-
-    std::cout << " Configuring Global Mag.Field" << std::endl;
     
     edm::ParameterSet thePSetForGMFM =
        thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
@@ -86,10 +84,6 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
     // configureForVolume( volName, volPSet, fM, fP );
     
     configure( "MagneticFieldType", fM, fP ) ;
-    
-    std::cout << " Top Volume: " << theTopVolume->GetName() << "\n"
-	      << " Local Stepper: " << stepper << "\n";
-
 
     if ( thePSet.getParameter<bool>("UseLocalMagFieldManager") )
     {
@@ -111,15 +105,12 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP)
           thePSetForLMFM.getParameter< std::vector<std::string> >("ListOfVolumes");
 	  
        // creating Local Mag.Field Manager
-       std::cout << " Creating Local Mag.Field Manager(s)" << std::endl;
        for (unsigned int i = 0; i < ListOfVolumes.size(); ++ i )
        {
           volPSet = thePSetForLMFM.getParameter< edm::ParameterSet >(ListOfVolumes[i]);
           G4FieldManager* fAltM = new G4FieldManager() ;
 	  configureForVolume( ListOfVolumes[i], volPSet, fAltM ) ;
           //configureLocalFM( ListOfVolumes[i], fAltM ) ;
-          std::cout << " Top Volume: " << theTopVolume->GetName() << std::endl;
-          std::cout << " Local Stepper: " << stepper << std::endl;
           LocalFieldManager* fLM = new LocalFieldManager( theField.get(), fM, fAltM ) ;
           fLM->SetVerbosity(thePSet.getUntrackedParameter<bool>("Verbosity",false));
           theTopVolume->SetFieldManager( fLM, true ) ;
