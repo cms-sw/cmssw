@@ -28,7 +28,7 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   patternTest(conf.getUntrackedParameter<bool>("patternTest")),
   lutFile2(conf.getParameter<edm::FileInPath>("lutFile2")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
-  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabl"))
+  hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel"))
 {
   //produces<JSCOutput>();
   
