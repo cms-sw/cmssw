@@ -23,11 +23,11 @@
 using namespace ROOT::Math::VectorUtil;
 
 
-SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & configuration ) :
+SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & iConfig ) :
     m_transientTrackBuilder( NULL ) 
 {
-    m_refineJetAxis    = configuration.getParameter<unsigned int>("RefineJetAxis");
-    m_usePrimaryVertex = configuration.getParameter<bool>("UsePrimaryVertex");
+    m_refineJetAxis    = iConfig.getParameter<unsigned int>("RefineJetAxis");
+    m_usePrimaryVertex = iConfig.getParameter<bool>("UsePrimaryVertex");
 }
   
 

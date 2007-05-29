@@ -23,7 +23,7 @@ public:
   {
   }
 
-  SoftLeptonAlgorithm( const edm::ParameterSet & configuration );
+  SoftLeptonAlgorithm( const edm::ParameterSet & iConfig );
 
   ~SoftLeptonAlgorithm( void ) {
   }
