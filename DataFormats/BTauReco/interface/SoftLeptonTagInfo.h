@@ -15,9 +15,11 @@ namespace reco {
 class SoftLeptonProperties {
 public:
     enum {
-        AXIS_ORIGINAL = 0,  // use the original (calorimietric) jet axis
-        AXIS_CHARGED  = 1,  // refine jet axis from all charged tracks
-        AXIS_EXCLUDED = 2   // refine, without the tagging lepton track
+        AXIS_CALORIMETRIC             = 0,  // use the calorimietric jet axis
+        AXIS_CHARGED_AVERAGE          = 1,  // refine jet axis using charged tracks: use a pT-weighted average of (eta, phi)
+        AXIS_CHARGED_AVERAGE_NOLEPTON = 2,  // as above, without the tagging lepton track
+        AXIS_CHARGED_SUM              = 3,  // refine jet axis using charged tracks: use the sum of tracks momentum
+        AXIS_CHARGED_SUM_NOLEPTON     = 4   // as above, without the tagging lepton track
     };
 
     unsigned int axisRefinement;            // if and how the jet axis is refined
