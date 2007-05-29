@@ -492,6 +492,8 @@ if __name__=="__main__":
             self.assertEqual(str(path),'(a*(b+c))')
             path = Path(p.a*(p.b+~p.c)) 
             self.assertEqual(str(path),'(a*(b+!c))')
+            p.es = ESProducer("AnESProducer")
+            self.assertRaises(TypeError,Path,p.es)
 
         def testCloneSequence(self):
             p = Process("test")
