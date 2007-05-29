@@ -89,6 +89,20 @@ PomwigSource::PomwigSource( const ParameterSet & pset,
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
   
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;	
+  }
+  else{
+    std::cout<<" failed."<<std::endl;
+    std::cout<<"   Using "<< lhapdfSetPath_ << std::endl;
+  }	
+
   // Call hwudat to set up HERWIG block data
   hwudat();
   
