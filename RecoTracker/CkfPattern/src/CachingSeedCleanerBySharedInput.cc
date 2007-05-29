@@ -9,8 +9,10 @@ void CachingSeedCleanerBySharedInput::init(const std::vector<Trajectory> *vect) 
 void CachingSeedCleanerBySharedInput::done() { 
     //edm::LogInfo("CachingSeedCleanerBySharedInput") << " Calls: " << calls_ << ", Tracks: " << tracks_ <<", Comps: " << comps_ << " Vault: " << theVault.size() << ".";
     //calls_ = comps_ = tracks_ = 0;
-
     theVault.clear(); theCache.clear();
+
+    std::vector<Trajectory::RecHitContainer> swapper;
+    swapper.swap(theVault); // this should clean the vault even more
 }
 
 
