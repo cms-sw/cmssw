@@ -37,5 +37,6 @@ namespace {
     std::vector<const reco::Candidate *> vc1;
     reco::CandMatchMapMany cmm2;
     edm::Wrapper<reco::CandMatchMapMany> wcmm2;
+    edm::Wrapper<std::vector<reco::CandidateBaseRef> > wvrb1;
   }
 }
