@@ -13,7 +13,8 @@ EcalScDetId::EcalScDetId(int ix, int iy, int iz) : DetId(Ecal,EcalEndcap)
 {
   if(!validDetId(ix,iy,iz))
     {
-      throw cms::Exception("InvalidDetId") << "EcalScDetId:  Cannot create object.  Indexes out of bounds.";
+      throw cms::Exception("InvalidDetId") << "EcalScDetId:  Cannot create object.  Indexes out of bounds \n" 
+                                           << "x = " << ix << " y = " << iy << " z = " << iz;
     }
   const int scBit = 1<<15; //bit set to 1 to distinguish from crystal id (EEDetId)
   //                         and for a reasonale behaviour of DetId ccomparison operators.
@@ -107,7 +108,7 @@ int EcalScDetId::isc() const
   return iSC;
 }  
 
-bool EcalScDetId::validDetId(int iX, int iY, int iZ) const {
+bool EcalScDetId::validDetId(int iX, int iY, int iZ) {
   static const char endcapMap[401] = {
     "       XXXXXX       "
     "    XXXXXXXXXXXX    "

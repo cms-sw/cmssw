@@ -9,7 +9,7 @@
 
    Det id for a preshower (endcap) strip
     
-   $Id: ESDetId.h,v 1.4 2005/10/06 11:02:55 meridian Exp $
+   $Id: ESDetId.h,v 1.5 2006/02/27 18:58:30 meridian Exp $
 */
 
 class ESDetId : public DetId {
@@ -39,6 +39,9 @@ class ESDetId : public DetId {
   int strip() const { return (id_&0x3F); }
   /// get a compact index for arrays [TODO: NEEDS WORK]
   int hashedIndex() const;
+
+  /// check if a valid index combination
+  static bool validDetId(int istrip, int ixs, int iys, int iplane, int iz) ;
 
   static const int IX_MIN=1;
   static const int IY_MIN=1;

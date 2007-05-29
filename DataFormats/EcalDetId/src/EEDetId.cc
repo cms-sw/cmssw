@@ -41,7 +41,8 @@ EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndc
   
   if (!validDetId(crystal_ix,crystal_iy,iz))
     {
-      throw cms::Exception("InvalidDetId") << "EEDetId:  Cannot create object.  Indexes out of bounds.";
+      throw cms::Exception("InvalidDetId") << "EEDetId:  Cannot create object.  Indexes out of bounds \n"
+                                           << "x = " << crystal_ix << " y = " << crystal_iy << " z = " << iz;
     }
   
   id_|=(crystal_iy&0x7f)|((crystal_ix&0x7f)<<7)|((iz>0)?(0x4000):(0));
@@ -283,7 +284,7 @@ int EEDetId::ic() const
   return icrys;
 }  
 
-bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) const {
+bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) {
 
   bool valid = false;
   if (crystal_ix < IX_MIN ||  crystal_ix > IX_MAX ||

@@ -34,10 +34,10 @@ EBDetId::EBDetId(int index1, int index2, int mode)
     throw cms::Exception("InvalidDetId") << "EBDetId:  Cannot create object.  Unknown mode for (int, int) constructor."; 
   }
 
-  if (crystal_ieta < -MAX_IETA || crystal_ieta == 0 || crystal_ieta > MAX_IETA ||
-      crystal_iphi < MIN_IPHI || crystal_iphi > MAX_IPHI) {
+  if ( !validDetId(crystal_ieta, crystal_iphi) ) {
     //    std::cout << "crystal_eta " << crystal_ieta << "crystal_phi " << crystal_iphi << std::endl;
-    throw cms::Exception("InvalidDetId") << "EBDetId:  Cannot create object.  Indexes out of bounds.";
+    throw cms::Exception("InvalidDetId") << "EBDetId:  Cannot create object.  Indexes out of bounds \n" 
+                                         << "eta = " << crystal_ieta << " phi = " << crystal_iphi;
   }
   id_|=((crystal_ieta>0)?(0x10000|(crystal_ieta<<9)):((-crystal_ieta)<<9))|(crystal_iphi&0x1FF);
 }
@@ -47,6 +47,17 @@ EBDetId::EBDetId(const DetId& gen) {
     throw cms::Exception("InvalidDetId");
   }
   id_=gen.rawId();
+}
+
+bool EBDetId::validDetId(int i, int j) {
+
+  bool valid = true;
+  if (i < -MAX_IETA || i == 0 || i > MAX_IETA ||
+      j < MIN_IPHI || j > MAX_IPHI) {
+    valid = false;
+  }  
+  return valid;
+
 }
   
 EBDetId& EBDetId::operator=(const DetId& gen) {

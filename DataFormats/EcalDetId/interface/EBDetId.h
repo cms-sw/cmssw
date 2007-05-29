@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.12 2006/11/09 11:47:41 meridian Exp $
+ *  $Id: EBDetId.h,v 1.13 2006/11/13 16:26:52 meridian Exp $
  */
 
 
@@ -59,6 +59,9 @@ class EBDetId : public DetId {
   int iphiSM() const { return (( ic() -1 ) % kCrystalsInPhi ) + 1; }
   /// get a compact index for arrays
   int hashedIndex() const;
+
+  /// check if a valid index combination
+  static bool validDetId(int i, int j) ;
 
   /// range constants
   static const int MIN_IETA = 1;
