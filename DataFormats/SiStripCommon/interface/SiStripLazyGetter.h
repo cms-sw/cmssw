@@ -102,22 +102,22 @@ namespace edm {
 
       /// Constructor with SiStripLazyUnpacker
       LazyAdapter(boost::shared_ptr<SiStripLazyUnpacker<T> > iGetter) : 
-	getter_(iGetter) {}
+	unpacker_(iGetter) {}
 
       /// () operator for construction of iterator
       const RegionIndex<T>& operator()(const RegionIndex<T>& index) const {
-	if (index.end() == getter_->record().begin()) {
+	if (index.end() == unpacker_->record().begin()) {
 	uint32_t region = index.region();
-	getter_->register_[region].begin(getter_->record().end());
-	getter_->fill(region);
-	getter_->register_[region].end(getter_->record().end());
+	unpacker_->register_[region].begin(unpacker_->record().end());
+	unpacker_->fill(region);
+	unpacker_->register_[region].end(unpacker_->record().end());
 	}
 	return index;
       }
 
       private:
     
-      boost::shared_ptr<SiStripLazyUnpacker<T> > getter_;
+      boost::shared_ptr<SiStripLazyUnpacker<T> > unpacker_;
     };
   
 
@@ -139,7 +139,7 @@ namespace edm {
     SiStripLazyGetter() {}
     
     SiStripLazyGetter(boost::shared_ptr< SiStripLazyUnpacker<T> > iGetter) :
-      getter_(iGetter) {}
+      unpacker_(iGetter) {}
 
     void swap(SiStripLazyGetter& other);
 
@@ -167,7 +167,7 @@ namespace edm {
     const_iterator end() const;
 
   private:
-    boost::shared_ptr< SiStripLazyUnpacker<T> > getter_;
+    boost::shared_ptr< SiStripLazyUnpacker<T> > unpacker_;
   };
 
   template <class T>
@@ -175,7 +175,7 @@ namespace edm {
   void
   SiStripLazyGetter<T>::swap(SiStripLazyGetter<T>& other) 
   {
-    std::swap(getter_,other.getter_);
+    std::swap(unpacker_,other.unpacker_);
   }
 
   template <class T>
@@ -183,7 +183,7 @@ namespace edm {
   bool
   SiStripLazyGetter<T>::empty() const 
   {
-    return getter_->record().empty();
+    return unpacker_->record().empty();
   }
 
   template <class T>
@@ -191,7 +191,7 @@ namespace edm {
   typename SiStripLazyGetter<T>::size_type
   SiStripLazyGetter<T>::size() const
   {
-    return getter_->record().size();
+    return unpacker_->record().size();
   }
 
   template <class T>
@@ -200,9 +200,9 @@ namespace edm {
   SiStripLazyGetter<T>::find(uint32_t region) const
   {
     typename collection_type::const_iterator it;
-    if (getter_->register_.size() < region+1) it = getter_->register_.end();
-    else it = getter_->register_.begin()+region;
-    LazyAdapter<T> adapter(getter_);
+    if (unpacker_->register_.size() < region+1) it = unpacker_->register_.end();
+    else it = unpacker_->register_.begin()+region;
+    LazyAdapter<T> adapter(unpacker_);
     return boost::make_transform_iterator(it,adapter);
   }
 
@@ -221,8 +221,8 @@ namespace edm {
   typename SiStripLazyGetter<T>::const_iterator
   SiStripLazyGetter<T>::begin() const
   {
-    LazyAdapter<T> adapter(getter_);
-    return boost::make_transform_iterator(getter_->register_.begin(),adapter);
+    LazyAdapter<T> adapter(unpacker_);
+    return boost::make_transform_iterator(unpacker_->register_.begin(),adapter);
   }
 
   template <class T>
@@ -230,8 +230,8 @@ namespace edm {
   typename SiStripLazyGetter<T>::const_iterator
   SiStripLazyGetter<T>::end() const
   {
-    LazyAdapter<T> adapter(getter_);
-    return boost::make_transform_iterator(getter_->register_.end(),adapter);
+    LazyAdapter<T> adapter(unpacker_);
+    return boost::make_transform_iterator(unpacker_->register_.end(),adapter);
   }
 
   template <class T>
