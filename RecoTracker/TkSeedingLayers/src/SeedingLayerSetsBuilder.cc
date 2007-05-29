@@ -57,12 +57,13 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
   typedef std::vector<std::string>::const_iterator IS;
   typedef std::vector<std::vector<std::string> >::const_iterator IT;
   std::ostringstream str;
-  for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
-    str << "SET: ";
-    for (IS is = it->begin(); is != it->end(); is++)  str << *is <<" ";  
-    str << std::endl;
-  }
-  std::cout << str.str() << std::endl;
+  // The following should not be set to cout
+//  for (IT it = layerNamesInSets.begin(); it != layerNamesInSets.end(); it++) {
+//    str << "SET: ";
+//    for (IS is = it->begin(); is != it->end(); is++)  str << *is <<" ";  
+//    str << std::endl;
+//  }
+//  std::cout << str.str() << std::endl;
 
   map<string,LayerSpec> mapConfig; // for debug printout only!
 
@@ -104,9 +105,10 @@ SeedingLayerSetsBuilder::SeedingLayerSetsBuilder(const edm::ParameterSet & cfg)
   }
 
   // debug printout
-  for (map<string,LayerSpec>::const_iterator im = mapConfig.begin(); im != mapConfig.end(); im++) {
-    std::cout << (*im).second.print() << std::endl; 
-  }
+  // The following should not be set to cout
+//  for (map<string,LayerSpec>::const_iterator im = mapConfig.begin(); im != mapConfig.end(); im++) {
+//    std::cout << (*im).second.print() << std::endl; 
+//  }
 }
 
 edm::ParameterSet SeedingLayerSetsBuilder::layerConfig(const std::string & nameLayer,const edm::ParameterSet& cfg) const
