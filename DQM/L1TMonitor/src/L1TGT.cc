@@ -1,8 +1,8 @@
 /*
  * \file L1TGT.cc
  *
- * $Date: 2007/05/24 07:49:08 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -128,6 +128,7 @@ void L1TGT::analyze(const Event& e, const EventSetup& c)
   //	}
 
      Handle<L1GlobalTriggerReadoutRecord> myGTReadoutRecord;
+
      try {
       e.getByLabel(gtSource_,myGTReadoutRecord);
      }
