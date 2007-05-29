@@ -90,15 +90,29 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
   cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
   cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
+
   if(useJimmy_) {
     cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
     if(doMPInteraction_) 
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
-  
+
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+  }
+  else
+    std::cout<<" failed."<<std::endl;
+
+
   // Call hwudat to set up HERWIG block data
   hwudat();
   
+
   // Setting basic parameters ...
   hwproc.PBEAM1 = comenergy/2.;
   hwproc.PBEAM2 = comenergy/2.;
