@@ -12,7 +12,7 @@
 */
 //
 // Original Author:  Paolo Meridiani
-// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.1 2006/05/25 16:36:11 meridian Exp $
+// $Id: EcalTrigTowerConstituentsMapBuilder.cc,v 1.1 2007/04/15 23:16:28 wmtan Exp $
 //
 //
 
@@ -71,12 +71,14 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
     return; 
   
   int mod,cry,ietaTower,iphiTower;
+  int ix,iy,iz;
   char line[80];  // a buffer for the line to read
   char ch;        // a temporary for holding the end of line
   while ((ch = f.peek()) != '-') {
     f.get(line,80,'\n');            // read 80 characters to end of line
     f.get(ch);                      // eat out the '\n'
     // extract the numbers
+/*
     int nread = sscanf (line, " %d %d %d %d",&mod,&cry,&ietaTower,&iphiTower);
     if (nread == 4 )
       {
@@ -85,6 +87,15 @@ void EcalTrigTowerConstituentsMapBuilder::parseTextMap(const std::string& filena
 	//	std::cout << eeid << "\n->" << etid << std::endl;
 	theMap.assign(DetId(eeid),etid);
       }
+*/
+    int nread = sscanf (line, " %d %d %d %d %d",&ix,&iy,&iz,&ietaTower, &iphiTower);
+    if (nread == 5) {
+      EEDetId eeid(ix,iy,iz,0);
+      // std::cout << "-- manu ix eta phi " << DetId(eeid).rawId() << " " << iz << " " << ietaTower << " " << iphiTower << std::endl;
+      EcalTrigTowerDetId etid(iz,EcalEndcap,ietaTower,iphiTower);
+      theMap.assign(DetId(eeid),etid);
+    }
+    
   }
   // Pass comment line
   f.get(line,80,'\n');            // read 80 characters to end of line
