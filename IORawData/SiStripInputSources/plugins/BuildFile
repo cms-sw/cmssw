@@ -1,0 +1,4 @@
+<use name=IORawData/SiStripInputSources>
+<library file=*.cc name=IORawDataSiStripInputSourcesPlugins>
+  <flags SEAL_PLUGIN_NAME="IORawDataSiStripInputSourcesPlugins">
+</library>
