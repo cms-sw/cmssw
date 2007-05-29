@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.13 2007/05/04 13:45:45 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.14 2007/05/15 07:55:34 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -99,13 +99,13 @@ void FastGenParticleCandidateProducer::beginJob( const EventSetup & es ) {
     const HepPDT::ParticleID & id = p->first;
     int pdgId = id.pid(), apdgId = abs( pdgId );
     int q3 = id.threeCharge();
-    if ( apdgId < PDGCacheMax )
-      if ( pdgId > 0 )
-	chargeP_[ apdgId ] = q3;
-      else
-	chargeM_[ apdgId ] = q3;
-    else
+    if ( apdgId < PDGCacheMax ){
+      chargeP_[ apdgId ] = q3;
+      chargeM_[ apdgId ] = -q3;
+    }else{
       chargeMap_[ pdgId ] = q3;
+      chargeMap_[ -pdgId ] = -q3;
+    } 
   }
 }
 
