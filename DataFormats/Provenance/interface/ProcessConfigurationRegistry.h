@@ -1,14 +1,14 @@
-#ifndef DataFormats_Provenance_ProcessConfgurationRegistry_h
-#define DataFormats_Provenance_ProcessConfgurationRegistry_h
+#ifndef DataFormats_Provenance_ProcessConfigurationRegistry_h
+#define DataFormats_Provenance_ProcessConfigurationRegistry_h
 
 #include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessConfguration.h"
-#include "DataFormats/Provenance/interface/ProcessConfgurationID.h"
+#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
 
 namespace edm
 {
-  typedef edm::detail::ThreadSafeRegistry<edm::ProcessConfgurationID,edm::ProcessConfguration> ProcessConfgurationRegistry;
-  typedef ProcessConfgurationRegistry::collection_type ProcessConfgurationMap;
+  typedef edm::detail::ThreadSafeRegistry<edm::ProcessConfigurationID,edm::ProcessConfiguration> ProcessConfigurationRegistry;
+  typedef ProcessConfigurationRegistry::collection_type ProcessConfigurationMap;
 }
 
 #endif
