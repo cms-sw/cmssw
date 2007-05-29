@@ -302,6 +302,21 @@ class DDCons : public DDSolid
   DDCons();
 };
 
+class DDTorus : public DDSolid
+{
+ public:
+  DDTorus (const DDSolid & s);
+  double rMin() const;
+  double rMax() const;
+  double rTorus() const;
+  double startPhi() const;
+  double deltaPhi() const;
+
+ private:
+  DDTorus
+();
+};
+
 class DDUnion : public DDBooleanSolid
 {
  public:
@@ -444,6 +459,13 @@ static DDSolid cons(const DDName & name,
 		     double phiFrom,
 		     double deltaPhi);
 
+static DDSolid torus(const DDName & name,
+		     double rMin,
+		     double rMax,
+		     double rTorus,
+		     double startPhi,
+		     double deltaPhi);
+  
 static DDSolid shapeless(const DDName & name);
 
 static DDSolid reflection(const DDName & name,
@@ -463,6 +485,17 @@ DDSolid *      DDcons(const DDName & name,
 		     double rOutPlusZ,
 		     double startPhi,
 		     double deltaPhi);
+
+//! Creates a torus or a toroidal-section (refere to \b Geant4 documentation)
+/** The center of the torus or toroidal-section (for positioning) is the center of
+    coordinates of its definition (x=y=z=0).
+*/    
+DDSolid *      DDtorus(const DDName & name,
+		       double rMin,
+		       double rMax,
+		       double rTorus,
+		       double startPhi,
+		       double deltaPhi);
 
 //! Creates a tube or a tube-section (refere to \b Geant4 documentation)
 /** The center of the tube or tube-section (for positioning) is the center of

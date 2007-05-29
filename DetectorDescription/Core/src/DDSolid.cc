@@ -11,6 +11,7 @@
 #include "DetectorDescription/Core/src/Boolean.h"
 #include "DetectorDescription/Core/src/Reflection.h"
 #include "DetectorDescription/Core/src/Shapeless.h"
+#include "DetectorDescription/Core/src/Torus.h"
 #include "DetectorDescription/Core/src/Trap.h"
 #include "DetectorDescription/Core/src/Tubs.h"
 #include "DetectorDescription/Core/src/Cons.h"
@@ -101,6 +102,9 @@ DDSolid::DDSolid(const DDName & n, DDSolidShape s, const std::vector<double> & p
 	break;			
        case ddtrunctubs:
 	 solid = new DDI::TruncTubs(0,0,0,0,0,0,0,0);
+	 break;
+       case ddtorus:
+	 solid = new DDI::Torus(0,0,0,0,0);
 	 break;
        default:
         throw DDException("DDSolid::DDSolid(DDName,DDSolidShape,std::vector<double>: wrong shape");   
@@ -424,7 +428,6 @@ std::vector<double> DDPolyhedra::rMaxVec() const {
   return tvec;
 }
 
-
 // =================================================================================
 
 DDCons::DDCons(const DDSolid& s) 
@@ -449,6 +452,27 @@ double DDCons::rOutPlusZ() const { return rep().parameters()[4]; }
 double DDCons::phiFrom() const { return rep().parameters()[5]; }
 
 double DDCons::deltaPhi() const { return rep().parameters()[6]; }
+
+// =================================================================================
+
+DDTorus::DDTorus(const DDSolid& s) 
+  : DDSolid(s) {
+  if (s.shape() != ddcons) {
+    std::string ex  = "Solid [" + s.name().ns() + ":" + s.name().name() + "] is not a DDTorus.\n";
+    ex = ex + "Use a different solid interface!";
+    throw DDException(ex);
+  }
+}
+
+double DDTorus::rMin() const { return rep().parameters()[0]; }
+
+double DDTorus::rMax() const { return rep().parameters()[1]; }
+
+double DDTorus::rTorus () const { return rep().parameters()[2]; }
+
+double DDTorus::startPhi() const { return rep().parameters()[3]; }
+
+double DDTorus::deltaPhi() const { return rep().parameters()[4]; }
 
 
 // =================================================================================
@@ -616,7 +640,6 @@ DDSolid DDSolidFactory::truncTubs(const DDName & name,
 				  double cutAtDelta, /**< truncation at deltaPhi side */
 				  bool cutInside /**< */)
 {
-  
   return DDSolid(name, new DDI::TruncTubs(zHalf,rIn,rOut,startPhi,deltaPhi,cutAtStart,cutAtDelta,cutInside));
 }				  
 
@@ -633,6 +656,16 @@ DDSolid DDSolidFactory::cons(const DDName & name,
                                      rInMinusZ, rOutMinusZ,
 				     rInPlusZ, rOutPlusZ,
 				     phiFrom, deltaPhi));
+}		     
+
+DDSolid DDSolidFactory::torus(const DDName & name,
+			      double rMin,
+			      double rMax,
+			      double rTorus,
+			      double startPhi,
+			      double deltaPhi)
+{
+  return DDSolid(name, new DDI::Torus(rMin, rMax, rTorus, startPhi, deltaPhi));
 }		     
 
 DDSolid DDSolidFactory::tubs(const DDName & name,
