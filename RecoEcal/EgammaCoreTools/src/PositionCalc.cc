@@ -135,7 +135,10 @@ math::XYZPoint PositionCalc::Calculate_Location(std::vector<DetId> passedDetIds,
        if(eTot<=0.) {
          weight = 0.;
        } else {
-         weight = std::max(0., param_W0_ + log( fabs(e_j)/eTot) );
+	 if (e_j > 0.)
+	   weight = std::max(0., param_W0_ + log( e_j/eTot) );
+	 else
+	   weight = 0.;
        }
     } else {
       weight = e_j/eTot;
