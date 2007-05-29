@@ -19,7 +19,7 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: Handle.h,v 1.4 2007/04/01 15:45:36 wmtan Exp $
+$Id: Handle.h,v 1.5 2007/04/29 14:50:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -91,7 +91,7 @@ namespace edm
   Handle<T>::Handle(T const* prod, Provenance const* prov) :
     prod_(prod),
     prov_(prov),
-    id_(prov->event().productID_) { 
+    id_(prov->productID()) { 
       assert(prod_);
       assert(prov_);
       assert(id_.isValid());
