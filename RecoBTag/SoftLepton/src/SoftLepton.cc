@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.18 2007/05/25 17:21:29 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.19 2007/05/29 21:37:31 fwyzard Exp $
 //
 
 
@@ -70,6 +70,8 @@ void
 SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // input objects
+
+  // input jets
   std::vector<edm::RefToBase<reco::Jet> > jets;
   try {
     Handle<reco::CaloJetCollection> h_jets;
@@ -81,10 +83,21 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   catch(edm::Exception e) {
     throw e;
   }
+  
+  // input primary vetex (optional, can be "none")
+  reco::Vertex vertex;
+  Handle<reco::VertexCollection> h_primaryVertex;
+  if (m_primaryVertex.label() != "none")
+    iEvent.getByLabel(m_primaryVertex, h_primaryVertex);
 
-  Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(m_primaryVertex, primaryVertex);
+  if (h_primaryVertex->size()) {
+    PrimaryVertexSorter pvs;
+    vertex = pvs.sortedList(*(h_primaryVertex.product())).front();
+  } else {
+    vertex = s_nominalBeamSpot;
+  }
 
+  // input leptons (can be of different types)
   reco::TrackRefVector leptons;
   // try to access the input collection as a collection of Electons, Muons or Tracks
   // FIXME: it would be nice not to have to rely on exceptions
@@ -126,20 +139,12 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // output collections
   std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
 
-  reco::Vertex pv;
-  if (primaryVertex->size()) {
-    PrimaryVertexSorter pvs;
-    pv = pvs.sortedList(*(primaryVertex.product())).front();
-  } else {
-    pv = s_nominalBeamSpot;
-  }
-
   #ifdef DEBUG
   std::cerr << std::endl;
   std::cerr << "Found " << jets->size() << " jets:" << std::endl;
   #endif // DEBUG
   for (unsigned int i = 0; i < jets.size(); ++i) {
-    reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], reco::TrackRefVector(), leptons, pv );
+    reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], reco::TrackRefVector(), leptons, vertex );
     #ifdef DEBUG
     std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
     std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
