@@ -95,6 +95,17 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
 
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+  }
+  else
+    std::cout<<" failed."<<std::endl;
+
   // set some MC@NLO parameters ...
   params.mmmaxevt = numEvents_;
   params.mmiproc=processNumber_;
