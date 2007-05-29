@@ -303,11 +303,11 @@ EcalSelectiveReadoutSuppressor::run(const edm::EventSetup& eventSetup,
     EcalScDetId id;
     for(int iX = 1; iX <= 20; ++iX){
       for(int iY = 1; iY <= 20; ++iY){
-	try{
+	if (EcalScDetId::validDetId(iX, iY, iZ))
 	  id = EcalScDetId(iX, iY, iZ);
-	} catch(cms::Exception e){//exception thrown if no SC at (iX,iY)
+	else
 	  continue;
-	}
+	
 	EcalSelectiveReadout::towerInterest_t interest
 	  = ecalSelectiveReadout->getSuperCrystalInterest(id);
 	if(interest>=0){//negative no SC at (iX,iY) coordinates
