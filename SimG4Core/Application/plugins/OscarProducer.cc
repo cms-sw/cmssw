@@ -110,12 +110,10 @@ void OscarProducer::beginJob(const edm::EventSetup & es)
 {
     StaticRandomEngineSetUnset random(m_engine);
 
-    std::cout << " OscarProducer initializing " << std::endl;
     m_runManager->initG4(es);
 }
  
-void OscarProducer::endJob()
-{ std::cout << " OscarProducer terminating " << std::endl; }
+void OscarProducer::endJob() { }
  
 void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
@@ -165,8 +163,6 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
     }
     catch ( const SimG4Exception& simg4ex )
     {
-       std::cout << " SimG4Exception caght !" << std::endl ;
-       std::cout << " " << simg4ex.what() << std::endl ;
        m_runManager->abortEvent() ;
        throw edm::Exception( edm::errors::EventCorruption ) ;
     }
