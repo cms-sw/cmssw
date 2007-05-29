@@ -46,8 +46,6 @@ namespace cms
     METtype    = iConfig.getParameter<std::string>("METType");
     alias      = iConfig.getParameter<std::string>("alias");
     globalThreshold = iConfig.getParameter<double>("globalThreshold");
-    std::cout << "Create MET Producer of Type = " << METtype;
-    std::cout << " with alias = " << alias << std::endl;
 
     if(      METtype == "CaloMET" ) 
       produces<CaloMETCollection>().setBranchAlias(alias.c_str()); 
