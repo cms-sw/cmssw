@@ -23,30 +23,30 @@
 		<String name="axis" value="x"/>
 	</Algorithm-->
 
+<PosPartSection label="fred">
+  <Division name="fred" parent="mary" axis="x" nReplicas="3" width="20*cm" offset="2*mm"/>
+  <Division name="charlie" parent="mary" axis="y" nReplicas="4" offset="2*mm"/>
+  <Division name="ssd" parent="mary" axis="z" width="20*cm" offset="2*mm"/>
 
-<Division name="fred" parent="mary" axis="x" nReplicas="3" width="20*cm" offset="2*mm"/>
-<Division name="charlie" parent="mary" axis="y" nReplicas="4" offset="2*mm"/>
-<Division name="ssd" parent="mary" axis="z" width="20*cm" offset="2*mm"/>
+  <Division name="divtubz" parent="tub1" axis="z" offset="0*mm" nReplicas="8"/>
+  <Division name="divtubrho" parent="tub1" axis="rho" offset="0*mm" nReplicas="3"/>
+  <Division name="divtubphi" parent="tub1" axis="phi" offset="10*deg" width="15*deg"/>
 
-<Division name="divtubz" parent="tub1" axis="z" offset="0*mm" nReplicas="8"/>
-<Division name="divtubrho" parent="tub1" axis="rho" offset="0*mm" nReplicas="3"/>
-<Division name="divtubphi" parent="tub1" axis="phi" offset="10*deg" width="15*deg"/>
+  <Division name="divconsz" parent="testLogicalParts:cone1" axis="z" offset="0*cm" width="100*cm"/>
+  <Division name="divconsrho" parent="testLogicalParts:cone1" axis="rho" offset="5*cm" width="10*cm"/>
+  <Division name="divconsphi" parent="testLogicalParts:cone1" axis="phi" offset="0*deg" width="20*deg"/>
 
-<Division name="divconsz" parent="testLogicalParts:cone1" axis="z" offset="0*cm" width="100*cm"/>
-<Division name="divconsrho" parent="testLogicalParts:cone1" axis="rho" offset="5*cm" width="10*cm"/>
-<Division name="divconsphi" parent="testLogicalParts:cone1" axis="phi" offset="0*deg" width="20*deg"/>
-
-<Division name="divpolyconez" parent="testLogicalParts:pczsect" 
+  <Division name="divpolyconez" parent="testLogicalParts:pczsect" 
 	  axis="z" offset="0*cm" width="50*cm"/>
-<Division name="divpolyconerho" parent="testLogicalParts:pczsect" 
+  <Division name="divpolyconerho" parent="testLogicalParts:pczsect" 
 	  axis="rho" offset="0*cm" nReplicas="10"/>
-<Division name="divpolyconephi" parent="testLogicalParts:pczsect" 
+  <Division name="divpolyconephi" parent="testLogicalParts:pczsect" 
 	  axis="phi" offset="0*deg" width="60*deg"/>
 
-<!-- trigger some errors -->
-<!--Division name="divconszfail" parent="testLogicalParts:pczsect" 
+  <!-- trigger some errors -->
+  <!--Division name="divconszfail" parent="testLogicalParts:pczsect" 
 	  axis="z" nReplicas="3" width="500*cm"/>
-<Division name="divconszfail" parent="testLogicalParts:pcrz" 
-	  axis="z" nReplicas="3" width="500*cm"/-->
-
+  <Division name="divconszfail" parent="testLogicalParts:pcrz" 
+  	  axis="z" nReplicas="3" width="500*cm"/-->
+  </PosPartSection>
 </DDDefinition>
