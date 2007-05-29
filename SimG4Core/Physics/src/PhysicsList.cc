@@ -38,7 +38,6 @@ void PhysicsList::SetCuts()
   int v =  m_pPhysics.getUntrackedParameter<int>("Verbosity",0);
   if ( m_pPhysics.getParameter<bool>("CutsPerRegion") )
     {
-      std::cout << " Setting Production Cuts per Region" << std::endl ;
       DDG4ProductionCuts prodCuts(map_);
       prodCuts.SetVerbosity(v);
       prodCuts.update();
