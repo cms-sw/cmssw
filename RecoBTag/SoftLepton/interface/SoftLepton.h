@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.6 2006/12/07 02:53:40 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.7 2007/01/15 23:38:12 fwyzard Exp $
 //
 
 // system include files
@@ -44,7 +44,6 @@ private:
 
   // configuration   
   const edm::ParameterSet& m_config;
-  const std::string m_concreteTagger;
   const std::string m_jetTracksAssociator;
   const std::string m_primaryVertexProducer;
   const std::string m_leptonProducer;
