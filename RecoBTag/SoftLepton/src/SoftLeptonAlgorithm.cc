@@ -26,8 +26,8 @@ using namespace ROOT::Math::VectorUtil;
 SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & iConfig ) :
     m_transientTrackBuilder( NULL ) 
 {
-    m_refineJetAxis    = iConfig.getParameter<unsigned int>("RefineJetAxis");
-    m_usePrimaryVertex = iConfig.getParameter<bool>("UsePrimaryVertex");
+    m_refineJetAxis    = iConfig.getParameter<unsigned int>("refineJetAxis");
+    m_usePrimaryVertex = iConfig.getParameter<bool>("usePrimaryVertex");
     m_deltaRCut        = iConfig.getParameter<double>("deltaRCut");
 }
   
