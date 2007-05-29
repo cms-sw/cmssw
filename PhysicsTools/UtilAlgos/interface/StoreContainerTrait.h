@@ -18,6 +18,11 @@ namespace helper {
     typedef edm::RefVector<C> type;
   };
 
+  template<typename T>
+  struct StoreContainerTrait<std::vector<edm::RefToBase<T> > > {
+    typedef std::vector<edm::RefToBase<T> > type;
+  };
+
   template<typename R, typename C>
    struct StoreContainerTrait<edm::AssociationVector<R, C> > {
      typedef typename StoreContainerTrait<typename R::product_type>::type type;

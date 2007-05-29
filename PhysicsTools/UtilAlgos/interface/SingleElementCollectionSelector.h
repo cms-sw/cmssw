@@ -7,16 +7,18 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.7 $
  *
- * $Id: SingleElementCollectionSelector.h,v 1.6 2007/03/09 14:07:08 llista Exp $
+ * $Id: SingleElementCollectionSelector.h,v 1.7 2007/05/15 16:07:52 llista Exp $
  *
  */
 #include "PhysicsTools/UtilAlgos/interface/SelectionAdderTrait.h"
+#include "PhysicsTools/UtilAlgos/interface/StoreContainerTrait.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
 
 template<typename InputCollection, typename Selector, 
-	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
+	 typename OutputCollection = typename helper::SelectedOutputCollectionTrait<InputCollection>::type, 
+	 typename StoreContainer = typename helper::StoreContainerTrait<OutputCollection>::type,
 	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 struct SingleElementCollectionSelector {
   typedef InputCollection collection;

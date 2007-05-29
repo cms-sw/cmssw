@@ -7,6 +7,7 @@
  */
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
+#include "DataFormats/Common/interface/RefToBase.h"
 #include <memory>
 
 namespace helper {
@@ -32,6 +33,15 @@ namespace helper {
   template<typename C>
    struct IteratorToObjectConverter<edm::RefVector<C> > {
     typedef edm::Ref<C> value_type;
+    template<typename I>
+    static value_type convert( const I & i ) {
+      return value_type( * i );
+    }
+  };
+
+  template<typename T>
+   struct IteratorToObjectConverter<std::vector<edm::RefToBase<T> > > {
+    typedef edm::RefToBase<T> value_type;
     template<typename I>
     static value_type convert( const I & i ) {
       return value_type( * i );
