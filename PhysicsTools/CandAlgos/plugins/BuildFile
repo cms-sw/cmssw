@@ -29,3 +29,4 @@
 <library file=TrivialDeltaRMatcher.cc></library>
 <library file=CandMatchedCloneProducer.cc></library>
 <library file=PtMinCandViewSelector.cc></library>
+<library file=PtMinCandViewCloneSelector.cc></library>
