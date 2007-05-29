@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.h,v 1.7 2007/01/15 23:38:12 fwyzard Exp $
+// $Id: SoftLepton.h,v 1.8 2007/05/29 20:28:21 fwyzard Exp $
 //
 
 // system include files
@@ -25,10 +25,11 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoBTag/SoftLepton/interface/SoftLeptonAlgorithm.h"
 
-class edm::ParameterSet;
 class edm::EventSetup;
 class edm::Event;
 
@@ -43,10 +44,9 @@ private:
   virtual void endJob(void);
 
   // configuration   
-  const edm::ParameterSet& m_config;
-  const std::string m_jetTracksAssociator;
-  const std::string m_primaryVertexProducer;
-  const std::string m_leptonProducer;
+  const edm::InputTag m_jets;
+  const edm::InputTag m_primaryVertex;
+  const edm::InputTag m_leptons;
 
   // concrete algorithm
   SoftLeptonAlgorithm m_algo;

@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.17 2007/05/11 11:29:04 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.18 2007/05/25 17:21:29 fwyzard Exp $
 //
 
 
@@ -54,19 +54,13 @@ const reco::Vertex SoftLepton::s_nominalBeamSpot(
                                                                   0.0,             0.0, 15. * 15. ) ),
   1, 1, 0 );
 
-SoftLepton::SoftLepton(const edm::ParameterSet& iConfig) :
-  m_config( iConfig ),
-  m_concreteTagger(        iConfig.getParameter<std::string>( "leptonTagger"       ) ), 
-  m_jetTracksAssociator(   iConfig.getParameter<std::string>( "jetTracks"          ) ),
-  m_primaryVertexProducer( iConfig.getParameter<std::string>( "primaryVertex"      ) ),
-  m_leptonProducer(        iConfig.getParameter<std::string>( "leptons"            ) ),
-  m_algo()
+SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
+  m_jets(          iConfig.getParameter<edm::InputTag>( "jets" ) ),
+  m_primaryVertex( iConfig.getParameter<edm::InputTag>( "primaryVertex" ) ),
+  m_leptons(       iConfig.getParameter<edm::InputTag>( "leptons" ) ),
+  m_algo(          iConfig.getParameter<edm::ParameterSet> ( "algorithmConfiguration") )
 {
-  produces<reco::JetTagCollection>();
   produces<reco::SoftLeptonTagInfoCollection>();
-
-  m_algo.setDeltaRCut( m_config.getParameter<double>("deltaRCut") );
-  m_algo.refineJetAxis( m_config.getParameter<unsigned int>("refineJetAxis") );
 }
 
 SoftLepton::~SoftLepton() {
@@ -74,21 +68,31 @@ SoftLepton::~SoftLepton() {
 
 void
 SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
   // input objects
-  Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-  iEvent.getByLabel(m_jetTracksAssociator, jetTracksAssociation);
+  std::vector<edm::RefToBase<reco::Jet> > jets;
+  try {
+    Handle<reco::CaloJetCollection> h_jets;
+    iEvent.getByLabel(m_jets, h_jets);
+
+    for (unsigned int i = 0; i < h_jets->size(); i++)
+      jets.push_back( edm::RefToBase<reco::Jet>( reco::CaloJetRef(h_jets, i) ) );
+  }
+  catch(edm::Exception e) {
+    throw e;
+  }
 
   Handle<reco::VertexCollection> primaryVertex;
-  iEvent.getByLabel(m_primaryVertexProducer, primaryVertex);
+  iEvent.getByLabel(m_primaryVertex, primaryVertex);
 
   reco::TrackRefVector leptons;
   // try to access the input collection as a collection of Electons, Muons or Tracks
   // FIXME: it would be nice not to have to rely on exceptions
   try {
     Handle<reco::ElectronCollection> h_electrons;
-    iEvent.getByLabel(m_leptonProducer, h_electrons);
+    iEvent.getByLabel(m_leptons, h_electrons);
     #ifdef DEBUG
-    cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as ElectronCollection" << endl;
+    cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as ElectronCollection" << endl;
     #endif
     for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
       leptons.push_back(electron->track());
@@ -97,22 +101,22 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     // electrons not found, look for muons
     try {
       Handle<reco::MuonCollection> h_muons;
-      iEvent.getByLabel(m_leptonProducer, h_muons);
+      iEvent.getByLabel(m_leptons, h_muons);
       #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as MuonCollection" << endl;
+      cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as MuonCollection" << endl;
       #endif
       for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
         if(! muon->combinedMuon().isNull() )
           leptons.push_back( muon->combinedMuon() );
         else 
-          cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptonProducer << ", skipping it" << endl;
+          cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptons << ", skipping it" << endl;
     }
     catch(edm::Exception e) {
       // electrons or muons not found, look for tracks
       Handle<reco::TrackCollection> h_tracks;
-      iEvent.getByLabel(m_leptonProducer, h_tracks);
+      iEvent.getByLabel(m_leptons, h_tracks);
       #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptonProducer << " found, identified as TrackCollection" << endl;
+      cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as TrackCollection" << endl;
       #endif
       for (unsigned int i = 0; i < h_tracks->size(); i++)
         leptons.push_back( TrackRef(h_tracks, i) );
@@ -120,8 +124,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
 
   // output collections
-  std::auto_ptr<reco::JetTagCollection>            baseCollection( new reco::JetTagCollection() );
-  std::auto_ptr<reco::SoftLeptonTagInfoCollection> extCollection(  new reco::SoftLeptonTagInfoCollection() );
+  std::auto_ptr<reco::SoftLeptonTagInfoCollection> outputCollection(  new reco::SoftLeptonTagInfoCollection() );
 
   reco::Vertex pv;
   if (primaryVertex->size()) {
@@ -133,24 +136,18 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   #ifdef DEBUG
   std::cerr << std::endl;
-  std::cerr << "Found " << jetTracksAssociation->size() << " jet with tracks:" << std::endl;
+  std::cerr << "Found " << jets->size() << " jets:" << std::endl;
   #endif // DEBUG
-  for (unsigned int i = 0; i < jetTracksAssociation->size(); ++i) {
-    reco::JetTracksAssociationRef jetRef( jetTracksAssociation, i );
-    std::pair<reco::JetTag, reco::SoftLeptonTagInfo> result = m_algo.tag( jetRef, pv, leptons );
+  for (unsigned int i = 0; i < jets.size(); ++i) {
+    reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], reco::TrackRefVector(), leptons, pv );
     #ifdef DEBUG
     std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
     std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
     #endif // DEBUG
-    baseCollection->push_back( result.first );
-    extCollection->push_back( result.second );
+    outputCollection->push_back( result );
   }
 
-  // the base collection needs a link to the extended collection
-  edm::OrphanHandle<reco::SoftLeptonTagInfoCollection> extHandle = iEvent.put( extCollection );
-  for (unsigned int i = 0; i < baseCollection->size(); i++)
-    (*baseCollection)[i].setTagInfo( edm::RefToBase<BaseTagInfo>( reco::SoftLeptonTagInfoRef( extHandle, i) ) );
-  iEvent.put(baseCollection);
+  iEvent.put( outputCollection );
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -160,11 +157,6 @@ SoftLepton::beginJob(const edm::EventSetup& iSetup) {
   edm::ESHandle<TransientTrackBuilder> builder;
   iSetup.get<TransientTrackRecord>().get( "TransientTrackBuilder", builder );
   m_algo.setTransientTrackBuilder( builder.product() );
-
-  // grab the concrete soft lepton b tagger from the Event Setup
-  edm::ESHandle<JetTagComputer> tagger;
-  iSetup.get<JetTagComputerRecord>().get( m_concreteTagger, tagger );
-  m_algo.setConcreteTagger( tagger.product() );
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
