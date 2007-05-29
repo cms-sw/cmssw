@@ -1,8 +1,8 @@
 #include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
 
 reco::CombinedSVTagInfo::CombinedSVTagInfo ( const reco::TaggingVariableList & l,
-                                   double discriminator ) :
-  vars_(l), discriminator_(discriminator)
+              double discriminator, const JetTracksAssociationRef & jtaRef ) :
+  JTATagInfo(jtaRef), vars_(l), discriminator_(discriminator)
 {}
 
 reco::CombinedSVTagInfo::CombinedSVTagInfo ()
