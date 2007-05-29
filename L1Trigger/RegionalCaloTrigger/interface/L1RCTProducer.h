@@ -1,5 +1,5 @@
 #ifndef L1RCTProducer_h
-#define L1RCTProducer_h
+#define L1RCTProducer_h 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/EDProduct.h"
@@ -32,6 +32,8 @@ class L1RCTProducer : public edm::EDProducer
   std::string rctTestOutputFile;
   bool patternTest;
   edm::FileInPath lutFile2;
+  bool useEcal;
+  bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
 };
