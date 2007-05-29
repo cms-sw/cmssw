@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: NoDelayedReader.cc,v 1.6 2007/03/04 06:10:25 wmtan Exp $
+$Id: NoDelayedReader.cc,v 1.7 2007/05/10 12:27:03 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/NoDelayedReader.h"
+#include "DataFormats/Provenance/interface/BranchKey.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -33,22 +34,7 @@ namespace edm {
   }
 
   std::auto_ptr<BranchEntryDescription>
-  NoDelayedReader::getProvenance(BranchKey const& k, EDProductGetter const* ep) const {
-    EventPrincipal const* epr = dynamic_cast<EventPrincipal const*>(ep);
-    if (epr) {
-      throw cms::Exception("LogicError","NoDelayedReader")
-        << "getProvenance() called for branchkey: " << k << " EventID: " << epr->id() << "\n";
-    }
-    RunPrincipal const* rpr = dynamic_cast<RunPrincipal const*>(ep);
-    if (rpr) {
-      throw cms::Exception("LogicError","NoDelayedReader")
-        << "getProvenance() called for branchkey: " << k << " RunID: " << epr->id() << "\n";
-    }
-    LuminosityBlockPrincipal const* lpr = dynamic_cast<LuminosityBlockPrincipal const*>(ep);
-    if (lpr) {
-      throw cms::Exception("LogicError","NoDelayedReader")
-        << "getProvenance() called for branchkey: " << k << " LuminosityBlockNumber_t: " << lpr->id() << "\n";
-    }
+  NoDelayedReader::getProvenance(BranchKey const& k) const {
     throw cms::Exception("LogicError","NoDelayedReader")
       << "getProvenance() called for branchkey: " << k << "\n";
   }

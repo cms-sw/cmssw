@@ -1,8 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.23 2007/05/10 12:27:03 wmtan Exp $
+$Id: Group.cc,v 1.24 2007/05/10 22:46:55 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
-#include "FWCore/Framework/interface/Group.h"
+#include "FWCore/Framework/src/Group.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 
 using ROOT::Reflex::Type;
@@ -11,26 +11,28 @@ using ROOT::Reflex::TypeTemplate;
 namespace edm {
 
   Group::Group(std::auto_ptr<Provenance> prov,
-	       bool acc, bool onDemand) :
+	       bool onDemand) :
     product_(),
     provenance_(prov.release()),
-    accessible_(acc),
+    unavailable_(false),
     onDemand_(onDemand) {
+    if (onDemand) return;
+    if (prov->branchEntryDescription() == 0) return;
+    unavailable_ = !prov->isPresent();
   }
 
   Group::Group(ConstBranchDescription const& bd) :
     product_(),
     provenance_(new Provenance(bd)),
-    accessible_(true),
+    unavailable_(!bd.present()),
     onDemand_(false) {
   }
 
   Group::Group(std::auto_ptr<EDProduct> edp,
-	       std::auto_ptr<Provenance> prov,
-	       bool acc) :
+	       std::auto_ptr<Provenance> prov) :
     product_(edp.release()),
     provenance_(prov.release()),
-    accessible_(acc),
+    unavailable_(false),
     onDemand_(false) {
   }
 
@@ -38,35 +40,41 @@ namespace edm {
   }
 
   bool 
-  Group::productAvailable() const { 
-      return 
-	accessible_ and
-	((provenance_->creatorStatus() == BranchEntryDescription::Success) or onDemand_);
+  Group::productUnavailable() const { 
+      if (onDemand_) return false;
+      if (branchEntryDescription()) {
+	unavailable_ = !provenance_->isPresent();
+      }
+      return unavailable_;
   }
 
   bool 
   Group::provenanceAvailable() const { 
-      return accessible_ and not onDemand_;
+      return not onDemand_;
   }
 
   void 
   Group::setProduct(std::auto_ptr<EDProduct> prod) const {
-    assert (product() == 0);
-    product_ = boost::shared_ptr<EDProduct>(prod.release());  // Group takes ownership
+    if(prod.get() == 0) {
+      unavailable_ = false;
+    } else {
+      assert (product() == 0);
+      product_ = boost::shared_ptr<EDProduct>(prod.release());  // Group takes ownership
+    }
   }
   
   void 
   Group::setProvenance(std::auto_ptr<BranchEntryDescription> prov) const {
-    assert (branchEntryDescription().get() == 0);
+    assert (branchEntryDescription() == 0);
     provenance_->setEvent(boost::shared_ptr<BranchEntryDescription>(prov.release()));  // Group takes ownership
-    accessible_ = provenance_->isPresent();
+    unavailable_ = provenance_->isPresent();
   }
 
   void  
   Group::swap(Group& other) {
     std::swap(product_, other.product_);
     std::swap(provenance_, other.provenance_);
-    std::swap(accessible_, other.accessible_);
+    std::swap(unavailable_, other.unavailable_);
     std::swap(onDemand_, other.onDemand_);
   }
 
