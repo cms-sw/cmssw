@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.71 2007/04/09 19:12:31 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.72 2007/05/29 19:35:50 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -97,6 +97,8 @@ namespace edm {
   void PoolOutputModule::endLuminosityBlock(LuminosityBlockPrincipal const& lb) {
       if (hasNewlyDroppedBranch_[InLumi]) lb.addToProcessHistory();
       poolFile_->writeLuminosityBlock(lb);
+      Service<JobReport> reportSvc;
+      reportSvc->reportLumiSection(lb.id().run(), lb.id().luminosityBlock());
   }
 
   void PoolOutputModule::beginRun(RunPrincipal const&) {
