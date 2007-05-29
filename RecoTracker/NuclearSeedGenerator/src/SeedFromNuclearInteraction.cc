@@ -34,7 +34,8 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& tmAtInteractionPoint,
        innerHit = tmAtInteractionPoint.recHit().get();
        outerHit = theNewTM.recHit().get();
 
-       _hits.push_back( innerHit->hit()->clone() );
+       // _hits.push_back( innerHit->hit()->clone() ); // put in comment to avoid taking into account first hit
+                                                       // in CTFit
        _hits.push_back( outerHit->hit()->clone() );
 
        // increase errors on the initial TSOS
