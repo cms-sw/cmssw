@@ -118,13 +118,13 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	    if(!isFirstFound){
 	      isFirstFound = true;
 	      firstHit = *it;
-	      //std::cout << "firstHit->globalPosition(): " << firstHit->globalPosition() << std::endl;
+	      //LogDebug("TrackProducer") << "firstHit->globalPosition(): " << firstHit->globalPosition() << std::endl;
 	      continue;
 	    }
 	    secondHit = *it;
-	    //std::cout << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
+	    //LogDebug("TrackProducer") << "secondHit->globalPosition(): " << secondHit->globalPosition() << std::endl;
 	    break;
-	  }else   std::cout << "==== debug:this hit of a reco::Track is not valid!! =======" << std::endl;	  	
+	  }else LogDebug("TrackProducer") << "==== debug:this hit of a reco::Track is not valid!! =======";
 	}
 
 
@@ -156,12 +156,12 @@ void TrackProducerAlgorithm::runWithTrack(const TrackingGeometry * theG,
 	PropagationDirection seedDirection = 
 	  (theInitialStateForRefitting.globalDirection()*delta>0)? alongMomentum : oppositeToMomentum;
 	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
-	const TrajectorySeed * seed = new TrajectorySeed(PTrajectoryStateOnDet(),
-							 BasicTrajectorySeed::recHitContainer(), seedDirection);
+	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
+						   BasicTrajectorySeed::recHitContainer(), seedDirection);
 	// =========================
 
 	//=====  the hits are in the same order as they were in the track::extra.        
-	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, *seed, ndof);
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting, seed, ndof);
 	if(ok) cont++;
       }catch ( CMSexception & e){
 	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
