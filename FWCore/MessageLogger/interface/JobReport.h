@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.12 2007/03/04 04:53:28 wmtan Exp $
+// $Id: JobReport.h,v 1.13 2007/05/08 03:18:40 wmtan Exp $
 //
 
 #include <cstddef>
@@ -64,6 +64,28 @@ namespace edm {
         StringVector    branchNames;
         bool            fileHasBeenClosed;
       };
+
+      /**\struct LumiSectionReport
+  
+      Description: Holds information about a Lumi section associated to a
+      file
+  
+      Usage: struct contains parameters describing a Lumi Section, OutputFile
+             object stores a vector of these for each file
+      */
+
+      struct LumiSectionReport {
+	unsigned int runNumber;
+	unsigned int lumiSectionId;
+	/// So far we are proceeding without extra information, but
+	/// this may be added in the future...
+	///unsigned int startEvent;
+	///unsigned int lastEvent;
+	///std::string lumiStartTime;
+	///std::string lumiEndTime;
+	
+      };
+
   
       /**\struct OutputFile 
   
@@ -73,7 +95,8 @@ namespace edm {
       Data Handling wishes to accumulate about the use of a file that has
       been opened for output.
       */
-  
+
+
       struct OutputFile {
         typedef InputFile::RunNumberCollection RunNumberCollection;
         typedef InputFile::StringVector        StringVector;
@@ -88,6 +111,7 @@ namespace edm {
         size_t          numEventsWritten;
         StringVector    branchNames;
         std::vector<Token> contributingInputs;
+	std::vector<LumiSectionReport> lumiSections;
         bool            fileHasBeenClosed;
       };
   
@@ -122,7 +146,19 @@ namespace edm {
          * input file tokens are used to initialise its list of contributors
          */
         std::vector<Token> openInputFiles(void);
+
+	/*
+	 * Get a vector of Tokens for all currently open output files
+	 * Used to add lumi sections to open files
+	 */
+        std::vector<Token> openOutputFiles(void);
   
+	/*
+	 * Associate a Lumi Section to all open output files
+	 *
+	 */
+	void associateLumiSection(LumiSectionReport  rep);
+
         /*
          * Write an InputFile object to the Logger 
          * Generate XML string for InputFile instance and dispatch to 
@@ -162,7 +198,7 @@ namespace edm {
          *  Flush all open files to logger in event of a problem.
          */
         void flushFiles(void);
-  
+	
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
 	std::map<std::string, std::string> generatorInfo_;
@@ -241,6 +277,14 @@ namespace edm {
 
 
       ///
+      /// API for reporting a Lumi Section to the job report.
+      /// 
+      ///
+      ///
+      void reportLumiSection(unsigned int run, unsigned int lumiSectId);
+
+
+      ///
       /// Report an exception, providing details of the problem as
       /// a short description (Eg "XXXError") and a long description 
       /// (Eg "XXX crashed because...")
@@ -278,16 +322,21 @@ namespace edm {
       /// Eg:  reportGeneratorInfo("CrossSection" , "ValueHere")
       /// No special chars in the value string. 
       void reportGeneratorInfo(std::string  name, std::string  value);
+      
+      
+      
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}
 
    private:
       boost::scoped_ptr<JobReportImpl> impl_;
+
    };
 
    std::ostream& operator<< (std::ostream& os, JobReport::InputFile const& f);
    std::ostream& operator<< (std::ostream& os, JobReport::OutputFile const& f);
+   std::ostream& operator<< (std::ostream& os, JobReport::LumiSectionReport const& rep);
 
     /*
      * Note that output formatting is spattered across these classes
