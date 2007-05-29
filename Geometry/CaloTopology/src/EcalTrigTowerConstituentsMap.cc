@@ -25,7 +25,8 @@ EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const 
       // Ecal Endcap
       //--------------------
       EEDetId originalId(id);
-      DetId wrappedId=wrapEEDetId(id);
+      // DetId wrappedId=wrapEEDetId(id);
+      DetId wrappedId(originalId);
       EcalTowerMap::const_iterator i=m_items.find(wrappedId);
       if (i!=m_items.end()) 
 	{
@@ -34,7 +35,8 @@ EcalTrigTowerDetId EcalTrigTowerConstituentsMap::towerOf(const DetId& id) const 
 	  //trigger tower <-> crystal maping read 
 	  //..........from file and done only for 1 quadrant
 	  //move from quadrant 1 to the actual one:
-	  phiTower = changeTowerQuadrant(phiTower, 1, originalId.iquadrant());
+	  // phiTower = changeTowerQuadrant(phiTower, 1, originalId.iquadrant());
+	  // std::cout << originalId.zside() <<  " " << etaTower << " " << phiTower << std::endl;
 	  return EcalTrigTowerDetId(originalId.zside(),EcalEndcap,etaTower,phiTower);
 	}
     }
