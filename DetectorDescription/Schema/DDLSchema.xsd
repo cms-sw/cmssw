@@ -51,6 +51,8 @@
 
       <xsd:element ref="SpecPar" maxOccurs="unbounded"/>
 
+      <xsd:element ref="Division" maxOccurs="unbounded"/>
+
       <xsd:element ref="Constant" maxOccurs="unbounded"/>
       <xsd:element ref="String" maxOccurs="unbounded"/>
       <xsd:element ref="Numeric" maxOccurs="unbounded"/>
@@ -78,6 +80,8 @@
         <xsd:choice minOccurs="0" maxOccurs="unbounded">
           <xsd:element ref="PosPart"/>
           <xsd:element ref="AlgoPosPart"/>
+          <xsd:element ref="Algorithm"/>
+          <xsd:element ref="Division"/>
         </xsd:choice>
       </xsd:extension>
     </xsd:complexContent>
@@ -711,22 +715,12 @@
         By moving the rSolids into attributes we allow BooleanSolidType to be more compact and to allow Rotation or Translation to be defined inside the BooleanSolidtype.
       </xsd:documentation>
     </xsd:annotation>
-<!-- Transitional -->
     <xsd:complexContent>
       <xsd:extension base="SolidType">
-        <xsd:choice>
           <xsd:sequence>
-	    <xsd:choice>
+              <xsd:element ref="rSolid" minOccurs="0" maxOccurs="2"/>
               <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
-            </xsd:choice>
-            <xsd:element ref="rSolid" minOccurs="2" maxOccurs="2"/>
-            <xsd:choice>
-              <xsd:group ref="TROptions" minOccurs="0" maxOccurs="2"/>
-            </xsd:choice>
           </xsd:sequence>
-          <xsd:sequence>
-          </xsd:sequence>
-        </xsd:choice>
          <xsd:attributeGroup ref="BooleanSolidAttributes"/>
       </xsd:extension>
     </xsd:complexContent>
@@ -841,6 +835,13 @@
       </xsd:extension>
     </xsd:complexContent>
   </xsd:complexType>
+  <xsd:complexType name="TorusType">
+    <xsd:complexContent>
+      <xsd:extension base="SolidType">
+        <xsd:attributeGroup ref="TorusAttributes"/>
+      </xsd:extension>
+    </xsd:complexContent>
+  </xsd:complexType>
   
   <!-- Elements -->
   
@@ -859,6 +860,7 @@
   <xsd:element name="Tubs" type="TubsType" substitutionGroup="Solid"/>
   <xsd:element name="TruncTubs" type="TruncTubsType" substitutionGroup="Solid"/>
   <xsd:element name="ShapelessSolid" type="ShapelessSolidType" substitutionGroup="Solid"/>
+  <xsd:element name="Torus" type="TorusType" substitutionGroup="Solid"/>
   <xsd:element name="ZSection" type="ZSectionType"/>
   <xsd:element name="RZPoint" type="RZPointType"/>
   <xsd:element name="ReflectionSolid" type="ReflectionSolidType" substitutionGroup="Solid"/>
@@ -975,6 +977,13 @@
     <xsd:attribute name="dz"       use="required" type="lengthT"/>
     <xsd:attribute name="radius"   use="required" type="lengthT"/>
     <xsd:attribute name="atMinusZ" use="required" type="xsd:string"/>
+  </xsd:attributeGroup>
+  <xsd:attributeGroup name="TorusAttributes">
+    <xsd:attribute name="innerRadius"      use="required" type="lengthT"/>
+    <xsd:attribute name="outerRadius"      use="required" type="lengthT"/>
+    <xsd:attribute name="torusRadius"      use="required" type="lengthT"/>
+    <xsd:attribute name="startPhi"      use="required" type="lengthT"/>
+    <xsd:attribute name="deltaPhi"       use="required" type="lengthT"/>
   </xsd:attributeGroup>
   <xsd:attributeGroup name="BooleanSolidAttributes">
     <xsd:attribute name="firstSolid"  use="optional" type="xsd:string"/>
@@ -1182,6 +1191,23 @@
       </xsd:element>
     </xsd:choice>
   </xsd:group>
+  
+<!-- *************************************************************** -->
+<!-- *                                                             * -->
+<!-- *  Division                                                  * -->
+<!-- *                                                             * -->
+<!-- *************************************************************** -->
+
+  <xsd:element name="Division">
+    <xsd:complexType>
+      <xsd:attribute name="name" use="required" type="xsd:string"/>
+      <xsd:attribute name="parent" use="required" type="xsd:string"/>
+      <xsd:attribute name="axis" use="optional" type="xsd:string"/>
+      <xsd:attribute name="offset" use="optional" type="lengthT"/>
+      <xsd:attribute name="width" use="optional" type="lengthT"/>
+      <xsd:attribute name="nReplicas" use="optional" type="lengthT"/>
+    </xsd:complexType>
+  </xsd:element>
   
 <!-- *************************************************************** -->
 <!-- *                                                             * -->
