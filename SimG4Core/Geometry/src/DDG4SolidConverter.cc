@@ -23,6 +23,7 @@ DDG4SolidConverter::DDG4SolidConverter()
    convDispatch_[ddpolycone_rz]    = DDG4SolidConverter::polycone_rz;
    convDispatch_[ddpolyhedra_rrz]  = DDG4SolidConverter::polyhedra_rrz;
    convDispatch_[ddpolyhedra_rz]   = DDG4SolidConverter::polyhedra_rz;   
+   convDispatch_[ddtorus]          = DDG4SolidConverter::torus;   
    convDispatch_[ddreflected]      = DDG4SolidConverter::reflected;
    convDispatch_[ddunion]          = DDG4SolidConverter::unionsolid;
    convDispatch_[ddintersection]   = DDG4SolidConverter::intersection;
@@ -204,6 +205,18 @@ G4VSolid * DDG4SolidConverter::polyhedra_rrz(const DDSolid & s)
 			 &((*z_p)[0]),
 			 &((*rmin_p)[0]),
 			 &((*rmax_p)[0]));  
+}
+
+
+#include "G4Torus.hh"
+G4VSolid * DDG4SolidConverter::torus(const DDSolid & s)
+{
+   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: torus = " << s ;  
+   return new G4Torus(s.name().name(), (*par_)[0], // rmin
+                               (*par_)[1], // rmax
+			       (*par_)[2], // Rtor
+			       (*par_)[3], // phiStart
+			       (*par_)[4]);// deltaPhi
 }
 
 
