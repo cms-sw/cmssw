@@ -3,6 +3,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "interface/shared/include/fed_trailer.h"
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -28,8 +29,6 @@ FEDRawDataAnalyzer::FEDRawDataAnalyzer( const edm::ParameterSet& pset )
 void FEDRawDataAnalyzer::analyze( const edm::Event& event,
 				  const edm::EventSetup& setup ) {
   
-  event_++;
-  
   // Introduce optional delay
   if ( sleep_ > 0 ) { for ( int ii = 0; ii < sleep_; ++ii ) { usleep(1); } }
   
@@ -45,7 +44,7 @@ void FEDRawDataAnalyzer::analyze( const edm::Event& event,
   
   // Check FEDRawDataCollection
   for ( uint16_t ifed = 0; ifed < sistrip::CMS_FED_ID_MAX; ifed++ ) {
-    const FEDRawData& fed = buffers.FEDData( static_cast<int>(ifed) );
+    const FEDRawData& fed = buffers->FEDData( static_cast<int>(ifed) );
     if ( fed.size() ) { 
       cntr++;
       if ( edm::isDebugEnabled() ) {
@@ -71,7 +70,7 @@ void FEDRawDataAnalyzer::analyze( const edm::Event& event,
   sss << "[FEDRawDataAnalyzer::" << __func__ << "]"
       << " Number of FED buffers (with non-zero size) found in collection is "
       << cntr;
-  if ( trigger_fed ) { sss << " (One buffer contains the \"trigger FED\" info!)" }
+  if ( trigger_fed ) { sss << " (One buffer contains the \"trigger FED\" info!)"; }
   edm::LogVerbatim(mlRawToDigi_) << sss.str();
   
   LogTrace(mlRawToDigi_) 
