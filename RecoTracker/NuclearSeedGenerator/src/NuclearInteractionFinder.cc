@@ -211,5 +211,14 @@ void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedC
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::improveSeeds() {
-//      std::vector<TM> thirdTMs = findMeasurementsFromTSOS( currentSeed->updatedState(), *(currentSeed->outerMeasurement()) );
+        std::vector<SeedFromNuclearInteraction> newSeedCollection;
+        for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
+              std::vector<TM> thirdTMs = findCompatibleMeasurements(  *(it_seed->outerMeasurement()), 10 );
+              for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
+                   // TODO : write this constructor of TangentCircle :
+//                   TangentCircle circle(thePrimaryCircle, it_seed->outerMeasurement().updatedState().globalParameters().position(), tm->outerMeasurement().updatedState().globalParameters().position() );
+                   // TODO : write this constructor for SeedFromNuclearInteraction :
+//                   newSeedCollection.push_back(SeedFromNuclearInteraction(circle, it_seed->outerMeasurement(), *tm) );
+              }
+       }
 }     
