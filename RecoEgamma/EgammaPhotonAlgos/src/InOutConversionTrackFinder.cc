@@ -20,9 +20,6 @@
 
 InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
 
-  
-  LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder CTOR " << "\n";  
-    
   seedClean_ = conf_.getParameter<bool>("inOutSeedCleaning");
   smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
 
@@ -181,16 +178,6 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     delete state;
   }
   
-      
-
-
-
-  
-
-  //  std::cout << "  InOutConversionTrackFinder::track Returning " <<  unsmoothedResult.size() << " In Out Trajectories " << "\n";
   LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Returning " << result.size() << " valid In Out Trajectories " << "\n";
   return  result;
-  
-
-  
 }

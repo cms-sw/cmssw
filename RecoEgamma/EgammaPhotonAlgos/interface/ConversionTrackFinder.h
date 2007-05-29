@@ -4,9 +4,9 @@
 /** \class ConversionTrackFinder
  **  
  **
- **  $Id: ConversionTrackFinder.h,v 1.4 2006/12/19 17:35:31 nancy Exp $ 
- **  $Date: 2006/12/19 17:35:31 $ 
- **  $Revision: 1.4 $
+ **  $Id: ConversionTrackFinder.h,v 1.5 2007/02/19 20:47:37 nancy Exp $ 
+ **  $Date: 2007/02/19 20:47:37 $ 
+ **  $Revision: 1.5 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -28,17 +28,12 @@
 #include <vector>
 
 
-
-
-
-
 class ConversionTrackFinder {
 
  public:
   
   ConversionTrackFinder(const MagneticField* field, const MeasurementTracker* theInputMeasurementTracker)  :  theMF_(field),  theMeasurementTracker_(theInputMeasurementTracker)
     {
-      std::cout << " ConversionTrackFinder CTOR  theMeasurementTracker_ " <<  theMeasurementTracker_ << std:: endl;      
     }
 
   

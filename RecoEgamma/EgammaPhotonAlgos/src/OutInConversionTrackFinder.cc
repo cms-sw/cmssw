@@ -23,13 +23,6 @@
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder(  field, theInputMeasurementTracker), conf_(conf)
 {
   
-  
-  
-  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder CTOR  theMeasurementTracker_   " << theMeasurementTracker_<<  "\n"; 
-  
-  
-  
-  
   seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
   // get nested parameter set for the TransientInitialStateEstimator
   edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
