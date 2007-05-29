@@ -13,9 +13,4 @@
 
 <use name=DQMServices/CoreROOT>
 
-<flags SEAL_PLUGIN_NAME="ValidationRecoMuon"> 
-
-<export>
-    <lib name=ValidationRecoMuon>
-    <use name=DQMServices/CoreROOT>
-</Export>
+<flags EDM_PLUGIN=1>
