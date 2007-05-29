@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.13 2007/05/08 03:18:40 wmtan Exp $
+// $Id: JobReport.h,v 1.14 2007/05/29 20:27:27 evansde Exp $
 //
 
 #include <cstddef>
@@ -323,8 +323,8 @@ namespace edm {
       /// No special chars in the value string. 
       void reportGeneratorInfo(std::string  name, std::string  value);
       
-      
-      
+      /// debug/test util
+      std::string dumpFiles(void);
 
    protected:
       boost::scoped_ptr<JobReportImpl>& impl() {return impl_;}

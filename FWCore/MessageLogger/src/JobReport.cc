@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.18 2007/01/30 20:22:11 evansde Exp $
+// $Id: JobReport.cc,v 1.19 2007/05/29 20:27:27 evansde Exp $
 //
 
 
@@ -187,7 +187,6 @@ namespace edm
     void JobReport::JobReportImpl::writeOutputFile(JobReport::OutputFile & f) {
 	LogInfo("FwkJob") << "\n<File>";
 	LogInfo("FwkJob") << f;
- 	LogInfo("FwkJob") << "\n<Inputs>";
 	
 	LogInfo("FwkJob") << "\n<LumiSections>";
 	std::vector<JobReport::LumiSectionReport>::iterator iLumi;
@@ -197,6 +196,7 @@ namespace edm
 	}
 	LogInfo("FwkJob") << "\n</LumiSections>\n";
 	  
+	LogInfo("FwkJob") << "\n<Inputs>";
  	std::vector<JobReport::Token>::iterator iInput;
  	for (iInput = f.contributingInputs.begin(); 
  	     iInput != f.contributingInputs.end(); iInput++) {
@@ -249,26 +249,27 @@ namespace edm
   }
 
   void JobReport::JobReportImpl::associateLumiSection(JobReport::LumiSectionReport  rep){
-    std::vector<Token> openFiles = openInputFiles();
+    std::vector<Token> openFiles = openOutputFiles();
     std::vector<Token>::iterator iToken;
-    for (iToken == openFiles.begin(); iToken != openFiles.end(); iToken++){
+    for (iToken = openFiles.begin(); iToken != openFiles.end(); iToken++){
       //
       // Loop over all open output files
       //
-      JobReport::OutputFile theFile = getOutputFileForToken(*iToken);
-
+      JobReport::OutputFile & theFile = outputFiles_[*iToken];
       //
       // check known lumi sections for each file
       //
       std::vector<JobReport::LumiSectionReport>::iterator iLumi;
       bool lumiKnownByFile = false;
-      for (iLumi == theFile.lumiSections.begin();
+      for (iLumi = theFile.lumiSections.begin();
 	   iLumi != theFile.lumiSections.end(); iLumi++){
+	
 	if ( (iLumi->lumiSectionId == rep.lumiSectionId) && 
 	     (iLumi->runNumber == rep.runNumber) ){
 	  //
 	  // This file already has this lumi section associated to it
 	  // dont report it twice
+	  
 	  lumiKnownByFile = true;
 	}
       }
@@ -283,7 +284,7 @@ namespace edm
       }
     }
     
-
+    
   }
 
   JobReport::~JobReport() {
@@ -475,11 +476,9 @@ namespace edm
 
   void 
   JobReport::reportLumiSection(unsigned int run, unsigned int lumiSectId){
-    std::cout << "reportLumiSection(" << run << ", " << lumiSectId << ")\n";
     JobReport::LumiSectionReport lumiRep;
     lumiRep.runNumber = run;
     lumiRep.lumiSectionId = lumiSectId;
-    std::cout << "reportLumiSection(" << run << ", " << lumiSectId << ")\n";
     impl_->associateLumiSection(lumiRep);
 
   }
@@ -556,7 +555,44 @@ namespace edm
     impl_->addGeneratorInfo(name, value);
   }
 
+  std::string
+  JobReport::dumpFiles(void){
+    
+    std::ostringstream msg;
+    
+    std::vector<JobReport::OutputFile>::iterator f;
+    
+    for (f = impl_->outputFiles_.begin();
+	 f != impl_->outputFiles_.end(); f++){
+      
+      msg << "\n<File>";
+      msg << *f;
+      
+      msg << "\n<LumiSections>";
+      std::vector<JobReport::LumiSectionReport>::iterator iLumi;
+      for (iLumi = f->lumiSections.begin();
+	   iLumi != f->lumiSections.end(); iLumi++){
+	msg << *iLumi;
+      }
+      msg << "\n</LumiSections>\n";
+      msg << "\n<Inputs>";
+      std::vector<JobReport::Token>::iterator iInput;
+      for (iInput = f->contributingInputs.begin(); 
+	   iInput != f->contributingInputs.end(); iInput++) {
+	JobReport::InputFile inpFile = impl_->inputFiles_[*iInput];
+	msg <<"\n<Input>";
+	msg <<"\n  <LFN>" << inpFile.logicalFileName << "</LFN>";
+	msg <<"\n  <PFN>" << inpFile.physicalFileName << "</PFN>";
+	msg <<"\n</Input>";
+      }
+      msg << "\n</Inputs>";
+      msg << "\n</File>";
+      
+    }
 
+    return msg.str();
 
+  }
+  
 
 } //namspace edm
