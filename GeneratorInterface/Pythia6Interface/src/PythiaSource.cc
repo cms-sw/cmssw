@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/05/22 13:39:22 $
- *  $Revision: 1.9 $
+ *  $Date: 2007/05/22 14:29:40 $
+ *  $Revision: 1.10 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -91,50 +91,35 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
 {
   
-  cout << "PythiaSource: initializing Pythia. " << endl;
-  
- 
   
   // PYLIST Verbosity Level
   // Valid PYLIST arguments are: 1, 2, 3, 5, 7, 11, 12, 13
   pythiaPylistVerbosity_ = pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0);
-  cout << "Pythia PYLIST verbosity level = " << pythiaPylistVerbosity_ << endl;
   
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
-  cout << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << endl; 
 
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
-  cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
-
   
   particleID = pset.getUntrackedParameter<int>("ParticleID", 0);
   if(particleID) {
 
-    cout <<" Particle ID = " << particleID << endl; 
-
     doubleParticle = pset.getUntrackedParameter<bool>("DoubleParticle",true);
-    cout <<" double back-to-back " << doubleParticle << endl; 
 
     ptmin = pset.getUntrackedParameter<double>("Ptmin",20.);
     ptmax = pset.getUntrackedParameter<double>("Ptmax",420.);
-    cout <<" ptmin = " << ptmin <<" ptmax = " << ptmax << endl;
 
     etamin = pset.getUntrackedParameter<double>("Etamin",0.);
     etamax = pset.getUntrackedParameter<double>("Etamax",2.2);
-    cout <<" etamin = " << etamin <<" etamax = " << etamax << endl;
 
     phimin = pset.getUntrackedParameter<double>("Phimin",0.);
     phimax = pset.getUntrackedParameter<double>("Phimax",360.);
-    cout <<" phimin = " << phimin <<" phimax = " << phimax << endl;
 
     Service<RandomNumberGenerator> rng;
     long seed = (long)(rng->mySeed());
-    cout << " seed= " << seed << endl ;
     fRandomEngine = new CLHEP::HepJamesRandom(seed) ;
     fRandomGenerator = new CLHEP::RandFlat(fRandomEngine) ;
-    cout << "Internal BaseFlatGunSource is initialzed" << endl ;
  
   }
   // Set PYTHIA parameters in a single ParameterSet
@@ -156,9 +141,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       pythia_params.getParameter<vector<string> >(mySet);
     
     if (mySet != "SLHAParameters" && mySet != "CSAParameters"){
-    cout << "----------------------------------------------" << endl;
-    cout << "Read PYTHIA parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
     
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator  
@@ -179,12 +161,7 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
    pars = pythia_params.getParameter<vector<string> >("CSAParameters");
 
-   cout << "----------------------------------------------" << endl; 
-   cout << "Reading CSA parameter settings. " << endl;
-   cout << "----------------------------------------------" << endl;                                                                           
-
    call_txgive_init();
-  
   
    // Loop over all parameters and stop in case of a mistake
     for (vector<string>::const_iterator 
@@ -199,11 +176,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   
    pars = pythia_params.getParameter<vector<string> >("SLHAParameters");
 
-   cout << "----------------------------------------------" << endl; 
-   cout << "Reading SLHA parameters. " << endl;
-   cout << "----------------------------------------------" << endl;                                                                           
-
-  
   
    // Loop over all parameters and stop in case of a mistake
     for (vector<string>::const_iterator 
@@ -218,9 +190,6 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
   }
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-    cout << "----------------------------------------------" << endl;
-    cout << "Setting Pythia random number seed " << endl;
-    cout << "----------------------------------------------" << endl;
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
@@ -234,17 +203,14 @@ PythiaSource::PythiaSource( const ParameterSet & pset,
       call_pyinit( "CMS", "p", "p", comenergy );
     }
 
-  cout << endl; // Stetically add for the output
   //********                                      
   
   produces<HepMCProduct>();
   produces<GenInfoProduct, edm::InRun>();
-  cout << "PythiaSource: starting event generation ... " << endl;
 }
 
 
 PythiaSource::~PythiaSource(){
-  cout << "PythiaSource: event generation done. " << endl;
   call_pystat(1);
   clear(); 
 }
@@ -267,7 +233,6 @@ void PythiaSource::endRun(Run & r) {
 bool PythiaSource::produce(Event & e) {
 
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
-    //cout << "PythiaSource: Generating event ...  " << endl;
 
     //********                                         
     //
@@ -281,16 +246,6 @@ bool PythiaSource::produce(Event & e) {
 	double pmass = PYMASS(particleID);
 	double pe = pt/sin(the);
 	double ee = sqrt(pe*pe+pmass*pmass);
-
-	/*
-	cout <<" pt = " << pt 
-	     <<" eta = " << eta 
-	     <<" the = " << the 
-	     <<" pe = " << pe 
-	     <<" phi = " << phi 
-	     <<" pmass = " << pmass 
-	     <<" ee = " << ee << endl;
-	*/
 
 	phi = phi * (3.1415927/180.);
 
@@ -368,18 +323,14 @@ bool
 PythiaSource::call_txgive(const std::string& iParm ) {
   
    TXGIVE( iParm.c_str(), iParm.length() );
-   cout << "     " <<  iParm.c_str() << endl; 
-
-	return 1;  
+   return 1;  
 }
 
 bool 
 PythiaSource::call_txgive_init() {
   
    TXGIVE_INIT();
-   cout << "  Setting CSA reweighting parameters.   "   << endl; 
-   
-	return 1;  
+   return 1;  
 }
 
 bool
@@ -397,24 +348,20 @@ PythiaSource::call_slhagive(const std::string& iParm ) {
 		string shortfile = iParm.substr( start, end - start + 1 );
 		string file;
 		if( shortfile[0] == '/' ) {
-			cout << "SLHA file given with absolut path." << endl;
 			file = shortfile;
 		} else {
 			try {
 				FileInPath f1( shortfile );
 				file = f1.fullPath();
 			} catch(...) {
-				cout << "SLHA file not in path. Trying anyway." << endl;
 				file = shortfile;
 			}
 		}
 		file = "SLHAFILE = '" + file + "'";
 		SLHAGIVE( file.c_str(), file.length() );
-		cout << "     " <<  file.c_str() << endl;
 		
 	} else {
 		SLHAGIVE( iParm.c_str(), iParm.length() );
-		cout << "     " <<  iParm.c_str() << endl; 
 	}
 	return 1;
 }
@@ -424,7 +371,5 @@ bool
 PythiaSource::call_slha_init() {
   
    SLHA_INIT();
-   cout << "  Opening the SLHA spectrum file.   "   << endl; 
-   
-	return 1;  
+   return 1;  
 }
