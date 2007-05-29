@@ -239,8 +239,8 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 
 void HCalSD::setNumberingScheme(HcalNumberingScheme* scheme) {
   if (scheme != 0) {
-    edm::LogWarning("HcalSim") << "HCalSD: updates numbering scheme for " 
-			       << GetName();
+    edm::LogInfo("HcalSim") << "HCalSD: updates numbering scheme for " 
+			    << GetName() << "\n";
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
