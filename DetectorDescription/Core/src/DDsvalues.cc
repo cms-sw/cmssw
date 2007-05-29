@@ -11,9 +11,6 @@ namespace {
     int middle;
     int mixed;
     ~Counter() {
-      std::cout << "Merging stats "
-		<< empty << " " << begin << " " << end << " "
-		<< middle << " " << mixed << std::endl;
     }
 
   };
