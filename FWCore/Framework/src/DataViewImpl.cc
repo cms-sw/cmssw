@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: DataViewImpl.cc,v 1.17 2007/05/10 22:46:55 wmtan Exp $
+$Id: DataViewImpl.cc,v 1.18 2007/05/22 22:28:07 chrjones Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>
@@ -12,7 +12,6 @@ $Id: DataViewImpl.cc,v 1.17 2007/05/10 22:46:55 wmtan Exp $
 #include "FWCore/Framework/interface/Principal.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
-#include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/Selector.h"
 
 using namespace std;
