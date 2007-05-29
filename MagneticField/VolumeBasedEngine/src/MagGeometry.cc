@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/30 13:04:25 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/05/11 11:56:21 $
+ *  $Revision: 1.8 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -38,18 +38,6 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   useParametrizedTrackerField = config.getParameter<bool>("useParametrizedTrackerField");
 
   //TimeMe t1("MagGeometry:build",false);
-
-  cout << endl
-       << "         ___________________________________        " << endl
-       << "      .-'                                   '-.     " << endl
-       << "    .'      Magnetic Field Geometry built      `.   " << endl
-       << "   /                                             \\  " << endl
-       << "  ;         Barrel volumes: " << theBVolumes.size() << "                  ; " << endl
-       << "  ;         Endcap volumes: " << theEVolumes.size() << "                   ; " << endl
-       << "   \\                                             /  " << endl
-       << "    `.          Fasten your seatbelt.          .'   " << endl
-       << "      `-.___________________________________.-'     " << endl
-       << endl;
 
   vector<double> rBorders;
 
