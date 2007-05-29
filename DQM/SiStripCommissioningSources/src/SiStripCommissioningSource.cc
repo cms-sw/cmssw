@@ -30,6 +30,8 @@
 #include <sstream>
 #include <time.h>
 
+//#define FU_INSTANCE
+
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -99,12 +101,15 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
   dqm()->setVerbose(0);
   
   // ---------- Base directory ----------
+
+  std::stringstream dir;
+  
+#ifdef FU_INSTANCE
   
   LogTrace(mlDqmSource_) 
     << "[SiStripCommissioningSource::" << __func__ << "]"
     << " FU instance number identified to be " 
     << dqm()->fuInstance();
-  std::stringstream dir;
 
   //@@ temp!!!
   if ( dqm()->fuInstance() < 0 ) { dqm()->fuInstance(0); }
@@ -116,6 +121,17 @@ void SiStripCommissioningSource::beginJob( const edm::EventSetup& setup ) {
 	<< dqm()->fuInstance() 
 	<< "/";
   }
+  
+#else
+  
+  LogTrace(mlDqmSource_) 
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " FU instance number is not available from DaqMonitorBEInterface!" 
+    << " Setting to 0...";
+  dir << "FU000/"; 
+  
+#endif
+  
   base_ = dir.str();
 
   // ---------- FED and FEC cabling ----------
@@ -200,9 +216,18 @@ void SiStripCommissioningSource::endJob() {
   ss << name << "_" << std::setfill('0') << std::setw(7) << run_;
   
   // Add FU instance number
+
+#ifdef FU_INSTANCE
+
   if ( dqm()->fuInstance() >= 0 ) {
     ss << "_" << std::setfill('0') << std::setw(3) << dqm()->fuInstance();
   } else { ss << "_000"; }
+
+#else 
+  
+  ss << "_000";  
+  
+#endif
   
   // Append ".root" extension
   ss << ".root";

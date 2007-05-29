@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.1 2007/04/04 07:16:16 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.2 2007/05/24 15:46:00 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -19,6 +19,8 @@
 #include <fstream>
 #include <sstream>
 #include "TProfile.h"
+
+//#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -189,7 +191,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   if ( histos_ ) { histos_->createCollations( contents ); }
     
   // Trigger update methods
+#ifdef DO_SUMMARY  
   if ( mui_ ) { mui_->doSummary(); } //@@ temporary!
+#else
+  edm::LogWarning(mlDqmClient_) 
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]" 
+    << " No offline collation available!";
+#endif
   
   // Perform analysis
   if ( histos_ ) { histos_->histoAnalysis( true ); }
