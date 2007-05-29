@@ -28,6 +28,7 @@ SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & iConfig ) :
 {
     m_refineJetAxis    = iConfig.getParameter<unsigned int>("RefineJetAxis");
     m_usePrimaryVertex = iConfig.getParameter<bool>("UsePrimaryVertex");
+    m_deltaRCut        = iConfig.getParameter<double>("deltaRCut");
 }
   
 
