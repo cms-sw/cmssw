@@ -1,4 +1,5 @@
 
+#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GetReleaseVersion.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -11,7 +12,6 @@
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
-#include "FWCore/Framework/interface/Schedule.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
@@ -222,7 +222,7 @@ namespace edm
     total_passed_(),
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     unscheduled_(new UnscheduledCallProducer),
-    demandGroups_(),
+    demandBranches_(),
     endpathsAreActive_(true)
   {
     ParameterSet maxEventsPSet(pset_.getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet()));
@@ -389,7 +389,7 @@ namespace edm
       }
     }
 
-    //Now that these have been set, we can create the list of Groups we need for the 'on demand'
+    //Now that these have been set, we can create the list of Branches we need for the 'on demand'
     const ProductRegistry::ProductList& prodsList = prod_reg_->productList();
     for(ProductRegistry::ProductList::const_iterator itProdInfo = prodsList.begin(),
         itProdInfoEnd = prodsList.end();
@@ -397,9 +397,8 @@ namespace edm
         ++itProdInfo)
       {
 	if(unscheduledLabels.end() != unscheduledLabels.find(itProdInfo->second.moduleLabel())) {
-          auto_ptr<Provenance> prov(new Provenance(itProdInfo->second, BranchEntryDescription::CreatorNotRun));
-          boost::shared_ptr<Group> theGroup(new Group(prov, true, true));
-          demandGroups_.push_back(theGroup);
+          boost::shared_ptr<Provenance> prov(new Provenance(itProdInfo->second, BranchEntryDescription::CreatorNotRun));
+          demandBranches_.push_back(prov);
 	}
       }
   }
@@ -1082,13 +1081,12 @@ namespace edm
     // NOTE: who owns the productdescrption?  Just copied by value
     unscheduled_->setEventSetup(es);
     ep.setUnscheduledHandler(unscheduled_);
-    typedef vector<boost::shared_ptr<Group> > groups;
-    for(groups::iterator itGroup = demandGroups_.begin(), itGroupEnd = demandGroups_.end();
-        itGroup != itGroupEnd;
-        ++itGroup) {
-      auto_ptr<Provenance> prov(new Provenance((*itGroup)->provenance()));
-      auto_ptr<Group> theGroup(new Group(prov, true, true));
-      ep.addGroup(theGroup);
+    typedef vector<boost::shared_ptr<Provenance> > branches;
+    for(branches::iterator itBranch = demandBranches_.begin(), itBranchEnd = demandBranches_.end();
+        itBranch != itBranchEnd;
+        ++itBranch) {
+      auto_ptr<Provenance> prov(new Provenance(**itBranch));
+      ep.addGroup(prov, true);
     }
   }
 

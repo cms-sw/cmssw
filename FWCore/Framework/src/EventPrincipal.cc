@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include <algorithm>
 
@@ -44,7 +45,7 @@ namespace edm {
   }
 
   bool
-  EventPrincipal::unscheduledFill(Group const& group) const {
+  EventPrincipal::unscheduledFill(Provenance const& prov) const {
 
     // If it is a module already currently running in unscheduled
     // mode, then there is a circular dependency related to which
@@ -54,7 +55,7 @@ namespace edm {
     std::vector<std::string>::const_iterator i =
       std::find(moduleLabelsRunning_.begin(),
                 moduleLabelsRunning_.end(),
-                group.moduleLabel());
+                prov.moduleLabel());
 
     if (i != moduleLabelsRunning_.end()) {
       throw edm::Exception(errors::LogicError)
@@ -66,10 +67,10 @@ namespace edm {
         << "In the second case, the modules themselves will have to be fixed.\n";
     }
 
-    moduleLabelsRunning_.push_back(group.moduleLabel());
+    moduleLabelsRunning_.push_back(prov.moduleLabel());
 
     if (unscheduledHandler_) {
-      unscheduledHandler_->tryToFill(group.provenance(), *const_cast<EventPrincipal *>(this));
+      unscheduledHandler_->tryToFill(prov, *const_cast<EventPrincipal *>(this));
     }
     moduleLabelsRunning_.pop_back();
     return true;
