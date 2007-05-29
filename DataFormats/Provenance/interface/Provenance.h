@@ -6,13 +6,14 @@
 Provenance: The full description of a product and how it came into
 existence.
 
-$Id: Provenance.h,v 1.3 2007/05/10 12:27:02 wmtan Exp $
+$Id: Provenance.h,v 1.4 2007/05/10 22:46:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <iosfwd>
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/ProvenanceDelayedReader.h"
 #include "boost/shared_ptr.hpp"
 
 /*
@@ -40,10 +41,11 @@ namespace edm {
 
     ~Provenance() {}
 
-    void setEvent(boost::shared_ptr<BranchEntryDescription> e);
+    void setEvent(boost::shared_ptr<BranchEntryDescription> e) const;
 
     BranchDescription const& product() const {return product_.me();}
-    BranchEntryDescription const& event() const {return *event_;}
+    BranchEntryDescription const& event() const {if (event_.get()) return *event_; return resolve();}
+    BranchEntryDescription const& resolve() const;
     boost::shared_ptr<BranchEntryDescription> branchEntryDescription()  const {return event_;}
     std::string const& branchName() const {return product().branchName();}
     std::string const& className() const {return product().className();}
@@ -67,10 +69,12 @@ namespace edm {
     std::vector<ProductID> const& parents() const {return event().parents();}
 
     void write(std::ostream& os) const;
+    void setStore(boost::shared_ptr<ProvenanceDelayedReader> store) {store_ = store;}
 
   private:
     ConstBranchDescription const product_;
-    boost::shared_ptr<BranchEntryDescription> event_;
+    mutable boost::shared_ptr<BranchEntryDescription> event_;
+    boost::shared_ptr<ProvenanceDelayedReader> store_;
   };
   
   inline
@@ -81,6 +85,5 @@ namespace edm {
   }
 
   bool operator==(Provenance const& a, Provenance const& b);
-
 }
 #endif

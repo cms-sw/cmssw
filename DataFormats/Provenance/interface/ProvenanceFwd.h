@@ -4,6 +4,7 @@
 namespace edm {
   class BranchDescription;
   class BranchEntryDescription;
+  class BranchKey;
   class ConstBranchDescription;
   class BranchKey;
   class EventAuxiliary;
@@ -11,6 +12,9 @@ namespace edm {
   class LuminosityBlockAuxiliary;
   class LuminosityBlockID;
   class ModuleDescription;
+  class ProcessConfiguration;
+  class ProcessHistory;
+  class ProcessRegistry;
   class ProductID;
   class ProductRegistry;
   class Provenance;
@@ -21,4 +25,9 @@ namespace edm {
 #include "DataFormats/Provenance/interface/ConditionsID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationID.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionID.h"
+#include "DataFormats/Provenance/interface/ModuleDescriptionRegistry.h"
 #endif
