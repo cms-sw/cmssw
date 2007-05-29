@@ -192,7 +192,8 @@ const bool L1GlobalTriggerReadoutRecord::decision(int bxInEventValue) const
     // if bunch cross not found, throw exception (action: SkipEvent)
     // TODO re-evaluate action
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << "Can not return global decision for this bx!\n"
@@ -226,7 +227,8 @@ L1GlobalTriggerReadoutRecord::decisionWord(int bxInEventValue) const
     // if bunch cross not found, throw exception (action: SkipEvent)
     // TODO re-evaluate action
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << "Can not return decision word for this bx!\n"
@@ -263,7 +265,8 @@ void L1GlobalTriggerReadoutRecord::setDecision(const bool& t, int bxInEventValue
 
     // if bunch cross not found, throw exception (action: SkipEvent)
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << "Can not set global decision for this bx!\n"
@@ -297,7 +300,8 @@ void L1GlobalTriggerReadoutRecord::setDecisionWord(
 
     // if bunch cross not found, throw exception (action: SkipEvent)
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested GtFdlWord for bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << "Can not set decision word for this bx!\n"
@@ -1095,7 +1099,8 @@ const L1GtFdlWord L1GlobalTriggerReadoutRecord::gtFdlWord(int bxInEventValue) co
 
     // if bunch cross not found, throw exception (action: SkipEvent)
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested L1GtFdlWord for bxInEvent = " << bxInEventValue
     << " does not exist.\n"
     << std::endl;
@@ -1123,7 +1128,7 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(
         if ( (*itBx).bxInEvent() == bxInEventValue ) {
             *itBx = gtFdlWordValue;
             LogTrace("L1GlobalTriggerReadoutRecord")
-            << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bxInEvent = " 
+            << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bxInEvent = "
             << bxInEventValue << "\n"
             << std::endl;
             return;
@@ -1133,7 +1138,8 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(
     // if bunch cross not found, throw exception (action: SkipEvent)
     // all L1GtFdlWord are created in the record constructor for allowed bunch crosses
 
-    throw cms::Exception("NotFound")
+    //    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: Cannot set L1GtFdlWord for bxInEvent = " << bxInEventValue
     << std::endl;
 
@@ -1167,7 +1173,8 @@ const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(
 
     // if bunch cross or boardId not found, throw exception (action: SkipEvent)
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: requested L1GtPsbWord for boardId = "
     << std::hex << boardIdValue << std::dec
     << " and bxInEvent = " << bxInEventValue
@@ -1223,7 +1230,7 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
             *itBx = gtPsbWordValue;
 
             LogTrace("L1GlobalTriggerReadoutRecord")
-            << "\nL1GlobalTriggerReadoutRecord: filling an empty L1GtPsbWord" 
+            << "\nL1GlobalTriggerReadoutRecord: filling an empty L1GtPsbWord"
             << " for PSB with boardId = "
             << std::hex << boardIdValue << std::dec
             << " and bxInEvent = " << bxInEventValue
@@ -1236,7 +1243,8 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
     // no PSB to replace, no empty PSB: throw exception (action: SkipEvent)
     // all L1GtPsbWord are created in the record constructor
 
-    throw cms::Exception("NotFound")
+//    throw cms::Exception("NotFound")
+    LogTrace("L1GlobalTriggerReadoutRecord")
     << "\nError: Cannot set L1GtPsbWord for PSB with boardId = "
     << std::hex << boardIdValue << std::dec
     << " and bxInEvent = " << bxInEventValue
@@ -1283,12 +1291,13 @@ void L1GlobalTriggerReadoutRecord::reset()
 }
 
 /// pretty print the content of a L1GlobalTriggerReadoutRecord
-void L1GlobalTriggerReadoutRecord::print(std::ostream& myCout) const {
-    
+void L1GlobalTriggerReadoutRecord::print(std::ostream& myCout) const
+{
+
     myCout << "\n L1GlobalTriggerReadoutRecord::print \n" << std::endl;
-    
+
     m_gtfeWord.print(myCout);
-    
+
     for (std::vector<L1GtFdlWord>::const_iterator itFdl = m_gtFdlWord.begin();
             itFdl != m_gtFdlWord.end(); ++itFdl) {
 
@@ -1304,11 +1313,11 @@ void L1GlobalTriggerReadoutRecord::print(std::ostream& myCout) const {
     }
 
     // FIXME add  L1MuGMTReadoutCollection printing
-//    edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;        
-       
-    
+    //    edm::RefProd<L1MuGMTReadoutCollection> m_muCollRefProd;
 
-    
+
+
+
 }
 
 // output stream operator
