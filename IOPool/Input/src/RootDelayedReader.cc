@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.9 2007/05/08 16:24:15 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.10 2007/05/10 12:27:04 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -33,7 +33,7 @@ namespace edm {
   }
 
   std::auto_ptr<BranchEntryDescription>
-  RootDelayedReader::getProvenance(BranchKey const& k, EDProductGetter const* ep) const {
+  RootDelayedReader::getProvenance(BranchKey const& k) const {
     TBranch *br = branches().find(k)->second.provenanceBranch_;
     std::auto_ptr<BranchEntryDescription> p(new BranchEntryDescription); 
     BranchEntryDescription *pp = p.get();

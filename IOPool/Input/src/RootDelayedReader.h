@@ -1,11 +1,11 @@
-#ifndef Input_RootDelayedReader_h
-#define Input_RootDelayedReader_h
+#ifndef IOPool_Input_RootDelayedReader_h
+#define IOPool_Input_RootDelayedReader_h
 
 /*----------------------------------------------------------------------
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.7 2007/05/08 16:24:15 wmtan Exp $
+$Id: RootDelayedReader.h,v 1.8 2007/05/10 12:27:04 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -37,7 +37,7 @@ namespace edm {
     RootDelayedReader(RootDelayedReader const&); // disable copy construction
     RootDelayedReader & operator=(RootDelayedReader const&); // disable assignment
     virtual std::auto_ptr<EDProduct> getProduct(BranchKey const& k, EDProductGetter const* ep) const;
-    virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const& k, EDProductGetter const* ep) const;
+    virtual std::auto_ptr<BranchEntryDescription> getProvenance(BranchKey const& k) const;
     BranchMap const& branches() const {return *branches_;}
     EntryNumber const entryNumber_;
     boost::shared_ptr<BranchMap const> branches_;
