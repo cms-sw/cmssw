@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/05/11 21:15:14 $
- *  $Revision: 1.97 $
+ *  $Date: 2007/05/25 17:05:10 $
+ *  $Revision: 1.98 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -348,8 +348,8 @@ GlobalMuonTrajectoryBuilder::chooseRegionalTrackerTracks(const TrackCand& staCan
   vector<TrackCand>::const_iterator is;
   for ( is = tkTs.begin(); is != tkTs.end(); ++is ) {
     //check if each trackCand is in region of interest
-    bool inEtaRange = etaRange.inside(is->second->eta());
-    bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
+//    bool inEtaRange = etaRange.inside(is->second->eta());
+//    bool inPhiRange = (fabs(Geom::Phi<float>(is->second->phi()) - Geom::Phi<float>(regionOfInterest.direction().phi())) < phiMargin.right() ) ? true : false ;
 
     double deltaEta = regionOfInterest.direction().eta() - is->second->eta();
     double deltaPhi = regionOfInterest.direction().phi() - is->second->phi();
@@ -471,9 +471,14 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	  innerTsos2 = theService->propagator(trackerPropagatorName)->propagate(outerTsos,trackerRecHits.front()->det()->surface());
 	}
 	
-	innerTsos = innerTsos2;
+	if ( innerTsos2.isValid() ) innerTsos = innerTsos2;
       }      
       
+      if ( !innerTsos.isValid() ) {
+         LogTrace(category) << "inner Trajectory State is invalid. ";
+         return CandidateContainer();
+      }
+
       TC refitted1,refitted2,refitted3;
       vector<Trajectory*> refit(4);
       MuonCandidate* finalTrajectory = 0;
