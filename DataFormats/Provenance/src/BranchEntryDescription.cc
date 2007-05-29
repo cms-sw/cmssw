@@ -4,7 +4,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: BranchEntryDescription.cc,v 1.6 2007/01/28 05:35:55 wmtan Exp $
+$Id: BranchEntryDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,7 +25,7 @@ namespace edm {
     parents_(),
     cid_(),
     status_(status),
-    isPresent_(false),
+    isPresent_(status == Success),
     moduleDescriptionID_(),
     moduleDescriptionPtr_()
   { }
