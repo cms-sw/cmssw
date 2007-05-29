@@ -83,7 +83,6 @@ pair<JetTag,TrackProbabilityTagInfo> TrackProbabilityAlgorithm::tag(const  JetTr
                 )
              {
               pair<bool,double> prob3d =  m_probabilityEstimator->probability(0,sip3D.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->first),pv);
-               cout << "Vecchio" <<  prob3d.second << endl;
               pair<bool,double> prob2d =  m_probabilityEstimator->probability(1,stip.apply(transientTrack,direction,pv).second.significance(),track,*(jetTracks->first),pv);
               
               if(prob3d.first)
