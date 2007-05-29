@@ -17,5 +17,5 @@
   <use name=TkOnlineSw>
   <use name=boost>
   <use name=xdaq>
-  <flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigiPlugins">
+  <flags EDM_PLUGIN=1>
 </library>
