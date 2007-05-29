@@ -70,6 +70,11 @@
       <rChild name="testLogicalParts:subsolid"/>
       <Translation z="-8*m" y="5*m" x="0"/>
     </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:torus"/>
+      <Translation z="-8.5*m" y="5.5*m" x="0"/>
+    </PosPart>
 
   </PosPartSection>
 </DDDefinition>

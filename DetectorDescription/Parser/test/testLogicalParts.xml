@@ -78,6 +78,10 @@
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:MotherOfAllBoxes"/>
     </LogicalPart> 
+    <LogicalPart name="torus">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:torus"/>
+    </LogicalPart> 
     <LogicalPart name="trd2mirror">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:trd2mirror"/>
