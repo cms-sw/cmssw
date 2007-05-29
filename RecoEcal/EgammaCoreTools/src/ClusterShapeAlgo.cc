@@ -304,60 +304,73 @@ double e2x5T=0.0;
 void ClusterShapeAlgo::Calculate_Covariances(const reco::BasicCluster &passedCluster, const EcalRecHitCollection* hits, 
 					     const CaloSubdetectorGeometry* geometry)
 {
-  const double w0_ = parameterMap_.find("W0")->second;
-
-  // first find energy-weighted mean position - doing it when filling the energy map might save time
-  math::XYZVector meanPosition(0.0, 0.0, 0.0);
-  for (int i = 0; i < 5; ++i)
+  if (e5x5_ > 0.)
     {
-      for (int j = 0; j < 5; ++j)
+      double w0_ = parameterMap_.find("W0")->second;
+      
+      
+      // first find energy-weighted mean position - doing it when filling the energy map might save time
+      math::XYZVector meanPosition(0.0, 0.0, 0.0);
+      for (int i = 0; i < 5; ++i)
 	{
-	  const DetId id = energyMap_[i][j].first;
-	  if (id != DetId(0))
+	  for (int j = 0; j < 5; ++j)
 	    {
-	      const GlobalPoint positionGP = geometry->getGeometry(id)->getPosition();
-	      const math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
-	      meanPosition = meanPosition + energyMap_[i][j].second * position;
+	      DetId id = energyMap_[i][j].first;
+	      if (id != DetId(0))
+		{
+		  GlobalPoint positionGP = geometry->getGeometry(id)->getPosition();
+		  math::XYZVector position(positionGP.x(),positionGP.y(),positionGP.z());
+		  meanPosition = meanPosition + energyMap_[i][j].second * position;
+		}
 	    }
 	}
-    }
-
-  meanPosition /= e5x5_;
-
-  // now we can calculate the covariances
-  double numeratorEtaEta = 0;
-  double numeratorEtaPhi = 0;
-  double numeratorPhiPhi = 0;
-  double denominator     = 0;
-
-  for (int i = 0; i < 5; ++i)
-    {
-      for (int j = 0; j < 5; ++j)
+      
+      meanPosition /= e5x5_;
+      
+      // now we can calculate the covariances
+      double numeratorEtaEta = 0;
+      double numeratorEtaPhi = 0;
+      double numeratorPhiPhi = 0;
+      double denominator     = 0;
+      
+      for (int i = 0; i < 5; ++i)
 	{
-	  const DetId id = energyMap_[i][j].first;
-	  if (id != DetId(0))
+	  for (int j = 0; j < 5; ++j)
 	    {
-	      const GlobalPoint position = geometry->getGeometry(id)->getPosition();
-
-	      double dPhi = position.phi() - meanPosition.phi();
-	      if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
-	      if (dPhi < - Geom::pi()) { dPhi = Geom::twoPi() + dPhi; }
-
-	      const double dEta = position.eta() - meanPosition.eta();
-	      
-	      const double w = std::max(0.0, w0_ + log(energyMap_[i][j].second / e5x5_));
-	  
-	      denominator += w;
-	      numeratorEtaEta += w * dEta * dEta;
-	      numeratorEtaPhi += w * dEta * dPhi;
-	      numeratorPhiPhi += w * dPhi * dPhi;
+	      DetId id = energyMap_[i][j].first;
+	      if (id != DetId(0))
+		{
+		  GlobalPoint position = geometry->getGeometry(id)->getPosition();
+		  
+		  double dPhi = position.phi() - meanPosition.phi();
+		  if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
+		  if (dPhi < - Geom::pi()) { dPhi = Geom::twoPi() + dPhi; }
+		  
+		  double dEta = position.eta() - meanPosition.eta();
+		  double w = 0.;
+		  if ( energyMap_[i][j].second > 0.)
+		    w = std::max(0.0, w0_ + log( energyMap_[i][j].second / e5x5_));
+		  
+		  denominator += w;
+		  numeratorEtaEta += w * dEta * dEta;
+		  numeratorEtaPhi += w * dEta * dPhi;
+		  numeratorPhiPhi += w * dPhi * dPhi;
+		}
 	    }
 	}
+      
+      covEtaEta_ = numeratorEtaEta / denominator;
+      covEtaPhi_ = numeratorEtaPhi / denominator;
+      covPhiPhi_ = numeratorPhiPhi / denominator;
     }
-
-  covEtaEta_ = numeratorEtaEta / denominator;
-  covEtaPhi_ = numeratorEtaPhi / denominator;
-  covPhiPhi_ = numeratorPhiPhi / denominator;
+  else 
+    {
+      // Warn the user if there was no energy in the cells and return zeroes.
+      //       std::cout << "\ClusterShapeAlgo::Calculate_Covariances:  no energy in supplied cells.\n";
+      covEtaEta_ = 0;
+      covEtaPhi_ = 0;
+      covPhiPhi_ = 0;
+    }
 }
 
 void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicCluster &passedCluster,
