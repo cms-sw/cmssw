@@ -32,8 +32,6 @@ class L1RCTProducer : public edm::EDProducer
   std::string rctTestOutputFile;
   bool patternTest;
   edm::FileInPath lutFile2;
-  bool useEcal;
-  bool useHcal;
   edm::InputTag ecalDigisLabel;
   edm::InputTag hcalDigisLabel;
 };
