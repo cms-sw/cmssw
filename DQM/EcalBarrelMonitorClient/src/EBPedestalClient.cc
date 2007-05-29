@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/05/22 15:05:47 $
- * $Revision: 1.142 $
+ * $Date: 2007/05/29 16:56:52 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -206,8 +206,8 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
       qth02_[ism-1]->setRMSRange(0.0, RMSThreshold_[1]);
       qth03_[ism-1]->setRMSRange(0.0, RMSThreshold_[2]);
 
-      qth04_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth05_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth04_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[0]);
+      qth05_[ism-1]->setRMSRange(0.0, RMSThresholdPn_[1]);
 
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
