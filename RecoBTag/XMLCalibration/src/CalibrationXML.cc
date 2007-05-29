@@ -1,6 +1,8 @@
 
 #include "RecoBTag/XMLCalibration/interface/CalibrationXML.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -37,7 +39,7 @@ if(errHandler) delete errHandler;
 if(parser) delete parser;
 
  m_xmlFileName = xmlFileName;
- cout << "Opening.." << endl;
+// cout << "Opening.." << endl;
 	// Initialize the XML4C2 system
 	try
         {
@@ -63,7 +65,7 @@ if(parser) delete parser;
 	bool errorsOccured = false;
 	try
 	{
-		cout << "Calibration XML: parsing " << m_xmlFileName.c_str() << endl;
+		  edm::LogInfo("XMLCalibration") << "Calibration XML: parsing " << m_xmlFileName.c_str() << endl;
 		parser->parse(m_xmlFileName.c_str());
 		int errorCount = parser->getErrorCount();
 		if (errorCount > 0) errorsOccured = true;
@@ -99,7 +101,7 @@ abort();
 	if(strcmp("Calibration",XMLString::transcode(n1->getNodeName())))
 abort();
 //FIXME		throw GenTerminate("The root element in the XML Calibration file is not a Calibration element.\n This should be forbidden at the DTD level.");
-	else cout << "Calibration found" << endl;	
+	else {   edm::LogInfo("XMLCalibration")  << "Calibration found" ; }	
 
 	m_calibrationDOM = (DOMElement *) n1;
     
