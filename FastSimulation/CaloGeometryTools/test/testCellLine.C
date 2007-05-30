@@ -1,3 +1,6 @@
+// The FastSimulation must be recompiled with DEBUGCELLLINE enabled in FastSimulation/Utilities/interface/FamosDebug.h 
+// before running testCellLine.cfg and finally this macro
+
 {
   gStyle->SetOptStat(0);
   TFile * f = new TFile("Famos.root");
