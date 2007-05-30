@@ -180,7 +180,10 @@ class EcalHitMaker: public CaloHitMaker
 
  // creates a crack
  void cracksPads(std::vector<neighbour> & cracks, unsigned iq);
+
  private:
+
+ bool inside3D(const std::vector<XYZPoint>&, const XYZPoint& p) const;
 
   // the numbering of the pads
   std::vector<std::vector<unsigned > > myCrystalNumberArray_;

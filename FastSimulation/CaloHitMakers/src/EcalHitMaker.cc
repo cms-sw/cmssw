@@ -329,7 +329,7 @@ EcalHitMaker::setTrackParameters(const XYZNormal& normal,
   //  std::cout << " Track " << theTrack << std::endl;
   intersections_.clear();
   // This is certainly enough
-  intersections_.resize(50);
+  intersections_.reserve(50);
   myTrack_=&theTrack;
   normal_=normal.Unit();
   X0depthoffset_=X0depthoffset;
@@ -597,13 +597,14 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
       // Check front side
       //      if(!entrancefound)
 	{
-	  Plane3D plan=regionOfInterest_[ic].getFrontPlane();
-	  XYZVector axis1=(plan.Normal());
-	  XYZVector axis2=regionOfInterest_[ic].getFirstEdge();
+	  const Plane3D& plan=regionOfInterest_[ic].getFrontPlane();
+//	  XYZVector axis1=(plan.Normal());
+//	  XYZVector axis2=regionOfInterest_[ic].getFirstEdge();
 	  xp=intersect(plan,a,b,t,false);
 	  regionOfInterest_[ic].getFrontSide(corners);
-	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(0),axis1,axis2);
-	  if(pad.globalinside(xp)) 
+	  //	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(0),axis1,axis2);
+	  //	  if(pad.globalinside(xp)) 
+	  if(inside3D(corners,xp))
 	    {
 	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),UP,xp));
 	      entrancefound=true;
@@ -615,13 +616,14 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
       // check rear side
 	//	if(!exitfound)
 	{
-	  Plane3D plan=regionOfInterest_[ic].getBackPlane();
-	  XYZVector axis1=(plan.Normal());
-	  XYZVector axis2=regionOfInterest_[ic].getFifthEdge();
+	  const Plane3D& plan=regionOfInterest_[ic].getBackPlane();
+//	  XYZVector axis1=(plan.Normal());
+//	  XYZVector axis2=regionOfInterest_[ic].getFifthEdge();
 	  xp=intersect(plan,a,b,t,false);
 	  regionOfInterest_[ic].getBackSide(corners);
-	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(4),axis1,axis2);
-	  if(pad.globalinside(xp)) 
+	  //	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(4),axis1,axis2);
+	  //	  if(pad.globalinside(xp)) 
+	  if(inside3D(corners,xp))
 	    {
 	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),DOWN,xp));
 	      exitfound=true;
@@ -635,13 +637,14 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
       // check lateral sides 
       for(unsigned iside=0;iside<4;++iside)
 	{
-	  Plane3D plan=regionOfInterest_[ic].getLateralPlane(iside);
+	  const Plane3D& plan=regionOfInterest_[ic].getLateralPlane(iside);
 	  xp=intersect(plan,a,b,t,false);
-	  XYZVector axis1=(plan.Normal());
-	  XYZVector axis2=regionOfInterest_[ic].getLateralEdge(iside);
+//	  XYZVector axis1=(plan.Normal());
+//	  XYZVector axis2=regionOfInterest_[ic].getLateralEdge(iside);
 	  regionOfInterest_[ic].getLateralSide(iside,corners);
-	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(iside),axis1,axis2);
-	  if(pad.globalinside(xp)) 
+	  //	  CrystalPad pad(9999,onEcal_,corners,regionOfInterest_[ic].getCorner(iside),axis1,axis2);
+	  //	  if(pad.globalinside(xp)) 
+	  if(inside3D(corners,xp))
 	    {
 	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),CaloDirectionOperations::Side(iside),xp)); 
 	      //	      std::cout << cp[cp.size()-1] << std::endl;
@@ -1499,3 +1502,25 @@ EcalHitMaker::cracksPads(std::vector<neighbour> & cracks, unsigned iq)
   //  std::cout << " Finished cracksPads " << std::endl;
 }
 
+
+bool EcalHitMaker::inside3D(const std::vector<XYZPoint>& corners, const XYZPoint& p) const
+{
+  // corners and p are in the same plane
+  // p is inside "corners" if the four crossproducts (corners[i]xcorners[i+1]) are in the same direction
+  bool result=true;
+  std::vector<XYZVector> vec(4);
+  vec[0]=corners[0]-p;
+  XYZVector crossproduct,previouscrossproduct;
+  for(unsigned ip=0;ip<4 ; ++ip)
+    {
+      if(ip!=3) vec[ip+1]=corners[ip+1]-p;
+      crossproduct = XYZVector(vec[ip].Cross(vec[(ip+1)%4]));
+      if(ip==0)
+	previouscrossproduct=crossproduct;
+      else
+	{
+	  result=result&&(crossproduct.Dot(previouscrossproduct)>0.); 
+	}      
+    }
+  return result;
+}
