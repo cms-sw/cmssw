@@ -28,7 +28,7 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.16 2007/05/24 16:35:46 paterno Exp $
+// $Id: RefToBase.h,v 1.17 2007/05/25 15:42:43 paterno Exp $
 //
 
 // system include files
@@ -136,6 +136,7 @@ namespace edm {
       // It may be better to use auto_ptr<RefHolderBase> in
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of auto_ptr here causes any troubles elsewhere.
+      IndirectHolder() { }
       IndirectHolder(boost::shared_ptr<RefHolderBase> p);
       IndirectHolder(IndirectHolder const& other);
       IndirectHolder& operator= (IndirectHolder const& rhs);
@@ -452,6 +453,16 @@ namespace edm {
     { }
   
     template <class REF>
+    RefHolder<REF>::RefHolder(RefHolder const& rhs) :
+      ref_( rhs.ref_ )
+    { }
+
+    template <class REF>
+    RefHolder<REF>& RefHolder<REF>::operator=(RefHolder const& rhs) {
+      ref_ = rhs.ref_; return *this;
+    }
+
+    template <class REF>
     RefHolder<REF>::RefHolder(REF const& ref) : 
       ref_(ref) 
     { }
@@ -503,6 +514,14 @@ namespace edm {
     RefHolder<REF>::getRef() const
     {
       return ref_;
+    }
+
+    template <class REF>
+    inline
+    void
+    RefHolder<REF>::swap(RefHolder& other)
+    {
+      std::swap(ref_, other.ref_);
     }
 
     template <class REF>

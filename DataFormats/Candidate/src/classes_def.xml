@@ -21,6 +21,7 @@
   <class name="edm::RefProd<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> > >"/>
   <class name="edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
   <class name="edm::Wrapper<edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >"/>
+  <class name="edm::reftobase::RefHolder<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >>"/>
   <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="edm::Wrapper<std::vector<edm::RefToBase<reco::Candidate> > >" />
@@ -30,6 +31,7 @@
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>
   </class>
+  <class name="edm::reftobase::IndirectHolder<reco::Candidate>"/>
   <class pattern="edm::Wrapper<edm::AssociationVector<*>"/>
   <class name="edm::helpers::KeyVal<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >,edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >" /> 
   <class name="edm::helpers::KeyVal<edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > >,edm::RefProd<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> > > >" />
