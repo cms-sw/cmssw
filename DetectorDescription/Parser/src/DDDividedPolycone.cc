@@ -356,7 +356,7 @@ DDTranslation DDDividedPolyconeZ::makeDDTranslation( const int copyNo ) const
   //  G4PolyconeHistorical* origparamMother = msol->GetOriginalParameters();
   //  double posi = (msol.Z_values[copyNo]+ msol.Z_values[copyNo+1])/2;
   double posi = (localzVec[copyNo] + localzVec[copyNo+1]) / 2;
-  translation.setZ(posi);
+  translation.SetZ(posi);
   return translation;
 
 }

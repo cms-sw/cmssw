@@ -59,6 +59,8 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
 	  nav_type pos = epv.navPos();
 	  idMap[pos]=id;
 	  dump << id << " - " << epv.geoHistory();
+	  DD3Vector x, y, z;
+	  epv.rotation().GetComponents(x,y,z);
 	  if ( dumpPosInfo ) {
 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.translation().x();
 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.translation().y();
@@ -69,15 +71,26 @@ void GeometryInfoDump::dumpInfo ( bool dumpHistory, bool dumpSpecs, bool dumpPos
 //             dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().phiY()/deg;
 // 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().thetaZ()/deg;
 // 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().phiZ()/deg;
-            dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xx();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xy();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xz();
-            dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yx();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yy();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yz();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zx();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zy();
-	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zz();
+
+//          dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xx();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xy();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().xz();
+//          dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yx();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yy();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().yz();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zx();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zy();
+// 	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << epv.rotation().zz();
+
+            dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << x.X();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << y.X();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << z.X();
+            dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << x.Y();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << y.Y();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << z.Y();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << x.Z();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << y.Z();
+	    dump << "," << std::setw(12) << std::fixed << std::setprecision(5) << z.Z();
 	  }
 	  dump << std::endl;;
 	  ++id;

@@ -559,11 +559,10 @@ void DDStreamer::parts_read()
 
 void dd_rot_bin_out(std::ostream & os, const DDRotationMatrix & rm)
 {
-    const HepRep3x3 & rep = rm.rep3x3();
-    os        << B(rep.xx_) << B(rep.xy_) << B(rep.xz_)
-              << B(rep.yx_) << B(rep.yy_) << B(rep.yz_)
-	      << B(rep.zx_) << B(rep.zy_) << B(rep.zz_); 
-
+  double v[9]; 
+  rm.GetComponents(v,v+9);
+  for (int i=0;i<9;i++)
+    os        << B(v[i]);
 }
 
 void dd_rot_out(std::ostream & os, const DDRotation & r) {
@@ -602,21 +601,13 @@ void DDStreamer::rots_write()
 
 void dd_rot_bin_in(std::istream & is, DDRotationMatrix & r)
 {
-    HepRep3x3 rep;
-    //double w(0);
+    double v[9];
     B w;
-    is >> w; rep.xx_=w.val_;
-    is >> w; rep.xy_=w.val_;
-    is >> w; rep.xz_=w.val_;
-    is >> w; rep.yx_=w.val_;
-    is >> w; rep.yy_=w.val_;
-    is >> w; rep.yz_=w.val_;
-    is >> w; rep.zx_=w.val_;
-    is >> w; rep.zy_=w.val_;
-    is >> w; rep.zz_=w.val_;
-    r.set(rep);
+    for (int i=0; i<9;i++) {
+      is >> w; v[i]=w.val_;
+    }
+    r.SetComponents(v,v+9);
 }
-
 
 void DDStreamer::rots_read()
 {

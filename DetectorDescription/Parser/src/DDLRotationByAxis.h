@@ -6,8 +6,8 @@
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
 
-// CLHEP dependencies
-#include "CLHEP/Geometry/Transform3D.h"
+// Base dependency
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 
 #include <string>
 
@@ -41,7 +41,7 @@ class DDLRotationByAxis : public DDXMLElement
 
   virtual void processElement (const std::string& name, const std::string& nmspace);
 
-  virtual HepRotation processOne(HepRotation R, std::string& axis, std::string& angle); 
+  virtual DDRotationMatrix processOne(DDRotationMatrix R, std::string& axis, std::string& angle); 
 
  protected:
 

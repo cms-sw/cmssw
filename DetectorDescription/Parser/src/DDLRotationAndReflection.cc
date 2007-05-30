@@ -28,10 +28,8 @@
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-// CLHEP dependencies
-#include "CLHEP/Geometry/Transform3D.h"
+//CLHEP dependency
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
 
 #include <string>
 #include <cmath>
@@ -51,18 +49,16 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 
   DCOUT_V('P', "DDLRotationAndReflection::processElement started " << name);
 
-  Hep3Vector x = makeX(nmspace);
-  Hep3Vector y = makeY(nmspace);
-  Hep3Vector z = makeZ(nmspace);
+  DD3Vector x = makeX(nmspace);
+  DD3Vector y = makeY(nmspace);
+  DD3Vector z = makeZ(nmspace);
 
   DDXMLAttribute atts = getAttributeSet();
 
   try {
    if ((name == "Rotation") && isLeftHanded(x, y, z, nmspace) == 0)
      {
-       HepRotation R;
-       R.rotateAxes(x, y, z);      
-       DDRotationMatrix* ddr = new DDRotationMatrix(R);
+       DDRotationMatrix* ddr = new DDRotationMatrix(x, y, z);
        DDRotation ddrot = DDrot(getDDName(nmspace), ddr);
        DCOUT_V ('p', "Rotation created: " << ddrot << std::endl);
      }
@@ -127,7 +123,7 @@ void DDLRotationAndReflection::processElement (const std::string& name, const st
 // did the rest.
 //
 
-int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vector z, const std::string & nmspace)
+int DDLRotationAndReflection::isLeftHanded (DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace)
 {
   DCOUT_V('P', "DDLRotation::isLeftHanded started");
 
@@ -177,7 +173,7 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
 
   // check for orthonormality and left-handedness
   
-  double check = (x.cross(y))*z;
+  double check = (x.Cross(y)).Dot(z);
   double tol = 1.0e-3;
   ExprEvalInterface & ev = ExprEvalSingleton::instance();
   DDXMLAttribute atts = getAttributeSet();
@@ -211,9 +207,9 @@ int DDLRotationAndReflection::isLeftHanded (Hep3Vector x, Hep3Vector y, Hep3Vect
   return ret;
 }
 
-Hep3Vector DDLRotationAndReflection::makeX(std::string nmspace)
+DD3Vector DDLRotationAndReflection::makeX(std::string nmspace)
 {
-  Hep3Vector x = 0;
+  DD3Vector x;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaX") != atts.end())
     {
@@ -221,16 +217,16 @@ Hep3Vector DDLRotationAndReflection::makeX(std::string nmspace)
       double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
       double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
       // colx
-      x[0] = sin(thetaX) * cos(phiX);
-      x[1] = sin(thetaX) * sin(phiX);
-      x[2] = cos(thetaX);
+      x.SetX(sin(thetaX) * cos(phiX));
+      x.SetY(sin(thetaX) * sin(phiX));
+      x.SetZ(cos(thetaX));
     }
   return x;
 }
 
-Hep3Vector DDLRotationAndReflection::makeY(std::string nmspace)
+DD3Vector DDLRotationAndReflection::makeY(std::string nmspace)
 {
-  Hep3Vector y = 0;
+  DD3Vector y;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaY") != atts.end())
     {
@@ -239,16 +235,16 @@ Hep3Vector DDLRotationAndReflection::makeY(std::string nmspace)
       double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
       
       // coly
-      y[0] = sin(thetaY) * cos(phiY);
-      y[1] = sin(thetaY) * sin(phiY);
-      y[2] = cos(thetaY);
+      y.SetX(sin(thetaY) * cos(phiY));
+      y.SetY(sin(thetaY) * sin(phiY));
+      y.SetZ(cos(thetaY));
     }
   return y;
 }
 
-Hep3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
+DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
 {
-  Hep3Vector z = 0;
+  DD3Vector z;
   DDXMLAttribute atts = getAttributeSet();
   if (atts.find("thetaZ") != atts.end())
     {
@@ -257,9 +253,9 @@ Hep3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
       double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
       
       // colz
-      z[0] = sin(thetaZ) * cos(phiZ);
-      z[1] = sin(thetaZ) * sin(phiZ);
-      z[2] = cos(thetaZ);
+      z.SetX(sin(thetaZ) * cos(phiZ));
+      z.SetY(sin(thetaZ) * sin(phiZ));
+      z.SetZ(cos(thetaZ));
     }
   return z;
 }

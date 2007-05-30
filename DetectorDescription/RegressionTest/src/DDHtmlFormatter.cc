@@ -128,16 +128,19 @@ bool DDHtmlRoDetails::details(ostream & os, const DDName & nm)
   DDRotation ddr(nm);
   if ( ddr.isDefined().second == false ) {
     os << "<b>ERROR!</b><br><p>The Rotation " << nm << " is not defined!</p>" << endl;
+    return false;
   }
+  DD3Vector x, y, z;
+  ddr.matrix()->GetComponents(x, y, z);
   os << f_.h2("Rotation: " + (string)nm);
   os << f_.h3("GEANT3 style:"); 
   os << "<table border=\"0\">" << endl
-     << "<tr><td>thetaX =</td><td>" << ddr.rotation()->thetaX()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiX =</td><td>" << ddr.rotation()->phiX()/deg << " deg</td><tr>" << endl
-     << "<tr><td>thetaY =</td><td>" << ddr.rotation()->thetaY()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiY =</td><td>" << ddr.rotation()->phiY()/deg << " deg</td><tr>" << endl     
-     << "<tr><td>thetaZ =</td><td>" << ddr.rotation()->thetaZ()/deg << " deg</td><tr>" << endl
-     << "<tr><td>phiZ =</td><td>" << ddr.rotation()->phiZ()/deg << " deg</td><tr>" << endl     
+     << "<tr><td>thetaX =</td><td>" << x.Theta()/deg << " deg</td><tr>" << endl
+     << "<tr><td>phiX =</td><td>" << x.Phi()/deg << " deg</td><tr>" << endl
+     << "<tr><td>thetaY =</td><td>" << y.Theta()/deg << " deg</td><tr>" << endl
+     << "<tr><td>phiY =</td><td>" << y.Phi()/deg << " deg</td><tr>" << endl     
+     << "<tr><td>thetaZ =</td><td>" << z.Theta()/deg << " deg</td><tr>" << endl
+     << "<tr><td>phiZ =</td><td>" << z.Phi()/deg << " deg</td><tr>" << endl     
      << "</table>";
      
   os << f_.h3("Rotation axis & angle (theta,phi,angle)") << endl;   

@@ -1,9 +1,11 @@
 
-#include <utility>  
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Core/interface/DDPosPart.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
+
+#include <utility>  
+#include <iostream>
 
 void DDpos(const DDLogicalPart & self,
            const DDLogicalPart & mother,
@@ -12,6 +14,9 @@ void DDpos(const DDLogicalPart & self,
 	   const DDRotation & rot,
 	   const DDDivision * div)
 {
+//   std::cout << "about to pos using string copy_no " << copyno << "  of  " << std::endl;
+//   std::cout << self << " in mother " << std::endl << mother << std::endl;
+//   std::cout << "Rotation matrix " << std::endl << *(rot.rotation()) << std::endl;
   int cpno = atoi(copyno.c_str());
   DDpos(self,mother,cpno,trans,rot,div);
 }
@@ -25,9 +30,11 @@ void DDpos(const DDLogicalPart & self,
 {
   DDCompactView cpv(true); 
   graph_type & graph = cpv.writeableGraph();
+//   std::cout << "about to pos using int copy_no " << copyno << "  of  " << std::endl;
+//   std::cout << self << " in mother " << std::endl<< mother << std::endl;
+//   std::cout << "Rotation matrix " << std::endl << *(rot.rotation()) << std::endl;
   //DDTranslation * tt = new DDTranslation(trans);
   //DDPosData * pd = new DDPosData(*tt,rot,cpno);
   DDPosData * pd = new DDPosData(trans,rot,copyno,div);
-  DCOUT('G', " DDPos: graph.addEdge: \n mother=" << mother << "\n child=" << self);
   graph.addEdge(mother,self,pd);
 }

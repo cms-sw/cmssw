@@ -23,14 +23,15 @@
 #include "DetectorDescription/Core/interface/DDTransform.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
-// CLHEP dependencies
-#include "CLHEP/Geometry/Transform3D.h"
+// Root Math dependencies
+#include <Math/RotationX.h>
+#include <Math/RotationY.h>
+#include <Math/RotationZ.h>
 
 #include <string>
-
-//namespace ddl {
 
 // Default constructor
 DDLRotationByAxis::DDLRotationByAxis() 
@@ -61,7 +62,7 @@ void DDLRotationByAxis::processElement (const std::string& name
       std::string axis = atts.find("axis")->second;
       std::string angle = atts.find("angle")->second;
       
-      HepRotation R;
+      DDRotationMatrix R;
       R = processOne(R, axis, angle);
 
       DDRotationMatrix* ddr = new DDRotationMatrix(R);
@@ -98,7 +99,7 @@ void DDLRotationByAxis::processElement (const std::string& name
   DCOUT_V('P', "DDLRotationByAxis::processElement completed");
 }
 
-HepRotation DDLRotationByAxis::processOne (HepRotation R, std::string& axis, std::string& angle)
+DDRotationMatrix DDLRotationByAxis::processOne (DDRotationMatrix R, std::string& axis, std::string& angle)
 {
   /** Get the name, axis and angle of the RotationByAxis and do it. 
    */
@@ -108,21 +109,20 @@ HepRotation DDLRotationByAxis::processOne (HepRotation R, std::string& axis, std
   //  HepRotation R;
 
   if ( axis == "x") {
-      R.rotateX(dAngle);      
-    }
-  else if ( axis == "y" ) 
-    {
-      R.rotateY(dAngle);      
-    }
-  else if ( axis =="z" )
-      R.rotateZ(dAngle);
-  else
-    {
-      std::string msg = "\nDDLRotationByAxis invalid axis... you must not have validated XML sources!  Element is ";
-      msg += pName;
-      throwError(msg);
-    }
-
+    R = ROOT::Math::RotationX(dAngle);
+  }
+  else if ( axis == "y" ) {
+    R = ROOT::Math::RotationY(dAngle);      
+  }
+  else if ( axis =="z" ) {
+    R = ROOT::Math::RotationZ(dAngle);
+  }
+  else {
+    std::string msg = "\nDDLRotationByAxis invalid axis... you must not have validated XML sources!  Element is ";
+    msg += pName;
+    throwError(msg);
+  }
+  
   return R;
 }
 

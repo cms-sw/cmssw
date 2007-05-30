@@ -1,9 +1,11 @@
 <use name=FWCore/MessageLogger>
 <use name=FWCore/Utilities>
+<use name=rootmath>
 <use name=clhep>
 <export>
   <use name=FWCore/MessageLogger>
   <use name=FWCore/Utilities>
   <use name=clhep>
+  <use name=rootmath>
   <lib name=DetectorDescriptionBase>
 </export>

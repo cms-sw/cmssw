@@ -80,7 +80,7 @@ DDTranslation DDDividedBoxX::makeDDTranslation( const int copyNo ) const
   //----- translation 
   DDTranslation translation;
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
-  translation.setX( posi );
+  translation.SetX( posi );
 
   DCOUT_V ('P', " DDDividedBoxX: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;
@@ -169,7 +169,7 @@ DDTranslation DDDividedBoxY::makeDDTranslation( const int copyNo ) const
   DDTranslation translation;
 
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
-  translation.setY( posi );
+  translation.SetY( posi );
 
   DCOUT_V ('P', " DDDividedBoxY: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;
@@ -256,7 +256,7 @@ DDTranslation DDDividedBoxZ::makeDDTranslation( const int copyNo ) const
   DDTranslation translation;
 
   double posi = -mdx + div_.offset() + (copyNo+0.5) * compWidth_;
-  translation.setZ( posi );
+  translation.SetZ( posi );
 
   DCOUT_V ('P', " DDDividedBoxZ: " << copyNo << "\n Position " << translation << " Axis " << DDAxesNames::name(div_.axis()) << "\n");
   return translation;

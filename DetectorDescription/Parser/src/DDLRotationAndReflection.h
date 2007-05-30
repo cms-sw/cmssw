@@ -5,9 +5,7 @@
 // Includes
 // -------------------------------------------------------------------------
 #include "DDXMLElement.h"
-
-// CLHEP dependencies
-#include "CLHEP/Geometry/Transform3D.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 
 #include <string>
 
@@ -36,14 +34,14 @@ class DDLRotationAndReflection : public DDXMLElement
   ~DDLRotationAndReflection();
 
   /// returns 1 = left handed rotation matrix, 0 = right-handed, -1 = not orthonormal.
-  int isLeftHanded(Hep3Vector x, Hep3Vector y, Hep3Vector z, const std::string & nmspace);
+  int isLeftHanded(DD3Vector x, DD3Vector y, DD3Vector z, const std::string & nmspace);
 
   void processElement (const std::string& name, const std::string& nmspace);
 
  private:
 
-  Hep3Vector makeX(std::string nmspace);
-  Hep3Vector makeY(std::string nmspace);
-  Hep3Vector makeZ(std::string nmspace);
+  DD3Vector makeX(std::string nmspace);
+  DD3Vector makeY(std::string nmspace);
+  DD3Vector makeZ(std::string nmspace);
 };
 #endif

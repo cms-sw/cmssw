@@ -50,7 +50,7 @@ public:
     Will only work, if one registered algorithm AlgoImpl has been selected
     by checkParameters() 
   */    
-  DDTranslation translation();
+  DD3Vector translation();
   
   //! rotation calculations 
   /** 

@@ -9,6 +9,8 @@
 #define MAX_DOUBLE DBL_MAX
 //#include <climits>
 
+#include "CLHEP/Units/SystemOfUnits.h"
+#include <Math/RotationZ.h>
 
 
  //your code here 
@@ -28,9 +30,9 @@ global_angular_0::~global_angular_0()
 { }
 
 
-Hep3Vector fUnitVector(double theta, double phi)
+DD3Vector fUnitVector(double theta, double phi)
 {
-  return Hep3Vector(cos(phi)*sin(theta),
+  return DD3Vector(cos(phi)*sin(theta),
                      sin(phi)*sin(theta),
 		     cos(theta));
 }
@@ -86,12 +88,12 @@ bool global_angular_0::checkParameters()
             + "*deg in rotateSolid[" + d2s(double(i)) + "]!\n";
       result = false;	    
     }
-    DDRotationMatrix temp(fUnitVector(rotateSolid_[i],rotateSolid_[i+1]),
-                          rotateSolid_[i+2]);
-    DCOUT('a', "  rotsolid[" << i <<  "] axis=" << temp.getAxis() << " rot.angle=" << temp.delta()/deg);
+    DDAxisAngle temp(fUnitVector(rotateSolid_[i],rotateSolid_[i+1]),
+		     rotateSolid_[i+2]);
+    DCOUT('a', "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << temp.Angle()/deg);
     solidRot_ = temp*solidRot_;			  
   }
-  DCOUT('a', "  rotsolid axis=" << solidRot_.getAxis() << " rot.angle=" << solidRot_.delta()/deg);			    
+  //  DCOUT('a', "  rotsolid axis=" << solidRot_.getAxis() << " rot.angle=" << solidRot_.delta()/deg);			    
   
   
   //======== collect data concerning the rotation of the x-y plane
@@ -113,12 +115,12 @@ bool global_angular_0::checkParameters()
             + "*deg in rotate[" + d2s(double(i)) + "]!\n";
       result = false;	    
     }  
-    DDRotationMatrix temp(fUnitVector(rotate_[i],rotate_[i+1]),
-                          rotate_[i+2]);
-    DCOUT('a', "  rotplane[" << i <<  "] axis=" << temp.getAxis() << " rot.angle=" << temp.delta()/deg);			  
+    DDAxisAngle temp(fUnitVector(rotateSolid_[i],rotateSolid_[i+1]),
+		     rotateSolid_[i+2]);
+    DCOUT('a', "  rotsolid[" << i <<  "] axis=" << temp.Axis() << " rot.angle=" << temp.Angle()/deg);
     planeRot_ =  planeRot_*temp;
   }
-  DCOUT('a', "  rotplane axis=" << planeRot_.getAxis() << " rot.angle=" << planeRot_.delta()/deg);
+  //  DCOUT('a', "  rotplane axis=" << planeRot_.getAxis() << " rot.angle=" << planeRot_.delta()/deg);
 
   center_[0]      = ParE_["center"][0];
   center_[1]      = ParE_["center"][1];
@@ -140,43 +142,40 @@ DDTranslation global_angular_0::translation()
 {
   double angle = startAngle_+ double(count_-1)*delta_;
   
-  Hep3Vector v = fUnitVector(90*deg,angle)*radius_ ;
+  DD3Vector v = fUnitVector(90*deg,angle)*radius_ ;
   
   if (rotate_[2]!=0) {
     //v = planeRot_.inverse()*v;
     v = planeRot_*v;
   }
   
-  v += Hep3Vector(center_[0], center_[1], center_[2]); // offset
+  v += DD3Vector(center_[0], center_[1], center_[2]); // offset
   
   DCOUT('A', "  angle=" << angle/deg << " translation=" << v << "  count_=" << count_);
   return v;
 }
 
 
-
 DDRotationMatrix global_angular_0::rotation()
 {
- //your code here 
- DDRotationMatrix rot = solidRot_;
- 			      
- if (alignSolid_) { // rotate the solid as well
-   double angle = startAngle_+ double(count_-1)*delta_;
-   DDRotationMatrix r2; 
-   r2.rotateZ(angle);
-   rot = r2*rot;
- }
- DCOUT('A', "  rot.axis=" << rot.getAxis() << " rot.angle=" << rot.delta()/deg);
- 
- if (rotate_[2]!=0) {
-   rot = planeRot_*rot;
-   //rot = rot*planeRot_.inverse();
-   //rot = planeRot_.inverse()*rot;
- }
+  //your code here
+  DDRotationMatrix rot = solidRot_;
 
- return rot;
-}   
+  if (alignSolid_) { // rotate the solid as well
+    double angle = startAngle_+ double(count_-1)*delta_;
+    ROOT::Math::RotationZ r2(angle);
+    rot = r2*rot;
+  }
+  // DCOUT('A', "  rot.axis=" << rot.getAxis() << " rot.angle=" << rot.delta()/deg);
 
+  if (rotate_[2]!=0) {
+    rot = planeRot_*rot;
+    //rot = rot*planeRot_.inverse();
+    //rot = planeRot_.inverse()*rot;
+  }
+
+  return rot;
+}
 
 // optional, not in the XML, omitted.
 int global_angular_0::copyno() const

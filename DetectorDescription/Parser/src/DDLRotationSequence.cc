@@ -23,6 +23,7 @@
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
 // CLHEP dependencies
@@ -58,7 +59,7 @@ void DDLRotationSequence::processElement (const std::string& name, const std::st
     dynamic_cast <DDLRotationByAxis * > (DDLElementRegistry::getElement("RotationByAxis"));
   DDXMLAttribute atts;
 
-  HepRotation R;
+  DDRotationMatrix R;
   try {
     for (size_t i = 0; i < myRotations->size(); ++i)
       {

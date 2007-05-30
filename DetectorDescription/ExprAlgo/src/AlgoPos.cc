@@ -143,7 +143,7 @@ bool AlgoPos::go() const
 }
 
 
-DDTranslation AlgoPos::translation()
+DD3Vector AlgoPos::translation()
 {
   return selAlgo_->translation();
 }

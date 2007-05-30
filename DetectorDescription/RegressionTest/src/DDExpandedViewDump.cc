@@ -30,19 +30,27 @@ void DDExpandedViewDump(ostream & os, DDExpandedView & ex, size_t skip, size_t s
 	<< ex.geoHistory() << " r="
 	<< ex.geoHistory().back().posdata()->rot_.name() << "\n"; 
       DDRotationMatrix rm = ex.rotation();
-      s << "R=(" << rm.xx() << ' ' << rm.xy() << ' ' << rm.xz() << endl
-        << "   " << rm.yx() << ' ' << rm.yy() << ' ' << rm.yz() << endl
-        << "   " << rm.zx() << ' ' << rm.zy() << ' ' << rm.zz() << endl;
+      {
+	double v[9]; rm.GetComponents(v,v+9);
+	s << "R=(";
+	s << v[0] << ' ' << v[1] << ' ' << v[2] << endl;
+	s << v[3] << ' ' << v[4] << ' ' << v[5] << endl;
+	s << v[6] << ' ' << v[7] << ' ' << v[7] << endl;
+      }
       rm = ex.geoHistory().back().posdata()->rotation();
-      s << "r=(" << rm.xx() << ' ' << rm.xy() << ' ' << rm.xz() << endl
-        << "   " << rm.yx() << ' ' << rm.yy() << ' ' << rm.yz() << endl
-        << "   " << rm.zx() << ' ' << rm.zy() << ' ' << rm.zz() << endl;
+      {
+	double v[9]; rm.GetComponents(v,v+9);
+	s << "r=(";
+	s << v[0] << ' ' << v[1] << ' ' << v[2] << endl;
+	s << v[3] << ' ' << v[4] << ' ' << v[5] << endl;
+	s << v[6] << ' ' << v[7] << ' ' << v[7] << endl;
+      }
       if (dotrans) {
-      s << "T=("
-	<< ex.translation().x() << ','
-	<< ex.translation().y() << ','
-	<< ex.translation().z() << ") "
-	;
+	s << "T=("
+	  << ex.translation().x() << ','
+	  << ex.translation().y() << ','
+	  << ex.translation().z() << ") "
+	  ;
       }      
       pair<s_iter,bool> ins = result.insert(s.str());
       if(!ins.second) {

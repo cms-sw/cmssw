@@ -18,6 +18,8 @@
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
+#include <Math/RotationZ.h>
+
 
 //--------------------------------------------------------------------------
 DDDividedGeometryObject::DDDividedGeometryObject( const DDDivision & div ) 
@@ -43,8 +45,7 @@ DDDividedGeometryObject::~DDDividedGeometryObject()
 //--------------------------------------------------------------------------
 DDRotationMatrix* DDDividedGeometryObject::changeRotMatrix( double rotZ ) const
 {
-  DDRotationMatrix * rm = new DDRotationMatrix();
-  rm->rotateZ( rotZ );
+  DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::RotationZ(rotZ));
   return rm;
 }
 

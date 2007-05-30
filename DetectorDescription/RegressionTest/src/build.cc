@@ -12,6 +12,10 @@ using namespace std;
 
 #include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 
+#include <Math/RotationX.h>
+#include <Math/RotationY.h>
+#include <Math/RotationZ.h>
+#include <Math/AxisAngle.h>
 
 /*
 File setup.xml:
@@ -69,10 +73,10 @@ void regressionTest_setup() {
    cout << air << endl;   
 
    // Some rotations in the x-y plane (Unit, 30,60,90 degs)
-   DDRotationMatrix * r0  = new HepRotation();
-   DDRotationMatrix * r30 = new HepRotation(Hep3Vector(0,0,1.),30.*deg);   
-   DDRotationMatrix * r60 = new HepRotation(Hep3Vector(0,0,1.),60.*deg);   
-   DDRotationMatrix * r90 = new HepRotation(Hep3Vector(0,0,1.),90.*deg);   
+   DDRotationMatrix * r0  = new DDRotationMatrix();
+   DDRotationMatrix * r30 = new DDRotationMatrix(ROOT::Math::RotationZ(30.*deg));   
+   DDRotationMatrix * r60 = new DDRotationMatrix(ROOT::Math::RotationZ(60.*deg));   
+   DDRotationMatrix * r90 = new DDRotationMatrix(ROOT::Math::RotationZ(90.*deg));   
    
    DDrot(DDName("Unit",ns),r0);
    DDrot(DDName("R30",ns),r30);
@@ -175,7 +179,7 @@ void regressionTest_first() {
 
 
 
-   DDRotationMatrix * rm = new HepRotation(Hep3Vector(1.,1.,1.),20.*deg); 
+   DDRotationMatrix * rm = new DDRotationMatrix(ROOT::Math::AxisAngle(DD3Vector(1.,1.,1.),20.*deg)); 
    DDpos(DDName("group",ns),
          DDName("world","setup"),
 	 "1",
@@ -201,11 +205,12 @@ void output(string filename)
   vector<DDTranslation> tvec;
   bool loop=true;
   while(loop) {
+    ROOT::Math::AxisAngle ra(exv.rotation());
     os << exv.logicalPart() << endl
        << "  " << exv.logicalPart().material() << endl
        << "  " << exv.logicalPart().solid() << endl
-       << "  " << exv.translation() << endl
-       << "  " << exv.rotation().axis() << exv.rotation().delta()/deg << endl; 
+       << "  " << exv.translation() << endl;
+    os << "  " << ra.Axis() << ra.Angle()/deg << endl;
     tvec.push_back(exv.translation());   
     loop = exv.next();
   }
@@ -250,25 +255,44 @@ void testParser()
     }  
 }
 
-void testrot()
-{
-  //  ExprEvalInterface & eval = ExprEval::instance();
-  DDRotationMatrix * rm = new HepRotation(Hep3Vector(1.,1.,1.),20.*deg); 
-  cout << "Hep3Vector was " << Hep3Vector(1.,1.,1.) << " and the rotation was 20*deg around that axis." << endl;
-  cout << "phiX=" << rm->phiX() << " or in degrees = " 
-       << rm->phiX()/deg << endl;
-  cout << "thetaX=" << rm->thetaX() << " or in degrees = " 
-       << rm->thetaX()/deg << endl;
-  cout << "phiY=" << rm->phiY() << " or in degrees = " 
-       << rm->phiY()/deg << endl;
-  cout << "thetaY=" << rm->thetaY() << " or in degrees = " 
-       << rm->thetaY()/deg << endl;
-  cout << "phiZ=" << rm->phiZ() << " or in degrees = " 
-       << rm->phiZ()/deg << endl;
-  cout << "thetaZ=" << rm->thetaZ() << " or in degrees = " 
-       << rm->thetaZ()/deg << endl;
+void printRot(const DDRotationMatrix & rot) {
+  std::cout << "rot asis\n" << rot << std::endl;
+  DD3Vector x,y,z; const_cast<DDRotationMatrix &>(rot).GetComponents(x,y,z);
+  std::cout << "components\n" 
+	    << x << "\n"
+	    << y << "\n"
+	    << z << std::endl;
+  cout << "phiX=" << x.phi() << " or in degrees = " 
+       << x.phi()/deg << endl;
+  cout << "thetaX=" << x.theta() << " or in degrees = " 
+       << x.theta()/deg << endl;
+  cout << "phiY=" << y.phi() << " or in degrees = " 
+       << y.phi()/deg << endl;
+  cout << "thetaY=" << y.theta() << " or in degrees = " 
+       << y.theta()/deg << endl;
+  cout << "phiZ=" << z.phi() << " or in degrees = " 
+       << z.phi()/deg << endl;
+  cout << "thetaZ=" << z.theta() << " or in degrees = " 
+       << z.theta()/deg << endl;
   
   cout << "some factor/equations..." << endl;
   cout << " sin(thetaX()) * cos(phiX()) = " 
-       << sin(rm->thetaX()) * cos(rm->phiX()) << endl;
+       << sin(x.theta()) * cos(x.phi()) << endl;
+  
+}
+
+void testrot()
+{
+  //  ExprEvalInterface & eval = ExprEval::instance();
+  {
+    ROOT::Math::AxisAngle aa(DD3Vector(1.,1.,1.), 20.*deg);
+    DDRotationMatrix rm(aa); 
+    cout << "DD3Vector was " << DD3Vector(1.,1.,1.) << " and the rotation was 20*deg around that axis." << endl;
+    printRot(rm);
+  }
+  {
+    DDRotationMatrix rm(1,0,0, 0,-1,0, 0,0,1); 
+    cout << "(1,0,0, 0,-1,0, 0,0,1)" << endl;
+    printRot(rm);
+  }
 }

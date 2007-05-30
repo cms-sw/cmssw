@@ -12,6 +12,9 @@
 
 #include "DetectorDescription/Core/interface/DDTransform.h"
 //#include "CLHEP/Geometry/Transform3D.h"
+
+#include "CLHEP/Units/SystemOfUnits.h"
+#include <Math/RotationZ.h>
                                   
 
 // always the same ctor
@@ -98,9 +101,10 @@ DDRotationMatrix global_simpleAngular_0::rotation()
 	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
 		 << name << std::endl;
 	}
-      DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
-
-      return rm.invert() * rm1.invert();
+      ROOT::Math::RotationZ rm(angle);
+      rm1.Invert(); 
+      rm.Invert();
+      return rm * rm1;
     }
   else if (ParS_["orientation"].size() != 0)
     {
@@ -122,7 +126,6 @@ DDRotationMatrix global_simpleAngular_0::rotation()
 	{
 	  
 	  DDRotation myDDRotation(DDName(rn, ns));
-	  DDRotationMatrix rm = *(myDDRotation.rotation());
 	  std::cout << "about to return *(myDDRotation.rotation())" << std::endl;
 	  std::cout << *myDDRotation.rotation() << std::endl;
 	  return *(myDDRotation.rotation());
@@ -248,9 +251,10 @@ DDRotationMatrix global_simpleAngular_1::rotation()
 	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
 		 << name << " therefore could not look up the rotation." << std::endl;
 	}
-
-      DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
-      return rm.invert() * rm1.invert();
+      ROOT::Math::RotationZ rm(angle);
+      rm1.Invert(); 
+      rm.Invert();
+      return rm * rm1;
     }
   else if (ParS_["orientation"].size() != 0)
     {
@@ -406,9 +410,10 @@ DDRotationMatrix global_simpleAngular_2::rotation()
 	    std::cout << "MAJOR PROBLEM: expected a fully qualified DDName but got :" 
 		 << name << std::endl;
 	}
-      DDRotationMatrix rm(Hep3Vector(0., 0., 1.),  angle);
-
-      return rm.invert() * rm1.invert();
+      ROOT::Math::RotationZ rm(angle);
+      rm1.Invert(); 
+      rm.Invert();
+      return rm * rm1;
     }
   else if (ParS_["orientation"].size() != 0)
     {

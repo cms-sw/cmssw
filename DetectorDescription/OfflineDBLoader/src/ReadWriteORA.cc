@@ -86,7 +86,8 @@ bool ReadWriteORA::writeDB ( const DDCompactView & cpv ) {
     }
     for (; rit != red; ++rit) {
       if (! rit->isDefined().second) continue;
-      if ( rit->matrix()->isIdentity() ) continue;
+      // if it is the identity...
+      if ( *(rit->matrix()) == *(rotn.matrix()) ) continue;
       pr = DDDToPersFactory::rotation( *rit );
       pgeom->pRotations.push_back ( *pr );
     } 

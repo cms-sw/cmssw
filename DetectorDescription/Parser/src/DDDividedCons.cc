@@ -279,7 +279,7 @@ DDTranslation DDDividedConsZ::makeDDTranslation( const int copyNo ) const
   DDCons motherCons = (DDCons)(div_.parent().solid());
   double posi = - motherCons.zhalf() + div_.offset() 
     + compWidth_/2 + copyNo*compWidth_;
-  translation.setZ(posi); 
+  translation.SetZ(posi); 
   
   DCOUT_V ('P', " DDDividedConsZ " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;

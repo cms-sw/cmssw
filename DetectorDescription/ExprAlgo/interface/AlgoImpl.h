@@ -31,7 +31,7 @@ protected:
     depending on the current position curr_ in the range [start_,end_,incr_]
     and the user supplied parameters ParE_, ParS_
   */
-  virtual DDTranslation translation() = 0;
+  virtual DD3Vector translation() = 0;
   
   //! subclass must calculate a rotation matrix
   /**

@@ -245,7 +245,7 @@ DDTranslation DDDividedTubsZ::makeDDTranslation(const int copyNo) const
 
   DDTubs msol = (DDTubs)(div_.parent().solid());
   double posi = - msol.zhalf() + div_.offset() + compWidth_/2 + copyNo*compWidth_;
-  translation.setZ(posi);
+  translation.SetZ(posi);
   
   DCOUT_V ('P', " DDDividedTubsZ " << "\n\t Position: " << translation << " - Width: " << compWidth_ << " - Axis " << DDAxesNames::name(div_.axis()));
   return translation;

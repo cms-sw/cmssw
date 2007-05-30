@@ -8,7 +8,7 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-//#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 
 // Interface
@@ -16,6 +16,7 @@
   Doc!
 */
 //#include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
+#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
@@ -141,8 +142,9 @@ void dumpHistory(const DDGeoHistory & h, bool short_dump=false)
    for (; i<h.size(); ++i) {
      std::cout << h[i].logicalPart().name() << "[" << h[i].copyno() << "]-";
      if (!short_dump) { 
-        std::cout  << h[i].absTranslation() 
-	      << h[i].absRotation().axis() << h[i].absRotation().delta()/deg;
+       DDAxisAngle ra(h[i].absRotation());
+       std::cout  << h[i].absTranslation() 
+		  << ra.Axis() << ra.Angle()/deg;
      }	  
    }
 }
@@ -665,8 +667,11 @@ while(moreQueries) {
 	 std::cout << std::endl;	 
 	 std::cout << "translation: " << fv.translation() << std::endl;
 	 std::cout << "       calc: " << calc(fv.geoHistory()) << std::endl;
-	 std::cout << "rotation: axis=" << fv.rotation().axis() 
-	      << " angle=" << fv.rotation().delta()/deg << std::endl << std::endl;
+	 {	 
+	   DDAxisAngle   aa(fv.rotation());
+	   std::cout << "rotation: axis=" << aa.Axis() 
+		     << " angle=" << aa.Angle()/deg << std::endl << std::endl;
+	 }
          std::cout << "sibling-stack=" << fv.navPos() << std::endl << std::endl;
 	 std::cout << "material=" << fv.logicalPart().material().ddname() << std::endl;
 	 std::cout << "solid=" << fv.logicalPart().solid().ddname() <<

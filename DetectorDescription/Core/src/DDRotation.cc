@@ -1,9 +1,10 @@
-
 #include <cmath>
 #include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Base/interface/DDdebug.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include <Math/AxisAngle.h>
 
 #include <sstream>
 #include <cstdlib>
@@ -23,9 +24,10 @@ std::ostream & operator<<(std::ostream & os, const DDRotation & r)
     os << *(defined.first) << " ";
     if (defined.second) {
       const DDRotationMatrix & rm = *(r.rotation());
-      os << "t=" << rm.axis().theta()/deg << "deg "
-         << "p=" << rm.axis().phi()/deg << "deg "
-	 << "a=" << rm.delta()/deg << "deg";
+      DDAxisAngle   ra(rm);
+      os << "t=" << ra.Axis().Theta()/deg << "deg "
+         << "p=" << ra.Axis().Phi()/deg << "deg "
+	 << "a=" << ra.Angle()/deg << "deg"; 
       DCOUT_V('R', rm);
     }
     else {
@@ -76,20 +78,6 @@ void DDRotation::clear()
   StoreT::instance().clear();
 }
 
-/*
-const DDRotationMatrix * DDRotation::rotation() const { return &(rep()); }
-
-DDRotationMatrix * DDRotation::rotation() { return &(rep()); }
-*/
-
-/*
-DDRotationMatrix * DDRotaton::unit() 
-{
-  static DDRotationMatrix r_unit_; 
-  return &r_unit_;
-}
-*/
-
 DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
 {
    // memory of rot goes sto DDRotationImpl!!
@@ -98,47 +86,29 @@ DDRotation DDrot(const DDName & ddname, DDRotationMatrix * rot)
    return DDRotation(ddname, rot);
 }
  
-
+// makes sure that the DDRotationMatrix constructed is right-handed and orthogonal.
 DDRotation DDrot(const DDName & ddname,
                          double thetaX, double phiX,
 			 double thetaY, double phiY,
 			 double thetaZ, double phiZ)
 {
-  //   DDRotationMatrix * rot = 0;
-   
    // define 3 unit std::vectors
-   Hep3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   Hep3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   Hep3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
+   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
+   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
+   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
    
    double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.cross(y))*z; // in case of a LEFT-handed orthogonal system 
-                                  // this must be -1
-   if ((1.-check)>tol) {
+   double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
+   if (fabs(1.-check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a RIGHT-handed orthonormal matrix!" << std::endl;
      throw DDException( ddname.name() + std::string(" is not RIGHT-handed!" ) );
    }
-//    if ((1.-fabs(check))>tol) {
-//      ostd::stringstream o;
-//      o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
-//        << " thetaX=" << thetaX/deg << " phiX=" << phiX/deg << std::endl
-//        << " thetaY=" << thetaY/deg << " phiY=" << phiY/deg << std::endl
-//        << " thetaZ=" << thetaZ/deg << " phiZ=" << phiZ/deg << std::endl;
-//      edm::LogError("DDRotation") << o.str() << std::endl;
 
-//      throw DDException( o.str() );
-//    }
-   /**WAS:   HepRep3x3 temp(x.x(),x.y(),x.z(),
-                            y.x(),y.y(),y.z(),
-		            z.x(),z.y(),z.z()); //matrix representation
-     IS NOW:*/
+   DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
+						x.y(),y.y(),z.y(),
+						x.z(),y.z(),z.z());
 
-   HepRep3x3 temp(x.x(),y.x(),z.x(),
-                  x.y(),y.y(),z.y(),
-		  x.z(),y.z(),z.z()); //matrix representation
-
-   //   rot = new DDRotationMatrix(temp);
-   return DDRotation(ddname, new DDRotationMatrix(temp));  
+   return DDRotation(ddname, rot);  
    
 }
  
@@ -151,60 +121,49 @@ DDRotation DDrotReflect(const DDName & ddname, DDRotationMatrix * rot)
    return DDRotation(ddname, rot);
 }
 
+
+// makes sure that the DDRotationMatrix built is LEFT-handed coordinate system (i.e. reflected)
 DDRotation DDrotReflect(const DDName & ddname,
                          double thetaX, double phiX,
 			 double thetaY, double phiY,
 			 double thetaZ, double phiZ)
 {
-  //   DDRotationMatrix * rot = 0;
    
    // define 3 unit std::vectors forming the new left-handed axes 
-   Hep3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   Hep3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   Hep3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
+   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
+   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
+   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
    
    double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.cross(y))*z; // in case of a LEFT-handed orthogonal system 
-                                  // this must be -1
-   if ((1.+check)>tol) {
+   double check = (x.Cross(y)).Dot(z); // in case of a LEFT-handed orthogonal system this must be -1
+   if (fabs(1.+check)>tol) {
      edm::LogError("DDRotation") << ddname << " is not a LEFT-handed orthonormal matrix!" << std::endl;
      throw DDException( ddname.name() + std::string(" is not LEFT-handed!" ) );
    }
    
-   // Now create a DDRotationMatrix (HepRotation), which IS left handed. 
-   // This is not forseen in CLHEP, but can be achieved using the
-   // constructor which does not check its input arguments!
-   
-   /**WAS:   HepRep3x3 temp(x.x(),x.y(),x.z(),
-                            y.x(),y.y(),y.z(),
-		            z.x(),z.y(),z.z()); //matrix representation
-     IS NOW:*/
+   DDRotationMatrix* rot = new DDRotationMatrix(x.x(),y.x(),z.x(),
+						x.y(),y.y(),z.y(),
+						x.z(),y.z(),z.z());
 
-   HepRep3x3 temp(x.x(),y.x(),z.x(),
-                  x.y(),y.y(),z.y(),
-		  x.z(),y.z(),z.z()); //matrix representation
-
-   //   rot = new DDRotationMatrix(temp);
-   
    //DCOUT('c', "DDrotReflect: new reflection " << ddname);
    //rot->invert();
-   return DDRotation(ddname, new DDRotationMatrix(temp));  
+   return DDRotation(ddname, rot);  
    				  		   		  			 
 }		
 
 
+// does NOT check LEFT or Right handed coordinate system takes either.
 DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
 			 double thetaY, double phiY,
 			 double thetaZ, double phiZ)
 {
    // define 3 unit std::vectors forming the new left-handed axes 
-   Hep3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
-   Hep3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
-   Hep3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
+   DD3Vector x(cos(phiX)*sin(thetaX), sin(phiX)*sin(thetaX), cos(thetaX));
+   DD3Vector y(cos(phiY)*sin(thetaY), sin(phiY)*sin(thetaY), cos(thetaY));
+   DD3Vector z(cos(phiZ)*sin(thetaZ), sin(phiZ)*sin(thetaZ), cos(thetaZ));
    
    double tol = 1.0e-3; // Geant4 compatible
-   double check = (x.cross(y))*z; // in case of a LEFT-handed orthogonal system 
-                                  // this must be -1, RIGHT-handed: +1
+   double check = (x.Cross(y)).Dot(z);// in case of a LEFT-handed orthogonal system this must be -1, RIGHT-handed: +1
    if ((1.-fabs(check))>tol) {
      std::ostringstream o;
      o << "matrix is not an (left or right handed) orthonormal matrix! (in deg)" << std::endl
@@ -217,20 +176,9 @@ DDRotationMatrix * DDcreateRotationMatrix(double thetaX, double phiX,
      throw DDException( o.str() );
    }
    
-   // Now create a DDRotationMatrix (HepRotation), which IS left handed. 
-   // This is not forseen in CLHEP, but can be achieved using the
-   // constructor which does not check its input arguments!
-   
-   /**WAS:   HepRep3x3 temp(x.x(),x.y(),x.z(),
-                            y.x(),y.y(),y.z(),
-		            z.x(),z.y(),z.z()); //matrix representation
-     IS NOW:*/
-
-   HepRep3x3 temp(x.x(),y.x(),z.x(),
-                  x.y(),y.y(),z.y(),
-		  x.z(),y.z(),z.z()); //matrix representation
-
-   return new DDRotationMatrix(temp);   
+   return new DDRotationMatrix(x.x(),y.x(),z.x(),
+			       x.y(),y.y(),z.y(),
+			       x.z(),y.z(),z.z());
 }			 
 
 							 							 
