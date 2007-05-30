@@ -18,13 +18,12 @@
 
  <class pattern="edm::SiStripRefGetter<*>"/>
  <class pattern="edm::SiStripLazyGetter<*>">
-   <field name="getter_" transient="true"/>
+   <field name="unpacker_" transient="true"/>
  </class>
- <class pattern="edm::Wrapper<*>"/>
- <class pattern="edm::DetSet<*>"/>
- <class pattern="std::vector<edm::Ref*>"/>
- <class pattern="std::vector<edm::DetSet*>"/>
  <class pattern="edm::Ref<*>"/>
+ <class pattern="std::vector<edm::Ref*>"/>
+ <class pattern="edm::Wrapper<*>"/>
+
 
 
 </lcgdict>
