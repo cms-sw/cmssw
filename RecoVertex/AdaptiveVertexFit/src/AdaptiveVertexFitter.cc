@@ -140,23 +140,31 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
   {
     throw VertexException( "Supplied no tracks" );
   };
-  // Linearization Point
-  GlobalPoint linP(0.,0.,0.);
-  try {
-    linP = theLinP->getLinearizationPoint(tracks);
-  } catch (...) {
-    cout << "[AdaptiveVertexFitter] LinPt Finder threw exception" 
-         << endl;
-  };
-  // LinP vertex state, with a very large error matrix
-  AlgebraicSymMatrix we(3,1);
-  GlobalError error(we*initialError);
-  VertexState lpState(linP, error);
-  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lpState);
 
-  VertexState state(beamSpot.position(), beamSpot.error());
-  return fit(vtContainer, state, true);
+  VertexState beamSpotState(beamSpot.position(), beamSpot.error());
+  vector<RefCountedVertexTrack> vtContainer;
+
+  if (tracks.size() > 1) {
+    // Linearization Point search if there are more than 1 track
+    GlobalPoint linP(0.,0.,0.);
+    try {
+      linP = theLinP->getLinearizationPoint(tracks);
+    } catch (...) {
+      cout << "[AdaptiveVertexFitter] LinPt Finder threw exception" 
+           << endl;
+    }
+    AlgebraicSymMatrix we(3,1);
+    GlobalError error(we*10000);
+    VertexState lpState(linP, error);
+    vtContainer = linearizeTracks(tracks, lpState);
+  } else {
+    // otherwise take the beamspot position.
+    vtContainer = linearizeTracks(tracks, beamSpotState);
+  }
+
+  return fit(vtContainer, beamSpotState, true);
 }
+
 
 /** Fit vertex out of a set of reco::TransientTracks.
  *   Uses the position as both the linearization point AND as prior
