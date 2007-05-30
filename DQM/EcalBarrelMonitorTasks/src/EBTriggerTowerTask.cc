@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/05/28 16:35:14 $
- * $Revision: 1.34 $
+ * $Date: 2007/05/29 13:37:34 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -167,8 +167,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     etMapNameSM += " " + Numbers::sEB(i+1);
 
     (*meEtMap)[i] = dbe->book3D(etMapNameSM.c_str(), etMapNameSM.c_str(),
-				nTTEta, 1, nTTEta+1,
-				nTTPhi, 1, nTTPhi+1,
+				nTTEta, 0, nTTEta,
+				nTTPhi, 0, nTTPhi,
 				128, 0, 512.);
     dbe->tag((*meEtMap)[i], i+1);
 
@@ -177,8 +177,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
 
     (*meVeto)[i] = dbe->book3D(fineGrainVetoNameSM.c_str(),
 			       fineGrainVetoNameSM.c_str(),
-			       nTTEta, 1, nTTEta+1,
-			       nTTPhi, 1, nTTPhi+1,
+			       nTTEta, 0, nTTEta,
+			       nTTPhi, 0, nTTPhi,
 			       2, 0., 2.);
     dbe->tag((*meVeto)[i], i+1);
 
@@ -186,8 +186,8 @@ void EBTriggerTowerTask::setup( DaqMonitorBEInterface* dbe,
     flagsNameSM += " " + Numbers::sEB(i+1);
 
     (*meFlags)[i] = dbe->book3D(flagsNameSM.c_str(), flagsNameSM.c_str(),
-				nTTEta, 0., nTTEta,
-				nTTPhi, 0., nTTPhi,
+				nTTEta, 0, nTTEta,
+				nTTPhi, 0, nTTPhi,
 				8, 0., 8.);
     dbe->tag((*meFlags)[i], i+1);
 
@@ -327,14 +327,14 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 
     xval = data.compressedEt();
     if ( meEtMap[ismt-1] ) {
-      meEtMap[ismt-1]->Fill(xiet, xipt, xval);
+      meEtMap[ismt-1]->Fill(xiet-1, xipt-1, xval);
     }
     else {
       LogError("EBTriggerTowerTask")<<"histo does not exist "<<endl;
     }
 
     xval = 0.5 + data.fineGrain();
-    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet, xipt, xval);
+    if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet-1, xipt-1, xval);
 
     xval = 0.5 + data.ttFlag();
     if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
@@ -356,7 +356,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
 	str<<"could not find corresponding digi... "<<endl;
       }
       if(!good ) {
-	if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet, xipt);
+	if ( meEmulError_[ismt-1] ) meEmulError_[ismt-1]->Fill(xiet-1, xipt-1);
       }
     }
   }
