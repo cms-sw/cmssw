@@ -3,3 +3,15 @@
 <library file=CandPtIsolationProducer.cc>
   <use name=DataFormats/Candidate>
 </library>
+
+
+<library file=MuonCalIsolationProducer.cc>
+  <use name=DataFormats/MuonReco>
+  <use name=PhysicsTools/IsolationAlgos>
+</library>
+
+
+<library file=TrkCalIsolationProducer.cc>
+  <use name=DataFormats/TrackReco>
+  <use name=PhysicsTools/IsolationUtils>
+</library>
