@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateProducer.cc,v 1.15 2007/05/17 15:30:53 loizides Exp $
+ * \version $Id: GenParticleCandidateProducer.cc,v 1.16 2007/05/29 09:57:39 fambrogl Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -83,6 +83,7 @@ class GenParticleCandidateProducer : public edm::EDProducer {
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;
   int chargeTimesThree( int ) const;
+  mutable int firstBarcode_;
 };
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -211,13 +212,14 @@ void GenParticleCandidateProducer::fillIndices( const GenEvent * mc,
 void GenParticleCandidateProducer::fillVector( const GenEvent * mc,
 					       vector<const GenParticle *> & particles) const {
   size_t idx = 0;
-  for( GenEvent::particle_const_iterator p = mc->particles_begin(); 
-       p != mc->particles_end(); ++ p ) {
+  GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
+  firstBarcode_ = (*begin)->barcode();
+  for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
     const GenParticle * particle = * p;
-    size_t i = particle->barcode() - 1;
+    size_t i = particle->barcode() - firstBarcode_;
     if( i != idx ++ )
       throw cms::Exception( "WrongReference" )
-	<< "barcodes is not properly ordered; got: " << i << " expected: " << idx ;
+	<< "barcodes is not properly ordered";
     particles[ i ] = particle;
   }
 }
@@ -237,11 +239,11 @@ void GenParticleCandidateProducer::fillMothers( const vector<const HepMC::GenPar
       if ( numberOfMothers > 0 ) {
 	GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
 	const GenParticle * mother = * motherIt;
-	mothers[ i ] = mother->barcode() - 1;
+	mothers[ i ] = mother->barcode() - firstBarcode_;
 	if ( numberOfMothers > 1 ) {
 	  ++ motherIt;
 	  const GenParticle * mother2 = * motherIt;
-	  mothers2[ i ] = mother2->barcode() - 1;
+	  mothers2[ i ] = mother2->barcode() - firstBarcode_;
 	} else {
           mothers2[ i ] = -1;
         }
