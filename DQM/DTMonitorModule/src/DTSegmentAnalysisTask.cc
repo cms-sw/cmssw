@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/07 08:19:39 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/13 18:59:53 $
+ *  $Revision: 1.2 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -297,11 +297,11 @@ void DTSegmentAnalysisTask::bookHistos(int w, int sec) {
   sector.first=w;
   sector.second=sec;
   histosPerSec[sector] = theDbe->book1D("hN4DSeg_Trigg"+sectorHistoName,"# of 4D segments per event per trigger source",500, 0, 500);
-//   histosPerSec[sector]->setBinLabel(0,"DTTrig",1);
-//   histosPerSec[sector]->setBinLabel(100,"CSCTrig",1);
-//   histosPerSec[sector]->setBinLabel(200,"RBC1Trig",1);
-//   histosPerSec[sector]->setBinLabel(300,"RBC2Trig",1);
-//   histosPerSec[sector]->setBinLabel(400,"RPCTBTrig",1);
+  histosPerSec[sector]->setBinLabel(0,"DTTrig",1);
+  histosPerSec[sector]->setBinLabel(100,"CSCTrig",1);
+  histosPerSec[sector]->setBinLabel(200,"RBC1Trig",1);
+  histosPerSec[sector]->setBinLabel(300,"RBC2Trig",1);
+  histosPerSec[sector]->setBinLabel(400,"RPCTBTrig",1);
 
 }
 

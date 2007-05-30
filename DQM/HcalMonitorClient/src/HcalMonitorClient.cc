@@ -1,6 +1,5 @@
 
 #include <DQM/HcalMonitorClient/interface/HcalMonitorClient.h>
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
   mui_ = mui;
@@ -25,7 +24,9 @@ HcalMonitorClient::~HcalMonitorClient(){
 
   //  cout << "HcalMonitorClient: Exit ..." << endl;
 
+  //  if(!offline_) this->cleanup();
   this->cleanup();
+  //  sleep(2);
 
   if( dataformat_client_ ) delete dataformat_client_;
   if( digi_client_ )       delete digi_client_;
@@ -62,38 +63,11 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   last_jevt_   = -1; last_update_ = 0;
 
-
-  // DQM ROOT output
-  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
-  if( outputFile_.size() != 0 ) {
-    for ( unsigned int i = 0; i < outputFile_.size(); i++ ) {
-      if( outputFile_.substr(i, 5) == ".root" )  {
-        outputFile_.replace(i, 5, "");
-      }
-    }
-  }
-
-  // DQM ROOT input
-  inputFile_ = ps.getUntrackedParameter<string>("inputFile", "");
-  if( inputFile_.size() != 0 ) {
-
-    m_dbe = NULL;
-    if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) {      
-      m_dbe = edm::Service<DaqMonitorBEInterface>().operator->();
-      m_dbe->setVerbose(1);
-    }
-  
-    if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
-      edm::Service<MonitorDaemon> daemon;
-      daemon.operator->();
-    }
-  }
-
   // DQM default client name
   clientName_ = ps.getUntrackedParameter<string>("clientName", "HcalMonitorClient");
 
   // DQM default process name
-  process_ = ps.getUntrackedParameter<string>("processName", "");
+  process_ = ps.getUntrackedParameter<string>("processName", "HcalMonitor");
 
   // DQM default collector host name
   hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
@@ -106,15 +80,24 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
        << " on port '" << hostPort_ << "'" << endl;
 
   // start DQM user interface instance
-  if( ! mui_ ){
-    if( inputFile_.size() != 0 ) mui_ = new MonitorUIRoot();
-    else mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-  }
+  if( ! mui_ ) mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+
   if( verbose_ ) mui_->setVerbose(1);
   else mui_->setVerbose(0);
 
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
   mui_->setReconnectDelay(5);
+
+  // DQM ROOT output
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+
+  if( outputFile_.size() != 0 ) {
+    for ( unsigned int i = 0; i < outputFile_.size(); i++ ) {
+      if( outputFile_.substr(i, 5) == ".root" )  {
+        outputFile_.replace(i, 5, "");
+      }
+    }
+  }
 
   // sub run enable switch
   enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
@@ -177,26 +160,6 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
 
   return;
 }
-// remove all MonitorElements and directories
-void HcalMonitorClient::removeAll(){
-
-  if(m_dbe==NULL) return;
-
-  m_dbe->setVerbose(0);
-
-
-  // go to top directory
-  m_dbe->cd();
-  // remove MEs at top directory
-  m_dbe->removeContents(); 
-  // remove directory (including subdirectories recursively)
-  if(m_dbe->dirExists("Collector"))
-     m_dbe->rmdir("Collector");
-  if(m_dbe->dirExists("Summary"))
-  m_dbe->rmdir("Summary");
-
-  m_dbe->setVerbose(1);
-}
 
 void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
 
@@ -204,7 +167,7 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   
   ievt_ = 0;
   jevt_ = 0;
-  
+
   this->subscribe();
 
   if( dataformat_client_ ) dataformat_client_->beginJob();
@@ -214,17 +177,6 @@ void HcalMonitorClient::beginJob(const EventSetup& eventSetup){
   if( led_client_ )        led_client_->beginJob(eventSetup);
   if( tb_client_ )         tb_client_->beginJob();
   if( hot_client_ )         hot_client_->beginJob();
-
-  if(inputFile_.size()!=0 && m_dbe!=NULL){
-    
-    m_dbe->open(inputFile_);
-    m_dbe->showDirStructure();
-
-  }
-
-  
-
-
     
   return;
 }
@@ -272,8 +224,7 @@ void HcalMonitorClient::report(bool doUpdate) {
     this->createTests();  
     mui_->update();
   }
-  
-  if(doUpdate) mui_->runQTests();
+  //  if(doUpdate) mui_->runQTests();
   
   if( outputFile_.size() != 0) {    
     for( unsigned int i = 0; i < outputFile_.size(); i++ ) {
@@ -455,7 +406,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
   
-  mui_->update();
+  //  mui_->update();
   mui_->doMonitoring();
   this->subscribeNew();
 
@@ -468,7 +419,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   
   if( updates != last_update_ || force_update) {
     int lastRun = run_;  
-    sprintf(histo, "%sHcalMonitor/RUN NUMBER",process_.c_str());
+    sprintf(histo, "Collector/%s/HcalMonitor/RUN NUMBER",process_.c_str());
     me = mui_->get(histo);
     if( me ) {
       s = me->valueString();
@@ -477,7 +428,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
     
-    sprintf(histo, "%sHcalMonitor/EVT NUMBER",process_.c_str());
+    sprintf(histo, "Collector/%s/HcalMonitor/EVT NUMBER",process_.c_str());
     me = mui_->get(histo);
     if( me ) {
       s = me->valueString();
@@ -486,7 +437,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
     
-    sprintf(histo, "%sHcalMonitor/EVT MASK",process_.c_str());
+    sprintf(histo, "Collector/%s/HcalMonitor/EVT MASK",process_.c_str());
     me = mui_->get(histo);
     if( me ) {
       s = me->valueString();
@@ -501,22 +452,20 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
       if(mask&DO_HCAL_LASER_CALIBMON) runtype_ = "LASER RUN";
     }
     
-    if(!force_update){
-      status_="unknown";
-      sprintf(histo, "%sHcalMonitor/STATUS",process_.c_str());
-      me = mui_->get(histo);
-      if( me ) {
-	s = me->valueString();
-	status_ = "unknown";
-	if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
-	if( s.substr(2,1) == "1" ) status_ = "running";
-	if( s.substr(2,1) == "2" ) status_ = "end-of-run";
-	if( verbose_ ) cout << "Found '" << histo << "'" << endl;
-      }
-      if( verbose_ ) printf("Status: %s\n",status_.c_str());  
-      printf("Status: %s\n",status_.c_str());
+    status_="unknown";
+    sprintf(histo, "Collector/%s/HcalMonitor/STATUS",process_.c_str());
+    me = mui_->get(histo);
+    if( me ) {
+      s = me->valueString();
+      status_ = "unknown";
+      if( s.substr(2,1) == "0" ) status_ = "begin-of-run";
+      if( s.substr(2,1) == "1" ) status_ = "running";
+      if( s.substr(2,1) == "2" ) status_ = "end-of-run";
+      if( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
-
+    if( verbose_ ) printf("Status: %s\n",status_.c_str());  
+    printf("Status: %s\n",status_.c_str());
+        
     if(status_=="begin-of-run") this->beginRun();
     if(status_=="running"){
       if( dataformat_client_ ) dataformat_client_->analyze(); 	
@@ -678,14 +627,11 @@ void HcalMonitorClient::htmlOutput(void){
     
     htmlFile << "</table>" << endl;
   }
-  
-  if(trigger_!=NULL){
-    if(trigger_->GetEntries()>0){
-      htmlFile << "<hr>" << endl;
-      htmlFile << "<h3><strong>Trigger Frequency</h3>" << endl;
-      histoHTML(trigger_,"Trigger Type","Evts", 100, htmlFile,htmlDir);  
-    }
-  }
+
+  htmlFile << "<hr>" << endl;
+  htmlFile << "<h3><strong>Trigger Frequency</h3>" << endl;
+  histoHTML(trigger_,"Trigger Type","Evts", 100, htmlFile,htmlDir);  
+
   htmlFile << "</ul>" << endl;
 
   // html page footer
@@ -732,16 +678,14 @@ void HcalMonitorClient::offlineSetup(){
   return;
 }
 
-void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
+void HcalMonitorClient::loadHistograms(TFile* infile){
   
-  
-
   if(!infile){
     throw cms::Exception("Incomplete configuration") << 
       "HcalMonitorClient: this histogram file is bad! " <<endl;
     return;
   }
-  
+    
   TNamed* tnd = (TNamed*)infile->Get("DQMData/HcalMonitor/RUN NUMBER");
   string s =tnd->GetTitle();
   run_ = -1;
@@ -775,7 +719,7 @@ void HcalMonitorClient::loadHistograms(TFile* infile, const char* fname){
   //  MonitorElement* me = (TH1F*)infile->Get("DQMData/HcalMonitor/TB Trigger Type");
   //  if ( me ) trigger_ = getHisto(me,verbose_,cloneME_);
   trigger_ = (TH1F*)infile->Get("DQMData/HcalMonitor/TB Trigger Type");
-  if(trigger_!=NULL) labelBins(trigger_);
+  labelBins(trigger_);
 
   //  printf("HcalOfflineClient: run: %d, evts: %d, type: %s, status: %s\n",run_, mon_evt_, runtype_.c_str(),status_.c_str());
 
@@ -817,7 +761,7 @@ void HcalMonitorClient::dumpHistograms(int& runNum, vector<TH1F*> &hist1d,vector
   if(tb_client_) tb_client_->dumpHistograms(hist1d,hist2d);
   /*
   if(hot_client_) hot_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
-  if(dataformat_client) dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
+  if(dataformat_client_) dataformat_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(rechit_client_) rechit_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(digi_client_) digi_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);
   if(pedestal_client_) pedestal_client_->dumpHistograms(names,meanX,meanY,rmsX,rmsY);

@@ -11,7 +11,6 @@
 #include "EventFilter/EcalDigiToRaw/interface/BlockFormatter.h"
 
 
-using namespace std;
 
 
 class SRBlockFormatter : public BlockFormatter {

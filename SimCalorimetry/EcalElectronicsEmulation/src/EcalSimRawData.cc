@@ -97,13 +97,13 @@ EcalSimRawData::analyze(const edm::Event& event,
   }
 
   if(fe2tcc_){
-    int tcp[nTtEta][nTtPhi]={{0}};
+    int tcp[nTtEta][nTtPhi];
     getTp(event, tcpDigiCollection_, tcp);
-    genTccIn("data/ecal", iEvent, tcp);
+    genTccIn("ecal", iEvent, tcp);
   }
   
   if(tcc2dcc_){
-    int tp[nTtEta][nTtPhi]={{0}};
+    int tp[nTtEta][nTtPhi];
     getTp(event, tpDigiCollection_, tp); 
     genTccOut("ecal", iEvent, tp);
   }
@@ -357,12 +357,13 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
       int memPos = iEvent-1;
       int iCh1 = 1;
       for(int iTtEtaInSm0 = 0; iTtEtaInSm0 < nTtSmEta; ++iTtEtaInSm0){
-	int iTtEta0 = (iZ0==0) ? 27 - iTtEtaInSm0 : 28 + iTtEtaInSm0; 
+	int iTtEta0 = nEeTtEta + iZ0*nTtSmEta + iTtEtaInSm0;
 	for(int iTtPhiInSm0 = 0; iTtPhiInSm0 < nTtSmPhi; ++iTtPhiInSm0){
 	  //phi=0deg at middle of 1st barrel DCC:
-	  int iTtPhi0 = (iZ0==0) ? -2 + iTtPhiInSm0 : 1-iTtPhiInSm0;
-	  iTtPhi0 += nTtPhisPerEbTcc*iTccPhi0;
+	  int iTtPhi0 = -nTtPhisPerEbTcc/2 + iTccPhi0*nTtPhisPerEbTcc
+	    + iTtPhiInSm0;
 	  if(iTtPhi0<0) iTtPhi0 += nTtPhi;
+
 	  uint16_t tp_fe2tcc = (tcp[iTtEta0][iTtPhi0] & 0x7ff) ; //keep only Et (9:0) and FineGrain (10)
  	  
 	  if(tpVerbose_){
@@ -559,11 +560,11 @@ void EcalSimRawData::getEbDigi(const edm::Event& event,
     
       if(iEta0<0 || iEta0>=nEbEta){
 	cout << "iEta0 (= " << iEta0 << ") is out of range ("
-	     << "[0," << nEbEta -1 << "])\n";
+	     << "[0," << nEbEta -1 << "]\n";
       }
       if(iPhi0<0 || iPhi0>=nEbPhi){
 	cout << "iPhi0 (= " << iPhi0 << ") is out of range ("
-	     << "[0," << nEbPhi -1 << "])\n";
+	     << "[0," << nEbPhi -1 << "]\n";
       }
     
       if(xtalVerbose_){
@@ -615,11 +616,11 @@ void EcalSimRawData::getTp(const edm::Event& event,
       int iTtPhi0 = iTtPhi2cIndex(tp.id().iphi());
       if(iTtEta0<0 || iTtEta0>=nTtEta){
 	cout << "iTtEta0 (= " << iTtEta0 << ") is out of range ("
-	     << "[0," << nEbTtEta -1 << "])\n";
+	     << "[0," << nEbTtEta -1 << "]\n";
       }
       if(iTtPhi0<0 || iTtPhi0>=nTtPhi){
 	cout << "iTtPhi0 (= " << iTtPhi0 << ") is out of range ("
-	     << "[0," << nTtPhi -1 << "])\n";
+	     << "[0," << nTtPhi -1 << "]\n";
       }
 
       tcp[iTtEta0][iTtPhi0] = tp[tp.sampleOfInterest()].raw();

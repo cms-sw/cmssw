@@ -4,8 +4,8 @@
 /*
  * \file EBLaserClient.h
  *
- * $Date: 2007/03/16 12:00:48 $
- * $Revision: 1.54 $
+ * $Date: 2007/03/26 17:35:04 $
+ * $Revision: 1.55 $
  * \author G. Della Ricca
  *
 */
@@ -302,6 +302,20 @@ float percentVariation_;
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
 float pedestalThresholdPn_;
+
+MEContentsTH2FWithinRangeROOT* qtg01_[36];
+MEContentsTH2FWithinRangeROOT* qtg02_[36];
+MEContentsTH2FWithinRangeROOT* qtg03_[36];
+MEContentsTH2FWithinRangeROOT* qtg04_[36];
+
+MEContentsTH2FWithinRangeROOT* qtg05_[36];
+MEContentsTH2FWithinRangeROOT* qtg06_[36];
+MEContentsTH2FWithinRangeROOT* qtg07_[36];
+MEContentsTH2FWithinRangeROOT* qtg08_[36];
+MEContentsTH2FWithinRangeROOT* qtg09_[36];
+MEContentsTH2FWithinRangeROOT* qtg10_[36];
+MEContentsTH2FWithinRangeROOT* qtg11_[36];
+MEContentsTH2FWithinRangeROOT* qtg12_[36];
 
 };
 

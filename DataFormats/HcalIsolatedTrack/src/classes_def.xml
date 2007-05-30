@@ -1,0 +1,10 @@
+<lcgdict>
+
+  <class name="reco::IsolatedPixelTrackCandidate"/>
+  <class name="reco::IsolatedPixelTrackCandidateCollection"/>
+  <class name="reco::IsolatedPixelTrackCandidateRef"/>
+  <class name="reco::IsolatedPixelTrackCandidateRefVector"/>
+  <class name="reco::IsolatedPixelTrackCandidateRefProd"/>
+  <class name="edm::Wrapper<reco::IsolatedPixelTrackCandidateCollection>"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> 
+> >" /> </lcgdict>

@@ -46,6 +46,10 @@ class MonCrystalConsistencyDat : public IDataItem {
   void fetchData(std::map< EcalLogicID, MonCrystalConsistencyDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonCrystalConsistencyDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
+
   // User data
   int m_processedEvents;
   int m_problematicEvents;

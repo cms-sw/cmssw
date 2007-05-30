@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/29 16:02:42 $
- *  $Revision: 1.00 $
+ *  $Date: 2007/03/30 15:56:11 $
+ *  $Revision: 1.1 $
  *
  *  \author Mika Huhtinen
  *
@@ -11,10 +11,11 @@
 
 #include "HLTrigger/special/interface/HLTPixlMBFilt.h"
 
-#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"

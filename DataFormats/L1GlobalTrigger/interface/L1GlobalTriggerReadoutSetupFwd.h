@@ -58,6 +58,6 @@ typedef std::vector<unsigned> CaloJetCountsWord;
 enum GtBoardType {GTFE, FDL, PSB, GMT, TCS, TIM};
 
 enum L1GtCaloQuad { NoIsoEGQ, IsoEGQ, CenJetQ, ForJetQ, TauJetQ, ESumsQ, JetCountsQ };
-enum L1GtObject { Mu, NoIsoEg, IsoEg, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
+enum L1GtObject { Mu, NoIsoEG, IsoEG, CenJet, ForJet, TauJet, ETM, ETT, HTT, JetCounts };
 
 #endif /*L1GlobalTrigger_L1GlobalTriggerReadoutSetupFwd_h*/

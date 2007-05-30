@@ -42,7 +42,7 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
 
   // subscribe to MEs and configure the quality tests
   if (getMESubscriptionListFromFile)
-  subscriber->getMEList(pset.getUntrackedParameter<string>("meSubscriptionList", "MESubscriptionList.xml")); 
+    subscriber->getMEList(pset.getUntrackedParameter<string>("meSubscriptionList", "MESubscriptionList.xml")); 
   if (getQualityTestsFromFile)
     qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
 

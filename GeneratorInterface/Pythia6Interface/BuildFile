@@ -3,7 +3,7 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc> 
 <use name=clhep> 
-<use name=pythia6_227>
+<use name=pythia6>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfacePythia6Interface">
 <export>
  <use name=boost>
@@ -11,7 +11,7 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=hepmc> 
  <use name=clhep> 
- <use name=pythia6_227>
+ <use name=pythia6>
 </export>
 
  <lib name=g2c></lib>

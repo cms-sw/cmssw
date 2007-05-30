@@ -9,8 +9,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -59,7 +59,11 @@ L1GtfeWord::L1GtfeWord(
 
 // destructor
 L1GtfeWord::~L1GtfeWord()
-{}
+{
+
+    // empty now
+
+}
 
 // equal operator
 bool L1GtfeWord::operator==(const L1GtfeWord& result) const
@@ -68,18 +72,23 @@ bool L1GtfeWord::operator==(const L1GtfeWord& result) const
     if(m_boardId != result.m_boardId) {
         return false;
     }
+
     if(m_recordLength != result.m_recordLength) {
         return false;
     }
+
     if(m_bxNr != result.m_bxNr) {
         return false;
     }
+
     if(m_setupVersion != result.m_setupVersion) {
         return false;
     }
+
     if(m_activeBoards != result.m_activeBoards) {
         return false;
     }
+
     if(m_totalTriggerNr != result.m_totalTriggerNr) {
         return false;
     }
@@ -101,7 +110,7 @@ bool L1GtfeWord::operator!=(const L1GtfeWord& result) const
 
 // set the BoardId value from a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1GtfeWord::setBoardId(boost::uint64_t& word64, int iWord)
+void L1GtfeWord::setBoardId(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == BoardIdWord) {
         m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
@@ -122,7 +131,7 @@ void L1GtfeWord::setBoardIdWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the RecordLength value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setRecordLength(boost::uint64_t& word64, int iWord)
+void L1GtfeWord::setRecordLength(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == RecordLengthWord) {
         m_recordLength = (word64 & RecordLengthMask) >> RecordLengthShift;
@@ -143,7 +152,7 @@ void L1GtfeWord::setRecordLengthWord64(boost::uint64_t& word64, int iWord)
 }
 
 // set the BxNr value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setBxNr(boost::uint64_t& word64, int iWord)
+void L1GtfeWord::setBxNr(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == BxNrWord) {
         m_bxNr = (word64 & BxNrMask) >> BxNrShift;
@@ -163,8 +172,9 @@ void L1GtfeWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
 }
 
 
-// set the SetupVersion value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setSetupVersion(boost::uint64_t& word64, int iWord)
+// set the SetupVersion value from a 64-bits word, 
+// having the index iWord in the GTFE raw record
+void L1GtfeWord::setSetupVersion(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == SetupVersionWord) {
         m_setupVersion = (word64 & SetupVersionMask) >> SetupVersionShift;
@@ -184,8 +194,9 @@ void L1GtfeWord::setSetupVersionWord64(boost::uint64_t& word64, int iWord)
 
 }
 
-// set the ActiveBoards value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setActiveBoards(boost::uint64_t& word64, int iWord)
+// set the ActiveBoards value from a 64-bits word, 
+// having the index iWord in the GTFE raw record
+void L1GtfeWord::setActiveBoards(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == ActiveBoardsWord) {
         m_activeBoards = (word64 & ActiveBoardsMask) >> ActiveBoardsShift;
@@ -205,8 +216,20 @@ void L1GtfeWord::setActiveBoardsWord64(boost::uint64_t& word64, int iWord)
 
 }
 
+// set the ActiveBoards value in a 64-bits word, having the index iWord
+// in the GTFE raw record from the value activeBoardsValue
+void L1GtfeWord::setActiveBoardsWord64(boost::uint64_t& word64, int iWord,
+                                       boost::int16_t activeBoardsValue)
+{
+    if (iWord == ActiveBoardsWord) {
+        word64 = word64 |
+                 (static_cast<boost::uint64_t> (activeBoardsValue) << ActiveBoardsShift);
+    }
+
+}
+
 // set the TotalTriggerNr value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setTotalTriggerNr(boost::uint64_t& word64, int iWord)
+void L1GtfeWord::setTotalTriggerNr(const boost::uint64_t& word64, int iWord)
 {
     if (iWord == TotalTriggerNrWord) {
         m_totalTriggerNr = (word64 & TotalTriggerNrMask) >> TotalTriggerNrShift;

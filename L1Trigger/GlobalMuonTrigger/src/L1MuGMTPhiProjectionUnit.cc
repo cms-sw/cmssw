@@ -5,8 +5,8 @@
 //   Description: GMT Phi Projection Unit
 //
 //
-//   $Date: 2006/05/15 13:56:02 $
-//   $Revision: 1.1 $
+//   $Date: 2006/08/21 14:23:13 $
+//   $Revision: 1.2 $
 //
 //   Author :
 //   H. Sakulin                CERN EP 
@@ -143,7 +143,7 @@ void L1MuGMTPhiProjectionUnit::print() const {
   for ( int i=0; i<18; i++ ) {
     edm::LogVerbatim("GMT_PhiProjection_info") << m_phi_select[i] << "  ";
   }
-  edm::LogVerbatim("GMT_PhiProjection_info") << endl;
+  edm::LogVerbatim("GMT_PhiProjection_info") << " ";
 }
 
 

@@ -7,17 +7,11 @@
   <class name="edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
   
-  <class name="reco::MuonWithMatchInfo"/>
-  <class name="std::vector<reco::MuonWithMatchInfo>"/>
-  <class name="edm::Wrapper<std::vector<reco::MuonWithMatchInfo> >"/>
-  <class name="edm::Ref<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo> >"/>
-  <class name="edm::RefProd<std::vector<reco::MuonWithMatchInfo> >"/>
-  <class name="edm::RefVector<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonWithMatchInfo>,reco::MuonWithMatchInfo> >"/>
-  <class name="reco::MuonWithMatchInfo::MuonEnergy"/>
-  <class name="reco::MuonWithMatchInfo::MuonChamberMatch"/>
-  <class name="reco::MuonWithMatchInfo::MuonSegmentMatch"/>
-  <class name="std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>"/>
-  <class name="std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch>"/>
+  <class name="reco::Muon::MuonEnergy"/>
+  <class name="reco::MuonChamberMatch"/>
+  <class name="reco::MuonSegmentMatch"/>
+  <class name="std::vector<reco::MuonChamberMatch>"/>
+  <class name="std::vector<reco::MuonSegmentMatch>"/>
 
   <class name="reco::MuIsoDeposit"/>
   <class name="std::vector<reco::MuIsoDeposit>"/>

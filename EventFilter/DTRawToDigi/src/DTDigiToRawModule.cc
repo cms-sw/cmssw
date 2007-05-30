@@ -1,6 +1,7 @@
 #include <EventFilter/DTRawToDigi/src/DTDigiToRawModule.h>
 #include <EventFilter/DTRawToDigi/src/DTDigiToRaw.h>
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
+#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 #include <DataFormats/DTDigi/interface/DTDigiCollection.h>
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -22,6 +23,10 @@ DTDigiToRawModule::DTDigiToRawModule(const edm::ParameterSet& ps) {
   debug = ps.getUntrackedParameter<bool>("debugMode", false);
   digicoll = ps.getUntrackedParameter<string>("digiColl", "dtunpacker");
   digibyType = ps.getUntrackedParameter<bool>("digibytype", true);
+  
+  useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
+  minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 731);
+  maxFEDid_ = ps.getUntrackedParameter<int>("maxFEDid", 735);
   
   packer = new DTDigiToRaw(ps);
   if (debug) cout << "[DTDigiToRawModule]: constructor" << endl;
@@ -51,11 +56,24 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
   iSetup.get<DTReadOutMappingRcd>().get( map );
   
   // Create the packed data
-  FEDRawData* rawData = packer->createFedBuffers(*digis, map);
+  int FEDIDmin = 0, FEDIDMax = 0;
+  if (useStandardFEDid_){
+    FEDIDmin = FEDNumbering::getDTFEDIds().first;
+    FEDIDMax = FEDNumbering::getDTFEDIds().second;
+  }
+  else {
+    FEDIDmin = minFEDid_;
+    FEDIDMax = maxFEDid_;
+  }
   
-  FEDRawData& fedRawData = fed_buffers->FEDData(dduID);
-  fedRawData = *rawData;
-  
+  for (int id=FEDIDmin; id<=FEDIDMax; ++id){
+    
+    packer->SetdduID(id);
+    FEDRawData* rawData = packer->createFedBuffers(*digis, map);
+    
+    FEDRawData& fedRawData = fed_buffers->FEDData(id);
+    fedRawData = *rawData;
+  }
   // Put the raw data to the event
   e.put(fed_buffers);
   

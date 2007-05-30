@@ -1,8 +1,8 @@
 /** \file
  * Implementation of class RPCRecordFormatter
  *
- *  $Date: 2007/03/20 09:18:53 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/03/28 22:35:27 $
+ *  $Revision: 1.27 $
  *
  * \author Ilaria Segoni
  */
@@ -16,7 +16,7 @@
 
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
-#include "CondFormats/RPCObjects/interface/ChamberRawDataSpec.h"
+#include "CondFormats/RPCObjects/interface/LinkBoardElectronicIndex.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -35,11 +35,11 @@ using namespace rpcrawtodigi;
 
 
 RPCRecordFormatter::RPCRecordFormatter(int fedId, const RPCReadOutMapping *r)
- : currentFED(fedId), readoutMapping(r){
-}
+ : currentFED(fedId), readoutMapping(r)
+{ }
 
-RPCRecordFormatter::~RPCRecordFormatter(){
-}
+RPCRecordFormatter::~RPCRecordFormatter()
+{ }
 
 
 std::vector<EventRecords> RPCRecordFormatter::recordPack(
@@ -51,15 +51,16 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
   int stripInDU = digi.strip();
 
   // decode digi<->map
-  typedef std::vector< std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> > RawDataFrames;
-  RawDataFrames rawDataFrames = readoutMapping->rawDataFrame(rawDetId, stripInDU);
+  typedef std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > RawDataFrames;
+  RPCReadOutMapping::StripInDetUnit duFrame(rawDetId, stripInDU);
+  RawDataFrames rawDataFrames = readoutMapping->rawDataFrame(duFrame);
 
   for (RawDataFrames::const_iterator ir = rawDataFrames.begin(); ir != rawDataFrames.end(); ir++) {
     
-    const ChamberRawDataSpec & eleIndex = (*ir).first;
-    const LinkBoardChannelCoding & channelCoding = (*ir).second;
+    const LinkBoardElectronicIndex & eleIndex = (*ir).first;
+    const LinkBoardPackedStrip & lbPackedStrip = (*ir).second;
 
-    if (eleIndex.dccId != currentFED) {
+    if (eleIndex.dccId == currentFED) {
 
       LogTrace("pack:")
            <<" dccId= "<<eleIndex.dccId
@@ -81,9 +82,9 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
       lbData.setLbNumber(eleIndex.lbNumInLink);
       lbData.setEod(0);
       lbData.setHalfP(0);
-      int channel = channelCoding.channel();
-      vector<int> bitsOn; bitsOn.push_back(channel);                        
-      lbData.setPartitionNumber( channel/8 );
+      int packedStrip = lbPackedStrip.packedStrip();
+      vector<int> bitsOn; bitsOn.push_back(packedStrip);                        
+      lbData.setPartitionNumber( packedStrip/8 );
       lbData.setBits(bitsOn);
       LBRecord lbr(lbData);
 
@@ -102,12 +103,11 @@ void RPCRecordFormatter::recordUnpack(
   int currentTbLinkInputNumber = event.tbRecord().tbLinkInputNumber();
   RPCLinkBoardData lbData = event.lbRecord().lbData();
 
-  ChamberRawDataSpec eleIndex;
+  LinkBoardElectronicIndex eleIndex;
   eleIndex.dccId = currentFED;
   eleIndex.dccInputChannelNum = currentRMB;
   eleIndex.tbLinkInputNum = currentTbLinkInputNumber;
   eleIndex.lbNumInLink = lbData.lbNumber();
-
 
   const LinkBoardSpec* linkBoard = readoutMapping->location(eleIndex);
 
@@ -122,28 +122,22 @@ void RPCRecordFormatter::recordUnpack(
   std::vector<int> bits=lbData.bitsOn();
   for(std::vector<int>::iterator pBit = bits.begin(); pBit != bits.end(); ++pBit){
 
-    int lbBit = *(pBit);
-    uint32_t rawDetId;
-    int geomStrip;
-    try {
-      RPCReadOutMapping::StripInDetUnit stripInDetUnit=readoutMapping->strip(eleIndex,lbBit);
+    LinkBoardPackedStrip lbBit(*pBit);
+    RPCReadOutMapping::StripInDetUnit duFrame = readoutMapping->detUnitFrame(*linkBoard,lbBit);
 
-      // DetUnit
-      rawDetId = stripInDetUnit.first;
-	if(!rawDetId) continue;//A dirty fix to avoid crashes. To be FIXED (a geometry should be revised?)
-      geomStrip = stripInDetUnit.second;
-    } 
-    catch (cms::Exception & e) {
-      edm::LogInfo("RPC unpacker, exception catched, skip digi")<<e.what(); 
-	edm::LogInfo("Values")<< currentRMB<<" "<<currentTbLinkInputNumber<<" "<<lbData.lbNumber();
+    uint32_t rawDetId = duFrame.first;
+    int geomStrip = duFrame.second;
+    if (!rawDetId) {
+      LogError("recordUnpack: problem with rawDetId, skip LB data");
       continue;
     }
+
     // Creating RPC digi
     RPCDigi digi(geomStrip,currentBX-triggerBX);
 
     /// Committing digi to the product
     LogTrace("")<<" DIGI;  det: "<<rawDetId<<", strip: "<<digi.strip()<<", bx: "<<digi.bx();
-    LogTrace("") << " ChamberRawDataSpec: " << eleIndex.print(); 
+    LogTrace("") << " LinkBoardElectronicIndex: " << eleIndex.print(); 
     prod->insertDigi(RPCDetId(rawDetId),digi);
   }
 }

@@ -196,7 +196,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
                            1, //chamber
 			   1); //layer
 
-	    if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	    if (((vmecrate>=0)&&(vmecrate<=51)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 	      layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	    } else {
 	      edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
@@ -294,7 +294,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	    //this loop stores wire strip and comparator digis:
 	    for (int ilayer = 1; ilayer <= 6; ilayer++) {
 
-	      if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+	      if (((vmecrate>=0)&&(vmecrate<=51)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 	      } else {
 		edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";
@@ -327,7 +327,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 
 	      for ( icfeb = 0; icfeb < 5; ++icfeb ) {
 
-		if (((vmecrate>=0)&&(vmecrate<=3)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
+		if (((vmecrate>=0)&&(vmecrate<=51)) && (dmb>=0)&&(dmb<=10)&&(dmb!=6)) {
 		  layer = theMapping.detId( endcap, station, vmecrate, dmb, tmb,icfeb,ilayer );
 		} else {
 		  edm::LogError ("CSCDCCUnpacker") << " detID input out of range!!! ";

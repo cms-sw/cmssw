@@ -17,8 +17,6 @@
 
 #include <CLHEP/Vector/LorentzVector.h>
 
-using namespace std;
-
 class BeginOfTrack;
 class BeginOfRun;
 class G4Step;

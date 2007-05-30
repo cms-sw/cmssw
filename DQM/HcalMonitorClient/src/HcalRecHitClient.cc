@@ -215,7 +215,7 @@ void HcalRecHitClient::report(){
   this->setup();
 
   char name[256];
-  sprintf(name, "%sHcalMonitor/RecHitMonitor/RecHit Event Number",process_.c_str());
+  sprintf(name, "Collector/%s/HcalMonitor/RecHitMonitor/RecHit Event Number",process_.c_str());
   MonitorElement* me = mui_->get(name); 
   if ( me ) {
     string s = me->valueString();
@@ -282,26 +282,26 @@ void HcalRecHitClient::resetME(){
     if(i==1) type = "HO"; 
     if(i==2) type = "HF"; 
 
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
     me = mui_->get(name);
     if(me) mui_->softReset(me);
     
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
     me = mui_->get(name);
     if(me) mui_->softReset(me);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
     me = mui_->get(name);
     if(me) mui_->softReset(me);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str());      
+    sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str());      
     me = mui_->get(name);
     if(me) mui_->softReset(me);
   }
 
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Geo Occupancy Map",process_.c_str());
+  sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/RecHit Geo Occupancy Map",process_.c_str());
   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());  
+  sprintf(name,"Collector/%s/HcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());  
   me = mui_->get(name);
   if(me) mui_->softReset(me);
 
@@ -406,7 +406,7 @@ void HcalRecHitClient::createTests(){
   printf("Creating RecHit tests...\n"); 
   return;
 
-  sprintf(name, "%sHcalMonitor/BEAM ENERGY",process_.c_str());
+  sprintf(name, "Collector/%s/HcalMonitor/BEAM ENERGY",process_.c_str());
   MonitorElement* me = mui_->get(name);
   float beamE = -10;
   if ( me ) {
@@ -419,7 +419,7 @@ void HcalRecHitClient::createTests(){
     char nrg2[100]; sprintf(nrg,"%f",beamE*1.10);
     char err[100]; sprintf(err,"%f",beamE*beamE_width_);
 
-    sprintf(meTitle,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str()); 
+    sprintf(meTitle,"Collector/%s/HcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str()); 
     sprintf(name,"HCAL RecHit Energy to Beam Energy");  
     if( dqmQtests_.find(name) == dqmQtests_.end()){ 
       string test = ((string)name);
@@ -439,7 +439,7 @@ void HcalRecHitClient::createTests(){
       string type = "HBHE";
       if(i==1) type = "HO"; 
       if(i==2) type = "HF";
-      sprintf(meTitle,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
+      sprintf(meTitle,"Collector/%s/HcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
       sprintf(name,"HCAL %s Max Energy",type.c_str());
       if( dqmQtests_.find(name) == dqmQtests_.end()){ 
 	string test = ((string)name);

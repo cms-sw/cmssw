@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2007/03/26 20:31:29 $
- * $Revision: 1.19 $
+ * $Date: 2007/05/11 15:05:04 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -14,6 +14,7 @@
 #include <fstream>
 
 #include "TStyle.h"
+#include "TGaxis.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -28,8 +29,9 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsOnlineDat.h"
 
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -506,7 +508,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy").c_str());
   }
   me = mui_->get(histo);
-  h01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
+  h01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[0] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number");
@@ -514,7 +516,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number").c_str());
   }
   me = mui_->get(histo);
-  h01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
+  h01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[1] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster crystals");
@@ -522,7 +524,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster crystals").c_str());
   }
   me = mui_->get(histo);
-  h01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
+  h01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h01_[2] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster energy map");
@@ -530,7 +532,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster energy map").c_str());
   }
   me = mui_->get(histo);
-  h02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
+  h02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[0] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster ET map");
@@ -538,7 +540,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster ET map").c_str());
   }
   me = mui_->get(histo);
-  h02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
+  h02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h02_[1] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster number map");
@@ -546,7 +548,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster number map").c_str());
   }
   me = mui_->get(histo);
-  h03_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
+  h03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, h03_ );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island basic cluster size map");
@@ -554,7 +556,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island basic cluster size map").c_str());
   }
   me = mui_->get(histo);
-  h04_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
+  h04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h04_ );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy");
@@ -562,7 +564,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy").c_str());
   }
   me = mui_->get(histo);
-  i01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
+  i01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[0] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number");
@@ -570,7 +572,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number").c_str());
   }
   me = mui_->get(histo);
-  i01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
+  i01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[1] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size");
@@ -578,7 +580,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size").c_str());
   }
   me = mui_->get(histo);
-  i01_[2] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
+  i01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, i01_[2] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster energy map");
@@ -586,7 +588,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster energy map").c_str());
   }
   me = mui_->get(histo);
-  i02_[0] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
+  i02_[0] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[0] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster ET map");
@@ -594,7 +596,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster ET map").c_str());
   }
   me = mui_->get(histo);
-  i02_[1] = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
+  i02_[1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i02_[1] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster number map");
@@ -602,7 +604,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster number map").c_str());
   }
   me = mui_->get(histo);
-  i03_ = EBMUtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
+  i03_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, i03_ );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT island super cluster size map");
@@ -610,7 +612,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT island super cluster size map").c_str());
   }
   me = mui_->get(histo);
-  i04_ = EBMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );
+  i04_ = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, i04_ );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT hybrid S1toE");
@@ -618,7 +620,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT hybrid S1toE").c_str());
   }
   me = mui_->get(histo);
-  s01_[0] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
+  s01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[0] );
 
   if ( collateSources_ ) {
     sprintf(histo, "EcalBarrel/Sums/EBClusterTask/EBCLT dicluster invariant mass");
@@ -626,7 +628,7 @@ void EBClusterClient::analyze(void){
     sprintf(histo, (prefixME_+"EcalBarrel/EBClusterTask/EBCLT dicluster invariant mass").c_str());
   }
   me = mui_->get(histo);
-  s01_[1] = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
+  s01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, s01_[1] );
 
 }
 
@@ -673,18 +675,37 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   // Produce the plots to be shown as .png files from existing histograms
 
   const int csize1D = 250;
-  const int csize2D = 700;
+  const int csize2D = 300;
+
   //  const double histMax = 1.e15;
 
   int pCol4[10];
   for ( int i = 0; i < 10; i++ ) pCol4[i] = 401+i;
+
+  // dummy histogram labelling the SM's
+  TH2C labelGrid("labelGrid","label grid for SM", 18, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 2, -1.479, 1.479);
+  for ( short sm=0; sm<36; sm++ ) {
+    int x = 1 + sm%18;
+    int y = 2 - sm/18;
+    int z = x + 8;
+    if ( z > 18 ) z = z - 18;
+    if ( y == 1 ) {
+      labelGrid.SetBinContent(x, y, -z);
+    } else {
+      labelGrid.SetBinContent(x, y, +z);
+    }
+  }
+  labelGrid.SetMarkerSize(2);
+  labelGrid.SetMinimum(-18.01);
+
+  TGaxis axis(-M_PI*(9+1.5)/9, -1.479, M_PI*(9-1.5)/9, -1.479, -M_PI*(9+1.5)/9, M_PI*(9-1.5)/9, 40306, "N");
 
   string imgNameB[3], imgNameBMap[4], imgNameS[3], imgNameSMap[4];
   string imgNameBXproj[4], imgNameBYproj[4], imgNameSXproj[4], imgNameSYproj[4];
   string imgNameHL[2], imgName, meName;
 
   TCanvas* cEne = new TCanvas("cEne", "Temp", csize1D, csize1D);
-  TCanvas* cMap = new TCanvas("cMap", "Temp", int(34./72.*csize2D), csize2D);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize2D), csize2D);
 
   TH1F* obj1f = 0;
   TProfile2D* objp;
@@ -695,6 +716,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   // ==========================================================================
   // basic clusters
   // ==========================================================================
+
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameB[iCanvas-1] = "";
@@ -745,21 +767,6 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
 
-  // dummy histogram labelling the SM's
-  TH2C labelGrid("labelGrid","label grid for SM", 2, -1.479, 1.479, 18, -M_PI, M_PI );
-  Int_t sm=1;
-  Float_t X=-1.479/2.;
-  while(X<1.479) {
-    Float_t Y=-1*M_PI+M_PI/18.;
-    while(Y<M_PI){
-      labelGrid.Fill(X,Y,sm);
-      Y+=M_PI/9.;
-      sm++;
-    }
-    X+=1.479;
-  }
-  labelGrid.SetMarkerSize(2);
-
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameBMap[iCanvas-1] = "";
@@ -781,39 +788,39 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions(170102, kFALSE);
-      objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      objp->GetXaxis()->SetNdivisions( 40118, kFALSE);
+      objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
-      cMap->SetTopMargin(0.06);
-      cMap->SetBottomMargin(0.05);
-      cMap->SetRightMargin(0.15);
-      cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
+      axis.Draw();
       cMap->Update();
+      objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
+      objp->GetXaxis()->SetLabelColor(1);
 
       char projXName[100];
       char projYName[100];
       sprintf(projXName,"%s_px",meName.c_str());
-      sprintf(projYName,"%s_py",meName.c_str());
       imgNameBXproj[iCanvas-1] = string(projXName) + ".png";
-      imgName = htmlDir + imgNameBXproj[iCanvas-1];
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameBYproj[iCanvas-1] = string(projYName) + ".png";
 
       obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
       obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
 
       cEne->cd();
       gStyle->SetOptStat("emr");
-      obj1dX->SetStats(kTRUE);
-      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+
+      imgName = htmlDir + imgNameBXproj[iCanvas-1];
+      obj1dX->SetStats(kTRUE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
 
-      imgNameBYproj[iCanvas-1] = string(projYName) + ".png";
       imgName = htmlDir + imgNameBYproj[iCanvas-1];
       obj1dY->SetStats(kTRUE);
       obj1dY->Draw("pe");
@@ -841,39 +848,39 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
-    obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions( 40118, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
-    cMap->SetTopMargin(0.06);
-    cMap->SetBottomMargin(0.05);
-    cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
+    axis.Draw();
     cMap->Update();
+    obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
+    obj2f->GetXaxis()->SetLabelColor(1);
 
     char projXName[100];
     char projYName[100];
     sprintf(projXName,"%s_px",meName.c_str());
-    sprintf(projYName,"%s_py",meName.c_str());
     imgNameBXproj[3] = string(projXName) + ".png";
-    imgName = htmlDir + imgNameBXproj[3];
+    sprintf(projYName,"%s_py",meName.c_str());
+    imgNameBYproj[3] = string(projYName) + ".png";
 
     obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
     obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
 
     cEne->cd();
     gStyle->SetOptStat("emr");
-    obj1dX->SetStats(kTRUE);
-    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+
+    imgName = htmlDir + imgNameBXproj[3];
+    obj1dX->SetStats(kTRUE);
     obj1dX->Draw("pe");
     cEne->Update();
     cEne->SaveAs(imgName.c_str());
 
-    imgNameBYproj[3] = string(projYName) + ".png";
     imgName = htmlDir + imgNameBYproj[3];
     obj1dY->SetStats(kTRUE);
     obj1dY->Draw("pe");
@@ -955,6 +962,7 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
   // ====================================================================
   // super clusters
   // ====================================================================
+
   for ( int iCanvas = 1; iCanvas <= 3; iCanvas++ ) {
 
     imgNameS[iCanvas-1] = "";
@@ -1026,39 +1034,39 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
       cMap->cd();
       gStyle->SetOptStat(" ");
       gStyle->SetPalette(10, pCol4);
-      objp->GetXaxis()->SetNdivisions(170102, kFALSE);
-      objp->GetYaxis()->SetNdivisions(40018, kFALSE);
+      objp->GetXaxis()->SetNdivisions( 40118, kFALSE);
+      objp->GetYaxis()->SetNdivisions(170102, kFALSE);
       cMap->SetGridx();
       cMap->SetGridy();
-      cMap->SetTopMargin(0.06);
-      cMap->SetBottomMargin(0.05);
-      cMap->SetRightMargin(0.15);
-      cMap->SetLeftMargin(0.15);
       objp->Draw("colz");
       labelGrid.Draw("text,same");
+      axis.Draw();
       cMap->Update();
+      objp->GetXaxis()->SetLabelColor(0);
       cMap->SaveAs(imgName.c_str());
+      objp->GetXaxis()->SetLabelColor(1);
 
       char projXName[100];
       char projYName[100];
       sprintf(projXName,"%s_px",meName.c_str());
-      sprintf(projYName,"%s_py",meName.c_str());
       imgNameSXproj[iCanvas-1] = string(projXName) + ".png";
-      imgName = htmlDir + imgNameSXproj[iCanvas-1];
+      sprintf(projYName,"%s_py",meName.c_str());
+      imgNameSYproj[iCanvas-1] = string(projYName) + ".png";
 
       obj1dX = objp->ProjectionX(projXName,1,objp->GetNbinsY(),"e");
       obj1dY = objp->ProjectionY(projYName,1,objp->GetNbinsX(),"e");
 
       cEne->cd();
       gStyle->SetOptStat("emr");
-      obj1dX->SetStats(kTRUE);
-      obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+      obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
       obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+
+      imgName = htmlDir + imgNameSXproj[iCanvas-1];
+      obj1dX->SetStats(kTRUE);
       obj1dX->Draw("pe");
       cEne->Update();
       cEne->SaveAs(imgName.c_str());
 
-      imgNameSYproj[iCanvas-1] = string(projYName) + ".png";
       imgName = htmlDir + imgNameSYproj[iCanvas-1];
       obj1dY->SetStats(kTRUE);
       obj1dY->Draw("pe");
@@ -1086,40 +1094,39 @@ void EBClusterClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(10, pCol4);
-    obj2f->GetXaxis()->SetNdivisions(170102, kFALSE);
-    obj2f->GetYaxis()->SetNdivisions(40018, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions( 40118, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(170102, kFALSE);
     cMap->SetGridx();
     cMap->SetGridy();
-    cMap->SetTopMargin(0.06);
-    cMap->SetBottomMargin(0.05);
-    cMap->SetRightMargin(0.15);
-    cMap->SetLeftMargin(0.15);
     obj2f->Draw("colz");
     labelGrid.Draw("text,same");
+    axis.Draw();
     cMap->Update();
+    obj2f->GetXaxis()->SetLabelColor(0);
     cMap->SaveAs(imgName.c_str());
+    obj2f->GetXaxis()->SetLabelColor(1);
 
     char projXName[100];
     char projYName[100];
     sprintf(projXName,"%s_px",meName.c_str());
-    sprintf(projYName,"%s_py",meName.c_str());
-
     imgNameSXproj[3] = string(projXName) + ".png";
-    imgName = htmlDir + imgNameSXproj[3];
+    sprintf(projYName,"%s_py",meName.c_str());
+    imgNameSYproj[3] = string(projYName) + ".png";
 
-    obj1dX = obj2f->ProjectionX("_px",1,obj2f->GetNbinsY(),"e");
-    obj1dY = obj2f->ProjectionY("_py",1,obj2f->GetNbinsX(),"e");
+    obj1dX = obj2f->ProjectionX(projXName,1,obj2f->GetNbinsY(),"e");
+    obj1dY = obj2f->ProjectionY(projYName,1,obj2f->GetNbinsX(),"e");
 
     cEne->cd();
     gStyle->SetOptStat("emr");
-    obj1dX->SetStats(kTRUE);
-    obj1dX->GetXaxis()->SetNdivisions(6, kFALSE);
+    obj1dX->GetXaxis()->SetNdivisions(40306, kFALSE);
     obj1dY->GetXaxis()->SetNdivisions(6, kFALSE);
+
+    imgName = htmlDir + imgNameSXproj[3];
+    obj1dX->SetStats(kTRUE);
     obj1dX->Draw("pe");
     cEne->Update();
     cEne->SaveAs(imgName.c_str());
 
-    imgNameSYproj[3] = string(projYName) + ".png";
     imgName = htmlDir + imgNameSYproj[3];
     obj1dY->SetStats(kTRUE);
     obj1dY->Draw("pe");

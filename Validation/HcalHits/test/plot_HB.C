@@ -1,5 +1,5 @@
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
-void plot_HB(TString inputfile="simevent_HB.root",
+void plot_HB(TString inputfile="HB_ref.root",
 	     TString outputfile="HB_histo.root",
 	     Int_t drawmode = 0, 
 	     TString    reffile="../data/HB_ref.root")
@@ -44,8 +44,8 @@ void plot_HB(TString inputfile="simevent_HB.root",
   
   //***************************************************************************
   // Histo titles-labels
-  const int Nhist1     = 46, Nhist2 = 1;  // N simple and N combined histos
-  const int Nhist1spec =  7;              // N special out of Nsimple total 
+  const int Nhist1     = 47, Nhist2 = 1;  // N simple and N combined histos
+  const int Nhist1spec =  8;              // N special out of Nsimple total 
   const int nLayersMAX = 20;
   const int nDepthsMAX =  5;
 
@@ -101,6 +101,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
   label1[36] = &"eshortHF.gif";
   label1[37] = &"eEcalHF.gif";
   label1[38] = &"eHcalHF.gif";
+  label1[46] = &"E_hcal.gif";
 
   // special
   label1[39] = &"NxN_trans_fraction.gif"; 
@@ -162,12 +163,13 @@ void plot_HB(TString inputfile="simevent_HB.root",
     char hname[3]; 
     sprintf(hname,"h%d",i);
 
-    if(i == 4 || i == 7 || i == 8 || i == 11 || i == 12) {
+    if(i == 4 || i == 7 || i == 8 || i == 11 || i == 12 || i == 6) {
       if(i == 11) h1[i] = new TH1F(hname,label1[i],100,-5.,5.);   
       if(i == 12)  
 	          h1[i] = new TH1F(hname,label1[i],72,-3.1415926,3.1415926);   
       if(i == 7 || i == 8) h1[i] = new TH1F(hname,label1[i],100,-0.1,0.1);  
       if( i == 4)  h1[i] = new TH1F(hname,label1[i],60,0.,60.);  
+      if( i == 6)  h1[i] = new TH1F(hname,label1[i],40,0.,200.);
     }
     else { 
       h1[i] = new TH1F(hname,label1[i],100,1.,0.);  
@@ -182,12 +184,14 @@ void plot_HB(TString inputfile="simevent_HB.root",
   // Special : timing in the cluster (7x7) enery-weighted
   h1[41] = new TH1F("h41",label1[41],30,0.,30.);  
   // Special : number of ECAL&HCAL hits
-  h1[42] = new TH1F("h42",label1[42],100,0.,1000.);  
-  h1[43] = new TH1F("h43",label1[43],60,0.,300.);  
-  h1[44] = new TH1F("h44",label1[44],100,0.,1000.);  
+  h1[42] = new TH1F("h42",label1[42],300,0.,3000.);  
+  h1[43] = new TH1F("h43",label1[43],300,0.,3000.);  
+  h1[44] = new TH1F("h44",label1[44],300,0.,3000.);  
 
   // Special : Longitudinal profile
   h1[45] = new TH1F("h45",label1[45],20,0.,20.);
+  // Etot HCAL
+  TH1F *h1[46] = new TH1F("h46",label1[46],30,0.,1.5);
 
   for (int i = 0;  i < Nhist1; i++) {
     if(i != 39)  h1[i]->Sumw2();
@@ -203,7 +207,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
   for (int i = 0; i < nLayersMAX; i++) {
     char hname[4]; 
     sprintf(hname,"hl%d",i);
-    h1l[i] = new TH1F(hname,label1l[i],40,0.,0.2);  
+    h1l[i] = new TH1F(hname,label1l[i],40,0.,0.4);  
   }
   // depths
   Float_t max[5] = {30000, 500, 500, 200, 200.};
@@ -378,16 +382,21 @@ void plot_HB(TString inputfile="simevent_HB.root",
     std::vector<float> eLayer = infoLayer.elayer();
     std::vector<float> eDepth = infoLayer.edepth();
     
+    float eTot = 0.;
+
     for (int j = 0; j < nLayersMAX ; j++) {
       h1[31]->Fill(eLayer[j]);
       h1l[j]->Fill(eLayer[j]);
 
 	h1[45]->Fill((Float_t)(j),eLayer[j]);  // HCAL SimHits only 
+        eTot += eLayer[j];
     }
     for (int j = 0; j < nDepthsMAX; j++) {
       h1[32]->Fill(eDepth[j]);
       h1d[j]->Fill(eDepth[j]);
     }
+
+    h1[46]->Fill(eTot);               
 
        
     // The rest  PHcalValidInfoLayer
@@ -586,7 +595,7 @@ void plot_HB(TString inputfile="simevent_HB.root",
 
    // loop over specials : timing,  nhits(ECAL and HCAL) 
    //
-   for ( ih=39; ih<46; ih++ )
+   for ( ih=39; ih<47; ih++ )
    {
       // service - name of the ref histo
       //

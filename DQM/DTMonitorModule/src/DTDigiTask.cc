@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/03/22 18:52:02 $
- * $Revision: 1.18 $
+ * $Date: 2007/04/10 13:43:43 $
+ * $Revision: 1.20 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -144,7 +144,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
     string histoTitle = histoName + " (TDC Counts)";
     int timeBoxGranularity = parameters.getUntrackedParameter<int>("timeBoxGranularity",4);
 
-    if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+    if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
       int maxTDCCounts = 6400 * parameters.getUntrackedParameter<int>("tdcRescale", 1);
       (digiHistos[histoTag])[dtSL.rawId()] = 
 	dbe->book1D(histoName,histoTitle, maxTDCCounts/timeBoxGranularity, 0, maxTDCCounts);
@@ -154,7 +154,7 @@ void DTDigiTask::bookHistos(const DTSuperLayerId& dtSL, string folder, string hi
 	dbe->book1D(histoName,histoTitle, 2*tMax/timeBoxGranularity, tTrig-tMax, tTrig+2*tMax);
     }
   }
-  
+
   if ( folder == "CathodPhotoPeaks" ) 
     (digiHistos[histoTag])[dtSL.rawId()] = dbe->book1D(histoName,histoName,500,0,1000);
   
@@ -167,7 +167,7 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
   
   stringstream wheel; wheel << dtCh.wheel();	
   stringstream station; station << dtCh.station();	
-  stringstream sector; sector << dtCh.sector();	
+  stringstream sector; sector << dtCh.sector();
 
   dbe->setCurrentFolder("DT/DTDigiTask/Wheel" + wheel.str() +
 			"/Station" + station.str() +
@@ -201,42 +201,54 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
       const std::vector<const DTLayer*> dtLyList = (*suly)->layers();
       std::vector<const DTLayer*>::const_iterator ly = dtLyList.begin();
       std::vector<const DTLayer*>::const_iterator lyend = dtLyList.end();
+      stringstream superLayer; superLayer << (*suly)->id().superlayer();
       
       while(ly != lyend) {
 	nWires = muonGeom->layer((*ly)->id())->specificTopology().channels();
+	if(histoTag == "OccupancyAllHits_perL" 
+	   || histoTag == "OccupancyNoise_perL"
+	   || histoTag == "OccupancyInTimeHits_perL"){
+	  stringstream layer; layer << (*ly)->id().layer();
+	  string histoName_layer = histoName + "_SL" + superLayer.str()  + "_L" + layer.str();
+	  (digiHistos[histoTag])[(*ly)->id().rawId()] = dbe->book1D(histoName_layer,histoName_layer,nWires,1,nWires+1);
+	}
 	++ly;
 	if(nWires > nWires_max) nWires_max = nWires;
 	
       }
       ++suly;
     }
+   
+    if(histoTag != "OccupancyAllHits_perL" 
+	   && histoTag != "OccupancyNoise_perL"
+	   && histoTag != "OccupancyInTimeHits_perL"){
+      (digiHistos[histoTag])[dtCh.rawId()] = dbe->book2D(histoName,histoName,nWires_max,1,nWires_max+1,12,0,12);
     
-    (digiHistos[histoTag])[dtCh.rawId()] = dbe->book2D(histoName,histoName,nWires_max,1,nWires_max+1,12,0,12);
-    
-    for(int i=1;i<=12;i++) { 
-      if(i<5){
-	stringstream layer;
-	string layer_name;
-	layer<<i;
-	layer>>layer_name;
-	string label="SL1: L"+layer_name;
-	(digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
-      }
-      else if(i>4 && i<9){
-	stringstream layer;
-	string layer_name;
-	layer<<(i-4);
-	layer>>layer_name;
-	string label="SL2: L"+layer_name;
-	(digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
-      }
-      else if(i>8 && i<13){
-	stringstream layer;
-	string layer_name;
-	layer<<(i-8);
-	layer>>layer_name;
-	string label="SL3: L"+layer_name;
-	(digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
+      for(int i=1;i<=12;i++) { 
+	if(i<5){
+	  stringstream layer;
+	  string layer_name;
+	  layer<<i;
+	  layer>>layer_name;
+	  string label="SL1: L"+layer_name;
+	  (digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
+	}
+	else if(i>4 && i<9){
+	  stringstream layer;
+	  string layer_name;
+	  layer<<(i-4);
+	  layer>>layer_name;
+	  string label="SL2: L"+layer_name;
+	  (digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
+	}
+	else if(i>8 && i<13){
+	  stringstream layer;
+	  string layer_name;
+	  layer<<(i-8);
+	  layer>>layer_name;
+	  string label="SL3: L"+layer_name;
+	  (digiHistos[histoTag])[dtCh.rawId()]->setBinLabel(i,label,2);
+	}
       }
     }
     
@@ -287,7 +299,8 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       uint32_t indexCh = dtChId.rawId();
       int layer_number=((*dtLayerId_It).first).layer();
       int superlayer_number=dtSLId.superlayer();
-      
+      const  DTLayerId dtLId = (*dtLayerId_It).first;
+      uint32_t indexL = dtLId.rawId();
       
       if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
 	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
@@ -329,15 +342,19 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
 
-      // only for pre-Calibration jobs 
-      if (parameters.getUntrackedParameter<bool>("preCalibrationJob", true)) {
+      // only when tTrig is not available 
+      if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
 	
-	//Occupancies per chamber
+	//Occupancies per chamber & layer
 	histoTag = "OccupancyAllHits_perCh";
 	if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
 	  bookHistos( dtChId, string("Occupancies"), histoTag );
 	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									(layer_number+(superlayer_number-1)*4)-1);
+	histoTag = "OccupancyAllHits_perL";
+	if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+	  bookHistos( dtChId, string("Occupancies"), histoTag );
+	(digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
       }
       
       // after-Calibration jobs 
@@ -346,23 +363,31 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	// Noise: Before tTrig
 	if (tdcTime < inTimeHitsLowerBound ) {
 	  
-	  //Occupancies Noise per chamber
+	  //Occupancies Noise per chamber & layer
 	  histoTag = "OccupancyNoise_perCh";
 	  if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									  (layer_number+(superlayer_number-1)*4)-1);
+	  histoTag = "OccupancyNoise_perL";
+	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+	    bookHistos( dtChId, string("Occupancies"), histoTag );
+	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	}
 
 	// Physical hits: within the time window	
 	else if (tdcTime > inTimeHitsLowerBound && tdcTime < inTimeHitsUpperBound) { 
 
-	  //Occupancies Signal per chamber
+	  //Occupancies Signal per chamber & layer
 	  histoTag = "OccupancyInTimeHits_perCh";
 	  if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()) 
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									  (layer_number+(superlayer_number-1)*4)-1);
+	  histoTag = "OccupancyInTimeHits_perL";
+	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+	    bookHistos( dtChId, string("Occupancies"), histoTag );
+	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	}
       }
 

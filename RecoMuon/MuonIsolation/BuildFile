@@ -12,7 +12,7 @@
 <use name=TrackingTools/TransientTrack>
 <use name=TrackingTools/TrackAssociator>
 <use name=Geometry/CaloEventSetup>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 
 <export>
   <use name=DataFormats/MuonReco>
@@ -21,7 +21,7 @@
   <use name=FWCore/ParameterSet>
   <use name=TrackingTools/TransientTrack>
   <use name=TrackingTools/TrackAssociator>
-  <use name=Foundation/PluginManager>
+  <use name=FWCore/PluginManager>
   <lib name=RecoMuonMuonIsolation>
 </export>
 
