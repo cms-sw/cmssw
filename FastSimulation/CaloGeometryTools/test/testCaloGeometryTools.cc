@@ -134,7 +134,7 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
     throw cms::Exception("Configuration")
-      << "FamosManager requires the RandomGeneratorService\n"
+      << "prod requires the RandomGeneratorService\n"
          "which is not present in the configuration file.\n"
          "You must add the service in the configuration file\n"
          "or remove the module that requires it";
