@@ -32,13 +32,12 @@
    <use name=SimDataFormats/CrossingFrame>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=SimTracker/Common>
-   <use name=SimGeneral/Generators>
+   <use name=SimGeneral/NoiseGenerators>
    <use name=SimGeneral/HepPDT>
    <use name=gsl> 
    <use name=boost>
    <use name=MagneticField/Records>
    <use name=MagneticField/Engine>
-   <use name=Geometry/Surface>
    <use name=CommonTools/SiStripZeroSuppression>
    <use name=CalibFormats/SiStripObjects>
    <use name=CalibTracker/Records>
