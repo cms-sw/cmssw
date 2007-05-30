@@ -4,7 +4,7 @@
 /** \class  TriggerWebInterface
  *  Class that creates the web interface to control the L1TClient
  *  
- *  $Date: 2007/04/19 07:31:07 $
+ *  $Date: 2007/04/23 15:30:08 $
  *  $Revision: 1.1 $
  *  \author Lorenzo Agostino
   */
@@ -37,6 +37,7 @@ class TriggerWebInterface : public WebInterface
         void RetrieveMeList(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
         void PlotMeList(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
 	void CreateStatus(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
+	void CreateDebug(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
 	void CreateDisplay(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
 
 	bool globalQTStatusRequest(){return checkQTGlobalStatus;}
@@ -46,6 +47,8 @@ class TriggerWebInterface : public WebInterface
 	void displayMeXML(xgi::Input * in, xgi::Output * out);
         void printMeMap(ME_map view_map, std::string id);
 //	void printMeListXML(xgi::Output * out);
+	void Summary(xgi::Input * in, xgi::Output * out)   
+	  throw (xgi::exception::Exception);
 	
 private:
 

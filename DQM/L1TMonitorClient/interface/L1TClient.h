@@ -5,8 +5,8 @@
  * *
  *  State machine DQM Client for L1 Trigger. Owns a web interface.
  *
- *  $Date: 2007/04/23 15:30:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/23 16:04:24 $
+ *  $Revision: 1.2 $
  *  \author Lorenzo Agostino
   */
 
@@ -61,6 +61,7 @@ public:
   void CreateDQMPage(xgi::Input * in, xgi::Output * out);
   void CreateMenuPage(xgi::Input * in, xgi::Output * out);
   void CreateStatusPage(xgi::Input * in, xgi::Output * out);
+  void CreateDebugPage(xgi::Input * in, xgi::Output * out);
   void CreateDisplayPage(xgi::Input * in, xgi::Output * out);
   
 

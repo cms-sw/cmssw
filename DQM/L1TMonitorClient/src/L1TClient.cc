@@ -2,8 +2,8 @@
  *
  *  Implementation of  L1TClient
  *
- *  $Date: 2007/04/23 15:29:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/04/23 16:04:54 $
+ *  $Revision: 1.2 $
  *  \author Lorenzo Agostino
  */
 
@@ -33,6 +33,7 @@ L1TClient::L1TClient(xdaq::ApplicationStub *stub)
 	xgi::bind(this, &L1TClient::CreateMenuPage, "menu");
 	xgi::bind(this, &L1TClient::CreateStatusPage, "status");
 	xgi::bind(this, &L1TClient::CreateDisplayPage, "display");
+	xgi::bind(this, &L1TClient::CreateDebugPage, "debug");
 
 	logFile.open("L1TClient.log");
 	
@@ -80,6 +81,9 @@ void L1TClient::CreateStatusPage(xgi::Input * in, xgi::Output * out){
 }
 void L1TClient::CreateDisplayPage(xgi::Input * in, xgi::Output * out){
 	webInterface_p->CreateDisplay(in, out);
+}
+void L1TClient::CreateDebugPage(xgi::Input * in, xgi::Output * out){
+	webInterface_p->CreateDebug(in, out);
 }
 
 
