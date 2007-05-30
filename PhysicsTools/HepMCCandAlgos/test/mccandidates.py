@@ -17,7 +17,7 @@ process.add_( Service("RandomNumberGeneratorService",
 
 process.maxEvents = untracked.PSet( input = untracked.int32(50) )
 
-from h4l import pythiaSource
+from PhysicsTools.HepMCCandAlgos.data.h4l_cff import pythiaSource
 
 process.source = pythiaSource
 
