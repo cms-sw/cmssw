@@ -4,7 +4,7 @@
  *
  * \author Christian Autermann, U Hamburg
  */
-#include "PhysicsTools/Utilities/interface/Math.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 template <typename T1, typename C2>
 class TrkCalIsolationAlgo {

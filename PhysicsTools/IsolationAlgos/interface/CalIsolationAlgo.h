@@ -10,7 +10,7 @@
  */
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "PhysicsTools/Utilities/interface/Math.h"
+#include "DataFormats/Math/interface/deltaR.h"
 #include "PhysicsTools/IsolationAlgos/interface/PropagateToCal.h"
 
 template <typename T1, typename C2>
