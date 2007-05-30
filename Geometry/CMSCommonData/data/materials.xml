@@ -4885,6 +4885,32 @@
     </MaterialFraction>
   </CompositeMaterial>
 
+  <CompositeMaterial name="Inconel600" density="8.47*g/cm3" symbol=" " method="mixture by weight">
+    <MaterialFraction fraction="0.7200">
+      <rMaterial name="materials:Nickel"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0285">
+      <rMaterial name="materials:Cobalt"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.1500">
+      <rMaterial name="materials:Chromium"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0800">
+      <rMaterial name="materials:Iron"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0015">
+      <rMaterial name="materials:Carbon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0100">
+      <rMaterial name="materials:Manganese"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0050">
+      <rMaterial name="materials:Silicon"/>
+    </MaterialFraction>
+    <MaterialFraction fraction="0.0050">
+      <rMaterial name="materials:Copper"/>
+    </MaterialFraction>
+  </CompositeMaterial>
 
 <!-- Tracker Cooling Fluids INIT -->
 
