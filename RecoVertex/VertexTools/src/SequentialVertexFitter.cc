@@ -126,17 +126,23 @@ CachingVertex
 SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 			       const BeamSpot& beamSpot) const
 {
-  // Linearization Point
-  GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
-  if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
-  // LinP vertex state, with a very large error matrix
-  AlgebraicSymMatrix we(3,1);
-  GlobalError error(we*10000);
-  VertexState lpState(linP, error);
-  vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, lpState);
+  VertexState beamSpotState(beamSpot.position(), beamSpot.error());
+  vector<RefCountedVertexTrack> vtContainer;
 
-  VertexState state(beamSpot.position(), beamSpot.error());
-  return fit(vtContainer, state, true);
+  if (tracks.size() > 1) {
+    // Linearization Point search if there are more than 1 track
+    GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
+    if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
+    AlgebraicSymMatrix we(3,1);
+    GlobalError error(we*10000);
+    VertexState lpState(linP, error);
+    vtContainer = linearizeTracks(tracks, lpState);
+  } else {
+    // otherwise take the beamspot position.
+    vtContainer = linearizeTracks(tracks, beamSpotState);
+  }
+
+  return fit(vtContainer, beamSpotState, true);
 }
 
 
