@@ -1,3 +1,9 @@
+2007-05-30  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
+
+	* tag V00-07-01
+	* yet another bug fix which prevented a clean stop from time to
+	time. But I am getting there ...
+
 2007-05-24  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 
 	* tag V00-07-00
@@ -9,7 +15,7 @@
 	the shm lock be taken. Thus, the pending requests block maximally
 	one shm (write-raw) lock.
 	* this design fixes the halting/stopping problem, where no locks
-	were available to post the ZERO event upon shut-down.
+	were available to post the ZERO event upon RB shut-down.
 
 2007-05-22  Philipp SCHIEFERDECKER  <philipp.schieferdecker@cern.ch>
 

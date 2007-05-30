@@ -491,7 +491,10 @@ void FUResourceTable::shutDownClients()
   isReadyToShutDown_   = false;
   
   if (nbClientsToShutDown_==0) shmBuffer_->scheduleRawEmptyCellForDiscard();
-  else for (UInt_t i=0;i<nbClientsToShutDown_;++i) shmBuffer_->writeRawEmptyEvent();
+  else {
+    UInt_t n=nbClientsToShutDown_;
+    for (UInt_t i=0;i<n;++i) shmBuffer_->writeRawEmptyEvent();
+  }
 }
 
 
