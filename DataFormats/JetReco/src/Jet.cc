@@ -1,6 +1,6 @@
 // Jet.cc
 // Fedor Ratnikov, UMd
-// $Id: Jet.cc,v 1.9 2007/05/17 23:47:34 fedor Exp $
+// $Id: Jet.cc,v 1.10 2007/05/25 12:38:34 llista Exp $
 
 #include <sstream>
 #include "DataFormats/Math/interface/deltaR.h"
@@ -12,6 +12,56 @@
 using namespace reco;
 
 namespace {
+  // approximate simple CALO geometry
+  class CaloPoint {
+  public:
+    CaloPoint (double fZ, double fEta) {
+      const double R_BARREL = 0.5*(143.+407.); // 1/2(EBrin+HOrout) from CaloTowerHardcodeGeometryLoader
+      const double Z_ENDCAP = 0.5*(320.+568.); // 1/2(EEz+HEz)
+      const double R_FORWARD = Z_ENDCAP / sqrt (cosh(3.)*cosh(3.0) -1.); // eta=3
+      const double Z_FORWARD = 1100.+0.5*165,;
+      const double ETA_MAX = 5.2;
+      const double Z_BIG = 1.e5;
+      
+      if (fZ > Z_ENDCAP) fZ = Z_ENDCAP-1.;
+      if (fZ < -Z_ENDCAP) fZ = -Z_ENDCAP+1; // sanity check
+      
+      double tanThetaAbs = sqrt (cosh(fEta)*cosh(fEta) - 1.);
+      double tanTheta = fEta >= 0 ? tanThetaAbs : -tanThetaAbs;
+      
+      double rEndcap = tanTheta == 0 ? 1.e10 : 
+	fEta > 0 ? (Z_ENDCAP - fZ) / tanTheta : (-Z_ENDCAP - fZ) / tanTheta;
+      if (rEndcap > R_BARREL) { // barrel
+	mR = R_BARREL;
+	mZ = fZ + R_BARREL * tanTheta; 
+      }
+      else {
+	double zRef = Z_BIG; // very forward;
+	if (rEndcap > R_FORWARD) zRef = Z_ENDCAP; // endcap
+	else if (fabs (fEta) < ETA_MAX) zRef = Z_FORWARD; // forward
+	
+	mZ = fEta > 0 ? zRef : -zRef;
+	mR = fabs ((mZ - fZ) / tanTheta);
+      }
+    }
+
+    double etaReference (double fZ) {
+      Jet::Point p (r(), 0., z() - fZ);
+      return p.eta();
+    }
+
+    double thetaReference (double fZ) {
+      Jet::Point p (r(), 0., z() - fZ);
+      return p.theta();
+    }
+
+    double z() const {return mZ;}
+    double r() const {return mR;}
+
+  private:
+    double mZ;
+    double mR;
+  };
 }
 
 Jet::Jet (const LorentzVector& fP4, 
@@ -158,6 +208,27 @@ float Jet::maxDistance () const {
   return result;
 }
 
+/// Physics Eta (use jet Z and kinematics only)
+float Jet::physicsEtaQuick (float fZVertex) const {
+  CaloPoint refPoint (vertex().z(), eta());
+  return refPoint.etaReference (fZVertex);
+}
+
+/// Physics Eta (loop over constituents)
+float Jet::physicsEtaDetailed (float fZVertex) const {
+  Jet::LorentzVector correctedMomentum;
+  std::vector<const Candidate*> towers = getJetConstituentsQuick ();
+  for (unsigned i = 0; i < towers.size(); ++i) {
+    const Candidate* c = towers[i];
+    CaloPoint refPoint (c->vertex().z(), c->eta());
+    double etaRef = refPoint.etaReference(fZVertex);
+    math::PtEtaPhiELorentzVectorD p4 (c->p()/cosh(etaRef), etaRef, c->phi(), c->energy());
+    correctedMomentum += p4;
+  }
+  return correctedMomentum.eta();
+}
+
+
 Jet::Constituents Jet::getJetConstituents () const {
   Jet::Constituents result;
   for (unsigned i = 0; i < CompositeRefCandidate::numberOfDaughters(); i++) {
@@ -171,9 +242,11 @@ std::vector<const Candidate*> Jet::getJetConstituentsQuick () const {
   int nDaughters = numberOfDaughters();
   if (nDaughters > 0) {
     CandidateRef ref = daughterRef (0);
-    const CandidateCollection* container = ref.product();
-    for (int i = 0; i < nDaughters; ++i) { 
-      result.push_back (&((*container)[daughterRef (i).key()]));
+    if (ref.isNonnull ()) {
+      const CandidateCollection* container = ref.product();
+      for (int i = 0; i < nDaughters; ++i) { 
+	result.push_back (&((*container)[daughterRef (i).key()]));
+      }
     }
   }
   return result;
