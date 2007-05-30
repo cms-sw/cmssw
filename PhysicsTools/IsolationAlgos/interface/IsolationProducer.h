@@ -51,7 +51,8 @@ IsolationProducer<C1, C2, Alg, Setup>::IsolationProducer( const edm::ParameterSe
   src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
   elements_( cfg.template getParameter<edm::InputTag>( "elements" ) ),
   alg_( reco::modules::make<Alg>( cfg ) ) {
-  produces<IsolationCollection>();
+  //produces<IsolationCollection>();
+  produces<std::vector<value_type> >();  //CMSSW_1_3_x
 }
 
 template <typename C1, typename C2, typename Alg, typename Setup>
@@ -69,12 +70,14 @@ void IsolationProducer<C1, C2, Alg, Setup>::produce( edm::Event& evt, const edm:
 
   Setup::init( alg_, es );
 
-  auto_ptr<IsolationCollection> isolations( new IsolationCollection( edm::RefProd<C1>( src ) )  );
+  //auto_ptr<IsolationCollection> isolations( new IsolationCollection( edm::RefProd<C1>( src ) )  );
+  auto_ptr<std::vector<value_type> > isolations( new std::vector<value_type>); //CMSSW_1_3_x
 
-  size_t i = 0;
+  //size_t i = 0;
   for( typename C1::const_iterator lep = src->begin(); lep != src->end(); ++ lep ) {
     value_type iso= alg_(*lep,*elements); 
-    isolations->setValue( i++, iso );
+    //isolations->setValue( i++, iso );
+    isolations->push_back( iso );       //CMSSW_1_3_x
   }
   evt.put( isolations );
 }
