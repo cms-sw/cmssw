@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.19 2007/05/29 21:37:31 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.20 2007/05/29 22:00:10 fwyzard Exp $
 //
 
 
@@ -141,13 +141,13 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   #ifdef DEBUG
   std::cerr << std::endl;
-  std::cerr << "Found " << jets->size() << " jets:" << std::endl;
+  std::cerr << "Found " << jets.size() << " jets:" << std::endl;
   #endif // DEBUG
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], reco::TrackRefVector(), leptons, vertex );
     #ifdef DEBUG
-    std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
-    std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
+//    std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
+  //  std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
     #endif // DEBUG
     outputCollection->push_back( result );
   }
