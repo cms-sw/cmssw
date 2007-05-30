@@ -7,7 +7,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Vertex.h,v 1.25 2007/02/12 16:29:02 speer Exp $
+ * \version $Id: Vertex.h,v 1.26 2007/05/30 07:44:32 llista Exp $
  *
  */
 #include <Rtypes.h>
@@ -109,9 +109,6 @@ namespace reco {
 
     /// Returns the container of refitted tracks
     const std::vector<Track> & refittedTracks() const { return refittedTracks_;}
-
-  private:
-    void createTracks();
 
   private:
     class TrackEqual {

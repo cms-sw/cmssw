@@ -1,6 +1,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-// $Id: Vertex.cc,v 1.9 2007/02/12 16:29:02 speer Exp $
+// $Id: Vertex.cc,v 1.10 2007/05/30 07:44:33 llista Exp $
 using namespace reco;
 using namespace std;
 
@@ -28,15 +28,6 @@ size_t Vertex::tracksSize() const
 track_iterator Vertex::tracks_begin() const
 {
   return tracks_.begin();
-}
-
-void Vertex::createTracks()
-{
-  for ( edm::AssociationMap < edm::OneToValue<reco::TrackCollection, float> >::const_iterator 
-        i=weights_.begin(); i!=weights_.end() ; ++i )
-  {
-    tracks_.push_back ( i->key );
-  }
 }
 
 track_iterator Vertex::tracks_end() const
