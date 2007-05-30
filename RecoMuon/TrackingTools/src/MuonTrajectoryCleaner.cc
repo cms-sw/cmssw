@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/05/28 21:46:37 $
+ *  $Revision: 1.13 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -185,7 +185,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       // If there are matches, reject the worst track
       bool hitsMatch = ((match > 0) && (match/((*iter)->trajectory()->foundHits()) > 0.25) || (match/((*jter)->trajectory()->foundHits()) > 0.25)) ? true : false;
       
-      if ( (match > 0) || directionMatch ) {
+      if ( (hitsMatch > 0) || directionMatch ) {
 	if (  (*iter)->trajectory()->foundHits() == (*jter)->trajectory()->foundHits() ) {
           if ( (*iter)->trajectory()->chiSquared() > (*jter)->trajectory()->chiSquared() ) {
             mask[i] = false;
