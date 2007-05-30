@@ -20,6 +20,8 @@
 
 // system include files
 #include <boost/cstdint.hpp>
+#include <iostream>
+#include <iomanip>
 
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -106,9 +108,9 @@ bool L1GtfeExtWord::operator!=(const L1GtfeExtWord& result) const
 
 }
 
-// methods 
+// methods
 
-// TODO FIXME write the methods to retrieve the quantities from BST 
+// TODO FIXME write the methods to retrieve the quantities from BST
 // now they are dummy
 
 boost::uint64_t L1GtfeExtWord::gpsTime()
@@ -226,13 +228,49 @@ void L1GtfeExtWord::reset()
 {
 
     L1GtfeWord::reset();
-    
+
     for (int iB = 0; iB < NumberBstBlocks; ++iB) {
         m_bst[iB] = 0;
     }
 
 }
 
+// pretty print the content of a L1GtfeWord
+void L1GtfeExtWord::print(std::ostream& myCout) const
+{
+
+    myCout << "\n L1GtfeExtWord::print \n" << std::endl;
+
+    int sizeW64 = 64;
+    int dataBlocksPerLine = sizeW64/8; // 8x8 bits per line
+
+    L1GtfeWord::print(myCout);
+
+    myCout << "\n  BST ";
+    for (int iB = 0; iB < NumberBstBlocks; ++iB) {
+
+        myCout << "\n" << std::hex << " hex: ";
+
+        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+            myCout
+            << std::setw(2) << std::setfill('0') << m_bst[iB]
+            << "   " << std::setfill(' ');
+        }
+
+        myCout << "\n"<< std::dec << " dec: " ;
+
+        for (int jB = iB; jB < dataBlocksPerLine + iB; ++jB) {
+            myCout
+            << std::setw(3) << std::setfill('0') << m_bst[iB]
+            << "  " << std::setfill(' ');
+        }
+
+        myCout << std::endl;
+
+        iB += dataBlocksPerLine;
+    }
+
+}
 
 // static class members
 const int L1GtfeExtWord::NumberBstBlocks;

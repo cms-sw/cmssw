@@ -75,9 +75,8 @@ public:
         m_boardId = boardIdValue;
     }
 
-    /// set the BoardId value from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setBoardId(const boost::uint64_t& word64, int iWord);
+    /// set the BoardId value from a 64-bits word
+    void setBoardId(const boost::uint64_t& word64);
 
     /// set the BoardId value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -96,9 +95,8 @@ public:
         m_bxInEvent = bxInEventValue;
     }
 
-    /// set the BxInEvent value from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setBxInEvent(const boost::uint64_t& word64, int iWord);
+    /// set the BxInEvent value from a 64-bits word
+    void setBxInEvent(const boost::uint64_t& word64);
 
     /// set the BxInEvent value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -117,9 +115,8 @@ public:
         m_bxNr = bxNrValue;
     }
 
-    /// set the BxNr value from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setBxNr(const boost::uint64_t& word64, int iWord);
+    /// set the BxNr value from a 64-bits word
+    void setBxNr(const boost::uint64_t& word64);
 
     /// set the BxNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -138,9 +135,8 @@ public:
         m_eventNr = eventNrValue;
     }
 
-    /// set the EventNr value from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setEventNr(const boost::uint64_t& word64, int iWord);
+    /// set the EventNr value from a 64-bits word
+    void setEventNr(const boost::uint64_t& word64);
 
     /// set the EventNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -160,9 +156,8 @@ public:
 
     void printGtTechnicalTriggerWord(std::ostream& myCout) const;
 
-    /// set the technical trigger bits from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setGtTechnicalTriggerWord(const boost::uint64_t& word64, int iWord);
+    /// set the technical trigger bits from a 64-bits word
+    void setGtTechnicalTriggerWord(const boost::uint64_t& word64);
 
     /// set the technical trigger bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -183,15 +178,13 @@ public:
 
     void printGtDecisionWord(std::ostream& myCout) const;
 
-    /// set the algorithms bits from two 64-bits words, having the first index iWord
-    /// in the GTFE raw record
+    /// set the algorithms bits from two 64-bits words
     /// WordA: bits 0-63
-    void setGtDecisionWordA(const boost::uint64_t& word64, int iWord);
+    void setGtDecisionWordA(const boost::uint64_t& word64);
 
-    /// set the algorithms bits from two 64-bits words, having the first index iWord
-    /// in the GTFE raw record
+    /// set the algorithms bits from two 64-bits words
     /// WordB: bits 64-128
-    void setGtDecisionWordB(const boost::uint64_t& word64, int iWord);
+    void setGtDecisionWordB(const boost::uint64_t& word64);
 
     /// set the algorithms bits in two 64-bits word, having the first index iWord
     /// in the GTFE raw record
@@ -217,9 +210,8 @@ public:
 
     void printGtDecisionWordExtended(std::ostream& myCout) const;
 
-    /// set the extended algorithms bits from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setGtDecisionWordExtended(const boost::uint64_t& word64, int iWord);
+    /// set the extended algorithms bits from a 64-bits word
+    void setGtDecisionWordExtended(const boost::uint64_t& word64);
 
     /// set the extended algorithms bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -238,9 +230,8 @@ public:
         m_noAlgo = noAlgoValue;
     }
 
-    /// set the NoAlgo from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setNoAlgo(const boost::uint64_t& word64, int iWord);
+    /// set the NoAlgo from a 64-bits word
+    void setNoAlgo(const boost::uint64_t& word64);
 
     /// set the NoAlgo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -259,9 +250,8 @@ public:
         m_finalOR = finalORValue;
     }
 
-    /// set the "Final OR" bits from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setFinalOR(const boost::uint64_t& word64, int iWord);
+    /// set the "Final OR" bits from a 64-bits word
+    void setFinalOR(const boost::uint64_t& word64);
 
     /// set the "Final OR" bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -285,9 +275,8 @@ public:
         m_localBxNr = localBxNrValue;
     }
 
-    /// set the local bunch cross number bits from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setLocalBxNr(const boost::uint64_t& word64, int iWord);
+    /// set the local bunch cross number bits from a 64-bits word
+    void setLocalBxNr(const boost::uint64_t& word64);
 
     /// set the local bunch cross number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -311,72 +300,75 @@ public:
     /// pretty print the content of a L1GtFdlWord
     void print(std::ostream& myCout) const;
 
-
+    /// unpack FDL
+    /// fdlPtr pointer to the beginning of the FDL block in the raw data
+    void unpack(const unsigned char* fdlPtr);
+    
 private:
 
     // block description in the raw GT record
 
     // block size in 64bits words (BlockSize * 64 bits)
-    static const int BlockSize = 7;
+    static const int BlockSize;
 
     // word 0
 
     // index of the word in the FDL block containig the variable
-    static const int BoardIdWord = 0;
-    static const int BxInEventWord = 0;
-    static const int BxNrWord = 0;
-    static const int EventNrWord = 0;
+    static const int BoardIdWord;
+    static const int BxInEventWord;
+    static const int BxNrWord;
+    static const int EventNrWord;
 
     // mask to get the 64-bit-value from the corresponding word in the FDL block
-    static const boost::uint64_t BoardIdMask =   0xFFFF000000000000ULL;
-    static const boost::uint64_t BxInEventMask = 0x0000F00000000000ULL;
-    static const boost::uint64_t BxNrMask =      0x00000FFF00000000ULL;
-    static const boost::uint64_t EventNrMask =   0x0000000000FFFFFFULL;
+    static const boost::uint64_t BoardIdMask;
+    static const boost::uint64_t BxInEventMask;
+    static const boost::uint64_t BxNrMask;
+    static const boost::uint64_t EventNrMask;
 
     // shift to the right to get the value from the "64-bit-value"
-    static const int BoardIdShift = 48;
-    static const int BxInEventShift = 44;
-    static const int BxNrShift = 32;
-    static const int EventNrShift = 0;
+    static const int BoardIdShift;
+    static const int BxInEventShift;
+    static const int BxNrShift;
+    static const int EventNrShift;
 
     // word 1
 
-    static const int GtTechnicalTriggerWordWord = 1;
-    static const boost::uint64_t GtTechnicalTriggerWordMask = 0xFFFFFFFFFFFFFFFFULL;
-    static const int GtTechnicalTriggerWordShift = 0;
+    static const int GtTechnicalTriggerWordWord;
+    static const boost::uint64_t GtTechnicalTriggerWordMask;
+    static const int GtTechnicalTriggerWordShift;
 
     // word 2 - WordA: bits 0-63
 
-    static const int GtDecisionWordAWord = 2;
-    static const boost::uint64_t GtDecisionWordAMask = 0xFFFFFFFFFFFFFFFFULL;
-    static const int GtDecisionWordAShift = 0;
+    static const int GtDecisionWordAWord;
+    static const boost::uint64_t GtDecisionWordAMask;
+    static const int GtDecisionWordAShift;
 
     // word 3 - WordB: bits 64-128
 
-    static const int GtDecisionWordBWord = 3;
-    static const boost::uint64_t GtDecisionWordBMask = 0xFFFFFFFFFFFFFFFFULL;
-    static const int GtDecisionWordBShift = 0;
+    static const int GtDecisionWordBWord;
+    static const boost::uint64_t GtDecisionWordBMask;
+    static const int GtDecisionWordBShift;
 
 
     // word 4
-    static const int GtDecisionWordExtendedWord = 4;
-    static const boost::uint64_t GtDecisionWordExtendedMask = 0xFFFFFFFFFFFFFFFFULL;
-    static const int GtDecisionWordExtendedShift = 0;
+    static const int GtDecisionWordExtendedWord;
+    static const boost::uint64_t GtDecisionWordExtendedMask;
+    static const int GtDecisionWordExtendedShift;
 
     // word 5
-    static const int NoAlgoWord = 5;
-    static const int FinalORWord = 5;
+    static const int NoAlgoWord;
+    static const int FinalORWord;
 
-    static const boost::uint64_t NoAlgoMask =  0x0000000000000100ULL;
-    static const boost::uint64_t FinalORMask = 0x00000000000000FFULL;
+    static const boost::uint64_t NoAlgoMask;
+    static const boost::uint64_t FinalORMask;
 
-    static const int NoAlgoShift = 8;
-    static const int FinalORShift = 0;
+    static const int NoAlgoShift;
+    static const int FinalORShift;
 
     // word 6
-    static const int LocalBxNrWord = 6;
-    static const boost::uint64_t LocalBxNrMask =  0x0000000000000FFFULL;
-    static const int LocalBxNrShift = 0;
+    static const int LocalBxNrWord;
+    static const boost::uint64_t LocalBxNrMask;
+    static const int LocalBxNrShift;
 
 private:
 

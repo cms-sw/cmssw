@@ -19,6 +19,7 @@
 
 // system include files
 #include <boost/cstdint.hpp>
+#include <iostream>
 
 // user include files
 
@@ -98,8 +99,12 @@ public:
 
 public:
 
-    /// reset the content of a L1GtfeWord
+    /// reset the content of a L1GtfeExtWord
     void reset();
+
+    /// pretty print the content of a L1GtfeExtWord
+    virtual void print(std::ostream& myCout) const;
+
 
 private:
 
@@ -125,4 +130,4 @@ private:
 
 };
 
-#endif /*L1GlobalTrigger_L1GtfeWord_h*/
+#endif /*L1GlobalTrigger_L1GtfeExtWord_h*/

@@ -440,6 +440,26 @@ void L1GlobalTriggerEvmReadoutRecord::reset()
 
 }
 
+/// pretty print the content of a L1GlobalTriggerReadoutRecord
+void L1GlobalTriggerEvmReadoutRecord::print(std::ostream& myCout) const
+{
+
+    myCout << "\n L1GlobalTriggerEvmReadoutRecord::print \n" << std::endl;
+
+    m_gtfeWord.print(myCout);
+
+    m_tcsWord.print(myCout);
+
+    for (std::vector<L1GtFdlWord>::const_iterator itFdl = m_gtFdlWord.begin();
+            itFdl != m_gtFdlWord.end(); ++itFdl) {
+
+        itFdl->print(myCout);
+
+    }
+
+}
+
+
 // output stream operator
 std::ostream& operator<<(std::ostream& s, const L1GlobalTriggerEvmReadoutRecord& result)
 {

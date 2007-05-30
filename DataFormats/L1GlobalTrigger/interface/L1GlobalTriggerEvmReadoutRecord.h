@@ -101,6 +101,9 @@ public:
     const L1TcsWord tcsWord() const;
     void setTcsWord(const L1TcsWord&);
 
+    /// get the vector of L1GtFdlWord    
+    std::vector<L1GtFdlWord>& gtFdlVector() {return m_gtFdlWord;}
+         
     /// get / set FDL word (record) in the GT readout record
     const L1GtFdlWord gtFdlWord(int bxInEvent) const;
     const L1GtFdlWord gtFdlWord() const;
@@ -112,6 +115,10 @@ public:
     
     /// clear the record
     void reset(); 
+
+    /// pretty print the content of a L1GlobalTriggerEvmReadoutRecord
+    void print(std::ostream& myCout) const;
+  
   
     /// output stream operator
     friend std::ostream& operator<<(std::ostream&, const L1GlobalTriggerEvmReadoutRecord&);

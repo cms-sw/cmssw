@@ -333,8 +333,7 @@ void L1GlobalTriggerReadoutRecord::printGtDecision(
             myCout << "  Bunch cross " << bxInEventValue
             << std::endl
             << "  Global Decision = " << std::setw(5) << (*itBx).globalDecision()
-            << std::endl
-            << "  Decision word (bitset style)\n  ";
+            << std::endl;
 
             (*itBx).printGtDecisionWord(myCout);
 
@@ -367,8 +366,7 @@ void L1GlobalTriggerReadoutRecord::printTechnicalTrigger(
             myCout << "\nL1 Global Trigger Record: " << std::endl;
 
             myCout << "  Bunch cross " << bxInEventValue
-            << std::endl
-            << "  Technical Trigger word (bitset style)\n  ";
+            << std::endl;
 
             (*itBx).printGtTechnicalTriggerWord(myCout);
         }

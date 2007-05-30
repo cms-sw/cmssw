@@ -19,6 +19,7 @@
 
 // system include files
 #include <boost/cstdint.hpp>
+#include <iostream>
 
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
@@ -187,7 +188,7 @@ public:
     void reset();
 
     /// pretty print the content of a L1GtfeWord
-    void print(std::ostream& myCout) const;
+    virtual void print(std::ostream& myCout) const;
 
 private:
 
