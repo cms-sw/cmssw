@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.20 2007/05/29 22:00:10 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.21 2007/05/30 07:37:38 arizzi Exp $
 //
 
 
@@ -71,17 +71,30 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // input objects
 
-  // input jets
+  // input jets (and possibly tracks)
   std::vector<edm::RefToBase<reco::Jet> > jets;
+  std::vector<reco::TrackRefVector>       tracks;
   try {
+    Handle<reco::JetTracksAssociationCollection> h_jtas;
+    iEvent.getByLabel(m_jets, h_jtas);
+
+    unsigned int size = h_jtas->size();
+    jets.resize(size);
+    tracks.resize(size);
+    for (unsigned int i = 0; i < size; ++i) {
+      jets[i]   = (*h_jtas)[i].first;
+      tracks[i] = (*h_jtas)[i].second;
+    }
+  }
+  catch(edm::Exception e) {
     Handle<reco::CaloJetCollection> h_jets;
     iEvent.getByLabel(m_jets, h_jets);
 
+    unsigned int size = h_jets->size();
+    jets.resize(size);
+    tracks.resize(size);
     for (unsigned int i = 0; i < h_jets->size(); i++)
-      jets.push_back( edm::RefToBase<reco::Jet>( reco::CaloJetRef(h_jets, i) ) );
-  }
-  catch(edm::Exception e) {
-    throw e;
+      jets[i] = edm::RefToBase<reco::Jet>( reco::CaloJetRef(h_jets, i) );
   }
   
   // input primary vetex (optional, can be "none")
@@ -144,7 +157,7 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::cerr << "Found " << jets.size() << " jets:" << std::endl;
   #endif // DEBUG
   for (unsigned int i = 0; i < jets.size(); ++i) {
-    reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], reco::TrackRefVector(), leptons, vertex );
+    reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], tracks[i], leptons, vertex );
     #ifdef DEBUG
 //    std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
   //  std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
