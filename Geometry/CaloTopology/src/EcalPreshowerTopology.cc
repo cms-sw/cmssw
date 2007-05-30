@@ -106,18 +106,30 @@ ESDetId EcalPreshowerTopology::incrementIx(const ESDetId& id) const {
   if (id.plane() == 2)
     {
       //Changing wafer
-      
-      nextPoint=ESDetId(id.strip(),id.six()+1,id.siy(),id.plane(),id.zside());
+      if (ESDetId::validDetId(id.strip(),id.six()+1,id.siy(),id.plane(),id.zside()))
+	nextPoint=ESDetId(id.strip(),id.six()+1,id.siy(),id.plane(),id.zside());
+      else
+        return ESDetId(0);
     }
   //Strips orientend along y direction for plane 1
   else if (id.plane() == 1)
     {
       if (id.strip() < 32 )
+	{
 	//Incrementing just strip number
-	nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.plane(),id.zside());
+	  if (ESDetId::validDetId(id.strip()+1,id.six(),id.siy(),id.plane(),id.zside())) 
+	    nextPoint=ESDetId(id.strip()+1,id.six(),id.siy(),id.plane(),id.zside());
+	  else
+	    return ESDetId(0);
+	}
       else
+	{
 	//Changing wafer
-	nextPoint=ESDetId(1,id.six()+1,id.siy(),id.plane(),id.zside());
+	  if (ESDetId::validDetId(1,id.six()+1,id.siy(),id.plane(),id.zside()))
+	    nextPoint=ESDetId(1,id.six()+1,id.siy(),id.plane(),id.zside());
+	  else
+	    return ESDetId(0);
+	}
     }
   else
     return ESDetId(0);
