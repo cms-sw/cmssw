@@ -284,9 +284,9 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
 		      ecalTSOS,side);
    if(&(*showerMaxWall)!=0){
      TSOS showerMaxTSOS = 
-       //  fwdPropagator_->propagate(ecalTSOS, *showerMaxWall);
-       maxShPropagator_->propagate(*(ecalTSOS.freeTrajectoryState()),
-				   *showerMaxWall);
+       fwdPropagator_->propagate(ecalTSOS, *showerMaxWall);
+//        maxShPropagator_->propagate(*(ecalTSOS.freeTrajectoryState()),
+// 				   *showerMaxWall);
      if (!showerMaxTSOS.isValid()) return false; 
 
      v=showerMaxTSOS.globalPosition();

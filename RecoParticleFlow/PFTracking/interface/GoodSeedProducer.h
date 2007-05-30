@@ -12,6 +12,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 
 /// \brief Abstract
 /*!
@@ -51,8 +53,13 @@ class GoodSeedProducer : public edm::EDProducer {
  
       ///Find the bin in pt and eta
       int getBin(float,float);
+      bool PSCorrEnergy(const TSOS, int ptbin);
 
       // ----------member data ---------------------------
+
+      ///Vector of clusters of the PreShower
+      std::vector<reco::PFCluster> ps1Clus;
+      std::vector<reco::PFCluster> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
@@ -90,6 +97,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
+      float thrPS[20];
 
       // ----------access to event data
       edm::ParameterSet conf_;
