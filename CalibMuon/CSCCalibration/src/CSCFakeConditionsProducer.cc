@@ -1,46 +1,53 @@
-// Framework
-//#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+// system include files
+#include <memory>
+#include "boost/shared_ptr.hpp"
 
+//FW include files
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 //CSCObjects
 #include "CondFormats/CSCObjects/interface/CSCobject.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeMap.h"
+#include "CalibMuon/CSCCalibration/interface/CSCFakeConditionsProducer.h"
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
-#include "CondFormats/DataRecord/interface/CSCIdentifierRcd.h"
+//#include "CondFormats/DataRecord/interface/CSCIdentifierRcd.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
-#include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
-
-class CSCFakeConditionsProducer : public edm::ESProducer {
-public:
-  CSCFakeConditionsProducer(const edm::ParameterSet&);
-  ~CSCFakeConditionsProducer() {}
-
-  std::auto_ptr<CSCobject> 
-  produceCSCGains(const CSCGainsRcd&) { return std::auto_ptr<CSCobject>(); }
-  std::auto_ptr<CSCobject> 
-  produceCSCcrosstalk(const CSCcrosstalkRcd&) { return std::auto_ptr<CSCobject>(); }
-  std::auto_ptr<CSCobject>
-  produceCSCNoiseMatrix(const CSCNoiseMatrixRcd&)  { return std::auto_ptr<CSCobject>(); }
-  //  std::auto_ptr<CSCobject>
-  //  produceCSCPedestals(const CSCPedestalsRcd&)  { return std::auto_ptr<CSCobject>(); }
-};
+//#include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
 
 
 CSCFakeConditionsProducer::CSCFakeConditionsProducer(const edm::ParameterSet& iConfig)
 {
+  map_.prefillMap();
 
-  edm::LogInfo("CSCObjects") << "This is a fake CSC conditions producer";
+setWhatProduced(this,&CSCFakeConditionsProducer::produce);
+findingRecord<CSCGainsRcd>();
+findingRecord<CSCcrosstalkRcd>();
+findingRecord<CSCNoiseMatrixRcd>();
+findingRecord<CSCPedestalsRcd>();
+}
 
-  setWhatProduced( this, &CSCFakeConditionsProducer::produceCSCGains );
-  setWhatProduced( this, &CSCFakeConditionsProducer::produceCSCcrosstalk );
-  setWhatProduced( this, &CSCFakeConditionsProducer::produceCSCNoiseMatrix );
-  // setWhatProduced( this, &CSCFakeConditionsProducer::produceCSCPedestals);
+CSCFakeConditionsProducer::~CSCFakeConditionsProducer::()
+{
 
 }
 
+CSCFakeConditionsProducer::ReturnType
+CSCFakeConditionsProducer::produce(const GainsRcd& iRecord)
+{
+   map_.prefillMap();
+  
+  CSCGains* mydata=new CSCGains(map_.get());
+  CSCcrosstalk* mydata=CSCcrosstalk(map_.get());
+  CSCNoiseMatrix* mydata=CSCNoiseMatrix(map_.get());
+  return mydata;
+  
+}
 
-//define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(CSCFakeConditionsProducer);
+void CSCFakeConditionsProducer::setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&,
+					       edm::ValidityInterval & oValidity)
+{
+ oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
+ 
+}
