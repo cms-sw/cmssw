@@ -18,6 +18,10 @@
 
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalShape.h"
 
 #include <vector>
@@ -28,6 +32,18 @@
 class CaloSubdetectorGeometry ;
 class EcalTrigTowerConstituentsMap ;
 class EcalElectronicsMapping ;
+
+class coeffStruc {
+ public:
+  coeffStruc() { }
+  //    calibCoeff_ = calibCoeff ;
+  //    for (uint i=0 ; i<3 ; i++) {
+  //      gainRatio_[i] = gainRatio[i] ;
+  //      pedestals_[i] = pedestals[i] ;
+  double calibCoeff_ ;
+  double gainRatio_[3] ;
+  int pedestals_[3] ;
+};
 
 class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
@@ -44,6 +60,11 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   double uncodeWeight(int iweight, uint complement2 = 7) ;
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
   void computeLUT(int * lut)  ;
+  void getCoeff(coeffStruc & coeff,
+		const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap, 
+		const EcalGainRatios::EcalGainRatioMap & gainMap, 
+		const EcalPedestalsMap & pedMap,
+		uint rawId) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -61,6 +82,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 
   std::ofstream * out_fileEB_ ;
   std::ofstream * out_fileEE_ ;
+  std::ofstream * diffFile_ ;
 
 };
 #endif

@@ -12,15 +12,14 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
-#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
-#include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
 #include "CondFormats/DataRecord/interface/EcalGainRatiosRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
+#include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
+#include "CondFormats/DataRecord/interface/EcalTPParametersRcd.h"
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
@@ -29,12 +28,11 @@
 
 
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
-  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5)
+  : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
 {
   Et_sat_ = pSet.getParameter<double>("Et_sat") ;
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
-  complement2_ = pSet.getParameter<unsigned int>("weight_complement2") ;   
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
   TTF_lowThreshold_ = pSet.getParameter<double>("TTF_lowThreshold") ;
   TTF_highThreshold_ = pSet.getParameter<double>("TTF_highThreshold") ;
@@ -43,7 +41,7 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
   std::string outFileEE = pSet.getParameter<std::string>("outFileEE") ;
   out_fileEE_ = new std::ofstream(outFileEE.c_str(), std::ios::out) ;  
-
+  diffFile_   = new std::ofstream("diffFile.txt", std::ios::out) ;  
 }
 
 EcalTPGParamBuilder::~EcalTPGParamBuilder()
@@ -52,8 +50,10 @@ EcalTPGParamBuilder::~EcalTPGParamBuilder()
   (*out_fileEE_ )<<"EOF"<<std::endl ;
   out_fileEB_->close() ;
   out_fileEE_->close() ;
+  diffFile_->close() ;
   delete out_fileEB_ ;
   delete out_fileEE_ ;
+  delete diffFile_ ;
 }
 
 void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) 
@@ -111,6 +111,10 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   xtal_LSB_EB_ = ADCToGeV->getEBValue() ;
   xtal_LSB_EE_ = ADCToGeV->getEEValue() ;
 
+  // Previous TPG parameters
+  ESHandle<EcalTPParameters> pEcalTPParameters ;
+  evtSetup.get<EcalTPParametersRcd>().get(pEcalTPParameters) ;
+  const EcalTPParameters * ecaltpp = pEcalTPParameters.product() ;
 
   /////////////////////////////////////////
   // Compute linearization coeff section //
@@ -118,6 +122,9 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
 
   // loop on EB xtals
   create_header(out_fileEB_, "EB") ; 
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
+  (*diffFile_)<<"Listing differences for linearization coefficients in EB...."<<endl ;
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
   std::vector<DetId> ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it) ;
@@ -130,43 +137,29 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     int xtalInStrip = elId.channelId() ;
     (*out_fileEB_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
 
-    // get current intercalibration coeff
-    double calibCoeff = 1. ;
-    EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(id.rawId());
-    if( icalit != calibMap.end() ){
-      EcalIntercalibConstants::EcalIntercalibConstant icalibConst = icalit->second;
-      calibCoeff = icalibConst ;
-    }
-
-    // get current gain ratio
-    double gainRatio[3]  = {1., 2., 12.} ;
-    EcalGainRatios::EcalGainRatioMap::const_iterator gainIter = gainMap.find(id.rawId());
-    if (gainIter != gainMap.end()) {
-      const EcalMGPAGainRatio & aGain = gainIter->second ;
-      gainRatio[1] = aGain.gain12Over6() ;
-      gainRatio[2] = aGain.gain6Over1() * aGain.gain12Over6() ;
-    }
-
-    // get current pedestal
-    int pedVec[3] = {0, 0, 0} ;
-    EcalPedestalsMapIterator pedIter = pedMap.find(id.rawId());
-    if (pedIter != pedMap.end()) {
-      EcalPedestals::Item aped = pedIter->second ;
-      pedVec[0] = int(aped.mean_x12 + 0.5) ; 
-      pedVec[1] = int(aped.mean_x6 + 0.5) ;
-      pedVec[2] = int(aped.mean_x1 + 0.5) ;
-    }
+    coeffStruc coeff ;
+    getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
     // compute and fill linearization parameters
+    std::vector<unsigned int> xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
-      bool ok = computeLinearizerParam(theta, gainRatio[i], calibCoeff, "EB", mult , shift) ;
-      if (ok) (*out_fileEB_) << hex <<" 0x"<< pedVec[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EB", mult , shift) ;
+      if (xtalParam[3*i] != coeff.pedestals_[i] || xtalParam[3*i+1] != mult || xtalParam[3*i+2] != shift) {
+	(*diffFile_)<<"Cyrstal ("<<dec<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+		    <<", gainId="<<i<<") :"<<endl ;
+	(*diffFile_)<<"previous: ped = "<<hex<<xtalParam[3*i]<<" mult = "<<xtalParam[3*i+1]<<" shift = "<<xtalParam[3*i+2]<<endl ;
+	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+      }
+      if (ok) (*out_fileEB_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
     }
   } //ebCells
 
   // loop on EE xtals
   create_header(out_fileEE_, "EE") ; 
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
+  (*diffFile_)<<"Listing differences for linearization coefficients in EE...."<<endl ;
+  (*diffFile_)<<endl<<"#############################################################"<<endl ;
   vector<DetId> eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
@@ -179,38 +172,21 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     int xtalInStrip = elId.channelId() ;
     (*out_fileEE_)<<"CRYSTAL "<<dec<<tccNb<<" "<<towerInTCC<<" "<<stripInTower<<" "<<xtalInStrip<<std::endl ;
 
-    // get current intercalibration coeff
-    double calibCoeff = 1. ;
-    EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(id.rawId());
-    if( icalit != calibMap.end() ){
-      EcalIntercalibConstants::EcalIntercalibConstant icalibConst = icalit->second;
-      calibCoeff = icalibConst ;
-    }
-    
-    // get current gain ratio
-    double gainRatio[3]  = {1., 2., 12.} ;
-    EcalGainRatios::EcalGainRatioMap::const_iterator gainIter = gainMap.find(id.rawId());
-    if (gainIter != gainMap.end()) {
-      const EcalMGPAGainRatio & aGain = gainIter->second ;
-      gainRatio[1] = aGain.gain12Over6() ;
-      gainRatio[2] = aGain.gain6Over1() * aGain.gain12Over6() ;
-    }
-    
-    // get current pedestal
-    int pedVec[3] = {0, 0, 0} ;
-    EcalPedestalsMapIterator pedIter = pedMap.find(id.rawId());
-    if (pedIter != pedMap.end()) {
-      EcalPedestals::Item aped = pedIter->second ;
-      pedVec[0] = int(aped.mean_x12 + 0.5) ; 
-      pedVec[1] = int(aped.mean_x6 + 0.5) ;
-      pedVec[2] = int(aped.mean_x1 + 0.5) ;
-    }
+    coeffStruc coeff ;
+    getCoeff(coeff, calibMap, gainMap, pedMap, id.rawId()) ;
 
-   // compute and fill linearization parameters
+    // compute and fill linearization parameters
+    std::vector<unsigned int> xtalParam = ecaltpp->getXtalParameters(tccNb, towerInTCC, stripInTower, xtalInStrip) ;
     for (int i=0 ; i<3 ; i++) {
       int mult, shift ;
-      bool ok = computeLinearizerParam(theta, gainRatio[i], calibCoeff, "EE", mult , shift) ;
-      if (ok) (*out_fileEE_) << hex <<" 0x"<< pedVec[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
+      bool ok = computeLinearizerParam(theta, coeff.gainRatio_[i], coeff.calibCoeff_, "EE", mult , shift) ;
+      if (xtalParam[3*i] != coeff.pedestals_[i] || xtalParam[3*i+1] != mult || xtalParam[3*i+2] != shift) {
+	(*diffFile_)<<"Cyrstal ("<<dec<<tccNb<<", "<<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip
+		    <<", gainId="<<i<<") :"<<endl ;
+	(*diffFile_)<<"previous: ped = "<<hex<<xtalParam[3*i]<<" mult = "<<xtalParam[3*i+1]<<" shift = "<<xtalParam[3*i+2]<<endl ;
+	(*diffFile_)<<"new:      ped = "<<hex<<coeff.pedestals_[i]<<" mult = "<<mult<<" shift = "<<shift<<endl ;
+      }
+      if (ok) (*out_fileEE_) << hex <<" 0x"<<coeff.pedestals_[i]<<" 0x"<<mult<<" 0x"<<shift<<std::endl; 
     }
   } //eeCells
 
@@ -381,7 +357,7 @@ double EcalTPGParamBuilder::uncodeWeight(int iweight, uint complement2)
 {
   double weight = double(iweight)/pow(2., 6.) ;
   // test if negative weight:
-  if (iweight & (1<<(complement2-1)) != 0) weight = (double(iweight)-pow(2., complement2))/pow(2., 6.) ;
+  if ( (iweight & (1<<(complement2-1))) != 0) weight = (double(iweight)-pow(2., complement2))/pow(2., 6.) ;
   return weight ;
 }
 
@@ -396,7 +372,6 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
     double time = timeMax - ((double)sampleMax_-(double)sample)*25. ;
     sumf += shape(time)/max ;
     sumf2 += shape(time)/max * shape(time)/max ;
-    std::cout<<time<<" "<<shape(time)<<std::endl ;
   }
   double lambda = 1./(sumf2-sumf*sumf/nSample_) ;
   double gamma = -lambda*sumf/nSample_ ;
@@ -412,12 +387,14 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
   // Let's check:  
   int isumw  = 0 ;  
   for (uint sample = 0 ; sample<nSample_ ; sample++) isumw  += iweight[sample] ;
+  uint imax = (uint)(pow(2.,complement2_)-1) ;
+  isumw = (isumw & imax ) ;
 
   // Let's correct for bias if any
   if (isumw != 0) {
     double min = 99. ;
     uint index = 0 ;
-    if (isumw &  (1<<(complement2_-1)) != 0) {
+    if ( (isumw & (1<<(complement2_-1))) != 0) {
       // add 1:
       for (uint sample = 0 ; sample<nSample_ ; sample++) {
 	int new_iweight = iweight[sample]+1 ; 
@@ -480,4 +457,42 @@ void EcalTPGParamBuilder::computeLUT(int * lut)
     lut[j] += ttf ;
   }
   
+}
+
+
+void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
+				   const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap, 
+				   const EcalGainRatios::EcalGainRatioMap & gainMap, 
+				   const EcalPedestalsMap & pedMap,
+				   uint rawId)
+{
+  // get current intercalibration coeff
+  coeff.calibCoeff_ = 1. ;
+  EcalIntercalibConstants::EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
+  if( icalit != calibMap.end() ){
+    EcalIntercalibConstants::EcalIntercalibConstant icalibConst = icalit->second;
+    coeff.calibCoeff_ = icalibConst ;
+  }
+  
+  // get current gain ratio
+  coeff.gainRatio_[0]  = 1. ;
+  coeff.gainRatio_[1]  = 2. ;
+  coeff.gainRatio_[2]  = 12. ;
+  EcalGainRatios::EcalGainRatioMap::const_iterator gainIter = gainMap.find(rawId);
+  if (gainIter != gainMap.end()) {
+    const EcalMGPAGainRatio & aGain = gainIter->second ;
+    coeff.gainRatio_[1] = aGain.gain12Over6() ;
+    coeff.gainRatio_[2] = aGain.gain6Over1() * aGain.gain12Over6() ;
+  }
+  // get current pedestal
+  coeff.pedestals_[0] = 0 ;
+  coeff.pedestals_[1] = 0 ;
+  coeff.pedestals_[2] = 0 ;
+  EcalPedestalsMapIterator pedIter = pedMap.find(rawId);
+  if (pedIter != pedMap.end()) {
+    EcalPedestals::Item aped = pedIter->second ;
+    coeff.pedestals_[0] = int(aped.mean_x12 + 0.5) ; 
+    coeff.pedestals_[1] = int(aped.mean_x6 + 0.5) ;
+    coeff.pedestals_[2] = int(aped.mean_x1 + 0.5) ;
+  }
 }
