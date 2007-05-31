@@ -1,4 +1,3 @@
-<use name=CalibMuon/CSCCalibration>
 <use name=CondFormats/CSCObjects>
 <use name=CondFormats/DataRecord>
 <use name=FWCore/Framework>
@@ -6,11 +5,16 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
+#<use name=CondCore/DBOutputService>
+#<use name=CondCore/DBCommon> 
 <export>
-  <use name=CalibMuon/CSCCalibration>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
   <lib name=CalibMuonCSCCalibration>
+  <use name=FWCore/Framework>
+  <use name=FWCore/PluginManager>
+  <use name=FWCore/ParameterSet>
+  <use name=CondFormats/DataRecord> 
+#  <use name=CondCore/DBCommon>
+#  <use name=CondCore/DBOutputService>
 </export>
 
 
