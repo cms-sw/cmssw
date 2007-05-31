@@ -78,11 +78,13 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
     //cout << "parent=" << parent.str() << " child=" << child.str() << endl;
     const DDRotationMatrix & rot = epv.rotation();
     const DDTranslation & trans = epv.translation();
-    Hep3Vector xv = rot.colX();
-    Hep3Vector yv = rot.colY();
-    Hep3Vector zv = rot.colZ();
+//     Hep3Vector xv = rot.colX();
+//     Hep3Vector yv = rot.colY();
+//     Hep3Vector zv = rot.colZ();
+    DD3Vector xv,yv,zv;
+    rot.GetComponents(xv,yv,zv);
     bool reflection = false;
-    if ( xv.cross(yv) * zv  < 0) {
+    if ( xv.Cross(yv).Dot(zv)  < 0) {
       reflection = true;
     }
     phys_parts_tree << child.str() << ',' // PK
@@ -93,18 +95,18 @@ try { // DDD Prototype can throw DDException defined in DetectorDescription/Core
     nominal_placements << child.str() << ',' // FK in PHYSICALPARTSTREE
 		       << "1" << ',' // Version 
       //	 << epv.logicalPart().name() << ',' 
-		       << trans.x() << ',' //
-		       << trans.y() << ',' //
-		       << trans.z() << ',' //
-		       << rot.xx() << ',' //
-		       << rot.xy() << ',' //
-		       << rot.xz() << ',' //
-		       << rot.yx() << ',' //
-		       << rot.yy() << ',' //
-		       << rot.yz() << ',' //
-		       << rot.zx() << ',' //
-		       << rot.zy() << ',' //
-		       << rot.zz() <<  ',';
+		       << trans.X() << ',' //
+		       << trans.Y() << ',' //
+		       << trans.Z() << ',' //
+		       << xv.X() << ',' //
+		       << yv.X() << ',' //
+		       << zv.X() << ',' //
+		       << xv.Y() << ',' //
+		       << yv.Y() << ',' //
+		       << zv.Y() << ',' //
+		       << xv.Z() << ',' //
+		       << yv.Z() << ',' //
+		       << zv.Z() <<  ',';
     if (reflection)
       nominal_placements << '1';
     else
