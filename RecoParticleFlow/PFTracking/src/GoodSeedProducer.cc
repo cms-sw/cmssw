@@ -135,6 +135,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
   
+  ps1Clus.clear();
+  ps2Clus.clear();
+
   for (iklus=thePSPfClustCollection.product()->begin();
        iklus!=thePSPfClustCollection.product()->end();
        iklus++){
@@ -239,8 +242,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     bool aa1= (chichi<chi2cut);
     bool aa2= ((EP>ep_cutmin)&&(EP<1.2));
     bool aa3= (aa1 && aa2);
-
-    bool aa4= ((aa3)||(ibin<10))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),4*(ibin-10));
+    int ipsbin=(ibin>=90)? 4*((ibin/9)-10) :-1;
+    bool aa4= ((aa3)||(ibin<90))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),ipsbin);
     bool aa5= (aa3 || aa4);
     //KF filter
     bool bb1 =
