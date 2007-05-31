@@ -1,7 +1,11 @@
-#ifndef _CSCFAKEMAP_H
-#define _CSCFAKEMAP_H
+#ifndef _CSC_FAKE_MAP_H
+#define _CSC_FAKE_MAP_H
 
 #include <iostream>
+#include <map>
+#include <vector>
+#include <iomanip>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
@@ -9,24 +13,39 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
 
-#include <map>
-#include <vector>
-#include <iostream>
+
 
 class CSCFakeMap{
 
 public:
-CSCFakeMap(){}
+CSCFakeMap(){
+}
 
  void prefillMap(){
 
+   const CSCDetId& detId = CSCDetId();
+
+   /*
+   for(detId.station()=1; detId.station()<=4;detId.station()++){
+     for(detId.ring()=1; detId.ring()<=4;detId.ring()++){
+       try{
+	 detId cscdetid(detId.station(),detId.ring());
+	 map_.setValue(cscdetid.rawId(),1.0);
+       }
+       catch(...)
+	 {
+	 }
+     }
+   }
+   */
+
    if(detId.station() < 4 && (detId.ring() <=4) )
      {
-       map_.setValue(gains.rawId(),1.0);
-       map_.setValue(crosstalk.rawId(),1.0);
-       map_.setValue(matrix.rawId(),1.0);
+       // detId cscdetid(detId.station(),detId.ring());
+       map_.setValue(detId.station().rawId(),1.0);
+       map_.setValue(detId.ring().rawId(),1.0);
      }
-   
+
  }
  
  void print()
