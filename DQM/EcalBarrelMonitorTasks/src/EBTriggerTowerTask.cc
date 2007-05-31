@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2007/05/29 13:37:34 $
- * $Revision: 1.35 $
+ * $Date: 2007/05/30 23:12:03 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  *
 */
@@ -337,7 +337,7 @@ EBTriggerTowerTask::processDigis( const Handle<EcalTrigPrimDigiCollection>&
     if ( meVeto[ismt-1] ) meVeto[ismt-1]->Fill(xiet-1, xipt-1, xval);
 
     xval = 0.5 + data.ttFlag();
-    if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet, xipt, xval);
+    if ( meFlags[ismt-1] ) meFlags[ismt-1]->Fill(xiet-1, xipt-1, xval);
 
 
     if( compDigis.isValid() ) {
