@@ -25,6 +25,30 @@ TangentCircle::TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& i
      theRho = circle.rho();
 }
 
+TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint) {
+
+   // Initial vertex used = outerPoint of the primary circle (should be the first estimation of the nuclear interaction position)
+   GlobalPoint vertex = primCircle.outerPoint();
+   
+   // get the circle which pass through outerPoint, innerPoint and teh vertex
+   TangentCircle secCircle( outerPoint, innerPoint, vertex );
+
+   double minCond = isTangent(primCircle, secCircle);
+   
+   theInnerPoint = innerPoint;
+   theOuterPoint = outerPoint;
+   theX0 = secCircle.x0();
+   theY0 = secCircle.y0();
+   theRho = secCircle.rho();
+}
+
+double TangentCircle::isTangent(const TangentCircle& primCircle, const TangentCircle& secCircle) const {
+   // return a value that should be equal to 0 if primCircle and secCircle are tangent
+   return (primCircle.rho() - secCircle.rho())*(primCircle.rho() - secCircle.rho()) 
+           - (primCircle.x0() - secCircle.x0())*(primCircle.x0() - secCircle.x0())
+           - (primCircle.y0() - secCircle.y0())*(primCircle.y0() - secCircle.y0());
+}
+
 GlobalVector TangentCircle::direction(const GlobalPoint& point) const {
      GlobalVector dir(point.y() - theY0, point.x() - theX0, point.z());
      dir/=dir.mag();

@@ -12,9 +12,11 @@ class TangentCircle
      /// and the tangent direction at the inner point
      TangentCircle(const GlobalVector& direction, const GlobalPoint& innerPoint, const GlobalPoint& outerPoint); 
 
-     /// Calculate the parameters of a circle which pass by 2 points (innerPoint and outerPoint) and which is tangent to the circle (x0, y0, R) 
      /// Copy of FastCircle
      TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint); 
+
+     /// Calculate the parameters of a circle which pass by 2 points (innerPoint and outerPoint) and which is tangent to primCircle 
+     TangentCircle(const TangentCircle& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint);
 
      GlobalVector direction(const GlobalPoint& point) const;
 
@@ -24,6 +26,12 @@ class TangentCircle
  
      double rho() const {return theRho;}
 
+     GlobalPoint outerPoint() const { return theOuterPoint; }
+
+     GlobalPoint innerPoint() const { return theInnerPoint; }
+
+     GlobalPoint vertexPoint() const { return theVertexPoint; }
+
  private :
      GlobalPoint theInnerPoint;
      GlobalPoint theOuterPoint;
@@ -32,6 +40,8 @@ class TangentCircle
      double theX0;  /**< x center of the circle             */
      double theY0;  /**< y center of the circle             */
      double theRho; /**< Signed radius of the circle (=q*R) */
+
+     double isTangent(const TangentCircle& primCircle, const TangentCircle& secCircle) const;
 };
 
 #endif
