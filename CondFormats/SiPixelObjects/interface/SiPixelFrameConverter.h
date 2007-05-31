@@ -18,9 +18,9 @@ public:
 
   bool hasDetUnit(uint32_t radId) const;
 
-  DetectorIndex toDetector(const CablingIndex & cabling) const;
+  int toDetector(const CablingIndex & cabling, DetectorIndex & detector) const;
 
-  CablingIndex toCabling(const DetectorIndex & detector) const;
+  int toCabling(CablingIndex & cabling, const DetectorIndex & detector) const;
 
 private:
 

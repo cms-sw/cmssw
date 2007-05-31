@@ -72,11 +72,11 @@ private:
 //  typedef uint32_t Word32;
 //  typedef uint64_t Word64;
 
-  void digi2word( const SiPixelFrameConverter& converter,
+  int digi2word( const SiPixelFrameConverter& converter,
                   uint32_t detId, const PixelDigi& digi,
                   std::vector<Word32> & words) const;
 
-  void word2digi( const SiPixelFrameConverter& converter, 
+  int word2digi( const SiPixelFrameConverter& converter, 
                     const Word32& data, 
                     Digis & digis) const;
 

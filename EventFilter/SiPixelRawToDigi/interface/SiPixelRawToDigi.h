@@ -38,8 +38,8 @@ private:
 
   unsigned long eventCounter_;
 //  edm::InputTag theLabel;
-  SiPixelFedCablingMap * fedCablingMap_;
   edm::ParameterSet config_;
+  SiPixelFedCablingMap * fedCablingMap_;
   TH1D *hCPU, *hDigi;
   TFile * rootFile;
 };

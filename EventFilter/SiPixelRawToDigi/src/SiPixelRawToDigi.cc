@@ -89,7 +89,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   
 
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
-//    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
+    LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
      
     //get event data for this fed

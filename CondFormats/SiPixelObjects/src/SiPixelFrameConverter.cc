@@ -34,33 +34,34 @@ bool SiPixelFrameConverter::hasDetUnit(uint32_t rawId) const
 }
 
 
-SiPixelFrameConverter::DetectorIndex SiPixelFrameConverter::
-    toDetector(const CablingIndex & cabling) const
+int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorIndex & detector) const
 {
   const PixelFEDLink * link = theFed.link( cabling.link);
   if (!link) {
     stringstream stm;
     stm << "FED shows no link of id= " << cabling.link;
-    throw cms::Exception(stm.str());
+    edm::LogError("SiPixelFrameConverter") << stm.str();
+    return 1;
   }
   const PixelROC * roc = link->roc(cabling.roc);
   if (!roc) {
     stringstream stm;
     stm << "Link=" <<  cabling.link << " shows no ROC with id=" << cabling.roc;
-    throw cms::Exception(stm.str());
+    edm::LogError("SiPixelFrameConverter") << stm.str();
+    return 2;
   }
 
   uint32_t detId = roc->rawId();
   PixelROC::LocalPixel local = {cabling.dcol, cabling.pxid};
   PixelROC::GlobalPixel global = roc->toGlobal(local); 
 
-  DetectorIndex detIdx = {detId,  global.row, global.col}; 
-  return detIdx;
+  DetectorIndex detIdx = {detId,  global.row, global.col};
+  detector = detIdx;
+  return 0;
 }
 
 
-SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
-    toCabling(const DetectorIndex & detector) const
+int SiPixelFrameConverter::toCabling(CablingIndex & cabling, const DetectorIndex & detector) const
 {
   for (int idxLink = 0; idxLink < theFed.numberOfLinks(); idxLink++) {
     const PixelFEDLink * link = theFed.link(idxLink);
@@ -74,11 +75,12 @@ SiPixelFrameConverter::CablingIndex SiPixelFrameConverter::
         PixelROC::LocalPixel local = roc->toLocal(global);
         if(! roc->inside(local)) continue; 
         CablingIndex cabIdx = {linkid, idxRoc, local.dcol, local.pxid};
-        return cabIdx;
+        cabling = cabIdx;
+        return 0;
       }
     }
   }
   // proper unit not found, thrown exception
-  throw cms::Exception("SiPixelFrameConverter::toCabling, noCabling index found, problem!");
+  return 1;
 }
 
