@@ -1,5 +1,5 @@
 <export>
- <lib name=CommonToolsStatPatternRecognition>
+ <lib name=PhysicsToolsStatPatternRecognition>
  <use name=root>
 </export>
 
