@@ -184,7 +184,6 @@ float PixelMatchGsfElectron::ecalPhi(float PtParticle, float EtaParticle, float 
   return PHI;
 }
 
-//void PixelMatchGsfElectron::correctElectronEnergyScale(const PElectronEnergyCorrector *thecorr) {
 void PixelMatchGsfElectron::correctElectronEnergyScale(const float newEnergy) {
   
   //   float newEnergy = thecorr->getCorrectedEnergy();
@@ -193,7 +192,7 @@ void PixelMatchGsfElectron::correctElectronEnergyScale(const float newEnergy) {
   math::XYZTLorentzVectorD momentum=p4();
   momentum*=newEnergy/momentum.e();
   setP4(momentum);
-  hadOverEm_*=newEnergy/superClusterEnergy_;
+  hadOverEm_ *=superClusterEnergy_/newEnergy; 
   eSuperClusterOverP_*=newEnergy/superClusterEnergy_;
   superClusterEnergy_=newEnergy;
  
