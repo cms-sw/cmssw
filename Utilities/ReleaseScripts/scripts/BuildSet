@@ -5,8 +5,8 @@ BuildSet - utilizes dependency discovery mechanism for Partial Releases.
 """
 # TO ADD: check and report unknown packages. 
 #
-__revision__ = "$Id: BuildSet,v 1.4 2007/05/03 21:02:23 natasha Exp $"
-__version__ = "$Revision: 1.4 $"
+__revision__ = "$Id: BuildSet,v 1.1 2007/05/22 18:45:18 ratnik Exp $"
+__version__ = "$Revision: 1.1 $"
 
 import os
 import sys
@@ -22,6 +22,7 @@ verbose               = 1
 packageListInFile     = 0
 dependencyAnalysisDir = ""
 dependencies          = []
+outputFormats         = ("packages", "tools")
 
 # Format specific patterns:
 dependencyFormat      = "xdeps.all"
@@ -47,7 +48,9 @@ OPTIONS:
    -h         - print this help and exit
    -v         - display version number
    -q         - run quietly, suppressing info output.
-
+   -o format  - format = [""" + "|".join(outputFormats) + """ ]
+                print out formatted output (only packages, or
+                only tools, one per line).
 """
 
 def usageError ( message, programName) :
@@ -100,7 +103,7 @@ def readDependencies(line, list):
 
 # Handle options and arguments:
 try:
-    opts, args = getopt.getopt( sys.argv[1:], "hnqvf:d:" )
+    opts, args = getopt.getopt( sys.argv[1:], "hnqvf:d:o:" )
 
 except getopt.error:
     usageError( sys.exc_info()[1], programName)
@@ -122,6 +125,11 @@ for o, a in opts:
         packageListInFile = a
         if not os.path.isfile(a):
             usageError( "file " + a + " does not exist!", programName)
+    if o == "-o":
+        outputFormat = a
+        if not a in outputFormats:
+            usageError( "unknown output format: " + a + ".", programName)
+        verbose = 0  # switch off extra output
     if o == "-d":
         dependencyAnalysisDir = a
         if not os.path.isdir(a):
@@ -190,10 +198,6 @@ while count != len(packages):
         if (p in packages) and (d not in packages):
             packages.append(d)
 
-
-for p in packages:
-    print p
-  
 # Now get direct external dependencies:
 
 externals=[]
@@ -207,13 +211,31 @@ for line in dependencies:
     else:
         externals.append(d)
 
+# Print output and finish:
 
+if outputFormat == "packages":
+    packages.sort()
+    for p in packages:
+        print p
+    sys.exit()
 
+if outputFormat == "tools":
+    externals.sort()
+    for e in externals:
+        print e
+    sys.exit()
 
-print "Required EXTERNALS:"
+# Default output in human readable format: 
+
+print "## Required PACKAGES:"
+packages.sort()
+for p in packages:
+    print p
+
+print "## Required EXTERNALS:"
 externals.sort()
 for e in externals:
     print e
 
-print "Total number of packages:", count
-print "Total number of externals:", len(externals)
+print "## Total number of packages:", count
+print "## Total number of externals:", len(externals)
