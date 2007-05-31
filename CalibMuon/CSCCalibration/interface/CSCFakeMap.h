@@ -12,8 +12,7 @@
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
-
-
+#include <CalibMuon/CSCCalibration/interface/FakeMap.h>
 
 class CSCFakeMap{
 
@@ -47,6 +46,11 @@ CSCFakeMap(){
      }
 
  }
+ 
+ virtual void csc(const DetId &cell, float scaling_factor)
+   {
+     map_.setValue(cell.rawId(),scaling_factor);
+   }
  
  void print()
    {
