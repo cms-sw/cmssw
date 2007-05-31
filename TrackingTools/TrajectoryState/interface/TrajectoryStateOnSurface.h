@@ -104,6 +104,8 @@ public:
     return freeState();
   }
 
+  const MagneticField *magneticField() const { return data().magneticField(); }
+
   const GlobalTrajectoryParameters& globalParameters() const {
     return data().globalParameters();
   }

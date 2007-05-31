@@ -65,6 +65,8 @@ public:
 
   virtual FreeTrajectoryState* freeTrajectoryState(bool withErrors = true) const = 0;
 
+  virtual const MagneticField *magneticField() const = 0;
+
   virtual const LocalTrajectoryParameters& localParameters() const = 0;
 
   virtual LocalPoint localPosition() const = 0;

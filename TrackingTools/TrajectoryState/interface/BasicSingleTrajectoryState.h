@@ -143,6 +143,8 @@ public:
     return &(*theFreeState);
   }
   
+  const MagneticField *magneticField() const { return theField; }
+
 // access local parameters/errors
   const LocalTrajectoryParameters& localParameters() const {
     if (!isValid()) throw TrajectoryStateException(
