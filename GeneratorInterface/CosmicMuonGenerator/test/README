@@ -1,9 +1,15 @@
 Volker.Drollinger@cern.ch (04/FEB/2006)
 modified with new generator: biallass@cern.ch (11/May/2006)
+new version of new generator: biallass@cern.ch (28/May/2007)
 
-accuracy of parametrisation of energy/angle/charge spectrum: 
-about 5% in the energy range 10 GeV - 1000 GeV and incident angle 0 deg - 75 deg
-range is 2 GeV - 10000 GeV and 0 deg - 88 deg, no guarantee for 5% correctness everywhere! 
+history: new version of parametrization of energy and angular distribution of cosmic muons,
+         now based on new version 6.60 of CORSIKA (2007). Revisited parametrization, now using slightly different polynomials and new coefficients.
+new range: 3...3000 GeV, cos(incident angle) = 0.1...1 which means theta=0°...84.26° where z-axis vertical axis  
+           Now parametrization obtained from full range, thus no extrapolation to any angles or energies needed any more.
+accuracy: now well known, see internal note for details
+          7% for range 10...500 GeV, 50% for 3000 GeV and 25% for 3 GeV
+documentation: CMS internal note 2007 "Improved Parametrization of the Cosmic Muon Flux for the generator CMSCGEN" by Biallass + Hebbeker
+
 
 Run in batch mode (and write events):
 ======================================
