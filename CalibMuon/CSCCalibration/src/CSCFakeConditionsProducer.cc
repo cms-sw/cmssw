@@ -34,13 +34,13 @@ CSCFakeConditionsProducer::~CSCFakeConditionsProducer::()
 }
 
 CSCFakeConditionsProducer::ReturnType
-CSCFakeConditionsProducer::produce(const GainsRcd& iRecord)
+CSCFakeConditionsProducer::produce(const CSCGainsRcd& iRecord, const CSCcrosstalkRcd& iRecord,const CSCNoiseMatrix& iRecord)
 {
    map_.prefillMap();
   
-  CSCGains* mydata=new CSCGains(map_.get());
-  CSCcrosstalk* mydata=CSCcrosstalk(map_.get());
-  CSCNoiseMatrix* mydata=CSCNoiseMatrix(map_.get());
+  CSCGains* mydata = new CSCGains(map_.get());
+  CSCcrosstalk* mydata = new CSCcrosstalk(map_.get());
+  CSCNoiseMatrix* mydata = new CSCNoiseMatrix(map_.get());
   return mydata;
   
 }
