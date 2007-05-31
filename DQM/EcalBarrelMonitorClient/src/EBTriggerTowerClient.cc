@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/04/30 09:24:00 $
- * $Revision: 1.38 $
+ * $Date: 2007/05/30 23:14:21 $
+ * $Revision: 1.39 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -683,6 +683,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       gStyle->SetPalette(10, pCol4);
       obj2f->GetXaxis()->SetNdivisions(17);
       obj2f->GetYaxis()->SetNdivisions(4);
+      obj2f->SetMinimum(0);
       cMe2->SetGridx();
       cMe2->SetGridy();
       obj2f->Draw("colz");
@@ -736,6 +737,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	dummy.Draw("text,same");
 	cMe1->Update();
 	cMe1->SaveAs(imgMeName[iemu].c_str());
+	delete obj2p;
       }
     }
 
@@ -819,6 +821,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  gStyle->SetPalette(10, pCol4);
 	  obj2f->GetXaxis()->SetNdivisions(17);
 	  obj2f->GetYaxis()->SetNdivisions(4);
+	  obj2f->SetMinimum(0);
 	  cMe2->SetGridx();
 	  cMe2->SetGridy();
 
@@ -836,12 +839,11 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  cMe2->Update();
 	  cMe2->SaveAs(imgMeName[iemu].c_str());
 
+	  delete obj2f;
+
 	  htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
-
 	  if ( counter%2 == 0 ) htmlFile[ism] << "</tr><tr>" << std::endl;
-
 	}
-
       }
     }
   
@@ -885,6 +887,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  gStyle->SetPalette(10, pCol4);
 	  obj2f->GetXaxis()->SetNdivisions(17);
 	  obj2f->GetYaxis()->SetNdivisions(4);
+	  obj2f->SetMinimum(0);
 	  cMe2->SetGridx();
 	  cMe2->SetGridy();
 
@@ -897,13 +900,10 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	  dummy.Draw("text,same");
 	  cMe2->Update();
 	  cMe2->SaveAs(imgMeName[iemu].c_str());
+	  delete obj2f;
 
 	  htmlFile[ism] << "<td><img src=\"" << imgName[iemu] << "\"></td>" << std::endl;
-
 	}
-
-
-
       }
       htmlFile[ism] << "</tr><tr>" << std::endl;
     }
