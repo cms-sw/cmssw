@@ -1,4 +1,3 @@
-#include <vector>
 #include <iostream>
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -7,28 +6,25 @@
 
 TtDecayChannelSelector::TtDecayChannelSelector(const edm::ParameterSet& cfg):
   invert_( cfg.getParameter<bool>("invert") ),
-  oneLep_( cfg.getParameter<std::vector<int> >("one_lepton_channels")),
-  twoLep_( cfg.getParameter<std::vector<int> >("two_lepton_channels"))
+  chn1_( cfg.getParameter<std::vector<int> >("channel_1")),
+  chn2_( cfg.getParameter<std::vector<int> >("channel_2"))
 {
-  if( oneLep_.size()!=3 )
-    throw edm::Exception( edm::errors::Configuration, "'one_lepton_channel' must contain 3 values" );
-  if( twoLep_.size()!=3 )
-    throw edm::Exception( edm::errors::Configuration, "'two_lepton_channel' must contain 3 values" );
+  if( chn1_.size()!=3 )
+    throw edm::Exception( edm::errors::Configuration, "'channel_1' must contain 3 values" );
+  if( chn2_.size()!=3 )
+    throw edm::Exception( edm::errors::Configuration, "'channel_2' must contain 3 values" );
 
-  Decay::const_iterator leaf1=oneLep_.begin(),leaf2=twoLep_.begin(); 
-  for( ; leaf1!=oneLep_.end(), leaf2!=twoLep_.end(); ++leaf1, ++leaf2){
+  Decay::const_iterator leaf1=chn1_.begin(),leaf2=chn2_.begin(); 
+  for( ; leaf1!=chn1_.end(), leaf2!=chn2_.end(); ++leaf1, ++leaf2){
     if( !(0<=(*leaf1) && (*leaf1)<=1) )
-      throw edm::Exception( edm::errors::Configuration, "values of 'one_lepton_channel' may only be 0 or 1" );
+      throw edm::Exception( edm::errors::Configuration, "'channel_1' may only contain values 0 or 1" );
     if( !(0<=(*leaf2) && (*leaf2)<=1) )
-      throw edm::Exception( edm::errors::Configuration, "values of 'two_lepton_channel' may only be 0 or 1" );
+      throw edm::Exception( edm::errors::Configuration, "'channel_2' may only contain values 0 or 1" );
+    decay_.push_back( (*leaf1)+(*leaf2) );
   }
-
   channel_=0;
-  if( count(oneLep_.begin(), oneLep_.end(), 1)>0 ){ channel_+=1; }
-  if( count(twoLep_.begin(), twoLep_.end(), 1)>0 ){ channel_+=2; }
-
-  if( channel_>2 )
-    throw edm::Exception( edm::errors::Configuration, "switch one of the 'lepton_channel`s' to (0,0,0), please" );
+  if( count(chn1_.begin(), chn1_.end(), 1) > 0 ){ ++channel_; }
+  if( count(chn2_.begin(), chn2_.end(), 1) > 0 ){ ++channel_; }
 }
 
 TtDecayChannelSelector::~TtDecayChannelSelector()
@@ -39,7 +35,7 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
 {
   int iTop=0,iBeauty=0,iElec=0,iMuon=0,iTau=0;
   reco::CandidateCollection::const_iterator top=parts.begin();
-  for(; top!=parts.end(); ++top){ 
+  for(; top!=parts.end(); ++top){
     if( reco::status(*top)==3 && abs((*top).pdgId())==6 ){
       ++iTop;
       reco::Candidate::const_iterator td=(*top).begin();
@@ -58,32 +54,47 @@ TtDecayChannelSelector::operator()(const reco::CandidateCollection& parts) const
     }
   }
   int iLep=iElec+iMuon+iTau;
-
+  
   bool accept=false;
   if( (iTop==2) && (iBeauty==2) ){
     if( channel_==iLep )
       if( (channel_==0)
 	  ||
 	  (channel_==1) &&
-	  ( ((oneLep_[Elec]==1) && (iElec==iLep))||
-	    ((oneLep_[Muon]==1) && (iMuon==iLep))||
-	    ((oneLep_[Tau ]==1) && (iTau ==iLep)))
+	  ( ((chn1_[Elec]==1 || chn2_[Elec]==1) && (iElec==iLep))||
+	    ((chn1_[Muon]==1 || chn2_[Muon]==1) && (iMuon==iLep))||
+	    ((chn1_[Tau ]==1 || chn2_[Tau ]==1) && (iTau ==iLep)))
 	  ||
 	  (channel_==2) &&
-	  ( ((twoLep_[Elec]==1) && (iElec==iLep))||
-	    ((twoLep_[Muon]==1) && (iMuon==iLep))||
-	    ((twoLep_[Tau ]==1) && (iTau ==iLep))))
+	  ( ((chn1_[Elec]==1 && chn2_[Elec]==1) && (iElec==iLep))||
+	    ((chn1_[Muon]==1 && chn2_[Muon]==1) && (iMuon==iLep))||
+	    ((chn1_[Tau ]==1 && chn2_[Tau ]==1) && (iTau ==iLep))||
+	    (( (decay_[Elec]<2 || decay_[Muon]<2) &&
+	       ( (chn1_[Elec]==1 && chn2_[Muon]==1) || (chn1_[Muon]==1 && chn2_[Elec]==1) ) && 
+	       ( iElec==1 && iMuon==1 )
+	       ) ||
+	     ( (decay_[Elec]<2 || decay_[Tau ]<2) &&
+	       ( (chn1_[Elec]==1 && chn2_[Tau ]==1) || (chn1_[Tau ]==1 && chn2_[Elec]==1) ) && 
+	       ( iElec==1 && iTau ==1 )
+	       ) ||	    
+	     ( (decay_[Muon]<2 || decay_[Tau ]<2) &&
+	       ( (chn1_[Muon]==1 && chn2_[Tau ]==1) || (chn1_[Tau ]==1 && chn2_[Muon]==1) ) && 
+	       ( iMuon==1 && iTau ==1 )
+	       )
+	     )
+	    )
+	  )
 	accept=true;
     accept=( (!invert_&& accept) || (!(!invert_)&& !accept) );
   }
   else{
     edm::LogWarning ( "NoVtbDecay" ) << "Decay is not via Vtb";
   }
- if(accept){
-   std::cout << "iElec  : " << iElec   << "\n"
-	     << "iMuon  : " << iMuon   << "\n"
-	     << "iTau   : " << iTau    << "\n"
-	     << std::endl;
- }  
- return accept;
+//   if(accept){
+//     std::cout << "iElec  : " << iElec   << "\n"
+// 	      << "iMuon  : " << iMuon   << "\n"
+// 	      << "iTau   : " << iTau    << "\n"
+// 	      << std::endl;
+//   }  
+  return accept;
 }

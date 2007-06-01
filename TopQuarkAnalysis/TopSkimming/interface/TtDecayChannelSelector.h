@@ -18,6 +18,7 @@ class TtDecayChannelSelector {
  private:
   int channel_;  //top decay channel
   bool invert_;  //inversion flag
-  Decay oneLep_; //vector of considered decay channels with one lepton
-  Decay twoLep_; //vector of considered decay channels with two leptons
+  Decay chn1_;   //vector of allowed lepton decay channels for one W
+  Decay chn2_;   //vector of allowed lepton decay channels for the other W
+  Decay decay_;  //vector of allowed lepton decay channels for the other W
 };
