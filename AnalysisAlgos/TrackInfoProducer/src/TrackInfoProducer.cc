@@ -83,10 +83,11 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
       //associate the trajectory to the track
       unsigned int idtk = 0;
       reco::TrackRef track;
-      
+      	int found=0;
       if(TrajectoryCollection->size()==1){
 	trackid.push_back(idtk);
 	track=edm::Ref<reco::TrackCollection>(trackCollection, idtk);
+	found=1;
       }
       else{
 	TrajectoryStateOnSurface outertsos=0;
@@ -115,24 +116,26 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	  if(((vo-tkvo).mag()<1e-16)&&
 	     ((po-tkpo).mag()<1e-16)&&
 	     ((vi-tkvi).mag()<1e-16)&&
-	     ((pi-tkpi).mag()<1e-16)){
+	     ((pi-tkpi).mag()<1e-16)&&
+	     traj_iterator->foundHits()==tk_iterator->found()&&
+	     traj_iterator->lostHits()==tk_iterator->lost()){
 	    track=edm::Ref<reco::TrackCollection>(trackCollection, idtk);
 	    trackid.push_back(idtk);
-	  }
-	  else {
-	    edm::LogInfo("TrackInfoProducer")<<"Track not associated trying an other track"; 
+	    found=1;
+	    break;
 	  }
 	  idtk++;
 	}
       }
-      theAlgo_.run(traj_iterator,track,
-		   outputFwd,outputBwd,outputUpdated, outputCombined,
-		   tracker);
-      outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
-      outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
-      outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
-      outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
-
+      if(found){
+	theAlgo_.run(traj_iterator,track,
+		     outputFwd,outputBwd,outputUpdated, outputCombined,
+		     tracker);
+	outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
+	outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
+	outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
+	outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
+      }
     }
     //put everything in the event
     edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof, rTrackInfob,rTrackInfou,rTrackInfoc;
