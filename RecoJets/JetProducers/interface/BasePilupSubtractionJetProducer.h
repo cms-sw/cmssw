@@ -22,6 +22,7 @@
 #include <map>
 #include <vector>
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 namespace edm {
   class ParameterSet;
@@ -45,6 +46,7 @@ namespace cms
     std::string jetType () const {return mJetType;}
     
     int ieta(const reco::Candidate*);
+    int iphi(const reco::Candidate*);
     
     void beginJob( const edm::EventSetup& iSetup);
 
@@ -63,9 +65,15 @@ namespace cms
     double mEInputCut;
     double mEtJetInputCut;
     double nSigmaPU;
+    double radiusPU;
     std::map<int,double> esigma;
     std::map<int,double> emean;  
+    std::map<int,int> geomtowers;
+    std::map<int,int> ntowers_with_jets;
+    std::vector<HcalDetId> allgeomid;
     const CaloGeometry* geo;
+    int ietamax;
+    int ietamin;
   };
 }
 
