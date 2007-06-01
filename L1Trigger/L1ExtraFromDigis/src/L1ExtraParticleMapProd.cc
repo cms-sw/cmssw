@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.16 2007/05/23 05:09:12 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.17 2007/06/01 02:57:13 wsun Exp $
 //
 //
 
@@ -650,38 +650,38 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kZeroBias ] =
       iConfig.getParameter< int >( "A_ZeroBias_prescale" ) ;
 
-   // Print trigger table in Twiki table format.
-   std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *Default E<sub>T</sub> Threshold (!GeV)*  |  *Default Prescale*  |  *Skim Prescale*  |"
-	     << std::endl ;
+//    // Print trigger table in Twiki table format.
+//    std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *Default E<sub>T</sub> Threshold (!GeV)*  |  *Default Prescale*  |  *Skim Prescale*  |"
+// 	     << std::endl ;
 
-   for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
-   {
-      std::cout
-	 << "|  "
-	 << i
-	 << "  |  "
-	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i )
-	 << "  |  " ;
+//    for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
+//    {
+//       std::cout
+// 	 << "|  "
+// 	 << i
+// 	 << "  |  "
+// 	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i )
+// 	 << "  |  " ;
 
-      if( singleThresholds_[ i ] > 0 )
-      {
-	 std::cout << singleThresholds_[ i ] ;
-      }
-      else if( doubleThresholds_[ i ].first > 0 )
-      {
-	 std::cout << doubleThresholds_[ i ].first << ", "
-		   << doubleThresholds_[ i ].second ;
-      }
-      else
-      {
-	 std::cout << "---" ;
-      }
+//       if( singleThresholds_[ i ] > 0 )
+//       {
+// 	 std::cout << singleThresholds_[ i ] ;
+//       }
+//       else if( doubleThresholds_[ i ].first > 0 )
+//       {
+// 	 std::cout << doubleThresholds_[ i ].first << ", "
+// 		   << doubleThresholds_[ i ].second ;
+//       }
+//       else
+//       {
+// 	 std::cout << "---" ;
+//       }
 
-      std::cout << "  |  "
-		<< prescales_[ i ]
-		<< "  |  1  |"
-		<< std::endl ;
-   }
+//       std::cout << "  |  "
+// 		<< prescales_[ i ]
+// 		<< "  |  1  |"
+// 		<< std::endl ;
+//    }
 }
 
 
