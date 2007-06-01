@@ -1,4 +1,5 @@
 <use name=Alignment/CommonAlignmentAlgorithm>
+<use name=Alignment/TwoBodyDecay>
 <use name=DataFormats/CLHEP>
 <use name=DataFormats/GeometrySurface>
 <use name=DataFormats/GeometryVector>
@@ -15,6 +16,7 @@
 <use name=TrackingTools/TransientTrackingRecHit>
 <export>
   <use name=Alignment/CommonAlignmentAlgorithm>
+  <use name=Alignment/TwoBodyDecay>
   <use name=DataFormats/CLHEP>
   <use name=DataFormats/GeometrySurface>
   <use name=FWCore/PluginManager>
