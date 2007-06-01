@@ -6,8 +6,8 @@
  <use name="FWCore/Framework">
  <use name="FWCore/ParameterSet">
  <use name="FWCore/Utilities">
- <use name="Geometry/CommonDetAlgo">
- <use name="Geometry/Surface">
+ <use name="DataFormats/GeometryCommonDetAlgo">
+ <use name="DataFormats/GeometrySurface">
  <use name="TrackingTools/GeomPropagators">
  <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryState">
@@ -18,9 +18,9 @@
  <use name="FWCore/MessageLogger">
  <use name="FWCore/ParameterSet">
  <use name="FWCore/Utilities">
- <use name="Geometry/CommonDetAlgo">
+ <use name="DataFormats/GeometryCommonDetAlgo">
  <use name="Geometry/CommonDetUnit">
- <use name="Geometry/Surface">
+ <use name="DataFormats/GeometrySurface">
  <use name="TrackingTools/GeomPropagators">
  <use name="TrackingTools/Records">
  <use name="TrackingTools/TrajectoryParametrization">

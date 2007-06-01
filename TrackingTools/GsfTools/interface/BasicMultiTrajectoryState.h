@@ -73,6 +73,8 @@ public:
     checkCombinedState();
     return theCombinedState.freeTrajectoryState(withErrors);
   }
+
+  const MagneticField* magneticField() const;
   
   const LocalTrajectoryParameters& localParameters() const {
     checkCombinedState();
@@ -126,10 +128,7 @@ public:
   }
 
   /// Position relative to material, defined relative to momentum vector.
-  virtual SurfaceSide surfaceSide() const {
-    checkCombinedState();
-    return theCombinedState.surfaceSide();
-  }
+  virtual SurfaceSide surfaceSide() const;
 
 private:
 

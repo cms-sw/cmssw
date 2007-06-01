@@ -72,3 +72,33 @@ void BasicMultiTrajectoryState::rescaleError(double factor) {
   theCombinedStateUp2Date = false;
 }
 
+const MagneticField*
+BasicMultiTrajectoryState::magneticField () const
+{
+  //
+  // Magnetic field should be identical in all components:
+  // avoid forcing the combination of states and take value from 1st component!
+  //
+  if (theStates.empty()) {
+    edm::LogError("BasicMultiTrajectoryState") 
+      << "Asking for magneticField of empty MultiTrajectoryState, returning null pointer!";
+    return 0;
+  }
+  return theStates.front().magneticField();
+}
+
+SurfaceSide
+BasicMultiTrajectoryState::surfaceSide () const
+{
+  //
+  // SurfaceSide should be identical in all components:
+  // avoid forcing the combination of states and take value from 1st component!
+  //
+  if (theStates.empty()) {
+    edm::LogError("BasicMultiTrajectoryState") 
+      << "Asking for magneticField of empty MultiTrajectoryState, returning atCenterOfSurface!";
+    return atCenterOfSurface;
+  }
+  return theStates.front().surfaceSide();
+}
+
