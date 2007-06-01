@@ -65,7 +65,7 @@ void PixelToLNKAssociateFromAscii::init(const string & cfg_name)
     string::size_type posM = line.find("MOD:");
     string::size_type posR = line.find("ROC:");
 
-    LogDebug ( "line read" ) << line;
+    LogTrace("") <<" read line: "<< line;
     
 
     //
@@ -356,7 +356,7 @@ PixelToLNKAssociateFromAscii::Range
   while (line) {
     char * evp = 0;
     int num = strtol(line, &evp, 10);
-    { stringstream s; s<<"raad from line: "; s<<num; LogDebug(s.str()); }
+    { stringstream s; s<<"raad from line: "; s<<num; LogTrace("") << s.str(); }
     if (evp != line) {
       line = evp +1;
       if (first) { num1 = num; first = false; }

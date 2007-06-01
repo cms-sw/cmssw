@@ -82,9 +82,9 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
 
   result.reserve(36);
   int lastPannelId = -1;
-  int idLink = -1;
+  int idLink = 0;
   int idRoc = 0;
-  PixelFEDLink link(idLink); // dummy object, id=-1
+  PixelFEDLink link(idLink); // dummy object, id=0
 
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs;
@@ -92,7 +92,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
 
     if ( pannelId != lastPannelId ) {
       lastPannelId = pannelId;
-      if (idLink >= 0) result.push_back(link);
+      if (idLink > 0) result.push_back(link);
       idRoc = 0;
       link = PixelFEDLink(++idLink); // real link, to be filled
     }
@@ -106,7 +106,7 @@ PixelEndcapLinkMaker::Links PixelEndcapLinkMaker::links(
     link.add( rocs);
   }
 
-  if (idLink >= 0) result.push_back(link);
+  if (idLink > 0) result.push_back(link);
   return result;
 }
 

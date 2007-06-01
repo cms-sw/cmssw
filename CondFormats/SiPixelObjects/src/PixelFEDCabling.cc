@@ -15,21 +15,24 @@ void PixelFEDCabling::setLinks(Links & links)
 
 void PixelFEDCabling::addLink(const PixelFEDLink & link)
 {
-  theLinks.push_back(link);
+  if ( link.id() < 1) return;
+  if ( theLinks.size() < link.id() ) theLinks.resize(link.id());
+  theLinks[link.id()-1] = link;
 }
 
 void PixelFEDCabling::addItem(int linkId, const PixelROC & roc)
 {
-  if ( theLinks.size() < linkId+1 ) theLinks.resize(linkId+1);
-  if ( theLinks[linkId].id() != linkId)  theLinks[linkId] = PixelFEDLink(linkId);
-  theLinks[linkId].addItem(roc);
+  if ( linkId < 1) return;
+  if ( theLinks.size() < linkId ) theLinks.resize(linkId);
+  if ( theLinks[linkId-1].id() != linkId)  theLinks[linkId-1] = PixelFEDLink(linkId);
+  theLinks[linkId-1].addItem(roc);
 }
 
 bool PixelFEDCabling::checkLinkNumbering() const
 {
   bool result = true;
   typedef Links::const_iterator IL;
-  int idx_expected = -1;
+  int idx_expected = 0;
   for (IL il = theLinks.begin(); il != theLinks.end(); il++) {
     idx_expected++;
     if (idx_expected != (*il).id() ) {

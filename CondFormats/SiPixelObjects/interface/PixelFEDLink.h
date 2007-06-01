@@ -33,7 +33,7 @@ public:
   /// number of ROCs in fed
   int numberOfROCs() const { return theROCs.size(); }
 
-  /// return ROC identified by id. ROC ids are ranged [0,numberOfROCs)
+  /// return ROC identified by id. ROC ids are ranged [1,numberOfROCs]
   const PixelROC * roc(unsigned int id) const
     { return (id > 0 && id <= theROCs.size() ) ?  &theROCs[id-1] : 0; }
 

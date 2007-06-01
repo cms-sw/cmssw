@@ -89,7 +89,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
   //
   // create corresponding PixelROC and link
   //
-  int idLink = -1;
+  int idLink = 0;
   result.reserve(linkItems.size());
   for (CIU it = linkItems.begin(); it != linkItems.end(); it++) {
     PixelFEDLink::ROCs rocs; 

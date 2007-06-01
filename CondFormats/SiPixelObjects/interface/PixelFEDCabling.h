@@ -24,9 +24,9 @@ public:
 
   void addLink(const PixelFEDLink & link);
 
-  /// return link identified by id. Link id's are ranged [0, numberOfLinks)
+  /// return link identified by id. Link id's are ranged [1, numberOfLinks]
   const PixelFEDLink * link(unsigned int id) const 
-    { return (id >= 0 && id < theLinks.size()) ? &theLinks[id] : 0; }
+    { return (id > 0 && id <= theLinks.size()) ? &theLinks[id-1] : 0; }
 
   /// number of links in FED
   int numberOfLinks() const { return theLinks.size(); }

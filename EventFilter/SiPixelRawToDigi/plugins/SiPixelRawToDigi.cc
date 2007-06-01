@@ -41,7 +41,6 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   produces< edm::DetSetVector<PixelDigi> >();
 
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
-  cout <<"HERE timing is: " << timing << endl;
   if (timing) {
     theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
     rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
@@ -76,7 +75,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
-  cout << map->version() << endl;
+  LogDebug("map version:")<< map->version();
 
   edm::Handle<FEDRawDataCollection> buffers;
   static string label = config_.getUntrackedParameter<string>("InputLabel","source");

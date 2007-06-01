@@ -79,7 +79,7 @@ SiPixelFedCablingMap * SiPixelFedCablingMapBuilder::produce( const edm::EventSet
       name = new PixelBarrelName(geomid);
     } else {
       name = new PixelEndcapName(geomid);
-      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
+//      cout << " NAME: "<<name->name()<<myprint(pxUnit)<<endl;
     } 
     units.push_back( std::make_pair( name, geomid.rawId() ) );
   }
