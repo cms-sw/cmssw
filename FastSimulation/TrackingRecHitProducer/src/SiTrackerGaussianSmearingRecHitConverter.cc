@@ -419,6 +419,7 @@ void SiTrackerGaussianSmearingRecHitConverter::beginJob(const edm::EventSetup& e
 
 void SiTrackerGaussianSmearingRecHitConverter::produce(edm::Event& e, const edm::EventSetup& es) 
 {
+
   // Step A: Get Inputs (PSimHit's)
   edm::Handle<CrossingFrame> cf; 
   e.getByType(cf);
@@ -456,10 +457,12 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
   //  edm::PSimHitContainer::const_iterator isim;
   MixCollection<PSimHit>::iterator isim = input.begin();
   MixCollection<PSimHit>::iterator lastSimHit = input.end();
+  correspondingSimHit.resize(input.size());
   Local3DPoint position;
   LocalError error;
   
   int simHitCounter = -1;
+  int recHitCounter = 0;
   
   // loop on PSimHits
   for ( ; isim != lastSimHit; ++isim ) {
@@ -530,7 +533,11 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
 					 simHitCounter, trackID, 
 					 eeID, 
 					 alphaMult, betaMult) );
-
+      
+      // This a correpondence map between RecHits and SimHits 
+      // (for later  use in matchHits)
+      correspondingSimHit[recHitCounter++] = isim; 
+      
     } // end if(isCreated)
 
   } // end loop on PSimHits
@@ -902,22 +909,26 @@ SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
 
 }
 
-
-
 void
-SiTrackerGaussianSmearingRecHitConverter::matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits , std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >&matchedMap, MixCollection<PSimHit>& simhits ) {
+SiTrackerGaussianSmearingRecHitConverter::matchHits(
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& matchedMap, 
+  MixCollection<PSimHit>& simhits ) {
 
-  MixCollection<PSimHit>::iterator hitbegin = simhits.begin();
-  MixCollection<PSimHit>::iterator hitend = simhits.end();
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator it = theRecHits.begin();
+  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator lastTrack = theRecHits.end();
 
-  //loop over tracks
-  for(   std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator  it =  theRecHits.begin();
-	 it !=  theRecHits.end() ; 
-	 ++it ) {
-    
+  int recHitCounter = 0;
+
+  //loop over single sided tracker RecHit
+  for(  ; it !=  lastTrack; ++it ) {
+
+    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator rit = it->second.begin();
+    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator lastRecHit = it->second.end();
+
     //loop over rechits in track
-    for( edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator rit = it->second.begin(); rit != it->second.end(); ++rit){
-      
+    for ( ; rit != lastRecHit; ++rit,++recHitCounter){
+
       DetId detid = rit->geographicalId();
       unsigned int subdet = detid.subdetId();
       
@@ -929,25 +940,8 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits( std::map<unsigned, edm::Own
 	// if this is on a glued, then place only one hit in vector
 	if(specDetId.glued()){
 
-
 	  // get the track direction from the simhit
-	  LocalVector    simtrackdir;
-	  // loop over simhits (this is not optimal)
-	  int simHitCounter = -1;  
-	  bool simHitFound = 0;
-	  // simhits[rit->simhitId()]; 
-	  for(  MixCollection<PSimHit>::iterator isim = hitbegin; isim != hitend; ++isim){
-	    simHitCounter++;
-	    if(simHitCounter == rit->simhitId() ){
-	      simtrackdir = isim->localDirection();
-	      simHitFound = 1;
-	    }
-	  }
-	  if(simHitFound!=1){
-	    std::cout<<"SiTrackerGaussianSmearingRecHitConverter::matchHits: ERROR: simHitFound!=1"<< std::endl;
-	    exit(1); // FIXME: replace with exception
-	  }
-	  // end get track dir from simhit
+	  LocalVector simtrackdir = correspondingSimHit[recHitCounter]->localDirection();	    
 	  
 	  // get partner layer, it is the next one or previous one in the vector
 	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partner = rit;

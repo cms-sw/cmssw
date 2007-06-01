@@ -57,8 +57,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
 
  void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
-		   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& matchedMap,
-		   MixCollection<PSimHit>& simhits);
+		  std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& matchedMap,
+		  MixCollection<PSimHit>& simhits);
 
   void loadRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
@@ -201,6 +201,10 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
 
   // Temporary RecHit map
   //  std::map< DetId, edm::OwnVector<SiTrackerGSRecHit2D> > temporaryRecHits;
+
+  // Local correspondence between RecHits and SimHits
+  typedef MixCollection<PSimHit>::iterator SimHiterator;
+  std::vector<SimHiterator> correspondingSimHit;
 
   // The random engine
   const RandomEngine* random;
