@@ -137,7 +137,7 @@ namespace edm
     auto_ptr<EventPrincipal> ep(new EventPrincipal(sd->id_,
                                                    sd->time_,
                                                    productRegistry,
-                                                   1,
+                                                   eventView.lumi(),
                                                    processConfiguration_,
 						   processHistoryID_));
     // no process name list handling
