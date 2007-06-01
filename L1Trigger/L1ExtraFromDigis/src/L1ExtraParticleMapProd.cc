@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.15 2007/05/15 14:52:42 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.16 2007/05/23 05:09:12 wsun Exp $
 //
 //
 
@@ -219,6 +219,10 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "A_HTT200_thresh" ) ;
    prescales_[ L1ParticleMap::kHTT200 ] =
       iConfig.getParameter< int >( "A_HTT200_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kHTT250 ] =
+      iConfig.getParameter< double >( "A_HTT250_thresh" ) ;
+   prescales_[ L1ParticleMap::kHTT250 ] =
+      iConfig.getParameter< int >( "A_HTT250_prescale" ) ;
    singleThresholds_[ L1ParticleMap::kHTT300 ] =
       iConfig.getParameter< double >( "A_HTT300_thresh" ) ;
    prescales_[ L1ParticleMap::kHTT300 ] =
@@ -510,6 +514,12 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "A_TauJet30_ETM30_thresh2" ) ;
    prescales_[ L1ParticleMap::kTauJet30_ETM30 ] =
       iConfig.getParameter< int >( "A_TauJet30_ETM30_prescale" ) ;
+   doubleThresholds_[ L1ParticleMap::kTauJet30_ETM40 ].first =
+      iConfig.getParameter< double >( "A_TauJet30_ETM40_thresh1" ) ;
+   doubleThresholds_[ L1ParticleMap::kTauJet30_ETM40 ].second =
+      iConfig.getParameter< double >( "A_TauJet30_ETM40_thresh2" ) ;
+   prescales_[ L1ParticleMap::kTauJet30_ETM40 ] =
+      iConfig.getParameter< int >( "A_TauJet30_ETM40_prescale" ) ;
 
    doubleThresholds_[ L1ParticleMap::kHTT200_ETM40 ].first =
       iConfig.getParameter< double >( "A_HTT200_ETM40_thresh1" ) ;
@@ -640,38 +650,38 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kZeroBias ] =
       iConfig.getParameter< int >( "A_ZeroBias_prescale" ) ;
 
-//    // Print trigger table in Twiki table format.
-//    std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *Default E<sub>T</sub> Threshold (!GeV)*  |  *Default Prescale*  |  *Skim Prescale*  |"
-// 	     << std::endl ;
+   // Print trigger table in Twiki table format.
+   std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *Default E<sub>T</sub> Threshold (!GeV)*  |  *Default Prescale*  |  *Skim Prescale*  |"
+	     << std::endl ;
 
-//    for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
-//    {
-//       std::cout
-// 	 << "|  "
-// 	 << i
-// 	 << "  |  "
-// 	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i )
-// 	 << "  |  " ;
+   for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
+   {
+      std::cout
+	 << "|  "
+	 << i
+	 << "  |  "
+	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i )
+	 << "  |  " ;
 
-//       if( singleThresholds_[ i ] > 0 )
-//       {
-// 	 std::cout << singleThresholds_[ i ] ;
-//       }
-//       else if( doubleThresholds_[ i ].first > 0 )
-//       {
-// 	 std::cout << doubleThresholds_[ i ].first << ", "
-// 		   << doubleThresholds_[ i ].second ;
-//       }
-//       else
-//       {
-// 	 std::cout << "---" ;
-//       }
+      if( singleThresholds_[ i ] > 0 )
+      {
+	 std::cout << singleThresholds_[ i ] ;
+      }
+      else if( doubleThresholds_[ i ].first > 0 )
+      {
+	 std::cout << doubleThresholds_[ i ].first << ", "
+		   << doubleThresholds_[ i ].second ;
+      }
+      else
+      {
+	 std::cout << "---" ;
+      }
 
-//       std::cout << "  |  "
-// 		<< prescales_[ i ]
-// 		<< "  |  1  |"
-// 		<< std::endl ;
-//    }
+      std::cout << "  |  "
+		<< prescales_[ i ]
+		<< "  |  1  |"
+		<< std::endl ;
+   }
 }
 
 
@@ -837,6 +847,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       }
       else if( itrig == L1ParticleMap::kHTT100 ||
 	       itrig == L1ParticleMap::kHTT200 ||
+	       itrig == L1ParticleMap::kHTT250 ||
 	       itrig == L1ParticleMap::kHTT300 ||
 	       itrig == L1ParticleMap::kHTT400 ||
 	       itrig == L1ParticleMap::kHTT500 )
@@ -1246,7 +1257,8 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 }
       }
       else if( itrig == L1ParticleMap::kTauJet20_ETM20 ||
-	       itrig == L1ParticleMap::kTauJet30_ETM30 )
+	       itrig == L1ParticleMap::kTauJet30_ETM30 ||
+	       itrig == L1ParticleMap::kTauJet30_ETM40 )
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 	 objectTypes.push_back( L1ParticleMap::kEtMiss ) ;

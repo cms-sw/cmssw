@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.19 2007/05/15 14:52:40 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.20 2007/05/23 05:09:09 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.20  2007/05/23 05:09:09  wsun
+// L1 trigger table for 131HLT4.
+//
 // Revision 1.19  2007/05/15 14:52:40  wsun
 // A_Mu3_IsoEG15 -> A_Mu7_IsoEG10
 //
@@ -145,6 +148,7 @@ namespace l1extra {
 	    kSingleTauJet100,
 	    kHTT100,
 	    kHTT200,
+	    kHTT250,
 	    kHTT300,
 	    kHTT400,
 	    kHTT500,
@@ -196,6 +200,7 @@ namespace l1extra {
 	    kJet100_ETM40,
 	    kTauJet20_ETM20,
 	    kTauJet30_ETM30,
+	    kTauJet30_ETM40,
 	    kHTT200_ETM40,
 	    kTripleMu3,
 	    kTripleIsoEG5,
