@@ -4,6 +4,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/StGenEvent.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+#include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiMassSolution.h"
 
@@ -44,6 +45,8 @@ namespace {
     edm::Wrapper<StEvtSolution>                            dummy30;
     edm::Wrapper<std::vector<StEvtSolution> >              dummy31;
     edm::Wrapper<TtSemiMassSolution>              	   dummy32;
+    edm::Wrapper<std::vector<TtDilepEvtSolution> >         dummy33;
+    edm::Wrapper<StEvtSolution>                            dummy34;
 	
   }
 }

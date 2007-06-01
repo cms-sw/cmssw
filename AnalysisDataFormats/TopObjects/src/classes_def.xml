@@ -28,6 +28,8 @@
   <class name="StGenEvent"/>
   <class name="TtSemiEvtSolution"/>
   <class name="std::vector<TtSemiEvtSolution>" />
+  <class name="TtDilepEvtSolution"/>
+  <class name="std::vector<TtDilepEvtSolution>" />
   <class name="StEvtSolution"/>
   <class name="std::vector<StEvtSolution>" />
   <class name="TtSemiMassSolution"/>
