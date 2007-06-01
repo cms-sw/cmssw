@@ -1,24 +1,27 @@
 #ifndef MultiGaussianStateMerger_H
 #define MultiGaussianStateMerger_H
 
-#include "TrackingTools/GsfTools/interface/RCSingleGaussianState.h"
-#include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
+#include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 
 /** Abstract base class for trimming or merging a MultiGaussianState into 
  *  one with a smaller number of components.
  */
 
-class MultiGaussianStateMerger {
+template <unsigned int N> class MultiGaussianStateMerger {
+public:
+  typedef SingleGaussianState<N> SingleState;
+  typedef MultiGaussianState<N> MultiState;
 
 public:
-  virtual RCMultiGaussianState merge(const RCMultiGaussianState& mgs) const = 0;
+  virtual MultiState merge(const MultiState& mgs) const = 0;
   virtual ~MultiGaussianStateMerger() {}
   virtual MultiGaussianStateMerger* clone() const = 0;
 
 protected:
 
   MultiGaussianStateMerger() {}
-  typedef std::vector<RCSingleGaussianState> SGSVector;
+  typedef std::vector<SingleState> SGSVector;
 
 };  
 

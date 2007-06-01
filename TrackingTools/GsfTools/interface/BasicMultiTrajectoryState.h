@@ -102,8 +102,7 @@ public:
   }
 
   const Surface& surface() const {
-//     if (!isValid()) 
-    if (isValid()) 
+    if (!isValid()) 
       throw cms::Exception("LogicError") 
 	<< "surface() called for invalid MultiTrajectoryState";
     return theStates.front().surface();

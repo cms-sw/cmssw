@@ -11,18 +11,16 @@
  * (currently either using a Kullback-Leibler or a Mahalanobis distance)
  */
 
-class  DistanceBetweenComponentsESProducer: public edm::ESProducer{
+template <unsigned int N>
+class  DistanceBetweenComponentsESProducer : public edm::ESProducer{
  public:
   DistanceBetweenComponentsESProducer(const edm::ParameterSet & p);
   virtual ~DistanceBetweenComponentsESProducer(); 
-  boost::shared_ptr<DistanceBetweenComponents> produce(const TrackingComponentsRecord &);
+  boost::shared_ptr< DistanceBetweenComponents<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };
 
+#include "TrackingTools/GsfTools/plugins/DistanceBetweenComponentsESProducer.icc"
 
 #endif
-
-
-
-

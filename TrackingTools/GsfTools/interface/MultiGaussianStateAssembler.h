@@ -1,9 +1,8 @@
 #ifndef MultiGaussianStateAssembler_h_
 #define MultiGaussianStateAssembler_h_
 
-// #include "Utilities/Notification/interface/TimingReport.h"
-#include "TrackingTools/GsfTools/interface/RCSingleGaussianState.h"
-#include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
+#include "TrackingTools/GsfTools/interface/SingleGaussianState.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 
 #include <vector>
 
@@ -11,38 +10,42 @@
  * Collects gaussian states and returns a MultiGaussianState.
  */
 
+template <unsigned int N>
 class MultiGaussianStateAssembler {
 
 private:
-  typedef std::vector<RCSingleGaussianState> SGSVector;
+  typedef SingleGaussianState<N> SingleState;
+  typedef MultiGaussianState<N> MultiState;
+  typedef typename MultiGaussianState<N>::SingleStatePtr SingleStatePtr;
+  typedef typename MultiGaussianState<N>::SingleStateContainer SingleStateContainer;
 
 public:
   //
   // constructors
   //
-  MultiGaussianStateAssembler (const RCMultiGaussianState & state);
+  MultiGaussianStateAssembler (const MultiState & state);
   
   /** Adds a new MultiGaussianState to the list 
    *  of components
    */
-  void addState (const RCMultiGaussianState& state);
-  void addState (const RCSingleGaussianState& state);
+  void addState (const MultiState& state);
+  void addState (const SingleStatePtr& state);
 
   /** Returns the resulting MultiGaussianState 
    *  with weight = sum of all valid components.
    */
-  RCMultiGaussianState combinedState ();
+  MultiState combinedState ();
   /** Returns the resulting MultiGaussianState 
    *  renormalised to specified weight.
    */
-  RCMultiGaussianState combinedState (const float weight);
+  MultiState combinedState (const float weight);
 
 
 private:
   /** Adds a vector of gaussian states
    *  to the list of components
    */
-  void addStateVector (const SGSVector&);
+  void addStateVector (const SingleStateContainer&);
 
   /**
    * Preparation of combined state (cleaning & sorting)
@@ -53,7 +56,7 @@ private:
    *  with user-supplied total weight.
    */
 
-  RCMultiGaussianState reweightedCombinedState (const double) const;
+  MultiState reweightedCombinedState (const double) const;
 
   /** Removes states with negligible weight (no renormalisation
    * of total weight!).
@@ -61,17 +64,19 @@ private:
   void removeSmallWeights ();
 
 private:
-  const RCMultiGaussianState theInitialState;
+  const MultiState theInitialState;
   bool sortStates;
   double minFractionalWeight;
 
   bool combinationDone;
 
   double theValidWeightSum;
-  SGSVector theStates;
+  SingleStateContainer theStates;
 //   static TimingReport::Item * theTimerAdd;
 //   static TimingReport::Item * theTimerComb;
   
 };
+
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateAssembler.icc"
 
 #endif

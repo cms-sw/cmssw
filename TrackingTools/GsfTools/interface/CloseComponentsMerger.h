@@ -5,6 +5,7 @@
 #include "TrackingTools/GsfTools/interface/DistanceBetweenComponents.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 
+#include "boost/shared_ptr.hpp"
 #include <map>
 
 
@@ -14,12 +15,18 @@
  *  (polymorphic) class, given at construction time.
  */
 
-class CloseComponentsMerger : public MultiGaussianStateMerger {
+template <unsigned int N>
+class CloseComponentsMerger : public MultiGaussianStateMerger<N> {
+
+ private:
+  typedef SingleGaussianState<N> SingleState;
+  typedef MultiGaussianState<N> MultiState;
+  typedef boost::shared_ptr<SingleState> SingleStatePtr;
 
  public:
 
   CloseComponentsMerger(int n,
-			const DistanceBetweenComponents* distance);
+			   const DistanceBetweenComponents<N>* distance);
 
   virtual CloseComponentsMerger* clone() const
   {  
@@ -29,18 +36,24 @@ class CloseComponentsMerger : public MultiGaussianStateMerger {
   /** Method which does the actual merging. Returns a trimmed MultiGaussianState.
    */
 
-  virtual RCMultiGaussianState merge(const RCMultiGaussianState& mgs) const;
+  virtual MultiState merge(const MultiState& mgs) const;
   
- private:
-  
-  typedef RCSingleGaussianState SGS;
-  typedef std::multimap<double, RCSingleGaussianState> SingleStateMap;
 
-  std::pair<SGS, SingleStateMap::iterator> compWithMinDistToLargestWeight(SingleStateMap&) const;
+public:
+  typedef std::multimap< double, SingleStatePtr > SingleStateMap;
+  typedef std::pair< SingleStatePtr, typename SingleStateMap::iterator > MinDistResult;
+
+private:
+
+//   std::pair< SingleState, SingleStateMap::iterator > 
+  MinDistResult
+  compWithMinDistToLargestWeight(SingleStateMap&) const;
 
   int theMaxNumberOfComponents;
-  DeepCopyPointerByClone<DistanceBetweenComponents> theDistance;
+  DeepCopyPointerByClone< DistanceBetweenComponents<N> > theDistance;
 
 };  
+
+#include "TrackingTools/GsfTools/interface/CloseComponentsMerger.icc"
 
 #endif // CloseComponentsMerger_H

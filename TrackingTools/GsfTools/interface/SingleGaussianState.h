@@ -1,46 +1,78 @@
 #ifndef SingleGaussianState_H
 #define SingleGaussianState_H
 
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
+#include "Math/SVector.h"
+#include "Math/SMatrix.h"
 
-/**
- * Base Class for a single multi-variate gaussian state.
- */
-
-class SingleGaussianState  : public ReferenceCounted {
-
+template <unsigned int N> class SingleGaussianState {
 public:
-
-  SingleGaussianState() {}
-
-  SingleGaussianState(const AlgebraicVector & aMean,
-	 const AlgebraicSymMatrix & aCovariance, double aWeight = 1.)
-    : theWeight(aWeight), theMean(aMean), theCovariance(aCovariance) {}
-
-  virtual ~SingleGaussianState() {}
-
-  /**
-   * Creates a new single-state with the given information.
-   * For this base class, no information is passed from the initial 
-   * instance.
-   */
-  virtual ReferenceCountingPointer<SingleGaussianState> 
-  	createNewState(const AlgebraicVector & aMean, 
-	  const AlgebraicSymMatrix & aCovariance, double aWeight = 1) const {
-    return ReferenceCountingPointer<SingleGaussianState>(
-      new SingleGaussianState(aMean, aCovariance, aWeight) );
+  typedef ROOT::Math::SVector<double, N> Vector;
+  typedef ROOT::Math::SMatrix<double,N,N,ROOT::Math::MatRepSym<double,N> > Matrix;
+  
+public:
+  SingleGaussianState() :
+    theHasWeightMatrix(false) {
+//     ++instances_;++maxInstances_;
   }
 
-  double weight() const {return theWeight;}
-  const AlgebraicVector & mean() const {return theMean;}
-  const AlgebraicSymMatrix & covariance() const {return theCovariance;}
+//   SingleGaussianState(const SingleGaussianState<N>& rhs) :
+//     theWeight(rhs.theWeight), theMean(rhs.theMean), theCovariance(rhs.theCovariance),
+//     theHasWeightMatrix(rhs.theHasWeightMatrix), theWeightMatrix(rhs.theWeightMatrix) {
+//     ++instances_;++maxInstances_;
+//   }
+  
+  SingleGaussianState(const Vector& aMean,
+			 const Matrix& aCovariance, 
+			 double aWeight = 1.) : 
+    theWeight(aWeight), theMean(aMean), theCovariance(aCovariance),
+    theHasWeightMatrix(false) {
+//     ++instances_;++maxInstances_;
+  }
+  
+  ~SingleGaussianState() {
+//     --instances_;
+  }
+  
+  //   /**
+//    * Creates a new single-state with the given information.
+//    * For this base class, no information is passed from the initial 
+//    * instance.
+//    */
+//   SingleGaussianState 
+//   	createState(const AlgebraicVector & aMean, 
+// 		       const AlgebraicSymMatrix & aCovariance, double aWeight = 1) const;
 
-protected:
+  /// weight
+  inline double weight() const {return theWeight;}
+  /// parameter vector
+  inline const Vector & mean() const {return theMean;}
+  /// covariance matrix
+  inline const Matrix & covariance() const {return theCovariance;}
+  /// weight matrix
+  const Matrix & weightMatrix() const;
+  /// size of parameter vector
+  inline unsigned int dimension () const {return N;}
+  /// change weight
+  void rescaleWeight (double scale) {theWeight *= scale;}
 
+// protected:
+private:
   double theWeight;
-  AlgebraicVector theMean;
-  AlgebraicSymMatrix theCovariance;
+  Vector theMean;
+  Matrix theCovariance;
+
+  mutable bool theHasWeightMatrix;
+  mutable Matrix theWeightMatrix;
+
+// public:
+//   static int instances_;
+//   static int maxInstances_;
+//   static int constructsWeightMatrix_;
 };
 
+#include "TrackingTools/GsfTools/interface/SingleGaussianState.icc"
+
+// template <unsigned int N> int SingleGaussianState<N>::instances_ = 0;
+// template <unsigned int N> int SingleGaussianState<N>::maxInstances_ = 0;
+// template <unsigned int N> int SingleGaussianState<N>::constructsWeightMatrix_ = 0;
 #endif

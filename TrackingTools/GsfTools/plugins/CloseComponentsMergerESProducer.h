@@ -11,15 +11,17 @@
  * the number of components in a multi-
  */
 
+template <unsigned int N>
 class  CloseComponentsMergerESProducer: public edm::ESProducer{
  public:
   CloseComponentsMergerESProducer(const edm::ParameterSet & p);
   virtual ~CloseComponentsMergerESProducer(); 
-  boost::shared_ptr<CloseComponentsMerger> produce(const TrackingComponentsRecord &);
+  boost::shared_ptr< MultiGaussianStateMerger<N> > produce(const TrackingComponentsRecord &);
  private:
   edm::ParameterSet pset_;
 };
 
+#include "TrackingTools/GsfTools/plugins/CloseComponentsMergerESProducer.icc"
 
 #endif
 

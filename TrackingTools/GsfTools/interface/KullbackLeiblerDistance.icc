@@ -1,0 +1,43 @@
+#include "TrackingTools/GsfTools/interface/GsfMatrixTools.h"
+
+template <unsigned int N> double 
+KullbackLeiblerDistance<N>::operator() (const SingleGaussianState<N>& sgs1, 
+					const SingleGaussianState<N>& sgs2) const {
+
+//ThS: That check will have to happen somewhere else for TSOS...
+
+//   if (&tsos1.surface() != &tsos2.surface()) {
+//     cout << "Trying to calculate distance between components defined "
+// 	 << "at different surfaces - returning zero!" << endl;
+//     return 0.;
+//   }
+
+  const Vector& mu1 = sgs1.mean();
+  const Matrix& V1 = sgs1.covariance();
+  const Vector& mu2 = sgs2.mean();
+  const Matrix& V2 = sgs2.covariance();
+
+//   Matrix G1(V1); G1.Invert();
+//   Matrix G2(V2); G2.Invert();
+  const Matrix& G1 = sgs1.weightMatrix();
+  const Matrix& G2 = sgs2.weightMatrix();
+  Vector mudiff = mu1 - mu2;
+  Matrix Vdiff = V1 - V2;
+  Matrix Gdiff = G2 - G1;
+  Matrix Gsum = G1 + G2;
+
+//   double dist = (Vdiff * Gdiff).trace() + Gsum.similarity(mudiff);
+  double dist = GsfMatrixTools::trace<N>(Vdiff*Gdiff) +
+    ROOT::Math::Similarity(mudiff,Gsum);
+
+  return dist;
+}
+
+// template <unsigned int N> double 
+// KullbackLeiblerDistance<N>::trace (const Matrix& matrix) const
+// {
+//   double result(0);
+//   for ( unsigned int i=0; i<N; i++ )  result += matrix(i,i);
+//   return result;
+// }
+

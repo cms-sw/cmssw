@@ -1,0 +1,11 @@
+template <unsigned int N>
+const typename SingleGaussianState<N>::Matrix&
+SingleGaussianState<N>::weightMatrix () const {
+  if ( !theHasWeightMatrix ) {
+    theWeightMatrix = theCovariance;
+    theWeightMatrix.Invert();
+    theHasWeightMatrix = true;
+//     ++constructsWeightMatrix_;
+  }
+  return theWeightMatrix;
+}
