@@ -9,12 +9,16 @@
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
 #include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
+#include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
 #include "TrackingTools/GsfTracking/interface/GsfChi2MeasurementEstimator.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrajectoryFitter.h"
 
 #include <string>
 #include <memory>
+
+#include <iostream>
 
 GsfTrajectoryFitterESProducer::GsfTrajectoryFitterESProducer(const edm::ParameterSet & p) 
 {
@@ -44,8 +48,11 @@ GsfTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord)
   // merger
   //
   std::string mergerName = pset_.getParameter<std::string>("Merger");
-  edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
+//   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
+//   iRecord.get(mergerName,mergerProducer);
+  edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
   iRecord.get(mergerName,mergerProducer);
+  MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
   //
@@ -57,6 +64,5 @@ GsfTrajectoryFitterESProducer::produce(const TrackingComponentsRecord & iRecord)
   //
   return boost::shared_ptr<TrajectoryFitter>(new GsfTrajectoryFitter(propagator,
 								     GsfMultiStateUpdator(), 
-								     estimator,
-								     *mergerProducer.product()));
+								     estimator,merger));
 }

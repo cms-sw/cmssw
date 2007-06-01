@@ -9,6 +9,8 @@
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTracking/interface/GsfPropagatorWithMaterial.h"
 #include "TrackingTools/GsfTracking/interface/GsfMultiStateUpdator.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
+#include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
 #include "TrackingTools/GsfTracking/interface/GsfChi2MeasurementEstimator.h"
 #include "TrackingTools/GsfTracking/interface/GsfTrajectorySmoother.h"
@@ -44,8 +46,11 @@ GsfTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecor
   // merger
   //
   std::string mergerName = pset_.getParameter<std::string>("Merger");
-  edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
+//   edm::ESHandle<MultiTrajectoryStateMerger> mergerProducer;
+//   iRecord.get(mergerName,mergerProducer);
+  edm::ESHandle< MultiGaussianStateMerger<5> > mergerProducer;
   iRecord.get(mergerName,mergerProducer);
+  MultiTrajectoryStateMerger merger(*mergerProducer.product());
   //
   // estimator
   //
@@ -59,8 +64,7 @@ GsfTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecor
   double scale = pset_.getParameter<double>("ErrorRescaling");
   return boost::shared_ptr<TrajectorySmoother>(new GsfTrajectorySmoother(propagator,
 									 GsfMultiStateUpdator(), 
-									 estimator,
-									 *mergerProducer.product(),
+									 estimator,merger,
 // 									 matBefUpd,
 									 scale));
 }

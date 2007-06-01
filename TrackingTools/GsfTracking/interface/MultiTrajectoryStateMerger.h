@@ -1,24 +1,28 @@
 #ifndef MultiTrajectoryStateMerger_H
 #define MultiTrajectoryStateMerger_H
 
+#include "TrackingTools/GsfTools/interface/MultiGaussianStateMerger.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
+#include "boost/shared_ptr.hpp"
 
 class TrajectoryStateOnSurface;
 
-/** Abstract base class for trimming or merging a MultiTrajectoryState into 
- *  one with a smaller number of components.
+/** Merging of MultiTrajectoryStates - uses MultiGaussianStateMergers
+ *  for the actual merging.
  */
 
 class MultiTrajectoryStateMerger {
-
 public:
+  MultiTrajectoryStateMerger ( const MultiGaussianStateMerger<5>& merger ) :
+    theMultiStateMerger(merger.clone()) {}
+  TrajectoryStateOnSurface merge(const TrajectoryStateOnSurface& tsos) const;
+  MultiTrajectoryStateMerger* clone() const {
+    return new MultiTrajectoryStateMerger(*this);
+  }
 
-  virtual TrajectoryStateOnSurface merge(const TrajectoryStateOnSurface& tsos) const = 0;
-  virtual ~MultiTrajectoryStateMerger() {}
-  virtual MultiTrajectoryStateMerger* clone() const = 0;
- protected:
-
-  MultiTrajectoryStateMerger() {}
-
+ private:
+  const boost::shared_ptr< const MultiGaussianStateMerger<5> > theMultiStateMerger;
 };  
 
 #endif
