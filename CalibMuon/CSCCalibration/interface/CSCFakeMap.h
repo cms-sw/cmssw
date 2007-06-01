@@ -13,6 +13,10 @@
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <CondFormats/CSCObjects/interface/CSCReadoutMapping.h>
+#include <CondFormats/CSCObjects/interface/CSCGains.h>
+#include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
+#include "CondFormats/CSCObjects/interface/CSCPedestals.h"
+#include "CondFormats/CSCObjects/interface/CSCNoiseMatrix.h"
 #include <CalibMuon/CSCCalibration/interface/FakeMap.h>
 
 class CSCFakeMap:public FakeMap{
@@ -32,7 +36,7 @@ class CSCFakeMap:public FakeMap{
 	    for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
 	      try{
 		CSCDetId cscdetid(iendcap,istation,iring,ichamber,ilayer);
-		map_.setValue(cscdetid.CSCDetId(),1.0);
+		map_.setValue(cscdetid.id(),1.0);
 	      }
 	      catch(...)
 		{

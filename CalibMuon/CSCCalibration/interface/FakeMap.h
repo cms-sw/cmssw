@@ -7,15 +7,15 @@
 
 class FakeMap{
 
-public:
-FakeMap(){}
-virtual ~FakeMap(){}
+ public:
+  FakeMap(){}
+  virtual ~FakeMap(){}
 
-public:
-
-
-virtual void csc(const DetId &cell, float scaling_factor)=0;
-
+ public:
+  
+  
+  virtual void csc(const DetId &cell, float scaling_factor)=0;
+  
 };
 
 

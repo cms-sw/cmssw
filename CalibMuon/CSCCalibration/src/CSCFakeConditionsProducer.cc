@@ -12,10 +12,8 @@
 #include "CalibMuon/CSCCalibration/interface/CSCFakeConditionsProducer.h"
 #include "CondFormats/DataRecord/interface/CSCGainsRcd.h"
 #include "CondFormats/DataRecord/interface/CSCcrosstalkRcd.h"
-//#include "CondFormats/DataRecord/interface/CSCIdentifierRcd.h"
 #include "CondFormats/DataRecord/interface/CSCNoiseMatrixRcd.h"
 //#include "CondFormats/DataRecord/interface/CSCPedestalsRcd.h"
-
 
 CSCFakeConditionsProducer::CSCFakeConditionsProducer(const edm::ParameterSet& iConfig)
 {
@@ -23,24 +21,26 @@ CSCFakeConditionsProducer::CSCFakeConditionsProducer(const edm::ParameterSet& iC
 
 setWhatProduced(this,&CSCFakeConditionsProducer::produce);
 findingRecord<CSCGainsRcd>();
-findingRecord<CSCcrosstalkRcd>();
-findingRecord<CSCNoiseMatrixRcd>();
-findingRecord<CSCPedestalsRcd>();
+//findingRecord<CSCcrosstalkRcd>();
+//findingRecord<CSCNoiseMatrixRcd>();
+//findingRecord<CSCPedestalsRcd>();
 }
 
-CSCFakeConditionsProducer::~CSCFakeConditionsProducer::()
+CSCFakeConditionsProducer::~CSCFakeConditionsProducer()
 {
-
+  //smth
 }
 
 CSCFakeConditionsProducer::ReturnType
-CSCFakeConditionsProducer::produce(const CSCGainsRcd& iRecord, const CSCcrosstalkRcd& iRecord,const CSCNoiseMatrix& iRecord)
+CSCFakeConditionsProducer::produce(const CSCGainsRcd& iRecord)//, const CSCcrosstalkRcd& iRecord,const CSCNoiseMatrix& iRecord)
 {
    map_.prefillMap();
+   map_.print();
   
   CSCGains* mydata = new CSCGains(map_.get());
-  CSCcrosstalk* mydata = new CSCcrosstalk(map_.get());
-  CSCNoiseMatrix* mydata = new CSCNoiseMatrix(map_.get());
+
+  //  CSCcrosstalk* mydata = new CSCcrosstalk(map_.get());
+  //  CSCNoiseMatrix* mydata = new CSCNoiseMatrix(map_.get());
   return mydata;
   
 }
