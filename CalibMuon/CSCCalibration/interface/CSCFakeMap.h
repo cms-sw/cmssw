@@ -36,7 +36,7 @@ class CSCFakeMap:public FakeMap{
 	    for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
 	      try{
 		CSCDetId cscdetid(iendcap,istation,iring,ichamber,ilayer);
-		map_.setValue(cscdetid.id(),1.0);
+		map_.setValue(cscdetid.rawId(),1.0);map_.setValue(cscdetid.rawId(),1.0);
 	      }
 	      catch(...)
 		{
@@ -52,7 +52,7 @@ class CSCFakeMap:public FakeMap{
   
   virtual void csc(const DetId &cell, float scaling_factor)
     {
-      map_.setValue(cell.CSCDetId(),scaling_factor);
+      map_.setValue(cell.rawId(),scaling_factor);
     }
   
   void print()
