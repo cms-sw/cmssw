@@ -907,16 +907,17 @@ SiTrackerGaussianSmearingRecHitConverter::loadRecHits(
 void
 SiTrackerGaussianSmearingRecHitConverter::matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits , std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >&matchedMap, MixCollection<PSimHit>& simhits ) {
 
+  MixCollection<PSimHit>::iterator hitbegin = simhits.begin();
+  MixCollection<PSimHit>::iterator hitend = simhits.end();
+
   //loop over tracks
   for(   std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >::const_iterator  it =  theRecHits.begin();
 	 it !=  theRecHits.end() ; 
 	 ++it ) {
     
     //loop over rechits in track
-    bool matchedHitFound = 0;
-    for( edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator rit = it->second.begin(); rit != it->second.end(); rit++){
-      matchedHitFound = 0;
-
+    for( edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator rit = it->second.begin(); rit != it->second.end(); ++rit){
+      
       DetId detid = rit->geographicalId();
       unsigned int subdet = detid.subdetId();
       
@@ -927,35 +928,36 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits( std::map<unsigned, edm::Own
 
 	// if this is on a glued, then place only one hit in vector
 	if(specDetId.glued()){
+
+
+	  // get the track direction from the simhit
+	  LocalVector    simtrackdir;
+	  // loop over simhits (this is not optimal)
+	  int simHitCounter = -1;  
+	  bool simHitFound = 0;
+	  // simhits[rit->simhitId()]; 
+	  for(  MixCollection<PSimHit>::iterator isim = hitbegin; isim != hitend; ++isim){
+	    simHitCounter++;
+	    if(simHitCounter == rit->simhitId() ){
+	      simtrackdir = isim->localDirection();
+	      simHitFound = 1;
+	    }
+	  }
+	  if(simHitFound!=1){
+	    std::cout<<"SiTrackerGaussianSmearingRecHitConverter::matchHits: ERROR: simHitFound!=1"<< std::endl;
+	    exit(1); // FIXME: replace with exception
+	  }
+	  // end get track dir from simhit
+	  
+	  // get partner layer, it is the next one or previous one in the vector
+	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partner = rit;
+	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partnerNext = rit;
+	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partnerPrev = rit;
+	  partnerNext++; partnerPrev--;
 	  
 	  // check if this hit is on a stereo layer (== the second layer of a double sided module)
 	  if(   specDetId.stereo()  ) {
 	
-
-	    // get the track direction from the simhit
-	    LocalVector    simtrackdir;
-	    // loop over simhits (this is not optimal)
-	    int simHitCounter = -1;  
-	    bool simHitFound = 0;
-	    for(  MixCollection<PSimHit>::iterator isim = simhits.begin(); isim != simhits.end(); isim++){
-	      simHitCounter++;
-	      if(simHitCounter == rit->simhitId() ){
-		simtrackdir = isim->localDirection();
-		simHitFound = 1;
-	      }
-	    }
-	    if(simHitFound!=1){
-	      std::cout<<"SiTrackerGaussianSmearingRecHitConverter::matchHits: ERROR: simHitFound!=1"<< std::endl;
-	      exit(1); // FIXME: replace with exception
-	    }
-	    
-    
-	    // get partner layer, it is the next one or previous one in the vector
-	    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partner = rit;
-	    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partnerNext = rit;
-	    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partnerPrev = rit;
-	    partnerNext++; partnerPrev--;
-	    
 	    int partnersFound = 0;
 	    // check next one in vector
 	    // safety check first
@@ -971,29 +973,43 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits( std::map<unsigned, edm::Own
 		partner= partnerPrev;
 	      }
 	    
-	    if(partnersFound != 1) {
-	      std::cout<<"  ERROR: partner not found " << std::endl;
-	      exit(1); // FIXME: replace with exception
-	    }
-	    
-	    // calculate matched properties
 	    const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry->idToDet(DetId(specDetId.glued()));
 	    const StripGeomDetUnit* stripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
-	    // consistency cross check
-	    if(  stripdet->geographicalId().rawId() != detid.rawId() ){
-	      std::cout<< "SiTrackerGaussianSmearingRecHitConverter::matchHits: ERROR:  stripdet->geographicalId().rawId() != detid.rawId()"<< std::endl;
-	      exit(1); // FIXME: replace with exception
-	    }
 	    
 	    // global direction of track
 	    GlobalVector globaldir= stripdet->surface().toGlobal(simtrackdir);
 	    LocalVector gluedsimtrackdir=gluedDet->surface().toLocal(globaldir);
 	    
-	    matchedHitFound = 1;
 	    
-	    SiTrackerGSRecHit2D * theMatchedHit =GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
-	    matchedMap[it->first].push_back( theMatchedHit );
+	    if(partnersFound == 1) {
+	      SiTrackerGSRecHit2D * theMatchedHit =GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
+	      matchedMap[it->first].push_back( theMatchedHit );
+	    } 
+	    else{
+	      // no partner to match
+	      matchedMap[it->first].push_back( rit->clone() );
+	    }
 	  } // end if stereo
+	  else {   // we are on a mono layer
+	    // usually this hit is already matched, but not if stereo hit is missing (rare cases)
+	    // check if stereo hit is missing
+	    int partnersFound = 0;
+	    // check next one in vector
+	    // safety check first
+	    if(partnerNext != it->second.end() ) 
+	      if( StripSubdetector( partnerNext->geographicalId() ).partnerDetId() == detid.rawId() )	{
+		partnersFound++;
+	      }
+	    // check prevoius one in vector     
+	    if( rit !=  it->second.begin()) 
+	      if(  StripSubdetector( partnerPrev->geographicalId() ).partnerDetId() == detid.rawId() ) {
+		partnersFound++;
+	      }
+	    if(partnersFound==0){ // no partner hit found
+	      // no partner to match
+	      matchedMap[it->first].push_back( rit->clone() );
+	    }	    
+	  } // end we are on a a mono layer
 	} // end if glued
 	else  matchedMap[it->first].push_back( rit->clone() );  // if not glued place the original one in vector
       }// end if strip
