@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/04/05 14:53:54 $
- * $Revision: 1.132 $
+ * $Date: 2007/05/25 08:19:04 $
+ * $Revision: 1.133 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -50,8 +50,8 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
   // this should come from the event header
   runNumber_ = ps.getUntrackedParameter<int>("runNumber", 0);
 
-  fixedRunNumber_ = true;
-  if ( runNumber_ != 0 ) fixedRunNumber_ = false;
+  fixedRunNumber_ = false;
+  if ( runNumber_ != 0 ) fixedRunNumber_ = true;
 
   if ( fixedRunNumber_ ) {
     LogInfo("EcalBarrelMonitor") << " using fixed Run Number = " << runNumber_ << endl;
@@ -287,7 +287,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
 
-  if ( fixedRunNumber_ ) {
+  if ( ! fixedRunNumber_ ) {
     if ( e.id().run() != 0 ) runNumber_ = e.id().run();
   }
 
@@ -314,7 +314,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( fixedRunNumber_ ) {
+      if ( ! fixedRunNumber_ ) {
         if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
       }
 
@@ -343,7 +343,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
-      if ( fixedRunNumber_ ) {
+      if ( ! fixedRunNumber_ ) {
         if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
       }
 
