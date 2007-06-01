@@ -17,7 +17,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: AlCaElectronsProducer.h,v 1.6 2006/09/27 11:41:42 malgeri Exp $
+// $Id: AlCaElectronsProducer.h,v 1.7 2006/11/21 16:53:03 malgeri Exp $
 //
 //
 
@@ -50,8 +50,10 @@ class AlCaElectronsProducer : public edm::EDProducer {
 
   
   edm::InputTag ebRecHitsLabel_;
+  edm::InputTag eeRecHitsLabel_;
   edm::InputTag electronLabel_;
   std::string alcaBarrelHitsCollection_;
+  std::string alcaEndcapHitsCollection_;
   int etaSize_;
   int phiSize_;
   
