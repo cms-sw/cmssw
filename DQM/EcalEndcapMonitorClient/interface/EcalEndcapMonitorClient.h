@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/05/25 09:08:45 $
- * $Revision: 1.6 $
+ * $Date: 2007/06/01 19:15:24 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -55,7 +55,7 @@ void initialize(const edm::ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const edm::Event & e, const edm::EventSetup & c){ this->analyze(); }
+void analyze(const edm::Event & e, const edm::EventSetup & c);
 
 /// BeginJob
 void beginJob(void);

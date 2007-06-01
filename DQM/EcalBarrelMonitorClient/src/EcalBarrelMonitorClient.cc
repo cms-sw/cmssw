@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/05/25 10:33:49 $
- * $Revision: 1.263 $
+ * $Date: 2007/06/01 19:15:24 $
+ * $Revision: 1.264 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1610,6 +1610,12 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
+
+}
+
+void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
+
+  this->analyze();
 
 }
 

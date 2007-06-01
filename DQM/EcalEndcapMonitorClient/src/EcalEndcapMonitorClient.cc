@@ -1599,6 +1599,12 @@ void EcalEndcapMonitorClient::analyze(void){
 
 }
 
+void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
+ 
+  this->analyze(); 
+
+}
+
 void EcalEndcapMonitorClient::htmlOutput( bool current ){
 
   time_t start = time(NULL);
