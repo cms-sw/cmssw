@@ -16,7 +16,7 @@
 //
 // Original Author: Benedikt HEGNER
 //         Created:  Fri Jun  1 14:35:22 CEST 2007
-// $Id$
+// $Id: ExpressionHisto.h,v 1.1 2007/06/01 14:43:58 hegner Exp $
 //
 
 // system include files
@@ -48,7 +48,7 @@ class ExpressionHisto
       int nbins;
       std::string name, plotquantity;
       TH1F * hist;
-      StringObjectFunction<T>* function;      
+      StringObjectFunction<T> function;      
 };
 
 template<typename T>
@@ -57,15 +57,16 @@ ExpressionHisto<T>::ExpressionHisto(const edm::ParameterSet& iConfig):
    max(iConfig.template getUntrackedParameter<double>("max")),
    nbins(iConfig.template getUntrackedParameter<int>("nbins")),
    name(iConfig.template getUntrackedParameter<std::string>("name")),
-   plotquantity(iConfig.template getUntrackedParameter<std::string>("plotquantity"))
+    plotquantity(iConfig.template getUntrackedParameter<std::string>("plotquantity")),
+   function(plotquantity)
 {
-   function = new StringObjectFunction<T>(plotquantity);
+
 }
 
 template<typename T>
 ExpressionHisto<T>::~ExpressionHisto()
 {
-   delete function;
+
 }
 
 
@@ -78,7 +79,7 @@ void ExpressionHisto<T>::initialize(edm::Service<TFileService>& fs)
 template<typename T>
 void ExpressionHisto<T>::fill(const T& element)
 {
-   hist->Fill( ((*function)(element)) );
+  hist->Fill( function(element) );
 }
 
 #endif
