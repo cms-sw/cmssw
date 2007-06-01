@@ -127,6 +127,7 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	  idtk++;
 	}
       }
+<<<<<<< TrackInfoProducer.cc
       if(found){
 	theAlgo_.run(traj_iterator,track,
 		     outputFwd,outputBwd,outputUpdated, outputCombined,
@@ -136,6 +137,16 @@ void TrackInfoProducer::produce(edm::Event& theEvent, const edm::EventSetup& set
 	outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
 	outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
       }
+=======
+      theAlgo_.run(traj_iterator,track,
+		   outputFwd,outputBwd,outputUpdated, outputCombined,
+		   tracker);
+      outputFwdColl->push_back(*(new reco::TrackInfo(outputFwd)));
+      outputBwdColl->push_back(*(new reco::TrackInfo(outputBwd)));
+      outputUpdatedColl->push_back(*(new reco::TrackInfo(outputUpdated)));
+      outputCombinedColl->push_back(*(new reco::TrackInfo(outputCombined)));
+
+>>>>>>> 1.12
     }
     //put everything in the event
     edm::OrphanHandle<reco::TrackInfoCollection> rTrackInfof, rTrackInfob,rTrackInfou,rTrackInfoc;
