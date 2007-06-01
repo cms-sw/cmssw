@@ -39,6 +39,8 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
 
   // sort the outer layers 
   sort(theOuterLayers.begin(), theOuterLayers.end(), TkLayerLess());
+  sort(theOuterForwardLayers.begin(), theOuterForwardLayers.end(), TkLayerLess());
+  sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
 
 }
 
@@ -100,6 +102,10 @@ SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
   // sort the outer layers 
   sort(theOuterLayers.begin(), theOuterLayers.end(), TkLayerLess());
   sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(outsideIn));
+  sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
+  sort(theOuterForwardLayers.begin(), theOuterForwardLayers.end(), TkLayerLess());
+  sort(theInnerForwardLayers.begin(), theInnerForwardLayers.end(),TkLayerLess(outsideIn));
 
   sort(theAllOuterLayers.begin(), theAllOuterLayers.end(), TkLayerLess());
   sort(theAllInnerLayers.begin(), theAllInnerLayers.end(),TkLayerLess(outsideIn));
@@ -143,22 +149,49 @@ SimpleForwardNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   //or from inner to outer
   //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
   float zpos = fts.position().z();
-  bool isInOutTrack = fts.momentum().z()*zpos>0;
+  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
+  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
+  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;	
 
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
-  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
+  bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ( (dir == oppositeToMomentum) && !isInOutTrackBarrel);
+  bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ( (dir == oppositeToMomentum) && !isInOutTrackFWD);
+  //bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
 
-  if ( dirOppositeXORisInOutTrack ) {
+  if ( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
 
+    //wellInside(ftsWithoutErrors, dir, theOuterForwardLayers.begin(), theOuterForwardLayers.end(), result);
     wellInside(ftsWithoutErrors, dir, theOuterLayers, result);
+
+  }
+  else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel){ // !dirOppositeXORisInOutTrack
+
+    //wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theInnerLayers, result);
+
+  } else if (!dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) {
+    wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);		
+
+  } else {
+    wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
+    wellInside(ftsWithoutErrors, dir, theOuterForwardLayers.begin(), theOuterForwardLayers.end(), result);
+
+  }
+/*
+  if ( dirOppositeXORisInOutTrackBarrel ) {
+
+    wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);
 
   }
   else { // !dirOppositeXORisInOutTrack
 
-    wellInside(ftsWithoutErrors, dir, theInnerLayers, result);
+    wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(),theInnerBarrelLayers.end(), result);
 
   }
+*/
+
   return result;
 }
 
@@ -199,7 +232,7 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
   //establish whether the tracks is crossing the tracker from outer layers to inner ones 
   //or from inner to outer.
   //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  float zpos = fts.position().z();
+/*  float zpos = fts.position().z();
   bool isInOutTrack = fts.momentum().z()*zpos>0;
   
   //establish whether inner or outer layers are crossed after propagation, according
@@ -212,7 +245,41 @@ SimpleForwardNavigableLayer::compatibleLayers( const FreeTrajectoryState& fts,
   else { // !dirOppositeXORisInOutTrack
     wellInside(ftsWithoutErrors, dir, theAllInnerLayers, result);
   }
+*/
 
+  float zpos = fts.position().z();
+  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
+  GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
+  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
+
+  //establish whether inner or outer layers are crossed after propagation, according
+  //to BOTH propagationDirection AND track momentum
+  bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ( (dir == oppositeToMomentum) && !isInOutTrackBarrel);
+  bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ( (dir == oppositeToMomentum) && !isInOutTrackFWD);
+  //bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ( (dir == oppositeToMomentum) && !isInOutTrack);
+
+  if ( dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) { //standard tracks
+
+    //wellInside(ftsWithoutErrors, dir, theOuterForwardLayers.begin(), theOuterForwardLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theAllOuterLayers, result);
+
+  }
+  else if (!dirOppositeXORisInOutTrackFWD && !dirOppositeXORisInOutTrackBarrel){ // !dirOppositeXORisInOutTrack
+  
+    //wellInside(ftsWithoutErrors, dir, theInnerForwardLayers.begin(), theInnerForwardLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theAllInnerLayers, result);
+  
+  } else if (!dirOppositeXORisInOutTrackFWD && dirOppositeXORisInOutTrackBarrel ) {
+        
+    wellInside(ftsWithoutErrors, dir, theAllInnerForwardLayers.begin(), theAllInnerForwardLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theAllOuterBarrelLayers.begin(), theAllOuterBarrelLayers.end(), result);
+  
+  } else { 
+  
+    wellInside(ftsWithoutErrors, dir, theAllInnerBarrelLayers.begin(), theAllInnerBarrelLayers.end(), result);
+    wellInside(ftsWithoutErrors, dir, theAllOuterForwardLayers.begin(), theAllOuterForwardLayers.end(), result);
+
+  }
   return result;
 }
 
@@ -238,5 +305,7 @@ void SimpleForwardNavigableLayer::setInwardLinks(const BDLC& innerBL,
 
   // sort the inner layers
   sort(theInnerLayers.begin(), theInnerLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerForwardLayers.begin(), theInnerForwardLayers.end(), TkLayerLess(outsideIn));
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), TkLayerLess(outsideIn));  
 
 }

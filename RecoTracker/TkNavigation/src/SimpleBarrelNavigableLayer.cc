@@ -49,6 +49,9 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
   // sort the outer layers 
   sort( theNegOuterLayers.begin(), theNegOuterLayers.end(), TkLayerLess());
   sort( thePosOuterLayers.begin(), thePosOuterLayers.end(), TkLayerLess());
+  sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
+  sort(theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), TkLayerLess());
+  sort(theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), TkLayerLess());
 }
   
 
@@ -114,6 +117,12 @@ SimpleBarrelNavigableLayer( BarrelDetLayer* detLayer,
   sort( thePosOuterLayers.begin(), thePosOuterLayers.end(), TkLayerLess());
   sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
   sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
+  sort(theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), TkLayerLess());
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
+  sort(theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), TkLayerLess());
+  sort(theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), TkLayerLess());
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
 
 }
 
@@ -164,17 +173,19 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
   GlobalVector transversePosition(fts.position().x(), fts.position().y(), 0);
   //GlobalVector transverseMomentum(fts.momentum().x(), fts.momentum().y(), 0);
   //bool isInOutTrack  = (fts.position().basicVector().dot(fts.momentum().basicVector())>0) ? 1 : 0;
-  bool isInOutTrack  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
-
+  bool isInOutTrackBarrel  = (transversePosition.dot(fts.momentum())>0) ? 1 : 0;
+  float zpos = fts.position().z();
+  bool isInOutTrackFWD = fts.momentum().z()*zpos>0;
   //establish whether inner or outer layers are crossed after propagation, according
   //to BOTH propagationDirection AND track momentum
-  bool dirOppositeXORisInOutTrack = ( !(dir == oppositeToMomentum) && isInOutTrack) || ((dir == oppositeToMomentum) && !isInOutTrack);
+  bool dirOppositeXORisInOutTrackBarrel = ( !(dir == oppositeToMomentum) && isInOutTrackBarrel) || ((dir == oppositeToMomentum) && !isInOutTrackBarrel);
+  bool dirOppositeXORisInOutTrackFWD = ( !(dir == oppositeToMomentum) && isInOutTrackFWD) || ((dir == oppositeToMomentum) && !isInOutTrackFWD);
 
   bool signZmomentumXORdir = ( (fts.momentum().z() > 0) && !(dir == alongMomentum) ||
 			      !(fts.momentum().z() > 0) &&  (dir == alongMomentum)    );
 
 
-  if ( dirOppositeXORisInOutTrack ) {
+  if ( dirOppositeXORisInOutTrackBarrel &&  dirOppositeXORisInOutTrackFWD) {
 
     if ( signZmomentumXORdir   ) {
       wellInside( ftsWithoutErrors, dir, theNegOuterLayers, result);
@@ -182,15 +193,28 @@ SimpleBarrelNavigableLayer::nextLayers( const FreeTrajectoryState& fts,
     else {
       wellInside( ftsWithoutErrors, dir, thePosOuterLayers, result);
     }
-  } 
-  else {
+  } else if (!dirOppositeXORisInOutTrackBarrel &&  !dirOppositeXORisInOutTrackFWD){
     if ( signZmomentumXORdir ) {
       wellInside( ftsWithoutErrors, dir, theNegInnerLayers, result);
     }
     else {
       wellInside( ftsWithoutErrors, dir, thePosInnerLayers, result);
     }
-  } 
+  } else if (!dirOppositeXORisInOutTrackBarrel && dirOppositeXORisInOutTrackFWD){
+      wellInside(ftsWithoutErrors, dir, theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(), result);	
+      if (signZmomentumXORdir){	
+	wellInside(ftsWithoutErrors, dir, theOuterLeftForwardLayers.begin(), theOuterLeftForwardLayers.end(), result);	
+      }	else {
+	wellInside(ftsWithoutErrors, dir, theOuterRightForwardLayers.begin(), theOuterRightForwardLayers.end(), result);
+      }
+  } else {
+     if (signZmomentumXORdir){
+        wellInside(ftsWithoutErrors, dir, theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(), result);
+     } else {
+        wellInside(ftsWithoutErrors, dir, theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(), result);
+     }	
+     wellInside(ftsWithoutErrors, dir, theOuterBarrelLayers.begin(), theOuterBarrelLayers.end(), result);	
+  }
   
   return result;
 }
@@ -316,5 +340,8 @@ void SimpleBarrelNavigableLayer::setInwardLinks(const BDLC& theBarrelv,
   // sort the inner layers 
   sort( theNegInnerLayers.begin(), theNegInnerLayers.end(), TkLayerLess(outsideIn));
   sort( thePosInnerLayers.begin(), thePosInnerLayers.end(), TkLayerLess(outsideIn));
+  sort(theInnerBarrelLayers.begin(), theInnerBarrelLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerLeftForwardLayers.begin(), theInnerLeftForwardLayers.end(),TkLayerLess(outsideIn));
+  sort(theInnerRightForwardLayers.begin(), theInnerRightForwardLayers.end(),TkLayerLess(outsideIn));
 
 }
