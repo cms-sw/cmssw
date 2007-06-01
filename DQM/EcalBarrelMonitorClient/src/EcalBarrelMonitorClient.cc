@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/05/25 09:43:55 $
- * $Revision: 1.262 $
+ * $Date: 2007/05/25 10:33:49 $
+ * $Revision: 1.263 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -13,6 +13,8 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -591,6 +593,23 @@ void EcalBarrelMonitorClient::beginRun(void){
 
 }
 
+void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+
+  cout << endl;
+  cout << "Standard beginRun() for run " << r.id() << endl;
+  cout << endl;
+
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+    if ( ! begin_run_ ) this->beginRun();
+
+  }
+
+}
+
 void EcalBarrelMonitorClient::endJob(void) {
 
   // check last event
@@ -693,6 +712,31 @@ void EcalBarrelMonitorClient::endRun(void) {
 
     }
   }
+
+}
+
+void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
+
+  cout << endl;
+  cout << "Standard endRun() for run " << r.id() << endl;
+  cout << endl;
+
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+    if ( ! end_run_ ) this->endRun();
+
+  }
+
+}
+
+void EcalBarrelMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+
+}
+
+void EcalBarrelMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
 }
 

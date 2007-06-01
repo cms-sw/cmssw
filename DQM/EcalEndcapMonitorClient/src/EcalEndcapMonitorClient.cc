@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/25 09:43:55 $
- * $Revision: 1.18 $
+ * $Date: 2007/05/25 10:33:49 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,12 +14,18 @@
 #include <fstream>
 #include <algorithm>
 
-#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
+#include "FWCore/Framework/interface/Run.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -38,6 +44,8 @@
 #include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
@@ -590,6 +598,23 @@ void EcalEndcapMonitorClient::beginRun(void){
 
 }
 
+void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+
+  cout << endl;
+  cout << "Standard beginRun() for run " << r.id() << endl;
+  cout << endl;
+
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+    if ( ! begin_run_ ) this->beginRun();
+
+  }
+
+}
+
 void EcalEndcapMonitorClient::endJob(void) {
 
   // check last event
@@ -692,6 +717,31 @@ void EcalEndcapMonitorClient::endRun(void) {
 
     }
   }
+
+}
+
+void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
+
+  cout << endl;
+  cout << "Standard endRun() for run " << r.id() << endl;
+  cout << endl;
+
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    forced_update_ = true;
+    this->analyze();
+
+    if ( ! end_run_ ) this->endRun();
+
+  }
+
+}
+
+void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+
+}
+
+void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
 }
 

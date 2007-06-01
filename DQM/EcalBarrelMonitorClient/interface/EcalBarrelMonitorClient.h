@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/05/25 07:04:16 $
- * $Revision: 1.72 $
+ * $Date: 2007/05/25 09:03:07 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -41,10 +41,10 @@ public:
 /// Constructor
 EcalBarrelMonitorClient(const edm::ParameterSet & ps);
 EcalBarrelMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
-  
+
 /// Destructor
 ~EcalBarrelMonitorClient();
-  
+
 /// Subscribe/Unsubscribe to Monitoring Elements
 void subscribe(void);
 void subscribeNew(void);
@@ -52,39 +52,47 @@ void unsubscribe(void);
 
 /// softReset
 void softReset(void);
-  
+
 // Initialize
 void initialize(const edm::ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
 void analyze(const edm::Event & e, const edm::EventSetup & c){ this->analyze(); }
-  
+
 /// BeginJob
 void beginJob(void);
 void beginJob(const edm::EventSetup & c){ this->beginJob(); }
-  
+
 /// EndJob
 void endJob(void);
-  
+
 /// BeginRun
 void beginRun(void);
- 
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
 /// EndRun
 void endRun(void);
-  
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// BeginLumiBlock
+void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// EndLumiBlock
+void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
 /// Setup
 void setup(void);
-  
+
 /// Cleanup
 void cleanup(void);
-  
+
 /// HtmlOutput
 void htmlOutput(bool current=false);
-  
+
 /// BeginRunDB
 void beginRunDb(void);
-  
+
 /// WriteDB
 void writeDb(void);
 
