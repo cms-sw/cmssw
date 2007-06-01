@@ -48,8 +48,6 @@ using namespace edm;
 
 PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
 {
-  
-
 
   processEcal_ = 
     iConfig.getUntrackedParameter<bool>("process_Ecal",true);
@@ -67,7 +65,11 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& iConfig)
     iConfig.getUntrackedParameter<bool>("clustering_Hcal_CaloTowers",true);
   clusteringPS_ = 
     iConfig.getUntrackedParameter<bool>("clustering_PS",true);
+
     
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
+
 
 
   // parameters for ecal clustering
@@ -310,9 +312,11 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // do clustering
       clusterAlgoECAL_.doClustering( rechitsHandle );
       
-      LogInfo("PFClusterProducer")
-	<<" ECAL clusters --------------------------------- "<<endl
-	<<clusterAlgoECAL_<<endl;
+      if( verbose_ ) {
+	LogInfo("PFClusterProducer")
+	  <<" ECAL clusters --------------------------------- "<<endl
+	  <<clusterAlgoECAL_<<endl;
+      }    
     
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
@@ -345,10 +349,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
       // do clustering
       clusterAlgoHCAL_.doClustering( rechitsHandle );
       
-      LogInfo("PFClusterProducer")
-	<<" HCAL clusters --------------------------------- "<<endl
-	<<clusterAlgoHCAL_<<endl;
-      
+      if(verbose_) {
+	LogInfo("PFClusterProducer")
+	  <<" HCAL clusters --------------------------------- "<<endl
+	  <<clusterAlgoHCAL_<<endl;
+      }      
+
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
       auto_ptr< vector<reco::PFCluster> > 
@@ -379,10 +385,12 @@ void PFClusterProducer::produce(edm::Event& iEvent,
   
       clusterAlgoPS_.doClustering( rechitsHandle );
 
-      LogInfo("PFClusterProducer")
-	<<" Preshower clusters --------------------------------- "<<endl
-	<<clusterAlgoPS_<<endl;
-	   
+      if(verbose_) {
+	LogInfo("PFClusterProducer")
+	  <<" Preshower clusters --------------------------------- "<<endl
+	  <<clusterAlgoPS_<<endl;   
+      }
+
       // get clusters out of the clustering algorithm 
       // and put them in the event. There is no copy.
       auto_ptr< vector<reco::PFCluster> > 

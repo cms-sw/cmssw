@@ -75,6 +75,8 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig) :
     = iConfig.getUntrackedParameter<string>
     ("SimModuleLabel","g4SimHits");
 
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
 
 
   // register products
@@ -174,9 +176,9 @@ void PFSimParticleProducer::produce(Event& iEvent,
       //     }
 
       mySimEvent->fill( *simTracks, *simVertices );
-      mySimEvent->print();
-      //     cout<<"ntracks   = "<<mySimEvent->nTracks()<<endl;
-      //     cout<<"ngenparts = "<<mySimEvent->nGenParts()<<endl;
+      
+      if(verbose_) 
+	mySimEvent->print();
 
       const std::vector<FSimTrack>& fsimTracks = *(mySimEvent->tracks() );
       for(unsigned i=0; i<fsimTracks.size(); i++) {

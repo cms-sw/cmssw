@@ -49,6 +49,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 			 calibParamECAL_slope, 
 			 nSigmaECAL, 
 			 nSigmaHCAL );
+
+  verbose_ = 
+    iConfig.getUntrackedParameter<bool>("verbose",false);
+
 }
 
 
@@ -97,10 +101,12 @@ void PFProducer::produce(Event& iEvent,
  
   pfAlgo_.reconstructParticles( blocks );
 
-  ostringstream  str;
-  str<<pfAlgo_<<endl;
-  LogInfo("PFProducer") <<str.str()<<endl;
-  
+  if(verbose_) {
+    ostringstream  str;
+    str<<pfAlgo_<<endl;
+    LogInfo("PFProducer") <<str.str()<<endl;
+  }  
+
   auto_ptr< reco::PFCandidateCollection > 
     pOutputCandidateCollection( pfAlgo_.transferCandidates() ); 
   
