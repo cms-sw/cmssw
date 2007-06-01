@@ -37,8 +37,9 @@ SiStripGaussianSmearingRecHitConverterAlgorithm::smearHit(const PSimHit& simHit,
   // for the RecHit matcher (starting from these PSimHits)
   //
   thePosition = 
-    Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(),
-				   localPositionResolutionX),0.,0.);
+    Local3DPoint(random->gaussShoot((double)simHit.localPosition().x(), localPositionResolutionX), 
+		 (double)simHit.localPosition().y(),
+		 0.);
   //
   thePositionX = thePosition.x();
   thePositionY = thePosition.y();

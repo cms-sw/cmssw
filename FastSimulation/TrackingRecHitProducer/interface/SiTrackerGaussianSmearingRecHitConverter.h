@@ -13,6 +13,7 @@
 
 // PSimHit
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 
 // Data Formats
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
@@ -55,6 +56,10 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   void smearHits(MixCollection<PSimHit>& input,
 		 std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits);
 
+ void  matchHits( std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
+		   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >& matchedMap,
+		   MixCollection<PSimHit>& simhits);
+
   void loadRecHits(std::map<unsigned,edm::OwnVector<SiTrackerGSRecHit2D> >& theRecHits, 
 		   SiTrackerGSRecHit2DCollection& theRecHitCollection) const;
 
@@ -77,6 +82,8 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   double deltaRaysPCut; // GeV/c
   bool trackingPSimHits; // in case it is true make RecHit = replica of PSimHit without errors (1 um)
   //
+  bool doMatching;
+
   const TrackerGeometry* geometry;
   //
   // Pixel
