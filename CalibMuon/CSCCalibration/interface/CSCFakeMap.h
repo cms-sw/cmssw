@@ -31,18 +31,14 @@ class CSCFakeMap:public FakeMap{
     int ilayer = detId.layer();
     */
 
-    for(int iendcap=CSCDetId::MIN_ENDCAP; iendcap<=CSCDetId::MAX_ENDCAP; iendcap++){
-      for(int istation=CSCDetId::MIN_STATION; istation<=CSCDetId::MAX_STATION; istation++){
-	for(int iring=CSCDetId::MIN_RING; iring<=CSCDetId::MAX_RING; iring++){
-	  for(int ichamber=CSCDetId::MIN_CHAMBER; ichamber<=CSCDetId::MAX_CHAMBER; ichamber++){
-	    for(int ilayer=CSCDetId::MIN_LAYER; ilayer<=CSCDetId::MAX_LAYER; ilayer++){
+    for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
+      for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
+	for(int iring=detId.minRingId(); iring<=detId.maxRingId(); iring++){
+	  for(int ichamber=detId.minChamberId(); ichamber<=detId.maxChamberId(); ichamber++){
+	    for(int ilayer=detId.minLayerId(); ilayer<=detId.maxLayerId(); ilayer++){
 	      try{
 		CSCDetId cscdetid(iendcap,istation,iring,ichamber,ilayer);
 		map_.setValue(cscdetid.id(),1.0);
-		map_.setValue(istation.id(),1.0);
-		map_.setValue(iring.id(),1.0);
-		map_.setValue(ichamber.id(),1.0);	     
-		map_.setValue(ilayer.id(),1.0);
 	      }
 	      catch(...)
 		{
@@ -68,7 +64,7 @@ class CSCFakeMap:public FakeMap{
   
   virtual void csc(const DetId &cell, float scaling_factor)
     {
-      map_.setValue(cell.rawId(),scaling_factor);
+      map_.setValue(cell.id(),scaling_factor);
     }
   
   void print()
@@ -81,14 +77,14 @@ class CSCFakeMap:public FakeMap{
       
     }
   
-  const CSCobject & get(){
+  const CSCGains & get(){
     return map_;
   }
   
  private:
-  CSCobject map_;
-  const CSCGeometry* geometry;
-    
+  CSCGains map_;
+  const CSCGeometry *geometry;
+  
 };
 
 
