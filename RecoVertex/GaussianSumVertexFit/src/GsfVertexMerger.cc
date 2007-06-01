@@ -1,15 +1,16 @@
 #include "RecoVertex/GaussianSumVertexFit/interface/GsfVertexMerger.h"
 #include "TrackingTools/GsfTools/interface/KullbackLeiblerDistance.h"
-#include "TrackingTools/GsfTools/interface/MahalanobisDistance.h"
+// #include "TrackingTools/GsfTools/interface/MahalanobisDistance.h"
 #include "TrackingTools/GsfTools/interface/CloseComponentsMerger.h"
 // #include "CommonReco/GSFTools/interface/KeepingNonZeroWeightsMerger.h"
-#include "TrackingTools/GsfTools/interface/LargestWeightsStateMerger.h"
-#include "RecoVertex/GaussianSumVertexFit/interface/RCGaussianStateFactory.h"
-#include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
+// #include "TrackingTools/GsfTools/interface/LargestWeightsStateMerger.h"
+// #include "TrackingTools/GsfTools/interface/RCMultiGaussianState.h"
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+
+#include "RecoVertex/GaussianSumVertexFit/interface/VertexGaussianStateConversions.h"
 
 GsfVertexMerger::GsfVertexMerger(const edm::ParameterSet& pSet)
 {
@@ -19,19 +20,20 @@ GsfVertexMerger::GsfVertexMerger(const edm::ParameterSet& pSet)
   std::string distanceName = pSet.getParameter<string>("distance");
 
   if ( mergerName=="CloseComponentsMerger" ) {
-    DistanceBetweenComponents* distance;
+    DistanceBetweenComponents<3>* distance;
 
     if ( distanceName=="KullbackLeiblerDistance" )
-      distance = new KullbackLeiblerDistance();
-    else if ( distanceName=="MahalanobisDistance" )
-      distance = new MahalanobisDistance();
+      distance = new KullbackLeiblerDistance<3>();
+//     else if ( distanceName=="MahalanobisDistance" )
+//       distance = new MahalanobisDistance();
     else 
       throw VertexException("GsfVertexMerger: Distance type "+distanceName+" unknown. Check distance parameter in GsfMergerParameters PSet");
     
-    merger = new CloseComponentsMerger(maxComponents, distance);
+    merger = new CloseComponentsMerger<3>(maxComponents, distance);
     delete distance;
-  } else if ( mergerName=="LargestWeightsStateMerger" )
-    merger = new LargestWeightsStateMerger(maxComponents);
+  } 
+//   else if ( mergerName=="LargestWeightsStateMerger" )
+//     merger = new LargestWeightsStateMerger(maxComponents);
   else 
     throw VertexException("GsfVertexMerger: Merger type "+mergerName+" unknown. Check merger parameter in GsfMergerParameters PSet");
 
@@ -66,23 +68,12 @@ cout << "end merger :"<<newVertexState.components().size()<<endl;
 
 VertexState GsfVertexMerger::merge(const VertexState & oldVertex) const
 {
+  using namespace GaussianStateConversions;
+
   if (oldVertex.components().size() <= maxComponents) 
   	return oldVertex;
 
-  RCGaussianStateFactory theFactory;
-  RCMultiGaussianState multiGaussianState = 
-  	theFactory.multiGaussianState(oldVertex);
-  RCMultiGaussianState finalState = merger->merge(multiGaussianState);
-
-  const MultiGaussianState * finalStatePtr = finalState.get();
-  const MultiGaussianStateFromVertex* temp = 
- 	dynamic_cast<const MultiGaussianStateFromVertex*>(finalStatePtr);
-
-  if (temp == 0) {
-   cout << "PerigeeLinearizedTrackState: finalState is not a MultiGaussianStateFromVertex\n";
-   throw VertexException("PerigeeLinearizedTrackState: finalState is not a MultiGaussianStateFromVertex");
-  }
-
-  VertexState newVertexState = temp->state();
-  return newVertexState;
+  MultiGaussianState<3> multiGaussianState(multiGaussianStateFromVertex(oldVertex));
+  MultiGaussianState<3> finalState(merger->merge(multiGaussianState));
+  return vertexFromMultiGaussianState(finalState);
 }

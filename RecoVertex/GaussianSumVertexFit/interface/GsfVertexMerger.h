@@ -27,7 +27,7 @@ public:
   }
 
 private:
-  DeepCopyPointerByClone<MultiGaussianStateMerger> merger;
+  DeepCopyPointerByClone< MultiGaussianStateMerger<3> > merger;
   unsigned int maxComponents;
 };
 
