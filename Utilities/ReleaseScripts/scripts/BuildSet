@@ -5,8 +5,8 @@ BuildSet - utilizes dependency discovery mechanism for Partial Releases.
 """
 # TO ADD: check and report unknown packages. 
 #
-__revision__ = "$Id: BuildSet,v 1.1 2007/05/22 18:45:18 ratnik Exp $"
-__version__ = "$Revision: 1.1 $"
+__revision__ = "$Id: BuildSet,v 1.2 2007/05/31 20:29:08 ratnik Exp $"
+__version__ = "$Revision: 1.2 $"
 
 import os
 import sys
@@ -23,6 +23,7 @@ packageListInFile     = 0
 dependencyAnalysisDir = ""
 dependencies          = []
 outputFormats         = ("packages", "tools")
+outputFormat          = None
 
 # Format specific patterns:
 dependencyFormat      = "xdeps.all"
@@ -41,7 +42,7 @@ def usage():
     # override the defaults
     print """
 USAGE:
-    """ + programName + """ <release name>  [<package>]+
+    """ + programName + """ [OPTIONS] <release name>  [<package>]+
 OPTIONS:
    -d dir     - get dependency information from directory dir
    -f file    - read list of packages from file
@@ -62,7 +63,8 @@ def usageError ( message, programName) :
         print "Usage error: ", message, \
               "\nTry \'" + programName + " -h\' for help"
     sys.exit ( 2 )
- 
+
+    
 def infoOut(infoString):
     """
     Informative printout with verbosity control.
@@ -175,6 +177,18 @@ if (dependencyAnalysisDir):
                 inBlock = 1
     f.close()
 
+# Check for unknown packages: 
+
+for name in packages:
+    found=0
+    tmpLen = len(name)
+    for line in dependencies:
+        if line[:tmpLen+1] == line[:tmpLen] + ":" :
+            found = 1
+        else:
+            continue
+    if not found:
+        sys.exit ("ERROR: unknown package: " + name )
 
 # First get all required CMSSW packages: 
 
