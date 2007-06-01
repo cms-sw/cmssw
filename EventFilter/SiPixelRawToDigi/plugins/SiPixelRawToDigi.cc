@@ -1,4 +1,4 @@
-#include "EventFilter/SiPixelRawToDigi/interface/SiPixelRawToDigi.h"
+#include "SiPixelRawToDigi.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -21,7 +21,7 @@
 
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
 
-#include "R2DTimerObserver.h"
+#include "EventFilter/SiPixelRawToDigi/interface/R2DTimerObserver.h"
 
 #include "TH1D.h"
 #include "TFile.h"
@@ -33,22 +33,33 @@ using namespace std;
 SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf ) 
   : eventCounter_(0), 
     config_(conf),
-//    theLabel( conf.getParameter<edm::InputTag>( "src") ),
-    fedCablingMap_(0)
+    fedCablingMap_(0),
+    hCPU(0), hDigi(0), rootFile(0),
+    theTimer(0)
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   produces< edm::DetSetVector<PixelDigi> >();
 
-  rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
-  hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
-  hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
+  bool timing = config_.getUntrackedParameter<bool>("Timing",false);
+  cout <<"HERE timing is: " << timing << endl;
+  if (timing) {
+    theTimer = new R2DTimerObserver("**** MY TIMING REPORT ***");
+    rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
+    hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
+    hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
+  }
 }
 
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
-  rootFile->Write();
+
+  if (theTimer) {
+    rootFile->Write();
+    delete theTimer;
+  }
+
   cout << " end.."<<endl;
 }
 
@@ -67,8 +78,6 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   es.get<SiPixelFedCablingMapRcd>().get( map );
   cout << map->version() << endl;
 
-  static  R2DTimerObserver timer("**** MY TIMING REPORT ***");
-
   edm::Handle<FEDRawDataCollection> buffers;
   static string label = config_.getUntrackedParameter<string>("InputLabel","source");
   static string instance = config_.getUntrackedParameter<string>("InputInstance","");
@@ -80,14 +89,14 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static int nwords = 0;
 
   PixelDataFormatter formatter(map.product());
-{
-  TimeMe t(timer.item(), false);
+
+  if (theTimer) theTimer->start();
+
   FEDNumbering fednum;
   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
   fedIds.first = 0;
   fedIds.second = 39; //  temporary FIX !!!!
   
-
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
@@ -108,14 +117,17 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
       detSet.data = it->second;
     } 
   }
-}
-  cout << "TIMING IS: (real)" << timer.lastMeasurement().real() << endl;
-  ndigis += formatter.nDigis();
-  nwords += formatter.nWords();
-  cout << " (Words/Digis) this ev: "<<formatter.nWords()<<"/"<<formatter.nDigis()
-       << "--- all :"<<nwords<<"/"<<ndigis<<endl;
-  hCPU->Fill( timer.lastMeasurement().real() ); 
-  hDigi->Fill(formatter.nDigis());
+
+  if (theTimer) {
+    theTimer->stop();
+    cout << "TIMING IS: (real)" << theTimer->lastMeasurement().real() << endl;
+    ndigis += formatter.nDigis();
+    nwords += formatter.nWords();
+    cout << " (Words/Digis) this ev: "<<formatter.nWords()<<"/"<<formatter.nDigis()
+         << "--- all :"<<nwords<<"/"<<ndigis<<endl;
+    hCPU->Fill( theTimer->lastMeasurement().real() ); 
+    hDigi->Fill(formatter.nDigis());
+  }
 
   //send digis back to framework 
   ev.put( collection );

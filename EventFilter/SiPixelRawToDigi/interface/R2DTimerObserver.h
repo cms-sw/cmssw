@@ -52,6 +52,8 @@ public:
   const LastMeasurement & lastMeasurement() { return theMeasurement; }
   TimingReport::Item & item() { return *timer_item; }
 
+  void start() { timer_item->start(); }
+  void stop() { timer_item->stop(); }
 
 };
 

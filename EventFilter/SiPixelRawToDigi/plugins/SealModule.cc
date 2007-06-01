@@ -1,8 +1,8 @@
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
-#include "EventFilter/SiPixelRawToDigi/interface/SiPixelRawToDigi.h"
-#include "EventFilter/SiPixelRawToDigi/interface/SiPixelDigiToRaw.h"
+#include "SiPixelRawToDigi.h"
+#include "SiPixelDigiToRaw.h"
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(SiPixelDigiToRaw);

@@ -8,6 +8,8 @@
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
 
+#include "CondFormats/SiPixelObjects/interface/PixelROC.h"
+
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -50,10 +52,11 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCablingMap * map)
 
 void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, Digis& digis)
 {
-  SiPixelFrameConverter converter(theCablingMap, fedId); 
-
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) return;
+
+  SiPixelFrameConverter * converter = (theCablingMap) ? 
+      new SiPixelFrameConverter(theCablingMap, fedId) : 0; 
 
     // check headers
     const Word64* header = reinterpret_cast<const Word64* >(rawData.data()); header--;
@@ -100,15 +103,19 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       if (w2==0) theWordCounter--;
 
       // check status of word...
-      // int status = checkWord(word);
-     
-      int status1 = word2digi(converter, w1, digis);
-      if (status1) LogError("PixelDataFormatter::interpretRawData") 
-                  << "error #"<<status1<<" returned for word1";
-      int status2 = word2digi(converter, w2, digis);
-      if (status2) LogError("PixelDataFormatter::interpretRawData") 
-                  << "error #"<<status2<<" returned for word2";
+      if (checkError(w1)==0) {
+        int status1 = word2digi(converter, w1, digis);
+        if (status1) LogError("PixelDataFormatter::interpretRawData") 
+                    << "error #"<<status1<<" returned for word1";
+      }
+      if (checkError(w2)==0) {
+        int status2 = word2digi(converter, w2, digis);
+        if (status2) LogError("PixelDataFormatter::interpretRawData") 
+                    << "error #"<<status2<<" returned for word2";
+      }
     } 
+
+  delete converter;
 }
 
 
@@ -130,7 +137,7 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi & digi = (*it);
-      int status = digi2word( converter, rawId, digi, words); 
+      int status = digi2word( &converter, rawId, digi, words); 
       if (status) {
          LogError("PixelDataFormatter::formatData exception") 
             <<" digi2word returns error #"<<status
@@ -190,8 +197,41 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
   return rawData;
 }
 
+int PixelDataFormatter::checkError(const Word32& data) const
+{
+ static const Word32 ERROR_mask = ~(~Word32(0) << ROC_bits); 
+ int error = (data >> ROC_shift) & ERROR_mask;
+ switch (error) {
+   case(26) : {
+     LogTrace("")<<"  gap word found (error=26)";
+     break;
+   }
+   case(27) : {
+     LogTrace("")<<"  dummy word found (error=27)";
+     break;
+   }
+   case(28) : {
+     LogTrace("")<<"  error fifo nearly full (error=28)";
+     break;
+   }
+   case(29) : {
+     LogTrace("")<<"  timeout on a channel (error=29)";
+     break;
+   }
+   case(30) : {
+     LogTrace("")<<"  trailer error (error=30)";
+     break;
+   }
+   case(31) : {
+     LogTrace("")<<"  event number error (error=31)";
+     break;
+   }
+   default: return 0;
+ };
+ return error;
+}
 
-int PixelDataFormatter::digi2word( const SiPixelFrameConverter& converter,
+int PixelDataFormatter::digi2word( const SiPixelFrameConverter* converter,
     uint32_t detId, const PixelDigi& digi, std::vector<Word32> & words) const
 {
   LogDebug("PixelDataFormatter")
@@ -200,7 +240,7 @@ int PixelDataFormatter::digi2word( const SiPixelFrameConverter& converter,
 
   SiPixelFrameConverter::DetectorIndex detector = {detId, digi.row(), digi.column()};
   SiPixelFrameConverter::CablingIndex  cabling;
-  int status  = converter.toCabling(cabling, detector);
+  int status  = converter->toCabling(cabling, detector);
   if (status) return status;
 
   Word32 word =
@@ -215,7 +255,7 @@ int PixelDataFormatter::digi2word( const SiPixelFrameConverter& converter,
 }
 
 
-int PixelDataFormatter::word2digi(const SiPixelFrameConverter& converter, 
+int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter, 
     const Word32 & word, Digis & digis) const
 {
   // do not interpret false digis
@@ -234,21 +274,26 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter& converter,
   cabling.roc  = (word >> ROC_shift) & ROC_mask;
   int adc   = (word >> ADC_shift) & ADC_mask; 
 
+  static bool debug = edm::MessageDrop::instance()->debugEnabled;
+  if (debug) {
+    int rocCol, rocRow;
+    sipixelobjects::PixelROC::decodeRowCol(cabling.dcol,cabling.pxid, rocRow, rocCol);
+    LogTrace("")<<"  link: "<<cabling.link<<", roc: "<<cabling.roc 
+                <<" rocRow: "<<rocRow<<", rocCol:"<<rocCol
+                <<" (dcol: "<<cabling.dcol<<",pxid:"<<cabling.pxid<<"), adc:"<<adc;
+  }
+
+  if (!converter) return 0;
+
   SiPixelFrameConverter::DetectorIndex detIdx;
-  int status =  converter.toDetector(cabling, detIdx);
+  int status =  converter->toDetector(cabling, detIdx);
   if (status) return status;
 
   PixelDigi pd(detIdx.row, detIdx.col,  adc);
   digis[detIdx.rawId].push_back(pd);
 
-//  Digis::iterator it = lower_bound(digis.begin(), digis.end(), detIdx.rawId);
-//  if ( (it == digis.end()) ||  (it->id != detIdx.rawId )) {               // new detunit
-//    it = digis.insert( it, edm::DetSet<PixelDigi>(detIdx.rawId) );
-//  }
-//  (*it).data.push_back(pd);
-
   theDigiCounter++;
-//  LogDebug("PixelDataFormatter") << print(pd);
+  if (debug)  LogTrace("") << print(pd);
   return 0;
 }
 

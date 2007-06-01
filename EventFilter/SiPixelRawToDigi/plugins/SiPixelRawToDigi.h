@@ -14,6 +14,7 @@
 class SiPixelFedCablingMap;
 class TH1D;
 class TFile;
+class R2DTimerObserver;
 
 
 class SiPixelRawToDigi : public edm::EDProducer {
@@ -42,5 +43,6 @@ private:
   SiPixelFedCablingMap * fedCablingMap_;
   TH1D *hCPU, *hDigi;
   TFile * rootFile;
+  R2DTimerObserver * theTimer;
 };
 #endif
