@@ -48,37 +48,41 @@ HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) :
    // create the histograms from the given parameter sets 
    for (; it!=end; ++it)
    {
-      ExpressionHisto<typename C::value_type> hist(*it);
-      hist.initialize(fs);
-      vhistograms.push_back(&hist);
+      ExpressionHisto<typename C::value_type>* hist = new ExpressionHisto<typename C::value_type>(*it);
+      hist->initialize(fs);
+      vhistograms.push_back(hist);
    }   
 
 }
 
+
 template<typename C>
 HistoAnalyzer<C>::~HistoAnalyzer() 
 {
-  // delete all histograms and clear the vector of pointers
-  typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator it = vhistograms.begin(); 
-  typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator end = vhistograms.end();
-  for (;it!=end; ++it)
-    (*it)->~ExpressionHisto<typename C::value_type>();
-  vhistograms.clear(); 
+   // delete all histograms and clear the vector of pointers
+   typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator it = vhistograms.begin(); 
+   typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator end = vhistograms.end();
+   for (;it!=end; ++it){
+     (*it)->~ExpressionHisto<typename C::value_type>();
+   }
+   vhistograms.clear(); 
 }
 
 
 template<typename C>
 void HistoAnalyzer<C>::analyze( const edm::Event& iEvent, const edm::EventSetup& ) 
 {
-  edm::Handle<C> coll;
-  iEvent.getByLabel( src_, coll);
+   edm::Handle<C> coll;
+   iEvent.getByLabel( src_, coll);
 
-  typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator it = vhistograms.begin();
-  typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator end = vhistograms.end(); 
-  for (;it!=end; ++it)
-    for( typename C::const_iterator elem1=coll->begin(); elem1!=coll->end(); ++elem1 )
-      (*it)->fill( *elem1 );
- 
+   typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator it = vhistograms.begin();
+   typename std::vector<ExpressionHisto<typename C::value_type>* >::iterator end = vhistograms.end(); 
+
+   for (;it!=end; ++it){
+      for( typename C::const_iterator elem=coll->begin(); elem!=coll->end(); ++elem ) {
+         (*it)->fill( *elem );
+      }
+   }
 }
 
 #endif
