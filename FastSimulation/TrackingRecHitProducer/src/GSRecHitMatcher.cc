@@ -10,7 +10,7 @@
 SiTrackerGSRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
 					      const SiTrackerGSRecHit2D *stereoRH,
 					      const GluedGeomDet* gluedDet,
-					      LocalVector trackdirection) const
+					            LocalVector& trackdirection) const
 {
   // stripdet = mono
   // partnerstripdet = stereo
@@ -41,7 +41,8 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
 
   //error calculation (the part that depends on mono RH only)
   LocalVector  RPHIpositiononGluedendvector=projectedstripmono.second-projectedstripmono.first;
-  double c1=sin(RPHIpositiononGluedendvector.phi()); double s1=-cos(RPHIpositiononGluedendvector.phi());
+  double c1=sin(RPHIpositiononGluedendvector.phi()); 
+  double s1=-cos(RPHIpositiononGluedendvector.phi());
   MeasurementError errormonoRH=topol.measurementError(monoRH->localPosition(),monoRH->localPositionError());
   double pitch=topol.localPitch(monoRH->localPosition());
   double sigmap12=errormonoRH.uu()*pitch*pitch;
@@ -104,7 +105,11 @@ SiTrackerGSRecHit2D * GSRecHitMatcher::match( const SiTrackerGSRecHit2D *monoRH,
 }
 
 
-GSRecHitMatcher::StripPosition GSRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection)const
+GSRecHitMatcher::StripPosition 
+GSRecHitMatcher::project(const GeomDetUnit *det,
+			 const GluedGeomDet* glueddet,
+			 const StripPosition& strip,
+			 const LocalVector& trackdirection)const
 {
 
   GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first);
