@@ -13,7 +13,7 @@
 //
 // Original Author:  Dongwook Jang
 //         Created:  Tue Jan  9 16:40:36 CST 2007
-// $Id: TauVariables.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
+// $Id: TauVariables.cc,v 1.2 2007/04/05 19:27:50 dwjang Exp $
 //
 //
 
@@ -116,10 +116,10 @@ void TauVariables::makeVariables(){
 
 
   if(useVariableSignalCone_){
-    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->jet().energy(),0.05));
+    if(!tauTagRef_.isNull()) signalConeSize_ = std::min(0.175, std::max(signalConeFunction_/tauTagRef_->jet()->energy(),0.05));
   }
   if(useVariableIsolationCone_){
-    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->jet().energy(),0.05));
+    if(!tauTagRef_.isNull()) isolationConeSize_ = std::min(0.524, std::max(isolationConeFunction_/tauTagRef_->jet()->energy(),0.05));
   }
 
 
