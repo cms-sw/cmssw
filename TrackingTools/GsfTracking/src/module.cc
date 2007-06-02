@@ -1,8 +1,7 @@
-#include "TrackingTools/PatternTools/interface/TrajectoryFitter.h" 
-#include "TrackingTools/PatternTools/interface/TrajectorySmoother.h" 
+// #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h" 
+// #include "TrackingTools/PatternTools/interface/TrajectorySmoother.h" 
 #include "TrackingTools/GsfTracking/interface/GsfMaterialEffectsUpdator.h"
 #include "TrackingTools/GsfTracking/interface/MultiTrajectoryStateMerger.h"
-#include "TrackingTools/GsfTracking/interface/TSOSDistanceBetweenComponents.h"
 
 // #include "FWCore/Framework/interface/EventSetup.h"
 // #include "FWCore/Framework/interface/ESHandle.h"
@@ -14,4 +13,3 @@
 // EVENTSETUP_DATA_REG(TrajectorySmoother);
 EVENTSETUP_DATA_REG(GsfMaterialEffectsUpdator);
 EVENTSETUP_DATA_REG(MultiTrajectoryStateMerger);
-EVENTSETUP_DATA_REG(TSOSDistanceBetweenComponents);
