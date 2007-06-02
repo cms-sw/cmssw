@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/02 07:25:03 $
- * $Revision: 1.266 $
+ * $Date: 2007/06/02 08:00:13 $
+ * $Revision: 1.267 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1273,19 +1273,21 @@ void EcalBarrelMonitorClient::analyze(void){
       }
     }
 
+    int ecal_run;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
+    int ecal_evt;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
@@ -1309,16 +1311,19 @@ void EcalBarrelMonitorClient::analyze(void){
 
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
-      cout << " run = "      << run_      <<
-              " event = "    << evt_      <<
-              " status = "   << status_   << endl;
+      cout << " RUN status = \"" << status_ << "\"" << endl;
 
-      cout << " runtype = "  << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<
-              " location = " << location_ << flush;
+      cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
+
+      cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
+
+      cout << "   ECAL location = " << location_ << endl;
+
+      cout << "   ECAL run/event type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
 
       if ( h_ ) {
         if ( h_->GetEntries() != 0 ) {
-          cout << "  ( " << flush;
+          cout << " ( " << flush;
           for ( int i=0; i<int(runTypes_.size()); ++i ) {
             if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
               string s = runTypes_[i];
@@ -1332,6 +1337,10 @@ void EcalBarrelMonitorClient::analyze(void){
       cout << endl;
 
     }
+
+    // if the run number from the Event is zero, then
+    // use the run number from the ECAL DCC header
+    if ( run_ == 0 ) run_ = ecal_run;
 
     update = true;
 
@@ -1630,6 +1639,10 @@ void EcalBarrelMonitorClient::analyze(void){
 }
 
 void EcalBarrelMonitorClient::analyze(const Event &e, const EventSetup &c) {
+
+  run_ = e.id().run();
+
+  evt_ = e.id().event();
 
   this->analyze();
 

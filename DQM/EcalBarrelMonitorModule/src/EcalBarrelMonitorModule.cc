@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/05/25 08:19:04 $
- * $Revision: 1.133 $
+ * $Date: 2007/06/01 08:09:10 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -287,9 +287,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
   LogInfo("EcalBarrelMonitor") << "processing event " << ievt_;
 
-  if ( ! fixedRunNumber_ ) {
-    if ( e.id().run() != 0 ) runNumber_ = e.id().run();
-  }
+  if ( ! fixedRunNumber_ ) runNumber_ = e.id().run();
 
   evtNumber_ = e.id().event();
 
@@ -314,9 +312,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill((dcch.id()+1)+0.5);
 
-      if ( ! fixedRunNumber_ ) {
-        if ( dcch.getRunNumber() != 0 ) runNumber_ = dcch.getRunNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = dcch.getRunNumber();
+
+      evtNumber_ = dcch.getLV1();
 
       if ( dcch.getRunType() != -1 ) runType_ = dcch.getRunType();
 
@@ -343,9 +341,9 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       meEBDCC_->Fill(1);
 
-      if ( ! fixedRunNumber_ ) {
-        if ( evtHeader->runNumber() != 0 ) runNumber_ = evtHeader->runNumber();
-      }
+      if ( ! fixedRunNumber_ ) runNumber_ = evtHeader->runNumber();
+
+      evtNumber_ = evtHeader->eventNumber();
 
       runType_ = EcalDCCHeaderBlock::BEAMH4;
 
