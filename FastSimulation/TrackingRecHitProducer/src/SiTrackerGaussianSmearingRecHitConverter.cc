@@ -66,6 +66,11 @@
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
+  :
+  theTIDRingRMin(10, static_cast<double>(0.)), // reserve space for TID rings
+  theTIDRingRMax(10, static_cast<double>(0.)), // reserve space for TID rings
+  theTECRingRMin(10, static_cast<double>(0.)), // reserve space for TEC rings
+  theTECRingRMax(10, static_cast<double>(0.))  // reserve space for TEC rings
 {
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;
@@ -151,26 +156,46 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   //
 #ifdef FAMOS_DEBUG
   std::cout << "RecHit local position error set to" << "\n"
-	    << "\tTIB1\tx = " << localPositionResolution_TIB1x << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
-	    << "\tTIB2\tx = " << localPositionResolution_TIB2x << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
-	    << "\tTIB3\tx = " << localPositionResolution_TIB3x << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
-	    << "\tTIB4\tx = " << localPositionResolution_TIB4x << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
-	    << "\tTID1\tx = " << localPositionResolution_TID1x << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
-	    << "\tTID2\tx = " << localPositionResolution_TID2x << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
-	    << "\tTID3\tx = " << localPositionResolution_TID3x << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
-	    << "\tTOB1\tx = " << localPositionResolution_TOB1x << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
-	    << "\tTOB2\tx = " << localPositionResolution_TOB2x << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
-	    << "\tTOB3\tx = " << localPositionResolution_TOB3x << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
-	    << "\tTOB4\tx = " << localPositionResolution_TOB4x << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
-	    << "\tTOB5\tx = " << localPositionResolution_TOB5x << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
-	    << "\tTOB6\tx = " << localPositionResolution_TOB6x << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
-	    << "\tTEC1\tx = " << localPositionResolution_TEC1x << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
-	    << "\tTEC2\tx = " << localPositionResolution_TEC2x << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
-	    << "\tTEC3\tx = " << localPositionResolution_TEC3x << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
-	    << "\tTEC4\tx = " << localPositionResolution_TEC4x << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
-	    << "\tTEC5\tx = " << localPositionResolution_TEC5x << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
-	    << "\tTEC6\tx = " << localPositionResolution_TEC6x << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
-	    << "\tTEC7\tx = " << localPositionResolution_TEC7x << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
+	    << "\tTIB1\tx = " << localPositionResolution_TIB1x 
+	    << " cm\ty = " << localPositionResolution_TIB1y << " cm" << "\n"
+	    << "\tTIB2\tx = " << localPositionResolution_TIB2x 
+	    << " cm\ty = " << localPositionResolution_TIB2y << " cm" << "\n"
+	    << "\tTIB3\tx = " << localPositionResolution_TIB3x 
+	    << " cm\ty = " << localPositionResolution_TIB3y << " cm" << "\n"
+	    << "\tTIB4\tx = " << localPositionResolution_TIB4x 
+	    << " cm\ty = " << localPositionResolution_TIB4y << " cm" << "\n"
+	    << "\tTID1\tx = " << localPositionResolution_TID1x 
+	    << " cm\ty = " << localPositionResolution_TID1y << " cm" << "\n"
+	    << "\tTID2\tx = " << localPositionResolution_TID2x 
+	    << " cm\ty = " << localPositionResolution_TID2y << " cm" << "\n"
+	    << "\tTID3\tx = " << localPositionResolution_TID3x 
+	    << " cm\ty = " << localPositionResolution_TID3y << " cm" << "\n"
+	    << "\tTOB1\tx = " << localPositionResolution_TOB1x 
+	    << " cm\ty = " << localPositionResolution_TOB1y << " cm" << "\n"
+	    << "\tTOB2\tx = " << localPositionResolution_TOB2x 
+	    << " cm\ty = " << localPositionResolution_TOB2y << " cm" << "\n"
+	    << "\tTOB3\tx = " << localPositionResolution_TOB3x 
+	    << " cm\ty = " << localPositionResolution_TOB3y << " cm" << "\n"
+	    << "\tTOB4\tx = " << localPositionResolution_TOB4x 
+	    << " cm\ty = " << localPositionResolution_TOB4y << " cm" << "\n"
+	    << "\tTOB5\tx = " << localPositionResolution_TOB5x 
+	    << " cm\ty = " << localPositionResolution_TOB5y << " cm" << "\n"
+	    << "\tTOB6\tx = " << localPositionResolution_TOB6x 
+	    << " cm\ty = " << localPositionResolution_TOB6y << " cm" << "\n"
+	    << "\tTEC1\tx = " << localPositionResolution_TEC1x 
+	    << " cm\ty = " << localPositionResolution_TEC1y << " cm" << "\n"
+	    << "\tTEC2\tx = " << localPositionResolution_TEC2x 
+	    << " cm\ty = " << localPositionResolution_TEC2y << " cm" << "\n"
+	    << "\tTEC3\tx = " << localPositionResolution_TEC3x 
+	    << " cm\ty = " << localPositionResolution_TEC3y << " cm" << "\n"
+	    << "\tTEC4\tx = " << localPositionResolution_TEC4x 
+	    << " cm\ty = " << localPositionResolution_TEC4y << " cm" << "\n"
+	    << "\tTEC5\tx = " << localPositionResolution_TEC5x 
+	    << " cm\ty = " << localPositionResolution_TEC5y << " cm" << "\n"
+	    << "\tTEC6\tx = " << localPositionResolution_TEC6x 
+	    << " cm\ty = " << localPositionResolution_TEC6y << " cm" << "\n"
+	    << "\tTEC7\tx = " << localPositionResolution_TEC7x 
+	    << " cm\ty = " << localPositionResolution_TEC7y << " cm" << "\n"
 	    << "\tAll:\tz = " << localPositionResolution_z     << " cm" 
 	    << std::endl;
 #endif
@@ -686,6 +711,14 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TIDDetId module(detid);
       unsigned int theRing  = module.ring();
+      if ( theTIDRingRMin[theRing] == 0. ) { 
+	const BoundPlane& theDetPlane = geometry->idToDetUnit((DetId)simHit.detUnitId())->surface();
+	theTIDRingRMin[theRing] = theDetPlane.position().perp() - theDetPlane.bounds().length()/2.;
+	theTIDRingRMax[theRing] = theDetPlane.position().perp() + theDetPlane.bounds().length()/2.;
+      }
+      double resolutionFactorY = 
+	1. - 2. * simHit.localPosition().y() 
+   	   / (theTIDRingRMin[theRing]+theTIDRingRMax[theRing]);
 #ifdef FAMOS_DEBUG
       std::cout << "\tTID Ring " << theRing << std::endl;
 #endif
@@ -696,21 +729,21 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       case 1:
 	{
 	  resolutionX = localPositionResolution_TID1x;
-	  resolutionY = localPositionResolution_TID1y;
+	  resolutionY = localPositionResolution_TID1y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TID1 ) return false;
 	  break;
 	}
       case 2:
 	{
 	  resolutionX = localPositionResolution_TID2x;
-	  resolutionY = localPositionResolution_TID2y;
+	  resolutionY = localPositionResolution_TID2y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TID2 ) return false;
 	  break;
 	}
       case 3:
 	{
 	  resolutionX = localPositionResolution_TID3x;
-	  resolutionY = localPositionResolution_TID3y;
+	  resolutionY = localPositionResolution_TID3y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TID3 ) return false;
 	  break;
 	}
@@ -807,6 +840,14 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TECDetId module(detid);
       unsigned int theRing  = module.ring();
+      if ( theTECRingRMin[theRing] == 0. ) { 
+	const BoundPlane& theDetPlane = geometry->idToDetUnit((DetId)simHit.detUnitId())->surface();
+	theTECRingRMin[theRing] = theDetPlane.position().perp() - theDetPlane.bounds().length()/2.;
+	theTECRingRMax[theRing] = theDetPlane.position().perp() + theDetPlane.bounds().length()/2.;
+      }
+      double resolutionFactorY = 
+	1. - 2. * simHit.localPosition().y() 
+   	   / (theTECRingRMin[theRing]+theTECRingRMax[theRing]);
 #ifdef FAMOS_DEBUG
       std::cout << "\tTEC Ring " << theRing << std::endl;
 #endif
@@ -817,49 +858,49 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       case 1:
 	{
 	  resolutionX = localPositionResolution_TEC1x;
-	  resolutionY = localPositionResolution_TEC1y;
+	  resolutionY = localPositionResolution_TEC1y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC1 ) return false;
 	  break;
 	}
       case 2:
 	{
 	  resolutionX = localPositionResolution_TEC2x;
-	  resolutionY = localPositionResolution_TEC2y;
+	  resolutionY = localPositionResolution_TEC2y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC2 ) return false;
 	  break;
 	}
       case 3:
 	{
 	  resolutionX = localPositionResolution_TEC3x;
-	  resolutionY = localPositionResolution_TEC3y;
+	  resolutionY = localPositionResolution_TEC3y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC3 ) return false;
 	  break;
 	}
       case 4:
 	{
 	  resolutionX = localPositionResolution_TEC4x;
-	  resolutionY = localPositionResolution_TEC4y;
+	  resolutionY = localPositionResolution_TEC4y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC4 ) return false;
 	  break;
 	}
       case 5:
 	{
 	  resolutionX = localPositionResolution_TEC5x;
-	  resolutionY = localPositionResolution_TEC5y;
+	  resolutionY = localPositionResolution_TEC5y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC5 ) return false;
 	  break;
 	}
       case 6:
 	{
 	  resolutionX = localPositionResolution_TEC6x;
-	  resolutionY = localPositionResolution_TEC6y;
+	  resolutionY = localPositionResolution_TEC6y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC6 ) return false;
 	  break;
 	}
       case 7:
 	{
 	  resolutionX = localPositionResolution_TEC7x;
-	  resolutionY = localPositionResolution_TEC7y;
+	  resolutionY = localPositionResolution_TEC7y * resolutionFactorY;
 	  if( hitFindingProbability > theHitFindingProbability_TEC7 ) return false;
 	  break;
 	}
