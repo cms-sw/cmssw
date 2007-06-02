@@ -158,7 +158,7 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   else if (abs(ieta) < 27) divide = 2.*nominal_gain;
 	   else divide = 5.*nominal_gain;
 	   id = GetLUTID(HcalEndcap,ieta,iphi,depth);
-	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HE, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   conditions->makeHcalCalibration (cell, &calibrations);
 	   const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
@@ -183,7 +183,7 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	 HcalDetId cell(HcalForward,ieta,iphi,depth);
 	 if (theTopo.valid(cell)) {  
 	   id = GetLUTID(HcalForward,ieta,iphi,depth);
-	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HB, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
+	   if (inputLUT[id] == 0) throw cms::Exception("PROBLEM: inputLUT has not been initialized for HF, ieta, iphi, depth, id = ") << ieta << "," << iphi << "," << depth << "," << id << std::endl;
 	   conditions->makeHcalCalibration (cell, &calibrations);
 	   const HcalQIECoder* channelCoder = conditions->getHcalCoder (cell);
 	   HcalCoderDb coder (*channelCoder, *shape);
