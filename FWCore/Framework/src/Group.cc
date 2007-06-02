@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.24 2007/05/10 22:46:55 wmtan Exp $
+$Id: Group.cc,v 1.25 2007/05/29 19:27:01 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "FWCore/Framework/src/Group.h"
@@ -17,8 +17,11 @@ namespace edm {
     unavailable_(false),
     onDemand_(onDemand) {
     if (onDemand) return;
-    if (prov->branchEntryDescription() == 0) return;
-    unavailable_ = !prov->isPresent();
+    if (!prov->product().present()) {
+      unavailable_ = true;
+    } else if (prov->branchEntryDescription() != 0) {
+      unavailable_ = !prov->isPresent();
+    }
   }
 
   Group::Group(ConstBranchDescription const& bd) :
@@ -44,6 +47,8 @@ namespace edm {
       if (onDemand_) return false;
       if (branchEntryDescription()) {
 	unavailable_ = !provenance_->isPresent();
+      } else if (product_) {
+        unavailable_ = !product_->isPresent();
       }
       return unavailable_;
   }
