@@ -1,4 +1,4 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "PluginManager/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQM/SiStripMonitorPedestals/interface/SiStripMonitorPedestals.h"
