@@ -32,13 +32,7 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN:
   void cmsending_(int*);
-
-  extern struct {
-    double eventisok;
-  } eventstat_;
 }
-
-#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
@@ -49,10 +43,6 @@ extern"C" {
 using namespace edm;
 using namespace std;
 
-static const unsigned long kNanoSecPerSec = 1000000000;
-static const unsigned long kAveEventPerSec = 200;
-
-
 MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription const& desc ) :
   GeneratedInputSource(pset, desc), evt(0), 
   doHardEvents_(pset.getUntrackedParameter<bool>("doHardEvents",true)),
@@ -62,12 +52,13 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",0)),
   comenergy(pset.getUntrackedParameter<double>("comEnergy",14000.)),
   processNumber_(pset.getUntrackedParameter<int>("processNumber",0)),
-  numEvents_(pset.getUntrackedParameter<int>("maxEvents",100)),
+  numEvents_(pset.getUntrackedParameter<int>("numHardEvents",desc.maxEvents_)),
   stringFileName_(pset.getUntrackedParameter<string>("stringFileName",std::string("stringInput"))),
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath",std::string(""))),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
   doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true))
+  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
+  eventCounter_(0)
 {
  
   cout << "----------------------------------------------" << endl;
@@ -84,6 +75,10 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
                          2: + print table of particle codes and properties
 			 3: + tables of Sudakov form factors  
   */
+  if(numEvents_<1)
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError") 
+      <<" Number of input events not set: Either use maxEvents input > 0 or numHardEvents > maxEvents output."; 
+
   fstbases.basesoutput = mcatnloVerbosity_;
   cout << "   MC@NLO verbosity level         = " << fstbases.basesoutput << endl;
   cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
@@ -272,8 +267,9 @@ MCatNLOSource::MCatNLOSource( const ParameterSet & pset, InputSourceDescription 
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
   
-  // seting maximum events
-  hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",0);
+  // seting maximum errrors allowed
+  hwevnt.MAXER = numEvents_/10;
+  if(hwevnt.MAXER<100) hwevnt.MAXER=100;
   if(useJimmy_ && doMPInteraction_) jmparm.MSFLAG = 1;
 
   // initialize other common block ...
@@ -595,20 +591,21 @@ void MCatNLOSource::processUnknown(bool positive)
 
 
 bool MCatNLOSource::produce(Event & e) {
-  
-  // here event is fine ...
-  eventstat.eventisok = 0.0;
+
+  // check if we run out of hard-events. If yes, throw exception...
+  eventCounter_++;
+  if(eventCounter_>numEvents_)
+    throw edm::Exception(edm::errors::Configuration,"MCatNLOError") <<" No more hard events left. Either increase numHardEvents or use maxEvents { untracked int32 input = N }.";
   
   hwuine();
   hwepro();
   hwbgen();
   
-  if(useJimmy_ && doMPInteraction_) {
+  if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR != 0) {
     double eventok = 0.0;
-    eventok = hwmsct_dummy(&eventok);
-    if(eventok > 0.5) {
+    eventok=hwmsct_dummy(&eventok);
+    if(eventok > 0.5) 
       return true;
-    }
   }
   
   hwdhob();
@@ -619,11 +616,8 @@ bool MCatNLOSource::produce(Event & e) {
   hwmevt();
   hwufne();
 
-  if(eventstat.eventisok > 0.5) {
+  if(hwevnt.IERROR != 0)
     return true;
-  }
-  
-  // HERWIG produced event correctly
 
   // herwig common block conversion
   HepMC::IO_HERWIG conv;
@@ -1722,7 +1716,7 @@ void MCatNLOSource::createStringFile(const std::string& fileName)
 
 extern "C" {
   void cmsending_(int* ecode) {
-    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    //cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
     throw edm::Exception(edm::errors::LogicError,"Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }
