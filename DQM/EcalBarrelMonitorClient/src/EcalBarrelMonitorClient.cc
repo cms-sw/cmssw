@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/02 08:00:13 $
- * $Revision: 1.267 $
+ * $Date: 2007/06/02 10:50:09 $
+ * $Revision: 1.268 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -607,13 +607,17 @@ void EcalBarrelMonitorClient::beginRun(const Run& r, const EventSetup& c) {
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
-    forced_update_ = true;
-    this->analyze();
+    if ( ! mergeRuns_ ) {
 
-    if ( ! begin_run_ ) {
+      forced_update_ = true;
+      this->analyze();
 
-      forced_status_ = false;
-      this->beginRun();
+      if ( ! begin_run_ ) {
+
+        forced_status_ = false;
+        this->beginRun();
+
+      }
 
     }
 
@@ -734,13 +738,17 @@ void EcalBarrelMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
   if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
 
-    forced_update_ = true;
-    this->analyze();
+    if ( ! mergeRuns_ ) {
 
-    if ( begin_run_ && ! end_run_ ) {
+      forced_update_ = true;
+      this->analyze();
 
-      forced_status_ = false;
-      this->endRun();
+      if ( begin_run_ && ! end_run_ ) {
+
+        forced_status_ = false;
+        this->endRun();
+
+      }
 
     }
 
@@ -1489,6 +1497,55 @@ void EcalBarrelMonitorClient::analyze(void){
 
   }
 
+  // run number transition
+
+  if ( status_ == "running" ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( ! mergeRuns_ ) {
+
+        int new_run_ = run_;
+        int old_run_ = last_run_;
+
+        if ( new_run_ != old_run_ ) {
+
+          if ( ! end_run_ ) {
+
+            cout << endl;
+            cout << " Old run has finished, issuing endRun() ... " << endl;
+            cout << endl;
+
+            // end old_run_
+            run_ = old_run_;
+
+            forced_status_ = false;
+            this->endRun();
+
+          }
+
+          if ( ! begin_run_ ) {
+
+            cout << endl;
+            cout << " New run has started, issuing beginRun() ... " << endl;
+            cout << endl;
+
+            // start new_run_
+            run_ = new_run_;
+
+            forced_status_ = false;
+            this->beginRun();
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
   // 'running' state without a previous 'begin-of-run' state
 
   if ( status_ == "running" ) {
@@ -1586,45 +1643,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
           forced_status_ = false;
           this->endRun();
-
-        }
-
-      }
-
-    }
-
-  }
-
-  // missing 'end-of-run' state, use run number change
-
-  if ( status_ == "running" ) {
-
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        if ( run_ != last_run_ ) {
-
-          // save run_
-          int new_run_ = run_;
-
-          // use last_run_
-          run_ = last_run_;
-
-          if ( ! mergeRuns_ ) {
-
-            cout << endl;
-            cout << " A new run has just started, issuing endRun() ... " << endl;
-            cout << endl;
-
-            forced_status_ = false;
-            this->endRun();
-
-          }
-
-          // restore run_
-          run_ = new_run_;
-          last_run_ = new_run_;
 
         }
 
