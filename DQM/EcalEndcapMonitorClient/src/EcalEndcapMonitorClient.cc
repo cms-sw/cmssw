@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/02 10:50:25 $
- * $Revision: 1.24 $
+ * $Date: 2007/06/02 12:39:59 $
+ * $Revision: 1.25 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1327,7 +1327,7 @@ void EcalEndcapMonitorClient::analyze(void){
 
       cout << "   ECAL location = " << location_ << endl;
 
-      cout << "   ECAL run/event type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
+      cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
 
       if ( h_ ) {
         if ( h_->GetEntries() != 0 ) {
