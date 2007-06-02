@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/05/29 16:56:52 $
- * $Revision: 1.143 $
+ * $Date: 2007/05/29 18:21:05 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -241,7 +241,7 @@ void EBPedestalClient::beginJob(MonitorUserInterface* mui){
       qtg03_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EBPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname)); 
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EBPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
       qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
@@ -1917,7 +1917,6 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
 
       }
 
-    
       imgNameMEPnPedRms[iCanvas-1] = "";
 
       obj1f = 0;
@@ -1958,9 +1957,8 @@ void EBPedestalClient::htmlOutput(int run, string htmlDir, string htmlName){
         gPad->SetLogy(0);
 
       }
-      
-    }
 
+    }
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;

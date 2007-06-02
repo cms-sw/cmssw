@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2007/05/30 23:14:21 $
- * $Revision: 1.39 $
+ * $Date: 2007/05/31 07:21:15 $
+ * $Revision: 1.40 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -169,7 +169,7 @@ void EBTriggerTowerClient::cleanup(void) {
     h01_[ism-1] = 0;
     i01_[ism-1] = 0;
     j01_[ism-1] = 0;
- 
+
     h02_[ism-1] = 0;
     i02_[ism-1] = 0;
     j02_[ism-1] = 0;
@@ -221,10 +221,10 @@ void EBTriggerTowerClient::subscribe(void){
 	     "EBTriggerTowerTask", false);
 
   subscribe( "Emulated Digis",
-	     "EBTriggerTowerTask/Emulated", true); 
+	     "EBTriggerTowerTask/Emulated", true);
 }
 
-void EBTriggerTowerClient::subscribe( const char* nameext, 
+void EBTriggerTowerClient::subscribe( const char* nameext,
 		const char* folder,
 		bool emulated ) {
 
@@ -302,11 +302,10 @@ void EBTriggerTowerClient::subscribe( const char* nameext,
 
 //       }
 
-      
     }
 
   }
-  
+
 }
 
 void EBTriggerTowerClient::subscribeNew(void){
@@ -349,12 +348,12 @@ void EBTriggerTowerClient::subscribeNew( const char* nameext,
 void EBTriggerTowerClient::unsubscribe(void){
 
   if ( verbose_ ) cout << "EBTriggerTowerClient: unsubscribe" << endl;
-  
+
   unsubscribe( "Real Digis",
 	       "EBTriggerTowerTask", false );
-  
+
   unsubscribe( "Emulated Digis",
-	       "EBTriggerTowerTask/Emulated", true); 
+	       "EBTriggerTowerTask/Emulated", true);
 
 }
 
@@ -395,11 +394,11 @@ void EBTriggerTowerClient::unsubscribe( const char* nameext,
   }
 
   Char_t histo[200];
-  
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     unsigned int ism = superModules_[i];
-    
+
     sprintf(histo, "*/EcalBarrel/%s/EBTTT Et map %s %s", folder, nameext, Numbers::sEB(ism).c_str());
     mui_->unsubscribe(histo, ism);
     sprintf(histo, "*/EcalBarrel/%s/EBTTT FineGrainVeto %s %s", folder, nameext, Numbers::sEB(ism).c_str());
@@ -455,7 +454,7 @@ void EBTriggerTowerClient::analyze(void){
   if ( ievt_ % 10 == 0 ) {
     if ( verbose_ ) cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << endl;
   }
-  
+
   analyze("Real Digis",
 	  "EBTriggerTowerTask", false );
 
@@ -468,9 +467,9 @@ void EBTriggerTowerClient::analyze(const char* nameext,
 				   const char* folder,
 				   bool emulated) {
   Char_t histo[200];
-  
+
   MonitorElement* me;
-  
+
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
@@ -500,7 +499,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
     me = mui_->get(histo);
     if(!emulated) {
       i01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, i01_[ism-1] );
-      if(i01_[ism-1])  i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());      
+      if(i01_[ism-1])  i01_[ism-1]->SetEntries(1.+i01_[ism-1]->GetEntries());
       mei01_[ism-1] = me;
     }
     else {
@@ -537,8 +536,7 @@ void EBTriggerTowerClient::analyze(const char* nameext,
       if(l01_[ism-1])  l01_[ism-1]->SetEntries(1.+l01_[ism-1]->GetEntries());
       mel01_[ism-1] = me;
     }
-  
-    
+
 //     for (int j = 0; j < 68 ; j++) {
 
 //       if ( collateSources_ ) {
@@ -648,7 +646,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if ( i>0 ) htmlFile[0] << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile[0] << "<hr>" << std::endl;
-    htmlFile[0] << "<h3><a name=""" 
+    htmlFile[0] << "<h3><a name="""
 		<< Numbers::sEB(ism).c_str() << """></a><strong>"
                 << Numbers::sEB(ism).c_str() << "</strong></h3>" << endl;
 
@@ -664,17 +662,17 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgName[0] = "";
 
     obj2f = l01_[ism-1];
-      
+
     if ( obj2f ) {
 
       meName[0] = obj2f->GetName();
-	
+
       for ( unsigned int i = 0; i < meName[0].size(); i++ ) {
 	if ( meName[0].substr(i, 1) == " " )  {
 	  meName[0].replace(i, 1 ,"_" );
 	}
       }
-	
+
       imgName[0] = meName[0] + ".png";
       imgMeName[0] = htmlDir + imgName[0];
 
@@ -705,16 +703,16 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
       imgName[iemu] = "";
 
       obj3f = (iemu+1==1) ? h01_[ism-1] : h02_[ism-1];
-      
+
       if ( obj3f ) {
 	meName[iemu] = obj3f->GetName();
-	
+
 	for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
 	  if ( meName[iemu].substr(i, 1) == " " )  {
 	    meName[iemu].replace(i, 1 ,"_" );
 	  }
 	}
-	
+
 	imgName[iemu] = meName[iemu] + ".png";
 	imgMeName[iemu] = htmlDir + imgName[iemu];
 
@@ -780,28 +778,27 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile[ism] << "<table border=\"0\" cellspacing=\"0\" " << std::endl;
     htmlFile[ism] << "cellpadding=\"10\" align=\"center\"> " << std::endl;
     htmlFile[ism] << "<tr align=\"center\">" << std::endl;
-  
 
     int counter = 0;
 
     for ( int j=1; j<8; j++ ) {
 
       for(int iemu=0;iemu<2;iemu++) {
-	    
+
 	imgName[iemu] = "";
-	    
+
 	obj3f = (iemu+1==1) ? j01_[ism-1] : j02_[ism-1];
-	    
+
 	if ( obj3f ) {
-	      
+
 	  meName[iemu] = obj3f->GetName();
-	      
+
 	  for ( unsigned int i = 0; i < meName[iemu].size(); i++ ) {
 	    if ( meName[iemu].substr(i, 1) == " " )  {
 	      meName[iemu].replace(i, 1 ,"_" );
 	    }
 	  }
-	      
+
 	  if ( j == 3 ) continue;   //  010 bits combination is not used
 	  counter++;
 	  if ( j < 7 ) {
@@ -846,7 +843,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
 	}
       }
     }
-  
+
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
 
     // ---------------------------  Fine Grain Veto
@@ -860,7 +857,7 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     for ( int j=1; j<=2; j++ ) {
 
       for(int iemu=0;iemu<2;iemu++) {
-      
+
 	imgName[iemu] = "";
 
 	obj3f = (iemu+1==1) ? i01_[ism-1] : i02_[ism-1];
@@ -909,9 +906,6 @@ void EBTriggerTowerClient::htmlOutput(int run, string htmlDir, string htmlName){
     }
 
     htmlFile[ism] << "</tr>" << std::endl << "</table>" << std::endl;
-  
-
-
 
     // ---------------------------  Et plots per Tower
 

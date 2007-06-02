@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/05/22 15:05:47 $
- * $Revision: 1.142 $
+ * $Date: 2007/06/01 17:06:49 $
+ * $Revision: 1.143 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -132,16 +132,16 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   amplitudeThreshold_ = 400.0;
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
-  
+
   amplitudeThresholdPnG01_ = 200./16.;
   amplitudeThresholdPnG16_ = 200.;
-  
+
   pedPnExpectedMean_[0] = 750.0;
   pedPnExpectedMean_[1] = 750.0;
-  
+
   pedPnDiscrepancyMean_[0] = 100.0;
   pedPnDiscrepancyMean_[1] = 100.0;
-  
+
   pedPnRMSThreshold_[0] = 1.0;
   pedPnRMSThreshold_[1] = 3.0;
 
@@ -243,7 +243,7 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
       qtg03_[ism-1]->setErrorProb(1.00);
 
       sprintf(qtname, "EBTPT quality test PNs %s G01", Numbers::sEB(ism).c_str());
-      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname)); 
+      qtg04_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
       sprintf(qtname, "EBTPT quality test PNs %s G16", Numbers::sEB(ism).c_str());
       qtg05_[ism-1] = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
@@ -1335,7 +1335,7 @@ void EBTestPulseClient::analyze(void){
 
       if ( mer04_[ism-1] ) mer04_[ism-1]->Fill(rms03);
       if ( mer05_[ism-1] ) mer05_[ism-1]->Fill(rms04);
-    
+
       if ( update01 && update03 ) {
 
         float val;
@@ -1915,14 +1915,14 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;
-    
+
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
-      
+
       if ( imgNameMEPnQual[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnQual[iCanvas-1] << "\"></td>" << endl;
       else
         htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-      
+
     }
 
     htmlFile << "</tr>" << endl;
@@ -1934,7 +1934,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
     htmlFile << "<tr align=\"center\">" << endl;
 
     for ( int iCanvas = 1 ; iCanvas <= 2 ; iCanvas++ ) {
-      
+
       if ( imgNameMEPnPed[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPed[iCanvas-1] << "\"></td>" << endl;
 
@@ -1945,7 +1945,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 	htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPnPedRms[iCanvas-1] << "\"></td>" << endl;
       else
 	htmlFile << "<td colspan=\"2\"><img src=\"" << " " << "\"></td>" << endl;
-      
+
       if ( imgNameMEPn[iCanvas-1].size() != 0 )
         htmlFile << "<td colspan=\"2\"><img src=\"" << imgNameMEPn[iCanvas-1] << "\"></td>" << endl;
       else
