@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/01 19:33:27 $
- * $Revision: 1.21 $
+ * $Date: 2007/06/02 07:25:04 $
+ * $Revision: 1.22 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -564,6 +564,12 @@ void EcalEndcapMonitorClient::beginJob(void){
   summaryClient_->beginJob(mui_);
 
   this->subscribe();
+
+}
+
+void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
+
+  this->beginJob();
 
 }
 

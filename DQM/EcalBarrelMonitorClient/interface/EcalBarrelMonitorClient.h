@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/01 19:15:23 $
- * $Revision: 1.74 $
+ * $Date: 2007/06/01 19:33:25 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -62,7 +62,7 @@ void analyze(const edm::Event & e, const edm::EventSetup & c);
 
 /// BeginJob
 void beginJob(void);
-void beginJob(const edm::EventSetup & c){ this->beginJob(); }
+void beginJob(const edm::EventSetup & c);
 
 /// EndJob
 void endJob(void);

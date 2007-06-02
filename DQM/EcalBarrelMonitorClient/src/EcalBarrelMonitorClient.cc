@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/01 19:33:26 $
- * $Revision: 1.265 $
+ * $Date: 2007/06/02 07:25:03 $
+ * $Revision: 1.266 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -559,6 +559,12 @@ void EcalBarrelMonitorClient::beginJob(void){
   summaryClient_->beginJob(mui_);
 
   this->subscribe();
+
+}
+
+void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
+
+  this->beginJob();
 
 }
 
