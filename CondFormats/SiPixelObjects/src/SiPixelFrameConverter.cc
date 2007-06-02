@@ -53,6 +53,7 @@ int SiPixelFrameConverter::toDetector(const CablingIndex & cabling, DetectorInde
 
   uint32_t detId = roc->rawId();
   PixelROC::LocalPixel local = {cabling.dcol, cabling.pxid};
+  if (!roc->inside(local)) return 3;
   PixelROC::GlobalPixel global = roc->toGlobal(local); 
 
   DetectorIndex detIdx = {detId,  global.row, global.col};
