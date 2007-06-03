@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/02 12:39:58 $
- * $Revision: 1.269 $
+ * $Date: 2007/06/02 16:32:37 $
+ * $Revision: 1.270 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1510,7 +1510,7 @@ void EcalBarrelMonitorClient::analyze(void){
 
         if ( new_run_ != old_run_ ) {
 
-          if ( ! end_run_ ) {
+          if ( begin_run_ && ! end_run_ ) {
 
             cout << endl;
             cout << " Old run has finished, issuing endRun() ... " << endl;
