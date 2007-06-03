@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/02 16:32:37 $
- * $Revision: 1.270 $
+ * $Date: 2007/06/03 09:53:03 $
+ * $Revision: 1.271 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1281,7 +1281,7 @@ void EcalBarrelMonitorClient::analyze(void){
       }
     }
 
-    int ecal_run;
+    int ecal_run = -1;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
@@ -1290,7 +1290,7 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    int ecal_evt;
+    int ecal_evt = -1;
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
@@ -1346,9 +1346,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
     }
 
-    // if the run number from the Event is zero, then
+    // if the run number from the Event is less than zero,
     // use the run number from the ECAL DCC header
-    if ( run_ == 0 ) run_ = ecal_run;
+    if ( run_ <= 0 ) run_ = ecal_run;
 
     update = true;
 
@@ -1359,15 +1359,6 @@ void EcalBarrelMonitorClient::analyze(void){
     if ( run_ != last_run_ ) forced_update_ = true;
 
   }
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool subscribed; subscribed = false;
-    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
-    }
-  }
-
-  summaryClient_->subscribeNew();
 
   if ( status_ == "begin-of-run" ) {
 
@@ -1653,6 +1644,15 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
+
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool subscribed; subscribed = false;
+    for ( EBCIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
+    }
+  }
+
+  summaryClient_->subscribeNew();
 
 }
 
