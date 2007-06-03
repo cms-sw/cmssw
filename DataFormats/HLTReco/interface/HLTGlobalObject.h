@@ -10,8 +10,8 @@
  *  If the user wants map-like indexing of triggers through their
  *  names as key, s/he must use the TriggerNamesService.
  *
- *  $Date: 2006/04/26 09:27:44 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/06/17 03:37:46 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -33,6 +33,7 @@ namespace reco
     // constructors
 
     HLTGlobalObject(): refs_() {}
+    HLTGlobalObject(unsigned int n): refs_() {refs_.reserve(n);}
 
     // accessors
 
