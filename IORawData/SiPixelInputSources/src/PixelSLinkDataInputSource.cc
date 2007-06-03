@@ -5,6 +5,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "IORawData/SiPixelInputSources/interface/PixelSLinkDataInputSource.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <fstream>
 
 PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& pset, 
@@ -14,7 +15,7 @@ PixelSLinkDataInputSource::PixelSLinkDataInputSource(const edm::ParameterSet& ps
   m_fedid = pset.getUntrackedParameter<int>("fedid");
   m_file.open(m_file_name.c_str(),std::ios::in|std::ios::binary);
   if (!m_file.good()) {
-   std::cout << "Error opening file" <<  std::endl;    
+   edm::LogError("") << "Error opening file" ;    
   }
   produces<FEDRawDataCollection>();
 }
@@ -34,7 +35,7 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   m_file.read((char*)&data,8);
   
   if (m_file.eof()) {
-    std::cout << "End of input file" <<  std::endl;
+    edm::LogInfo("") << "End of input file" ;
     return false;
   }
 
@@ -43,36 +44,28 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     
   while ((data >> 60) != 0x5){
     if (count==0){
-      std::cout << "DATA CORRUPTION!" <<  std::endl;
-      std::cout << "Expected to find header, but read: 0x"
-		<<std::hex<<data<<std::dec <<  std::endl;
+      edm::LogWarning("") << "DATA CORRUPTION!" ;
+      edm::LogWarning("") << "Expected to find header, but read: 0x"
+			  << std::hex<<data<<std::dec ;
     }
     count++;
     m_file.read((char*)&data,8);
     if (m_file.eof()) {
-      std::cout << "End of input file" <<  std::endl;
+      edm::LogInfo("") << "End of input file" ;
       return false;
     }
 
   }
 
   if (count>0) {
-    std::cout<<"Had to read "<<count<<" words before finding header!"<<std::endl;
+    edm::LogWarning("")<<"Had to read "<<count<<" words before finding header!"<<std::endl;
   }
-
-  //std::cout<<"FED header:"<<std::hex<<data<<std::dec <<  std::endl;
-
-  //std::cout << "Header before:"<<std::hex<<data<<std::dec<<std::endl;
 
   if (m_fedid>0) {
     data=(data&0xfffffffffff000ffLL)|((m_fedid&0xfff)<<8);
   }
 
-  //std::cout << "Header after :"<<std::hex<<data<<std::dec<<std::endl;
-
   unsigned int fed_id=(data>>8)&0xfff;
-  
-  //std::cout << "FED id="<<fed_id<<std::endl;
   
   buffer.push_back(data);
   
