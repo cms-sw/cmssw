@@ -12,8 +12,6 @@ class FakeMap{
   virtual ~FakeMap(){}
 
  public:
-  
-  
   virtual void csc(const DetId &cell, float scaling_factor)=0;
   
 };
