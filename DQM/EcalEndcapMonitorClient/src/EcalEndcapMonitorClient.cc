@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/03 09:53:04 $
- * $Revision: 1.27 $
+ * $Date: 2007/06/03 14:28:16 $
+ * $Revision: 1.28 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1250,8 +1250,6 @@ void EcalEndcapMonitorClient::analyze(void){
     mui_->doMonitoring();
   }
 
-  this->subscribeNew();
-
   Char_t histo[200];
 
   MonitorElement* me;
@@ -1630,6 +1628,8 @@ void EcalEndcapMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
+
+  this->subscribeNew();
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool subscribed; subscribed = false;

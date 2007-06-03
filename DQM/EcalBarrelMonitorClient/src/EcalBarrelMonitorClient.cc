@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/03 09:53:03 $
- * $Revision: 1.271 $
+ * $Date: 2007/06/03 14:28:14 $
+ * $Revision: 1.272 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1250,8 +1250,6 @@ void EcalBarrelMonitorClient::analyze(void){
     mui_->doMonitoring();
   }
 
-  this->subscribeNew();
-
   Char_t histo[200];
 
   MonitorElement* me;
@@ -1644,6 +1642,8 @@ void EcalBarrelMonitorClient::analyze(void){
   }
 
   // END: run-time fixes for missing state transitions
+
+  this->subscribeNew();
 
   for ( int i=0; i<int(clients_.size()); i++ ) {
     bool subscribed; subscribed = false;
