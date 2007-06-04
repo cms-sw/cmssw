@@ -32,9 +32,10 @@ namespace GaussianStateConversions {
     if ( multiState.components().empty() )  return TrajectoryStateOnSurface();
     const Surface& surface = refTsos.surface();
     SurfaceSide side = refTsos.surfaceSide();
-    const MagneticField* field = &refTsos.globalParameters().magneticField();
-    double pzSign = refTsos.localParameters().pzSign();
-    bool charged = refTsos.charge()!=0;
+    const MagneticField* field = refTsos.magneticField();
+    TrajectoryStateOnSurface refTsos1 = refTsos.components().front();
+    double pzSign = refTsos1.localParameters().pzSign();
+    bool charged = refTsos1.charge()!=0;
 
     const MultiGaussianState<5>::SingleStateContainer& singleStates = 
       multiState.components();
