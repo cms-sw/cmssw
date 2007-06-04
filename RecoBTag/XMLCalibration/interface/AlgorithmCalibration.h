@@ -93,6 +93,7 @@ template <class T,class CO>
 AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_filename(filename), m_xml(0)
 {
  readCategories();
+ m_xml->closeFile();
 }
 
 template <class T,class CO> 

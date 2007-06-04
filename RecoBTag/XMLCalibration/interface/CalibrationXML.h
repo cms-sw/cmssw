@@ -26,7 +26,15 @@ public:
 	* Save DOM to file
 	*/	
 	void saveFile(const std::string & xmlFileName);
-	
+
+
+        void closeFile() 
+        {
+          if(errHandler) delete errHandler;
+          if(parser) delete parser;
+          errHandler=0;
+          parser=0;
+        } 	
 	/**
 	* Return the root DOM Element of the opened XML calibration file
 	*/
