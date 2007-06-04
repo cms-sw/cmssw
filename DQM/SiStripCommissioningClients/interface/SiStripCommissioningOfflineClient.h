@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.1 2007/04/04 07:16:15 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.h,v 1.2 2007/05/24 15:45:52 bainbrid Exp $
 
 #ifndef DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
 #define DQM_SiStripCommissioningClients_SiStripCommissioningOfflineClient_H
@@ -54,9 +54,15 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   
   /** Input .root file. */
   std::vector<std::string> inputFiles_;
-
+  
   /** Output .root file. */
   std::string outputFileName_;
+
+  /** */
+  bool collateHistos_;
+
+  /** */
+  bool analyzeHistos_;
   
   /** Input .xml file. */
   std::string xmlFile_;
@@ -64,6 +70,10 @@ class SiStripCommissioningOfflineClient : public edm::EDAnalyzer {
   /** Flag. */
   bool createSummaryPlots_;
   
+  /** */
+  bool clientHistos_;
+
+  /** */
   bool uploadToDb_;
 
   /** Commissioning runType. */
