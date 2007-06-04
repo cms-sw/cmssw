@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/03 14:28:16 $
- * $Revision: 1.28 $
+ * $Date: 2007/06/03 16:11:19 $
+ * $Revision: 1.29 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -167,12 +167,26 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   // enableSubRunDb switch
 
   enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
-  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+  dbRefreshTime_  = ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+
+  if ( enableSubRunDb_ ) {
+    cout << " enableSubRunDb switch is ON" << endl;
+    cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
+  } else {
+    cout << " enableSubRunDb switch is OFF" << endl;
+  }
 
   // enableSubRunHtml switch
 
   enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
-  htmlRefreshTime_  = 60 * ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+  htmlRefreshTime_  = ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+
+  if ( enableSubRunHtml_ ) {
+    cout << " enableSubRunHtml switch is ON" << endl;
+    cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
+  } else {
+    cout << " enableSubRunHtml switch is OFF" << endl;
+  }
 
   // location
 
@@ -272,6 +286,8 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   // prefix to ME paths
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  cout << " prefixME is set to '" << prefixME_ << "'" << endl;
 
   // DQM Client name
 
@@ -1418,14 +1434,14 @@ void EcalEndcapMonitorClient::analyze(void){
       }
 
       if ( enableSubRunHtml_ ) {
-        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
+        if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }
       }
 
       if ( enableSubRunDb_ ) {
-        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
+        if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
