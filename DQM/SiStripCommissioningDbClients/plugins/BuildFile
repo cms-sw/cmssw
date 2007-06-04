@@ -1,4 +1,11 @@
-<use name=DQM/SiStripCommissioningDbClients>
 <library file=*.cc name=DQMSiStripCommissioningDbClientsPlugins>
+  <use name=DataFormats/SiStripCommon>
+  <use name=DQM/SiStripCommissioningClients>
+  <use name=DQM/SiStripCommissioningDbClients>
+  <use name=DQMServices/Core>
+  <use name=DQMServices/UI>
+  <use name=FWCore/MessageLogger>
+  <use name=OnlineDB/SiStripConfigDb>
+  <use name=boost>
   <flags EDM_PLUGIN=1>
 </library>
