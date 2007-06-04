@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.18 2007/06/01 02:58:07 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.19 2007/06/03 00:06:33 wsun Exp $
 //
 //
 
@@ -658,41 +658,41 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kZeroBias ] =
       iConfig.getParameter< int >( "A_ZeroBias_prescale" ) ;
 
-   // Print trigger table in Twiki table format.
-   std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *E<sub>T</sub> Threshold (!GeV)*  |  *Prescale*  |"
-	     << std::endl ;
+//    // Print trigger table in Twiki table format.
+//    std::cout << "|  *Trigger Index*  |  *Trigger Name*  |  *E<sub>T</sub> Threshold (!GeV)*  |  *Prescale*  |"
+// 	     << std::endl ;
 
-   for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
-   {
-      std::cout
-	 << "|  "
-	 << i
-	 << "  |  " ;
-      if( prescales_[ i ] == 999999999 ) std::cout << "<strike>" ;
-      std::cout
-	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i ) ;
-      if( prescales_[ i ] == 999999999 ) std::cout << "</strike>" ;
-      std::cout << "  |  " ;
+//    for( int i = 0 ; i < L1ParticleMap::kNumOfL1TriggerTypes ; ++i )
+//    {
+//       std::cout
+// 	 << "|  "
+// 	 << i
+// 	 << "  |  " ;
+//       if( prescales_[ i ] == 999999999 ) std::cout << "<strike>" ;
+//       std::cout
+// 	 << L1ParticleMap::triggerName( ( L1ParticleMap::L1TriggerType ) i ) ;
+//       if( prescales_[ i ] == 999999999 ) std::cout << "</strike>" ;
+//       std::cout << "  |  " ;
 
-      if( singleThresholds_[ i ] > 0 )
-      {
-	 std::cout << singleThresholds_[ i ] ;
-      }
-      else if( doubleThresholds_[ i ].first > 0 )
-      {
-	 std::cout << doubleThresholds_[ i ].first << ", "
-		   << doubleThresholds_[ i ].second ;
-      }
-      else
-      {
-	 std::cout << "---" ;
-      }
+//       if( singleThresholds_[ i ] > 0 )
+//       {
+// 	 std::cout << singleThresholds_[ i ] ;
+//       }
+//       else if( doubleThresholds_[ i ].first > 0 )
+//       {
+// 	 std::cout << doubleThresholds_[ i ].first << ", "
+// 		   << doubleThresholds_[ i ].second ;
+//       }
+//       else
+//       {
+// 	 std::cout << "---" ;
+//       }
 
-      std::cout << "  |  " ;
-      if( prescales_[ i ] != 999999999 ) std::cout << prescales_[ i ] ;
-      std::cout << "  |"
-		<< std::endl ;
-   }
+//       std::cout << "  |  " ;
+//       if( prescales_[ i ] != 999999999 ) std::cout << prescales_[ i ] ;
+//       std::cout << "  |"
+// 		<< std::endl ;
+//    }
 }
 
 
