@@ -12,8 +12,8 @@ the large-scale detector (e.g. Tracker or Ecal) while the next three
 bits ([27:25]) identify a part of the detector (such as HcalBarrel
 (HB) for Hcal).
 
-$Date: 2006/10/13 19:38:48 $
-$Revision: 1.5 $
+$Date: 2007/06/02 06:05:10 $
+$Revision: 1.6 $
 */
 class DetId {
 public:
@@ -56,14 +56,14 @@ protected:
 };
 
 /// equality
-bool operator==(uint32_t i, DetId id) const { return i==id.id_; }
-bool operator==(DetId id, uint32_t i) const { return i==id.id_; }
+inline bool operator==(uint32_t i, DetId id)  { return i==id(); }
+inline bool operator==(DetId id, uint32_t i)  { return i==id(); }
 /// inequality
-bool operator!=(uint32_t i, DetId id) const { return i!=id.id_; }
-bool operator!=(DetId id, uint32_t i) const { return i!=id.id_; }
+inline bool operator!=(uint32_t i, DetId id)  { return i!=id(); }
+inline bool operator!=(DetId id, uint32_t i) { return i!=id(); }
 /// comparison
-bool operator<(uint32_t i, DetId id) const { return i<id.id_; }
-bool operator<(DetId id, uint32_t i) const { return id.id_<i; }
+inline bool operator<(uint32_t i, DetId id) { return i<id(); }
+inline bool operator<(DetId id, uint32_t i) { return id()<i; }
 
 
 //std::ostream& operator<<(std::ostream& s, const DetId& id);
