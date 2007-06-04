@@ -32,6 +32,7 @@ namespace edmtest {
 
   private:
     ThingAlgorithm alg_;
+    bool noPut_;
   };
 }
 #endif

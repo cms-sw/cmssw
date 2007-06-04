@@ -7,6 +7,7 @@
 
 namespace edmtest {
   ThingProducer::ThingProducer(edm::ParameterSet const& iConfig): 
+  noPut_(iConfig.getUntrackedParameter<bool>("noPut", false)), // used for testing with missing products
   alg_(iConfig.getUntrackedParameter<int>("offsetDelta",0)) //this really should be tracked, but I want backwards compatibility
   {
     produces<ThingCollection>();
@@ -30,7 +31,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    e.put(result);
+    if (!noPut_) e.put(result);
   }
 
   // Functions that gets called by framework every luminosity block
@@ -44,7 +45,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    lb.put(result, "beginLumi");
+    if (!noPut_) lb.put(result, "beginLumi");
   }
 
   void ThingProducer::endLuminosityBlock(edm::LuminosityBlock& lb, edm::EventSetup const&) {
@@ -57,7 +58,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into lumi block
-    lb.put(result, "endLumi");
+    if (!noPut_) lb.put(result, "endLumi");
   }
 
   // Functions that gets called by framework every run
@@ -71,7 +72,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    r.put(result, "beginRun");
+    if (!noPut_) r.put(result, "beginRun");
   }
 
   void ThingProducer::endRun(edm::Run& r, edm::EventSetup const&) {
@@ -84,7 +85,7 @@ namespace edmtest {
     alg_.run(*result);
 
     // Step D: Put outputs into event
-    r.put(result, "endRun");
+    if (!noPut_) r.put(result, "endRun");
   }
 
 }
