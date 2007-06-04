@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.2 2007/06/01 09:11:46 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.3 2007/06/04 10:48:53 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
@@ -92,8 +92,9 @@ void LRHelpFunctions::makeAndFitSoverSplusBHists(){
   for(size_t o=0; o<hObsS.size(); o++){
     for(int b=0; b <= hObsS[o]->GetNbinsX()+1; b++){
       if (hObsS[o]->GetBinContent(b) > 0 && hObsB[o]->GetBinContent(b) > 0) {
-        hObsSoverSplusB[o]->SetBinContent(b, hObsS[o]->GetBinContent(b) / hObsB[o]->GetBinContent(b));
-        double error = sqrt((pow(hObsS[o]->GetBinError(b)/hObsB[o]->GetBinContent(b),2)+pow(hObsS[o]->GetBinContent(b)*hObsB[o]->GetBinError(b)/pow(hObsB[o]->GetBinContent(b),2),2)));
+        hObsSoverSplusB[o]->SetBinContent(b, hObsS[o]->GetBinContent(b) / (hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b)));
+        double error = sqrt( pow(hObsS[o]->GetBinError(b) * hObsB[o]->GetBinContent(b)/pow(hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b),2),2)
+	                   + pow(hObsB[o]->GetBinError(b) * hObsS[o]->GetBinContent(b)/pow(hObsS[o]->GetBinContent(b) + hObsB[o]->GetBinContent(b),2),2) );
         hObsSoverSplusB[o]->SetBinError(b,error);
       }
     }
@@ -193,8 +194,8 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
      c2.Print(fname,"Landscape");
   }
   
+  int hIndex = 0;
   for(size_t o=0; o<hObsS.size(); o++) {
-    int hIndex = 0;
     for(size_t o2=o+1; o2<hObsS.size(); o2++) {
       TCanvas cc("cc","",1);
       hObsCorr[hIndex] -> Draw("box");
