@@ -957,11 +957,22 @@ bool PFRootEventManager::isHadronicTau() const {
 	const reco::PFSimParticle& daughter 
 	  = trueParticles_[ptcdaughters[dapt]];
 	
-	unsigned pdgdaugter = daughter.pdgCode();
-	
-	if (pdgdaugter == 11 || pdgdaugter == 13) { 
+	int pdgdaugther = daughter.pdgCode();
+	int abspdgdaughter = abs(pdgdaugther);
+
+// 	unsigned test = daughter.pdgCode();
+// 	cout<<"test "<<test<<endl;
+
+	if (abspdgdaughter == 11 || 
+	    abspdgdaughter == 13) { 
 	  return false; 
 	}//electron or muons?
+// 	unsigned pdgdaugter = daughter.pdgCode();
+// 	cout<<"test "<<pdgdaugter<<endl;
+
+// 	if (pdgdaugter == 11 || pdgdaugter == 13) { 
+// 	  return false; 
+// 	}//electron or muons?
       }//loop daughter
     }//tau
   }//loop particles
