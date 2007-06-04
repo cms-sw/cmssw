@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.3 2007/05/15 13:27:15 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -22,6 +22,9 @@ namespace sistrip {
   static const std::string hex_  = "0x";
 
   // ---------- Naming dirs and histos ----------
+
+  static const std::string dqmSourceFileName_ = "SiStripCommissioningSource";
+  static const std::string dqmClientFileName_ = "SiStripCommissioningClient";
 
   static const std::string dqmRoot_     = "DQMData";
   static const std::string root_        = "SiStrip";
