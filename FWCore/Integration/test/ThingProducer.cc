@@ -6,7 +6,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 namespace edmtest {
-  ThingProducer::ThingProducer(edm::ParameterSet const&): alg_() {
+  ThingProducer::ThingProducer(edm::ParameterSet const& iConfig): 
+  alg_(iConfig.getUntrackedParameter<int>("offsetDelta")) {
     produces<ThingCollection>();
     produces<ThingCollection, edm::InLumi>("beginLumi");
     produces<ThingCollection, edm::InLumi>("endLumi");
