@@ -2,8 +2,8 @@
 
 /** \class TSGFromPropagation
  *
- *  $Date: 2007/05/21 20:31:35 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/24 20:54:08 $
+ *  $Revision: 1.4 $
  *  \author Chang Liu - Purdue University 
  */
 
@@ -15,6 +15,7 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "RecoTracker/MeasurementDet/interface/TkStripMeasurementDet.h"
 #include "TrackingTools/GeomPropagators/interface/StateOnTrackerBound.h"
+//#include "TrackingTools/MeasurementDet/interface/GeometricSearchDetMeasurements.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -71,7 +72,7 @@ std::vector<TrajectorySeed> TSGFromPropagation::trackerSeeds(const TrackCand& st
 
 //// debug only ===========
 /*
-/std::vector<TkStripMeasurementDet*> stripdets = theMeasTracker->stripDets();
+std::vector<TkStripMeasurementDet*> stripdets = theMeasTracker->stripDets();
 
 for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin(); isd !=  stripdets.end(); ++isd  ) {
 
@@ -85,8 +86,39 @@ for (std::vector<TkStripMeasurementDet*>::const_iterator isd = stripdets.begin()
 
      TrajectoryStateOnSurface prdstat = propagator()->propagate(staState,theTracker->detLayer((*ihit)->geographicalId())->surface());
 
+     std::vector<TrajectoryMeasurement> alltm = findMeasurements(theTracker->detLayer((*ihit)->geographicalId()), staState);
+
+//===================
+  typedef DetLayer::DetWithState   DetWithState;
+  vector<DetWithState> compatDets = theTracker->detLayer((*ihit)->geographicalId())->compatibleDets( staState, *propagator(), *estimator());
+
+  LogTrace(category) << " compatDets "<<compatDets.size();
+
+  vector<TrajectoryMeasurement> result;
+  if (compatDets.empty()) {
+    pair<bool, TrajectoryStateOnSurface> compat =
+      theTracker->detLayer((*ihit)->geographicalId())->compatible(staState, *propagator(), *estimator());
+     LogTrace(category) << " compatDets empty and compat is "<<compat.first;
+     LogTrace(category) << " build invalid hit ";
+
+  }
+
+  GeometricSearchDetMeasurements gsdm(&*theMeasTracker);
+  vector<TrajectoryMeasurement> tmpResult = gsdm.get( (*theTracker->detLayer((*ihit)->geographicalId())), compatDets, staState, *propagator(), *estimator());
+  LogTrace(category) << " tmpResult "<<tmpResult.size();
+  if ( !tmpResult.empty() ) LogTrace(category) << " tmpResult rechit valid "<<tmpResult.front().recHit()->isValid();
+  
+//---------------------------
+
+  LogTrace(category) << " alltm: "<<alltm.size();
+
+   if ( !alltm.empty() )  LogTrace(category)<<"hit valid "<<alltm.front().recHit()->isValid()<<" predstat valid "<<alltm.front().predictedState().isValid();
+
      if (prdstat.isValid() )
         LogTrace(category) << "pred tsos at layer "<<prdstat;
+
+    std::pair<bool,double> chi2 = estimator()->estimate(prdstat, (**ihit));
+    LogTrace(category) << "estimated chi2 "<<chi2.second<<" valid hit "<<(**ihit).isValid();
 
   }
 
@@ -480,8 +512,8 @@ void TSGFromPropagation::resetError(TrajectoryStateOnSurface& tsos) const {
    matrix(0,0) = 0.01; //charge/momentum
    matrix(1,1) = 0.02; //lambda
    matrix(2,2) = 0.05; // phi
-   matrix(3,3) = 10.0; //x
-   matrix(4,4) = 10.0; //y
+   matrix(3,3) = 100.0; //x
+   matrix(4,4) = 100.0; //y
 
    CurvilinearTrajectoryError error(matrix);
  
