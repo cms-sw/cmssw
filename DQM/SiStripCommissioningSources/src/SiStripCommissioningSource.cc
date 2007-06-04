@@ -41,7 +41,7 @@ SiStripCommissioningSource::SiStripCommissioningSource( const edm::ParameterSet&
   fedCabling_(0),
   fecCabling_(0),
   inputModuleLabel_( pset.getParameter<std::string>( "InputModuleLabel" ) ),
-  filename_( pset.getUntrackedParameter<std::string>("RootFileName","") ),
+  filename_( pset.getUntrackedParameter<std::string>("RootFileName",sistrip::dqmSourceFileName_) ),
   run_(0),
   time_(0),
   taskConfigurable_( pset.getUntrackedParameter<std::string>("CommissioningTask","UNDEFINED") ),
