@@ -99,7 +99,7 @@ class CommissioningHistograms {
   void remove( std::string pattern = "" ); 
   
   /** */
-  void save( std::string filename,
+  void save( std::string& filename,
 	     uint32_t run_number = 0 ); 
   
  protected:
