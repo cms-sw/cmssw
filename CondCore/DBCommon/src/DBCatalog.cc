@@ -25,9 +25,14 @@ cond::DBCatalog::defaultOfflineCatalogName(){
 }
 std::string 
 cond::DBCatalog::defaultDevCatalogName(){
-  //edm::FileInPath fip("devCondDBCatalog.xml");
-  std::string result=std::string("file:devCondDBCatalog.xml");
-  //+fip.fullPath();
+  edm::FileInPath fip("CondCore/DBCommon/data/devCondDBCatalog.xml");
+  std::string result=std::string("xmlcatalog_file://")+fip.fullPath();
+  return result;
+}
+std::string 
+cond::DBCatalog::defaultLocalCatalogName(){
+  edm::FileInPath fip("CondCore/DBCommon/data/localCondDBCatalog.xml");
+  std::string result=std::string("xmlcatalog_file://")+fip.fullPath();
   return result;
 }
 pool::IFileCatalog&

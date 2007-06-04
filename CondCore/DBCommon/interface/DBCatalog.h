@@ -10,6 +10,7 @@ namespace cond{
     static std::string defaultOnlineCatalogName();
     static std::string defaultOfflineCatalogName();
     static std::string defaultDevCatalogName();
+    static std::string defaultLocalCatalogName();
     /// constructor
     DBCatalog();
     /// destructor
