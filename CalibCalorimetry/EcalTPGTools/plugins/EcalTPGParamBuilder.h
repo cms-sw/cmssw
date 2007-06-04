@@ -36,10 +36,6 @@ class EcalElectronicsMapping ;
 class coeffStruc {
  public:
   coeffStruc() { }
-  //    calibCoeff_ = calibCoeff ;
-  //    for (uint i=0 ; i<3 ; i++) {
-  //      gainRatio_[i] = gainRatio[i] ;
-  //      pedestals_[i] = pedestals[i] ;
   double calibCoeff_ ;
   double gainRatio_[3] ;
   int pedestals_[3] ;
@@ -59,12 +55,15 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   int uncodeWeight(double weight, uint complement2 = 7) ;
   double uncodeWeight(int iweight, uint complement2 = 7) ;
   std::vector<unsigned int> computeWeights(EcalShape & shape) ;
-  void computeLUT(int * lut)  ;
+  void computeLUT(int * lut, std::string det="EB")  ;
   void getCoeff(coeffStruc & coeff,
 		const EcalIntercalibConstants::EcalIntercalibConstantMap & calibMap, 
 		const EcalGainRatios::EcalGainRatioMap & gainMap, 
 		const EcalPedestalsMap & pedMap,
 		uint rawId) ;
+  void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
+				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
+
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -78,7 +77,12 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   unsigned int nSample_ ;
   unsigned int complement2_ ;
   std::string LUT_option_ ;
-  double TTF_lowThreshold_, TTF_highThreshold_ ;
+  double LUT_stochastic_EB_, LUT_noise_EB_, LUT_constant_EB_ ;
+  double LUT_stochastic_EE_, LUT_noise_EE_, LUT_constant_EE_ ;
+  double TTF_lowThreshold_EB_, TTF_highThreshold_EB_ ;
+  double TTF_lowThreshold_EE_, TTF_highThreshold_EE_ ;
+  double FG_lowThreshold_EB_, FG_highThreshold_EB_, FG_lowRatio_EB_, FG_highRatio_EB_ ; 
+  unsigned int FG_lut_EB_ ;
 
   std::ofstream * out_fileEB_ ;
   std::ofstream * out_fileEE_ ;

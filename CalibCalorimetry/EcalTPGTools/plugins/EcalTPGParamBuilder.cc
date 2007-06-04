@@ -23,9 +23,17 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalSimParameterMap.h"
 
+#include <TF1.h>
 #include <iomanip>
 #include <fstream>
 
+
+double oneOverEtResolEt(double *x, double *par) { 
+  double Et = x[0] ;
+  if (Et<1e-6) return 1./par[1] ; // to avoid division by 0.
+  double resolEt_overEt = sqrt( (par[0]/sqrt(Et))*(par[0]/sqrt(Et)) + (par[1]/Et)*(par[1]/Et) + par[2]*par[2] ) ;
+  return 1./(Et*resolEt_overEt) ;
+}
 
 EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   : xtal_LSB_EB_(0), xtal_LSB_EE_(0), nSample_(5), complement2_(7)
@@ -33,9 +41,25 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   Et_sat_ = pSet.getParameter<double>("Et_sat") ;
   sliding_ = pSet.getParameter<unsigned int>("sliding") ;
   sampleMax_ = pSet.getParameter<unsigned int>("weight_sampleMax") ;
+
   LUT_option_ = pSet.getParameter<std::string>("LUT_option") ;
-  TTF_lowThreshold_ = pSet.getParameter<double>("TTF_lowThreshold") ;
-  TTF_highThreshold_ = pSet.getParameter<double>("TTF_highThreshold") ;
+  LUT_stochastic_EB_ = pSet.getParameter<double>("LUT_stochastic_EB") ;
+  LUT_noise_EB_ =pSet.getParameter<double>("LUT_noise_EB") ;
+  LUT_constant_EB_ =pSet.getParameter<double>("LUT_constant_EB") ;
+  LUT_stochastic_EE_ = pSet.getParameter<double>("LUT_stochastic_EE") ;
+  LUT_noise_EE_ =pSet.getParameter<double>("LUT_noise_EE") ;
+  LUT_constant_EE_ =pSet.getParameter<double>("LUT_constant_EE") ;
+
+  TTF_lowThreshold_EB_ = pSet.getParameter<double>("TTF_lowThreshold_EB") ;
+  TTF_highThreshold_EB_ = pSet.getParameter<double>("TTF_highThreshold_EB") ;
+  TTF_lowThreshold_EE_ = pSet.getParameter<double>("TTF_lowThreshold_EE") ;
+  TTF_highThreshold_EE_ = pSet.getParameter<double>("TTF_highThreshold_EE") ;
+
+  FG_lowThreshold_EB_ = pSet.getParameter<double>("FG_lowThreshold_EB") ;
+  FG_highThreshold_EB_ = pSet.getParameter<double>("FG_highThreshold_EB") ;
+  FG_lowRatio_EB_ = pSet.getParameter<double>("FG_lowRatio_EB") ;
+  FG_highRatio_EB_ = pSet.getParameter<double>("FG_highRatio_EB") ;
+  FG_lut_EB_ = pSet.getParameter<unsigned int>("FG_lut_EB") ;
 
   std::string outFileEB = pSet.getParameter<std::string>("outFileEB") ;
   out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
@@ -232,22 +256,27 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   (*out_fileEB_) <<std::endl ;
   (*out_fileEB_) <<"COMMENT default parameters for towers"<<std::endl ;
   (*out_fileEB_) <<"TOWER "<<dec<<-1<<" "<<-1<<std::endl ;
-  computeLUT(lut) ; 
+  computeLUT(lut, "EB") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEB_)<<endl ;
-  (*out_fileEB_)<<"0x20 0x40 0x60 0x70 0x0808"<<std::endl ;
-
   
   // endcap
   (*out_fileEE_) <<std::endl ;
   (*out_fileEE_) <<"COMMENT default parameters for towers"<<std::endl ;
   (*out_fileEE_) <<"TOWER "<<dec<<-1<<" "<<-1<<std::endl ;
-  computeLUT(lut) ; 
+  computeLUT(lut, "EE") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEE_)<<endl ;
   (*out_fileEE_)<<"0x0"<<std::endl ;
 
-
+  /////////////////////////
+  // Compute FG section //
+  /////////////////////////
+  uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
+  computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
+  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
+		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
+		<<std::endl ;
 }
 
 
@@ -427,14 +456,28 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShape & shape)
   return theWeights ;
 }
 
-void EcalTPGParamBuilder::computeLUT(int * lut) 
+void EcalTPGParamBuilder::computeLUT(int * lut, std::string det) 
 {
+  double LUT_stochastic = LUT_stochastic_EB_ ;
+  double LUT_noise = LUT_noise_EB_ ;
+  double LUT_constant = LUT_constant_EB_ ;
+  double TTF_lowThreshold = TTF_lowThreshold_EB_ ;
+  double TTF_highThreshold = TTF_highThreshold_EB_ ;
+  if (det == "EE") {
+    LUT_stochastic = LUT_stochastic_EE_ ;
+    LUT_noise = LUT_noise_EE_ ;
+    LUT_constant = LUT_constant_EE_ ;
+    TTF_lowThreshold = TTF_lowThreshold_EE_ ;
+    TTF_highThreshold = TTF_highThreshold_EE_ ;
+  }
+
   // initialisation with identity
   for (int i=0 ; i<1024 ; i++) {
     lut[i] = i ;
     if (lut[i]>0xff) lut[i] = 0xff ;
   }
 
+  // case linear LUT
   if (LUT_option_ == "Linear") {
     int mylut = 0 ;
     for (int i=0 ; i<1024 ; i++) {
@@ -443,20 +486,26 @@ void EcalTPGParamBuilder::computeLUT(int * lut)
     }
   }
 
+  // case LUT following Ecal resolution
   if (LUT_option_ == "EcalResolution") {
-    // to be done! FIXME
+    TF1 * func = new TF1("func",oneOverEtResolEt, 0., Et_sat_,3) ;
+    func->SetParameters(LUT_stochastic, LUT_noise, LUT_constant) ;
+    double norm = func->Integral(0., Et_sat_) ;
+    for (int i=0 ; i<1024 ; i++) {   
+      double Et = i*Et_sat_/1024. ;
+      lut[i] =  int(0xff*func->Integral(0., Et)/norm + 0.5) ;
+    }
   }
 
   // Now, add TTF thresholds to LUT
   for (int j=0 ; j<1024 ; j++) {
     double Et_GeV = Et_sat_/1024*j ;
     int ttf = 0x0 ;    
-    if (Et_GeV >= TTF_highThreshold_) ttf = 3 ;
-    if (Et_GeV >= TTF_lowThreshold_ && Et_GeV < TTF_highThreshold_) ttf = 1 ;
+    if (Et_GeV >= TTF_highThreshold) ttf = 3 ;
+    if (Et_GeV >= TTF_lowThreshold && Et_GeV < TTF_highThreshold) ttf = 1 ;
     ttf = ttf << 8 ;
     lut[j] += ttf ;
   }
-  
 }
 
 
@@ -495,4 +544,27 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc & coeff,
     coeff.pedestals_[1] = int(aped.mean_x6 + 0.5) ;
     coeff.pedestals_[2] = int(aped.mean_x1 + 0.5) ;
   }
+}
+
+void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
+						       uint & lowThreshold, uint & highThreshold, uint & lut)
+{
+  lowRatio = int(0x80*FG_lowRatio_EB_ + 0.5) ;
+  if (lowRatio>0x7f) lowRatio = 0x7f ;
+  highRatio = int(0x80*FG_highRatio_EB_ + 0.5) ;
+  if (highRatio>0x7f) highRatio = 0x7f ;
+  
+  // lsb at the stage of the FG calculation is:
+  double lsb_FG = Et_sat_/1024./4 ;
+  lowThreshold = int(FG_lowThreshold_EB_/lsb_FG+0.5) ;
+  if (lowThreshold>0xff) lowThreshold = 0xff ;
+  highThreshold = int(FG_highThreshold_EB_/lsb_FG+0.5) ;
+  if (highThreshold>0xff) highThreshold = 0xff ;
+
+  // FG lut: FGVB response is LUT(adress) where adress is: 
+  // bit3: maxof2/ET >= lowRatio, bit2: maxof2/ET >= highRatio, bit1: ET >= lowThreshold, bit0: ET >= highThreshold
+  // FGVB =1 if jet-like (veto active), =0 if E.M.-like
+  // the condition for jet-like is: ET>Threshold and  maxof2/ET < Ratio (only TT with enough energy are vetoed)
+  if (FG_lut_EB_ == 0) lut = 0x0808 ; // both threshols and ratio are treated the same way.
+  else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
 }
