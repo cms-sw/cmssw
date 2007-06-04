@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/09 00:40:41 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/28 10:32:24 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - CERN. 
  */
 
@@ -267,15 +267,31 @@ DTGeometryBuilderFromDDD::plane(const DDFilteredView& fv,
                                         float(trans.y()/cm), 
                                         float(trans.z()/cm));
   // now the rotation
-  DDRotationMatrix tmp = fv.rotation();
+  //  DDRotationMatrix tmp = fv.rotation();
   // === DDD uses 'active' rotations - see CLHEP user guide ===
   //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
-  DDRotationMatrix rotation = tmp.inverse();
+  //  DDRotationMatrix tmp = fv.rotation();
+  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  DD3Vector x, y, z;
+  rotation.GetComponents(x,y,z);
+//   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;
+//   std::cout << "INVERSE rotation manually: "
+// 	    << x.X() << ", " << x.Y() << ", " << x.Z() << std::endl
+// 	    << y.X() << ", " << y.Y() << ", " << y.Z() << std::endl
+// 	    << z.X() << ", " << z.Y() << ", " << z.Z() << std::endl;
 
-  Surface::RotationType rotResult(float(rotation.xx()),float(rotation.xy()),float(rotation.xz()),
-                                  float(rotation.yx()),float(rotation.yy()),float(rotation.yz()),
-                                  float(rotation.zx()),float(rotation.zy()),float(rotation.zz())); 
+  Surface::RotationType rotResult(float(x.X()),float(x.Y()),float(x.Z()),
+                                  float(y.X()),float(y.Y()),float(y.Z()),
+                                  float(z.X()),float(z.Y()),float(z.Z())); 
+
+//   std::cout << "rotation by its own operator: "<< tmp << std::endl;
+//   DD3Vector tx, ty,tz;
+//   tmp.GetComponents(tx, ty, tz);
+//   std::cout << "rotation manually: "
+// 	    << tx.X() << ", " << tx.Y() << ", " << tx.Z() << std::endl
+// 	    << ty.X() << ", " << ty.Y() << ", " << ty.Z() << std::endl
+// 	    << tz.X() << ", " << tz.Y() << ", " << tz.Z() << std::endl;
 
   return RCPPlane( new BoundPlane( posResult, rotResult, bounds));
 }

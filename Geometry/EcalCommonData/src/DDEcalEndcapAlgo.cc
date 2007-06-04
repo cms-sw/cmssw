@@ -94,7 +94,7 @@ void DDEcalEndcapAlgo::execute()
    DDpos( eeLog,
 	  parent().name(), 
 	  copyOne, 
-	  Vec3(0,0, eezOff() ),
+	  DDTranslation(0,0, eezOff() ),
 	  DDRotation() ) ;
 
    front() ; // do the front half including crystals

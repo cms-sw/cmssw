@@ -16,6 +16,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
+#include "DetectorDescription/Base/interface/DDTranslation.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "Geometry/EcalCommonData/interface/DDEcalBarrelAlgo.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -886,10 +887,12 @@ void DDEcalBarrelAlgo::execute()
 
 	 if( vecSpmHere()[iphi] != 0 )
 	 {
+	   // convert from CLHEP to DDTranslation & etc. -- Michael Case
+	   DDTranslation myTran(both.getTranslation().x(), both.getTranslation().y(), both.getTranslation().z());
 	    DDpos( spmLog,
 		   barName(), 
 		   iphi+1, 
-		   both.getTranslation(),
+		   myTran,
 		   rota                     ) ;
 	 }
       } 
@@ -914,7 +917,7 @@ void DDEcalBarrelAlgo::execute()
       DDpos( ilyLog,
 	     spmLog, 
 	     copyOne, 
-	     Vec3(0,0, ilyLength/2 ),
+	     DDTranslation(0,0, ilyLength/2 ),
 	     DDRotation() ) ;
 
       DDLogicalPart ilyPipeLog[200] ;
@@ -992,12 +995,12 @@ void DDEcalBarrelAlgo::execute()
       DDpos( ilyDiffLog,
 	     ilyFanOutName(), 
 	     copyOne, 
-	     Vec3(0,0, -ilyFanOutLength()/2 + ilyDiffLength()/2 + ilyDiffOff() ),
+	     DDTranslation(0,0, -ilyFanOutLength()/2 + ilyDiffLength()/2 + ilyDiffOff() ),
 	     DDRotation() ) ;
       DDpos( ilyBndlLog,
 	     ilyFanOutName(), 
 	     copyOne, 
-	     Vec3(0,0, -ilyFanOutLength()/2 + ilyBndlLength()/2 + ilyBndlOff() ),
+	     DDTranslation(0,0, -ilyFanOutLength()/2 + ilyBndlLength()/2 + ilyBndlOff() ),
 	     DDRotation() ) ;
 
       for( unsigned int ily ( 0 ) ; ily != vecIlyThick().size() ; ++ily )
@@ -1018,7 +1021,7 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( xilyLog,
 		   ilyLog, 
 		   copyOne, 
-		   Vec3(0,0,0),
+		   DDTranslation(0,0,0),
 		   DDRotation() ) ;
 
 	    unsigned int copyNum[] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} ;
@@ -1039,7 +1042,7 @@ void DDEcalBarrelAlgo::execute()
 		     DDpos( ilyPTMLog,
 			    xilyLog, 
 			    ++ptmCopy, 
-			    Vec3(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
+			    DDTranslation(xx,yy, vecIlyPTMZ()[ilyPTM] -ilyLength/2 ),
 			    myrot( ilyPTMLog.name().name() + "_rot" +
 				   int_to_string( ptmCopy ) , HepRotationZ( phi ) )) ;
 		  }
@@ -1056,7 +1059,7 @@ void DDEcalBarrelAlgo::execute()
 		     DDpos( ilyFanOutLog,
 			    xilyLog, 
 			    ++fanOutCopy, 
-			    Vec3(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
+			    DDTranslation(xx,yy, vecIlyFanOutZ()[ilyFO] -ilyLength/2 ),
 			    myrot( ilyFanOutLog.name().name() + "_rot" +
 				   int_to_string( fanOutCopy ) , 
 				   HepRotationZ( phi )*HepRotationY( 180*deg ) )) ;
@@ -1071,7 +1074,7 @@ void DDEcalBarrelAlgo::execute()
 		     DDpos( ilyFEMLog,
 			    xilyLog, 
 			    ++femCopy, 
-			    Vec3(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
+			    DDTranslation(xx,yy, vecIlyFEMZ()[ilyFEM] -ilyLength/2 ),
 			    myrot( ilyFEMLog.name().name() + "_rot" +
 				   int_to_string( femCopy ) , HepRotationZ( phi ) )) ;
 		  }
@@ -1093,7 +1096,7 @@ void DDEcalBarrelAlgo::execute()
 		     DDpos( ilyPipeLog[type],
 			    xilyLog, 
 			    ++copyNum[type],
-			    Vec3(xx,yy,zz),
+			    DDTranslation(xx,yy,zz),
 			    ( 9 > type ? DDRotation() :
 			      myrot( ilyPipeLog[type].name().name() + "_rot" +
 				     int_to_string( copyNum[type] ) , Rota( Vec3(xx,yy,0), 90*deg) ) ) ) ;
@@ -1117,7 +1120,7 @@ void DDEcalBarrelAlgo::execute()
       cro.push_back( vecSpmRMin()[2] + 10*mm ) ;
       const DDSolid clyrSolid ( DDSolidFactory::polycone( clyrName, -9.5*deg,  19*deg, czz,cri,cro) ) ;
       const DDLogicalPart clyrLog ( clyrName, ddmat(vecIlyMat()[4]), clyrSolid ) ;
-      DDpos( clyrLog, spmLog, copyOne, Vec3(0,0,0), DDRotation() ) ;
+      DDpos( clyrLog, spmLog, copyOne, DDTranslation(0,0,0), DDRotation() ) ;
 
       // Begin Alveolar Wedge parent ------------------------------------------------------
 //----------------
@@ -1220,7 +1223,7 @@ void DDEcalBarrelAlgo::execute()
       const DDSolid       hawRSolid ( DDSolidFactory::subtraction(
 					 hawRName(),
 					 hawRSolid1, hawCutBox,
-					 hawCutForm.getTranslation(),
+					 DDTranslation(hawCutForm.getTranslation().x(), hawCutForm.getTranslation().y(), hawCutForm.getTranslation().z()),
 					 myrot( hawCutName.name()+"R",
 						hawCutForm.getRotation() ) ) ) ;
       const DDLogicalPart hawRLog   ( hawRName(), spmMat(), hawRSolid ) ;
@@ -1249,7 +1252,7 @@ void DDEcalBarrelAlgo::execute()
       const DDSolid       fawSolid ( DDSolidFactory::subtraction(
 					 fawName(),
 					 fawSolid1, fawCutBox,
-					 fawCutForm.getTranslation(),
+					 DDTranslation(fawCutForm.getTranslation().x(), fawCutForm.getTranslation().y(), fawCutForm.getTranslation().z()) ,
 					 myrot( fawCutName.name()+"R",
 						fawCutForm.getRotation() ) ) ) ;
       const DDLogicalPart fawLog   ( fawName(), spmMat(), fawSolid ) ;
@@ -1257,20 +1260,19 @@ void DDEcalBarrelAlgo::execute()
 
       const Tf3D hawRform ( vHAW[3], vHAW[0], vHAW[1], // HAW inside FAW
 			    vFAW[3], 0.5*(vFAW[0]+vFAW[3]), 0.5*(vFAW[1]+vFAW[2] ) ) ;
-
       DDpos( hawRLog,
 	     fawLog, 
 	     copyOne, 
-	     hawRform.getTranslation(),
+	     DDTranslation(hawRform.getTranslation().x(), hawRform.getTranslation().y(), hawRform.getTranslation().z()),
 	     myrot( hawRName().name()+"R", 
 		    hawRform.getRotation() ) ) ;
 
       DDpos( hawRLog,
 	     fawLog, 
 	     copyTwo, 
-	     Vec3( -hawRform.getTranslation().x(),
-		   -hawRform.getTranslation().y(),
-		   -hawRform.getTranslation().z() ),
+	     DDTranslation( -hawRform.getTranslation().x(),
+			    -hawRform.getTranslation().y(),
+			    -hawRform.getTranslation().z() ),
 	     myrot( hawRName().name()+"RotRefl",
 		    HepRotationY(180*deg)*                 // rotate about Y after refl thru Z
 		    HepRep3x3(1,0,0, 0,1,0, 0,0,-1) ) ) ;
@@ -1297,7 +1299,7 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( fawLog,
 		   spmLog, 
 		   iPhi, 
-		   fawform.getTranslation(),
+		   DDTranslation(fawform.getTranslation().x(), fawform.getTranslation().y(), fawform.getTranslation().z() ),
 		   myrot( fawName().name()+"_Rot" + int_to_string(iPhi), 
 			  fawform.getRotation() ) ) ;
       }
@@ -1332,7 +1334,7 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( gridLog,
 		hawRLog, 
 		copyOne, 
-		gridForm.getTranslation(),
+		DDTranslation(gridForm.getTranslation().x(), gridForm.getTranslation().y(), gridForm.getTranslation().z() ),
 		myrot( gridName().name()+"R", 
 		       gridForm.getRotation() ) ) ;
 
@@ -1551,7 +1553,7 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( cryLog,
 		clrLog, 
 		copyOne, 
-		cryToClr,
+		DDTranslation ( 0, 0, ( rClr - fClr )/2 ), //SAME as cryToClr above.
 		DDRotation() ) ;
 
 	 if( 0 != apdHere() )
@@ -1559,16 +1561,16 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( apdLog,
 		   clrLog, 
 		   ++copyAPD, 
-		   Vec3( +trapCry.bl1() - apdX1(),
-			 +trapCry.h1()  - apdZ(),
-			 -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2. ),
+		   DDTranslation( +trapCry.bl1() - apdX1(),
+				  +trapCry.h1()  - apdZ(),
+				  -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2. ),
 		   DDRotation() ) ;
 	    DDpos( apdLog,
 		   clrLog, 
 		   ++copyAPD, 
-		   Vec3( +trapCry.bl1() - apdX2(),
-			 +trapCry.h1()  - apdZ(),
-			 -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2.),
+		   DDTranslation( +trapCry.bl1() - apdX2(),
+				  +trapCry.h1()  - apdZ(),
+				  -trapCry.dz()  - apdThick()/2. + (rClr - fClr)/2.),
 		   DDRotation() ) ;
 	 }
 
@@ -1577,7 +1579,7 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( clrLog,
 		wrapLog, 
 		copyOne, 
-		clrToWrap,
+		DDTranslation ( 0, 0, ( rWrap - fWrap )/2 ), //SAME as cryToWrap
 		DDRotation() ) ;
 
 
@@ -1588,7 +1590,7 @@ void DDEcalBarrelAlgo::execute()
 	 DDpos( wrapLog,
 		wallLog, 
 		copyOne, 
-		wrapToWall,
+		DDTranslation ( Vec3( (cryType>9?0:0.005*mm),0,0 )+wrapToWall1 ), //SAME as wrapToWall
 		DDRotation() ) ;
 
          const Trap::VertexList vWall ( trapWall.vertexList() ) ;
@@ -1657,7 +1659,7 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( wallLog,
 		   hawRLog, 
 		   etaAlv, 
-		   tForm.getTranslation(),
+		   DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z() ),
 		   myrot( wallLog.name().name() + "_" + int_to_string( etaAlv ),
 			  tForm.getRotation() ) ) ;
 
@@ -1910,13 +1912,13 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( grMidSlotLog[(iGr-1)/2],
 		   gName, 
 		   ++midSlotCopy, 
-		   Vec3( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
-			 +grMidSlotXOff(),    0 ),
+		   DDTranslation( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
+				  +grMidSlotXOff(),    0 ),
 		   DDRotation() ) ;
 	    DDpos( grMidSlotLog[(iGr-1)/2],
 		   gName, 
 		   ++midSlotCopy, 
-		   Vec3( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
+		   DDTranslation( vecGrilleHeight()[iGr]/2. - vecGrMidSlotHeight()[(iGr-1)/2]/2.,
 			 -grMidSlotXOff(),    0 ),
 		   DDRotation() ) ;
 	 }
@@ -1927,13 +1929,13 @@ void DDEcalBarrelAlgo::execute()
 	    DDpos( grEdgeSlotLog,
 		   gName, 
 		   ++edgeSlotCopy, 
-		   Vec3( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
-			 backCoolWidth/2           - grEdgeSlotWidth()/2.,    0 ),
+		   DDTranslation( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
+				  backCoolWidth/2           - grEdgeSlotWidth()/2.,    0 ),
 		   DDRotation() ) ;
 	    DDpos( grEdgeSlotLog,
 		   gName, 
 		   ++edgeSlotCopy, 
-		   Vec3( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
+		   DDTranslation( vecGrilleHeight()[iGr]/2. - grEdgeSlotHeight()/2.,
 			 -backCoolWidth/2          + grEdgeSlotWidth()/2.,    0 ),
 		   DDRotation() ) ;
 	 }
@@ -2533,7 +2535,7 @@ void DDEcalBarrelAlgo::execute()
 	 
 	 const DDLogicalPart pLog ( pName, ddmat(vecPatchPanelMat()[j]), pSolid ) ;
 	 
-	 pTra += Hep3Vector( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
+	 pTra += DDTranslation( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
 	 
 	 DDpos( pLog,
 		patchPanelName(), 
@@ -2541,7 +2543,7 @@ void DDEcalBarrelAlgo::execute()
 		pTra,
 		DDRotation() ) ;
 	 
-	 pTra += Hep3Vector( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
+	 pTra += DDTranslation( vecPatchPanelThick()[j]/2, 0*mm, 0*mm ) ;
       }
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -2674,11 +2676,12 @@ void DDEcalBarrelAlgo::execute()
    LogDebug("EcalGeom") << "******** DDEcalBarrelAlgo test: end it..." ;
 }
 
+///Create a DDRotation from a string converted to DDName and HepRotation converted to DDRotationMatrix. -- Michael Case
 DDRotation
 DDEcalBarrelAlgo::myrot( const std::string&      s,
-			 const DDRotationMatrix& r ) const 
+			 const HepRotation& r ) const 
 {
-   return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r ) ) ; 
+  return DDrot( ddname( m_idNameSpace + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
 
  
@@ -2771,7 +2774,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
    DDpos( webPlLog,     // place plate inside clearance volume
 	  webClrDDName, 
 	  copyOne, 
-	  Vec3(0,0,0),
+	  DDTranslation(0,0,0),
 	  DDRotation() ) ;
 
    const Trap::VertexList vWeb ( trapWebClr.vertexList() ) ;
@@ -2800,7 +2803,7 @@ DDEcalBarrelAlgo::web( unsigned int        iWeb,
       DDpos( webClrLog,
 	     logPar, 
 	     copyOne, 
-	     tForm.getTranslation(),
+	     DDTranslation(tForm.getTranslation().x(), tForm.getTranslation().y(), tForm.getTranslation().z()),
 	     myrot( webClrLog.name().name() + int_to_string( iWeb ),
 		    tForm.getRotation() ) ) ;
 }

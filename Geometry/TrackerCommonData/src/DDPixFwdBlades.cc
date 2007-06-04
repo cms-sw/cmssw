@@ -129,9 +129,13 @@ void DDPixFwdBlades::execute() {
   HepRotation childRotMatrix = HepRotation();
   if (childRotationName != "") {
     DDRotation childRotation = DDRotation(DDName(DDSplit(childRotationName).first, DDSplit(childRotationName).second));
-    childRotMatrix = *(childRotation.rotation());
+    // due to conversion to ROOT::Math::Rotation3D -- Michael Case
+    DD3Vector x, y, z;
+    childRotation.rotation()->GetComponents(x, y, z); // these are the orthonormal columns.
+    HepRep3x3 tr(x.X(), y.X(), z.X(), x.Y(), y.Y(), z.Y(), x.Z(), y.Z(), z.Z());
+    childRotMatrix = HepRotation(tr);
   } else if (childName == "pixfwdNipple:PixelForwardNippleZPlus") {
-  	childRotMatrix = *nippleRotationZPlus;
+    childRotMatrix = *nippleRotationZPlus;
   } else if (childName == "pixfwdNipple:PixelForwardNippleZMinus") {
     childRotMatrix = *nippleRotationZMinus;
   }
@@ -186,14 +190,24 @@ void DDPixFwdBlades::execute() {
 
     if (!rotation) {
       (*rotMatrix) *= childRotMatrix;
-      rotation = DDrot(DDName(rotstr, idNameSpace), rotMatrix);
+      // due to conversion to ROOT::Math::Rotation3D; 
+      // also, maybe I'm dumb, but the ownership of these pointers is very confusing,
+      // so it seemed safer to make DD stuff "as needed" -- Michael Case
+      DDRotationMatrix* temp = new DDRotationMatrix(rotMatrix->xx(), rotMatrix->xy(), rotMatrix->xz(),
+						    rotMatrix->yx(), rotMatrix->yy(), rotMatrix->yz(),
+						    rotMatrix->zx(), rotMatrix->zy(), rotMatrix->zz() );
+      rotation = DDrot(DDName(rotstr, idNameSpace), temp);
     } else {
       delete rotMatrix;
     }
 
     // position the child :
 
-    DDpos(child, mother, copy, translation, rotation);
+    // due to conversion to ROOT::Math::Rotation3D; 
+    // also, maybe I'm dumb, but the ownership of these pointers is very confusing,
+    // so it seemed safer to make DD stuff "as needed" -- Michael Case
+    DDTranslation ddtran(translation.x(), translation.y(), translation.z());
+    DDpos(child, mother, copy, ddtran, rotation);
     // LogDebug("PixelGeom") << "DDPixFwdBlades: " << child << " Copy " << copy << " positioned in " << mother << " at " << translation << " with rotation " << rotation;
   }
 
@@ -278,14 +292,30 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   	nippleRotationZMinus = rpCN;
   }
   //( endcap > 0. ? nippleRotationZPlus : nippleRotationZMinus ) = rpCN;
-  DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"), rpCN);
+
+  // due to conversion to ROOT::Math::Rotation3D;
+  // also, maybe I'm dumb, but the ownership of these pointers is very confusing,
+  // so it seemed safer to make DD stuff "as needed" -- Michael Case
+  DDRotationMatrix* ddrpCN = new DDRotationMatrix(rpCN->xx(), rpCN->xy(), rpCN->xz(),
+						  rpCN->yx(), rpCN->yy(), rpCN->yz(),
+						  rpCN->zx(), rpCN->zy(), rpCN->zz() );
+
+  DDrot(DDName(rotNameCoverToNipple, "pixfwdNipple"), ddrpCN);
   HepRotation* rpNC = new HepRotation(axis, -angleCover);
-  DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"), rpNC);
+  DDRotationMatrix* ddrpNC = new DDRotationMatrix(rpNC->xx(), rpNC->xy(), rpNC->xz(),
+						  rpNC->yx(), rpNC->yy(), rpNC->yz(),
+						  rpNC->zx(), rpNC->zy(), rpNC->zz() );
+
+  DDrot(DDName(rotNameNippleToCover, "pixfwdNipple"), ddrpNC);
   
   // Rotation from nipple frame to "body" blade frame :
   
   HepRotation* rpNB = new HepRotation( (*rpNC) * rCB );
-  DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"), rpNB);
+  DDRotationMatrix* ddrpNB = new DDRotationMatrix(rpNB->xx(), rpNB->xy(), rpNB->xz(),
+						  rpNB->yx(), rpNB->yy(), rpNB->yz(),
+						  rpNB->zx(), rpNB->zy(), rpNB->zz() );
+
+  DDrot(DDName(rotNameNippleToBody, "pixfwdNipple"), ddrpNB);
   double angleBody = vZ.angle(*rpNB * vZ);
   LogDebug("PixelGeom") << " Angle to body : " << angleBody;
   

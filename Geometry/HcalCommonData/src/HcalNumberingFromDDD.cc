@@ -651,10 +651,10 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     if (idet == 3) {
       // HB
       LogDebug("HCalGeom") << "HB " << sol.name() << " Shape " << sol.shape()
-			   << " Layer " << lay << " R " << t.perp();
+			   << " Layer " << lay << " R " << t.Rho();
       if (lay >=0 && lay < 20) {
 	ib[lay]++;
-	rb[lay] += t.perp();
+	rb[lay] += t.Rho();
       }
       if (lay == 0) {
 	int iz = copy[nsiz-5];
@@ -704,7 +704,7 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     } else {
       LogDebug("HCalGeom") << "Unknown Detector " << idet << " for " 
 			   << sol.name() << " Shape " << sol.shape() << " R " 
-			   << t.perp() << " Z " << t.z();
+			   << t.Rho() << " Z " << t.z();
     }
     dodet = fv.next();
   }

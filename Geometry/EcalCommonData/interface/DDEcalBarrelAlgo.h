@@ -43,7 +43,7 @@ class DDEcalBarrelAlgo : public DDAlgorithm {
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;
       DDRotation myrot(  const std::string& s,
-			 const DDRotationMatrix& r ) const ;
+			 const HepRotation& r ) const ;
       DDSolid    mytrap( const std::string& s,
 			 const Trap&        t ) const ;
 

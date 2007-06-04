@@ -72,7 +72,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }
 
     for(std::vector<GeometricDet*>::iterator i=neg.begin();i!=neg.end();i++){
-      double rPos = (*i)->translation().perp();
+      double rPos = (*i)->translation().Rho();
       if(rPos > layerRadius ){ 
 	extneg.push_back(*i);
       }else{
@@ -81,7 +81,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }
 
     for(std::vector<GeometricDet*>::iterator i=pos.begin();i!=pos.end();i++){
-      double rPos = (*i)->translation().perp();
+      double rPos = (*i)->translation().Rho();
       if(rPos > layerRadius ){ 
 	extpos.push_back(*i);
       }else{

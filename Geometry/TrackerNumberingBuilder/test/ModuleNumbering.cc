@@ -124,15 +124,16 @@ ModuleNumbering::~ModuleNumbering()
 
 void ModuleNumbering::fillModuleVariables(const GeometricDet* module, double& polarRadius, double& phiRad, double& z) {
   // module variables
-  polarRadius = std::sqrt(module->translation()[0]*module->translation()[0]+module->translation()[1]*module->translation()[1]);
-  //
-  phiRad = atan2(module->translation()[1],module->translation()[0]);
+  // CLHEP WAS  polarRadius = std::sqrt(module->translation()[0]*module->translation()[0]+module->translation()[1]*module->translation()[1]);
+  polarRadius = std::sqrt(module->translation().X()*module->translation().X()+module->translation().Y()*module->translation().Y());
+  // CLHEP WAS   phiRad = atan2(module->translation()[1],module->translation()[0]);
+  phiRad = atan2(module->translation().Y(),module->translation().X());
   // tolerance near phi=0
   if(fabs(phiRad) < tolerance_angle) phiRad=0.0;
   // negative phi: from [-PI,+PI) to [0,2PI)
   if(phiRad < 0) phiRad+=2*M_PI;
   //
-  z = module->translation()[2];
+  z = module->translation().Z();
   //
 }
 

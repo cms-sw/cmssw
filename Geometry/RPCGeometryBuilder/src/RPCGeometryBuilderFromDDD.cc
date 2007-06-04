@@ -151,13 +151,22 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     std::vector<double> dpar=fview.logicalPart().solid().parameters();
     std::string name=fview.logicalPart().name().name();
     DDTranslation tran    = fview.translation();
-    DDRotationMatrix rota = fview.rotation().inverse();
+    //removed .Inverse after comparing to DT...
+    DDRotationMatrix rota = fview.rotation();//.Inverse();
     Surface::PositionType pos(tran.x()/cm,tran.y()/cm, tran.z()/cm);
-    Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
-			      rota.yx(),rota.yy(),rota.yz(),
-			      rota.zx(),rota.zy(),rota.zz());
+    // CLHEP way
+//     Surface::RotationType rot(rota.xx(),rota.xy(),rota.xz(),
+// 			      rota.yx(),rota.yy(),rota.yz(),
+// 			      rota.zx(),rota.zy(),rota.zz());
 
-
+//ROOT::Math way
+    DD3Vector x, y, z;
+    rota.GetComponents(x,y,z);
+    // doesn't this just re-inverse???
+    Surface::RotationType rot (float(x.X()),float(x.Y()),float(x.Z()),
+			       float(y.X()),float(y.Y()),float(y.Z()),
+			       float(z.X()),float(z.Y()),float(z.Z())); 
+    
     std::vector<float> pars;
     RPCRollSpecs* rollspecs= 0;
     Bounds* bounds = 0;

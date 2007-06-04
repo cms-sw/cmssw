@@ -1,6 +1,7 @@
 #include <DetectorDescription/Core/interface/DDFilter.h>
 #include <DetectorDescription/Core/interface/DDFilteredView.h>
 #include <DetectorDescription/Core/interface/DDSolid.h>
+#include <DetectorDescription/Core/interface/CLHEPToROOTMath.h>
 
 #include <Geometry/CSCGeometryBuilder/src/CSCGeometryBuilderFromDDD.h>
 #include <Geometry/CSCGeometry/interface/CSCGeometry.h>
@@ -19,6 +20,8 @@
 #include <DataFormats/GeometryVector/interface/Basic3DVector.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+
+#include <CLHEP/Units/SystemOfUnits.h>
 
 #include <iostream>
 #include <iomanip>
@@ -147,25 +150,34 @@ CSCGeometry* CSCGeometryBuilderFromDDD::buildEndcaps( DDFilteredView* fv, const 
 
     LogTrace(myName) << myName  << ": fill gtran...";
 
-    std::vector<float> gtran;
-    DDTranslation tran = fv->translation();
-    for (size_t i = 0; i < 3; i++) {
-      gtran.push_back( (float) 1.0 *  tran[i] / cm );
-    }
+    std::vector<float> gtran( 3 );
+// MEC: first pass conversion to ROOT::Math take or modify as you will..
+     gtran[0] = (float) 1.0 * (fv->translation().X() / cm);
+     gtran[1] = (float) 1.0 * (fv->translation().Y() / cm);
+     gtran[2] = (float) 1.0 * (fv->translation().Z() / cm);
+
+// MEC: Other option on final pass ROOT::Math 
+    //    std::vector<double> dblgtran( 3 );
+    //    fv->translation().GetCoordinates(dblgtran.begin(), dblgtran.end());
+    //    size_t gtind = 0;
+    //    for (std::vector<double>::const_iterator dit= dblgtran.begin(); dit != dblgtran.end(); ++dit) {
+    //      gtran[gtind++]=( (float) 1.0 * (*dit) );
+    //    }
 
     LogTrace(myName) << myName  << ": fill grmat...";
 
     std::vector<float> grmat( 9 ); // set dim so can use [.] to fill
-    size_t rotindex = 0;
-    for (size_t i = 0; i < 3; i++) {
-      rotindex = i;
-      HepRotation::HepRotation_row r = fv->rotation()[i];
-      size_t j = 0;
-      for (; j < 3; j++) {
-	grmat[rotindex] = (float) 1.0 *  r[j];
-	rotindex += 3;
-      }
-    }
+    // MEC: ROOT::Math conversion
+     std::vector<float> trm(9);
+     fv->rotation().GetComponents(trm.begin(), trm.end());
+     size_t rotindex = 0;
+     for (size_t i = 0; i < 9; ++i) {
+       grmat[i] = (float) 1.0 * trm[rotindex];
+       rotindex = rotindex + 3;
+       if ( (i+1) % 3 == 0 ) {
+	 rotindex = (i+1) / 3;
+       }
+     }
 
     LogTrace(myName) << myName  << ": fill fupar...";
 

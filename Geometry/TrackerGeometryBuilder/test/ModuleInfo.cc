@@ -290,7 +290,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TIB" << side << "\t" << "Layer " << theLayer << " " << part
 	       << "\t" << "string " << theString[2] << "\t" << " module " << theModule << " " << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
+	       << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -318,7 +318,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TID" << side << "\t" << "Disk " << theDisk << " Ring " << theRing << " " << part
 	       << "\t" << " module " << theModule[1] << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
+	       << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -345,7 +345,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TOB" << side << "\t" << "Layer " << theLayer 
 	       << "\t" << "rod " << theRod[1] << " module " << theModule << "\t" << name << "\t" 
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
+	       << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	break;
       }
       
@@ -379,7 +379,7 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	Output << " TEC" << side << "\t" << "Wheel " << theWheel << " Petal " << thePetal[1] << " " << petal << " Ring " << theRing << "\t"
 	       << "\t" << " module " << theModule << "\t" << name << "\t"
 	       << "son of " << modules[i]->parents()[modules[i]->parents().size()-3].logicalPart().name() << " "
-	       << modules[i]->translation()[0] << "   \t" << modules[i]->translation()[1] << "   \t" << modules[i]->translation()[2] << std::endl;
+	       << modules[i]->translation().X() << "   \t" << modules[i]->translation().Y() << "   \t" << modules[i]->translation().Z() << std::endl;
 	
 	// TEC output as Martin Weber's
 	int out_side  = (module.side() == 1 ) ? -1 : 1;
@@ -423,12 +423,12 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	else {
 	  out_module = module.module();
 	}
-	double out_x = modules[i]->translation()[0];
-	double out_y = modules[i]->translation()[1];
-	double out_z = modules[i]->translation()[2];
-	double out_r = sqrt(modules[i]->translation()[0]*modules[i]->translation()[0] + 
-			    modules[i]->translation()[1]*modules[i]->translation()[1]);
-	double out_phi_rad = atan2(modules[i]->translation()[1],modules[i]->translation()[0]);
+	double out_x = modules[i]->translation().X();
+	double out_y = modules[i]->translation().Y();
+	double out_z = modules[i]->translation().Z();
+	double out_r = sqrt(modules[i]->translation().X()*modules[i]->translation().X() + 
+			    modules[i]->translation().Y()*modules[i]->translation().Y());
+	double out_phi_rad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
 	TECOutput << out_side << " " << out_disk << " " << out_sector << " " << out_petal
 		  << " " << out_ring << " " << out_module << " " << out_sensor
 		  << " " << out_x << " " << out_y << " " << out_z << " " << out_r << " " << out_phi_rad << std::endl;
@@ -459,14 +459,14 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << "thickness "      << std::fixed << std::setprecision(0) << thickness << " um \t"
 	   << " active area "   << std::fixed << std::setprecision(2) << activeSurface << " cm2" << std::endl;
     Output << "\tActive Area Center" << std::endl;
-    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation()[0]
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation()[1]
-	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation()[2]
+    Output << "\t O = (" << std::fixed << std::setprecision(4) << modules[i]->translation().X()
+	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Y()
+	   << ","        << std::fixed << std::setprecision(4) << modules[i]->translation().Z()
 	   << ")" << std::endl;
     //
-    double polarRadius = std::sqrt(modules[i]->translation()[0]*modules[i]->translation()[0]+modules[i]->translation()[1]*modules[i]->translation()[1]);
-    double phiDeg = atan2(modules[i]->translation()[1],modules[i]->translation()[0]) * 360. / 6.283185307;
-    double phiRad = atan2(modules[i]->translation()[1],modules[i]->translation()[0]);
+    double polarRadius = std::sqrt(modules[i]->translation().X()*modules[i]->translation().X()+modules[i]->translation().Y()*modules[i]->translation().Y());
+    double phiDeg = atan2(modules[i]->translation().Y(),modules[i]->translation().X()) * 360. / 6.283185307;
+    double phiRad = atan2(modules[i]->translation().Y(),modules[i]->translation().X());
     //
     Output << "\t\t polar radius " 
 	   << std::fixed << std::setprecision(4) << polarRadius
@@ -476,26 +476,28 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 	   << std::fixed << std::setprecision(4) << phiRad
 	   << std::endl;
     // active area versors (rotation matrix)
+    DD3Vector x,y,z;
+    modules[i]->rotation().GetComponents(x,y,z);
     Output << "\tActive Area Rotation Matrix" << std::endl;
-    Output << "\t z = n = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xz()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yz()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zz()
+    Output << "\t z = n = (" << std::fixed << std::setprecision(4) << x.Z()
+	   << ","            << std::fixed << std::setprecision(4) << y.Z()
+	   << ","            << std::fixed << std::setprecision(4) << z.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << zGlobal.x()
 	   << ","            << std::fixed << std::setprecision(4) << zGlobal.y()
 	   << ","            << std::fixed << std::setprecision(4) << zGlobal.z()
 	   << ")" << std::endl
-	   << "\t x = t = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xx()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yx()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zx()
+	   << "\t x = t = (" << std::fixed << std::setprecision(4) << x.X()
+	   << ","            << std::fixed << std::setprecision(4) << y.Y()
+	   << ","            << std::fixed << std::setprecision(4) << z.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << xGlobal.x()
 	   << ","            << std::fixed << std::setprecision(4) << xGlobal.y()
 	   << ","            << std::fixed << std::setprecision(4) << xGlobal.z()
 	   << ")" << std::endl
-	   << "\t y = k = (" << std::fixed << std::setprecision(4) << modules[i]->rotation().xy()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().yy()
-	   << ","            << std::fixed << std::setprecision(4) << modules[i]->rotation().zy()
+	   << "\t y = k = (" << std::fixed << std::setprecision(4) << x.Y()
+	   << ","            << std::fixed << std::setprecision(4) << y.Y()
+	   << ","            << std::fixed << std::setprecision(4) << z.Z()
 	   << ")" << std::endl
 	   << "\t [Rec] = (" << std::fixed << std::setprecision(4) << yGlobal.x()
 	   << ","            << std::fixed << std::setprecision(4) << yGlobal.y()
@@ -504,9 +506,9 @@ ModuleInfo::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
     
     // NumberingScheme
     NumberingOutput << rawid << " " << detNavType << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation()[0] << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation()[1] << " "
-		    << std::fixed << std::setprecision(4) << modules[i]->translation()[2] << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation().X() << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation().Y() << " "
+		    << std::fixed << std::setprecision(4) << modules[i]->translation().Z() << " "
 		    << std::endl;
     //
   }

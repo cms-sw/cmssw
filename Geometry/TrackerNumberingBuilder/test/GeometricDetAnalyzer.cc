@@ -13,7 +13,7 @@
 //
 // Original Author:  Tommaso Boccali
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: GeometricDetAnalyzer.cc,v 1.2 2006/04/20 12:52:53 fambrogl Exp $
+// $Id: GeometricDetAnalyzer.cc,v 1.3 2006/10/24 11:36:44 fambrogl Exp $
 //
 //
 
@@ -38,6 +38,8 @@
 
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerDebugNavigator.h"
 
+// CLHEP Dependency
+#include <CLHEP/Vector/ThreeVector.h>
 
 //
 //
@@ -103,15 +105,28 @@ GeometricDetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
    std::vector<const GeometricDet*> det = (*pDD).deepComponents();   
    for(std::vector<const GeometricDet*>::iterator it = det.begin();it!=det.end();it++){
 
-     DDRotationMatrix res = (*it)->rotation();
+     // VERY unsure about this change.
+//      DDRotationMatrix res = (*it)->rotation();
 
-     Hep3Vector colx(res.xx(),res.xy(),res.xz());
-     Hep3Vector coly(res.yx(),res.yy(),res.yz());
-     Hep3Vector colz(res.zx(),res.zy(),res.zz());
+//      Hep3Vector colx(res.xx(),res.xy(),res.xz());
+//      Hep3Vector coly(res.yx(),res.yy(),res.yz());
+//      Hep3Vector colz(res.zx(),res.zy(),res.zz());
+
+//      DDRotationMatrix result(colx,coly,colz);
+
+//      if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5){
+     DDRotationMatrix res = (*it)->rotation();
+     DD3Vector x, y, z;
+     res.GetComponents(x, y, z);
+     DD3Vector colx(x.X(),x.Y(),x.Z());
+     DD3Vector coly(y.X(),y.Y(),y.Z());
+     DD3Vector colz(z.X(),z.Y(),z.Z());
 
      DDRotationMatrix result(colx,coly,colz);
 
-     if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5){
+     DD3Vector cx, cy, cz;
+     result.GetComponents(cx, cy, cz);
+     if (cx.Cross(cy).Dot(cz) < 0.5){
        edm::LogInfo("GeometricDetAnalyzer") <<"Left Handed Rotation Matrix detected; making it right handed: "<<(*it)->name();
      }
    }

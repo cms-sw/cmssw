@@ -155,8 +155,8 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
     bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
       
-      return a->deepComponents().front()->translation().perp() < 
-	b->deepComponents().front()->translation().perp();
+      return a->deepComponents().front()->translation().Rho() < 
+	b->deepComponents().front()->translation().Rho();
       
     }
   };
@@ -165,7 +165,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
     bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
       
-      return a->translation().perp() < b->translation().perp();
+      return a->translation().Rho() < b->translation().Rho();
       
     }
   };
