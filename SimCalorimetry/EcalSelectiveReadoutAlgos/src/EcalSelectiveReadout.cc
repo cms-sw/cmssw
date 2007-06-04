@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.10 2007/02/14 18:37:04 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.11 2007/06/04 16:09:30 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
 
-#include <iostream> //for debugging
+//#include <iostream> //for debugging
 
 using std::vector;
 
@@ -202,13 +202,6 @@ EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTower
     for(size_t iPhi = 0 ; iPhi < nTriggerTowersInPhi; iPhi+=2){
       const towerInterest_t srf = std::max(towerInterest[iEta][iPhi],
                                            towerInterest[iEta][iPhi+1]);
-      if(srf==NEIGHBOUR){
-        std::cerr << "towerInterest[" << iEta << "][" << iPhi << "] = "
-                  << towerInterest [iEta][iPhi] <<"\t"
-                  << "towerInterest[" << iEta << "][" << (iPhi+1) << "] = "
-                  << towerInterest [iEta][iPhi+1] <<" \t-> "
-                  << srf << "\n";
-      }
       towerInterest[iEta][iPhi] = srf;
       towerInterest[iEta][iPhi+1] = srf;
     }
