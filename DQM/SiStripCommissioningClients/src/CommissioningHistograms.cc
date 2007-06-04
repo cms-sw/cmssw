@@ -287,19 +287,10 @@ uint32_t CommissioningHistograms::runNumber( DaqMonitorBEInterface* const bei,
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::extractHistograms( const std::vector<std::string>& contents ) {
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
     << " Extracting available histograms...";
-
-  // Check pointer
-  if ( mui_ ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[CommissioningHistograms::" << __func__ << "]"
-      << " NON-ZERO pointer to MonitorUserInterface!"
-      << " Should use createCollations() instead!";
-    return;
-  }
-
+  
   // Check pointer
   if ( !bei_ ) {
     edm::LogWarning(mlDqmClient_)
@@ -316,8 +307,9 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
   for ( idir = contents.begin(); idir != contents.end(); idir++ ) {
     
     // Ignore Collector/EvF directories (in case of client root file)
-    if ( idir->find("Collector") != std::string::npos ||
-	 idir->find("EvF") != std::string::npos ) { continue; }
+    if ( idir->find("Collector") == std::string::npos &&
+ 	 idir->find("EvF") == std::string::npos &&
+	 idir->find("FU") == std::string::npos ) { continue; }
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
@@ -406,9 +398,9 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::createCollations( const std::vector<std::string>& contents ) {
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Creating CollateMonitorElements...";
+    << " Creating collated histograms...";
 
   // Check pointer
   if ( !mui_ ) {
@@ -566,6 +558,10 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
   }
   
   //printHistosMap();
+
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Created collated histograms!";
   
 }
 
@@ -694,6 +690,10 @@ void CommissioningHistograms::remove( std::string pattern ) {
   }
   
   mui_->getBEInterface()->setVerbose(0);
+
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Removing histograms...";
   
   if ( !pattern.empty() ) {
     
@@ -728,13 +728,17 @@ void CommissioningHistograms::remove( std::string pattern ) {
     
   }
 
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Removed histograms!";
+
   mui_->getBEInterface()->setVerbose(1);
 
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::save( std::string path,
+void CommissioningHistograms::save( std::string& path,
 				    uint32_t run_number ) {
   
   if ( !mui_ ) { 
@@ -766,18 +770,21 @@ void CommissioningHistograms::save( std::string path,
     else { ss << "/tmp/"; }
     
     // Add filename with run number and ".root" extension
-    ss << "SiStripCommissioningClient_" 
+    ss << sistrip::dqmClientFileName_ << "_" 
        << std::setfill('0') << std::setw(7) << run_number
        << ".root";
     
   }
-
-  // Save file with appropriate filename
-  mui_->save( ss.str() ); 
   
-  LogTrace(mlDqmClient_)
+  // Save file with appropriate filename
+  edm::LogVerbatim(mlDqmClient_)
     << "[CommissioningHistograms::" << __func__ << "]"
-    << " Saved all MonitorElements to root file \""
-    << ss.str() << "\"";
+    << " Saving histograms to root file \""
+    << ss.str() << "\"... (This may take some time!)";
+  path = ss.str();
+  mui_->save( path ); 
+  edm::LogVerbatim(mlDqmClient_)
+    << "[CommissioningHistograms::" << __func__ << "]"
+    << " Saved histograms to root file!";
   
 }
