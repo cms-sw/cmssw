@@ -251,6 +251,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   TrajectoryStateTransform transform;
   FreeTrajectoryState cIPFTS = transform.initialFreeState(muon,&*theProxyService->magneticField());
   LogDebug(_category)<<cIPFTS;   
+  if (cIPFTS.position().mag()==0) /*error*/ { edm::LogError(_category)<<"initial point of muon is (0,0,0)."; return;}
 
   //take state at inner surface and check the first part reached
   std::vector<BarrelDetLayer*> blc = _measurementTracker->geometricSearchTracker()->tobLayers();
@@ -264,9 +265,10 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
   std::vector<ForwardDetLayer*> ntidc = _measurementTracker->geometricSearchTracker()->negTidLayers();
   std::vector<ForwardDetLayer*> ntecc = _measurementTracker->geometricSearchTracker()->negTecLayers();
 
+  uint layerShift=3;
   const DetLayer *inLayer = NULL;
   if (fabs(z) < ptecc.front()->surface().position().z()  ){
-    inLayer = blc.back();
+    inLayer = *(blc.rbegin()+layerShift);
   } else {
     //whoa ! +1 should not be allowed !
     uint tecIt=1;
@@ -287,9 +289,12 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     case StripSubdetector::TIB:
     case StripSubdetector::TID:
     case StripSubdetector::TOB:
-      return ; break;
+      if (layerShift>=blc.size()) return;
+      layerShift++;
+      inLayer = *(blc.rbegin()+layerShift);
+      break;
     case StripSubdetector::TEC:
-      inLayer = blc.back();
+      inLayer = *(blc.rbegin()+layerShift);
       break;
     }
     compatible = inLayer->compatibleDets(outer,*theProxyService->propagator(_propagatorCompatibleName),*_chi2Estimator);
@@ -309,7 +314,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
       rhContainer.push_back( (*trit).get()->clone() );  }}
 
   //add this seed to the list and return it
-  result.push_back(TrajectorySeed(PTSOD,rhContainer,alongMomentum));
+  result.push_back(TrajectorySeed(PTSOD,rhContainer,oppositeToMomentum));
 
   return;
 }
