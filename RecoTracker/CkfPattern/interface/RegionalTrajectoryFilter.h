@@ -16,9 +16,6 @@ public:
   RegionalTrajectoryFilter (const TrackingRegion& region) :
     thePtFilter(region.ptMin()) {}
   /// filter method
-  bool operator() (const TempTrajectory& traj) const {
-    return thePtFilter(traj);
-  }
   bool operator() (const Trajectory& traj) const {
     return thePtFilter(traj);
   }

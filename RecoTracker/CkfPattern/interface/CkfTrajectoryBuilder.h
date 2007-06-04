@@ -28,7 +28,7 @@ class TrajectoryFilter;
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-#include "RecoTracker/CkfPattern/interface/TempTrajectory.h"
+
 
 class TransientTrackingRecHitBuilder;
 
@@ -41,8 +41,7 @@ protected:
 
 public:
 
-  typedef std::vector<Trajectory>         TrajectoryContainer;
-  typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
+  typedef std::vector<Trajectory>     TrajectoryContainer;
 
   //CkfTrajectoryBuilder( const edm::ParameterSet& conf,
   //			const edm::EventSetup& es,
@@ -63,8 +62,7 @@ public:
   /// set Event for the internal MeasurementTracker data member
   virtual void setEvent(const edm::Event& event) const;
 
-
- private:
+private:
   const TrajectoryStateUpdator*         theUpdator;
   const Propagator*                     thePropagatorAlong;
   const Propagator*                     thePropagatorOpposite;
@@ -92,21 +90,21 @@ public:
   bool theAlwaysUseInvalidHits;
 
 
-  TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+  Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
-  void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
+  void limitedCandidates( Trajectory& startingTraj, TrajectoryContainer& result) const;
 
-  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const TempTrajectory& traj) const;
+  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const Trajectory& traj) const;
 
-  bool qualityFilter( const TempTrajectory& traj) const;
+  bool qualityFilter( const Trajectory& traj) const;
 
-  void addToResult( TempTrajectory& traj, TrajectoryContainer& result) const; 
+  void addToResult( Trajectory& traj, TrajectoryContainer& result) const; 
   
-  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+  void updateTrajectory( Trajectory& traj, const TM& tm) const;
 
-  bool toBeContinued( const TempTrajectory& traj) const;
+  bool toBeContinued( const Trajectory& traj) const;
 
 };
 
