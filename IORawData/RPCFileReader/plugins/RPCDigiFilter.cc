@@ -37,8 +37,8 @@ void RPCDigiFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     bool accept = acceptDigiDB(std::pair<uint32_t, int>(rawDetId, stripInDU), iSetup);
     bool accept1 = acceptDigiGeom(std::pair<uint32_t, int>(rawDetId, stripInDU));
     if(accept!=accept1) {
-      std::cout<<"Difference: accept from DB: "<<accept<<" accept from geom: "<<accept1<<" digi: "<<(*rpcDigiCI).first;
-      std::cout<<"     detId: "<< rawDetId<<" strip: "<< stripInDU<<std::endl;
+      //std::cout<<"Difference: accept from DB: "<<accept<<" accept from geom: "<<accept1<<" digi: "<<(*rpcDigiCI).first;
+      //std::cout<<"     detId: "<< rawDetId<<" strip: "<< stripInDU<<std::endl;
     }
     if(!accept){
       //std::cout<<"Rejected digi for chamber: "<<(*rpcDigiCI).first<<std::endl;
