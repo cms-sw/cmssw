@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.1 2007/05/24 13:19:47 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.2 2007/06/01 09:11:46 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
@@ -65,13 +65,32 @@ void LRHelpFunctions::fillToSignalHists(vector<double> obsVals){
 // member function to add observable values to the background histograms
 void LRHelpFunctions::fillToBackgroundHists(vector<double> obsVals){
   for(size_t o=0; o<obsVals.size(); o++) hObsB[o]->Fill(obsVals[o]);
+} 
+ 
+ 
+ 
+    
+// member function to normalize the S and B spectra
+void LRHelpFunctions::normalizeSandBhists(){
+  for(size_t o=0; o<hObsS.size(); o++){
+    double nrSignEntries = hObsS[o]->GetEntries();
+    double nrBackEntries = hObsB[o]->GetEntries();
+    for(int b=0; b <= hObsS[o]->GetNbinsX()+1; b++){
+      hObsS[o]->SetBinContent(b,hObsS[o]->GetBinContent(b)/(nrSignEntries));
+      hObsB[o]->SetBinContent(b,hObsB[o]->GetBinContent(b)/(nrBackEntries));
+      hObsS[o]->SetBinError(b,hObsS[o]->GetBinError(b)/(nrSignEntries));
+      hObsB[o]->SetBinError(b,hObsB[o]->GetBinError(b)/(nrBackEntries));
+    }
+    cout<<"Integral for obs"<<o<<" S: "<<hObsS[o]->Integral(0,10000)<<" & obs"<<o<<" B: "<<hObsB[o]->Integral(0,10000)<<endl;
+  }
 }
+
  
     
 // member function to produce and fit the S/(S+B) histograms
 void LRHelpFunctions::makeAndFitSoverSplusBHists(){
   for(size_t o=0; o<hObsS.size(); o++){
-    for(int b=0; b <= hObsS[o]->GetNbinsX(); b++){
+    for(int b=0; b <= hObsS[o]->GetNbinsX()+1; b++){
       if (hObsS[o]->GetBinContent(b) > 0 && hObsB[o]->GetBinContent(b) > 0) {
         hObsSoverSplusB[o]->SetBinContent(b, hObsS[o]->GetBinContent(b) / hObsB[o]->GetBinContent(b));
         double error = sqrt((pow(hObsS[o]->GetBinError(b)/hObsB[o]->GetBinContent(b),2)+pow(hObsS[o]->GetBinContent(b)*hObsB[o]->GetBinError(b)/pow(hObsB[o]->GetBinContent(b),2),2)));
@@ -158,9 +177,16 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
      TCanvas c2("c2","",1);
      c2.Divide(2,1);
      c2.cd(1);
-     hObsB[o] -> Draw();
      hObsS[o] -> SetLineColor(2);
-     hObsS[o] -> Draw("same");
+     if(hObsB[o]->GetMaximum() > hObsS[o]->GetMaximum()){
+       hObsB[o] -> Draw("hist");
+       hObsS[o] -> Draw("histsame");
+     }
+     else
+     {
+       hObsS[o] -> Draw("hist");
+       hObsB[o] -> Draw("histsame");
+     }
      c2.cd(2);
      hObsSoverSplusB[o] -> Draw();
      fObsSoverSplusB[o] -> Draw("same");
