@@ -93,7 +93,9 @@ template <class T,class CO>
 AlgorithmCalibration<T,CO>::AlgorithmCalibration(const string & filename) : m_filename(filename), m_xml(0)
 {
  readCategories();
- m_xml->closeFile();
+ if(m_xml) {
+  m_xml->closeFile();
+ }
 }
 
 template <class T,class CO> 
@@ -114,8 +116,13 @@ bool AlgorithmCalibration<T,CO>::readCategories()
       {
 	  T *cat = new T();
 	  cat->readFromDOM((DOMElement *)n1);
-	  addEntry(*cat,*readObject(n1->getFirstChild()));  
-
+	  CO * obj =readObject(n1->getFirstChild());
+          if(obj) 
+           {
+                addEntry(*cat,*obj);  
+                delete obj;  
+           }
+          delete cat;
       }
       n1 = n1->getNextSibling();
     }
