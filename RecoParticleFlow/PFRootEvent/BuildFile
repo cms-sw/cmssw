@@ -8,6 +8,7 @@
 <use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFAlgo>
 <use name=DataFormats/TrackReco>
+<use name=SimDataFormats/HepMCProduct>
 <use name=root>
 <export>
   <use name=FWCore/Framework>

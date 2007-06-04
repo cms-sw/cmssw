@@ -1,6 +1,8 @@
 #ifndef RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 #define RecoParticleFlow_PFRootEvent_PFRootEventManager_h
 
+#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
@@ -60,7 +62,6 @@ class PFBlockElement;
 class EventColin;
 class PFEnergyCalibration;
 class PFEnergyResolution;
-
 
 /// \brief ROOT interface to particle flow package
 /*!
@@ -274,6 +275,9 @@ class PFRootEventManager {
   
   /// print a rechit
   void   printCluster(const reco::PFCluster& cluster) const;
+
+  /// print the HepMC truth
+  void printMCTruth(const HepMC::GenEvent*) const;
   
   /// is inside cut G? 
   bool   insideGCut(double eta, double phi) const;
@@ -344,6 +348,9 @@ class PFRootEventManager {
   /// true particles branch
   TBranch*   trueParticlesBranch_;          
 
+  /// MCtruth branch
+  TBranch*   MCTruthBranch_;          
+
   /// rechits ECAL
   reco::PFRecHitCollection rechitsECAL_;
 
@@ -375,6 +382,9 @@ class PFRootEventManager {
   
   /// true particles
   reco::PFSimParticleCollection trueParticles_;
+
+  /// MC truth
+  edm::HepMCProduct MCTruth_;
   
   /// reconstructed pfblocks  
   std::auto_ptr< reco::PFBlockCollection >   pfBlocks_;
@@ -502,6 +512,9 @@ class PFRootEventManager {
 
   /// print true particles yes/no
   bool                     printTrueParticles_;
+
+  /// print MC truth  yes/no
+  bool                     printMCtruth_;
 
   /// verbosity
   int                      verbosity_;
