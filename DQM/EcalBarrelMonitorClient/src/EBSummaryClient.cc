@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/05/25 14:08:27 $
- * $Revision: 1.32 $
+ * $Date: 2007/06/04 17:37:40 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  *
 */
@@ -760,6 +760,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   gStyle->SetTitleH(0.07);
   float saveFontSize = gStyle->GetTitleFontSize();
   gStyle->SetTitleFontSize(15);
+  float saveTitleOffset = gStyle->GetTitleX();
 
   TH2F* obj2f;
 
@@ -957,12 +958,14 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
-    gStyle->SetTitleFontSize(10);
+    obj2f->GetXaxis()->SetLabelSize(0.09);
+    obj2f->GetYaxis()->SetLabelSize(0.09);
+    gStyle->SetTitleX(0.15);
     obj2f->Draw("col");
     labelGridPN.Draw("text,same");
     cMapPN->Update();
     cMapPN->SaveAs(imgName.c_str());
-    gStyle->SetTitleFontSize(15); 
+    gStyle->SetTitleX(saveTitleOffset);
   }
 
 
@@ -1025,11 +1028,14 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMapPN->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.09);
+    obj2f->GetYaxis()->SetLabelSize(0.09);
+    gStyle->SetTitleX(0.15);
     obj2f->Draw("col");
     labelGridPN.Draw("text,same");
     cMapPN->Update();
     cMapPN->SaveAs(imgName.c_str());
-
+    gStyle->SetTitleX(saveTitleOffset);
   }
 
 
