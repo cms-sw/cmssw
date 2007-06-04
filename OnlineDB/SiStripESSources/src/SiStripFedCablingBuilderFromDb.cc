@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripFedCablingBuilderFromDb.cc,v 1.35 2007/05/25 13:15:30 bainbrid Exp $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
@@ -821,14 +821,6 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds( SiStripFecCabling& fec_
 		
 		module.detId( iter->second->getDetId() ); 
 		module.nApvPairs(0); 
-		
-		stringstream ss;
-		ss << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
-		   << " Retrieved DetId 0x"
-		   << hex << setw(8) << setfill('0') << module.detId() << dec
-		   << " from static table for module with DCU id 0x"
-		   << hex << setw(8) << setfill('0') << module.dcuId() << dec;
-		LogTrace(mlCabling_) << ss.str();
 		
 		// --- Check number of APV pairs is valid and consistent with cached map ---
 
