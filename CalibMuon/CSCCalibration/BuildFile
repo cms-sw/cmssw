@@ -5,16 +5,13 @@
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=FWCore/ServiceRegistry>
-#<use name=CondCore/DBOutputService>
-#<use name=CondCore/DBCommon> 
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=CalibMuonCSCCalibration>
   <use name=FWCore/Framework>
   <use name=FWCore/PluginManager>
   <use name=FWCore/ParameterSet>
   <use name=CondFormats/DataRecord> 
-#  <use name=CondCore/DBCommon>
-#  <use name=CondCore/DBOutputService>
 </export>
 
 
