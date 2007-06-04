@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.2 2007/05/24 15:46:00 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.3 2007/05/29 14:30:20 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -20,7 +20,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -31,14 +31,18 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
     histos_(0),
     inputFiles_( pset.getUntrackedParameter< std::vector<std::string> >( "InputRootFiles", std::vector<std::string>() ) ),
     outputFileName_( pset.getUntrackedParameter<std::string>( "OutputRootFile", "" ) ),
+    collateHistos_( pset.getUntrackedParameter<bool>( "CollateHistos", true ) ),
+    analyzeHistos_( pset.getUntrackedParameter<bool>( "AnalyzeHistos", true ) ),
     xmlFile_( pset.getUntrackedParameter<std::string>( "SummaryPlotXmlFile", "" ) ),
     createSummaryPlots_( false ),
+    clientHistos_( false ), 
+    uploadToDb_( false ), 
     runType_(sistrip::UNKNOWN_RUN_TYPE),
     runNumber_(0),
     map_(),
     plots_()
 {
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Constructing object...";
 }
@@ -46,7 +50,7 @@ SiStripCommissioningOfflineClient::SiStripCommissioningOfflineClient( const edm:
 // -----------------------------------------------------------------------------
 // 
 SiStripCommissioningOfflineClient::~SiStripCommissioningOfflineClient() {
-  LogTrace(mlDqmClient_)
+  edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Destructing object...";
 }
@@ -54,9 +58,9 @@ SiStripCommissioningOfflineClient::~SiStripCommissioningOfflineClient() {
 // -----------------------------------------------------------------------------
 // 
 void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup ) {
-  LogTrace(mlDqmClient_) 
+  edm::LogVerbatim(mlDqmClient_) 
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-    << " Analyzing root file...";
+    << " Analyzing root file(s)...";
 
   // Check for null pointer
   if ( !mui_ ) {
@@ -72,7 +76,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   for ( ; ifile != inputFiles_.end(); ifile++ ) {
     ifstream root_file;
     root_file.open( ifile->c_str() );
-    if( !root_file ) {
+    if( !root_file.is_open() ) {
       edm::LogError(mlDqmClient_)
 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
 	<< " The input Root file \"" << *ifile
@@ -80,14 +84,39 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 	<< " Please check the path and filename!"
 	<< " Aborting...";
       return;
-    } else { root_file.close(); }
+    } else { 
+      root_file.close(); 
+      std::string::size_type found = ifile->find(sistrip::dqmClientFileName_);
+      if ( found != std::string::npos && clientHistos_ ) {
+	edm::LogError(mlDqmClient_)
+	  << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+	  << " The input root files appear to be a mixture"
+	  << " of \"Source\" and \"Client\" files!"
+	  << " Aborting...";
+	return;
+      }
+      if ( found != std::string::npos && inputFiles_.size() != 1 ) {
+	edm::LogError(mlDqmClient_)
+	  << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+	  << " The appear to be multiple input \"Client\" root files!"
+	  << " Aborting...";
+	return;
+      }
+      if ( found != std::string::npos ) { clientHistos_ = true; }
+    }
+  }
+  if ( clientHistos_ && inputFiles_.size() == 1 ) {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Collated histograms found in input root file \""
+      << inputFiles_[0] << "\"";
   }
   
   // Check if .xml file can be opened
   if ( !xmlFile_.empty() ) {
     ifstream xml_file;
     xml_file.open( xmlFile_.c_str() );
-    if( !xml_file ) {
+    if( !xml_file.is_open() ) {
       edm::LogError(mlDqmClient_)
 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
 	<< " The SummaryPlot XML file \"" << xmlFile_
@@ -113,20 +142,47 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   bei->setVerbose(0);
   
   // Open root file(s) and create ME's
+  if ( inputFiles_.empty() ) {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " No input root files specified!";
+    return;
+  }
   std::vector<std::string>::const_iterator jfile = inputFiles_.begin();
   for ( ; jfile != inputFiles_.end(); jfile++ ) {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Opening root file \"" << *jfile << "\"...";
     bei->open( *jfile );
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Opened root file \"" << *jfile << "\"!";
   }
 
   // Retrieve list of histograms
   std::vector<std::string> contents;
   mui_->getContents( contents ); 
-  LogTrace(mlDqmClient_)
+  
+  // If merged histos exist, remove FU directories from list
+  std::vector<std::string> temp;
+  std::vector<std::string>::iterator istr = contents.begin();
+  for ( ; istr != contents.end(); istr++ ) {
+    if ( istr->find("Collector") == std::string::npos &&
+ 	 istr->find("EvF") == std::string::npos &&
+	 istr->find("FU") == std::string::npos ) { 
+      temp.push_back( *istr );
+    }
+  }
+  contents.clear();
+  contents = temp;
+  
+  // Some debug
+  edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
     << " Found " << contents.size() 
     << " directories containing MonitorElements in "
     << inputFiles_.size() << " root files";
-
+  
   // Extract run type from contents
   runType_ = CommissioningHistograms::runType( bei, contents ); 
   
@@ -140,20 +196,33 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << " Unknown commissioning runType: " 
       << SiStripEnumsAndStrings::runType( runType_ );
     return;
+  } else {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Run type is " 
+      << SiStripEnumsAndStrings::runType( runType_ )
+      << " and run number is " << runNumber_;
   }
   
   // Open and parse "summary plot" xml file
   if ( createSummaryPlots_ ) {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Parsing summary plot XML file...";
     ConfigParser cfg;
     cfg.parseXML(xmlFile_);
     plots_ = cfg.summaryPlots(runType_);
-    LogTrace(mlTest_)
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Parsed summary plot XML file and found " 
+      << plots_.size() << " plots defined!";
+    edm::LogVerbatim(mlTest_)
       << "TEST3 " 
       << plots_.size() << " " 
       << SiStripEnumsAndStrings::runType( runType_ ) << " " 
       << cfg;
   } else {
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Null string for SummaryPlotXmlFile!"
       << " No summary plots will be created!";
@@ -182,49 +251,93 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   edm::LogVerbatim(mlDqmClient_) << ss.str();
 
   // Virtual method that creates CommissioningHistogram object
-  createCommissioningHistograms();
-
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Creating CommissioningHistogram object...";
+  createCommissioningHistograms(); 
+  if ( histos_ ) {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Created CommissioningHistogram object!";
+  } else {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " NULL pointer to CommissioningHistogram object!"
+      << " Aborting...";
+    return;
+  }
+  
   // Virtual method to switch on test mode for database uploads
   testUploadToDb();
   
   // Perform collation
-  if ( histos_ ) { histos_->createCollations( contents ); }
+  if ( collateHistos_ ) { 
+    if ( histos_ ) { histos_->createCollations( contents ); }
+  } else {
+    edm::LogWarning(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " No histogram collation performed!";
+  }
     
   // Trigger update methods
 #ifdef DO_SUMMARY  
-  if ( mui_ ) { mui_->doSummary(); } //@@ temporary!
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Triggering update of histograms..."
+    << " (This may take some time!)";
+  if ( mui_ ) { mui_->doSummary(); }
+  edm::LogVerbatim(mlDqmClient_)
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+    << " Triggered update of histograms!";
 #else
   edm::LogWarning(mlDqmClient_) 
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]" 
-    << " No offline collation available!";
+    << " No access to doSummary() method! Inform expert!";
 #endif
   
   // Perform analysis
-  if ( histos_ ) { histos_->histoAnalysis( true ); }
+  if ( analyzeHistos_ ) { 
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Analyzing histograms...";
+    if ( histos_ ) { histos_->histoAnalysis( true ); }
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Analyzed histograms!";
+  } else {
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " No histogram analysis performed!";
+  }
   
   // Create summary plots
-  if ( histos_ &&
-       createSummaryPlots_ ) { 
-    edm::LogVerbatim(mlTest_) 
-      << "TEST1 " << plots_.size(); 
+  if ( createSummaryPlots_ ) { 
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Generating summary plots...";
     std::vector<ConfigParser::SummaryPlot>::const_iterator iplot =  plots_.begin();
     for ( ; iplot != plots_.end(); iplot++ ) {
       edm::LogVerbatim(mlTest_) 
 	<< "TEST2 " << *iplot; 
-      histos_->createSummaryHisto( iplot->mon_,
-				   iplot->pres_,
-				   iplot->level_,
-				   iplot->gran_ );
+      if ( histos_ ) { 
+	histos_->createSummaryHisto( iplot->mon_,
+				     iplot->pres_,
+				     iplot->level_,
+				     iplot->gran_ );
+      }
+      edm::LogVerbatim(mlDqmClient_)
+	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+	<< " Generated summary plots!";
     }
   } else {
-    edm::LogVerbatim(mlTest_) 
-      << "TEST " << histos_ 
-      << " " << createSummaryPlots_;
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " No summary plots generated!";
   }
   
   // Save client root file
   if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
-
+  
   // Virtual method to trigger the database upload
   uploadToDb();
   
@@ -239,7 +352,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   edm::LogVerbatim(mlDqmClient_)
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-    << " Finished analyzing .root file...";
+    << " Finished analyzing root file(s)...";
   
 }
 
@@ -285,7 +398,7 @@ void SiStripCommissioningOfflineClient::createCommissioningHistograms() {
 void SiStripCommissioningOfflineClient::analyze( const edm::Event& event, 
 						 const edm::EventSetup& setup ) {
   if ( !(event.id().event()%10) ) {
-    LogTrace(mlDqmClient_) 
+    edm::LogVerbatim(mlDqmClient_) 
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " Empty event loop! User can kill job...";
   }
