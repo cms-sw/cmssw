@@ -728,22 +728,22 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       switch (theRing) {
       case 1:
 	{
-	  resolutionX = localPositionResolution_TID1x;
-	  resolutionY = localPositionResolution_TID1y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TID1x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TID1y;
 	  if( hitFindingProbability > theHitFindingProbability_TID1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolutionX = localPositionResolution_TID2x;
-	  resolutionY = localPositionResolution_TID2y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TID2x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TID2y;
 	  if( hitFindingProbability > theHitFindingProbability_TID2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolutionX = localPositionResolution_TID3x;
-	  resolutionY = localPositionResolution_TID3y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TID3x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TID3y;
 	  if( hitFindingProbability > theHitFindingProbability_TID3 ) return false;
 	  break;
 	}
@@ -857,50 +857,50 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       switch (theRing) {
       case 1:
 	{
-	  resolutionX = localPositionResolution_TEC1x;
-	  resolutionY = localPositionResolution_TEC1y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC1x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC1y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC1 ) return false;
 	  break;
 	}
       case 2:
 	{
-	  resolutionX = localPositionResolution_TEC2x;
-	  resolutionY = localPositionResolution_TEC2y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC2x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC2y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC2 ) return false;
 	  break;
 	}
       case 3:
 	{
-	  resolutionX = localPositionResolution_TEC3x;
-	  resolutionY = localPositionResolution_TEC3y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC3x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC3y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC3 ) return false;
 	  break;
 	}
       case 4:
 	{
-	  resolutionX = localPositionResolution_TEC4x;
-	  resolutionY = localPositionResolution_TEC4y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC4x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC4y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC4 ) return false;
 	  break;
 	}
       case 5:
 	{
-	  resolutionX = localPositionResolution_TEC5x;
-	  resolutionY = localPositionResolution_TEC5y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC5x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC5y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC5 ) return false;
 	  break;
 	}
       case 6:
 	{
-	  resolutionX = localPositionResolution_TEC6x;
-	  resolutionY = localPositionResolution_TEC6y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC6x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC6y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC6 ) return false;
 	  break;
 	}
       case 7:
 	{
-	  resolutionX = localPositionResolution_TEC7x;
-	  resolutionY = localPositionResolution_TEC7y * resolutionFactorY;
+	  resolutionX = localPositionResolution_TEC7x * resolutionFactorY;
+	  resolutionY = localPositionResolution_TEC7y;
 	  if( hitFindingProbability > theHitFindingProbability_TEC7 ) return false;
 	  break;
 	}
