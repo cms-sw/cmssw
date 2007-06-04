@@ -4,8 +4,8 @@
 /*
  * \file EBSummaryClient.h
  *
- * $Date: 2007/04/29 22:25:12 $
- * $Revision: 1.7 $
+ * $Date: 2007/05/18 14:05:48 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  *
 */
@@ -109,14 +109,18 @@ MonitorElement* meOccupancy_;
 MonitorElement* mePedestalOnline_;
 MonitorElement* meLaserL1_;
 MonitorElement* mePedestal_;
+MonitorElement* mePedestalPN_;
 MonitorElement* meTestPulse_;
+MonitorElement* meTestPulsePN_;
 
 MEContentsTH2FWithinRangeROOT* qtg01_;
 MEContentsTH2FWithinRangeROOT* qtg02_;
 MEContentsTH2FWithinRangeROOT* qtg03_;
 MEContentsTH2FWithinRangeROOT* qtg04_;
 MEContentsTH2FWithinRangeROOT* qtg05_;
+MEContentsTH2FWithinRangeROOT* qtg05PN_;
 MEContentsTH2FWithinRangeROOT* qtg06_;
+MEContentsTH2FWithinRangeROOT* qtg06PN_;
 
 };
 
