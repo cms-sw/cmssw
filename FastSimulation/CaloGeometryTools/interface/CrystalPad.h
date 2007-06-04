@@ -38,15 +38,19 @@ class CrystalPad
 	     const Transform3D&,
 	     double scaf=1.);
 
+  CrystalPad(const CrystalPad& right);
+
+  CrystalPad& operator = (const CrystalPad& rhs );
+
   ~CrystalPad(){;};
   
   /// Check that the point (in the local frame) is inside the crystal. 
   bool inside(const Hep2Vector & point,bool debug=false) const;
   /// Check that the point (in the global frame) is inside the crystal. 
-  bool globalinside(XYZPoint) const;
+  //  bool globalinside(XYZPoint) const;
 
   /// coordinates of the point in the local frame
-  Hep2Vector localPoint(XYZPoint point) const;
+  //  Hep2Vector localPoint(XYZPoint point) const;
 
   /// get the corners 
   inline const std::vector<Hep2Vector> & getCorners() const {return corners_;}
@@ -71,11 +75,13 @@ class CrystalPad
   inline unsigned getNumber() const{return number_;};
 
   /// get the coordinates in the original frame
+  /*
   inline XYZPoint originalCoordinates(Hep2Vector point) const
     {
       XYZPoint p(point.x(),point.y(),0.);
       return trans_.Inverse() * p;
     }
+  */
   
   inline bool operator==(const CrystalPad& quad) const
     {
@@ -99,6 +105,9 @@ class CrystalPad
 
   
  private:
+
+  static std::vector<Hep2Vector> aVector;
+
   std::vector<Hep2Vector> corners_;
   std::vector<Hep2Vector> dir_;
   unsigned number_; 

@@ -2,11 +2,45 @@
 
 #include <iostream> 
 
+std::vector<Hep2Vector> CrystalPad::aVector(4);
+
+
+CrystalPad::CrystalPad(const CrystalPad& right) 
+{
+  corners_ = right.corners_;
+  dir_ = right.dir_;
+  number_ = right.number_;
+  survivalProbability_ = right.survivalProbability_;
+  center_ = right.center_;
+  epsilon_ = right.epsilon_;
+  dummy_ = right.dummy_;
+}
+
+CrystalPad&  
+CrystalPad::operator = (const CrystalPad& right ) {
+  if (this != &right) { // don't copy into yourself
+    corners_ = right.corners_;
+    dir_ = right.dir_;
+    number_ = right.number_;
+    survivalProbability_ = right.survivalProbability_;
+    center_ = right.center_;
+    epsilon_ = right.epsilon_;
+    dummy_ = right.dummy_;
+  }
+  return *this;
+}
+
 CrystalPad::CrystalPad(unsigned number, 
 		       const std::vector<Hep2Vector>& corners) 
-  : survivalProbability_(1.),epsilon_(0.001)
+  :
+  corners_(corners),
+  dir_(aVector),
+  number_(number),
+  survivalProbability_(1.),
+  center_(0.,0.),
+  epsilon_(0.001)
 {
-  number_=number;
+
   //  std::cout << " Hello " << std::endl;
   if(corners.size()!=4)
     {
@@ -17,15 +51,9 @@ CrystalPad::CrystalPad(unsigned number,
     {
       dummy_=false;
       // Set explicity the z to 0 !
-      center_=Hep2Vector(0.,0.);
-      corners_.reserve(4);
-      dir_.reserve(4);
       for(unsigned ic=0; ic<4;++ic)
 	{
-	  corners_.push_back(corners[ic]);
-	  Hep2Vector tmp((corners[(ic+1)%4]-corners[ic]).unit());
-	  //	  std::cout << " First constructor " << corners_[ic] << std::endl;
-	  dir_.push_back(tmp);	  
+	  dir_[ic] = (corners[(ic+1)%4]-corners[ic]).unit();
 	  center_+=corners_[ic];
 	}
       center_*=0.25;
@@ -40,8 +68,15 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 		       const XYZPoint& origin, 
 		       const XYZVector& vec1,
 		       const XYZVector& vec2) 
-  : number_(number),survivalProbability_(1.),epsilon_(0.001)
+  : 
+  corners_(aVector),
+  dir_(aVector),
+  number_(number),
+  survivalProbability_(1.),
+  center_(0.,0.),
+  epsilon_(0.001)
 {
+
   //  std::cout << " We are in the 2nd constructor " << std::endl;
   if(corners.size()!=4)
     {
@@ -50,11 +85,8 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
     }
   else
     {
-      corners_.reserve(4);
-      dir_.reserve(4);
       dummy_=false;
       double sign=(onEcal==1) ? -1.: 1.;
-      // center_=Hep2Vector(0.,0.);
 
       // the good one in the central
       trans_=Transform3D((Point)origin,
@@ -70,15 +102,12 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 	  //	  std::cout << corners[ic]<< " " ;
 	  XYZPoint corner = rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  //	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()));
-	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()));
+	  corners_[ic] = Hep2Vector(corner.X(),corner.Y());
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
 	{
-	  //	  Hep2Vector tmp();
-	  //	  dir_.push_back(tmp);
-	  dir_.push_back((corners_[(ic+1)%4]-corners_[ic]).unit());
+	  dir_[ic] = (corners_[(ic+1)%4]-corners_[ic]).unit();
 	}
       center_*=0.25;
     }  
@@ -92,8 +121,16 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 CrystalPad::CrystalPad(unsigned number, 
 		       const std::vector<XYZPoint>& corners,
 		       const Transform3D & trans,double scaf) 
-  : number_(number),survivalProbability_(1.),epsilon_(0.001),yscalefactor_(scaf)
+  : 
+  corners_(aVector),
+  dir_(aVector),
+  number_(number),
+  survivalProbability_(1.),
+  center_(0.,0.),
+  epsilon_(0.001),
+  yscalefactor_(scaf)
 {
+
   //  std::cout << " We are in the 2nd constructor " << std::endl;
   if(corners.size()!=4)
     {
@@ -103,9 +140,7 @@ CrystalPad::CrystalPad(unsigned number,
   else
     {
       dummy_=false;
-      corners_.reserve(4);
-      dir_.reserve(4);
-      //      center_=Hep2Vector(0.,0.);
+
       // the good one in the central
       trans_=trans;
       //      std::cout << " Constructor 2; input corners "  << std::endl;
@@ -115,12 +150,12 @@ CrystalPad::CrystalPad(unsigned number,
 
 	  XYZPoint corner=rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_.push_back(Hep2Vector(corner.X(),corner.Y()*yscalefactor_));
+	  corners_[ic] = Hep2Vector(corner.X(),corner.Y()*yscalefactor_);
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
 	{
-	  dir_.push_back((corners_[(ic+1)%4]-corners_[ic]).unit());
+	  dir_[ic] = (corners_[(ic+1)%4]-corners_[ic]).unit();
 	}
       center_*=0.25;
     }  
@@ -187,6 +222,7 @@ CrystalPad::inside(const Hep2Vector & ppoint,bool debug) const
   return inside2;
 }
 
+/*
 bool 
 CrystalPad::globalinside(XYZPoint point) const
 {
@@ -202,6 +238,8 @@ CrystalPad::globalinside(XYZPoint point) const
   //  std::cout << " Result " << result << std::endl;
   return result;
 }
+*/
+
 
 void CrystalPad::print() const
 {
@@ -212,12 +250,14 @@ void CrystalPad::print() const
   std::cout << corners_[3] << std::endl;
 }
 
+/*
 Hep2Vector 
 CrystalPad::localPoint(XYZPoint point) const
 {
   point = rotation_(point)+translation_;
   return Hep2Vector(point.X(),point.Y());
 }
+*/
 
 Hep2Vector& CrystalPad::edge(unsigned iside,int n) 
 {
