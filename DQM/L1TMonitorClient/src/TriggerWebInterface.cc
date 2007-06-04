@@ -11,6 +11,7 @@
 #include "DQMServices/WebComponents/interface/WebPage.h"
 #include "DQM/L1TMonitorClient/interface/DisplaySystemME.h"
 #include "DQM/L1TMonitorClient/interface/DisplaySystemSummary.h"
+#include "DQM/L1TMonitorClient/interface/L1TClientConfigParser.h"
 
 #include <cstdio> // perror
 
@@ -433,36 +434,6 @@ void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out)
   if ( verbose() ) 
     std::cout << "Entering Summary" <<std::endl;
 
-  // get the list of elements. we get this every time for now.
-//   std::string localPath = string("DQM/L1TMonitorClient/test/summary_mes.txt");
-//   std::string fullPath =  edm::FileInPath(localPath).fullPath();
-  std::string fullPath("/afs/cern.ch/user/w/wittich/scratch0/CMSSW_1_4_0_pre4/src/DQM/L1TMonitorClient/test/summary_mes.txt");
-  if (verbose() ) {
-    std::cout << "full path is " << fullPath << std::endl;
-  }
-  ifstream infile; 
-  infile.open(fullPath.c_str(), ifstream::in);
-  if ( ! infile.is_open() ) {
-    std::cout << "ALERT: could no open list of ME's" << std::endl;
-    std::ostringstream msg;
-    msg << "open of " << fullPath;
-    perror(msg.str().c_str());
-    return;
-  }
-  std::vector<std::string> meList;
-  std::string line;
-  while ( infile >> line ) {
-    std::cout << "Summary ME: " << line << std::endl; 
-    meList.push_back(line);
-  }
-  infile.close();
-  std::cout << "Total of " << meList.size() << " summary plots." <<std::endl;
-  if ( meList.empty() ) {
-    std::cout << "list is empty?" << std::endl;
-    return;
-  }
-  //now subscribe to them
-  
   DaqMonitorBEInterface * myBei = (*mui_p)->getBEInterface();
   myBei->lock();
    
@@ -478,42 +449,52 @@ void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out)
   cgi_reader.read_form(view_multimap);
   std::string source = get_from_multimap(view_multimap, "Source");
   std::string name = get_from_multimap(view_multimap, "View");
-  if ( meList.empty() )
-    return;
 
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
   *out << "<?xml version=\"1.0\" ?>" << std::endl;
   *out << "<meList>" << std::endl;
-   
-  for(std::vector<std::string>::const_iterator i = meList.begin();
-      i != meList.end(); ++i ) {
-    MonitorElement *p = (*mui_p)->get(*i);
-    if ( p == 0 ) {
-      std::cout << "No such ME " << *i << std::endl;
-      continue;
-    }
 
-    std::string id = i->substr(1+i->rfind("/", i->length()), i->length());
-    view_map.add(id, p);
-    if ( verbose() ) 
-      std::cout << "ADDING " << id << " TO view_map!!!" << std::endl;
-    if ( verbose() ) 
-      std::cout << "will try to print " << id << std::endl;
-     seal::Callback 
-       action(seal::CreateCallback(this, 
-				   &TriggerWebInterface::printMeMap, 
-				   view_map, id));
-     (*mui_p)->addCallback(action);
+  // can have multiple lists in XML file - for now only look at 1st one
+  L1TClientConfigParser l1t("config.xml");
 
-     *out << "<SingleMe>" << std::endl;
-     //*out << getContextURL() + "/temporary/" + id + ".gif" << std::endl;
-     *out << *i << std::endl;
-     *out << "</SingleMe>" << std::endl;
+  for ( L1TClientConfigParser::MeInfoLists::const_iterator i = l1t.begin();
+	i != l1t.end(); ++i ) { // loop over summary pages
+    std::cout << "Title is " << i->title() << std::endl;
+     for ( L1TClientConfigParser::MeInfoList::const_iterator j = i->begin();
+	   j != i->end(); ++j ) { // loop over summary page contents
+       
+       std::cout << "Found ME in XML file: " << *j << std::endl;
+       std::string n = j->getName();
+       MonitorElement *p = (*mui_p)->get(n);
+       if ( p == 0 ) {
+	 std::cout << "No such ME " << n << std::endl;
+	 continue;
+       }
 
+       std::string id = n.substr(1+n.rfind("/", n.length()), n.length());
+       view_map.add(id, p);
+       if ( verbose() ) 
+	 std::cout << "ADDING " << id << " TO view_map!!!" << std::endl;
+       if ( verbose() ) 
+	 std::cout << "will try to print " << id << std::endl;
+       seal::Callback 
+	 action(seal::CreateCallback(this, 
+				     &TriggerWebInterface::printMeMap, 
+				     view_map, id));
+       (*mui_p)->addCallback(action);
+
+       *out << "<SingleMe>" << std::endl;
+       *out << n << std::endl;
+       *out << "</SingleMe>" << std::endl;
+
+     }
+     *out << "</meList>" << std::endl;
+
+     break; // skip all but first list
   }
-  *out << "</meList>" << std::endl;
 
 
+   
 
   myBei->unlock();
 
