@@ -12,15 +12,15 @@
  *  tracks of different number of thits: the shortest track
  *  is likely to be considered "better".
  */
-
-class TrajCandLess : public std::binary_function< const Trajectory&,
-		     const Trajectory&, bool>
+template <class TR>
+class TrajCandLess : public std::binary_function< const TR&,
+		     const TR&, bool>
 {
 public:
 
   TrajCandLess( float p=5) : penalty(p) {}
 
-  bool operator()( const Trajectory& a, const Trajectory& b) const {
+  bool operator()( const TR& a, const TR& b) const {
     return a.chiSquared() + a.lostHits()*penalty <
       b.chiSquared() + b.lostHits()*penalty;
   }

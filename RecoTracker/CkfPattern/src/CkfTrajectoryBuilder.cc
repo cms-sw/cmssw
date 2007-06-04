@@ -13,7 +13,6 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
-//#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "RecoTracker/CkfPattern/src/RecHitIsInvalid.h"
 #include "RecoTracker/CkfPattern/interface/TrajCandLess.h"
@@ -21,6 +20,7 @@
 #include "RecoTracker/CkfPattern/interface/MaxHitsTrajectoryFilter.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "RecoTracker/CkfPattern/interface/IntermediateTrajectoryCleaner.h"
 
 using namespace std;
 
@@ -69,7 +69,7 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
 
   // analyseSeed( seed);
 
-  Trajectory startingTraj = createStartingTrajectory( seed);
+  TempTrajectory startingTraj = createStartingTrajectory( seed );
 
   /// limitedCandidates( startingTraj, regionalCondition, result);
   /// FIXME: restore regionalCondition
@@ -81,10 +81,10 @@ CkfTrajectoryBuilder::trajectories(const TrajectorySeed& seed) const
   return result;
 }
 
-Trajectory CkfTrajectoryBuilder::
+TempTrajectory CkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  Trajectory result( seed, seed.direction());
+  TempTrajectory result( seed, seed.direction());
   if (  seed.direction() == alongMomentum) {
     theForwardPropagator = &(*thePropagatorAlong);
     theBackwardPropagator = &(*thePropagatorOpposite);
@@ -104,19 +104,27 @@ createStartingTrajectory( const TrajectorySeed& seed) const
 }
 
 void CkfTrajectoryBuilder::
-limitedCandidates( Trajectory& startingTraj, 
+limitedCandidates( TempTrajectory& startingTraj, 
 		   TrajectoryContainer& result) const
 {
-  TrajectoryContainer candidates = TrajectoryContainer();
-  TrajectoryContainer newCand = TrajectoryContainer();
+  TempTrajectoryContainer candidates; // = TrajectoryContainer();
+  TempTrajectoryContainer newCand; // = TrajectoryContainer();
   candidates.push_back( startingTraj);
 
   while ( !candidates.empty()) {
 
     newCand.clear();
-    for (TrajectoryContainer::iterator traj=candidates.begin();
+    for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
       std::vector<TM> meas = findCompatibleMeasurements(*traj);
+
+      // --- method for debugging
+      if(!analyzeMeasurementsDebugger(*traj,meas,
+				      theMeasurementTracker,
+				      theForwardPropagator,theEstimator,
+				      theTTRHBuilder)) return;
+      // ---
+
       if ( meas.empty()) {
 	if ( qualityFilter( *traj)) addToResult( *traj, result);
       }
@@ -132,7 +140,7 @@ limitedCandidates( Trajectory& startingTraj,
 
 	for( std::vector<TM>::const_iterator itm = meas.begin(); 
 	     itm != last; itm++) {
-	  Trajectory newTraj = *traj;
+	  TempTrajectory newTraj = *traj;
 	  updateTrajectory( newTraj, *itm);
 
 	  if ( toBeContinued(newTraj)) {
@@ -146,20 +154,19 @@ limitedCandidates( Trajectory& startingTraj,
       }
     
       if ((int)newCand.size() > theMaxCand) {
-	sort( newCand.begin(), newCand.end(), TrajCandLess(theLostHitPenalty));
+	sort( newCand.begin(), newCand.end(), TrajCandLess<TempTrajectory>(theLostHitPenalty));
 	newCand.erase( newCand.begin()+theMaxCand, newCand.end());
       }
     }
 
 
-    // FIXME: restore intermediary cleaning
-    //if (theIntermediateCleaning) {
-    // candidates.clear();
-    // candidates = intermediaryClean(newCand);
-    //} else {
-    //cout << "calling candidates.swap(newCand) " << endl;
-    candidates.swap(newCand);
-    //}
+    if (theIntermediateCleaning) {
+        candidates.clear();
+        candidates = IntermediateTrajectoryCleaner::clean(newCand);
+    } else {
+        //cout << "calling candidates.swap(newCand) " << endl;
+        candidates.swap(newCand);
+    }
   }
 }
 
@@ -213,10 +220,14 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
       //result.push_back(TM( invalidState, recHit, 0, hitLayer));
     }
   }
+
+  // method for debugging
+  fillSeedHistoDebugger(result.begin(),result.end());
+
   return result;
 }
 
- bool CkfTrajectoryBuilder::qualityFilter( const Trajectory& traj) const
+ bool CkfTrajectoryBuilder::qualityFilter( const TempTrajectory& traj) const
 {
 
 //    cout << "qualityFilter called for trajectory with " 
@@ -232,15 +243,16 @@ CkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
 }
 
 
-void CkfTrajectoryBuilder::addToResult( Trajectory& traj, 
+void CkfTrajectoryBuilder::addToResult( TempTrajectory& tmptraj, 
 					TrajectoryContainer& result) const
 {
+  Trajectory traj = tmptraj.toTrajectory();
   // discard latest dummy measurements
   while (!traj.empty() && !traj.lastMeasurement().recHit()->isValid()) traj.pop();
   result.push_back( traj);
 }
 
-void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
+void CkfTrajectoryBuilder::updateTrajectory( TempTrajectory& traj,
 					     const TM& tm) const
 {
   TSOS predictedState = tm.predictedState();
@@ -256,7 +268,7 @@ void CkfTrajectoryBuilder::updateTrajectory( Trajectory& traj,
   }
 }
 
-bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
+bool CkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
 {
   if ( traj.lostHits() > theMaxLostHit) return false;
 
@@ -266,8 +278,10 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
   // valid hit the trajectory would have been stopped already
 
   int consecLostHit = 0;
-  vector<TM> tms = traj.measurements();
-  for( vector<TM>::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
+
+  const TempTrajectory::DataContainer & tms = traj.measurements();
+  //for( TempTrajectory::DataContainer::const_iterator itm=tms.end()-1; itm>=tms.begin(); itm--) {
+  for( TempTrajectory::DataContainer::const_iterator itm=tms.rbegin(), itb = tms.rend(); itm != itb; --itm) {
     if (itm->recHit()->isValid()) break;
     else if ( // FIXME: restore this:   !Trajectory::inactive(itm->recHit()->det()) &&
 	     Trajectory::lost(*itm->recHit())) consecLostHit++;
@@ -285,10 +299,8 @@ bool CkfTrajectoryBuilder::toBeContinued (const Trajectory& traj) const
   return true;
 }
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
-
 std::vector<TrajectoryMeasurement> 
-CkfTrajectoryBuilder::findCompatibleMeasurements( const Trajectory& traj) const
+CkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) const
 {
   vector<TM> result;
   int invalidHits = 0;

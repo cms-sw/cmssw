@@ -15,6 +15,7 @@ public:
   explicit MaxHitsTrajectoryFilter( int maxHits=-1) : 
     theMaxHits( maxHits) {}
 
+  virtual bool operator()( const TempTrajectory&) const;
   virtual bool operator()( const Trajectory&) const;
 
   virtual std::string name() const {return "MaxHitsTrajectoryFilter";}

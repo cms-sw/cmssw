@@ -19,6 +19,8 @@
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
+#include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
+
 class TransientInitialStateEstimator;
 
 namespace cms
@@ -35,7 +37,7 @@ namespace cms
 
     virtual void produce(edm::Event& e, const edm::EventSetup& es);
 
-  private:
+  protected:
     edm::ParameterSet conf_;
     const TrackerTrajectoryBuilder*  theTrajectoryBuilder;
     TrajectoryCleaner*               theTrajectoryCleaner;
@@ -45,6 +47,14 @@ namespace cms
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
     const NavigationSchool*       theNavigationSchool;
+    
+    RedundantSeedCleaner*  theSeedCleaner;
+
+    // methods for debugging
+    virtual void printHitsDebugger(edm::Event& e){;}
+    virtual void countSeedsDebugger(){;}
+    virtual void deleteAssocDebugger(){;}
+
   };
 }
 
