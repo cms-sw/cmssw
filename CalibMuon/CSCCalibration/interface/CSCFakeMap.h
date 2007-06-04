@@ -1,12 +1,12 @@
 #ifndef _CSC_FAKE_MAP
 #define _CSC_FAKE_MAP
+
 #include <iostream>
 #include <map>
 #include <vector>
 #include <iomanip>
 
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
-#include "CalibMuon/CSCCalibration/interface/FakeMap.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
 #include <Geometry/CSCGeometry/interface/CSCLayerGeometry.h>
@@ -24,9 +24,10 @@ class CSCFakeMap{
   void prefillMap(){
     
     const CSCDetId& detId = CSCDetId();
-    CSCobject *cn = new CSCobject();
-    int max_istrip;
-    
+    cn = new CSCGains();
+
+    int max_istrip,id_layer;
+
     for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
       for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
 	if(istation==1)                detId.maxRingId()==4;
@@ -40,13 +41,16 @@ class CSCFakeMap{
 		max_istrip=64;
 	      }else{
 		max_istrip=80;
+		std::vector<CSCGains::Item> itemvector;
+		itemvector.resize(max_istrip);
+		
 		for(int istrip=0;istrip<max_istrip;istrip++){
-		  CSCDetId cscdetid(iendcap,istation,iring,ichamber,ilayer);
 		  
-		  cn->obj[ilayer][istrip].resize(2);
-		  cn->obj[ilayer][istrip][0] = 8.0;
-		  cn->obj[ilayer][istrip][1] = -10.0;
-		  gains.setValue(cscdetid.rawId(),1.0);
+		  itemvector[istrip].gain_slope=8.0;
+		  itemvector[istrip].gain_intercept=-10.0;
+		  itemvector[istrip].gain_chi2=1.0;
+		  id_layer = 100000*iendcap+10000*istation+1000*iring+100*ichamber+10*ilayer;
+		  cn->gains[id_layer]=itemvector;
 		}
 	      }
 	    }
@@ -58,37 +62,15 @@ class CSCFakeMap{
   }
 
   
-
-/*
-virtual void csc(const DetId &cell, float scaling_factor)
-{
-  CSCGains.setValue(cell.rawId(),scaling_factor);
-}
-*/
-
-    /*
-    void print()
-      {
-	//	std::map<int,std::vector< > > gains;  
-	std::map<uint32_t,float>::const_iterator it;
-	
-	for(it=CSCGains.begin();it!=CSCGains.end();it++){
-	}
-	
-      }
-    
-    */
-
-    const CSCGains & get(){
-      return gains;
-    }
-    
+  const CSCGains & get(){
+    return (*cn);
+  }
+  
  private:
-    
-    //std::map<uint32_t, float> gains;
-    //CSCGains gains;
-    const CSCGeometry *geometry;
-    
+  
+  CSCGains *cn ; 
+  const CSCGeometry *geometry;
+  
 };
 
 #endif
