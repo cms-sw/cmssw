@@ -83,6 +83,8 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 					}
 	}
 
+	producer = pset.getUntrackedParameter<edm::InputTag>("producer",edm::InputTag("source"));
+
 	produces<CSCCorrelatedLCTDigiCollection>("MuonCSCTFCorrelatedLCTDigi");
 	produces<L1CSCTrackCollection>          ("MuonL1CSCTrackCollection");
 	produces<L1CSCStatusDigiCollection>     ("MuonL1CSCStatusDigiCollection");
@@ -94,10 +96,10 @@ CSCTFUnpacker::~CSCTFUnpacker(){
 	if( mapping ) delete mapping;
 }
 
-void CSCTFUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
+void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	// Get a handle to the FED data collection
 	edm::Handle<FEDRawDataCollection> rawdata;
-	e.getByType(rawdata);
+	e.getByLabel(producer.label(),producer.instance(),rawdata);
 
 	// create the collection of CSC wire and strip Digis
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);

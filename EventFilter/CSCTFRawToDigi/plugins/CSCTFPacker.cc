@@ -19,6 +19,8 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 
 	putBufferToEvent       = conf.getUntrackedParameter<bool>("putBufferToEvent");
 	std::string outputFile = conf.getUntrackedParameter<std::string>("outputFile");
+	lctProducer            = conf.getUntrackedParameter<edm::InputTag>("lctProducer",edm::InputTag("csctfunpacker","MuonCSCTFCorrelatedLCTDigi"));
+	trackProducer          = conf.getUntrackedParameter<edm::InputTag>("trackProducer",edm::InputTag("csctfunpacker","MuonL1CSCTrackCollection"));
 
 	file = 0;
 	if( outputFile.length() && (file = fopen(outputFile.c_str(),"wt"))==NULL )
@@ -33,7 +35,7 @@ CSCTFPacker::~CSCTFPacker(void){
 
 void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-	e.getByLabel("csctfunpacker","MuonCSCTFCorrelatedLCTDigi",corrlcts);
+	e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
 
 	CSCSP_MEblock meDataRecord[12][7][5][9][2]; // LCT in sector X, tbin Y, station Z, csc W, and lct I
 	bzero(&meDataRecord,sizeof(meDataRecord));
@@ -106,7 +108,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 
 	edm::Handle<L1CSCTrackCollection> tracks;
-	e.getByLabel("csctfunpacker","MuonL1CSCTrackCollection",tracks);
+	e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
 
 	CSCSP_SPblock spDataRecord[12][7][3]; // Up to 3 tracks in sector X and tbin Y
 	bzero(&spDataRecord,sizeof(spDataRecord));

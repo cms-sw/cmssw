@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
@@ -18,9 +19,13 @@
 
 #include "CondFormats/CSCObjects/interface/CSCTriggerMappingFromFile.h"
 
+#include <string>
+
 class CSCTFPacker : public edm::EDProducer {
 private:
 	CSCTriggerMappingFromFile* TFMapping;
+
+	edm::InputTag lctProducer, trackProducer;
 
 	bool zeroSuppression;
 	unsigned short nTBINs;
