@@ -14,7 +14,7 @@ Implementation:
 //
 // Original Author:  Dongwook Jang
 //         Created:  Wed Oct 11 11:08:40 CDT 2006
-// $Id: TauAna.cc,v 1.1 2007/03/27 21:32:04 dwjang Exp $
+// $Id: TauAna.cc,v 1.2 2007/04/05 19:27:50 dwjang Exp $
 //
 //
 
@@ -29,9 +29,9 @@ Implementation:
 #include "RecoTauTag/Pi0Tau/interface/Tau3DFwd.h"
 #include "RecoTauTag/Pi0Tau/interface/Tau3DAlgo.h"
 #include "RecoTauTag/Pi0Tau/interface/TauVariables.h"
-#include "RecoTauTag/Pi0Tau/interface/TauAna.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+#include "RecoTauTag/Pi0Tau/test/TauAna.h"
 
 // ROOT related includes
 #include <TFile.h>
@@ -197,5 +197,8 @@ TauAna::endJob() {
 
 }
 
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 //define this as a plug-in
-//DEFINE_FWK_MODULE(TauAna)
+DEFINE_FWK_MODULE(TauAna);

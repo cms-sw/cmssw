@@ -1,13 +1,13 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
+<use name=FWCore/Utilities>
 <use name=DataFormats/Math>
 <use name=DataFormats/VertexReco>
 <use name=DataFormats/TrackReco>
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/ParticleFlowCandidate>
+<use name=RecoTauTag/Pi0Tau>
 <use name=root>
-<export>
-   <lib name=RecoTauTagPi0Tau>
-   <use name=FWCore/Framework>
-   <use name=FWCore/ParameterSet>
-</export>
+<library file="TauAna.cc" name=RecoTauTagPi0TauTauAna>
+  <flags EDM_PLUGIN=1>
+</library>
