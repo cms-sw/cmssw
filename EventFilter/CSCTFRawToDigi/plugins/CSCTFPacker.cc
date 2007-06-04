@@ -190,7 +190,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	trailer.trailer_mark_10= 0xE;
 
 	unsigned short spDDUrecord[700*12], *pos=spDDUrecord; // max length
-	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x5000;
+	int eventNumber = e.id().event();
+	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0xFFFF&eventNumber; *pos++ = 0x5000|(eventNumber>>16);
 	*pos++ = 0x0000; *pos++ = 0x8000; *pos++ = 0x0001; *pos++ = 0x8000;
 	*pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000; *pos++ = 0x0000;
 
