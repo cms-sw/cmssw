@@ -7,7 +7,8 @@
 
 namespace edmtest {
   ThingProducer::ThingProducer(edm::ParameterSet const& iConfig): 
-  alg_(iConfig.getUntrackedParameter<int>("offsetDelta")) {
+  alg_(iConfig.getUntrackedParameter<int>("offsetDelta",0)) //this really should be tracked, but I want backwards compatibility
+  {
     produces<ThingCollection>();
     produces<ThingCollection, edm::InLumi>("beginLumi");
     produces<ThingCollection, edm::InLumi>("endLumi");
