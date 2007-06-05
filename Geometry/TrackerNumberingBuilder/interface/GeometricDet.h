@@ -53,7 +53,7 @@ class GeometricDet {
   /**
    * set or add or clear components
    */
-  void setGeographicalID(DetId id){_geographicalID = id;}
+  void setGeographicalID(DetId id) const {_geographicalID = id;}
   void setComponents(GeometricDetContainer const & cont) {_container = cont;}
   void addComponents(GeometricDetContainer const & cont);
   void addComponent(GeometricDet*);
@@ -145,7 +145,8 @@ class GeometricDet {
   DDName _ddname;
   GeometricEnumType _type;
   std::vector<double> _params;
-  DetId _geographicalID;
+  //FIXME
+  mutable DetId _geographicalID;
 
   std::vector< DDExpandedNode > _parents;
   double _volume;
