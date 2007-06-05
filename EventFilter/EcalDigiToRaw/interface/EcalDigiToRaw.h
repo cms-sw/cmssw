@@ -15,7 +15,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.h,v 1.2 2007/03/26 06:47:13 eperez Exp $
+// $Id: EcalDigiToRaw.h,v 1.3 2007/04/11 10:50:37 eperez Exp $
 //
 //
 
@@ -88,6 +88,8 @@ class EcalDigiToRaw : public edm::EDProducer {
 	bool doTCC_;
 	bool doSR_;
 	bool doTower_;
+
+	edm::InputTag labelTT_ ;
 
 	bool doBarrel_;
 	bool doEndCap_;
