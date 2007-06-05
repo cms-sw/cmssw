@@ -52,7 +52,10 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     if( det->translation().z() < 0 && pname == TECGluedDet) {
       TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModuleMirror());
     }
-    
+
+    for(uint32_t i=0; i<comp.size();i+1+)
+      comp[i]->setGeographicalID(i+1);
+
   } else {
     // TID
     // Ring Side: 2 bits [back:1 front:2]
