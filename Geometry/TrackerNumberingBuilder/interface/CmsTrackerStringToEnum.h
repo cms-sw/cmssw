@@ -23,7 +23,7 @@ class CmsTrackerStringToEnum {
   struct Impl {
     Impl();
     MapEnumType _map;
-    static ReverseMapEnumType _reverseMap;
+    ReverseMapEnumType _reverseMap;
   };
 
   static Impl m_impl;
