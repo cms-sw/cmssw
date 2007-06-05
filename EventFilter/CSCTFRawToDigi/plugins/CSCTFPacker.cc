@@ -197,8 +197,8 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	for(int sector=0; sector<12; sector++){
 		if( !(activeSectors & (1<<sector)) ) continue;
-		if( sector<6 ) header.sp_logical_address =  sector+1;
-		else           header.sp_logical_address = (sector-5)|0x8;
+		if( sector<6 ) header.sp_logical_address = (sector+1)|0x8;
+		else           header.sp_logical_address =  sector-5;
 		memcpy(pos,&header,16);
 		pos+=8;
 
