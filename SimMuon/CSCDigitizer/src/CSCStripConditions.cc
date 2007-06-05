@@ -16,6 +16,7 @@ CSCStripConditions::~CSCStripConditions()
 
 void CSCStripConditions::setRandomEngine(CLHEP::HepRandomEngine& engine)
 {
+  if(theRandGaussQ) delete theRandGaussQ;
   theRandGaussQ = new RandGaussQ(engine);
 }
 
