@@ -133,6 +133,7 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
   double s;
   double p, p1, p2;
   double integral_here, integral_ref;
+  double c_cut;
 
   integrated_flux = 0.;
   
@@ -147,14 +148,26 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
       b0 = b0c[0] + b0c[1] * L + b0c[2]* L2;
       b1 = b1c[0] + b1c[1] * L + b1c[2]* L2;
       b2 = b2c[0] + b2c[1] * L + b2c[2]* L2;
+
+      // cut out explicitly regions of zero flux 
+      // (for low momentum and near horizontal showers)
+      // since parametrization for z distribution doesn't work here
+      // (can become negative) 
       
-      integral_ref = b0 * (c2 - c1) 
-	+ b1/2. * (c2*c2 - c1*c1) 
-	+ b2/3. * (c2*c2*c2 - c1*c1*c1);
-      integral_here = b0 * (cmax - cmin) 
-	+ b1/2. * (cmax*cmax - cmin*cmin) 
-	+ b2/3. * (cmax*cmax*cmax - cmin*cmin*cmin);
+      c_cut = -0.42 + L*0.35;
       
+      if (c_cut > c2) c_cut = c2; 
+      
+      integral_ref = b0 * (c_cut - c1) 
+	+ b1/2. * (c_cut*c_cut - c1*c1) 
+	+ b2/3. * (c_cut*c_cut*c_cut - c1*c1*c1);
+      
+      if (c_cut > cmax) c_cut = cmax; 
+      
+      integral_here = b0 * (c_cut - cmin) 
+	+ b1/2. * (c_cut*c_cut - cmin*cmin) 
+	+ b2/3. * (c_cut*c_cut*c_cut - cmin*cmin*cmin);
+  
       corr[k] = integral_here/integral_ref;
       
       s = (((((((pe[8]*L
@@ -385,6 +398,10 @@ int CMSCGEN::generate()
   } 
   
   z_max = b0 + b1 * c_max + b2 * c_max * c_max;
+
+  // again cut out explicitly regions of zero flux 
+  double c_cut = -0.42 + L*0.35;
+  if (c_cut > cmax) c_cut = cmax; 
   
   // now we throw dice:
   
@@ -394,7 +411,7 @@ int CMSCGEN::generate()
       r1 = double(prob);
       prob = RanGen2.Rndm();
       r2 = double(prob);
-      c = cmin + (cmax-cmin)*r1;   
+      c = cmin + (c_cut-cmin)*r1;    
       z = b0 + b1 * c + b2 * c*c;
       if (z > z_max*r2) break;
     }    
