@@ -215,6 +215,8 @@ void HLTMuonRateAnalyzer::analyze(const Event & event, const EventSetup& eventSe
             }
             if (nFound>=theNumberOfObjects) {
                   hHLTeff[i]->Fill(ptcut,this_event_weight);
+            } else {
+                  break;
             }
       }
   }
