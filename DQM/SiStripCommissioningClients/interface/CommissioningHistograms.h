@@ -104,6 +104,9 @@ class CommissioningHistograms {
   
   /** */
   void printHistosMap();
+
+  /** */
+  inline const HistosMap& histos() const;
   
  protected:
 
@@ -111,12 +114,13 @@ class CommissioningHistograms {
 
   /** */
   inline MonitorUserInterface* const mui() const;
+
   /** */
   inline DaqMonitorBEInterface* const bei() const;
-  /** */
-  inline const HistosMap& histos() const;
+ 
   /** */
   inline const FedToFecMap& mapping() const;
+  
   /** */
   inline const sistrip::RunType& task() const;
   
