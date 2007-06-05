@@ -11,6 +11,14 @@ cond::DBCatalog::DBCatalog():m_poolcatalog(0){
 cond::DBCatalog::~DBCatalog(){
   if(m_poolcatalog) delete m_poolcatalog; 
 }
+std::string
+cond::DBCatalog::logicalserviceName( const std::string& input )const{
+  std::string serviceName("");
+  if( input.at(0) == '/' ){
+    serviceName=input.substr(1,input.find_first_of('/',1)-1);
+  }
+  return serviceName;
+}
 std::string 
 cond::DBCatalog::defaultOnlineCatalogName(){
   edm::FileInPath fip("CondCore/DBCommon/data/onlineCondDBCatalog.xml");
@@ -42,13 +50,13 @@ cond::DBCatalog::poolCatalog(){
   }
   return *m_poolcatalog;
 }
-bool 
-cond::DBCatalog::isLFN(const std::string& input){
-  if( *(input.begin()) == '/' ){
-    return true;
-  }
-  return false;
-}
+//bool 
+//cond::DBCatalog::isLFN(const std::string& input) const{
+//  if( input.at(0) == '/' ){
+//    return true;
+//  }
+//  return false;
+//}
 std::string
 cond::DBCatalog::getPFN(pool::IFileCatalog& poolCatalog,
 			const std::string& lfn,

@@ -17,8 +17,10 @@ namespace cond{
     ~DBCatalog();
     /// get pool filecatalog handle
     pool::IFileCatalog& poolCatalog();
+    /// if a string is not in lfn format, return empty string
+    std::string logicalserviceName( const std::string& input ) const;
     /// if a string is in lfn format
-    bool isLFN(const std::string& input);
+    //bool isLFN(const std::string& input) const;
     /// looks up PFN with given LFN. If useCache is true, select pfn contains frontier protocol. This operation involves catalog transaction
     std::string getPFN(pool::IFileCatalog& poolCatalog,
 			     const std::string& lfn, 
