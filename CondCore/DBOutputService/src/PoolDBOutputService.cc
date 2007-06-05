@@ -17,6 +17,9 @@
 #include "CondCore/DBCommon/interface/ConfigSessionFromParameterSet.h"
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
+#include "CondCore/DBCommon/interface/DBCatalog.h"
+//POOL include
+#include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
 //#include <iostream>
 #include <vector>
@@ -30,8 +33,36 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   m_inTransaction( false )
 {
   std::string connect=iConfig.getParameter<std::string>("connect");
+  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+  cond::DBCatalog mycat;
+  std::string logicalServiceName=mycat.logicalserviceName(connect);
+  if( !logicalServiceName.empty() ){
+    if( catconnect.empty() ){
+      if( logicalServiceName=="dev" ){
+	catconnect=mycat.defaultDevCatalogName();
+	//mycat.poolCatalog().setWriteCatalog(catconnect);
+      }else if( logicalServiceName=="online" ){
+	catconnect=mycat.defaultOnlineCatalogName();
+	//mycat.poolCatalog().setWriteCatalog(catconnect);
+      }else if( logicalServiceName=="offline" ){
+	catconnect=mycat.defaultOfflineCatalogName();
+	//mycat.poolCatalog().setWriteCatalog(catconnect);
+      }else if( logicalServiceName=="local" ){
+	catconnect=mycat.defaultLocalCatalogName();
+	//mycat.poolCatalog().setWriteCatalog(catconnect);
+      }else{
+	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
+      }
+    }
+    mycat.poolCatalog().setWriteCatalog(catconnect);
+    mycat.poolCatalog().connect();
+    mycat.poolCatalog().start();
+    std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, false);
+    mycat.poolCatalog().commit();
+    mycat.poolCatalog().disconnect();
+    connect=pf;
+  }
   m_session=new cond::DBSession(true);
-  std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","file::PoolFileCatalog.xml");
   std::string timetype=iConfig.getParameter< std::string >("timetype");
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
