@@ -54,7 +54,7 @@ class GeometricDet {
    * set or add or clear components
    */
   void setGeographicalID(DetId id){_geographicalID = id;}
-  void setComponents(GeometricDetContainer const & cont){_container = cont;}
+  void setComponents(GeometricDetContainer const & cont) {_container = cont;}
   void addComponents(GeometricDetContainer const & cont);
   void addComponent(GeometricDet*);
   /**
@@ -92,7 +92,7 @@ class GeometricDet {
    * GeometricDet it returns nothing (an empty vector)
    */
   virtual ConstGeometricDetContainer components() const;
-  virtual GeometricDetContainer components();
+  virtual GeometricDetContainer components() const;
 
   /**
    * deepComponents() returns all the components below; please note that 
