@@ -53,7 +53,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhiGluedModuleMirror());
     }
 
-    for(uint32_t i=0; i<comp.size();i+1+)
+    for(uint32_t i=0; i<comp.size();i++)
       comp[i]->setGeographicalID(i+1);
 
   } else {
