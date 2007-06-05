@@ -50,7 +50,7 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand* mu) :
 
 SimpleL1MuGMTCand::SimpleL1MuGMTCand(const FSimTrack* p) {
   //  setMomentum(p->momentum());
-  LorentzVector toBeRemoved(p->momentum().x(),p->momentum().y(),p->momentum().y(),p->momentum().t());
+  LorentzVector toBeRemoved(p->momentum().x(),p->momentum().y(),p->momentum().z(),p->momentum().t());
   setMomentum(toBeRemoved);
   m_name = "FastL1MuCand";
   m_empty = false;
