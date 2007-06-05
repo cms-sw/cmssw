@@ -91,7 +91,10 @@ class GeometricDet {
    * components() returns explicit components; please note that in case of a leaf 
    * GeometricDet it returns nothing (an empty vector)
    */
-  virtual GeometricDetContainer const & components() const {
+    GeometricDetContainer & components() {
+    return _container;
+   }  
+   GeometricDetContainer const & components() const {
     return _container;
   }
 
