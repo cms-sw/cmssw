@@ -15,10 +15,12 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_firstEvent(pset.getUntrackedParameter<int>("firstEvent",0 )),
   m_lastEvent(pset.getUntrackedParameter<int>("lastEvent",std::numeric_limits<int>::max())),
   m_paths(pset.getUntrackedParameter<std::vector<std::string> >("paths",std::vector<std::string>() )),
+  m_excludedPaths(pset.getUntrackedParameter<std::vector<std::string> >("excludePaths",std::vector<std::string>() )),
   m_allPaths(false),
   m_evtCount(0),
   m_doEvent(false),
-  m_active(0){
+  m_active(0),
+  m_paused(false) {
   static std::string const allPaths("ALL");
   m_allPaths = std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end();
  
@@ -33,7 +35,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
     activity.watchPostProcessPath(this,&ProfilerService::endPathI);
   }
 }
-
+  ,
 ProfilerService::~ProfilerService(){}
 
 bool ProfilerService::startInstrumentation(){
@@ -63,6 +65,21 @@ bool ProfilerService::forceStopInstrumentation() {
   // FIXME report something if appens;
   CALLGRIND_STOP_INSTRUMENTATION;
   m_active=0;
+  return true;
+}
+
+bool  ProfilerService:pauseInstrumentation() {
+   if (m_active==0) return false;
+   CALLGRIND_STOP_INSTRUMENTATION;
+   m_paused=true;
+   return true;
+}   
+
+bool  ProfilerService:resumeInstrumentation() {
+  if (m_active==0 || (!m_paused)) return false;
+  CALLGRIND_START_INSTRUMENTATION;
+  CALLGRIND_DUMP_STATS;
+  m_paused=false;
   return true;
 }
 
@@ -105,13 +122,18 @@ void  ProfilerService::endEvent() {
 
 void  ProfilerService::beginPath(std::string const & path) {
   if (!doEvent()) return;
-  // assume less than 5-6 path to instrument ....
+  // assume less than 5-6 path to instrument or toexclude
+  if (std::find(m_excludedPaths.begin(),m_excludedPaths.end(),path) != m_excludedPaths.end()) {
+    pauseInstrumentation();
+    return; 
+  }
   if (std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
   m_activePath=path;
   startInstrumentation();
 }
 
 void  ProfilerService::endPath(std::string const & path) {
+  resumeInstrumentation();
   if (m_activePath==path) {
     stopInstrumentation();
     m_activePath.clear();

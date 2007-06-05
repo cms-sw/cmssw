@@ -38,6 +38,12 @@ public:
   /// forced stop instrumentation independenly of activity status; true if stopped now
   bool forceStopInstrumentation();
 
+  // pause instrumentation (if active)
+  bool pauseInstrumentation();
+
+  // resume instrumentation (if paused)
+  bool resumeInstrumentation();
+
   /// dump profiling information
   void dumpStat() const;
 
@@ -84,12 +90,14 @@ private:
   int m_firstEvent; 
   int m_lastEvent;
   std::vector<std::string> m_paths; 
+  std::vector<std::string> m_excludedPaths; 
   bool m_allPaths;
 
   // internal state
   int m_evtCount;
   bool m_doEvent;
   int m_active;
+  bool m_paused;
   std::string m_activePath;
 
 }; 
