@@ -46,25 +46,10 @@ CSCFakeCrosstalkConditions::ReturnType
 CSCFakeCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
 {
     crosstalk.prefillCrosstalkMap();
-    //    gains.print();
     // Added by Zhen, need a new object so to not be deleted at exit
-    //    std::cout<<"about to copy"<<std::endl;
     CSCcrosstalk* mydata=new CSCcrosstalk(crosstalk.get());
     
-    /*
-    std::cout <<"=========================DUMP from produce=====================" << std::endl;
-    std::map<int,std::vector<CSCcrosstalk::Item> >::const_iterator it;
-    for( it=mydata->crosstalk.begin();it!=mydata->crosstalk.end(); ++it ){
-       std::cout<<"layer id found "<<it->first<<std::endl;
-       std::vector<CSCcrosstalk::Item>::const_iterator xtalkit;
-       for( xtalkit=it->second.begin(); xtalkit!=it->second.end(); ++xtalkit ){
-         std::cout << "  xtalk:  " <<xtalkit->xtalk_slope_right << " intercept: " << xtalkit->xtalk_intercept_left
-                   << std::endl;
-       }
-    }
-    std::cout <<"=========================END DUMP from produce=====================" << std::endl;
-    */
-       return mydata;
+    return mydata;
 
 }
 

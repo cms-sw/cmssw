@@ -51,20 +51,7 @@ CSCFakePedestalsConditions::producePedestals(const CSCPedestalsRcd& iRecord)
     //    std::cout<<"about to copy"<<std::endl;
     CSCPedestals* mydata=new CSCPedestals(pedestals.get());
     
-    /*
-    std::cout <<"=========================DUMP from produce=====================" << std::endl;
-    std::map<int,std::vector<CSCPedestals::Item> >::const_iterator it;
-    for( it=mydata->pedestals.begin();it!=mydata->pedestals.end(); ++it ){
-       std::cout<<"layer id found "<<it->first<<std::endl;
-       std::vector<CSCPedestals::Item>::const_iterator pedestalsit;
-       for( pedestalsit=it->second.begin(); pedestalsit!=it->second.end(); ++pedestalsit ){
-         std::cout << "  pedestals:  " <<pedestalsit->ped << " intercept: " << pedestalsit->rms
-                   << std::endl;
-       }
-    }
-    std::cout <<"=========================END DUMP from produce=====================" << std::endl;
-    */
-       return mydata;
+    return mydata;
 
 }
 

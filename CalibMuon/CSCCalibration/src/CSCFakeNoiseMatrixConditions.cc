@@ -46,25 +46,10 @@ CSCFakeNoiseMatrixConditions::ReturnType
 CSCFakeNoiseMatrixConditions::produceNoiseMatrix(const CSCNoiseMatrixRcd& iRecord)
 {
     matrix.prefillNoiseMatrixMap();
-    //    matrix.print();
     // Added by Zhen, need a new object so to not be deleted at exit
-    //    std::cout<<"about to copy"<<std::endl;
     CSCNoiseMatrix* mydata=new CSCNoiseMatrix(matrix.get());
     
-    /*
-    std::cout <<"=========================DUMP from produce=====================" << std::endl;
-    std::map<int,std::vector<CSCNoiseMatrix::Item> >::const_iterator it;
-    for( it=mydata->matrix.begin();it!=mydata->matrix.end(); ++it ){
-       std::cout<<"layer id found "<<it->first<<std::endl;
-       std::vector<CSCNoiseMatrix::Item>::const_iterator matrixit;
-       for( matrixit=it->second.begin(); matrixit!=it->second.end(); ++matrixit ){
-         std::cout << "  matrix:  " <<matrixit->matrix_elem33 << " elem34: " << matrixit->matrix_elem34
-                   << std::endl;
-       }
-    }
-    std::cout <<"=========================END DUMP from produce=====================" << std::endl;
-    */
-       return mydata;
+    return mydata;
 
 }
 
