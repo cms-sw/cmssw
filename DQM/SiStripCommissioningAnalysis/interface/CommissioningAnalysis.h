@@ -22,6 +22,8 @@ class TH1;
 class CommissioningAnalysis {
 
  public:
+
+  // ---------- Con(de)structors and typedefs ----------
   
   CommissioningAnalysis( const uint32_t& key, 
 			 const std::string& my_name );
@@ -32,6 +34,9 @@ class CommissioningAnalysis {
   typedef std::vector<VFloats> VVFloats;
   typedef std::vector<uint16_t> VInts;
   typedef std::vector<VInts> VVInts;
+  typedef std::vector<std::string> VStrings;
+
+
   
   /** Extracts monitorables from TH1s for a given FED channel. */
   void analysis( const std::vector<TH1*>& );
@@ -51,6 +56,10 @@ class CommissioningAnalysis {
   void header( std::stringstream& ) const;
   void extractFedKey( const TH1* const );
 
+  inline const VStrings& getErrorCodes();
+  inline void setErrorCodes( const VStrings& errors );
+  inline virtual void addErrorCode( const std::string& error );
+  
  private:
 
   CommissioningAnalysis() {;}
@@ -61,12 +70,17 @@ class CommissioningAnalysis {
   SiStripFecKey fec_;
   SiStripFedKey fed_;
   std::string myName_;
+  VStrings errors_;
 
 };
 
 const SiStripFecKey& CommissioningAnalysis::fec() const { return fec_; }
 const SiStripFedKey& CommissioningAnalysis::fed() const { return fed_; }
 const std::string& CommissioningAnalysis::myName() const { return myName_; }
+
+const CommissioningAnalysis::VStrings& CommissioningAnalysis::getErrorCodes() { return errors_; }
+void CommissioningAnalysis::setErrorCodes( const VStrings& errors ) { errors_ = errors; }
+void CommissioningAnalysis::addErrorCode( const std::string& error ) { errors_.push_back(error) ;}
 
 #endif // DQM_SiStripCommissioningAnalysis_CommissioningAnalysis_H
 
