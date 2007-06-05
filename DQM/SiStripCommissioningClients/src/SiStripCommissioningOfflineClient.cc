@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.6 2007/06/05 14:33:16 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.7 2007/06/05 14:36:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -20,7 +20,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -283,12 +283,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No histogram collation performed!";
   }
-  
-  // Some debug
-  if ( edm::isDebugEnabled() ) {
-    if ( histos_ ) { histos_->printHistosMap(); }
+  if ( histos_ ) { 
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << " Found histograms for " << histos_->histos().size()
+      << " structures in cached histogram map!";
   }
-    
+
   // Trigger update methods
 #ifdef DO_SUMMARY  
   edm::LogVerbatim(mlDqmClient_)

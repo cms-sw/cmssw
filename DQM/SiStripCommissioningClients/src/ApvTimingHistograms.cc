@@ -156,10 +156,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     if ( debug ) {
       std::stringstream ss;
       ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { 
-	LogTrace(mlDqmClient_) << ss.str(); 
-	valid++;
-      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
+      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
   }
   
