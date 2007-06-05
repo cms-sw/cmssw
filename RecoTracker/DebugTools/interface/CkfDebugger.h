@@ -20,6 +20,13 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
 #include <vector>
 #include <iostream>
 #include <TFile.h>
@@ -51,6 +58,7 @@ class CkfDebugger {
   void countSeed(){totSeeds++;}
 
   void fillSeedHist(CTTRHp h1,CTTRHp h2, TrajectoryStateOnSurface t) {
+    //edm::LogVerbatim("CkfDebugger") << "CkfDebugger::fillSeedHist";
     hchi2seedAll->Fill( testSeed(h1,h2,t) );
   }
 
@@ -62,7 +70,6 @@ class CkfDebugger {
 				      const TransientTrackingRecHitBuilder*);
 
   void deleteHitAssociator(){
-    edm::LogVerbatim("CkfPattern") << "deleting hitAssociator " << hitAssociator ;
     delete hitAssociator;
   }
 
@@ -146,30 +153,50 @@ class CkfDebugger {
   };
   const GeomDetUnit* det(const PSimHit* sh) const {return theTrackerGeom->idToDetUnit(DetId(sh->detUnitId()));};
 
-  int layer(const GeomDetUnit* det){return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));}
-  int layer(const GeomDet* det){return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));}
+  int layer(const GeomDetUnit* det){
+    //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
+    DetId id=det->geographicalId();
+    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
+    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
+    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
+    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
+    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
+    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
+    return 0;
+  }
+  int layer(const GeomDet* det){
+    //return ((int)(((det->geographicalId().rawId() >>16) & 0xF)));
+    DetId id=det->geographicalId();
+    if (id.subdetId()==3) return ((TIBDetId)(id)).layer();
+    if (id.subdetId()==5) return ((TOBDetId)(id)).layer();
+    if (id.subdetId()==1) return ((PXBDetId)(id)).layer();
+    if (id.subdetId()==4) return ((TIDDetId)(id)).wheel();
+    if (id.subdetId()==6) return ((TECDetId)(id)).wheel();
+    if (id.subdetId()==2) return ((PXFDetId)(id)).disk();
+    return 0;
+  }
 
   template<unsigned int D>  
   pair<double,double> computePulls(CTTRHp recHit, TSOS startingState){
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
     typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
     TSOS detState = theForwardPropagator->propagate(startingState,recHit->det()->surface());
-    edm::LogVerbatim("CkfDebugger") << "parameters=" << recHit->parameters() ;
-    edm::LogVerbatim("CkfDebugger") << "parametersError=" << recHit->parametersError() ;
+    LogTrace("CkfDebugger") << "parameters=" << recHit->parameters() ;
+    LogTrace("CkfDebugger") << "parametersError=" << recHit->parametersError() ;
     MeasurementExtractor me(detState);
     VecD r = asSVector<D>(recHit->parameters()) - me.measuredParameters<D>(*recHit);
-    edm::LogVerbatim("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters<D>(*recHit) ;
-    edm::LogVerbatim("CkfDebugger") << "me.measuredError=" << me.measuredError<D>(*recHit) ;
+    LogTrace("CkfDebugger") << "me.measuredParameters=" << me.measuredParameters<D>(*recHit) ;
+    LogTrace("CkfDebugger") << "me.measuredError=" << me.measuredError<D>(*recHit) ;
     SMatDD R = asSMatrix<D>(recHit->parametersError()) + me.measuredError<D>(*recHit);
-    edm::LogVerbatim("CkfDebugger") << "r=" << r ;
-    edm::LogVerbatim("CkfDebugger") << "R=" << R ;
+    LogTrace("CkfDebugger") << "r=" << r ;
+    LogTrace("CkfDebugger") << "R=" << R ;
     R.Invert();
-    edm::LogVerbatim("CkfDebugger") << "R(-1)=" << R ;
-    edm::LogVerbatim("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
+    LogTrace("CkfDebugger") << "R(-1)=" << R ;
+    LogTrace("CkfDebugger") << "chi2=" << ROOT::Math::Similarity(r,R) ;
     double pullX=(-r[0])*sqrt(R(0,0));
     double pullY=(-r[1])*sqrt(R(1,1));
-    edm::LogVerbatim("CkfDebugger") << "pullX=" << pullX ;
-    edm::LogVerbatim("CkfDebugger") << "pullY=" << pullY ;
+    LogTrace("CkfDebugger") << "pullX=" << pullX ;
+    LogTrace("CkfDebugger") << "pullY=" << pullY ;
     return  pair<double,double>(pullX,pullY);
   }
   pair<double,double> computePulls(CTTRHp recHit, TSOS startingState) {
@@ -188,8 +215,9 @@ class CkfDebugger {
   map<pair<int,int>, int> dump3;
   map<pair<int,int>, int> dump4;
   map<pair<int,int>, int> dump5;
+  map<pair<int,int>, int> dump6;
 
-  TFile file;
+  TFile*  file;
   TH1F* hchi2seedAll, *hchi2seedProb;
 
   map<string,TH1F*> hPullX_shrh;

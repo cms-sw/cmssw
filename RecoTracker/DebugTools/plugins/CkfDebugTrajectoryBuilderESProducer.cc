@@ -53,21 +53,16 @@ CkfDebugTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
   iRecord.get(measurementTrackerHandle);  
-    
+  
   _trajectoryBuilder  = 
     boost::shared_ptr<TrackerTrajectoryBuilder>(new CkfDebugTrajectoryBuilder(pset_,
-									 updatorHandle.product(),
-									 propagatorAlongHandle.product(),
-									 propagatorOppositeHandle.product(),
-									 estimatorHandle.product(),
-									 recHitBuilderHandle.product(),
-									 measurementTrackerHandle.product()) );  
+									      updatorHandle.product(),
+									      propagatorAlongHandle.product(),
+									      propagatorOppositeHandle.product(),
+									      estimatorHandle.product(),
+									      recHitBuilderHandle.product(),
+									      measurementTrackerHandle.product()) );  
  //  CkfDebugger dbg( es, theMeasurementTracker);
 //   _trajectoryBuilder->setDebugger( dbg);
   return _trajectoryBuilder;
 }
-
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-
-DEFINE_FWK_EVENTSETUP_MODULE(CkfDebugTrajectoryBuilderESProducer);
