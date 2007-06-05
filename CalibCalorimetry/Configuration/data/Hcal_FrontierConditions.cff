@@ -1,0 +1,4 @@
+#
+# Hcal  calibrations from Frontier
+#
+include "CalibCalorimetry/HcalPlugins/data/Hcal_FrontierConditions.cfi"
