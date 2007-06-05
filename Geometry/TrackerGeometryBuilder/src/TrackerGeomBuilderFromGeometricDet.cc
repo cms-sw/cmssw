@@ -143,9 +143,9 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
 void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
-  std::vector<GeomDetUnit*> gdu= tracker->detUnits();
-  std::vector<DetId> gduId = tracker->detUnitIds();
-  std::vector<const GeomDetUnit *> glued;
+  std::vector<GeomDetUnit*> const & gdu= tracker->detUnits();
+  std::vector<DetId> const & gduId = tracker->detUnitIds();
+  std::vector<const GeomDetUnit *> glued; glued.reserve(2);
 
   for(u_int32_t i=0;i<gdu.size();i++){
     StripSubdetector sidet( gduId[i].rawId());

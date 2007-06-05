@@ -18,7 +18,7 @@ void TrackerGeometry::addType(GeomDetType* p) {
 
 void TrackerGeometry::addDetUnit(GeomDetUnit* p) {
   theDetUnits.push_back(p);  // add to vector
-  theMapUnit.insert(std::pair<DetId,GeomDetUnit*>(p->geographicalId(),p));
+  theMapUnit.insert(std::make_pair(p->geographicalId().rawId(),p));
 }
 
 void TrackerGeometry::addDetUnitId(DetId p){
@@ -27,7 +27,7 @@ void TrackerGeometry::addDetUnitId(DetId p){
 
 void TrackerGeometry::addDet(GeomDet* p) {
   theDets.push_back(p);  // add to vector
-  theMap.insert(std::pair<DetId,GeomDet*>(p->geographicalId(),p));
+  theMap.insert(std::make_pair(p->geographicalId().rawId(),p));
   DetId id(p->geographicalId());
   switch(id.subdetId()){
   case PixelSubdetector::PixelBarrel:
@@ -110,23 +110,23 @@ TrackerGeometry::detsTEC() const
 const GeomDetUnit* 
 TrackerGeometry::idToDetUnit(DetId s)const
 {
-    if (theMapUnit.find(s) != theMapUnit.end())
-    return (theMapUnit.find(s))->second;
-    edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDetUnit associated";
-    GeomDetUnit* geom = 0;
-    return geom;
-
+  mapIdToDetUnit::const_iterator p=theMapUnit.find(s.rawId());
+  if (p != theMapUnit.end())
+    return (p)->second;
+  edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDetUnit associated";
+  GeomDetUnit* geom = 0;
+  return geom;
 }
 
 const GeomDet* 
 TrackerGeometry::idToDet(DetId s)const
 {
-    if (theMap.find(s) != theMap.end())
-    return (theMap.find(s))->second;
-    edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDet associated";
-    GeomDet* geom = 0;
-    return geom;
-
+  mapIdToDet::const_iterator p=theMap.find(s.rawId());
+  if (p != theMap.end())
+    return (p)->second;
+  edm::LogError("TrackerGeometry")<<"Invalid DetID: no GeomDet associated";
+  GeomDet* geom = 0;
+  return geom;
 }
 
 const TrackerGeometry::DetTypeContainer&  

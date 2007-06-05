@@ -2,6 +2,8 @@
 #define Geometry_TrackingGeometryAligner_GeometryAligner_h
 
 #include <vector>
+#include <algorithm>
+#include <iterator>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -54,28 +56,31 @@ void GeometryAligner::applyAlignments( C* geometry, const Alignments* alignments
   std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
   std::vector<AlignTransformError>::const_iterator 
 	iAlignError = alignmentErrors->m_alignError.begin();
-  for ( std::map<DetId,GeomDet*>::iterator iPair = geometry->theMap.begin(); 
-		iPair != geometry->theMap.end(); iPair++, iAlign++, iAlignError++ )
+  //copy  geometry->theMap to a real map to order it....
+  std::map<unsigned int, GeomDet*> theMap;
+  std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap,theMap.begin()));
+  for ( std::map<unsigned int, GeomDet*>::const_iterator iPair = theMap.begin(); 
+		iPair != theMap.end(); iPair++, iAlign++, iAlignError++ )
 	{
 	  // Check DetIds
-	  if ( (*iPair).first.rawId() != (*iAlign).rawId() )
+	  if ( (*iPair).first != (*iAlign).rawId() )
 	    throw cms::Exception("GeometryMismatch") 
-	      << "DetId mismatch between geometry (rawId=" << (*iPair).first.rawId()
+	      << "DetId mismatch between geometry (rawId=" << (*iPair).first
 	      << ") and alignments (rawId=" << (*iAlign).rawId();
 	  
-	  if ( (*iPair).first.rawId() != (*iAlignError).rawId() )
+	  if ( (*iPair).first != (*iAlignError).rawId() )
 	    throw cms::Exception("GeometryMismatch") 
-	      << "DetId mismatch between geometry (rawId=" << (*iPair).first.rawId()
+	      << "DetId mismatch between geometry (rawId=" << (*iPair).first
 	      << ") and alignment errors (rawId=" << (*iAlignError).rawId();
 
 	  // Define new quantities from alignments
 	  Surface::PositionType position( (*iAlign).translation().x(), 
-									  (*iAlign).translation().y(), 
-									  (*iAlign).translation().z() );
+					  (*iAlign).translation().y(), 
+					  (*iAlign).translation().z() );
 	  Surface::RotationType 
-		rotation( (*iAlign).rotation().xx(), (*iAlign).rotation().xy(), (*iAlign).rotation().xz(),
-				  (*iAlign).rotation().yx(), (*iAlign).rotation().yy(), (*iAlign).rotation().yz(),
-				  (*iAlign).rotation().zx(), (*iAlign).rotation().zy(), (*iAlign).rotation().zz() );
+	    rotation( (*iAlign).rotation().xx(), (*iAlign).rotation().xy(), (*iAlign).rotation().xz(),
+		      (*iAlign).rotation().yx(), (*iAlign).rotation().yy(), (*iAlign).rotation().yz(),
+		      (*iAlign).rotation().zx(), (*iAlign).rotation().zy(), (*iAlign).rotation().zz() );
 
 	  GlobalError error( (*iAlignError).matrix() );
 	  AlignmentPositionError ape( error );
