@@ -24,6 +24,11 @@ void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
    edm::LogError("CmsTrackerLadderBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
  }
  
+ for(uint32_t i=0; i<comp.size();i++){
+   comp[i]->setGeographicalID(i+1);
+ } 
+ 
+
 }
 
 
