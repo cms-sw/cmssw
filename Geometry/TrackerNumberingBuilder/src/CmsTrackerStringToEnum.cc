@@ -1,6 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
-static CmsTrackerStringToEnum::Impl impl;
+CmsTrackerStringToEnum::Impl impl;
 
 CmsTrackerStringToEnum::Impl::Impl(){
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("FullTracker",GeometricDet::Tracker));
@@ -77,8 +77,8 @@ GeometricDet::GeometricEnumType CmsTrackerStringToEnum::type(std::string const &
 
 std::string const & CmsTrackerStringToEnum::name(GeometricDet::GeometricEnumType t) const {
   static std::string const u("Unknown");
-  ReverseMapEnumType::const_iterator p=reverseMap.find(t); 
-  if (p!= _reverseMap.end())
+  ReverseMapEnumType::const_iterator p=reverseMap().find(t); 
+  if (p!= _reverseMap().end())
     return p->second;
   return u;
 }

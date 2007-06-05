@@ -76,13 +76,13 @@ class GeometricDet {
   /**
    * Access methods
    */
-  DDRotationMatrix rotation() const {return _rot;}
-  DDTranslation translation() const {return _trans;}
-  DDSolidShape shape() const  {return _shape;}
+  DDRotationMatrix const & rotation() const {return _rot;}
+  DDTranslation const & translation() const {return _trans;}
+  DDSolidShape const & shape() const  {return _shape;}
   GeometricEnumType type() const {return _type;}
-  DDName name() const {return _ddname;};
+  DDName const & name() const {return _ddname;};
   nav_type navType() const {return _ddd;}
-  std::vector<double> params() const {return _params;}
+  std::vector<double> const & params() const {return _params;}
 
 
   virtual ~GeometricDet();
@@ -104,7 +104,7 @@ class GeometricDet {
   //rr
   /** parents() retuns the geometrical history
    */
-  virtual std::vector< DDExpandedNode > parents() const {return _parents;}
+  virtual std::vector< DDExpandedNode > const &  parents() const {return _parents;}
   //rr  
   
   /**
@@ -120,7 +120,7 @@ class GeometricDet {
   /**
    *rotationBounds() returns the rotation matrix. 
    */
-  virtual Rotation rotationBounds() const; 
+  virtual Rotation  rotationBounds() const; 
 
   /**
    *bounds() returns the Bounds.
@@ -131,7 +131,7 @@ class GeometricDet {
   virtual double volume() const {return _volume;}
   virtual double density() const {return _density;}
   virtual double weight() const {return _weight;}
-  virtual std::string material() const {return _material;}
+  virtual std::string const &  material() const {return _material;}
   
  private:
 
