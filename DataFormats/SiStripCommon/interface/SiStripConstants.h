@@ -1,10 +1,11 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripConstants.h,v 1.21 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripConstants_H
 #define DataFormats_SiStripCommon_SiStripConstants_H
 
 #include "DataFormats/SiStripCommon/interface/Constants.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForCablingSource.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForCommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
