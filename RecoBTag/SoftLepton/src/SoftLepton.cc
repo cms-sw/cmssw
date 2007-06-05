@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.22 2007/05/30 16:33:40 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.23 2007/06/05 09:09:45 fwyzard Exp $
 //
 
 
@@ -112,8 +112,8 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   // input leptons (can be of different types)
   reco::TrackRefVector leptons;
-  // try to access the input collection as a collection of Electons, Muons or Tracks
-  // FIXME: it would be nice not to have to rely on exceptions
+  // try to access the input collection as a collection of Electrons, Muons or Tracks
+  // FIXME: migrate to getMany() as it becomes available
   try {
     Handle<reco::ElectronCollection> h_electrons;
     iEvent.getByLabel(m_leptons, h_electrons);
@@ -158,10 +158,6 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   #endif // DEBUG
   for (unsigned int i = 0; i < jets.size(); ++i) {
     reco::SoftLeptonTagInfo result = m_algo.tag( jets[i], tracks[i], leptons, vertex );
-    #ifdef DEBUG
-//    std::cerr << "  Jet " << std::setw(2) << i << " has " << std::setw(2) << result.first.tracks().size() << " tracks and " << std::setw(2) << result.second.leptons() << " leptons" << std::endl;
-  //  std::cerr << "  Tagger result: " << result.first.discriminator() << endl;
-    #endif // DEBUG
     outputCollection->push_back( result );
   }
 
