@@ -79,8 +79,15 @@ void EcalTBHodoscopeGeometryLoaderFromDDD::makeGeometry(const DDCompactView* cpv
       PreshowerStrip* theGeometry = new PreshowerStrip(parameters[0], parameters[1], parameters[2]);
 
        // rotate the box and then move it
+      DD3Vector x, y, z;
+      fv.rotation().GetComponents(x,y,z);
+      Hep3Vector hx(x.X(), x.Y(), x.Z());
+      Hep3Vector hy(y.X(), y.Y(), y.Z());
+      Hep3Vector hz(z.X(), z.Y(), z.Z());
+      HepRotation hrot(hx, hy, hz);
+      Hep3Vector htran(fv.translation().X(), fv.translation().Y(), fv.translation().Z());
       theGeometry->hepTransform(HepScale3D(0.1) * // convert from mm (DDD) to cm (G3)
-				HepTransform3D(fv.rotation(),fv.translation()));
+				HepTransform3D(hrot,htran));
       
       //Adding cell to the Geometry
       ebg->addCell(DetId(getDetIdForDDDNode(fv)),theGeometry);

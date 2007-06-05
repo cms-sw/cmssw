@@ -67,9 +67,9 @@ DDTBH4Algo::~DDTBH4Algo() {}
 
 DDRotation
 DDTBH4Algo::myrot( const std::string&      s,
-		   const DDRotationMatrix& r ) const 
+		   const HepRotation& r ) const 
 {
-   return DDrot( ddname( idNameSpace() + ":" + s ), new DDRotationMatrix( r ) ) ; 
+   return DDrot( ddname( idNameSpace() + ":" + s ), new DDRotationMatrix( r.xx(), r.xy(), r.xz(), r.yx(), r.yy(), r.yz(), r.zx(), r.zy(), r.zz() ) ) ; 
 }
 
  

@@ -9,6 +9,9 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDTransform.h"
 
+//CLHEP 
+#include <CLHEP/Geometry/Transform3D.h>
+
 class DDTBH4Algo : public DDAlgorithm {
  public:
   //Constructor and Destructor
@@ -26,7 +29,7 @@ class DDTBH4Algo : public DDAlgorithm {
       DDMaterial ddmat(  const std::string& s ) const ;
       DDName     ddname( const std::string& s ) const ;
       DDRotation myrot(  const std::string& s,
-			 const DDRotationMatrix& r ) const ;
+			 const HepRotation& r ) const ;
 
       const std::string&         idNameSpace() const { return m_idNameSpace   ; }
 
