@@ -60,9 +60,10 @@ class GeometricDet {
   /**
    * clearComponents() only empties the container, the components are not deleted!
    */
-  void clearComponents(){_container.resize(0);}
+  clearComponents(){_container.resize(0);}
   /**
    * deleteComponents() explicitly deletes the daughters
+   * FIXME: it does not
    */
   void deleteComponents();
   /**
@@ -85,7 +86,7 @@ class GeometricDet {
   std::vector<double> const & params() const {return _params;}
 
 
-  virtual ~GeometricDet();
+  ~GeometricDet();
   
   /**
    * components() returns explicit components; please note that in case of a leaf 
@@ -109,34 +110,34 @@ class GeometricDet {
   //rr
   /** parents() retuns the geometrical history
    */
-  virtual std::vector< DDExpandedNode > const &  parents() const {return _parents;}
+  std::vector< DDExpandedNode > const &  parents() const {return _parents;}
   //rr  
   
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
-  virtual DetId geographicalID() const ;
+  DetId geographicalID() const ;
 
   /**
    *positionBounds() returns the position in cm. 
    */
-  virtual Position positionBounds() const; 
+  Position positionBounds() const; 
 
   /**
    *rotationBounds() returns the rotation matrix. 
    */
-  virtual Rotation  rotationBounds() const; 
+  Rotation  rotationBounds() const; 
 
   /**
    *bounds() returns the Bounds.
    */
-  virtual const Bounds * bounds() const; 
+  const Bounds * bounds() const; 
   
-  virtual int copyno() const {return _copy;}
-  virtual double volume() const {return _volume;}
-  virtual double density() const {return _density;}
-  virtual double weight() const {return _weight;}
-  virtual std::string const &  material() const {return _material;}
+  int copyno() const {return _copy;}
+  double volume() const {return _volume;}
+  double density() const {return _density;}
+  double weight() const {return _weight;}
+  std::string const &  material() const {return _material;}
   
  private:
 

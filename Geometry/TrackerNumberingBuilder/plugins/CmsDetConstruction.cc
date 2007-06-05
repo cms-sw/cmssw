@@ -38,15 +38,15 @@ void CmsDetConstruction::buildSmallDets(
   GeometricDet * det  = 
     new GeometricDet(&fv,
 		     theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(attribute,&fv)));
-  std::string stereo = "TrackerStereoDetectors";
-        if (ExtractStringFromDDD::getString(stereo,&fv) == "true"){
-	  uint32_t temp = 1;
-	  det->setGeographicalID(DetId(temp));
-	}else{
-	  uint32_t temp = 2;
-	  det->setGeographicalID(DetId(temp));
-	}
-
+  static const std::string stereo = "TrackerStereoDetectors";
+  if (ExtractStringFromDDD::getString(stereo,&fv) == "true"){
+    uint32_t temp = 1;
+    det->setGeographicalID(DetId(temp));
+  }else{
+    uint32_t temp = 2;
+    det->setGeographicalID(DetId(temp));
+  }
+  
   mother->addComponent(det); 
 }
 

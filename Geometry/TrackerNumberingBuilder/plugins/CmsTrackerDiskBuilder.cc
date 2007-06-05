@@ -26,7 +26,7 @@ void CmsTrackerDiskBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, 
 
 void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
- GeometricDet::GeometricDetContainer comp = det->components();
+ GeometricDet::GeometricDetContainer & comp = det->components();
 
  switch(det->components().front()->type()){
  case GeometricDet::panel:
@@ -38,13 +38,13 @@ void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
   GeometricDet::GeometricDetContainer zminpanels;  // Here z refers abs(z);
   GeometricDet::GeometricDetContainer zmaxpanels;   // So, zmin panel is always closer to ip.
-  zminpanels.clear();
-  zmaxpanels.clear();
 
   uint32_t  totalblade = comp.size()/2;
   if ( totalblade != 24 )
         edm::LogError("CmsTrackerDiskBuilder")<<"ERROR, The Total Number of Blade in one disk is "<<totalblade;
 
+  zminpanels.reserve(totalblade);
+  zmaxpanels.reserve(totalblade);
   for( uint32_t  j=0; j<totalblade ;j++)
   {
     if ( fabs( comp[2*j]->translation().z() ) > fabs( comp[ 2*j +1 ]->translation().z() ) ) {
@@ -65,14 +65,14 @@ void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     uint32_t blade = fn+1;
     uint32_t panel = 1;
     uint32_t temp = (blade<<2) | panel;
-    zminpanels[fn]->setGeographicalID(DetId(temp));
+    zminpanels[fn]->setGeographicalID(temp);
   }
   
   for (uint32_t  bn=0; bn< zmaxpanels.size(); bn++) {
     uint32_t blade = bn+1;
     uint32_t panel = 2;
     uint32_t temp = (blade<<2) | panel;
-    zmaxpanels[bn]->setGeographicalID(DetId(temp));
+    zmaxpanels[bn]->setGeographicalID(temp);
   }
   
   det->deleteComponents();

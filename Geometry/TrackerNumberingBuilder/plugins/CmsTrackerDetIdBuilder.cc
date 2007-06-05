@@ -17,8 +17,7 @@ CmsTrackerDetIdBuilder::CmsTrackerDetIdBuilder(){
 
 GeometricDet* CmsTrackerDetIdBuilder::buildId(GeometricDet* tracker){
 
-  DetId t;
-  t = DetId(DetId::Tracker,0);
+  DetId t(DetId::Tracker,0);
   tracker->setGeographicalID(t);
   iterate(tracker,0,tracker->geographicalID().rawId());
 
@@ -44,7 +43,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	uint32_t jSubDet = ((in)->components())[i]->geographicalID().rawId();
 	uint32_t temp = ID;
 	temp |= (jSubDet<<25);
-	((in)->components())[i]->setGeographicalID(DetId(temp));	
+	((in)->components())[i]->setGeographicalID(temp);	
 	
 	switch (jSubDet) {
 	 
@@ -160,7 +159,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	// SubDetector switch ends
       }
       
-      ((in)->components())[i]->setGeographicalID(DetId(temp));
+      ((in)->components())[i]->setGeographicalID(temp);
       
       // next level
       iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());      
@@ -182,7 +181,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  uint32_t temp = ID;
 	  // Ladder Starting bit = 2 (last unused) + 6 (Module Number) = 8
 	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
-	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
 	
@@ -192,7 +191,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  uint32_t temp = ID;
 	  // Blade Starting bit = 1 (last unused) + 5 (Module Number) + 2 (Plaquette part) = 8
 	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
-	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
 	
@@ -202,7 +201,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  uint32_t temp = ID;
 	  // Side+Part+String Starting bit = 2 (Module Type) + 2 (Module Number) = 4
 	  temp |= (((in)->components())[i]->geographicalID().rawId()<<4);
-	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
 	
@@ -222,7 +221,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  uint32_t temp = ID;
 	  // Side+Rod Starting bit = 2 (Module Type) + 3 (Module Number) = 5
 	  temp |= (((in)->components())[i]->geographicalID().rawId()<<5);
-	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
 	
@@ -232,7 +231,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  uint32_t temp = ID;
 	  // Petal+Part Starting bit = 2 (Module Type) + 3 (Module Number) + 3 (Ring Number) = 8
 	  temp |= (((in)->components())[i]->geographicalID().rawId()<<8);
-	  ((in)->components())[i]->setGeographicalID(DetId(temp));
+	  ((in)->components())[i]->setGeographicalID(temp);
 	  break;
 	}
 	
@@ -265,7 +264,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	    // Ring Starting bit = 2 (Module Type) + 3 (Module Number)
 	    uint32_t temp = ID;
 	    temp |= (((in)->components())[i]->geographicalID().rawId()<<5);
-	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    ((in)->components())[i]->setGeographicalID(temp);
 	    break;
 	  }
 	  
@@ -274,7 +273,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	  {
 	    uint32_t temp = ID;
 	    temp |= (((in)->components())[i]->geographicalID().rawId()<<2); // Starting bit = 2 (Module Type)
-	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    ((in)->components())[i]->setGeographicalID(temp);
 	  }
 	  
 	  // SubDetector switch ends
@@ -302,7 +301,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	    // Module Number bit = 2 (Module Type)
 	    uint32_t temp = ID;
 	    temp |= (((in)->components())[i]->geographicalID().rawId()<<2);
-	    ((in)->components())[i]->setGeographicalID(DetId(temp));
+	    ((in)->components())[i]->setGeographicalID(temp);
 	    // next level
 	    iterate(((in)->components())[i],level+1,((in)->components())[i]->geographicalID().rawId());
 	    break;
@@ -314,7 +313,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
 	    for (uint32_t i=0;i<(in)->components().size();i++) {
 	      uint32_t temp = ID;
 	      temp |= (((in)->components())[i]->geographicalID().rawId());
-	      ((in)->components())[i]->setGeographicalID(DetId(temp));
+	      ((in)->components())[i]->setGeographicalID(temp);
 	    }
 	  }
 	  
@@ -333,7 +332,7 @@ void CmsTrackerDetIdBuilder::iterate(GeometricDet const * in, int level, unsigne
       for (uint32_t i=0;i<(in)->components().size();i++) {
 	uint32_t temp = ID;
 	temp |= (((in)->components())[i]->geographicalID().rawId());
-      ((in)->components())[i]->setGeographicalID(DetId(temp));
+	((in)->components())[i]->setGeographicalID(temp);
       }
       break;
     }

@@ -82,7 +82,7 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
     for (GeometricDetContainer::const_iterator it = _container.begin();
 	 it != _container.end(); it++){
       ConstGeometricDetContainer _temp2 =  (**it).deepComponents();
-      copy(_temp2.begin(), _temp2.end(), back_inserter(_temp));
+      std::copy(_temp2.begin(), _temp2.end(), back_inserter(_temp));
     }
   }
   return _temp;
@@ -94,10 +94,12 @@ DetId GeometricDet::geographicalID() const {
 }
 
 void GeometricDet::addComponents(GeometricDetContainer const & cont){
-  for( GeometricDetContainer::const_iterator ig = cont.begin();
-      ig != cont.end();ig++){
-    _container.push_back(*ig);
+  if (_container.empty()) {
+    _container=cont;
+    return;
   }
+  _container.reserve(_container.size()+cont.size());
+  std::copy(cont.begin(), cont.end(), back_inserter(_container));
 }
 
 
@@ -106,7 +108,8 @@ void GeometricDet::addComponent(GeometricDet* det){
 }
 
 void GeometricDet::deleteComponents(){
-  _container.erase(_container.begin(),_container.end());
+  _container.clear();
+  //  _container.erase(_container.begin(),_container.end());
 }
 
 
