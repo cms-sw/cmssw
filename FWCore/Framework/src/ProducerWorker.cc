@@ -1,7 +1,7 @@
 
 
 /*----------------------------------------------------------------------
-$Id: ProducerWorker.cc,v 1.23 2006/10/31 23:54:01 wmtan Exp $
+$Id: ProducerWorker.cc,v 1.24 2006/11/03 17:57:52 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/ProducerWorker.h"
@@ -15,27 +15,55 @@ $Id: ProducerWorker.cc,v 1.23 2006/10/31 23:54:01 wmtan Exp $
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
-namespace edm
-{
+namespace edm {
   ProducerWorker::ProducerWorker(std::auto_ptr<EDProducer> ed,
-				 const ModuleDescription& md,
-				 const WorkerParams& wp) :
+				 ModuleDescription const& md,
+				 WorkerParams const& wp) :
     Worker(md,wp),
-    producer_(ed) {
+    producer_(ed)
+  {
     producer_->registerProducts(producer_, wp.reg_, md, true);
   }
 
   ProducerWorker::~ProducerWorker() {
   }
 
-  bool ProducerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
-				  CurrentProcessingContext const* cpc) {
+  bool
+  ProducerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
+			     BranchActionType,
+			     CurrentProcessingContext const* cpc) {
 
     bool rc = false;
 
     Event e(ep,description());
     producer_->doProduce(e, c, cpc);
     e.commit_();
+    rc = true;
+    return rc;
+  }
+
+  bool
+  ProducerWorker::implDoWork(RunPrincipal& rp, EventSetup const& c,
+			     BranchActionType bat,
+			     CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    Run r(rp,description());
+    if (bat == BranchActionBegin) producer_->doBeginRun(r,c,cpc);
+    else producer_->doEndRun(r,c,cpc);
+    r.commit_();
+    rc = true;
+    return rc;
+  }
+
+  bool
+  ProducerWorker::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			     BranchActionType bat,
+			     CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    if (bat == BranchActionBegin) producer_->doBeginLuminosityBlock(lb,c,cpc);
+    else producer_->doEndLuminosityBlock(lb,c,cpc);
+    lb.commit_();
     rc = true;
     return rc;
   }
@@ -48,50 +76,6 @@ namespace edm
     producer_->doEndJob();
   }
   
-  bool ProducerWorker::implBeginRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    producer_->doBeginRun(r,c,cpc);
-    r.commit_();
-    rc = true;
-    return rc;
-  }
-
-  bool ProducerWorker::implEndRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    producer_->doEndRun(r,c,cpc);
-    r.commit_();
-    rc = true;
-    return rc;
-  }
-
-  bool ProducerWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    producer_->doBeginLuminosityBlock(lb,c,cpc);
-    lb.commit_();
-    rc = true;
-    return rc;
-  }
-
-  bool ProducerWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    producer_->doEndLuminosityBlock(lb,c,cpc);
-    lb.commit_();
-    rc = true;
-    return rc;
-  }
-
   std::string ProducerWorker::workerType() const {
     return "EDProducer";
   }

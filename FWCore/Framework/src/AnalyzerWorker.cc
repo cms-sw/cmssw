@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: AnalyzerWorker.cc,v 1.13 2006/11/03 17:57:52 wmtan Exp $
+$Id: AnalyzerWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/AnalyzerWorker.h"
@@ -18,25 +18,21 @@ $Id: AnalyzerWorker.cc,v 1.13 2006/11/03 17:57:52 wmtan Exp $
 
 #include <iostream>
 
-using namespace std;
-
-namespace edm
-{
+namespace edm {
   AnalyzerWorker::AnalyzerWorker(std::auto_ptr<EDAnalyzer> ed,
-				 const ModuleDescription& md,
-				 const WorkerParams& wp):
+				 ModuleDescription const& md,
+				 WorkerParams const& wp):
     Worker(md,wp),
     analyzer_(ed)
   {
   }
 
-  AnalyzerWorker::~AnalyzerWorker()
-  {
+  AnalyzerWorker::~AnalyzerWorker() {
   }
 
   bool AnalyzerWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
+				  BranchActionType,
+				  CurrentProcessingContext const* cpc) {
     bool rc = false;
     Event e(ep,description());
     analyzer_->doAnalyze(e,c,cpc);
@@ -44,56 +40,36 @@ namespace edm
     return rc;
   }
 
-  void AnalyzerWorker::implBeginJob(EventSetup const& es) 
-  {
+  bool AnalyzerWorker::implDoWork(RunPrincipal& rp, EventSetup const& c,
+				  BranchActionType bat,
+				  CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    Run r(rp,description());
+    if (bat == BranchActionBegin) analyzer_->doBeginRun(r,c,cpc);
+    else analyzer_->doEndRun(r,c,cpc);
+    rc = true;
+    return rc;
+  }
+
+  bool AnalyzerWorker::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+				  BranchActionType bat,
+				  CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    if (bat == BranchActionBegin) analyzer_->doBeginLuminosityBlock(lb,c,cpc);
+    else analyzer_->doEndLuminosityBlock(lb,c,cpc);
+    rc = true;
+    return rc;
+  }
+
+  void AnalyzerWorker::implBeginJob(EventSetup const& es) {
     analyzer_->doBeginJob(es);
   }
 
-  void AnalyzerWorker::implEndJob() 
-  {
+  void AnalyzerWorker::implEndJob() {
     analyzer_->doEndJob();
   }
   
-  bool AnalyzerWorker::implBeginRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    analyzer_->doBeginRun(r,c,cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool AnalyzerWorker::implEndRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    analyzer_->doEndRun(r,c,cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool AnalyzerWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    analyzer_->doBeginLuminosityBlock(lb,c,cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool AnalyzerWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    analyzer_->doEndLuminosityBlock(lb,c,cpc);
-    rc = true;
-    return rc;
-  }
-
   std::string AnalyzerWorker::workerType() const {
     return "EDAnalyzer";
   }

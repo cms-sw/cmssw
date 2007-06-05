@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: FilterWorker.cc,v 1.13 2006/11/03 17:57:52 wmtan Exp $
+$Id: FilterWorker.cc,v 1.14 2007/03/04 06:10:25 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <memory>
 
@@ -17,27 +17,23 @@ $Id: FilterWorker.cc,v 1.13 2006/11/03 17:57:52 wmtan Exp $
 
 #include <iostream>
 
-using namespace std;
-
-namespace edm
-{
+namespace edm {
   FilterWorker::FilterWorker(std::auto_ptr<EDFilter> ed,
-			     const ModuleDescription& md,
-			     const WorkerParams& wp):
+			     ModuleDescription const& md,
+			     WorkerParams const& wp):
    Worker(md, wp),
    filter_(ed)
   {
     filter_->registerProducts(filter_, wp.reg_, md, false);
   }
 
-  FilterWorker::~FilterWorker()
-  {
+  FilterWorker::~FilterWorker() {
   }
 
   bool 
   FilterWorker::implDoWork(EventPrincipal& ep, EventSetup const& c,
-			   CurrentProcessingContext const* cpc)
-  {
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
     bool rc = false;
     Event e(ep,description());
     rc = filter_->doFilter(e, c, cpc);
@@ -45,56 +41,38 @@ namespace edm
     return rc;
   }
 
+  bool
+  FilterWorker::implDoWork(RunPrincipal& rp, EventSetup const& c,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    Run r(rp,description());
+    if (bat == BranchActionBegin) rc = filter_->doBeginRun(r,c,cpc);
+    else rc = filter_->doEndRun(r,c,cpc);
+    r.commit_();
+    return rc;
+  }
+
+  bool
+  FilterWorker::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    LuminosityBlock lb(lbp,description());
+    if (bat == BranchActionBegin) rc = filter_->doBeginLuminosityBlock(lb,c,cpc);
+    else rc = filter_->doEndLuminosityBlock(lb,c,cpc);
+    lb.commit_();
+    return rc;
+  }
+
   void 
-  FilterWorker::implBeginJob(EventSetup const& es) 
-  {
+  FilterWorker::implBeginJob(EventSetup const& es) {
     filter_->doBeginJob(es);
   }
 
   void 
-  FilterWorker::implEndJob() 
-  {
+  FilterWorker::implEndJob() {
    filter_->doEndJob();
-  }
-
-  bool FilterWorker::implBeginRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    rc = filter_->doBeginRun(r,c,cpc);
-    r.commit_();
-    return rc;
-  }
-
-  bool FilterWorker::implEndRun(RunPrincipal& rp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    Run r(rp,description());
-    rc = filter_->doEndRun(r,c,cpc);
-    r.commit_();
-    return rc;
-  }
-
-  bool FilterWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    rc = filter_->doBeginLuminosityBlock(lb,c,cpc);
-    lb.commit_();
-    return rc;
-  }
-
-  bool FilterWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    LuminosityBlock lb(lbp,description());
-    rc = filter_->doEndLuminosityBlock(lb,c,cpc);
-    lb.commit_();
-    return rc;
   }
 
   std::string FilterWorker::workerType() const {

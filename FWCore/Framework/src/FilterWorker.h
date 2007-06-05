@@ -1,5 +1,5 @@
-#ifndef Framework_FilterWorker_h
-#define Framework_FilterWorker_h
+#ifndef FWCore_Framework_FilterWorker_h
+#define FWCore_Framework_FilterWorker_h
 
 /*----------------------------------------------------------------------
   
@@ -8,7 +8,7 @@ this object is to call the filter.
 According to our current definition, a single filter can only
 appear in one worker.
 
-$Id: FilterWorker.h,v 1.16 2006/09/01 18:16:42 wmtan Exp $
+$Id: FilterWorker.h,v 1.17 2006/11/03 17:57:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,50 +19,45 @@ $Id: FilterWorker.h,v 1.16 2006/09/01 18:16:42 wmtan Exp $
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
-namespace edm
-{
+namespace edm {
 
-  class FilterWorker : public Worker
-  {
+  class FilterWorker : public Worker {
   public:
     FilterWorker(std::auto_ptr<EDFilter>,
-		 const ModuleDescription&,
-		 const WorkerParams&);
+		 ModuleDescription const&,
+		 WorkerParams const&);
     virtual ~FilterWorker();
 
     template <class ModType>
-    static std::auto_ptr<EDFilter> makeOne(const ModuleDescription&,
-					   const WorkerParams&);
+    static std::auto_ptr<EDFilter> makeOne(ModuleDescription const&,
+					   WorkerParams const&);
 
   private:
     virtual bool implDoWork(EventPrincipal& e, EventSetup const& c,
+			    BranchActionType,
+			    CurrentProcessingContext const* cpc);
+    virtual bool implDoWork(RunPrincipal& rp, EventSetup const& c,
+			    BranchActionType bat,
+			    CurrentProcessingContext const* cpc);
+    virtual bool implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+			    BranchActionType bat,
 			    CurrentProcessingContext const* cpc);
     virtual void implBeginJob(EventSetup const&) ;
     virtual void implEndJob() ;
-    virtual bool implBeginRun(RunPrincipal& rp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc);
-    virtual bool implEndRun(RunPrincipal& rp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc);
-    virtual bool implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc);
-    virtual bool implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
-			    CurrentProcessingContext const* cpc);
     virtual std::string workerType() const;
 
     boost::shared_ptr<EDFilter> filter_;
   };
 
   template <> 
-  struct WorkerType<EDFilter>
-  {
+  struct WorkerType<EDFilter> {
     typedef EDFilter ModuleType;
     typedef FilterWorker worker_type;
   };
 
   template <class ModType>
-  std::auto_ptr<EDFilter> FilterWorker::makeOne(const ModuleDescription&,
-						const WorkerParams& wp)
-  {
+  std::auto_ptr<EDFilter> FilterWorker::makeOne(ModuleDescription const&,
+						WorkerParams const& wp) {
     return std::auto_ptr<EDFilter>(new ModType(*wp.pset_));
   }
 

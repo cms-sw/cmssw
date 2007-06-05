@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.9 2007/04/09 22:18:55 wdd Exp $
+$Id: RunPrincipal.h,v 1.10 2007/05/29 19:32:03 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,6 +18,7 @@ $Id: RunPrincipal.h,v 1.9 2007/04/09 22:18:55 wdd Exp $
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
+  class UnscheduledHandler;
   class RunPrincipal : private Principal {
   typedef Principal Base;
   public:
@@ -64,6 +65,8 @@ namespace edm {
     using Base::put;
     using Base::size;
     using Base::store;
+
+    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 
   private:
     virtual bool unscheduledFill(Provenance const&) const {return false;}

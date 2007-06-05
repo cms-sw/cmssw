@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------
-$Id: OutputWorker.cc,v 1.20 2007/03/07 00:03:25 wmtan Exp $
+$Id: OutputWorker.cc,v 1.21 2007/03/22 06:09:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/OutputModule.h"
@@ -12,14 +12,13 @@ $Id: OutputWorker.cc,v 1.20 2007/03/07 00:03:25 wmtan Exp $
 
 #include <iostream>
 
-using namespace std;
-
 namespace edm {
   OutputWorker::OutputWorker(std::auto_ptr<OutputModule> mod,
 			     ModuleDescription const& md,
 			     WorkerParams const& wp):
       Worker(md,wp),
-      mod_(mod) {
+      mod_(mod)
+  {
   }
 
   OutputWorker::~OutputWorker() {
@@ -27,6 +26,7 @@ namespace edm {
 
   bool 
   OutputWorker::implDoWork(EventPrincipal& ep, EventSetup const&,
+			   BranchActionType,
 			   CurrentProcessingContext const* cpc) {
     // EventSetup is not (yet) used. Should it be passed to the
     // OutputModule?
@@ -34,6 +34,29 @@ namespace edm {
 
     mod_->writeEvent(ep,description(), cpc);
     rc=true;
+    return rc;
+  }
+
+  bool
+  OutputWorker::implDoWork(RunPrincipal& rp, EventSetup const&,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    if (bat == BranchActionBegin) mod_->doBeginRun(rp,description(),cpc);
+    else mod_->doEndRun(rp,description(),cpc);
+    rc = true;
+    return rc;
+  }
+
+
+  bool
+  OutputWorker::implDoWork(LuminosityBlockPrincipal& lbp, EventSetup const&,
+			   BranchActionType bat,
+			   CurrentProcessingContext const* cpc) {
+    bool rc = false;
+    if (bat == BranchActionBegin) mod_->doBeginLuminosityBlock(lbp,description(),cpc);
+    else mod_->doEndLuminosityBlock(lbp,description(),cpc);
+    rc = true;
     return rc;
   }
 
@@ -47,43 +70,6 @@ namespace edm {
   OutputWorker::implEndJob() {
     mod_->doEndJob();
   }
-
-  bool OutputWorker::implBeginRun(RunPrincipal& rp, EventSetup const&,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    mod_->doBeginRun(rp,description(),cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool OutputWorker::implEndRun(RunPrincipal& rp, EventSetup const&,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    mod_->doEndRun(rp,description(),cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool OutputWorker::implBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const&,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    mod_->doBeginLuminosityBlock(lbp,description(),cpc);
-    rc = true;
-    return rc;
-  }
-
-  bool OutputWorker::implEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const&,
-				  CurrentProcessingContext const* cpc)
-  {
-    bool rc = false;
-    mod_->doEndLuminosityBlock(lbp,description(),cpc);
-    rc = true;
-    return rc;
-  }
-
 
   std::string OutputWorker::workerType() const {
     return "OutputModule";

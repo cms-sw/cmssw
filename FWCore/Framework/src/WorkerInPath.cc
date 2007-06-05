@@ -2,8 +2,7 @@
 
 #include "FWCore/Framework/src/WorkerInPath.h"
 
-namespace edm
-{
+namespace edm {
   WorkerInPath::WorkerInPath(Worker* w, FilterAction theFilterAction):
     stopwatch_(new RunStopwatch::StopwatchPointer::element_type),
     timesVisited_(),
@@ -24,43 +23,6 @@ namespace edm
     filterAction_(Normal),
     worker_(w)
   {
-  }
-
-  bool WorkerInPath::runWorker(EventPrincipal& ep, EventSetup const & es,
-			       BranchActionType const& bat,
-			       CurrentProcessingContext const* cpc)
-  {
-    bool const isEvent = (bat == BranchActionEvent);
-
-    // A RunStopwatch, but only if we are processing an event.
-    std::auto_ptr<RunStopwatch> stopwatch(isEvent ? new RunStopwatch(stopwatch_) : 0);
-
-    if (isEvent) {
-      ++timesVisited_;
-    }
-    bool rc = true;
-
-    try {
-	// may want to change the return value from the worker to be 
-	// the Worker::FilterAction so conditions in the path will be easier to 
-	// identify
-	rc = worker_->doWork(ep, es, bat, cpc);
-
-        // Ignore return code for non-event (e.g. run, lumi) calls
-	if (!isEvent) rc = true;
-	else if (filterAction_ == Veto) rc = !rc;
-        else if (filterAction_ == Ignore) rc = true;
-
-	if (isEvent) {
-	  if(rc) ++timesPassed_; else ++timesFailed_;
-	}
-    }
-    catch(...) {
-	if (isEvent) ++timesExcept_;
-	throw;
-    }
-
-    return rc;
   }
 
 }
