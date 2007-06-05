@@ -11,9 +11,16 @@
 <use name=MagneticField/Records>
 <use name=Geometry/Records>
 <use name=Geometry/TrackerGeometryBuilder>
-<use name=RecoTracker/TransientTrackingRecHit> 
-<use name=TrackingTools/TransientTrack> 
+<use name=RecoTracker/GeometryESProducer>
+<use name=RecoTracker/TransientTrackingRecHit>
+<use name=TrackingTools/MeasurementDet>
+<use name=RecoTracker/MeasurementDet>
+<use name=TrackingTools/TransientTrack>
+<use name=TrackingTools/DetLayers> 
 <use name=DataFormats/Common>
+<use name=DataFormats/MuonReco>
+<use name=HLTrigger/HLTcore>
+<use name=DataFormats/L1Trigger>
 <use name=rootrflx>
 
 <flags SEAL_PLUGIN_NAME="RecoHIMuonHiMuSeed">
@@ -29,7 +36,17 @@
    <use name=DataFormats/Math>
    <use name=MagneticField/Engine>
    <use name=MagneticField/Records>
+   <use name=Geometry/Records>
+   <use name=Geometry/TrackerGeometryBuilder>
+   <use name=TrackingTools/MeasurementDet>
+   <use name=RecoTracker/MeasurementDet>
+   <use name=RecoTracker/GeometryESProducer>
+   <use name=TrackingTools/DetLayers>
    <use name=DataFormats/Common>
+   <use name=DataFormats/MuonReco>
+   <use name=HLTrigger/HLTcore>
+   <use name=DataFormats/L1Trigger>
+
    <use name=rootrflx>
    <use name=clhep>
 </export>
