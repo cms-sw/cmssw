@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.4 2007/06/04 13:29:47 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.5 2007/06/04 13:30:23 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -20,7 +20,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -79,7 +79,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
     if( !root_file.is_open() ) {
       edm::LogError(mlDqmClient_)
 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-	<< " The input Root file \"" << *ifile
+	<< " The input root file \"" << *ifile
 	<< "\" could not be opened!"
 	<< " Please check the path and filename!"
 	<< " Aborting...";
@@ -164,17 +164,19 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   mui_->getContents( contents ); 
   
   // If merged histos exist, remove FU directories from list
-  std::vector<std::string> temp;
-  std::vector<std::string>::iterator istr = contents.begin();
-  for ( ; istr != contents.end(); istr++ ) {
-    if ( istr->find("Collector") == std::string::npos &&
- 	 istr->find("EvF") == std::string::npos &&
-	 istr->find("FU") == std::string::npos ) { 
-      temp.push_back( *istr );
+  if ( clientHistos_ ) {
+    std::vector<std::string> temp;
+    std::vector<std::string>::iterator istr = contents.begin();
+    for ( ; istr != contents.end(); istr++ ) {
+      if ( istr->find("Collector") == std::string::npos &&
+	   istr->find("EvF") == std::string::npos &&
+	   istr->find("FU") == std::string::npos ) { 
+	temp.push_back( *istr );
+      }
     }
+    contents.clear();
+    contents = temp;
   }
-  contents.clear();
-  contents = temp;
   
   // Some debug
   edm::LogVerbatim(mlDqmClient_)
@@ -272,11 +274,19 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   
   // Perform collation
   if ( collateHistos_ ) { 
-    if ( histos_ ) { histos_->createCollations( contents ); }
+    if ( histos_ ) { 
+      if ( !clientHistos_ ) { histos_->createCollations( contents ); }
+      else { histos_->extractHistograms( contents ); }
+    }
   } else {
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
       << " No histogram collation performed!";
+  }
+  
+  // Some debug
+  if ( edm::isDebugEnabled() ) {
+    if ( histos_ ) { histos_->printHistosMap(); }
   }
     
   // Trigger update methods
@@ -336,13 +346,13 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   }
   
   // Save client root file
-  if ( histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
+  if ( !clientHistos_ && histos_ ) { histos_->save( outputFileName_, runNumber_ ); }
   
   // Virtual method to trigger the database upload
   uploadToDb();
   
   // Remove all ME/CME objects and delete MUI
-  if ( histos_ ) { histos_->remove(); }
+  //if ( histos_ ) { histos_->remove(); }
   if ( mui_ ) { 
     if ( mui_->getBEInterface() ) { 
       mui_->getBEInterface()->setVerbose(0); 
