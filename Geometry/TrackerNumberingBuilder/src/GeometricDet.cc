@@ -102,7 +102,7 @@ DetId GeometricDet::geographicalID() const {
   return _geographicalID;
 }
 
-void GeometricDet::addComponents(GeometricDetContainer cont){
+void GeometricDet::addComponents(GeometricDetContainer const & cont){
   for( GeometricDetContainer::iterator ig = cont.begin();
       ig != cont.end();ig++){
     _container.push_back(*ig);
@@ -157,6 +157,6 @@ const Bounds * GeometricDet::bounds() const{
   return bounds;
 }
 
-GeometricDet::GeometricDetContainer GeometricDet::components(){
+GeometricDet::GeometricDetContainer const & GeometricDet::components(){
   return _container;
 }

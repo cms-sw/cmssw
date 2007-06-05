@@ -1,6 +1,6 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
-CmsTrackerStringToEnum::Impl impl;
+CmsTrackerStringToEnum::Impl CmsTrackerStringToEnum::m_impl;
 
 CmsTrackerStringToEnum::Impl::Impl(){
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("FullTracker",GeometricDet::Tracker));

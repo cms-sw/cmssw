@@ -25,6 +25,7 @@ class CmsTrackerStringToEnum {
     MapEnumType _map;
     static ReverseMapEnumType _reverseMap;
   };
+
   static Impl m_impl;
 
 };

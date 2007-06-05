@@ -54,8 +54,8 @@ class GeometricDet {
    * set or add or clear components
    */
   void setGeographicalID(DetId id){_geographicalID = id;}
-  void setComponents(GeometricDetContainer cont){_container = cont;}
-  void addComponents(GeometricDetContainer cont);
+  void setComponents(GeometricDetContainer const & cont){_container = cont;}
+  void addComponents(GeometricDetContainer const & cont);
   void addComponent(GeometricDet*);
   /**
    * clearComponents() only empties the container, the components are not deleted!
