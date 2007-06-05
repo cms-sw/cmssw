@@ -1,6 +1,9 @@
 #ifndef DTT0GEOMRCD_H
 #define DTT0GEOMRCD_H
 
-#include "FWCore/Framework/interface/DependentRecordImplementation.h.h"
-class DTT0Rcd : public edm::eventsetup::DependentRecordImplementation<DTT0GeomRcd, boost::mpl::vector<MuonGeometryRecord> > {};
+#include "boost/mpl/vector.hpp"
+#include "Geometry/Records/interface/MuonGeometryRecord.h"
+
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+class DTT0GeomRcd : public edm::eventsetup::DependentRecordImplementation<DTT0GeomRcd, boost::mpl::vector<MuonGeometryRecord> > {};
 #endif
