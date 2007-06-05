@@ -268,9 +268,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    cscData[iCSC].alctHeader().ALCTDigis();
 			  
 			  ///ugly kludge to fix wiregroup numbering in MTCC data
-			  if ((((layer.ring()==3)&&(layer.station()==1))||
-			       ((layer.ring()==1)&&(layer.station()==3))||
-			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			  if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
+						  ((layer.ring()==1)&&(layer.station()==3))||
+						  ((layer.ring()==1)&&(layer.station()==4))))
 			    {
 			      for (int unsigned i=0; i<alctDigis.size(); ++i) 
 				{
@@ -316,9 +316,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			    cscData[iCSC].tmbHeader().CorrelatedLCTDigis();
 		      
 			  ///ugly kludge to fix wiregroup numbering in MTCC data
-			  if ((((layer.ring()==3)&&(layer.station()==1))||
-			       ((layer.ring()==1)&&(layer.station()==3))||
-			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			  if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
+						  ((layer.ring()==1)&&(layer.station()==3))||
+						  ((layer.ring()==1)&&(layer.station()==4))))
 			    {
 			      for (int unsigned i=0; i<correlatedlctDigis.size(); ++i) 
 				{
@@ -388,9 +388,9 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 			  std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
 
 			  ///ugly kludge to fix wire group numbers for ME3/1, ME4/1 and ME1/3 chambers in MTCC data
-			  if ((((layer.ring()==3)&&(layer.station()==1))||
-			       ((layer.ring()==1)&&(layer.station()==3))||
-			       ((layer.ring()==1)&&(layer.station()==4))) && unpackMTCCData)
+			  if ( unpackMTCCData && (((layer.ring()==3)&&(layer.station()==1))||
+						  ((layer.ring()==1)&&(layer.station()==3))||
+						  ((layer.ring()==1)&&(layer.station()==4))))
 			    {
 			      for (int unsigned i=0; i<wireDigis.size(); ++i) 
 				{
