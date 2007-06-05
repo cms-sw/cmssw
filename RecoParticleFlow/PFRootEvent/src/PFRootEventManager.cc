@@ -110,20 +110,12 @@ PFRootEventManager::PFRootEventManager(const char* file)
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;  
-//   rechitsECAL_.clear();
-//   rechitsHCAL_.clear();
-//   rechitsPS_.clear();
-//   recTracks_.clear();
-//   stdTracks_.clear();
-//   clustersECAL_->clear();
-//   clustersHCAL_->clear();
-//   clustersPS_->clear();
-//   clustersIslandBarrel_.clear();
-//   trueParticles_.clear();
 
-
-  if(outEvent_) outEvent_->reset();
-  
+  if(outEvent_) {
+    outEvent_->reset();
+    outTree_->GetBranch("event")->SetAddress(&outEvent_);
+  } 
+ 
 }
 
 void PFRootEventManager::readOptions(const char* file, 
@@ -180,12 +172,10 @@ void PFRootEventManager::readOptions(const char* file,
     options_->GetOpt("root","outtree", doOutTree);
     if(doOutTree) {
       outFile_->cd();
-      // cout<<"do tree"<<endl;
       outEvent_ = new EventColin();
       outTree_ = new TTree("Eff","");
       outTree_->Branch("event","EventColin", &outEvent_,32000,2);
     }
-    // cout<<"don't do tree"<<endl;
   }
 
 
@@ -507,21 +497,6 @@ void PFRootEventManager::readOptions(const char* file,
 	<<"wrong calibration coefficients for ECAL"<<endl;
   }
 
-//   if(ecalib.size() == 2) {
-// // CV: PFBlock::setEcalib(ecalib[0], ecalib[1]);
-// //     std::cout << "setting ECAL calibration for electrons/photons:" <<std::endl;
-// //     std::cout << " slope = " << ecalib[1] << std::endl;
-// //     std::cout << " offset = " << ecalib[0] << std::endl;
-// //     energyCalibration_->setCalibrationParametersEm(ecalib[1], ecalib[0]); 
-//   } else {
-// // CV: PFBlock::setEcalib(0, 1);
-//     energyCalibration_->setCalibrationParametersEm(1., 0.);
-// =======
-//     eCalibP0 = ecalib[0];
-//     eCalibP1 = ecalib[1]; 
-// >>>>>>> 1.50.2.2
-//   }
-  
 
   double nSigmaECAL = 99999;
   options_->GetOpt("particle_flow", "nsigma_ECAL", nSigmaECAL);
@@ -600,6 +575,18 @@ void PFRootEventManager::connect( const char* infilename ) {
 
   options_->GetOpt("root","file", inFileName_);
   
+
+
+  try {
+    AutoLibraryLoader::enable();
+  }
+  catch(string& err) {
+    cout<<err<<endl;
+  }
+
+
+
+
   file_ = TFile::Open(inFileName_.c_str() );
 
 
@@ -611,7 +598,7 @@ void PFRootEventManager::connect( const char* infilename ) {
     cout<<"rootfile "<<inFileName_
 	<<" opened"<<endl;
 
-  AutoLibraryLoader::enable();
+  
 
   tree_ = (TTree*) file_->Get("Events");  
   if(!tree_) {
@@ -620,8 +607,10 @@ void PFRootEventManager::connect( const char* infilename ) {
 	<<inFileName_<<endl;
     return; 
   }
+
   tree_->GetEntry();
-    
+   
+  
   // hits branches ----------------------------------------------
 
   string rechitsECALbranchname;
@@ -659,6 +648,7 @@ void PFRootEventManager::connect( const char* infilename ) {
   clustersHCALBranch_ = 0;
   clustersPSBranch_ = 0;
 
+
   if( !clusteringIsOn_ ) {
     string clustersECALbranchname;
     options_->GetOpt("root","clusters_ECAL_branch", clustersECALbranchname);
@@ -669,6 +659,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 	   <<clustersECALbranchname<<endl;
     }
   
+
     string clustersHCALbranchname;
     options_->GetOpt("root","clusters_HCAL_branch", clustersHCALbranchname);
     
@@ -687,6 +678,7 @@ void PFRootEventManager::connect( const char* infilename ) {
 	  <<clustersPSbranchname<<endl;
     }
   }
+
   // other branches ----------------------------------------------
   
   
@@ -795,7 +787,8 @@ PFRootEventManager::~PFRootEventManager() {
   }
 
   if(outEvent_) delete outEvent_;
-  if(outTree_)  delete outTree_;
+
+
 
   for( unsigned i=0; i<displayView_.size(); i++) {
     if(displayView_[i]) delete displayView_[i];
@@ -928,7 +921,6 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   bool goodevent = true;
   if(trueParticlesBranch_ ) {
     // this is a filter to select single particle events.
-    // usually not active
     if(filterNParticles_ && 
        trueParticles_.size() != filterNParticles_ ) {
       cout << "PFRootEventManager : event discarded Nparticles="
@@ -939,6 +931,9 @@ bool PFRootEventManager::readFromSimulation(int entry) {
       cout << "PFRootEventManager : leptonic tau discarded " << endl; 
       goodevent =  false;
     }
+    if(goodevent)
+      fillOutEventWithSimParticles( trueParticles_ );
+
   }
   if(rechitsECALBranch_) {
     PreprocessRecHits( rechitsECAL_ , findRecHitNeighbours_);
@@ -977,11 +972,12 @@ bool PFRootEventManager::isHadronicTau() const {
 	const reco::PFSimParticle& daughter 
 	  = trueParticles_[ptcdaughters[dapt]];
 	
+
 	int pdgdaugther = daughter.pdgCode();
 	int abspdgdaughter = abs(pdgdaugther);
 
-// 	unsigned test = daughter.pdgCode();
-// 	cout<<"test "<<test<<endl;
+	// unsigned test = daughter.pdgCode();
+	// cout<<"test "<<test<<endl;
 
 	if (abspdgdaughter == 11 || 
 	    abspdgdaughter == 13) { 
@@ -1094,6 +1090,7 @@ void PFRootEventManager::clustering() {
 }
 
 
+
 void 
 PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection& 
 					     clusters) {
@@ -1111,6 +1108,31 @@ PFRootEventManager::fillOutEventWithClusters(const reco::PFClusterCollection&
   }   
 
 }
+
+
+
+void 
+PFRootEventManager::fillOutEventWithSimParticles(const reco::PFSimParticleCollection& trueParticles ) {
+
+  if(!outEvent_) return;
+  
+  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
+    
+    const reco::PFSimParticle& ptc = trueParticles_[i];
+    const reco::PFTrajectoryPoint& tpatecal 
+      = ptc.trajectoryPoint(1);
+    
+    // cout<<tpatecal<<endl;
+    
+    EventColin::Particle outptc;
+    outptc.eta = tpatecal.positionXYZ().Eta();
+    outptc.phi = tpatecal.positionXYZ().Phi();    
+    outptc.e = tpatecal.momentum().E();
+    
+    outEvent_->addParticle(outptc);
+  }   
+}
+
 
 
 void PFRootEventManager::particleFlow() {

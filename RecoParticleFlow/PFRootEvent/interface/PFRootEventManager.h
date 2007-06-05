@@ -185,6 +185,9 @@ class PFRootEventManager {
   /// fills OutEvent with clusters
   void fillOutEventWithClusters(const reco::PFClusterCollection& clusters);
 
+  /// fills OutEvent with sim particles
+  void fillOutEventWithSimParticles(const reco::PFSimParticleCollection& ptcs);
+
   /// performs particle flow
   void particleFlow();
 
