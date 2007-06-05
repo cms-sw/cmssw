@@ -13,7 +13,7 @@
 //
 // Original Author:  Emmanuelle Perez
 //         Created:  Sat Nov 25 13:59:51 CET 2006
-// $Id: EcalDigiToRaw.cc,v 1.4 2007/03/28 16:27:32 eperez Exp $
+// $Id: EcalDigiToRaw.cc,v 1.5 2007/04/10 23:08:06 wmtan Exp $
 //
 //
 
@@ -67,6 +67,7 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
 
+   labelTT_ = iConfig.getParameter<edm::InputTag>("labelTT");
 
    counter_ = 0;
    debug_ = iConfig.getUntrackedParameter<bool>("debug");
@@ -141,8 +142,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (doTCC_) {
 
      if (debug_) cout << "Creation of the TCC block  " << endl;
-     iEvent.getByType(ecalTrigPrim);
-
+     // iEvent.getByType(ecalTrigPrim);
+	iEvent.getByLabel(labelTT_, ecalTrigPrim);
 
      for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
 			   it != ecalTrigPrim -> end(); it++) {
