@@ -23,7 +23,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_paused(false) {
   static std::string const allPaths("ALL");
   m_allPaths = std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end();
- 
+  
   // either FullEvent or selected path
   static std::string const fullEvent("FullEvent");
   if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
@@ -35,7 +35,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
     activity.watchPostProcessPath(this,&ProfilerService::endPathI);
   }
 }
-  ,
+
 ProfilerService::~ProfilerService(){}
 
 bool ProfilerService::startInstrumentation(){
@@ -68,14 +68,14 @@ bool ProfilerService::forceStopInstrumentation() {
   return true;
 }
 
-bool  ProfilerService:pauseInstrumentation() {
+bool ProfilerService::pauseInstrumentation() {
    if (m_active==0) return false;
    CALLGRIND_STOP_INSTRUMENTATION;
    m_paused=true;
    return true;
 }   
 
-bool  ProfilerService:resumeInstrumentation() {
+bool ProfilerService::resumeInstrumentation() {
   if (m_active==0 || (!m_paused)) return false;
   CALLGRIND_START_INSTRUMENTATION;
   CALLGRIND_DUMP_STATS;
