@@ -11,15 +11,20 @@ class CmsTrackerStringToEnum {
  public:
   typedef std::map<std::string, GeometricDet::GeometricEnumType> MapEnumType;
   typedef std::map<GeometricDet::GeometricEnumType, std::string> ReverseMapEnumType;
-
-  CmsTrackerStringToEnum();
   
-  GeometricDet::GeometricEnumType type(std::string);
-  std::string name(GeometricDet::GeometricEnumType);
+  GeometricDet::GeometricEnumType type(std::string const&) const;
+  std::string const & name(GeometricDet::GeometricEnumType) const;
 
  private:
-  MapEnumType _map;
-  ReverseMapEnumType _reverseMap;
+  static MapEnumType const & map() { return m_impl._map;}
+  static ReverseMapEnumType const & reverseMap() { return m_impl._reverseMap;}
+
+  // a quick fix
+  struct Impl {
+    MapEnumType _map;
+    static ReverseMapEnumType _reverseMap;
+  };
+  static Impl m_impl;
 
 };
 #endif

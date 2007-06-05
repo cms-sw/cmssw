@@ -1,9 +1,8 @@
 #include "Geometry/TrackerNumberingBuilder/interface/CmsTrackerStringToEnum.h"
 
-CmsTrackerStringToEnum::CmsTrackerStringToEnum(){
-  _map.clear();
-  _reverseMap.clear();
+static CmsTrackerStringToEnum::Impl impl;
 
+CmsTrackerStringToEnum::Impl::Impl(){
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("FullTracker",GeometricDet::Tracker));
 
   _map.insert(std::pair<std::string, GeometricDet::GeometricEnumType>("PixelBarrel",GeometricDet::PixelBarrel));
@@ -69,15 +68,18 @@ CmsTrackerStringToEnum::CmsTrackerStringToEnum(){
   // done
   //
 }
-GeometricDet::GeometricEnumType CmsTrackerStringToEnum::type(std::string s){
-  if (_map.find(s) != _map.end())
-    return (_map.find(s))->second;
+
+GeometricDet::GeometricEnumType CmsTrackerStringToEnum::type(std::string const & s) const{
+  MapEnumType::const_iterator p=map().find(s);
+  if ( p.find(s) != map().end()) return p->second;
   return GeometricDet::unknown;
 }
 
-std::string CmsTrackerStringToEnum::name(GeometricDet::GeometricEnumType t){
-  if (_reverseMap.find(t) != _reverseMap.end())
-    return (_reverseMap.find(t))->second;
-  return "Unknown";
+std::string const & CmsTrackerStringToEnum::name(GeometricDet::GeometricEnumType t) const {
+  static std::string const u("Unknown");
+  ReverseMapEnumType::const_iterator p=reverseMap.find(t); 
+  if (p!= _reverseMap.end())
+    return p->second;
+  return u;
 }
 
