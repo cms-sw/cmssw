@@ -70,7 +70,6 @@ class CSCFakeCrosstalkMap{
 		itemvector[istrip].xtalk_chi2_left      = 2.00;
 		
 		id_layer = 100000*iendcap+10000*istation+1000*iring+100*ichamber+10*ilayer+ilayer;
-		std::cout<<" ID is: "<<id_layer<<std::endl;
 		cncrosstalk->crosstalk[id_layer]=itemvector;
 	      }
 	    }

@@ -74,10 +74,7 @@ class CSCFakeNoiseMatrixMap{
 		itemvector[istrip].elem66 = 3.00;
 		itemvector[istrip].elem67 = 4.00;
 		itemvector[istrip].elem77 = 10.0;
-		
-
-		  std::cout<<" ID is: "<<id_layer<<std::endl;
-		  cnmatrix->matrix[id_layer]=itemvector;
+		cnmatrix->matrix[id_layer]=itemvector;
 	      }
 	    }
 	  }
