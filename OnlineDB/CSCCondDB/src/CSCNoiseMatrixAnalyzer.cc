@@ -139,7 +139,7 @@ CSCNoiseMatrixAnalyzer::~CSCNoiseMatrixAnalyzer(){
     lines++;
     getline(filein,PSet);
     
-    if (lines==3){
+    if (lines==2){
       name=PSet;  
       std::cout<<name<<std::endl;
     }

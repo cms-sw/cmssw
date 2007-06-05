@@ -128,7 +128,9 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 		    adcMax[iDDU][i_chamber][i_layer-1][strip-1]=adc[k]-ped;
 		  }
 		}
-		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/20.;  
+		//changed from 20 to 100 events per setting!!!
+
+		adcMean_max[iDDU][i_chamber][i_layer-1][strip-1] += adcMax[iDDU][i_chamber][i_layer-1][strip-1]/100.;  
 		
 		//On the 20th event save
 		if (evt%20 == 0 && (strip-1)%16 == (evt-1)/NUMMODTEN_ga){
@@ -140,6 +142,7 @@ void CSCGainAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup
 	  }//end layer loop
 	}//end chamber loop
 	
+	//was %20
 	if((evt-1)%20==0){
 	  for(int iii=0;iii<DDU_ga;iii++){
 	    for(int ii=0; ii<CHAMBERS_ga; ii++){
@@ -169,7 +172,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
     lines++;
     getline(filein,PSet);
     
-    if (lines==3){
+    if (lines==2){
       name=PSet;  
       std::cout<<name<<std::endl;
     }
@@ -254,7 +257,7 @@ CSCGainAnalyzer::~CSCGainAnalyzer(){
 		gainSlope     = ((NUMBERPLOTTED_ga*sumOfXY) - (sumOfX * sumOfY))/((NUMBERPLOTTED_ga*sumx2) - (sumOfX*sumOfX));//k
 		gainIntercept = ((sumOfY*sumx2)-(sumOfX*sumOfXY))/((NUMBERPLOTTED_ga*sumx2)-(sumOfX*sumOfX));//m
 		
-		if (gainSlope <3.0)  gainSlope = 0.0;
+		//if (gainSlope <3.0)  gainSlope = 0.0;
 		if (isnan(gainSlope)) gainSlope = 0.0;
 		
 		for(int ii=0; ii<NUMBERPLOTTED_ga; ii++){

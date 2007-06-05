@@ -351,7 +351,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
     lines++;
     getline(filein,PSet);
     
-    if (lines==3){
+    if (lines==2){
       name=PSet;  
     }
   }
@@ -659,15 +659,15 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  thePedestal  = arrayPed[iii][i][j][k];
 	  meanPedestal = arrayOfPed[iii][i][j][k]/evt;
 	  newPed[fff]  = meanPedestal;
-	  meanPedestalSquare = arrayOfPedSquare[iii][i][j][k] / evt;
+	  meanPedestalSquare = arrayOfPedSquare[iii][i][j][k]/evt;
 	  theRMS       = sqrt(abs(meanPedestalSquare - meanPedestal*meanPedestal));
 
 	  newRMS[fff]  = theRMS;
 	  theRSquare   = (thePedestal-meanPedestal)*(thePedestal-meanPedestal)/(theRMS*theRMS*theRMS*theRMS);
 	  thePeak      = arrayPeak[iii][i][j][k];
 	  thePeakMin   = arrayPeakMin[iii][i][j][k];
-	  meanPeak     = arrayOfPeak[iii][i][j][k] / evt;
-	  meanPeakSquare = arrayOfPeakSquare[iii][i][j][k] / evt;
+	  meanPeak     = arrayOfPeak[iii][i][j][k]/evt;
+	  meanPeakSquare = arrayOfPeakSquare[iii][i][j][k]/evt;
 	  thePeakRMS   = sqrt(abs(meanPeakSquare - meanPeak*meanPeak));
 	  newPeakRMS[fff] = thePeakRMS;
 	  newPeak[fff] = thePeak;
@@ -703,7 +703,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
 	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
 
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<theRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
+	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<thePeakRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 
 	  calib_evt.xtalk_int_left    = xtalk_intercept_left[iii][i][j][k];
