@@ -30,12 +30,12 @@ void CmsTrackerWheelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  std::vector< GeometricDet*> comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
        
   if(comp.size()){
     if(comp.front()->type()==GeometricDet::petal){
-      std::vector< GeometricDet* > compfw;
-      std::vector< GeometricDet* > compbw;
+      GeometricDet::GeometricDetContainer compfw;
+      GeometricDet::GeometricDetContainer compbw;
       compfw.clear();
       compbw.clear();
       for(uint32_t i=0; i<comp.size();i++){

@@ -14,7 +14,7 @@ void CmsTrackerLadderBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
 }
 
 void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  std::vector< GeometricDet* > comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
 
  switch(det->components().front()->type()){
  case GeometricDet::DetUnit: std::stable_sort(comp.begin(),comp.end(),LessZ()); break;	

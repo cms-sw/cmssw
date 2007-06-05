@@ -16,10 +16,10 @@ void CmsTrackerRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, 
 }
 
 void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  std::vector< GeometricDet* > comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
   fv.firstChild(); 
-  std::vector< GeometricDet* > compfw;
-  std::vector< GeometricDet* > compbw;
+  GeometricDet::GeometricDetContainer compfw;
+  GeometricDet::GeometricDetContainer compbw;
   compfw.clear();
   compbw.clear();
 

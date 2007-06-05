@@ -39,7 +39,7 @@ void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 
 void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
-  std::vector< GeometricDet* > comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
 
   // TIB
   // SubDetector Side: 2 bits [TIB-:1 TIB+:2]
@@ -49,12 +49,12 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   if(det->components().front()->type()== GeometricDet::strng){
     float layerRadius = (det->params()[2]+det->params()[1])/2.;
 
-    std::vector< GeometricDet*> neg;
-    std::vector< GeometricDet*> pos;
-    std::vector< GeometricDet*> extneg;
-    std::vector< GeometricDet*> intneg;
-    std::vector< GeometricDet*> extpos;
-    std::vector< GeometricDet*> intpos;
+    GeometricDet::GeometricDetContainer neg;
+    GeometricDet::GeometricDetContainer pos;
+    GeometricDet::GeometricDetContainer extneg;
+    GeometricDet::GeometricDetContainer intneg;
+    GeometricDet::GeometricDetContainer extpos;
+    GeometricDet::GeometricDetContainer intpos;
     neg.clear();
     pos.clear();
     extneg.clear();
@@ -63,7 +63,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     intpos.clear();
 
 
-    for(std::vector<GeometricDet*>::iterator i=comp.begin();i!=comp.end();i++){
+    for(GeometricDet::GeometricDetContainer::iterator i=comp.begin();i!=comp.end();i++){
       if((*i)->translation().z()<0.){
 	neg.push_back(*i);
       }else{
@@ -71,7 +71,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
 
-    for(std::vector<GeometricDet*>::iterator i=neg.begin();i!=neg.end();i++){
+    for(GeometricDet::GeometricDetContainer::iterator i=neg.begin();i!=neg.end();i++){
       double rPos = (*i)->translation().Rho();
       if(rPos > layerRadius ){ 
 	extneg.push_back(*i);
@@ -80,7 +80,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
 
-    for(std::vector<GeometricDet*>::iterator i=pos.begin();i!=pos.end();i++){
+    for(GeometricDet::GeometricDetContainer::iterator i=pos.begin();i!=pos.end();i++){
       double rPos = (*i)->translation().Rho();
       if(rPos > layerRadius ){ 
 	extpos.push_back(*i);
@@ -130,12 +130,12 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     det->addComponents(extpos);
     
   }else if(det->components().front()->type()== GeometricDet::rod){
-    std::vector< GeometricDet*> neg;
-    std::vector< GeometricDet*> pos;
+    GeometricDet::GeometricDetContainer neg;
+    GeometricDet::GeometricDetContainer pos;
     neg.clear();
     pos.clear();
     
-    for(std::vector<GeometricDet*>::iterator i=comp.begin();i!=comp.end();i++){
+    for(GeometricDet::GeometricDetContainer::iterator i=comp.begin();i!=comp.end();i++){
       if((*i)->translation().z()<0.){
 	neg.push_back(*i);
       }else{

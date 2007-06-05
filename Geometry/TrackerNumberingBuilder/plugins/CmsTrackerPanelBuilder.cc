@@ -22,7 +22,7 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
- std::vector< GeometricDet* > comp = det->components();
+ GeometricDet::GeometricDetContainer comp = det->components();
 
  switch(det->components().front()->type()){
  case GeometricDet::DetUnit: std::stable_sort(comp.begin(),comp.end(),LessR()); break;

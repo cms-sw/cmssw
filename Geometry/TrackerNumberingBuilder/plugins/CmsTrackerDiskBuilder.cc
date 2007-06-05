@@ -26,7 +26,7 @@ void CmsTrackerDiskBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, 
 
 void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
- std::vector< GeometricDet* > comp = det->components();
+ GeometricDet::GeometricDetContainer comp = det->components();
 
  switch(det->components().front()->type()){
  case GeometricDet::panel:
@@ -36,8 +36,8 @@ void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
    edm::LogError("CmsTrackerDiskBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
  }
 
-  std::vector< GeometricDet* > zminpanels;  // Here z refers abs(z);
-  std::vector< GeometricDet* > zmaxpanels;   // So, zmin panel is always closer to ip.
+  GeometricDet::GeometricDetContainer zminpanels;  // Here z refers abs(z);
+  GeometricDet::GeometricDetContainer zmaxpanels;   // So, zmin panel is always closer to ip.
   zminpanels.clear();
   zmaxpanels.clear();
 

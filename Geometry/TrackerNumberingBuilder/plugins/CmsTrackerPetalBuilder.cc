@@ -19,7 +19,7 @@ void CmsTrackerPetalBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  std::vector< GeometricDet* > comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
 
   switch(det->components().front()->type()){
   case GeometricDet::ring: std::stable_sort(comp.begin(),comp.end(),LessR_module()); break;	

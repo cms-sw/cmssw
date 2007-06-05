@@ -45,7 +45,7 @@ void CmsTrackerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std:
 
 void CmsTrackerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   
-  std::vector<GeometricDet* > comp = det->components();
+  GeometricDet::GeometricDetContainer comp = det->components();
   std::stable_sort(comp.begin(),comp.end(),subDetByType());
   
   for(uint32_t i=0; i<comp.size(); i++){
