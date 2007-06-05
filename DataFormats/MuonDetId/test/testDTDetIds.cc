@@ -3,9 +3,11 @@
    test file for DTChamberId, DTSuperLayerId, DTLayerId and DTWireId
 
    \author S. Argiro' & G. Cerminara
-   \version $Id: testDTDetIds.cc,v 1.2 2006/04/12 17:52:40 namapane Exp $
+   \version $Id: testDTDetIds.cc,v 1.3 2006/04/13 12:39:04 namapane Exp $
    \date 27 Jul 2005
 */
+
+#define TEST_FORBIDDEN_CTORS 
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
@@ -356,27 +358,30 @@ void testDTDetIds::testMemberOperators(){
   DTLayerId layer6 = wire1;
   CPPUNIT_ASSERT(layer6 == layer3);
 
+
+#ifdef TEST_FORBIDDEN_CTORS
   // Forbidden constructors. None of these should be accepted by the compiler!!!
 
-  // It should not be allowed to create a derived from a base
-//   DTSuperLayerId s(chamber1);
-//   DTLayerId      l(superlayer1);
-//   DTWireId       w(layer1);  
+  // It should not be allowed to create a derived from a base 
+  // (it would prevent proper slicing).
+  DTSuperLayerId s(chamber1);
+  DTLayerId      l(superlayer1);
+  DTWireId       w(layer1);  
   
   // It is not currently allowed to build any DT id directly from a Detid
   // (would allow the above ones)
-//  DetId d;
-//   DTChamberId    c(d);
-//   DTSuperLayerId s1(d);
-//   DTLayerId      l1(d);
-//   DTWireId       w1(d);  
+  DetId d;
+  DTChamberId    c(d);
+  DTSuperLayerId s1(d);
+  DTLayerId      l1(d);
+  DTWireId       w1(d);  
 
-  // It is not allowed to copy a derived to a base
-//   DTChamberId chamber7 = d;
-//   DTSuperLayerId superlayer7 = chamber1;
-//   DTLayerId layer7 = superlayer1;
-//   DTWireId wire7 = layer1;
-
+  // It is not allowed to copy a derived to a base.
+  DTChamberId chamber7 = d;
+  DTSuperLayerId superlayer7 = chamber1;
+  DTLayerId layer7 = superlayer1;
+  DTWireId wire7 = layer1;
+#endif
 
 
 }
