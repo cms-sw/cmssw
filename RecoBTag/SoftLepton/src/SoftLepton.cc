@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.21 2007/05/30 07:37:38 arizzi Exp $
+// $Id: SoftLepton.cc,v 1.22 2007/05/30 16:33:40 fwyzard Exp $
 //
 
 
@@ -180,5 +180,7 @@ SoftLepton::beginJob(const edm::EventSetup& iSetup) {
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 SoftLepton::endJob(void) {
+  // allow cleaning up the shared pointer
+  m_algo.setTransientTrackBuilder( NULL );
 }
 
