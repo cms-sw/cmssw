@@ -59,6 +59,7 @@ protected:
   // algorithm configuration
   unsigned int m_refineJetAxis;
   double       m_deltaRCut;
+  double       m_chi2Cut;
   bool         m_usePrimaryVertex; 
     
 };
