@@ -7,7 +7,7 @@
    \date 27 Jul 2005
 */
 
-#define TEST_FORBIDDEN_CTORS 
+//#define TEST_FORBIDDEN_CTORS 
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
