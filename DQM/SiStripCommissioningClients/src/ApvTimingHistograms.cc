@@ -86,9 +86,10 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Check tick height is valid
     if ( anal->height() < 100. ) { 
-      edm::LogWarning(mlDqmClient_) 
-	<< "[ApvTimingHistograms::" << __func__ << "]"
-	<< " Tick mark height too small: " << anal->height();
+      //edm::LogWarning(mlDqmClient_) 
+      //<< "[ApvTimingHistograms::" << __func__ << "]"
+      //<< " Tick mark height too small: " << anal->height();
+      //anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
       continue; 
     }
 
@@ -155,8 +156,10 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     if ( debug ) {
       std::stringstream ss;
       ianal->second->print( ss ); 
-      if ( ianal->second->isValid() ) { LogTrace(mlDqmClient_) << ss.str(); }
-      else { edm::LogWarning(mlDqmClient_) << ss.str(); }
+      if ( ianal->second->isValid() ) { 
+	LogTrace(mlDqmClient_) << ss.str(); 
+	valid++;
+      } else { edm::LogWarning(mlDqmClient_) << ss.str(); }
     }
   }
   
