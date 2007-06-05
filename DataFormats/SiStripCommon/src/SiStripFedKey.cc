@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.7 2007/03/26 10:12:43 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.8 2007/04/04 06:56:18 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -430,8 +430,9 @@ void SiStripFedKey::initFromPath() {
       }
     } else {
       std::stringstream ss;
-      ss << sistrip::root_ << sistrip::dir_ 
-	 << sistrip::unknownView_ << sistrip::dir_;
+      ss << sistrip::root_ << sistrip::dir_;
+      //ss << sistrip::root_ << sistrip::dir_ 
+      //<< sistrip::unknownView_ << sistrip::dir_;
       std::string temp( ss.str() );
       path( temp );
     }
