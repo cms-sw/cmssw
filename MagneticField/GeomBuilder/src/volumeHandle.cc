@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/02/03 16:17:30 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/03/09 14:38:23 $
+ *  $Revision: 1.5 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -163,18 +163,20 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   // === DDD uses 'active' rotations - see CLHEP user guide ===
   //     ORCA seems to use 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
-  DDRotationMatrix result = (fv.rotation()*orcaCorrection).inverse();
+  DDRotationMatrix result = (fv.rotation()*orcaCorrection);//.Inverse();
+  DD3Vector x, y, z;
+  result.GetComponents(x,y,z);
   if (MagGeoBuilderFromDDD::debug) {
-    if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5) {
+    if (x.Cross(y).Dot(z) < 0.5) {
       cout << "*** WARNING: Rotation is not RH "<< endl;
     }
   }
   
   // The global rotation
   Surface::RotationType
-    rotResult(float(result.xx()),float(result.xy()),float(result.xz()),
-	      float(result.yx()),float(result.yy()),float(result.yz()),
-	      float(result.zx()),float(result.zy()),float(result.zz()));
+    rotResult(float(x.X()),float(x.Y()),float(x.Z()),
+	      float(y.X()),float(y.Y()),float(y.Z()),
+	      float(z.X()),float(z.Y()),float(z.Z()));
 
   refPlane = new GloballyPositioned<float>(posResult, rotResult);
 
