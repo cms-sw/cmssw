@@ -16,7 +16,7 @@
 //
 // Original Author:  d.k.
 //         Created:  Jan CET 2006
-// $Id: PixelDigisTest.cc,v 1.14 2006/10/24 09:50:40 dkotlins Exp $
+// $Id: PixelDigisTest.cc,v 1.15 2007/03/07 16:53:07 wmtan Exp $
 //
 //
 // system include files
@@ -72,6 +72,10 @@
 
 using namespace std;
 
+// Enable this to look at simlinks (link simhit->digis)
+// Can be used only with simulated data.
+//#define USE_SIM_LINKS
+
 //
 // class decleration
 //
@@ -108,8 +112,10 @@ private:
   TH1F *hcolsB,  *hrowsB,  *hcolsF,  *hrowsF;
   TH1F *hcols1big, *hrows1big, *heloss1bigx, *heloss1bigy;
   TH1F *hsimlinks, *hfract;
+  TH1F *hblade1, *hblade2;
 
   TH2F *htest, *htest2;
+  TH2F *hdetMap3,*hdetMap2,*hdetMap1, *hpixMap1, *hpixMap2, *hpixMap3; 
 
   edm::InputTag src_;  
 
@@ -218,6 +224,9 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hrows3 = new TH1F( "hrows3", "layer 3 rows", 200,-1.5,198.5);
     hrows1big = new TH1F( "hrows1big", "Layer 1 big rows", 200,-1.5,198.5);
  
+    hblade1 = new TH1F( "hblade1", "blade num, disk1", 24, 0., 24.);
+    hblade2 = new TH1F( "hblade2", "blade num, disk2", 24, 0., 24.);
+
     helossF1 = new TH1F( "helossF1", "Pix charge d1", 100, 0., 300.);
     helossF2 = new TH1F( "helossF2", "Pix charge d2", 100, 0., 300.);
     hcolsF1 = new TH1F( "hcolsF1", "Disk 1 cols", 500,-1.5,498.5);
@@ -240,6 +249,13 @@ void PixelDigisTest::beginJob(const edm::EventSetup& iSetup) {
     hsimlinks = new TH1F("hsimlinks"," track ids",200,0.,200.);
     hfract = new TH1F("hfract"," track rractions",100,0.,1.);
 
+    hdetMap1 = new TH2F("hdetMap1"," ",22,0.,22.,10,0.,10.);
+    hdetMap2 = new TH2F("hdetMap2"," ",34,0.,34.,10,0.,10.);
+    hdetMap3 = new TH2F("hdetMap3"," ",46,0.,46.,10,0.,10.);
+    hpixMap1 = new TH2F("hpixMap1"," ",416,0.,416.,160,0.,160.);
+    hpixMap2 = new TH2F("hpixMap2"," ",416,0.,416.,160,0.,160.);
+    hpixMap3 = new TH2F("hpixMap3"," ",416,0.,416.,160,0.,160.);
+
     htest = new TH2F("htest"," ",10,0.,10.,20,0.,20.);
     htest2 = new TH2F("htest2"," ",10,0.,10.,300,0.,300.);
 
@@ -255,11 +271,11 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
   edm::Handle< edm::DetSetVector<PixelDigi> > pixelDigis;
   iEvent.getByLabel( src_ , pixelDigis);
 
+#ifdef USE_SIM_LINKS
   // Get simlink data
-  //edm::Handle<PixelDigiSimLinkCollection> pixelSimLinks;
-  //iEvent.getByLabel("siPixelDigis", pixelSimLinks);
   edm::Handle< edm::DetSetVector<PixelDigiSimLink> > pixelSimLinks;
   iEvent.getByLabel( src_ ,   pixelSimLinks);
+#endif
 
   // Get event setup (to get global transformation)
   edm::ESHandle<TrackerGeometry> geom;
@@ -325,7 +341,11 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     unsigned int zindex=0;
     unsigned int disk=0; //1,2,3
 
-    // Subdet it, pix barrel=1, forward=2
+    unsigned int blade=0; //1-24
+    unsigned int side=0; //size=1 for -z, 2 for +z
+    unsigned int panel=0; //panel=1
+ 
+   // Subdet it, pix barrel=1, forward=2
     if(subid==2) {   // forward
 
       hdetrF->Fill(detR);
@@ -335,10 +355,10 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
       PXFDetId pdetId = PXFDetId(detid);
       disk=pdetId.disk(); //1,2,3
-      unsigned int blade=pdetId.blade(); //1-24
-      unsigned int zindex=pdetId.module(); //
-      unsigned int side=pdetId.side(); //size=1 for -z, 2 for +z
-      unsigned int panel=pdetId.panel(); //panel=1
+      blade=pdetId.blade(); //1-24
+      zindex=pdetId.module(); //
+      side=pdetId.side(); //size=1 for -z, 2 for +z
+      panel=pdetId.panel(); //panel=1
       
       if(PRINT) {
 	cout<<"Forward det "<<subid<<", disk "<<disk<<", blade "
@@ -379,37 +399,38 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
     if(layer==1) {
       hladder1id->Fill(float(ladder));
       hz1id->Fill(float(zindex));
+      hdetMap1->Fill(float(ladder),float(zindex));
       ++numberOfDetUnits1;
       numOfDigisPerDet1=0;
       
     } else if(layer==2) {
       hladder2id->Fill(float(ladder));
       hz2id->Fill(float(zindex));
+      hdetMap2->Fill(float(ladder),float(zindex));
       ++numberOfDetUnits2;
       numOfDigisPerDet2=0;
 
     } else if(layer==3) {
       hladder3id->Fill(float(ladder));
       hz3id->Fill(float(zindex));
+      hdetMap3->Fill(float(ladder),float(zindex));
       ++numberOfDetUnits3;
       numOfDigisPerDet3=0;
 
     } else if(disk==1) {
+      hblade1->Fill(float(blade));
       ++numberOfDetUnitsF1;
       numOfDigisPerDetF1=0;
  
    } else if(disk==2) {
+      hblade2->Fill(float(blade));
       ++numberOfDetUnitsF2;
       numOfDigisPerDetF2=0;
    }
       
 
-      // Has to be changed 
-//      const PixelDigiSimLinkCollection::Range simLinkRange = 
-//        pixelSimLinks->get(detid);
-//      for(PixelDigiSimLinkCollection::ContainerIterator 
-// 	   it = simLinkRange.first; it != simLinkRange.second; ++it) { 
-//      }
+#ifdef USE_SIM_LINKS
+    // Look at simlink information (simulated data only)
 
     int numberOfSimLinks = 0;
     edm::DetSetVector<PixelDigiSimLink>::const_iterator 
@@ -436,10 +457,12 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 
     } // end simlink if
 
-      unsigned int numberOfDigis = 0;
+#endif  // USE_SIM_LINKS
 
-      // Look at digis now
-      edm::DetSet<PixelDigi>::const_iterator  di;
+    unsigned int numberOfDigis = 0;
+
+    // Look at digis now
+    edm::DetSet<PixelDigi>::const_iterator  di;
       for(di = DSViter->data.begin(); di != DSViter->data.end(); di++) {
 	//for(di = begin; di != end; di++) {
 	
@@ -487,6 +510,9 @@ void PixelDigisTest::analyze(const edm::Event& iEvent,
 	 heloss3->Fill(float(adc));
 	 hcols3->Fill(float(col));
 	 hrows3->Fill(float(row));
+	 if(ladder==11 && zindex==5 )  // r367 
+	   //if(ladder==8 && zindex==5 ) //r371
+	   hpixMap3->Fill(float(col),float(row));  
 	 totalNumOfDigis3++;
 	 numOfDigisPerDet3++;
 
