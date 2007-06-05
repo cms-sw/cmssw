@@ -71,7 +71,7 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   _material = ((fv->logicalPart()).material()).name();
 }
 
-ometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
+GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
   //
   // iterate on all the components ;)
   //
