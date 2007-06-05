@@ -3,7 +3,7 @@
    test file for DTChamberId, DTSuperLayerId, DTLayerId and DTWireId
 
    \author S. Argiro' & G. Cerminara
-   \version $Id: testDTDetIds.cc,v 1.3 2006/04/13 12:39:04 namapane Exp $
+   \version $Id: testDTDetIds.cc,v 1.5 2007/06/05 19:07:16 namapane Exp $
    \date 27 Jul 2005
 */
 
@@ -363,13 +363,13 @@ void testDTDetIds::testMemberOperators(){
   // Forbidden constructors. None of these should be accepted by the compiler!!!
 
   // It should not be allowed to create a derived from a base 
-  // (it would prevent proper slicing).
+  // (it would result in invalid IDs)
   DTSuperLayerId s(chamber1);
   DTLayerId      l(superlayer1);
   DTWireId       w(layer1);  
   
   // It is not currently allowed to build any DT id directly from a Detid
-  // (would allow the above ones)
+  // (would allow the above ones and may prevent proper slicing)
   DetId d;
   DTChamberId    c(d);
   DTSuperLayerId s1(d);
