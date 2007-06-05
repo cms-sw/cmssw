@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.2 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.1 2007/06/04 13:32:11 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -134,6 +134,6 @@ void SiStripCommissioningOfflineDbClient::uploadToDb() {
   } else {
     edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
-      << " No database Upload performed!";
+      << " No database upload performed!";
   }
 }

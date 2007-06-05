@@ -18,9 +18,13 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   
  public:
 
+  // ---------- Con(de)structors and typedefs ----------
+
   PedestalsAnalysis( const uint32_t& key );
   PedestalsAnalysis();
   virtual ~PedestalsAnalysis() {;}
+
+  // ---------- Access to analysis and histos ----------
   
   // Pedestal, noise and raw noise vectors (per APV)
   inline const VVFloats& peds() const;
@@ -49,6 +53,8 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   inline const Histo& hPeds() const;
   inline const Histo& hNoise() const;
+
+  // ---------- Utility methods ----------
   
   bool isValid();
 

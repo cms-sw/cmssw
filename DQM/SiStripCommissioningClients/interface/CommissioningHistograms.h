@@ -102,6 +102,9 @@ class CommissioningHistograms {
   void save( std::string& filename,
 	     uint32_t run_number = 0 ); 
   
+  /** */
+  void printHistosMap();
+  
  protected:
 
   // ---------- Protected methods ----------
@@ -122,12 +125,9 @@ class CommissioningHistograms {
 		  const sistrip::View&,
 		  const std::string& directory,
 		  const uint32_t& xbins );
-  
+
   /** */
   void clearHistosMap();
-  
-  /** */
-  void printHistosMap();
 
  private:
 
