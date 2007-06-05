@@ -3,10 +3,8 @@
 """
 BuildSet - utilizes dependency discovery mechanism for Partial Releases.
 """
-# TO ADD: check and report unknown packages. 
-#
-__revision__ = "$Id: BuildSet,v 1.2 2007/05/31 20:29:08 ratnik Exp $"
-__version__ = "$Revision: 1.2 $"
+__revision__ = "$Id: BuildSet,v 1.3 2007/06/01 16:34:50 ratnik Exp $"
+__version__ = "$Revision: 1.3 $"
 
 import os
 import sys
@@ -22,7 +20,7 @@ verbose               = 1
 packageListInFile     = 0
 dependencyAnalysisDir = ""
 dependencies          = []
-outputFormats         = ("packages", "tools")
+outputFormats         = ("packages", "tools", "dependencies")
 outputFormat          = None
 
 # Format specific patterns:
@@ -50,7 +48,7 @@ OPTIONS:
    -v         - display version number
    -q         - run quietly, suppressing info output.
    -o format  - format = [""" + "|".join(outputFormats) + """ ]
-                print out formatted output (only packages, or
+                print out formatted output (e.g. only packages, or
                 only tools, one per line).
 """
 
@@ -178,17 +176,17 @@ if (dependencyAnalysisDir):
     f.close()
 
 # Check for unknown packages: 
-
 for name in packages:
     found=0
     tmpLen = len(name)
     for line in dependencies:
-        if line[:tmpLen+1] == line[:tmpLen] + ":" :
+        # Assume all packages belong to CMSSW:
+        if line[:tmpLen+8] == name[:tmpLen] + "(CMSSW):" :
             found = 1
         else:
             continue
-    if not found:
-        sys.exit ("ERROR: unknown package: " + name )
+    if not found:        
+        sys.exit ("ERROR: package unknown to CMSSW: " + name )
 
 # First get all required CMSSW packages: 
 
@@ -237,6 +235,12 @@ if outputFormat == "tools":
     externals.sort()
     for e in externals:
         print e
+    sys.exit()
+
+if outputFormat == "dependencies":
+    dependencies.sort()
+    for d in dependencies:
+        print d
     sys.exit()
 
 # Default output in human readable format: 
