@@ -94,6 +94,9 @@ ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {
   delete theOutInTrackFinder_;
   delete theInOutSeedFinder_;  
   delete theInOutTrackFinder_;
+  delete theLayerMeasurements_;
+  delete theNavigationSchool_;
+
 
 }
 
