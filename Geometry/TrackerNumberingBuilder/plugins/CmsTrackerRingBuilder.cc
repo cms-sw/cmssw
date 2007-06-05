@@ -36,7 +36,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   
   static std::string const part("TkDDDStructure");
   static std::string const TECGluedDet("TECGluedDet");
-  static std::string const TECDET("TECDet");
+  static std::string const TECDet("TECDet");
 
   std::string const pname = ExtractStringFromDDD::getString(part,&fv); 
 

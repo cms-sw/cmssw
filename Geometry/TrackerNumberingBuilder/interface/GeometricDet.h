@@ -60,7 +60,7 @@ class GeometricDet {
   /**
    * clearComponents() only empties the container, the components are not deleted!
    */
-  clearComponents(){_container.resize(0);}
+  void clearComponents() {_container.resize(0);}
   /**
    * deleteComponents() explicitly deletes the daughters
    * FIXME: it does not
@@ -72,7 +72,7 @@ class GeometricDet {
    */
   void deepDeleteComponents();
   
-  bool isLeaf() const {return (_container.size() == 0);}
+  bool isLeaf() const {return _container.empty();}
   
   /**
    * Access methods
