@@ -55,7 +55,7 @@ void MuEnrichRenormalizer::analyze( const Event& e, const EventSetup& )
       {
 	++npart;
 	int id=abs((*particle)->pdg_id());
-	int status=(*particle)->status();
+	//int status=(*particle)->status();
 	if (id==5 || id== 4){
 	  if (npart==6 || npart ==7){
 	    mybc=true;
