@@ -114,7 +114,7 @@ void GeometricDet::deepDeleteComponents(){
   for (GeometricDetContainer::iterator it = _container.begin();
        it != _container.end(); it++){
     (const_cast<GeometricDet*>(*it))->deepDeleteComponents();
-    delete (*it);
+    delete const_cast<GeometricDet*>(*it);
   }
   clearComponents();  
 }

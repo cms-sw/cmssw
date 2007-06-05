@@ -23,8 +23,8 @@ class DDFilteredView;
 class GeometricDet {
  public:
   
-  typedef std::vector< const GeometricDet*>  ConstGeometricDetContainer;
-  typedef std::vector< GeometricDet*>  GeometricDetContainer;
+  typedef std::vector< GeometricDet const *>  ConstGeometricDetContainer;
+  typedef std::vector< GeometricDet const *>  GeometricDetContainer;
   typedef DDExpandedView::nav_type nav_type;
   typedef Surface::PositionType Position;
   typedef Surface::RotationType Rotation;
@@ -100,7 +100,8 @@ class GeometricDet {
    * if the current GeometricDet is a leaf, it returns it!
    */
 
-  virtual ConstGeometricDetContainer deepComponents() const;
+  ConstGeometricDetContainer deepComponents() const;
+  void deepComponents(ConstGeometricDetContainer &) const;
 
   //rr
   /** parents() retuns the geometrical history
