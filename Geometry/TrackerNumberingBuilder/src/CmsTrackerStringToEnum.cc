@@ -71,14 +71,14 @@ CmsTrackerStringToEnum::Impl::Impl(){
 
 GeometricDet::GeometricEnumType CmsTrackerStringToEnum::type(std::string const & s) const{
   MapEnumType::const_iterator p=map().find(s);
-  if ( p.find(s) != map().end()) return p->second;
+  if (p!= map().end()) return p->second;
   return GeometricDet::unknown;
 }
 
 std::string const & CmsTrackerStringToEnum::name(GeometricDet::GeometricEnumType t) const {
   static std::string const u("Unknown");
   ReverseMapEnumType::const_iterator p=reverseMap().find(t); 
-  if (p!= _reverseMap().end())
+  if (p!= reverseMap().end())
     return p->second;
   return u;
 }
