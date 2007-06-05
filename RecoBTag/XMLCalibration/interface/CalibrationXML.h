@@ -45,23 +45,31 @@ public:
 	/**
 	* Helper static function to write an attribute in a DOM Element
 	*/
-        template <class T> static void writeAttribute(DOMElement *dom, const std::string & name, const T & value)
-	{
-	    std::ostringstream buffer;
-	    buffer << value;
-            dom->setAttribute(XMLString::transcode(name.c_str()), XMLString::transcode(buffer.str().c_str())     );
-	}
-	
-	/**
-	* Helper static function to read an attribute in a DOM Element
-	*/
-	template <class T> static T readAttribute(DOMElement *dom, const std::string & name)
-	{
-	    std::istringstream buffer(XMLString::transcode(dom->getAttribute(XMLString::transcode(name.c_str()))));
-	    T value;
-	    buffer >> value;
-	    return value;
-	}
+           template <class T> static void writeAttribute(DOMElement *dom, const std::string & name, const T & value)
+        {
+            std::ostringstream buffer;
+            buffer << value;
+            XMLCh * nameStr = XMLString::transcode(name.c_str());
+            XMLCh * valueStr = XMLString::transcode(buffer.str().c_str());
+            dom->setAttribute(nameStr, valueStr );
+            XMLString::release(&nameStr);
+            XMLString::release(&valueStr);
+        }
+
+        /**
+        * Helper static function to read an attribute in a DOM Element
+        */
+        template <class T> static T readAttribute(DOMElement *dom, const std::string & name)
+        {
+            XMLCh* nameStr  = XMLString::transcode(name.c_str());
+            char * valueStr = XMLString::transcode(dom->getAttribute(nameStr));
+            std::istringstream buffer(valueStr);
+            T value;
+            buffer >> value;
+            XMLString::release(&nameStr);
+            XMLString::release(&valueStr);
+            return value;
+        }
 	
 	/**
 	* Helper static function to add a child in a DOM Element with indentation
