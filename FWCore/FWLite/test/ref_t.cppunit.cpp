@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.10 2007/03/04 05:25:01 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.11 2007/06/04 18:08:58 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -82,6 +82,7 @@ static void checkMatch(const edmtest::OtherThingCollection* pOthers,
   for( ; itThing != itThingEnd; ++itThing, ++itOther) {
     //I'm assuming the following is true
     CPPUNIT_ASSERT(itOther->ref.key() == static_cast<unsigned int>(itThing - pThings->begin()));
+    //std::cout <<" ref "<<itOther->ref.get()->a<<" thing "<<itThing->a<<std::endl;
     if(itOther->ref.get()->a != itThing->a) {
       std::cout <<" *PROBLEM: ref "<<itOther->ref.get()->a<<"!= thing "<<itThing->a<<std::endl;
     }
@@ -158,7 +159,7 @@ void testRefInROOT::testGoodChain()
 {
   TChain eventChain("Events");
   eventChain.Add("good.root");
-  eventChain.Add("good2.root");
+  eventChain.Add("good_delta5.root");
 
   edm::Wrapper<edmtest::OtherThingCollection> *pOthers =0;
   TBranch* othersBranch = 0;
