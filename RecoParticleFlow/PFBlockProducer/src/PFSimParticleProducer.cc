@@ -147,13 +147,8 @@ void PFSimParticleProducer::produce(Event& iEvent,
     processRecTracks(pOutputPFRecTrackCollection,
 		     iEvent, iSetup);
 
-    cout<<"processing rec tracks "<<pOutputPFRecTrackCollection->size()<<endl;
 
     iEvent.put(pOutputPFRecTrackCollection);
-    cout<<"put into the event"<<endl;
-  }
-  else {
-    cout<<"rectracks not processed"<<endl;
   }
 
   
