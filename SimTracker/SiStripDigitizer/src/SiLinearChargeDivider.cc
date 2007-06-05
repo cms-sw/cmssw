@@ -31,6 +31,10 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHE
   fluctuate = new SiG4UniversalFluctuation(rndEngine);
 }
 
+SiLinearChargeDivider::~SiLinearChargeDivider(){
+  delete fluctuate;
+}
+
 SiChargeDivider::ionization_type 
 SiLinearChargeDivider::divide(const PSimHit& hit, const StripGeomDetUnit& det) {
  
