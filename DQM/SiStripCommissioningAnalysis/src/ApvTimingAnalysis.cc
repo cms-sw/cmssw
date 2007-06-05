@@ -13,7 +13,7 @@ using namespace sistrip;
 // ----------------------------------------------------------------------------
 // 
 ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key ) 
-  : CommissioningAnalysis(key,"ApvTimingAnalysis"),
+  : CommissioningAnalysis(key,sistrip::apvTimingAnalysis_),
     time_(sistrip::invalid_), 
     maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -27,7 +27,7 @@ ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key )
 // ----------------------------------------------------------------------------
 // 
 ApvTimingAnalysis::ApvTimingAnalysis() 
-  : CommissioningAnalysis("ApvTimingAnalysis"),
+  : CommissioningAnalysis(sistrip::apvTimingAnalysis_),
     time_(sistrip::invalid_), 
     maxTime_(sistrip::invalid_), 
     delay_(sistrip::invalid_), 
@@ -41,25 +41,6 @@ ApvTimingAnalysis::ApvTimingAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
-  header( ss );
-  float adjust = sistrip::invalid_;
-  if ( time_ <= sistrip::maximum_ && 
-       delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
-  float sampling = sistrip::invalid_;
-  if ( maxTime_ <= sistrip::maximum_ ) { sampling = maxTime_ + optimumSamplingPoint_; }
-  ss << " Time of tick mark rising edge [ns]        : " << time_ << std::endl 
-     << " Error on time of rising edge [ns]         : " << error_ << std::endl
-     << " Sampling point of last tick mark [ns]     : " << sampling << std::endl 
-     << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
-     << " Delay required to synchronise [ns]        : " << delay_ << std::endl 
-     << " Baseline level [adc]                      : " << base_ << std::endl 
-     << " Tick peak level [adc]                     : " << peak_ << std::endl 
-     << " Tick mark height [adc]                    : " << height_ << std::endl;
-}
-
-// ----------------------------------------------------------------------------
-// 
 void ApvTimingAnalysis::reset() {
   time_ = sistrip::invalid_; 
   maxTime_ = sistrip::invalid_; 
@@ -69,20 +50,6 @@ void ApvTimingAnalysis::reset() {
   peak_ = sistrip::invalid_; 
   height_ = sistrip::invalid_;
   histo_ = Histo(0,"");
-}
-
-// ----------------------------------------------------------------------------
-// 1) Calculates position of "sampling point" of last tick; 2) then
-// adjusts so that it is multiple of 25, ie, synched with FED
-// sampling; 3) then calculates delay required to synchronise with
-// this adjusted sampling position.
-void ApvTimingAnalysis::maxTime( const float& time ) { 
-  maxTime_ = time;
-  if ( time_ > sistrip::maximum_ ) { return; }
-  float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
-  //maxTime_ += adjustment;
-  //delay_ = maxTime_ - time_; 
-  delay_ = ( maxTime_ + adjustment ) - time_; 
 }
 
 // ----------------------------------------------------------------------------
@@ -134,24 +101,26 @@ void ApvTimingAnalysis::extract( const std::vector<TH1*>& histos ) {
 // 
 void ApvTimingAnalysis::analyse() { 
   if ( !histo_.first ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to histogram!";
+    //edm::LogWarning(mlCommissioning_) 
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " NULL pointer to histogram!";
+    addErrorCode(sistrip::nullPtr_);
     return;
   }
 
   TProfile* histo = dynamic_cast<TProfile*>(histo_.first);
   if ( !histo ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " NULL pointer to TProfile histogram!";
+    //edm::LogWarning(mlCommissioning_) 
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " NULL pointer to TProfile histogram!";
+    addErrorCode(sistrip::nullPtr_);
     return;
   }
   
   // Transfer histogram contents/errors/stats to containers
   uint16_t non_zero = 0;
-  float max = -1.e9;
-  float min =  1.e9;
+  float max = -1.e9; //@@ invalid?
+  float min =  1.e9; //@@ invalid?
   uint16_t nbins = static_cast<uint16_t>( histo->GetNbinsX() );
   std::vector<float> bin_contents; 
   std::vector<float> bin_errors;
@@ -170,10 +139,11 @@ void ApvTimingAnalysis::analyse() {
     }
   }
   if ( bin_contents.size() < 100 ) { 
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Too few bins! Number of bins: " 
-      << bin_contents.size();
+    //edm::LogWarning(mlCommissioning_)
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " Too few bins! Number of bins: " 
+    //<< bin_contents.size();
+    addErrorCode(sistrip::histoBins_);
     return; 
   }
   
@@ -181,24 +151,25 @@ void ApvTimingAnalysis::analyse() {
   float range = max - min;
   float threshold = min + range / 2.;
   if ( range < 50. ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Device with crate/FEC/Ring/CCU/module/channel "
-      << fec().fecCrate() << "/"
-      << fec().fecSlot() << "/"
-      << fec().fecRing() << "/"
-      << fec().ccuAddr() << "/"
-      << fec().ccuChan() << "/"
-      << fec().channel() 
-      << " connected to FED id/ch " 
-      << fed().fedId() << "/"
-      << fed().fedChannel() 
-      << " has a small signal range [ADC] of " 
-      << range;
+    //edm::LogWarning(mlCommissioning_) 
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " Device with crate/FEC/Ring/CCU/module/channel "
+    //<< fec().fecCrate() << "/"
+    //<< fec().fecSlot() << "/"
+    //<< fec().fecRing() << "/"
+    //<< fec().ccuAddr() << "/"
+    //<< fec().ccuChan() << "/"
+    //<< fec().channel() 
+    //<< " connected to FED id/ch " 
+    //<< fed().fedId() << "/"
+    //<< fed().fedChannel() 
+    //<< " has a small signal range [ADC] of " 
+    //<< range;
     // Records levels anyway
     base_   = min;
     peak_   = max;
     height_ = max - min;
+    addErrorCode(sistrip::smallDataRange_);
     return; 
   }
   
@@ -223,24 +194,25 @@ void ApvTimingAnalysis::analyse() {
   if ( !tick.empty() ) { tickmark = tick[ tick.size()%2 ? tick.size()/2 : tick.size()/2 ]; }
   if ( !base.empty() ) { baseline = base[ base.size()%2 ? base.size()/2 : base.size()/2 ]; }
   if ( (tickmark-baseline) < 50. ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Device with Crate/FEC/Ring/CCU/module/channel "
-      << fec().fecCrate() << "/"
-      << fec().fecSlot() << "/"
-      << fec().fecRing() << "/"
-      << fec().ccuAddr() << "/"
-      << fec().ccuChan() << "/"
-      << fec().channel() 
-      << " connected to FED id/ch " 
-      << fed().fedId() << "/"
-      << fed().fedChannel() 
-      << " has a small range [ADC] of " << (tickmark-baseline)
-      << " (with the tick mark peak at " << tickmark
-      << " and baseline at "  << baseline << ")"; 
+    //edm::LogWarning(mlCommissioning_) 
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " Device with Crate/FEC/Ring/CCU/module/channel "
+    //<< fec().fecCrate() << "/"
+    //<< fec().fecSlot() << "/"
+    //<< fec().fecRing() << "/"
+    //<< fec().ccuAddr() << "/"
+    //<< fec().ccuChan() << "/"
+    //<< fec().channel() 
+    //<< " connected to FED id/ch " 
+    //<< fed().fedId() << "/"
+    //<< fed().fedChannel() 
+    //<< " has a small range [ADC] of " << (tickmark-baseline)
+    //<< " (with the tick mark peak at " << tickmark
+    //<< " and baseline at "  << baseline << ")"; 
     base_   = baseline;
     peak_   = tickmark;
     height_ = tickmark - baseline;
+    addErrorCode(sistrip::smallTickMarkHeight_);
     return; 
   }
   
@@ -352,12 +324,69 @@ void ApvTimingAnalysis::analyse() {
     peak_      = tickmark;
     height_    = tickmark - baseline;
   } else {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " No tick marks found!";
+    //edm::LogWarning(mlCommissioning_) 
+    //<< "[" << myName() << "::" << __func__ << "]"
+    //<< " No tick marks found!";
     base_   = baseline;
     peak_   = tickmark;
     height_ = tickmark - baseline;
+    addErrorCode(sistrip::missingTickMark_);
   }
   
+}
+
+// ----------------------------------------------------------------------------
+// 1) Calculates position of "sampling point" of last tick; 2) then
+// adjusts so that it is multiple of 25, ie, synched with FED
+// sampling; 3) then calculates delay required to synchronise with
+// this adjusted sampling position.
+void ApvTimingAnalysis::maxTime( const float& time ) { 
+  maxTime_ = time;
+  if ( time_ > sistrip::maximum_ ) { return; }
+  float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
+  delay_ = ( maxTime_ + adjustment ) - time_; 
+}
+
+// ----------------------------------------------------------------------------
+// 
+bool ApvTimingAnalysis::isValid() {
+  return ( time_ < sistrip::maximum_ &&
+	   maxTime_ < sistrip::maximum_ &&
+	   delay_ < sistrip::maximum_ &&
+	   error_ < sistrip::maximum_ &&
+	   base_ < sistrip::maximum_ &&
+	   peak_ < sistrip::maximum_ &&
+	   height_ < sistrip::maximum_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
+  float adjust = sistrip::invalid_;
+  if ( time_ <= sistrip::maximum_ && 
+       delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
+  float sampling = sistrip::invalid_;
+  if ( maxTime_ <= sistrip::maximum_ ) { sampling = maxTime_ + optimumSamplingPoint_; }
+  ss << " Time of tick mark rising edge [ns]        : " << time_ << std::endl 
+    //<< " Error on time of rising edge [ns]         : " << error_ << std::endl
+     << " Sampling point of last tick mark [ns]     : " << sampling << std::endl 
+     << " Delay required to synchronise [ns]        : " << delay_ << std::endl 
+     << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
+     << " Tick mark height [adc]                    : " << height_ << std::endl
+     << " Baseline level [adc]                      : " << base_ << std::endl 
+     << " Tick mark top [adc]                       : " << peak_ << std::endl 
+     << std::boolalpha 
+     << " isValid                                   : " << isValid()  << std::endl
+     << std::noboolalpha
+     << " Error codes (found "
+     << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
+     << ")                    : ";
+  if ( getErrorCodes().empty() ) { ss << "(none)"; }
+  else { 
+    VStrings::const_iterator istr = getErrorCodes().begin();
+    VStrings::const_iterator jstr = getErrorCodes().end();
+    for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
+  }
+  ss << std::endl;
 }
