@@ -1,12 +1,14 @@
 #include "DQMServices/Components/interface/StateMachine.h" 
 #include "log4cplus/logger.h"
 
-#include "xgi/include/xgi/Method.h"
-#include "xgi/include/xgi/Utils.h"
+#include "xgi/Method.h"
+#include "xgi/Utils.h"
 
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
+
+#include <string>
 
 using namespace dqm;
 
@@ -85,7 +87,7 @@ void StateMachine::statePage( xgi::Output * out )
     {
       std::string url = "/";
       url += getApplicationDescriptor()->getURN();
-      string purl = url + "/" + page_;
+      std::string purl = url + "/" + page_;
 
       *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict) << std::endl;
       *out << cgicc::html().set("lang", "en").set("dir","ltr") << std::endl;
@@ -157,11 +159,11 @@ void StateMachine::failurePage(xgi::Output * out, xgi::exception::Exception & e)
       xgi::Utils::getPageHeader(*out, "WebStateMachine Home", "Failure");
       
       
-      *out << cgicc::br() << e.what() << cgicc::br() << endl;
+      *out << cgicc::br() << e.what() << cgicc::br() << std::endl;
       std::string url = "/";
       url += getApplicationDescriptor()->getURN();
 
-      *out << cgicc::br() << "<a href=\"" << url << "\">" << "retry" << "</a>" << cgicc::br() << endl;
+      *out << cgicc::br() << "<a href=\"" << url << "\">" << "retry" << "</a>" << cgicc::br() << std::endl;
       
       xgi::Utils::getPageFooter(*out);
       

@@ -3,10 +3,10 @@
 
 #include "DQMServices/Components/interface/StateMachine.h"
 
-#include "xdata/include/xdata/UnsignedLong.h"
-#include "xdata/include/xdata/String.h"
-#include "xdata/include/xdata/Vector.h"
-#include "xdata/include/xdata/Boolean.h"
+#include "xdata/UnsignedLong.h"
+#include "xdata/String.h"
+#include "xdata/Vector.h"
+#include "xdata/Boolean.h"
 
 
 #include <string>

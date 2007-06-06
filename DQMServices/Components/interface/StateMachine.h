@@ -2,9 +2,11 @@
 #define DQMSERVICES_COMPONENTS_STATEMACHINE
 
 #include "EventFilter/Utilities/interface/EPStateMachine.h"
-#include "xgi/include/xgi/WSM.h"
+#include "xgi/WSM.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
+
+#include <string>
 
 namespace log4cplus{
   class Logger;

@@ -3,8 +3,8 @@
 #include "DQMServices/Components/interface/Updater.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
 
-#include "xgi/include/xgi/Method.h"
-#include "xgi/include/xgi/Utils.h"
+#include "xgi/Method.h"
+#include "xgi/Utils.h"
 
 #include <iostream>
 using std::cout; using std::endl;
@@ -72,7 +72,7 @@ void DQMBaseClient::configureAction(toolbox::Event::Reference e)
       mui_ = new MonitorUIRoot(server_, port_, name_, reconnect_delay_secs_, actAsServer_);
     }
   for(unsigned int i = 0; i < subs_.size(); i++)
-    mui_->subscribe(*((string*)subs_.elementAt(i)));
+    mui_->subscribe(*((std::string*)subs_.elementAt(i)));
 
   configure();
 }
