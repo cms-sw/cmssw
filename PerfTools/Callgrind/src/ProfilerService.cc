@@ -19,7 +19,7 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   m_excludedPaths(pset.getUntrackedParameter<std::vector<std::string> >("excludePaths",std::vector<std::string>() )),
   m_allPaths(false),
   m_evtCount(0),
-  m_counts(0);
+  m_counts(0),
   m_doEvent(false),
   m_active(0),
   m_paused(false) {
