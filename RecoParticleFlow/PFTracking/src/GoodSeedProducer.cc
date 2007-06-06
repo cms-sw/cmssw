@@ -325,7 +325,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed NewSeed(*state,rhits,alongMomentum);
 
       output_preid->push_back(NewSeed);
-      
+      delete state;
       if(produceCkfPFT_){
 
 	reco::PFRecTrack pftrack( trackRef->charge(), 
