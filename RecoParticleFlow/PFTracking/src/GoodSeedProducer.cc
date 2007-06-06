@@ -23,12 +23,15 @@
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
+#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include <fstream>
 #include <string>
 
 using namespace edm;
 using namespace std;
+using namespace reco;
 PFResolutionMap* GoodSeedProducer::resMapEtaECAL_ = 0;                                        
 PFResolutionMap* GoodSeedProducer::resMapPhiECAL_ = 0;
 
@@ -134,6 +137,20 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        iklus++){
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
+<<<<<<< GoodSeedProducer.cc
+
+  
+  for (iklus=thePSPfClustCollection.product()->begin();
+       iklus!=thePSPfClustCollection.product()->end();
+       iklus++){
+    //layer==-11 first layer of PS
+    //layer==-12 secon layer of PS
+    if ((*iklus).layer()==-11) ps1Clus.push_back(*iklus);
+    if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
+  }
+
+=======
+>>>>>>> 1.14
   
   ps1Clus.clear();
   ps2Clus.clear();
@@ -150,9 +167,52 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   LogDebug("GoodSeedProducer")<<"Number of tracks to be analyzed "<<Tj.size();
 
+
+  InputTag tPartTag =conf_.getParameter<InputTag>("TrackParticleTag");
+  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
+  iEvent.getByLabel(tPartTag,TPCollectionH);
+  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+ 
+  gTrack=0;
+  gPs1=0;
+  gPs2=0;
+
+
+  vector< pair<uint,int> > vec_index;
+  reco::SimToRecoCollection q = 
+    associatorByHits->associateSimToReco(tkRefCollection,TPCollectionH,&iEvent );
+  for(SimTrackContainer::size_type i=0; i<tPC.size(); ++i){
+    TrackingParticleRef tp (TPCollectionH,i);
+    if (tp->genParticle().size()>0){
+      try{ 
+	std::vector<std::pair<TrackRef, double> > trackV = q[tp];
+
+	for (std::vector<std::pair<TrackRef,double> >::const_iterator it=trackV.begin(); it != trackV.end(); ++it) {
+	  TrackRef tr = it->first;
+
+	  if (it==trackV.begin())  vec_index.push_back(make_pair(tr.index(),tp->pdgId()));
+	} 
+      } catch (Exception event) {
+	
+      }
+    }
+  }
+  
+
   for(uint i=0;i<Tk.size();i++){
 
-    reco::TrackRef trackRef(tkRefCollection, i);
+    int particle_code=0;
+
+    for (uint ivec=0; ivec<vec_index.size();ivec++){
+
+      if (vec_index[ivec].first==i)particle_code=vec_index[ivec].second;
+      
+    }
+
+
+    float P2=Tj[i].lastMeasurement().updatedState().globalMomentum().perp();
+    float P1=Tj[i].firstMeasurement().updatedState().globalMomentum().perp();
+    float ptin= (P1>0)? fabs((P2/P1)-1):0;
 
     float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
     float chired=Tk[i].normalizedChi2();
@@ -168,17 +228,30 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				       Tj[i].firstMeasurement().updatedState(),
 				       propagator_.product(),side);  
  
+
     float toteta=1000;
     float totphi=1000;
     float dr=1000;
     float EP=900;
     float EE=0;
     float feta=0;
-
-    if(ecalTsos.isValid()){
-      float etarec=ecalTsos.globalPosition().eta();
-      float phirec=ecalTsos.globalPosition().phi();
+    float fphi=0;
+    //    float CorrEn=0;
+    // float nclps=0;
+    float etarecbest=0;
+    float phirecbest=0;
+    float el_dpt=0;
+    float gchi=0;
+    float chiratio=0;
+    //    float CorrEn= PSCorrEnergy(Tj[i].firstMeasurement().updatedState()).first;
+    int nclps= PSCorrEnergy(Tj[i].firstMeasurement().updatedState()).second;
+    nclps+=2; 
+   if(ecalTsos.isValid()){
+      float   etarec=ecalTsos.globalPosition().eta();
+      float  phirec=ecalTsos.globalPosition().phi();
       
+      
+
       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
 	  aClus != basClus.end(); aClus++) {
 
@@ -193,9 +266,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  if (maxShTsos.isValid()){
 	    etarec=maxShTsos.globalPosition().eta();
 	    phirec=maxShTsos.globalPosition().phi();
+
 	  }
 	}
-
 	float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
 			  pow((aClus->positionXYZ().eta()-etarec),2));
 	if (tmp_dr<dr) {
@@ -205,27 +278,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  EP=aClus->energy()/PTOB;
 	  EE=aClus->energy();
 	  feta= aClus->positionXYZ().eta();
+	  fphi= aClus->positionXYZ().phi();
+	  phirecbest=phirec;
+	  etarecbest=etarec;
 	}
       }
     }
+ 
   
-  
-    //thresholds 
-    int ibin=getBin(Tk[i].eta(),Tk[i].pt())*9;
-
-    float chi2cut=thr[ibin+0];
-    float ep_cutmin=thr[ibin+1];
-    //
-    int hit1max=int(thr[ibin+2]);
-    float chiredmin=thr[ibin+3];
-    //
-    float chiratiocut=thr[ibin+4]; 
-    float gschicut=thr[ibin+5]; 
-    float gsptmin=thr[ibin+6];
-    // 
-    int hit2max=int(thr[ibin+7]);
-    float finchicut=thr[ibin+8]; 
-    //
 
 
 
@@ -234,6 +294,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     double ecalphires 
       = resMapPhiECAL_->GetBinContent(resMapPhiECAL_->FindBin(feta,EE)); 
 
+<<<<<<< GoodSeedProducer.cc
+=======
     float chieta= toteta/ecaletares;
     float chiphi= totphi/ecalphires;
     float chichi= chieta*chieta + chiphi*chiphi;
@@ -301,68 +363,66 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	") preidentified only for track properties";
 
 
+>>>>>>> 1.14
  
-    if (cc1){
 
-      //NEW SEED with n hits
-      int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
 
-      Trajectory seedTraj;
-      OwnVector<TrackingRecHit>  rhits;
 
-      vector<TrajectoryMeasurement> tm=Tj[i].measurements();
 
-      for (uint ihit=tm.size()-1; ihit>=tm.size()-nHitsinSeed;ihit-- ){ 
-	//for the first n measurement put the TM in the trajectory
-	// and save the corresponding hit
-	seedTraj.push(tm[ihit]);
-	rhits.push_back((*tm[ihit].recHit()).hit()->clone());
-      }
-      PTrajectoryStateOnDet* state = TrajectoryStateTransform().
-	persistentState(seedTraj.lastMeasurement().updatedState(),
-			(*seedTraj.lastMeasurement().recHit()).hit()->geographicalId().rawId());
-      
-      TrajectorySeed NewSeed(*state,rhits,alongMomentum);
-
-      output_preid->push_back(NewSeed);
-      
-      if(produceCkfPFT_){
-
-	reco::PFRecTrack pftrack( trackRef->charge(), 
-				  reco::PFRecTrack::KF_ELCAND, 
-				  i, trackRef );
-
-	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-	if(valid)
-	  pOutputPFRecTrackCollection->push_back(pftrack);		
-      } 
-    }else{
-      if (produceCkfseed_){
-	output_nopre->push_back(Seed);
-      }
-      if(produceCkfPFT_){
-		
-	reco::PFRecTrack pftrack( trackRef->charge(), 
-				  reco::PFRecTrack::KF, 
-				  i, trackRef );
-
-	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-
-	if(valid)
-	  pOutputPFRecTrackCollection->push_back(pftrack);		
-
+    Trajectory::ConstRecHitContainer tmp;
+    Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
+    for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
+    
+    vector<Trajectory> FitTjs=(fitter_.product())->fit(Seed,tmp,Tj[i].lastMeasurement().updatedState());
+    
+    if(FitTjs.size()>0){
+      if(FitTjs[0].isValid()){
+	vector<Trajectory> SmooTjs=(smoother_.product())->trajectories(FitTjs[0]);
+	if(SmooTjs.size()>0){
+	  if(SmooTjs[0].isValid()){
+	    
+	    //Track refitted with electron hypothesis
+	    
+	    float pt_out=SmooTjs[0].firstMeasurement().
+	      updatedState().globalMomentum().perp();
+	    float pt_in=SmooTjs[0].lastMeasurement().
+	      updatedState().globalMomentum().perp();
+	    el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
+	    chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
+	    gchi=chiratio*chired;
+	    
+	    //Criteria based on electron tracks
+	    
+	  }
+	}
       }
     }
+
+    gCode[gTrack]=particle_code;
+    gEta[gTrack]=Tk[i].eta();
+    gPhi[gTrack]=Tk[i].phi();
+    gPt[gTrack]=Tk[i].pt();
+    gDpt[gTrack]=ptin;
+    gAbsPFin[gTrack]=PTOB;
+    gNhit[gTrack]=nhitpi;
+    gChired[gTrack]=chired;
+    gPropPhi[gTrack]=phirecbest;
+    gPropEta[gTrack]=etarecbest;
+    gResPhi[gTrack]=ecalphires;
+    gResEta[gTrack]=ecaletares;
+    gClE[gTrack]=EE;
+    gClPhi[gTrack]=fphi;
+    gClEta[gTrack]=feta;
+    //  gPSCorr[gTrack]=CorrEn;
+    //   gPSNCl[gTrack]=nclps;
+    gsfDpt[gTrack]=el_dpt;
+    gsfChired[gTrack]=gchi;
+    gsfChiRatio[gTrack]=chiratio;
+    gTrack++;    
   }
   
-  if(produceCkfPFT_){
-    iEvent.put(pOutputPFRecTrackCollection);
-  }
-  
-  iEvent.put(output_preid,preidgsf_);
-  if (produceCkfseed_)
-    iEvent.put(output_nopre,preidckf_);
-  
+
+   t1->Fill();
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -390,12 +450,51 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
   ifstream ifs(parFile.fullPath().c_str());
   for (int iy=0;iy<135;iy++) ifs >> thr[iy];
+<<<<<<< GoodSeedProducer.cc
+  edm::ESHandle<TrackAssociatorBase> theHitsAssociator;
+  es.get<TrackAssociatorRecord>().get("TrackAssociatorByHits",theHitsAssociator);
+  associatorByHits = (TrackAssociatorBase *) theHitsAssociator.product();
+ 
+  outputfile = conf_.getParameter<std::string>("OutputFile");
+  hFile=new TFile(outputfile.c_str(), "RECREATE");
+  t1 = new TTree("t1","Reconst ntuple");
+  t1->Branch("gTrack",&gTrack,"gTrack/I");
+  t1->Branch("gCode",gCode,"gCode[gTrack]/F");
+  t1->Branch("gEta",gEta,"gEta[gTrack]/F");
+  t1->Branch("gPhi",gPhi,"gPhi[gTrack]/F");
+  t1->Branch("gPt",gPt,"gPt[gTrack]/F");
+  t1->Branch("gDpt",gDpt,"gDpt[gTrack]/F");
+  t1->Branch("gAbsPFin",gAbsPFin,"gAbsPFin[gTrack]/F");
+  t1->Branch("gNhit",gNhit,"gNhit[gTrack]/F");
+  t1->Branch("gChired",gChired,"gChired[gTrack]/F");
+  t1->Branch("gPropPhi",gPropPhi,"gPropPhi[gTrack]/F");
+  t1->Branch("gPropEta",gPropEta,"gPropEta[gTrack]/F");
+  t1->Branch("gResPhi",gResPhi,"gResPhi[gTrack]/F");
+  t1->Branch("gResEta",gResEta,"gResEta[gTrack]/F");
+  t1->Branch("gClE",gClE,"gClE[gTrack]/F");
+  t1->Branch("gClPhi",gClPhi,"gClPhi[gTrack]/F");
+  t1->Branch("gClEta",gClEta,"gClEta[gTrack]/F");
+  t1->Branch("gsfDpt",gsfDpt,"gsfDpt[gTrack]/F");
+  t1->Branch("gsfChired",gsfChired,"gsfChired[gTrack]/F");
+  t1->Branch("gsfChiRatio",gsfChiRatio,"gsfChiRatio[gTrack]/F");
+  t1->Branch("gPs1",&gPs1,"gPs1/I");
+  t1->Branch("gPs1_tk",gPs1_tk,"gPs1_tk[gPs1]/I");
+  t1->Branch("gPs1_dx",gPs1_dx,"gPs1_dx[gPs1]/F");
+  t1->Branch("gPs1_dy",gPs1_dy,"gPs1_dy[gPs1]/F");
+  t1->Branch("gPs1_en",gPs1_en,"gPs1_en[gPs1]/F");
+  t1->Branch("gPs2",&gPs2,"gPs2/I");
+  t1->Branch("gPs2_tk",gPs2_tk,"gPs2_tk[gPs2]/I");
+  t1->Branch("gPs2_dx",gPs2_dx,"gPs2_dx[gPs2]/F");
+  t1->Branch("gPs2_dy",gPs2_dy,"gPs2_dy[gPs2]/F");
+  t1->Branch("gPs2_en",gPs2_en,"gPs2_en[gPs2]/F");
+=======
 
   //read PS threshold
   FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
   ifstream ifsPS(parPSFile.fullPath().c_str());
   for (int iy=0;iy<20;iy++) ifsPS >> thrPS[iy];
 
+>>>>>>> 1.14
 }
 
 int GoodSeedProducer::getBin(float eta, float pt){
@@ -417,6 +516,80 @@ int GoodSeedProducer::getBin(float eta, float pt){
   LogDebug("GoodSeedProducer")<<"Track pt ="<<pt<<" eta="<<eta<<" bin="<<iep;
   return iep;
 }
+<<<<<<< GoodSeedProducer.cc
+void
+GoodSeedProducer::endJob() {
+  hFile->Write();
+  hFile->Close();
+}
+
+pair<float,int>
+GoodSeedProducer::PSCorrEnergy(const TSOS tsos){
+  uint iPScl=0;
+  int sder=0;
+  float corrEn=0;
+  TSOS ps1TSOS =
+    pfTransformer_->getStateOnSurface(PFGeometry::PS1Wall, tsos,
+                                      propagator_.product(), sder);
+  if (!(ps1TSOS.isValid())) return make_pair(0.,iPScl);
+  GlobalPoint v1=ps1TSOS.globalPosition();
+  
+  if (!((v1.perp() >=
+         PFGeometry::innerRadius(PFGeometry::PS1)) &&
+        (v1.perp() <=
+         PFGeometry::outerRadius(PFGeometry::PS1)))) return make_pair(0.,iPScl);
+ 
+  
+  vector<PFCluster>::const_iterator ips;
+  for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
+    if ((fabs(v1.x()-(*ips).positionXYZ().x())<0.6)&&
+        (fabs(v1.y()-(*ips).positionXYZ().y())<7)&&
+        (v1.z()*(*ips).positionXYZ().z()>0)) {
+      //      cout<<"PS1 "<<(*ips).energy()<<" "<<(*ips).positionXYZ().x()<<" "<<(*ips).positionXYZ().y()<<" "<<
+      //        (*ips).positionXYZ().z()<<" "<<
+      //      fabs(v1.x()-(*ips).positionXYZ().x())<<" "<<fabs(v1.y()-(*ips).positionXYZ().y())<<endl;
+      //      corrEn+=(2*(*ips).energy());
+      gPs1_tk[gPs1]=gTrack;
+      gPs1_dx[gPs1]=v1.x()-(*ips).positionXYZ().x();
+      gPs1_dy[gPs1]=v1.y()-(*ips).positionXYZ().y();
+      gPs1_en[gPs1]=(*ips).energy();
+      gPs1++;
+      iPScl++;
+    }
+  }
+  TSOS ps2TSOS =
+    pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
+                                      propagator_.product(), sder);
+  if (!(ps2TSOS.isValid())) return make_pair(corrEn,iPScl);
+  GlobalPoint v2=ps2TSOS.globalPosition();
+  //  cout<<"xxxPS2xxx "<<v2<<endl;
+  if (!((v2.perp() >=
+         PFGeometry::innerRadius(PFGeometry::PS2)) &&
+        (v2.perp() <=
+         PFGeometry::outerRadius(PFGeometry::PS2)))) return make_pair(0.,iPScl);
+ 
+  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
+    if ((fabs(v2.x()-(*ips).positionXYZ().x())<10.)&&
+        (fabs(v2.y()-(*ips).positionXYZ().y())<0.9)&&
+        (v2.z()*(*ips).positionXYZ().z()>0)) {
+
+      gPs2_tk[gPs2]=gTrack;
+      gPs2_dx[gPs2]=v2.x()-(*ips).positionXYZ().x();
+      gPs2_dy[gPs2]=v2.y()-(*ips).positionXYZ().y();
+      gPs2_en[gPs2]=(*ips).energy();
+      gPs2++;
+ //      cout<<"PS2 "<<(*ips).energy()<<" "<<(*ips).positionXYZ().x()<<" "<<(*ips).positionXYZ().y()<<" "<<
+//         (*ips).positionXYZ().z()<<" "<<
+//         fabs(v2.x()-(*ips).positionXYZ().x())<<" "<<fabs(v2.y()-(*ips).positionXYZ().y())<<endl;
+      corrEn+=(3*(*ips).energy());
+      iPScl+=100;
+    }
+  }
+  
+  return make_pair(corrEn,iPScl);
+   
+}
+=======
 
 bool GoodSeedProducer::PSCorrEnergy(const TSOS tsos, int ibin){
   int sder=0;
@@ -465,3 +638,4 @@ bool GoodSeedProducer::PSCorrEnergy(const TSOS tsos, int ibin){
   return Ps2g;
   
 }
+>>>>>>> 1.14

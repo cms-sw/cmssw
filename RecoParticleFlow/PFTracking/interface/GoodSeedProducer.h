@@ -12,8 +12,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+<<<<<<< GoodSeedProducer.h
+#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include <TROOT.h>
+#include <TFile.h>
+#include <TTree.h>
+=======
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+>>>>>>> 1.6
 
 /// \brief Abstract
 /*!
@@ -39,6 +46,10 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
 class StraightLinePropagator;
+class TrackerHitAssociator;
+namespace reco {
+  class PFCluster;
+}
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -49,11 +60,22 @@ class GoodSeedProducer : public edm::EDProducer {
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob(){}
+      virtual void endJob();
  
       ///Find the bin in pt and eta
       int getBin(float,float);
+<<<<<<< GoodSeedProducer.h
+      ///
+      std::pair<float,int> PSCorrEnergy(const TSOS);
+ 
+      // ----------member data ---------------------------
+ 
+      ///Vector of clusters of the PreShower
+      std::vector<reco::PFCluster> ps1Clus;
+      std::vector<reco::PFCluster> ps2Clus;
+=======
       bool PSCorrEnergy(const TSOS, int ptbin);
+>>>>>>> 1.6
 
       // ----------member data ---------------------------
 
@@ -111,5 +133,25 @@ class GoodSeedProducer : public edm::EDProducer {
 
       static PFResolutionMap* resMapEtaECAL_;
       static PFResolutionMap* resMapPhiECAL_;
+      TrackerHitAssociator * hitassociator;
+      TrackAssociatorBase * associatorByHits;
+      TFile* hFile;
+      std::string outputfile;
+      TTree *t1;
+      int gTrack;
+      float gCode[1000000],gEta[1000000],gPhi[1000000],gPt[1000000];
+      float gDpt[1000000],gAbsPFin[1000000],gNhit[1000000],gChired[1000000],gPropPhi[1000000];
+      float gPropEta[1000000],gResPhi[1000000],gResEta[1000000],gClE[1000000], gClPhi[1000000];
+      float gClEta[1000000],gsfDpt[1000000],gsfChired[1000000],
+        gsfChiRatio[1000000];
+
+      int gPs1,gPs2;
+      int  gPs1_tk[1000000];
+      float gPs1_dx[1000000], gPs1_dy[1000000], gPs1_en[1000000];
+      int  gPs2_tk[1000000];
+      float gPs2_dx[1000000], gPs2_dy[1000000], gPs2_en[1000000];
+
+
+
 };
 #endif

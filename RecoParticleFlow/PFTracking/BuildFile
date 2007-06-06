@@ -8,6 +8,8 @@
 <use name=RecoParticleFlow/PFBlockAlgo>
 <use name=RecoParticleFlow/PFClusterTools>
 <use name=RecoTracker/TrackProducer>
+<use name=SimTracker/TrackAssociation>
+<use name=root>
 <use name=clhep>
 <use name=boost>
 <export>	
@@ -20,6 +22,8 @@
 <use name=TrackingTools/TrajectoryState>
 <use name=RecoParticleFlow/PFClusterTools>
 <use name=RecoTracker/TrackProducer>
+<use name=SimTracker/TrackAssociation>
+<use name=root>
 <use name=clhep>
 <use name=boost>
 
