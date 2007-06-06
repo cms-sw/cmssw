@@ -147,7 +147,6 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
   std::vector<GeomDetUnit*> const & gdu= tracker->detUnits();
   std::vector<DetId> const & gduId = tracker->detUnitIds();
-  std::vector<const GeomDetUnit *> glued; glued.reserve(2);
 
   for(u_int32_t i=0;i<gdu.size();i++){
     StripSubdetector sidet( gduId[i].rawId());
@@ -156,7 +155,10 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
     if(sidet.glued()!=0&&sidet.stereo()==1){
       int partner_pos=-1;
       for(u_int32_t jj=0;jj<gduId.size();jj++){
-	if(DetId(sidet.partnerDetId())== gduId[jj]) partner_pos=jj; 
+	if(sidet.partnerDetId()== gduId[jj]) {
+	  partner_pos=jj;
+	  break;
+	}
       }
       const GeomDetUnit* dus = gdu[i];
       if(partner_pos==-1){
@@ -164,9 +166,9 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 					<<"There is a problem on Tracker geometry configuration\n";
       }
       const GeomDetUnit* dum = gdu[partner_pos];
-      glued.clear();
-      glued.push_back(dum);
-      glued.push_back(dus);
+      std::vector<const GeomDetUnit *> glued(2);
+      glued[0]=dum;
+      gluedp[1]=dus;
       PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
       GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
       tracker->addDet((GeomDet*) gluedDet);
