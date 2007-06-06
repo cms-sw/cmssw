@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.2 2007/05/22 16:43:36 heyninck Exp $
+// $Id: TtSemiLRJetCombObservables.h,v 1.1 2007/05/24 13:15:44 heyninck Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -19,7 +19,7 @@
   // obs3 : delta R between had top and lep b  
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.2 2007/05/22 16:43:36 heyninck Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.1 2007/05/24 13:15:44 heyninck Exp $
 */
 
 
@@ -29,6 +29,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
+#include <Math/VectorUtil.h>
 
 
 using namespace std;

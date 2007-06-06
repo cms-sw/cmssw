@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.1 2007/05/24 13:15:45 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 
@@ -18,20 +18,40 @@ TtSemiLRJetCombObservables::~TtSemiLRJetCombObservables() {}
 void  TtSemiLRJetCombObservables::operator()(TtSemiEvtSolution& sol){
   jetCombVarVal.clear();
 
-  //obs1 : pt(had top)
-  double obs1 = sol.getHadb().pt()+sol.getHadq().pt()+sol.getHadp().pt();
-  jetCombVarVal.push_back(pair<double,double>(1,obs1));
-  
+  //obs1 : pt(had top) 
+  double AverageTop =((sol.getHadb().p4()+sol.getHadq().p4()+sol.getHadp().p4()).pt()+(sol.getLepb().p4()+sol.getHadq().p4()+sol.getHadp().p4()).pt()+(sol.getHadb().p4()+sol.getLepb().p4()+sol.getHadp().p4()).pt()+(sol.getHadb().p4()+sol.getHadq().p4()+sol.getLepb().p4()).pt())/4.;
+  double Obs1 = ((sol.getHadb().p4()+sol.getHadq().p4()+sol.getHadp().p4()).pt())/AverageTop;
+  jetCombVarVal.push_back(pair<double,double>(1,Obs1)); 
+
   //obs2 : (pt_b1 + pt_b2)/(sum jetpt)
-  double obs2 = (sol.getHadb().pt()+sol.getLepb().pt())/(sol.getHadp().pt()+sol.getHadq().pt()+sol.getHadb().pt()+sol.getLepb().pt());
+  double obs2 = (sol.getHadb().pt()+sol.getLepb().pt())/(sol.getHadp().pt()+sol.getHadq().pt());
   jetCombVarVal.push_back(pair<double,double>(2,obs2));
-
-  //obs3: delta R between had top and lep b  
-  double etadiff = (sol.getHadq().p4()+sol.getHadp().p4()+sol.getHadb().p4()).eta() - sol.getLepb().eta();
-  double phidiff = fabs((sol.getHadq().p4()+sol.getHadp().p4()+sol.getHadb().p4()).phi() - sol.getLepb().phi());
-  if(phidiff>3.14159) phidiff = 2.*3.14159 - phidiff;
-  double obs3 = sqrt(pow(etadiff,2)+pow(phidiff,2));
-  jetCombVarVal.push_back(pair<double,double>(3,obs3));
-
+  
+  //obs3: delta R between lep b and lepton 
+  double Obs3 = -10;
+  if (sol.getDecay() == "muon")     Obs3 = ROOT::Math::VectorUtil::DeltaR( sol.getLepb().p4(),sol.getRecLepm().p4() );
+  if (sol.getDecay() == "electron") Obs3 = ROOT::Math::VectorUtil::DeltaR( sol.getLepb().p4(),sol.getRecLepe().p4() );
+  jetCombVarVal.push_back(pair<double,double>(3,Obs3));
+  
+   //obs4 : del R ( had b, had W)
+  double Obs4 = ROOT::Math::VectorUtil::DeltaR( sol.getHadb().p4(), sol.getHadq().p4()+sol.getHadp().p4() );
+  jetCombVarVal.push_back(pair<double,double>(4,Obs4));  
+   
+  //obs5 : del R between light quarkssol.getHadp().phi(
+  double Obs5 = ROOT::Math::VectorUtil::DeltaR( sol.getHadq().p4(),sol.getHadp().p4() );
+  jetCombVarVal.push_back(pair<double,double>(5,Obs5)); 
+  
+  //obs6 : b-tagging information
+  double Obs6 = 0;
+  if ( fabs(sol.getHadb().getBdiscriminant() +10) < 0.0001 || fabs(sol.getLepb().getBdiscriminant() +10)< 0.0001 ){Obs6 = -10.;} else {
+  //double Obs6 = (sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant())/(sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant()+sol.getHadp().getBdiscriminant()+sol.getHadq().getBdiscriminant());
+  Obs6 = (sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant());}
+  jetCombVarVal.push_back(pair<double,double>(6,Obs6)); 
+   
+  //obs7 : chi2 value of kinematical fit with W-mass constraint
+  double Obs7 =0;
+  if(sol.getProbChi2() <0){Obs7 = -0;} else { Obs7 = log10(sol.getProbChi2()+.00001);}
+  jetCombVarVal.push_back(pair<double,double>(7,Obs7)); 
+ 
   sol.setLRCorrJetCombVarVal(jetCombVarVal);
 }
