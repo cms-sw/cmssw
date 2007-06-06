@@ -19,13 +19,12 @@ void CmsTrackerPetalBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer comp = det->components();
+  GeometricDet::GeometricDetContainer & comp = det->components();
 
-  switch(det->components().front()->type()){
-  case GeometricDet::ring: std::stable_sort(comp.begin(),comp.end(),LessR_module()); break;	
-  default:
+  if (comp.front()->type()==GeometricDet::ring)
+    std::sort(comp.begin(),comp.end(),LessR_module());
+  else
     edm::LogError("CmsTrackerPetalBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
-  }
   
   // Maximum Number fo TEC Rings is 7 in order 
   // to discover from which number we have to start
@@ -34,10 +33,8 @@ void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   uint32_t startring = 8 - comp.size();
   
   for(uint32_t i=0; i<comp.size(); i++){
-    comp[i]->setGeographicalID(DetId(startring+i));
+    comp[i]->setGeographicalID(startring+i);
   }
-  det->clearComponents();
-  det->addComponents(comp);
 }
 
 

@@ -22,17 +22,15 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 }
 
 void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
- GeometricDet::GeometricDetContainer comp = det->components();
+ GeometricDet::GeometricDetContainer & comp = det->components();
 
- switch(det->components().front()->type()){
- case GeometricDet::DetUnit: std::stable_sort(comp.begin(),comp.end(),LessR()); break;
- default:
+ if (comp.front()->type()==GeometricDet::DetUnit) 
+   std::sort(comp.begin(),comp.end(),LessR()); 
+ else
    edm::LogError("CmsTrackerPanelBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
- }
+
   for(uint32_t i=0; i<comp.size();i++){
-    comp[i]->setGeographicalID(DetId(i+1));
+    comp[i]->setGeographicalID(i+1);
   } 
  
-  det->clearComponents();
-  det->addComponents(comp);
 }

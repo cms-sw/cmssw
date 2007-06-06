@@ -13,7 +13,7 @@ class DDFilteredView;
  */
 class ExtractStringFromDDD{
  public:
-  static std::string getString(std::string,DDFilteredView*);
+  static std::string getString(std::string const &,DDFilteredView*);
 };
 
 #endif

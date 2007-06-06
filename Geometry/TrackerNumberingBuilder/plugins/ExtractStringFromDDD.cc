@@ -6,10 +6,10 @@
 
 using namespace cms;
 
-std::string ExtractStringFromDDD::getString(std::string s,DDFilteredView* fv){ 
-  std::vector<std::string> temp;
+std::string ExtractStringFromDDD::getString(std::string const & s,DDFilteredView* fv){ 
   DDValue val(s);
-  std::vector<const DDsvalues_type *> result = fv->specifics();
+  std::vector<const DDsvalues_type *> result;
+  fv->specificsV(result);
   std::vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
   for (; it != result.end(); ++it)   {
@@ -17,7 +17,7 @@ std::string ExtractStringFromDDD::getString(std::string s,DDFilteredView* fv){
     if (foundIt) break;
   }    
   if (foundIt)   { 
-    temp = val.strings();
+    std::vector<std::string> const & temp = val.strings();
     if (temp.size() != 1) {
      throw cms::Exception("Configuration")<< " ERROR: I need 1 "<< s << " tags";
     }
