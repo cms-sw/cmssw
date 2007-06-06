@@ -6,6 +6,8 @@
 
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 
+#include <boost/bind.hpp>
+
 /**
  * What to do in the destructor?
  * For the moment nothing, I do not want to destroy all the daughters!
@@ -85,7 +87,7 @@ void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
     cont.push_back(const_cast<GeometricDet*>(this));
   else 
     std::for_each(_container.begin(),_container.end(), 
-		  boost_bind(&GeometricDet::deepComponents,_1));
+		  boost::bind(&GeometricDet::deepComponents,_1));
   }
 }
 
