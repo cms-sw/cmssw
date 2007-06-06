@@ -1,4 +1,5 @@
 
+
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "DetectorDescription/Core/interface/DDName.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
@@ -315,8 +316,8 @@ DDPolySolid::DDPolySolid(const DDSolid & s)
 { }
 
 std::vector<double> DDPolySolid::getVec (const size_t& which, 
-				    const size_t& offset,
-				    const size_t& numVecs) const {
+					 const size_t& offset,
+					 const size_t& numVecs) const {
 
   // which:  first second or third std::vector 
   // offset: number of non-std::vector components before std::vectors start
@@ -329,11 +330,11 @@ std::vector<double> DDPolySolid::getVec (const size_t& which,
 	 << "  offset=" << offset << std::endl;
   }
   else {
-    szVec = (rep().parameters().size() - offset) / numVecs;
+    szVec = (rep().parameters().size() - offset)/ numVecs;
   }
-  for (size_t i = offset + szVec * which; i < rep().parameters().size(); ++i)
+  for (size_t i = offset + which; i < rep().parameters().size(); i = i + numVecs) {
     tvec.push_back(rep().parameters()[i]);
-		   
+  }		   
   return tvec;
 }
 
@@ -356,28 +357,28 @@ double DDPolycone::deltaPhi() const { return rep().parameters()[1]; }
 std::vector<double> DDPolycone::rVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolycone_rz)
-    tvec = getVec(0, 2, 2);
+    tvec = getVec(1, 2, 2);
   return tvec; 
 }
 
 std::vector<double> DDPolycone::zVec() const {
   if (shape() == ddpolycone_rz)
-    return getVec(1, 2, 2);
+    return getVec(0, 2, 2);
   else // (shape() == ddpolycone_rrz)
-    return getVec(2, 2, 3);
+    return getVec(0, 2, 3);
 }
 
 std::vector<double> DDPolycone::rMinVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolycone_rrz)
-    tvec = getVec(0, 2, 3);
+    tvec = getVec(1, 2, 3);
   return tvec; 
 }
 
 std::vector<double> DDPolycone::rMaxVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolycone_rrz)
-    tvec = getVec(1, 2, 3);
+    tvec = getVec(2, 2, 3);
   return tvec; 
 }
 
@@ -403,28 +404,28 @@ double DDPolyhedra::deltaPhi() const { return rep().parameters()[2]; }
 std::vector<double> DDPolyhedra::rVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolyhedra_rz)
-    tvec = getVec(0, 3, 2);
+    tvec = getVec(1, 3, 2);
   return tvec;
 }
 
 std::vector<double> DDPolyhedra::zVec() const {
   if (shape() == ddpolyhedra_rz)
-    return getVec(1, 3, 2);
+    return getVec(0, 3, 2);
   else // (shape() == ddpolycone_rrz)
-    return getVec(2, 3, 3);
+    return getVec(0, 3, 3);
 }
 
 std::vector<double> DDPolyhedra::rMinVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolyhedra_rrz)
-    tvec = getVec(0, 3, 3);
+    tvec = getVec(1, 3, 3);
   return tvec;
 }
 
 std::vector<double> DDPolyhedra::rMaxVec() const {
   std::vector<double> tvec;
   if (shape() == ddpolyhedra_rrz)
-    tvec = getVec(1, 3, 3);
+    tvec = getVec(2, 3, 3);
   return tvec;
 }
 
