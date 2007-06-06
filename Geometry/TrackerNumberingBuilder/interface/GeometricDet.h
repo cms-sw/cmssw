@@ -60,7 +60,7 @@ class GeometricDet {
   /**
    * clearComponents() only empties the container, the components are not deleted!
    */
-  void clearComponents() {_container.resize(0);}
+  void clearComponents() {_container.clear();}
  
   /**
    * deleteComponents() explicitly deletes the daughters
