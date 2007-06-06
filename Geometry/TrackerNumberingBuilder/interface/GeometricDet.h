@@ -61,17 +61,13 @@ class GeometricDet {
    * clearComponents() only empties the container, the components are not deleted!
    */
   void clearComponents() {_container.resize(0);}
+ 
   /**
    * deleteComponents() explicitly deletes the daughters
-   * FIXME: it does not
+   * 
    */
   void deleteComponents();
-  /**
-   * deepDeleteComponents() traverses the treee and deepDeletes() all of them.
-   * Is  this a final cleanup?
-   */
-  void deepDeleteComponents();
-  
+
   bool isLeaf() const {return _container.empty();}
   
   /**

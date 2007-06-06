@@ -10,9 +10,11 @@
 
 /**
  * What to do in the destructor?
- * For the moment nothing, I do not want to destroy all the daughters!
+ * destroy all the daughters!
  */
-GeometricDet::~GeometricDet(){}
+GeometricDet::~GeometricDet(){
+  deleteComponents();
+}
 
 GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navtype), _type(type){ 
   //
@@ -112,20 +114,17 @@ void GeometricDet::addComponent(GeometricDet* det){
   _container.push_back(det);
 }
 
+namespace {
+  struct Deleter {
+    void operator()(GeometricDet const* det) { delete  const_cast<GeometricDet*>(det);}
+  };
+}
+
 void GeometricDet::deleteComponents(){
+  std::for_each(_container.begin(),_container.end(),Deleter); 
   _container.clear();
-  //  _container.erase(_container.begin(),_container.end());
 }
 
-
-void GeometricDet::deepDeleteComponents(){
-  for (GeometricDetContainer::iterator it = _container.begin();
-       it != _container.end(); it++){
-    (const_cast<GeometricDet*>(*it))->deepDeleteComponents();
-    delete const_cast<GeometricDet*>(*it);
-  }
-  clearComponents();  
-}
 
 GeometricDet::Position GeometricDet::positionBounds() const{
 
