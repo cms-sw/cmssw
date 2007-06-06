@@ -32,9 +32,11 @@ DDCompactView::DDCompactView()
 
 
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  :  rep_(new DDCompactViewImpl(rootnodedata))
+  //  : rep_(new DDCompactViewImpl(rootnodedata))
   {
     // global_ = rep_;
+    DDRootDef::instance().set(rootnodedata);
+    global();
   }
 
 // Prototypish, to be used from within DDpos(...)

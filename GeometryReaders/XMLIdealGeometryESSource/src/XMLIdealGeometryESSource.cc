@@ -52,7 +52,10 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
       //    findingRecord<IdealGeometryRecord>();
 }
 
-XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {}
+XMLIdealGeometryESSource::~XMLIdealGeometryESSource() {
+  DDCompactView cpv;
+  cpv.clear();
+}
 
 std::auto_ptr<DDCompactView>
 XMLIdealGeometryESSource::produceGeom(const IdealGeometryRecord &)
@@ -80,8 +83,8 @@ XMLIdealGeometryESSource::produce() {
    }
    std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
    //copy the graph from the global one
-   DDCompactView globalOne;
-   returnValue->writeableGraph() = globalOne.graph();
+   //   DDCompactView globalOne;
+   //   returnValue->writeableGraph() = globalOne.graph();
    //std::cout <<"made the view"<<std::endl;
    return returnValue;
 }
