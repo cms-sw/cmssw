@@ -168,7 +168,7 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
       const GeomDetUnit* dum = gdu[partner_pos];
       std::vector<const GeomDetUnit *> glued(2);
       glued[0]=dum;
-      gluedp[1]=dus;
+      glued[1]=dus;
       PlaneBuilderForGluedDet::ResultType plane = gluedplaneBuilder.plane(glued);
       GluedGeomDet* gluedDet = new GluedGeomDet(&(*plane),dum,dus);
       tracker->addDet((GeomDet*) gluedDet);
