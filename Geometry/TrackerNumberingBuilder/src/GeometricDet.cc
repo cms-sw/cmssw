@@ -76,16 +76,17 @@ GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
   // iterate on all the components ;)
   //
   ConstGeometricDetContainer _temp;
-  if (isLeaf())
-    _temp.push_back(const_cast<GeometricDet*>(this));
-  else {
-    for (GeometricDetContainer::const_iterator it = _container.begin();
-	 it != _container.end(); it++){
-      ConstGeometricDetContainer _temp2 =  (**it).deepComponents();
-      std::copy(_temp2.begin(), _temp2.end(), back_inserter(_temp));
-    }
-  }
+  deepComponents(_temp);
   return _temp;
+}
+
+void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
+  if (isLeaf())
+    cont.push_back(const_cast<GeometricDet*>(this));
+  else 
+    std::for_each(_container.begin(),_container.end(), 
+		  boost_bind(&GeometricDet::deepComponents,_1));
+  }
 }
 
 

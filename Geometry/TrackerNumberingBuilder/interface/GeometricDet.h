@@ -105,7 +105,7 @@ class GeometricDet {
    */
 
   ConstGeometricDetContainer deepComponents() const;
-  void deepComponents(ConstGeometricDetContainer &) const;
+  void deepComponents(GeometricDetContainer & cont) const;
 
   //rr
   /** parents() retuns the geometrical history
@@ -116,7 +116,7 @@ class GeometricDet {
   /**
    *geometricalID() returns the ID associated to the GeometricDet.
    */
-  DetId geographicalID() const ;
+  DetId geographicalID() const  { return _geographicalID; }
 
   /**
    *positionBounds() returns the position in cm. 

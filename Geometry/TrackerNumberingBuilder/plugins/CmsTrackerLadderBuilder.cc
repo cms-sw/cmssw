@@ -16,17 +16,15 @@ void CmsTrackerLadderBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g
 void CmsTrackerLadderBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   GeometricDet::GeometricDetContainer & comp = det->components();
 
- switch(det->components().front()->type()){
- case GeometricDet::DetUnit: 
-   std::sort(comp.begin(),comp.end(),LessZ()); 
-   break;	
- default:
+  if (comp.front()->type()==GeometricDet::DetUnit) 
+    std::sort(comp.begin(),comp.end(),LessZ());
+  else
    edm::LogError("CmsTrackerLadderBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
- }
+  
  
- for(uint32_t i=0; i<comp.size();i++){
-   comp[i]->setGeographicalID(i+1);
- } 
+  for(uint32_t i=0; i<comp.size();i++){
+    comp[i]->setGeographicalID(i+1);
+  } 
  
 
 }
