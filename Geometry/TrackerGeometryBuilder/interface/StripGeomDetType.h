@@ -15,7 +15,7 @@ public:
 
   typedef  StripTopology        TopologyType;
 
-  StripGeomDetType(TopologyType* t,std::string& name,SubDetector& det,bool stereo) : GeomDetType(name,det),
+  StripGeomDetType(TopologyType* t, std::string const & name,SubDetector& det,bool stereo) : GeomDetType(name,det),
     theTopology(t),theStereoFlag(stereo){}
 
   virtual ~StripGeomDetType() {

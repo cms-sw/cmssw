@@ -24,8 +24,8 @@ private:
 		    TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);
 
-  std::string getString(std::string,DDExpandedView*) const;
-  double getDouble(std::string,DDExpandedView*) const;
+  std::string getString(std::string const &, DDExpandedView*) const;
+  double getDouble(std::string const &, DDExpandedView*) const;
 
   PlaneBuilderFromGeometricDet::ResultType
   buildPlaneWithMaterial(const GeometricDet* gd, DDExpandedView* ev) const;

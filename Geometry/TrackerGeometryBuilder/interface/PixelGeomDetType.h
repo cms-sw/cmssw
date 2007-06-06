@@ -14,7 +14,9 @@ class PixelGeomDetType : public GeomDetType {
 public:
   typedef  PixelTopology        TopologyType;
 
-  PixelGeomDetType(TopologyType* t,std::string& name, SubDetector& det);
+  PixelGeomDetType(TopologyType* t,std::string const& name, SubDetector& det) :
+    GeomDetType(name,det),
+    theTopology(t){}
 
   virtual ~PixelGeomDetType() {
     delete theTopology;

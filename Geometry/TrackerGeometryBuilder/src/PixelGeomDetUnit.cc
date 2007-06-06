@@ -7,7 +7,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType*& type,const GeometricDet*& gd): GeomDetUnit(sp),
+PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd): GeomDetUnit(sp),
 												 theType(type),theGD(gd)
 {}
 

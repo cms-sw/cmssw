@@ -7,7 +7,7 @@
 #include "CLHEP/Units/PhysicalConstants.h"
 
 
-StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType*& type,const GeometricDet*& gd) : 
+StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 
    GeomDetUnit(sp),theType( type), theGD(gd)
 {}
 

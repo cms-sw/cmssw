@@ -14,7 +14,7 @@ class GeometricDet;
 class StripGeomDetUnit : public GeomDetUnit {
 public:
 
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType*& type,const GeometricDet*& gd);
+  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd);
 
   // Det interface
 

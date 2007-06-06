@@ -180,7 +180,7 @@ std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string & s,
 {
     DDValue val(s);
     vector<const DDsvalues_type *> result;
-    ev->specifics(result);
+    ev->specificsV(result);
     vector<const DDsvalues_type *>::iterator it = result.begin();
     bool foundIt = false;
     for (; it != result.end(); ++it)

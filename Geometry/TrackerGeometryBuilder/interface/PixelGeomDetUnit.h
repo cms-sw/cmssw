@@ -16,7 +16,7 @@ class GeometricDet;
 class PixelGeomDetUnit : public GeomDetUnit {
 public:
 
-  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType*& type, const GeometricDet*& gd);
+  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType* type, const GeometricDet* gd);
 
   // DetUnit interface
 
