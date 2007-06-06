@@ -23,8 +23,10 @@ class HLTPhotonTrackIsolFilter : public HLTFilter {
    private:
       edm::InputTag candTag_; // input tag identifying product contains filtered photons
       edm::InputTag isoTag_; // input tag identifying product contains track isolation map
+      edm::InputTag nonIsoTag_; // input tag identifying product contains track isolation map
       double numtrackisolcut_;   // Number of Tracks in cone around candidate
       int    ncandcut_;        // number of photons required
+      bool doIsolated_;
 };
 
 #endif //HLTPhotonTrackIsolFilter_h

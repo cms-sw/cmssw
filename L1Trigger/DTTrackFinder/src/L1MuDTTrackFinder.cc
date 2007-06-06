@@ -5,8 +5,8 @@
 //   Description: L1 barrel Muon Trigger Track Finder
 //
 //
-//   $Date: 2006/11/20 15:41:03 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/06 15:26:35 $
+//   $Revision: 1.4 $
 //
 //   Author :
 //   N. Neumeister            CERN EP
@@ -30,7 +30,9 @@
 // Collaborating Class Headers --
 //-------------------------------
 
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
+#include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTTFConfig.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcId.h"
 #include "L1Trigger/DTTrackFinder/src/L1MuDTSecProcMap.h"
@@ -151,6 +153,10 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
 
   // run the barrel Muon Trigger Track Finder
 
+  edm::Handle<L1MuDTChambPhContainer> dttrig;
+  e.getByType(dttrig);
+  if ( dttrig->getContainer()->size() == 0 ) return;
+
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
   if ( L1MuDTTFConfig::Debug(2) ) cout << "**** L1MuDTTrackFinder processing ****" << endl;
   if ( L1MuDTTFConfig::Debug(2) ) cout << endl;
@@ -159,6 +165,8 @@ void L1MuDTTrackFinder::run(const edm::Event& e) {
   int bx_max = L1MuDTTFConfig::getBxMax();
 
   for ( int bx = bx_min; bx <= bx_max; bx++ ) {
+
+  if ( dttrig->bxEmpty(bx) ) continue;
 
   if ( L1MuDTTFConfig::Debug(2) ) cout << "L1MuDTTrackFinder processing bunch-crossing : " << bx << endl;
 

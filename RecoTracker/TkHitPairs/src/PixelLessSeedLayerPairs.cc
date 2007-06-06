@@ -24,24 +24,24 @@ vector<SeedLayerPairs::LayerPair> PixelLessSeedLayerPairs::operator()()
   
   addBarrelForwardLayers(0,0,result);
   addBarrelForwardLayers(0,1,result);
-  addBarrelForwardLayers(0,2,result);
+  //addBarrelForwardLayers(0,2,result); --> absolutely redundant
 
-  addBarrelForwardLayers(1,0,result);
-  addBarrelForwardLayers(1,1,result);
-  addBarrelForwardLayers(1,2,result);
+  //addBarrelForwardLayers(1,0,result); --> absolutely redundant
+  //addBarrelForwardLayers(1,1,result); --> absolutely redundant
+  //addBarrelForwardLayers(1,2,result); --> absolutely redundant
 
 
   addForwardForwardLayers(0,1,result);
-  addForwardForwardLayers(0,2,result);
-  addForwardForwardLayers(0,3,result);
-  addForwardForwardLayers(0,4,result);
+  //addForwardForwardLayers(0,2,result); --> redundant
+  //addForwardForwardLayers(0,3,result); --> absolutely redundant
+  //addForwardForwardLayers(0,4,result); --> absolutely redundant
 
   addForwardForwardLayers(1,2,result);
-  addForwardForwardLayers(1,3,result);
-  addForwardForwardLayers(1,4,result);
+  //addForwardForwardLayers(1,3,result); --> redundant
+  //addForwardForwardLayers(1,4,result); --> absolutely redundant
 
   addForwardForwardLayers(2,3,result);
-  addForwardForwardLayers(2,4,result);
+  //addForwardForwardLayers(2,4,result); --> redundant
 
   addForwardForwardLayers(3,4,result);
   

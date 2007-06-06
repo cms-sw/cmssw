@@ -125,7 +125,7 @@ void TrapezoidalCartesianMFGrid::dump() const
   
 }
 
-MFGrid::LocalVector TrapezoidalCartesianMFGrid::uncheckedValueInTesla( const LocalPoint& p) const
+MFGrid::LocalVector TrapezoidalCartesianMFGrid::valueInTesla( const LocalPoint& p) const
 {
 //   static TimingReport::Item & timer= (*TimingReport::current())["MagneticFieldProvider::valueInTesla(TrapezoidalCartesianMFGrid)"];
 //   TimeMe t(timer,false);

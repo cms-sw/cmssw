@@ -7,8 +7,8 @@
  *  The evaluation is made (in hard-code way) with the granularity = 1. Where
  *  the granularity is the one defined in the MuonTrajectoyUpdatorClass.
  *
- *  $Date: 2006/09/04 17:07:53 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/02/16 13:32:12 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  *  \author S. Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  */
@@ -24,7 +24,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Utilities/Timing/interface/TimingReport.h"
+
 
 using namespace std;
 
@@ -42,8 +42,6 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 					       const Propagator* propagator){
   
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
-
-  TimeMe time(metname);
 
   TMContainer validMeasurements;
 
@@ -129,8 +127,6 @@ MuonBestMeasurementFinder::findBestMeasurement_OLD(std::vector<TrajectoryMeasure
 						   const Propagator* propagator){
 
   const std::string metname = "Muon|RecoMuon|MuonBestMeasurementFinder";
-
-  TimeMe time(metname);
 
   TrajectoryMeasurement* theMeas=0;
   vector<TrajectoryMeasurement>::iterator meas;

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/04/20 10:14:57 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/04/30 13:04:25 $
+ *  $Revision: 1.7 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -18,6 +18,9 @@
 
 #include "Utilities/Timing/interface/TimingReport.h"
 #include "MagneticField/Layers/interface/MagVerbosity.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "MagneticField/VolumeBasedEngine/src/trackerField.icc"
 
 using namespace std;
 using namespace edm;
@@ -32,9 +35,9 @@ MagGeometry::MagGeometry(const edm::ParameterSet& config, std::vector<MagBLayer 
   tolerance = config.getParameter<double>("findVolumeTolerance");
   cacheLastVolume = config.getUntrackedParameter<bool>("cacheLastVolume");
   timerOn = config.getUntrackedParameter<bool>("timerOn", false);
+  useParametrizedTrackerField = config.getParameter<bool>("useParametrizedTrackerField");
 
-
-  TimeMe t1("MagGeometry:build",false);
+  //TimeMe t1("MagGeometry:build",false);
 
   cout << endl
        << "         ___________________________________        " << endl
@@ -97,9 +100,13 @@ MagGeometry::~MagGeometry(){
 
 // Return field vector at the specified global point
 GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
-  static TimingReport::Item & timer1 = (*TimingReport::current())["MagGeometry::fieldInTesla"];
-  static TimingReport::Item & timer2 = (*TimingReport::current())["MagGeometry::fieldInTesla:VolumeQuery"];
-  TimeMe t1(timer1,false);
+  //  static TimingReport::Item & timer1 = (*TimingReport::current())["MagGeometry::fieldInTesla"];
+  //  static TimingReport::Item & timer2 = (*TimingReport::current())["MagGeometry::fieldInTesla:VolumeQuery"];
+  //  TimeMe t1(timer1,false);
+
+  // Use Veikko's parametrized field in central volume? 
+  GlobalVector bresult;
+  if ( useParametrizedTrackerField && trackerField( gp, bresult) ) return bresult; 
     
   // If point is outside magfield map, return 0 field.
   if (abs(gp.z()) > 1600. || gp.perp() > 1000.) return GlobalVector();
@@ -113,12 +120,17 @@ GlobalVector MagGeometry::fieldInTesla(const GlobalPoint & gp) const {
 
   MagVolume * v = findVolume(gpSym);
   if (v!=0) {
-    TimeMe t2(timer2,false);
+    // TimeMe t2(timer2,false);
     GlobalVector result = v->fieldInTesla(gpSym);
     if (atMinusZ) return result;
     else return GlobalVector(-result.x(), -result.y(), result.z());
   } else {
-    cout << "MagGeometry::fieldInTesla: failed to find volume for " << gpSym << endl;
+    if (isnan(gpSym.mag())) {
+      LogWarning("InvalidInput") << "Input value invalid (not a number): " << gpSym << endl;
+      
+    } else {  
+      LogWarning("MagneticField") << "MagGeometry::fieldInTesla: failed to find volume for " << gpSym << endl;
+    }
     return GlobalVector();
   }
 }
@@ -129,8 +141,8 @@ MagVolume * MagGeometry::findVolume(const GlobalPoint & gp) const {
 //   static const double tolerance = (SimpleConfigurable<double>(0.,"MagGeometry:FindVolumeTolerance"));
 //   static const bool cacheLastVolume = (SimpleConfigurable<bool>(true,"MagGeometry:cacheLastVolume"));
 
-  static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume"];
-  TimeMe t(timer,false);
+  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume"];
+  // TimeMe t(timer,false);
 
   if (cacheLastVolume && lastVolume!=0 && lastVolume->inside(gp, tolerance)){
     return lastVolume;
@@ -142,8 +154,8 @@ MagVolume * MagGeometry::findVolume(const GlobalPoint & gp) const {
 // Linear search implementation (just for testing)
 MagVolume* 
 MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
-  static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume1"];
-  TimeMe t(timer,false);
+  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume1"];
+  // TimeMe t(timer,false);
 
   //FIXME: perform the search only in negative Z volumes
   GlobalPoint gpSym(gp.x(), gp.y(), (gp.z()<0? gp.z() : -gp.z()));
@@ -183,8 +195,8 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
 MagVolume* 
 MagGeometry::findVolume2(const GlobalPoint & gp, double tolerance) const{
   MagVolume * result=0;
-  static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume2"];
-  TimeMe t(timer,false);
+  // static TimingReport::Item & timer = (*TimingReport::current())["MagGeometry::findVolume2"];
+  // TimeMe t(timer,false);
 
   //  GlobalPoint gpSym(gp.x(), gp.y(), (gp.z()<0? gp.z() : -gp.z()));
 
@@ -232,4 +244,8 @@ bool MagGeometry::inBarrel(const GlobalPoint& gp) const {
   float R = gp.perp();
   return (fabs(Z)<634.49 || (R>308.755 && fabs(Z)<661.01));
 }
+
+
+
+
 

@@ -22,18 +22,18 @@ Place for SteppingHelixPropagator: a propagator using a simplified geometry/mate
 <!-- List the classes that are provided for use in other packages (if any) -->
 
 SteppingHelixPropagator
-::propagate(FTS, Cylinder) and ::propagate(FTS, Plane) methods are avialable through
+- ::propagate(FTS, Cylinder) and ::propagate(FTS, Plane) methods are avialable through
  Propagator abstract base class interface.
 
-FTS  ::propagate(FTS, GlobalPoint) provides extrapolation to PCA to a point (useful for vertexing)
-FTS  ::propagate(FTS, GlobalPoint, GlobalPoint) provides extrapolation to PCA to a line (e.g., beamline)
+- FTS  ::propagate(FTS, GlobalPoint) provides extrapolation to PCA to a point (useful for vertexing)
+- FTS  ::propagate(FTS, GlobalPoint, GlobalPoint) provides extrapolation to PCA to a line (e.g., beamline)
 The above two methods are only available as members of SteppingHelixPropagator class 
 (not through Propagator class interface).
 
 Note that the propagator can be configured to propagate
-a) alongMomentum -- the direction of propagation is along momentum
-b) oppositeToMomentum -- the direction of propagation is opposite to momentum
-c) anyDirection -- the direction is estimated internally as the direction of the shorter distance
+-# alongMomentum -- the direction of propagation is along momentum
+-# oppositeToMomentum -- the direction of propagation is opposite to momentum
+-# anyDirection -- the direction is estimated internally as the direction of the shorter distance
 to the destination point.
 
 \subsection modules Modules
@@ -52,6 +52,12 @@ TrackPropagation/SteppingHelixPropagator/data/SteppingHelixPropagatorAlong.cfi .
 The other (suffix) options are "Any" and "Opposite" (see above for definitions).
 
 
+\subsection configuration Configuration files for access through ES
+The .cfi file names (base) correspond to the ComponentName value
+- \b SteppingHelixPropagatorAlong.cfi : propagate "alongMomentum"
+- \b SteppingHelixPropagatorOpposite.cfi : propagate "oppositeToMomentum"
+- \b SteppingHelixPropagatorAny.cfi : choose propagation direction based on a straight-line quess from inState to destSurface ("anyDirection")
+
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 SteppingHelixPropagatorAnalyzer.cc can be used to produce ntuples of MC hit matching.
@@ -66,14 +72,13 @@ Decent quality error propagation is also implemented.
 Radiation length non-additive (1+0.036*log(x)) effects relevant to multiple scattering 
 are optionally accounted assuming the path integral at the starting point is zero.
 Note that accounting for it is configured by default if the propagator is extracted from event setup.
-Some additions to the  interface of the base (Propagator) class might've halped to handle
-this better.
+This effect can be handled properly if using (local to SteppingHelixPropagator only) interface with SteppingHelixStateInfo.
 The errors in the cov matrix due to multiple scattering appear to be good to within a few percent.
 Since the tails of Eloss fluctuations are not accounted for (not a Gaussian part), 
 the distributions of the matching values might be wider than predicted from naive model of Gaussian errors.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  Author: Slava Krutelyov.
 */
 

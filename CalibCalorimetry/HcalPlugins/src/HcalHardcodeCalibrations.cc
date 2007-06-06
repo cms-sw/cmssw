@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.7 2006/02/22 19:51:39 fedor Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.8 2006/05/24 19:07:39 fedor Exp $
 //
 //
 
@@ -189,8 +189,9 @@ std::auto_ptr<HcalChannelQuality> HcalHardcodeCalibrations::produceChannelQualit
 }
 
 std::auto_ptr<HcalElectronicsMap> HcalHardcodeCalibrations::produceElectronicsMap (const HcalElectronicsMapRcd& rcd) {
-  std::cout << "HcalHardcodeCalibrations::produceElectronicsMap-> Is not implemented..." << std::endl;
+  std::cout << "HcalHardcodeCalibrations::produceElectronicsMap-> ..." << std::endl;
   std::auto_ptr<HcalElectronicsMap> result (new HcalElectronicsMap ());
+  HcalDbHardcode::makeHardcodeMap(*result);
   return result;
 }
 

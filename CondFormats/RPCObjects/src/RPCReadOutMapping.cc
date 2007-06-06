@@ -51,8 +51,71 @@ std::pair<int,int> RPCReadOutMapping::dccNumberRange() const
   }
 }
 
+
+std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > 
+    RPCReadOutMapping::rawDataFrame( const StripInDetUnit & stripInDetUnit) const 
+{
+  std::vector< std::pair< LinkBoardElectronicIndex, LinkBoardPackedStrip> > result;
+  LinkBoardElectronicIndex eleIndex = { 0,0,0,0 };
+
+  const uint32_t & rawDetId = stripInDetUnit.first;
+  const int & stripInDU     = stripInDetUnit.second;
+
+  for (IMAP im=theFeds.begin(); im != theFeds.end(); im++) {
+    const DccSpec & dccSpec = (*im).second; 
+    const std::vector<TriggerBoardSpec> & triggerBoards = dccSpec.triggerBoards();
+    for ( std::vector<TriggerBoardSpec>::const_iterator 
+        it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
+      const TriggerBoardSpec & triggerBoard = (*it);
+      typedef std::vector<const LinkConnSpec* > LINKS;
+      LINKS linkConns = triggerBoard.enabledLinkConns();
+      for ( LINKS::const_iterator ic = linkConns.begin(); ic != linkConns.end(); ic++) {
+              
+        const LinkConnSpec & link = **ic; 
+        const std::vector<LinkBoardSpec> & boards = link.linkBoards();
+        for ( std::vector<LinkBoardSpec>::const_iterator
+            ib = boards.begin(); ib != boards.end(); ib++) { 
+
+          const LinkBoardSpec & board = (*ib);
+          
+          eleIndex.dccId = dccSpec.id();
+          eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
+          eleIndex.tbLinkInputNum = link.triggerBoardInputNumber(); 
+          eleIndex.lbNumInLink = board.linkBoardNumInLink();
+
+          const std::vector<FebConnectorSpec> & febs = board.febs();
+          int febCheck = 0;
+          for ( std::vector<FebConnectorSpec>::const_iterator
+              ifc = febs.begin(); ifc != febs.end(); ifc++) {
+            const FebConnectorSpec & febConnector = (*ifc);
+            febCheck++;
+            if (febConnector.rawId() != rawDetId) continue;
+            int febInLB = febConnector.linkBoardInputNum();
+            if (febInLB != febCheck) {
+              edm::LogError("rawDataFrame") << " problem with febInLB: " <<febInLB<<" "<<febCheck;
+            }
+            const std::vector<ChamberStripSpec> & strips = febConnector.strips();
+
+            for (std::vector<ChamberStripSpec>::const_iterator 
+                is = strips.begin(); is != strips.end(); is++) {
+              const ChamberStripSpec & strip = (*is);
+              int stripPinInFeb = strip.cablePinNumber;
+              if ( strip.cmsStripNumber == stripInDU) {
+//              if ( strip.chamberStripNumber == stripInDU) {
+                result.push_back(
+                    std::make_pair( eleIndex, LinkBoardPackedStrip( febInLB, stripPinInFeb) ) ); 
+              }
+            } 
+          } 
+        }
+      }
+    }
+  }
+  return result;
+}
+
 const LinkBoardSpec*  
-    RPCReadOutMapping::location(const ChamberRawDataSpec & ele) const
+    RPCReadOutMapping::location(const LinkBoardElectronicIndex & ele) const
 {
   //FIXME after debugging change to dcc(ele.dccId)->triggerBoard(ele.dccInputChannelNum)->...
   const DccSpec *dcc = RPCReadOutMapping::dcc(ele.dccId);
@@ -69,13 +132,84 @@ const LinkBoardSpec*
   return 0;
 }
 
+RPCReadOutMapping::StripInDetUnit 
+    RPCReadOutMapping::detUnitFrame(const LinkBoardSpec& location, 
+    const LinkBoardPackedStrip & lbstrip) const 
+{
+  uint32_t detUnit = 0;
+  int stripInDU = 0;
+  int febInLB = lbstrip.febInLB();
+  int stripPinInFeb = lbstrip.stripPinInFeb();
+
+  const FebConnectorSpec * feb = location.feb(febInLB);
+  if (feb) {
+    detUnit = feb->rawId();
+    const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
+    if (strip) {
+      stripInDU = strip->cmsStripNumber;
+//        stripInDU = strip->chamberStripNumber;
+    } else {
+      edm::LogError("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
+                                   <<" strip pin: "<< stripPinInFeb
+                                   <<" strip pin: "<< stripPinInFeb
+                                   <<" for linkBoard: "<<location.print(3);
+    }
+  } else {
+    edm::LogError("detUnitFrame")<<"problem with detUnit for febInLB: "<<febInLB
+                                 <<" for linkBoard: "<<location.print(3);
+  }
+  return std::make_pair(detUnit,stripInDU);
+}
+
+
+//
+// ALL BELOW IS TEMPORARY, TO BE REMOVED !!!!
+//
+
+
+std::pair<LinkBoardElectronicIndex, int>  
+RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip, int dccInputChannel) const{
+
+ LinkBoardElectronicIndex linkboard;
+ linkboard.dccId = 790;
+ linkboard.dccInputChannelNum = dccInputChannel;
+
+ for(int k=0;k<18;k++){
+   linkboard.tbLinkInputNum = k;
+   for(int j=0;j<3;j++){
+     linkboard.lbNumInLink = j;
+     const LinkBoardSpec *location = this->location(linkboard);    
+     if (location) {
+       for(int i=1;i<7;i++){	 
+	 const FebConnectorSpec * feb = location->feb(i);
+	 if(feb && feb->rawId()==detId){
+	   for(int l=1;l<17;l++){
+	     int pin = l;
+	     const ChamberStripSpec *aStrip = feb->strip(pin);
+	     if(aStrip && aStrip->cmsStripNumber==strip){
+	       int bitInLink = (i-1)*16+l-1;
+	       std::pair<LinkBoardElectronicIndex, int> stripInfo(linkboard,bitInLink);
+	       return stripInfo;
+	     }
+	   }
+	 }
+       }
+     }
+   }
+ }
+ RPCDetId aDet(detId);
+ std::cout<<"Strip: "<<strip<<" not found for detector: "<<aDet<<std::endl;
+ std::pair<LinkBoardElectronicIndex, int> dummyStripInfo(linkboard,-99);
+ return dummyStripInfo;
+}
+
 
 std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::string &name) const{
 
 
  std::vector<const LinkBoardSpec*> vLBforChamber;
 
- ChamberRawDataSpec linkboard;
+ LinkBoardElectronicIndex linkboard;
  linkboard.dccId = 790;
  linkboard.dccInputChannelNum = 1;
  linkboard.tbLinkInputNum = 1;
@@ -108,148 +242,4 @@ std::vector<const LinkBoardSpec*> RPCReadOutMapping::getLBforChamber(const std::
  }
  return vLBforChamber;
 }
-
-std::pair< ChamberRawDataSpec, LinkBoardChannelCoding> 
-    RPCReadOutMapping::rawDataFrame( uint32_t rawDetId, int stripInDU) const 
-{
-  ChamberRawDataSpec eleIndex = { 0,0,0,0 };
-
-  for (IMAP im=theFeds.begin(); im != theFeds.end(); im++) {
-    const DccSpec & dccSpec = (*im).second; 
-//    LogTrace("rawDataFrame")<< dccSpec.print(1);
-//    if (dccSpec.id() != 790) continue;
-    const std::vector<TriggerBoardSpec> & triggerBoards = dccSpec.triggerBoards();
-    for ( std::vector<TriggerBoardSpec>::const_iterator 
-        it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
-      const TriggerBoardSpec & triggerBoard = (*it);
-//      if (triggerBoard.dccInputChannelNum() != 13) continue;
-//      LogTrace("rawDataFrame")<< triggerBoard.print(1);
-      const std::vector<LinkConnSpec> & linkConns = triggerBoard.linkConns();
-      for ( std::vector<LinkConnSpec>::const_iterator
-          ic = linkConns.begin(); ic != linkConns.end(); ic++) {
-              
-        const LinkConnSpec & link = (*ic); 
-//        if (link.triggerBoardInputNumber() != 17) continue;
-//        LogTrace("rawDataFrame")<< link.print(1);
-        const std::vector<LinkBoardSpec> & boards = link.linkBoards();
-        for ( std::vector<LinkBoardSpec>::const_iterator
-            ib = boards.begin(); ib != boards.end(); ib++) { 
-
-          const LinkBoardSpec & board = (*ib);
-//          if (board.linkBoardNumInLink() != 2) continue;
-//          LogTrace("rawDataFrame")<< board.print(2);
-          
-          eleIndex.dccId = dccSpec.id();
-          eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
-          eleIndex.tbLinkInputNum = link.triggerBoardInputNumber(); 
-          eleIndex.lbNumInLink = board.linkBoardNumInLink();
-
-          const std::vector<FebConnectorSpec> & febs = board.febs();
-          int fedCheck = 0;
-          for ( std::vector<FebConnectorSpec>::const_iterator
-              ifc = febs.begin(); ifc != febs.end(); ifc++) {
-            const FebConnectorSpec & febConnector = (*ifc);
-            fedCheck++;
-            if (febConnector.rawId() != rawDetId) continue;
-            int fedInLB = febConnector.linkBoardInputNum();
-            if (fedInLB != fedCheck) {
-              edm::LogError("rawDataFrame") << " problem with fedInLB: " <<fedInLB<<" "<<fedCheck;
-            }
-            const std::vector<ChamberStripSpec> & strips = febConnector.strips();
-
-//          int ipinCheck = 0;
-            for (std::vector<ChamberStripSpec>::const_iterator 
-                is = strips.begin(); is != strips.end(); is++) {
-              const ChamberStripSpec & strip = (*is);
-              int stripPinInFeb = strip.cablePinNumber;
-//            if (stripPinInFeb != ++ipinCheck) {
-//              edm::LogError("rawDataFrame") << " problem!, strip pin check, ipin= "<<ipinCheck
-//                   <<" strip: "<< strip.print(1); 
-//            }
-              if ( strip.cmsStripNumber == stripInDU) {
-//                std::cout << " HERE !!!! " << std::endl;
-                return std::make_pair( eleIndex, LinkBoardChannelCoding( fedInLB, stripPinInFeb) ); 
-              }
-            } 
-          } 
-        }
-      }
-    }
-  }
-  std::cout << " not found in the map! " << std::endl;
-  return std::make_pair( eleIndex, LinkBoardChannelCoding(0,0) );
-}
-
-std::pair<ChamberRawDataSpec, int>  
-RPCReadOutMapping::getRAWSpecForCMSChamberSrip(uint32_t  detId, int strip, int dccInputChannel) const{
-
- ChamberRawDataSpec linkboard;
- linkboard.dccId = 790;
- linkboard.dccInputChannelNum = dccInputChannel;
-
- for(int k=0;k<18;k++){
-   linkboard.tbLinkInputNum = k;
-   for(int j=0;j<3;j++){
-     linkboard.lbNumInLink = j;
-     const LinkBoardSpec *location = this->location(linkboard);    
-     if (location) {
-       for(int i=1;i<7;i++){	 
-	 const FebConnectorSpec * feb = location->feb(i);
-	 if(feb && feb->rawId()==detId){
-	   for(int l=1;l<17;l++){
-	     int pin = l;
-	     const ChamberStripSpec *aStrip = feb->strip(pin);
-	     if(aStrip && aStrip->cmsStripNumber==strip){
-	       int bitInLink = (i-1)*16+l-1;
-	       std::pair<ChamberRawDataSpec, int> stripInfo(linkboard,bitInLink);
-	       return stripInfo;
-	     }
-	   }
-	 }
-       }
-     }
-   }
- }
- RPCDetId aDet(detId);
- std::cout<<"Strip: "<<strip<<" not found for detector: "<<aDet<<std::endl;
- std::pair<ChamberRawDataSpec, int> dummyStripInfo(linkboard,-99);
- return dummyStripInfo;
-}
-
-
-RPCReadOutMapping::StripInDetUnit
-    RPCReadOutMapping::strip(const ChamberRawDataSpec & linkboard, int chanelLB) const 
-{
-  const LinkBoardSpec *location = this->location(linkboard);
-  LinkBoardChannelCoding channel(chanelLB);
-  return detUnitFrame(location, channel.fedInLB(), channel.stripPinInFeb());
-}
-
-
-RPCReadOutMapping::StripInDetUnit 
-    RPCReadOutMapping::detUnitFrame(const LinkBoardSpec* location, 
-    int febInLB, int stripPinInFeb) const 
-{
-  uint32_t detUnit = 0;
-  int stripInDU = 0;
-
-  const FebConnectorSpec * feb = location->feb(febInLB);
-  if (feb) {
-    detUnit = feb->rawId();
-    const ChamberStripSpec * strip = feb->strip(stripPinInFeb);
-    if (strip) {
-      stripInDU = strip->cmsStripNumber;
-    } else {
-      edm::LogError("detUnitFrame")<<"problem with stip for febInLB: "<<febInLB
-                                   <<" strip pin: "<< stripPinInFeb
-                                   <<" strip pin: "<< stripPinInFeb
-                                   <<" for linkBoard: "<<location->print(3);
-    }
-  } else {
-    edm::LogError("detUnitFrame")<<"problem with detUnit for febInLB: "<<febInLB
-                                 <<" for linkBoard: "<<location->print(3);
-  }
-  return std::make_pair(detUnit,stripInDU);
-}
-
 

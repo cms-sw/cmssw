@@ -6,7 +6,7 @@
 #include "DQMServices/Components/interface/DQMBaseClient.h"
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
 
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 
 #include "TCanvas.h"

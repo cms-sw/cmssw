@@ -27,6 +27,11 @@ LayerHitMapLoop::LayerHitMapLoop(
   theBinsRz     = RangeI( max( irz1,  0), min( irz2,  theMap.theNbinsRZ-1));
   theBinsRzSafe = RangeI( irz1+1, irz2-1); 
 
+  if ( fabs(theRangePhi.second-theRangePhi.first) > 2*M_PI) {
+    theRangePhi.first = -M_PI;
+    theRangePhi.second = M_PI-1.e-6;
+  }
+
   if (theRangePhi.first >= -M_PI && theRangePhi.second < M_PI) {
     theNextPhi = inRange;
   } else {
@@ -55,7 +60,7 @@ void LayerHitMapLoop::setSafeRzRange(const RangeF & rzSafe, bool * status)
 } 
 
 
-const TkHitPairsCachedHit * LayerHitMapLoop::getHit()
+const LayerHitMapLoop::TkHitPairsCachedHit * LayerHitMapLoop::getHit()
 {
 
 

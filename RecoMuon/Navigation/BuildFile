@@ -3,7 +3,7 @@
 <use name=DataFormats/Common>
 <use name=Utilities/General>
 <use name=TrackingTools/DetLayers>
-<use name=Geometry/CommonDetAlgo>
+<use name=DataFormats/GeometryCommonDetAlgo>
 <use name=Geometry/CommonDetUnit>
 <use name=TrackingTools/TrajectoryState>
 <use name=RecoMuon/DetLayers>

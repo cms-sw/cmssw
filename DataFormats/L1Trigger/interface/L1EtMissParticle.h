@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1EtMissParticle
 // 
-/**\class L1EtMissParticle L1EtMissParticle.h DataFormats/L1Trigger/interface/L1EtMissParticle.h
+/**\class L1EtMissParticle \file L1EtMissParticle.h DataFormats/L1Trigger/interface/L1EtMissParticle.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra particle class for EtMiss object.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1EtMissParticle.h,v 1.5 2006/08/06 15:32:44 wsun Exp $
+// $Id: L1EtMissParticle.h,v 1.6 2006/08/10 18:47:41 wsun Exp $
 //
 
 // system include files

@@ -7,6 +7,7 @@
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 
 using namespace std;
+typedef ctfseeding::SeedingHit TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -38,11 +39,28 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   //  const DetLayer* innerlay=theOuterLayer->layer();
   // const BarrelDetLayer *pippo=dynamic_cast<const BarrelDetLayer*>(theOuterLayer->layer());
 
-  float radius1 =dynamic_cast<const BarrelDetLayer*>(theInnerLayer->layer())->specificSurface().radius();
-  float radius2 =dynamic_cast<const BarrelDetLayer*>(theOuterLayer->layer())->specificSurface().radius();
 
-  //check if the seed is from overlaps or not
-  bool seedfromoverlaps=(abs(radius1-radius2)<0.1) ? true : false;
+  // ************ Daniele
+
+  const DetLayer* blay1;
+  const DetLayer* blay2;
+  blay1 = dynamic_cast<const BarrelDetLayer*>(theInnerLayer->layer());
+  blay2 = dynamic_cast<const BarrelDetLayer*>(theOuterLayer->layer());
+
+
+  bool seedfromoverlaps= false;
+  bool InTheBarrel = false;
+  bool InTheForward = false;
+  if (blay1 && blay2) {
+    InTheBarrel = true;
+  }
+  else  InTheForward = true;
+
+  if (InTheBarrel){
+    float radius1 =dynamic_cast<const BarrelDetLayer*>(theInnerLayer->layer())->specificSurface().radius();
+    float radius2 =dynamic_cast<const BarrelDetLayer*>(theOuterLayer->layer())->specificSurface().radius();
+     seedfromoverlaps=(abs(radius1-radius2)<0.1) ? true : false;
+  }
 
  
   vector<OrderedHitPair> allthepairs;
@@ -65,24 +83,35 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
       float dxdy=abs((outx-innx)/(outy-inny));
       float DeltaR=oh->r()-ih->r();
       
-      if( (abs(z_diff)<30)
+      if( InTheBarrel && (abs(z_diff)<30)  && (outy > 0.) && (inny > 0.)
 	  //&&((abs(inny-outy))<30) 
 	  &&(dxdy<2)
 	  &&(inny*outy>0)
 	  && (abs(DeltaR)>0)) {
 
+	//	cout << " ******** sono dentro inthebarrel *********** " << endl;
 	if (seedfromoverlaps){
 	  //this part of code works for MTCC
 	  // for the other geometries must be verified
 	  //Overlaps in the difference in z is decreased and the difference in phi is
 	  //less than 0.05
-	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
+	  if ((DeltaR<0)&&(abs(z_diff)<18)&&(abs(ih->phi()-oh->phi())<0.05)&&(dxdy<2)) result.push_back( OrderedHitPair(*ih, *oh));
 	}
-	else  result.push_back( OrderedHitPair(ih->RecHit(), oh->RecHit()));
-    } 
-   }
+	else  result.push_back( OrderedHitPair(*ih, *oh));
+      
+	
+
+
+      }
+      if( InTheForward &&  (abs(z_diff) > 1.)) {
+	//	cout << " ******** sono dentro intheforward *********** " << endl;
+	result.push_back( OrderedHitPair(*ih, *oh));
+      }
+    }
     
   }
+
+ 
 //   stable_sort(allthepairs.begin(),allthepairs.end(),CompareHitPairsY(iSetup));
 //   //Seed from overlaps are saved only if 
 //   //no others have been saved

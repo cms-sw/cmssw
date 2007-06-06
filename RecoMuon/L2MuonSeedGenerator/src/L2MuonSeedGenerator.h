@@ -10,8 +10,8 @@
  *   L2 muon reconstruction
  *
  *
- *   $Date: 2006/10/17 16:09:25 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/11/13 13:49:44 $
+ *   $Revision: 1.4 $
  *
  *   \author  A.Everett, R.Bellan
  *
@@ -43,6 +43,7 @@ class L2MuonSeedGenerator : public edm::EDProducer {
  private:
 
   edm::InputTag theSource;
+  edm::InputTag theL1GMTReadoutCollection;
   std::string thePropagatorName;
 
   const double theL1MinPt;

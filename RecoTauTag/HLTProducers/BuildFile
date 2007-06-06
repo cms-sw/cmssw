@@ -1,17 +1,20 @@
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/Common>
 <use name=DataFormats/BTauReco>
 <use name=DataFormats/VertexReco>
-#<use name=DataFormats/Math>
-#<use name=boost>
+<use name=DataFormats/L1Trigger>
+<use name=SimDataFormats/HepMCProduct>
+<use name=DataFormats/L1GlobalTrigger>
 <use name=root>
-<flags SEAL_PLUGIN_NAME="RecoTauTagHLTProducers">
+<flags SEALPLUGIN=1>
 <export>
    <lib name=RecoTauTagHLTProducers>
+<use name=DataFormats/L1Trigger>
+<use name=DataFormats/L1GlobalTrigger>
    <use name=FWCore/Framework>
-   <use name=Foundation/PluginManager>
+   <use name=FWCore/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/VertexReco>
    <use name=DataFormats/BTauReco>

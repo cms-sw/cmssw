@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1JetParticle
 // 
-/**\class L1JetParticle L1JetParticle.h DataFormats/L1Trigger/interface/L1JetParticle.h
+/**\class L1JetParticle \file L1JetParticle.h DataFormats/L1Trigger/interface/L1JetParticle.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: L1Extra particle class for jet objects.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 12:41:07 EDT 2006
-// $Id: L1JetParticle.h,v 1.4 2006/08/06 15:32:44 wsun Exp $
+// $Id: L1JetParticle.h,v 1.5 2006/08/10 18:47:41 wsun Exp $
 //
 
 // system include files

@@ -243,9 +243,12 @@ void EcalTrigPrimFunctionalAlgo::run(const EBDigiCollection* ebdcol,const EEDigi
 	  float ettemp=0;
 
 	  for (int ii=0;ii<nrFrames;++ii) {
-	    int en=(mapEndcap_[thisTower][ii])[i].adc();
-	    float et0 = TMath::Max(en- thresholds[ii],0);
-	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
+	    //   int en=(mapEndcap_[thisTower][ii])[i].adc();
+	    int en0= linADC((mapEndcap_[thisTower][ii])[i], thresholds[ii]);
+	    // float et0 = TMath::Max(en- thresholds[ii],0);
+	    float et0 = TMath::Max(en0,0);
+	    //	    et0=int(et0*eeDccAdcToGeV_/ebDccAdcToGeV_); 
+	    et0=et0*eeDccAdcToGeV_/ebDccAdcToGeV_; 
 	    float theta=theEndcapGeometry->getGeometry(mapEndcap_[thisTower][ii].id())->getPosition().theta();
 	    et0 =(float) (et0*sin(theta));
 
@@ -352,4 +355,14 @@ int EcalTrigPrimFunctionalAlgo::calculateTTF(const int en) {
    int basenr=(ieta-1)*nrphis +1;
    int towernr=basenr+(iphi-1)%nrphis;
    return  towernr;
+ }
+//----------------------------------------------------------------------
+ int EcalTrigPrimFunctionalAlgo::linADC(const EcalMGPASample & sample, int base) 
+ {
+  int adc  = sample.adc() - base ;
+  int gain = sample.gainId() ;
+  if (gain == 2) adc *= 2 ;
+  if (gain == 3) adc *= 12 ;
+  return adc ;
+
  }

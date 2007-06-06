@@ -1,21 +1,17 @@
 #ifndef EventFilter_DTDigiToRawModule_h
 #define EventFilter_DTDigiToRawModule_h
 
-/** \class DTDigiToRawModule
- *
- *  $Date: $
- *  $Revision: $
- *  \author N. Amapane - CERN
- */
 
 #include <FWCore/Framework/interface/EDProducer.h>
+
+
 
 class DTDigiToRaw;
 
 class DTDigiToRawModule : public edm::EDProducer {
 public:
   /// Constructor
-  DTDigiToRawModule();
+  DTDigiToRawModule(const edm::ParameterSet& pset);
 
   /// Destructor
   virtual ~DTDigiToRawModule();
@@ -25,6 +21,15 @@ public:
 
 private:
   DTDigiToRaw * packer;
+  
+  int dduID;
+  bool debug;
+  bool digibyType;
+  std::string digicoll;
+  
+  bool useStandardFEDid_;
+  int minFEDid_;
+  int maxFEDid_;
 
 };
 #endif

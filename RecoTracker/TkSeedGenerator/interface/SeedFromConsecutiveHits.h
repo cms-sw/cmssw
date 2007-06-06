@@ -8,7 +8,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,6 +16,8 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedingHitSet.h"
+
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/shared_ptr.hpp>
@@ -24,13 +26,8 @@ class DetLayer;
 class SeedFromConsecutiveHits{
  public:
   typedef edm::OwnVector<TrackingRecHit> recHitContainer;
-  // constructor in case the RecHits contain layer pointers.
-  /*   SeedFromConsecutiveHits( const SiPixelRecHit& outerHit, */
-  /* 			   const SiPixelRecHit& innerHit, */
-  /* 			   const GlobalPoint& vertexPos, */
-  /* 			   const GlobalError& vertexErr); */
   
-  // constructor in case the RecHits do not contain layer pointers.
+  // obsolete!
   SeedFromConsecutiveHits( const TrackingRecHit* outerHit,
 			   const TrackingRecHit* innerHit,
 			   const GlobalPoint& vertexPos,
@@ -38,6 +35,11 @@ class SeedFromConsecutiveHits{
 			   const edm::EventSetup& iSetup,
 			   const edm::ParameterSet& p
 			   );
+
+  SeedFromConsecutiveHits(const SeedingHitSet & hits,
+    const GlobalPoint& vertexPos,
+    const GlobalError& vertexErr,
+    const edm::EventSetup& es);
   
   virtual  ~SeedFromConsecutiveHits(){};
 
@@ -47,19 +49,11 @@ class SeedFromConsecutiveHits{
     //as in ORCA
     return alongMomentum;};
   
-  recHitContainer hits(){
-    return _hits;
-  };
-
- /*  edm::OwnVector<TrackingRecHit> hits(){ */
-/*     return _hits; */
-/*   }; */
+  recHitContainer hits(){ return _hits; };
 
   PTrajectoryStateOnDet trajectoryState(){return *PTraj;};
   TrajectorySeed TrajSeed(){return TrajectorySeed(trajectoryState(),hits(),direction());};
  private:
-  //TrajectoryMeasurement theInnerMeas;
-  //TrajectoryMeasurement theOuterMeas;
 
   bool construct( const TrackingRecHit* outerHit,
 		  const TrackingRecHit* innerHit,

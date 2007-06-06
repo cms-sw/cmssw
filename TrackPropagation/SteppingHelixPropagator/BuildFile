@@ -4,6 +4,7 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/VolumeBasedEngine>
 <use name=MagneticField/VolumeGeometry>
+<use name=MagneticField/Interpolation>
 <use name=MagneticField/Records>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>

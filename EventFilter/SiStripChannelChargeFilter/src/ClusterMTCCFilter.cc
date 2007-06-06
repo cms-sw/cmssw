@@ -8,7 +8,7 @@
 
 
 #include "EventFilter/SiStripChannelChargeFilter/interface/ClusterMTCCFilter.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"

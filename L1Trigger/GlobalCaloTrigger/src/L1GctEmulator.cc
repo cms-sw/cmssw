@@ -57,8 +57,10 @@ L1GctEmulator::L1GctEmulator(const edm::ParameterSet& ps) :
   // Get the filename for the Jet Et LUT
   edm::FileInPath fp = ps.getParameter<edm::FileInPath>("jetEtLutFile");
 
+  bool useOrcaCalib = ps.getParameter<bool>("useOrcaJetCalibration");
+
   // instantiate the GCT
-  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath());
+  m_gct = new L1GlobalCaloTrigger(false,L1GctJetLeafCard::tdrJetFinder,fp.fullPath(), useOrcaCalib);
 
   // set verbosity (not implemented yet!)
   //  m_gct->setVerbose(m_verbose);

@@ -1,5 +1,5 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSimpleRecAlgo.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include <algorithm> // for "max"
 #include <math.h>
@@ -52,34 +52,34 @@ namespace HcalSimpleRecAlgoImpl {
       }
     }
 
+    float time=-9999;
     ////Cannot calculate time value with max ADC sample at first or last position in window....
-    if(maxI==0 || maxI==(tool.size()-1)) {
-      throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
+    if(maxI==0 || maxI==(tool.size()-1)) {      
+      edm::LogWarning("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
 					       << " Invalid max amplitude position, " 
 					       << " max Amplitude: "<< maxI
 					       << " first: "<<ifirst
 					       << " last: "<<(tool.size()-1)
 					       << std::endl;
+    } else {
+      maxA=fabs(maxA);
+      int capid=digi[maxI-1].capid();
+      float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid));
+      capid=digi[maxI+1].capid();
+      float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid));    
+      float wpksamp = (t0 + maxA + t2);
+      if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
+      time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
+
+      if (corr!=0) {
+	// Apply phase-based amplitude correction:
+	ampl *= corr->getCorrection(fc_ampl);
+	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
+      }
+
+    
+      if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
     }
-    
-    
-    maxA=fabs(maxA);
-    int capid=digi[maxI-1].capid();
-    float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid));
-    capid=digi[maxI+1].capid();
-    float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid));    
-    float wpksamp = (maxA + 2.0*t2) / (t0 + maxA + t2);
-    float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-
-    if (corr!=0) {
-      // Apply phase-based amplitude correction:
-      ampl *= corr->getCorrection(fc_ampl);
-//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
-    }
-
-    
-    if (slewCorrect) time-=HcalTimeSlew::delay(std::max(0.0,fc_ampl),slewFlavor);
-
     return RecHit(digi.id(),ampl,time);    
   }
 }
@@ -127,24 +127,26 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, const HcalCoder
     }
   }
 
+  float time=-9999.0;
   ////Cannot calculate time value with max ADC sample at first or last position in window....
   if(maxI==0 || maxI==(tool.size()-1)) {
-    throw cms::Exception("InvalidRecoParam") << "HcalSimpleRecAlgo::reconstruct :" 
-					 << " Invalid max amplitude position, " 
-					 << " max Amplitude: "<< maxI
-					 << " first: "<<firstSample_
-					 << " last: "<<(tool.size()-1)
-					 << std::endl;
+      edm::LogWarning("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
+					       << " Invalid max amplitude position, " 
+					       << " max Amplitude: "<< maxI
+					       << " first: "<<firstSample_
+					       << " last: "<<(tool.size()-1)
+					       << std::endl;
+  } else {
+    maxA=fabs(maxA);  
+    int capid=digi[maxI-1].capid();
+    float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid));
+    capid=digi[maxI+1].capid();
+    float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid));    
+    float wpksamp = (t0 + maxA + t2);
+    if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
+    time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
   }
 
-  maxA=fabs(maxA);  
-  int capid=digi[maxI-1].capid();
-  float t0 = fabs((tool[maxI-1]-calibs.pedestal(capid))*calibs.gain(capid));
-  capid=digi[maxI+1].capid();
-  float t2 = fabs((tool[maxI+1]-calibs.pedestal(capid))*calibs.gain(capid));    
-  float wpksamp = (maxA + 2.0*t2) / (t0 + maxA + t2);
-  float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
-  
   return HFRecHit(digi.id(),ampl,time); 
 }
 

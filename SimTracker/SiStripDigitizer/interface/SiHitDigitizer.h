@@ -11,8 +11,6 @@
 #include "SimTracker/SiStripDigitizer/interface/SiChargeDivider.h"
 #include "SimTracker/SiStripDigitizer/interface/SiInduceChargeOnStrips.h"
 
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 #include <map>
 
 class SiStripDetType;
@@ -23,7 +21,7 @@ class SiHitDigitizer{
  public:
 
   typedef std::map< int, float, std::less<int> > hit_map_type;
-  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det,const ParticleDataTable * pdt);
+  SiHitDigitizer(const edm::ParameterSet& conf, const StripGeomDetUnit *det);
 
   ~SiHitDigitizer();
 
@@ -61,7 +59,7 @@ class SiHitDigitizer{
   LocalVector DriftDirection(const StripGeomDetUnit*,GlobalVector);
   typedef GloballyPositioned<double>      Frame;
   float tanLorentzAnglePerTesla;   //Lorentz angle tangent per Tesla
-  const ParticleDataTable * pdt_;
+
 };
 
 #endif

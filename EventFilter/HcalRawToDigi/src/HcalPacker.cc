@@ -89,11 +89,12 @@ void HcalPacker::pack(int fedid, int dccnumber,
   std::vector<unsigned short> trigdata(HcalHTRData::CHANNELS_PER_SPIGOT*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL);
   std::vector<unsigned char> preclen(HcalHTRData::CHANNELS_PER_SPIGOT);
   std::vector<unsigned char> triglen(HcalHTRData::CHANNELS_PER_SPIGOT);
+  const int HTRFormatVersion=1;
 
   HcalHTRData spigots[15];
   // loop over all valid channels in the given dcc, spigot by spigot.
   for (int spigot=0; spigot<15; spigot++) {
-    spigots[spigot].allocate(0);
+    spigots[spigot].allocate(HTRFormatVersion);
     HcalElectronicsId exampleEId;
     int npresent=0;
     int presamples=-1, samples=-1;
@@ -109,10 +110,12 @@ void HcalPacker::pack(int fedid, int dccnumber,
 	DetId genId;
 	if (!emap.lookup(partialEid,fullEid,genId)) continue;
 
+
 	// next, see if there is a digi with this id
 	unsigned short* database=&(precdata[linear*HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL]);
 	int mypresamples;
 	int mysamples=findSamples(genId,inputs,database,mypresamples);
+
 	if (mysamples>0) {
 	  if (samples<0) samples=mysamples;
 	  else if (samples!=mysamples) {

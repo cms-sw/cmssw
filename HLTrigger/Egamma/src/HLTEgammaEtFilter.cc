@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.2 2007/01/26 18:40:21 monicava Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.3 2007/01/30 13:42:47 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaEtFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

@@ -38,7 +38,7 @@ StripClusterParameterEstimator::LocalValues StripCPE::localParameters( const SiS
   drift = driftDirection(stripdet);
   float thickness=stripdet->specificSurface().bounds().thickness();
   drift*=thickness;
-  LocalPoint  result=LocalPoint(position.x()+drift.x()/2,position.y()+drift.y()/2,0);
+  LocalPoint  result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
   return std::make_pair(result,eresult);
 }
 
@@ -55,8 +55,8 @@ LocalVector StripCPE::driftDirection(const StripGeomDetUnit* det)const{
   float mu = ( mulow/(pow(double((1+pow((mulow*e/vsat),beta))),1./beta)));
   float hallMobility = mu*rhall_;
  
-   float dir_x = 1.E-4 * hallMobility * lbfield.y();
-   float dir_y = -1.E-4 * hallMobility * lbfield.x();
+   float dir_x = -1.E-4 * hallMobility * lbfield.y();
+   float dir_y = 1.E-4 * hallMobility * lbfield.x();
    float dir_z = 1.; // E field always in z direction
 
    LocalVector drift = LocalVector(dir_x,dir_y,dir_z);

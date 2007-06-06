@@ -31,9 +31,9 @@ expectedLength_(expectedLength){
 
 void DCCTrailerBlock::dataCheck(){
 	
-	string checkErrors("");
+	std::string checkErrors("");
 	
-	pair<bool,string> res;
+	std::pair<bool,std::string> res;
 	
 	res = checkDataField("EVENT LENGTH",expectedLength_);
 	if(!res.first){ checkErrors += res.second; (errors_["TRAILER::EVENT LENGTH"])++; }
@@ -48,7 +48,7 @@ void DCCTrailerBlock::dataCheck(){
 	
 	if(checkErrors!=""){
 		errorString_ +="\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" data fields checks errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	

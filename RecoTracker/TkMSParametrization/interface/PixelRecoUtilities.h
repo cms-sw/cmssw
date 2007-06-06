@@ -1,6 +1,6 @@
 #ifndef PixelRecoUtilities_H
 #define PixelRecoUtilities_H
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include <string>

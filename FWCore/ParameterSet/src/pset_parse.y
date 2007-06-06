@@ -3,7 +3,7 @@
 %{
 
 /*
- * $Id: pset_parse.y,v 1.54 2006/11/30 20:51:29 rpw Exp $
+ * $Id: pset_parse.y,v 1.58 2007/05/11 22:30:54 rpw Exp $
  *
  * Author: Us
  * Date:   4/28/05
@@ -604,22 +604,12 @@ stranys:         stranys COMMA_tok anyquote
 
 /* returns char* */
 any:             VALUE_tok
-                 {
-                   DBPRINT("any: VALUE");
-                   //$<str>$ = $<str>1;
-                 }
                |
                  LETTERSTART_tok
-                 {
-                   DBPRINT("any: LETTERSTART");
-                   //$<str>$ = $<str>1;
-                 }
                |
                  MINUSINF_tok
-                 {
-                   DBPRINT("any: MINUSINF");
-                   //$<str>$ = $<str>1;
-                 } 
+               |
+                 PRODUCTTAG_tok
                ;
 
 /* with or without a colon.  Some people even use the "source"
@@ -651,6 +641,8 @@ replaceEntry:    VALUE_tok
                  MINUSINF_tok
                |
                  EVENTIDVALUE_tok
+               |
+                 SOURCE_tok /* sometimes people use the word 'source' as an InputTag */
                ;
 
 producttags:     producttags COMMA_tok anyproducttag
@@ -960,6 +952,17 @@ toplevelnode:    BLOCK_tok LETTERSTART_tok EQUAL_tok scoped
                    NodePtrListPtr nodelist($<_NodePtrList>5);
                    ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
                    $<_Node>$ = wn;
+                 } 
+               |
+                 namedmodule SOURCE_tok EQUAL_tok LETTERSTART_tok scoped
+                 {
+                   DBPRINT("procnode: MODULE");
+                   string type(toString($<str>1));
+                   string name(toString($<str>2));
+                   string classname(toString($<str>4));
+                   NodePtrListPtr nodelist($<_NodePtrList>5);
+                   ModuleNode* wn(new ModuleNode(type,name,classname,nodelist,lines));
+                   $<_Node>$ = wn;
                  }
                |
                  unnamedmodule EQUAL_tok LETTERSTART_tok scoped
@@ -1136,6 +1139,8 @@ bangorletter: LETTERSTART_tok
       | BANGSTART_tok
       { $<str>$=$<str>1 }
       | MINUSLETTERSTART_tok
+      { $<str>$=$<str>1 }
+      | SOURCE_tok
       { $<str>$=$<str>1 }
 	  ;
 

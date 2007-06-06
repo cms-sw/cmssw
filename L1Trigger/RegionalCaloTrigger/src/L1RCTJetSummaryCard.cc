@@ -4,6 +4,10 @@
 #include <iostream>
 using std::cout;
 using std::endl;
+#include <vector>
+using std::vector;
+#include <bitset>
+using std::bitset;
 
 L1RCTJetSummaryCard::L1RCTJetSummaryCard(int crtNo):isolatedEGObjects(4),
 						    nonisolatedEGObjects(4),
@@ -77,17 +81,77 @@ void L1RCTJetSummaryCard::fillJetRegions(){
 }
 
 void L1RCTJetSummaryCard::fillIsolatedEGObjects(vector<unsigned short> isoElectrons){
-  sort(isoElectrons.begin(),isoElectrons.end());
-  reverse(isoElectrons.begin(),isoElectrons.end());
-  for(int i = 0; i<4; i++)
-    isolatedEGObjects.at(i) = isoElectrons.at(i);
+  //sort(isoElectrons.begin(),isoElectrons.end());
+  //reverse(isoElectrons.begin(),isoElectrons.end());
+
+  vector<unsigned short> isoCards03(8);
+  vector<unsigned short> isoCards46(8);
+  vector<unsigned short> sortIso(8);
+
+  for (int i = 0; i < 8; i++){
+    isoCards03.at(i) = isoElectrons.at(i);
+  }
+  for (int i = 0; i < 6; i++){
+    isoCards46.at(i) = isoElectrons.at(i+8);
+  }
+  isoCards46.at(6) = 0;
+  isoCards46.at(7) = 0;
+
+  asicSort(isoCards03);
+  asicSort(isoCards46);
+
+  sortIso.at(0) = isoCards03.at(0);
+  sortIso.at(2) = isoCards03.at(2);
+  sortIso.at(4) = isoCards03.at(4);
+  sortIso.at(6) = isoCards03.at(6);
+  sortIso.at(1) = isoCards46.at(0);
+  sortIso.at(3) = isoCards46.at(2);
+  sortIso.at(5) = isoCards46.at(4);
+  sortIso.at(7) = isoCards46.at(6);
+
+  asicSort(sortIso);
+
+  for(int i = 0; i<4; i++){
+    //isolatedEGObjects.at(i) = isoElectrons.at(i);
+    isolatedEGObjects.at(i) = sortIso.at(2*i);
+  }
 }
 
 void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(vector<unsigned short> nonIsoElectrons){
- sort(nonIsoElectrons.begin(),nonIsoElectrons.end());
- reverse(nonIsoElectrons.begin(),nonIsoElectrons.end());
- for(int i = 0; i<4; i++)
-    nonisolatedEGObjects.at(i) = nonIsoElectrons.at(i);
+  //sort(nonIsoElectrons.begin(),nonIsoElectrons.end());
+  //reverse(nonIsoElectrons.begin(),nonIsoElectrons.end());
+
+  vector<unsigned short> nonIsoCards03(8);
+  vector<unsigned short> nonIsoCards46(8);
+  vector<unsigned short> sortNonIso(8);
+
+  for (int i = 0; i < 8; i++){
+    nonIsoCards03.at(i) = nonIsoElectrons.at(i);
+  }
+  for (int i = 0; i < 6; i++){
+    nonIsoCards46.at(i) = nonIsoElectrons.at(i+8);
+  }
+  nonIsoCards46.at(6) = 0;
+  nonIsoCards46.at(7) = 0;
+
+  asicSort(nonIsoCards03);
+  asicSort(nonIsoCards46);
+
+  sortNonIso.at(0) = nonIsoCards03.at(0);
+  sortNonIso.at(2) = nonIsoCards03.at(2);
+  sortNonIso.at(4) = nonIsoCards03.at(4);
+  sortNonIso.at(6) = nonIsoCards03.at(6);
+  sortNonIso.at(1) = nonIsoCards46.at(0);
+  sortNonIso.at(3) = nonIsoCards46.at(2);
+  sortNonIso.at(5) = nonIsoCards46.at(4);
+  sortNonIso.at(7) = nonIsoCards46.at(6);
+
+  asicSort(sortNonIso);
+
+  for(int i = 0; i<4; i++){
+    //nonisolatedEGObjects.at(i) = nonIsoElectrons.at(i);
+    nonisolatedEGObjects.at(i) = sortNonIso.at(2*i);
+  }
 }
 
 void L1RCTJetSummaryCard::fillMIPBits(vector<unsigned short> mip){
@@ -122,6 +186,69 @@ void L1RCTJetSummaryCard::fillQuietBits(){
 
   quietBits = quiet.to_ulong();
 }
+
+// Sorts the egamma candidates with the algorithm used in the ASIC
+void L1RCTJetSummaryCard::asicSort(vector<unsigned short>& electrons)
+{
+  unsigned short temp, temp2;
+
+  asicCompare(electrons);
+
+  // Rotate items prior to next compare
+
+  temp = electrons.at(7);
+  electrons.at(7) = electrons.at(5);
+  electrons.at(5) = electrons.at(3);
+  electrons.at(3) = electrons.at(1);
+  electrons.at(1) = temp;
+
+  // Second compare
+
+  asicCompare(electrons);
+
+  // Second rotate, different order this time
+
+  temp = electrons.at(7);
+  temp2 = electrons.at(5);
+  electrons.at(7) = electrons.at(3);
+  electrons.at(5) = electrons.at(1);
+  electrons.at(3) = temp;
+  electrons.at(1) = temp2;
+
+  // Third compare
+
+  asicCompare(electrons);
+
+  // Third rotate, different again
+
+  temp = electrons.at(1);
+  electrons.at(1) = electrons.at(3);
+  electrons.at(3) = electrons.at(5);
+  electrons.at(5) = electrons.at(7);
+  electrons.at(7) = temp;
+
+  // Fourth compare
+
+  asicCompare(electrons);
+
+}
+
+// Used in ASIC sort algorithm
+void L1RCTJetSummaryCard::asicCompare(vector<unsigned short>& array)
+{
+  int i;
+  unsigned short temp;
+  for (i = 0; i < 4; i++)
+    {
+      if ((array.at(2 * i)) < (array.at((2 * i) + 1)))
+	{
+	  temp = array.at(2 * i);
+	  array.at(2 * i) = array.at((2 * i) + 1);
+	  array.at((2 * i) + 1) = temp;
+	}
+    }
+}
+
 
 void L1RCTJetSummaryCard::print(){
   cout << "tauBits " << tauBits << endl;

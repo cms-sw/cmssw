@@ -1,6 +1,6 @@
 #include "EventFilter/SiPixelRawToDigi/interface/SiPixelRawToDigi.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -39,17 +39,19 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   produces< edm::DetSetVector<PixelDigi> >();
 
+/*
   rootFile = new TFile("analysis.root", "RECREATE", "my histograms");
   hCPU = new TH1D ("hCPU","hCPU",60,0.,0.030);
   hDigi = new TH1D("hDigi","hDigi",50,0.,15000.);
+*/
 }
 
 
 // -----------------------------------------------------------------------------
 SiPixelRawToDigi::~SiPixelRawToDigi() {
   edm::LogInfo("SiPixelRawToDigi")  << " HERE ** SiPixelRawToDigi destructor!";
-  rootFile->Write();
-  cout << " end.."<<endl;
+//  rootFile->Write();
+//  cout << " end.."<<endl;
 }
 
 
@@ -65,9 +67,9 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   edm::ESHandle<SiPixelFedCablingMap> map;
   es.get<SiPixelFedCablingMapRcd>().get( map );
-  cout << map->version() << endl;
+//  cout << map->version() << endl;
 
-  static  R2DTimerObserver timer("**** MY TIMING REPORT ***");
+//  static  R2DTimerObserver timer("**** MY TIMING REPORT ***");
 
   edm::Handle<FEDRawDataCollection> buffers;
   static string label = config_.getUntrackedParameter<string>("InputLabel","source");
@@ -81,7 +83,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   PixelDataFormatter formatter(map.product());
 {
-  TimeMe t(timer.item(), false);
+//  TimeMe t(timer.item(), false);
   FEDNumbering fednum;
   pair<int,int> fedIds = fednum.getSiPixelFEDIds();
   fedIds.first = 0;
@@ -109,6 +111,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     } 
   }
 }
+/*
   cout << "TIMING IS: (real)" << timer.lastMeasurement().real() << endl;
   ndigis += formatter.nDigis();
   nwords += formatter.nWords();
@@ -116,6 +119,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
        << "--- all :"<<nwords<<"/"<<ndigis<<endl;
   hCPU->Fill( timer.lastMeasurement().real() ); 
   hDigi->Fill(formatter.nDigis());
+*/
 
   //send digis back to framework 
   ev.put( collection );

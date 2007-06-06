@@ -9,7 +9,6 @@
  */
 
 #include "DataFormats/Common/interface/ProcessConfiguration.h"
-#include "IOPool/Streamer/interface/DQMEventMessage.h"
 
 class InitMsgView;
 class EventMsgView;
@@ -33,10 +32,6 @@ namespace edm {
     setProcessConfiguration(ProcessConfiguration pc) {
       processConfiguration_ = pc;
     }
-
-    static std::auto_ptr<DQMEvent::TObjectTable>
-        deserializeDQMEvent(DQMEventMsgView const& dqmEventView);
-
   private:
     ProcessConfiguration processConfiguration_;
   };

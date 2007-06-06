@@ -15,7 +15,6 @@ class CSCDetectorHit;
 class CSCComparatorDigi;
 class CSCCrosstalkGenerator;
 class CSCScaNoiseGenerator;
-class CSCStripConditions;
 #include <vector>
 #include <string>
 
@@ -27,10 +26,13 @@ public:
 
   virtual ~CSCStripElectronicsSim();
 
+  // sets the RMS fluctuation of each SCA bin, in fC
+  void setScaNoise(float noise) {sca_noise = noise;};
+  void setComparatorThreshold(float threshold) 
+     {theComparatorThreshold = threshold;};
+
   void fillDigis(CSCStripDigiCollection & digis,
                  CSCComparatorDigiCollection & comparators);
-
-  void setStripConditions(CSCStripConditions * cond) {theStripConditions = cond;}
 
 private:
   /// initialization for each layer
@@ -52,21 +54,11 @@ private:
   // tells which strips to read out around the input strip
   void getReadoutRange(int inputStrip, 
                        int & minStrip, int & maxStrip);
-
-  /// finds the key strips from these comparators
-  std::list<int>
-  getKeyStrips(const std::vector<CSCComparatorDigi> & comparators) const;
-
-  /// finds what strips to read.  Will either take 5 strips around
-  /// the keystrip, or the whole CFEB, based on doSuppression_
-  std::list<int>
-  channelsToRead(const std::list<int> & keyStrips) const;
-
   void addCrosstalk();
 
-  void selfTest() const;
-
-  CSCStripDigi createDigi(int istrip, float startTime);
+  CSCStripDigi createDigi(int istrip,
+                  float sca_start_time,
+                  bool addScaNoise);
 
   // saturation of the 12-bit ADC.  Max reading is 4095
   void doSaturation(CSCStripDigi & digi);
@@ -81,19 +73,16 @@ private:
   float theComparatorWait;
   float theComparatorDeadTime;
   float theDaqDeadTime;
-  // save the calculation of time-of-flight+drift+shaping
-  float theTimingOffset;
 
   int nScaBins_;
-  bool doSuppression_;
   bool doCrosstalk_;
-  CSCStripConditions * theStripConditions;
   CSCCrosstalkGenerator * theCrosstalkGenerator;
   CSCScaNoiseGenerator  * theScaNoiseGenerator;
 
   int theComparatorClockJump;
   // the length of each SCA time bin, in ns.  50 by default
   float sca_time_bin_size;
+  float sca_noise;
   // the following values are in ADC counts
   float theAnalogNoise;
   float thePedestal;

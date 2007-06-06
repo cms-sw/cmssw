@@ -43,6 +43,9 @@ class L1MuDTChambThDigi {
   L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
 	             int* uos, int* uqual );
 
+  L1MuDTChambThDigi( int ubx, int uwh, int usc, int ust,
+	             int* uos );
+
   //  Destructor
   ~L1MuDTChambThDigi();
 

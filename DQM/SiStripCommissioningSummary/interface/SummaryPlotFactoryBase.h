@@ -1,7 +1,7 @@
 #ifndef DQM_SiStripCommissioningSummary_SummaryPlotFactoryBase_H
 #define DQM_SiStripCommissioningSummary_SummaryPlotFactoryBase_H
 
-#include "DataFormats/SiStripCommon/interface/SiStripEnumeratedTypes.h"
+#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "TH1.h"
 #include <string>
 

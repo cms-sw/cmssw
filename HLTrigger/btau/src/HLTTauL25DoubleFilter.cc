@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/12/15 11:02:50 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/01/31 10:48:56 $
+ *  $Revision: 1.1 $
  *
  *  \author S. Gennai
  *
@@ -11,7 +11,7 @@
 
 #include "HLTrigger/btau/interface/HLTTauL25DoubleFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 

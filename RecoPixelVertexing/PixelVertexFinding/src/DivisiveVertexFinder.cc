@@ -1,7 +1,7 @@
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveVertexFinder.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVPositionBuilder.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVCluster.h"
-#include "Geometry/CommonDetAlgo/interface/Measurement1D.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 #include <utility>

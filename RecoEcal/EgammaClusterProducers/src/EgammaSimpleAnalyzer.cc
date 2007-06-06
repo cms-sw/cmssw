@@ -8,14 +8,14 @@
 //
 // Original Author:  Shahram Rahatlou
 //         Created:  10 May 2006
-// $Id: EgammaSimpleAnalyzer.cc,v 1.7 2006/11/27 12:48:13 rahatlou Exp $
+// $Id: EgammaSimpleAnalyzer.cc,v 1.9 2007/03/08 19:11:10 futyand Exp $
 //
 
 #include "RecoEcal/EgammaClusterProducers/interface/EgammaSimpleAnalyzer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "TFile.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -35,12 +35,6 @@ EgammaSimpleAnalyzer::EgammaSimpleAnalyzer( const edm::ParameterSet& ps )
   islandBarrelBasicClusterCollection_ = ps.getParameter<std::string>("islandBarrelBasicClusterCollection");
   islandBarrelBasicClusterProducer_   = ps.getParameter<std::string>("islandBarrelBasicClusterProducer");
   islandBarrelBasicClusterShapes_   = ps.getParameter<std::string>("islandBarrelBasicClusterShapes");
-
-  islandBarrelSuperClusterCollection_ = ps.getParameter<std::string>("islandBarrelSuperClusterCollection");
-  islandBarrelSuperClusterProducer_   = ps.getParameter<std::string>("islandBarrelSuperClusterProducer");
-
-  correctedIslandBarrelSuperClusterCollection_ = ps.getParameter<std::string>("correctedIslandBarrelSuperClusterCollection");
-  correctedIslandBarrelSuperClusterProducer_   = ps.getParameter<std::string>("correctedIslandBarrelSuperClusterProducer");
 
   islandEndcapBasicClusterCollection_ = ps.getParameter<std::string>("islandEndcapBasicClusterCollection");
   islandEndcapBasicClusterProducer_   = ps.getParameter<std::string>("islandEndcapBasicClusterProducer");
@@ -95,7 +89,6 @@ EgammaSimpleAnalyzer::beginJob(edm::EventSetup const&) {
   h1_nIslandEBBC_ = new TH1F("nIslandEBBC","# basic clusters with island in barrel",11,-0.5,10.5);
   h1_nIslandEEBC_ = new TH1F("nIslandEEBC","# basic clusters with island in endcap",11,-0.5,10.5);
 
-  h1_nIslandEBSC_ = new TH1F("nIslandEBSC","# super clusters with island in barrel",11,-0.5,10.5);
   h1_nIslandEESC_ = new TH1F("nIslandEESC","# super clusters with island in endcap",11,-0.5,10.5);
   h1_nHybridSC_ = new TH1F("nHybridSC","# super clusters with hybrid",11,-0.5,10.5);
 
@@ -104,16 +97,13 @@ EgammaSimpleAnalyzer::beginJob(edm::EventSetup const&) {
 
   h1_islandEBBCe9over25_= new TH1F("islandEBBCe9over25","e3x3/e5x5 of basic clusters with island algo - barrel",35,0.5,1.2);
   h1_islandEBBCe5x5_ = new TH1F("islandEBBCe5x5","e5x5 of basic clusters with island algo - barrel",nbinHist_,xMinHist_,xMaxHist_);
-  h1_islandEBSCEnergy_ = new TH1F("islandEBSCEnergy","Energy of super clusters with island algo - barrel",nbinHist_,xMinHist_,xMaxHist_);
-  h1_corrIslandEBSCEnergy_ = new TH1F("corrIslandEBSCEnergy","Corrected Energy of super clusters with island algo - barrel",nbinHist_,xMinHist_,xMaxHist_);
-  h1_islandEBSCClusters_ = new TH1F("islandEBSCClusters","# basic clusters in super cluster - island barrel",11,-0.5,10.5);
-
   h1_islandEEBCe5x5_ = new TH1F("islandEEBCe5x5","e5x5 of basic clusters with island algo - endcap",nbinHist_,xMinHist_,xMaxHist_);
   h1_islandEEBCEnergy_ = new TH1F("islandEEBCEnergy","Energy of basic clusters with island algo - endcap",nbinHist_,xMinHist_,xMaxHist_);
   h1_islandEEBCXtals_ = new TH1F("islandEEBCXtals","#xtals in basic cluster - island endcap",51,-0.5,50.5);
 
   h1_islandEESCEnergy_ = new TH1F("islandEESCEnergy","Energy of super clusters with island algo - endcap",nbinHist_,xMinHist_,xMaxHist_);
   h1_corrIslandEESCEnergy_ = new TH1F("corrIslandEESCEnergy","Corrected Energy of super clusters with island algo - endcap",nbinHist_,xMinHist_,xMaxHist_);
+  h1_corrIslandEESCET_ = new TH1F("corrIslandEESCET","Corrected Transverse Energy of super clusters with island algo - endcap",nbinHist_,xMinHist_,xMaxHist_);
   h1_islandEESCClusters_ = new TH1F("islandEESCClusters","# basic clusters in super cluster - island endcap",11,-0.5,10.5);
 
   h1_hybridSCEnergy_ = new TH1F("hybridSCEnergy","Energy of super clusters with hybrid algo",nbinHist_,xMinHist_,xMaxHist_);
@@ -122,10 +112,6 @@ EgammaSimpleAnalyzer::beginJob(edm::EventSetup const&) {
   h1_corrHybridSCEta_ = new TH1F("corrHybridSCEta","Eta of super clusters with hybrid algo",40,-3.,3.);
   h1_corrHybridSCPhi_ = new TH1F("corrHybridSCPhi","Phi of super clusters with hybrid algo",40,0.,6.28);
   h1_hybridSCClusters_ = new TH1F("hybridSCClusters","# basic clusters in super cluster - hybrid",11,-0.5,10.5);
-
-  h1_eCorrIslandEB = new TH1F("h1_eCorrIslandEB","energy corrections for island in barrel", 50,5.,5.);
-  h1_eCorrIslandEE = new TH1F("h1_eCorrIslandEE","energy corrections for island in endcap", 50,5.,5.);
-  h1_eCorrHybrid = new TH1F("h1_eCorrHybrid","energy corrections for hybrid in barrel", 50,5.,5.);
 
 }
 
@@ -171,32 +157,6 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
     iClus++;
   }
   edm::LogInfo("EgammaSimpleAnalyzer") << str.str();
-
-  // Get island super clusters
-  Handle<reco::SuperClusterCollection> pIslandBarrelSuperClusters;
-  evt.getByLabel(islandBarrelSuperClusterProducer_, islandBarrelSuperClusterCollection_, pIslandBarrelSuperClusters);
-  const reco::SuperClusterCollection* islandBarrelSuperClusters = pIslandBarrelSuperClusters.product();
-
-
-  // loop over the super clusters and fill the histogram
-  for(reco::SuperClusterCollection::const_iterator aClus = islandBarrelSuperClusters->begin();
-                                                    aClus != islandBarrelSuperClusters->end(); aClus++) {
-    h1_islandEBSCEnergy_->Fill( aClus->energy() );
-  }
-
-
-  // Get island super clusters after energy correction
-  Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  evt.getByLabel(correctedIslandBarrelSuperClusterProducer_, correctedIslandBarrelSuperClusterCollection_, pCorrectedIslandBarrelSuperClusters);
-  const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
-  h1_nIslandEBSC_->Fill(correctedIslandBarrelSuperClusters->size());
-
-  // loop over the super clusters and fill the histogram
-  for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
-                                                           aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
-    h1_corrIslandEBSCEnergy_->Fill( aClus->energy() );
-    h1_islandEBSCClusters_->Fill( aClus->clustersSize() );
-  }
 
   // extract energy corrections applied 
 
@@ -247,6 +207,7 @@ EgammaSimpleAnalyzer::analyze( const edm::Event& evt, const edm::EventSetup& es 
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandEndcapSuperClusters->begin();
                                                            aClus != correctedIslandEndcapSuperClusters->end(); aClus++) {
     h1_corrIslandEESCEnergy_->Fill( aClus->energy() );
+    h1_corrIslandEESCET_->Fill( aClus->energy()*sin(aClus->position().theta()) );
     h1_islandEESCClusters_->Fill( aClus->clustersSize() );
   }
 
@@ -296,7 +257,6 @@ EgammaSimpleAnalyzer::endJob() {
 
   h1_nIslandEBBC_->Write();
   h1_nIslandEEBC_->Write();
-  h1_nIslandEBSC_->Write();
   h1_nIslandEESC_->Write();
   h1_nHybridSC_->Write();
 
@@ -305,16 +265,13 @@ EgammaSimpleAnalyzer::endJob() {
   h1_islandEBBCEnergy_->Write();
   h1_islandEBBCXtals_->Write();
 
-  h1_islandEBSCEnergy_->Write();
-  h1_corrIslandEBSCEnergy_->Write();
-  h1_islandEBSCClusters_->Write();
-
   h1_islandEEBCe5x5_->Write();
   h1_islandEEBCEnergy_->Write();
   h1_islandEEBCXtals_->Write();
 
   h1_islandEESCEnergy_->Write();
   h1_corrIslandEESCEnergy_->Write();
+  h1_corrIslandEESCET_->Write();
   h1_islandEESCClusters_->Write();
 
   h1_hybridSCClusters_->Write();

@@ -18,17 +18,10 @@ class GlobalTrajectoryParameters;
 
 class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
  public:
- 
-  /// get Field at starting state (internally)
+  
   AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
 				const GlobalPoint& x, 
 				const GlobalVector& p, 
-				const double& s);
-  /// new: give Field as a parameter
-  AnalyticalCurvilinearJacobian(const GlobalTrajectoryParameters& globalParameters,
-				const GlobalPoint& x, 
-				const GlobalVector& p, 
-				const GlobalVector& theFieldInInverseGeV, 
 				const double& s);
   
   virtual ~AnalyticalCurvilinearJacobian() {}
@@ -37,7 +30,7 @@ class AnalyticalCurvilinearJacobian : public CurvilinearJacobian {
 private:
   /// result for non-vanishing curvature
   void computeFullJacobian (const GlobalTrajectoryParameters&,
-			    const GlobalPoint&, const GlobalVector&, const GlobalVector&, 
+			    const GlobalPoint&, const GlobalVector&, 
 			    const double& s);
   /// straight line approximation
   void computeStraightLineJacobian (const GlobalTrajectoryParameters&,

@@ -1,6 +1,6 @@
-// Last commit: $Id: $
-// Latest tag:  $Name:  $
-// Location:    $Source: $
+// Last commit: $Id: test_PedestalsBuilder.h,v 1.1 2006/12/22 12:30:40 bainbrid Exp $
+// Latest tag:  $Name: TIF_210307 $
+// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/test/stubs/test_PedestalsBuilder.h,v $
 
 #ifndef OnlineDB_SiStripESSources_test_PedestalsBuilder_H
 #define OnlineDB_SiStripESSources_test_PedestalsBuilder_H
@@ -19,7 +19,7 @@ class test_PedestalsBuilder : public edm::EDAnalyzer {
  public:
   
   test_PedestalsBuilder( const edm::ParameterSet& ) {;}
-  ~test_PedestalsBuilder() {;}
+  virtual ~test_PedestalsBuilder() {;}
   
   void beginJob( edm::EventSetup const& );
   void analyze( const edm::Event&, const edm::EventSetup& ) {;}

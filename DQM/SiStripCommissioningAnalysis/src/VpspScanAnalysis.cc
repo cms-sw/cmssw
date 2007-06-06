@@ -1,5 +1,7 @@
 #include "DQM/SiStripCommissioningAnalysis/interface/VpspScanAnalysis.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
+#include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include "TH1.h"
 #include <iostream>
@@ -7,12 +9,12 @@
 #include <iomanip>
 #include <cmath>
 
-using namespace std;
+using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
-  : CommissioningAnalysis(key),
+  : CommissioningAnalysis(key,"VPSP SCAN"),
     vpsp0_(sistrip::invalid_), 
     vpsp1_(sistrip::invalid_),
     hVpsp0_(0,""), 
@@ -22,7 +24,7 @@ VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
 // -----------------------------------------------------------------------------
 //
 VpspScanAnalysis::VpspScanAnalysis()
-  : CommissioningAnalysis(),
+  : CommissioningAnalysis("VPSP SCAN"),
     vpsp0_(sistrip::invalid_), 
     vpsp1_(sistrip::invalid_),
     hVpsp0_(0,""), 
@@ -31,13 +33,8 @@ VpspScanAnalysis::VpspScanAnalysis()
 
 // ----------------------------------------------------------------------------
 // 
-void VpspScanAnalysis::print( stringstream& ss, uint32_t not_used ) { 
-  if ( key() ) {
-    ss << "VPSP SCAN monitorables for channel key 0x"
-       << hex << setw(8) << setfill('0') << key() << dec << "\n";
-  } else {
-    ss << "VPSP SCAN monitorables" << "\n";
-  }
+void VpspScanAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
   ss << " VPSP setting APV0: " << vpsp0_ << "\n" 
      << " VPSP setting APV1: " << vpsp1_ << "\n" ;
 }
@@ -53,44 +50,47 @@ void VpspScanAnalysis::reset() {
 
 // ----------------------------------------------------------------------------
 // 
-void VpspScanAnalysis::extract( const vector<TH1*>& histos ) { 
+void VpspScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
   // Check
   if ( histos.size() != 2 ) {
-    cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	 << " Unexpected number of histograms: " 
-	 << histos.size()
-	 << endl;
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Unexpected number of histograms: " 
+      << histos.size();
   }
   
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
   // Extract
-  vector<TH1*>::const_iterator ihis = histos.begin();
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
     // Check pointer
     if ( !(*ihis) ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to histogram!" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to histogram!";
       continue;
     }
     
     // Check name
-    static HistoTitle title;
-    title = SiStripHistoNamingScheme::histoTitle( (*ihis)->GetName() );
-    if ( title.task_ != sistrip::VPSP_SCAN ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected commissioning task!"
-	   << "(" << SiStripHistoNamingScheme::task( title.task_ ) << ")"
-	   << endl;
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::VPSP_SCAN ) {
+      edm::LogWarning(mlCommissioning_)
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected commissioning task: "
+	<< SiStripEnumsAndStrings::runType(title.runType());
       continue;
     }
     
     // Extract APV number
     uint16_t apv = sistrip::invalid_; 
-    if ( title.extraInfo_.find(sistrip::apv_) != string::npos ) {
-      stringstream ss;
-      ss << title.extraInfo_.substr( title.extraInfo_.find(sistrip::apv_) + sistrip::apv_.size(), 1 );
-      ss >> dec >> apv;
+    if ( title.extraInfo().find(sistrip::apv_) != std::string::npos ) {
+      std::stringstream ss;
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss >> std::dec >> apv;
     }
     
     // Store vpsp scan histos
@@ -101,8 +101,9 @@ void VpspScanAnalysis::extract( const vector<TH1*>& histos ) {
       hVpsp1_.first = *ihis; 
       hVpsp1_.second = (*ihis)->GetName();
     } else {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " Unexpected APV number! (" << apv << ")" << endl;
+      edm::LogWarning(mlCommissioning_) 
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " Unexpected APV number! (" << apv << ")";
     }
     
   }
@@ -121,8 +122,8 @@ void VpspScanAnalysis::analyse() {
 //
 void VpspScanAnalysis::deprecated() {
   
-  vector<const TProfile*> histos; 
-  vector<unsigned short> monitorables;
+  std::vector<const TProfile*> histos; 
+  std::vector<unsigned short> monitorables;
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     
     histos.clear();
@@ -132,8 +133,9 @@ void VpspScanAnalysis::deprecated() {
       histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp1_.first) ) );
     } 
     if ( !histos[0] ) {
-      cerr << "[" << __PRETTY_FUNCTION__ << "]"
-	   << " NULL pointer to VPSP histo for APV" << iapv << endl;
+      edm::LogWarning(mlCommissioning_)
+	<< "[" << myName() << "::" << __func__ << "]"
+	<< " NULL pointer to VPSP histo for APV" << iapv;
       continue;
     }
     
@@ -152,14 +154,14 @@ void VpspScanAnalysis::deprecated() {
 
 // -----------------------------------------------------------------------------
 //
-void VpspScanAnalysis::anal( const vector<const TProfile*>& histos, 
-			     vector<unsigned short>& monitorables ) {
+void VpspScanAnalysis::anal( const std::vector<const TProfile*>& histos, 
+			     std::vector<unsigned short>& monitorables ) {
   //LogDebug("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]";
 
   //extract root histogram
   //check 
   if (histos.size() != 1) { 
-    //     edm::LogWarning("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Requires \"const vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
+    //     edm::LogWarning("Commissioning|Analysis") << "[VpspScanAnalysis::analysis]: Requires \"const std::vector<const TH1F*>& \" argument to have size 1. Actual size: " << histos.size() << ". Monitorables set to 0."; 
     monitorables.push_back(0);
     return; 
   }
@@ -179,9 +181,9 @@ void VpspScanAnalysis::anal( const vector<const TProfile*>& histos,
     }
   }
 
-  vector<float> reduced_noise_histo; reduced_noise_histo.reserve(58); reduced_noise_histo.resize(58,0.);
-  vector<float> second_deriv; second_deriv.reserve(54); second_deriv.resize(54,0.);
-  pair< unsigned short, unsigned short > plateau_edges; plateau_edges.first = 0; plateau_edges.second = 0;
+  std::vector<float> reduced_noise_histo; reduced_noise_histo.reserve(58); reduced_noise_histo.resize(58,0.);
+  std::vector<float> second_deriv; second_deriv.reserve(54); second_deriv.resize(54,0.);
+  std::pair< unsigned short, unsigned short > plateau_edges; plateau_edges.first = 0; plateau_edges.second = 0;
 
   //calculate a "reduced-noise" version of VPSP histogram @@ Maybe only introduce this if noise > threshold value ???
 
@@ -192,7 +194,7 @@ void VpspScanAnalysis::anal( const vector<const TProfile*>& histos,
 
   for (int k=5;k<55;k++) {
     
-    //calculate the 2nd derivative of the reduced noise vector and relevent statistics
+    //calculate the 2nd derivative of the reduced noise std::vector and relevent statistics
     
     second_deriv[k - 1] = reduced_noise_histo[k] - 2*(reduced_noise_histo[k-1]) + reduced_noise_histo[k-2];
 
@@ -205,7 +207,7 @@ void VpspScanAnalysis::anal( const vector<const TProfile*>& histos,
 
   // median...
 
-  vector<float> sorted_second_deriv; sorted_second_deriv.reserve(second_deriv.size());
+  std::vector<float> sorted_second_deriv; sorted_second_deriv.reserve(second_deriv.size());
   sorted_second_deriv = second_deriv;
   sort(sorted_second_deriv.begin(), sorted_second_deriv.end());
   float median_2D_90pc = sorted_second_deriv[(unsigned short)(sorted_second_deriv.size()*.9)];
@@ -271,7 +273,7 @@ float sigma_2D_noise = sqrt(fabs(mean_2D_noise * mean_2D_noise - mean2_2D_noise)
       
     }
   float opt = bottom+1./3.*(top-bottom);
-  cout << opt << ";" << optimum << endl;
+  LogTrace(mlCommissioning_) << opt << ";" << optimum;
   */
 
   unsigned short vpsp;

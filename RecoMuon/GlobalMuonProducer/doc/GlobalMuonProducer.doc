@@ -1,0 +1,60 @@
+
+/*!
+
+\page RecoMuon_GlobalMuonProducer Package RecoMuon/GlobalMuonProducer
+
+<center>
+<small>
+
+<!-- @CVS_TAG@ will be substituted at build time, no need to touch -->
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/GlobalMuonProducer/?cvsroot=CMSSW&only_with_tag=@CVS_TAG@>Source code (CVS tag: @CVS_TAG@)</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/RecoMuon/GlobalMuonProducer/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+</small>
+</center>
+
+\section desc Description
+<!-- Short description of what this package is supposed to provide -->
+
+This package provides a module to construct Muons from tracker Tracks and StandAloneMuons.
+
+<!--
+\subsection interface Public interface
+List the classes that are provided for use in other packages (if any) -->
+
+\subsection modules Modules
+<!-- Describe modules implemented in this package and their parameter set -->
+
+- GlobalMuonProducer : Creates the GlobalMuonProducer framework module
+that associates StandAloneMuon Tracks with Tracker Tracks and performs a
+global refit of all hits.  GlobalMuonProducer has two member classes
+which must be configured in the module's configuration file.  The first,
+GlobalMuonTrajectoryBuilder, is the algorithm class which constructs the
+global muon trajectory.  The second, MuonTrackLoader, converts the
+product of GlobalMuonTrajectoryBuilder into persistant objects and loads
+them into the Event.
+
+<pre>
+\htmlinclude globalMuons.cfi
+</pre>
+
+<b>Inputs</b>:
+- MuonCollectionLabel : the TrackCollection of StandAloneMuons
+- TrackerCollectionLabel : the TrackCollection of tracker tracks to be searched for a track compatible with the StandAloneMuon 
+
+<b>Products</b>
+- reco::Muon Collection: label globalMuons
+- reco::Track Collection: label globalMuons
+
+\subsection tests Unit tests and examples
+<!-- Describe cppunit tests and example configuration files -->
+Unknown
+
+\section status Status and planned development
+<!-- e.g. completed, stable, missing features -->
+Unknown
+
+<hr>
+Last updated:
+@DATE@  Author: Adam Everett
+*/
+

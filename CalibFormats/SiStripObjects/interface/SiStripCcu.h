@@ -1,6 +1,4 @@
-// Last commit: $Id$
-// Latest tag:  $Name$
-// Location:    $Source$
+// Last commit: $Id: SiStripCcu.h,v 1.2 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripCcu_H
 #define CalibFormats_SiStripObjects_SiStripCcu_H
@@ -19,8 +17,7 @@ class SiStripCcu {
  public: 
   
   /** */
-  SiStripCcu( const FedChannelConnection& conn ) 
-    : ccuAddr_( conn.ccuAddr() ), modules_() { addDevices( conn ); }
+  SiStripCcu( const FedChannelConnection& conn );
   
   /** */
   ~SiStripCcu() {;}

@@ -9,11 +9,11 @@
     
   
 
-#include "Geometry/Vector/interface/Basic2DVector.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
-#include "Geometry/Surface/interface/TkRotation.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoTracker/TkMSParametrization/interface/PixelRecoRange.h"
 
 

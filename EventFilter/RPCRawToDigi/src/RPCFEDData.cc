@@ -1,13 +1,13 @@
 /** \file
  * Implementation of class RPCFEDData
  *
- *  $Date: 2006/05/29 08:38:39 $
- *  $Revision: 1.3 $
+ *  $Date: 2006/10/08 12:11:12 $
+ *  $Revision: 1.4 $
  *
  * \author Ilaria Segoni
  */
  
-#include <EventFilter/RPCRawToDigi/interface/RPCFEDData.h>
+#include "EventFilter/RPCRawToDigi/interface/RPCFEDData.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -108,9 +108,43 @@ int RPCFEDData::dccDiscarded() const{
 }
 
 
+/*
+
+// THE REST IS REMNANT OF ILARIA CODE WHICH IS NOT YET PORTED.
+      namespace bits{
+            static const int BITS_PER_PARTITION=8;
+      }
+      namespace error{
+            static const int TB_LINK_MASK  = 0X1F;
+            static const int TB_LINK_SHIFT =0;
+
+            static const int TB_RMB_MASK = 0X3F;
+            static const int TB_RMB_SHIFT =5;
+
+            static const int RMB_DISABLED_MASK = 0X6;
+            static const int RMB_DISABLED_SHIFT =0;
+      }
+
+    
+    if(typeOfRecord==RPCRecord::RMBDiscarded || typeOfRecord==RPCRecord::RMBCorrupted ) this->unpackRMBCorruptedRecord(recordIndexInt,typeOfRecord,rawData);
+    if(typeOfRecord==RPCRecord::RMBDisabled ) this->unpackRMBDisabledRecord(recordIndexInt,typeOfRecord,rawData);
+    if(typeOfRecord==RPCRecord::DCCDiscarded) rawData.addDCCDiscarded();
+
+void RPCRecordFormatter::unpackRMBCorruptedRecord(const unsigned int* recordIndexInt,enum RPCRecord::recordTypes type,RPCFEDData & rawData) {
+    int tbLinkInputNumber = (* recordIndexInt>> rpcraw::error::TB_LINK_SHIFT )& rpcraw::error::TB_LINK_MASK;
+    int tbRmb   = (* recordIndexInt>> rpcraw::error::TB_RMB_SHIFT)  & rpcraw::error::TB_RMB_MASK;
+    if(type==RPCRecord::RMBDiscarded) rawData.addRMBDiscarded(tbRmb, tbLinkInputNumber);
+    if(type==RPCRecord::RMBCorrupted) rawData.addRMBCorrupted(tbRmb, tbLinkInputNumber);  
+ }
 
 
+void RPCRecordFormatter::unpackRMBDisabledRecord(const unsigned int* recordIndexInt,enum RPCRecord::recordTypes type, RPCFEDData & rawData) {
+    	int rmbDisabled = (* recordIndexInt>> rpcraw::error::RMB_DISABLED_SHIFT ) & rpcraw::error::RMB_DISABLED_MASK;
+	rawData.addRMBDisabled(rmbDisabled);  
+    	edm::LogInfo ("RPCUnpacker")<< "Found RMB Disabled: "<<rmbDisabled;
+ }
 
+*/
 
 
 

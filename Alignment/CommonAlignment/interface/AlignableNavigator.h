@@ -2,14 +2,14 @@
 #define Alignment_CommonAlignment_AlignableNavigator_h
 
 #include <map>
-#include <vector>
+#include <string>
+
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 class Alignable;
 class AlignableDet;
-class GeomDet;
-
 
 /// A class to navigate from a DetId to an Alignable
 /// A map is created at construction time from all

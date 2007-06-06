@@ -6,7 +6,6 @@
 <use name=RecoVertex/AdaptiveVertexFit>
 <use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
-<use name=IOMC/ParticleGuns>
 <flags SEAL_PLUGIN_NAME="RecoVertexPrimaryVertexProducer">
 <export>
    <lib name=RecoVertexPrimaryVertexProducer>
@@ -18,5 +17,4 @@
    <use name=RecoVertex/TrimmedKalmanVertexFinder>
    <use name=RecoVertex/AdaptiveVertexFit>
    <use name=RecoVertex/LinearizationPointFinders>
-   <use name=IOMC/ParticleGuns> 	
 </export>

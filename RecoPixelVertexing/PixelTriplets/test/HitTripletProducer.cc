@@ -1,34 +1,28 @@
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/OrderedHitTriplets.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
-#include "RecoPixelVertexing/PixelTriplets/interface/PixelHitTripletGenerator.h"
 
 
 class HitTripletProducer : public edm::EDAnalyzer {
 public:
   explicit HitTripletProducer(const edm::ParameterSet& conf);
   ~HitTripletProducer();
-  virtual void beginJob(const edm::EventSetup& iSetup) { }
+  virtual void beginJob(const edm::EventSetup& iSetup);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() { }
 private:
   edm::ParameterSet theConfig;
-  PixelHitTripletGenerator * generator;
+  OrderedHitsGenerator * theGenerator;
 };
 
 HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf) 
-  : theConfig(conf), generator(0)
+  : theConfig(conf), theGenerator(0)
 {
   edm::LogInfo("HitTripletProducer")<<" CTOR";
 }
@@ -36,32 +30,26 @@ HitTripletProducer::HitTripletProducer(const edm::ParameterSet& conf)
 HitTripletProducer::~HitTripletProducer() 
 { 
   edm::LogInfo("HitTripletProducer")<<" DTOR";
-//  delete generator;
+  delete theGenerator;
+}
+
+void HitTripletProducer::beginJob(const edm::EventSetup& es)
+{
+  edm::ParameterSet orderedPSet =
+      theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  std::string orderedName = orderedPSet.getParameter<std::string>("ComponentName");
+  theGenerator = OrderedHitsGeneratorFactory::get()->create( orderedName, orderedPSet);
 }
 
 void HitTripletProducer::analyze(
     const edm::Event& ev, const edm::EventSetup& es)
 {
-  edm::Handle<SiPixelRecHitCollection> pixelHits;
-  ev.getByType(pixelHits);
-
-//    edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
-//    XXXPixelTrackFilter * aGen =
-//    XXXPixelTrackFilterFactory::get()->create("XXXPixelTrackFilterByKinematics",pset);
-//    aGen->koko();
-
-
-  if (!generator) {
-    edm::ParameterSet pset = theConfig.getParameter<edm::ParameterSet>("TripletsPSet");
-    generator = new PixelHitTripletGenerator(pset);
-  }
-  generator->init(*pixelHits,es); 
 
   GlobalTrackingRegion region;
-  OrderedHitTriplets triplets;
-  generator->hitTriplets(region,triplets,es);
+  const OrderedSeedingHits & triplets = theGenerator->run(region,ev,es);
   edm::LogInfo("HitTripletProducer") << "size of triplets: "<<triplets.size();
-  delete generator; generator=0;
 
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(HitTripletProducer);

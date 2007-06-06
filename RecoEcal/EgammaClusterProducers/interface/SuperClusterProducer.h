@@ -51,6 +51,9 @@ class SuperClusterProducer : public edm::EDProducer
       float endcapPhiSearchRoad_;
       float seedTransverseEnergyThreshold_;
 
+      bool doBarrel_;
+      bool doEndcaps_;
+
       BremRecoveryClusterAlgo * bremAlgo_p;
 
       double totalE;

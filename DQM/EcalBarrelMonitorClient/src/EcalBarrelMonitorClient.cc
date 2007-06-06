@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/02/23 15:21:50 $
- * $Revision: 1.230 $
+ * $Date: 2007/02/17 13:49:49 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -380,7 +380,7 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
 
   clients_.push_back(  new EBPedestalOnlineClient(ps) );
-  clientNames_.push_back( "PedestalOnline" );
+  clientNames_.push_back( "PedestalOnLine" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
@@ -419,11 +419,12 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   clients_.push_back(  new EBTimingClient(ps) );
   clientNames_.push_back( "Timing" );
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
-
-  summaryClient_ = new EBSummaryClient(ps);
-
-  summaryClient_->setFriends(clients_);
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
   cout << endl;
 
@@ -436,8 +437,6 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
   for ( unsigned int i=0; i<clients_.size(); i++ ) {
     delete clients_[i];
   }
-
-  delete summaryClient_;
 
   if ( ! enableStateMachine_ ) {
     mui_->disconnect();
@@ -512,8 +511,6 @@ void EcalBarrelMonitorClient::beginJob(void){
     clients_[i]->beginJob(mui_);
   }
 
-  summaryClient_->beginJob(mui_);
-
   this->subscribe();
 
 }
@@ -538,9 +535,7 @@ void EcalBarrelMonitorClient::beginRun(void){
       if ( runtype_ != -1 && runtype_ == (*j).second && !started ) { started = true; clients_[i]->beginRun(); }
     }
   }
-
-  summaryClient_->beginRun();
-
+  
 }
 
 void EcalBarrelMonitorClient::endJob(void) {
@@ -579,8 +574,6 @@ void EcalBarrelMonitorClient::endJob(void) {
     clients_[i]->endJob();
   }
 
-  summaryClient_->endJob();
-
 }
 
 void EcalBarrelMonitorClient::endRun(void) {
@@ -613,9 +606,7 @@ void EcalBarrelMonitorClient::endRun(void) {
       if ( runtype_ != -1 && runtype_ == (*j).second && !ended ) { ended = true; clients_[i]->endRun(); }
     }
   }
-
-  summaryClient_->beginRun();
-
+  
   this->cleanup();
 
   status_  = "unknown";
@@ -890,8 +881,6 @@ void EcalBarrelMonitorClient::writeDb(void) {
       }
     }
 
-    summaryClient_->writeDb(econn, &runiov_, &moniov_, ism);
-
     EcalLogicID ecid;
     MonRunDat md;
     map<EcalLogicID, MonRunDat> dataset;
@@ -1102,8 +1091,6 @@ void EcalBarrelMonitorClient::softReset(void) {
     }
   }
 
-  summaryClient_->softReset();
-
 }
 
 void EcalBarrelMonitorClient::analyze(void){
@@ -1186,9 +1173,9 @@ void EcalBarrelMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( verbose_ ) cout << " updates = " << updates << endl;
+    if ( verbose_ ) cout << " updates = "  << updates << endl;
 
-    if ( status_ == "begin-of-run" || status_ == "end-of-run" || ievt_ < 10 || ievt_ % 10 == 0 ) {
+    if ( ievt_<= 0 || ievt_ % 10 == 0 ) {
 
       cout << " run = "      << run_      <<
               " event = "    << evt_      <<
@@ -1229,8 +1216,6 @@ void EcalBarrelMonitorClient::analyze(void){
     }
   }
 
-  summaryClient_->subscribeNew();
-
   if ( status_ == "begin-of-run" ) {
 
     if ( run_ > 0 && evt_ > 0 && runtype_ != -1 ) {
@@ -1258,8 +1243,6 @@ void EcalBarrelMonitorClient::analyze(void){
             if ( runtype_ != -1 && runtype_ == (*j).second && !analyzed ) { analyzed = true; clients_[i]->analyze(); }
           }
         }
-
-        summaryClient_->analyze();
 
         if ( status_ == "end-of-run" || forced_update_ ) {
 
@@ -1497,12 +1480,6 @@ void EcalBarrelMonitorClient::htmlOutput(void){
       }
     }
   }
-
-#if 0
-  htmlName = "EBSummaryClient.html";
-  summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-  htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
 
   htmlFile << "</ul>" << endl;
 

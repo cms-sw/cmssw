@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2005/09/27 15:15:52 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/02/03 16:17:30 $
+ *  $Revision: 1.4 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -94,7 +94,7 @@ MagGeoBuilderFromDDD::volumeHandle::volumeHandle(const DDExpandedView &fv, bool 
     }
   }
 
-  if (bldVerb::debugOut) {  
+  if (MagGeoBuilderFromDDD::debug) {  
     cout << " RMin =  " << theRMin <<endl;
     cout << " RMax =  " << theRMax <<endl;
       
@@ -164,7 +164,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   //     ORCA seems to use 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
   DDRotationMatrix result = (fv.rotation()*orcaCorrection).inverse();
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     if (result.colX().cross(result.colY()).dot(result.colZ()) < 0.5) {
       cout << "*** WARNING: Rotation is not RH "<< endl;
     }
@@ -189,7 +189,7 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
   }
 
   // Check correct orientation
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     float chk = refPlane->toGlobal(globalZdir).dot(GlobalVector(0,0,1));
     if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
 			       << endl;
@@ -200,14 +200,14 @@ void MagGeoBuilderFromDDD::volumeHandle::referencePlane(const DDExpandedView &fv
 //   if (fabs(chk) < .999) cout << "*** WARNING RefPlane check failed!***"
 // 			     << endl;
 
-  if (bldVerb::debugOut) cout << "Refplane pos  " << refPlane->position() << endl;
+  if (MagGeoBuilderFromDDD::debug) cout << "Refplane pos  " << refPlane->position() << endl;
 
   // Get the distance to beam line along local y
   if (solid.shape() != ddcons &&
       solid.shape() != ddtubs &&
       solid.shape() != ddtrunctubs) {   
     theRN = fabs(refPlane->toGlobal(globalRdir).dot(GlobalVector(posResult.x(),posResult.y(),posResult.z())));
-    if (bldVerb::debugOut) cout << "RN            " << theRN << endl;
+    if (MagGeoBuilderFromDDD::debug) cout << "RN            " << theRN << endl;
   }
   
 }
@@ -247,7 +247,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPhiZSurf(double startPhi,
   surfaces[phiplus]  = new Plane(pos_phiplus, rot_phiplus);
   surfaces[phiminus] = new Plane(pos_phiminus, rot_phiminus);  
   
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     cout << "Actual Center at: " << center_ << " R " << center_.perp()
 	 << " phi " << center_.phi() << endl;
     cout << "RN            " << theRN << endl;
@@ -274,7 +274,7 @@ void MagGeoBuilderFromDDD::volumeHandle::buildPhiZSurf(double startPhi,
   }
   
 //   // Check ordering.
-  if (bldVerb::debugOut) {
+  if (MagGeoBuilderFromDDD::debug) {
     if (pos_zplus.z() < pos_zminus.z()) {
       cout << "*** WARNING: pos_zplus < pos_zminus " << endl;
     }
@@ -290,7 +290,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
 {
   //Check for null comparison
   if (&s1==(surfaces[which_side]).get()){
-    if (bldVerb::debugOut) cout << "      sameSurface: OK (same ptr)" << endl;
+    if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: OK (same ptr)" << endl;
     return true;
   }
 
@@ -306,18 +306,18 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
   if (p1!=0) {
     const Plane * p2 = dynamic_cast<const Plane*>(&s2);
     if (p2==0) {
-      if (bldVerb::debugOut) cout << "      sameSurface: different types" << endl;
+      if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
     
     if ( (fabs(p1->normalVector().dot(p2->normalVector())) > maxtilt)
 	 && (fabs((p1->toLocal(p2->position())).z()) < maxdist) ) {
-      if (bldVerb::debugOut) cout << "      sameSurface: OK "
+      if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: OK "
 		      << fabs(p1->normalVector().dot(p2->normalVector()))
 		      << " " << fabs((p1->toLocal(p2->position())).z()) << endl;
       return true;
     } else{
-      if (bldVerb::debugOut) cout << "      sameSurface: not the same: "
+      if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: not the same: "
 		      << p1->normalVector() << p1->position() << endl
 		      << "                                 "
 		      << p2->normalVector() << p2->position() << endl
@@ -332,7 +332,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
   if (cy1!=0) {
     const Cylinder * cy2 = dynamic_cast<const Cylinder*>(&s2);
     if (cy2==0) {
-      if (bldVerb::debugOut) cout << "      sameSurface: different types" << endl;
+      if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
     // Assume axis is the same!
@@ -348,7 +348,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
   if (co1!=0) {
     const Cone * co2 = dynamic_cast<const Cone*>(&s2);
     if (co2==0) {
-      if (bldVerb::debugOut) cout << "      sameSurface: different types" << endl;
+      if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: different types" << endl;
       return false;
     }
     // FIXME
@@ -360,7 +360,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::sameSurface(const Surface & s1, Sides w
     }
   }
 
-  if (bldVerb::debugOut) cout << "      sameSurface: unknown surfaces..." << endl;
+  if (MagGeoBuilderFromDDD::debug) cout << "      sameSurface: unknown surfaces..." << endl;
   return false;
 }
 
@@ -395,7 +395,7 @@ bool MagGeoBuilderFromDDD::volumeHandle::setSurface(const Surface & s1, Sides wh
   } else {
     surfaces[which_side] = &s1;
     isAssigned[which_side] = true;
-    if (bldVerb::debugOut) cout << "     Volume " << name << " # " << copyno << " Assigned: " << (int) which_side << endl;
+    if (MagGeoBuilderFromDDD::debug) cout << "     Volume " << name << " # " << copyno << " Assigned: " << (int) which_side << endl;
     return true;
   }
 

@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Muon/interface/HLTMuonL1Filter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
 
@@ -80,7 +80,7 @@ HLTMuonL1Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (muon.isNull()) continue;
 
       LogDebug("HLTMuonL1Filter") 
-            << " Muon in loop: pt= " << muon->pt() 
+            << " Muon in loop: q*pt= " << muon->charge()*muon->pt() 
             << ", eta= " << muon->eta();
       float eta   =  muon->eta();
       if (fabs(eta)>max_Eta_) continue;

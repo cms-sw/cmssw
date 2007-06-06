@@ -50,10 +50,11 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
    cout <<" dcc range: " << dccRange.first <<" to "<<dccRange.second<<endl; 
    vector<const DccSpec *> dccs = map->dccList();
    typedef vector<const DccSpec *>::const_iterator IDCC;
-   for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) (**idcc).print(2);
+   for (IDCC idcc = dccs.begin(); idcc != dccs.end(); idcc++) cout <<(**idcc).print(4);
 
    cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
    cout <<"--- --- --- --- --- --- --- --- ---"<<endl; 
+/*
    ChamberRawDataSpec linkboard;
    linkboard.dccId = 790;
    linkboard.dccInputChannelNum = 1;
@@ -77,6 +78,7 @@ void RPCReadOutMapAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
      cout << rpcDetId << endl;
   }
      
+*/
 
    
 }

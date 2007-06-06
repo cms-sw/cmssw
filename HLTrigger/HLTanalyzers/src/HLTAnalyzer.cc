@@ -33,6 +33,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
   l1extramc_ = conf.getParameter< std::string > ("l1extramc");
 
+  particleMapSource_ = conf.getParameter< std::string > ("particleMapSource");
+
   errCnt=0;
 
   edm::ParameterSet myAnaParams = conf.getParameter<edm::ParameterSet>("RunParameters") ;
@@ -94,6 +96,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   edm::Handle<l1extra::L1MuonParticleCollection> l1extmu;
   edm::Handle<l1extra::L1JetParticleCollection> l1extjetc,l1extjetf,l1exttaujet;
   edm::Handle<l1extra::L1EtMissParticle> l1extmet;
+  edm::Handle<l1extra::L1ParticleMapCollection> l1mapcoll;
 
   // Extract Data objects (event fragments)
   // make sure to catch exceptions if they don't exist...
@@ -116,6 +119,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   try {iEvent.getByLabel(l1extramc_,"Forward",l1extjetf);} catch (...) { errMsg=errMsg + "  -- No forward L1Jet objects";}
   try {iEvent.getByLabel(l1extramc_,"Tau",l1exttaujet);} catch (...) { errMsg=errMsg + "  -- No L1Jet-Tau objects";}
   try {iEvent.getByLabel(l1extramc_,l1extmet);} catch (...) { errMsg=errMsg + "  -- No L1EtMiss object";}
+  try {iEvent.getByLabel(particleMapSource_,l1mapcoll );} catch (...) { errMsg=errMsg + "  -- No L1 Map Collection";}
 
   HepMC::GenEvent mctruth;
   try {
@@ -138,7 +142,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
   elm_analysis_.analyze(*pixElectron, *silElectron, *Photon, *geometry, HltTree);
   muon_analysis_.analyze(*muon, *geometry, HltTree);
   mct_analysis_.analyze(mctruth,HltTree);
-  hlt_analysis_.analyze(*hltobj,*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,HltTree);
+  hlt_analysis_.analyze(*hltobj,*hltresults,*l1extemi,*l1extemn,*l1extmu,*l1extjetc,*l1extjetf,*l1exttaujet,*l1extmet,*l1mapcoll,HltTree);
 
   // After analysis, fill the variables tree
   HltTree->Fill();
@@ -148,6 +152,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 // "endJob" is an inherited method that you may implement to do post-EOF processing and produce final output.
 void HLTAnalyzer::endJob() {
 
+  m_file->cd(); 
   HltTree->Write();
   delete HltTree;
   HltTree = 0;

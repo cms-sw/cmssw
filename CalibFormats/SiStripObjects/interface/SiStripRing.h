@@ -1,6 +1,4 @@
-// Last commit: $Id$
-// Latest tag:  $Name$
-// Location:    $Source$
+// Last commit: $Id: SiStripRing.h,v 1.2 2007/03/21 09:54:20 bainbrid Exp $
 
 #ifndef CalibFormats_SiStripObjects_SiStripRing_H
 #define CalibFormats_SiStripObjects_SiStripRing_H
@@ -19,9 +17,8 @@ class SiStripRing {
  public: 
   
   /** */
-  SiStripRing( const FedChannelConnection& conn )
-    : fecRing_( conn.fecRing() ), ccus_() { addDevices( conn ); }
-
+  SiStripRing( const FedChannelConnection& conn );
+  
   /** */
   ~SiStripRing() {;}
 

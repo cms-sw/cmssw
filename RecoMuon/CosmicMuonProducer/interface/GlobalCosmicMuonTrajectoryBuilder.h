@@ -4,25 +4,25 @@
 /** \file GlobalCosmicMuonTrajectoryBuilder
  *  class to build combined trajectory from cosmic tracks in tk and mu
  *
- *  $Date: 2006/11/03 20:00:18 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/03/07 16:25:03 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University
  */
 
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryBuilder.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackConverter.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "TrackingTools/TrackRefitter/interface/TrackTransformer.h"
+#include "RecoMuon/CosmicMuonProducer/interface/CosmicMuonSmoother.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -42,8 +42,10 @@ public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
   typedef MuonTransientTrackingRecHit::ConstMuonRecHitContainer ConstMuonRecHitContainer;
 
-
+  /// Constructor
   GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet&,const MuonServiceProxy* service);
+
+  /// Destructor
   virtual ~GlobalCosmicMuonTrajectoryBuilder();
 
   /// dummy implementation, unused in this class
@@ -55,14 +57,16 @@ public:
 
   virtual void setEvent(const edm::Event&);
 
+  /// check if tk and muon Tracks are matched
   std::pair<bool,double> match(const reco::Track&, const reco::Track&);
 
 private:
 
   const MuonServiceProxy *theService;
 
-  MuonTrackReFitter* theRefitter;
-  MuonTrackConverter* theTrackConverter;
+  CosmicMuonSmoother* theSmoother;
+
+  TrackTransformer* theTrackTransformer;
 
   struct DecreasingGlobalY{
     bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &lhs,

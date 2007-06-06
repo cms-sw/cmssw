@@ -5,18 +5,14 @@
 // Package:     L1Trigger
 // Class  :     L1EtMissParticleFwd
 // 
-/**\class L1EtMissParticleFwd L1EtMissParticleFwd.h DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h
+/**\class L1EtMissParticleRef \file L1EtMissParticleFwd.h DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h \author Werner Sun
 
- Description: <one line class summary>
-
- Usage:
-    <usage>
-
+ Description: typedefs for L1EtMissParticleRef and associated containers.
 */
 //
 // Original Author:  Werner Sun
 //         Created:  Sat Jul 15 14:28:43 EDT 2006
-// $Id: L1EtMissParticleFwd.h,v 1.2 2006/07/26 00:05:39 wsun Exp $
+// $Id: L1EtMissParticleFwd.h,v 1.1 2006/08/02 14:09:29 wsun Exp $
 //
 
 // system include files

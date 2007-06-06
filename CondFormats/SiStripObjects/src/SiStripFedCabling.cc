@@ -3,19 +3,34 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
-SiStripFedCabling::SiStripFedCabling( const vector<FedChannelConnection>& input ) 
+SiStripFedCabling::SiStripFedCabling( const std::vector<FedChannelConnection>& input ) 
   : feds_(),
     connected_(),
     detected_(),
     undetected_()
 {
-  LogTrace(mlCabling_) << "[" << __func__ << "] Constructing object...";
+  LogTrace(mlCabling_)
+    << "[SiStripFedCabling::" << __func__ << "]"
+    << " Constructing object...";
   buildFedCabling( input );
+}
+
+// -----------------------------------------------------------------------------
+//
+SiStripFedCabling::SiStripFedCabling( const SiStripFedCabling& input ) 
+  : feds_(),
+    connected_(),
+    detected_(),
+    undetected_()
+{
+  LogTrace(mlCabling_)
+    << "[SiStripFedCabling::" << __func__ << "]"
+    << " Constructing object...";
+  //@@ TO BE IMPLEMENTED
 }
 
 // -----------------------------------------------------------------------------
@@ -26,18 +41,22 @@ SiStripFedCabling::SiStripFedCabling()
     detected_(),
     undetected_()
 {
-  LogTrace(mlCabling_) << "[" << __func__ << "] Constructing object...";
+  LogTrace(mlCabling_) 
+    << "[SiStripFedCabling::" << __func__ << "]"
+    << " Constructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
 SiStripFedCabling::~SiStripFedCabling() {
-  LogTrace(mlCabling_) << "[" << __func__ << "] Destructing object...";
+  LogTrace(mlCabling_)
+    << "[SiStripFedCabling::" << __func__ << "]"
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& input ) {
+void SiStripFedCabling::buildFedCabling( const std::vector<FedChannelConnection>& input ) {
 
   // Check input
   if ( input.empty() ) {
@@ -54,12 +73,14 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
   
   // Iterate through FEDs
   for ( uint16_t iconn = 0; iconn < input.size(); iconn++ ) {
+
+    if ( !input[iconn].isConnected() ) { continue; }
     
     uint16_t fed_id = input[iconn].fedId();
     uint16_t fed_ch = input[iconn].fedCh();
     
     // Check on FED ids and channels
-    if ( fed_id >= sistrip::FED_ID_LAST ) {
+    if ( fed_id > sistrip::CMS_FED_ID_MAX ) {
       edm::LogWarning(mlCabling_)
 	<< "[SiStripFedCabling::" << __func__ << "]"
 	<< " Unexpected FED id! " << fed_id; 
@@ -86,7 +107,7 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
     }
 
     if ( detected && connected ) {
-      vector<uint16_t>::iterator id = find( feds_.begin(), feds_.end(), fed_id );
+      std::vector<uint16_t>::iterator id = find( feds_.begin(), feds_.end(), fed_id );
       if ( id == feds_.end() ) { feds_.push_back( fed_id ); }
     }
     
@@ -96,7 +117,7 @@ void SiStripFedCabling::buildFedCabling( const vector<FedChannelConnection>& inp
 
 // -----------------------------------------------------------------------------
 // Returns active FEDs
-const vector<uint16_t>& SiStripFedCabling::feds() const {
+const std::vector<uint16_t>& SiStripFedCabling::feds() const {
   return feds_;
 }
 
@@ -145,7 +166,7 @@ const FedChannelConnection& SiStripFedCabling::connection( uint16_t fed_id,
 
 // -----------------------------------------------------------------------------
 // Returns connection info for FE devices connected to given FED 
-const vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_t fed_id ) const {
+const std::vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_t fed_id ) const {
   
   if ( !connected_.empty() ) {
     if ( fed_id < connected_.size() ) {
@@ -171,16 +192,16 @@ const vector<FedChannelConnection>& SiStripFedCabling::connections( uint16_t fed
   }
   
   static FedChannelConnection conn; 
-  static vector<FedChannelConnection> connections(96,conn); 
+  static std::vector<FedChannelConnection> connections(96,conn); 
   return connections;
   
 }
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripFedCabling::print( stringstream& ss ) const {
+void SiStripFedCabling::print( std::stringstream& ss ) const {
   
-  const vector<uint16_t>& fed_ids = feds();
+  const std::vector<uint16_t>& fed_ids = feds();
   if ( feds().empty() ) {
     ss << "[SiStripFedCabling::" << __func__ << "]"
        << " No FEDs found! Unable to  print cabling map!";
@@ -191,41 +212,41 @@ void SiStripFedCabling::print( stringstream& ss ) const {
        << " FEDs with following ids: ";
   }
 
-  vector<uint16_t>::const_iterator ii = fed_ids.begin(); 
+  std::vector<uint16_t>::const_iterator ii = fed_ids.begin(); 
   for ( ; ii != fed_ids.end(); ii++ ) { ss << *ii << " "; }
-  ss << endl << endl;
+  ss << std::endl << std::endl;
   
   uint16_t total = 0;
   uint16_t nfeds = 0;
   uint16_t cntr = 0;
   
-  vector<uint16_t>::const_iterator ifed = fed_ids.begin(); 
+  std::vector<uint16_t>::const_iterator ifed = fed_ids.begin(); 
   for ( ; ifed != fed_ids.end(); ifed++ ) {
-    const vector<FedChannelConnection>& conns = connections(*ifed);
+    const std::vector<FedChannelConnection>& conns = connections(*ifed);
     
     ss << " Printing cabling information for FED id " << *ifed 
        << " (found " << conns.size() 
        << " FedChannelConnection objects...)"
-       << endl;
+       << std::endl;
     
     uint16_t ichan = 0;
     uint16_t connected = 0;
-    vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) { 
-      if ( iconn->fedId() ) { 
+      if ( iconn->fedId() != sistrip::invalid_ ) { 
 	connected++; 
-	ss << *iconn << endl;
+	ss << *iconn << std::endl;
       } else {
 	ss << "  (FedId/Ch " << *ifed << "/" << ichan 
-	   << ": unconnected channel...)" << endl;
+	   << ": unconnected channel...)" << std::endl;
 	cntr++;
       }
       ichan++;
     } 
-
+    
     ss << " Found " << connected 
-       << " connected channels for FED id " << *ifed << endl
-       << endl;
+       << " connected channels for FED id " << *ifed << std::endl
+       << std::endl;
     if ( connected ) { nfeds++; total += connected; }
     
   } // fed loop
@@ -235,23 +256,23 @@ void SiStripFedCabling::print( stringstream& ss ) const {
   percent /= 10.;
   ss << " Found " << total 
      << " APV pairs that are connected to a total of " 
-     << nfeds << " FEDs" << endl
+     << nfeds << " FEDs" << std::endl
      << " " << detected_.size() 
-     << " APV pairs have been detected, but are not connected" << endl
+     << " APV pairs have been detected, but are not connected" << std::endl
      << " " << undetected_.size()
-     << " APV pairs are undetected (wrt DCU-DetId map)" << endl
+     << " APV pairs are undetected (wrt DCU-DetId map)" << std::endl
      << " " << cntr
      << " FED channels out of a possible " << (96*nfeds)
      << " (" << nfeds << " FEDs) are unconnected (" 
-     << percent << "%)" << endl
-     << endl;
+     << percent << "%)" << std::endl
+     << std::endl;
   
 }
 
 // -----------------------------------------------------------------------------
 //
-ostream& operator<< ( ostream& os, const SiStripFedCabling& cabling ) {
-  stringstream ss;
+std::ostream& operator<< ( std::ostream& os, const SiStripFedCabling& cabling ) {
+  std::stringstream ss;
   cabling.print(ss);
   os << ss.str();
   return os;

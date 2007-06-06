@@ -7,7 +7,7 @@
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/VertexDistanceXY.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "RecoVertex/VertexPrimitives/interface/VertexException.h"
 #include <algorithm>
 
 using namespace reco;
@@ -40,18 +40,20 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
 
   fUseBeamConstraint = conf.getParameter<bool>("useBeamConstraint");
   fVerbose           = conf.getUntrackedParameter<bool>("verbose", false);
-  std::string fitter = conf.getParameter<std::string>("fitter");
-  std::string finder = conf.getParameter<std::string>("finder");
+  std::string algorithm = conf.getParameter<std::string>("algorithm");
   fapply_finder = false;
-  if (finder == "TrimmedKalmanFinder") {
+  if (algorithm == "TrimmedKalmanFinder") {
     fapply_finder = true;
-  } else if (fitter=="KalmanVertexFitter") {
+  } else if (algorithm=="KalmanVertexFitter") {
     theFitter=new KalmanVertexFitter();
-  }else if( fitter=="AdaptiveVertexFitter") {
+  } else if( algorithm=="AdaptiveVertexFitter") {
     theFitter=new AdaptiveVertexFitter();
+  } else {
+    throw VertexException("PrimaryVertexProducerAlgorithm: unknown algorithm: " + algorithm);  
   }
+
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
-    << "Using " << fitter << "\n";
+    << "Using " << algorithm << "\n";
   edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
     << "beam-constraint  " << fUseBeamConstraint << "\n"; 
 
@@ -149,24 +151,41 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
 
       if( fUseBeamConstraint &&((*iclus).size()>0) ){
 	if (fVerbose){cout <<  "constrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-        TransientVertex v = theFitter->vertex(*iclus, theBeamSpot.position(), theBeamSpot.error());
+	try {
+          TransientVertex v = theFitter->vertex(*iclus, theBeamSpot.position(), theBeamSpot.error());
 
-	if (fVerbose){
-	  cout << "beamspot   x="<< theBeamSpot.position().x() 
-	       << " y=" << theBeamSpot.position().y()
-	       << " z=" << theBeamSpot.position().z()
-	       << " dx=" << sqrt(theBeamSpot.error().cxx())
-	       << " dy=" << sqrt(theBeamSpot.error().cyy())
-	       << " dz=" << sqrt(theBeamSpot.error().czz())
-	       << std::endl;
-	  cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	  if (fVerbose){
+	    cout << "beamspot   x="<< theBeamSpot.position().x() 
+		 << " y=" << theBeamSpot.position().y()
+		 << " z=" << theBeamSpot.position().z()
+		 << " dx=" << sqrt(theBeamSpot.error().cxx())
+		 << " dy=" << sqrt(theBeamSpot.error().cyy())
+		 << " dz=" << sqrt(theBeamSpot.error().czz())
+		 << std::endl;
+	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	      else cout <<"Invalid fitted vertex\n";
+	  }
+	  if (v.isValid()) pvCand.push_back(v);
+	}  catch (std::exception & err) {
+	  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+	    << "Exception while fitting vertex: " 
+	    << "\n" << err.what() << "\n";
 	}
-	pvCand.push_back(v);
+
       }else if((*iclus).size()>1){
 	if (fVerbose){cout <<  "unconstrained fit with "<< (*iclus).size() << " tracks"  << endl;}
-	TransientVertex v = theFitter->vertex(*iclus); 
-	if (fVerbose){cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;}
-	pvCand.push_back(v);
+	try {
+	  TransientVertex v = theFitter->vertex(*iclus); 
+	  if (fVerbose){
+	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
+	      else cout <<"Invalid fitted vertex\n";
+	  }
+	  if (v.isValid()) pvCand.push_back(v);
+	}  catch (std::exception & err) {
+	  edm::LogInfo("RecoVertex/PrimaryVertexProducerAlgorithm") 
+	    << "Exception while fitting vertex: " 
+	    << "\n" << err.what() << "\n";
+	}
       }else if (fVerbose){
 	cout <<  "cluster dropped" << endl;
       }

@@ -1,9 +1,9 @@
 #ifndef CSCTrackFinder_MakeLUT_h
 #define CSCTrackFinder_MakeLUT_h
 
-/** 
- * \author L. Gray 2/26/06 
- *   
+/**
+ * \author L. Gray 2/26/06
+ *
  */
 
 #include "PluginManager/ModuleDef.h"
@@ -12,7 +12,7 @@
 #include <iostream>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -31,8 +31,8 @@ class CSCMakeSRLUT : public edm::EDAnalyzer {
  private:
   // variables persistent across events should be declared here.
   //
-  
-  std::string fileSuffix() const;   
+
+  std::string fileSuffix() const;
   CSCSectorReceiverLUT* mySR[2][6][2][4]; // [Endcap][Sector][Subsector][Station]
   bool writeLocalPhi, writeGlobalPhi, writeGlobalEta, binary;
   int endcap, sector, station;

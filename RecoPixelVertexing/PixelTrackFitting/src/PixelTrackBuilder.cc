@@ -1,9 +1,9 @@
 #include "PixelTrackBuilder.h"
 
 
-#include "Geometry/Surface/interface/LocalError.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"

@@ -3,8 +3,8 @@
  *  method, the vertex constraint. The vertex constraint is applyed using the Kalman Filter tools used for 
  *  the vertex reconstruction.
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.19 $
+ *  $Date: 2007/03/09 11:12:23 $
+ *  $Revision: 1.23 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -16,32 +16,65 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
+#include "TrackingTools/GeomPropagators/interface/TrackerBounds.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace std;
 
 /// Constructor
-MuonUpdatorAtVertex::MuonUpdatorAtVertex(const string &propagatorName,
+MuonUpdatorAtVertex::MuonUpdatorAtVertex(const edm::ParameterSet& pset,
 					 const MuonServiceProxy *service):theService(service){
   
   // FIXME
-  theChi2Cut = 1000000.;
-
-  // FIXME
-
   // The SteppingHelixPropagator must be used explicitly since the method propagate(TSOS,GlobalPoint)
   // is only in its specific interface. Once the interface of the Propagator base class  will be
   // updated, then thePropagator will become generic. The string and the MuonServiceProxy are used
   // in order to make more simpler and faster the future transition.
   
+  thePropagatorName = pset.getParameter<string>("Propagator");
   thePropagator = 0;
   
   // FIXME
   // remove the flag as the Propagator base class will gains the propagate(TSOS,Position) method
   theFirstTime = true;
+  
+  // Position of the beam spot
+  vector<double> position = pset.getParameter< vector<double> >("BeamSpotPosition");
+  if(position.size() != 3) 
+    edm::LogError("Muon|RecoMuon|MuonUpdatorAtVertex")
+      <<"MuonUpdatorAtVertex::BeamSpotPosition wrong number of parameters!!";
+  
+  // assume:
+  // position[0] <=> x
+  // position[1] <=> y
+  // position[2] <=> z
+  GlobalPoint glbPos(position[0],position[1],position[2]);
+  thePosition = glbPos;
+  
+  // Errors on the Beam spot position
+  vector<double> errors = pset.getParameter< vector<double> >("BeamSpotPositionErrors");
+  if(errors.size() != 3) 
+    edm::LogError("Muon|RecoMuon|MuonUpdatorAtVertex")
+      <<"MuonUpdatorAtVertex::BeamSpotPositionErrors wrong number of parameters!!";
+  
+  // assume:
+  // errors[0] = sigma(x) 
+  // errors[1] = sigma(y) 
+  // errors[2] = sigma(z)
+
+  AlgebraicSymMatrix mat(3,0);
+  mat[0][0] = errors[0]*errors[0];
+  mat[1][1] = errors[1]*errors[1];
+  mat[2][2] = errors[2]*errors[2];
+  GlobalError glbErrPos(mat);
+
+  thePositionErrors = glbErrPos;
+
+  // cut on chi^2
+  theChi2Cut = pset.getParameter<double>("MaxChi2");
 }
 
 /// Destructor
@@ -61,7 +94,7 @@ void MuonUpdatorAtVertex::setPropagator(){
   if(theFirstTime ||
      theService->isTrackingComponentsRecordChanged()){
     if(thePropagator) delete thePropagator;
-    Propagator *propagator = &*theService->propagator("SteppingHelixPropagatorOpposite")->clone();
+    Propagator *propagator = &*theService->propagator(thePropagatorName)->clone();
     thePropagator = dynamic_cast<SteppingHelixPropagator*>(propagator);  
     theFirstTime = false;
 
@@ -97,10 +130,55 @@ MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos,
   }
 }
 
+
+/// Propagate the state to the PCA in 2D, i.e. to the beam line
+// FIXME it is const. It will be when setPropagator() will be removed
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::propagate(const TrajectoryStateOnSurface &tsos){
+
+  const string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+
+  setPropagator();
+  
+  if(TrackerBounds::isInside(tsos.globalPosition())){
+    
+    TSCPBuilderNoMaterial tscpBuilder;
+    TrajectoryStateClosestToPoint tscp = tscpBuilder(*(tsos.freeState()),
+						     GlobalPoint(0.,0.,0.)); //FIXME Correct?
+    
+    // FIXME: check if the tscp is valid or not!!
+    if(tscp.hasError())
+      return pair<bool,FreeTrajectoryState>(true,tscp.theState());
+    else
+      edm::LogWarning(metname) << "Propagation to the PCA using TSCPBuilderNoMaterial failed!"
+			       << " This can cause a severe bug.";
+  }
+  else{
+    // Define a line using two 3D-points
+    GlobalPoint p1(0.,0.,-1500);
+    GlobalPoint p2(0.,0.,1500);
+    
+    pair<FreeTrajectoryState,double> 
+      result = thePropagator->propagateWithPath(*tsos.freeState(),p1,p2);
+    
+    LogTrace(metname) << "MuonUpdatorAtVertex::propagate, path: "
+		      << result.second << " parameters: " << result.first.parameters();
+    
+    if(result.first.hasError()) 
+      return pair<bool,FreeTrajectoryState>(true,result.first);
+    else
+      edm::LogWarning(metname) << "Propagation to the PCA failed! Path: "<<result.second;
+  }
+  return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
+}
+
+
 // FIXME it is const. It will be when setPropagator() will be removed
 pair<bool,FreeTrajectoryState>
 MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
 
+  const std::string metname = "Muon|RecoMuon|MuonUpdatorAtVertex";
+    
   // FIXME
   setPropagator();
 
@@ -118,14 +196,23 @@ MuonUpdatorAtVertex::update(const reco::TransientTrack & track){
   mat[2][2] = (5.3)*(5.3);
   GlobalError glbErrPos(mat);
 
-  SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack = theConstrictor.constrain(track,glbPos, glbErrPos);
-    
+  SingleTrackVertexConstraint::TrackFloatPair constrainedTransientTrack;
+
+  try{
+    constrainedTransientTrack = theConstrictor.constrain(track,glbPos, glbErrPos);
+  }
+  catch ( cms::Exception& e ) {
+    edm::LogWarning(metname) << "cms::Exception caught in MuonUpdatorAtVertex::update\n"
+			     << e.explainSelf();
+    return result;
+  }
+
   if(constrainedTransientTrack.second <= theChi2Cut) {
     result.first = true;
     result.second = *constrainedTransientTrack.first.impactPointState().freeState();
   }
   else
-    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed"; 
+    edm::LogWarning(metname) << "Constraint at vertex failed"; 
     
   return result;
 }
@@ -157,3 +244,19 @@ MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos,
 }
 
 
+pair<bool,FreeTrajectoryState>
+MuonUpdatorAtVertex::propagateWithUpdate(const TrajectoryStateOnSurface &tsos){
+  
+  pair<bool,FreeTrajectoryState>
+    propagationResult = propagate(tsos);
+
+  if(propagationResult.first){
+    // FIXME!!!
+    // This is very very temporary! Waiting for the changes in the KalmanVertexFitter interface
+    return update(propagationResult.second);
+  }
+  else{
+    edm::LogWarning("Muon|RecoMuon|MuonUpdatorAtVertex") << "Constraint at vertex failed";
+    return pair<bool,FreeTrajectoryState>(false,FreeTrajectoryState());
+  }
+}

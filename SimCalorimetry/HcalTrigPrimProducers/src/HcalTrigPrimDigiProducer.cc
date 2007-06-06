@@ -53,7 +53,7 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& e, const edm::EventSetup& eve
   theAlgo.run(inputCoder.product(),outTranscoder->getHcalCompressor().get(),
 	      *hbheDigis,  *hfDigis, *result);
 
-  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
+  //  edm::LogInfo("HcalTrigPrimDigiProducer") << "HcalTrigPrims: " << result->size();
 
   // Step D: Put outputs into event
   e.put(result);

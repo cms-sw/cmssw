@@ -2,8 +2,8 @@
  *
  *  Implementation of RPCLinkBoardData
  *
- *  $Date: 2006/03/30 15:18:12 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/05/03 16:36:22 $
+ *  $Revision: 1.2 $
  *  \author Ilaria Segoni
  */
 
@@ -32,6 +32,18 @@ void  RPCLinkBoardData::setPartitionNumber(int partNumb){partitionNumber_=partNu
 
 void  RPCLinkBoardData::setLbNumber(int lbNumb){lbNumber_=lbNumb;}
 
+int RPCLinkBoardData::lbData() const{
+////AK Temporary 
+  const int BITS_PER_PARTITION=8;
+/////
+  int partitionData = 0; 
+  for (std::vector<int>::const_iterator iv = bitsOn_.begin(); iv != bitsOn_.end(); iv++ ) {
+    int ibit = (partitionNumber_)? (*iv)%(partitionNumber_*BITS_PER_PARTITION) : (*iv);
+    partitionData |= (1<<ibit); 
+  }
+
+  return  partitionData;
+}
 
 std::vector<int> RPCLinkBoardData::bitsOn() const{  
 	return bitsOn_ ;

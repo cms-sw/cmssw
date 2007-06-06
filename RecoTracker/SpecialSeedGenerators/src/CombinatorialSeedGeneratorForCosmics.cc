@@ -1,22 +1,23 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/CombinatorialSeedGeneratorForCosmics.h"
 #include "RecoTracker/TkHitPairs/interface/CosmicLayerPairs.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
-#include "Geometry/Surface/interface/BoundCylinder.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/GloballyPositioned.h"
-#include "Geometry/CommonDetAlgo/interface/ErrorFrameTransformer.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 
-CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::ParameterSet const& conf): //SeedGeneratorFromTrackingRegion(conf),
-  conf_(conf)
+
+CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::ParameterSet const& conf): 
+  isFirstCall(true), conf_(conf),meanRadius(0)
 {
   edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Constructing CombinatorialSeedGeneratorForCosmics";
   geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
@@ -53,14 +54,18 @@ CombinatorialSeedGeneratorForCosmics::CombinatorialSeedGeneratorForCosmics(edm::
   	//cout << "upperPosition" << upperScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
   	lowerScintillator = new BoundPlane(lowerPosition, rot, &lowerBounds);	
   	//cout << "lowerPosition" << lowerScintillator->toGlobal(LocalPoint(0,0,0)) << endl;	
+  } else {
+         upperScintillator = 0;
+         lowerScintillator = 0;
   } 
-  		
+  	
+	
   produces<TrajectorySeedCollection>();
 }
 
 CombinatorialSeedGeneratorForCosmics::~CombinatorialSeedGeneratorForCosmics(){
-	if (upperScintillator) delete upperScintillator;
-	if (lowerScintillator) delete lowerScintillator;
+	if (upperScintillator) {delete upperScintillator; upperScintillator = 0;}
+	if (lowerScintillator) {delete lowerScintillator; lowerScintillator = 0;}
 }
 
 void CombinatorialSeedGeneratorForCosmics::produce(edm::Event& e, const edm::EventSetup& es)
@@ -103,31 +108,47 @@ CombinatorialSeedGeneratorForCosmics::init(const SiStripRecHit2DCollection &coll
   stereocollection = &(collstereo);
 
   edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "Initializing...";
-  CosmicLayerPairs cosmiclayers;
+  //CosmicLayerPairs cosmiclayers;
+  CosmicLayerPairs cosmiclayers(geometry);	
+  //std::cout << "Built CosmicLayerPairs" << std::endl;
   HitPairs.clear();
-  meanRadius = 0;
-  cosmiclayers.init(collstereo,collrphi,collmatched,geometry,iSetup);
+  cosmiclayers.init(collstereo,collrphi,collmatched,iSetup);
+  //std::cout << "Initialized" << std::endl;
   std::vector<SeedLayerPairs::LayerPair> layerPairs = cosmiclayers();
+  //std::cout << "Called operator ()" << std::endl;
   std::vector<SeedLayerPairs::LayerPair>::const_iterator iLayerPairs;
+  int nBarrLayerPairs = 0;
   for(iLayerPairs = layerPairs.begin(); iLayerPairs != layerPairs.end(); iLayerPairs++){
 	const LayerWithHits* outer = (*iLayerPairs).second;
 	const LayerWithHits* inner = (*iLayerPairs).first;
 	if ((!inner) || (!outer)) continue;
-	meanRadius += ( (BoundCylinder*) &(outer->layer()->surface()) )->radius()+
-		      (	(BoundCylinder*) &(inner->layer()->surface()) )->radius();
+	if (isFirstCall){
+		const BoundCylinder* outerCyl = dynamic_cast<const BoundCylinder*>(&(outer->layer()->surface()));
+		const BoundCylinder* innerCyl = dynamic_cast<const BoundCylinder*>(&(inner->layer()->surface()));
+		if (outerCyl && innerCyl){
+			meanRadius += outerCyl->radius()+innerCyl->radius();
+			nBarrLayerPairs++;
+		}
+	}
 	std::vector<const TrackingRecHit*>::const_iterator iOuterHit;
 	for (iOuterHit = outer->recHits().begin(); iOuterHit != outer->recHits().end(); iOuterHit++){
 		std::vector<const TrackingRecHit*>::const_iterator iInnerHit;
 		for (iInnerHit = inner->recHits().begin(); iInnerHit != inner->recHits().end(); iInnerHit++){
 			if ((*iInnerHit) && (*iOuterHit)){
-			  HitPairs.push_back( OrderedHitPair(*iInnerHit, *iOuterHit) );
+			  HitPairs.push_back( OrderedHitPair(ctfseeding::SeedingHit(*iInnerHit,iSetup), ctfseeding::SeedingHit(*iOuterHit,iSetup) ) );
 			}
 		}
 	}
 	
   }
   //FIXME in the following we use meanRadius to decide if the seed from which hit pair the seed is made. dangerous
-  if (layerPairs.size()) meanRadius /= (layerPairs.size()*2);
+  if (isFirstCall) {
+	meanRadius /= (nBarrLayerPairs*2);
+	isFirstCall = false;
+	edm::LogVerbatim("CombinatorialSeedGeneratorForCosmics") << "mean radius " << meanRadius ;
+  }
+  //std::cout << "end, about to destroy CosmicLayerPairs" << std::endl;
+  //if (cosmiclayers) {delete cosmiclayers; cosmiclayers = 0;}	
   //std::cout << "mean radius " << meanRadius << std::endl;
 }
 
@@ -140,9 +161,9 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
 				    const edm::EventSetup& iSetup){
 	for(uint is=0;is<HitPairs.size();is++){
 		//inner point position in global coordinates
-    		GlobalPoint inner = tracker->idToDet(HitPairs[is].inner()->geographicalId())->surface().toGlobal(HitPairs[is].inner()->localPosition());
+    		GlobalPoint inner = tracker->idToDet(HitPairs[is].inner().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].inner().RecHit()->localPosition());
 		//outer point position in global coordinates 
-    		GlobalPoint outer = tracker->idToDet(HitPairs[is].outer()->geographicalId())->surface().toGlobal(HitPairs[is].outer()->localPosition());
+    		GlobalPoint outer = tracker->idToDet(HitPairs[is].outer().RecHit()->geographicalId())->surface().toGlobal(HitPairs[is].outer().RecHit()->localPosition());
     		edm::OwnVector<TrackingRecHit> hits;
 		//for the moment the seed is only built from hits at positive y
 		//the inner hit must have a y less than the outer hit		
@@ -154,20 +175,33 @@ void CombinatorialSeedGeneratorForCosmics::seeds(TrajectorySeedCollection &outpu
                         GlobalPoint* firstPoint;
                         const TrackingRecHit* firstHit;
 			const TrackingRecHit* secondHit;
-			//if the inner hit is at a radius < meanRadius we are building a seed from inner layers
-			//prop direction and hit order enstablished accordingly
-                        if ( (inner.perp() < meanRadius) ){
-                                dir = oppositeToMomentum;
-                                firstPoint = &inner;
-                                firstHit = HitPairs[is].inner();
-				secondHit = HitPairs[is].outer();
-                        } else if ( (outer.perp() > meanRadius)) {  // otherwise we are building a seed from outer layers
-                                dir = alongMomentum;
-                                firstPoint = &outer;
-                                firstHit = HitPairs[is].outer();
-				secondHit = HitPairs[is].inner();
-                        } else {std::cout << "unable to determine direction outer " << outer.perp()
-						<< " inner " << inner.perp() << std::endl; return;}			
+			//if hits are in endcaps we are seeding in the TEC
+			if ( (StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TEC) && 
+			   (StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TEC) ){
+				dir = alongMomentum;
+				firstPoint = &outer;
+				firstHit = HitPairs[is].outer().RecHit();
+				secondHit = HitPairs[is].inner().RecHit();
+			} else if ( ((StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TOB)&&(StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TOB)) 
+				|| 
+				     ((StripSubdetector(HitPairs[is].inner().RecHit()->geographicalId()).subdetId()==StripSubdetector::TIB)&&(StripSubdetector(HitPairs[is].outer().RecHit()->geographicalId()).subdetId()==StripSubdetector::TIB)) ){//seed in the barrel
+				//if the inner hit is at a radius < meanRadius we are building a seed from inner layers
+	                        //prop direction and hit order enstablished accordingly
+				if ( (inner.perp() < meanRadius) ){
+                                	dir = oppositeToMomentum;
+                                	firstPoint = &inner;
+                                	firstHit = HitPairs[is].inner().RecHit();
+					secondHit = HitPairs[is].outer().RecHit();
+                        	} else if ( (outer.perp() > meanRadius)) {  // otherwise we are building a seed from outer layers
+                                	dir = alongMomentum;
+                                	firstPoint = &outer;
+                                	firstHit = HitPairs[is].outer().RecHit();
+					secondHit = HitPairs[is].inner().RecHit();
+                        	} else {edm::LogError("CombinatorialSeedGeneratorForCosmics::seeds") << "unable to determine direction outer " << outer.perp()	<< " inner " << inner.perp() ; return;}			
+			} else {
+				edm::LogError("CombinatorialSeedGeneratorForCosmics::seeds") << "This pair is not implemented for seeding";
+				return;
+			}
 			//try to match both hits
 			//the direction is the one obtained from rphi hit only	
 			edm::OwnVector<TrackingRecHit> firstMatch = match(firstHit, momentum); 
@@ -322,7 +356,8 @@ const TrajectorySeed* CombinatorialSeedGeneratorForCosmics::buildSeed(const Trac
 	//cout << "SEED -----> "  << trSeed->startingState().parameters().position() << endl;
 	//return outseed;
 	TrajectorySeed* theSeed = new TrajectorySeed(*PTraj,seed_hits,dir);
-	if(PTraj) delete PTraj;
+	//if(PTraj) delete PTraj;
+	delete PTraj;
 	//return new TrajectorySeed(*PTraj,seed_hits,dir);
 	return theSeed;
 } 

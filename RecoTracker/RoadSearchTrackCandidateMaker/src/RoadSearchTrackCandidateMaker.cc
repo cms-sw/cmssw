@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
-// $Author: burkett $
-// $Date: 2006/11/07 16:09:03 $
-// $Revision: 1.2 $
+// $Author: gutsche $
+// $Date: 2007/03/01 08:18:20 $
+// $Revision: 1.3 $
 //
 
 #include <memory>
@@ -24,7 +24,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 

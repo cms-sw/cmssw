@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id$
+// $Id: HltAnalyzer.cc,v 1.5 2006/12/20 17:32:36 wittich Exp $
 //
 /**\class HltAnalyzer HltAnalyzer.cc DQM/HLTEvF/src/HltAnalyzer.cc
 
@@ -16,14 +16,13 @@
 //
 // Original Author:  Peter Wittich
 //         Created:  Thu Nov  9 07:51:28 CST 2006
-// $Id: HltAnalyzer.cc,v 1.4 2006/12/05 23:48:54 wittich Exp $
+// $Id: HltAnalyzer.cc,v 1.5 2006/12/20 17:32:36 wittich Exp $
 //
 //
 //
 
 #include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 #include "DQM/HLTEvF/interface/HltAnalyzer.h"
 
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"

@@ -1,8 +1,8 @@
 /**
  *  Class: GlobalCosmicMuonTrajectoryBuilder
  *
- *  $Date: 2006/11/06 17:50:16 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/02/23 21:57:26 $
+ *  $Revision: 1.5 $
  *  \author Chang Liu  -  Purdue University <Chang.Liu@cern.ch>
  *
  **/
@@ -33,12 +33,14 @@ using namespace edm;
 //
 GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::ParameterSet& par,
 						                     const MuonServiceProxy* service) : theService(service) {
-  ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new MuonTrackReFitter(refitterPSet,theService);
+  ParameterSet smootherPSet = par.getParameter<ParameterSet>("SmootherParameters");
+  theSmoother = new CosmicMuonSmoother(smootherPSet,theService);
   theTkTrackLabel = par.getParameter<string>("TkTrackCollectionLabel");
   theTTRHBuilderName = par.getParameter<string>("TrackRecHitBuilder");
   thePropagatorName = par.getParameter<string>("Propagator");
-  theTrackConverter = new MuonTrackConverter(par,theService);
+
+  ParameterSet transformerPSet = par.getParameter<ParameterSet>("TransformerParameters");
+  theTrackTransformer = new TrackTransformer(transformerPSet);
   
 }
 
@@ -48,8 +50,8 @@ GlobalCosmicMuonTrajectoryBuilder::GlobalCosmicMuonTrajectoryBuilder(const edm::
 
 GlobalCosmicMuonTrajectoryBuilder::~GlobalCosmicMuonTrajectoryBuilder() {
 
-  if (theRefitter) delete theRefitter;
-  if (theTrackConverter) delete theTrackConverter;
+  if (theSmoother) delete theSmoother;
+  if (theTrackTransformer) delete theTrackTransformer;
 
 }
 
@@ -97,8 +99,8 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   if ( !match(*muTrack,*tkTrack).first ) return result;
   std::vector<Trajectory> muTrajs;
-  if (muCand.first == 0) muTrajs = theTrackConverter->convert(*muTrack);
-  else if ( !muCand.first->isValid() ) muTrajs = theTrackConverter->convert(*muTrack);
+  if (muCand.first == 0) muTrajs = theTrackTransformer->transform(*muTrack);
+  else if ( !muCand.first->isValid() ) muTrajs = theTrackTransformer->transform(*muTrack);
   else muTrajs.push_back(*muCand.first);
   LogTrace(metname) <<"There're "<<muTrajs.size()<<" muon Trajectory";
   if ( muTrajs.empty() ) return result;
@@ -106,7 +108,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   LogTrace(metname)<<"mu RecHits: "<<muRecHits.size();
 
   std::vector<Trajectory> tkTrajs;
-  if (!tkTrajsAvailable) tkTrajs = theTrackConverter->convert(*tkTrack);
+  if (!tkTrajsAvailable) tkTrajs = theTrackTransformer->transform(*tkTrack);
   else tkTrajs = *allTrackerTrajs;
   LogTrace(metname) <<"Converted "<<tkTrajs.size()<<" tracker Trajectory";
 
@@ -164,7 +166,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   // begin refitting
 
   TrajectorySeed seed;
-  vector<Trajectory> refitted = theRefitter->trajectories(seed,hits,firstState);
+  vector<Trajectory> refitted = theSmoother->trajectories(seed,hits,firstState);
 
   if (refitted.empty()) {
      LogTrace(metname)<<"refit fail";

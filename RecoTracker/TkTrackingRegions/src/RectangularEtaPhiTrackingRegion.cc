@@ -2,10 +2,11 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/OuterEstimator.h"
 
-// #include "CommonDet/BasicDet/interface/DetUnit.h"
-// #include "CommonReco/GeomPropagators/interface/StraightLinePropagator.h"
-// #include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-// #include "CommonDet/PatternPrimitives/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/GeomPropagators/interface/StraightLinePropagator.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
@@ -18,11 +19,24 @@
 #include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
+#include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
+
 template <class T> T sqr( T t) {return t*t;}
 
 
 using namespace PixelRecoUtilities;
 using namespace std;
+using namespace ctfseeding; 
 
 void RectangularEtaPhiTrackingRegion::
     initEtaRange( const GlobalVector & dir, const Margin& margin)
@@ -34,7 +48,6 @@ void RectangularEtaPhiTrackingRegion::
 HitRZCompatibility* RectangularEtaPhiTrackingRegion::
 checkRZ(const DetLayer* layer, const TrackingRecHit *outerHit,const edm::EventSetup& iSetup) const
 {
-
   edm::ESHandle<TrackerGeometry> tracker;
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
@@ -258,34 +271,77 @@ HitRZConstraint
                               pRight, sinh(theEtaRange.max()) );
 }
 
-// vector<TrackingRecHit> RectangularEtaPhiTrackingRegion::hits(
-//     const DetLayer* layer) const
-// {
-// //   static TimingReport::Item * theTimer =
-// //     PixelRecoUtilities::initTiming("hits from RectangularEtaPhiTrackingRegion",4);
-// //   TimeMe tm( *theTimer, false);
-//   vector<RecHit> result;
+std::vector< SeedingHit> RectangularEtaPhiTrackingRegion::hits(
+      const edm::Event& ev,
+      const edm::EventSetup& es,
+      const  SeedingLayer* layer) const
+{
 
-//   OuterEstimator * est = 0;
-//   if (layer->part() == barrel) {
-//     const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*layer);
-//     est = estimator(&bl);
-//   } else {
-//     const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*layer);
-//     est = estimator(&fl);
-//   }
-//   if (!est) return result;
 
-//   const GlobalPoint vtx = origin();
-//   GlobalVector dir = est->center() - vtx;
-//   FreeTrajectoryState fts( GlobalTrajectoryParameters(vtx, dir, 1) );
-//   StraightLinePropagator prop( alongMomentum);
 
-//   vector<TrajectoryMeasurement> meas = (*layer).measurements(fts, prop, *est);
-//   vector<TrajectoryMeasurement>::const_iterator im;
-//   for ( im = meas.begin(); im != meas.end(); im++) {
-//     if ( im->recHit().isValid()) result.push_back( im->recHit());
-//   }
-//   delete est;
-//   return result;
-// }
+  //ESTIMATOR
+  std::vector< SeedingHit> result;
+  const DetLayer * detLayer = layer->detLayer();
+  OuterEstimator * est = 0;
+  if (detLayer->location() == GeomDetEnumerators::barrel) {
+    const BarrelDetLayer& bl = dynamic_cast<const BarrelDetLayer&>(*detLayer);
+    est = estimator(&bl,es);
+  } else {
+    const ForwardDetLayer& fl = dynamic_cast<const ForwardDetLayer&>(*detLayer);
+    est = estimator(&fl,es);
+  }
+  if (!est) return result;
+
+/*
+  edm::ESHandle<MagneticField> field;
+  es.get<IdealMagneticFieldRecord>().get(field);
+  const MagneticField * magField = field.product();
+
+  const GlobalPoint vtx = origin();
+  GlobalVector dir = est->center() - vtx;
+   
+  // TSOS
+  float phi = dir.phi();
+  Surface::RotationType rot( sin(phi), -cos(phi),           0,
+                             0,                0,          -1,
+                             cos(phi),  sin(phi),           0);
+
+  Plane::PlanePointer surface = Plane::build(GlobalPoint(0.,0.,0.), rot);
+  //TrajectoryStateOnSurface tsos(lpar, *surface, magField);
+
+  FreeTrajectoryState fts( GlobalTrajectoryParameters(vtx, dir, 1, magField) );
+  TrajectoryStateOnSurface tsos(fts, *surface);
+
+  // propagator
+  StraightLinePropagator prop( magField, alongMomentum);
+
+  edm::ESHandle<MeasurementTracker> measurementTrackerESH;
+  es.get<CkfComponentsRecord>().get(measurementTrackerESH);
+  const MeasurementTracker * measurementTracker = measurementTrackerESH.product(); 
+  measurementTracker->update(ev);
+
+  LayerMeasurements lm(measurementTracker);
+   
+  vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *est);
+  typedef vector<TrajectoryMeasurement>::const_iterator IM;
+  for (IM im = meas.begin(); im != meas.end(); im++) {
+    TrajectoryMeasurement::ConstRecHitPointer ptrHit = im->recHit();
+    if (ptrHit->isValid()) { 
+      result.push_back(  SeedingHit( ptrHit, *layer));
+    }
+  }
+*/
+
+  //
+  // temporary solution 
+  //
+  typedef  std::vector< SeedingHit> Hits;
+  Hits layerHits = layer->hits(ev,es);
+  for (Hits::const_iterator ih= layerHits.begin(); ih != layerHits.end(); ih++) {
+    const TrackingRecHit * hit = (*ih).RecHit();
+    if ( est->hitCompatibility()(hit,es) ) result.push_back( *ih );
+  }
+  
+  delete est;
+  return result;
+}

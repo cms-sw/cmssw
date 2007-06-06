@@ -1,36 +1,25 @@
-<use name=FWCore/Framework>
-<use name=FWCore/Utilities>
-<use name=FWCore/ParameterSet>
-<use name=FWCore/MessageLogger>
-<use name=Utilities/Timing>
-<use name=DataFormats/Common>
-<use name=DataFormats/FEDRawData>
-<use name=DataFormats/SiStripCommon>
-<use name=DataFormats/SiStripDigi>
-<use name=CondFormats/DataRecord>
 <use name=CondFormats/SiStripObjects>
+<use name=DataFormats/FEDRawData>
+<use name=DataFormats/SiStripDigi>
+<use name=DataFormats/SiStripCluster>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
 <use name=TkOnlineSw>
-<use name=oracle>
-<use name=clhep>
+<use name=boost>
 <use name=xdaq>
-<flags SEAL_PLUGIN_NAME="EventFilterSiStripRawToDigi">
+<use name=clhep>
 
 <export>
-   <lib name=EventFilterSiStripRawToDigi>
-   <use name=FWCore/Framework>
-   <use name=FWCore/Utilities>
-   <use name=FWCore/ParameterSet>
-   <use name=FWCore/MessageLogger>
-   <use name=Utilities/Timing>
-   <use name=DataFormats/Common>
-   <use name=DataFormats/FEDRawData>
-   <use name=DataFormats/SiStripCommon>
-   <use name=DataFormats/SiStripDigi>
-   <use name=CondFormats/DataRecord>
-   <use name=CondFormats/SiStripObjects>
-   <use name=TkOnlineSw>
-   <use name=oracle>
-   <use name=clhep>
-   <use name=xdaq>
+  <lib name=EventFilterSiStripRawToDigi>
+  <use name=CondFormats/SiStripObjects>
+  <use name=DataFormats/FEDRawData>
+  <use name=DataFormats/SiStripDigi>
+  <use name=DataFormats/SiStripCluster>
+  <use name=FWCore/Framework> 
+  <use name=FWCore/MessageLogger>
+  <use name=TkOnlineSw>
+  <use name=boost>
+  <use name=xdaq>
+  <use name=clhep>
 </export>
 

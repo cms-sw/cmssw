@@ -1,15 +1,14 @@
 #ifndef TrackProducerAlgorithm_h
 #define TrackProducerAlgorithm_h
 
-//
-// Package:    RecoTracker/TrackProducer
-// Class:      TrackProducerAlgorithm
-// 
-//
-// Original Author:  Giuseppe Cerati
-//         Created:  Thu Mar  9 17:29:31 CET 2006
-// $Id: TrackProducerAlgorithm.h,v 1.9 2006/11/15 11:35:43 cerati Exp $
-//
+/** \class TrackProducerAlgorithm
+ *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
+ *
+ *  $Date: 2007/03/26 10:13:49 $
+ *  $Revision: 1.1 $
+ *  \author cerati
+ */
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -32,12 +31,15 @@ class TrackProducerAlgorithm {
   
  public:
 
+  /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
     conf_(conf)
     { }
 
+  /// Destructor
   ~TrackProducerAlgorithm() {}
   
+  /// Run the Final Fit taking TrackCandidates as input
   void runWithCandidate(const TrackingGeometry *, 
 			const MagneticField *, 
 			const TrackCandidateCollection&,
@@ -46,6 +48,7 @@ class TrackProducerAlgorithm {
 			const TransientTrackingRecHitBuilder*,
 			AlgoProductCollection &);
 
+  /// Run the Final Fit taking Tracks as input (for Refitter)
   void runWithTrack(const TrackingGeometry *, 
 		    const MagneticField *, 
 		    const reco::TrackCollection&,
@@ -54,6 +57,7 @@ class TrackProducerAlgorithm {
 		    const TransientTrackingRecHitBuilder*,
 		    AlgoProductCollection &);
 
+  /// Construct Tracks to be put in the event
   bool buildTrack(const TrajectoryFitter *,
 		  const Propagator *,
 		  AlgoProductCollection& ,

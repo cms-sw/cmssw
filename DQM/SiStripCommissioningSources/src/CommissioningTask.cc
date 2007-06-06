@@ -8,14 +8,13 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include <iostream>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 //
 CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
 				      const FedChannelConnection& conn,
-				      const string& my_name ) :
+				      const std::string& my_name ) :
   dqm_(dqm),
   updateFreq_(0),
   fillCntr_(0),
@@ -25,22 +24,24 @@ CommissioningTask::CommissioningTask( DaqMonitorBEInterface* dqm,
   booked_(false),
   myName_(my_name)
 {
-  fedKey_ = SiStripFedKey::key( connection_.fedId(), 
-				connection_.fedCh() );
-  fecKey_ = SiStripFecKey::key( connection_.fecCrate(),
-				connection_.fecSlot(),
-				connection_.fecRing(),
-				connection_.ccuAddr(),
-				connection_.ccuChan(),
-				connection_.lldChannel() );
+  uint16_t fed_ch = connection_.fedCh();
+  fedKey_ = SiStripFedKey( connection_.fedId(), 
+			   SiStripFedKey::feUnit(fed_ch),
+			   SiStripFedKey::feChan(fed_ch) ).key();
+  fecKey_ = SiStripFecKey( connection_.fecCrate(),
+			   connection_.fecSlot(),
+			   connection_.fecRing(),
+			   connection_.ccuAddr(),
+			   connection_.ccuChan(),
+			   connection_.lldChannel() ).key();
   
   LogTrace(mlDqmSource_)
     << "[CommissioningTask::" << __func__ << "]" 
     << " Constructing '" << myName_
     << "' object for FecKey/FedKey: "
-    << "0x" << hex << setw(8) << setfill('0') << fecKey_ << dec
+    << "0x" << std::hex << std::setw(8) << std::setfill('0') << fecKey_ << std::dec
     << "/"
-    << "0x" << hex << setw(8) << setfill('0') << fedKey_ << dec
+    << "0x" << std::hex << std::setw(8) << std::setfill('0') << fedKey_ << std::dec
     << " and Crate/FEC/ring/CCU/module/LLDchan: " 
     << connection_.fecCrate() << "/"
     << connection_.fecSlot() << "/" 
@@ -61,9 +62,9 @@ CommissioningTask::~CommissioningTask() {
     << " Destructing object for FED id/ch " 
     << " Constructing '" << myName_
     << "' object for FecKey/FedKey: "
-    << "0x" << hex << setw(8) << setfill('0') << fecKey_ << dec
+    << "0x" << std::hex << std::setw(8) << std::setfill('0') << fecKey_ << std::dec
     << "/"
-    << "0x" << hex << setw(8) << setfill('0') << fedKey_ << dec
+    << "0x" << std::hex << std::setw(8) << std::setfill('0') << fedKey_ << std::dec
     << " and Crate/FEC/ring/CCU/module/LLDchan: " 
     << connection_.fecCrate() << "/"
     << connection_.fecSlot() << "/" 
@@ -97,7 +98,7 @@ void CommissioningTask::fill( const SiStripEventSummary& summary,
 //
 void CommissioningTask::fill( const SiStripEventSummary& summary,
 			      const uint16_t& fed_id,
-			      const map<uint16_t,float>& fed_ch ) {
+			      const std::map<uint16_t,float>& fed_ch ) {
   edm::LogWarning(mlDqmSource_)
     << "[CommissioningTask::" << __func__ << "]"
     << " No derived implementation exists!";
@@ -140,7 +141,7 @@ void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 //
 void CommissioningTask::fillHistograms( const SiStripEventSummary& summary,
 					const uint16_t& fed_id,
-					const map<uint16_t,float>& fed_ch ) {
+					const std::map<uint16_t,float>& fed_ch ) {
   if ( !booked_ ) {
     edm::LogWarning(mlDqmSource_)
       << "[CommissioningTask::" << __func__ << "]"

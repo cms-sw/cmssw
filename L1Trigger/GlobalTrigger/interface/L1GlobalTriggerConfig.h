@@ -5,16 +5,16 @@
  * \class L1GlobalTriggerConfig
  * 
  * 
- * 
- * Description: Configuration parameters for L1GlobalTrigger 
+ * Description: Configuration parameters for L1GlobalTrigger.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author  M. Eder      - HEPHY Vienna - ORCA version
  * \author  Vasile Ghete - HEPHY Vienna - CMSSW version
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -29,9 +29,10 @@
 
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerConditions.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>

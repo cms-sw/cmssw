@@ -1,6 +1,6 @@
 /*  
- *  $Date: 2005/07/26 15:10:51 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/25 15:36:11 $
+ *  $Revision: 1.3 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -67,8 +67,8 @@ void HcalDCCHeader::copySpigotData(unsigned int spigot_id, const HcalHTRData& da
   lenSoFar+=data.getRawLength()/2; // 32-bit words
   uint32_t* trailer=((uint32_t*)this)+sizeof(HcalDCCHeader)/sizeof(uint32_t)+lenSoFar;
   int len64=sizeof(HcalDCCHeader)/8+lenSoFar/2+1; 
-  trailer[0]=0;
-  trailer[1]=0xA0000000u|len64;
+  trailer[1]=0;
+  trailer[0]=0xA0000000u|len64;
 }
 
 std::ostream& operator<<(std::ostream& s, const HcalDCCHeader& head) {

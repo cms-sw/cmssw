@@ -10,8 +10,8 @@
  *    - one Eta Matching Unit (EMU)
  *
  *
- *   $Date: 2006/06/26 16:11:13 $
- *   $Revision: 1.1 $
+ *   $Date: 2007/02/27 11:44:00 $
+ *   $Revision: 1.2 $
  *
  *   N. Neumeister            CERN EP
  *   J. Troconiz              UAM Madrid
@@ -35,7 +35,7 @@
 // Collaborating Class Declarations --
 //------------------------------------
 
-#include <FWCore/Framework/interface/Handle.h>
+#include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
 #include "L1Trigger/DTTrackFinder/src/L1MuDTAddressArray.h"
 class L1MuDTTrackSegEta;

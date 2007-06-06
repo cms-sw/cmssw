@@ -4,16 +4,16 @@
  * \class L1GlobalTriggerFDL
  * 
  * 
- * 
- * Description: Final Decision Logic board 
+ * Description: Final Decision Logic board.
+ *  
  * Implementation:
  *    <TODO: enter implementation details>
  *   
  * \author: M. Fierro            - HEPHY Vienna - ORCA version 
  * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 
@@ -22,6 +22,7 @@
 #include <bitset>
 
 // user include files
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 
 // forward declarations

@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2006/10/24 10:45:53 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/03/19 08:08:25 $
+ *  $Revision: 1.22 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -41,8 +41,23 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig)
   // 1 - human readable debug
   if ( triggerDebug != 1 && triggerDebug != 2)
      triggerDebug = 0;
-        
-  m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
+   
+  int ppt = iConfig.getUntrackedParameter<int>("PACsPerTower");
+    
+  switch (ppt){
+    case 1:
+      m_pacManager.init(patternsDirName, ONE_PAC_PER_TOWER); // TODO: read that from cfg
+      break;
+    case 12:
+      m_pacManager.init(patternsDirName, _12_PACS_PER_TOWER);
+      break;
+    case 144:
+      m_pacManager.init(patternsDirName, _144_PACS_PER_TOWER);
+      break;
+    default:
+     throw cms::Exception("BadConfig")
+        << "PACsPerTower set to wrong value: " << ppt << "\n";
+  }
   
   m_trigConfig = new RPCBasicTrigConfig(&m_pacManager);
   
@@ -181,6 +196,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(L1RpcTBMuonsVec 
     etaAddr &= 63; // 6 bits only
          
     l1Cand.setEtaPacked(etaAddr);
+    l1Cand.setChargeValid(true);
 
     /*    
     std::cout<< std::endl << "RBMuon::" << finalMuons[iMu].getEtaAddr() << " " 

@@ -104,7 +104,7 @@ for my $f (@f1) {
            open CL, "cvs -n update -r $tag $ff 2>&1 |";
            while(my $l = <CL>) {
              chomp($l);
-             next if($l =~ /^kserver/);
+             next if($l =~ /cvs update: Updating/);
              print STDOUT "  $l\n";
              if($l =~ /M (.*)/) { push @filesToDiff, $1;}
              if($l =~ /\? (.*)/) { push @newFiles, $1;}

@@ -1,3 +1,5 @@
+// Last commit: $Id: $
+
 #ifndef CalibFormats_SiStripObjects_NumberOfDevices_H
 #define CalibFormats_SiStripObjects_NumberOfDevices_H
 

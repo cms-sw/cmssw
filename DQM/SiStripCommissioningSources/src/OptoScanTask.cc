@@ -1,13 +1,12 @@
 #include "DQM/SiStripCommissioningSources/interface/OptoScanTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 #include <math.h>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -30,28 +29,28 @@ void OptoScanTask::book() {
   uint16_t nbins = 51; //@@ correct?
   uint16_t gains = 4;
 
-  string title;
+  std::string title;
 
-  // Resize vector of "Histo sets" to accommodate the 4 different gain
+  // Resize std::vector of "Histo sets" to accommodate the 4 different gain
   // settings and the two different digital levels ("0" and "1").
   opto_.resize( gains );
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { opto_[igain].resize(2); }
 
-  // Book histos and resize vectors within "Histo sets"
+  // Book histos and resize std::vectors within "Histo sets"
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
     for ( uint16_t ilevel = 0; ilevel < 2; ilevel++ ) { 
       
-      stringstream extra_info; 
+      std::stringstream extra_info; 
       extra_info << sistrip::gain_ << igain 
 		 << sistrip::digital_ << ilevel;
       
-      title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::OPTO_SCAN, 
-								sistrip::FED_KEY, 
-								fedKey(),
-								sistrip::LLD_CHAN, 
-								connection().lldChannel(),
-								extra_info.str() ) );
-
+      title = SiStripHistoTitle( sistrip::OPTO_SCAN, 
+				 sistrip::FED_KEY, 
+				 fedKey(),
+				 sistrip::LLD_CHAN, 
+				 connection().lldChannel(),
+				 extra_info.str() ).title();
+    
       opto_[igain][ilevel].histo_  = dqm()->bookProfile( title, title, 
 							 nbins, -0.5, nbins*1.-0.5,
 							 1025, 0., 1025. );
@@ -85,9 +84,8 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
   } else {
     
     // Retrieve opt bias and gain setting from SiStripEventSummary
-    pair<uint32_t,uint32_t> opto = const_cast<SiStripEventSummary&>(summary).opto();
-    uint16_t gain = opto.first;
-    uint16_t bias = opto.second;
+    uint16_t gain = summary.lldGain();
+    uint16_t bias = summary.lldBias();
     if ( gain >= opto_.size() ) { 
       opto_.resize( gain );
       for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
@@ -103,7 +101,7 @@ void OptoScanTask::fill( const SiStripEventSummary& summary,
 //       << " Bias: " << opto.second;
     
     // Find digital "0" and digital "1" levels from tick marks within scope mode data
-    pair< uint16_t, uint16_t > digital_range;
+    std::pair< uint16_t, uint16_t > digital_range;
     locateTicks( digis, digital_range, false );
 //     LogTrace(mlDqmSource_)
 //       << "[OptoScanTask::" << __func__ << "]"
@@ -140,11 +138,11 @@ void OptoScanTask::update() {
 // -----------------------------------------------------------------------------
 //
 void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis, 
-				pair< uint16_t, uint16_t >& digital_range, 
+				std::pair< uint16_t, uint16_t >& digital_range, 
 				bool first_tick_only ) {
   
   // Copy ADC values and sort
-  vector<uint16_t> adc; adc.reserve( digis.data.size() ); 
+  std::vector<uint16_t> adc; adc.reserve( digis.data.size() ); 
   for ( uint16_t iadc = 0; iadc < digis.data.size(); iadc++ ) { adc.push_back( digis.data[iadc].adc() ); }
   sort( adc.begin(), adc.end() );
   uint16_t size = adc.size();
@@ -167,8 +165,8 @@ void OptoScanTask::locateTicks( const edm::DetSet<SiStripRawDigi>& digis,
   // Identify samples belonging to "baseline" and "tick marks"
   float threshold = mean + sigma * 5.;
   //bool found_first_tick = false;
-  vector<uint32_t> baseline; 
-  vector<uint32_t> tickmark; 
+  std::vector<uint32_t> baseline; 
+  std::vector<uint32_t> tickmark; 
   for ( uint16_t iadc = 0; iadc < adc.size(); iadc++ ) { 
     if ( adc[iadc] > threshold ) { tickmark.push_back( adc[iadc] ); }
     else { baseline.push_back( adc[iadc] ); }

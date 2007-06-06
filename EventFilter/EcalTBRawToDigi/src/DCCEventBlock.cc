@@ -87,12 +87,12 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 				if( i == 3){ tccId = parser_->tcc3Id();}	
 				if( i == 4){ tccId = parser_->tcc4Id();}
 				
-				string tcc = string("TCC_CHSTATUS#") + parser_->getDecString(i);	
+				std::string tcc = std::string("TCC_CHSTATUS#") + parser_->getDecString(i);	
 				tcc_ch = getDataField(tcc);
 				
 				if( tcc_ch != CH_TIMEOUT && tcc_ch != CH_DISABLED){	 
 					
-					//cout<<"\n debug:Building TCC Block, channel enabled without errors"<<endl;
+					//std::cout<<"\n debug:Building TCC Block, channel enabled without errors"<<std::endl;
 					
 					// Go to the begining of the block
 					increment(1," (while trying to create a"+tcc+" Block !)");
@@ -122,7 +122,7 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			else if (triggerType == CALIBRATIONTRIGGER ){ numbChannels = 70; }
 			// TODO :: implement other triggers
 			else{
-				string error = string("\n DCC::HEADER TRIGGER TYPE = ")+parser_->getDecString(triggerType)+string(" is not a valid type !");
+			  std::string error = std::string("\n DCC::HEADER TRIGGER TYPE = ")+parser_->getDecString(triggerType)+std::string(" is not a valid type !");
 				ECALParserBlockException a(error);
 				throw a;
 			}
@@ -136,12 +136,12 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 			
 			for( ulong i=1; i<=numbChannels; i++){
 				
-				string chStatusId = string("FE_CHSTATUS#") + parser_->getDecString(i);
+			  std::string chStatusId = std::string("FE_CHSTATUS#") + parser_->getDecString(i);
 				ulong chStatus = getDataField(chStatusId);
 				
 				// If srp is on, we need to check if channel was suppressed ////////////////////
 				if(srp){ 
-					srFlag   = srpBlock_->getDataField( string("SR#") + parser_->getDecString(i));
+					srFlag   = srpBlock_->getDataField( std::string("SR#") + parser_->getDecString(i));
 					if(srFlag == SR_NREAD){ suppress = true; }
 					else{ suppress = false; }
 				}
@@ -184,9 +184,9 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 	}catch( ECALParserException & e){}
 	catch( ECALParserBlockException & e){
 	  // ulong nEv = (parser_->dccEvents()).size() +1;
-	  errorString_ += string(e.what());
+	  errorString_ += std::string(e.what());
 	  blockError_=true;
-	  //cout<<"cout"<<e.what();
+	  //std::cout<<"cout"<<e.what();
 	}
 	
 	
@@ -197,11 +197,11 @@ DCCBlockPrototype(parser,"DCCHEADER", buffer, numbBytes,wordsToEnd)
 
 DCCEventBlock::~DCCEventBlock(){
 	
-	vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTCCBlock *>::iterator it1;
 	for(it1=tccBlocks_.begin();it1!=tccBlocks_.end();it1++){ delete (*it1);}
 	tccBlocks_.clear();
 	
-	vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTowerBlock *>::iterator it2;
 	for(it2=towerBlocks_.begin();it2!=towerBlocks_.end();it2++){ delete (*it2);}
 	towerBlocks_.clear();
 	
@@ -215,17 +215,17 @@ DCCEventBlock::~DCCEventBlock(){
 void DCCEventBlock::dataCheck(){
 	
 	
-	string checkErrors("");
+	std::string checkErrors("");
 	
 	
 	// Check BOE field/////////////////////////////////////////////////////
-	pair<bool,string> res =  checkDataField("BOE",BOE);
+	std::pair<bool,std::string> res =  checkDataField("BOE",BOE);
 	if(!res.first){ checkErrors += res.second; (errors_["DCC::HEADER"])++; }
 	///////////////////////////////////////////////////////////////////////
 	
 	
 	// Check H Field //////////////////////////////////////////////////////
-	string hField= string("H");
+	std::string hField= std::string("H");
 	res = checkDataField(hField,1);
 	if(!res.first){ checkErrors += res.second; (errors_["DCC::HEADER"])++; }
 	////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ void DCCEventBlock::dataCheck(){
 
 	for(ulong i = 1; i<=dccHeaderWords ; i++){
 
-		string header= string("H") + parser_->getDecString(i);
+		std::string header= std::string("H") + parser_->getDecString(i);
 		res = checkDataField(header,i);
 		if(!res.first){ checkErrors += res.second; (errors_["DCC::HEADER"])++; }
 	}
@@ -254,7 +254,7 @@ void DCCEventBlock::dataCheck(){
 	
 	if(checkErrors!=""){
 		errorString_ +="\n ======================================================================\n"; 		
-		errorString_ += string(" ") + name_ + string(" data fields checks errors : ") ;
+		errorString_ += std::string(" ") + name_ + std::string(" data fields checks errors : ") ;
 		errorString_ += checkErrors ;
 		errorString_ += "\n ======================================================================";
 		blockError_ = true;	
@@ -265,9 +265,9 @@ void DCCEventBlock::dataCheck(){
 
 
 
-void  DCCEventBlock::displayEvent(ostream & os){
+void  DCCEventBlock::displayEvent(std::ostream & os){
 
-  	os << "\n\n\n\n\n >>>>>>>>>>>>>>>>>>>> Event started at word position " << dec << wordBufferOffset_ <<" <<<<<<<<<<<<<<<<<<<<"<<endl;
+  os << "\n\n\n\n\n >>>>>>>>>>>>>>>>>>>> Event started at word position " << std::dec << wordBufferOffset_ <<" <<<<<<<<<<<<<<<<<<<<"<<std::endl;
   	
 	// Display DCC Header ///
 	displayData(os);
@@ -280,20 +280,20 @@ void  DCCEventBlock::displayEvent(ostream & os){
 		
 		
 	// Display TCC Block Contents ///////////////////////////////
-	vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTCCBlock *>::iterator it1;
 	for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 		(*it1)->displayData(os);
 	}
 	
 	// Display Towers Blocks /////////////////////////////////////
-	vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTowerBlock *>::iterator it2;
 	for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 		(*it2)->displayData(os);
 			
 		// Display Xtal Data /////////////////////////////////////
-		vector<DCCXtalBlock * > &xtalBlocks = (*it2)->xtalBlocks();
-		vector<DCCXtalBlock * >::iterator it3;
+		std::vector<DCCXtalBlock * > &xtalBlocks = (*it2)->xtalBlocks();
+		std::vector<DCCXtalBlock * >::iterator it3;
 		for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){
 			(*it3)->displayData(os);
 		}	
@@ -305,17 +305,17 @@ void  DCCEventBlock::displayEvent(ostream & os){
 }
 
 
-pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
+std::pair<bool,std::string> DCCEventBlock::compare(DCCEventBlock * block){
 	
 	// DCC Header comparision /////////////////////////////// 
-	pair<bool,string> ret(DCCBlockPrototype::compare(block));
+	std::pair<bool,std::string> ret(DCCBlockPrototype::compare(block));
 	/////////////////////////////////////////////////////////
 	
-	stringstream out;
+	  std::stringstream out;
 	
 	// Selective readout processor block comparision ////////////////////////////////////////////
 	if( srpBlock_ && block->srpBlock() ){ 
-		pair<bool,string> temp( srpBlock_->compare(block->srpBlock()));
+		std::pair<bool,std::string> temp( srpBlock_->compare(block->srpBlock()));
 		ret.first   = ret.first & temp.first;
 		out<<temp.second; 
 	}else if( !srpBlock_ && block->srpBlock() ){
@@ -348,13 +348,13 @@ pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
 		   <<"\n =====================================================================";
 	}
 	
-	vector<DCCTCCBlock *>::iterator it1Tcc    = tccBlocks_.begin();
-	vector<DCCTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
-	vector<DCCTCCBlock *>::iterator it2Tcc    = block->tccBlocks().begin();
-	vector<DCCTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
+	std::vector<DCCTCCBlock *>::iterator it1Tcc    = tccBlocks_.begin();
+	std::vector<DCCTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
+	std::vector<DCCTCCBlock *>::iterator it2Tcc    = block->tccBlocks().begin();
+	std::vector<DCCTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
 	
 	for( ; it1Tcc!=it1TccEnd && it2Tcc!=it2TccEnd; it1Tcc++, it2Tcc++){
-		pair<bool,string> temp( (*it1Tcc)->compare( *it2Tcc ) );
+		std::pair<bool,std::string> temp( (*it1Tcc)->compare( *it2Tcc ) );
 		ret.first   = ret.first & temp.first;
 		out<<temp.second; 
 	}
@@ -374,20 +374,20 @@ pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
 		   <<"\n =====================================================================";
 	}
 	
-	vector<DCCTowerBlock *>::iterator it1Tower    = towerBlocks_.begin();
-	vector<DCCTowerBlock *>::iterator it1TowerEnd  = towerBlocks_.end();
-	vector<DCCTowerBlock *>::iterator it2Tower    = (block->towerBlocks()).begin();
-	vector<DCCTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
+	std::vector<DCCTowerBlock *>::iterator it1Tower    = towerBlocks_.begin();
+	std::vector<DCCTowerBlock *>::iterator it1TowerEnd  = towerBlocks_.end();
+	std::vector<DCCTowerBlock *>::iterator it2Tower    = (block->towerBlocks()).begin();
+	std::vector<DCCTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
 	
 	for( ; it1Tower!=it1TowerEnd && it2Tower!=it2TowerEnd; it1Tower++, it2Tower++){
 		
-		pair<bool,string> temp( (*it1Tower)->compare( *it2Tower ) );
+		std::pair<bool,std::string> temp( (*it1Tower)->compare( *it2Tower ) );
 		ret.first   = ret.first & temp.first;
 		out<<temp.second;
 
 		// Xtal Block comparision ////////////////////////////
-		vector<DCCXtalBlock *> xtalBlocks1( (*it1Tower)->xtalBlocks());
-		vector<DCCXtalBlock *> xtalBlocks2( (*it2Tower)->xtalBlocks());
+		std::vector<DCCXtalBlock *> xtalBlocks1( (*it1Tower)->xtalBlocks());
+		std::vector<DCCXtalBlock *> xtalBlocks2( (*it2Tower)->xtalBlocks());
 		// check number of xtal blocks 
     	int numbXtalBlocks_a = xtalBlocks1.size();
 		int numbXtalBlocks_b = xtalBlocks2.size();
@@ -400,13 +400,13 @@ pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
 		  	   <<"\n =====================================================================";
 		}
 		
-		vector<DCCXtalBlock *>::iterator it1Xtal    = xtalBlocks1.begin();
-		vector<DCCXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
-		vector<DCCXtalBlock *>::iterator it2Xtal    = xtalBlocks1.begin();
-		vector<DCCXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
+		std::vector<DCCXtalBlock *>::iterator it1Xtal    = xtalBlocks1.begin();
+		std::vector<DCCXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
+		std::vector<DCCXtalBlock *>::iterator it2Xtal    = xtalBlocks1.begin();
+		std::vector<DCCXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
 		
 		for( ; it1Xtal!=it1XtalEnd && it2Xtal!=it2XtalEnd; it1Xtal++, it2Xtal++){
-			pair<bool,string> temp( (*it1Xtal)->compare( *it2Xtal ) );
+			std::pair<bool,std::string> temp( (*it1Xtal)->compare( *it2Xtal ) );
 			ret.first   = ret.first & temp.first;
 			out<<temp.second; 
 		}
@@ -416,7 +416,7 @@ pair<bool,string> DCCEventBlock::compare(DCCEventBlock * block){
 	
 	// Trailer block comparision ////////////////////////////////////////////
 	if(  block->trailerBlock() && trailerBlock() ){ 
-		pair<bool,string> temp( trailerBlock()->compare(block->trailerBlock()));
+		std::pair<bool,std::string> temp( trailerBlock()->compare(block->trailerBlock()));
 		ret.first   = ret.first & temp.first;
 		out<<temp.second; 
 	}
@@ -441,7 +441,7 @@ bool DCCEventBlock::eventHasErrors(){
 	
 
 	// See if we have errors in the  TCC Block Contents ///////////////////////////////
-	vector<DCCTCCBlock *>::iterator it1;
+	std::vector<DCCTCCBlock *>::iterator it1;
 	for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 		ret |= (*it1)->blockError();
 	}
@@ -453,14 +453,14 @@ bool DCCEventBlock::eventHasErrors(){
 
 	
 	// See if we have errors in the Trigger Blocks ///////////////
-	vector<DCCTowerBlock *>::iterator it2;
+	std::vector<DCCTowerBlock *>::iterator it2;
 	for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 		ret |= (*it2)->blockError();
 			
 		// See if we have errors in the Xtal Data /////////////////
-		vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
-		vector<DCCXtalBlock * >::iterator it3;
+		std::vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
+		std::vector<DCCXtalBlock * >::iterator it3;
 		for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){
 			ret |= (*it3)->blockError();
 		}
@@ -479,15 +479,15 @@ bool DCCEventBlock::eventHasErrors(){
 }
 
 
-string DCCEventBlock::eventErrorString(){
+std::string DCCEventBlock::eventErrorString(){
 	
-	string ret("");
+	std::string ret("");
 	
 	if( eventHasErrors() ){
 		
 		
 		ret +="\n ======================================================================\n"; 		
-		ret += string(" Event Erros occurred for L1A ( decoded value ) = ") ; 
+		ret += std::string(" Event Erros occurred for L1A ( decoded value ) = ") ; 
 		ret += parser_->getDecString(getDataField("LV1"));
 		ret += "\n ======================================================================";
 		
@@ -496,7 +496,7 @@ string DCCEventBlock::eventErrorString(){
 	
 		// TODO ::
 		// See if we have errors in the  TCC Block Contents /////////////
-		vector<DCCTCCBlock *>::iterator it1;
+		std::vector<DCCTCCBlock *>::iterator it1;
 		for( it1 = tccBlocks_.begin(); it1!= tccBlocks_.end(); it1++){
 			ret += (*it1)->errorString();
 		}
@@ -507,18 +507,18 @@ string DCCEventBlock::eventErrorString(){
 	
 	
 		// See if we have errors in the Tower Blocks ///////////////////////////////////////////////////
-		vector<DCCTowerBlock *>::iterator it2;
+		std::vector<DCCTowerBlock *>::iterator it2;
 		
 		for(it2 = towerBlocks_.begin();it2!=towerBlocks_.end();it2++){
 			
 			ret += (*it2)->errorString();
 			
 			// See if we have errors in the Xtal Data /////////////////
-			vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
-			vector<DCCXtalBlock * >::iterator it3;
+			std::vector<DCCXtalBlock * > & xtalBlocks = (*it2)->xtalBlocks();
+			std::vector<DCCXtalBlock * >::iterator it3;
 		
 		
-			string temp;
+			std::string temp;
 			for(it3 = xtalBlocks.begin();it3!=xtalBlocks.end();it3++){ temp += (*it3)->errorString();}
 		
 			if(temp!=""){
@@ -546,14 +546,14 @@ string DCCEventBlock::eventErrorString(){
 
 
 
-vector< DCCTowerBlock * > DCCEventBlock::towerBlocksById(ulong towerId){
-	vector<DCCTowerBlock *> myVector;	
-	vector<DCCTowerBlock *>::iterator it;
+std::vector< DCCTowerBlock * > DCCEventBlock::towerBlocksById(ulong towerId){
+	std::vector<DCCTowerBlock *> myVector;	
+	std::vector<DCCTowerBlock *>::iterator it;
 	
 	for( it = towerBlocks_.begin(); it!= towerBlocks_.end(); it++ ){
 		try{
 			
-			pair<bool,string> idCheck   = (*it)->checkDataField("TT/SC ID",towerId);
+			std::pair<bool,std::string> idCheck   = (*it)->checkDataField("TT/SC ID",towerId);
 			
 			if(idCheck.first ){ myVector.push_back( (*it) ); }
 		}catch (ECALParserBlockException &e){/*ignore*/}

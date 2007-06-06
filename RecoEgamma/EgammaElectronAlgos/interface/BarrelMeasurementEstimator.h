@@ -15,7 +15,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: BarrelMeasurementEstimator.h,v 1.2 2006/06/30 12:36:56 uberthon Exp $
+// $Id: BarrelMeasurementEstimator.h,v 1.3 2007/02/05 17:53:51 uberthon Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
 #include <utility>
 

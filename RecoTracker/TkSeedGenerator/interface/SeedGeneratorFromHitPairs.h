@@ -25,7 +25,9 @@ public:
 
   /// from base class 
   virtual  void seeds(TrajectorySeedCollection &output,const edm::EventSetup& c, const TrackingRegion& region) {
-    return seeds(output,c,pairGenerator()->hitPairs(region,c), region);
+    OrderedHitPairs pairs;
+    pairGenerator()->hitPairs(region,pairs,c); 
+    return seeds(output,c,pairs, region);
   } 
 
   /// concrete seed generator should construct hits from hit pairs

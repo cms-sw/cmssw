@@ -25,6 +25,8 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   setSrc( iConfig.getParameter<std::string>( "src" ));
   setProducer( iConfig.getParameter<std::string>( "producer" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
+
+  myname_ = iConfig.getParameter<std::string>("ComponentName");
   conversionTrackCandidateProducer_ = iConfig.getParameter<std::string>("producer");
   trackCSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("trackCandidateSCAssociationCollection");
   trackSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("recoTrackSCAssociationCollection");

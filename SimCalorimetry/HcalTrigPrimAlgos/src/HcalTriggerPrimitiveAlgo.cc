@@ -159,7 +159,7 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples,
     {
       IntegerCaloSamples output(samples.id(),outlength-2);
       output.setPresamples(newprelength-1);
-      for(int ibin2 = 1; ibin2 < (sum.size())-2; ++ibin2) 
+      for(int ibin2 = 1; ibin2 < (sum.size())-1; ++ibin2) 
 	{
 	  //use if peak finding true
 	  //Old equalities
@@ -207,6 +207,9 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples,
   //cout<<"Presamples = "<<samples.presamples()<<endl;
   for(int ibin2 = 0; ibin2 < samples.size(); ++ibin2) 
     {//output[ibin2]=sum[ibin2];
+      samples[ibin2] /= 8;
+      //cout << "samples: " << samples[i] << endl;
+      if (samples[ibin2] > 0x3FF) samples[ibin2] = 0x3FF;  //Compression is 1 to 1 with saturation at 8 bits
       output[ibin2]=samples[ibin2];
     }
   //cout<<endl;

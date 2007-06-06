@@ -6,15 +6,12 @@
 #include "RecoParticleFlow/PFAlgo/interface/PFGeometry.h"
 #include "RecoParticleFlow/PFRootEvent/interface/PFRootEventManager.h"
 #include "RecoParticleFlow/PFRootEvent/interface/IO.h"
-#include "RecoParticleFlow/PFRootEvent/interface/PFJetAlgorithm.h" 
-#include "RecoParticleFlow/PFRootEvent/interface/Utils.h" 
 
 #include <TFile.h>
 #include <TTree.h>
 #include <TCanvas.h>
 #include <TPad.h>
 #include <TMarker.h>
-#include <TH1F.h>
 #include <TH2F.h>
 #include <TCutG.h>
 #include <TPolyLine.h>
@@ -26,11 +23,14 @@
 #include "TVector3.h"
 
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
+
+
 PFRootEventManager::PFRootEventManager() {}
+
+
 
 PFRootEventManager::PFRootEventManager(const char* file)
   : clusters_(new vector<reco::PFCluster>),
@@ -41,14 +41,9 @@ PFRootEventManager::PFRootEventManager(const char* file)
   options_ = 0;
   tree_ = 0;
   iEvent_=0;
-  h_deltaETvisible_MCEHT_ 
-    = new TH1F("h_deltaETvisible_MCEHT","Jet Et difference CaloTowers-MC"
-	       ,500,-50,50);
-  h_deltaETvisible_MCPF_  
-    = new TH1F("h_deltaETvisible_MCPF" ,"Jet Et difference ParticleFlow-MC"
-	       ,500,-50,50);
 
   readOptions(file);
+
 
   displayView_.resize(NViews);
   displayHist_.resize(NViews);
@@ -57,10 +52,11 @@ PFRootEventManager::PFRootEventManager(const char* file)
     displayHist_[iView] = 0;
   }
 
+
   maxERecHitEcal_ = -1;
   maxERecHitHcal_ = -1;
-
 }
+
 
 void PFRootEventManager::reset() { 
   maxERecHitEcal_ = -1;
@@ -75,6 +71,7 @@ void PFRootEventManager::reset() {
   clustersIslandBarrel_.clear();
   trueParticles_.clear();
 }
+
 
 void PFRootEventManager::readOptions(const char* file, bool refresh) {
   PFGeometry pfGeometry; // initialize geometry
@@ -216,16 +213,14 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
     clustersPSBranch_->SetAddress( clustersPS_.get() );
   }    
   
-  // other branches ----------------------------------------------
-  
+  // other branches --------------------------------------------------------------
+
   
   string clustersIslandBarrelbranchname;
   clustersIslandBarrelBranch_ = 0;
-  options_->GetOpt("root","clusters_island_barrel_branch", 
-		   clustersIslandBarrelbranchname);
+  options_->GetOpt("root","clusters_island_barrel_branch", clustersIslandBarrelbranchname);
   if(!clustersIslandBarrelbranchname.empty() ) {
-    clustersIslandBarrelBranch_ 
-      = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
+    clustersIslandBarrelBranch_ = tree_->GetBranch(clustersIslandBarrelbranchname.c_str());
     if(!clustersIslandBarrelBranch_) {
       cerr<<"PFRootEventManager::ReadOptions : clusters_island_barrel_branch not found : "
 	  <<clustersIslandBarrelbranchname<< endl;
@@ -533,30 +528,6 @@ void PFRootEventManager::readOptions(const char* file, bool refresh) {
   verbosity_ = VERBOSE;
   options_->GetOpt("print", "verbosity", verbosity_ );
   cout<<"verbosity : "<<verbosity_<<endl;
-
-  // jets options ---------------------------------
-  doJets_ = false;
-  options_->GetOpt("jets", "dojets", doJets_);
-  
-  coneAngle_ = 0.5;
-  options_->GetOpt("jets", "cone_angle", coneAngle_);
-
-  seedEt_    = 0.4;
-  options_->GetOpt("jets", "seed_et", seedEt_);
-
-  coneMerge_ = 100.0;
-  options_->GetOpt("jets", "cone_merge", coneMerge_);
-
-  jetsDebug_ = false;
-  options_->GetOpt("jets", "jets_debug", jetsDebug_);
-
-  if (doJets_) {
-    cout << "JET OPTIONS" << endl;
-    cout << "Angle=" << coneAngle_ << " seedEt=" << seedEt_ 
-	 << " Merge=" << coneMerge_ << endl;
-    JetAlgo_ = new PFJetAlgorithm(coneAngle_, seedEt_, coneMerge_);
-  }
-
 }
 
 PFRootEventManager::~PFRootEventManager() {
@@ -582,11 +553,8 @@ PFRootEventManager::~PFRootEventManager() {
 void PFRootEventManager::write() {
   if(!outFile_) return;
   else {
-    outFile_->cd(); 
-    // write histos here
-    cout<<"writing output to "<<outFile_->GetName()<<endl;
-    h_deltaETvisible_MCEHT_->Write();
-    h_deltaETvisible_MCPF_->Write();
+    cout<<"writing output to "<<outFile_->GetName()
+	<<": to be implemented"<<endl;
   }
 }
 
@@ -594,7 +562,7 @@ void PFRootEventManager::write() {
 bool PFRootEventManager::processEntry(int entry) {
 
   reset();
-  
+
   if(verbosity_ == VERBOSE  || 
      entry%10 == 0) 
     cout<<"process entry "<< entry << endl;
@@ -631,32 +599,8 @@ bool PFRootEventManager::processEntry(int entry) {
     }
   }
 
-  //optional ----------------------
-  //REMOVE EVENTS LEPTONIC DECAY OF THE TAUS
-  vector<reco::PFSimParticle> vectPART;
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    vectPART.push_back(ptc);
-  }//loop 
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-    if (abs(ptc.pdgCode()) == 15) {
-      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-	unsigned int pdgdaugter = abs(vectPART[ptcdaughters[dapt]].pdgCode());
-	//cout << "DAUGHTER=" << pdgdaugter << endl;
-	if (pdgdaugter == 11 || pdgdaugter == 13) { 
-	  if (verbosity_ == VERBOSE) cout << "REMOVED" << endl; 
-	    return false; 
-	}//electron or muons?
-      }//loop daughter
-    }//tau
-  }//loop particles
-  //-------------------------------
 
   particleFlow();
-  if (doJets_) 
-    makeJets(); 
 
   return true;
   //  if(trueParticles_.size() != 1 ) return false;
@@ -713,8 +657,7 @@ bool PFRootEventManager::readFromSimulation(int entry) {
   }
   if(caloTowersBranch_) {
     caloTowersBranch_->GetEntry(entry);
-    if(verbosity_ == VERBOSE )
-      cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
+    cout<<"number of calotowers :"<<caloTowers_.size()<<endl;
   }
     
     
@@ -1092,196 +1035,6 @@ void PFRootEventManager::particleFlow() {
 
 }
 
-void PFRootEventManager::makeJets() {
-  //std::cout << "building jets from MC particles," 
-  //    << "PF particles and caloTowers" << std::endl;
-  
-  //initialize Jets Reconstruction
-  JetAlgo_->Clear();
-
-  //MAKING TRUE PARTICLE JETS
-  TLorentzVector partTOTMC;
-  partTOTMC.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
-
-  //MAKING JETS WITH TAU DAUGHTERS
-  vector<reco::PFSimParticle> vectPART;
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    vectPART.push_back(ptc);
-  }//loop
-
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-
-    if (abs(ptc.pdgCode()) == 15) {
-      for ( unsigned int dapt=0; dapt < ptcdaughters.size(); ++dapt) {
-
-	const reco::PFTrajectoryPoint& tpatvtx 
-	  = vectPART[ptcdaughters[dapt]].trajectoryPoint(0);
-	TLorentzVector partMC;
-	partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-			  tpatvtx.momentum().Py(),
-			  tpatvtx.momentum().Pz(),
-			  tpatvtx.momentum().E());
-
-	partTOTMC += partMC;
-	if (jetsDebug_) {
-	  //pdgcode
-	  int pdgcode = vectPART[ptcdaughters[dapt]].pdgCode();
-	  cout << pdgcode << endl;
-	  cout << tpatvtx << endl;
-	  cout << partMC.Px() << " " << partMC.Py() << " " 
-	       << partMC.Pz() << " " << partMC.E()
-	       << " PT=" 
-	       << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	       << endl;
-	}//debug
-      }//loop daughter
-    }//tau?
-  }//loop particles
-
-  /*
-  //MC JETS RECONSTRUCTION (visible energy)
-  for ( unsigned i=0;  i < trueParticles_.size(); i++) {
-    const reco::PFSimParticle& ptc = trueParticles_[i];
-    const std::vector<int>& ptcdaughters = ptc.daughterIds();
-    
-    //PARTICULE NOT DISINTEGRATING BEFORE ECAL
-    if(ptcdaughters.size() != 0) continue;
-    
-    //TAKE INFO AT VERTEX //////////////////////////////////////////////////
-    const reco::PFTrajectoryPoint& tpatvtx = ptc.trajectoryPoint(0);
-    TLorentzVector partMC;
-    partMC.SetPxPyPzE(tpatvtx.momentum().Px(),
-		      tpatvtx.momentum().Py(),
-		      tpatvtx.momentum().Pz(),
-		      tpatvtx.momentum().E());
-    
-    partTOTMC += partMC;
-    if (jetsDebug_) {
-      //pdgcode
-      int pdgcode = ptc.pdgCode();
-      cout << pdgcode << endl;
-      cout << tpatvtx << endl;
-      cout << partMC.Px() << " " << partMC.Py() << " " 
-      << partMC.Pz() << " " << partMC.E() 
-	   << " PT=" 
-	   << sqrt(partMC.Px()*partMC.Px()+partMC.Py()*partMC.Py()) 
-	   << endl;
-    }//debug?
-  }//loop true particles
-  */
-  if (jetsDebug_) {
-    cout << " ET Vector=" << partTOTMC.Et() 
-	 << " " << partTOTMC.Eta() 
-	 << " " << partTOTMC.Phi() << endl; cout << endl;
-  }//debug
-
-  //////////////////////////////////////////////////////////////////////////
-  //CALO TOWER JETS (ECAL+HCAL Towers)
-  //cout << endl;  
-  //cout << "THERE ARE " << caloTowers_.size() << " CALO TOWERS" << endl;
-  vector<TLorentzVector> allcalotowers;
-  for ( unsigned int i = 0; i < caloTowers_.size(); ++i)
-    {
-      TLorentzVector caloT;
-      TVector3 pepr( caloTowers_[i].eta(),
-		     caloTowers_[i].phi(),
-		     caloTowers_[i].energy());
-      TVector3 pxyz = Utils::VectorEPRtoXYZ( pepr );
-      caloT.SetPxPyPzE(pxyz.X(),pxyz.Y(),pxyz.Z(),caloTowers_[i].energy());
-      allcalotowers.push_back(caloT);
-    }//loop calo towers
-  if ( jetsDebug_)  
-    cout << " RETRIEVED " << allcalotowers.size() 
-	 << " CALOTOWER 4-VECTORS " << endl;
-  
-  //ECAL+HCAL tower jets computation
-  JetAlgo_->Clear();
-  const vector< PFJetAlgorithm::Jet >&  caloTjets 
-    = JetAlgo_->FindJets( &allcalotowers );
-  
-  //cout << caloTjets.size() << " CaloTower Jets found" << endl;
-  double JetEHTETmax = 0.0;
-  for ( unsigned i = 0; i < caloTjets.size(); i++) {
-    TLorentzVector jetmom = caloTjets[i].GetMomentum();
-    double jetcalo_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
-    double jetcalo_et = jetmom.Et();
-    if ( jetsDebug_) {
-      cout << " ECAL+HCAL jet : " << caloTjets[i] << endl;
-      cout << jetmom.Px() << " " << jetmom.Py() << " " 
-	   << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << jetcalo_pt << endl;
-    }//debug
-
-    if (jetcalo_et >= JetEHTETmax) 
-      JetEHTETmax = jetcalo_et;
-  }//loop MCjets
-
-  //////////////////////////////////////////////////////////////////
-  //PARTICLE FLOW JETS
-  vector<TLorentzVector> allrecparticles;
-  if ( jetsDebug_) {
-    cout << endl;
-    cout << " THERE ARE " << allPFBs_.size() << " EFLOW BLOCKS" << endl;
-  }//debug
-
-  for ( unsigned iefb = 0; iefb < allPFBs_.size(); iefb++) {
-      const std::vector< PFBlockParticle >& recparticles 
-	= allPFBs_[iefb].particles();
-      if (jetsDebug_) 
-	cout << " there are " << recparticles.size() 
-	     << " particle in this block" << endl;
-      for (unsigned ip = 0; ip < recparticles.size(); ip++) {
-	if (jetsDebug_) {
-	  cout << ip << " " << recparticles[ip] << endl;
-	  int type = recparticles[ip].type();
-	  cout << " type= " << type << " " << recparticles[ip].charge() 
-	       << endl;
-	}//debug
-	const math::XYZTLorentzVector& PFpart = recparticles[ip].momentum();
-	
-	TLorentzVector partRec;
-	partRec.SetPxPyPzE(PFpart.Px(),PFpart.Py(),PFpart.Pz(),PFpart.E());
-	
-	//loading 4-vectors of Rec particles
-	allrecparticles.push_back( partRec );
-      }//loop particles in blocks
-    }//loop eflow blocks
-
-  if (jetsDebug_) 
-    cout << " THERE ARE " << allrecparticles.size() 
-	 << " RECONSTRUCTED 4-VECTORS" << endl;
-
-  JetAlgo_->Clear();
-  const vector< PFJetAlgorithm::Jet >&  PFjets 
-    = JetAlgo_->FindJets( &allrecparticles );
-
-  if (jetsDebug_) 
-    cout << PFjets.size() << " PF Jets found" << endl;
-  double JetPFETmax = 0.0;
-  for ( unsigned i = 0; i < PFjets.size(); i++) {
-    TLorentzVector jetmom = PFjets[i].GetMomentum();
-    double jetpf_pt = sqrt(jetmom.Px()*jetmom.Px()+jetmom.Py()*jetmom.Py());
-    double jetpf_et = jetmom.Et();
-    if (jetsDebug_) {
-      cout <<" Rec jet : "<< PFjets[i] <<endl;
-      cout << jetmom.Px() << " " << jetmom.Py() << " " 
-	   << jetmom.Pz() << " " << jetmom.E() 
-	   << " PT=" << jetpf_pt << " eta="<< jetmom.Eta() 
-	   << " Phi=" << jetmom.Phi() << endl;
-      cout << "------------------------------------------------" << endl;
-    }//debug
-    
-    if (jetpf_et >= JetPFETmax)  
-      JetPFETmax = jetpf_et;
-  }//loop PF jets
-
-  //fill histos
-  h_deltaETvisible_MCEHT_->Fill(JetEHTETmax - partTOTMC.Et());
-  h_deltaETvisible_MCPF_ ->Fill(JetPFETmax - partTOTMC.Et());
-}//Makejets
 
 void PFRootEventManager::display(int ientry) {
   
@@ -1320,8 +1073,7 @@ void PFRootEventManager::displayView(unsigned viewType) {
   
 
   // display or clear canvas
-  if(!displayView_[viewType] 
-     || !gROOT->GetListOfCanvases()->FindObject(displayView_[viewType]) ) {
+  if(!displayView_[viewType] || !gROOT->GetListOfCanvases()->FindObject(displayView_[viewType]) ) {
     assert(viewSize_.size() == 2);
     switch(viewType) {
     case XY:

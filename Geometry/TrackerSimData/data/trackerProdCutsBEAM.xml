@@ -3,7 +3,7 @@
   
 <SpecParSection label="trackerProdCuts.xml" eval="true">
   <SpecPar name="BeamPipe">
-    <PartSelector path="//BeamTube1" />
+    <PartSelector path="//BEAM" />
     <Parameter name="CMSCutsRegion" value="BeamPipe" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>

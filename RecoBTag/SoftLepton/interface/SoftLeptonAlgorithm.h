@@ -16,7 +16,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLeptonAlgorithm.h,v 1.4 2006/12/07 02:53:40 fwyzard Exp $
+// $Id: SoftLeptonAlgorithm.h,v 1.6 2007/03/07 23:40:54 fwyzard Exp $
 //
 
 #include <utility>
@@ -70,24 +70,6 @@ public:
       const reco::JetTracksAssociationRef & jetTracks, 
       const reco::Vertex                  & primaryVertex,
       const reco::TrackRefVector          & leptons
-  );
-    
-  // specialized interface, using a MuonCollection;
-  // assumes that the global muon tracks come from the same product
-  std::pair < reco::JetTag, reco::SoftLeptonTagInfo > 
-  tag( 
-      const reco::JetTracksAssociationRef & jetTracks, 
-      const reco::Vertex                  & primaryVertex,
-      const reco::MuonCollection          & leptons
-  );
-    
-  // specialized interface, using an ElectronCollection;
-  // assumes that the electron tracks come from the same product
-  std::pair < reco::JetTag, reco::SoftLeptonTagInfo > 
-  tag( 
-      const reco::JetTracksAssociationRef & jetTracks, 
-      const reco::Vertex                  & primaryVertex,
-      const reco::ElectronCollection      & leptons
   );
     
 private:

@@ -1,19 +1,19 @@
 #ifndef GlobalTrigger_L1GlobalTriggerEsumsTemplate_h 
 #define GlobalTrigger_L1GlobalTriggerEsumsTemplate_h
+
 /**
  * \class L1GlobalTriggerEsumsTemplate
  * 
  * 
- * 
- * Description: 
- * Implementation: Single particle chip: energy sums conditions
+ * Description: Single particle chip: energy sums conditions.  
+ *
+ * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: M.Eder               - HEPHY Vienna - ORCA version 
- * \author: Vasile Mihai Ghete   - HEPHY Vienna - CMSSW version 
+ * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date$
- * $Revision$
+ * $Date:$
+ * $Revision:$
  *
  */
 

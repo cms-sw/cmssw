@@ -1,12 +1,11 @@
 #include "DQM/SiStripCommissioningSources/interface/PedestalsTask.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripHistoNamingScheme.h"
+#include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
-using namespace std;
 using namespace sistrip;
 
 // -----------------------------------------------------------------------------
@@ -36,8 +35,8 @@ void PedestalsTask::book() {
   LogTrace(mlDqmSource_) << "[PedestalsTask::" << __func__ << "]";
   
   uint16_t nbins;
-  string title;
-  string extra_info;
+  std::string title;
+  std::string extra_info;
 
   // Pedestals and noise histograms
   peds_.resize(2);
@@ -48,13 +47,13 @@ void PedestalsTask::book() {
     else if ( ihisto == 1 ) { extra_info = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
     else { /**/ }
     
-    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::PEDESTALS, 
-							      sistrip::FED_KEY, 
-							      fedKey(),
-							      sistrip::LLD_CHAN, 
-							      connection().lldChannel(),
-							      extra_info ) );
-    
+    title = SiStripHistoTitle( sistrip::PEDESTALS, 
+			       sistrip::FED_KEY, 
+			       fedKey(),
+			       sistrip::LLD_CHAN, 
+			       connection().lldChannel(),
+			       extra_info ).title();
+  
     peds_[ihisto].histo_ = dqm()->bookProfile( title, title, 
 					       nbins, -0.5, nbins*1.-0.5,
 					       1025, 0., 1025. );
@@ -69,14 +68,14 @@ void PedestalsTask::book() {
   cm_.resize(2);
   nbins = 1024;
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) { 
-
-    title = SiStripHistoNamingScheme::histoTitle( HistoTitle( sistrip::PEDESTALS, 
-							      sistrip::FED_KEY, 
-							      fedKey(),
-							      sistrip::APV, 
-							      connection().i2cAddr(iapv),
-							      sistrip::commonMode_ ) );
-
+    
+    title = SiStripHistoTitle( sistrip::PEDESTALS, 
+			       sistrip::FED_KEY, 
+			       fedKey(),
+			       sistrip::APV, 
+			       connection().i2cAddr(iapv),
+			       sistrip::commonMode_ ).title();
+    
     cm_[iapv].histo_ = dqm()->book1D( title, title, nbins, -0.5, nbins*1.-0.5 );
     cm_[iapv].isProfile_ = false;
     
@@ -106,10 +105,10 @@ void PedestalsTask::fill( const SiStripEventSummary& summary,
 
   //@@ Inefficient!!!
   uint16_t napvs = nbins / 128;
-  vector<uint16_t> cm; cm.resize(napvs,0);
+  std::vector<uint16_t> cm; cm.resize(napvs,0);
   
   // Calc common mode for both APVs
-  vector<uint16_t> adc;
+  std::vector<uint16_t> adc;
   for ( uint16_t iapv = 0; iapv < napvs; iapv++ ) { 
     adc.clear(); adc.reserve(128);
     for ( uint16_t ibin = 0; ibin < 128; ibin++ ) { 

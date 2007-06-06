@@ -1,6 +1,6 @@
 /** \class EgammaHLTEcalIsolFilter
  *
- * $Id: HLTEgammaEcalIsolFilter.cc,v 1.1 2007/01/26 10:37:17 monicava Exp $
+ * $Id: HLTEgammaEcalIsolFilter.cc,v 1.3 2007/03/07 10:44:05 monicava Exp $
  * 
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaEcalIsolFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"
@@ -27,8 +27,10 @@ HLTEgammaEcalIsolFilter::HLTEgammaEcalIsolFilter(const edm::ParameterSet& iConfi
 {
   candTag_ = iConfig.getParameter< edm::InputTag > ("candTag");
   isoTag_ = iConfig.getParameter< edm::InputTag > ("isoTag");
+  nonIsoTag_ = iConfig.getParameter< edm::InputTag > ("nonIsoTag");
   ecalisolcut_  = iConfig.getParameter<double> ("ecalisolcut");
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
+  doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
    //register your products
    produces<reco::HLTFilterObjectWithRefs>();
@@ -54,18 +56,33 @@ HLTEgammaEcalIsolFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<reco::RecoEcalCandidateIsolationMap> depMap;
   iEvent.getByLabel (isoTag_,depMap);
   
+  //get hold of ecal isolation association map
+  edm::Handle<reco::RecoEcalCandidateIsolationMap> depNonIsoMap;
+  if(!doIsolated_) iEvent.getByLabel (nonIsoTag_,depNonIsoMap);
+  
   // look at all egammas,  check cuts and add to filter object
   int n = 0;
   
   for (unsigned int i=0; i<recoecalcands->size(); i++) {
     
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter i "<<i<<" "<<std::endl;
     candref = recoecalcands->getParticleRef(i);
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter 1 "<<std::endl;
     
     reco::RecoEcalCandidateRef recr = candref.castTo<reco::RecoEcalCandidateRef>();
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter 11 "<<std::endl;
     
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter recr "<<recr<<" "<<std::endl;
     reco::RecoEcalCandidateIsolationMap::const_iterator mapi = (*depMap).find( recr );
-    
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter 12 "<<std::endl;
+    if(mapi==(*depMap).end()) {
+      if(!doIsolated_) mapi = (*depNonIsoMap).find( recr ); 
+      //std::cout<<"MARCO HLTEgammaEcalIsolFilter 100 "<<std::endl;
+    }
+    //if(!mapi)  
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter 1000 "<<std::endl;
     float vali = mapi->val;
+    //std::cout<<"MARCO HLTEgammaEcalIsolFilter vali "<<vali<<" "<<std::endl;
     
     if ( vali < ecalisolcut_) {
       n++;

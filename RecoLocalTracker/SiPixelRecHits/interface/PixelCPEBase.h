@@ -49,7 +49,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   inline LocalValues localParameters( const SiPixelCluster & cl, 
 				      const GeomDetUnit    & det ) const 
   {
-    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromDetPosition(cl, det);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -62,7 +61,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				      const GeomDetUnit    & det, 
 				      const LocalTrajectoryParameters & ltp) const 
   {
-    nRecHitsTotal_++ ;
     setTheDet( det );
     computeAnglesFromTrajectory(cl, det, ltp);
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
@@ -75,11 +73,8 @@ class PixelCPEBase : public PixelClusterParameterEstimator
 				      const GeomDetUnit    & det, 
 				      float alpha, float beta) const 
   {
-    nRecHitsTotal_++ ;
     alpha_ = alpha;
     beta_  = beta;
-    cotalpha_ = 1.0/tan(alpha_);
-    cotbeta_  = 1.0/tan(beta_ );
     setTheDet( det );
     return std::make_pair( localPosition(cl,det), localError(cl,det) );
   } 
@@ -127,20 +122,6 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   mutable float cotbeta_;
   //---------------------------
 
-  // Petar, 2/23/07 -- since the sign of the Lorentz shift appears to
-  // be computed *incorrectly* (i.e. there's a bug) we add new variables
-  // so that we can study the effect of the bug.
-  mutable LocalVector driftDirection_;  // drift direction cached // &&&
-  mutable double lorentzShiftX_;   // a FULL shift, not 1/2 like theLShiftX!
-  mutable double lorentzShiftY_;   // a FULL shift, not 1/2 like theLShiftY!
-  mutable double lorentzShiftInCmX_;   // a FULL shift, in cm
-  mutable double lorentzShiftInCmY_;   // a FULL shift, in cm
-
-  //--- Counters
-  mutable int    nRecHitsTotal_ ;
-  mutable int    nRecHitsUsedEdge_ ;
-
-
   //--- Global quantities
   mutable float theTanLorentzAnglePerTesla;   // tan(Lorentz angle)/Tesla
   int     theVerboseLevel;                    // algorithm's verbosity
@@ -171,9 +152,7 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   void computeAnglesFromTrajectory (const SiPixelCluster & cl,
 				    const GeomDetUnit    & det, 
 				    const LocalTrajectoryParameters & ltp) const;
-  LocalVector driftDirection       ( GlobalVector bfield ) const ; //wrong sign
-  LocalVector driftDirectionCorrect( GlobalVector bfield ) const ;
-  void computeLorentzShifts() const ;
+  LocalVector driftDirection( GlobalVector bfield ) const ;
 
   bool isFlipped() const;              // is the det flipped or not?
 

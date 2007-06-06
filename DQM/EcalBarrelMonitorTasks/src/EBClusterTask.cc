@@ -1,8 +1,8 @@
 /*
  * \file EBClusterTask.cc
  *
- * $Date: 2007/02/01 15:43:57 $
- * $Revision: 1.8 $
+ * $Date: 2006/11/03 10:07:17 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -79,10 +79,10 @@ void EBClusterTask::setup(void){
     meBCry_ = dbe->book1D(histo, histo, 100, 0., 100.);
 
     sprintf(histo, "EBCLT basic cluster energy map");
-    meBEneMap_ = dbe->bookProfile2D(histo, histo, 360, 0., 2*M_PI, 170, -1.479, 1.479, 100, 0., 500., "s");
+    meBEneMap_ = dbe->bookProfile2D(histo, histo, 170, -1.479, 1.479, 360, 0., 2*M_PI, 100, 0., 500., "s");
 
     sprintf(histo, "EBCLT basic cluster number map");
-    meBNumMap_ = dbe->book2D(histo, histo, 360, 0., 2*M_PI, 170, -1.479, 1.479);
+    meBNumMap_ = dbe->book2D(histo, histo, 170, -1.479, 1.479, 360, 0., 2*M_PI);
 
     sprintf(histo, "EBCLT super cluster energy");
     meSEne_ = dbe->book1D(histo, histo, 100, 0., 500.);
@@ -180,8 +180,8 @@ void EBClusterTask::analyze(const Event& e, const EventSetup& c){
       meBEne_->Fill(bcluster.energy());
       meBCry_->Fill(float(bcluster.getHitsByDetId().size()));
 
-      meBEneMap_->Fill(bcluster.phi(), bcluster.eta(), bcluster.energy());
-      meBNumMap_->Fill(bcluster.phi(), bcluster.eta());
+      meBEneMap_->Fill(bcluster.eta(), bcluster.phi(), bcluster.energy());
+      meBNumMap_->Fill(bcluster.eta(), bcluster.phi());
 
     }
 

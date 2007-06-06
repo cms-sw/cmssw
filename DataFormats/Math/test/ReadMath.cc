@@ -1,6 +1,6 @@
 #include "DataFormats/Math/test/ReadMath.h"
 #include "DataFormats/Math/interface/Vector3D.h"
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <vector>

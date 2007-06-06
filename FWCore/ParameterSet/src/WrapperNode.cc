@@ -18,6 +18,16 @@ namespace edm {
     string WrapperNode::type() const { return type_; }
 
 
+    Node * WrapperNode::clone() const 
+    {
+       // deep-copy wrapped
+       WrapperNode * newNode = new WrapperNode(*this);
+       newNode->wrapped_ = NodePtr( wrapped_->clone() );
+       newNode->wrapped_->setParent(newNode);
+       return newNode;
+    }
+
+
     bool WrapperNode::findChild(const std::string & childName, NodePtr & result)
     {
       bool found = false;

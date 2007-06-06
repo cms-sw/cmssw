@@ -8,9 +8,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Tue Oct  3 23:51:34 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/02/05 19:09:04 $
-// $Revision: 1.1 $
+// $Author: noeding $
+// $Date: 2007/02/23 00:20:30 $
+// $Revision: 1.2 $
 //
 
 #include <iostream>
@@ -31,13 +31,13 @@
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
-#include "Geometry/Vector/interface/LocalPoint.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/Topology.h"
-#include "Geometry/Surface/interface/TrapezoidalPlaneBounds.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 
 RingMaker::RingMaker(const TrackerGeometry *tracker,
 		     std::string configuration) 

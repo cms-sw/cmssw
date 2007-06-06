@@ -4,18 +4,17 @@
 
 bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
   // put in SiStripApvGain of DetId
-
-  RegistryIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),static_cast<int32_t>(DetId));
-  if (p!=v_detids.end() && *p==(int)DetId){
+  RegistryIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),DetId);
+  if (p!=v_detids.end() && *p==DetId){
     edm::LogError("SiStripApvGain") << "[" << __PRETTY_FUNCTION__ << "] SiStripApvGain for DetID " << DetId << " is already stored. Skippig this put" << std::endl;
     return false;
   }
  
-  int sd= input.second-input.first; 
-  int pd= p-v_detids.begin();
+  unsigned int sd= input.second-input.first; 
+  unsigned int pd= p-v_detids.begin();
 
-  int ibegin=v_gains.size();
-  int iend  =v_gains.size()+sd;
+  unsigned int ibegin=v_gains.size();
+  unsigned int iend  =v_gains.size()+sd;
   v_detids.insert(p,DetId);
   v_ibegin.insert(v_ibegin.begin()+pd,ibegin);
   v_iend.insert(v_iend.begin()+pd,iend);
@@ -26,14 +25,13 @@ bool SiStripApvGain::put(const uint32_t& DetId, Range input) {
 
 const SiStripApvGain::Range SiStripApvGain::getRange(const uint32_t& DetId) const {
   // get SiStripApvGain Range of DetId
-  
-  RegistryConstIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),static_cast<int32_t>(DetId));
-  if (p==v_detids.end() || *p!=(int)DetId) 
+  RegistryConstIterator p = std::lower_bound(v_detids.begin(),v_detids.end(),DetId);
+  if (p==v_detids.end() || *p!=DetId) 
     return SiStripApvGain::Range(v_gains.end(),v_gains.end()); 
   else{ 
-    int pd= p-v_detids.begin();
-    int ibegin = *(v_ibegin.begin()+pd);
-    int iend   = *(v_iend.begin()+pd);    
+    unsigned int pd= p-v_detids.begin();
+    unsigned int ibegin = *(v_ibegin.begin()+pd);
+    unsigned int iend   = *(v_iend.begin()+pd);    
     return SiStripApvGain::Range(v_gains.begin()+ibegin,v_gains.begin()+iend);
   }
 }
@@ -51,7 +49,10 @@ float SiStripApvGain::getStripGain(const uint16_t& strip, const Range& range) co
       << "[SiStripApvGain::getApvGain] looking for SiStripApvGain for a strip out of range: strip " << strip << " apv " << apv << std::endl;
   }
   
-  return static_cast<float> (*(range.first+apv));
+  //  return static_cast<float> (*(range.first+apv));
+
+  return *(range.first+apv);
+
 }
 
 float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const {
@@ -60,6 +61,8 @@ float SiStripApvGain::getApvGain(const uint16_t& apv, const Range& range) const 
       << "[SiStripApvGain::getApvGain] looking for SiStripApvGain for an apv out of range: apv " << apv << std::endl;
   }
   
-  return static_cast<float> (*(range.first+apv));
+  //  return static_cast<float> (*(range.first+apv));
+
+  return *(range.first+apv);
 }
 

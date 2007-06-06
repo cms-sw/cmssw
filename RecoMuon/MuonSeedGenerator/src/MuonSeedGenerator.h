@@ -4,8 +4,8 @@
 /** \class MuonSeedGenerator
  *  No description available.
  *
- *  $Date: 2006/08/01 15:53:04 $
- *  $Revision: 1.5 $
+ *  $Date: 2006/11/13 08:55:24 $
+ *  $Revision: 1.6 $
  *  \author R. Bellan - INFN Torino
  */
 
@@ -39,7 +39,8 @@ class MuonSeedGenerator: public edm::EDProducer {
  private:
   void complete(MuonSeedFinder& seed, MuonTransientTrackingRecHit::MuonRecHitContainer &recHits, bool* used=0) const;
   void checkAndFill(MuonSeedFinder& Theseed, const edm::EventSetup& eSetup);
-
+  void fill(MuonSeedFinder& theSeed, const edm::EventSetup& eSetup);
+  
   // FIXME: change in OwnVector?
   std::vector<TrajectorySeed> theSeeds;
 

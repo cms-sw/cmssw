@@ -3,6 +3,7 @@
 #include "CondFormats/RPCObjects/interface/ChamberLocationSpec.h"
 
 #include "CondFormats/RPCObjects/interface/FebConnectorSpec.h"
+#include "CondFormats/RPCObjects/interface/L1RPCConfig.h"
 namespace{
   std::vector<ChamberStripSpec> theStrips;
 }
