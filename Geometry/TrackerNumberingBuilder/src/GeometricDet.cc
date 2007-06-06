@@ -92,9 +92,17 @@ void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
   if (isLeaf())
     cont.push_back(const_cast<GeometricDet*>(this));
   else 
-    std::for_each(_container.begin(),_container.end(), 
-		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont))
-		  );
+    {
+      for (GeometricDetContainer::const_iterator it = _container.begin();
+	   it != _container.end(); it++){
+	GeometricDetContainer _temp2;  (**it).deepComponents(_temp2);
+	std::copy(_temp2.begin(), _temp2.end(), back_inserter(cont));
+      }
+    }
+    
+  //std::for_each(_container.begin(),_container.end(), 
+  //		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont))
+  //		  );
 }
 
 
