@@ -10,28 +10,28 @@
 
 #include "EventFilter/Playback/interface/PlaybackRawDataProvider.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
-#include "toolbox/include/toolbox/mem/HeapAllocator.h"
-#include "toolbox/include/toolbox/mem/MemoryPoolFactory.h"
-#include "toolbox/include/toolbox/net/URN.h"
-#include "toolbox/include/toolbox/fsm/exception/Exception.h"
+#include "toolbox/mem/HeapAllocator.h"
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/net/URN.h"
+#include "toolbox/fsm/exception/Exception.h"
 
-#include "xdata/include/xdata/InfoSpace.h"
-#include "xdata/include/xdata/UnsignedInteger32.h"
-#include "xdata/include/xdata/Double.h"
-#include "xdata/include/xdata/Boolean.h"
-#include "xdata/include/xdata/String.h"
+#include "xdata/InfoSpace.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/Double.h"
+#include "xdata/Boolean.h"
+#include "xdata/String.h"
 
-#include "interface/evb/include/i2oEVBMsgs.h"
-#include "interface/shared/include/i2oXFunctionCodes.h"
+#include "interface/evb/i2oEVBMsgs.h"
+#include "interface/shared/i2oXFunctionCodes.h"
 
-#include "interface/shared/include/frl_header.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/frl_header.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 
-#include "i2o/include/i2o/Method.h"
-#include "i2o/utils/include/i2o/utils/AddressMap.h"
+#include "i2o/Method.h"
+#include "i2o/utils/AddressMap.h"
 
 #include "CLHEP/Random/RandGauss.h"
 

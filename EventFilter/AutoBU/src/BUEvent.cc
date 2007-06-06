@@ -11,8 +11,8 @@
 #include <assert.h>
 #include "EventFilter/Utilities/interface/Crc.h"
 
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 
 #include <iostream>
 #include <iomanip>

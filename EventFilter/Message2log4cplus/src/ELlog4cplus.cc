@@ -18,7 +18,7 @@
 #include "log4cplus/fileappender.h"
 #include "log4cplus/loglevel.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
 // Possible Traces:
 // #define ELoutputCONSTRUCTOR_TRACE

@@ -15,9 +15,9 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
 
 
 #include <netinet/in.h>
