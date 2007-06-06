@@ -81,7 +81,7 @@ namespace reco {
     //                               NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));   
    
     //default discriminator, computed with the parameters taken from the RecoTauTag/PFCombinedTauTag/data/ .cfi files
-    double discriminator()const{return discriminator_;}
+    float discriminator()const{return discriminator_;}
     void setdiscriminator(double x){discriminator_=x;}
     
     bool selectedByPFChargedHadrCands()const{return(candidate_selectedByPFChargedHadrCands_);}

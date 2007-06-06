@@ -27,7 +27,7 @@ namespace reco {
     
     void setTagInfo(const edm::RefToBase<BaseTagInfo> & ref) { m_tagInfo = ref; }
 
-    double                      discriminator(void) const { return m_discriminator; }  
+    float                       discriminator(void) const { return m_discriminator; }  
     edm::RefToBase<BaseTagInfo> tagInfoRef(void)    const { return m_tagInfo; }
     edm::RefToBase<Jet>         jet(void)           const { return m_tagInfo->jet(); }
     TrackRefVector              tracks(void)        const { return m_tagInfo->tracks(); }
