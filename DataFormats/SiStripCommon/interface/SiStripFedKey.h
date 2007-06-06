@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.h,v 1.7 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.h,v 1.8 2007/05/24 15:27:15 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripFedKey_H
 #define DataFormats_SiStripCommon_SiStripFedKey_H
@@ -145,7 +145,7 @@ class SiStripFedKey : public SiStripKey {
       sistrip::Granularity is "undefined", returns true.  */
   bool isInvalid( const sistrip::Granularity& ) const;
   
- private: 
+ public: //@@ should be private! 
   
   // ---------- Private methods ----------
 
