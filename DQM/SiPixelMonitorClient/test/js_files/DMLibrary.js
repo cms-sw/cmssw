@@ -8,42 +8,38 @@
 
 function DM_TraceWindow(fileCaller,functionCaller,msg)
 {
- var leftW  = top.left.theTraceWindow ;
- var rightW = top.right.theTraceWindow ;
-
- if( !leftW && !rightW) 
+ var theTtop   = 780 ;
+ var theLeft   = 500 ;
+ var theWidth  = 800 ;
+ var theHeight = 350 ;
+ 
+ var theTraceWindow = parent.theTraceWindow ;
+ 
+ if( !theTraceWindow )
  {
-  DM_OpenWindow() ;
+  theTraceWindow = DM_OpenWindow(theTtop,theLeft,theWidth,theHeight) ; 
+ } else if( theTraceWindow.closed ) {
+  theTraceWindow = DM_OpenWindow(theTtop,theLeft,theWidth,theHeight) ; 
  }
  
- if( leftW )
- {
-  theTraceWindow = leftW ;
- }
- if( rightW )
- {
-  theTraceWindow = rightW ;
- }
-
- if( !theTraceWindow || theTraceWindow.closed )
- {
-  DM_OpenWindow() ; // If the user has closed the window, reopen it
- } 
-
  if( typeof msg == "undefined" ) msg = "" ;
 
  var newMsg = DM_FormatMsg(fileCaller,functionCaller,msg) ;
  
  DM_WriteWindow(theTraceWindow, newMsg) ;
  
- top.left.theTraceWindow = theTraceWindow ;
-
- return theTraceWindow ;
+ parent.theTraceWindow   = theTraceWindow ;
+ 
+ theTraceWindow.onresize = resizer ;
 }
 
 //=========================================================================
-function DM_OpenWindow()
+function resizer()
 {
+}
+//=========================================================================
+function DM_OpenWindow(Top,Left,Width,Height)
+{  
   theTraceWindow = window.open("", 
   			       "theTraceWindow", 
   			       "menubar   = no,  " +
@@ -52,10 +48,10 @@ function DM_OpenWindow()
 			       "scrollbars= yes, " +
 			       "titlebar  = yes, " +
 			       "status    = yes, " +
-			       "left      =  10, " +
-			       "top       =  10, " +
-			       "height    = 250, " +
-			       "width     = 610  ");
+			       "left      = "      + Left   + ", " +
+			       "top       = "      + Top    + ", " +
+			       "height    = "      + Height + ", " +
+			       "width     = "      + Width );
 
   theTraceWindow.document.write("<html>                                                      ");
   theTraceWindow.document.write(" <head>                                                     ");
@@ -104,8 +100,8 @@ function DM_OpenWindow()
   theTraceWindow.document.write("   function defaultTraceRegion()                            ");
   theTraceWindow.document.write("   {                                                        ");
   theTraceWindow.document.write("    var theTracer= document.getElementById('traceRegion');  ");
-  theTraceWindow.document.write("    theTracer.setAttribute('rows',11);                      ");
-  theTraceWindow.document.write("    theTracer.setAttribute('cols',80);                      ");
+  theTraceWindow.document.write("    theTracer.setAttribute('rows',19);                      ");
+  theTraceWindow.document.write("    theTracer.setAttribute('cols',125);                     ");
   theTraceWindow.document.write("   }                                                        ");
   theTraceWindow.document.write("  </script>                                                 ");
   theTraceWindow.document.write("  <title>                                                   ");
@@ -144,13 +140,16 @@ function DM_OpenWindow()
   theTraceWindow.document.write("  <textarea id      = 'traceRegion'			     ");
   theTraceWindow.document.write("  	     class   = 'traceRegion'			     ");
   theTraceWindow.document.write("  	     name    = 'abstract'			     ");
-  theTraceWindow.document.write("  	     rows    = '11'				     ");
-  theTraceWindow.document.write("  	     cols    = '80'></textarea> 		     ");
+  theTraceWindow.document.write("  	     rows    = '19'				     ");
+  theTraceWindow.document.write("  	     cols    = '125'></textarea> 		     ");
   theTraceWindow.document.write(" </body>   						     ");
   theTraceWindow.document.write("</html>    						     ");
   theTraceWindow.document.close();
 
-  theTraceWindow.moveTo(0,860) ;
+  theTraceWindow.moveTo(   Left,    Top) ;
+  theTraceWindow.resizeTo(Width, Height) ;
+  
+  return theTraceWindow ;
 }
 //=========================================================================
 function DM_FormatMsg(fileCaller,functionCaller,msg)

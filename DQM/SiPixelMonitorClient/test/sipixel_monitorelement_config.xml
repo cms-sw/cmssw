@@ -1,6 +1,7 @@
 <MonElementConfiguration> 
 <TkMap name="Summary Map" update_frequency="200">
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
      <MonElement name="col"></MonElement> 
      <MonElement name="row"></MonElement> 
@@ -8,10 +9,12 @@
 <SummaryPlot>
 <SubStructureBarrelLevel name="Ladder_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
 </SubStructureBarrelLevel> 
 <SubStructureEndcapLevel name="Panel_" update_frequency="300"> 
      <MonElement name="ndigis"></MonElement> 
+     <MonElement name="hitmap"></MonElement> 
      <MonElement name="adc"></MonElement> 
 </SubStructureEndcapLevel> 
 </SummaryPlot>

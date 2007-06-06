@@ -1,108 +1,91 @@
-<html>
-<!--
- Author: D. Menasce
- Test widget for the Pixel Tracker Map
--->
-
-<meta http-equiv="pragma" 
-      content   ="no-cache">
-
-<head>
- <link   rel  = "stylesheet" 
-         type = "text/css" 
-	 href = "css_files/wz_dragdrop.css">
- <link   rel  = "stylesheet" 
-         type = "text/css" 
-	 href = "css_files/magnifier.css">
- <script type = "text/javascript"
-         src  = "js_files/magnifier.js">
- </script>
- <script type = "text/javascript" 
-         src  = "js_files/wz_dragdrop.js">
- </script>
- <script type = "text/javascript"
-         src  = "js_files/DMLibrary.js">
- </script>
-
-</head>
-
-<body bgcolor="#414141">
-
- <center>
- 
-  <div   id	     = "binding"
-  	 name	     = "bindingOne">
-   <img  id	     = "baseImage1"
-  	 name	     = "baseImage1"
-  	 src	     = "images/EmptyPlot.png"
-  	 alt	     = "picture geometry:748x566"
-  	 onload      = "innerLoading('bindingOne','baseImage1')"
-  	 onclick     = "innerTransport(event)"
-	 onmouseover = "this.T_SHADOWWIDTH=4; 
-	 		this.T_OPACITY    =70;
-	     		this.T_FONTCOLOR  ='#000000';
-	     		this.T_WIDTH	  =200;
-	     		return escape('Click to send to pan/zoom area')"
-  	 width       = "250" 
-  	 height      = "180" />
-  </div>
-  <div   id	     = "binding"
-  	 name	     = "bindingTwo">
-   <img  id	     = "baseImage2"
-  	 name	     = "baseImage2"
-  	 src	     = "images/EmptyPlot.png"
-  	 alt	     = "picture geometry:748x566"
-  	 onload      = "innerLoading('bindingTwo','baseImage2')"
-  	 onclick     = "innerTransport(event)"
-	 onmouseover = "this.T_SHADOWWIDTH=4; 
-	 		this.T_OPACITY    =70;
-	     		this.T_FONTCOLOR  ='#000000';
-	     		this.T_WIDTH	  =200;
-	     		return escape('Click to send to pan/zoom area')"
-  	 width       = "250" 
-  	 height      = "180" />
-  </div>
-  <div   id	     = "binding"
-  	 name	     = "bindingThree">
-   <img  id	     = "baseImage3"
-  	 name	     = "baseImage3"
-  	 src	     = "images/EmptyPlot.png"
-  	 alt	     = "picture geometry:748x566"
-  	 onload      = "innerLoading('bindingThree','baseImage3')"
-  	 onclick     = "innerTransport(event)"
-	 onmouseover = "this.T_SHADOWWIDTH=4; 
-	 		this.T_OPACITY    =70;
-	     		this.T_FONTCOLOR  ='#000000';
-	     		this.T_WIDTH	  =200;
-	     		return escape('Click to send to pan/zoom area')"
-  	 width       = "250" 
-  	 height      = "180" />
-  </div>
-  <div   id	     = "binding"
-  	 name	     = "bindingFour">
-   <img  id	     = "baseImage4"
-  	 name	     = "baseImage4"
-  	 src	     = "images/EmptyPlot.png"
-  	 alt	     = "picture geometry:748x566"
-  	 onload      = "innerLoading('bindingFour','baseImage4')"
-  	 onclick     = "innerTransport(event)"
-	 onmouseover = "this.T_SHADOWWIDTH=4; 
-	 		this.T_OPACITY    =70;
-	     		this.T_FONTCOLOR  ='#000000';
-	     		this.T_WIDTH	  =200;
-	     		return escape('Click to send to pan/zoom area')"
-  	 width       = "250" 
-  	 height      = "180" />
-  </div>
-
- </center>
-
- <script type = "text/javascript"
-         src  = "js_files/rightEmbedded.js">
- </script>
-
- <script type="text/javascript" 
-   	 src ="js_files/wz_tooltip.js">
- </script>
-
-</html>
+<html>					    				   
+<!--									   
+ Author: D. Menasce							   
+ Test widget for the Pixel Tracker Map 				   
+-->									   
+									   
+<meta http-equiv='pragma'						   
+      content   ='no-cache'>						   
+									   
+<head> 								   
+ <link   rel  = 'stylesheet'						   
+	  type = 'text/css'						   
+	  href = 'css_files/wz_dragdrop.css>'				   
+ <link   rel  = 'stylesheet'						   
+	  type = 'text/css'						   
+	  href = 'css_files/magnifier.css'>				   
+ <script type = 'text/javascript'					   
+	  src  = 'js_files/magnifier.js'>				   
+ </script>								   
+ <script type = 'text/javascript'					   
+	  src  = 'js_files/wz_dragdrop.js'>				   
+ </script>								   
+ <script type = 'text/javascript'					   
+	  src  = 'js_files/DMLibrary.js'>				   
+ </script>								   
+									   
+</head>								   
+									   
+<body bgcolor='#414141'>						   
+									   
+ <center>								   
+									   
+  <div   id	        = 'binding'					      
+         name        = 'binding1'> 				      
+   <img  id  	= 'baseImage1'  				      
+	    name	= 'baseImage1'  				      
+	    src 	= 'images/EmptyPlot.png'			      
+	    alt 	= 'picture geometry:1600x1200'			      
+	    onload	= 'innerLoading("binding1","baseImage1")'
+	    onclick	= 'innerTransport(event)'			      
+	    onmouseover = 'this.T_SHADOWWIDTH=4;			      
+			   this.T_OPACITY    =70;			      
+			   this.T_FONTCOLOR  ="#000000";		      
+			   this.T_WIDTH      =200;			      
+			   return escape("Click to send to pan/zoom area")' 
+	    width	= '267' 					      
+	    height	= '200' />					      
+  </div>								      
+  <div   id	        = 'binding'					      
+         name        = 'binding2'> 				      
+   <img  id  	= 'baseImage2'  				      
+	    name	= 'baseImage2'  				      
+	    src 	= 'images/EmptyPlot.png'			      
+	    alt 	= 'picture geometry:1600x1200'			      
+	    onload	= 'innerLoading("binding2","baseImage2")'
+	    onclick	= 'innerTransport(event)'			      
+	    onmouseover = 'this.T_SHADOWWIDTH=4;			      
+			   this.T_OPACITY    =70;			      
+			   this.T_FONTCOLOR  ="#000000";		      
+			   this.T_WIDTH      =200;			      
+			   return escape("Click to send to pan/zoom area")' 
+	    width	= '267' 					      
+	    height	= '200' />					      
+  </div>								      
+  <div   id	        = 'binding'					      
+         name        = 'binding3'> 				      
+   <img  id  	= 'baseImage3'  				      
+	    name	= 'baseImage3'  				      
+	    src 	= 'images/EmptyPlot.png'			      
+	    alt 	= 'picture geometry:1600x1200'			      
+	    onload	= 'innerLoading("binding3","baseImage3")'
+	    onclick	= 'innerTransport(event)'			      
+	    onmouseover = 'this.T_SHADOWWIDTH=4;			      
+			   this.T_OPACITY    =70;			      
+			   this.T_FONTCOLOR  ="#000000";		      
+			   this.T_WIDTH      =200;			      
+			   return escape("Click to send to pan/zoom area")' 
+	    width	= '267' 					      
+	    height	= '200' />					      
+  </div>								      
+  									   
+</center>								   
+									   
+<script type = 'text/javascript'					   
+	 src  = 'js_files/rightEmbedded.js'>				   
+</script>								   
+									   
+<script type='text/javascript' 					   
+	 src ='js_files/wz_tooltip.js'> 				   
+</script>								   
+</html>								   

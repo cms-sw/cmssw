@@ -1,4 +1,4 @@
- var thisFile        = "svgmap.js" ;
+ var thisFile        = ".svgmap.js" ;
  var theZoomAmount   = 1.05 ;
  var theStepAmount   = 25 ;
  var zoomAmount      = theZoomAmount ;
@@ -11,50 +11,91 @@
  var oldPosX         = 0 ;
  var oldPosY         = 0 ;
  var panning         = 0 ;
+ var gotResponse     = 0 ;
  var timeOutHandle ;
 
- var plots = new Array("images/Bump_Bonds_A_Test_Chip_0_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_1_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_2_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_3_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_4_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_5_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_6_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_7_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_8_Distribution_2D.png",
- 		       "images/Bump_Bonds_A_Test_Chip_9_Distribution_2D.png",
-        	       "images/picture.jpg",
- 		       "images/SCurve_Chip_0_Row_0_Col_0.png",
- 		       "images/SCurve_Chip_1_Row_1_Col_1.png",
- 		       "images/SCurve_Chip_2_Row_2_Col_2.png",
- 		       "images/SCurve_Chip_3_Row_3_Col_3.png",
- 		       "images/SCurve_Chip_4_Row_4_Col_4.png",
- 		       "images/SCurve_Chip_5_Row_5_Col_5.png",
- 		       "images/SCurve_Chip_6_Row_6_Col_6.png",
- 		       "images/SCurve_Chip_7_Row_7_Col_7.png",
- 		       "images/SCurve_Chip_8_Row_8_Col_8.png",
-        	       "images/SCurve_Chip_9_Row_9_Col_9.png"
- 		      ) ;
- var plotsGeometry = new Array("1596x1172", "1596x1172", "1596x1172", "1596x1172", "1596x1172", 
- 			       "1596x1172", "1596x1172", "1596x1172", "1596x1172", "1596x1172",
-        		       "3648x2565",
-        		       "1596x1172", "1596x1172", "1596x1172", "1596x1172", "1596x1172", 
- 			       "1596x1172", "1596x1172", "1596x1172", "1596x1172", "1596x1172" 
- 			      ) ;
- 
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function init()
  {
-  DM_TraceWindow(thisFile,arguments.callee.name,"Initializer()") ;
-  theClipArea     = document.getElementById("clipArea") ;
-  theViewText     = document.getElementById("currentViewText") ;
-  theElementText  = document.getElementById("currentElementText") ;
-  theSelectedText = document.getElementById("selectedElementText") ;
+  theClipArea         = document.getElementById("clipArea") ;
+  theViewText         = document.getElementById("currentViewText") ;
+  theElementText      = document.getElementById("currentElementText") ;
+  theSelectedText     = document.getElementById("selectedElementText") ;
+  var theRefresh      = top.opener.document.getElementById("refreshInterval") ;
+  var refreshInterval = theRefresh.options[theRefresh.selectedIndex].value;
   theClipArea.addEventListener('DOMMouseScroll',  mousescroll_listener, false);
   theClipArea.addEventListener("mousedown",       mousedown_listener,   false);
+  setInterval("updateTrackerMap()",refreshInterval) ;
+//  DM_TraceWindow(thisFile,arguments.callee.name,"Initialized with refresh interval: "+refreshInterval) ;
  }
  
-  //____________________________________________________________________________
+ //____________________________________________________________________________
+ function updateTrackerMap()
+ {
+   DM_TraceWindow(thisFile,arguments.callee.name,"http_request.readyState="+http_request.readyState) ;
+   if( http_request.readyState == 2 ) 
+   {
+    DM_TraceWindow(thisFile,arguments.callee.name,"Still waiting for an answer...") ;
+    return ; // If previous submission got no answer, skip retry
+   }
+//   DM_TraceWindow(thisFile,arguments.callee.name,"Udating...") ;
+   var theMEList   = top.opener.document.getElementById("monitoring_element_list") ;
+   var selME       =  theMEList.options[theMEList.selectedIndex].value;
+   var queryString = "RequestID=periodicTrackerMapUpdate";
+   var url = getApplicationURL2();
+   url    += "/Request?";
+   url    += queryString;   
+   url    += '&MEName='+selME;
+   makeRequest(url, repaintTrackerMap);     
+ }
+ //____________________________________________________________________________
+ function changeRefreshInterval()
+ {
+  var theRefresh      = top.opener.document.getElementById("refreshInterval") ;
+  var refreshInterval = theRefresh.options[theRefresh.selectedIndex].value;
+//  DM_TraceWindow(thisFile,arguments.callee.name,"New refresh interval: "+refreshInterval) ;
+ }
+ //____________________________________________________________________________
+ function repaintTrackerMap()
+ {
+  if (http_request.readyState == 4) 
+  {
+   if (http_request.status == 200) 
+   {
+    try 
+    {
+     var doc  = http_request.responseXML;
+     var root = doc.documentElement;
+     var dets = root.getElementsByTagName("DetInfo") ;
+     for (var i = 0; i < dets.length; i++) 
+     {
+      var detId      = dets[i].getAttribute("DetId") ;
+      var red	     = dets[i].getAttribute("red"  ) ;
+      var green      = dets[i].getAttribute("green") ;
+      var blue       = dets[i].getAttribute("blue" ) ;
+      var thePolygon = document.getElementById(detId) ;
+      var rgb	     = "rgb(" + red + "," + green + "," + blue + ")" ;
+      thePolygon.setAttribute("fill",rgb) ;
+     }
+     var normTag     = root.getElementsByTagName("theLimits") ;
+     var normLow     = parseFloat(normTag[0].getAttribute("normLow" )) ;
+     var normHigh    = parseFloat(normTag[0].getAttribute("normHigh")) ;
+     var deltaNorm   = (normHigh - normLow)/5 ;
+     var tagName     = "colorCodeMark" ;
+     for( var i=5; i>=0; i-- )
+     {
+      tagName = "colorCodeMark" + i ;
+      var markTag = document.getElementById(tagName) ;
+      markTag.textContent = parseInt(i * deltaNorm) ;
+     }
+     gotResponse = 1 ;
+    } catch(error) {
+     alert("[.svgmap.js::repaintTrackerMap()] Error: " + error.message) ;
+    }
+   }
+  }
+ }
+ //_____________________________________________MEName_______________________________
  function mousescroll_listener(evt)
  {
   if (evt.detail) 
@@ -69,7 +110,7 @@
   }
  }
 
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function mousedown_listener(evt)
  {
   panning = 1 ;
@@ -80,7 +121,7 @@
   document.addEventListener("mouseup",   mouseup_listener,   true);
  }
  
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function mousemove_listener(evt)
  {
   var stepTolerance = 1 ;
@@ -110,18 +151,19 @@
   }
  }
  
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function mouseup_listener(evt)
  {
   panning = 0;
   theClipArea.setAttribute("style","cursor: default;");
  }
  
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function showData(evt)
  {
   var xlinkns = "http://www.w3.org/1999/xlink"; 
   var currentMEList = new Array() ;
+  var currentMESrc  = new Array() ;
   where  = evt.currentTarget;
 
   if (evt.type == "click") //   <-----------------------------------------------
@@ -134,35 +176,39 @@
    var theRightInnerFrame         = top.right.frames ;
    var theRightInnerFrameElements = theRightInnerFrame[0].document.getElementsByTagName("div") ;
 
-   var myPoly        = evt.currentTarget;
-   var moduleId      = myPoly.getAttribute("detid"); 
+   var myPoly   = evt.currentTarget;
+   var moduleId = myPoly.getAttribute("detid"); 
    try
    {
+    var destURL;
     var theMEList = top.opener.document.getElementById("monitoring_element_list") ;
+    var selME     =  theMEList.options[theMEList.selectedIndex].value;
+    var destId    = 0 ;
     for( var i=0; i < theMEList.length; i++)
     {
       var myTrackerPlot ;
-      if( i == 0 ) 
+      if( theMEList[i].value == selME ) 
       {
-       myTrackerPlot = top.right.document.getElementById("baseImage0");
+       destURL = "baseImage0" ;
+       myTrackerPlot = top.right.document.getElementById(destURL);
       } else {
-       myTrackerPlot = theRightInnerFrame[0].document.getElementById("baseImage" + i);
+       destURL = "baseImage" + ++destId;
+       myTrackerPlot = theRightInnerFrame[0].document.getElementById(destURL);
       }
-      var url_serv      = "http://lxplus211.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
+      var url_serv      = "http://lxplus213.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
       var queryString   = "RequestID=PlotTkMapHistogram";
       queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
       var url1          = url_serv   + queryString;
       myTrackerPlot.setAttribute("src", url1);
       pausecomp(1000);
-      DM_TraceWindow("svgmap.js",arguments.callee.name,url1) ;
-      queryString       = "RequestID=UpdatePlot&t="+moduleId;
+      queryString       = "RequestID=UpdatePlot" ;
+      queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
-      var url2 = url_serv  + queryString;
+      var url2          = url_serv   + queryString;
       myTrackerPlot.setAttribute("src", url2);  
-      DM_TraceWindow("svgmap.js",arguments.callee.name,"posting into "+"baseImage" + i) ;
-      DM_TraceWindow("svgmap.js",arguments.callee.name,url2) ;
-      currentMEList[0] = "ME: " + theMEList[i].value + " Id: " + moduleId ;
+      currentMEList[i] = "ME: " + theMEList[i].value + " Id: " + moduleId ;
+      currentMESrc[i]  = myTrackerPlot.getAttribute("src") ;
     }
    } catch(error) {
     alert("[svgmap.js::"+arguments.callee.name+"] Fatal: "+error.message) ;
@@ -174,9 +220,9 @@
 
    // Push the list of ME names into the combobox in the right frame
    var theMEListSelectors = top.right.document.forms['MEListForm'].MEListCB ;
-   for( var i=0; i < currentMEList.length - 1; i++)
+   for( var i=0; i < currentMEList.length; i++)
    {
-    theMEListSelectors.options[i] = new Option(currentMEList[i],currentMEList[i]);
+    theMEListSelectors.options[i] = new Option(currentMEList[i],currentMESrc[i]);
    }
   }
 
@@ -192,7 +238,7 @@
   }
  }
 
-  //------------------------------------------------------------------------------------------
+ //------------------------------------------------------------------------------------------
  function pausecomp(millis)
  {
    var inizio = new Date();
@@ -211,10 +257,9 @@
  {
   document.getElementById("spot").setAttribute("points",where.getAttribute("points")) ;
   document.getElementById("spot").setAttribute("fill",color) ;
-  DM_TraceWindow("svgmap.js",arguments.callee.name,"Honoring black dot drawing request...") ;
  }
 
-  //____________________________________________________________________________
+ //____________________________________________________________________________
  function zoomIt(what)
  {
   var vBAtt = theClipArea.getAttribute("viewBox") ;
@@ -287,6 +332,5 @@
        break;
   }
   var newGeo = geo[0]+" "+geo[1]+" "+parseInt(geo[2])+" "+parseInt(geo[3]);
-  DM_TraceWindow(thisFile,arguments.callee.name,newGeo) ;
   theClipArea.setAttribute("viewBox",newGeo) ;  
  }

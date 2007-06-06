@@ -1,5 +1,26 @@
+// -*- C++ -*-
+//
+// Package:    SiPixelMonitorClient
+// Class:      SiPixelTrackerMap
+// 
+/**\class 
+
+ Description: Pixel DQM source used to generate an svgmap.xml file with the topology of 
+ the Pixel Detector (used by web-based clients)
+
+ Implementation:
+     This class inherits from the Common/Tools/TrackerMap.cc and reimplements the methods used 
+     to create a reduced-set map with Pixel Detectors only
+*/
+//
+// Original Author:  Dario Menasce
+//         Created:  
+// $Id: SiPixelTrackerMap.cc,v 1.0 2007/05/18 20:24:44 menasce Exp $
+//
+//
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelTrackerMap.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelContinuousPalette.h"
 #include "CommonTools/TrackerMap/interface/TmModule.h"
 
 #include <qstring.h>
@@ -11,9 +32,10 @@ using namespace std;
 
 SiPixelTrackerMap::SiPixelTrackerMap(string s,int xsize1, int ysize1) : TrackerMap(s,xsize1,ysize1) 
 {
- cout << ACBlue << ACBold
-      << "[SiPixelTrackerMap::SiPixelTrackerMap()]" 
-      << endl ;
+// cout << ACBlue << ACBold
+//      << "[SiPixelTrackerMap::SiPixelTrackerMap()]" 
+//      << endl ;
+  title = s ;
 }
 		  
 void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_total){
@@ -23,7 +45,7 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   double vhbot,vhtop,vhapo;
   double rmedio[]={0.041,0.0701,0.0988,0.255,0.340,0.430,0.520,0.610,0.696,0.782,0.868,0.965,1.080};
   double xt1,yt1,xs1=0.,ys1=0.,xt2,yt2,xs2,ys2,pv1,pv2;
-  int green = 0;
+//  int green = 0;
   double xd[4],yd[4];
   int np = 4;
   //int numrec=0;
@@ -116,10 +138,10 @@ void SiPixelTrackerMap::drawModule(TmModule * mod, int key,int nlay, bool print_
   QString modName = mod->name ;
   if( rx.search(modName) != -1 )
   {
-   *svgfile << "<svg:polygon detid=\"" 
+   *svgfile << "      <svg:polygon detid=\"" 
   	    << mod->idex
   	    << "\" id=\""
-  	    << key
+  	    << mod->idex
   	    << "\" onclick=\"showData(evt);\" onmouseover=\"showData(evt);\" onmouseout=\"showData(evt);\" MESSAGE=\""
   	    << mod->text
   	    << "\" POS=\""
@@ -202,8 +224,63 @@ void SiPixelTrackerMap::print(bool print_total, float minval, float maxval)
     }
   }
 
+  *svgfile << "  " << endl ;
+  *svgfile << "      <svg:g id=\"theColorMap\" transform=\"translate(0, 0)\">" << endl ;
+  int px = 1350 ;
+  int dx =   25 ;
+  int py =   50 ;
+  int dy =    6 ;
+  int  j =    5 ;
+  for( int i=99; i>=0; i--)
+  {
+   *svgfile << "       <svg:polygon id=\"map\" fill=\"rgb("
+            << SiPixelContinuousPalette::r[i]
+	    << ","
+            << SiPixelContinuousPalette::g[i]
+	    << ","
+            << SiPixelContinuousPalette::b[i]
+	    << ")\" points=\""
+	    << px
+	    << ","
+	    << py
+            << " "
+	    << px+dx
+	    << ","
+	    << py
+	    << " "
+	    << px+dx
+	    << ","
+	    << py+dy
+	    << " "
+	    << px
+	    << ","
+	    << py+dy
+	    << "\" />"
+	    << endl ;
+   if( i == 0 || i==20 || i==40 || i==60 || i==80 || i==99) 
+   {
+    *svgfile << "  " << endl ;
+    *svgfile << "       <svg:text id=\"colorCodeMark"
+             << j-- 
+	     << "\" class=\"normalText\" x=\""
+    	     << px+dx+5
+    	     << "\" y=\""
+    	     << py + 3
+    	     << "\" font-size=\"20\">"
+    	     << i
+    	     << "%</svg:text>"
+    	     << endl;
+    *svgfile << "  " << endl ;
+   }
+   py += dy + 1;
+  }
+  *svgfile << "      </svg:g>" << endl ;
+  *svgfile << " " << endl ;
 
-  *svgfile << " <svg:text id=\"Title\" class=\"normalText\"  x=\"100\" y=\"0\">"<<title<<"</svg:text>"<<endl;
+  *svgfile << "      <svg:text id=\"colorCodeME\" class=\"normalText\" x=\"1000\" y=\"4000\">"
+           << title
+	   << "</svg:text>"
+	   << endl;
   delete jsfile ;					  
   jsfile = new ifstream("TrackerMapTrailer.txt",ios::in); 
   while (getline( *jsfile, line ))			  

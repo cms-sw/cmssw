@@ -13,11 +13,18 @@ class SiPixelWebInterface : public WebInterface
 
 public:
 
-  enum SiPixelActionType{NoAction=0, SubscribeAll=1, Summary=2, Collate=3,
-                         setupQTest=4, QTestResult=5, CreateTkMap=6, 
-                         SaveData=7, 
-                         PlotSingleModuleHistos=8, 
-                         PlotSingleHistogram=9, PlotTkMapHistogram=10};
+  enum SiPixelActionType{NoAction     	          =  0,
+                         SubscribeAll 	          =  1,
+			 Summary    	          =  2,
+			 Collate    	          =  3,
+                         setupQTest  	          =  4,
+			 QTestResult 	          =  5,
+			 CreateTkMap 	          =  6,
+                         SaveData     	          =  7,
+                         PlotSingleModuleHistos   =  8,
+                         PlotSingleHistogram      =  9,
+			 PlotTkMapHistogram       = 10,
+			 periodicTrackerMapUpdate = 11};
 
   SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
   ~SiPixelWebInterface();
@@ -35,6 +42,7 @@ public:
   void setActionFlag(SiPixelActionType flag) {theActionFlag = flag;}
    
   bool createTkMap();
+  void periodicTkMapUpdate( xgi::Output * out);
    
 private:
 
@@ -47,6 +55,8 @@ private:
   std::vector<std::string> tkMapOptions_;
   bool tkMapCreated;
   std::multimap<std::string, std::string> requestMap_;
+  xgi::Output * theOut ;
+  
   
 protected:
 

@@ -1,3 +1,10 @@
+/*! \file SiPixelInformationExtractor.cc
+ *
+ *  \brief This class represents ...
+ *  
+ *  (Documentation under development)
+ *  
+ */
 #include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
@@ -15,28 +22,40 @@
 #include "TImage.h"
 #include "TPaveText.h"
 #include "TImageDump.h"
+#include "TRandom.h"
 
 #include <qstring.h>
 #include <qregexp.h>
 
 #include <iostream>
+
+#include <cstdlib> // for free() - Root can allocate with malloc() - sigh...
+ 
 using namespace std;
 
-//
-// -- Constructor
-// 
+//------------------------------------------------------------------------------
+/*! \brief Constructor of the SiPixelInformationExtractor class.
+ *  
+ */
 SiPixelInformationExtractor::SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
 }
-//
-// --  Destructor
-// 
+
+//------------------------------------------------------------------------------
+/*! \brief Destructor of the SiPixelInformationExtractor class.
+ *  
+ */
 SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
   //  if (theCanvas) delete theCanvas;
 }
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
 void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
 //cout<<"entering SiPixelInformationExtractor::createModuleTree..."<<endl;
   string structure_name;
@@ -57,6 +76,11 @@ void SiPixelInformationExtractor::createModuleTree(MonitorUserInterface* mui) {
   configWriter_ = 0;
 //cout<<"leaving SiPixelInformationExtractor::createModuleTree..."<<endl;
 }
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
 void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
                                string dir_name,vector<string>& me_names) {
   //cout<<"entering SiPixelInformationExtractor::fillBarrelList..."<<endl;
@@ -72,7 +96,8 @@ void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
         string tname = sname.substr(8,(sname.find("_",8)-8));
 	if (((*im)).find(tname) == 0) {
 	  string fullpathname = mui->pwd() + "/" + (*im); 
-          MonitorElement* me = getModuleME(mui, fullpathname);
+//          MonitorElement* me = getModuleME(mui, fullpathname); // Unused return pointer ?????
+          getModuleME(mui, fullpathname);                        // Modified by Dario
 	}
       }
     }
@@ -88,6 +113,11 @@ void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
   }
   //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
 void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
                                string dir_name,vector<string>& me_names) {
   //cout<<"entering SiPixelInformationExtractor::fillEndcapList..."<<endl;
@@ -103,7 +133,8 @@ void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
         string tname = sname.substr(8,(sname.find("_",8)-8));
 	if (((*im)).find(tname) == 0) {
 	  string fullpathname = mui->pwd() + "/" + (*im); 
-          MonitorElement* me = getModuleME(mui, fullpathname);
+//          MonitorElement* me = getModuleME(mui, fullpathname); // Unused return pointer ?????
+          getModuleME(mui, fullpathname);                        // Modified by Dario
 	}
       }
     }
@@ -120,9 +151,13 @@ void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
   }
   //cout<<"...leaving SiPixelActionExecutor::fillBarrelSummary!"<<endl;
 }
-//
-// -- Get Summary ME
-//
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ *  Returns a pointer to a ME filtered by me_name from the list of ME in the current directory
+ *  In doing so it clears its content (not sure why...)
+ */
 MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* mui,string me_name) {
 //cout<<"Entering SiPixelInformationExtractor::getModuleME..."<<endl;
   MonitorElement* me = 0;
@@ -143,14 +178,26 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
       }
     }
   }
+  
+  cout  << ACRed << ACBold << ACReverse
+        << "[SiPixelInformationExtractor::getModuleME()]"
+	<< ACPlain << ACYellow << ACBold 
+	<< " Potential bug: "
+	<< ACPlain
+	<< "No module found for "
+	<< me_name
+	<<endl;
+  return NULL;
   //cout<<"...leaving SiPixelInformationExtractor::getModuleME!"<<endl;
 }
 
-
-
-//
-// --  Fill Summary Histo List
-// 
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  Returns a stringstream containing an HTML-formatted list of ME in the current
+ *  directory. 
+ *  This is a recursive method.
+ */
 void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
   static string indent_str = "";
@@ -185,9 +232,14 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
   str_val << "</li> "<< endl;  
 //cout<<"leaving SiPixelInformationExtractor::printSummaryHistoList"<<endl;
 }
-//
-// --  Fill Alarm List
-// 
+
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ *  Returns a stringstream containing an HTML-formatted list of alarms for the current
+ *  directory. 
+ *  This is a recursive method.
+ */
 void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printAlarmList"<<endl;
   static string indent_str = "";
@@ -231,16 +283,24 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
   str_val << "</li> "<< endl;  
 //cout<<"leaving SiPixelInformationExtractor::printAlarmList"<<endl;
 }
-//
-// --  Get Selected Monitor Elements
-// 
-void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface * mui, string mid, vector<string>& names, vector<MonitorElement*>& mes) 
-{
-//cout<<"entering SiPixelInformationExtractor::selectSingleModuleHistos"<<endl;
+
+//------------------------------------------------------------------------------
+/*! \brief Monitor elements extractor. 
+ *
+ *  This method returns a vector of pointers to MonitorElements (mes) satisfying an 
+ *  input filter (names + mid).
+ *  The 'mid'   selector is usually the DetId 
+ *  The 'names' selector is the list of ME names obtained by parsing the appropriate
+ *  xml configuration file (see sipixel_monitorelement_config.xml)
+ *  The method is specialized to siPixel Monitor Elements only
+ *  
+ */
+void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface    * mui,  
+                                                           string                    mid,  
+							   vector<string>          & names,
+							   vector<MonitorElement*> & mes) 
+{  
   string currDir = mui->pwd();
-  //cout<<"currDir="<<currDir<<endl;
-//  if (currDir.find("Module_") != string::npos &&
-//      currDir.find(mid) != string::npos )  {
   QRegExp rx("(\\w+)_siPixel") ;
   QString theME ;
   if (currDir.find("Module_") != string::npos)  
@@ -287,9 +347,11 @@ void SiPixelInformationExtractor::selectSingleModuleHistos(MonitorUserInterface 
   }
 //cout<<"leaving SiPixelInformationExtractor::selectSingleModuleHistos"<<endl;
 }
-//
-// --  Plot Selected Monitor Elements
-// 
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *  This method 
+ */
 void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* mui, multimap<string, string>& req_map) {
 //cout<<"entering SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
   vector<string> item_list;  
@@ -309,19 +371,113 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
 //cout<<"leaving SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
 }
 //============================================================================================================
+// --  Plot a Selected Monitor Element
+// 
+void SiPixelInformationExtractor::plotTkMapHisto(MonitorUserInterface     * mui, 
+                                                 string                     theModId, 
+						 string                     theMEName) 
+{
+  vector<MonitorElement*> me_list;
+  vector<string>	  theMENameList;
+  theMENameList.push_back(theMEName) ;
+    
+  mui->cd();
+  selectSingleModuleHistos(mui, theModId, theMENameList, me_list);
+  mui->cd();
+
+  if( me_list.size() < 1 )
+  {
+   cout << ACYellow << ACBold << ACReverse
+	<< "[SiPixelInformationExtractor::plotTkMapHisto()]"
+	<< ACCyan << ACBold 
+	<< " Size of me_list is zero!"
+	<< ACPlain 
+	<< endl ;
+  }
+
+  for( vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
+  {
+   cout << ACYellow << ACBold 
+	<< "[SiPixelInformationExtractor::plotTkMapHisto()] "
+	<< ACPlain 
+	<< "Going to plot "
+	<< theMEName 
+	<< endl ;
+   plotHisto(*it, theMEName) ;
+  }
+    
+}
+//============================================================================================================
 // --  Plot Selected Monitor Elements
 // 
-void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface* mui, multimap<string, string>& req_map, string sname) 
+void SiPixelInformationExtractor::plotHisto(MonitorElement* theMe, string theMEName) 
+{
+  QString meName ;
+//   cout << ACYellow << ACBold << ACReverse
+//        << "[SiPixelInformationExtractor::plotHisto()]"
+//        << ACCyan << ACBold 
+//        << " Plotting "
+//        << ACPlain 
+//        << theMEName
+//        << endl ;
+  TCanvas * theCanvas = new TCanvas("TrackerMapPlotsCanvas", "TrackerMapPlotsCanvas",1600,1200);
+  gROOT->Reset(); 
+  gStyle->SetPalette(1,0);
+
+  MonitorElementT<TNamed>* histogramObj = dynamic_cast<MonitorElementT<TNamed>*>(theMe);
+  if(histogramObj) 
+  {
+    string opt = "" ;
+    QString type = histogramObj->operator->()->IsA()->GetName() ;
+    if(         type.contains("TH1") > 0 )
+    {
+     opt = "" ;
+    } else if ( type.contains("TH2") > 0  ) {
+     opt = "COLZ" ;
+    } else if ( type.contains("TH3") > 0 ) {
+     opt = "" ;
+    }
+    histogramObj->operator->()->Draw(opt.c_str());
+  } else {
+   cout << ACYellow << ACBold 
+   	<< "[SiPixelInformationExtractor::plotHisto()]"
+   	<< ACRed << ACBold << ACReverse
+   	<< "WARNING: "
+   	<< ACPlain 
+	<< "Could not dynamic_cast "
+	<< ACCyan
+   	<< theMEName
+	<< " to TNamed"
+	<< ACPlain
+   	<< endl ;
+  }
+  theCanvas->Update();
+  fillNamedImageBuffer(theCanvas,theMEName);
+//   cout << ACYellow << ACBold << ACReverse
+//        << "[SiPixelInformationExtractor::plotHisto()]"
+//        << ACPlain 
+//        << " Done"
+//        << endl ;
+   delete theCanvas ;
+}
+//============================================================================================================
+// --  Plot Selected Monitor Elements
+// 
+void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface     * mui, 
+                                                  multimap<string, string> & req_map, 
+						  string                     sname) 
 {
 //cout<<"entering SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
-  cout << ACYellow << ACBold << ACReverse
-       << "[SiPixelInformationExtractor::plotTkMapHistos()]"
-       << ACPlain << " Registering call for "
-       << sname
-       << endl ;
+  string mod_id = getItemValue(req_map,"ModId");
+//   cout << ACYellow << ACBold << ACReverse
+//        << "[SiPixelInformationExtractor::plotTkMapHistos()]"
+//        << ACPlain << " Registering call for "
+//        << sname
+//        << "(" << mod_id << ")"
+//        << endl ;
+
   vector<string> item_list;  
 
-  string mod_id = getItemValue(req_map,"ModId");
   //cout<<"mod_id in plotSingleModuleHistos:"<<mod_id<<endl;
   if (mod_id.size() < 9) return;
   item_list.clear();     
@@ -335,18 +491,31 @@ void SiPixelInformationExtractor::plotTkMapHistos(MonitorUserInterface* mui, mul
   QRegExp rx(sname) ;
   QString meName ;
 
+  bool histoFound = false ;
+ 
   for( vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
   {
    meName = (*it)->getName() ;
    if( rx.search(meName) == -1 ) {continue;}
-   cout << ACYellow << ACBold << ACReverse
-        << "[SiPixelInformationExtractor::plotTkMapHistos()]"
-	<< ACPlain << " "
-	<< (*it)->getName()
-	<< endl ;
+//    cout << ACYellow << ACBold << ACReverse
+//         << "[SiPixelInformationExtractor::plotTkMapHistos()]"
+// 	<< ACCyan << ACBold 
+// 	<< " Fetching "
+// 	<< ACPlain 
+// 	<< meName
+// 	<< endl ;
    vector<MonitorElement*> one_me ;
    one_me.push_back(*it) ;
    plotHistos(req_map,one_me);
+   histoFound = true ;
+  }
+  if( !histoFound ) 
+  {
+   cout << ACYellow << ACBold << ACReverse
+        << "[SiPixelInformationExtractor::plotTkMapHistos()]"
+	<< ACRed << ACBold << " Requested ME not found: "
+	<< ACPlain << " "
+	<< endl ;
   }
 //cout<<"leaving SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
 }
@@ -682,7 +851,56 @@ string SiPixelInformationExtractor::getItemValue(multimap<string,string>& req_ma
   return value;
 //cout<<"leaving SiPixelInformationExtractor::getItemValue"<<endl;
 }
+//============================================================================================================
+// write the canvas in a string
 //
+void SiPixelInformationExtractor::fillNamedImageBuffer(TCanvas * c1, std::string theName) 
+{
+  // Now extract the image
+  // 114 - stands for "no write on Close"
+//   cout << ACYellow << ACBold
+//        << "[SiPixelInformationExtractor::fillNamedImageBuffer()] "
+//        << ACPlain
+//        << "A canvas: "
+//        << c1->GetName() 
+//        << endl ;
+  TImageDump imgdump("tmp.png", 114);
+  c1->Paint();
+
+// get an internal image which will be automatically deleted
+// in the imgdump destructor
+  TImage *image = imgdump.GetImage();
+  if( image == NULL )
+  {
+   cout << ACYellow << ACBold
+   	<< "[SiPixelInformationExtractor::fillNamedImageBuffer()] "
+   	<< ACRed << ACBold
+   	<< "WARNING: " 
+	<< ACPlain
+	<< "No TImage found for "
+	<< theName
+   	<< endl ;
+    return ;
+  }
+  char *buf;
+  int sz = 0;
+  image->GetImageBuffer(&buf, &sz);
+
+  pictureBuffer_.str("");
+  for (int i = 0; i < sz; i++) pictureBuffer_ << buf[i];
+  
+//  delete [] buf;
+  ::free(buf); // buf is allocated via realloc() by a C language AfterStep library invoked by the
+               // default (and so far only) TImage implementation in root, TASImage.
+  
+//   cout << ACCyan << ACBold << ACReverse 
+//        << "[SiPixelInformationExtractor::fillNamedImageBuffer()]"
+//        << ACPlain
+//        << " Storing away " << theName
+//        << endl ;
+  namedPictureBuffer[theName] = pictureBuffer_.str() ;
+}
+//============================================================================================================
 // write the canvas in a string
 //
 void SiPixelInformationExtractor::fillImageBuffer(TCanvas& c1) {
@@ -709,7 +927,7 @@ void SiPixelInformationExtractor::fillImageBuffer(TCanvas& c1) {
   delete [] buf;
 //cout<<"leaving SiPixelInformationExtractor::fillImageBuffer"<<endl;
 }
-//
+//============================================================================================================
 // get the plot
 //
 const ostringstream&  SiPixelInformationExtractor::getImage() const {
@@ -717,7 +935,40 @@ const ostringstream&  SiPixelInformationExtractor::getImage() const {
   return pictureBuffer_;
 //cout<<"leaving SiPixelInformationExtractor::getImage"<<endl;
 }
+//============================================================================================================
+// get the plot
 //
+const ostringstream&  SiPixelInformationExtractor::getNamedImage(std::string theName) 
+{
+//   cout << ACCyan << ACBold << ACReverse 
+//        << "[SiPixelInformationExtractor::getNamedImage()]"
+//        << ACPlain
+//        << " Requested " << theName
+//        << endl ;
+  pictureBuffer_.str("") ;
+  map<std::string, std::string>::iterator thisBuffer = namedPictureBuffer.find(theName) ; 
+  if( thisBuffer == namedPictureBuffer.end() )
+  {
+    cout << ACCyan << ACBold << ACReverse 
+    	 << "[SiPixelInformationExtractor::getNamedImage()]"
+    	 << ACRed << ACBold << ACReverse
+    	 << " WARNING: " 
+	 << ACPlain
+	 << "ME image buffer for "
+	 << theName
+	 << " not found"
+    	 << endl ;
+    return pictureBuffer_;
+  }
+  pictureBuffer_ << thisBuffer->second ;
+//   cout << ACCyan << ACBold << ACReverse 
+//        << "[SiPixelInformationExtractor::getNamedImage()]"
+//        << ACPlain
+//        << " Returning " << theName
+//        << endl ;
+  return pictureBuffer_;
+}
+//============================================================================================================
 // go to a specific directory after scanning
 //
 bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sname, bool flg){ 
@@ -799,15 +1050,240 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
     }      
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
-  *out << "<?xml version=\"1.0\" ?>" << std::endl;
-  *out << "<StatusAndPath>" << endl;
-  *out << "<StatusList>" << endl;
+  *out << "<?xml version=\"1.0\" ?>" 			 << endl;
+  *out << "<StatusAndPath>" 	     			 << endl;
+  *out << "<StatusList>"    	     			 << endl;
   *out << "<Status>" << test_status.str() << "</Status>" << endl;      
-  *out << "</StatusList>" << endl;
-  *out << "<PathList>" << endl;
-  *out << "<HPath>" << hpath << "</HPath>" << endl;   
-  *out << "</PathList>" << endl;
-  *out << "</StatusAndPath>" << endl;
+  *out << "</StatusList>" 		   		 << endl;
+  *out << "<PathList>"    		   		 << endl;
+  *out << "<HPath>"  << hpath             << "</HPath>"  << endl;  
+  *out << "</PathList>"      		   		 << endl;
+  *out << "</StatusAndPath>" 		   		 << endl;
 //cout<<"leaving SiPixelInformationExtractor::readStatusMessage"<<endl;
 }
 
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+double SiPixelInformationExtractor::computeStatus(MonitorElement * mE) 
+{
+  double normalization = 1 ;
+  double mean = 0 ;
+
+  pair<double,double> norm ;
+
+  mean = (double)mE->getMean();
+//  norm = (double)mE->getNbinsX() ;
+  getNormalization(mE, norm) ;
+  normalization = fabs( norm.second - norm.first) ;
+  if( normalization == 0 ) {normalization=1.E-20;}
+
+  return mean / normalization ;
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+void SiPixelInformationExtractor::getNormalization(MonitorElement * mE, pair<double,double>& norm) 
+{
+  double normLow  = 0 ;
+  double normHigh = 0 ;
+
+  normHigh    = (double)mE->getNbinsX() ;
+  norm.first  = normLow  ;
+  norm.second = normHigh ;
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *
+ *   
+ */
+void SiPixelInformationExtractor::selectMEList(MonitorUserInterface    * mui,  
+					       string	               & theMEName,
+					       vector<MonitorElement*> & mes) 
+{  
+  string currDir = mui->pwd();
+   
+  QRegExp rx("(\\w+)_siPixel") ;
+  QString theME ;
+   
+  // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
+  if (currDir.find("Module_") != string::npos)  
+  {
+    vector<string> contents = mui->getMEs();    
+    for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
+    {
+      theME = *it ;
+      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel one, skip
+      if (rx.cap(1).latin1() == theMEName)      // Found the ME we were looking for
+      {
+        string full_path = currDir + "/" + (*it);
+        MonitorElement * me = mui->get(full_path.c_str());
+        if (me) {mes.push_back(me);}
+      }
+    }
+    return;
+  } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
+    {
+      mui->cd(*it);
+      selectMEList(mui, theMEName, mes);
+      mui->goUp();
+    }
+  }
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+void SiPixelInformationExtractor::sendTkUpdatedStatus(MonitorUserInterface  * mui, 
+                                                      xgi::Output           * out,
+						      std::string           & theMEName) 
+{
+  int rval, gval, bval;
+  vector<string>          colorMap ;
+  vector<MonitorElement*> me_list;
+  pair<double,double>     norm ;
+    
+  mui->cd();
+  selectMEList(mui, theMEName, me_list) ;
+  mui->cd();
+
+  string detId = "undefined";
+
+  QRegExp rx("\\w+_siPixel\\w+_(\\d+)") ;
+
+//   cout << ACYellow << ACBold
+//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+//        << ACPlain
+//        << "Preparing color map update" 
+//        << endl ;
+//  TRandom  * random = new TRandom() ;
+  
+  stringstream jsSnippet ;
+  for(vector<MonitorElement*>::iterator it=me_list.begin(); it!=me_list.end(); it++)
+  {
+    QString meName = (*it)->getName() ;
+    if( rx.search(meName) != -1 )
+    {
+     detId = rx.cap(1).latin1() ;
+     double sts = computeStatus(*it) ;
+//     sts = random->Gaus(sts,sts/10.) ;
+     SiPixelUtility::getStatusColor(sts, rval, gval, bval);
+     jsSnippet.str("") ;
+     jsSnippet << " <DetInfo DetId='"
+     	       << detId
+     	       << "' red='"
+     	       << rval
+     	       << "' green='"
+     	       << gval
+     	       << "' blue='"
+     	       << bval
+     	       << "'/>" ;
+      colorMap.push_back(jsSnippet.str()) ;
+      if( it == me_list.begin()) // The first should be equall to all others...
+      {
+       getNormalization((*it), norm) ;
+      }
+    }
+  }
+
+//  delete random ;
+  
+//   cout << ACYellow << ACBold
+//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+//        << ACPlain
+//        << "Color map consists of "
+//        << colorMap.size()
+//        << " snippets: start shipping back"
+//        << endl ;
+
+  out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
+  *out << "<?xml version=\"1.0\" ?>" << endl;
+  *out << "<TrackerMapUpdate>"       << endl;
+
+  for(vector<string>::iterator it=colorMap.begin(); it!=colorMap.end(); it++)
+  {
+   *out << *it << endl;
+  }
+ 
+  *out << " <theLimits id=\"normalizationLimits\" normLow=\"" 
+       << norm.first 
+       << "\" normHigh=\""
+       << norm.second 
+       << "\" />"
+       << endl;
+  *out << "</TrackerMapUpdate>"              
+       << endl;
+
+//   cout << ACYellow << ACBold
+//        << "[SiPixelInformationExtractor::sendTkUpdatedStatus()] "
+//        << ACPlain
+//        << "Color map updated" 
+//        << endl ;
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ *  Given a pointer to ME returns the associated detId 
+ */
+int SiPixelInformationExtractor::getDetId(MonitorElement * mE) 
+{
+ QRegExp rx("siPixel(\\w+)_(\\d+)") ;
+ QString mEName = mE->getName() ;
+
+ int detId = 0;
+ 
+ if( rx.search(mEName) != -1 )
+ {
+  detId = rx.cap(2).toInt() ;
+ } else {
+  cout << ACYellow << ACBold
+       << "[SiPixelInformationExtractor::getDetId()] "
+       << ACPlain
+       << "Could not extract detId from "
+       << mEName
+       << endl ;
+ }
+      
+  return detId ;
+  
+}
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,  
+					    map<string, int>         & mEHash)
+{
+  string currDir = mui->pwd();
+   
+  QRegExp rx("(\\w+)_siPixel") ;
+  QString theME ;
+   
+  // Get ME from Collector/FU0/Tracker/PixelEndcap/HalfCylinder_pX/Disk_X/Blade_XX/Panel_XX/Module_XX
+  if (currDir.find("Module_") != string::npos)  
+  {
+    vector<string> contents = mui->getMEs();    
+    for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) 
+    {
+      theME = *it ;
+      if( rx.search(theME) == -1 ) {continue ;} // If the ME is not a siPixel one, skip
+      string full_path = currDir + "/" + (*it);
+      string mEName = rx.cap(1).latin1() ;
+      mEHash[mEName]++ ;
+    }
+    
+    return;
+  } else {  // If not yet reached the desired level in the directory tree, recursively go down one level more
+    vector<string> subdirs = mui->getSubdirs();
+    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) 
+    {
+      mui->cd(*it);
+      getMEList(mui, mEHash);
+      mui->goUp();
+    }
+  }
+}

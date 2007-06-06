@@ -109,6 +109,7 @@ function dummy()
 {
   displayMessages();
 }
+
 // Initialize a request object that is already constructed 
 function initReq(reqType, url, bool, respHandle) { 
   try { 
@@ -136,6 +137,18 @@ function initReq(reqType, url, bool, respHandle) {
   } 
 }
 
+function enableButtons(which)
+{
+  var theForm = document.getElementById("theWholeForm") ;
+  if( which == "UpdateTrackerMap")
+  {
+   theForm.UpdateTrackerMap.disabled = !theForm.UpdateTrackerMap.disabled ;
+  }
+  if( which == "listMECommand")
+  {
+   theForm.listMECommand.disabled = !theForm.listMECommand.disabled ;
+  }
+}
 
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/Navigator.js"><\/script>');
 document.write('<script src="SERVED_DIRECTORY_URL/js_files/GifDisplay.js"><\/script>');

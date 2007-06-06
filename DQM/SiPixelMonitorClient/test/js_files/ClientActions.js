@@ -5,7 +5,9 @@ function SubscribeAll() {
   url = url + "/Request?";
   url = url + queryString; 
   
-  makeRequest(url, dummy);     
+  makeRequest(url, dummy);
+  
+  enableButtons("listMECommand") ;    
 }
 //
 // Setup Quality Test
@@ -50,7 +52,7 @@ function SaveToFile() {
   url = url + queryString;   
   makeRequest(url, dummy);     
 }
-//
+// eisenach watburg gotha
 // Create Tracker Map
 //
 function CreateTrackerMap() {
@@ -64,9 +66,10 @@ function CreateTrackerMap() {
   var sname =  obj.options[obj.selectedIndex].value;
   url += '&MEName='+sname;
    
-  makeRequest(url, dummy);
+//  makeRequest(url, dummy);
+  makeRequest(url, ReadResponseAndOpenTkMap);
  
-  setTimeout('OpenTrackerMap()', 5000);   
+//  setTimeout('OpenTrackerMap()', 5000);   
 }
 //
 // Create Tracker Map
@@ -82,17 +85,24 @@ function OpenTrackerMap() {
 }
 
 // check the response and open tracker map
-function ReadResponseAndOpenTkMap() {
-
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
-      try {
-        var doc = http_request.responseXML;
-        var root = doc.documentElement;
-        var rows = root.getElementsByTagName('Response');
-        if ( rows.length == 1) { 
-          var name  = rows[0].childNodes[0].nodeValue;
-          if (name == "Successful" ) {            
+function ReadResponseAndOpenTkMap() 
+{
+  if (http_request.readyState == 4) 
+  {
+    if (http_request.status == 200) 
+    {
+      try 
+      {
+//        var doc = http_request.responseXML;
+//        var root = doc.documentElement;
+//        var rows = root.getElementsByTagName('Response');
+//        alert("[ClientActions.js"+arguments.callee.name+"] "+"rows.length "+rows.length) ; 
+//        if ( rows.length == 1) 
+//	{ 
+//          var name  = rows[0].childNodes[0].nodeValue;
+//         alert("[ClientActions.js"+arguments.callee.name+"] "+"name        "+name) ; 
+//          if (name == "Successful" ) 
+//	  {            
              var win = window.open("TrackerMapFrame.html",
 	                           "trackerMapWindow"    ,
                                    "menubar   = no,  "   +
@@ -101,22 +111,20 @@ function ReadResponseAndOpenTkMap() {
                                    "scrollbars= yes, "   +
                                    "titlebar  = yes, "   +
                                    "status    = yes, "   +
-                                   "left      =  10, "   +
-                                   "top       =  10, "   +
-                                   "height    = 768, "   +
+                                   "left      =   0, "   +
+                                   "top       =   0, "   +
+                                   "height    = 700, "   +
                                    "width     = 1280 ")  ;
 	     win.moveTo(0,0) ;
              win.focus();            
-          } else {
-            alert(" Creation of Tracker Map Failed !! ");	
-          }
-        }
-      }
-      catch (err) {
+//          } else {
+//            alert(" Creation of Tracker Map Failed !! ");	
+//          }
+//        }
+      } catch (err) {
         alert ("Error detail: " + err.message);
       }
-    }
-    else {
+    } else {
       alert("FillFileList:  ERROR:"+http_request.readyState+", "+http_request.status);
     }
   }

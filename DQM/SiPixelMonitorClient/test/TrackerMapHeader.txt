@@ -14,9 +14,6 @@
  	  href = "css_files/svgmap.css"/>
  	  
   <script type = "text/javascript"
- 	  src  = "js_files/trace.js">
-  </script> 
-  <script type = "text/javascript"
  	  src  = "js_files/magnifier.js">
   </script>
   <script type = "text/javascript"
@@ -79,21 +76,31 @@
     <td>
      <form action = "javascript:void(0)"
           style   = "color:red;">
-      <h3>Current view: 
+      <h3>
+       Color codes according to ME: 
+       <input id    = "currentColorCodeME"
+     	      class = "inputBox"
+              type  = "text" 
+              value = "" 
+              name  = "currentColorCodeME"
+              size  = "25">
+       </input>
+       Current view: 
        <input id    = "currentViewText"
      	      class = "inputBox"
               type  = "text" 
               value = "Home" 
               name  = "currentViewText"
               size  = "8">
-       </input>
+       </input><br/>
        Det. element : 
        <input id    = "currentElementText"
  	      class = "inputBox"
  	      type  = "text" 
  	      value = ""
  	      name  = "currentElementText" 
- 	      size  = "58"></input>
+ 	      size  = "58">
+       </input>
       </h3> 
      </form>
     </td>

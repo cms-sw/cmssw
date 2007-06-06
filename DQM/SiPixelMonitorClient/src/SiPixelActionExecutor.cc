@@ -65,39 +65,22 @@ bool SiPixelActionExecutor::readConfiguration(int& tkmap_freq, int& sum_barrel_f
   }
   return true;
 }
-//
+//=============================================================================================================
 // -- Create Tracker Map
 //
-void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, string mEName) {
-  string tkmap_name;
-  vector<string> me_names;
-  if (!configParser_->getMENamesForTrackerMap(tkmap_name, tkMapMENames)){
-    cout << ACYellow << ACBold 
-         << "[SiPixelActionExecutor::createTkMap()] "
-	 << ACRed << ACBold << ACReverse
-	 << "Failed to read TrackerMap configuration parameters!! "
-	 << ACPlain
-	 << endl ;
-    return;
-  }
-  cout << ACYellow << ACBold 
-       << "[SiPixelActionExecutor::createTkMap()]"
-       << ACPlain
-       << " Selected ME: " << mEName << endl;
+void SiPixelActionExecutor::createTkMap(MonitorUserInterface* mui, string mEName) 
+{
  
-  // Create and Fill the Tracker Map
-  mui->cd();
-  if (collationDone) mui->cd("Collector/Collated/SiPixel");
-
   TrackerMapCreator tkmap_creator(mEName);
-  tkmap_creator.create(mui, tkMapMENames, mEName);
+  tkmap_creator.create(mui);
   
-  mui->cd();  
   cout << ACYellow << ACBold 
        << "[SiPixelActionExecutor::createTkMap()]"
        << ACPlain
        << " Tracker map created " << endl;
 }
+
+//=============================================================================================================
 void SiPixelActionExecutor::createSummary(MonitorUserInterface* mui) {
 //cout<<"entering SiPixelActionExecutor::createSummary..."<<endl;
   string barrel_structure_name;

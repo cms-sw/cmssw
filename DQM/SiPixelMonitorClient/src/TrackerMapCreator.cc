@@ -1,10 +1,19 @@
+/*! \file TrackerMapCreator.cc
+ *
+ *  \brief This class represents ...
+ *  
+ *  (Documentation under development)
+ *  
+ */
 #include "DQM/SiPixelMonitorClient/interface/TrackerMapCreator.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelUtility.h"
+#include "DQM/SiPixelMonitorClient/interface/SiPixelInformationExtractor.h"
 #include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include <qstring.h>
 #include <qregexp.h>
 #include <iostream>
+#include <fstream>
 #include <sstream>
 #include "TText.h"
 using namespace std;
@@ -17,206 +26,168 @@ TrackerMapCreator::TrackerMapCreator(string themEName)
   cout << ACYellow << ACBold 
        << "[TrackerMapCreator::TrackerMapCreator()]" 
        << ACPlain << " ctor" << endl ;
+       
+  mEName = themEName ;
+
   stringstream title ;
-  title.str("") ; title << "Interactive Pixel Tracker Map. Monitoring element displayed: "
-                        << themEName ;
-  trackerMap = new SiPixelTrackerMap(title.str());
+  title.str("") ; 
+  title << themEName ;
+	
+  trackerMap      = new SiPixelTrackerMap(title.str());
+  infoExtractor_  = new SiPixelInformationExtractor();
 }
 
 //==============================================================================
 // -- Destructor
 //
-TrackerMapCreator::~TrackerMapCreator() {
-  if (trackerMap) delete trackerMap;
+TrackerMapCreator::~TrackerMapCreator() 
+{
+  cout << ACYellow << ACBold 
+       << "[TrackerMapCreator::~TrackerMapCreator()]" 
+       << ACPlain << " dtor" << endl ;
+  if (trackerMap)     delete trackerMap;
+  if (infoExtractor_) delete infoExtractor_;
 }
 
-//==============================================================================
-// -- Browse through monitorable and get values needed by TrackerMap
-//
-void TrackerMapCreator::create(MonitorUserInterface* mui, vector<string>& me_names, string themEName) 
+//------------------------------------------------------------------------------
+/*! \brief (Documentation under construction).
+ *  
+ */
+void TrackerMapCreator::create(MonitorUserInterface * mui) 
 {
   cout << ACYellow << ACBold
-       << "[TrackerMapCreator::create()] Enter"
-       << ACPlain << endl ;
-  QRegExp rx("siPixelDigis_(\\d+)") ;
-  QString theME ;
+       << "[TrackerMapCreator::create()] "
+       << ACPlain 
+       << " Creating tracker map for ME: " 
+       << mEName 
+       << endl;
 
-  mEName = themEName ;
-  vector<string> tempVec, contentVec;
-  mui->getContents(tempVec);
+  vector<MonitorElement*> mEList ;
+  map<string, int>        mEHash ;
   
-  // Filter out just Pixel-typew MEs (use handy regular expressions from Qt)
-  for (vector<string>::iterator it = tempVec.begin(); it != tempVec.end(); it++) 
+  infoExtractor_->selectMEList(mui, mEName, mEList) ;
+  infoExtractor_->getMEList(   mui,         mEHash) ;
+  
+  int nImages = mEHash.size() ;
+  
+  for(vector<MonitorElement*>::iterator it=mEList.begin(); it!=mEList.end(); it++)
   {
-    theME         = *it ;
-    if( rx.search(theME) != -1 )
-    {
-     contentVec.push_back(*it);
-    }
-  }
-  int ndet = contentVec.size();
-
-  int ibin = 0;
-  string gname = "GobalFlag";
-  MonitorElement* tkmap_gme = getTkMapMe(mui,gname,ndet);
-  for (vector<string>::iterator it = contentVec.begin(); it != contentVec.end(); it++) 
-  {
-    ibin++;
-    vector<string> contents;
-    int nval = SiPixelUtility::getMEList((*it), contents);
-    if (nval == 0) continue;
-    string det_id = "Not found";
-    theME         = *it ;
-    if( rx.search(theME) != -1 )
-    {
-     det_id = rx.cap(1).latin1();
-    }
-//    cout << ACCyan << ACBold
-//         << "[TrackerMapCreator::create()]"
-//         << ACRed << ACReverse 
-//	 << det_id
-//	 << ACPlain << "] "
-//	 << ACYellow << ACBold
-//         << theME 
-//	 << ACPlain
-//	 << endl ;
-    
-    map<MonitorElement*,int> local_mes;
-    int gstat = 0;
-    //  browse through monitorable; check  if required MEs exist    
-
-    for (vector<string>::const_iterator ic = contents.begin(); ic != contents.end(); ic++) 
-    {
-      int istat = 0;
-      for (vector<string>::const_iterator im = me_names.begin(); im != me_names.end(); im++) 
-      {
-	string me_name = (*im);
-	if ((*ic).find(me_name) == string::npos) continue;
-	MonitorElement * me = mui->get((*ic));
-	if (!me) continue;
-	istat =  SiPixelUtility::getStatus(me); 
-	local_mes.insert(pair<MonitorElement*, int>(me, istat));
-	if (istat > gstat) gstat = istat;
-	MonitorElement* tkmap_me = getTkMapMe(mui,me_name,ndet);
-	if (tkmap_me)
-	{
-//     cout << ACYellow << ACBold
-//          << "[TrackerMapCreator::create()]"
-// 	 << ACRed << ACBold 
-//          << "tkmap_me->Fill() ibin:" << ibin << " istat:" << istat << " id:" << det_id << endl ;
-	  tkmap_me->Fill(ibin, istat);
-	  tkmap_me->setBinLabel(ibin, det_id.c_str());
-
-	}
-      }
-    }
-    
-    if (tkmap_gme) 
-    {
-//     cout << ACYellow << ACBold
-//          << "[TrackerMapCreator::create()]"
-// 	 << ACCyan << ACBold 
-//          << "tkmap_mme->Fill() ibin:" << ibin << " gstat:" << gstat << endl ;
-       tkmap_gme->Fill(ibin, gstat);
-       tkmap_gme->setBinLabel(ibin, det_id.c_str());
-    }	 
-
-    paintTkMap(atoi(det_id.c_str()), local_mes);
+    paintTkMap(*it);
   }
 
   trackerMap->print(true);  
+
+  ofstream innerFrame ;
+
+  innerFrame.open( "rightEmbedded.html", ios::out );
+  
+  if( !innerFrame )
+  {
+   cout << ACRed << ACBold
+   	<< "[TrackerMapCreator::create()] "
+   	<< ACCyan << ACBold
+   	<< "Could not open rightEmbedded.html"
+   	<< ACPlain
+   	<< endl ;
+   return ;
+  }
+  
+  innerFrame << "<html>					    				   " << "\n"
+             << "<!--									   " << "\n"
+             << " Author: D. Menasce							   " << "\n"
+             << " Test widget for the Pixel Tracker Map 				   " << "\n"
+             << "-->									   " << "\n"
+             << "									   " << "\n"
+             << "<meta http-equiv='pragma'						   " << "\n"
+             << "      content   ='no-cache'>						   " << "\n"
+             << "									   " << "\n"
+             << "<head> 								   " << "\n"
+             << " <link   rel  = 'stylesheet'						   " << "\n"
+             << "	  type = 'text/css'						   " << "\n"
+             << "	  href = 'css_files/wz_dragdrop.css>'				   " << "\n"
+             << " <link   rel  = 'stylesheet'						   " << "\n"
+             << "	  type = 'text/css'						   " << "\n"
+             << "	  href = 'css_files/magnifier.css'>				   " << "\n"
+             << " <script type = 'text/javascript'					   " << "\n"
+             << "	  src  = 'js_files/magnifier.js'>				   " << "\n"
+             << " </script>								   " << "\n"
+             << " <script type = 'text/javascript'					   " << "\n"
+             << "	  src  = 'js_files/wz_dragdrop.js'>				   " << "\n"
+             << " </script>								   " << "\n"
+             << " <script type = 'text/javascript'					   " << "\n"
+             << "	  src  = 'js_files/DMLibrary.js'>				   " << "\n"
+             << " </script>								   " << "\n"
+             << "									   " << "\n"
+             << "</head>								   " << "\n"
+             << "									   " << "\n"
+             << "<body bgcolor='#414141'>						   " << "\n"
+             << "									   " << "\n"
+             << " <center>								   " << "\n"
+             << "									   " << endl ;
+  for( int img=1; img<=nImages; img++)
+  {
+    stringstream sId, sNm ;
+    sId.str(""); sId << "binding"   << img ;
+    sNm.str(""); sNm << "baseImage" << img ;
+    string sid = sId.str() ;
+    string snm = sNm.str() ;
+    innerFrame << "  <div   id	        = 'binding'					      " << "\n"
+               << "         name        = '" << sid << "'> 				      " << "\n"
+               << "   <img  id  	= '" << snm << "'  				      " << "\n"
+               << "	    name	= '" << snm << "'  				      " << "\n"
+               << "	    src 	= 'images/EmptyPlot.png'			      " << "\n"
+               << "	    alt 	= 'picture geometry:1600x1200'			      " << "\n"
+               << "	    onload	= 'innerLoading(\"" << sid << "\",\"" << snm << "\")'"  << "\n"
+               << "	    onclick	= 'innerTransport(event)'			      " << "\n"
+               << "	    onmouseover = 'this.T_SHADOWWIDTH=4;			      " << "\n"
+               << "			   this.T_OPACITY    =70;			      " << "\n"
+               << "			   this.T_FONTCOLOR  =\"#000000\";		      " << "\n"
+               << "			   this.T_WIDTH      =200;			      " << "\n"
+               << "			   return escape(\"Click to send to pan/zoom area\")' " << "\n"
+               << "	    width	= '267' 					      " << "\n"
+               << "	    height	= '200' />					      " << "\n"
+               << "  </div>								      " << endl ;
+  }
+  innerFrame << "  									   " << "\n"
+             << "</center>								   " << "\n"
+             << "									   " << "\n"
+             << "<script type = 'text/javascript'					   " << "\n"
+             << "	 src  = 'js_files/rightEmbedded.js'>				   " << "\n"
+             << "</script>								   " << "\n"
+             << "									   " << "\n"
+             << "<script type='text/javascript' 					   " << "\n"
+             << "	 src ='js_files/wz_tooltip.js'> 				   " << "\n"
+ 	     << "</script>								   " << "\n"
+ 	     << "</html>								   " << endl ;
+  innerFrame.close() ;    								    
 }
 
 //==============================================================================
 // -- Draw Monitor Elements
 //
-void TrackerMapCreator::paintTkMap(int det_id, map<MonitorElement*, int>& me_map) 
+void TrackerMapCreator::paintTkMap(MonitorElement * mE) 
 {
-  int icol;
-  string tag;
-  
-  ostringstream comment;
-  comment << "Mean Value(s) : ";
-  int gstatus = 0;
-  int norm    = 0 ;
-  double sts  = 0 ;
-  int media = 0 ;
+  double sts;
+  int    rval, gval, bval, detId;
 
-  MonitorElement* me;
-  int me_size = me_map.size() ;
-//  cout << "\n" << ACRed << ACBold
-//       << "[TrackerMapCreator::paintTkMap()] "
-//       << ACPlain
-//       << "me_size: " 
-//       <<  me_size
-//       << ACPlain
-//       << endl ;
-  for (map<MonitorElement*,int>::const_iterator it = me_map.begin(); it != me_map.end(); it++) 
-  {
-    me = it->first;
-    if (!me) continue;
-//    cout << "\n" << ACGreen << ACBold
-//    	 << "[TrackerMapCreator::paintTkMap()] "
-//    	 << ACPlain
-//    	 << "me->getName(): " 
-//    	 <<  me->getName()
-//    	 << ACYellow 
-//    	 << " mEName: " << ACPlain
-//    	 << mEName.c_str()
-//    	 << endl ;
-    float mean = me->getMean();
-    media = (int)mean;
-    comment <<   mean <<  " : " ;
-    // global status 
-    if (it->second > gstatus ) gstatus = it->second;
-    SiPixelUtility::getStatusColor(it->second, icol, tag);
-    QRegExp rx(mEName) ;
-    QString sMEName = me->getName() ;
-    if( rx.search(sMEName) != -1 )
-    {
-//      cout << ACYellow << ACBold
-//           << "[TrackerMapCreator::paintTkMap()] "
-//           << ACPlain
-//           << "name: " 
-//           << me->getName()
-//           << " mean: " 
-//           << mean
-//           << " nBinsX: "
-//           << me->getNbinsX()
-//           << endl ; 
-       norm = me->getNbinsX() ;
-       sts = (double)mean / (double)norm ;
-    }
-  }
-//   cout << "[TrackerMapCreator::paintTkMap()] Detector ID : " << det_id 
-//        << " " << comment.str()
-//        << " Status : " << gstatus  << endl;
-//   
-  trackerMap->setText(det_id, comment.str());
-  int rval, gval, bval;
-  SiPixelUtility::getStatusColor(gstatus, rval, gval, bval);
-  SiPixelUtility::getStatusColor(sts,     rval, gval, bval);
-  trackerMap->fillc(det_id, rval, gval, bval);
-//  cout << ACYellow << ACBold
-//       << "[TrackerMapCreator::create()]"
-//       << ACRed << ACBold 
-//       << " det_id " << ACPlain
-//       << det_id
-//       << " sts: "
-//       << sts
-//       << " rgb: " << rval << ":" << gval << ":" << bval << endl ;
+  sts   = infoExtractor_->computeStatus(mE) ; 
+  detId = infoExtractor_->getDetId(     mE);
+  SiPixelUtility::getStatusColor(sts,   rval, gval, bval);
+  trackerMap->fillc(             detId, rval, gval, bval);
 }
 
 //==============================================================================
 // -- get Tracker Map ME 
 //
-MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui, 
-		    string& me_name, int ndet) {
+MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,string& me_name, int ndet) 
+{
+/*
   string new_name = "TrackerMap_for_" + me_name;
   string path = "Collector/" + new_name;
   MonitorElement*  tkmap_me =0;
   tkmap_me = mui->get(path);
-  if (!tkmap_me) {
+  if (!tkmap_me) 
+  {
     string save_dir = mui->pwd();   
     DaqMonitorBEInterface * bei = mui->getBEInterface();
     bei->setCurrentFolder("Collector");
@@ -224,4 +195,59 @@ MonitorElement* TrackerMapCreator::getTkMapMe(MonitorUserInterface* mui,
     bei->setCurrentFolder(save_dir);
   }
   return tkmap_me;
+*/
+}
+//==============================================================================
+// -- Browse through monitorable and get values needed by TrackerMap
+//
+bool TrackerMapCreator::exploreMuiStructure(MonitorUserInterface* mui) 
+{
+  cout << ACCyan << ACBold
+       << "[TrackerMapCreator::create()] "
+       << ACRed << ACReverse 
+       << "List of histograms in"
+       << ACPlain
+       << " "
+       << ACBlue << ACBold
+       << mui->pwd()
+       << ACPlain << endl ;
+
+  vector<string> histoList = mui->getMEs();    
+  for (vector<string>::const_iterator it = histoList.begin(); it != histoList.end(); it++) 
+  {
+   cout << ACCyan << ACBold
+   	<< "[TrackerMapCreator::create()] "
+   	<< ACRed << ACReverse 
+   	<< "Histogram:"
+   	<< ACPlain
+   	<< " "
+   	<< *it
+   	<< ACPlain << endl ;
+  }
+  vector<string> subDirs = mui->getSubdirs();
+  for (vector<string>::const_iterator it = subDirs.begin(); it != subDirs.end(); it++) 
+  {
+    mui->cd(*it);
+    cout << ACCyan << ACBold
+    	 << "[TrackerMapCreator::create()] "
+    	 << ACRed << ACBold 
+    	 << "Moved down to"
+    	 << ACPlain
+    	 << " "
+    	 << ACBlue << ACBold
+    	 << mui->pwd()
+    	 << ACPlain << endl ;
+    exploreMuiStructure(mui);
+    mui->goUp();
+    cout << ACCyan << ACBold
+    	 << "[TrackerMapCreator::create()] "
+    	 << ACRed << ACBold 
+    	 << "Now back to"
+    	 << ACPlain
+    	 << " "
+    	 << ACBlue << ACBold
+    	 << mui->pwd()
+    	 << ACPlain << endl ;
+  }
+  return true ;
 }

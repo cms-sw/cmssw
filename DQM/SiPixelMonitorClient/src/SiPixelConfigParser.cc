@@ -1,4 +1,5 @@
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
+#include "DQM/SiPixelMonitorClient/interface/ANSIColors.h"
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -32,29 +33,84 @@ bool SiPixelConfigParser::getMENamesForTrackerMap(string& tkmap_name,
 
   me_names.clear();
   unsigned int tkMapNodes = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->getLength();
-  if (tkMapNodes != 1) return false;
+  if (tkMapNodes != 1) 
+  {
+   cout << ACYellow << ACBold 
+        << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+	<< ACRed << ACBold
+	<< "No TkMap tag found in configuration file"
+	<< ACPlain << endl ;
+   return false;
+  }
   /// Get Node
   DOMNode* tkMapNode = doc->getElementsByTagName(qtxml::_toDOMS("TkMap"))->item(0);
  //Get QTEST name
-  if (! tkMapNode) return false;
+  if (! tkMapNode) 
+  {
+   cout << ACYellow << ACBold 
+        << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+	<< ACRed << ACBold
+	<< " No TkMap tag elements found in configuration file"
+	<< ACPlain << endl ;
+   return false;
+  }
   DOMElement* tkMapElement = static_cast<DOMElement *>(tkMapNode);          
-  if (! tkMapElement) return false;		 
-		
+  if (! tkMapElement) 
+  {
+   cout << ACYellow << ACBold 
+        << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+	<< ACRed << ACBold
+	<< " No TkMap tag dom elements found in configuration file"
+	<< ACPlain << endl ;
+   return false;		 
+  }		
   tkmap_name = qtxml::_toString(tkMapElement->getAttribute(qtxml::_toDOMS("name")));
 	
   DOMNodeList * meList 
 		  = tkMapElement->getElementsByTagName(qtxml::_toDOMS("MonElement"));
+  if( meList->getLength() == 0 )
+  {
+    cout << ACYellow << ACBold 
+    	 << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+    	 << ACRed << ACBold
+    	 << " No MonElement found in configuration file"
+    	 << ACPlain << endl ;
+  }
   for (unsigned int k = 0; k < meList->getLength(); k++) {
     DOMNode* meNode = meList->item(k);
-    if (!meNode) return false;
+    if (!meNode) 
+    {
+     cout << ACYellow << ACBold 
+     	  << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+     	  << ACRed << ACBold
+     	  << " No MonElement item found in configuration file"
+     	  << ACPlain << endl ;
+     return false;
+    }
     DOMElement* meElement = static_cast<DOMElement *>(meNode);          
-    if (!meElement) return false;
+    if (!meElement) 
+    { 
+     cout << ACYellow << ACBold 
+     	  << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+     	  << ACRed << ACBold
+     	  << " No MonElement sub-elements found in configuration file"
+     	  << ACPlain << endl ;
+     return false;
+    }
     string me_name = qtxml::_toString(meElement->getAttribute (qtxml::_toDOMS ("name"))); 
     me_names.push_back(me_name);    
   }
-  if (me_names.size() == 0) return false;
-  else return true;
-  
+  if (me_names.size() == 0) 
+  {
+    cout << ACYellow << ACBold 
+    	 << "[SiPixelConfigParser::getMENamesForTrackerMap()]"
+    	 << ACRed << ACBold
+    	 << " No MonElement sub-element names found in configuration file"
+    	 << ACPlain << endl ;
+   return false;
+  } else {
+   return true;
+  }
 }
 //
 // -- Read Update Frequency for the TrackerMap

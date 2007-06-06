@@ -100,10 +100,12 @@ function FillModuleHistoList() {
   }
 }
 function FillMEList() {
-  if (http_request.readyState == 4) {
-    if (http_request.status == 200) {
-      try {
-
+  if (http_request.readyState == 4) 
+  {
+    if (http_request.status == 200) 
+    {
+      try 
+      {
 
         var doc = http_request.responseXML;
         var root = doc.documentElement;
@@ -114,16 +116,20 @@ function FillMEList() {
         bobj.options.length = 0;
 
         var hrows = root.getElementsByTagName('Histo');
-        for (var j = 0; j < hrows.length; j++) {
+        for (var j = 0; j < hrows.length; j++) 
+	{
           var name  = hrows[j].childNodes[0].nodeValue;
           var boption = new Option(name, name);
-          try {
+          try 
+	  {
             bobj.add(boption, null);
           }
-          catch (e) {
+          catch (e) 
+	  {
             bobj.add(boption, -1);
           }
         }
+        enableButtons("UpdateTrackerMap") ;    
       }
       catch (err) {
         alert ("[RequestHistos.js::FillMEList()] Error detail: " + err.message); 

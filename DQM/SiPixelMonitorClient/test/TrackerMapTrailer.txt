@@ -38,6 +38,16 @@
   <input type="hidden" name="MEReference" value=""/>
   <input type="hidden" name="MEReference" value=""/>
   <input type="hidden" name="MEReference" value=""/>
+ 
+  <script type="text/javascript">
+   function displayColorCodeME()
+   {
+    var cCodeMEText  = document.getElementById("colorCodeME").textContent ;
+    var cCodeMEField = document.getElementById("currentColorCodeME") ;
+    cCodeMEField.setAttribute("value",cCodeMEText) ;
+   }
+   displayColorCodeME() ;
+  </script>
      
  </body>
 </html>

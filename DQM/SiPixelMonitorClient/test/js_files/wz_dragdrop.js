@@ -754,7 +754,10 @@ DDObj.prototype.resizeBy = function(d_dw, d_dh)
 //==============================================================================================
 DDObj.prototype.swapImage = function(d_x, d_cp)
 {
-	if(!this.nimg) return;
+	if(!this.nimg) 
+	{
+	 return;
+	}
 	this.nimg.src = d_x;
 	this.src = this.nimg.src;
 	if(d_cp)

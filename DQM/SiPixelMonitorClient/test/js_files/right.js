@@ -16,8 +16,8 @@
     {
      var lens = new DLMLens(m[0]		, 
 			  "images/EmptyPlot.png", 
-			  1980  		, 
-			  1530  	       );
+			  1600  		, 
+			  1200  	       );
      theLenses.push(lens) ;		  
     }
    }
@@ -40,15 +40,15 @@
 //   var selIndex  = lensScale.selectedIndex;
 //   var scale     = parseFloat(lensScale.options[selIndex].value) ;
 
-   var scalex    = 2.4 ;
+   var scalex    = 1 ;
    var scaley    = 1 ;
    var thisImg   = document.getElementById(what) ;
    var imgSrc    = thisImg.getAttribute("src");
    var geometry  = thisImg.getAttribute("alt") ;
    var parts     ;
    var size      ;
-   var width     = 737 ; // Provide suitable defaults in case this snippet gets executed
-   var height    = 563 ; // before the alt tag is available (onload could have been deferred) 
+   var width     = 1600 ; // Provide suitable defaults in case this snippet gets executed
+   var height    = 1200 ; // before the alt tag is available (onload could have been deferred) 
    if( geometry != null && geometry != "" ) 
    {
     parts  = geometry.split(":") ;
@@ -89,6 +89,7 @@
   function transport(event)
   {
    dd.elements.zoomedImg.swapImage(event.target.src) ;
+//   DM_TraceWindow("right.js",arguments.callee.name,"New image: "+dd.elements.zoomedImg.getAttribute("src")) ;  
   }
   
   //================================================================
@@ -113,9 +114,10 @@
   //================================================================
   function swapImage()
   {
-    var thePlaceHolder = document.getElementById("placeHolder") ;
-    var newImg = thePlaceHolder.getAttribute("src") ;
-    dd.elements.zoomedImg.swapImage(newImg) ;
+//    var thePlaceHolder = document.getElementById("placeHolder") ;
+//    var newImg = thePlaceHolder.getAttribute("src") ;
+//    dd.elements.zoomedImg.swapImage(newImg) ;
+//    DM_TraceWindow("right.js",arguments.callee.name,"New image: "+newImg) ;  
   }
   //================================================================
   function movePlotTo()
@@ -128,7 +130,6 @@
    var baseVect                 = theRightInnerFrameWindow.document.getElementsByTagName("div") ;
    var posX ;
    var posY ;
-//   DM_TraceWindow(thisFile,arguments.callee.name,"in... ") ;  
    for( var i=0; i < baseVect.length; i++)
    {
     var name = baseVect[i].getAttribute("name") ;

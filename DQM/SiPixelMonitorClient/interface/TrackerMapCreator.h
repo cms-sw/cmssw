@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 
+class SiPixelInformationExtractor;
+
 class TrackerMapCreator {
 
  public:
@@ -16,16 +18,20 @@ class TrackerMapCreator {
   TrackerMapCreator(std::string themEName);
  ~TrackerMapCreator();
 
-  void create(MonitorUserInterface* mui, std::vector<std::string>& me_names, std::string themEName);
+  void create(               MonitorUserInterface     	    * mui);
 
  private:
-  MonitorElement* getTkMapMe(MonitorUserInterface* mui,std::string& me_name,int ndet);
+  MonitorElement* getTkMapMe(MonitorUserInterface     	    * mui,
+                             std::string              	    & me_name,
+			     int                      	      ndet);
 
-  void paintTkMap(int det_id, std::map<MonitorElement*, int>& me_map);
+  void paintTkMap(           MonitorElement                 * mui);
 
-  SiPixelTrackerMap* trackerMap;
+  SiPixelInformationExtractor * infoExtractor_;
+  SiPixelTrackerMap           * trackerMap;
   
   std::string mEName ;
   
+  bool exploreMuiStructure(MonitorUserInterface* mui) ;
 };
 #endif

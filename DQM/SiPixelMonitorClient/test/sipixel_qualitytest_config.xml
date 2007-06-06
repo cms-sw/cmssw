@@ -1,91 +1,89 @@
 <TESTSCONFIGURATION> 
-<QTEST name="XrangeWithin:0-255.0" activate="true"> 
+<QTEST name="XrangeWithin:0-255" activate="true"> 
      <TYPE>ContentsXRange</TYPE> 
      <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
-     <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">250.0</PARAM> 
+     <PARAM name="warning">0.99</PARAM> 
+     <PARAM name="xmin">0.0</PARAM> 
+     <PARAM name="xmax">255.0</PARAM> 
 </QTEST>
 <QTEST name="MeanWithinExpected:adcRange" activate="true"> 
      <TYPE>MeanWithinExpected</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
      <PARAM name="mean">100.0</PARAM> 
      <PARAM name="useRMS">0</PARAM> 
      <PARAM name="useSigma">0</PARAM>
      <PARAM name="useRange">1</PARAM> 
-     <PARAM name="xmin">40</PARAM> 
-     <PARAM name="xmax">140</PARAM> 
+     <PARAM name="xmin">50.0</PARAM> 
+     <PARAM name="xmax">150.0</PARAM> 
 </QTEST>
 <QTEST name="MeanWithinExpected:ndigisRange" activate="true"> 
      <TYPE>MeanWithinExpected</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
      <PARAM name="mean">1.4</PARAM> 
      <PARAM name="useRMS">0</PARAM> 
      <PARAM name="useSigma">0</PARAM>
      <PARAM name="useRange">1</PARAM> 
-     <PARAM name="xmin">1</PARAM> 
-     <PARAM name="xmax">10</PARAM> 
+     <PARAM name="xmin">1.0</PARAM> 
+     <PARAM name="xmax">10.0</PARAM> 
 </QTEST>
-<QTEST name="YrangeWithin:100-170.0" activate="true"> 
+<QTEST name="YrangeWithin:100-170" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
-     <PARAM name="ymin">0</PARAM> 
-     <PARAM name="ymax">250.0</PARAM> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">100.0</PARAM> 
+     <PARAM name="ymax">270.0</PARAM> 
 </QTEST>
-<QTEST name="YrangeWithin:2-15.0" activate="true"> 
+<QTEST name="YrangeWithin:2-15" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
-     <PARAM name="ymin">0</PARAM> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">2.0</PARAM> 
      <PARAM name="ymax">15.0</PARAM> 
 </QTEST>
-<QTEST name="YrangeWithin:1-8.0" activate="true"> 
+<QTEST name="YrangeWithin:1-8" activate="true"> 
      <TYPE>ContentsYRange</TYPE> 
-     <PARAM name="error">0.95</PARAM> 
-     <PARAM name="warning">0.80</PARAM> 
-     <PARAM name="ymin">0</PARAM> 
+     <PARAM name="error">0.75</PARAM> 
+     <PARAM name="warning">0.90</PARAM> 
+     <PARAM name="ymin">1.0</PARAM> 
      <PARAM name="ymax">8.0</PARAM> 
 </QTEST>
 <LINK name="*adc_siPixelDigis_*"> 
-  <TestName activate="true">XrangeWithin:0-255.0</TestName> 
-</LINK>
-<LINK name="*adc_siPixelDigis_*"> 
-  <TestName activate="true">MeanWithinExpected:adcRange</TestName> 
+  <TestName activate="false">XrangeWithin:0-255</TestName> 
+  <TestName activate="false">MeanWithinExpected:adcRange</TestName> 
 </LINK>
 <LINK name="*ndigis_siPixelDigis_*"> 
-  <TestName activate="true">MeanWithinExpected:ndigisRange</TestName> 
+  <TestName activate="false">MeanWithinExpected:ndigisRange</TestName> 
 </LINK>
 <LINK name="*Summary_adc_in_*"> 
-  <TestName activate="true">YrangeWithin:100-170.0</TestName> 
+  <TestName activate="false">YrangeWithin:100-170</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_PixelBarrel*"> 
-  <TestName activate="true">YrangeWithin:2-15.0</TestName> 
+  <TestName activate="true">YrangeWithin:2-15</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Shell*"> 
-  <TestName activate="true">YrangeWithin:2-15.0</TestName> 
+  <TestName activate="true">YrangeWithin:2-15</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Layer*"> 
-  <TestName activate="true">YrangeWithin:2-15.0</TestName> 
+  <TestName activate="true">YrangeWithin:2-15</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Ladder*"> 
-  <TestName activate="true">YrangeWithin:2-15.0</TestName> 
+  <TestName activate="false">YrangeWithin:2-15</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_PixelEndcap*"> 
-  <TestName activate="true">YrangeWithin:1-8.0</TestName> 
+  <TestName activate="true">YrangeWithin:1-8</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_HalfCylinder*"> 
-  <TestName activate="true">YrangeWithin:1-8.0</TestName> 
+  <TestName activate="true">YrangeWithin:1-8</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Disk*"> 
-  <TestName activate="true">YrangeWithin:1-8.0</TestName> 
+  <TestName activate="true">YrangeWithin:1-8</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Blade*"> 
-  <TestName activate="true">YrangeWithin:1-8.0</TestName> 
+  <TestName activate="false">YrangeWithin:1-8</TestName> 
 </LINK>
 <LINK name="*Summary_ndigis_in_Panel*"> 
-  <TestName activate="true">YrangeWithin:1-8.0</TestName> 
+  <TestName activate="false">YrangeWithin:1-8</TestName> 
 </LINK>
 </TESTSCONFIGURATION>
