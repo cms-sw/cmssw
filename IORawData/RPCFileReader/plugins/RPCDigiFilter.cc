@@ -34,8 +34,8 @@ void RPCDigiFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //check if the chamber is present in the cabling DB.
     int rawDetId = (*rpcDigiCI).first.rawId();
     int stripInDU =  (*rpcDigiCI).second.first->strip();
-    bool accept = acceptDigiDB(std::pair<uint32_t, int>(rawDetId, stripInDU), iSetup);
-    bool accept1 = acceptDigiGeom(std::pair<uint32_t, int>(rawDetId, stripInDU));
+    bool accept1 = acceptDigiDB(std::pair<uint32_t, int>(rawDetId, stripInDU), iSetup);
+    bool accept = acceptDigiGeom(std::pair<uint32_t, int>(rawDetId, stripInDU));
     if(accept!=accept1) {
       //std::cout<<"Difference: accept from DB: "<<accept<<" accept from geom: "<<accept1<<" digi: "<<(*rpcDigiCI).first;
       //std::cout<<"     detId: "<< rawDetId<<" strip: "<< stripInDU<<std::endl;
@@ -62,6 +62,7 @@ void RPCDigiFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 bool RPCDigiFilter::acceptDigiDB(std::pair<uint32_t, int> detStripPair,  const edm::EventSetup& iSetup){
 
+/*
   //Open the cabling database
   edm::ESHandle<RPCReadOutMapping> readoutMapping;
   iSetup.get<RPCReadOutMappingRcd>().get(readoutMapping);
@@ -73,7 +74,8 @@ bool RPCDigiFilter::acceptDigiDB(std::pair<uint32_t, int> detStripPair,  const e
   //if(!rawDataFrames.size()) return false;
   
   return (rawDataFrames.size()>0);
-
+*/
+return true;
 }
 
 
