@@ -87,14 +87,9 @@ void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
     cont.push_back(const_cast<GeometricDet*>(this));
   else 
     std::for_each(_container.begin(),_container.end(), 
-		  boost::bind(&GeometricDet::deepComponents,_1));
-  }
+		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont));
 }
 
-
-DetId GeometricDet::geographicalID() const {
-  return _geographicalID;
-}
 
 void GeometricDet::addComponents(GeometricDetContainer const & cont){
   if (_container.empty()) {
