@@ -354,11 +354,11 @@ void CSCStripElectronicsSim::addCrosstalk() {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
-      int otherStrip = thisStrip - 1;
+      int otherStrip = readoutElement(thisStrip - 1);
       addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
     if(thisStrip < nElements) {
-      int otherStrip = thisStrip + 1;
+      int otherStrip = readoutElement(thisStrip + 1);
       addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
   }
