@@ -123,7 +123,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     }
     
     
-    det->deleteComponents();
+    det->clearComponents();
     det->addComponents(intneg);
     det->addComponents(extneg);
     det->addComponents(intpos);
@@ -158,7 +158,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       pos[i]->setGeographicalID(DetId(temp));
     }
     
-    det->deleteComponents();
+    det->clearComponents();
     det->addComponents(neg);
     det->addComponents(pos);
     
@@ -170,7 +170,7 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       comp[i]->setGeographicalID(DetId(i+1));
     }    
     
-    det->deleteComponents();
+    det->clearComponents();
     det->addComponents(comp);
   }else{
     edm::LogError("CmsTrackerLayerBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();

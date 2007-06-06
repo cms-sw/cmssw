@@ -75,7 +75,7 @@ void CmsTrackerDiskBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     zmaxpanels[bn]->setGeographicalID(temp);
   }
   
-  det->deleteComponents();
+  det->clearComponents();
   
   det->addComponents(zminpanels);
   det->addComponents(zmaxpanels);

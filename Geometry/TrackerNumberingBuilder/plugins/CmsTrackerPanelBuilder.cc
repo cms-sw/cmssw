@@ -33,6 +33,6 @@ void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     comp[i]->setGeographicalID(DetId(i+1));
   } 
  
-  det->deleteComponents();
+  det->clearComponents();
   det->addComponents(comp);
 }

@@ -65,7 +65,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	compfw[i]->setGeographicalID(DetId(temp));
       }
       
-      det->deleteComponents();
+      det->clearComponents();
       det->addComponents(compfw);
       det->addComponents(compbw);
       
@@ -78,7 +78,7 @@ void CmsTrackerWheelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 	comp[i]->setGeographicalID(DetId(i+1));
       }
       
-      det->deleteComponents();
+      det->clearComponents();
       det->addComponents(comp);
     }
   }else{

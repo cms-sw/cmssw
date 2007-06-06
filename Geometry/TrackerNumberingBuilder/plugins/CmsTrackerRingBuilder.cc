@@ -81,7 +81,7 @@ void CmsTrackerRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       compfw[i]->setGeographicalID(temp);
     }
     
-    det->deleteComponents();
+    det->clearComponents();
     det->addComponents(compfw);
     det->addComponents(compbw);
     

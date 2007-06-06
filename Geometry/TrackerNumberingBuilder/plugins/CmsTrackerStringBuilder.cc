@@ -22,7 +22,7 @@ void CmsTrackerStringBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     for(uint32_t i=0; i<comp.size();i++){
       comp[i]->setGeographicalID(DetId(i+1));
     }
-    det->deleteComponents();
+    det->clearComponents();
     det->addComponents(comp);
   }else{
        edm::LogError("CmsTrackerStringBuilder")<<"Where are the String's modules?";

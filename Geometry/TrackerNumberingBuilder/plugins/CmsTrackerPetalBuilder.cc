@@ -36,7 +36,7 @@ void CmsTrackerPetalBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
   for(uint32_t i=0; i<comp.size(); i++){
     comp[i]->setGeographicalID(DetId(startring+i));
   }
-  det->deleteComponents();
+  det->clearComponents();
   det->addComponents(comp);
 }
 
