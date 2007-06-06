@@ -1,5 +1,7 @@
 #include "RecoTracker/TkNavigation/interface/TkLayerLess.h"
 #include "Utilities/General/interface/CMSexception.h"
+//#include "RecoTracker/TkNavigation/interface/CosmicNavigationSchool.h"
+#include "RecoTracker/TkNavigation/interface/FakeDetLayer.h"
 
 bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
 {
@@ -11,6 +13,11 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
     dynamic_cast<BarrelDetLayer*>(const_cast<DetLayer*>(b));
 
   if      ( bla!=0 && blb!=0) {  // barrel with barrel
+    const FakeDetLayer* fdla = dynamic_cast<FakeDetLayer*>(const_cast<DetLayer*>(a));
+    if (fdla) return true;
+    const FakeDetLayer* fdlb = dynamic_cast<FakeDetLayer*>(const_cast<DetLayer*>(b));
+    if (fdlb) return false;
+    
     return bla->specificSurface().radius() < blb->specificSurface().radius();
   }
 
@@ -18,6 +25,8 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
     dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(b));
 
   if ( bla!=0 && flb!=0) {  // barrel with forward
+    const FakeDetLayer* fdla = dynamic_cast<FakeDetLayer*>(const_cast<DetLayer*>(a));
+    if (fdla) return true;
     return barrelForwardLess( bla, flb);
   }
 
@@ -28,6 +37,8 @@ bool TkLayerLess::insideOutLess( const DetLayer* a, const DetLayer* b) const
     return fabs( fla->position().z()) < fabs( flb->position().z());
   }
   if ( fla!=0 && blb!=0) {  // forward with barrel
+    const FakeDetLayer* fdlb = dynamic_cast<FakeDetLayer*>(const_cast<DetLayer*>(b));
+    if (fdlb) return false;	
     return !barrelForwardLess( blb, fla);
   }
   //throw DetLogicError("TkLayerLess: arguments are not Barrel or Forward DetLayers");
