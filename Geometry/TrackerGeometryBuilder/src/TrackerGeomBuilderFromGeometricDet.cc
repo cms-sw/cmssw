@@ -38,14 +38,14 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const DDCompactView* 
   DDExpandedView ev(*cpv);
 
   TrackerGeometry* tracker = new TrackerGeometry();
-  std::vector<const GeometricDet*> comp = gd->deepComponents();
+  std::vector<const GeometricDet*> const & comp = gd->deepComponents();
 
-  std::vector<const GeometricDet*> pixB; 
-  std::vector<const GeometricDet*> pixF; 
-  std::vector<const GeometricDet*> tib;  
-  std::vector<const GeometricDet*> tid;  
-  std::vector<const GeometricDet*> tob;  
-  std::vector<const GeometricDet*> tec;  
+  std::vector<const GeometricDet*> pixB; pixB.reserve(comp.size());
+  std::vector<const GeometricDet*> pixF; pixF.reserve(comp.size());
+  std::vector<const GeometricDet*> tib;  tib.reserve(comp.size());
+  std::vector<const GeometricDet*> tid;  tid.reserve(comp.size());
+  std::vector<const GeometricDet*> tob;  tob.reserve(comp.size());
+  std::vector<const GeometricDet*> tec;  tec.reserve(comp.size());
 
   for(u_int32_t i = 0;i<comp.size();i++){
     u_int32_t answer = comp[i]->geographicalID().subdetId();
@@ -74,7 +74,7 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const DDCompactView* 
   return tracker;
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*> gdv, 
+void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricDet*>  const & gdv, 
 						    DDExpandedView* ev,
 						    TrackerGeometry* tracker,
 						    GeomDetType::SubDetector& det,
@@ -82,10 +82,10 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
   static std::map<std::string,PixelGeomDetType*> detTypeMap;
 
-  for(u_int32_t i=0;i<gdv.size();i++){
+  for(u_int32_t i=0; i<gdv.size(); i++){
 
     ev->goTo(gdv[i]->navType());
-    std::string detName = gdv[i]->name();
+    std::string const & detName = gdv[i]->name();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
       PixelTopology* t = 
@@ -96,9 +96,10 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 				       getDouble("PixelROC_Y"  ,ev),
 				       part);
       
-      detTypeMap[detName]  = new  PixelGeomDetType(t,detName,det);
+      detTypeMap[detName] = new PixelGeomDetType(t,detName,det);
       tracker->addType(detTypeMap[detName]);
     }
+
     PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i], ev);
     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
@@ -107,7 +108,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
   }
 }
 
-void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*> gdv, 
+void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const GeometricDet*>  const & gdv, 
 						      DDExpandedView* ev,
 						      TrackerGeometry* tracker,
 						      GeomDetType::SubDetector& det,
@@ -118,7 +119,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
   for(u_int32_t i=0;i<gdv.size();i++){
 
     ev->goTo(gdv[i]->navType());
-    std::string detName = gdv[i]->name();
+    std::string const & detName = gdv[i]->name();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
       bool stereo = false;
@@ -140,6 +141,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
     tracker->addDetUnitId(gdv[i]->geographicalID());
   }  
 }
+
 
 void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
@@ -174,11 +176,11 @@ void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
 }
 
 
-std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, DDExpandedView* ev) const
+std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string & s, DDExpandedView* ev) const
 {
-    vector<std::string> temp;
     DDValue val(s);
-    vector<const DDsvalues_type *> result = ev->specifics();
+    vector<const DDsvalues_type *> result;
+    ev->specifics(result);
     vector<const DDsvalues_type *>::iterator it = result.begin();
     bool foundIt = false;
     for (; it != result.end(); ++it)
@@ -189,7 +191,7 @@ std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, D
     }    
     if (foundIt)
     { 
-	temp = val.strings(); 
+	const std::vector<std::string> & temp = val.strings(); 
 	if (temp.size() != 1)
 	{
 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
@@ -199,11 +201,11 @@ std::string TrackerGeomBuilderFromGeometricDet::getString(const std::string s, D
     return "NotFound";
 }
 
-double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExpandedView* ev) const 
+double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string & s,  DDExpandedView* ev) const 
 {
-  vector<std::string> temp;
   DDValue val(s);
-  vector<const DDsvalues_type *> result = ev->specifics();
+  vector<const DDsvalues_type *> result;
+  ev->specificsV(result);
   vector<const DDsvalues_type *>::iterator it = result.begin();
   bool foundIt = false;
   for (; it != result.end(); ++it)
@@ -213,7 +215,7 @@ double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string s,  DDExp
     }    
   if (foundIt)
     { 
-      temp = val.strings(); 
+      const std::vector<std::string> & temp = val.strings(); 
       if (temp.size() != 1)
 	{
 	  throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";

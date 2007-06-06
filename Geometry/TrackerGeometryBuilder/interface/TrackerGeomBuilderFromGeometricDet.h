@@ -18,9 +18,9 @@ public:
 
 private:
 
-  void buildPixel(std::vector<const GeometricDet*>,DDExpandedView*,
+  void buildPixel(std::vector<const GeometricDet*> const &,DDExpandedView*,
 		  TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
-  void buildSilicon(std::vector<const GeometricDet*>,DDExpandedView*,
+  void buildSilicon(std::vector<const GeometricDet*> const &,DDExpandedView*,
 		    TrackerGeometry*,GeomDetType::SubDetector& det, const std::string& part);
   void buildGeomDet(TrackerGeometry*);
 
