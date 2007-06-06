@@ -50,6 +50,7 @@ void CSCDbStripConditions::initializeEvent(const edm::EventSetup & es)
   es.get<CSCNoiseMatrixRcd>().get(hNoiseMatrix);
   theNoiseMatrix = &*hNoiseMatrix.product();
 
+//  print();
 }
 
 
@@ -74,9 +75,12 @@ void CSCDbStripConditions::print() const
   for( ; pedestalItr != lastPedestal; ++pedestalItr)
   {
     std::cout << "PEDS " << pedestalItr->first << " " 
-              << " STRIPS " << pedestalItr->second.size() << " "
-              << pedestalItr->second[0].ped << " " 
-              << pedestalItr->second[0].rms << std::endl;
+              << " STRIPS " << pedestalItr->second.size() << " ";
+    for(int i = 1; i < 80; ++i)
+    {
+       std::cout << pedestalItr->second[i-1].rms << " " ;
+     }
+     std::cout << std::endl;
   }
 
   std::map< int,std::vector<CSCcrosstalk::Item> >::const_iterator crosstalkItr = theCrosstalk->crosstalk.begin(),
@@ -105,7 +109,7 @@ float CSCDbStripConditions::gain(const CSCDetId & detId, int channel) const
      << "Cannot find gain for layer " << detId;
   }
 
-  return layerGainsItr->second[channel-1].gain_slope * theGainsConstant;
+  return layerGainsItr->second.at(channel-1).gain_slope * theGainsConstant;
 }
 
 
@@ -120,7 +124,7 @@ CSCPedestals::Item CSCDbStripConditions::pedestalObject(const CSCDetId & detId, 
     throw cms::Exception("CSCDbStripConditions")
      << "Cannot find pedestals for layer " << detId;
   }
-  return pedestalItr->second[channel-1];
+  return pedestalItr->second.at(channel-1);
 }
 
 
@@ -150,7 +154,7 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
      << "Cannot find crosstalk for layer " << detId;
   }
 
-  const CSCcrosstalk::Item & item = crosstalkItr->second[channel-1];
+  const CSCcrosstalk::Item & item = crosstalkItr->second.at(channel-1);
   // resistive fraction is at the peak, where t=0
   resistive = leftRight ? item.xtalk_intercept_right 
                         : item.xtalk_intercept_left;
@@ -178,10 +182,8 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
     throw cms::Exception("CSCDbStripConditions")
      << "Cannot find noise matrix for layer " << detId;
   }
-  int nstrips = matrixItr->second.size();
-  assert(nstrips >= istrip);
 
-  const CSCNoiseMatrix::Item & item = matrixItr->second[istrip-1];
+  const CSCNoiseMatrix::Item & item = matrixItr->second.at(istrip-1);
 
   HepSymMatrix matrix(8);
   //TODO get the pedestals right
@@ -202,7 +204,6 @@ void CSCDbStripConditions::fetchNoisifier(const CSCDetId & detId, int istrip)
   float sigma = pedestalSigma(detId, istrip);
   float scaVariance = 2 * sigma * sigma;
   matrix[0][0] = matrix[1][1] = matrix[2][2] = scaVariance;
-
   if(theNoisifier != 0) delete theNoisifier;
   theNoisifier = new CorrelatedNoisifier(matrix);
 }
@@ -219,10 +220,9 @@ int CSCDbStripConditions::dbIndex(const CSCDetId & id, int & channel)
   // there isn't really an ME1A.  It's channels 65-80 of ME11.
   if(st == 1 && rg == 4)
   {
-    channel += 64;
     rg = 1;
+    if(channel <= 64) channel += 64;
   }
-
   return ec*100000 + st*10000 + rg*1000 + ch*10 + la;
 }
 
