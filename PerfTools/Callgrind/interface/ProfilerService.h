@@ -89,12 +89,14 @@ private:
   // configurable
   int m_firstEvent; 
   int m_lastEvent;
+  int m_dumpInterval;
   std::vector<std::string> m_paths; 
   std::vector<std::string> m_excludedPaths; 
   bool m_allPaths;
 
   // internal state
   int m_evtCount;
+  int m_counts;
   bool m_doEvent;
   int m_active;
   bool m_paused;
