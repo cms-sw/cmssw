@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMuonProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
+// $Id: TopMuonProducer.h,v 1.2 2007/05/30 21:50:46 lowette Exp $
 //
 //
 
@@ -47,16 +47,20 @@ class TopMuonProducer : public edm::EDProducer {
 
   private:
 
-    PtInverseComparator<TopMuon> pTMuonComparator;
-    double muonPTcut_;
-    double muonEtacut_;
-    double muonLRcut_;
-    bool doGenMatch_;
-    bool addResolutions_;  
-    bool addLRValues_;
-    std::string muonLRFile_, muonResoFile_;
-    edm::InputTag genPartSrc_;
-    TopLeptonLRCalc * theLeptonLRCalc_;
-    TopObjectResolutionCalc * theResCalc_;
+    // configurables
+    edm::InputTag  muonSrc_;
+    double         muonPTcut_;
+    double         muonEtacut_;
+    double         muonLRcut_;
+    bool           doGenMatch_;
+    bool           addResolutions_;  
+    bool           addLRValues_;
+    edm::InputTag  genPartSrc_;
+    std::string    muonResoFile_;
+    std::string    muonLRFile_;
+    // tools
+    TopObjectResolutionCalc *    theResoCalc_;
+    TopLeptonLRCalc *            theLeptonLRCalc_;
+    PtInverseComparator<TopMuon> pTMuonComparator_;
 
 };

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopElectronProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
+// $Id: TopElectronProducer.h,v 1.2 2007/05/30 21:50:46 lowette Exp $
 //
 //
 
@@ -47,16 +47,20 @@ class TopElectronProducer : public edm::EDProducer {
 
   private:
 
+    // configurables
+    edm::InputTag  electronSrc_;
+    double         electronPTcut_;
+    double         electronEtacut_;
+    double         electronLRcut_;
+    bool           doGenMatch_;
+    bool           addResolutions_;
+    bool           addLRValues_;
+    edm::InputTag  genPartSrc_;
+    std::string    electronResoFile_;
+    std::string    electronLRFile_;
+    // tools
+    TopObjectResolutionCalc *        theResoCalc_;
+    TopLeptonLRCalc *                theLeptonLRCalc_;
     PtInverseComparator<TopElectron> pTElectronComparator;
-    double electronPTcut_;
-    double electronEtacut_;
-    double electronLRcut_;
-    bool doGenMatch_;
-    bool addResolutions_;
-    bool addLRValues_;
-    std::string electronLRFile_, electronResoFile_;
-    edm::InputTag genPartSrc_;
-    TopLeptonLRCalc * theLeptonLRCalc_;
-    TopObjectResolutionCalc * theResCalc_;
 
 };
