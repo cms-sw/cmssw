@@ -19,20 +19,20 @@ public:
   
   
   struct subDetByType{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b) {
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const {
       return a->type() < b->type();
     }
   };
   
   struct LessZ{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b)
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
       return a->translation().z() < b->translation().z();   
     }
   };
   
   struct LessModZ{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b)
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
       return fabs(a->translation().z()) < fabs(b->translation().z());   
     }
@@ -160,7 +160,7 @@ public:
   };
   
   struct LessR_module{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b)
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
       return a->deepComponents().front()->rho() < 
 	b->deepComponents().front()->rho();      
@@ -168,7 +168,7 @@ public:
   };
   
   struct LessR{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b)
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const
     {
       return a->rho() < b->rho(); 
     }
