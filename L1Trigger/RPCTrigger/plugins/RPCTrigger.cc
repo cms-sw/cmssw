@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/04/16 16:04:05 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/21 15:05:53 $
+ *  $Revision: 1.2 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -35,7 +35,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
   if ( m_triggerDebug != 1 && m_triggerDebug != 2)
      m_triggerDebug = 0;
    
- 
+  m_label = iConfig.getUntrackedParameter<std::string>("label","muonRPCDigis");
 }
 
 
@@ -109,7 +109,8 @@ RPCTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   edm::Handle<RPCDigiCollection> rpcDigis;
 //  iEvent.getByType(rpcDigis);
-  iEvent.getByLabel("muonRPCDigis",rpcDigis);
+  //iEvent.getByLabel("muonRPCDigis",rpcDigis);
+  iEvent.getByLabel(m_label, rpcDigis);
 
   L1RpcLogConesVec ActiveCones = m_theLinksystem.getCones(rpcDigis);
   
