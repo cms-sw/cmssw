@@ -116,12 +116,12 @@ void GeometricDet::addComponent(GeometricDet* det){
 
 namespace {
   struct Deleter {
-    void operator()(GeometricDet const* det) { delete  const_cast<GeometricDet*>(det);}
+    void operator()(GeometricDet const* det) const { delete const_cast<GeometricDet*>(det);}
   };
 }
 
 void GeometricDet::deleteComponents(){
-  std::for_each(_container.begin(),_container.end(),Deleter); 
+  std::for_each(_container.begin(),_container.end(),Deleter()); 
   _container.clear();
 }
 
