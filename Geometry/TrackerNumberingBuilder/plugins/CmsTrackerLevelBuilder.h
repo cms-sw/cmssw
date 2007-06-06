@@ -13,7 +13,7 @@
 typedef std::unary_function<const GeometricDet*, double> uFcn;
 
 class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
- public:
+public:
   virtual void build(DDFilteredView& , GeometricDet*, std::string);
   virtual ~CmsTrackerLevelBuilder(){}
   
@@ -46,26 +46,26 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       return( phi>= 0 ? phi:phi+2*pi);   
     }
   };
-
+  
   struct ExtractPhiModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
       std::vector<const GeometricDet*> const & comp = a->components().back()->components();
       float phi = 0.;
       bool sum = true;
-
+      
       for(unsigned int i=0;i<comp.size();i++){
 	if(fabs(comp[i]->phi())>pi/2.) { 
 	  sum = false;
 	  break;
 	}
       }
-
+      
       if(sum){
 	for(unsigned int i=0;i<comp.size();i++){
 	  phi+= comp[i]->phi();
 	}
-    
+	
 	double temp = phi/float(comp.size()) < 0. ? 
 	  2*pi + phi/float(comp.size()):
 	  phi/float(comp.size());
@@ -77,7 +77,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	    comp[i]->phi()+2*pi; 
 	  phi+= phi1;
 	}
-       
+	
 	double com = comp.front()->phi() >= 0 ? comp.front()->phi():
 	  2*pi + comp.front()->phi();
 	double temp = fabs(phi/float(comp.size()) - com) > 2. ? 
@@ -88,7 +88,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       }
     }
   };
-
+  
   struct ExtractPhiGluedModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
@@ -96,17 +96,19 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       a->deepComponents(comp);
       float phi = 0.;
       bool sum = true;
-
+      
       for(unsigned int i=0;i<comp.size();i++){
 	if(fabs(comp[i]->phi())>pi/2.) {
 	  sum = false;
 	  break;
+	}
       }
+      
       if(sum){
 	for(unsigned int i=0;i<comp.size();i++){
 	  phi+= comp[i]->phi();
 	}
-    
+	
 	double temp = phi/float(comp.size()) < 0. ? 
 	  2*pi + phi/float(comp.size()):
 	  phi/float(comp.size());
@@ -118,7 +120,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	    comp[i]->translation().phi()+2*pi; 
 	  phi+= phi1;
 	}
-       
+	
 	double com = comp.front()->phi() >= 0 ? comp.front()->phi():
 	  2*pi + comp.front()->phi();
 	double temp = fabs(phi/float(comp.size()) - com) > 2. ? 
@@ -138,7 +140,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       return ( (pi-phi) >= 0 ? (pi-phi) : (pi-phi)+2*pi ); // (-pi,pi] --> [0,2pi)
     }
   };
-
+  
   struct ExtractPhiModuleMirror:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
@@ -147,7 +149,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
       return (pi-phi);
     }
   };
-
+  
   struct ExtractPhiGluedModuleMirror:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
@@ -175,9 +177,9 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   
  private:
   virtual void buildComponent(DDFilteredView& , GeometricDet*, std::string) = 0;
- protected:
+protected:
   CmsTrackerStringToEnum theCmsTrackerStringToEnum;
- private:
+private:
   virtual void sortNS(DDFilteredView& , GeometricDet*){}
   CmsTrackerStringToEnum _CmsTrackerStringToEnum;
 };

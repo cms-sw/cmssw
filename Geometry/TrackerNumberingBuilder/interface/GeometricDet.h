@@ -79,8 +79,8 @@ class GeometricDet {
    */
   DDRotationMatrix const & rotation() const {return _rot;}
   DDTranslation const & translation() const {return _trans;}
-  double phi const { return _phi; }
-  double rho const { return _rho; }
+  double phi() const { return _phi; }
+  double rho() const { return _rho; }
 
 
   DDSolidShape const & shape() const  {return _shape;}

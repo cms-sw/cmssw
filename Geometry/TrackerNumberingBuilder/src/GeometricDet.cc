@@ -23,6 +23,8 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   ev.goTo(_ddd);
   _params = ((ev.logicalPart()).solid()).parameters();
   _trans = ev.translation();
+  _phi = _trans.Phi();
+  _rho = _trans.Rho();
   _rot = ev.rotation();
   _shape = ((ev.logicalPart()).solid()).shape();
   _ddname = ((ev.logicalPart()).ddname()).name();
@@ -42,6 +44,8 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _ddd = fv->navPos();
   _params = ((fv->logicalPart()).solid()).parameters();  
   _trans = fv->translation();
+  _phi = _trans.Phi();
+  _rho = _trans.Rho();
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
@@ -61,6 +65,8 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   _ddd = fv->navPos();
   _params = ((fv->logicalPart()).solid()).parameters();
   _trans = fv->translation();
+  _phi = _trans.Phi();
+  _rho = _trans.Rho();
   _rot = fv->rotation();
   _shape = ((fv->logicalPart()).solid()).shape();
   _ddname = ((fv->logicalPart()).ddname()).name();
@@ -87,7 +93,8 @@ void GeometricDet::deepComponents(GeometricDetContainer & cont) const {
     cont.push_back(const_cast<GeometricDet*>(this));
   else 
     std::for_each(_container.begin(),_container.end(), 
-		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont));
+		  boost::bind(&GeometricDet::deepComponents,_1,boost::ref(cont))
+		  );
 }
 
 

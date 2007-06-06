@@ -38,22 +38,20 @@ void CmsTrackerSubStrctBuilder::buildComponent(DDFilteredView& fv, GeometricDet*
 }
 
 void CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det){
-  GeometricDet::GeometricDetContainer comp = det->components();
+  GeometricDet::GeometricDetContainer & comp = det->components();
 
-  switch(det->components().front()->type()){
-  case GeometricDet::layer: std::stable_sort(comp.begin(),comp.end(),LessR()); break;	
-  case GeometricDet::wheel: std::stable_sort(comp.begin(),comp.end(),LessModZ()); break;	
-  case GeometricDet::disk:  std::stable_sort(comp.begin(),comp.end(),LessModZ()); break;
+  switch(comp.front()->type()){
+  case GeometricDet::layer: std::sort(comp.begin(),comp.end(),LessR()); break;	
+  case GeometricDet::wheel: std::sort(comp.begin(),comp.end(),LessModZ()); break;	
+  case GeometricDet::disk:  std::sort(comp.begin(),comp.end(),LessModZ()); break;
     
   default:
     edm::LogError("CmsTrackerSubStrctBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
   }
   
   for(uint32_t i=0; i<comp.size(); i++){
-    comp[i]->setGeographicalID(DetId(i+1)); // Every subdetector: Layer/Disk/Wheel Number
+    comp[i]->setGeographicalID(i+1); // Every subdetector: Layer/Disk/Wheel Number
   }
   
-  det->deleteComponents();
-  det->addComponents(comp);
 }
 
