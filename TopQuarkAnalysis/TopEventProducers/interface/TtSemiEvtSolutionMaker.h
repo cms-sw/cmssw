@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.4 2007/05/23 09:04:58 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.5 2007/06/01 09:08:14 heyninck Exp $
 //
 //
 
@@ -35,6 +35,7 @@
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEMom.h"
 #include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
 #include "PhysicsTools/Utilities/interface/MinSelector.h"
@@ -83,6 +84,7 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       TtSemiKinFitterEtEtaPhi       *myKinFitterEtEtaPhi;
       TtSemiKinFitterEMom           *myKinFitterEMom;
       TtSemiSimpleBestJetComb       *mySimpleBestJetComb;
+      TtSemiLRSignalSelObservables  *myTtSemiLRSignalSelObservables;
       TtSemiLRJetCombObservables    *myLRJetCombObservables;
       TtSemiLRJetCombCalc	    *myLRJetCombCalc;
       EtaRangeSelector<TopJet>      *jetEtaRangeSelector;

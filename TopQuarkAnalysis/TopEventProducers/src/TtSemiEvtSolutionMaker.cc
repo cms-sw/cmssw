@@ -48,8 +48,9 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    }
    
    // define jet combinations related calculators
-   mySimpleBestJetComb      = new TtSemiSimpleBestJetComb();
-   myLRJetCombObservables   = new TtSemiLRJetCombObservables();
+   mySimpleBestJetComb      	     = new TtSemiSimpleBestJetComb();
+   myTtSemiLRSignalSelObservables    = new TtSemiLRSignalSelObservables();
+   myLRJetCombObservables            = new TtSemiLRJetCombObservables();
    if(addLRJetComb_) myLRJetCombCalc = new TtSemiLRJetCombCalc(lrJetCombFile_);
    produces<vector<TtSemiEvtSolution> >();
 }
@@ -75,6 +76,7 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
    delete electronEtaRangeSelector;
    delete metEtMinSelector;
    delete mySimpleBestJetComb;
+   delete myTtSemiLRSignalSelObservables;
    delete myLRJetCombObservables;
    if(addLRJetComb_) delete myLRJetCombCalc;
 }
@@ -195,8 +197,12 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 		   asol.setLeptonParametrisation(param_);
 		   asol.setMETParametrisation(param_);
       		 }
-		 // these lines calculate the observables to be used in the JetCombination LR
+		 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
+		 (*myTtSemiLRSignalSelObservables)(asol);
+		 
+		 // these lines calculate the observables to be used in the TtSemiJetCombination LR
 		 (*myLRJetCombObservables)(asol);
+		 
 		 //if asked for, calculate with these observable values the LRvalue and probability a jet combination is correct
 		 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
 	         evtsols->push_back(asol);
