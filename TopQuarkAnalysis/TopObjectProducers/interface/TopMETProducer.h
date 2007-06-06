@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMETProducer.h,v 1.2 2007/05/08 14:01:21 heyninck Exp $
+// $Id: TopMETProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
 //
 //
 
@@ -34,24 +34,30 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 
-#include <vector>
-
-using namespace std;
-
 //
 // class decleration
 //
 
 class TopMETProducer : public edm::EDProducer {
-   public:
-      explicit TopMETProducer(const edm::ParameterSet&);
-      ~TopMETProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-     string METLabel_, metResoFile_;
-     double METcut_;
-     bool addResolutions_;
-     EtInverseComparator<TopMET> eTComparator;
-     TopObjectResolutionCalc *metResCalc;
+  public:
+
+    explicit TopMETProducer(const edm::ParameterSet & iConfig);
+    ~TopMETProducer();
+
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+
+  private:
+
+    // configurables
+    edm::InputTag metSrc_;
+    double        metCut_;
+    bool          addResolutions_;
+    bool          addMuonCorr_;
+    std::string   metResoFile_;
+    edm::InputTag muonSrc_;
+    // tools
+    TopObjectResolutionCalc *   metResoCalc_;
+    EtInverseComparator<TopMET> eTComparator_;
+
 };
