@@ -1,7 +1,7 @@
 /** \file RPCTrigger.cc
  *
- *  $Date: 2007/05/21 15:05:53 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/06 13:39:14 $
+ *  $Revision: 1.3 $
  *  \author Tomasz Fruboes
  */
 #include "L1Trigger/RPCTrigger/interface/RPCTrigger.h"
@@ -35,7 +35,7 @@ RPCTrigger::RPCTrigger(const edm::ParameterSet& iConfig):
   if ( m_triggerDebug != 1 && m_triggerDebug != 2)
      m_triggerDebug = 0;
    
-  m_label = iConfig.getUntrackedParameter<std::string>("label","muonRPCDigis");
+  m_label = iConfig.getParameter<std::string>("label");
 }
 
 
