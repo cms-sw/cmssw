@@ -10,7 +10,6 @@
 
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
-#include "DataFormats/BTauReco/interface/IsolatedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/JetReco/interface/Jet.h"
