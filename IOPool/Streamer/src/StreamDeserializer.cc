@@ -84,7 +84,7 @@ namespace edm
    */
   std::auto_ptr<EventPrincipal>
   StreamDeserializer::deserializeEvent(EventMsgView const& eventView,
-                                     const ProductRegistry& productRegistry)
+                                     boost::shared_ptr<ProductRegistry const> productRegistry)
   {
     if(eventView.code() != Header::EVENT)
       throw cms::Exception("StreamTranslation","Event deserialization error")
