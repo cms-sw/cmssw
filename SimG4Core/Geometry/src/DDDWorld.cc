@@ -5,6 +5,7 @@
 #include "SimG4Core/Geometry/interface/DDG4Builder.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4RunManagerKernel.hh"
 #include "G4PVPlacement.hh"
@@ -32,5 +33,6 @@ DDDWorld::~DDDWorld() {}
 void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
   G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (kernel != 0) kernel->DefineWorldVolume(pv);
+  edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
 }
 

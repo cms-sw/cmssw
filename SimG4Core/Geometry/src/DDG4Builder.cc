@@ -127,14 +127,21 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	int offset = getInt("CopyNoOffset",ddcurLP);
 	int tag = getInt("CopyNoTag",ddcurLP);				
 	DDRotationMatrix rm(gra.edgeData(cit->second)->rot());
-	if ((rm.colX().cross(rm.colY()))*rm.colZ()<0)
+	DD3Vector x, y, z;
+	rm.GetComponents(x, y, z);
+	if ((x.Cross(y)).Dot(z)<0)
 	  LogDebug("SimG4CoreGeometry") << ">>Reflection encountered: " << gra.edgeData(cit->second)->rot_ ;
 	LogDebug("SimG4CoreGeometry") << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
 				      << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
 				      << " r=" << gra.edgeData(cit->second)->rot_.ddname() ;          
-	G4Translate3D transl = gra.edgeData(cit->second)->trans_;
+	Hep3Vector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
+	G4Translate3D transl = tempTran;
+	HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
+	HepRotation hr ( temp );
+
 	// G3 convention of defining rot-matrices ...
-	G4Transform3D trfrm  = transl * G4Rotate3D(rm);//.inverse();
+	G4Transform3D trfrm  = transl * G4Rotate3D(hr.inverse());//.inverse();
+
 #ifdef G4V7
 	refFact->Place(trfrm, // transformation containing a possible reflection
 		       gra.nodeData(cit->first).name().name(),
@@ -195,7 +202,7 @@ int DDG4Builder::getInt(const std::string & s, const DDLogicalPart & part)
     std::vector<double> temp = val.doubles();
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
-      abort();
+      throw SimG4Exception("DDG4Builder: Problem with Region tags - one and only one allowed");
     }      
     return int(temp[0]);
   }
@@ -216,7 +223,7 @@ double DDG4Builder::getDouble(const std::string & s,
     std::vector<std::string> temp = val.strings();
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << " DDG4Builder - ERROR: I need only 1 " << s ;
-      abort();
+      throw SimG4Exception("DDG4Builder: Problem with Region tags - one and only one allowed");
     }
     double v;
     std::string unit;

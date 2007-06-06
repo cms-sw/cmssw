@@ -1,4 +1,5 @@
 #include "SimG4Core/Geometry/interface/DDG4SensitiveConverter.h"
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,7 +53,7 @@ std::string DDG4SensitiveConverter::getString(const std::string & s,
     temp = val.strings(); 
     if (temp.size() != 1) {
       edm::LogError("SimG4CoreGeometry") << "DDG4SensitiveConverter - ERROR: I need 1 " << s << " tags" ;
-      abort();
+      throw SimG4Exception("DDG4SensitiveConverter: Problem with Region tags: one and only one is allowed");
     }
     return temp[0]; 
   }
