@@ -22,6 +22,9 @@ void CSCFakeCrosstalkMap::prefillCrosstalkMap(){
   cncrosstalk = new CSCcrosstalk();
   
   int max_istrip,id_layer,max_ring,max_cham;
+  seed = 10000;	
+  srand(seed);
+  mean=-0.0009, min=0.035, minchi=1.5, M=1000;
 
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   
@@ -57,15 +60,34 @@ void CSCFakeCrosstalkMap::prefillCrosstalkMap(){
 	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
 	    
 	    for(int istrip=0;istrip<max_istrip;istrip++){		  
-	      itemvector[istrip].xtalk_slope_right    = -0.001;
-	      itemvector[istrip].xtalk_intercept_right= 0.045;
-	      itemvector[istrip].xtalk_chi2_right     = 2.00;
-	      itemvector[istrip].xtalk_slope_left     = -0.001;
-	      itemvector[istrip].xtalk_intercept_left = 0.045;
-	      itemvector[istrip].xtalk_chi2_left      = 2.00;
-		
-	      id_layer = 100000*iendcap+10000*istation+1000*iring+100*ichamber+10*ilayer+ilayer;
+	    
+	      itemvector[istrip].xtalk_slope_right=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
+	      itemvector[istrip].xtalk_intercept_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
+	      itemvector[istrip].xtalk_chi2_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
+	      itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
+	      itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
+	      itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
 	      cncrosstalk->crosstalk[id_layer]=itemvector;
+
+	      if(istrip==0){
+		itemvector[istrip].xtalk_slope_right=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
+		itemvector[istrip].xtalk_intercept_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
+		itemvector[istrip].xtalk_chi2_right=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
+		itemvector[istrip].xtalk_slope_left=0.0;
+		itemvector[istrip].xtalk_intercept_left=0.0;
+		itemvector[istrip].xtalk_chi2_left=0.0;
+		cncrosstalk->crosstalk[id_layer]=itemvector;
+	      }
+	      
+	      if(istrip==79){
+		itemvector[istrip].xtalk_slope_right=0.0;
+		itemvector[istrip].xtalk_intercept_right=0.0;
+		itemvector[istrip].xtalk_chi2_right=0.0;
+		itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
+		itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
+		itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
+		cncrosstalk->crosstalk[id_layer]=itemvector;
+	      }
 	    }
 	  }
 	}

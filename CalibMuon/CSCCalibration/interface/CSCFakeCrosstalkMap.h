@@ -20,6 +20,9 @@ class CSCFakeCrosstalkMap{
   CSCFakeCrosstalkMap(){ 
   }
   
+  float mean,min,minchi;
+  int seed;long int M;
+  
   void prefillCrosstalkMap();
 
   const CSCcrosstalk & get(){

@@ -22,7 +22,10 @@ void CSCFakePedestalsMap::prefillPedestalsMap()
   cnpedestals = new CSCPedestals();
   
   int max_istrip,id_layer,max_ring,max_cham;
-  
+  seed = 10000;	
+  srand(seed);
+  meanped=600.0, meanrms=1.5, M=1000;
+
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
@@ -57,9 +60,10 @@ void CSCFakePedestalsMap::prefillPedestalsMap()
 	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
 	    
 	    for(int istrip=0;istrip<max_istrip;istrip++){
-	      itemvector[istrip].ped=650.00;
-	      itemvector[istrip].rms=1.5;
+	      itemvector[istrip].ped=((double)rand()/((double)(RAND_MAX)+(double)(1)))*100+meanped;
+	      itemvector[istrip].rms=((double)rand()/((double)(RAND_MAX)+(double)(1)))+meanrms;
 	      cnpedestals->pedestals[id_layer]=itemvector;
+
 	    }
 	  }
 	}

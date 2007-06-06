@@ -20,6 +20,9 @@ class CSCFakePedestalsMap{
   CSCFakePedestalsMap(){ 
   }
   
+  float meanped,meanrms;
+  int seed;long int M;
+  
   void prefillPedestalsMap();
     
   const CSCPedestals & get(){
