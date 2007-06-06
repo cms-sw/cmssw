@@ -9,16 +9,16 @@
 
 #include "EventFilter/ResourceBroker/interface/SMProxy.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
-#include "toolbox/include/toolbox/mem/Reference.h"
-#include "toolbox/include/toolbox/mem/MemoryPoolFactory.h"
-#include "toolbox/include/toolbox/mem/exception/Exception.h"
+#include "toolbox/mem/Reference.h"
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/exception/Exception.h"
 
-#include "i2o/include/i2o/Method.h"
-#include "i2o/utils/include/i2o/utils/AddressMap.h"
+#include "i2o/Method.h"
+#include "i2o/utils/AddressMap.h"
 
-#include "xcept/include/xcept/tools.h"
+#include "xcept/tools.h"
 
 #include <iostream>
 #include <cmath>

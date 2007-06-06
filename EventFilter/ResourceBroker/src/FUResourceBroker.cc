@@ -13,20 +13,20 @@
 
 #include "EventFilter/Utilities/interface/Crc.h"
 
-#include "i2o/include/i2o/Method.h"
-#include "interface/shared/include/i2oXFunctionCodes.h"
-#include "xcept/include/xcept/tools.h"
+#include "i2o/Method.h"
+#include "interface/shared/i2oXFunctionCodes.h"
+#include "xcept/tools.h"
 
-#include "toolbox/include/toolbox/mem/HeapAllocator.h"
-#include "toolbox/include/toolbox/mem/Reference.h"
-#include "toolbox/include/toolbox/mem/MemoryPoolFactory.h"
-#include "toolbox/include/toolbox/mem/exception/Exception.h"
+#include "toolbox/mem/HeapAllocator.h"
+#include "toolbox/mem/Reference.h"
+#include "toolbox/mem/MemoryPoolFactory.h"
+#include "toolbox/mem/exception/Exception.h"
 
 #include "xoap/MessageReference.h"
 #include "xoap/MessageFactory.h"
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
 #include "xoap/Method.h"
 
 #include <iostream>

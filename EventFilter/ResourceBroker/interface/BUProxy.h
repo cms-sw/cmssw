@@ -4,7 +4,7 @@
 
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
 
 namespace evf {

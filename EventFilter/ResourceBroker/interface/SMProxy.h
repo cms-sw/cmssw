@@ -5,7 +5,7 @@
 #include "EventFilter/ResourceBroker/interface/FUTypes.h"
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
 
 #include <string>

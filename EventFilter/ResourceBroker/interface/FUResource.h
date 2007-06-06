@@ -6,8 +6,8 @@
 #include "EventFilter/ShmBuffer/interface/FUShmRawCell.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 
-#include "extern/log4cplus/linuxx86/include/log4cplus/logger.h"
-#include "toolbox/include/toolbox/mem/Reference.h"
+#include "log4cplus/logger.h"
+#include "toolbox/mem/Reference.h"
 
 #include <vector>
 

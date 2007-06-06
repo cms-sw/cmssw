@@ -8,21 +8,21 @@
 #include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/WebGUI.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
 
-#include "xdata/include/xdata/InfoSpace.h"
-#include "xdata/include/xdata/String.h"
-#include "xdata/include/xdata/Boolean.h"
-#include "xdata/include/xdata/UnsignedInteger32.h"
-#include "xdata/include/xdata/Double.h"
+#include "xdata/InfoSpace.h"
+#include "xdata/String.h"
+#include "xdata/Boolean.h"
+#include "xdata/UnsignedInteger32.h"
+#include "xdata/Double.h"
 
-#include "toolbox/include/toolbox/mem/Reference.h"
-#include "toolbox/include/toolbox/fsm/exception/Exception.h"
+#include "toolbox/mem/Reference.h"
+#include "toolbox/fsm/exception/Exception.h"
 
-#include "interface/shared/include/frl_header.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
+#include "interface/shared/frl_header.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
 
 #include <vector>
 #include <string>

@@ -9,11 +9,11 @@
 #include "EventFilter/ShmBuffer/interface/FUShmBuffer.h"
 #include "EventFilter/Utilities/interface/Exception.h"
 
-#include "extern/log4cplus/linuxx86/include/log4cplus/logger.h"
-#include "toolbox/include/toolbox/lang/Class.h"
-#include "toolbox/include/toolbox/task/Action.h"
-#include "toolbox/include/toolbox/task/WorkLoop.h"
-#include "toolbox/include/BSem.h"
+#include "log4cplus/logger.h"
+#include "toolbox/lang/Class.h"
+#include "toolbox/task/Action.h"
+#include "toolbox/task/WorkLoop.h"
+#include "toolbox/BSem.h"
 
 #include <vector>
 #include <queue>
@@ -202,7 +202,7 @@ namespace evf {
     UInt_t             inputSumOfSizes_;
     UInt_t             outputSumOfSizes_;
     
-    BSem               lock_;
+    toolbox::BSem      lock_;
     
   };
   

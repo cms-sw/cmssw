@@ -11,15 +11,15 @@
 #include "EventFilter/Utilities/interface/Crc.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
-#include "interface/shared/include/frl_header.h"
-#include "interface/shared/include/fed_header.h"
-#include "interface/shared/include/fed_trailer.h"
-#include "interface/shared/include/i2oXFunctionCodes.h"
-#include "interface/evb/include/i2oEVBMsgs.h"
+#include "interface/shared/frl_header.h"
+#include "interface/shared/fed_header.h"
+#include "interface/shared/fed_trailer.h"
+#include "interface/shared/i2oXFunctionCodes.h"
+#include "interface/evb/i2oEVBMsgs.h"
 
-#include "toolbox/include/toolbox/mem/Reference.h"
+#include "toolbox/mem/Reference.h"
 
-#include "xcept/include/xcept/tools.h"
+#include "xcept/tools.h"
 
 #include <sstream>
 #include <sys/shm.h>

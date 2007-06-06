@@ -9,9 +9,9 @@
 
 #include "EventFilter/ResourceBroker/interface/FUResourceTable.h"
 
-#include "toolbox/include/toolbox/task/WorkLoopFactory.h"
-#include "interface/evb/include/i2oEVBMsgs.h"
-#include "xcept/include/xcept/tools.h"
+#include "toolbox/task/WorkLoopFactory.h"
+#include "interface/evb/i2oEVBMsgs.h"
+#include "xcept/tools.h"
 
 
 #include <fstream>
@@ -54,7 +54,7 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , isReadyToShutDown_(true)
   , isActive_(false)
   , isHalting_(false)
-  , lock_(BSem::FULL)
+  , lock_(toolbox::BSem::FULL)
 {
   initialize(segmentationMode,
 	     nbRawCells,nbRecoCells,nbDqmCells,
