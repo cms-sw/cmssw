@@ -3,6 +3,7 @@
 <use name=FWCore/ParameterSet>
 <use name=AnalysisDataFormats/TopObjects>
 <use name=TopQuarkAnalysis/TopJetCombination>
+<use name=TopQuarkAnalysis/TopEventSelection>
 <use name=TopQuarkAnalysis/TopKinFitter>
 <flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopEventProducers">
 <export>
@@ -12,5 +13,6 @@
    <lib name=TopQuarkAnalysisTopEventProducers>
    <use name=AnalysisDataFormats/TopObjects>
    <use name=TopQuarkAnalysis/TopJetCombination>
+   <use name=TopQuarkAnalysis/TopEventSelection>
    <use name=TopQuarkAnalysis/TopKinFitter>
 </export>
