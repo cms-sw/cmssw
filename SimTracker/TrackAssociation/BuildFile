@@ -10,7 +10,6 @@
 <use name=DataFormats/TrackReco>
 <use name=SimTracker/Records>
 <use name=TrackingTools/GeomPropagators>
-<use name=Geometry/Surface>
 <use name=clhep>
 <use name=boost>
 <use name=root>
