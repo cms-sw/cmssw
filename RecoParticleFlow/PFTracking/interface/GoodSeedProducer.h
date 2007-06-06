@@ -13,7 +13,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -50,7 +51,7 @@ class GoodSeedProducer : public edm::EDProducer {
    private:
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob();
+      virtual void endJob(){}
  
       ///Find the bin in pt and eta
       int getBin(float,float);
