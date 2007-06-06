@@ -13,11 +13,11 @@
 
 #include "toolbox/fsm/FailedEvent.h"
 
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
-#include "xoap/include/xoap/domutils.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
+#include "xoap/domutils.h"
 
-#include "xcept/include/xcept/tools.h"
+#include "xcept/tools.h"
 
 #include <typeinfo>
 #include <string>

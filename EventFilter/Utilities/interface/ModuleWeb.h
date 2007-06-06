@@ -1,8 +1,8 @@
 #ifndef EVF_MODULEWEB_H
 #define EVF_MODULEWEB_H
 
-#include "toolbox/include/toolbox/lang/Class.h"
-#include "xdata/include/xdata/InfoSpace.h"
+#include "toolbox/lang/Class.h"
+#include "xdata/InfoSpace.h"
 #include <string>
 
 namespace xgi{

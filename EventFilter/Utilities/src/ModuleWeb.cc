@@ -2,8 +2,8 @@
 #include "EventFilter/Utilities/interface/ModuleWebRegistry.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
 
 #include <string>
 

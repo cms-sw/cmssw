@@ -5,17 +5,17 @@
 #include "EventFilter/Utilities/interface/StateMachine.h"
 #include "EventFilter/Utilities/interface/Css.h"
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
-#include "toolbox/include/toolbox/lang/Class.h"
+#include "toolbox/lang/Class.h"
 
-#include "xdata/include/xdata/Serializable.h"
-#include "xdata/include/xdata/UnsignedInteger32.h"
+#include "xdata/Serializable.h"
+#include "xdata/UnsignedInteger32.h"
 
-#include "xgi/include/xgi/Method.h"
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-#include "xgi/include/xgi/exception/Exception.h"
+#include "xgi/Method.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
 
 #include <string>
 #include <vector>

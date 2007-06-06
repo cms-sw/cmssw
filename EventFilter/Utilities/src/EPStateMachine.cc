@@ -1,6 +1,6 @@
 #include "EventFilter/Utilities/interface/EPStateMachine.h"
-#include "xoap/include/xoap/SOAPEnvelope.h"
-#include "xoap/include/xoap/SOAPBody.h"
+#include "xoap/SOAPEnvelope.h"
+#include "xoap/SOAPBody.h"
 
 namespace evf{
 

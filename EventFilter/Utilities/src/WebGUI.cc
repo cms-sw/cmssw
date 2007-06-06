@@ -9,12 +9,12 @@
 
 #include "EventFilter/Utilities/interface/WebGUI.h"
 
-#include "xcept/include/xcept/Exception.h"
-#include "xcept/include/xcept/tools.h"
+#include "xcept/Exception.h"
+#include "xcept/tools.h"
 
-#include "extern/cgicc/linuxx86/include/cgicc/CgiDefs.h"
-#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
-#include "extern/cgicc/linuxx86/include/cgicc/HTMLClasses.h"
+#include "cgicc/CgiDefs.h"
+#include "cgicc/Cgicc.h"
+#include "cgicc/HTMLClasses.h"
 
 #include <sstream>
 

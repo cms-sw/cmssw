@@ -4,8 +4,8 @@
 #include <string>
 #include <map>
 #include <list>
-#include "xgi/include/xgi/Method.h"
-#include "xdata/include/xdata/InfoSpace.h"
+#include "xgi/Method.h"
+#include "xdata/InfoSpace.h"
 
 namespace edm{
   class ParameterSet;

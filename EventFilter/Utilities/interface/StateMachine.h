@@ -2,7 +2,7 @@
 #define EVF_STATEMACHINE_H 1
 
 
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 #include "xdaq/NamespaceURI.h"
 
 #include "toolbox/fsm/FiniteStateMachine.h"
@@ -13,9 +13,9 @@
 #include "xoap/MessageFactory.h"
 #include "xoap/Method.h"
 
-#include "xdata/include/xdata/String.h"
+#include "xdata/String.h"
 
-#include "xdaq2rc/include/xdaq2rc/RcmsStateNotifier.h"
+#include "xdaq2rc/RcmsStateNotifier.h"
 
 #include <string>
 

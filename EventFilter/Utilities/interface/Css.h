@@ -1,9 +1,9 @@
 #ifndef EVENTFILTER_CSS_H 
 #define EVENTFILTER_CSS_H 
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-#include "xgi/include/xgi/exception/Exception.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
 
 
 

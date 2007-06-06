@@ -1,14 +1,14 @@
 #ifndef EPSTATEMACHINE_H
 #define EPSTATEMACHINE_H
 
-#include "toolbox/include/toolbox/fsm/FiniteStateMachine.h"
-#include "toolbox/include/toolbox/fsm/FailedEvent.h"
-#include "xcept/include/xcept/tools.h"
-#include "xoap/include/xoap/MessageFactory.h"
-#include "xoap/include/xoap/Method.h"
+#include "toolbox/fsm/FiniteStateMachine.h"
+#include "toolbox/fsm/FailedEvent.h"
+#include "xcept/tools.h"
+#include "xoap/MessageFactory.h"
+#include "xoap/Method.h"
 #include "log4cplus/logger.h"
-#include "xdata/include/xdata/String.h"
-#include "xdaq/include/xdaq/NamespaceURI.h"
+#include "xdata/String.h"
+#include "xdaq/NamespaceURI.h"
 
 namespace evf
 {

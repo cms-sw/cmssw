@@ -1,7 +1,7 @@
 #ifndef EVF_XDAQ_EXCEPTION_H
 #define EVF_XDAQ_EXCEPTION_H
 
-#include "xcept/include/xcept/Exception.h"
+#include "xcept/Exception.h"
 
 namespace evf
 {
