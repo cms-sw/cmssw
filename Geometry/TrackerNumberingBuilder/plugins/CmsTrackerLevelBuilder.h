@@ -19,21 +19,20 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   
   
   struct subDetByType{
-    bool operator()(const GeometricDet* a, const GeometricDet* b) const{
-      return a->type() <
-	b->type();
+    static bool operator()(const GeometricDet* a, const GeometricDet* b) {
+      return a->type() < b->type();
     }
   };
   
   struct LessZ{
-    bool operator()(const GeometricDet* a, const GeometricDet* b)
+    static bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
       return a->translation().z() < b->translation().z();   
     }
   };
   
   struct LessModZ{
-    bool operator()(const GeometricDet* a, const GeometricDet* b)
+    static bool operator()(const GeometricDet* a, const GeometricDet* b) const 
     {
       return fabs(a->translation().z()) < fabs(b->translation().z());   
     }
@@ -43,7 +42,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   struct ExtractPhi:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      double phi = a->translation().phi();
+      double phi = a->phi();
       return( phi>= 0 ? phi:phi+2*pi);   
     }
   };
@@ -51,16 +50,20 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   struct ExtractPhiModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      std::vector<const GeometricDet*> comp = a->components().back()->components();
+      std::vector<const GeometricDet*> const & comp = a->components().back()->components();
       float phi = 0.;
       bool sum = true;
 
       for(unsigned int i=0;i<comp.size();i++){
-	if(fabs(comp[i]->translation().phi())>pi/2.) sum = false;
+	if(fabs(comp[i]->phi())>pi/2.) { 
+	  sum = false;
+	  break;
+	}
       }
+
       if(sum){
 	for(unsigned int i=0;i<comp.size();i++){
-	  phi+= comp[i]->translation().phi();
+	  phi+= comp[i]->phi();
 	}
     
 	double temp = phi/float(comp.size()) < 0. ? 
@@ -70,13 +73,13 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	
       }else{
 	for(unsigned int i=0;i<comp.size();i++){
-	  double phi1 = comp[i]->translation().phi() >= 0 ? comp[i]->translation().phi(): 
-	    comp[i]->translation().phi()+2*pi; 
+	  double phi1 = comp[i]->phi() >= 0 ? comp[i]->phi(): 
+	    comp[i]->phi()+2*pi; 
 	  phi+= phi1;
 	}
        
-	double com = comp.front()->translation().phi() >= 0 ? comp.front()->translation().phi():
-	  2*pi + comp.front()->translation().phi();
+	double com = comp.front()->phi() >= 0 ? comp.front()->phi():
+	  2*pi + comp.front()->phi();
 	double temp = fabs(phi/float(comp.size()) - com) > 2. ? 
 	  pi - phi/float(comp.size()):
 	  phi/float(comp.size());
@@ -89,16 +92,19 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   struct ExtractPhiGluedModule:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      std::vector<const GeometricDet*> comp = a->deepComponents();
+      std::vector<const GeometricDet*> comp;
+      a->deepComponents(comp);
       float phi = 0.;
       bool sum = true;
 
       for(unsigned int i=0;i<comp.size();i++){
-	if(fabs(comp[i]->translation().phi())>pi/2.) sum = false;
+	if(fabs(comp[i]->phi())>pi/2.) {
+	  sum = false;
+	  break;
       }
       if(sum){
 	for(unsigned int i=0;i<comp.size();i++){
-	  phi+= comp[i]->translation().phi();
+	  phi+= comp[i]->phi();
 	}
     
 	double temp = phi/float(comp.size()) < 0. ? 
@@ -108,13 +114,13 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 	
       }else{
 	for(unsigned int i=0;i<comp.size();i++){
-	  double phi1 = comp[i]->translation().phi() >= 0 ? comp[i]->translation().phi(): 
+	  double phi1 = comp[i]->phi() >= 0 ? comp[i]->phi(): 
 	    comp[i]->translation().phi()+2*pi; 
 	  phi+= phi1;
 	}
        
-	double com = comp.front()->translation().phi() >= 0 ? comp.front()->translation().phi():
-	  2*pi + comp.front()->translation().phi();
+	double com = comp.front()->phi() >= 0 ? comp.front()->phi():
+	  2*pi + comp.front()->phi();
 	double temp = fabs(phi/float(comp.size()) - com) > 2. ? 
 	  pi - phi/float(comp.size()):
 	  phi/float(comp.size());
@@ -127,7 +133,7 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   struct ExtractPhiMirror:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;
-      double phi = a->translation().phi();
+      double phi = a->phi();
       phi = (phi>= 0 ? phi : phi+2*pi); // (-pi,pi] --> [0,2pi)
       return ( (pi-phi) >= 0 ? (pi-phi) : (pi-phi)+2*pi ); // (-pi,pi] --> [0,2pi)
     }
@@ -152,21 +158,17 @@ class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
   };
   
   struct LessR_module{
-    bool operator()(const GeometricDet* a, const GeometricDet* b)
+    static bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
-      
-      return a->deepComponents().front()->translation().Rho() < 
-	b->deepComponents().front()->translation().Rho();
-      
+      return a->deepComponents().front()->rho() < 
+	b->deepComponents().front()->rho();      
     }
   };
   
   struct LessR{
-    bool operator()(const GeometricDet* a, const GeometricDet* b)
+    static bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
-      
-      return a->translation().Rho() < b->translation().Rho();
-      
+      return a->rho() < b->rho(); 
     }
   };
   

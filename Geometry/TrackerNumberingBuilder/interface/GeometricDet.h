@@ -79,6 +79,10 @@ class GeometricDet {
    */
   DDRotationMatrix const & rotation() const {return _rot;}
   DDTranslation const & translation() const {return _trans;}
+  double phi const { return _phi; }
+  double rho const { return _rho; }
+
+
   DDSolidShape const & shape() const  {return _shape;}
   GeometricEnumType type() const {return _type;}
   DDName const & name() const {return _ddname;};
@@ -143,6 +147,8 @@ class GeometricDet {
 
   GeometricDetContainer _container;
   DDTranslation _trans;
+  double _phi;
+  double _rho;
   DDRotationMatrix _rot;
   DDSolidShape _shape;
   nav_type _ddd;
