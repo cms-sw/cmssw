@@ -32,7 +32,7 @@ public:
   };
   
   struct LessModZ{
-    static bool operator()(const GeometricDet* a, const GeometricDet* b) const 
+    static bool operator()(const GeometricDet* a, const GeometricDet* b)
     {
       return fabs(a->translation().z()) < fabs(b->translation().z());   
     }
