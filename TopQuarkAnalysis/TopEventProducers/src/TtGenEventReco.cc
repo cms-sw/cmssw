@@ -9,7 +9,7 @@ static const int bId  = 5;
 static const int WId  =24;
 
 TtGenEventReco::TtGenEventReco(const edm::ParameterSet& cfg):
-  src_ ( cfg.template getParameter<edm::InputTag>( "src" ) )
+  src_ ( cfg.getParameter<edm::InputTag>( "src" ) )
 {
   produces<reco::CandidateCollection>();
 }
