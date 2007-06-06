@@ -1,6 +1,7 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 
+
 // user include files
 #include "FWCore/Framework/interface/SourceFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
@@ -22,7 +23,11 @@ void CSCFakeGainsMap::prefillGainsMap()
   const CSCDetId& detId = CSCDetId();
       
   int max_istrip,id_layer,max_ring,max_cham;
-  
+  seed = 10000;	
+  srand(seed);
+  mean=6.8, min=-10.0, minchi=1.0, M=1000;
+
+
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
@@ -57,9 +62,12 @@ void CSCFakeGainsMap::prefillGainsMap()
 	    id_layer = 100000*iendcap + 10000*istation + 1000*iring + 10*ichamber + ilayer;
 	    
 	    for(int istrip=0;istrip<max_istrip;istrip++){
-	      itemvector[istrip].gain_slope    = 7.55;
-	      itemvector[istrip].gain_intercept= -10.00;
-	      itemvector[istrip].gain_chi2     = 2.00;
+	      //itemvector[istrip].gain_slope    = 7.55;
+	      //itemvector[istrip].gain_intercept= -10.00;
+	      //itemvector[istrip].gain_chi2     = 2.00;
+	      itemvector[istrip].gain_slope=((double)rand()/((double)(RAND_MAX)+(double)(1)))+mean;
+	      itemvector[istrip].gain_intercept=((double)rand()/((double)(RAND_MAX)+(double)(1)))+min;
+	      itemvector[istrip].gain_chi2=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
 	      cngains->gains[id_layer]=itemvector;
 	    }
 	  }
