@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.19 2007/03/27 23:13:09 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.20 2007/05/08 03:18:40 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -57,8 +57,8 @@ void testGenericHandle::failgetbyLabelTest() {
 
   edm::EventID id;
   edm::Timestamp time;
-  edm::ProductRegistry preg;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
+  boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
   edm::EventPrincipal ep(id, time, preg, 1, pc);
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
@@ -108,11 +108,11 @@ void testGenericHandle::getbyLabelTest() {
   product.moduleDescriptionID_ = modDesc.id();
   product.init();
 
-  edm::ProductRegistry preg;
-  preg.addProduct(product);
-  preg.setProductIDs();
+  edm::ProductRegistry *preg = new edm::ProductRegistry;
+  preg->addProduct(product);
+  preg->setProductIDs();
 
-  edm::ProductRegistry::ProductList const& pl = preg.productList();
+  edm::ProductRegistry::ProductList const& pl = preg->productList();
   edm::BranchKey const bk(product);
   edm::ProductRegistry::ProductList::const_iterator it = pl.find(bk);
   product.productID_ = it->second.productID_;
@@ -120,7 +120,8 @@ void testGenericHandle::getbyLabelTest() {
   edm::EventID col(1L, 1L);
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  edm::EventPrincipal ep(col, fakeTime, preg, 1, pc);
+  boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
 
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
   ep.put(pprod, pprov);
