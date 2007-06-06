@@ -5,6 +5,7 @@
 #include <map>
 #include <vector>
 #include <iomanip>
+#include <sys/stat.h>
 
 #include "CondFormats/CSCObjects/interface/CSCGains.h"
 #include <Geometry/CSCGeometry/interface/CSCLayer.h>
@@ -21,6 +22,9 @@ class CSCFakeGainsMap{
   CSCFakeGainsMap(){ 
   }
   
+  float mean,min,minchi;
+  int seed;long int M;
+
   const CSCGains & get(){
     return (*cngains);
   }
