@@ -25,9 +25,9 @@ class MyDecode {
 // Works for both, the error FIFO and the SLink error words. d.k. 25/04/07
 int MyDecode::error(int word) {
   int status = -1;
+  const unsigned long  errorMask      = 0x3e00000;
   const unsigned long  dummyMask      = 0x03600000;
   const unsigned long  gapMask        = 0x03400000;
-  const unsigned long  errorMask      = 0x3e00000;
   const unsigned long  timeOut        = 0x3a00000;
   const unsigned long  eventNumError  = 0x3e00000;
   const unsigned long  trailError     = 0x3c00000;
@@ -49,9 +49,9 @@ int MyDecode::error(int word) {
  const int offsets[8] = {0,4,9,13,18,22,27,31};
  
  //cout<<"error word "<<hex<<word<<dec<<endl;                                                                                  
-  if( (word&dummyMask) == dummyMask ) { // DUMMY WORD
+  if( (word&errorMask) == dummyMask ) { // DUMMY WORD
    cout<<" Dummy word";
-  } else if( (word&gapMask) == gapMask ) { // GAP WORD
+  } else if( (word&errorMask) == gapMask ) { // GAP WORD
     cout<<" Gap word";
   } else if( (word&errorMask)==timeOut ) { // TIMEOUT
      // More than 1 channel within a group can have a timeout error
@@ -118,7 +118,7 @@ int MyDecode::data(int word) {
 
   int roc = ((word&rocmsk)>>21);
   // Check for embeded special words
-  if(roc>1 && roc<25) {  // valid ROCs go from 1-24
+  if(roc>0 && roc<25) {  // valid ROCs go from 1-24
     cout<<"data "<<hex<<word<<dec;
     int channel = ((word&chnlmsk)>>26);
     if(channel>0 && channel<37) {  // valid channels 1-36
