@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.3 2007/06/04 10:48:53 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.4 2007/06/04 12:53:05 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
@@ -45,6 +45,24 @@ LRHelpFunctions::LRHelpFunctions(vector<int> obsNr, int nrBins, vector<double> o
 
 // destructor
 LRHelpFunctions::~LRHelpFunctions() {}
+
+
+
+
+// member function to set initial values to the observable fit function
+void LRHelpFunctions::setObsFitParameters(int obs,vector<double> fitPars){
+  for(size_t fit=0; fit<fObsSoverSplusB.size(); fit++){
+    TString fn = "_Obs"; fn += obs;
+    if(((TString)fObsSoverSplusB[fit]->GetName()).Contains(fn)){
+      for(size_t p=0; p<fitPars.size(); p++){
+        //cout<<"Will set the value for p"<<p<<" of fit function "<<fObsSoverSplusB[fit]->GetName()<<" to the initial value: "<<fitPars[p]<<endl;
+        fObsSoverSplusB[fit]->SetParameter(p,fitPars[p]);
+      }
+    }
+  }
+}
+
+
 
 
 
@@ -221,6 +239,10 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
   hLRtotSoverSplusB -> Draw();
   c3.Print(fname,"Landscape");
   
+  TCanvas c4("c4","",1);
+  hEffvsPur -> Draw("AL*");
+  c4.Print(fname,"Landscape");
+  
   c.Print(fname + "]","landscape");
 }
    
@@ -264,8 +286,21 @@ void  LRHelpFunctions::makeAndFitPurityHists(){
       hLRtotSoverSplusB->SetBinError(b,error);
     }
   }
-  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");
+  hLRtotSoverSplusB -> Fit(fLRtotSoverSplusB->GetName(),"RQ");  
+  
+  double Eff[100], Pur[100];
+  for(int cut=0; cut<=hLRtotS->GetNbinsX(); cut ++){
+ 	double LRcutVal = hLRtotS->GetBinCenter(cut+1);
+	Eff[cut] = 1.- hLRtotS->Integral(0,cut+1)/hLRtotS->Integral(0,50);
+	Pur[cut] = fLRtotSoverSplusB->Eval(LRcutVal);
+  }
+  hEffvsPur = new TGraph(hLRtotS->GetNbinsX(),Eff,Pur);
+  hEffvsPur -> SetName("hEffvsPur");
+  hEffvsPur -> SetTitle("");
+  hEffvsPur -> GetXaxis() -> SetTitle((TString)("efficiency of cut on log combined LR"));
+  hEffvsPur -> GetYaxis() -> SetTitle((TString)("Purity"));
 }   
+
 
 
 
