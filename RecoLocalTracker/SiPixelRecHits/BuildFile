@@ -9,11 +9,9 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
 <use name=CondFormats/SiPixelObjects>
-<use name=Geometry/CommonDetAlgo>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerTopology>
-<use name=Geometry/Surface>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
@@ -33,11 +31,9 @@
 <use name=DataFormats/DetId>
 <use name=DataFormats/Common>
 <use name=CondFormats/SiPixelObjects>
-<use name=Geometry/CommonDetAlgo>
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=Geometry/TrackerTopology>
-<use name=Geometry/Surface>
 <use name=Geometry/Records>
 <use name=MagneticField/Records>
 <use name=MagneticField/VolumeBasedEngine>
