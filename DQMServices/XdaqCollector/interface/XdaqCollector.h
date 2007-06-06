@@ -3,13 +3,13 @@
 
 #include <pthread.h>
 
-#include "toolbox/include/Task.h"
-#include "xdata/include/xdata/String.h"
-#include "xdata/include/xdata/Integer.h"
-#include "xdata/include/xdata/Boolean.h"
-#include "xdaq/include/xdaq/Application.h"
-#include "xgi/include/xgi/Utils.h"
-#include "xgi/include/xgi/Method.h"
+#include "toolbox/Task.h"
+#include "xdata/String.h"
+#include "xdata/Integer.h"
+#include "xdata/Boolean.h"
+#include "xdaq/Application.h"
+#include "xgi/Utils.h"
+#include "xgi/Method.h"
 
 #include "cgicc/CgiDefs.h"
 #include "cgicc/Cgicc.h"
@@ -61,14 +61,15 @@ protected:
     throw (toolbox::fsm::exception::Exception);
 
  private:
-  class DummyConsumerServer : public CollectorRoot, public Task
+  class DummyConsumerServer : public CollectorRoot, public toolbox::Task
     {
       
     public:
       virtual void process(){}
       void enableClients(){enableClients_ = true;}
       void disableClients(){enableClients_ = false;}
-      DummyConsumerServer(int port) : CollectorRoot("EvF",port), Task("Collector")
+      DummyConsumerServer(int port) : CollectorRoot("EvF",port), 
+	toolbox::Task("Collector")
 	{
 	  inputAvail_=true;
 	}
@@ -86,7 +87,7 @@ protected:
       static void stopAndKill()
 	{
 	  DummyConsumerServer *dcs = (DummyConsumerServer*)instance_;
-	  std::cout << "DCS instance at " << hex << (int) dcs << dec 
+	  std::cout << "DCS instance at " << std::hex << (int) dcs << std::dec 
 		    << std::endl;
 	  std::cout << "Attempting to kill thread " << std::endl;
 	  dcs->kill();
