@@ -271,7 +271,7 @@ struct CheckPaths {
     noselPath(true);
     ps.beginPath(path);
     if (ok) selPath(path);
-    else noselPath();
+    else noselPath(!ps.doEvent());
     ps.endPath(path);
     noselPath(true);
   }
