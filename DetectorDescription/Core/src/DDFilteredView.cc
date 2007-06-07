@@ -49,13 +49,22 @@ const DDGeoHistory &  DDFilteredView::geoHistory() const
    return epv_.geoHistory();
 }
 
-	 
+
 std::vector<const DDsvalues_type * > DDFilteredView::specifics() const
 {
   std::vector<const DDsvalues_type * > result; epv_.specificsV(result);
   return result;
 }
 
+void  DDFilteredView::specificsV(std::vector<const DDsvalues_type * > & result) const 
+{
+  epv_.specificsV(result);
+}
+
+void mergedSpecificsV(DDsvalues_type & merged) const 
+{
+  epv_.mergedSpecificsV(merged);
+}
 
 DDsvalues_type DDFilteredView::mergedSpecifics() const
 {

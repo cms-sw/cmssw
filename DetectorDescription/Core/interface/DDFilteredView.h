@@ -41,7 +41,9 @@ public:
   nav_type copyNumbers() const;
    
   //! User specific data attached to the current node
+  void specificsV(std::vector<const DDsvalues_type * > & result) const;
   std::vector<const DDsvalues_type * > specifics() const;
+  void mergedSpecificsV(DDsvalues_type & merged) const;
   DDsvalues_type mergedSpecifics() const;
   
   //! Copy number associated with the current node  
