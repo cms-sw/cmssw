@@ -31,7 +31,6 @@ HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {
   for (int i = 0; i < nluts; i++) {
     if (inputLUT[i] != 0) delete inputLUT[i];
   }
-  std::cout << "LUT memory has been freed" << std::endl;
 }
 
 void HcaluLUTTPGCoder::AllocateLUTs() {
@@ -49,7 +48,6 @@ void HcaluLUTTPGCoder::AllocateLUTs() {
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
-	//        if (theTopo.valid(did)) std::cout << "HB id = " << did.rawId() << "; (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ")" << std::endl;
 
 	did=HcalDetId(HcalEndcap,ieta,iphi,depth);
 	if (theTopo.valid(did)) {
@@ -58,7 +56,6 @@ void HcaluLUTTPGCoder::AllocateLUTs() {
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
-	//        if (theTopo.valid(did)) std::cout << "HE id = " << did.rawId() << "; (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ")" << std::endl;
 	did=HcalDetId(HcalForward,ieta,iphi,depth);
 	if (theTopo.valid(did)) {
 	  rawid = GetLUTID(HcalForward, ieta, iphi, depth);
@@ -66,11 +63,9 @@ void HcaluLUTTPGCoder::AllocateLUTs() {
 	  if (rawid < minid) minid = rawid;
 	  if (rawid > maxid) maxid = rawid;
 	}
-	//  if (theTopo.valid(did)) std::cout << "HF id = " << did.rawId() << "; (ieta,iphi,depth) = (" << ieta << "," << iphi << "," << depth << ")" << std::endl;
       }
     }
   }
-  std::cout << "LUT's have been allocated; LUT id spans " << minid << " to " << maxid << std::endl;
 
 }
 
@@ -87,7 +82,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    userfile.open(filename);
    int tool;
    float Rec_calib_[87];
-   std::cout << "before reading RecHit-TPG-calib.dat" << std::endl;
  
    if (userfile) {
 	       userfile >> tool;
@@ -100,7 +94,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
        Rcalib[j] = Rec_calib_[j] ;
      }
    
-     std::cout << "Finished reading RecHit-TPG-calib.dat" << std::endl;
      userfile.close();  
    }
    else  std::cout << "File " << filename << " with RecHit calibration factors not found" << std::endl;
@@ -122,9 +115,7 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
    for (int i = 0; i < 13; i++) cosheta_[i+29] = cosh((theHFEtaBounds[i+1] + theHFEtaBounds[i])/2.);
     
    for (int depth = 1; depth <= 3; depth++) {
-     //    std::cout << "Scanning depth = " << depth << std::endl;
      for (int iphi = 1; iphi <= 72; iphi++) {
-       //      std::cout <<   "Scanning iphi = " << iphi << std::endl;
        divide = 1.*nominal_gain;
        for (int ieta=-16; ieta <= 16; ieta++) {
 	 HcalDetId cell(HcalBarrel,ieta,iphi,depth);
@@ -136,7 +127,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
-	   //if (iphi == 1) std::cout << "HB gain = " << gain_ << " for ieta = " << ieta << " depth = " << depth << std::endl;
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
@@ -148,7 +138,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	     if (ieta <0 )inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)]/divide)), 0x3FF);
 	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+43]/divide)), 0x3FF);
 	   }
-	   //          for (int j = 0; j < 128; j += 127) std::cout << "LUT(HB," << ieta << "," << iphi << "," << depth << "[" << j << "] = " << inputLUT[id][j] << std::endl;
 	 }
        }
        for (int ieta=-29; ieta <= 29; ieta++) {
@@ -164,7 +153,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
-	   //if (iphi == 1) std::cout << "HE gain = " << gain_ << " for ieta = " << ieta << " depth = " << depth << std::endl;
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
@@ -176,7 +164,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	     if ( ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+1]/divide)), 0x3FF);
 	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*gain_*Rcalib[abs(ieta)+43]/divide)), 0x3FF);
 	   }
-	   //            for (int j = 0; j < 128; j += 127) std::cout << "LUT(HE," << ieta << "," << iphi << "," << depth << "[" << j << "] = " << inputLUT[id][j] << std::endl;
 	 }
        }        
        for (int ieta=-41; ieta <= 41; ieta++) {
@@ -189,7 +176,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HcalCoderDb coder (*channelCoder, *shape);
 	   float ped_ = (calibrations.pedestal(0)+calibrations.pedestal(1)+calibrations.pedestal(2)+calibrations.pedestal(3))/4;
 	   float gain_= (calibrations.gain(0)+calibrations.gain(1)+calibrations.gain(2)+calibrations.gain(3))/4;          
-	   //if (iphi == 1) std::cout << "HF gain = " << gain_ << " for ieta = " << ieta << " depth = " << depth << std::endl;
 
 
 	   HFDataFrame frame(cell);
@@ -204,7 +190,6 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	     if (ieta < 0 ) inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*Rcalib[abs(ieta)+2]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
 	     else inputLUT[id][j] = (LUT) std::min(std::max(0,int((adc2fC_ - ped_)*Rcalib[abs(ieta)+45]*gain_/lsb_/cosheta_[abs(ieta)])), 0x3FF);
 	   }
-	   //for (int j = 0; j < 128; j += 127) std::cout << "LUT(HF," << ieta << "," << iphi << "," << depth << "[" << j << "] = " << inputLUT[id][j] << std::endl;
 	 }
        }
      }
