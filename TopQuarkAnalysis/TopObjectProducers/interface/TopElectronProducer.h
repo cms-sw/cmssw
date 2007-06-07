@@ -1,39 +1,40 @@
-// -*- C++ -*-
 //
-// Package:    TopElectronProducer
-// Class:      TopElectronProducer
-// 
-/**\class TopElectronProducer TopElectronProducer.cc Top/TopEventProducers/src/TopElectronProducer.cc
+// Author:  Jan Heyninck, Steven Lowette
+// Created: Tue Apr  10 12:01:49 CEST 2007
+//
+// $Id$
+//
 
- Description: <one line class summary>
+#ifndef TopElectronProducer_h
+#define TopElectronProducer_h
 
- Implementation:
-     <Notes on implementation>
+/**
+  \class    TopElectronProducer TopElectronProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
+  \brief    Produces TopElectron's
+
+   TopElectronProducer produces TopElectron's starting from an ElectronType
+   collection, with possible matching to generator level, adding of resolutions
+   and calculation of a lepton likelihood ratio
+
+  \author   Jan Heyninck, Steven Lowette
+  \version  $Id$
 */
-//
-// Original Author:  Jan Heyninck
-//         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopElectronProducer.h,v 1.2 2007/05/30 21:50:46 lowette Exp $
-//
-//
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/Utilities/interface/PtComparator.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 
-#include <vector>
 #include <string>
 
 
-class TopLeptonLRCalc;
 class TopObjectResolutionCalc;
+class TopLeptonLRCalc;
 
 
 class TopElectronProducer : public edm::EDProducer {
@@ -49,9 +50,6 @@ class TopElectronProducer : public edm::EDProducer {
 
     // configurables
     edm::InputTag  electronSrc_;
-    double         electronPTcut_;
-    double         electronEtacut_;
-    double         electronLRcut_;
     bool           doGenMatch_;
     bool           addResolutions_;
     bool           addLRValues_;
@@ -61,6 +59,9 @@ class TopElectronProducer : public edm::EDProducer {
     // tools
     TopObjectResolutionCalc *        theResoCalc_;
     TopLeptonLRCalc *                theLeptonLRCalc_;
-    PtInverseComparator<TopElectron> pTElectronComparator;
+    PtInverseComparator<TopElectron> pTElectronComparator_;
 
 };
+
+
+#endif
