@@ -81,7 +81,8 @@ bool ProfilerService::pauseInstrumentation() {
 bool ProfilerService::resumeInstrumentation() {
   if (m_active==0 || (!m_paused)) return false;
   CALLGRIND_START_INSTRUMENTATION;
-  CALLGRIND_DUMP_STATS;
+  if (m_counts%m_dumpInterval==0) CALLGRIND_DUMP_STATS;
+  ++m_counts;
   m_paused=false;
   return true;
 }
