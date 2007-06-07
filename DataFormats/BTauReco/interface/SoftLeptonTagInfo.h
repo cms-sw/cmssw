@@ -1,8 +1,6 @@
 #ifndef BTauReco_SoftLeptonTagInfo_h
 #define BTauReco_SoftLeptonTagInfo_h
 
-#include <iterator>
-
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/Jet.h"
