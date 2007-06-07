@@ -1,4 +1,4 @@
-#include "EventFilter/GctRawToDigi/src/GctRawToDigi.h"
+#include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
 
 // system
 #include <vector>
@@ -7,6 +7,9 @@
 
 // framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 // Raw data collection
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -38,8 +41,8 @@ unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",745)),
-  verbose_(iConfig.getUntrackedParameter<bool>("Verbose", false))
+  fedId_(iConfig.getParameter<int>("GctFedId")),
+  verbose_(iConfig.getUntrackedParameter<bool>("Verbose",false))
 {
 
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
@@ -176,6 +179,7 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
     edm::LogVerbatim("GCT") << os.str();
   }
 
+
   // put data into the event
   e.put(rctEm);
   e.put(rctRgn);
@@ -199,4 +203,9 @@ GctRawToDigi::beginJob(const edm::EventSetup&)
 void 
 GctRawToDigi::endJob() {
 }
+
+
+
+/// make this a plugin
+DEFINE_FWK_MODULE(GctRawToDigi);
 

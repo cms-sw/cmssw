@@ -1,9 +1,15 @@
+<use name=FWCore/Framework>
+<use name=Foundation/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=DataFormats/FEDRawData>
 <use name=DataFormats/L1CaloTrigger>
 <use name=DataFormats/L1GlobalCaloTrigger>
-
+<flags SEAL_PLUGIN_NAME="EventFilterGctRawToDigi">
 <export>
    <lib name=EventFilterGctRawToDigi>
+   <use name=FWCore/Framework>
+   <use name=Foundation/PluginManager>
+   <use name=FWCore/ParameterSet>
    <use name=DataFormats/FEDRawData>
    <use name=DataFormats/L1CaloTrigger>
    <use name=DataFormats/L1GlobalCaloTrigger>
