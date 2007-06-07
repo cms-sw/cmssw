@@ -4,12 +4,12 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: NonNullNumberSelector.h,v 1.1 2006/12/07 10:28:31 llista Exp $
+ * $Id: NonNullNumberSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
  */
 
 struct NonNullNumberSelector {
   NonNullNumberSelector() { }
-  bool operator()( unsigned int number ) const { return number >= 0; }
+  bool operator()( unsigned int number ) const { return number > 0; }
 };
 
 #endif
