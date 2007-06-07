@@ -104,7 +104,7 @@ void TestProfilerService::check_config() {
     CPPUNIT_ASSERT(ps.m_firstEvent==fe);
     CPPUNIT_ASSERT(ps.m_lastEvent==le);
     CPPUNIT_ASSERT(ps.m_dumpInterval==di);
-    CPPUNIT_ASSERT(ps.m_excludedPaths=ep;)
+    CPPUNIT_ASSERT(ps.m_excludedPaths==ep;)
     CPPUNIT_ASSERT(ps.m_paths==paths);
     CPPUNIT_ASSERT(!ps.m_allPaths);
   }
@@ -257,7 +257,7 @@ void TestProfilerService::check_Event() {
 
 struct CheckPaths {
   CheckPaths(ProfilerService & ips, std::vector<std::string> const & iselpaths, int ibase=0, bool iexc=false ) : 
-    ps(ips), selpaths(iselpaths),base(ibase), done(0), exc(iexc) {}
+    ps(ips), selpaths(iselpaths),base(ibase), exc(iexc), done(0) {}
   ProfilerService & ps;
   std::vector<std::string> const & selpaths;
   int base;
