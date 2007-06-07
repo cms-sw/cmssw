@@ -10,7 +10,7 @@ CommissioningAnalysis::CommissioningAnalysis( const uint32_t& key,
   : fec_( SiStripFecKey(key) ),
     fed_(),
     myName_(my_name),
-    errors_(VStrings(0,""))
+    errors_(VString(0,""))
 {;}
 
 // ----------------------------------------------------------------------------
@@ -19,7 +19,7 @@ CommissioningAnalysis::CommissioningAnalysis( const std::string& my_name )
   : fec_(),
     fed_(),
     myName_(my_name),
-    errors_(VStrings(0,""))
+    errors_(VString(0,""))
 {;}
 
 // ----------------------------------------------------------------------------

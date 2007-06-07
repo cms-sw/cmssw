@@ -63,7 +63,7 @@ void VpspScanAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
 // -----------------------------------------------------------------------------
 //
 void VpspScanAnalysis::reset() {
-  vpsp_ = VInts(2,sistrip::invalid_);
+  vpsp_ = VInt(2,sistrip::invalid_);
   hVpsp0_ = Histo(0,"");
   hVpsp1_ = Histo(0,"");
 }

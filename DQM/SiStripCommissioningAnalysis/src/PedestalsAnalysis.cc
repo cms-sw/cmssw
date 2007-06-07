@@ -14,11 +14,11 @@ using namespace sistrip;
 // 
 PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key ) 
   : CommissioningAnalysis(key,"PedestalsAnalysis"),
-    peds_(2,VFloats(128,sistrip::invalid_)), 
-    noise_(2,VFloats(128,sistrip::invalid_)), 
-    raw_(2,VFloats(128,sistrip::invalid_)), 
-    dead_(2,VInts(0,sistrip::invalid_)), 
-    noisy_(2,VInts(0,sistrip::invalid_)),
+    peds_(2,VFloat(128,sistrip::invalid_)), 
+    noise_(2,VFloat(128,sistrip::invalid_)), 
+    raw_(2,VFloat(128,sistrip::invalid_)), 
+    dead_(2,VInt(0,sistrip::invalid_)), 
+    noisy_(2,VInt(0,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
@@ -42,11 +42,11 @@ PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key )
 // 
 PedestalsAnalysis::PedestalsAnalysis() 
   : CommissioningAnalysis("PedestalsAnalysis"),
-    peds_(2,VFloats(128,sistrip::invalid_)), 
-    noise_(2,VFloats(128,sistrip::invalid_)), 
-    raw_(2,VFloats(128,sistrip::invalid_)), 
-    dead_(2,VInts(0,sistrip::invalid_)), 
-    noisy_(2,VInts(0,sistrip::invalid_)),
+    peds_(2,VFloat(128,sistrip::invalid_)), 
+    noise_(2,VFloat(128,sistrip::invalid_)), 
+    raw_(2,VFloat(128,sistrip::invalid_)), 
+    dead_(2,VInt(0,sistrip::invalid_)), 
+    noisy_(2,VInt(0,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
@@ -69,23 +69,23 @@ PedestalsAnalysis::PedestalsAnalysis()
 // ----------------------------------------------------------------------------
 // 
 void PedestalsAnalysis::reset() {
-  peds_        = VVFloats(2,VFloats(128,sistrip::invalid_)); 
-  noise_       = VVFloats(2,VFloats(128,sistrip::invalid_)); 
-  raw_         = VVFloats(2,VFloats(128,sistrip::invalid_));
-  dead_        = VVInts(2,VInts(0,sistrip::invalid_)); 
-  noisy_       = VVInts(2,VInts(0,sistrip::invalid_));
-  pedsMean_    = VFloats(2,sistrip::invalid_); 
-  pedsSpread_  = VFloats(2,sistrip::invalid_); 
-  noiseMean_   = VFloats(2,sistrip::invalid_); 
-  noiseSpread_ = VFloats(2,sistrip::invalid_); 
-  rawMean_     = VFloats(2,sistrip::invalid_);
-  rawSpread_   = VFloats(2,sistrip::invalid_);
-  pedsMax_     = VFloats(2,sistrip::invalid_); 
-  pedsMin_     = VFloats(2,sistrip::invalid_); 
-  noiseMax_    = VFloats(2,sistrip::invalid_); 
-  noiseMin_    = VFloats(2,sistrip::invalid_);
-  rawMax_      = VFloats(2,sistrip::invalid_);
-  rawMin_      = VFloats(2,sistrip::invalid_);
+  peds_        = VVFloat(2,VFloat(128,sistrip::invalid_)); 
+  noise_       = VVFloat(2,VFloat(128,sistrip::invalid_)); 
+  raw_         = VVFloat(2,VFloat(128,sistrip::invalid_));
+  dead_        = VVInt(2,VInt(0,sistrip::invalid_)); 
+  noisy_       = VVInt(2,VInt(0,sistrip::invalid_));
+  pedsMean_    = VFloat(2,sistrip::invalid_); 
+  pedsSpread_  = VFloat(2,sistrip::invalid_); 
+  noiseMean_   = VFloat(2,sistrip::invalid_); 
+  noiseSpread_ = VFloat(2,sistrip::invalid_); 
+  rawMean_     = VFloat(2,sistrip::invalid_);
+  rawSpread_   = VFloat(2,sistrip::invalid_);
+  pedsMax_     = VFloat(2,sistrip::invalid_); 
+  pedsMin_     = VFloat(2,sistrip::invalid_); 
+  noiseMax_    = VFloat(2,sistrip::invalid_); 
+  noiseMin_    = VFloat(2,sistrip::invalid_);
+  rawMax_      = VFloat(2,sistrip::invalid_);
+  rawMin_      = VFloat(2,sistrip::invalid_);
   dead_[0].reserve(256); 
   dead_[1].reserve(256); 
   noisy_[0].reserve(256); 

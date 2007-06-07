@@ -19,79 +19,122 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   
  public:
   
+  // ---------- Con(de)structors ----------
+
   OptoScanAnalysis( const uint32_t& key );
   OptoScanAnalysis();
   virtual ~OptoScanAnalysis() {;}
+
+  // ---------- Analysis results and histos ----------
   
+  /** Optimum LLD gain setting */
   inline const uint16_t& gain() const;
-  inline const VInts& bias() const;
-  inline const VFloats& measGain() const;
-  inline const VFloats& zeroLight() const;
-  inline const VFloats& linkNoise() const;
-  inline const VFloats& liftOff() const;
-  inline const VFloats& threshold() const;
-  inline const VFloats& tickHeight() const;
   
+  /** LLD bias value for each gain setting */
+  inline const VInt& bias() const;
+  
+  /** Measured gains for each setting [V/V]. */
+  inline const VFloat& measGain() const;
+  
+  /** "Zero light" levels [ADC] */
+  inline const VFloat& zeroLight() const;
+
+  /** Noise value at "zero light" levels [ADC] */
+  inline const VFloat& linkNoise() const;
+
+  /** Baseline "lift-off" values [mA] */
+  inline const VFloat& liftOff() const;
+
+  /** Laser thresholds [mA] */
+  inline const VFloat& threshold() const;
+
+  /** Tick mark heights [ADC] */
+  inline const VFloat& tickHeight() const;
+
+  /** Histogram pointer and title. */
+  Histo histo( const uint16_t& gain, 
+	       const uint16_t& digital_level ) const;
+  
+  // ---------- Utility methods ----------
+  
+  /** Identifies if analysis is valid or not. */
+  bool isValid();
+
+  /** Prints analysis results. */
   void print( std::stringstream&, uint32_t gain_setting = 0 );
-
- private:
   
+  // ---------- Private methods ----------
+  
+  /** Resets analysis member data. */
   void reset();
-  void extract( const std::vector<TH1*>& );
-  void analyse();
 
+  /** Extracts and organises histograms. */
+  void extract( const std::vector<TH1*>& );
+
+  /** Performs histogram anaysis. */
+  void analyse();
+  
  private:
+
+  // ---------- Private member data ----------
 
   /** Optimum LLD gain setting */
   uint16_t gain_;
-  /** LLD bias for each gain setting */
-  VInts bias_;
-  /** Measured gains [adc] */
-  VFloats measGain_;
-  /** "Zero light" level [adc] */
-  VFloats zeroLight_;
-  /** Noise at "zero light" level [adc] */
-  VFloats linkNoise_;
-  /** Baseline "lift-off" [mA] */
-  VFloats liftOff_;
-  /** Laser threshold [mA] */
-  VFloats threshold_;
-  /** Tick mark height [adc] */
-  VFloats tickHeight_;
 
-  /** Histo for digital "low", gain setting 0 */
-  Histo g0d0_;
-  /** Histo for digital "high", gain setting 0 */
-  Histo g0d1_;
-  /** Histo for digital "low", gain setting 1 */
-  Histo g1d0_;
-  /** Histo for digital "high", gain setting 1 */
-  Histo g1d1_;
-  /** Histo for digital "low", gain setting 2 */
-  Histo g2d0_;
-  /** Histo for digital "high", gain setting 2 */
-  Histo g2d1_;
-  /** Histo for digital "low", gain setting 3 */
-  Histo g3d0_;
-  /** Histo for digital "high", gain setting 3 */
-  Histo g3d1_;
+  /** LLD bias value for each gain setting */
+  VInt bias_;
+
+  /** Measured gains for each setting [V/V]. */
+  VFloat measGain_;
+  
+  /** "Zero light" levels [ADC] */
+  VFloat zeroLight_;
+
+  /** Noise value at "zero light" levels [ADC] */
+  VFloat linkNoise_;
+
+  /** Baseline "lift-off" values [mA] */
+  VFloat liftOff_;
+
+  /** Laser thresholds [mA] */
+  VFloat threshold_;
+
+  /** Tick mark heights [ADC] */
+  VFloat tickHeight_;
+
+  /** Default LLD gain setting if analysis fails. */
+  static const uint16_t defaultGainSetting_;
+
+  /** Default LLD bias setting if analysis fails. */
+  static const uint16_t defaultBiasSetting_;
+
+  /** Peak-to-peak voltage for FED A/D converter [V/ADC]. */
+  static const float fedAdcGain_;
+  
+  /** Pointers and titles for histograms. */
+  std::vector< std::vector<Histo> > opto_;
   
  private:
 
+  // ---------- Private deprecated or wrapper methods ----------
+  
   void deprecated(); 
+  
   void anal( const std::vector<const TProfile*>& histos, 
 	     std::vector<float>& monitorables );
   
 };
+
+// ---------- Inline methods ----------
  
 const uint16_t& OptoScanAnalysis::gain() const { return gain_; }
-const OptoScanAnalysis::VInts& OptoScanAnalysis::bias() const { return bias_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::measGain() const { return measGain_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::zeroLight() const { return zeroLight_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::linkNoise() const { return linkNoise_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::liftOff() const { return liftOff_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::threshold() const { return threshold_; }
-const OptoScanAnalysis::VFloats& OptoScanAnalysis::tickHeight() const { return tickHeight_; }
+const OptoScanAnalysis::VInt& OptoScanAnalysis::bias() const { return bias_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::measGain() const { return measGain_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::zeroLight() const { return zeroLight_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::linkNoise() const { return linkNoise_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::liftOff() const { return liftOff_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::threshold() const { return threshold_; }
+const OptoScanAnalysis::VFloat& OptoScanAnalysis::tickHeight() const { return tickHeight_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_OptoScanAnalysis_H
 

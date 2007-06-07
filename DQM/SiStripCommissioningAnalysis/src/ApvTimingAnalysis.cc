@@ -12,43 +12,51 @@ using namespace sistrip;
 
 // ----------------------------------------------------------------------------
 // 
+float ApvTimingAnalysis::refTime_ = 1.*sistrip::invalid_;
+
+// ----------------------------------------------------------------------------
+// 
+const float ApvTimingAnalysis::optimumSamplingPoint_ = 15.; // [ns]
+
+// ----------------------------------------------------------------------------
+// 
 ApvTimingAnalysis::ApvTimingAnalysis( const uint32_t& key ) 
   : CommissioningAnalysis(key,sistrip::apvTimingAnalysis_),
-    time_(sistrip::invalid_), 
-    maxTime_(sistrip::invalid_), 
-    delay_(sistrip::invalid_), 
-    error_(sistrip::invalid_), 
-    base_(sistrip::invalid_), 
-    peak_(sistrip::invalid_), 
-    height_(sistrip::invalid_),
-    histo_(0,""),
-    optimumSamplingPoint_(15.)
+    time_(1.*sistrip::invalid_), 
+    error_(1.*sistrip::invalid_), 
+    delay_(1.*sistrip::invalid_), 
+    height_(1.*sistrip::invalid_),
+    base_(1.*sistrip::invalid_), 
+    peak_(1.*sistrip::invalid_), 
+    synchronized_(false),
+    histo_(0,"")
 {;}
+
 // ----------------------------------------------------------------------------
 // 
 ApvTimingAnalysis::ApvTimingAnalysis() 
   : CommissioningAnalysis(sistrip::apvTimingAnalysis_),
-    time_(sistrip::invalid_), 
-    maxTime_(sistrip::invalid_), 
-    delay_(sistrip::invalid_), 
-    error_(sistrip::invalid_), 
-    base_(sistrip::invalid_), 
-    peak_(sistrip::invalid_), 
-    height_(sistrip::invalid_),
-    histo_(0,""),
-    optimumSamplingPoint_(15.)
+    time_(1.*sistrip::invalid_), 
+    error_(1.*sistrip::invalid_), 
+    delay_(1.*sistrip::invalid_), 
+    height_(1.*sistrip::invalid_),
+    base_(1.*sistrip::invalid_), 
+    peak_(1.*sistrip::invalid_), 
+    synchronized_(false),
+    histo_(0,"")
 {;}
 
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::reset() {
-  time_ = sistrip::invalid_; 
-  maxTime_ = sistrip::invalid_; 
-  delay_ = sistrip::invalid_; 
-  error_ = sistrip::invalid_; 
-  base_ = sistrip::invalid_; 
-  peak_ = sistrip::invalid_; 
-  height_ = sistrip::invalid_;
+  time_ = 1.*sistrip::invalid_; 
+  error_ = 1.*sistrip::invalid_; 
+  refTime_ = 1.*sistrip::invalid_; 
+  delay_ = 1.*sistrip::invalid_; 
+  height_ = 1.*sistrip::invalid_;
+  base_ = 1.*sistrip::invalid_; 
+  peak_ = 1.*sistrip::invalid_; 
+  synchronized_ = false;
   histo_ = Histo(0,"");
 }
 
@@ -56,36 +64,25 @@ void ApvTimingAnalysis::reset() {
 // 
 void ApvTimingAnalysis::extract( const std::vector<TH1*>& histos ) { 
   
-  // Check
+  // Check number of histograms
   if ( histos.size() != 1 ) {
-    edm::LogWarning(mlCommissioning_) 
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Unexpected number of histograms: " 
-      << histos.size();
+    addErrorCode(sistrip::numberOfHistos_);
   }
   
   // Extract FED key from histo title
   if ( !histos.empty() ) { extractFedKey( histos.front() ); }
 
-  // Extract
+  // Extract histograms
   std::vector<TH1*>::const_iterator ihis = histos.begin();
   for ( ; ihis != histos.end(); ihis++ ) {
     
-    // Check pointer
-    if ( !(*ihis) ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " NULL pointer to histogram!";
-      continue;
-    }
+    // Check for NULL pointer
+    if ( !(*ihis) ) { continue; }
     
     // Check name
     SiStripHistoTitle title( (*ihis)->GetName() );
     if ( title.runType() != sistrip::APV_TIMING ) {
-      edm::LogWarning(mlCommissioning_)
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task: "
-	<< SiStripEnumsAndStrings::runType(title.runType());
+      addErrorCode(sistrip::unexpectedTask_);
       continue;
     }
     
@@ -100,19 +97,14 @@ void ApvTimingAnalysis::extract( const std::vector<TH1*>& histos ) {
 // ----------------------------------------------------------------------------
 // 
 void ApvTimingAnalysis::analyse() { 
+
   if ( !histo_.first ) {
-    //edm::LogWarning(mlCommissioning_) 
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " NULL pointer to histogram!";
     addErrorCode(sistrip::nullPtr_);
     return;
   }
-
+  
   TProfile* histo = dynamic_cast<TProfile*>(histo_.first);
   if ( !histo ) {
-    //edm::LogWarning(mlCommissioning_) 
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " NULL pointer to TProfile histogram!";
     addErrorCode(sistrip::nullPtr_);
     return;
   }
@@ -139,11 +131,7 @@ void ApvTimingAnalysis::analyse() {
     }
   }
   if ( bin_contents.size() < 100 ) { 
-    //edm::LogWarning(mlCommissioning_)
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " Too few bins! Number of bins: " 
-    //<< bin_contents.size();
-    addErrorCode(sistrip::histoBins_);
+    addErrorCode(sistrip::numberOfBins_);
     return; 
   }
   
@@ -151,21 +139,7 @@ void ApvTimingAnalysis::analyse() {
   float range = max - min;
   float threshold = min + range / 2.;
   if ( range < 50. ) {
-    //edm::LogWarning(mlCommissioning_) 
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " Device with crate/FEC/Ring/CCU/module/channel "
-    //<< fec().fecCrate() << "/"
-    //<< fec().fecSlot() << "/"
-    //<< fec().fecRing() << "/"
-    //<< fec().ccuAddr() << "/"
-    //<< fec().ccuChan() << "/"
-    //<< fec().channel() 
-    //<< " connected to FED id/ch " 
-    //<< fed().fedId() << "/"
-    //<< fed().fedChannel() 
-    //<< " has a small signal range [ADC] of " 
-    //<< range;
-    // Records levels anyway
+    // Records levels anyway 
     base_   = min;
     peak_   = max;
     height_ = max - min;
@@ -194,21 +168,7 @@ void ApvTimingAnalysis::analyse() {
   if ( !tick.empty() ) { tickmark = tick[ tick.size()%2 ? tick.size()/2 : tick.size()/2 ]; }
   if ( !base.empty() ) { baseline = base[ base.size()%2 ? base.size()/2 : base.size()/2 ]; }
   if ( (tickmark-baseline) < 50. ) {
-    //edm::LogWarning(mlCommissioning_) 
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " Device with Crate/FEC/Ring/CCU/module/channel "
-    //<< fec().fecCrate() << "/"
-    //<< fec().fecSlot() << "/"
-    //<< fec().fecRing() << "/"
-    //<< fec().ccuAddr() << "/"
-    //<< fec().ccuChan() << "/"
-    //<< fec().channel() 
-    //<< " connected to FED id/ch " 
-    //<< fed().fedId() << "/"
-    //<< fed().fedChannel() 
-    //<< " has a small range [ADC] of " << (tickmark-baseline)
-    //<< " (with the tick mark peak at " << tickmark
-    //<< " and baseline at "  << baseline << ")"; 
+    // Records levels anyway
     base_   = baseline;
     peak_   = tickmark;
     height_ = tickmark - baseline;
@@ -287,7 +247,110 @@ void ApvTimingAnalysis::analyse() {
     iter++;
   }
   
+  // Set monitorables
+  if ( deriv_bin <= sistrip::maximum_ ) {
+    time_      = deriv_bin * 25. / 24.;
+    error_     = 0.;
+    base_      = baseline;
+    peak_      = tickmark;
+    height_    = tickmark - baseline;
+  } else {
+    base_   = baseline;
+    peak_   = tickmark;
+    height_ = tickmark - baseline;
+    addErrorCode(sistrip::missingTickMark_);
+  }
+  
+}
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::refTime( const float& time ) { 
+
+  // Checks synchronization to reference time is done only once
+  if ( synchronized_ ) { 
+    edm::LogWarning(mlCommissioning_)
+      << "[" << myName() << "::" << __func__ << "]"
+      << " Attempting to re-synchronize with reference time!"
+      << " Not allowed!";
+    return; 
+  }
+  synchronized_ = true;
+
+  // Set reference time and check if tick mark time is valid
+  refTime_ = time;
+  if ( time_ > sistrip::maximum_ ) { return; }
+  
+  // Calculate position of "sampling point" of last tick;
+  int32_t position = static_cast<int32_t>( rint( refTime_ + optimumSamplingPoint_ ) );
+
+  // Calculate adjustment so that sampling point is multiple of 25 (ie, synched with FED sampling)
+  float adjustment = 25 - position % 25;
+
+  // Calculate delay required to synchronise with this adjusted sampling position
+  delay_ = ( refTime_ + adjustment ) - time_; 
+
+}
+
+// ----------------------------------------------------------------------------
+// 
+bool ApvTimingAnalysis::isValid() {
+  return ( time_    < sistrip::maximum_ &&
+	   error_   < sistrip::maximum_ &&
+	   refTime_ < sistrip::maximum_ &&
+	   delay_   < sistrip::maximum_ &&
+	   height_  < sistrip::maximum_ && 
+	   base_    < sistrip::maximum_ &&
+	   peak_    < sistrip::maximum_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
+void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
+  header( ss );
+  float adjust = sistrip::invalid_;
+  if ( time_ <= sistrip::maximum_ && 
+       delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
+  float sampling = sistrip::invalid_;
+  if ( refTime_ <= sistrip::maximum_ ) { sampling = refTime_ + optimumSamplingPoint_; }
+  ss << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
+    //<< " Error on time of rising edge         [ns] : " << error_ << std::endl
+     << " Sampling point of last tick mark     [ns] : " << sampling << std::endl 
+     << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
+     << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
+     << " Tick mark height                    [ADC] : " << height_ << std::endl
+     << " Baseline level                      [ADC] : " << base_ << std::endl 
+     << " Tick mark top                       [ADC] : " << peak_ << std::endl 
+     << std::boolalpha 
+     << " isValid                                   : " << isValid()  << std::endl
+     << std::noboolalpha
+     << " Error codes (found "
+     << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
+     << ")                    : ";
+  if ( getErrorCodes().empty() ) { ss << "(none)"; }
+  else { 
+    VString::const_iterator istr = getErrorCodes().begin();
+    VString::const_iterator jstr = getErrorCodes().end();
+    for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
+  }
+  ss << std::endl;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
   // RootAnalyzer implementation (not used by default)
+
   if ( false ) {
     float maxdev = -9999;
     float mindev = 9999;
@@ -315,78 +378,5 @@ void ApvTimingAnalysis::analyse() {
       tickmark = 0;
     }
   }
-  
-  // Set monitorables
-  if ( deriv_bin <= sistrip::maximum_ ) {
-    time_      = deriv_bin * 25. / 24.;
-    error_     = 0.;
-    base_      = baseline;
-    peak_      = tickmark;
-    height_    = tickmark - baseline;
-  } else {
-    //edm::LogWarning(mlCommissioning_) 
-    //<< "[" << myName() << "::" << __func__ << "]"
-    //<< " No tick marks found!";
-    base_   = baseline;
-    peak_   = tickmark;
-    height_ = tickmark - baseline;
-    addErrorCode(sistrip::missingTickMark_);
-  }
-  
-}
 
-// ----------------------------------------------------------------------------
-// 1) Calculates position of "sampling point" of last tick; 2) then
-// adjusts so that it is multiple of 25, ie, synched with FED
-// sampling; 3) then calculates delay required to synchronise with
-// this adjusted sampling position.
-void ApvTimingAnalysis::maxTime( const float& time ) { 
-  maxTime_ = time;
-  if ( time_ > sistrip::maximum_ ) { return; }
-  float adjustment = 25 - static_cast<int32_t>( rint(maxTime_+optimumSamplingPoint_) ) % 25;
-  delay_ = ( maxTime_ + adjustment ) - time_; 
-}
-
-// ----------------------------------------------------------------------------
-// 
-bool ApvTimingAnalysis::isValid() {
-  return ( time_ < sistrip::maximum_ &&
-	   maxTime_ < sistrip::maximum_ &&
-	   delay_ < sistrip::maximum_ &&
-	   error_ < sistrip::maximum_ &&
-	   base_ < sistrip::maximum_ &&
-	   peak_ < sistrip::maximum_ &&
-	   height_ < sistrip::maximum_ );
-} 
-
-// ----------------------------------------------------------------------------
-// 
-void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
-  header( ss );
-  float adjust = sistrip::invalid_;
-  if ( time_ <= sistrip::maximum_ && 
-       delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
-  float sampling = sistrip::invalid_;
-  if ( maxTime_ <= sistrip::maximum_ ) { sampling = maxTime_ + optimumSamplingPoint_; }
-  ss << " Time of tick mark rising edge [ns]        : " << time_ << std::endl 
-    //<< " Error on time of rising edge [ns]         : " << error_ << std::endl
-     << " Sampling point of last tick mark [ns]     : " << sampling << std::endl 
-     << " Delay required to synchronise [ns]        : " << delay_ << std::endl 
-     << " Adjusted sampling point of last tick [ns] : " << adjust << std::endl 
-     << " Tick mark height [adc]                    : " << height_ << std::endl
-     << " Baseline level [adc]                      : " << base_ << std::endl 
-     << " Tick mark top [adc]                       : " << peak_ << std::endl 
-     << std::boolalpha 
-     << " isValid                                   : " << isValid()  << std::endl
-     << std::noboolalpha
-     << " Error codes (found "
-     << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
-     << ")                    : ";
-  if ( getErrorCodes().empty() ) { ss << "(none)"; }
-  else { 
-    VStrings::const_iterator istr = getErrorCodes().begin();
-    VStrings::const_iterator jstr = getErrorCodes().end();
-    for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
-  }
-  ss << std::endl;
-}
+*/

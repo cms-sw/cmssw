@@ -23,7 +23,7 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   VpspScanAnalysis();
   virtual ~VpspScanAnalysis() {;}
 
-  inline const VInts& vpsp() const;
+  inline const VInt& vpsp() const;
 
   inline const Histo& hVpsp0() const;
   inline const Histo& hVpsp1() const;
@@ -39,13 +39,13 @@ class VpspScanAnalysis : public CommissioningAnalysis {
  private:
   
   /** VPSP settings */
-  VInts vpsp_; // 
-  VInts adcLevel_;
-  VInts fraction_;
-  VInts topEdge_;
-  VInts bottomEdge_;
-  VInts topLevel_;
-  VInts bottomLevel_;
+  VInt vpsp_; // 
+  VInt adcLevel_;
+  VInt fraction_;
+  VInt topEdge_;
+  VInt bottomEdge_;
+  VInt topLevel_;
+  VInt bottomLevel_;
   
   /** "VPSP scan" histo for APV0 */
   Histo hVpsp0_;
@@ -60,7 +60,7 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   
 };
 
-const VpspScanAnalysis::VInts& VpspScanAnalysis::vpsp() const { return vpsp_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::vpsp() const { return vpsp_; }
 
 const VpspScanAnalysis::Histo& VpspScanAnalysis::hVpsp0() const { return hVpsp0_; }
 const VpspScanAnalysis::Histo& VpspScanAnalysis::hVpsp1() const { return hVpsp1_; }
