@@ -338,7 +338,7 @@ void TestProfilerService::check_ExcludedPath() {
   pset.addUntrackedParameter<int>("firstEvent",fe);
   pset.addUntrackedParameter<int>("lastEvent",le);
   pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
-  pset.addUntrackedParameter<std::vector<std::string> >("excludedPaths",expaths);
+  pset.addUntrackedParameter<std::vector<std::string> >("excludePaths",expaths);
   edm::ActivityRegistry activity;
   ProfilerService ps(pset,activity);
 
