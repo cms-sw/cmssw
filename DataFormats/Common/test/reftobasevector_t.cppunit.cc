@@ -1,4 +1,7 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.2 2007/04/10 11:46:17 llista Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.3 2007/06/07 15:40:41 paterno Exp $
+
+#include <algorithm>
+
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -17,10 +20,12 @@ public:
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testRefToBaseVector);
+
 namespace testreftobase {
   struct Base {
     virtual ~Base() {}
     virtual int val() const=0;
+    bool operator==(Base const& other) const { return val() == other.val(); }
   };  
 
   struct Inherit1 : public Base {
@@ -44,6 +49,30 @@ namespace testreftobase {
 using namespace testreftobase;
 
 void
+do_some_tests(edm::RefToBaseVector<Base> x)
+{
+  edm::RefToBaseVector<Base> copy(x);
+  CPPUNIT_ASSERT(x.empty() == copy.empty());
+  CPPUNIT_ASSERT(x.size() == copy.size());
+
+  // The following code will not compile until
+  // edm::reftobase::BaseVectorHolder<T>::const_iterator contains all
+  // the required typedefs to support the general use of iterators.
+
+  //CPPUNIT_ASSERT(std::distance(x.begin(), x.end()) ==
+  //		 std::distance(copy.begin(), copy.end()));
+
+  CPPUNIT_ASSERT(x.capacity() == copy.capacity());
+
+  // The following three lines don't work because reserve is not
+  // protected against a null pointer.
+
+  //size_t increment(1000);
+  //x.reserve(x.size() + increment);
+  //CPPUNIT_ASSERT(x.capacity() >= x.size()+increment);
+}
+
+void
 testRefToBaseVector::check()
 {
   using namespace edm;
@@ -60,6 +89,13 @@ testRefToBaseVector::check()
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 0 ) );
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 1 ) );
 
+  RefToBaseVector<Base> empty;
+  RefToBaseVector<Base> copy_of_empty(empty);
+
+  // The following test fails because begin() called on an empty
+  // RefToBaseVector<T> causes a segmentation fault.
+  //CPPUNIT_ASSERT(empty == copy_of_empty);
+
   RefToBaseVector<Base> bv1( rv1 );
   RefToBase<Base> r1_0 = bv1[ 0 ];
   RefToBase<Base> r1_1 = bv1[ 1 ];
@@ -67,6 +103,7 @@ testRefToBaseVector::check()
   RefToBase<Base> r2_0 = bv2[ 0 ];
   RefToBase<Base> r2_1 = bv2[ 1 ];
 
+  CPPUNIT_ASSERT( bv1.empty() == false );
   CPPUNIT_ASSERT( bv1.size() == 2 );
   CPPUNIT_ASSERT( bv2.size() == 2 );
   CPPUNIT_ASSERT( r1_0->val() == 1 );
@@ -87,7 +124,15 @@ testRefToBaseVector::check()
   CPPUNIT_ASSERT( i == e );
 
   RefToBaseVector<Base> assigned_from_bv1;
+  do_some_tests(assigned_from_bv1);
+
+  CPPUNIT_ASSERT(assigned_from_bv1.empty());
   assigned_from_bv1 = bv1;
   CPPUNIT_ASSERT(assigned_from_bv1.size() == bv1.size());
-  //CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
+  CPPUNIT_ASSERT(std::equal(bv1.begin(), bv1.end(), assigned_from_bv1.begin()));
+  CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
+
+  do_some_tests(assigned_from_bv1);
+
 }
+
