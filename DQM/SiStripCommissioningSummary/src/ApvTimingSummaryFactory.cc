@@ -26,7 +26,7 @@ uint32_t SummaryPlotFactory<ApvTimingAnalysis*>::init( const sistrip::Monitorabl
   for ( ; iter != data.end(); iter++ ) {
     static float value = 1.*sistrip::invalid_;
     if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_TIME ) { value = iter->second->time(); }
-    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { value = iter->second->maxTime(); }
+    else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_MAX_TIME ) { value = iter->second->refTime(); }
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_DELAY ) { value = iter->second->delay(); }
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_ERROR ) { value = iter->second->error(); }
     else if ( SummaryPlotFactoryBase::mon_ == sistrip::APV_TIMING_BASE ) { value = iter->second->base(); }

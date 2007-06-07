@@ -1,4 +1,4 @@
-// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: ApvTimingHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -143,11 +143,11 @@ void ApvTimingHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& device
       if ( iter != data_.end() ) { 
 	
 	// Check delay value
-	if ( iter->second->maxTime() < 0. || iter->second->maxTime() > sistrip::maximum_ ) { 
+	if ( iter->second->refTime() < 0. || iter->second->refTime() > sistrip::maximum_ ) { 
 	  edm::LogWarning(mlDqmClient_) 
 	    << "[ApvTimingHistosUsingDb::" << __func__ << "]"
 	    << " Unexpected maximum time setting: "
-	    << iter->second->maxTime();
+	    << iter->second->refTime();
 	  continue;
 	}
 	
