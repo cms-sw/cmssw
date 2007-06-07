@@ -268,12 +268,12 @@ struct CheckPaths {
   void operator()(std::string const & path) const {
     bool found = std::find(selpaths.begin(),selpaths.end(),path)!= selpaths.end();
     bool ok = ps.doEvent() && ( exc ? !found : found);   
-    noselPath();
+    noselPath(true);
     ps.beginPath(path);
     if (ok) selPath(path);
     else noselPath();
     ps.endPath(path);
-    noselPath();
+    noselPath(true);
   }
 
   void selPath(const std::string & path) const {
@@ -284,10 +284,11 @@ struct CheckPaths {
     doSomething(path);
   }
 
-  void noselPath() const {
+  void noselPath(bool f=false) const {
    CPPUNIT_ASSERT(ps.m_active==base);
    CPPUNIT_ASSERT(ps.m_activePath.empty());
-   CPPUNIT_ASSERT((!exc)||ps.m_paused);
+   CPPUNIT_ASSERT(f||(!exc)||ps.m_paused);
+   CPPUNIT_ASSERT(!(f&&ps.m_paused));
    doSomethingElse("else");
   }
 
