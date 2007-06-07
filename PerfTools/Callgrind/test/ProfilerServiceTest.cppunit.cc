@@ -278,7 +278,7 @@ struct CheckPaths {
 
   void selPath(const std::string & path) const {
     CPPUNIT_ASSERT(ps.m_active==base+1);
-    CPPUNIT_ASSERT(ps.m_activePath==path);
+    CPPUNIT_ASSERT(exc||ps.m_activePath==path);
     ++done;
     doSomething(path);
   }
@@ -286,7 +286,7 @@ struct CheckPaths {
   void noselPath() const {
    CPPUNIT_ASSERT(ps.m_active==base);
    CPPUNIT_ASSERT(ps.m_activePath.empty());
-    doSomethingElse("else");
+   doSomethingElse("else");
   }
 
 };
@@ -328,7 +328,7 @@ void TestProfilerService::check_ExcludedPath() {
   int fe=2;
   int le=10;
   std::vector<std::string> paths; 
-  paths += "FullEvent";
+  paths += "ALL";
   std::vector<std::string> expaths; 
   expaths += "p21";
   edm::ParameterSet pset;
