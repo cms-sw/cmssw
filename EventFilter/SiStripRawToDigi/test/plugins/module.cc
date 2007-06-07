@@ -12,11 +12,8 @@ DEFINE_ANOTHER_FWK_MODULE(SiStripTrivialClusterSource);
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripTrivialDigiSource.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripTrivialDigiSource);
 
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformanceRecordModule.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripPerformanceRecordModule);
-
-#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyRoI.h"
-DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersDummyRoI);
+#include "EventFilter/SiStripRawToDigi/test/plugins/SiStripPerformance.h"
+DEFINE_ANOTHER_FWK_MODULE(SiStripPerformance);
 
 #include "EventFilter/SiStripRawToDigi/test/plugins/SiStripRawToClustersDummyUnpacker.h"
 DEFINE_ANOTHER_FWK_MODULE(SiStripRawToClustersDummyUnpacker);
