@@ -164,13 +164,6 @@ void DDCompactView::setRoot(const DDLogicalPart & root)
 //#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
 void DDCompactView::clear()
 {
- DDMaterial::clear();
- DDLogicalPart::clear();
- DDSolid::clear();
- DDRotation::clear();
- DDSpecifics::clear();
- DDValue::clear();
- 
  graph_type & g = writeableGraph();
  
  graph_type::adj_iterator ait = g.begin();
@@ -182,6 +175,20 @@ void DDCompactView::clear()
      delete g.edgeData(eit->second); eit->second=0;
    }
  } 
+
+ DDMaterial::clear();
+ DDLogicalPart::clear();
+ DDSolid::clear();
+ DDRotation::clear();
+ DDSpecifics::clear();
+ DDValue::clear();
+ //NOT GOOD Practice! either! -- Mike Case
+ LPNAMES::instance().clear();
+ DIVNAMES::instance().clear();
+ //NOT GOOD Practice! -- Mike Case
+ DDName::Registry& reg_ = DDI::Singleton<DDName::Registry>::instance();
+ reg_.clear();
+ 
 /* 
  walker_type w(g,root());
  bool goOn=true;

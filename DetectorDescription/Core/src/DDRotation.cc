@@ -45,9 +45,16 @@ DDRotation::DDRotation() : DDBase<DDName,DDRotationMatrix*>()
 {
   //static bool onlyOnce=true;
   //if (onlyOnce) {
-//  static DDRotationMatrix rm_;
-  prep_ = StoreT::instance().create(DDName("",""),new DDRotationMatrix);
-
+  //  static DDRotationMatrix* rm_ = new DDRotationMatrix;
+  //  prep_ = StoreT::instance().create(DDName("",""), rm_ );
+  static std::string baseName("DdBlNa");
+  static int countBlank;
+  static std::ostringstream ostr;
+  ostr << countBlank++;
+  prep_ = StoreT::instance().create(DDName(baseName+ostr.str(),baseName), new DDRotationMatrix );
+  //  std::cout << "making a BLANK " << baseName+ostr.str() << " named rotation, " << prep_->second << std::endl;
+  ostr.clear();
+  ostr.str("");
 }
 
 
@@ -69,8 +76,14 @@ DDRotation::DDRotation(const DDName & name, DDRotationMatrix * rot)
 DDRotation::DDRotation(DDRotationMatrix * rot)
  : DDBase<DDName,DDRotationMatrix*>()
 {
-  prep_ = StoreT::instance().create(rot);
-
+  static std::string baseNoName("DdNoNa");
+  static int countNN;
+  static std::ostringstream ostr2;
+  ostr2 << countNN++;
+  prep_ = StoreT::instance().create(DDName(baseNoName+ostr2.str(), baseNoName), rot);
+  //  std::cout << "making a NO-NAME " << baseNoName+ostr2.str() << " named rotation, " << prep_->second << std::endl;
+  ostr2.clear();
+  ostr2.str("");
 }
 
 void DDRotation::clear()

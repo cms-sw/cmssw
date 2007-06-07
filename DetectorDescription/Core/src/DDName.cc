@@ -130,7 +130,7 @@ bool DDName::exists(const std::string & name, const std::string & ns)
 DDName::Registry::iterator DDName::registerName(const std::pair<std::string,std::string> & nm) {
     static seal::SealTimer rddnamern("DDName::registerName(...)", false);
 
-    static Registry& reg_ = DDI::Singleton<Registry>::instance();
+    Registry& reg_ = DDI::Singleton<Registry>::instance();
     IdToName & idToName = DDI::Singleton<IdToName>::instance();  
     Registry::size_type sz = reg_.size();
     if (!sz) {
