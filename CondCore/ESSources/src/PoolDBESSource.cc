@@ -22,9 +22,11 @@
 #include "RelationalAccess/IWebCacheControl.h"
 #include "FWCore/Catalog/interface/SiteLocalConfig.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "CondCore/DBCommon/interface/DBCatalog.h"
 #include <exception>
 //#include <iostream>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FileCatalog/IFileCatalog.h"
 #include <sstream>
 #include <cstdlib>
 //
@@ -57,8 +59,7 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
   //From the plugin manager get the list of our plugins
   // then from the plugin names, we can deduce the 'record to type' information
   //std::cout<<"Entering fillRecordToTypeMap "<<std::endl;
-   
-   
+      
    edmplugin::PluginManager*db =  edmplugin::PluginManager::get();
    
    typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
@@ -95,7 +96,6 @@ fillRecordToTypeMap(std::multimap<std::string, std::string>& oToFill){
       }
    }
 }
-
 //
 // constructors and destructor
 //
@@ -110,13 +110,38 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   std::string catconnect, mycatalog;
   std::string connect;
   connect=iConfig.getParameter<std::string>("connect");
-  //catconnect=iConfig.getUntrackedParameter<std::string>("catalog","file::PoolFileCatalog.xml");
-  //std::cout<<"catconnect "<<catconnect<<std::endl;
+  catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
+  cond::DBCatalog mycat;
+  std::string logicalServiceName=mycat.logicalserviceName(connect);
+  bool usingDefaultCatalog=false;
+  if( catconnect.empty() ){
+    usingDefaultCatalog=true;
+  }
+  if( !logicalServiceName.empty() ){
+    if( usingDefaultCatalog ){
+      if( logicalServiceName=="dev" ){
+	catconnect=mycat.defaultDevCatalogName();
+      }else if( logicalServiceName=="online" ){
+	catconnect=mycat.defaultOnlineCatalogName();
+      }else if( logicalServiceName=="offline" ){
+	catconnect=mycat.defaultOfflineCatalogName();
+      }else if( logicalServiceName=="local" ){
+	catconnect=mycat.defaultLocalCatalogName();
+      }else{
+	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
+      }
+    }
+    mycat.poolCatalog().setWriteCatalog(catconnect);
+    mycat.poolCatalog().connect();
+    mycat.poolCatalog().start();
+    std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, siteLocalConfig);
+    mycat.poolCatalog().commit();
+    mycat.poolCatalog().disconnect();
+    connect=pf;
+  }
   m_session=new cond::DBSession(true);
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
-  //cond::ConfigSessionFromParameterSet configConnection(*m_session,connectionPset);
-  //std::cout<<"PoolDBESSource::PoolDBESSource"<<std::endl;
   using namespace edm;
   using namespace edm::eventsetup;  
   fillRecordToTypeMap(m_recordToTypes);
@@ -195,32 +220,32 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   //authpath+=m_session->sessionConfiguration().authName();
   //::putenv(const_cast<char*>(authpath.c_str()));
   m_session->open();
-
   if( siteLocalConfig ){
     edm::Service<edm::SiteLocalConfig> localconfservice;
     if( !localconfservice.isAvailable() ){
       throw cms::Exception("edm::SiteLocalConfigService is not available");       
     }
     connect=localconfservice->lookupCalibConnect(connect);
-    catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
-    if(catconnect.empty()){
-      mycatalog=localconfservice->calibCatalog();
-    }else{
-      mycatalog=catconnect;
+    //catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
+    if(usingDefaultCatalog){ //jump to use the frontier catalog
+      catconnect=localconfservice->calibCatalog();
     }
     std::string logicalconnect=localconfservice->calibLogicalServer();
-    
+    //std::cout<<"logicalconnect "<<logicalconnect<<std::endl;
     //get handle to IConnectionService
     seal::IHandle<coral::IConnectionService>
       connSvc = m_session->serviceLoader().context()->query<coral::IConnectionService>( "CORAL/Services/ConnectionService" );
     //get handle to webCacheControl()
     connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovTableName() );
     connSvc->webCacheControl().refreshTable( logicalconnect,cond::IOVNames::iovDataTableName() );
-  }else{
-    mycatalog=iConfig.getUntrackedParameter<std::string>("catalog","");
   }
+  //else{
+  //  mycatalog=iConfig.getUntrackedParameter<std::string>("catalog","");
+  //}
   m_con=connect;
-  m_pooldb=new cond::PoolStorageManager(m_con,mycatalog,m_session);
+  //std::cout<<"m_con here "<<m_con<<std::endl;
+  //std::cout<<"about to use the real catalog "<<catconnect<<std::endl;
+  m_pooldb=new cond::PoolStorageManager(m_con,catconnect,m_session);
   if(m_timetype=="timestamp"){
     m_iovservice=new cond::IOVService(*m_pooldb,cond::timestamp);
   }else{
@@ -346,7 +371,6 @@ PoolDBESSource::newInterval(const edm::eventsetup::EventSetupRecordKey& iRecordT
 }
 
 void PoolDBESSource::tagToToken( const std::vector< std::pair < std::string, std::string> >& recordToTag ){
-  //std::cout<<"tag to token"<<std::endl;
   try{
     if( recordToTag.size()==0 ) return;
     cond::RelationalStorageManager coraldb(m_con,m_session);
