@@ -341,7 +341,7 @@ void TestProfilerService::check_ExcludedPath() {
 
   std::vector<std::string> allPaths; 
   allPaths += "p1","p21","p22","p3";
-  CheckPaths cp(ps,paths,0,true);
+  CheckPaths cp(ps,expaths,0,true);
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[0]) == expaths.end());
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[1]) != expaths.end());
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[2]) == expaths.end());
