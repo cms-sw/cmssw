@@ -132,50 +132,193 @@ namespace edm {
     };
 
   }
-  
+
+  //--------------------------------------------------------------------
+  //
+  // Class template RefToBaseVector<T>
+  //
+  //--------------------------------------------------------------------
+
+  /// RefToBaseVector<T> provides ... ?
+
   template <class T>
   class RefToBaseVector {
   public:
-    typedef RefToBase<T> value_type;
-    typedef T member_type;
-    typedef unsigned int size_type;
-
-    RefToBaseVector() : holder_(0) { }
-    template <class TRefVector>
-    explicit RefToBaseVector(const TRefVector& iRef) : holder_(new reftobase::VectorHolder<T,TRefVector>(iRef)) { }
-    RefToBaseVector(const RefToBaseVector<T>& iOther): 
-      holder_((0==iOther.holder_) ? static_cast<reftobase::BaseVectorHolder<T>*>(0) : iOther.holder_->clone()) {
-    }
-    const RefToBaseVector& operator=(const RefToBaseVector<T>& iRHS) {
-      RefToBaseVector<T> temp(iRHS);
-      this->swap(temp);
-      return *this;
-    }
-    ~RefToBaseVector() { delete holder_; }
-
-    value_type const at(size_type idx) const { return holder_->at( idx ); }    
-    value_type const operator[](size_type idx) const { return at( idx ); }
-    bool empty() const { return holder_->empty(); }
-    size_type size() const { return holder_->size(); }
-    size_type capacity() const { return holder_->capacity(); }
-    void reserve(unsigned int n) { holder_->reserve(n); }
-    void clear() { holder_->clear(); }
-    ProductID id() const {return holder_->id();}
-
+    typedef RefToBase<T>   value_type;
+    typedef T              member_type;
+    typedef unsigned int   size_type;
     typedef typename reftobase::BaseVectorHolder<T>::const_iterator const_iterator;
-    const_iterator begin() const { return holder_->begin(); }
-    const_iterator end() const { return holder_->end(); }
+
+    RefToBaseVector();
+
+    template <class TRefVector> explicit RefToBaseVector(TRefVector const& iRef);
+
+    RefToBaseVector(RefToBaseVector const& iOther);
+
+    RefToBaseVector& operator=(RefToBaseVector const& iRHS);
+
+    void swap(RefToBaseVector& other);
+
+    ~RefToBaseVector();
+
+    value_type const at(size_type idx) const;
+
+    value_type const operator[](size_type idx) const;
+
+    bool empty() const;
+
+    size_type size() const;
+
+    size_type capacity() const;
+
+    void reserve(unsigned int n);
+
+    void clear();
+
+    ProductID id() const;
+
+    const_iterator begin() const;
+
+    const_iterator end() const;
 
   private:
     reftobase::BaseVectorHolder<T>* holder_;
   };
   
-  // Free swap function
   template <class T>
   inline
   void
   swap(RefToBaseVector<T>& a, RefToBaseVector<T>& b) {
     a.swap(b);
+  }
+
+  //--------------------------------------------------------------------
+  // Implementation of RefToBaseVector<T>
+  //--------------------------------------------------------------------
+  
+  template <class T>
+  inline
+  RefToBaseVector<T>::RefToBaseVector() : 
+    holder_(0) 
+  { }
+
+  template <class T>
+  template <class TRefVector>
+  inline
+  RefToBaseVector<T>::RefToBaseVector(const TRefVector& iRef) :
+    holder_(new reftobase::VectorHolder<T,TRefVector>(iRef)) 
+  { }
+
+  template <class T>
+  inline
+  RefToBaseVector<T>::RefToBaseVector(const RefToBaseVector<T>& iOther) : 
+    holder_((0==iOther.holder_) 
+	    ? static_cast<reftobase::BaseVectorHolder<T>*>(0) 
+	    : iOther.holder_->clone()) 
+  { }
+
+  template <class T>
+  inline
+  RefToBaseVector<T>& 
+  RefToBaseVector<T>::operator=(const RefToBaseVector& iRHS) {
+    RefToBaseVector temp(iRHS);
+    this->swap(temp);
+    return *this;
+  }
+
+  template <class T>
+  inline
+  void
+  RefToBaseVector<T>::swap(RefToBaseVector& other) {
+    std::swap(holder_, other.holder_);
+  }
+
+  template <class T>
+  inline
+  RefToBaseVector<T>::~RefToBaseVector() 
+  {
+    delete holder_; 
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::value_type const
+  RefToBaseVector<T>::at(size_type idx) const 
+  {
+    return holder_->at( idx );
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::value_type const
+  RefToBaseVector<T>::operator[](size_type idx) const 
+  {
+    return at( idx ); 
+  }
+
+  template <class T>
+  inline
+  bool 
+  RefToBaseVector<T>::empty() const 
+  {
+    return holder_->empty(); 
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::size_type
+  RefToBaseVector<T>::size() const 
+  {
+    return holder_->size(); 
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::size_type
+  RefToBaseVector<T>::capacity() const 
+  {
+    return holder_->capacity();
+  }
+
+
+  template <class T>
+  inline
+  void 
+  RefToBaseVector<T>::reserve(unsigned int n)
+  {
+    holder_->reserve(n);
+  }
+
+  template <class T>
+  inline
+  void 
+  RefToBaseVector<T>::clear()
+  {
+    holder_->clear();
+  }
+
+  template <class T>
+  inline
+  ProductID
+  RefToBaseVector<T>::id() const
+  {
+    return holder_->id();
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::const_iterator
+  RefToBaseVector<T>::begin() const
+  {
+    return holder_->begin();
+  }
+
+  template <class T>
+  inline
+  typename RefToBaseVector<T>::const_iterator
+  RefToBaseVector<T>::end() const
+  {
+    return holder_->end();
   }
 
 }

@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.1 2007/04/05 14:32:00 llista Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.2 2007/04/10 11:46:17 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/RefVector.h"
@@ -85,4 +85,9 @@ testRefToBaseVector::check()
   CPPUNIT_ASSERT( i - b == 1 );
   ++ i;
   CPPUNIT_ASSERT( i == e );
+
+  RefToBaseVector<Base> assigned_from_bv1;
+  assigned_from_bv1 = bv1;
+  CPPUNIT_ASSERT(assigned_from_bv1.size() == bv1.size());
+  //CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
 }

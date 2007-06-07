@@ -5,7 +5,7 @@
   
 Forward declarations of types in the EDM.
 
-$Id: EDProductfwd.h,v 1.10 2007/05/16 22:31:59 paterno Exp $
+$Id: EDProductfwd.h,v 1.11 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,11 @@ namespace edm
     class RefHolderBase;
     template <typename T> class IndirectHolder;
     template <typename REF> class RefHolder;
+
+    template <class T> class BaseVectorHolder;
+    template <class T, class TRefVector> class VectorHolder;
+    template <class T> class RefToBaseVector;
+
   }
 }
 

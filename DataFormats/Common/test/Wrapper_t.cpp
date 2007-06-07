@@ -1,5 +1,5 @@
 /*
- *  $Id: Wrapper_t.cpp,v 1.5 2007/01/23 00:25:53 wmtan Exp $
+ *  $Id: Wrapper_t.cpp,v 1.6 2007/05/16 22:32:01 paterno Exp $
  *  CMSSW
  *
  */
@@ -16,8 +16,8 @@ class CopyNoSwappy
 {
  public:
   CopyNoSwappy() {}
-  CopyNoSwappy(CopyNoSwappy const&) { std::cout << "copied\n"; }
-  CopyNoSwappy& operator=(CopyNoSwappy const&) {std::cout << "assigned\n"; return *this;}
+  CopyNoSwappy(CopyNoSwappy const&) { /* std::cout << "copied\n"; */ }
+  CopyNoSwappy& operator=(CopyNoSwappy const&) { /*std::cout << "assigned\n";*/ return *this;}
  private:
 #if ! GCC_PREREQUISITE(3,4,4)
   void swap(CopyNoSwappy&); // not implemented
@@ -28,7 +28,7 @@ class SwappyNoCopy
 {
  public:
   SwappyNoCopy() {}
-  void swap(SwappyNoCopy&) { std::cout << "swapped\n"; }
+  void swap(SwappyNoCopy&) { /* std::cout << "swapped\n";*/ }
  private:
   SwappyNoCopy(SwappyNoCopy const&); // not implemented
   SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
