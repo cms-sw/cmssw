@@ -10,6 +10,7 @@
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/RangeMap.h"
 #include "DataFormats/Common/interface/OwnVector.h"
+#include "DataFormats/SiStripCommon/interface/SiStripRefGetter.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
 #include <vector>
 
