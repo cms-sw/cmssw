@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.1 2007/06/04 13:32:11 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.2 2007/06/05 14:34:09 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -125,15 +125,15 @@ void SiStripCommissioningOfflineDbClient::testUploadToDb() {
 void SiStripCommissioningOfflineDbClient::uploadToDb() {
   if ( uploadToDb_ ) { 
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Uploading parameters to database...";
     if ( histos_ ) { histos_->uploadToConfigDb(); }
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Uploaded parameters to database!";
   } else {
     edm::LogVerbatim(mlDqmClient_)
-      << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " No database upload performed!";
   }
 }
