@@ -16,14 +16,11 @@
  <class name="edm::Wrapper< edm::DetSetVector<SiStripCluster> >"/>
  <class name="edm::Wrapper< std::vector< std::vector < edm::DetSet<SiStripCluster> > > >"/>
 
+ <class pattern="__gnu_cxx::__normal_iterator<*>"/>
  <class pattern="edm::SiStripRefGetter<*>"/>
- <class pattern="edm::SiStripLazyGetter<*>">
-   <field name="unpacker_" transient="true"/>
- </class>
+ <class pattern="edm::SiStripLazyGetter<*>"> <field name="unpacker_" transient="true"/> </class>
  <class pattern="edm::Ref<*>"/>
  <class pattern="std::vector<edm::Ref*>"/>
  <class pattern="edm::Wrapper<*>"/>
-
-
 
 </lcgdict>
