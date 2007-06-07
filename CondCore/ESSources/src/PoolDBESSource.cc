@@ -113,7 +113,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
   catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   bool siteLocalConfig=iConfig.getUntrackedParameter<bool>("siteLocalConfig",false);
   cond::DBCatalog mycat;
-  std::string logicalServiceName=mycat.logicalserviceName(connect);
+  std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
+  std::string logicalServiceName=logicalService.first;
   bool usingDefaultCatalog=false;
   if( catconnect.empty() ){
     usingDefaultCatalog=true;
@@ -140,6 +141,8 @@ PoolDBESSource::PoolDBESSource( const edm::ParameterSet& iConfig ) :
     mycat.poolCatalog().disconnect();
     connect=pf;
   }
+  //std::cout<<"using connect "<<connect<<std::endl;
+  //std::cout<<"using catalog "<<catconnect<<std::endl;
   m_session=new cond::DBSession(true);
   edm::ParameterSet connectionPset = iConfig.getParameter<edm::ParameterSet>("DBParameters"); 
   using namespace edm;

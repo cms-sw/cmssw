@@ -11,13 +11,16 @@ cond::DBCatalog::DBCatalog():m_poolcatalog(0){
 cond::DBCatalog::~DBCatalog(){
   if(m_poolcatalog) delete m_poolcatalog; 
 }
-std::string
-cond::DBCatalog::logicalserviceName( const std::string& input )const{
+std::pair<std::string,std::string>
+cond::DBCatalog::logicalservice( const std::string& input )const{
   std::string serviceName("");
+  std::string ownerName("");
   if( input.at(0) == '/' ){
-    serviceName=input.substr(1,input.find_first_of('/',1)-1);
+    std::string::size_type sepos=input.find_first_of('/',1);
+    serviceName=input.substr(1,sepos-1);
+    ownerName=input.substr(sepos+1,input.length()-serviceName.length()-2);
   }
-  return serviceName;
+  return std::make_pair<std::string,std::string>(serviceName,ownerName);
 }
 std::string 
 cond::DBCatalog::defaultOnlineCatalogName(){
@@ -39,7 +42,7 @@ cond::DBCatalog::defaultDevCatalogName(){
 }
 std::string 
 cond::DBCatalog::defaultLocalCatalogName(){
-  edm::FileInPath fip("CondCore/DBCommon/data/localCondDBCatalog.xml");
+  edm::FileInPath fip("localCondDBCatalog.xml");
   std::string result=std::string("xmlcatalog_file://")+fip.fullPath();
   return result;
 }

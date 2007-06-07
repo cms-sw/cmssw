@@ -1,6 +1,7 @@
 #ifndef DBCommon_DBCatalog_h
 #define DBCommon_DBCatalog_h
 #include <string>
+#include <map>
 namespace pool{
   class IFileCatalog;
 }
@@ -18,7 +19,8 @@ namespace cond{
     /// get pool filecatalog handle
     pool::IFileCatalog& poolCatalog();
     /// if a string is not in lfn format, return empty string
-    std::string logicalserviceName( const std::string& input ) const;
+    std::pair<std::string,std::string> 
+      logicalservice( const std::string& input ) const;
     /// if a string is in lfn format
     //bool isLFN(const std::string& input) const;
     /// looks up PFN with given LFN. If useCache is true, select pfn contains frontier protocol. This operation involves catalog transaction

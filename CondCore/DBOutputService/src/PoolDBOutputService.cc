@@ -35,32 +35,33 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   std::string connect=iConfig.getParameter<std::string>("connect");
   std::string catconnect=iConfig.getUntrackedParameter<std::string>("catalog","");
   cond::DBCatalog mycat;
-  std::string logicalServiceName=mycat.logicalserviceName(connect);
+  std::pair<std::string,std::string> logicalService=mycat.logicalservice(connect);
+  std::string logicalServiceName=logicalService.first;
+  std::string dataName=logicalService.second;
   if( !logicalServiceName.empty() ){
     if( catconnect.empty() ){
       if( logicalServiceName=="dev" ){
 	catconnect=mycat.defaultDevCatalogName();
-	//mycat.poolCatalog().setWriteCatalog(catconnect);
       }else if( logicalServiceName=="online" ){
 	catconnect=mycat.defaultOnlineCatalogName();
-	//mycat.poolCatalog().setWriteCatalog(catconnect);
       }else if( logicalServiceName=="offline" ){
 	catconnect=mycat.defaultOfflineCatalogName();
-	//mycat.poolCatalog().setWriteCatalog(catconnect);
       }else if( logicalServiceName=="local" ){
-	catconnect=mycat.defaultLocalCatalogName();
-	//mycat.poolCatalog().setWriteCatalog(catconnect);
+	catconnect="file:localCondDBCatalog.xml";
+	connect=std::string("sqlite_file:")+dataName;
       }else{
 	throw cond::Exception(std::string("no default catalog found for ")+logicalServiceName);
       }
     }
-    mycat.poolCatalog().setWriteCatalog(catconnect);
-    mycat.poolCatalog().connect();
-    mycat.poolCatalog().start();
-    std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, false);
-    mycat.poolCatalog().commit();
-    mycat.poolCatalog().disconnect();
-    connect=pf;
+    if(logicalServiceName != "local"){
+      mycat.poolCatalog().setWriteCatalog(catconnect);
+      mycat.poolCatalog().connect();
+      mycat.poolCatalog().start();
+      std::string pf=mycat.getPFN(mycat.poolCatalog(),connect, false);
+      mycat.poolCatalog().commit();
+      mycat.poolCatalog().disconnect();
+      connect=pf;
+    }
   }
   m_session=new cond::DBSession(true);
   std::string timetype=iConfig.getParameter< std::string >("timetype");
