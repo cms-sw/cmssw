@@ -274,7 +274,7 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     uint tecIt=1;
     for (; tecIt!=ptecc.size();tecIt++){
       if (fabs(z) < ptecc[tecIt]->surface().position().z())
-	{inLayer = ( z < 0 ) ? ntecc[tecIt] : ptecc[tecIt] ; break;}}
+	{inLayer = ( z < 0 ) ? ntecc[tecIt-1] : ptecc[tecIt-1] ; break;}}
     if (!inLayer) {inLayer = ( z < 0 ) ? ntecc.back() : ptecc.back();}
   }
 
@@ -289,8 +289,8 @@ void TSGForRoadSearch::makeSeeds_3(const reco::Track & muon, std::vector<Traject
     case StripSubdetector::TIB:
     case StripSubdetector::TID:
     case StripSubdetector::TOB:
-      if (layerShift>=blc.size()) return;
       layerShift++;
+      if (layerShift>=blc.size()) return;
       inLayer = *(blc.rbegin()+layerShift);
       break;
     case StripSubdetector::TEC:
