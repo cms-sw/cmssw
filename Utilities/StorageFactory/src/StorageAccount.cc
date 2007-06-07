@@ -1,13 +1,10 @@
 //<<<<<< INCLUDES                                                       >>>>>>
+
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "SealBase/TimeInfo.h"
 #include <sstream>
-#include <boost/thread/tss.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/mutex.hpp>
-
-typedef boost::mutex::scoped_lock ScopedLock;
-
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -16,8 +13,8 @@ typedef boost::mutex::scoped_lock ScopedLock;
 //<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
-boost::mutex StorageAccount::s_mutex;
-StorageAccount::StorageStats StorageAccount::s_stats;
+boost::mutex			s_mutex;
+StorageAccount::StorageStats	s_stats;
 
 //<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
 //<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
@@ -29,7 +26,7 @@ StorageAccount::summaryText (bool banner /*=false*/)
   bool first = true;
   std::ostringstream os;
   if (banner) 
-    os << "stats: class/operation/attempts/successes/amount/tot time/min time/max time\n";
+    os << "stats: class/operation/attempts/successes/amount/time-total/time-min/time-max\n";
   for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
     for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
       os << (first ? "" : "; ")
@@ -38,9 +35,9 @@ StorageAccount::summaryText (bool banner /*=false*/)
 	 << j->second.attempts << '/'
 	 << j->second.successes << '/'
 	 << (j->second.amount / 1024 / 1024) << "MB/"
-	 << (j->second.time_tot / 1000 / 1000) << "ms/" 
-         << (j->second.time_min / 1000 / 1000) << "ms/" 
-         << (j->second.time_max / 1000 / 1000) << "ms";
+	 << (j->second.timeTotal / 1000 / 1000) << "ms/" 
+         << (j->second.timeMin / 1000 / 1000) << "ms/" 
+         << (j->second.timeMax / 1000 / 1000) << "ms";
   
   return os.str ();
 }
@@ -52,16 +49,14 @@ StorageAccount::summary (void)
 StorageAccount::Counter &
 StorageAccount::counter (const std::string &storageClass, const std::string &operation)
 {
-
-  ScopedLock sl(s_mutex);
-
+  boost::mutex::scoped_lock	    lock (s_mutex);
   boost::shared_ptr<OperationStats> &opstats = s_stats [storageClass];
   if (! opstats) opstats.reset(new OperationStats);
   
   OperationStats::iterator pos = opstats->find (operation);
   if (pos == opstats->end ())
     {
-      Counter x; x.idTag = storageClass + "/" + operation;
+      Counter x = { 0, 0, 0, 0, 0 };
       pos = opstats->insert (OperationStats::value_type (operation, x)).first;
     }
   
@@ -72,47 +67,18 @@ StorageAccount::Stamp::Stamp (Counter &counter)
   : m_counter (counter),
     m_start (seal::TimeInfo::realNsecs ())
 {
-  {
-    ScopedLock sl(StorageAccount::s_mutex);
-    m_counter.attempts++;
-    StorageAccount::setCurrentOp(&m_counter,m_start);
-  }
+  boost::mutex::scoped_lock lock (s_mutex);
+  m_counter.attempts++;
 }
 
 void
 StorageAccount::Stamp::tick (double amount) const
 {
-  {
-    ScopedLock sl(StorageAccount::s_mutex);
-    double elapsed = seal::TimeInfo::realNsecs () - m_start;
-    m_counter.successes++;
-    m_counter.amount += amount;
-    m_counter.time_tot += elapsed;
-   if (elapsed < m_counter.time_min) m_counter.time_min=elapsed;
-   if (elapsed > m_counter.time_max) m_counter.time_max=elapsed;
-    StorageAccount::setCurrentOp(0,elapsed);
-  }
-}
-
-
-
-StorageAccount::LastOp & 
-StorageAccount::lastOp() 
-{
-  static std::map<unsigned int, boost::shared_ptr<LastOp> > local;
-  boost::shared_ptr<LastOp> & lop = local[pthread_self()];
-  if (!lop) lop.reset(new LastOp) ;
-  return *lop;
-}
-
-
-void 
-StorageAccount::setCurrentOp(const Counter * currOp, double stime) {
-  if (currOp) {
-    lastOp().idTag = (*currOp).idTag;
-    lastOp().startTime = stime;
-    lastOp().elapsed = 0;
-  } else {
-    lastOp().elapsed = stime;
-  }
+  boost::mutex::scoped_lock lock (s_mutex);
+  double elapsed = seal::TimeInfo::realNsecs () - m_start;
+  m_counter.successes++;
+  m_counter.amount += amount;
+  m_counter.timeTotal += elapsed;
+  if (elapsed < m_counter.timeMin) m_counter.timeMin = elapsed;
+  if (elapsed > m_counter.timeMax) m_counter.timeMax = elapsed;
 }
