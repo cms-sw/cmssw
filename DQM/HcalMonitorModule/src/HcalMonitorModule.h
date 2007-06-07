@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorModule.h
  *
- * $Date: 2007/04/10 18:18:58 $
- * $Revision: 1.13 $
+ * $Date: 2007/05/15 20:53:32 $
+ * $Revision: 1.14 $
  * \author W. Fisher
  *
 */
@@ -22,7 +22,6 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/Provenance/interface/EventID.h"  //for use in 1_4_0
-//#include "DataFormats/Common/interface/EventID.h"        //for use in 1_3_0
 #include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 
 

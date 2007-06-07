@@ -173,7 +173,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const HcalElectronicsM
     int err = htr.getErrorsWord();
     if(tmpErr!=NULL){
       for(int i=0; i<12; i++)
-	tmpErr->Fill(i,err&(0x01<<i));    
+	if(err&(0x01<<i)) tmpErr->Fill(i);    
     }
     if(err>0 && tmpMapC!=NULL){
       tmpMapC->Fill(htr.readoutVMECrateId(),htr.htrSlot());

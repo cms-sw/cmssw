@@ -171,8 +171,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
     return; 
   }
   
-  try{
-    
+  try{    
     for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); j++){
       
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
@@ -245,7 +244,6 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
   try{
     for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); j++){
       const HFDataFrame digi = (const HFDataFrame)(*j);	
-
       const HcalPedestalWidth* pedw = cond.getPedestalWidth(digi.id());
       cond.makeHcalCalibration(digi.id(), &calibs_);
       for(int capID=0; capID<4; capID++){
@@ -262,6 +260,7 @@ void HcalPedestalMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	if(m_doPerChannel) perChanHists(2,digi.id(),digi.sample(i),
 					hfHists.PEDVALS,hfHists.SUBVALS);
       }
+      
     }
   } catch (...) {
     cout << "HcalPedestalMonitor::processEvent  No HF Digis." << endl;

@@ -7,7 +7,7 @@
 <use name=Geometry/CaloGeometry>
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/Records>
-<flags SEALPLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMHcalMonitorModule">
 <export>
  <lib name=DQMHcalMonitorModule>
  <use name=FWCore/Framework>

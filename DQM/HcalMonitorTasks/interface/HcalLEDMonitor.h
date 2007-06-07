@@ -2,11 +2,12 @@
 #define DQM_HCALMONITORTASKS_HCALLEDMONITOR_H
 
 #include "DQM/HcalMonitorTasks/interface/HcalBaseMonitor.h"
+#include "DataFormats/HcalDigi/interface/HcalUnpackerReport.h"
 
 /** \class HcalLEDMonitor
   *  
-  * $Date: 2007/04/21 19:45:08 $
-  * $Revision: 1.7 $
+  * $Date: 2007/04/25 23:12:16 $
+  * $Revision: 1.8 $
   * \author W. Fisher - FNAL
   */
 class HcalLEDMonitor: public HcalBaseMonitor {
@@ -19,7 +20,8 @@ public:
   void processEvent(const HBHEDigiCollection& hbhe,
 		    const HODigiCollection& ho,
 		    const HFDigiCollection& hf,
-		    const HcalDbService& cond);
+		    const HcalDbService& cond,
+		    const HcalUnpackerReport& report);
 
   void done();
   void clearME();
@@ -32,7 +34,10 @@ public:
 		    map<HcalDetId, MonitorElement*> &tTime, 
 		    map<HcalDetId, MonitorElement*> &tEnergy);
 
-  map<HcalDetId, MonitorElement*>::iterator _meo;
+  void createFEDmap(unsigned int fed);
+
+  map<HcalDetId, MonitorElement*>::iterator _meIter;
+  map<unsigned int, MonitorElement*>::iterator _fedIter;
 
   bool doPerChannel_;
   double etaMax_, etaMin_, phiMax_, phiMin_;
@@ -69,7 +74,6 @@ public:
 
     MonitorElement* err_map_geo;
     MonitorElement* err_map_elec;
-
 
   } hbHists, heHists, hfHists, hoHists;
 
@@ -116,6 +120,16 @@ public:
   MonitorElement* MEAN_MAP_ENERGY_L4;
   MonitorElement*  RMS_MAP_ENERGY_L4;
 
+  map<unsigned int,MonitorElement*> MEAN_MAP_ENERGY_DCC;
+  map<unsigned int,MonitorElement*> RMS_MAP_ENERGY_DCC;
+  
+  map<unsigned int,MonitorElement*> MEAN_MAP_SHAPE_DCC;
+  map<unsigned int,MonitorElement*> RMS_MAP_SHAPE_DCC;
+
+  map<unsigned int,MonitorElement*> MEAN_MAP_TIME_DCC;
+  map<unsigned int,MonitorElement*> RMS_MAP_TIME_DCC;
+
+  MonitorElement* FED_UNPACKED;
 
 };
 

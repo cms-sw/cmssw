@@ -69,6 +69,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
     meEVT_ = m_dbe->bookInt("LED Task Event Number");    
     meEVT_->Fill(ievt_);
+    FED_UNPACKED  = m_dbe->book1D("FEDs Unpacked","FEDs Unpacked",100,700,799);
 
     MEAN_MAP_TIME_L1= m_dbe->book2D("LED Mean Time Depth 1","LED Mean Time Depth 1",etaBins_,etaMin_,etaMax_,
 			       phiBins_,phiMin_,phiMax_);
@@ -197,14 +198,52 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
   return;
 }
 
+void HcalLEDMonitor::createFEDmap(unsigned int fed){
+  _fedIter = MEAN_MAP_SHAPE_DCC.find(fed);
+  
+  if(_fedIter==MEAN_MAP_SHAPE_DCC.end()){
+    m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor");
+    char name[256];
+
+    sprintf(name,"DCC %d Mean Shape Map",fed);
+    MonitorElement* mean_shape = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+    sprintf(name,"DCC %d RMS Shape Map",fed);
+    MonitorElement* rms_shape = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+
+    MEAN_MAP_SHAPE_DCC[fed] = mean_shape;
+    RMS_MAP_SHAPE_DCC[fed] = rms_shape;
+
+    sprintf(name,"DCC %d Mean Time Map",fed);
+    MonitorElement* mean_time = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+    sprintf(name,"DCC %d RMS Time Map",fed);
+    MonitorElement* rms_time = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+    MEAN_MAP_TIME_DCC[fed] = mean_time;
+    RMS_MAP_TIME_DCC[fed] = rms_time;
+    
+    sprintf(name,"DCC %d Mean Energy Map",fed);
+    MonitorElement* mean_energy = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+    sprintf(name,"DCC %d RMS Energy Map",fed);
+    MonitorElement* rms_energy = m_dbe->book2D(name,name,24,0.5,24.5,15,0.5,15.5);
+    MEAN_MAP_ENERGY_DCC[fed] = mean_energy;
+    RMS_MAP_ENERGY_DCC[fed] = rms_energy;
+
+  }   
+}
 void HcalLEDMonitor::processEvent(const HBHEDigiCollection& hbhe,
 				  const HODigiCollection& ho,
 				  const HFDigiCollection& hf,
-				  const HcalDbService& cond){
-  
+				  const HcalDbService& cond,
+				  const HcalUnpackerReport& report){
 
   ievt_++;
   meEVT_->Fill(ievt_);
+
+  const std::vector<int> feds =  report.getFedsUnpacked();
+
+  for(unsigned int f=0; f<feds.size(); f++){    
+    FED_UNPACKED->Fill(feds[f]);    
+    createFEDmap(feds[f]-700);
+  }
 
   //would be better to put this outside eventlopp..
 
@@ -371,7 +410,7 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals,
   MonitorElement* _me;
   if(m_dbe==NULL) return;
 
-  _meo=tShape.begin();
+  _meIter=tShape.begin();
   string type = "HB";
   m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HB");
   if(id==1){
@@ -387,9 +426,9 @@ void HcalLEDMonitor::perChanHists(int id, const HcalDetId detid, float* vals,
     m_dbe->setCurrentFolder("HcalMonitor/LEDMonitor/HF");
   }
   
-  _meo = tShape.find(detid);
-  if (_meo!=tShape.end()){
-    _me= _meo->second;
+  _meIter = tShape.find(detid);
+  if (_meIter!=tShape.end()){
+    _me= _meIter->second;
     if(_me==NULL) printf("HcalLEDAnalysis::perChanHists  This histo is NULL!!??\n");
     else{
       float en=0;
