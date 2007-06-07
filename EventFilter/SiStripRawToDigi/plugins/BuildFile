@@ -10,6 +10,9 @@
   <use name=DataFormats/SiStripCommon>
   <use name=DataFormats/SiStripCluster>
   <use name=DataFormats/SiStripDigi>
+  <use name=DataFormats/EgammaReco>
+  <use name=DataFormats/EgammaCandidates>
+  <use name=SimDataFormats/HepMCProduct>
   <use name=EventFilter/SiStripRawToDigi>
   <use name=FWCore/Framework>
   <use name=FWCore/MessageLogger>
