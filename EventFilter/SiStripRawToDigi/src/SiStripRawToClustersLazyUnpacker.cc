@@ -36,7 +36,7 @@ SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
 
 
 void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
-
+ 
   //Get region cabling and record
   const SiStripRegionCabling::RegionMap& rmap = (*regions_)[iregion];
 
@@ -50,7 +50,7 @@ void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
     //Loop over apv-pairs of det
     const std::vector<FedChannelConnection>& conns = idet->second;
     for (uint16_t ipair = 0; ipair < conns.size(); ipair++) {
-      
+    
       //Get FedChannelConnection
       const FedChannelConnection& conn = conns[ipair];    
       uint16_t fedId = conn.fedId();
