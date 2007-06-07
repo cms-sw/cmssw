@@ -25,16 +25,16 @@ CtfSpecialSeedGenerator::CtfSpecialSeedGenerator(const edm::ParameterSet& conf):
   	useScintillatorsConstraint = conf_.getParameter<bool>("UseScintillatorsConstraint");
   	edm::LogVerbatim("CtfSpecialSeedGenerator") << "Constructing CtfSpecialSeedGenerator";
   	produces<TrajectorySeedCollection>();
+	theSeedBuilder =0; 
+	theRegionProducer =0;
 }
 
 CtfSpecialSeedGenerator::~CtfSpecialSeedGenerator(){
-	if (upperScintillator) {delete upperScintillator; upperScintillator = 0;}
-	if (lowerScintillator) {delete lowerScintillator; lowerScintillator = 0;}
-	delete theSeedBuilder;
-	std::vector<OrderedHitsGenerator*>::iterator iGen;	
-	for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
-		delete (*iGen);
-	}
+    if (theSeedBuilder) delete theSeedBuilder;
+    std::vector<OrderedHitsGenerator*>::iterator iGen;	
+    for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
+    delete (*iGen);
+    }
 }
 
 void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
@@ -67,12 +67,9 @@ void CtfSpecialSeedGenerator::beginJob(const edm::EventSetup& iSetup){
                 	<< "Lower Scintillator position x, y, z " << lowerPosition.x()
                 	<< ", " << lowerPosition.y() << ", " << lowerPosition.z() ;
           	TkRotation<float> rot(1,0,0,0,0,1,0,1,0);
-          	upperScintillator = new BoundPlane(upperPosition, rot, &upperBounds);
-          	lowerScintillator = new BoundPlane(lowerPosition, rot, &lowerBounds);
-  	} else {
-         	upperScintillator = 0;
-         	lowerScintillator = 0;
-  	}
+          	upperScintillator = BoundPlane::build(upperPosition, rot, &upperBounds);
+          	lowerScintillator = BoundPlane::build(lowerPosition, rot, &lowerBounds);
+  	} 
 	edm::ParameterSet regfactoryPSet = conf_.getParameter<edm::ParameterSet>("RegionFactoryPSet");
   	std::string regfactoryName = regfactoryPSet.getParameter<std::string>("ComponentName");
   	theRegionProducer = TrackingRegionProducerFactory::get()->create(regfactoryName,regfactoryPSet);
@@ -159,13 +156,13 @@ void CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 		std::vector<OrderedHitsGenerator*>::const_iterator iGen;
 		int i = 0;
 		for (iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){ 
-  			buildSeeds(iSetup, 
-					e, 
-					(*iGen)->run(**iReg, e, iSetup),
-					theNavDirs[i], 
-					thePropDirs[i], 
-					output);
-			i++;
+		  buildSeeds(iSetup, 
+			     e, 
+			     (*iGen)->run(**iReg, e, iSetup),
+			     theNavDirs[i], 
+			     thePropDirs[i], 
+			     output);
+		  i++;
 		}
 	}
 	//clear memory
@@ -181,7 +178,7 @@ void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 					 const PropagationDirection& dir,
 				         TrajectorySeedCollection& output){ 
   //SeedFromGenericPairOrTriplet seedBuilder(conf_, magfield.product(), tracker.product(), theBuilder.product());
-  std::cout << "osh.size() " << osh.size() << std::endl;
+  edm::LogInfo("CtfSpecialSeedGenerator")<<"osh.size() " << osh.size();
   for (unsigned int i = 0; i < osh.size(); i++){
 	SeedingHitSet shs = osh[i];
 	if (preliminaryCheck(shs)){
@@ -190,6 +187,7 @@ void CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
 							    		navdir, 
 							    		iSetup);
 		for (std::vector<TrajectorySeed*>::const_iterator iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++){
+		  if (!*iSeed) {edm::LogError("CtfSpecialSeedGenerator")<<"a seed pointer is null. skipping.";continue;}
 			if (postCheck(**iSeed)){
 				output.push_back(**iSeed);
 			}
@@ -256,19 +254,19 @@ bool CtfSpecialSeedGenerator::postCheck(const TrajectorySeed& seed){
 	TrajectoryStateTransform transformer;
         PTrajectoryStateOnDet pstate = seed.startingState();
         TrajectoryStateOnSurface theTSOS = transformer.transientState(pstate,
-                                                               &(theTracker->idToDet(DetId(pstate.detId()))->surface()),
-                                                               &(*theMagfield));	
+								      &(theTracker->idToDet(DetId(pstate.detId()))->surface()),
+								      &(*theMagfield));	
 	FreeTrajectoryState* state = theTSOS.freeState();	
 	StraightLinePlaneCrossing planeCrossingLower( Basic3DVector<float>(state->position()), 
-                                                  Basic3DVector<float>(state->momentum()),
-                                                  alongMomentum);
+						      Basic3DVector<float>(state->momentum()),
+						      alongMomentum);
         StraightLinePlaneCrossing planeCrossingUpper( Basic3DVector<float>(state->position()),
-                                                  Basic3DVector<float>(state->momentum()),
-                                                  oppositeToMomentum);
+						      Basic3DVector<float>(state->momentum()),
+						      oppositeToMomentum);
         std::pair<bool,StraightLinePlaneCrossing::PositionType> positionUpper = 
-						planeCrossingUpper.position(*upperScintillator);
+	  planeCrossingUpper.position(*upperScintillator);
         std::pair<bool,StraightLinePlaneCrossing::PositionType> positionLower = 
-						planeCrossingLower.position(*lowerScintillator);
+	  planeCrossingLower.position(*lowerScintillator);
         if (!(positionUpper.first && positionLower.first)) {
                  edm::LogVerbatim("CtfSpecialSeedGenerator::checkDirection") 
 			<< "Scintillator plane not crossed";
