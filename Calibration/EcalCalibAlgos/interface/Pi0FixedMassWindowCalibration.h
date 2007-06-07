@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include <vector>
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 // Framework
 #include "FWCore/Framework/interface/LooperFactory.h"

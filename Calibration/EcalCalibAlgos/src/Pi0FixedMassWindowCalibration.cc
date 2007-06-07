@@ -107,7 +107,8 @@ Pi0FixedMassWindowCalibration::Pi0FixedMassWindowCalibration(const edm::Paramete
   providedParameters.insert(std::make_pair("W0",iConfig.getParameter<double>("posCalc_w0")));
   providedParameters.insert(std::make_pair("X0",iConfig.getParameter<double>("posCalc_x0")));
   posCalculator_ = PositionCalc(providedParameters);
-  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+  //  shapeAlgo_ = ClusterShapeAlgo(posCalculator_);
+  shapeAlgo_ = ClusterShapeAlgo(providedParameters);
   clustershapecollectionEB_ = iConfig.getParameter<std::string>("clustershapecollectionEB");
 
   //AssociationMap
