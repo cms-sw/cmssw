@@ -104,7 +104,7 @@ void TestProfilerService::check_config() {
     CPPUNIT_ASSERT(ps.m_firstEvent==fe);
     CPPUNIT_ASSERT(ps.m_lastEvent==le);
     CPPUNIT_ASSERT(ps.m_dumpInterval==di);
-    CPPUNIT_ASSERT(ps.m_excludedPaths==ep;)
+    CPPUNIT_ASSERT(ps.m_excludedPaths==ep);
     CPPUNIT_ASSERT(ps.m_paths==paths);
     CPPUNIT_ASSERT(!ps.m_allPaths);
   }
