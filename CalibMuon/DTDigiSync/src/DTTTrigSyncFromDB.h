@@ -25,8 +25,8 @@
  *       NOTE: particles are assumed as coming from the IP.
  *
  *
- *  $Date: 2006/09/13 09:42:03 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/02/19 11:45:21 $
+ *  $Revision: 1.1 $
  *  \author G. Cerminara - INFN Torino
  */
 
@@ -87,8 +87,10 @@ public:
   bool doT0Correction;
   // Switch on/off the TOF correction for particles from IP
   bool doTOFCorrection;
+  int theTOFCorrType;
   // Switch on/off the correction for the signal propagation along the wire
   bool doWirePropCorrection;
+  int theWirePropCorrType;
 };
 #endif
 
