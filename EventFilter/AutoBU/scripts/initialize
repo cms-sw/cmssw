@@ -65,9 +65,8 @@ my $SMlibname = "libEventFilterStorageManager.so";
 my $PTlibname = "libpttcp.so";
 my $MNlibname = "libmonitor.so";
 
-my $SMperl = 
-    $ENV{"CMSSW_RELEASE_BASE"} .
-    "/src/EventFilter/StorageManager/scripts/perl";
+my $SMperl = $ENV{"CMSSW_RELEASE_BASE"} .
+             "/src/EventFilter/StorageManager/scripts/perl";
 
 my $pwd = `pwd`; chomp $pwd;
 
@@ -187,9 +186,9 @@ if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
 		    "runNumber",        "unsignedInt","0",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
-		    "closeFileScript",  "string",     "$smperl/dummy.pl",
-		    "notifyTier0Script","string",     "$smperl/dummy.pl",
-		    "insertFileScript", "string",     "$smperl/dummy.pl");
+		    "closeFileScript",  "string",     "$SMperl/dummy.pl",
+		    "notifyTier0Script","string",     "$SMperl/dummy.pl",
+		    "insertFileScript", "string",     "$SMperl/dummy.pl");
 
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
@@ -631,7 +630,7 @@ sub makeCfgPlayback
 	while (<FILELIST>) {
 	    my $next_file = $_;
 	    chomp($next_file);
-	    if ($next_file =~ m/\.root$/) { push (@files, $next_file); }
+	    if ($next_file =~ m/\.root$/) { push (@input_files, $next_file); }
 	    else { print("ERROR: $next_file does not appear to be a ROOT file.\n"); }
 	}
     }
@@ -643,7 +642,7 @@ sub makeCfgPlayback
     $result = $result . "  source = PoolSource\n";
     $result = $result . "  {\n";
     $result = $result . "    untracked vstring fileNames = {";
-    foreach (@files) { $result = $result . "\n      'file:" . $_ . "',"; }
+    foreach (@input_files) { $result = $result . "\n      'file:" . $_ . "',"; }
     $result =~ s/,$/\n    \}\n/;
     $result = $result . "    untracked uint32  skipEvents= 0\n";
     $result = $result . "  }\n\n";
