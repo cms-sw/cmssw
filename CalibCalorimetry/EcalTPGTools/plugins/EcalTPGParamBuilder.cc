@@ -60,6 +60,10 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
   FG_lowRatio_EB_ = pSet.getParameter<double>("FG_lowRatio_EB") ;
   FG_highRatio_EB_ = pSet.getParameter<double>("FG_highRatio_EB") ;
   FG_lut_EB_ = pSet.getParameter<unsigned int>("FG_lut_EB") ;
+  FG_Threshold_EE_ = pSet.getParameter<double>("FG_Threshold_EE") ;
+  FG_lut_strip_EE_ = pSet.getParameter<unsigned int>("FG_lut_strip_EE") ;
+  FG_lut_tower_EE_ = pSet.getParameter<unsigned int>("FG_lut_tower_EE") ;
+
 
   std::string outFileEB = pSet.getParameter<std::string>("outFileEB") ;
   out_fileEB_ = new std::ofstream(outFileEB.c_str(), std::ios::out) ;  
@@ -241,9 +245,22 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
     (*out_fileEE_) <<"STRIP "<<dec<<-1<<" "<<-1<<" "<<-1<<std::endl ;
     (*out_fileEE_) << hex << "0x" <<sliding_<<std::endl ;
     for (uint sample=0 ; sample<5 ; sample++) (*out_fileEE_) << "0x" <<hex<<weights[sample]<<" " ;
-    (*out_fileEE_)<<std::endl ; 
-    (*out_fileEE_) << "0x0 0x0"<<std::endl ;  
   }
+
+
+  /////////////////////////
+  // Compute FG section //
+  /////////////////////////
+
+  // barrel
+  uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
+  computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
+
+  // endcap
+  uint threshold, lut_strip, lut_tower ;
+  computeFineGrainEEParameters(threshold, lut_strip, lut_tower) ; 
+  (*out_fileEE_)<<std::endl ; 
+  (*out_fileEE_)<<hex<<"0x"<<threshold<<" 0x"<<lut_strip<<std::endl ;  
 
 
   /////////////////////////
@@ -259,6 +276,9 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   computeLUT(lut, "EB") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEB_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEB_)<<endl ;
+  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
+		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
+		<<std::endl ;
   
   // endcap
   (*out_fileEE_) <<std::endl ;
@@ -267,16 +287,8 @@ void EcalTPGParamBuilder::beginJob(const edm::EventSetup& evtSetup)
   computeLUT(lut, "EE") ; 
   for (int i=0 ; i<1024 ; i++) (*out_fileEE_)<<"0x"<<hex<<lut[i]<<" " ;
   (*out_fileEE_)<<endl ;
-  (*out_fileEE_)<<"0x0"<<std::endl ;
+  (*out_fileEE_)<<hex<<"0x"<<lut_tower<<std::endl ;
 
-  /////////////////////////
-  // Compute FG section //
-  /////////////////////////
-  uint lowRatio, highRatio, lowThreshold, highThreshold, lutFG ;
-  computeFineGrainEBParameters(lowRatio, highRatio, lowThreshold, highThreshold, lutFG) ;
-  (*out_fileEB_)<<hex<<"0x"<<lowThreshold<<" 0x"<<highThreshold
-		<<" 0x"<<lowRatio<<" 0x"<<highRatio<<" 0x"<<lutFG
-		<<std::endl ;
 }
 
 
@@ -567,4 +579,13 @@ void EcalTPGParamBuilder::computeFineGrainEBParameters(uint & lowRatio, uint & h
   // the condition for jet-like is: ET>Threshold and  maxof2/ET < Ratio (only TT with enough energy are vetoed)
   if (FG_lut_EB_ == 0) lut = 0x0808 ; // both threshols and ratio are treated the same way.
   else lut = FG_lut_EB_ ; // let's use the users value (hope he/she knows what he/she does!)
+}
+
+void EcalTPGParamBuilder::computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) 
+{
+  // lsb for EE:
+  double lsb_FG = Et_sat_/1024. ; // FIXME is it true????
+  threshold = int(FG_Threshold_EE_/lsb_FG+0.5) ;
+  lut_strip = FG_lut_strip_EE_  ;
+  lut_tower = FG_lut_tower_EE_  ;
 }

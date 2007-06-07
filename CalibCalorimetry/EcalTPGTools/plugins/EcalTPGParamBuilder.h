@@ -63,7 +63,7 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
 		uint rawId) ;
   void computeFineGrainEBParameters(uint & lowRatio, uint & highRatio,
 				    uint & lowThreshold, uint & highThreshold, uint & lut) ;
-
+  void computeFineGrainEEParameters(uint & threshold, uint & lut_strip, uint & lut_tower) ;
 
   const CaloSubdetectorGeometry * theEndcapGeometry_ ;
   const CaloSubdetectorGeometry * theBarrelGeometry_ ;
@@ -83,6 +83,8 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   double TTF_lowThreshold_EE_, TTF_highThreshold_EE_ ;
   double FG_lowThreshold_EB_, FG_highThreshold_EB_, FG_lowRatio_EB_, FG_highRatio_EB_ ; 
   unsigned int FG_lut_EB_ ;
+  double FG_Threshold_EE_ ;
+  unsigned int FG_lut_strip_EE_, FG_lut_tower_EE_ ;
 
   std::ofstream * out_fileEB_ ;
   std::ofstream * out_fileEE_ ;
