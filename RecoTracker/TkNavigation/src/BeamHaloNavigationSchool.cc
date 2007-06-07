@@ -12,13 +12,16 @@
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
 
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+
 using namespace std;
 
 BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker* theInputTracker,
 					       const MagneticField* field) 
 {
+  edm::LogInfo("BeamHaloNavigationSchool")<<"*********Running BeamHaloNavigationSchool *********";
+  theBarrelLength = 0;theField = field; theTracker = theInputTracker;
 
-  edm::LogInfo("BeamHaloNavigationSchool")<<"*********Running BeamHaloNavigationSchool";
   // Get barrel layers
   /*sideways does not need barrels*/
   /*  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
@@ -52,6 +55,46 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   linkOtherEndLayers( symFinder);
 
 }
+
+void BeamHaloNavigationSchool::establishInverseRelations() {
+  NavigationSetter setter(*this);
+
+  // find for each layer which are the barrel and forward
+  // layers that point to it
+  typedef map<const DetLayer*, vector<BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
+  typedef map<const DetLayer*, vector<ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
+
+
+  BarrelMapType reachedBarrelLayersMap;
+  ForwardMapType reachedForwardLayersMap;
+
+  for ( BDLI bli = theBarrelLayers.begin();
+        bli!=theBarrelLayers.end(); bli++) {
+    DLC reachedLC = (**bli).nextLayers( insideOut);
+    for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
+      reachedBarrelLayersMap[*i].push_back( *bli);
+    }
+  }
+
+  for ( FDLI fli = theForwardLayers.begin();
+        fli!=theForwardLayers.end(); fli++) {
+    DLC reachedLC = (**fli).nextLayers( insideOut);
+    for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
+      reachedForwardLayersMap[*i].push_back( *fli);
+    }
+  }
+
+
+  vector<DetLayer*> lc = theTracker->allLayers();
+  for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
+    SimpleNavigableLayer* navigableLayer =
+      dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
+    if (!navigableLayer) {edm::LogError("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
+    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );}
+  }
+
+}
+
 
 void BeamHaloNavigationSchool::
 linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
