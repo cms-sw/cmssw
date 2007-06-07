@@ -354,9 +354,9 @@ void TestProfilerService::check_ExcludedPath() {
   ps.endEvent();
 
   ps.beginEvent();
-  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(ps.m_active!=0);
   CPPUNIT_ASSERT(ps.doEvent());
-  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==2);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==3);
   ps.endEvent();
 
 }
