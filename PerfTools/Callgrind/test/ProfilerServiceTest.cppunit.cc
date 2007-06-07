@@ -343,7 +343,8 @@ void TestProfilerService::check_ExcludedPath() {
 
   std::vector<std::string> allPaths; 
   allPaths += "p1","p21","p22","p3";
-  CheckPaths cp(ps,expaths,1,true);
+  CheckPaths cp0(ps,expaths,0,true);
+  CheckPaths cp1(ps,expaths,1,true);
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[0]) == expaths.end());
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[1]) != expaths.end());
   CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[2]) == expaths.end());
@@ -352,13 +353,13 @@ void TestProfilerService::check_ExcludedPath() {
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());  
-  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==0);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp0).done==0);
   ps.endEvent();
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active!=0);
   CPPUNIT_ASSERT(ps.doEvent());
-  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==3);
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp1).done==3);
   ps.endEvent();
 
 }
