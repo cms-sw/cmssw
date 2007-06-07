@@ -102,7 +102,7 @@ void HcalDigiClient::beginJob(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -113,7 +113,7 @@ void HcalDigiClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -129,8 +129,6 @@ void HcalDigiClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalDigiClient: endRun, jevt = " << jevt_ << endl;
 
-  //  this->resetME();
-  //  this->unsubscribe();
   this->cleanup();  
   return;
 }
@@ -423,33 +421,81 @@ void HcalDigiClient::getHistograms(){
   return;
 }
 
-void HcalDigiClient::resetME(){
+void HcalDigiClient::resetAllME(){
   
   if(!mui_) return;
 
   Char_t name[150];    
-  MonitorElement* me=0;
-
+  
+  for(int i=1; i<5; i++){
+    sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Depth %d Occupancy Map",process_.c_str(),i);
+    resetME(name,mui_);
+  }
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Eta Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Phi Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi VME Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Fiber Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Spigot Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Geo Error Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi VME Error Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Fiber Error Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/DigiMonitor/Digi Spigot Error Map",process_.c_str());
+  resetME(name,mui_);
+  
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
     if(i==2) type = "HF"; 
     if(i==3) type = "HO"; 
-    
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
 
-    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE ADC Value",process_.c_str(),type.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Shape",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Shape - over thresh",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s # of Digis",process_.c_str(),type.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Size",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Presamples",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Cap-ID",process_.c_str(),type.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE ADC Value",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s QIE Data Value",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Geo Error Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi VME Error Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Fiber Error Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Spigot Error Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    for(int j=1; j<5; j++){
+      sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Depth %d Occupancy Map",process_.c_str(),type.c_str(),type.c_str(),j);
+      resetME(name,mui_);
+    }
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Eta Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Phi Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi VME Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Fiber Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s Digi Spigot Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+
   }
   return;
 }

@@ -71,7 +71,7 @@ void HcalDataFormatClient::beginJob(void){
   ievt_ = 0; jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -82,7 +82,7 @@ void HcalDataFormatClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -98,8 +98,6 @@ void HcalDataFormatClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalDataFormatClient: endRun, jevt = " << jevt_ << endl;
 
-  //  this->resetME();
-  //  this->unsubscribe();
   this->cleanup();
   return;
 }
@@ -298,32 +296,25 @@ void HcalDataFormatClient::report(){
   return;
 }
 
-void HcalDataFormatClient::resetME(){
+void HcalDataFormatClient::resetAllME(){
 
   if(!mui_) return;
   
-  MonitorElement* me;
   char name[150];     
-
-  sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Spigot Format Errors",process_.c_str());
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
-  sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Bad Quality Digis",process_.c_str());
-   me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
-  sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Unmapped Digis",process_.c_str());
-   me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
-  sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
-   me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
-  sprintf(name,"%sHcalMonitor/HcalMonitor/DataFormatMonitor/FED Error Map",process_.c_str());
-   me = mui_->get(name);
-  if(me) mui_->softReset(me);
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Spigot Format Errors",process_.c_str());
+  resetME(name,mui_);
+  
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Bad Quality Digis",process_.c_str());
+  resetME(name,mui_);
+  
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Unmapped Digis",process_.c_str());
+  resetME(name,mui_);
+  
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/Unmapped Trigger Primitive Digis",process_.c_str());
+  resetME(name,mui_);
+  
+  sprintf(name,"%sHcalMonitor/DataFormatMonitor/FED Error Map",process_.c_str());
+  resetME(name,mui_);
 
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
@@ -333,16 +324,13 @@ void HcalDataFormatClient::resetME(){
     else if(i==3) type = "HO";
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Error Words",process_.c_str(), type.c_str());
-     me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Crate Error Map",process_.c_str(), type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
 
     sprintf(name,"%sHcalMonitor/DataFormatMonitor/%s Data Format Spigot Error Map",process_.c_str(), type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
     
   }
   

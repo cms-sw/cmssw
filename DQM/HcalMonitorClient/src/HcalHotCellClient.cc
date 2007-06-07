@@ -73,7 +73,7 @@ void HcalHotCellClient::beginJob(void){
 
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -84,7 +84,7 @@ void HcalHotCellClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -100,8 +100,6 @@ void HcalHotCellClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalHotCellClient: endRun, jevt = " << jevt_ << endl;
 
-  //  this->resetME();
-  //  this->unsubscribe();
   this->cleanup();  
   return;
 }
@@ -295,21 +293,54 @@ void HcalHotCellClient::getHistograms(){
   return;
 }
 
-void HcalHotCellClient::resetME(){
+void HcalHotCellClient::resetAllME(){
   if(!mui_) return;
 
   Char_t name[150];    
-  MonitorElement* me;
+
+  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Time",process_.c_str());
+  resetME(name,mui_);
+  for(int i=1; i<5; i++){
+    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",process_.c_str(),i);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",process_.c_str(),i);
+    resetME(name,mui_);
+  }
+  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Energy Map",process_.c_str());
+  resetME(name,mui_);
+
 
   for(int i=0; i<4; i++){
-    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Occupancy Map",process_.c_str(),i+1);
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
-
-    sprintf(name,"%sHcalMonitor/HotCellMonitor/HotCell Depth %d Energy Map",process_.c_str(),i+1);
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    if(!subDetsOn_[i]) continue;
+    string type = "HB";
+    if(i==1) type = "HE"; 
+    if(i==2) type = "HF"; 
+    if(i==3) type = "HO"; 
+    
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Energy",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Time",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell ID",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 0",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Threshold 1",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Occupancy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/DigiMonitor/%s/%s HotCell Geo Energy Map, Max Cell",process_.c_str(),type.c_str(),type.c_str());
+    resetME(name,mui_);
   }
+
   return;
 }
 

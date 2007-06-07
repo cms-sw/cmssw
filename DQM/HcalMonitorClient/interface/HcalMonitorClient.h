@@ -35,6 +35,7 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#include <sys/time.h>
 
 using namespace cms;
 using namespace std;
@@ -90,6 +91,8 @@ public:
   /// Create tests
   void createTests(void);
 
+  /// reset all monitor elements
+  void resetAllME(void);
 
   //Offline output functions
   void loadHistograms(TFile* infile, const char* fname);
@@ -104,51 +107,45 @@ private:
   DaqMonitorBEInterface* m_dbe;
   MonitorUserInterface* mui_;
 
-  int ievt_, jevt_;
-  int kevt_;
-
-  int timeout_;
-  int timeout_thresh_;
+  int ievt_;
+  int mon_evt_;
+  int last_mon_evt_;
+  int hostPort_;  
+  int run_;
+  int nTimeouts_;
+  int last_update_;
+  int resetUpdate_;
+  int resetEvents_;
+  int resetTime_;
+  int nUpdateEvents_;
+  int timeoutThresh_;
 
   bool collateSources_;
   bool cloneME_;
   bool offline_;
   bool subscribed_;
-
-  string clientName_;
-  string hostName_;
-  int hostPort_;
-  
   bool verbose_;
-  
-  
-  string outputFile_;
-  string inputFile_;
-  bool enableSubRun_;
-  int subrun_;
-  string baseHtmlDir_;
-  string process_;
-  TH1F* trigger_;
-
-
-  string location_;
-  string runtype_;
-  string status_;
-  int run_;
-  int mon_evt_;
-  int report_;
-
   bool begin_run_done_;
   bool end_run_done_;
   bool forced_begin_run_;
   bool forced_end_run_;
   bool enableExit_;
 
-  int last_update_;
-  int update_freq_;
-  int last_jevt_;
-  int unknowns_;
-  
+  string clientName_;
+  string hostName_;  
+  string outputFile_;
+  string inputFile_;
+  string baseHtmlDir_;
+  string process_;
+  string location_;
+  string runtype_;
+  string status_;
+
+  TH1F* trigger_;
+
+  timeval startTime_,updateTime_;
+
+
   HcalDataFormatClient* dataformat_client_;
   HcalDigiClient* digi_client_;
   HcalRecHitClient* rechit_client_;

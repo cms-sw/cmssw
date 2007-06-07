@@ -1,5 +1,13 @@
 #include "DQM/HcalMonitorClient/interface/HcalClientUtils.h"
 
+
+void resetME(const char* name, MonitorUserInterface* mui){
+  if(!mui) return;
+  MonitorElement* me= mui->get(name);
+  if(me) mui->softReset(me);
+  return;
+}
+
 bool isValidGeom(int subdet, int iEta, int iPhi, int depth){
   
   if(subdet<0 || subdet>3) return false;
@@ -86,7 +94,7 @@ string getIMG2(TH2F* hist, int size, string htmlDir, const char* xlab, const cha
     printf("getIMG2:  This histo is NULL, %s, %s\n",xlab,ylab);
     return "";
   }
-  
+
   string title = hist->GetTitle();
   int xwid = 900; int ywid =540;
   if(size==1){

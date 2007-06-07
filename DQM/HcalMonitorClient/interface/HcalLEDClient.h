@@ -89,7 +89,7 @@ public:
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetME();
+  void resetAllME();
   void createTests();
 
 
@@ -102,6 +102,8 @@ private:
   bool cloneME_;
   bool verbose_;
   string process_;
+  string m_outputFileName;
+  ofstream m_outTextFile;
 
   MonitorUserInterface* mui_;
   const HcalElectronicsMap* readoutMap_;
@@ -123,12 +125,19 @@ private:
   TH2F* err_map_geo_[4];
   TH2F* err_map_elec_[4];
 
-  TH2F* rms_energyD_[4];
-  TH2F* mean_energyD_[4];
-  TH2F* rms_timeD_[4];
-  TH2F* mean_timeD_[4];
-  TH2F* rms_shapeD_[4];
-  TH2F* mean_shapeD_[4];
+  TH2F* rms_energyDep_[4];
+  TH2F* mean_energyDep_[4];
+  TH2F* rms_timeDep_[4];
+  TH2F* mean_timeDep_[4];
+  TH2F* rms_shapeDep_[4];
+  TH2F* mean_shapeDep_[4];
+
+  map<unsigned int, TH2F*> rms_energyElec_;
+  map<unsigned int, TH2F*> mean_energyElec_;
+  map<unsigned int, TH2F*> rms_timeElec_;
+  map<unsigned int, TH2F*> mean_timeElec_;
+  map<unsigned int, TH2F*> rms_shapeElec_;
+  map<unsigned int, TH2F*> mean_shapeElec_;
 
   // Quality criteria for data integrity
   float rms_thresh_;

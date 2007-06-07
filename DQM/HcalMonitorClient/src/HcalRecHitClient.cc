@@ -77,7 +77,7 @@ void HcalRecHitClient::beginJob(void){
 
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -88,7 +88,7 @@ void HcalRecHitClient::beginRun(void){
   jevt_ = 0;
   this->setup();
   this->subscribe();
-  this->resetME();
+  this->resetAllME();
   return;
 }
 
@@ -104,8 +104,6 @@ void HcalRecHitClient::endRun(void) {
 
   if ( verbose_ ) cout << "HcalRecHitClient: endRun, jevt = " << jevt_ << endl;
 
-  //  this->resetME();
-  //  this->unsubscribe();
   this->cleanup();
   return;
 }
@@ -292,11 +290,27 @@ void HcalRecHitClient::getHistograms(){
   return;
 }
 
-void HcalRecHitClient::resetME(){
+void HcalRecHitClient::resetAllME(){
   if(!mui_) return;
-  Char_t name[150];    
-  MonitorElement* me;
+  Char_t name[150];
   
+  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());
+  resetME(name,mui_);
+  for(int i=1; i<5; i++){
+    sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Occupancy Map",process_.c_str(),i);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Depth %d Energy Map",process_.c_str(),i);
+    resetME(name,mui_);
+  }
+  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Occupancy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Eta Energy Map",process_.c_str());
+  resetME(name,mui_);
+  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Phi Energy Map",process_.c_str());
+  resetME(name,mui_);
+
   for(int i=0; i<4; i++){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
@@ -306,27 +320,17 @@ void HcalRecHitClient::resetME(){
 
 
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Geo Occupancy Map",process_.c_str(),type.c_str(),type.c_str());
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
-    
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies",process_.c_str(),type.c_str(),type.c_str());      
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Energies - Low Region",process_.c_str(),type.c_str(),type.c_str());      
+    resetME(name,mui_);
     sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Total Energy",process_.c_str(),type.c_str(),type.c_str());      
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
-    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str());      
-    me = mui_->get(name);
-    if(me) mui_->softReset(me);
+    resetME(name,mui_);
+    sprintf(name,"%sHcalMonitor/RecHitMonitor/%s/%s RecHit Times",process_.c_str(),type.c_str(),type.c_str()); 
+    resetME(name,mui_);     
   }
 
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Geo Occupancy Map",process_.c_str());
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
-
-  sprintf(name,"%sHcalMonitor/RecHitMonitor/RecHit Total Energy",process_.c_str());  
-  me = mui_->get(name);
-  if(me) mui_->softReset(me);
 
   return;
 }
