@@ -66,11 +66,15 @@ namespace cms
     edm::ESHandle<SiStripRecHitMatcher> rechitmatcher;
     es.get<TkStripCPERecord>().get(matcher, rechitmatcher); 
     const SiStripRecHitMatcher &rhmatcher(*rechitmatcher);
-
+    
     // Step A: Get Inputs 
     std::string clusterProducer = conf_.getParameter<std::string>("ClusterProducer");
+    bool regional = conf_.getParameter<bool>("Regional");
     edm::Handle<edm::DetSetVector<SiStripCluster> > clusters;
-    e.getByLabel(clusterProducer, clusters);
+    edm::Handle<edm::SiStripRefGetter<SiStripCluster> > refclusters;
+
+    if (regional) e.getByLabel(clusterProducer, refclusters);
+    else e.getByLabel(clusterProducer, clusters);
 
     // Step B: create empty output collection
     std::auto_ptr<SiStripMatchedRecHit2DCollection> outputmatched(new SiStripMatchedRecHit2DCollection);
@@ -78,7 +82,8 @@ namespace cms
     std::auto_ptr<SiStripRecHit2DCollection> outputstereo(new SiStripRecHit2DCollection);
 
     // Step C: Invoke the seed finding algorithm
-    recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
+    if (regional) recHitConverterAlgorithm_.run(refclusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
+    else recHitConverterAlgorithm_.run(clusters,*outputmatched,*outputrphi,*outputstereo,tracker,stripcpe,rhmatcher);
 
     // Step D: write output to file
     e.put(outputmatched, matchedRecHitsTag_ );
