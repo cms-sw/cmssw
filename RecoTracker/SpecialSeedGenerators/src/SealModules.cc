@@ -11,7 +11,9 @@ DEFINE_ANOTHER_FWK_MODULE(CosmicSeedGenerator);
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/GenericTripletGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/GenericPairGenerator.h"
+#include "RecoTracker/SpecialSeedGenerators/interface/BeamHaloPairGenerator.h"
 
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericTripletGenerator, "GenericTripletGenerator");
 DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, GenericPairGenerator, "GenericPairGenerator");
+DEFINE_EDM_PLUGIN(OrderedHitsGeneratorFactory, BeamHaloPairGenerator, "BeamHaloPairGenerator");
 
