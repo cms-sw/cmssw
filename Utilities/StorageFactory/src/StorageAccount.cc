@@ -79,6 +79,8 @@ StorageAccount::Stamp::tick (double amount) const
   m_counter.successes++;
   m_counter.amount += amount;
   m_counter.timeTotal += elapsed;
-  if (elapsed < m_counter.timeMin) m_counter.timeMin = elapsed;
-  if (elapsed > m_counter.timeMax) m_counter.timeMax = elapsed;
+  if (elapsed < m_counter.timeMin || m_counter.successes == 1)
+    m_counter.timeMin = elapsed;
+  if (elapsed > m_counter.timeMax)
+    m_counter.timeMax = elapsed;
 }
