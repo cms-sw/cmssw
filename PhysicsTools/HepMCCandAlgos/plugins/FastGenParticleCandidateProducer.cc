@@ -2,7 +2,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.15 2007/05/29 09:57:31 fambrogl Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.17 2007/06/07 A.Santocchia Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -182,16 +182,12 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
     if ( productionVertex != 0 ) {
       size_t numberOfMothers = productionVertex->particles_in_size();
       if ( numberOfMothers > 0 ) {
-	GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
-	const GenParticle * mother = * motherIt;
-	size_t m = mother->barcode() - firstBarcode_;
-	candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
-	if ( numberOfMothers > 1 ) {
-	  ++ motherIt;
-	  const GenParticle * mother2 = * motherIt;
-	  m = mother2->barcode() - firstBarcode_;
-	  candVector[ m ]->addDaughter( CandidateRef( ref, d ) );
-	}
+        GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+        for( ; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
+          const GenParticle * mother = * motherIt;
+          size_t m = mother->barcode() - firstBarcode_;
+          candVector[ m ]->addDaughter( CandidateRef( ref, d ) );  
+        }
       }
     }
   }
@@ -200,3 +196,4 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE( FastGenParticleCandidateProducer );
+
