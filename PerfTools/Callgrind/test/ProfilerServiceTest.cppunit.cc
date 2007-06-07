@@ -45,6 +45,7 @@ class TestProfilerService : public CppUnit::TestFixture {
   CPPUNIT_TEST(check_FullEvent);
   CPPUNIT_TEST(check_Event);
   CPPUNIT_TEST(check_Path);
+  CPPUNIT_TEST(check_ExcludedPath);
   // CPPUNIT_TEST(check_AllPaths);
   CPPUNIT_TEST(check_Nesting);
   CPPUNIT_TEST_SUITE_END();
@@ -59,6 +60,7 @@ public:
   void check_FullEvent();
   void check_Event();
   void check_Path();
+  void check_ExcludedPath();
   void check_AllPaths();
   void check_Nesting();
 };
@@ -77,23 +79,32 @@ void TestProfilerService::check_constr() {
   ProfilerService ps(pset,activity);
   CPPUNIT_ASSERT(ps.m_firstEvent==0);
   CPPUNIT_ASSERT(ps.m_lastEvent==std::numeric_limits<int>::max());
+  CPPUNIT_ASSERT(ps.m_dumpInterval==100);
+  CPPUNIT_ASSERT(ps.m_excludedPaths.empty());
   CPPUNIT_ASSERT(ps.m_paths.empty());
 }
 
 void TestProfilerService::check_config() {
   int fe=2;
   int le=10;
+  int di=5;
   std::vector<std::string> paths; 
   paths += "p1","p2","p3";
+  std::vector<std::string> ep; 
+  ep += "e1","e2","e3";
   edm::ParameterSet pset;
   pset.addUntrackedParameter<int>("firstEvent",fe);
   pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<int>("dumpInterval",di);
   pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
+  pset.addUntrackedParameter<std::vector<std::string> >("excludePaths",ep);
   edm::ActivityRegistry activity;
   {
     ProfilerService ps(pset,activity);
     CPPUNIT_ASSERT(ps.m_firstEvent==fe);
     CPPUNIT_ASSERT(ps.m_lastEvent==le);
+    CPPUNIT_ASSERT(ps.m_dumpInterval==di);
+    CPPUNIT_ASSERT(ps.m_excludedPaths=ep;)
     CPPUNIT_ASSERT(ps.m_paths==paths);
     CPPUNIT_ASSERT(!ps.m_allPaths);
   }
@@ -109,14 +120,17 @@ void TestProfilerService::check_config() {
 void TestProfilerService::check_Instrumentation() {
   int fe=2;
   int le=10;
+  int di=5;
   edm::ParameterSet pset;
   pset.addUntrackedParameter<int>("firstEvent",fe);
   pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<int>("dumpInterval",di);
   edm::ActivityRegistry activity;
   ProfilerService ps(pset,activity);
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
   CPPUNIT_ASSERT(!ps.doEvent());
+  CPPUNIT_ASSERT(ps.m_counts==0);
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   doSomethingElse("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
@@ -124,8 +138,10 @@ void TestProfilerService::check_Instrumentation() {
   
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(ps.m_counts==0);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
+  CPPUNIT_ASSERT(ps.m_counts==1);
   doSomething("bha");
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   CPPUNIT_ASSERT(!ps.forceStopInstrumentation());
@@ -145,6 +161,7 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(ps.m_evtCount==10);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
+  CPPUNIT_ASSERT(ps.m_counts==8);
   doSomething("bha");
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   ps.beginEvent();
@@ -153,6 +170,7 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   doSomethingElse("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
+  CPPUNIT_ASSERT(ps.m_counts==8);
   
 }
 
@@ -238,16 +256,18 @@ void TestProfilerService::check_Event() {
 }
 
 struct CheckPaths {
-  CheckPaths(ProfilerService & ips, std::vector<std::string> const & iselpaths, int ibase=0 ) : 
-    ps(ips), selpaths(iselpaths),base(ibase), done(0){}
+  CheckPaths(ProfilerService & ips, std::vector<std::string> const & iselpaths, int ibase=0, bool iexc=false ) : 
+    ps(ips), selpaths(iselpaths),base(ibase), done(0), exc(iexc) {}
   ProfilerService & ps;
   std::vector<std::string> const & selpaths;
   int base;
+  bool exc;
 
   mutable int done;
   
   void operator()(std::string const & path) const {
-    bool ok = ps.doEvent() && (std::find(selpaths.begin(),selpaths.end(),path) != selpaths.end());
+    bool found = std::find(selpaths.begin(),selpaths.end(),path)!= selpaths.end();
+    bool ok = ps.doEvent() && ( exc ? !found : found);   
     noselPath();
     ps.beginPath(path);
     if (ok) selPath(path);
@@ -290,6 +310,42 @@ void TestProfilerService::check_Path() {
   CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[1]) == paths.end());
   CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[2]) == paths.end());
   CPPUNIT_ASSERT(std::find(paths.begin(),paths.end(),allPaths[3]) != paths.end());
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(!ps.doEvent());  
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==0);
+  ps.endEvent();
+
+  ps.beginEvent();
+  CPPUNIT_ASSERT(ps.m_active==0);
+  CPPUNIT_ASSERT(ps.doEvent());
+  CPPUNIT_ASSERT(std::for_each(allPaths.begin(),allPaths.end(),cp).done==2);
+  ps.endEvent();
+
+}
+void TestProfilerService::check_ExcludedPath() {
+  int fe=2;
+  int le=10;
+  std::vector<std::string> paths; 
+  paths += "FullEvent";
+  std::vector<std::string> expaths; 
+  expaths += "p21";
+  edm::ParameterSet pset;
+  pset.addUntrackedParameter<int>("firstEvent",fe);
+  pset.addUntrackedParameter<int>("lastEvent",le);
+  pset.addUntrackedParameter<std::vector<std::string> >("paths",paths);
+  pset.addUntrackedParameter<std::vector<std::string> >("excludedPaths",expaths);
+  edm::ActivityRegistry activity;
+  ProfilerService ps(pset,activity);
+
+  std::vector<std::string> allPaths; 
+  allPaths += "p1","p21","p22","p3";
+  CheckPaths cp(ps,paths,0,true);
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[0]) != expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[1]) == expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[2]) != expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[3]) != expaths.end());
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
