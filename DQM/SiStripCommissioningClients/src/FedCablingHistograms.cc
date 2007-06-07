@@ -67,7 +67,7 @@ void FedCablingHistograms::histoAnalysis( bool debug ) {
       continue;
     }
     
-    // Retrieve pointers to profile histos for this FED channel 
+    // Retrieve pointers to histos
     std::vector<TH1*> profs;
     Histos::const_iterator ihis = iter->second.begin(); 
     for ( ; ihis != iter->second.end(); ihis++ ) {

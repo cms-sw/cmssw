@@ -42,6 +42,8 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void ApvTimingHistograms::histoAnalysis( bool debug ) {
+  LogTrace(mlDqmClient_)
+    << "[ApvTimingHistograms::" << __func__ << "]";
   
   uint16_t valid = 0;
   HistosMap::const_iterator iter = 0;
@@ -86,10 +88,7 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
     
     // Check tick height is valid
     if ( anal->height() < 100. ) { 
-      //edm::LogWarning(mlDqmClient_) 
-      //<< "[ApvTimingHistograms::" << __func__ << "]"
-      //<< " Tick mark height too small: " << anal->height();
-      //anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
+      anal->addErrorCode(sistrip::tickMarkBelowThresh_);      
       continue; 
     }
 
@@ -122,36 +121,39 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
   } else {
     
     SiStripFecKey min( device_min );
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOffline::" << __func__ << "]"
-      << " Device with FecKey 0x" << min.key() 
-      << " found at crate/FEC/Ring/CCU/Mod/LLD: " 
+      << " Crate/FEC/Ring/CCU/module/channel: " 
       << min.fecCrate() << "/" 
       << min.fecSlot() << "/" 
       << min.fecRing() << "/" 
       << min.ccuAddr() << "/"
       << min.ccuChan() << "/"
       << min.lldChan() 
-      << " has minimum delay (rising edge) [ns]:" << time_min;
+      << " has minimum time for tick mark rising edge [ns]: " << time_min;
     
     SiStripFecKey max( device_max );
-    LogTrace(mlDqmClient_)
+    edm::LogVerbatim(mlDqmClient_)
       << "[SiStripCommissioningOffline::" << __func__ << "]"
-      << " Device with FecKey 0x" << max.key() 
-      << " found at crate/FEC/Ring/CCU/Mod/LLD: " 
+      << " Crate/FEC/Ring/CCU/module/channel: " 
       << max.fecCrate() << "/" 
       << max.fecSlot() << "/" 
       << max.fecRing() << "/" 
       << max.ccuAddr() << "/"
       << max.ccuChan() << "/"
       << max.lldChan() 
-      << " has maximum delay (rising edge) [ns]:" << time_max;
+      << " has maximum time for tick mark rising edge [ns]: " << time_max;
+
+    edm::LogVerbatim(mlDqmClient_)
+      << "[SiStripCommissioningOffline::" << __func__ << "]"
+      << " Difference b/w minimum and maximum times"
+      << " for tick mark rising edges [ns] is: " << ( time_max - time_min );
 
   }
   
-  // Set maximum time for all analysis objects
+  // Set reference time for all analysis objects
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
-    ianal->second->maxTime( time_max ); 
+    ianal->second->refTime( time_max ); 
     if ( ianal->second->isValid() ) { valid++; }
     if ( debug ) {
       std::stringstream ss;
