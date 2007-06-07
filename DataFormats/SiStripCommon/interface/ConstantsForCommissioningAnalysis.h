@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.1 2007/06/05 14:04:44 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -14,8 +14,16 @@ namespace sistrip {
   
   // ---------- General ----------
 
-  static const std::string nullPtr_   = "NullPointerToHistogram";
-  static const std::string histoBins_ = "UnexpectedNumberOfHistogramBins";
+  static const std::string numberOfHistos_      = "UnexpectedNumberOfHistograms";
+  static const std::string nullPtr_             = "NullPointerToHistogram";
+  static const std::string numberOfBins_        = "UnexpectedNumberOfHistogramBins";
+  static const std::string unexpectedTask_      = "UnexpectedTaskInHistoTitle";
+  static const std::string unexpectedExtraInfo_ = "UnexpectedExtraInfoInHistoTitle";
+  
+  // ---------- FED cabling ----------
+  
+  static const std::string fedCablingAnalysis_  = "FedCablingAnalysis";
+  static const std::string noCandidates_        = "NoChannelsAboveThreshold";
   
   // ---------- APV timing ----------
   
@@ -24,6 +32,10 @@ namespace sistrip {
   static const std::string smallTickMarkHeight_ = "SmallTickMarkHeight";
   static const std::string missingTickMark_     = "TickMarkNotFound";
   static const std::string tickMarkBelowThresh_ = "TickMarkHeightBelowThreshold";
+
+  // ---------- Opto scan ----------
+  
+  static const std::string optoScanAnalysis_ = "OptoScanAnalysis";
 
 }
 
