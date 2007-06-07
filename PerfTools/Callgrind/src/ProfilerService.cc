@@ -38,7 +38,9 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   }
 }
 
-ProfilerService::~ProfilerService(){}
+ProfilerService::~ProfilerService(){
+  dumpStat();
+}
 
 bool ProfilerService::startInstrumentation(){
   // FIXME here or in client?
@@ -47,7 +49,7 @@ bool ProfilerService::startInstrumentation(){
 
   if (m_active==0) {
     CALLGRIND_START_INSTRUMENTATION;
-    if (m_counts%m_dumpInterval==0) CALLGRIND_DUMP_STATS;
+    if (m_counts%m_dumpInterval==0) dumpStat();
     ++m_counts;
   }
   // support nested start/stop
@@ -81,7 +83,7 @@ bool ProfilerService::pauseInstrumentation() {
 bool ProfilerService::resumeInstrumentation() {
   if (m_active==0 || (!m_paused)) return false;
   CALLGRIND_START_INSTRUMENTATION;
-  if (m_counts%m_dumpInterval==0) CALLGRIND_DUMP_STATS;
+  if (m_counts%m_dumpInterval==0) dumpStat();
   ++m_counts;
   m_paused=false;
   return true;
