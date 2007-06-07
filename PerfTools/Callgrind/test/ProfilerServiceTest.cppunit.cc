@@ -161,7 +161,7 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(ps.m_evtCount==10);
   CPPUNIT_ASSERT(ps.doEvent());
   CPPUNIT_ASSERT(ps.startInstrumentation());
-  CPPUNIT_ASSERT(ps.m_counts==8);
+  CPPUNIT_ASSERT(ps.m_counts==3);
   doSomething("bha");
   CPPUNIT_ASSERT(ps.stopInstrumentation());
   ps.beginEvent();
@@ -170,7 +170,7 @@ void TestProfilerService::check_Instrumentation() {
   CPPUNIT_ASSERT(!ps.startInstrumentation());
   doSomethingElse("bha");
   CPPUNIT_ASSERT(!ps.stopInstrumentation());
-  CPPUNIT_ASSERT(ps.m_counts==8);
+  CPPUNIT_ASSERT(ps.m_counts==3);
   
 }
 
@@ -342,10 +342,10 @@ void TestProfilerService::check_ExcludedPath() {
   std::vector<std::string> allPaths; 
   allPaths += "p1","p21","p22","p3";
   CheckPaths cp(ps,paths,0,true);
-  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[0]) != expaths.end());
-  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[1]) == expaths.end());
-  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[2]) != expaths.end());
-  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[3]) != expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[0]) == expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[1]) != expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[2]) == expaths.end());
+  CPPUNIT_ASSERT(std::find(expaths.begin(),expaths.end(),allPaths[3]) == expaths.end());
 
   ps.beginEvent();
   CPPUNIT_ASSERT(ps.m_active==0);
