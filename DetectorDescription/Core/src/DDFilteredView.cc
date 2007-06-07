@@ -61,7 +61,7 @@ void  DDFilteredView::specificsV(std::vector<const DDsvalues_type * > & result) 
   epv_.specificsV(result);
 }
 
-void mergedSpecificsV(DDsvalues_type & merged) const 
+void  DDFilteredView::mergedSpecificsV(DDsvalues_type & merged) const 
 {
   epv_.mergedSpecificsV(merged);
 }
