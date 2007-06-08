@@ -12,36 +12,42 @@
   <class name="edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
   <class name="edm::RefProd<std::vector<reco::Photon> >"/>
   <class name="edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >"/>
 
   <class name="std::vector<reco::Electron>"/>
   <class name="edm::Wrapper<std::vector<reco::Electron> >"/>
   <class name="edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
   <class name="edm::RefProd<std::vector<reco::Electron> >"/>
   <class name="edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >"/>
 
   <class name="std::vector<reco::PixelMatchElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::PixelMatchElectron> >"/>
   <class name="edm::Ref<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> >"/>
   <class name="edm::RefProd<std::vector<reco::PixelMatchElectron> >"/>
   <class name="edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchElectron>,reco::PixelMatchElectron> > >"/>
 
   <class name="std::vector<reco::PixelMatchGsfElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::PixelMatchGsfElectron> >"/>
   <class name="edm::Ref<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> >"/>
   <class name="edm::RefProd<std::vector<reco::PixelMatchGsfElectron> >"/>
   <class name="edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::PixelMatchGsfElectron>,reco::PixelMatchGsfElectron> > >"/>
 
   <class name="std::vector<reco::ConvertedPhoton>"/>
   <class name="edm::Wrapper<std::vector<reco::ConvertedPhoton> >"/>
   <class name="edm::Ref<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
   <class name="edm::RefProd<std::vector<reco::ConvertedPhoton> >"/>
   <class name="edm::RefVector<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton,edm::refhelper::FindUsingAdvance<std::vector<reco::ConvertedPhoton>,reco::ConvertedPhoton> > >"/>
 
   <class name="std::vector<reco::SiStripElectron>"/>
   <class name="edm::Wrapper<std::vector<reco::SiStripElectron> >"/>
   <class name="edm::Ref<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> >"/>
   <class name="edm::RefProd<std::vector<reco::SiStripElectron> >"/>
   <class name="edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SiStripElectron>,reco::SiStripElectron,edm::refhelper::FindUsingAdvance<std::vector<reco::SiStripElectron>,reco::SiStripElectron> > >"/>
 
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Electron>,reco::Electron,edm::refhelper::FindUsingAdvance<std::vector<reco::Electron>,reco::Electron> > >" />
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Photon>,reco::Photon,edm::refhelper::FindUsingAdvance<std::vector<reco::Photon>,reco::Photon> > >" />

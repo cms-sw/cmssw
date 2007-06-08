@@ -5,6 +5,7 @@
   <class name="edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
   <class name="edm::RefProd<std::vector<reco::Muon> >"/>
   <class name="edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >"/>
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Muon>,reco::Muon,edm::refhelper::FindUsingAdvance<std::vector<reco::Muon>,reco::Muon> > >" />
 
 <class name="reco::MuonTrackLinks"/>
@@ -13,6 +14,7 @@
 <class name="edm::Ref<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
   <class name="edm::RefProd<std::vector<reco::MuonTrackLinks> >"/>
   <class name="edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks,edm::refhelper::FindUsingAdvance<std::vector<reco::MuonTrackLinks>,reco::MuonTrackLinks> > >"/>
   
   <class name="reco::MuonEnergy"/>
   <class name="reco::MuonChamberMatch"/>
@@ -26,6 +28,7 @@
   <class name="edm::Ref<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> >"/>
   <class name="edm::RefProd<std::vector<reco::MuIsoDeposit> >"/>
   <class name="edm::RefVector<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> >"/>
+  <class name="edm::Wrapper<edm::RefVector<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit,edm::refhelper::FindUsingAdvance<std::vector<reco::MuIsoDeposit>,reco::MuIsoDeposit> > >"/>
   <class name="reco::MuonIsolation"/>
 
   <class name="std::map<unsigned int, reco::MuIsoDeposit>"/>

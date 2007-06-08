@@ -14,7 +14,7 @@ namespace {
     edm::Wrapper<std::vector<reco::Muon> > c1;
     edm::Ref<std::vector<reco::Muon> > r1;
     edm::RefProd<std::vector<reco::Muon> > rp1;
-    edm::RefVector<std::vector<reco::Muon> > rv1;
+    edm::Wrapper<edm::RefVector<std::vector<reco::Muon> > > wrv1;
     edm::reftobase::Holder<reco::Candidate, reco::MuonRef> rb1;
 
     std::multimap<muonisolation::Direction::Distance,float> v2b;
@@ -22,7 +22,7 @@ namespace {
     edm::Wrapper<std::vector<reco::MuIsoDeposit> > c2;
     edm::Ref<std::vector<reco::MuIsoDeposit> > r2;
     edm::RefProd<std::vector<reco::MuIsoDeposit> > rp2;
-    edm::RefVector<std::vector<reco::MuIsoDeposit> > rv2;
+    edm::Wrapper<edm::RefVector<std::vector<reco::MuIsoDeposit> > > wrv2;
     
     reco::MuonIsolation rmi;
 
@@ -46,7 +46,7 @@ namespace {
     edm::Wrapper<std::vector<reco::MuonTrackLinks> > tl2;
     edm::Ref<std::vector<reco::MuonTrackLinks> > tl3;
     edm::RefProd<std::vector<reco::MuonTrackLinks> > tl4;
-    edm::RefVector<std::vector<reco::MuonTrackLinks> > tl5;
+    edm::Wrapper<edm::RefVector<std::vector<reco::MuonTrackLinks> > > wtl5;
 
   }
 }
