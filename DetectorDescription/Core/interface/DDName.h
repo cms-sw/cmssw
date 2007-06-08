@@ -56,6 +56,7 @@ public:
     
   bool operator<(const DDName & rhs) const { return id_ < rhs.id_; }
   bool operator==(const DDName & rhs) const { return id_ == rhs.id_; }
+
 private:
   id_type id_;
     

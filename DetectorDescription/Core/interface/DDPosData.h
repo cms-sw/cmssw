@@ -23,13 +23,17 @@ struct DDPosData
       Users normally don't create DDPosData themselves. They get read access
       to relative positionings via DDPosData in DDCompactView.
   */    
-  DDPosData(const DDTranslation & t, const DDRotation& r, int c, const DDDivision * d = NULL) 
+  DDPosData(const DDTranslation & t, const DDRotation& r, int c, const DDDivision * d = NULL )  //(mec:2007-06-07) tried = 0 when i did the delete in destructor... no help/difference. 
    : trans_(t), rot_(r), replication_(0), copyno_(c), div_(d)
    {
      //if (!rot_.rotation()) throw DDException("rotation not defined: [" + rot_.ns() + ":" + rot_.name() +"]" ); 
    } 
-   
-  //~DDPosData() { delete &trans_; }
+
+  /* Prior to this attempt do only delete div_ if it existed, we had less lost memory (mec:2007-06-07)   
+     ~DDPosData() { 
+     // delete &trans_; 
+     if ( div_ == 0 ) delete div_; 
+     } */
   const DDTranslation & translation() const { return trans_; }
   const DDTranslation & trans() const { return trans_; }
   
