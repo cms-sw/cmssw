@@ -1809,7 +1809,11 @@ process USER =
             self.assertEqual(t[0][1].value,'a.c')
             t[0][1].do(process)
             self.assertEqual(list(process.a.b),[2,1])
-            
+
+            process.a = cms.EDProducer('FooProd', b=cms.InputTag("bar:"))
+            t = replace.parseString('replace a.b = foobar:')
+            t[0][1].do(process)
+            self.assertEqual(process.a.b.configValue('',''),'foobar::')                        
     unittest.main()
 #try:
     #onlyParameters.setDebug()
