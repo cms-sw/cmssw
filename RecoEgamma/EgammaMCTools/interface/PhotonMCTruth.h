@@ -12,15 +12,15 @@
  *  This class stores all the MC truth information needed about the
  *  conversion
  * 
- *  $Date: 2007/05/21 19:08:05 $
- *  $Revision: 1.5 $
- *  \author N. Marinelli  IASA-Athens
+ *  $Date: 2007/05/21 22:20:54 $
+ *  $Revision: 1.6 $
+ *  \author N. Marinelli  University of Notre Dame
  *
  */
 
 
 
-
+class ElectronMCTruth;
 class PhotonMCTruth {
 public:
   PhotonMCTruth() : isAConversion_(0),thePhoton_(0.,0.,0.), 
@@ -31,24 +31,30 @@ public:
 
   PhotonMCTruth(int isAConversion,
 		HepLorentzVector v,
+                int vertIndex,
+                int trackId,
 		HepLorentzVector convVertex, 
 		HepLorentzVector pV, 
-		std::vector<const SimTrack *> tracks );
+		std::vector<ElectronMCTruth>& electrons );
   
 
  HepLorentzVector primaryVertex() const {return thePrimaryVertex_;}
  int isAConversion() const { return isAConversion_;}
  HepLorentzVector fourMomentum() const {return thePhoton_;}
+ int vertexInd() const {return theVertexIndex_;}
  HepLorentzVector vertex() const {return theConvVertex_;}
- std::vector<const SimTrack *> simTracks() const {return tracks_;} 
-  
+ std::vector<ElectronMCTruth> electrons() const {return theElectrons_;} 
+ int trackId() const {return theTrackId_;}  
+
  private:
 
   int isAConversion_;
   HepLorentzVector thePhoton_;
+  int theVertexIndex_;
+  int theTrackId_;
   HepLorentzVector theConvVertex_;
   HepLorentzVector thePrimaryVertex_;
-  std::vector<const SimTrack *> tracks_;
+  std::vector<ElectronMCTruth> theElectrons_;
 
 };
 
