@@ -22,11 +22,20 @@
   <class name="edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >"/>
   <class name="edm::Wrapper<edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >"/>
   <class name="edm::reftobase::RefHolder<edm::Ref<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> >>"/>
+
   <class name="edm::RefToBase<reco::Candidate>" />
   <class name="std::vector<edm::RefToBase<reco::Candidate> >" />
   <class name="edm::Wrapper<std::vector<edm::RefToBase<reco::Candidate> > >" />
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
   <class name="edm::reftobase::Holder<reco::Candidate,edm::Ref<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >" />
+
+  <class name="edm::RefToBaseVector<reco::Candidate>" />
+  <class name="edm::Wrapper<edm::RefToBaseVector<reco::Candidate> >" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, edm::RefVector<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate,edm::refhelper::FindUsingAdvance<edm::OwnVector<reco::Candidate,edm::ClonePolicy<reco::Candidate> >,reco::Candidate> > >::const_iterator_imp_specific" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>::const_iterator_imp" />
+  <class name="edm::reftobase::BaseVectorHolder<reco::Candidate>::const_iterator" />
   <class pattern="edm::AssociationVector<*>">
     <field name="transientVector_" transient="true"/>
     <field name="fixed_" transient="true"/>

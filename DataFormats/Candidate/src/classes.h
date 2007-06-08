@@ -19,13 +19,14 @@ namespace {
     edm::Wrapper<std::vector<reco::Particle> > w2;
     reco::CandidateRef r1;
     reco::CandidateBaseRef r2;
-    reco::CandidateRefVector rv1;
     edm::reftobase::IndirectHolder<reco::Candidate> rbih1;
     edm::reftobase::RefHolder<reco::CandidateRef> rh1;
     edm::Wrapper<reco::CandidateRefVector> wrv1;
+    edm::Wrapper<reco::CandidateBaseRefVector> wrv2;
     reco::CandidateRefProd rp1;
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
     edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<double> > > wav1;
     edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<float> > > wav2;
     edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<int> > > wav3;
