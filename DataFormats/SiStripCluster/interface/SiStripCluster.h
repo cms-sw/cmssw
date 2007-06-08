@@ -65,4 +65,20 @@ inline bool operator<( const SiStripCluster& one, const SiStripCluster& other) {
   }
   return one.geographicalId() < other.geographicalId();
 } 
+
+inline bool operator<(const SiStripCluster& cluster, const uint32_t& detid) {
+  return cluster.geographicalId() < detid;
+} 
+
+inline bool operator<(const uint32_t& detid,const SiStripCluster& cluster) {
+  return detid < cluster.geographicalId();
+} 
+
+inline bool operator<(const SiStripCluster& cluster, const uint16_t& firstStrip) {
+  return cluster.firstStrip() < firstStrip;
+} 
+
+inline bool operator<(const uint16_t& firstStrip,const SiStripCluster& cluster) {
+  return firstStrip < cluster.firstStrip();
+} 
 #endif // DATAFORMATS_SISTRIPCLUSTER_H
