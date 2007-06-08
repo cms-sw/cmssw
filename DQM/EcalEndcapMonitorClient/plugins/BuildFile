@@ -1,4 +1,4 @@
 <use name=DQM/EcalEndcapMonitorClient>
- <library file=plugins.cc name=DQMEcalEndcapMonitorClientPlugins>
+library file=plugins.cc name=DQMEcalEndcapMonitorClientPlugins>
  <flags EDM_PLUGIN=1>
 </library>
