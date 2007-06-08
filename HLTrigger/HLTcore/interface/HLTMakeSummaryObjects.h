@@ -7,8 +7,8 @@
  *  This class is an EDProducer making the HLT summary objects (path
  *  objects and global object).
  *
- *  $Date: 2006/08/14 15:26:42 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/06/08 09:53:32 $
+ *  $Revision: 1.10.2.2 $
  *
  *  \author Martin Grunewald
  *
@@ -21,6 +21,15 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/OrphanHandle.h"
+
+#include "DataFormats/HLTReco/interface/HLTGlobalObject.h"
+#include "DataFormats/HLTReco/interface/HLTFilterObject.h"
+#include "DataFormats/HLTReco/interface/HLTPathObject.h"
+#include<string>
+#include<vector>
 
 //
 // class declaration
@@ -36,6 +45,17 @@ class HLTMakeSummaryObjects : public edm::EDProducer {
   private:
     // the pointer to the current TriggerNamesService
     edm::service::TriggerNamesService* tns_;
+
+    // handles to the various types of filter objects
+    std::vector<edm::Handle<reco::HLTFilterObjectBase    > > fob0_;
+    std::vector<edm::Handle<reco::HLTFilterObject        > > fob1_;
+    std::vector<edm::Handle<reco::HLTFilterObjectWithRefs> > fob2_;
+    // reftobase allowing combined access to these
+    std::vector<edm::RefToBase<reco::HLTFilterObjectBase > > fobs_;
+    // pointer to labels of filter modules
+    std::vector<const std::string * >                    fobnames_;
+    // vector for path objects to be produced
+    std::vector<edm::OrphanHandle<reco::HLTPathObject> >     pobs_;
 
 };
 
