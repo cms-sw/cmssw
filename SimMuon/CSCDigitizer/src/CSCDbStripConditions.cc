@@ -27,6 +27,7 @@ CSCDbStripConditions::~CSCDbStripConditions()
   delete theGains;
   delete thePedestals;
   delete theCrosstalk;
+  if(theNoisifier != 0) delete theNoisifier;
 }
 
 
