@@ -11,6 +11,7 @@ class testView: public CppUnit::TestFixture
   CPPUNIT_TEST(directAccess);
   CPPUNIT_TEST(iterateForward);
   CPPUNIT_TEST(iterateBackward);
+  CPPUNIT_TEST(cloning);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -24,6 +25,7 @@ class testView: public CppUnit::TestFixture
   void directAccess();
   void iterateForward();
   void iterateBackward();
+  void cloning();
 
  private:
   typedef int  value_type;
@@ -107,4 +109,20 @@ void testView::iterateBackward()
   CPPUNIT_ASSERT( *i == 5 );
   ++i;
   CPPUNIT_ASSERT( *i == 4 );  
+}
+
+void testView::cloning()
+{
+
+  value_type vals[] = { 1, 2, 3, 4, 5 };
+  size_t sz = sizeof(vals)/sizeof(value_type);
+
+  View v1;
+  edm::View<int>::fill_from_range(vals, vals+sz, v1);
+  
+  edm::ViewBase* base = v1.clone();
+  CPPUNIT_ASSERT(base);
+  edm::View<int>* view = dynamic_cast<edm::View<int>*>(base);
+  CPPUNIT_ASSERT(view);
+  CPPUNIT_ASSERT(*view == v1);
 }

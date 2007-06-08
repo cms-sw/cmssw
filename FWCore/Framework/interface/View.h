@@ -7,14 +7,15 @@
 // 
 /**\class View View.h FWCore/Framework/interface/View.h
 
-Description: Provide access to any EDProduct that is a sequence.
+Description: Provide access to the collected elements contained by any
+EDProduct that is a sequence.
 
 
 */
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.4 2007/01/11 23:39:19 paterno Exp $
+// $Id: View.h,v 1.5 2007/05/24 16:35:47 paterno Exp $
 //
 
 #include <algorithm>
@@ -24,19 +25,50 @@ Description: Provide access to any EDProduct that is a sequence.
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm
 {
 
-  // ViewBase exists only so that we may invoke View<T> destructors
-  // polymorphically.
+  //------------------------------------------------------------------
+  // Class ViewBase
+  //
+  // ViewBase is an abstract base class. It exists only so that we
+  // make invoke View<T> destructors polymorphically, and copy them
+  // using clone().
+  // 
+  //------------------------------------------------------------------
 
   class ViewBase
   {
   public:
     virtual ~ViewBase();
+    ViewBase* clone() const;
+
+  protected:
+    ViewBase();
+    ViewBase(ViewBase const&);
+    virtual ViewBase* doClone() const = 0;    
   };
+
+  //------------------------------------------------------------------
+  /// Class template View<T>
+  ///
+  /// View<T> provides a way to allow reference to the elements (of
+  /// type T) of some collection in an Event, without knowing about the
+  /// type of the collection itself. For example, View<int> can refer
+  /// to the ints in either a vector<int> or a list<int>, without the
+  /// client code knowing about which type of container manages the
+  /// ints.
+  ///
+  /// View<T> is not persistable.
+  ///
+  /// View<T> can be used to reference objects of any type that has T
+  /// as a public base.
+  ///
+  //------------------------------------------------------------------
+
 
   template <class T>
   class View : public ViewBase
@@ -56,85 +88,56 @@ namespace edm
     typedef typename seq_t::size_type size_type;
     typedef typename seq_t::difference_type difference_type;
 
-    typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator>  const_reverse_iterator;
+    typedef boost::indirect_iterator<typename seq_t::const_reverse_iterator> const_reverse_iterator;
 
     // Compiler-generated copy, and assignment each does the right
     // thing.
 
-    View() : items_() { }
+    View();
 
     // This function is dangerous, and should only be called from the
     // infrastructure code.
-    explicit View(std::vector<void const*> const& pointers,
-		  std::vector<helper_ptr> const& helpers) : 
-      items_(),
-      refs_()
-    {
-      size_type numElements = pointers.size();
+    View(std::vector<void const*> const& pointers,
+	 std::vector<helper_ptr> const& helpers);
 
-      // If the two input vectors are not of the same size, there is a
-      // logic error in the framework code that called this
-      // constructor.
-      assert (numElements == helpers.size());
+    virtual ~View();
 
-      items_.reserve(numElements);
-      refs_.reserve(numElements);
-      for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i)
-	{
-	  items_.push_back(static_cast<pointer>(pointers[i]));
-	  refs_.push_back(RefToBase<T>(helpers[i]));
-	}
-      // Sanity check...
-      assert(items_.size() == refs_.size());
-    }
+    void swap(View& other);
 
-    virtual ~View() { }
-
-    size_type capacity() const { return items_.capacity(); }
+    size_type capacity() const;
 
     // Most non-const member functions not present.
     // No access to non-const contents provided.
 
-    const_iterator begin() const { return items_.begin(); }
-    const_iterator end() const { return items_.end(); }
+    const_iterator begin() const;
+    const_iterator end() const;
 
-    const_reverse_iterator rbegin() const { return items_.rbegin(); }
-    const_reverse_iterator rend() const { return items_.rend(); }
+    const_reverse_iterator rbegin() const;
+    const_reverse_iterator rend() const;
 
-    size_type size() const { return items_.size(); }
+    size_type size() const;
+    size_type max_size() const;
+    bool empty() const;
+    const_reference at(size_type pos) const;
+    const_reference operator[](size_type pos) const;
+    RefToBase<value_type> refAt(size_type i) const;
 
-    size_type max_size() const { return items_.max_size(); }
-
-    bool empty() const { return items_.empty(); }
-
-    const_reference at(size_type pos) const { return *items_.at(pos); }
-
-    const_reference operator[](size_type pos) const { return *items_[pos]; }
-
-    RefToBase<value_type> refAt(size_type i) const { return refs_[i]; }
-
-    const_reference front() const { return *items_.front(); }
-
-    const_reference back() const {return *items_.back(); }
-
-    void pop_back() { items_.pop_back(); }
+    const_reference front() const;
+    const_reference back() const;
+    void pop_back();
 
     // No erase, because erase is required to return an *iterator*,
     // not a *const_iterator*.
 
     // The following is for testing only.
-    static void fill_from_range(T* first, T* last, View& output)
-    {
-      output.items_.resize(std::distance(first,last));
-      for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
-	output.items_[i] = first;
-    }
+    static void fill_from_range(T* first, T* last, View& output);
 
   private:
     seq_t                      items_;
+    //RefToBaseVector<T>         refs_;
     std::vector<RefToBase<T> > refs_;
 
-
+    ViewBase* doClone() const;
   };
 
   // Associated free functions (same as for std::vector)
@@ -145,6 +148,183 @@ namespace edm
   template <class T> bool operator> (View<T> const&, View<T> const&);
   template <class T> bool operator>=(View<T> const&, View<T> const&);
 
+  //------------------------------------------------------------------
+  // Implementation of View<T>
+  //------------------------------------------------------------------
+
+  template <class T>
+  inline
+  View<T>::View() : 
+    items_(),
+    refs_()
+  { }
+
+  template <class T>
+  View<T>::View(std::vector<void const*> const& pointers,
+		std::vector<helper_ptr> const& helpers) : 
+    items_(),
+    refs_()
+  {
+    size_type numElements = pointers.size();
+
+    // If the two input vectors are not of the same size, there is a
+    // logic error in the framework code that called this.
+    // constructor.
+    assert (numElements == helpers.size());
+
+    items_.reserve(numElements);
+    refs_.reserve(numElements);
+    for (std::vector<void const*>::size_type i = 0; i < pointers.size(); ++i)
+      {
+	items_.push_back(static_cast<pointer>(pointers[i]));
+	refs_.push_back(RefToBase<T>(helpers[i]));
+      }
+  }
+
+  template <class T>
+  View<T>::~View() 
+  { }
+
+  template <class T>
+  inline
+  void
+  View<T>::swap(View& other)
+  {
+    swap(items_, other.items_);
+    swap(refs_, other.refs_);
+  }
+
+  template <class T>
+  inline
+  typename  View<T>::size_type 
+  View<T>::capacity() const 
+  {
+    return items_.capacity();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_iterator 
+  View<T>::begin() const 
+  {
+    return items_.begin();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_iterator 
+  View<T>::end() const
+  {
+    return items_.end();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reverse_iterator 
+  View<T>::rbegin() const
+  {
+    return items_.rbegin();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reverse_iterator
+  View<T>::rend() const
+  {
+    return items_.rend();
+  }
+
+
+
+  template <class T>
+  inline
+  typename View<T>::size_type
+  View<T>::size() const 
+  {
+    return items_.size();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::size_type
+  View<T>::max_size() const
+  {
+    return items_.max_size();
+  }
+
+  template <class T>
+  inline
+  bool 
+  View<T>::empty() const 
+  {
+    return items_.empty();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reference 
+  View<T>::at(size_type pos) const
+  {
+    return *items_.at(pos);
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reference 
+  View<T>::operator[](size_type pos) const
+  {
+    return *items_[pos];
+  }
+
+  template <class T>
+  inline
+  RefToBase<T> 
+  View<T>::refAt(size_type i) const
+  {
+    return refs_[i];
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reference 
+  View<T>::front() const
+  {
+    return *items_.front();
+  }
+
+  template <class T>
+  inline
+  typename View<T>::const_reference
+  View<T>::back() const
+  {
+    return *items_.back();
+  }
+
+  template <class T>
+  inline
+  void
+  View<T>::pop_back()
+  {
+    items_.pop_back();
+  }
+
+  // The following is for testing only.
+  template <class T>
+  inline
+  void
+  View<T>::fill_from_range(T* first, T* last, View& output)
+  {
+    output.items_.resize(std::distance(first,last));
+    for (typename View<T>::size_type i = 0; first != last; ++i, ++first)
+      output.items_[i] = first;
+  }
+
+  template <class T>
+  ViewBase*
+  View<T>::doClone() const
+  {
+    return new View(*this);
+  }
 
   template <class T>
   inline
