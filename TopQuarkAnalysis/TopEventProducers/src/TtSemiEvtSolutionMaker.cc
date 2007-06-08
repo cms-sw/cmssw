@@ -6,39 +6,27 @@
 
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
-   leptonFlavour_   = iConfig.getParameter< string > 	  ("leptonFlavour");
-   lJetInput_       = iConfig.getParameter< string > 	  ("lJetInput");
-   bJetInput_       = iConfig.getParameter< string > 	  ("bJetInput");
+   leptonFlavour_   = iConfig.getParameter< std::string > 	  ("leptonFlavour");
+   lJetInput_       = iConfig.getParameter< std::string > 	  ("lJetInput");
+   bJetInput_       = iConfig.getParameter< std::string > 	  ("bJetInput");
    jetEtaCut_  	    = iConfig.getParameter< double >      ("jetEtaCut");	
    recJetETCut_     = iConfig.getParameter< double >      ("recJetETCut");	
    calJetETCut_     = iConfig.getParameter< double >      ("calJetETCut");	
    jetLRCut_        = iConfig.getParameter< double >      ("jetLRCut");
-   muonEtaCut_      = iConfig.getParameter< double >      ("muonEtaCut");	
-   muonPtCut_       = iConfig.getParameter< double >      ("muonPtCut");	
-   muonLRCut_       = iConfig.getParameter< double >      ("muonLRCut");	
-   electronEtaCut_  = iConfig.getParameter< double >      ("electronEtaCut");	
-   electronPtCut_   = iConfig.getParameter< double >      ("electronPtCut");	
-   electronLRCut_   = iConfig.getParameter< double >      ("electronLRCut");	
-   metCut_          = iConfig.getParameter< double >      ("metCut");	
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
    addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
-   lrJetCombFile_   = iConfig.getParameter< string >      ("lrJetCombFile");
+   lrJetCombFile_   = iConfig.getParameter< std::string >      ("lrJetCombFile");
    maxNrIter_       = iConfig.getParameter< int >         ("maxNrIter");
    maxDeltaS_       = iConfig.getParameter< double >      ("maxDeltaS");
    maxF_            = iConfig.getParameter< double >      ("maxF");
    param_           = iConfig.getParameter< int >         ("parametrisation");
-   constraints_     = iConfig.getParameter< vector<int> > ("constraints");
+   constraints_     = iConfig.getParameter< std::vector<int> > ("constraints");
    matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
    
    // define kinematic selection cuts
    jetEtaRangeSelector      = new EtaRangeSelector<TopJet>(-1.*jetEtaCut_,jetEtaCut_);
    recJetEtMinSelector      = new EtMinSelector<TopJet>(recJetETCut_);
    calJetEtMinSelector      = new EtMinSelector<TopJet>(calJetETCut_);
-   muonEtaRangeSelector     = new EtaRangeSelector<TopMuon>(-1.*muonEtaCut_,muonEtaCut_);
-   muonPtMinSelector        = new PtMinSelector<TopMuon>(muonPtCut_);
-   electronEtaRangeSelector = new EtaRangeSelector<TopElectron>(-1.*electronEtaCut_,electronEtaCut_);
-   electronPtMinSelector    = new PtMinSelector<TopElectron>(electronPtCut_);
-   metEtMinSelector         = new EtMinSelector<TopMET>(metCut_);
    
    // define kinfitter
    if(doKinFit_){
@@ -52,7 +40,7 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    myTtSemiLRSignalSelObservables    = new TtSemiLRSignalSelObservables();
    myLRJetCombObservables            = new TtSemiLRJetCombObservables();
    if(addLRJetComb_) myLRJetCombCalc = new TtSemiLRJetCombCalc(lrJetCombFile_);
-   produces<vector<TtSemiEvtSolution> >();
+   produces<std::vector<TtSemiEvtSolution> >();
 }
 
 
@@ -70,11 +58,6 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
    delete recJetEtMinSelector;
    delete calJetEtMinSelector;
    delete jetEtaRangeSelector;
-   delete muonPtMinSelector;
-   delete muonEtaRangeSelector;
-   delete electronPtMinSelector;
-   delete electronEtaRangeSelector;
-   delete metEtMinSelector;
    delete mySimpleBestJetComb;
    delete myTtSemiLRSignalSelObservables;
    delete myLRJetCombObservables;
@@ -104,11 +87,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    bool leptonFound = false;
    TopMuon selMuon;
    if(leptonFlavour_ == "muon"){
-     edm::Handle<vector<TopMuon> >  muons;
+     edm::Handle<std::vector<TopMuon> >  muons;
      iEvent.getByType(muons);
-     vector<TopMuon> selMuons;
+     std::vector<TopMuon> selMuons;
      for(size_t m=0; m < muons->size(); m++) { 
-       if( (*muonEtaRangeSelector)((*muons)[m]) && (*muonPtMinSelector)((*muons)[m]) ) selMuons.push_back((*muons)[m]);
+       selMuons.push_back((*muons)[m]);
      }
      if( selMuons.size() > 0 ){
        //select highest pT muon
@@ -118,11 +101,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    }  
    TopElectron selElectron;
    if(leptonFlavour_ == "electron"){
-     edm::Handle<vector<TopElectron> >  electrons;
+     edm::Handle<std::vector<TopElectron> >  electrons;
      iEvent.getByType(electrons);
-     vector<TopElectron> selElectrons;
+     std::vector<TopElectron> selElectrons;
      for(size_t e=0; e < electrons->size(); e++) { 
-       if( (*electronEtaRangeSelector)((*electrons)[e]) && (*electronPtMinSelector)((*electrons)[e]) ) selElectrons.push_back((*electrons)[e]);
+       selElectrons.push_back((*electrons)[e]);
      }
      if( selElectrons.size() > 0 ){
        //select highest pT electron
@@ -134,11 +117,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    // select MET (TopMET vector is sorted on ET)
    bool METFound = false;
    TopMET selMET;
-   edm::Handle<vector<TopMET> >  METs;
+   edm::Handle<std::vector<TopMET> >  METs;
    iEvent.getByType(METs);
-   vector<TopMET> selMETs;
+   std::vector<TopMET> selMETs;
    for(size_t m=0; m < METs->size(); m++) { 
-     if( (*metEtMinSelector)((*METs)[m]) ) selMETs.push_back((*METs)[m]);
+     selMETs.push_back((*METs)[m]);
    }
    if( selMETs.size() > 0 ){
      //select highest Et MET
@@ -148,10 +131,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 
    // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
    bool jetsFound = false;
-   vector<TopJet> lSelJets, bSelJets;
-   edm::Handle<vector<TopJet> >  lJets;
+   std::vector<TopJet> lSelJets, bSelJets;
+   edm::Handle<std::vector<TopJet> >  lJets;
    iEvent.getByLabel(lJetInput_,lJets);
-   edm::Handle<vector<TopJet> >  bJets;
+   edm::Handle<std::vector<TopJet> >  bJets;
    iEvent.getByLabel(bJetInput_,bJets);
    // vectors were sorted on recET
    for(size_t j=0; j < min(lJets -> size(),bJets -> size()); j++) {
@@ -172,9 +155,9 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    // Build Event solutions according to the ambiguity in the jet combination
    //
    
-   vector<TtSemiEvtSolution> *evtsols = new vector<TtSemiEvtSolution>();
+   std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
    if(leptonFound && METFound && jetsFound){
-     //cout<<"constructing solutions"<<endl;
+     //std::cout<<"constructing solutions"<<std::endl;
      for (unsigned int p=0; p<4; p++) {
        for (unsigned int q=0; q<4; q++) {
          for (unsigned int bh=0; bh<4; bh++) {
@@ -225,7 +208,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
        int bestSol = 0;
        for(size_t s=0; s<evtsols->size(); s++) {
          (*evtsols)[s].setGenEvt(genEvt->particles());
-         vector<double> bm = BestMatch((*evtsols)[s], false); //false to use DR, true SpaceAngles
+         std::vector<double> bm = BestMatch((*evtsols)[s], false); //false to use DR, true SpaceAngles
          (*evtsols)[s].setSumDeltaRjp(bm[0]);
          (*evtsols)[s].setChangeWQ((int) bm[1]);
          (*evtsols)[s].setDeltaRhadp(bm[2]);
@@ -239,21 +222,21 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
      
      
      //store the vector of solutions to the event     
-     auto_ptr<vector<TtSemiEvtSolution> > pOut(evtsols);
+     auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
    else
    {
      /*
-     cout<<"No calibrated solutions build, because:  ";
-     if(jets->size()<4)      					  cout<<"nr sel jets < 4"<<endl;
-     if(leptonFlavour_ == "muon" && muons->size() == 0)    	  cout<<"no good muon candidate"<<endl;
-     if(leptonFlavour_ == "electron" && electrons->size() == 0)   cout<<"no good electron candidate"<<endl;
-     if(mets->size() == 0)    					  cout<<"no MET reconstruction"<<endl;
+     std::cout<<"No calibrated solutions build, because:  ";
+     if(jets->size()<4)      					  std::cout<<"nr sel jets < 4"<<std::endl;
+     if(leptonFlavour_ == "muon" && muons->size() == 0)    	  std::cout<<"no good muon candidate"<<std::endl;
+     if(leptonFlavour_ == "electron" && electrons->size() == 0)   std::cout<<"no good electron candidate"<<std::endl;
+     if(mets->size() == 0)    					  std::cout<<"no MET reconstruction"<<std::endl;
      */
      TtSemiEvtSolution asol;
      evtsols->push_back(asol);
-     auto_ptr<vector<TtSemiEvtSolution> > pOut(evtsols);
+     auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
 }

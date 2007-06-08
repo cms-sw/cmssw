@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.5 2007/06/01 09:08:14 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.6 2007/06/06 10:34:21 heyninck Exp $
 //
 //
 
@@ -47,7 +47,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-using namespace std;
 
 
 //
@@ -62,24 +61,17 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
-      string leptonFlavour_;
-      string lJetInput_, bJetInput_, lrJetCombFile_;
+      std::string leptonFlavour_;
+      std::string lJetInput_, bJetInput_, lrJetCombFile_;
       bool addLRJetComb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
-      vector<int> constraints_;
-      double jetEtaCut_;	
-      double recJetETCut_;	
-      double calJetETCut_;	
-      double jetLRCut_;
-      double muonEtaCut_;	
-      double muonPtCut_;	
-      double muonLRCut_;
-      double electronEtaCut_;	
-      double electronPtCut_;	
-      double electronLRCut_;	
-      double metCut_;	
+      std::vector<int> constraints_;
+      double jetEtaCut_;                      
+      double recJetETCut_;                    
+      double calJetETCut_;                    
+      double jetLRCut_;                       
       TtSemiKinFitterEtThetaPhi     *myKinFitterEtThetaPhi;
       TtSemiKinFitterEtEtaPhi       *myKinFitterEtEtaPhi;
       TtSemiKinFitterEMom           *myKinFitterEMom;
@@ -90,10 +82,5 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       EtaRangeSelector<TopJet>      *jetEtaRangeSelector;
       EtMinSelector<TopJet>    	    *recJetEtMinSelector;
       EtMinSelector<TopJet>         *calJetEtMinSelector;
-      EtaRangeSelector<TopMuon>     *muonEtaRangeSelector;
-      PtMinSelector<TopMuon>	    *muonPtMinSelector;
-      EtaRangeSelector<TopElectron> *electronEtaRangeSelector;
-      PtMinSelector<TopElectron>    *electronPtMinSelector;
-      EtMinSelector<TopMET>         *metEtMinSelector;
-      //MinSelector		
+
 };
