@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <utility>
 
 #include "boost/concept_check.hpp"
 #include "boost/iterator/indirect_iterator.hpp"
@@ -39,16 +40,29 @@ namespace edm {
   //------------------------------------------------------------
   //
   
+  /// Returns pair of iterators to record for region begin and end.
   template<typename T, typename C >
-    struct FindRegion : public std::binary_function<const C &, uint32_t, const RegionIndex<T>*> {
+    struct FindRegion : public std::binary_function< const C &, const uint32_t, const typename C::register_index* > {
       typedef FindRegion<T,C> self;
       typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iIndex) const {
         return &(*(iContainer.begin()+iIndex));
       }
     };
-  
+
+  /// Returns pair of iterators to record for det-id begin and end.
   template<typename T, typename C >
-    struct FindValue : public std::binary_function<const C &, typename C::record_type::const_iterator, const T* > {
+    struct FindDet : public std::binary_function< const C &, std::pair<const uint32_t,const uint32_t>, std::pair<typename C::record_iterator, typename C::record_iterator> >  {
+      typedef FindDet<T,C> self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer,  typename self::second_argument_type iPair) const {
+	FindRegion<T,C> region_finder;
+	const typename C::register_index* range = region_finder(iContainer,iPair.first); 
+	return std::equal_range(range->begin(),range->end(),iPair.second);
+      }
+    };
+  
+  /// Returns pointer to T within record.
+  template<typename T, typename C >
+    struct FindValue : public std::binary_function< const C &, typename C::record_iterator, const T* > {
       typedef FindValue<T,C> self;
       typename self::result_type operator()(typename self::first_argument_type container, typename self::second_argument_type iter) const {
         return &(*iter);
@@ -63,13 +77,16 @@ namespace edm {
 
   public:
 
-    typedef Ref< SiStripRefGetter<T,C>, T, FindValue< T,SiStripRefGetter<T,C> > > self_ref;
-    typedef Ref< C, typename C::value_type, FindRegion<T,C> > ref_type;
-    typedef std::vector<ref_type> collection_type;
+    typedef typename C::register_index register_index;
+    typedef typename std::vector<register_index> register_type;
     typedef typename C::record_type record_type;
+    typedef typename record_type::const_iterator record_iterator;
+    typedef Ref< SiStripRefGetter<T,C>, T, FindValue< T,SiStripRefGetter<T,C> > > value_ref;
+    typedef Ref< C, typename C::register_index, FindRegion<T,C> > region_ref;
+    typedef std::vector<region_ref> collection_type;
+    typedef typename collection_type::size_type size_type;
     typedef typename C::const_reference  const_reference;
     typedef boost::indirect_iterator<typename collection_type::const_iterator> const_iterator;
-    typedef typename collection_type::size_type size_type;
 
     SiStripRefGetter() {}
     
@@ -80,27 +97,27 @@ namespace edm {
 	    iRegion != iRegions.end();
             ++iRegion) {
           //the last 'false' says to not get the data right now
-          sets_.push_back(ref_type(iHandle, *iRegion, false));
+          sets_.push_back(region_ref(iHandle, *iRegion, false));
         }
       }
 
     void swap(SiStripRefGetter& other);
 
-    /// Return true if we contain no 'ref_type's (one per Region).
+    /// Return true if we contain no 'region_ref's (one per Region).
     bool empty() const;
 
-    /// Return the number of contained 'ref_type's (one per Region).
+    /// Return the number of contained 'region_ref's (one per Region).
     size_type size() const;
 
-    /// Return an iterator to the 'ref_type' for a given Region id, or end() 
+    /// Return an iterator to the 'region_ref' for a given Region id, or end() 
     /// if there is no such Region.
     const_iterator find(uint32_t region) const;
 
-    /// Return a reference to the 'ref_type' for a given Region id, or throw 
+    /// Return a reference to the 'region_ref' for a given Region id, or throw 
     /// an edm::Exception if there is no such Region.
     const_reference operator[](uint32_t region) const;
 
-    /// Return an iterator to the first 'ref_type'.
+    /// Return an iterator to the first 'region_ref'.
     const_iterator begin() const;
 
     /// Return the off-the-end iterator.
@@ -182,9 +199,9 @@ namespace edm {
  //helper function to make it easier to create a edm::Ref
 
   template<class HandleT>
-    typename HandleT::element_type::self_ref
-    makeRefToSiStripRefGetter(const HandleT& iHandle, typename HandleT::element_type::record_type::const_iterator iter) {
-    return typename HandleT::element_type::self_ref(iHandle,iter,false);
+    typename HandleT::element_type::value_ref
+    makeRefToSiStripRefGetter(const HandleT& iHandle, typename HandleT::element_type::record_iterator iter) {
+    return typename HandleT::element_type::value_ref(iHandle,iter,false);
   }
 
 #if ! GCC_PREREQUISITE(3,4,4)
