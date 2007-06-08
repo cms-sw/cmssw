@@ -72,9 +72,9 @@ namespace edm {
 
     public: 
 
+    typedef RegionIndex<T> register_index;
+    typedef std::vector< register_index > register_type;
     typedef std::vector<T> record_type;
-    typedef typename record_type::const_iterator const_iterator;
-    typedef std::vector< RegionIndex<T> > register_type;
 
     SiStripLazyUnpacker(uint32_t nregions) :
       record_(), register_()
@@ -130,12 +130,13 @@ namespace edm {
 
   public:
 
-    typedef RegionIndex<T> value_type;
-    typedef typename SiStripLazyUnpacker<T>::record_type record_type;
-    typedef typename SiStripLazyUnpacker<T>::register_type collection_type;
-    typedef value_type const&  const_reference;
-    typedef boost::transform_iterator< LazyAdapter<T>, typename collection_type::const_iterator > const_iterator;
-    typedef typename collection_type::size_type size_type;
+    typedef RegionIndex<T> register_index;
+    typedef std::vector< register_index > register_type;
+    typedef std::vector<T> record_type;
+
+    typedef register_index const&  const_reference;
+    typedef boost::transform_iterator< LazyAdapter<T>, typename register_type::const_iterator > const_iterator;
+    typedef typename register_type::size_type size_type;
 
     SiStripLazyGetter() {}
     
@@ -200,7 +201,7 @@ namespace edm {
   typename SiStripLazyGetter<T>::const_iterator
   SiStripLazyGetter<T>::find(uint32_t region) const
   {
-    typename collection_type::const_iterator it;
+    typename register_type::const_iterator it;
     if (unpacker_->register_.size() < region+1) it = unpacker_->register_.end();
     else it = unpacker_->register_.begin()+region;
     LazyAdapter<T> adapter(unpacker_);
