@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.3 2007/06/07 15:40:41 paterno Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.4 2007/06/07 18:44:01 paterno Exp $
 
 #include <algorithm>
 
@@ -52,24 +52,19 @@ void
 do_some_tests(edm::RefToBaseVector<Base> x)
 {
   edm::RefToBaseVector<Base> copy(x);
+ 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
-
-  // The following code will not compile until
-  // edm::reftobase::BaseVectorHolder<T>::const_iterator contains all
-  // the required typedefs to support the general use of iterators.
-
-  //CPPUNIT_ASSERT(std::distance(x.begin(), x.end()) ==
-  //		 std::distance(copy.begin(), copy.end()));
-
+  edm::RefToBaseVector<Base>::const_iterator 
+    b = x.begin(), e = x.end(), cb = copy.begin(), ce = copy.end();
+  CPPUNIT_ASSERT( e - b == ce - cb );
+  CPPUNIT_ASSERT(std::distance(b, e) == std::distance(cb, ce) );
   CPPUNIT_ASSERT(x.capacity() == copy.capacity());
 
-  // The following three lines don't work because reserve is not
-  // protected against a null pointer.
-
-  //size_t increment(1000);
-  //x.reserve(x.size() + increment);
-  //CPPUNIT_ASSERT(x.capacity() >= x.size()+increment);
+  // caveat: capacity() returns always zero for an invalid RefToBaseVector
+  size_t increment(1000);
+  x.reserve(x.size() + increment);
+  CPPUNIT_ASSERT(x.isInvalid() || x.capacity() >= x.size()+increment);
 }
 
 void
@@ -92,9 +87,7 @@ testRefToBaseVector::check()
   RefToBaseVector<Base> empty;
   RefToBaseVector<Base> copy_of_empty(empty);
 
-  // The following test fails because begin() called on an empty
-  // RefToBaseVector<T> causes a segmentation fault.
-  //CPPUNIT_ASSERT(empty == copy_of_empty);
+  CPPUNIT_ASSERT(empty == copy_of_empty);
 
   RefToBaseVector<Base> bv1( rv1 );
   RefToBase<Base> r1_0 = bv1[ 0 ];
@@ -125,7 +118,6 @@ testRefToBaseVector::check()
 
   RefToBaseVector<Base> assigned_from_bv1;
   do_some_tests(assigned_from_bv1);
-
   CPPUNIT_ASSERT(assigned_from_bv1.empty());
   assigned_from_bv1 = bv1;
   CPPUNIT_ASSERT(assigned_from_bv1.size() == bv1.size());
@@ -133,6 +125,5 @@ testRefToBaseVector::check()
   CPPUNIT_ASSERT(assigned_from_bv1 == bv1);
 
   do_some_tests(assigned_from_bv1);
-
 }
 
