@@ -297,7 +297,7 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
   
-  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "OccupancyInTimeHits_perCh");
+  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "OccupancyNoise_perCh");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 
