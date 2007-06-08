@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id$
+// $Id: TopMuonProducer.cc,v 1.4 2007/06/07 05:49:17 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -38,7 +38,7 @@ TopMuonProducer::TopMuonProducer(const edm::ParameterSet & iConfig) {
   }
 
   // produces vector of muons
-  produces<std::vector<TopMuon > >("");
+  produces<std::vector<TopMuon > >();
 }
 
 
@@ -74,17 +74,13 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // construct the TopMuon
     TopMuon aMuon((*muons)[m]);
     // match to generated final state muons
-    // FIXME: check charge!
     if (doGenMatch_) {
       // initialize best match as null
-      reco::Particle::LorentzVector nullV(0,0,0,0);
-      reco::Particle::Point nullP(0,0,0);
-      reco::GenParticleCandidate bestGenMuon(char(1), nullV, nullP, 0, 0);
+      reco::GenParticleCandidate bestGenMuon(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0);
       float bestDR = 0;
       // find the closest generated muon
-      for(reco::CandidateCollection::const_iterator itGenMuon = particles->begin(); itGenMuon != particles->end(); ++itGenMuon) {
-        reco::Candidate * aTmpGenMuon = const_cast<reco::Candidate *>(&*itGenMuon);
-        reco::GenParticleCandidate aGenMuon = *(dynamic_cast<reco::GenParticleCandidate *>(aTmpGenMuon));
+      for (reco::CandidateCollection::const_iterator itGenMuon = particles->begin(); itGenMuon != particles->end(); ++itGenMuon) {
+        reco::GenParticleCandidate aGenMuon = *(dynamic_cast<reco::GenParticleCandidate *>(const_cast<reco::Candidate *>(&*itGenMuon)));
         if (abs(aGenMuon.pdgId())==13 && aGenMuon.status()==1 && aGenMuon.charge()==(*muons)[m].charge()) {
           float currDR = DeltaR<reco::Candidate>()(aGenMuon, (*muons)[m]);
           if (bestDR == 0 || currDR < bestDR) {
@@ -112,7 +108,7 @@ void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   // put genEvt object in Event
   auto_ptr<std::vector<TopMuon> > pOutMuon(topMuons);
-  iEvent.put(pOutMuon, "");
+  iEvent.put(pOutMuon);
 
   // destroy the lepton LR calculator
   if (addLRValues_) delete theLeptonLRCalc_;
