@@ -3,7 +3,8 @@
   <class pattern="edm::Wrapper<*>" />
 
   <class name="std::vector<std::pair<double, double> >" />
-  
+  <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
+
   <class name="TopElectron" />
   <class name="TopMuon" />
   <class name="TopJet" />
@@ -33,5 +34,6 @@
   <class name="StEvtSolution"/>
   <class name="std::vector<StEvtSolution>" />
   <class name="TtSemiMassSolution"/>
+
 </lcgdict>
 
