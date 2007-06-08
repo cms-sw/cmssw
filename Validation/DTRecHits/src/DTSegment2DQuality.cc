@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: July 2006$
- *  $Revision: 1.0 $
+ *  $Date: 2006/08/04 10:35:37 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -30,23 +30,8 @@
 #include <iostream>
 #include <map>
 
-
-
 using namespace std;
 using namespace edm;
-
-HRes2DHit h2DHitRPhi("RPhi");
-HRes2DHit h2DHitRZ("RZ");
-HRes2DHit h2DHitRZ_W0("RZ_W0");
-HRes2DHit h2DHitRZ_W1("RZ_W1");
-HRes2DHit h2DHitRZ_W2("RZ_W2");
-
-HEff2DHit h2DHitEff_RPhi("RPhi");
-HEff2DHit h2DHitEff_RZ("RZ");
-HEff2DHit h2DHitEff_RZ_W0("RZ_W0");
-HEff2DHit h2DHitEff_RZ_W1("RZ_W1");
-HEff2DHit h2DHitEff_RZ_W2("RZ_W2");
-
 
 // Constructor
 DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
@@ -70,6 +55,18 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
 
   if(debug)
     cout << "[DTSegment2DQuality] Constructor called" << endl;
+
+  h2DHitRPhi = new HRes2DHit ("RPhi");
+  h2DHitRZ= new HRes2DHit ("RZ");
+  h2DHitRZ_W0= new HRes2DHit ("RZ_W0");
+  h2DHitRZ_W1= new HRes2DHit ("RZ_W1");
+  h2DHitRZ_W2= new HRes2DHit ("RZ_W2");
+
+  h2DHitEff_RPhi= new HEff2DHit ("RPhi");
+  h2DHitEff_RZ= new HEff2DHit ("RZ");
+  h2DHitEff_RZ_W0= new HEff2DHit ("RZ_W0");
+  h2DHitEff_RZ_W1= new HEff2DHit ("RZ_W1");
+  h2DHitEff_RZ_W2= new HEff2DHit ("RZ_W2");
 }
 
 // Destructor
@@ -83,23 +80,23 @@ void DTSegment2DQuality::endJob() {
   // Write the histos to file
   theFile->cd();
 
-  h2DHitRPhi.Write();
-  h2DHitRZ.Write();
-  h2DHitRZ_W0.Write();
-  h2DHitRZ_W1.Write();
-  h2DHitRZ_W2.Write();
+  h2DHitRPhi->Write();
+  h2DHitRZ->Write();
+  h2DHitRZ_W0->Write();
+  h2DHitRZ_W1->Write();
+  h2DHitRZ_W2->Write();
 
-  h2DHitEff_RPhi.ComputeEfficiency();
-  h2DHitEff_RZ.ComputeEfficiency();
-  h2DHitEff_RZ_W0.ComputeEfficiency();
-  h2DHitEff_RZ_W1.ComputeEfficiency();
-  h2DHitEff_RZ_W2.ComputeEfficiency();
+  h2DHitEff_RPhi->ComputeEfficiency();
+  h2DHitEff_RZ->ComputeEfficiency();
+  h2DHitEff_RZ_W0->ComputeEfficiency();
+  h2DHitEff_RZ_W1->ComputeEfficiency();
+  h2DHitEff_RZ_W2->ComputeEfficiency();
 
-  h2DHitEff_RPhi.Write();
-  h2DHitEff_RZ.Write();
-  h2DHitEff_RZ_W0.Write();
-  h2DHitEff_RZ_W1.Write();
-  h2DHitEff_RZ_W2.Write();
+  h2DHitEff_RPhi->Write();
+  h2DHitEff_RZ->Write();
+  h2DHitEff_RZ_W0->Write();
+  h2DHitEff_RZ_W1->Write();
+  h2DHitEff_RZ_W2->Write();
 
   theFile->Close();
 } 
@@ -238,15 +235,15 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	// Fill Residual histos
 	HRes2DHit *hRes = 0;
 	if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
-	  hRes = &h2DHitRPhi;
+	  hRes = h2DHitRPhi;
 	} else if((*slId).superlayer() == 2) { //RZ SL
-	  h2DHitRZ.Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
+	  h2DHitRZ->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
 	  if(abs((*slId).wheel()) == 0)
-	    hRes = &h2DHitRZ_W0;
+	    hRes = h2DHitRZ_W0;
 	  else if(abs((*slId).wheel()) == 1)
-	    hRes = &h2DHitRZ_W1;
+	    hRes = h2DHitRZ_W1;
 	  else if(abs((*slId).wheel()) == 2)
-	    hRes = &h2DHitRZ_W2;
+	    hRes = h2DHitRZ_W2;
 	}
 	hRes->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
       }
@@ -255,15 +252,15 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
       // Fill Efficiency plot
     HEff2DHit *hEff = 0;
     if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
-      hEff = &h2DHitEff_RPhi;
+      hEff = h2DHitEff_RPhi;
     } else if((*slId).superlayer() == 2) { //RZ SL
-      h2DHitEff_RZ.Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
+      h2DHitEff_RZ->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
       if(abs((*slId).wheel()) == 0)
-	hEff = &h2DHitEff_RZ_W0;
+	hEff = h2DHitEff_RZ_W0;
       else if(abs((*slId).wheel()) == 1)
-	hEff = &h2DHitEff_RZ_W1;
+	hEff = h2DHitEff_RZ_W1;
       else if(abs((*slId).wheel()) == 2)
-	hEff = &h2DHitEff_RZ_W2;
+	hEff = h2DHitEff_RZ_W2;
     }
     hEff->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over superlayers

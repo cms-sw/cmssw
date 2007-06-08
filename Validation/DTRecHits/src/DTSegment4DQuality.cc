@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2006/08/04 10:36:23 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/01/23 16:38:28 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -35,15 +35,6 @@ using namespace std;
 using namespace edm;
 
 // Book the histos
-HRes4DHit h4DHit("All");
-HRes4DHit h4DHit_W0("W0");
-HRes4DHit h4DHit_W1("W1");
-HRes4DHit h4DHit_W2("W2");
-
-HEff4DHit hEff_All("All");
-HEff4DHit hEff_W0("W0");
-HEff4DHit hEff_W1("W1");
-HEff4DHit hEff_W2("W2");
 
 // Constructor
 DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
@@ -70,6 +61,15 @@ DTSegment4DQuality::DTSegment4DQuality(const ParameterSet& pset)  {
 
   if(debug)
     cout << "[DTSegment4DQuality] Constructor called" << endl;
+  h4DHit= new HRes4DHit ("All");
+  h4DHit_W0= new HRes4DHit ("W0");
+  h4DHit_W1= new HRes4DHit ("W1");
+  h4DHit_W2= new HRes4DHit ("W2");
+
+  hEff_All= new HEff4DHit ("All");
+  hEff_W0= new HEff4DHit ("W0");
+  hEff_W1= new HEff4DHit ("W1");
+  hEff_W2= new HEff4DHit ("W2");
 }
 
 // Destructor
@@ -83,20 +83,20 @@ void DTSegment4DQuality::endJob() {
   // Write the histos to file
   theFile->cd();
 
-  h4DHit.Write();
-  h4DHit_W0.Write();
-  h4DHit_W1.Write();
-  h4DHit_W2.Write();
+  h4DHit->Write();
+  h4DHit_W0->Write();
+  h4DHit_W1->Write();
+  h4DHit_W2->Write();
 
-  hEff_All.ComputeEfficiency();
-  hEff_W0.ComputeEfficiency();
-  hEff_W1.ComputeEfficiency();
-  hEff_W2.ComputeEfficiency();
+  hEff_All->ComputeEfficiency();
+  hEff_W0->ComputeEfficiency();
+  hEff_W1->ComputeEfficiency();
+  hEff_W2->ComputeEfficiency();
 
-  hEff_All.Write();
-  hEff_W0.Write();
-  hEff_W1.Write();
-  hEff_W2.Write();
+  hEff_All->Write();
+  hEff_W0->Write();
+  hEff_W1->Write();
+  hEff_W2->Write();
 
   theFile->Close();
 } 
@@ -248,11 +248,11 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
 	HRes4DHit *histo=0;
       
 	if((*chamberId).wheel() == 0)
-	  histo = &h4DHit_W0;
+	  histo = h4DHit_W0;
 	else if(abs((*chamberId).wheel()) == 1)
-	  histo = &h4DHit_W1;
+	  histo = h4DHit_W1;
 	else if(abs((*chamberId).wheel()) == 2)
-	  histo = &h4DHit_W2;
+	  histo = h4DHit_W2;
       
 	histo->Fill(alphaSimSeg,
 		    alphaBestRHit,
@@ -265,7 +265,7 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
 		    etaSimSeg, 
 		    phiSimSeg);
 
-	h4DHit.Fill(alphaSimSeg,
+	h4DHit->Fill(alphaSimSeg,
 		    alphaBestRHit,
 		    betaSimSeg,
 		    betaBestRHit,
@@ -282,13 +282,13 @@ void DTSegment4DQuality::analyze(const Event & event, const EventSetup& eventSet
     HEff4DHit *heff = 0;
     
     if((*chamberId).wheel() == 0)
-      heff = &hEff_W0;
+      heff = hEff_W0;
     else if(abs((*chamberId).wheel()) == 1)
-      heff = &hEff_W1;
+      heff = hEff_W1;
     else if(abs((*chamberId).wheel()) == 2)
-      heff = &hEff_W2;
+      heff = hEff_W2;
     heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-    hEff_All.Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+    hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
   } // End of loop over chambers
 }
 
