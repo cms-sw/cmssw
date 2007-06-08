@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="DQMEcalEndcapMonitorClient">
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=DQMServices/QualityTests>
@@ -10,6 +11,7 @@
 <use name=OnlineDB/EcalCondDB>
 <use name=DQM/EcalCommon>
 <use name=rootcore>
+<use name=xdaq>
 <export>
   <use name=DQMServices/Core>
   <use name=DQMServices/QualityTests>
