@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.26 2007/05/16 22:31:59 paterno Exp $
+// $Id: OwnVector.h,v 1.27 2007/05/24 16:35:46 paterno Exp $
 
 #include <algorithm>
 #include <functional>
@@ -157,7 +157,7 @@ namespace edm {
     const_reference back() const;
     reference front();
     const_reference front() const;
-    std::vector<const T*> data() const; 
+    const base & data() const; 
     void clear();
     template<typename S> 
     void sort(S s);
@@ -361,11 +361,9 @@ namespace edm {
   }
   
   template<typename T, typename P>
-  inline std::vector<const T*> OwnVector<T, P>::data() const {
+  inline const typename OwnVector<T, P>::base & OwnVector<T, P>::data() const {
     fixup_(data_);
-    std::vector<const T*> v( size() );
-    std::copy( data_.begin(), data_.end(), v.begin() );
-    return v;
+    return data_;
   }
 
   template<typename T, typename P>
