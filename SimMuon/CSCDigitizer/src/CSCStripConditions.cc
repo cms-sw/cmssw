@@ -9,7 +9,6 @@ CSCStripConditions::CSCStripConditions()
 
 CSCStripConditions::~CSCStripConditions() 
 {
-  delete theNoisifier;
   delete theRandGaussQ;
 }
 
