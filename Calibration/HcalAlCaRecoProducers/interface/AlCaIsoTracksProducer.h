@@ -52,6 +52,8 @@ class AlCaIsoTracksProducer : public edm::EDProducer {
 
       HTrackAssociator trackAssociator_;
 
+      edm::InputTag hoLabel_;
+      bool allowMissingInputs_;
       std::string m_inputTrackLabel;
       std::string m_ecalLabel;
       std::string m_ebInstance;
