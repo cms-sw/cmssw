@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/02 08:00:13 $
- * $Revision: 1.9 $
+ * $Date: 2007/06/08 12:31:16 $
+ * $Revision: 1.10 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,6 +27,9 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+
+#include "xgi/include/xgi/Input.h"
+#include "xgi/include/xgi/Output.h"
 
 #include "TROOT.h"
 #include "TH1.h"
