@@ -21,6 +21,10 @@ class DQMTagHelper;
 class CollateMonitorElement;
 class TObject;
 
+namespace edm {
+  class DQMHttpSource;
+}
+
 class DaqMonitorBEInterface: public StringUtil
 {
 
@@ -670,6 +674,7 @@ class DaqMonitorBEInterface: public StringUtil
   friend class CollateMERootProf;
   friend class CollateMERootProf2D;
 
+  friend class edm::DQMHttpSource;
 };
 
 

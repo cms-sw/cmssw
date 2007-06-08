@@ -14,6 +14,7 @@ MonTimingTTDat::MonTimingTTDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
 
   m_timingMean = 0;
   m_timingRMS = 0;
@@ -87,14 +88,14 @@ void MonTimingTTDat::fetchData(std::map< EcalLogicID, MonTimingTTDat >* fillMap,
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.timing_mean, d.timing_rms "
 		 "FROM channelview cv JOIN mon_timing_tt_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, MonTimingTTDat > p;
     MonTimingTTDat dat;
@@ -113,9 +114,93 @@ void MonTimingTTDat::fetchData(std::map< EcalLogicID, MonTimingTTDat >* fillMap,
       fillMap->insert(p);
     }
 
-    m_conn->terminateStatement(stmt);
 
   } catch (SQLException &e) {
     throw(runtime_error("MonTimingTTDat::fetchData():  "+e.getMessage()));
+  }
+}
+
+void MonTimingTTDat::writeArrayDB(const std::map< EcalLogicID, MonTimingTTDat >* data, MonRunIOV* iov)
+  throw(runtime_error)
+{
+  this->checkConnection();
+  this->checkPrepare();
+
+  int iovID = iov->fetchID();
+  if (!iovID) { throw(runtime_error("MonTimingTTDat::writeArrayDB:  IOV not in DB")); }
+
+
+  int nrows=data->size(); 
+  int* ids= new int[nrows];
+  int* iovid_vec= new int[nrows];
+  float* xx= new float[nrows];
+  float* yy= new float[nrows];
+
+
+  ub2* ids_len= new ub2[nrows];
+  ub2* iov_len= new ub2[nrows];
+  ub2* x_len= new ub2[nrows];
+  ub2* y_len= new ub2[nrows];
+
+
+  const EcalLogicID* channel;
+  const MonTimingTTDat* dataitem;
+  int count=0;
+  typedef map< EcalLogicID, MonTimingTTDat >::const_iterator CI;
+  for (CI p = data->begin(); p != data->end(); ++p) {
+        channel = &(p->first);
+	int logicID = channel->getLogicID();
+	if (!logicID) { throw(runtime_error("MonTimingTTDat::writeArrayDB:  Bad EcalLogicID")); }
+	ids[count]=logicID;
+	iovid_vec[count]=iovID;
+
+	dataitem = &(p->second);
+	// dataIface.writeDB( channel, dataitem, iov);
+	float x=dataitem->getTimingMean();
+	float y=dataitem->getTimingRMS();
+
+
+	xx[count]=x;
+	yy[count]=y;
+
+
+
+	ids_len[count]=sizeof(ids[count]);
+	iov_len[count]=sizeof(iovid_vec[count]);
+	
+	x_len[count]=sizeof(xx[count]);
+	y_len[count]=sizeof(yy[count]);
+
+
+	count++;
+     }
+
+
+  try {
+    m_writeStmt->setDataBuffer(1, (dvoid*)iovid_vec, OCCIINT, sizeof(iovid_vec[0]),iov_len);
+    m_writeStmt->setDataBuffer(2, (dvoid*)ids, OCCIINT, sizeof(ids[0]), ids_len );
+    m_writeStmt->setDataBuffer(3, (dvoid*)xx, OCCIFLOAT , sizeof(xx[0]), x_len );
+    m_writeStmt->setDataBuffer(4, (dvoid*)yy, OCCIFLOAT , sizeof(yy[0]), y_len );
+
+   
+
+    m_writeStmt->executeArrayUpdate(nrows);
+
+    delete [] ids;
+    delete [] iovid_vec;
+    delete [] xx;
+    delete [] yy;
+
+
+    delete [] ids_len;
+    delete [] iov_len;
+    delete [] x_len;
+    delete [] y_len;
+
+
+
+
+  } catch (SQLException &e) {
+    throw(runtime_error("MonPedestalsDat::writeArrayDB():  "+e.getMessage()));
   }
 }

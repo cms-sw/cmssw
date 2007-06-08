@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <cstdlib>
 #include <stdexcept>
-#include <OnlineDB/Oracle/interface/Oracle.h>
+#include "OnlineDB/Oracle/interface/Oracle.h"
 
 using namespace std;
 using namespace oracle::occi;
@@ -19,14 +19,15 @@ EcalDBConnection::EcalDBConnection( string host,
 				    int port )
   throw(runtime_error)
 {
-  try {    
     stringstream ss;
+  try {    
     ss << "//" << host << ":" << port << "/" << sid;
     
     env = Environment::createEnvironment(Environment::OBJECT);
     conn = env->createConnection(user, pass, ss.str());
     stmt = conn->createStatement();
   } catch (SQLException &e) {
+    cout<< ss.str() << endl;
     throw(runtime_error("ERROR:  Connection Failed:  " + e.getMessage() ));
   }
 

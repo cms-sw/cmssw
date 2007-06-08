@@ -22,22 +22,22 @@ void DCCEBTCCBlock::checkTccIdAndNumbTTs(){
   expTccId_ = mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB;
 
   if( tccId_ != expTccId_ ){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
      <<"\n Error on event "<<event_->l1A()<<" with bx "<<event_->bx()<<" in dcc "<<mapper_->getActiveDCC()
      <<"\n TCC id is "<<tccId_<<" while expected is "<<expTccId_
-     <<"\n => Skipping this event..."<<endl;
+     <<"\n => Skipping this event...";
     //Note : add to error collection ?		 
     throw ECALUnpackerException(output.str());
   }
   
   //Check number of TT Flags
   if( nTTs_ != expNumbTTs_ ){
-    ostringstream output;
+    std::ostringstream output;
     output<<"EcalRawToDigi@SUB=DCCTCCBlock::unpack"
      <<"\n Unable to unpack TCC block for event "<<event_->l1A()<<" in dcc "<<mapper_->getActiveDCC()
      <<"\n Number of TTs "<<nTTs_<<" is different from expected "<<expNumbTTs_
-     <<"\n => Skiping this event..."<<endl;
+     <<"\n => Skiping this event...";
      //Note : add to error collection ?		 
     throw ECALUnpackerException(output.str());
   }  

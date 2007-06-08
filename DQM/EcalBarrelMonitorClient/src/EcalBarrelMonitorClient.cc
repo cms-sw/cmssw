@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/04/01 14:16:59 $
- * $Revision: 1.243 $
+ * $Date: 2007/04/30 09:24:00 $
+ * $Revision: 1.258 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,12 +14,14 @@
 #include <fstream>
 #include <algorithm>
 
-#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
-
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -31,12 +33,14 @@
 #include "OnlineDB/EcalCondDB/interface/RunDat.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunDat.h"
 
-
-#include <DQM/EcalBarrelMonitorClient/interface/EBMUtilsClient.h>
-#include <DQM/EcalBarrelMonitorClient/interface/EcalErrorMask.h>
-#include "DQM/EcalBarrelMonitorDisplayPlugins/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/ColorPalette.h"
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
+
+#include <DQM/EcalBarrelMonitorClient/interface/EcalBarrelMonitorClient.h>
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBCosmicClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h>
@@ -143,9 +147,15 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " Using maskFile = '" << maskFile_ << "'" << endl;
   }
 
-  // enableSubRun switch
+  // enableSubRunDb switch
 
-  enableSubRun_ = ps.getUntrackedParameter<bool>("enableSubRun", false);
+  enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
+  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+
+  // enableSubRunHtml switch
+
+  enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
+  htmlRefreshTime_  = 60 * ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
 
   // location
 
@@ -275,13 +285,14 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   serverPort_   = ps.getUntrackedParameter<int>("serverPort", 9900);
 
   if ( enableServer_ ) {
+    cout << " enableServer switch is ON" << endl;
     if ( enableMonitorDaemon_ && hostPort_ != serverPort_ ) {
       cout << " Forcing the same port for Collector and Server" << endl;
       serverPort_ = hostPort_;
     }
-    cout << " Server on port '" << serverPort_ << "' is ON" << endl;
+    cout << " Running server on port '" << serverPort_ << "'" << endl;
   } else {
-    cout << " Server is OFF" << endl;
+    cout << " enableServer switch is OFF" << endl;
   }
 
   // vector of selected Super Modules (Defaults to all 36).
@@ -307,7 +318,6 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   gStyle->SetPadColor(10);
   gStyle->SetFillColor(10);
   gStyle->SetStatColor(10);
-  gStyle->SetTitleColor(10);
   gStyle->SetTitleFillColor(10);
 
   TGaxis::SetMaxDigits(4);
@@ -489,6 +499,10 @@ void EcalBarrelMonitorClient::beginJob(void){
   ievt_ = 0;
   jevt_ = 0;
 
+  current_time_ = time(NULL);
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
+
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
@@ -542,6 +556,10 @@ void EcalBarrelMonitorClient::beginRun(void){
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: beginRun" << endl;
 
   jevt_ = 0;
+
+  current_time_ = time(NULL);
+  last_time_db_ = current_time_;
+  last_time_html_ = current_time_;
 
   this->setup();
 
@@ -606,6 +624,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( verbose_ ) cout << "EcalBarrelMonitorClient: endRun, jevt = " << jevt_ << endl;
 
+  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
+
   if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
 
   if ( subrun_ != -1 ) {
@@ -615,10 +635,8 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   }
 
-  if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
-
   if ( subrun_ != -1 ) {
-    if ( enableSubRun_ ) {
+    if ( enableSubRunDb_ ) {
       this->softReset();
     }
   }
@@ -681,9 +699,6 @@ void EcalBarrelMonitorClient::cleanup(void) {
 void EcalBarrelMonitorClient::beginRunDb(void) {
 
   subrun_ = 0;
-
-  current_time_ = time(NULL);
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -786,6 +801,16 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
   cout << "====================" << endl;
   cout << endl;
 
+  if ( econn ) {
+    try {
+      std::cout << "Fetching EcalLogicID vectors..." << std::flush;
+      LogicID::init( econn );
+      std::cout << "done." << std::endl;
+    } catch( std::runtime_error &e ) {
+      std::cerr << e.what() << std::endl;
+    }
+  }
+
   if ( maskFile_.size() != 0 ) {
     try {
       cout << "Fetching masked channels from file ... " << flush;
@@ -825,8 +850,6 @@ void EcalBarrelMonitorClient::beginRunDb(void) {
 void EcalBarrelMonitorClient::writeDb(void) {
 
   subrun_++;
-
-  last_time_ = current_time_;
 
   EcalCondDBInterface* econn;
 
@@ -929,7 +952,7 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = md;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1009,7 +1032,7 @@ void EcalBarrelMonitorClient::endRunDb(void) {
 
     if ( econn ) {
       try {
-        ecid = econn->getEcalLogicID("ECAL");
+        ecid = LogicID::getEcalLogicID("ECAL");
         dataset[ecid] = rd;
       } catch (runtime_error &e) {
         cerr << e.what() << endl;
@@ -1135,8 +1158,13 @@ void EcalBarrelMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
     if ( enableQT_ ) mui_->runQTests();
+  }
+
+  // update MEs (online mode)
+  if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
   }
 
@@ -1193,7 +1221,7 @@ void EcalBarrelMonitorClient::analyze(void){
       sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/EVTTYPE").c_str());
     }
     me = mui_->get(histo);
-    h_ = EBMUtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
+    h_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, h_ );
 
     sprintf(histo, (prefixME_+"EcalBarrel/EcalInfo/RUNTYPE").c_str());
     me = mui_->get(histo);
@@ -1278,27 +1306,16 @@ void EcalBarrelMonitorClient::analyze(void){
 
         summaryClient_->analyze();
 
-        if ( status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          if ( enableQT_ ) {
+          // run QTs on local MEs, updated in analyze()
+          if ( ! enableStateMachine_ ) {
+            if ( enableQT_ ) mui_->runQTests();
+          }
 
-            cout << endl;
-            switch ( mui_->getSystemStatus() ) {
-              case dqm::qstatus::ERROR:
-                cout << " Error(s)";
-                break;
-              case dqm::qstatus::WARNING:
-                cout << " Warning(s)";
-                break;
-              case dqm::qstatus::OTHER:
-                cout << " Some tests did not run;";
-                break;
-              default:
-                cout << " No problems";
-            }
-            cout << " reported after running the quality tests" << endl;
-            cout << endl;
-
+          // update MEs [again, just to silence a warning]
+          if ( ! enableStateMachine_ ) {
+            mui_->doMonitoring();
           }
 
         }
@@ -1307,12 +1324,44 @@ void EcalBarrelMonitorClient::analyze(void){
 
       }
 
-      if ( enableSubRun_ ) {
-        time_t seconds = 15 * 60;
-        if ( (current_time_ - last_time_) > seconds ) {
+      if ( status_ == "end-of-run" || forced_update_ ) {
+
+        if ( enableQT_ ) {
+
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
+          }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+        }
+
+      }
+
+      if ( enableSubRunHtml_ ) {
+        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
+          last_time_html_ = current_time_;
+          this->htmlOutput( true );
+        }
+      }
+
+      if ( enableSubRunDb_ ) {
+        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
+          last_time_db_ = current_time_;
         }
       }
 
@@ -1465,7 +1514,9 @@ void EcalBarrelMonitorClient::analyze(void){
 
 }
 
-void EcalBarrelMonitorClient::htmlOutput(void){
+void EcalBarrelMonitorClient::htmlOutput( bool current ){
+
+  time_t start = time(NULL);
 
   cout << endl;
   cout << "Preparing EcalBarrelMonitorClient html output ..." << endl;
@@ -1474,7 +1525,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
 
   sprintf(tmp, "%09d", run_);
 
-  string htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  string htmlDir;
+  if( current ) {
+    htmlDir = baseHtmlDir_ + "/current/";
+  }
+  else {
+    htmlDir = baseHtmlDir_ + "/" + tmp + "/";
+  }
 
   system(("/bin/mkdir -p " + htmlDir).c_str());
 
@@ -1515,11 +1572,13 @@ void EcalBarrelMonitorClient::htmlOutput(void){
     }
   }
 
-#if 0
-  htmlName = "EBSummaryClient.html";
-  summaryClient_->htmlOutput(run_, htmlDir, htmlName);
-  htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
-#endif
+  if ( superModules_.size() > 1 ) {
+
+    htmlName = "EBSummaryClient.html";
+    summaryClient_->htmlOutput(run_, htmlDir, htmlName);
+    htmlFile << "<li><a href=\"" << htmlName << "\">Data " << "Summary" << "</a></li>" << endl;
+
+  }
 
   htmlFile << "</ul>" << endl;
 
@@ -1530,5 +1589,11 @@ void EcalBarrelMonitorClient::htmlOutput(void){
   htmlFile.close();
 
   cout << endl;
+
+  if( current ) {
+    time_t elapsed = time(NULL) - start;
+    std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
+  }
+
 }
 

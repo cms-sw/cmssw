@@ -46,6 +46,9 @@ class MonTTConsistencyDat : public IDataItem {
   void writeDB(const EcalLogicID* ecid, const MonTTConsistencyDat* item, MonRunIOV* iov)
     throw(std::runtime_error);
 
+  void writeArrayDB(const std::map< EcalLogicID, MonTTConsistencyDat >* data, MonRunIOV* iov)
+    throw(std::runtime_error);
+
   void fetchData(std::map< EcalLogicID, MonTTConsistencyDat >* fillVec, MonRunIOV* iov)
      throw(std::runtime_error);
 

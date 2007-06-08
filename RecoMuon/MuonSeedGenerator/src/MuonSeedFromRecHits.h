@@ -12,41 +12,46 @@
  *
  */
 
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
+
 #include <vector>
 
+class RecHit;
+class BoundPlane;
+class GeomDet;
 
 namespace edm {class EventSetup;}
 
-class MuonSeedFromRecHits 
-{
-public:
-  MuonSeedFromRecHits(const edm::EventSetup & eSetup);
-  virtual ~MuonSeedFromRecHits() {}
+class MuonSeedFromRecHits {
+  typedef std::pair<const GeomDet*,TrajectoryStateOnSurface> DetWithState;
+
+  public:
+  MuonSeedFromRecHits(){}
 
   void add(MuonTransientTrackingRecHit::MuonRecHitPointer hit) { theRhits.push_back(hit); }
-  virtual TrajectorySeed seed() const = 0;
+  TrajectorySeed seed(const edm::EventSetup& eSetup) const;
   MuonTransientTrackingRecHit::ConstMuonRecHitPointer firstRecHit() const { return theRhits.front(); }
   unsigned int nrhit() const { return  theRhits.size(); }
 
-  protected:
+  private:
   friend class MuonSeedFinder;
-  typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
-  typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
-  typedef MuonTransientTrackingRecHit::ConstMuonRecHitPointer ConstMuonRecHitPointer;
 
+  MuonTransientTrackingRecHit::ConstMuonRecHitPointer best_cand() const;
+  // was
+  // TrackingRecHit best_cand() const;
+
+  void computePtWithVtx(double* pt, double* spt) const;
+  void computePtWithoutVtx(double* pt, double* spt) const;
+  void computeBestPt(double* pt, double* spt, float& ptmean, float& sptmean) const;
 
   TrajectorySeed createSeed(float ptmean, float sptmean,
-			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
-  // makes a straight-line seed.  q/p = 0, and sigma(q/p) = 1/theMinMomentum
-  TrajectorySeed createDefaultSeed(MuonTransientTrackingRecHit::ConstMuonRecHitPointer last) const;
+			    MuonTransientTrackingRecHit::ConstMuonRecHitPointer last,
+			    const edm::EventSetup& eSetup) const;
 
-  protected:
+  private:
   MuonTransientTrackingRecHit::MuonRecHitContainer theRhits;
-  const MagneticField * theField;
-
 };
 
 #endif

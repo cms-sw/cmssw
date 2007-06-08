@@ -23,7 +23,7 @@
  *   isIdle() will return false since the consumer has moved from the idle
  *   to the disconnected state.)
  *
- * 16-Aug-2006 - KAB  - Initial Implementation
+ * $Id: ConsumerPipe.h,v 1.5 2007/04/26 00:58:17 hcheung Exp $
  */
 
 #include <string>
@@ -54,6 +54,8 @@ namespace stor
     bool wantsEvent(EventMsgView const& eventView) const;
     void putEvent(boost::shared_ptr< std::vector<char> > bufPtr);
     boost::shared_ptr< std::vector<char> > getEvent();
+    void setPushMode(bool mode) { pushMode_ = mode; }
+    void clearQueue();
 
   private:
     // characteristics of the consumer
@@ -72,6 +74,11 @@ namespace stor
 
     // track whether initialization has been completed
     bool initializationDone;
+
+    // track if this consumer is a push-mode (SMProxyServer), name = URL
+    bool pushMode_;
+    bool pushEvent();
+    unsigned int pushEventFailures_;
 
     // for consumers with normal priority, we keep only the most recent event
     boost::shared_ptr< std::vector<char> > latestEvent_;

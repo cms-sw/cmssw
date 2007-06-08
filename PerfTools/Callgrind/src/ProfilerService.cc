@@ -22,16 +22,12 @@ ProfilerService::ProfilerService(edm::ParameterSet const& pset,
   static std::string const allPaths("ALL");
   m_allPaths = std::find(m_paths.begin(),m_paths.end(),allPaths) != m_paths.end();
  
-  // either FullEvent or selected path
-  static std::string const fullEvent("FullEvent");
-  if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
-    activity.watchPostSource(this,&ProfilerService::preSourceI);
-  else {
+
     activity.watchPreProcessEvent(this,&ProfilerService::beginEventI);
     activity.watchPostProcessEvent(this,&ProfilerService::endEventI);
     activity.watchPreProcessPath(this,&ProfilerService::beginPathI);
     activity.watchPostProcessPath(this,&ProfilerService::endPathI);
-  }
+
 }
 
 ProfilerService::~ProfilerService(){}
@@ -70,30 +66,11 @@ void ProfilerService::dumpStat() const {
      CALLGRIND_DUMP_STATS;
 }
 
-
-void ProfilerService::newEvent() {
+void  ProfilerService::beginEvent() {
   ++m_evtCount;
   m_doEvent = m_evtCount >= m_firstEvent && m_evtCount <= m_lastEvent;
-}
-
-
-void ProfilerService::fullEvent() {
-  newEvent();
-  if(m_doEvent&&m_active==0)
-    startInstrumentation();
-  if ( (!m_doEvent) && m_active!=0) {
-    stopInstrumentation();
-    // force, a nested instrumentation may fail to close in presence of filters
-    forceStopInstrumentation();
-    dumpStat();
-  }
-}
-
-void  ProfilerService::beginEvent() {
-  newEvent();
-  //  static std::string const fullEvent("FullEvent");
-  //  if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
-  if (m_allPaths) 
+  static std::string const fullEvent("FullEvent");
+  if (std::find(m_paths.begin(),m_paths.end(),fullEvent) != m_paths.end())
     startInstrumentation();
 }
 
@@ -106,7 +83,7 @@ void  ProfilerService::endEvent() {
 void  ProfilerService::beginPath(std::string const & path) {
   if (!doEvent()) return;
   // assume less than 5-6 path to instrument ....
-  if (std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
+  if ( (!m_allPaths) && std::find(m_paths.begin(),m_paths.end(),path) == m_paths.end()) return; 
   m_activePath=path;
   startInstrumentation();
 }

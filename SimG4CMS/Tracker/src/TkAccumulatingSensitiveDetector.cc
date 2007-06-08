@@ -273,7 +273,7 @@ void TkAccumulatingSensitiveDetector::createHit(G4Step * aStep)
     float thePabs             = aStep->GetPreStepPoint()->GetMomentum().mag()/GeV;
     float theTof              = aStep->GetPreStepPoint()->GetGlobalTime()/nanosecond;
     float theEnergyLoss       = aStep->GetTotalEnergyDeposit()/GeV;
-    short theParticleType     = myG4TrackToParticleID->particleID(theTrack);
+    int theParticleType       = myG4TrackToParticleID->particleID(theTrack);
     uint32_t theDetUnitId     = setDetUnitId(aStep);
   
     globalEntryPoint = SensitiveDetector::InitialStepPosition(aStep,WorldCoordinates);

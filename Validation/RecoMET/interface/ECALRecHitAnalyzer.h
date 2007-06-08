@@ -5,7 +5,7 @@
 // date: 11/20/2006
 
 #include <memory>
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 // user include files
@@ -72,10 +72,6 @@ class CaloSubdetectorGeometry;
 //
 // class declaration
 //
-
-using namespace cms;
-using namespace edm;
-using namespace std;
 
 class ECALRecHitAnalyzer : public edm::EDAnalyzer {
 public:

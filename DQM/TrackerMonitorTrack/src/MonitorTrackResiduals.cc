@@ -1,52 +1,25 @@
-
-// -*- C++ -*-
-//
-// Package:    TrackerMonitorTrack
-// Class:      MonitorTrackResiduals
-// 
-/**\class MonitorTrackResiduals MonitorTrackResiduals.cc DQM/TrackerMonitorTrack/src/MonitorTrackResiduals.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
-*/
-//
-// Original Author:  Israel Goitom
-//         Created:  Fri May 26 14:12:01 CEST 2006
-// $Id: MonitorTrackResiduals.cc,v 1.25 2007/02/28 13:40:04 goitom Exp $
-//
-//
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/TrackerMonitorTrack/interface/MonitorTrackResiduals.h"
-
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackingRecHitLessFromGlobalPosition.h"
-
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
@@ -54,24 +27,18 @@
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
-
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
-MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
-{
+MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig) {
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   conf_ = iConfig;
 }
 
-MonitorTrackResiduals::~MonitorTrackResiduals()
-{
-}
+MonitorTrackResiduals::~MonitorTrackResiduals() { }
 
-void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
-{
+void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
   using namespace edm;
 
   // use SistripHistoId for producing histogram id (and title)
@@ -103,13 +70,13 @@ void MonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup)
       folder_organizer.setDetectorFolder(*DetItr); // top Mechanical View Folder
       std::string hid = hidmanager.createHistoId("HitResiduals","det",*DetItr);
       HitResidual[ModuleID] = dbe->book1D(hid, hid, 50, -5., 5.);
+      HitResidual[ModuleID]->setAxisTitle("Hit residuals on tracks crossing this detector module");
     }
 	
 
 }
 
-void MonitorTrackResiduals::endJob(void)
-{
+void MonitorTrackResiduals::endJob(void) {
   dbe->showDirStructure();
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
   std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -119,9 +86,7 @@ void MonitorTrackResiduals::endJob(void)
 }
 
 
-// ------------ method called to produce the data  ------------
-void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm;
 
   std::string TrackCandidateProducer = conf_.getParameter<std::string>("TrackCandidateProducer");
@@ -166,5 +131,3 @@ void MonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::EventSe
     }
 }
 
-//define this as a plug-in
-//DEFINE_FWK_MODULE(MonitorTrackResiduals)

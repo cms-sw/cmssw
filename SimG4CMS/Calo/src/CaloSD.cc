@@ -21,8 +21,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   SensitiveCaloDetector(name, cpv, p),
   G4VGFlashSensitiveDetector(), 
-  theTrack(0), preStepPoint(0), m_trackManager(manager), hcID(-1), theHC(0), 
-  currentHit(0) {
+  theTrack(0), preStepPoint(0), m_trackManager(manager), currentHit(0),
+  hcID(-1), theHC(0) {
   //Add Hcal Sentitive Detector Names
 
   collectionName.insert(name);
@@ -85,6 +85,7 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
 
 CaloSD::~CaloSD() { 
   if (slave)           delete slave; 
+  if (theHC)           delete theHC;
 }
 
 bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
@@ -97,7 +98,7 @@ bool CaloSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   } else {
     if (getStepInfo(aStep)) {
       if (hitExists() == false && edepositEM+edepositHAD>0.) 
-	createNewHit();
+	currentHit = createNewHit();
     }
   }
   return true;
@@ -153,7 +154,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 			    << edepositHAD;
 	// Update if in the same detector, time-slice and for same track   
 	if (currentID == previousID) {
-	  updateHit();
+	  updateHit(currentHit);
 	} else {
         
 	  posGlobal = aSpot->GetPosition();
@@ -169,7 +170,7 @@ bool CaloSD::ProcessHits(G4GFlashSpot* aSpot, G4TouchableHistory*) {
 				<< " (Global) " << entranceLocal << " (Local)";
 	  }
 	
-	  if (checkHit() == false) createNewHit();
+	  if (checkHit() == false) currentHit = createNewHit();
 	}
       }
       
@@ -260,7 +261,7 @@ G4bool CaloSD::hitExists() {
   
   // Update if in the same detector, time-slice and for same track   
   if (currentID == previousID) {
-    updateHit();
+    updateHit(currentHit);
     return true;
   }
    
@@ -298,7 +299,7 @@ G4bool CaloSD::checkHit() {
   }
 
   if (found) {
-    updateHit();
+    updateHit(currentHit);
     return true;
   } else {
     return false;
@@ -350,7 +351,7 @@ void CaloSD::storeHit(CaloG4Hit* hit) {
 
 }
 
-void CaloSD::createNewHit() {
+CaloG4Hit* CaloSD::createNewHit() {
 
   LogDebug("CaloSim") << "CaloSD::CreateNewHit for"
 		      << " Unit " << currentID.unitID() 
@@ -369,15 +370,15 @@ void CaloSD::createNewHit() {
   else 
     LogDebug("CaloSim") << "NO process";
   
-  currentHit = new CaloG4Hit;
-  currentHit->setID(currentID);
-  currentHit->setEntry(entrancePoint);
-  currentHit->setEntryLocal(entranceLocal);
-  currentHit->setPosition(posGlobal);
-  currentHit->setIncidentEnergy(incidentEnergy);
-  updateHit();
+  CaloG4Hit* aHit = new CaloG4Hit;
+  aHit->setID(currentID);
+  aHit->setEntry(entrancePoint);
+  aHit->setEntryLocal(entranceLocal);
+  aHit->setPosition(posGlobal);
+  aHit->setIncidentEnergy(incidentEnergy);
+  updateHit(aHit);
   
-  storeHit(currentHit);
+  storeHit(aHit);
   double etrack = 0;
   if (currentID.trackID() == primIDSaved) { // The track is saved; nothing to be done
   } else if (currentID.trackID() == theTrack->GetTrackID()) {
@@ -405,13 +406,13 @@ void CaloSD::createNewHit() {
     }
   }
   primIDSaved = currentID.trackID();
-
+  return aHit;
 }	 
 
-void CaloSD::updateHit() {
+void CaloSD::updateHit(CaloG4Hit* aHit) {
 
   if (edepositEM+edepositHAD != 0) {
-    currentHit->addEnergyDeposit(edepositEM,edepositHAD);
+    aHit->addEnergyDeposit(edepositEM,edepositHAD);
     LogDebug("CaloSim") << "CaloSD: Add energy deposit in " << currentID 
 			<< " em " << edepositEM/MeV << " hadronic " 
 			<< edepositHAD/MeV << " MeV"; 

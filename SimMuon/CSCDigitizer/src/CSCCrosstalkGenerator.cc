@@ -16,7 +16,6 @@ CSCAnalogSignal CSCCrosstalkGenerator::getCrosstalk(const CSCAnalogSignal & inpu
                          + theResistiveFraction * inputSignal.getValue(aTime);
   }
 
-  CSCAnalogSignal signal(0, binSize, binValues);
-  return signal;
+  return CSCAnalogSignal(0, binSize, binValues, 0., inputSignal.getTimeOffset());
 }
   

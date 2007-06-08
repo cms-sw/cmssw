@@ -1,7 +1,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/StripTopologyBuilder.h"
 #include "Geometry/CommonTopologies/interface/RectangularStripTopology.h"
-#include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
+#include "Geometry/CommonTopologies/interface/RadialStripTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
@@ -31,12 +31,12 @@ StripTopology* StripTopologyBuilder::constructBarrel( float length, float width)
   
   return new RectangularStripTopology(nstrip,pitch,length);
 }
- 
+
 StripTopology* StripTopologyBuilder::constructForward( float length, float width, float widthAtHalf, int yAxOr)
 {
   int nstrip = int(128*theAPVNumb);
-  float pitch = widthAtHalf/nstrip;
   float rCross = widthAtHalf*length/(2*(width-widthAtHalf));
-  return new TrapezoidalStripTopology(nstrip,pitch,length,rCross,yAxOr);
+  float aw = atan2(widthAtHalf/2., static_cast<double>(rCross))/(nstrip/2);
+  return new RadialStripTopology(nstrip, aw, length, rCross, yAxOr);
 }
 

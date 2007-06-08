@@ -4,7 +4,6 @@
  */
 
 
-
 CREATE TABLE lmf_laser_blue_raw_dat (
   iov_id		NUMBER,
   logic_id		NUMBER,
@@ -14,6 +13,51 @@ CREATE TABLE lmf_laser_blue_raw_dat (
 
 ALTER TABLE lmf_laser_blue_raw_dat ADD CONSTRAINT lmf_laser_blue_raw_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE lmf_laser_blue_raw_dat ADD CONSTRAINT lmf_laser_blue_raw_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+CREATE TABLE lmf_matacq_blue_dat (
+  iov_id		NUMBER,
+  logic_id		NUMBER,
+  amplitude		BINARY_FLOAT,
+  width		        BINARY_FLOAT,
+  timeoffset		BINARY_FLOAT
+);
+
+ALTER TABLE lmf_matacq_blue_dat ADD CONSTRAINT lmf_mataq_blue_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_matacq_blue_dat ADD CONSTRAINT lmf_matacq_blue_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+CREATE TABLE lmf_matacq_red_dat (
+  iov_id                NUMBER,
+  logic_id              NUMBER,
+  amplitude             BINARY_FLOAT,
+  width                 BINARY_FLOAT,
+  timeoffset            BINARY_FLOAT
+);
+                                                                                                       
+ALTER TABLE lmf_matacq_red_dat ADD CONSTRAINT lmf_mataq_red_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_matacq_red_dat ADD CONSTRAINT lmf_matacq_red_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+                                                                                                       
+CREATE TABLE lmf_matacq_green_dat (
+  iov_id                NUMBER,
+  logic_id              NUMBER,
+  amplitude             BINARY_FLOAT,
+  width                 BINARY_FLOAT,
+  timeoffset            BINARY_FLOAT
+);
+                                                                                                       
+ALTER TABLE lmf_matacq_green_dat ADD CONSTRAINT lmf_mataq_green_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_matacq_green_dat ADD CONSTRAINT lmf_matacq_green_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+                                                                                                       
+CREATE TABLE lmf_matacq_ired_dat (
+  iov_id                NUMBER,
+  logic_id              NUMBER,
+  amplitude             BINARY_FLOAT,
+  width                 BINARY_FLOAT,
+  timeoffset            BINARY_FLOAT
+);
+                                                                                                       
+ALTER TABLE lmf_matacq_ired_dat ADD CONSTRAINT lmf_mataq_ired_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_matacq_ired_dat ADD CONSTRAINT lmf_matacq_ired_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+                                                                                                       
 
 
 
@@ -58,6 +102,55 @@ CREATE TABLE lmf_laser_ired_norm_dat (
 
 ALTER TABLE lmf_laser_ired_norm_dat ADD CONSTRAINT lmf_laser_ired_norm_dat_pk PRIMARY KEY (iov_id, logic_id);
 ALTER TABLE lmf_laser_ired_norm_dat ADD CONSTRAINT lmf_laser_ired_norm_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+
+CREATE TABLE lmf_laser_blue_cor_dat (
+  iov_id		NUMBER,
+  logic_id		NUMBER,
+  apd_over_pnA_mean	BINARY_FLOAT,
+  apd_over_pnA_rms	BINARY_FLOAT,
+  apd_over_pnB_mean	BINARY_FLOAT,
+  apd_over_pnB_rms	BINARY_FLOAT,
+  apd_over_pn_mean	BINARY_FLOAT,
+  apd_over_pn_rms	BINARY_FLOAT
+);
+
+ALTER TABLE lmf_laser_blue_cor_dat ADD CONSTRAINT lmf_laser_blue_cor_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_laser_blue_cor_dat ADD CONSTRAINT lmf_laser_blue_cor_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+
+
+CREATE TABLE lmf_laser_ired_cor_dat (
+  iov_id		NUMBER,
+  logic_id		NUMBER,
+  apd_over_pnA_mean	BINARY_FLOAT,
+  apd_over_pnA_rms	BINARY_FLOAT,
+  apd_over_pnB_mean	BINARY_FLOAT,
+  apd_over_pnB_rms	BINARY_FLOAT,
+  apd_over_pn_mean	BINARY_FLOAT,
+  apd_over_pn_rms	BINARY_FLOAT
+);
+
+ALTER TABLE lmf_laser_ired_cor_dat ADD CONSTRAINT lmf_laser_ired_cor_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_laser_ired_cor_dat ADD CONSTRAINT lmf_laser_ired_cor_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+CREATE TABLE lmf_laser_blue_time_dat (
+  iov_id		NUMBER,
+  logic_id		NUMBER,
+  offset        	BINARY_FLOAT
+);
+
+ALTER TABLE lmf_laser_blue_time_dat ADD CONSTRAINT lmf_laser_blue_time_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_laser_blue_time_dat ADD CONSTRAINT lmf_laser_blue_time_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
+
+CREATE TABLE lmf_laser_ired_time_dat (
+  iov_id		NUMBER,
+  logic_id		NUMBER,
+  offset        	BINARY_FLOAT
+);
+
+ALTER TABLE lmf_laser_ired_time_dat ADD CONSTRAINT lmf_laser_ired_dat_pk PRIMARY KEY (iov_id, logic_id);
+ALTER TABLE lmf_laser_ired_time_dat ADD CONSTRAINT lmf_laser_ired_dat_fk FOREIGN KEY (iov_id) REFERENCES lmf_run_iov (iov_id);
 
 
 

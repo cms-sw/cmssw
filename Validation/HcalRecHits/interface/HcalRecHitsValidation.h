@@ -40,11 +40,6 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace cms;
-using namespace edm;
-using namespace std;
-
-
 
 class HcalRecHitsValidation : public edm::EDAnalyzer {
  public:
@@ -58,9 +53,9 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   
   DaqMonitorBEInterface* dbe_;
   
-  string outputFile_;
-  string hcalselector_;
-  string noiseflag;
+  std::string outputFile_;
+  std::string hcalselector_;
+  std::string noiseflag;
   // HE Monitor Elements
 
   // number of rechits in event 
@@ -116,7 +111,7 @@ class HcalRecHitsValidation : public edm::EDAnalyzer {
   // number of ECAL's rechits in cone 0.3 
   MonitorElement* meNumEcalRecHitsCone;
 
-  ESHandle<CaloGeometry> geometry ;
+  edm::ESHandle<CaloGeometry> geometry ;
 
 };
 

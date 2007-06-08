@@ -1,6 +1,5 @@
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 #include "DataFormats/MuonReco/interface/Direction.h"
 #include "DataFormats/MuonReco/interface/MuIsoDeposit.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
@@ -23,13 +22,8 @@ namespace {
     edm::RefProd<std::vector<reco::MuIsoDeposit> > rp2;
     edm::RefVector<std::vector<reco::MuIsoDeposit> > rv2;
 
-    std::vector<reco::MuonWithMatchInfo> v3;
-    edm::Wrapper<std::vector<reco::MuonWithMatchInfo> > c3;
-    edm::Ref<std::vector<reco::MuonWithMatchInfo> > r3;
-    edm::RefProd<std::vector<reco::MuonWithMatchInfo> > rp3;
-    edm::RefVector<std::vector<reco::MuonWithMatchInfo> > rv3;
-    std::vector<reco::MuonWithMatchInfo::MuonChamberMatch> vmm1;
-    std::vector<reco::MuonWithMatchInfo::MuonSegmentMatch> vmm2;
+    std::vector<reco::MuonChamberMatch> vmm1;
+    std::vector<reco::MuonSegmentMatch> vmm2;
 
     reco::MuIsoAssociationMap v4;
     edm::Wrapper<reco::MuIsoAssociationMap> w4;

@@ -15,9 +15,9 @@ METTester::METTester(const edm::ParameterSet& iConfig)
   outputFile_ = iConfig.getUntrackedParameter<string>("outputFile", "");
 
   if ( outputFile_.size() != 0 ) {
-    LogInfo("OutputInfo") << " MET Task histograms will be saved to '" << outputFile_.c_str() << "'";
+    edm::LogInfo("OutputInfo") << " MET Task histograms will be saved to '" << outputFile_.c_str() << "'";
   } else {
-    LogInfo("OutputInfo") << " MET Task histograms will NOT be saved";
+    edm::LogInfo("OutputInfo") << " MET Task histograms will NOT be saved";
   }
   InputGenMETLabel_           = iConfig.getParameter<string>("InputGenMETLabel");
   InputCaloMETLabel_          = iConfig.getParameter<string>("InputCaloMETLabel");
@@ -45,7 +45,7 @@ void METTester::beginJob(const edm::EventSetup& c)
 {
 
   // get hold of back-end interface
-  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+  dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
   
   Char_t histo[64];
   

@@ -514,7 +514,7 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   Word64 *word = reinterpret_cast<Word64*>(rawData->data());
   //Add simple header by hand
   *word = Word64(0);
-  *word = (Word64(0x5)<<60)|(Word64(0x1)<<56)|(Word64(event_)<<32)
+  *word = (Word64(0x5)<<60)|(Word64(0x3)<<56)|(Word64(event_)<<32)
          |(Word64(bxn_)<<20)|((triggerFedId_)<<8);
   if(debug_){
     edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Header: " << *reinterpret_cast<bitset<64>* >(word);
@@ -534,7 +534,7 @@ FEDRawData* RPCFileReader::rpcDataFormatter(){
   //Add simple trailer by hand
   *word = Word64(0);
   *word = (Word64(0xa)<<60)|(Word64(0x0)<<56)|(Word64(2+words.size()/4)<<32)
-         |(0xf<<8)|(0x0<<4);
+         |(0xf<<8)|(0xf<<4);
   if(debug_){
     edm::LogInfo("RPCFR") << "[RPCFileReader::rpcDataFormater] Trailer: " << *reinterpret_cast<bitset<64>* >(word);
   }

@@ -2,9 +2,10 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentUserVariables.h"
 #include "Alignment/KalmanAlignmentAlgorithm/interface/KalmanAlignmentDataCollector.h"
 
-#include "Alignment/CommonAlignment/interface/Utilities.h"
+#include "Alignment/CommonAlignmentParametrization/interface/AlignmentTransformations.h"
 
 using namespace std;
+
 
 KalmanAlignmentUserVariables::KalmanAlignmentUserVariables( Alignable* parent,
 							    TrackerAlignableId* alignableId,
@@ -90,19 +91,19 @@ void KalmanAlignmentUserVariables::update( bool enforceUpdate )
 const AlgebraicVector KalmanAlignmentUserVariables::extractTrueParameters( void ) const
 {
   // get surface of alignable
-  const AlignableSurface& surface = theParentAlignable->surface();
+  const AlignableSurface surface = theParentAlignable->surface();
 
-  // get global rotation
-  const align::RotationType& globalRotation = theParentAlignable->rotation();
-  // get local rotation
-  align::RotationType localRotation = surface.toLocal( globalRotation );
+  AlignmentTransformations TkAT;
+  // get euler angles (global frame)
+  AlgebraicVector globalEulerAngles = TkAT.eulerAngles( theParentAlignable->rotation(), 0 );
   // get euler angles (local frame)
-  align::EulerAngles localEulerAngles = align::toAngles( localRotation );
+  AlgebraicVector localEulerAngles = TkAT.globalToLocalEulerAngles( globalEulerAngles, surface.rotation() );
 
-  // get global shifts
-  align::GlobalVector globalShifts( globalRotation.multiplyInverse( theParentAlignable->displacement().basicVector() ) );
-  // get local shifts
-  align::LocalVector localShifts = surface.toLocal( globalShifts );
+  // get local displacement
+  LocalVector localDisplacement = surface.toLocal( theParentAlignable->displacement() );
+  // get shifts (take local rotation into account)
+  Surface::RotationType localRotation = TkAT.rotationType( TkAT.rotMatrix3( localEulerAngles ) );
+  LocalVector localShifts( localRotation.multiplyInverse( localDisplacement.basicVector() ) );
 
   AlgebraicVector trueParameters( 6 );
   trueParameters[0] = -localShifts.x();

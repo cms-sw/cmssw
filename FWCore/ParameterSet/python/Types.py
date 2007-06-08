@@ -89,7 +89,7 @@ class double(_SimpleParameterTypeBase):
         """only used for cfg-parsing"""
         return double(float(value))
 
-
+import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
@@ -101,6 +101,10 @@ class bool(_SimpleParameterTypeBase):
             return bool(True)
         if value.lower() in ('false','f','off','no', '0'):
             return bool(False)
+        try:
+            return bool(__builtin__.bool(eval(value)))
+        except:
+            pass
         raise RuntimeError('can not make bool from string '+value)
 
 
@@ -129,10 +133,11 @@ class string(_SimpleParameterTypeBase):
 
 
 class InputTag(_ParameterTypeBase):
-    def __init__(self,moduleLabel,productInstanceLabel=''):
+    def __init__(self,moduleLabel,productInstanceLabel='',processName=''):
         super(InputTag,self).__init__()
         self.__moduleLabel = moduleLabel
         self.__productInstance = productInstanceLabel
+        self.__processName=processName
     def getModuleLabel(self):
         return self.__moduleLabel
     def setModuleLabel(self,label):
@@ -143,20 +148,54 @@ class InputTag(_ParameterTypeBase):
     def setProductInstanceLabel(self,label):
         self.__productInstance = label
     productInstanceLabel = property(getProductInstanceLabel,setProductInstanceLabel,"product instance label for the product")
+    def getProcessName(self):
+        return self.__processName
+    def setProcessName(self,label):
+        self.__processName = label
+    processName = property(getProcessName,setProcessName,"process name for the product")
     def configValue(self,indent,deltaIndent):
-        return self.__moduleLabel+':'+self.__productInstance
+        return self.__moduleLabel+':'+self.__productInstance+':'+self.__processName
     @staticmethod
     def _isValid(value):
         return True
     def __cmp__(self,other):
         v = self.__moduleLabel <> other.__moduleLabel
         if not v:
-            return self.__productInstance <> other.__productInstance
+            v= self.__productInstance <> other.__productInstance
+            if not v:
+                v=self.__processName <> other.__processName
         return v
     @staticmethod
     def formatValueForConfig(value):
         return value.configValue('','')
 
+class SecSource(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
+    def __init__(self,type_,*arg,**args):
+        #need to call the inits separately
+        self.__dict__['_SecSource__type']=type_
+        _ParameterTypeBase.__init__(self)
+        _Parameterizable.__init__(self,*arg,**args)
+    def value(self):
+        return self
+    def type_(self):
+        return self.__type
+    @staticmethod
+    def _isValid(value):
+        return True
+    def configValue(self,indent='',deltaIndent=''):
+        config = self.type_()+' { \n'
+        for name in self.parameterNames_():
+            param = getattr(self,name)
+            config+=indent+deltaIndent+param.configTypeName()+' '+name+' = '+param.configValue(indent+deltaIndent,deltaIndent)+'\n'
+        config += indent+'}\n'
+        return config
+    def copy(self):
+        import copy
+        return copy.copy(self)
+    def _place(self,name,proc):
+        proc._placePSet(name,self)
+    def __str__(self):
+        return object.__str__(self)
 
 class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
     def __init__(self,*arg,**args):
@@ -355,7 +394,13 @@ if __name__ == "__main__":
             self.assertEqual(len(v),4)
             self.assertEqual([1,5,4,2],list(v))
             self.assertRaises(TypeError,v.append,('blah'))
-
+        def testbool(self):
+            b = bool(True)
+            self.assertEqual(b.value(),True)
+            b = bool(False)
+            self.assertEqual(b.value(),False)
+            b = bool._valueFromString("2")
+            self.assertEqual(b.value(),True)
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
@@ -378,6 +423,19 @@ if __name__ == "__main__":
         def testPSet(self):
             p1 = PSet(anInt = int32(1), a = PSet(b = int32(1)))
             self.assertRaises(ValueError, PSet, "foo")
-            self.assertRaises(TypeError, PSet, foo = "bar")        
+            self.assertRaises(TypeError, PSet, foo = "bar")
+        def testSecSource(self):
+            s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
+            self.assertEqual(s1.type_(), "PoolSource")
+            self.assertEqual(s1.configValue(),
+"""PoolSource { 
+vstring fileNames = {
+'foo.root'
+}
+
+}
+""")
+            s1=SecSource("PoolSource",type=int32(1))
+            self.assertEqual(s1.type.value(),1)
             
     unittest.main()

@@ -256,7 +256,7 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     BoundPlane* bp=0;
     for(std::list<RPCRoll *>::iterator rl=rls.begin();
     rl!=rls.end(); rl++){
-      const BoundPlane bps = (*rl)->surface();
+      const BoundPlane& bps = (*rl)->surface();
       bp = const_cast<BoundPlane *>(&bps);
     }
 

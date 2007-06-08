@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: burkett $
-// $Date: 2007/03/27 16:28:36 $
-// $Revision: 1.38 $
+// $Date: 2007/03/29 22:14:01 $
+// $Revision: 1.39 $
 //
 
 #include <vector>
@@ -535,7 +535,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	  } 
 	  else {
 	    LocalPoint hit = recHit->localPosition();
-	    const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
+	    const StripTopology *topology = dynamic_cast<const StripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
 	    double stripAngle = topology->stripAngle(topology->strip(hit));
 	    double stripLength = topology->localStripLength(hit);
 	    LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);
@@ -600,7 +600,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	} else { // Single layer hits here
 	  if ( isBarrelSensor(hitId) ) {
 	    LocalPoint hit = recHit->localPosition();
-	    const RectangularStripTopology *topology = dynamic_cast<const RectangularStripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
+	    const StripTopology *topology = dynamic_cast<const StripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
 	    double stripLength = topology->stripLength();
 	    LocalPoint upperLocalBoundary(hit.x(),hit.y()+stripLength/2,0);
 	    LocalPoint lowerLocalBoundary(hit.x(),hit.y()-stripLength/2,0);
@@ -639,7 +639,7 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
 	    }
 	  } else {
 	    LocalPoint hit = recHit->localPosition();
-	    const TrapezoidalStripTopology *topology = dynamic_cast<const TrapezoidalStripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
+	    const StripTopology *topology = dynamic_cast<const StripTopology*>(&(tracker->idToDetUnit(hitId)->topology()));
 	    double stripAngle = topology->stripAngle(topology->strip(hit));
 	    double stripLength = topology->localStripLength(hit);
 	    LocalPoint upperLocalBoundary(hit.x()-stripLength/2*std::sin(stripAngle),hit.y()+stripLength/2*std::cos(stripAngle),0);

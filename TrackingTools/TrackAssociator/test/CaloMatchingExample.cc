@@ -11,7 +11,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CaloMatchingExample.cc,v 1.4 2007/03/20 06:54:47 dmytro Exp $
+// $Id: CaloMatchingExample.cc,v 1.5 2007/04/02 17:43:56 dmytro Exp $
 //
 //
 
@@ -76,7 +76,7 @@
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -202,7 +202,26 @@ CaloMatchingExample::CaloMatchingExample(const edm::ParameterSet& iConfig)
 void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
-
+   
+   TimerStack timers;
+   // test timer performance in various modes
+   timers.push("TimerStack::1000_push_and_pop::DetailedMonitoring");
+   for(int i=0; i<1000; ++i) {
+      timers.push("TimerStack::1000_push_and_pop::DetailedMonitoring::test",TimerStack::DetailedMonitoring);
+      timers.pop();
+   }
+   timers.pop_and_push("TimerStack::1000_push_and_pop::FastMonitoring");
+   for(int i=0; i<1000; ++i) {
+      timers.push("TimerStack::1000_push_and_pop::FastMonitoring::test",TimerStack::FastMonitoring);
+      timers.pop();
+   }
+   timers.pop_and_push("TimerStack::1000_push_and_pop::SuperFastMonitoring");
+   for(int i=0; i<1000; ++i) {
+      FastTimerStackPush( timers, "TimerStack::1000_push_and_pop::SuperFastMonitoring::test" );
+      timers.pop();
+   }
+   timers.clear_stack();
+   
    // calo geometry
    edm::ESHandle<CaloGeometry> geometry;
    iSetup.get<IdealGeometryRecord>().get(geometry);

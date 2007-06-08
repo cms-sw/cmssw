@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.4 2006/10/16 17:59:53 gennai Exp $
+// $Id: TauTagVal.cc,v 1.5 2007/02/16 09:33:15 gennai Exp $
 //
 //
 
@@ -184,7 +184,8 @@ void TauTagVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace reco;
 
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel("VtxSmeared", evt);
+  //iEvent.getByLabel("VtxSmeared", evt);
+  iEvent.getByLabel("source", evt);
   HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
   int jj=-1;
   TClonesArray* TauJets=new TClonesArray("TLorentzVector");

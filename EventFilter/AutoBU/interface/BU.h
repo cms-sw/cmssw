@@ -157,7 +157,11 @@ namespace evf {
     std::set<unsigned int>          sentIds_;
     unsigned int                    evtNumber_;
     std::vector<unsigned int>       validFedIds_;
-    
+
+    bool                            isBuilding_;
+    bool                            isSending_;
+    bool                            isHalting_;
+
     // workloop / action signature for building events
     toolbox::task::WorkLoop        *wlBuilding_;      
     toolbox::task::ActionSignature *asBuilding_;
@@ -193,7 +197,9 @@ namespace evf {
     
     // monitored counters
     xdata::UnsignedInteger32        nbEventsInBU_;
+    xdata::UnsignedInteger32        nbEventsRequested_;
     xdata::UnsignedInteger32        nbEventsBuilt_;
+    xdata::UnsignedInteger32        nbEventsSent_;
     xdata::UnsignedInteger32        nbEventsDiscarded_;
     
     // standard parameters

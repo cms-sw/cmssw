@@ -49,12 +49,14 @@ class SiStripDigitizerAlgorithm
   std::vector<StripDigiSimLink> make_link(){ return link_coll;}
 
   
-  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*,const ParticleDataTable* pdt);
+  SiStripDigitizerAlgorithm(const edm::ParameterSet& conf, StripGeomDetUnit *det, uint32_t& idForNoise, SiStripNoiseService*);
   ~SiStripDigitizerAlgorithm();
 
   // Runs the algorithm
   edm::DetSet<SiStripDigi>::collection_type  run(const std::vector<PSimHit> &input, StripGeomDetUnit *det,GlobalVector);
 
+  void setParticleDataTable(const ParticleDataTable * pdt);
+  
  private:
   int ndigis; 
   std::vector<short int> adcVec;
@@ -136,7 +138,6 @@ class SiStripDigitizerAlgorithm
   GeomDetType::SubDetector stripPart;            // is it barrel on forward
   const StripGeomDetUnit* _detp;
   const StripTopology* topol;
-  const ParticleDataTable * pdt_;
   std::vector<SiStripDigi> digis;
 
 };

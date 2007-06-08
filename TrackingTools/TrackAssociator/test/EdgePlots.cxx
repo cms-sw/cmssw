@@ -18,8 +18,8 @@
    // create and connect muon collection branch 
 
    tree->SetBranchStatus("*",0);
-   tree->SetBranchStatus("recoMuonWithMatchInfos_test_muons_TEST.obj*",1);
-   std::vector<reco::MuonWithMatchInfo> muons;
+   tree->SetBranchStatus("recoMuons_test_muons_TEST.obj*",1);
+   std::vector<reco::Muon> muons;
    
    TString branchName = tree->GetAlias("muons");
    tree->SetBranchAddress(branchName,&muons);
@@ -30,7 +30,7 @@
       if (index%1000==0) std::cout << "Event " << index << " has " << muons.size() << " muons" << std::endl;
       for(unsigned int i=0; i<muons.size(); i++)
 	{
-	   const std::vector<reco::MuonWithMatchInfo::MuonChamberMatch>& matches = muons[i].matches();
+	   const std::vector<reco::MuonChamberMatch>& matches = muons[i].matches();
 	   if ( matches.empty() || matches.front().segmentMatches.empty() ) continue;
 	   
 	   bool fillReco = false;

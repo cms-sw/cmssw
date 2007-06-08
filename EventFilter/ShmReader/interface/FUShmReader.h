@@ -36,7 +36,7 @@ private:
   
   unsigned int          runNumber_;
   unsigned int          evtNumber_;
-  unsigned int          fuResourceId_;
+  unsigned int          lastCellIndex_;
   
 };
 
