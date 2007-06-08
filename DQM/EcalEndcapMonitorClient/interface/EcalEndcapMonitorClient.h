@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/08 12:31:16 $
- * $Revision: 1.10 $
+ * $Date: 2007/06/08 12:32:41 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -27,6 +27,8 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EEClient.h>
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
+
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include "xgi/include/xgi/Input.h"
 #include "xgi/include/xgi/Output.h"
@@ -92,6 +94,7 @@ void htmlOutput(bool current=false);
 
 /// XDAQ web page
 void defaultWebPage(xgi::Input *in, xgi::Output *out);
+void publish(xdata::InfoSpace *){};
 
 /// BeginRunDB
 void beginRunDb(void);

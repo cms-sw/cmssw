@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/02 08:00:12 $
- * $Revision: 1.76 $
+ * $Date: 2007/06/08 09:50:55 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,13 +31,15 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+
 #include "xgi/include/xgi/Input.h"
 #include "xgi/include/xgi/Output.h"
 
 #include "TROOT.h"
 #include "TH1.h"
 
-class EcalBarrelMonitorClient: public edm::EDAnalyzer{
+class EcalBarrelMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 
@@ -95,6 +97,7 @@ void htmlOutput(bool current=false);
 
 /// XDAQ web page
 void defaultWebPage(xgi::Input *in, xgi::Output *out);
+void publish(xdata::InfoSpace *){};
 
 /// BeginRunDB
 void beginRunDb(void);

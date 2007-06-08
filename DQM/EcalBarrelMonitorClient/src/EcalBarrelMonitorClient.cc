@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/04 06:18:02 $
- * $Revision: 1.274 $
+ * $Date: 2007/06/08 09:50:55 $
+ * $Revision: 1.275 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -56,6 +56,13 @@
 #include <DQM/EcalBarrelMonitorClient/interface/EBClusterClient.h>
 #include <DQM/EcalBarrelMonitorClient/interface/EBTimingClient.h>
 
+#include "xgi/include/xgi/Method.h"
+#include "xgi/include/xgi/Utils.h"
+
+#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
+#include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
+#include "extern/cgicc/linuxx86/include/cgicc/HTMLClasses.h"
+
 #include "TStyle.h"
 #include "TGaxis.h"
 #include "TColor.h"
@@ -64,7 +71,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui) : ModuleWeb("EcalBarrelMonitorClient"){
 
   enableStateMachine_ = true;
 
@@ -74,7 +81,7 @@ EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, Monitor
 
 }
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps){
+EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient"){
 
   enableStateMachine_ = false;
 
@@ -1766,6 +1773,65 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
 }
 
 void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
+
+  string path;
+  string mname;
+
+  static bool autorefresh_ = false;
+
+  try {
+
+    cgicc::Cgicc cgi(in);
+
+    if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {
+      autorefresh_ = xgi::Utils::getFormElement(cgi, "autorefresh")->getIntegerValue() != 0;
+    }
+
+    if ( xgi::Utils::hasFormElement(cgi,"module") ) {
+      mname = xgi::Utils::getFormElement(cgi, "module")->getValue();
+    }
+
+    cgicc::CgiEnvironment cgie(in);
+    path = cgie.getPathInfo() + "?" + cgie.getQueryString();
+
+  } catch (const std::exception & e) { }
+
+  *out << "<html>"                                                   << endl;
+
+  *out << "<head>"                                                   << endl;
+
+  *out << "<title>" << typeid(EcalBarrelMonitorClient).name()
+       << " MAIN</title>"                                            << endl;
+
+  if ( autorefresh_ ) {
+    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << endl;
+  }
+
+  *out << "</head>"                                                  << endl;
+
+  *out << "<body>"                                                   << endl;
+
+  *out << cgicc::form().set("method","GET").set("action", path )
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1") 
+       << std::endl;
+  *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
+       << std::endl;
+  *out << cgicc::form()                                              << endl;
+
+  *out << "<p>Run: " << run_
+       << " Total updates: " << last_update_
+       << " Last Event analyzed: " << evt_                           << endl;
+
+  *out << " ECAL DQM status "                                        << endl;
+
+// stuff ...
+
+  *out << "</body>"                                                  << endl;
+
+  *out << "</html>"                                                  << endl;
 
 }
 
