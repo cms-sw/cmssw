@@ -1,5 +1,5 @@
-#ifndef CandAlgos_HistoAnalyzer_h
-#define CandAlgos_HistoAnalyzer_h
+#ifndef UtilAlgos_HistoAnalyzer_h
+#define UtilAlgos_HistoAnalyzer_h
 /** \class HistoAnalyzer
  *
  * Creates histograms defined in config file 
@@ -34,7 +34,6 @@ class HistoAnalyzer : public edm::EDAnalyzer {
 
 };
 
-
 template<typename C>
 HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) : 
   src_( par.template getParameter<edm::InputTag>( "src" ) ) 
@@ -55,7 +54,6 @@ HistoAnalyzer<C>::HistoAnalyzer( const edm::ParameterSet& par ) :
 
 }
 
-
 template<typename C>
 HistoAnalyzer<C>::~HistoAnalyzer() 
 {
@@ -67,7 +65,6 @@ HistoAnalyzer<C>::~HistoAnalyzer()
    }
    vhistograms.clear(); 
 }
-
 
 template<typename C>
 void HistoAnalyzer<C>::analyze( const edm::Event& iEvent, const edm::EventSetup& ) 
