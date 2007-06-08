@@ -55,7 +55,7 @@ double jetProbability( const std::vector<float> & v ) const
       Loginvlog=log(-SumJet);
     }
     double Prob=1.;
-      int lfact=1;
+    double lfact=1.;
     for(int l=1; l!=ngoodtracks; l++){
        lfact*=l;
       Prob+=exp(l*Loginvlog-log(1.*lfact));
