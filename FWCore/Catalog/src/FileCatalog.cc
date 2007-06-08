@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: FileCatalog.cc,v 1.1 2007/03/04 04:43:30 wmtan Exp $
+// $Id: FileCatalog.cc,v 1.2 2007/04/03 18:32:02 wmtan Exp $
 //
 // Original Author: Luca Lista
 // Current Author: Bill Tanenbaum
@@ -70,7 +70,6 @@ namespace edm {
 	  if (url().empty()) {
 	    // For reading use the catalog specified in the site-local config file
 	    url() = Service<edm::SiteLocalConfig>()->dataCatalog();
-	    std::cout << "Using the site default catalog: " << url() << std::endl;
 	  } else {
 	    url() = toPhysical(url());
 	  }
