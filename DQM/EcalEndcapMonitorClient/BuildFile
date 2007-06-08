@@ -1,4 +1,3 @@
-<flags SEAL_PLUGIN_NAME="DQMEcalEndcapMonitorClient">
 <use name=CondTools/Ecal>
 <use name=DQM/EcalCommon>
 <use name=DQMServices/Core>
