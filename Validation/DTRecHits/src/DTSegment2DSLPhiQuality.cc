@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/23 16:38:28 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/01/30 10:59:48 $
+ *  $Revision: 1.1 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -34,11 +34,6 @@
 using namespace std;
 using namespace edm;
 
-// Book the histos
-HRes2DHit h2DHitSuperPhi("SuperPhi");
-
-HEff2DHit h2DHitEff_SuperPhi("SuperPhi");
-
 // Constructor
 DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
    // Get the debug parameter for verbose output
@@ -62,6 +57,10 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
   if(debug)
     cout << "[DTSegment2DSLPhiQuality] Constructor called" << endl;
+
+  // Book the histos
+  h2DHitSuperPhi = new HRes2DHit ("SuperPhi");
+  h2DHitEff_SuperPhi = new HEff2DHit ("SuperPhi");
 }
 
 // Destructor
@@ -75,10 +74,10 @@ void DTSegment2DSLPhiQuality::endJob() {
   // Write the histos to file
   theFile->cd();
 
-  h2DHitSuperPhi.Write();
+  h2DHitSuperPhi->Write();
 
-  h2DHitEff_SuperPhi.ComputeEfficiency();
-  h2DHitEff_SuperPhi.Write();
+  h2DHitEff_SuperPhi->ComputeEfficiency();
+  h2DHitEff_SuperPhi->Write();
 
   theFile->Close();
 } 
@@ -222,12 +221,12 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 	}
 
 	// Fill Residual histos
-	h2DHitSuperPhi.Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
+	h2DHitSuperPhi->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
       }
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-    h2DHitEff_SuperPhi.Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
+    h2DHitEff_SuperPhi->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
   } // End of loop over chambers
 }
 
