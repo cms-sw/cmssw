@@ -1,7 +1,7 @@
 <flags SEAL_PLUGIN_NAME="CalibCalorimetryHcalPlugins">
 <use name=boost>
 <use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=CalibFormats/HcalObjects>
 <use name=CalibCalorimetry/HcalAlgos>
@@ -9,7 +9,7 @@
 <export>
   <use name=boost>
   <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
+  <use name=FWCore/PluginManager>
   <use name=FWCore/ParameterSet>
   <use name=CalibFormats/HcalObjects>
   <use name=CalibCalorimetry/HcalAlgos>

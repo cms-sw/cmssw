@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.17 $
+ * $Date: 2007/05/14 11:09:11 $
+ * $Revision: 1.6 $
  * \author G. Della Ricca
  *
 */
@@ -30,9 +30,12 @@
 
 #include "CondTools/Ecal/interface/EcalErrorDictionary.h"
 
+#include "DQM/EcalCommon/interface/EcalErrorMask.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
-#include "DQM/EcalEndcapMonitorClient/interface/EcalErrorMask.h"
+
 
 using namespace cms;
 using namespace edm;
@@ -58,9 +61,9 @@ EETimingClient::EETimingClient(const ParameterSet& ps){
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -116,7 +119,7 @@ void EETimingClient::beginJob(MonitorUserInterface* mui){
 
       int ism = superModules_[i];
 
-      sprintf(qtname, "EETMT quality SM%02d", ism);
+      sprintf(qtname, "EETMT quality %s", Numbers::sEE(ism).c_str());
       qth01_[ism-1] = dynamic_cast<MEContentsProf2DWithinRangeROOT*> (mui_->createQTest(ContentsProf2DWithinRangeROOT::getAlgoName(), qtname));
 
       qth01_[ism-1]->setMeanRange(expectedMean_ - discrepancyMean_, expectedMean_ + discrepancyMean_);
@@ -177,19 +180,19 @@ void EETimingClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing quality SM%02d", ism);
+    sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
     meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
     if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing SM%02d", ism);
+    sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
     mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing mean SM%02d", ism);
+    sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
     mep01_[ism-1] = bei->book1D(histo, histo, 100, 0.0, 10.0);
 
     if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing rms SM%02d", ism);
+    sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
     mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
@@ -198,7 +201,7 @@ void EETimingClient::setup(void) {
 
     int ism = superModules_[i];
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -208,9 +211,9 @@ void EETimingClient::setup(void) {
       }
     }
 
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
   }
 
@@ -259,7 +262,7 @@ bool EETimingClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunI
 
   bool status = true;
 
-  EEMUtilsClient::printBadChannels(qth01_[ism-1]);
+  UtilsClient::printBadChannels(qth01_[ism-1]);
 
   return status;
 
@@ -275,7 +278,7 @@ void EETimingClient::subscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->subscribe(histo, ism);
 
   }
@@ -288,9 +291,9 @@ void EETimingClient::subscribe(void){
 
       int ism = superModules_[i];
 
-      sprintf(histo, "EETMT timing SM%02d", ism);
+      sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
       me_h01_[ism-1] = mui_->collateProf2D(histo, histo, "EcalEndcap/Sums/EETimingTask");
-      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
       mui_->add(me_h01_[ism-1], histo);
 
     }
@@ -302,14 +305,14 @@ void EETimingClient::subscribe(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
       if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
     } else {
       if ( enableMonitorDaemon_ ) {
-        sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+        sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       } else {
-        sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+        sprintf(histo, "EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
         if ( qth01_[ism-1] ) mui_->useQTest(histo, qth01_[ism-1]->getName());
       }
     }
@@ -326,7 +329,7 @@ void EETimingClient::subscribeNew(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->subscribeNew(histo, ism);
 
   }
@@ -361,7 +364,7 @@ void EETimingClient::unsubscribe(void){
 
     unsigned int ism = superModules_[i];
 
-    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing SM%02d", ism);
+    sprintf(histo, "*/EcalEndcap/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     mui_->unsubscribe(histo, ism);
 
   }
@@ -407,18 +410,18 @@ void EETimingClient::analyze(void){
     int ism = superModules_[i];
 
     if ( collateSources_ ) {
-      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing SM%02d", ism);
+      sprintf(histo, "EcalEndcap/Sums/EETimingTask/EETMT timing %s", Numbers::sEE(ism).c_str());
     } else {
-      sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing SM%02d").c_str(), ism);
+      sprintf(histo, (prefixME_+"EcalEndcap/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
     }
     me = mui_->get(histo);
-    h01_[ism-1] = EEMUtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    EEMUtilsClient::resetHisto( meg01_[ism-1] );
-    EEMUtilsClient::resetHisto( mea01_[ism-1] );
-    EEMUtilsClient::resetHisto( mep01_[ism-1] );
-    EEMUtilsClient::resetHisto( mer01_[ism-1] );
+    UtilsClient::resetHisto( meg01_[ism-1] );
+    UtilsClient::resetHisto( mea01_[ism-1] );
+    UtilsClient::resetHisto( mep01_[ism-1] );
+    UtilsClient::resetHisto( mer01_[ism-1] );
 
     for ( int ie = 1; ie <= 85; ie++ ) {
       for ( int ip = 1; ip <= 20; ip++ ) {
@@ -431,7 +434,7 @@ void EETimingClient::analyze(void){
         float mean01;
         float rms01;
 
-        update01 = EEMUtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStats(h01_[ism-1], ie, ip, num01, mean01, rms01);
 
         if ( update01 ) {
 
@@ -571,7 +574,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameQual = "";
 
     obj2f = 0;
-    obj2f = EEMUtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
+    obj2f = UtilsClient::getHisto<TH2F*>( meg01_[ism-1] );
 
     if ( obj2f ) {
 
@@ -606,7 +609,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameTim = "";
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mea01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -642,7 +645,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     imgNameMean = "";
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mep01_[ism-1] );
 
     if ( obj1f ) {
 
@@ -674,7 +677,7 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
     // RMS distributions
 
     obj1f = 0;
-    obj1f = EEMUtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
+    obj1f = UtilsClient::getHisto<TH1F*>( mer01_[ism-1] );
 
     imgNameRMS = "";
 
@@ -707,8 +710,8 @@ void EETimingClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;"
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><a name=""" << ism << """></a><strong>"
+	     << Numbers::sEE(ism).c_str() << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

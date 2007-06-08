@@ -109,7 +109,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
     double sinAlpha = theDmag*theRho/2.;
     if ( sinAlpha>(1.-10*DBL_EPSILON) )  sinAlpha = 1.-10*DBL_EPSILON;
     else if ( sinAlpha<-(1.-10*DBL_EPSILON) )  sinAlpha = -(1.-10*DBL_EPSILON);
-    theS = theActualDir*2./(theRho*theSinTheta) * asin( theDmag*theRho / 2.);
+    theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
     return ResultType( true, theS);
   }
   else return ResultType( false, 0.);

@@ -33,11 +33,13 @@ void DDTIDModuleAlgo::initialize(const DDNumericArguments & nArgs,
   int i;
   genMat       = sArgs["GeneralMaterial"];
   detectorN    = (int)(nArgs["DetectorNumber"]);
+  tol          = nArgs["Tolerance"];
   DDName parentName = parent().name(); 
 
   LogDebug("TIDGeom") << "DDTIDModuleAlgo debug: Parent " << parentName 
 		      << " General Material " << genMat 
-		      << " Detector Planes " << detectorN;
+		      << " Detector Planes " << detectorN
+		      << " Tolerance " << tol;
 
   moduleThick       = nArgs["ModuleThick"];
   detTilt           = nArgs["DetTilt"];
@@ -187,12 +189,13 @@ void DDTIDModuleAlgo::execute() {
   }
   h1 = 0.5 * sideFrameThick;
   dz = 0.5 * (fullHeight + topfr);
-  solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1,bl1, 0, h1, bl2,bl2, 0);
+  solid = DDSolidFactory::trap(name, dz, 0, 0, h1, bl1-tol, bl1-tol, 0, h1, 
+			       bl2-tol, bl2-tol, 0);
   LogDebug("TIDGeom") << "DDTIDModuleAlgo test:\t" << solid.name() 
 		      << " Trap made of " << matname << " of dimensions "
-		      << dz << ", 0, 0, " << h1 << ", " << bl1 << ", " 
-		      << bl1 << ", 0, " << h1 << ", " << bl2 << ", " << bl2
-		      << ", 0";
+		      << dz << ", 0, 0, " << h1 << ", " << bl1-tol << ", " 
+		      << bl1-tol << ", 0, " << h1 << ", " << bl2-tol << ", " 
+		      << bl2-tol << ", 0";
   DDLogicalPart sideFrame(solid.ddname(), matter, solid);
 
   name    = DDName(DDSplit(dumyFrameName).first,DDSplit(dumyFrameName).second);

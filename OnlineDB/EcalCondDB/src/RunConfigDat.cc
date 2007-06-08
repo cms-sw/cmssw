@@ -13,6 +13,8 @@ RunConfigDat::RunConfigDat()
   m_env = NULL;
   m_conn = NULL;
   m_writeStmt = NULL;
+  m_readStmt = NULL;
+
   m_configTag = "none";
   m_configVer = 0;
 }
@@ -83,14 +85,14 @@ void RunConfigDat::fetchData(map< EcalLogicID, RunConfigDat >* fillMap, RunIOV* 
   }
 
   try {
-    Statement* stmt = m_conn->createStatement();
-    stmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
+
+    m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.config_tag, d.config_ver "
 		 "FROM channelview cv JOIN run_config_dat d "
 		 "ON cv.logic_id = d.logic_id AND cv.name = cv.maps_to "
 		 "WHERE d.iov_id = :iov_id");
-    stmt->setInt(1, iovID);
-    ResultSet* rset = stmt->executeQuery();
+    m_readStmt->setInt(1, iovID);
+    ResultSet* rset = m_readStmt->executeQuery();
     
     std::pair< EcalLogicID, RunConfigDat > p;
     RunConfigDat dat;

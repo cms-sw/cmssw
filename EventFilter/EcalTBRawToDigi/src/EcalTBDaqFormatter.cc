@@ -1,7 +1,7 @@
 /*  
  *
- *  $Date: 2007/03/31 16:21:34 $
- *  $Revision: 1.43 $
+ *  $Date: 2007/03/25 22:53:31 $
+ *  $Revision: 1.42 $
  *  \author  N. Marinelli IASA 
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -98,14 +98,12 @@ void EcalTBDaqFormatter::interpretRawData(const FEDRawData & fedData ,
         LogWarning("EcalTBRawToDigi") << "@SUB=EcalTBDaqFormatter::interpretRawData"
 				      << "... errors from parser notified";
       }
-
     // getting the fields of the DCC header
     EcalDCCHeaderBlock theDCCheader;
-
-    theDCCheader.setId(1);                                                      // tb unpacker: forced to 1 to get first geom slot in EB
-    int fedId = (*itEventBlock)->getDataField("FED/DCC ID");
-    theDCCheader.setFedId( fedId );                                             // fed id as found in raw data (0... 35 at tb )
-
+    //    theDCCheader.setId((*itEventBlock)->getDataField("FED/DCC ID"));      // at the moment used as fed id
+    theDCCheader.setId(1);                                                                                    // forced to 1 since tb unpacker
+    // int SMid(1);                                                                                                  // here forcing slot=1, as always in test beam
+    // theDCCheader.setiEB(SMid);                                                                  //  iEB is physical slot in CMS ECAL barrael (1.. 36)
     theDCCheader.setRunNumber((*itEventBlock)->getDataField("RUN NUMBER"));
     short trigger_type = (*itEventBlock)->getDataField("TRIGGER TYPE");
     short zs = (*itEventBlock)->getDataField("ZS");

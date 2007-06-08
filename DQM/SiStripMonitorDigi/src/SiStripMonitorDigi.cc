@@ -1,64 +1,58 @@
 // -*- C++ -*-
-//
-// Package:    SiStripMonitorDigi
-// Class:      SiStripMonitorDigi
-// 
 /**\class SiStripMonitorDigi SiStripMonitorDigi.cc DQM/SiStripMonitorDigi/src/SiStripMonitorDigi.cc
-
- Description: <one line class summary>
-
- Implementation:
-     <Notes on implementation>
 */
-//
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.16 2006/11/10 17:34:57 dkcira Exp $
-//
-//
-
+// $Id: SiStripMonitorDigi.cc,v 1.18 2007/04/24 09:42:50 dkcira Exp $
 #include<fstream>
-
+#include "TNamed.h"
+#include "TH1F.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
-
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiStripDetId/interface/SiStripSubStructure.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
 #include "DQM/SiStripMonitorDigi/interface/SiStripMonitorDigi.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+#include "DQMServices/Core/interface/MonitorElementT.h"
 
+//--------------------------------------------------------------------------------------------
+SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) : dbe_(edm::Service<DaqMonitorBEInterface>().operator->()), conf_(iConfig), show_mechanical_structure_view(true), show_readout_view(false), show_control_view(false), select_all_detectors(false), reset_each_run(false) {}
+SiStripMonitorDigi::~SiStripMonitorDigi() {}
 
-SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig)
-{
-   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-   conf_ = iConfig;
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::beginRun(const edm::Run&, const edm::EventSetup&){
+  if(reset_each_run){ // reset histograms at beginning of each new run
+    for(std::map<uint32_t, ModMEs>::const_iterator idet = DigiMEs.begin(); idet!= DigiMEs.end(); idet++ ){
+     ResetME( (idet->second).NumberOfDigis );
+     ResetME( (idet->second).ADCsHottestStrip );
+     ResetME( (idet->second).ADCsCoolestStrip );
+    }
+  }
 }
 
-
-SiStripMonitorDigi::~SiStripMonitorDigi()
-{
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::endRun(const edm::Run&, const edm::EventSetup&){
 }
 
-
+//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
    // retrieve parameters from configuration file
-   bool show_mechanical_structure_view = conf_.getParameter<bool>("ShowMechanicalStructureView");
-   bool show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
-   bool show_control_view = conf_.getParameter<bool>("ShowControlView");
-   bool select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
+   show_mechanical_structure_view = conf_.getParameter<bool>("ShowMechanicalStructureView");
+   show_readout_view = conf_.getParameter<bool>("ShowReadoutView");
+   show_control_view = conf_.getParameter<bool>("ShowControlView");
+   select_all_detectors = conf_.getParameter<bool>("SelectAllDetectors");
+   reset_each_run = conf_.getParameter<bool>("ResetMEsEachRun");
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowMechanicalStructureView = "<<show_mechanical_structure_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowReadoutView = "<<show_readout_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ShowControlView = "<<show_control_view;
    edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"SelectAllDetectors = "<<select_all_detectors;
-
+   edm::LogInfo("SiStripTkDQM|SiStripMonitorDigi|ConfigParams")<<"ResetMEsEachRun = "<<reset_each_run;
 
   if ( show_mechanical_structure_view ){
     // take from eventSetup the SiStripDetCabling object - here will use SiStripDetControl later on
@@ -77,7 +71,8 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
     }else{
       // use SiStripSubStructure for selecting certain regions
       SiStripSubStructure substructure;
-      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
+//      substructure.getTIBDetectors(activeDets, SelectedDetIds, 1, 1, 1, 1); // this adds rawDetIds to SelectedDetIds
+      substructure.getTIBDetectors(activeDets, SelectedDetIds, 2, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
 //      substructure.getTOBDetectors(activeDets, SelectedDetIds, 1, 2, 0);    // this adds rawDetIds to SelectedDetIds
 //      substructure.getTIDDetectors(activeDets, SelectedDetIds, 1, 1, 0, 0); // this adds rawDetIds to SelectedDetIds
 //      substructure.getTECDetectors(activeDets, SelectedDetIds, 1, 2, 0, 0, 0, 0); // this adds rawDetIds to SelectedDetIds
@@ -109,12 +104,15 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
       // create Digis per detector - not too useful - maybe can remove later
       hid = hidmanager.createHistoId("NumberOfDigis","det",*detid_iterator);
       local_modmes.NumberOfDigis = dbe_->book1D(hid, hid, 21, -0.5, 20.5); dbe_->tag(local_modmes.NumberOfDigis, *detid_iterator);
+      local_modmes.NumberOfDigis->setAxisTitle("number of digis in one detector module");
       // create ADCs per "hottest" strip
       hid = hidmanager.createHistoId("ADCsHottestStrip","det",*detid_iterator);
       local_modmes.ADCsHottestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsHottestStrip, *detid_iterator);
+      local_modmes.ADCsHottestStrip->setAxisTitle("number of ADCs in strip with most of them");
       // create ADCs per "coolest" strip
       hid = hidmanager.createHistoId("ADCsCoolestStrip","det",*detid_iterator);
       local_modmes.ADCsCoolestStrip = dbe_->book1D(hid, hid, 21, -0.5, 50.); dbe_->tag(local_modmes.ADCsCoolestStrip, *detid_iterator);
+      local_modmes.ADCsCoolestStrip->setAxisTitle("number of ADCs in strip with less of them");
       // append to DigiMEs
       DigiMEs.insert( std::make_pair(*detid_iterator, local_modmes));
       //
@@ -123,10 +121,8 @@ void SiStripMonitorDigi::beginJob(const edm::EventSetup& es){
 }
 
 
-// ------------ method called to produce the data  ------------
-void
-SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
    using namespace edm;
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
    Handle<ExampleData> pIn;
@@ -185,6 +181,7 @@ SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 }
 
+//--------------------------------------------------------------------------------------------
 void SiStripMonitorDigi::endJob(void){
    bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");
    std::string outputFileName = conf_.getParameter<std::string>("OutputFileName");
@@ -201,6 +198,15 @@ void SiStripMonitorDigi::endJob(void){
     monitor_summary<<"++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"<<std::endl;
     // save histograms in a file
     dbe_->save(outputFileName);
+  }
+}
+
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::ResetME(MonitorElement* me){
+  MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*> (me);
+  if (ob) {
+    TH1F * root_ob = dynamic_cast<TH1F *> (ob->operator->());
+    if(root_ob)root_ob->Reset();
   }
 }
 

@@ -40,6 +40,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   syncCheck_(conf.getUntrackedParameter<bool>("syncCheck",true)), 
   
   put_(conf.getUntrackedParameter<bool>("eventPut",false)),
+  
+  dataLabel_(conf.getUntrackedParameter<std::string>("InputLabel","source")),
 
   myMap_(0),
   
@@ -52,46 +54,45 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   
   if( numbXtalTSamples_ <6 || numbXtalTSamples_>64 || (numbXtalTSamples_-2)%4 ){
-    ostringstream output;
-    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
-      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
-      <<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
-    LogError("ECAL")<< output.str();
+    std::ostringstream output;
+    output      <<"\n Unsuported number of xtal time samples : "<<numbXtalTSamples_
+		<<"\n Valid Number of xtal time samples are : 6,10,14,18,...,62"; 
+    edm::LogError("EcalRawToDigiDev")<< output.str();
     // todo : throw an execption
   }
   
   if( numbTriggerTSamples_ !=1 && numbTriggerTSamples_ !=4 && numbTriggerTSamples_ !=8  ){
-    ostringstream output;
-    output<<"EcalRawToDigi@SUB=EcalRawToDigi()"
-      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
-      <<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
-    LogError("ECAL")<< output.str();
+    std::ostringstream output;
+    output      <<"\n Unsuported number of trigger time samples : "<<numbTriggerTSamples_
+		<<"\n Valid number of trigger time samples are :  1, 4 or 8"; 
+    edm::LogError("EcalRawToDigiDev")<< output.str();
     // todo : throw an execption
   }
   
   //NA : testing
-  nevts_=0;
-  RUNNING_TIME_=0;
+  //nevts_=0;
+  //RUNNING_TIME_=0;
 
   //if there are FEDs to unpack fill the vector of the fedUnpackList_
   if (fedUnpackList_.empty()) 
     for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);
 
-  //print the FEDs to unpack to the loger
-  ostringstream loggerOutput_;
+  //print the FEDs to unpack to the logger
+  std::ostringstream loggerOutput_;
   if(fedUnpackList_.size()!=0){
     for (uint i=0; i<fedUnpackList_.size(); i++) 
       loggerOutput_ << fedUnpackList_[i] << " ";
-    LogInfo("ECAL") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
+    edm::LogInfo("EcalRawToDigiDev") << "EcalRawToDigi will unpack FEDs ( " << loggerOutput_.str() << ")";
   }
   
-  LogInfo("ECAL")<<"\n ECAL RawToDigi configuration :"
+  edm::LogInfo("EcalRawToDigiDev")
+    <<"\n ECAL RawToDigi configuration :"
     <<"\n Header  unpacking is "<<headerUnpacking_
     <<"\n SRP Bl. unpacking is "<<srpUnpacking_
     <<"\n TCC Bl. unpacking is "<<tccUnpacking_  
     <<"\n FE  Bl. unpacking is "<<feUnpacking_
-    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n"<<endl;
+    <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n";
   
   // Producer products :
   produces<EBDigiCollection>(); 
@@ -125,13 +126,13 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
   bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
   if(!readResult){
-    LogError("EcalRawToDigi") << "@SUB=DCCDataUnpacker"<<"\n unable to read file : "
+    edm::LogError("EcalRawToDigiDev")<<"\n unable to read file : "
       <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
      //throw cms::exception();
   }
   
   // Build a new ECAL DCC data unpacker
-  LogDebug("EcalRawToDigi") << "@SUB=DCCDataUnpacker"; 
+  //edm::LogDebug("EcalRawToDigiDev") << "@SUB=DCCDataUnpacker"; 
   theUnpacker_ = new DCCDataUnpacker(myMap_,headerUnpacking_,srpUnpacking_,tccUnpacking_,feUnpacking_,memUnpacking_,syncCheck_);
    
 }
@@ -151,7 +152,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 
   if (first_) {
 
-   ESHandle< EcalElectronicsMapping > ecalmapping;
+   edm::ESHandle< EcalElectronicsMapping > ecalmapping;
    es.get< EcalMappingRcd >().get(ecalmapping);
 
    const EcalElectronicsMapping* TheMapping = ecalmapping.product();
@@ -165,84 +166,83 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 
   // Step A: Get Inputs    
 
-  Handle<FEDRawDataCollection> rawdata;  
-  e.getByType(rawdata);
-
+  edm::Handle<FEDRawDataCollection> rawdata;  
+  e.getByLabel(dataLabel_,rawdata);
 
   // Step B: encapsulate vectors in actual collections and set unpacker pointers
 
   // create the collection of Ecal Digis
-  auto_ptr<EBDigiCollection> productDigisEB(new EBDigiCollection);
+  std::auto_ptr<EBDigiCollection> productDigisEB(new EBDigiCollection);
   productDigisEB->reserve(1700);
   theUnpacker_->setEBDigisCollection(&productDigisEB);
   
   // create the collection of Ecal Digis
-  auto_ptr<EEDigiCollection> productDigisEE(new EEDigiCollection);
+  std::auto_ptr<EEDigiCollection> productDigisEE(new EEDigiCollection);
   theUnpacker_->setEEDigisCollection(&productDigisEE);
   
   // create the collection for headers
-  auto_ptr<EcalRawDataCollection> productDccHeaders(new EcalRawDataCollection);
+  std::auto_ptr<EcalRawDataCollection> productDccHeaders(new EcalRawDataCollection);
   theUnpacker_->setDccHeadersCollection(&productDccHeaders); 
 
   // create the collection for invalid gains
-  auto_ptr< EBDetIdCollection> productInvalidGains(new EBDetIdCollection);
+  std::auto_ptr< EBDetIdCollection> productInvalidGains(new EBDetIdCollection);
   theUnpacker_->setInvalidGainsCollection(&productInvalidGains); 
 
   // create the collection for invalid gain Switch
-  auto_ptr< EBDetIdCollection> productInvalidGainsSwitch(new EBDetIdCollection);
+  std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitch(new EBDetIdCollection);
   theUnpacker_->setInvalidGainsSwitchCollection(&productInvalidGainsSwitch);
    
   // create the collection for invalid gain switch stay
-  auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay(new EBDetIdCollection);
+  std::auto_ptr< EBDetIdCollection> productInvalidGainsSwitchStay(new EBDetIdCollection);
   theUnpacker_->setInvalidGainsSwitchStayCollection(&productInvalidGainsSwitch);
    
   // create the collection for invalid chids
-  auto_ptr< EBDetIdCollection> productInvalidChIds(new EBDetIdCollection);
+  std::auto_ptr< EBDetIdCollection> productInvalidChIds(new EBDetIdCollection);
   theUnpacker_->setInvalidChIdsCollection(&productInvalidChIds);
          
   // create the collection for EB srflags       
-  auto_ptr<EBSrFlagCollection> productEBSrFlags(new EBSrFlagCollection);
+  std::auto_ptr<EBSrFlagCollection> productEBSrFlags(new EBSrFlagCollection);
   theUnpacker_->setEBSrFlagsCollection(&productEBSrFlags);
   
   // create the collection for EB srflags       
-  auto_ptr<EESrFlagCollection> productEESrFlags(new EESrFlagCollection);
+  std::auto_ptr<EESrFlagCollection> productEESrFlags(new EESrFlagCollection);
   theUnpacker_->setEESrFlagsCollection(&productEESrFlags);
   
   // create the collection for EB tpgs
-  auto_ptr<EcalTrigPrimDigiCollection> productEBTps(new EcalTrigPrimDigiCollection);
+  std::auto_ptr<EcalTrigPrimDigiCollection> productEBTps(new EcalTrigPrimDigiCollection);
   theUnpacker_->setEBTpsCollection(&productEBTps);
   
    // create the collection for EE tpgs
-  auto_ptr<EcalTrigPrimDigiCollection> productEETps(new EcalTrigPrimDigiCollection);
+  std::auto_ptr<EcalTrigPrimDigiCollection> productEETps(new EcalTrigPrimDigiCollection);
   theUnpacker_->setEETpsCollection(&productEETps);
   
   // create the collection for invalid TTIds
-  auto_ptr<EcalTrigTowerDetIdCollection> productInvalidTTIds(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productInvalidTTIds(new EcalTrigTowerDetIdCollection);
   theUnpacker_->setInvalidTTIdsCollection(&productInvalidTTIds);
   
   // create the collection for invalid BlockLengths
-  auto_ptr<EcalTrigTowerDetIdCollection> productInvalidBlockLengths(new EcalTrigTowerDetIdCollection);
+  std::auto_ptr<EcalTrigTowerDetIdCollection> productInvalidBlockLengths(new EcalTrigTowerDetIdCollection);
   theUnpacker_->setInvalidBlockLengthsCollection(&productInvalidBlockLengths);
 
   // MEMs Collections
   // create the collection for the Pn Diode Digis
-  auto_ptr<EcalPnDiodeDigiCollection> productPnDiodeDigis(new EcalPnDiodeDigiCollection);
+  std::auto_ptr<EcalPnDiodeDigiCollection> productPnDiodeDigis(new EcalPnDiodeDigiCollection);
   theUnpacker_->setPnDiodeDigisCollection(&productPnDiodeDigis);
 
   // create the collection for invalid Mem Tt id 
-  auto_ptr<EcalElectronicsIdCollection> productInvalidMemTtIds(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemTtIds(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidMemTtIdsCollection(& productInvalidMemTtIds);
   
   // create the collection for invalid Mem Block Size 
-  auto_ptr<EcalElectronicsIdCollection> productInvalidMemBlockSizes(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemBlockSizes(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidMemBlockSizesCollection(& productInvalidMemBlockSizes);
   
   // create the collection for invalid Mem Block Size 
-  auto_ptr<EcalElectronicsIdCollection> productInvalidMemChIds(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemChIds(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidMemChIdsCollection(& productInvalidMemChIds);
  
   // create the collection for invalid Mem Gain Errors 
-  auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains(new EcalElectronicsIdCollection);
+  std::auto_ptr<EcalElectronicsIdCollection> productInvalidMemGains(new EcalElectronicsIdCollection);
   theUnpacker_->setInvalidMemGainsCollection(& productInvalidMemGains);
  
 //  double TIME_START = clock(); 
@@ -264,7 +264,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
 		  
 		 
           //for debug purposes
-    	  edm::LogInfo("EcalRawToDigi") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length << endl;
+    	  edm::LogInfo("EcalRawToDigiDev") << "Getting FED = " << *i <<"(SM = "<<smId<<")"<<" data size is: " << length;
 	    
           uint64_t * pData = (uint64_t *)(fedData.data());
           theUnpacker_->unpack( pData, static_cast<uint>(length),smId,*i);
@@ -273,7 +273,7 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
     }
 	  
    catch(ECALUnpackerException &e){
-     LogWarning("EcalRawToDigi")<<" exception caught "<<endl<<e.what()<<endl;
+     edm::LogWarning("EcalRawToDigiDev")<<" exception caught \n"<<e.what();
    }
   
   }

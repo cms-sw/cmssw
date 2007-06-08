@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/03/25 07:57:49 $
- * $Revision: 1.129 $
+ * $Date: 2007/04/05 13:56:45 $
+ * $Revision: 1.131 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -73,8 +73,6 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     LogInfo("EcalBarrelMonitor") << " verbose switch is OFF";
   }
 
-  dbe_ = 0;
-
   // get hold of back-end interface
   dbe_ = Service<DaqMonitorBEInterface>().operator->();
 
@@ -84,6 +82,14 @@ EcalBarrelMonitorModule::EcalBarrelMonitorModule(const ParameterSet& ps){
     } else {
       dbe_->setVerbose(0);
     }
+  }
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
+
+  if ( enableCleanup_ ) {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is ON";
+  } else {
+    LogInfo("EcalBarrelMonitor") << " enableCleanup switch is OFF";
   }
 
   // MonitorDaemon switch
@@ -190,6 +196,8 @@ void EcalBarrelMonitorModule::setup(void){
 }
 
 void EcalBarrelMonitorModule::cleanup(void){
+
+  if ( ! enableCleanup_ ) return;
 
   if ( dbe_ ) {
 

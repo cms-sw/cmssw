@@ -118,13 +118,15 @@ void DDTECCoolAlgo::execute() {
 	LogDebug("TECGeom") << "DDTECCoolAlgo debug: kk " << kk << " R " 
 			    << rp << " DY " << yy << ", " << dy << " X, Y "
 			    << xpsl << ", " << ypsl;
+	double phiMax = 5.;
 	DDName mother = parent().name();
 	int mm = (int)(petalName.size());
-	for (int ii=(int)(petalName.size()); ii>0; ii--)
+	for (int ii=(int)(petalName.size()); ii>0; ii--) 
 	  if (rp < petalRmax[ii-1]) mm = ii-1;
 	if (mm < (int)(petalName.size()) && phi1 <= 0.5*petalWidth[mm]) {
 	  mother = DDName(DDSplit(petalName[mm]).first, 
 			  DDSplit(petalName[mm]).second);
+	  phiMax = 0.5*petalWidth[mm];
 	}
 	double xpos = rp*cos(phi)-yy*sin(phi);
 	double ypos = rp*sin(phi)+yy*cos(phi);
@@ -133,15 +135,22 @@ void DDTECCoolAlgo::execute() {
 	else           phi2 = atan2(ypos-coolR[cool],xpos);
 	double rr1 = sqrt(xpos*xpos+ypos*ypos)-coolR[cool];
 	double rr2 = sqrt(xpos*xpos+ypos*ypos)+coolR[cool];
-	DDTranslation tran(xpos, ypos, 0.0);
-	DDRotation rotation;
-	DDpos (child, mother, copyNo, tran, rotation);
-	LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "["  << copyNo
-			    << "] positioned in " << mother << " at " << tran 
-			    << " with " << rotation << " phi (" << phi1/deg
-			    << ":" << phi2/deg << ") Limit" 
-			    << 0.5*petalWidth[mm]/deg << " R " << rr1 << ":" 
-			    << rr2 << " (" << petalRmax[mm] << ")";
+	if (std::abs(phi2) <= phiMax) {
+	  DDTranslation tran(xpos, ypos, 0.0);
+	  DDRotation rotation;
+	  DDpos (child, mother, copyNo, tran, rotation);
+	  LogDebug("TECGeom") << "DDTECCoolAlgo test " << child << "["  
+			      << copyNo << "] positioned in " << mother 
+			      << " at " << tran  << " with " << rotation 
+			      << " phi (" << phi1/deg << ":" << phi2/deg 
+			      << ") Limit" << phiMax/deg << " R " << rr1 
+			      << ":" << rr2 << " (" << petalRmax[mm] << ")";
+	} else {
+	  edm::LogInfo("TECGeom") << "Error in positioning Cool Tube : Phi " 
+				  << phi1/deg  << ":" << phi2/deg << " (Limit "
+				  << phiMax/deg << " R " << rr1 << ":" << rr2 
+				  << " (Limit " << petalRmax[mm] << ")";
+	}
 	copyNo++;
       }
     }

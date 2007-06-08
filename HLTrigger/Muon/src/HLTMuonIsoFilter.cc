@@ -77,7 +77,7 @@ HLTMuonIsoFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       TrackRef tk = candref->get<TrackRef>();
       MuIsoAssociationMap::result_type muonIsIsolated = (*depMap)[tk];
 
-      LogDebug("HLTMuonIsoFilter") << " Muon with pt= " << tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
+      LogDebug("HLTMuonIsoFilter") << " Muon with q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << "; Is Muon isolated? " << muonIsIsolated;
 
       if (!muonIsIsolated) continue;
 

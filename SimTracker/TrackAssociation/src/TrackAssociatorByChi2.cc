@@ -135,6 +135,7 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(edm::Handle<reco::
       }
     }
   }
+  outputCollection.post_insert();
   return outputCollection;
 }
 
@@ -206,6 +207,7 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(edm::Handle<reco::
       }
     }
   }
+  outputCollection.post_insert();
   return outputCollection;
 }
 

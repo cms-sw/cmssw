@@ -10,8 +10,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/03/28 00:43:18 $
- * $Revision: 1.1.2.3 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.4 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -33,7 +33,6 @@
 #include <iostream>
 #include <sstream>
 
-using namespace std;
 class EcalElectronicsMapping;
 
 class EcalElectronicsMapper{
@@ -65,25 +64,25 @@ public:
   /**
    * Receives a string with a path and checks if file is accessible
    */
-  bool setDCCMapFilePath(string );
+  bool setDCCMapFilePath(std::string );
 
 
   /**
    * Retrieves current path do the map file
    */
-  string getDCCMapFilePath() const { return pathToMapFile_; }
+  std::string getDCCMapFilePath() const { return pathToMapFile_; }
   
   
   /**
    * Read map file (returns false if an error ocurred)
    */
   bool readDCCMapFile();
-  bool readDCCMapFile(string );
+  bool readDCCMapFile(std::string );
 
   /**
    * Get methods for DCCId/SMId and map
    */
-  const map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
+  const std::map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
 
   DetId  * getDetIdPointer(uint feChannel, uint strip, uint xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
 
@@ -97,7 +96,7 @@ public:
   
   EcalSrFlag * getSrFlagPointer(uint feChannel){ return srFlags_[smId_-1][feChannel-1]; }
   
-  vector<uint> * getTccs(){ return mapSmIdToTccIds_[smId_];}
+  std::vector<uint> * getTccs(){ return mapSmIdToTccIds_[smId_];}
 	
   uint getActiveDCC()                 { return dccId_;                      }
  
@@ -152,15 +151,15 @@ private:
   uint computeEBTCCBlockLength();
   uint computeEETCCBlockLength();
 
-  string pathToMapFile_;
+  std::string pathToMapFile_;
   
   uint numbXtalTSamples_;
   
   uint numbTriggerTSamples_;
 
-  map<uint,uint> myDCCMap_;
+  std::map<uint,uint> myDCCMap_;
   
-  map< uint, vector<uint> * > mapSmIdToTccIds_;
+  std::map< uint, std::vector<uint> * > mapSmIdToTccIds_;
   
   uint dccId_;
   

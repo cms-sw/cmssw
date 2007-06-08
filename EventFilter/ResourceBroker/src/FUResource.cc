@@ -28,7 +28,7 @@
 #define FED_HCTRLID    0x50000000
 #define FED_TCTRLID    0xa0000000
 #define REAL_SOID_MASK 0x0003FF00
-#define FED_RBIT_MASK  0x00000002
+#define FED_RBIT_MASK  0x00000004
 
 
 using namespace std;
@@ -48,8 +48,9 @@ bool FUResource::doFedIdCheck_ = true;
 ////////////////////////////////////////////////////////////////////////////////
 
 //______________________________________________________________________________
-FUResource::FUResource(log4cplus::Logger logger)
+FUResource::FUResource(UInt_t fuResourceId,log4cplus::Logger logger)
   : log_(logger)
+  , fuResourceId_(fuResourceId)
   , superFragHead_(0)
   , superFragTail_(0)
   , nbBytes_(0)
@@ -73,10 +74,10 @@ FUResource::~FUResource()
 //______________________________________________________________________________
 void FUResource::allocate(FUShmRawCell* shmCell)
 {
-  release();
+  //release();
   shmCell_=shmCell;
   shmCell_->clear();
-  fuResourceId_    =shmCell_->fuResourceId();
+  shmCell_->setFuResourceId(fuResourceId_);
   eventPayloadSize_=shmCell_->payloadSize();
   nFedMax_         =shmCell_->nFed();
   nSuperFragMax_   =shmCell_->nSuperFrag();
@@ -112,8 +113,10 @@ void FUResource::release()
 
   nbErrors_     =0;
   nbCrcErrors_  =0;
+
+  for (UInt_t i=0;i<1024;i++) fedSize_[i]=0;
   eventSize_    =0;
-  
+    
   if (0!=shmCell_) {
     shmdt(shmCell_);
     shmCell_=0;
@@ -635,12 +638,14 @@ void FUResource::findFEDs() throw (evf::Exception)
     }
   
     // check that fedid is within valid ranges
-    if (doFedIdCheck_&&!FEDNumbering::inRange(fedId)) {
-      LOG4CPLUS_ERROR(log_,"fedid out of valid range."
+    if (fedId>=1024||
+	(doFedIdCheck_&&(!FEDNumbering::inRange(fedId)||fedSize_[fedId]!=0))) {
+      LOG4CPLUS_ERROR(log_,"Invalid fedid."
 		      <<" evtNumber:"<<evtNumber_
 		      <<" fedid:"<<fedId);
       nbErrors_++;
     }
+    if (fedId<1024) fedSize_[fedId]=fedSize;
     
     // crc check
     if (doCrcCheck_) {

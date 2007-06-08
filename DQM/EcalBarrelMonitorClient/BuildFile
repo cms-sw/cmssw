@@ -1,6 +1,5 @@
 <flags SEAL_PLUGIN_NAME="DQMEcalBarrelMonitorClient">
 <use name=CondTools/Ecal>
-<use name=DQM/EcalBarrelMonitorDisplayPlugins>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
 <use name=DQMServices/QualityTests>
@@ -9,8 +8,8 @@
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
-<use name=Foundation/PluginManager>
 <use name=OnlineDB/EcalCondDB>
+<use name=DQM/EcalCommon>
 <use name=rootcore>
 <export>
   <use name=DQMServices/Core>

@@ -27,8 +27,6 @@ CSCBaseElectronicsSim::CSCBaseElectronicsSim(const edm::ParameterSet & p)
   theNoiseWasAdded(false),
   nElements(0),
   theShapingTime(p.getParameter<int>("shapingTime")),
-  theTailShaping(RADICAL),
-  theAmpGainVariance(p.getParameter<double>("ampGainVariance")),
   thePeakTimeVariance(p.getParameter<double>("peakTimeVariance")),
   theBunchTimingOffsets(p.getParameter<std::vector<double> >("bunchTimingOffsets")),
   theSignalStartTime(p.getParameter<double>("signalStartTime")),
@@ -126,8 +124,8 @@ void CSCBaseElectronicsSim::addNoise() {
       mapI!=  theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first));
-    // do amp gain variations
-    (*mapI).second *= (1.+ theAmpGainVariance * RandGaussQ::shoot());
+    // DON'T do amp gain variations.  Handled in strips by calibration code
+    //(*mapI).second *= (1.+ theAmpGainVariance * RandGaussQ::shoot());
     // and variations in the shaper peaking time.
     (*mapI).second.setTimeOffset((*mapI).second.getTimeOffset() 
                                + thePeakTimeVariance * RandGaussQ::shoot());

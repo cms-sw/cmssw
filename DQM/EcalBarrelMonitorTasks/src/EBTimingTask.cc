@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2007/03/21 16:10:40 $
- * $Revision: 1.9 $
+ * $Date: 2007/04/10 05:51:30 $
+ * $Revision: 1.14 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include <DQM/EcalCommon/interface/Numbers.h>
+
 #include <DQM/EcalBarrelMonitorTasks/interface/EBTimingTask.h>
 
 using namespace cms;
@@ -35,6 +37,11 @@ using namespace std;
 EBTimingTask::EBTimingTask(const ParameterSet& ps){
 
   init_ = false;
+
+  // get hold of back-end interface
+  dbe_ = Service<DaqMonitorBEInterface>().operator->();
+
+  enableCleanup_ = ps.getUntrackedParameter<bool>("enableCleanup", true);
 
   EcalUncalibratedRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalUncalibratedRecHitCollection");
 
@@ -52,14 +59,9 @@ void EBTimingTask::beginJob(const EventSetup& c){
 
   ievt_ = 0;
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
-    dbe->rmdir("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
+    dbe_->rmdir("EcalBarrel/EBTimingTask");
   }
 
 }
@@ -70,18 +72,13 @@ void EBTimingTask::setup(void){
 
   Char_t histo[200];
 
-  DaqMonitorBEInterface* dbe = 0;
-
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for (int i = 0; i < 36 ; i++) {
-      sprintf(histo, "EBTMT timing SM%02d", i+1);
-      meTimeMap_[i] = dbe->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
-      dbe->tag(meTimeMap_[i], i+1);
+      sprintf(histo, "EBTMT timing %s", Numbers::sEB(i+1).c_str());
+      meTimeMap_[i] = dbe_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 250, 0., 10., "s");
+      dbe_->tag(meTimeMap_[i], i+1);
     }
 
   }
@@ -90,16 +87,13 @@ void EBTimingTask::setup(void){
 
 void EBTimingTask::cleanup(void){
 
-  DaqMonitorBEInterface* dbe = 0;
+  if ( ! enableCleanup_ ) return;
 
-  // get hold of back-end interface
-  dbe = Service<DaqMonitorBEInterface>().operator->();
-
-  if ( dbe ) {
-    dbe->setCurrentFolder("EcalBarrel/EBTimingTask");
+  if ( dbe_ ) {
+    dbe_->setCurrentFolder("EcalBarrel/EBTimingTask");
 
     for ( int i = 0; i < 36; i++ ) {
-      if ( meTimeMap_[i] ) dbe->removeElement( meTimeMap_[i]->getName() );
+      if ( meTimeMap_[i] ) dbe_->removeElement( meTimeMap_[i]->getName() );
       meTimeMap_[i] = 0;
     }
 
@@ -122,6 +116,83 @@ void EBTimingTask::analyze(const Event& e, const EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+#if 0
+  try {
+
+    Handle<EBDigiCollection> digis;
+    e.getByLabel(EBDigiCollection_, digis);
+
+    int nebd = digis->size();
+    LogDebug("EBPedestalOnlineTask") << "event " << ievt_ << " digi collection size " << nebd;
+
+    for ( EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr ) {
+
+      EBDataFrame dataframe = (*digiItr);
+      EBDetId id = dataframe.id();
+
+      int ic = id.ic();
+      int ie = (ic-1)/20 + 1;
+      int ip = (ic-1)%20 + 1;
+
+      int ism = id.ism();
+
+      float xie = ie - 0.5;
+      float xip = ip - 0.5;
+
+      LogDebug("EBTimingTask") << " det id = " << id;
+      LogDebug("EBTimingTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
+
+      MonitorElement* meTimeMap = 0;
+
+      meTimeMap = meTimeMap_[ism-1];
+
+      float xvalped = 0.;
+
+      for (int i = 0; i < 3; i++) {
+
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        xvalped = xvalped + xval;
+
+      }
+
+      xvalped = xvalped / 3;
+
+      float yval = 0.;
+      float ysum = 0.;
+
+      for (int i = 0; i < 10; i++) {
+
+        EcalMGPASample sample = dataframe.sample(i);
+        int adc = sample.adc();
+
+        float xval = float(adc);
+
+        if ( (xval-xvalped) >= 0 ) {
+          yval = yval + (i+0.5)*(xval-xvalped)*(xval-xvalped);
+          ysum = ysum +         (xval-xvalped)*(xval-xvalped);
+        }
+
+      }
+
+      if ( ysum > 0. ) yval = yval/ysum - 1.0;
+
+      LogDebug("EBTimingTask") << " hit jitter " << yval;
+
+      if ( meTimeMap ) meTimeMap->Fill(xie, xip, yval);
+
+    }
+
+  } catch ( exception& ex) {
+
+    LogWarning("EBTimingTask") << EBDigiCollection_ << " not available";
+
+  }
+#endif
 
   try {
 

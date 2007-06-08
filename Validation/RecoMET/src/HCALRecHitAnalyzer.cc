@@ -138,14 +138,14 @@ void HCALRecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 void HCALRecHitAnalyzer::WriteHCALRecHits(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  Handle<HBHERecHitCollection> HBHERecHits;
-  Handle<HORecHitCollection> HORecHits;
-  Handle<HFRecHitCollection> HFRecHits;
+  edm::Handle<HBHERecHitCollection> HBHERecHits;
+  edm::Handle<HORecHitCollection> HORecHits;
+  edm::Handle<HFRecHitCollection> HFRecHits;
   iEvent.getByLabel( "hbhereco", HBHERecHits );
   iEvent.getByLabel( "horeco", HORecHits );
   iEvent.getByLabel( "hfreco", HFRecHits );
 
-  Handle<reco::CandidateCollection> to;
+  edm::Handle<reco::CandidateCollection> to;
   iEvent.getByLabel( "caloTowers", to );
   const CandidateCollection *towers = (CandidateCollection *)to.product();
   reco::CandidateCollection::const_iterator tower = towers->begin();

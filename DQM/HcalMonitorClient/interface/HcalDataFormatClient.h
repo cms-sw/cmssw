@@ -92,18 +92,10 @@ private:
   string process_;
 
   MonitorUserInterface* mui_;
-
-  TH1F* spigotErrs;
-  TH1F* badDigis;
-  TH1F* unmappedDigis;
-  TH1F* unmappedTPDs;
-  TH1F* fedErrMap;
-
+  
   TH1F* dferr[3];
-  TH2F* crateErrMap[3];
-  TH2F* fiberErrMap[3];
-  TH2F* spigotErrMap[3];
-
+  TH2F* dfmap[3];
+  
   // Quality criteria for data integrity
   float thresh_;
   map<string, vector<QReport*> > dqmReportMapErr_;

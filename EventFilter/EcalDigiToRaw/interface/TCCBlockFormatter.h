@@ -17,7 +17,6 @@
 // The block containing the trigger towers for a given FED
 //
 
-using namespace std;
 
 
 class TCCBlockFormatter : public BlockFormatter {

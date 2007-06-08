@@ -127,6 +127,7 @@ protected:
 
 };
 
+std::ostream& operator<<(std::ostream& s,const TruncatedPyramid& cell);
 /* //! utility */
 /* HepPoint3D findCrossPoint(const HepPlane3D & pl1, const HepPlane3D & pl2, const HepPlane3D & pl3);    */
   
