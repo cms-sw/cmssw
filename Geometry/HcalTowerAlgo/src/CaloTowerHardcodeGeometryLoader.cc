@@ -76,6 +76,6 @@ const CaloCellGeometry* CaloTowerHardcodeGeometryLoader::makeCell(int ieta, int 
   z*=sign;
   GlobalPoint point(x,y,z);
 
-  return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, alongZ);
+  return new calogeom::IdealObliquePrism(point, deta, dphi_half*2, thickness, !alongZ);
 
 }
