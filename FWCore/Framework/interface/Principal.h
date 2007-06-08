@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.7 2007/05/29 19:32:03 wmtan Exp $
+$Id: Principal.h,v 1.8 2007/06/06 23:33:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -43,27 +43,6 @@ namespace edm {
 
     typedef boost::shared_ptr<Group> SharedGroupPtr;
     typedef std::string ProcessName;
-
-    // We need a custom iterator to skip non-existent groups.
-    class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
-    public:
-      typedef GroupVec::value_type value_type;
-      typedef GroupVec::const_iterator Iter;
-      const_iterator(Iter const& it, Iter const& itEnd) : iter_(it), iterEnd_(itEnd) {}
-      value_type const& operator*() const { return *iter_; }
-      value_type const * operator->() const { return &*iter_; }
-      const_iterator & operator++() {
-        ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return *this;
-      }
-      const_iterator operator++(int) {
-        const_iterator it(*this); ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return it;
-      }
-      bool operator==(const_iterator const& rhs) const {return this->iter_ == rhs.iter_;}
-      bool operator!=(const_iterator const& rhs) const {return this->iter_ != rhs.iter_;}
-    private:
-      Iter iter_;
-      Iter iterEnd_;
-    };
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
 	      ProcessConfiguration const& pc,
@@ -127,15 +106,6 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const *> & provenances) const;
 
-    // ----- access to all products
-
-    const_iterator begin() const {
-      GroupVec::const_iterator iter(groups_.begin());
-      while (iter != groups_.end() && iter->get() == 0) ++iter; 
-      return const_iterator(iter, groups_.end());
-    }
-    const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
-
     ProcessHistory const& processHistory() const;    
 
     ProcessHistoryID const& processHistoryID() const {
@@ -159,6 +129,36 @@ namespace edm {
     void addToProcessHistory() const;
 
   private:
+    // We need a custom iterator to skip non-existent groups.
+    class const_iterator : public std::iterator <std::forward_iterator_tag, boost::shared_ptr<Group> > {
+    public:
+      typedef GroupVec::value_type value_type;
+      typedef GroupVec::const_iterator Iter;
+      const_iterator(Iter const& it, Iter const& itEnd) : iter_(it), iterEnd_(itEnd) {}
+      value_type const& operator*() const { return *iter_; }
+      value_type const * operator->() const { return &*iter_; }
+      const_iterator & operator++() {
+        ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return *this;
+      }
+      const_iterator operator++(int) {
+        const_iterator it(*this); ++iter_; while (iter_ != iterEnd_ && iter_->get() == 0) ++iter_; return it;
+      }
+      bool operator==(const_iterator const& rhs) const {return this->iter_ == rhs.iter_;}
+      bool operator!=(const_iterator const& rhs) const {return this->iter_ != rhs.iter_;}
+    private:
+      Iter iter_;
+      Iter iterEnd_;
+    };
+
+    // ----- access to all products
+
+    const_iterator begin() const {
+      GroupVec::const_iterator iter(groups_.begin());
+      while (iter != groups_.end() && iter->get() == 0) ++iter; 
+      return const_iterator(iter, groups_.end());
+    }
+
+    const_iterator end() const { return const_iterator(groups_.end(), groups_.end()); }
 
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
