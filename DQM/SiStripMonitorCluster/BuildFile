@@ -1,5 +1,5 @@
 <use name=FWCore/Framework>
-<use name=FWCore/PluginManager>
+<use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DQMServices/Core>
 <use name=DataFormats/SiStripCluster>
@@ -7,12 +7,13 @@
 <use name=CalibTracker/Records>
 <use name=CalibTracker/SiStripConnectivity>
 <use name=DQM/SiStripCommon>
+<use name=RecoLocalTracker/SiStripClusterizer>
 <use name=CommonTools/SiStripZeroSuppression>
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMSiStripMonitorCluster">
 <export>
    <lib name=DQMSiStripMonitorCluster>
    <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
+   <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=DQMServices/Core>
    <use name=DataFormats/SiStripCluster>
@@ -20,5 +21,6 @@
    <use name=CalibTracker/Records>
    <use name=CalibTracker/SiStripConnectivity>
    <use name=DQM/SiStripCommon>
+   <use name=RecoLocalTracker/SiStripClusterizer>
    <use name=CommonTools/SiStripZeroSuppression>
 </export>
