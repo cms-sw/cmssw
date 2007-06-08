@@ -1,0 +1,54 @@
+#!/usr/bin/env python
+import os, fnmatch,string
+from optparse import OptionParser
+class localCatalogBuilder:
+    def __init__(self):
+        """
+        Given the root of a directory tree, find all the sqlite data files *.db and generate a local xml catalog file:localCondDBCatalog.xml
+        usage: %prog [options]
+        -d, --dir=rootdir: rootdir( default to current dir )
+        -o, --output=outputcatalog: output catalog( default to file:localCondDBCatalog.xml )
+        -h, --help: print usage
+        """
+        self.myroot=""
+        self.mycat=""
+    def parsecmdln(self):
+        usage = "usage: \%prog [options] \n"
+        parser = OptionParser()
+        parser.set_defaults(rootdir=os.curdir)
+        parser.set_defaults(outfile="file:localCondDBCatalog.xml")
+        parser.add_option("-d","--dir",action="store",dest="rootdir",
+                          help="rootdir( default current dir )")
+        parser.add_option("-o","--outfile",action="store",dest="outfile",
+                          help="output catalog( default file:localCondDBCatalog.xml )") 
+        (options, args) = parser.parse_args()
+        self.myroot=options.rootdir
+        self.mycat=options.outfile
+    def locate(self,pattern):
+        '''Locate all files matching supplied filename pattern in and below
+        supplied root directory
+        '''
+        for path, dirs, files in os.walk(os.path.abspath(self.myroot)):
+            for filename in fnmatch.filter(files, pattern):
+                yield os.path.join(path,filename)
+    def buildcatalog(self,dbfile):
+        '''create xml catalog with given input
+        '''
+        pfn = 'sqlite_file://'+dbfile
+        lfn = '/local/'+os.path.split(dbfile)[1]
+        cmd = ' '.join(['pool_insertFileToCatalog','-t','POOL_RDBMS','-u', self.mycat,pfn])
+        print cmd
+        os.system(cmd)   
+        cmd = ' '.join(['FCregisterLFN','-l',lfn,'-p',pfn,'-u', self.mycat])
+        print cmd
+        os.system(cmd) 
+if __name__ == "__main__":
+    me=localCatalogBuilder()    
+    me.parsecmdln()
+    dbfiles=[]
+    for dbfile in me.locate("*.db"):
+        dbfiles.append(dbfile)
+        me.buildcatalog(dbfile)
+
+
+
