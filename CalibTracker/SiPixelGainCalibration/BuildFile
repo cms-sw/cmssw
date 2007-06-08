@@ -7,15 +7,21 @@
 <use name=CondFormats/DataRecord>
 <use name=CondFormats/SiPixelObjects>
 <use name=CondCore/DBOutputService>
+<use name=PhysicsTools/UtilAlgos>
+<use name=FWCore/ServiceRegistry>
+<use name=EventSetup/SiPixelRawToDigi>
 <use name=root>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibTrackerSiPixelGainCalibration>
    <use name=FWCore/Framework>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
    <use name=FWCore/MessageLogger>
    <use name=DataFormats/FEDRawData>
    <use name=CondTools/SiPixel>
+   <use name=PhysicsTools/UtilAlgos>
    <use name=CondFormats/DataRecord>
+   <use name=EventSetup/SiPixelRawToDigi>
 </export>
