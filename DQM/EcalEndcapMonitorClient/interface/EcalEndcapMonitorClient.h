@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/01 19:33:26 $
- * $Revision: 1.8 $
+ * $Date: 2007/06/02 08:00:13 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,9 @@ void cleanup(void);
 
 /// HtmlOutput
 void htmlOutput(bool current=false);
+
+/// XDAQ web page
+void defaultWebPage(xgi::Input *in, xgi::Output *out);
 
 /// BeginRunDB
 void beginRunDb(void);
