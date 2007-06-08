@@ -48,16 +48,18 @@ namespace edmtest
   {
     assert(e.size() > 0);
 
-    tester<SCSimpleProduct>::call(this, e, "simple");
-    tester<OVSimpleProduct>::call(this, e, "ovsimple");
-
-    // This is commented out because it causes a missing dictionary failure.
-    //tester<AVSimpleProduct>::call(this, e, "avsimple");
-
     tester<vector<int> >::call(this, e, "intvec");
     tester<list<int> >::call(this, e, "intlist");
     tester<deque<int> >::call(this, e, "intdeque");
     tester<set<int> >::call(this, e, "intset");
+
+
+    tester<SCSimpleProduct>::call(this, e, "simple");
+    tester<OVSimpleProduct>::call(this, e, "ovsimple");
+
+    // This is commented out because it causes a missing dictionary failure
+    //tester<AVSimpleProduct>::call(this, e, "avsimple");
+
 
     testDSVProduct(e, "dsvsimple");
     testProductWithBaseClass(e, "ovsimple");
