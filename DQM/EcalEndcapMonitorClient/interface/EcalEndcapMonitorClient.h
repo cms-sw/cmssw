@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/08 12:32:41 $
- * $Revision: 1.11 $
+ * $Date: 2007/06/08 18:39:46 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -36,7 +36,7 @@
 #include "TROOT.h"
 #include "TH1.h"
 
-class EcalEndcapMonitorClient: public edm::EDAnalyzer{
+class EcalEndcapMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 

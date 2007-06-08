@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/08 12:31:17 $
- * $Revision: 1.31 $
+ * $Date: 2007/06/08 18:39:46 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,7 +74,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui) : ModuleWeb("EcalEndcapMonitorClient"){
 
   enableStateMachine_ = true;
 
@@ -84,7 +84,7 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps, Monitor
 
 }
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps){
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
 
   enableStateMachine_ = false;
 
