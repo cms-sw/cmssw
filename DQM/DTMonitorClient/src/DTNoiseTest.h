@@ -70,13 +70,15 @@ protected:
 
   /// book the new ME
   void bookHistos(const DTChamberId & ch, std::string folder, std::string histoTag);
+  void bookHistos(const DTLayerId & ch, int nWire,std::string folder, std::string histoTag);
 
   /// Get the ME name
-  std::string getMEName(const DTSuperLayerId & slID);
   std::string getMEName(const DTChamberId & ch);
+  std::string getMEName(const DTLayerId & ly);
 
 private:
 
+  bool debug;
   int nevents;
   int updates;
   DaqMonitorBEInterface* dbe;
