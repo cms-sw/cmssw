@@ -60,8 +60,27 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
       if (ch.subsector=="++") subsector=4;
     } 
   }
-   
 
+   // ROLL
+  string roll = feb.cmsEtaPartition;
+  int iroll=0;
+
+  if      (roll=="1" || roll=="A") iroll = 1;
+  else if (roll=="2" || roll=="B") iroll = 2;
+  else if (roll=="3" || roll=="C") iroll = 3;
+  else if (roll=="D") iroll = 4;
+  else {
+    cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
+         <<roll<<" ???" << endl;
+  }
+
+  if(region==0 && ring<0){
+    if      (roll=="1" || roll=="A") iroll = 3;
+    else if (roll=="2" || roll=="B") iroll = 2;
+    else if (roll=="3" || roll=="C") iroll = 1;
+  }
+
+  /*
   // ROLL
   string roll = feb.cmsEtaPartition;
   int iroll=0;
@@ -77,7 +96,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     cout << "** RPC: DBSpecToDetUnit, how to assigne roll to: "
                <<roll<<" ???" << endl;
   }
-
+  */
   int trIndex = 0;
   if(barrel){   
     //cout <<" BARREL: " << endl; 

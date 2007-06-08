@@ -39,8 +39,8 @@ std::string FebConnectorSpec::print(int depth) const
   std::ostringstream str;
   str << "FebConnectorSpec in LinkBoardNum ="<<linkBoardInputNum()
       <<" rawId: " << rawId() <<std::endl;
-  //RPCDetId aDet(rawId());
-  //std::cout<<aDet;
+  RPCDetId aDet(rawId());
+  str<<aDet<<std::endl;
   str << theChamber.print(depth)<< std::endl << theFeb.print(depth) ;
   depth--;
   if (depth >=0) {
