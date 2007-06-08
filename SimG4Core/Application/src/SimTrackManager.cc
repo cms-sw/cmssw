@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Fri Nov 25 17:44:19 EST 2005
-// $Id: SimTrackManager.cc,v 1.10 2007/01/23 13:41:04 fambrogl Exp $
+// $Id: SimTrackManager.cc,v 1.11 2007/05/21 14:36:34 fambrogl Exp $
 //
 
 // system include files
@@ -106,6 +106,9 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory * trkWHist)
     }
 
     if (parentExists) saveTrackAndItsBranch(tempTk);
+
+    delete tempTk;
+
 }
 
 void SimTrackManager::storeTracks(G4SimEvent* simEvent)
