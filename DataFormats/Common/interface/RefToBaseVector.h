@@ -28,7 +28,10 @@ namespace edm {
       virtual void reserve(size_type n) = 0;
       virtual void clear() = 0;
       virtual ProductID id() const = 0;
-    protected:
+
+      // the following structure is public 
+      // to allow reflex dictionary to compile
+      //    protected:
       struct const_iterator_imp {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp() { } 
@@ -140,7 +143,7 @@ namespace edm {
 	  if ( isInvalid() )
 	    throw edm::Exception( edm::errors::InvalidReference ) 
 	      << "Trying to increment an inavlid RefToBaseVector<T>::const_iterator";
-	  i->ixncrease( d ); 
+	  i->increase( d ); 
 	  return *this; 
 	}
 	const_iterator & operator -=( difference_type d ) { 
@@ -194,6 +197,9 @@ namespace edm {
 
       ref_vector_type refVector_;
 
+      // the following structure is public 
+      // to allow reflex dictionary to compile
+    public:
       struct const_iterator_imp_specific : public const_iterator_imp {
 	typedef ptrdiff_t difference_type;
 	const_iterator_imp_specific() { }
