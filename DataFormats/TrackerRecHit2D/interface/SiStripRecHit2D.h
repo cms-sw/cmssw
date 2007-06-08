@@ -20,11 +20,11 @@ public:
 
   SiStripRecHit2D( const LocalPoint&, const LocalError&,
 		   const DetId&, 
-		   edm::SiStripRefGetter<SiStripCluster>::self_ref const& ); 
+		   edm::SiStripRefGetter<SiStripCluster>::value_ref const& ); 
   
   virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
   
-  edm::SiStripRefGetter<SiStripCluster>::self_ref const&  cluster_regional()  const { return clusterRegional_;}
+  edm::SiStripRefGetter<SiStripCluster>::value_ref const&  cluster_regional()  const { return clusterRegional_;}
 
   edm::Ref<edm::DetSetVector<SiStripCluster> ,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster> > const&  cluster()  const { return clusterDSV_;}
   
@@ -33,7 +33,7 @@ public:
  private:
 
   // SiStripRefGetter ref.
-  edm::SiStripRefGetter<SiStripCluster>::self_ref const clusterRegional_;
+  edm::SiStripRefGetter<SiStripCluster>::value_ref const clusterRegional_;
 
   // DetSetVector ref
   edm::Ref<edm::DetSetVector<SiStripCluster>,SiStripCluster, edm::refhelper::FindForDetSetVector<SiStripCluster>  >  const clusterDSV_;

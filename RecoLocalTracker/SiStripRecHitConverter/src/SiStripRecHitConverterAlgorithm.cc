@@ -110,7 +110,7 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
   int nstereo=0;
   edm::OwnVector<SiStripRecHit2D> collectorrphi; 
   edm::OwnVector<SiStripRecHit2D> collectorstereo;
-
+ 
   edm::SiStripRefGetter<SiStripCluster>::const_iterator iregion = inputhandle->begin();
   for(;iregion!=inputhandle->end();++iregion) {
     vector<SiStripCluster>::const_iterator icluster = iregion->begin();
@@ -126,10 +126,8 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edm::SiStripRefGetter<SiSt
       else{
         
         StripSubdetector specDetId=StripSubdetector(icluster->geographicalId());
-	
 	StripClusterParameterEstimator::LocalValues parameters=parameterestimator.localParameters(*icluster,*stripdet);
-
-	edm::SiStripRefGetter<SiStripCluster>::self_ref cluster = edm::makeRefToSiStripRefGetter(inputhandle,icluster);
+	edm::SiStripRefGetter<SiStripCluster>::value_ref cluster = edm::makeRefToSiStripRefGetter(inputhandle,icluster);
        
 	if(!specDetId.stereo()){ 
 	  collectorrphi.push_back(new SiStripRecHit2D(parameters.first, parameters.second,detId,cluster));
