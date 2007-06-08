@@ -1,21 +1,23 @@
-#ifndef Framework_EDProducer_h
-#define Framework_EDProducer_h
+#ifndef FWCore_Framework_EDProducer_h
+#define FWCore_Framework_EDProducer_h
 
 /*----------------------------------------------------------------------
   
 EDProducer: The base class of "modules" whose main purpose is to insert new
 EDProducts into an Event.
 
-$Id: EDProducer.h,v 1.16 2006/10/31 23:54:01 wmtan Exp $
+$Id: EDProducer.h,v 1.17 2006/11/03 17:57:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 namespace edm {
   class EDProducer : public ProducerBase {
   public:
+    friend class ProducerWorker;
     typedef EDProducer ModuleType;
 
     EDProducer ();
@@ -49,6 +51,10 @@ namespace edm {
     virtual void beginLuminosityBlock(LuminosityBlock &, EventSetup const&){}
     virtual void endLuminosityBlock(LuminosityBlock &, EventSetup const&){}
 
+    void setModuleDescription(ModuleDescription const& md) {
+      moduleDescription_ = md;
+    }
+    ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };
 }

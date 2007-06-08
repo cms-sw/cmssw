@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.30 2007/03/07 00:03:49 wmtan Exp $
+$Id: OutputModule.cc,v 1.31 2007/03/22 06:09:28 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -126,6 +126,7 @@ namespace edm {
     groupSelector_(pset),
     //eventSelectors_(),
     //selectResult_("*"),  // use the most recent process name
+    moduleDescription_(),
     current_context_(0),
     //prods_(),
     prodsValid_(false),

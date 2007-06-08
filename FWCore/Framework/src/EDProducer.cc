@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.10 2006/06/20 23:13:27 paterno Exp $
+$Id: EDProducer.cc,v 1.11 2006/10/31 23:54:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -9,7 +9,10 @@ $Id: EDProducer.cc,v 1.10 2006/06/20 23:13:27 paterno Exp $
 #include "FWCore/Framework/src/CPCSentry.h"
 
 namespace edm {
-  EDProducer::EDProducer() : ProducerBase(), current_context_(0)  { }
+  EDProducer::EDProducer() :
+      ProducerBase(),
+      moduleDescription_(),
+      current_context_(0) {}
 
   EDProducer::~EDProducer() { }
 

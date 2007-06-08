@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.23 2007/05/18 22:14:23 wmtan Exp $
+$Id: InputSource.cc,v 1.24 2007/06/06 23:33:48 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -42,12 +42,12 @@ namespace edm {
       remainingEvents_(maxEvents_),
       readCount_(0),
       unlimited_(maxEvents_ < 0),
-      isDesc_(desc),
-      productRegistry_(createSharedPtrToStatic<ProductRegistry const>(isDesc_.productRegistry_)),
+      moduleDescription_(desc.moduleDescription_),
+      productRegistry_(createSharedPtrToStatic<ProductRegistry const>(desc.productRegistry_)),
       primary_(pset.getParameter<std::string>("@module_label") == std::string("@main_input")) {
     // Secondary input sources currently do not have a product registry.
     if (primary_) {
-      assert(isDesc_.productRegistry_ != 0);
+      assert(desc.productRegistry_ != 0);
     }
     int maxEventsOldStyle = pset.getUntrackedParameter<int>("maxEvents", improbable);
     if (maxEventsOldStyle != improbable) {

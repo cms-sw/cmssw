@@ -1,5 +1,5 @@
-#ifndef Framework_EDFilter_h
-#define Framework_EDFilter_h
+#ifndef FWCore_Framework_EDFilter_h
+#define FWCore_Framework_EDFilter_h
 
 /*----------------------------------------------------------------------
   
@@ -8,20 +8,22 @@ processing in a processing path.
 Filters can also insert products into the event.
 These products should be informational products about the filter decision.
 
-$Id: EDFilter.h,v 1.12 2006/10/31 23:54:01 wmtan Exp $
+$Id: EDFilter.h,v 1.13 2006/11/03 17:57:51 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 namespace edm {
 
   class EDFilter : public ProducerBase {
   public:
+    friend class FilterWorker;
     typedef EDFilter ModuleType;
     
-    EDFilter() : ProducerBase() , current_context_(0) {}
+    EDFilter() : ProducerBase() , moduleDescription_(), current_context_(0) {}
     virtual ~EDFilter();
     bool doFilter(Event& e, EventSetup const& c,
 		  CurrentProcessingContext const* cpc);
@@ -51,6 +53,10 @@ namespace edm {
     virtual bool beginLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
     virtual bool endLuminosityBlock(LuminosityBlock &, EventSetup const&){return true;}
 
+    void setModuleDescription(ModuleDescription const& md) {
+      moduleDescription_ = md;
+    }
+    ModuleDescription moduleDescription_;
     CurrentProcessingContext const* current_context_;
   };
 }

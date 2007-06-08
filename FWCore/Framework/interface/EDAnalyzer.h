@@ -1,17 +1,17 @@
-#ifndef Framework_EDAnalyzer_h
-#define Framework_EDAnalyzer_h
+#ifndef FWCore_Framework_EDAnalyzer_h
+#define FWCore_Framework_EDAnalyzer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 // EDAnalyzer is the base class for all reconstruction "modules".
 
 namespace edm {
 
-  class EDAnalyzer 
-  {
+  class EDAnalyzer {
   public:
-
-    EDAnalyzer() : current_context_(0) {}
+    friend class AnalyzerWorker;
+    EDAnalyzer() : moduleDescription_(), current_context_(0) {}
     virtual ~EDAnalyzer();
 
     typedef EDAnalyzer ModuleType;
@@ -42,6 +42,11 @@ namespace edm {
     virtual void endRun(Run const&, EventSetup const&){}
     virtual void beginLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
     virtual void endLuminosityBlock(LuminosityBlock const&, EventSetup const&){}
+
+    void setModuleDescription(ModuleDescription const& md) {
+      moduleDescription_ = md;
+    }
+    ModuleDescription moduleDescription_;
 
     CurrentProcessingContext const* current_context_;
   };

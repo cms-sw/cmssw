@@ -1,5 +1,5 @@
-#ifndef Framework_InputSource_h
-#define Framework_InputSource_h
+#ifndef FWCore_Framework_InputSource_h
+#define FWCore_Framework_InputSource_h
 
 
 /*----------------------------------------------------------------------
@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.24 2007/03/22 22:26:11 wmtan Exp $
+$Id: InputSource.h,v 1.25 2007/06/06 23:33:48 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -118,7 +118,7 @@ namespace edm {
     int remainingEvents() const {return remainingEvents_;}
 
     /// Accessor for 'module' description.
-    ModuleDescription const& moduleDescription() const {return isDesc_.moduleDescription_;}
+    ModuleDescription const& moduleDescription() const {return moduleDescription_;}
 
     /// Accessor for Process Configuration
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
@@ -140,7 +140,7 @@ namespace edm {
     using ProductRegistryHelper::typeLabelList;
 
   protected:
-    ProductRegistry & productRegistryUpdate() const {return *isDesc_.productRegistry_;}
+    ProductRegistry & productRegistryUpdate() const {return const_cast<ProductRegistry &>(*productRegistry_);}
 
   private:
 
@@ -166,7 +166,7 @@ namespace edm {
     int remainingEvents_;
     int readCount_;
     bool unlimited_;
-    InputSourceDescription const isDesc_;
+    ModuleDescription const moduleDescription_;
     boost::shared_ptr<ProductRegistry const> productRegistry_;
     bool const primary_;
   };

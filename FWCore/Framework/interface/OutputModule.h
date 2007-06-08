@@ -1,12 +1,12 @@
-#ifndef Framework_OutputModule_h
-#define Framework_OutputModule_h
+#ifndef FWCore_Framework_OutputModule_h
+#define FWCore_Framework_OutputModule_h
 
 /*----------------------------------------------------------------------
   
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.38 2007/03/07 00:03:24 wmtan Exp $
+$Id: OutputModule.h,v 1.39 2007/03/22 06:07:18 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -36,6 +36,7 @@ namespace edm {
 
   class OutputModule {
   public:
+    friend class OutputWorker;
     typedef OutputModule ModuleType;
     typedef std::vector<BranchDescription const *> Selections;
     typedef boost::array<Selections, EndBranchType> SelectionsArray;
@@ -116,6 +117,11 @@ namespace edm {
     //std::vector<NamedEventSelector> eventSelectors_;
     //ProcessNameSelector selectResult_;
     
+    void setModuleDescription(ModuleDescription const& md) {
+      moduleDescription_ = md;
+    }
+    ModuleDescription moduleDescription_;
+
     // We do not own the pointed-to CurrentProcessingContext.
     CurrentProcessingContext const* current_context_;
 
