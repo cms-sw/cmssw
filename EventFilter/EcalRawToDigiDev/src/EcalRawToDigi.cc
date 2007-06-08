@@ -102,8 +102,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
     <<"\n MEM Bl. unpacking is "<<memUnpacking_<<"\n";
   
   // Producer products :
-  produces<EBDigiCollection>(); 
-  produces<EEDigiCollection>();
+  produces<EBDigiCollection>("ebDigis"); 
+  produces<EEDigiCollection>("eeDigis");
   produces<EBSrFlagCollection>();
   produces<EESrFlagCollection>();
   produces<EcalRawDataCollection>();
@@ -315,8 +315,8 @@ if(put_){
   }
  
   if(feUnpacking_){
-    e.put(productDigisEB);
-    e.put(productDigisEE);
+    e.put(productDigisEB,"ebDigis");
+    e.put(productDigisEE,"eeDigis");
     e.put(productInvalidGains,"EcalIntegrityGainErrors");
     e.put(productInvalidGainsSwitch, "EcalIntegrityGainSwitchErrors");
     e.put(productInvalidGainsSwitchStay, "EcalIntegrityGainSwitchStayErrors");
