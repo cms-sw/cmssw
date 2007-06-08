@@ -1,3 +1,4 @@
+<flags SEAL_PLUGIN_NAME="DQMEcalEndcapMonitorClient">
 <use name=DQM/EcalCommon>
 <use name=DQMServices/Core>
 <use name=DQMServices/Daemon>
