@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/06/04 17:37:40 $
- * $Revision: 1.33 $
+ * $Date: 2007/06/04 21:22:38 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  *
 */
@@ -76,6 +76,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   meOccupancy_      = 0;
   mePedestalOnline_ = 0;
   meLaserL1_        = 0;
+  meLaserL1PN_      = 0;
   mePedestal_       = 0;
   mePedestalPN_     = 0;
   meTestPulse_      = 0;
@@ -85,6 +86,7 @@ EBSummaryClient::EBSummaryClient(const ParameterSet& ps){
   qtg02_ = 0;
   qtg03_ = 0;
   qtg04_ = 0;
+  qtg04PN_ = 0;
   qtg05_ = 0;
   qtg05PN_ = 0;
   qtg06_ = 0;
@@ -121,6 +123,9 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     sprintf(qtname, "EBLT summary quality test L1");
     qtg04_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
+    sprintf(qtname, "EBLT PN summary quality test L1");
+    qtg04PN_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
+
     sprintf(qtname, "EBPT summary quality test");
     qtg05_ = dynamic_cast<MEContentsTH2FWithinRangeROOT*> (mui_->createQTest(ContentsTH2FWithinRangeROOT::getAlgoName(), qtname));
 
@@ -137,6 +142,7 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg02_->setMeanRange(1., 6.);
     qtg03_->setMeanRange(1., 6.);
     qtg04_->setMeanRange(1., 6.);
+    qtg04PN_->setMeanRange(1., 6.);
     qtg05_->setMeanRange(1., 6.);
     qtg05PN_->setMeanRange(1., 6.);
     qtg06_->setMeanRange(1., 6.);
@@ -146,6 +152,7 @@ void EBSummaryClient::beginJob(MonitorUserInterface* mui){
     qtg02_->setErrorProb(1.00);
     qtg03_->setErrorProb(1.00);
     qtg04_->setErrorProb(1.00);
+    qtg04PN_->setErrorProb(1.00);
     qtg05_->setErrorProb(1.00);
     qtg05PN_->setErrorProb(1.00);
     qtg06_->setErrorProb(1.00);
@@ -210,6 +217,10 @@ void EBSummaryClient::setup(void) {
   sprintf(histo, "EBLT laser quality summary L1");
   meLaserL1_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
+  if ( meLaserL1PN_ ) bei->removeElement( meLaserL1PN_->getName() );
+  sprintf(histo, "EBLT PN laser quality summary L1");
+  meLaserL1PN_ = bei->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+
   if( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
   mePedestal_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
@@ -244,6 +255,9 @@ void EBSummaryClient::cleanup(void) {
 
   if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
+
+  if ( meLaserL1PN_ ) bei->removeElement( meLaserL1PN_->getName() );
+  meLaserL1PN_ = 0;
 
   if ( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
@@ -287,6 +301,8 @@ void EBSummaryClient::subscribe(void){
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBLT laser quality summary L1");
   if ( qtg04_ ) mui_->useQTest(histo, qtg04_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT pedestal quality summary");
+  if ( qtg04PN_ ) mui_->useQTest(histo, qtg04PN_->getName());
+  sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
   if ( qtg05_ ) mui_->useQTest(histo, qtg05_->getName());
   sprintf(histo, "EcalBarrel/EBSummaryClient/EBPT PN pedestal quality summary");
   if ( qtg05PN_ ) mui_->useQTest(histo, qtg05PN_->getName());
@@ -337,11 +353,13 @@ void EBSummaryClient::analyze(void){
       
       mePedestalPN_->setBinContent( ipx, iex, -1. );
       meTestPulsePN_->setBinContent( ipx, iex, -1. );
+      meLaserL1PN_->setBinContent( ipx, iex, -1. );
 
     }
   }
 
   meLaserL1_->setEntries( 0 );
+  meLaserL1PN_->setEntries( 0 );
   mePedestal_->setEntries( 0 );
   mePedestalPN_->setEntries( 0 );
   meTestPulse_->setEntries( 0 );
@@ -682,7 +700,30 @@ void EBSummaryClient::analyze(void){
 	    }
 	  }
 
+	  if ( eblc ) {
+	    me = eblc->meg09_[ism-1];
 
+	    if( me ) {
+
+	      float xval = me->getBinContent(i,1);
+	      
+	      int iex;
+	      int ipx;
+	      
+	      if(ism<=18) {
+		iex = i;
+		ipx = j+5*(ism-1);
+	      }
+	      else {
+		iex = i+10;
+		ipx = j+5*(ism-19);
+	      }
+	      if ( me->getEntries() != 0 && me->getEntries() != 0 ) {
+		meLaserL1PN_->setBinContent( ipx, iex, xval );
+	      }
+	    }
+	  }
+	  
 	}
       }
     }
@@ -751,7 +792,7 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   labelGridPN.SetMarkerSize(4);
   labelGridPN.SetMinimum(-18.01);
 
-  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
+  string imgNameMapI, imgNameMapO, imgNameMapPO, imgNameMapLL1, imgNameMapLL1_PN, imgNameMapP, imgNameMapP_PN, imgNameMapTP, imgNameMapTP_PN, imgName, meName;
 
   TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
   TCanvas* cMapPN = new TCanvas("cMapPN", "Temp", int(360./170.*csize), int(20./90.*360./170.*csize));
@@ -897,6 +938,42 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
+  }
+
+  imgNameMapLL1_PN = "";
+
+  obj2f = 0;
+  obj2f = UtilsClient::getHisto<TH2F*>( meLaserL1PN_ );
+
+  if ( obj2f && obj2f->GetEntries() != 0 ) {
+
+    meName = obj2f->GetName();
+
+    for ( unsigned int i = 0; i < meName.size(); i++ ) {
+      if ( meName.substr(i, 1) == " " )  {
+        meName.replace(i, 1 ,"_" );
+      }
+    }
+    imgNameMapLL1_PN = meName + ".png";
+    imgName = htmlDir + imgNameMapLL1_PN;
+
+    cMapPN->cd();
+    gStyle->SetOptStat(" ");
+    gStyle->SetPalette(6, pCol3);
+    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetYaxis()->SetNdivisions(2, kFALSE);
+    cMapPN->SetGridx();
+    cMapPN->SetGridy();
+    obj2f->SetMinimum(-0.00000001);
+    obj2f->SetMaximum(6.0);
+    obj2f->GetXaxis()->SetLabelSize(0.09);
+    obj2f->GetYaxis()->SetLabelSize(0.09);
+    gStyle->SetTitleX(0.15);
+    obj2f->Draw("col");
+    labelGridPN.Draw("text,same");
+    cMapPN->Update();
+    cMapPN->SaveAs(imgName.c_str());
+    gStyle->SetTitleX(saveTitleOffset);
   }
 
   imgNameMapP = "";
@@ -1090,6 +1167,18 @@ void EBSummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</tr>" << endl;
   htmlFile << "</table>" << endl;
   htmlFile << "<br>" << endl;
+
+  htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
+  htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
+  htmlFile << "<tr align=\"center\">" << endl;
+
+  if ( imgNameMapLL1_PN.size() != 0 )
+    htmlFile << "<td><img src=\"" << imgNameMapLL1_PN << "\" border=0></td>" << endl;
+  
+  htmlFile << "</tr>" << endl;
+  htmlFile << "</table>" << endl;
+  htmlFile << "<br>" << endl;
+
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
