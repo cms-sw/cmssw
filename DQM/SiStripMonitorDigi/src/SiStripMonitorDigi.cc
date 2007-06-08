@@ -3,7 +3,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Sat Feb  4 20:49:10 CET 2006
-// $Id: SiStripMonitorDigi.cc,v 1.19 2007/05/08 21:37:27 dkcira Exp $
+// $Id: SiStripMonitorDigi.cc,v 1.20 2007/06/08 14:50:53 dkcira Exp $
 #include<fstream>
 #include "TNamed.h"
 #include "TH1F.h"
@@ -235,9 +235,9 @@ void SiStripMonitorDigi::FillStripOccupancy(MonitorElement* StripOccupancy,  std
     std::vector<uint16_t>::iterator inonzero = std::find(non_zero_strips.begin(),non_zero_strips.end(),istrip); // is strip part of nonzero list?
     // fill each bin with zeros unless strip in nonzero list
     if( inonzero == non_zero_strips.end()){ // not found in list
-        StripOccupancy->Fill(0.,1.);
+        StripOccupancy->Fill(istrip,0.);
     }else{
-        StripOccupancy->Fill(1.,1.);
+        StripOccupancy->Fill(istrip,1.);
         non_zero_strips.erase(inonzero); // remove so that do not search this again next time
     }
   }
