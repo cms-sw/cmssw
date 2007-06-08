@@ -1,42 +1,37 @@
-// -*- C++ -*-
 //
-// Package:    TopMETProducer
-// Class:      TopMETProducer
-// 
-/**\class TopMETProducer TopMETProducer.cc Top/TopEventProducers/src/TopMETProducer.cc
+// Author:  Jan Heyninck, Steven Lowette
+// Created: Tue Apr  10 12:01:49 CEST 2007
+//
+// $Id$
+//
 
- Description: <one line class summary>
+#ifndef TopMETProducer_h
+#define TopMETProducer_h
 
- Implementation:
-     <Notes on implementation>
+/**
+  \class    TopMETProducer TopMETProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
+  \brief    Produces TopMET's
+
+   TopMETProducer produces TopMET's starting from a METType collection,
+   with possible matching to generator level, addition of resolutions and
+   correction for a given collection of muons.
+
+  \author   Jan Heyninck, Steven Lowette
+  \version  $Id$
 */
-//
-// Original Author:  Jan Heyninck
-//         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopMETProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
-//
-//
 
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 
-//
-// class decleration
-//
+
+class TopObjectResolutionCalc;
+
 
 class TopMETProducer : public edm::EDProducer {
 
@@ -51,9 +46,10 @@ class TopMETProducer : public edm::EDProducer {
 
     // configurables
     edm::InputTag metSrc_;
-    double        metCut_;
+    bool          calcGenMET_;
     bool          addResolutions_;
     bool          addMuonCorr_;
+    edm::InputTag genPartSrc_;
     std::string   metResoFile_;
     edm::InputTag muonSrc_;
     // tools
@@ -61,3 +57,6 @@ class TopMETProducer : public edm::EDProducer {
     EtInverseComparator<TopMET> eTComparator_;
 
 };
+
+
+#endif
