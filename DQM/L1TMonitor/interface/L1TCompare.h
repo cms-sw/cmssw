@@ -5,11 +5,11 @@
 /*
  * \file L1TCompare.h
  *
- * $Date$
- * $Revision$
+ * $Date: 2007/06/06 14:55:50 $
+ * $Revision: 1.1 $
  * \author P. Wittich
- * $Id$
- * $Log $
+ * $Id: L1TCompare.h,v 1.1 2007/06/06 14:55:50 wittich Exp $
+ * $Log$
  *
  *
  *
@@ -75,7 +75,7 @@ private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
 
-  // RCT-GCT
+  // ++ RCT-GCT
   // - iso
   MonitorElement* rctGctLeadingIsoEmEta_;
   MonitorElement* rctGctLeadingIsoEmPhi_;
@@ -84,6 +84,13 @@ private:
   MonitorElement* rctGctLeadingNonIsoEmEta_;
   MonitorElement* rctGctLeadingNonIsoEmPhi_;
   MonitorElement* rctGctLeadingNonIsoEmRank_;
+
+  // ++ ECAL TPG - RCT
+  MonitorElement* ecalTpgRctLeadingEmEta_;
+  MonitorElement* ecalTpgRctLeadingEmEta2_;
+  MonitorElement* ecalTpgRctLeadingEmPhi_;
+  MonitorElement* ecalTpgRctLeadingEmRank_;
+
 
 
   int nev_; // Number of events processed
@@ -95,18 +102,23 @@ private:
 
   edm::InputTag rctSource_;
   edm::InputTag gctSource_;
+  edm::InputTag ecalTpgSource_;
   
   class RctObject {
   public:
     RctObject(int eta, int phi, int rank):
       eta_(eta), phi_(phi), rank_(rank)
     {}
+    virtual ~RctObject() {}
     int eta_, phi_;
     int rank_;
     
   };
   typedef std::vector<L1TCompare::RctObject> RctObjectCollection;
 
+  // functor for sorting the above collection based on rank.
+  // note it's then reverse-sorted (low to high) so you have to use
+  // the rbegin() and rend() and reverse_iterators.
   class RctObjectComp: public std::binary_function<L1TCompare::RctObject, 
 						   L1TCompare::RctObject, bool>
   {
