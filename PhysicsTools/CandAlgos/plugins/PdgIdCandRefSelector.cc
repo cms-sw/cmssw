@@ -1,10 +1,10 @@
-/* \class PdgIdCandRefVectorSelector
+/* \class PdgIdCandRefSelector
  * 
  * Candidate Selector based on a pdgId set.
  * Saves a collection of references to selected objects
  * Usage:
  * 
- * module leptonRefs = PdgIdCandRefVectorSelector {
+ * module leptonRefs = PdgIdCandRefSelector {
  *   InputTag src = myCollection
  *   vint32 pdgId = { 11, 13 }
  * };
@@ -21,6 +21,6 @@ typedef SingleObjectSelector <
             reco::CandidateCollection,
             PdgIdSelector<reco::Candidate>,
             edm::RefVector<reco::CandidateCollection>
-        > PdgIdCandRefVectorSelector;
+        > PdgIdCandRefSelector;
 
-DEFINE_FWK_MODULE( PdgIdCandRefVectorSelector );
+DEFINE_FWK_MODULE( PdgIdCandRefSelector );

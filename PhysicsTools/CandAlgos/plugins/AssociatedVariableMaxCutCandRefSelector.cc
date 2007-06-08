@@ -1,4 +1,4 @@
-/* \class AssociatedVariableMaxCutCandRefVectorSelector
+/* \class AssociatedVariableMaxCutCandRefSelector
  * 
  * Candidate Selector based on a maximun cut on an
  * associated variable (e.g.: isolation), and saver a 
@@ -6,7 +6,7 @@
  *
  * Usage:
  * 
- * module selectedCands = AssociatedVariableMaxCutCandRefVectorSelector {
+ * module selectedCands = AssociatedVariableMaxCutCandRefSelector {
  *   InputTag src = myCollection
  *   double max = 0.2
  * }
@@ -31,6 +31,6 @@ typedef SingleObjectSelector<
             MaxSelector<isolation>
           >,
           reco::CandidateRefVector
-        > AssociatedVariableMaxCutCandRefVectorSelector;
+        > AssociatedVariableMaxCutCandRefSelector;
 
-DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandRefVectorSelector );
+DEFINE_FWK_MODULE( AssociatedVariableMaxCutCandRefSelector );

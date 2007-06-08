@@ -7,7 +7,7 @@
 <library file=CandSelector.cc></library>
 <library file=PtMinCandSelector.cc></library>
 <library file=AssociatedVariableMaxCutCandSelector.cc></library>
-<library file=AssociatedVariableMaxCutCandRefVectorSelector.cc></library>
+<library file=AssociatedVariableMaxCutCandRefSelector.cc></library>
 <library file=PtMinAssociatedVariableMaxCutCandSelector.cc></library>
 <library file=LargestPtCandSelector.cc></library>
 <library file=EtaPtMinCandSelector.cc></library>
@@ -16,7 +16,7 @@
 <library file=PdgIdCandSelector.cc></library>
 <library file=PdgIdAndStatusCandSelector.cc></library>
 <library file=PdgIdAndStatusCandDecaySelector.cc></library>
-<library file=PdgIdCandRefVectorSelector.cc></library>
+<library file=PdgIdCandRefSelector.cc></library>
 <library file=MassRangeCandCombiner.cc></library>
 <library file=MassRangeCandShallowCloneCombiner.cc></library>
 <library file=MassRangeAndChargeCandCombiner.cc></library>
