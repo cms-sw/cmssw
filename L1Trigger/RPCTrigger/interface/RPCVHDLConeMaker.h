@@ -15,7 +15,7 @@
 //
 // Original Author:  Artur Kalinowski
 //         Created:  Tue Aug  1 13:54:56 CEST 2006
-// $Id$
+// $Id: RPCVHDLConeMaker.h,v 1.1 2007/04/05 06:46:31 fruboes Exp $
 //
 //
 
@@ -23,6 +23,7 @@
 // system include files
 #include <memory>
 #include <fstream>
+#include <string>
 
 // Framework include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -55,11 +56,17 @@ class RPCVHDLConeMaker : public edm::EDAnalyzer {
       void writePatternsDef(std::ofstream & out);
       void writeSorterDef(std::ofstream & out);
       void writeXMLPatternsDef(std::ofstream & out);
+      int getDCCNumber(int iTower, int iSec);
 
       // ----------member data ---------------------------
       bool RPCLinksDone;
       RPCTriggerGeo theLinksystem;  
       RPCRingFromRolls::RPCLinks aLinks;
+
+      int minTower, maxTower;
+      int minSector, maxSector;
+      std::string patternsPath, conesPath;
+
 };
 
 //
