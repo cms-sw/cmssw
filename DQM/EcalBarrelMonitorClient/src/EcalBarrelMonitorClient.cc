@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/03 16:11:17 $
- * $Revision: 1.273 $
+ * $Date: 2007/06/04 06:18:02 $
+ * $Revision: 1.274 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1762,6 +1762,10 @@ void EcalBarrelMonitorClient::htmlOutput( bool current ){
     time_t elapsed = time(NULL) - start;
     std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
   }
+
+}
+
+void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
 }
 

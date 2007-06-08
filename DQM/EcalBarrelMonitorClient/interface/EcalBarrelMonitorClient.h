@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/01 19:33:25 $
- * $Revision: 1.75 $
+ * $Date: 2007/06/02 08:00:12 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -30,6 +30,9 @@
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
+
+#include "xgi/include/xgi/Input.h"
+#include "xgi/include/xgi/Output.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -89,6 +92,9 @@ void cleanup(void);
 
 /// HtmlOutput
 void htmlOutput(bool current=false);
+
+/// XDAQ web page
+void defaultWebPage(xgi::Input *in, xgi::Output *out);
 
 /// BeginRunDB
 void beginRunDb(void);
