@@ -14,7 +14,7 @@
 // constructors and destructor
 //
 ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
-{  
+{
   // input parameters
   objectType_  	= iConfig.getParameter< string >   	 ("object");
   jetmetLabel_  = iConfig.getParameter< string > 	 ("jetmetLabel");
@@ -28,27 +28,32 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
   // input constants  
   TString  	  resObsName[6] 	= {"pres","eres","thres","phres","etres","etares"};
   TString  	  def[2] 	 	= {"_abs","_rel"};
-  int      	  resObsNrBins  	= 120;
+  int      	  resObsNrBins  	= 240;
   vector<double>  resObsMinAbs, resObsMaxAbs, resObsMinRel, resObsMaxRel;
-  if(objectType_ == "electron" || objectType_ == "muon"){
-    resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(0.90);  resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(-0.002);  resObsMinAbs.push_back(-5);  resObsMinAbs.push_back(-0.002);   
-    resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back(1.1);  resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back( 0.002);  resObsMaxAbs.push_back( 5);  resObsMaxAbs.push_back( 0.002);
-    resObsMinRel.push_back(-0.00005); resObsMinRel.push_back(0.00);  resObsMinRel.push_back( -0.002); resObsMinRel.push_back(-0.002); resObsMinRel.push_back( -0.2); resObsMinRel.push_back( -0.005);
-    resObsMaxRel.push_back( 0.00005); resObsMaxRel.push_back( 0.05); resObsMaxRel.push_back(  0.002); resObsMaxRel.push_back( 0.002); resObsMaxRel.push_back(  0.2); resObsMaxRel.push_back(  0.005);
+  if(objectType_ == "electron"){ 
+    resObsMinAbs.push_back(-0.004);  resObsMinAbs.push_back(0.45);  resObsMinAbs.push_back(-0.0012);  resObsMinAbs.push_back(-0.009);  resObsMinAbs.push_back(-16); resObsMinAbs.push_back(-0.0012);   
+    resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back(2.2);  resObsMaxAbs.push_back( 0.0012);  resObsMaxAbs.push_back( 0.009);  resObsMaxAbs.push_back( 16); resObsMaxAbs.push_back( 0.0012);
+    resObsMinRel.push_back(-0.0001); resObsMinRel.push_back(0.00);  resObsMinRel.push_back( -0.004); resObsMinRel.push_back(-0.004); resObsMinRel.push_back( -0.4); resObsMinRel.push_back( -0.01);
+    resObsMaxRel.push_back( 0.0001); resObsMaxRel.push_back( 0.05); resObsMaxRel.push_back(  0.004); resObsMaxRel.push_back( 0.004); resObsMaxRel.push_back(  0.4); resObsMaxRel.push_back(  0.01);
+  } else if(objectType_ == "muon"){
+    resObsMinAbs.push_back(-0.004);  resObsMinAbs.push_back(0.90);  resObsMinAbs.push_back(-0.004);  resObsMinAbs.push_back(-0.003);  resObsMinAbs.push_back(-8);  resObsMinAbs.push_back(-0.004);   
+    resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back(1.1);  resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back( 0.003);  resObsMaxAbs.push_back( 8);  resObsMaxAbs.push_back( 0.004);
+    resObsMinRel.push_back(-0.0001); resObsMinRel.push_back(0.00);  resObsMinRel.push_back( -0.004); resObsMinRel.push_back(-0.004); resObsMinRel.push_back( -0.4); resObsMinRel.push_back( -0.01);
+    resObsMaxRel.push_back( 0.0001); resObsMaxRel.push_back( 0.05); resObsMaxRel.push_back(  0.004); resObsMaxRel.push_back( 0.004); resObsMaxRel.push_back(  0.4); resObsMaxRel.push_back(  0.01);
   } else if(objectType_ == "lJets" || objectType_ == "bJets"){
-    resObsMinAbs.push_back(-0.02);  resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-0.1); resObsMinAbs.push_back(-0.3); resObsMinAbs.push_back( -40); resObsMinAbs.push_back(-0.3);   
-    resObsMaxAbs.push_back( 0.02);  resObsMaxAbs.push_back(2.5);   resObsMaxAbs.push_back( 0.1); resObsMaxAbs.push_back( 0.3); resObsMaxAbs.push_back( 40);  resObsMaxAbs.push_back( 0.3);
-    resObsMinRel.push_back(-0.001); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-0.1); resObsMinRel.push_back(-0.1); resObsMinRel.push_back( -1);  resObsMinRel.push_back( -0.25);
-    resObsMaxRel.push_back( 0.001); resObsMaxRel.push_back(0.05); resObsMaxRel.push_back( 0.1); resObsMaxRel.push_back( 0.1); resObsMaxRel.push_back(  00); resObsMaxRel.push_back( 0.25);
+    resObsMinAbs.push_back(-0.04);  resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-0.4); resObsMinAbs.push_back(-0.6); resObsMinAbs.push_back( -80); resObsMinAbs.push_back(-0.6);   
+    resObsMaxAbs.push_back( 0.04);  resObsMaxAbs.push_back(5);   resObsMaxAbs.push_back( 0.4); resObsMaxAbs.push_back( 0.6); resObsMaxAbs.push_back( 80);  resObsMaxAbs.push_back( 0.6);
+    resObsMinRel.push_back(-0.002); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-0.4); resObsMinRel.push_back(-0.2); resObsMinRel.push_back( -2);  resObsMinRel.push_back( -0.5);
+    resObsMaxRel.push_back( 0.002); resObsMaxRel.push_back(0.1); resObsMaxRel.push_back( 0.4); resObsMaxRel.push_back( 0.2); resObsMaxRel.push_back(  00); resObsMaxRel.push_back( 0.5);
   } else{
-    resObsMinAbs.push_back(-0.03);   resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-3);   resObsMinAbs.push_back(-3);   resObsMinAbs.push_back( -90); resObsMinAbs.push_back(-3);   
-    resObsMaxAbs.push_back( 0.09);   resObsMaxAbs.push_back(10.);  resObsMaxAbs.push_back( 3);   resObsMaxAbs.push_back( 3);   resObsMaxAbs.push_back(  90); resObsMaxAbs.push_back( 3);
-    resObsMinRel.push_back(-0.0004); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-0.5); resObsMinRel.push_back(-0.5); resObsMinRel.push_back( -1);  resObsMinRel.push_back( -0.5);
-    resObsMaxRel.push_back( 0.001);  resObsMaxRel.push_back(0.05); resObsMaxRel.push_back( 0.5); resObsMaxRel.push_back( 0.5); resObsMaxRel.push_back(  1);  resObsMaxRel.push_back( 0.5);
+    resObsMinAbs.push_back(-0.06);   resObsMinAbs.push_back(0.);   resObsMinAbs.push_back(-6);   resObsMinAbs.push_back(-6);   resObsMinAbs.push_back( -180); resObsMinAbs.push_back(-6);   
+    resObsMaxAbs.push_back( 0.18);   resObsMaxAbs.push_back(20.);  resObsMaxAbs.push_back( 6);   resObsMaxAbs.push_back( 6);   resObsMaxAbs.push_back(  180); resObsMaxAbs.push_back( 6);
+    resObsMinRel.push_back(-0.008); resObsMinRel.push_back(0.);   resObsMinRel.push_back(-1); resObsMinRel.push_back(-1); resObsMinRel.push_back( -2);  resObsMinRel.push_back( -1.);
+    resObsMaxRel.push_back( 0.002);  resObsMaxRel.push_back(0.1); resObsMaxRel.push_back( 1); resObsMaxRel.push_back( 1); resObsMaxRel.push_back(  2);  resObsMaxRel.push_back( 1.);
   
   }
   
-  const char*   resObsVsEtFit[6]    	= {"[0]+[1]*exp(-[2]*x)",
+  const char*   resObsVsEtFit[6]    	= {"[0]+[1]*exp(-[2]*pow(x,-1))",
                                            "[0]+[1]*exp(-[2]*x)",
 					   "[0]+[1]*exp(-[2]*x)",
 					   "[0]+[1]*exp(-[2]*x)",
@@ -80,13 +85,13 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
     etabins    = new double[2];
     etabins[0] = 0; etabins[1] = 5.;
   }
-  TString outputFileName = "/src/TopQuarkAnalysis/TopObjectResolutions/data/Resolutions_"; outputFileName += objectType_;
+  TString outputFileName = "Resolutions_"; outputFileName += objectType_;
   if(objectType_ == "lJets" || objectType_ == "bJets") { outputFileName += "_"; outputFileName += jetmetLabel_; }; 
   outputFileName += ".root"; 
   outfile = new TFile(outputFileName, "RECREATE");
   
   for(Int_t ro=0; ro<6; ro++) {
-    for(Int_t aor=0; aor<2; aor++) {
+    for(Int_t aor=0; aor<1; aor++) {
       for(Int_t etab=0; etab<etanrbins; etab++) {	
         for(Int_t etb=0; etb<etnrbins; etb++) {
           TString obsName = objectType_; obsName += resObsName[ro]; obsName += "_etabin"; obsName += etab; obsName += "_etbin"; obsName += etb; obsName += def[aor];
@@ -116,7 +121,7 @@ ResolutionCreator::~ResolutionCreator()
 {
   outfile->cd();
   for(Int_t ro=0; ro<6; ro++) {
-    for(Int_t aor=0; aor<2; aor++) {
+    for(Int_t aor=0; aor<1; aor++) {
       for(int etab=0; etab<etanrbins; etab++) {	
         for(int etb=0; etb<etnrbins; etb++) {
           double maxcontent = 0.;
@@ -129,7 +134,7 @@ ResolutionCreator::~ResolutionCreator()
 	  }
           fResEtEtaBin[ro][etab][etb][aor] -> SetRange(hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin-8),
 	  					       hResEtEtaBin[ro][etab][etb][aor]->GetBinCenter(maxbin+8));
-          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
+          hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"Q");
           //fResEtEtaBin[ro][etab][etb][aor] -> SetRange(fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)-1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2),
 	  //                                            fResEtEtaBin[ro][etab][etb][aor]->GetParameter(1)+1.5*fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           //hResEtEtaBin[ro][etab][etb][aor] -> Fit(fResEtEtaBin[ro][etab][etb][aor]->GetName(),"RQ");
@@ -137,7 +142,7 @@ ResolutionCreator::~ResolutionCreator()
           hResEtaBin[ro][etab][aor]        -> SetBinContent(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParameter(2));
           hResEtaBin[ro][etab][aor]        -> SetBinError(etb+1,fResEtEtaBin[ro][etab][etb][aor]->GetParError(2));
 	}
-        hResEtaBin[ro][etab][aor] -> Fit(fResEtaBin[ro][etab][aor]->GetName(),"RQ");
+        hResEtaBin[ro][etab][aor] -> Fit(fResEtaBin[ro][etab][aor]->GetName(),"Q");
         hResEtaBin[ro][etab][aor] -> Write();
         if(objectType_ != "met"){
 	  for(Int_t par=0; par<3; par++) {
@@ -148,7 +153,7 @@ ResolutionCreator::~ResolutionCreator()
       }
       if(etanrbins > 1){
         for(Int_t par=0; par<3; par++) {
-          hResPar[ro][aor][par] -> Fit(hResPar[ro][aor][par] -> GetName(),"RQ"); 
+          hResPar[ro][aor][par] -> Fit(hResPar[ro][aor][par] -> GetName(),"Q"); 
           hResPar[ro][aor][par] -> Write(); 
         }
       }  
@@ -176,18 +181,16 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    if(genEvt->particles().size()<10) return;
    
-   if(objectType_ == "electron"){
-     edm::Handle<vector<electronType> >  electrons;
+   if(objectType_ == "electron"){ 
+     edm::Handle<vector<TopElectron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
      iEvent.getByType(electrons);
-     p4gen.push_back(new reco::Particle(*(genEvt->particles()[4])));
-     if(electrons->size()>=1) {
+     if(electrons->size()>=1) {	 
        if( ROOT::Math::VectorUtil::DeltaR( genEvt->particles()[4]->p4(),(*electrons)[0].p4()) < minDR_)  {
          p4gen.push_back(new reco::Particle(*(genEvt->particles()[4]))); 
-         p4rec.push_back(new reco::Particle((electronType)((*electrons)[0])));
+	 p4rec.push_back(new reco::Particle((TopElectron)((*electrons)[0]))); //changed this too	 
        }
      }
-   }
-   else if(objectType_ == "muon"){
+   }else if(objectType_ == "muon"){
      edm::Handle<vector<muonType> >  muons;
      iEvent.getByType(muons);
      if(muons->size()>=1) { 
@@ -196,8 +199,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
          p4rec.push_back(new reco::Particle((muonType)((*muons)[0]))); 
        }
      }
-   }
-   else if(objectType_ == "lJets"){
+   }else if(objectType_ == "lJets"){
      edm::Handle<vector<jetType> >  ljets;
      iEvent.getByLabel(jetmetLabel_,ljets);
      if(ljets->size()>=4) { 
@@ -210,8 +212,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 }
        }
      }
-   }
-   else if(objectType_ == "bJets"){
+   }else if(objectType_ == "bJets"){
      edm::Handle<vector<jetType> >  bjets;
      iEvent.getByLabel(jetmetLabel_,bjets);
      if(bjets->size()>=4) { 
@@ -224,8 +225,8 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 }
        }
      }
-   }
-   else if(objectType_ == "met"){
+   }else if(objectType_ == "met"){
+
      edm::Handle<vector<metType> >  mets;
      iEvent.getByLabel(jetmetLabel_,mets);
      if(mets->size()>=1) { 
@@ -235,57 +236,57 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }
      }
    }
-
    // Fill the object's value
-   for(unsigned m=0; m<p4gen.size(); m++){ 
-     double Egen     = p4gen[m]->energy(); 
-     double Pgen     = p4gen[m]->p(); 
-     double Thetagen = p4gen[m]->theta(); 
-     double Phigen   = p4gen[m]->phi();
-     double Etgen    = p4gen[m]->et();
-     double Etagen   = p4gen[m]->eta();
-      
-     double Ecal     = p4rec[m]->energy(); 
-     double Pcal     = p4rec[m]->p();
-     double Thetacal = p4rec[m]->theta();
-     double Phical   = p4rec[m]->phi();
-     double Etcal    = p4rec[m]->et();
-     double Etacal   = p4rec[m]->eta();
-     double phidiff  = Phical- Phigen;
-     if(phidiff>3.14159)  phidiff = 2.*3.14159 - phidiff;
-     if(phidiff<-3.14159) phidiff = -phidiff - 2.*3.14159;
-
-
-     // find eta and et bin
-     int etabin  =  0;
-     if(etanrbins > 1){
-       for(unsigned int b=0; b<etabinVals_.size()-1; b++) {
-         if(fabs(Etacal) > etabinVals_[b]) etabin = b;
+     for(unsigned m=0; m<p4gen.size(); m++){ 
+       double Egen     = p4gen[m]->energy(); 
+       double Pgen     = p4gen[m]->p(); 
+       double Thetagen = p4gen[m]->theta(); 
+       double Phigen   = p4gen[m]->phi();
+       double Etgen    = p4gen[m]->et();
+       double Etagen   = p4gen[m]->eta();
+       double Ecal     = p4rec[m]->energy(); 
+       double Pcal     = p4rec[m]->p();
+       double Thetacal = p4rec[m]->theta();
+       double Phical   = p4rec[m]->phi();
+       double Etcal    = p4rec[m]->et();
+       double Etacal   = p4rec[m]->eta();
+       double phidiff  = Phical- Phigen;
+       if(phidiff>3.14159)  phidiff = 2.*3.14159 - phidiff;
+       if(phidiff<-3.14159) phidiff = -phidiff - 2.*3.14159;
+   
+       // find eta and et bin
+       int etabin  =  0;
+       if(etanrbins > 1){
+         for(unsigned int b=0; b<etabinVals_.size()-1; b++) {
+           if(fabs(Etacal) > etabinVals_[b]) etabin = b;
+         }
        }
-     }
-     int etbin  =  0;
-     for(unsigned int b=0; b<eTbinVals_.size()-1; b++) {
-       if(Etcal > eTbinVals_[b]) etbin = b;
-     }
-      
-     //fill histograms    
-     ++nrFilled; 
-     //abs
-     hResEtEtaBin[0][etabin][etbin][0] -> Fill(1./Pcal - 1./Pgen);
-     hResEtEtaBin[1][etabin][etbin][0] -> Fill(Egen/Ecal);
-     hResEtEtaBin[2][etabin][etbin][0] -> Fill(Thetacal-Thetagen);
-     hResEtEtaBin[3][etabin][etbin][0] -> Fill(phidiff);
-     hResEtEtaBin[4][etabin][etbin][0] -> Fill(Etcal-Etgen);
-     hResEtEtaBin[5][etabin][etbin][0] -> Fill(Etacal-Etagen);
-     //rel
-     hResEtEtaBin[0][etabin][etbin][1] -> Fill((1./Pcal - 1./Pgen)/Pgen);
-     hResEtEtaBin[1][etabin][etbin][1] -> Fill(1./Ecal);
-     hResEtEtaBin[2][etabin][etbin][1] -> Fill((Thetacal-Thetagen)/Thetagen);
-     hResEtEtaBin[3][etabin][etbin][1] -> Fill(phidiff/Phigen);
-     hResEtEtaBin[4][etabin][etbin][1] -> Fill((Etcal-Etgen)/Etgen);
-     hResEtEtaBin[5][etabin][etbin][1] -> Fill((Etacal-Etagen)/Etagen);
+     
+       int etbin  =  0;
+       for(unsigned int b=0; b<eTbinVals_.size()-1; b++) {
+         if(Etcal > eTbinVals_[b]) etbin = b;
+       }
+     
+       //fill histograms    
+       ++nrFilled; 
+       //abs
+       hResEtEtaBin[0][etabin][etbin][0] -> Fill(1./Pcal - 1./Pgen);
+       hResEtEtaBin[1][etabin][etbin][0] -> Fill(Egen/Ecal);
+       hResEtEtaBin[2][etabin][etbin][0] -> Fill(Thetacal-Thetagen);
+       hResEtEtaBin[3][etabin][etbin][0] -> Fill(phidiff);
+       hResEtEtaBin[4][etabin][etbin][0] -> Fill(Etcal-Etgen);
+       hResEtEtaBin[5][etabin][etbin][0] -> Fill(Etacal-Etagen);
+       //rel
+      /* hResEtEtaBin[0][etabin][etbin][1] -> Fill((1./Pcal - 1./Pgen)/Pgen);
+       hResEtEtaBin[1][etabin][etbin][1] -> Fill(1./Ecal);
+       hResEtEtaBin[2][etabin][etbin][1] -> Fill((Thetacal-Thetagen)/Thetagen);
+       hResEtEtaBin[3][etabin][etbin][1] -> Fill(phidiff/Phigen);
+       hResEtEtaBin[4][etabin][etbin][1] -> Fill((Etcal-Etgen)/Etgen);
+       hResEtEtaBin[5][etabin][etbin][1] -> Fill((Etacal-Etagen)/Etagen);*/
 
-     delete p4gen[m];
-     delete p4rec[m];
-   }  
+       delete p4gen[m];
+       delete p4rec[m];
+     } 
+    
+    
 }

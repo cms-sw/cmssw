@@ -12,11 +12,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "Utilities/General/interface/envUtil.h"
 
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h" //added to work with the TopElectron
 
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include "TH1.h"
@@ -30,7 +33,8 @@
 
 using namespace std;
 
-typedef reco::PixelMatchGsfElectron electronType;
+typedef TopLepton<ElectronType> TopElectron; //added to work with TopElectron
+//typedef reco::PixelMatchGsfElectron electronType;
 typedef reco::Muon muonType;
 typedef reco::CaloJet jetType;
 typedef reco::CaloMET metType;

@@ -10,11 +10,6 @@
 
 /**
   \class    TopObjectResolutionCalc TopObjectResolutionCalc.h "TopQuarkAnalysis/TopLeptonSelection/interface/TopObjectResolutionCalc.h"
-  \brief    Steering class for the overall top-lepton likelihood
-
-   TopObjectResolutionCalc allows to calculate and retrieve the overall top-lepton
-   likelihood as defined in CMS Note 2006/024
-
   \author   Jan Heyninck
   \version  $Id: TopObjectResolutionCalc.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
 */
@@ -24,11 +19,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "Utilities/General/interface/envUtil.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 #include "TF1.h"
 #include "TH1.h"
@@ -47,8 +42,7 @@ class TopObjectResolutionCalc {
     TopObjectResolutionCalc(TString);
     ~TopObjectResolutionCalc();	
 
-    double getObsRes(int, double);
-    double getObsRes(int, double, double);
+    double getObsRes(int, int, double);
     void  operator()(TopJet&);
     void  operator()(TopMET&);
     void  operator()(TopMuon&);
@@ -56,8 +50,7 @@ class TopObjectResolutionCalc {
 
   private:
     TFile * resoFile;
-    TF1 fResPar[10][2][3];
-    TF1 fResVsET[10][2];
+    TF1 fResVsET[10][10];
 
 
 };
