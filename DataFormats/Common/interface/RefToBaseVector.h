@@ -24,8 +24,8 @@ namespace edm {
       virtual bool empty() const = 0;
       
       virtual size_type size() const = 0;
-      virtual size_type capacity() const = 0;
-      virtual void reserve(size_type n) = 0;
+      //virtual size_type capacity() const = 0;
+      //virtual void reserve(size_type n) = 0;
       virtual void clear() = 0;
       virtual ProductID id() const = 0;
 
@@ -180,8 +180,8 @@ namespace edm {
       base_ref_type const at(size_type idx) const { return base_ref_type( refVector_.at( idx ) ); }
       bool empty() const { return refVector_.empty(); }
       size_type size() const { return refVector_.size(); }
-      size_type capacity() const { return refVector_.capacity(); }
-      void reserve(size_type n) { refVector_.reserve(n); }
+      //size_type capacity() const { return refVector_.capacity(); }
+      //void reserve(size_type n) { refVector_.reserve(n); }
       void clear() { refVector_.clear(); }
       ProductID id() const { return refVector_.id(); } 
 
@@ -258,7 +258,7 @@ namespace edm {
 
     ~RefToBaseVector();
 
-    void reserve(size_type n);
+    //void reserve(size_type n);
     void clear();
 
     value_type at(size_type idx) const;
@@ -267,7 +267,7 @@ namespace edm {
     bool isInvalid() const { return holder_ == 0; }
     bool empty() const;
     size_type size() const;
-    size_type capacity() const;
+    //size_type capacity() const;
     ProductID id() const;
     const_iterator begin() const;
     const_iterator end() const;
@@ -375,23 +375,23 @@ namespace edm {
     return holder_ ? holder_->size() : 0;
   }
 
-  template <class T>
-  inline
-  typename RefToBaseVector<T>::size_type
-  RefToBaseVector<T>::capacity() const 
-  {
-    return holder_ ? holder_->capacity() : 0;
-  }
+//   template <class T>
+//   inline
+//   typename RefToBaseVector<T>::size_type
+//   RefToBaseVector<T>::capacity() const 
+//   {
+//     return holder_ ? holder_->capacity() : 0;
+//   }
 
 
-  template <class T>
-  inline
-  void 
-  RefToBaseVector<T>::reserve(size_type n)
-  {
-    if ( holder_ != 0 )
-      holder_->reserve(n);
-  }
+//   template <class T>
+//   inline
+//   void 
+//   RefToBaseVector<T>::reserve(size_type n)
+//   {
+//     if (!holder_) holder_ = new holder_type();
+//     holder_->reserve(n);
+//   }
 
   template <class T>
   inline
