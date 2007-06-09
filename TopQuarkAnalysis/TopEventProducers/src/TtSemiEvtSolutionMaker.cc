@@ -6,6 +6,9 @@
 
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
+   electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
+   muonSrc_         = iConfig.getParameter<edm::InputTag>("muonSource");
+   metSrc_          = iConfig.getParameter<edm::InputTag>("metSource");
    leptonFlavour_   = iConfig.getParameter< std::string > 	  ("leptonFlavour");
    lJetInput_       = iConfig.getParameter< std::string > 	  ("lJetInput");
    bJetInput_       = iConfig.getParameter< std::string > 	  ("bJetInput");
@@ -87,46 +90,34 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    bool leptonFound = false;
    TopMuon selMuon;
    if(leptonFlavour_ == "muon"){
-     edm::Handle<std::vector<TopMuon> >  muons;
-     iEvent.getByType(muons);
-     std::vector<TopMuon> selMuons;
-     for(size_t m=0; m < muons->size(); m++) { 
-       selMuons.push_back((*muons)[m]);
-     }
-     if( selMuons.size() > 0 ){
+     edm::Handle<std::vector<TopMuon> > muons;
+     iEvent.getByLabel(muonSrc_, muons);
+     if( muons->size() > 0 ){
        //select highest pT muon
-       selMuon = selMuons[0];
+       selMuon = (*muons)[0];
        leptonFound = true;
-     }    
-   }  
+     }
+   }
    TopElectron selElectron;
    if(leptonFlavour_ == "electron"){
-     edm::Handle<std::vector<TopElectron> >  electrons;
-     iEvent.getByType(electrons);
-     std::vector<TopElectron> selElectrons;
-     for(size_t e=0; e < electrons->size(); e++) { 
-       selElectrons.push_back((*electrons)[e]);
-     }
-     if( selElectrons.size() > 0 ){
+     edm::Handle<std::vector<TopElectron> > electrons;
+     iEvent.getByLabel(electronSrc_, electrons);
+     if( electrons->size() > 0 ){
        //select highest pT electron
-       selElectron = selElectrons[0];
+       selElectron = (*electrons)[0];
        leptonFound = true;
      }       
    }  
 
    // select MET (TopMET vector is sorted on ET)
-   bool METFound = false;
+   bool metFound = false;
    TopMET selMET;
-   edm::Handle<std::vector<TopMET> >  METs;
-   iEvent.getByType(METs);
-   std::vector<TopMET> selMETs;
-   for(size_t m=0; m < METs->size(); m++) { 
-     selMETs.push_back((*METs)[m]);
-   }
-   if( selMETs.size() > 0 ){
+   edm::Handle<std::vector<TopMET> > mets;
+   iEvent.getByLabel(metSrc_, mets);
+   if( mets->size() > 0 ){
      //select highest Et MET
-     selMET = selMETs[0];
-     METFound = true;
+     selMET = (*mets)[0];
+     metFound = true;
    }
 
    // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
@@ -156,7 +147,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    //
    
    std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
-   if(leptonFound && METFound && jetsFound){
+   if(leptonFound && metFound && jetsFound){
      //std::cout<<"constructing solutions"<<std::endl;
      for (unsigned int p=0; p<4; p++) {
        for (unsigned int q=0; q<4; q++) {

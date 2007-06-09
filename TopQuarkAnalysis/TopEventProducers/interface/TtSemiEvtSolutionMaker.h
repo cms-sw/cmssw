@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.6 2007/06/06 10:34:21 heyninck Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.7 2007/06/08 21:30:48 lowette Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtEtaPhi.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiKinFitterEtThetaPhi.h"
@@ -38,10 +39,8 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
-#include "PhysicsTools/Utilities/interface/MinSelector.h"
 #include "PhysicsTools/Utilities/interface/EtaRangeSelector.h"
 #include "PhysicsTools/Utilities/interface/EtMinSelector.h"
-#include "PhysicsTools/Utilities/interface/PtMinSelector.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 #include <string>
 #include <vector>
@@ -61,6 +60,10 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
+
+      edm::InputTag electronSrc_;
+      edm::InputTag muonSrc_;
+      edm::InputTag metSrc_;
       std::string leptonFlavour_;
       std::string lJetInput_, bJetInput_, lrJetCombFile_;
       bool addLRJetComb_, doKinFit_, matchToGenEvt_;
