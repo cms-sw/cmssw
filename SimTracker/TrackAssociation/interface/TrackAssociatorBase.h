@@ -4,8 +4,8 @@
 /** \class TrackAssociatorBase
  *  Base class for TrackAssociators. Methods take as input the handle of Track and TrackingPArticle collections and return an AssociationMap (oneToManyWithQuality)
  *
- *  $Date: 2007/03/26 10:13:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 16:15:58 $
+ *  $Revision: 1.7 $
  *  \author magni, cerati
  */
 
@@ -45,6 +45,28 @@ class TrackAssociatorBase {
 							 edm::Handle<TrackingParticleCollection> & tpc ,  
 							 const edm::Event * event = 0 ) const = 0;
 
+  /// Association Reco To Sim with Collections
+  virtual  reco::RecoToSimCollection associateRecoToSim(const reco::TrackCollection& tc,
+                                                        const TrackingParticleCollection& tpc,
+                                                        edm::Provenance const* provTC,
+                                                        edm::Provenance const* provTPC,
+                                                        const edm::Event * event = 0 ) const {
+    edm::Handle<reco::TrackCollection> tcH = edm::Handle<reco::TrackCollection>(&tc, provTC);
+    edm::Handle<TrackingParticleCollection> tpcH = edm::Handle<TrackingParticleCollection>(&tpc, provTPC);
+    return associateRecoToSim(tcH,tpcH);
+  }
+
+  /// Association Sim To Reco with Collections
+  virtual  reco::SimToRecoCollection associateSimToReco(reco::TrackCollection& tc,
+                                                        TrackingParticleCollection& tpc ,
+                                                        edm::Provenance const* provTC,
+                                                        edm::Provenance const* provTPC,
+                                                        const edm::Event * event = 0 ) const {
+    edm::Handle<reco::TrackCollection> tcH = edm::Handle<reco::TrackCollection>(&tc, provTC);
+    edm::Handle<TrackingParticleCollection> tpcH = edm::Handle<TrackingParticleCollection>(&tpc, provTPC);
+    return associateSimToReco(tcH,tpcH);
+  }
+  
 };
 
 
