@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/05/04 15:56:47 $
- *  $Revision: 1.24 $
+ *  $Date: 2007/05/23 12:40:46 $
+ *  $Revision: 1.25 $
  *  \author cerati
  */
 
@@ -26,9 +26,8 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "Validation/RecoTrack/interface/RecoTrackSelector.h"
-#include "Validation/RecoTrack/interface/TPEfficiencySelector.h"
-#include "Validation/RecoTrack/interface/TPFakeRateSelector.h"
+#include "PhysicsTools/RecoSelectors/interface/RecoTrackSelector.h"
+#include "PhysicsTools/RecoSelectors/interface/TrackingParticleSelector.h"
 
 #include <iostream>
 #include <string>
@@ -50,12 +49,15 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     nint(pset.getParameter<int>("nint")),
     minpT(pset.getParameter<double>("minpT")),
     maxpT(pset.getParameter<double>("maxpT")),
-    nintpT(pset.getParameter<int>("nintpT")),
-    selectRecoTracks(pset.getParameter<edm::ParameterSet>("RecoTracksCuts")),
-    selectTPs4Efficiency(pset.getParameter<edm::ParameterSet>("TPEfficCuts")),
-    selectTPs4FakeRate(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"))
+    nintpT(pset.getParameter<int>("nintpT"))
     {
       dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
+      selectRecoTracks = reco::modules::ParameterAdapter<RecoTrackSelector>::
+	make(pset.getParameter<edm::ParameterSet>("RecoTracksCuts"));
+      selectTPs4Efficiency = reco::modules::ParameterAdapter<TrackingParticleSelector>::
+	make(pset.getParameter<edm::ParameterSet>("TPEfficCuts"));
+      selectTPs4FakeRate = reco::modules::ParameterAdapter<TrackingParticleSelector>::
+	make(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"));
     }
 
   /// Destructor
@@ -120,8 +122,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   std::vector<const TrackAssociatorBase*> associator;
   const TrackAssociatorByChi2 * associatorForParamAtPca;
   RecoTrackSelector selectRecoTracks;
-  TPEfficiencySelector selectTPs4Efficiency;
-  TPFakeRateSelector selectTPs4FakeRate;
+  TrackingParticleSelector selectTPs4Efficiency;
+  TrackingParticleSelector selectTPs4FakeRate;
   
   void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){
