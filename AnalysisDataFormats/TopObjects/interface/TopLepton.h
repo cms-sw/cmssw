@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Wed May  2 16:48:32 PDT 2007
 //
-// $Id: TopLepton.h,v 1.3 2007/05/22 16:36:50 heyninck Exp $
+// $Id: TopLepton.h,v 1.4 2007/05/30 19:13:18 lowette Exp $
 //
 
 #ifndef TopLepton_h
@@ -16,7 +16,7 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.3 2007/05/22 16:36:50 heyninck Exp $
+  \version  $Id: TopLepton.h,v 1.4 2007/05/30 19:13:18 lowette Exp $
 */
 
 
@@ -57,11 +57,11 @@ class TopLepton : public TopObject<LeptonType> {
     unsigned int getLRSize() const;
     void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
     void setLRComb(const double lr);
-    GenPartType genLepton;
-    TopParticle fitLepton;
 
   protected:
 
+    GenPartType genLepton;
+    TopParticle fitLepton;
     double lrComb_;
     std::vector<std::pair<double, double> > lrVarVal_;
 

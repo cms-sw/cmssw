@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TopObjectResolutionCalc.h,v 1.3 2007/06/08 19:43:38 lowette Exp $
 //
 
 #ifndef TopObjectResolutionCalc_h
@@ -11,7 +11,7 @@
 /**
   \class    TopObjectResolutionCalc TopObjectResolutionCalc.h "TopQuarkAnalysis/TopLeptonSelection/interface/TopObjectResolutionCalc.h"
   \author   Jan Heyninck
-  \version  $Id: TopObjectResolutionCalc.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+  \version  $Id: TopObjectResolutionCalc.h,v 1.3 2007/06/08 19:43:38 lowette Exp $
 */
 
 
@@ -30,9 +30,6 @@
 #include "TFile.h"
 #include "TKey.h"
 #include "TString.h"
-
-
-using namespace std;
 
 
 class TopObjectResolutionCalc {

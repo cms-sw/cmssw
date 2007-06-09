@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/19 09:54:38 heyninck Exp $
 //
 
 #ifndef TtSemiSimpleBestJetComb_h
@@ -16,7 +16,7 @@
    likelihood as defined in CMS Note 2006/024
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+  \version  $Id: TtSemiSimpleBestJetComb.h,v 1.1 2007/05/19 09:54:38 heyninck Exp $
 */
 
 
@@ -34,16 +34,13 @@
 #include <Math/VectorUtil.h>
 
 
-using namespace std;
-
-
 class TtSemiSimpleBestJetComb {
 
   public:
     TtSemiSimpleBestJetComb();
     ~TtSemiSimpleBestJetComb();	
 
-    int  operator()(vector<TtSemiEvtSolution> &);
+    int  operator()(std::vector<TtSemiEvtSolution> &);
 
   private:
 

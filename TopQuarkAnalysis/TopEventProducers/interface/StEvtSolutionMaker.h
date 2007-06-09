@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: StEvtSolutionMaker.h,v 1.1 2007/05/11 15:33:34 giamman Exp $
+// $Id: StEvtSolutionMaker.h,v 1.2 2007/05/22 16:43:34 heyninck Exp $
 //
 //
 
@@ -40,8 +40,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
 
 //
 // class decleration
@@ -59,11 +57,11 @@ class StEvtSolutionMaker : public edm::EDProducer {
       StKinFitterEtEtaPhi   * myKinFitterEtEtaPhi;
       StKinFitterEMom       * myKinFitterEMom;
       //std::vector<TtJetCombinationProbability> jetCombProbs;
-      string leptonFlavour_;
-      string jetInput_;
+      std::string leptonFlavour_;
+      std::string jetInput_;
       bool addJetCombProb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
-      vector<int> constraints_;
+      std::vector<int> constraints_;
 };

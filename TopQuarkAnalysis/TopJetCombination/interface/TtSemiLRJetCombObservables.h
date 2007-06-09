@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.h,v 1.1 2007/05/24 13:15:44 heyninck Exp $
+// $Id: TtSemiLRJetCombObservables.h,v 1.2 2007/06/06 13:59:47 heyninck Exp $
 //
 
 #ifndef TtSemiLRJetCombObservables_h
@@ -19,7 +19,7 @@
   // obs3 : delta R between had top and lep b  
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiLRJetCombObservables.h,v 1.1 2007/05/24 13:15:44 heyninck Exp $
+  \version  $Id: TtSemiLRJetCombObservables.h,v 1.2 2007/06/06 13:59:47 heyninck Exp $
 */
 
 
@@ -32,9 +32,6 @@
 #include <Math/VectorUtil.h>
 
 
-using namespace std;
-
-
 class TtSemiLRJetCombObservables {
 
   public:
@@ -44,7 +41,7 @@ class TtSemiLRJetCombObservables {
     void  operator()(TtSemiEvtSolution&);
 
   private:
-    vector<pair<double,double> > jetCombVarVal;
+    std::vector<std::pair<double,double> > jetCombVarVal;
 
 
 };

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopJetProducer.h,v 1.2 2007/05/08 14:01:21 heyninck Exp $
+// $Id: TopJetProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
 //
 //
 
@@ -38,7 +38,6 @@
 #include <vector>
 #include <Math/VectorUtil.h>
 
-using namespace std;
 
 //
 // class decleration
@@ -51,10 +50,10 @@ class TopJetProducer : public edm::EDProducer {
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
-     string jetTagsLabel_;
-     string recJetsLabel_;
-     string caliJetsLabel_;
-     string caliJetResoFile_;
+     std::string jetTagsLabel_;
+     std::string recJetsLabel_;
+     std::string caliJetsLabel_;
+     std::string caliJetResoFile_;
      double recJetETcut_;
      double jetEtaCut_;
      int minNrConstis_;

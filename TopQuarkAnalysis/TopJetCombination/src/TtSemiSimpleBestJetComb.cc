@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
 //
 
 /**
@@ -14,7 +14,7 @@
    smallest DR angle wrt the Whadr direction. 
 
   \author   Jan Heyninck
-  \version  $Id: TtSemiSimpleBestJetComb.cc,v 1.2 2007/05/09 00:58:05 heyninck Exp $
+  \version  $Id: TtSemiSimpleBestJetComb.cc,v 1.1 2007/05/19 09:54:39 heyninck Exp $
 */
 
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
@@ -23,14 +23,14 @@ TtSemiSimpleBestJetComb::TtSemiSimpleBestJetComb() {}
 TtSemiSimpleBestJetComb::~TtSemiSimpleBestJetComb() {}
 
 
-int  TtSemiSimpleBestJetComb::operator()(vector<TtSemiEvtSolution> & sols){
+int  TtSemiSimpleBestJetComb::operator()(std::vector<TtSemiEvtSolution> & sols){
  
   // search the highest probChi^2 value in the among the different jet combination solutions   
   double maxProbChi2 = 0;
-  for(unsigned int s=0; s<sols.size(); s++)  maxProbChi2 = max(maxProbChi2,sols[s].getProbChi2());
+  for(unsigned int s=0; s<sols.size(); s++)  maxProbChi2 = std::max(maxProbChi2,sols[s].getProbChi2());
   
   //search indices of original solutions with highest probChi2 value
-  vector<unsigned int> indices;
+  std::vector<unsigned int> indices;
   indices.clear();
   for(unsigned int s=0; s<sols.size(); s++){
     if(fabs(sols[s].getProbChi2()-maxProbChi2) < 0.0001) indices.push_back(s);

@@ -28,7 +28,6 @@
 
 const double PI=3.14159265;
 
-using namespace std;
 
 class TtSemiLRSignalSelObservables{
   
@@ -72,7 +71,7 @@ class TtSemiLRSignalSelObservables{
   
     CompareDouble dComparator;
   
-    vector<pair<double,double> > evtselectVarVal;
+    std::vector<std::pair<double,double> > evtselectVarVal;
     
 };
 

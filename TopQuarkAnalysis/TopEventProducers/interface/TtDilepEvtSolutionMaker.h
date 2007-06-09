@@ -16,9 +16,6 @@
 #include <iostream>
 #include <fstream>
 
-using namespace std;
-
-
 
 //
 // class decleration
@@ -41,7 +38,7 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
       bool HasPositiveCharge(TopMuon m);
       bool HasPositiveCharge(TopElectron e);
          
-      string jetInput_;
+      std::string jetInput_;
       bool matchToGenEvt_, calcTopMass_;
       bool eeChannel_, emuChannel_, mumuChannel_;
       double tmassbegin_, tmassend_, tmassstep_;

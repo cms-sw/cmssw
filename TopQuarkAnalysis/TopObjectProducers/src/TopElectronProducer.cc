@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.4 2007/06/07 05:49:17 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.5 2007/06/08 23:22:39 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -16,6 +16,7 @@
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 #include <vector>
+#include <memory>
 
 
 //
@@ -107,7 +108,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   std::sort(topElectrons->begin(), topElectrons->end(), pTElectronComparator_);
 
   // put genEvt object in Event
-  auto_ptr<std::vector<TopElectron> > pOutElectron(topElectrons);
+  std::auto_ptr<std::vector<TopElectron> > pOutElectron(topElectrons);
   iEvent.put(pOutElectron);
 
   // destroy the lepton LR calculator

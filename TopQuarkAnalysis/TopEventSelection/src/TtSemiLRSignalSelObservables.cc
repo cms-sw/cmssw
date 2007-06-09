@@ -1,9 +1,5 @@
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
 
-using namespace reco;
-using namespace std;
-using namespace math;
-
 
 /************** Definition of the functions of the class ***************/
 
@@ -16,9 +12,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 {
 	evtselectVarVal.clear();
 	
-	cout<<"New event being processed"<<endl;
+	std::cout<<"New event being processed"<<std::endl;
 	
-	vector<TopJet> TopJets;
+	std::vector<TopJet> TopJets;
 	TopJets.clear();
 	TopJets.push_back(TS.getHadp());
 	TopJets.push_back(TS.getHadq());
@@ -60,7 +56,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 		LepnPt = LepnPt-0.1;
 		gamma = pow(Lept->E(),2)*(pow(LepnPt,2))-pow(zeta/2,2);
 		Delta = pow(beta,2)-4*alpha*gamma;
-		//cout<<"Look for another solution, Pt of the neutrino over estimated"<<endl;
+		//std::cout<<"Look for another solution, Pt of the neutrino over estimated"<<std::endl;
 		it++;
 	}
 
@@ -80,16 +76,16 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	double Solution = (DiffLepTopMass1<DiffLepTopMass2 ? Solution1 : Solution2);
 	
 	Lepn->SetPz(Solution);
-	//cout<<"Pz of the neutrino ="<<Solution<<endl;
-	//cout<<"Solution1 = "<<Solution1<<endl;
-	//cout<<"Solution2 = "<<Solution2<<endl;
+	//std::cout<<"Pz of the neutrino ="<<Solution<<std::endl;
+	//std::cout<<"Solution1 = "<<Solution1<<std::endl;
+	//std::cout<<"Solution2 = "<<Solution2<<std::endl;
 
 //Et-Sum of the lightest jets
 
 	double EtSum = TopJets[2].getRecJet().et()+TopJets[3].getRecJet().et();
 	//double HT    = TopJets[0].getRecJet().et()+TopJets[1].getRecJet().et()+TopJets[2].getRecJet().et()+TopJets[3].getRecJet().et();
 	double Obs1 = (EtSum>0 ? EtSum : -1);
-	evtselectVarVal.push_back(pair<double,double>(1,Obs1));
+	evtselectVarVal.push_back(std::pair<double,double>(1,Obs1));
 	
 //Difference in Bdisc between the 2nd and the 3rd jets (ordered in Bdisc)
 
@@ -98,7 +94,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	
 	double BGap = TopJets[1].getBdiscriminant() - TopJets[2].getBdiscriminant();
 	double Obs2 = (BGap>0 ? BGap : -1);
-	evtselectVarVal.push_back(pair<double,double>(2,Obs2));
+	evtselectVarVal.push_back(std::pair<double,double>(2,Obs2));
 	
 //Circularity of the event
 
@@ -138,7 +134,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	}
 	
 	double Obs3 = ( C!=1000 ? C : -1);
-	evtselectVarVal.push_back(pair<double,double>(3,Obs3));
+	evtselectVarVal.push_back(std::pair<double,double>(3,Obs3));
 
 //HT variable (Et-sum of the four jets)
 
@@ -149,11 +145,11 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	}
 	
 	double Obs4 = ( HT!=0 ? HT : -1);
-	evtselectVarVal.push_back(pair<double,double>(4,Obs4));
+	evtselectVarVal.push_back(std::pair<double,double>(4,Obs4));
 
 //Transverse Mass of the system
 
-	XYZTLorentzVector pjets;
+	math::XYZTLorentzVector pjets;
 	// for the four jets 
 	for(unsigned int i=0;i<4;i++)
 	{
@@ -167,7 +163,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	double MT = sqrt(pow(pjets.mass(),2)+pow(MET,2))+MET;
 	
 	double Obs5 = ( MT>0 ? MT : -1);
-	evtselectVarVal.push_back(pair<double,double>(5,Obs5));
+	evtselectVarVal.push_back(std::pair<double,double>(5,Obs5));
 
 //CosTheta(Hadp,Hadq) 
 
@@ -183,7 +179,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	//TVector3 BoostBackToCM = -pjj->BoostVector();
 	//pjj->Px()=0 if ppj back boosted ,checked!
 	//pjj->Boost(BoostBackToCM);
-	//cout<<pjj->Px()<<endl;
+	//std::cout<<pjj->Px()<<std::endl;
 	TLorentzVector *LightJet1 = new TLorentzVector();
 	LightJet1->SetPxPyPzE(px1,py1,pz1,E1);
 	//LightJet1->Boost(BoostBackToCM);
@@ -196,7 +192,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	double CosTheta = cos(LightJet2->Angle(LightJet1->Vect()));
 	
 	double Obs6 = ( -1<CosTheta ? CosTheta : -2);
-	evtselectVarVal.push_back(pair<double,double>(6,Obs6));
+	evtselectVarVal.push_back(std::pair<double,double>(6,Obs6));
 	
 	//delete pjj;
 	delete LightJet1;
@@ -210,29 +206,29 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	double BjetsBdiscSum = TopJets[0].getBdiscriminant() + TopJets[1].getBdiscriminant();
 	double LjetsBdiscSum = TopJets[2].getBdiscriminant() + TopJets[3].getBdiscriminant();
 	
-	cout<<"BjetsBdiscSum = "<<BjetsBdiscSum<<endl;
-	cout<<"LjetsBdiscSum = "<<LjetsBdiscSum<<endl;
+	std::cout<<"BjetsBdiscSum = "<<BjetsBdiscSum<<std::endl;
+	std::cout<<"LjetsBdiscSum = "<<LjetsBdiscSum<<std::endl;
 	
 	double Obs7 = (LjetsBdiscSum !=0 ? (BjetsBdiscSum/LjetsBdiscSum) : -1);
-	evtselectVarVal.push_back(pair<double,double>(7,Obs7));
+	evtselectVarVal.push_back(std::pair<double,double>(7,Obs7));
 	
 	double Obs8 = (BGap>0 ? BjetsBdiscSum*BGap : -1);
-	evtselectVarVal.push_back(pair<double,double>(8,Obs8));
+	evtselectVarVal.push_back(std::pair<double,double>(8,Obs8));
 
 // Missing transverse energy
 
 	double Obs9 = (MET!=0 ? MET : -1);
-	evtselectVarVal.push_back(pair<double,double>(9,Obs9));	
+	evtselectVarVal.push_back(std::pair<double,double>(9,Obs9));	
 
 // Et-Ratio between light and b- jets
 
 	double Obs10 = (HT!=0 ? EtSum/HT : -1);
-	evtselectVarVal.push_back(pair<double,double>(10,Obs10));
+	evtselectVarVal.push_back(std::pair<double,double>(10,Obs10));
 	
 // Pt of the lepton
 
 	double Obs11 = TS.getRecLept().pt();
-	evtselectVarVal.push_back(pair<double,double>(11,Obs11));
+	evtselectVarVal.push_back(std::pair<double,double>(11,Obs11));
 	
 	
 //Sphericity and Aplanarity
@@ -269,9 +265,9 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	
 	TMatrixDSymEigen pTensor(Matrix);
 
-	//if(fabs(pTensor.GetEigenValues().Sum()-1) > 0.01) cout<<"Sum of the eigen values not equal to 1!!!"<<endl;
+	//if(fabs(pTensor.GetEigenValues().Sum()-1) > 0.01) std::cout<<"Sum of the eigen values not equal to 1!!!"<<std::endl;
 	
-	vector<double> EigValues;
+	std::vector<double> EigValues;
 	EigValues.clear();
 	for(int i=0;i<3;i++)
 	{
@@ -284,19 +280,19 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	double Aplanarity = 1.5*EigValues[2];
 	
 	double Obs12 = (isnan(Sphericity) ? -1 : Sphericity);
-	evtselectVarVal.push_back(pair<double,double>(12,Obs12));
+	evtselectVarVal.push_back(std::pair<double,double>(12,Obs12));
 
 	double Obs13 = (isnan(Aplanarity) ? -1 : Aplanarity);
-	evtselectVarVal.push_back(pair<double,double>(13,Obs13));
+	evtselectVarVal.push_back(std::pair<double,double>(13,Obs13));
 	
 /*
-	if(isnan(Sphericity)) cout<<" Sphericity is not a number !! "<<endl;	
+	if(isnan(Sphericity)) std::cout<<" Sphericity is not a number !! "<<std::endl;	
 
-	cout<<" First eigen value ="<<EigValues[0]<<endl;
-	cout<<"Second eigen value ="<<EigValues[1]<<endl;
-	cout<<" Third eigen value ="<<EigValues[2]<<endl;
-	cout<<"Sphericity = "<<Sphericity<<endl;
-	cout<<"Aplanarity = "<<Aplanarity<<endl;
+	std::cout<<" First eigen value ="<<EigValues[0]<<std::endl;
+	std::cout<<"Second eigen value ="<<EigValues[1]<<std::endl;
+	std::cout<<" Third eigen value ="<<EigValues[2]<<std::endl;
+	std::cout<<"Sphericity = "<<Sphericity<<std::endl;
+	std::cout<<"Aplanarity = "<<Aplanarity<<std::endl;
 */
 
 

@@ -1,11 +1,12 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
 
+
 //
 // constructors and destructor
 //
 TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
-  jetInput_        = iConfig.getParameter< string > 	  ("jetInput");
+  jetInput_        = iConfig.getParameter< std::string >  ("jetInput");
   matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
   calcTopMass_     = iConfig.getParameter< bool >         ("calcTopMass"); 
   eeChannel_     = iConfig.getParameter< bool >           ("eeChannel"); 
@@ -15,7 +16,7 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfi
   tmassend_     = iConfig.getParameter< double >         ("tmassend");
   tmassstep_     = iConfig.getParameter< double >         ("tmassstep");
   
-  produces<vector<TtDilepEvtSolution> >();
+  produces<std::vector<TtDilepEvtSolution> >();
 }
 
 
@@ -33,13 +34,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
 {
 
    using namespace edm;
-   Handle<vector<TopMuon> >  muons;
+   Handle<std::vector<TopMuon> >  muons;
    iEvent.getByType(muons);
-   Handle<vector<TopElectron> >  electrons;
+   Handle<std::vector<TopElectron> >  electrons;
    iEvent.getByType(electrons);
-   Handle<vector<TopMET> >  mets;
+   Handle<std::vector<TopMET> >  mets;
    iEvent.getByType(mets);
-   Handle<vector<TopJet> >  jets;
+   Handle<std::vector<TopJet> >  jets;
    iEvent.getByLabel(jetInput_,jets);
    
    //select lepton (the TtLepton vectors are, for the moment, sorted on pT)
@@ -73,8 +74,8 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
   }
   
   if ((ee && emu) || (ee && mumu) || (emu && mumu))
-    cout << "[TtDilepEvtSolutionMaker]: "
-         << "Lepton selection criteria uncorrectly defined" << endl;
+    std::cout << "[TtDilepEvtSolutionMaker]: "
+         << "Lepton selection criteria uncorrectly defined" << std::endl;
   
   bool leptonFoundEE = false;
   bool leptonFoundMM = false;
@@ -132,7 +133,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
    if(mets -> size()>=1) { selMET = (*mets)[0]; METFound = true;};  
 
    //select Jets (TopJet vector is sorted on ET)
-   vector<TopJet> selJets;
+   std::vector<TopJet> selJets;
    bool jetsFound = false;
    if(jets -> size()>=2) {
      for(int j=0; j<2; j++) selJets.push_back((*jets)[j]);
@@ -143,7 +144,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
                         ((leptonFoundEmMp || leptonFoundEpMm) && emuChannel_) ||
 			(leptonFoundMM && mumuChannel_);
 			
-   vector<TtDilepEvtSolution> *evtsols = new vector<TtDilepEvtSolution>();
+   std::vector<TtDilepEvtSolution> *evtsols = new std::vector<TtDilepEvtSolution>();
    if(correctLepton && METFound && jetsFound){
      //cout<<"constructing solutions"<<endl;
      
@@ -212,13 +213,13 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
        (*evtsols)[bestSol].setBestSol(true);
      }
      
-     auto_ptr<vector<TtDilepEvtSolution> > pOut(evtsols);
+     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
    else {
      TtDilepEvtSolution asol;
      evtsols->push_back(asol);
-     auto_ptr<vector<TtDilepEvtSolution> > pOut(evtsols);
+     std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
 }

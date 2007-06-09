@@ -16,12 +16,12 @@
 ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
 {
   // input parameters
-  objectType_  	= iConfig.getParameter< string >   	 ("object");
-  jetmetLabel_  = iConfig.getParameter< string > 	 ("jetmetLabel");
+  objectType_  	= iConfig.getParameter< std::string >    ("object");
+  jetmetLabel_  = iConfig.getParameter< std::string > 	 ("jetmetLabel");
   if(objectType_ != "met"){
-    etabinVals_	= iConfig.getParameter< vector<double> > ("etabinValues");
+    etabinVals_	= iConfig.getParameter< std::vector<double> > ("etabinValues");
   }
-  eTbinVals_	= iConfig.getParameter< vector<double> > ("eTbinValues");
+  eTbinVals_	= iConfig.getParameter< std::vector<double> > ("eTbinValues");
   minDR_	= iConfig.getParameter< double >         ("minMatchingDR");
 
 
@@ -29,7 +29,7 @@ ResolutionCreator::ResolutionCreator(const edm::ParameterSet& iConfig)
   TString  	  resObsName[6] 	= {"pres","eres","thres","phres","etres","etares"};
   TString  	  def[2] 	 	= {"_abs","_rel"};
   int      	  resObsNrBins  	= 240;
-  vector<double>  resObsMinAbs, resObsMaxAbs, resObsMinRel, resObsMaxRel;
+  std::vector<double>  resObsMinAbs, resObsMaxAbs, resObsMinRel, resObsMaxRel;
   if(objectType_ == "electron"){ 
     resObsMinAbs.push_back(-0.004);  resObsMinAbs.push_back(0.45);  resObsMinAbs.push_back(-0.0012);  resObsMinAbs.push_back(-0.009);  resObsMinAbs.push_back(-16); resObsMinAbs.push_back(-0.0012);   
     resObsMaxAbs.push_back( 0.004);  resObsMaxAbs.push_back(2.2);  resObsMaxAbs.push_back( 0.0012);  resObsMaxAbs.push_back( 0.009);  resObsMaxAbs.push_back( 16); resObsMaxAbs.push_back( 0.0012);
@@ -162,7 +162,7 @@ ResolutionCreator::~ResolutionCreator()
   outfile->cd();
   outfile->Write();
   outfile->Close();
-  cout<<"nr. of "<<objectType_<<" filled: "<<nrFilled<<endl;
+  std::cout<<"nr. of "<<objectType_<<" filled: "<<nrFilled<<std::endl;
 }
 
 
@@ -174,7 +174,7 @@ ResolutionCreator::~ResolutionCreator()
 void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // Get the gen and cal object fourvector
-   vector<reco::Particle *> p4gen, p4rec;
+   std::vector<reco::Particle *> p4gen, p4rec;
    
    edm::Handle<TtGenEvent> genEvt;
    iEvent.getByLabel ("genEvt",genEvt);
@@ -182,7 +182,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
    if(genEvt->particles().size()<10) return;
    
    if(objectType_ == "electron"){ 
-     edm::Handle<vector<TopElectron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
+     edm::Handle<std::vector<TopElectron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
      iEvent.getByType(electrons);
      if(electrons->size()>=1) {	 
        if( ROOT::Math::VectorUtil::DeltaR( genEvt->particles()[4]->p4(),(*electrons)[0].p4()) < minDR_)  {
@@ -191,7 +191,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }
      }
    }else if(objectType_ == "muon"){
-     edm::Handle<vector<muonType> >  muons;
+     edm::Handle<std::vector<muonType> >  muons;
      iEvent.getByType(muons);
      if(muons->size()>=1) { 
        if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[4]->p4(), (*muons)[0].p4()) < minDR_){
@@ -200,7 +200,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }
      }
    }else if(objectType_ == "lJets"){
-     edm::Handle<vector<jetType> >  ljets;
+     edm::Handle<std::vector<jetType> >  ljets;
      iEvent.getByLabel(jetmetLabel_,ljets);
      if(ljets->size()>=4) { 
        for(unsigned int p = 0; p<2; p++){
@@ -213,7 +213,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
        }
      }
    }else if(objectType_ == "bJets"){
-     edm::Handle<vector<jetType> >  bjets;
+     edm::Handle<std::vector<jetType> >  bjets;
      iEvent.getByLabel(jetmetLabel_,bjets);
      if(bjets->size()>=4) { 
        for(unsigned int p = 2; p<4; p++){
@@ -227,7 +227,7 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      }
    }else if(objectType_ == "met"){
 
-     edm::Handle<vector<metType> >  mets;
+     edm::Handle<std::vector<metType> >  mets;
      iEvent.getByLabel(jetmetLabel_,mets);
      if(mets->size()>=1) { 
        if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[5]->p4(), (*mets)[0].p4()) < minDR_){

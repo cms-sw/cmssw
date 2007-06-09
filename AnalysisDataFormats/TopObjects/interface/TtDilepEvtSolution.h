@@ -7,7 +7,6 @@
 #include "TopMET.h"
 #include <vector>
 
-using namespace reco;
 
 class TtDilepEvtSolution
 {
@@ -15,7 +14,7 @@ class TtDilepEvtSolution
       TtDilepEvtSolution();
       virtual ~TtDilepEvtSolution();
       
-      void setGenEvt(std::vector<Candidate *>);
+      void setGenEvt(std::vector<reco::Candidate *>);
       void setBestSol(bool);
       
       void setMuonLepp(TopMuon);
@@ -29,24 +28,24 @@ class TtDilepEvtSolution
       std::string getWpDecay() const		{ return WpDecay; }; 
       std::string getWmDecay() const		{ return WmDecay; };
       
-      Particle getGenLepp() const {return genLepp;};
-      Particle getGenN() const {return genN;};
-      Particle getGenB() const {return genB;};
-      Particle  getGenBbar() const {return genBbar;};
-      Particle  getGenLepm() const {return genLepm;};
-      Particle getGenNbar() const {return genNbar;};
-      Particle  getGenWp() const {return genWp;};
-      Particle  getGenWm() const {return genWm;};
-      Particle  getGenT() const {return genT;};
-      Particle  getGenTbar() const {return genTbar;};
+      reco::Particle getGenLepp() const {return genLepp;};
+      reco::Particle getGenN() const {return genN;};
+      reco::Particle getGenB() const {return genB;};
+      reco::Particle  getGenBbar() const {return genBbar;};
+      reco::Particle  getGenLepm() const {return genLepm;};
+      reco::Particle getGenNbar() const {return genNbar;};
+      reco::Particle  getGenWp() const {return genWp;};
+      reco::Particle  getGenWm() const {return genWm;};
+      reco::Particle  getGenT() const {return genT;};
+      reco::Particle  getGenTbar() const {return genTbar;};
       bool getBestSol() const		{ return bestSol; };
       
       JetType getRecJetB() const;
       JetType getRecJetBbar() const;
       TopMET getRecMET() const;
       
-      Particle getRecLepp() const;
-      Particle getRecLepm() const;
+      reco::Particle getRecLepp() const;
+      reco::Particle getRecLepm() const;
 
       TopElectron getElectronLepp() const {return elecLepp;};
       TopElectron getElectronLepm() const {return elecLepm;};
@@ -67,7 +66,7 @@ class TtDilepEvtSolution
       
       //TopMuon genLepp  
    private:
-      Particle genLepp, genN, genB, genBbar, genLepm, genNbar, genWp, genWm, genT, genTbar;
+      reco::Particle genLepp, genN, genB, genBbar, genLepm, genNbar, genWp, genWm, genT, genTbar;
       TopElectron elecLepp, elecLepm;
       TopMuon muonLepp, muonLepm;
       TopJet jetB, jetBbar;

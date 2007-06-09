@@ -31,8 +31,6 @@
 #include <Math/VectorUtil.h>
 
 
-using namespace std;
-
 typedef TopLepton<ElectronType> TopElectron; //added to work with TopElectron
 //typedef reco::PixelMatchGsfElectron electronType;
 typedef reco::Muon muonType;
@@ -57,8 +55,8 @@ class ResolutionCreator : public edm::EDAnalyzer {
       TF1   	*fResEtaBin[10][20][2];
       TH1F  	*hResPar[10][2][3];
       TF1   	*fResPar[10][2][3];
-      string	objectType_, jetmetLabel_;
-      vector	<double> etabinVals_, eTbinVals_;
+      std::string	objectType_, jetmetLabel_;
+      std::vector	<double> etabinVals_, eTbinVals_;
       double	minDR_;
       int 	etnrbins, etanrbins;
       int	nrFilled;

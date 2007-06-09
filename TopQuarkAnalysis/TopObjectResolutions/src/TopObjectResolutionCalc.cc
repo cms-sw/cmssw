@@ -2,15 +2,15 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.cc,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TopObjectResolutionCalc.cc,v 1.2 2007/06/08 19:43:38 lowette Exp $
 //
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
 // constructor with path; default should not be used
 TopObjectResolutionCalc::TopObjectResolutionCalc(TString resopath) {
-  cout << "=== Constructing a TopObjectResolutionCalc... " << endl; 
+  std::cout << "=== Constructing a TopObjectResolutionCalc... " << std::endl; 
   resoFile = new TFile(resopath);
-  if (!resoFile) cout<<"### No resolutions fits for this object available... ###"<<endl;
+  if (!resoFile) std::cout<<"### No resolutions fits for this object available... ###"<<std::endl;
  TString objectType = resopath;
   while(objectType.Index("/")>0) objectType.Remove(0,objectType.Index("/")+1);
   objectType.Remove(0,objectType.Index("_")+1);
@@ -35,7 +35,7 @@ TopObjectResolutionCalc::TopObjectResolutionCalc(TString resopath) {
       fResVsET[ro][0] = (TF1)(*(tmp -> GetFunction("F_"+obsName)));
     }
   }
-  cout << "=== done." << endl;
+  std::cout << "=== done." << std::endl;
 
 }
 

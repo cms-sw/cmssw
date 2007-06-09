@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr 10 18:17:49 CEST 2007
-// $Id: TtDecaySelection.h,v 1.1 2007/05/02 15:10:44 lowette Exp $
+// $Id: TtDecaySelection.h,v 1.2 2007/05/22 16:43:34 heyninck Exp $
 //
 //
 
@@ -32,8 +32,6 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 #include<string>
 #include<vector>
-
-using namespace std;
 
 
 //

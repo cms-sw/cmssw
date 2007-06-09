@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id$
+// $Id: TopMETProducer.cc,v 1.3 2007/06/08 23:23:51 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -12,6 +12,8 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleCandidate.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+
+#include <memory>
 
 
 //
@@ -106,7 +108,7 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(ttMETs->begin(), ttMETs->end(), eTComparator_);
 
   // put genEvt object in Event
-  auto_ptr<std::vector<TopMET> > myTopMETProducer(ttMETs);
+  std::auto_ptr<std::vector<TopMET> > myTopMETProducer(ttMETs);
   iEvent.put(myTopMETProducer);
 
 }

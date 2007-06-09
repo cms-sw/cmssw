@@ -1,23 +1,26 @@
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
 
+#include <memory>
+
+
 //
 // constructors and destructor
 //
 TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig)
 {
-   jetTagsLabel_    	= iConfig.getParameter< string > ("jetTagInput");
-   recJetsLabel_    	= iConfig.getParameter< string > ("recJetInput");
-   caliJetsLabel_  	= iConfig.getParameter< string > ("caliJetInput");
+   jetTagsLabel_    	= iConfig.getParameter< std::string > ("jetTagInput");
+   recJetsLabel_    	= iConfig.getParameter< std::string > ("recJetInput");
+   caliJetsLabel_  	= iConfig.getParameter< std::string > ("caliJetInput");
    recJetETcut_     	= iConfig.getParameter< double > ("recJetETcut");
    jetEtaCut_       	= iConfig.getParameter< double > ("jetEtacut");
    minNrConstis_    	= iConfig.getParameter< int    > ("minNrConstis");
    addResolutions_  	= iConfig.getParameter< bool   > ("addResolutions");
-   caliJetResoFile_ 	= iConfig.getParameter< string > ("caliJetResoFile");
+   caliJetResoFile_ 	= iConfig.getParameter< std::string > ("caliJetResoFile");
    
    //construct resolution calculator
    if(addResolutions_) jetsResCalc  = new TopObjectResolutionCalc(caliJetResoFile_);
 
-   produces<vector<TopJet> >();
+   produces<std::vector<TopJet> >();
 }
 
 
@@ -37,18 +40,18 @@ TopJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
   
    // Get the vector of generated particles from the event
-   edm::Handle<vector<JetType> > recjets;
+   edm::Handle<std::vector<JetType> > recjets;
    iEvent.getByLabel(recJetsLabel_, recjets );
-   edm::Handle<vector<JetType> > calijets;
+   edm::Handle<std::vector<JetType> > calijets;
    iEvent.getByLabel(caliJetsLabel_, calijets );
-   edm::Handle<vector<reco::JetTag> > jetTags;
+   edm::Handle<std::vector<reco::JetTag> > jetTags;
    iEvent.getByLabel(jetTagsLabel_, jetTags );
    
    
    
    
    // define vector of selected TopJetProducer objects
-   vector<TopJet> * ttJets = new vector<TopJet>(); 
+   std::vector<TopJet> * ttJets = new std::vector<TopJet>(); 
    for(size_t j=0; j<recjets->size(); j++){
      if( (*recjets)[j].et()>recJetETcut_ && fabs((*recjets)[j].eta())<jetEtaCut_ && (*recjets)[j].nConstituents()>minNrConstis_){
        
@@ -76,7 +79,7 @@ TopJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
        else 
        { 
-         cout<<"no cal jet found "<<endl;
+         std::cout<<"no cal jet found "<<std::endl;
        }
        ttJets->push_back(ajet);
      }
@@ -86,7 +89,7 @@ TopJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::sort(ttJets->begin(),ttJets->end(),eTComparator);
 
    // put genEvt  in Event
-   auto_ptr<vector<TopJet> > myTopJetProducer(ttJets);
+   std::auto_ptr<std::vector<TopJet> > myTopJetProducer(ttJets);
    iEvent.put(myTopJetProducer);
    
 

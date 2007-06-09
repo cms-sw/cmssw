@@ -2,17 +2,17 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombCalc.cc,v 1.1 2007/05/08 14:03:05 heyninck Exp $
+// $Id: TtSemiLRJetCombCalc.cc,v 1.1 2007/06/01 09:10:19 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
 
 // constructor with path; default should not be used
 TtSemiLRJetCombCalc::TtSemiLRJetCombCalc(TString fitInputPath) {
 
-  cout << "=== Constructing a TtSemiLRJetCombCalc... " << endl; 
+  std::cout << "=== Constructing a TtSemiLRJetCombCalc... " << std::endl; 
   myLR = new LRHelpFunctions();
   myLR -> readObsHistsAndFits(fitInputPath, true);
-  cout << "=== done." << endl;
+  std::cout << "=== done." << std::endl;
 
 }
 
@@ -26,10 +26,10 @@ TtSemiLRJetCombCalc::~TtSemiLRJetCombCalc() {
 void  TtSemiLRJetCombCalc::operator()(TtSemiEvtSolution & sol){
   
   // find the used observables
-  vector<double> selObsVals;
+  std::vector<double> selObsVals;
   unsigned int o=0;
   while(!(sol.getLRCorrJetCombVar(o)< 0.5)){
-    if(myLR->isIncluded((int) sol.getLRCorrJetCombVar(o))) {cout<<"  obs "<<sol.getLRCorrJetCombVar(o)<<" was selected..."<<endl; selObsVals.push_back(sol.getLRCorrJetCombVal(o));};
+    if(myLR->isIncluded((int) sol.getLRCorrJetCombVar(o))) {std::cout<<"  obs "<<sol.getLRCorrJetCombVar(o)<<" was selected..."<<std::endl; selObsVals.push_back(sol.getLRCorrJetCombVal(o));};
     ++o;
   }
   
@@ -40,5 +40,5 @@ void  TtSemiLRJetCombCalc::operator()(TtSemiEvtSolution & sol){
   // fill these values to the members in the TtSemiEvtSolution
   sol.setLRCorrJetCombLRval(logLR);
   sol.setLRCorrJetCombProb(prob);
-  cout<<"  Found logLR = "<<logLR<<" and Prob = "<<prob<<endl;
+  std::cout<<"  Found logLR = "<<logLR<<" and Prob = "<<prob<<std::endl;
 }

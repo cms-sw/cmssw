@@ -2,15 +2,15 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.4 2007/06/04 12:53:05 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.5 2007/06/06 10:40:44 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
 
 // constructors
 LRHelpFunctions::LRHelpFunctions() {}
-LRHelpFunctions::LRHelpFunctions(vector<int> obsNr, int nrBins, vector<double> obsMin, vector<double> obsMax,
-                                 vector<const char*> functions, int nrLRbins, double LRmin, double LRmax, const char* LRfunction) { 
+LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax,
+                                 std::vector<const char*> functions, int nrLRbins, double LRmin, double LRmax, const char* LRfunction) { 
   setTDRStyle();
   gStyle->SetCanvasDefW(900);
   for(size_t o=0; o<obsNr.size(); o++){
@@ -50,7 +50,7 @@ LRHelpFunctions::~LRHelpFunctions() {}
 
 
 // member function to set initial values to the observable fit function
-void LRHelpFunctions::setObsFitParameters(int obs,vector<double> fitPars){
+void LRHelpFunctions::setObsFitParameters(int obs,std::vector<double> fitPars){
   for(size_t fit=0; fit<fObsSoverSplusB.size(); fit++){
     TString fn = "_Obs"; fn += obs;
     if(((TString)fObsSoverSplusB[fit]->GetName()).Contains(fn)){
@@ -67,7 +67,7 @@ void LRHelpFunctions::setObsFitParameters(int obs,vector<double> fitPars){
 
 
 // member function to add observable values to the signal histograms
-void LRHelpFunctions::fillToSignalHists(vector<double> obsVals){
+void LRHelpFunctions::fillToSignalHists(std::vector<double> obsVals){
   int hIndex = 0;
   for(size_t o=0; o<obsVals.size(); o++) {
     hObsS[o]->Fill(obsVals[o]);
@@ -81,7 +81,7 @@ void LRHelpFunctions::fillToSignalHists(vector<double> obsVals){
   
     
 // member function to add observable values to the background histograms
-void LRHelpFunctions::fillToBackgroundHists(vector<double> obsVals){
+void LRHelpFunctions::fillToBackgroundHists(std::vector<double> obsVals){
   for(size_t o=0; o<obsVals.size(); o++) hObsB[o]->Fill(obsVals[o]);
 } 
  
@@ -99,7 +99,7 @@ void LRHelpFunctions::normalizeSandBhists(){
       hObsS[o]->SetBinError(b,hObsS[o]->GetBinError(b)/(nrSignEntries));
       hObsB[o]->SetBinError(b,hObsB[o]->GetBinError(b)/(nrBackEntries));
     }
-    cout<<"Integral for obs"<<o<<" S: "<<hObsS[o]->Integral(0,10000)<<" & obs"<<o<<" B: "<<hObsB[o]->Integral(0,10000)<<endl;
+    std::cout<<"Integral for obs"<<o<<" S: "<<hObsS[o]->Integral(0,10000)<<" & obs"<<o<<" B: "<<hObsB[o]->Integral(0,10000)<<std::endl;
   }
 }
 
@@ -250,7 +250,7 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
 
 
 // member function to fill a signal contribution to the LR histogram 
-double 	LRHelpFunctions::calcLRval(vector<double> vals){
+double 	LRHelpFunctions::calcLRval(std::vector<double> vals){
   double logLR = 0.;
   for(size_t o=0; o<fObsSoverSplusB.size(); o++){
     double SoverSplusN = fObsSoverSplusB[o]->Eval(vals[o]);

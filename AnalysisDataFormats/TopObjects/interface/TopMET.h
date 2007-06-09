@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopMET.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+// $Id: TopMET.h,v 1.2 2007/05/22 16:36:50 heyninck Exp $
 //
 
 #ifndef TopMET_h
@@ -15,7 +15,7 @@
    TopMET contains a missing ET 4-vector as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopMET.h,v 1.1 2007/05/04 01:08:38 lowette Exp $
+  \version  $Id: TopMET.h,v 1.2 2007/05/22 16:36:50 heyninck Exp $
 */
 
 
@@ -25,27 +25,27 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 
 
-
 typedef reco::CaloMET METType;
 
-class TopMET : public TopObject<METType> 
-{
-   
-   public:
-      TopMET();
-      TopMET(METType);
-      virtual ~TopMET();
-            
-      void 		setGenMET(Particle);
-      void    		setFitMET(TopParticle);
-      
-      reco::Particle	getGenMET() const;
-      TopParticle  	getFitMET() const;
-      
-   protected:
-      Particle	   genMET;
-      TopParticle  fitMET;
-      
+
+class TopMET : public TopObject<METType> {
+  
+  public:
+
+    TopMET();
+    TopMET(METType);
+    virtual ~TopMET();
+          
+    reco::Particle getGenMET() const;
+    TopParticle    getFitMET() const;
+    void           setGenMET(Particle);
+    void           setFitMET(TopParticle);
+
+  protected:
+
+    reco::Particle genMET;
+    TopParticle    fitMET;
+
 };
 
 
