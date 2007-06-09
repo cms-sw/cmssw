@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/08 09:50:55 $
- * $Revision: 1.275 $
+ * $Date: 2007/06/08 18:39:45 $
+ * $Revision: 1.276 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1796,6 +1796,9 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   } catch (const std::exception & e) { }
 
+  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
+  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
+
   *out << "<html>"                                                   << endl;
 
   *out << "<head>"                                                   << endl;
@@ -1827,7 +1830,96 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
 
   *out << " ECAL DQM status "                                        << endl;
 
-// stuff ...
+  *out << cgicc::h3( "EcalBarrelMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;
+
+  *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
+  int nevt = 0;
+  if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
+  *out << "<tr><th>Event</th><td align=right>" << nevt
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun() 
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType() 
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
+  vector<string> runTypes = this->getRunTypes();
+  for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
+    if ( runTypes[i] != "UNKNOWN" ) {
+      if ( j++%2 == 0 ) *out << "<tr>";
+      nevt = 0;
+      if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
+      *out << "<td>" << runTypes[i] 
+           << "</td><td align=right>" << nevt << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
+  const vector<EBClient*> clients = this->getClients();
+  const vector<string> clientNames = this->getClientNames();
+  for( unsigned int i=0; i<clients.size(); i++ ) {
+    if ( clients[i] != 0 ) {
+      if ( i%2 == 0 ) *out << "<tr>";
+      *out << "<td>" << clientNames[i] 
+           << "</td><td align=right>" << clients[i]->getEvtPerJob()
+           << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>"
+       << "<tr><th colspan=2>RunIOV</th>"
+       << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
+       << "</td><tr><td>Run Start</td><td align=right> " << this->getRunIOV().getRunStart().str()
+       << "</td><tr><td>Run End</td><td align=right> " << this->getRunIOV().getRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colsapn=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th colspan=2>RunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
+       << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
+       << "</td><tr><td>Run Type</td><td align=right> " << this->getRunIOV().getRunTag().getRunTypeDef().getRunType()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th colspan=2>MonRunIOV</th>"
+       << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
+       << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
+       << "</td><tr><td>SubRun End</td><td align=right> " << this->getMonIOV().getSubRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">" 
+       << "<table border=1>" 
+       << "<tr><th colspan=2>MonRunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
+       << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><table>" << endl;
+
 
   *out << "</body>"                                                  << endl;
 
