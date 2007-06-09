@@ -28,10 +28,11 @@ std::vector< TString > labels;
 std::vector<float> values;
 float SumValues[3];
 std::vector<float> xvalue;
-std::vector<TDatime> Dates;
-
+std::vector<unsigned long> Dates;
+float xmin,xmax,ymax;
 
 void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boolLog=true, bool cumulate=true){
+
 
   //  TString filename_=filename;
   ifstream infile;
@@ -60,7 +61,7 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
 	  xvalue.push_back(atoi(pch));
 	}
 	else if (ic==2)
-	  Dates.push_back(TString(pch).ReplaceAll(".","-").Data());
+	  Dates.push_back(TDatime(TString(pch).ReplaceAll(".","-").Data()).Convert());
 	else
 	  values.push_back(atof(pch));
       }
@@ -99,45 +100,95 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
 	  gr[j]->SetPoint(i,xvalue[i],values[i*m+j]);
       } else {
 	SumValues[j]+=values[i*m+j];
-	gr[j]->SetPoint(i,xvalue[i],SumValues[j]);
+	gr[j]->SetPoint(i,xvalue[i],SumValues[j]/1e06);
       }
-      //    cout << xvalue[i]<< " " << values[i*m+j] << endl;
     }
   }
 
-  if (boolLog)
-    c1->SetLogy();
+
+ gStyle->SetNdivisions(510);
 
   c1->SetGridy();
   c1->SetGridx();
+  if (boolLog)
+    c1->SetLogy();
+
+
   mg->Draw("a");
-  mg->GetXaxis()->SetTitle(XTitle);
-  mg->GetYaxis()->SetTitle(YTitle);
+  gPad->Update();
+  
+  if (cumulate==false)
+      mg->GetYaxis()->SetTitle("NEntries");
+  else
+    mg->GetYaxis()->SetTitle("NEntries (10^{6})");
+
+  TAxis* xaxis=mg->GetXaxis();
+
+  xaxis->SetTitle("Date");
+  xaxis->SetTitleOffset(2.0);
+
+  int lastDay=0;
+  int lastMonth=0;
+  int lastBin=0;
+  int lastTime=0;
+  int month, day, time;
+  char label[64];
+
+  for (size_t i=0;i<xaxis->GetNbins()+1;++i){
+    //   cout << i << " " << TString(xaxis->GetBinLabel(i)) << " " <<  xaxis->GetBinLowEdge(i)<< " " <<  xaxis->GetBinUpEdge(i)<< endl;
+    int upper=(int) xaxis->GetBinUpEdge(i);
+    int lower=(int) xaxis->GetBinLowEdge(i);
+    std::vector<float>::const_iterator p=upper_bound(xvalue.begin(),xvalue.end(),lower);
+    std::vector<float>::const_iterator q=upper_bound(xvalue.begin(),xvalue.end(),upper);
+    if (q!=xvalue.begin())
+    q--;
+    //cout <<  i << " " << " " <<  lower<< " " <<  upper<< " " << *p << " " << *q << endl;
+    if (p!=xvalue.end() && q!=xvalue.end()
+	&&
+	*p<upper && *q>lower 
+	&&
+	TDatime(Dates[q-xvalue.begin()]).GetDate() - TDatime(Dates[p-xvalue.begin()]).GetDate() < 86400
+	){
+      day=TDatime(Dates[p-xvalue.begin()]).GetDay();
+      month=TDatime(Dates[p-xvalue.begin()]).GetMonth();
+      time=Dates[p-xvalue.begin()];
+      if ( i-lastBin>4  //reduce the number of labels
+	   && 
+	   time-lastTime > 5*86400 //ask for dates after 5 days
+	   // && (month!=lastMonth || day!=lastDay)
+	   ){
+	//cout << "-------- " << *p << " " << TDatime(Dates[p-xvalue.begin()]).AsString() << endl;
+	sprintf(label,"%02d/%02d",day,month);
+	xaxis->SetBinLabel(i,label);
+	//lastMonth=month;
+	//lastDay=day;
+	lastTime=time;
+	lastBin=i;
+      }
+    }
+  }
   tleg->Draw();
-
-  float ymax= boolLog? pow(10,gPad->GetUymax()):gPad->GetUymax();
-
-  int X0=Dates[0].Convert();
-  gStyle->SetTimeOffset(X0);
-  TGaxis *axis = new TGaxis(gPad->GetUxmin(),ymax,
-			    gPad->GetUxmax(), ymax,Dates[0].Convert()-X0,Dates[n-1].Convert()-X0,508,"-t");
-
-  axis->SetTimeOffset(X0,"gmt");
-  axis->SetTimeFormat("%m/%d");
-  axis->SetTitle("Date");
-  //axis->SetLineColor(kRed);
-  //axis->SetLabelColor(kRed);
-
-  axis->Draw();
   
   gPad->Update();
-  TString logFlag="";
-  if (boolLog)
-    logFlag="_logY";
-  if (cumulate)
-    c1->Print(filename.ReplaceAll(".txt",logFlag+"_integrated.gif"));
-  else
-    c1->Print(filename.ReplaceAll(".txt",logFlag+"_diff.gif"));
 
-  delete axis;
+  xmin=mg->GetXaxis()->GetXmin();
+  xmax=mg->GetXaxis()->GetXmax();
+  ymax=mg->GetYaxis()->GetXmax();
+
+  //cout << "min max " << xmin << " " << xmax << " " << ymax << endl;
+  //cout << Dates[0] << " " << Dates[n-1] << endl;
+
+  TGaxis *axis = new TGaxis(xmin,ymax,xmax,ymax,xmin,xmax,510,"-");
+  axis->SetTitle("RunNb");
+  axis->Draw();
+  
+
+  gPad->Update();
+   TString logFlag="";
+   if (boolLog)
+     logFlag="_logY";
+   if (cumulate)
+     c1->Print(filename.ReplaceAll(".txt",logFlag+"_integrated.gif"));
+   else
+     c1->Print(filename.ReplaceAll(".txt",logFlag+"_diff.gif"));
 };
