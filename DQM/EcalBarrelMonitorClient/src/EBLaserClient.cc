@@ -1,8 +1,8 @@
 /*
  * \file EBLaserClient.cc
  *
- * $Date: 2007/06/07 09:08:38 $
- * $Revision: 1.162 $
+ * $Date: 2007/06/09 23:46:03 $
+ * $Revision: 1.163 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -745,16 +745,16 @@ void EBLaserClient::setup(void) {
     meaopn08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mepnprms01_[ism-1] ) bei->removeElement( mepnprms01_[ism-1]->getName() );
-    sprintf(histo, "EBLT PNs pedestal rms G1 L1 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT PNs pedestal rms G01 L1 %s", Numbers::sEB(ism).c_str());
     mepnprms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mepnprms02_[ism-1] ) bei->removeElement( mepnprms02_[ism-1]->getName() );
-    sprintf(histo, "EBLT PNs pedestal rms G1 L2 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT PNs pedestal rms G01 L2 %s", Numbers::sEB(ism).c_str());
     mepnprms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mepnprms03_[ism-1] ) bei->removeElement( mepnprms03_[ism-1]->getName() );
-    sprintf(histo, "EBLT PNs pedestal rms G1 L3 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT PNs pedestal rms G01 L3 %s", Numbers::sEB(ism).c_str());
     mepnprms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mepnprms04_[ism-1] ) bei->removeElement( mepnprms04_[ism-1]->getName() );
-    sprintf(histo, "EBLT PNs pedestal rms G1 L4 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBLT PNs pedestal rms G01 L4 %s", Numbers::sEB(ism).c_str());
     mepnprms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mepnprms05_[ism-1] ) bei->removeElement( mepnprms05_[ism-1]->getName() );
     sprintf(histo, "EBLT PNs pedestal rms G16 L1 %s", Numbers::sEB(ism).c_str());
