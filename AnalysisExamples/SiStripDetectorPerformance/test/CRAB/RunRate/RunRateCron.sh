@@ -5,6 +5,8 @@ eval `scramv1 runtime -sh`
 cd -
 cd /analysis/sw/CRAB/RunRate
 ./Rate.sh
+
+[ ! -e doPlot ] && exit
 echo -e "... creating histos"
 
 [ ! -e /data1/CrabAnalysis/Rate/History ] && mkdir -p /data1/CrabAnalysis/Rate/History

@@ -65,7 +65,12 @@ for run in `cat $physicsRunsFile | awk -F"\t" '{print $1}'`
 
 done
 
-cp RateShort.txt RateFull.html /data1/CrabAnalysis/Rate/
+rm doPlot
+if [ "`diff -q RateShort.txt /data1/CrabAnalysis/Rate/RateShort.txt`" != "" ]; then
+  cp /data1/CrabAnalysis/Rate/RateFull.html /data1/CrabAnalysis/Rate/History/RateFull_`date +\%Y-\%m-\%d_\%H-\%M-\%S`.html
+  cp RateShort.txt RateFull.html /data1/CrabAnalysis/Rate/ 
+  touch doPlot
+fi
 }
 
 function getDBSStatistics(){
@@ -163,9 +168,9 @@ getDBSStatistics physicsRuns.txt RecoDatasetList.txt RecoDatasetStat.txt
 ## FNAL
 ##########
 
-echo "...running python to query DBS.. and take datasets"
+echo "...running python to query DBS.. and take datasets on FNAL Data"
 python dbsreadprocdatasetList.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC*Pass2/RECO/* --logfile=RecoFNALDatasetList.txt 
-echo "...running python to query DBS.. and take stats"
+echo "...running python to query DBS.. and take stats on FNAL Data"
 getDBSStatistics physicsRuns.txt RecoFNALDatasetList.txt RecoFNALDatasetStat.txt
 
 
