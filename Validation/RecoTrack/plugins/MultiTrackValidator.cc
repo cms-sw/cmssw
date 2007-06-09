@@ -211,9 +211,13 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 			       << "Analyzing new event" << "\n"
 			       << "====================================================\n" << "\n";
 
-  edm::Handle<TrackingParticleCollection>  TPCollectionH ;
-  event.getByLabel(label_tp,TPCollectionH);
-  const TrackingParticleCollection tPC = *(TPCollectionH.product());
+  edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
+  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
+  
+  edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
+  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
   
   int w=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
@@ -233,23 +237,23 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //associate tracks
       LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
       reco::RecoToSimCollection recSimColl=associator[ww]->associateRecoToSim(trackCollection,
-									      TPCollectionH,
+									      TPCollectionHfake,
 									      &event);
       LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
       reco::SimToRecoCollection simRecColl=associator[ww]->associateSimToReco(trackCollection,
-									      TPCollectionH, 
+									      TPCollectionHeff, 
 									      &event);
 
       //
       //fill simulation histograms
       //compute number of tracks per eta interval
       //
-      edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPC.size() << "\n";
+      edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles (before cuts): " << tPCeff.size() << "\n";
       int ats = 0;
       int st=0;
-      for (TrackingParticleCollection::size_type i=0; i<tPC.size(); i++){
-	TrackingParticleRef tp(TPCollectionH, i);
-	if (!selectTPs4Efficiency( *tp )) continue;
+      for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
+	TrackingParticleRef tp(TPCollectionHeff, i);
+	//if (!selectTPs4Efficiency( *tp )) continue;
 	if (tp->charge()==0) continue;
 	st++;
 	h_ptSIM[w]->Fill(sqrt(tp->momentum().perp2()));
@@ -264,7 +268,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	      rt = simRecColl[tp];
 	      if (rt.size()!=0) {
 		reco::TrackRef t = rt.begin()->first;
-		if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
+		//if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
 		ats++;
 		totASSeta[w][f]++;
 		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
@@ -287,7 +291,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
               rt = simRecColl[tp];
 	      if (rt.size()!=0) {
 		reco::TrackRef t = rt.begin()->first;
-		if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
+		//if ( !selectRecoTracks( *t ) ) continue;//FIXME? TRY WITH SECOND?
 		totASSpT[w][f]++;
 	      }
 	    }
@@ -309,7 +313,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       int rT=0;
       for(reco::TrackCollection::size_type i=0; i<tC.size(); ++i){
 	reco::TrackRef track(trackCollection, i);
-	if ( !selectRecoTracks( *track ) ) continue;
+	//if ( !selectRecoTracks( *track ) ) continue;
 	rT++;
 
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -321,7 +325,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    if(recSimColl.find(track) != recSimColl.end()){
 	      tp = recSimColl[track];
 	      if (tp.size()!=0) {
-		if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
+		//if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 		totASS2eta[w][f]++;
 		edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 						   << " associated with quality:" << tp.begin()->second <<"\n";
@@ -340,7 +344,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	    if(recSimColl.find(track) != recSimColl.end()){
               tp = recSimColl[track];
 	      if (tp.size()!=0) {
-		if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
+		//if (!selectTPs4FakeRate( *tp.begin()->first )) continue;//FIXME? TRY WITH SECOND?
 		at++;
 		totASS2pT[w][f]++;
 	      }

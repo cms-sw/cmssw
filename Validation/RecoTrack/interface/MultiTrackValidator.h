@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/05/23 12:40:46 $
- *  $Revision: 1.25 $
+ *  $Date: 2007/06/09 10:46:18 $
+ *  $Revision: 1.26 $
  *  \author cerati
  */
 
@@ -41,7 +41,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     dbe_(0),
     sim(pset.getParameter<std::string>("sim")),
     label(pset.getParameter< std::vector<edm::InputTag> >("label")),
-    label_tp(pset.getParameter< edm::InputTag >("label_tp")),
+    label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
+    label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
     out(pset.getParameter<std::string>("out")),
     min(pset.getParameter<double>("min")),
@@ -52,12 +53,12 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     nintpT(pset.getParameter<int>("nintpT"))
     {
       dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-      selectRecoTracks = reco::modules::ParameterAdapter<RecoTrackSelector>::
-	make(pset.getParameter<edm::ParameterSet>("RecoTracksCuts"));
-      selectTPs4Efficiency = reco::modules::ParameterAdapter<TrackingParticleSelector>::
-	make(pset.getParameter<edm::ParameterSet>("TPEfficCuts"));
-      selectTPs4FakeRate = reco::modules::ParameterAdapter<TrackingParticleSelector>::
-	make(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts"));
+/*       selectRecoTracks = reco::modules::ParameterAdapter<RecoTrackSelector>:: */
+/* 	make(pset.getParameter<edm::ParameterSet>("RecoTracksCuts")); */
+/*       selectTPs4Efficiency = reco::modules::ParameterAdapter<TrackingParticleSelector>:: */
+/* 	make(pset.getParameter<edm::ParameterSet>("TPEfficCuts")); */
+/*       selectTPs4FakeRate = reco::modules::ParameterAdapter<TrackingParticleSelector>:: */
+/* 	make(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts")); */
     }
 
   /// Destructor
@@ -76,7 +77,8 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   std::string sim;
   std::vector<edm::InputTag> label;
-  edm::InputTag label_tp;
+  edm::InputTag label_tp_effic;
+  edm::InputTag label_tp_fake;
   std::vector<std::string> associators;
   std::string out;
   double  min, max;
@@ -121,9 +123,9 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   std::vector<const TrackAssociatorBase*> associator;
   const TrackAssociatorByChi2 * associatorForParamAtPca;
-  RecoTrackSelector selectRecoTracks;
-  TrackingParticleSelector selectTPs4Efficiency;
-  TrackingParticleSelector selectTPs4FakeRate;
+/*   RecoTrackSelector selectRecoTracks; */
+/*   TrackingParticleSelector selectTPs4Efficiency; */
+/*   TrackingParticleSelector selectTPs4FakeRate; */
   
   void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){
