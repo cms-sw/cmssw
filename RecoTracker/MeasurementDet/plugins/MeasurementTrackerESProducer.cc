@@ -40,7 +40,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string pixelCPEName = pset_.getParameter<std::string>("PixelCPE");
   std::string stripCPEName = pset_.getParameter<std::string>("StripCPE");
   std::string matcherName  = pset_.getParameter<std::string>("HitMatcher");
-  
+  bool regional            = pset_.getParameter<bool>("Regional");  
+
   const SiStripNoises *ptr_stripNoises = 0;
   edm::ESHandle<SiStripNoises>	stripNoises;
   if (pset_.getParameter<bool>("UseStripNoiseDB")) {
@@ -76,7 +77,8 @@ MeasurementTrackerESProducer::produce(const CkfComponentsRecord& iRecord)
 										      trackerGeom.product(),
 										      geometricSearchTracker.product(),
 										      ptr_stripCabling,
-										      ptr_stripNoises) ); 
+										      ptr_stripNoises,
+										      regional) ); 
   return _measurementTracker;
 }
 

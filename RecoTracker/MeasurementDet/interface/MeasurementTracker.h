@@ -43,7 +43,8 @@ public:
 		     const TrackerGeometry*  trackerGeom,
 		     const GeometricSearchTracker* geometricSearchTracker,
 		     const SiStripDetCabling *stripCabling,
-		     const SiStripNoises *stripNoises);
+		     const SiStripNoises *stripNoises,
+		     bool  isRegional=false);
 
   virtual ~MeasurementTracker() { if (dummyStripNoises) delete dummyStripNoises; }
  
@@ -87,6 +88,8 @@ private:
   const TrackerGeometry*                theTrackerGeom;
   const GeometricSearchTracker*         theGeometricSearchTracker;
   mutable SiStripNoises*                dummyStripNoises;  // not const
+
+  bool isRegional_;
 
   void initialize() const;
 
