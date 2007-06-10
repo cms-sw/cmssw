@@ -1,64 +1,61 @@
-// -*- C++ -*-
 //
-// Package:    TopJetProducer
-// Class:      TopJetProducer
-// 
-/**\class TopJetProducer TopJetProducer.cc Top/TopEventProducers/src/TopJetProducer.cc
+// Author:  Jan Heyninck
+// Created: Tue Apr  10 12:01:49 CEST 2007
+//
+// $Id$
+//
 
- Description: <one line class summary>
+#ifndef TopJetProducer_h
+#define TopJetProducer_h
 
- Implementation:
-     <Notes on implementation>
+/**
+  \class    TopJetProducer TopJetProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
+  \brief    Produces TopJet's
+
+   TopJetProducer produces TopJet's starting from a JetType collection,
+   with possible adding of resolutions and more things to come
+
+  \author   Jan Heyninck
+  \version  $Id$
 */
-//
-// Original Author:  Jan Heyninck
-//         Created:  Tue Apr  10 12:01:49 CEST 2007
-// $Id: TopJetProducer.h,v 1.1 2007/05/22 17:01:43 heyninck Exp $
-//
-//
 
 
-// system include files
-#include <memory>
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
+#include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
-#include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 
-#include <vector>
-#include <Math/VectorUtil.h>
+class TopObjectResolutionCalc;
 
-
-//
-// class decleration
-//
 
 class TopJetProducer : public edm::EDProducer {
-   public:
-      explicit TopJetProducer(const edm::ParameterSet&);
-      ~TopJetProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-   private:
-     std::string jetTagsLabel_;
-     std::string recJetsLabel_;
-     std::string caliJetsLabel_;
-     std::string caliJetResoFile_;
-     double recJetETcut_;
-     double jetEtaCut_;
-     int minNrConstis_;
-     bool addResolutions_;  
-     EtInverseComparator<TopJet> eTComparator;
-     TopObjectResolutionCalc *jetsResCalc;
+  public:
+
+    explicit TopJetProducer(const edm::ParameterSet & iConfig);
+    ~TopJetProducer();
+
+    virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
+
+  private:
+
+    // configurables
+    edm::InputTag jetTagsLabel_;
+    edm::InputTag recJetsLabel_;
+    edm::InputTag caliJetsLabel_;
+    bool          addResolutions_;
+    std::string   caliJetResoFile_;
+    // tools
+    TopObjectResolutionCalc *   theResoCalc_;
+    EtInverseComparator<TopJet> eTComparator_;
 
 };
+
+
+#endif

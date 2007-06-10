@@ -1,32 +1,44 @@
+//
+// Author:  Jan Heyninck
+// Created: Tue Apr  10 12:01:49 CEST 2007
+//
+// $Id$
+//
+
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
+
+#include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
+
+#include <vector>
 #include <memory>
 
 
 //
 // constructors and destructor
 //
-TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig)
-{
-   jetTagsLabel_    	= iConfig.getParameter< std::string > ("jetTagInput");
-   recJetsLabel_    	= iConfig.getParameter< std::string > ("recJetInput");
-   caliJetsLabel_  	= iConfig.getParameter< std::string > ("caliJetInput");
-   recJetETcut_     	= iConfig.getParameter< double > ("recJetETcut");
-   jetEtaCut_       	= iConfig.getParameter< double > ("jetEtacut");
-   minNrConstis_    	= iConfig.getParameter< int    > ("minNrConstis");
-   addResolutions_  	= iConfig.getParameter< bool   > ("addResolutions");
-   caliJetResoFile_ 	= iConfig.getParameter< std::string > ("caliJetResoFile");
-   
-   //construct resolution calculator
-   if(addResolutions_) jetsResCalc  = new TopObjectResolutionCalc(caliJetResoFile_);
 
-   produces<std::vector<TopJet> >();
+TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
+  // initialize the configurables
+  jetTagsLabel_    = iConfig.getParameter<edm::InputTag>("jetTagInput");
+  recJetsLabel_    = iConfig.getParameter<edm::InputTag>("recJetInput");
+  caliJetsLabel_   = iConfig.getParameter<edm::InputTag>("caliJetInput");
+  addResolutions_  = iConfig.getParameter<bool>         ("addResolutions");
+  caliJetResoFile_ = iConfig.getParameter<std::string>  ("caliJetResoFile");
+
+  // construct resolution calculator
+  if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
+
+  // produces vector of jets
+  produces<std::vector<TopJet> >();
 }
 
 
-TopJetProducer::~TopJetProducer()
-{
-   if(addResolutions_) delete jetsResCalc;
+TopJetProducer::~TopJetProducer() {
+  if(addResolutions_) delete theResoCalc_;
 }
 
 
@@ -34,63 +46,55 @@ TopJetProducer::~TopJetProducer()
 // member functions
 //
 
-// ------------ method called to produce the data  ------------
-void
-TopJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
-{     
-  
-   // Get the vector of generated particles from the event
-   edm::Handle<std::vector<JetType> > recjets;
-   iEvent.getByLabel(recJetsLabel_, recjets );
-   edm::Handle<std::vector<JetType> > calijets;
-   iEvent.getByLabel(caliJetsLabel_, calijets );
-   edm::Handle<std::vector<reco::JetTag> > jetTags;
-   iEvent.getByLabel(jetTagsLabel_, jetTags );
-   
-   
-   
-   
-   // define vector of selected TopJetProducer objects
-   std::vector<TopJet> * ttJets = new std::vector<TopJet>(); 
-   for(size_t j=0; j<recjets->size(); j++){
-     if( (*recjets)[j].et()>recJetETcut_ && fabs((*recjets)[j].eta())<jetEtaCut_ && (*recjets)[j].nConstituents()>minNrConstis_){
-       
-       // loop over cal jets to find corresponding jet
-       TopJet ajet;
-       bool cjFound = false;
-       for(size_t cj=0; cj<calijets->size(); cj++){
-         if(ROOT::Math::VectorUtil::DeltaR((*recjets)[j].p4(),(*calijets)[cj].p4()) < 0.01) {
-	   cjFound = true;
-	   ajet = TopJet((*calijets)[cj]);
-           ajet.setRecJet((*recjets)[j]);
-           if(addResolutions_){
-             (*jetsResCalc)(ajet);
-	   }
-	 }
-       }
+void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+ 
+  // Get the vector of generated particles from the event
+  edm::Handle<std::vector<JetType> > recjets;
+  iEvent.getByLabel(recJetsLabel_, recjets);
+  edm::Handle<std::vector<JetType> > calijets;
+  iEvent.getByLabel(caliJetsLabel_, calijets);
+  edm::Handle<std::vector<reco::JetTag> > jetTags;
+  iEvent.getByLabel(jetTagsLabel_, jetTags);
 
-       // if cal jet found, add b-tag info if available
-       if (cjFound){
-         for(size_t t=0; t<jetTags->size(); t++){
-           if(ROOT::Math::VectorUtil::DeltaR((*recjets)[j].p4(),(*jetTags)[t].jet().p4()) < 0.0001){
-	     ajet.setBdiscriminant((*jetTags)[t].discriminator());
-	   }
-	 }
-       }
-       else 
-       { 
-         std::cout<<"no cal jet found "<<std::endl;
-       }
-       ttJets->push_back(ajet);
-     }
-   }
+  // loop over jets
+  std::vector<TopJet> * topJets = new std::vector<TopJet>(); 
+  for (size_t j = 0; j < recjets->size(); j++) {
+    // construct the TopJet
+    TopJet ajet;
+    // loop over cal jets to find corresponding jet
+    bool cjFound = false;
+    for (size_t cj = 0; cj < calijets->size(); cj++) {
+      // FIXME: is this 0.01 matching fullproof?
+      if (DeltaR<reco::Candidate>()((*recjets)[j], (*calijets)[cj]) < 0.01) {
+        cjFound = true;
+        ajet = TopJet((*calijets)[cj]);
+        ajet.setRecJet((*recjets)[j]);
+      }
+    }
+    // if cal jet found...
+    if (cjFound) {
+      // add b-tag info if available
+      for (size_t t = 0; t < jetTags->size(); t++) {
+        // FIXME: is this 0.0001 matching fullproof?
+        if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.0001) {
+          ajet.setBdiscriminant((*jetTags)[t].discriminator());
+        }
+      }
+      // add resolution info if demanded
+      if (addResolutions_) {
+        (*theResoCalc_)(ajet);
+      }
+    } else {
+      std::cout << "no cal jet found " << std::endl;
+    }
+    topJets->push_back(ajet);
+  }
 
-   // sort jets in ET
-   std::sort(ttJets->begin(),ttJets->end(),eTComparator);
+  // sort jets in ET
+  std::sort(topJets->begin(), topJets->end(), eTComparator_);
 
-   // put genEvt  in Event
-   std::auto_ptr<std::vector<TopJet> > myTopJetProducer(ttJets);
-   iEvent.put(myTopJetProducer);
-   
+  // put genEvt  in Event
+  std::auto_ptr<std::vector<TopJet> > myTopJetProducer(topJets);
+  iEvent.put(myTopJetProducer);
 
 }

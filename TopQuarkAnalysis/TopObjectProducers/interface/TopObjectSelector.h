@@ -12,6 +12,12 @@
 
 typedef ObjectSelector<
           SingleElementCollectionSelector<
+            std::vector<JetType>,
+            SingleObjectSelector<JetType>
+          >
+        > CaloJetSelector;
+typedef ObjectSelector<
+          SingleElementCollectionSelector<
             std::vector<TopElectron>,
             SingleObjectSelector<TopElectron>
           >
