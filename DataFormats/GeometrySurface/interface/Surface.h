@@ -5,6 +5,10 @@
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+
+
+#include "DataFormats/GeometrySurface/interface/MediumProperties.h"
+
 /*
 #include "DataFormats/GeometrySurface/interface/GlobalError.h"
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
@@ -17,8 +21,6 @@ namespace SurfaceOrientation {
   enum GlobalFace {outer,inner,zplus,zminus,phiplus,phiminus};
 }
 
-
-class MediumProperties;
 
 //template <class T> class ReferenceCountingPointer;
 
@@ -37,14 +39,21 @@ public:
   typedef GloballyPositioned<float>       Base;
 
   Surface( const PositionType& pos, const RotationType& rot) :
-  Base( pos, rot), theMediumProperties(0) {}
+    Base( pos, rot), theMediumProperties(0.,0.), m_mpSet(false) {}
 
   Surface( const PositionType& pos, const RotationType& rot, 
 	   MediumProperties* mp) : 
-  Base( pos, rot), theMediumProperties(mp) {}
+    Base( pos, rot), 
+    theMediumProperties(mp? *mp : MediumProperties(0.,0.)),
+    m_mpSet(mp)
+  {}
 
   Surface( const Surface& iSurface ) : 
-  Base( iSurface), theMediumProperties(iSurface.theMediumProperties){}
+  Base( iSurface), 
+  theMediumProperties(iSurface.theMediumProperties),
+  m_mpSet(iSurface.m_mpSet)
+  {}
+
   // pure virtual destructor - makes base classs abstract
   virtual ~Surface() = 0;
 
@@ -76,10 +85,19 @@ public:
   */
 
   const MediumProperties* mediumProperties() const { 
-    return  theMediumProperties;
+    return  m_mpSet ? &theMediumProperties : 0;
   }
 
-  void setMediumProperties( MediumProperties* mp) { theMediumProperties = mp;}
+  void setMediumProperties( MediumProperties* mp) {
+    if (mp) {
+      theMediumProperties = &mp;
+      m_mpSet=true;
+    }
+    else {
+      theMediumProperties = MediumProperties(0.,0.);
+      m_mpSet=false;
+    }
+  }
 
   /** Tangent plane to surface from global point.
    * Returns a new plane, tangent to the Surface at a point.
@@ -94,7 +112,8 @@ public:
 
 private:
 
-  MediumProperties* theMediumProperties;
+  MediumProperties theMediumProperties;
+  bool m_mpSet;
 };
   
 inline Surface::~Surface() {}

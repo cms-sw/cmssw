@@ -40,8 +40,8 @@ public:
 
   virtual bool inside( const Local3DPoint& p, const LocalError& err,
 		       float scale) const {
-    RectangularPlaneBounds tmp( halfWidth + sqrt(err.xx())*scale,
-				halfLength + sqrt(err.yy())*scale,
+    RectangularPlaneBounds tmp( halfWidth +  std::sqrt(err.xx())*scale,
+				halfLength + std::sqrt(err.yy())*scale,
 				halfThickness);
     return tmp.inside(p);
   }
