@@ -47,7 +47,14 @@ public:
     theMediumProperties(mp? *mp : MediumProperties(0.,0.)),
     m_mpSet(mp)
   {}
-
+ 
+ Surface( const PositionType& pos, const RotationType& rot,
+           MediumProperties mp) :
+    Base( pos, rot),
+    theMediumProperties(mp),
+    m_mpSet(true)
+  {}
+ 
   Surface( const Surface& iSurface ) : 
   Base( iSurface), 
   theMediumProperties(iSurface.theMediumProperties),
@@ -95,7 +102,7 @@ public:
 
   void setMediumProperties( MediumProperties* mp) {
     if (mp) {
-      theMediumProperties = &mp;
+      theMediumProperties = *mp;
       m_mpSet=true;
     }
     else {
