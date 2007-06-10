@@ -2417,6 +2417,8 @@ void  PFRootEventManager::print() const {
 void
 PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
   
+  if(!myGenEvent) return;
+
   std::cout << "Id  Gen Name       eta    phi     pT     E    Vtx1   " 
 	    << " x      y      z   " 
 	    << "Moth  Vtx2  eta   phi     R      Z   Da1  Da2 Ecal?" << std::endl;
