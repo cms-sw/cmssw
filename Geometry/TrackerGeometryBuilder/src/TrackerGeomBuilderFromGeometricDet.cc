@@ -123,7 +123,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
       ev->goTo(gdv[i]->navType());
  
-      bool stereo = getString("TrackerStereoDetectors",ev)=="true");
+      bool stereo = getString("TrackerStereoDetectors",ev)=="true";
 
       StripTopology* t =
 	theTopologyBuilder->buildStrip(gdv[i]->bounds(),
@@ -133,7 +133,8 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						   stereo);
       tracker->addType(detTypeMap[detName]);
     }
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i];  
+    
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
