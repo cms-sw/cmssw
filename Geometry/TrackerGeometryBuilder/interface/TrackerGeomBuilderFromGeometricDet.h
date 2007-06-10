@@ -28,7 +28,7 @@ private:
   double getDouble(std::string const &, DDExpandedView*) const;
 
   PlaneBuilderFromGeometricDet::ResultType
-  buildPlaneWithMaterial(const GeometricDet* gd, DDExpandedView* ev) const;
+  buildPlaneWithMaterial(const GeometricDet* gd) const;
 
   GeomDetTypeIdToEnum theDetIdToEnum;
   GeomTopologyBuilder* theTopologyBuilder;
