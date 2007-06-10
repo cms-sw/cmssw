@@ -9,13 +9,9 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
    muonSrc_         = iConfig.getParameter<edm::InputTag>("muonSource");
    metSrc_          = iConfig.getParameter<edm::InputTag>("metSource");
+   lJetSrc_         = iConfig.getParameter<edm::InputTag>("lJetSource");
+   bJetSrc_         = iConfig.getParameter<edm::InputTag>("bJetSource");
    leptonFlavour_   = iConfig.getParameter< std::string > 	  ("leptonFlavour");
-   lJetInput_       = iConfig.getParameter< std::string > 	  ("lJetInput");
-   bJetInput_       = iConfig.getParameter< std::string > 	  ("bJetInput");
-   jetEtaCut_  	    = iConfig.getParameter< double >      ("jetEtaCut");	
-   recJetETCut_     = iConfig.getParameter< double >      ("recJetETCut");	
-   calJetETCut_     = iConfig.getParameter< double >      ("calJetETCut");	
-   jetLRCut_        = iConfig.getParameter< double >      ("jetLRCut");
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
    addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
    lrJetCombFile_   = iConfig.getParameter< std::string >      ("lrJetCombFile");
@@ -25,11 +21,6 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    param_           = iConfig.getParameter< int >         ("parametrisation");
    constraints_     = iConfig.getParameter< std::vector<int> > ("constraints");
    matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
-   
-   // define kinematic selection cuts
-   jetEtaRangeSelector      = new EtaRangeSelector<TopJet>(-1.*jetEtaCut_,jetEtaCut_);
-   recJetEtMinSelector      = new EtMinSelector<TopJet>(recJetETCut_);
-   calJetEtMinSelector      = new EtMinSelector<TopJet>(calJetETCut_);
    
    // define kinfitter
    if(doKinFit_){
@@ -58,9 +49,6 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 //
 
 TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
-   delete recJetEtMinSelector;
-   delete calJetEtMinSelector;
-   delete jetEtaRangeSelector;
    delete mySimpleBestJetComb;
    delete myTtSemiLRSignalSelObservables;
    delete myLRJetCombObservables;
@@ -122,21 +110,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 
    // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
    bool jetsFound = false;
-   std::vector<TopJet> lSelJets, bSelJets;
-   edm::Handle<std::vector<TopJet> >  lJets;
-   iEvent.getByLabel(lJetInput_,lJets);
-   edm::Handle<std::vector<TopJet> >  bJets;
-   iEvent.getByLabel(bJetInput_,bJets);
-   // vectors were sorted on recET
-   for(size_t j=0; j < min(lJets -> size(),bJets -> size()); j++) {
-     if( (*recJetEtMinSelector)((*lJets)[j].getRecJet()) && (*jetEtaRangeSelector)((*lJets)[j].getRecJet())
-      && (*calJetEtMinSelector)((*lJets)[j])             && (*calJetEtMinSelector)((*bJets)[j]) 
-      && true){
-       lSelJets.push_back((*lJets)[j]);
-       bSelJets.push_back((*bJets)[j]);
-     }
-   }
-   if( lSelJets.size() >= 4 ) jetsFound = true;
+   edm::Handle<std::vector<TopJet> > lJets;
+   iEvent.getByLabel(lJetSrc_, lJets);
+   edm::Handle<std::vector<TopJet> > bJets;
+   iEvent.getByLabel(bJetSrc_, bJets);
+   if (lJets->size() >= 4) jetsFound = true;
    
    
    
@@ -159,10 +137,10 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 		 if(leptonFlavour_ == "muon")     asol.setMuon(selMuon);
 		 if(leptonFlavour_ == "electron") asol.setElectron(selElectron);
 		 asol.setMET(selMET);
-		 asol.setHadp(lSelJets[p]);
-		 asol.setHadq(lSelJets[q]);
-		 asol.setHadb(bSelJets[bh]);
-		 asol.setLepb(bSelJets[bl]);
+		 asol.setHadp((*lJets)[p]);
+		 asol.setHadq((*lJets)[q]);
+		 asol.setHadb((*bJets)[bh]);
+		 asol.setLepb((*bJets)[bl]);
    		 if(doKinFit_){
       		   if(param_ == 1) asol = myKinFitterEtEtaPhi->addKinFitInfo(&asol);
       		   if(param_ == 2) asol = myKinFitterEtThetaPhi->addKinFitInfo(&asol);
