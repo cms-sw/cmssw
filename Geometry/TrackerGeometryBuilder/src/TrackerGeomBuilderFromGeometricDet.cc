@@ -235,7 +235,7 @@ TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* g
   //
   // set medium properties (if defined)
   //
-  plane->setMediumProperties( new MediumProperties(gd->radLength(),gd->xi()) );
+  plane->setMediumProperties(MediumProperties(gd->radLength(),gd->xi()));
 
   return plane;
 }
