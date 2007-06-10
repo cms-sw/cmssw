@@ -192,7 +192,7 @@ class PFRootEventManager {
   void particleFlow();
 
   //performs the jets reconstructions
-  void makeJets();
+  double makeJets();
 
 
   // display functions ------------------------------------------------
@@ -263,7 +263,10 @@ class PFRootEventManager {
 
 
   /// print information
-  void   print() const;
+  void   print(  std::ostream& out = std::cout ) const;
+
+  /// print event display 
+  void   printDisplay( const char* directory="" ) const;
 
   /// get tree
   TTree* tree() {return tree_;}
@@ -274,10 +277,13 @@ class PFRootEventManager {
   void   getMap(std::string& map);
 
   /// print a rechit
-  void   printRecHit(const reco::PFRecHit& rh, const char* seed="    ") const;
+  void   printRecHit(const reco::PFRecHit& rh, 
+		     const char* seed="    ",
+		     std::ostream& out = std::cout) const;
   
-  /// print a rechit
-  void   printCluster(const reco::PFCluster& cluster) const;
+  /// print a cluster
+  void   printCluster(const reco::PFCluster& cluster,
+		      std::ostream& out = std::cout) const;
 
   /// print the HepMC truth
   void printMCTruth(const HepMC::GenEvent*) const;
