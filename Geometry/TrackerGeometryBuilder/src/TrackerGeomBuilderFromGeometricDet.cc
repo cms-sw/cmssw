@@ -84,9 +84,9 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
   for(u_int32_t i=0; i<gdv.size(); i++){
 
-    ev->goTo(gdv[i]->navType());
     std::string const & detName = gdv[i]->name();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
+      ev->goTo(gdv[i]->navType());
 
       PixelTopology* t = 
 	theTopologyBuilder->buildPixel(gdv[i]->bounds(),
@@ -100,7 +100,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
       tracker->addType(detTypeMap[detName]);
     }
 
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i], ev);
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i]);
     GeomDetUnit* temp =  new PixelGeomDetUnit(&(*plane),detTypeMap[detName],gdv[i]);
 
     tracker->addDetUnit(temp);
@@ -118,14 +118,13 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
   
   for(u_int32_t i=0;i<gdv.size();i++){
 
-    ev->goTo(gdv[i]->navType());
     std::string const & detName = gdv[i]->name();
     if (detTypeMap.find(detName) == detTypeMap.end()) {
 
-      bool stereo = false;
-      if(getString("TrackerStereoDetectors",ev)=="true"){
-	stereo = true;
-      }
+      ev->goTo(gdv[i]->navType());
+ 
+      bool stereo = getString("TrackerStereoDetectors",ev)=="true");
+
       StripTopology* t =
 	theTopologyBuilder->buildStrip(gdv[i]->bounds(),
 				       getDouble("SiliconAPVNumber",ev),
@@ -134,7 +133,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 						   stereo);
       tracker->addType(detTypeMap[detName]);
     }
-    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i],ev);  
+    PlaneBuilderFromGeometricDet::ResultType plane = buildPlaneWithMaterial(gdv[i];  
     GeomDetUnit* temp = new StripGeomDetUnit(&(*plane), detTypeMap[detName],gdv[i]);
     
     tracker->addDetUnit(temp);
@@ -228,18 +227,14 @@ double TrackerGeomBuilderFromGeometricDet::getDouble(const std::string & s,  DDE
 }
 
 PlaneBuilderFromGeometricDet::ResultType
-TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd, 
-							   DDExpandedView* ev) const
+TrackerGeomBuilderFromGeometricDet::buildPlaneWithMaterial(const GeometricDet* gd) const
 {
   PlaneBuilderFromGeometricDet planeBuilder;
   PlaneBuilderFromGeometricDet::ResultType plane = planeBuilder.plane(gd);  
   //
   // set medium properties (if defined)
   //
-  double radLength = getDouble("TrackerRadLength",ev);
-  double xi = getDouble("TrackerXi",ev);
-
-  plane->setMediumProperties( new MediumProperties(radLength,xi) );
+  plane->setMediumProperties( new MediumProperties(gb->radLength(),gd->xi()) );
 
   return plane;
 }

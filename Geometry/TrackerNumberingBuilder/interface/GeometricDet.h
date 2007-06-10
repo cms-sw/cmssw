@@ -138,6 +138,8 @@ class GeometricDet {
   double density() const {return _density;}
   double weight() const {return _weight;}
   std::string const &  material() const {return _material;}
+  double radLength() const {return _radLength;}
+  double xi() const {return _xi;}
   
  private:
 
@@ -160,6 +162,9 @@ class GeometricDet {
   double _weight;
   int    _copy;
   std::string _material;
+  double _radLength;
+  double _xi;
+
 };
 
 #endif

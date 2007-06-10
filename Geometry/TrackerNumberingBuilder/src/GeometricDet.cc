@@ -8,6 +8,41 @@
 
 #include <boost/bind.hpp>
 
+#include <cfloat>
+#include <vector>
+#include <string>
+
+namespace {
+
+  template<typename DDView>
+  void  getDouble(const std::string & s,  DDView const & ev) const {
+    DDValue val(s);
+    std::vector<const DDsvalues_type *> result;
+    ev.specificsV(result);
+    std::vector<const DDsvalues_type *>::iterator it = result.begin();
+    bool foundIt = false;
+    for (; it != result.end(); ++it)
+      {
+	foundIt = DDfetch(*it,val);
+	if (foundIt) break;
+      }    
+    if (foundIt)
+      { 
+	const std::vector<std::string> & temp = val.strings(); 
+	if (temp.size() != 1)
+	  {
+	    throw cms::Exception("Configuration") << "I need 1 "<< s << " tags";
+	  }
+	return double(::atof(temp[0].c_str())); 
+      }
+    return 0;
+  }
+
+
+
+}
+
+
 /**
  * What to do in the destructor?
  * destroy all the daughters!
@@ -37,6 +72,9 @@ GeometricDet::GeometricDet(nav_type navtype, GeometricEnumType type) : _ddd(navt
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = ev.copyno();
   _material = ((ev.logicalPart()).material()).name();
+  _radLength = getDouble("TrackerRadLength",ev);
+  _xi = getDouble("TrackerXi",ev);
+
 }
 
 GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(type) {
@@ -58,6 +96,9 @@ GeometricDet::GeometricDet(DDExpandedView* fv, GeometricEnumType type) : _type(t
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = fv->copyno();
   _material = ((fv->logicalPart()).material()).name();
+  _radLength = getDouble("TrackerRadLength",*fv);
+  _xi = getDouble("TrackerXi",*fv);
+
 }
 
 GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(type){
@@ -79,6 +120,9 @@ GeometricDet::GeometricDet(DDFilteredView* fv, GeometricEnumType type) : _type(t
   _weight   = _density * ( _volume / 1000.); // volume mm3->cm3
   _copy     = fv->copyno();
   _material = ((fv->logicalPart()).material()).name();
+  _radLength = getDouble("TrackerRadLength",*fv);
+  _xi = getDouble("TrackerXi",*fv);
+
 }
 
 GeometricDet::ConstGeometricDetContainer GeometricDet::deepComponents() const {
