@@ -15,7 +15,7 @@
 namespace {
 
   template<typename DDView>
-  void  getDouble(const std::string & s,  DDView const & ev) const {
+  double  getDouble(const std::string & s,  DDView const & ev) {
     DDValue val(s);
     std::vector<const DDsvalues_type *> result;
     ev.specificsV(result);
