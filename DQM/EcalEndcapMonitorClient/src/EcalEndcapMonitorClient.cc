@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/08 18:39:46 $
- * $Revision: 1.32 $
+ * $Date: 2007/06/08 18:46:03 $
+ * $Revision: 1.33 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -74,19 +74,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui) : ModuleWeb("EcalEndcapMonitorClient"){
-
-  enableStateMachine_ = true;
-
-  mui_ = mui;
-
-  this->initialize(ps);
-
-}
-
 EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
-
-  enableStateMachine_ = false;
 
   mui_ = 0;
 
@@ -290,6 +278,16 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
+  // enableStateMachine switch
+
+  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", "false");
+
+  if ( enableStateMachine_ ) {
+    cout << " enableStateMachine switch is ON" << endl;
+  } else {
+    cout << " enableStateMachine switch is OFF" << endl;
+  }
+
   // prefix to ME paths
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -300,24 +298,21 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalEndcapMonitorClient");
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
+  if ( enableMonitorDaemon_ ) {
 
-      // DQM Collector hostname
+    // DQM Collector hostname
 
-      hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-      // DQM Collector port
+    // DQM Collector port
 
-      hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
+    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
-      cout << " Client '" << clientName_ << "' " << endl
-           << " Collector on host '" << hostName_ << "'"
-           << " on port '" << hostPort_ << "'" << endl;
+    cout << " Client '" << clientName_ << "' " << endl
+         << " Collector on host '" << hostName_ << "'"
+         << " on port '" << hostPort_ << "'" << endl;
 
-    }
   }
-
 
   // Server switch
 
@@ -505,14 +500,12 @@ EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
 
   delete summaryClient_;
 
-  if ( ! enableStateMachine_ ) {
-    mui_->disconnect();
-    // delete mui_;
-  }
+  mui_->disconnect();
+  // delete mui_;
 
 }
 
-void EcalEndcapMonitorClient::beginJob(void){
+void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -548,18 +541,16 @@ void EcalEndcapMonitorClient::beginJob(void){
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      if ( enableServer_ ) {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-      } else {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-      }
+  if ( enableMonitorDaemon_ ) {
+    if ( enableServer_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
     } else {
-      mui_ = new MonitorUIRoot();
-      if ( enableServer_ ) {
-        mui_->actAsServer(serverPort_, clientName_);
-      }
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+    }
+  } else {
+    mui_ = new MonitorUIRoot();
+    if ( enableServer_ ) {
+      mui_->actAsServer(serverPort_, clientName_);
     }
   }
 
@@ -569,12 +560,10 @@ void EcalEndcapMonitorClient::beginJob(void){
     mui_->setVerbose(0);
   }
 
-  if ( ! enableStateMachine_ ) {
-    if ( ! enableMonitorDaemon_ ) {
-      if ( inputFile_.size() != 0 ) {
-        DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-        dbe->open(inputFile_);
-      }
+  if ( ! enableMonitorDaemon_ ) {
+    if ( inputFile_.size() != 0 ) {
+      DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+      dbe->open(inputFile_);
     }
   }
 
@@ -587,12 +576,6 @@ void EcalEndcapMonitorClient::beginJob(void){
   summaryClient_->beginJob(mui_);
 
   this->subscribe();
-
-}
-
-void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
-
-  this->beginJob();
 
 }
 
@@ -737,24 +720,6 @@ void EcalEndcapMonitorClient::endRun(void) {
 
   last_jevt_   = -1;
   last_update_ = 0;
-
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-
-      // in this way we avoid ROOT memory leaks ...
-
-      if ( enableExit_ ) {
-
-        cout << endl;
-        cout << ">>> endJob() after endRun() <<<" << endl;
-        cout << endl;
-        this->endJob();
-        throw exception();
-
-      }
-
-    }
-  }
 
 }
 
@@ -1268,8 +1233,18 @@ void EcalEndcapMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  if ( enableStateMachine_ ) updates = -1;
+  if ( enableStateMachine_ ) forced_update_ = true;
+
+  if ( verbose_ ) cout << " updates = " << updates << endl;
+
+  // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
     if ( enableQT_ ) mui_->runQTests();
+  }
+
+  // update MEs (online mode)
+  if ( ! enableStateMachine_ ) {
     mui_->doMonitoring();
   }
 
@@ -1335,8 +1310,6 @@ void EcalEndcapMonitorClient::analyze(void){
       runtype_ = atoi(s.substr(2,s.size()-2).c_str());
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
-
-    if ( verbose_ ) cout << " updates = " << updates << endl;
 
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
@@ -1411,32 +1384,46 @@ void EcalEndcapMonitorClient::analyze(void){
 
         summaryClient_->analyze();
 
-        if ( status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          if ( enableQT_ ) {
+          // run QTs on local MEs, updated in analyze()
+          if ( ! enableStateMachine_ ) {
+            if ( enableQT_ ) mui_->runQTests();
+          }
 
-            cout << endl;
-            switch ( mui_->getSystemStatus() ) {
-              case dqm::qstatus::ERROR:
-                cout << " Error(s)";
-                break;
-              case dqm::qstatus::WARNING:
-                cout << " Warning(s)";
-                break;
-              case dqm::qstatus::OTHER:
-                cout << " Some tests did not run;";
-                break;
-              default:
-                cout << " No problems";
-            }
-            cout << " reported after running the quality tests" << endl;
-            cout << endl;
-
+          // update MEs [again, just to silence a warning]
+          if ( ! enableStateMachine_ ) {
+            mui_->doMonitoring();
           }
 
         }
 
         forced_update_ = false;
+
+      }
+
+      if ( status_ == "end-of-run" || forced_update_ ) {
+
+        if ( enableQT_ ) {
+
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
+          }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+        }
 
       }
 
@@ -1759,6 +1746,151 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
 }
 
 void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
+
+  string path;
+  string mname;
+  
+  static bool autorefresh_ = false;
+  
+  try {
+  
+    cgicc::Cgicc cgi(in);
+
+    if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {
+      autorefresh_ = xgi::Utils::getFormElement(cgi, "autorefresh")->getIntegerValue() != 0;
+    }
+
+    if ( xgi::Utils::hasFormElement(cgi,"module") ) {
+      mname = xgi::Utils::getFormElement(cgi, "module")->getValue();
+    }
+
+    cgicc::CgiEnvironment cgie(in);
+    path = cgie.getPathInfo() + "?" + cgie.getQueryString();
+
+  } catch (const std::exception & e) { }
+
+  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
+  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
+
+  *out << "<html>"                                                   << endl;
+
+  *out << "<head>"                                                   << endl;
+
+  *out << "<title>" << typeid(EcalEndcapMonitorClient).name()
+       << " MAIN</title>"                                            << endl;
+
+  if ( autorefresh_ ) {
+    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << endl;
+  }
+
+  *out << "</head>"                                                  << endl;
+
+  *out << "<body>"                                                   << endl;
+
+  *out << cgicc::form().set("method","GET").set("action", path )
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
+       << std::endl;
+  *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
+       << std::endl;
+  *out << cgicc::form()                                              << endl;
+
+  *out << cgicc::h3( "EcalEndcapMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;
+
+  *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
+  int nevt = 0;
+  if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
+  *out << "<tr><th>Event</th><td align=right>" << nevt
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
+  vector<string> runTypes = this->getRunTypes();
+  for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
+    if ( runTypes[i] != "UNKNOWN" ) {
+      if ( j++%2 == 0 ) *out << "<tr>";
+      nevt = 0;
+      if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
+      *out << "<td>" << runTypes[i]
+           << "</td><td align=right>" << nevt << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
+  const vector<EEClient*> clients = this->getClients();
+  const vector<string> clientNames = this->getClientNames();
+  for( unsigned int i=0; i<clients.size(); i++ ) {
+    if ( clients[i] != 0 ) {
+      if ( i%2 == 0 ) *out << "<tr>";
+      *out << "<td>" << clientNames[i]
+           << "</td><td align=right>" << clients[i]->getEvtPerJob()
+           << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>RunIOV</th>"
+       << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
+       << "</td><tr><td>Run Start</td><td align=right> " << this->getRunIOV().getRunStart().str()
+       << "</td><tr><td>Run End</td><td align=right> " << this->getRunIOV().getRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colsapn=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>RunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
+       << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
+       << "</td><tr><td>Run Type</td><td align=right> " << this->getRunIOV().getRunTag().getRunTypeDef().getRunType()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>MonRunIOV</th>"
+       << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
+       << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
+       << "</td><tr><td>SubRun End</td><td align=right> " << this->getMonIOV().getSubRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>MonRunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
+       << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><table>" << endl;
+
+
+  *out << "</body>"                                                  << endl;
+
+  *out << "</html>"                                                  << endl;
 
 }
 

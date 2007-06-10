@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/08 09:50:55 $
- * $Revision: 1.77 $
+ * $Date: 2007/06/08 18:39:42 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -45,7 +45,6 @@ public:
 
 /// Constructor
 EcalBarrelMonitorClient(const edm::ParameterSet & ps);
-EcalBarrelMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
 
 /// Destructor
 ~EcalBarrelMonitorClient();
@@ -66,7 +65,6 @@ void analyze(void);
 void analyze(const edm::Event & e, const edm::EventSetup & c);
 
 /// BeginJob
-void beginJob(void);
 void beginJob(const edm::EventSetup & c);
 
 /// EndJob

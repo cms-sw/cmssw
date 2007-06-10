@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/08 18:39:46 $
- * $Revision: 1.12 $
+ * $Date: 2007/06/08 18:46:02 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -42,7 +42,6 @@ public:
 
 /// Constructor
 EcalEndcapMonitorClient(const edm::ParameterSet & ps);
-EcalEndcapMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
 
 /// Destructor
 ~EcalEndcapMonitorClient();
@@ -63,7 +62,6 @@ void analyze(void);
 void analyze(const edm::Event & e, const edm::EventSetup & c);
 
 /// BeginJob
-void beginJob(void);
 void beginJob(const edm::EventSetup & c);
 
 /// EndJob

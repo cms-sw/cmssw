@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/08 18:39:45 $
- * $Revision: 1.276 $
+ * $Date: 2007/06/09 07:57:26 $
+ * $Revision: 1.277 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -38,6 +38,7 @@
 #include "DQM/EcalCommon/interface/ColorPalette.h"
 #include "DQM/EcalCommon/interface/EcalErrorMask.h"
 #include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 #include <DQM/EcalCommon/interface/LogicID.h>
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
@@ -71,19 +72,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui) : ModuleWeb("EcalBarrelMonitorClient"){
-
-  enableStateMachine_ = true;
-
-  mui_ = mui;
-
-  this->initialize(ps);
-
-}
-
 EcalBarrelMonitorClient::EcalBarrelMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalBarrelMonitorClient"){
-
-  enableStateMachine_ = false;
 
   mui_ = 0;
 
@@ -285,6 +274,16 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
+  // enableStateMachine switch
+
+  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", "false");
+
+  if ( enableStateMachine_ ) {
+    cout << " enableStateMachine switch is ON" << endl;
+  } else {
+    cout << " enableStateMachine switch is OFF" << endl;
+  }
+
   // prefix to ME paths
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
@@ -295,24 +294,21 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
 
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalBarrelMonitorClient");
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
+  if ( enableMonitorDaemon_ ) {
 
-      // DQM Collector hostname
+    // DQM Collector hostname
 
-      hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-      // DQM Collector port
+    // DQM Collector port
 
-      hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
+    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
-      cout << " Client '" << clientName_ << "' " << endl
-           << " Collector on host '" << hostName_ << "'"
-           << " on port '" << hostPort_ << "'" << endl;
+    cout << " Client '" << clientName_ << "' " << endl
+         << " Collector on host '" << hostName_ << "'"
+         << " on port '" << hostPort_ << "'" << endl;
 
-    }
   }
-
 
   // Server switch
 
@@ -500,14 +496,12 @@ EcalBarrelMonitorClient::~EcalBarrelMonitorClient(){
 
   delete summaryClient_;
 
-  if ( ! enableStateMachine_ ) {
-    mui_->disconnect();
-    // delete mui_;
-  }
+  mui_->disconnect();
+  // delete mui_;
 
 }
 
-void EcalBarrelMonitorClient::beginJob(void){
+void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -543,18 +537,16 @@ void EcalBarrelMonitorClient::beginJob(void){
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      if ( enableServer_ ) {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-      } else {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-      }
+  if ( enableMonitorDaemon_ ) {
+    if ( enableServer_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
     } else {
-      mui_ = new MonitorUIRoot();
-      if ( enableServer_ ) {
-        mui_->actAsServer(serverPort_, clientName_);
-      }
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+    }
+  } else {
+    mui_ = new MonitorUIRoot();
+    if ( enableServer_ ) {
+      mui_->actAsServer(serverPort_, clientName_);
     }
   }
 
@@ -564,12 +556,10 @@ void EcalBarrelMonitorClient::beginJob(void){
     mui_->setVerbose(0);
   }
 
-  if ( ! enableStateMachine_ ) {
-    if ( ! enableMonitorDaemon_ ) {
-      if ( inputFile_.size() != 0 ) {
-        DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-        dbe->open(inputFile_);
-      }
+  if ( ! enableMonitorDaemon_ ) {
+    if ( inputFile_.size() != 0 ) {
+      DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+      dbe->open(inputFile_);
     }
   }
 
@@ -582,12 +572,6 @@ void EcalBarrelMonitorClient::beginJob(void){
   summaryClient_->beginJob(mui_);
 
   this->subscribe();
-
-}
-
-void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
-
-  this->beginJob();
 
 }
 
@@ -732,24 +716,6 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   last_jevt_   = -1;
   last_update_ = 0;
-
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-
-      // in this way we avoid ROOT memory leaks ...
-
-      if ( enableExit_ ) {
-
-        cout << endl;
-        cout << ">>> endJob() after endRun() <<<" << endl;
-        cout << endl;
-        this->endJob();
-        throw exception();
-
-      }
-
-    }
-  }
 
 }
 
@@ -1263,6 +1229,11 @@ void EcalBarrelMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  if ( enableStateMachine_ ) updates = -1;
+  if ( enableStateMachine_ ) forced_update_ = true;
+
+  if ( verbose_ ) cout << " updates = " << updates << endl;
+
   // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
     if ( enableQT_ ) mui_->runQTests();
@@ -1335,8 +1306,6 @@ void EcalBarrelMonitorClient::analyze(void){
       runtype_ = atoi(s.substr(2,s.size()-2).c_str());
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
-
-    if ( verbose_ ) cout << " updates = " << updates << endl;
 
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
@@ -1823,12 +1792,6 @@ void EcalBarrelMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
   *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
        << std::endl;
   *out << cgicc::form()                                              << endl;
-
-  *out << "<p>Run: " << run_
-       << " Total updates: " << last_update_
-       << " Last Event analyzed: " << evt_                           << endl;
-
-  *out << " ECAL DQM status "                                        << endl;
 
   *out << cgicc::h3( "EcalBarrelMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;
 
