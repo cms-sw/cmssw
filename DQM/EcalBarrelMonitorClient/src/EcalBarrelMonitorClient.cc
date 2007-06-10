@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/09 07:57:26 $
- * $Revision: 1.277 $
+ * $Date: 2007/06/10 09:40:39 $
+ * $Revision: 1.278 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1394,8 +1394,6 @@ void EcalBarrelMonitorClient::analyze(void){
 
         }
 
-        forced_update_ = false;
-
       }
 
       if ( status_ == "end-of-run" || forced_update_ ) {
@@ -1422,6 +1420,8 @@ void EcalBarrelMonitorClient::analyze(void){
         }
 
       }
+
+      forced_update_ = false;
 
       if ( enableSubRunHtml_ ) {
         if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {

@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/08 18:46:03 $
- * $Revision: 1.33 $
+ * $Date: 2007/06/10 09:40:41 $
+ * $Revision: 1.34 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1398,8 +1398,6 @@ void EcalEndcapMonitorClient::analyze(void){
 
         }
 
-        forced_update_ = false;
-
       }
 
       if ( status_ == "end-of-run" || forced_update_ ) {
@@ -1426,6 +1424,8 @@ void EcalEndcapMonitorClient::analyze(void){
         }
 
       }
+
+      forced_update_ = false;
 
       if ( enableSubRunHtml_ ) {
         if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {
