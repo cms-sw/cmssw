@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2007/05/29 18:21:05 $
- * $Revision: 1.144 $
+ * $Date: 2007/06/02 10:40:00 $
+ * $Revision: 1.145 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -339,10 +339,10 @@ void EBPedestalClient::setup(void) {
     mer03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( mer04_[ism-1] ) bei->removeElement( mer04_[ism-1]->getName() );
-    sprintf(histo, "EBPDT PNs pedestal rms G01 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
     mer04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer05_[ism-1] ) bei->removeElement( mer05_[ism-1]->getName() );
-    sprintf(histo, "EBPDT PNs pedestal rms G16 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
     mer05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
     if ( mes01_[ism-1] ) bei->removeElement( mes01_[ism-1]->getName() );

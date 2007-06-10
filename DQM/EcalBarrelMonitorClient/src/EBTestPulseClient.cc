@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/06/01 17:06:49 $
- * $Revision: 1.143 $
+ * $Date: 2007/06/02 10:40:00 $
+ * $Revision: 1.144 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -331,10 +331,10 @@ void EBTestPulseClient::setup(void) {
     mea03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
 
     if ( mer04_[ism-1] ) bei->removeElement( mer04_[ism-1]->getName() );
-    sprintf(histo, "EBTPT PNs pedestal rms G01 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
     mer04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
     if ( mer05_[ism-1] ) bei->removeElement( mer05_[ism-1]->getName() );
-    sprintf(histo, "EBTPT PNs pedestal rms G16 %s", Numbers::sEB(ism).c_str());
+    sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
     mer05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
   }
