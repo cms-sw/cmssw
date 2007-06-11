@@ -12,7 +12,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.h,v 1.1 2007/04/26 22:49:09 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.h,v 1.2 2007/05/24 06:11:33 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -43,8 +43,8 @@ class SiPixelMonitorTrackResiduals : public edm::EDAnalyzer {
 
     std::map<uint32_t, SiPixelResidualModule*> thePixelStructure; 
 
-    MonitorElement* meSubpixelResidualX[3];
-    MonitorElement* meSubpixelResidualY[3];
+    // MonitorElement* meSubpixelResidualX[3];
+    // MonitorElement* meSubpixelResidualY[3];
 };
 
 #endif
