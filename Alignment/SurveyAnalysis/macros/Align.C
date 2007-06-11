@@ -90,7 +90,7 @@ void writeShifts(std::string path)
 
       dr -= post[n];
       dr *= 1e4;
-      dR = rott[n].T() * dR;
+      dR = TMatrixD(TMatrixD::kTransposed, rott[n]) * dR;
 
       tuples[i]->Fill(dr[0], dr[1], dr[2],
 		      -std::atan2(dR(2, 1), dR(2, 2)),
@@ -275,7 +275,11 @@ void AlignPlots::iter(int iter) const
 
     TH1F& h = hists[p];
 
-    h.SetBins(50, aSet.min(), aSet.max());
+    float min = aSet.min();
+    float max = aSet.max();
+    float bin = (max - min) / 50.;
+
+    h.SetBins(52, min - bin, max + bin);
 //     float xlimit = p < 3 ? 3000. : .1;
 //     h.SetBins(50, -xlimit, xlimit);
 
