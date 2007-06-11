@@ -695,6 +695,7 @@ sub read_file ()
 
   my $total_lines=scalar(@{$cache->{lines}});
   my $first_ifndef=0;
+  my $extern=0;
   for(my $i=0;$i<$total_lines;$i++)
   {
     my $line=$cache->{lines}[$i];
@@ -704,8 +705,12 @@ sub read_file ()
     {$i=&SCRAMGenUtils::skipIfDirectiveCXX ($cache->{lines}, $i+1, $total_lines);next;}
     
     while($line=~/\\\//){$line=~s/\\\//\//;}
+    if($line=~/^\s*extern\s+\"C\"\s+\{\s*$/)
+    {$extern=1;next;}
+    if($extern && $line=~/^\s*\}.*/){$extern=0; next;}
     if ($line=~/^\s*#\s*include\s*([\"<](.+?)[\">])\s*/)
     {
+      if($extern){next;}
       my $inc_file=$2;
       push @{$cache->{includes}}, $inc_file;
       push @{$cache->{includes_line_number}}, $num;

@@ -9,26 +9,36 @@ my $INSTALL_PATH = dirname($0);
 my $curdir=`/bin/pwd`; chomp $curdir;
 my $precentage_prec=3;
 my $value_length=10;
+my $html=0;
 if(&GetOptions(
                "--log=s",\$log,
+	       "--tmpdir=s",\$dir,
                "--help",\$help,
               ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg();}
 
 if (defined $help){&usage_msg();}
 if ((!defined $log) || ($log eq "") || (!-f $log))
 {print "Log file missing.\n";&usage_msg();}
+if ((defined $dir) && ($dir!~/^\s*$/) || (-d $dir))
+{
+  print "<html><head></head><body><pre>\n";
+  $html=1;
+}
 
 if(!open(LOGFILE, $log)){die "Can not open \"$log\" file for reading.";}
 my $file="";
 my $cache={};
+my %urls=();
 while(my $line=<LOGFILE>)
 {
   chomp $line;
   if ($line=~/^File:\s+([^\s]+?)\s*$/)
   {
     $file=$1;
-    foreach my $key ("TotalLines", "CodeLines", "CommentedLines", "EmptyLines", "IncludeStatements", "IncludeAdded", "IncludeRemoved", "ActualAdded")
+    foreach my $key ("TotalLines", "CodeLines", "CommentedLines", "EmptyLines", "IncludeStatements", "ActualAdded", "ActualRemoved")
     {&addValue ($cache, $file, $key);}
+    if($html && (-f "${dir}/includechecker/src/${file}"))
+    {$urls{"src/${file}"}=1;}
   }
   elsif ($line=~/^\s+Total\s+lines\s+:\s+(\d+)\s*$/)
   {&addValue ($cache, $file, "TotalLines", $1);}
@@ -40,15 +50,14 @@ while(my $line=<LOGFILE>)
   {&addValue ($cache, $file, "EmptyLines", $1);}
   elsif ($line=~/^\s+Number\s+of\s+includes\s+:\s+(\d+)\s*$/)
   {&addValue ($cache, $file, "IncludeStatements", $1);}
-  elsif ($line=~/^\s+Include\s+added\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "IncludeAdded", $1);}
-  elsif ($line=~/^\s+Include\s+removed\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "IncludeRemoved", $1);}
   elsif ($line=~/^\s+Actual\s+include\s+added\s+:\s+(\d+)\s*$/)
   {&addValue ($cache, $file, "ActualAdded", $1);}
+  elsif ($line=~/^\s+Actual\s+include\s+removed\s+:\s+(\d+)\s*$/)
+  {&addValue ($cache, $file, "ActualRemoved", $1);}
 }
 close(LOGFILE);
 &process ($cache);
+if($html){print "</pre></body></html>\n";}
 
 sub process ()
 {
@@ -65,12 +74,20 @@ sub process ()
     my $code = $cache->{$key}{_DATA}{CodeLines};
     my $comment = $cache->{$key}{_DATA}{CommentedLines};
     my $lines=($comment - ($total - $empty - $code))/2;
+    if($lines != int($lines)){$code++;$lines=int($lines)+1;}
     $code = $code - $lines;
     $comment = $comment - $lines;
     $cache->{$key}{_DATA}{CodeLines} = $code;
     $cache->{$key}{_DATA}{CommentedLines} = $comment;
+    my $url="";
+    if($html)
+    {
+      if(exists $urls{"${base}${key}"}){$url="${base}${key}";}
+      else{next;}
+    }
     print "################################\n";
-    print "For ${base}${key}\n";
+    if($url){print "For <A href=\"$url\">${base}${key}</a>\n";}
+    else{print "For ${base}${key}\n";}
     foreach my $skey ("TotalLines", "CodeLines", "CommentedLines", "EmptyLines")
     {
       my $value=$cache->{$key}{_DATA}{$skey};
@@ -87,11 +104,9 @@ sub process ()
       }
       print "\n";
     }
-    my $diff=$cache->{$key}{_DATA}{IncludeStatements}-$cache->{$key}{_DATA}{IncludeRemoved};
-    print &SCRAMGenUtils::leftAdjust("Includes", 20).": $diff\n";
+    print &SCRAMGenUtils::leftAdjust("Includes", 20).": ".$cache->{$key}{_DATA}{IncludeStatements}."\n";
     print &SCRAMGenUtils::leftAdjust("Includes added", 20).": ".$cache->{$key}{_DATA}{ActualAdded}."\n";
-    $diff = $cache->{$key}{_DATA}{IncludeRemoved} - ($cache->{$key}{_DATA}{IncludeAdded} - $cache->{$key}{_DATA}{ActualAdded});
-    print &SCRAMGenUtils::leftAdjust("Includes removed", 20).": $diff\n";
+    print &SCRAMGenUtils::leftAdjust("Includes removed", 20).": ".$cache->{$key}{_DATA}{ActualRemoved}."\n";
   }
   foreach my $key (sort keys %$cache)
   {
