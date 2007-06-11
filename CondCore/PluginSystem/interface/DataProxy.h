@@ -1,6 +1,6 @@
 #ifndef CondCore_PluginSystem_DataProxy_H
 #define CondCore_PluginSystem_DataProxy_H
-#include <iostream>
+//#include <iostream>
 // user include files
 #include "FWCore/Framework/interface/DataProxyTemplate.h"
 //#include "CondCore/DBCommon/interface/DBSession.h"
