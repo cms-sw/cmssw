@@ -164,7 +164,8 @@ void CSCDbStripConditions::crosstalk(const CSCDetId&detId, int channel,
   float maxSlopeTime = 60.; 
   float slope = leftRight ? item.xtalk_slope_right
                           : item.xtalk_slope_left;
-  float capacitiveFraction = slope*maxSlopeTime;
+  // some confusion about +/-
+  float capacitiveFraction = fabs(slope)*maxSlopeTime;
   // theCapacitiveCrosstalk is the number needed for 100% xtalk, so
   capacitive = theCapacitiveCrosstalk * capacitiveFraction;
 }
