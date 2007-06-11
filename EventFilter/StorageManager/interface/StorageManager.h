@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id$
+   $Id: StorageManager.h,v 1.14 2007/05/16 22:53:45 hcheung Exp $
 */
 
 #include <string>
@@ -203,7 +203,7 @@ namespace stor {
     xdata::String            progressMarker_;
     enum
     {
-      DEFAULT_PURGE_TIME = 20,
+      DEFAULT_PURGE_TIME = 120,
       DEFAULT_READY_TIME = 10
     };
 
