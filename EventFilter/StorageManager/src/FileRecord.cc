@@ -1,4 +1,4 @@
-// $Id: FileRecord.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
+// $Id:$
 
 #include <EventFilter/StorageManager/interface/FileRecord.h>
 #include <EventFilter/StorageManager/interface/Configurator.h>
@@ -77,19 +77,23 @@ void FileRecord::notifyTier0()
   // create command
   std::ostringstream oss;
   oss << smParameter_->notifyTier0Script() << " " 
-      << "--RUNNUMBER="    << runNumber_                         << " "
-      << "--LUMISECTION="  << lumiSection_                       << " "
-      << "--INSTANCE="     << smParameter_->smInstance()         << " "
-      << "--COUNT="        << fileCounter_                       << " "
-      << "--TYPE="         << setupLabel_                        << " "
-      << "--STREAM="       << streamLabel_                       << " "
-      << "--STATUS="       << "closed"                           << " "
-      << "--SAFETY="        << smParameter_->initialSafetyLevel() << " "
-      << "--NEVENTS="       << events_                            << " "
-      << "--FILESIZE="      << fileSize_                          << " "
-      << "--HOSTNAME="      << smParameter_->host()               << " " 
-      << "--PATHNAME="      << filePath()                         << " "
-      << "--FILENAME="      << fileName() << fileCounterStr() <<  ".dat";
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --COUNT "        << fileCounter_                       
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
+      << " --PATHNAME "     << filePath()                        
+      << " --HOSTNAME "     << smParameter_->host()              
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --STATUS "       << "closed"                           
+      << " --TYPE "         << "streamer"               
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --NEVENTS "      << events_                            
+      << " --FILESIZE "     << fileSize_                          
+      << " --CHECKSUM 0 ";
 
   // execute script
   int status = std::system(oss.str().c_str());
@@ -110,7 +114,23 @@ void FileRecord::updateDatabase()
 {
   std::ostringstream oss;
   oss << smParameter_->closeFileScript() << " " 
-      << fileName() <<  ".dat";
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --COUNT "        << fileCounter_                       
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
+      << " --PATHNAME "     << filePath()                        
+      << " --HOSTNAME "     << smParameter_->host()              
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --STATUS "       << "closed"                           
+      << " --TYPE "         << "streamer"               
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --NEVENTS "      << events_                            
+      << " --FILESIZE "     << fileSize_                          
+      << " --CHECKSUM 0 ";
 
   // execute script
   int status = std::system(oss.str().c_str());
@@ -131,15 +151,23 @@ void FileRecord::insertFileInDatabase()
 {
   std::ostringstream oss;
   oss << smParameter_->insertFileScript()   << " " 
-      << runNumber_                         << " "
-      << lumiSection_                       << " "
-      << smParameter_->smInstance()         << " "
-      << "StorageManager"                   << " "
-      << filePath()                         << " "
-      << fileName() << fileCounterStr() << ".dat "
-      << streamLabel_                       << " "
-      << setupLabel_                        << " "
-      << "stream";
+      << " --RUNNUMBER "    << runNumber_                         
+      << " --LUMISECTION "  << lumiSection_                      
+      << " --INSTANCE "     << smParameter_->smInstance()        
+      << " --COUNT "        << fileCounter_                       
+      << " --START_TIME "   << (int) firstEntry()
+      << " --STOP_TIME "    << (int) lastEntry()
+      << " --FILENAME "     << fileName() << fileCounterStr() <<  ".dat"
+      << " --PATHNAME "     << filePath()                        
+      << " --HOSTNAME "     << smParameter_->host()              
+      << " --DATASET "      << setupLabel_ 
+      << " --STREAM "       << streamLabel_                      
+      << " --STATUS "       << "open"                           
+      << " --TYPE "         << "streamer"               
+      << " --SAFETY "       << smParameter_->initialSafetyLevel()
+      << " --NEVENTS "      << events_                            
+      << " --FILESIZE "     << fileSize_                          
+      << " --CHECKSUM 0 ";
  
   // execute script
   int status = std::system(oss.str().c_str());
