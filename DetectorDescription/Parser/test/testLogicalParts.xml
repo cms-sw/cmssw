@@ -30,11 +30,23 @@
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:cone2"/>
     </LogicalPart> 
+    <LogicalPart name="cone3">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:cone1"/>
+    </LogicalPart> 
     <LogicalPart name="cone2hole">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:cone2hole"/>
     </LogicalPart> 
     <LogicalPart name="pczsect">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:pczsect"/>
+    </LogicalPart> 
+    <LogicalPart name="pczsect2">
+      <rMaterial name="testMaterials:Air"/>
+      <rSolid name="testSolids:pczsect"/>
+    </LogicalPart> 
+    <LogicalPart name="pczsect3">
       <rMaterial name="testMaterials:Air"/>
       <rSolid name="testSolids:pczsect"/>
     </LogicalPart> 

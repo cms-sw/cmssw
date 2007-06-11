@@ -44,6 +44,22 @@
     
     <PosPart copyNumber="0">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:pczsect1"/>
+      <Translation z="5.5*m" y="0" x="0"/>
+    </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:pczsect2"/>
+      <Translation z="6.5*m" y="0" x="0"/>
+    </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:pczsect3"/>
+      <Translation z="7.5*m" y="0" x="0"/>
+    </PosPart>
+
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:ptrap1"/>
     </PosPart>
     <PosPart copyNumber="0">
@@ -59,6 +75,11 @@
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
       <rChild name="testLogicalParts:cone1"/>
       <Translation z="-5*m" y="0" x="0"/>
+    </PosPart>
+    <PosPart copyNumber="0">
+      <rParent name="testLogicalParts:MotherOfAllBoxes"/>
+      <rChild name="testLogicalParts:cone3"/>
+      <Translation z="-6.5*m" y="0" x="0"/>
     </PosPart>
     <PosPart copyNumber="0">
       <rParent name="testLogicalParts:MotherOfAllBoxes"/>
