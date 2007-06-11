@@ -24,7 +24,7 @@ class PedestalsAnalysis : public CommissioningAnalysis {
   PedestalsAnalysis();
   virtual ~PedestalsAnalysis() {;}
 
-  // ---------- Access to analysis and histos ----------
+  // ---------- Analysis results and histos ----------
   
   // Pedestal, noise and raw noise vectors (per APV)
   inline const VVFloat& peds() const;
@@ -56,58 +56,88 @@ class PedestalsAnalysis : public CommissioningAnalysis {
 
   // ---------- Utility methods ----------
   
+  /** Identifies if analysis is valid or not. */
   bool isValid();
 
+  /** Prints analysis results. */
   void print( std::stringstream&, uint32_t apv_number = 0 );
 
  private:
+
+  // ---------- Private methods ----------
   
+  /** Resets analysis member data. */
   void reset();
+
+  /** Extracts and organises histograms. */
   void extract( const std::vector<TH1*>& );
+
+  /** Performs histogram anaysis. */
   void analyse();
   
- private:
+
+  // ---------- Private member data ----------
   
-  /** Peds values (1 value per strip, 1 vector per APV) */
+  // VVFloats means: 1 vector per APV, 1 value per strip.
+
+  /** Peds values. */
   VVFloat peds_;
-  /** Noise values (1 value per strip, 1 vector per APV) */
+
+  /** Noise values. */
   VVFloat noise_;
-  /** Raw noise values (1 value per strip, 1 vector per APV) */
+
+  /** Raw noise values. */
   VVFloat raw_;
 
-  /** Dead strips (values are strip numbers, 1 vector per APV) */
+  // VVInts means: 1 vector per APV, values are strip numbers.
+
+  /** Dead strips. */
   VVInt dead_; 
-  /** Noisy strips (values are strip numbers, 1 vector per APV) */
+
+  /** Noisy strips. */
   VVInt noisy_;
 
-  /** Mean peds value (1 value per APV) */
+  // VFloat: 1 value per APV
+
+  /** Mean peds value. */
   VFloat pedsMean_;
-  /** Rms spread in peds (1 value per APV) */
+
+  /** Rms spread in peds. */
   VFloat pedsSpread_;
-  /** Mean noise value (1 value per APV) */
+
+  /** Mean noise value. */
   VFloat noiseMean_;
-  /** Rms spread in noise (1 value per APV) */
+
+  /** Rms spread in noise. */
   VFloat noiseSpread_;
-  /** Mean raw noise value (1 value per APV) */
+
+  /** Mean raw noise value. */
   VFloat rawMean_;
-  /** Rms spread in raw noise (1 value per APV) */
+
+  /** Rms spread in raw noise. */
   VFloat rawSpread_;
 
-  /** Max peds value (1 value per APV) */
+  /** Max peds value. */
   VFloat pedsMax_;
-  /** Min peds value (1 value per APV) */
+
+  /** Min peds value. */
   VFloat pedsMin_; 
-  /** Max noise value (1 value per APV) */
+
+  /** Max noise value. */
   VFloat noiseMax_;
-  /** Min noise value (1 value per APV) */
+
+  /** Min noise value. */
   VFloat noiseMin_;
-  /** Max raw noise value (1 value per APV) */
+
+  /** Max raw noise value. */
   VFloat rawMax_;
-  /** Min raw noise value (1 value per APV) */
+
+  /** Min raw noise value. */
   VFloat rawMin_;
   
   /** Pedestals and raw noise */
   Histo hPeds_;
+
   /** Residuals and noise */
   Histo hNoise_;
   

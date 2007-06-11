@@ -59,9 +59,6 @@ class VpspScanAnalysis : public CommissioningAnalysis {
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
   
-  /** Adds error codes for analysis (overrides private base). */ 
-  inline void addErrorCode( const std::string& error );
-  
  private:
 
   // ---------- Private methods ----------
@@ -111,6 +108,12 @@ class VpspScanAnalysis : public CommissioningAnalysis {
 // ---------- Inline methods ----------
 
 const VpspScanAnalysis::VInt& VpspScanAnalysis::vpsp() const { return vpsp_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::adcLevel() const { return adcLevel_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::fraction() const { return fraction_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::topEdge() const { return topEdge_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::bottomEdge() const { return bottomEdge_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::topLevel() const { return topLevel_; }
+const VpspScanAnalysis::VInt& VpspScanAnalysis::bottomLevel() const { return bottomLevel_; }
 
 #endif // DQM_SiStripCommissioningAnalysis_VpspScanAnalysis_H
 

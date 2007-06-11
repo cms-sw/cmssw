@@ -103,6 +103,13 @@ void VpspScanAnalysis::analyse() {
 
 // ----------------------------------------------------------------------------
 // 
+bool VpspScanAnalysis::isValid() {
+  return ( vpsp_[0] < sistrip::maximum_ &&
+	   vpsp_[1] < sistrip::maximum_ );
+} 
+
+// ----------------------------------------------------------------------------
+// 
 void VpspScanAnalysis::print( std::stringstream& ss, uint32_t iapv ) { 
   if ( iapv == 1 || iapv == 2 ) { iapv--; }
   else { iapv = 0; }
@@ -182,6 +189,7 @@ void VpspScanAnalysis::deprecated() {
       for ( vpsp = 5; vpsp < 55; vpsp++ ) { 
 	if ( histos[0]->GetBinContent(vpsp) < opt ) { break; }
       }
+      if ( vpsp == 55 ) { vpsp = sistrip::invalid_; }
       
       monitorables.push_back(vpsp);
       monitorables.push_back(static_cast<uint16_t>(opt));
