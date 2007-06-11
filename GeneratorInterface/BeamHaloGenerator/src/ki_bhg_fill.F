@@ -425,7 +425,9 @@ c      REAL VXP,VYP,PROP,RXY
         VX = VERT_X
         VY = VERT_Y
         VZ = Z_ZERO
-        T0 = T_ZERO*SP_O_L
+cep        T0 = T_ZERO*SP_O_L
+        T0 = (T_ZERO + idx_shift_bx*BXNS) * SP_O_L
+
 
                                          P_BM_2 = 0.5
         IF (LHC_B1.EQ.1.AND.LHC_B2.EQ.0) P_BM_2 = 0.0

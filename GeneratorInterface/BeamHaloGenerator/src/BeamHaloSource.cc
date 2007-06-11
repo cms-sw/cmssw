@@ -55,8 +55,8 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
 	GeneratedInputSource(pset, desc), evt(0)
 {
 
-   int iparam[5];
-   float fparam[2];
+   int iparam[6];
+   float fparam[3];
 
  // -- from bhgctrl.inc
    iparam[0]  = pset.getUntrackedParameter<int>("GENMOD");
@@ -65,9 +65,14 @@ BeamHaloSource::BeamHaloSource( const ParameterSet & pset,
    iparam[3]  = pset.getUntrackedParameter<int>("IW_MUO");
    iparam[4]  = pset.getUntrackedParameter<int>("IW_HAD");
 
+   iparam[5]  = pset.getUntrackedParameter<int>("shift_bx");
+
    
    fparam[0]  = (float)pset.getUntrackedParameter<double>("EG_MIN");
    fparam[1]  = (float)pset.getUntrackedParameter<double>("EG_MAX");
+
+   fparam[2] = (float)pset.getUntrackedParameter<double>("BXNS");
+
 
     call_bh_set_parameters(iparam,fparam);
 
