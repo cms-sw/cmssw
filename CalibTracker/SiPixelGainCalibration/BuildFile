@@ -9,8 +9,12 @@
 <use name=CondCore/DBOutputService>
 <use name=PhysicsTools/UtilAlgos>
 <use name=FWCore/ServiceRegistry>
+<use name=Geometry/Records>
 <use name=EventSetup/SiPixelRawToDigi>
 <use name=root>
+<use name=Geometry/Records>
+<use name=Geometry/CommonDetUnit>
+<use name=Geometry/TrackerGeometryBuilder>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=CalibTrackerSiPixelGainCalibration>
@@ -23,5 +27,6 @@
    <use name=CondTools/SiPixel>
    <use name=PhysicsTools/UtilAlgos>
    <use name=CondFormats/DataRecord>
+   <use name=Geometry/Records>
    <use name=EventSetup/SiPixelRawToDigi>
 </export>
