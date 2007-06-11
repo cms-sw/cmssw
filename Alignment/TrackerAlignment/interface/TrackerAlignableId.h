@@ -10,8 +10,8 @@
 /// A mapping between the AlignableObjectId and the string name
 /// is also provided.
 ///
-///  $Revision: 1.8 $
-///  $Date: 2007/05/11 19:59:47 $
+///  $Revision: 1.9 $
+///  $Date: 2007/05/12 00:27:42 $
 ///  (last update by $Author: cklae $)
 
 #include <string>
@@ -27,6 +27,9 @@ class TrackerAlignableId
 
 public:
   
+  TrackerAlignableId() {}
+  ~TrackerAlignableId() {}
+
   typedef std::pair<uint32_t,int> UniqueId;
 
   /// Return geographical ID of first GeomDet
