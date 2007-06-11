@@ -89,7 +89,9 @@ float CSCStripElectronicsSim::calculateAmpResponse(float t) const
 CSCAnalogSignal CSCStripElectronicsSim::makeNoiseSignal(int element) {
   std::vector<float> noiseBins(nScaBins_);
   CSCAnalogSignal tmpSignal(element, sca_time_bin_size, noiseBins);
-  theStripConditions->noisify(layerId(), tmpSignal);
+  if(doNoise_) {
+    theStripConditions->noisify(layerId(), tmpSignal);
+  }
   tmpSignal *= theSpecs->chargePerCount();
   // now rebin it
   std::vector<float> binValues(theNumberOfSamples);
