@@ -13,7 +13,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id$
+// $Id: SiPixelGainCalibrationDBAnalysis.cc,v 1.1 2007/05/20 18:08:09 fblekman Exp $
 //
 //
 
@@ -139,7 +139,7 @@ void SiPixelGainCalibrationDBAnalysis::init(const TempPixelContainer & aPixel ){
   if(rocgainused_[aPixel.fed_channel][aPixel.roc_id])
     return;
   rocgainused_[aPixel.fed_channel][aPixel.roc_id]=true;
-  calib_containers_[aPixel.fed_channel][aPixel.roc_id].init(aPixel.fed_channel,aPixel.roc_id,calib_->nVcal(),calib_->vcal_first(), calib_->vcal_last(),calib_->vcal_step());
+  calib_containers_[aPixel.fed_channel][aPixel.roc_id].init(aPixel.fed_channel,aPixel.roc_id,calib_->nVcal(),calib_->vcal_first(), calib_->vcal_last(),calib_->vcal_step(),52,80);
   return;
 }
 //*****************

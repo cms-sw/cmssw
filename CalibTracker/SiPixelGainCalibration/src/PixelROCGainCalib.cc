@@ -11,21 +11,20 @@
 
 PixelROCGainCalib::PixelROCGainCalib(): 
 vcalrangemin_(0),vcalrangestep_(256),vcalrangemax_(256),nrowsmax_(80),ncolsmax_(52),
-linkid_(0),rocid_(0),nvcal_(1), thisROCTitle_("")
+linkid_(0),rocid_(0),nvcal_(1), thisROCTitle_(""),ncolslimit_(52),nrowslimit_(80)
 {
-  // some ugly asserts to make sure none of the arrays run over limits
-  assert(nrowsmax_<=80);
-  assert(ncolsmax_<=52);
- 
+  // some ugly asserts to make sure none of the arrays run over limits 
 }
 //*********************
-void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned int nvcal,unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep){
+void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned int nvcal,unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep,unsigned int ncols,unsigned int nrows){
   linkid_=linkid;
   rocid_=rocid;
   nvcal_=nvcal; 
   vcalrangemin_=vcalRangeMin;
   vcalrangemax_=vcalRangeMax; 
   vcalrangestep_=vcalRangeStep;
+  nrowsmax_=nrows;
+  ncolsmax_=ncols;
   thisROCTitle_="Channel_";
   thisROCTitle_+=linkid_;
   thisROCTitle_+="_ROC_";
@@ -47,7 +46,7 @@ void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned in
 //**********************
 void PixelROCGainCalib::fill(unsigned int row,unsigned int col,unsigned int vcal,unsigned int adc){
   if(!checkRowCols(row,col)){
-    edm::LogVerbatim("") << "PixelROCGainCalibHists::fill() WARNING, column or row out of range" << std::endl;
+    edm::LogVerbatim("WARNING") <<" PixelROCGainCalib::fill() WARNING, column or row out of range, value row: " << row << ", col:" << col << std::endl;
     return ;
   }
   if(!pixelUsed_[row][col]){
@@ -70,6 +69,15 @@ TH1F* PixelROCGainCalib::gethisto(unsigned int row, unsigned int col){
   //  std::cout << createTitle(row,col) << " " << nvcal_ << " " << vcalrangemin_ << " " << vcalrangemax_ << std::endl;
   return result;
 }
+//**********************
+// TH1F* PixelROCGainCalib::getHistoFileService(TFileDirectory dir,unsigned int row, unsigned int col){
+//   if(!pixelUsed_[row][col])
+//     return 0;
+  
+//   TH1F *result = (TH1F*) thePixels_[row][col].createHistogramFileService(dir,createTitle(row,col),createTitle(row,col),nvcal_,vcalrangemin_,vcalrangemax_);
+//   //  std::cout << createTitle(row,col) << " " << nvcal_ << " " << vcalrangemin_ << " " << vcalrangemax_ << std::endl;
+//   return result;
+// }
 //**********************
 void PixelROCGainCalib::fit(unsigned int row,unsigned int col, TF1* function){
   gethisto(row,col)->Fit(function,"R");

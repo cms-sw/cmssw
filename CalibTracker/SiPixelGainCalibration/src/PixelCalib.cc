@@ -28,7 +28,7 @@ PixelCalib::PixelCalib(std::string filename):
     std::ifstream in(filename.c_str());
 
     if (!in.good()){
-	std::cout << "Could not open:"<<filename<<std::endl;
+	std::cout << "ERROR: Could not open file:"<<filename<<std::endl;
 	assert(0);
     }
     else {
@@ -36,10 +36,12 @@ PixelCalib::PixelCalib(std::string filename):
     }
 
     std::string tmp;
-
     in >> tmp;
-
-    assert(tmp=="Rows:");
+    while(tmp!="Rows:"){
+      std::cout  << tmp << std::endl;
+      in >> tmp;
+    }
+    //  assert(tmp=="Rows:");
 
     in >> tmp;
 
