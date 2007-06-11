@@ -38,7 +38,8 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const DDCompactView* 
   DDExpandedView ev(*cpv);
 
   TrackerGeometry* tracker = new TrackerGeometry();
-  std::vector<const GeometricDet*> const & comp = gd->deepComponents();
+  std::vector<const GeometricDet*> comp;
+  gd->deepComponents(comp);
 
   std::vector<const GeometricDet*> dets[6];
   std::vector<const GeometricDet*> & pixB = dets[0]; pixB.reserve(comp.size());
