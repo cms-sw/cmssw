@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2007/05/22 14:23:38 $
- * $Revision: 1.12 $
+ * $Date: 2007/05/22 15:05:47 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -200,7 +200,16 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
     meaopn06_[ism-1] = 0;
     meaopn07_[ism-1] = 0;
     meaopn08_[ism-1] = 0;
-
+    
+    mepnprms01_[ism-1] = 0;
+    mepnprms02_[ism-1] = 0;
+    mepnprms03_[ism-1] = 0;
+    mepnprms04_[ism-1] = 0;
+    mepnprms05_[ism-1] = 0;
+    mepnprms06_[ism-1] = 0;
+    mepnprms07_[ism-1] = 0;
+    mepnprms08_[ism-1] = 0;
+    
     qth01_[ism-1] = 0;
     qth02_[ism-1] = 0;
     qth03_[ism-1] = 0;
@@ -233,8 +242,16 @@ EELaserClient::EELaserClient(const ParameterSet& ps){
 
   amplitudeThresholdPnG01_ = 50.;
   amplitudeThresholdPnG16_ = 50.;
-  pedestalThresholdPn_ = 200.;
-
+  
+  pedPnExpectedMean_[0] = 750.0;
+  pedPnExpectedMean_[1] = 750.0;
+  
+  pedPnDiscrepancyMean_[0] = 100.0;
+  pedPnDiscrepancyMean_[1] = 100.0;
+  
+  pedPnRMSThreshold_[0] = 1.0; // value at h4; expected nominal: 0.5
+  pedPnRMSThreshold_[1] = 3.0; // value at h4; expected nominal: 1.6
+  
 }
 
 EELaserClient::~EELaserClient(){
@@ -343,19 +360,26 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth10_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth11_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
       qth12_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qth13_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth14_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth15_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth16_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qth13_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth14_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth15_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
+      qth16_[ism-1]->setMeanRange(pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0],
+				  pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0]);
       qth17_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth18_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth19_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
       qth20_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qth21_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth22_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth23_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qth24_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-
+      qth21_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth22_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth23_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
+      qth24_[ism-1]->setMeanRange(pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1],
+				  pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1]);
       qth01_[ism-1]->setMeanTolerance(percentVariation_);
       qth02_[ism-1]->setMeanTolerance(percentVariation_);
       qth03_[ism-1]->setMeanTolerance(percentVariation_);
@@ -369,19 +393,18 @@ void EELaserClient::beginJob(MonitorUserInterface* mui){
       qth10_[ism-1]->setRMSRange(0.0, 4096.0);
       qth11_[ism-1]->setRMSRange(0.0, 4096.0);
       qth12_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth13_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth14_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth15_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth16_[ism-1]->setRMSRange(0.0, 4096.0);
+      qth13_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth14_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth15_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
+      qth16_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[0]);
       qth17_[ism-1]->setRMSRange(0.0, 4096.0);
       qth18_[ism-1]->setRMSRange(0.0, 4096.0);
       qth19_[ism-1]->setRMSRange(0.0, 4096.0);
       qth20_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth21_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth22_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth23_[ism-1]->setRMSRange(0.0, 4096.0);
-      qth24_[ism-1]->setRMSRange(0.0, 4096.0);
-
+      qth21_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth22_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth23_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
+      qth24_[ism-1]->setRMSRange(0.0, pedPnRMSThreshold_[1]);
       qth01_[ism-1]->setMinimumEntries(10*1700);
       qth02_[ism-1]->setMinimumEntries(10*1700);
       qth03_[ism-1]->setMinimumEntries(10*1700);
@@ -646,6 +669,31 @@ void EELaserClient::setup(void) {
     if ( meaopn08_[ism-1] ) bei->removeElement( meaopn08_[ism-1]->getName() );
     sprintf(histo, "EELT amplitude over PN L4B %s", Numbers::sEE(ism).c_str());
     meaopn08_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
+    
+    if ( mepnprms01_[ism-1] ) bei->removeElement( mepnprms01_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L1", Numbers::sEE(ism).c_str());
+    mepnprms01_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms02_[ism-1] ) bei->removeElement( mepnprms02_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L2", Numbers::sEE(ism).c_str());
+    mepnprms02_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms03_[ism-1] ) bei->removeElement( mepnprms03_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L3", Numbers::sEE(ism).c_str());
+    mepnprms03_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms04_[ism-1] ) bei->removeElement( mepnprms04_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G01 L4", Numbers::sEE(ism).c_str());
+    mepnprms04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms05_[ism-1] ) bei->removeElement( mepnprms05_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L1", Numbers::sEE(ism).c_str());
+    mepnprms05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms06_[ism-1] ) bei->removeElement( mepnprms06_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L2", Numbers::sEE(ism).c_str());
+    mepnprms06_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms07_[ism-1] ) bei->removeElement( mepnprms07_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L3", Numbers::sEE(ism).c_str());
+    mepnprms07_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    if ( mepnprms08_[ism-1] ) bei->removeElement( mepnprms08_[ism-1]->getName() );
+    sprintf(histo, "EEPDT PNs pedestal rms %s G16 L4", Numbers::sEE(ism).c_str());
+    mepnprms08_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
 
   }
 
@@ -735,7 +783,16 @@ void EELaserClient::setup(void) {
     UtilsClient::resetHisto( meaopn06_[ism-1] );
     UtilsClient::resetHisto( meaopn07_[ism-1] );
     UtilsClient::resetHisto( meaopn08_[ism-1] );
-
+    
+    UtilsClient::resetHisto( mepnprms01_[ism-1] );
+    UtilsClient::resetHisto( mepnprms02_[ism-1] );
+    UtilsClient::resetHisto( mepnprms03_[ism-1] );
+    UtilsClient::resetHisto( mepnprms04_[ism-1] );
+    UtilsClient::resetHisto( mepnprms05_[ism-1] );
+    UtilsClient::resetHisto( mepnprms06_[ism-1] );
+    UtilsClient::resetHisto( mepnprms07_[ism-1] );
+    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    
   }
 
 }
@@ -979,6 +1036,23 @@ void EELaserClient::cleanup(void) {
     meaopn07_[ism-1] = 0;
     if ( meaopn08_[ism-1] ) bei->removeElement( meaopn08_[ism-1]->getName() );
     meaopn08_[ism-1] = 0;
+
+    if ( mepnprms01_[ism-1] ) bei->removeElement( mepnprms01_[ism-1]->getName() );
+    mepnprms01_[ism-1] = 0;
+    if ( mepnprms02_[ism-1] ) bei->removeElement( mepnprms02_[ism-1]->getName() );
+    mepnprms02_[ism-1] = 0;
+    if ( mepnprms03_[ism-1] ) bei->removeElement( mepnprms03_[ism-1]->getName() );
+    mepnprms03_[ism-1] = 0;
+    if ( mepnprms04_[ism-1] ) bei->removeElement( mepnprms04_[ism-1]->getName() );
+    mepnprms04_[ism-1] = 0;
+    if ( mepnprms05_[ism-1] ) bei->removeElement( mepnprms05_[ism-1]->getName() );
+    mepnprms05_[ism-1] = 0;
+    if ( mepnprms06_[ism-1] ) bei->removeElement( mepnprms06_[ism-1]->getName() );
+    mepnprms06_[ism-1] = 0;
+    if ( mepnprms07_[ism-1] ) bei->removeElement( mepnprms07_[ism-1]->getName() );
+    mepnprms07_[ism-1] = 0;
+    if ( mepnprms08_[ism-1] ) bei->removeElement( mepnprms08_[ism-1]->getName() );
+    mepnprms08_[ism-1] = 0;
 
   }
 
@@ -2813,6 +2887,15 @@ void EELaserClient::analyze(void){
     UtilsClient::resetHisto( meaopn07_[ism-1] );
     UtilsClient::resetHisto( meaopn08_[ism-1] );
 
+    UtilsClient::resetHisto( mepnprms01_[ism-1] );
+    UtilsClient::resetHisto( mepnprms02_[ism-1] );
+    UtilsClient::resetHisto( mepnprms03_[ism-1] );
+    UtilsClient::resetHisto( mepnprms04_[ism-1] );
+    UtilsClient::resetHisto( mepnprms05_[ism-1] );
+    UtilsClient::resetHisto( mepnprms06_[ism-1] );
+    UtilsClient::resetHisto( mepnprms07_[ism-1] );
+    UtilsClient::resetHisto( mepnprms08_[ism-1] );
+    
     float meanAmplL1A, meanAmplL2A, meanAmplL3A, meanAmplL4A;
     float meanAmplL1B, meanAmplL2B, meanAmplL3B, meanAmplL4B;
 
@@ -2942,7 +3025,9 @@ void EELaserClient::analyze(void){
         update10 = UtilsClient::getBinStats(h10_[ism-1], ie, ip, num10, mean10, rms10);
         update11 = UtilsClient::getBinStats(h11_[ism-1], ie, ip, num11, mean11, rms11);
         update12 = UtilsClient::getBinStats(h12_[ism-1], ie, ip, num12, mean12, rms12);
-
+	
+         // other SM half
+	
         if ( ! update01 )
           update01 = UtilsClient::getBinStats(h13_[ism-1], ie, ip, num01, mean01, rms01);
         if ( ! update02 )
@@ -3490,9 +3575,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean01 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean05 < pedestalThresholdPn_ )
+        if ( mean05 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean05)
           val = 0.;
+        if ( rms05 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms01_[ism-1] ) mepnprms01_[ism-1]->Fill(rms05);
 
       }
 
@@ -3503,9 +3593,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean02 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean06 < pedestalThresholdPn_ )
+        if ( mean06 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	     pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean06)
           val = 0.;
-        if ( meg06_[ism-1] ) meg06_[ism-1]->setBinContent(i, 1, val);
+        if ( rms06 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
+        if ( meg06_[ism-1] )           meg06_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms02_[ism-1] ) mepnprms02_[ism-1]->Fill(rms06);
 
       }
 
@@ -3516,9 +3611,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean03 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean07 < pedestalThresholdPn_ )
+      if ( mean07 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	   pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean07)
           val = 0.;
-        if ( meg07_[ism-1] ) meg07_[ism-1]->setBinContent(i, 1, val);
+      if ( rms07 > pedPnRMSThreshold_[0] )
+          val = 0.;
+
+      if ( meg07_[ism-1] )           meg07_[ism-1]->setBinContent(i, 1, val);
+      if ( mepnprms03_[ism-1] ) mepnprms03_[ism-1]->Fill(rms07);
 
       }
 
@@ -3529,12 +3629,17 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean04 < amplitudeThresholdPnG01_ )
           val = 0.;
-        if ( mean08 < pedestalThresholdPn_ )
-          val = 0.;
-        if ( meg08_[ism-1] ) meg08_[ism-1]->setBinContent(i, 1, val);
-
+       if ( mean08 <  pedPnExpectedMean_[0] - pedPnDiscrepancyMean_[0] ||
+	    pedPnExpectedMean_[0] + pedPnDiscrepancyMean_[0] < mean08)
+           val = 0.;
+       if ( rms08 > pedPnRMSThreshold_[0] )
+           val = 0.;
+       
+       if ( meg08_[ism-1] )           meg08_[ism-1]->setBinContent(i, 1, val);
+       if ( mepnprms04_[ism-1] ) mepnprms04_[ism-1]->Fill(rms08);
+       
       }
-
+      
       if ( update09 && update13 ) {
 
         float val;
@@ -3542,9 +3647,14 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean09 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean13 < pedestalThresholdPn_ )
+        if ( mean13 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean13)
           val = 0.;
-        if ( meg09_[ism-1] ) meg09_[ism-1]->setBinContent(i, 1, val);
+        if ( rms13 > pedPnRMSThreshold_[1] )
+          val = 0.;
+	
+        if ( meg09_[ism-1] )           meg09_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms05_[ism-1] ) mepnprms05_[ism-1]->Fill(rms13);
 
       }
 
@@ -3555,10 +3665,16 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean10 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean14 < pedestalThresholdPn_ )
+	//        if ( mean14 < pedestalThresholdPn_ )
+       if ( mean14 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	    pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean14)
+           val = 0.;
+       if ( rms14 > pedPnRMSThreshold_[1] )
           val = 0.;
-        if ( meg10_[ism-1] ) meg10_[ism-1]->setBinContent(i, 1, val);
-
+       
+       if ( meg10_[ism-1] )           meg10_[ism-1]->setBinContent(i, 1, val);
+       if ( mepnprms06_[ism-1] ) mepnprms06_[ism-1]->Fill(rms14);
+       
       }
 
       if ( update11 && update15 ) {
@@ -3568,9 +3684,15 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean11 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean15 < pedestalThresholdPn_ )
+	//        if ( mean15 < pedestalThresholdPn_ )
+        if ( mean15 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+	     pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean15)
           val = 0.;
+        if ( rms15 > pedPnRMSThreshold_[1] )
+          val = 0.;
+
         if ( meg11_[ism-1] ) meg11_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms07_[ism-1] ) mepnprms07_[ism-1]->Fill(rms15);
 
       }
 
@@ -3581,9 +3703,15 @@ void EELaserClient::analyze(void){
         val = 1.;
         if ( mean12 < amplitudeThresholdPnG16_ )
           val = 0.;
-        if ( mean16 < pedestalThresholdPn_ )
+	//        if ( mean16 < pedestalThresholdPn_ )
+        if ( mean16 <  pedPnExpectedMean_[1] - pedPnDiscrepancyMean_[1] ||
+  	              pedPnExpectedMean_[1] + pedPnDiscrepancyMean_[1] < mean16)
           val = 0.;
+        if ( rms16 > pedPnRMSThreshold_[1] )
+          val = 0.;
+
         if ( meg12_[ism-1] ) meg12_[ism-1]->setBinContent(i, 1, val);
+        if ( mepnprms08_[ism-1] ) mepnprms08_[ism-1]->Fill(rms16);
 
       }
 
@@ -3806,8 +3934,8 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
   }
   dummy1.SetMarkerSize(2);
   dummy1.SetMinimum(0.1);
-
-  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgName, meName;
+  
+  string imgNameQual[8], imgNameAmp[8], imgNameTim[8], imgNameTimav[8], imgNameTimrms[8], imgNameShape[8], imgNameAmpoPN[8], imgNameMEPnQualG01[8], imgNameMEPnG01[8], imgNameMEPnPedG01[8], imgNameMEPnRmsPedG01[8], imgNameMEPnQualG16[8], imgNameMEPnG16[8], imgNameMEPnPedG16[8], imgNameMEPnRmsPedG16[8], imgName, meName;
 
   TCanvas* cQual   = new TCanvas("cQual", "Temp", 2*csize, csize);
   TCanvas* cAmp    = new TCanvas("cAmp", "Temp", csize, csize);
@@ -4530,37 +4658,147 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         delete obj1d;
 
       }
+      
+      
+      imgNameMEPnRmsPedG01[iCanvas-1] = "";
+      
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+	if ( mepnprms01_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms01_[ism-1]);
+	break;
+      case 2:
+	if ( mepnprms02_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms02_[ism-1]);
+	break;
+      case 3:
+	if ( mepnprms03_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms03_[ism-1]);
+	break;
+      case 4:
+	if ( mepnprms04_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms04_[ism-1]);
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
+      }
+      
+      if ( obj1f ) {
+  	
+	meName = obj1f->GetName();
+  	
+	for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	  if ( meName.substr(i, 1) == " " )  {
+	    meName.replace(i, 1 ,"_" );
+	  }
+	}
+	imgNameMEPnRmsPedG01[iCanvas-1] = meName + ".png";
+	imgName = htmlDir + imgNameMEPnRmsPedG01[iCanvas-1];
+  	
+	cPed->cd();
+	gStyle->SetOptStat("euomr");
+	obj1f->SetStats(kTRUE);
+	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
+	obj1f->SetMinimum(0.0);
+	obj1f->Draw();
+	cPed->Update();
+	cPed->SaveAs(imgName.c_str());
+	gPad->SetLogy(0);
 
+      }
+      
+      
+      imgNameMEPnRmsPedG16[iCanvas-1] = "";
+      
+      obj1f = 0;
+      switch ( iCanvas ) {
+      case 1:
+	if ( mepnprms05_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms05_[ism-1]);
+	break;
+      case 2:
+	if ( mepnprms06_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms06_[ism-1]);
+	break;
+      case 3:
+	if ( mepnprms07_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms07_[ism-1]);
+	break;
+      case 4:
+	if ( mepnprms08_[ism-1] ) obj1f =  UtilsClient::getHisto<TH1F*>(mepnprms08_[ism-1]);
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
+      }
+      
+      if ( obj1f ) {
+  	
+	meName = obj1f->GetName();
+  	
+	for ( unsigned int i = 0; i < meName.size(); i++ ) {
+	  if ( meName.substr(i, 1) == " " )  {
+	    meName.replace(i, 1 ,"_" );
+	  }
+	}
+	imgNameMEPnRmsPedG16[iCanvas-1] = meName + ".png";
+	imgName = htmlDir + imgNameMEPnRmsPedG16[iCanvas-1];
+  	
+	cPed->cd();
+	gStyle->SetOptStat("euomr");
+	obj1f->SetStats(kTRUE);
+	//        if ( obj1f->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
+	obj1f->SetMinimum(0.0);
+	obj1f->Draw();
+	cPed->Update();
+	cPed->SaveAs(imgName.c_str());
+	gPad->SetLogy(0);
+  	
+      }
+      
       imgNameMEPnPedG16[iCanvas-1] = "";
-
+      
       obj1d = 0;
       switch ( iCanvas ) {
-        case 1:
-          if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 2:
-          if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 3:
-          if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 4:
-          if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
-          break;
-        case 5:
-        case 6:
-        case 7:
-        case 8:
-          obj2f = 0;
-          break;
-        default:
-          break;
+      case 1:
+	if ( i13_[ism-1] ) obj1d = i13_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 2:
+	if ( i14_[ism-1] ) obj1d = i14_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 3:
+	if ( i15_[ism-1] ) obj1d = i15_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 4:
+	if ( i16_[ism-1] ) obj1d = i16_[ism-1]->ProjectionY("_py", 1, 1, "e");
+	break;
+      case 5:
+      case 6:
+      case 7:
+      case 8:
+	obj2f = 0;
+	break;
+      default:
+	break;
       }
-
+      
       if ( obj1d ) {
-
+	
         meName = obj1d->GetName();
-
+	
         for ( unsigned int i = 0; i < meName.size(); i++ ) {
           if ( meName.substr(i, 1) == " " )  {
             meName.replace(i, 1 ,"_" );
@@ -4568,27 +4806,27 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
         }
         imgNameMEPnPedG16[iCanvas-1] = meName + ".png";
         imgName = htmlDir + imgNameMEPnPedG16[iCanvas-1];
-
+	
         cPed->cd();
         gStyle->SetOptStat("euo");
         obj1d->SetStats(kTRUE);
-//        if ( obj1d->GetMaximum(histMax) > 0. ) {
-//          gPad->SetLogy(1);
-//        } else {
-//          gPad->SetLogy(0);
-//        }
+	//        if ( obj1d->GetMaximum(histMax) > 0. ) {
+	//          gPad->SetLogy(1);
+	//        } else {
+	//          gPad->SetLogy(0);
+	//        }
         obj1d->SetMinimum(0.0);
         obj1d->Draw();
         cPed->Update();
         cPed->SaveAs(imgName.c_str());
         gPad->SetLogy(0);
-
+	
         delete obj1d;
-
+	
       }
-
+      
     }
-
+    
     if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
     htmlFile << "<hr>" << std::endl;
     htmlFile << "<h3><a name="""
@@ -4781,6 +5019,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       if ( imgNameMEPnPedG01[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnPedG01[iCanvas-1] << "\"></td>" << endl;
       else
+       htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
+      if ( imgNameMEPnRmsPedG01[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnRmsPedG01[iCanvas-1] << "\"></td>" << endl;
+      else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
       if ( imgNameMEPnG01[iCanvas-1].size() != 0 )
@@ -4799,7 +5042,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 1</td>" << endl;
+      htmlFile << "<td colspan=\"1\"> </td> <td colspan=\"1\">Laser " << iCanvas << " - PN Gain 1</td> <td colspan=\"1\">" << endl;
 
     }
 
@@ -4833,6 +5076,11 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       else
         htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
+      if ( imgNameMEPnRmsPedG16[iCanvas-1].size() != 0 )
+        htmlFile << "<td><img src=\"" << imgNameMEPnRmsPedG16[iCanvas-1] << "\"></td>" << endl;
+      else
+        htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
+
       if ( imgNameMEPnG16[iCanvas-1].size() != 0 )
         htmlFile << "<td><img src=\"" << imgNameMEPnG16[iCanvas-1] << "\"></td>" << endl;
       else
@@ -4847,7 +5095,7 @@ void EELaserClient::htmlOutput(int run, string htmlDir, string htmlName){
       // skip unused wavelengths
       if ( iCanvas == 2 || iCanvas == 3 ) continue;
 
-      htmlFile << "<td colspan=\"2\">Laser " << iCanvas << " - PN Gain 16</td>" << endl;
+      htmlFile << "<td colspan=\"1\"> </td> <td colspan=\"1\">Laser " << iCanvas << " - PN Gain 16</td> <td colspan=\"1\"> </td>" << endl;
 
     }
 
