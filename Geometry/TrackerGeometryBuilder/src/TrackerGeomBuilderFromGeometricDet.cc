@@ -40,30 +40,18 @@ TrackerGeometry* TrackerGeomBuilderFromGeometricDet::build(const DDCompactView* 
   TrackerGeometry* tracker = new TrackerGeometry();
   std::vector<const GeometricDet*> const & comp = gd->deepComponents();
 
-  std::vector<const GeometricDet*> pixB; pixB.reserve(comp.size());
-  std::vector<const GeometricDet*> pixF; pixF.reserve(comp.size());
-  std::vector<const GeometricDet*> tib;  tib.reserve(comp.size());
-  std::vector<const GeometricDet*> tid;  tid.reserve(comp.size());
-  std::vector<const GeometricDet*> tob;  tob.reserve(comp.size());
-  std::vector<const GeometricDet*> tec;  tec.reserve(comp.size());
+  std::vector<const GeometricDet*> dets[6];
+  std::vector<const GeometricDet*> & pixB = dets[0]; pixB.reserve(comp.size());
+  std::vector<const GeometricDet*> & pixF = dets[1]; pixF.reserve(comp.size());
+  std::vector<const GeometricDet*> & tib  = dets[2];  tib.reserve(comp.size());
+  std::vector<const GeometricDet*> & tid  = dets[3];  tid.reserve(comp.size());
+  std::vector<const GeometricDet*> & tob  = dets[4];  tob.reserve(comp.size());
+  std::vector<const GeometricDet*> & tec  = dets[5];  tec.reserve(comp.size());
 
-  for(u_int32_t i = 0;i<comp.size();i++){
-    u_int32_t answer = comp[i]->geographicalID().subdetId();
-    if (answer == 1){
-      pixB.push_back(comp[i]);
-    }else if (answer == 2){
-      pixF.push_back(comp[i]);
-    }else if (answer == 3){
-      tib.push_back(comp[i]);
-    }else if (answer == 4){
-      tid.push_back(comp[i]);
-    }else if (answer == 5){
-      tob.push_back(comp[i]);
-    }else if (answer == 6){
-      tec.push_back(comp[i]);
-    }
-    
-  }
+  for(u_int32_t i = 0;i<comp.size();i++)
+    dets[comp[i]->geographicalID().subdetId()-1].push_back(comp[i]);
+  
+
   buildPixel(pixB,&ev,tracker,theDetIdToEnum.type(1), "barrel"); //"PixelBarrel" 
   buildPixel(pixF,&ev,tracker,theDetIdToEnum.type(2), "endcap"); //"PixelEndcap" 
   buildSilicon(tib,&ev,tracker,theDetIdToEnum.type(3), "barrel");// "TIB"	
