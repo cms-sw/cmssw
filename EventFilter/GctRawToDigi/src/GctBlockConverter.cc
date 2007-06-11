@@ -23,6 +23,12 @@ GctBlockConverter::GctBlockConverter() {
   blockLength_[0x88] = 16;  // Leaf-U2, Elec, NegEta, Sort Input
   blockLength_[0x89] = 12;  // Leaf-U2, Elec, NegEta, Raw Input
   blockLength_[0x8B] = 4;   // Leaf-U2, Elec, NegEta, Sort Output
+  blockLength_[0xc0] = 20;  // Leaf-U1, Elec, PosEta, Sort Input
+  blockLength_[0xc1] = 15;  // Leaf-U1, Elec, PosEta, Raw Input
+  blockLength_[0xc3] = 4;   // Leaf-U1, Elec, PosEta, Sort Output
+  blockLength_[0xc8] = 16;  // Leaf-U2, Elec, PosEta, Sort Input
+  blockLength_[0xc9] = 12;  // Leaf-U2, Elec, PosEta, Raw Input
+  blockLength_[0xcB] = 4;   // Leaf-U2, Elec, PosEta, Sort Output
 
   // setup converter fn map
   //  convertFn_[0x68] = &GctBlockConverter::wordToGctEmCand;
@@ -68,6 +74,24 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
     blockToRctEmCand(data, id, nSamples);
     break;
   case (0x8B) :
+    blockToGctInternEmCand(data, id, nSamples);
+    break;
+  case (0xc0) :
+    blockToGctInternEmCand(data, id, nSamples);
+    break;
+  case (0xc1) :
+    blockToRctEmCand(data, id, nSamples);
+    break;
+  case (0xc3) :
+    blockToGctInternEmCand(data, id, nSamples);
+    break;
+  case (0xc8) :
+    blockToGctInternEmCand(data, id, nSamples);
+    break;
+  case (0xc9) :
+    blockToRctEmCand(data, id, nSamples);
+    break;
+  case (0xcB) :
     blockToGctInternEmCand(data, id, nSamples);
     break;
   default:
@@ -124,6 +148,14 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
   else if (id==0x89) { 
     first = 0;
     last = 3;
+  }
+  else if (id==0xc1) { 
+    first = 13;
+    last = 17;
+  }
+  else if (id==0xc9) { 
+    first = 9;
+    last = 12;
   }
 
   // loop over crates
