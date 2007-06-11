@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.5 2007/04/03 09:08:34 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.1 2007/05/31 13:34:35 aperrott Exp $
 //
 //
 
@@ -140,11 +140,9 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
 
   Handle<std::vector<SimTrack> > simTracks;
-  //  iEvent.getByLabel("Famos",simTracks);
-  iEvent.getByType(simTracks);
+  iEvent.getByLabel(theSimModuleLabel_,simTracks);
   Handle<std::vector<SimVertex> > simVertices;
-  //  iEvent.getByLabel("Famos",simVertices);
-  iEvent.getByType(simVertices);
+  iEvent.getByLabel(theSimModuleLabel_,simVertices);
   mySimEvent->fill( *simTracks, *simVertices );
 
   int ntrks = 0;
@@ -156,7 +154,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<FSimTrack> trackOriginalMuons;  
 
   if (doL3_ || doGL_) {
-    iEvent.getByType(theTracks);
+    iEvent.getByLabel(theTrkModuleLabel_,theTracks);
     ntrks =  theTracks->size();
     //Get RecHits from the event
     iEvent.getByType(theGSRecHits);
@@ -210,7 +208,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 // Loop over generated muons and reconstruct L1, L3 and Global muons
 //
   
-  int nMu = 0 , nL1 = 0  , nL3 = 0 , nGL = 0;
+  int nMu = 0;
   mySimpleL1MuonCands.clear();
   mySimpleL3MuonCands.clear();
   mySimpleGLMuonCands.clear();
@@ -253,13 +251,12 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  if (!status2) { std::cout << "Pt smearing of L1 muon went wrong!!" << std::endl; }
 	  if (status2 && mySimpleL1MuonCands.size()<4) {
 	    mySimpleL1MuonCands.push_back(thisL1MuonCand);
-	    if (debug_) std::cout << "===> Muon accepted by L1" << std::endl;
 	  }
 	  else {
 	    hasL1 = false;
 	    delete thisL1MuonCand;
 	  }
-	} else if (debug_) { std::cout << "===> Muon rejected by L1." << std::endl;}
+	}
       }
 
 
@@ -274,7 +271,6 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  if(mySimTrack.trackId() == (*genmu).trackId()) {
 	    hasTK = true;
 	    myTrackerTrack = (*trkmu);
-	    if (debug_) std::cout << "===> Muon has a trackerTrack. " << std::endl;
 	    break;
 	  }
 	  trkmu++;
@@ -282,10 +278,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 //
 // L3 muon
-// (In FAMOS, L3 muons were not necessarily linked to a trackerTrack. It looks more
-//  reasonable, to me, reconstruct them only if a trackerTrack exists. Possibly
-//  efficiencies have to be retuned...)
-
+//
 	if (hasL1 && hasTK) {
 	  hasL3 = myL3EfficiencyHandler->kill(mySimTrack);
 	  if (hasL3) {
@@ -296,9 +289,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	    reco::Muon * thisL3MuonCand = new reco::Muon(myL3Charge,myL3P4,myL3Vertex);
 	    thisL3MuonCand->setTrack(myTrackerTrack);
 	    mySimpleL3MuonCands.push_back((*thisL3MuonCand));
-	    if (debug_) std::cout << "===> Muon accepted by L3" << std::endl;
-	  } else if (debug_) std::cout << "===> Muon rejected by L3." << std::endl;
-	} else if (debug_) std::cout << "===> Muon not evaluated by L3." << std::endl;
+	  }
+	}
 
 //
 // Global Muon
@@ -320,8 +312,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	  reco::Muon * thisGLMuonCand = new reco::Muon(myGLCharge,myGLP4,myGLVertex);
 	  thisGLMuonCand->setTrack(myTrackerTrack);
 	  mySimpleGLMuonCands.push_back((*thisGLMuonCand));
-	  if (debug_) std::cout << "===> Muon accepted by GL" << std::endl;
-	} else if (debug_) std::cout << "===> Muon rejected by GL." << std::endl;
+	}
       }
 
 //
@@ -340,9 +331,9 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   }
 
-  nL1 =  mySimpleL1MuonCands.size();
-  nL3 =  mySimpleL3MuonCands.size();
-  nGL =  mySimpleGLMuonCands.size();
+  int nL1 =  mySimpleL1MuonCands.size();
+  int nL3 =  mySimpleL3MuonCands.size();
+  int nGL =  mySimpleGLMuonCands.size();
   nMuonTot   += nMu;
   nL1MuonTot += nL1;
   nL3MuonTot += nL3;
@@ -503,6 +494,8 @@ void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons) {
   doL1_ = fastMuons.getUntrackedParameter<bool>("ProduceL1Muons");
   doL3_ = fastMuons.getUntrackedParameter<bool>("ProduceL3Muons");
   doGL_ = fastMuons.getUntrackedParameter<bool>("ProduceGlobalMuons");
+  theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
+  theTrkModuleLabel_ = fastMuons.getParameter<std::string>("trackModuleLabel");
   minEta_ = fastMuons.getParameter<double>("MinEta");
   maxEta_ = fastMuons.getParameter<double>("MaxEta");
   if (minEta_ > maxEta_) {

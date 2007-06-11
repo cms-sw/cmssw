@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.1 2007/05/03 14:05:37 aperrott Exp $
+// $Id: ParamL3MuonProducer.h,v 1.1 2007/05/31 13:34:06 aperrott Exp $
 //
 
 
@@ -95,6 +95,7 @@ class ParamL3MuonProducer : public edm::EDProducer {
   // ----------- parameters ---------------------------- 
       bool debug_;
       bool doL1_ , doL3_ , doGL_;
+      std::string theSimModuleLabel_ , theTrkModuleLabel_ ;
       double minEta_ ,  maxEta_;
   // ----------- counters ------------------------------
       int   nMuonTot , nL1MuonTot , nL3MuonTot , nGLMuonTot;
