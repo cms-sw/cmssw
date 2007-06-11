@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.1 2007/06/11 14:04:08 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.2 2007/06/11 14:29:39 arizzi Exp $
 //
 //
 
@@ -157,7 +157,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
              dedxHits.push_back( DeDxHit( normalize(hits[i].detId,hits[i].charge*std::abs(hits[i].angleCosine)), distance(hits[i].detId), hits[i].detId.rawId() ));
           }
      }
-     
+     sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());
      outputCollection->setValue(j,dedxHits);
 
     }
