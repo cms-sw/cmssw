@@ -22,8 +22,7 @@ VpspScanAnalysis::VpspScanAnalysis( const uint32_t& key )
     bottomEdge_(2,sistrip::invalid_),
     topLevel_(2,sistrip::invalid_),
     bottomLevel_(2,sistrip::invalid_),
-    hVpsp0_(0,""), 
-    hVpsp1_(0,"")
+    histos_( 2, Histo(0,"") )
 {;}
 
 // -----------------------------------------------------------------------------
@@ -37,9 +36,70 @@ VpspScanAnalysis::VpspScanAnalysis()
     bottomEdge_(2,sistrip::invalid_),
     topLevel_(2,sistrip::invalid_),
     bottomLevel_(2,sistrip::invalid_),
-    hVpsp0_(0,""), 
-    hVpsp1_(0,"")
+    histos_( 2, Histo(0,"") )
 {;}
+
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::reset() {
+  vpsp_ = VInt(2,sistrip::invalid_);
+  histos_.clear();
+  histos_.resize( 2, Histo(0,"") );
+}
+
+// ----------------------------------------------------------------------------
+// 
+void VpspScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
+
+  // Check number of histograms
+  if ( histos.size() != 2 ) {
+    addErrorCode(sistrip::numberOfHistos_);
+  }
+  
+  // Extract FED key from histo title
+  if ( !histos.empty() ) extractFedKey( histos.front() );
+
+  // Extract histograms
+  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  for ( ; ihis != histos.end(); ihis++ ) {
+    
+    // Check pointer
+    if ( !(*ihis) ) { continue; }
+    
+    // Check name
+    SiStripHistoTitle title( (*ihis)->GetName() );
+    if ( title.runType() != sistrip::VPSP_SCAN ) {
+      addErrorCode(sistrip::unexpectedTask_);
+      continue;
+    }
+    
+    // Extract APV number
+    uint16_t apv = sistrip::invalid_; 
+    if ( title.extraInfo().find(sistrip::apv_) != std::string::npos ) {
+      std::stringstream ss;
+      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::apv_) + sistrip::apv_.size(), 1 );
+      ss >> std::dec >> apv;
+    }
+
+    if ( apv <= 1 ) {
+      histos_[apv].first = *ihis; 
+      histos_[apv].second = (*ihis)->GetName();
+    } else {
+      addErrorCode(sistrip::unexpectedExtraInfo_);
+    }
+    
+  }
+
+}
+
+// -----------------------------------------------------------------------------
+//
+void VpspScanAnalysis::analyse() {
+
+  // Use deprecated method
+  deprecated(); 
+  
+}
 
 // ----------------------------------------------------------------------------
 // 
@@ -51,92 +111,27 @@ void VpspScanAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   if ( iapv == 0 ) { ss << " (first of pair)"; }
   else if ( iapv == 1 ) { ss << " (second of pair)"; } 
   ss << std::endl;
-  ss << " VPSP setting       : " << vpsp_[iapv] << std::endl 
-     << " Signal level [ADC] : " << adcLevel_[iapv] << std::endl
-     << " Fraction [%]       : " << fraction_[iapv] << std::endl
-     << " Top edge [bin]     : " << topEdge_[iapv] << std::endl
-     << " Bottom edge [bin]  : " << bottomEdge_[iapv] << std::endl
-     << " Top level [ADC]    : " << topLevel_[iapv] << std::endl
-     << " Bottom level [ADC] : " << bottomLevel_[iapv] << std::endl;
-}
-
-// -----------------------------------------------------------------------------
-//
-void VpspScanAnalysis::reset() {
-  vpsp_ = VInt(2,sistrip::invalid_);
-  hVpsp0_ = Histo(0,"");
-  hVpsp1_ = Histo(0,"");
-}
-
-// ----------------------------------------------------------------------------
-// 
-void VpspScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
-
-  // Check
-  if ( histos.size() != 2 ) {
-    edm::LogWarning(mlCommissioning_)
-      << "[" << myName() << "::" << __func__ << "]"
-      << " Unexpected number of histograms: " 
-      << histos.size();
+  ss <<  std::fixed << std::setprecision(2)
+     << " VPSP setting          : " << vpsp_[iapv] << std::endl 
+     << " Signal level    [ADC] : " << adcLevel_[iapv] << std::endl
+     << " Fraction          [%] : " << fraction_[iapv] << std::endl
+     << " Top edge        [bin] : " << topEdge_[iapv] << std::endl
+     << " Bottom edge     [bin] : " << bottomEdge_[iapv] << std::endl
+     << " Top level       [ADC] : " << topLevel_[iapv] << std::endl
+     << " Bottom level    [ADC] : " << bottomLevel_[iapv] << std::endl
+     << std::boolalpha 
+     << " isValid               : " << isValid()  << std::endl
+     << std::noboolalpha
+     << " Error codes (found "  
+     << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
+     << ")  : ";
+  if ( getErrorCodes().empty() ) { ss << "(none)"; }
+  else { 
+    VString::const_iterator istr = getErrorCodes().begin();
+    VString::const_iterator jstr = getErrorCodes().end();
+    for ( ; istr != jstr; ++istr ) { ss << *istr << " "; }
   }
-  
-  // Extract FED key from histo title
-  if ( !histos.empty() ) extractFedKey( histos.front() );
-
-  // Extract
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
-  for ( ; ihis != histos.end(); ihis++ ) {
-    
-    // Check pointer
-    if ( !(*ihis) ) {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " NULL pointer to histogram!";
-      continue;
-    }
-    
-    // Check name
-    SiStripHistoTitle title( (*ihis)->GetName() );
-    if ( title.runType() != sistrip::VPSP_SCAN ) {
-      edm::LogWarning(mlCommissioning_)
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected commissioning task: "
-	<< SiStripEnumsAndStrings::runType(title.runType());
-      continue;
-    }
-    
-    // Extract APV number
-    uint16_t apv = sistrip::invalid_; 
-    if ( title.extraInfo().find(sistrip::apv_) != std::string::npos ) {
-      std::stringstream ss;
-      ss << title.extraInfo().substr( title.extraInfo().find(sistrip::apv_) + sistrip::apv_.size(), 1 );
-      ss >> std::dec >> apv;
-    }
-    
-    // Store vpsp scan histos
-    if ( apv == 0 ) { 
-      hVpsp0_.first = *ihis; 
-      hVpsp0_.second = (*ihis)->GetName();
-    } else if ( apv == 1 ) { 
-      hVpsp1_.first = *ihis; 
-      hVpsp1_.second = (*ihis)->GetName();
-    } else {
-      edm::LogWarning(mlCommissioning_) 
-	<< "[" << myName() << "::" << __func__ << "]"
-	<< " Unexpected APV number! (" << apv << ")";
-    }
-    
-  }
-
-}
-
-// -----------------------------------------------------------------------------
-//
-void VpspScanAnalysis::analyse() {
-
-  //@@ use matt's method...
-  deprecated(); 
-  
+  ss << std::endl;
 }
 
 // -----------------------------------------------------------------------------
@@ -148,12 +143,8 @@ void VpspScanAnalysis::deprecated() {
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
     
     histos.clear();
-    if ( iapv == 0 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp0_.first) ) );
-    } else if ( iapv == 1 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(hVpsp1_.first) ) );
-    } 
-
+    histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[iapv].first) ) );
+    
     if ( !histos[0] ) {
       edm::LogWarning(mlCommissioning_)
 	<< "[" << myName() << "::" << __func__ << "]"
@@ -194,7 +185,7 @@ void VpspScanAnalysis::deprecated() {
       
       monitorables.push_back(vpsp);
       monitorables.push_back(static_cast<uint16_t>(opt));
-      monitorables.push_back(65535);
+      monitorables.push_back(sistrip::invalid_);
       monitorables.push_back(first);
       monitorables.push_back(last);
       monitorables.push_back(static_cast<uint16_t>(top));

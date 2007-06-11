@@ -36,7 +36,7 @@ OptoScanAnalysis::OptoScanAnalysis( const uint32_t& key )
     liftOff_(4,sistrip::invalid_), 
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
-    opto_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ OptoScanAnalysis::OptoScanAnalysis()
     liftOff_(4,sistrip::invalid_), 
     threshold_(4,sistrip::invalid_), 
     tickHeight_(4,sistrip::invalid_),
-    opto_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
+    histos_( 4, std::vector<Histo>( 2, Histo(0,"") ) )
 {;}
 
 // ----------------------------------------------------------------------------
@@ -65,15 +65,15 @@ void OptoScanAnalysis::reset() {
   liftOff_    = VFloat(4,sistrip::invalid_); 
   threshold_  = VFloat(4,sistrip::invalid_); 
   tickHeight_ = VFloat(4,sistrip::invalid_);
-  opto_.clear();
-  opto_.resize( 4, std::vector<Histo>( 2, Histo(0,"") ) );
+  histos_.clear();
+  histos_.resize( 4, std::vector<Histo>( 2, Histo(0,"") ) );
 }
   
 // ----------------------------------------------------------------------------
 // 
 void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) { 
 
-  // Check
+  // Check number of histograms
   if ( histos.size() != 8 ) {
     addErrorCode(sistrip::numberOfHistos_);
   }
@@ -110,8 +110,8 @@ void OptoScanAnalysis::extract( const std::vector<TH1*>& histos ) {
     }
 
     if ( gain <= 3 && digital <= 1 ) {
-      opto_[gain][digital].first = *ihis; 
-      opto_[gain][digital].second = (*ihis)->GetName();
+      histos_[gain][digital].first = *ihis; 
+      histos_[gain][digital].second = (*ihis)->GetName();
     } else {
       addErrorCode(sistrip::unexpectedExtraInfo_);
     }
@@ -134,8 +134,8 @@ void OptoScanAnalysis::analyse() {
   for ( uint16_t igain = 0; igain < 4; igain++ ) {
     
     // Select histos appropriate for gain setting
-    TH1* base_his = opto_[igain][0].first; 
-    TH1* peak_his = opto_[igain][1].first;
+    TH1* base_his = histos_[igain][0].first; 
+    TH1* peak_his = histos_[igain][1].first;
 
     if ( !base_his ) {
       addErrorCode(sistrip::nullPtr_);
@@ -356,7 +356,7 @@ void OptoScanAnalysis::analyse() {
 // 
 CommissioningAnalysis::Histo OptoScanAnalysis::histo( const uint16_t& gain, 
 						      const uint16_t& digital_level ) const {
-  if ( gain <= 3 && digital_level <= 1 ) { return opto_[gain][digital_level]; }
+  if ( gain <= 3 && digital_level <= 1 ) { return histos_[gain][digital_level]; }
   else { return Histo(0,""); }
 }
 
@@ -376,7 +376,8 @@ void OptoScanAnalysis::print( std::stringstream& ss, uint32_t gain ) {
     ss << " Warning: invalid gain setting!" << std::endl;
     ss << " (Monitorables below for gain setting " << gain << ")" << std::endl;
   }
-  ss << " Optimum LLD gain setting : " << gain_ << std::endl
+  ss <<  std::fixed << std::setprecision(2)
+     << " Optimum LLD gain setting : " << gain_ << std::endl
      << " LLD bias setting         : " << bias_[gain] << std::endl
      << " Measured gain      [V/V] : " << measGain_[gain] << std::endl
      << " Zero light level   [ADC] : " << zeroLight_[gain] << std::endl
@@ -422,17 +423,17 @@ void OptoScanAnalysis::deprecated() {
 
     histos.clear();
     if ( igain == 0 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[0][0].first) ) );
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[0][1].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[0][0].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[0][1].first) ) );
     } else if ( igain == 1 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[1][0].first) ) );
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[1][1].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[1][0].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[1][1].first) ) );
     } else if ( igain == 2 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[2][0].first) ) );
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[2][1].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[2][0].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[2][1].first) ) );
     } else if ( igain == 3 ) {
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[3][0].first) ) );
-      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(opto_[3][1].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[3][0].first) ) );
+      histos.push_back( const_cast<const TProfile*>( dynamic_cast<TProfile*>(histos_[3][1].first) ) );
     } 
     
     if ( !histos[0] ) {

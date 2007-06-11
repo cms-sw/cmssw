@@ -112,7 +112,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   static const float fedAdcGain_;
   
   /** Pointers and titles for histograms. */
-  std::vector< std::vector<Histo> > opto_;
+  std::vector< std::vector<Histo> > histos_;
   
  private:
 

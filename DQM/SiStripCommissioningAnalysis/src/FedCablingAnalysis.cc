@@ -138,7 +138,8 @@ bool FedCablingAnalysis::isValid() {
 // 
 void FedCablingAnalysis::print( std::stringstream& ss, uint32_t not_used ) { 
   header( ss );
-  ss << " Connected FED id               : " << fedId_ << std::endl 
+  ss <<  std::fixed << std::setprecision(2)
+     << " Connected FED id               : " << fedId_ << std::endl 
      << " Connected FED channel          : " << fedCh_ << std::endl
      << " Signal level             [ADC] : " << adcLevel_ << std::endl;
   ss << " nCandidates                    : " << candidates_.size() << std::endl

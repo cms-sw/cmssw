@@ -313,7 +313,8 @@ void ApvTimingAnalysis::print( std::stringstream& ss, uint32_t not_used ) {
        delay_ <= sistrip::maximum_ ) { adjust = time_ + delay_; }
   float sampling = sistrip::invalid_;
   if ( refTime_ <= sistrip::maximum_ ) { sampling = refTime_ + optimumSamplingPoint_; }
-  ss << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
+  ss <<  std::fixed << std::setprecision(2)
+     << " Time of tick mark rising edge        [ns] : " << time_ << std::endl 
     //<< " Error on time of rising edge         [ns] : " << error_ << std::endl
      << " Sampling point of last tick mark     [ns] : " << sampling << std::endl 
      << " Delay required to synchronise        [ns] : " << delay_ << std::endl 
