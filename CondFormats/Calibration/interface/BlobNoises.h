@@ -1,8 +1,8 @@
 #ifndef BLOBNOISES_H
 #define BLOBNOISES_H
 #include<vector>
-#include<boost/cstdint.hpp>
-#include <iostream>
+//#include<boost/cstdint.hpp>
+//#include <iostream>
 class BlobNoises {
 public:
   BlobNoises();
