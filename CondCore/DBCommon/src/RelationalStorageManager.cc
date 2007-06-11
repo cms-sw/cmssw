@@ -1,8 +1,9 @@
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBCommon/interface/DBSession.h"
+#include <string>
 #include "ServiceLoader.h"
-#include "SealKernel/ComponentLoader.h"
+//#include "SealKernel/ComponentLoader.h"
 #include "SealKernel/Component.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"

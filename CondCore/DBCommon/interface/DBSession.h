@@ -1,6 +1,5 @@
 #ifndef COND_DBCommon_DBSession_h
 #define COND_DBCommon_DBSession_h
-#include <string>
 namespace cond{
   class ServiceLoader;
   class ConnectionConfiguration;

@@ -1,7 +1,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
 #include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/Exception.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "PersistencySvc/DatabaseConnectionPolicy.h"
 #include "PersistencySvc/ISession.h"
@@ -15,7 +15,7 @@
 #include "DataSvc/IDataSvc.h"
 #include "DataSvc/RefBase.h"
 #include "DataSvc/AnyPtr.h"
-#include "POOLCore/Exception.h"
+//#include "POOLCore/Exception.h"
 
 cond::PoolStorageManager::PoolStorageManager(const std::string& con,
 					     const std::string& catalog): m_catalogstr(catalog),m_con(con),m_cat(new pool::IFileCatalog),m_svc( pool::DataSvcFactory::instance(m_cat)),m_db(0),m_started(false),m_sessionHandle(new cond::DBSession(true)),m_sessionShared(false){  

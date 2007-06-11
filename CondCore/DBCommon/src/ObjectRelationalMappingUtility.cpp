@@ -1,8 +1,8 @@
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "ObjectRelationalAccess/ObjectRelationalMappingUtilities.h"
-#include "ObjectRelationalAccess/ObjectRelationalException.h"
-#include "RelationalAccess/ISessionProxy.h"
+//#include "ObjectRelationalAccess/ObjectRelationalException.h"
+//#include "RelationalAccess/ISessionProxy.h"
 cond::ObjectRelationalMappingUtility::ObjectRelationalMappingUtility( cond::RelationalStorageManager& coraldb ){
   m_mappingutil=new pool::ObjectRelationalMappingUtilities( &(coraldb.sessionProxy() ));
 }

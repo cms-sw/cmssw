@@ -1,6 +1,7 @@
 #include "CondCore/DBCommon/interface/DBSession.h"
-#include "CondCore/DBCommon/interface/ConnectMode.h"
-#include "CondCore/DBCommon/interface/PoolStorageManager.h"
+#include <string> 
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
+//#include "CondCore/DBCommon/interface/PoolStorageManager.h"
 #include "CondCore/DBCommon/interface/RelationalStorageManager.h"
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
@@ -8,7 +9,7 @@
 #include "ServiceLoader.h"
 #include "SealKernel/Property.h"
 #include "SealKernel/PropertyManager.h"
-#include "RelationalAccess/IAuthenticationService.h"
+//#include "RelationalAccess/IAuthenticationService.h"
 #include <boost/filesystem/operations.hpp>
 
 cond::DBSession::DBSession():m_isActive(false),m_loader(new cond::ServiceLoader),m_connectConfig(new cond::ConnectionConfiguration),m_sessionConfig(new cond::SessionConfiguration),m_usePoolContext(true){ 

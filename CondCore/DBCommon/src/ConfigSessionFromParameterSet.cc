@@ -3,7 +3,7 @@
 #include "CondCore/DBCommon/interface/SessionConfiguration.h"
 #include "CondCore/DBCommon/interface/ConnectionConfiguration.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "boost/filesystem/operations.hpp"
+//#include "boost/filesystem/operations.hpp"
 //#include <iostream>
 cond::ConfigSessionFromParameterSet::ConfigSessionFromParameterSet(
 		       cond::DBSession& session,

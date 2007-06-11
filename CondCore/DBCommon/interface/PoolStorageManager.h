@@ -1,6 +1,6 @@
 #ifndef COND_DBCommon_PoolStorageManager_h
 #define COND_DBCommon_PoolStorageManager_h
-#include "CondCore/DBCommon/interface/ConnectMode.h"
+//#include "CondCore/DBCommon/interface/ConnectMode.h"
 #include <string>
 #include <vector>
 namespace pool{

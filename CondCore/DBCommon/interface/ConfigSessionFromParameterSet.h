@@ -1,6 +1,5 @@
 #ifndef DBCommon_ConfigSessionFromParameterSet_h
 #define DBCommon_ConfigSessionFromParameterSet_h
-#include <string>
 namespace edm{
   class ParameterSet;
 }
