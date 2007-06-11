@@ -34,13 +34,10 @@ using namespace reco;
 HLTMuonTurnOnAnalyzer::HLTMuonTurnOnAnalyzer(const ParameterSet& pset)
 {
   theGenLabel = pset.getUntrackedParameter<InputTag>("GenLabel");
+  useMuonFromGenerator = pset.getUntrackedParameter<bool>("UseMuonFromGenerator");
   theL1CollectionLabel = pset.getUntrackedParameter<InputTag>("L1CollectionLabel");
   theHLTCollectionLabels = pset.getUntrackedParameter<std::vector<InputTag> >("HLTCollectionLabels");
-  theL1ReferenceThreshold = pset.getUntrackedParameter<double>("L1ReferenceThreshold");
-  theHLTReferenceThresholds = pset.getUntrackedParameter<std::vector<double> >("HLTReferenceThresholds");
-  theNSigmas = pset.getUntrackedParameter<std::vector<double> >("NSigmas90");
-
-  theNumberOfObjects = pset.getUntrackedParameter<unsigned int>("NumberOfObjects");
+  theReferenceThreshold = pset.getUntrackedParameter<double>("ReferenceThreshold");
 
   thePtMin = pset.getUntrackedParameter<double>("PtMin");
   thePtMax = pset.getUntrackedParameter<double>("PtMax");
@@ -119,27 +116,6 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   if ( weights.size() > 0 )  this_event_weight=weights[0];
   theNumberOfEvents += this_event_weight;
 
-  // Get the muon with maximum pt at generator level
-  bool genmuon_found = false;
-  double ptgen = -1;
-  HepMC::GenEvent::particle_const_iterator part;
-  for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
-      int id1 = (*part)->pdg_id();
-      if (id1!=13 && id1!=-13) continue;
-      float pt1 = (*part)->momentum().perp();
-      if (pt1>ptgen) {
-            genmuon_found = true;
-            ptgen = pt1;
-      }
-  }
-
-  if (!genmuon_found) {
-      LogInfo("HLTMuonTurnOnAnalyzer") << " NO generated muon found!!!";
-      LogInfo("HLTMuonTurnOnAnalyzer") << " Skipping event";
-      return;
-  }
-
-
   // Get the L1 collection
   Handle<HLTFilterObjectWithRefs> l1cands;
   event.getByLabel(theL1CollectionLabel, l1cands);
@@ -147,11 +123,47 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
   // Get the HLT collections
   std::vector<Handle<HLTFilterObjectWithRefs> > hltcands;
   hltcands.reserve(theHLTCollectionLabels.size());
+
   unsigned int modules_in_this_event = 0;
   for (unsigned int i=0; i<theHLTCollectionLabels.size(); i++) {
       event.getByLabel(theHLTCollectionLabels[i], hltcands[i]);
       modules_in_this_event++;
   }
+
+  // Get the muon with maximum pt at generator level or reconstruction, depending on the choice
+  bool refmuon_found = false;
+  double ptuse = -1;
+
+  if (useMuonFromGenerator) {
+      HepMC::GenEvent::particle_const_iterator part;
+      for (part = evt->particles_begin(); part != evt->particles_end(); ++part ) {
+            int id1 = (*part)->pdg_id();
+            if (id1!=13 && id1!=-13) continue;
+            float pt1 = (*part)->momentum().perp();
+            if (pt1>ptuse) {
+                  refmuon_found = true;
+                  ptuse = pt1;
+            }
+      }
+  } else {
+      unsigned int i=modules_in_this_event-1;
+      for (unsigned int k=0; k<hltcands[i]->size(); k++) {
+            RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
+            TrackRef tk = candref->get<TrackRef>();
+            double pt = tk->pt();
+            if (pt>ptuse) {
+                  refmuon_found = true;
+                  ptuse = pt;
+            }
+      }
+  }
+
+  if (!refmuon_found) {
+      LogInfo("HLTMuonTurnOnAnalyzer") << " NO reference muon found!!!";
+      LogInfo("HLTMuonTurnOnAnalyzer") << " Skipping event";
+      return;
+  }
+
 
   // Fix L1 thresholds to obtain the efficiecy plot
   unsigned int nL1FoundRef = 0;
@@ -162,28 +174,25 @@ void HLTMuonTurnOnAnalyzer::analyze(const Event & event, const EventSetup& event
       // Their meaning: true_pt > ptLUT more than 90% pof the times
       double ptLUT = candref->pt();
       // Add "epsilon" to avoid rounding errors when ptLUT==L1Threshold
-      if (ptLUT+epsilon>theL1ReferenceThreshold) nL1FoundRef++;
+      if (ptLUT+epsilon>theReferenceThreshold) nL1FoundRef++;
   }
-  hL1nor->Fill(ptgen,this_event_weight);
-  if (nL1FoundRef>=theNumberOfObjects) hL1eff->Fill(ptgen,this_event_weight);
-  //if (nL1FoundRef<theNumberOfObjects) return;
+  hL1nor->Fill(ptuse,this_event_weight);
+  if (nL1FoundRef>0) hL1eff->Fill(ptuse,this_event_weight);
 
   // HLT filling
-  for (unsigned int i=0; i<modules_in_this_event; i++) {
-      double ptcut = theHLTReferenceThresholds[i];
+  unsigned int last_module = modules_in_this_event - 1;
+  if ((!useMuonFromGenerator) && last_module>0) last_module--;
+  for (unsigned int i=0; i<=last_module; i++) {
+      double ptcut = theReferenceThreshold;
       unsigned nFound = 0;
       for (unsigned int k=0; k<hltcands[i]->size(); k++) {
             RefToBase<Candidate> candref = hltcands[i]->getParticleRef(k);
             TrackRef tk = candref->get<TrackRef>();
             double pt = tk->pt();
-            double err0 = tk->error(0);
-            double abspar0 = fabs(tk->parameter(0));
-            // convert to 90% efficiency threshold
-            if (abspar0>0) pt += theNSigmas[i]*err0/abspar0*pt;
             if (pt>ptcut) nFound++;
       }
-      hHLTnor[i]->Fill(ptgen,this_event_weight);
-      if (nFound>=theNumberOfObjects) hHLTeff[i]->Fill(ptgen,this_event_weight);
+      hHLTnor[i]->Fill(ptuse,this_event_weight);
+      if (nFound>0) hHLTeff[i]->Fill(ptuse,this_event_weight);
   }
 
 }

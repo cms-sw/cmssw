@@ -33,12 +33,10 @@ public:
 private:
   // Input from cfg file
   edm::InputTag theGenLabel;
+  bool useMuonFromGenerator;
   edm::InputTag theL1CollectionLabel;
   std::vector<edm::InputTag> theHLTCollectionLabels;
-  double theL1ReferenceThreshold;
-  std::vector<double> theHLTReferenceThresholds;
-  std::vector<double> theNSigmas;
-  unsigned int theNumberOfObjects;
+  double theReferenceThreshold;
   double thePtMin;
   double thePtMax;
   unsigned int theNbins;
