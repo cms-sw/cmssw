@@ -1,9 +1,9 @@
 #ifndef CSVFieldMap_h
 #define CSVFieldMap_h
 #include <vector>
-#include <map>
+//#include <map>
 #include <string>
-#include <typeinfo>
+//#include <typeinfo>
 class CSVFieldMap{
  public:
   CSVFieldMap(){}
