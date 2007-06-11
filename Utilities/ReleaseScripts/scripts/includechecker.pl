@@ -110,6 +110,7 @@ sub check_includes ()
   my %pincs=();
   for(my $i=0; $i<$total_inc; $i++)
   {
+    my $inc_deperr=0;
     my $inc_file=$cache->{includes}[$i];
     my $inc_line=$cache->{includes_line}[$i];
     my $b="";
@@ -132,7 +133,7 @@ sub check_includes ()
     else{$b=&find_file ($inc_file);}
     
     if((exists $config_cache->{FILES}{$inc_file}) && ($config_cache->{FILES}{$inc_file}{DONE}) && (exists $config_cache->{FILES}{$inc_file}{ERROR}))
-    {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$deperror++;next;}}
+    {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$inc_deperr=1;}}
 
     my $inc_skip = &is_skipped($inc_file);
     if(!$inc_skip && $includeall && (!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}))
@@ -171,7 +172,7 @@ sub check_includes ()
       }
       &check_file($inc_file);
       if(exists $config_cache->{FILES}{$inc_file}{ERROR})
-      {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$deperror++;next;}}
+      {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$inc_deperr=1;}}
       
       my $num=$cache->{includes_line_number}[$i];
       my $cur_total = scalar(@{$cache->{includes}});
@@ -244,7 +245,7 @@ sub check_includes ()
   print "  Additional Includes    : ".$inc_added."\n\n";
   
   $config_cache->{FILES}{$origfile}{ERROR}=$deperror;
-  if($skip || $deperror)
+  if($skip)
   {
     if($detail)
     {
@@ -263,7 +264,7 @@ sub check_includes ()
   my $xflags="-I-";  
   #my $xflags="";
   $oflags=~s/\B$xflags\B//;
-  my $flags="-shared -fsyntax-only -I $xflags -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc}  -I${orig_dir} $oflags";
+  my $flags="-shared -fsyntax-only -I -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $xflags -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir}  $oflags";
   my $compiler=$config_cache->{COMPILER};
   my $error=0;
   my @origwarns=`$compiler $flags -o ${srcfile}.o $srcfile 2>&1`;
@@ -340,11 +341,11 @@ sub check_includes ()
   }
   if($detail && $origwarns_count>0)
   {
-    print "-----------------------------------\n";
+    print "---------------- $origfile: ORIGINAL WARNINGS -------------------\n";
     print "ORIGINAL WARNINGS\n";
     foreach my $w (@origwarns)
     {print "$w\n";}
-    print "-----------------------------------\n";
+    print "---------------- $origfile: ORIGINAL WARNINGS : DONE ------------\n";
   }
   
   my $num = -1;
@@ -387,13 +388,21 @@ sub check_includes ()
     my $loop=2;
     if($unique){$loop=1;};
     my @warns=();
+    $flags="-shared -fsyntax-only -I -I${tmp_dir}/${dummy_inc} -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $xflags -I${tmp_dir}/${dummy_inc} -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $oflags";
     for(my $x=0;$x<$loop;$x++)
     {
       @warns=();
-      @warns=`$compiler -I $xflags -I${tmp_dir}/${dummy_inc} $flags -o ${srcfile}.o $srcfile 2>&1`;
+      @warns=`$compiler $flags -o ${srcfile}.o $srcfile 2>&1`;
       my $ret_val=$?;
       foreach my $w (@warns)
       {chomp $w;$w=~s/$srcfile/${base_dir}\/${origfile}/;}
+      my $nwcount=scalar(@warns);
+      if($detail && $nwcount)
+      {
+        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (ieration: ",$x+1,") ----------\n";
+        foreach my $w (@warns){print "$w\n";}
+        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (ieration: ",$x+1,") DONE -----\n";
+      }
       if ($ret_val != 0)
       {
 	if($x==0){$inc_req=1;}
@@ -470,12 +479,10 @@ sub check_includes ()
       
       if(($detail || $extra) && scalar(@warns) > 0)
       {
-	print "-----------------------------------\n";
-	print "Difference in warnings/errors after removing \"$inc_file\"\n";
-	print "NEW WARNINGS\n";
+	print "------------ $origfile : DIFF in WARN/ERRORS ($inc_file) -------------\n";
 	foreach my $w (@warns)
 	{print "$w\n";}
-        print "-----------------------------------\n";
+	print "------------ $origfile : DIFF in WARN/ERRORS ($inc_file) DONE --------\n";
       }
     }
     system("rm -f ${srcfile}.o");
@@ -743,7 +750,7 @@ sub init ()
 	  delete $config_cache->{FILES}{$f}{ERROR};
 	  if($detail){print "REDO due to errors in previous run: $f\n";}
 	}
-	elsif (exists $config_cache->{FILES}{$f}{FINAL_DONE}){$config_cache->{FILES}{$f}{DONE}=1;print "ALREADY DONE:$f\n";}
+	elsif (exists $config_cache->{FILES}{$f}{FINAL_DONE}){$config_cache->{FILES}{$f}{DONE}=1;}
 	else{delete $config_cache->{FILES}{$f}{DONE};}
         foreach my $regexp (keys %{$config_cache->{SKIP_FILES}})
         {

@@ -105,6 +105,7 @@ print "DATA:COMPILER_FLAGS=$flags\n";
 my $tmpl_compile_support=&checkTemplateCompilationSupport ();
 my $def_compile_support=&checkDefineCompilationSupport ();
 if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ("${release}/${src}");}
+print "DATA:SKIP_FILES=.*?\/classes.h\n";
 &final_exit(0);
 
 sub final_exit ()
@@ -313,6 +314,7 @@ sub safename_based_on_subsystem_package ()
 
 sub checkTemplateCompilationSupport ()
 {
+  return 0;
   my $dir=&SCRAMGenUtils::getTmpDir();
   system("echo \"template <class  T>class A{A(T t){std::cout <<std::endl;}};\" > ${dir}/test.cc");
   my $data=`cd ${dir}; $cxx -c -fsyntax-only test.cc 2>&1`;
