@@ -2,7 +2,6 @@
 #define CondCore_IOVService_IOVEditor_h
 #include <string>
 #include <vector>
-#include <map>
 #include "CondCore/DBCommon/interface/Time.h"
 namespace cond{
   class IOVEditor{
