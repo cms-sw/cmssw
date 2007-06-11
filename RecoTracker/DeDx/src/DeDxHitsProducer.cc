@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id$
+// $Id: DeDxHitsProducer.cc,v 1.1 2007/06/11 14:04:08 arizzi Exp $
 //
 //
 
@@ -154,7 +154,7 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         vector<DeDxTools::RawHits> hits = trajectoryRawHits(*trajectory);  
         for(size_t i=0; i < hits.size(); i++)
           {
-             dedxHits.push_back( DeDxHit( normalize(hits[i].detId,hits[i].charge/std::abs(hits[i].angleCosine)), distance(hits[i].detId), hits[i].detId.rawId() ));
+             dedxHits.push_back( DeDxHit( normalize(hits[i].detId,hits[i].charge*std::abs(hits[i].angleCosine)), distance(hits[i].detId), hits[i].detId.rawId() ));
           }
      }
      
@@ -197,7 +197,7 @@ double DeDxHitsProducer::normalization(DetId id)
   if (!isPixel && ! isStrip) {
     cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
   }else{
-    detNormalization *= it->surface().bounds().thickness();
+    detNormalization /= it->surface().bounds().thickness();
   }
   
 //compute other normalization
