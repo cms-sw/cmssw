@@ -18,6 +18,7 @@
 #include "CondCore/DBOutputService/interface/Exception.h"
 #include "CondCore/DBCommon/interface/ObjectRelationalMappingUtility.h"
 #include "CondCore/DBCommon/interface/DBCatalog.h"
+#include "CondCore/DBCommon/interface/DBSession.h"
 //POOL include
 #include "FileCatalog/IFileCatalog.h"
 #include "serviceCallbackToken.h"
