@@ -1,10 +1,3 @@
-
-       =================================================
-
-       Message Log File written by MessageLogger service 
-       
-       =================================================
-       
 %MSG-i expect_non_supercede_common_specific:  UnitTestClient_E:sendSomeMessages 
        Run: 1 Event: 1
 The following outputs are expected: 

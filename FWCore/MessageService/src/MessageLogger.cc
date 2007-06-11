@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.17 2007/03/31 00:16:44 fischler Exp $
+// $Id: MessageLogger.cc,v 1.18 2007/04/18 18:59:37 wmtan Exp $
 //
 // Change log
 //
@@ -27,6 +27,9 @@
 // 4 mf   6/27/06	Between events the run/event is previous one
 //
 // 5  mf  3/30/07	Support for --jobreport option
+//
+// 6 mf   6/6/07	Remove the catches for forgiveness of tracked
+//			parameters 
 
 
 // system include files
@@ -73,45 +76,21 @@ MessageLogger( ParameterSet const & iPS
   
   // grab list of debug-enabled modules
   vString  debugModules;
-  try {
-    debugModules = 
+  debugModules = 
     	iPS.getUntrackedParameter<vString>("debugModules", empty_vString);
-  } catch (...) {
-// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
-    debugModules = 
-    	iPS.getParameter<vString>("debugModules");
-  }
 
   // grab lists of suppressLEVEL modules
   vString suppressDebug;
-  try {
-    suppressDebug = 
+  suppressDebug = 
     	iPS.getUntrackedParameter<vString>("suppressDebug", empty_vString);
-  } catch (...) {
-// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
-    suppressDebug = 
-    	iPS.getParameter<vString>("suppressDebug");
-  }
 
   vString suppressInfo;
-  try {
-    suppressInfo = 
+  suppressInfo = 
     	iPS.getUntrackedParameter<vString>("suppressInfo", empty_vString);
-  } catch (...) {
-// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
-    suppressInfo = 
-    	iPS.getParameter<vString>("suppressInfo");
-  }
 
   vString suppressWarning;
-  try {
-    suppressWarning = 
+  suppressWarning = 
     	iPS.getUntrackedParameter<vString>("suppressWarning", empty_vString);
-  } catch (...) {
-// TODO - Bitch and moan instead of doing what the user might want. 19 Jul. 2006
-    suppressWarning = 
-    	iPS.getParameter<vString>("suppressWarning");
-  }
 
   // Use these lists to prepare a map to use in tracking suppression 
 
