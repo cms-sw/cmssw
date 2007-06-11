@@ -9,7 +9,7 @@
 //
 // Original Author: Shan-Huei Chuang
 //         Created: Fri Mar 23 18:41:42 CET 2007
-// $Id: SiPixelMonitorTrackResiduals.cc,v 1.2 2007/05/17 15:01:03 schuang Exp $
+// $Id: SiPixelMonitorTrackResiduals.cc,v 1.3 2007/05/24 06:11:46 schuang Exp $
 
 
 #include <boost/cstdint.hpp>
@@ -83,10 +83,10 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
   SiPixelFolderOrganizer theSiPixelFolder;
   std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin(); struct_iter!=thePixelStructure.end(); struct_iter++) {
-    if (theSiPixelFolder.setModuleFolder((*struct_iter).first)) (*struct_iter).second->book();
+    if (theSiPixelFolder.setModuleFolder((*struct_iter).first)) (*struct_iter).second->book(conf_);
     else throw cms::Exception("LogicError") << " *** creation of SiPixelMonitorTrackResiduals folder failed"; 
   }
-  dbe_->setCurrentFolder("Tracker"); 
+  /* dbe_->setCurrentFolder("Tracker"); 
   char hisID[80]; 
   for (int s=0; s<3; s++) {
     sprintf(hisID,"residual_x_subdet_%i",s); 
@@ -94,7 +94,7 @@ void SiPixelMonitorTrackResiduals::beginJob(edm::EventSetup const& iSetup) {
     
     sprintf(hisID,"residual_y_subdet_%i",s); 
     meSubpixelResidualY[s] = dbe_->book1D(hisID,"Hit-to-Track Residual in Y",500,-5.,5.);  
-  }
+  } */
 }
 
 
@@ -177,7 +177,7 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
 	    std::map<uint32_t, SiPixelResidualModule*>::iterator struct_iter = thePixelStructure.find(IntRawDetID);
 	    if (struct_iter!=thePixelStructure.end()) (*struct_iter).second->fill(hitResidual);
 	  
-	    if (det->subDetector()==GeomDetEnumerators::PixelEndcap) {
+	    /* if (det->subDetector()==GeomDetEnumerators::PixelEndcap) {
               PXFDetId pxf(hit_detId);
               meSubpixelResidualX[pxf.side()]->Fill(hitResidual.x());
 	      meSubpixelResidualY[pxf.side()]->Fill(hitResidual.y());	  
@@ -185,7 +185,7 @@ void SiPixelMonitorTrackResiduals::analyze(const edm::Event& iEvent, const edm::
 	    else {
               meSubpixelResidualX[0]->Fill(hitResidual.x());
 	      meSubpixelResidualY[0]->Fill(hitResidual.y());	  
-	    }
+	    } */
 	  }
      	}
       }
