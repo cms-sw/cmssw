@@ -17,4 +17,12 @@
       INTEGER    IW_HAD        !  I want hadrons (no/yes = 0/1)
       REAL       EG_MIN        !  minimum energy [GeV]
       REAL       EG_MAX        !  maximum energy [GeV]
-      COMMON /BHGCTRL/ GENMOD,LHC_B1,LHC_B2,IW_MUO,IW_HAD,EG_MIN,EG_MAX
+
+      INTEGER    idx_shift_bx    ! e.g. -2, -1 for previous bunch-crossing
+      REAL       BXNS            ! time between 2 bx's, in ns
+                                                                                                                         
+                                                                                                                         
+      COMMON /BHGCTRL/ GENMOD,LHC_B1,LHC_B2,IW_MUO,IW_HAD,idx_shift_bx,
+     +                 EG_MIN,EG_MAX,BXNS
+
+cc      COMMON /BHGCTRL/ GENMOD,LHC_B1,LHC_B2,IW_MUO,IW_HAD,EG_MIN,EG_MAX
