@@ -414,7 +414,7 @@ void CalorimetryManager::reconstructECAL(const FSimTrack& track) {
 
   if(debug_)
     std::cout << "FASTEnergyReconstructor::reconstructECAL : " 
-	 << " CellID - " <<  detid << std::endl;
+	      << " CellID - " <<  detid.rawId() << std::endl;
 
   if( hit != 2  || emeas > 0.) 
     if(!detid.null()) 
