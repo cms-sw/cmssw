@@ -3,7 +3,7 @@
 //
 // (W.Badgett)
 //
-// $Id$
+// $Id: DQMServiceManager.cc,v 1.1.2.3 2007/05/15 01:22:49 hcheung Exp $
 //
 
 #include "FWCore/Utilities/interface/DebugMacros.h"
@@ -12,6 +12,7 @@
 #include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 #include "IOPool/Streamer/interface/StreamDQMSerializer.h"
 #include "TROOT.h"
+#include "TObjString.h"
 #include "TApplication.h"
 
 using namespace edm;
@@ -131,7 +132,7 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       delete(object);
     }
   }
-
+  
   // Now send the best DQMGroup for this grouping, which may 
   // not be the currently updated one (it may not yet be ready)
   DQMGroupDescriptor * descriptor = 
@@ -140,7 +141,6 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
   {
     // Reserialize the data and give to DQM server
     DQMGroup    * group    = descriptor->group_;
-
     if ( !group->wasServedSinceUpdate() )
     {
       group->setServedSinceUpdate();
@@ -148,19 +148,29 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 
       // Package list of TObjects into a DQMEvent::TObjectTable
       DQMEvent::TObjectTable table;
-      for ( std::map<std::string, TObject *>::iterator i1 = 
-	      group->dqmObjects_.begin(); i1 != group->dqmObjects_.end(); ++i1)
+
+      int subFolderSize = 0;
+      for ( std::map<std::string, DQMFolder *>::iterator i1 = 
+	      group->dqmFolders_.begin(); i1 != group->dqmFolders_.end(); ++i1)
       {
-	std::string objectName = i1->first;
-	TObject *object = i1->second;
-	if ( object != NULL ) 
+	std::string folderName = i1->first;
+	DQMFolder * folder = i1->second;
+	for ( std::map<std::string, TObject *>::iterator i2 = 
+	      folder->dqmObjects_.begin(); i2!=folder->dqmObjects_.end(); ++i2)
 	{
-	  std::string folderName;
-	  int ptr = objectName.rfind('/');
-	  if ( ptr > 0 )
-	  { folderName = objectName.substr(0,ptr);}
-	  std::vector<TObject *> objectVector = table[folderName];
-	  objectVector.push_back(object);
+	  std::string objectName = i2->first;
+	  TObject *object = i2->second;
+	  if ( object != NULL ) 
+	  { 
+	    if ( table.count(folderName) == 0 )
+	    {
+	      std::vector<TObject *> newObjectVector;
+	      table[folderName] = newObjectVector;
+	      subFolderSize += 2*sizeof(uint32) + folderName.length();
+	    }
+	    std::vector<TObject *> objectVector = table[folderName];
+	    objectVector.push_back(object);
+	  }
 	}
       }
 
@@ -168,15 +178,21 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
       serializer.serializeDQMEvent(table,
 				   useCompression_,
 				   compressionLevel_);
-      
       // Add space for header
-      unsigned int srcSize = serializer.currentSpaceUsed() + 50000;
-      unsigned char * buffer = (unsigned char *)malloc(srcSize);
-
+      unsigned int sourceSize = serializer.currentSpaceUsed();
+      unsigned int totalSize  = sourceSize 
+	+ sizeof(DQMEventHeader)
+	+ 12*sizeof(uint32)
+	+ msg.releaseTag().length()
+	+ msg.topFolderName().length()
+	+ subFolderSize;
+      unsigned char * buffer = (unsigned char *)malloc(totalSize);
+      
       edm::Timestamp zeit( ( (unsigned long long)group->getLastUpdate()->GetSec() << 32 ) |
 			   ( group->getLastUpdate()->GetNanoSec()));
 
-      DQMEventMsgBuilder builder((void *)&buffer[0], srcSize,
+      DQMEventMsgBuilder builder((void *)&buffer[0], 
+				 totalSize,
 				 instance->getRunNumber(),
 				 group->getLastEvent(),
 				 zeit,
@@ -184,10 +200,11 @@ void DQMServiceManager::manageDQMEventMsg(DQMEventMsgView& msg)
 				 instance->getInstance(),
 				 msg.releaseTag(),
 				 msg.topFolderName(),
-				 table);
-      builder.setEventLength(srcSize);
-      if ( useCompression_ )
-      { builder.setCompressionFlag(serializer.currentEventSize()); }
+				 table); 
+      unsigned char * source = serializer.bufferPointer();
+      std::copy(source,source+sourceSize, builder.eventAddress());
+      builder.setEventLength(sourceSize);
+      if ( useCompression_ ) { builder.setCompressionFlag(sourceSize); }
       DQMEventMsgView serveMessage(&buffer[0]);
       DQMeventServer_->processDQMEvent(msg);
       

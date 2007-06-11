@@ -8,7 +8,7 @@
      Container class for one snapshot instance of a collection of 
      collated DQM objects
 
-   $Id: DQMInstance.h,v 1.2 2007/05/16 22:53:45 hcheung Exp $
+   $Id: DQMInstance.h,v 1.1.2.3 2007/05/15 01:21:55 hcheung Exp $
 */
 
 #include <string>
@@ -20,18 +20,28 @@
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "PluginManager/PluginManager.h"
+
 #include "TFile.h"
 #include "TTimeStamp.h"
 #include "TObject.h"
 
 namespace stor 
 {
+  class DQMFolder
+  {
+    public:
+      DQMFolder();
+     ~DQMFolder();
+      std::map<std::string, TObject *> dqmObjects_;
+  }; 
+
   class DQMGroup
   {
     public:
       DQMGroup(int readyTime);
      ~DQMGroup();
-      std::map<std::string, TObject *> dqmObjects_;
+      std::map<std::string, DQMFolder *> dqmFolders_;
       int getNUpdates()             { return(nUpdates_);}
       int getReadyTime()            { return(readyTime_);}
       int getLastEvent()            { return(lastEvent_);}

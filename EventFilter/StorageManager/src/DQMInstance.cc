@@ -184,7 +184,6 @@ int DQMInstance::writeFile(std::string filePrefix)
 	    runNumber_, 
 	    lumiSection_, 
 	    instance_);
-    FDEBUG(1) << "Opening file " << fileName << std::endl; 
 
     TFile * file = new TFile(fileName,"RECREATE");
     if (( file != NULL ) && file->IsOpen())
@@ -197,7 +196,6 @@ int DQMInstance::writeFile(std::string filePrefix)
 	      group->dqmFolders_.begin(); i1 != group->dqmFolders_.end(); ++i1)
       {
 	std::string folderName = i1->first;
-	FDEBUG(1) << "Processing folder " << folderName<< std::endl; 
 	TString path(folderName.c_str());
 
 	TObjArray * tokens = path.Tokenize(token);
@@ -207,26 +205,15 @@ int DQMInstance::writeFile(std::string filePrefix)
 	for ( int j=0; j<nTokens; j++)
 	{
 	  TString newDirName = ((TObjString *)tokens->At(j))->String();
-	  FDEBUG(1) << "Token " << j << "=" << newDirName<< std::endl;
 	  oldDir->cd();
-	  if ( oldDir->cd(newDirName.Data()) == kTRUE )
+	  newDir = oldDir->GetDirectory(newDirName.Data(),kFALSE,"cd");
+	  if ( newDir == NULL )
 	  {
-	    FDEBUG(1) << "Found extant dir " << newDirName.Data() 
-		      << std::endl;
-	    newDir = (TDirectory *)oldDir->Get(newDirName.Data());
-	  }
-	  else
-	  {
-	    FDEBUG(1) << "Creating new dir " << newDirName.Data() 
-		      << std::endl;
 	    newDir = oldDir->mkdir(newDirName.Data());
-	    FDEBUG(1) << "Created new dir " << newDirName.Data() 
-		      << std::endl;
 	  }
-	  //delete(oldDir);
 	  oldDir = newDir;
 	}
-	//	delete(tokens);
+	delete(tokens);
       }
 
       for ( std::map<std::string, DQMFolder *>::iterator i1 = 
@@ -243,8 +230,6 @@ int DQMInstance::writeFile(std::string filePrefix)
 	  TObject *object = i2->second;
 	  if ( object != NULL ) 
 	  {
-	  FDEBUG(1) << "Writing object " << objectName << " to folder "
-		    << folderName << std::endl;
 	    file->cd(folderName.c_str());
 	    object->Write();
 	    reply++;
