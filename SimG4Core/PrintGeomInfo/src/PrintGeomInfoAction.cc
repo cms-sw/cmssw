@@ -100,7 +100,7 @@ void PrintGeomInfoAction::update(const BeginOfJob * job)
 		std::cout << leafDepth << spaces << "### VOLUME = " << lvname 
 			  << " Copy No";
 		for (int k=leafDepth-1; k>=0; k--) std::cout << " " << copy[k];
-		std::cout << " Centre at " << tran << " (r = " << tran.perp()
+		std::cout << " Centre at " << tran << " (r = " << tran.Rho()
 			  << ", phi = " << tran.phi()/deg << ")" << std::endl;
 		dodet = fv.next();
 	    }
