@@ -4,33 +4,15 @@
 /** \class LaserOpticalPhysicsList
  *  Define the Optical processes for the Simulation of the Laser Alignment System
  *
- *  $Date: Mon Mar 19 12:04:31 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:59 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 // G4 includes
-#include "globals.hh"
 #include "G4VPhysicsConstructor.hh"
 
-#include "G4ios.hh"
-#include <iomanip>
-
-#include "G4Material.hh"
-#include "G4MaterialTable.hh"
-
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4ParticleTable.hh"
-
 #include "G4ProcessManager.hh"
-#include "G4ProcessVector.hh"
-
-#include "G4Cerenkov.hh"
-#include "G4Scintillation.hh"
-#include "G4OpAbsorption.hh"
-#include "G4OpRayleigh.hh"
-#include "G4OpBoundaryProcess.hh"
 #include "G4OpWLS.hh"
 
 class G4Cerenkov;

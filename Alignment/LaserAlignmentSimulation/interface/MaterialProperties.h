@@ -4,23 +4,12 @@
 /** \class MaterialProperties
  *  Class to define custom material properties
  *
- *  $Date: Mon Mar 19 12:19:25 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:00 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "G4Material.hh"
 #include "G4MaterialPropertiesTable.hh"
-#include "G4MaterialTable.hh"
-#include "G4RegionStore.hh"
-#include "G4Region.hh"
-
-#include "G4LogicalVolumeStore.hh"
-#include "G4LogicalVolume.hh"
-#include "G4PhysicalVolumeStore.hh"
-#include "G4VPhysicalVolume.hh"
 #include "G4SDManager.hh"
 
 class MaterialProperties

@@ -4,21 +4,14 @@
 /** \class LaserBeamsTEC1
  *  Laser Beams in the right Endcap
  *
- *  $Date: Mon Mar 19 12:02:49 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:59 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "CLHEP/Random/DRand48Engine.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 // G4 includes
-#include "globals.hh"                        // Global Constants and typedefs
-#include "G4DataVector.hh"
-#include "G4Event.hh"
-#include "G4OpticalPhoton.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleGun.hh"
 #include "G4ParticleTable.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
 

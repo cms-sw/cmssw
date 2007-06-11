@@ -1,12 +1,13 @@
 /** \file AlignmentAlgorithmBW.cc
  *  Implementation of Bruno Wittmer's alignment algorithm for the Laser Alignment System
  *
- *  $Date: 2007/05/02 09:40:10 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/08 07:59:44 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignment/interface/AlignmentAlgorithmBW.h"
+#include "TMatrixT.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

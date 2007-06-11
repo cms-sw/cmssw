@@ -4,8 +4,8 @@
 /** \class LaserPrimaryGeneratorAction
  *  Primary Generator Action for the Laser Events
  *
- *  $Date: Mon Mar 19 12:05:41 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:59 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
@@ -15,11 +15,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Notification/interface/GenParticleInfo.h"
-
 // G4 includes
-#include "globals.hh"                        // Global Constants and typedefs
-#include "G4DataVector.hh"
 #include "G4Event.hh"
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "Randomize.hh"

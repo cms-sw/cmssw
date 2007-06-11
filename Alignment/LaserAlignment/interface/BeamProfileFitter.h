@@ -4,13 +4,13 @@
 /** \class BeamProfileFitter
  *  Fitting laser profiles from the beams in the Laser Alignment System
  *
- *  $Date: 2007/04/12 14:59:29 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/12 15:10:26 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
 // Framework headers
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/eventSetupGetImplementation.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DetId
@@ -20,17 +20,10 @@
 #include "DataFormats/LaserAlignment/interface/LASBeamProfileFit.h"
 
 // ROOT headers
-#include "TH1.h"
-#include "TVector2.h"
 #include "TVector3.h"
-#include "TMatrix.h"
 #include "TSpectrum.h"
-#include "TVirtualFitter.h"
-#include "TF1.h"
-#include "TMinuit.h"
 
 #include <string>
-#include <iostream>
 
 class BeamProfileFitter {
  public:

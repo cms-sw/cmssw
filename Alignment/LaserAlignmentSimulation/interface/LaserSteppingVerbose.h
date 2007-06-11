@@ -4,13 +4,11 @@
 /** \class LaserSteppingVerbose
  *  Class to manage verbose stepping
  *
- *  $Date: Mon Mar 19 12:12:50 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:59 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 #include "G4SteppingVerbose.hh"
-#include "G4SteppingManager.hh"
-#include "G4UnitsTable.hh"
 
 class LaserSteppingVerbose : public G4SteppingVerbose
 {

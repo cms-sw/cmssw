@@ -6,13 +6,12 @@
  *
  *  The details of this algorithm are given in his <a href="http://darwin.bth.rwth-aachen.de/opus3/volltexte/2002/348/">PhD Thesis</a>
  *
- *  $Date: 2007/04/12 14:20:32 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/02 09:40:09 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
 #include <vector>
-#include "TMatrixT.h"
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
 #include "Alignment/LaserAlignment/interface/LASvector.h"
 #include "Alignment/LaserAlignment/interface/LASvector2D.h"

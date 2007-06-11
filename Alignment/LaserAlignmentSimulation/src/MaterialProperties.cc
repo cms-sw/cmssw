@@ -1,12 +1,13 @@
 /** \file MaterialProperties.cc
  *  
  *
- *  $Date: Mon Mar 19 12:22:01 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:01 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/MaterialProperties.h"
+#include "G4LogicalVolumeStore.hh" 
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

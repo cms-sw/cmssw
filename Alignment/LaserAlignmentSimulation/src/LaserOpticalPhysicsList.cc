@@ -1,12 +1,18 @@
 /** \file LaserOpticalPhysicsList.cc
  *  
  *
- *  $Date: Mon Mar 19 12:21:14 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:01 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "Alignment/LaserAlignmentSimulation/interface/LaserOpticalPhysicsList.h"
+
+#include "G4Cerenkov.hh" 
+#include "G4Scintillation.hh" 
+#include "G4OpAbsorption.hh" 
+#include "G4OpRayleigh.hh" 
+#include "G4OpBoundaryProcess.hh" 
 
 LaserOpticalPhysicsList::LaserOpticalPhysicsList(const G4String& name)
   :  G4VPhysicsConstructor(name),

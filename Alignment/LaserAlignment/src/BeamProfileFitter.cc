@@ -1,7 +1,7 @@
 /** \file BeamProfileFitter.cc
 *
-	*  $Date: 2007/04/05 06:21:22 $
-	*  $Revision: 1.8 $
+	*  $Date: 2007/04/12 14:20:33 $
+	*  $Revision: 1.10 $
 	*  \author Maarten Thomas
 */
 
@@ -27,6 +27,8 @@
 
 // Topology
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
+
+#include "TF1.h"
 
 // function to return an angle in radian between 0 and 2 Pi
 double BeamProfileFitter::angle(double theAngle)

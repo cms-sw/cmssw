@@ -1,8 +1,8 @@
 /** \file LaserBeamsTEC1.cc
  *  
  *
- *  $Date: Mon Mar 19 12:20:55 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:01:01 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -12,6 +12,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandGaussQ.h"
+#include "globals.hh"                        // Global Constants and typedefs
+#include "G4DataVector.hh"
+#include "G4Event.hh"
+#include "G4OpticalPhoton.hh"
+#include "G4ParticleDefinition.hh"
+#include "G4ParticleGun.hh"
 
 LaserBeamsTEC1::LaserBeamsTEC1()
 {

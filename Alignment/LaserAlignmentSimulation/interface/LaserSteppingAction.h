@@ -4,23 +4,14 @@
 /** \class LaserSteppingAction
  *  Class for the Stepping action
  *
- *  $Date: Mon Mar 19 12:11:42 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 12:00:59 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "globals.hh"
-#include "G4ParticleDefinition.hh"
-#include "G4ParticleTypes.hh"
-#include "G4Step.hh"
 #include "G4SteppingManager.hh"
-#include "G4StepPoint.hh"
-#include "G4Track.hh"
-#include "G4TrackStatus.hh"
-#include "G4UserSteppingAction.hh"
-#include "G4VPhysicalVolume.hh"
 
 class LaserSteppingAction : public G4UserSteppingAction
 {

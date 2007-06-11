@@ -4,13 +4,12 @@
 /** \class LASBeamProfileFitCollection
  *  Collection of LASBeamProfileFits
  *
- *  $Date: Mon Mar 19 12:48:24 CET 2007 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/20 16:53:23 $
+ *  $Revision: 1.2 $
  *  \author Maarten Thomas
  */
 
 #include "DataFormats/LaserAlignment/interface/LASBeamProfileFit.h"
-#include <utility>
 #include <vector>
 #include <map>
 

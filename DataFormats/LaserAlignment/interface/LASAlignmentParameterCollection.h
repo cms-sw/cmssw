@@ -4,13 +4,12 @@
 /** \class LASAlignmentParameterCollection
  *  Collection of LASAlignmentParameter sets
  *
- *  $Date: 2007/03/20 16:53:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/04/05 13:19:24 $
+ *  $Revision: 1.1 $
  *  \author Maarten Thomas
  */
 
 #include "DataFormats/LaserAlignment/interface/LASAlignmentParameter.h"
-#include <utility>
 #include <vector>
 #include <map>
 
