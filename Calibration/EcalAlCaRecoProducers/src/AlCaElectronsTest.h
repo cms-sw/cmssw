@@ -86,15 +86,15 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
   m_endcapAlCa (iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection")) ,
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
                       ("HistOutFile",std::string ("AlCaElectronsTest.root"))) ,
-  m_barrelGlobalCrystalsMap ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",170,0,170,360,0,360) ,
+  m_barrelGlobalCrystalsMap ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ,
   m_barrelLocalCrystalsMap ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ,
   m_endcapGlobalCrystalsMap ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ,
   m_endcapLocalCrystalsMap ("m_endcapLocalCrystalsMap","m_endcapLocalCrystalsMap",20,-10,10,20,-10,10) ,
-  m_barrelGlobalCrystalsEnergy ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",170,0,170,360,0,360) ,
+  m_barrelGlobalCrystalsEnergy ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",171,-85,86,360,0,360) ,
   m_barrelLocalCrystalsEnergy ("m_barrelLocalCrystalsEnergy","m_barrelLocalCrystalsEnergy",20,-10,10,20,-10,10) ,
   m_endcapGlobalCrystalsEnergy ("m_endcapGlobalCrystalsEnergy","m_endcapGlobalCrystalsEnergy",100,0,100,100,0,100) ,
   m_endcapLocalCrystalsEnergy ("m_endcapLocalCrystalsEnergy","m_endcapLocalCrystalsEnergy",20,-10,10,20,-10,10) ,
-  m_barrelGlobalCrystalsEnergyMap ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",170,0,170,360,0,360) ,
+  m_barrelGlobalCrystalsEnergyMap ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",171,-85,86,360,0,360) ,
   m_endcapGlobalCrystalsEnergyMap ("m_endcapGlobalCrystalsEnergyMap","m_endcapGlobalCrystalsEnergyMap",100,0,100,100,0,100) 
 {}
 
