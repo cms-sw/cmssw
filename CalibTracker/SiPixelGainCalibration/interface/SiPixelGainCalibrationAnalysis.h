@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id$
+// $Id: SiPixelGainCalibrationAnalysis.h,v 1.1 2007/05/20 18:08:09 fblekman Exp $
 //
 //
 
@@ -25,6 +25,8 @@
 #include <memory>
 
 // user include files
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "PhysicsTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
@@ -42,6 +44,9 @@
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 //
 // class decleration
@@ -73,6 +78,8 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
 	unsigned int fed_channel;
 	unsigned int roc_id;
 	unsigned int dcol_id;
+	int maxrow;
+	int maxcol;
 	unsigned int pix_id;
 	unsigned int adc;
 	unsigned int row;
@@ -89,7 +96,8 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       std::string src_;
       std::string instance_;
       std::string inputconfigfile_;
-      std::string rootoutputfilename_;
+      TF1 *fitfunction;
+      TF1 *fancyfitfunction;
       void fill(const TempPixelContainer & aPixel);
       void init(const TempPixelContainer & aPixel);
       // maximum numbers of columns/rows/rocs/channels
@@ -103,10 +111,19 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
       double chisq_threshold_;
       double maximum_gain_;
       double maximum_ped_;
+
+      unsigned int getROCnumberfromDetIDandRowCol(unsigned int detID, unsigned int row, unsigned int col);
+
       // and the containers
-      bool rocgainused_[40][24];// [channel][roc]
-      PixelROCGainCalib calib_containers_[40][24];// [channel][roc]
+      //  bool rocgainused_[40*24];// [channel][roc]
+      PixelROCGainCalib calib_containers_[40*24];// [channel][roc]
+      // tracking geometry
+      edm::ESHandle<TrackerGeometry> geom_;
       
+      std::map < unsigned int , unsigned int > detIDmap_;// keeps track of all used detector IDs
+      
+      unsigned int detIDmap_size;
+      unsigned int getindexfromdetid(unsigned int detid);
       edm::ParameterSet conf_;
       bool appendMode_;
       SiPixelGainCalibration* SiPixelGainCalibration_; // database worker class
@@ -116,6 +133,14 @@ class SiPixelGainCalibrationAnalysis : public edm::EDAnalyzer {
 /*       double thefancyfitfunction(double *x, double *par);// 0: pedestal; 1:plateau; 2:halfwaypoint; 3:gain */
 };
 
+inline unsigned int SiPixelGainCalibrationAnalysis::getindexfromdetid(unsigned int detid){
+  if(detIDmap_[detid]==0){// entry does not exist
+    detIDmap_[detid]=detIDmap_size;
+    detIDmap_size++;
+   
+  }
+  return detIDmap_[detid];
+}
 inline unsigned long long SiPixelGainCalibrationAnalysis::get_next_block(const unsigned char * dataptr,unsigned int i){
   return ((const unsigned long long*)dataptr)[i];
 }
