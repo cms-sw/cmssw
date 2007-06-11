@@ -44,3 +44,5 @@ cmsRun u17.cfg
 mv     u17_* unit_test_outputs/
 cmsRun u18.cfg
 mv     u18_* unit_test_outputs/
+cmsRun u19.cfg
+mv     u19_* unit_test_outputs/

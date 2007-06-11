@@ -1,7 +1,5 @@
 <FrameworkJobReport>
 
-<Message>LogInfo was used to send a job report</Message>
-<Message>LogInfo was used to send a job report</Message>
 <StorageStatistics>
 
 Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0

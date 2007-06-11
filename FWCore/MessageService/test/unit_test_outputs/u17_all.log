@@ -1,50 +1,72 @@
 %MSG-i FwkReport:  main_input:source BeforeEvents
 Begin processing the 1st record. Run 1, Event 1
+%MSG
 LogPrint: 0
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 0
+%MSG
 LogPrint: 1
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 1
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 2
+%MSG
 LogPrint: 3
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 3
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 4
+%MSG
 LogPrint: 5
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 5
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 6
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 7
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 8
+%MSG
 LogPrint: 9
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 1
 LogSystem: 9
+%MSG
 %MSG-i FwkReport:  main_input:source Run: 1 Event: 1
 Begin processing the 2nd record. Run 1, Event 2
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 0
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 1
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 2
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 3
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 4
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 5
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 6
+%MSG
 LogPrint: 7
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 7
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 8
+%MSG
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 9
+%MSG
