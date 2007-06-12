@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.14 2007/05/29 20:27:27 evansde Exp $
+// $Id: JobReport.h,v 1.15 2007/05/29 21:33:09 evansde Exp $
 //
 
 #include <cstddef>
@@ -107,6 +107,7 @@ namespace edm {
         std::string     outputModuleClassName;
         std::string     moduleLabel;   // name of class instance
         std::string     guid;
+        std::string     dataType; 
         RunNumberCollection runsSeen;
         size_t          numEventsWritten;
         StringVector    branchNames;
@@ -243,13 +244,35 @@ namespace edm {
 			     std::string const& outputModuleClassName,
 			     std::string const& moduleLabel,
 			     std::string const& guid,
+			     std::string const& dataType,
 			     std::vector<std::string> const& branchNames);
+      
+      /*      Token outputFileOpened(std::string const& physicalFileName,
+			     std::string const& logicalFileName,
+			     std::string const& catalog,
+			     std::string const& outputModuleClassName,
+			     std::string const& moduleLabel,
+			     std::string const& dataType,
+			     std::vector<std::string> const& branchNames);
+      */
+      
+      Token outputFileOpened(std::string const& physicalFileName,
+			     std::string const& logicalFileName,
+			     std::string const& catalog,
+			     std::string const& outputModuleClassName,
+			     std::string const& moduleLabel,
+			     std::string const& guid,
+			     std::vector<std::string> const& branchNames);
+      
+      
       Token outputFileOpened(std::string const& physicalFileName,
 			     std::string const& logicalFileName,
 			     std::string const& catalog,
 			     std::string const& outputModuleClassName,
 			     std::string const& moduleLabel,
 			     std::vector<std::string> const& branchNames);
+			     
+      
 
       /// Report that the event with the given id has been written to
       /// the file identified by the given Token.
