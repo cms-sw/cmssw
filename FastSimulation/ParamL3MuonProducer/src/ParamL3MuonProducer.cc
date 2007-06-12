@@ -19,32 +19,35 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.1 2007/05/31 13:34:35 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.2 2007/06/11 14:51:23 aperrott Exp $
 //
 //
 
-// system include files
-#include <memory>
-
-// user include files
-
+// CMSSW headers 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 
 // Fast Simulation headers
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/ParamL3MuonProducer.h"
-// FSim event and track
-#include "FastSimulation/Event/interface/FSimEvent.h"
-#include "FastSimulation/Event/interface/FSimTrack.h"
-#include "FastSimulation/Particle/interface/ParticleTable.h"
+
+// SimTrack
+#include "SimDataFormats/Track/interface/SimTrack.h"
+
 // L1
 #include "FastSimulation/ParamL3MuonProducer/interface/SimpleL1MuGMTCand.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1EfficiencyHandler.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1PtSmearer.h"
+
 // L3
 #include "FastSimulation/ParamL3MuonProducer/interface/FML3EfficiencyHandler.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FML3PtSmearer.h"
+
 // GL
 #include "FastSimulation/ParamL3MuonProducer/interface/FMGLfromL3EfficiencyHandler.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FMGLfromL3TKEfficiencyHandler.h"
@@ -55,27 +58,14 @@
 #include <iostream>
 
 // CLHEP headers
-#include "CLHEP/Random/RandFlat.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "Math/Point3D.h"
-
-// CMSSW headers 
-//#include "FWCore/Framework/interface/Event.h"
-//#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 
 // Data Formats
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSRecHit2DCollection.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
 
 
 // constants, enums and typedefs
@@ -99,10 +89,6 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
   if (doL3_) produces<reco::MuonCollection>("ParamL3Muons");
   if (doGL_) produces<reco::MuonCollection>("ParamGlobalMuons");
 
-  //now do what ever other initialization is needed
-  edm::ParameterSet particleFilter_ = iConfig.getParameter<edm::ParameterSet>("ParticleFilter");
-  mySimEvent =  new FSimEvent(particleFilter_);
-
   // Initialize the random number generator service
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable() ) {
@@ -124,7 +110,6 @@ ParamL3MuonProducer::~ParamL3MuonProducer()
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
   
-  if ( mySimEvent ) delete mySimEvent;
   if ( random ) delete random;
 }
 
@@ -139,11 +124,10 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 {
   using namespace edm;
 
-  Handle<std::vector<SimTrack> > simTracks;
-  iEvent.getByLabel(theSimModuleLabel_,simTracks);
-  Handle<std::vector<SimVertex> > simVertices;
-  iEvent.getByLabel(theSimModuleLabel_,simVertices);
-  mySimEvent->fill( *simTracks, *simVertices );
+  Handle<std::vector<SimTrack> > simMuons;
+  iEvent.getByLabel(theSimModuleLabel_,"MuonSimTracks",simMuons);
+  //  Handle<std::vector<SimVertex> > simVertices;
+  //  iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
   int ntrks = 0;
   Handle<reco::TrackCollection> theTracks;
@@ -151,7 +135,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   reco::TrackRefVector allMuonTracks;
   Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
   std::vector<unsigned int> SimTrackIds;
-  std::vector<FSimTrack> trackOriginalMuons;  
+  std::vector<SimTrack> trackOriginalMuons;  
 
   if (doL3_ || doGL_) {
     iEvent.getByLabel(theTrkModuleLabel_,theTracks);
@@ -182,14 +166,11 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
 
-      for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {
-	FSimTrack& simTrack = mySimEvent->track(fsimi);
-	if((int) simTrack.trackId() == idmax) {
-	  int pid = simTrack.type();
-	  if ( abs(pid) == 13 && simTrack.noEndVertex() ) {
-	    allMuonTracks.push_back(reco::TrackRef(theTracks,trackIndex));
-            trackOriginalMuons.push_back(simTrack);  // SimTrack vs FSimTrack
-	  }
+      for( unsigned fsimi=0; fsimi < simMuons->size(); ++fsimi) {
+	const SimTrack& simTrack = (*simMuons)[fsimi];
+	if( (int) simTrack.trackId() == idmax) {
+	  allMuonTracks.push_back(reco::TrackRef(theTracks,trackIndex));
+	  trackOriginalMuons.push_back(simTrack);
 	  break;
 	}
       }
@@ -213,30 +194,29 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   mySimpleL3MuonCands.clear();
   mySimpleGLMuonCands.clear();
 
-  for( int fsimi=0; fsimi < (int) mySimEvent->nTracks(); ++fsimi) {
- 
-    FSimTrack& mySimTrack = mySimEvent->track(fsimi);
+  for( unsigned fsimi=0; fsimi < simMuons->size(); ++fsimi) {
+    const SimTrack& mySimTrack = (*simMuons)[fsimi];
+
     bool hasL1 = false , hasL3 = false , hasTK = false , hasGL = false;
     //Replace with this as soon transition to ROOTMath is complete
     //    math::XYZTLorentzVector& mySimP4 =  mySimTrack.momentum();
+
     math::XYZTLorentzVector mySimP4 =  math::XYZTLorentzVector(mySimTrack.momentum().x(),
 							       mySimTrack.momentum().y(),
 							       mySimTrack.momentum().z(),
 							       mySimTrack.momentum().t());
-    int pid = abs(mySimTrack.type());
 
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
-    if ( pid == 13 && mySimTrack.noEndVertex() &&
-         mySimP4.eta()>minEta_ && mySimP4.eta()<maxEta_ ) {
+    if ( mySimP4.Eta()>minEta_ && mySimP4.Eta()<maxEta_ ) {
       
       nMu++;
       if (debug_) {
 	std::cout << " ===> ParamMuonProducer::reconstruct() - pid = "
 		  << mySimTrack.type() ;
-	std::cout << " : pT = " << mySimP4.pt()
-		  << ", eta = " << mySimP4.eta()
-		  << ", phi = " << mySimP4.phi() << std::endl;
+	std::cout << " : pT = " << mySimP4.Pt()
+		  << ", eta = " << mySimP4.Eta()
+		  << ", phi = " << mySimP4.Phi() << std::endl;
       }
 
 //
@@ -264,7 +244,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (doL3_ || doGL_) {
 
 // Check if a correspondig track does exist:
-	std::vector<FSimTrack>::const_iterator genmu;
+//	std::vector<FSimTrack>::const_iterator genmu;
+	std::vector<SimTrack>::const_iterator genmu;
 	reco::track_iterator trkmu=allMuonTracks.begin();
 	for (genmu=trackOriginalMuons.begin();
 	     genmu!=trackOriginalMuons.end();genmu++) {
@@ -469,12 +450,6 @@ void ParamL3MuonProducer::beginJob(const edm::EventSetup& es)
   myGLfromTKEfficiencyHandler = new FMGLfromTKEfficiencyHandler(random);
   //  myGLPtSmearer = new FML3PtSmearer(random);
   myGLPtSmearer = myL3PtSmearer;
-
-  // Particle data table (from Pythia)
-  edm::ESHandle <HepPDT::ParticleDataTable> pdt;
-  es.getData(pdt);
-  mySimEvent->initializePdt(&(*pdt));
-  ParticleTable::instance(&(*pdt));
 
 }
 

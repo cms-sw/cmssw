@@ -1,10 +1,9 @@
 #include <fstream>
 
 #include "FastSimulation/ParamL3MuonProducer/interface/FML3EfficiencyHandler.h"
-#include <FastSimulation/Event/interface/FSimTrack.h>
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 #include "Utilities/General/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/General/interface/CMSexception.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
@@ -74,7 +73,7 @@ FML3EfficiencyHandler::~FML3EfficiencyHandler(){
   delete Effic_Phi_Extern;
 }
 
-bool FML3EfficiencyHandler::kill(const FSimTrack & aTrack) {
+bool FML3EfficiencyHandler::kill(const SimTrack & aTrack) {
 
   
   // At least eight hit in the tracker : To be tuned !!!

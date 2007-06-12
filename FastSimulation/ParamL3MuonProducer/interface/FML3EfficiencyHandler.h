@@ -7,7 +7,7 @@
  */
 
 class RandomEngine; 
-class FSimTrack;
+class SimTrack;
 
 class FML3EfficiencyHandler {
 
@@ -16,7 +16,7 @@ public:
   FML3EfficiencyHandler(const RandomEngine * engine);
   ~FML3EfficiencyHandler();
 
-  bool kill(const FSimTrack &);
+  bool kill(const SimTrack &);
 
 private:
  

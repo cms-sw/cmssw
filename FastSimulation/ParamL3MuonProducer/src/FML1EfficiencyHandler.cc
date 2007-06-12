@@ -2,10 +2,8 @@
 
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1EfficiencyHandler.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/SimpleL1MuGMTCand.h"
-#include <FastSimulation/Event/interface/FSimTrack.h>
 
 #include "Utilities/General/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/General/interface/CMSexception.h"
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"

@@ -1,7 +1,6 @@
 #ifndef FML3PtSmearer_H
 #define FML3PtSmearer_H
 
-#include <vector>
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 

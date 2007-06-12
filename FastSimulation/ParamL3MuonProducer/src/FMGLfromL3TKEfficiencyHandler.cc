@@ -1,10 +1,9 @@
 #include <fstream>
 
 #include "FastSimulation/ParamL3MuonProducer/interface/FMGLfromL3TKEfficiencyHandler.h"
-#include <FastSimulation/Event/interface/FSimTrack.h>
+#include "SimDataFormats/Track/interface/SimTrack.h"
  
 #include "Utilities/General/interface/FileInPath.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Utilities/General/interface/CMSexception.h"
  
 #include "FastSimulation/Utilities/interface/RandomEngine.h" 
@@ -42,7 +41,7 @@ FMGLfromL3TKEfficiencyHandler::~FMGLfromL3TKEfficiencyHandler(){
   delete Effic_Eta;
 }
 
-bool FMGLfromL3TKEfficiencyHandler::kill(const FSimTrack & aTrack) {
+bool FMGLfromL3TKEfficiencyHandler::kill(const SimTrack & aTrack) {
 
   // At least eight hit in the tracker : To be tuned !!!
   //if ( aTrack.recHits().size() < 8 ) return false;

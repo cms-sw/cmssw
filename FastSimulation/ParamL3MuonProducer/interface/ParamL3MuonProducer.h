@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.1 2007/05/31 13:34:06 aperrott Exp $
+// $Id: ParamL3MuonProducer.h,v 1.2 2007/06/11 14:51:11 aperrott Exp $
 //
 
 
@@ -23,14 +23,9 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // FastSimulation headers
-class FSimEvent;
 class SimpleL1MuGMTCand;
 class FML1EfficiencyHandler;
 class FML1PtSmearer;
@@ -42,10 +37,19 @@ class FMGLfromTKEfficiencyHandler;
 
 class RandomEngine;
 
+namespace reco { 
+  class Muon;
+}
+
+namespace edm { 
+  class ParameterSet;
+  class Event;
+  class EventSetup;
+}
+
 // Data Formats
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 
 //
 // class declaration
@@ -74,9 +78,6 @@ class ParamL3MuonProducer : public edm::EDProducer {
       void loadGLMuons(reco::MuonCollection & c) const;
     
   // ---------- member data ---------------------------
-      edm::ParameterSet  vertexGenerator_; 
-      edm::ParameterSet  particleFilter_;
-      FSimEvent* mySimEvent;
 
       FML1Muons  mySimpleL1MuonCands;
       FML1EfficiencyHandler * myL1EfficiencyHandler;

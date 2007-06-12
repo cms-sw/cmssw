@@ -5,7 +5,7 @@
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 
-class FSimTrack;
+class SimTrack;
 
 namespace HepMC { 
   class GenParticle;
@@ -37,7 +37,7 @@ class SimpleL1MuGMTCand : public L1MuGMTCand {
     SimpleL1MuGMTCand(const SimpleL1MuGMTCand*);
     
     /// convert a FSimTrack into a SimpleL1MuGMTCand
-    SimpleL1MuGMTCand(const FSimTrack*);
+    SimpleL1MuGMTCand(const SimTrack*);
 
     /// destructor
     virtual ~SimpleL1MuGMTCand();
@@ -100,12 +100,6 @@ class SimpleL1MuGMTCand : public L1MuGMTCand {
 
     unsigned int phiRegionIndex() const { return phi(); }
 
-    /// returns a pointer to the MC particle from the EventManager 
-    const HepMC::GenParticle * generatorParticle() const { return myGenParticle; }
- 
-    /// set the pointer to the MC particle from the EventManager 
-    void  setGenPart(const HepMC::GenParticle * rhp); 
- 
     // set and get the 4-momentum of the original (generator) particle
     void setMomentum(LorentzVector m) { myMomentum = m; }
     const LorentzVector getMomentum() const { return myMomentum; }
@@ -114,7 +108,7 @@ class SimpleL1MuGMTCand : public L1MuGMTCand {
     SimpleL1MuGMTCand& operator=(const SimpleL1MuGMTCand&);
 
     /// assignment operator for a FSimTrack
-    SimpleL1MuGMTCand* operator=(const FSimTrack*);
+    SimpleL1MuGMTCand* operator=(const SimTrack*);
 
     /// equal operator
     bool operator==(const SimpleL1MuGMTCand&) const;
@@ -156,7 +150,6 @@ class SimpleL1MuGMTCand : public L1MuGMTCand {
     float        m_smearedPt;
 
     LorentzVector myMomentum ;
-    const HepMC::GenParticle * myGenParticle ;
 
 };
   

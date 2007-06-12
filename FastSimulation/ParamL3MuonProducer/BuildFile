@@ -1,21 +1,17 @@
 <use name=DataFormats/L1GlobalMuonTrigger>
+<use name=DataFormats/Math>
 <use name=DataFormats/MuonReco>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrackerRecHit2D>
 <use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
-<use name=FastSimulation/Event>
-<use name=FastSimulation/Particle>
-<use name=SimGeneral/HepPDTRecord>
+<use name=FWCore/ServiceRegistry>
+<use name=FWCore/Utilities>
+<use name=FastSimulation/Utilities>
+<use name=SimDataFormats/Track>
 <use name=Utilities/General>
-<use name=clhep>
-<use name=hepmc>
 <flags EDM_PLUGIN=1>
 <export>
-  <use name=DataFormats/L1GlobalMuonTrigger>
-  <use name=DataFormats/MuonReco>
-  <use name=FWCore/Framework>
-  <use name=FWCore/ParameterSet>
-  <use name=clhep>
   <lib name=FastSimulationParamL3MuonProducer>
 </export>

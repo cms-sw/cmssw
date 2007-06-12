@@ -1,7 +1,6 @@
 #ifndef FML1PtSmearer_H
 #define FML1PtSmearer_H
 
-#include <vector>
 class SimpleL1MuGMTCand;
 class RandomEngine; 
 

@@ -1,11 +1,8 @@
 // This class header:
 #include "FastSimulation/ParamL3MuonProducer/interface/SimpleL1MuGMTCand.h"
 
-// HepMC Headers
-#include "HepMC/GenParticle.h"
-
 // Fast Simulation headers
-#include "FastSimulation/Event/interface/FSimTrack.h"
+#include "SimDataFormats/Track/interface/SimTrack.h"
 
 //CMSSW headers 
 
@@ -16,16 +13,13 @@
 SimpleL1MuGMTCand::SimpleL1MuGMTCand() :
               m_name("FastL1MuCand"), m_empty(true), 
               m_phi(0), m_eta(31), m_pt(0), m_charge(0), m_quality(0),               
-              m_rank(0), m_smearedPt(0), myGenParticle(0) {
-
-}
+              m_rank(0), m_smearedPt(0) { }
 
 SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand& mu) :
               m_name(mu.m_name), m_empty(mu.m_empty),
               m_phi(mu.m_phi), m_eta(mu.m_eta), m_pt(mu.m_pt), 
               m_charge(mu.m_charge), m_quality(mu.m_quality),
-              m_rank(mu.m_rank), m_smearedPt(mu.m_smearedPt),
-	      myGenParticle(mu.myGenParticle) {
+              m_rank(mu.m_rank), m_smearedPt(mu.m_smearedPt) {
   setMomentum(mu.getMomentum());
   setQuality(m_quality & 7);
   setEtaPacked(m_eta & 63);
@@ -38,8 +32,7 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand* mu) :
                m_name(mu->m_name), m_empty(mu->m_empty),
                m_phi(mu->m_phi), m_eta(mu->m_eta), m_pt(mu->m_pt), 
                m_charge(mu->m_charge), m_quality(mu->m_quality),
-               m_rank(mu->m_rank), m_smearedPt(mu->m_smearedPt),
-	       myGenParticle(mu->myGenParticle) {
+               m_rank(mu->m_rank), m_smearedPt(mu->m_smearedPt) {
   setMomentum(mu->getMomentum());
   setQuality(m_quality & 7);
   setEtaPacked(m_eta & 63);
@@ -48,7 +41,7 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimpleL1MuGMTCand* mu) :
   setPtPacked(m_pt & 31);
 }
 
-SimpleL1MuGMTCand::SimpleL1MuGMTCand(const FSimTrack* p) {
+SimpleL1MuGMTCand::SimpleL1MuGMTCand(const SimTrack* p) {
   //  setMomentum(p->momentum());
   LorentzVector toBeRemoved(p->momentum().x(),p->momentum().y(),p->momentum().z(),p->momentum().t());
   setMomentum(toBeRemoved);
@@ -61,15 +54,14 @@ SimpleL1MuGMTCand::SimpleL1MuGMTCand(const FSimTrack* p) {
   setPhi(myMomentum.phi());
   setCharge(int(p->charge()));
   setPt(std::sqrt(myMomentum.perp2()));
-  myGenParticle = p->genParticle();
 
 }
 
 SimpleL1MuGMTCand::~SimpleL1MuGMTCand() {
 
   reset();
-
- }
+  
+}
 
 
 //
@@ -83,7 +75,6 @@ void SimpleL1MuGMTCand::reset() {
   m_quality = 0;
   m_rank = 0;
   m_smearedPt = 0;
-  myGenParticle = 0;
 
 }
 
@@ -175,11 +166,12 @@ void SimpleL1MuGMTCand::setCharge(int charge) {
 //
 // set generator particle of muon candidate
 //
+/*
 void SimpleL1MuGMTCand::setGenPart(const HepMC::GenParticle * rhp) {
 
-  myGenParticle = rhp;
+   myGenParticle = rhp;
 }
-
+*/
 
 
 //
@@ -197,7 +189,6 @@ SimpleL1MuGMTCand& SimpleL1MuGMTCand::operator=(const SimpleL1MuGMTCand& cand) {
     m_quality   = cand.m_quality;    
     m_rank      = cand.m_rank;
     m_smearedPt = cand.m_smearedPt;
-    myGenParticle = cand.myGenParticle;
    
   }
   return *this;
@@ -206,16 +197,15 @@ SimpleL1MuGMTCand& SimpleL1MuGMTCand::operator=(const SimpleL1MuGMTCand& cand) {
 
 
 //
-// Assignment operator for FSimTrack's
+// Assignment operator for SimTrack's
 //
-SimpleL1MuGMTCand* SimpleL1MuGMTCand::operator=(const FSimTrack* p) {
+SimpleL1MuGMTCand* SimpleL1MuGMTCand::operator=(const SimTrack* p) {
 
   m_empty = false;
   setEta(p->momentum().eta());
   setPhi(p->momentum().phi());
   setCharge(int(p->charge()));
   setPt(std::sqrt(p->momentum().perp2()));
-  myGenParticle = p->genParticle();
   
   return this;
 }
@@ -232,7 +222,6 @@ bool SimpleL1MuGMTCand::operator==(const SimpleL1MuGMTCand& cand) const {
   if ( m_charge    != cand.m_charge )    return false;
   if ( m_quality   != cand.m_quality )   return false;
   if ( m_rank      != cand.m_rank )      return false;
-  if (myGenParticle != cand.myGenParticle) return false;
   return true;
 
 }
@@ -250,7 +239,6 @@ bool SimpleL1MuGMTCand::operator!=(const SimpleL1MuGMTCand& cand) const {
   if ( m_charge    != cand.m_charge )    return true;
   if ( m_quality   != cand.m_quality )   return true;
   if ( m_rank      != cand.m_rank )      return true;
-  if (myGenParticle != cand.myGenParticle) return true;
   return false;
 
 }

@@ -1,9 +1,6 @@
 #include "FastSimulation/ParamL3MuonProducer/interface/FML3PtSmearer.h" 
 
 #include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <fstream>
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
 

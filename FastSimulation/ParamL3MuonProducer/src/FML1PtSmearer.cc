@@ -7,7 +7,6 @@
 
 #include <cmath>
 #include <iostream>
-#include <iomanip>
 #include <fstream>
 
 #include "FastSimulation/Utilities/interface/RandomEngine.h"
