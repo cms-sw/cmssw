@@ -39,7 +39,7 @@ class TangentCircle
 
      double vertexError() const { return theVertexError; }
 
-     double rhoError() const;
+     double curvatureError() const;
 
  private :
      GlobalPoint theInnerPoint;

@@ -130,16 +130,15 @@ GlobalPoint TangentCircle::getPosition(const TangentCircle& circle, const Global
             return GlobalPoint( xnew, ynew, 0 );
 }
 
-double TangentCircle::rhoError() const {
+double TangentCircle::curvatureError() const {
    if( (theInnerPoint - theVertexPoint).mag() < theVertexError ) {
         TangentCircle circle1( directionAtVertex() , theVertexPoint - theVertexError*directionAtVertex(), theOuterPoint);
         TangentCircle circle2( directionAtVertex() , theVertexPoint + theVertexError*directionAtVertex(), theOuterPoint);
-        return fabs(circle1.rho() - circle2.rho());
+        return fabs(1/circle1.rho() - 1/circle2.rho());
    }
    else {
        TangentCircle circle1( theOuterPoint, theInnerPoint, theVertexPoint - theVertexError*directionAtVertex());
        TangentCircle circle2( theOuterPoint, theInnerPoint, theVertexPoint + theVertexError*directionAtVertex());
-       return fabs(circle1.rho() - circle2.rho());
+       return fabs(1/circle1.rho() - 1/circle2.rho());
    }
 }
-       

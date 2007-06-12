@@ -192,7 +192,6 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
             // Loop on all outer TM 
             for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
                if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
-                     LogDebug("NuclearInteractionFinder") << "Calling currentSeed->setMeasurements(innerHit, *outhit)" << "\n";
                      currentSeed->setMeasurements(innerHit, *outhit);
                      allSeeds.push_back(*currentSeed);
                 }

@@ -31,12 +31,11 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& inner_TM, const TM& o
        // get the inner and outer transient TrackingRecHits
        outerHit = outer_TM.recHit().get();
 
+       theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
        theHits.push_back(  outer_TM.recHit() );
 
-       innerTM = &outer_TM;
+       innerTM = &inner_TM;
        outerTM = &outer_TM;
-
-       LogDebug("NuclearSeedGenerator") << "Entering in SeedFromNuclearInteraction::setMeasurements" << "\n";
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM.
        freeTS  = stateWithError();
@@ -56,8 +55,8 @@ void SeedFromNuclearInteraction::setMeasurements(const TangentHelix& helix, cons
        theHits.push_back( inner_TM.recHit() );
        theHits.push_back( outer_TM.recHit() );
 
-       outerTM = &outer_TM;
        innerTM = &inner_TM;
+       outerTM = &outer_TM;
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
        freeTS = stateWithError(helix); 
@@ -76,34 +75,33 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError() const {
    GlobalPoint inner = innerTM->updatedState().globalPosition();
    GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
    TangentHelix helix(direction, inner, outer);
-   LogDebug("NuclearSeedGenerator") << "First vtx position : " << helix.vertexPoint() << "\n";
+   LogDebug("NuclearSeedGenerator") << "First vtx position : " << helix.vertexPoint() << "\n"
+                                    << "Rho = " << helix.circle().rho() << "\n";
 
    return stateWithError(helix);
 }
 //----------------------------------------------------------------------
 FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(const TangentHelix& helix) const {
 
-   typedef TkRotation<float> Rotation;
+//   typedef TkRotation<float> Rotation;
 
    GlobalVector dirAtVtx = helix.directionAtVertex();
    // Get the global parameters of the trajectory
    // we assume that the magnetic field at the vertex is equal to the magnetic field at the inner TM.
    GlobalTrajectoryParameters gtp(helix.vertexPoint(), dirAtVtx , 1/helix.circle().rho(), 0, &(innerTM->updatedState().globalParameters().magneticField()));
+   LogDebug("NuclearSeedGenerator") << "Momentum = " << gtp.momentum() << "\n";
 
    // Error matrix in a frame where z is in the direction of the track at the vertex
-   AlgebraicSymMatrix66 m;
+   AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
    double vtxerror = helix.circle().vertexError();
-   double rhoerror = helix.circle().rhoError();
-   m(0,0)=1E-6;
-   m(1,1)=1E-6;
-   m(2,2)=vtxerror*vtxerror;
-   m(3,3)=1E-6;
-   m(4,4)=1E-6;
-   m(5,5)=rhoerror*rhoerror;
+   double curvatureError = helix.circle().curvatureError();
+   m(0,0)=curvatureError*curvatureError;
+   m(3,3)=1E-5;
+   m(4,4)=1E-4;
 
-   LogDebug("NuclearSeedGenerator") << "vtxError : " << vtxerror << "\n"
-                                    << "rho error : " << rhoerror << "\n";
+   LogDebug("NuclearSeedGenerator") << "vtxError : " << vtxerror << "\n";
 
+/*
    //rotation around the z-axis by  -phi
    Rotation tmpRotz ( cos(dirAtVtx.phi()), -sin(dirAtVtx.phi()), 0., 
                         sin(dirAtVtx.phi()), cos(dirAtVtx.phi()), 0.,
@@ -140,9 +138,9 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(const TangentHeli
    m(3,5) = momentum.xz();
    m(4,5) = momentum.yz();
    m(5,5) = momentum.zz();
-   
+ */  
 
-   FreeTrajectoryState result( gtp, CartesianTrajectoryError(m) );
+   FreeTrajectoryState result( gtp, CurvilinearTrajectoryError(m) );
 
    LogDebug("NuclearSeedGenerator") << "FreeTrajectoryState used for seeds : " << result << "\n";
 
