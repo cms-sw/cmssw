@@ -6,7 +6,7 @@ status=0
   
 rm -f u19_infos.log u19_debugs.log  
 
-cmsRun -e -p $LOCAL_TEST_DIR/u19.cfg
+cmsRun -p $LOCAL_TEST_DIR/u19.cfg
  
 for file in u19_infos.log u19_debugs.log   
 do

@@ -7,9 +7,9 @@
 
 # This script needs to be maintained when new unit tests are added.
 
-cmsRun u1.cfg
+cmsRun -e u1.cfg
 mv     u1_* unit_test_outputs/
-cmsRun u2.cfg
+cmsRun u2.cfg >& u2_cerr.mout
 mv     u2_* unit_test_outputs/
 cmsRun u3.cfg
 mv     u3_* unit_test_outputs/
@@ -19,14 +19,14 @@ cmsRun u5.cfg
 mv     u5_* unit_test_outputs/
 cmsRun u6.cfg
 mv     u6_* unit_test_outputs/
-cmsRun u7.cfg
+cmsRun -e u7.cfg
 mv     u7_* unit_test_outputs/
 cmsRun u8.cfg
 mv     u8_* unit_test_outputs/
-cmsRun u9.cfg
+cmsRun -e u9.cfg
 mv     warnings.log unit_test_outputs/
 mv     infos.log unit_test_outputs/
-cmsRun u10.cfg
+cmsRun -e u10.cfg
 mv     u10_* unit_test_outputs/
 cmsRun u11.cfg
 mv     u11_* unit_test_outputs/
@@ -34,11 +34,11 @@ cmsRun u12.cfg
 mv     u12_* unit_test_outputs/
 cmsRun u13.cfg
 mv     u13_* unit_test_outputs/
-cmsRun u14.cfg
+cmsRun -e u14.cfg
 mv     u14_* unit_test_outputs/
 cmsRun u15.cfg
 mv     u15_* unit_test_outputs/
-cmsRun u16.cfg
+cmsRun -e u16.cfg
 mv     u16_* unit_test_outputs/
 cmsRun u17.cfg
 mv     u17_* unit_test_outputs/
