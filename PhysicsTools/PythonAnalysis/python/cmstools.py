@@ -52,7 +52,8 @@ def createBranchBuffer(branch):
     reCloseTemplate =re.compile(r'>')
     reOpenTemplate =re.compile(r'<')
     branchType = ROOT.branchToClass(branch)
-    buffer = eval ('ROOT.'+reColons.sub(".",reOpenTemplate.sub("(ROOT.",reCloseTemplate.sub(")",branchType.GetName())))+'()')
+    #buffer = eval ('ROOT.'+reColons.sub(".",reOpenTemplate.sub("(ROOT.",reCloseTemplate.sub(")",branchType.GetName())))+'()')
+    buffer = ROOT.MakeRootClass(branchType.GetName()) ()
     if( branch.GetName()[-1] != '.'):
         branch.SetAddress(buffer)
     else:
@@ -128,7 +129,7 @@ class Event(object):
     def __init__(self, eventTree):
         self._eventTree = eventTree
 
-    def getProduct(name):
+    def getProduct(self, name):
         return iterators.addIterator(self._eventTree.branch(name)())
 
     def __getattr__(self, name):
