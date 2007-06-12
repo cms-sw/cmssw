@@ -17,8 +17,8 @@ AnalyticalErrorPropagation::operator()( const FreeTrajectoryState& startingState
     // FIXME: Compute mean B field between startingState and destParameters and pass it to analyticalJacobian
     GlobalPoint xStart = startingState.position();
     GlobalPoint xDest = destParameters.position();
-    GlobalVector h1  = destParameters.megneticFieldInInverseGeV(xStart);
-    GlobalVector h2  = destParameters.megneticFieldInInverseGeV(xDest);
+    GlobalVector h1  = destParameters.magneticFieldInInverseGeV(xStart);
+    GlobalVector h2  = destParameters.magneticFieldInInverseGeV(xDest);
     GlobalVector h = 0.5*(h1+h2);
     std::cout << "The Fields are: " << h1 << ", " << h2 << ", " << h << std::endl; 
     
