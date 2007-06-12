@@ -59,5 +59,6 @@
   <function name="reco::JetToFloatAssociation::setValue"/>
   <function name="reco::JetToFloatAssociation::getValue"/>
   <function name="reco::JetToFloatAssociation::allJets"/>
+  <function name="reco::JetToFloatAssociation::hasJet"/>
 
 </lcgdict>
