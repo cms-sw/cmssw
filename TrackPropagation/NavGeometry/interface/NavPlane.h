@@ -1,10 +1,10 @@
 #ifndef NavPlane_H
 #define NavPlane_H
 
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "TrackPropagation/NavGeometry/interface/LinearSearchNavSurfaceImpl.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include <vector>
 class Bounds;

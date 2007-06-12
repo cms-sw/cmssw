@@ -1,7 +1,7 @@
 #ifndef UniformMomentumGenerator_H
 #define UniformMomentumGenerator_H
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 class UniformMomentumGenerator {
 public:

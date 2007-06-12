@@ -1,7 +1,7 @@
 #ifndef ThreePlaneCrossing_H
 #define ThreePlaneCrossing_H
 
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 class ThreePlaneCrossing {
 public:

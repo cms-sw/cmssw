@@ -1,5 +1,5 @@
 #include "TrackPropagation/NavGeometry/interface/LinearSearchNavSurfaceImpl.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 
 const NavVolume* LinearSearchNavSurfaceImpl::nextVolume( const NavSurface::LocalPoint& point, 
 							 SurfaceOrientation::Side side) const

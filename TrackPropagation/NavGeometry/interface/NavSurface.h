@@ -1,7 +1,7 @@
 #ifndef NavSurface_H
 #define NavSurface_H
 
-#include "Geometry/Surface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
 
 #include <utility>
 

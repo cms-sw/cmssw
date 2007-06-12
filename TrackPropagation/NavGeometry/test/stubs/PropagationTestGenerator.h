@@ -1,8 +1,8 @@
 #ifndef PropagationTestGenerator_H_
 #define PropagationTestGenerator_H_
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** \class PropagationTestGenerator
  *  Base class for generation of test trajectories (currently 

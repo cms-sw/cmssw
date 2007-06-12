@@ -3,8 +3,8 @@
 
 #include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
 
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include "TrackPropagation/NavGeometry/test/stubs/RandomPlaneGeneratorByAxis.h"
 #include "TrackPropagation/NavGeometry/test/stubs/UniformMomentumGenerator.h"

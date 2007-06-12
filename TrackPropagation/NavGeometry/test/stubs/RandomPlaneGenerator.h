@@ -1,11 +1,11 @@
 #ifndef RandomPlaneGenerator_H_
 #define RandomPlaneGenerator_H_
 
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 /** \class RandomPlaneGenerator
  * Interface for classes generating random planes,

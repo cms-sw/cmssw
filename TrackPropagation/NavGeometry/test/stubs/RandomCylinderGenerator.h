@@ -1,12 +1,12 @@
 #ifndef RandomCylinderGenerator_H_
 #define RandomCylinderGenerator_H_
 
-#include "Geometry/Surface/interface/BoundCylinder.h"
-//#include "Geometry/Surface/interface/ReferenceCounted.h"
-#include "Geometry/Surface/interface/SimpleCylinderBounds.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
+#include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
+//#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 /** \class RandomCylinderGenerator
  * Generates a (not yet random) cylinder at a given position.

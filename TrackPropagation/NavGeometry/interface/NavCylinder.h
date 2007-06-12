@@ -1,10 +1,10 @@
 #ifndef NavCylinder_H
 #define NavCylinder_H
 
-#include "Geometry/Surface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "TrackPropagation/NavGeometry/interface/LinearSearchNavSurfaceImpl.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include <vector>
 class Bounds;

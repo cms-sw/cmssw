@@ -1,5 +1,5 @@
-#include "Geometry/Surface/interface/PlaneBuilder.h"
-#include "Geometry/Surface/interface/TkRotation.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometrySurface/interface/TkRotation.h"
 #include "TrackPropagation/NavGeometry/test/stubs/RandomPlaneGeneratorByAxis.h"
 #include "CLHEP/Random/RandFlat.h"
 

@@ -1,7 +1,7 @@
 #include "TrackPropagation/NavGeometry/interface/NavPlane.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLinePlaneCrossing.h"
 
 TrajectoryStateOnSurface 

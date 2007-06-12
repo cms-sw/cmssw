@@ -1,7 +1,7 @@
 #include "TrackPropagation/NavGeometry/interface/NavCylinder.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/Bounds.h"
+#include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "TrackingTools/GeomPropagators/interface/StraightLineCylinderCrossing.h"
 
 TrajectoryStateOnSurface 

@@ -1,10 +1,10 @@
 #ifndef NavCone_H
 #define NavCone_H
 
-#include "Geometry/Surface/interface/Cone.h"
+#include "DataFormats/GeometrySurface/interface/Cone.h"
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "TrackPropagation/NavGeometry/interface/LinearSearchNavSurfaceImpl.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 #include <vector>
 class Bounds;

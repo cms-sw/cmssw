@@ -2,7 +2,7 @@
 #define NavVolumeSide_H
 
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 /** Class for delimiding surface of a NavVolume.
  *  The additional information with respect to NavSurface that is needed

@@ -1,7 +1,7 @@
 #ifndef LinearEquation3_H
 #define LinearEquation3_H
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 
 #include <algorithm>
 

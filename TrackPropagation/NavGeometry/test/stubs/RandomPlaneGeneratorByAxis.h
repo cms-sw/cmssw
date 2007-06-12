@@ -2,9 +2,9 @@
 #define RandomPlaneGeneratorByAxis_H_
 
 #include "TrackPropagation/NavGeometry/test/stubs/RandomPlaneGenerator.h"
-#include "Geometry/Vector/interface/GlobalTag.h"
-#include "Geometry/Vector/interface/Point3DBase.h"
-#include "Geometry/Vector/interface/Vector3DBase.h"
+#include "DataFormats/GeometryVector/interface/GlobalTag.h"
+#include "DataFormats/GeometryVector/interface/Point3DBase.h"
+#include "DataFormats/GeometryVector/interface/Vector3DBase.h"
 
 /** \class RandomPlaneGeneratorByAxis
  * Generates random planes with maximum tilt around a given direction 
