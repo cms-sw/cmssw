@@ -1,7 +1,7 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2007/01/20 02:56:16 $
+ *  $Date: 2007/06/08 12:01:31 $
  *  $Revision: 1.1 $
  *  \author D. Pagano - University of Pavia & INFN Pavia
  */
@@ -12,11 +12,11 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
-#include "Geometry/Vector/interface/Pi.h"
+#include "DataFormats/GeometryVector/interface/Pi.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/Vector/interface/CoordinateSets.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
-#include "Geometry/Surface/interface/RectangularPlaneBounds.h"
+#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/RectangularPlaneBounds.h"
 
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
