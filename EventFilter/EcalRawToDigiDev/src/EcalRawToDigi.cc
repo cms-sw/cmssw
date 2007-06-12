@@ -86,7 +86,8 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   //nevts_=0;
   //RUNNING_TIME_=0;
 
-  //if there are FEDs to unpack fill the vector of the fedUnpackList_
+  // if there are FEDs specified to unpack fill the vector of the fedUnpackList_
+  // else fill with the entire ECAL fed range (600-670)
   if (fedUnpackList_.empty()) 
     for (int i=FEDNumbering::getEcalFEDIds().first; i<=FEDNumbering::getEcalFEDIds().second; i++)
       fedUnpackList_.push_back(i);

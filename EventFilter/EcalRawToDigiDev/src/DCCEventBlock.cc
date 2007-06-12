@@ -95,7 +95,7 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   data_++;
 	 
   blockLength_  =  (*data_ )              & H_EVLENGTH_MASK;
-  dccErrors_    =  ((*data_)>>H_ERRORS_B) & H_ERRORS_MASK  ;
+  dccErrors_      =  ((*data_)>>H_ERRORS_B) & H_ERRORS_MASK  ;
   runNumber_    =  ((*data_)>>H_RNUMB_B ) & H_RNUMB_MASK   ;
    
   
@@ -113,8 +113,13 @@ void DCCEventBlock::unpack( uint64_t * buffer, uint numbBytes, uint expFedId){
   
   //Third Header Word
   data_++;
-  runType_ = (*data_) & H_RTYPE_MASK; 
- 
+
+  // bits 0.. 31 of the 3rd DCC header word
+  runType_                    = (*data_) & H_RTYPE_MASK;
+
+  // bits 32.. 47 of the 3rd DCC header word
+  detailedTriggerType_ = ((*data_) >> H_DET_TTYPE_B) & H_DET_TTYPE_MASK;
+
   //Forth Header Word
   data_++;
   sr_           = ((*data_)>>H_SR_B)  & B_MASK;
@@ -256,8 +261,9 @@ void DCCEventBlock::addHeaderToCollection(){
   
   // The Run type
   EcalDCCHeaderRuntypeDecoder theRuntypeDecoder;
-  uint DCCruntype = runType_;
-  theRuntypeDecoder.Decode(DCCruntype, &theDCCheader);
+  uint DCCruntype              = runType_;
+  uint DCCdetTriggerType = detailedTriggerType_;
+  theRuntypeDecoder.Decode(triggerType_, DCCdetTriggerType , DCCruntype, &theDCCheader);
 
   // Add Header to collection 
   (*dccHeaders_)->push_back(theDCCheader);
