@@ -119,6 +119,10 @@ LinkDataXMLWriter::LinkDataXMLWriter(const edm::ParameterSet& iConfig){
 
   doc->insertBefore(xmlstylesheet, rootElem);
   //////////////////////////////////////////////
+  event = doc->createElement(X("event"));
+  event->setAttribute(X("bx"), X( IntToString(0).c_str()));
+  event->setAttribute(X("num"), X( IntToString(0).c_str()));
+  rootElem->appendChild(event);
   
 
   //set vector sizes
@@ -175,7 +179,7 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   es.get<RPCReadOutMappingRcd>().get(readoutMapping);
 
   int trigger_BX = 200;
-
+  /*
    pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
    for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
 
@@ -186,6 +190,7 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 											    formatter); 
     //std::cout<<" FED id: "<< id;
     //std::cout<<" myEventRecords.size(): "<< myEventRecords.size()<<std::endl;
+    
     std::vector<rpcrawtodigi::EventRecords>::const_iterator CI =  myEventRecords.begin();
     for(;CI!= myEventRecords.end();CI++){ 
 
@@ -207,9 +212,27 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
     }
   }
-  
-  writeLinkData();  
-  
+    */
+
+
+    int triggerCrateNum = 9;
+    int halfP = 0;
+    int eod = 0;
+    for(int iTB=0;iTB<9;iTB++){
+      int iOL = nEvents%18;
+      //for(int iOL=0;iOL<18;iOL++){
+      int iPartNum = nEvents%12;
+      //for(int iPartNum=0;iPartNum<8;iPartNum++){	    
+	for(int iLbNum=0;iLbNum<3;iLbNum++){
+	  int partitionData = iPartNum*2+1;  
+	  addLinkData(triggerCrateNum, iTB, iOL, iLbNum, 
+		      iPartNum, partitionData, halfP, eod);	  
+	}
+	//}
+	//}
+    }
+    writeLinkData();  
+    
 }
 /*############################################################################
 #
@@ -249,7 +272,7 @@ void LinkDataXMLWriter::addLinkData(int triggerCrateNum, int  triggerBoardNum,
 ############################################################################*/
 void LinkDataXMLWriter::writeLinkData(){
 
-  int bxNum = nEvents;
+  int bxNum = nEvents*10; //Leave room for data multiplexing.
   nEvents++;
 
   time_t timer;
@@ -259,7 +282,7 @@ void LinkDataXMLWriter::writeLinkData(){
 
   DOMElement* bx = doc->createElement(X("bxData"));
   bx->setAttribute(X("num"), X( IntToString(bxNum).c_str()));
-  rootElem->appendChild(bx);
+  event->appendChild(bx);
 
   DOMElement*  tc = 0;
   DOMElement*  tb = 0;
