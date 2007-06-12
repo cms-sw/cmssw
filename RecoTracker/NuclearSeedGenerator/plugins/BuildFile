@@ -1,0 +1,4 @@
+<use name=RecoTracker/NuclearSeedGenerator>
+<library file="*.cc" name=RecoTrackerNuclearSeedGeneratorPlugins>
+         <flags EDM_PLUGIN=1>
+</library>
