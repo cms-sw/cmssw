@@ -17,6 +17,7 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include <boost/regex.hpp> 
 
@@ -93,7 +94,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(m_inputTrackLabel,trackCollection);
 //   try {
 //     iEvent.getByType(trackCollection);
-//   } catch ( std::exception& ex ) {
+//   } catch ( cms::Exception& ex ) {
 //     LogDebug("") << "AlCaIsoTracksProducer: Error! can't get product!" << std::endl;
 //   }
 
@@ -244,7 +245,7 @@ AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         {
              outputHOColl->push_back(*hoItr);
         }
-     } catch (std::exception& e) { // can't find it!
+     } catch (cms::Exception& e) { // can't find it!
         if (!allowMissingInputs_) {std::cout<<" No HO collection "<<std::endl; throw e;}
      }
     }
