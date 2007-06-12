@@ -1,13 +1,13 @@
 #ifndef PathToPlane2Order_H
 #define PathToPlane2Order_H
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "TrackingTools/GeomPropagators/interface/HelixPlaneCrossing.h"
 #include "TrackPropagation/RungeKutta/interface/CartesianState.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** Computes the path length to reach a plane in general magnetic field.
  *  The problem (starting state and plane) is transformed to a frame where the

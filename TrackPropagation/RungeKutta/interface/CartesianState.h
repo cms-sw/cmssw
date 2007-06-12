@@ -1,7 +1,7 @@
 #ifndef CartesianState_H
 #define CartesianState_H
 
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "TrackPropagation/RungeKutta/interface/VectorDoublet.h"
 
 class CartesianState {

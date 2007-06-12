@@ -1,7 +1,7 @@
 #ifndef VectorDoublet_H
 #define VectorDoublet_H
 
-#include "Geometry/Vector/interface/PreciseFloatType.h"
+#include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 
 template <class V1, class V2>
 class VectorDoublet {

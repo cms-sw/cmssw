@@ -1,8 +1,8 @@
 #ifndef FrameChanger_H
 #define FrameChanger_H
 
-#include "Geometry/Surface/interface/Plane.h"
-#include "Geometry/Surface/interface/ReferenceCounted.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
 class FrameChanger {
 public:

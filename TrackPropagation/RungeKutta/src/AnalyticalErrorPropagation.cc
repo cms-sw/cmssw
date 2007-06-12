@@ -26,8 +26,8 @@ AnalyticalErrorPropagation::operator()( const FreeTrajectoryState& startingState
     AnalyticalCurvilinearJacobian analyticalJacobian(startingState.parameters(), 
 						     destParameters.position(), 
 						     destParameters.momentum(), s);
-    AlgebraicMatrix jacobian(analyticalJacobian.jacobian());
-    CurvilinearTrajectoryError cte(startingState.curvilinearError().matrix().similarity(jacobian));
+    AlgebraicMatrix jacobian(analyticalJacobian.jacobian_old());
+    CurvilinearTrajectoryError cte(startingState.curvilinearError().matrix_old().similarity(jacobian));
     return std::pair<TrajectoryStateOnSurface,double>(TrajectoryStateOnSurface(destParameters,cte,surface,side),s);
   }
   else {

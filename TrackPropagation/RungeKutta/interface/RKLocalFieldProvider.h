@@ -1,7 +1,7 @@
 #ifndef RKLocalFieldProvider_H
 #define RKLocalFieldProvider_H
 
-#include "Geometry/Surface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
 
 class MagVolume;
 

@@ -3,9 +3,9 @@
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "Geometry/Vector/interface/GlobalVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
 #include "MagneticField/VolumeGeometry/interface/MagVolume.h"
 

@@ -4,7 +4,7 @@
 #include "TrackPropagation/RungeKutta/interface/RKCurvilinearDistance.h"
 #include "TrackPropagation/RungeKutta/interface/CurvilinearLorentzForce.h"
 #include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "TrackPropagation/RungeKutta/interface/RKAdaptiveSolver.h"
 #include "TrackPropagation/RungeKutta/interface/RKOne4OrderStep.h"
 #include "TrackPropagation/RungeKutta/interface/RKOneCashKarpStep.h"

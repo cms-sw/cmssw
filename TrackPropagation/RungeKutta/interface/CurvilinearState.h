@@ -1,8 +1,8 @@
 #ifndef CurvilinearState_H
 #define CurvilinearState_H
 
-#include "Geometry/Vector/interface/Basic2DVector.h"
-#include "Geometry/Vector/interface/Basic3DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
+#include "DataFormats/GeometryVector/interface/Basic3DVector.h"
 #include "TrackPropagation/RungeKutta/interface/VectorDoublet.h"
 
 /**

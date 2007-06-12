@@ -4,7 +4,7 @@
 #include "TrackPropagation/RungeKutta/interface/RKCylindricalDistance.h"
 #include "TrackPropagation/RungeKutta/interface/CylindricalLorentzForce.h"
 #include "TrackPropagation/RungeKutta/interface/RKLocalFieldProvider.h"
-#include "Geometry/Surface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
 #include "TrackPropagation/RungeKutta/interface/RKAdaptiveSolver.h"
 #include "TrackPropagation/RungeKutta/interface/RKOne4OrderStep.h"
 #include "TrackPropagation/RungeKutta/interface/RKOneCashKarpStep.h"

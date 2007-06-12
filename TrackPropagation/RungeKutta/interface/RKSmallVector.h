@@ -1,7 +1,7 @@
 #ifndef RKSmallVector_H
 #define RKSmallVector_H
 
-#include "Geometry/Vector/interface/PreciseFloatType.h"
+#include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 
 #include <iostream>
 
