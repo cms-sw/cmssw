@@ -1,4 +1,4 @@
-// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: OptoScanHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -119,7 +119,8 @@ void OptoScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       map<uint32_t,OptoScanAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) {
 
-	//@@ check if analysis isValid() ??
+	// Check if analysis is valid
+	if ( !iter->second.isValid() ) { continue; }
 
 	uint16_t gain = iter->second.gain();
 	std::stringstream ss;
