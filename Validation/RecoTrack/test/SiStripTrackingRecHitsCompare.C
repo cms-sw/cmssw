@@ -1,3 +1,36 @@
+void SetUpHistograms(TH1F* h1, TH1F* h2)
+  //, const char* xtitle, TLegend* leg = 0)
+{
+  float scale1 = -9999.9;
+  float scale2 = -9999.9;
+
+  if ( h1->Integral() != 0 && h2->Integral() != 0 )
+    {
+      scale1 = 1.0/(float)h1->Integral();
+      scale2 = 1.0/(float)h2->Integral();
+      
+      h1->Sumw2();
+      h2->Sumw2();
+      h1->Scale(scale1);
+      h2->Scale(scale2);
+  
+      h1->SetLineWidth(1);
+      h2->SetLineWidth(1);
+      h1->SetLineColor(2);
+      h2->SetLineColor(4);
+      h2->SetLineStyle(2);  
+    }
+  /*
+  h1->SetXTitle(xtitle);
+  if ( leg != 0 )
+    {
+      leg->SetBorderSize(0);
+      leg->AddEntry(h1, "reference  ", "l");
+      leg->AddEntry(h2, "new release", "l");
+    }
+  */
+}
+
 void SiStripTrackingRecHitsCompare()
 {
   //color 2 = red  = rfile = new file
@@ -7,6 +40,7 @@ void SiStripTrackingRecHitsCompare()
  gROOT ->Reset();
 
  char*  rfilename = "striptrackingrechitshisto.root";
+ //char*  sfilename = "striptrackingrechitshisto.root";
  char*  sfilename = "../data/striptrackingrechitshisto_REF.root";
 
  delete gROOT->GetListOfFiles()->FindObject(rfilename);
@@ -69,11 +103,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -99,11 +129,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -129,11 +155,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -159,11 +181,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -189,11 +207,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -219,11 +233,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -249,11 +259,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -445,11 +451,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -475,11 +477,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -506,11 +504,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -537,11 +531,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -566,11 +556,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -597,11 +583,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<6; i++) {
    if (refplotsTIB[i]->GetEntries() == 0 || newplotsTIB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTIB[i]->SetLineColor(2);
-   refplotsTIB[i]->Add( refplotsTIB[i],refplotsTIB[i], 1/(refplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineColor(4);
-   newplotsTIB[i]->Add( newplotsTIB[i],newplotsTIB[i], 1/(newplotsTIB[i]->GetEntries()),0.);
-   newplotsTIB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTIB[i],newplotsTIB[i]);
    refplotsTIB[i]->Draw();
    newplotsTIB[i]->Draw("sames");
    myPV->PVCompute(refplotsTIB[i] , newplotsTIB[i] , te );
@@ -679,11 +661,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<16; i++) {
    if (matchedtib[i]->GetEntries() == 0 || newmatchedtib[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   matchedtib[i]->SetLineColor(2);
-   matchedtib[i]->Add( matchedtib[i],matchedtib[i], 1/(matchedtib[i]->GetEntries()),0.);
-   newmatchedtib[i]->SetLineColor(4);
-   newmatchedtib[i]->Add( newmatchedtib[i],newmatchedtib[i], 1/(newmatchedtib[i]->GetEntries()),0.);
-   newmatchedtib[i]->SetLineStyle(2);
+   SetUpHistograms(matchedtib[i],newmatchedtib[i]);
    matchedtib[i]->Draw();
    newmatchedtib[i]->Draw("sames");
    myPV->PVCompute(matchedtib[i] , newmatchedtib[i] , te );
@@ -735,11 +713,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -769,11 +743,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -803,11 +773,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -837,11 +803,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -872,11 +834,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -907,11 +865,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -942,11 +896,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1166,11 +1116,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1200,11 +1146,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1235,11 +1177,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1269,11 +1207,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1304,11 +1238,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1338,11 +1268,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<8; i++) {
    if (refplotsTOB[i]->GetEntries() == 0 || newplotsTOB[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTOB[i]->SetLineColor(2);
-   refplotsTOB[i]->Add( refplotsTOB[i],refplotsTOB[i], 1/(refplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineColor(4);
-   newplotsTOB[i]->Add( newplotsTOB[i],newplotsTOB[i], 1/(newplotsTOB[i]->GetEntries()),0.);
-   newplotsTOB[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTOB[i],newplotsTOB[i]);
    refplotsTOB[i]->Draw();
    newplotsTOB[i]->Draw("sames");
    myPV->PVCompute(refplotsTOB[i] , newplotsTOB[i] , te );
@@ -1421,11 +1347,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<16; i++) {
    if (matchedtob[i]->GetEntries() == 0 || newmatchedtob[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   matchedtob[i]->SetLineColor(2);
-   matchedtob[i]->Add( matchedtob[i],matchedtob[i], 1/(matchedtob[i]->GetEntries()),0.);
-   newmatchedtob[i]->SetLineColor(4);
-   newmatchedtob[i]->Add( newmatchedtob[i],newmatchedtob[i], 1/(newmatchedtob[i]->GetEntries()),0.);
-   newmatchedtob[i]->SetLineStyle(2);
+   SetUpHistograms(matchedtob[i],newmatchedtob[i]);
    matchedtob[i]->Draw();
    newmatchedtob[i]->Draw("sames");
    myPV->PVCompute(matchedtob[i] , newmatchedtob[i] , te );
@@ -1473,11 +1395,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineStyle(2);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
    refplotsTID[i]->Draw();
    newplotsTID[i]->Draw("sames");
    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
@@ -1502,14 +1420,10 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("PullLFTIDCompare.eps");
@@ -1530,14 +1444,10 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("PullMFTIDCompare.eps");
@@ -1558,14 +1468,10 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("TrackangleTIDCompare.eps");
@@ -1586,14 +1492,10 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   refplotsTID[i]->SetLineColor(2);
-   refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
-   newplotsTID[i]->SetLineColor(4);
-   newplotsTID[i]->Add( newplotsTID[i],newplotsTID[i], 1/(newplotsTID[i]->GetEntries()),0.);
-    newplotsTID[i]->SetLineStyle(2);
-    refplotsTID[i]->Draw();
-    newplotsTID[i]->Draw("sames");
-    myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
+   refplotsTID[i]->Draw();
+   newplotsTID[i]->Draw("sames");
+   myPV->PVCompute(refplotsTID[i] , newplotsTID[i] , te );
  }
  
  Strip->Print("TrackwidthTIDCompare.eps");
@@ -1615,6 +1517,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
    refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
    newplotsTID[i]->SetLineColor(4);
@@ -1643,6 +1546,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
    refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
    newplotsTID[i]->SetLineColor(4);
@@ -1821,6 +1725,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
    refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
    newplotsTID[i]->SetLineColor(4);
@@ -1849,6 +1754,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
    refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
    newplotsTID[i]->SetLineColor(4);
@@ -1878,6 +1784,7 @@ void SiStripTrackingRecHitsCompare()
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
     Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
     refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
     newplotsTID[i]->SetLineColor(4);
@@ -1906,6 +1813,7 @@ void SiStripTrackingRecHitsCompare()
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
     Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
     refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
     newplotsTID[i]->SetLineColor(4);
@@ -1935,6 +1843,7 @@ void SiStripTrackingRecHitsCompare()
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
     Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
     refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
     newplotsTID[i]->SetLineColor(4);
@@ -1964,6 +1873,7 @@ void SiStripTrackingRecHitsCompare()
   for (Int_t i=0; i<5; i++) {
    if (refplotsTID[i]->GetEntries() == 0 || newplotsTID[i]->GetEntries() == 0) continue;
     Strip->cd(i+1);
+   SetUpHistograms(refplotsTID[i],newplotsTID[i]);
     refplotsTID[i]->SetLineColor(2);
    refplotsTID[i]->Add( refplotsTID[i],refplotsTID[i], 1/(refplotsTID[i]->GetEntries()),0.);
     newplotsTID[i]->SetLineColor(4);
@@ -2042,6 +1952,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<16; i++) {
    if (matchedtid[i]->GetEntries() == 0 || newmatchedtid[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
+   SetUpHistograms(matchedtid[i],newmatchedtid[i]);
    matchedtid[i]->SetLineColor(2);
    matchedtid[i]->Add( matchedtid[i],matchedtid[i], 1/(matchedtid[i]->GetEntries()),0.);
    newmatchedtid[i]->SetLineColor(4);
@@ -2105,6 +2016,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2142,6 +2054,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2179,6 +2092,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2216,6 +2130,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2253,6 +2168,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2290,6 +2206,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2327,6 +2244,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2435,6 +2353,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2472,6 +2391,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2510,6 +2430,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2547,6 +2468,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2585,6 +2507,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2623,6 +2546,7 @@ void SiStripTrackingRecHitsCompare()
  Strip->Divide(4,3);
  for (Int_t i=0; i<10; i++) {
    Strip->cd(i+1);
+   SetUpHistograms(refplotsTEC[i],newplotsTEC[i]);
    refplotsTEC[i]->SetLineColor(2);
    refplotsTEC[i]->Add( refplotsTEC[i],refplotsTEC[i], 1/(refplotsTEC[i]->GetEntries()),0.);
    newplotsTEC[i]->SetLineColor(4);
@@ -2704,11 +2628,7 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<12; i++) {
    if (matchedtec1[i]->GetEntries() == 0 || newmatchedtec1[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   matchedtec1[i]->SetLineColor(2);
-   matchedtec1[i]->Add( matchedtec1[i],matchedtec1[i], 1/(matchedtec1[i]->GetEntries()),0.);
-   newmatchedtec1[i]->SetLineColor(4);
-   newmatchedtec1[i]->Add( newmatchedtec1[i],newmatchedtec1[i], 1/(newmatchedtec1[i]->GetEntries()),0.);
-   newmatchedtec1[i]->SetLineStyle(2);
+   SetUpHistograms(matchedtec1[i],newmatchedtec1[i]);
    matchedtec1[i]->Draw();
    newmatchedtec1[i]->Draw("sames");
    myPV->PVCompute(matchedtec1[i] , newmatchedtec1[i] , te );
@@ -2746,17 +2666,15 @@ void SiStripTrackingRecHitsCompare()
  for (Int_t i=0; i<12; i++) {
    if (matchedtec2[i]->GetEntries() == 0 || newmatchedtec2[i]->GetEntries() == 0) continue;
    Strip->cd(i+1);
-   matchedtec2[i]->SetLineColor(2);
-   matchedtec2[i]->Add( matchedtec2[i],matchedtec2[i], 1/(matchedtec2[i]->GetEntries()),0.);
-   newmatchedtec2[i]->SetLineColor(4);
-   newmatchedtec2[i]->Add( newmatchedtec2[i],newmatchedtec2[i], 1/(newmatchedtec2[i]->GetEntries()),0.);
-   newmatchedtec2[i]->SetLineStyle(2);
+   SetUpHistograms(matchedtec2[i],newmatchedtec2[i]);
    matchedtec2[i]->Draw();
    newmatchedtec2[i]->Draw("sames");
    myPV->PVCompute(matchedtec2[i] , newmatchedtec2[i] , te );
  }
  
  Strip->Print("MatchedTECCompare_2.eps");
+
+
  /*
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Chi2_matched_layer1tec",matchedchi2tec[0]);
  rfile->GetObject("DQMData/TrackingRecHits/Strip/TEC/Chi2_matched_layer2tec",matchedchi2tec[1]);
