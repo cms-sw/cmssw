@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseTask.cc
  *
- * $Date: 2007/05/24 12:28:49 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -134,9 +134,9 @@ void EETestPulseTask::setup(void){
       dbe_->tag(meAmplErrorMapG12_[i], i+1);
    }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -146,7 +146,7 @@ void EETestPulseTask::setup(void){
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -197,9 +197,9 @@ void EETestPulseTask::cleanup(void){
       meAmplErrorMapG12_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01_[i] ) dbe_->removeElement( mePnAmplMapG01_[i]->getName() );
       mePnAmplMapG01_[i] = 0;
@@ -207,7 +207,7 @@ void EETestPulseTask::cleanup(void){
       mePnPedMapG01_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EETestPulseTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16_[i] ) dbe_->removeElement( mePnAmplMapG16_[i]->getName() );
       mePnAmplMapG16_[i] = 0;

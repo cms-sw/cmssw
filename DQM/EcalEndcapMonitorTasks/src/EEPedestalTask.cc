@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/05/24 12:28:49 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -128,16 +128,16 @@ void EEPedestalTask::setup(void){
       dbe_->tag(mePed5SumMapG12_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G01", Numbers::sEE(i+1).c_str());
       mePnPedMapG01_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
       dbe_->tag(mePnPedMapG01_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs pedestal %s G16", Numbers::sEE(i+1).c_str());
       mePnPedMapG16_[i] =  dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -185,15 +185,15 @@ void EEPedestalTask::cleanup(void){
       mePed5SumMapG12_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain01");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG01_[i]) dbe_->removeElement( mePnPedMapG01_[i]->getName() );
       mePnPedMapG01_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EEPedestalTask/PN/Gain16");
     for ( int i = 0; i < 18; i++ ) {
       if ( mePnPedMapG16_[i]) dbe_->removeElement( mePnPedMapG16_[i]->getName() );
       mePnPedMapG16_[i] = 0;

@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/05/24 12:28:49 $
- * $Revision: 1.10 $
+ * $Date: 2007/05/24 13:26:12 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  *
 */
@@ -246,11 +246,9 @@ void EELaserTask::setup(void){
       dbe_->tag(meAmplPNMapL4B_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1");
-
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -260,7 +258,7 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG01L1_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L1", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L1_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -270,9 +268,9 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG16L1_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -282,7 +280,7 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG01L2_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L2", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L2_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -292,9 +290,9 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG16L2_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -304,7 +302,7 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG01L3_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L3", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L3_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -314,9 +312,9 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG16L3_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G01 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG01L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -326,7 +324,7 @@ void EELaserTask::setup(void){
       dbe_->tag(mePnPedMapG01L4_[i], i+1);
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       sprintf(histo, "EEPDT PNs amplitude %s G16 L4", Numbers::sEE(i+1).c_str());
       mePnAmplMapG16L4_[i] = dbe_->bookProfile2D(histo, histo, 1, 0., 1., 10, 0., 10., 4096, 0., 4096., "s");
@@ -431,11 +429,9 @@ void EELaserTask::cleanup(void){
       meAmplPNMapL4B_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1");
-
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01L1_[i] ) dbe_->removeElement( mePnAmplMapG01L1_[i]->getName() );
       mePnAmplMapG01L1_[i] = 0;
@@ -443,7 +439,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L1_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser1/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser1/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16L1_[i] ) dbe_->removeElement( mePnAmplMapG16L1_[i]->getName() );
       mePnAmplMapG16L1_[i] = 0;
@@ -451,9 +447,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L1_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01L2_[i] ) dbe_->removeElement( mePnAmplMapG01L2_[i]->getName() );
       mePnAmplMapG01L2_[i] = 0;
@@ -461,7 +457,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L2_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser2/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser2/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16L2_[i] ) dbe_->removeElement( mePnAmplMapG16L2_[i]->getName() );
       mePnAmplMapG16L2_[i] = 0;
@@ -469,9 +465,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L2_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01L3_[i] ) dbe_->removeElement( mePnAmplMapG01L3_[i]->getName() );
       mePnAmplMapG01L3_[i] = 0;
@@ -479,7 +475,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L3_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser3/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser3/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16L3_[i] ) dbe_->removeElement( mePnAmplMapG16L3_[i]->getName() );
       mePnAmplMapG16L3_[i] = 0;
@@ -487,9 +483,9 @@ void EELaserTask::cleanup(void){
       mePnPedMapG16L3_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN");
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4/Gain01");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain01");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG01L4_[i] ) dbe_->removeElement( mePnAmplMapG01L4_[i]->getName() );
       mePnAmplMapG01L4_[i] = 0;
@@ -497,7 +493,7 @@ void EELaserTask::cleanup(void){
       mePnPedMapG01L4_[i] = 0;
     }
 
-    dbe_->setCurrentFolder("EcalEndcap/EEPnDiodeTask/Laser4/Gain16");
+    dbe_->setCurrentFolder("EcalEndcap/EELaserTask/Laser4/PN/Gain16");
     for (int i = 0; i < 18 ; i++) {
       if ( mePnAmplMapG16L4_[i] ) dbe_->removeElement( mePnAmplMapG16L4_[i]->getName() );
       mePnAmplMapG16L4_[i] = 0;
