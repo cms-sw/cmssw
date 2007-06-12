@@ -5,6 +5,7 @@ process = Process("MCCand")
 process.include( "FWCore/MessageLogger/data/MessageLogger.cfi" )
 process.include( "SimGeneral/HepPDTESSource/data/pythiapdt.cfi")
 process.include( "PhysicsTools/HepMCCandAlgos/data/genParticleCandidatesFast.cfi")
+process.include( "PhysicsTools/HepMCCandAlgos/data/genEventWeight.cfi")
 # The following is still not clear how should be converted to .py...
 # process.include( "PhysicsTools/HepMCCandAlgos/test/h4l.cff")
 # include "PhysicsTools/HepMCCandAlgos/test/ttbar.cff"
@@ -25,14 +26,16 @@ process.out = OutputModule( "PoolOutputModule",
   fileName = untracked.string( "genevents.root" ),
   outputCommands= untracked.vstring(
     "drop *",
-    "keep *_genParticleCandidates_*_*"
+    "keep *_genParticleCandidates_*_*",
+    "keep *_genEventWeight_*_*"
   )
 )
   
 process.printEventNumber = OutputModule( "AsciiOutputModule" )
   
 process.p = Path( 
-  process.genParticleCandidates 
+  process.genParticleCandidates *
+  process.genEventWeight
 )
 
 process.o = EndPath( 

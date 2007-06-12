@@ -3,53 +3,42 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/HepMCCandidate>
 
-<library file=GenParticleCandidateProducer.cc name=GenParticleCandidateProducerPlugin>
+<library file=GenEventWeightProducer.cc>
+  <use name=SimDataFormats/HepMCProduct>
+</library>
+
+<library file=FastGenParticleCandidateProducer.cc>
   <use name=SimGeneral/HepPDTRecord>
   <use name=SimDataFormats/HepMCProduct>
-  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=FastGenParticleCandidateProducer.cc name=FastGenParticleCandidateProducerPlugin>
+<library file=GenParticleCandidateSelector.cc>
   <use name=SimGeneral/HepPDTRecord>
-  <use name=SimDataFormats/HepMCProduct>
-  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=GenParticleCandidateSelector.cc name=GenParticleCandidateSelectorPlugin>
+<library file=ParticleTreeDrawer.cc>
   <use name=SimGeneral/HepPDTRecord>
-  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=ParticleTreeDrawer.cc name=ParticleTreeDrawerPlugin>
+<library file=ParticleDecayDrawer.cc>
   <use name=SimGeneral/HepPDTRecord>
-  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=ParticleDecayDrawer.cc name=ParticleDecayDrawerPlugin>
-  <use name=SimGeneral/HepPDTRecord>
-  <flags EDM_PLUGIN=1>
-</library>
-
-<library file=MCTruthDeltaRMatcher.cc name=MCTruthDeltaRMatcherPlugin>
+<library file=MCTruthDeltaRMatcher.cc>
   <use name=PhysicsTools/CandAlgos>
-  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=MCTruthCompositeMatcher.cc name=MCTruthCompositeMatcherPlugin>
-  <flags EDM_PLUGIN=1>
+<library file=MCTruthCompositeMatcher.cc>
 </library>
 
-<library file=MCTruthMuonCompositeMatcher.cc name=MCTruthMuonCompositeMatcherPlugin>
-  <flags EDM_PLUGIN=1>
+<library file=MCTruthMuonCompositeMatcher.cc>
   <use name=DataFormats/MuonReco>
 </library>
 
-<library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc name=MCTruthPixelMatchGsfElectronCompositeMatcherPlugin>
-  <flags EDM_PLUGIN=1>
+<library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc>
   <use name=DataFormats/EgammaCandidates>
 </library>
 
-<library file=MCTruthCaloJetCompositeMatcher.cc name=MCTruthCaloJetCompositeMatcherPlugin>
-  <flags EDM_PLUGIN=1>
+<library file=MCTruthCaloJetCompositeMatcher.cc>
   <use name=DataFormats/JetReco>
 </library>

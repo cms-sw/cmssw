@@ -1,8 +1,11 @@
-/** class 
+/* \class FastGenParticleCandidateProducer
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.17 2007/06/07 A.Santocchia Exp $
+ * Convert HepMC GenEvent format into a collection of type
+ * CandidateCollection containing objects of type GenParticleCandidate
+ *
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.17 2007/06/07 09:11:34 santocch Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
