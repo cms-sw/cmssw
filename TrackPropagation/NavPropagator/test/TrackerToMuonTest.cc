@@ -20,7 +20,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
 
 #include  "TrackPropagation/NavPropagator/interface/NavPropagator.h"
-#include "Geometry/Surface/interface/PlaneBuilder.h"
+#include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 
 #include <map>
 using namespace std;
