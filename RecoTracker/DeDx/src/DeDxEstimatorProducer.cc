@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.1 2007/06/11 14:04:08 arizzi Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.2 2007/06/12 12:33:53 arizzi Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimator.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 using namespace reco;
 //
@@ -66,7 +67,13 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    iEvent.getByLabel(m_tracksDeDxHitsTag,trackDeDxHitsCollectionHandle);
    const reco::TrackDeDxHitsCollection & hits = *trackDeDxHitsCollectionHandle.product();
    TrackDeDxEstimatorCollection * outputCollection = new TrackDeDxEstimatorCollection(hits.keyProduct());
-
+   
+   reco::TrackDeDxHitsCollection::const_iterator it= hits.begin();
+   for(;it!=hits.end();++it)
+   {
+       float val=m_estimator->dedx(*it);
+   }
+   
    //put in the event the result
     std::auto_ptr<TrackDeDxEstimatorCollection> estimator(outputCollection);
     iEvent.put(estimator);
