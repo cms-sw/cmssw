@@ -275,173 +275,171 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
     // Get the map of noisy channels
     c.get<DTStatusFlagRcd>().get(statusMap);
   }
-  
- string histoTag;
+
+  string histoTag;
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
 
-      if(checkNoisyChannels) {
-	const DTWireId wireId(((*dtLayerId_It).first), (*digiIt).wire());
 	bool isNoisy = false;
 	bool isFEMasked = false;
 	bool isTDCMasked = false;
 	bool isTrigMask = false;
 	bool isDead = false;
 	bool isNohv = false;
-	statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
-	if(isNoisy) {
-	  continue;
-	}      
-      }
-      
-
-
-      // for clearness..
-      const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
-      uint32_t indexSL = dtSLId.rawId();
-      const  DTChamberId dtChId = dtSLId.chamberId(); 
-      uint32_t indexCh = dtChId.rawId();
-      int layer_number=((*dtLayerId_It).first).layer();
-      int superlayer_number=dtSLId.superlayer();
-      const  DTLayerId dtLId = (*dtLayerId_It).first;
-      uint32_t indexL = dtLId.rawId();
-      
-      if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
-	tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
-      else tTrig = parameters.getParameter<int>("defaultTtrig");
-          
-      int inTimeHitsLowerBound = int(round(tTrig)) - parameters.getParameter<int>("inTimeHitsLowerBound");
-      int inTimeHitsUpperBound = int(round(tTrig)) + tMax + parameters.getParameter<int>("inTimeHitsUpperBound");
-     
-      float t0; float t0RMS;
-      int tdcTime = (*digiIt).countsTDC();
-      
-      if (parameters.getParameter<bool>("performPerWireT0Calibration")) {
-	const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
-	t0Map->cellT0(dtWireId, t0, t0RMS) ;
-	tdcTime += int(round(t0));
-      }
-      
-
-      // TimeBoxes per SL
-      histoTag = "TimeBox" + triggerSource();
-      if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	bookHistos( dtSLId, string("TimeBoxes"), histoTag );
-      (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
-
-      
-      // 2nd - 1st (CathodPhotoPeak) per SL
-      if ( (*digiIt).number() == 1 ) {
+	if(checkNoisyChannels) {
+	  const DTWireId wireId(((*dtLayerId_It).first), (*digiIt).wire());
+	  statusMap->cellStatus(wireId, isNoisy, isFEMasked, isTDCMasked, isTrigMask, isDead, isNohv);
+	}
 	
-	DTDigiCollection::const_iterator firstDigiIt = digiIt;
-	firstDigiIt--;
 	
-	histoTag = "CathodPhotoPeak";
-	if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
-	  bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
-									(*firstDigiIt).countsTDC());
-      }
 
-
-      // only when tTrig is not available 
-      if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
+	// for clearness..
+	const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
+	uint32_t indexSL = dtSLId.rawId();
+	const  DTChamberId dtChId = dtSLId.chamberId(); 
+	uint32_t indexCh = dtChId.rawId();
+	int layer_number=((*dtLayerId_It).first).layer();
+	int superlayer_number=dtSLId.superlayer();
+	const  DTLayerId dtLId = (*dtLayerId_It).first;
+	uint32_t indexL = dtLId.rawId();
 	
-	//Occupancies per chamber & layer
-	histoTag = "OccupancyAllHits_perCh";
-	if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
-	  bookHistos( dtChId, string("Occupancies"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
-									(layer_number+(superlayer_number-1)*4)-1);
-	histoTag = "OccupancyAllHits_perL";
-	if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	  bookHistos( dtChId, string("Occupancies"), histoTag );
-	(digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
-      }
-      
-      // after-Calibration jobs 
-      else {
+	if ( parameters.getUntrackedParameter<bool>("readDB", false) ) 
+	  tTrigMap->slTtrig( ((*dtLayerId_It).first).superlayerId(), tTrig, tTrigRMS); 
+	else tTrig = parameters.getParameter<int>("defaultTtrig");
 	
-	// Noise: Before tTrig
-	if (tdcTime < inTimeHitsLowerBound ) {
+	int inTimeHitsLowerBound = int(round(tTrig)) - parameters.getParameter<int>("inTimeHitsLowerBound");
+	int inTimeHitsUpperBound = int(round(tTrig)) + tMax + parameters.getParameter<int>("inTimeHitsUpperBound");
+	
+	float t0; float t0RMS;
+	int tdcTime = (*digiIt).countsTDC();
+	
+	if (parameters.getParameter<bool>("performPerWireT0Calibration")) {
+	  const DTWireId dtWireId(((*dtLayerId_It).first), (*digiIt).wire());
+	  t0Map->cellT0(dtWireId, t0, t0RMS) ;
+	  tdcTime += int(round(t0));
+	}
+	
+	// avoid to fill TB and PhotoPeak with noise. Occupancy are anyway filled
+	if ( !isNoisy ) {
 	  
-	  //Occupancies Noise per chamber & layer
-	  histoTag = "OccupancyNoise_perCh";
+	  // TimeBoxes per SL
+	  histoTag = "TimeBox" + triggerSource();
+	  if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+	    bookHistos( dtSLId, string("TimeBoxes"), histoTag );
+	  (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill(tdcTime);
+	  
+	  
+	  // 2nd - 1st (CathodPhotoPeak) per SL
+	  if ( (*digiIt).number() == 1 ) {
+	    
+	    DTDigiCollection::const_iterator firstDigiIt = digiIt;
+	    firstDigiIt--;
+	    
+	    histoTag = "CathodPhotoPeak";
+	    if (digiHistos[histoTag].find(indexSL) == digiHistos[histoTag].end())
+	      bookHistos( dtSLId, string("CathodPhotoPeaks"), histoTag );
+	    (digiHistos.find(histoTag)->second).find(indexSL)->second->Fill((*digiIt).countsTDC()-
+									    (*firstDigiIt).countsTDC());
+	  }
+	}
+
+	// only when tTrig is not available 
+	if (!parameters.getUntrackedParameter<bool>("readDB", true)) {
+	  
+	  //Occupancies per chamber & layer
+	  histoTag = "OccupancyAllHits_perCh";
 	  if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
 									  (layer_number+(superlayer_number-1)*4)-1);
-	  histoTag = "OccupancyNoise_perL";
+	  histoTag = "OccupancyAllHits_perL";
 	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
 	}
-
-	// Physical hits: within the time window	
-	else if (tdcTime > inTimeHitsLowerBound && tdcTime < inTimeHitsUpperBound) { 
-
-	  //Occupancies Signal per chamber & layer
-	  histoTag = "OccupancyInTimeHits_perCh";
-	  if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()) 
+	
+	// after-Calibration jobs 
+	else {
+	  
+	  // Noise: Before tTrig
+	  if (tdcTime < inTimeHitsLowerBound ) {
+	    
+	    //Occupancies Noise per chamber & layer
+	    histoTag = "OccupancyNoise_perCh";
+	    if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end())
+	      bookHistos( dtChId, string("Occupancies"), histoTag );
+	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
+									    (layer_number+(superlayer_number-1)*4)-1);
+	    histoTag = "OccupancyNoise_perL";
+	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
-									  (layer_number+(superlayer_number-1)*4)-1);
+	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	  }
+	  
+	  // Physical hits: within the time window	
+	  else if (tdcTime > inTimeHitsLowerBound && tdcTime < inTimeHitsUpperBound) { 
+	    
+	    //Occupancies Signal per chamber & layer
+	    histoTag = "OccupancyInTimeHits_perCh";
+	    if (digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()) 
+	      bookHistos( dtChId, string("Occupancies"), histoTag );
+	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*digiIt).wire(),
+									    (layer_number+(superlayer_number-1)*4)-1);
 	  histoTag = "OccupancyInTimeHits_perL";
 	  if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
 	    bookHistos( dtChId, string("Occupancies"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexL)->second->Fill((*digiIt).wire());
+	  }
 	}
-      }
-      histoTag = "DigiPerEvent";
-      if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
-	bookHistos(dtChId, string("DigiPerEvent"), histoTag );
-
+	histoTag = "DigiPerEvent";
+	if (digiHistos[histoTag].find(indexL) == digiHistos[histoTag].end())
+	  bookHistos(dtChId, string("DigiPerEvent"), histoTag );
+	
     }
   }
 
-  //To plot the numeber of digi per event per wire
-  int nSl;
+  //To plot the number of digi per event per wire
   std::map<int,int > DigiPerWirePerEvent;
-  // Loop over all the wheels
-  for (int wheel=-2; wheel<=2; wheel++) {
-    // Loop over all the sectors
-    for (int sector=1; sector<=12; sector++) {
-      // Loop over all the chambers
-      for (int station=1; station<=4; station++) {
-	if(station==4) nSl=2;
-	else nSl=3;
-	// Loop over the SLs
-	for(int superLayer=1; superLayer<=nSl; superLayer++){
-	  // Loop over the Ls
-	  for (int layer=1; layer<=4; layer++){
-	    if(station==4 && superLayer==2) superLayer++; 
-	    DTLayerId layerId(wheel, station, sector, superLayer, layer);
-	    int nWires = muonGeom->layer(layerId)->specificTopology().channels();
-	    uint32_t indexL = layerId.rawId();
-	    histoTag = "DigiPerEvent";
-	    if (digiHistos[histoTag].find(indexL) != digiHistos[histoTag].end()){
-	      for (int wire=1; wire<=nWires; wire++) {
-	      DigiPerWirePerEvent[wire]= 0;
-	      }
-	      DTDigiCollection::Range layerDigi= dtdigis->get(layerId);
-	      for (DTDigiCollection::const_iterator digi = layerDigi.first;
-		   digi!=layerDigi.second;
-		   ++digi){
+  
+  // Loop over all the chambers
+  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  // Loop over the SLs
+  for (; ch_it != ch_end; ++ch_it) {
+    DTChamberId ch = (*ch_it)->id();
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    // Loop over the SLs
+    for(; sl_it != sl_end; ++sl_it) {
+      DTSuperLayerId sl = (*sl_it)->id();
+      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
+      vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+      // Loop over the Ls
+      for(; l_it != l_end; ++l_it) {
+	DTLayerId layerId = (*l_it)->id();
+	int nWires = muonGeom->layer(layerId)->specificTopology().channels();
+	uint32_t indexL = layerId.rawId();
+	histoTag = "DigiPerEvent";
+	if (digiHistos[histoTag].find(indexL) != digiHistos[histoTag].end()){
+	  for (int wire=1; wire<=nWires; wire++) {
+	    DigiPerWirePerEvent[wire]= 0;
+	  }
+	  DTDigiCollection::Range layerDigi= dtdigis->get(layerId);
+	  for (DTDigiCollection::const_iterator digi = layerDigi.first;
+	       digi!=layerDigi.second;
+	       ++digi){
 		DigiPerWirePerEvent[(*digi).wire()]+=1;
-	      }
-	      for (int wire=1; wire<=nWires; wire++) {
-		(digiHistos.find(histoTag)->second).find(indexL)->second->Fill(wire,DigiPerWirePerEvent[wire]);
-	      }
-	    }
-	  } //Loop Ls
-	} //Loop SLs
-      } //Loop sector
-    } //Loop station
-  } //Loop wheel
-
+	  }
+	  for (int wire=1; wire<=nWires; wire++) {
+	    (digiHistos.find(histoTag)->second).find(indexL)->second->Fill(wire,DigiPerWirePerEvent[wire]);
+	  }
+	}
+      } //Loop Ls
+    } //Loop SLs
+  } //Loop over chambers
 }
 
 
