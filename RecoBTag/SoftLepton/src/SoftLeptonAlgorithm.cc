@@ -29,6 +29,7 @@ SoftLeptonAlgorithm::SoftLeptonAlgorithm( const edm::ParameterSet & iConfig ) :
     m_refineJetAxis    = iConfig.getParameter<unsigned int>("refineJetAxis");
     m_usePrimaryVertex = iConfig.getParameter<bool>("usePrimaryVertex");
     m_deltaRCut        = iConfig.getParameter<double>("deltaRCut");
+    m_chi2Cut          = iConfig.getParameter<double>("chi2Cut");
 }
   
 
@@ -50,15 +51,17 @@ reco::SoftLeptonTagInfo SoftLeptonAlgorithm::tag (
   for (unsigned int i = 0; i < leptons.size(); i++) {
     const reco::TrackRef  & lepton = leptons[i];
     const math::XYZVector & lepton_momentum = lepton->momentum();
+    if ((m_chi2Cut > 0.0) and (lepton->normalizedChi2() > m_chi2Cut))
+      continue;
 
-    if (DeltaR(lepton_momentum, jet->momentum()) > m_deltaRCut)
+    const GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton );
+    const math::XYZVector axis( jetAxis.x(), jetAxis.y(), jetAxis.z());
+    if (DeltaR(lepton_momentum, axis) > m_deltaRCut)
       continue;
 
     reco::SoftLeptonProperties properties;
     properties.axisRefinement = m_refineJetAxis;
-    GlobalVector jetAxis = refineJetAxis( jet, tracks, lepton );
-    math::XYZVector axis( jetAxis.x(), jetAxis.y(), jetAxis.z());
-   
+
     if (m_usePrimaryVertex) { 
       const reco::TransientTrack transientTrack = m_transientTrackBuilder->build(&lepton);
       properties.sip3d = sip3D.apply( transientTrack, jetAxis, primaryVertex ).second.significance();
@@ -72,7 +75,7 @@ reco::SoftLeptonTagInfo SoftLeptonAlgorithm::tag (
     properties.etaRel   = relativeEta( lepton_momentum, axis );
     properties.ratio    = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
-    properties.tag      = 0.0;  // tags should not be in extended collections
+    properties.tag      = 0.0;  // FIXME: fix the DF, tags should not be in the TagInfo
     info.insert( lepton, properties );
   }
  

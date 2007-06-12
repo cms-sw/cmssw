@@ -19,7 +19,9 @@ public:
   SoftLeptonAlgorithm( void ) : 
     m_transientTrackBuilder( NULL ),
     m_refineJetAxis( reco::SoftLeptonProperties::AXIS_CALORIMETRIC ),
-    m_usePrimaryVertex( true )
+    m_deltaRCut( 0.7 ),
+    m_chi2Cut( 0.0 ),
+    m_usePrimaryVertex( true ),
   {
   }
 
