@@ -1,14 +1,24 @@
+<use name=CondFormats/BeamSpotObjects>
+<use name=DataFormats/BeamSpot>
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/TrajectoryState>
+<use name=DataFormats/VertexReco>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
 <export>
- <lib name=RecoVertexVertexPrimitives>
- <use name=TrackingTools/TransientTrack>
- <use name=DataFormats/VertexReco>
- <use name=DataFormats/Math>
- <use name=DataFormats/BeamSpot>
- <use name=CondFormats/BeamSpotObjects>
+  <use name=CondFormats/BeamSpotObjects>
+  <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/CLHEP>
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometrySurface>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/TrajectoryState>
+  <use name=DataFormats/VertexReco>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoVertexVertexPrimitives>
 </export>
 
-<use name=TrackingTools/TransientTrack>
-<use name=DataFormats/VertexReco>
-<use name=DataFormats/Math>
-<use name=DataFormats/BeamSpot>
-<use name=CondFormats/BeamSpotObjects>
