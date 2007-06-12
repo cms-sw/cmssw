@@ -4,15 +4,13 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentCorrelationsStore.h"
+#include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsEntry.h"
 
 
 /// This class manages the storage and retrieval of correlations between Alignables
 /// for the AlignmentParameterStore. This implementation does not stores the entries
 /// of the "big covariance matrix" itself, but the statistical correlations, i.e.
 /// R_ij=C_ij/sqrt(C_ii*C_jj) rather than C_ij.
-///
-/// In addition, the number of updates for each entry is stored. A maximum value can
-/// be defined above which the individual correlations are not updated anymore.
 ///
 /// If a correlation exceeds a certain value (especially corrupted correlations with
 /// an absolute value bigger than 1) it is downweighted.
@@ -23,7 +21,7 @@ class AlignmentExtendedCorrelationsStore : public AlignmentCorrelationsStore
 
 public:
 
-  typedef std::pair< AlgebraicMatrix, int > ExtendedCorrelationsEntry;
+  typedef AlignmentExtendedCorrelationsEntry ExtendedCorrelationsEntry;
   typedef std::map< Alignable*, ExtendedCorrelationsEntry > ExtendedCorrelationsTable;
   typedef std::map< Alignable*, ExtendedCorrelationsTable* > ExtendedCorrelations;
 
@@ -45,6 +43,9 @@ public:
   /// number of updates has already been reached.
   virtual void setCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat );
 
+  /// Get correlations.
+  virtual void getCorrelations( Alignable* ap1, Alignable* ap2,	AlgebraicMatrix& mat ) const;
+
   /// Check whether correlations are stored for a given pair of alignables.
   virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const;
 
@@ -61,19 +62,19 @@ protected:
 				      const AlgebraicSymMatrix& cov,
 				      int row, int col, bool transpose );
 
-  virtual void fillCovariance( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
+  virtual void fillCovariance( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
 			       AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void fillCovarianceT( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
+  virtual void fillCovarianceT( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
 				AlgebraicSymMatrix& cov, int row, int col ) const;
 
-  virtual void readFromCovariance( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+  virtual void readFromCovariance( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
 				   const AlgebraicSymMatrix& cov, int row, int col );
 
-  virtual void readFromCovarianceT( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+  virtual void readFromCovarianceT( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
 				    const AlgebraicSymMatrix& cov, int row, int col );
 
-  void resizeCorruptCorrelations( AlgebraicMatrix& corr, double maxCorr );
+  void resizeCorruptCorrelations( ExtendedCorrelationsEntry& entry, double maxCorr );
 
   ExtendedCorrelations theCorrelations;
 

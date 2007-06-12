@@ -1,5 +1,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsStore.h"
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 
 AlignmentExtendedCorrelationsStore::AlignmentExtendedCorrelationsStore( const edm::ParameterSet& config )
@@ -31,8 +33,8 @@ void AlignmentExtendedCorrelationsStore::correlations( Alignable* ap1, Alignable
     if ( itC2 != previousCorrelations->end() )
     {
       transpose ?
-	fillCovarianceT( ap1, ap2, (*itC2).second.first, cov, row, col ) :
-	fillCovariance( ap1, ap2, (*itC2).second.first, cov, row, col );
+	fillCovarianceT( ap1, ap2, (*itC2).second, cov, row, col ) :
+	fillCovariance( ap1, ap2, (*itC2).second, cov, row, col );
     }
   }
   else
@@ -47,8 +49,8 @@ void AlignmentExtendedCorrelationsStore::correlations( Alignable* ap1, Alignable
       if ( itC2 != (*itC1).second->end() )
       {
 	transpose ?
-	  fillCovarianceT( ap1, ap2, (*itC2).second.first, cov, row, col ) :
-	  fillCovariance( ap1, ap2, (*itC2).second.first, cov, row, col );
+	  fillCovarianceT( ap1, ap2, (*itC2).second, cov, row, col ) :
+	  fillCovariance( ap1, ap2, (*itC2).second, cov, row, col );
       }
     }
   }
@@ -109,19 +111,39 @@ void AlignmentExtendedCorrelationsStore::setCorrelations( Alignable* ap1, Aligna
     ExtendedCorrelationsTable::iterator itC2 = itC1->second->find( ap1 );
     if ( itC2 != itC1->second->end() )
     {
-      itC2->second.first = transpose ? mat.T() : mat;
+      itC2->second = transpose ? ExtendedCorrelationsEntry( mat.T() ) : ExtendedCorrelationsEntry( mat );
     }
     else
     {
-      (*itC1->second)[ap2] = std::make_pair( transpose ? mat.T() : mat, 1 );
+      (*itC1->second)[ap2] = transpose ? ExtendedCorrelationsEntry( mat.T() ) : ExtendedCorrelationsEntry( mat );
     }
   }
   else
   {
     ExtendedCorrelationsTable* newTable = new ExtendedCorrelationsTable;
-    (*newTable)[ap2] = std::make_pair( transpose ? mat.T() : mat, 1 );
+    (*newTable)[ap2] = transpose ? ExtendedCorrelationsEntry( mat.T() ) : ExtendedCorrelationsEntry( mat );
     theCorrelations[ap1] = newTable;
   }
+}
+
+
+void AlignmentExtendedCorrelationsStore::getCorrelations( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& mat ) const
+{
+  bool transpose = ( ap2 > ap1 );
+  if ( transpose ) std::swap( ap1, ap2 );
+
+  ExtendedCorrelations::const_iterator itC1 = theCorrelations.find( ap1 );
+  if ( itC1 != theCorrelations.end() )
+  {
+    ExtendedCorrelationsTable::const_iterator itC2 = itC1->second->find( ap2 );
+    if ( itC2 != itC1->second->end() )
+    {
+      mat = transpose ? itC2->second.matrix().T() : itC2->second.matrix();
+      return;
+    }
+  }
+
+  mat = AlgebraicMatrix();
 }
 
 
@@ -174,46 +196,52 @@ AlignmentExtendedCorrelationsStore::fillCorrelationsTable( Alignable* ap1, Align
 
   if ( itC != table->end() )
   {
-    if ( itC->second.second > theMaxUpdates ) return;
+    //if ( itC->second.counter() > theMaxUpdates ) return;
 
     transpose ?
-      readFromCovarianceT( ap1, ap2, itC->second.first, cov, row, col ) :
-      readFromCovariance( ap1, ap2, itC->second.first, cov, row, col );
+      readFromCovarianceT( ap1, ap2, itC->second, cov, row, col ) :
+      readFromCovariance( ap1, ap2, itC->second, cov, row, col );
 
-    ++itC->second.second;
+    //itC->second.incrementCounter();
   }
   else
   {
     int nRow = ap1->alignmentParameters()->numSelected();
     int nCol = ap2->alignmentParameters()->numSelected();
-    AlgebraicMatrix newEntry( nRow, nCol );
+    ExtendedCorrelationsEntry newEntry( nRow, nCol );
 
     transpose ?
       readFromCovarianceT( ap1, ap2, newEntry, cov, row, col ) :
       readFromCovariance( ap1, ap2, newEntry, cov, row, col );
 
-    (*table)[ap2] = std::make_pair( newEntry, 1 );
+    (*table)[ap2] = newEntry;
   }
 }
 
 
 void
-AlignmentExtendedCorrelationsStore::fillCovariance( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
-					    AlgebraicSymMatrix& cov, int row, int col ) const
+AlignmentExtendedCorrelationsStore::fillCovariance( Alignable* ap1, Alignable* ap2,  const ExtendedCorrelationsEntry& entry,
+						    AlgebraicSymMatrix& cov, int row, int col ) const
 {
-  int nRow = entry.num_row();
-  int nCol = entry.num_col();
+  int nRow = entry.numRow();
+  int nCol = entry.numCol();
 
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[row+iRow][row+iRow]);
+    if ( isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
+							    << "NaN-factor: sqrt(" << cov[row+iRow][row+iRow] << ")";
+
     for ( int jCol = 0; jCol < nCol; ++jCol )
-      cov[row+iRow][col+jCol] = entry[iRow][jCol]*factor;
+      cov[row+iRow][col+jCol] = entry( iRow, jCol )*factor;
   }
 
   for ( int jCol = 0; jCol < nCol; ++jCol )
   {
     double factor = sqrt(cov[col+jCol][col+jCol]);
+    if ( isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovariance] "
+							    << "NaN-factor: sqrt(" << cov[col+jCol][col+jCol] << ")";
+
     for ( int iRow = 0; iRow < nRow; ++iRow )
       cov[row+iRow][col+jCol] *= factor;
   }
@@ -221,22 +249,26 @@ AlignmentExtendedCorrelationsStore::fillCovariance( Alignable* ap1, Alignable* a
 
 
 void
-AlignmentExtendedCorrelationsStore::fillCovarianceT( Alignable* ap1, Alignable* ap2, const AlgebraicMatrix& entry,
+AlignmentExtendedCorrelationsStore::fillCovarianceT( Alignable* ap1, Alignable* ap2, const ExtendedCorrelationsEntry& entry,
 					     AlgebraicSymMatrix& cov, int row, int col ) const
 {
-  int nRow = entry.num_row();
-  int nCol = entry.num_col();
+  int nRow = entry.numRow();
+  int nCol = entry.numCol();
 
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[col+iRow][col+iRow]);
+    if ( isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
+							    << "NaN-factor: sqrt(" << cov[col+iRow][col+iRow] << ")";
     for ( int jCol = 0; jCol < nCol; ++jCol )
-      cov[row+jCol][col+iRow] = entry[iRow][jCol]*factor;
+      cov[row+jCol][col+iRow] = entry( iRow, jCol )*factor;
   }
 
   for ( int jCol = 0; jCol < nCol; ++jCol )
   {
     double factor = sqrt(cov[row+jCol][row+jCol]);
+    if ( isnan(factor) ) throw cms::Exception("LogicError") << "[AlignmentExtendedCorrelationsStore::fillCovarianceT] "
+							    << "NaN-factor: sqrt(" << cov[row+jCol][row+jCol] << ")";
     for ( int iRow = 0; iRow < nRow; ++iRow )
       cov[row+jCol][col+iRow] *= factor;
   }
@@ -245,17 +277,17 @@ AlignmentExtendedCorrelationsStore::fillCovarianceT( Alignable* ap1, Alignable* 
 
 
 void
-AlignmentExtendedCorrelationsStore::readFromCovariance( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+AlignmentExtendedCorrelationsStore::readFromCovariance( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
 							const AlgebraicSymMatrix& cov, int row, int col )
 {
-  int nRow = entry.num_row();
-  int nCol = entry.num_col();
+  int nRow = entry.numRow();
+  int nCol = entry.numCol();
 
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[row+iRow][row+iRow]);
     for ( int jCol = 0; jCol < nCol; ++jCol )
-      entry[iRow][jCol] = cov[row+iRow][col+jCol]/factor;
+      entry( iRow, jCol ) = cov[row+iRow][col+jCol]/factor;
   }
 
   double maxCorr = 0;
@@ -265,8 +297,8 @@ AlignmentExtendedCorrelationsStore::readFromCovariance( Alignable* ap1, Alignabl
     double factor = sqrt(cov[col+jCol][col+jCol]);
     for ( int iRow = 0; iRow < nRow; ++iRow )
     {
-      entry[iRow][jCol] /= factor;
-      if ( fabs(entry[iRow][jCol]) > maxCorr ) maxCorr = fabs(entry[iRow][jCol]);
+      entry( iRow, jCol ) /= factor;
+      if ( fabs( entry( iRow, jCol ) ) > maxCorr ) maxCorr = fabs( entry( iRow, jCol ) );
     }
   }
 
@@ -275,17 +307,17 @@ AlignmentExtendedCorrelationsStore::readFromCovariance( Alignable* ap1, Alignabl
 
 
 void
-AlignmentExtendedCorrelationsStore::readFromCovarianceT( Alignable* ap1, Alignable* ap2, AlgebraicMatrix& entry,
+AlignmentExtendedCorrelationsStore::readFromCovarianceT( Alignable* ap1, Alignable* ap2, ExtendedCorrelationsEntry& entry,
 							 const AlgebraicSymMatrix& cov, int row, int col )
 {
-  int nRow = entry.num_row();
-  int nCol = entry.num_col();
+  int nRow = entry.numRow();
+  int nCol = entry.numCol();
 
   for ( int iRow = 0; iRow < nRow; ++iRow )
   {
     double factor = sqrt(cov[col+iRow][col+iRow]);
     for ( int jCol = 0; jCol < nCol; ++jCol )
-      entry[iRow][jCol] = cov[row+jCol][col+iRow]/factor;
+      entry( iRow, jCol ) = cov[row+jCol][col+iRow]/factor;
   }
 
   double maxCorr = 0;
@@ -295,8 +327,8 @@ AlignmentExtendedCorrelationsStore::readFromCovarianceT( Alignable* ap1, Alignab
     double factor = sqrt(cov[row+jCol][row+jCol]);
     for ( int iRow = 0; iRow < nRow; ++iRow )
     {
-      entry[iRow][jCol] /= factor;
-      if ( fabs(entry[iRow][jCol]) > maxCorr ) maxCorr = fabs(entry[iRow][jCol]);
+      entry( iRow, jCol ) /= factor;
+      if ( fabs( entry( iRow, jCol ) ) > maxCorr ) maxCorr = fabs( entry( iRow, jCol ) );
     }
   }
 
@@ -305,15 +337,15 @@ AlignmentExtendedCorrelationsStore::readFromCovarianceT( Alignable* ap1, Alignab
 
 
 void
-AlignmentExtendedCorrelationsStore::resizeCorruptCorrelations( AlgebraicMatrix& corr,
+AlignmentExtendedCorrelationsStore::resizeCorruptCorrelations( ExtendedCorrelationsEntry& entry,
 							       double maxCorr )
 {
   if ( maxCorr > 1. )
   {
-    corr *= theWeight/maxCorr;
+    entry *= theWeight/maxCorr;
   }
   else if ( maxCorr > theCut )
   {
-    corr *= 1. - ( maxCorr - theCut )/( 1. - theCut )*( 1. - theWeight );
+    entry *= 1. - ( maxCorr - theCut )/( 1. - theCut )*( 1. - theWeight );
   }
 }
