@@ -6,7 +6,7 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
-#include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
+#include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 /** \class BeamSpot 
  * Beamspot class to be used in vertex reconstruction. 
