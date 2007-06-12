@@ -35,7 +35,7 @@
 
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearTester.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
-#include "RecoTracker/NuclearSeedGenerator/interface/TangentCircle.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -62,7 +62,7 @@ private:
          findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
 
   /// Calculate the parameters of the circle representing the primary track at the interaction point
-  void definePrimaryCircle(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
+  void definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
 
 public:
 
@@ -93,7 +93,7 @@ private:
   NuclearTester*                             nuclTester;
   SeedFromNuclearInteraction*                currentSeed;
   std::vector<SeedFromNuclearInteraction>    allSeeds;
-  TangentCircle*                             thePrimaryCircle;
+  TangentHelix*                              thePrimaryHelix;
 
   // parameters
   double        ptMin;

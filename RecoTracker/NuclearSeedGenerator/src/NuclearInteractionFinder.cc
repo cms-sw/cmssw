@@ -58,7 +58,7 @@ NuclearInteractionFinder::~NuclearInteractionFinder() {
   delete theNavigationSchool;
   delete nuclTester;
   delete currentSeed;
-  delete thePrimaryCircle;
+  delete thePrimaryHelix;
 }
 
 //----------------------------------------------------------------------
@@ -105,8 +105,8 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         if(NIfound) {
             LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
 
-            // Get correct parametrization of the circle of the primary track at the interaction point (to be used by improveCurrentSeed)
-            definePrimaryCircle(measurements.begin()+nuclTester->nuclearIndex()-1);
+            // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
+            definePrimaryHelix(measurements.begin()+nuclTester->nuclearIndex()-1);
 
             this->fillSeeds( nuclTester->goodTMPair());
 
@@ -116,15 +116,15 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
     return false;
 }
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::definePrimaryCircle(std::vector<TrajectoryMeasurement>::const_iterator it_meas) {
-    // This method uses the 3 last TM after the interaction point to calculate the circle parameters
+void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas) {
+    // This method uses the 3 last TM after the interaction point to calculate the helix parameters
 
     GlobalPoint pt[3];
     for(int i=0; i<3; i++) {
        pt[i] = (it_meas->updatedState()).globalParameters().position();
        it_meas++;
     }
-    thePrimaryCircle = new TangentCircle( pt[0], pt[1], pt[2] );
+    thePrimaryHelix = new TangentHelix( pt[0], pt[1], pt[2] );
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
@@ -192,6 +192,7 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
             // Loop on all outer TM 
             for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
                if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
+                     LogDebug("NuclearInteractionFinder") << "Calling currentSeed->setMeasurements(innerHit, *outhit)" << "\n";
                      currentSeed->setMeasurements(innerHit, *outhit);
                      allSeeds.push_back(*currentSeed);
                 }
@@ -212,14 +213,24 @@ void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedC
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::improveSeeds() {
+        double rescaleFactor_ = 10;
         std::vector<SeedFromNuclearInteraction> newSeedCollection;
+
+        // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
-              std::vector<TM> thirdTMs = findCompatibleMeasurements(  *(it_seed->outerMeasurement()), 10 );
+
+              // find compatible TM in an outer layer
+              std::vector<TM> thirdTMs = findCompatibleMeasurements(  *(it_seed->outerMeasurement()), rescaleFactor_ );
+
+              // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
-                   // TODO : write this constructor of TangentCircle :
-//                   TangentCircle circle(thePrimaryCircle, it_seed->outerMeasurement().updatedState().globalParameters().position(), tm->outerMeasurement().updatedState().globalParameters().position() );
-                   // TODO : write this constructor for SeedFromNuclearInteraction :
-//                   newSeedCollection.push_back(SeedFromNuclearInteraction(circle, it_seed->outerMeasurement(), *tm) );
+
+                   // create circle = secondary track which pass by the outer hit of the seed and the new TM.
+                   // this circle has to be tangent to the primary circle
+                   TangentHelix helix(*thePrimaryHelix, (it_seed->outerMeasurement())->updatedState().globalParameters().position(), tm->updatedState().globalParameters().position() );
+                   // create new seeds collection using the circle equation
+                   currentSeed->setMeasurements(helix, *(it_seed->outerMeasurement()), *tm);
+                   newSeedCollection.push_back(*currentSeed );
               }
        }
 }     

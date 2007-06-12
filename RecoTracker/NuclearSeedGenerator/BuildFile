@@ -45,4 +45,3 @@
   <use name=boost>
   <lib name=RecoTrackerNuclearSeedGenerator>
 </export>
-

@@ -14,48 +14,61 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
+#include "RecoTracker/NuclearSeedGenerator/interface/TangentHelix.h"
+
 #include <boost/shared_ptr.hpp>
+
+class FreeTrajectoryState;
 
 class SeedFromNuclearInteraction {
 private :
-  typedef TrajectoryStateOnSurface TSOS;
-  typedef TrajectoryMeasurement TM;
-  typedef edm::OwnVector<TrackingRecHit> recHitContainer;
+  typedef TrajectoryMeasurement                       TM;
+  typedef TrajectoryStateOnSurface                    TSOS;
+  typedef edm::OwnVector<TrackingRecHit>              recHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  typedef std::vector<ConstRecHitPointer>             ConstRecHitContainer;
 
 public :
   SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
  
-  /// Fill all data members from 2 TM's
+  /// Fill all data members from 2 TM's where the first one is supposed to be at the interaction point
   void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
+
+  /// Fill all data members from 2 TM's using the circle associated to the primary track as constraint
+  void setMeasurements(const TangentHelix& primHelix, const TM& tmAtInteractionPoint, const TM& newTM);
 
   PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
 
-  TSOS stateWithError(const TSOS& state) const;
+  FreeTrajectoryState stateWithError() const;
+
+  FreeTrajectoryState stateWithError(const TangentHelix& helix) const;
 
   PropagationDirection direction() const { return alongMomentum; }
 
-  recHitContainer hits() const { return _hits; }
+  recHitContainer hits() const; 
 
   TrajectorySeed TrajSeed() const { return TrajectorySeed(trajectoryState(),hits(),direction()); }
  
   bool isValid() const { return isValid_; }
 
-  const TSOS& updatedState() const { return updatedTSOS; }
+  const FreeTrajectoryState& updatedState() const { return freeTS; }
 
   const TM* outerMeasurement() const { return outerTM; }
 
 private :
-  TSOS                                     updatedTSOS; 
+  FreeTrajectoryState                      freeTS; 
+  const TM*                                innerTM;
   const TM*                                outerTM;
-  recHitContainer                          _hits;
+  
   bool                                     isValid_;
-  ConstRecHitPointer                       innerHit;
+
+  ConstRecHitContainer                     theHits;
+
   ConstRecHitPointer                       outerHit;
+
   boost::shared_ptr<PTrajectoryStateOnDet> pTraj;
 
   const Propagator*                              thePropagator;
-  edm::ESHandle<TransientTrackingRecHitBuilder>  theBuilder;
   edm::ESHandle<TrackerGeometry>                 pDD;
 
   bool construct();

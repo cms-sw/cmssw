@@ -1,4 +1,4 @@
-#include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedGenerator.h"
+#include "RecoTracker/NuclearSeedGenerator/interface/NuclearSeedsEDProducer.h"
 #include "RecoTracker/NuclearSeedGenerator/interface/NuclearInteractionFinder.h"
 
 #include "FWCore/ParameterSet/interface/InputTag.h"
@@ -15,13 +15,13 @@ using namespace reco;
 //
 // constructors and destructor
 //
-NuclearSeedGenerator::NuclearSeedGenerator(const edm::ParameterSet& iConfig) : conf_(iConfig)
+NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
 {
    produces<TrajectorySeedCollection>();
 }
 
 
-NuclearSeedGenerator::~NuclearSeedGenerator()
+NuclearSeedsEDProducer::~NuclearSeedsEDProducer()
 {
 }
 
@@ -32,7 +32,7 @@ NuclearSeedGenerator::~NuclearSeedGenerator()
 
 // ------------ method called to produce the data  ------------
 void
-NuclearSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    typedef TrajectoryMeasurement TM;
 
@@ -62,13 +62,11 @@ NuclearSeedGenerator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-NuclearSeedGenerator::beginJob(const edm::EventSetup& es)
+NuclearSeedsEDProducer::beginJob(const edm::EventSetup& es)
 {
    theNuclearInteractionFinder = std::auto_ptr<NuclearInteractionFinder>(new NuclearInteractionFinder(es, conf_));
 }
 
-void  NuclearSeedGenerator::endJob() {}
+void  NuclearSeedsEDProducer::endJob() {}
 
 
-//define this as a plug-in
-DEFINE_FWK_MODULE(NuclearSeedGenerator);
