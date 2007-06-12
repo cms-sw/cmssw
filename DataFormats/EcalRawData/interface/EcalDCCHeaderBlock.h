@@ -7,7 +7,7 @@
  *  Container for ECAL specific DCC Header information
  *
  *
- *  $Id: EcalDCCHeaderBlock.h,v 1.9 2007/04/10 10:07:23 franzoni Exp $
+ *  $Id: EcalDCCHeaderBlock.h,v 1.10 2007/04/10 12:43:53 franzoni Exp $
  */
 
 #include <vector>
@@ -25,19 +25,38 @@ class EcalDCCHeaderBlock
   typedef int key_type; ///< For the sorted collection 
 
   enum EcalDCCRuntype{
-    COSMIC = 0,
-    BEAMH4 =1, 
-    BEAMH2 = 2,  
-    MTCC =3,
-    LASER_STD = 4,
-    LASER_POWER_SCAN = 5,
-    LASER_DELAY_SCAN = 6,
+
+    // run types pre-global runs
+    COSMIC                              = 0,
+    BEAMH4                               =1, 
+    BEAMH2                               = 2,  
+    MTCC                                   =3,
+    LASER_STD                         = 4,
+    LASER_POWER_SCAN      = 5,
+    LASER_DELAY_SCAN        = 6,
     TESTPULSE_SCAN_MEM = 7,
-    TESTPULSE_MGPA = 8,
-    PEDESTAL_STD = 9,
+    TESTPULSE_MGPA           = 8,
+    PEDESTAL_STD                 = 9,
     PEDESTAL_OFFSET_SCAN = 10,
-    PEDESTAL_25NS_SCAN = 11,
-    LED_STD= 12
+    PEDESTAL_25NS_SCAN  = 11,
+    LED_STD                           = 12,
+
+    // physics triggers in global runs
+    PHYSICS_GLOBAL          = 13,
+    COSMICS_GLOBAL         = 14,
+    HALO_GLOBAL                 = 15,
+
+    // gap events in global runs
+    LASER_GAP                       = 16,
+    TESTPULSE_GAP             = 17,
+    PEDESTAL_GAP                = 18,
+    LED_GAP                            = 19,
+
+    // physics triggers in local runs
+    PHYSICS_LOCAL             = 20,
+    COSMICS_LOCAL            = 21,
+    HALO_LOCAL                    = 22
+
   };
   
   enum EcalBasicTriggerType{
@@ -60,10 +79,13 @@ class EcalDCCHeaderBlock
   EcalDCCHeaderBlock();
   EcalDCCHeaderBlock(const int& dccId);
 
-  // partitional and geometrical      CMS: 1-9 EE-, 10-45 EB, 46-54 EE+        TB and COSM: 1  (10 in case of EcalRawToDigiDev)
+  // partitional and geometrical:
+  // CMS: 1-9 EE-, 10-45 EB, 46-54 EE+
+  // TB and COSM: 1  (10 in case of EcalRawToDigiDev)
   const int& id() const { return dccId_; }
 
-  // as found in raw data, namely     CMS: 601-654                             TB and COSM: 0-35
+  // as found in raw data, namely
+  // CMS: 601-654         TB and COSM: 0-35
   const int fedId() const { return fedId_; }
 
   void setId(const int& dccId) { dccId_=dccId; };
