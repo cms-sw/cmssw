@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.2 2007/06/12 12:33:53 arizzi Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.3 2007/06/12 12:48:28 arizzi Exp $
 //
 //
 
@@ -36,6 +36,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
    produces<TrackDeDxEstimatorCollection>();
+   m_trackDeDxHitsTag = iConfig.getParameter<edm::InputTag>("trackDeDxHits");
 
    //FIXME: configurable, use ES?
    m_estimator = new GenericAverageDeDxEstimator(-2.);
@@ -64,14 +65,16 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    using namespace edm;
 //TODO: loop on tracks+dedxhits and apply the estimator
    edm::Handle<reco::TrackDeDxHitsCollection> trackDeDxHitsCollectionHandle;
-   iEvent.getByLabel(m_tracksDeDxHitsTag,trackDeDxHitsCollectionHandle);
+   iEvent.getByLabel(m_trackDeDxHitsTag,trackDeDxHitsCollectionHandle);
    const reco::TrackDeDxHitsCollection & hits = *trackDeDxHitsCollectionHandle.product();
    TrackDeDxEstimatorCollection * outputCollection = new TrackDeDxEstimatorCollection(hits.keyProduct());
    
    reco::TrackDeDxHitsCollection::const_iterator it= hits.begin();
-   for(;it!=hits.end();++it)
+   for(int j=0;it!=hits.end();++it,j++)
    {
-       float val=m_estimator->dedx(*it);
+      //FIXME: insert here some code to suppress pixel usage if wanted 
+      float val=m_estimator->dedx(*it);
+      outputCollection->setValue(j, val);
    }
    
    //put in the event the result

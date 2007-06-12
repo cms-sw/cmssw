@@ -76,11 +76,12 @@ vector<RawHits> trajectoryRawHits(const Trajectory & trajectory)
 double genericAverage(const reco::DeDxHitCollection &hits, float expo )
 {
  double result=0;
- for(size_t i = 0; i< hits.size(); i ++)
+ size_t n = hits.size();
+ for(size_t i = 0; i< n; i ++)
  {
     result+=pow(hits[i].charge(),expo); 
  }
- return pow(result,1./expo);
+ return (n>0)?pow(result/n,1./expo):0.;
 }
 
 
