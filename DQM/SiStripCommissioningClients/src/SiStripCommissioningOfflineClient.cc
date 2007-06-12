@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.8 2007/06/05 15:22:37 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.9 2007/06/07 14:40:51 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -353,7 +353,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
   uploadToDb();
   
   // Remove all ME/CME objects and delete MUI
-  //if ( histos_ ) { histos_->remove(); }
+  if ( histos_ ) { histos_->remove(); }
   if ( mui_ ) { 
     if ( mui_->getBEInterface() ) { 
       mui_->getBEInterface()->setVerbose(0); 
