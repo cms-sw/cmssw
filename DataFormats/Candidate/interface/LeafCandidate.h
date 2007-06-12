@@ -6,11 +6,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafCandidate.h,v 1.10 2007/05/14 12:04:31 llista Exp $
+ * \version $Id: LeafCandidate.h,v 1.11 2007/05/14 12:09:47 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
   
@@ -44,48 +44,12 @@ namespace reco {
     virtual const Candidate * daughter( size_type ) const;
     /// return daughter at a given position (throws an exception)
     virtual Candidate * daughter( size_type );
-    /// implementation of const_iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
-    struct const_iterator_imp_specific : public const_iterator_imp {
-      typedef ptrdiff_t difference_type;
-      const_iterator_imp_specific() { }
-      ~const_iterator_imp_specific() { }
-      const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific; }
-      void increase() { }
-      void decrease() { }
-      void increase( difference_type d ) { }
-      void decrease( difference_type d ) { }
-      bool equal_to( const const_iterator_imp * o ) const { return true; }
-      bool less_than( const const_iterator_imp * o ) const { return false; }
-      void assign( const const_iterator_imp * o ) {  }
-      const Candidate & deref() const { 
-	throw cms::Exception("Invalid Dereference") << "can't dereference const_interator from LeafCandidate\n";
-      }
-      difference_type difference( const const_iterator_imp * o ) const { return 0; }
-    };
-    /// implementation of iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
-     struct iterator_imp_specific : public iterator_imp {
-      typedef ptrdiff_t difference_type;
-      iterator_imp_specific() { }
-      ~iterator_imp_specific() { }
-      iterator_imp_specific * clone() const { return new iterator_imp_specific; }
-      const_iterator_imp_specific * const_clone() const { return new const_iterator_imp_specific; }
-      void increase() { }
-      void decrease() { }
-      void increase( difference_type d ) { }
-      void decrease( difference_type d ) { }
-      bool equal_to( const iterator_imp * o ) const { return true; }
-      bool less_than( const iterator_imp * o ) const { return false; }
-      void assign( const iterator_imp * o ) { }
-      Candidate & deref() const { 
-	throw cms::Exception("Invalid Dereference") << "can't dereference interator from LeafCandidate\n";
-      }
-      difference_type difference( const iterator_imp * o ) const { return 0; }
-    };
+
   private:
+    // const iterator implementation
+    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
+    // iterator implementation
+    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// check overlap with another Candidate
     virtual bool overlap( const Candidate & c ) const;
     /// post-read fixup operation

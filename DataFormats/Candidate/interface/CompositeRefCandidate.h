@@ -9,9 +9,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.12 2007/05/14 10:47:05 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.13 2007/05/14 11:59:26 llista Exp $
  *
  */
+
+#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
 
@@ -51,56 +53,11 @@ namespace reco {
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
-    /// implementation of const_iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems    
-    struct const_iterator_imp_specific : public const_iterator_imp {
-      typedef ptrdiff_t difference_type;
-      const_iterator_imp_specific() { }
-      explicit const_iterator_imp_specific( const daughters::const_iterator & it ) : i ( it ) { }
-      ~const_iterator_imp_specific() { }
-      const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific( i ); }
-      void increase() { ++i; }
-      void decrease() { --i; }
-      void increase( difference_type d ) { i += d; }
-      void decrease( difference_type d ) { i -= d; }
-      bool equal_to( const const_iterator_imp * o ) const { return i == dc( o ); }
-      bool less_than( const const_iterator_imp * o ) const { return i < dc( o ); }
-      void assign( const const_iterator_imp * o ) { i = dc( o ); }
-      const Candidate & deref() const { return * * i; }
-      difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
-    private:
-      const daughters::const_iterator & dc( const const_iterator_imp * o ) const {
-	return dynamic_cast<const const_iterator_imp_specific *>( o )->i;
-      }
-      daughters::const_iterator & dc( const_iterator_imp * o ) const {
-	return dynamic_cast<const_iterator_imp_specific *>( o )->i;
-      }
-      daughters::const_iterator i;
-    };
-     /// implementation of iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
-     struct iterator_imp_specific : public iterator_imp {
-      typedef ptrdiff_t difference_type;
-      iterator_imp_specific() { }
-      ~iterator_imp_specific() { }
-      iterator_imp_specific * clone() const { return new iterator_imp_specific; }
-      const_iterator_imp_specific * const_clone() const { return new const_iterator_imp_specific; }
-      void increase() { }
-      void decrease() { }
-      void increase( difference_type d ) { }
-      void decrease( difference_type d ) { }
-      bool equal_to( const iterator_imp * o ) const { return true; }
-      bool less_than( const iterator_imp * o ) const { return false; }
-      void assign( const iterator_imp * o ) { }
-      Candidate & deref() const { 
-	throw cms::Exception("Invalid Dereference") << "can't dereference interator from LeafCandidate\n";
-      }
-      difference_type difference( const iterator_imp * o ) const { return 0; }
-    };
-
   private:
+    /// const iterator implementation
+    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
+    /// iterator implementation
+    typedef candidate::iterator_imp_specific_dummy<daughters> iterator_imp_specific;
     /// collection of references to daughters
     daughters dau;
     /// check overlap with another candidate

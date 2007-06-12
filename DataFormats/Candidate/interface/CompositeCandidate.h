@@ -9,9 +9,11 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeCandidate.h,v 1.14 2007/03/05 13:26:15 llista Exp $
+ * \version $Id: CompositeCandidate.h,v 1.15 2007/05/14 11:59:26 llista Exp $
  *
  */
+
+#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 
 namespace reco {
 
@@ -52,61 +54,11 @@ namespace reco {
     void addDaughter( std::auto_ptr<Candidate> );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
-    /// implementation of const_iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems    
-    struct const_iterator_imp_specific : public const_iterator_imp {
-      typedef ptrdiff_t difference_type;
-      explicit const_iterator_imp_specific( const daughters::const_iterator & it ) : i ( it ) { }
-      ~const_iterator_imp_specific() { }
-      const_iterator_imp_specific * clone() const { return new const_iterator_imp_specific( i ); }
-      void increase() { ++i; }
-      void decrease() { --i; }
-      void increase( difference_type d ) { i += d; }
-      void decrease( difference_type d ) { i -= d; }
-      bool equal_to( const const_iterator_imp * o ) const { return i == dc( o ); }
-      bool less_than( const const_iterator_imp * o ) const { return i < dc( o ); }
-      void assign( const const_iterator_imp * o ) { i = dc( o ); }
-      const Candidate & deref() const { return * i; }
-      difference_type difference( const const_iterator_imp * o ) const { return i - dc( o ); }
-    private:
-      const daughters::const_iterator & dc( const const_iterator_imp * o ) const {
-	return dynamic_cast<const const_iterator_imp_specific *>( o )->i;
-      }
-      daughters::const_iterator & dc( const_iterator_imp * o ) const {
-	return dynamic_cast<const_iterator_imp_specific *>( o )->i;
-      }
-      daughters::const_iterator i;
-    };
-    /// implementation of iterator. 
-    /// should be private; declared public only 
-    /// for ROOT reflex dictionay problems
-    struct iterator_imp_specific : public iterator_imp  {
-      typedef ptrdiff_t difference_type;
-      explicit iterator_imp_specific( const daughters::iterator & it ) : i ( it ) { }
-      ~iterator_imp_specific() { }
-      iterator_imp_specific * clone() const { return new iterator_imp_specific( i ); }
-      const_iterator_imp_specific * const_clone() const { return new const_iterator_imp_specific( i ); }
-      void increase() { ++i; }
-      void decrease() { ++i; }
-      void increase( difference_type d ) { i += d; }
-      void decrease( difference_type d ) { i -= d; }
-      bool equal_to( const iterator_imp * o ) const { return i == dc( o ); }
-      bool less_than( const iterator_imp * o ) const { return i < dc( o ); }
-      void assign( const iterator_imp * o ) { i = dc( o ); }
-      Candidate & deref() const { return * i; }
-      difference_type difference( const iterator_imp * o ) const { return i - dc( o ); }
-     private:
-      const daughters::iterator & dc( const iterator_imp * o ) const {
-	return dynamic_cast<const iterator_imp_specific *>( o )->i;
-      }
-      daughters::iterator & dc( iterator_imp * o ) const {
-	return dynamic_cast<iterator_imp_specific *>( o )->i;
-      }
-      daughters::iterator i;
-    };
-
   private:
+    // const iterator implementation
+    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
+    // iterator implementation
+    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// collection of daughters
     daughters dau;
     /// check overlap with another daughter

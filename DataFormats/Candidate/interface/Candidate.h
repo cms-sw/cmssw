@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.26 2007/05/14 12:04:31 llista Exp $
+ * \version $Id: Candidate.h,v 1.27 2007/05/14 12:09:47 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
@@ -99,7 +99,7 @@ namespace reco {
       mothers_.push_back( mother );
     }
 
-  protected:
+  public:
     struct const_iterator_imp {
       typedef ptrdiff_t difference_type;
       const_iterator_imp() { } 
