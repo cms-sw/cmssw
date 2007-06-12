@@ -1,5 +1,6 @@
 #include "DQM/L1TMonitorClient/interface/TriggerWebInterface.h"
 
+#include "DQMServices/Core/interface/Tokenizer.h"
 #include "DQMServices/WebComponents/interface/Button.h"
 #include "DQMServices/WebComponents/interface/CgiWriter.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
@@ -12,6 +13,9 @@
 #include "DQM/L1TMonitorClient/interface/DisplaySystemME.h"
 #include "DQM/L1TMonitorClient/interface/DisplaySystemSummary.h"
 #include "DQM/L1TMonitorClient/interface/L1TClientConfigParser.h"
+
+#include "TCanvas.h"
+#include "TColor.h"
 
 #include <cstdio> // perror
 
@@ -88,6 +92,7 @@ void TriggerWebInterface::RetrieveMeList(xgi::Input * in, xgi::Output * out) thr
 //  std::cout << "Enter RetrieveMeList" <<std::endl;
 
   if(to_open=="L1TECALTPG")   printMeListXML(to_open, out); 
+  if(to_open=="L1THCALTPG")   printMeListXML(to_open, out); 
   if(to_open=="L1TRCT")       printMeListXML(to_open, out); 
   if(to_open=="GCT")          printMeListXML(to_open, out); 
   if(to_open=="L1TDTTPG")     printMeListXML(to_open, out); 
@@ -236,19 +241,22 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
 	       << source << std::endl;
    }
 
-    name = "Collector/GlobalDQM/L1TMonitor/" + source +"/" + name;
+   name = "Collector/GlobalDQM/L1TMonitor/" + source +"/" + name;
   
    MonitorElement *pointer = (*mui_p)->get(name);
 
    if (pointer != 0) {
      view_map.add(name, pointer);
-     std::cout << "ADDING " << name << " TO view_map!!!" << std::endl;
+     if (verbose() ) 
+       std::cout << "displayMeXML: ADDING " << name 
+                 << " TO view_map!!!" << std::endl;
    
    // Print the ME_map into a file
    std::string id = get_from_multimap(view_multimap, "DisplayFrameName");
-   std::cout << "will try to print " << id << std::endl;
+   if ( verbose() )
+     std::cout << "displayMeXML: will try to print " << id << std::endl;
    
-     seal::Callback 
+     seal::Callback  
        action(seal::CreateCallback(this, 
 				   &TriggerWebInterface::printMeMap, 
 				   view_map, id));
@@ -262,10 +270,13 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
  
    } 
    else {
-     std::cout << "No Reference to: " << name << std::endl;
+     if ( verbose() ) 
+       std::cout << "No Reference to: " << name << std::endl;
      out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
      *out << "<?xml version=\"1.0\" ?>" << std::endl;
+     *out << "<error>"<<std::endl;
      *out << "nothing here " << std::endl;
+     *out << "</error>"<<std::endl;
 
    }
    myBei->unlock();
@@ -275,9 +286,60 @@ void TriggerWebInterface::displayMeXML(xgi::Input * in, xgi::Output * out)
 
 //****************************************************************************************
 
-void TriggerWebInterface::printMeMap(ME_map view_map, std::string id)
+void TriggerWebInterface::printMeMap(ME_map view_map, std::string input)
 {
-  view_map.print(id);
+  // this is the Me_Map::print function, but rewritten
+  dqm::Tokenizer toks(":", input);
+  std::string id = *toks.begin();
+  std::string draw_opt;
+  if ( toks.size() > 1 ) 
+    draw_opt = *(++toks.begin());
+    //std::string draw_opt("colz");
+  std::string dest_name(id + ".gif");
+  std::string tmp_name(id + "_tmp.gif");
+  //int ret = unlink(tmp_name.c_str());
+  me_map themap = view_map.get_me_map();
+  if ( verbose() ) {
+    std::cout << "printMeMap: view_map has " << themap.size() << " elements."
+	      << std::endl;
+  }
+  TCanvas canvas("display");
+  int i = 0;
+  // don't handle 2x2 right now or anything
+  for ( me_map::iterator ij = themap.begin(); ij != themap.end();
+	++ij ) {
+    if (verbose() ) {
+      std::cout << "Loop: " << ij->first << std::endl;
+    }
+    TVirtualPad * current_pad = canvas.cd(i + 1);
+    Color_t color = TColor::GetColor("#ffffff");
+    if (ij->second->hasOtherReport()) color = TColor::GetColor ("#fcd116");
+    if (ij->second->hasWarning()) color = TColor::GetColor ("#ff8000");
+    if (ij->second->hasError()) color = TColor::GetColor ("#cc0000");
+    current_pad->HighLight(color, kTRUE);
+    
+    MonitorElementT<TNamed> *ob = 
+      dynamic_cast<MonitorElementT<TNamed>*>(ij->second);
+    if (ob) {
+      if ( draw_opt.empty() ) {
+	// Ugly hack!!!! 
+	TH2F *v = dynamic_cast<TH2F*>(ob->operator->());
+        if ( v )
+	  draw_opt = "colz";
+      }
+      ob->operator->()->Draw(draw_opt.c_str());
+    }
+      
+  }
+  if (verbose() ) {
+    std::cout << "saving as " << tmp_name << std::endl;
+  }
+  canvas.SaveAs(tmp_name.c_str());
+  // do this at the end.
+  int ret = rename(tmp_name.c_str(), dest_name.c_str());
+  if ( ret != 0 && verbose()) {
+    std::cout << "printMeMap: can't rename: " << ret << std::endl;
+  }
 }
 
 
@@ -341,8 +403,8 @@ void TriggerWebInterface::CreateMenu(xgi::Input * in, xgi::Output * out) throw (
 				  "Summary", "makeSummary(\'Summary\')" );
 
        DisplaySystemME * EcalTpg = new DisplaySystemME(getApplicationURL() , "110px", "10px", "L1TECALTPG");
-       
-       DisplaySystemME * HcalTpg = new DisplaySystemME(getApplicationURL() , "140px", "10px","HCAL_TPGs");
+
+       DisplaySystemME * HcalTpg = new DisplaySystemME(getApplicationURL() , "140px", "10px","L1THCALTPG");
        
        DisplaySystemME * Rct = new DisplaySystemME(getApplicationURL() , "170px", "10px","L1TRCT");
        
@@ -472,11 +534,13 @@ void TriggerWebInterface::Summary(xgi::Input * in, xgi::Output * out)
        }
 
        std::string id = n.substr(1+n.rfind("/", n.length()), n.length());
+       std::string ops = j->getOptions();
+       id = "display" + id + ":" + ops;
        view_map.add(id, p);
        if ( verbose() ) 
 	 std::cout << "ADDING " << id << " TO view_map!!!" << std::endl;
        if ( verbose() ) 
-	 std::cout << "will try to print " << id << std::endl;
+	 std::cout << "Summary: will try to print " << id << std::endl;
        seal::Callback 
 	 action(seal::CreateCallback(this, 
 				     &TriggerWebInterface::printMeMap, 

@@ -1,11 +1,12 @@
+// -*-c++-*-
 #ifndef TriggerWebInterface_H
 #define TriggerWebInterface_H
 
 /** \class  TriggerWebInterface
  *  Class that creates the web interface to control the L1TClient
  *  
- *  $Date: 2007/04/23 15:30:08 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/30 13:37:37 $
+ *  $Revision: 1.2 $
  *  \author Lorenzo Agostino
   */
 
