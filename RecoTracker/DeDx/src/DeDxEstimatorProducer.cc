@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id$
+// $Id: DeDxEstimatorProducer.cc,v 1.1 2007/06/11 14:04:08 arizzi Exp $
 //
 //
 
@@ -36,7 +36,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    //register your products
    produces<TrackDeDxEstimatorCollection>();
 
-   //FIXME: configurable
+   //FIXME: configurable, use ES?
    m_estimator = new GenericAverageDeDxEstimator(-2.);
 
 }
@@ -45,7 +45,7 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 DeDxEstimatorProducer::~DeDxEstimatorProducer()
 {
  //FIXME: only if doen't come from ES
- delete m_estimator;
+  delete m_estimator;
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -62,7 +62,15 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 {
    using namespace edm;
 //TODO: loop on tracks+dedxhits and apply the estimator
+   edm::Handle<reco::TrackDeDxHitsCollection> trackDeDxHitsCollectionHandle;
+   iEvent.getByLabel(m_tracksDeDxHitsTag,trackDeDxHitsCollectionHandle);
+   const reco::TrackDeDxHitsCollection & hits = *trackDeDxHitsCollectionHandle.product();
+   TrackDeDxEstimatorCollection * outputCollection = new TrackDeDxEstimatorCollection(hits.keyProduct());
 
+   //put in the event the result
+    std::auto_ptr<TrackDeDxEstimatorCollection> estimator(outputCollection);
+    iEvent.put(estimator);
+   
 }
 
 // ------------ method called once each job just before starting event loop  ------------

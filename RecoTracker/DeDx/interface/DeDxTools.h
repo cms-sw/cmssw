@@ -11,9 +11,11 @@ class reco::Track;
 namespace DeDxTools  {
  
   struct RawHits {
+//    double charge[3]; // charge on the up to three fibers
     double charge;
     double angleCosine;
     DetId detId;
+   
   };
   
   std::vector<RawHits> trajectoryRawHits(const Trajectory & trajectory);
