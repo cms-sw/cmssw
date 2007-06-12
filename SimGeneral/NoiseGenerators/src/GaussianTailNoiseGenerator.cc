@@ -1,28 +1,13 @@
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
-#include <gsl/gsl_sf_erf.h>
-#include <gsl/gsl_sf_result.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_rng.h>
 
 //extern "C"   float freq_(const float& x);   
 //extern "C"   float gausin_(const float& x);
 
 
 GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& eng ) :
-  poissonDistribution_(0),flatDistribution_(0),rndEngine(eng) {
-
-//   // Gaussian tail probability
-//   gsl_sf_result result;
-//   int status = gsl_sf_erf_Q_e(thr, &result);
-//   if (status != 0) throw cms::Exception("")
-//     <<"GaussianTailNoiseGenerator::could not compute gaussian\n" 
-// 		     "tail probability for the threshold chosen";
-  
-//   float probabilityLeft = result.val;
-  
-//   float meanNumberOfNoisyChannels = probabilityLeft * numberOfChannels;
+  poissonDistribution_(0),flatDistribution_(0),rndEngine(eng),mt19937(0) {
   
   poissonDistribution_ = new CLHEP::RandPoisson(rndEngine);
   flatDistribution_ = new CLHEP::RandFlat(rndEngine); 
@@ -32,6 +17,8 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& e
 GaussianTailNoiseGenerator::~GaussianTailNoiseGenerator() {
   delete poissonDistribution_;
   delete flatDistribution_;
+  delete mt19937;
+
 }
 
 
@@ -45,8 +32,7 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
   // Gaussian tail probability
   gsl_sf_result result;
   int status = gsl_sf_erf_Q_e(threshold, &result);
-  //MP 
-  //  if (status != 0) throw DetLogicError("GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen");
+
   if (status != 0) std::cerr<<"GaussianTailNoiseGenerator::could not compute gaussian tail probability for the threshold chosen"<<std::endl;
 
   float probabilityLeft = result.val;  
@@ -57,7 +43,8 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
   // draw noise at random according to Gaussian tail
 
   // initialise default gsl uniform generator engine
-  static gsl_rng * mt19937 = gsl_rng_alloc (gsl_rng_mt19937);
+  if(mt19937 == 0) 
+    gsl_rng_alloc (gsl_rng_mt19937);
 
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
