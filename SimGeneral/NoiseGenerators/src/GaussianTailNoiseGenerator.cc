@@ -44,7 +44,7 @@ void GaussianTailNoiseGenerator::generate(int NumberOfchannels,
 
   // initialise default gsl uniform generator engine
   if(mt19937 == 0) 
-    gsl_rng_alloc (gsl_rng_mt19937);
+    mt19937 = gsl_rng_alloc (gsl_rng_mt19937);
 
   float lowLimit = threshold * noiseRMS;
   for (int i = 0; i < numberOfNoisyChannels; i++) {
