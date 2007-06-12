@@ -1,5 +1,5 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/SimpleMetricsUpdator.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,58 +12,58 @@ SimpleMetricsUpdator::SimpleMetricsUpdator( const edm::ParameterSet & config ) :
   theMetricsCalculator.setMaxDistance( maxDistance );
 
   std::vector< unsigned int > dummy;
-  theFixedAlignableDetIds = config.getUntrackedParameter< std::vector<unsigned int> >( "FixedAlignableDetIds", dummy );
+  theFixedAlignableIds = config.getUntrackedParameter< std::vector<unsigned int> >( "FixedAlignableIds", dummy );
 
   edm::LogInfo("Alignment") << "@SUB=SimpleMetricsUpdator::SimpleMetricsUpdator "
                             << "\nInstance of MetricsCalculator created (MaxMetricsDistance = " << maxDistance << ").";
 }
 
-void SimpleMetricsUpdator::update( const std::vector< AlignableDet* > & alignableDets )
+void SimpleMetricsUpdator::update( const std::vector< Alignable* > & alignables )
 {
-  std::vector< AlignableDet* > alignableDetsForUpdate;
-  std::vector< AlignableDet* >::const_iterator it;
+  std::vector< Alignable* > alignablesForUpdate;
+  std::vector< Alignable* >::const_iterator it;
 
-  for ( it = alignableDets.begin(); it != alignableDets.end(); ++it )
+  for ( it = alignables.begin(); it != alignables.end(); ++it )
   {
     unsigned int subdetId = static_cast< unsigned int >( (*it)->geomDetId().subdetId() );
 
-    if ( std::find( theFixedAlignableDetIds.begin(), theFixedAlignableDetIds.end(), subdetId ) == theFixedAlignableDetIds.end() )
+    if ( std::find( theFixedAlignableIds.begin(), theFixedAlignableIds.end(), subdetId ) == theFixedAlignableIds.end() )
     {
-      alignableDetsForUpdate.push_back( *it );
+      alignablesForUpdate.push_back( *it );
     }
   }
 
-  theMetricsCalculator.updateDistances( alignableDetsForUpdate );
+  theMetricsCalculator.updateDistances( alignablesForUpdate );
 }
 
 
-const std::vector< AlignableDet* >
-SimpleMetricsUpdator::additionalAlignableDets( const std::vector< AlignableDet* > & alignableDets )
+const std::vector< Alignable* >
+SimpleMetricsUpdator::additionalAlignables( const std::vector< Alignable* > & alignables )
 {
-  std::vector< AlignableDet* > result;
-  std::vector< AlignableDet* >::const_iterator itAD;
+  std::vector< Alignable* > result;
+  std::vector< Alignable* >::const_iterator itAD;
 
-  std::map< AlignableDet*, short int > updateList;
-  std::map< AlignableDet*, short int >::iterator itUL;
+  std::map< Alignable*, short int > updateList;
+  std::map< Alignable*, short int >::iterator itUL;
 
-  std::set< AlignableDet* > alignableDetsFromUpdateList;
-  std::set< AlignableDet* >::iterator itAUL;
+  std::set< Alignable* > alignablesFromUpdateList;
+  std::set< Alignable* >::iterator itAUL;
 
   // make union of all lists
-  for ( itAD = alignableDets.begin(); itAD != alignableDets.end(); itAD++ )
+  for ( itAD = alignables.begin(); itAD != alignables.end(); itAD++ )
   {
     updateList = theMetricsCalculator.getDistances( *itAD );
     for ( itUL = updateList.begin(); itUL != updateList.end(); itUL++ )
     {
-      alignableDetsFromUpdateList.insert( itUL->first );
+      alignablesFromUpdateList.insert( itUL->first );
     }
     updateList.clear();
   }
 
   // make final list of modules for update
-  for ( itAUL = alignableDetsFromUpdateList.begin(); itAUL != alignableDetsFromUpdateList.end(); itAUL++ )
+  for ( itAUL = alignablesFromUpdateList.begin(); itAUL != alignablesFromUpdateList.end(); itAUL++ )
   {
-    if ( find( alignableDets.begin(), alignableDets.end(), *itAUL ) == alignableDets.end() )
+    if ( find( alignables.begin(), alignables.end(), *itAUL ) == alignables.end() )
     {
       result.push_back( *itAUL );
     }
@@ -73,18 +73,18 @@ SimpleMetricsUpdator::additionalAlignableDets( const std::vector< AlignableDet* 
 }
 
 
-const std::map< AlignableDet*, short int >
-SimpleMetricsUpdator::additionalAlignableDetsWithDistances( const std::vector< AlignableDet* > & alignableDets )
+const std::map< Alignable*, short int >
+SimpleMetricsUpdator::additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables )
 {
-  std::map< AlignableDet*, short int > result;
-  std::map< AlignableDet*, short int > updateList;
-  std::map< AlignableDet*, short int >::iterator itUL;
-  std::map< AlignableDet*, short int >::iterator itFind;
+  std::map< Alignable*, short int > result;
+  std::map< Alignable*, short int > updateList;
+  std::map< Alignable*, short int >::iterator itUL;
+  std::map< Alignable*, short int >::iterator itFind;
 
-  std::vector< AlignableDet* >::const_iterator itAD;
+  std::vector< Alignable* >::const_iterator itAD;
 
   // make union of all lists
-  for ( itAD = alignableDets.begin(); itAD != alignableDets.end(); itAD++ )
+  for ( itAD = alignables.begin(); itAD != alignables.end(); itAD++ )
   {
     updateList = theMetricsCalculator.getDistances( *itAD );
     for ( itUL = updateList.begin(); itUL != updateList.end(); itUL++ )
@@ -101,7 +101,7 @@ SimpleMetricsUpdator::additionalAlignableDetsWithDistances( const std::vector< A
     }
   }
 
-  for ( itAD = alignableDets.begin(); itAD != alignableDets.end(); itAD++ )
+  for ( itAD = alignables.begin(); itAD != alignables.end(); itAD++ )
   {
     itFind = result.find( *itAD );
     if ( itFind != result.end() ) result.erase( itFind );

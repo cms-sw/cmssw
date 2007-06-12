@@ -1,39 +1,39 @@
 #include "Alignment/KalmanAlignmentAlgorithm/interface/DummyMetricsUpdator.h"
-#include "Alignment/CommonAlignment/interface/AlignableDet.h"
+#include "Alignment/CommonAlignment/interface/Alignable.h"
 
 
 DummyMetricsUpdator::DummyMetricsUpdator( const edm::ParameterSet & config ) : KalmanAlignmentMetricsUpdator( config )
 {
   std::vector< unsigned int > dummy;
-  theFixedAlignableDetIds = config.getUntrackedParameter< std::vector<unsigned int> >( "FixedAlignableDetIds", dummy );
+  theFixedAlignableIds = config.getUntrackedParameter< std::vector<unsigned int> >( "FixedAlignableIds", dummy );
 }
 
 
-void DummyMetricsUpdator::update( const std::vector< AlignableDet* > & alignableDets )
+void DummyMetricsUpdator::update( const std::vector< Alignable* > & alignables )
 {
-  std::vector< AlignableDet* >::const_iterator itAD = alignableDets.begin();
-  while ( itAD != alignableDets.end() )
+  std::vector< Alignable* >::const_iterator itAD = alignables.begin();
+  while ( itAD != alignables.end() )
   {
     unsigned int subdetId = static_cast< unsigned int >( (*itAD)->geomDetId().subdetId() );
-    if ( find( theFixedAlignableDetIds.begin(), theFixedAlignableDetIds.end(), subdetId ) == theFixedAlignableDetIds.end() )
+    if ( find( theFixedAlignableIds.begin(), theFixedAlignableIds.end(), subdetId ) == theFixedAlignableIds.end() )
     {
-      theSetOfAllAlignableDets.insert( *itAD );
+      theSetOfAllAlignables.insert( *itAD );
     }
     ++itAD;
   }
 }
 
 
-const std::vector< AlignableDet* >
-DummyMetricsUpdator::additionalAlignableDets( const std::vector< AlignableDet* > & alignableDets )
+const std::vector< Alignable* >
+DummyMetricsUpdator::additionalAlignables( const std::vector< Alignable* > & alignables )
 {
-  std::vector< AlignableDet* > result;
-  result.reserve( theSetOfAllAlignableDets.size() );
+  std::vector< Alignable* > result;
+  result.reserve( theSetOfAllAlignables.size() );
 
-  std::set< AlignableDet* >::iterator itS = theSetOfAllAlignableDets.begin();
-  while ( itS != theSetOfAllAlignableDets.end() )
+  std::set< Alignable* >::iterator itS = theSetOfAllAlignables.begin();
+  while ( itS != theSetOfAllAlignables.end() )
   {
-    if ( find( alignableDets.begin(), alignableDets.end(), *itS ) == alignableDets.end() ) result.push_back( *itS );
+    if ( find( alignables.begin(), alignables.end(), *itS ) == alignables.end() ) result.push_back( *itS );
     ++itS;
   }
 
@@ -41,17 +41,26 @@ DummyMetricsUpdator::additionalAlignableDets( const std::vector< AlignableDet* >
 }
 
 
-const std::map< AlignableDet*, short int >
-DummyMetricsUpdator::additionalAlignableDetsWithDistances( const std::vector< AlignableDet* > & alignableDets )
+const std::map< Alignable*, short int >
+DummyMetricsUpdator::additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables )
 {
-  std::map< AlignableDet*, short int > result;
+  std::map< Alignable*, short int > result;
 
-  std::set< AlignableDet* >::iterator itS = theSetOfAllAlignableDets.begin();
-  while ( itS != theSetOfAllAlignableDets.end() )
+  std::set< Alignable* >::iterator itS = theSetOfAllAlignables.begin();
+  while ( itS != theSetOfAllAlignables.end() )
   {
-    if ( find( alignableDets.begin(), alignableDets.end(), *itS ) == alignableDets.end() ) result[*itS] = 0;
+    if ( find( alignables.begin(), alignables.end(), *itS ) == alignables.end() ) result[*itS] = 0;
     ++itS;
   }
 
   return result;
+}
+
+
+const std::vector< Alignable* > DummyMetricsUpdator::alignables( void ) const
+{
+  std::vector< Alignable* > alignables;
+  alignables.reserve( theSetOfAllAlignables.size() );
+  alignables.insert( alignables.begin(), theSetOfAllAlignables.begin(), theSetOfAllAlignables.end() );
+  return alignables;
 }

@@ -16,17 +16,19 @@ public:
 
   virtual ~SimpleMetricsUpdator( void ) {}
 
-  virtual void update( const std::vector< AlignableDet* > & alignableDets );
+  virtual void update( const std::vector< Alignable* > & alignables );
 
-  virtual const std::vector< AlignableDet* > additionalAlignableDets( const std::vector< AlignableDet* > & alignableDets );
+  virtual const std::vector< Alignable* > additionalAlignables( const std::vector< Alignable* > & alignables );
 
-  virtual const std::map< AlignableDet*, short int > additionalAlignableDetsWithDistances( const std::vector< AlignableDet* > & alignableDets );
+  virtual const std::map< Alignable*, short int > additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables );
+
+  virtual const std::vector< Alignable* > alignables( void ) const { return theMetricsCalculator.alignables(); }
 
 private:
 
   KalmanAlignmentMetricsCalculator theMetricsCalculator;
 
-  std::vector< unsigned int > theFixedAlignableDetIds;
+  std::vector< unsigned int > theFixedAlignableIds;
 
 };
 

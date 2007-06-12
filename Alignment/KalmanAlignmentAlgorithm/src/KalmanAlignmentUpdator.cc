@@ -25,38 +25,17 @@ void KalmanAlignmentUpdator::updateUserVariables( const std::vector< Alignable* 
 
 
 const std::vector< Alignable* >
-KalmanAlignmentUpdator::alignablesFromAlignableDets( const std::vector< AlignableDet* > alignableDets,
+KalmanAlignmentUpdator::alignablesFromAlignableDets( const std::vector< AlignableDetOrUnitPtr >& alignableDets,
 						     AlignmentParameterStore* store ) const
 {
   std::vector< Alignable* > alignables;
 
-  std::vector< AlignableDet* >::const_iterator itAD;
+  std::vector< AlignableDetOrUnitPtr >::const_iterator itAD;
   for ( itAD = alignableDets.begin(); itAD != alignableDets.end(); ++itAD )
   {
     Alignable* ali = store->alignableFromAlignableDet( *itAD );
-    if ( find( alignables.begin(), alignables.end(), *itAD ) == alignables.end() )
-      alignables.push_back( ali );
+    alignables.push_back( ali );
   }
 
   return alignables;
-}
-
-
-const std::vector< AlignableDet* > 
-KalmanAlignmentUpdator::alignableDetsFromHits( TransientTrackingRecHit::ConstRecHitContainer recHits,
-					       AlignableNavigator* navigator ) const
-{
-  std::vector< AlignableDet* > alignableDets;
-
-  TransientTrackingRecHit::ConstRecHitContainer::const_iterator itRecHits;
-
-  for ( itRecHits = recHits.begin(); itRecHits != recHits.end(); ++itRecHits ) {
-    AlignableDet* aAlignableDet = navigator->alignableDetFromDetId( ( **itRecHits ).geographicalId() );
-    if ( aAlignableDet )
-      alignableDets.push_back( aAlignableDet );
-    else
-      throw cms::Exception( "BadAssociation" ) << "[KalmanAlignmentUpdator::alignableDetsFromHits] find AlignableDet associated to hit!";
-  }
-
-  return alignableDets;
 }

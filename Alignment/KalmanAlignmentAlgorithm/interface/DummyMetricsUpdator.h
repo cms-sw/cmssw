@@ -6,7 +6,7 @@
 #include <set>
 
 /** A dummy metrics updator. It does not calculate the metrics but holds only a list
- *  of all AlignableDets that it so far was updated with.
+ *  of all Alignables that it so far was updated with.
  */
 
 
@@ -19,17 +19,19 @@ public:
 
   virtual ~DummyMetricsUpdator( void ) {}
 
-  virtual void update( const std::vector< AlignableDet* > & alignableDets );
+  virtual void update( const std::vector< Alignable* > & alignables );
 
-  virtual const std::vector< AlignableDet* > additionalAlignableDets( const std::vector< AlignableDet* > & alignableDets );
+  virtual const std::vector< Alignable* > additionalAlignables( const std::vector< Alignable* > & alignables );
 
-  virtual const std::map< AlignableDet*, short int > additionalAlignableDetsWithDistances( const std::vector< AlignableDet* > & alignableDets );
+  virtual const std::map< Alignable*, short int > additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables );
+
+  virtual const std::vector< Alignable* > alignables( void ) const;
 
 private:
 
-  std::set< AlignableDet* > theSetOfAllAlignableDets;
+  std::set< Alignable* > theSetOfAllAlignables;
 
-  std::vector< unsigned int > theFixedAlignableDetIds;
+  std::vector< unsigned int > theFixedAlignableIds;
 };
 
 

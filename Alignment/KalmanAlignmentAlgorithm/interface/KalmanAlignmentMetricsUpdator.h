@@ -3,7 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class AlignableDet;
+class Alignable;
 
 
 class KalmanAlignmentMetricsUpdator
@@ -15,12 +15,13 @@ public:
 
   virtual ~KalmanAlignmentMetricsUpdator( void ) {}
 
-  virtual void update( const std::vector< AlignableDet* > & alignableDets ) = 0;
+  virtual void update( const std::vector< Alignable* > & alignables ) = 0;
 
-  virtual const std::vector< AlignableDet* > additionalAlignableDets( const std::vector< AlignableDet* > & alignableDets ) = 0;
+  virtual const std::vector< Alignable* > additionalAlignables( const std::vector< Alignable* > & alignables ) = 0;
 
-  virtual const std::map< AlignableDet*, short int > additionalAlignableDetsWithDistances( const std::vector< AlignableDet* > & alignableDets ) = 0;
+  virtual const std::map< Alignable*, short int > additionalAlignablesWithDistances( const std::vector< Alignable* > & alignables ) = 0;
 
+  virtual const std::vector< Alignable* > alignables( void ) const = 0;
 };
 
 

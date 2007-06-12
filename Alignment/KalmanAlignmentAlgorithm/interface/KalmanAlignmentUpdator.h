@@ -35,11 +35,8 @@ protected:
 
   /// Returns the Alignables associated with the AlignableDets. If two or more AlignableDets are assiocated
   /// to the same Alignable, the Alignable is returned only once.
-  const std::vector< Alignable* > alignablesFromAlignableDets( const std::vector< AlignableDet* > alignableDets,
+  const std::vector< Alignable* > alignablesFromAlignableDets( const std::vector< AlignableDetOrUnitPtr >& alignableDets,
 							       AlignmentParameterStore* store ) const;
-
-  const std::vector< AlignableDet* > alignableDetsFromHits( TransientTrackingRecHit::ConstRecHitContainer recHits,
-							    AlignableNavigator* navigator ) const;
 
 };
 

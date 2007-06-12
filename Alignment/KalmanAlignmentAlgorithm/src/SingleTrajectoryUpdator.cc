@@ -29,29 +29,28 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   TimeMe* timer;
   timer = new TimeMe( "Retrieve_Alignables" );
 
-  vector< AlignableDet* > currentAlignableDets = alignableDetsFromHits( ( *trajectory ).recHits(), navigator );
+  vector< AlignableDetOrUnitPtr > currentAlignableDets = navigator->alignablesFromHits( ( *trajectory ).recHits() );
   vector< Alignable* > currentAlignables = alignablesFromAlignableDets( currentAlignableDets, store );
 
   delete timer;
   timer = new TimeMe( "Update_Metrics" );
 
-  metrics->update( currentAlignableDets );
+  metrics->update( currentAlignables );
 
   delete timer;
   timer = new TimeMe( "Retrieve_Alignables" );
 
-  vector< AlignableDet* > additionalAlignableDets = metrics->additionalAlignableDets( currentAlignableDets );
-  vector< Alignable* > additionalAlignables = alignablesFromAlignableDets( additionalAlignableDets, store );
+  vector< Alignable* > additionalAlignables = metrics->additionalAlignables( currentAlignables );
 
-  vector< AlignableDet* > allAlignableDets;
-  allAlignableDets.reserve( currentAlignableDets.size() + additionalAlignableDets.size() );
-  allAlignableDets.insert( allAlignableDets.end(), currentAlignableDets.begin(), currentAlignableDets.end() );
-  allAlignableDets.insert( allAlignableDets.end(), additionalAlignableDets.begin(), additionalAlignableDets.end() );
+  vector< Alignable* > allAlignables;
+  allAlignables.reserve( currentAlignables.size() + additionalAlignables.size() );
+  allAlignables.insert( allAlignables.end(), currentAlignables.begin(), currentAlignables.end() );
+  allAlignables.insert( allAlignables.end(), additionalAlignables.begin(), additionalAlignables.end() );
 
   delete timer;
   timer = new TimeMe( "Retrieve_Parameters" );
 
-  CompositeAlignmentParameters alignmentParameters = store->selectParameters( allAlignableDets );
+  CompositeAlignmentParameters alignmentParameters = store->selectParameters( allAlignables );
 
   delete timer;
   timer = new TimeMe( "Retrieve_Matrices" );
@@ -155,8 +154,8 @@ void SingleTrajectoryUpdator::process( const ReferenceTrajectoryPtr & trajectory
   timer = new TimeMe( "Update_UserVariables" );
 
   // update user variables for debugging
-  updateUserVariables( alignmentParameters.components() );
-  //updateUserVariables( currentAlignables );
+  //updateUserVariables( alignmentParameters.components() );
+  updateUserVariables( currentAlignables );
 
   delete timer;
 
