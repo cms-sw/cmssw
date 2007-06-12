@@ -7,6 +7,7 @@
 #include "DataFormats/JetReco/interface/BasicJet.h"
 #include "DataFormats/JetReco/interface/GenericJet.h"
 #include "DataFormats/JetReco/interface/JetTrackMatch.h"
+#include "DataFormats/JetReco/interface/JetToFloatAssociation.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
@@ -56,6 +57,10 @@ namespace {
     edm::Wrapper<PFJetCollection> w5;
     edm::reftobase::Holder<reco::Candidate, reco::PFJetRef> rtb5;
     JetTrackMatch<PFJetCollection> jtm5;
+
+      JetToFloatAssociation::Container       j2f;
+      edm::Wrapper<JetToFloatAssociation::Container>  j2f_c_w;
+
   }
 }
 #endif

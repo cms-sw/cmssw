@@ -54,4 +54,10 @@
   <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::GenericJet>,reco::GenericJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenericJet>,reco::GenericJet> > >" />
   <class name="reco::JetTrackMatch<std::vector<reco::GenericJet> >"/>
 
+  <class name="reco::JetToFloatAssociation::Container"/>
+  <class name="edm::Wrapper<reco::JetToFloatAssociation::Container>" />
+  <function name="reco::JetToFloatAssociation::setValue"/>
+  <function name="reco::JetToFloatAssociation::getValue"/>
+  <function name="reco::JetToFloatAssociation::allJets"/>
+
 </lcgdict>
