@@ -300,7 +300,7 @@ void PedestalsAnalysis::analyse() {
 
 // ----------------------------------------------------------------------------
 // 
-bool PedestalsAnalysis::isValid() {
+bool PedestalsAnalysis::isValid() const {
   return ( pedsMean_[0] < sistrip::maximum_ &&
 	   pedsMean_[1] < sistrip::maximum_ &&
 	   pedsSpread_[0] < sistrip::maximum_ &&

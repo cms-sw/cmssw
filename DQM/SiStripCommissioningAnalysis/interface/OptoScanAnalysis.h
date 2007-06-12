@@ -58,7 +58,7 @@ class OptoScanAnalysis : public CommissioningAnalysis {
   // ---------- Utility methods ----------
   
   /** Identifies if analysis is valid or not. */
-  bool isValid();
+  bool isValid() const;
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t gain_setting = 0 );

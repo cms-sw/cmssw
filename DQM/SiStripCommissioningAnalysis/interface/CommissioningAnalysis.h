@@ -44,7 +44,7 @@ class CommissioningAnalysis {
   void analysis( const std::vector<TH1*>& );
   
   /** Identifies if analysis is valid or not. */
-  virtual bool isValid() { return true; } //@@ pure virtual
+  virtual bool isValid() const { return true; } //@@ pure virtual
   
   /** Prints analysis results. */
   virtual void print( std::stringstream&, uint32_t ) = 0;

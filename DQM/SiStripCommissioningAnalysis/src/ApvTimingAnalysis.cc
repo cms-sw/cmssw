@@ -294,7 +294,7 @@ void ApvTimingAnalysis::refTime( const float& time ) {
 
 // ----------------------------------------------------------------------------
 // 
-bool ApvTimingAnalysis::isValid() {
+bool ApvTimingAnalysis::isValid() const {
   return ( time_    < sistrip::maximum_ &&
 	   error_   < sistrip::maximum_ &&
 	   refTime_ < sistrip::maximum_ &&

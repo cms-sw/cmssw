@@ -51,7 +51,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   // ---------- Utility methods ----------
   
   /** Identifies if analysis is valid or not. */
-  bool isValid();
+  bool isValid() const;
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );

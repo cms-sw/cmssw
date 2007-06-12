@@ -103,7 +103,7 @@ void VpspScanAnalysis::analyse() {
 
 // ----------------------------------------------------------------------------
 // 
-bool VpspScanAnalysis::isValid() {
+bool VpspScanAnalysis::isValid() const {
   return ( vpsp_[0] < sistrip::maximum_ &&
 	   vpsp_[1] < sistrip::maximum_ );
 } 
