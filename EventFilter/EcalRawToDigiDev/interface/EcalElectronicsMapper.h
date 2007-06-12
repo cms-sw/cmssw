@@ -10,8 +10,8 @@
  
  * \file EcalElectronicsMapper.h
  *
- * $Date: 2007/04/02 11:09:45 $
- * $Revision: 1.4 $
+ * $Date: 2007/04/10 17:33:48 $
+ * $Revision: 1.5 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -75,15 +75,22 @@ public:
   
   /**
    * Read map file (returns false if an error ocurred)
+   *  deprecated by HLT environment
    */
-  bool readDCCMapFile();
-  bool readDCCMapFile(std::string );
+  //  bool readDCCMapFile();
+  //  bool readDCCMapFile(std::string );
 
+  /**
+   *  HLT friendly: load default mapping or, for non standatd mapping,
+   *  use 2 vectors from cfg
+   */
+  bool makeMapFromVectors(std::vector<int>&, std::vector<int>&);
+  
   /**
    * Get methods for DCCId/SMId and map
    */
   const std::map<uint ,uint>& getDCCMap() const { return myDCCMap_; }
-
+  
   DetId  * getDetIdPointer(uint feChannel, uint strip, uint xtal){  return  xtalDetIds_[smId_-1][feChannel-1][strip-1][xtal-1];}
 
   EcalDataFrame * getDFramePointer(uint feChannel, uint strip, uint xtal){  return  xtalDFrames_[smId_-1][feChannel-1][strip-1][xtal-1];} 

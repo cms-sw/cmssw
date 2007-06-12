@@ -220,43 +220,79 @@ bool EcalElectronicsMapper::setDCCMapFilePath(std::string aPath_){
 }
 
 
+// bool EcalElectronicsMapper::readDCCMapFile(){
 
-bool EcalElectronicsMapper::readDCCMapFile(){
+//   //try to open a dccMapFile in the given path
+//   std::ifstream dccMapFile_(pathToMapFile_.c_str());
+  
+//   //if not successful return false
+//   if(!dccMapFile_.is_open()) return false;
+  
+//   char lineBuf_[100];
+//   uint SMId_,DCCId_;
+//   // loop while extraction from file is possible
+//   dccMapFile_.getline(lineBuf_,10);       //read line from file
+//   while (dccMapFile_.good()) {
+//     sscanf(lineBuf_,"%u:%u",&SMId_,&DCCId_);
+//     myDCCMap_[SMId_] = DCCId_;
+//     dccMapFile_.getline(lineBuf_,10);       //read line from file
+//   }
+  
+  
+//   return true;
+  
+// }
 
-  //try to open a dccMapFile in the given path
-  std::ifstream dccMapFile_(pathToMapFile_.c_str());
+// bool EcalElectronicsMapper::readDCCMapFile(std::string aPath_){
+//   //test if path is good
+//   edm::FileInPath eff(aPath_);
   
-  //if not successful return false
-  if(!dccMapFile_.is_open()) return false;
-  
-  char lineBuf_[100];
-  uint SMId_,DCCId_;
-  // loop while extraction from file is possible
-  dccMapFile_.getline(lineBuf_,10);       //read line from file
-  while (dccMapFile_.good()) {
-    sscanf(lineBuf_,"%u:%u",&SMId_,&DCCId_);
-    myDCCMap_[SMId_] = DCCId_;
-    dccMapFile_.getline(lineBuf_,10);       //read line from file
-  }
-  
-  
+//   if(!setDCCMapFilePath(eff.fullPath())) return false;
+
+//   //read DCC map file
+//   readDCCMapFile();
+//   return true;
+// }
+
+
+bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpackList,
+					       std::vector<int>& orderedDCCIdList )
+{
+
+  // in case as non standard set of DCCId:FedId pairs was provided
+  if ( orderedFedUnpackList.size() == orderedDCCIdList.size() &&
+       orderedFedUnpackList.size() > 0)
+    {
+      edm::LogInfo("EcalElectronicsMapper") << "DCCIdList/FedUnpackList lists given. Being loaded.";
+      
+      std::string correspondence("list of pairs DCCId:FedId :  ");
+      char           onePair[50];
+      for (int v=0;  v< ((int)orderedFedUnpackList.size());  v++)	{
+	myDCCMap_[ orderedDCCIdList[v]  ] = orderedFedUnpackList[v] ;
+	
+	sprintf( onePair, "  %d:%d",  orderedDCCIdList[v], orderedFedUnpackList[v]);
+	std::string                 tmp(onePair);
+	correspondence += tmp;
+      }
+      edm::LogInfo("EcalElectronicsMapper") << correspondence;
+      
+    }
+  else    
+    {  // default set of DCCId:FedId for ECAL
+
+      edm::LogInfo("EcalElectronicsMapper") << "No input DCCIdList/FedUnpackList lists given for ECAL unpacker"
+					    << "(or given with different number of elements). "
+					    << " Loading default association DCCIdList:FedUnpackList,"
+					    << "i.e.  1:601 ... 53:653,  54:654.";
+      
+      for (uint v=1; v<=54; v++)	{
+	myDCCMap_[ v ] = (v+600) ;    }
+    }
+
   return true;
-  
 }
 
 
-bool EcalElectronicsMapper::readDCCMapFile(std::string aPath_){
-  //test if path is good
-  edm::FileInPath eff(aPath_);
-  
-  if(!setDCCMapFilePath(eff.fullPath())) return false;
-
-  //read DCC map file
-  readDCCMapFile();
-  return true;
-}
- 
- 
 std::ostream &operator<< (std::ostream& o, const EcalElectronicsMapper &aMapper_) {
   //print class information
   o << "---------------------------------------------------------";

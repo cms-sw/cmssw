@@ -15,8 +15,14 @@
 EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
 
   
-  //define the FED unpack list
+  //define the list of FED to be unpacked
   fedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("FEDs", std::vector<int>())),
+
+  //define the ordered FED list
+  orderedFedUnpackList_(conf.getUntrackedParameter<std::vector<int> >("orderedFedList", std::vector<int>())),
+
+  //define the ordered DCCId list
+  orderedDCCIdList_(conf.getUntrackedParameter<std::vector<int> >("orderedDCCIdList", std::vector<int>())),
 
   //get number of Xtal Time Samples
   numbXtalTSamples_(conf.getUntrackedParameter<uint>("numbXtalTSamples",10)),
@@ -94,7 +100,7 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
   }
   
   edm::LogInfo("EcalRawToDigiDev")
-    <<"\n ECAL RawToDigi configuration :"
+    <<"\n ECAL RawToDigi configuration:"
     <<"\n Header  unpacking is "<<headerUnpacking_
     <<"\n SRP Bl. unpacking is "<<srpUnpacking_
     <<"\n TCC Bl. unpacking is "<<tccUnpacking_  
@@ -131,7 +137,14 @@ EcalRawToDigiDev::EcalRawToDigiDev(edm::ParameterSet const& conf):
  
   // Build a new Electronics mapper and parse default map file
   myMap_ = new EcalElectronicsMapper(numbXtalTSamples_,numbTriggerTSamples_);
-  bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
+
+  // in case of external  text file (deprecated by HLT environment) 
+  //  bool readResult = myMap_->readDCCMapFile(conf.getUntrackedParameter<std::string>("DCCMapFile",""));
+
+  // use two arrays from cfg to establish DCCId:FedId. If they are empy, than use hard coded correspondence 
+  bool readResult = myMap_->makeMapFromVectors(orderedFedUnpackList_, orderedDCCIdList_);
+
+
   if(!readResult){
     edm::LogError("EcalRawToDigiDev")<<"\n unable to read file : "
       <<conf.getUntrackedParameter<std::string>("DCCMapFile","");
@@ -276,8 +289,8 @@ void EcalRawToDigiDev::produce(edm::Event& e, const edm::EventSetup& es) {
       // get fed raw data and SM id
       const FEDRawData & fedData = rawdata->FEDData(*i);
       int length = fedData.size();
-		
-     
+      edm::LogInfo("EcalRawToDigiDev") << "raw data lenght: " << length ;
+
       //if data size is not null interpret data
       if ( length >= EMPTYEVENTSIZE ){
         

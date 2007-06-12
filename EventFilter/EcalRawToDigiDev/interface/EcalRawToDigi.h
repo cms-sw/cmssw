@@ -10,8 +10,8 @@
  *
  * \file EcalRawToDigi.h
  *
- * $Date: 2007/04/15 08:07:34 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/23 14:37:20 $
+ * $Revision: 1.6 $
  * \author N. Almeida
  * \author G. Franzoni
  *
@@ -62,6 +62,9 @@ class EcalRawToDigiDev : public edm::EDProducer{
 
   //list of FEDs to unpack
   std::vector<int> fedUnpackList_;
+
+  std::vector<int> orderedFedUnpackList_;
+  std::vector<int> orderedDCCIdList_;
   
   uint numbXtalTSamples_;
   uint numbTriggerTSamples_;
