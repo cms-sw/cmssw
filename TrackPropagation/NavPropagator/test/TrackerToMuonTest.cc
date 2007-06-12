@@ -121,5 +121,5 @@ Surface::RotationType TrackerToMuonTest::rotation( const GlobalVector& zDir) con
 }
 
 
-DEFINE_FWK_MODULE(TrackerToMuonTest)
+DEFINE_FWK_MODULE(TrackerToMuonTest);
 
