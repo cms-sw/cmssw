@@ -10,6 +10,7 @@
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h>
+#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
 
 
 EcalElectronicsMapper::EcalElectronicsMapper( uint numbXtalTSamples, uint numbTriggerTSamples)
@@ -286,7 +287,8 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
 					    << "i.e.  1:601 ... 53:653,  54:654.";
       
       for (uint v=1; v<=54; v++)	{
-	myDCCMap_[ v ] = (v+600) ;    }
+	myDCCMap_[ v ] = (v+ FEDNumbering::MINECALFEDID) ; 
+      }
     }
 
   return true;
