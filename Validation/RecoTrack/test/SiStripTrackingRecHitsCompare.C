@@ -55,8 +55,8 @@ void SiStripTrackingRecHitsCompare()
 
  Char_t histo[200];
 
- gROOT->ProcessLine(".x HistoCompare.C");
- HistoCompare * myPV = new HistoCompare();
+ gROOT->ProcessLine(".x HistoCompare_Strips.C");
+ HistoCompare_Strips * myPV = new HistoCompare_Strips();
 
  TCanvas *Strip;
 
