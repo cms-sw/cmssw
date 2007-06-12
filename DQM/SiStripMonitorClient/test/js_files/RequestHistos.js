@@ -5,11 +5,13 @@ function RequestHistoList() {
   if (document.getElementById("module_histos").checked) {
     queryString = "RequestID=SingleModuleHistoList";
     url += queryString; 
-    makeRequest(url, FillModuleHistoList);     
+    makeRequest(url, FillModuleHistoList);
+    ShowProgress("visible", "Module Histogram List");     
   } else if (document.getElementById("global_histos").checked) {
     queryString = "RequestID=GlobalHistoList";    
     url += queryString;
     makeRequest(url, FillGlobalHistoList);     
+    ShowProgress("visible", "Global Histogram List");
   }
 }
 function RequestSummaryHistoList() {
@@ -22,6 +24,7 @@ function RequestSummaryHistoList() {
   queryString += '&StructureName='+sname;
   url += queryString; 
   makeRequest(url, FillSummaryHistoList);     
+  ShowProgress("visible", "Summary Histogram Tree");
 }
 function RequestAlarmList() {
   var queryString;
@@ -33,10 +36,12 @@ function RequestAlarmList() {
   queryString += '&StructureName='+sname;
   url += queryString; 
   makeRequest(url, FillAlarmList);     
+  ShowProgress("visible", "Alarm Tree");
 }
 function FillModuleHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
+      ShowProgress("hidden");
       try {
 
 
@@ -91,6 +96,7 @@ function FillModuleHistoList() {
 function FillGlobalHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
+      ShowProgress("hidden");
       try {
 
 
@@ -124,6 +130,7 @@ function FillGlobalHistoList() {
 /*function FillSummaryHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
+      ShowProgress("hidden");
       try {
         var doc = http_request.responseXML;
         var root = doc.documentElement;
@@ -154,6 +161,7 @@ function FillGlobalHistoList() {
 function FillSummaryHistoList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
+      ShowProgress("hidden");
       try {
         var text = http_request.responseText;
         var obj = document.getElementById("tree_list");
@@ -171,6 +179,7 @@ function FillSummaryHistoList() {
 function FillAlarmList() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
+      ShowProgress("hidden");
       try {
         var text = http_request.responseText;
         var obj = document.getElementById("alarm_list");
