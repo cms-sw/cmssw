@@ -287,7 +287,7 @@ bool EcalElectronicsMapper::makeMapFromVectors( std::vector<int>& orderedFedUnpa
 					    << "i.e.  1:601 ... 53:653,  54:654.";
       
       for (uint v=1; v<=54; v++)	{
-	myDCCMap_[ v ] = (v+ FEDNumbering::MINECALFEDID) ; 
+	myDCCMap_[ v ] = (v+ 600) ; 
       }
     }
 
