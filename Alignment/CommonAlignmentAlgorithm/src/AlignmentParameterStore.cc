@@ -1,9 +1,9 @@
 /**
  * \file AlignmentParameterStore.cc
  *
- *  $Revision: 1.14 $
- *  $Date: 2007/05/11 14:28:02 $
- *  (last update by $Author: flucke $)
+ *  $Revision: 1.16 $
+ *  $Date: 2007/05/15 17:56:15 $
+ *  (last update by $Author: cklae $)
  */
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -52,14 +52,10 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDet*>& ali
 {
   std::vector<AlignableDetOrUnitPtr> detOrUnits;
   detOrUnits.reserve(alignabledets.size());
-//   Does not compile due to strange const-conversion problems, but why?
-//   for (std::vector<AlignableDet*>::iterator it = alignabledets.begin(), iEnd = alignabledets.end();
-//        it != iEnd; ++it) {
-//     detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
-//   }
-  for (unsigned int i = 0; i < alignabledets.size(); ++i) {
-    detOrUnits.push_back(AlignableDetOrUnitPtr(alignabledets[i]));
-  }
+
+  std::vector<AlignableDet*>::const_iterator it, iEnd;
+  for ( it = alignabledets.begin(), iEnd = alignabledets.end(); it != iEnd; ++it)
+    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
 
   return this->selectParameters(detOrUnits);
 }
@@ -131,6 +127,73 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDetOrUnitP
 
   AlignmentParametersData::DataContainer data( new AlignmentParametersData( selpar, selcov ) );
   CompositeAlignmentParameters aap( data, alignables, alidettoalimap, aliposmap, alilenmap );
+
+  return aap;
+}
+
+
+//__________________________________________________________________________________________________
+CompositeAlignmentParameters
+AlignmentParameterStore::selectParameters( const std::vector<Alignable*>& alignables ) const
+{
+
+  std::vector<Alignable*> selectedAlignables;
+  std::map <AlignableDetOrUnitPtr,Alignable*> alidettoalimap; // This map won't be filled!!!
+  std::map <Alignable*,int> aliposmap;
+  std::map <Alignable*,int> alilenmap;
+  int nparam=0;
+
+  // iterate over Alignable's
+  std::vector<Alignable*>::const_iterator ita;
+  for ( ita = alignables.begin(); ita != alignables.end(); ++ita ) 
+  {
+    // Check if Alignable already there, insert into vector if not
+    if ( find(selectedAlignables.begin(), selectedAlignables.end(), *ita) == selectedAlignables.end() ) 
+    {
+      selectedAlignables.push_back( *ita );
+      AlignmentParameters* ap = (*ita)->alignmentParameters();
+      nparam += ap->numSelected();
+    }
+  }
+
+  AlgebraicVector* selpar = new AlgebraicVector( nparam, 0 );
+  AlgebraicSymMatrix* selcov = new AlgebraicSymMatrix( nparam, 0 );
+
+  // Fill in parameters and corresponding covariance matrices
+  int ipos = 1; // NOTE: .sub indices start from 1
+  std::vector<Alignable*>::const_iterator it1;
+  for( it1 = selectedAlignables.begin(); it1 != selectedAlignables.end(); ++it1 ) 
+  {
+    AlignmentParameters* ap = (*it1)->alignmentParameters();
+    selpar->sub( ipos, ap->selectedParameters() );
+    selcov->sub( ipos, ap->selectedCovariance() );
+    int npar = ap->numSelected();
+    aliposmap[*it1]=ipos;
+    alilenmap[*it1]=npar;
+    ipos +=npar;
+  }
+
+  // Fill in the correlations. Has to be an extra loop, because the
+  // AlignmentExtendedCorrelationsStore (if used) needs the
+  // alignables' covariance matrices already present.
+  ipos = 1;
+  for( it1 = selectedAlignables.begin(); it1 != selectedAlignables.end(); ++it1 ) 
+  {
+    int jpos=1;
+
+    // Look for correlations between alignables
+    std::vector<Alignable*>::const_iterator it2;
+    for( it2 = selectedAlignables.begin(); it2 != it1; ++it2 ) 
+    {
+      theCorrelationsStore->correlations( *it1, *it2, *selcov, ipos-1, jpos-1 );
+      jpos += (*it2)->alignmentParameters()->numSelected();
+    }
+
+    ipos += (*it1)->alignmentParameters()->numSelected();
+  }
+
+  AlignmentParametersData::DataContainer data( new AlignmentParametersData( selpar, selcov ) );
+  CompositeAlignmentParameters aap( data, selectedAlignables, alidettoalimap, aliposmap, alilenmap );
 
   return aap;
 }

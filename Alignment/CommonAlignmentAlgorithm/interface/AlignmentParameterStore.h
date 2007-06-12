@@ -15,9 +15,9 @@
 ///
 /// Basic class for management of alignment parameters and correlations 
 ///
-///  $Date: 2007/03/22 14:27:41 $
-///  $Revision: 1.10 $
-/// (last update by $Author: fronga $)
+///  $Date: 2007/04/30 12:11:37 $
+///  $Revision: 1.11 $
+/// (last update by $Author: flucke $)
 
 class GeomDet;
 class Alignable;
@@ -47,6 +47,9 @@ public:
   /// select parameters 
   CompositeAlignmentParameters
     selectParameters( const std::vector <AlignableDetOrUnitPtr>& alignabledets ) const;
+  /// select parameters 
+  CompositeAlignmentParameters
+    selectParameters( const std::vector <Alignable*>& alignables ) const;
 
   /// update parameters 
   void updateParameters(const CompositeAlignmentParameters& aap);
