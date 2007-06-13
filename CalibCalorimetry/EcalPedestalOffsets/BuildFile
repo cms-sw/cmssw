@@ -14,7 +14,7 @@
 <use name=oracle>
 <use name=clhep>
 
-<flags SEAL_PLUGIN_NAME="CalibCalorimetryEcalPedestalOffsets">
+<flags EDM_PLUGIN=1>
 <export>
   <lib name=CalibCalorimetryEcalPedestalOffsets>
   <use name=DataFormats/FEDRawData>
