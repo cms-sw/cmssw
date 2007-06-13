@@ -156,24 +156,25 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
       if (length)
 	{ ///if fed has data then unpack it
-
+          CSCDCCExaminer* examiner = NULL;
 	  goodEvent = true;
 	  if (useExaminer) 
 	    {///examine event for integrity
-	      CSCDCCExaminer examiner;
-	      if( examinerMask&0x40000 ) examiner.crcCFEB(1);
-	      if( examinerMask&0x8000  ) examiner.crcTMB (1);
-	      if( examinerMask&0x0400  ) examiner.crcALCT(1);
-	      examiner.output1().hide();
-	      examiner.output2().hide();
+	      // CSCDCCExaminer examiner;
+              examiner = new CSCDCCExaminer();
+	      if( examinerMask&0x40000 ) examiner->crcCFEB(1);
+	      if( examinerMask&0x8000  ) examiner->crcTMB (1);
+	      if( examinerMask&0x0400  ) examiner->crcALCT(1);
+	      examiner->output1().hide();
+	      examiner->output2().hide();
 	      const short unsigned int *data = (short unsigned int *)fedData.data();
-	      if( examiner.check(data,long(fedData.size()/2)) != 0 )
+	      if( examiner->check(data,long(fedData.size()/2)) < 0 )
 		{
 		  goodEvent=false;
 		} 
 	      else 
 		{
-		  goodEvent=!(examiner.errors()&examinerMask);
+		  goodEvent=!(examiner->errors()&examinerMask);
 		}
 	    }
 	  
@@ -183,7 +184,7 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	      ///get a pointer to data and pass it to constructor for unpacking
 	      CSCDCCEventData dccData((short unsigned int *) fedData.data());
 	      
-	      if(instatiateDQM) monitor->process(dccData);
+	      if(instatiateDQM) monitor->process(examiner, &dccData);
 
 	      ///get a reference to dduData
 	      const std::vector<CSCDDUEventData> & dduData = dccData.dduData();
@@ -433,7 +434,13 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 	  else 
 	    {
 	      edm::LogError("CSCDCCUnpacker") <<" Examiner deemed the event bad!";
+              if (examiner) {
+                edm::LogError("CSCDCCUnpacker")
+                  << " Examiner errors:0x" << std::hex << examiner->errors() << " mask:0x" << examinerMask;
+              }
+              if(instatiateDQM)  monitor->process(examiner, NULL);
 	    }
+	  if (examiner!=NULL) delete examiner;
 	}///end of if fed has data
     }///end of loop over DCCs
 

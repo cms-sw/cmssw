@@ -103,6 +103,8 @@ private:
 	unsigned long TMB_CRC;
 	bool checkCrcCFEB;
 	unsigned long CFEB_CRC;
+        
+        bool modeDDUonly;
 
 	//int headerDAV_Active; // Obsolete since 16.09.05
 
@@ -143,6 +145,8 @@ public:
 	void crcALCT(bool enable);
 	void crcTMB (bool enable);
 	void crcCFEB(bool enable);
+
+        void modeDDU(bool enable);
 
 	CSCDCCExaminer(void);
 	~CSCDCCExaminer(void){}
