@@ -1,0 +1,32 @@
+To run writing and reading example 
+
+eval `scramv1 runtime -csh`
+
+#####################################
+with cfg XXX_noblob.cfg:
+
+
+write:
+cmsRun write_modulehv_noblob.cfg
+
+read:
+cmsRun read_modulehv_noblob.cfg  
+
+
+
+#####################################
+with cfg XXX_blob.cfg:
+
+
+cmscond_bootstrap_detector.pl --offline_connect sqlite_file:modulehv_blob.db --auth /afs/cern.ch/cms/DB/conddb/authentication.xml STRIP
+
+pool_insertFileToCatalog -u file:modulehv_blob.xml -t POOL_RDBMS sqlite_file:modulehv_blob.db
+
+write:
+cmsRun write_modulehv_blob.cfg
+
+read:
+cmsRun read_modulehv_blob.cfg  
+
+
+
