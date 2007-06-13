@@ -11,7 +11,9 @@
   <class name="reco::CompositeCandidate"/>
   <class name="reco::CompositeRefCandidate" />
   <class name="reco::CompositeRefBaseCandidate" />
-  <class name="reco::ShallowCloneCandidate"/>
+  <class name="reco::ShallowCloneCandidate" />
+  <class name="reco::candidate::iterator" />
+  <class name="reco::candidate::const_iterator" />
   <class name="std::vector<reco::Candidate *>" />
   <class name="edm::OwnVector<reco::Candidate, edm::ClonePolicy<reco::Candidate> >" />
   <class name="std::vector<reco::Particle>" />

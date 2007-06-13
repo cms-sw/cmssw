@@ -3,13 +3,14 @@
 
 #include "DataFormats/Candidate/interface/iterator_deref.h"
 #include "DataFormats/Candidate/interface/const_iterator_imp_specific.h"
+#include "DataFormats/Candidate/interface/iterator_imp.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace reco {
   namespace candidate {
    
     template<typename C>
-    struct iterator_imp_specific : public Candidate::iterator_imp  {
+    struct iterator_imp_specific : public iterator_imp  {
     private:
       typedef typename C::iterator iterator;
     public:
@@ -25,21 +26,21 @@ namespace reco {
       void decrease( difference_type d ) { i -= d; }
       bool equal_to( const iterator_imp * o ) const { return i == dc( o ); }
       bool less_than( const iterator_imp * o ) const { return i < dc( o ); }
-      void assign( const Candidate::iterator_imp * o ) { i = dc( o ); }
+      void assign( const iterator_imp * o ) { i = dc( o ); }
       Candidate & deref() const { return * i; }
-      difference_type difference( const Candidate::iterator_imp * o ) const { return i - dc( o ); }
+      difference_type difference( const iterator_imp * o ) const { return i - dc( o ); }
      private:
-      const iterator & dc( const Candidate::iterator_imp * o ) const {
+      const iterator & dc( const iterator_imp * o ) const {
 	return dynamic_cast<const iterator_imp_specific *>( o )->i;
       }
-      iterator & dc( Candidate::iterator_imp * o ) const {
+      iterator & dc( iterator_imp * o ) const {
 	return dynamic_cast<iterator_imp_specific *>( o )->i;
       }
       iterator i;
     };
 
     template<typename C>
-    struct iterator_imp_specific_dummy : public Candidate::iterator_imp {
+    struct iterator_imp_specific_dummy : public iterator_imp {
       typedef ptrdiff_t difference_type;
       iterator_imp_specific_dummy() { }
       ~iterator_imp_specific_dummy() { }
@@ -49,8 +50,8 @@ namespace reco {
       void decrease() { }
       void increase( difference_type d ) { }
       void decrease( difference_type d ) { }
-      bool equal_to( const Candidate::iterator_imp * o ) const { return true; }
-      bool less_than( const Candidate::iterator_imp * o ) const { return false; }
+      bool equal_to( const iterator_imp * o ) const { return true; }
+      bool less_than( const iterator_imp * o ) const { return false; }
       void assign( const iterator_imp * o ) { }
       Candidate & deref() const { 
 	throw cms::Exception("Invalid Dereference") 

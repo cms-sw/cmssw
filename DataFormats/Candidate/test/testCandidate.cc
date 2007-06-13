@@ -1,4 +1,4 @@
-// $Id: testCandidate.cc,v 1.4 2006/11/20 14:51:25 llista Exp $
+// $Id: testCandidate.cc,v 1.5 2006/12/11 10:12:02 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -39,6 +39,7 @@ namespace test {
     DummyComponent cmp() const { return c; }
     DummyComponent2 cmp2( size_t i ) const { return cc[i]; }
     size_t cmpSize2() const { return 2; }
+
   private:
     DummyComponent c;
     DummyComponent2 cc[2];
@@ -74,4 +75,8 @@ void testCandidate::checkAll() {
   reco::CandidateWithRef<test::DummyRef> cwr;
   test::DummyRef dr;
   cwr.setRef( dr );
+
+  reco::Candidate::const_iterator b = c->begin(), e = c->end();
+  CPPUNIT_ASSERT( b == e );
+  CPPUNIT_ASSERT( e - b == 0 );
 }

@@ -6,24 +6,23 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Candidate.h,v 1.27 2007/05/14 12:09:47 llista Exp $
+ * \version $Id: Candidate.h,v 1.28 2007/06/12 21:27:21 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/component.h"
+#include "DataFormats/Candidate/interface/const_iterator.h"
+#include "DataFormats/Candidate/interface/iterator.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 
 namespace reco {
   
   class Candidate : public Particle {
-  private:
-    typedef std::vector<Candidate> CandVector;
-
   public:
     /// size type
-    typedef CandVector::size_type size_type;
-    struct const_iterator;
-    struct iterator;
+    typedef size_t size_type;
+    typedef candidate::const_iterator const_iterator;
+    typedef candidate::iterator iterator;
 
     /// default constructor
     Candidate() : Particle() { }
@@ -98,115 +97,6 @@ namespace reco {
     void addMother( const Candidate * mother ) const {
       mothers_.push_back( mother );
     }
-
-  public:
-    struct const_iterator_imp {
-      typedef ptrdiff_t difference_type;
-      const_iterator_imp() { } 
-      virtual ~const_iterator_imp() { }
-      virtual const_iterator_imp * clone() const = 0;
-      virtual void increase() = 0;
-      virtual void decrease() = 0;
-      virtual void increase( difference_type d ) = 0;
-      virtual void decrease( difference_type d ) = 0;
-      virtual bool equal_to( const const_iterator_imp * ) const = 0;
-      virtual bool less_than( const const_iterator_imp * ) const = 0;
-      virtual void assign( const const_iterator_imp * ) = 0;
-      virtual const Candidate & deref() const = 0;
-      virtual difference_type difference( const const_iterator_imp * ) const = 0;
-    };
-
-    struct iterator_imp {
-      typedef ptrdiff_t difference_type;
-      iterator_imp() { }
-      virtual ~iterator_imp() { }
-      virtual iterator_imp * clone() const = 0;
-      virtual const_iterator_imp * const_clone() const = 0;
-      virtual void increase() = 0;
-      virtual void decrease() = 0;
-      virtual void increase( difference_type d ) = 0;
-      virtual void decrease( difference_type d ) = 0;
-      virtual bool equal_to( const iterator_imp * ) const = 0;
-      virtual bool less_than( const iterator_imp * ) const = 0;
-      virtual void assign( const iterator_imp * ) = 0;
-      virtual Candidate & deref() const = 0;
-      virtual difference_type difference( const iterator_imp * ) const = 0;
-    };
-
-  public:
-    /// const_iterator over daughters
-    struct const_iterator {
-      typedef Candidate value_type;
-      typedef Candidate * pointer;
-      typedef Candidate & reference;
-      typedef ptrdiff_t difference_type;
-      typedef CandVector::const_iterator::iterator_category iterator_category;
-      const_iterator() { }
-      const_iterator( const_iterator_imp * it ) : i( it ) { }
-      const_iterator( const const_iterator & it ) : i( it.i->clone() ) { }
-      const_iterator( const iterator & it ) : i( it.i->const_clone() ) { }
-      ~const_iterator() { delete i; }
-      const_iterator & operator=( const const_iterator & it ) { i->assign( it.i ); return *this; }
-      const_iterator& operator++() { i->increase(); return *this; }
-      const_iterator operator++( int ) { const_iterator ci = *this; i->increase(); return ci; }
-      const_iterator& operator--() { i->decrease(); return *this; }
-      const_iterator operator--( int ) { const_iterator ci = *this; i->decrease(); return ci; }
-      difference_type operator-( const const_iterator & o ) const { return i->difference( o.i ); }
-      const_iterator operator+( difference_type n ) const { 
-	const_iterator_imp * ii = i->clone(); ii->increase( n );
-	return const_iterator( ii ); 
-      }
-      const_iterator operator-( difference_type n ) const { 
-	const_iterator_imp * ii = i->clone(); ii->decrease( n );
-	return const_iterator( ii ); 
-      }
-      bool operator<( const const_iterator & o ) const { return i->less_than( o.i ); }
-      bool operator==( const const_iterator& ci ) const { return i->equal_to( ci.i ); }
-      bool operator!=( const const_iterator& ci ) const { return ! i->equal_to( ci.i ); }
-      const Candidate & operator * () const { return i->deref(); }
-      const Candidate * operator->() const { return & ( operator*() ); }
-      const_iterator & operator +=( difference_type d ) { i->increase( d ); return *this; }
-      const_iterator & operator -=( difference_type d ) { i->decrease( d ); return *this; }
-    private:
-      const_iterator_imp * i;
-    };
-
-    /// iterator over daughters
-    struct iterator {
-      typedef Candidate value_type;
-      typedef Candidate * pointer;
-      typedef Candidate & reference;
-      typedef ptrdiff_t difference_type;
-      typedef CandVector::iterator::iterator_category iterator_category;
-      iterator() { }
-      iterator( iterator_imp * it ) : i( it ) { }
-      iterator( const iterator & it ) : i( it.i->clone() ) { }
-      ~iterator() { delete i; }
-      iterator & operator=( const iterator & it ) { i->assign( it.i ); return *this; }
-      iterator& operator++() { i->increase(); return *this; }
-      iterator operator++( int ) { iterator ci = *this; i->increase(); return ci; }
-      iterator& operator--() { i->increase(); return *this; }
-      iterator operator--( int ) { iterator ci = *this; i->decrease(); return ci; }
-      difference_type operator-( const iterator & o ) const { return i->difference( o.i ); }
-      iterator operator+( difference_type n ) const { 
-	iterator_imp * ii = i->clone(); ii->increase( n );
-	return iterator( ii ); 
-      }
-      iterator operator-( difference_type n ) const { 
-	iterator_imp * ii = i->clone(); ii->decrease( n );
-	return iterator( ii ); 
-      }
-      bool operator<( const iterator & o ) { return i->less_than( o.i ) ; }
-      bool operator==( const iterator& ci ) const { return i->equal_to( ci.i ); }
-      bool operator!=( const iterator& ci ) const { return ! i->equal_to( ci.i ); }
-      Candidate & operator * () const { return i->deref(); }
-      Candidate * operator->() const { return & ( operator*() ); }
-      iterator & operator +=( difference_type d ) { i->increase( d ); return *this; }
-      iterator & operator -=( difference_type d ) { i->decrease( d ); return *this; }
-    private:
-      iterator_imp * i;
-      friend const_iterator::const_iterator( const iterator & );
-    };
 
   private:
     /// check overlap with another Candidate
