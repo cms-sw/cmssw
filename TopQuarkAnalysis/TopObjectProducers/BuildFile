@@ -2,6 +2,7 @@
 <use name=TopQuarkAnalysis/TopObjectResolutions>
 <use name=TopQuarkAnalysis/TopLeptonSelection>
 <use name=PhysicsTools/Parser>
+<use name=RecoBTag/MCTools>
 <flags SEAL_PLUGIN_NAME="TopQuarkAnalysisTopObjectProducers">
 
 <export>
@@ -10,4 +11,5 @@
   <use name=TopQuarkAnalysis/TopObjectResolutions>
   <use name=TopQuarkAnalysis/TopLeptonSelection>
   <use name=PhysicsTools/Parser>
+  <use name=RecoBTag/MCTools>
 </export>

@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id$
+// $Id: TopJetProducer.h,v 1.3 2007/06/10 08:57:28 lowette Exp $
 //
 
 #ifndef TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id$
+  \version  $Id: TopJetProducer.h,v 1.3 2007/06/10 08:57:28 lowette Exp $
 */
 
 
@@ -29,6 +29,19 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
+
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
+
+using namespace std;
+using namespace edm;
+
 
 
 class TopObjectResolutionCalc;
@@ -45,12 +58,23 @@ class TopJetProducer : public edm::EDProducer {
 
   private:
 
+    JetFlavourIdentifier jfi;
     // configurables
-    edm::InputTag jetTagsLabel_;
+    std::string   jetTagsLabel_;
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
+    bool          storeBDiscriminants;
     bool          addResolutions_;
     std::string   caliJetResoFile_;
+    bool          dropTrackCountingFromAOD   ;
+    bool          dropTrackProbabilityFromAOD ;
+    bool          dropSoftMuonFromAOD   ;      
+    bool          dropSoftElectronFromAOD   ; 
+    bool          keepdiscriminators; 
+    bool          keepjettagref;
+
+
+
     // tools
     TopObjectResolutionCalc *   theResoCalc_;
     EtInverseComparator<TopJet> eTComparator_;

@@ -4,6 +4,9 @@
 
   <class name="std::vector<std::pair<double, double> >" />
   <class name="std::pair<unsigned int, std::vector<unsigned int> >" />
+  <class name="std::vector<std::pair<std::basic_string<char>, double> >" />
+  <class name="std::vector<std::pair<std::basic_string<char>, edm::Ref<std::vector<reco::JetTag>,reco::JetTag,edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>,reco::JetTag> > > >" />
+  <class name="std::pair<std::basic_string<char>,edm::Ref<std::vector<reco::JetTag>,reco::JetTag,edm::refhelper::FindUsingAdvance<std::vector<reco::JetTag>,reco::JetTag> > >" />
 
   <class name="TopElectron" />
   <class name="TopMuon" />

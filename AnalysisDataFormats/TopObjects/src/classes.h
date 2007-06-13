@@ -18,7 +18,10 @@ namespace {
 
     edm::Wrapper<std::vector<std::pair<double, double> > >             dummy0;
     edm::Wrapper<std::pair<unsigned int, std::vector<unsigned int> > > dummy1;
-
+    edm::Wrapper<std::vector<std::pair<string, double> > >             dummy2;
+    edm::Wrapper<std::vector<std::pair<string, JetTagRef> > >          dummy3;
+    edm::Wrapper<std::pair<string, JetTagRef> >                        dummy4;
+ 
     edm::Wrapper<TopElectron>                                          dummy8; 
     edm::Wrapper<TopMuon>                                              dummy9; 
     edm::Wrapper<TopJet>                                               dummy10;
