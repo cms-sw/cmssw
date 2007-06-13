@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.2 2007/06/11 14:51:23 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.3 2007/06/12 15:22:22 pjanot Exp $
 //
 //
 
@@ -98,7 +98,6 @@ ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
       "You must add the service in the configuration file\n"
       "or remove the module that requires it.";
   }
-  //  CLHEP::HepRandomEngine& random = rng->getEngine();
   random = new RandomEngine(&(*rng));
 
 }
@@ -126,6 +125,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   Handle<std::vector<SimTrack> > simMuons;
   iEvent.getByLabel(theSimModuleLabel_,"MuonSimTracks",simMuons);
+  int nmuons = simMuons->size();
   //  Handle<std::vector<SimVertex> > simVertices;
   //  iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
@@ -166,7 +166,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       }
 
-      for( unsigned fsimi=0; fsimi < simMuons->size(); ++fsimi) {
+      for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
 	const SimTrack& simTrack = (*simMuons)[fsimi];
 	if( (int) simTrack.trackId() == idmax) {
 	  allMuonTracks.push_back(reco::TrackRef(theTracks,trackIndex));
@@ -182,7 +182,8 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (debug_) {
     std::cout << " *** ParamMuonProducer::reconstruct() -> entering " << std::endl;
-    std::cout << " *** Event with " << ntrks << " tracker tracks" << std::endl;
+    std::cout << " *** Event with " << nmuons << " simulated muons and " 
+	      << ntrks << " tracker tracks" << std::endl;
   }
 
 //
@@ -194,7 +195,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   mySimpleL3MuonCands.clear();
   mySimpleGLMuonCands.clear();
 
-  for( unsigned fsimi=0; fsimi < simMuons->size(); ++fsimi) {
+  for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
     const SimTrack& mySimTrack = (*simMuons)[fsimi];
 
     bool hasL1 = false , hasL3 = false , hasTK = false , hasGL = false;
@@ -206,18 +207,19 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 							       mySimTrack.momentum().z(),
 							       mySimTrack.momentum().t());
 
+    if (debug_) {
+      std::cout << " ===> ParamMuonProducer::reconstruct() - pid = "
+		<< mySimTrack.type() ;
+      std::cout << " : pT = " << mySimP4.Pt()
+		<< ", eta = " << mySimP4.Eta()
+		<< ", phi = " << mySimP4.Phi() << std::endl;
+    }
+
 // *** Reconstruct parameterized muons starting from undecayed simulated muons
  
     if ( mySimP4.Eta()>minEta_ && mySimP4.Eta()<maxEta_ ) {
       
       nMu++;
-      if (debug_) {
-	std::cout << " ===> ParamMuonProducer::reconstruct() - pid = "
-		  << mySimTrack.type() ;
-	std::cout << " : pT = " << mySimP4.Pt()
-		  << ", eta = " << mySimP4.Eta()
-		  << ", phi = " << mySimP4.Phi() << std::endl;
-      }
 
 //
 // Now L1
@@ -244,7 +246,6 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       if (doL3_ || doGL_) {
 
 // Check if a correspondig track does exist:
-//	std::vector<FSimTrack>::const_iterator genmu;
 	std::vector<SimTrack>::const_iterator genmu;
 	reco::track_iterator trkmu=allMuonTracks.begin();
 	for (genmu=trackOriginalMuons.begin();
@@ -356,7 +357,7 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     }
     i=0;
     reco::MuonCollection::const_iterator glmu;
-    for (glmu=mySimpleL3MuonCands.begin(); glmu!=mySimpleL3MuonCands.end(); glmu++) {
+    for (glmu=mySimpleGLMuonCands.begin(); glmu!=mySimpleGLMuonCands.end(); glmu++) {
       ++i;
       std::cout << "FastGlobalMuon Cand " << i 
 		<< " : pT = " << (*glmu).pt()
