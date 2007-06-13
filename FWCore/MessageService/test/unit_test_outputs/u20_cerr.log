@@ -1,5 +1,38 @@
+%MSG-i FwkReport:  main_input:source BeforeEvents
+Begin processing the 1st record. Run 1, Event 1
+%MSG
 %MSG-w cat_A:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 1
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 2
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 3
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 4
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 5
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 6
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 7
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 8
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 9
+%MSG
+%MSG-i cat_B:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
+		Emit Info level message 10
 %MSG
 %MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 		Emit Warning level message 1
@@ -46,3 +79,34 @@ Test of std::setprecision(p): Pi with precision 12 is 3.14159265358
 %MSG-w cat_C:  UnitTestClient_G:sendSomeMessages Run: 1 Event: 1
 		Emit Warning level message 15
 %MSG
+%MSG-i FwkJob:  PostModule Run: 1 Event: 1
+<StorageStatistics>
+Storage parameters: adaptor: true Stats:true Buffering:false Caching:0,0
+Storage statistics: ; tfile/read=?/?/0MB/?ms/?ms/?ms; tfile/write=?/?/0MB/?ms/?ms/?ms
+</StorageStatistics>
+%MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkJob               -i PostModule                             1        1
+    2 FwkReport            -i main_input:sourc                       1        1
+    3 cat_B                -i UnitTestClient_G                      10       10
+    4 cat_A                -w UnitTestClient_G                       1        1
+    5 cat_C                -w UnitTestClient_G                      15       15
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkJob               1/1                               
+    2 FwkReport            BeforeEvents                      
+    3 cat_B                1/1              1/1              1/1
+    4 cat_A                1/1                               
+    5 cat_C                1/1              1/1              1/1
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                   12                  12
+Warning                16                  16

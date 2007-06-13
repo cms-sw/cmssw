@@ -46,3 +46,8 @@ cmsRun u18.cfg
 mv     u18_* unit_test_outputs/
 cmsRun u19.cfg
 mv     u19_* unit_test_outputs/
+cmsRun -e u20.cfg
+mv     u20_* unit_test_outputs/
+mv     FrameworkJobReport.xml unit_test_outputs/
+cmsRun u21.cfg
+mv     u21_* unit_test_outputs/
