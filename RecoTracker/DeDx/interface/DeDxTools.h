@@ -1,7 +1,7 @@
 #ifndef DeDxTools_H
 #define DeDxTools_H
 #include <vector>
-#include "DataFormats/TrackReco/interface/DeDxHitFwd.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/DetId/interface/DetId.h"

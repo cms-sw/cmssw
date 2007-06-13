@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.3 2007/06/12 12:48:28 arizzi Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.4 2007/06/12 13:40:49 arizzi Exp $
 //
 //
 
@@ -23,7 +23,7 @@
 
 #include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
 #include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
-#include "DataFormats/TrackReco/interface/TrackDeDxEstimator.h"
+#include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -35,7 +35,7 @@ using namespace reco;
 DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
 {
    //register your products
-   produces<TrackDeDxEstimatorCollection>();
+   produces<TrackDeDxEstimateCollection>();
    m_trackDeDxHitsTag = iConfig.getParameter<edm::InputTag>("trackDeDxHits");
 
    //FIXME: configurable, use ES?
@@ -67,7 +67,7 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::Handle<reco::TrackDeDxHitsCollection> trackDeDxHitsCollectionHandle;
    iEvent.getByLabel(m_trackDeDxHitsTag,trackDeDxHitsCollectionHandle);
    const reco::TrackDeDxHitsCollection & hits = *trackDeDxHitsCollectionHandle.product();
-   TrackDeDxEstimatorCollection * outputCollection = new TrackDeDxEstimatorCollection(hits.keyProduct());
+   TrackDeDxEstimateCollection * outputCollection = new TrackDeDxEstimateCollection(hits.keyProduct());
    
    reco::TrackDeDxHitsCollection::const_iterator it= hits.begin();
    for(int j=0;it!=hits.end();++it,j++)
@@ -78,7 +78,7 @@ DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    }
    
    //put in the event the result
-    std::auto_ptr<TrackDeDxEstimatorCollection> estimator(outputCollection);
+    std::auto_ptr<TrackDeDxEstimateCollection> estimator(outputCollection);
     iEvent.put(estimator);
    
 }

@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.2 2007/06/11 14:29:39 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.3 2007/06/11 15:53:32 arizzi Exp $
 //
 //
 
@@ -29,7 +29,6 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
-#include "DataFormats/TrackReco/interface/DeDxHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
