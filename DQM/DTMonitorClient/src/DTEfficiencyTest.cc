@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 07:02:55 $
- *  $Revision: 1.6 $
+ *  $Date: 2007/05/22 15:31:52 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -160,14 +160,18 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 		  //cout<<"book histos"<<endl;
 		  if (EfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+		  float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
 		  EfficiencyHistos.find(HistoName)->second->setBinContent(bin, efficiency);
-
+		  EfficiencyHistos.find(HistoName)->second->setBinError(bin, errorEff);
+		  
 		  if (UnassEfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+		  float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
 		  UnassEfficiencyHistos.find(HistoName)->second->setBinContent(bin, unassEfficiency);	
+		  UnassEfficiencyHistos.find(HistoName)->second->setBinError(bin, errorUnassEff);
 		}
 	      }
-
+	      
 	    }
 	  }
 	}
