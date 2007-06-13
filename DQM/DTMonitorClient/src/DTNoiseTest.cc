@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/05/15 17:21:35 $
- * $Revision: 1.3 $
+ * $Date: 2007/06/08 07:47:45 $
+ * $Revision: 1.7 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -316,13 +316,13 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
   stringstream superLayer; superLayer << ly.superlayer();
   stringstream layer; layer << ly.layer();
   
-  string folderTag = parameters.getUntrackedParameter<string>("folderTag", "DigiPerEvent");
+  string folderTag = parameters.getUntrackedParameter<string>("folderTagForDigiPerEventTest", "DigiPerEvent");
   string folderName = 
     "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
   
-  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "DigiPerEvent");
+  string histoTag = parameters.getUntrackedParameter<string>("histoTagForDigiPerEventTest", "DigiPerEvent");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 
