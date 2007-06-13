@@ -18,12 +18,13 @@
 #include <cmath>
 
 #include "RecoTracker/RoadSearchSeedFinder/interface/RoadSearchCircleSeed.h"
+#include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
-					   TrackingRecHit *hit2,
-					   TrackingRecHit *hit3,
+RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
+					   const TrackingRecHit *hit2,
+					   const TrackingRecHit *hit3,
 					   GlobalPoint point1,
 					   GlobalPoint point2,
 					   GlobalPoint point3) { 
@@ -36,51 +37,11 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
   points_.push_back(point2);
   points_.push_back(point3);
 
-  double points[3][2];
+  FastCircle kreis(point1,
+		    point2,
+		    point3);
 
-  points[0][0] = point1.x();
-  points[0][1] = point1.y();
-  points[1][0] = point2.x();
-  points[1][1] = point2.y();
-  points[2][0] = point3.x();
-  points[2][1] = point3.y();
-
-  double array[3][3];
-
-  for ( unsigned int i = 0; i < 3; ++i ) {
-    array[i][0] = points[i][0];
-    array[i][1] = points[i][1];
-    array[i][2] = 1.;
-  }
-  
-  double m11 = determinant(array,3);
-
-  for ( unsigned int i = 0; i < 3; ++i ) {
-    array[i][0] = points[i][0]*points[i][0]+points[i][1]*points[i][1];
-    array[i][1] = points[i][1];
-    array[i][2] = 1.;
-  }
-  
-  double m12 = determinant(array,3);
-
-  for ( unsigned int i = 0; i < 3; ++i ) {
-    array[i][0] = points[i][0]*points[i][0]+points[i][1]*points[i][1];
-    array[i][1] = points[i][0];
-    array[i][2] = 1.;
-  }
-  
-  double m13 = determinant(array,3);
-
-  for ( unsigned int i = 0; i < 3; ++i ) {
-    array[i][0] = points[i][0]*points[i][0]+points[i][1]*points[i][1];
-    array[i][1] = points[i][0];
-    array[i][2] = points[i][1];
-  }
-  
-  double m14 = determinant(array,3);
-
-
-  if ( std::abs(m11) < 1E-9 ) {
+  if ( !kreis.isValid() ) {
     // line
     type_ = straightLine;
     center_ = GlobalPoint(0,0,0);
@@ -88,17 +49,15 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
     impactParameter_ = 0;
   } else {
     type_ = circle;
-    double x = 0.5 * m12/m11;
-    double y = -0.5 * m13/m11;
-    radius_  = std::sqrt(x*x+y*y+m14/m11);
-    center_ = GlobalPoint(x,y,0);
+    radius_          = kreis.rho();
+    center_          = GlobalPoint(kreis.x0(),kreis.y0(),0);
     impactParameter_ = calculateImpactParameter(center_,radius_);
   }
 
 }
 
-RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
-					   TrackingRecHit *hit2,
+RoadSearchCircleSeed::RoadSearchCircleSeed(const TrackingRecHit *hit1,
+					   const TrackingRecHit *hit2,
 					   GlobalPoint point1,
 					   GlobalPoint point2) { 
   //
@@ -122,45 +81,6 @@ RoadSearchCircleSeed::RoadSearchCircleSeed(TrackingRecHit *hit1,
 RoadSearchCircleSeed::~RoadSearchCircleSeed() {
 }
 
-double RoadSearchCircleSeed::determinant(double array[][3], unsigned int bins) {
-  unsigned int i, j, j1, j2;
-  double d = 0;
-  double temp[3][3];
-  for (i = 0; i < 3; ++i ) {
-    for (j = 0; j < 3; ++j ) {
-      temp[i][j] = 0;
-    }
-  }
-
-  if (bins == 2)                                // terminate recursion
-    {
-      d = array[0][0]*array[1][1] - array[1][0]*array[0][1];
-    } 
-  else 
-    {
-      d = 0;
-      for (j1 = 0; j1 < bins; j1++ )            // do each column
-        {
-	  for (i = 1; i < bins; i++)            // create minor
-            {
-	      j2 = 0;
-	      for (j = 0; j < bins; j++)
-                {
-		  if (j == j1) continue;
-		  temp[i-1][j2] = array[i][j];
-		  j2++;
-                }
-            }
-	  
-	  // sum (+/-)cofactor * minor  
-	  d = d + std::pow(-1.0, (double)j1)*array[0][j1]*determinant( temp, bins-1 );
-        }
-    }
-  
-  return d;
-
-}
-
 double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint center,
 						      double radius) {
   //
@@ -173,7 +93,7 @@ double RoadSearchCircleSeed::calculateImpactParameter(GlobalPoint center,
   return std::abs(d-radius);
 }
 
-std::string RoadSearchCircleSeed::print() {
+std::string RoadSearchCircleSeed::print() const {
   //
   // print function
   //
@@ -236,3 +156,132 @@ std::ostream& operator<<(std::ostream& ost, const RoadSearchCircleSeed & seed) {
 
   return ost; 
 }
+
+bool RoadSearchCircleSeed::Compare(const RoadSearchCircleSeed *circle,
+				   double centerCut,
+				   double radiusCut,
+				   unsigned int differentHitsCut) const {
+  //
+  // compare this circle with the input circle
+  // compare: percentage of center difference of center average
+  // compare: percentage of radius difference of radius average
+  // compare: number of hits which don't overlap between the two circles
+  //
+
+  // return value
+  bool result = false;
+
+  result = CompareRadius(circle,radiusCut);
+  if ( result ) {
+    result = CompareCenter(circle,centerCut);
+    if ( result ) {
+      result = CompareDifferentHits(circle,differentHitsCut);
+    }
+  }
+
+  return result;
+
+}
+
+bool RoadSearchCircleSeed::CompareCenter(const RoadSearchCircleSeed *circle,
+					 double centerCut) const {
+  //
+  // compare this circle with the input circle
+  // compare: percentage of center difference of center average
+  //
+
+  // return value
+  bool result = false;
+
+  double averageCenter = std::sqrt(((center_.x()+circle->Center().x())/2) *
+				   ((center_.x()+circle->Center().x())/2) +
+				   ((center_.y()+circle->Center().y())/2) *
+				   ((center_.y()+circle->Center().y())/2));
+  double differenceCenter = std::sqrt((center_.x()-circle->Center().x()) *
+				      (center_.x()-circle->Center().x()) +
+				      (center_.y()-circle->Center().y()) *
+				      (center_.y()-circle->Center().y()));
+
+  if ( differenceCenter/averageCenter <= centerCut ) {
+    result = true;
+  }
+
+//   edm::LogVerbatim("OLI") << "center difference: " << differenceCenter
+// 			  << "center average: " << averageCenter
+// 			  << "center percentage: " << differenceCenter/averageCenter
+// 			  << " cut: " << centerCut
+// 			  << " result: " << result;
+
+  return result;
+
+}
+
+bool RoadSearchCircleSeed::CompareRadius(const RoadSearchCircleSeed *circle,
+					 double radiusCut) const {
+  //
+  // compare: percentage of center difference of center average
+  // compare: percentage of radius difference of radius average
+  //
+
+  // return value
+  bool result = false;
+
+  double averageRadius = (radius_ + circle->Radius() ) /2;
+  double differenceRadius = std::abs(radius_ - circle->Radius());
+  
+  if ( differenceRadius/averageRadius <= radiusCut ) {
+    result = true;
+  }
+
+//   edm::LogVerbatim("OLI") << "radius difference: " << differenceRadius
+// 			  << " radius average: " << averageRadius
+// 			  << " radius percentage: " << differenceRadius/averageRadius
+// 			  << " cut: " << radiusCut
+// 			  << " result: " << result;
+
+  return result;
+
+}
+
+bool RoadSearchCircleSeed::CompareDifferentHits(const RoadSearchCircleSeed *circle,
+						unsigned int differentHitsCut) const {
+  //
+  // compare this circle with the input circle
+  // compare: number of hits which don't overlap between the two circles
+  //
+
+  // return value
+  bool result = false;
+
+  // assume circles always have 3 hits
+  unsigned int counter = 0;
+  for ( std::vector<const TrackingRecHit*>::const_iterator hit1 = hits_.begin(),
+	  hit1End = hits_.end();
+	hit1 != hit1End;
+	++hit1 ) {
+    bool included = false;
+    for ( std::vector<const TrackingRecHit*>::const_iterator hit2 = circle->begin_hits(),
+	    hit2End = circle->end_hits();
+	  hit2 != hit2End;
+	  ++hit2 ) {
+      if ( *hit1 == *hit2 ) {
+	included = true;
+      }
+    }
+    if ( !included ) {
+      ++counter;
+    }
+  }
+
+  if ( counter <= differentHitsCut ) {
+    result = true;
+  }
+
+//   edm::LogVerbatim("OLI") << "hits: " << counter 
+// 			  << " cut: " << differentHitsCut 
+// 			  << " result: " << result;
+
+  return result;
+
+}
+

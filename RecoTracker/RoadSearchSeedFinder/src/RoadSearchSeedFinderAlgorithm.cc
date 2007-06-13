@@ -11,9 +11,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
-// $Author: gutsche $
-// $Date: 2007/03/07 21:46:50 $
-// $Revision: 1.25 $
+// $Author: gpetrucc $
+// $Date: 2007/04/29 23:19:51 $
+// $Revision: 1.26 $
 //
 
 #include <vector>
@@ -69,9 +69,14 @@ RoadSearchSeedFinderAlgorithm::RoadSearchSeedFinderAlgorithm(const edm::Paramete
   minPt_                      = conf.getParameter<double>("MinimalReconstructedTransverseMomentum");
   maxImpactParameter_         = conf.getParameter<double>("MaximalImpactParameter");
   phiRangeDetIdLookup_        = conf.getParameter<double>("PhiRangeForDetIdLookupInRings");
-  compareLast_                = conf.getParameter<unsigned int>("MergeSeedsCompareLast");
-  mergeSeedsCenterCut_        = conf.getParameter<double>("MergeSeedsCenterCut");
-  mergeSeedsRadiusCut_        = conf.getParameter<double>("MergeSeedsRadiusCut");
+  mergeSeedsCenterCut_A_      = conf.getParameter<double>("MergeSeedsCenterCut_A");
+  mergeSeedsRadiusCut_A_      = conf.getParameter<double>("MergeSeedsRadiusCut_A");
+  mergeSeedsCenterCut_B_      = conf.getParameter<double>("MergeSeedsCenterCut_B");
+  mergeSeedsRadiusCut_B_      = conf.getParameter<double>("MergeSeedsRadiusCut_B");
+  mergeSeedsCenterCut_C_      = conf.getParameter<double>("MergeSeedsCenterCut_C");
+  mergeSeedsRadiusCut_C_      = conf.getParameter<double>("MergeSeedsRadiusCut_C");
+  mergeSeedsCenterCut_        = mergeSeedsCenterCut_A_;
+  mergeSeedsRadiusCut_        = mergeSeedsRadiusCut_A_;
   mergeSeedsDifferentHitsCut_ = conf.getParameter<unsigned int>("MergeSeedsDifferentHitsCut");
   mode_                       = conf.getParameter<std::string>("Mode");
 
@@ -141,9 +146,9 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
   tracker_ = tracker.product();
 
   // get magnetic field
-  edm::ESHandle<MagneticField> magnet;
-  es.get<IdealMagneticFieldRecord>().get(magnet);
-  magnet_ = magnet.product();
+  edm::ESHandle<MagneticField> magnetHandle;
+  es.get<IdealMagneticFieldRecord>().get(magnetHandle);
+  magnet_ = magnetHandle.product();
 
   // get magnetic field for 0,0,0 , approximation for minRadius calculation
   beamSpotZMagneticField_ = magnet_->inTesla(GlobalPoint(0,0,0)).z();
@@ -155,19 +160,31 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
   }
 
   // temporary storing collection of circle seeds
-  std::vector<RoadSearchCircleSeed> circleSeeds;
+  std::vector<RoadSearchCircleSeed> localCircleSeeds;
 
   // loop over seed Ring pairs
   for ( Roads::const_iterator road = roads_->begin(); road != roads_->end(); ++road ) {
 
+    localCircleSeeds.clear();
+
     Roads::RoadSeed seed = (*road).first;
 
-    maxCenterDistance_   = 0.;
-    maxRadiusDifference_ = 0.;
-    maxCurvatureDifference_ = 0.;
-    numMergedCircles_    = 0;
+    // determine seeding cuts from inner seed ring |eta|
+    double r = std::abs((*seed.first.begin())->getrmax() + (*seed.first.begin())->getrmin())/2.;
+    double z = std::abs((*seed.first.begin())->getzmax() + (*seed.first.begin())->getzmin())/2.;
+    double eta = std::abs(std::log(std::tan(std::atan2(r,z)/2.)));
 
-    
+    if ( eta < 1.1 ) {
+      mergeSeedsCenterCut_ = mergeSeedsCenterCut_A_;
+      mergeSeedsRadiusCut_ = mergeSeedsRadiusCut_A_;
+    } else if ( (eta >= 1.1) && (eta < 1.6) ) {
+      mergeSeedsCenterCut_ = mergeSeedsCenterCut_B_;
+      mergeSeedsRadiusCut_ = mergeSeedsRadiusCut_B_;
+    } else if ( eta >= 1.6 ) {
+      mergeSeedsCenterCut_ = mergeSeedsCenterCut_C_;
+      mergeSeedsRadiusCut_ = mergeSeedsRadiusCut_C_;
+    }
+
     if ( mode_ == "COSMICS" ) {
       // loop over seed ring pairs
       // draw straight line
@@ -177,7 +194,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 	for ( std::vector<const Ring*>::const_iterator outerSeedRing = seed.second.begin();
 	      outerSeedRing != seed.second.end();
 	      ++outerSeedRing) {
-	  calculateCircleSeedsFromRingsOneInnerOneOuter(circleSeeds,
+	  calculateCircleSeedsFromRingsOneInnerOneOuter(localCircleSeeds,
 							*innerSeedRing,
 							*outerSeedRing);
 	  
@@ -213,7 +230,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
 	      if ( check ) {
 		usedSeedRingCombinations_.push_back(identifier);
-		calculateCircleSeedsFromRingsTwoInnerOneOuter(circleSeeds,
+		calculateCircleSeedsFromRingsTwoInnerOneOuter(localCircleSeeds,
 							      *innerSeedRing1,
 							      *innerSeedRing2,
 							      *outerSeedRing);
@@ -245,7 +262,7 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
 
 	      if ( check ) {
 		usedSeedRingCombinations_.push_back(identifier);
-		calculateCircleSeedsFromRingsOneInnerTwoOuter(circleSeeds,
+		calculateCircleSeedsFromRingsOneInnerTwoOuter(localCircleSeeds,
 							      *innerSeedRing1,
 							      *outerSeedRing1,
 							      *outerSeedRing2);
@@ -256,20 +273,16 @@ void RoadSearchSeedFinderAlgorithm::run(const SiStripRecHit2DCollection* rphiRec
       }
     }
 
-    for ( std::vector<RoadSearchCircleSeed>::iterator circle = circleSeeds.begin();
-	  circle != circleSeeds.end();
-	  ++circle ) {
-//       output_ << circle->print();
-      convertCircleToTrajectorySeed(output,*circle,es);
+    // fill in eta mapped multi-map
+    for ( std::vector<RoadSearchCircleSeed>::iterator localCircle = localCircleSeeds.begin(),
+	    localCircleEnd = localCircleSeeds.end();
+	  localCircle != localCircleEnd;
+	  ++localCircle ) {
+      convertCircleToTrajectorySeed(output,*localCircle,es);
     }
-
-    circleSeeds.clear();
-    usedSeedRingCombinations_.clear();
-
-//     edm::LogInfo("RoadSearch") << output_.str() << std::endl; 
-//     output_.str("");
   }
 
+  usedSeedRingCombinations_.clear();
   edm::LogInfo("RoadSearch") << "Found " << output.size() << " seeds."; 
 
 }
@@ -586,9 +599,7 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 				  ring1GlobalPoint,
 				  ring2GlobalPoint,
 				  ring3GlobalPoint);
-
-//       output_ << circle.print();
-
+            
       bool addCircle = false;
       if ( circle.Type() == RoadSearchCircleSeed::straightLine ) {
 	addCircle = true;
@@ -596,49 +607,23 @@ bool RoadSearchSeedFinderAlgorithm::calculateCircleSeedsFromHits(std::vector<Roa
 	if ( (circle.Radius() > minRadius_) &&
 	     (circle.ImpactParameter() < maxImpactParameter_) ) {
 	  addCircle = true;
-	}
-
-	// do merging if compareLast > 0
-	if ( compareLast_ > 0 ) {
-
-	  std::vector<RoadSearchCircleSeed>::iterator begin;
-	  if ( (compareLast_ == 9999999) ||
-	       (compareLast_ > circleSeeds.size()) ) {
-	    begin = circleSeeds.begin();
-	  } else {
-	    begin = circleSeeds.end()-(compareLast_+1);
-	  }
-	  std::vector<RoadSearchCircleSeed>::iterator end = circleSeeds.end();
-
-
-	  for (std::vector<RoadSearchCircleSeed>::iterator alreadyContainedCircle = begin;
-	       alreadyContainedCircle != end;
+	
+	  // check if circle compatible with previous circles, if not, add
+	  for (std::vector<RoadSearchCircleSeed>::iterator alreadyContainedCircle = circleSeeds.begin(),
+		 alreadyContainedCircleEnd = circleSeeds.end();
+	       alreadyContainedCircle != alreadyContainedCircleEnd;
 	       ++alreadyContainedCircle ) {
-	    // cut on percentage of distance between centers vs. average of centers
-	    double averageCenter = std::sqrt(((alreadyContainedCircle->Center().x()+circle.Center().x())/2) *
-					     ((alreadyContainedCircle->Center().x()+circle.Center().x())/2) +
-					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) *
-					     ((alreadyContainedCircle->Center().y()+circle.Center().y())/2) );
-	    double differenceCenter = std::sqrt((alreadyContainedCircle->Center().x()-circle.Center().x()) *
-						(alreadyContainedCircle->Center().x()-circle.Center().x()) +
-						(alreadyContainedCircle->Center().y()-circle.Center().y()) *
-						(alreadyContainedCircle->Center().y()-circle.Center().y()));
-	    double percentageCenter = differenceCenter / averageCenter;
-	    // cut on percentage of difference of radii vs, average of radii
-	    double averageRadius = (alreadyContainedCircle->Radius() + circle.Radius() ) /2;
-	    double differenceRadius = std::abs(alreadyContainedCircle->Radius() - circle.Radius());
-	    double percentageRadius = differenceRadius / averageRadius;
-	    if ( (percentageCenter < mergeSeedsCenterCut_) &&
-		 (percentageRadius < mergeSeedsRadiusCut_) ) {
-	      
+	    if ( circle.Compare(&*alreadyContainedCircle,
+				mergeSeedsCenterCut_,
+				mergeSeedsRadiusCut_,
+				mergeSeedsDifferentHitsCut_) ) {
 	      addCircle = false;
 	      break;
 	    }
 	  }
 	}
       }
-
-
+      
       if ( addCircle ) {
 	circleSeeds.push_back(circle);
       }
@@ -735,11 +720,11 @@ bool RoadSearchSeedFinderAlgorithm::convertCircleToTrajectorySeed(TrajectorySeed
 //   }
   
 
-  std::vector<TrackingRecHit*> recHits = circleSeed.Hits();
+  std::vector<const TrackingRecHit*> recHits = circleSeed.Hits();
 
   // create the OwnVector of TrackingRecHits
   edm::OwnVector<TrackingRecHit> rh;
-  for (std::vector<TrackingRecHit*>::iterator hit = recHits.begin();
+  for (std::vector<const TrackingRecHit*>::iterator hit = recHits.begin();
        hit != recHits.end();
        ++hit ) {
     rh.push_back((*hit)->clone());

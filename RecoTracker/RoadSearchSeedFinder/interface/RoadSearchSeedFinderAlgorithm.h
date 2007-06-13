@@ -15,8 +15,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gutsche $
-// $Date: 2007/03/01 08:16:17 $
-// $Revision: 1.14 $
+// $Date: 2007/03/07 21:46:50 $
+// $Revision: 1.15 $
 //
 
 #include <string>
@@ -103,8 +103,15 @@ class RoadSearchSeedFinderAlgorithm
   double       minPt_;
   double       maxImpactParameter_;
   double       phiRangeDetIdLookup_;
+
   double       mergeSeedsCenterCut_;
   double       mergeSeedsRadiusCut_;
+  double       mergeSeedsCenterCut_A_;
+  double       mergeSeedsRadiusCut_A_;
+  double       mergeSeedsCenterCut_B_;
+  double       mergeSeedsRadiusCut_B_;
+  double       mergeSeedsCenterCut_C_;
+  double       mergeSeedsRadiusCut_C_;
   unsigned int mergeSeedsDifferentHitsCut_;
 
   DetHitAccess innerSeedHitVector_;
@@ -126,12 +133,6 @@ class RoadSearchSeedFinderAlgorithm
 
   double beamSpotZMagneticField_;
   double minRadius_;
-
-  unsigned int compareLast_;
-  double maxCenterDistance_;
-  double maxRadiusDifference_;
-  double maxCurvatureDifference_;
-  unsigned int numMergedCircles_;
 
   std::vector<unsigned int> usedSeedRingCombinations_;
 
