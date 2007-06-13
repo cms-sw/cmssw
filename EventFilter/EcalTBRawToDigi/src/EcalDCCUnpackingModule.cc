@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/04/12 08:36:47 $
- *  $Revision: 1.33 $
+ *  $Date: 2007/06/13 00:00:27 $
+ *  $Revision: 1.34 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -205,8 +205,8 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   
 
   // commit to the event  
-  e.put(productPN,"ebDigis");
-  e.put(productEb);
+  e.put(productPN);
+  e.put(productEb,"ebDigis");
   e.put(productMatacq);
   e.put(productDCCHeader);
   e.put(productTriggerPrimitives);
