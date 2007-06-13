@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sun May  1 17:15:52 EDT 2005
-// $Id: DependentEventSetupRecordProvider.cc,v 1.2 2005/06/23 19:59:48 wmtan Exp $
+// $Id: DependentEventSetupRecordProvider.cc,v 1.3 2005/07/14 22:50:53 wmtan Exp $
 //
 
 // system include files
@@ -65,10 +65,15 @@ DependentEventSetupRecordProvider::setDependentProviders(const std::vector< boos
    boost::shared_ptr< DependentRecordIntervalFinder > newFinder(
                                        new DependentRecordIntervalFinder(key()));
 
-   addFinder(newFinder);
+   boost::shared_ptr<EventSetupRecordIntervalFinder> old = swapFinder(newFinder);
    std::for_each(iProviders.begin(),
                   iProviders.end(),
                   boost::bind(std::mem_fun(&DependentRecordIntervalFinder::addProviderWeAreDependentOn), &(*newFinder), _1));
+  //if a finder was already set, add it as a depedency.  This is done to ensure that the IOVs properly change even if the
+  // old finder does not update each time a dependent record does change
+  if(old.get() != 0) {
+    newFinder->setAlternateFinder(old);
+  }
 }
 
 //

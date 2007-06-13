@@ -8,7 +8,7 @@
 //
 // Author:      Chris Jones
 // Created:     Sat Apr 30 19:37:22 EDT 2005
-// $Id: DependentRecordIntervalFinder.cc,v 1.6 2006/09/01 18:16:42 wmtan Exp $
+// $Id: DependentRecordIntervalFinder.cc,v 1.7 2007/01/19 05:25:11 wmtan Exp $
 //
 
 // system include files
@@ -67,18 +67,32 @@ DependentRecordIntervalFinder::addProviderWeAreDependentOn(boost::shared_ptr<Eve
 }
 
 void 
-DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey&,
+DependentRecordIntervalFinder::setAlternateFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iOther)
+{
+  alternate_ = iOther;
+}
+
+void 
+DependentRecordIntervalFinder::setIntervalFor(const EventSetupRecordKey& iKey,
                                                const IOVSyncValue& iTime, 
                                                ValidityInterval& oInterval)
 {
    //I am assuming that an invalidTime is always less then the first valid time
    assert(IOVSyncValue::invalidIOVSyncValue() < IOVSyncValue::beginOfTime());
-   if(providers_.size() == 0) {
+   if(providers_.size() == 0 && alternate_.get() == 0 ) {
       oInterval = ValidityInterval::invalidInterval();
       return;
    }
    bool haveAValidDependentRecord = false;
    ValidityInterval newInterval(IOVSyncValue::beginOfTime(), IOVSyncValue::endOfTime());
+   
+   if (alternate_.get() != 0) {
+     ValidityInterval test = alternate_->findIntervalFor(iKey, iTime);
+     if ( test != ValidityInterval::invalidInterval() ) {
+       haveAValidDependentRecord =true;
+       newInterval = test;
+     }
+   }
    for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
        itProvider != itProviderEnd;
        ++itProvider) {
