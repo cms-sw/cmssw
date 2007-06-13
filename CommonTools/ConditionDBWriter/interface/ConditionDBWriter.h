@@ -21,7 +21,9 @@
 
 // The user class should inherit from this class. 
 // The templated type must be the type of the object that
-// has to be written on the DB (e.g. MyCalibration).
+// has to be written on the DB (e.g. MyCalibration). Examples of use of
+// this class can be found in package CalibTracker/SiStripChannelGain. Have a
+// look also at the test/ directory for examples of full cfg files. 
 
 // The user must implement in his derived class the abstract method below
 
@@ -126,7 +128,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.2 2007/06/13 15:50:54 gbruno Exp $
+// $Id: ConditionDBWriter.h,v 1.3 2007/06/13 15:52:47 gbruno Exp $
 //
 //
 
