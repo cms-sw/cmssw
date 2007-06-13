@@ -1,0 +1,6 @@
+2007-06-13  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-04-05
+        * fixes to DQM collation and archiving from Bill Badgett
+	* changes to scripts arguments for communication with Tier-0 from Markus
+        * fix for using DQMHttpSource with a FUEP app running EP in async
