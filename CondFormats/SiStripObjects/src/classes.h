@@ -4,6 +4,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/SiStripObjects/interface/SiStripLorentzAngle.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
 
 namespace {
 
@@ -25,35 +27,15 @@ namespace {
   std::vector<unsigned int>::iterator tmp12;
   std::vector<unsigned int>::const_iterator tmp13;
 
-  std::vector<float>::iterator tmp14;
-  std::vector<float>::const_iterator tmp15;
+  std::vector<int>::iterator tmp12a;
+  std::vector<int>::const_iterator tmp13a;
+  std::vector<uint32_t>::const_iterator tmp16;
+  std::vector<uint32_t>::iterator tmp17;
+
+  std::vector< SiStripBadStrip::DetRegistry >::iterator tmp14;
+  std::vector< SiStripBadStrip::DetRegistry >::const_iterator tmp15;
+
+  std::vector<float>::iterator tmp16;
+  std::vector<float>::const_iterator tmp17;
 }  
   
-/* 
-
-#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
-template std::vector<char>::iterator;
-template std::vector<char>::const_iterator;
-template std::vector< SiStripPedestals::DetRegistry >::iterator;
-template std::vector< SiStripPedestals::DetRegistry >::const_iterator;
-
-#include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
-//template std::vector<SiStripNoises::SiStripData>::iterator;
-//template std::vector<SiStripNoises::SiStripData>::const_iterator;
-template std::vector<short>::iterator;
-template std::vector<short>::const_iterator;
-//template std::map< uint32_t, SiStripNoiseVector>::iterator;
-//template std::map< uint32_t, SiStripNoiseVector>::const_iterator;
-template std::vector< SiStripNoises::DetRegistry >::iterator;
-template std::vector< SiStripNoises::DetRegistry >::const_iterator;
-
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
-#include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
-template std::vector< std::vector<FedChannelConnection> >::iterator;
-template std::vector< std::vector<FedChannelConnection> >::const_iterator;
-template std::vector<FedChannelConnection>::iterator;
-template std::vector<FedChannelConnection>::const_iterator;
-//template std::vector<uint16_t>::iterator;
-//template std::vector<uint16_t>::const_iterator;
-*/
-

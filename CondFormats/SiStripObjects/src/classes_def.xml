@@ -18,6 +18,14 @@
 
   <class name="SiStripLorentzAngle"/>
 
+  <class name="SiStripBadStrip"/>
+  <class name="SiStripBadStrip::DetRegistry"/>
+  <class name="std::vector<SiStripBadStrip::DetRegistry>"/>
+  <class name="std::vector<int>"/>
+
+  <class name="SiStripModuleHV"/>
+  <class name="std::vector<uint32_t>"/>
+
   <class pattern="*iterator*"/>
   <class pattern="*vector*"/>
   <class pattern="*map*"/>
