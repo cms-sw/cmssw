@@ -296,7 +296,9 @@ CompositeAlignmentParameters::alignableFromAlignableDet(AlignableDetOrUnitPtr ad
 AlgebraicVector
 CompositeAlignmentParameters::parameterSubset( const std::vector<Alignable*>& vec ) const
 {
-  const unsigned int nali = vec.size();
+  const std::vector< Alignable* > sel = extractAlignables( vec );
+
+  const unsigned int nali = sel.size();
   int ndim = 0;
 
   std::vector<int> posvec;
@@ -306,7 +308,7 @@ CompositeAlignmentParameters::parameterSubset( const std::vector<Alignable*>& ve
   lenvec.reserve( nali );
 
   // iterate over input vector of alignables to determine size of result vector
-  if ( !extractPositionAndLength( vec, posvec, lenvec, ndim ) ) return AlgebraicVector();
+  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) return AlgebraicVector();
 
   // OK, let's do the real work now
   AlgebraicVector result( ndim );
@@ -332,7 +334,9 @@ CompositeAlignmentParameters::parameterSubset( const std::vector<Alignable*>& ve
 AlgebraicSymMatrix 
 CompositeAlignmentParameters::covarianceSubset( const std::vector<Alignable*>& vec ) const
 {
-  const unsigned int nali = vec.size();
+  const std::vector< Alignable* > sel = extractAlignables( vec );
+
+  const unsigned int nali = sel.size();
   int ndim = 0;
 
   std::vector<int> posvec;
@@ -343,7 +347,7 @@ CompositeAlignmentParameters::covarianceSubset( const std::vector<Alignable*>& v
 
   // iterate over input vectors of alignables
   // to determine dimensions of result matrix
-  if ( !extractPositionAndLength( vec, posvec, lenvec, ndim ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( sel, posvec, lenvec, ndim ) ) return AlgebraicSymMatrix();
 
   // OK, let's do the real work now
   AlgebraicSymMatrix result( ndim );
@@ -379,6 +383,9 @@ AlgebraicMatrix
 CompositeAlignmentParameters::covarianceSubset( const std::vector<Alignable*>& veci, 
 						const std::vector<Alignable*>& vecj ) const
 {
+  const std::vector< Alignable* > seli = extractAlignables( veci );
+  const std::vector< Alignable* > selj = extractAlignables( vecj );
+
   int ndimi=0;
   int ndimj=0;
 
@@ -387,28 +394,28 @@ CompositeAlignmentParameters::covarianceSubset( const std::vector<Alignable*>& v
   std::vector<int> posvecj;
   std::vector<int> lenvecj;
 
-  posveci.reserve( veci.size() );
-  lenveci.reserve( veci.size() );
-  posvecj.reserve( vecj.size() );
-  lenvecj.reserve( vecj.size() );
+  posveci.reserve( seli.size() );
+  lenveci.reserve( seli.size() );
+  posvecj.reserve( selj.size() );
+  lenvecj.reserve( selj.size() );
 
   // iterate over input vectors of alignables
   // to determine dimensions of result matrix
-  if ( !extractPositionAndLength( veci, posveci, lenveci, ndimi ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( seli, posveci, lenveci, ndimi ) ) return AlgebraicSymMatrix();
   // vector vecj
-  if ( !extractPositionAndLength( vecj, posvecj, lenvecj, ndimj ) ) return AlgebraicSymMatrix();
+  if ( !extractPositionAndLength( selj, posvecj, lenvecj, ndimj ) ) return AlgebraicSymMatrix();
 
   // OK, let's do the real work now
   AlgebraicMatrix result( ndimi, ndimj );
 
   int resi = 0;
-  for ( unsigned int iali = 0; iali < veci.size(); ++iali )
+  for ( unsigned int iali = 0; iali < seli.size(); ++iali )
   {
     int posi = posveci[iali];
     int leni = lenveci[iali];
 
     int resj = 0;
-    for ( unsigned int jali = 0; jali < vecj.size(); ++jali )
+    for ( unsigned int jali = 0; jali < selj.size(); ++jali )
     {   
       int posj = posvecj[jali];
       int lenj = lenvecj[jali];
@@ -463,6 +470,23 @@ CompositeAlignmentParameters::extractPositionAndLength( const std::vector<Aligna
   return true;
 }
 
+
+//__________________________________________________________________________________________________
+std::vector< Alignable* >
+CompositeAlignmentParameters::extractAlignables( const std::vector< Alignable* >& alignables ) const
+{
+  std::vector< Alignable* > result;
+
+  std::vector< Alignable* >::const_iterator itA, itEnd;
+  for ( itA = alignables.begin(), itEnd = alignables.end(); itA != itEnd; ++itA )
+  {
+    if ( std::find( result.begin(), result.end(), *itA ) == result.end() ) result.push_back( *itA );
+  }
+
+  return result;
+}
+
+
 //__________________________________________________________________________________________________
 void CompositeAlignmentParameters::convert(const std::vector<AlignableDet*> &input,
 					   std::vector<AlignableDetOrUnitPtr> &output) const
@@ -470,11 +494,11 @@ void CompositeAlignmentParameters::convert(const std::vector<AlignableDet*> &inp
   output.clear();
   output.reserve(input.size());
   //   Does not compile due to strange const-conversion problems, but why?
-  //   for (std::vector<AlignableDet*>::iterator it = input.begin(), iEnd = input.end();
-  //        it != iEnd; ++it) {
-  //     output.push_back(AlignableDetOrUnitPtr(*it));
-  //   }
-  for (unsigned int i = 0; i < input.size(); ++i) {
-    output.push_back(AlignableDetOrUnitPtr(input[i]));
-  }
+  std::vector<AlignableDet*>::const_iterator it, itEnd;
+  for (it = input.begin(), itEnd = input.end(); it != itEnd; ++it)
+    output.push_back(AlignableDetOrUnitPtr(*it));
+
+//   for (unsigned int i = 0; i < input.size(); ++i) {
+//     output.push_back(AlignableDetOrUnitPtr(input[i]));
+//   }
 }

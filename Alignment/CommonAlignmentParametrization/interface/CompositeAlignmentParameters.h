@@ -118,6 +118,10 @@ private:
 				 std::vector<int>& posvec,
 				 std::vector<int>& lenvec,
 				 int& length ) const;
+
+  /// Return vector of alignables without multiple occurences.
+  std::vector< Alignable* > extractAlignables( const std::vector< Alignable* >& alignables ) const;
+
   /// backward compatibility method to convert vectors from specific AlignableDet
   /// to more general AlignableDetOrUnitPtr
   void convert(const std::vector<AlignableDet*> &input,
