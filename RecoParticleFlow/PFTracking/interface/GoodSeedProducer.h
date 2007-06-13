@@ -39,7 +39,6 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
 class StraightLinePropagator;
-class TrackerHitAssociator;
 
 
 class GoodSeedProducer : public edm::EDProducer {
