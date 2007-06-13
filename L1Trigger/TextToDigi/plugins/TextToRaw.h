@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: TextToRaw.h,v 1.1 2007/03/08 14:00:55 jbrooke Exp $
+// $Id: TextToRaw.h,v 1.7 2007/06/13 17:00:40 jbrooke Exp $
 //
 //
 
@@ -49,13 +49,17 @@ class TextToRaw : public edm::EDProducer {
   virtual void endJob() ;
 
  private:
-  
-  int evtSize_; // store event size
 
+  // ID of the FED to emulate
   int fedId_;
 
+  // File to read
   std::string filename_;
   std::ifstream file_;
+
+  // array to store the data
+  static const int EVT_MAX_SIZE=1024;
+  char data_[EVT_MAX_SIZE];
 
 };
 
