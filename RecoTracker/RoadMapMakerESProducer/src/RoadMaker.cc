@@ -10,9 +10,9 @@
 // Original Author: Oliver Gutsche, gutsche@fnal.gov
 // Created:         Thu Jan 12 21:00:00 UTC 2006
 //
-// $Author: noeding $
-// $Date: 2007/03/13 22:12:19 $
-// $Revision: 1.10 $
+// $Author: gutsche $
+// $Date: 2007/03/30 02:49:39 $
+// $Revision: 1.11 $
 //
 
 #include <iostream>
@@ -1317,7 +1317,17 @@ void RoadMaker::collectOuterTOBSeedRings() {
   
   if(structure_==FullDetector) { 
     // add most outer rings
-    const Ring* temp_ring = rings_->getTOBRing(2,1,6);
+    const Ring* temp_ring = rings_->getTOBRing(1,1,6);
+    outerSeedRings_.push_back(temp_ring);
+    ++counter;
+    LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+    
+    temp_ring = rings_->getTOBRing(1,2,6);
+    outerSeedRings_.push_back(temp_ring);
+    ++counter;
+    LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+    
+    temp_ring = rings_->getTOBRing(2,1,6);
     outerSeedRings_.push_back(temp_ring);
     ++counter;
     LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
@@ -1359,7 +1369,7 @@ void RoadMaker::collectOuterTECSeedRings() {
   unsigned int counter = 0;
 
   if(structure_==FullDetector) {
-    // outer ring in all wheels except those treated in the following
+    // outer and second outer ring in all wheels except those treated in the following
     unsigned int fw_bw_min       = 1;
     unsigned int fw_bw_max       = 3;
     unsigned int wheel_min       = 1;
@@ -1367,7 +1377,10 @@ void RoadMaker::collectOuterTECSeedRings() {
     
     for ( unsigned int fw_bw = fw_bw_min; fw_bw < fw_bw_max; ++fw_bw ) {
       for ( unsigned int wheel = wheel_min; wheel < wheel_max; ++wheel ) {
-	const Ring* temp_ring = rings_->getTECRing(fw_bw,wheel,7);
+	const Ring* temp_ring = rings_->getTECRing(fw_bw,wheel,6);
+	outerSeedRings_.push_back(temp_ring);
+	++counter;
+	temp_ring = rings_->getTECRing(fw_bw,wheel,7);
 	outerSeedRings_.push_back(temp_ring);
 	++counter;
 	LogDebug("RoadSearch") << "collected TEC outer seed ring with index: " << temp_ring->getindex(); 
@@ -1565,7 +1578,17 @@ void RoadMaker::collectOuterTOBSeedRings1() {
   
   if(structure_==FullDetector) { 
     // add most outer rings
-    const Ring* temp_ring = rings_->getTOBRing(2,1,6);
+    const Ring* temp_ring = rings_->getTOBRing(1,1,6);
+    outerSeedRings1_.push_back(temp_ring);
+    ++counter;
+    LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+    
+    temp_ring = rings_->getTOBRing(1,2,6);
+    outerSeedRings1_.push_back(temp_ring);
+    ++counter;
+    LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
+    
+    temp_ring = rings_->getTOBRing(2,1,6);
     outerSeedRings1_.push_back(temp_ring);
     ++counter;
     LogDebug("RoadSearch") << "collected TOB outer seed ring with index: " << temp_ring->getindex(); 
