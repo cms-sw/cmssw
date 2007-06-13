@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/10 09:40:41 $
- * $Revision: 1.34 $
+ * $Date: 2007/06/10 20:44:41 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -92,16 +92,22 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // Set runTypes
 
-  runTypes_.resize( 13 );
+  runTypes_.resize( 22 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-//  runTypes_[EcalDCCHeaderBlock::PHYSICS]                = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
 
   clients_.clear();
