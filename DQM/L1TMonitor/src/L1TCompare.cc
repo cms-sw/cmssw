@@ -1,9 +1,13 @@
 /*
  * \file L1TCompare.cc
- * $Id: L1TCompare.cc,v 1.1 2007/06/06 14:55:51 wittich Exp $
+ * $Id: L1TCompare.cc,v 1.2 2007/06/08 08:37:43 wittich Exp $
  * \author P. Wittich
  * \brief Compare different parts of the trigger chain (e.g., RCT-GCT )
  * $Log: L1TCompare.cc,v $
+ * Revision 1.2  2007/06/08 08:37:43  wittich
+ * Add ECAL TP - RCT comparisons. Lingering problems with
+ * mismatches right now - still needs work.
+ *
  * Revision 1.1  2007/06/06 14:55:51  wittich
  * compare within trigger subsystems
  *
@@ -144,22 +148,37 @@ void L1TCompare::beginJob(const EventSetup & c)
     rctGctLeadingIsoEmRank_ = dbe->book2D("rctGctLeadingIsoEmRank",
 				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
 				       R6BINS, R6MIN, R6MAX);
+    rctGctLeadingIsoEmRank_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingIsoEmRank_->setAxisTitle(std::string("rct"), 2);
     rctGctLeadingIsoEmEta_ = dbe->book2D("rctGctLeadingIsoEmEta",
 				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
 				       ETABINS, ETAMIN, ETAMAX);
+    rctGctLeadingIsoEmEta_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingIsoEmEta_->setAxisTitle(std::string("rct"), 2);
+
     rctGctLeadingIsoEmPhi_ = dbe->book2D("rctGctLeadingIsoEmPhi",
 				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
 				       PHIBINS, PHIMIN, PHIMAX);
+    rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
     // non-Isolated
     rctGctLeadingNonIsoEmRank_ = dbe->book2D("rctGctLeadingNonIsoEmRank",
 				       "RCT-GCT: rank", R6BINS, R6MIN, R6MAX,
 				       R6BINS, R6MIN, R6MAX);
+    rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingNonIsoEmRank_->setAxisTitle(std::string("rct"), 2);
+
     rctGctLeadingNonIsoEmEta_ = dbe->book2D("rctGctLeadingNonIsoEmEta",
 				      "RCT-GCT: #eta", ETABINS, ETAMIN, ETAMAX,
 				       ETABINS, ETAMIN, ETAMAX);
+    rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingNonIsoEmEta_->setAxisTitle(std::string("rct"), 2);
+
     rctGctLeadingNonIsoEmPhi_ = dbe->book2D("rctGctLeadingNonIsoEmPhi",
 				      "RCT-GCT: #phi", PHIBINS, PHIMIN, PHIMAX,
 				       PHIBINS, PHIMIN, PHIMAX);
+    rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("gct"), 1);
+    rctGctLeadingNonIsoEmPhi_->setAxisTitle(std::string("rct"), 2);
     // -------------------------------------------
     // ECAL TPG - RCT
     // -------------------------------------------
@@ -167,18 +186,27 @@ void L1TCompare::beginJob(const EventSetup & c)
 					   "ECAL TPG-RCT: rank", 
 					   R6BINS, R6MIN, R6MAX,
 					   R6BINS, R6MIN, R6MAX);
+    ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("rct"), 1);
+    ecalTpgRctLeadingEmRank_->setAxisTitle(std::string("ecal tp"), 2);
+
     ecalTpgRctLeadingEmEta_ = dbe->book2D("ecalTpgRctLeadingEmEta",
 					  "ECAL TPG-RCT: #eta", 
 					  15, -0.5, 14.5,
 					  TPETABINS, TPETAMIN, TPETAMAX);
+    ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("rct"), 1);
+    ecalTpgRctLeadingEmEta_->setAxisTitle(std::string("ecal tp"), 2);
     ecalTpgRctLeadingEmEta2_ = dbe->book2D("ecalTpgRctLeadingEmEta2",
 					   "ECAL TPG-RCT: #eta (2)", 
 					   13, -6.5, 6.5,
 					   TPETABINS, TPETAMIN, TPETAMAX);
+    ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("rct"), 1);
+    ecalTpgRctLeadingEmEta2_->setAxisTitle(std::string("ecal tp"), 2);
     ecalTpgRctLeadingEmPhi_ = dbe->book2D("ecalTpgRctLeadingEmPhi",
 					  "ECAL TPG-RCT: #phi", 
 					  PHIBINS, PHIMIN, PHIMAX,
 					  TPPHIBINS, TPPHIMIN, TPPHIMAX);
+    ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("rct"), 1);
+    ecalTpgRctLeadingEmPhi_->setAxisTitle(std::string("ecal tp"), 2);
   }
 
 }
