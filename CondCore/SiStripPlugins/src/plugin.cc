@@ -17,6 +17,10 @@
 #include "CondFormats/DataRecord/interface/SiStripLorentzAngleRcd.h"
 #include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include "CondFormats/DataRecord/interface/SiStripApvGainRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
+#include "CondFormats/DataRecord/interface/SiStripBadStripRcd.h"
+#include "CondFormats/SiStripObjects/interface/SiStripModuleHV.h"
+#include "CondFormats/DataRecord/interface/SiStripModuleHVRcd.h"
 
 DEFINE_SEAL_MODULE();
 REGISTER_PLUGIN(SiStripPedestalsRcd,SiStripPedestals);
@@ -24,4 +28,6 @@ REGISTER_PLUGIN(SiStripNoisesRcd,SiStripNoises);
 REGISTER_PLUGIN(SiStripFedCablingRcd,SiStripFedCabling);
 REGISTER_PLUGIN(SiStripLorentzAngleRcd,SiStripLorentzAngle);
 REGISTER_PLUGIN(SiStripApvGainRcd,SiStripApvGain);
+REGISTER_PLUGIN(SiStripBadStripRcd,SiStripBadStrip);
+REGISTER_PLUGIN(SiStripModuleHVRcd,SiStripModuleHV);
 
