@@ -1,7 +1,7 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2007/04/18 16:10:40 $
-//  by         : $Author: fronga $
+//  last update: $Date: 2007/05/02 17:11:23 $
+//  by         : $Author: ewidl $
 
 #include "Alignment/ReferenceTrajectories/interface/ReferenceTrajectory.h"
 
@@ -55,6 +55,13 @@ ReferenceTrajectory::ReferenceTrajectory(const TrajectoryStateOnSurface &refTsos
     theValidityFlag = this->construct(refTsos, recHits, mass, materialEffects, magField);
   }
 }
+
+
+//__________________________________________________________________________________
+
+ReferenceTrajectory::ReferenceTrajectory( unsigned int nPar, unsigned int nHits )
+  : ReferenceTrajectoryBase( nPar, nHits )
+{}
 
 
 //__________________________________________________________________________________

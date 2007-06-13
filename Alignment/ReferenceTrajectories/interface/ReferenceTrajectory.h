@@ -4,8 +4,8 @@
 /**
  * Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
  * date       : 2006/09/17
- * last update: $Date: 2006/10/10 16:32:23 $
- * by         : $Author: ewidl $
+ * last update: $Date: 2007/04/18 16:10:41 $
+ * by         : $Author: fronga $
  *
  *  Class implementing the reference trajectory of a single charged
  *  particle, i.e. a helix with 5 parameters. Given the
@@ -54,52 +54,60 @@ public:
 		      const MagneticField *magField,
 		      MaterialEffects materialEffects = combined, 
 		      double mass = 0.10565836); // FIXME: ugly hard coded muon mass
+
   virtual ~ReferenceTrajectory() {}
 
   virtual ReferenceTrajectory* clone() const
     { return new ReferenceTrajectory(*this); }
 
-private:
+protected:
+
+  /** constructor for the initialization within inherited classes that reuse only the
+   *  functionlities but don't need ReferenceTrajectory's constructor to call the
+   *  "construct(...)"-method.
+   */
+  ReferenceTrajectory( unsigned int nPar = 0, unsigned int nHits = 0 );
+
   /** internal method to calculate members
    */
-  bool construct(const TrajectoryStateOnSurface &referenceTsos, 
-		 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-		 double mass, MaterialEffects materialEffects,
+  virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
+			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
+			 double mass, MaterialEffects materialEffects,
 		 const MagneticField *magField);
 
   /** internal method to get apropriate updator
    */
-  MaterialEffectsUpdator* createUpdator(MaterialEffects materialEffects, double mass) const;
+  virtual MaterialEffectsUpdator* createUpdator(MaterialEffects materialEffects, double mass) const;
 
   /** internal method to calculate jacobian
    */
-  bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
-		 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
-		 const MagneticField *magField) const;
+  virtual bool propagate(const BoundPlane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
+			 const BoundPlane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian,
+			 const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
    */
-  void fillMeasurementAndError(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
-			       unsigned int iRow,
-			       const TrajectoryStateOnSurface &updatedTsos);
+  virtual void fillMeasurementAndError(const TransientTrackingRecHit::ConstRecHitPointer &hitPtr,
+				       unsigned int iRow,
+				       const TrajectoryStateOnSurface &updatedTsos);
 
   /** internal method to fill derivatives for hit iRow/2
    */
-  void fillDerivatives(const AlgebraicMatrix &projection,
-		       const AlgebraicMatrix &fullJacobian, unsigned int iRow);
+  virtual void fillDerivatives(const AlgebraicMatrix &projection,
+			       const AlgebraicMatrix &fullJacobian, unsigned int iRow);
 
   /** internal method to fill the trajectory positions for hit iRow/2
    */
-  void fillTrajectoryPositions(const AlgebraicMatrix &projection, 
-			       const AlgebraicVector &mixedLocalParams, 
-			       unsigned int iRow);
+  virtual void fillTrajectoryPositions(const AlgebraicMatrix &projection, 
+				       const AlgebraicVector &mixedLocalParams, 
+				       unsigned int iRow);
 
   /** internal method to add material effects to measurments covariance matrix
    */
-  void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
-			     const std::vector<AlgebraicMatrix> &allProjections,
-			     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
-			     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
+  virtual void addMaterialEffectsCov(const std::vector<AlgebraicMatrix> &allJacobians, 
+				     const std::vector<AlgebraicMatrix> &allProjections,
+				     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+				     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs);
 };
 
 #endif
