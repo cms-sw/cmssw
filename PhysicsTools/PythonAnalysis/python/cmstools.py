@@ -118,6 +118,12 @@ class EventTree(object):
           self.__setBranchIndicies()
           return self
       def __iter__(self):
+          # flushing/initializing the root buffers 
+          entry = 0
+          self._index = entry
+          self.__setBranchIndicies()
+          self._tree.GetEntry(self._index,0)
+          # the real loop
           for entry in xrange(self._tree.GetEntries()):
               self._index = entry
               self.__setBranchIndicies()
