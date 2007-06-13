@@ -23,7 +23,7 @@ using std::endl;
 using std::string;
 using std::ios;
 
-static int TextToRaw::EVT_MAX_SIZE=1024;
+const int TextToRaw::EVT_MAX_SIZE;
 
 TextToRaw::TextToRaw(const edm::ParameterSet& iConfig) :
   filename_(iConfig.getUntrackedParameter<string>("filename", "slinkOutput.txt")),
