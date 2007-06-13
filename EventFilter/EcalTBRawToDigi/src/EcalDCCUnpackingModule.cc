@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/03/18 12:13:18 $
- *  $Revision: 1.32 $
+ *  $Date: 2007/04/12 08:36:47 $
+ *  $Revision: 1.33 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -46,7 +46,7 @@ EcalDCCUnpackingModule::EcalDCCUnpackingModule(const edm::ParameterSet& pset){
   matacqFormatter_ = new MatacqDataFormatter();
 
   // digis
-  produces<EBDigiCollection>();
+  produces<EBDigiCollection>("ebDigis");
   produces<EcalMatacqDigiCollection>();
   produces<EcalPnDiodeDigiCollection>();
   produces<EcalRawDataCollection>();
@@ -205,7 +205,7 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
   
 
   // commit to the event  
-  e.put(productPN);
+  e.put(productPN,"ebDigis");
   e.put(productEb);
   e.put(productMatacq);
   e.put(productDCCHeader);
