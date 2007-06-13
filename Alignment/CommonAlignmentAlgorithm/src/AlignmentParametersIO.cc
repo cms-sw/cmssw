@@ -14,7 +14,7 @@ int AlignmentParametersIO::writeOneOrigRigidBody(Alignable *ali)
   AlignmentParameters *par = ali->alignmentParameters();
   AlignmentParameters *parBack = (par ? par->clone(par->parameters(), par->covariance()) : 0);
 
-  ali->setAlignmentParameters(new RigidBodyAlignmentParameters(ali));
+  ali->setAlignmentParameters(new RigidBodyAlignmentParameters(ali, true));
   int iret = this->writeOne(ali);
 
   ali->setAlignmentParameters(parBack); // deletes the above created RigidBodyAlignmentParameters
