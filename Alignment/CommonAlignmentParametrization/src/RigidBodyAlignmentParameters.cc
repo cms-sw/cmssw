@@ -1,8 +1,8 @@
 /** \file RigidBodyAlignmentParameters.cc
  *
- *  Version    : $Revision: 1.7 $
- *  last update: $Date: 2007/04/30 12:38:58 $
- *  by         : $Author$
+ *  Version    : $Revision: 1.10 $
+ *  last update: $Date: 2007/05/11 15:02:03 $
+ *  by         : $Author: flucke $
  */
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -19,9 +19,11 @@
 #include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
 
 //__________________________________________________________________________________________________
-RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* ali) :
-  AlignmentParameters(ali, displacementFromAlignable(ali), AlgebraicSymMatrix(N_PARAM, 0))
-{}
+RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* ali, bool calcMis) :
+  AlignmentParameters(ali, displacementFromAlignable(calcMis ? ali : 0),
+		      AlgebraicSymMatrix(N_PARAM, 0))
+{
+}
 
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable* alignable, 
@@ -180,22 +182,26 @@ void RigidBodyAlignmentParameters::print(void) const
 }
 
 
-AlgebraicVector RigidBodyAlignmentParameters::displacementFromAlignable(Alignable* ali) const
+//__________________________________________________________________________________________________
+AlgebraicVector RigidBodyAlignmentParameters::displacementFromAlignable(const Alignable* ali)
 {
-  const align::RotationType& dR = ali->rotation();
-
-  align::LocalVector shifts( ali->globalRotation() * ( dR.transposed() * ali->displacement().basicVector() ) );
-
-  align::EulerAngles angles = align::toAngles( ali->surface().toLocal(dR) );
-
   AlgebraicVector displacement(N_PARAM);
 
-  displacement[0] = shifts.x();
-  displacement[1] = shifts.y();
-  displacement[2] = shifts.z();
-  displacement[3] = angles(1);
-  displacement[4] = angles(2);
-  displacement[5] = angles(3);
+  if (ali) {
+    const align::RotationType& dR = ali->rotation();
+    
+    const align::LocalVector shifts( ali->globalRotation() * 
+				     ( dR.transposed() * ali->displacement().basicVector() ) );
+
+    const align::EulerAngles angles = align::toAngles( ali->surface().toLocal(dR) );
+
+    displacement[0] = shifts.x();
+    displacement[1] = shifts.y();
+    displacement[2] = shifts.z();
+    displacement[3] = angles(1);
+    displacement[4] = angles(2);
+    displacement[5] = angles(3);
+  }
 
   return displacement;
 }
