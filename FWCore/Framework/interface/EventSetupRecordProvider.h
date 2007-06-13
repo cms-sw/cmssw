@@ -93,6 +93,11 @@ class EventSetupRecordProvider
       virtual void addProxiesToRecord(boost::shared_ptr<DataProxyProvider>,
                                       const DataToPreferredProviderMap& ) = 0;
       virtual void cacheReset()  = 0;
+      
+      boost::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(boost::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
+        std::swap(iNew, finder_);
+        return iNew;
+      }
 
    private:
       EventSetupRecordProvider(const EventSetupRecordProvider&); // stop default
