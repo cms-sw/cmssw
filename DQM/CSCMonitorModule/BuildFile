@@ -1,9 +1,10 @@
-<flags EDM_PLUGIN=1>
+<flags SEAL_PLUGIN_NAME="DQMCSCMonitorModule">
 <use name=FWCore/Framework>
 <use name=FWCore/MessageLogger>
 <use name=DQMServices/CoreROOT>
 <use name=root>
 <use name=boost>
+<use name=xerces-c>
 <use name=DQMServices/Daemon>
 <use name=FWCore/ParameterSet>
 <use name=Utilities/Threads>
@@ -18,6 +19,7 @@
 <use name=DQMServices/CoreROOT>
 <use name=root>
 <use name=boost>
+<use name=xerces-c>
 <use name=DQMServices/Daemon>
 <use name=FWCore/ParameterSet>
 <use name=Utilities/Threads>
