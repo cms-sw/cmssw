@@ -15,8 +15,6 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
 #include "TrackingTools/PatternTools/interface/TrajectoryFitter.h"
@@ -136,12 +134,20 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
        iklus++){
     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
   }
-  //   for (iklus=thePSPfClustCollection.product()->begin();
-  //        iklus!=thePSPfClustCollection.product()->end();
-  //        iklus++){
-  //     if((*iklus).energy()>clusThreshold_) basClus.push_back(*iklus);
-  //   }
   
+  ps1Clus.clear();
+  ps2Clus.clear();
+
+  for (iklus=thePSPfClustCollection.product()->begin();
+       iklus!=thePSPfClustCollection.product()->end();
+       iklus++){
+    //layer==-11 first layer of PS
+    //layer==-12 secon layer of PS
+    if ((*iklus).layer()==-11) ps1Clus.push_back(*iklus);
+    if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
+  }
+
+
   LogDebug("GoodSeedProducer")<<"Number of tracks to be analyzed "<<Tj.size();
 
   for(uint i=0;i<Tk.size();i++){
@@ -175,7 +181,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       
       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
 	  aClus != basClus.end(); aClus++) {
-
 
 	ReferenceCountingPointer<Surface> showerMaxWall=
 	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
@@ -231,13 +236,15 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     float chieta= toteta/ecaletares;
     float chiphi= totphi/ecalphires;
-    float chichi= chieta*chieta + chiphi*chiphi;
+    float chichi= sqrt(chieta*chieta + chiphi*chiphi);
 
     //Matching criteria
-    bool aa1=(chichi<chi2cut);
+    bool aa1= (chichi<chi2cut);
     bool aa2= ((EP>ep_cutmin)&&(EP<1.2));
     bool aa3= (aa1 && aa2);
-
+    int ipsbin=(ibin>=90)? 4*((ibin/9)-10) :-1;
+    bool aa4= ((aa3)||(ibin<90))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),ipsbin);
+    bool aa5= (aa3 || aa4);
     //KF filter
     bool bb1 =
       ((chired>chiredmin) || (nhitpi<hit1max));
@@ -245,7 +252,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     bool bb2 = false;
     bool bb3 = false;
 
-    if((!aa3)&&bb1){
+    if((!aa5)&&bb1){
 
       Trajectory::ConstRecHitContainer tmp;
       Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
@@ -282,7 +289,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     bool bb4=(bb2 || bb3);
     bool bb5=(bb4 && bb1);
-    bool cc1=(aa3 || bb5); 
+    bool cc1=(aa5 || bb5); 
    
     if(cc1)
       LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
@@ -318,9 +325,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       TrajectorySeed NewSeed(*state,rhits,alongMomentum);
 
       output_preid->push_back(NewSeed);
-    
       delete state;
-  
       if(produceCkfPFT_){
 
 	reco::PFRecTrack pftrack( trackRef->charge(), 
@@ -386,13 +391,18 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   ifstream ifs(parFile.fullPath().c_str());
   for (int iy=0;iy<135;iy++) ifs >> thr[iy];
 
+  //read PS threshold
+  FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
+  ifstream ifsPS(parPSFile.fullPath().c_str());
+  for (int iy=0;iy<20;iy++) ifsPS >> thrPS[iy];
+
 }
 
 int GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
   if (fabs(eta)<0.8) ie=0;
-  else{ if (fabs(eta)<1.6) ie=1;
+  else{ if (fabs(eta)<1.65) ie=1;
     else ie=2;
   }
   if (pt<2) ip=0;
@@ -406,4 +416,52 @@ int GoodSeedProducer::getBin(float eta, float pt){
   int iep= ie*5+ip;
   LogDebug("GoodSeedProducer")<<"Track pt ="<<pt<<" eta="<<eta<<" bin="<<iep;
   return iep;
+}
+
+bool GoodSeedProducer::PSCorrEnergy(const TSOS tsos, int ibin){
+  int sder=0;
+  float psEn1 =thrPS[ibin+0];
+  float dX1   =thrPS[ibin+1];
+  float psEn2 =thrPS[ibin+2];
+  float dY2   =thrPS[ibin+3];
+  TSOS ps1TSOS =
+    pfTransformer_->getStateOnSurface(PFGeometry::PS1Wall, tsos,
+                                      propagator_.product(), sder);
+  if (!(ps1TSOS.isValid())) return false;
+  GlobalPoint v1=ps1TSOS.globalPosition();
+  
+  if (!((v1.perp() >=
+         PFGeometry::innerRadius(PFGeometry::PS1)) &&
+        (v1.perp() <=
+         PFGeometry::outerRadius(PFGeometry::PS1)))) return false;
+  
+  bool Ps1g=false;  
+  vector<reco::PFCluster>::const_iterator ips;
+  for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
+    if ((fabs(v1.x()-(*ips).positionXYZ().x())<dX1)&&
+        (fabs(v1.y()-(*ips).positionXYZ().y())<7)&&
+        (v1.z()*(*ips).positionXYZ().z()>0)&&
+	((*ips).energy()>psEn1)) Ps1g=true;
+  }
+  if (!Ps1g) return false;
+  TSOS ps2TSOS =
+    pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
+                                      propagator_.product(), sder);
+  if (!(ps2TSOS.isValid())) return false;
+  GlobalPoint v2=ps2TSOS.globalPosition();
+  
+  if (!((v2.perp() >=
+         PFGeometry::innerRadius(PFGeometry::PS2)) &&
+        (v2.perp() <=
+         PFGeometry::outerRadius(PFGeometry::PS2)))) return false;
+  bool Ps2g =false;
+  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
+    if ((fabs(v2.x()-(*ips).positionXYZ().x())<10.)&&
+	(fabs(v2.y()-(*ips).positionXYZ().y())<dY2)&&
+	(v2.z()*(*ips).positionXYZ().z()>0)&&
+	((*ips).energy()>psEn2)) Ps2g=true;    
+  }
+  
+  return Ps2g;
+  
 }
