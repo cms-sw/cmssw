@@ -1,3 +1,7 @@
+<use name=CondCore/DBOutputService>
+<use name=FWCore/Framework>
+<use name=FWCore/PluginManager>
+<use name=FWCore/ParameterSet>
 <use name=CalibTracker/SiStripChannelGain>
 <library file="*.cc" name=CalibTrackerSiStripChannelGainPlugins>
 <flags EDM_PLUGIN=1>

@@ -15,36 +15,36 @@
 //
 // Original Author:  Dorian Kcira, Pierre Rodeghiero
 //         Created:  Mon Nov 20 10:04:31 CET 2006
-// $Id: SiStripGainRandomCalculator.h,v 1.2 2007/05/04 20:22:34 gbruno Exp $
+// $Id: SiStripGainRandomCalculator.h,v 1.3 2007/05/09 16:10:13 gbruno Exp $
 //
 //
 
 
-#include "CalibTracker/SiStripChannelGain/interface/SiStripGainCalculator.h"
+#include "CommonTools/ConditionDBWriter/interface/ConditionDBWriter.h"
+#include "CondFormats/SiStripObjects/interface/SiStripApvGain.h"
 #include <vector>
 
-class SiStripGainRandomCalculator : public SiStripGainCalculator {
+class SiStripGainRandomCalculator : public ConditionDBWriter<SiStripApvGain> {
 
 public:
 
   explicit SiStripGainRandomCalculator(const edm::ParameterSet&);
   ~SiStripGainRandomCalculator();
 
-
 private:
-  void algoBeginRun(const edm::Run &, const edm::EventSetup &);
-  //  virtual void algoAnalyze(const edm::Event&, const edm::EventSetup&);
-  //  virtual void endJob() ;
+
+  void algoAnalyze(const edm::Event &, const edm::EventSetup &);
 
   SiStripApvGain * getNewObject();
 
 private:
 
-
   double meanGain_;
   double sigmaGain_;
   double minimumPosValue_;
-  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs;
+
+  std::vector< std::pair<uint32_t, unsigned short> > detid_apvs_;
+  unsigned long long m_cacheID_;
   bool printdebug_;
 
 };
