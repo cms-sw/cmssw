@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.18 2007/06/12 11:53:57 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.19 2007/06/13 12:58:44 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -35,8 +35,6 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   edm::InputTag src_;
   /// unknown code treatment flag
   bool abortOnUnknownPDGCode_;
-  /// charge to assign to unknown code
-  int chargeForUnknownPDGCode_;
   /// internal functional decomposition
   void fillIndices( const HepMC::GenEvent *, 
 	     std::vector<const HepMC::GenParticle *> & ) const;
@@ -84,7 +82,6 @@ static const double mmToCm = 0.1;
 FastGenParticleCandidateProducer::FastGenParticleCandidateProducer( const ParameterSet & p ) :
   src_( p.getParameter<InputTag>( "src" ) ),
   abortOnUnknownPDGCode_( p.getUntrackedParameter<bool>( "abortOnUnknownPDGCode", true ) ),
-  chargeForUnknownPDGCode_( p.getUntrackedParameter<int>( "chargeForUnknownPDGCode", 0 ) ),
   chargeP_( PDGCacheMax, 0 ), chargeM_( PDGCacheMax, 0 ) {
   produces<CandidateCollection>();
 }
@@ -100,8 +97,9 @@ int FastGenParticleCandidateProducer::chargeTimesThree( int id ) const {
     if ( abortOnUnknownPDGCode_ )
       throw edm::Exception( edm::errors::LogicError ) 
 	<< "invalid PDG id: " << id << endl;
-    else
-      return chargeForUnknownPDGCode_;
+    else {
+      return HepPDT::ParticleID(id).threeCharge();
+    }
   return f->second;
 }
 
