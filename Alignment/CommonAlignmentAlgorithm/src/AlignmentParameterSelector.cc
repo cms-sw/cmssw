@@ -1,9 +1,9 @@
 /** \file AlignmentParameterSelector.cc
  *  \author Gero Flucke, Nov. 2006
  *
- *  $Date: 2007/03/02 18:31:28 $
- *  $Revision: 1.7 $
- *  (last update by $Author: pivarski $)
+ *  $Date: 2007/04/12 16:27:41 $
+ *  $Revision: 1.8 $
+ *  (last update by $Author: covarell $)
  */
 
 #include <cctype>
@@ -166,6 +166,8 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
     numAli += this->add(theTracker->pixelHalfBarrelLadders(), paramSel);
   } else if (name == "PixelHalfBarrelLayers") {
     numAli += this->add(theTracker->pixelHalfBarrelLayers(), paramSel);
+  } else if (name == "PixelHalfBarrels") {
+    numAli += this->add(theTracker->pixelHalfBarrels(), paramSel);
   }
   //
   // PXEndcap
@@ -173,6 +175,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   else if (name == "PXECDets") numAli += this->add(theTracker->pixelEndcapGeomDets(), paramSel);
   else if (name == "PXECPetals") numAli += this->add(theTracker->pixelEndcapPetals(), paramSel);
   else if (name == "PXECLayers") numAli += this->add(theTracker->pixelEndcapLayers(), paramSel);
+  else if (name == "PXEndCaps") numAli += this->add(theTracker->pixelEndCaps(), paramSel);
   //
   // Pixel Barrel+endcap
   //
@@ -189,6 +192,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   //
   // TID
   //
+  else if (name == "TIDs")          numAli += this->add(theTracker->TIDs(), paramSel);
   else if (name == "TIDLayers")     numAli += this->add(theTracker->TIDLayers(), paramSel);
   else if (name == "TIDRings")      numAli += this->add(theTracker->TIDRings(), paramSel);
   else if (name == "TIDDets")       numAli += this->add(theTracker->TIDGeomDets(), paramSel);
@@ -198,6 +202,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   else if (name == "TECDets")       numAli += this->add(theTracker->endcapGeomDets(), paramSel);
   else if (name == "TECPetals")     numAli += this->add(theTracker->endcapPetals(), paramSel);
   else if (name == "TECLayers")     numAli += this->add(theTracker->endcapLayers(), paramSel);
+  else if (name == "TECs")          numAli += this->add(theTracker->endCaps(), paramSel);
   //
   // StripEndcap (TID+TEC)
   //
