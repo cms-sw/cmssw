@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.11 $
+ * $Date: 2007/06/12 18:18:07 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -234,7 +234,8 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
 
       dccMap[ ism ] = dcch;
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ) enable = true;
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) enable = true;
 
     }
 
@@ -291,7 +292,8 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EEPedestalTask") << " det id = " << id;
       LogDebug("EEPedestalTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -416,7 +418,8 @@ void EEPedestalTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::PEDESTAL_STD ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_STD ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PEDESTAL_GAP ) ) continue;
 
       LogDebug("EEPedestalTask") << " det id = " << id;
       LogDebug("EEPedestalTask") << " sm, num " << ism << " " << num;

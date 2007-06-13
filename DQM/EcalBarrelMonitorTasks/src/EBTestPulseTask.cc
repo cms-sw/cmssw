@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2007/05/21 11:43:19 $
- * $Revision: 1.72 $
+ * $Date: 2007/06/12 18:18:06 $
+ * $Revision: 1.73 $
  * \author G. Della Ricca
  *
 */
@@ -248,7 +248,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
 
       dccMap[ ism ] = dcch;
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ) enable = true;
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+           dcch.getRunType() == EcalDCCHeaderBlock::TESTPULSE_GAP ) enable = true;
 
     }
 
@@ -286,7 +287,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
       LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -347,7 +349,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
       LogDebug("EBTestPulseTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -411,7 +414,8 @@ void EBTestPulseTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ) continue;
+      if ( ! ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+               dccMap[ism].getRunType() != EcalDCCHeaderBlock::TESTPULSE_GAP ) ) continue;
 
       LogDebug("EBTestPulseTask") << " det id = " << id;
       LogDebug("EBTestPulseTask") << " sm, num " << ism << " " << num;

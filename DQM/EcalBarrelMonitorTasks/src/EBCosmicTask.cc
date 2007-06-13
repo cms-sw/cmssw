@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/05/11 15:05:05 $
- * $Revision: 1.71 $
+ * $Date: 2007/05/21 09:57:44 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  *
 */
@@ -161,7 +161,11 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
       dccMap[ ism ] = dcch;
 
       if ( dcch.getRunType() == EcalDCCHeaderBlock::COSMIC ||
-           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ) enable = true;
+           dcch.getRunType() == EcalDCCHeaderBlock::MTCC ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+           dcch.getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) enable = true;
 
     }
 
@@ -203,7 +207,11 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
       if ( i == dccMap.end() ) continue;
 
       if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_GLOBAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMICS_LOCAL ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::PHYSICS_LOCAL ) ) enable = true;
 
       LogDebug("EBCosmicTask") << " det id = " << id;
       LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;

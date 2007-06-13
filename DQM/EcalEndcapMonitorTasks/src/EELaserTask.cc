@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2007/05/24 13:26:12 $
- * $Revision: 1.11 $
+ * $Date: 2007/06/12 18:18:07 $
+ * $Revision: 1.12 $
  * \author G. Della Ricca
  *
 */
@@ -536,7 +536,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
 
       dccMap[ ism ] = dcch;
 
-      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ) enable = true;
+      if ( dcch.getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+           dcch.getRunType() == EcalDCCHeaderBlock::LASER_GAP ) enable = true;
 
     }
 
@@ -574,7 +575,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -650,7 +652,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, num " << ism << " " << num;
@@ -755,7 +758,8 @@ void EELaserTask::analyze(const Event& e, const EventSetup& c){
       map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
       if ( i == dccMap.end() ) continue;
 
-      if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::LASER_STD ) continue;
+      if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_STD ||
+               dccMap[ism].getRunType() == EcalDCCHeaderBlock::LASER_GAP ) ) continue;
 
       LogDebug("EELaserTask") << " det id = " << id;
       LogDebug("EELaserTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
