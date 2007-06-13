@@ -6,7 +6,7 @@
 // Class:      ConditionDBWriter
 // 
 // \class ConditionDBWriter 
-
+//
 //  Description: 
 
 //  Implementation:
@@ -126,7 +126,7 @@
 //
 // Original Author:  Giacomo Bruno
 //         Created:  May 23 10:04:31 CET 2007
-// $Id: ConditionDBWriter.h,v 1.1 2007/05/25 17:50:53 gbruno Exp $
+// $Id: ConditionDBWriter.h,v 1.2 2007/06/13 15:50:54 gbruno Exp $
 //
 //
 
