@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.3 2007/06/12 15:22:22 pjanot Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.4 2007/06/13 10:38:37 aperrott Exp $
 //
 //
 
@@ -82,7 +82,8 @@ typedef std::vector<L1MuGMTCand> L1MuonCollection;
 ParamL3MuonProducer::ParamL3MuonProducer(const edm::ParameterSet& iConfig)
 {
 
-  readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"));
+  readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
+		 iConfig.getParameter<edm::ParameterSet>("TRACKS"));
 
   //register your products
   if (doL1_) produces<std::vector<L1MuGMTCand> >("ParamL1Muons");
@@ -124,46 +125,71 @@ void ParamL3MuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace edm;
 
   Handle<std::vector<SimTrack> > simMuons;
-  iEvent.getByLabel(theSimModuleLabel_,"MuonSimTracks",simMuons);
-  int nmuons = simMuons->size();
+  iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
+  unsigned nmuons = simMuons->size();
   //  Handle<std::vector<SimVertex> > simVertices;
   //  iEvent.getByLabel(theSimModuleLabel_,simVertices);
 
   int ntrks = 0;
   Handle<reco::TrackCollection> theTracks;
-  reco::TrackCollection::const_iterator trk;
   reco::TrackRefVector allMuonTracks;
   Handle<SiTrackerGSRecHit2DCollection> theGSRecHits;
-  std::vector<unsigned int> SimTrackIds;
   std::vector<SimTrack> trackOriginalMuons;  
+  //  unsigned count = 0;
 
   if (doL3_ || doGL_) {
     iEvent.getByLabel(theTrkModuleLabel_,theTracks);
     ntrks =  theTracks->size();
+    reco::TrackCollection::const_iterator trk=theTracks->begin();
+    reco::TrackCollection::const_iterator trkEnd=theTracks->end();
     //Get RecHits from the event
     iEvent.getByType(theGSRecHits);
 
-// -- Associate the reconstructed trackerTrack with the simTrack...
+    // Associate the reconstructed trackerTrack with the simTrack...
     int trackIndex = 0;
-    for (trk=theTracks->begin(); trk!=theTracks->end(); trk++) {
-      SimTrackIds.clear();
-      for (trackingRecHit_iterator it=trk->recHitsBegin(); it!=trk->recHitsEnd(); it++) {
-	if ((*it)->isValid()) {
-	  if(const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (it->get())) {
-	    int currentId = rechit->simtrackId();
-	    SimTrackIds.push_back(currentId);
+    for ( ; trk!=trkEnd; ++trk) {
+
+      // The vector of SimTrack id for each rechits (useful only for full pattern recognition)
+      std::vector<unsigned> SimTrackIds( fullPattern_ ? trk->recHitsSize() : 0,
+					 static_cast<unsigned>(0));
+
+      // The rechit iterator
+      trackingRecHit_iterator it = trk->recHitsBegin();
+
+      // Here is the case with fast tracking (no pattern recognition) 
+      // All rechits come from the same sim track, so only the first hit is checked.
+      int idmax = -1;
+      if ( !fullPattern_ ) { 
+	// The first recHit
+	const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (it->get());
+	
+	// The simtrack id
+	idmax = rechit->simtrackId();
+
+      // Now comes the case with full pattern recognition
+      // The rechits may come from several simtracks, so take the simtrack which shares
+      // the largest number of hits with the reconstructed track 
+      } else { 
+
+	// Fill it!
+	trackingRecHit_iterator rechitsEnd = trk->recHitsEnd();
+	// Loop on the rechits for this track
+	for ( unsigned ih=0; it!=rechitsEnd; ++it,++ih ) { 
+	  if ((*it)->isValid()) {
+	    const SiTrackerGSRecHit2D * rechit = dynamic_cast<const SiTrackerGSRecHit2D *> (it->get());
+	    if ( rechit ) SimTrackIds[ih] = rechit->simtrackId();
 	  }
-	}
+        }
       }  // end of loop over the recHits belonging to the track
 
+      // Now find the simTrack with the largest number of hits in common
       int nmax = 0;
-      int idmax = -1;
       for(size_t j=0; j<SimTrackIds.size(); j++){
-	int n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
-	if(n>nmax){
-	  nmax = n;
-	  idmax = SimTrackIds[j];
-	}
+        int n = std::count(SimTrackIds.begin(), SimTrackIds.end(), SimTrackIds[j]);
+        if(n>nmax){
+          nmax = n;
+          idmax = SimTrackIds[j];
+        }
       }
 
       for( unsigned fsimi=0; fsimi < nmuons; ++fsimi) {
@@ -465,12 +491,15 @@ void ParamL3MuonProducer::endJob() {
 }
 
 
-void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons) {
+void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons, 
+					 const edm::ParameterSet& fastTracks) {
+  // Muons
   debug_ = fastMuons.getUntrackedParameter<bool>("Debug");
   doL1_ = fastMuons.getUntrackedParameter<bool>("ProduceL1Muons");
   doL3_ = fastMuons.getUntrackedParameter<bool>("ProduceL3Muons");
   doGL_ = fastMuons.getUntrackedParameter<bool>("ProduceGlobalMuons");
   theSimModuleLabel_ = fastMuons.getParameter<std::string>("simModuleLabel");
+  theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
   theTrkModuleLabel_ = fastMuons.getParameter<std::string>("trackModuleLabel");
   minEta_ = fastMuons.getParameter<double>("MinEta");
   maxEta_ = fastMuons.getParameter<double>("MaxEta");
@@ -480,10 +509,17 @@ void ParamL3MuonProducer::readParameters(const edm::ParameterSet& fastMuons) {
     minEta_ = tempEta_ ;
   }
 
+  // Tracks
+  fullPattern_  = fastTracks.getUntrackedParameter<bool>("FullPatternRecognition");
+
   std::cout << " Parameterized MUONS: FastSimulation parameters " << std::endl;
   std::cout << " ============================================== " << std::endl;
   std::cout << " Parameterized muons reconstructed in the pseudorapidity range : "
             << minEta_ << " -> " << maxEta_ << std::endl;
+  if ( fullPattern_ ) 
+    std::cout << " The FULL pattern recognition option is turned ON" << std::endl;
+  else
+    std::cout << " The FAST tracking option is turned ON" << std::endl;
 }
 
 

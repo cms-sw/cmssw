@@ -15,7 +15,7 @@
 //
 //  Author:  Andrea Perrotta
 // Created:  Wed May 02 12:37:24 CET 2007
-// $Id: ParamL3MuonProducer.h,v 1.2 2007/06/11 14:51:11 aperrott Exp $
+// $Id: ParamL3MuonProducer.h,v 1.3 2007/06/12 15:22:21 pjanot Exp $
 //
 
 
@@ -71,7 +71,7 @@ class ParamL3MuonProducer : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
-      void readParameters(const edm::ParameterSet& );
+      void readParameters(const edm::ParameterSet&, const edm::ParameterSet& );
       void reconstruct();
       void loadL1Muons(L1MuonsContainer & c) const;
       void loadL3Muons(reco::MuonCollection & c) const;
@@ -95,8 +95,9 @@ class ParamL3MuonProducer : public edm::EDProducer {
       
   // ----------- parameters ---------------------------- 
       bool debug_;
+      bool fullPattern_;
       bool doL1_ , doL3_ , doGL_;
-      std::string theSimModuleLabel_ , theTrkModuleLabel_ ;
+      std::string theSimModuleLabel_ , theSimModuleProcess_, theTrkModuleLabel_ ;
       double minEta_ ,  maxEta_;
   // ----------- counters ------------------------------
       int   nMuonTot , nL1MuonTot , nL3MuonTot , nGLMuonTot;
