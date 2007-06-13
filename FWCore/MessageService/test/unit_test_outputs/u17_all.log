@@ -70,3 +70,29 @@ LogSystem: 8
 %MSG-s cat_S:  UnitTestClient_K:sendSomeMessages Run: 1 Event: 2
 LogSystem: 9
 %MSG
+
+=============================================
+
+MessageLogger Summary
+
+ type     category        sev    module        subroutine        count    total
+ ---- -------------------- -- ---------------- ----------------  -----    -----
+    1 FwkJob               -i PostModule                             1*       1
+    2 FwkReport            -i main_input:sourc                       2        2
+    3 cat_P                -w UnitTestClient_K                      20*      20
+    4 cat_S                -s UnitTestClient_K                      20       20
+
+* Some occurrences of this message were suppressed in all logs, due to limits.
+
+ type    category    Examples: run/evt        run/evt          run/evt
+ ---- -------------------- ---------------- ---------------- ----------------
+    1 FwkJob               1/2                               
+    2 FwkReport            BeforeEvents     1/1              
+    3 cat_P                1/1              1/1              1/2
+    4 cat_S                1/1              1/1              1/2
+
+Severity    # Occurrences   Total Occurrences
+--------    -------------   -----------------
+Info                    3                   3
+Warning                20                  20
+System                 20                  20
