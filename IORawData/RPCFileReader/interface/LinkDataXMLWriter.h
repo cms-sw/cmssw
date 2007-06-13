@@ -69,6 +69,7 @@ class LinkDataXMLWriter: public edm::EDAnalyzer
   XMLFormatTarget *myFormTarget;
   DOMDocument* doc;
   DOMElement* rootElem;
+  DOMElement* event;
   //DOMElement* oldBX;
 
   std::vector<std::vector<std::vector<std::vector< RPCPacData> > > > linkData;
