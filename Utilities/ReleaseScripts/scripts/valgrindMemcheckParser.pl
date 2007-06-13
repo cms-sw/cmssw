@@ -1,4 +1,8 @@
 #!/usr/bin/perl
+# $Id: $
+# Created: June 2007
+# Author: Gioivanni Petrucciani, INFN Pisa
+#
 use strict;
 use warnings;
 use Data::Dumper;
