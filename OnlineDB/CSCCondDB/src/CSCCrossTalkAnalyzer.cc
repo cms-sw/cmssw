@@ -24,11 +24,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCEventData.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "OnlineDB/CSCCondDB/interface/CSCCrossTalkAnalyzer.h"
-#include "OnlineDB/CSCCondDB/interface/CSCOnlineDB.h"
 #include "OnlineDB/CSCCondDB/interface/CSCxTalk.h"
 #include "CondFormats/CSCObjects/interface/CSCcrosstalk.h"
 #include "CondFormats/CSCObjects/interface/CSCPedestals.h"
-#include "CondFormats/CSCObjects/interface/CSCobject.h"
 #include "OnlineDB/CSCCondDB/interface/CSCMap.h"
 
 CSCCrossTalkAnalyzer::CSCCrossTalkAnalyzer(edm::ParameterSet const& conf) {
@@ -190,11 +188,6 @@ void CSCCrossTalkAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& i
       
       evt++;  
  
-      // if (evt > 10){
-// 	std::cout<<"Less than 320 events!!!" <<std::endl;
-//         exit(0);
-//       }
-      
       for (unsigned int iDDU=0; iDDU<dduData.size(); ++iDDU) { 
 	
 	///get a reference to chamber data
@@ -362,6 +355,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::string::size_type runNameStart = name.find("\"",0);
   std::string::size_type runNameEnd   = name.find("raw",0);
   std::string::size_type rootStart    = name.find("Crosstalk",0);
+  
   int nameSize = runNameEnd+2-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
   std::string myname= name.substr(runNameStart+1,nameSize);
@@ -370,19 +364,17 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   std::string runFile= myRootName;
   std::string myRootFileName = runFile+myRootEnd;
   const char *myNewName=myRootFileName.c_str();
-  
+   
   struct tm* clock;			    
   struct stat attrib;			    
   stat(myname.c_str(), &attrib);          
   clock = localtime(&(attrib.st_mtime));  
   std::string myTime=asctime(clock);
+  std::ofstream myfile("xtalk.dat",std::ios::app);
 
-  //DB object and map
-  CSCobject *cn = new CSCobject();
-  CSCobject *cn1 = new CSCobject();
+  //DB map
   cscmap *map = new cscmap();
-  condbon *dbon = new condbon();
-
+ 
   //root ntuple
   TCalibCrossTalkEvt calib_evt;
   TFile calibfile(myNewName, "RECREATE");
@@ -391,7 +383,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
   xtime.Write();
   ped_mean_all.Write();
   maxADC.Write();
-
+  
   pulseshape_ch1_cfeb1.Write();
   pulseshape_ch1_cfeb2.Write();
   pulseshape_ch1_cfeb3.Write();
@@ -529,8 +521,7 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	
 	int layer_id=chamber_num+j+1;
 	if(sector==-100)continue;
-	cn->obj[layer_id].resize(size[i]);
-	cn1->obj[layer_id].resize(size[i]);
+
 	for (int k=0; k<size[i]; k++){
 	  // re-zero convd and nconvd 
 	  for (int m=0; m<3; m++){
@@ -691,19 +682,21 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 	    minPeakTime=the_peakTime;
 	      }
 
-	  //introducing flags for RMS and baseline
-	  if (theRMS >1.5 && theRMS <6.0)  flagRMS = 1; // ok
+	  //flags for RMS and baseline
+	  if (theRMS>1.5 && theRMS <6.0)   flagRMS = 1; // ok
 	  if (theRMS>6.0 && theRMS<20.0)   flagRMS = 2; // warning high CFEB noise
 	  if (theRMS<1.5)                  flagRMS = 3; // warning/failure too low noise
 	  if (theRMS>=20.0)                flagRMS = 4; // warning/failure too high noise
 	  
 	  if (meanPedestal <50.)                         flagNoise = 2; // warning/failure too low pedestal 
-	  if (meanPedestal>50. && meanPedestal<200.)     flagNoise = 3; // warning low pedestal
+	  if (meanPedestal >50. && meanPedestal<200.)    flagNoise = 3; // warning low pedestal
 	  if (meanPedestal >1000. && meanPedestal<3000.) flagNoise = 4; // warning high pedstal
-	  if (meanPedestal>3000.)                        flagNoise = 5; // warning/failure too high pedestal 
-	  if (meanPedestal>200. && meanPedestal<1000.)   flagNoise = 1; // ok
+	  if (meanPedestal >3000.)                       flagNoise = 5; // warning/failure too high pedestal 
+	  if (meanPedestal >200. && meanPedestal<1000.)  flagNoise = 1; // ok
 
-	  std::cout <<"Ch "<<i<<" L "<<j<<" S "<<k<<"  ped "<<meanPedestal<<" RMS "<<thePeakRMS<<" maxADC "<<thePeak<<" IntL "<<the_xtalk_left_a<<" SL "<<the_xtalk_left_b<<" IntR "<<the_xtalk_right_a<<" SR "<<the_xtalk_right_b<<" flagRMS "<<flagRMS<<std::endl;
+	  //dump values to ASCII file
+	  myfile <<layer_id<<"  "<<the_xtalk_right_b<<"  "<<the_xtalk_right_a<<"  "<<the_chi2_right<<"  "<<the_xtalk_left_b<<"  "<<the_xtalk_left_a<<"  "<<the_chi2_left<<std::endl;
+
 	  calib_evt.xtalk_slope_left  = xtalk_slope_left[iii][i][j][k]; 
 	  calib_evt.xtalk_slope_right = xtalk_slope_right[iii][i][j][k]; 
 	  calib_evt.xtalk_int_left    = xtalk_intercept_left[iii][i][j][k];
@@ -731,33 +724,11 @@ CSCCrossTalkAnalyzer::~CSCCrossTalkAnalyzer(){
 
 	  calibtree.Fill();
 
-	  //if (chamber_num== 220111310) std::cout<<"Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" SL "<<the_xtalk_left_b<<" SR "<<the_xtalk_right_b<<std::endl; 
-	  cn->obj[layer_id][k].resize(2);
-	  cn->obj[layer_id][k][0] = meanPedestal;
-	  cn->obj[layer_id][k][1] = theRMS;
-	  cn1->obj[layer_id][k].resize(6);
-	  cn1->obj[layer_id][k][0] = the_xtalk_right_b ;
-	  cn1->obj[layer_id][k][1] = the_xtalk_right_a ;
-	  cn1->obj[layer_id][k][2] = the_chi2_right;
-	  cn1->obj[layer_id][k][3] = the_xtalk_left_b ;
-	  cn1->obj[layer_id][k][4] = the_xtalk_left_a ;
-	  cn1->obj[layer_id][k][5] = the_chi2_left;
-
-	  if (chamber_num== 220111310 && k>31 &&k<49) std::cout<<"Second try: Chamber "<<i<<" Layer "<<j<<" Strip "<<k<<" SL "<<cn1->obj[layer_id][k][3]<<" SR "<<cn1->obj[layer_id][k][0]<<std::endl; 
-	  
 	}//loop over strips
       }//loop over layers
     }//chambers
   }//Nddu
 
-
-  dbon->cdbon_last_record("pedestals",&record);
-  std::cout<<"Last pedestal record "<<record<<std::endl;
-  if(debug) dbon->cdbon_write(cn,"pedestals",12,3498,myTime);
-  dbon->cdbon_last_record("crosstalk",&record);
-  if(debug) dbon->cdbon_write(cn1,"crosstalk",12,3498,myTime);
-  std::cout << "Last crosstalk record " << record << " for run file " << myname <<" saved "<< myTime << std::endl;  
   calibfile.Write();
   calibfile.Close();  
-
 }  
