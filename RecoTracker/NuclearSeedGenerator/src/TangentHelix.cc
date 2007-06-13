@@ -14,7 +14,7 @@ TangentHelix::TangentHelix(const TangentHelix& primCircle, const GlobalPoint& ou
    theVertexPoint = GlobalPoint(vtx_T.x() , vtx_T.y(), innerPoint.z() - (outerPoint.z() - innerPoint.z()) * d1 / d );
 }
 
-GlobalVector TangentHelix::directionAtVertex() const {
+GlobalVector TangentHelix::directionAtVertex() {
 
    GlobalPoint inner_T( theInnerPoint.x() , theInnerPoint.y() , 0.0 );
    GlobalPoint outer_T( theOuterPoint.x() , theOuterPoint.y() , 0.0 );

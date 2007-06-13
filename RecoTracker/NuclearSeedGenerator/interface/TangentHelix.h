@@ -28,7 +28,13 @@ class TangentHelix {
 
        TangentCircle circle() const { return theCircle; }
 
-       GlobalVector directionAtVertex() const;
+       GlobalVector directionAtVertex() ;
+
+       int charge(float magz) { return theCircle.charge(magz); }
+
+       double rho() const { return theCircle.rho(); }
+
+       double curvatureError() { return theCircle.curvatureError(); }
 
    private :
        GlobalPoint theInnerPoint;

@@ -35,13 +35,13 @@ public :
   void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
 
   /// Fill all data members from 2 TM's using the circle associated to the primary track as constraint
-  void setMeasurements(const TangentHelix& primHelix, const TM& tmAtInteractionPoint, const TM& newTM);
+  void setMeasurements(TangentHelix& primHelix, const TM& tmAtInteractionPoint, const TM& newTM);
 
   PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
 
   FreeTrajectoryState stateWithError() const;
 
-  FreeTrajectoryState stateWithError(const TangentHelix& helix) const;
+  FreeTrajectoryState stateWithError(TangentHelix& helix) const;
 
   PropagationDirection direction() const { return alongMomentum; }
 

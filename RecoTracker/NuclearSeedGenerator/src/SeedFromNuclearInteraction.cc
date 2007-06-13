@@ -1,6 +1,7 @@
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
@@ -44,7 +45,7 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& inner_TM, const TM& o
        isValid_ = construct();
 }
 //----------------------------------------------------------------------
-void SeedFromNuclearInteraction::setMeasurements(const TangentHelix& helix, const TM& inner_TM, const TM& outer_TM) {
+void SeedFromNuclearInteraction::setMeasurements(TangentHelix& helix, const TM& inner_TM, const TM& outer_TM) {
 
        // delete pointer to TrackingRecHits
        theHits.clear();
@@ -65,7 +66,6 @@ void SeedFromNuclearInteraction::setMeasurements(const TangentHelix& helix, cons
        isValid_ = construct();
 }
 
-
 //----------------------------------------------------------------------
 FreeTrajectoryState SeedFromNuclearInteraction::stateWithError() const {
 
@@ -76,26 +76,32 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError() const {
    GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
    TangentHelix helix(direction, inner, outer);
    LogDebug("NuclearSeedGenerator") << "First vtx position : " << helix.vertexPoint() << "\n"
-                                    << "Rho = " << helix.circle().rho() << "\n";
+                                    << "Rho = " << helix.rho() << "\n";
 
    return stateWithError(helix);
 }
 //----------------------------------------------------------------------
-FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(const TangentHelix& helix) const {
+FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(TangentHelix& helix) const {
 
 //   typedef TkRotation<float> Rotation;
 
    GlobalVector dirAtVtx = helix.directionAtVertex();
+   const MagneticField& mag = innerTM->updatedState().globalParameters().magneticField();
    // Get the global parameters of the trajectory
    // we assume that the magnetic field at the vertex is equal to the magnetic field at the inner TM.
-   GlobalTrajectoryParameters gtp(helix.vertexPoint(), dirAtVtx , 1/helix.circle().rho(), 0, &(innerTM->updatedState().globalParameters().magneticField()));
-   LogDebug("NuclearSeedGenerator") << "Momentum = " << gtp.momentum() << "\n";
+   GlobalTrajectoryParameters gtp(helix.vertexPoint(), dirAtVtx , helix.charge(mag.inTesla(helix.vertexPoint()).z())/helix.rho(), 0, &mag);
+   LogDebug("NuclearSeedGenerator") << "Momentum = " << gtp.momentum() << "\n"
+                                    << "Charge = " << helix.charge(mag.inTesla(helix.vertexPoint()).z()) << "\n"
+                                    << "Inner = " << helix.innerPoint() << "\n"
+                                    << "Outer = " << helix.outerPoint() << "\n";
 
    // Error matrix in a frame where z is in the direction of the track at the vertex
    AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
    double vtxerror = helix.circle().vertexError();
-   double curvatureError = helix.circle().curvatureError();
+   double curvatureError = helix.curvatureError();
    m(0,0)=curvatureError*curvatureError;
+   m(1,1)=1E-5;
+   m(2,2)=1E-5;
    m(3,3)=1E-5;
    m(4,4)=1E-4;
 
@@ -166,6 +172,9 @@ bool SeedFromNuclearInteraction::construct() {
  
      const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit]; 
      updatedTSOS =  theUpdator.update(state, *tth);
+
+     LogDebug("NuclearSeedGenerator") << "TrajectorySeed updated with hit at position : " << pDD->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition()) << "\n"
+                                      << "state = " << updatedTSOS << "\n";
        
    } 
 
@@ -178,8 +187,9 @@ bool SeedFromNuclearInteraction::construct() {
 //----------------------------------------------------------------------
 edm::OwnVector<TrackingRecHit>  SeedFromNuclearInteraction::hits() const { 
     recHitContainer      _hits;
-    for( ConstRecHitContainer::const_iterator it = theHits.begin(); it!=theHits.end(); ++it ){
+    for( ConstRecHitContainer::const_iterator it = theHits.begin(); it!=theHits.end(); it++ ){
            _hits.push_back( it->get()->hit()->clone() );
+           LogDebug("NuclearSeedGenerator") << "Hit put in TrajectorySeed at position : " << pDD->idToDet(it->get()->hit()->geographicalId())->surface().toGlobal(it->get()->hit()->localPosition()) << "\n";
     }
     return _hits; 
 }

@@ -3,8 +3,13 @@
 
 #define PI 3.1415926
 
+// TODO: is not valid don't do any calculations and return init values
 TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& inner, const GlobalPoint& outer) : 
        theInnerPoint(inner), theOuterPoint(outer), theVertexPoint(inner) {
+
+   if(theInnerPoint.perp2() > theOuterPoint.perp2()) { valid = false; }
+   else valid=true;
+
    double x1 = inner.x();
    double y1 = inner.y();
    double x2 = outer.x();
@@ -13,12 +18,16 @@ TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& i
    double denominator = 2*((x1-x2)*cos(alpha1)+(y1-y2)*sin(alpha1));
    theRho = (denominator != 0) ? ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))/denominator : 1E12;
 
-   // variable not calculated
+   // TODO : variable not yet calculated look in nucl.C
    theX0 = 1000;
    theY0 = 1000;
 
+   theDirectionAtVertex = direction;
+   theDirectionAtVertex/=theDirectionAtVertex.mag();
+
+   theCharge=0;
+
    theVertexError = (theInnerPoint-theOuterPoint).mag()/2;
-   // TODO: add charge (maybe in SeedFromNuclearInteraction) -> look example in FastHelix!!!!
 }
 
 TangentCircle::TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint) : 
@@ -28,9 +37,16 @@ TangentCircle::TangentCircle(const GlobalPoint& outerPoint, const GlobalPoint& i
      theY0 = circle.y0();
      theRho = circle.rho();
      theVertexError = 0;
+     theCharge = 0;
+     theDirectionAtVertex = GlobalVector(1000, 1000, 1000);
+     if(theInnerPoint.perp2() > theOuterPoint.perp2() || !circle.isValid()) { valid = false; }
+     else valid=true;
 }
 
 TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint) {
+
+   if(theInnerPoint.perp2() > theOuterPoint.perp2()) { valid = false; }
+   else valid = true;
 
    int NITER = 5; 
 
@@ -82,6 +98,8 @@ TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint&
    theX0 = theCorrectSecCircle.x0();
    theY0 = theCorrectSecCircle.y0();
    theRho = theCorrectSecCircle.rho();  
+   theCharge = 0;
+   theDirectionAtVertex = GlobalVector(1000, 1000, 1000);
 
    theVertexError = s/NITER;
 }
@@ -98,26 +116,41 @@ double TangentCircle::isTangent(const TangentCircle& primCircle, const TangentCi
 }
 
 GlobalVector TangentCircle::direction(const GlobalPoint& point) const {
-     GlobalVector dir(point.y() - theY0, point.x() - theX0, 0);
+
+     if(theY0 > 999 || theX0 > 999) {
+        LogDebug("NuclearSeedGenerator") << "Center of TangentCircle not calculated but used !!!" << "\n";
+     }
+
+     GlobalVector dir(point.y() - theY0, theX0 - point.x(), 0);
+
      dir/=dir.mag();
+
+     // Check the sign :
+     GlobalVector fastDir = theOuterPoint - theInnerPoint;
+     double diff = (dir - fastDir).mag();
+     double sum = (dir + fastDir).mag();
+
+     if( sum < diff ) dir = (-1)*dir;
+
      return dir;
 }
 
-GlobalVector TangentCircle::directionAtVertex() const {
-      //TODO : check if the sens is correct (for propagation)
-      return direction(theVertexPoint);
+GlobalVector TangentCircle::directionAtVertex()  {
+      if(theDirectionAtVertex.x() > 999) 
+                theDirectionAtVertex = direction(theVertexPoint);
+      return theDirectionAtVertex;
 }
 
-GlobalPoint TangentCircle::getPosition(const TangentCircle& circle, const GlobalPoint& initalPosition, double theta, int direction) const {
+GlobalPoint TangentCircle::getPosition(const TangentCircle& circle, const GlobalPoint& initalPosition, double theta, int dir) const {
              
             int sign[3];
             double x2 = initalPosition.x();
             double y2 = initalPosition.y();
 
-            if( (x2>circle.x0()) && direction >0) { sign[0] = 1;  sign[1] = -1; sign[2] = -1; }
-            if( (x2>circle.x0()) && direction <0) { sign[0] = 1;  sign[1] = 1; sign[2] = 1; }
-            if( (x2<circle.x0()) && direction >0) { sign[0] = -1;  sign[1] = 1; sign[2] = -1; }
-            if( (x2<circle.x0()) && direction <0) { sign[0] = -1;  sign[1] = -1; sign[2] = 1; }
+            if( (x2>circle.x0()) && dir >0) { sign[0] = 1;  sign[1] = -1; sign[2] = -1; }
+            if( (x2>circle.x0()) && dir <0) { sign[0] = 1;  sign[1] = 1; sign[2] = 1; }
+            if( (x2<circle.x0()) && dir >0) { sign[0] = -1;  sign[1] = 1; sign[2] = -1; }
+            if( (x2<circle.x0()) && dir <0) { sign[0] = -1;  sign[1] = -1; sign[2] = 1; }
 
             double l = 2*circle.rho()*sin(theta/2);
             double alpha = atan((y2-circle.y0())/(x2-circle.x0()));
@@ -130,7 +163,7 @@ GlobalPoint TangentCircle::getPosition(const TangentCircle& circle, const Global
             return GlobalPoint( xnew, ynew, 0 );
 }
 
-double TangentCircle::curvatureError() const {
+double TangentCircle::curvatureError() {
    if( (theInnerPoint - theVertexPoint).mag() < theVertexError ) {
         TangentCircle circle1( directionAtVertex() , theVertexPoint - theVertexError*directionAtVertex(), theOuterPoint);
         TangentCircle circle2( directionAtVertex() , theVertexPoint + theVertexError*directionAtVertex(), theOuterPoint);
@@ -141,4 +174,32 @@ double TangentCircle::curvatureError() const {
        TangentCircle circle2( theOuterPoint, theInnerPoint, theVertexPoint + theVertexError*directionAtVertex());
        return fabs(1/circle1.rho() - 1/circle2.rho());
    }
+}
+
+int TangentCircle::charge(float magz) {
+
+   if(theX0 > 999 || theY0 > 999) theCharge = chargeLocally(magz, directionAtVertex());
+   else {
+
+     if(theCharge == 0) {
+       GlobalPoint  center(theX0, theY0, 0);
+       GlobalVector u = center - theVertexPoint;
+       GlobalVector v = directionAtVertex();
+
+       // F = force vector
+       GlobalVector F( v.y() * magz, -v.x() * magz, 0);
+       if( u.x() * F.x() + u.y() * F.y() > 0) theCharge=1;
+       else theCharge=-1;
+       if(theCharge != chargeLocally(magz, v)) {
+          LogDebug("NuclearSeedGenerator") << "Inconsistency in calculation of the charge" << "\n";
+       }
+     }
+   }
+   return theCharge;
+}
+
+int TangentCircle::chargeLocally(float magz, GlobalVector v) const {
+    GlobalVector  u = theOuterPoint - theVertexPoint;
+    double tz = v.x() * u.y() - v.y() * u.x() ;
+    if(tz * magz > 0) return -1; else return 1;
 }
