@@ -91,6 +91,41 @@
 </QTEST>
 
 
+<QTEST name="ChambTrigEffInRangePhi">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+
+<QTEST name="WheelTrigEffInRangePhi">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.08</PARAM>
+	<PARAM name="warning">0.08</PARAM>
+</QTEST>
+
+
+<QTEST name="ChambTrigEffInRangeTheta">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.50</PARAM>
+	<PARAM name="warning">0.80</PARAM>
+</QTEST>
+
+
+<QTEST name="WheelTrigEffInRangeTheta">
+	<TYPE>ContentsYRange</TYPE>	
+	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymax">1.00</PARAM>
+	<PARAM name="error">0.08</PARAM>
+	<PARAM name="warning">0.08</PARAM>
+</QTEST>
+
 
 <LINK name="*tTrigTest*">
 	<TestName activate="true">tTrigOffSet</TestName>
@@ -130,6 +165,22 @@
 
 <LINK name="*MeanDigiPerEvent*">
 	<TestName activate="true">NoiseMeanInRange</TestName>
+</LINK>
+
+<LINK name="*TrigEffPos_Phi*">
+	<TestName activate="true">ChambTrigEffInRangePhi</TestName>
+</LINK>
+
+<LINK name="*TrigEff_Phi*">
+	<TestName activate="true">WheelTrigEffInRangePhi</TestName>
+</LINK>
+
+<LINK name="*TrigEffPos_Theta*">
+	<TestName activate="true">ChambTrigEffInRangeTheta</TestName>
+</LINK>
+
+<LINK name="*TrigEff_Theta*">
+	<TestName activate="true">WheelTrigEffInRangeTheta</TestName>
 </LINK>
 
 
