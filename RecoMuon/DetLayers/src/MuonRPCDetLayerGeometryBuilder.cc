@@ -2,7 +2,7 @@
 
 #include <DataFormats/MuonDetId/interface/RPCDetId.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
-#include <RecoMuon/DetLayers/interface/MuRingForwardLayer.h>
+#include <RecoMuon/DetLayers/interface/MuRingForwardDoubleLayer.h>
 #include <RecoMuon/DetLayers/interface/MuRodBarrelLayer.h>
 #include <RecoMuon/DetLayers/interface/MuDetRing.h>
 #include <RecoMuon/DetLayers/interface/MuDetRod.h>
@@ -46,7 +46,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
       
 
       
-      MuRingForwardLayer* ringLayer = buildLayer(endcap, rings,
+      MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings,
 						 firstStation , layer, 
 						 rolls, geo);          
       if (ringLayer) result[iendcap].push_back(ringLayer);
@@ -65,7 +65,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 	rolls.push_back(roll);
       }
                 
-      MuRingForwardLayer* ringLayer = buildLayer(endcap, rings, firstStation , layer, rolls, geo);          
+      MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, firstStation , layer, rolls, geo);          
       if (ringLayer) result[iendcap].push_back(ringLayer);
     }
   
@@ -82,7 +82,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 	  rolls.push_back(roll);
 	}
                 
-	MuRingForwardLayer* ringLayer = buildLayer(endcap, rings, station, layer, rolls, geo);          
+	MuRingForwardDoubleLayer* ringLayer = buildLayer(endcap, rings, station, layer, rolls, geo);          
 	if (ringLayer) result[iendcap].push_back(ringLayer);
       }
     }
@@ -95,7 +95,7 @@ MuonRPCDetLayerGeometryBuilder::buildEndcapLayers(const RPCGeometry& geo) {
 
 
 
-MuRingForwardLayer* 
+MuRingForwardDoubleLayer* 
 MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, int station,
 					   int layer,
 					   vector<int>& rolls,
@@ -103,41 +103,61 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,std::vector<int> rings, in
 
   const std::string metname = "Muon|RPC|RecoMuon|RecoMuonDetLayers|MuonRPCDetLayerGeometryBuilder";
 
-  MuRingForwardLayer* result=0;
+  vector<const ForwardDetRing*> frontRings, backRings;
 
-  vector<const ForwardDetRing*> muDetRings;
 
   for (std::vector<int>::iterator ring=rings.begin(); ring<rings.end();++ring){ 
     for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
-      vector<const GeomDet*> geomDets;
+      vector<const GeomDet*> frontDets, backDets;
       for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
 	for(int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
-	  const GeomDet* geomDet = geo.idToDet(RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll)));
-
+          RPCDetId rpcId(endcap,*ring, station,sector,layer,subsector, (*roll));
+          bool isInFront = isFront(rpcId);
+	  const GeomDet* geomDet = geo.idToDet(rpcId);
 	  if (geomDet) {
 	    
-	    geomDets.push_back(geomDet);
+	    if(isInFront)
+            {
+              frontDets.push_back(geomDet);
+            }
+            else 
+            {
+              backDets.push_back(geomDet);
+            }
 	    LogTrace(metname) << "get RPC Endcap roll "
-			      <<  RPCDetId(endcap,*ring, station,sector,layer,subsector, (*roll))
+			      << rpcId
+                              << (isInFront ? "front" : "back ")
 			      << " at R=" << geomDet->position().perp()
-			      << ", phi=" << geomDet->position().phi();
+			      << ", phi=" << geomDet->position().phi()
+                              << ", Z=" << geomDet->position().z();
 	    
 	  }
 	}
       }
-      if (geomDets.size()!=0) {
-	precomputed_value_sort(geomDets.begin(), geomDets.end(), geomsort::DetPhi());
-	muDetRings.push_back(new MuDetRing(geomDets));
-	LogTrace(metname) << "New ring with " << geomDets.size()
-			  << " chambers at z="<< muDetRings.back()->position().z();
+      if (frontDets.size()!=0) {
+	precomputed_value_sort(frontDets.begin(), frontDets.end(), geomsort::DetPhi());
+	frontRings.push_back(new MuDetRing(frontDets));
+	LogTrace(metname) << "New front ring with " << frontDets.size()
+			  << " chambers at z="<< frontRings.back()->position().z();
+      }
+      if (backDets.size()!=0) {
+        precomputed_value_sort(backDets.begin(), backDets.end(), geomsort::DetPhi());
+        backRings.push_back(new MuDetRing(backDets));
+        LogTrace(metname) << "New back ring with " << backDets.size()
+                          << " chambers at z="<< backRings.back()->position().z();
       }
     }
   }
+
+   MuRingForwardDoubleLayer * result = 0;
+  // every station should have at least back rings
+  if(!backRings.empty())
+  {
   
-  if (muDetRings.size()!=0) {
-    result = new MuRingForwardLayer(muDetRings);  
-    LogTrace(metname) << "New layer with " << muDetRings.size() 
-		      << " rolls, at Z " << result->position().z();
+    result = new MuRingForwardDoubleLayer(frontRings, backRings);  
+    LogTrace(metname) << "New layer with " << frontRings.size() 
+                    << " front rings and " << backRings.size()
+                    << " back rings, at Z " << result->position().z();
   }
   
   return result;
@@ -255,3 +275,35 @@ MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeometry& geo) {
 
   return detlayers;
 }
+
+
+bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
+{
+  // ME1/2 is always in back
+  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
+
+  bool result = false;
+  // 20 degree rings are a little weird
+  if(rpcId.ring() == 1 && rpcId.station() > 1)
+  {
+    /* goes (sector) (subsector)
+    1 1 back
+    1 2 front
+    1 3 front
+    2 1 front
+    2 2 back
+    2 3 back
+    */
+    result = (rpcId.subsector() != 1);
+    if(rpcId.sector()%2 == 0) result = !result;
+    return result;
+  }
+  else
+  {
+    // 10 degree rings have odd subsectors in front
+    result = (rpcId.subsector()%2 == 1);
+  }
+  return result;
+}
+
+
