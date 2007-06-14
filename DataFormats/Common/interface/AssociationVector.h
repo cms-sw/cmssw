@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.16 $
+ * \version $Revision: 1.17 $
  */
 
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -49,7 +49,7 @@ namespace edm {
     size_type size() const;
     bool empty() const;
     const_reference operator[](size_type n) const;
-    const_reference operator[](const KeyRef & k) const;
+    const typename CVal::value_type & operator[](const KeyRef & k) const;
     
     self & operator=(const self & );
     
@@ -112,13 +112,13 @@ namespace edm {
   }
   
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
-  inline typename AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::const_reference
+  inline const typename CVal::value_type &
   AssociationVector<KeyRefProd, CVal, KeyRef, SizeType>::operator[]( const KeyRef & k )  const {
     if ( k.id() != ref_.id() )
       throw edm::Exception(edm::errors::InvalidReference) 
 	<< "AssociationVector: trying to use [] operator passing a reference"
 	<< " with the wrong product id (i.e.: pointing to the wrong collection)";
-    return operator[]( k.key() );
+    return data_[ k.key() ];
   }
 
   template<typename KeyRefProd, typename CVal, typename KeyRef, typename SizeType>
