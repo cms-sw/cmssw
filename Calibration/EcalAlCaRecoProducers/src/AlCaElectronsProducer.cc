@@ -156,7 +156,7 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
               miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(det)));
         }
           catch (...)
-        {}
+        {edm::LogWarning ("shape") << "In Barrel DetId not built Eta "<<curr_eta<<" Phi "<<curr_phi ;}
         }
       } //PG barrel
     else //PG endcap
