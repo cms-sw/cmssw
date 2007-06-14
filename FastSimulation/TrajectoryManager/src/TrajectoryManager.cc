@@ -30,6 +30,17 @@
 
 //#include "FastSimulation/Utilities/interface/Histos.h"
 //#include "FastSimulation/Utilities/interface/FamosLooses.h"
+// Numbering scheme
+
+//#define FAMOS_DEBUG
+#ifdef FAMOS_DEBUG
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#endif
 
 #include <list>
 
@@ -432,10 +443,6 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   float thickness = theMaterialEffects ? theMaterialEffects->thickness() : 0.;
   float eloss = theMaterialEffects ? theMaterialEffects->energyLoss() : 0.;
 
-  if ( thickness > 0. )
-    // thickness is in radiation lengths, 1 radlen = 9.36 cm
-    eloss *= layer.moduleThickness() / (9.36 * thickness);
-
   // Find, in the corresponding layers, the detectors compatible 
   // with the current track 
   std::vector<DetWithState> compat 
@@ -446,13 +453,7 @@ TrajectoryManager::createPSimHits(const TrackerLayer& layer,
   for (std::vector<DetWithState>::const_iterator i=compat.begin(); i!=compat.end(); i++) {
     // Correct Eloss for last 3 rings of TEC (thick sensors, 0.05 cm)
     // Disgusting fudge factor ! 
-    if ( layer.layerNumber()>=19 && layer.layerNumber()<=27 && 
-	((TECDetId)i->first->geographicalId()).ring() > 4 ) 
-      makePSimHits( i->first, i->second, theHitMap, trackID, 
-		    eloss * 0.05/layer.moduleThickness(), partID);
-    else 
-      makePSimHits( i->first, i->second, theHitMap, trackID, 
-		    eloss, partID);
+      makePSimHits( i->first, i->second, theHitMap, trackID, eloss, thickness, partID);
   }
 }
 
@@ -472,7 +473,7 @@ void
 TrajectoryManager::makePSimHits( const GeomDet* det, 
 				 const TrajectoryStateOnSurface& ts,
 				 std::map<double,PSimHit>& theHitMap,
-				 int tkID, float el, int pID ) 
+				 int tkID, float el, float thick, int pID ) 
 {
 
   std::vector< const GeomDet*> comp = det->components();
@@ -482,14 +483,14 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
       const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(*i);
       if (du != 0)
 	// result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
-	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, pID));    
+	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID));    
     }
   }
   else {
     const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
     if (du != 0)
       // result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
-      theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, pID));
+      theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID));
   }
 
 
@@ -498,8 +499,9 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
 std::pair<double,PSimHit> 
 TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 				      const TrajectoryStateOnSurface& ts, 
-				      int tkID, float el, int pID) const
+				      int tkID, float el, float thick, int pID) const
 {
+
   const float onSurfaceTolarance = 0.01; // 10 microns
 
   LocalPoint lpos;
@@ -523,32 +525,151 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     lmom = lmom.unit() * ts.localMomentum().mag();
   }
 
-  float halfThick = 0.5*det.surface().bounds().thickness();
+  // The module (half) thickness 
+  const BoundPlane& theDetPlane = det.surface();
+  float halfThick = 0.5*theDetPlane.bounds().thickness();
+  // The Energy loss rescaled to the module thickness
+  float eloss = el;
+  if ( thick > 0. ) {
+    // Total thickness is in radiation lengths, 1 radlen = 9.36 cm
+    // Sensitive module thickness is about 30 microns larger than 
+    // the module thickness itself
+    el *= (2.* halfThick - 0.003) / (9.36 * thick);
+  }
+  // The entry and exit points, and the time of flight
   float pZ = lmom.z();
   LocalPoint entry = lpos + (-halfThick/pZ) * lmom;
   LocalPoint exit = lpos + halfThick/pZ * lmom;
   float tof = ts.globalPosition().mag() / 30. ; // in nanoseconds, FIXME: very approximate
-  float eloss = el; // FIXME should be dependent on thickness and crossing angle...
 
   // FIXME: fix the track ID and the particle ID
   PSimHit hit( entry, exit, lmom.mag(), tof, eloss, pID,
 		  det.geographicalId().rawId(), tkID,
 		  lmom.theta(),
 		  lmom.phi());
+
+  // Check that the PSimHit is physically on the module!
+  unsigned subdet = DetId(hit.detUnitId()).subdetId(); 
+  double boundX = theDetPlane.bounds().width()/2.;
+  double boundY = theDetPlane.bounds().length()/2.;
+
+  // Special treatment for TID and TEC trapeziodal modules
+  if ( subdet == 4 || subdet == 6 ) 
+      boundX *=  1. - hit.localPosition().y()/theDetPlane.position().perp();
+
+#ifdef FAMOS_DEBUG
+  unsigned detid  = DetId(hit.detUnitId()).rawId();
+  unsigned stereo = 0;
+  unsigned theLayer = 0;
+  unsigned theRing = 0;
+  switch (subdet) { 
+  case 1: 
+    {
+      PXBDetId module(detid);
+      theLayer = module.layer();
+      std::cout << "\tPixel Barrel Layer " << theLayer << std::endl;
+      stereo = 1;
+      break;
+    }
+  case 2: 
+    {
+      PXFDetId module(detid);
+      theLayer = module.disk();
+      std::cout << "\tPixel Forward Disk " << theLayer << std::endl;
+      stereo = 1;
+      break;
+    }
+  case 3:
+    {
+      TIBDetId module(detid);
+      theLayer  = module.layer();
+      std::cout << "\tTIB Layer " << theLayer << std::endl;
+      stereo = module.stereo();
+      break;
+    }
+  case 4:
+    {
+      TIDDetId module(detid);
+      theLayer = module.wheel();
+      theRing  = module.ring();
+      unsigned int theSide = module.side();
+      if ( theSide == 1 ) 
+	std::cout << "\tTEC Petal Back " << std::endl; 
+      else
+	std::cout << "\tTEC Petal Front" << std::endl; 
+      std::cout << "\tTEC Layer " << theLayer << std::endl;
+      std::cout << "\tTID Ring " << theRing << std::endl;
+      stereo = module.stereo();
+      break;
+    }
+  case 5:
+    {
+      TOBDetId module(detid);
+      theLayer  = module.layer();
+      stereo = module.stereo();
+      std::cout << "\tTOB Layer " << theLayer << std::endl;
+      break;
+    }
+  case 6:
+    {
+      TECDetId module(detid);
+      theLayer = module.wheel();
+      theRing  = module.ring();
+      unsigned int theSide = module.petal()[0];
+      if ( theSide == 1 ) 
+	std::cout << "\tTEC Petal Back " << std::endl; 
+      else
+	std::cout << "\tTEC Petal Front" << std::endl; 
+      std::cout << "\tTEC Layer " << theLayer << std::endl;
+      std::cout << "\tTEC Ring " << theRing << std::endl;
+      stereo = module.stereo();
+      break;
+    }
+  default:
+    {
+      stereo = 0;
+      break;
+    }
+  }
+  
+  std::cout << "Thickness = " << 2.*halfThick-0.003 << "; " << thick * 9.36 << std::endl
+	    << "Length    = " << det.surface().bounds().length() << std::endl
+	    << "Width     = " << det.surface().bounds().width() << std::endl;
+    
+  std::cout << "Hit position = " 
+	    << hit.localPosition().x() << " " 
+	    << hit.localPosition().y() << " " 
+	    << hit.localPosition().z() << std::endl;
+#endif
+
+  // Check if the hit is on the physical volume of the module
+  // (It happens that it is not, in the case of double sided modules,
+  //  because the envelope of the gluedDet is larger than each of 
+  //  the mono and the stereo modules)
+
+  double dist = 0.;
+  GlobalPoint IP (mySimEvent->track(tkID).vertex().position().x(),
+		  mySimEvent->track(tkID).vertex().position().y(),
+		  mySimEvent->track(tkID).vertex().position().z());
+
+  dist = ( fabs(hit.localPosition().x()) > boundX  || 
+	   fabs(hit.localPosition().y()) > boundY ) ?  
+    // Will be used later as a flag to reject the PSimHit!
+    -( det.surface().toGlobal(hit.localPosition()) - IP ).mag2() 
+    : 
+    // These hits are kept!
+     ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
+    
   // Fill Histos (~poor man event display)
   /* 
-  GlobalPoint gpos( det.toGlobal(hit.localPosition()));
-  myHistos->fill("h300",gpos.x(),gpos.y());
-  if ( sin(gpos.phi()) > 0. ) 
-    myHistos->fill("h301",gpos.z(),gpos.perp());
-  else
-    myHistos->fill("h301",gpos.z(),-gpos.perp());
+     GlobalPoint gpos( det.toGlobal(hit.localPosition()));
+     myHistos->fill("h300",gpos.x(),gpos.y());
+     if ( sin(gpos.phi()) > 0. ) 
+     myHistos->fill("h301",gpos.z(),gpos.perp());
+     else
+     myHistos->fill("h301",gpos.z(),-gpos.perp());
   */
-
-  GlobalPoint IP (mySimEvent->track(tkID).vertex().position().x(),
-                  mySimEvent->track(tkID).vertex().position().y(),
-                  mySimEvent->track(tkID).vertex().position().z());
-  double dist = ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
+  
   return std::pair<double,PSimHit>(dist,hit);
 
 }
@@ -670,6 +791,8 @@ void
 TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
 {
 
+  static int nhits = 0;
+  static int rhits = 0;
   std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrack = thePSimHits.begin();
   std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrackEnd = thePSimHits.end();
   for ( ; itrack != itrackEnd; ++itrack ) {
@@ -684,7 +807,9 @@ TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
 		<< theDet->surface().toGlobal((it->second).localPosition()).z() << " " 
 		<< theDet->surface().toGlobal((it->second).localPosition()).perp() << std::endl;
       */
-      c.push_back(it->second);
+      // Keep only those hits that are on the physical volume of a module
+      // (The other hits have been assigned a negative <double> value. 
+      if ( it->first > 0. ) c.push_back(it->second); 
     }
   }
 
