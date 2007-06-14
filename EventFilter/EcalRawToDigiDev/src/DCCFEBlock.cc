@@ -74,10 +74,17 @@ void DCCFEBlock::unpack(uint64_t ** data, uint * dwToEnd, bool zs, uint expected
       <<"\n => Skipping this event...";
     
     EcalTrigTowerDetId *  tp = mapper_->getTTDetIdPointer(mapper_->getActiveSM()+TCCID_SMID_SHIFT_EB,expTowerID_);
-    (*invalidTTIds_)->push_back(*tp);
+    // this needs understanding and fix
+    //    (*invalidTTIds_)->push_back(*tp);
 
-  
-     throw ECALUnpackerException(output.str());    
+
+    // move on to next tower block and pass over to next  tower block
+    (*data) += blockLength_;
+
+    return;     
+    //was:
+    //   throw ECALUnpackerException(output.str());    
+
   }
   
   // Check synchronization
