@@ -1,9 +1,9 @@
-#ifndef Common_RefStreamer_h
-#define Common_RefStreamer_h
+#ifndef IOPool_Common_RefStreamer_h
+#define IOPool_Common_RefStreamer_h
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
-#include "TBuffer.h"
+class TBuffer;
 
 namespace edm {
   class EDProductGetter;

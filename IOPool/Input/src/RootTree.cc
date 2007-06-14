@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/Principal.h"
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
+#include "TTree.h"
+#include "TFile.h"
+class TBranch;
 
 #include <iostream>
 

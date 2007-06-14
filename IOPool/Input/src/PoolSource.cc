@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.49 2007/05/11 18:26:06 wmtan Exp $
+$Id: PoolSource.cc,v 1.50 2007/06/06 23:33:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -19,6 +19,7 @@ $Id: PoolSource.cc,v 1.49 2007/05/11 18:26:06 wmtan Exp $
 
 #include "CLHEP/Random/RandFlat.h"
 #include "TTree.h"
+#include "TFile.h"
 
 namespace edm {
   PoolSource::PoolSource(ParameterSet const& pset, InputSourceDescription const& desc) :

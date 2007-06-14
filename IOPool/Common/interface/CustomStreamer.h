@@ -1,11 +1,11 @@
-#ifndef Common_CustomStreamer_h
-#define Common_CustomStreamer_h
+#ifndef IOPool_Common_CustomStreamer_h
+#define IOPool_Common_CustomStreamer_h
 
 #include <string>
 #include "TClassStreamer.h"
 #include "TClassRef.h"
-#include "TBuffer.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+class TBuffer;
 
 namespace edm {
   template <typename T>

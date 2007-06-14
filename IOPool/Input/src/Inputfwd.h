@@ -1,11 +1,13 @@
-#ifndef Input_Inputfwd_h
-#define Input_Inputfwd_h
+#ifndef IOPool_Input_Inputfwd_h
+#define IOPool_Input_Inputfwd_h
 
 #include <map>
 
-#include "TBranch.h"
 #include "Rtypes.h"
 #include "Reflex/Type.h"
+class TBranch;
+class TFile;
+class TTree;
 
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 

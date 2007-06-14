@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// $Id: PoolDatabase.cc,v 1.6 2007/03/04 06:22:37 wmtan Exp $
+// $Id: PoolDatabase.cc,v 1.1 2007/03/29 18:14:07 wmtan Exp $
 //
 // Author: Bill Tanenbaum
 //
@@ -14,7 +14,6 @@
 #include "DataSvc/IDataSvc.h"
 #include "PersistencySvc/ITechnologySpecificAttributes.h"
 #include "PersistencySvc/ISession.h"
-#include "DataSvc/DataSvcContext.h"
 
 namespace edm {
   PoolDatabase::PoolDatabase(std::string const& fileName, PoolDataSvc const& dataSvc) :

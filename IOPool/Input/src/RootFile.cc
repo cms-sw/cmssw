@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.64 2007/05/08 16:24:15 wmtan Exp $
+$Id: RootFile.cc,v 1.65 2007/06/06 23:33:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -25,6 +25,7 @@ $Id: RootFile.cc,v 1.64 2007/05/08 16:24:15 wmtan Exp $
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/RunAux.h"
 
+#include "TFile.h"
 #include "TTree.h"
 #include "Rtypes.h"
 

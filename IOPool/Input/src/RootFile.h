@@ -1,11 +1,11 @@
-#ifndef Input_RootFile_h
-#define Input_RootFile_h
+#ifndef IOPool_Input_RootFile_h
+#define IOPool_Input_RootFile_h
 
 /*----------------------------------------------------------------------
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.24 2007/05/08 16:24:15 wmtan Exp $
+$Id: RootFile.h,v 1.25 2007/06/06 23:33:50 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -25,8 +25,7 @@ $Id: RootFile.h,v 1.24 2007/05/08 16:24:15 wmtan Exp $
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/FileFormatVersion.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
-#include "TBranch.h"
-#include "TFile.h"
+class TFile;
 
 namespace edm {
 

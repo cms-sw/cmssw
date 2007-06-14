@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootDelayedReader.cc,v 1.10 2007/05/10 12:27:04 wmtan Exp $
+$Id: RootDelayedReader.cc,v 1.11 2007/05/29 19:34:07 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
@@ -9,6 +9,7 @@ $Id: RootDelayedReader.cc,v 1.10 2007/05/10 12:27:04 wmtan Exp $
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "Reflex/Type.h"
 #include "Reflex/Object.h"
+#include "TBranch.h"
 
 namespace edm {
 

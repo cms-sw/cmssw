@@ -1,5 +1,5 @@
-#ifndef Common_ClassFiller_h
-#define Common_ClassFiller_h
+#ifndef IOPool_Common_ClassFiller_h
+#define IOPool_Common_ClassFiller_h
 
 namespace edm {
   void ClassFiller();

@@ -1,11 +1,11 @@
-#ifndef Input_RootTree_h
-#define Input_RootTree_h
+#ifndef IOPool_Input_RootTree_h
+#define IOPool_Input_RootTree_h
 
 /*----------------------------------------------------------------------
 
 RootTree.h // used by ROOT input sources
 
-$Id: RootTree.h,v 1.11 2007/05/10 12:27:04 wmtan Exp $
+$Id: RootTree.h,v 1.12 2007/05/10 22:46:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -24,8 +24,8 @@ $Id: RootTree.h,v 1.11 2007/05/10 12:27:04 wmtan Exp $
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "TBranch.h"
-#include "TFile.h"
-#include "TTree.h"
+class TFile;
+class TTree;
 
 namespace edm {
 

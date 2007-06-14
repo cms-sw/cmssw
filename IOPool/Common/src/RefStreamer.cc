@@ -1,5 +1,6 @@
 #include "IOPool/Common/interface/RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
+class TBuffer;
 
 namespace edm {
   void 

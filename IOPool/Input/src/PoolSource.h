@@ -1,11 +1,11 @@
-#ifndef Input_PoolSource_h
-#define Input_PoolSource_h
+#ifndef IOPool_Input_PoolSource_h
+#define IOPool_Input_PoolSource_h
 
 /*----------------------------------------------------------------------
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.2 2007/05/01 20:21:58 wmtan Exp $
+$Id: PoolSource.h,v 1.34 2007/05/08 16:24:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -5,7 +5,7 @@
 
 RootDelayedReader.h // used by ROOT input sources
 
-$Id: RootDelayedReader.h,v 1.8 2007/05/10 12:27:04 wmtan Exp $
+$Id: RootDelayedReader.h,v 1.9 2007/05/29 19:34:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -14,10 +14,8 @@ $Id: RootDelayedReader.h,v 1.8 2007/05/10 12:27:04 wmtan Exp $
 #include <string>
 #include "boost/shared_ptr.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "Inputfwd.h"
-#include "TBranch.h"
 
 namespace edm {
 
