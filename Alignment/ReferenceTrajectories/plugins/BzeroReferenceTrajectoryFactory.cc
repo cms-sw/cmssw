@@ -1,5 +1,5 @@
 
-#include "Alignment/ReferenceTrajectories/plugins/CosmicsReferenceTrajectoryFactory.h"
+#include "Alignment/ReferenceTrajectories/plugins/BzeroReferenceTrajectoryFactory.h"
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryPlugin.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -9,7 +9,7 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
 
-CosmicsReferenceTrajectoryFactory::CosmicsReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
+BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory( const edm::ParameterSet & config ) :
   TrajectoryFactoryBase( config )
 {
   theMass = config.getParameter< double >( "ParticleMass" );
@@ -17,12 +17,12 @@ CosmicsReferenceTrajectoryFactory::CosmicsReferenceTrajectoryFactory( const edm:
 }
 
  
-CosmicsReferenceTrajectoryFactory::~CosmicsReferenceTrajectoryFactory( void ) {}
+BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
 
 
-const CosmicsReferenceTrajectoryFactory::ReferenceTrajectoryCollection
-CosmicsReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
-						 const ConstTrajTrackPairCollection & tracks ) const
+const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection
+BzeroReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
+					       const ConstTrajTrackPairCollection & tracks ) const
 {
   ReferenceTrajectoryCollection trajectories;
 
@@ -35,10 +35,10 @@ CosmicsReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
   { 
     TrajectoryInput input = innermostStateAndRecHits( *itTracks );
     // set the flag for reversing the RecHits to false, since they are already in the correct order.
-    trajectories.push_back( ReferenceTrajectoryPtr( new CosmicsReferenceTrajectory( input.first, input.second, 
-										    false, magneticField.product(),
-										    theMaterialEffects, theMass,
-										    theMomentumEstimate ) ) );
+    trajectories.push_back( ReferenceTrajectoryPtr( new BzeroReferenceTrajectory( input.first, input.second, 
+										  false, magneticField.product(),
+										  theMaterialEffects, theMass,
+										  theMomentumEstimate ) ) );
     ++itTracks;
   }
 
@@ -46,4 +46,4 @@ CosmicsReferenceTrajectoryFactory::trajectories( const edm::EventSetup & setup,
 }
 
 
-DEFINE_EDM_PLUGIN( TrajectoryFactoryPlugin, CosmicsReferenceTrajectoryFactory, "CosmicsReferenceTrajectoryFactory" );
+DEFINE_EDM_PLUGIN( TrajectoryFactoryPlugin, BzeroReferenceTrajectoryFactory, "BzeroReferenceTrajectoryFactory" );

@@ -4,7 +4,7 @@
    <flags EDM_PLUGIN=1>
 </library>
 
-<library file=CosmicsReferenceTrajectoryFactory.cc>
+<library file=BzeroReferenceTrajectoryFactory.cc>
    <flags EDM_PLUGIN=1>
 </library>
 

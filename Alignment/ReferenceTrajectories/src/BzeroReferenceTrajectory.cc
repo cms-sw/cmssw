@@ -1,5 +1,5 @@
 
-#include "Alignment/ReferenceTrajectories/interface/CosmicsReferenceTrajectory.h"
+#include "Alignment/ReferenceTrajectories/interface/BzeroReferenceTrajectory.h"
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
@@ -8,12 +8,12 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 
 
-CosmicsReferenceTrajectory::CosmicsReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
-						       const TransientTrackingRecHit::ConstRecHitContainer
-						       &recHits, bool hitsAreReverse,
-						       const MagneticField *magField, 
-						       MaterialEffects materialEffects,
-						       double mass, double momentumEstimate) :
+BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurface &refTsos,
+						   const TransientTrackingRecHit::ConstRecHitContainer
+						   &recHits, bool hitsAreReverse,
+						   const MagneticField *magField, 
+						   MaterialEffects materialEffects,
+						   double mass, double momentumEstimate) :
   ReferenceTrajectory( refTsos.localParameters().mixedFormatVector().kSize, recHits.size() ),
   theMomentumEstimate( momentumEstimate )
 {
