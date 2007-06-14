@@ -165,7 +165,7 @@ namespace Exhume{
       PMap.insert
 	(std::pair<std::string,PConstVoidPair>
 	 (_name_,PConstVoidPair(typeid(_x_).name(),_x_)));
-    };
+    }
 
     virtual double SubProcess() = 0;
 
