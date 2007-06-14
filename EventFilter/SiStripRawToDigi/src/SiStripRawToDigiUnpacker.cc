@@ -1,5 +1,3 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.cc,v 1.31 2007/04/30 13:49:07 pwing Exp $
-
 #include "EventFilter/SiStripRawToDigi/interface/SiStripRawToDigiUnpacker.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -146,12 +144,12 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Initialise Fed9UEvent using present FED buffer
     try {
       fedEvent_->Init( data_u32, 0, size_u32 ); 
-      fedEvent_->checkEvent();
+      //fedEvent_->checkEvent();
     } catch(...) { 
       handleException( __func__, "Problem when creating Fed9UEvent" ); 
       continue;
     } 
-    
+   
     // Retrive readout mode
     sistrip::FedReadoutMode mode = sistrip::UNDEFINED_FED_READOUT_MODE;
     try {
@@ -166,18 +164,23 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     }
     
     // Iterate through FED channels, extract payload and create Digis
-    Fed9U::Fed9UAddress addr;
     const std::vector<FedChannelConnection>& conns = cabling.connections(*ifed);
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) {
-      
-      if ( !iconn->isConnected() ) { continue; }
+
+      // Check FedId is non-zero, DetId is valid and channel is connected
+      if (!iconn->detId() ||
+	  (iconn->detId() == sistrip::invalid32_) ||
+	  !iconn->fedId() ||
+	  !iconn->isConnected()) { continue; }
+
       uint16_t channel = iconn->fedCh();
       uint16_t iunit = channel / 12;
       uint16_t ichan = channel % 12;
       uint16_t chan  = 12 * iunit + ichan;
       
       try {
+	Fed9U::Fed9UAddress addr;
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
 	iunit = addr.getFedFeUnit();
 	ichan = addr.getFeUnitChannel();
@@ -186,38 +189,33 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
-      // Retrieve cabling map information and define "FED key" for Digis
-      const FedChannelConnection& conn = *iconn;//cabling.connection( *ifed, chan );
-
-      // Check FedId is non-zero and DetId is valid
-      if (!conn.detId() ||
-	  (conn.detId() == sistrip::invalid32_) ||
-	  !conn.fedId()) { continue; }
-
       // Determine whether FED key is inferred from cabling or channel loop
       SiStripFedKey fed_path;
+
       uint32_t fed_key = 0;
-      if ( summary.runType() == sistrip::FED_CABLING ) { 
+
+      if ( summary.runType() == sistrip::FED_CABLING )
 	fed_path = SiStripFedKey( *ifed, 
 				  SiStripFedKey::feUnit(chan),
 				  SiStripFedKey::feChan(chan) );
-      } else { 
-	fed_path = SiStripFedKey( conn.fedId(), 
-				  SiStripFedKey::feUnit(conn.fedCh()),
-				  SiStripFedKey::feChan(conn.fedCh()) );
-      }
+      else
+	fed_path = SiStripFedKey( iconn->fedId(), 
+				  SiStripFedKey::feUnit(iconn->fedCh()),
+				  SiStripFedKey::feChan(iconn->fedCh()) );
+      
       fed_key = fed_path.key();
       
       // Determine whether DetId or FED key should be used to index digi containers
-      uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : conn.detId();
+      uint32_t key = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? fed_key : iconn->detId();
       
       // Determine APV std::pair number (needed only when using DetId)
-      uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : conn.apvPairNumber();
+      uint16_t ipair = ( useFedKey_ || mode == sistrip::FED_SCOPE_MODE ) ? 0 : iconn->apvPairNumber();
 
       if ( mode == sistrip::FED_SCOPE_MODE ) {
 
-	edm::DetSet<SiStripRawDigi>& sm = *scope_mode.insert(scope_mode.end(),edm::DetSet<SiStripRawDigi>(key));
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum for scope mode length
+
 	try { 
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
 	} catch(...) { 
@@ -234,8 +232,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	}
       } else if ( mode == sistrip::FED_VIRGIN_RAW ) {
 
-	edm::DetSet<SiStripRawDigi>& vr = *virgin_raw.insert(virgin_raw.end(),edm::DetSet<SiStripRawDigi>(key));
+	edm::DetSet<SiStripRawDigi>& vr = virgin_raw.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve(256); 
+
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -244,7 +243,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	//@@ NEED FIX BELOW: vr.data.size() should be 256 * conn.nApvPairs()
+	//@@ NEED FIX BELOW: vr.data.size() should be 256 * iconn->nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( vr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    vr.data.reserve( 256*(ipair+1) ); vr.data.resize( 256*(ipair+1) ); 
@@ -261,8 +260,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	
       } else if ( mode == sistrip::FED_PROC_RAW ) {
 
-	edm::DetSet<SiStripRawDigi>& pr = *proc_raw.insert(proc_raw.end(),edm::DetSet<SiStripRawDigi>(key));
+	edm::DetSet<SiStripRawDigi>& pr = proc_raw.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve(256);
+
 	try {
    	  samples = fedEvent_->channel( iunit, ichan ).getSamples();
 	} catch(...) { 
@@ -271,7 +271,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	      << *ifed << "/" << ichan;
 	  handleException( __func__, sss.str() ); 
 	} 
-	//@@ NEED FIX BELOW: pr.data.size() should be 256 * conn.nApvPairs()
+	//@@ NEED FIX BELOW: pr.data.size() should be 256 * iconn->nApvPairs()
 	if ( !samples.empty() ) { 
 	  if ( pr.data.size() < static_cast<uint16_t>(256*(ipair+1)) ) { 
 	    pr.data.reserve( 256*(ipair+1) ); pr.data.resize( 256*(ipair+1) ); 
@@ -286,7 +286,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR ) { 
 	
-	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
+	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try{ 
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -308,7 +308,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 
       } else if ( mode == sistrip::FED_ZERO_SUPPR_LITE ) { 
 	
-	edm::DetSet<SiStripDigi>& zs = *zero_suppr.insert(zero_suppr.end(),edm::DetSet<SiStripDigi>(key));
+	edm::DetSet<SiStripDigi>& zs = zero_suppr.find_or_insert(key);
 	zs.data.reserve(256); // theoretical maximum (768/3, ie, clusters separated by at least 2 strips)
 	try {
 	  Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvent_->channel( iunit, ichan )).getIterator();
@@ -335,7 +335,8 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	   << " Unknown FED readout mode (" << mode
 	   << ")! Assuming SCOPE MODE..."; 
   	edm::LogWarning(mlRawToDigi_) << ss.str();
-	edm::DetSet<SiStripRawDigi>& sm = *scope_mode.insert(scope_mode.end(),edm::DetSet<SiStripRawDigi>(key));
+
+	edm::DetSet<SiStripRawDigi>& sm = scope_mode.find_or_insert(key);
 	std::vector<uint16_t> samples; samples.reserve( 1024 ); // theoretical maximum
 	try {
    	  samples = fedEvent_->feUnit( iunit ).channel( ichan ).getSamples();
@@ -358,7 +359,7 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
  	  ss << "Extracted " << samples.size() 
  	     << " SCOPE MODE digis (samples[0] = " << samples[0] 
  	     << ") from FED id/ch " 
- 	     << conn.fedId() << "/" << conn.fedCh();
+ 	     << iconn->fedId() << "/" << iconn->fedCh();
  	  //LogTrace(mlRawToDigi_) << ss.str();
 	}
 
