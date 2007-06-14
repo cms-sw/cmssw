@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripDigiToRaw.cc,v 1.19 2007/04/30 13:48:48 pwing Exp $
+// Last commit: $Id: SiStripDigiToRaw.cc,v 1.20 2007/05/03 18:00:03 pwing Exp $
 
 #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -52,35 +52,36 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
     vector<uint16_t>::const_iterator ifed;
 
     for ( ifed = fed_ids.begin(); ifed != fed_ids.end(); ifed++ ) {
-
-      LogDebug("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Processing FED id " << *ifed;
+    
+      LogDebug("DigiToRaw") 
+	<< "[SiStripDigiToRaw::createFedBuffers] Processing FED id " 
+	<< *ifed;
       
       raw_data.clear(); raw_data.resize( strips_per_fed, 0 );
-
-      for ( uint16_t ichan = 0; ichan < 96; ichan++ ) {
-
-	const FedChannelConnection& conn = cabling->connection( *ifed, ichan );
+      
+      const std::vector<FedChannelConnection>& conns = cabling->connections(*ifed);
+      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+      for ( ; iconn != conns.end(); iconn++ ) {
 
 	// Check DetID is non-zero and valid
-	if (!conn.detId() || 
-	    (conn.detId()==sistrip::invalid32_)) { continue; } 
+	if (!iconn->detId() || (iconn->detId()==sistrip::invalid32_)) { continue; } 
 
-	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( conn.detId() );
-
-	// Check for Det Id in DetSetVector
+	// Find digis for DetID in collection
+	vector< edm::DetSet<SiStripDigi> >::const_iterator digis = collection->find( iconn->detId() );
 	if (digis == collection->end()) { continue; } 
 
 	/*
 	if ( digis->data.empty() ) { 
-	  edm::LogWarning("DigiToRaw") << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
+	  edm::LogWarning("DigiToRaw") 
+	  << "[SiStripDigiToRaw::createFedBuffers] Zero digis found!"; 
 	}
 	*/
 
 	edm::DetSet<SiStripDigi>::const_iterator idigi;
 	for ( idigi = digis->data.begin(); idigi != digis->data.end(); idigi++ ) {
-	  if ( (*idigi).strip() < conn.apvPairNumber()*256 ||
-	       (*idigi).strip() > conn.apvPairNumber()*256+255 ) { continue; }
-	  unsigned short strip = ichan*256 + (*idigi).strip()%256;
+	  if ( (*idigi).strip() < iconn->apvPairNumber()*256 ||
+	       (*idigi).strip() > iconn->apvPairNumber()*256+255 ) { continue; }
+	  unsigned short strip = iconn->fedCh()*256 + (*idigi).strip()%256;
 	  if ( strip >= strips_per_fed ) {
 	    std::stringstream ss;
 	    ss << "[SiStripDigiToRaw::createFedBuffers]"
@@ -93,7 +94,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	    std::stringstream ss; 
 	    ss << "[SiStripDigiToRaw::createFedBuffers]" 
 	       << " Incompatible ADC values in buffer!"
-	       << "  FedId/FedCh: " << *ifed << "/" << ichan
+	       << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
 	       << "  DetStrip: " << (*idigi).strip() 
 	       << "  FedStrip: " << strip
 	       << "  AdcValue: " << (*idigi).adc()
@@ -103,7 +104,7 @@ void SiStripDigiToRaw::createFedBuffers( edm::ESHandle<SiStripFedCabling>& cabli
 	  // Add digi to buffer
 	  raw_data[strip] = (*idigi).adc();
 	}
-	// if ((*idigi).strip() >= (conn.apvPairNumber()+1)*256) break;
+	// if ((*idigi).strip() >= (iconn->apvPairNumber()+1)*256) break;
       }
 
       // instantiate appropriate buffer creator object depending on readout mode
