@@ -10,14 +10,14 @@
 
   Abstract base class for an individual cell's geometry.
     
-$Date: 2006/05/17 09:26:19 $
-$Revision: 1.5 $
+$Date: 2007/03/07 09:18:00 $
+$Revision: 1.6 $
 \author J. Mans, P. Meridiani
 */
 class CaloCellGeometry {
 public:
-  CaloCellGeometry() {;} ;
-  virtual ~CaloCellGeometry() {;};
+  CaloCellGeometry() {}
+  virtual ~CaloCellGeometry() {}
   /// Returns true if the specified point is inside this cell
   virtual bool inside(const GlobalPoint & point) const =0 ;  
   /// Returns the corner points of this cell's volume

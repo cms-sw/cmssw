@@ -15,9 +15,9 @@ public:
   /// The HcalDDDGeometry will delete all its cell geometries at destruction time
   virtual ~HcalDDDGeometry();
   
-  virtual std::vector<DetId> getValidDetIds(DetId::Detector det, int subdet) const;
+  virtual std::vector<DetId> const & getValidDetIds(DetId::Detector det, int subdet) const;
   virtual const DetId getClosestCell(const GlobalPoint& r) const ;
-  int insertCell (std::vector<HcalCellType::HcalCellType> );
+  int insertCell (std::vector<HcalCellType::HcalCellType> const & );
 
 private:
 

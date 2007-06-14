@@ -11,16 +11,10 @@ HcalDDDGeometry::HcalDDDGeometry() : lastReqDet_(DetId::Detector(0)),
 }
 
 
-HcalDDDGeometry::~HcalDDDGeometry() {
-  std::map<DetId, const CaloCellGeometry*>::iterator i;
-  for (i=cellGeometries_.begin(); i!=cellGeometries_.end(); i++)
-    delete i->second;
-  cellGeometries_.clear();
-  hcalCells_.clear();
-}
+HcalDDDGeometry::~HcalDDDGeometry() {}
 
 
-std::vector<DetId> HcalDDDGeometry::getValidDetIds(DetId::Detector det,
+std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 						   int subdet) const {
 
   if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
@@ -30,10 +24,11 @@ std::vector<DetId> HcalDDDGeometry::getValidDetIds(DetId::Detector det,
   }
 
   if (validIds_.empty()) {
-    std::map<DetId, const CaloCellGeometry*>::const_iterator i;    
-    for (i=cellGeometries_.begin(); i!=cellGeometries_.end(); i++)
+    CaloSubdetectorGeometry::CellCont ::const_iterator i;
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++)
       if (i->first.det()==det && i->first.subdetId()==subdet) 
-	 validIds_.push_back(i->first);
+	validIds_.push_back(i->first);
+    std::sort(validIds_.begin(),validIds_.end());
   }
 
   LogDebug("HCalGeom") << "HcalDDDGeometry::getValidDetIds: "
