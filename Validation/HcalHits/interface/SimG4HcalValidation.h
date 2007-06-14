@@ -30,10 +30,6 @@ class BeginOfRun;
 class BeginOfEvent;
 class EndOfEvent;
 
-class PHcalValidInfoLayer;
-class PHcalValidInfoNxN;
-class PHcalValidInfoJets;
-
 class SimG4HcalValidation : public SimProducer,
 			    public Observer<const BeginOfJob *>, 
 			    public Observer<const BeginOfRun *>, 

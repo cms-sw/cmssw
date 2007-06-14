@@ -48,7 +48,7 @@ void HcalHitValidation::beginJob(const edm::EventSetup& ) {
   if (dbe_) {
     dbe_->setCurrentFolder("HcalHitValidation");
 
-    char title[60];
+    char title[60], name[20];
     double my_pi = 3.1415926;
     //Histograms for Hits
     if (checkHit_) {
@@ -104,15 +104,18 @@ void HcalHitValidation::beginJob(const edm::EventSetup& ) {
       meHitHLay_  = dbe_->book1D("Lay10", "Hit in Hcal", 1000,0.,2000.);
       meHitTLay_  = dbe_->book1D("Lay11", "Total Hits",  1000,0.,2000.);
       meEneLLay_  = dbe_->book1D("Lay12", "Energy per layer", 100,0.,1.);
+      int nn=0;
       for (int i = 0; i < nLayersMAX; i++) {
+	sprintf (name,  "Layl%d", nn); nn++;
 	sprintf (title, "Energy deposit in Layer %d", i);
-	meEneLay_[i] = dbe_->book1D(title, title, 100, 0., 0.4);
+	meEneLay_[i] = dbe_->book1D(name, title, 100, 0., 0.4);
       }
       meLngLay_   = dbe_->book1D("Lay13", "Lonitudinal Shower Profile",20,0,20.);
       meEneDLay_  = dbe_->book1D("Lay14", "Energy per depth", 100,0.,1.);
       for (int i = 0; i < nDepthsMAX; i++) {
+	sprintf (name,  "Layl%d", nn); nn++;
 	sprintf (title, "Energy deposit in Depth %d", i);
-	meDepLay_[i] = dbe_->book1D(title, title, 100, 0., 2.);
+	meDepLay_[i] = dbe_->book1D(name, title, 100, 0., 2.);
       }
       meEtotLay_  = dbe_->book1D("Lay15", "Total Energy", 100,0.,1.);
       meEHOLay_   = dbe_->book1D("Lay16", "Energy in HO", 100,0.,2000.);
