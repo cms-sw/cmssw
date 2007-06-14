@@ -42,3 +42,9 @@
 <library file=MCTruthCaloJetCompositeMatcher.cc>
   <use name=DataFormats/JetReco>
 </library>
+
+<library file=ParticleListDrawer.cc>
+  <use name=SimGeneral/HepPDTRecord>
+</library>
+
+
