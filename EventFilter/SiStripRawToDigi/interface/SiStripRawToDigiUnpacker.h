@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.14 2007/03/21 16:38:13 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiUnpacker.h,v 1.15 2007/04/23 15:33:50 pwing Exp $
 
 #ifndef EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
 #define EventFilter_SiStripRawToDigi_SiStripRawToDigiUnpacker_H
@@ -40,8 +40,8 @@ class SiStripRawToDigiUnpacker {
   /** */
   ~SiStripRawToDigiUnpacker();
 
-  typedef std::vector< edm::DetSet<SiStripDigi> > Digis;
-  typedef std::vector< edm::DetSet<SiStripRawDigi> > RawDigis;
+  typedef edm::DetSetVector<SiStripDigi> Digis;
+  typedef edm::DetSetVector<SiStripRawDigi> RawDigis;
   
   /** Creates digis. */
   void createDigis( const SiStripFedCabling&,
