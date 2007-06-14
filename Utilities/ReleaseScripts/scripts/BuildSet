@@ -3,13 +3,14 @@
 """
 BuildSet - utilizes dependency discovery mechanism for Partial Releases.
 """
-__revision__ = "$Id: BuildSet,v 1.3 2007/06/01 16:34:50 ratnik Exp $"
-__version__ = "$Revision: 1.3 $"
+__revision__ = "$Id: BuildSet,v 1.4 2007/06/05 19:55:47 ratnik Exp $"
+__version__ = "$Revision: 1.4 $"
 
 import os
 import sys
 import getopt
 import string
+import urllib
 import re
 
 programPath = os.path.dirname( os.path.realpath(sys.argv[0] ) ) 
@@ -18,7 +19,12 @@ programName = os.path.basename( sys.argv[0] )
 global verbose
 verbose               = 1
 packageListInFile     = 0
-dependencyAnalysisDir = ""
+dependencyAnalysisDir = "http://cern.ch/cms-sdt/ignominy"
+afspath="/afs/cern.ch/cms/sdt/web/ignominy"
+# Read from afs directory if available (much faster):
+if os.path.exists (afspath):
+    dependencyAnalysisDir = afspath
+
 dependencies          = []
 outputFormats         = ("packages", "tools", "dependencies")
 outputFormat          = None
@@ -28,6 +34,7 @@ dependencyFormat      = "xdeps.all"
 beginBlock = re.compile('# Merged dependencies\t*')
 endBlock   = re.compile('.*#.*')
 depEntry   = re.compile('(\d*/\d*)\s*(\S*)\s*(\S*)')
+firstline  = "#"*25
 
 ##############################################################
 # Internal utility functions:
@@ -42,10 +49,12 @@ def usage():
 USAGE:
     """ + programName + """ [OPTIONS] <release name>  [<package>]+
 OPTIONS:
-   -d dir     - get dependency information from directory dir
-   -f file    - read list of packages from file
-   -h         - print this help and exit
-   -v         - display version number
+   -d dir     - get dependency information from directory dir,
+                also supports urls.
+                Default:   http://cern.ch/cms-sdt/ignominy 
+   -f file    - read list of packages from file.
+   -h         - print this help and exit.
+   -v         - display version number.
    -q         - run quietly, suppressing info output.
    -o format  - format = [""" + "|".join(outputFormats) + """ ]
                 print out formatted output (e.g. only packages, or
@@ -131,14 +140,15 @@ for o, a in opts:
             usageError( "unknown output format: " + a + ".", programName)
         verbose = 0  # switch off extra output
     if o == "-d":
-        dependencyAnalysisDir = a
-        if not os.path.isdir(a):
+        # Skip check if url: 
+        if ( a[:7] != 'http://' and not os.path.isdir(a)):
             usageError( "directory " + a + " does not exist!", programName)
+        dependencyAnalysisDir = a
     
 # Require at least one argument:
 
 if not args:
-    usageError("Please specify an argument!  ", programName)
+    usageError("Please specify an argument: release name .  ", programName)
 
 release = args[0];
 packages = args[1:]
@@ -155,25 +165,31 @@ infoOut( "Packages: " + string.join(packages))
 infoOut( "Dependency dir: " + dependencyAnalysisDir)
 
 # Get dependency info:
-if (dependencyAnalysisDir):
-    # Assume the directory structure as produced by Ignominy,
-    # The dependencyFormat variable specifies the file name from 
-    # which dependency information is to be extracted.
-    depFile=os.path.join (dependencyAnalysisDir, dependencyFormat)
-    f = open(depFile,'r')
-    # Skip lines outside the block:
-    inBlock    = 0
-    for line in f.readlines():
-        if inBlock:
-            # check if we're still in block
-            if endBlock.match(line):
-                inBlock = 0
-            else:
-                readDependencies(line, dependencies)
+# Assume the directory structure as produced by Ignominy,
+# The dependencyFormat variable specifies the file name from 
+# which dependency information is to be extracted:
+depFile = os.path.join(dependencyAnalysisDir, release, dependencyFormat)
+f = urllib.urlopen(depFile)
+
+# Check if first line matches :
+if f.readline()[:25] != firstline:
+    print 
+    sys.exit("ERROR: wrong file format: " + depFile)
+
+# 
+# Skip lines outside the block:
+inBlock    = 0
+for line in f.readlines():
+    if inBlock:
+        # check if we're still in block
+        if endBlock.match(line):
+            inBlock = 0
         else:
-            if beginBlock.match(line):
-                inBlock = 1
-    f.close()
+            readDependencies(line, dependencies)
+    else:
+        if beginBlock.match(line):
+            inBlock = 1
+f.close()
 
 # Check for unknown packages: 
 for name in packages:
