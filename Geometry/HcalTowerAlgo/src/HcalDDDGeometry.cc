@@ -26,12 +26,14 @@ std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,
   if (validIds_.empty()) {
     validIds_.reserve(cellGeometries().size());
     CaloSubdetectorGeometry::CellCont::const_iterator i;
-    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++)
-      if (i->first.det()==det && i->first.subdetId()==subdet) 
-	validIds_.push_back(i->first);
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++) {
+      DetId id(i->first);
+      if (id.det()==det && id.subdetId()==subdet) 
+	validIds_.push_back(id);
+    }
     std::sort(validIds_.begin(),validIds_.end());
   }
-
+  
   LogDebug("HCalGeom") << "HcalDDDGeometry::getValidDetIds: "
 		       << validIds_.size() << " valid IDs found for detector "
 		       << det << " Sub-detector " << subdet;

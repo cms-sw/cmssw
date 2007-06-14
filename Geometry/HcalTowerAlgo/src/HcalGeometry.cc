@@ -11,10 +11,6 @@ HcalGeometry::HcalGeometry(const HcalTopology * topology)
   
 
 HcalGeometry::~HcalGeometry() {
-  std::map<DetId, const CaloCellGeometry*>::iterator i;
-  for (i=cellGeometries_.begin(); i!=cellGeometries_.end(); i++)
-    delete i->second;
-  cellGeometries_.clear();
 }
 
 
@@ -25,17 +21,19 @@ std::vector<DetId> HcalGeometry::getValidDetIds(DetId::Detector det, int subdet)
     validIds_.clear();
   }
   if (validIds_.empty()) {
-    std::map<DetId, const CaloCellGeometry*>::const_iterator i;    
-    for (i=cellGeometries_.begin(); i!=cellGeometries_.end(); i++)
+    validIds_.reserve(cellGeometries().size());
+    CaloSubdetectorGeometry::CellCont::const_iterator i;
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++)
       if (i->first.det()==det && i->first.subdetId()==subdet) 
-	 validIds_.push_back(i->first);
+	validIds_.push_back(i->first);
+    std::sort(validIds_.begin(),validIds_.end());
   }
 
   return validIds_;
 }
 
 
-const DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
+DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const
 {
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
