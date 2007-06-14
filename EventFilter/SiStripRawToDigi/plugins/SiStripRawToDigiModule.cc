@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.36 2007/03/21 16:38:14 bainbrid Exp $
+// Last commit: $Id: SiStripRawToDigiModule.cc,v 1.1 2007/04/24 16:58:58 bainbrid Exp $
 
 #include "EventFilter/SiStripRawToDigi/plugins/SiStripRawToDigiModule.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -86,26 +86,21 @@ void SiStripRawToDigiModule::produce( edm::Event& event,
   rawToDigi_->triggerFed( *buffers, *summary, event.id().event() ); 
 
   // Create containers for digis
-  std::vector< edm::DetSet<SiStripRawDigi> > sm;
-  std::vector< edm::DetSet<SiStripRawDigi> > vr;
-  std::vector< edm::DetSet<SiStripRawDigi> > pr;
-  std::vector< edm::DetSet<SiStripDigi> > zs;
+  edm::DetSetVector<SiStripRawDigi>* sm = new edm::DetSetVector<SiStripRawDigi>();
+  edm::DetSetVector<SiStripRawDigi>* vr = new edm::DetSetVector<SiStripRawDigi>();
+  edm::DetSetVector<SiStripRawDigi>* pr = new edm::DetSetVector<SiStripRawDigi>();
+  edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
 
   // Create digis
-  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling, 
-					       *buffers, 
-					       *summary, 
-					       sm, 
-					       vr, 
-					       pr, 
-					       zs ); }
+  if ( rawToDigi_ ) { rawToDigi_->createDigis( *cabling,*buffers,*summary,*sm,*vr,*pr,*zs ); }
   
-  // Create DetSetVectors of digi products
-  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv( new edm::DetSetVector<SiStripRawDigi>(sm) );
-  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv( new edm::DetSetVector<SiStripRawDigi>(vr) );
-  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv( new edm::DetSetVector<SiStripRawDigi>(pr) );
-  std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv( new edm::DetSetVector<SiStripDigi>(zs) );
+  // Create auto_ptr's of digi products
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > sm_dsv(sm);
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > vr_dsv(vr);
+  std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > pr_dsv(pr);
+  std::auto_ptr< edm::DetSetVector<SiStripDigi> > zs_dsv(zs);
   
+  // Add to event
   event.put( summary );
   event.put( sm_dsv, "ScopeMode" );
   event.put( vr_dsv, "VirginRaw" );
