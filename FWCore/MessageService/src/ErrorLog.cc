@@ -49,7 +49,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 
 // Possible Traces:
 // #define ErrorLogCONSTRUCTOR_TRACE

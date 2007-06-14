@@ -15,8 +15,6 @@
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
-#include <iostream>
-
 
 using namespace edm::service;
 

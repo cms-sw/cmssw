@@ -1,5 +1,5 @@
-#ifndef LockService_H
-#define LockService_H 1
+#ifndef FWCore_Services_LockService_h
+#define FWCore_Services_LockService_h
 
 /*
   This class exists to only allow because ROOT is not thread-safe in its
@@ -18,9 +18,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 #include <string>
 #include <vector>

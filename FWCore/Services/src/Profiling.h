@@ -1,5 +1,5 @@
-#ifndef Services_SimpleProfiling_h
-#define Services_SimpleProfiling_h
+#ifndef FWCore_Services_Profiling_h
+#define FWCore_Services_Profiling_h
 // -*- C++ -*-
 //
 // Package:     Services
@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id:$
+// $Id: Profiling.h,v 1.1 2006/03/11 04:28:21 jbk Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

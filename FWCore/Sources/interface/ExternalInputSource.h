@@ -1,8 +1,8 @@
-#ifndef Framework_ExternalInputSource_h
-#define Framework_ExternalInputSource_h
+#ifndef FWCore_Sources_ExternalInputSource_h
+#define FWCore_Sources_ExternalInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ExternalInputSource.h,v 1.5 2007/03/04 06:00:22 wmtan Exp $
+$Id: ExternalInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>

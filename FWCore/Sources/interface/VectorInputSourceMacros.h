@@ -1,5 +1,5 @@
-#ifndef Framework_VectorInputSourceMacros_h
-#define Framework_VectorInputSourceMacros_h
+#ifndef FWCore_Sources_VectorInputSourceMacros_h
+#define FWCore_Sources_VectorInputSourceMacros_h
 
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"

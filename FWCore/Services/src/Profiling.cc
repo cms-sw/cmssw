@@ -6,19 +6,12 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Profiling.cc,v 1.3 2007/04/09 20:23:16 paterno Exp $
+// $Id: Profiling.cc,v 1.4 2007/05/14 19:25:43 paterno Exp $
 //
 
 #include "FWCore/Services/src/Profiling.h"
 #include "FWCore/Services/src/SimpleProfiler.h"
-//#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include <iostream>
-#include <sys/time.h>
-
-using namespace std;
 
 namespace edm {
   namespace service {

@@ -1,6 +1,6 @@
 #include "RefStreamer.h"
 #include "DataFormats/Common/interface/RefCore.h"
-#include "FWCore/FWLite/interface/setRefStreamer.h"
+class TBuffer;
 
 namespace fwlite {
   void 

@@ -1,5 +1,5 @@
-#ifndef Services_LoadAllDictionaries_h
-#define Services_LoadAllDictionaries_h
+#ifndef FWCore_Services_LoadAllDictionaries_h
+#define FWCore_Services_LoadAllDictionaries_h
 // -*- C++ -*-
 //
 // Package:     Services
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep 15 09:47:42 EDT 2005
-// $Id: LoadAllDictionaries.h,v 1.2 2005/09/21 13:43:09 chrjones Exp $
+// $Id: LoadAllDictionaries.h,v 1.3 2007/05/08 03:18:42 wmtan Exp $
 //
 
 // system include files

@@ -1,5 +1,5 @@
-#ifndef Services_Tracer_h
-#define Services_Tracer_h
+#ifndef FWCore_Services_Tracer_h
+#define FWCore_Services_Tracer_h
 // -*- C++ -*-
 //
 // Package:     Services
@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Sep  8 14:35:45 EDT 2005
-// $Id: Tracer.h,v 1.7 2006/12/09 03:22:46 chrjones Exp $
+// $Id: Tracer.h,v 1.8 2007/01/09 17:33:06 chrjones Exp $
 //
 
 // system include files

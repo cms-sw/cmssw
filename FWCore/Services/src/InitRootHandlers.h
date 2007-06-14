@@ -1,7 +1,5 @@
-#ifndef InitRootHandlers_H
-#define InitRootHandlers_H
-
-#include <string>
+#ifndef FWCore_Services_InitRootHandlers_h
+#define FWCore_Services_InitRootHandlers_h
 
 namespace edm {
   class ParameterSet;

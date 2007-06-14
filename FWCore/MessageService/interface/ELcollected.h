@@ -1,5 +1,5 @@
-#ifndef MessageService_ELcollected_h
-#define MessageService_ELcollected_h
+#ifndef FWCore_MessageService_ELcollected_h
+#define FWCore_MessageService_ELcollected_h
 
 
 // ----------------------------------------------------------------------
@@ -66,7 +66,6 @@
 
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELsender.h"
-#include "FWCore/MessageService/interface/ELdestination.h"
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"

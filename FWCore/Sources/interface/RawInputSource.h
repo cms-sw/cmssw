@@ -1,8 +1,8 @@
-#ifndef Framework_RawInputSource_h
-#define Framework_RawInputSource_h
+#ifndef FWCore_Sources_RawInputSource_h
+#define FWCore_Sources_RawInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: RawInputSource.h,v 1.10 2007/03/04 06:00:22 wmtan Exp $
+$Id: RawInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <memory>

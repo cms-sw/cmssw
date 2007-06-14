@@ -40,11 +40,11 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 30 21:04:46 CDT 2006
-// $Id: TFWLiteSelector.h,v 1.3 2006/07/06 21:14:01 chrjones Exp $
+// $Id: TFWLiteSelector.h,v 1.4 2006/10/17 11:58:48 chrjones Exp $
 //
 
 // system include files
-#include "TList.h"
+class TList;
 
 // user include files
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"

@@ -1,16 +1,13 @@
 #ifndef FWCore_MessageService_MessageLoggerScribe_h
 #define FWCore_MessageService_MessageLoggerScribe_h
 
-#include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELdestControl.h"
-#include "FWCore/MessageService/interface/ErrorLog.h"
 #include "FWCore/MessageService/interface/MsgContext.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <iostream>
-#include <fstream>
+#include <iosfwd>
 #include <vector>
 #include <map>
 

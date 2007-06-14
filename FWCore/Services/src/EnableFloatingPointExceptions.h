@@ -1,5 +1,5 @@
-#ifndef Services_FpeHandler_h
-#define Services_FpeHandler_h
+#ifndef FWCore_Services_FpeHandler_h
+#define FWCore_Services_FpeHandler_h
 // -*- C++ -*-
 //
 // Package:     Services
@@ -87,7 +87,7 @@
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.7 2007/05/23 16:55:36 marafino Exp $
+// $Id: EnableFloatingPointExceptions.h,v 1.8 2007/05/31 14:59:22 marafino Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

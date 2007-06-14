@@ -1,5 +1,5 @@
-#ifndef FWCORE_SERVICES_PROFPARSE_H
-#define FWCORE_SERVICES_PROFPARSE_H
+#ifndef FWCore_Services_ProfParse_h
+#define FWCore_Services_ProfParse_h
 
 #include <string>
 

@@ -2,14 +2,8 @@
 #include <cstdlib>
 
 #include "FWCore/Services/src/UnixSignalService.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 
-#include "FWCore/Utilities/interface/DebugMacros.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
-
-using namespace std;
 
 namespace edm {
 

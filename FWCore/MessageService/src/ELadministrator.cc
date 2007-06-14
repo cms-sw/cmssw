@@ -94,6 +94,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <list>
 using std::cerr;
 
 

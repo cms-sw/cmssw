@@ -2,23 +2,14 @@
 
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMCharacterData.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
-#include <xercesc/framework/LocalFileFormatTarget.hpp>
-#include <xercesc/util/XMLUni.hpp>
-#include <xercesc/util/XMLURL.hpp>
 #include <xercesc/util/XMLString.hpp>
 
-#include <fstream>
-#include <exception>
-
 using namespace xercesc;
-
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>

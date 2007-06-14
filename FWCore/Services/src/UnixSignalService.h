@@ -1,5 +1,5 @@
-#ifndef Services_UnixSignalService_h
-#define Services_UnixSignalService_h
+#ifndef FWCore_Services_UnixSignalService_h
+#define FWCore_Services_UnixSignalService_h
 
 /*----------------------------------------------------------------------
 

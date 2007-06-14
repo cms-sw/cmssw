@@ -32,7 +32,6 @@
 #include "FWCore/MessageService/interface/ELset.h"
 
 #include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
 

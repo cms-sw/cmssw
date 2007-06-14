@@ -1,5 +1,5 @@
-#ifndef SIMPLEPROFILER
-#define SIMPLEPROFILER 1
+#ifndef FWCore_Services_SimpleProfiler_h
+#define FWCore_Services_SimpleProfiler_h
 
 #ifndef _POSIX_C_SOURCE
 #define _POSIX_C_SOURCE 199309
@@ -8,7 +8,6 @@
 #include <vector>
 #include <string>
 #include "boost/thread/mutex.hpp"
-#include <pthread.h>
 
 class SimpleProfiler
 {

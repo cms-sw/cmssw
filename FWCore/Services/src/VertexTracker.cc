@@ -1,7 +1,6 @@
 #include "VertexTracker.h"
 
 #include <ostream>
-#include <sstream>
 
 unsigned int VertexTracker::next_id_ = 0;
 

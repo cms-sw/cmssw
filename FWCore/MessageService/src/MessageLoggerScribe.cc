@@ -127,9 +127,11 @@
 
 
 
+#include "FWCore/MessageService/interface/ELadministrator.h"
 #include "FWCore/MessageService/interface/ELoutput.h"
 #include "FWCore/MessageService/interface/ELstatistics.h"
 #include "FWCore/MessageService/interface/ELfwkJobReport.h"
+#include "FWCore/MessageService/interface/ErrorLog.h"
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"

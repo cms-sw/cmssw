@@ -5,11 +5,11 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 
-#include <TROOT.h>
-#include <TSystem.h>
-#include <TError.h>
-#include <iostream>
+#include <string.h>
 #include <sstream>
+
+#include "TSystem.h"
+#include "TError.h"
 
 namespace {
 void RootErrorHandler(int level, bool die, const char* location, const char* message)

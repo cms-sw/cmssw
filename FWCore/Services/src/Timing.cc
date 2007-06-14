@@ -6,7 +6,7 @@
 // Implementation:
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Timing.cc,v 1.8 2007/03/04 05:55:26 wmtan Exp $
+// $Id: Timing.cc,v 1.9 2007/06/06 23:41:02 lsexton Exp $
 //
 
 #include "FWCore/Services/interface/Timing.h"
@@ -22,8 +22,6 @@
 
 #include <iostream>
 #include <sys/time.h>
-
-using namespace std;
 
 namespace edm {
   namespace service {

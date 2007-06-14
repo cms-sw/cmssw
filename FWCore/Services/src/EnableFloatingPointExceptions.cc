@@ -9,7 +9,7 @@
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
 //
-// $Id: EnableFloatingPointExceptions.cc,v 1.10 2007/05/23 18:34:24 marafino Exp $
+// $Id: EnableFloatingPointExceptions.cc,v 1.11 2007/05/24 22:14:04 marafino Exp $
 //
 
 // system include files
@@ -19,9 +19,6 @@
 #include <fpu_control.h>
 #endif
 #endif
-
-#include <iomanip>
-#include <cmath>
 
 // user include files
 #include "FWCore/Services/src/EnableFloatingPointExceptions.h"

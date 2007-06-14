@@ -8,14 +8,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Aug  2 09:04:04 EDT 2006
-// $Id$
+// $Id: branchToClass.cc,v 1.1 2006/08/04 18:19:46 chrjones Exp $
 //
 
 // system include files
-#include "TFile.h"
-#include "TTree.h"
-#include "TBranch.h"
-#include "TClass.h"
+class TBranch;
+class TClass;
 #include "TBranchBrowsable.h"
 
 // user include files

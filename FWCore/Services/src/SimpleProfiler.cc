@@ -3,26 +3,20 @@
 #define _POSIX_C_SOURCE 199309
 #endif
 
-
-#include <csignal>
-#include <cerrno>
 #include <cstdio>
-#include <ctime>
 
 #include <pthread.h>
 #include <unistd.h>
 #include <dlfcn.h>
-#include "boost/thread/thread.hpp"
 #include "boost/thread/mutex.hpp"
 
 #include <iostream>
 #include <vector>
-#include <algorithm>
+#include <string>
 #include <sstream>
 #include <stdexcept>
 
 #include <sys/time.h>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/resource.h>
 #include <fcntl.h>
@@ -36,8 +30,6 @@
 #error "SimpleProfile requires the definition of __USE_POSIX199309"
 #endif
 
-using namespace std;
-
 namespace INSTR
 {
   typedef unsigned char byte;
@@ -47,10 +39,10 @@ namespace INSTR
 namespace
 {
 
-  string makeFileName()
+  std::string makeFileName()
   {
     pid_t p = getpid();
-    ostringstream ost;
+    std::ostringstream ost;
     ost << "profdata_" << p;
     return ost.str();
   }
@@ -65,9 +57,9 @@ namespace
 #define getSP(X)  asm ( "movl %%esp,%0" : "=m" (X) )
 
 #if 0
-#define DODEBUG if(1) cerr
+#define DODEBUG if(1) std::cerr
 #else
-#define DODEBUG if(0) cerr
+#define DODEBUG if(0) std::cerr
 #endif
 
 
@@ -78,7 +70,6 @@ const int REG_EBP = 6;
 const int REG_ESP = 7;
 #endif
 
-#include "sys/types.h"
 #include "unistd.h"
 #include <sstream>
 #include <fstream>
@@ -124,8 +115,8 @@ namespace
     frame_cond = fopen(filename.c_str(),"w");
     if(frame_cond==0)
       {
-	cerr << "bad open of profdata_condfile\n";
-	throw runtime_error("bad open");
+	std::cerr << "bad open of profdata_condfile\n";
+	throw std::runtime_error("bad open");
       }
   }
 
@@ -189,7 +180,7 @@ extern "C"
     void** arr = prof->tempStack();
 
 #if 0
-    cerr << "siginfo=" << (void*)info
+    std::cerr << "siginfo=" << (void*)info
 	 << " context=" << context
 	 << " stack=" << (void*)ucp->uc_stack.ss_sp
 	 << "\n";
@@ -210,12 +201,12 @@ extern "C"
 	  {
 	    *cur++ = ((unsigned int)eip);
 	    *cur++ = 0U;
-	    cerr << "early completion for eip = " << (unsigned int)eip << '\n';
+	    std::cerr << "early completion for eip = " << (unsigned int)eip << '\n';
 	    stack_uninterpretable=true;
 	  }
 	else
 	  {
-	    cerr << "ebp < esp (but not early completion)\n";
+	    std::cerr << "ebp < esp (but not early completion)\n";
 	    ebp=(unsigned int*)(*ebp);
 	    ebp=(unsigned int*)(*ebp);
 	  } 
@@ -237,7 +228,7 @@ extern "C"
 
 	if(eip[0]==INSTR::RET)
 	  {
-	    //cerr << "after the leave and immediately before the ret\n";
+	    //std::cerr << "after the leave and immediately before the ret\n";
 	    condition += 1;
 	    //*cur++ = ((unsigned int)*esp);
 	    *cur++ = *esp;
@@ -264,13 +255,13 @@ extern "C"
 	if( *esp==(unsigned int)ebp )
 	  {
 	    condition += 4;	    
-	    //cerr << "after the push, before the mov\n";
+	    //std::cerr << "after the push, before the mov\n";
 	    ebp = esp;
 	  }
 	else if(eip[0]==0x55 && eip[1]==0x89 && eip[2]==0xe5)
 	  {
 	    condition += 8;
-	    //cerr << "after the call, before the push\n";
+	    //std::cerr << "after the call, before the push\n";
 	    *cur++ = *esp;
 	  }
 	// if value at stacktop and stacktop-1 are outside stack range
@@ -305,7 +296,7 @@ extern "C"
 		// The stack frame for the current function has
 		// already been popped.
 		condition += 2;
-		//cerr << "after the leave but before the ret\n";
+		//std::cerr << "after the leave but before the ret\n";
 		*cur++ = *esp;
 	      }
 	  }
@@ -341,7 +332,7 @@ extern "C"
 
 	    if (++counter > 1000)
 	      {
-		cerr << "BAD COUNT!!!!!!\n";
+		std::cerr << "BAD COUNT!!!!!!\n";
 		break;
 	      }
 	  }
@@ -365,7 +356,7 @@ namespace
     throw std::logic_error("setStacktop not callable on 64 bit platform");
     return 0;
 #else
-    const string target_name("__libc_start_main");
+    const std::string target_name("__libc_start_main");
     unsigned int* ebp_reg;
     getBP(ebp_reg);
     unsigned int* ebp = (unsigned int*)(ebp_reg);
@@ -386,12 +377,12 @@ namespace
 	if(dladdr(sta[i],&look)!=0)
 	  {
 #if 0
-	    cerr << "sta[" << i << "]=" << sta[i] << ":  " << (look.dli_saddr ? look.dli_sname : "?") << ":" << look.dli_saddr << "\n"; 
+	    std::cerr << "sta[" << i << "]=" << sta[i] << ":  " << (look.dli_saddr ? look.dli_sname : "?") << ":" << look.dli_saddr << "\n"; 
 #endif
 	    if (look.dli_saddr && target_name==look.dli_sname)
 	      {
 		address_of_target = sta[i];
-		// cerr << "found " << target_name << "\n";
+		// std::cerr << "found " << target_name << "\n";
 	      }
 	  }
 	else
@@ -400,14 +391,14 @@ namespace
 	    // was not found by the dynamic loader. The function might
 	    // be one that is declared 'static', and is thus not
 	    // visible outside of its compilation unit.
-	    cerr << "setStacktop: no function information for " 
+	    std::cerr << "setStacktop: no function information for " 
 		 << sta[i] 
 		 << "\n";
 	  }
       }
 
     if (address_of_target == 0)
-      throw runtime_error("no main function found in stack");
+      throw std::runtime_error("no main function found in stack");
 
     //fprintf(stderr,"depth=%d top=%8.8x\n",depth,top);
 
@@ -426,7 +417,7 @@ namespace
     };
 
     if (depth==0) 
-      throw runtime_error("setStacktop: could not find stack bottom");
+      throw std::runtime_error("setStacktop: could not find stack bottom");
 
     // Now we have to move one frame more, to the frame of the target
     // function. We want the location in memory of this frame (not any
@@ -508,8 +499,8 @@ namespace
 	perror("getrlimit failed");
 	abort();
       }
-    cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
-    cerr << "core size limit (hard): " << limits.rlim_max << '\n';
+    std::cerr << "core size limit (soft): " << limits.rlim_cur << '\n';
+    std::cerr << "core size limit (hard): " << limits.rlim_max << '\n';
 
     struct itimerval newval;
     struct itimerval oldval;
@@ -595,12 +586,11 @@ SimpleProfiler::SimpleProfiler():
   owner_(),
   stacktop_(setStacktop())
 {
-  if (fd_<0)
-    {
-      ostringstream ost;
+  if (fd_ < 0) {
+      std::ostringstream ost;
       ost << "failed to open profiler output file " << filename_;
-      throw runtime_error(ost.str().c_str());
-    }
+      throw std::runtime_error(ost.str().c_str());
+  }
   
   openCondFile();
 }
@@ -608,7 +598,7 @@ SimpleProfiler::SimpleProfiler():
 SimpleProfiler::~SimpleProfiler()
 {
   if (running_)
-    cerr << "Warning: the profile timer was not stopped,\n"
+    std::cerr << "Warning: the profile timer was not stopped,\n"
 	 << "profiling data in " << filename_
 	 << " is probably incomplete and will not be processed\n";
 
@@ -618,9 +608,9 @@ SimpleProfiler::~SimpleProfiler()
 void SimpleProfiler::commitFrame(void** first, void** last)
 {
   void** cnt_ptr = curr_; 
-  *cnt_ptr = reinterpret_cast<void*>(distance(first,last));
+  *cnt_ptr = reinterpret_cast<void*>(std::distance(first,last));
   ++curr_;
-  curr_ = copy(first,last,curr_);
+  curr_ = std::copy(first,last,curr_);
   if(curr_ > high_water_) doWrite();
 }
 
@@ -628,16 +618,15 @@ void SimpleProfiler::doWrite()
 {
   void** start = &frame_data_[0];
   if(curr_ == start) return;
-  unsigned int cnt = distance(start,curr_) * sizeof(void*);
+  unsigned int cnt = std::distance(start,curr_) * sizeof(void*);
   unsigned int totwr=0;
 
-  while (cnt>0 && (totwr=write(fd_,start,cnt)) != cnt)
-    {
+  while (cnt>0 && (totwr=write(fd_,start,cnt)) != cnt) {
       if(totwr==0) 
-	throw runtime_error("SimpleProfiler::doWrite wrote zero bytes");
+	throw std::runtime_error("SimpleProfiler::doWrite wrote zero bytes");
       start+=(totwr/sizeof(void*));
       cnt-=totwr;
-    }
+  }
 
   curr_ = &frame_data_[0];
 }
@@ -650,15 +639,14 @@ void SimpleProfiler::start()
   {
     boost::mutex::scoped_lock sl(lock_);
 
-    if (installed_)
-      {
-	cerr << "Warning: second thread " << pthread_self()
+    if (installed_) {
+	std::cerr << "Warning: second thread " << pthread_self()
 	     << " requested the profiler timer and another thread\n"
 	     << owner_ << "has already started it.\n"
 	     << "Only one thread can do profiling at a time.\n"
 	     << "This second thread will not be profiled.\n";
 	return;
-      }
+    }
     
     installed_ = true;
   }
@@ -672,19 +660,19 @@ void SimpleProfiler::stop()
 {
   if(!installed_)
     {
-      cerr << "SimpleProfiler::stop - no timer installed to stop\n";
+      std::cerr << "SimpleProfiler::stop - no timer installed to stop\n";
       return;
     }
 
   if(owner_ != pthread_self())
     {
-      cerr << "SimpleProfiler::stop - only owning thread can stop the timer\n";
+      std::cerr << "SimpleProfiler::stop - only owning thread can stop the timer\n";
       return;
     }
 
   if(!running_)
     {
-      cerr << "SimpleProfiler::stop - no timer is running\n";
+      std::cerr << "SimpleProfiler::stop - no timer is running\n";
       return;
     }
 
@@ -712,7 +700,7 @@ void SimpleProfiler::complete()
 
   if(lseek(fd_,0,SEEK_SET)<0)
     {
-      cerr << "SimpleProfiler: could not seek to the start of the profile\n"
+      std::cerr << "SimpleProfiler: could not seek to the start of the profile\n"
 	   << " data file during completion.  Data will be lost.\n";
       return;
     }

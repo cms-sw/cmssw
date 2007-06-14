@@ -16,8 +16,6 @@
 #include "boost/thread/mutex.hpp"
 
 using namespace edm::rootfix;
-using namespace std;
-
 
 LockService::LockService(const ParameterSet& iPS, 
 			 ActivityRegistry& reg):
@@ -40,7 +38,7 @@ LockService::LockService(const ParameterSet& iPS,
   reg.watchPreModule(this,&LockService::preModule);
   reg.watchPostModule(this,&LockService::postModule);
   
-  FDEBUG(4) << "In LockServices" << endl;
+  FDEBUG(4) << "In LockServices" << std::endl;
 }
 
 
@@ -53,14 +51,14 @@ void LockService::preSourceConstruction(const ModuleDescription& desc)
   if(!labels_.empty() &&
      find(labels_.begin(),labels_.end(),desc.moduleLabel_)!=labels_.end())
     {
-      FDEBUG(4) << "made a new locked in LockService" << endl;
+      FDEBUG(4) << "made a new locked in LockService" << std::endl;
       locker_ = new boost::mutex::scoped_lock(*lock_);
     }
 }
 
 void LockService::postSourceConstruction(const ModuleDescription& desc)
 {
-  FDEBUG(4) << "destroyed a locked in LockService" << endl;
+  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
   delete locker_;
   locker_=0;
 }
@@ -85,14 +83,14 @@ void LockService::preSource()
 {
   if(lockSources_)
     {
-      FDEBUG(4) << "made a new locked in LockService" << endl;
+      FDEBUG(4) << "made a new locked in LockService" << std::endl;
       locker_ = new boost::mutex::scoped_lock(*lock_);
     }
 }
 
 void LockService::postSource()
 {
-  FDEBUG(4) << "destroyed a locked in LockService" << endl;
+  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
   delete locker_;
   locker_=0;
 }
@@ -102,14 +100,14 @@ void LockService::preModule(const ModuleDescription& desc)
   if(!labels_.empty() &&
      find(labels_.begin(),labels_.end(),desc.moduleLabel_)!=labels_.end())
     {
-      FDEBUG(4) << "made a new locked in LockService" << endl;
+      FDEBUG(4) << "made a new locked in LockService" << std::endl;
       locker_ = new boost::mutex::scoped_lock(*lock_);
     }
 }
 
 void LockService::postModule(const ModuleDescription& desc)
 {
-  FDEBUG(4) << "destroyed a locked in LockService" << endl;
+  FDEBUG(4) << "destroyed a locked in LockService" << std::endl;
   delete locker_;
   locker_=0;
 }

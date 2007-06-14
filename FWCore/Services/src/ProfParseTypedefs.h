@@ -1,5 +1,5 @@
-#ifndef FWCORE_SERVICES_PROFPARSETYPEDEFS_H
-#define FWCORE_SERVICES_PROFPARSETYPEDEFS_H
+#ifndef FWCore_Services_ProfParseTypedefs_h
+#define FWCore_Services_ProfParseTypedefs_h
 
 #include <map>
 #include <set>
@@ -15,7 +15,5 @@ typedef std::set<VertexTracker> VertexSet;
 typedef std::set<PathTracker> PathSet;
 typedef std::vector<VertexSet::const_iterator> Viter;
 typedef std::vector<PathSet::const_iterator> Piter;
-
-
 
 #endif

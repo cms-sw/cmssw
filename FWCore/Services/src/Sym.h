@@ -1,5 +1,5 @@
-#ifndef FWCORE_SERVICES_SYM_H
-#define FWCORE_SERVICES_SYM_H
+#ifndef FWCore_Services_Sym_h
+#define FWCore_Services_Sym_h
 
 #include <iosfwd>
 #include <string>

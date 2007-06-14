@@ -1,3 +1,6 @@
+#ifndef FWCore_PrescaleService_PrescaleService_h
+#define FWCore_PrescaleService_PrescaleService_h
+
 // -*- C++ -*-
 //
 // Package:     PrescaleService
@@ -6,17 +9,11 @@
 // Implementation:
 //     Cache and make prescale factors available online.
 //
-// Current revision: $Revision: 1.1 $
-// On branch: $Name: V00-00-00 $
-// Latest change by $Author: wmtan $ at $Date: 2007/04/23 23:45:42 $
+// Current revision: $Revision: 1.2 $
+// On branch: $Name: CMSSW_1_5_0_pre5 $
+// Latest change by $Author: wmtan $ at $Date: 2007/04/23 23:54:10 $
 //
 
-
-#ifndef FWCore_PrescaleService_PrescaleService_h
-#define FWCore_PrescaleService_PrescaleService_h
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -24,11 +21,8 @@
 
 #include "boost/thread/mutex.hpp"
 
-using namespace std;
-
+#include <string>
 #include <vector>
-#include <iostream>
-
 
 namespace edm {
   namespace service {
@@ -38,7 +32,7 @@ namespace edm {
 	
     private:
 
-      boost::mutex mutex;        // protect vectors
+      boost::mutex mutex;        // protect std::vectors
       edm::EventID curr_event_;
       int count_;                // counter incremented in postEventProcessing
       edm::EventProcessor *fu_;  // pointer to FUEP
@@ -46,10 +40,10 @@ namespace edm {
       edm::TriggerReport trold;  // trigger report at start of event
       unsigned int lsold;        // current LS block number
 
-      vector<string> prescalers; // prescaler cache
-      vector<string> triggers;   // trigger counter cache
-      string stsstr;             // last status string sent
-      string trgstr;             // last trigger statistics string sent
+      std::vector<std::string> prescalers; // prescaler cache
+      std::vector<std::string> triggers;   // trigger counter cache
+      std::string stsstr;             // last status std::string sent
+      std::string trgstr;             // last trigger statistics std::string sent
 
       unsigned int blsn;         // putPrescaler error decoding LS#
       unsigned int bpath;        // putPrescaler error decoding path
@@ -80,14 +74,14 @@ namespace edm {
       void preModule(const ModuleDescription&);
       void postModule(const ModuleDescription&);
 
-      int getPrescale(unsigned int ls, string module);
-      int putPrescale(string s);
+      int getPrescale(unsigned int ls, std::string module);
+      int putPrescale(std::string s);
       int sizePrescale();
       void putHandle(edm::EventProcessor *proc_);
 
-      string getStatus();
-      string getLs();
-      string getLs(string lsAsString);
+      std::string getStatus();
+      std::string getLs();
+      std::string getLs(std::string lsAsString);
 	
     };
   }

@@ -3,7 +3,7 @@
 
 #include "TClassStreamer.h"
 #include "TClassRef.h"
-#include "TBuffer.h"
+class TBuffer;
 
 namespace edm {
   class EDProductGetter;

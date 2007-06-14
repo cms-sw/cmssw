@@ -1,19 +1,14 @@
 
 #include "FWCore/Sources/interface/VectorInputSourceFactory.h"
-//#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <utility>
-#include <memory>
-#include <stdexcept>
 #include <iostream>
 
 EDM_REGISTER_PLUGINFACTORY(edm::VectorInputSourcePluginFactory,"CMS EDM Framework VectorInputSource");
-using namespace std;
 
 namespace edm {
-
 
   VectorInputSourceFactory::~VectorInputSourceFactory()
   {
@@ -39,9 +34,9 @@ namespace edm {
 					InputSourceDescription const& desc) const
     
   {
-    string modtype = conf.getParameter<string>("@module_type");
-    FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << endl;
-    auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
+    std::string modtype = conf.getParameter<std::string>("@module_type");
+    FDEBUG(1) << "VectorInputSourceFactory: module_type = " << modtype << std::endl;
+    std::auto_ptr<VectorInputSource> wm(VectorInputSourcePluginFactory::get()->create(modtype,conf,desc));
 
     if(wm.get()==0)
       {
@@ -55,7 +50,7 @@ namespace edm {
 
     FDEBUG(1) << "VectorInputSourceFactory: created input source "
 	      << modtype
-	      << endl;
+	      << std::endl;
 
     return wm;
   }

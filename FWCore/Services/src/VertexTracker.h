@@ -1,5 +1,5 @@
-#ifndef FWCORE_SERVICES_VERTEX_TRACKER_H
-#define FWCORE_SERVICES_VERTEX_TRACKER_H
+#ifndef FWCore_Services_Vertex_Tracker_h
+#define FWCore_Services_Vertex_Tracker_h
 
 #include <iosfwd>
 #include <string>

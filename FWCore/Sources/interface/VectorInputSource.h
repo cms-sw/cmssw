@@ -1,11 +1,11 @@
-#ifndef Framework_VectorInputSource_h
-#define Framework_VectorInputSource_h
+#ifndef FWCore_Sources_VectorInputSource_h
+#define FWCore_Sources_VectorInputSource_h
 
 
 /*----------------------------------------------------------------------
   
 VectorInputSource: Abstract interface for vector input sources.
-$Id: VectorInputSource.h,v 1.7 2006/12/01 03:29:52 wmtan Exp $
+$Id: VectorInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,7 +16,7 @@ $Id: VectorInputSource.h,v 1.7 2006/12/01 03:29:52 wmtan Exp $
 #include "FWCore/Sources/interface/EDInputSource.h"
 
 namespace edm {
-  class EventPrincpal;
+  class EventPrincipal;
   class InputSourceDescription;
   class ParameterSet;
   class VectorInputSource : public EDInputSource {

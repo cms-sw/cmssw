@@ -1,8 +1,8 @@
-#ifndef Framework_EDInputSource_h
-#define Framework_EDInputSource_h
+#ifndef FWCore_Sources_EDInputSource_h
+#define FWCore_Sources_EDInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: EDInputSource.h,v 1.6 2007/03/04 06:00:22 wmtan Exp $
+$Id: EDInputSource.h,v 1.1 2007/05/01 20:21:56 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
