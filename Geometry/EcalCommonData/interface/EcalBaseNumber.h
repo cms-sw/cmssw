@@ -4,7 +4,7 @@
 /** \class EcalBaseNumber
  *   
  * \author Paolo Meridiani, INFN Roma1 
- *  $Id: EcalBaseNumber.h,v 1.2 2006/11/22 18:17:54 meridian Exp $
+ *  $Id: EcalBaseNumber.h,v 1.3 2007/06/14 06:10:31 innocent Exp $
  */
 
 #include <vector>
@@ -13,8 +13,8 @@
 class EcalBaseNumber {
  public:
 
-  EcalBaseNumber(){};
-  ~EcalBaseNumber(){};
+  EcalBaseNumber(){}
+  ~EcalBaseNumber(){}
   
   void setSize(int size) { _sortedBaseNumber.reserve(size); }
   void addLevel(const std::string& name, int copyNumber);
