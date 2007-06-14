@@ -1,5 +1,5 @@
-#ifndef MessageLogger_JobReport_h
-#define MessageLogger_JobReport_h
+#ifndef FWCore_MessageLogger_JobReport_h
+#define FWCore_MessageLogger_JobReport_h
 // -*- C++ -*-
 //
 // Package:     MessageLogger
@@ -19,7 +19,7 @@ through the MessageLogger.
 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.h,v 1.15 2007/05/29 21:33:09 evansde Exp $
+// $Id: JobReport.h,v 1.16 2007/06/12 17:09:45 evansde Exp $
 //
 
 #include <cstddef>
@@ -28,7 +28,6 @@ through the MessageLogger.
 #include <set>
 #include <map>
 #include <vector>
-#include <sstream>
 
 
 #include "boost/scoped_ptr.hpp"

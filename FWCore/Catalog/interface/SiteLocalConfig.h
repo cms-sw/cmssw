@@ -3,7 +3,6 @@
 
 // INCLUDES
 # include <string>
-# include <list>
 
 // PUBLIC DEFINES
 // PUBLIC CONSTANTS

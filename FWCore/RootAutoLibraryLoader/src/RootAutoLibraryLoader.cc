@@ -8,10 +8,11 @@
 //
 // Original Author:  
 //         Created:  Wed Nov 30 14:55:01 EST 2005
-// $Id: RootAutoLibraryLoader.cc,v 1.5 2007/02/07 13:28:35 chrjones Exp $
+// $Id: RootAutoLibraryLoader.cc,v 1.6 2007/04/09 22:49:18 chrjones Exp $
 //
 
 // system include files
+#include <string>
 #include <iostream>
 #include "TROOT.h"
 #include "G__ci.h"

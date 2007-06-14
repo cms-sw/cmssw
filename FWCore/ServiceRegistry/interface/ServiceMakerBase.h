@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ServiceMakerBase_h
-#define ServiceRegistry_ServiceMakerBase_h
+#ifndef FWCore_ServiceRegistry_ServiceMakerBase_h
+#define FWCore_ServiceRegistry_ServiceMakerBase_h
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
@@ -16,11 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 13:33:00 EDT 2005
-// $Id: ServiceMakerBase.h,v 1.1 2005/09/07 21:58:15 chrjones Exp $
+// $Id: ServiceMakerBase.h,v 1.2 2005/09/10 02:08:48 wmtan Exp $
 //
 
 // system include files
-#include "boost/shared_ptr.hpp"
 
 // user include files
 

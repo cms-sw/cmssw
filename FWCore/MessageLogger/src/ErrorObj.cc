@@ -43,9 +43,6 @@
 
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
-#include "FWCore/MessageLogger/interface/ELextendedID.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageLogger/interface/ELlist.h"
 
 #ifndef IOSTREAM_INCLUDED
 #endif

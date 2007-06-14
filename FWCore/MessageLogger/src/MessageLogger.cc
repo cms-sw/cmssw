@@ -1,6 +1,5 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
-#include <cstring>
 
 namespace edm {
 

@@ -1,5 +1,5 @@
-#ifndef ServiceRegistry_ActivityRegistry_h
-#define ServiceRegistry_ActivityRegistry_h
+#ifndef FWCore_ServiceRegistry_ActivityRegistry_h
+#define FWCore_ServiceRegistry_ActivityRegistry_h
 // -*- C++ -*-
 //
 // Package:     ServiceRegistry
@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Sep  5 19:53:09 EDT 2005
-// $Id: ActivityRegistry.h,v 1.14 2007/01/09 17:26:53 chrjones Exp $
+// $Id: ActivityRegistry.h,v 1.15 2007/02/14 20:45:11 wdd Exp $
 //
 
 // system include files
 //#include "boost/signal.hpp"
 #include "sigc++/signal.h"
-#include "sigc++/bind.h"
 #include "boost/bind.hpp"
 #include "boost/mem_fn.hpp"
 

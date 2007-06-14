@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.20 2007/05/29 21:33:08 evansde Exp $
+// $Id: JobReport.cc,v 1.21 2007/06/12 17:09:46 evansde Exp $
 //
 
 
@@ -14,12 +14,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <iostream>
 #include <sstream>
-#include <algorithm>
-#include <iomanip>
-#include <iterator>
-#include <ostream>
 
 using std::string;
 using std::vector;

@@ -11,8 +11,6 @@
 
 
 #include "FWCore/MessageLogger/interface/ELextendedID.h"
-#include "FWCore/MessageLogger/interface/ELstring.h"
-#include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
 
 namespace edm

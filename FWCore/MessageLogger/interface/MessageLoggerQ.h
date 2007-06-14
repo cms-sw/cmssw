@@ -1,8 +1,6 @@
 #ifndef FWCore_MessageLogger_MessageLoggerQ_h
 #define FWCore_MessageLogger_MessageLoggerQ_h
 
-#include <memory>
-
 #include "FWCore/Utilities/interface/SingleConsumerQ.h"
 
 
