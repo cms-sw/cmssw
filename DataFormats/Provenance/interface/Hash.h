@@ -1,7 +1,6 @@
 #ifndef DataFormats_Provenance_Hash_h
 #define DataFormats_Provenance_Hash_h
 
-#include <algorithm>
 #include <string>
 
 #include "FWCore/Utilities/interface/Digest.h"
@@ -11,7 +10,7 @@
   
 Hash:
 
-$Id: Hash.h,v 1.14 2006/12/17 15:49:39 wmtan Exp $
+$Id: Hash.h,v 1.1 2007/03/04 04:48:08 wmtan Exp $
 
   Note: The call to 'fixup' in every member function is a temporary
   measure for backwards compatibility. It is necessary in every function

@@ -1,10 +1,10 @@
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
-#include <ostream>
+#include <iosfwd>
 
 /*----------------------------------------------------------------------
 
-$Id: Provenance.cc,v 1.4 2007/05/10 22:46:54 wmtan Exp $
+$Id: Provenance.cc,v 1.5 2007/05/29 19:16:53 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

@@ -6,7 +6,6 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/RunID.h"
-#include "DataFormats/Provenance/interface/Timestamp.h"
 
 // Auxiliary luminosity block data that is persistent
 namespace edm

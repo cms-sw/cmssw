@@ -1,10 +1,9 @@
 #include "DataFormats/Provenance/interface/RunAux.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
-#include "DataFormats/Provenance/interface/RunID.h"
 
 /*----------------------------------------------------------------------
 
-$Id: RunAux.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
+$Id: RunAux.cc,v 1.1 2007/03/15 21:45:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

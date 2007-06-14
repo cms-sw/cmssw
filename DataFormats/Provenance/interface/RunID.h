@@ -14,15 +14,13 @@
 
 */
 //
-// $Id: RunID.h,v 1.6 2006/12/18 19:15:18 wmtan Exp $
+// $Id: RunID.h,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 //
 
 // system include files
-#include <functional>
 #include <iosfwd>
 
 // user include files
-#include "DataFormats/Provenance/interface/RunID.h"
 
 // forward declarations
 namespace edm {

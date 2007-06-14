@@ -7,12 +7,12 @@
 
    \original author Stefano ARGIRO
    \current author Bill Tanenbaum
-   \version $Id: ProductRegistry.h,v 1.3 2007/05/25 18:10:22 chrjones Exp $
+   \version $Id: ProductRegistry.h,v 1.4 2007/05/26 18:55:11 wmtan Exp $
    \date 19 Jul 2005
 */
 
 #include <map>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <vector>
 

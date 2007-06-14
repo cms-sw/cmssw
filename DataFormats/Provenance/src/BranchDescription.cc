@@ -1,15 +1,13 @@
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Reflex/Type.h"
 #include <ostream>
 #include <sstream>
-#include <set>
 
 /*----------------------------------------------------------------------
 
-$Id: BranchDescription.cc,v 1.25 2006/12/06 19:20:41 paterno Exp $
+$Id: BranchDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

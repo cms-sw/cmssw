@@ -1,5 +1,5 @@
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
-#include <ostream>
+#include <iosfwd>
 
 namespace edm {
   std::ostream&

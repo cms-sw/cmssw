@@ -1,10 +1,9 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlockAux.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
+$Id: LuminosityBlockAux.cc,v 1.1 2007/03/15 21:45:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

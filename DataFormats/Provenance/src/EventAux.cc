@@ -1,10 +1,9 @@
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 
 /*----------------------------------------------------------------------
 
-$Id: EventAux.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
+$Id: EventAux.cc,v 1.1 2007/03/15 21:45:37 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
