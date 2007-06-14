@@ -21,12 +21,11 @@ If a space exists in either of these three fields, it will be replaced with a %,
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:30:51 EDT 2007
-// $Id: CacheParser.h,v 1.1.2.1 2007/04/09 18:46:49 chrjones Exp $
+// $Id: CacheParser.h,v 1.2 2007/04/12 12:51:11 wmtan Exp $
 //
 
 // system include files
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 #include <map>
 #include <vector>

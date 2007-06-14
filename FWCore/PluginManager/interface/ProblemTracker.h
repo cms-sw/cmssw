@@ -13,8 +13,6 @@ occur, good state information can be printed.
 
 **/
 
-#include <string>
-
 namespace edm
 {
   class ProblemTracker

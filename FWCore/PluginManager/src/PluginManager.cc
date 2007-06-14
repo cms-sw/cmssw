@@ -8,18 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.5 2007/04/27 12:11:12 chrjones Exp $
+// $Id: PluginManager.cc,v 1.6 2007/04/27 19:24:45 chrjones Exp $
 //
 
 // system include files
 #include <boost/bind.hpp>
 #include <boost/mem_fn.hpp>
 
-#include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include <fstream>
-#include <iostream>
 #include <set>
 
 // user include files

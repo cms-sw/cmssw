@@ -2,9 +2,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
-#include <utility>
-#include <memory>
-#include <stdexcept>
 #include <iostream>
 
 EDM_REGISTER_PLUGINFACTORY(edm::PresencePluginFactory,"CMS EDM Framework Presence");

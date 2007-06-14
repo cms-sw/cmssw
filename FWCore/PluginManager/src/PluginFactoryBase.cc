@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 13:09:50 EDT 2007
-// $Id: PluginFactoryBase.cc,v 1.2 2007/04/12 12:51:12 wmtan Exp $
+// $Id: PluginFactoryBase.cc,v 1.3 2007/04/27 12:33:31 chrjones Exp $
 //
 
 // system include files
@@ -16,7 +16,6 @@
 // user include files
 #include "FWCore/PluginManager/interface/PluginFactoryBase.h"
 #include "FWCore/PluginManager/interface/PluginFactoryManager.h"
-#include "FWCore/PluginManager/interface/PluginManager.h"
 
 namespace edmplugin {
 //
