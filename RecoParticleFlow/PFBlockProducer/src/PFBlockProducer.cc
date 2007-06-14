@@ -1,7 +1,7 @@
 #include "RecoParticleFlow/PFBlockProducer/interface/PFBlockProducer.h"
 
-#include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
-#include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
+// #include "RecoParticleFlow/PFAlgo/interface/PFBlockElement.h"
 
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
@@ -131,7 +131,7 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 PFBlockProducer::~PFBlockProducer() { }
 
 
-void PFBlockProducer::beginJob(const edm::EventSetup & es){ }
+void PFBlockProducer::beginJob(const edm::EventSetup & es) { }
 
 
 void PFBlockProducer::produce(Event& iEvent, 
@@ -220,8 +220,6 @@ void PFBlockProducer::produce(Event& iEvent,
   auto_ptr< reco::PFBlockCollection > 
     pOutputBlockCollection( pfBlockAlgo_.transferBlocks() ); 
 
-  //  reco::PFBlock block( (*pOutputBlockCollection)[0] );
-  
 
   iEvent.put(pOutputBlockCollection);
 
