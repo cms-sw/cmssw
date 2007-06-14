@@ -25,7 +25,7 @@ std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 
   if (validIds_.empty()) {
     validIds_.reserve(cellGeometries().size());
-    CaloSubdetectorGeometry::CellCont ::const_iterator i;
+    CaloSubdetectorGeometry::CellCont::const_iterator i;
     for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++)
       if (i->first.det()==det && i->first.subdetId()==subdet) 
 	validIds_.push_back(i->first);
@@ -96,7 +96,7 @@ const DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
 }
 
 
-int HcalDDDGeometry::insertCell(std::vector<HcalCellType::HcalCellType> cells){
+int HcalDDDGeometry::insertCell(std::vector<HcalCellType::HcalCellType> const & cells){
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());
