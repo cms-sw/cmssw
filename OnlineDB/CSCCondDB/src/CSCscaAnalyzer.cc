@@ -101,7 +101,7 @@ void CSCscaAnalyzer::analyze(edm::Event const& e, edm::EventSetup const& iSetup)
 		std::vector<CSCStripDigi> digis = cscData[chamber].stripDigis(layer) ;		
 	
 		for (int itime=0;itime<8;itime++){
-		  CSCCFEBTimeSlice * mytimeSlice =  mycfebData->timeSlice(itime);
+		  const CSCCFEBTimeSlice * mytimeSlice =  mycfebData->timeSlice(itime);
 		  if (!mytimeSlice)continue;
 		  
 		  scaBlock = mytimeSlice->scaControllerWord(layer).sca_blk;
@@ -158,14 +158,14 @@ CSCscaAnalyzer::~CSCscaAnalyzer(){
     lines++;
     getline(filein,PSet);
     
-    if (lines==3){
+    if (lines==2){
       name=PSet;  
     }
   }
   
   //get name of run file from .cfg and name root output after that
   std::string::size_type runNameStart = name.find("\"",0);
-  std::string::size_type runNameEnd   = name.find("bin",0);
+  std::string::size_type runNameEnd   = name.find("raw",0);
   std::string::size_type rootStart    = name.find("Crosstalk",0);
   int nameSize = runNameEnd+3-runNameStart;
   int myRootSize = rootStart-runNameStart+8;
