@@ -993,12 +993,6 @@ bool PFRootEventManager::isHadronicTau() const {
 	    abspdgdaughter == 13) { 
 	  return false; 
 	}//electron or muons?
-// 	unsigned pdgdaugter = daughter.pdgCode();
-// 	cout<<"test "<<pdgdaugter<<endl;
-
-// 	if (pdgdaugter == 11 || pdgdaugter == 13) { 
-// 	  return false; 
-// 	}//electron or muons?
       }//loop daughter
     }//tau
   }//loop particles
@@ -2437,6 +2431,51 @@ void  PFRootEventManager::print(ostream& out) const {
 }
 
 
+void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
+
+
+  string directory = sdirectory;
+  if( directory.empty() ) {   
+    directory = "Event_";
+  }
+  char num[10];
+  sprintf(num,"%d", iEvent_);
+  directory += num;
+
+  string mkdir = "mkdir "; mkdir += directory;
+  int code = system( mkdir.c_str() );
+
+  if( code ) {
+    cerr<<"cannot create directory "<<directory<<endl;
+    return;
+  }
+  
+  cout<<"Event display printed in directory "<<directory<<endl;
+
+  directory += "/";
+  
+  for(unsigned iView=0; iView<displayView_.size(); iView++) {
+    if( !displayView_[iView] ) continue;
+    
+    string name = directory;
+    name += displayView_[iView]->GetName();
+
+    cout<<displayView_[iView]->GetName()<<endl;
+
+    string eps = name; eps += ".eps";
+    displayView_[iView]->SaveAs( eps.c_str() );
+    
+    string png = name; png += ".png";
+    displayView_[iView]->SaveAs( png.c_str() );
+  }
+  
+  string txt = directory;
+  txt += "event.txt";
+  ofstream out( txt.c_str() );
+  if( !out ) 
+    cerr<<"cannot open "<<txt<<endl;
+  print( out );
+}
 
 void
 PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
@@ -2613,52 +2652,6 @@ PFRootEventManager::printMCTruth(const HepMC::GenEvent* myGenEvent) const {
 
   }
 }
-
-void  PFRootEventManager::printDisplay(  const char* sdirectory ) const {
-  
-  
-  string directory = sdirectory;
-  if( directory.empty() ) {   
-    directory = "Event_";
-  }
-  char num[10];
-  sprintf(num,"%d", iEvent_);
-  directory += num;
-
-  string mkdir = "mkdir "; mkdir += directory;
-  int code = system( mkdir.c_str() );
-  
-  if( code ) {
-    cerr<<"cannot create directory "<<directory<<endl;
-    return;
-  }  
-  cout<<"Event display printed in directory "<<directory<<endl;
-  
-  directory += "/";
-  
-  for(unsigned iView=0; iView<displayView_.size(); iView++) {
-    if( !displayView_[iView] ) continue;
-    
-    string name = directory;
-    name += displayView_[iView]->GetName();
-    
-    cout<<displayView_[iView]->GetName()<<endl;
-
-    string eps = name; eps += ".eps";
-    displayView_[iView]->SaveAs( eps.c_str() );
-    
-    string png = name; png += ".png";
-    displayView_[iView]->SaveAs( png.c_str() );
-  }
-  
-  string txt = directory;
-  txt += "event.txt";
-  ofstream out( txt.c_str() );
-  if( !out ) 
-    cerr<<"cannot open "<<txt<<endl;
-  print( out );
-}
-
 
 
 void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh, 
