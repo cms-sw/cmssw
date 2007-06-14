@@ -35,7 +35,7 @@ namespace {
   std::vector< SiStripBadStrip::DetRegistry >::iterator tmp14;
   std::vector< SiStripBadStrip::DetRegistry >::const_iterator tmp15;
 
-  std::vector<float>::iterator tmp16;
-  std::vector<float>::const_iterator tmp17;
+  std::vector<float>::iterator tmp18;
+  std::vector<float>::const_iterator tmp19;
 }  
   
