@@ -3,8 +3,8 @@
  * Description:
  *  class to print the MuonNavigationSchool
  *
- * $Date: 2007/01/18 13:28:37 $
- * $Revision: 1.8 $
+ * $Date: 2007/03/07 16:20:53 $
+ * $Revision: 1.9 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -30,23 +30,33 @@
 #include <iomanip>
 using namespace std;
 
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout) {
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout, bool enableRPC) {
 
   edm::LogInfo ("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" ;
   vector<DetLayer*>::const_iterator iter;
   edm::LogInfo ("MuonNavigationPrinter")<<"================================";
   edm::LogInfo ("MuonNavigationPrinter")<< "BARREL:";
-  vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
+  vector<DetLayer*> barrel;
+  if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
+  else barrel = muonLayout->allDTLayers();
+
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Barrel DetLayers";
   for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
   edm::LogInfo ("MuonNavigationPrinter")<<"================================";
   edm::LogInfo ("MuonNavigationPrinter")  << "BACKWARD:";
-  vector<DetLayer*> backward = muonLayout->allBackwardLayers();
+
+  vector<DetLayer*> backward;
+  if ( enableRPC ) backward = muonLayout->allBackwardLayers();
+  else backward = muonLayout->backwardCSCLayers();
+
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
   for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
   edm::LogInfo ("MuonNavigationPrinter") << "==============================";
   edm::LogInfo ("MuonNavigationPrinter") << "FORWARD:";
-  vector<DetLayer*> forward = muonLayout->allForwardLayers();
+  vector<DetLayer*> forward;
+  if ( enableRPC ) forward = muonLayout->allForwardLayers();
+  else forward = muonLayout->forwardCSCLayers();
+
   edm::LogInfo ("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers";
   for ( iter = forward.begin(); iter != forward.end(); iter++ ) printLayer(*iter);
 

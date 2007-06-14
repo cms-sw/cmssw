@@ -8,8 +8,8 @@
  *  This class defines which DetLayers are reacheable from each Muon DetLayer
  *  (DT, CSC and RPC). The reacheableness is based on an eta range criteria.
  *
- * $Date: 2006/10/13 13:28:07 $
- * $Revision: 1.5 $
+ * $Date: 2006/10/18 20:38:44 $
+ * $Revision: 1.6 $
  *
  * \author : Stefano Lacaprara - INFN Padova <stefano.lacaprara@pd.infn.it>
  *
@@ -37,7 +37,7 @@ class MuonNavigationSchool : public NavigationSchool {
 
   public:
     ///Constructor
-    MuonNavigationSchool(const MuonDetLayerGeometry *);
+    MuonNavigationSchool(const MuonDetLayerGeometry *, bool enableRPC = true);
     /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
