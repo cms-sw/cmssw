@@ -4,7 +4,7 @@
 /** \class EcalBaseNumber
  *   
  * \author Paolo Meridiani, INFN Roma1 
- *  $Id: EcalBaseNumber.h,v 1.1 2006/02/23 18:20:01 meridian Exp $
+ *  $Id: EcalBaseNumber.h,v 1.2 2006/11/22 18:17:54 meridian Exp $
  */
 
 #include <vector>
@@ -22,7 +22,7 @@ class EcalBaseNumber {
   int getLevels() const;
   int getCopyNumber(int level) const;
   int getCopyNumber(const std::string& levelName) const;
-  std::string getLevelName(int level) const;
+  std::string const & getLevelName(int level) const;
 
  protected:
   typedef std::vector< std::pair< std::string,int > > basenumber_type;

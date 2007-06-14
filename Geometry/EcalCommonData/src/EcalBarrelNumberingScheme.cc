@@ -109,10 +109,11 @@ uint32_t EcalBarrelNumberingScheme::getUnitID(const EcalBaseNumber& baseNumber) 
     
     {
       
-      const std::string cryName ( baseNumber.getLevelName( 0 ) ) ; // name of crystal volume
-      std::istringstream stream ( cryName.substr( cryName.find_first_of('_') + 1, 2 ) ) ;
-      int cryType ( -1 ) ;
-      stream >> cryType ;
+      const std::string & cryName = baseNumber.getLevelName( 0 ) ; // name of crystal volume
+      //std::istringstream stream ( cryName.substr( cryName.find_first_of('_') + 1, 2 ) ) ;
+      //int cryType ( -1 ) ;
+      // stream >> cryType ;
+      int cryType = ::atoi( cryName.substr( cryName.find_first_of('_') + 1, 2 ).c_str());
 
       const uint32_t wallCopy ( baseNumber.getCopyNumber( 3 ) ) ;
       const uint32_t hawCopy  ( baseNumber.getCopyNumber( 4 ) ) ;

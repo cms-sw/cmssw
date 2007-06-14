@@ -28,7 +28,7 @@ int EcalBaseNumber::getCopyNumber(const std::string& levelName) const
   return 0;
 }
 
-std::string EcalBaseNumber::getLevelName(int level) const
+std::string const & EcalBaseNumber::getLevelName(int level) const
 {
   return _sortedBaseNumber[level].first;
 }
