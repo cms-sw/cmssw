@@ -1,7 +1,8 @@
 /*----------------------------------------------------------------------
-$Id: Group.cc,v 1.25 2007/05/29 19:27:01 wmtan Exp $
+$Id: Group.cc,v 1.26 2007/06/02 19:00:08 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Framework/src/Group.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 

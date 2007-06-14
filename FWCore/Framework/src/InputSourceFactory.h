@@ -1,9 +1,7 @@
-#ifndef Framework_InputSourceFactory_h
-#define Framework_InputSourceFactory_h
+#ifndef FWCore_Framework_InputSourceFactory_h
+#define FWCOre_Framework_InputSourceFactory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/InputSource.h"
 
 #include <string>
@@ -15,8 +13,7 @@ namespace edm {
 
   typedef edmplugin::PluginFactory<ISFunc> InputSourcePluginFactory;
 
-    class InputSourceFactory 
-  {
+  class InputSourceFactory {
   public:
     ~InputSourceFactory();
 

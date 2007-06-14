@@ -1,7 +1,6 @@
 
 #include "FWCore/Framework/src/Path.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

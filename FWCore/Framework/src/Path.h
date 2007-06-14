@@ -5,7 +5,7 @@
 
   Author: Jim Kowalkowski 28-01-06
 
-  $Id: Path.h,v 1.12 2007/03/22 06:09:28 wmtan Exp $
+  $Id: Path.h,v 1.13 2007/06/05 04:02:32 wmtan Exp $
 
   An object of this type represents one path in a job configuration.
   It holds the assigned bit position and the list of workers that are
@@ -15,7 +15,6 @@
 
 */
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
 #include "FWCore/Framework/src/Worker.h"
@@ -23,15 +22,14 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 
 #include "boost/shared_ptr.hpp"
-#include "boost/signal.hpp"
 
 #include <string>
 #include <vector>
 
 #include "FWCore/Framework/src/RunStopwatch.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 
 namespace edm {
+  class ParameterSet;
 
   class Path {
   public:

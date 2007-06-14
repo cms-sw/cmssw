@@ -1,23 +1,11 @@
-#ifndef Framework_WorkerMaker_h
-#define Framework_WorkerMaker_h
+#ifndef FWCore_Framework_WorkerMaker_h
+#define FWCore_Framework_WorkerMaker_h
 
 #include "FWCore/Framework/src/Worker.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Framework/src/WorkerParams.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-// The following includes are temporary until a better
-// solution can be found.  Placing these includes here
-// leads to more physical coupling than is probably necessary.
-// Another solution is to build a typeid lookup table in the 
-// implementation file (one every for each XXXWorker) and
-// then include all the relevent worker headers in the 
-// implementation file only.
-#include "FWCore/Framework/src/ProducerWorker.h"
-#include "FWCore/Framework/src/FilterWorker.h"
-#include "FWCore/Framework/src/AnalyzerWorker.h"
-#include "FWCore/Framework/src/OutputWorker.h"
 
 #include <memory>
 #include <string>

@@ -10,7 +10,7 @@ such code sees the Event class, which is a proxy for EventPrincipal.
 The major internal component of the EventPrincipal
 is the DataBlock.
 
-$Id: EventPrincipal.h,v 1.54 2007/06/06 23:33:48 wmtan Exp $
+$Id: EventPrincipal.h,v 1.55 2007/06/08 23:51:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,7 +18,6 @@ $Id: EventPrincipal.h,v 1.54 2007/06/06 23:33:48 wmtan Exp $
 
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
-#include "FWCore/Framework/interface/UnscheduledHandler.h"
 
 namespace edm {
   class EventID;

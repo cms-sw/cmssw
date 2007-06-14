@@ -3,11 +3,11 @@
    Implementation of class WorkerRegistry
 
    \author Stefano ARGIRO
-   \version $Id: WorkerRegistry.cc,v 1.14 2007/01/09 17:28:25 chrjones Exp $
+   \version $Id: WorkerRegistry.cc,v 1.15 2007/03/04 06:10:25 wmtan Exp $
    \date 18 May 2005
 */
 
-static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.14 2007/01/09 17:28:25 chrjones Exp $";
+static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.15 2007/03/04 06:10:25 wmtan Exp $";
 
 
 #include "DataFormats/Provenance/interface/PassID.h"
@@ -17,10 +17,8 @@ static const char CVSId[] = "$Id: WorkerRegistry.cc,v 1.14 2007/01/09 17:28:25 c
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/Factory.h"
 
-#include <iostream>
 #include <sstream>
 
-using namespace std;
 using namespace edm;
 
 WorkerRegistry::WorkerRegistry() :
@@ -45,7 +43,7 @@ void WorkerRegistry::clear() {
 
 Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 
-  string workerid =
+  std::string workerid =
     mangleWorkerParameters(*p.pset_, p.processName_,
 			   p.releaseVersion_,p.passID_);
 
@@ -73,12 +71,12 @@ Worker* WorkerRegistry::getWorker(const WorkerParams& p) {
 }
 
 
-string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
+std::string WorkerRegistry::mangleWorkerParameters(ParameterSet const& parameterSet,
 					      std::string const& processName,
 					      ReleaseVersion const& releaseVersion,
 					      PassID const& passID) {
 
-  stringstream mangled_parameters;
+  std::stringstream mangled_parameters;
   mangled_parameters<< parameterSet.toString()
                     << processName
                     << releaseVersion

@@ -1,16 +1,15 @@
-#ifndef Framework_InputSourceDescription_h
-#define Framework_InputSourceDescription_h
+#ifndef FWCore_Framework_InputSourceDescription_h
+#define FWCore_Framework_InputSourceDescription_h
 
 /*----------------------------------------------------------------------
 
 InputSourceDescription : the stuff that is needed to configure an
 input source that does not come in through the ParameterSet  
 
-$Id: InputSourceDescription.h,v 1.5 2007/03/04 06:00:22 wmtan Exp $
+$Id: InputSourceDescription.h,v 1.6 2007/03/22 06:07:18 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <string>
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 
 namespace edm {
   class ProductRegistry;

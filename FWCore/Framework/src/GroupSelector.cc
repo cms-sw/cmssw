@@ -1,4 +1,4 @@
-// $Id: GroupSelector.cc,v 1.22 2007/01/10 22:41:47 wdd Exp $
+// $Id: GroupSelector.cc,v 1.23 2007/03/04 06:10:25 wmtan Exp $
 
 #include <algorithm>
 #include <iterator>
@@ -13,11 +13,6 @@
 #include "FWCore/Framework/interface/GroupSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-//#include "FWCore/Framework/interface/ConstProductRegistry.h"
-//#include "FWCore/ServiceRegistry/interface/Service.h"
-
-using std::string;
-using std::vector;
 
 
 namespace edm {
@@ -30,11 +25,11 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   
     //--------------------------------------------------
     // function partial_match is a helper for Rule. It encodes the
-    // matching of strings, and knows about wildcarding rules.
+    // matching of std::strings, and knows about wildcarding rules.
     inline
     bool
     partial_match(const boost::regex& regularExpression,
-  		  const string& branchstring)
+  		  const std::string& branchstring)
     {
       if (regularExpression.empty()) {
         if (branchstring == "") return true;
@@ -47,10 +42,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   // Class Rule is used to determine whether or not a given branch
   // (really a Group, as described by the BranchDescription object
   // that specifies that Group) matches a 'rule' specified by the
-  // configuration. Each Rule is configured with a single string from
+  // configuration. Each Rule is configured with a single std::string from
   // the configuration file.
   //
-  // The configuration string is of the form:
+  // The configuration std::string is of the form:
   //
   //   'keep <spec>'            ** or **
   //   'drop <spec>'
@@ -71,7 +66,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   // This class has much room for optimization. This should be
   // revisited as soon as profiling data are available.
 
-  GroupSelector::Rule::Rule(string const& s) :
+  GroupSelector::Rule::Rule(std::string const& s) :
     writeflag_(),
     productType_(),
     moduleLabel_(),
@@ -112,12 +107,12 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Exception thrown from GroupSelector::Rule::Rule\n";
     }
 
-    // Now pull apart the string to get at the bits and pieces of the
+    // Now pull apart the std::string to get at the bits and pieces of the
     // specification...
     
     // Grab from after 'keep/drop ' (note the space!) to the end of
-    // the string...
-    string spec(s.begin()+5, s.end());
+    // the std::string...
+    std::string spec(s.begin()+5, s.end());
 
     // Trim any leading and trailing whitespace from spec
     boost::trim(spec);
@@ -132,14 +127,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     }
     else
     {
-      vector<string> parts;
+      std::vector<std::string> parts;
       boost::split(parts, spec, boost::is_any_of("_"));
 
-      // The vector must contain at least 4 parts
+      // The std::vector must contain at least 4 parts
       // and none may be empty.
       bool good = (parts.size() == 4);
 
-      // Require all the strings to contain only alphanumberic
+      // Require all the std::strings to contain only alphanumberic
       // characters or "*" or "?"
       if (good) 
       {
@@ -176,8 +171,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
         << "Exception thrown from GroupSelector::Rule::Rule\n";
       }
 
-      // Assign the strings to the regex (regular expression) objects
-      // If the string is empty we skip the assignment and leave
+      // Assign the std::strings to the regex (regular expression) objects
+      // If the std::string is empty we skip the assignment and leave
       // the regular expression also empty.
 
       if (parts[0] != "") productType_  = parts[0];
@@ -188,10 +183,10 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   }
 
   void
-  GroupSelector::Rule::applyToAll(vector<GroupSelector::BranchWriteState>& branchstates) const
+  GroupSelector::Rule::applyToAll(std::vector<GroupSelector::BranchWriteState>& branchstates) const
   {
-    vector<GroupSelector::BranchWriteState>::iterator it = branchstates.begin();
-    vector<GroupSelector::BranchWriteState>::iterator end = branchstates.end();
+    std::vector<GroupSelector::BranchWriteState>::iterator it = branchstates.begin();
+    std::vector<GroupSelector::BranchWriteState>::iterator end = branchstates.end();
     for (; it != end; ++it) applyToOne(it->desc, it->writeMe);
   }
 
@@ -242,14 +237,14 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
   {
     // If there is no parameter named 'outputCommands' in the
     // ParameterSet we are given, we use the following default.
-    vector<string> defaultCommands(1U, string("keep *"));
+    std::vector<std::string> defaultCommands(1U, std::string("keep *"));
 
-    vector<string> commands = 
-      params.getUntrackedParameter<vector<string> >("outputCommands",
+    std::vector<std::string> commands = 
+      params.getUntrackedParameter<std::vector<std::string> >("outputCommands",
 						    defaultCommands);
     rules_.reserve(commands.size());
-    vector<string>::const_iterator it =  commands.begin();
-    vector<string>::const_iterator end = commands.end();
+    std::vector<std::string>::const_iterator it =  commands.begin();
+    std::vector<std::string>::const_iterator end = commands.end();
     for (; it != end; ++it) {
       rules_.push_back(GroupSelector::Rule(*it));
     }
@@ -279,7 +274,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
        << " groups to write:\n";      
     std::copy(groupsToWrite_.begin(),
 	      groupsToWrite_.end(),
-	      std::ostream_iterator<string>(os, "\n"));
+	      std::ostream_iterator<std::string>(os, "\n"));
   }
 
 
@@ -288,7 +283,7 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
 
     // Get a BranchWriteState for each branch, containing the branch
     // name, with its 'write bit' set to false.
-    vector<GroupSelector::BranchWriteState> branchstates;
+    std::vector<GroupSelector::BranchWriteState> branchstates;
     {
       branchstates.reserve(allBranches.size());
       
@@ -300,8 +295,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     // Now  apply the rules to  the branchstates, in order.  Each rule
     // can override any previous rule, or all previous rules.
     {
-      vector<GroupSelector::Rule>::const_iterator it = rules_.begin();
-      vector<GroupSelector::Rule>::const_iterator end = rules_.end();
+      std::vector<GroupSelector::Rule>::const_iterator it = rules_.begin();
+      std::vector<GroupSelector::Rule>::const_iterator end = rules_.end();
       for (; it != end; ++it) it->applyToAll(branchstates);
     }
 
@@ -310,8 +305,8 @@ typedef std::vector<edm::BranchDescription const*> VCBDP;
     // names must be sorted, for the implementation of 'selected' to
     // work.
     {
-      vector<GroupSelector::BranchWriteState>::const_iterator it = branchstates.begin();
-      vector<GroupSelector::BranchWriteState>::const_iterator end = branchstates.end();
+      std::vector<GroupSelector::BranchWriteState>::const_iterator it = branchstates.begin();
+      std::vector<GroupSelector::BranchWriteState>::const_iterator end = branchstates.end();
       for (; it != end; ++it)
 	{
 	  if (it->writeMe) groupsToWrite_.push_back(it->desc->branchName());

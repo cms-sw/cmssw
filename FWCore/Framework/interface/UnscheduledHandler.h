@@ -17,14 +17,12 @@ to keep the EventPrincipal class from having too much 'physical' coupling with t
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 13 16:26:33 IST 2006
-// $Id: UnscheduledHandler.h,v 1.3 2007/03/04 06:00:22 wmtan Exp $
+// $Id: UnscheduledHandler.h,v 1.4 2007/06/05 04:02:30 wmtan Exp $
 //
 
 // system include files
-#include <cassert>
 
 // user include files
-#include "DataFormats/Provenance/interface/Provenance.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 // forward declarations

@@ -10,18 +10,21 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:38:09 EDT 2006
-// $Id: EDLooperHelper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $
+// $Id: EDLooperHelper.cc,v 1.2 2006/10/13 01:47:35 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.cc,v $
+// Revision 1.2  2006/10/13 01:47:35  wmtan
+// Remove unnecessary argument from runOnce()
+//
 // Revision 1.1  2006/07/23 01:24:34  valya
 // Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
 //
 
 // user include files
 #include "FWCore/Framework/interface/EDLooperHelper.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
 namespace edm {
@@ -33,8 +36,8 @@ namespace edm {
 static const char* const kFacilityString = "FWCore.Framework.EDLooperHelper" ;
 
 // ---- cvs-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.1 2006/07/23 01:24:34 valya Exp $";
-static const char* const kTagString = "$Name: CMSSW_1_1_0_pre3 $";
+static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.2 2006/10/13 01:47:35 wmtan Exp $";
+static const char* const kTagString = "$Name: temporary $";
 
 //
 // static data member definitions

@@ -1,12 +1,9 @@
 
 #include "FWCore/Framework/src/InputSourceFactory.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <utility>
-#include <memory>
-#include <stdexcept>
 #include <iostream>
 
 using namespace std;

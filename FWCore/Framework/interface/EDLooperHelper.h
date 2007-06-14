@@ -1,5 +1,5 @@
-#if !defined(FWCORE_FRAMEWORK_EDLOOPERHELPER_H)
-#define FWCORE_FRAMEWORK_EDLOOPERHELPER_H
+#ifndef FWCore_Framework_EDLooperHelper_h
+#define FWCore_Framework_EDLooperHelper_h
 // -*- C++ -*-
 //
 // Package:     <package>
@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:26:26 EDT 2006
-// $Id: EDLooperHelper.h,v 1.1 2006/07/23 01:24:33 valya Exp $
+// $Id: EDLooperHelper.h,v 1.2 2006/10/13 01:47:34 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.h,v $
+// Revision 1.2  2006/10/13 01:47:34  wmtan
+// Remove unnecessary argument from runOnce()
+//
 // Revision 1.1  2006/07/23 01:24:33  valya
 // Add looper support into framework. The base class is EDLooper. All the work done in EventProcessor and EventHelperLooper
 //
@@ -29,7 +32,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/EventHelperDescription.h"
-#include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/EventSetupProvider.h"
 
 // forward declarations
 

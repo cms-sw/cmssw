@@ -1,12 +1,12 @@
-#ifndef Services_TRIGGERNAMES_h
-#define Services_TRIGGERNAMES_h
+#ifndef FWCore_Framework_TriggerNamesService_h
+#define FWCore_Framework_TriggerNamesService_h
 
 // -*- C++ -*-
 /*
 
  Original Author:  Jim Kowalkowski 26-01-06
 
- $Id: TriggerNamesService.h,v 1.5 2006/04/19 20:13:01 wmtan Exp $
+ $Id: TriggerNamesService.h,v 1.6 2007/01/23 00:32:02 wmtan Exp $
 
  This service makes the trigger bit assignments for the current process
  available to all modules.  This of particular use in the output modules.
@@ -23,7 +23,6 @@
 #include <map>
 #include <vector>
 
-#include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 namespace edm {

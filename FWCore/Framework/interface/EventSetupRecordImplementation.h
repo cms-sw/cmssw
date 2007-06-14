@@ -1,5 +1,5 @@
-#ifndef Framework_EventSetupRecordImplementation_h
-#define Framework_EventSetupRecordImplementation_h
+#ifndef FWCore_Framework_EventSetupRecordImplementation_h
+#define FWCore_Framework_EventSetupRecordImplementation_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,17 +16,15 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 16:50:49 EST 2005
-// $Id: EventSetupRecordImplementation.h,v 1.9 2006/06/06 20:58:53 chrjones Exp $
+// $Id: EventSetupRecordImplementation.h,v 1.10 2006/08/16 13:42:44 chrjones Exp $
 //
 
 // system include files
 #include <string>
-#include <iostream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
-#include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/DataProxy.h"
 
 // forward declarations

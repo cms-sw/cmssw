@@ -8,12 +8,11 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 14:31:13 EST 2005
-// $Id: DataKey.cc,v 1.4 2006/08/10 23:24:42 wmtan Exp $
+// $Id: DataKey.cc,v 1.5 2006/09/01 18:16:42 wmtan Exp $
 //
 
 // system include files
 #include <memory>
-#include <algorithm>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"

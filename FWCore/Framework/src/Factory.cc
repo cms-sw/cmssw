@@ -1,11 +1,8 @@
 
 #include "FWCore/Framework/src/Factory.h"
-#include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <utility>
-#include <memory>
 #include <iostream>
 
 using namespace std;

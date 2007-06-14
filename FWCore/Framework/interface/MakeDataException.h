@@ -1,5 +1,5 @@
-#ifndef Framework_MakeDataException_h
-#define Framework_MakeDataException_h
+#ifndef FWCore_Framework_MakeDataException_h
+#define FWCore_Framework_MakeDataException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -29,12 +29,11 @@ if(outOfBoundsValue) {
 //
 // Author:      Chris Jones
 // Created:     Fri Apr  1 13:18:53 EST 2005
-// $Id: MakeDataException.h,v 1.5 2005/09/01 05:16:52 wmtan Exp $
+// $Id: MakeDataException.h,v 1.6 2005/09/01 23:30:49 wmtan Exp $
 //
 
 // system include files
 #include <string>
-#include <exception>
 
 // user include files
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"

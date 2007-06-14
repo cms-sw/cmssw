@@ -1,5 +1,5 @@
-#ifndef Framework_DataProxyTemplate_h
-#define Framework_DataProxyTemplate_h
+#ifndef FWCore_Framework_DataProxyTemplate_h
+#define FWCore_Framework_DataProxyTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,11 +16,10 @@
 //
 // Author:      Chris Jones
 // Created:     Thu Mar 31 12:45:32 EST 2005
-// $Id: DataProxyTemplate.h,v 1.7 2005/09/01 23:30:48 wmtan Exp $
+// $Id: DataProxyTemplate.h,v 1.8 2006/08/16 13:48:43 chrjones Exp $
 //
 
 // system include files
-#include <cassert>
 
 // user include files
 #include "FWCore/Framework/interface/DataProxy.h"

@@ -1,5 +1,5 @@
-#ifndef Framework_EventProcessor_h
-#define Framework_EventProcessor_h
+#ifndef FWCore_Framework_EventProcessor_h
+#define FWCore_Framework_EventProcessor_h
 
 /*----------------------------------------------------------------------
 
@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.34 2007/03/22 22:26:11 wmtan Exp $
+$Id: EventProcessor.h,v 1.35 2007/05/08 03:18:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -47,14 +47,13 @@ $Id: EventProcessor.h,v 1.34 2007/03/22 22:26:11 wmtan Exp $
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/Actions.h"
-#include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/PassID.h"
 #include "DataFormats/Provenance/interface/ReleaseVersion.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 namespace edm {
 

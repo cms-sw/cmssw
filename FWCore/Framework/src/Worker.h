@@ -6,7 +6,7 @@
 Worker: this is a basic scheduling unit - an abstract base class to
 something that is really a producer or filter.
 
-$Id: Worker.h,v 1.21 2007/03/22 06:09:28 wmtan Exp $
+$Id: Worker.h,v 1.22 2007/06/05 04:02:32 wmtan Exp $
 
 A worker will not actually call through to the module unless it is
 in a Ready state.  After a module is actually run, the state will not
@@ -30,11 +30,8 @@ the worker is reset().
 #include "FWCore/Framework/interface/BranchActionType.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
-#include "boost/array.hpp"
 
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"

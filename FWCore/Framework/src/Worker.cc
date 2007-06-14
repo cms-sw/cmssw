@@ -1,15 +1,9 @@
 
 /*----------------------------------------------------------------------
-$Id: Worker.cc,v 1.22 2007/05/08 03:18:39 wmtan Exp $
+$Id: Worker.cc,v 1.23 2007/06/05 04:02:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
-#include <iostream>
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-
-#include "boost/signal.hpp"
 
 namespace edm {
   namespace {

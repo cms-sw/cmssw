@@ -1,5 +1,5 @@
-#ifndef Framework_NoProxyException_h
-#define Framework_NoProxyException_h
+#ifndef FWCore_Framework_NoProxyException_h
+#define FWCore_Framework_NoProxyException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -15,20 +15,16 @@
 //
 // Author:      Valentine Kouznetsov
 // Created:     Wed Apr 23 10:58:26 EDT 2003
-// $Id: NoProxyException.h,v 1.7 2005/09/01 23:30:49 wmtan Exp $
+// $Id: NoProxyException.h,v 1.8 2005/11/12 16:18:04 chrjones Exp $
 //
 //
 
 // system include files
 #include <string>
-#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/NoDataException.h"
-//#include "DataHandler/interface/FrameRecordItr.h"
-//#include "DataHandler/interface/RecordKeyItr.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Utilities/interface/Exception.h"
 
 // forward declarations
 namespace edm {

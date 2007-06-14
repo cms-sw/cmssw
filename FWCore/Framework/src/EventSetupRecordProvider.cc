@@ -12,7 +12,6 @@
 
 // system include files
 #include <algorithm>
-#include <iterator>
 #include "boost/bind.hpp"
 
 // user include files

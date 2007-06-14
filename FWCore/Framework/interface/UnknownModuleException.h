@@ -1,18 +1,16 @@
-#ifndef Framework_UnknownModuleException_h
-#define Framework_UnknownModuleException_h
+#ifndef FWCore_Framework_UnknownModuleException_h
+#define FWCore_Framework_UnknownModuleException_h
 
 /**
    \file
    Declaration
 
    \author Stefano ARGIRO
-   \version $Id: UnknownModuleException.h,v 1.5 2006/05/11 19:05:58 chrjones Exp $
+   \version $Id: UnknownModuleException.h,v 1.6 2007/05/08 03:18:38 wmtan Exp $
    \date 02 Jun 2005
 */
 
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include <exception>
 
 namespace edm {
 

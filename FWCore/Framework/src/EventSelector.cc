@@ -2,7 +2,6 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "boost/bind.hpp"
 #include "boost/algorithm/string.hpp"
 
 #include <algorithm>

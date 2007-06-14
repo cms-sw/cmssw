@@ -1,5 +1,5 @@
-#ifndef Framework_TriggerResultsInserter_h
-#define Framework_TriggerResultsInserter_h
+#ifndef FWCore_Framework_TriggerResultsInserter_h
+#define FWCore_Framework_TriggerResultsInserter_h
 
 /*
   Author: Jim Kowalkowski 15-1-06
@@ -15,7 +15,6 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -24,6 +23,7 @@
 
 namespace edm
 {
+  class ParameterSet;
   class TriggerResultInserter : public edm::EDProducer
   {
   public:

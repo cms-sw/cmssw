@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.25 2007/06/06 23:33:48 wmtan Exp $
+$Id: InputSource.h,v 1.26 2007/06/08 23:52:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -48,8 +48,6 @@ $Id: InputSource.h,v 1.25 2007/06/06 23:33:48 wmtan Exp $
 #include "boost/shared_ptr.hpp"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
-#include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"

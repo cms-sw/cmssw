@@ -1,5 +1,5 @@
-#ifndef Framework_DependentRecordImplementation_h
-#define Framework_DependentRecordImplementation_h
+#ifndef FWCore_Framework_DependentRecordImplementation_h
+#define FWCore_Framework_DependentRecordImplementation_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -16,11 +16,10 @@
 //
 // Author:      Chris Jones
 // Created:     Fri Apr 29 10:03:54 EDT 2005
-// $Id: DependentRecordImplementation.h,v 1.5 2005/09/01 23:30:48 wmtan Exp $
+// $Id: DependentRecordImplementation.h,v 1.6 2007/01/23 00:32:02 wmtan Exp $
 //
 
 // system include files
-#include "boost/static_assert.hpp"
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/find.hpp"
 

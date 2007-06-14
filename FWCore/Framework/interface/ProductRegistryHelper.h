@@ -1,21 +1,19 @@
-#ifndef Framework_ProductRegistryHelper_h
-#define Framework_ProductRegistryHelper_h
+#ifndef FWCore_Framework_ProductRegistryHelper_h
+#define FWCore_Framework_ProductRegistryHelper_h
 
 /*----------------------------------------------------------------------
   
 ProductRegistryHelper: 
 
-$Id: ProductRegistryHelper.h,v 1.11 2006/12/08 21:39:21 wmtan Exp $
+$Id: ProductRegistryHelper.h,v 1.12 2007/03/04 06:00:22 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Utilities/interface/TypeID.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include <string>
 #include <list>
-#include "boost/shared_ptr.hpp"
 
 namespace edm {
   class EDProduct;

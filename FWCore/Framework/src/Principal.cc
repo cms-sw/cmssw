@@ -1,5 +1,5 @@
 /**----------------------------------------------------------------------
-  $Id: Principal.cc,v 1.8 2007/05/29 19:27:01 wmtan Exp $
+  $Id: Principal.cc,v 1.9 2007/06/06 23:33:48 wmtan Exp $
   ----------------------------------------------------------------------*/
 
 #include <algorithm>
@@ -17,6 +17,7 @@
 #include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "DataFormats/Common/interface/BasicHandle.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"

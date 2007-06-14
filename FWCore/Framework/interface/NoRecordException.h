@@ -1,5 +1,5 @@
-#ifndef Framework_NoRecordException_h
-#define Framework_NoRecordException_h
+#ifndef FWCore_Framework_NoRecordException_h
+#define FWCore_Framework_NoRecordException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -30,7 +30,6 @@
 
 // system include files
 #include <string>
-#include <exception>
 // user include files
 #include "FWCore/Framework/interface/HCTypeTagTemplate.h"
 #include "FWCore/Utilities/interface/Exception.h"

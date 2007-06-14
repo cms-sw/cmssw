@@ -1,5 +1,5 @@
-#ifndef Framework_View_h
-#define Framework_View_h
+#ifndef FWCore_Framework_View_h
+#define FWCore_Framework_View_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -15,17 +15,14 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.5 2007/05/24 16:35:47 paterno Exp $
+// $Id: View.h,v 1.6 2007/06/08 19:33:11 paterno Exp $
 //
 
-#include <algorithm>
 #include <vector>
 
 #include "boost/iterator/indirect_iterator.hpp"
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/Common/interface/RefToBaseVector.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 
 namespace edm

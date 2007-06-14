@@ -1,4 +1,5 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/UnscheduledHandler.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 

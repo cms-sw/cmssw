@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: EDProducer.cc,v 1.11 2006/10/31 23:54:01 wmtan Exp $
+$Id: EDProducer.cc,v 1.12 2007/06/08 23:52:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
 namespace edm {

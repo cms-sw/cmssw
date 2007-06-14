@@ -1,12 +1,12 @@
-#ifndef Framework_Group_h
-#define Framework_Group_h
+#ifndef FWCore_Framework_Group_h
+#define FWCore_Framework_Group_h
 
 /*----------------------------------------------------------------------
   
 Group: A collection of information related to a single EDProduct. This
 is the storage unit of such information.
 
-$Id: Group.h,v 1.7 2007/05/10 22:46:55 wmtan Exp $
+$Id: Group.h,v 1.21 2007/05/29 19:27:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -16,11 +16,11 @@ $Id: Group.h,v 1.7 2007/05/10 22:46:55 wmtan Exp $
 
 #include "Reflex/Type.h"
 
-#include "DataFormats/Common/interface/BasicHandle.h"
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
 
 namespace edm {
+  class BasicHandle;
   class Group {
   public:
     explicit Group(std::auto_ptr<Provenance> prov,

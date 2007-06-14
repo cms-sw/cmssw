@@ -1,11 +1,10 @@
 /*----------------------------------------------------------------------
   
-$Id: EDAnalyzer.cc,v 1.6 2006/06/21 19:03:13 paterno Exp $
+$Id: EDAnalyzer.cc,v 1.7 2006/10/31 23:54:01 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/CurrentProcessingContext.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 
 namespace edm

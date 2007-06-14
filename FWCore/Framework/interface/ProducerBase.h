@@ -1,12 +1,12 @@
-#ifndef Framework_ProducerBase_h
-#define Framework_ProducerBase_h
+#ifndef FWCore_Framework_ProducerBase_h
+#define FWCore_Framework_ProducerBase_h
 
 /*----------------------------------------------------------------------
   
 EDProducer: The base class of all "modules" that will insert new
 EDProducts into an Event.
 
-$Id: ProducerBase.h,v 1.2 2006/12/08 21:17:37 wmtan Exp $
+$Id: ProducerBase.h,v 1.3 2006/12/08 21:40:28 wmtan Exp $
 
 
 ----------------------------------------------------------------------*/
@@ -15,8 +15,8 @@ $Id: ProducerBase.h,v 1.2 2006/12/08 21:17:37 wmtan Exp $
 #include "FWCore/Framework/interface/ProductRegistryHelper.h"
 #include "boost/bind.hpp"
 #include "boost/function.hpp"
+#include "boost/shared_ptr.hpp"
 #include <string>
-#include <utility>
 namespace edm {
   class BranchDescription;
   class ModuleDescription;

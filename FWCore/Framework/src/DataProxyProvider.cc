@@ -11,10 +11,6 @@
 //
 
 // system include files
-#include <algorithm>
-#include <iterator>
-#include <cassert>
-#include "boost/bind.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/DataProxyProvider.h"

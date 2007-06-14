@@ -1,8 +1,7 @@
-#ifndef Framework_Factory_h
-#define Framework_Factory_h
+#ifndef FWCore_Framework_Factory_h
+#define FWCore_Framework_Factory_h
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/WorkerParams.h"

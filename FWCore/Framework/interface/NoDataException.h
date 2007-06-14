@@ -1,5 +1,5 @@
-#ifndef Framework_NoDataException_h
-#define Framework_NoDataException_h
+#ifndef FWCore_Framework_NoDataException_h
+#define FWCore_Framework_NoDataException_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -60,12 +60,11 @@
 //
 // Author:      Chris D Jones
 // Created:     Tue Dec  7 09:10:34 EST 1999
-// $Id: NoDataException.h,v 1.9 2006/08/16 13:33:18 chrjones Exp $
+// $Id: NoDataException.h,v 1.10 2006/08/26 18:39:10 chrjones Exp $
 //
 
 // system include files
 #include <string>
-#include <exception>
 
 // user include files
 #include "FWCore/Framework/interface/DataKey.h"

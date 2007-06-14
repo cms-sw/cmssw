@@ -1,5 +1,5 @@
-#ifndef Framework_EventSetup_h
-#define Framework_EventSetup_h
+#ifndef FWCore_Framework_EventSetup_h
+#define FWCore_Framework_EventSetup_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -20,14 +20,13 @@
 
 // system include files
 #include <map>
-#include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/HCMethods.h"
-
 #include "FWCore/Framework/interface/eventSetupGetImplementation.h"
+
 // forward declarations
 
 namespace edm {

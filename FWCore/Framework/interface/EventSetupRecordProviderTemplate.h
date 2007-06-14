@@ -1,5 +1,5 @@
-#ifndef Framework_EventSetupRecordProviderTemplate_h
-#define Framework_EventSetupRecordProviderTemplate_h
+#ifndef FWCore_Framework_EventSetupRecordProviderTemplate_h
+#define FWCore_Framework_EventSetupRecordProviderTemplate_h
 // -*- C++ -*-
 //
 // Package:     Framework
@@ -20,7 +20,6 @@
 //
 
 // system include files
-#include "boost/mpl/if.hpp"
 #include "boost/shared_ptr.hpp"
 #include "boost/type_traits/is_base_and_derived.hpp"
 // user include files
