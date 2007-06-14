@@ -25,6 +25,8 @@
 // user include files
 #include "FWCore/Utilities/interface/EDMException.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // constructors
 
@@ -111,14 +113,10 @@ bool L1GtfeWord::operator!=(const L1GtfeWord& result) const
 
 // methods
 
-// set the BoardId value from a 64-bits word, having the index iWord
-// in the GTFE raw record
-void L1GtfeWord::setBoardId(const boost::uint64_t& word64, int iWord)
+// set the BoardId value from a 64-bits word
+void L1GtfeWord::setBoardId(const boost::uint64_t& word64)
 {
-    if (iWord == BoardIdWord) {
-        m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
-    }
-
+    m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
 }
 
 // set the BoardId value in a 64-bits word, having the index iWord
@@ -133,13 +131,10 @@ void L1GtfeWord::setBoardIdWord64(boost::uint64_t& word64, int iWord)
 }
 
 
-// set the RecordLength value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setRecordLength(const boost::uint64_t& word64, int iWord)
+// set the RecordLength value from a 64-bits word
+void L1GtfeWord::setRecordLength(const boost::uint64_t& word64)
 {
-    if (iWord == RecordLengthWord) {
-        m_recordLength = (word64 & RecordLengthMask) >> RecordLengthShift;
-    }
-
+    m_recordLength = (word64 & RecordLengthMask) >> RecordLengthShift;
 }
 
 // set the RecordLength value in a 64-bits word, having the index iWord
@@ -154,13 +149,10 @@ void L1GtfeWord::setRecordLengthWord64(boost::uint64_t& word64, int iWord)
 
 }
 
-// set the BxNr value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setBxNr(const boost::uint64_t& word64, int iWord)
+// set the BxNr value from a 64-bits word
+void L1GtfeWord::setBxNr(const boost::uint64_t& word64)
 {
-    if (iWord == BxNrWord) {
-        m_bxNr = (word64 & BxNrMask) >> BxNrShift;
-    }
-
+    m_bxNr = (word64 & BxNrMask) >> BxNrShift;
 }
 
 // set the BxNr value in a 64-bits word, having the index iWord
@@ -175,14 +167,10 @@ void L1GtfeWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
 }
 
 
-// set the SetupVersion value from a 64-bits word,
-// having the index iWord in the GTFE raw record
-void L1GtfeWord::setSetupVersion(const boost::uint64_t& word64, int iWord)
+// set the SetupVersion value from a 64-bits word
+void L1GtfeWord::setSetupVersion(const boost::uint64_t& word64)
 {
-    if (iWord == SetupVersionWord) {
-        m_setupVersion = (word64 & SetupVersionMask) >> SetupVersionShift;
-    }
-
+    m_setupVersion = (word64 & SetupVersionMask) >> SetupVersionShift;
 }
 
 // set the SetupVersion value in a 64-bits word, having the index iWord
@@ -197,14 +185,10 @@ void L1GtfeWord::setSetupVersionWord64(boost::uint64_t& word64, int iWord)
 
 }
 
-// set the ActiveBoards value from a 64-bits word,
-// having the index iWord in the GTFE raw record
-void L1GtfeWord::setActiveBoards(const boost::uint64_t& word64, int iWord)
+// set the ActiveBoards value from a 64-bits word
+void L1GtfeWord::setActiveBoards(const boost::uint64_t& word64)
 {
-    if (iWord == ActiveBoardsWord) {
-        m_activeBoards = (word64 & ActiveBoardsMask) >> ActiveBoardsShift;
-    }
-
+    m_activeBoards = (word64 & ActiveBoardsMask) >> ActiveBoardsShift;
 }
 
 // set the ActiveBoards value in a 64-bits word, having the index iWord
@@ -231,13 +215,10 @@ void L1GtfeWord::setActiveBoardsWord64(boost::uint64_t& word64, int iWord,
 
 }
 
-// set the TotalTriggerNr value from a 64-bits word, having the index iWord in the GTFE raw record
-void L1GtfeWord::setTotalTriggerNr(const boost::uint64_t& word64, int iWord)
+// set the TotalTriggerNr value from a 64-bits word
+void L1GtfeWord::setTotalTriggerNr(const boost::uint64_t& word64)
 {
-    if (iWord == TotalTriggerNrWord) {
-        m_totalTriggerNr = (word64 & TotalTriggerNrMask) >> TotalTriggerNrShift;
-    }
-
+    m_totalTriggerNr = (word64 & TotalTriggerNrMask) >> TotalTriggerNrShift;
 }
 
 // set the TotalTriggerNr value in a 64-bits word, having the index iWord
@@ -313,30 +294,72 @@ void L1GtfeWord::print(std::ostream& myCout) const
 
 }
 
+// unpack GTFE
+// gtfePtr pointer to the beginning of the GTFE block in the raw data
+
+void L1GtfeWord::unpack(const unsigned char* gtfePtr)
+{
+    LogDebug("L1GtfeWord")
+    << "\nUnpacking GTFE block.\n"
+    << std::endl;
+
+    const boost::uint64_t* payload =
+        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(gtfePtr));
+
+    setBoardId(payload[BoardIdWord]);
+    setRecordLength(payload[RecordLengthWord]);
+    setBxNr(payload[BxNrWord]);
+    setSetupVersion(payload[SetupVersionWord]);
+    setActiveBoards(payload[ActiveBoardsWord]);
+    setTotalTriggerNr(payload[TotalTriggerNrWord]);
+
+
+    if ( edm::isDebugEnabled() ) {
+
+        for (int iWord = 0; iWord < BlockSize; ++iWord) {
+            LogTrace("L1GtfeWord")
+            << std::setw(4) << iWord << "  "
+            << std::hex << std::setfill('0')
+            << std::setw(16) << payload[iWord]
+            << std::dec << std::setfill(' ')
+            << std::endl;
+        }
+
+    }
+
+}
+
 // static class members
-const int L1GtfeWord::BlockSize;        // 2 x 64bits
 
-const int L1GtfeWord::BoardIdWord;
-const int L1GtfeWord::RecordLengthWord;
-const int L1GtfeWord::BxNrWord;
-const int L1GtfeWord::SetupVersionWord;
+// block description in the raw GT record
 
-const boost::uint64_t L1GtfeWord::BoardIdMask;
-const boost::uint64_t L1GtfeWord::RecordLengthMask;
-const boost::uint64_t L1GtfeWord::BxNrMask;
-const boost::uint64_t L1GtfeWord::SetupVersionMask;
+// block size in 64bits words
+const int L1GtfeWord::BlockSize = 2;        // 2 x 64bits
 
-const int L1GtfeWord::BoardIdShift;
-const int L1GtfeWord::RecordLengthShift;
-const int L1GtfeWord::BxNrShift;
-const int L1GtfeWord::SetupVersionShift;
+const int L1GtfeWord::BoardIdWord = 0;
+const int L1GtfeWord::RecordLengthWord = 0;
+const int L1GtfeWord::BxNrWord = 0;
+const int L1GtfeWord::SetupVersionWord = 0;
+
+const boost::uint64_t L1GtfeWord::BoardIdMask =      0xFF00000000000000ULL;
+const boost::uint64_t L1GtfeWord::RecordLengthMask = 0x001F000000000000ULL;
+const boost::uint64_t L1GtfeWord::BxNrMask =         0x00000FFF00000000ULL;
+const boost::uint64_t L1GtfeWord::SetupVersionMask = 0x00000000FFFFFFFFULL;
+
+// shifts could be computed from masks...
+const int L1GtfeWord::BoardIdShift = 56;
+const int L1GtfeWord::RecordLengthShift = 48;
+const int L1GtfeWord::BxNrShift = 32;
+const int L1GtfeWord::SetupVersionShift = 0;
 
 //
-const int L1GtfeWord::ActiveBoardsWord;
-const int L1GtfeWord::TotalTriggerNrWord;
+const int L1GtfeWord::ActiveBoardsWord = 1;
+const int L1GtfeWord::TotalTriggerNrWord = 1;
 
-const boost::uint64_t L1GtfeWord::ActiveBoardsMask;
-const boost::uint64_t L1GtfeWord::TotalTriggerNrMask;
+const boost::uint64_t L1GtfeWord::ActiveBoardsMask =   0xFFFF000000000000ULL;
+const boost::uint64_t L1GtfeWord::TotalTriggerNrMask = 0x00000000FFFFFFFFULL;
 
-const int L1GtfeWord::ActiveBoardsShift;
-const int L1GtfeWord::TotalTriggerNrShift;
+const int L1GtfeWord::ActiveBoardsShift = 48;
+const int L1GtfeWord::TotalTriggerNrShift = 0;
+
+

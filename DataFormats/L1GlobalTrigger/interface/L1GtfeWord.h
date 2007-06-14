@@ -73,9 +73,8 @@ public:
         m_boardId = boardIdValue;
     }
 
-    /// set the BoardId value from a 64-bits word, having the index iWord
-    /// in the GTFE raw record
-    void setBoardId(const boost::uint64_t& word64, int iWord);
+    /// set the BoardId value from a 64-bits word
+    void setBoardId(const boost::uint64_t& word64);
 
     /// set the BoardId value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -93,7 +92,7 @@ public:
         m_recordLength = recordLengthValue;
     }
 
-    void setRecordLength(const boost::uint64_t& word64, int iWord);
+    void setRecordLength(const boost::uint64_t& word64);
 
     /// set the RecordLength value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -111,7 +110,7 @@ public:
         m_bxNr = bxNrValue;
     }
 
-    void setBxNr(const boost::uint64_t& word64, int iWord);
+    void setBxNr(const boost::uint64_t& word64);
 
     /// set the BxNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -128,7 +127,7 @@ public:
         m_setupVersion = setupVersionValue;
     }
 
-    void setSetupVersion(const boost::uint64_t& word64, int iWord);
+    void setSetupVersion(const boost::uint64_t& word64);
 
     /// set the SetupVersion value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -145,7 +144,7 @@ public:
         m_activeBoards = activeBoardsValue;
     }
 
-    void setActiveBoards(const boost::uint64_t& word64, int iWord);
+    void setActiveBoards(const boost::uint64_t& word64);
 
     /// set the ActiveBoards value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -167,7 +166,7 @@ public:
         m_totalTriggerNr = totalTriggerNrValue;
     }
 
-    void setTotalTriggerNr(const boost::uint64_t& word64, int iWord);
+    void setTotalTriggerNr(const boost::uint64_t& word64);
 
     /// set the TotalTriggerNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -185,43 +184,47 @@ public:
 public:
 
     /// reset the content of a L1GtfeWord
-    void reset();
+    virtual void reset();
 
     /// pretty print the content of a L1GtfeWord
     virtual void print(std::ostream& myCout) const;
+
+    /// unpack GTFE
+    /// gtfePtr pointer to the beginning of the GTFE block in the raw data
+    virtual void unpack(const unsigned char* gtfePtr);
 
 private:
 
     // block description in the raw GT record
 
     // block size in 64bits words
-    static const int BlockSize = 2;        // 2 x 64bits
+    static const int BlockSize;
 
-    static const int BoardIdWord = 0;
-    static const int RecordLengthWord = 0;
-    static const int BxNrWord = 0;
-    static const int SetupVersionWord = 0;
+    static const int BoardIdWord;
+    static const int RecordLengthWord;
+    static const int BxNrWord;
+    static const int SetupVersionWord;
 
-    static const boost::uint64_t BoardIdMask =      0xFF00000000000000ULL;
-    static const boost::uint64_t RecordLengthMask = 0x001F000000000000ULL;
-    static const boost::uint64_t BxNrMask =         0x00000FFF00000000ULL;
-    static const boost::uint64_t SetupVersionMask = 0x00000000FFFFFFFFULL;
+    static const boost::uint64_t BoardIdMask;
+    static const boost::uint64_t RecordLengthMask;
+    static const boost::uint64_t BxNrMask;
+    static const boost::uint64_t SetupVersionMask;
 
     // shifts could be computed from masks...
-    static const int BoardIdShift = 56;
-    static const int RecordLengthShift = 48;
-    static const int BxNrShift = 32;
-    static const int SetupVersionShift = 0;
+    static const int BoardIdShift;
+    static const int RecordLengthShift;
+    static const int BxNrShift;
+    static const int SetupVersionShift;
 
     //
-    static const int ActiveBoardsWord = 1;
-    static const int TotalTriggerNrWord = 1;
+    static const int ActiveBoardsWord;
+    static const int TotalTriggerNrWord;
 
-    static const boost::uint64_t ActiveBoardsMask =   0xFFFF000000000000ULL;
-    static const boost::uint64_t TotalTriggerNrMask = 0x00000000FFFFFFFFULL;
+    static const boost::uint64_t ActiveBoardsMask;
+    static const boost::uint64_t TotalTriggerNrMask;
 
-    static const int ActiveBoardsShift = 48;
-    static const int TotalTriggerNrShift = 0;
+    static const int ActiveBoardsShift;
+    static const int TotalTriggerNrShift;
 
 
 private:

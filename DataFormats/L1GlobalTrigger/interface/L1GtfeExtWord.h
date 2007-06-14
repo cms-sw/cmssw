@@ -70,7 +70,14 @@ public:
 
     /// get/set BST block for index iB
     const uint16_t bst(int iB) const;
-    void setBst(uint16_t bstVal, int iB);
+    void setBst(const uint16_t bstVal, const int iB);
+
+    /// set the BST block for index iB from a 64-bits word
+    void setBst(const boost::uint64_t& word64, const int iB);
+
+    /// set the BST block in a 64-bits word, having the index iWord
+    /// in the GTFE raw record
+    void setBstWord64(boost::uint64_t& word64, int iB, int iWord);
 
 public:
 
@@ -105,27 +112,63 @@ public:
     /// pretty print the content of a L1GtfeExtWord
     virtual void print(std::ostream& myCout) const;
 
+    /// unpack GTFE
+    /// gtfePtr pointer to the beginning of the GTFE block in the raw data
+    virtual void unpack(const unsigned char* gtfePtr);
 
 private:
 
     /// block description in the raw GT record
 
-    static const int TurnCountNumberWord = 0;
-    static const boost::uint64_t TurnCountNumberMask = 0x00000000FFFFFFFFULL;
+    /// index of first word for BST blocks
+    static const int BstFirstWord;
 
-    // shifts could be computed from masks...
-    static const int TurnCountNumberShift = 0;
+    /// size in bits for a BST block
+    static const int BstBitSize;
+
+    /// BST block mask, correlated with the number of bits of a block
+    /// 8 bit = 0xFF
+    static const boost::uint64_t BstBlockMask;
 
     /// block size in 64bits words
-    static const int BlockSizeExt = 6;        // 6 x 64bits
+    static const int BlockSizeExt;
 
+    /// BST blocks: conversion to defined quantities (LHC-BOB-ES-0001)
 
+    static const int GpsTimeFirstBlock;
+    static const int GpsTimeLastBlock;
+
+    static const int TurnCountNumberFirstBlock;
+    static const int TurnCountNumberLastBlock;
+
+    static const int  LhcFillNumberFirstBlock;
+    static const int  LhcFillNumberLastBlock;
+
+    static const int  TotalIntensityBeam1FirstBlock;
+    static const int  TotalIntensityBeam1LastBlock;
+
+    static const int TotalIntensityBeam2FirstBlock;
+    static const int TotalIntensityBeam2LastBlock;
+
+    static const int BeamMomentumFirstBlock;
+    static const int BeamMomentumLastBlock;
+
+    static const int BstMasterStatusFirstBlock;
+    static const int BstMasterStatusLastBlock;
+
+    static const int MachineModeFirstBlock;
+    static const int MachineModeLastBlock;
+
+    static const int ParticleTypeBeam1FirstBlock;
+    static const int ParticleTypeBeam1LastBlock;
+
+    static const int ParticleTypeBeam2FirstBlock;
+    static const int ParticleTypeBeam2LastBlock;
 
 private:
 
     ///
     uint16_t m_bst[NumberBstBlocks];
-
 
 
 };
