@@ -1,9 +1,9 @@
-#ifndef FWCORE_FWUTILITIES_DIGEST_INC
-#define FWCORE_FWUTILITIES_DIGEST_INC
+#ifndef FWCore_Utilities_Digest_h
+#define FWCore_Utilities_Digest_h
 
 #include "md5.h"
 
-#include <ostream>
+#include <iosfwd>
 #include <string>
 
 

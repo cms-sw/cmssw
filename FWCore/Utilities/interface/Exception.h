@@ -1,5 +1,5 @@
-#ifndef Utilities_Exception_h
-#define Utilities_Exception_h
+#ifndef FWCore_Utilities_Exception_h
+#define FWCore_Utilities_Exception_h
 
 /**
    This a basic exception type expected to be thrown by
@@ -73,10 +73,9 @@
 #include <list>
 #include <sstream>
 #include <string>
-#include <stdexcept>
+#include <exception>
 
 #include "boost/type_traits/is_base_and_derived.hpp"
-#include "boost/type_traits/is_polymorphic.hpp"
 
 namespace cms {
 

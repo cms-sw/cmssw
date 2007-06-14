@@ -1,5 +1,5 @@
 //------------------------------------------------------------
-// $Id: TestHelper.cc,v 1.5 2006/10/10 19:18:02 paterno Exp $
+// $Id: TestHelper.cc,v 1.6 2006/10/12 14:29:02 paterno Exp $
 //------------------------------------------------------------
 #include <cerrno>
 #include <cstdlib>
@@ -7,11 +7,9 @@
 #include <iostream>
 #include <string>
 
-#include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/convenience.hpp"
 #include "boost/filesystem/path.hpp"
 

@@ -1,5 +1,5 @@
-#ifndef Utilities_CPUTimer_h
-#define Utilities_CPUTimer_h
+#ifndef FWCore_Utilities_CPUTimer_h
+#define FWCore_Utilities_CPUTimer_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -16,11 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Apr 16 20:32:13 EDT 2006
-// $Id: CPUTimer.h,v 1.1 2006/04/19 17:56:07 chrjones Exp $
+// $Id: CPUTimer.h,v 1.2 2006/08/21 22:44:25 wmtan Exp $
 //
 
 // system include files
-#include <unistd.h>
 #include <sys/time.h>
 
 // user include files

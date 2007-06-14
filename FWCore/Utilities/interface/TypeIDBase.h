@@ -1,5 +1,5 @@
-#ifndef Utilities_TypeIDBase_h
-#define Utilities_TypeIDBase_h
+#ifndef FWCore_Utilities_TypeIDBase_h
+#define FWCore_Utilities_TypeIDBase_h
 // -*- C++ -*-
 //
 // Package:     Utilities
@@ -17,7 +17,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov 10 14:59:35 EST 2005
-// $Id$
+// $Id: TypeIDBase.h,v 1.1 2005/11/11 18:59:30 chrjones Exp $
 //
 
 // system include files
@@ -25,7 +25,6 @@
 #include <string>
 
 // user include files
-#include "FWCore/Utilities/interface/EDMException.h"
 
 // forward declarations
 namespace edm {

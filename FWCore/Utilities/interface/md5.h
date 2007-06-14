@@ -1,5 +1,5 @@
-#ifndef Utilities_md5_h
-#define Utilities_md5_h
+#ifndef FWCore_Utilities_md5_h
+#define FWCore_Utilities_md5_h
 
 /*
   Copyright (C) 1999, 2002 Aladdin Enterprises.  All rights reserved.
@@ -24,7 +24,7 @@
   ghost@aladdin.com
 
  */
-/* $Id: md5.h,v 1.1 2005/07/06 19:47:28 paterno Exp $ */
+/* $Id: md5.h,v 1.2 2005/09/01 03:11:07 wmtan Exp $ */
 /*
   Independent implementation of MD5 (RFC 1321).
 

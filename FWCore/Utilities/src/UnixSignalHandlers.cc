@@ -1,7 +1,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
-#include <signal.h>
 
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
