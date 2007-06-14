@@ -33,13 +33,10 @@ void EcalFenixStripFgvbEE::process( std::vector<std::vector<int> > &linout ,std:
     output[i]= lut_fg & mask;
     if (output[i]>0) output[i]=1;
   }
-   
-  //  return output;
   return;
 }  
 
 void EcalFenixStripFgvbEE::setParameters(int sectorNb, int towNum, int stripNr)
 {
    params_ = ecaltpp_->getStripParameters(sectorNb,towNum,stripNr);
-  // ecaltpp_->getStripParameters(sectorNb,towNum,stripNr,params_);
 }

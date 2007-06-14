@@ -17,7 +17,7 @@ EcalFenixLinearizer::~EcalFenixLinearizer(){
 
 void EcalFenixLinearizer::setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip)
 {
-  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip,true);
+  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip,false);
 }
 
 int EcalFenixLinearizer::process()

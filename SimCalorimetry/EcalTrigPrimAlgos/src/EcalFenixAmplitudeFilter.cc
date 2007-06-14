@@ -28,12 +28,8 @@ int EcalFenixAmplitudeFilter::setInput(int input)
     }
   return 1;
 }
-
-
-//std::vector<int> EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int> output)
 void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int> &output)
 {
-  //  std::vector<int> output;
   // test
   inputsAlreadyIn_=0;
   for (unsigned int i =0;i<5;i++) buffer_[i]=0;//FIXME: 5
@@ -43,8 +39,6 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int>
   for (unsigned int i =0;i<addout.size();i++){
     
     setInput(addout[i]);
-    //    int outone= process();
-    //    output.push_back(outone);
     output[i]=process();
   }
   // shift the result by 1!
@@ -52,7 +46,6 @@ void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int>
     if (i!=output.size()-1) output[i]=output[i+1];
     else output[i]=0;
   }  
-  //    return output;
   return;
 }
 
@@ -74,7 +67,6 @@ void EcalFenixAmplitudeFilter::setParameters(int SM, int towerInSM, int stripInT
 {
  std::vector<unsigned int> const *params;
  params = ecaltpp_->getStripParameters(SM, towerInSM, stripInTower) ;  
- // ecaltpp_->getStripParameters(SM, towerInSM, stripInTower,params) ;
  for (int i=0 ; i<5 ; i++) weights_[i] = (*params)[i+1] ; //FIXME:5
 }
 
