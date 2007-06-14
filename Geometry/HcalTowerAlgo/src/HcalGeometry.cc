@@ -14,7 +14,7 @@ HcalGeometry::~HcalGeometry() {
 }
 
 
-std::vector<DetId> HcalGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
+std::vector<DetId> const & HcalGeometry::getValidDetIds(DetId::Detector det, int subdet) const {
   if (lastReqDet_!=det || lastReqSubdet_!=subdet) {
     lastReqDet_=det;
     lastReqSubdet_=subdet;
@@ -23,10 +23,12 @@ std::vector<DetId> HcalGeometry::getValidDetIds(DetId::Detector det, int subdet)
   if (validIds_.empty()) {
     validIds_.reserve(cellGeometries().size());
     CaloSubdetectorGeometry::CellCont::const_iterator i;
-    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++)
-      if (i->first.det()==det && i->first.subdetId()==subdet) 
-	validIds_.push_back(i->first);
-    std::sort(validIds_.begin(),validIds_.end());
+    for (i=cellGeometries().begin(); i!=cellGeometries().end(); i++) {
+      DetId id(i->first);
+      if (id.det()==det && id.subdetId()==subdet) 
+	validIds_.push_back(id);
+    }
+      std::sort(validIds_.begin(),validIds_.end());
   }
 
   return validIds_;

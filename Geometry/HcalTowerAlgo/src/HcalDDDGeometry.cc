@@ -41,7 +41,7 @@ std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 }
 
 
-const DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
+DetId HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const {
 
   // Now find the closest eta_bin, eta value of a bin i is average
   // of eta[i] and eta[i-1]
