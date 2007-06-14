@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/27 10:58:07 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/22 07:02:04 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -101,7 +101,11 @@ void DTDeadChannelTest::bookHistos(const DTLayerId & lId, int firstWire, int las
 
 void DTDeadChannelTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
 
   edm::LogVerbatim ("deadChannel") << "[DTDeadChannelTest]: "<<nevents<<" updates";
 

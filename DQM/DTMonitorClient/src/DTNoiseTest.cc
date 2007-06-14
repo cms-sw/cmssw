@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/06/08 07:47:45 $
- * $Revision: 1.7 $
+ * $Date: 2007/06/13 18:46:08 $
+ * $Revision: 1.8 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -129,10 +129,15 @@ void DTNoiseTest::bookHistos(const DTLayerId & lId, int nWires, string folder, s
 
 void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
-  updates++;
 
-  if (updates%1 == 0 && debug) 
-    cout<<"[DTNoiseTest]: "<<updates<<" updates"<<endl;
+
+  // counts number of updats (online mode) or number of events (standalone mode)
+  updates++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       updates%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);
   

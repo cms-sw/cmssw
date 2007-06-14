@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 15:31:52 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/13 08:42:18 $
+ *  $Revision: 1.8 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -101,7 +101,11 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
 
 void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" updates";
 

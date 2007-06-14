@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/04/27 10:57:03 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/22 06:59:08 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -102,10 +102,15 @@ void DTChamberEfficiencyTest::bookHistos(const DTChamberId & chId) {
 
 void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
-
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+  
+  
   edm::LogVerbatim ("chamberEfficiency") << "[DTChamberEfficiencyTest]: "<<nevents<<" updates";
-
+  
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
@@ -173,8 +178,8 @@ void DTChamberEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup
       }
     }
   } // loop on chambers
-
-
+  
+  
   // ChamberEfficiency test on X axis
   string XEfficiencyCriterionName = parameters.getUntrackedParameter<string>("XEfficiencyTestName","ChEfficiencyInRangeX"); 
   for(map<string, MonitorElement*>::const_iterator hXEff = xEfficiencyHistos.begin();

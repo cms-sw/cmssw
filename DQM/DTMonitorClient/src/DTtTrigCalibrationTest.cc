@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/05/15 17:21:35 $
- * $Revision: 1.4 $
+ * $Date: 2007/05/22 07:07:49 $
+ * $Revision: 1.5 $
  * \author M. Zanetti - CERN
  *
  */
@@ -101,7 +101,13 @@ void DTtTrigCalibrationTest::bookHistos(const DTChamberId & ch) {
 
 void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
+
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
   edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: "<<nevents<<" updates";
 
   context.get<DTTtrigRcd>().get(tTrigMap);

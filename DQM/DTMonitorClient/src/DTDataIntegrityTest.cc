@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTest.cc
  * 
- * $Date: 2007/05/22 07:00:15 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/23 12:36:55 $
+ * $Revision: 1.7 $
  * \author S. Bolognesi - CERN
  *
  */
@@ -136,7 +136,12 @@ void DTDataIntegrityTest::bookTimeHistos(string histoType, int dduId, int evNumb
 
 
 void DTDataIntegrityTest::analyze(const Event& e, const EventSetup& context){ 
+
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
 
   int evNumber = e.id().event();
   stringstream evNumber_s; evNumber_s << evNumber;
