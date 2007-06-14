@@ -1,7 +1,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.cc,v 1.4 2007/04/25 17:30:43 uberthon Exp $
+ * $Id: EcalTPParameters.cc,v 1.5 2007/04/27 13:07:54 uberthon Exp $
  **/
 #include "CondFormats/L1TObjects/interface/EcalTPParameters.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,14 +15,12 @@ int EcalTPParameters::nbMaxXtals_=0;
 int EcalTPParameters::nbMaxStrips_=0;
 int EcalTPParameters::nbMaxTowers_=0;
 
-//EcalTPParameters::EcalTPParameters(const int nbMaxTowers, const int nbMaxStrips, const int nbMaxXtals, const int nrMinTccEB, const int nrMaxTccEB) :
-//nbMaxTowers_(nbMaxTowers),nbMaxStrips_(nbMaxStrips),nbMaxXtals_(nbMaxXtals),nrMinTccEB_(nrMinTccEB),nrMaxTccEB_(nrMaxTccEB)
 EcalTPParameters::EcalTPParameters()   {
   //FIXME should be those used in TPG.txt.... could they be put in TPG.txt?
-   ttfLowEB_=0;
-   ttfHighEB_= 0;
-   ttfLowEE_= 0;
-   ttfHighEE_=0;
+  ttfLowEB_=0;
+  ttfHighEB_= 0;
+  ttfLowEE_= 0;
+  ttfHighEE_=0;
 }
 
 EcalTPParameters::~EcalTPParameters() {
@@ -45,15 +43,15 @@ void EcalTPParameters::changeThresholds(double ttfLowEB, double ttfHighEB, doubl
   update();
 }
 
-std::vector<unsigned int> EcalTPParameters::getTowerParameters(int TCC, int towerInTCC, bool print) const
+std::vector<unsigned int> const * EcalTPParameters::getTowerParameters(int TCC, int towerInTCC, bool print) const
 {
   std::map<int, std::vector<unsigned int> >::const_iterator it ;
   it = towerParam_.find(getIndex(TCC,towerInTCC));
   if (it == towerParam_.end()) {
     throw cms::Exception("EcalTPG")<<"===> EcalTPParameters::getTowerParameters("<<std::dec<<TCC<<", "<<towerInTCC<<")";
   }
-  std::vector<unsigned int> param = it->second ;
   if (print) {
+    std::vector<unsigned int> param = it->second ;
     if (TCC>=nrMinTccEB_   && TCC<= nrMaxTccEB_ ) {
       std::cout<<"===> EcalTPParameters::getTowerParameters("<<std::dec<<TCC<<", "<<towerInTCC<<")"<<std::endl ;
       //    for (int i=0 ; i<1024 ; i++) std::cout<<"LUT["<<std::dec<<i<<"] = "<<std::hex<<param[i]<<std::endl ;
@@ -64,26 +62,27 @@ std::vector<unsigned int> EcalTPParameters::getTowerParameters(int TCC, int towe
     } else
       std::cout<<"Fine Grain:  tower_lut_fg="<<std::hex<<param[1024]<<std::endl ;
   }
-  return param ;
+  return &(it->second);
 }
 
-std::vector<unsigned int> EcalTPParameters::getStripParameters(int TCC, int towerInTCC, int stripInTower, bool print) const
+std::vector<unsigned int> const * EcalTPParameters::getStripParameters(int TCC, int towerInTCC, int stripInTower, bool print) const
 {
   std::map<int, std::vector<unsigned int> >::const_iterator it ;
   it = stripParam_.find(getIndex(TCC,towerInTCC,stripInTower));
   if (it == stripParam_.end()) {
     throw cms::Exception("EcalTPG")<<"===> EcalTPParameters::getStripParameters("<<std::dec<<TCC<<", "<<towerInTCC<<", "<<stripInTower<<")";
   }
-  std::vector<unsigned int> param = it->second ;
   if (print) {
+    std::vector<unsigned int> param = it->second ;
+    param = it->second ;
     std::cout<<"===> EcalTPParameters::getStripParameters("<<std::dec<<TCC<<", "<<towerInTCC<<", "<<stripInTower<<")"<<std::endl ;
     std::cout<<"sliding window = "<<std::hex<<param[0]<<std::endl ;
     for (int i=0 ; i<5 ; i++) std::cout<<"Weight["<<std::dec<<i<<"] ="<<std::hex<<param[i+1]<<std::endl ;
   }
-  return param ;
+  return &(it->second);
 }
 
-std::vector<unsigned int> EcalTPParameters::getXtalParameters(int TCC, int towerInTCC, int stripInTower, int xtalInStrip, bool print) const 
+std::vector<unsigned int> const *  EcalTPParameters::getXtalParameters(int TCC, int towerInTCC, int stripInTower, int xtalInStrip, bool print) const 
 {
 
   std::map<int, std::vector<unsigned int> >::const_iterator it ;
@@ -92,38 +91,39 @@ std::vector<unsigned int> EcalTPParameters::getXtalParameters(int TCC, int tower
     throw cms::Exception("EcalTPG")<<"===> EcalTPParameters::couldnt find entry for getXtalParameters("<<std::dec<<TCC<<", "
 				   <<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip<<")";
   }
-  std::vector<unsigned int> param = it->second ;
   if (print) {
+    std::vector<unsigned int> param = it->second ;
     std::cout<<"===> EcalTPParameters::getXtalParameters("<<std::dec<<TCC<<", "
 	     <<towerInTCC<<", "<<stripInTower<<", "<<xtalInStrip<<")"<<std::endl ;
     std::cout<<"Gain12, ped = "<<std::hex<<param[0]<<", mult = "<<param[1]<<", shift = "<<param[2]<<std::endl ;
     std::cout<<"Gain6,  ped = "<<std::hex<<param[3]<<", mult = "<<param[4]<<", shift = "<<param[5]<<std::endl ;
     std::cout<<"Gain1,  ped = "<<std::hex<<param[6]<<", mult = "<<param[7]<<", shift = "<<param[8]<<std::endl ;
   }
-  return param ;
+  return &(it->second);
 }
 
-  int EcalTPParameters::getIndex(int TCC, int towerInTCC, int stripInTower, int xtalInStrip) const  { 
+int EcalTPParameters::getIndex(int TCC, int towerInTCC, int stripInTower, int xtalInStrip) const  { 
 
-    int i=nbMaxTowers_*TCC + towerInTCC ;
-    if (stripInTower>0) i=i*nbMaxStrips_+stripInTower;
-    if (xtalInStrip>0) i=i*nbMaxXtals_+xtalInStrip;
-    return i;
-  }
+  int i=nbMaxTowers_*TCC + towerInTCC ;
+  if (stripInTower>0) i=i*nbMaxStrips_+stripInTower;
+  if (xtalInStrip>0) i=i*nbMaxXtals_+xtalInStrip;
+  return i;
+}
 
 double EcalTPParameters::getTPGinGeVEB(unsigned int TCC, unsigned int towerInTCC, unsigned int compressedEt) const {
   //FIXME!! 1024 should be a database constant....
     
   double lsb_tcp = EtSatEB_/1024 ;//FIXME!!
-  std::vector<unsigned int> lut = this->getTowerParameters(TCC,towerInTCC) ;
-  if (lut.size() <1024) { //FIXME!!
+  std::vector<unsigned int> const *lut;
+  lut=this->getTowerParameters(TCC,towerInTCC,lut) ;
+  if (lut->size() <1024) { //FIXME!!
     // FIXME should throw an exception!
     return 0. ;
   }
 
   unsigned int lin_TPG = 1024 ;
   for (unsigned int i=0 ; i<1024 ; i++) {
-    if (lut[i] == compressedEt) {
+    if ((*lut)[i] == compressedEt) {
       lin_TPG = i ;
       break ;
     }
@@ -140,15 +140,16 @@ double EcalTPParameters::getTPGinGeVEE(unsigned int TCC, unsigned int towerInTCC
 //FIXME!! 1024 should be a database constant....
     
   double lsb_tcp = EtSatEE_/1024 ;//FIXME!!
-  std::vector<unsigned int> lut = this->getTowerParameters(TCC,towerInTCC) ;
-   if (lut.size() <1024) { //FIXME!!
+  std::vector<unsigned int> *lut;
+  this->getTowerParameters(TCC,towerInTCC,lut) ;
+   if (lut->size() <1024) { //FIXME!!
     // FIXME should throw an exception!
     return 0. ;
   }
 
   unsigned int lin_TPG = 1024 ;
   for (unsigned int i=0 ; i<1024 ; i++) {
-   if (lut[i] == compressedEt) {
+   if ((*lut)[i] == compressedEt) {
      lin_TPG = i ;
      break ;
    }
@@ -171,16 +172,16 @@ void EcalTPParameters::update() {
 
    for (int tcc=nrMinTccEB_ ; tcc<=nrMaxTccEB_ ; tcc++) {
     for (int tower=1 ; tower<=nbMaxTowers_ ; tower++) {
-      // update LUT 
-      std::vector<unsigned int> lut = getTowerParameters(tcc, tower) ;
-      for (unsigned int i=0 ; i<1024 ; i++) {
+       std::vector<unsigned int> * lut;
+       lut= const_cast<std::vector<unsigned int> *> (getTowerParameters(tcc, tower));
+       for (unsigned int i=0 ; i<1024 ; i++) {
 	int ttf = 0 ;
 	if (i>=ttfHighEB_ADC) ttf = 3 ; 
 	if (i>=ttfLowEB_ADC && i<ttfHighEB_ADC) ttf = 1 ;
 	ttf = ttf<<8 ; 
-	lut[i] = (lut[i] & 0xff) + ttf ;
+	(*lut)[i] = ((*lut)[i] & 0xff) + ttf ;
       }
-      setTowerParameters(tcc, tower, lut) ;
+      setTowerParameters(tcc, tower, (*lut)) ;
     } 
   }
 }

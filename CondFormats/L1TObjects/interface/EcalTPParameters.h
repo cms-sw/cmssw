@@ -3,7 +3,7 @@
 /**
  * Author: P.Paganini, Ursula Berthon
  * Created: 20 March 2007
- * $Id: EcalTPParameters.h,v 1.2 2007/04/10 11:55:33 uberthon Exp $
+ * $Id: EcalTPParameters.h,v 1.4 2007/04/25 17:30:42 uberthon Exp $
  **/
 
 #include <vector>
@@ -16,9 +16,9 @@ class EcalTPParameters {
   ~EcalTPParameters();
 
   // getters
-  std::vector<unsigned int> getTowerParameters(int SM, int towerInSM, bool print = false) const ;
-  std::vector<unsigned int> getStripParameters(int SM, int towerInSM, int stripInTower, bool print = false) const ;
-  std::vector<unsigned int> getXtalParameters(int SM, int towerInSM, int stripInTower, int xtalInStrip, bool print = false)  const;
+  std::vector<unsigned int> const * getTowerParameters(int SM, int towerInSM, bool print = false) const ;
+  std::vector<unsigned int> const * getStripParameters(int SM, int towerInSM, int stripInTower, bool print = false) const ;
+  std::vector<unsigned int> const * getXtalParameters(int SM, int towerInSM, int stripInTower, int xtalInStrip, bool print = false)  const;
 
   double getEtSatEB() const {return EtSatEB_;}
   double getEtSatEE() const {return EtSatEE_;}
