@@ -1064,9 +1064,12 @@ void PFRootEventManager::clustering() {
   
   // ECAL clustering -------------------------------------------
 
+  vector<bool> mask;
+  fillRecHitMask( mask, rechitsECAL_ );
+  clusterAlgoECAL_.setMask( mask );  
+
   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
   clusterAlgoECAL_.doClustering( rechitsHandleECAL );
-  //clusterAlgoECAL_.doClustering( rechitsECAL_ );
   clustersECAL_ = clusterAlgoECAL_.clusters();
 
   assert(clustersECAL_.get() );
@@ -1596,25 +1599,44 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
   double maxeh = getMaxEHcal();
   double maxe = maxee>maxeh ? maxee : maxeh;
   
-  int color = TColor::GetColor(220, 220, 255);
-  int seedcolor = TColor::GetColor(160, 160, 255);
-  
+  int color = TColor::GetColor(210,210,210);
+  int seedcolor = TColor::GetColor(145,145,145);
+  int specialcolor = TColor::GetColor(255,140,0);
+
   for(unsigned i=0; i<rechitsECAL_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoECAL_.isSeed(i) )
-      rhcolor = seedcolor;
+    if( unsigned col = clusterAlgoECAL_.color(i) ) {
+      switch(col) {
+      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
+      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
+      default:
+	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
+      }
+    }
     displayRecHit(rechitsECAL_[i], viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsHCAL_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoHCAL_.isSeed(i) )
-      rhcolor = seedcolor;
+    if( unsigned col = clusterAlgoHCAL_.color(i) ) {
+      switch(col) {
+      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
+      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
+      default:
+	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
+      }
+    }
     displayRecHit(rechitsHCAL_[i], viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsPS_.size(); i++) { 
     int rhcolor = color;
-    if(clusterAlgoPS_.isSeed(i) )
-      rhcolor = seedcolor;
+    if( unsigned col = clusterAlgoPS_.color(i) ) {
+      switch(col) {
+      case PFClusterAlgo::SEED: rhcolor = seedcolor; break;
+      case PFClusterAlgo::SPECIAL: rhcolor = specialcolor; break;
+      default:
+	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
+      }
+    }
     displayRecHit(rechitsPS_[i], viewType, maxe, phi0, rhcolor);
   }   
 }
@@ -1672,13 +1694,6 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
 
   double rheta = rh.positionREP().Eta();
   double rhphi = rh.positionREP().Phi();
-  //  if( !insideGCut( rheta, rhphi ) ) return;
-
-
-
-//   if( abs(rheta - 1.69) > 0.05 ||
-//       abs(rhphi + 1.61) > 0.05 || 
-//       layer<0) return;
 
   double sign = 1.;
   if (cos(phi0 - rhphi) < 0.) sign = -1.;
@@ -1910,8 +1925,9 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 //   int type = cluster.type();
 //   if(algosToDisplay_.find(type) == algosToDisplay_.end() )
 //     return;
-
-  if( !insideGCut( eta, phi ) ) return;
+  
+//   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");  
+//   if( cutg && !cutg->IsInside( eta, phi ) ) return;
 
   TMarker m;
 
@@ -2113,6 +2129,7 @@ PFRootEventManager::displayTrack
 
     
   bool inside = false; 
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
 
   for(unsigned i=0; i<points.size(); i++) {
     
@@ -2130,7 +2147,7 @@ PFRootEventManager::displayTrack
       phi = mom.Phi();
     }
     
-    if( insideGCut(eta, phi) ) 
+    if( !cutg || cutg->IsInside( eta, phi ) ) 
       inside = true;
     
 
@@ -2663,7 +2680,9 @@ void  PFRootEventManager::printRecHit(const reco::PFRecHit& rh,
   double eta = rh.positionREP().Eta();
   double phi = rh.positionREP().Phi();
 
-  if(insideGCut(eta, phi)) 
+  
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if( !cutg || cutg->IsInside( eta, phi ) ) 
     out<<seedstatus<<" "<<rh<<endl;;
 }
 
@@ -2675,33 +2694,53 @@ void  PFRootEventManager::printCluster(const reco::PFCluster& cluster,
   double eta = cluster.positionREP().Eta();
   double phi = cluster.positionREP().Phi();
 
-  if(insideGCut(eta, phi)) 
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if( !cutg || cutg->IsInside( eta, phi ) ) 
     out<<cluster<<endl;
 }
 
 
 
-bool PFRootEventManager::insideGCut( double eta, double phi ) const {
-
- TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
- if(cutg) { // true if the user has drawn a TCutG
-   if( !cutg->IsInside(eta, phi) ) return false;
- }
- return true;
-} 
 
 
 bool PFRootEventManager::trackInsideGCut( const reco::PFTrack* track ) const {
 
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return true;
+  
   const vector< reco::PFTrajectoryPoint >& points = track->trajectoryPoints();
   
   for( unsigned i=0; i<points.size(); i++) {
     if( ! points[i].isValid() ) continue;
     
     const math::XYZPoint& pos = points[i].positionXYZ();
-    if( insideGCut(pos.Eta(), pos.Phi() ) ) return true;
+    if( cutg->IsInside( pos.Eta(), pos.Phi() ) ) return true;
   }
 
   // no point inside cut
   return false;
 }
+
+
+void  
+PFRootEventManager::fillRecHitMask( vector<bool>& mask, 
+				    const reco::PFRecHitCollection& rechits ) 
+  const {
+
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+  if(!cutg) return;
+
+  mask.clear();
+  mask.reserve( rechits.size() );
+  for(unsigned i=0; i<rechits.size(); i++) {
+    
+    double eta = rechits[i].positionREP().Eta();
+    double phi = rechits[i].positionREP().Phi();
+
+    if( cutg->IsInside( eta, phi ) )
+      mask.push_back( true );
+    else 
+      mask.push_back( false );   
+  }
+}
+
