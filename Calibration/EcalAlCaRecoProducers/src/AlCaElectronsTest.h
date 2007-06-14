@@ -56,25 +56,25 @@ class AlCaElectronsTest : public edm::EDAnalyzer {
     std::string   m_outputFileName ;            
 
     //! ECAL map
-    TH2F m_barrelGlobalCrystalsMap ;
+    TH2F * m_barrelGlobalCrystalsMap ;
     //! local map
-    TH2F m_barrelLocalCrystalsMap ;
+    TH2F * m_barrelLocalCrystalsMap ;
     //! ECAL map
-    TH2F m_endcapGlobalCrystalsMap ;
+    TH2F * m_endcapGlobalCrystalsMap ;
     //! local map
-    TH2F m_endcapLocalCrystalsMap ;
+    TH2F * m_endcapLocalCrystalsMap ;
     //! ECAL Energy
-    TH2F m_barrelGlobalCrystalsEnergy ;
+    TH2F * m_barrelGlobalCrystalsEnergy ;
     //! local Energy
-    TH2F m_barrelLocalCrystalsEnergy ;
+    TH2F * m_barrelLocalCrystalsEnergy ;
     //! ECAL Energy
-    TH2F m_endcapGlobalCrystalsEnergy ;
+    TH2F * m_endcapGlobalCrystalsEnergy ;
     //! local Energy
-    TH2F m_endcapLocalCrystalsEnergy ;
+    TH2F * m_endcapLocalCrystalsEnergy ;
     //! ECAL EnergyMap
-    TH2F m_barrelGlobalCrystalsEnergyMap ;
+    TH2F * m_barrelGlobalCrystalsEnergyMap ;
     //! ECAL EnergyMap
-    TH2F m_endcapGlobalCrystalsEnergyMap ;
+    TH2F * m_endcapGlobalCrystalsEnergyMap ;
 } ;
 
 
@@ -85,17 +85,7 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
   m_barrelAlCa (iConfig.getParameter<edm::InputTag> ("alcaBarrelHitCollection")) ,
   m_endcapAlCa (iConfig.getParameter<edm::InputTag> ("alcaEndcapHitCollection")) ,
   m_outputFileName (iConfig.getUntrackedParameter<std::string>
-                      ("HistOutFile",std::string ("AlCaElectronsTest.root"))) ,
-  m_barrelGlobalCrystalsMap ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ,
-  m_barrelLocalCrystalsMap ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ,
-  m_endcapGlobalCrystalsMap ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ,
-  m_endcapLocalCrystalsMap ("m_endcapLocalCrystalsMap","m_endcapLocalCrystalsMap",20,-10,10,20,-10,10) ,
-  m_barrelGlobalCrystalsEnergy ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",171,-85,86,360,0,360) ,
-  m_barrelLocalCrystalsEnergy ("m_barrelLocalCrystalsEnergy","m_barrelLocalCrystalsEnergy",20,-10,10,20,-10,10) ,
-  m_endcapGlobalCrystalsEnergy ("m_endcapGlobalCrystalsEnergy","m_endcapGlobalCrystalsEnergy",100,0,100,100,0,100) ,
-  m_endcapLocalCrystalsEnergy ("m_endcapLocalCrystalsEnergy","m_endcapLocalCrystalsEnergy",20,-10,10,20,-10,10) ,
-  m_barrelGlobalCrystalsEnergyMap ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",171,-85,86,360,0,360) ,
-  m_endcapGlobalCrystalsEnergyMap ("m_endcapGlobalCrystalsEnergyMap","m_endcapGlobalCrystalsEnergyMap",100,0,100,100,0,100) 
+                      ("HistOutFile",std::string ("AlCaElectronsTest.root"))) 
 {}
 
 
@@ -105,6 +95,16 @@ AlCaElectronsTest::AlCaElectronsTest (const edm::ParameterSet& iConfig) :
 void 
 AlCaElectronsTest::beginJob ( const edm::EventSetup& iSetup)
 {
+  m_barrelGlobalCrystalsMap = new TH2F ("m_barrelGlobalCrystalsMap","m_barrelGlobalCrystalsMap",171,-85,86,360,0,360) ;
+  m_barrelLocalCrystalsMap = new TH2F ("m_barrelLocalCrystalsMap","m_barrelLocalCrystalsMap",20,-10,10,20,-10,10) ;
+  m_endcapGlobalCrystalsMap = new TH2F ("m_endcapGlobalCrystalsMap","m_endcapGlobalCrystalsMap",100,0,100,100,0,100) ;
+  m_endcapLocalCrystalsMap = new TH2F ("m_endcapLocalCrystalsMap","m_endcapLocalCrystalsMap",20,-10,10,20,-10,10) ;
+  m_barrelGlobalCrystalsEnergy = new TH2F ("m_barrelGlobalCrystalsEnergy","m_barrelGlobalCrystalsEnergy",171,-85,86,360,0,360) ;
+  m_barrelLocalCrystalsEnergy = new TH2F ("m_barrelLocalCrystalsEnergy","m_barrelLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
+  m_endcapGlobalCrystalsEnergy = new TH2F ("m_endcapGlobalCrystalsEnergy","m_endcapGlobalCrystalsEnergy",100,0,100,100,0,100) ;
+  m_endcapLocalCrystalsEnergy = new TH2F ("m_endcapLocalCrystalsEnergy","m_endcapLocalCrystalsEnergy",20,-10,10,20,-10,10) ;
+  m_barrelGlobalCrystalsEnergyMap = new TH2F ("m_barrelGlobalCrystalsEnergyMap","m_barrelGlobalCrystalsEnergyMap",171,-85,86,360,0,360) ;
+  m_endcapGlobalCrystalsEnergyMap = new TH2F ("m_endcapGlobalCrystalsEnergyMap","m_endcapGlobalCrystalsEnergyMap",100,0,100,100,0,100) ;
    return ;
 }
 
@@ -116,16 +116,16 @@ void
 AlCaElectronsTest::endJob ()
 {      
    TFile output (m_outputFileName.c_str (),"recreate") ;
-   m_barrelGlobalCrystalsMap.Write () ;
-   m_barrelLocalCrystalsMap.Write () ;
-   m_endcapGlobalCrystalsMap.Write () ;
-   m_endcapLocalCrystalsMap.Write () ;   
-   m_barrelGlobalCrystalsEnergy.Write () ;
-   m_barrelLocalCrystalsEnergy.Write () ;
-   m_endcapGlobalCrystalsEnergy.Write () ;
-   m_endcapLocalCrystalsEnergy.Write () ;   
-   m_barrelGlobalCrystalsEnergyMap.Write () ;
-   m_endcapGlobalCrystalsEnergyMap.Write () ;
+   m_barrelGlobalCrystalsMap->Write () ;
+   m_barrelLocalCrystalsMap->Write () ;
+   m_endcapGlobalCrystalsMap->Write () ;
+   m_endcapLocalCrystalsMap->Write () ;   
+   m_barrelGlobalCrystalsEnergy->Write () ;
+   m_barrelLocalCrystalsEnergy->Write () ;
+   m_endcapGlobalCrystalsEnergy->Write () ;
+   m_endcapLocalCrystalsEnergy->Write () ;   
+   m_barrelGlobalCrystalsEnergyMap->Write () ;
+   m_endcapGlobalCrystalsEnergyMap->Write () ;
    output.Close () ;
    //PG save root things
    return ;
@@ -152,11 +152,11 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
       //PG fill the histo with the maximum
       EcalRecHit barrelMax = getMaximum (barrelHitsCollection) ;
       EBDetId barrelMaxId (barrelMax.id ()) ; 
-      m_barrelGlobalCrystalsMap.Fill (
+      m_barrelGlobalCrystalsMap->Fill (
           barrelMaxId.ieta () ,
           barrelMaxId.iphi () 
         ) ;
-      m_barrelGlobalCrystalsEnergy.Fill (
+      m_barrelGlobalCrystalsEnergy->Fill (
           barrelMaxId.ieta () ,
           barrelMaxId.iphi () ,
           barrelMax.energy ()
@@ -181,11 +181,11 @@ AlCaElectronsTest::analyze (const edm::Event& iEvent,
       //PG fill the histo with the maximum
       EcalRecHit endcapMax = getMaximum (endcapHitsCollection) ;
       EEDetId endcapMaxId (endcapMax.id ()) ; 
-      m_endcapGlobalCrystalsMap.Fill (
+      m_endcapGlobalCrystalsMap->Fill (
           endcapMaxId.ix () ,
           endcapMaxId.iy () 
         ) ;
-      m_endcapGlobalCrystalsEnergy.Fill (
+      m_endcapGlobalCrystalsEnergy->Fill (
           endcapMaxId.ix () ,
           endcapMaxId.iy () ,
           endcapMax.energy ()
@@ -238,16 +238,16 @@ AlCaElectronsTest::fillAroundBarrel (const EcalRecHitCollection * recHits, int e
        ++elem)
     {
       EBDetId elementId = elem->id () ; 
-      m_barrelLocalCrystalsMap.Fill (
+      m_barrelLocalCrystalsMap->Fill (
         elementId.ieta () - eta ,
         elementId.iphi () - phi 
       ) ;
-      m_barrelLocalCrystalsEnergy.Fill (
+      m_barrelLocalCrystalsEnergy->Fill (
         elementId.ieta () - eta ,
         elementId.iphi () - phi ,
         elem->energy ()
       ) ;
-     m_barrelGlobalCrystalsEnergyMap.Fill (
+     m_barrelGlobalCrystalsEnergyMap->Fill (
         elementId.ieta () ,
         elementId.iphi () ,
         elem->energy ()
@@ -269,16 +269,16 @@ AlCaElectronsTest::fillAroundEndcap (const EcalRecHitCollection * recHits, int i
        ++elem)
     {
       EEDetId elementId = elem->id () ; 
-      m_endcapLocalCrystalsMap.Fill (
+      m_endcapLocalCrystalsMap->Fill (
         elementId.ix () - ics ,
         elementId.iy () - ips 
       ) ;
-      m_endcapLocalCrystalsEnergy.Fill (
+      m_endcapLocalCrystalsEnergy->Fill (
         elementId.ix () - ics ,
         elementId.iy () - ips ,
         elem->energy ()
       ) ;
-      m_endcapGlobalCrystalsEnergyMap.Fill (
+      m_endcapGlobalCrystalsEnergyMap->Fill (
         elementId.ix () ,
         elementId.iy () ,
         elem->energy ()
