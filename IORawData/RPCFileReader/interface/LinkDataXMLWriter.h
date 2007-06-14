@@ -52,7 +52,7 @@ class LinkDataXMLWriter: public edm::EDAnalyzer
 
   void writeLinkData();  
   
-  std::pair<int,int> getTCandTBNumbers(int dccInputChannelNum);
+  std::pair<int,int> getTCandTBNumbers(int dccInputChannelNum, int dccFactor);
 
   void clear();
 	

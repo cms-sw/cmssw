@@ -179,16 +179,18 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   es.get<RPCReadOutMappingRcd>().get(readoutMapping);
 
   int trigger_BX = 200;
-  /*
+  int dccFactor = -1;
+  
    pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
    for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
+     dccFactor++;
 
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
     std::vector<rpcrawtodigi::EventRecords> myEventRecords = RPCPackingModule::eventRecords(id,
 											    trigger_BX,  
 											    digiCollection.product(),
 											    formatter); 
-    //std::cout<<" FED id: "<< id;
+    std::cout<<" FED id: "<< id;
     //std::cout<<" myEventRecords.size(): "<< myEventRecords.size()<<std::endl;
     
     std::vector<rpcrawtodigi::EventRecords>::const_iterator CI =  myEventRecords.begin();
@@ -202,7 +204,7 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
       int partitionNumber = CI->lbRecord().lbData().partitionNumber();  
       int lbNumber = CI->lbRecord().lbData().lbNumber();
 
-      std::pair<int,int> aPair = getTCandTBNumbers(dccInputChannelNum);
+      std::pair<int,int> aPair = getTCandTBNumbers(dccInputChannelNum,dccFactor);
       int triggerCrateNum = aPair.first;
       int triggerBoardNum = aPair.second;
       int a = aPair.second;
@@ -211,10 +213,10 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 		  lbNumber, partitionNumber,  partitionData, halfP, eod);
 
     }
-  }
-    */
+   }
+    
 
-
+   /*
     int triggerCrateNum = 9;
     int halfP = 0;
     int eod = 0;
@@ -231,6 +233,7 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	//}
 	//}
     }
+   */
     writeLinkData();  
     
 }
@@ -371,7 +374,7 @@ void  LinkDataXMLWriter::clear(){
 }
 
 
-std::pair<int,int>  LinkDataXMLWriter::getTCandTBNumbers(int dccInputChannelNum){
+std::pair<int,int>  LinkDataXMLWriter::getTCandTBNumbers(int dccInputChannelNum,int dccFactor){
 
   int tcNumber = 0;
   int tbNumber = 0;
@@ -383,12 +386,15 @@ std::pair<int,int>  LinkDataXMLWriter::getTCandTBNumbers(int dccInputChannelNum)
        dccInputChannelNum==27+i) tbNumber = i;
   }
   /////////////////////
+  cout<<"dcc: "<<dccInputChannelNum<<endl;
+  /////////////////////
  for(int i=0;i<4;i++){
     if(dccInputChannelNum>=i*9 &&
        dccInputChannelNum<9+i*9) tcNumber = i; //Count TC from 0, not from 1.
 
   }
 
+ tcNumber+=4*dccFactor;
 
   return std::pair<int,int>(tcNumber,tbNumber);
 
