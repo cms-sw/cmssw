@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2007/05/18 08:07:47 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/22 16:10:06 $
+ *  $Revision: 1.2 $
  *  \author  C. Battilana S. Marcellini - INFN Bologna
  *   
  */
@@ -25,11 +25,13 @@
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <boost/cstdint.hpp>
 #include <string>
-#include <vector>
 #include <map>
 
 class DTChamberId;
+class DTGeometry;
+class TH1F;
 
 class DTLocalTriggerTest: public edm::EDAnalyzer{
 
@@ -52,23 +54,38 @@ protected:
   /// Endjob
   void endJob();
 
-  /// book the new ME
-  void bookWheelHistos(int wheel, std::string folder);
+  /// Book the new MEs (for each wheel)
+  void bookWheelHistos(int wheel, std::string folder, std::string htype );
+
+  /// Book the new MEs (for each chamber)
+  void bookChambHistos(DTChamberId chambId, std::string htype );
+
+  /// Calculate phi range for histograms
+  std::pair<float,float> phiRange(const DTChamberId& id);
+
+  /// Set labels Phi
+  void setLabelPh(MonitorElement* ME);
+  
+  /// Set labels Theta
+  void setLabelTh(MonitorElement* ME);
+
+  /// Compute efficiency plots
+  void makeEfficiencyME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId & chambid);
 
-
-private:
+ private:
 
   int nevents;
 
   DaqMonitorBEInterface* dbe;
   std::string sourceFolder;
   edm::ParameterSet parameters;
-  std::map<int,std::map<std::string,MonitorElement*> > phiME;
-  std::map<int,std::map<std::string,MonitorElement*> > thetaME;
-  std::map<int,MonitorElement*> segME;
+  std::string hwSource;
+  edm::ESHandle<DTGeometry> muonGeom;
+  std::map<int,std::map<std::string,MonitorElement*> >      whME;
+  std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
 
 };
 
