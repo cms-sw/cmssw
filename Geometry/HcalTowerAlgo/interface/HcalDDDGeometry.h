@@ -16,7 +16,7 @@ public:
   virtual ~HcalDDDGeometry();
   
   virtual std::vector<DetId> const & getValidDetIds(DetId::Detector det, int subdet) const;
-  virtual const DetId getClosestCell(const GlobalPoint& r) const ;
+  virtual DetId getClosestCell(const GlobalPoint& r) const ;
   int insertCell (std::vector<HcalCellType::HcalCellType> const & );
 
 private:

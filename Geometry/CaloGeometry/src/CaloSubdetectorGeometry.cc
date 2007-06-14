@@ -6,7 +6,7 @@
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() { 
   CellCont::iterator i=cellGeometries_.begin();
   for (i=cellGeometries_.begin(); i!=cellGeometries_.end(); i++)
-    delete const_cast<CaloCellGeometry*>(*i).second;
+    delete const_cast<CaloCellGeometry*>((*i).second);
 }
 
 void CaloSubdetectorGeometry::addCell(const DetId& id, const CaloCellGeometry* ccg) {
