@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.3 2007/06/10 08:57:28 lowette Exp $
+// $Id: TopJetProducer.h,v 1.4 2007/06/13 11:33:53 jandrea Exp $
 //
 
 #ifndef TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.3 2007/06/10 08:57:28 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.4 2007/06/13 11:33:53 jandrea Exp $
 */
 
 
@@ -28,6 +28,7 @@
 #include "PhysicsTools/Utilities/interface/EtComparator.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
@@ -58,11 +59,20 @@ class TopJetProducer : public edm::EDProducer {
 
   private:
 
+    std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
+							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
+    std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
+							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
+
+
     JetFlavourIdentifier jfi;
     // configurables
     std::string   jetTagsLabel_;
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
+    edm::InputTag topElectronsLabel_;
+    edm::InputTag topMuonsLabel_;
+    bool          doJetCleaning_;
     bool          storeBDiscriminants;
     bool          addResolutions_;
     std::string   caliJetResoFile_;
@@ -73,6 +83,9 @@ class TopJetProducer : public edm::EDProducer {
     bool          keepdiscriminators; 
     bool          keepjettagref;
 
+    float LEPJETDR_;
+    float ELEISOCUT_;
+    float MUISOCUT_;
 
 
     // tools
