@@ -1,4 +1,4 @@
-// $Id: testAssociationVector.cc,v 1.6 2007/06/14 20:05:55 llista Exp $
+// $Id: testAssociationVector.cc,v 1.7 2007/06/14 20:44:12 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include <algorithm>
 #include <iterator>
@@ -60,5 +60,11 @@ void testAssociationVector::checkAll() {
   Ref<AssociationVector<RefProd<CKey>, CVal> > r3( assocHandle, 2 );
   CPPUNIT_ASSERT(*r3->first == 3.3);
   CPPUNIT_ASSERT(r3->second == 3);
+  v[rc0] = 111;
+  v[rc1] = 122;
+  v[rc2] = 133;
+  CPPUNIT_ASSERT( v[rc0] == 111 );
+  CPPUNIT_ASSERT( v[rc1] == 122 );
+  CPPUNIT_ASSERT( v[rc2] == 133 );
 }
 
