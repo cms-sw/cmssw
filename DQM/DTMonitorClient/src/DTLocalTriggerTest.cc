@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 07:40:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/14 15:29:05 $
+ *  $Revision: 1.3 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -71,7 +71,7 @@ void DTLocalTriggerTest::setLabelPh(MonitorElement* ME){
   for (int i=0; i<48; ++i){
     stringstream label;
     int stat = (i%4) +1;
-    if (stat==1) label << "Sector " << i/4 +1 << " ";
+    if (stat==1) label << "Sec " << i/4 +1 << " ";
     ME->setBinLabel(i+1,label.str().c_str());
   }
 
@@ -82,7 +82,7 @@ void DTLocalTriggerTest::setLabelTh(MonitorElement* ME){
   for (int i=0; i<36; ++i){
     stringstream label;
     int stat = (i%3) +1;
-    if (stat==1) label << "Sector " << i/3 +1 << " ";
+    if (stat==1) label << "Sec " << i/3 +1 << " ";
     ME->setBinLabel(i+1,label.str().c_str());
   }
 
