@@ -43,12 +43,12 @@ public:
 protected:
 
   bool                rInside(double r);
-  int                 getPhoton(TTree *, int);
-  void                getRecord(TTree *, int);
+  void                getRecord(int, int);
   void                loadPacking(TTree *);
-  void                loadEventInfo(TTree *, bool);
-  void                interpolate(TTree *, double);
-  void                extrapolate(TTree *, double);
+  void                loadEventInfo(TTree *);
+  void                loadEventInfo(TBranch *);
+  void                interpolate(int, double);
+  void                extrapolate(int, double);
   void                storePhoton(int j);
   std::vector<double> getDDDArray(const std::string&, const DDsvalues_type&,
 				  int&);
@@ -64,29 +64,29 @@ private:
 
   HFFibre *           fibre;
   TFile *             hf;
-  TTree *             emTree;
-  TTree *             hadTree;
+  TTree               *emTree, *hadTree;
+  TBranch             *emBranch, *hadBranch;
 
-  bool                packXYZ;
-  int                 xOffset, xMultiplier, xScale;
-  int                 yOffset, yMultiplier, yScale;
-  int                 zOffset, zMultiplier, zScale;
+  bool                readBranch, verbose;
   int                 nMomBin, totEvents, evtPerBin;
   float               libVers, listVersion; 
   std::vector<double> pmom;
 
+  bool                format, packXYZ;
+  int                 xOffset, xMultiplier, xScale;
+  int                 yOffset, yMultiplier, yScale;
+  int                 zOffset, zMultiplier, zScale;
+
   double              probMax;
   double              dphi, rMin, rMax;
   std::vector<double> gpar;
-
-  int                 nPhoton;
-  std::vector<HFShowerPhoton> photon;
 
   int                 nHit;
   std::vector<Hit>    hit;
 
   int                 npe;
   std::vector<HFShowerPhoton> pe;
+  std::vector<HFShowerPhoton> photon;
 
 };
 #endif

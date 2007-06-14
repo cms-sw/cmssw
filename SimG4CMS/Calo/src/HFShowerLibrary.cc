@@ -4,6 +4,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "SimG4CMS/Calo/interface/HFShowerLibrary.h"
+#include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
@@ -20,7 +21,8 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 				 edm::ParameterSet const & p) : fibre(0),hf(0),
 								emTree(0),
 								hadTree(0),
-								nPhoton(0),
+								emBranch(0),
+								hadBranch(0),
 								nHit(0), 
 								npe(0) {
   
@@ -31,15 +33,16 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   edm::ParameterSet m_HS= p.getParameter<edm::ParameterSet>("HFShowerLibrary");
   edm::FileInPath fp       = m_HS.getParameter<edm::FileInPath>("FileName");
   std::string pTreeName    = fp.fullPath();
-  std::string emTree_name  = m_HS.getParameter<std::string>("TreeEMID");
-  std::string hadTree_name = m_HS.getParameter<std::string>("TreeHadID");
+  std::string emName       = m_HS.getParameter<std::string>("TreeEMID");
+  std::string hadName      = m_HS.getParameter<std::string>("TreeHadID");
+  std::string branchEvInfo = m_HS.getUntrackedParameter<std::string>("BranchEvt","HFShowerLibraryEventInfos_hfshowerlib_HFShowerLibraryEventInfo");
+  std::string branchPre    = m_HS.getUntrackedParameter<std::string>("BranchPre","HFShowerPhotons_hfshowerlib_");
+  std::string branchPost   = m_HS.getUntrackedParameter<std::string>("BranchPost","_R.obj");
+  verbose                  = m_HS.getUntrackedParameter<bool>("Verbosity",false);
 
   if (pTreeName.find(".") == 0) pTreeName.erase(0,2);
   const char* nTree = pTreeName.c_str();
   hf                = TFile::Open(nTree);
-
-  bool format = true;
-  if (fp.relativePath() == "vcal5x5.root") format = false;
 
   if (!hf->IsOpen()) { 
     edm::LogError("HFShower") << "HFShowerLibrary: opening " << nTree 
@@ -51,50 +54,99 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
 			     << " successfully"; 
   }
 
-  emTree  = (TTree *) hf->Get(emTree_name.c_str());
-  hadTree = (TTree *) hf->Get(hadTree_name.c_str());
-  edm::LogInfo("HFShower") << "HFShowerLibrary:Ntuple " << emTree_name 
-			   << " has " << emTree->GetEntries() 
-			   << " entries and Ntuple "  << hadTree_name 
-			   << " has " << hadTree->GetEntries() << " entries";
-
-  //Packing parameters
-  TTree * packing = (TTree *) hf->Get("Packing");
-  if (packing) {
-    loadPacking(packing);
-    packXYZ = true;
-    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset
-                             << " XMultiplier: " << xMultiplier << " XScale: "
-                             << xScale << " YOffset: " << yOffset
-                             << " YMultiplier: " << yMultiplier << " YScale: "
-                             << yScale  << " ZOffset: " << zOffset
-                             << " ZMultiplier: " << zMultiplier << " ZScale: "
-                             << zScale;
+  TTree * event = (TTree *) hf->Get("EventInfo");
+  readBranch = false;
+  format     = true;
+  unsigned int pos = pTreeName.find("vcal5x5.root");
+  if (pos > 0 && pos < pTreeName.size()) format = false;
+  if (event) {
+    loadEventInfo(event);
+  } else if (!format) {
+    libVers = -2; listVersion =-1; totEvents = 12000; evtPerBin = 1000;
+    pmom.push_back(10000.); pmom.push_back(15000.); pmom.push_back(20000.); 
+    pmom.push_back(35000.); pmom.push_back(50000.); pmom.push_back(80000.); 
+    pmom.push_back(100000.);pmom.push_back(150000.);pmom.push_back(250000.); 
+    pmom.push_back(350000.);pmom.push_back(500000.);pmom.push_back(1000000.); 
+    nMomBin = pmom.size();
   } else {
-    packXYZ = false;
+    event = (TTree *) hf ->Get("Events");
+    if (event) {
+      readBranch       = true;
+      std::string info = branchEvInfo + branchPost;
+      TBranch *evtInfo = event->GetBranch(info.c_str());
+      if (evtInfo) {
+	loadEventInfo(evtInfo);
+      } else {
+	edm::LogError("HFShower") << "HFShowerLibrary: HFShowerLibrayEventInfo"
+				  << " Branch does not exist in Event";
+	throw cms::Exception("Unknown", "HFShowerLibrary")
+	  << "Event information absent\n";
+      }
+    } else {
+      edm::LogError("HFShower") << "HFShowerLibrary: Events Tree does not "
+				<< "exist";
+      throw cms::Exception("Unknown", "HFShowerLibrary")
+	<< "Events tree absent\n";
+    }
+  }
+  
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Library " << libVers 
+			   << " ListVersion "	<< listVersion 
+			   << " Events Total " << totEvents << " and "
+			   << evtPerBin << " per bin";
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Energies (GeV) with " 
+			   << nMomBin	<< " bins";
+  for (int i=0; i<nMomBin; i++)
+    edm::LogInfo("HFShower") << "HFShowerLibrary: pmom[" << i << "] = "
+			     << pmom[i]/GeV << " GeV";
+
+  packXYZ = false;
+  if (readBranch) {
+    std::string name = branchPre + emName + branchPost;
+    emBranch         = event->GetBranch(name.c_str());
+    if (verbose) emBranch->Print();
+    name             = branchPre + hadName + branchPost;
+    hadBranch        = event->GetBranch(name.c_str());
+    if (verbose) hadBranch->Print();
+    edm::LogInfo("HFShower") << "HFShowerLibrary:Branch " << emName 
+			     << " has " << emBranch->GetEntries() 
+			     << " entries and Branch " << hadName 
+			     << " has " << hadBranch->GetEntries() 
+			     << " entries";
+  } else {
+    // Separate trees for EM/Hadronic particles
+    emTree  = (TTree *) hf->Get(emName.c_str());
+    if (verbose) emTree->Print();
+    hadTree = (TTree *) hf->Get(hadName.c_str());
+    if (verbose) hadTree->Print();
+    edm::LogInfo("HFShower") << "HFShowerLibrary:Tree " << emName 
+			     << " has " << emTree->GetEntries() 
+			     << " entries and Tree "  << hadName 
+			     << " has " << hadTree->GetEntries() << " entries";
+    //Packing parameters
+    TTree * packing = (TTree *) hf->Get("Packing");
+    if (packing) {
+      loadPacking(packing);
+      packXYZ = true;
+    } else if (!format) {
+      packXYZ = true;
+      xOffset = 50;  xMultiplier = 1000000; xScale = 10;
+      yOffset = 50;  yMultiplier = 1000;    yScale = 10;
+      zOffset = 150; zMultiplier = 1;       zScale = 1;
+    } 
+  }
+  if (packXYZ) {
+    edm::LogInfo("HFShower") << "HFShowerLibrary::XOffset: " << xOffset
+			     << " XMultiplier: " << xMultiplier 
+			     << " XScale: " << xScale << " YOffset: " 
+			     << yOffset << " YMultiplier: " << yMultiplier 
+			     << " YScale: " << yScale  << " ZOffset: " 
+			     << zOffset << " ZMultiplier: " << zMultiplier 
+			     << " ZScale: " << zScale;
+  } else {
     edm::LogInfo("HFShower") << "HFShowerLibrary::No packing information -"
 			     << " Assume x, y, z are not in packed form";
   }     
-
-  TTree * evtinfo = (TTree *) hf->Get("EventInfo");
-  if (evtinfo) {
-    loadEventInfo(evtinfo, format);
-    edm::LogInfo("HFShower") << "HFShowerLibrary: Library " << libVers 
-			     << " ListVersion "	<< listVersion 
-			     << " Events Total " << totEvents << " and "
-			     << evtPerBin << " per bin";
-    edm::LogInfo("HFShower") << "HFShowerLibrary: Energies (GeV) with " 
-			     << nMomBin	<< " bins";
-    for (int i=0; i<nMomBin; i++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: pmom[" << i << "] = "
-			       << pmom[i]/GeV << " GeV";
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: EvtInfo Branch does not"
-			      << " exist";
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "Event information absent\n";
-  } 
-
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
 			   << probMax;
   
@@ -183,15 +235,15 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     return -1;
   } else if (partType == "e-" || partType == "e+" || partType == "gamma" ) {
     if (pin<pmom[nMomBin-1]) {
-      interpolate(emTree, pin);
+      interpolate(0, pin);
     } else {
-      extrapolate(emTree, pin);
+      extrapolate(0, pin);
     }
   } else {
     if (pin<pmom[nMomBin-1]) {
-      interpolate(hadTree, pin);
+      interpolate(1, pin);
     } else {
-      extrapolate(hadTree, pin);
+      extrapolate(1, pin);
     }
   }
     
@@ -273,7 +325,8 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     }
   }
 
-  LogDebug("HFShower") << "HFShowerLibrary: Total Hits " << nHit;
+  edm::LogInfo("HFShower") << "HFShowerLibrary: Total Hits " << nHit
+			   << " out of " << npe << " PE";
   if (nHit > npe)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Hit buffer " << npe 
 				<< " smaller than " << nHit << " Hits";
@@ -314,59 +367,80 @@ bool HFShowerLibrary::rInside(double r) {
   else                        return false;
 }
 
+void HFShowerLibrary::getRecord(int type, int record) {
 
-int HFShowerLibrary::getPhoton(TTree* tree, int record) {
-
-  int nph = 0;
-  if (record > 0) {
-    tree->SetBranchAddress("NPH", &nph);
-    int nrc = record-1;
-    tree->GetEntry(nrc);
-  }
-  LogDebug("HFShower") << "HFShowerLibrary::getPhoton: Record " << record 
-		       << " with " << nph << " photons";
-  return nph;
-}
-
-void HFShowerLibrary::getRecord(TTree* tree, int record) {
-
-  int nrc = record-1;
-  nPhoton = getPhoton(tree, record);
-  if (nPhoton > 0) {
-    photon.clear();
-    LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
-			 << nPhoton << " photons";
-    float  x[10000], y[10000], z[10000];
-    int    nph, coor[10000], wl[10000], time[10000];
-    if (packXYZ) {
-      tree->SetBranchAddress("XYZ", &coor);
+  int nrc     = record-1;
+  int nPhoton = 0;
+  photon.clear();
+  if (readBranch) {
+    if (type > 0) {
+      hadBranch->SetAddress(&photon);
+      hadBranch->GetEntry(nrc);
     } else {
-      tree->SetBranchAddress("X", &x);
-      tree->SetBranchAddress("Y", &y);
-      tree->SetBranchAddress("Z", &z);
+      emBranch->SetAddress(&photon);
+      emBranch->GetEntry(nrc);
     }
-    tree->SetBranchAddress("L",   &wl);
-    tree->SetBranchAddress("T",   &time);
-    tree->SetBranchAddress("NPH", &nph);
+    nPhoton = photon.size();
+  } else {
+    TTree*        tree = emTree;
+    if (type > 0) tree = hadTree;
+    if (format) {
+      tree->SetBranchAddress("NPH", &nPhoton);
+    } else{
+      tree->SetBranchAddress("Nph", &nPhoton);
+    }      
     tree->GetEntry(nrc);
-    for (int j = 0; j < nPhoton; j++) {
-      if (packXYZ) {
-	int   ix = (coor[j])/xMultiplier;
-	int   iy = (coor[j])/yMultiplier - ix*yMultiplier;
-	int   iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-	float xx = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
-	float yy = (iy/yScale - yOffset)*cm + 35.;//idem
-	float zz = (iz/zScale - zOffset)*cm;
-	HFShowerPhoton hfPhot = HFShowerPhoton(xx,yy, zz, wl[j],time[j]/100.);
-	photon.push_back(hfPhot);
+    if (nPhoton > 0) {
+      float  x[10000], y[10000], z[10000];
+      int    nph, coor[10000], wl[10000], time[10000];
+      if (format) {
+	if (packXYZ) {
+	  tree->SetBranchAddress("XYZ", &coor);
+	} else {
+	  tree->SetBranchAddress("X", &x);
+	  tree->SetBranchAddress("Y", &y);
+	  tree->SetBranchAddress("Z", &z);
+	}
+	tree->SetBranchAddress("L",   &wl);
+	tree->SetBranchAddress("T",   &time);
+	tree->SetBranchAddress("NPH", &nph);
       } else {
-	HFShowerPhoton hfPhot = HFShowerPhoton(x[j],y[j],z[j],wl[j],time[j]/100.);
-	photon.push_back(hfPhot);
+	tree->SetBranchAddress("Ixyz",&coor);
+	tree->SetBranchAddress("L",   &wl);
+	tree->SetBranchAddress("It",  &time);
+	tree->SetBranchAddress("Nph", &nph);
       }
-     
-      LogDebug("HFShower") << "Photon " << j << photon[j];
+      tree->GetEntry(nrc);
+      for (int j = 0; j < nPhoton; j++) {
+	if (packXYZ) {
+	  int   ix = (coor[j])/xMultiplier;
+	  int   iy = (coor[j])/yMultiplier - ix*yMultiplier;
+	  int   iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
+	  float xx, yy, tim;
+	  if (libVers > 0) {
+	    xx = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
+	    yy = (iy/yScale - yOffset)*cm + 35.;//idem
+	    tim= time[j]/100.;
+	  } else {
+	    xx = (ix/xScale - xOffset)*cm;
+	    yy = (iy/yScale - yOffset)*cm;
+	    tim= time[j]/10.;
+	  }
+	  float zz = (iz/zScale - zOffset)*cm;
+	  HFShowerPhoton hfPhot = HFShowerPhoton(xx,yy,zz, wl[j],tim);
+	  photon.push_back(hfPhot);
+	} else {
+	  HFShowerPhoton hfPhot = HFShowerPhoton(x[j],y[j],z[j],wl[j],time[j]/100.);
+	  photon.push_back(hfPhot);
+	}
+      }
     }
   }
+  edm::LogInfo("HFShower") << "HFShowerLibrary::getRecord: Record " << record
+			   << " of type " << type << " with " << nPhoton 
+			   << " photons";
+  for (int j = 0; j < nPhoton; j++) 
+    LogDebug("HFShower") << "Photon " << j << photon[j];
 }
 
 void HFShowerLibrary::loadPacking(TTree* tree) {
@@ -385,7 +459,7 @@ void HFShowerLibrary::loadPacking(TTree* tree) {
   }
 }
 
-void HFShowerLibrary::loadEventInfo(TTree* tree, bool format) {
+void HFShowerLibrary::loadEventInfo(TTree* tree) {
 
   int v[200];
   libVers     = -1;
@@ -404,44 +478,65 @@ void HFShowerLibrary::loadEventInfo(TTree* tree, bool format) {
       double val = ((double)(v[i]))*GeV;
       pmom.push_back(val);
     }
-  } 
+  }
+  if (evtPerBin*nMomBin != totEvents) {
+    edm::LogWarning("HFShower") << "HFShowerLibrary::loadEventInfo:mismatch "
+				<< totEvents << " and " << evtPerBin*nMomBin;
+    totEvents = evtPerBin*nMomBin;
+  }
 }
 
-void HFShowerLibrary::interpolate(TTree * tree, double pin) {
+void HFShowerLibrary::loadEventInfo(TBranch* branch) {
 
-  int nentry = int(tree->GetEntries());
-  int nevent = nentry/nMomBin;
+  std::vector<HFShowerLibraryEventInfo> eventInfoCollection;
+  branch->SetAddress(&eventInfoCollection);
+  branch->GetEntry(0);
+  edm::LogInfo("HFShower") << "HFShowerLibrary::loadEventInfo loads "
+			   << " EventInfo Collection of size "
+			   << eventInfoCollection.size() << " records";
+  totEvents   = eventInfoCollection[0].totalEvents();
+  nMomBin     = eventInfoCollection[0].numberOfBins();
+  evtPerBin   = eventInfoCollection[0].eventsPerBin();
+  libVers     = eventInfoCollection[0].showerLibraryVersion();
+  listVersion = eventInfoCollection[0].physListVersion();
+  pmom        = eventInfoCollection[0].energyBins();
+  for (unsigned int i=0; i<pmom.size(); i++) 
+    pmom[i] *= GeV;
+}
+
+void HFShowerLibrary::interpolate(int type, double pin) {
+
   LogDebug("HFShower") << "HFShowerLibrary:: Interpolate for Energy " <<pin/GeV
 		       << " GeV with " << nMomBin << " momentum bins and " 
-		       << nevent << " entries/bin -- total " << nentry;
-  int irc[2], j;
+		       << evtPerBin << " entries/bin -- total " << totEvents;
+  int irc[2];
   double w = 0.;
   double r = G4UniformRand();
 
   if (pin<pmom[0]) {
     w = pin/pmom[0];
-    irc[1] = int(nevent*r) + 1;
+    irc[1] = int(evtPerBin*r) + 1;
     irc[0] = 0;
   } else {
-    for (j=0; j<nMomBin-1; j++) {
+    for (int j=0; j<nMomBin-1; j++) {
       if (pin >= pmom[j] && pin < pmom[j+1]) {
 	w = (pin-pmom[j])/(pmom[j+1]-pmom[j]);
 	if (j == nMomBin-2) { 
-	  irc[1] = int(nevent*0.5*r);
+	  irc[1] = int(evtPerBin*0.5*r);
 	} else {
-	  irc[1] = int(nevent*r);
+	  irc[1] = int(evtPerBin*r);
 	}
-	irc[1] += (j+1)*nevent + 1;
+	irc[1] += (j+1)*evtPerBin + 1;
 	r = G4UniformRand();
-	irc[0] = int(nevent*r) + 1 + j*nevent;
+	irc[0] = int(evtPerBin*r) + 1 + j*evtPerBin;
 	if (irc[0]<0) {
 	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
 				      << irc[0] << " now set to 0";
 	  irc[0] = 0;
-	} else if (irc[0] > nentry) {
+	} else if (irc[0] > totEvents) {
 	  edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[0] = "
-				      << irc[0] << " now set to "<< nentry;
-	  irc[0] = nentry;
+				      << irc[0] << " now set to "<< totEvents;
+	  irc[0] = totEvents;
 	}
       }
     }
@@ -450,107 +545,109 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
     edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
 				<< irc[1] << " now set to 1";
     irc[1] = 1;
-  } else if (irc[1] > nentry) {
+  } else if (irc[1] > totEvents) {
     edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[1] = " 
-				<< irc[1] << " now set to "<< nentry;
-    irc[1] = nentry;
+				<< irc[1] << " now set to "<< totEvents;
+    irc[1] = totEvents;
   }
 
   LogDebug("HFShower") << "HFShowerLibrary:: Select records " << irc[0] 
 		       << " and " << irc[1] << " with weights " << 1-w 
 		       << " and " << w;
-  int npold = getPhoton (tree, irc[1]);
-  if (irc[0]>0) {
-    getRecord (tree, irc[0]);
-    npold += nPhoton;
-  }
-  if (npold <= 0) npold = 1;
+
   pe.clear(); 
-
-  npe = 0;
-  if (irc[0]>0) {
-    for (j=0; j<nPhoton; j++) {
-      r = G4UniformRand();
-      if (r > w) {
-	storePhoton (j);
+  npe       = 0;
+  int npold = 0;
+  for (int ir=0; ir < 2; ir++) {
+    if (irc[ir]>0) {
+      getRecord (type, irc[ir]);
+      int nPhoton = photon.size();
+      npold      += nPhoton;
+      for (int j=0; j<nPhoton; j++) {
+	r = G4UniformRand();
+	if ((ir==0 && r > w) || (ir > 0 && r < w)) {
+	  storePhoton (j);
+	}
       }
-    }
-  }
-
-  getRecord (tree, irc[1]);
-  for (j=0; j<nPhoton; j++) {
-    r = G4UniformRand();
-    if (r < w) {
-      storePhoton (j);
     }
   }
 
   if (npe > npold || npold == 0)
     edm::LogWarning("HFShower") << "HFShowerLibrary: Interpolation error =="
-				<< " buffer " << npold << " filled " << npe 
-				<< " *****";
-  LogDebug("HFShower") << "HFShowerLibrary: Interpolation gives " << npe
-		       << " Photons == buffer " << npold;
-  for (j=0; j<npe; j++) {
+				<< " records " << irc[0] << " and " << irc[1]
+				<< " gives a buffer of " << npold 
+				<< " photons and fills " << npe << " *****";
+  else
+    LogDebug("HFShower") << "HFShowerLibrary: Interpolation == records " 
+			 << irc[0] << " and " << irc[1] << " gives a "
+			 << "buffer of " << npold << " photons and fills "
+			 << npe << " PE";
+  for (int j=0; j<npe; j++) {
     LogDebug("HFShower") << "Photon " << j << " " << pe[j];
   }
 }
 
-void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
+void HFShowerLibrary::extrapolate(int type, double pin) {
 
-  int nentry = int(tree->GetEntries());
-  int nevent = nentry/nMomBin;
   int nrec   = int(pin/pmom[nMomBin-1]);
   double w   = (pin - pmom[nMomBin-1]*nrec)/pmom[nMomBin-1];
   nrec++;
   LogDebug("HFShower") << "HFShowerLibrary:: Extrapolate for Energy " << pin 
 		       << " GeV with " << nMomBin << " momentum bins and " 
-		       << nevent << " entries/bin -- total " << nentry 
+		       << evtPerBin << " entries/bin -- total " << totEvents 
 		       << " using " << nrec << " records";
   std::vector<int> irc(nrec);
-  int    j, ir;
-  double r;
 
-  npe = 0;
-  int npold = 0;
-  for (ir=0; ir<nrec; ir++) {
-    r = G4UniformRand();
-    irc[ir] = int(nevent*0.5*r) +(nMomBin-1)*nevent + 1;
+  for (int ir=0; ir<nrec; ir++) {
+    double r = G4UniformRand();
+    irc[ir] = int(evtPerBin*0.5*r) +(nMomBin-1)*evtPerBin + 1;
     if (irc[ir]<1) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
 				  << "] = " << irc[ir] << " now set to 1";
       irc[ir] = 1;
-    } else if (irc[ir] > nentry) {
+    } else if (irc[ir] > totEvents) {
       edm::LogWarning("HFShower") << "HFShowerLibrary:: Illegal irc[" << ir 
 				  << "] = " << irc[ir] << " now set to "
-				  << nentry;
-      irc[ir] = nentry;
+				  << totEvents;
+      irc[ir] = totEvents;
+    } else {
+      LogDebug("HFShower") << "HFShowerLibrary::Extrapolation use irc[" 
+			   << ir  << "] = " << irc[ir];
     }
-    LogDebug("HFShower") << "Record [" << ir << "] = " << irc[ir] 
-			 << " npold = " << npold;
-    npold += getPhoton (tree, irc[ir]);
+  }
+
+  pe.clear(); 
+  npe       = 0;
+  int npold = 0;
+  for (int ir=0; ir<nrec; ir++) {
+    if (irc[ir]>0) {
+      getRecord (type, irc[ir]);
+      int nPhoton = photon.size();
+      npold      += nPhoton;
+      for (int j=0; j<nPhoton; j++) {
+	double r = G4UniformRand();
+	if (ir != nrec-1 || r < w) {
+	  storePhoton (j);
+	}
+      }
+      LogDebug("HFShower") << "Record [" << ir << "] = " << irc[ir] 
+			   << " npold = " << npold;
+    }
   }
   LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
-  if (npold <= 0) npold = 1;
-  pe.clear(); 
-
-  for (ir=0; ir<nrec; ir++) {
-    getRecord (tree, irc[ir]);
-    for (j=0; j<nPhoton; j++) {
-      r = G4UniformRand();
-      if (ir != nrec-1 || r < w) {
-	storePhoton (j);
-      }
-    }
-  }
 
   if (npe > npold || npold == 0)
-    edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation error =="
-				<< " buffer " << npold << " filled " << npe 
+    edm::LogWarning("HFShower") << "HFShowerLibrary: Extrapolation error == "
+				<< nrec << " records " << irc[0] << ", " 
+				<< irc[1] << ", ... gives a buffer of " <<npold
+				<< " photons and fills " << npe 
 				<< " *****";
-  LogDebug("HFShower") << "HFShowerLibrary: Extrapolation gives " << npe
-		       << " Photons == buffer "  << npold;
-  for (j=0; j<npe; j++) {
+  else
+    LogDebug("HFShower") << "HFShowerLibrary: Extrapolation == " << nrec
+			 << " records " << irc[0] << ", " << irc[1] 
+			 << ", ... gives a buffer of " << npold 
+			 << " photons and fills " << npe << " PE";
+  for (int j=0; j<npe; j++) {
     LogDebug("HFShower") << "Photon " << j << " " << pe[j];
   }
 }
@@ -601,4 +698,3 @@ std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str,
       << "cannot get array " << str << "\n";
   }
 }
-
