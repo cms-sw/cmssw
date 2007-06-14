@@ -12,8 +12,9 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 
 
-AlCaElectronsProducer::AlCaElectronsProducer(const edm::ParameterSet& iConfig)
+AlCaElectronsProducer::AlCaElectronsProducer(const edm::ParameterSet& iConfig) 
 {
+
   ebRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("ebRecHitsLabel");
   eeRecHitsLabel_ = iConfig.getParameter< edm::InputTag > ("eeRecHitsLabel");
   electronLabel_ = iConfig.getParameter< edm::InputTag > ("electronLabel");
@@ -34,8 +35,7 @@ AlCaElectronsProducer::AlCaElectronsProducer(const edm::ParameterSet& iConfig)
 
 
 AlCaElectronsProducer::~AlCaElectronsProducer()
-{
-}
+{}
 
 
 // ------------ method called to produce the data  ------------
@@ -194,6 +194,8 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
 
     int side = phiSize_ ;
     if (phiSize_ < etaSize_) side = etaSize_ ;
+    int iz = 1 ;
+    if (eleIt->eta () < 0)  iz = -1 ;
     if (!maxHit.null())
       //PG loop over the local array of xtals
       for (unsigned int icry = 0 ; icry < side*side ; icry++)
@@ -208,14 +210,17 @@ AlCaElectronsProducer::produce (edm::Event& iEvent,
           
           try
             {
-              EEDetId det = EEDetId(curr_eta,curr_phi,EEDetId::XYMODE); 
+              EEDetId det = EEDetId (curr_eta,curr_phi,iz,EEDetId::XYMODE) ; 
               if (find (scXtals.begin (), scXtals.end (), det) != scXtals.end ())
-                if (endcapHitsCollection->find(det) != endcapHitsCollection->end())
-                  miniEERecHitCollection->push_back(*(endcapHitsCollection->find(det)));
+                if (endcapHitsCollection->find (det) != endcapHitsCollection->end ())
+                  miniEERecHitCollection->push_back (*(endcapHitsCollection->find (det))) ;
             }
           catch (...)
             {
-              edm::LogWarning ("shape") << "DetId not built" ;
+              edm::LogWarning ("shape") << "DetId (" 
+                                        << curr_eta << "," << curr_phi 
+                                        << ") not built" ;
+//PG              m_failMap->Fill (curr_eta,curr_phi) ;
             }
         }
       } //PG endcap
