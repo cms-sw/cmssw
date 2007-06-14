@@ -315,8 +315,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       for (uint ihit=tm.size()-1; ihit>=tm.size()-nHitsinSeed;ihit-- ){ 
 	//for the first n measurement put the TM in the trajectory
 	// and save the corresponding hit
-	seedTraj.push(tm[ihit]);
-	rhits.push_back((*tm[ihit].recHit()).hit()->clone());
+	if ((*tm[ihit].recHit()).hit()->clone()->isValid()){
+	  seedTraj.push(tm[ihit]);
+	  rhits.push_back((*tm[ihit].recHit()).hit()->clone());
+	}
       }
       PTrajectoryStateOnDet* state = TrajectoryStateTransform().
 	persistentState(seedTraj.lastMeasurement().updatedState(),
