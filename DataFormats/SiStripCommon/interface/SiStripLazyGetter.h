@@ -49,19 +49,22 @@ namespace edm {
     public:
     typedef typename std::vector<T>::const_iterator const_iterator;
     RegionIndex(uint32_t& region, const_iterator begin, const_iterator end) :
-     region_(region), begin_(begin), end_(end) {}
+     region_(region), begin_(begin), end_(end), unpacked_(false) {}
     ~RegionIndex() {}
     uint32_t region() const {return region_;}
     const_iterator begin() const {return begin_;}
     const_iterator end() const {return end_;}
+    const bool unpacked() const {return unpacked_;}
    
     private:
     RegionIndex() {}
     void begin(const_iterator newbegin) {begin_ = newbegin;}
     void end(const_iterator newend) {end_ = newend;}
+    void unpacked(bool newunpacked) {unpacked_=newunpacked;}
     uint32_t region_;
     const_iterator begin_;
     const_iterator end_;
+    bool unpacked_;
   };
 
   template<typename T>
@@ -107,10 +110,10 @@ namespace edm {
 
       /// () operator for construction of iterator
       const RegionIndex<T>& operator()(const RegionIndex<T>& index) const {
-	if (index.end() == unpacker_->record().begin()) {
+	if (!index.unpacked()) {
 	uint32_t region = index.region();
 	unpacker_->register_[region].begin(unpacker_->record().end());
-	unpacker_->fill(region);
+	unpacker_->fill(region); const_cast< RegionIndex<T>& >(index).unpacked(true);
 	unpacker_->register_[region].end(unpacker_->record().end());
 	}
 	return index;
