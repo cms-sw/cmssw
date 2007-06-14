@@ -7,8 +7,6 @@ namespace JetMCTagUtils {
 
   double EnergyRatioFromBHadrons(const reco::Candidate &c);
   double EnergyRatioFromCHadrons(const reco::Candidate &c);
-  int    BTagPhysicsFlavour();
-  int    BTagAlgoFlavour();
   bool   decayFromBHadron(const reco::Candidate &c);
   bool   decayFromCHadron(const reco::Candidate &c);
 

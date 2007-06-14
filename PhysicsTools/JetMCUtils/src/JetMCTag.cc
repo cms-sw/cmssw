@@ -49,18 +49,6 @@ double JetMCTagUtils::EnergyRatioFromCHadrons(const Candidate & c)
    return ratioForCjet;
 }
 
-int JetMCTagUtils::BTagPhysicsFlavour()
-{
-   cout << "BTagPhysicsFlavour not yet implemented" << endl;
-   return 0;
-}
-
-int JetMCTagUtils::BTagAlgoFlavour()
-{
-   cout << "BTagAlgoFlavour not yet implemented" << endl;
-   return 0;
-}
-
 bool JetMCTagUtils::decayFromBHadron(const Candidate & c)
 {
    bool isFromB = false;
