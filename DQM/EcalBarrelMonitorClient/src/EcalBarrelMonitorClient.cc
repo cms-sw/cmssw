@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/10 20:44:40 $
- * $Revision: 1.279 $
+ * $Date: 2007/06/13 22:15:39 $
+ * $Revision: 1.280 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -91,20 +91,21 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   runTypes_.resize( 22 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
-  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
-  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
-  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
-  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
-  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
+
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
 
   clients_.clear();
   clientNames_.clear();
@@ -421,10 +422,21 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
   clients_.push_back( new EBCosmicClient(ps) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
 
   clients_.push_back(  new EBLaserClient(ps) );
   clientNames_.push_back( "Laser" );
@@ -433,9 +445,15 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+
   clients_.push_back(  new EBPedestalClient(ps) );
   clientNames_.push_back( "Pedestal" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   clients_.push_back(  new EBPedestalOnlineClient(ps) );
   clientNames_.push_back( "PedestalOnline" );
@@ -447,9 +465,19 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
   clients_.push_back(  new EBTestPulseClient(ps) );
   clientNames_.push_back( "TestPulse" );
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   clients_.push_back(  new EBBeamCaloClient(ps) );
   clientNames_.push_back( "BeamCalo" );
@@ -467,6 +495,11 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
   }
 
   clients_.push_back(  new EBClusterClient(ps) );
@@ -475,6 +508,9 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
   }
 
   clients_.push_back(  new EBTimingClient(ps) );
@@ -483,6 +519,13 @@ void EcalBarrelMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 //  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//  chb_.insert( EBCIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   summaryClient_ = new EBSummaryClient(ps);
 
