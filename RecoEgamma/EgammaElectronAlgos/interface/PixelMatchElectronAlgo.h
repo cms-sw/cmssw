@@ -61,6 +61,10 @@ public:
   //Gsf mode calculations
   GlobalVector computeMode(const TrajectoryStateOnSurface &tsos);
 
+  //ecaleta, ecalphi: in fine to be replaced by propagators
+  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
+  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
+
   // preselection parameters
   // maximum E/p where E is the supercluster corrected energy and p the track momentum at innermost state  
   double maxEOverPBarrel_;   

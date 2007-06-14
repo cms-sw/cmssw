@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.17 2007/05/09 13:10:10 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.18 2007/06/14 09:02:23 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.18  2007/06/14 09:02:23  uberthon
+//  add setSuperCluster + setGsfTrack
+//
 // Revision 1.17  2007/05/09 13:10:10  uberthon
 // implement track-method with warning
 //
@@ -118,6 +121,9 @@ class PixelMatchGsfElectron : public RecoCandidate {
   PixelMatchGsfElectron * clone() const;
 
   // setters
+  void setDeltaEtaSuperClusterAtVtx(float de) {deltaEtaSuperClusterAtVtx_=de;}
+  void setDeltaPhiSuperClusterAtVtx (float dphi) {deltaPhiSuperClusterAtVtx_=dphi;}
+
   void setSuperCluster(const reco::SuperClusterRef &scl) {superCluster_=scl;}
   void setGsfTrack(const reco::GsfTrackRef &t) { track_=t;}
 
@@ -181,15 +187,14 @@ class PixelMatchGsfElectron : public RecoCandidate {
   int numberOfClusters() const {return superCluster_->clustersSize();}
 
   //! array of pointers to the related brem clusters
-  //  BasicClusterRefVector getBremClusters() const;
   basicCluster_iterator basicClustersBegin() const { return superCluster_->clustersBegin(); }
   basicCluster_iterator basicClustersEnd() const { return superCluster_->clustersEnd(); }
 
  private:
 
   // temporary
-  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
-  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
+  //  float ecalEta(float EtaParticle , float Zvertex, float plane_Radius);
+  //  float ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart);
 
   math::XYZVector trackMomentumAtVtx_;
   math::XYZVector trackPositionAtVtx_;

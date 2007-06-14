@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.40 2007/05/09 14:09:26 uberthon Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.41 2007/06/10 19:29:08 futyand Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -228,7 +228,37 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       GlobalVector outMom=computeMode(outTSOS);
       GlobalPoint  outPos=outTSOS.globalPosition();
 
+      //create electron
       PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
+      ele.setCharge(ele.gsfTrack()->charge());
+      ele.setVertex(math::XYZPoint(ele.gsfTrack()->vertex()));
+      ele.setPdgId( -11 * ele.charge() );
+      double scale = theClus.energy()/vtxMom.mag();    
+      math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(vtxMom.x()*scale,
+								 vtxMom.y()*scale,
+								 vtxMom.z()*scale,
+								 theClus.energy());
+      ele.setP4(momentum);
+
+      //and set various properties
+      float trackEta = ecalEta(
+			       trackRef->innerMomentum().eta(),
+			       trackRef->innerPosition().z(),
+			       trackRef->innerPosition().Rho());
+
+      float trackPhi = ecalPhi(
+			       trackRef->innerMomentum().Rho(),
+			       trackRef->innerMomentum().eta(),
+			       trackRef->innerMomentum().phi(),
+			       trackRef->charge(),
+			       trackRef->innerPosition().Rho());
+
+      ele.setDeltaEtaSuperClusterAtVtx(theClus.position().eta() - trackEta);
+      float dphi                =theClus.position().phi() - trackPhi;
+      if (fabs(dphi)>CLHEP::pi)
+	dphi = dphi < 0? CLHEP::pi2 + dphi : dphi - CLHEP::pi2;
+      ele.setDeltaPhiSuperClusterAtVtx(dphi);
+
       // set corrections + classification
       ElectronClassification theClassifier;
       theClassifier.correct(ele);
@@ -343,3 +373,87 @@ GlobalVector PixelMatchElectronAlgo::computeMode(const TrajectoryStateOnSurface 
 
 }
 
+
+ 
+//FIXME!!
+static const float R_ECAL           = 136.5;
+static const float Z_Endcap         = 328.0;
+static const float etaBarrelEndcap  = 1.479; 
+
+float PixelMatchElectronAlgo::ecalEta(float EtaParticle , float Zvertex, float plane_Radius)
+{
+  if (EtaParticle!= 0.)
+    {
+      float Theta = 0.0  ;
+      float ZEcal = (R_ECAL-plane_Radius)*sinh(EtaParticle)+Zvertex;
+      
+      if(ZEcal != 0.0) Theta = atan(R_ECAL/ZEcal);
+      if(Theta<0.0) Theta = Theta+Geom::pi() ;
+
+      float ETA = - log(tan(0.5*Theta));
+      
+      if( fabs(ETA) > etaBarrelEndcap )
+	{
+	  float Zend = Z_Endcap ;
+	  if(EtaParticle<0.0 )  Zend = -Zend ;
+	  float Zlen = Zend - Zvertex ;
+	  float RR = Zlen/sinh(EtaParticle);
+	  Theta = atan((RR+plane_Radius)/Zend);
+	  if(Theta<0.0) Theta = Theta+Geom::pi() ;
+	  ETA = - log(tan(0.5*Theta));
+	}
+      return ETA;
+    }
+  else
+    {
+      edm::LogWarning("")  << "[EcalPositionFromTrack::etaTransformation] Warning: Eta equals to zero, not correcting" ;
+      return EtaParticle;
+    }
+}
+
+float PixelMatchElectronAlgo::ecalPhi(float PtParticle, float EtaParticle, float PhiParticle, int ChargeParticle, float Rstart)
+{
+  //Magnetic field
+  const float RBARM = 1.357 ;  // was 1.31 , updated on 16122003
+  const float ZENDM = 3.186 ;  // was 3.15 , updated on 16122003
+  float Rbend = RBARM-(Rstart/100.); //Assumed Rstart in cm
+  float Bend  = 0.3 * 4. * Rbend/ 2.0 ;
+
+  //---PHI correction
+  float PHI = 0.0 ;
+  if( fabs(EtaParticle) <=  etaBarrelEndcap)
+    {
+      if (fabs(Bend/PtParticle)<=1.)
+	{
+	  PHI = PhiParticle - asin(Bend/PtParticle)*ChargeParticle;
+	  if(PHI >  Geom::pi()) {PHI = PHI - Geom::twoPi();}
+	  if(PHI < -Geom::pi()) {PHI = PHI + Geom::twoPi();}
+	}
+      else
+	{
+	  edm::LogWarning("") << "[EcalPositionFromTrack::phiTransformation] Warning:Too low Pt, giving up ";
+	  return PhiParticle;
+	}
+    }
+  
+  if( fabs(EtaParticle) >  etaBarrelEndcap )
+    {
+      float Rhit = 0.0 ;
+      Rhit = ZENDM / sinh(fabs(EtaParticle));
+      if (fabs(((Rhit-(Rstart/100.))/Rbend)*Bend/PtParticle)<=1.)
+	{
+	  PHI = PhiParticle - asin(((Rhit-(Rstart/100.))/Rbend)*Bend/PtParticle)*ChargeParticle;
+	  if(PHI >  Geom::pi()) {PHI = PHI - Geom::twoPi();}
+	  if(PHI < -Geom::pi()) {PHI = PHI + Geom::twoPi();}
+	}
+      else
+	{
+	  edm::LogWarning("") <<"[EcalPositionFromTrack::phiTransformation] Warning:Too low Pt, giving up ";
+	  return PhiParticle;
+	}
+      
+    }
+  
+  //---Return the result
+  return PHI;
+}
