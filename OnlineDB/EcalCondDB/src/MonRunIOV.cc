@@ -28,6 +28,10 @@ MonRunIOV::~MonRunIOV()
 }
 
 
+void MonRunIOV::setID(int id)
+{
+    m_ID = id;
+}
 
 void MonRunIOV::setMonRunTag(MonRunTag tag)
 {
@@ -54,6 +58,10 @@ void MonRunIOV::setRunIOV(RunIOV iov)
   }
 }
 
+RunIOV MonRunIOV::getRunIOV() 
+{ 
+  return m_runIOV;
+}
 
 
 void MonRunIOV::setSubRunNumber(subrun_t subrun)

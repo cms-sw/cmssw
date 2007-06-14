@@ -18,6 +18,9 @@ class MonRunIOV : public IIOV {
   MonRunIOV();
   ~MonRunIOV();
 
+  void setID(int id);
+
+
   // Methods for user data
   void setMonRunTag(MonRunTag tag);
   MonRunTag getMonRunTag() const;

@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.3 2006/07/05 15:47:38 egeland Exp $
+// $Id: EcalCondDBInterface.cc,v 1.5 2007/05/10 16:24:15 fra Exp $
 
 #include <iostream>
 #include <string>
@@ -20,6 +20,8 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/RunList.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunList.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunList.h"
+#include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFRunTag.h"
 #include "OnlineDB/EcalCondDB/interface/LMFMatacqBlueDat.h"
 
@@ -363,6 +365,41 @@ LMFRunList EcalCondDBInterface::fetchLMFRunListLastNRuns(RunTag tag, LMFRunTag l
   r.setConnection(env, conn);
   r.setRunTag(tag);
   r.setLMFRunTag(lmfrunTag);
+  r.fetchLastNRuns(max_run, n_runs );
+  return r;
+}
+
+// from here it is for the MonRunList 
+
+MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag)
+  throw(runtime_error)
+{  
+  MonRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setMonRunTag(monrunTag);
+  r.fetchRuns();
+  return r;
+}
+
+MonRunList EcalCondDBInterface::fetchMonRunList(RunTag tag, MonRunTag monrunTag,int min_run, int max_run)
+  throw(runtime_error)
+{  
+  MonRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setMonRunTag(monrunTag);
+  r.fetchRuns(min_run, max_run);
+  return r;
+}
+
+MonRunList EcalCondDBInterface::fetchMonRunListLastNRuns(RunTag tag, MonRunTag monrunTag,int max_run, int n_runs )
+  throw(runtime_error)
+{  
+  MonRunList r;
+  r.setConnection(env, conn);
+  r.setRunTag(tag);
+  r.setMonRunTag(monrunTag);
   r.fetchLastNRuns(max_run, n_runs );
   return r;
 }
