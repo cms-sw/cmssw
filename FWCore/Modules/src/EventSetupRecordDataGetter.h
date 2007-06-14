@@ -1,5 +1,5 @@
-#ifndef Modules_EventSetupRecordDataGetter_h
-#define Modules_EventSetupRecordDataGetter_h
+#ifndef FWCore_Modules_EventSetupRecordDataGetter_h
+#define FWCore_Modules_EventSetupRecordDataGetter_h
 // -*- C++ -*-
 //
 // Package:     Modules
@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jun 28 13:45:06 EDT 2005
-// $Id: EventSetupRecordDataGetter.h,v 1.1 2005/10/11 17:09:22 wmtan Exp $
+// $Id: EventSetupRecordDataGetter.h,v 1.2 2006/09/06 19:44:34 chrjones Exp $
 //
 
 // system include files
 #include <map>
 #include <vector>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -30,7 +29,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/EventSetupRecord.h"
-#include "FWCore/Framework/interface/IOVSyncValue.h"
 
 // forward declarations
 namespace edm {

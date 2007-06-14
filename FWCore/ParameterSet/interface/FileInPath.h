@@ -1,7 +1,7 @@
-#ifndef ParameterSet_FileInPath_h
-#define ParameterSet_FileInPath_h
+#ifndef FWCore_ParameterSet_FileInPath_h
+#define FWCore_ParameterSet_FileInPath_h
 
-/// $Id: FileInPath.h,v 1.7 2006/08/10 23:18:36 wmtan Exp $
+/// $Id: FileInPath.h,v 1.8 2007/05/17 20:10:47 wmtan Exp $
 ///
 
 /// Find a non-event-data file, given a relative path.
@@ -60,8 +60,7 @@
 // doesn't seem well-suited for ParameterSet.
 
 
-#include <istream>
-#include <ostream>
+#include <iosfwd>
 #include <string>
 
 

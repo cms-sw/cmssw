@@ -1,14 +1,6 @@
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/ParameterSet/interface/Visitor.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include <ostream>
-#include <iterator>
-
-#include <iostream>
-
-using namespace std;
 
 namespace edm {
 
@@ -36,7 +28,7 @@ namespace edm {
     }
 
 
-    void CompositeNode::print(ostream& ost, Node::PrintOptions options) const
+    void CompositeNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << "{\n";
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
@@ -131,7 +123,7 @@ namespace edm {
     } 
 
 
-    bool CompositeNode::findChild(const string & child, NodePtr & result)
+    bool CompositeNode::findChild(const std::string & child, NodePtr & result)
     {
       NodePtrListPtr kids = children();
       NodePtrList::const_iterator i(kids->begin()),e(kids->end());
@@ -221,7 +213,7 @@ namespace edm {
         if((**nodeItr).type() == "using")
         {
           // find the block
-          string blockName = (**nodeItr).name();
+          std::string blockName = (**nodeItr).name();
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
           if(blockPtrItr == blocks.end()) {
              throw edm::Exception(errors::Configuration,"")

@@ -5,11 +5,12 @@
 #include "FWCore/ParameterSet/interface/IncludeNode.h"
 #include "FWCore/ParameterSet/interface/PSetNode.h"
 #include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
-#include <iterator>
 
 using std::string;
 using std::vector;

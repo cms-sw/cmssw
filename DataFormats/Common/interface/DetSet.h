@@ -1,5 +1,5 @@
-#ifndef Common_DetSet_h
-#define Common_DetSet_h
+#ifndef DataFormats_Common_DetSet_h
+#define DataFormats_Common_DetSet_h
 
 /*----------------------------------------------------------------------
   
@@ -8,15 +8,16 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.6 2006/10/30 23:07:52 wmtan Exp $
+$Id: DetSet.h,v 1.7 2007/01/23 00:25:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include "boost/cstdint.hpp"
 #include <vector>
-#include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#if ! GCC_PREREQUISITE(3,4,4)
+#include "DataFormats/Common/interface/traits.h"
+#endif
 
 namespace edm {
   typedef uint32_t det_id_type;

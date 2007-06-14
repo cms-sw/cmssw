@@ -5,7 +5,7 @@
   
 Ref: A template for a interproduct reference to a member of a product.
 
-$Id: Ref.h,v 1.24 2007/05/16 22:31:59 paterno Exp $
+$Id: Ref.h,v 1.25 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 /**
@@ -114,6 +114,7 @@ $Id: Ref.h,v 1.24 2007/05/16 22:31:59 paterno Exp $
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefBase.h"
+#include "DataFormats/Common/interface/traits.h"
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
 
 BOOST_MPL_HAS_XXX_TRAIT_DEF(key_compare)

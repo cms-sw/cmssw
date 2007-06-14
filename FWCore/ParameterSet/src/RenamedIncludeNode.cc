@@ -1,7 +1,6 @@
 #include "FWCore/ParameterSet/interface/RenamedIncludeNode.h"
-#include "FWCore/ParameterSet/interface/IncludeFileFinder.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <iostream>
+#include <iosfwd>
 
 namespace edm {
   namespace pset {

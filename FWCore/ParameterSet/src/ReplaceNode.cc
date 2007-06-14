@@ -1,6 +1,6 @@
 #include "FWCore/ParameterSet/interface/ReplaceNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <ostream>
+#include <iosfwd>
 
 namespace edm {
   namespace pset {

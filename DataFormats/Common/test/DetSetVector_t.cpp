@@ -1,5 +1,5 @@
 /*
- *  $Id: DetSetVector_t.cpp,v 1.13 2007/01/22 23:56:59 wmtan Exp $
+ *  $Id: DetSetVector_t.cpp,v 1.14 2007/01/23 00:25:53 wmtan Exp $
  *  CMSSW
  *
  */
@@ -9,6 +9,7 @@
 //#include <iostream>
 #include <iterator>
 #include <ostream>
+#include <stdexcept>
 #include <vector>
 
 #include "DataFormats/Common/interface/Ref.h"

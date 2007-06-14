@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.29 2006/10/20 02:07:33 chrjones Exp $
+// $Id: ParameterSet.cc,v 1.30 2007/05/22 16:16:20 chrjones Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -15,13 +15,11 @@
 #include "FWCore/ParameterSet/interface/Registry.h"
 
 #include "FWCore/ParameterSet/interface/split.h"
-#include "FWCore/ParameterSet/interface/types.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "boost/bind.hpp"
 
 #include <algorithm>
-#include <utility>
 
 // ----------------------------------------------------------------------
 // class invariant checker
@@ -345,18 +343,17 @@ namespace edm {
     void explode(edm::ParameterSet const& top,
 	       std::vector<edm::ParameterSet>& results)
     {
-      using namespace std;
       using namespace edm;
       results.push_back(top);
 
       // Get names of all ParameterSets; iterate through them,
       // recursively calling explode...
-      vector<string> names;
+      std::vector<std::string> names;
       const bool tracked = true;
       const bool untracked = false;
       top.getParameterSetNames(names, tracked);
-      vector<string>::const_iterator it = names.begin();
-      vector<string>::const_iterator end = names.end();
+      std::vector<std::string>::const_iterator it = names.begin();
+      std::vector<std::string>::const_iterator end = names.end();
       for( ; it != end; ++it )
       {
 	ParameterSet next_top =
@@ -383,12 +380,12 @@ namespace edm {
       end = names.end();
       for( ; it != end; ++it )
       {
-	vector<ParameterSet> next_bunch =
-	  top.getParameter<vector<ParameterSet> >(*it);
+	std::vector<ParameterSet> next_bunch =
+	  top.getParameter<std::vector<ParameterSet> >(*it);
 
-	vector<ParameterSet>::const_iterator first =
+	std::vector<ParameterSet>::const_iterator first =
 	  next_bunch.begin();
-	vector<ParameterSet>::const_iterator last
+	std::vector<ParameterSet>::const_iterator last
 	  = next_bunch.end();
 
 	for( ; first != last; ++first )
@@ -403,12 +400,12 @@ namespace edm {
       end = names.end();
       for( ; it != end; ++it )
       {
-	vector<ParameterSet> next_bunch =
-	  top.getUntrackedParameter<vector<ParameterSet> >(*it);
+	std::vector<ParameterSet> next_bunch =
+	  top.getUntrackedParameter<std::vector<ParameterSet> >(*it);
 
-	vector<ParameterSet>::const_iterator first =
+	std::vector<ParameterSet>::const_iterator first =
 	  next_bunch.begin();
-	vector<ParameterSet>::const_iterator last
+	std::vector<ParameterSet>::const_iterator last
 	  = next_bunch.end();
 
 	for( ; first != last; ++first )

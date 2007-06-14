@@ -19,12 +19,10 @@ Handles can have:
 
 To check validity, one can use the isValid() function.
 
-$Id: BasicHandle.h,v 1.4 2007/05/29 21:23:37 wmtan Exp $
+$Id: BasicHandle.h,v 1.5 2007/06/01 21:14:38 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
-#include <algorithm>
-#include <typeinfo>
 #include "DataFormats/Provenance/interface/Provenance.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 

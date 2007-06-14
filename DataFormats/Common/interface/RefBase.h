@@ -1,17 +1,16 @@
-#ifndef Common_RefBase_h
-#define Common_RefBase_h
+#ifndef DataFormats_Common_RefBase_h
+#define DataFormats_Common_RefBase_h
 
 /*----------------------------------------------------------------------
   
 RefBase: Base class for a single interproduct reference.
 
-$Id: RefBase.h,v 1.7 2007/03/27 16:16:36 paterno Exp $
+$Id: RefBase.h,v 1.8 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/RefItem.h"
-#include <cstddef>
 
 namespace edm {
 

@@ -1,7 +1,7 @@
-#ifndef ParameterSet_Node_h
-#define ParameterSet_Node_h
+#ifndef FWCore_ParameterSet_Node_h
+#define FWCore_ParameterSet_Node_h
 
-#include <ostream>
+#include <iosfwd>
 #include <list>
 #include <map>
 #include <vector>

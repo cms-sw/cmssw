@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: Entry.cc,v 1.23 2007/01/20 00:09:56 wmtan Exp $
+// $Id: Entry.cc,v 1.24 2007/06/01 13:16:41 rpw Exp $
 //
 // definition of Entry's function members
 // ----------------------------------------------------------------------
@@ -13,14 +13,10 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/types.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
 
-#include <algorithm>
-#include <cctype>
-#include <iterator>
+#include <map>
 #include <sstream>
 #include <string>
-#include <vector>
 #include <ostream>
 
 

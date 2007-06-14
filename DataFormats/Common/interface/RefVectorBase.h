@@ -1,17 +1,16 @@
-#ifndef Common_RefVectorBase_h
-#define Common_RefVectorBase_h
+#ifndef DataFormats_Common_RefVectorBase_h
+#define DataFormats_Common_RefVectorBase_h
 
 /*----------------------------------------------------------------------
   
 RefVectorBase: Base class for a vector of interproduct references.
 
-$Id: RefVectorBase.h,v 1.10 2007/03/14 21:21:04 paterno Exp $
+$Id: RefVectorBase.h,v 1.11 2007/03/29 22:57:25 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
+#include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Common/interface/RefCore.h"
-#include "DataFormats/Common/interface/RefItem.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include <vector>
 
 namespace edm {

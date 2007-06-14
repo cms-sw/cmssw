@@ -1,5 +1,8 @@
+#ifndef FWCore_ParameterSet_types_h
+#define FWCore_ParameterSet_types_h
+
 // ----------------------------------------------------------------------
-// $Id: types.h,v 1.10 2006/09/21 19:29:45 rpw Exp $
+// $Id: types.h,v 1.11 2006/12/05 22:02:13 rpw Exp $
 //
 // declaration of type encoding/decoding functions
 // ----------------------------------------------------------------------
@@ -8,9 +11,6 @@
 // ----------------------------------------------------------------------
 // prolog
 
-#ifndef ParameterSet_types_h
-#define ParameterSet_types_h
-
 
 // ----------------------------------------------------------------------
 // prerequisite source files and headers
@@ -18,7 +18,6 @@
 #include <string>
 #include <vector>
 
-#include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // ----------------------------------------------------------------------

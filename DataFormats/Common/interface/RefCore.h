@@ -5,13 +5,11 @@
   
 RefCore: The component of edm::Ref containing the product ID and product getter.
 
-$Id: RefCore.h,v 1.12 2007/05/15 17:10:24 wmtan Exp $
+$Id: RefCore.h,v 1.13 2007/05/16 22:31:59 paterno Exp $
 
 ----------------------------------------------------------------------*/
-#include <typeinfo>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
-#include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {
 

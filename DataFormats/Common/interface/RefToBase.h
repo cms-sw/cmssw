@@ -1,5 +1,5 @@
-#ifndef Common_RefToBase_h
-#define Common_RefToBase_h
+#ifndef DataFormats_Common_RefToBase_h
+#define DataFormats_Common_RefToBase_h
 // -*- C++ -*-
 //
 // Package:     Common
@@ -28,11 +28,10 @@ reference type.
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Apr  3 16:37:59 EDT 2006
-// $Id: RefToBase.h,v 1.17 2007/05/25 15:42:43 paterno Exp $
+// $Id: RefToBase.h,v 1.18 2007/05/30 09:17:06 llista Exp $
 //
 
 // system include files
-#include <algorithm>
 
 // user include files
 
@@ -42,7 +41,6 @@ reference type.
 #include "Reflex/Type.h"
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 

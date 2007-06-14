@@ -3,13 +3,7 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <iomanip>
-#include <iostream>
-#include <stdexcept>
-#include <typeinfo>
-#include <iterator>
-
-using namespace std;
+#include <iosfwd>
 
 namespace edm {
 
@@ -19,14 +13,14 @@ namespace edm {
     // UsingNode
     //--------------------------------------------------
     
-    UsingNode::UsingNode(const string& name, int line) :
+    UsingNode::UsingNode(const std::string& name, int line) :
       Node(name, line)
     { }
 
-    string UsingNode::type() const { return "using"; }
+    std::string UsingNode::type() const { return "using"; }
 
 
-    void UsingNode::print(ostream& ost, Node::PrintOptions options) const
+    void UsingNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << "  using " << name();
     }
@@ -42,7 +36,7 @@ namespace edm {
     //--------------------------------------------------
                                                                                                           
                                                                                                           
-    void RenameNode::print(ostream& ost, Node::PrintOptions options) const
+    void RenameNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << name() << " " << from_ << " " << to_;
     }
@@ -58,7 +52,7 @@ namespace edm {
     //--------------------------------------------------
                                                                                                     
                                                                                                     
-    void CopyNode::print(ostream& ost, Node::PrintOptions options) const
+    void CopyNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << name() << " " << from_ << " " << to_;
     }
@@ -73,14 +67,14 @@ namespace edm {
     // StringNode
     //--------------------------------------------------
 
-    StringNode::StringNode(const string& value, int line):
+    StringNode::StringNode(const std::string& value, int line):
       Node("nameless", line),
       value_(value)      
     {  }
 
-    string StringNode::type() const { return "string"; }
+    std::string StringNode::type() const { return "string"; }
 
-    void StringNode::print(ostream& ost, Node::PrintOptions options) const
+    void StringNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost <<  value_;
     }
@@ -99,7 +93,7 @@ namespace edm {
       CompositeNode("", value, line)
     { }
 
-    string ContentsNode::type() const { return ""; }
+    std::string ContentsNode::type() const { return ""; }
 
     void ContentsNode::accept(Visitor& v) const
     {

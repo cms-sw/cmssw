@@ -1,21 +1,20 @@
 #include "FWCore/ParameterSet/interface/WrapperNode.h"
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
 #include "FWCore/ParameterSet/interface/Visitor.h"
-
-using std::string;
+#include "FWCore/Utilities/interface/EDMException.h"
 
 
 namespace edm {
   namespace pset {
 
-    WrapperNode::WrapperNode(const string& type, const string& name,
+    WrapperNode::WrapperNode(const std::string& type, const std::string& name,
                              NodePtr w,int line):
       Node(name, line),
       type_(type),
       wrapped_(w)
     { }
 
-    string WrapperNode::type() const { return type_; }
+    std::string WrapperNode::type() const { return type_; }
 
 
     Node * WrapperNode::clone() const 

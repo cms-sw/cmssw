@@ -1,12 +1,12 @@
-#ifndef ParameterSet_ScheduleValidator_h
-#define ParameterSet_ScheduleValidator_h
+#ifndef FWCore_ParameterSet_ScheduleValidator_h
+#define FWCore_ParameterSet_ScheduleValidator_h
 
 /**
    \file
    Declaration of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.h,v 1.4 2007/05/22 21:47:13 rpw Exp $
+   \version $Id: ScheduleValidator.h,v 1.5 2007/05/23 20:27:50 rpw Exp $
    \date 10 Jun 2005
 */
 
@@ -15,7 +15,7 @@
 #include <map>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/WrapperNode.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 namespace edm {

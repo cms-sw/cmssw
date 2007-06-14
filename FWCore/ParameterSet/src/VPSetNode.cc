@@ -10,14 +10,13 @@
 
 #include <ostream>
 #include <iterator>
-#include <iostream>
-using namespace std;
+#include <iosfwd>
 
 namespace edm {
   namespace pset {
 
-    VPSetNode::VPSetNode(const string& typ,
-                         const string& name,
+    VPSetNode::VPSetNode(const std::string& typ,
+                         const std::string& name,
                          NodePtrListPtr value,
                          bool untracked,
                          int line) :
@@ -26,10 +25,10 @@ namespace edm {
       tracked_(!untracked)
     { }
 
-    string VPSetNode::type() const { return type_; }
+    std::string VPSetNode::type() const { return type_; }
 
 
-    void VPSetNode::print(ostream& ost, Node::PrintOptions options) const
+    void VPSetNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       assert(nodes()!=0);
 
@@ -37,7 +36,7 @@ namespace edm {
       if(!nodes()->empty())
         {
           //copy(value_->begin(),value_->end(),
-          //   ostream_iterator<NodePtr>(ost,",\n  "));
+          //   std::ostream_iterator<NodePtr>(ost,",\n  "));
           NodePtrList::const_iterator ie(nodes()->end()),ib(nodes()->begin());
           --ie;
           copy(ib,ie,
@@ -55,14 +54,14 @@ namespace edm {
 
     void VPSetNode::resolveUsingNodes(const NodeMap & blocks)
     {
-      // if a node is just a string, find the block it refers to
+      // if a node is just a std::string, find the block it refers to
       NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
       for(;nodeItr!=e;++nodeItr)
       {
         if((**nodeItr).type() == "string")
         {
           // find the block
-          string blockName = (**nodeItr).name();
+          std::string blockName = (**nodeItr).name();
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
           if(blockPtrItr == blocks.end()) {
              throw edm::Exception(errors::Configuration,"")

@@ -1,8 +1,8 @@
-#ifndef ParameterSet_Registry_h
-#define ParameterSet_Registry_h
+#ifndef FWCore_ParameterSet_Registry_h
+#define FWCore_ParameterSet_Registry_h
 
 // ----------------------------------------------------------------------
-// $Id: Registry.h,v 1.9 2006/09/06 19:27:34 paterno Exp $
+// $Id: Registry.h,v 1.10 2007/03/04 05:45:42 wmtan Exp $
 //
 // Declaration for pset::Registry. This is an implementation detail of
 // the ParameterSet library.
@@ -13,7 +13,6 @@
 // ----------------------------------------------------------------------
 
 #include <map>
-#include <ostream>
 
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"

@@ -7,15 +7,14 @@
 #include "FWCore/ParameterSet/interface/types.h"
 #include <boost/cstdint.hpp>
 
-#include <iostream>
-using std::string;
+#include <iosfwd>
 
 namespace edm {
   namespace pset {
 
 
-    EntryNode::EntryNode(const string& typ, const string& nam,
-                         const string& val, bool untracked, int line):
+    EntryNode::EntryNode(const std::string& typ, const std::string& nam,
+                         const std::string& val, bool untracked, int line):
       Node(nam, line),
       type_(typ),
       value_(val),
@@ -23,7 +22,7 @@ namespace edm {
     {  }
 
 
-    string EntryNode::type() const { return type_; }
+    std::string EntryNode::type() const { return type_; }
 
 
     void EntryNode::print(std::ostream& ost, Node::PrintOptions options) const
@@ -76,74 +75,63 @@ namespace edm {
     {
       // for checks of strtowhatever
       char * end;
-      if(type()=="string")
-       {
-         string usethis(withoutQuotes(value_));
+      if(type()=="string") {
+         std::string usethis(withoutQuotes(value_));
          return Entry(name(), usethis, tracked_);
-       }
-     else if (type()=="FileInPath")
-       {
+     }
+     else if (type()=="FileInPath") {
          edm::FileInPath fip(withoutQuotes(value_));
          return Entry(name(), fip, tracked_);
-       }
-     else if (type()=="InputTag")
-       {
+     }
+     else if (type()=="InputTag") {
          edm::InputTag tag(withoutQuotes(value_));
          return Entry(name(), tag, tracked_);
-       }
-     else if (type()=="EventID")
-       {
+     }
+     else if (type()=="EventID") {
          // decodes, then encodes again
          edm::EventID eventID;
          edm::decode(eventID, value_);
          return Entry(name(), eventID, tracked_);
-       }
-     else if(type()=="double")
-       {
+     }
+     else if(type()=="double") {
          double d = strtod(value_.c_str(),&end);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
-       }
-     else if(type()=="int32")
-       {
+     }
+     else if(type()=="int32") {
          int d = strtol(value_.c_str(),&end,0);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
-       }
-     else if(type()=="uint32")
-       {
+     }
+     else if(type()=="uint32") {
          unsigned int d = strtoul(value_.c_str(),&end,0);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
-       }
-     else if(type()=="int64")
-       {
+     }
+     else if(type()=="int64") {
          boost::int64_t d = strtol(value_.c_str(),&end,0);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
-       }
-     else if(type()=="uint64")
-       {
+     }
+     else if(type()=="uint64") {
          boost::int64_t d = strtoul(value_.c_str(),&end,0);
          checkParse(value_, end);
          return Entry(name(), d, tracked_);
-       }
-     else if(type()=="bool")
-       {
+     }
+     else if(type()=="bool") {
          bool d(false);
          if(value_=="true" || value_=="T" || value_=="True" ||
             value_=="1" || value_=="on" || value_=="On")
            d = true;
 
          return Entry(name(), d, tracked_);
-       }
-     else
-       {
+     }
+     else {
          throw edm::Exception(errors::Configuration)
            << "Bad Entry Node type: " << type();
-       }
-
      }
+
+   }
 
      void EntryNode::checkParse(const std::string & s, char * end) const
      {

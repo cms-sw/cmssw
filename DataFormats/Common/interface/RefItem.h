@@ -5,12 +5,9 @@
   
 RefItem: Index and pointer to a referenced item.
 
-$Id: RefItem.h,v 1.8 2007/03/27 16:16:36 paterno Exp $
+$Id: RefItem.h,v 1.9 2007/05/15 17:10:24 wmtan Exp $
 
 ----------------------------------------------------------------------*/
-#include <vector>
-
-#include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Common/interface/traits.h"
 
 namespace edm {

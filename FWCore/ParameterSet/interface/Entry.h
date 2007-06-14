@@ -1,8 +1,8 @@
-#ifndef ParameterSet_Entry_h
-#define ParameterSet_Entry_h
+#ifndef FWCore_ParameterSet_Entry_h
+#define FWCore_ParameterSet_Entry_h
 
 // ----------------------------------------------------------------------
-// $Id: Entry.h,v 1.17 2006/12/05 22:00:44 rpw Exp $
+// $Id: Entry.h,v 1.18 2007/03/04 05:45:42 wmtan Exp $
 //
 // interface to edm::Entry and related types
 //
@@ -14,15 +14,12 @@
 
 
 #include <string>
-#include <stdexcept>
 #include <vector>
-#include <map>
 #include <iosfwd>
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
 //@@ not needed, but there might be trouble if we take it out
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/EventID.h"
 #include <boost/cstdint.hpp>
 

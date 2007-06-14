@@ -1,8 +1,6 @@
-#include <set>
-#include <algorithm>
 #include <sstream>
 
-#include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
+#include <stdexcept>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Modules/src/EmptyESSource.h"
 

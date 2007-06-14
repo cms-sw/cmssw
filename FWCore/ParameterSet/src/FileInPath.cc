@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: FileInPath.cc,v 1.17 2007/05/17 20:10:48 wmtan Exp $
+// $Id: FileInPath.cc,v 1.18 2007/05/17 23:40:10 wmtan Exp $
 //
 // ----------------------------------------------------------------------
 
@@ -9,12 +9,10 @@
 // long the search path is allowed to be, and whether our only choices
 // for the "official" directory is CMSSW_RELEASE_BASE or CMSSW_DATA_PATH.
 
-#include <algorithm>
 #include <cstdlib>
-#include <iterator>
 #include <string>
 #include <vector>
-#include <iostream> // temporary
+#include <iosfwd>
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 

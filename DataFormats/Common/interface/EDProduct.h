@@ -1,18 +1,17 @@
-#ifndef Common_Common_h
-#define Common_Common_h
+#ifndef DataFormats_Common_EDProduct_h
+#define DataFormats_Common_EDProduct_h
 
 /*----------------------------------------------------------------------
   
 EDProduct: The base class of all things that will be inserted into the
 Event.
 
-$Id: EDProduct.h,v 1.7 2007/05/16 22:31:59 paterno Exp $
+$Id: EDProduct.h,v 1.8 2007/05/24 16:35:46 paterno Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include "boost/shared_ptr.hpp"
-#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 
 namespace edm {

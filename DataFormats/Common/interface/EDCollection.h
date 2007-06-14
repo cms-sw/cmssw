@@ -1,20 +1,21 @@
-#ifndef Common_EDCollection_h
-#define Common_EDCollection_h
+#ifndef DataFormats_Common_EDCollection_h
+#define DataFormats_Common_EDCollection_h
 
 /*----------------------------------------------------------------------
   
 EDCollection: A collection of homogeneous objects that can be used for an EDProduct,
 or as a base class for an EDProduct.
 
-$Id: EDCollection.h,v 1.3 2006/10/25 21:56:29 wmtan Exp $
+$Id: EDCollection.h,v 1.4 2006/10/30 23:07:52 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 
-#include "DataFormats/Common/interface/traits.h"
-
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#if ! GCC_PREREQUISITE(3,4,4)
+#include "DataFormats/Common/interface/traits.h"
+#endif
 
 namespace edm {
   template <class T>

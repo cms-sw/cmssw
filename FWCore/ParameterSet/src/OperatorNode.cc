@@ -4,13 +4,7 @@
 #include "FWCore/ParameterSet/interface/Visitor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <iomanip>
-#include <iostream>
-#include <stdexcept>
-#include <typeinfo>
-#include <iterator>
-
-using namespace std;
+#include <iosfwd>
 
 namespace edm {
 
@@ -19,10 +13,10 @@ namespace edm {
 
     // -------------------------
 
-    string makeOpName()
+    std::string makeOpName()
     {
       static int opcount = 0;
-      ostringstream ost;
+      std::ostringstream ost;
       ++opcount;
       ost << "op" << opcount;
       return ost.str();
@@ -40,7 +34,7 @@ namespace edm {
     // OperatorNode
     //--------------------------------------------------
 
-    OperatorNode::OperatorNode(const string& type,
+    OperatorNode::OperatorNode(const std::string& type,
 			       NodePtr left, 
 			       NodePtr right,
 			       int line):
@@ -55,7 +49,7 @@ namespace edm {
       right_->setParent(this);
     }
 
-    string OperatorNode::type() const { return type_; }
+    std::string OperatorNode::type() const { return type_; }
 
 
     Node * OperatorNode::clone() const 
@@ -69,7 +63,7 @@ namespace edm {
     }
 
 
-    void OperatorNode::print(ostream& ost, Node::PrintOptions options) const
+    void OperatorNode::print(std::ostream& ost, Node::PrintOptions options) const
     {
       ost << "( " << left_ << " " << type_ << " " << right_ << " )";
     }

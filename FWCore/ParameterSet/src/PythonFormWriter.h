@@ -3,7 +3,7 @@
 
 
 //------------------------------------------------------------
-// $Id: PythonFormWriter.h,v 1.13 2007/01/30 21:53:00 rpw Exp $
+// $Id: PythonFormWriter.h,v 1.14 2007/01/31 20:51:49 rpw Exp $
 //
 //
 // PythonFormWriter defines a class that is to be used to walk the
@@ -28,12 +28,11 @@
 //
 //------------------------------------------------------------
 #include <map>
-#include <sstream>
 #include <stack>
 #include <string>
 
 #include "FWCore/ParameterSet/interface/Visitor.h"
-#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/ModuleNode.h"
 
 namespace edm
 {

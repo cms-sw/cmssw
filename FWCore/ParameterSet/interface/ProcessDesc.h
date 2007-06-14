@@ -3,7 +3,6 @@
 
 #include "boost/shared_ptr.hpp"
 #include <vector>
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/WrapperNode.h"
 
 namespace edm
@@ -11,6 +10,7 @@ namespace edm
   
   typedef boost::shared_ptr<pset::WrapperNode> WrapperNodePtr;
   class ScheduleValidator;
+  class ParameterSet;
 
   class ProcessDesc
   {

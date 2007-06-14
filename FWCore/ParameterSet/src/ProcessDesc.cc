@@ -3,35 +3,29 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.13 2007/05/15 22:02:54 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.14 2007/05/16 17:49:12 rpw Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.13 2007/05/15 22:02:54 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.14 2007/05/16 17:49:12 rpw Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
-#include "FWCore/ParameterSet/interface/Makers.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Entry.h"
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
+#include "FWCore/ParameterSet/interface/OperatorNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
 #include "FWCore/ParameterSet/interface/PSetNode.h"
 
-#include "boost/shared_ptr.hpp"
-#include <vector>
 #include <map>
-#include <stdexcept>
 #include <iostream>
 #include <algorithm>
 #include <iterator>
-
-using namespace boost;
-using namespace std;
 
 namespace edm
 {
@@ -187,13 +181,13 @@ namespace edm
 
   void ProcessDesc::dumpTree(NodePtr& node) {
     if(node->type() == "operand") { 
-      cout << " Operand " << node->name()<< " p:";
-      if (node->getParent()) cout <<  node->getParent()->name();cout<< endl;
-    } else{	
+      std::cout << " Operand " << node->name() << " p:";
+      if (node->getParent()) std::cout << node->getParent()->name(); std::cout<< std::endl;
+    } else {	
       edm::pset::OperatorNode* op = dynamic_cast<edm::pset::OperatorNode*>(node.get());
-      cout << " Operator: " << op->name()<<"["<<op->type()<<"]" 
-	   << " l:" << op->left() << " r:"<<op->right()<< " p:";
-      if (op->getParent())cout<<  op->getParent()->name() << endl;
+      std::cout << " Operator: " << op->name() << "[" << op->type() << "]" 
+	        << " l:" << op->left() << " r:" << op->right() << " p:";
+      if (op->getParent()) std::cout <<  op->getParent()->name() << std::endl;
       dumpTree(op->left());
       dumpTree(op->right());
     }

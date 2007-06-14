@@ -1,10 +1,12 @@
-#ifndef Common_IDVectorMap_h
-#define Common_IDVectorMap_h
-// $Id: IDVectorMap.h,v 1.8 2006/10/30 23:07:52 wmtan Exp $
+#ifndef DataFormats_Common_IDVectorMap_h
+#define DataFormats_Common_IDVectorMap_h
+// $Id: IDVectorMap.h,v 1.9 2007/01/23 00:25:52 wmtan Exp $
 #include <map>
-#include "DataFormats/Common/interface/traits.h"
 
 #include "FWCore/Utilities/interface/GCCPrerequisite.h"
+#if ! GCC_PREREQUISITE(3,4,4)
+#include "DataFormats/Common/interface/traits.h"
+#endif
 
 namespace edm {
 

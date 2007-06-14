@@ -1,8 +1,8 @@
-#ifndef ParameterSet_ParameterSet_h
-#define ParameterSet_ParameterSet_h
+#ifndef FWCore_ParameterSet_ParameterSet_h
+#define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.33 2007/02/28 03:48:37 chrjones Exp $
+// $Id: ParameterSet.h,v 1.34 2007/03/04 05:45:42 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -19,7 +19,6 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <string>
 #include <map>
-#include <stdexcept>
 #include <vector>
 #include <iosfwd>
 

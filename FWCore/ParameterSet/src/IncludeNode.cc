@@ -4,17 +4,14 @@
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <iterator>
-#include <boost/bind.hpp>
 // circular dependence here
 #include "FWCore/ParameterSet/interface/ModuleNode.h"
-using std::string;
 
 namespace edm {
   namespace pset {
 
     //make an empty CompositeNode
-    IncludeNode::IncludeNode(const string & type, const string & name, int line)
+    IncludeNode::IncludeNode(const std::string & type, const std::string & name, int line)
     : CompositeNode(withoutQuotes(name), NodePtrListPtr(new NodePtrList), line),
       type_(type),   
       fullPath_(""),
@@ -72,8 +69,8 @@ namespace edm {
     }
 
 
-    void IncludeNode::resolve(std::list<string> & openFiles,
-                              std::list<string> & sameLevelIncludes)
+    void IncludeNode::resolve(std::list<std::string> & openFiles,
+                              std::list<std::string> & sameLevelIncludes)
     {
       // we don't allow circular opening of already-open files,
       if(std::find(openFiles.begin(), openFiles.end(), name())
@@ -122,10 +119,10 @@ namespace edm {
         }
 
         isResolved_ = true;
-        string configuration = read_whole_file(fullPath_);
+        std::string configuration = read_whole_file(fullPath_);
         // save the name of the file
-        extern string currentFile;
-        string oldFile = currentFile;
+        extern std::string currentFile;
+        std::string oldFile = currentFile;
         currentFile = fullPath_;
         nodes_ = parse(configuration.c_str());
         // put in the backwards links right away
@@ -157,7 +154,7 @@ namespace edm {
     {
       int nletters = name().length();
       assert(nletters >= 3);
-      string lastThreeLetters = name().substr(nletters-3);
+      std::string lastThreeLetters = name().substr(nletters-3);
       // count the number of module nodes
       int nModules = 0;
 

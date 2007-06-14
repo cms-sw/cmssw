@@ -1,7 +1,7 @@
 #include "FWCore/ParameterSet/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/parse.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include <iostream>
+#include <iosfwd>
 
 namespace edm {
 

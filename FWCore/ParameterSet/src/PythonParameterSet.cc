@@ -1,5 +1,4 @@
 #include "FWCore/ParameterSet/interface/PythonParameterSet.h"
-#include <iostream>
 
 PythonParameterSet::PythonParameterSet()
 :  theParameterSet()

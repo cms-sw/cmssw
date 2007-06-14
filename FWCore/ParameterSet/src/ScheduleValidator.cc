@@ -3,22 +3,21 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.20 2007/05/23 21:51:23 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.21 2007/05/23 23:14:47 rpw Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.20 2007/05/23 21:51:23 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.21 2007/05/23 23:14:47 rpw Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
+#include "FWCore/ParameterSet/interface/OperatorNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <sstream>
 #include <iterator>
-#include <iostream>
+#include <iosfwd>
 using namespace edm;
 using namespace edm::pset;
-using namespace std;
-
  
 ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer& 
 				     pathFragments,
@@ -29,9 +28,9 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
   dependencies_() 
 {
  
-  vector<string> paths = processPSet.getParameter<vector<string> >("@paths");
+  std::vector<std::string> paths = processPSet.getParameter<std::vector<std::string> >("@paths");
 
-  for(vector<string>::const_iterator pathIt = paths.begin(), pathItEnd = paths.end();
+  for(std::vector<std::string>::const_iterator pathIt = paths.begin(), pathItEnd = paths.end();
       pathIt != pathItEnd; 
       ++pathIt) {
     NodePtr head = findPathHead(*pathIt);
@@ -41,11 +40,11 @@ ScheduleValidator::ScheduleValidator(const ScheduleValidator::PathContainer&
 }
 
 
-NodePtr ScheduleValidator::findPathHead(string pathName){
-  // cout << "in findPathHead" << endl;
+NodePtr ScheduleValidator::findPathHead(std::string pathName){
+  // std::cout << "in findPathHead" << std::endl;
   for (PathContainer::iterator pathIt = nodes_.begin(), pathItEnd = nodes_.end();
        pathIt != pathItEnd; ++pathIt) {
-//cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name << endl;
+//std::cout << "  looking at " << (*pathIt)->type() << " " << (*pathIt)->name << std::endl;
     if ((*pathIt)->type() != "path" &&
         (*pathIt)->type() != "endpath") continue;
     if ((*pathIt)->name() == pathName) return ((*pathIt)->wrapped());
@@ -156,11 +155,11 @@ void ScheduleValidator::validateDependencies(const std::string & leafName, const
     // then we have an inconsitency
     if (old_deplist != dep) {
 
-      ostringstream olddepstr,newdepstr, traceback;
-      copy(old_deplist.begin(), old_deplist.end(),
-            ostream_iterator<string>(olddepstr,","));
-      copy(dep.begin(), dep.end(),
-            ostream_iterator<string>(newdepstr,","));
+      std::ostringstream olddepstr,newdepstr, traceback;
+      std::copy(old_deplist.begin(), old_deplist.end(),
+            std::ostream_iterator<std::string>(olddepstr,","));
+      std::copy(dep.begin(), dep.end(),
+            std::ostream_iterator<std::string>(newdepstr,","));
       std::string olddeps = olddepstr.str();
       if(olddeps == "") olddeps = "<NOTHING>";
       std::string newdeps = newdepstr.str();
@@ -196,8 +195,8 @@ void ScheduleValidator::mergeDependencies(const std::string & leafName, Dependen
 
 void ScheduleValidator::validatePaths()
 {
- vector<string> paths = processPSet_.getParameter<vector<string> >("@paths");
-  for(vector<string>::const_iterator pathItr = paths.begin(); pathItr != paths.end(); ++pathItr)
+ std::vector<std::string> paths = processPSet_.getParameter<std::vector<std::string> >("@paths");
+  for(std::vector<std::string>::const_iterator pathItr = paths.begin(); pathItr != paths.end(); ++pathItr)
   {
     validatePath(*pathItr);
   }
@@ -206,7 +205,7 @@ void ScheduleValidator::validatePaths()
 
 void ScheduleValidator::validatePath(const std::string & path) 
 {
-  std::vector<std::string> schedule = processPSet_.getParameter<vector<string> >(path);
+  std::vector<std::string> schedule = processPSet_.getParameter<std::vector<std::string> >(path);
   std::vector<std::string>::iterator module = schedule.begin(),
     lastModule = schedule.end();
   for( ; module != lastModule; ++module)
@@ -227,9 +226,9 @@ void ScheduleValidator::validatePath(const std::string & path)
          // make sure each dependency is in the schedule before module
          if(std::find(schedule.begin(), module, *depItr) == module)
          {
-           ostringstream pathdump;
-           copy(schedule.begin(), schedule.end(),
-             ostream_iterator<string>(pathdump," "));
+           std::ostringstream pathdump;
+           std::copy(schedule.begin(), schedule.end(),
+             std::ostream_iterator<std::string>(pathdump," "));
            
            throw edm::Exception(errors::Configuration,"InconsistentSchedule")
           << "Module " << *module << " depends on " << *depItr
@@ -269,15 +268,15 @@ ScheduleValidator::dependencies(const std::string& modulename) const{
 
   Dependencies::const_iterator depIt = dependencies_.find(modulename);
   if (depIt == dependencies_.end()){
-    ostringstream err;
+    std::ostringstream err;
     throw edm::Exception(errors::Configuration,"ScheduleDependencies")
       << "Error : Dependecies for "
       << modulename << " were not calculated";
   }
 
-  ostringstream deplist;
-  copy((*depIt).second.begin(), (*depIt).second.end(), 
-	      ostream_iterator<string>(deplist,","));
+  std::ostringstream deplist;
+  std::copy((*depIt).second.begin(), (*depIt).second.end(), 
+	      std::ostream_iterator<std::string>(deplist,","));
   return deplist.str();
 
 }

@@ -1,39 +1,35 @@
 #include "FWCore/ParameterSet/interface/parse.h"
-#include "FWCore/ParameterSet/src/ConfigurationPreprocessor.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <boost/tokenizer.hpp>
 #include <fstream>
 #include <iostream>
 
 // the parse() method comes from the yacc file, not here
-using namespace std;
-
 namespace edm {
   namespace pset {
 
-    string  read_whole_file(string const& filename)
+    std::string  read_whole_file(std::string const& filename)
     {
-      string result;
-      ifstream input(filename.c_str());
+      std::string result;
+      std::ifstream input(filename.c_str());
       if (!input) {
        throw edm::Exception(errors::Configuration,"MissingFile")
          << "Cannot read file " << filename;
       }
-      string buffer;
-      while (getline(input, buffer))
-        {
+      std::string buffer;
+      while (getline(input, buffer)) {
           // getline strips newlines; we have to put them back by hand.
           result += buffer;
           result += '\n';
-        }
+      }
       return result; 
     }
 
 
-    void read_from_cin(string & output) 
+    void read_from_cin(std::string & output) 
     {
-      string line;
-      while (getline(cin, line))
+      std::string line;
+      while (getline(std::cin, line))
       {
         output += line;
         output += '\n';
@@ -41,9 +37,9 @@ namespace edm {
     }
 
 
-    string withoutQuotes(const string& from)
+    std::string withoutQuotes(const std::string& from)
     {
-      string result = from;
+      std::string result = from;
       if(!result.empty())
       {
       // get rid of leading quotes
@@ -72,12 +68,12 @@ namespace edm {
       typedef boost::char_separator<char>   separator_t;
       typedef boost::tokenizer<separator_t> tokenizer_t;
 
-      std::vector<string> result;
+      std::vector<std::string> result;
       separator_t  sep(separator.c_str(), "", boost::keep_empty_tokens); // separator for elements in path
       tokenizer_t  tokens(input, sep);
       std::copy(tokens.begin(),
                 tokens.end(),
-                std::back_inserter<vector<string> >(result));
+                std::back_inserter<std::vector<std::string> >(result));
       return result;
     }
 

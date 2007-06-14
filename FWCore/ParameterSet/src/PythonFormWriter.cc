@@ -1,8 +1,14 @@
 #include <iostream>
-#include <iterator>
-#include <algorithm>
 
 #include "FWCore/ParameterSet/src/PythonFormWriter.h"
+#include "FWCore/ParameterSet/interface/Nodes.h"
+#include "FWCore/ParameterSet/interface/PSetNode.h"
+#include "FWCore/ParameterSet/interface/EntryNode.h"
+#include "FWCore/ParameterSet/interface/ImplicitIncludeNode.h"
+#include "FWCore/ParameterSet/interface/VEntryNode.h"
+#include "FWCore/ParameterSet/interface/WrapperNode.h"
+#include "FWCore/ParameterSet/interface/OperatorNode.h"
+#include "FWCore/ParameterSet/interface/OperandNode.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParseTree.h"

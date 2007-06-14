@@ -1,9 +1,8 @@
 #include "FWCore/ParameterSet/interface/Node.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <algorithm>
 
-#include <iostream>
+#include <iosfwd>
 
 namespace edm {
 
