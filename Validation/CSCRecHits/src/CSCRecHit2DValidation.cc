@@ -11,13 +11,14 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200];
+    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
     sprintf(title2, "CSCRecHitPull%d", i+1);
     sprintf(title3, "CSCRecHitYResolution%d", i+1);
     sprintf(title4, "CSCRecHitYPull%d", i+1);
-    sprintf(title5, "CSCRecHitLocalPhi%d", i+1);
-    sprintf(title6, "CSCRecHitLocalY%d", i+1);
+    //sprintf(title5, "CSCRecHitLocalPhi%d", i+1);
+    //sprintf(title6, "CSCRecHitLocalY%d", i+1);
+    sprintf(title7, "CSCRecHit%d", i+1);
 
 
     theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
@@ -25,8 +26,9 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
     theYResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -5, 5);
     theYPullPlots[i] = dbe_->book1D(title4, title4, 100, -3, 3);
 
-    thePhiPlots[i] =  dbe_->book1D(title5, title5, 100, -30, 30);
-    theYPlots[i] = dbe_->book1D(title6, title6, 100, -35, 35);
+    //thePhiPlots[i] =  dbe_->book1D(title5, title5, 100, -30, 30);
+    //theYPlots[i] = dbe_->book1D(title6, title6, 100, -350, 350);
+    theScatterPlots[i] = dbe->book2D(title7, title7, 100, -30, 30, 100, -350, 350);
   }
 
 }
@@ -54,13 +56,15 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     {
       plotResolution(simHits[0], *recHitItr, layer, chamberType);
     }
-
+    float localX = recHitItr->localPosition().x();
     float localY = recHitItr->localPosition().y();
-    theYPlots[chamberType]->Fill(localY);
+    //theYPlots[chamberType-1]->Fill(localY);
     // find a local phi
-    float globalR = layer->toGlobal(recHitItr->localPosition()).perp();
-    GlobalPoint axisThruChamber(recHitItr->localPosition().x(), globalR+localY, 0.);
-    thePhiPlots[chamberType]->Fill(axisThruChamber.phi().degrees());
+    float globalR = layer->toGlobal(LocalPoint(0.,0.,0.)).perp();
+    GlobalPoint axisThruChamber(globalR+localY, localX, 0.);
+    float localPhi = axisThruChamber.phi().degrees();
+    //thePhiPlots[chamberType-1]->Fill(axisThruChamber.phi().degrees());
+    theScatterPlots[chamberType-1]->Fill( localPhi, localY);
   }    
   theNPerEventPlot->Fill(nPerEvent);
 

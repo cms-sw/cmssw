@@ -22,8 +22,7 @@ public:
   MonitorElement* thePullPlots[10];
   MonitorElement* theYResolutionPlots[10];
   MonitorElement* theYPullPlots[10];
-  MonitorElement* thePhiPlots[10];
-  MonitorElement* theYPlots[10];
+  MonitorElement* theScatterPlots[10];
 };
 
 #endif
