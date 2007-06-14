@@ -30,8 +30,6 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-
-#include <memory>
 #include <string>
 #include <map>
 
@@ -39,57 +37,52 @@ class DTGeometry;
 class DTChamberId;
 
 class DTLocalTriggerTask: public edm::EDAnalyzer{
-
-friend class DTMonitorModule;
-
-public:
-
-/// Constructor
-DTLocalTriggerTask(const edm::ParameterSet& ps );
-
-/// Destructor
-virtual ~DTLocalTriggerTask();
-
-protected:
-
-// BeginJob
-void beginJob(const edm::EventSetup& c);
-
-//SM Book the histograms
-void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
-//SM end
-
-/// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-
-// EndJob
-void endJob(void);
-
-  ///SM get the L1A source
-std::string triggerSource();
-  // SM end
-
-private:
- 
+  
+  friend class DTMonitorModule;
+  
+ public:
+  
+  /// Constructor
+  DTLocalTriggerTask(const edm::ParameterSet& ps );
+  
+  /// Destructor
+  virtual ~DTLocalTriggerTask();
+  
+ protected:
+  
+  // BeginJob
+  void beginJob(const edm::EventSetup& c);
+  
+  /// Book the histograms
+  void bookHistos(const DTChamberId& dtCh, std::string folder, std::string histoTag );
+  
+  /// Calculate phi range for histograms
+  std::pair<float,float> phiRange(const DTChamberId& id);
+  
+  /// Analyze
+  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  
+  /// EndJob
+  void endJob(void);
+  
+  /// Get the L1A source
+  std::string triggerSource();
+  
+ private:
+  
   bool debug;
-  edm::ESHandle<DTGeometry> muonGeom;
   std::string dcc_label;
   std::string ros_label;
   std::string seg_label;
+  std::string outputFile;  
   int nevents;
-
-
-
-
+  
   DaqMonitorBEInterface* dbe;
   edm::ParameterSet parameters;
+  edm::ESHandle<DTGeometry> muonGeom;
   edm::Handle<LTCDigiCollection> ltcdigis;
-
-  // My monitor elements
-  std::string outputFile;  
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
-
+  
 };
 
 #endif

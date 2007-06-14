@@ -11,7 +11,6 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // Digis
 #include "DataFormats/DTDigi/interface/DTDigi.h"
@@ -35,12 +34,8 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
-#include <iostream>
-#include <stdio.h>
 #include <string>
 #include <sstream>
-#include <math.h>
-
 
 using namespace edm;
 using namespace std;
@@ -48,7 +43,7 @@ using namespace std;
 DTLocalTriggerTask::DTLocalTriggerTask(const edm::ParameterSet& ps){
   
   debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)   cout<<"[DT/DTLocalTriggerTask]: Constructor"<<endl;
+  if(debug)   cout<<"[DTLocalTriggerTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTLocalTriggerSources.root");
 
@@ -153,37 +148,37 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       
       string histoTag = "DCC_BXvsQual"+ trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phbx);
       
       // SM 1st2ndflag vs Quality Phi view
       histoTag = "DCC_TS2TagCodevsQual"+ trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phi1st);
       
       // SM Quality vs radial angle Phi view
       histoTag = "DCC_QualvsPhirad" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phphi,phcode);
       
       // SM Quality vs bending Phi view
       histoTag = "DCC_QualvsPhibend" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phphiB,phcode);
       
       // SM BX 1st trigger track segment, phi view
       histoTag = "DCC_Flag1stvsBX" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phbx,phi1st);
       
       // SM Quality 1st trigger track segment, phi view
       histoTag =  "DCC_Flag1stvsQual" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerPhi"), histoTag );
       (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(phcode,phi1st);
       
     } 
@@ -209,7 +204,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       int thbx    = j->bxNum();
       
       for (int pos=0; pos<7; pos++) {
-	thcode[pos]  = j->code(pos);
+	thcode[pos] = j->code(pos);
 
 	if(thcode[pos]>thcode_best[thwheel+3][thst][thsec] ) {
 	  thcode_best[thwheel+3][thst][thsec]=thcode[pos]; 
@@ -224,7 +219,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       // SM BX vs Position Theta view
       histoTag = "DCC_PositionvsBX"+ trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerTheta"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
       for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
 	if(thcode[pos]>0)
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thbx,pos);
@@ -232,18 +227,20 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       // SM Code vs Position Theta view
       histoTag =  "DCC_PositionvsCode" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerTheta"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
       for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
 	if(thcode[pos]>0)
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thcode[pos],pos);
       
       // SM BX vs Code Theta view
-      histoTag =  "DCC_CodevsBX" + trigsrc;
+      histoTag =  "DCC_ThetaBXvsQual" + trigsrc;
       if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	bookHistos( dtChId, string("DCC/LocalTriggerTheta"), histoTag );
+	bookHistos( dtChId, string("LocalTriggerTheta"), histoTag );
       for (int pos=0; pos<7; pos++) //SM fill position for non zero position bit in theta view
-	if(thcode[pos]>0) 
-	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thbx,thcode[pos]);
+	if(thcode[pos]>0){
+	  int thqual = (thcode[pos]/2)*2+1;
+	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,thbx);
+	}
     }
   }  
 
@@ -317,19 +314,19 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  
 	  histoTag =  "DDU_BXvsQual" + trigsrc;
 	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( id, string("DDU/LocalTriggerPhi"), histoTag );
+	    bookHistos( id, string("LocalTriggerPhi"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,bx);
 
           if(trigIt->secondTrack())  flag1st = 1;  // it is a second trigger track
            
 	  histoTag =  "DDU_Flag1stvsBX" + trigsrc;
 	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( id, string("DDU/LocalTriggerPhi"), histoTag );
+	    bookHistos( id, string("LocalTriggerPhi"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(bx,flag1st);
 
 	  histoTag = "DDU_Flag1stvsQual" + trigsrc;
 	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( id, string("DDU/LocalTriggerPhi"), histoTag );
+	    bookHistos( id, string("LocalTriggerPhi"), histoTag );
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(quality,flag1st);	  
 	}
 	if( thqual>0) {  // it is a theta trigger
@@ -340,7 +337,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
 	  histoTag = "DDU_ThetaBXvsQual" + trigsrc;
  	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
- 	    bookHistos( id, string("DDU/LocalTriggerTheta"), histoTag );
+ 	    bookHistos( id, string("LocalTriggerTheta"), histoTag );
  	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(thqual,bx);
  	}
       }   
@@ -411,11 +408,11 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	  // position of track for reconstruced tracks (denom. for trigger efficiency)
 	  histoTag = "SEG_TrackPos" + trigsrc;
 	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( dtChId, string("SEG/LocalTriggerPhi"), histoTag );        
+	    bookHistos( dtChId, string("Segment"), histoTag );        
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_track);
 	  histoTag =  "SEG_TrackAngle"+ trigsrc;
 	  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	    bookHistos( dtChId, string("SEG/LocalTriggerPhi"), histoTag );        
+	    bookHistos( dtChId, string("Segment"), histoTag );        
 	  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_angle);
 	  
 	  if((*track).hasZed()) { // Theta component
@@ -423,12 +420,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    // position of track for reconstruced tracks (denom. for trigger efficiency) along theta direction
 	    histoTag = "SEG_TrackThetaPos" + trigsrc;
 	    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	      bookHistos( dtChId, string("SEG/LocalTriggerTheta"), histoTag );        
+	      bookHistos( dtChId, string("Segment"), histoTag );        
 	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_track);
 	    
 	    histoTag = "SEG_TrackThetaAngle" + trigsrc;
 	    if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-	      bookHistos( dtChId, string("SEG/LocalTriggerTheta"), histoTag );        
+	      bookHistos( dtChId, string("Segment"), histoTag );        
 	    (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_angle);
 	  }
 	  
@@ -437,23 +434,23 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	      
 	      histoTag = "DCC_TrackPosandTrig" + trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+		bookHistos( dtChId, string("Segment"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_track);
 	      histoTag = "DCC_TrackAngleandTrig"+ trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+		bookHistos( dtChId, string("Segment"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_angle);
 	      
 	      // SM phi of the track vs phi of the trigger
 	      histoTag = "DCC_PhitkvsPhitrig"+ trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+		bookHistos( dtChId, string("Segment"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*ibest[wheel+3][station][scsector]).phi(),x_track);
 	      
 	      // SM hits of the track vs quality of the trigger
 	      histoTag =  "DCC_HitstkvsQualtrig" + trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DCC/LocalTriggerPhi"), histoTag );
+		bookHistos( dtChId, string("Segment"), histoTag );
 	     
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill((*ibest[wheel+3][station][scsector]).code(),(*track).degreesOfFreedom() );
 	    }
@@ -462,12 +459,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	      if (thcode_best[wheel+3][station][scsector] > 0) {		
 		histoTag = "DCC_TrackThetaPosandTrig" + trigsrc;
 		if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		  bookHistos( dtChId, string("DCC/LocalTriggerTheta"), histoTag );
+		  bookHistos( dtChId, string("Segment"), histoTag );
 		(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_track);
 		
 		histoTag = "DCC_TrackThetaAngleandTrig" + trigsrc;
 		if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		  bookHistos( dtChId, string("DCC/LocalTriggerTheta"), histoTag );
+		  bookHistos( dtChId, string("Segment"), histoTag );
 		(digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_angle);		
 	      }
 	    }
@@ -478,12 +475,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	      
 	      histoTag = "DDU_TrackPosandTrig" + trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DDU/LocalTriggerPhi"), histoTag );
+		bookHistos( dtChId, string("Segment"), histoTag );
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_track);
 
 	      histoTag = "DDU_TrackAngleandTrig" + trigsrc;
 	      if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		bookHistos( dtChId, string("DDU/LocalTriggerPhi"), histoTag );             
+		bookHistos( dtChId, string("Segment"), histoTag );             
 	      (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(x_angle);
 
 	      if((*track).hasZed()) { // Theta component
@@ -491,12 +488,12 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	
 		  histoTag = "DDU_TrackThetaPosandTrig" + trigsrc;
 		  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		    bookHistos( dtChId, string("DDU/LocalTriggerTheta"), histoTag );
+		    bookHistos( dtChId, string("Segment"), histoTag );
 		  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_track);
 		  
 		  histoTag = "DDU_TrackThetaAngleandTrig" + trigsrc;
 		  if ((digiHistos[histoTag].find(indexCh) == digiHistos[histoTag].end()))
-		    bookHistos( dtChId, string("DDU/LocalTriggerTheta"), histoTag );
+		    bookHistos( dtChId, string("Segment"), histoTag );
        		  (digiHistos.find(histoTag)->second).find(indexCh)->second->Fill(y_angle);
 		  
 		}
@@ -507,8 +504,6 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
     }  
   }
-  
-
   
 }
 
@@ -559,8 +554,8 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
       cout << "[DTLocalTriggerTask]: histoName " << histoName << endl;
     }
     
-    if ( folder.substr(16) == "Phi") {
-    
+    if ( folder == "LocalTriggerPhi") {
+      
       if( histoType == "BXvsQual"){
 	(digiHistos[histoTag])[dtCh.rawId()] = 
 	  dbe->book2D(histoName,histoName,8,-0.5,7.5,101,-50.5,50.5);
@@ -591,23 +586,57 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 	  dbe->book2D(histoName,histoName,8,-0.5,7.5,2,-0.5,1.5);
 	return ;
       }
-
-      // Plots that use segment infos
-      if( histoType == "TrackPos"){ 
+      
+    }
+    else if ( folder == "LocalTriggerTheta")   {
+      
+      if( histoType == "PositionvsBX") {
 	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book1D(histoName,histoName,100,-500.,500.);
+	  dbe->book2D(histoName,histoName,101,-50.5,50.5,7,-0.5,6.5);
 	return ;
       }
-      if( histoType == "TrackPosandTrig"){ 
+      if( histoType == "PositionvsCode") {
 	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book1D(histoName,histoName,100,-500.,500.);
-      return ;
+	  dbe->book2D(histoName,histoName,3,-0.5,2.5,6,-0.5,6.5);
+	return ;
+      }  
+      if( histoType == "ThetaBXvsQual") {
+ 	(digiHistos[histoTag])[dtCh.rawId()] = 
+ 	  dbe->book2D(histoName,histoName,8,-0.5,7.5,60,-9.5,50.5);
+      }
+
+    }
+    else if ( folder == "Segment")   {
+      
+      if( histoType == "TrackThetaPos") {
+	(digiHistos[histoTag])[dtCh.rawId()] = 
+	  dbe->book1D(histoName,histoName,40,-117.5,117.5);
+	return ;
+      }
+      if( histoType == "TrackThetaAngle") {
+	(digiHistos[histoTag])[dtCh.rawId()] = 
+	  dbe->book1D(histoName,histoName,50,-2.,2.);
+	return ;
       }      
+      if( histoType == "TrackPos"){
+	pair<float,float> range = phiRange(dtCh);
+	int nbins = int((range.second - range.first)/15);
+	(digiHistos[histoTag])[dtCh.rawId()] = 
+	  dbe->book1D(histoName,histoName,nbins,range.first,range.second);
+	return ;
+      }
       if( histoType == "TrackAngle"){ 
 	(digiHistos[histoTag])[dtCh.rawId()] = 
 	  dbe->book1D(histoName,histoName,50,-2.,2.);
 	return ;
       }
+      if( histoType == "TrackPosandTrig"){ 
+	pair<float,float> range = phiRange(dtCh);
+	int nbins = int((range.second - range.first)/15);
+	(digiHistos[histoTag])[dtCh.rawId()] = 
+	  dbe->book1D(histoName,histoName,nbins,range.first,range.second);
+	return ;
+      }      
       if( histoType == "TrackAngleandTrig"){ 
 	(digiHistos[histoTag])[dtCh.rawId()] = 
 	  dbe->book1D(histoName,histoName,50,-2.,2.);
@@ -623,23 +652,9 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 	  dbe->book2D(histoName,histoName,8,-0.5,7.5,10,0.5,10.5);
 	return ;
       }
-    
-    }
-    else if ( folder.substr(16) == "Theta")   {
-
-      if( histoType == "TrackThetaPos") {
-	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book1D(histoName,histoName,50,-150.,150.);
-	return ;
-      }
       if( histoType == "TrackThetaPosandTrig") {
 	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book1D(histoName,histoName,50,-150.,150.);
-	return ;
-      }
-      if( histoType == "TrackThetaAngle") {
-	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book1D(histoName,histoName,50,-2.,2.);
+	  dbe->book1D(histoName,histoName,40,-117.5,117.5);
 	return ;
       }
       if( histoType == "TrackThetaAngleandTrig") {
@@ -647,29 +662,52 @@ void DTLocalTriggerTask::bookHistos(const DTChamberId& dtCh, string folder, stri
 	  dbe->book1D(histoName,histoName,50,-2.,2.);
 	return ;
       }
-      if( histoType == "PositionvsBX") {
-	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book2D(histoName,histoName,101,-50.5,50.5,7,-0.5,6.5);
-	return ;
-      }
-      if( histoType == "PositionvsCode") {
-	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book2D(histoName,histoName,3,-0.5,2.5,6,-0.5,6.5);
-	return ;
-      }  
-      if( histoType == "CodevsBX") {
-	(digiHistos[histoTag])[dtCh.rawId()] = 
-	  dbe->book2D(histoName,histoName,101,-50.5,50.5,3,-0.5,2.5);
-	return ;
-      }
-       if( histoType == "ThetaBXvsQual") {
- 	(digiHistos[histoTag])[dtCh.rawId()] = 
- 	  dbe->book2D(histoName,histoName,8,-0.5,7.5,50,0.5,50.5);
-       }
+
     }
   }
+
 }
 //SM end
+
+pair<float,float> DTLocalTriggerTask::phiRange(const DTChamberId& id){
+
+  float min,max;
+  int station = id.station();
+  int sector  = id.sector(); 
+  int wheel   = id.wheel();
+  
+  const DTLayer  *layer = muonGeom->layer(DTLayerId(id,1,1));
+  DTTopology topo = layer->specificTopology();
+  min = topo.wirePosition(topo.firstChannel());
+  max = topo.wirePosition(topo.lastChannel());
+
+  if (station == 4){
+    
+    const DTLayer *layer2;
+    float lposx;
+    
+    if (sector == 4){
+      layer2  = muonGeom->layer(DTLayerId(wheel,station,13,1,1));
+      lposx = layer->toLocal(layer2->position()).x();
+    }
+    else if (sector == 10){
+      layer2 = muonGeom->layer(DTLayerId(wheel,station,14,1,1));
+      lposx = layer->toLocal(layer2->position()).x();
+    }
+    else
+      return make_pair(min,max);
+    
+    DTTopology topo2 = layer2->specificTopology();
+
+    if (lposx>0)
+      max = lposx+topo2.wirePosition(topo2.lastChannel());
+    else 
+      min = lposx-topo2.wirePosition(topo2.firstChannel());
+  }
+  
+  return make_pair(min,max);
+
+}
 
 //SM 
 string DTLocalTriggerTask::triggerSource() {
@@ -696,5 +734,6 @@ string DTLocalTriggerTask::triggerSource() {
     return l1ASource;
   }
   return "";
+
 }
 //SM end
