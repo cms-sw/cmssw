@@ -24,9 +24,7 @@ class SiStripRegionCabling {
   typedef std::pair<uint32_t,uint32_t> PositionIndex;
 
   ~SiStripRegionCabling() {;}
-  SiStripRegionCabling(const uint32_t, 
-		       const uint32_t, 
-		       const double);
+  SiStripRegionCabling(const uint32_t,const uint32_t, const double);
 
   inline void setRegionCabling(const RegionCabling&);
 
@@ -46,14 +44,11 @@ class SiStripRegionCabling {
   
   inline const Region region(PositionIndex) const;
 
-  const Regions regions(Position, 
-			double dR) const;
+  const Regions regions(Position, double dR) const;
 
  private:
 
   SiStripRegionCabling() {;}
-
-  RegionCabling regioncabling_;
 
   /** Number of regions in eta,phi */
   uint32_t etadivisions_;
@@ -61,6 +56,9 @@ class SiStripRegionCabling {
 
   /** Tracker extent in eta */
   double etamax_;
+
+  /** Cabling */
+  RegionCabling regioncabling_;
 }; 
 
 void SiStripRegionCabling::setRegionCabling(const RegionCabling& regioncabling) {

@@ -1,21 +1,19 @@
 #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripRegionCabling.h"
 
-SiStripRegionCabling::SiStripRegionCabling(const uint32_t EtaDivisions, 
-					   const uint32_t PhiDivisions, 
-					   const double EtaMax) :
+SiStripRegionCabling::SiStripRegionCabling(const uint32_t EtaDivisions,const uint32_t PhiDivisions, const double EtaMax) :
 
-  regioncabling_(),
   etadivisions_(EtaDivisions),
   phidivisions_(PhiDivisions),
-  etamax_(EtaMax)
+  etamax_(EtaMax),
+  regioncabling_()
 
 {;}
 
 const SiStripRegionCabling::Regions SiStripRegionCabling::regions(Position position, 
 								  double dR) const {
   Regions regions;
-  regions.reserve(etadivisions_*phidivisions_); //maximum possible number of regions  
+  regions.reserve(etadivisions_*phidivisions_); 
   
   PositionIndex index = positionIndex(position);
 
