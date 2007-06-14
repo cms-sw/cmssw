@@ -39,7 +39,8 @@ class EcalTPParameters;
  public:
   EcalFenixStripFormatEB(const EcalTPParameters * ecaltpp);
   virtual ~EcalFenixStripFormatEB();
-  virtual std::vector<int> process(std::vector<int> , std::vector<int>) ;
+  //  virtual std::vector<int> process(std::vector<int> &, std::vector<int> &) ;
+  virtual void  process(std::vector<int> &, std::vector<int> &, std::vector<int> &) ;
   void setParameters(int SM, int towerInSM, int stripInTower);
 
  

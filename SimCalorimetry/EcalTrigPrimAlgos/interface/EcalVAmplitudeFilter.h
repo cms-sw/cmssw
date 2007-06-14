@@ -10,7 +10,8 @@
 class EcalVAmplitudeFilter {
   /* {src_lang=Cpp}*/
  public:
-  virtual std::vector<int> process(std::vector<int>) =0;
+  //  virtual std::vector<int> process(std::vector<int>) =0;
+  virtual void process(std::vector<int>&, std::vector<int> &) =0;
 };
 
 

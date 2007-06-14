@@ -38,7 +38,7 @@ class EcalFenixPeakFinder {
 /*   void setTpeak (double value){tpeak_=value;} */
   EcalFenixPeakFinder();
   virtual ~EcalFenixPeakFinder();
-  virtual std::vector<int> process(std::vector<int>);
+  virtual std::vector<int> process(std::vector<int>& filtout, std::vector<int> & output);
   // from CaloVShape
   virtual double operator()(double) const {return 0.;}
   virtual double derivative(double) const {return 0.;}

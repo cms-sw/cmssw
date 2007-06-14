@@ -25,7 +25,8 @@ class EcalFenixBypassLin  {
   virtual ~EcalFenixBypassLin();
 
   //  virtual EBDataFrame process(EBDataFrame &); //FIXME: efficiency.. 
-  std::vector<int> process(std::vector<int>);
+  //  std::vector<int> process(std::vector<int>);
+ void process(std::vector<int>&, std::vector<int>& );
   };
 
 

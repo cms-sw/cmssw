@@ -5,22 +5,21 @@ EcalFenixEtStrip::EcalFenixEtStrip(){
 EcalFenixEtStrip::~EcalFenixEtStrip(){
 }
   
-std::vector<int> EcalFenixEtStrip::process(const std::vector<std::vector<int> > linout)
+void EcalFenixEtStrip::process(const std::vector<std::vector<int> > &linout,int nrXtals, std::vector<int> &output)
 {
-  std::vector<int> output(SIZEMAX);
-  for (int i =0;i<SIZEMAX;i++){
+  for (unsigned int i =0;i<output.size();i++){
     output[i]=0;
   }
-  for(unsigned int ixtal=0;ixtal<linout.size();ixtal++){
-    for (int i=0;i<SIZEMAX;i++) {
+  for(int ixtal=0;ixtal<nrXtals;ixtal++){
+    for (unsigned int i=0;i<output.size();i++) {
       output[i]+=(linout[ixtal])[i];
     }
   }
-  for (int i=0;i<SIZEMAX;i++) {
+  for (unsigned int i=0;i<output.size();i++) {
     output[i]>>2 ;  //FIXME
     if(output[i]>0X3FFFF)output[i]=0X3FFFF;
   }
-  return output;
+  return;
 }
   
   

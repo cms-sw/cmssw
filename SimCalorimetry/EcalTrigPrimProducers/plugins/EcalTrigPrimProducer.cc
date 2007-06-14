@@ -30,13 +30,7 @@
 #include "EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
 
-#include "TFile.h"
-#include "TTree.h"
-
-const int EcalTrigPrimProducer::nrSamples_=5;  //FIXME
-
 EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
-  valid_(iConfig.getUntrackedParameter<bool>("Validation")),
   barrelOnly_(iConfig.getParameter<bool>("BarrelOnly")),
   tcpFormat_(iConfig.getParameter<bool>("TcpOutput")),
   debug_(iConfig.getParameter<bool>("Debug")),ps_(iConfig)
@@ -44,13 +38,6 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
   //register your products
   produces <EcalTrigPrimDigiCollection >();
   if (tcpFormat_) produces <EcalTrigPrimDigiCollection >("formatTCP");
-  if (valid_) {
-    histfile_ = new TFile("valid.root","UPDATE");
-    valTree_ = new TTree("V","Validation Tree");
-  } else{
-    histfile_=NULL;
-    valTree_=NULL;
-  }
 
   label_= iConfig.getParameter<std::string>("Label");
   instanceNameEB_ = iConfig.getParameter<std::string>("InstanceEB");;
@@ -59,7 +46,8 @@ EcalTrigPrimProducer::EcalTrigPrimProducer(const edm::ParameterSet&  iConfig):
 }
 
 void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
-  //FIXME add config for validation
+
+  bool famos = ps_.getParameter<bool>("Famos");
 
   //get  binOfMax
   try {
@@ -88,13 +76,12 @@ void EcalTrigPrimProducer::beginJob(edm::EventSetup const& setup) {
     edm::LogWarning("EcalTPG")<<"Could not find product registry of EBDataFramesSorted, had to set the following parameters by Hand:  binOfMaximum="<<binOfMaximum_;
   }
 
-  algo_ = new EcalTrigPrimFunctionalAlgo(setup,valTree_,
-					 binOfMaximum_,nrSamples_,tcpFormat_,barrelOnly_,debug_);
+  algo_ = new EcalTrigPrimFunctionalAlgo(setup,binOfMaximum_,tcpFormat_,barrelOnly_,debug_,famos);
   algo_->updateESRecord(ps_.getParameter<double>("TTFLowEnergyEB"),
                         ps_.getParameter<double>("TTFHighEnergyEB"),
                         ps_.getParameter<double>("TTFLowEnergyEE"),
                         ps_.getParameter<double>("TTFHighEnergyEE"));
-  edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will write:  "<<nrSamples_<<" samples for each digi,  binOfMaximum used:  "<<binOfMaximum_;
+  edm::LogInfo("EcalTPG") <<"EcalTrigPrimProducer will use  binOfMaximum:  "<<binOfMaximum_;//FIXME
 }
 
 EcalTrigPrimProducer::~EcalTrigPrimProducer()
@@ -103,10 +90,6 @@ EcalTrigPrimProducer::~EcalTrigPrimProducer()
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
   delete algo_;
-  if (valid_) {
-    histfile_->Write();
-    histfile_->Close();
-  }
 
 }
 
@@ -155,7 +138,6 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
     ebdc=ebDigis.product();
     algo_->run(ebdc,*pOut,*pOutTcp);
   }
-  edm::LogInfo("produce") <<"For Barrel , "<<pOut->size()<<" TP  Digis were produced";
 
   if (endcap) {
     eedc=eeDigis.product();
@@ -164,7 +146,7 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   edm::LogInfo("produce") <<"For Barrel + Endcap, "<<pOut->size()<<" TP  Digis were produced";
 
-  // debug prints if TP >0
+  //  debug prints if TP >0
 
   for (unsigned int i=0;i<pOut->size();++i) {
     bool print=false;

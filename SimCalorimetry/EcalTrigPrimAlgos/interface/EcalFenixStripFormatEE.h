@@ -37,7 +37,8 @@ class EcalTPParameters;
  public:
   EcalFenixStripFormatEE(const EcalTPParameters *ecaltpp);
   virtual ~EcalFenixStripFormatEE();
-  virtual std::vector<int> process(std::vector<int> ,std::vector<int> , std::vector<int>) ;
+  //  virtual std::vector<int> process(std::vector<int>& ,std::vector<int>& , std::vector<int>&) ;
+  virtual void  process(std::vector<int>& ,std::vector<int>& , std::vector<int>&,std::vector<int>&) ;
   void setParameters(int sector, int towerInSector, int stripInTower);
 
  

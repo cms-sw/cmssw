@@ -22,14 +22,13 @@ class EcalFenixStripFgvbEE  {
 
  private:
   const EcalTPParameters * ecaltpp_ ;
-  std::vector<unsigned int> params_ ;
+  std::vector<unsigned int> const * params_ ;
 
  public:
   EcalFenixStripFgvbEE(const EcalTPParameters * ecaltpp) ;
   virtual ~EcalFenixStripFgvbEE();
   void    setParameters(int sector, int towNum, int stripNr);
-
-  std::vector<int> process( std::vector<const EEDataFrame *> &lin_out);
+  void process( std::vector<std::vector<int> > &lin_out, std::vector<int> &output);
 };
 
 

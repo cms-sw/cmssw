@@ -46,8 +46,6 @@ class EcalTrigPrimProducer : public edm::EDProducer
  private:
   EcalTrigPrimFunctionalAlgo *algo_;
   TFile *histfile_;
-  TTree *valTree_;
-  bool valid_;
   bool barrelOnly_;
   bool tcpFormat_;
   bool debug_;
@@ -57,7 +55,6 @@ class EcalTrigPrimProducer : public edm::EDProducer
 
   int binOfMaximum_;
 
-   static const int nrSamples_; //nr samples to write, should not be changed, if not problems in EcalTriggerPrimitiveDigi class
   const edm::ParameterSet ps_;
 };
   

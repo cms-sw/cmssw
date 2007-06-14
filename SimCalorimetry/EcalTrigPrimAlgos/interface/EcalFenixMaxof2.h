@@ -25,12 +25,12 @@ class EcalFenixMaxof2 {
 
 
 public:
-  EcalFenixMaxof2() ;
+  EcalFenixMaxof2(int maxNrSamples) ;
   virtual ~EcalFenixMaxof2() ;
-  std::vector<int> process(std::vector<std::vector <int> >);
+  void process(std::vector<std::vector <int> > &, int nStr, std::vector<int> &out);
 
  private:
- 
+  std::vector<std::vector<int> >  sumby2_; 
 };
 
 

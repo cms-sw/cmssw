@@ -28,14 +28,14 @@ class EcalFenixTcpFgvbEE  {
 
  private:
    const EcalTPParameters * ecaltpp_ ;
-   std::vector<unsigned int> params_ ;
+   std::vector<unsigned int> const * params_ ;
     
  public:
    EcalFenixTcpFgvbEE(const EcalTPParameters * ecaltpp);
    virtual ~EcalFenixTcpFgvbEE();
    void setParameters(int SM, int towNum);
 
-  std::vector<int> process( std::vector <std::vector<int> > &bypasslin_out,int bitMask);
+   void process( std::vector <std::vector<int> > &bypasslin_out,int nStr, int bitMask, std::vector<int> & output);
 };
 
 

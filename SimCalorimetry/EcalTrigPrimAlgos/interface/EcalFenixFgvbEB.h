@@ -25,7 +25,11 @@ class EcalFenixFgvbEB {
 
  private:
     const EcalTPParameters * ecaltpp_ ;
-    std::vector<unsigned int> params_ ;
+    std::vector<unsigned int> const * params_ ;
+    std::vector<int> adder_out_;
+    std::vector<int> maxOf2_out_;
+    std::vector<int> fgvb_out_;
+
 
  public:
   EcalFenixFgvbEB(const EcalTPParameters *) ;
@@ -33,7 +37,8 @@ class EcalFenixFgvbEB {
   //  int process() {return 0;} //FIXME: find better base methods
   void setParameters(int SM, int towNum);
 
-  std::vector<int> process( std::vector<int> add_out, std::vector<int> maxof2_out);
+  //  std::vector<int> process( std::vector<int> add_out, std::vector<int> maxof2_out);
+ void process( std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> & output);
 };
 
 

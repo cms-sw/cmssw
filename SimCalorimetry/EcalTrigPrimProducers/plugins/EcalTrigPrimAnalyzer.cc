@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon, Stephanie Baffioni
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.cc,v 1.4 2007/02/15 12:59:24 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.cc,v 1.3 2007/04/27 12:55:39 uberthon Exp $
 //
 //
 
@@ -62,13 +62,17 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
     sprintf(title,"%s_fgvb",ecal_parts_[i].c_str());
     ecal_fgvb_[i]=new TH1I(title,"FGVB",10,0,10);
   }
-  hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
-  hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
   label_= iConfig.getParameter<std::string>("Label");
   producer_= iConfig.getParameter<std::string>("Producer");
-  rechits_labelEB_= iConfig.getParameter<std::string>("RecHitsLabelEB");
-  rechits_labelEE_= iConfig.getParameter<std::string>("RecHitsLabelEE");
-  rechits_producer_=  iConfig.getParameter<std::string>("RecHitsProducer");}
+  recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
+  if (recHits_) {
+    hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
+    hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
+    rechits_labelEB_= iConfig.getParameter<std::string>("RecHitsLabelEB");
+    rechits_labelEE_= iConfig.getParameter<std::string>("RecHitsLabelEE");
+    rechits_producer_=  iConfig.getParameter<std::string>("RecHitsProducer");
+  }
+}
 
 
 EcalTrigPrimAnalyzer::~EcalTrigPrimAnalyzer()
@@ -99,6 +103,7 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
   iEvent.getByLabel(label_,producer_,tp);
   for (unsigned int i=0;i<tp.product()->size();i++) {
     EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
+    //    for (int ii=0;ii<d.size();++ii) printf(" TP %d, sample %d, et %d\n",i,ii,d[ii].compressedEt());fflush(stdout);
     int subdet=d.id().subDet()-1;
     if (subdet==0) {
       ecal_et_[subdet]->Fill(d.compressedEt());
@@ -113,12 +118,15 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
     ecal_fgvb_[subdet]->Fill(d.fineGrain());
 
   }
+  if (!recHits_) return;
 
+  // comparison with RecHits
   edm::Handle<EcalRecHitCollection> rechit_EB_col;
   iEvent.getByLabel(rechits_producer_,rechits_labelEB_,rechit_EB_col);
 
   edm::Handle<EcalRecHitCollection> rechit_EE_col;
   iEvent.getByLabel(rechits_producer_,rechits_labelEE_, rechit_EE_col);
+  
 
   edm::ESHandle<CaloGeometry> theGeometry;
   edm::ESHandle<CaloSubdetectorGeometry> theBarrelGeometry_handle;

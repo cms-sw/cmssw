@@ -40,25 +40,25 @@
 
 #include <TTree.h>
 #include <TMath.h>
-//----------------------------------------------------------------------
 
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,int nrsamples, bool tcpFormat, bool barrelOnly,bool debug):
-  valid_(false),valTree_(NULL),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug)
-
-{this->init(setup);}
+const unsigned int EcalTrigPrimFunctionalAlgo::nrSamples_=5;  //to be written
+const unsigned int EcalTrigPrimFunctionalAlgo::maxNrSamplesOut_=10;  
+const unsigned int EcalTrigPrimFunctionalAlgo::maxNrTowers_=2448;
+const unsigned int EcalTrigPrimFunctionalAlgo::maxNrTPs_=2448; //FIXME??
 
 //----------------------------------------------------------------------
-EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,TTree *tree,int binofmax, int nrsamples,bool tcpFormat, bool barrelOnly, bool debug):
-  valid_(true),valTree_(tree),binOfMaximum_(binofmax),nrSamplesToWrite_(nrsamples),
-  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly),debug_(debug)
 
-{this->init(setup);
+EcalTrigPrimFunctionalAlgo::EcalTrigPrimFunctionalAlgo(const edm::EventSetup & setup,int binofmax,bool tcpFormat, bool barrelOnly,bool debug,bool famos):
+  binOfMaximum_(binofmax),
+  tcpFormat_(tcpFormat), barrelOnly_(barrelOnly), debug_(debug), famos_(famos)
+
+{if (famos_) maxNrSamples_=1;  //get from input??
+ else maxNrSamples_=10;
+ this->init(setup);
 }
 
 //----------------------------------------------------------------------
 void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
-  //FIXME: check validities
   if (!barrelOnly_) {
     edm::ESHandle<CaloGeometry> theGeometry;
     edm::ESHandle<CaloSubdetectorGeometry> theEndcapGeometry_handle;
@@ -78,8 +78,17 @@ void EcalTrigPrimFunctionalAlgo::init(const edm::EventSetup & setup) {
   theMapping_ = ecalmapping.product();
 
   //create main sub algos
-  estrip_= new EcalFenixStrip(valTree_,ecaltpp_,theMapping_,debug_);
-  etcp_ = new EcalFenixTcp(ecaltpp_,tcpFormat_,debug_) ;
+  estrip_= new EcalFenixStrip(ecaltpp_,theMapping_,debug_,famos_,maxNrSamples_);
+  etcp_ = new EcalFenixTcp(ecaltpp_,tcpFormat_,debug_,famos_,binOfMaximum_,maxNrSamples_) ;
+
+  // initialise data structures
+  initStructures(towerMapEB_);
+  initStructures(towerMapEE_);
+
+  hitTowers_.resize(maxNrTowers_);
+  towtp_.resize(maxNrSamplesOut_);
+  towtp2_.resize(maxNrSamplesOut_);
+  
 }
 //----------------------------------------------------------------------
 
@@ -92,6 +101,23 @@ EcalTrigPrimFunctionalAlgo::~EcalTrigPrimFunctionalAlgo()
 void EcalTrigPrimFunctionalAlgo::updateESRecord(double ttfLowEB, double ttfHighEB, double ttfLowEE, double ttfHighEE)
 {
   const_cast <EcalTPParameters *> (ecaltpp_)->changeThresholds(ttfLowEB, ttfHighEB, ttfLowEE, ttfHighEE);
+}
+//----------------------------------------------------------------------
+void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollection<EBDataFrame> * col,
+                                                        EcalTrigPrimDigiCollection & result,
+							EcalTrigPrimDigiCollection & resultTcp)
+{
+  run_part1_EB(col);
+  run_part2(col,towerMapEB_,result,resultTcp);
+}
+
+//----------------------------------------------------------------------
+void EcalTrigPrimFunctionalAlgo::run(const edm::SortedCollection<EEDataFrame> * col,
+                                                        EcalTrigPrimDigiCollection & result,
+							EcalTrigPrimDigiCollection & resultTcp)
+{
+  run_part1_EE(col);
+  run_part2(col,towerMapEE_,result,resultTcp);
 }
 //----------------------------------------------------------------------
 int EcalTrigPrimFunctionalAlgo::findTowerNrInTcc(const EcalTrigTowerDetId &id)
@@ -142,4 +168,20 @@ int  EcalTrigPrimFunctionalAlgo::findStripNr(const EEDetId &id){
       const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
       stripnr=elId.pseudoStripId();
       return stripnr;
+}
+//----------------------------------------------------------------------
+
+void EcalTrigPrimFunctionalAlgo::run_part1_EB(const edm::SortedCollection<EBDataFrame> * col){
+  clean(towerMapEB_);
+ // loop over dataframes and fill map 
+  fillMap(col,towerMapEB_);
+}
+//----------------------------------------------------------------------
+void EcalTrigPrimFunctionalAlgo::run_part1_EE(const edm::SortedCollection<EEDataFrame> * col){
+
+ clean(towerMapEE_);
+
+ // loop over dataframes and fill map 
+  fillMap(col,towerMapEE_);
+
 }

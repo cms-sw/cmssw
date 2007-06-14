@@ -34,7 +34,7 @@ class EcalFenixEtTot {
   virtual ~EcalFenixEtTot();
   virtual std::vector<int> process(const std::vector<EBDataFrame *> &); 
     
-  std::vector<int> process(std::vector<std::vector <int> >,int );
+  void process(std::vector<std::vector <int> >&,int nStr, int bitMask , std::vector<int> & out);
 
  private:
 };

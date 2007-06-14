@@ -18,16 +18,6 @@ class EcalTPParameters;
    *  input: 18 bits
    *  output: 18 bits
    *  
-   *  
-   *  One should look at candidate implementations:
-   *  EdrAnalyserWithChi2, EdrAnalyser in Detailed. They implement the CaloVAnalyser interface.
-   *  
-   *  And at EdShape in Detailed which implements CaloVShape
-   *  
-   *  The inheritance from CaloVShape is just a guess! It should be reevaluated after having studied EdrAnalyser.
-   *  
-   *  --->maybe not inheritance from caloVShape but more from CaloVAnalyser...or something else . do we really need caloVAnalyser?
-   *  ----> computes the weighted sum ---> needs some external info (weights) . We need one set of weights per strip but it seems that weights can be the same for all the strips in the future.
    */
 class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
 
@@ -46,7 +36,7 @@ class EcalFenixAmplitudeFilter : public EcalVAmplitudeFilter {
  public:
   EcalFenixAmplitudeFilter(const EcalTPParameters * db);
   virtual ~EcalFenixAmplitudeFilter();
-  virtual std::vector<int> process(std::vector<int>);
+  virtual void process(std::vector<int> & addout, std::vector<int> & output);
   void setParameters(int SM, int towerInSM, int stripInTower);
 
   

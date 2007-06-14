@@ -22,9 +22,8 @@ class EcalTPParameters;
    */
 class EcalFenixTcpFormat  {
 
-
  public:
-  EcalFenixTcpFormat(const EcalTPParameters * ecaltpp, bool tccFormat, bool debug); 
+  EcalFenixTcpFormat(const EcalTPParameters * ecaltpp, bool tccFormat, bool debug, bool famos, int binOfMax); 
   virtual ~EcalFenixTcpFormat();
   virtual std::vector<int> process(std::vector<int>,std::vector<int>) {  std::vector<int> v;return v;}
   //  void process(std::vector<int> &Et, std::vector<int> &fgvb, int eTTotShift, std::vector<EcalTriggerPrimitiveSample> & out) ;
@@ -33,9 +32,11 @@ class EcalFenixTcpFormat  {
 
  private:
   const EcalTPParameters *ecaltpp_ ;
-  std::vector<unsigned int> lut_ ;
+  std::vector<unsigned int> const * lut_ ;
   bool tcpFormat_;
   bool debug_;
+  bool famos_;
+  unsigned int binOfMax_;
 };
 
 #endif

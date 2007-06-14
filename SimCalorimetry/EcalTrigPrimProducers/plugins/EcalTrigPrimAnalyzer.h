@@ -10,7 +10,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Thu Jul 4 11:38:38 CEST 2005
-// $Id: EcalTrigPrimAnalyzer.h,v 1.3 2007/02/13 16:42:38 uberthon Exp $
+// $Id: EcalTrigPrimAnalyzer.h,v 1.2 2007/04/20 12:08:43 uberthon Exp $
 //
 //
 
@@ -59,5 +59,7 @@ class EcalTrigPrimAnalyzer : public edm::EDAnalyzer {
   std::string rechits_labelEB_;
   std::string  rechits_labelEE_;
   std::string  rechits_producer_;
+
+  bool recHits_;
 };
 

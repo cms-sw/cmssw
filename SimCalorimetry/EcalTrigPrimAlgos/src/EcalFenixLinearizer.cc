@@ -7,8 +7,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-EcalFenixLinearizer::EcalFenixLinearizer(const EcalTPParameters *ecaltpp)
-  : ecaltpp_(ecaltpp)
+EcalFenixLinearizer::EcalFenixLinearizer(const EcalTPParameters *ecaltpp, bool famos)
+  : ecaltpp_(ecaltpp),famos_(famos)
 {
 }
 
@@ -17,8 +17,7 @@ EcalFenixLinearizer::~EcalFenixLinearizer(){
 
 void EcalFenixLinearizer::setParameters(int SM, int towNum, int stripNum,int XtalNumberInStrip)
 {
-  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip);
-  //  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip,true);
+  params_ = ecaltpp_->getXtalParameters(SM, towNum, stripNum, XtalNumberInStrip,true);
 }
 
 int EcalFenixLinearizer::process()
@@ -41,9 +40,10 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
   gainID_=RawSam.gainId();       //uncorrectedSample_ is coded in the 2 next bits!
   if (gainID_==0)    gainID_=3;
   gainID_ -- ; 
-  base_ = params_[3*gainID_] ;
-  mult_ = params_[3*gainID_+1] ;
-  shift_ = params_[3*gainID_+2] ;
+  if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
+  else base_ = (*params_)[3*gainID_] ;
+  mult_ = (*params_)[3*gainID_+1] ;
+  shift_ = (*params_)[3*gainID_+2] ;
   return 1;
 }
 

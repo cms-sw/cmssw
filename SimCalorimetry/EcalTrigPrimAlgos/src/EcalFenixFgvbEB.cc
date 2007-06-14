@@ -12,19 +12,19 @@ EcalFenixFgvbEB::EcalFenixFgvbEB(const EcalTPParameters * ecaltpp)
 EcalFenixFgvbEB::~EcalFenixFgvbEB(){
 }
 
-std::vector<int> EcalFenixFgvbEB::process( std::vector<int> add_out, std::vector<int> maxof2_out) {
+void EcalFenixFgvbEB::process( std::vector<int> &add_out, std::vector<int> &maxof2_out, std::vector<int> &output) {
 
-    std::vector<int> output(add_out.size());
+  //    std::vector<int> output(add_out.size());
     int Elow, Ehigh, Tlow, Thigh, lut;
     int ERatLow,ERatHigh;
     std::vector<int> add_out_8(add_out.size());
     int COMP3, COMP2, COMP1, COMP0;
    
-    Elow = params_[1024];
-    Ehigh = params_[1025];
-    Tlow = params_[1026];
-    Thigh = params_[1027];
-    lut = params_[1028];
+    Elow = (*params_)[1024];
+    Ehigh = (*params_)[1025];
+    Tlow = (*params_)[1026];
+    Thigh = (*params_)[1027];
+    lut = (*params_)[1028];
     
     if (Tlow > 127) Tlow=Tlow-128;
     if (Thigh > 127) Thigh=Thigh-128;
@@ -47,11 +47,13 @@ std::vector<int> EcalFenixFgvbEB::process( std::vector<int> add_out, std::vector
       output[i]= (lut) & (mask);
       if (output[i]>0) output[i]=1;
     }
-    return output;
+    //    return output;
+    return;
   }
 
 
 void EcalFenixFgvbEB::setParameters(int SM, int towNum)
 {
   params_ = ecaltpp_->getTowerParameters(SM, towNum);
+  // ecaltpp_->getTowerParameters(SM, towNum, params_);
 }

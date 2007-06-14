@@ -1,11 +1,8 @@
 #ifndef ECAL_FENIXSTRIP_H
 #define ECAL_FENIXSTRIP_H
 
-#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixChip.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixAmplitudeFilter.h>
-//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEB.h>
-//#include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixPeakFinder.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixEtStrip.h>
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixLinearizer.h>
@@ -15,8 +12,6 @@
 #include <DataFormats/EcalDigi/interface/EBDataFrame.h>
 #include <DataFormats/EcalDigi/interface/EEDataFrame.h>
 
-
-class TTree;
 class EBDataFrame;
 class EcalTriggerPrimitiveSample;
 class EcalTPParameters;
@@ -25,185 +20,162 @@ class EcalFenixStripFormatEB;
 class EcalFenixStripFormatEE;
 class EcalElectronicsMapping;
 
-  /** 
-      \class EcalFenixStrip
-      \brief class representing the Fenix chip, format strip
-  */
-// ENDCAP::MODIF  : enlever l'heritage EcalFenixChip et EcalVFormatter right ??
-//  class EcalFenixStrip : public EcalFenixChip {
-
+/** 
+    \class EcalFenixStrip
+    \brief class representing the Fenix chip, format strip
+*/
 class EcalFenixStrip {
-  private:
-    const EcalElectronicsMapping* theMapping_;
+ private:
+  const EcalElectronicsMapping* theMapping_;
 
-    bool debug_;
-    enum {numberOfCrystalsInStrip = 5};//FIXME
-
+  bool debug_;
+  bool famos_;
     
-    EcalFenixLinearizer *linearizer_[nCrystalsPerStrip_];
+  std::vector <EcalFenixLinearizer *> linearizer_; 
 
-    EcalFenixAmplitudeFilter *amplitude_filter_; 
+  EcalFenixAmplitudeFilter *amplitude_filter_; 
 
-    EcalFenixPeakFinder *peak_finder_; 
+  EcalFenixPeakFinder *peak_finder_; 
     
-    // ENDCAP::MODIF  ????????????? formatter_
-    EcalFenixStripFormatEB *fenixFormatterEB_;   
+  EcalFenixStripFormatEB *fenixFormatterEB_;   
     
-    EcalFenixStripFormatEE *fenixFormatterEE_;
+  EcalFenixStripFormatEE *fenixFormatterEE_;
     
 
-    EcalFenixEtStrip *adder_;
+  EcalFenixEtStrip *adder_;
     
-    //ENDCAP:MODIF
-    EcalFenixStripFgvbEE *fgvbEE_;
+  //ENDCAP:MODIF
+  EcalFenixStripFgvbEE *fgvbEE_;
 
+  // data formats for each event
+  std::vector<std::vector<int> > lin_out_;
+  std::vector<int> add_out_;
+  std::vector<int> filt_out_;
+  std::vector<int> peak_out_;
+  std::vector<int> format_out_;
+  std::vector<int> fgvb_out_;
 
-  public:
+ public:
 
-    // constructor, destructor
-    EcalFenixStrip(TTree *tree, const EcalTPParameters * ecaltpp, const EcalElectronicsMapping* theMapping,bool debug);
-    virtual ~EcalFenixStrip() ;
+  // constructor, destructor
+  EcalFenixStrip(const EcalTPParameters * ecaltpp, const EcalElectronicsMapping* theMapping,bool debug,bool famos,int maxNrSamples);
+  virtual ~EcalFenixStrip() ;
 
-    // main methods
-    // process method is splitted in 2 parts:
-    //   the first one is templated, the same except input
-    //   the second part is slightly different for barrel/endcap
-    template <class T> std::vector<int> process(std::vector<const T *> &, int stripnr,int townr,int smnr);
-    //  template <class T> std::vector<int> process_part1(std::vector<const T *> &,std::vector<const T *> &, std::vector<int> &, int smnr, int stripnr,int townr);//FIXME: many transmissions per value...
-    std::vector<int> process_part2_barrel(std::vector<int> &, std::vector<int> &, int smnr, int stripnr,int townr);
-    std::vector<int> process_part2_endcap(std::vector<const EEDataFrame *> &,std::vector<int> &, std::vector<int> &, int smnr, int stripnr,int townr); // FIXME: to be filled
+  // main methods
+  // process method is splitted in 2 parts:
+  //   the first one is templated, the same except input
+  //   the second part is slightly different for barrel/endcap
+  template <class T> void process(std::vector<const T *> &, int nrxtals, int stripnr,int townr,int smnr,std::vector<int> & out);
+  void process_part2_barrel(int smnr, int stripnr,int townr);
 
+  void process_part2_endcap(int smnr, int stripnr,int townr);
 
-    //template <class T> int getCrystalNumberInStrip (const T*) ;
-    //ENDCAP: Missing geometry. Template int getCrystalNumberInStrip  for later
-    int getCrystalNumberInStrip(const EBDataFrame *frame,int crystalIndexinStrip); //2nd argument dummy forEB 
-    int getCrystalNumberInStrip(const EEDataFrame *frame,int crystalIndexinStrip); //2nd argument dummy forEB 
+  int getCrystalNumberInStrip(const EBDataFrame *frame,int crystalIndexinStrip); //2nd argument dummy forEB 
+  int getCrystalNumberInStrip(const EEDataFrame *frame,int crystalIndexinStrip); 
        
 
-    // getters for the algorithms  ;
+  // getters for the algorithms  ;
 
-    EcalFenixLinearizer *getLinearizer (int i) const { return linearizer_[i];}
-    EcalFenixEtStrip *getAdder() const { return  adder_;}
-    EcalFenixAmplitudeFilter *getFilter() const { return amplitude_filter_;}
-    EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_;}
-    //ENDCAP:MODIF
-    //EcalFenixStripFormat *getFormatter() const { return dynamic_cast<EcalFenixStripFormat *> (formatter_);}
+  EcalFenixLinearizer *getLinearizer (int i) const { return linearizer_[i];}
+  EcalFenixEtStrip *getAdder() const { return  adder_;}
+  EcalFenixAmplitudeFilter *getFilter() const { return amplitude_filter_;}
+  EcalFenixPeakFinder *getPeakFinder() const { return peak_finder_;}
     
-    EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_;}
-    EcalFenixStripFormatEE *getFormatterEE() const { return fenixFormatterEE_;}
+  EcalFenixStripFormatEB *getFormatterEB() const { return fenixFormatterEB_;}
+  EcalFenixStripFormatEE *getFormatterEE() const { return fenixFormatterEE_;}
     
-    EcalFenixStripFgvbEE *getFGVB()      const { return fgvbEE_;}
+  EcalFenixStripFgvbEE *getFGVB()      const { return fgvbEE_;}
 
-// ========================= implementations ==============================================================
-std::vector<int> process(std::vector<const EBDataFrame *> &samples, int stripnr,int townr, int &smnr){
-  //ENDCAP:MODIF I need the  linearizer output for endcap Fgvb 
-  //std::vector<T * > lin_out;
-  std::vector<const EBDataFrame * > lin_out;
-  std::vector<int> filt_out;
+  // ========================= implementations ==============================================================
+  void process(std::vector<const EBDataFrame *> &samples, int nrXtals, int stripnr,int townr, int smnr,std::vector<int> &out){
+    process_part1(samples,nrXtals,smnr,stripnr,townr);//templated part
+    process_part2_barrel(smnr,stripnr,townr);//part different for barrel/endcap
+    out=format_out_;
+  }
+  void  process(std::vector<const EEDataFrame *> &samples, int nrXtals, int stripnr,int townr, int &sectorNr, std::vector<int> & out){
+
+    process_part1(samples,nrXtals,sectorNr,stripnr,townr); //templated part
+    process_part2_endcap(sectorNr,stripnr,townr);
+    out=format_out_;
+    return;
+  }
+
+  template <class T> void  process_part1(std::vector<const T *> & df,int nrXtals, int smnr, int stripnr, int townr)
+    {
   
-  //  smnr=samples[0]->id().ism();  //FIXME: not efficient.Perhaps transmit directly EcalTrigTowerDetId to DB in the future? 
-  //ENCAP:MODIF : added lin_out parameter . needed for EE in process_2
-  std::vector<int> res=process_part1(samples,filt_out, smnr,stripnr,townr);//templated part
-  for (unsigned int i=0;i<lin_out.size();++i) delete lin_out[i];
-  return process_part2_barrel(res,filt_out,smnr,stripnr,townr);//part different for barrel/endcap
-}
+      if(debug_)  std::cout<<"\n\nEcalFenixStrip input is a vector of size: "<<nrXtals<< std::endl;
 
-std::vector<int>  process(std::vector<const EEDataFrame *> &samples, int stripnr,int townr, int &sectorNr){
-  //ENDCAP:MODIF  
-  //std::vector<T * > lin_out;
-  std::vector<const EEDataFrame * > lin_out;
-  std::vector<int> filt_out;
-  
-  //ENCAP:MODIF : added lin_out parameter . needed for EE in process_2
-  std::vector<int> res=process_part1(samples,filt_out,sectorNr,stripnr,townr); //templated part
-  std::vector<int> format_out= process_part2_endcap(lin_out,res,filt_out,sectorNr,stripnr,townr);//FinegrainVB  avant l'entree format
-  //ENDCAP:MODIF
-  for (unsigned int i=0;i<lin_out.size();++i) delete lin_out[i];
-  return format_out; 
-}
+      //loop over crystals
+      for (int cryst=0;cryst<nrXtals;cryst++) {
+	if(debug_){
+	  std::cout<<std::endl;
+	  std::cout <<"cryst= "<<cryst<<" EBDataFrame/EEDataFrame is: "<<std::endl; 
+	  for ( int i = 0; i<df[cryst]->size();i++){
+	    std::cout <<" "<<std::dec<<(*df[cryst])[i].adc();
+	  }
+	  std::cout<<std::endl;
+	}
+	// call linearizer
+	int crystalNumberInStrip=getCrystalNumberInStrip(df[cryst],cryst);
+	this->getLinearizer(cryst)->setParameters(smnr, townr, stripnr, crystalNumberInStrip) ; 
+	this->getLinearizer(cryst)->process(*(df[cryst]),lin_out_[cryst]);
+      }
 
-//template <class T> std::vector<int>  process_part1(std::vector<const T *> & df,std::vector<const T *> & lin_out,std::vector<int> & filt_out, int smnr, int stripnr, int townr)
- template <class T> std::vector<int>  process_part1(std::vector<const T *> & df,std::vector<int> & filt_out, int smnr, int stripnr, int townr)
-   {
-  
-     if(debug_)  std::cout<<"EcalFenixStrip input is a vector of size: "<<df.size()<< std::endl;
-     std::vector<std::vector<int> > lin_out;
-
-     //loop over crystals
-     for (unsigned int cryst=0;cryst<df.size();cryst++) {
-       if(debug_){
-	 std::cout<<std::endl;
-	 std::cout <<"cryst= "<<cryst<<" EBDataFrame/EEDataFrame is: "<<std::endl; 
-	 for ( int i = 0; i<df[cryst]->size();i++){
-       	   std::cout <<" "<<std::dec<<(*df[cryst])[i].adc();
-	 }
-	 std::cout<<std::endl;
-       }
-       // call linearizer
-       int crystalNumberInStrip=getCrystalNumberInStrip(df[cryst],cryst);
-       this->getLinearizer(cryst)->setParameters(smnr, townr, stripnr, crystalNumberInStrip) ; 
-       std::vector<int> linout_percry;
-       this->getLinearizer(cryst)->process(*(df[cryst]),linout_percry);
-       lin_out.push_back(linout_percry);
-     }
-
-     if(debug_){
-       std::cout<< "output of linearizer is a vector of size: "<<std::dec<<lin_out.size()<<std::endl; 
-       for (unsigned int ix=0;ix<lin_out.size();ix++){
-	 std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<std::endl;
-	 std::cout<<" lin_out[ix].size()= "<<std::dec<<lin_out[ix].size()<<std::endl;
-	 for (unsigned int i =0; i<lin_out[ix].size();i++){
-	   std::cout <<" "<<std::dec<<(lin_out[ix])[i];
-	 }
-	 std::cout<<std::endl;
-       }
+      if(debug_){
+	std::cout<< "output of linearizer is a vector of size: "<<std::dec<<lin_out_.size()<<" of which used "<<nrXtals<<std::endl; 
+	for (int ix=0;ix<nrXtals;ix++){
+	  std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<std::endl;
+	  std::cout<<" lin_out[ix].size()= "<<std::dec<<lin_out_[ix].size()<<std::endl;
+	  for (unsigned int i =0; i<lin_out_[ix].size();i++){
+	    std::cout <<" "<<std::dec<<(lin_out_[ix])[i];
+	  }
+	  std::cout<<std::endl;
+	}
     
-       std::cout<<std::endl;
-     }
+	std::cout<<std::endl;
+      }
   
-     // call adder
-     std::vector<int> add_out;
-     add_out = this->getAdder()->process(lin_out);
-  
-     if(debug_){
-       std::cout<< "output of adder is a vector of size: "<<std::dec<<add_out.size()<<std::endl; 
-       for (unsigned int ix=0;ix<add_out.size();ix++){
-	 std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<add_out[ix]<<std::endl;
-       }
-       std::cout<<std::endl;
-     }
+      // call adder
+      this->getAdder()->process(lin_out_,nrXtals,add_out_);  //add_out is of size SIZEMAX=maxNrSamples
  
-     //ENDCAP:MODIF -I still need lin_out for EE
-     //for (unsigned int i=0;i<lin_out.size();++i) delete lin_out[i];
-
+      if(debug_){
+	std::cout<< "output of adder is a vector of size: "<<std::dec<<add_out_.size()<<std::endl; 
+	for (unsigned int ix=0;ix<add_out_.size();ix++){
+	  std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<add_out_[ix]<<std::endl;
+	}
+	std::cout<<std::endl;
+      }
  
-     // call amplitudefilter
-     this->getFilter()->setParameters(smnr, townr,stripnr) ; 
-     filt_out= this->getFilter()->process(add_out); 
 
-     if(debug_){
-       std::cout<< "output of filter is a vector of size: "<<std::dec<<filt_out.size()<<std::endl; 
-       for (unsigned int ix=0;ix<filt_out.size();ix++){
-	 std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<filt_out[ix]<<std::endl;
-       }
-       std::cout<<std::endl;
-     }
+      if (famos_) {
+	filt_out_[0]= add_out_[0];
+	peak_out_[0]= add_out_[0];
+	return;
+      }else {
+	// call amplitudefilter
+	this->getFilter()->setParameters(smnr, townr,stripnr) ; 
+	this->getFilter()->process(add_out_,filt_out_); 
 
-     // call peakfinder
-     std::vector<int> peak_out;
-     peak_out =this->getPeakFinder()->process(filt_out);
-     if(debug_){
-       std::cout<< "output of peakfinder is a vector of size: "<<peak_out.size()<<std::endl; 
-       for (unsigned int ix=0;ix<peak_out.size();ix++){
-	 std::cout<< "cryst: "<<ix<<"  value : "<<peak_out[ix]<<std::endl;
-       }
-       std::cout<<std::endl;
-     }
+	if(debug_){
+	  std::cout<< "output of filter is a vector of size: "<<std::dec<<filt_out_.size()<<std::endl; 
+	  for (unsigned int ix=0;ix<filt_out_.size();ix++){
+	    std::cout<< "cryst: "<<ix<<"  value : "<<std::dec<<filt_out_[ix]<<std::endl;
+	  }
+	  std::cout<<std::endl;
+	}
 
-  
-     //FIXME for speed !!!!!!!!!!
-     return peak_out;
-   }
+	// call peakfinder
+	this->getPeakFinder()->process(filt_out_,peak_out_);
+	if(debug_){
+	  std::cout<< "output of peakfinder is a vector of size: "<<peak_out_.size()<<std::endl; 
+	  for (unsigned int ix=0;ix<peak_out_.size();ix++){
+	    std::cout<< "cryst: "<<ix<<"  value : "<<peak_out_[ix]<<std::endl;
+	  }
+	  std::cout<<std::endl;
+	}
+	return;
+      }
+    }
 
 };
 #endif
