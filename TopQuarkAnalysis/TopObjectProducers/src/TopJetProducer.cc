@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.5 2007/06/14 23:02:24 jlamb Exp $
+// $Id: TopJetProducer.cc,v 1.6 2007/06/15 09:50:03 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -28,9 +28,9 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   caliJetResoFile_         	= iConfig.getParameter<std::string>   	("caliJetResoFile");
   recJetsLabel_            	= iConfig.getParameter<edm::InputTag> 	("recJetInput");
   caliJetsLabel_           	= iConfig.getParameter<edm::InputTag> 	("caliJetInput");
-  topElectronsLabel_       	= iConfig.getParameter<edm::InputTag> 	("topElectronsInput");
-  topMuonsLabel_           	= iConfig.getParameter<edm::InputTag> 	("topMuonsInput");
-  doJetCleaning_           	= iConfig.getParameter<bool> 		("doJetCleaning");
+  //topElectronsLabel_       	= iConfig.getParameter<edm::InputTag> 	("topElectronsInput");
+  //topMuonsLabel_           	= iConfig.getParameter<edm::InputTag> 	("topMuonsInput");
+  //doJetCleaning_           	= iConfig.getParameter<bool> 		("doJetCleaning");
   addResolutions_             	= iConfig.getParameter<bool>       	("addResolutions");
   storeBDiscriminants_         	= iConfig.getParameter<bool>       	("storeBDiscriminants");
   dropTrackCountingFromAOD_    	= iConfig.getParameter<bool>       	("dropTrackCountingFromAOD");
@@ -40,9 +40,9 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   keepdiscriminators_          	= iConfig.getParameter<bool>       	("keepdiscriminators");
   keepjettagref_               	= iConfig.getParameter<bool>       	("keepjettagref");
 
-  LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
-  ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
-  MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
+  //LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
+  //ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
+  //MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
   
   
   //for jet flavour
@@ -73,12 +73,12 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(recJetsLabel_, recjets);
   edm::Handle<std::vector<JetType> > calijets;
   iEvent.getByLabel(caliJetsLabel_, calijets);
-  edm::Handle<std::vector<TopElectron> > electronsHandle;
-  iEvent.getByLabel(topElectronsLabel_, electronsHandle);
-  std::vector<TopElectron> electrons=*electronsHandle;
-  edm::Handle<std::vector<TopMuon> > muonsHandle;
-  iEvent.getByLabel(topMuonsLabel_, muonsHandle);
-  std::vector<TopMuon> muons=*muonsHandle;
+  //edm::Handle<std::vector<TopElectron> > electronsHandle;
+  //iEvent.getByLabel(topElectronsLabel_, electronsHandle);
+  //std::vector<TopElectron> electrons=*electronsHandle;
+  //edm::Handle<std::vector<TopMuon> > muonsHandle;
+  //iEvent.getByLabel(topMuonsLabel_, muonsHandle);
+  //std::vector<TopMuon> muons=*muonsHandle;
 
 
 
@@ -94,14 +94,14 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   jfi.readEvent(iEvent);
 
   //select isolated leptons to remove from jets collection
-  electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
-  muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
+  //electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
+  //muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
 
 
   // loop over jets
   std::vector<TopJet> * topJets = new std::vector<TopJet>(); 
   for (size_t j = 0; j < recjets->size(); j++) {
-  
+/* 
     //check that the jet doesn't match in deltaR with an isolated lepton
     //if it does, then it needs to be cleaned (ie don't put it in the TopJet collection)
     //FIXME: don't do muons until have a sensible cut value on their isolation
@@ -117,7 +117,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       continue;
     }
 
-
+*/
     // construct the TopJet
     TopJet ajet;
     // loop over cal jets to find corresponding jet
@@ -170,7 +170,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	        pairdiscri.second = (*jetTags)[t].discriminator();
 	        //drop TauTag!!!
 	        if(moduleTagInfoName == "TrackProbability" || moduleTagInfoName == "TrackCounting" || moduleTagInfoName == "SoftLepton" ){
-		  ajet.AddBdiscriminantPair(pairdiscri);
+		  ajet.addBdiscriminantPair(pairdiscri);
 	        }
 	      }
 	    
@@ -186,21 +186,21 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTP);  
 		  const  TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.AddBJetTagRefPair(pairjettagref);
+		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
 	        if(moduleTagInfoName == "TrackCounting"){
 		  //cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTC);  
 		  const  TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.AddBJetTagRefPair(pairjettagref);
+		  ajet.addBJetTagRefPair(pairjettagref);
 	        }  
 	        if(moduleTagInfoName == "SoftLepton"){
 		  // cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandle_sl);  
 		  const  SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
-		  ajet.AddBJetTagRefPair(pairjettagref);
+		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
 	      }  
 	    }
@@ -225,7 +225,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.put(myTopJetProducer);
 
 }
-
+/*
 
 //takes a vector of electrons and returns a vector that only contains the ones that are isolated
 //isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
@@ -267,3 +267,4 @@ std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &
   
   return output;
 }
+*/

@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.5 2007/06/14 23:02:23 jlamb Exp $
+// $Id: TopJetProducer.h,v 1.6 2007/06/15 09:50:02 heyninck Exp $
 //
 
 #ifndef TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.5 2007/06/14 23:02:23 jlamb Exp $
+  \version  $Id: TopJetProducer.h,v 1.6 2007/06/15 09:50:02 heyninck Exp $
 */
 
 
@@ -59,10 +59,10 @@ class TopJetProducer : public edm::EDProducer {
 
   private:
 
-    std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
-							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
-    std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
-							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
+    //std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
+    //							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
+    //std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
+    //							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
 
 
     JetFlavourIdentifier jfi;
@@ -70,9 +70,9 @@ class TopJetProducer : public edm::EDProducer {
     std::string   jetTagsLabel_;
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
-    edm::InputTag topElectronsLabel_;
-    edm::InputTag topMuonsLabel_;
-    bool          doJetCleaning_;
+    //edm::InputTag topElectronsLabel_;
+    //edm::InputTag topMuonsLabel_;
+    //bool          doJetCleaning_;
     bool          storeBDiscriminants_;
     bool          addResolutions_;
     std::string   caliJetResoFile_;
@@ -83,9 +83,9 @@ class TopJetProducer : public edm::EDProducer {
     bool          keepdiscriminators_; 
     bool          keepjettagref_;
 
-    float LEPJETDR_;
-    float ELEISOCUT_;
-    float MUISOCUT_;
+    //float LEPJETDR_;
+    //float ELEISOCUT_;
+    //float MUISOCUT_;
 
 
     // tools
