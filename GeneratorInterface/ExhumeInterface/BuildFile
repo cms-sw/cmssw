@@ -3,8 +3,8 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=hepmc>
 <use name=clhep>
+<use name=pythia6>
 #<use name=lhapdf>
-<use name=pythia6_227>
 <lib name=lhapdf>
 <lib name=lhapdf_dummy>
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceExhumeInterface">
@@ -15,8 +15,8 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=hepmc>
  <use name=clhep>
- #<use name=lhapdf> 
- <use name=pythia6_227>
+ <use name=pythia6>
+ #<use name=lhapdf>
  <lib name=lhapdf>
  <lib name=lhapdf_dummy>
 </export>

@@ -280,7 +280,7 @@ namespace Exhume{
 
     double Gev2fb;
 
-    std::string lhapdfSetPath;	
+    std::string lhapdfSetPath_;	
   };
 }
 

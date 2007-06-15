@@ -74,8 +74,7 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 	WMass(pset.getParameter<double>("WMass")),
 	ZMass(pset.getParameter<double>("ZMass")),
 	FNAL_or_LHC(pset.getParameter<int>("FNAL_or_LHC")),
-	root_s(pset.getParameter<double>("root_s")),
-	lhapdfSetPath(pset.getUntrackedParameter<std::string>("lhapdfSetPath",""))
+	root_s(pset.getParameter<double>("root_s"))
 {
   
   
@@ -170,19 +169,33 @@ Exhume::CrossSection::CrossSection(const edm::ParameterSet& pset):
 
   //...........................................................................
   //Initialise the PDFs
-
+  // setting up lhapdf path name from environment varaible (***)
+  /*char* lhaPdfs = NULL;
+  std::cout << std::endl;	
+  std::cout<<" Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+    std::cout<<" Using "<< lhapdfSetPath_ << std::endl;	
+  }
+  else{
+    std::cout<<" failed."<<std::endl;
+    std::cout<<" Using "<< lhapdfSetPath_ << std::endl;
+  }*/	
+  
   std::cout<<std::endl<<
    " ........................................................................."
 	   <<std::endl<<std::endl<<"  = Initialising PDFs ="<<std::endl;
-  char pdfpath[232];
+  /*char pdfpath[232];
   bool dot=false;
   for(int i=0; i<232; ++i) {
-    if(lhapdfSetPath.c_str()[i]=='\0') dot=true;
-    if(!dot) pdfpath[i]=lhapdfSetPath.c_str()[i];
+    if(lhapdfSetPath_.c_str()[i]=='\0') dot=true;
+    if(!dot) pdfpath[i]=lhapdfSetPath_.c_str()[i];
     else pdfpath[i]=' ';
   }
 
-  setpdfpath(pdfpath);
+  setpdfpath(pdfpath);*/
 
   my_pdfset(PDF);
   std::cout<<std::endl<<
