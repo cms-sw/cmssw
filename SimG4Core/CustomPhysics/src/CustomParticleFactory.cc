@@ -163,7 +163,8 @@ void  CustomParticleFactory::getMassTable(std::ifstream *configFile) {
     int pdgIdPartner = pdgId%100;
     G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition *aParticle = theParticleTable->FindParticle(pdgIdPartner);
-    if(aParticle && 0){
+    //Add antiparticles for SUSY particles only, not for rHadrons.
+    if(aParticle && !CustomPDGParser::s_isRHadron(pdgId)){ 
       int sign = aParticle->GetAntiPDGEncoding()/pdgIdPartner;
       if(abs(sign)!=1) {
 	std::cout<<"sgn: "<<sign<<" a "
