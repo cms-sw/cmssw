@@ -67,7 +67,6 @@ L1GtfeExtWord::L1GtfeExtWord(
         m_bst[iB] = bstValue[iB];
     }
 
-
 }
 
 // destructor
@@ -112,9 +111,6 @@ bool L1GtfeExtWord::operator!=(const L1GtfeExtWord& result) const
 
 // methods
 
-// TODO FIXME write the methods to retrieve the quantities from BST
-// now they are dummy
-
 boost::uint64_t L1GtfeExtWord::gpsTime()
 {
 
@@ -139,70 +135,165 @@ boost::uint32_t L1GtfeExtWord::turnCountNumber()
 {
 
     boost::uint32_t tcn = 0;
-    return tcn;
 
+    for (int iB = TurnCountNumberFirstBlock; iB <= TurnCountNumberLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - TurnCountNumberFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        tcn = tcn |
+              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return tcn;
 }
 
 boost::uint32_t L1GtfeExtWord::lhcFillNumber()
 {
 
     boost::uint32_t lhcfn = 0;
-    return lhcfn;
 
+    for (int iB = LhcFillNumberFirstBlock; iB <= LhcFillNumberLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - LhcFillNumberFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        lhcfn = lhcfn |
+                ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return lhcfn;
 }
 
 boost::uint32_t L1GtfeExtWord::totalIntensityBeam1()
 {
 
     boost::uint32_t tib = 0;
-    return tib;
 
+    for (int iB = TotalIntensityBeam1FirstBlock; iB <= TotalIntensityBeam1LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - TotalIntensityBeam1FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        tib = tib |
+              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return tib;
 }
 
 boost::uint32_t L1GtfeExtWord::totalIntensityBeam2()
 {
 
     boost::uint32_t tib = 0;
-    return tib;
 
+    for (int iB = TotalIntensityBeam2FirstBlock; iB <= TotalIntensityBeam2LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - TotalIntensityBeam2FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        tib = tib |
+              ( (static_cast<boost::uint32_t> (m_bst[iB])) << BstShift );
+
+    }
+
+    return tib;
 }
 
 boost::uint16_t L1GtfeExtWord::beamMomentum()
 {
 
     boost::uint16_t bm = 0;
-    return bm;
 
+    for (int iB = BeamMomentumFirstBlock; iB <= BeamMomentumLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - BeamMomentumFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        bm = bm | ( m_bst[iB] << BstShift );
+
+    }
+
+    return bm;
 }
 
 boost::uint16_t L1GtfeExtWord::bstMasterStatus()
 {
 
-    boost::uint32_t tcn = 0;
-    return tcn;
+    boost::uint16_t bms = 0;
 
+    for (int iB = BstMasterStatusFirstBlock; iB <= BstMasterStatusLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - BstMasterStatusFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        bms = bms | ( m_bst[iB] << BstShift );
+
+    }
+
+    return bms;
 }
 
 boost::uint16_t L1GtfeExtWord::machineMode()
 {
 
     boost::uint16_t mm = 0;
-    return mm;
 
+    for (int iB = MachineModeFirstBlock; iB <= MachineModeLastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - MachineModeFirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        mm = mm | ( m_bst[iB] << BstShift );
+
+    }
+
+    return mm;
 }
 
 boost::uint16_t L1GtfeExtWord::particleTypeBeam1()
 {
 
     boost::uint16_t ptb = 0;
-    return ptb;
 
+    for (int iB = ParticleTypeBeam1FirstBlock; iB <= ParticleTypeBeam1LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - ParticleTypeBeam1FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        ptb = ptb | ( m_bst[iB] << BstShift );
+
+    }
+
+    return ptb;
 }
 
 boost::uint16_t L1GtfeExtWord::particleTypeBeam2()
 {
 
     boost::uint16_t ptb = 0;
+
+    for (int iB = ParticleTypeBeam2FirstBlock; iB <= ParticleTypeBeam2LastBlock; ++iB) {
+
+        // keep capitalization for similarity with other functions
+        const int scaledIB = iB - ParticleTypeBeam2FirstBlock;
+        const int BstShift = BstBitSize*scaledIB;
+
+        ptb = ptb | ( m_bst[iB] << BstShift );
+
+    }
+
     return ptb;
 
 }
