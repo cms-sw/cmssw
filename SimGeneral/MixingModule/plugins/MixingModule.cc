@@ -24,9 +24,18 @@ namespace edm
 {
 
   // Constructor 
-  MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps)
+  MixingModule::MixingModule(const edm::ParameterSet& ps) : BMixingModule(ps),
+			     label_(ps.getParameter<std::string>("Label"))
+
   {
-    produces<CrossingFrame> ();
+    if (label_.size()>0){
+      sel_=new Selector( ModuleLabelSelector(label_));
+      produces<CrossingFrame> (label_);
+    }
+    else {
+      sel_=new Selector( MatchAllSelector());
+      produces<CrossingFrame> ();
+    }
   }
 
   void MixingModule::beginJob(edm::EventSetup const&iSetup) {
@@ -54,7 +63,7 @@ namespace edm
 	int iend=(desc.productInstanceName_).size();
 	if (slow>0) {
  	  trackerHighLowPids_.push_back(desc.productInstanceName_.substr(0,iend-6));
-	  LogInfo("Constructor") <<"Adding container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
+	  LogInfo("MixingModule") <<"Adding container "<<desc.productInstanceName_.substr(0,iend-6) <<" for pileup treatment";
         }
       }
       //      else
@@ -67,7 +76,9 @@ namespace edm
   }
 
   // Virtual destructor needed.
-  MixingModule::~MixingModule() { }  
+  MixingModule::~MixingModule() { 
+    delete sel_;
+  }  
 
   void MixingModule::addSignals(const edm::Event &e) { 
     // fill in signal part of CrossingFrame
@@ -79,7 +90,7 @@ namespace edm
 
     // SimHits
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
-    e.getManyByType(resultsim);
+    e.getMany((*sel_),resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product();
@@ -90,7 +101,7 @@ namespace edm
 
     // calo hits for all subdetectors
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
-    e.getManyByType(resultcalo);
+    e.getMany((*sel_),resultcalo);
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
@@ -101,7 +112,7 @@ namespace edm
 
 //     //tracks and vertices
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
-    e.getManyByType(result_t);
+    e.getMany((*sel_),result_t);
     int str=result_t.size();
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product();
@@ -111,7 +122,7 @@ namespace edm
     }
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
-    e.getManyByType(result_v);
+    e.getMany((*sel_),result_v);
    int sv=result_v.size();
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product();
@@ -122,14 +133,15 @@ namespace edm
   }
 
   void MixingModule::addPileups(const int bcr, Event *e, unsigned int eventId) {
-
+  
     LogDebug("MixingModule") <<"===============> adding pileups from event  "<<e->id()<<" for bunchcrossing "<<bcr;
+
     // SimHits
     // we have to treat tracker/non tracker  containers separately, prepare a global map
     // (all this due to the fact that we need to use getmany to avoid exceptions)
     std::map<const std::string,const std::vector<PSimHit>* > simproducts;
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
-    e->getManyByType(resultsim);
+    e->getMany((*sel_),resultsim);
     int ss=resultsim.size();
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product();
@@ -175,7 +187,7 @@ namespace edm
 
     // calo hits for all subdetectors
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
-    e->getManyByType(resultcalo);
+    e->getMany((*sel_),resultcalo);
     int sc=resultcalo.size();
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
@@ -185,7 +197,7 @@ namespace edm
  
 //     //tracks and vertices
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
-    e->getManyByType(result_t);
+    e->getMany((*sel_),result_t);
     int str=result_t.size();
     if (str>1) LogWarning("InvalidData") <<"Too many SimTrack containers, should be only one!";
     for (int ii=0;ii<str;ii++) {
@@ -197,7 +209,7 @@ namespace edm
   
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
-    e->getManyByType(result_v);
+    e->getMany((*sel_),result_v);
     int sv=result_v.size();
     if (sv>1) LogWarning("InvalidData") <<"Too many SimVertex containers, should be only one!";
     for (int ii=0;ii<sv;ii++) {
@@ -212,7 +224,7 @@ namespace edm
   }
  
   void MixingModule::put(edm::Event &e) {
-    e.put(std::auto_ptr<CrossingFrame>(simcf_));
+    e.put(std::auto_ptr<CrossingFrame>(simcf_),label_);
   }
 
 } //edm

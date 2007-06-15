@@ -14,13 +14,15 @@
 
  *
  ************************************************************/
+#include "Mixing/Base/interface/BMixingModule.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Mixing/Base/interface/BMixingModule.h"
+#include "FWCore/Framework/interface/Selector.h"
+
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include <vector>
 #include <string>
 
@@ -54,6 +56,9 @@ namespace edm
       CrossingFrame *simcf_;
 
       unsigned int eventId_; //=0 for signal, from 1-n for pileup events
+
+      Selector * sel_;
+      std::string label_;
 
     };
 }//edm
