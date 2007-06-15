@@ -51,7 +51,7 @@ class GSTrackCandidateMaker : public edm::EDProducer
   std::string hitProducer;
 
   bool seedCleaning;
-  std::string seedType;
+  unsigned int seedType;
   double originRadius;
   double originHalfLength;
   double originpTMin;

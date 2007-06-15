@@ -71,7 +71,10 @@ GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf)
 
   // The cuts for seed cleaning
   seedCleaning = conf.getParameter<bool>("seedCleaning");
-  seedType = conf.getParameter<std::string>("seedType");
+  std::string seedingType = conf.getParameter<std::string>("seedType");
+  if ( seedingType == "GlobalPixel" ) seedType = 1;
+  else if ( seedingType == "GlobalMixed" ) seedType = 2;
+  else seedCleaning = false;
   originRadius = conf.getParameter<double>("originRadius");
   originHalfLength = conf.getParameter<double>("originHalfLength");
   originpTMin = conf.getParameter<double>("originpTMin");
@@ -199,7 +202,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
     //Check Seeding requirements (GlobalPixel only for now)
     
-    if(seedType == "GlobalPixel"){
+    if ( seedType == 1 ) {
       bool compatible = false;
       const SiTrackerGSRecHit2D *hit1;
       const SiTrackerGSRecHit2D *hit2;
@@ -230,7 +233,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
       }
       if(!compatible) continue;
 
-    }else if (seedType == "GlobalMixed"){
+    } else if ( seedType == 2 ) {
 
       bool compatible = false;
       const SiTrackerGSRecHit2D *hit1;
