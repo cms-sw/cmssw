@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.11 2007/06/04 16:09:30 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.12 2007/06/04 16:52:30 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -8,8 +8,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
-
-//#include <iostream> //for debugging
+#include <iostream> //for debugging
 
 using std::vector;
 
@@ -89,12 +88,11 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   for(int iZ0=0; iZ0<2; ++iZ0){//0->EE-, 1->EE+
     for(unsigned iX0=0; iX0<nEndcapXBins; ++iX0){
       for(unsigned iY0=0; iY0<nEndcapYBins; ++iY0){
-        try{
-          xtal = EEDetId(iX0+1, iY0+1, (iZ0>0?1:-1));
-        } catch(cms::Exception e){//exception thrown if no crystal at
-          //                        this position
-          continue;
+
+        if (!(xtal.validDetId(iX0+1, iY0+1, (iZ0>0?1:-1)))){ 
+          continue; 
         }
+        xtal = EEDetId(iX0+1, iY0+1, (iZ0>0?1:-1));
         //works around a EEDetId bug. To remove once the bug fixed.
         if(39 <= iX0 && iX0 <= 60 && 45 <= iY0 && iY0 <= 54){
           continue;
