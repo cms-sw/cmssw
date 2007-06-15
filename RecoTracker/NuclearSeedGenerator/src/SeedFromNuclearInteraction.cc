@@ -32,7 +32,7 @@ void SeedFromNuclearInteraction::setMeasurements(const TM& inner_TM, const TM& o
        // get the inner and outer transient TrackingRecHits
        outerHit = outer_TM.recHit().get();
 
-       theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
+       //theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
        theHits.push_back(  outer_TM.recHit() );
 
        innerTM = &inner_TM;
@@ -75,8 +75,6 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError() const {
    GlobalPoint inner = innerTM->updatedState().globalPosition();
    GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
    TangentHelix helix(direction, inner, outer);
-   LogDebug("NuclearSeedGenerator") << "First vtx position : " << helix.vertexPoint() << "\n"
-                                    << "Rho = " << helix.rho() << "\n";
 
    return stateWithError(helix);
 }
@@ -96,16 +94,15 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(TangentHelix& hel
                                     << "Outer = " << helix.outerPoint() << "\n";
 
    // Error matrix in a frame where z is in the direction of the track at the vertex
-   AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
+   //AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
+   AlgebraicSymMatrix55 m(innerTM->updatedState().curvilinearError().matrix());
    double vtxerror = helix.circle().vertexError();
    double curvatureError = helix.curvatureError();
    m(0,0)=curvatureError*curvatureError;
-   m(1,1)=1E-5;
-   m(2,2)=1E-5;
-   m(3,3)=1E-5;
-   m(4,4)=1E-4;
-
-   LogDebug("NuclearSeedGenerator") << "vtxError : " << vtxerror << "\n";
+   m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
+   m(2,2)=m(2,2)*rescaleDirectionFactor*rescaleDirectionFactor;
+   m(3,3)=m(3,3)*rescalePositionFactor*rescalePositionFactor;
+   m(4,4)=m(4,4)*rescalePositionFactor*rescalePositionFactor;
 
 /*
    //rotation around the z-axis by  -phi
@@ -173,9 +170,6 @@ bool SeedFromNuclearInteraction::construct() {
      const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit]; 
      updatedTSOS =  theUpdator.update(state, *tth);
 
-     LogDebug("NuclearSeedGenerator") << "TrajectorySeed updated with hit at position : " << pDD->idToDet(hit->geographicalId())->surface().toGlobal(hit->localPosition()) << "\n"
-                                      << "state = " << updatedTSOS << "\n";
-       
    } 
 
    TrajectoryStateTransform transformer;
@@ -189,7 +183,6 @@ edm::OwnVector<TrackingRecHit>  SeedFromNuclearInteraction::hits() const {
     recHitContainer      _hits;
     for( ConstRecHitContainer::const_iterator it = theHits.begin(); it!=theHits.end(); it++ ){
            _hits.push_back( it->get()->hit()->clone() );
-           LogDebug("NuclearSeedGenerator") << "Hit put in TrajectorySeed at position : " << pDD->idToDet(it->get()->hit()->geographicalId())->surface().toGlobal(it->get()->hit()->localPosition()) << "\n";
     }
     return _hits; 
 }
