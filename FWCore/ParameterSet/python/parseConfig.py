@@ -1036,6 +1036,11 @@ def parseCffFile(fileName):
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
 
+def processFromString(configString):
+    """Reads a string containing the equivalent content of a .cfg file and
+    creates a Process object"""
+    return process.parseString(configString)[0]
+
 def importConfig(fileName):
     """Use the file extension to decide how to parse the file"""
     ext = fileName[fileName.rfind('.'):]
