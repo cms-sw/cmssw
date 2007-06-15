@@ -11,11 +11,14 @@ class TangentHelix {
        /// Calculate the helix from 2 points on the circle (the vertex=innerPoint and the outerPoint)
        /// and the tangent direction at the inner point
        TangentHelix(const GlobalVector& direction, const GlobalPoint& innerPoint, const GlobalPoint& outerPoint) : 
-            theInnerPoint(innerPoint), theOuterPoint(outerPoint), theVertexPoint(innerPoint), theCircle(direction, innerPoint, outerPoint) {}
+            theInnerPoint(innerPoint), theOuterPoint(outerPoint), theVertexPoint(innerPoint), theCircle(direction, innerPoint, outerPoint), 
+            theDirectionAtVertex(direction) {}
 
        /// Calculate Helix from 3 points
        TangentHelix(const GlobalPoint& outerPoint, const GlobalPoint& innerPoint, const GlobalPoint& vertexPoint) : 
-           theInnerPoint(innerPoint), theOuterPoint(outerPoint), theVertexPoint(vertexPoint), theCircle(outerPoint, innerPoint, vertexPoint) {}
+           theInnerPoint(innerPoint), theOuterPoint(outerPoint), theVertexPoint(vertexPoint), theCircle(outerPoint, innerPoint, vertexPoint) {
+           theDirectionAtVertex = GlobalVector(1000,1000,1000);
+       }
 
        /// Calculate the parameters of the helix which pass by 2 points (innerPoint and outerPoint) and which is tangent to primHelix
        TangentHelix(const TangentHelix& primCircle, const GlobalPoint& outerPoint, const GlobalPoint& innerPoint);
@@ -42,6 +45,8 @@ class TangentHelix {
        GlobalPoint theVertexPoint;
 
        TangentCircle theCircle;
+
+       GlobalVector theDirectionAtVertex;
 };
 
 #endif

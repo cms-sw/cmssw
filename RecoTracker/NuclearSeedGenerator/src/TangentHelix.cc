@@ -12,18 +12,22 @@ TangentHelix::TangentHelix(const TangentHelix& primCircle, const GlobalPoint& ou
    double d = (inner_T - outer_T).mag();
 
    theVertexPoint = GlobalPoint(vtx_T.x() , vtx_T.y(), innerPoint.z() - (outerPoint.z() - innerPoint.z()) * d1 / d );
+   theDirectionAtVertex = GlobalVector(1000, 1000, 1000);
 }
 
 GlobalVector TangentHelix::directionAtVertex() {
 
-   GlobalPoint inner_T( theInnerPoint.x() , theInnerPoint.y() , 0.0 );
-   GlobalPoint outer_T( theOuterPoint.x() , theOuterPoint.y() , 0.0 );
-   double p_z = (theOuterPoint.z() - theInnerPoint.z()) / (outer_T - inner_T).mag();
+   if(theDirectionAtVertex.z() > 999) {
+      GlobalPoint inner_T( theInnerPoint.x() , theInnerPoint.y() , 0.0 );
+      GlobalPoint outer_T( theOuterPoint.x() , theOuterPoint.y() , 0.0 );
+      double p_z = (theOuterPoint.z() - theInnerPoint.z()) / (outer_T - inner_T).mag();
 
-   GlobalVector dir_T = theCircle.directionAtVertex();
-   GlobalVector dir( dir_T.x(), dir_T.y(), p_z);
+      GlobalVector dir_T = theCircle.directionAtVertex();
+      GlobalVector dir( dir_T.x(), dir_T.y(), p_z);
 
-   dir/=dir.mag();
+      dir/=dir.mag();
+      theDirectionAtVertex = dir;
+    }
 
-   return dir;
+   return theDirectionAtVertex;
 }
