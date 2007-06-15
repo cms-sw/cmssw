@@ -14,8 +14,8 @@
  *  possible HLT filters. Hence we accept the reasonably small
  *  overhead of empty containers.
  *
- *  $Date: 2007/03/07 11:54:00 $
- *  $Revision: 1.23 $
+ *  $Date: 2007/05/16 15:38:43 $
+ *  $Revision: 1.25 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@
 #include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/HLTenums.h"
-#include "DataFormats/HLTReco/interface/HLTParticle.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 
@@ -59,7 +59,7 @@ namespace reco
   class HLTFilterObject : public HLTFilterObjectBase {
 
   private:
-    std::vector<HLTParticle> particles_; // particles/MET (4-momentum vectors) used by filter
+    std::vector<Particle> particles_; // particles/MET (4-momentum vectors) used by filter
 
   public:
 
@@ -68,20 +68,20 @@ namespace reco
 
     unsigned int size() const { return particles_.size();}
 
-    const HLTParticle& getParticle(const unsigned int i) const {
+    const Particle& getParticle(const unsigned int i) const {
       return particles_.at(i);
     }
 
-    void putParticle(const HLTParticle& ref) {
+    void putParticle(const Particle& ref) {
       particles_.push_back(ref);
     }
 
     void putParticle(const edm::RefToBase<Candidate>& ref) {
-      particles_.push_back(HLTParticle(*ref));
+      particles_.push_back(Particle(*ref));
     }
 
 
-    // set methods for HLTParticle components (default = most-recent entry)
+    // Set methods for HLT Particle components (default = most-recent entry)
 
     void setCharge(const Particle::Charge& q, int i=-1) {
       if (i<0) {i+=size();}
@@ -95,9 +95,13 @@ namespace reco
       if (i<0) {i+=size();}
       particles_.at(i).setVertex(v3);
     }
-    void setId(const int& id, int i=-1) {
+    void setPdgId(const int& pdgId, int i=-1) {
       if (i<0) {i+=size();}
-      particles_.at(i).setId(id);
+      particles_.at(i).setPdgId(pdgId);
+    }
+    void setStatus(const int& status, int i=-1) {
+      if (i<0) {i+=size();}
+      particles_.at(i).setStatus(status);
     }
 
   };

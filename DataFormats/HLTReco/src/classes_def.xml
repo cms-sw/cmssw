@@ -21,8 +21,6 @@
   <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObject    > >" />
   <class name="edm::reftobase::Holder<reco::HLTFilterObjectBase, edm::RefProd<reco::HLTFilterObjectWithRefs> >" />
 
-  <class name="reco::HLTParticle" />
-  <class name="std::vector<reco::HLTParticle>" />
   <class name="reco::HLTFilterObjectBase" />
   <class name="reco::HLTFilterObject" />
   <class name="reco::HLTFilterObjectWithRefs" />
