@@ -29,31 +29,6 @@ bool SiStripModuleHV::put(std::vector<uint32_t>& DetId) {
 }
 
 
-bool SiStripModuleHV::putalldetids(std::vector<uint32_t>& DetId) {
-  // put all DetIds
- 
-  
-  v_det_ids.insert(v_det_ids.end(),DetId.begin(),DetId.end());
-  std::sort(v_det_ids.begin(),v_det_ids.end());
-
-  
-  std::vector<uint32_t> v_detidcompare;
- 
-  for(int in= 0;in<v_det_ids.size();in++){
-     v_detidcompare.push_back(v_det_ids[in]);
-     
- 
-    if(in>0){
-      if(v_detidcompare[in-1]==v_det_ids[in]){
-	std::cout << "detid: " << v_det_ids[in] << "already stored, skipping this input \n";
-	return false;}
-    }
-   
-  }
-    
-  return true;
-}
-
 
 void SiStripModuleHV::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
@@ -61,14 +36,6 @@ void SiStripModuleHV::getDetIds(std::vector<uint32_t>& DetIds_) const {
   DetIds_.insert(DetIds_.end(),v_hvoff.begin(),v_hvoff.end());
  }
 
-
-void SiStripModuleHV::GetAllDetIds(std::vector<uint32_t>& AllDetIds) const {
-  // returns a vector with all detids 
-  AllDetIds.clear();
-  AllDetIds.insert(AllDetIds.end(),v_det_ids.begin(),v_det_ids.end());
-  
-
-}
 
 
 

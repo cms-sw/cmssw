@@ -26,11 +26,9 @@ class SiStripModuleHV {
   ~SiStripModuleHV(){};
   
   bool put(std::vector<uint32_t> & DetId);
-  bool putalldetids(std::vector<uint32_t> & DetId);
   
  
   void getDetIds(std::vector<uint32_t>& DetIds_) const ;
-  void GetAllDetIds(std::vector<uint32_t>& AllDetIds) const;
   
 
   bool  IsModuleHVOff(uint32_t DetID) const;
@@ -39,9 +37,6 @@ class SiStripModuleHV {
 
  private:
   std::vector<uint32_t> v_hvoff; 
-  std::vector<uint32_t> v_det_ids; 
-  
-  
 
 };
 
