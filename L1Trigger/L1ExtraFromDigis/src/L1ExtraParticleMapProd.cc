@@ -210,6 +210,10 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "A_SingleTauJet40_thresh" ) ;
    prescales_[ L1ParticleMap::kSingleTauJet40 ] =
       iConfig.getParameter< int >( "A_SingleTauJet40_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kSingleTauJet60 ] =
+      iConfig.getParameter< double >( "A_SingleTauJet60_thresh" ) ;
+   prescales_[ L1ParticleMap::kSingleTauJet60 ] =
+      iConfig.getParameter< int >( "A_SingleTauJet60_prescale" ) ;
    singleThresholds_[ L1ParticleMap::kSingleTauJet80 ] =
       iConfig.getParameter< double >( "A_SingleTauJet80_thresh" ) ;
    prescales_[ L1ParticleMap::kSingleTauJet80 ] =
@@ -529,12 +533,12 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
    prescales_[ L1ParticleMap::kTauJet30_ETM40 ] =
       iConfig.getParameter< int >( "A_TauJet30_ETM40_prescale" ) ;
 
-   doubleThresholds_[ L1ParticleMap::kHTT200_ETM40 ].first =
-      iConfig.getParameter< double >( "A_HTT200_ETM40_thresh1" ) ;
-   doubleThresholds_[ L1ParticleMap::kHTT200_ETM40 ].second =
-      iConfig.getParameter< double >( "A_HTT200_ETM40_thresh2" ) ;
-   prescales_[ L1ParticleMap::kHTT200_ETM40 ] =
-      iConfig.getParameter< int >( "A_HTT200_ETM40_prescale" ) ;
+   doubleThresholds_[ L1ParticleMap::kHTT100_ETM30 ].first =
+      iConfig.getParameter< double >( "A_HTT100_ETM30_thresh1" ) ;
+   doubleThresholds_[ L1ParticleMap::kHTT100_ETM30 ].second =
+      iConfig.getParameter< double >( "A_HTT100_ETM30_thresh2" ) ;
+   prescales_[ L1ParticleMap::kHTT100_ETM30 ] =
+      iConfig.getParameter< int >( "A_HTT100_ETM30_prescale" ) ;
 
    // AAA triggers
 
@@ -775,25 +779,25 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    {
       if( !muItr->gmtMuonCand().empty() )
       {
-         unsigned int qual = muItr->gmtMuonCand().quality() ;
+	 unsigned int qual = muItr->gmtMuonCand().quality() ;
 
-         if( qual == 4 ||
-             qual == 5 ||
-             qual == 6 ||
-             qual == 7 )
-         {
-            inputMuonRefsSingle.push_back(
-               edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
-         }
+	 if( qual == 4 ||
+	     qual == 5 ||
+	     qual == 6 ||
+	     qual == 7 )
+	 {
+	    inputMuonRefsSingle.push_back(
+	       edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+	 }
 
-         if( qual == 3 ||
-             qual == 5 ||
-             qual == 6 ||
-             qual == 7 )
-         {
-            inputMuonRefsDouble.push_back(
-               edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
-         }
+	 if( qual == 3 ||
+	     qual == 5 ||
+	     qual == 6 ||
+	     qual == 7 )
+	 {
+	    inputMuonRefsDouble.push_back(
+	       edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+	 }
       }
    }
 
@@ -876,6 +880,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	       itrig == L1ParticleMap::kSingleTauJet20 ||
 	       itrig == L1ParticleMap::kSingleTauJet30 ||
 	       itrig == L1ParticleMap::kSingleTauJet40 ||
+	       itrig == L1ParticleMap::kSingleTauJet60 ||
 	       itrig == L1ParticleMap::kSingleTauJet80 ||
 	       itrig == L1ParticleMap::kSingleTauJet100 )
       {
@@ -1317,7 +1322,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	    }
 	 }
       }
-      else if( itrig == L1ParticleMap::kHTT200_ETM40 )
+      else if( itrig == L1ParticleMap::kHTT100_ETM30 )
       {
 	 objectTypes.push_back( L1ParticleMap::kEtTotal ) ;
 	 objectTypes.push_back( L1ParticleMap::kEtMiss ) ;

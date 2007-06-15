@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.18 2007/06/01 02:57:12 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.19 2007/06/03 00:06:31 wsun Exp $
 //
 
 // system include files
@@ -63,6 +63,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_SingleTauJet20",
    "A_SingleTauJet30",
    "A_SingleTauJet40",
+   "A_SingleTauJet60",
    "A_SingleTauJet80",
    "A_SingleTauJet100",
    "A_HTT100",
@@ -98,8 +99,8 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_Mu5_TauJet30",
    "A_IsoEG10_EG10",
    "A_IsoEG10_Jet15",
-   "A_IsoEG10_Jet30",
    "A_IsoEG10_Jet20",
+   "A_IsoEG10_Jet30",
    "A_IsoEG10_Jet70",
    "A_IsoEG10_TauJet20",
    "A_IsoEG10_TauJet30",
@@ -120,7 +121,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_TauJet20_ETM20",
    "A_TauJet30_ETM30",
    "A_TauJet30_ETM40",
-   "A_HTT200_ETM40",
+   "A_HTT100_ETM30",
    "A_TripleMu3",
    "A_TripleIsoEG5",
    "A_TripleEG10",
