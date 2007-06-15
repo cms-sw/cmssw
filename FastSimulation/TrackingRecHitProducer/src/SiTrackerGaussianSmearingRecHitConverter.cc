@@ -68,11 +68,6 @@
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
-  :
-  theTIDRingRMin(10, static_cast<double>(0.)), // reserve space for TID rings
-  theTIDRingRMax(10, static_cast<double>(0.)), // reserve space for TID rings
-  theTECRingRMin(10, static_cast<double>(0.)), // reserve space for TEC rings
-  theTECRingRMax(10, static_cast<double>(0.))  // reserve space for TEC rings
 {
 #ifdef FAMOS_DEBUG
   std::cout << "SiTrackerGaussianSmearingRecHitConverter instantiated" << std::endl;

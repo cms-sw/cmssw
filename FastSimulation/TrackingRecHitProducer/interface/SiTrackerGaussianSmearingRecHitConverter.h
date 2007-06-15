@@ -206,12 +206,6 @@ class SiTrackerGaussianSmearingRecHitConverter : public edm::EDProducer
   typedef MixCollection<PSimHit>::iterator SimHiterator;
   std::vector<SimHiterator> correspondingSimHit;
 
-  // The ring positions
-  std::vector<double> theTIDRingRMin;
-  std::vector<double> theTIDRingRMax;
-  std::vector<double> theTECRingRMin;
-  std::vector<double> theTECRingRMax;
-
   // The random engine
   const RandomEngine* random;
 
