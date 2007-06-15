@@ -41,6 +41,8 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h"
 #include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 
 //For Pileup events
 #include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
@@ -63,10 +65,6 @@
 #include <TH1F.h>
 
 // #define FAMOS_DEBUG
-#ifdef FAMOS_DEBUG
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#endif
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
@@ -515,6 +513,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
     bool isCreated = gaussianSmearing(*isim, position, error, alphaMult, betaMult);
     //
     unsigned int subdet = det.subdetId();
+    
     //
     if(isCreated) {
       //      double dist = theDet->surface().toGlobal((*isim).localPosition()).mag2();
@@ -580,8 +579,14 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 								unsigned& betaMult) 
 {
 
+  // A few caracteritics of the module which the SimHit belongs to.
   unsigned int subdet   = DetId(simHit.detUnitId()).subdetId();
   unsigned int detid    = DetId(simHit.detUnitId()).rawId();
+  const GeomDetUnit* theDetUnit = geometry->idToDetUnit((DetId)simHit.detUnitId());
+  const BoundPlane& theDetPlane = theDetUnit->surface();
+  const Bounds& theBounds = theDetPlane.bounds();
+  double boundX = theBounds.width()/2.;
+  double boundY = theBounds.length()/2.;
   
 #ifdef FAMOS_DEBUG
   std::cout << "\tSubdetector " << subdet 
@@ -609,6 +614,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #ifdef FAMOS_DEBUG
   std::cout << " Hit finding probability draw: " << hitFindingProbability << std::endl;;
 #endif
+  
   switch (subdet) {
     // Pixel Barrel
   case 1:
@@ -620,10 +626,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXB ) return false;
       // Hit smearing
-      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = pixelDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
+      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(theDetUnit);
       thePixelBarrelParametrization->smearHit(simHit, pixelDetUnit, boundX, boundY);
       position  = thePixelBarrelParametrization->getPosition();
       error     = thePixelBarrelParametrization->getError();
@@ -642,10 +645,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXF ) return false;
       // Hit smearing
-      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = pixelDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
+      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(theDetUnit);
       thePixelEndcapParametrization->smearHit(simHit, pixelDetUnit, boundX, boundY);
       position = thePixelEndcapParametrization->getPosition();
       error    = thePixelEndcapParametrization->getError();
@@ -705,10 +705,6 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       }
 
       // Gaussian smearing
-      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = stripDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
       theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
@@ -723,14 +719,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TIDDetId module(detid);
       unsigned int theRing  = module.ring();
-      if ( theTIDRingRMin[theRing] == 0. ) { 
-	const BoundPlane& theDetPlane = geometry->idToDetUnit((DetId)simHit.detUnitId())->surface();
-	theTIDRingRMin[theRing] = theDetPlane.position().perp() - theDetPlane.bounds().length()/2.;
-	theTIDRingRMax[theRing] = theDetPlane.position().perp() + theDetPlane.bounds().length()/2.;
-      }
       double resolutionFactorY = 
-	1. - 2. * simHit.localPosition().y() 
-   	   / (theTIDRingRMin[theRing]+theTIDRingRMax[theRing]);
+	1. - simHit.localPosition().y() / theDetPlane.position().perp(); 
+
 #ifdef FAMOS_DEBUG
       std::cout << "\tTID Ring " << theRing << std::endl;
 #endif
@@ -768,11 +759,8 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	}
       }
 
-      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = stripDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
-      boundX *=  1. - simHit.localPosition().y()/theDetPlane.position().perp();
+      boundX *=  resolutionFactorY;
+
       theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
@@ -844,10 +832,6 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	  break;
 	}
       }
-      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = stripDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
       theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
@@ -862,14 +846,9 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
     {
       TECDetId module(detid);
       unsigned int theRing  = module.ring();
-      if ( theTECRingRMin[theRing] == 0. ) { 
-	const BoundPlane& theDetPlane = geometry->idToDetUnit((DetId)simHit.detUnitId())->surface();
-	theTECRingRMin[theRing] = theDetPlane.position().perp() - theDetPlane.bounds().length()/2.;
-	theTECRingRMax[theRing] = theDetPlane.position().perp() + theDetPlane.bounds().length()/2.;
-      }
       double resolutionFactorY = 
-	1. - 2. * simHit.localPosition().y() 
-   	   / (theTECRingRMin[theRing]+theTECRingRMax[theRing]);
+	1. - simHit.localPosition().y() / theDetPlane.position().perp(); 
+
 #ifdef FAMOS_DEBUG
       std::cout << "\tTEC Ring " << theRing << std::endl;
 #endif
@@ -935,11 +914,7 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	}
       }
 
-      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
-      const BoundPlane& theDetPlane = stripDetUnit->surface();
-      double boundX = theDetPlane.bounds().width()/2.;
-      double boundY = theDetPlane.bounds().length()/2.;
-      boundX *=  1. - simHit.localPosition().y()/theDetPlane.position().perp();
+      boundX *= resolutionFactorY;
       theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
@@ -999,7 +974,6 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 
       DetId detid = rit->geographicalId();
       unsigned int subdet = detid.subdetId();
-      
       // if in the strip (subdet>2)
       if(subdet>2){
 
