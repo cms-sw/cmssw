@@ -1,7 +1,7 @@
 /** SiTrackerGaussianSmearingRecHitConverter.cc
  * --------------------------------------------------------------
  * Description:  see SiTrackerGaussianSmearingRecHitConverter.h
- * Authors:  R. Ranieri (CERN), P. Azzi, A. Schmidt
+ * Authors:  R. Ranieri (CERN), P. Azzi, A. Schmidt, M. Galanti
  * History: Sep 27, 2006 -  initial version
  * --------------------------------------------------------------
  */
@@ -62,7 +62,11 @@
 #include <TFile.h>
 #include <TH1F.h>
 
-//#define FAMOS_DEBUG
+// #define FAMOS_DEBUG
+#ifdef FAMOS_DEBUG
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#endif
 
 SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConverter(
   edm::ParameterSet const& conf) 
@@ -616,9 +620,11 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXB ) return false;
       // Hit smearing
-      thePixelBarrelParametrization->smearHit(
-                         simHit,
-			 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()))));
+      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = pixelDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      thePixelBarrelParametrization->smearHit(simHit, pixelDetUnit, boundX, boundY);
       position  = thePixelBarrelParametrization->getPosition();
       error     = thePixelBarrelParametrization->getError();
       alphaMult = thePixelBarrelParametrization->getPixelMultiplicityAlpha();
@@ -635,10 +641,12 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       std::cout << "\tPixel Forward Disk " << theDisk << std::endl;
 #endif
       if( hitFindingProbability > theHitFindingProbability_PXF ) return false;
-      //
-      thePixelEndcapParametrization->smearHit(
-                         simHit,
-			 dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId()))));
+      // Hit smearing
+      const PixelGeomDetUnit* pixelDetUnit = dynamic_cast<const PixelGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = pixelDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      thePixelEndcapParametrization->smearHit(simHit, pixelDetUnit, boundX, boundY);
       position = thePixelEndcapParametrization->getPosition();
       error    = thePixelEndcapParametrization->getError();
       alphaMult = thePixelEndcapParametrization->getPixelMultiplicityAlpha();
@@ -697,7 +705,11 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
       }
 
       // Gaussian smearing
-      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
+      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = stripDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -755,7 +767,13 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	  break;
 	}
       }
-      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
+
+      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = stripDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      boundX *=  1. - simHit.localPosition().y()/theDetPlane.position().perp();
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -826,7 +844,11 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	  break;
 	}
       }
-      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
+      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = stripDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;
@@ -913,7 +935,12 @@ bool SiTrackerGaussianSmearingRecHitConverter::gaussianSmearing(const PSimHit& s
 	}
       }
 
-      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ);
+      const StripGeomDetUnit* stripDetUnit = dynamic_cast<const StripGeomDetUnit*>(geometry->idToDetUnit( DetId(simHit.detUnitId())));
+      const BoundPlane& theDetPlane = stripDetUnit->surface();
+      double boundX = theDetPlane.bounds().width()/2.;
+      double boundY = theDetPlane.bounds().length()/2.;
+      boundX *=  1. - simHit.localPosition().y()/theDetPlane.position().perp();
+      theSiStripErrorParametrization->smearHit(simHit, resolutionX, resolutionY, resolutionZ, boundX, boundY);
       position = theSiStripErrorParametrization->getPosition();
       error    = theSiStripErrorParametrization->getError();
       alphaMult = 0;

@@ -1,7 +1,7 @@
 /** SiPixelGaussianSmearingRecHitConverterAlgorithm.cc
  * ---------------------------------------------------------------------
  * Description:  see SiPixelGaussianSmearingRecHitConverterAlgorithm.h
- * Authors:  R. Ranieri (CERN)
+ * Authors:  R. Ranieri (CERN), M. Galanti
  * History: Oct 11, 2006 -  initial version
  * ---------------------------------------------------------------------
  */
@@ -28,7 +28,7 @@
 //#include <TH1F.h>
 //#include <TAxis.h>
 
-//#define FAMOS_DEBUG
+// #define FAMOS_DEBUG
 
 const double PI = 3.14159265358979323;
 
@@ -140,7 +140,9 @@ SiPixelGaussianSmearingRecHitConverterAlgorithm::~SiPixelGaussianSmearingRecHitC
 
 void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   const PSimHit& simHit, 
-  const PixelGeomDetUnit* detUnit)
+  const PixelGeomDetUnit* detUnit,
+  const double boundX,
+  const double boundY)
 {
 
 #ifdef FAMOS_DEBUG
@@ -294,6 +296,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
 	    << "\tbeta = "  << betaHistN
 	    << std::endl;	
 #endif
+
+  do {
   //
   // Smear the hit Position
   thePositionX = theAlphaHistos[alphaHistN]->generate();
@@ -303,14 +307,21 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   thePositionZ = 0.0; // set at the centre of the active area
   thePosition = 
     Local3DPoint(simHit.localPosition().x() + thePositionX , 
-		 simHit.localPosition().y() + thePositionY , 
-		 simHit.localPosition().z() + thePositionZ );
+                 simHit.localPosition().y() + thePositionY , 
+                 simHit.localPosition().z() + thePositionZ );
 #ifdef FAMOS_DEBUG
-  std::cout << " Generated local position "
-	    << "\tx = " << thePositionX
-	    << "\ty = " << thePositionY
-	    << std::endl;	
-#endif
+    std::cout << " Detector bounds: "
+              << "\t\tx = " << boundX
+              << "\ty = " << boundY
+              << std::endl;
+    std::cout << " Generated local position "
+            << "\tx = " << thePosition.x()
+            << "\ty = " << thePosition.y()
+            << std::endl;       
+#endif  
+  } while(fabs(thePosition.x()) > boundX  || fabs(thePosition.y()) > boundY);
+  
+
   
   // define private mebers --> Multiplicities
   thePixelMultiplicityAlpha = alphaMultiplicity;

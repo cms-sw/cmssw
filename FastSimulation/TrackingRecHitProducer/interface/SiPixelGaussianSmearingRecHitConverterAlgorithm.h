@@ -61,7 +61,7 @@ public:
   //
   
   //
-  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit);
+  void smearHit( const PSimHit& simHit, const PixelGeomDetUnit* detUnit, const double boundX, const double boundY);
 
 private:
   //

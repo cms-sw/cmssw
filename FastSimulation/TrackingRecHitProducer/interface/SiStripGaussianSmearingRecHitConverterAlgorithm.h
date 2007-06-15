@@ -41,7 +41,9 @@ public:
   void smearHit( const PSimHit& simHit , 
 		 double localPositionResolutionX,
 		 double localPositionResolutionY,
-		 double localPositionResolutionZ);
+		 double localPositionResolutionZ,
+                 double boundX,
+                 double boundY);
   
 private:
 
