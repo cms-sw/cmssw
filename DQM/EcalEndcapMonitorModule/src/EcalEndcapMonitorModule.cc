@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/05/25 08:18:14 $
- * $Revision: 1.7 $
+ * $Date: 2007/06/02 10:50:25 $
+ * $Revision: 1.8 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -319,7 +319,7 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      if ( evtType_ < 0 || evtType_ > 12 ) {
+      if ( evtType_ < 0 || evtType_ > 22 ) {
         LogWarning("EcalEndcapMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }

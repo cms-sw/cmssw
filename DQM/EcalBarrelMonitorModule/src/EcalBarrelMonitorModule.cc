@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorModule.cc
  *
- * $Date: 2007/06/01 08:09:10 $
- * $Revision: 1.134 $
+ * $Date: 2007/06/02 10:50:10 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -320,7 +320,7 @@ void EcalBarrelMonitorModule::analyze(const Event& e, const EventSetup& c){
 
       if ( dcch.getRunType() != -1 ) evtType_ = dcch.getRunType();
 
-      if ( evtType_ < 0 || evtType_ > 12 ) {
+      if ( evtType_ < 0 || evtType_ > 22 ) {
         LogWarning("EcalBarrelMonitor") << "Unknown event type = " << evtType_;
         evtType_ = -1;
       }
