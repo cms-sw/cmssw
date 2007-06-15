@@ -3,24 +3,25 @@
 
 /** \class TriggerResults
  *
- *  Original Author: Jim Kowalkowski 13-01-06
- *  $Id: TriggerResults.h,v 1.5 2007/01/23 00:00:03 wmtan Exp $
+ *  Original Authors: Jim Kowalkowski 13-01-06
+ *                    Martin Grunewald
+ *  $Id: TriggerResults.h,v 1.6 2007/03/04 04:59:59 wmtan Exp $
  *
  *  The trigger path results are maintained here as a sequence of
  *  entries, one per trigger path.  They are assigned in the order
- *  they appeared in the process-level pset.
+ *  they appeared in the process-level pset.  (They are actually
+ *  stored in the base class HLTGlobalStatus)
  *
- *  Implementation note: there is as of this writing, no place in the
- *  file to store parameter sets or run information.  The trigger bit
- *  descriptions need to be stored in these sections.  This object
- *  stores the parameter ID, which can be used to locate the parameter
- *  in the file when that option becomes available.  For now, this
- *  object contains the trigger path names as a vector of strings.
+ *  The ParameterSetID can be used to get a ParameterSet from
+ *  the registry of parameter sets.  This ParameterSet contains
+ *  a vector<string> named "trigger_paths" that contains the
+ *  trigger path names in the same order as the trigger path
+ *  results stored here.
  *
- *  $Date: 2007/01/23 00:00:03 $
- *  $Revision: 1.5 $
- *
- *  \author Martin Grunewald
+ *  The vector<string> contained in this class is empty and
+ *  no longer used.  It is kept for backward compatibility reasons.
+ *  In early versions of the code, the trigger results paths names
+ *  were stored there.
  *
  */
 
@@ -29,7 +30,6 @@
 
 #include <string>
 #include <vector>
-#include<cassert>
 
 namespace edm
 {
@@ -39,18 +39,23 @@ namespace edm
 
   private:
     edm::ParameterSetID psetid_;
+
+    // Not used anymore
     Strings             names_;
 
   public:
-    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() {}
+    TriggerResults() : HLTGlobalStatus(), psetid_(), names_() { }
+
+    TriggerResults(const HLTGlobalStatus& hlt, const edm::ParameterSetID& psetid)
+      : HLTGlobalStatus(hlt), psetid_(psetid), names_() { }
 
     TriggerResults(const HLTGlobalStatus& hlt, const Strings& names)
       : HLTGlobalStatus(hlt), psetid_(), names_(names) { }
 
-    TriggerResults(const HLTGlobalStatus& hlt, const edm::ParameterSetID& psetid,  const Strings& names)
-      : HLTGlobalStatus(hlt), psetid_(psetid), names_(names) {
-    assert (hlt.size()==names.size());
-    }
+    const ParameterSetID& parameterSetID() const { return psetid_; }
+
+    // The next three functions are OBSOLETE and should only be used for backward
+    // compatibility to older data.  The names_ vector is always empty in new data.
 
     const std::vector<std::string>& getTriggerNames() const { return names_; }
 
@@ -61,9 +66,7 @@ namespace edm
       for (unsigned int i = 0; i != n; ++i) if (names_[i] == name) return i;
       return n;
     }
-
   };
-
 }
 
 #endif

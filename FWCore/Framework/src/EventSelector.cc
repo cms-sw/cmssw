@@ -1,38 +1,43 @@
 
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 
 #include "boost/algorithm/string.hpp"
 
 #include <algorithm>
 
-typedef std::vector<std::string> stringvec;
 using namespace std;
 
 
 namespace edm
 {
-  EventSelector::EventSelector(stringvec const& pathspecs,
-			       stringvec const& names):
+  EventSelector::EventSelector(Strings const& pathspecs,
+			       Strings const& names):
     accept_all_(false),
     decision_bits_(),
     results_from_current_process_(true),
+    psetID_initialized_(false),
+    psetID_(),
     paths_()
   {
     init(pathspecs, names);
   }
 
-  EventSelector::EventSelector(stringvec const& pathspecs):
+  EventSelector::EventSelector(Strings const& pathspecs):
     accept_all_(false),
     decision_bits_(),
     results_from_current_process_(false),
+    psetID_initialized_(false),
+    psetID_(),
     paths_(pathspecs)
   {
   }
 
   void
-  EventSelector::init(stringvec const& paths,
-		      stringvec const& triggernames)
+  EventSelector::init(Strings const& paths,
+		      Strings const& triggernames)
   {
     accept_all_ = false;
     decision_bits_.clear();
@@ -45,7 +50,7 @@ namespace edm
 
     bool star_done = false;
     bool not_star_done = false;
-    for (stringvec::const_iterator i(paths.begin()), end(paths.end()); 
+    for (Strings::const_iterator i(paths.begin()), end(paths.end()); 
 	 i!=end; ++i)
       {
 
@@ -65,7 +70,7 @@ namespace edm
 	  }
 	else
 	  {
-	    // brute force algorthim here, assumes arrays are small
+	    // brute force algorithm here, assumes arrays are small
 	    // and only passed through during initialization...
 
 	    bool accept_level = (current_path[0]!='!');
@@ -76,7 +81,7 @@ namespace edm
 	      : string((current_path.begin()+1), current_path.end());
 	    
 	    // see if the name can be found in the full list of paths
-	    stringvec::const_iterator pos = 
+	    Strings::const_iterator pos = 
 	      find(triggernames.begin(),triggernames.end(),realname);
 	    if(pos!=triggernames.end())
 	      {
@@ -85,9 +90,10 @@ namespace edm
 	      }
 	    else
 	      {
-		LogWarning("configuration")
-		  << "EventSelector: a trigger path named " << current_path
-		  << "is not available in the current process.\n";
+                throw edm::Exception(edm::errors::Configuration)
+                  << "EventSelector::init, An OutputModule is using SelectEvents\n"
+                     "to request a trigger name that does not exist\n"
+                  << "The unknown trigger name is: " << realname << "\n";  
 	      }
 	  }
       }
@@ -96,16 +102,18 @@ namespace edm
   }
   
   EventSelector::EventSelector(edm::ParameterSet const& config,
-			       stringvec const& triggernames):
+			       Strings const& triggernames):
     accept_all_(false),
     decision_bits_(),
     results_from_current_process_(true),
+    psetID_initialized_(false),
+    psetID_(),
     paths_()
   {
-    stringvec paths; // default is empty...
+    Strings paths; // default is empty...
 
     if (!config.empty())
-      paths = config.getParameter<stringvec>("SelectEvents");
+      paths = config.getParameter<Strings>("SelectEvents");
 
     init(paths, triggernames);
   }
@@ -113,17 +121,45 @@ namespace edm
 
   bool EventSelector::acceptEvent(TriggerResults const& tr)
   {
-    // Initializing every event is not the most efficient way to do this,
-    // but it is the best that can be done for now.  Currently the correspondence
-    // between trigger names and bits is stored in every event in the TriggerResults
-    // object (which is also inefficient and probably not the best design). Also
-    // there is no convention for how often that correspondence is allowed to
-    // change.  I expect this change in the future, but for now this at least
-    // works correctly.  Note that this initialization only occurs every event
-    // when selecting from a TriggerResults object from a **previous** process.
-
+    // For the current process we already initialized in the constructor,
+    // The trigger names will not change so we can skip initialization.
     if (!results_from_current_process_) {
-      init(paths_, tr.getTriggerNames());
+  
+      // For previous processes we need to get the trigger names that
+      // correspond to the bits in TriggerResults from the ParameterSet
+      // set registry, which is stored once per file.  The ParameterSetID
+      // stored in TriggerResults is the key used to find the info in the
+      // registry.  We optimize using the fact the ID is unique. If the ID
+      // has not changed since the last time we initialized with new triggernames,
+      // then the names have not changed and we can skip this initialization.
+      if ( !(psetID_initialized_ && psetID_ == tr.parameterSetID()) ) {
+
+        Strings triggernames;
+        bool fromPSetRegistry;
+
+        edm::Service<edm::service::TriggerNamesService> tns;
+        if (tns->getTrigPaths(tr, triggernames, fromPSetRegistry)) {
+
+          init(paths_, triggernames);
+
+          if (fromPSetRegistry) {
+            psetID_ = tr.parameterSetID();
+            psetID_initialized_ = true;
+          }
+          else {
+            psetID_initialized_ = false;
+          }
+        }
+        // This should never happen
+        else {
+          throw edm::Exception(edm::errors::Unknown)
+            << "EventSelector::acceptEvent cannot find the trigger names for\n"
+               "a process for which the configuration has requested that the\n"
+               "OutputModule use TriggerResults to select events from.  This should\n"
+               "be impossible, please send information to reproduce this problem to\n"
+               "the edm developers.\n"; 
+	}
+      }
     }
 
     Bits::const_iterator i(decision_bits_.begin()),e(decision_bits_.end());

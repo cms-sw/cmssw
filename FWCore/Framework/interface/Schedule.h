@@ -4,7 +4,7 @@
 /*
   Author: Jim Kowalkowski  28-01-06
 
-  $Id: Schedule.h,v 1.22 2007/05/29 19:32:03 wmtan Exp $
+  $Id: Schedule.h,v 1.23 2007/06/05 04:02:30 wmtan Exp $
 
   A class for creating a schedule based on paths in the configuration file.
   The schedule is maintained as a sequence of paths.
@@ -19,8 +19,7 @@
   do processing of the event and do not participate in trigger path
   activities.
 
-  This class requires the high-level process pset.  It expects a pset
-  with name @trigger_paths to be present and also uses @process_name.
+  This class requires the high-level process pset.  It uses @process_name.
   If the high-level pset contains an "options" pset, then the
   following optional parameters can be present:
   bool wantSummary = true/false   # default false
@@ -47,43 +46,23 @@
   ------------------------
 
   About Paths:
-  Paths fit into three categories:
+  Paths fit into two categories:
   1) trigger paths that contribute directly to saved trigger bits
-  2) nontrigger paths that do not contribute to saved trigger bits
-  3) end paths
-  The Schedule hold these paths in two data structures:
+  2) end paths
+  The Schedule holds these paths in two data structures:
   1) main path list (both trigger/nontrigger paths maintained here)
   2) end path list
 
-  Standard path processing (trigger/nontrigger) always precedes endpath
-  processing.  The order of the trigger/nontrigger paths from the input
-  specification is preserved in the main paths list.
+  Trigger path processing always precedes endpath processing.
+  The order of the paths from the input configuration is
+  preserved in the main paths list.
 
   ------------------------
 
-  The Schdule expects the following untracked PSet to be in the main
-  process PSet (it is inserted automatically by the PSet builder).
-
-  untracked PSet @trigger_paths = {
-    vstring @paths = { p1, p2, p3, ... }
-    vstring @end_paths = { e1, e2, e3, ... }
-  }
-
-  The first thing the scheduler does is to create a new @trigger_paths
-  PSet that separates the trigger and nontrigger paths from the @paths.
-  The new untracked PSet looks like this
-
-  untracked PSet {
-    vstring @paths = { p1, p2, p3, ... }     # all the regular paths
-    vstring @trigger_paths = { p1, p2, ... } # subset of @paths
-    vstring @end_paths = { e1, e2, e3, ... } # all the others
-  }
-
-  The @trigger_paths must be a subset of the @paths.
-  The @trigger_paths are currently saved is the TriggerResults EDProduct.
-  The number of trigger bits is the number of names in @trigger_paths.
-  Each name in @trigger_paths has a corresponding trigger bit in the 
-  TriggerResults.
+  The Schedule uses the TriggerNamesService to get the names of the
+  trigger paths and end paths. When a TriggerResults object is created
+  the results are stored in the same order as the trigger names from
+  TriggerNamesService.
 
 */
 
@@ -254,17 +233,13 @@ namespace edm {
     ProductRegistry*    prod_reg_;
     ActionTable*        act_table_;
     std::string         processName_;
-    ParameterSet        trig_pset_;  // why is this kept?
     ActivityRegistryPtr act_reg_;
 
     State state_;
     vstring trig_name_list_;
-    vstring path_name_list_;
     vstring               end_path_name_list_;
-    std::set<std::string> trig_name_set_;
 
     TrigResPtr   results_;
-    TrigResPtr   nontrig_results_;
     TrigResPtr   endpath_results_;
 
     WorkerPtr   results_inserter_;
@@ -421,33 +396,6 @@ namespace edm {
     for_each(trig_paths_.begin(), trig_paths_.end(), run_one_event<T>(ep, es, bat));
     return results_->accept();
   }
-
-  // This is the old code, kept for the moment for reference. It seems
-  // that the search for a name in trig_name_set_ is not needed; the
-  // object results_ *already knows* the global result of the
-  // trigger. It seems that none of the current tests (as of June 12,
-  // 2006) exercise this sufficiently. But runs of this code, testing
-  // for equality between the returned result as calculated above, and
-  // as calculated below, demonstrate that for all existing cases, the
-  // same answer is returned.
-  // template <typename T>
-  //   bool
-  //   Schedule::runTriggerPaths(T& ep, EventSetup const& es) {
-  //     bool result = false;
-  //     int which_one = 0;
-  //     // Execute all paths, but check only trigger paths for accept.
-  //     set<string>::const_iterator trig_name_set_end = trig_name_set_.end();
-  //     for (TrigPaths::iterator i = trig_paths_.begin(), e = trig_paths_.end();
-  // 	   i != e;
-  // 	   ++i) {
-  // 	   i->runOneEvent(ep,es);
-  //  	   if (trig_name_set_.find(i->name()) != trig_name_set_end) { 
-  //  	     result = result || ((*results_)[which_one]).accept();
-  //  	     ++which_one;
-  // 	   }
-  //     }
-  //     return result;
-  //   }
 
   template <typename T>
   void

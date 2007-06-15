@@ -6,7 +6,7 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.39 2007/03/22 06:07:18 wmtan Exp $
+$Id: OutputModule.h,v 1.40 2007/06/08 23:52:59 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -76,7 +76,6 @@ namespace edm {
     CurrentProcessingContext const* currentContext() const;
 
   private:
-    size_t getManyTriggerResults(EventPrincipal const& ep) const;
 
     unsigned int nextID_;
     // TODO: Make these data members private, and give OutputModule

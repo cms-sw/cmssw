@@ -2,12 +2,20 @@
 #include "FWCore/Framework/interface/EventSelector.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
+#include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
+#include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/array.hpp"
+#include "boost/shared_ptr.hpp"
 
 #include <vector>
 #include <string>
 #include <iostream>
+#include <memory>
 
 using namespace std;
 using namespace edm;
@@ -86,6 +94,32 @@ void testone(const Strings& paths,
            << "jmask = " << jmask << "\n"; 
       abort();
     }
+
+  // Repeat putting the list of trigger names in the pset
+  // registry
+
+  ParameterSet trigger_pset;
+  trigger_pset.addParameter<Strings>("@trigger_paths", paths);
+  pset::Registry* psetRegistry = pset::Registry::instance();
+  psetRegistry->insertMapped(trigger_pset);
+
+  TriggerResults results_id(bm, trigger_pset.id());
+
+  bool a11 = select.acceptEvent(results_id);
+  bool a12 = select1.acceptEvent(results_id);
+  bool a13 = select2.acceptEvent(results_id);
+  bool a14 = select2.acceptEvent(results_id);
+
+  if (a11 != answer || a12 != answer || a13 != answer || a14 != answer)
+    {
+      cerr << "failed to compare pattern with mask using pset ID: "
+	   << "correct=" << answer << " "
+	   << "results=" << a11 << "  " << a12 << "  " << a13 << "  " << a14 << "\n"
+	   << "pattern=" << pattern << "\n"
+	   << "mask=" << mask << "\n"
+           << "jmask = " << jmask << "\n"; 
+      abort();
+    }
 }
 
 void testall(const Strings& paths,
@@ -105,6 +139,7 @@ void testall(const Strings& paths,
 
 int main()
 {
+
   // Name all our paths. We have as many paths as there are trigger
   // bits.
   boost::array<char*,numBits> cpaths = {{"a1","a2","a3","a4","a5"}};
@@ -167,6 +202,45 @@ int main()
 		  {true, true,  true,  true,  true,  true,  true,  true,  true  },
 		  {true, true,  true,  true,  false, true,  true,  true,  true  }
   };
+
+
+  // We want to create the TriggerNamesService because it is used in 
+  // the tests.  We do that here, but first we need to build a minimal
+  // parameter set to pass to its constructor.  Then we build the
+  // service and setup the service system.
+  ParameterSet proc_pset;
+
+  string processName("HLT");
+  proc_pset.addParameter<string>("@process_name", processName);
+
+  ParameterSet trigPaths;
+  trigPaths.addParameter<Strings>("@trigger_paths", paths);
+  proc_pset.addUntrackedParameter<ParameterSet>("@trigger_paths", trigPaths);
+
+  Strings endPaths;
+  proc_pset.addParameter<Strings>("@end_paths", endPaths);
+
+  // We do not care what is in these parameters for the test, they
+  // just need to exist.
+  Strings dummy;
+  for (int i = 0; i < numBits; ++i) {
+    proc_pset.addParameter<Strings>(paths[i], dummy);
+  }
+
+  // Now create and setup the service
+  typedef edm::service::TriggerNamesService TNS;
+  typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
+
+  boost::shared_ptr<w_TNS> tnsptr
+    (new w_TNS(std::auto_ptr<TNS>(new TNS(proc_pset))));
+
+  ServiceToken serviceToken_ = ServiceRegistry::createContaining(tnsptr);
+
+  //make the services available
+  ServiceRegistry::Operate operate(serviceToken_);
+
+
+  // We are ready to run some tests
 
   testall(paths, patterns, testmasks, ans);
   return 0;

@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
 
-$Id: OutputModule.cc,v 1.31 2007/03/22 06:09:28 wmtan Exp $
+$Id: OutputModule.cc,v 1.32 2007/06/08 23:52:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -235,21 +235,6 @@ namespace edm {
     Event ev(const_cast<EventPrincipal&>(ep), 
 	     *current_context_->moduleDescription());
     return getTriggerResults(ev);
-  }
-
-  size_t OutputModule::getManyTriggerResults(EventPrincipal const& ep) const {
-     assert(current_md_ == current_context_->moduleDescription());
-     size_t numFound = 0;
-
-     // Fill in selectors_ if it has not already been done for this event...
-     if (! prodsValid_) {
- 	// use module description and const_cast unless interface to
- 	// event is changed to just take a const EventPrincipal
- 	Event e(const_cast<EventPrincipal&>(ep), *current_md_);
-	numFound = selectors_.fill(e);
-     }
-     prodsValid_ = true;
-     return  numFound;
   }
 
    namespace {

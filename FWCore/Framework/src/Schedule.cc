@@ -129,16 +129,11 @@ namespace edm {
     prod_reg_(&preg),
     act_table_(&actions),
     processName_(tns.getProcessName()),
-    trig_pset_(tns.getTrigPSet()),
     act_reg_(areg),
     state_(Ready),
     trig_name_list_(tns.getTrigPaths()),
-    path_name_list_(tns.getPaths()),
     end_path_name_list_(tns.getEndPaths()),
-    trig_name_set_(trig_name_list_.begin(),trig_name_list_.end()),
-
     results_        (new HLTGlobalStatus(trig_name_list_.size())),
-    nontrig_results_(new HLTGlobalStatus(path_name_list_.size())),
     endpath_results_(), // delay!
     results_inserter_(),
     all_workers_(),
@@ -188,25 +183,20 @@ namespace edm {
     ParameterSet opts(pset_.getUntrackedParameter<ParameterSet>("options", ParameterSet()));
 
     bool hasFilter = false;
-    int trig_bitpos=0, non_bitpos=0;
-    std::set<std::string>::const_iterator trig_name_set_end = trig_name_set_.end();
-    for (vstring::const_iterator i = path_name_list_.begin(),
-	    e = path_name_list_.end();
+    int trig_bitpos=0;
+    for (vstring::const_iterator i = trig_name_list_.begin(),
+	    e = trig_name_list_.end();
 	  i != e;
 	  ++i) {
-	 if (trig_name_set_.find(*i) != trig_name_set_end) {
-	     hasFilter += fillTrigPath(trig_bitpos,*i, results_);
-	     ++trig_bitpos;
-	 } else {
-	     fillTrigPath(non_bitpos,*i, nontrig_results_);
-	     ++non_bitpos;
-	 }
+      hasFilter += fillTrigPath(trig_bitpos,*i, results_);
+      ++trig_bitpos;
     }
 
     // the results inserter stands alone
     if(hasFilter || makeTriggerResults_) {
-      results_inserter_=makeInserter(pset_,trig_pset_,processName_,
-				     preg,actions,results_);
+      results_inserter_=makeInserter(pset_, tns.getTriggerPSet(), 
+                                     processName_,
+                                     preg, actions, results_);
       all_workers_.insert(results_inserter_.get());
     }
 
@@ -514,7 +504,7 @@ namespace edm {
     pe=trig_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TrigReport "
-	   << std::right << std::setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
+	   << std::right << std::setw( 5) << 1
 	   << std::right << std::setw( 5) << pi->bitPosition() << " "
 	   << std::right << std::setw(10) << pi->timesRun() << " "
 	   << std::right << std::setw(10) << pi->timesPassed() << " "
@@ -536,7 +526,7 @@ namespace edm {
     pe=end_paths_.end();
     for(; pi != pe; ++pi) {
       LogVerbatim("FwkSummary") << "TrigReport "
-	   << std::right << std::setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
+	   << std::right << std::setw( 5) << 0
 	   << std::right << std::setw( 5) << pi->bitPosition() << " "
 	   << std::right << std::setw(10) << pi->timesRun() << " "
 	   << std::right << std::setw(10) << pi->timesPassed() << " "
@@ -560,7 +550,7 @@ namespace edm {
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
 	LogVerbatim("FwkSummary") << "TrigReport "
-	     << std::right << std::setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
+	     << std::right << std::setw( 5) << 1
 	     << std::right << std::setw( 5) << pi->bitPosition() << " "
 	     << std::right << std::setw(10) << pi->timesVisited(i) << " "
 	     << std::right << std::setw(10) << pi->timesPassed(i) << " "
@@ -585,7 +575,7 @@ namespace edm {
 
       for (unsigned int i = 0; i < pi->size(); ++i) {
 	LogVerbatim("FwkSummary") << "TrigReport "
-	     << std::right << std::setw( 5) << (trig_name_set_.find(pi->name()) != trig_name_set_.end())
+	     << std::right << std::setw( 5) << 0
 	     << std::right << std::setw( 5) << pi->bitPosition() << " "
 	     << std::right << std::setw(10) << pi->timesVisited(i) << " "
 	     << std::right << std::setw(10) << pi->timesPassed(i) << " "

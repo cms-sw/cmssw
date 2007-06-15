@@ -66,6 +66,7 @@ namespace edm
     declareStreamers(descs);
     buildClassCache(descs);
     loadExtraClasses();
+    saveTriggerNames(header);
   }
 
   template <typename Producer>
@@ -79,6 +80,7 @@ namespace edm
         //Get header/init from Producer
         InitMsgView const* header = pr_->getHeader();
         std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header);
+        saveTriggerNames(header);
         if (!registryIsSubset(*p, *productRegistry())) {
             std::cout << "\n\nUn matching Init Message Headers found.\n";
             throw cms::Exception("read","StreamerInputModule")

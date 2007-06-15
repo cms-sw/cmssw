@@ -33,7 +33,7 @@ class ParamSetWalker {
          throw cms::Exception("ParamSetWalker","ParamSetWalker") 
                << "No Trigger or End Path Found in the Config File" << std::endl;
      
-     std::vector<std::string> allEndPaths = allTrigPaths.getParameter<std::vector<std::string> >("@end_paths");
+     std::vector<std::string> allEndPaths = procPset->getParameter<std::vector<std::string> >("@end_paths");
 
      if (allEndPaths.empty())
          throw cms::Exception("ParamSetWalker","ParamSetWalker") 

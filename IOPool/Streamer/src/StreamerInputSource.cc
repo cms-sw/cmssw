@@ -4,11 +4,17 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "IOPool/Streamer/interface/InitMessage.h"
+#include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/ThreadSafeRegistry.h"
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
 
+#include <vector>
+#include <string>
 #include <iostream>
 
 namespace edm {
@@ -110,6 +116,17 @@ namespace edm {
         FDEBUG(6) << "BuildReadData: " << real_name << std::endl;
         doBuildRealData(real_name);
     }
+  }
+
+  void 
+  StreamerInputSource::saveTriggerNames(InitMsgView const* header) {
+
+    ParameterSet trigger_pset;
+    std::vector<std::string> paths;
+    header->hltTriggerNames(paths);
+    trigger_pset.addParameter<Strings>("@trigger_paths", paths);
+    pset::Registry* psetRegistry = pset::Registry::instance();
+    psetRegistry->insertMapped(trigger_pset);
   }
 
 } // end of namespace-edm

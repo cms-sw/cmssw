@@ -31,6 +31,7 @@ namespace edm {
   protected:
     void declareStreamers(SendDescs const& descs);
     void buildClassCache(SendDescs const& descs);
+    void saveTriggerNames(InitMsgView const* header);
 
   private:
     StreamDeserializer deserializer_;

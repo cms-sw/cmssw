@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.14 2007/05/16 17:49:12 rpw Exp $
+   \version $Id: ProcessDesc.cc,v 1.15 2007/06/14 04:56:00 wmtan Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.14 2007/05/16 17:49:12 rpw Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.15 2007/06/14 04:56:00 wmtan Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -98,11 +98,15 @@ namespace edm
 	std::cerr << "\n";
       }
 
+    // It is very important that the @trigger_paths parameter set only
+    // contain one parameter because the streamer input module needs to
+    // be able to recreate it based on the header in the streamer files.
+    // The recreated version must have the same ParameterSetID
     ParameterSet paths_trig;
-    paths_trig.addParameter("@paths",triggerpaths);
-    paths_trig.addParameter("@end_paths",endpaths);
+    paths_trig.addParameter("@trigger_paths", triggerpaths);
 
     pset_->addUntrackedParameter("@trigger_paths",paths_trig);
+    pset_->addParameter("@end_paths", endpaths);
     pset_->addParameter("@paths",schedule);
    
     validator_= 
