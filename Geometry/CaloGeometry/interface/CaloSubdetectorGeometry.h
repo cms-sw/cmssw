@@ -15,14 +15,15 @@ Base class for a geometry container for a specific calorimetry
 subdetector.
 
 
-$Date: 2007/06/14 14:00:20 $
-$Revision: 1.8 $
+$Date: 2007/06/15 06:04:07 $
+$Revision: 1.9 $
 \author J. Mans - Minnesota
 */
 class CaloSubdetectorGeometry {
 public:
   typedef  __gnu_cxx::hash_map< unsigned int, CaloCellGeometry const *> CellCont;
 
+  CaloSubdetectorGeometry(){}
   /// The base class DOES assume that it owns the CaloCellGeometry objects
   virtual ~CaloSubdetectorGeometry();
 private:
