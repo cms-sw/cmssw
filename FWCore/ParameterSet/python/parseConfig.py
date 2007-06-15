@@ -1028,7 +1028,14 @@ class _ConfigReturn(object):
 
 def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
-    return process.parseFile(_fileFactory(fileName))[0]
+    #NOTE: should check for file first in local directory
+    # and then using FileInPath
+    import os.path
+    if os.path.exists(fileName):
+        f=open(fileName)
+    else:
+        f=_fileFactory(fileName)
+    return process.parseFile(f)[0]
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
     t=onlyFragment.parseFile(_fileFactory(fileName))
