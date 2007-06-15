@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.h,v 1.3 2007/05/23 09:00:14 heyninck Exp $
+// $Id: TopJet.h,v 1.4 2007/06/13 11:33:51 jandrea Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -15,7 +15,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.3 2007/05/23 09:00:14 heyninck Exp $
+  \version  $Id: TopJet.h,v 1.4 2007/06/13 11:33:51 jandrea Exp $
 */
 
 
@@ -48,8 +48,8 @@ class TopJet : public TopObject<JetType>
       void 		setLRPhysicsJetVarVal(std::vector<std::pair<double, double> >);
       void 		setLRPhysicsJetLRval(double);
       void 		setLRPhysicsJetProb(double);
-      void              AddBdiscriminantPair(pair<string,double>);
-      void              AddBJetTagRefPair(pair<string,JetTagRef>);
+      void              addBdiscriminantPair(pair<string,double>);
+      void              addBJetTagRefPair(pair<string,JetTagRef>);
       void              setQuarkFlavour(int);
       
       
@@ -63,7 +63,7 @@ class TopJet : public TopObject<JetType>
       double            getLRPhysicsJetProb() const;
       double            getBdiscriminantFromPair(string) const;
       JetTagRef         getBJetTagRefFromPair(string) const;
-      void              DumpLabel() const;
+      void              dumpBTagLabels() const;
       double            getQuarkFlavour() const;
  
    protected:
@@ -73,8 +73,8 @@ class TopJet : public TopObject<JetType>
       int               jetFlavour;
       double      	bdiscr, lrPhysicsJetLRval, lrPhysicsJetProb;     
       std::vector<std::pair<double, double> > lrPhysicsJetVarVal;
-      vector<pair<string,double> >            PairDiscriVector; 
-      vector<pair<string,JetTagRef> >         PairDiscriJetTagRef; 
+      vector<pair<string,double> >            pairDiscriVector; 
+      vector<pair<string,JetTagRef> >         pairDiscriJetTagRef; 
 
 
 
