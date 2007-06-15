@@ -8,8 +8,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2007/02/19 23:26:44 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/06/09 21:16:14 $
+ *  $Revision: 1.6 $
  *  \author J. Mans - UMD
  */
 
@@ -89,11 +89,13 @@ class HcalHTRData {
 			 orbitn, int pipeline, int ndd, int nps, int firmwareRev=0);
   
   /** \brief Get the HTR event number */
-  inline unsigned int getL1ANumber() const { return
-      (m_rawConst[0]&0xFF)+(m_rawConst[1]<<8); }
+  inline unsigned int getL1ANumber() const { 
+    return (m_rawConst[0]&0xFF)+(m_rawConst[1]<<8); 
+  }
   /** \brief Get the HTR bunch number */
-  inline unsigned int getBunchNumber() const { return
-      (m_rawConst[4]&0xFFF); }
+  inline unsigned int getBunchNumber() const { 
+    return (m_rawConst[4]&0xFFF); 
+  }
   /** \brief Get the HTR orbit number */
   unsigned int getOrbitNumber() const;
   /** \brief Get the HTR submodule number */
@@ -122,15 +124,8 @@ class HcalHTRData {
   /** \brief Get the HTR firmware version */
   unsigned int getFirmwareRevision() const;
   /** \brief Get the errors word */
-  // Changed 7 June 2007 to get both bytes of ExtHeader3
-  //inline unsigned int getErrorsWord() const { return m_rawConst[2]&0xFF; }
-  inline unsigned int getErrorsWord() const { return
-      m_rawConst[2]&0xFFFF; }
-  // Get ExtHeader5 and 7
-  inline unsigned int getExtHeader5() const { return
-      m_rawConst[4]&0xFFFF; }
-  inline unsigned int getExtHeader7() const { return
-      m_rawConst[6]&0xFFFF; }
+  inline unsigned int getErrorsWord() const { 
+    return m_rawConst[2]&0xFFFF; }
   /** \brief Get the number of daq data samples when not zero-suppressed */
   int getNDD() const;
   /** \brief Get the number of trigger data samples when not
