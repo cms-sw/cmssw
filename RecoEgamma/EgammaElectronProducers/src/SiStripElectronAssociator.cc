@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Tue Aug  1 15:24:02 EDT 2006
-// $Id: SiStripElectronAssociator.cc,v 1.9 2007/06/15 08:11:43 rahatlou Exp $
+// $Id: SiStripElectronAssociator.cc,v 1.11 2007/06/15 16:37:32 rahatlou Exp $
 //
 //
 
@@ -214,14 +214,15 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
       LogDebug("") << "Testing if foundElectron " << foundElectron << std::endl ;
 
       if (!foundElectron) {
-	 throw cms::Exception("InconsistentData")
-	   << " It is possible that the trackcollection used '"
-	   << trackCollection_ << "' from producer '" << trackProducer_
-	   << "' is not consistent with '"<< siStripElectronCollection_ 
-	   << "' from the producer '"<< siStripElectronProducer_
-	   << "' --- Please check your cfg file " << "\n"
-	   << " OR Hit Position don't match " << "\n"
-	   << std::endl;
+        //throw cms::Exception("InconsistentData")
+          edm::LogError("SiStripElectron")
+          << " It is possible that the trackcollection used '"
+          << trackCollection_ << "' from producer '" << trackProducer_
+          << "' is not consistent with '"<< siStripElectronCollection_ 
+          << "' from the producer '"<< siStripElectronProducer_
+          << "' --- Please check your cfg file " << "\n"
+          << " OR Hit Position don't match " << "\n"
+          << std::endl;
       }
 
       LogDebug("") << "At end of track loop \n" << std::endl; 
