@@ -10,19 +10,17 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-#include <vector>
-
 
 namespace {
   namespace {
 
-    edm::Wrapper<std::vector<std::pair<double, double> > >             dummy0;
-    edm::Wrapper<std::pair<unsigned int, std::vector<unsigned int> > > dummy1;
-    edm::Wrapper<std::vector<std::pair<string, double> > >             dummy2;
-    edm::Wrapper<std::vector<std::pair<string, JetTagRef> > >          dummy3;
-    edm::Wrapper<std::pair<string, JetTagRef> >                        dummy4;
-    edm::Wrapper<std::vector<std::pair<unsigned int, double> > >       dummy5;
-    edm::Wrapper<std::pair<unsigned int, double> >		       dummy6;
+    edm::Wrapper<std::vector<std::pair<double, double> > >               dummy0;
+    edm::Wrapper<std::pair<unsigned int, std::vector<unsigned int> > >   dummy1;
+    edm::Wrapper<std::vector<std::pair<std::string, double> > >          dummy2;
+    edm::Wrapper<std::vector<std::pair<std::string, reco::JetTagRef> > > dummy3;
+    edm::Wrapper<std::pair<std::string, reco::JetTagRef> >               dummy4;
+    edm::Wrapper<std::vector<std::pair<unsigned int, double> > >         dummy5;
+    edm::Wrapper<std::pair<unsigned int, double> >		         dummy6;
 
     edm::Wrapper<TopElectron>                                          dummy8; 
     edm::Wrapper<TopMuon>                                              dummy9; 
