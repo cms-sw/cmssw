@@ -25,7 +25,8 @@ TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& i
    theDirectionAtVertex = direction;
    theDirectionAtVertex/=theDirectionAtVertex.mag();
 
-   theCharge=0;
+   theCharge = (theRho>0) ? -1 : 1;
+   theRho = fabs(theRho);
 
    theVertexError = (theInnerPoint-theOuterPoint).mag()/2;
 }
@@ -178,10 +179,10 @@ double TangentCircle::curvatureError() {
 
 int TangentCircle::charge(float magz) {
 
+   if(theCharge != 0) return theCharge;
+
    if(theX0 > 999 || theY0 > 999) theCharge = chargeLocally(magz, directionAtVertex());
    else {
-
-     if(theCharge == 0) {
        GlobalPoint  center(theX0, theY0, 0);
        GlobalVector u = center - theVertexPoint;
        GlobalVector v = directionAtVertex();
@@ -190,10 +191,11 @@ int TangentCircle::charge(float magz) {
        GlobalVector F( v.y() * magz, -v.x() * magz, 0);
        if( u.x() * F.x() + u.y() * F.y() > 0) theCharge=1;
        else theCharge=-1;
+
        if(theCharge != chargeLocally(magz, v)) {
           LogDebug("NuclearSeedGenerator") << "Inconsistency in calculation of the charge" << "\n";
-       }
      }
+
    }
    return theCharge;
 }
@@ -201,5 +203,10 @@ int TangentCircle::charge(float magz) {
 int TangentCircle::chargeLocally(float magz, GlobalVector v) const {
     GlobalVector  u = theOuterPoint - theVertexPoint;
     double tz = v.x() * u.y() - v.y() * u.x() ;
+    LogDebug("NuclearSeedGenerator") << "Charge calculation : \n DirectionAtVertex : " << v << "\n"
+                                     << "u = " << u << "\n"
+                                     << "tz  =" << tz << "\n"
+                                     << "magz = " << magz << "\n";
+
     if(tz * magz > 0) return -1; else return 1;
 }
