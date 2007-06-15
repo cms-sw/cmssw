@@ -5,10 +5,15 @@
 //
 StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
+   electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
+   muonSrc_         = iConfig.getParameter<edm::InputTag>("muonSource");
+   metSrc_          = iConfig.getParameter<edm::InputTag>("metSource");
+   lJetSrc_         = iConfig.getParameter<edm::InputTag>("lJetSource");
+   bJetSrc_         = iConfig.getParameter<edm::InputTag>("bJetSource");
    leptonFlavour_   = iConfig.getParameter< string > 	  ("leptonFlavour");
-   jetInput_        = iConfig.getParameter< string > 	  ("jetInput");
+   //   jetInput_        = iConfig.getParameter< string > 	  ("jetInput");
    doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
-   addJetCombProb_  = iConfig.getParameter< bool >        ("addJetCombProb");
+   addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
    maxNrIter_       = iConfig.getParameter< int >         ("maxNrIter");
    maxDeltaS_       = iConfig.getParameter< double >      ("maxDeltaS");
    maxF_            = iConfig.getParameter< double >      ("maxF");
@@ -39,38 +44,57 @@ StEvtSolutionMaker::~StEvtSolutionMaker()
 // ------------ method called to produce the data  ------------
 void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   edm::Handle<vector<TopMuon> >  muons;
-   if(leptonFlavour_ == "muon") iEvent.getByType(muons);
-   edm::Handle<vector<TopElectron> >  electrons;
-   if(leptonFlavour_ == "electron") iEvent.getByType(electrons);
-   edm::Handle<vector<TopMET> >  mets;
-   iEvent.getByType(mets);
-   edm::Handle<vector<TopJet> >  jets;
-   iEvent.getByLabel(jetInput_,jets);
+  //
+  //  TopObject Selection
+  //
 
-   //select lepton (the TtLepton vectors are, for the moment, sorted on pT)
-   TopMuon selMuon;
-   TopElectron selElectron;
+   // select lepton (the TtLepton vectors are, for the moment, sorted on pT)
    bool leptonFound = false;
-   if(leptonFlavour_ == "muon"     &&     muons->size()>=1) { selMuon     = (*muons)[0];     leptonFound = true;};    
-   if(leptonFlavour_ == "electron" && electrons->size()>=1) { selElectron = (*electrons)[0]; leptonFound = true;};  
-
-   //select MET (TopMET vector is sorted on ET)
-   TopMET selMET;
-   bool METFound = false;
-   if(mets -> size()>=1) { selMET = (*mets)[0]; METFound = true;};  
-
-   //select Jets (TopJet vector is sorted on ET)
-   vector<TopJet> selJets;
-   bool jetsFound = false;
-   unsigned int maxJets=2;//this has to become a custom-defined parameter (we may want 2 or 3 jets)
-   if(jets -> size()>=maxJets) { 
-     for(unsigned int j=0; j<maxJets; j++) selJets.push_back((*jets)[j]);
-     jetsFound = true;
+   TopMuon selMuon;
+   if(leptonFlavour_ == "muon"){
+     edm::Handle<std::vector<TopMuon> > muons;
+     iEvent.getByLabel(muonSrc_, muons);
+     if( muons->size() > 0 ){
+       //select highest pT muon
+       selMuon = (*muons)[0];
+       leptonFound = true;
+     }
    }
+   TopElectron selElectron;
+   if(leptonFlavour_ == "electron"){
+     edm::Handle<std::vector<TopElectron> > electrons;
+     iEvent.getByLabel(electronSrc_, electrons);
+     if( electrons->size() > 0 ){
+       //select highest pT electron
+       selElectron = (*electrons)[0];
+       leptonFound = true;
+     }       
+   }  
+
+   // select MET (TopMET vector is sorted on ET)
+   bool metFound = false;
+   TopMET selMET;
+   edm::Handle<std::vector<TopMET> > mets;
+   iEvent.getByLabel(metSrc_, mets);
+   if( mets->size() > 0 ){
+     //select highest Et MET
+     selMET = (*mets)[0];
+     metFound = true;
+   }
+
+   // select Jets (TopJet vector is sorted on recET, so four first elements in both the lJets and bJets vector are the same )
+   bool jetsFound = false;
+   edm::Handle<std::vector<TopJet> > lJets;
+   iEvent.getByLabel(lJetSrc_, lJets);
+   edm::Handle<std::vector<TopJet> > bJets;
+   iEvent.getByLabel(bJetSrc_, bJets);
+   unsigned int maxJets=2;//this has to become a custom-defined parameter (we may want 2 or 3 jets)
+   if (lJets->size() >= 2) jetsFound = true;
+   
+   
    
    vector<StEvtSolution> *evtsols = new vector<StEvtSolution>();
-   if(leptonFound && METFound && jetsFound){
+   if(leptonFound && metFound && jetsFound){
      cout<<"constructing solutions"<<endl;
      for (unsigned int b=0; b<maxJets; b++) {
        for (unsigned int l=0; l<maxJets; l++) {
@@ -79,8 +103,8 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	   if(leptonFlavour_ == "muon")     asol.setMuon(selMuon);
 	   if(leptonFlavour_ == "electron") asol.setElectron(selElectron);
 	   asol.setMET(selMET);
-	   asol.setBottom(selJets[b]);
-	   asol.setLight(selJets[l]);
+	   asol.setBottom((*bJets)[b]);
+	   asol.setLight((*lJets)[l]);
 	   if(doKinFit_){
 	     if(param_ == 1) asol = myKinFitterEtEtaPhi->addKinFitInfo(&asol);
 	     if(param_ == 2) asol = myKinFitterEtThetaPhi->addKinFitInfo(&asol);
@@ -88,7 +112,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	   }
      /* to be adapted to ST (Andrea)
 
-	   if(addJetCombProb_){
+	   if(addLRJetComb_){
 	   asol.setPtrueCombExist(jetCombProbs[m].getPTrueCombExist(&afitsol));
 	   asol.setPtrueBJetSel(jetCombProbs[m].getPTrueBJetSel(&afitsol));
 	   asol.setPtrueBhadrSel(jetCombProbs[m].getPTrueBhadrSel(&afitsol));
@@ -126,9 +150,10 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    {
 
      cout<<"@@@ No calibrated solutions built, because:  " << endl;;
-     if(jets->size()<maxJets)      					  cout<<"@ nr sel jets = " << jets->size() << " < " << maxJets <<endl;
-     if(leptonFlavour_ == "muon" && muons->size() == 0)    	  cout<<"@ no good muon candidate"<<endl;
-     if(leptonFlavour_ == "electron" && electrons->size() == 0)   cout<<"@ no good electron candidate"<<endl;
+     if(lJets->size()<maxJets)   				  cout<<"@ nr light jets = " << lJets->size() << " < " << maxJets <<endl;
+     if(bJets->size()<maxJets)   				  cout<<"@ nr b jets = " << bJets->size() << " < " << maxJets <<endl;
+     if(leptonFlavour_ == "muon" && !leptonFound)     	          cout<<"@ no good muon candidate"<<endl;
+     if(leptonFlavour_ == "electron" && !leptonFound)             cout<<"@ no good electron candidate"<<endl;
      if(mets->size() == 0)    					  cout<<"@ no MET reconstruction"<<endl;
 
      StEvtSolution asol;

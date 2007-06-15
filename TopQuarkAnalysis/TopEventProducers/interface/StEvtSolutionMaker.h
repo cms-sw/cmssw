@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: StEvtSolutionMaker.h,v 1.2 2007/05/22 16:43:34 heyninck Exp $
+// $Id: StEvtSolutionMaker.h,v 1.3 2007/06/09 01:17:49 lowette Exp $
 //
 //
 
@@ -57,9 +57,15 @@ class StEvtSolutionMaker : public edm::EDProducer {
       StKinFitterEtEtaPhi   * myKinFitterEtEtaPhi;
       StKinFitterEMom       * myKinFitterEMom;
       //std::vector<TtJetCombinationProbability> jetCombProbs;
+      edm::InputTag electronSrc_;
+      edm::InputTag muonSrc_;
+      edm::InputTag metSrc_;
+      edm::InputTag lJetSrc_;
+      edm::InputTag bJetSrc_;
       std::string leptonFlavour_;
-      std::string jetInput_;
-      bool addJetCombProb_, doKinFit_, matchToGenEvt_;
+  //      std::string jetInput_;
+  //      bool addJetCombProb_, 
+      bool addLRJetComb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
