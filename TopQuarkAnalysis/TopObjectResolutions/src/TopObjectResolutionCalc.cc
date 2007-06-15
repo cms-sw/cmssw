@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TopObjectResolutionCalc.cc,v 1.2 2007/06/08 19:43:38 lowette Exp $
+// $Id: TopObjectResolutionCalc.cc,v 1.3 2007/06/09 01:17:31 lowette Exp $
 //
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
 
@@ -11,7 +11,7 @@ TopObjectResolutionCalc::TopObjectResolutionCalc(TString resopath) {
   std::cout << "=== Constructing a TopObjectResolutionCalc... " << std::endl; 
   resoFile = new TFile(resopath);
   if (!resoFile) std::cout<<"### No resolutions fits for this object available... ###"<<std::endl;
- TString objectType = resopath;
+  TString objectType = resopath;
   while(objectType.Index("/")>0) objectType.Remove(0,objectType.Index("/")+1);
   objectType.Remove(0,objectType.Index("_")+1);
   if(objectType.Index("_")>0){
@@ -52,42 +52,42 @@ double TopObjectResolutionCalc::getObsRes(int obs, int eta, double eT){
 
 void  TopObjectResolutionCalc::operator()(TopElectron& obj){
   double etabin[11] = {0,0.1625,0.325,0.5,0.675,0.8625,1.0625,1.275,1.55,1.85,2.5}; 
-  for(Int_t i=0; i<10; i++){
-    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[++i]){ 
-      obj.setResPinv(  this->getObsRes(0,i,obj.et()) );	
-      obj.setResD(     this->getObsRes(1,i,obj.et()) );	
-      obj.setResTheta( this->getObsRes(2,i,obj.et()) );	 
-      obj.setResPhi(   this->getObsRes(3,i,obj.et()) );	
-      obj.setResET(    this->getObsRes(4,i,obj.et()) );	
-      obj.setResEta(   this->getObsRes(5,i,obj.et()) );	
-    } 
+  int bin = 9;
+  for(Int_t i=0; i<10; i++) {
+    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[i+1]) bin = i;
   }
+  obj.setResPinv(  this->getObsRes(0,bin,obj.et()) );	
+  obj.setResD(     this->getObsRes(1,bin,obj.et()) );	
+  obj.setResTheta( this->getObsRes(2,bin,obj.et()) );	 
+  obj.setResPhi(   this->getObsRes(3,bin,obj.et()) );	
+  obj.setResET(    this->getObsRes(4,bin,obj.et()) );	
+  obj.setResEta(   this->getObsRes(5,bin,obj.et()) );
 }
 void  TopObjectResolutionCalc::operator()(TopMuon& obj){
   double etabin[11] = {0,0.175,0.35,0.5125,0.6875,0.875,1.075,1.3,1.575,1.9,2.5};
-  for(Int_t i=0; i<10; i++){
-    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[++i]){ 
-      obj.setResPinv(  this->getObsRes(0,i,obj.et()) );	 
-      obj.setResD(     this->getObsRes(1,i,obj.et()) );	 
-      obj.setResTheta( this->getObsRes(2,i,obj.et()) );	 
-      obj.setResPhi(   this->getObsRes(3,i,obj.et()) );	 
-      obj.setResET(    this->getObsRes(4,i,obj.et()) );	 
-      obj.setResEta(   this->getObsRes(5,i,obj.et()) );
-      }	 
+  int bin = 9;
+  for(Int_t i=0; i<10; i++) {
+    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[i+1]) bin = i;
   }
+  obj.setResPinv(  this->getObsRes(0,bin,obj.et()) );	
+  obj.setResD(     this->getObsRes(1,bin,obj.et()) );	
+  obj.setResTheta( this->getObsRes(2,bin,obj.et()) );	 
+  obj.setResPhi(   this->getObsRes(3,bin,obj.et()) );	
+  obj.setResET(    this->getObsRes(4,bin,obj.et()) );	
+  obj.setResEta(   this->getObsRes(5,bin,obj.et()) );
 }
 void  TopObjectResolutionCalc::operator()(TopJet& obj){
   double etabin[11] = {0,0.175,0.3625,0.5375,0.725,0.925,1.15,1.4,1.7,2.075,2.5};
-  for(Int_t i=0; i<10; i++){
-    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[++i]){ 
-      obj.setResPinv(  this->getObsRes(0,i,obj.et()) );	
-      obj.setResD(     this->getObsRes(1,i,obj.et()) );	
-      obj.setResTheta( this->getObsRes(2,i,obj.et()) );	   
-      obj.setResPhi(   this->getObsRes(3,i,obj.et()) );	
-      obj.setResET(    this->getObsRes(4,i,obj.et()) );	
-      obj.setResEta(   this->getObsRes(5,i,obj.et()) );	
-    } 
+  int bin = 9;
+  for(Int_t i=0; i<10; i++) {
+    if(fabs(obj.eta()) > etabin[i] && fabs(obj.eta()) < etabin[i+1]) bin = i;
   }
+  obj.setResPinv(  this->getObsRes(0,bin,obj.et()) );	
+  obj.setResD(     this->getObsRes(1,bin,obj.et()) );	
+  obj.setResTheta( this->getObsRes(2,bin,obj.et()) );	 
+  obj.setResPhi(   this->getObsRes(3,bin,obj.et()) );	
+  obj.setResET(    this->getObsRes(4,bin,obj.et()) );	
+  obj.setResEta(   this->getObsRes(5,bin,obj.et()) );
 }
 void  TopObjectResolutionCalc::operator()(TopMET& obj){
   obj.setResPinv(  this->getObsRes(0,0,obj.et())  );
