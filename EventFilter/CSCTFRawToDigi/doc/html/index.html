@@ -7,7 +7,7 @@
 <html>
 <body>
 <font size=+2><tt>CSCTFRawToDigi</tt></font> package performs unpacking
-of raw CSC Track-Finder data into digi. It is unlikely that you need it,
+of raw CSC Track-Finder data. It is unlikely that you need it,
 unless you are explicitly working with CSC TF data (for Data Quality
 Monitoring or hardware validation purposes). So far no High Level Trigger
 algorithms are known to use this kind of information.
@@ -15,7 +15,7 @@ algorithms are known to use this kind of information.
 <br>
 The package is built around a set of core unpacking classes. Those are
 accessors:
-<tt>CSCSP_MEBlock</tt>, <tt>CSCSP_MBBlock</tt>, <tt>CSCSP_SPBlock</tt>
+<tt>CSCSP_MEBlock</tt>, <tt>CSCSP_MBBlock</tt>, <tt>CSCSP_SPBlock</tt>,
 <tt>CSCSPHeader</tt>, and <tt>CSCSPTrailer</tt>
 and containers:
 <tt>CSCSPRecord</tt>(also accessor), <tt>CSCSPEvent</tt>, and <tt>CSCTFEvent</tt>.
@@ -29,7 +29,7 @@ The core unpacking classes can be easily compiled in a stand-alone executable.
 An example can be found in
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/test.cc?rev=1.1&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
 test/test.cc</a>. If you want to use it you need to install CSC file reading
-package in your local CMSSW installation (and you don't need to compile it):
+package in your local CMSSW installation (you don't need to compile it):
 
 <br>
 <b>cvs checkout -P IORawData/CSCCommissioning</b>
@@ -45,7 +45,7 @@ After that you can run it on any CSCTF .raw data file:
 <b>./test YOUR_RAW_FILE.raw</b>
 <br>
 <br>
-The package contains 2 CMSSW modules: <tt>CSCTFUnpacker</tt> and <tt>CSCTFPacker</tt>.
+The package is interfaced to CMSSW with help of 2 modules: <tt>CSCTFUnpacker</tt> and <tt>CSCTFPacker</tt>.
 <br>
 <br>
 With parameter <i>producer</i> of <tt>edm::InputTag</tt> type the unpacking module can
@@ -56,16 +56,16 @@ Every Sector Processor board (SP) of the CSC Track-Finder crate is connected to
 1 of 12 sectors. The firmware on every board should be configured so, that board
 reports which sector it is connected to. Unfortunately this is not a routine
 configuration procedure on <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
-and our data don't contain this information. Fortunately every board reports
+and our data lack this information. Fortunately every board reports
 its slot ID in the Track-Finder crate. Based on the slot ID we can assign
-every board to the particular sector in off-line. It can be done with integral
+every board to the particular sector off-line. It can be done with integral
 array-parameter <i>slot2sector</i>. It has 22 entries (same as number of slots
-in CSC Track-Finder crate) which can be set to either 0 or sector number (1-12).
+in CSC Track-Finder crate) which can be set to either 0 or sector number (1&#151;12).
 0 instructs module to use original sector number from data, while numbers from
 1 to 12 override it with corresponding value. If you work with the <a href="http://cms-emu-slicetest.web.cern.ch/cms-emu-slicetest/">CSC SliceTest</a>,
 data you probably need default settings of
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/data/csctfunpacker.cfi?rev=1.4&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
-data/csctfunpacker.cfi</a> and for raw data obtained in simulation (see below)
+data/csctfunpacker.cfi</a> while for raw data obtained in simulation (see below)
 you need to set all values to 0. See
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/EventFilter/CSCTFRawToDigi/test/writedigi.cfg?rev=1.1&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">
 test/writedigi.cfg</a> for example.
