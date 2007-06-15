@@ -217,10 +217,9 @@ namespace edm
       LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
       if (result_v[ii].isValid()) simcf_->addPileupVertices(bcr,result_v[ii].product(),eventId);
       else  LogWarning("InvalidData") <<"Invalid simvertices in signal";
+      if (ii==1) vertexoffset+=result_v[ii].product()->size();
     }
 
-    // increment offsets
-    vertexoffset+=result_v[0].product()->size();
   }
  
   void MixingModule::put(edm::Event &e) {
