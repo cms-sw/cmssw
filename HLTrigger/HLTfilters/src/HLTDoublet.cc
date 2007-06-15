@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 11:39:20 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -90,7 +90,7 @@ HLTDoublet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    int n(0);
    const unsigned int n1(coll1->size());
    const unsigned int n2(coll2->size());
-   HLTParticle p1,p2,p;
+   Particle p1,p2,p;
    for (unsigned int i1=0; i1!=n1; i1++) {
      p1=coll1->getParticle(i1);
      r1=coll1->getParticleRef(i1);

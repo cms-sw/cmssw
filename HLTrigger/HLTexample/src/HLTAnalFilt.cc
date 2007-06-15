@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2006/10/16 12:23:56 $
- *  $Revision: 1.20 $
+ *  $Date: 2007/02/17 14:39:20 $
+ *  $Revision: 1.21 $
  *
  *  \author Martin Grunewald
  *
@@ -64,7 +64,7 @@ HLTAnalFilt::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      LogDebug("") << inputTag_.encode() + " Size = " << n;
      for (unsigned int i=0; i!=n; i++) {
        // some Xchecks
-       HLTParticle particle(ref->getParticle(i));
+       Particle particle(ref->getParticle(i));
        const Candidate* candidate((ref->getParticleRef(i)).get());
        LogTrace("") << i << " E: " 
 		    << particle.energy() << " " << candidate->energy() << " "  
