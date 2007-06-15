@@ -2,7 +2,8 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: GenParticleCandidateSelector.cc,v 1.4 2007/03/21 10:21:16 llista Exp $
+ * \version $Id: GenParticleCandidateSelector.cc,v 1.6 2007/06/14 Attilio
+ * Added code to produce PartonJets
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -29,6 +30,8 @@ class GenParticleCandidateSelector : public edm::EDProducer {
   std::string src_;
   // selects only stable particles (HEPEVT status = 1)
   bool stableOnly_;
+  // selects partons (HEPEVT status = 2) and daughter is a string/cluster 
+  bool partons_;
   /// name of particles in include or exclude list
   vpdt pdtList_;
   /// using include list?
@@ -58,7 +61,8 @@ using namespace std;
 
 GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet & p ) :
   src_( p.getParameter<string>( "src" ) ),
-  stableOnly_( p.getParameter<bool>( "stableOnly" ) ),
+  stableOnly_( p.getParameter<bool>( "stableOnly" ) ),  
+  partons_(0),
   bInclude_(0),
   verbose_( p.getUntrackedParameter<bool>( "verbose" ) ) {
 
@@ -77,6 +81,13 @@ GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet &
   found = std::find( vPdtParams.begin(), vPdtParams.end(), excludeString) != vPdtParams.end();
   if ( found ) excludeList = p.getParameter<vpdt>( excludeString );
 
+  //check optionl parameter partons to produce PartonJet
+  const std::string partonsString("partons");
+  vector<string> vBoolParams = p.getParameterNamesForType<bool>();
+  // check for partons as jet input
+  found = std::find( vBoolParams.begin(), vBoolParams.end(), partonsString) != vBoolParams.end();
+  if ( found ) partons_ = p.getParameter<bool>( partonsString );
+
   // checking configuration cases
   bool bExclude(0);
   if ( includeList.size() > 0 ) bInclude_ = 1;
@@ -93,7 +104,9 @@ GenParticleCandidateSelector::GenParticleCandidateSelector( const ParameterSet &
     caseString_ = "Excluding";
     pdtList_ = excludeList;
   }
-
+  if( stableOnly_ && partons_ ) {
+    throw cms::Exception( "ConfigError", "not allowed to have both stableOnly and partons true at the same time\n");
+   }
 }
 
 GenParticleCandidateSelector::~GenParticleCandidateSelector() { 
@@ -123,8 +136,8 @@ void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
   for( CandidateCollection::const_iterator p = particles->begin(); 
        p != particles->end(); ++ p, ++ idx ) {
     int status = p->status();
-    if ( ! stableOnly_ || status == 1 ) {
-      int id = abs( p->pdgId() );
+    int id = abs( p->pdgId() );
+    if ( ( ! stableOnly_ || status == 1 ) && !partons_ ) {
       // id not in list + exclude= keep, in list + include = keep, otherwise drop
       // -> XOR operation: end XOR bInclude; 
       if ( pIds_.find( id ) == pIds_.end() ^ bInclude_) { 
@@ -133,6 +146,17 @@ void GenParticleCandidateSelector::produce( Event& evt, const EventSetup& ) {
 			    << id << ", status: " << status;
 	CandidateBaseRef ref( CandidateRef( particles, idx ) );
 	cands->push_back( new ShallowCloneCandidate( ref ) );
+      }
+    } 
+    else if ( partons_ ) {
+      if ( p->numberOfDaughters() > 0 && ( p->daughter(0)->pdgId() == 91 || p->daughter(0)->pdgId() == 92 ) ) {
+        if ( pIds_.find( id ) == pIds_.end() ^ bInclude_) {
+          if ( verbose_ )
+            LogInfo( "INFO" ) << "Adding candidate for particle/PARTON with id: "
+                              << id << ", status: " << status;
+          CandidateBaseRef ref( CandidateRef( particles, idx ) );
+          cands->push_back( new ShallowCloneCandidate( ref ) );
+        }
       }
     }
   }
