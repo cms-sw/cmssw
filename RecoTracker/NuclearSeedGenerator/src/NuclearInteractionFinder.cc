@@ -37,7 +37,7 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
 
    // set the correct navigation
    NavigationSetter setter( *theNavigationSchool);
-   LogDebug("NuclearInteractionFinder") << "New NuclearInteractionFinder instance with parameters : \n"
+   LogDebug("NuclearSeedGenerator") << "New NuclearInteractionFinder instance with parameters : \n"
                                         << "ptMin : " << ptMin << "\n"
                                         << "maxPrimaryHits : " << maxPrimaryHits << "\n"
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
@@ -73,11 +73,8 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         std::vector<TrajectoryMeasurement> measurements = traj.measurements();
 
         if(traj.direction()==alongMomentum)  {
-                LogDebug("NuclearInteractionFinder") << "NEW TRACK with direction along the momentum\n";
                 std::reverse(measurements.begin(), measurements.end());
         }
-        else 
-            LogDebug("NuclearInteractionFinder") << "NEW TRACK with direction opposite to the momentum\n";
 
         std::vector<TrajectoryMeasurement>::const_iterator it_meas = measurements.begin();
 
@@ -90,7 +87,8 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
            if(it_meas == measurements.end()) break;
 
            nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
-           LogDebug("NuclearInteractionFinder") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
+
+           LogDebug("NuclearSeedGenerator") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanEstimate() << "\n";
 
@@ -103,7 +101,7 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
          }
 
         if(NIfound) {
-            LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
+            LogDebug("NuclearSeedGenerator") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
 
             // Get correct parametrization of the helix of the primary track at the interaction point (to be used by improveCurrentSeed)
             definePrimaryHelix(measurements.begin()+nuclTester->nuclearIndex()-1);
@@ -131,7 +129,7 @@ std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale) const
 {
   TSOS currentState = lastMeas.updatedState();
-  LogDebug("NuclearInteractionFinder") << "currentState :" << currentState << "\n";
+  LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
   currentState.rescaleError(rescale);
   return findMeasurementsFromTSOS(currentState, lastMeas);
@@ -157,7 +155,7 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
   }
 
   if (nl.empty()) {
-      LogDebug("NuclearInteractionFinder") << "In findCompatibleMeasurements :  no compatible layer found";
+      LogDebug("NuclearSeedGenerator") << "In findCompatibleMeasurements :  no compatible layer found";
       return result;
   }
 
@@ -195,7 +193,7 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
                      currentSeed->setMeasurements(innerHit, *outhit);
                      allSeeds.push_back(*currentSeed);
                 }
-                else  LogDebug("NuclearInteractionFinder") << "The initial hits for seeding are invalid" << "\n";
+                else  LogDebug("NuclearSeedGenerator") << "The initial hits for seeding are invalid" << "\n";
              } 
              return;
 }
@@ -204,10 +202,8 @@ void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedC
    for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
        if(it_seed->isValid()) {
            output->push_back( it_seed->TrajSeed() );
-            LogDebug("NuclearInteractionFinder") << "Seed put in event: " << "\n"
-                                                 << "State : " << (it_seed->trajectoryState()).parameters().position() << "\n";
        }
-       else LogDebug("NuclearInteractionFinder") << "The seed is invalid" << "\n";
+       else LogDebug("NuclearSeedGenerator") << "The seed is invalid" << "\n";
    }
 }
 //----------------------------------------------------------------------
