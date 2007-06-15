@@ -2,15 +2,17 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.5 2007/06/06 10:40:44 heyninck Exp $
+// $Id: LRHelpFunctions.cc,v 1.6 2007/06/09 01:17:23 lowette Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
 
 // constructors
 LRHelpFunctions::LRHelpFunctions() {}
-LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax,
-                                 std::vector<const char*> functions, int nrLRbins, double LRmin, double LRmax, const char* LRfunction) { 
+
+
+LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector<double> obsMin, std::vector<double> obsMax, std::vector<const char*> functions) { 
+  constructPurity = false;
   setTDRStyle();
   gStyle->SetCanvasDefW(900);
   for(size_t o=0; o<obsNr.size(); o++){
@@ -32,6 +34,13 @@ LRHelpFunctions::LRHelpFunctions(std::vector<int> obsNr, int nrBins, std::vector
     TString ftSB = "F_Obs"; ftSB += obsNr[o]; ftSB += "_SoverSplusB"; 
     fObsSoverSplusB.push_back( new TF1(ftSB,functions[o],hObsS[o]->GetXaxis()->GetXmin(),hObsS[o]->GetXaxis()->GetXmax()) );
   }
+}
+
+
+LRHelpFunctions::LRHelpFunctions(int nrLRbins, double LRmin, double LRmax, const char* LRfunction) { 
+  constructPurity = true;
+  setTDRStyle();
+  gStyle->SetCanvasDefW(900);
 
   // create LR histograms
   hLRtotS = new TH1F("hLRtotS","hLRtotS",nrLRbins,LRmin,LRmax);
@@ -55,7 +64,6 @@ void LRHelpFunctions::setObsFitParameters(int obs,std::vector<double> fitPars){
     TString fn = "_Obs"; fn += obs;
     if(((TString)fObsSoverSplusB[fit]->GetName()).Contains(fn)){
       for(size_t p=0; p<fitPars.size(); p++){
-        //cout<<"Will set the value for p"<<p<<" of fit function "<<fObsSoverSplusB[fit]->GetName()<<" to the initial value: "<<fitPars[p]<<endl;
         fObsSoverSplusB[fit]->SetParameter(p,fitPars[p]);
       }
     }
@@ -99,7 +107,7 @@ void LRHelpFunctions::normalizeSandBhists(){
       hObsS[o]->SetBinError(b,hObsS[o]->GetBinError(b)/(nrSignEntries));
       hObsB[o]->SetBinError(b,hObsB[o]->GetBinError(b)/(nrBackEntries));
     }
-    std::cout<<"Integral for obs"<<o<<" S: "<<hObsS[o]->Integral(0,10000)<<" & obs"<<o<<" B: "<<hObsB[o]->Integral(0,10000)<<std::endl;
+    //std::cout<<"Integral for obs"<<o<<" S: "<<hObsS[o]->Integral(0,10000)<<" & obs"<<o<<" B: "<<hObsB[o]->Integral(0,10000)<<std::endl;
   }
 }
 
@@ -122,33 +130,52 @@ void LRHelpFunctions::makeAndFitSoverSplusBHists(){
 
 
 // member function to read the observable hists & fits from a root-file
-void LRHelpFunctions::readObsHistsAndFits(TString fileName, bool readLRplots){
+void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> observables, bool readLRplots){
   hObsS.clear();
   hObsB.clear();
   hObsSoverSplusB.clear();
   fObsSoverSplusB.clear();
   TFile *fitFile = new TFile(fileName, "READ");
-  TList *list = fitFile->GetListOfKeys();
-  TIter next(list);
-  TKey *el;
-  while ((el = (TKey*)next())) {
-    TString keyName = el->GetName();
-    if(keyName.Contains("SoverSplusB") && keyName.Contains("Obs")) {
-      TH1F tmp =  *((TH1F*) el -> ReadObj());
-      hObsSoverSplusB.push_back( new TH1F(tmp));
-      TString ft = "F_"; ft += keyName;
-      fObsSoverSplusB.push_back( new TF1(*(((TH1F*) el -> ReadObj()) -> GetFunction(ft))) );
-      keyName.Remove(keyName.Index("_"),keyName.Length());
-      keyName.Remove(0,3);
-      selObs.push_back(keyName.Atoi());
+  if(observables[0] == -1){  
+    std::cout<<" ... will read hists and fit for all available observables in file "<<fileName<<std::endl;
+    TList *list = fitFile->GetListOfKeys();
+    TIter next(list);
+    TKey *el;
+    while ((el = (TKey*)next())) {
+      TString keyName = el->GetName();
+      if(keyName.Contains("F_") && keyName.Contains("_SoverSplusB")){
+        fObsSoverSplusB.push_back( new TF1(*((TF1*) el -> ReadObj())));
+      }
+      else if(keyName.Contains("_SoverSplusB")){
+        hObsSoverSplusB.push_back( new TH1F(*((TH1F*) el -> ReadObj())));
+      }
+      else if(keyName.Contains("_S")){
+        hObsS.push_back( new TH1F(*((TH1F*) el -> ReadObj())));
+      }
+      else if(keyName.Contains("_B")){
+        hObsB.push_back( new TH1F(*((TH1F*) el -> ReadObj())));
+      }
+      else if(keyName.Contains("Corr")){
+        hObsCorr.push_back( new TH2F(*((TH2F*) el -> ReadObj())));
+      }
     }
-    else if(keyName.Contains("S") && keyName.Contains("Obs")){
-      TH1F tmp =  *((TH1F*) el -> ReadObj());
-      hObsS.push_back( new TH1F(tmp));
-    }
-    else if(keyName.Contains("B") && keyName.Contains("Obs")){
-      TH1F tmp =  *((TH1F*) el -> ReadObj());
-      hObsB.push_back( new TH1F(tmp));
+  }
+  else{
+    for(unsigned int obs = 0; obs < observables.size(); obs++){
+      std::cout<<"  ... will read hists and fit for obs "<<observables[obs]<<" from file "<<fileName<<std::endl;
+      TString hStitle  = "Obs";   hStitle  += observables[obs];   hStitle += "_S";
+      hObsS.push_back( new TH1F(*((TH1F*)fitFile->GetKey(hStitle)->ReadObj())));
+      TString hBtitle  = "Obs";   hBtitle  += observables[obs];   hBtitle += "_B";
+      hObsB.push_back( new TH1F(*((TH1F*)fitFile->GetKey(hBtitle)->ReadObj())));
+      TString hSBtitle = "Obs";   hSBtitle += observables[obs];   hSBtitle += "_SoverSplusB";
+      TString fSBtitle = "F_";  fSBtitle += hSBtitle;
+      hObsSoverSplusB.push_back( new TH1F(*((TH1F*)fitFile->GetKey(hSBtitle)->ReadObj())));
+      fObsSoverSplusB.push_back( new TF1(*((TF1*)fitFile->GetKey(fSBtitle)->ReadObj())));
+      for(unsigned int obs2 = obs+1; obs2 < observables.size(); obs2++){
+        TString hCorrtitle  = "Corr_Obs"; hCorrtitle  += observables[obs];   
+                hCorrtitle += "_Obs";     hCorrtitle  += observables[obs2]; 
+        hObsCorr.push_back( new TH2F(*((TH2F*)fitFile->GetKey(hCorrtitle)->ReadObj())));
+      }
     }
   }
   
@@ -156,7 +183,7 @@ void LRHelpFunctions::readObsHistsAndFits(TString fileName, bool readLRplots){
     hLRtotS = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotS")->ReadObj()));
     hLRtotB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotB")->ReadObj()));
     hLRtotSoverSplusB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotSoverSplusB")->ReadObj()));
-    fLRtotSoverSplusB = new TF1(*((TF1*)(((TH1F*)fitFile->GetKey("hLRtotSoverSplusB")->ReadObj())->GetFunction("fLRtotSoverSplusB"))));
+    fLRtotSoverSplusB = new TF1(*((TF1*)fitFile->GetKey("fLRtotSoverSplusB")));
   }
 }
 
@@ -171,21 +198,29 @@ void  LRHelpFunctions::storeToROOTfile(TString fname){
     hObsS[o] 		-> Write();
     hObsB[o] 		-> Write();
     hObsSoverSplusB[o] 	-> Write();
+    fObsSoverSplusB[o] 	-> Write();
   }
+  int hIndex = 0;
   for(size_t o=0; o<hObsS.size(); o++) {
-    int hIndex = 0;
     for(size_t o2=o+1; o2<hObsS.size(); o2++) {
       hObsCorr[hIndex] -> Write();
       ++ hIndex;
     }
   }
-  hLRtotS 		-> Write();
-  hLRtotB 		-> Write();
-  hLRtotSoverSplusB 	-> Write();
+  if(constructPurity){
+    hLRtotS 		-> Write();
+    hLRtotB 		-> Write();
+    hLRtotSoverSplusB 	-> Write();
+    fLRtotSoverSplusB 	-> Write();
+    hEffvsPur	        -> Write();
+  }
   fOut.cd();
   fOut.Write();
   fOut.Close();
 }
+
+
+
 
 
 // member function to make some simple control plots and store them in a ps-file
@@ -229,20 +264,21 @@ void  LRHelpFunctions::storeControlPlots(TString fname){
     }
   }
   
-  TCanvas c3("c3","",1);
-  c3.Divide(2,1);
-  c3.cd(1);
-  hLRtotB -> Draw();
-  hLRtotS -> SetLineColor(2);
-  hLRtotS -> Draw("same");
-  c3.cd(2);
-  hLRtotSoverSplusB -> Draw();
-  c3.Print(fname,"Landscape");
+  if(constructPurity){
+    TCanvas c3("c3","",1);
+    c3.Divide(2,1);
+    c3.cd(1);
+    hLRtotB -> Draw();
+    hLRtotS -> SetLineColor(2);
+    hLRtotS -> Draw("same");
+    c3.cd(2);
+    hLRtotSoverSplusB -> Draw();
+    c3.Print(fname,"Landscape");
   
-  TCanvas c4("c4","",1);
-  hEffvsPur -> Draw("AL*");
-  c4.Print(fname,"Landscape");
-  
+    TCanvas c4("c4","",1);
+    hEffvsPur -> Draw("AL*");
+    c4.Print(fname,"Landscape");
+  } 
   c.Print(fname + "]","landscape");
 }
    
@@ -310,11 +346,12 @@ double  LRHelpFunctions::calcProb(double logLR){
 }
 
 
-// member function to check if a certain observable was used
-bool  LRHelpFunctions::isIncluded(int obs){
-  bool found = false;
-  for(size_t o=0; o<selObs.size(); o++){
-    if(selObs[o] == obs) found = true;
+// member to check if a certain S/S+B fit function is read from the root-file
+bool 	LRHelpFunctions::obsFitIncluded(int o){
+  bool included = false;
+  TString obs = "_Obs"; obs += o; obs += "_";
+  for(size_t f = 0; f<fObsSoverSplusB.size(); f++){    
+    if(((TString)(fObsSoverSplusB[f]->GetName())).Contains(obs)) included = true;
   }
-  return found;
+  return included;
 }

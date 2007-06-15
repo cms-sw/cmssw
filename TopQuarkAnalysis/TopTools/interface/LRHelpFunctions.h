@@ -3,7 +3,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.h,v 1.4 2007/06/06 10:40:43 heyninck Exp $
+// $Id: LRHelpFunctions.h,v 1.5 2007/06/09 01:17:29 lowette Exp $
 //
 
 #ifndef LRHelpFunctions_h
@@ -14,7 +14,7 @@
   \brief    Help functionalities to implement and evaluate LR ratio method
 
   \author   Jan Heyninck
-  \version  $Id: LRHelpFunctions.h,v 1.4 2007/06/06 10:40:43 heyninck Exp $
+  \version  $Id: LRHelpFunctions.h,v 1.5 2007/06/09 01:17:29 lowette Exp $
 */
 
 #include "TString.h"
@@ -35,7 +35,8 @@ class LRHelpFunctions {
 
   public:
     LRHelpFunctions();
-    LRHelpFunctions(std::vector<int>, int, std::vector<double>, std::vector<double>,std::vector<const char*>, int, double, double, const char*);
+    LRHelpFunctions(std::vector<int>, int, std::vector<double>, std::vector<double>,std::vector<const char*>);
+    LRHelpFunctions(int, double, double, const char*);
     ~LRHelpFunctions();	
 
     void 	setObsFitParameters(int obs,std::vector<double>);
@@ -43,15 +44,15 @@ class LRHelpFunctions {
     void 	fillToBackgroundHists(std::vector<double>);
     void 	normalizeSandBhists();
     void        makeAndFitSoverSplusBHists();
-    void        readObsHistsAndFits(TString,bool);
+    void        readObsHistsAndFits(TString,std::vector<int>,bool);
     void        storeToROOTfile(TString);
     void        storeControlPlots(TString); 
     void        fillLRSignalHist(double);
     void        fillLRBackgroundHist(double);
     void        makeAndFitPurityHists(); 
     double 	calcLRval(std::vector<double>);
-    bool 	isIncluded(int);
     double 	calcProb(double);
+    bool 	obsFitIncluded(int);
    
   private:
     std::vector<TH1F*> hObsS, hObsB, hObsSoverSplusB;
@@ -60,7 +61,7 @@ class LRHelpFunctions {
     TH1F 	       *hLRtotS, *hLRtotB, *hLRtotSoverSplusB;
     TF1		       *fLRtotSoverSplusB;
     TGraph             *hEffvsPur;
-    std::vector<int>   selObs;
+    bool 	       constructPurity;
 };
 
 #endif
