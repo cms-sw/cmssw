@@ -37,13 +37,16 @@ class TtSemiEvtSolution
       void setMCCorrJetComb(int);
       void setSimpleCorrJetComb(int);
       void setLRCorrJetComb(int);
-      void setLRCorrJetCombVarVal(std::vector<std::pair<double, double> >);
-      void setLRCorrJetCombLRval(double);
-      void setLRCorrJetCombProb(double);
-      void setLRSignalEvtVarVal(std::vector<std::pair<double, double> >);
+      void setLRJetCombObservables(std::vector<std::pair<unsigned int, double> >);
+      void setLRJetCombLRval(double);
+      void setLRJetCombProb(double);
+      void setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> >);
       void setLRSignalEvtLRval(double);
       void setLRSignalEvtProb(double);
 
+      
+      
+      
       
       TopJet         		getHadp() const  		{ return hadp; };
       TopJet         		getHadq() const  		{ return hadq; };
@@ -78,12 +81,12 @@ class TtSemiEvtSolution
       int			getMCCorrJetComb() const	{ return mcCorrJetComb; };
       int			getSimpleCorrJetComb() const	{ return simpleCorrJetComb; };
       int			getLRCorrJetComb() const	{ return lrCorrJetComb; };
-      double                    getLRCorrJetCombVar(unsigned int i) const {return (i < lrCorrJetCombVarVal.size() ? lrCorrJetCombVarVal[i].first  : 0);};
-      double                    getLRCorrJetCombVal(unsigned int i) const {return (i < lrCorrJetCombVarVal.size() ? lrCorrJetCombVarVal[i].second : 1);};
-      double                    getLRCorrJetCombLRval() const 	{return lrCorrJetCombLRval;};
-      double                    getLRCorrJetCombProb() const 	{return lrCorrJetCombProb;};
-      double                    getLRSignalEvtVar(unsigned int i) const {return (i < lrSignalEvtVarVal.size() ? lrSignalEvtVarVal[i].first  : 0);};
-      double                    getLRSignalEvtVal(unsigned int i) const {return (i < lrSignalEvtVarVal.size() ? lrSignalEvtVarVal[i].second : 1);};
+      
+      double                    getLRJetCombObsVal(unsigned int) const;
+      double                    getLRJetCombLRval() const 	{return lrJetCombLRval;};
+      double                    getLRJetCombProb() const 	{return lrJetCombProb;};
+      
+      double                    getLRSignalEvtObsVal(unsigned int) const;
       double                    getLRSignalEvtLRval() const 	{return lrSignalEvtLRval;};
       double                    getLRSignalEvtProb() const 	{return lrSignalEvtProb;};
       	
@@ -126,14 +129,12 @@ class TtSemiEvtSolution
       TopElectron    		electron;
       TopMET 	    		met;
       std::string        	decay;
-      double 	    		probChi2, lrCorrJetCombLRval, lrCorrJetCombProb, lrSignalEvtLRval, lrSignalEvtProb;
+      double 	    		probChi2, lrJetCombLRval, lrJetCombProb, lrSignalEvtLRval, lrSignalEvtProb;
       double			sumDeltaRjp,deltaRhadp,deltaRhadq,deltaRhadb,deltaRlepb;
       int			mcCorrJetComb, simpleCorrJetComb, lrCorrJetComb;
       int 			changeWQ, jetparam, leptonparam, metparam;      
-      std::vector<std::pair<double, double> > lrCorrJetCombVarVal;
-      std::vector<std::pair<double, double> > lrSignalEvtVarVal;
-
-
+      std::vector<std::pair<unsigned int, double> > lrJetCombVarVal;
+      std::vector<std::pair<unsigned int, double> > lrSignalEvtVarVal;
 };
 
 #endif

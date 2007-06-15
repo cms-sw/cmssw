@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.5 2007/05/22 16:36:50 heyninck Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.6 2007/05/23 09:00:15 heyninck Exp $
 //
 
 // system include files
@@ -30,8 +30,8 @@ TtSemiEvtSolution::TtSemiEvtSolution()
   mcCorrJetComb		= -999;
   simpleCorrJetComb	= -999;
   lrCorrJetComb		= -999;
-  lrCorrJetCombLRval	= -999.;
-  lrCorrJetCombProb	= -999.;
+  lrJetCombLRval	= -999.;
+  lrJetCombProb	= -999.;
   lrSignalEvtLRval	= -999.;
   lrSignalEvtProb	= -999.;
 }
@@ -76,17 +76,34 @@ void TtSemiEvtSolution::setChangeWQ(int wq)			{ changeWQ      = wq;   }
 void TtSemiEvtSolution::setMCCorrJetComb(int mcbs)		{ mcCorrJetComb = mcbs; }
 void TtSemiEvtSolution::setSimpleCorrJetComb(int sbs)		{ simpleCorrJetComb = sbs;  }
 void TtSemiEvtSolution::setLRCorrJetComb(int lrbs)		{ lrCorrJetComb = lrbs;  }
-void TtSemiEvtSolution::setLRCorrJetCombVarVal(std::vector<std::pair<double, double> > varval) {
-  for(size_t i = 0; i<varval.size(); i++) lrCorrJetCombVarVal.push_back(varval[i]);
+void TtSemiEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) {
+  for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal.push_back(varval[ijc]);
 }
-void TtSemiEvtSolution::setLRCorrJetCombLRval(double clr) {lrCorrJetCombLRval = clr;}
-void TtSemiEvtSolution::setLRCorrJetCombProb(double plr)  {lrCorrJetCombProb = plr;}
-void TtSemiEvtSolution::setLRSignalEvtVarVal(std::vector<std::pair<double, double> > varval) {
-  for(size_t i = 0; i<varval.size(); i++) lrSignalEvtVarVal.push_back(varval[i]);
+void TtSemiEvtSolution::setLRJetCombLRval(double clr) {lrJetCombLRval = clr;}
+void TtSemiEvtSolution::setLRJetCombProb(double plr)  {lrJetCombProb = plr;}
+void TtSemiEvtSolution::setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> > varval) {
+  for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal.push_back(varval[ise]);
 }
 void TtSemiEvtSolution::setLRSignalEvtLRval(double clr) {lrSignalEvtLRval = clr;}
 void TtSemiEvtSolution::setLRSignalEvtProb(double plr)  {lrSignalEvtProb = plr;}
   
+
+double TtSemiEvtSolution::getLRJetCombObsVal(unsigned int selObs) const {
+  double val = -999.;
+  for(size_t o=0; o<lrJetCombVarVal.size(); o++){
+    if(lrJetCombVarVal[o].first == selObs) val = lrJetCombVarVal[o].second;
+  }
+  return val;
+}
+
+double TtSemiEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
+  double val = -999.;
+  for(size_t o=0; o<lrSignalEvtVarVal.size(); o++){
+    if(lrSignalEvtVarVal[o].first == selObs) val = lrSignalEvtVarVal[o].second;
+  }
+  return val;
+}
+
 
 
 // return functions for reconstructed fourvectors
