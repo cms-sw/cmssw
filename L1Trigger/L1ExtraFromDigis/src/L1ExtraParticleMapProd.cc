@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.19 2007/06/03 00:06:33 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.20 2007/06/04 23:25:11 wsun Exp $
 //
 //
 
@@ -766,8 +766,36 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    addToVectorRefs( cenJetHandle, inputJetRefs ) ;
    addToVectorRefs( tauJetHandle, inputJetRefs ) ;
 
-   L1MuonParticleVectorRef inputMuonRefs ;
-   addToVectorRefs( muHandle, inputMuonRefs ) ;
+   L1MuonParticleVectorRef inputMuonRefsSingle ;
+   L1MuonParticleVectorRef inputMuonRefsDouble ;
+   L1MuonParticleCollection::const_iterator muItr = muHandle->begin() ;
+   L1MuonParticleCollection::const_iterator muEnd = muHandle->end() ;
+
+   for( size_t i = 0 ; muItr != muEnd ; ++muItr, ++i )
+   {
+      if( !muItr->gmtMuonCand().empty() )
+      {
+         unsigned int qual = muItr->gmtMuonCand().quality() ;
+
+         if( qual == 4 ||
+             qual == 5 ||
+             qual == 6 ||
+             qual == 7 )
+         {
+            inputMuonRefsSingle.push_back(
+               edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+         }
+
+         if( qual == 3 ||
+             qual == 5 ||
+             qual == 6 ||
+             qual == 7 )
+         {
+            inputMuonRefsDouble.push_back(
+               edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+         }
+      }
+   }
 
    auto_ptr< L1ParticleMapCollection > mapColl( new L1ParticleMapCollection ) ;
    bool globalDecision = false ;
@@ -793,7 +821,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       {
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 
-	 evaluateSingleObjectTrigger( inputMuonRefs,
+	 evaluateSingleObjectTrigger( inputMuonRefsSingle,
 				      singleThresholds_[ itrig ],
 				      decision,
 				      outputMuonRefsTmp ) ;
@@ -892,7 +920,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 
-	 evaluateDoubleSameObjectTrigger( inputMuonRefs,
+	 evaluateDoubleSameObjectTrigger( inputMuonRefsDouble,
 					  singleThresholds_[ itrig ],
 					  decision,
 					  outputMuonRefsTmp,
@@ -955,7 +983,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 
 	 evaluateDoubleDifferentObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    inputIsoEmRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -970,7 +998,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 
 	 evaluateDoubleDifferentObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    inputRelaxedEmRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -988,7 +1016,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 
 	 evaluateDoubleDifferentObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    inputJetRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -1004,7 +1032,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
 
 	 evaluateDoubleDifferentObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    inputTauRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -1114,7 +1142,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
-	    evaluateSingleObjectTrigger( inputMuonRefs,
+	    evaluateSingleObjectTrigger( inputMuonRefsSingle,
 					 doubleThresholds_[ itrig ].first,
 					 decision,
 					 outputMuonRefsTmp ) ;
@@ -1204,7 +1232,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 if( met >= doubleThresholds_[ itrig ].second )
 	 {
-	    evaluateSingleObjectTrigger( inputMuonRefs,
+	    evaluateSingleObjectTrigger( inputMuonRefsSingle,
 					 doubleThresholds_[ itrig ].first,
 					 decision,
 					 outputMuonRefsTmp ) ;
@@ -1307,7 +1335,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 	 objectTypes.push_back( L1ParticleMap::kMuon ) ;
 
-	 evaluateTripleSameObjectTrigger( inputMuonRefs,
+	 evaluateTripleSameObjectTrigger( inputMuonRefsDouble,
 					  singleThresholds_[ itrig ],
 					  decision,
 					  outputMuonRefsTmp,
@@ -1368,7 +1396,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 
 	 evaluateDoublePlusSingleObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsDouble,
 	    inputIsoEmRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -1384,7 +1412,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	 objectTypes.push_back( L1ParticleMap::kEM ) ;
 
 	 evaluateDoublePlusSingleObjectTrigger(
-	    inputMuonRefs,
+	    inputMuonRefsDouble,
 	    inputRelaxedEmRefs,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
@@ -1401,7 +1429,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 evaluateDoublePlusSingleObjectTrigger(
 	    inputIsoEmRefs,
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
 	    decision,
@@ -1417,7 +1445,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 evaluateDoublePlusSingleObjectTrigger(
 	    inputRelaxedEmRefs,
-	    inputMuonRefs,
+	    inputMuonRefsSingle,
 	    doubleThresholds_[ itrig ].first,
 	    doubleThresholds_[ itrig ].second,
 	    decision,
@@ -1433,7 +1461,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 if( ht >= doubleThresholds_[ itrig ].second )
 	 {
-	    evaluateDoubleSameObjectTrigger( inputMuonRefs,
+	    evaluateDoubleSameObjectTrigger( inputMuonRefsDouble,
 					     doubleThresholds_[ itrig ].first,
 					     decision,
 					     outputMuonRefsTmp,
@@ -1538,7 +1566,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 
 	 if( met >= doubleThresholds_[ itrig ].second )
 	 {
-	    evaluateDoubleSameObjectTrigger( inputMuonRefs,
+	    evaluateDoubleSameObjectTrigger( inputMuonRefsDouble,
 					     doubleThresholds_[ itrig ].first,
 					     decision,
 					     outputMuonRefsTmp,
