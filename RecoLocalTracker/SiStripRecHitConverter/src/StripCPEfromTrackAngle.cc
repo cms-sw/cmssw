@@ -79,15 +79,21 @@ StripClusterParameterEstimator::LocalValues StripCPEfromTrackAngle::localParamet
    
   //float ionLen = std::min( trackDir.mag(), maxLength);
 
-  float par1=38.07;
-  float par2=0.3184; 
-  float par3=0.09828; 
-  float P1 = par1 * thickness; 
-  float P2 = par2; 
-  float P3 = par3;
-  float uerr;
+//   float par1=38.07;
+//   float par2=0.3184; 
+//   float par3=0.09828; 
+//   float P1 = par1 * thickness; 
+//   float P2 = par2; 
+//   float P3 = par3;
+//   float uerr;
 
-  uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
+//   uerr =(uProj-P1)*(uProj-P1)*(P2-P3)/(P1*P1)+P3;
+  float P1=-0.314;
+  float P2=0.687;
+  float P3=0.294;
+  float uerr;
+  uerr=P1*uProj*exp(-uProj*P2)+P3;
+
   
   MeasurementError merror=MeasurementError( uerr*uerr, 0., 1./12.);
   LocalPoint result=LocalPoint(position.x()-drift.x()/2,position.y()-drift.y()/2,0);
