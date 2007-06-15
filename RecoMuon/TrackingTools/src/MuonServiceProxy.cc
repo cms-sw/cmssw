@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/05/10 19:35:33 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/06/07 12:16:41 $
+ *  $Revision: 1.12 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -40,7 +40,9 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   vector<string> propagatorNames;
 
   theMuonNavigationFlag = par.getUntrackedParameter<bool>("UseMuonNavigation",true);
-  
+  if(theMuonNavigationFlag) theRPCLayer = par.getParameter<bool>("RPCLayers");
+  else theRPCLayer = true;
+
   propagatorNames = par.getUntrackedParameter<vector<string> >("Propagators", noPropagators);
   
   if(propagatorNames.empty())
@@ -105,8 +107,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     // MuonNavigationSchool should live until its validity expires, and then DELETE
     // the NavigableLayers (this is implemented in MuonNavigationSchool's dtor)
     if ( theMuonNavigationFlag ) {
-       if(theSchool) delete theSchool;
-       theSchool = new MuonNavigationSchool(&*theDetLayerGeometry);
+      if(theSchool) delete theSchool;
+      theSchool = new MuonNavigationSchool(&*theDetLayerGeometry,theRPCLayer);
     }
   }
   
