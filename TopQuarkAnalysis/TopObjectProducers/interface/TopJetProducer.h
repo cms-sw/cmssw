@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.4 2007/06/13 11:33:53 jandrea Exp $
+// $Id: TopJetProducer.h,v 1.5 2007/06/14 23:02:23 jlamb Exp $
 //
 
 #ifndef TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.4 2007/06/13 11:33:53 jandrea Exp $
+  \version  $Id: TopJetProducer.h,v 1.5 2007/06/14 23:02:23 jlamb Exp $
 */
 
 
@@ -73,15 +73,15 @@ class TopJetProducer : public edm::EDProducer {
     edm::InputTag topElectronsLabel_;
     edm::InputTag topMuonsLabel_;
     bool          doJetCleaning_;
-    bool          storeBDiscriminants;
+    bool          storeBDiscriminants_;
     bool          addResolutions_;
     std::string   caliJetResoFile_;
-    bool          dropTrackCountingFromAOD   ;
-    bool          dropTrackProbabilityFromAOD ;
-    bool          dropSoftMuonFromAOD   ;      
-    bool          dropSoftElectronFromAOD   ; 
-    bool          keepdiscriminators; 
-    bool          keepjettagref;
+    bool          dropTrackCountingFromAOD_   ;
+    bool          dropTrackProbabilityFromAOD_ ;
+    bool          dropSoftMuonFromAOD_   ;      
+    bool          dropSoftElectronFromAOD_   ; 
+    bool          keepdiscriminators_; 
+    bool          keepjettagref_;
 
     float LEPJETDR_;
     float ELEISOCUT_;

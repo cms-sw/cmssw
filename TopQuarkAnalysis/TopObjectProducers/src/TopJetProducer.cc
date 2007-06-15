@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.4 2007/06/13 11:33:54 jandrea Exp $
+// $Id: TopJetProducer.cc,v 1.5 2007/06/14 23:02:24 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -24,20 +24,21 @@
 
 TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
-  jetTagsLabel_            = iConfig.getParameter<std::string>   ("jetTagInput");
-  caliJetResoFile_         = iConfig.getParameter<std::string>   ("caliJetResoFile");
-  recJetsLabel_            = iConfig.getParameter<edm::InputTag> ("recJetInput");
-  caliJetsLabel_           = iConfig.getParameter<edm::InputTag> ("caliJetInput");
-  topElectronsLabel_       = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
-  topMuonsLabel_           = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
-  doJetCleaning_           = iConfig.getParameter<bool> ("doJetCleaning");
-  addResolutions_             = iConfig.getParameter<bool>       ("addResolutions");
-  dropTrackCountingFromAOD    = iConfig.getParameter<bool>       ("dropTrackCountingFromAOD");
-  dropTrackProbabilityFromAOD = iConfig.getParameter<bool>       ("dropTrackProbabilityFromAOD");
-  dropSoftMuonFromAOD         = iConfig.getParameter<bool>       ("dropSoftMuonFromAOD");
-  dropSoftElectronFromAOD     = iConfig.getParameter<bool>       ("dropSoftElectronFromAOD");
-  keepdiscriminators          = iConfig.getParameter<bool>       ("keepdiscriminators");
-  keepjettagref               = iConfig.getParameter<bool>       ("keepjettagref");
+  jetTagsLabel_            	= iConfig.getParameter<std::string>   	("jetTagInput");
+  caliJetResoFile_         	= iConfig.getParameter<std::string>   	("caliJetResoFile");
+  recJetsLabel_            	= iConfig.getParameter<edm::InputTag> 	("recJetInput");
+  caliJetsLabel_           	= iConfig.getParameter<edm::InputTag> 	("caliJetInput");
+  topElectronsLabel_       	= iConfig.getParameter<edm::InputTag> 	("topElectronsInput");
+  topMuonsLabel_           	= iConfig.getParameter<edm::InputTag> 	("topMuonsInput");
+  doJetCleaning_           	= iConfig.getParameter<bool> 		("doJetCleaning");
+  addResolutions_             	= iConfig.getParameter<bool>       	("addResolutions");
+  storeBDiscriminants_         	= iConfig.getParameter<bool>       	("storeBDiscriminants");
+  dropTrackCountingFromAOD_    	= iConfig.getParameter<bool>       	("dropTrackCountingFromAOD");
+  dropTrackProbabilityFromAOD_ 	= iConfig.getParameter<bool>       	("dropTrackProbabilityFromAOD");
+  dropSoftMuonFromAOD_         	= iConfig.getParameter<bool>       	("dropSoftMuonFromAOD");
+  dropSoftElectronFromAOD_     	= iConfig.getParameter<bool>       	("dropSoftElectronFromAOD");
+  keepdiscriminators_          	= iConfig.getParameter<bool>       	("keepdiscriminators");
+  keepjettagref_               	= iConfig.getParameter<bool>       	("keepjettagref");
 
   LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
   ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
@@ -134,72 +135,74 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     }
     // if cal jet found...
     if (cjFound) {
-      // add b-tag info if available
-      for(size_t k=0; k<jetTags_testManyByType.size(); k++){
-	Handle< vector<JetTag> > jetTags = jetTags_testManyByType[k];
+      // add b-tag info if available & required
+      if(storeBDiscriminants_){
+        for(size_t k=0; k<jetTags_testManyByType.size(); k++){
+	  Handle< vector<JetTag> > jetTags = jetTags_testManyByType[k];
 	
 	
-	//**************************
-	//get label and module names
-	string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
-	string moduleLabel = (jetTags).provenance()->moduleLabel();
-	//********drop taggers from AOD*********
-	if(  (moduleLabel == "trackCountingJetTags"    && dropTrackCountingFromAOD    == true ) ) continue;
-	if(  (moduleLabel == "trackProbabilityJetTags" && dropTrackProbabilityFromAOD == true ) ) continue;
-	if(  (moduleLabel == "softMuonJetTags"         && dropSoftMuonFromAOD         == true ) ) continue;
-	if(  (moduleLabel == "softElectronJetTags    " && dropSoftElectronFromAOD     == true ) ) continue;
+	  //**************************
+	  //get label and module names
+	  string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
+	  string moduleLabel = (jetTags).provenance()->moduleLabel();
+	  //********drop taggers from AOD*********
+	  if(  (moduleLabel == "trackCountingJetTags"    && dropTrackCountingFromAOD_    == true ) ) continue;
+	  if(  (moduleLabel == "trackProbabilityJetTags" && dropTrackProbabilityFromAOD_ == true ) ) continue;
+	  if(  (moduleLabel == "softMuonJetTags"         && dropSoftMuonFromAOD_         == true ) ) continue;
+	  if(  (moduleLabel == "softElectronJetTags    " && dropSoftElectronFromAOD_     == true ) ) continue;
 	
-	for (size_t t = 0; t < jetTags->size(); t++) {
-	  // FIXME: is this 0.0001 matching fullproof?
+	  for (size_t t = 0; t < jetTags->size(); t++) {
+	    // FIXME: is this 0.0001 matching fullproof?
 	  
 	  
-	  // cout << "jet test " << ajet.getLCalJet().et() << "   " << (*jetTags)[t].jet().et()  << endl;
-	  //cout << "deltaR   " <<  DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) << endl;
-	  if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.00001) {
-	    if(jetTagsLabel_ == moduleLabel) ajet.setBdiscriminant((*jetTags)[t].discriminator());
+	    // cout << "jet test " << ajet.getLCalJet().et() << "   " << (*jetTags)[t].jet().et()  << endl;
+	    //cout << "deltaR   " <<  DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) << endl;
+	    if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.00001) {
+	      if(jetTagsLabel_ == moduleLabel) ajet.setBdiscriminant((*jetTags)[t].discriminator());
 	    
 	    
 	    
-	    //FIXME add combined tagger
-	    //********store discriminators*********
-	    if(keepdiscriminators == true){
-	      pair<string, double> pairdiscri;
-	      pairdiscri.first = moduleLabel;
-	      pairdiscri.second = (*jetTags)[t].discriminator();
-	      //drop TauTag!!!
-	      if(moduleTagInfoName == "TrackProbability" || moduleTagInfoName == "TrackCounting" || moduleTagInfoName == "SoftLepton" ){
-		ajet.AddBdiscriminantPair(pairdiscri);
+	      //FIXME add combined tagger
+	      //********store discriminators*********
+	      if(keepdiscriminators_ == true){
+	        pair<string, double> pairdiscri;
+	        pairdiscri.first = moduleLabel;
+	        pairdiscri.second = (*jetTags)[t].discriminator();
+	        //drop TauTag!!!
+	        if(moduleTagInfoName == "TrackProbability" || moduleTagInfoName == "TrackCounting" || moduleTagInfoName == "SoftLepton" ){
+		  ajet.AddBdiscriminantPair(pairdiscri);
+	        }
 	      }
-	    }
 	    
-	    //FIXME add combined tagger
-	    //********store jetTagRef*********
-	    if(keepjettagref == true){
+	      //FIXME add combined tagger
+	      //********store jetTagRef*********
+	      if(keepjettagref_ == true){
 	      
-	      pair<string, JetTagRef> pairjettagref;
-	      pairjettagref.first = moduleLabel;
+	        pair<string, JetTagRef> pairjettagref;
+	        pairjettagref.first = moduleLabel;
 	      
-	      if(moduleTagInfoName == "TrackProbability"){
-		//cout << "string module label " << moduleLabel << endl;
-		iEvent.getByLabel(moduleLabel,jetsInfoHandleTP);  
-		const  TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
-		pairjettagref.second = tagInfo_prob[t].getJetTag();
-		ajet.AddBJetTagRefPair(pairjettagref);
-	      }
-	      if(moduleTagInfoName == "TrackCounting"){
-		//cout << "string module label " << moduleLabel << endl;
-		iEvent.getByLabel(moduleLabel,jetsInfoHandleTC);  
-		const  TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
-		pairjettagref.second = tagInfo_prob[t].getJetTag();
-		ajet.AddBJetTagRefPair(pairjettagref);
-	      }
-	      if(moduleTagInfoName == "SoftLepton"){
-		// cout << "string module label " << moduleLabel << endl;
-		iEvent.getByLabel(moduleLabel,jetsInfoHandle_sl);  
-		const  SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
-		pairjettagref.second = tagInfo_prob[t].getJetTag();
-		ajet.AddBJetTagRefPair(pairjettagref);
-	      }
+	        if(moduleTagInfoName == "TrackProbability"){
+		  //cout << "string module label " << moduleLabel << endl;
+		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTP);  
+		  const  TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
+		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  ajet.AddBJetTagRefPair(pairjettagref);
+	        }
+	        if(moduleTagInfoName == "TrackCounting"){
+		  //cout << "string module label " << moduleLabel << endl;
+		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTC);  
+		  const  TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
+		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  ajet.AddBJetTagRefPair(pairjettagref);
+	        }  
+	        if(moduleTagInfoName == "SoftLepton"){
+		  // cout << "string module label " << moduleLabel << endl;
+		  iEvent.getByLabel(moduleLabel,jetsInfoHandle_sl);  
+		  const  SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
+		  pairjettagref.second = tagInfo_prob[t].getJetTag();
+		  ajet.AddBJetTagRefPair(pairjettagref);
+	        }
+	      }  
 	    }
 	  }
 	}
