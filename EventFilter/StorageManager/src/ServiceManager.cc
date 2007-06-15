@@ -1,4 +1,4 @@
-// $Id:$
+// $Id: ServiceManager.cc,v 1.1 2007/02/05 11:19:57 klute Exp $
 
 #include <EventFilter/StorageManager/interface/ServiceManager.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -108,7 +108,7 @@ void ServiceManager::collectStreamerPSets(const std::string& config)
 	   << "No Trigger or End Path Found in the Config File" <<endl;
        
        std::vector<std::string> allEndPaths = 
-	 allTrigPaths.getParameter<std::vector<std::string> >("@end_paths");
+	 procPset->getParameter<std::vector<std::string> >("@end_paths");
        
        if (allEndPaths.empty())
 	 throw cms::Exception("collectStreamerPSets","ServiceManager")
