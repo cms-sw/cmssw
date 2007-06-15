@@ -1,10 +1,5 @@
 #include "L1TriggerConfig/L1ScalesProducers/interface/L1ScalesTrivialProducer.h"
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::auto_ptr;
-
 
 //
 // constants, enums and typedefs
@@ -20,8 +15,6 @@ using std::auto_ptr;
 L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
 {
  
-  cout << "Constructing an L1ScalesTrivialProducer" << endl;
-
   //the following line is needed to tell the framework what
   // data is being produced
   setWhatProduced(this, &L1ScalesTrivialProducer::produceEmScale);
@@ -31,10 +24,10 @@ L1ScalesTrivialProducer::L1ScalesTrivialProducer(const edm::ParameterSet& ps)
   
   // get numbers from the config file -  all units are GeV
   m_emEtScaleInputLsb = ps.getParameter<double>("L1CaloEmEtScaleLSB"); 
-  m_emEtThresholds = ps.getParameter< vector<double> >("L1CaloEmThresholds");
+  m_emEtThresholds = ps.getParameter< std::vector<double> >("L1CaloEmThresholds");
 
   m_jetEtScaleInputLsb = ps.getParameter<double>("L1CaloRegionEtScaleLSB"); 
-  m_jetEtThresholds = ps.getParameter< vector<double> >("L1CaloJetThresholds");
+  m_jetEtThresholds = ps.getParameter< std::vector<double> >("L1CaloJetThresholds");
 
 }
 
