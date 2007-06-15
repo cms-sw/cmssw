@@ -68,6 +68,12 @@ GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf)
   // The name of the hit producer
   hitProducer = conf.getParameter<std::string>("HitProducer");
 
+  // The cuts for seed cleaning
+  seedCleaning = conf.getParameter<bool>("seedCleaning");
+  originRadius = conf.getParameter<double>("originRadius");
+  originHalfLength = conf.getParameter<double>("originHalfLength");
+  originpTMin = conf.getParameter<double>("originpTMin");
+
 }
 
   
@@ -210,7 +216,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 	    const DetId& detId = hit2->geographicalId();
 	    const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	    GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
-
+	    
 	    compatible = compatibleWithVertex(gpos1,gpos2);
 	    
 	    if(compatible) break;
@@ -439,8 +445,9 @@ GSTrackCandidateMaker::stateOnDet(const TrajectoryStateOnSurface& ts,
 bool
 GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpos2) {
 
+  if ( !seedCleaning ) return true;
 
- // The hits 1 and 2 positions, in HepLorentzVector's
+  // The hits 1 and 2 positions, in HepLorentzVector's
   XYZTLorentzVector thePos1(gpos1.x(),gpos1.y(),gpos1.z(),0.);
   XYZTLorentzVector thePos2(gpos2.x(),gpos2.y(),gpos2.z(),0.);
 
@@ -449,12 +456,12 @@ GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpo
   XYZTLorentzVector theMom2 = (thePos2-thePos1);
 
   theMom2 /= theMom2.Pt();
+  theMom2 *= originpTMin;
   theMom2.SetE(sqrt(theMom2.Vect().Mag2()));
 
   // The corresponding RawParticles (to be propagated) for e- and e+
   ParticlePropagator myElecL(theMom2,thePos2,-1.);
   ParticlePropagator myPosiL(theMom2,thePos2,+1.);
-
 
   // Propagate to the closest approach point, with the constraint that 
   // the particles should pass through the  first hit
@@ -473,9 +480,6 @@ GSTrackCandidateMaker::compatibleWithVertex(GlobalPoint& gpos1, GlobalPoint& gpo
 
   // And check at least one of the particles statisfy the SeedGenerator
   // constraint (originRadius, originHalfLength)
-
-  double originRadius = 0.2;
-  double originHalfLength = 15.;
 
   /*
   std::cout << " Neg Charge L R = " << myElecL.R() << "\t Z = " << fabs(myElecL.Z()) << std::endl;

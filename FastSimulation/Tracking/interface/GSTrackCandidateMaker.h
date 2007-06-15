@@ -50,6 +50,11 @@ class GSTrackCandidateMaker : public edm::EDProducer
   unsigned minRecHits;
   std::string hitProducer;
 
+  bool seedCleaning;
+  double originRadius;
+  double originHalfLength;
+  double originpTMin;
+
 };
 
 #endif
