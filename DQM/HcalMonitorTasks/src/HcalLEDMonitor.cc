@@ -143,7 +143,7 @@ void HcalLEDMonitor::setup(const edm::ParameterSet& ps, DaqMonitorBEInterface* d
     hbHists.mean_time =  m_dbe->book1D("HB LED Time Mean Values","HB LED Time Mean Values",100,-0.5,9.5);
 
     hbHists.energyALL =  m_dbe->book1D("HB Average Pulse Energy","HB Average Pulse Energy",500,0,5000);
-    hbHists.rms_energy =  m_dbe->book1D("HB LED Energy RMS Values","HB LED Energy RMS Values",100,0,500);
+    hbHists.rms_energy =  m_dbe->book1D("HB LED Energy RMS Values","HB LED Energy RMS Values",200,0,1000);
     hbHists.mean_energy =  m_dbe->book1D("HB LED Energy Mean Values","HB LED Energy Mean Values",100,0,1000);
 
     hbHists.err_map_geo =  m_dbe->book2D("HB LED Geo Error Map","HB LED Geo Error Map",etaBins_,etaMin_,etaMax_,phiBins_,phiMin_,phiMax_);
