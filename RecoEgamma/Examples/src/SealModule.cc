@@ -13,13 +13,13 @@
 #include "RecoEgamma/Examples/interface/ElectronIDAnalyzer.h"
 
 
-DEFINE_SEAL_MODULE();
+//DEFINE_SEAL_MODULE();
 
-DEFINE_ANOTHER_FWK_MODULE(SiStripElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PixelMatchElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(PixelMatchGsfElectronAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronPixelSeedAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SimplePhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
-DEFINE_ANOTHER_FWK_MODULE(ElectronIDAnalyzer);
+DEFINE_FWK_MODULE(SiStripElectronAnalyzer);
+DEFINE_FWK_MODULE(ElectronAnalyzer);
+DEFINE_FWK_MODULE(PixelMatchElectronAnalyzer);
+DEFINE_FWK_MODULE(PixelMatchGsfElectronAnalyzer);
+DEFINE_FWK_MODULE(ElectronPixelSeedAnalyzer);
+DEFINE_FWK_MODULE(SimplePhotonAnalyzer);
+DEFINE_FWK_MODULE(SimpleConvertedPhotonAnalyzer);
+DEFINE_FWK_MODULE(ElectronIDAnalyzer);
