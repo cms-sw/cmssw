@@ -394,7 +394,8 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
        }
      }
 
-     int exthead5 = htr.getExtHeader5();
+     int exthead5 = htr.getBunchNumber();
+     if(htr.getFormatVersion()>0) exthead5 |= (htr.getFormatVersion()<<12);
      if(tmpHead5!=NULL){
        for(int i=0; i<16; i++){
 	 int errbit = exthead5&(0x01<<i);
@@ -402,7 +403,7 @@ void HcalDataFormatMonitor::unpack(const FEDRawData& raw, const
        }
      }
 
-     int exthead7 = htr.getExtHeader7();
+     int exthead7 = htr.getFirmwareRevision();
      if(tmpHead7!=NULL){
        for(int i=0; i<16; i++){
 	 int errbit = exthead7&(0x01<<i);
