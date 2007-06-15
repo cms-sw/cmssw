@@ -4,6 +4,7 @@
 #include<map>
 #include<vector>
 #include<string>
+
 class ProcessTypeEnumerator;
 class G4VProcess;
 /**
@@ -11,7 +12,8 @@ class G4VProcess;
  * our (CMS) convention of physical processes.
  */
 class G4ProcessTypeEnumerator {
- public:
+
+public:
   //
   // MapType: G4->CMS (1 to 1)
   // ReverseMapType: CMS->G4 (1 to many)
@@ -22,18 +24,23 @@ class G4ProcessTypeEnumerator {
    * This is the only method to be called by the sensitive detector
    */
   unsigned int processId(const G4VProcess*);
+  int processIdLong(const G4VProcess*);
 
   G4ProcessTypeEnumerator();
   ~G4ProcessTypeEnumerator();
   std::string processCMSName(std::string);
   std::vector<std::string> processG4Name(std::string);
+  std::string processG4Name(int);
   unsigned int numberOfKnownG4Processes();
   unsigned int numberOfKnownCMSProcesses();
- private:
+
+private:
   ProcessTypeEnumerator* theProcessTypeEnumerator;
   void buildReverseMap();
   MapType mapProcesses;
   ReverseMapType reverseMapProcesses;
+  std::map<std::string,int> map2Process;
+  std::map<int,std::string> reverseMap2Process;
 };
 
 #endif 

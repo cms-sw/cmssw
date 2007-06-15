@@ -29,14 +29,10 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["KaonZeroSInelastic"] = "Hadronic";
   mapProcesses["LCapture"] = "Hadronic";
   mapProcesses["LElastic"] = "Hadronic";
-#ifndef G4V7
   mapProcesses["hElastic"] = "Hadronic";
-#endif
   mapProcesses["LambdaInelastic"] = "Hadronic";
   mapProcesses["NeutronInelastic"] = "Hadronic";
-#ifndef G4V7
   mapProcesses["CHIPSNuclearAbsorptionAtRest"] = "Hadronic";
-#endif
   mapProcesses["PionMinusAbsorptionAtRest"] = "Hadronic";
   mapProcesses["PionMinusInelastic"] = "Hadronic";
   mapProcesses["PionPlusInelastic"] = "Hadronic";
@@ -62,9 +58,7 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   // MuBrem
   mapProcesses["muBrems"] = "MuBrem";
   // MuNucl
-#ifndef G4V7
   mapProcesses["muMinusCaptureAtRest"] = "MuNucl";
-#endif
   mapProcesses["MuonMinusCaptureAtRest"] = "MuNucl";
   mapProcesses["MuonPlusCaptureAtRest"] = "MuNucl";
   // Conversions
@@ -79,15 +73,67 @@ G4ProcessTypeEnumerator::G4ProcessTypeEnumerator(){
   mapProcesses["phot"] = "Photon";
   // Sync
   mapProcesses["SynchrotronRadiation"] = "SynchrotronRadiation";
-#ifdef G4V7
-  // Conversion
-  mapProcesses["conv"] = "Conversions";
-#endif
   // Compton
   mapProcesses["compt"] = "Compton";
   //
-  buildReverseMap();
+  map2Process["Undefined"] = -1;
+  map2Process["Unknown"] = 0;
+  map2Process["Primary"] = 100;
+  //Hadronic
+  map2Process["HadronCapture"]  = 1;
+  map2Process["AntiNeutronInelastic"] = 2;
+  map2Process["PositronNuclear"] = 3;
+  map2Process["ElectroNuclear"] = 4;
+  map2Process["AntiProtonAnnihilationAtRest"] = 5;
+  map2Process["AntiProtonInelastic"] = 6;
+  map2Process["ProtonInelastic"] = 7;
+  map2Process["PhotonInelastic"] = 8;
+  map2Process["DeuteronInelastic"] = 9;
+  map2Process["KaonMinusAbsorption"] = 10;
+  map2Process["KaonMinusInelastic"] = 11;
+  map2Process["KaonPlusInelastic"] = 12;
+  map2Process["KaonZeroLInelastic"] = 13;
+  map2Process["KaonZeroSInelastic"] = 14;
+  map2Process["LCapture"] = 15;
+  map2Process["LElastic"] = 16;
+  map2Process["hElastic"] = 17;
+  map2Process["LambdaInelastic"] = 18;
+  map2Process["NeutronInelastic"] = 19;
+  map2Process["CHIPSNuclearAbsorptionAtRest"] = 20;
+  map2Process["PionMinusAbsorptionAtRest"] = 21;
+  map2Process["PionMinusInelastic"] = 22;
+  map2Process["PionPlusInelastic"] = 23;
+  map2Process["SigmaMinusInelastic"] = 24;
+  map2Process["AntiSigmaMinusInelastic"] = 25;
+  map2Process["AntiSigmaPlusInelastic"] = 26;
+  map2Process["AntiLambdaInelastic"] = 27;
+  map2Process["TritonInelastic"] = 28;
+  map2Process["XiMinusInelastic"] = 29;
+  map2Process["XiPlusInelastic"] = 30;
+  map2Process["AntiXiZeroInelastic"] = 31;
+  map2Process["SigmaPlusInelastic"] = 32;
+  map2Process["XiZeroInelastic"] = 33;
+  map2Process["AntiXiMinusInelastic"] = 34;
+  // Decay
+  map2Process["Decay"] = 50;
+  // EM
+  map2Process["eIoni"] = 51;
+  map2Process["hIoni"] = 52;
+  map2Process["ionIoni"] = 53;
+  map2Process["muIoni"] = 54;
+  map2Process["annihil"] = 55;
+  map2Process["muBrems"] = 56;
+  map2Process["muMinusCaptureAtRest"] = 57;
+  map2Process["MuonMinusCaptureAtRest"] = 58;
+  map2Process["MuonPlusCaptureAtRest"] = 59;
+  map2Process["conv"] = 60;
+  map2Process["eBrem"] = 61;
+  map2Process["muPairProd"] = 62;
+  map2Process["phot"] = 63;
+  map2Process["SynchrotronRadiation"] = 64;
+  map2Process["compt"] = 65;
   //
+  buildReverseMap();
   //
   theProcessTypeEnumerator = new ProcessTypeEnumerator;
 }
@@ -96,6 +142,8 @@ G4ProcessTypeEnumerator::~G4ProcessTypeEnumerator(){
   delete theProcessTypeEnumerator;
   mapProcesses.clear();
   reverseMapProcesses.clear();
+  map2Process.clear();
+  reverseMap2Process.clear();
 }
 
 
@@ -122,6 +170,15 @@ unsigned int G4ProcessTypeEnumerator::processId(const G4VProcess* process){
   }
 }
 
+int G4ProcessTypeEnumerator::processIdLong(const G4VProcess* process) {
+  std::string temp;
+  if (process == 0) temp = "Primary";
+  else              temp = process->GetProcessName();
+  std::map<std::string,int>::const_iterator it = map2Process.find(temp);
+  if (it != map2Process.end()) return it->second;
+  else                         return map2Process["Undefined"];
+}
+
 std::string G4ProcessTypeEnumerator::processCMSName(std::string in){
   if (mapProcesses[in] == ""){
     //    throw MantisException("G4ProcessTypeEnumerator: unknown G4 process "+in);
@@ -130,6 +187,7 @@ std::string G4ProcessTypeEnumerator::processCMSName(std::string in){
   }
   return mapProcesses[in];
 }
+
 std::vector<std::string> G4ProcessTypeEnumerator::processG4Name(std::string in){
   if (reverseMapProcesses[in].size() ==0)
     //    throw MantisException("G4ProcessTypeEnumerator: unknown CMS process "+in);
@@ -137,14 +195,25 @@ std::vector<std::string> G4ProcessTypeEnumerator::processG4Name(std::string in){
   return reverseMapProcesses[in];
 }
 
+std::string G4ProcessTypeEnumerator::processG4Name(int in) {
+  std::map<int,std::string>::const_iterator it = reverseMap2Process.find(in);
+  if (it != reverseMap2Process.end()) return it->second;
+  else                                return "Undefined";
+}
+
 unsigned int G4ProcessTypeEnumerator::numberOfKnownCMSProcesses(){
   return reverseMapProcesses.size();
 }
+
 unsigned int G4ProcessTypeEnumerator::numberOfKnownG4Processes(){
   return mapProcesses.size();
 }
 
 void G4ProcessTypeEnumerator::buildReverseMap(){
-  for (MapType::const_iterator it = mapProcesses.begin();  it != mapProcesses.end(); it++)
+  for (MapType::const_iterator it = mapProcesses.begin();  
+       it != mapProcesses.end(); it++)
     (reverseMapProcesses[(*it).second]).push_back((*it).first);
+  for (std::map<std::string,int>::const_iterator it = map2Process.begin();  
+       it != map2Process.end(); it++) 
+    reverseMap2Process[(*it).second] = (*it).first;
 }
