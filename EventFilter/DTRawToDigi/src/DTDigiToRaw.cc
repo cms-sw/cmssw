@@ -52,11 +52,6 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
    int NDigis = 0;
 
    DTDigiCollection::DigiRangeIterator detUnitIt;detUnitIt = digis.begin();
-   DTDigiCollection::DigiRangeIterator detUnitIt2;
-   detUnitIt2 = digis.begin();
-   if (detUnitIt2 != digis.end()) ++detUnitIt2;
-   
-   
    
    
    bool b_ros[12] = {false, false, false, false, false, false,
@@ -93,6 +88,9 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
        
        if (searchstatus == 1 && debug)
          cout << "[DTDigiToRaw]: warning, geometryToReadOut status = 1" << endl;
+       
+       //create FED corresponding to current ddu
+       if (dduID_ != dduId) continue;
        
        if (rosId <= NROS && rosId > 0) b_ros[rosId - 1] = true;
        else if (debug) {
@@ -196,4 +194,8 @@ FEDRawData* DTDigiToRaw::createFedBuffers(const DTDigiCollection& digis,
    return rawData;
 
 
+}
+
+void DTDigiToRaw::SetdduID(int x) {
+  dduID_ = x;
 }

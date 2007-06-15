@@ -6,18 +6,23 @@
 class RPCDetId;
 class RPCGeomServ{
  public:
-  RPCGeomServ(RPCDetId* id);
+  RPCGeomServ(const RPCDetId& id);
   virtual ~RPCGeomServ();
   virtual std::string name();
   virtual int eta_partition(); 
   virtual bool inverted();
+  virtual bool zpositive();
+  virtual bool aclockwise();
+
  protected:
   RPCGeomServ();
+
  protected:
-  RPCDetId* _id;
+  const RPCDetId* _id;
   std::string _n;
   int _t;
-  bool _i;
+  bool _z;
+  bool _a;
 
 };
 #endif

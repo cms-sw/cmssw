@@ -15,13 +15,13 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiModule.h,v 1.11 2007/03/28 14:42:30 chiochia Exp $
+// $Id: SiPixelDigiModule.h,v 1.5 2007/03/30 15:10:46 chiochia Exp $
 //
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <boost/cstdint.hpp>
 
 class SiPixelDigiModule {        
@@ -40,7 +40,7 @@ class SiPixelDigiModule {
   typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
 
   /// Book histograms
-  void book();
+  void book(const edm::ParameterSet& iConfig);
   /// Fill histograms
   void fill(const edm::DetSetVector<PixelDigi> & input);
   

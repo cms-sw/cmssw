@@ -5,8 +5,8 @@
  *
  * Digi for Correlated LCT trigger primitives. 
  *
- * $Date: 2006/11/17 17:45:11 $
- * $Revision: 1.9 $
+ * $Date: 2006/12/04 19:35:45 $
+ * $Revision: 1.10 $
  *
  * \author L. Gray, UF
  */
@@ -58,7 +58,7 @@ class CSCCorrelatedLCTDigi
   int getStripType() const   { return ((pattern & 0x8) >> 3); }
 
   /// return MPC link number, 0 means not sorted, 1-3 give MPC sorting rank
-  int getMPCLink() const { return (mpclink & 0x3); }
+  int getMPCLink() const { return mpclink; }
 
   /// Set track number (1,2) after sorting LCTs.
   void setTrknmb(const uint16_t number) {trknmb = number;}

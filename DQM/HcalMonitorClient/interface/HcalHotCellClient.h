@@ -77,25 +77,29 @@ void cleanup(void);
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetME();
+  void resetAllME();
   void createTests();
 
 private:
 
   int ievt_;
   int jevt_;
-  
+
   bool collateSources_;
   bool cloneME_;
   bool verbose_;
   string process_;
 
   MonitorUserInterface* mui_;
+  bool subDetsOn_[4];
 
-  TH2F* occ_geo[4];
-  TH2F* occ_en[4];
-  TH1F* max_en[4];
-  TH1F* max_t[4];
+  TH2F* gl_geo_[4];
+  TH2F* gl_en_[4];
+
+  TH2F* occ_geo_[4][2];
+  TH2F* occ_en_[4][2];
+  TH1F* max_en_[4];
+  TH1F* max_t_[4];
   
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;

@@ -10,7 +10,7 @@
 <use name=MagneticField/Engine>
 <use name=MagneticField/Records>
 <use name=Geometry/CaloEventSetup>
-<use name=Foundation/PluginManager>
+<use name=FWCore/PluginManager>
 <use name=RecoMuon/MuonIsolation>
 <export>
   <use name=DataFormats/MuonReco>
@@ -18,7 +18,7 @@
   <use name=RecoMuon/MuonIsolation>
   <use name=FWCore/Framework>
   <use name=FWCore/ParameterSet>
-  <use name=Foundation/PluginManager>
+  <use name=FWCore/PluginManager>
   <lib name=RecoMuonMuonIsolationProducers>
 </export>
 

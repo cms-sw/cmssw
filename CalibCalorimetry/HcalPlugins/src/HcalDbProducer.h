@@ -13,7 +13,7 @@
 //
 // Original Author:  Fedor Ratnikov
 //         Created:  Tue Aug  9 19:10:10 CDT 2005
-// $Id: HcalDbProducer.h,v 1.9 2006/10/18 23:37:50 fedor Exp $
+// $Id: HcalDbProducer.h,v 1.10 2007/03/31 18:24:49 michals Exp $
 //
 //
 
@@ -61,10 +61,4 @@ class HcalDbProducer : public edm::ESProducer {
   boost::shared_ptr<HcalDbService> mService;
   std::vector<std::string> mDumpRequest;
   std::ostream* mDumpStream;
-  double m_hbEScale;
-  double m_hesEScale;
-  double m_hedEScale;
-  double m_hoEScale;
-  double m_hf1EScale;
-  double m_hf2EScale;
 };

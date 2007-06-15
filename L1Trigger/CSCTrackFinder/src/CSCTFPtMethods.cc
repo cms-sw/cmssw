@@ -12,7 +12,7 @@ L1MuTriggerScales CSCTFPtMethods::trigger_scale;
 // Global scale factor to multiply all parameterizations by
 //const float CSCTFPtMethods::kGlobalScaleFactor = 1.055;
 // Now scale to 90% effic definition like in old ORCA
-const float CSCTFPtMethods::kGlobalScaleFactor = 1.30;
+const float CSCTFPtMethods::kGlobalScaleFactor = 1.36;
 
 // First ME1andME2, then ME1andME3, then MB1andME2
 // units are radians*GeV
@@ -619,7 +619,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
 
   if (type<0 || type>3) 
     {
-      cout << "CSCTFPtMethods: illegal track type for Chi-square method" << endl;
+      std::cout << "CSCTFPtMethods: illegal track type for Chi-square method" << std::endl;
       return 0.;
     }
   
@@ -637,7 +637,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
     }
   if ( i == 15 ) 
     {
-      cout<<" CSCTFPtMethods: muon not within any eta range"<<endl;
+      std::cout<<" CSCTFPtMethods: muon not within any eta range"<< std::endl;
       if (eta<etabins[0]) 
 	{ 
 	  eta = etabins[0];
@@ -662,7 +662,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
       while (dphifr0[type][i][j] == -1 && sigmafr0[type][i][j] == 1 && j != 28) j++;
       if ( j == 28 ) 
 	{
-	  cout<<" CSCTFPtMethods: every entry in row is default"<<endl;
+	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
 	  //      exit(0); //normal termination
 	  bCallOldMethod = true;
 	}
@@ -704,7 +704,7 @@ float CSCTFPtMethods::Pt2StnChiSq(int type, float eta, int dphi, int fr)
       
       if ( j == 28 ) 
 	{
-	  cout<<" CSCTFPtMethods: every entry in row is default"<<endl;
+	  std::cout <<" CSCTFPtMethods: every entry in row is default"<< std::endl;
 	  //      exit(0); //normal termination
 	  bCallOldMethod = true;
 	}
@@ -758,7 +758,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 
   if (type<4 || type>5) 
     {
-      cout << "PtParams: illegal track type for Chi-square method" << endl;
+      std::cout << "PtParams: illegal track type for Chi-square method" << std::endl;
       return 0.;
     }
 
@@ -775,7 +775,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
     }
   if ( i == 15 ) 
     {
-      cout<<"muon not within any eta range";
+      std::cout<<"muon not within any eta range";
       if (eta<etabins[0]) 
 	{ 
 	  eta = etabins[0];
@@ -805,7 +805,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr0[0][i][j] == -1 && sigmafr0[0][i][j] == 1) || (dphifr0[2][i][j] == -1 && sigmafr0[2][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      cout<<" L1MuCSCPtParams: every entry in row is default"<<endl;	
+	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -845,7 +845,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr1[0][i][j] == -1 && sigmafr1[0][i][j] == 1) || (dphifr1[2][i][j] == -1 && sigmafr1[2][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      cout<<" L1MuCSCPtParams: every entry in row is default"<<endl;	
+	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -890,7 +890,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr0[0][i][j] == -1 && sigmafr0[0][i][j] == 1) || (dphifr0[3][i][j] == -1 && sigmafr0[3][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      cout<<" L1MuCSCPtParams: every entry in row is default"<<endl;	
+	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }
@@ -930,7 +930,7 @@ float CSCTFPtMethods::Pt3StnChiSq(int type, float eta, int dphi1, int dphi2, int
 	  while ( ((dphifr1[0][i][j] == -1 && sigmafr1[0][i][j] == 1) || (dphifr1[3][i][j] == -1 && sigmafr1[3][i][j] == 1)) && j != 28 ) j++;
 	  if ( j == 28 ) 
 	    {
-	      cout<<" L1MuCSCPtParams: every entry in row is default"<<endl;	
+	      std::cout<<" L1MuCSCPtParams: every entry in row is default"<<std::endl;	
 	      //	exit(0); //normal termination
 	      bCallOldMethod = true;
 	    }

@@ -1,20 +1,20 @@
 #ifndef DDI_Solid_h
 #define DDI_Solid_h
 
-#include <iosfwd>
+#include <iostream>
 #include <vector>
-// #include <utility>
-// #include "DetectorDescription/Core/interface/DDSolid.h"
+#include <utility>
+#include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
-// class DDSolid;
+class DDSolid;
 
 namespace DDI {
   
   class Solid
   {
   
-    //   friend class DDSolid;
+  friend class DDSolid;
   public:
   
     Solid() : shape_(dd_not_init) { }
@@ -34,8 +34,6 @@ namespace DDI {
     // DDSolid::Composites comp IMPLEMENTATION MISSING
     virtual void stream(std::ostream &) const;
     
-    void setParameters(std::vector<double> const & p) { p_ = p;}
-
   protected:
     DDSolidShape shape_;
     std::vector<double> p_; 

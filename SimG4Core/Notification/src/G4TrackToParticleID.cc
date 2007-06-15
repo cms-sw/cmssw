@@ -13,8 +13,11 @@ G4TrackToParticleID::G4TrackToParticleID()
 int G4TrackToParticleID::particleID(const G4Track * g4trk)
 {
     int particleID_ = g4trk->GetDefinition()->GetPDGEncoding();
-    if (particleID_ != 0) return particleID_;
-    particleID_ = theInternalMap[g4trk->GetDefinition()->GetParticleName()];
+    if ( particleID_ > 1000000000 ) {
+      //std::cout << "G4TrackToParticleID ion code = " << particleID_ << std::endl;
+      particleID_ = theInternalMap[g4trk->GetDefinition()->GetParticleName()];
+      //std::cout << "G4TrackToParticleID light nucleus code = " << particleID_ << std::endl;
+    }
     if (particleID_ != 0) return particleID_;
     return -99;
 }

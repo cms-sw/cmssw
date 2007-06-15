@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorDbModule.cc
  * 
- * $Date: 2006/06/28 10:46:18 $
- * $Revision: 1.6 $
+ * $Date: 2006/06/29 08:25:33 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  *
 */
@@ -41,8 +41,6 @@
 
 
 EcalBarrelMonitorDbModule::EcalBarrelMonitorDbModule(const edm::ParameterSet& ps){
-
-  dbe_ = 0;
 
   // get hold of back-end interface
   dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();

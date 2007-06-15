@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.2 2007/03/26 05:48:27 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.3 2007/04/02 17:26:01 dmytro Exp $
 //
 //
 
@@ -37,8 +37,8 @@ class CachedTrajectory {
 
    void reset_trajectory();
    
-   /// fly through the whole detector
-   void propagateAll(const SteppingHelixStateInfo& initialState);
+   /// propagate through the whole detector, returns true if successful
+   bool propagateAll(const SteppingHelixStateInfo& initialState);
    
    void propagateForward(SteppingHelixStateInfo& state, float distance);
 
@@ -89,8 +89,10 @@ class CachedTrajectory {
 	return -1;
    }
    
-   std::pair<float,float> delta( const SteppingHelixStateInfo& state1,
-				 const SteppingHelixStateInfo& state2);
+   std::pair<float,float> delta( const double& theta1,
+				 const double& theta2,
+				 const double& phi1,
+				 const double& phi2);
    
    float distance(const Plane* plane, int index) {
       if (index<0 || fullTrajectory_.empty() || uint(index) >= fullTrajectory_.size()) return 0;

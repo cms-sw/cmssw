@@ -14,8 +14,6 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
   //FIXME !!!  semi-dummy and buggy method, check carefully !!!!
   //
   
- 
-
 
   // REGION
   int region = -2;
@@ -80,19 +78,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
                <<roll<<" ???" << endl;
   }
 
-/*
-  RPCDetId du;
-  bool doDebug = false;
-  try {
-   du = RPCDetId(region, ring, station, sector, layer, subsector, iroll);
-  } 
-  catch(...) {
-    doDebug = true;
-    cout <<" Problem with RPCDetId, got exception!! " <<endl;
-  }
-*/
-
-  RPCDetId du2;
+  int trIndex = 0;
   if(barrel){   
     //cout <<" BARREL: " << endl; 
     int eta_id = 6+ch.diskOrWheel;
@@ -102,9 +88,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     int sector_id = ch.sector*3;
     int copy_id = subsector;
     int roll_id = iroll;
-    int trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+roll_id;
-    //cout<<"DBSpec: "<<trIndex;
-    du2.buildfromTrIndex(trIndex);
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+roll_id;
   } 
   else { 
     //cout << "ENDCAP : " << endl;
@@ -114,37 +98,25 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     int sector_id = ch.sector;
     int copy_id = 1;
     int roll_id = iroll;
-    int trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+
-      roll_id;
-    //cout<<"DBSpec: "<<trIndex;
-    du2.buildfromTrIndex(trIndex);
+    trIndex=(eta_id*10000+plane_id*1000+sector_id*10+copy_id)*10+ roll_id;
   }
 
-/*
-  if (doDebug || du != du2) {
-    cout << "barrel: " << barrel << endl;
-    cout << ch.print(); 
-    cout <<" detId: "<<du2<<", rawId:"<<du2()<<endl;
-    cout <<" way (1) "<< endl
-         <<" region: "<<region
-         <<" ring: " << ring
-         <<" station: "<<station
-         <<" sector: "<<sector
-         <<" layer: "<<layer
-         <<" subsector: "<<subsector
-         <<" iroll: "<<iroll
-         << endl; 
-    cout <<" way(2) " <<endl
-         <<" region: "<<du2.region()
-         <<" ring: " << du2.ring()
-         <<" station: "<<du2.station()
-         <<" sector: "<<du2.sector()
-         <<" layer: "<<du2.layer()
-         <<" subsector: "<<du2.subsector()
-         <<" iroll: "<<du2.roll()
-         << endl; 
-    return du2();
+
+  //
+  // build RPCdetId
+  //
+  //cout<<"DBSpec: "<<trIndex;
+  try {
+   RPCDetId du;
+   //du = RPCDetId(region, ring, station, sector, layer, subsector, iroll);
+   du.buildfromTrIndex(trIndex);
+   return du.rawId();
+  } 
+  catch(...) {
+    cout <<" Problem with RPCDetId, got exception!! " <<endl;
+    cout<<"TRindex from DBSpec: "<<trIndex;
+    return 0;
   }
-*/
-  return du2.rawId();
+
+
 }

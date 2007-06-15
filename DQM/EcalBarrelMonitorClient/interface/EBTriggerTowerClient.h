@@ -4,8 +4,8 @@
 /*
  * \file EBTriggerTowerClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.10 $
+ * $Date: 2007/04/01 13:42:05 $
+ * $Revision: 1.11 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -86,6 +86,11 @@ inline int getEvtPerRun() { return jevt_; }
 
 private:
 
+ void subscribe(const char* nameext, const char* folder, bool emulated);
+ void subscribeNew(const char* nameext, const char* folder, bool emulated);
+ void unsubscribe(const char* nameext, const char* folder, bool emulated);
+ void analyze(const char* nameext, const char* folder, bool emulated);
+
 int ievt_;
 int jevt_;
 
@@ -106,14 +111,28 @@ MonitorUserInterface* mui_;
 CollateMonitorElement* me_h01_[36];
 CollateMonitorElement* me_i01_[36];
 CollateMonitorElement* me_j01_[36];
+CollateMonitorElement* me_l01_[36];
+CollateMonitorElement* me_h02_[36];
+CollateMonitorElement* me_i02_[36];
+CollateMonitorElement* me_j02_[36];
+
 
 MonitorElement* meh01_[36];
 MonitorElement* mei01_[36];
 MonitorElement* mej01_[36];
+MonitorElement* mel01_[36];
+MonitorElement* meh02_[36];
+MonitorElement* mei02_[36];
+MonitorElement* mej02_[36];
 
-TProfile2D* h01_[36];
+
+TH3F* h01_[36];
 TH3F* i01_[36];
 TH3F* j01_[36];
+TH2F* l01_[36];
+TH3F* h02_[36];
+TH3F* i02_[36];
+TH3F* j02_[36];
 
 CollateMonitorElement* me_k01_[36][68];
 CollateMonitorElement* me_k02_[36][68];

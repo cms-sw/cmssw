@@ -4,8 +4,8 @@
 /*
  * \file EECosmicClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.35 $
+ * $Date: 2007/04/02 16:15:35 $
+ * $Revision: 1.1 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -96,17 +96,17 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_h01_[36];
-CollateMonitorElement* me_h02_[36];
-CollateMonitorElement* me_h03_[36];
+CollateMonitorElement* me_h01_[18];
+CollateMonitorElement* me_h02_[18];
+CollateMonitorElement* me_h03_[18];
 
-MonitorElement* meh01_[36];
-MonitorElement* meh02_[36];
-MonitorElement* meh03_[36];
+MonitorElement* meh01_[18];
+MonitorElement* meh02_[18];
+MonitorElement* meh03_[18];
 
-TProfile2D* h01_[36];
-TProfile2D* h02_[36];
-TH1F* h03_[36];
+TProfile2D* h01_[18];
+TProfile2D* h02_[18];
+TH1F* h03_[18];
 
 };
 

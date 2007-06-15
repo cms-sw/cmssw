@@ -2,5 +2,5 @@
 //#include "CSCStripCluster.h"
 //#include "ClusterLocalMax.h"
 
-  CSCStripClusterFitData::CSCStripClusterFitData(){}
-  CSCStripClusterFitData::~CSCStripClusterFitData(){}
+CSCStripClusterFitData::CSCStripClusterFitData(){}
+CSCStripClusterFitData::~CSCStripClusterFitData(){}

@@ -5,12 +5,14 @@
 /** \class RPCUnpackingModule
  *  Driver class for unpacking RPC raw data (DCC format)
  *
- *  $Date: 2006/03/30 15:15:42 $
- *  $Revision: 1.11 $
+ *  $Date: 2007/03/20 09:18:53 $
+ *  $Revision: 1.12 $
  *  \author Ilaria Segoni - CERN
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
+
 namespace edm { class Event; class EventSetup; }
 
 
@@ -29,6 +31,7 @@ public:
     void produce(edm::Event & e, const edm::EventSetup& c); 
   
 private:
+  edm::InputTag dataLabel_;
   unsigned long eventCounter_;
 };
 

@@ -1,6 +1,7 @@
 #include "RecoVertex/VertexTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace {
   inline GlobalPoint mean ( pair<GlobalPoint, GlobalPoint> pr ) {
@@ -91,7 +92,7 @@ TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta
   if ( ( sta.position() - stb.position() ).mag() < 1e-7 &&
        ( sta.momentum() - stb.momentum() ).mag() < 1e-7 )
   {
-    cout << "[TwoTrackMinimumDistance] comparing track with itself" << endl;
+    edm::LogWarning ( "TwoTrackMinimumDistance") << "comparing track with itself!";
   };
   theCharge = hh;
   if ( theModus == FastMode )
@@ -109,7 +110,7 @@ TwoTrackMinimumDistance::pointsHelixHelix(const GlobalTrajectoryParameters & sta
     ini = theIniAlgo.trajectoryParameters ( sta, stb );
   }
   catch (...) { // yes. this may fail.
-    cout << "Error: TwoTrackMinimumDistanceHelixHelix::CAIR failed." << endl;
+    edm::LogWarning ( "TwoTrackMinimumDistance" ) << "Computation HelixHelix::CAIR failed.";
     if ( theModus == SlowMode ) { // we can still try ttmd here.
       if ( !(theTTMDhh.calculate ( sta, stb, .0001 )) ) return theTTMDhh.points();
     };

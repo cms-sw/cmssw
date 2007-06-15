@@ -46,6 +46,7 @@ private:
   edm::InputTag mInputPVfCTF;
   std::string m_inputTrackLabel;
   TrackAssociatorParameters parameters_;
+  mutable TrackDetectorAssociator* trackAssociator_;
 
 };
 

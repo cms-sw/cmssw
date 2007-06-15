@@ -23,8 +23,8 @@ function get_plottypes() {
   return array('histo_all' => 'Histogram (All Channels)',
 	       'histo_grp' => 'Histogram (Group Channels)',
 	       'graph_all' => 'Graph (All Channels)',
-	       'graph_grp' => 'Graph (Group Channels)');
-	       /*'map'       => 'Map (Group Channels)');*/
+	       'graph_grp' => 'Graph (Group Channels)',
+	       'map_all'   => 'Map (All Channels)');
 }
 
 function draw_plotselect_form() {
@@ -99,7 +99,7 @@ function draw_plot() {
   $run = $_GET['run'];
   $plottype = $_GET['plottype'];
   
-  $name = "plotcache/run$run.$table.$field.$iov_id.$plottype";
+  $name = "../ecalconddb/plotcache/run$run.$table.$field.$iov_id.$plottype";
 
   $names = array();
   if ($img_files = glob($name.'*.png')) { // Check cache
@@ -117,10 +117,11 @@ function draw_plot() {
     echo "Names is zero.";
   }
 
+
   foreach ($names as $name) {
     $img = $name.'.png';
     $root = 'download.php?file='.$name.'.root';
-    echo "<a href='$root' type='application/octet-stream'><img src='$img' /><br />Click to download ROOT file</a>";
+    echo "<a href='$root' type='application/octet-stream'><img src=\"$img\" alt=\"$img\"/><br />Click to download ROOT file</a>";
     echo "   Cached on ". date("Y-m-d H:i:s", filemtime($img)). "<br />";
   }
 

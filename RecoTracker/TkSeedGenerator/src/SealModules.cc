@@ -1,8 +1,10 @@
-#include "PluginManager/ModuleDef.h"
+#include "FWCore/PluginManager/interface/ModuleDef.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "SeedGeneratorFromRegionHitsEDProducer.h"
+#include "SeedGeneratorFromProtoTracksEDProducer.h"
+
 #include "RecoTracker/TkSeedGenerator/interface/GlobalPixelSeedGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/GlobalPixelSeedGeneratorWithVertex.h"
 #include "RecoTracker/TkSeedGenerator/interface/RegionalPixelSeedGenerator.h"
@@ -16,6 +18,7 @@
 
 DEFINE_SEAL_MODULE();
 DEFINE_ANOTHER_FWK_MODULE(SeedGeneratorFromRegionHitsEDProducer);
+DEFINE_ANOTHER_FWK_MODULE(SeedGeneratorFromProtoTracksEDProducer);
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelSeedGenerator);
 DEFINE_ANOTHER_FWK_MODULE(GlobalPixelSeedGeneratorWithVertex);
 DEFINE_ANOTHER_FWK_MODULE(RegionalPixelSeedGenerator);

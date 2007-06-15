@@ -5,13 +5,11 @@
 #include "DetectorDescription/Base/interface/DDException.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
-#include<cmath>
+
 
 using DDI::Polyhedra;
 
-using std::fabs;
-using std::cos;
-using std::sin;
+
 
 Polyhedra::Polyhedra ( int sides, double startPhi, double deltaPhi,
               const std::vector<double> & z,

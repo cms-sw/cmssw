@@ -85,7 +85,7 @@ class RPCDetInfo{
     float m_phiMax; ///< The highest phi of strips
     int m_towerMin; ///< Lowest tower number to which chamber contributes
     int m_towerMax; ///< Highest tower number to which chamber contributes
-    
+    int m_globRoll; 
     static const float m_towerBounds[]; ///< Defines m_tower bounds
     
     

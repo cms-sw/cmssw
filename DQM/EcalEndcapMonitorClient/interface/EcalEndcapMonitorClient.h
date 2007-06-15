@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/03/27 11:31:44 $
- * $Revision: 1.67 $
+ * $Date: 2007/06/08 18:46:02 $
+ * $Revision: 1.13 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -28,20 +28,24 @@
 
 #include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+
+#include "xgi/include/xgi/Input.h"
+#include "xgi/include/xgi/Output.h"
+
 #include "TROOT.h"
 #include "TH1.h"
 
-class EcalEndcapMonitorClient: public edm::EDAnalyzer{
+class EcalEndcapMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 
 /// Constructor
 EcalEndcapMonitorClient(const edm::ParameterSet & ps);
-EcalEndcapMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
-  
+
 /// Destructor
 ~EcalEndcapMonitorClient();
-  
+
 /// Subscribe/Unsubscribe to Monitoring Elements
 void subscribe(void);
 void subscribeNew(void);
@@ -49,39 +53,50 @@ void unsubscribe(void);
 
 /// softReset
 void softReset(void);
-  
+
 // Initialize
 void initialize(const edm::ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const edm::Event & e, const edm::EventSetup & c){ this->analyze(); }
-  
+void analyze(const edm::Event & e, const edm::EventSetup & c);
+
 /// BeginJob
-void beginJob(void);
-void beginJob(const edm::EventSetup & c){ this->beginJob(); }
-  
+void beginJob(const edm::EventSetup & c);
+
 /// EndJob
 void endJob(void);
-  
+
 /// BeginRun
 void beginRun(void);
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
  
 /// EndRun
 void endRun(void);
-  
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// BeginLumiBlock
+void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// EndLumiBlock
+void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
 /// Setup
 void setup(void);
-  
+
 /// Cleanup
 void cleanup(void);
-  
+
 /// HtmlOutput
-void htmlOutput(void);
-  
+void htmlOutput(bool current=false);
+
+/// XDAQ web page
+void defaultWebPage(xgi::Input *in, xgi::Output *out);
+void publish(xdata::InfoSpace *){};
+
 /// BeginRunDB
 void beginRunDb(void);
-  
+
 /// WriteDB
 void writeDb(void);
 
@@ -137,16 +152,22 @@ string dbUserName_;
 string dbPassword_;
 
 string maskFile_;
+
+bool mergeRuns_;
  
 RunIOV runiov_;
 MonRunIOV moniov_;
 
-bool enableSubRun_;
+bool enableSubRunDb_;
+bool enableSubRunHtml_;
 int subrun_;
  
 time_t current_time_;
-time_t last_time_;
- 
+time_t last_time_db_;
+time_t last_time_html_;
+time_t dbRefreshTime_;
+time_t htmlRefreshTime_; 
+
 string baseHtmlDir_;
 
 vector<int> superModules_;
@@ -179,6 +200,8 @@ bool forced_update_;
 bool enableExit_;
  
 int last_update_;
+
+int last_run_;
  
 int last_jevt_;
  

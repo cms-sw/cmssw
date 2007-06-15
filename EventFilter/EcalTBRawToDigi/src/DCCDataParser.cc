@@ -7,7 +7,7 @@
 /* DCCDataParser::DCCDataParser                 */
 /* class constructor                            */
 /*----------------------------------------------*/
-DCCDataParser::DCCDataParser(vector<ulong> parserParameters, bool parseInternalData,bool debug):
+DCCDataParser::DCCDataParser(std::vector<ulong> parserParameters, bool parseInternalData,bool debug):
   buffer_(0),parseInternalData_(parseInternalData),debug_(debug), parameters(parserParameters){
 	
   mapper_ = new DCCDataMapper(this);       //build a new data mapper
@@ -59,9 +59,9 @@ void DCCDataParser::computeBlockSizes(){
 /* DCCDataParser::parseFile                       */
 /* reada data from file and parse it              */
 /*------------------------------------------------*/
-void DCCDataParser::parseFile(string fileName, bool singleEvent){
+void DCCDataParser::parseFile(std::string fileName, bool singleEvent){
 	
-  ifstream inputFile;                            //open file as input
+  std::ifstream inputFile;                            //open file as input
   inputFile.open(fileName.c_str());
 	
   resetErrorCounters();                          //reset error counters
@@ -74,8 +74,8 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent){
   //else throw an exception
   if( !inputFile.fail() ){ 
 	
-    string myWord;                               //word read from line
-    vector<string> dataVector;                   //data vector
+    std::string myWord;                               //word read from line
+    std::vector<std::string> dataVector;                   //data vector
     
     //until the end of file read each line as a string and add it to the data vector
     while( inputFile >> myWord ){ 
@@ -102,7 +102,7 @@ void DCCDataParser::parseFile(string fileName, bool singleEvent){
     
   }
   else{ 
-    string errorMessage = string(" Error::Unable to open file :") + fileName;
+    std::string errorMessage = std::string(" Error::Unable to open file :") + fileName;
     throw ECALParserException(errorMessage);
   }
 }
@@ -121,7 +121,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
   //clear stored data
   processedEvent_ = 0;
   events_.clear();
-  vector<DCCEventBlock *>::iterator it;
+  std::vector<DCCEventBlock *>::iterator it;
   for( it = dccEvents_.begin(); it!=dccEvents_.end(); it++ ) { delete *it; }
   dccEvents_.clear();
   eventErrors_ = "";
@@ -132,7 +132,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 	
   //check if we have a coherent buffer size
   if( bufferSize%8  ){
-    string fatalError ;
+    std::string fatalError ;
     fatalError += "\n ======================================================================"; 		
     fatalError += "\n Fatal error at event = " + getDecString(events_.size()+1);
     fatalError += "\n Buffer Size of = "+ getDecString(bufferSize) + "[bytes] is not divisible by 8 ... ";
@@ -140,7 +140,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     throw ECALParserException(fatalError);
   }
   if ( bufferSize < EMPTYEVENTSIZE ){
-    string fatalError ;
+    std::string fatalError ;
     fatalError += "\n ======================================================================"; 		
     fatalError += "\n Fatal error at event = " + getDecString(events_.size()+1);
     fatalError += "\n Buffer Size of = "+ getDecString(bufferSize) + "[bytes] is less than an empty event ... ";
@@ -164,7 +164,7 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     
     //check if Event Length is coherent /////////////////////////////////////////
     ulong bytesToEnd         = bufferSize - processedBytes;
-    pair<ulong,ulong> eventD = checkEventLength(myPointer,bytesToEnd,singleEvent);
+    std::pair<ulong,ulong> eventD = checkEventLength(myPointer,bytesToEnd,singleEvent);
     eventLength              = eventD.second; 
     errorMask                = eventD.first;
     //////////////////////////////////////////////////////////////////////////////
@@ -190,8 +190,8 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
     }
     
     //build the event pointer with error mask and add it to the events vector
-    pair<ulong *, ulong> eventPointer(myPointer,eventLength);
-    pair<ulong, pair<ulong*, ulong> > eventPointerWithErrorMask(errorMask,eventPointer);
+    std::pair<ulong *, ulong> eventPointer(myPointer,eventLength);
+    std::pair<ulong, std::pair<ulong*, ulong> > eventPointerWithErrorMask(errorMask,eventPointer);
     events_.push_back(eventPointerWithErrorMask);
     		
     //update processed buffer size 
@@ -216,9 +216,9 @@ void DCCDataParser::parseBuffer(ulong * buffer, ulong bufferSize, bool singleEve
 /*   bit 3 - EOE Error                         */
 /* and the event length                        */
 /*---------------------------------------------*/
-pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ulong bytesToEnd, bool singleEvent){
+std::pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ulong bytesToEnd, bool singleEvent){
 	
-  pair<ulong,ulong> result;    //returns error mask and event length 
+  std::pair<ulong,ulong> result;    //returns error mask and event length 
   ulong errorMask(0);          //error mask to return
 
   //check begin of event (BOE bits field) 
@@ -248,7 +248,7 @@ pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ulong b
     // How to handle bad event length in multiple event buffers
     // First approach : Send an exception	
     // Second aproach : Try to find the EOE (To be done? If yes check dataDecoder tBeam implementation)
-    string fatalError;
+    std::string fatalError;
 		
     fatalError +="\n ======================================================================"; 		
     fatalError +="\n Fatal error at event = " + getDecString(events_.size()+1);
@@ -285,12 +285,12 @@ pair<ulong,ulong> DCCDataParser::checkEventLength(ulong *pointerToEvent, ulong b
 /* DCCDataParser::index                         */
 /* build an index string                        */
 /*----------------------------------------------*/
-string DCCDataParser::index(ulong position){
+std::string DCCDataParser::index(ulong position){
 
   char indexBuffer[20];
   sprintf(indexBuffer,"W[%08lu]",position);        //build an index string for display purposes, p.e.  W[15] 
 
-  return string(indexBuffer);	
+  return std::string(indexBuffer);	
 }
 
 
@@ -298,12 +298,12 @@ string DCCDataParser::index(ulong position){
 /* DCCDataParser::getDecString                   */
 /* print decimal data to a string                */
 /*-----------------------------------------------*/
-string DCCDataParser::getDecString(ulong data){
+std::string DCCDataParser::getDecString(ulong data){
 	
   char buffer[10];
   sprintf(buffer,"%lu",data);
 
-  return string(buffer);	
+  return std::string(buffer);	
 }
 
 
@@ -311,12 +311,12 @@ string DCCDataParser::getDecString(ulong data){
 /* DCCDataParser::getHexString                     */
 /* print data in hexadecimal base to a string      */
 /*-------------------------------------------------*/
-string DCCDataParser::getHexString(ulong data){
+std::string DCCDataParser::getHexString(ulong data){
 	
   char buffer[10];
   sprintf(buffer,"0x%08x",(uint)(data));
 
-  return string(buffer);	
+  return std::string(buffer);	
 }
 
 
@@ -324,14 +324,14 @@ string DCCDataParser::getHexString(ulong data){
 /* DCCDataParser::getIndexedData                  */
 /* build a string with index and data             */
 /*------------------------------------------------*/
-string DCCDataParser::getIndexedData(ulong position, ulong *pointer){
-  string ret;
+std::string DCCDataParser::getIndexedData(ulong position, ulong *pointer){
+  std::string ret;
   
   //char indexBuffer[20];
   //char dataBuffer[20];
   //sprintf(indexBuffer,"W[%08u] = ",position);
   //sprintf(dataBuffer,"0x%08x",*pointer);
-  //ret = string(indexBuffer)+string(dataBuffer);
+  //ret = std::string(indexBuffer)+std::string(dataBuffer);
 
   ret = index(position) + getHexString(*pointer);
   
@@ -346,7 +346,7 @@ string DCCDataParser::getIndexedData(ulong position, ulong *pointer){
 DCCDataParser::~DCCDataParser(){
   
   // delete DCCEvents if any...
-  vector<DCCEventBlock *>::iterator it;
+  std::vector<DCCEventBlock *>::iterator it;
   for(it=dccEvents_.begin();it!=dccEvents_.end();it++){delete *it;}
   dccEvents_.clear();
     

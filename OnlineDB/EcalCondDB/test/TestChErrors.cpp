@@ -27,7 +27,7 @@ public:
   {
     try {
       cout << "Making connection..." << flush;
-      econn = new EcalCondDBInterface( host, sid, user, pass );
+      econn = new EcalCondDBInterface(  sid, user, pass );
       cout << "Done." << endl;
     } catch (runtime_error &e) {
       cerr << e.what() << endl;

@@ -16,7 +16,7 @@ CSCChamberSpecs::CSCChamberSpecs(
       const CSCWireGroupPackage& wg )
   : GeomDetType( "CSC", CSC ), theChamberType( iChamberType ), theSpecsValues( fupar )
  {
-   LogTrace("CSC") << myName << ": Constructing specs for chamber " << 
+   LogTrace("CSCChamberSpecs|CSC") << myName << ": constructing specs for chamber " << 
     theName[iChamberType - 1] << ", type=" << iChamberType << ", this =" << this;
 
    // Need to check settings for overall modelling, but only once
@@ -64,7 +64,7 @@ CSCChamberSpecs::CSCChamberSpecs(
   }
 
   // local y value of 1st wire in wire plane
-  double yOfFirstWire = yAlignmentPin + wg.alignmentPinToFirstWire ;
+  double yOfFirstWire = yAlignmentPin + wg.alignmentPinToFirstWire/10.; //@@ in cm
 
   // Build the unique LayerGeometry objects we require for each chamber type.
   // - There are 2 endcaps
@@ -98,7 +98,7 @@ CSCChamberSpecs::CSCChamberSpecs(
 
 CSCChamberSpecs::~CSCChamberSpecs()
 {
-  LogTrace("CSC") << myName << " destroying this=" << this;
+  LogTrace("CSCChamberSpecs|CSC") << myName << " destroying this=" << this;
 
   delete poszOddLayerGeometry;
   delete poszEvenLayerGeometry;
@@ -210,7 +210,7 @@ void CSCChamberSpecs::whatModelling() {
   // Static function to dump user-selected overall modelling parameters
   // This will be called just _once_ in a job!
 
-  LogTrace("CSC") << myName << ": setModelling entered...";
+  LogTrace("CSCChamberSpecs|CSC") << myName << "::whatModelling entered...";
 
   std::string gs = " ";
   if ( gangedstripsME1a ) 
