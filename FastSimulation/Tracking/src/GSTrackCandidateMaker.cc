@@ -34,13 +34,14 @@
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIBDetId.h" 
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiStripDetId/interface/TOBDetId.h" 
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
 #endif
+
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h" 
 
 #include "FastSimulation/BaseParticlePropagator/interface/BaseParticlePropagator.h"
 #include "FastSimulation/ParticlePropagator/interface/ParticlePropagator.h"
@@ -70,6 +71,7 @@ GSTrackCandidateMaker::GSTrackCandidateMaker(const edm::ParameterSet& conf)
 
   // The cuts for seed cleaning
   seedCleaning = conf.getParameter<bool>("seedCleaning");
+  seedType = conf.getParameter<std::string>("seedType");
   originRadius = conf.getParameter<double>("originRadius");
   originHalfLength = conf.getParameter<double>("originHalfLength");
   originpTMin = conf.getParameter<double>("originpTMin");
@@ -197,35 +199,86 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
 
     //Check Seeding requirements (GlobalPixel only for now)
     
-    bool compatible = false;
-    const SiTrackerGSRecHit2D *hit1;
-    const SiTrackerGSRecHit2D *hit2;
-    for ( iterRecHit = theRecHitRangeIteratorBegin; 
-	  iterRecHit != theRecHitRangeIteratorEnd; 
-	  ++iterRecHit) {
-      hit1 = &(*iterRecHit);
-      if((unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelBarrel || 
-	 (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap){
-	const DetId& detId = hit1->geographicalId();
-	const GeomDet* geomDet( theGeometry->idToDet(detId) );
-	GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
-	for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
-	  hit2 = &(*iterRecHit2);
-	  if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
-	     (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
+    if(seedType == "GlobalPixel"){
+      bool compatible = false;
+      const SiTrackerGSRecHit2D *hit1;
+      const SiTrackerGSRecHit2D *hit2;
+      for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	    iterRecHit != theRecHitRangeIteratorEnd; 
+	    ++iterRecHit) {
+	hit1 = &(*iterRecHit);
+	if((unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelBarrel || 
+	   (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap){
+	  const DetId& detId = hit1->geographicalId();
+	  const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	  GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+	  for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
+	    hit2 = &(*iterRecHit2);
+	    if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
+	       (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
+	      const DetId& detId = hit2->geographicalId();
+	      const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	      GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
+	      
+	      compatible = compatibleWithVertex(gpos1,gpos2);
+	      
+	      if(compatible) break;
+	    }
+	  }
+	  if(compatible) break;
+	}
+      }
+      if(!compatible) continue;
+
+    }else if (seedType == "GlobalMixed"){
+
+      bool compatible = false;
+      const SiTrackerGSRecHit2D *hit1;
+      const SiTrackerGSRecHit2D *hit2;
+      for ( iterRecHit = theRecHitRangeIteratorBegin; 
+	    iterRecHit != theRecHitRangeIteratorEnd; 
+	    ++iterRecHit) {
+	hit1 = &(*iterRecHit);
+	if((unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelBarrel || 
+	   (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap ) {
+	  const DetId& detId = hit1->geographicalId();
+	  const GeomDet* geomDet( theGeometry->idToDet(detId) );
+	  GlobalPoint gpos1 = geomDet->surface().toGlobal(hit1->localPosition());
+	  
+	  for ( iterRecHit2 = iterRecHit+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
+	    hit2 = &(*iterRecHit2);
 	    const DetId& detId = hit2->geographicalId();
 	    const GeomDet* geomDet( theGeometry->idToDet(detId) );
 	    GlobalPoint gpos2 = geomDet->surface().toGlobal(hit2->localPosition());
-	    
-	    compatible = compatibleWithVertex(gpos1,gpos2);
-	    
-	    if(compatible) break;
-	  }
-	}
-	if(compatible) break;
-      }
+
+	    if((unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelBarrel || 
+	       (unsigned int)hit2->geographicalId().subdetId()== PixelSubdetector::PixelEndcap){
+
+	      compatible = compatibleWithVertex(gpos1,gpos2);
+
+	      if(compatible) break;
+	      
+	    } else if ( (unsigned int)(hit1->geographicalId().subdetId())== PixelSubdetector::PixelEndcap){
+	      PXFDetId id1(hit1->geographicalId().rawId());
+	      if(id1.disk()==2){
+		if ((unsigned int)(hit2->geographicalId().subdetId())== StripSubdetector::TEC) {
+		  TECDetId id2(hit2->geographicalId().rawId());
+		  if(id2.wheel()<4 && id2.ring()<3){
+		    
+		    compatible = compatibleWithVertex(gpos1,gpos2);
+		    //std::cout << "Pair into PXF and TEC = " << id2.wheel() << ",\t" << id2.ring() << std::endl; 
+		    if(compatible) break;
+		  }
+		}
+	      }
+	    }//rh2 condition
+	  }//rh2
+	  if(compatible) break;
+	}//rh1 condition
+      }//rh1	  
+      if(!compatible) continue;
     }
-    if(!compatible) continue;
+	  
     
     // Create OwnVector with sorted GSRecHit's
     edm::OwnVector<TrackingRecHit> recHits;
@@ -314,7 +367,7 @@ GSTrackCandidateMaker::produce(edm::Event& e, const edm::EventSetup& es) {
     AlgebraicSymMatrix errorMatrix(5,1);
 
     //why?
-    //    errorMatrix = errorMatrix * 10;
+    errorMatrix = errorMatrix * 10;
     // Ben oui, pourquoi?
     
 #ifdef FAMOS_DEBUG
