@@ -6,21 +6,25 @@
 
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
-   electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
-   muonSrc_         = iConfig.getParameter<edm::InputTag>("muonSource");
-   metSrc_          = iConfig.getParameter<edm::InputTag>("metSource");
-   lJetSrc_         = iConfig.getParameter<edm::InputTag>("lJetSource");
-   bJetSrc_         = iConfig.getParameter<edm::InputTag>("bJetSource");
-   leptonFlavour_   = iConfig.getParameter< std::string > 	  ("leptonFlavour");
-   doKinFit_        = iConfig.getParameter< bool >        ("doKinFit");
-   addLRJetComb_    = iConfig.getParameter< bool >        ("addLRJetComb");
-   lrJetCombFile_   = iConfig.getParameter< std::string >      ("lrJetCombFile");
-   maxNrIter_       = iConfig.getParameter< int >         ("maxNrIter");
-   maxDeltaS_       = iConfig.getParameter< double >      ("maxDeltaS");
-   maxF_            = iConfig.getParameter< double >      ("maxF");
-   param_           = iConfig.getParameter< int >         ("parametrisation");
-   constraints_     = iConfig.getParameter< std::vector<int> > ("constraints");
-   matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
+   electronSrc_     = iConfig.getParameter<edm::InputTag> 	("electronSource");
+   muonSrc_         = iConfig.getParameter<edm::InputTag> 	("muonSource");
+   metSrc_          = iConfig.getParameter<edm::InputTag> 	("metSource");
+   lJetSrc_         = iConfig.getParameter<edm::InputTag> 	("lJetSource");
+   bJetSrc_         = iConfig.getParameter<edm::InputTag> 	("bJetSource");
+   leptonFlavour_   = iConfig.getParameter< std::string > 	("leptonFlavour");
+   doKinFit_        = iConfig.getParameter< bool >        	("doKinFit");
+   addLRSignalSel_  = iConfig.getParameter< bool >        	("addLRSignalSel");
+   lrSignalSelObs_  = iConfig.getParameter< vector<int> > 	("lrSignalSelObs");
+   lrSignalSelFile_ = iConfig.getParameter< std::string > 	("lrSignalSelFile");
+   addLRJetComb_    = iConfig.getParameter< bool >        	("addLRJetComb");
+   lrJetCombObs_    = iConfig.getParameter< vector<int> > 	("lrJetCombObs");
+   lrJetCombFile_   = iConfig.getParameter< std::string > 	("lrJetCombFile");
+   maxNrIter_       = iConfig.getParameter< int >         	("maxNrIter");
+   maxDeltaS_       = iConfig.getParameter< double >      	("maxDeltaS");
+   maxF_            = iConfig.getParameter< double >      	("maxF");
+   param_           = iConfig.getParameter< int >         	("parametrisation");
+   constraints_     = iConfig.getParameter< std::vector<int> > 	("constraints");
+   matchToGenEvt_   = iConfig.getParameter< bool > 	  	("matchToGenEvt");
    
    // define kinfitter
    if(doKinFit_){
@@ -30,10 +34,11 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    }
    
    // define jet combinations related calculators
-   mySimpleBestJetComb      	     = new TtSemiSimpleBestJetComb();
-   myTtSemiLRSignalSelObservables    = new TtSemiLRSignalSelObservables();
-   myLRJetCombObservables            = new TtSemiLRJetCombObservables();
-   if(addLRJetComb_) myLRJetCombCalc = new TtSemiLRJetCombCalc(lrJetCombFile_);
+   mySimpleBestJetComb      	         = new TtSemiSimpleBestJetComb();
+   myLRSignalSelObservables              = new TtSemiLRSignalSelObservables();
+   myLRJetCombObservables                = new TtSemiLRJetCombObservables();
+   if(addLRSignalSel_) myLRSignalSelCalc = new TtSemiLRSignalSelCalc(lrSignalSelFile_, lrSignalSelObs_);
+   if(addLRJetComb_)   myLRJetCombCalc   = new TtSemiLRJetCombCalc(lrJetCombFile_, lrJetCombObs_);
    produces<std::vector<TtSemiEvtSolution> >();
 }
 
@@ -50,9 +55,10 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 
 TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
    delete mySimpleBestJetComb;
-   delete myTtSemiLRSignalSelObservables;
+   delete myLRSignalSelObservables;
    delete myLRJetCombObservables;
-   if(addLRJetComb_) delete myLRJetCombCalc;
+   if(addLRSignalSel_) delete myLRSignalSelCalc;
+   if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
 
@@ -118,8 +124,6 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    
    
    
-   
-   
    //
    // Build Event solutions according to the ambiguity in the jet combination
    //
@@ -150,13 +154,23 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
 		   asol.setMETParametrisation(param_);
       		 }
 		 // these lines calculate the observables to be used in the TtSemiSignalSelection LR
-		 (*myTtSemiLRSignalSelObservables)(asol);
+		 (*myLRSignalSelObservables)(asol);
+		 
+		 // if asked for, calculate with these observable values the LRvalue and 
+		 // (depending on the configuration) probability this event is signal
+		 if(addLRSignalSel_) (*myLRSignalSelCalc)(asol);
 		 
 		 // these lines calculate the observables to be used in the TtSemiJetCombination LR
 		 (*myLRJetCombObservables)(asol);
 		 
-		 //if asked for, calculate with these observable values the LRvalue and probability a jet combination is correct
+		 // if asked for, calculate with these observable values the LRvalue and 
+		 // (depending on the configuration) probability a jet combination is correct
 		 if(addLRJetComb_) (*myLRJetCombCalc)(asol);
+		 
+		 //std::cout<<"SignalSelLRval = "<<asol.getLRSignalEvtLRval()<<"  JetCombProb = "<<asol.getLRSignalEvtProb()<<std::endl;
+		 //std::cout<<"JetCombLRval = "<<asol.getLRJetCombLRval()<<"  JetCombProb = "<<asol.getLRJetCombProb()<<std::endl;
+		 
+		 // fill solution to vector
 	         evtsols->push_back(asol);
 	       } 
 	     }

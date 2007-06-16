@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Thu May 18 18:11:01 CEST 2006
-// $Id: TtSemiEvtSolutionMaker.h,v 1.8 2007/06/09 00:19:26 lowette Exp $
+// $Id: TtSemiEvtSolutionMaker.h,v 1.9 2007/06/10 08:55:01 lowette Exp $
 //
 //
 
@@ -37,6 +37,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/BestMatching.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiSimpleBestJetComb.h"
 #include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelObservables.h"
+#include "TopQuarkAnalysis/TopEventSelection/interface/TtSemiLRSignalSelCalc.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombCalc.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
@@ -65,18 +66,19 @@ class TtSemiEvtSolutionMaker : public edm::EDProducer {
       edm::InputTag lJetSrc_;
       edm::InputTag bJetSrc_;
       std::string leptonFlavour_;
-      std::string lrJetCombFile_;
-      bool addLRJetComb_, doKinFit_, matchToGenEvt_;
+      std::string lrSignalSelFile_, lrJetCombFile_;
+      bool addLRSignalSel_, addLRJetComb_, doKinFit_, matchToGenEvt_;
       int maxNrIter_;
       double maxDeltaS_, maxF_;
       int param_;
-      std::vector<int> constraints_;
+      std::vector<int> lrSignalSelObs_, lrJetCombObs_, constraints_;
       TtSemiKinFitterEtThetaPhi     *myKinFitterEtThetaPhi;
       TtSemiKinFitterEtEtaPhi       *myKinFitterEtEtaPhi;
       TtSemiKinFitterEMom           *myKinFitterEMom;
       TtSemiSimpleBestJetComb       *mySimpleBestJetComb;
-      TtSemiLRSignalSelObservables  *myTtSemiLRSignalSelObservables;
+      TtSemiLRSignalSelObservables  *myLRSignalSelObservables;
       TtSemiLRJetCombObservables    *myLRJetCombObservables;
+      TtSemiLRSignalSelCalc	    *myLRSignalSelCalc;
       TtSemiLRJetCombCalc	    *myLRJetCombCalc;
 
 };
