@@ -23,10 +23,10 @@
 #include "TGraph.h"
 #include "TMultiGraph.h"
 #include "TLegend.h"
+#include "TLatex.h"
 
 std::vector< TString > labels;
 std::vector<float> values;
-float SumValues[3];
 std::vector<float> xvalue;
 std::vector<unsigned long> Dates;
 float xmin,xmax,ymax;
@@ -72,11 +72,13 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
   }
 
   labels.push_back("RawData");
-  labels.push_back("RecoData");
+  labels.push_back("RecoDataBari");
   labels.push_back("RecoDataFNAL");
+  labels.push_back("RecoDataCERN");
 
   TCanvas *c1 = new TCanvas();
   const size_t m = labels.size();
+  float SumValues[m];
   int n = values.size()/m; //labels.size();
   TGraph* gr[m];
   TMultiGraph *mg = new TMultiGraph();
@@ -134,7 +136,7 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
   int month, day, time;
   char label[64];
 
-  for (size_t i=0;i<xaxis->GetNbins()+1;++i){
+  for (int i=xaxis->GetNbins();i>0;--i){
     //   cout << i << " " << TString(xaxis->GetBinLabel(i)) << " " <<  xaxis->GetBinLowEdge(i)<< " " <<  xaxis->GetBinUpEdge(i)<< endl;
     int upper=(int) xaxis->GetBinUpEdge(i);
     int lower=(int) xaxis->GetBinLowEdge(i);
@@ -147,15 +149,17 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
 	&&
 	*p<upper && *q>lower 
 	&&
-	TDatime(Dates[q-xvalue.begin()]).GetDate() - TDatime(Dates[p-xvalue.begin()]).GetDate() < 86400
+	abs(TDatime(Dates[q-xvalue.begin()]).GetDate() - TDatime(Dates[p-xvalue.begin()]).GetDate()) < 86400
 	){
       day=TDatime(Dates[p-xvalue.begin()]).GetDay();
       month=TDatime(Dates[p-xvalue.begin()]).GetMonth();
       time=Dates[p-xvalue.begin()];
-      if ( i-lastBin>4  //reduce the number of labels
-	   && 
-	   time-lastTime > 5*86400 //ask for dates after 5 days
-	   // && (month!=lastMonth || day!=lastDay)
+      if ( abs(i-lastBin) > 10 ||    //reduce the number of labels
+	   (abs(i-lastBin) > 4   //reduce the number of labels
+	    && 
+	    abs(time-lastTime) > 5*86400 //ask for dates after 5 days
+	    // && (month!=lastMonth || day!=lastDay)
+	    )
 	   ){
 	//cout << "-------- " << *p << " " << TDatime(Dates[p-xvalue.begin()]).AsString() << endl;
 	sprintf(label,"%02d/%02d",day,month);
@@ -182,6 +186,12 @@ void CreatePlots(TString filename,TString XTitle="", TString YTitle="", bool boo
   axis->SetTitle("RunNb");
   axis->Draw();
   
+  TLatex l;
+  l.SetTextAngle(90);
+  l.SetNDC();
+  l.SetTextSize(.035);
+  l.SetTextFont(12);
+  l.DrawLatex(.99,.05,"domenico.giordano@cern.ch");
 
   gPad->Update();
    TString logFlag="";

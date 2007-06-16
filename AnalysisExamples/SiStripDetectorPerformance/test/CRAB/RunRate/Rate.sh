@@ -34,16 +34,17 @@ physicsRunsFile=$1
 rawdatasetStatFile=$2
 recodatasetStatFile=$3
 recodatasetStatFileFNAL=$4
+recodatasetStatFileCERN=$5
 
 rm RateFull.html
 rm RateShort.txt
 
 tableSeparator="<TD align=center>"
 echo "<TABLE  BORDER=1 ALIGN=CENTER> " > RateFull.html
-echo -e "<TD> $tableSeparator Run $tableSeparator StartTime $tableSeparator Partition $tableSeparator RawEvents $tableSeparator RecoEvents $tableSeparator RecoEvents FNAL $tableSeparator datasets <TR> " >> RateFull.html
+echo -e "<TD> $tableSeparator Run $tableSeparator StartTime $tableSeparator Partition $tableSeparator RawEvents $tableSeparator RecoEvents $tableSeparator RecoEvents FNAL $tableSeparator RecoEvents CERN $tableSeparator datasets <TR> " >> RateFull.html
 
 #echo -e "\tRun|\tStartTime|\t\t\tPartition|\tRawEvents|\tRecoEvents|\t RecoEvents FNAL|\t datasets" > RateFull.txt
-echo -e "\tRun|\tStartTime|\t\t\tPartition|\t\tRawEvents|\tRecoEvents|\t RecoEvents FNAL" > RateShort.txt
+echo -e "\tRun|\tStartTime|\t\t\tPartition|\t\tRawEvents|\tRecoEvents|\t RecoEvents FNAL|\t RecoEvents CERN" > RateShort.txt
 
 #cat physicsRuns.txt | awk -F"\t" '{print $1"\t|\t"$4"\t|\t"$6}'
 for run in `cat $physicsRunsFile | awk -F"\t" '{print $1}'`
@@ -53,15 +54,17 @@ for run in `cat $physicsRunsFile | awk -F"\t" '{print $1}'`
   rawEvents=`grep "^\(\|*\)$run|" $rawdatasetStatFile `
   recoEvents=`grep "^\(\|*\)$run|" $recodatasetStatFile `
   recoEventsFNAL=`grep "^\(\|*\)$run|" $recodatasetStatFileFNAL `
+  recoEventsCERN=`grep "^\(\|*\)$run|" $recodatasetStatFileCERN `
   problem=""
   [ `echo $recoEvents $recoEventsFNAL $rawEvents | grep -c "\*"` -gt 0 ] && problem="o"
   [ "$recoEvents" == "" ] && recoEvents=" |  | "
   [ "$recoEventsFNAL" == "" ] && recoEventsFNAL=" |  | "
+  [ "$recoEventsCERN" == "" ] && recoEventsCERN=" |  | "
 
 #  [ "$run" != "" ] && echo -e "$problem|$run| $time| $partition| $rawEvents| $recoEvents| $recoEventsFNAL" | awk -F "|" '{printf("%1s|%9d| %s|%30s|\t%08d|\t%08d|\t%08d| %50s| %50s| %50s\n",$1,$2,$3,$4,$6,$9,$12,$7,$10,$13)}' >> RateFull.txt
- [ "$run" != "" ] && echo -e "$problem|$run| $time| $partition| $rawEvents| $recoEvents| $recoEventsFNAL" | awk -F "|" '{printf("<TD>%1s|%9d| %s|%30s|\t%08d|\t%08d|\t%08d| %50s| %50s| %50s<TR>\n",$1,$2,$3,$4,$6,$9,$12,$7,$10,$13)}' | sed -e "s@|@<TD align=center>@g" >> RateFull.html
+ [ "$run" != "" ] && echo -e "$problem|$run| $time| $partition| $rawEvents| $recoEvents| $recoEventsFNAL| $recoEventsCERN" | awk -F "|" '{printf("<TD>%1s|%9d| %s|%30s|\t%08d|\t%08d|\t%08d|\t%08d| %50s| %50s| %50s| %50s<TR>\n",$1,$2,$3,$4,$6,$9,$12,$15,$7,$10,$13,$16)}' | sed -e "s@|@<TD align=center>@g" >> RateFull.html
 
-  [ "$run" != "" ] && echo -e "$problem|$run| $time| $partition| $rawEvents| $recoEvents| $recoEventsFNAL" | awk -F "|" '{printf("%1s|%9d| %s|%30s|\t%08d|\t%08d|\t%08d\n",$1,$2,$3,$4,$6,$9,$12)}' >> RateShort.txt
+  [ "$run" != "" ] && echo -e "$problem|$run| $time| $partition| $rawEvents| $recoEvents| $recoEventsFNAL| $recoEventsCERN" | awk -F "|" '{printf("%1s|%9d| %s|%30s|\t%08d|\t%08d|\t%08d|\t%08d\n",$1,$2,$3,$4,$6,$9,$12,$15)}' >> RateShort.txt
 
 done
 
@@ -159,9 +162,18 @@ getDBSStatistics physicsRuns.txt RawDatasetList.txt RawDatasetStat.txt
 ##########
 
 echo "...running python to query DBS.. and take datasets"
-python dbsreadprocdatasetList.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC*DAQ-EDM/RECO/* --logfile=RecoDatasetList.txt 
+python dbsreadprocdatasetList.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC*DAQ-EDM/RECO/CMSSW_1_3_0* --logfile=RecoDatasetList.txt 
 echo "...running python to query DBS.. and take stats"
 getDBSStatistics physicsRuns.txt RecoDatasetList.txt RecoDatasetStat.txt
+
+##########
+## CERN
+##########
+
+echo "...running python to query DBS.. and take datasets"
+python dbsreadprocdatasetList.py --DBSAddress=MCGlobal/Writer --datasetPath=/TAC*DAQ-EDM/RECO/CMSSW_1_3_2* --logfile=RecoCERNDatasetList.txt 
+echo "...running python to query DBS.. and take stats"
+getDBSStatistics physicsRuns.txt RecoCERNDatasetList.txt RecoCERNDatasetStat.txt
 
 
 ##########
@@ -178,6 +190,6 @@ getDBSStatistics physicsRuns.txt RecoFNALDatasetList.txt RecoFNALDatasetStat.txt
 ## Stats
 ########
 echo "...compose table"
-GetListOfEvents  physicsRuns.txt RawDatasetStat.txt RecoDatasetStat.txt RecoFNALDatasetStat.txt
+GetListOfEvents  physicsRuns.txt RawDatasetStat.txt RecoDatasetStat.txt RecoFNALDatasetStat.txt RecoCERNDatasetStat.txt
 
 rm lock_dbs
