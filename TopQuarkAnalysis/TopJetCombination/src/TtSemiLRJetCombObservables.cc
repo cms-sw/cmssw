@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.3 2007/06/09 01:17:40 lowette Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.4 2007/06/15 08:53:54 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 
@@ -43,9 +43,9 @@ void  TtSemiLRJetCombObservables::operator()(TtSemiEvtSolution& sol){
   
   //obs6 : b-tagging information
   double Obs6 = 0;
-  if ( fabs(sol.getHadb().getBdiscriminant() +10) < 0.0001 || fabs(sol.getLepb().getBdiscriminant() +10)< 0.0001 ){Obs6 = -10.;} else {
-  //double Obs6 = (sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant())/(sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant()+sol.getHadp().getBdiscriminant()+sol.getHadq().getBdiscriminant());
-  Obs6 = (sol.getHadb().getBdiscriminant()+sol.getLepb().getBdiscriminant());}
+  if ( fabs(sol.getHadb().getBDiscriminator() +10) < 0.0001 || fabs(sol.getLepb().getBDiscriminator() +10)< 0.0001 ){Obs6 = -10.;} else {
+  //double Obs6 = (sol.getHadb().getBDiscriminator()+sol.getLepb().getBDiscriminator())/(sol.getHadb().getBDiscriminator()+sol.getLepb().getBDiscriminator()+sol.getHadp().getBDiscriminator()+sol.getHadq().getBDiscriminator());
+  Obs6 = (sol.getHadb().getBDiscriminator()+sol.getLepb().getBDiscriminator());}
   jetCombVarVal.push_back(std::pair<unsigned int,double>(6,Obs6)); 
    
   //obs7 : chi2 value of kinematical fit with W-mass constraint

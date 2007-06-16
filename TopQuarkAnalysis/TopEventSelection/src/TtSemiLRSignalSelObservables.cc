@@ -99,7 +99,7 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	//sort the TopJets in Bdiscriminant
 	std::sort(TopJets.begin(),TopJets.end(),BdiscComparator);
 	
-	double BGap = TopJets[1].getBdiscriminant() - TopJets[2].getBdiscriminant();
+	double BGap = TopJets[1].getBDiscriminator() - TopJets[2].getBDiscriminator();
 	double Obs2 = (BGap>0 ? log(BGap) : -1);
 	evtselectVarVal.push_back(pair<unsigned int,double>(2,Obs2));
 	
@@ -210,8 +210,8 @@ void TtSemiLRSignalSelObservables::operator() (TtSemiEvtSolution &TS)
 	//sort the TopJets in Bdiscriminant
 	std::sort(TopJets.begin(),TopJets.end(),BdiscComparator);
 		
-	double BjetsBdiscSum = TopJets[0].getBdiscriminant() + TopJets[1].getBdiscriminant();
-	double LjetsBdiscSum = TopJets[2].getBdiscriminant() + TopJets[3].getBdiscriminant();
+	double BjetsBdiscSum = TopJets[0].getBDiscriminator() + TopJets[1].getBDiscriminator();
+	double LjetsBdiscSum = TopJets[2].getBDiscriminator() + TopJets[3].getBDiscriminator();
 	
 	//cout<<"BjetsBdiscSum = "<<BjetsBdiscSum<<endl;
 	//cout<<"LjetsBdiscSum = "<<LjetsBdiscSum<<endl;
