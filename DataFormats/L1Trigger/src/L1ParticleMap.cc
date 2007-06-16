@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Wed Jul 26 14:42:56 EDT 2006
-// $Id: L1ParticleMap.cc,v 1.19 2007/06/03 00:06:31 wsun Exp $
+// $Id: L1ParticleMap.cc,v 1.20 2007/06/15 19:27:32 wsun Exp $
 //
 
 // system include files
@@ -62,6 +62,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_SingleTauJet10",
    "A_SingleTauJet20",
    "A_SingleTauJet30",
+   "A_SingleTauJet35",
    "A_SingleTauJet40",
    "A_SingleTauJet60",
    "A_SingleTauJet80",
@@ -87,6 +88,7 @@ L1ParticleMap::triggerNames_[ kNumOfL1TriggerTypes ] = {
    "A_DoubleJet100",
    "A_DoubleTauJet20",
    "A_DoubleTauJet30",
+   "A_DoubleTauJet35",
    "A_DoubleTauJet40",
    "A_Mu3_IsoEG5",
    "A_Mu5_IsoEG10",

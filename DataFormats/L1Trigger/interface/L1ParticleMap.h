@@ -12,8 +12,11 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Fri Jul 14 19:46:30 EDT 2006
-// $Id: L1ParticleMap.h,v 1.22 2007/06/03 00:06:30 wsun Exp $
+// $Id: L1ParticleMap.h,v 1.23 2007/06/15 19:27:31 wsun Exp $
 // $Log: L1ParticleMap.h,v $
+// Revision 1.23  2007/06/15 19:27:31  wsun
+// New L1 trigger table for 131HLT6.
+//
 // Revision 1.22  2007/06/03 00:06:30  wsun
 // Revision of L1 trigger table for 131HLT5.
 //
@@ -151,6 +154,7 @@ namespace l1extra {
 	    kSingleTauJet10,
 	    kSingleTauJet20,
 	    kSingleTauJet30,
+	    kSingleTauJet35,
 	    kSingleTauJet40,
 	    kSingleTauJet60,
 	    kSingleTauJet80,
@@ -176,6 +180,7 @@ namespace l1extra {
 	    kDoubleJet100,
 	    kDoubleTauJet20,
 	    kDoubleTauJet30,
+	    kDoubleTauJet35,
 	    kDoubleTauJet40,
 	    kMu3_IsoEG5,
 	    kMu5_IsoEG10,

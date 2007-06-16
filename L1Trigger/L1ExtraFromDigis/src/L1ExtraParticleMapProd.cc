@@ -8,7 +8,7 @@
 //
 // Original Author:  Werner Sun
 //         Created:  Mon Oct 16 23:19:38 EDT 2006
-// $Id: L1ExtraParticleMapProd.cc,v 1.20 2007/06/04 23:25:11 wsun Exp $
+// $Id: L1ExtraParticleMapProd.cc,v 1.22 2007/06/15 19:27:33 wsun Exp $
 //
 //
 
@@ -206,6 +206,10 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "A_SingleTauJet30_thresh" ) ;
    prescales_[ L1ParticleMap::kSingleTauJet30 ] =
       iConfig.getParameter< int >( "A_SingleTauJet30_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kSingleTauJet35 ] =
+      iConfig.getParameter< double >( "A_SingleTauJet35_thresh" ) ;
+   prescales_[ L1ParticleMap::kSingleTauJet35 ] =
+      iConfig.getParameter< int >( "A_SingleTauJet35_prescale" ) ;
    singleThresholds_[ L1ParticleMap::kSingleTauJet40 ] =
       iConfig.getParameter< double >( "A_SingleTauJet40_thresh" ) ;
    prescales_[ L1ParticleMap::kSingleTauJet40 ] =
@@ -315,6 +319,10 @@ L1ExtraParticleMapProd::L1ExtraParticleMapProd(
       iConfig.getParameter< double >( "A_DoubleTauJet30_thresh" ) ;
    prescales_[ L1ParticleMap::kDoubleTauJet30 ] =
       iConfig.getParameter< int >( "A_DoubleTauJet30_prescale" ) ;
+   singleThresholds_[ L1ParticleMap::kDoubleTauJet35 ] =
+      iConfig.getParameter< double >( "A_DoubleTauJet35_thresh" ) ;
+   prescales_[ L1ParticleMap::kDoubleTauJet35 ] =
+      iConfig.getParameter< int >( "A_DoubleTauJet35_prescale" ) ;
    singleThresholds_[ L1ParticleMap::kDoubleTauJet40 ] =
       iConfig.getParameter< double >( "A_DoubleTauJet40_thresh" ) ;
    prescales_[ L1ParticleMap::kDoubleTauJet40 ] =
@@ -879,6 +887,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       else if( itrig == L1ParticleMap::kSingleTauJet10 ||
 	       itrig == L1ParticleMap::kSingleTauJet20 ||
 	       itrig == L1ParticleMap::kSingleTauJet30 ||
+	       itrig == L1ParticleMap::kSingleTauJet35 ||
 	       itrig == L1ParticleMap::kSingleTauJet40 ||
 	       itrig == L1ParticleMap::kSingleTauJet60 ||
 	       itrig == L1ParticleMap::kSingleTauJet80 ||
@@ -970,6 +979,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       }
       else if( itrig == L1ParticleMap::kDoubleTauJet20 ||
 	       itrig == L1ParticleMap::kDoubleTauJet30 ||
+	       itrig == L1ParticleMap::kDoubleTauJet35 ||
 	       itrig == L1ParticleMap::kDoubleTauJet40 )
       {
 	 objectTypes.push_back( L1ParticleMap::kJet ) ;
