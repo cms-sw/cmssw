@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/05/25 17:05:08 $
- *  $Revision: 1.57 $
+ *  $Date: 2007/06/05 17:32:04 $
+ *  $Revision: 1.58 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -135,6 +135,10 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     RefitDirection checkRecHitsOrdering(const ConstRecHitContainer&) const;
 
     std::vector<Trajectory> refitTrajectory(const Trajectory*) const;
+
+    std::vector<Trajectory> glbtrajectory(const TrajectorySeed& seed,
+				       const ConstRecHitContainer& hits,
+				       const TrajectoryStateOnSurface& firstPredTsos) const ;
 
   private:
 

@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/05/29 18:13:41 $
- *  $Revision: 1.99 $
+ *  $Date: 2007/06/05 17:32:05 $
+ *  $Revision: 1.100 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -166,11 +166,13 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
       theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
     }
 
-    theKFFitterName = par.getParameter<std::string>("KFFitter");
+
 
   } else {
     theTkTrackLabel = par.getParameter<edm::InputTag>("TrackerCollectionLabel");
   }
+  
+  theKFFitterName = par.getParameter<std::string>("KFFitter");
 
   theMIMFlag = par.getUntrackedParameter<bool>("performMuonIntegrityMonitor",false);
   if(theMIMFlag) {
@@ -256,7 +258,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
       if(theRSFlag == false) theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
     }
 
-    theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
+
 
     if(theRSFlag == false) {
       theCkfBuilder->setEvent(event);
@@ -268,6 +270,7 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
 
   }
 
+  theService->eventSetup().get<TrackingComponentsRecord>().get(theKFFitterName,theKFFitter);
   theTrackTransformer->setServices(theService->eventSetup());
 
 }
@@ -428,7 +431,6 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
     dataMonitor->fill1("build",1);
   }
 
-
   //
   // turn tkMatchedTracks into MuonCandidates
   //
@@ -453,7 +455,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
   // add muon hits and refit/smooth trajectories
   //
   CandidateContainer refittedResult;
-  
+
   if ( theMuonHitsOption > 0 ) {
     
     for ( CandidateContainer::const_iterator it = tkTrajs.begin(); it != tkTrajs.end(); it++ ) {
@@ -503,7 +505,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	rechits.insert(rechits.end(), muonRecHits1.begin(), muonRecHits1.end());
 	if(theMIMFlag) dataMonitor->fill1("build",4);//should equal 3
 	LogTrace(category) << "Number of hits: " << rechits.size();
-	refitted1 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted1 = glbtrajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 
 	if ( refitted1.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",5);
@@ -530,7 +532,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	if(theMIMFlag) dataMonitor->fill1("build",6);
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	
-	refitted2 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted2 = glbtrajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted2.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",7);
 	  refit[2] = &(*refitted2.begin());
@@ -558,7 +560,7 @@ MuonCandidate::CandidateContainer GlobalMuonTrajectoryBuilder::build(const Track
 	
 	LogTrace(category) << "Number of hits: " << rechits.size();
 	if(theMIMFlag) dataMonitor->fill1("build",8);
-	refitted3 = theRefitter->trajectory((*it)->trajectory()->seed(),rechits,innerTsos);
+	refitted3 = glbtrajectory((*it)->trajectory()->seed(),rechits,innerTsos);
 	if ( refitted3.size() == 1 ) {
 	  if(theMIMFlag) dataMonitor->fill1("build",9);
 	  refit[3] = &(*refitted3.begin());
@@ -1241,7 +1243,6 @@ GlobalMuonTrajectoryBuilder::checkRecHitsOrdering(const TransientTrackingRecHit:
   const std::string category = "Reco|RecoMuon|GlobalMuonTrajectoryBuilder";
 
   if (!recHits.empty()){
-    LogDebug(category);
     ConstRecHitContainer::const_iterator frontHit = recHits.begin();
     ConstRecHitContainer::const_iterator backHit  = recHits.end() - 1;
     while( !(*frontHit)->isValid() && frontHit != backHit) {frontHit++;}
@@ -1288,3 +1289,22 @@ vector<Trajectory> GlobalMuonTrajectoryBuilder::refitTrajectory(const Trajectory
   return refitted1;
 }
 
+vector<Trajectory> GlobalMuonTrajectoryBuilder::glbtrajectory(const TrajectorySeed& seed,
+							      const ConstRecHitContainer& hits,
+							      const TrajectoryStateOnSurface& firstPredTsos) const {
+
+  if ( hits.empty() ) return vector<Trajectory>();
+
+  PTrajectoryStateOnDet PTSOD = seed.startingState();
+  edm::OwnVector<TrackingRecHit> garbage2;
+
+  RefitDirection recHitDir = checkRecHitsOrdering(hits);
+  PropagationDirection refitDir = (recHitDir == outToIn) ? oppositeToMomentum : alongMomentum ;
+  TrajectorySeed newSeed(PTSOD,garbage2,refitDir);
+
+  TrajectoryStateOnSurface firstTsos = firstPredTsos;
+  firstTsos.rescaleError(10.);
+
+  vector<Trajectory> theTrajs = theKFFitter->fit(newSeed,hits,firstTsos);
+  return theTrajs;
+} 
