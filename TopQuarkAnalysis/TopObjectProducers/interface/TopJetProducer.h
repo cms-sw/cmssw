@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.6 2007/06/15 09:50:02 heyninck Exp $
+// $Id: TopJetProducer.h,v 1.7 2007/06/15 16:49:18 heyninck Exp $
 //
 
 #ifndef TopJetProducer_h
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.6 2007/06/15 09:50:02 heyninck Exp $
+  \version  $Id: TopJetProducer.h,v 1.7 2007/06/15 16:49:18 heyninck Exp $
 */
 
 
@@ -40,10 +40,6 @@
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
 #include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
-using namespace std;
-using namespace edm;
-
-
 
 class TopObjectResolutionCalc;
 
@@ -65,11 +61,10 @@ class TopJetProducer : public edm::EDProducer {
     //							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
 
 
-    JetFlavourIdentifier jfi;
     // configurables
-    std::string   jetTagsLabel_;
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
+    edm::InputTag jetTagsLabel_;
     //edm::InputTag topElectronsLabel_;
     //edm::InputTag topMuonsLabel_;
     //bool          doJetCleaning_;
@@ -90,6 +85,7 @@ class TopJetProducer : public edm::EDProducer {
 
     // tools
     TopObjectResolutionCalc *   theResoCalc_;
+    JetFlavourIdentifier *      jetFlavId_;
     EtInverseComparator<TopJet> eTComparator_;
 
 };

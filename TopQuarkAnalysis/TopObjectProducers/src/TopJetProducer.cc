@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.6 2007/06/15 09:50:03 heyninck Exp $
+// $Id: TopJetProducer.cc,v 1.7 2007/06/15 16:49:19 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -24,10 +24,9 @@
 
 TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
-  jetTagsLabel_            	= iConfig.getParameter<std::string>   	("jetTagInput");
-  caliJetResoFile_         	= iConfig.getParameter<std::string>   	("caliJetResoFile");
   recJetsLabel_            	= iConfig.getParameter<edm::InputTag> 	("recJetInput");
   caliJetsLabel_           	= iConfig.getParameter<edm::InputTag> 	("caliJetInput");
+  jetTagsLabel_            	= iConfig.getParameter<edm::InputTag>  	("jetTagInput");
   //topElectronsLabel_       	= iConfig.getParameter<edm::InputTag> 	("topElectronsInput");
   //topMuonsLabel_           	= iConfig.getParameter<edm::InputTag> 	("topMuonsInput");
   //doJetCleaning_           	= iConfig.getParameter<bool> 		("doJetCleaning");
@@ -39,15 +38,14 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   dropSoftElectronFromAOD_     	= iConfig.getParameter<bool>       	("dropSoftElectronFromAOD");
   keepdiscriminators_          	= iConfig.getParameter<bool>       	("keepdiscriminators");
   keepjettagref_               	= iConfig.getParameter<bool>       	("keepjettagref");
+  caliJetResoFile_         	= iConfig.getParameter<std::string>   	("caliJetResoFile");
 
   //LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
   //ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
   //MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
-  
-  
-  //for jet flavour
-  jfi = JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
-
+    
+  // construct the jet flavour identifier
+  jetFlavId_ =  new JetFlavourIdentifier(iConfig.getParameter<edm::ParameterSet>("jetIdParameters"));
   
   // construct resolution calculator
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
@@ -59,6 +57,7 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
 
 TopJetProducer::~TopJetProducer() {
   if(addResolutions_) delete theResoCalc_;
+  delete jetFlavId_;
 }
 
 
@@ -82,16 +81,15 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 
 
-  vector< Handle< vector<JetTag> > > jetTags_testManyByType ;
+  std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
   iEvent.getManyByType(jetTags_testManyByType); 
-   
 
-  edm::Handle<SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
-  edm::Handle<TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
-  edm::Handle<TrackCountingTagInfoCollection> jetsInfoHandleTC;
+  edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
+  edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
+  edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
   
   //for jet flavour
-  jfi.readEvent(iEvent);
+  jetFlavId_->readEvent(iEvent);
 
   //select isolated leptons to remove from jets collection
   //electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
@@ -128,7 +126,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         cjFound = true;
         ajet = TopJet((*calijets)[cj]);
         ajet.setRecJet((*recjets)[j]);
-	JetFlavour jetFlavour = jfi.identifyBasedOnPartons((*recjets)[j]);
+	JetFlavour jetFlavour = jetFlavId_->identifyBasedOnPartons((*recjets)[j]);
 	int  flavour = jetFlavour.flavour();
 	ajet.setQuarkFlavour(flavour);
       }
@@ -138,13 +136,13 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       // add b-tag info if available & required
       if(storeBDiscriminants_){
         for(size_t k=0; k<jetTags_testManyByType.size(); k++){
-	  Handle< vector<JetTag> > jetTags = jetTags_testManyByType[k];
-	
-	
+	  edm::Handle<std::vector<reco::JetTag> > jetTags = jetTags_testManyByType[k];
+
+
 	  //**************************
 	  //get label and module names
-	  string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
-	  string moduleLabel = (jetTags).provenance()->moduleLabel();
+	  std::string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
+	  std::string moduleLabel = (jetTags).provenance()->moduleLabel();
 	  //********drop taggers from AOD*********
 	  if(  (moduleLabel == "trackCountingJetTags"    && dropTrackCountingFromAOD_    == true ) ) continue;
 	  if(  (moduleLabel == "trackProbabilityJetTags" && dropTrackProbabilityFromAOD_ == true ) ) continue;
@@ -158,14 +156,14 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	    // cout << "jet test " << ajet.getLCalJet().et() << "   " << (*jetTags)[t].jet().et()  << endl;
 	    //cout << "deltaR   " <<  DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) << endl;
 	    if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.00001) {
-	      if(jetTagsLabel_ == moduleLabel) ajet.setBdiscriminant((*jetTags)[t].discriminator());
+	      if(jetTagsLabel_.label() == moduleLabel) ajet.setBdiscriminant((*jetTags)[t].discriminator());
 	    
 	    
 	    
 	      //FIXME add combined tagger
 	      //********store discriminators*********
 	      if(keepdiscriminators_ == true){
-	        pair<string, double> pairdiscri;
+	        std::pair<std::string, double> pairdiscri;
 	        pairdiscri.first = moduleLabel;
 	        pairdiscri.second = (*jetTags)[t].discriminator();
 	        //drop TauTag!!!
@@ -178,27 +176,27 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      //********store jetTagRef*********
 	      if(keepjettagref_ == true){
 	      
-	        pair<string, JetTagRef> pairjettagref;
+	        std::pair<std::string, reco::JetTagRef> pairjettagref;
 	        pairjettagref.first = moduleLabel;
 	      
 	        if(moduleTagInfoName == "TrackProbability"){
 		  //cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTP);  
-		  const  TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
+		  const  reco::TrackProbabilityTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTP);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
 		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
 	        if(moduleTagInfoName == "TrackCounting"){
 		  //cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandleTC);  
-		  const  TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
+		  const  reco::TrackCountingTagInfoCollection & tagInfo_prob = *(jetsInfoHandleTC);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
 		  ajet.addBJetTagRefPair(pairjettagref);
 	        }  
 	        if(moduleTagInfoName == "SoftLepton"){
 		  // cout << "string module label " << moduleLabel << endl;
 		  iEvent.getByLabel(moduleLabel,jetsInfoHandle_sl);  
-		  const  SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
+		  const  reco::SoftLeptonTagInfoCollection & tagInfo_prob = *(jetsInfoHandle_sl);
 		  pairjettagref.second = tagInfo_prob[t].getJetTag();
 		  ajet.addBJetTagRefPair(pairjettagref);
 	        }
