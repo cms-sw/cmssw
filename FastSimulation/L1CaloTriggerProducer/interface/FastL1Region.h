@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.5 2007/04/25 15:43:40 chinhan Exp $
+// $Id: FastL1Region.h,v 1.6 2007/04/26 12:57:21 beaudett Exp $
 //
 
 // user include files
@@ -47,10 +47,12 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
-//#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfo.h"
-//#include "FastSimulation/L1CaloTriggerProducer/interface/FastL1BitInfoFwrd.h"
+//#include "DataFormats/FastL1/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
 struct FastL1Config {
+  bool DoJetCorr;
+  bool DoEMCorr;
+
   double JetSeedEtThreshold;
   double EMSeedEnThreshold;
  
@@ -71,6 +73,7 @@ struct FastL1Config {
 
   double TowerEMLSB;
   double TowerHadLSB;
+  double EMLSB;
   double JetLSB;
 
   double TowerEBThreshold;
@@ -203,6 +206,21 @@ class FastL1Region {
 
 
 double 
-TPEnergyRound(double et, double Resol, double thres);
+corrJetEt(double et, double eta);
+
+// Jet Calibration from Frederick(Helsinki), Monika/Creighton (Wisconsin)
+double 
+corrJetEt1(double et, double eta);
+
+// Jet Calibration from CMSSW_1_3_0
+double 
+corrJetEt2(double et, double eta);
+
+// EM correction from ORCA for cmsim 133
+double 
+corrEmEt(double et, double eta);
+
+double 
+TPEnergyRound(double et, double Resol = 1., double thres = 1.);
 
 #endif

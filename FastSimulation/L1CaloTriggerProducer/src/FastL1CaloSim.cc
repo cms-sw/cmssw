@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.2 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.3 2007/04/23 15:48:29 chinhan Exp $
 //
 //
 
@@ -32,7 +32,13 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1JetParticleCollection>("ForJets");
   produces<l1extra::L1EmParticleCollection>("Egammas");
   produces<l1extra::L1EmParticleCollection>("isoEgammas");
-  //produces<FastL1BitInfoCollection>("FastL1BitInfos");
+
+  /*
+  m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
+
+  if (m_DoBitInfo)
+    produces<FastL1BitInfoCollection>("FastL1BitInfos");
+  */
 
   //now do what ever other initialization is needed
   m_L1GlobalAlgo = new FastL1GlobalAlgo(iConfig);
@@ -63,6 +69,11 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   m_L1GlobalAlgo->FillJets(iSetup);
   m_L1GlobalAlgo->FillEgammas(iEvent);
 
+  /*
+  if (m_DoBitInfo)
+    m_L1GlobalAlgo->FillBitInfos();
+  */
+
   std::auto_ptr<l1extra::L1EtMissParticle> METResult(new l1extra::L1EtMissParticle);
   std::auto_ptr<l1extra::L1JetParticleCollection> TauJetResult(new l1extra::L1JetParticleCollection);
   std::auto_ptr<l1extra::L1JetParticleCollection> CenJetResult(new l1extra::L1JetParticleCollection);
@@ -89,10 +100,14 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     isoEgammaResult->push_back(m_L1GlobalAlgo->getisoEgammas().at(i));
   }
 
-  //for (int i=0; i<(int)m_L1GlobalAlgo->getBitInfos().size(); i++) {
-  //  FastL1BitInfoResult->push_back(m_L1GlobalAlgo->getBitInfos().at(i));
-  //}
-  
+  /*
+  if (m_DoBitInfo) {
+    for (int i=0; i<(int)m_L1GlobalAlgo->getBitInfos().size(); i++) {
+      FastL1BitInfoResult->push_back(m_L1GlobalAlgo->getBitInfos().at(i));
+    }
+  }
+  */
+
   // put the collections into the event
   iEvent.put(METResult,"MET");
   iEvent.put(TauJetResult,"TauJets");
@@ -100,7 +115,11 @@ FastL1CaloSim::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(ForJetResult,"ForJets");
   iEvent.put(EgammaResult,"Egammas");
   iEvent.put(isoEgammaResult,"isoEgammas");
-  //iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
+
+  /*
+  if (m_DoBitInfo) 
+    iEvent.put(FastL1BitInfoResult,"FastL1BitInfos");
+  */
 }
 
 

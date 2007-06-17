@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.2 2007/04/18 18:54:51 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.3 2007/04/23 15:48:29 chinhan Exp $
 //
 
 // system include files
@@ -53,6 +53,7 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
+//#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
 
 //
 // constants, enums and typedefs
@@ -85,6 +86,7 @@ class FastL1GlobalAlgo {
       void FillL1Regions(edm::Event const& e, const edm::EventSetup& c);
       void FillJets(const edm::EventSetup& e) { findJets(); };
       void FillEgammas(edm::Event const&);
+      //void FillBitInfos();
 
  private:
       bool isMaxEtRgn_Window33(int rgnid);
