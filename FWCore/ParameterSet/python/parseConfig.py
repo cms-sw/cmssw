@@ -167,6 +167,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
     otherUsings = set( (label,))
     values = []
     usingLabels = []
+    global _usings
     for tempLabel,param in item.__dict__.iteritems():
         if isinstance(param,_UsingNode):
             values.extend(_handleUsing(param,otherUsings,process,allUsingLabels))
@@ -183,6 +184,7 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
             raise RuntimeError("the using labelled '"+using.label+"' tried to add the label '"+
                                plabel+"' which already exists in this block")
         setattr(item,plabel,param)
+        _usings.append([item,plabel,param]) # let's remember the usings
 
 def _findAndHandleProcessUsingBlock(values):
     d=dict(values)
@@ -924,8 +926,11 @@ def _finalizeProcessFragment(values,usingLabels):
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
     #print toks
+    global _usings
+    _usings = [] 
     label = toks[0][0]
     p=cms.Process(label)
+
     values = list(iter(toks[0][1]))
     try:
         values = _validateLabelledList(values)
@@ -976,9 +981,17 @@ def _makeProcess(s,loc,toks):
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
 
+
+        # adding modules to the process involves cloning.
+        # but for the usings we only know the original object
+        # so we do have to keep a lookuptable
+        # FIXME  <- !!
+        global _lookuptable
+        _lookuptable = {}
         
         for label,obj in d.iteritems():
             setattr(p,label,obj)
+            if not isinstance(obj,list): _lookuptable[obj] = label
         pa = _ProcessAdapter(sequences,p)
         for label,obj in sequences.iteritems():
             setattr(pa,label,obj.make(pa))
@@ -994,6 +1007,7 @@ def _makeProcess(s,loc,toks):
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
 #    p = cms.PSet(*[],**d)
+    doTheUsings(p)
     return p
 
 
@@ -1030,18 +1044,27 @@ def parseCfgFile(fileName):
     """Read a .cfg file and create a Process object"""
     #NOTE: should check for file first in local directory
     # and then using FileInPath
+
     import os.path
     if os.path.exists(fileName):
         f=open(fileName)
     else:
         f=_fileFactory(fileName)
     return process.parseFile(f)[0]
+
+
 def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
     t=onlyFragment.parseFile(_fileFactory(fileName))
     global _allUsingLabels
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
+
+def doTheUsings(process):
+    global _usings
+    global _lookuptable
+    for item, label, param in _usings:
+        process.__dict__[_lookuptable[item]].__dict__[label] = param
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
