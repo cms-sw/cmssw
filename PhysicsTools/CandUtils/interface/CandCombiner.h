@@ -33,6 +33,15 @@ public:
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
   combine( const reco::CandidateRefProd & ) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<reco::CandidateCollection> 
+  combine( const reco::CandidateRefProd &, const reco::CandidateRefProd & ) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<reco::CandidateCollection> 
+  combine( const reco::CandidateRefProd &, const reco::CandidateRefProd &, const reco::CandidateRefProd & ) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<reco::CandidateCollection> 
+  combine( const reco::CandidateRefProd &, const reco::CandidateRefProd &, const reco::CandidateRefProd &, const reco::CandidateRefProd & ) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge

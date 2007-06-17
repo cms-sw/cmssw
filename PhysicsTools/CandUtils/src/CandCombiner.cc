@@ -138,6 +138,34 @@ CandCombinerBase::combine( const CandidateRefProd & src ) const {
   return comps;
 }
 
+auto_ptr<CandidateCollection> 
+CandCombinerBase::combine( const CandidateRefProd & src1, const CandidateRefProd & src2 ) const {
+  vector<CandidateRefProd> src;
+  src.push_back( src1 );
+  src.push_back( src2 );
+  return combine( src );
+}
+
+auto_ptr<CandidateCollection> 
+CandCombinerBase::combine( const CandidateRefProd & src1, const CandidateRefProd & src2, const CandidateRefProd & src3 ) const {
+  vector<CandidateRefProd> src;
+  src.push_back( src1 );
+  src.push_back( src2 );
+  src.push_back( src3 );
+  return combine( src );
+}
+
+auto_ptr<CandidateCollection> 
+CandCombinerBase::combine( const CandidateRefProd & src1, const CandidateRefProd & src2, 
+			   const CandidateRefProd & src3, const CandidateRefProd & src4 ) const {
+  vector<CandidateRefProd> src;
+  src.push_back( src1 );
+  src.push_back( src2 );
+  src.push_back( src3 );
+  src.push_back( src4 );
+  return combine( src );
+}
+
 void CandCombinerBase::combine( size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
 				 vector<CandidateRefProd>::const_iterator collBegin,
 				 vector<CandidateRefProd>::const_iterator collEnd,
