@@ -3,18 +3,18 @@
 /** \class CandCombiner
  *
  * performs all possible and selected combinations
- * of particle pairs using the NBodyCombiner utility
+ * of particle pairs using the CandCombiner utility
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CandCombiner.h,v 1.2 2007/03/23 13:37:46 llista Exp $
+ * $Id: CandCombiner.h,v 1.3 2007/06/17 09:20:54 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
+#include "PhysicsTools/CandUtils/interface/CandCombiner.h"
 #include "PhysicsTools/CandAlgos/src/decayParser.h"
 #include "PhysicsTools/Parser/interface/StringCutObjectSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -86,7 +86,7 @@ namespace reco {
     }
     
     /// combiner utility
-    NBodyCombiner<S, H, Setup> combiner_;
+    ::CandCombiner<S, H, Setup> combiner_;
     };
 
   }

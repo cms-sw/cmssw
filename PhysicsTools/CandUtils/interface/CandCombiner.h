@@ -1,6 +1,6 @@
-#ifndef CandUtils_NBodyCombiner_h
-#define CandUtils_NBodyCombiner_h
-/** \class NBodyCombiner
+#ifndef CandUtils_CandCombiner_h
+#define CandUtils_CandCombiner_h
+/** \class CandCombiner
  *
  * \author Luca Lista, INFN
  *
@@ -13,12 +13,12 @@
 #include <vector>
 #include <utility>
 
-class NBodyCombinerBase {
+class CandCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombinerBase( bool checkCharge, const std::vector <int> & );
+  CandCombinerBase( bool checkCharge, const std::vector <int> & );
   /// destructor
-  virtual ~NBodyCombinerBase();
+  virtual ~CandCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
   combine( const std::vector<reco::CandidateRefProd> & ) const;
@@ -70,18 +70,12 @@ namespace combiner {
 }
 
 template<typename S, typename H = combiner::helpers::NormalClone, typename Setup = AddFourMomenta>
-class NBodyCombiner : public NBodyCombinerBase {
+class CandCombiner : public CandCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
-  template<typename B>
-  NBodyCombiner( const B & select,
+  CandCombiner( const S & select, const Setup & setup,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    NBodyCombinerBase( checkCharge, dauCharge ), 
-    select_( select ), setup_() { }
-  /// constructor from a selector, specifying optionally to check for charge
-  NBodyCombiner( const S & select, const Setup & setup,
-		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    NBodyCombinerBase( checkCharge, dauCharge ), 
+    CandCombinerBase( checkCharge, dauCharge ), 
     select_( select ), setup_( setup ) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }

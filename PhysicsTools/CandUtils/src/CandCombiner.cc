@@ -1,17 +1,17 @@
-#include "PhysicsTools/CandUtils/interface/NBodyCombiner.h"
+#include "PhysicsTools/CandUtils/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 
 using namespace reco;
 using namespace std;
 
-NBodyCombinerBase::NBodyCombinerBase( bool checkCharge, const vector<int> & dauCharge ) :
+CandCombinerBase::CandCombinerBase( bool checkCharge, const vector<int> & dauCharge ) :
   checkCharge_( checkCharge ), dauCharge_( dauCharge ), overlap_() {
 }
 
-NBodyCombinerBase::~NBodyCombinerBase() {
+CandCombinerBase::~CandCombinerBase() {
 }
 
-bool NBodyCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) const {
+bool CandCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) const {
   if ( checkCharge_ ) {
     int dq1 = dauCharge_[0], dq2 = dauCharge_[1], q1 = c1.charge(), q2 = c2.charge();
     bool matchCharge = ( q1 == dq1 && q2 == dq2 ) || ( q1 == -dq1 && q2 == -dq2 ); 
@@ -21,7 +21,7 @@ bool NBodyCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) 
   return true;
 }
 
-reco::Candidate * NBodyCombinerBase::combine( const reco::CandidateRef & c1, const reco::CandidateRef & c2 ) const {
+reco::Candidate * CandCombinerBase::combine( const reco::CandidateRef & c1, const reco::CandidateRef & c2 ) const {
   CompositeCandidate * cmp( new CompositeCandidate );
   addDaughter( cmp, c1 );
   addDaughter( cmp, c2 );
@@ -30,7 +30,7 @@ reco::Candidate * NBodyCombinerBase::combine( const reco::CandidateRef & c1, con
 }
 
 auto_ptr<CandidateCollection> 
-NBodyCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
+CandCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
   
   if( src.size() == 2 ) {
@@ -73,7 +73,7 @@ NBodyCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
   return comps;
 }
 
-void NBodyCombinerBase::combine( size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
+void CandCombinerBase::combine( size_t collectionIndex, CandStack & stack, ChargeStack & qStack,
 				 vector<CandidateRefProd>::const_iterator collBegin,
 				 vector<CandidateRefProd>::const_iterator collEnd,
 				 auto_ptr<CandidateCollection> & comps
