@@ -85,7 +85,7 @@ class CandCombiner : public CandCombinerBase {
 public:
   /// default constructor
   CandCombiner() :
-    CandCombinerBase( ), 
+  CandCombinerBase( ), 
     select_(), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( int q1, int q2 ) :
@@ -130,6 +130,15 @@ public:
   CandCombiner( const S & select, const Setup & setup, int q1, int q2, int q3, int q4 ) :
     CandCombinerBase( q1, q2, q3, q4 ), 
     select_( select ), setup_( setup ) { }
+  /// constructor from a selector, specifying to check for charge
+  CandCombiner( const S & select, const Setup & setup,const std::vector <int> & dauCharge ) : 
+    CandCombinerBase( true, dauCharge ), select_( select ), setup_( setup ) { }
+  /// constructor from a selector, specifying to check for charge
+  CandCombiner( const S & select, const std::vector <int> & dauCharge ) : 
+    CandCombinerBase( true, dauCharge ), select_( select ), setup_() { }
+  /// constructor from a selector, specifying to check for charge
+  CandCombiner( const std::vector <int> & dauCharge ) : 
+    CandCombinerBase( true, dauCharge ), select_(), setup_() { }
   /// constructor from a selector, specifying optionally to check for charge
   CandCombiner( const S & select, const Setup & setup,
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
