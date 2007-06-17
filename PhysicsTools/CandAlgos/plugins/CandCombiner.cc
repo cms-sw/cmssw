@@ -14,11 +14,12 @@ DEFINE_SEAL_MODULE();
 
 namespace reco {
   namespace modules {
-    typedef ::CandCombiner<
-              StringCutObjectSelector<reco::Candidate>
-            > CandCombiner;
-
-DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
-
+    namespace plugin {
+      typedef reco::modules::CandCombiner<
+	StringCutObjectSelector<reco::Candidate>
+      > CandCombiner;
+      
+      DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
+    }
   }
 }

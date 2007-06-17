@@ -12,11 +12,17 @@
 #include "PhysicsTools/UtilAlgos/interface/ChargeSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef CandCombiner<
-          AndSelector<
-            ChargeSelector<reco::Candidate>,
-            MassRangeSelector<reco::Candidate>
-          >
-        > MassRangeAndChargeCandCombiner;
+namespace reco {
+  namespace modules {
+    
+    typedef CandCombiner<
+              AndSelector<
+                ChargeSelector<reco::Candidate>,
+                MassRangeSelector<reco::Candidate>
+              >
+            > MassRangeAndChargeCandCombiner;
 
 DEFINE_FWK_MODULE( MassRangeAndChargeCandCombiner );
+
+  }
+}

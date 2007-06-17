@@ -9,10 +9,15 @@
 #include "PhysicsTools/UtilAlgos/interface/MassRangeSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef CandCombiner<
-          MassRangeSelector<reco::Candidate>,
-          combiner::helpers::ShallowClone
-        > MassRangeCandShallowCloneCombiner;
+namespace reco {
+  namespace modules {
 
+    typedef CandCombiner< 
+              MassRangeSelector<reco::Candidate>,
+              combiner::helpers::ShallowClone
+            > MassRangeCandShallowCloneCombiner;
 
 DEFINE_FWK_MODULE( MassRangeCandShallowCloneCombiner );
+
+  }
+}

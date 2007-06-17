@@ -8,9 +8,14 @@
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef CandCombiner<
-          StringCutObjectSelector<reco::Candidate>,
-          combiner::helpers::ShallowClone
-        > CandShallowCloneCombiner;
+namespace reco {
+  namespace modules {
+    typedef CandCombiner<
+              StringCutObjectSelector<reco::Candidate>,
+              combiner::helpers::ShallowClone
+            > CandShallowCloneCombiner;
 
 DEFINE_FWK_MODULE( CandShallowCloneCombiner );
+
+  }
+}
