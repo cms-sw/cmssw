@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2007/06/16 13:17:42 $
-  *  $Revision: 1.3 $
+  *  $Date: 2007/06/17 13:30:51 $
+  *  $Revision: 1.4 $
   *  \author Maarten Thomas
  */
 
@@ -53,14 +53,14 @@
     {
       case StripSubdetector::TIB:
       {
-        TIBDetId theTIBDetId(theDetUnitID.rawId());
+        TIBDetId theTIBDetId((*detId_iter).rawId());
         thePart = "TIB";
         theTIBLayer = theTIBDetId.layer();
         break;
       }
       case StripSubdetector::TOB:
       {
-        TOBDetId theTOBDetId(theDetUnitID.rawId());
+        TOBDetId theTOBDetId((*detId_iter).rawId());
         thePart = "TOB";
         theTOBLayer = theTOBDetId.layer();
         theTOBStereoDet = theTOBDetId.stereo();
@@ -68,7 +68,7 @@
       }
       case StripSubdetector::TEC:
       {
-        TECDetId theTECDetId(theDetUnitID.rawId());
+        TECDetId theTECDetId((*detId_iter).rawId());
 
       // is this module in TEC+ or TEC-?
         if (theTECDetId.side() == 1) { thePart = "TEC-"; }
