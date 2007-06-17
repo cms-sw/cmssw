@@ -17,6 +17,9 @@
 #include "TrackPropagation/RungeKutta/interface/AnalyticalErrorPropagation.h"
 #include "TrackPropagation/RungeKutta/interface/GlobalParametersWithPath.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 std::pair<TrajectoryStateOnSurface,double>
 RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts, 
 				   const Plane& plane) const
@@ -48,21 +51,21 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 					     const Plane& plane) const
 {
   if (theVolume != 0) {
-    std::cout << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
-	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) << std::endl;
+    LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting prop to plane in volume with pos " << theVolume->position()
+	      << " Z axis " << theVolume->toGlobal( LocalVector(0,0,1)) ;
 
-    std::cout << "The starting position is " << ts.position() << " (global) "
-	      << theVolume->toLocal(ts.position()) << " (local) " << std::endl;
+    LogDebug("RKPropagatorInS")  << "The starting position is " << ts.position() << " (global) "
+	      << theVolume->toLocal(ts.position()) << " (local) " ;
     FrameChanger changer;
     FrameChanger::PlanePtr localPlane = changer.transformPlane( plane, *theVolume);
-    std::cout << "The plane position is " << plane.position() << " (global) "
-	      << localPlane->position() << " (local) " << std::endl;
+    LogDebug("RKPropagatorInS")  << "The plane position is " << plane.position() << " (global) "
+	      << localPlane->position() << " (local) " ;
 
-    std::cout << "The initial distance to plane is " << plane.localZ( ts.position()) << std::endl;
+    LogDebug("RKPropagatorInS")  << "The initial distance to plane is " << plane.localZ( ts.position()) ;
 
     StraightLinePlaneCrossing cross( ts.position().basicVector(), ts.momentum().basicVector());
     std::pair<bool,double> res3 = cross.pathLength(plane);
-    std::cout << "straight line distance " << res3.first << " " << res3.second << std::endl;
+    LogDebug("RKPropagatorInS")  << "straight line distance " << res3.first << " " << res3.second ;
   }
 
   typedef RKAdaptiveSolver<double,RKOneCashKarpStep, 6>   Solver;
@@ -91,47 +94,47 @@ RKPropagatorInS::propagateParametersOnPlane( const FreeTrajectoryState& ts,
 					      startState.momentum(), 
 					      (double) ts.charge(), currentDirection);
     if (!path.first) { 
-      std::cout << "RKPropagatorInS: Path length calculation to plane failed!" << std::endl;
-      std::cout << "...distance to plane " << plane.localZ( globalPosition(startState.position())) << std::endl;
-      std::cout << "...Local starting position in volume " << startState.position() << std::endl;
-      std::cout << "...Magnetic field " << field.inTesla( startState.position()) << std::endl;
+      LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to plane failed!" ;
+      LogDebug("RKPropagatorInS")  << "...distance to plane " << plane.localZ( globalPosition(startState.position())) ;
+      LogDebug("RKPropagatorInS")  << "...Local starting position in volume " << startState.position() ;
+      LogDebug("RKPropagatorInS")  << "...Magnetic field " << field.inTesla( startState.position()) ;
 
 
       return GlobalParametersWithPath();
     }
     else {
-      std::cout << "RKPropagatorInS: Path lenght to plane is " << path.second << std::endl;
+      LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path lenght to plane is " << path.second ;
     }
 
     double sstep = path.second;
     if ( std::abs(sstep) < eps) {
-      std::cout << "On-surface accuracy not reached, but pathLength calculation says we are there! "
-		<< std::endl << "path " << path.second << " distance to plane is " << startZ << std::endl;
+      LogDebug("RKPropagatorInS")  << "On-surface accuracy not reached, but pathLength calculation says we are there! "
+		 << "path " << path.second << " distance to plane is " << startZ ;
       GlobalTrajectoryParameters res( gtpFromVolumeLocal( startState, ts.charge()));
       return GlobalParametersWithPath( res, stot);
     }
 
-    std::cout << "RKPropagatorInS: Solving for " << sstep 
-	      << " current distance to plane is " << startZ << std::endl;
+    LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Solving for " << sstep 
+	      << " current distance to plane is " << startZ ;
 
     RKVector rkresult = solver( 0, start, sstep, deriv, dist, eps);
     stot += sstep;
     CartesianStateAdaptor cur( rkresult);
     double remainingZ = plane.localZ( globalPosition(cur.position()));
     if ( fabs(remainingZ) < eps) {
-      std::cout << "On-surface accuracy reached! " << remainingZ << std::endl;
+      LogDebug("RKPropagatorInS")  << "On-surface accuracy reached! " << remainingZ ;
       GlobalTrajectoryParameters res( gtpFromVolumeLocal( cur, ts.charge()));
       return GlobalParametersWithPath( res, stot);
     }
 
     start = rkresult;
     if (remainingZ * startZ > 0) {
-      std::cout << "Accuracy not reached yet, trying in same direction again " 
-		<< remainingZ << std::endl;
+      LogDebug("RKPropagatorInS")  << "Accuracy not reached yet, trying in same direction again " 
+		<< remainingZ ;
     }
     else {
-      std::cout << "Accuracy not reached yet, trying in opposite direction " 
-		<< remainingZ << std::endl;
+      LogDebug("RKPropagatorInS")  << "Accuracy not reached yet, trying in opposite direction " 
+		<< remainingZ ;
       currentDirection = invertDirection( currentDirection);
     }
     startZ = remainingZ;
@@ -151,7 +154,7 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
     LocalVector mom(cyl.toLocal(gmom));
     double startR = cyl.radius() - pos.perp();
 
-    // std::cout << "RKPropagatorInS: starting from FTS " << ts << std::endl;
+    // LogDebug("RKPropagatorInS")  << "RKPropagatorInS: starting from FTS " << ts ;
 
     RKLocalFieldProvider field( fieldProvider(cyl));
     // StraightLineCylinderCrossing pathLength( pos, mom, propagationDirection());
@@ -172,23 +175,23 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 
       std::pair<bool,double> path = pathLength.pathLength( cyl);
       if (!path.first) { 
-	std::cout << "RKPropagatorInS: Path length calculation to cylinder failed!" << std::endl;
+	LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path length calculation to cylinder failed!" ;
 	LocalPoint lpos( startState.position());
-	std::cout << "Radius " << cyl.radius() << " pos.perp() " << lpos.perp() << std::endl;
+	LogDebug("RKPropagatorInS")  << "Radius " << cyl.radius() << " pos.perp() " << lpos.perp() ;
 	return GlobalParametersWithPath();
       }
       else {
-	std::cout << "RKPropagatorInS: Path lenght to cylinder is " << path.second 
+	LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Path lenght to cylinder is " << path.second 
 		  << " from point (R,z) " << startState.position().perp() 
 		  << ", " << startState.position().z()
 		  << " to R " << cyl.radius() 
-		  << std::endl;
+		  ;
       }
 
       double sstep = path.second;
       if ( std::abs(sstep) < eps) {
-	std::cout << "accuracy not reached, but pathLength calculation says we are there! "
-	     << path.second << std::endl;
+	LogDebug("RKPropagatorInS")  << "accuracy not reached, but pathLength calculation says we are there! "
+	     << path.second ;
 
 	GlobalTrajectoryParameters res( gtpFromLocal( startState.position(), 
 						      startState.momentum(), 
@@ -196,15 +199,15 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 	return GlobalParametersWithPath( res, stot);
       }
 
-      std::cout << "RKPropagatorInS: Solving for " << sstep 
-	   << " current distance to cylinder is " << startR << std::endl;
+      LogDebug("RKPropagatorInS")  << "RKPropagatorInS: Solving for " << sstep 
+	   << " current distance to cylinder is " << startR ;
 
       RKVector rkresult = solver( 0, start, sstep, deriv, dist, eps);
       stot += sstep;
       CartesianStateAdaptor cur( rkresult);
       double remainingR = cyl.radius() - cur.position().perp();
       if ( fabs(remainingR) < eps) {
-	std::cout << "Accuracy reached! " << remainingR << std::endl;
+	LogDebug("RKPropagatorInS")  << "Accuracy reached! " << remainingR ;
 	GlobalTrajectoryParameters res( gtpFromLocal( cur.position(), 
 						      cur.momentum(), 
 						      ts.charge(), cyl));
@@ -213,12 +216,12 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
 
       start = rkresult;
       if (remainingR * startR > 0) {
-	std::cout << "Accuracy not reached yet, trying in same direction again " 
-	     << remainingR << std::endl;
+	LogDebug("RKPropagatorInS")  << "Accuracy not reached yet, trying in same direction again " 
+	     << remainingR ;
       }
       else {
-	std::cout << "Accuracy not reached yet, trying in opposite direction " 
-	     << remainingR << std::endl;
+	LogDebug("RKPropagatorInS")  << "Accuracy not reached yet, trying in opposite direction " 
+	     << remainingR ;
 	currentDirection = invertDirection( currentDirection);
       }
       startR = remainingR;

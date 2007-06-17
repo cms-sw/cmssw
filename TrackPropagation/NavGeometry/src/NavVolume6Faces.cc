@@ -9,7 +9,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <map>
 
 SurfaceOrientation::Side oppositeSide( SurfaceOrientation::Side side = SurfaceOrientation::onSurface) {
@@ -33,7 +33,7 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
        i != faces.end(); i++) {
     theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
 				    i->globalFace(), i->surfaceSide()));
-    //  std::cout << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() << std::endl;
+    //  LogDebug("NavGeometry") << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() ;
   }
 
 
@@ -102,7 +102,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 // a copy of Bounds for each touching Volume (instantiated in the call to addVolume).
 // We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
 // the NavSurface for the Bounds* of the Bounds we just gave it!
-	//std::cout << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace()<< std::endl;
+	//LogDebug("NavGeometry") << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace();
 	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide(), faces[i].globalFace()));
     }
 }
@@ -260,14 +260,14 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
 
   for (NavVolume::Container::const_iterator isur = nsc.begin(); isur!=nsc.end(); isur++) {
 
-    std::cout <<  "crossToNextVolume: trying Surface no. " << itry << std::endl;
+    LogDebug("NavGeometry") <<  "crossToNextVolume: trying Surface no. " << itry ;
     TSOSwithPath state;
     
     try {
       state = isur->surface().propagateWithPath( prop, startingState);
     }
     catch (MagVolumeOutsideValidity& except) {
-      std::cout << "Ohoh... failed to stay inside magnetic field !! skip this surface " << std::endl;
+      LogDebug("NavGeometry") << "Ohoh... failed to stay inside magnetic field !! skip this surface " ;
 	++itry;
       continue;
     }
@@ -277,18 +277,18 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
       continue;
     }
 
-    std::cout <<  "crossToNextVolume: reached Valid State at Surface no. " << itry << std::endl;
-    std::cout << " --> local position of Valid state is " <<  state.first.localPosition()  << std::endl;
-    std::cout << " --> global position of Valid state is " <<  state.first.globalPosition()  << std::endl;
+    LogDebug("NavGeometry") <<  "crossToNextVolume: reached Valid State at Surface no. " << itry ;
+    LogDebug("NavGeometry") << " --> local position of Valid state is " <<  state.first.localPosition()  ;
+    LogDebug("NavGeometry") << " --> global position of Valid state is " <<  state.first.globalPosition()  ;
 
     if (isur->bounds().inside(state.first.localPosition())) {
-      //std::cout << "crossToNextVolume: Surface containing destination point found at try " << itry << std::endl;
+      //LogDebug("NavGeometry") << "crossToNextVolume: Surface containing destination point found at try " << itry ;
       // Found the exit surface !! Get pointer to next volume and save exit state:
       //VolumeCrossResult.first = isur->surface().nextVolume(state.localPosition(),oppositeSide(isur->side()));
       //VolumeCrossResult.second = state;
       //      exitSurface = &( isur->surface().surface() );
       //if(VolumeCrossResult.path() < 0.01) {
-      //	std::cout << " Stuck at  " << state.first.globalPosition() << std::endl;
+      //	LogDebug("NavGeometry") << " Stuck at  " << state.first.globalPosition() ;
       //}
       return VolumeCrossReturnType ( isur->surface().nextVolume(state.first.localPosition(), oppositeSide(isur->side())),
 			    state.first, state.second );
@@ -296,7 +296,7 @@ NavVolume6Faces::crossToNextVolume( const TrajectoryStateOnSurface& startingStat
       break;
     }
     else {
-      std::cout << "crossToNextVolume: BUT not inside the Bounds !! " << std::endl;
+      LogDebug("NavGeometry") << "crossToNextVolume: BUT not inside the Bounds !! " ;
       ++itry;
     }
   }

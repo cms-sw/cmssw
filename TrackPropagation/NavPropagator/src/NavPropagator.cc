@@ -3,6 +3,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include  "TrackPropagation/NavGeometry/interface/NavVolume6Faces.h"
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 using namespace std;
 
@@ -26,8 +27,8 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
 				 const Plane& targetPlane) const
 {
 
-  cout << "NavPropagator::propagateWithPath(TrajectoryStateOnSurface, Plane) called with "
-       << inputState << endl;
+   LogDebug("NavPropagator") <<  "NavPropagator::propagateWithPath(TrajectoryStateOnSurface, Plane) called with "
+       << inputState;
 
   VolumeCrossReturnType exitState( 0, inputState, 0.0);
   TSOS startingState = inputState;
@@ -38,7 +39,7 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
   int maxCount = 100;
   while (!destinationCrossed( startingState, exitState.tsos(), targetPlane)) {
 
-    cout << "NavPropagator:: at beginning of while loop at iteration " << count << endl;
+     LogDebug("NavPropagator") <<  "NavPropagator:: at beginning of while loop at iteration " << count ;
 
     startingState = TempState;
     if (exitState.volume() != 0) { // next volume connected
@@ -47,43 +48,42 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     else {
       currentVolume = findVolume( startingState);
       if (currentVolume == 0) {
-	cout << "NavPropagator: findVolume failed to find volume containing point "
-	     << startingState.globalPosition() << endl;
+	 LogDebug("NavPropagator") <<  "NavPropagator: findVolume failed to find volume containing point "
+	     << startingState.globalPosition() ;
 	return std::pair<TrajectoryStateOnSurface,double>(noNextVolume( startingState), 0);
       }
     }
 
     PropagatorType currentPropagator( *currentVolume);
 
-    cout << "NavPropagator: calling crossToNextVolume" << endl;
+     LogDebug("NavPropagator") <<  "NavPropagator: calling crossToNextVolume" ;
     exitState = currentVolume->crossToNextVolume( startingState, currentPropagator);
-    cout << "NavPropagator: crossToNextVolume returned" << endl;
-    cout << "Volume pointer: " << exitState.volume() << " and new " << endl;
-    cout << exitState.tsos() << endl;
-    cout << "So that was a path length " << exitState.path() << endl;
+     LogDebug("NavPropagator") <<  "NavPropagator: crossToNextVolume returned" ;
+     LogDebug("NavPropagator") <<  "Volume pointer: " << exitState.volume() << " and new ";
+     LogDebug("NavPropagator") <<  exitState.tsos() ;
+     LogDebug("NavPropagator") <<  "So that was a path length " << exitState.path() ;
 
 
     if ( !exitState.tsos().isValid()) {
       // return propagateInVolume( currentVolume, startingState, targetPlane);
-      cout << "NavPropagator: failed to crossToNextVolume in volume at pos "
-	   << currentVolume->position() << endl;
+       LogDebug("NavPropagator") <<  "NavPropagator: failed to crossToNextVolume in volume at pos "
+	   << currentVolume->position();
       break;
     }
     else {
-      cout << "NavPropagator: crossToNextVolume reached volume ";
+       LogDebug("NavPropagator") <<  "NavPropagator: crossToNextVolume reached volume ";
       if (exitState.volume() != 0) {	   
-	cout << " at pos "
+	 LogDebug("NavPropagator") <<  " at pos "
 	     << exitState.volume()->position() 
-	     << "with state " << exitState.tsos() 
-	     << endl;
+	     << "with state " << exitState.tsos() ;
       }
-      else cout << " unknown" << endl;
+      else  LogDebug("NavPropagator") <<  " unknown";
     }
 
     TempState = exitState.tsos();
 
     if (fabs(exitState.path())<0.01) {
-      std::cout << "failed to move at all!! at position: " << exitState.tsos().globalPosition() << std::endl;
+      LogDebug("NavPropagator") <<  "failed to move at all!! at position: " << exitState.tsos().globalPosition();
 
       GlobalTrajectoryParameters gtp( exitState.tsos().globalPosition()+0.01*exitState.tsos().globalMomentum().unit(),
 				      exitState.tsos().globalMomentum(),
@@ -94,18 +94,18 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
       //      exitState.tsos() = ShiftedState;
       TempState = ShiftedState;
 
-      std::cout << "Shifted to new position " << TempState.globalPosition() <<std::endl;
+      LogDebug("NavPropagator") <<  "Shifted to new position " << TempState.globalPosition();
 
     }
 
     ++count;
     if (count > maxCount) {
-      cout << "Ohoh, NavPropagator in infinite loop, count = " << count << endl;
+       LogDebug("NavPropagator") <<  "Ohoh, NavPropagator in infinite loop, count = " << count;
       return TsosWP();
     }
   }
 
-  cout << "NavPropagator: calling propagateInVolume to reach final destination" << endl;
+   LogDebug("NavPropagator") <<  "NavPropagator: calling propagateInVolume to reach final destination" ;
 
   // Arriving here only if destinationCrossed or if crossToNextVolume returned invalid state,
   // in which case we should check if the targetPlane is not crossed in the current volume
@@ -117,14 +117,14 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
 
 const NavVolume* NavPropagator::findVolume( const TrajectoryStateOnSurface& inputState) const
 {
-  cout << "NavPropagator: calling theField->findVolume " << endl;
+   LogDebug("NavPropagator") <<  "NavPropagator: calling theField->findVolume ";
 
   GlobalPoint gp = inputState.globalPosition() + 0.1*inputState.globalMomentum().unit();
 
   const MagVolume* magVolume = theField->findVolume( gp);
 
-  cout << "NavPropagator: got MagVolume* " << magVolume 
-       << " when searching with pos " << gp << endl;
+   LogDebug("NavPropagator") <<  "NavPropagator: got MagVolume* " << magVolume 
+       << " when searching with pos " << gp ;
 
   return navVolume(magVolume);
 }
@@ -163,15 +163,15 @@ bool  NavPropagator::destinationCrossed( const TSOS& startState,
   bool res = ( plane.side( startState.globalPosition(), 1.e-6) != 
 	       plane.side( endState.globalPosition(), 1.e-6));
   /*
-  cout << "NavPropagator::destinationCrossed called with startState "
-       << startState << endl
+   LogDebug("NavPropagator") <<  "NavPropagator::destinationCrossed called with startState "
+       << startState << std::endl
        << " endState " << endState 
-       << endl
+       << std::endl
        << " plane at " << plane.position()
-       << endl;
+       << std::endl;
 
-  cout << "plane.side( startState) " << plane.side( startState.globalPosition(), 1.e-6) << endl;
-  cout << "plane.side( endState)   " << plane.side( endState.globalPosition(), 1.e-6) << endl;
+   LogDebug("NavPropagator") <<  "plane.side( startState) " << plane.side( startState.globalPosition(), 1.e-6);
+   LogDebug("NavPropagator") <<  "plane.side( endState)   " << plane.side( endState.globalPosition(), 1.e-6);
   */
 
   return res;
@@ -180,10 +180,10 @@ bool  NavPropagator::destinationCrossed( const TSOS& startState,
 TrajectoryStateOnSurface 
 NavPropagator::noNextVolume( TrajectoryStateOnSurface startingState) const
 {
-  cout << endl
+   LogDebug("NavPropagator") <<  std::endl
        << "Propagation reached end of volume geometry without crossing target surface" 
-       << endl
-       << "starting state of last propagation " << startingState << endl;
+       << std::endl
+       << "starting state of last propagation " << startingState;
 
   return TrajectoryStateOnSurface();
 }
@@ -194,13 +194,13 @@ std::pair<TrajectoryStateOnSurface,double>
 NavPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
 				 const Cylinder& cylinder) const
 {
-  cout << "propagateWithPath(const FreeTrajectoryState&) not implemented yet in NavPropagator" << endl;
+   LogDebug("NavPropagator") <<  "propagateWithPath(const FreeTrajectoryState&) not implemented yet in NavPropagator" ;
   return TsosWP();
 }
 std::pair<TrajectoryStateOnSurface,double> 
 NavPropagator::propagateWithPath(const FreeTrajectoryState& fts, 
 				 const Plane& cylinder) const
 {
-  cout << "propagateWithPath(const FreeTrajectoryState&) not implemented yet in NavPropagator" << endl;
+   LogDebug("NavPropagator") <<  "propagateWithPath(const FreeTrajectoryState&) not implemented yet in NavPropagator" ;
   return TsosWP();
 }

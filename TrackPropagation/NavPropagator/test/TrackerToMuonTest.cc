@@ -15,6 +15,9 @@
 #include <iostream>
 #include <string>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 #include "MagneticField/VolumeGeometry/interface/MagVolumeOutsideValidity.h"
@@ -63,7 +66,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
   NavPropagator prop(field);
 
   for (float phi = -0.05; phi<0.25*3.1419 ; phi+=0.1) {
-    for (float costh = 0.05; costh<0.8 ; costh+=0.05) {
+    for (float costh = 0.25; costh<0.35 ; costh+=0.05) {
       cout << "And now trying costh, phi = " << costh << ", " << phi << endl;
       
       PlaneBuilder pb;
@@ -86,13 +89,13 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 						      startingMomentum, -1, field), 
 			   err, *trackerPlane);
 
-      float propDistance = 700; // 10 meters in [cm]
+      float propDistance = 900; // 10 meters in [cm]
       GlobalPoint targetPos( (propDistance*startingMomentum.unit()).basicVector());
       PlaneBuilder::ReturnType muonPlane = pb.plane( targetPos, rot);
 
       try {
 	TSOS muonStateP = prop.propagate( startingStateP, *muonPlane);
-	cout << "Succesfully finished Positive muon propagation  --------------------------" << endl;
+	cout << "Succesfully finished Positive muon propagation  -------------- at position: " << muonStateP.globalPosition() << endl;
       } catch (MagVolumeOutsideValidity & duh){
 	cout << "MagVolumeOutsideValidity not properly caught!! Lost this muon " << endl;
       }
@@ -100,7 +103,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 
       try {
 	TSOS muonStateM = prop.propagate( startingStateM, *muonPlane);
-	cout << "Succesfully finished Negative muon propagation  --------------------------" << endl;
+	cout << "Succesfully finished Negative muon propagation  -------------- at position: " << muonStateM.globalPosition() << endl;
       } catch (MagVolumeOutsideValidity & duh){
 	cout <<  "MagVolumeOutsideValidity not properly caught!! Lost this muon " << endl;
       }
@@ -108,7 +111,7 @@ void TrackerToMuonTest::propagateToMuon( const MagneticField* field) const
 
     }
   }
-  cout << "And Yes, reached the END of this event !!!!!!!!!! " << endl;
+  cout << "And Yes, succesfully reached the END of this test !!!!!!!!!! " << endl;
 }
 
 

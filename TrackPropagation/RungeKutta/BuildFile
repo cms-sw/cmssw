@@ -1,3 +1,11 @@
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/GeomPropagators>
+<use name=MagneticField/VolumeGeometry>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/Utilities>
+<use name=FWCore/Framework>
+<use name=TrackingTools/Records>
+<use name=MagneticField/Engine>
 
 <export>
  <lib name=TrackPropagationRungeKutta>
@@ -9,11 +17,4 @@
  <use name=TrackingTools/Records>
 </export>
 
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/GeomPropagators>
-<use name=MagneticField/VolumeGeometry>
-<use name=FWCore/Utilities>
-<use name=FWCore/Framework>
-<use name=TrackingTools/Records>
-<use name=MagneticField/Engine>
 
