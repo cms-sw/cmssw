@@ -8,6 +8,27 @@ CandCombinerBase::CandCombinerBase( bool checkCharge, const vector<int> & dauCha
   checkCharge_( checkCharge ), dauCharge_( dauCharge ), overlap_() {
 }
 
+CandCombinerBase::CandCombinerBase( int q1, int q2 ) :
+  checkCharge_( true ), dauCharge_( 2 ), overlap_() {
+  dauCharge_[ 0 ] = q1;
+  dauCharge_[ 1 ] = q2;
+}
+
+CandCombinerBase::CandCombinerBase( int q1, int q2, int q3 ) :
+  checkCharge_( true ), dauCharge_( 3 ), overlap_() {
+  dauCharge_[ 0 ] = q1;
+  dauCharge_[ 1 ] = q2;
+  dauCharge_[ 2 ] = q3;
+}
+
+CandCombinerBase::CandCombinerBase( int q1, int q2, int q3, int q4 ) :
+  checkCharge_( true ), dauCharge_( 4 ), overlap_() {
+  dauCharge_[ 0 ] = q1;
+  dauCharge_[ 1 ] = q2;
+  dauCharge_[ 2 ] = q3;
+  dauCharge_[ 3 ] = q4;
+}
+
 CandCombinerBase::~CandCombinerBase() {
 }
 

@@ -17,6 +17,12 @@ class CandCombinerBase {
 public:
   /// constructor from a selector, specifying optionally to check for charge
   CandCombinerBase( bool checkCharge, const std::vector <int> & );
+  /// construct from two charge values
+  CandCombinerBase( int, int );
+  /// construct from three charge values
+  CandCombinerBase( int, int, int );
+  /// construct from four charge values
+  CandCombinerBase( int, int, int, int );
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
@@ -77,8 +83,33 @@ public:
 		 bool checkCharge, const std::vector <int> & dauCharge ) : 
     CandCombinerBase( checkCharge, dauCharge ), 
     select_( select ), setup_( setup ) { }
+  /// constructor from a selector and two charges
+  CandCombiner( const S & select, int q1, int q2 ) :
+    CandCombinerBase( q1, q2 ), 
+    select_( select ), setup_() { }
+  /// constructor from a selector and three charges
+  CandCombiner( const S & select, int q1, int q2, int q3 ) :
+    CandCombinerBase( q1, q2, q3 ), 
+    select_( select ), setup_() { }
+  /// constructor from a selector and four charges
+  CandCombiner( const S & select, int q1, int q2, int q3, int q4 ) :
+    CandCombinerBase( q1, q2, q3, q4 ), 
+    select_( select ), setup_() { }
+  /// constructor from a selector and two charges
+  CandCombiner( const S & select, int q1, int q2, const Setup & setup ) :
+    CandCombinerBase( q1, q2 ), 
+    select_( select ), setup_( setup ) { }
+  /// constructor from a selector and three charges
+  CandCombiner( const S & select, int q1, int q2, int q3, const Setup & setup ) :
+    CandCombinerBase( q1, q2, q3 ), 
+    select_( select ), setup_( setup ) { }
+  /// constructor from a selector and four charges
+  CandCombiner( const S & select, int q1, int q2, int q3, int q4, const Setup & setup ) :
+    CandCombinerBase( q1, q2, q3, q4 ), 
+    select_( select ), setup_( setup ) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }
+
 private:
   /// select a candidate
   virtual bool select( const reco::Candidate & c ) const {
