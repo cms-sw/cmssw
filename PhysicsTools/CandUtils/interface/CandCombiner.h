@@ -15,19 +15,24 @@
 
 class CandCombinerBase {
 public:
-  /// constructor from a selector, specifying optionally to check for charge
-  CandCombinerBase( bool checkCharge, const std::vector <int> & );
+  /// default construct
+  CandCombinerBase();
   /// construct from two charge values
   CandCombinerBase( int, int );
   /// construct from three charge values
   CandCombinerBase( int, int, int );
   /// construct from four charge values
   CandCombinerBase( int, int, int, int );
+  /// constructor from a selector, specifying optionally to check for charge
+  CandCombinerBase( bool checkCharge, const std::vector <int> & );
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
   std::auto_ptr<reco::CandidateCollection> 
   combine( const std::vector<reco::CandidateRefProd> & ) const;
+  /// return all selected candidate pairs
+  std::auto_ptr<reco::CandidateCollection> 
+  combine( const reco::CandidateRefProd & ) const;
 
 private:
   /// verify that the two candidate don't overlap and check charge
@@ -78,11 +83,26 @@ namespace combiner {
 template<typename S, typename H = combiner::helpers::NormalClone, typename Setup = AddFourMomenta>
 class CandCombiner : public CandCombinerBase {
 public:
-  /// constructor from a selector, specifying optionally to check for charge
-  CandCombiner( const S & select, const Setup & setup,
-		 bool checkCharge, const std::vector <int> & dauCharge ) : 
-    CandCombinerBase( checkCharge, dauCharge ), 
-    select_( select ), setup_( setup ) { }
+  /// default constructor
+  CandCombiner() :
+    CandCombinerBase( ), 
+    select_(), setup_() { }
+  /// constructor from a selector and two charges
+  CandCombiner( int q1, int q2 ) :
+    CandCombinerBase( q1, q2 ), 
+    select_(), setup_() { }
+  /// constructor from a selector and three charges
+  CandCombiner( int q1, int q2, int q3 ) :
+    CandCombinerBase( q1, q2, q3 ), 
+    select_(), setup_() { }
+  /// constructor from a selector and four charges
+  CandCombiner( int q1, int q2, int q3, int q4 ) :
+    CandCombinerBase( q1, q2, q3, q4 ), 
+    select_(), setup_() { }
+  /// default constructor
+  CandCombiner( const S & select ) :
+    CandCombinerBase( ), 
+    select_( select ), setup_() { }
   /// constructor from a selector and two charges
   CandCombiner( const S & select, int q1, int q2 ) :
     CandCombinerBase( q1, q2 ), 
@@ -95,6 +115,9 @@ public:
   CandCombiner( const S & select, int q1, int q2, int q3, int q4 ) :
     CandCombinerBase( q1, q2, q3, q4 ), 
     select_( select ), setup_() { }
+  CandCombiner( const S & select, const Setup & setup ) :
+    CandCombinerBase( ), 
+    select_( select ), setup_( setup ) { }
   /// constructor from a selector and two charges
   CandCombiner( const S & select, int q1, int q2, const Setup & setup ) :
     CandCombinerBase( q1, q2 ), 
@@ -106,6 +129,11 @@ public:
   /// constructor from a selector and four charges
   CandCombiner( const S & select, int q1, int q2, int q3, int q4, const Setup & setup ) :
     CandCombinerBase( q1, q2, q3, q4 ), 
+    select_( select ), setup_( setup ) { }
+  /// constructor from a selector, specifying optionally to check for charge
+  CandCombiner( const S & select, const Setup & setup,
+		 bool checkCharge, const std::vector <int> & dauCharge ) : 
+    CandCombinerBase( checkCharge, dauCharge ), 
     select_( select ), setup_( setup ) { }
   /// return reference to setup object to allow its initialization
   Setup & setup() { return setup_; }

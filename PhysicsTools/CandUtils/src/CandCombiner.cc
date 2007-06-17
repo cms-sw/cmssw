@@ -1,11 +1,12 @@
 #include "PhysicsTools/CandUtils/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 using namespace reco;
 using namespace std;
 
-CandCombinerBase::CandCombinerBase( bool checkCharge, const vector<int> & dauCharge ) :
-  checkCharge_( checkCharge ), dauCharge_( dauCharge ), overlap_() {
+CandCombinerBase::CandCombinerBase() :
+  checkCharge_( false ), dauCharge_(), overlap_() {
 }
 
 CandCombinerBase::CandCombinerBase( int q1, int q2 ) :
@@ -27,6 +28,10 @@ CandCombinerBase::CandCombinerBase( int q1, int q2, int q3, int q4 ) :
   dauCharge_[ 1 ] = q2;
   dauCharge_[ 2 ] = q3;
   dauCharge_[ 3 ] = q4;
+}
+
+CandCombinerBase::CandCombinerBase( bool checkCharge, const vector<int> & dauCharge ) :
+  checkCharge_( checkCharge ), dauCharge_( dauCharge ), overlap_() {
 }
 
 CandCombinerBase::~CandCombinerBase() {
@@ -52,19 +57,28 @@ reco::Candidate * CandCombinerBase::combine( const reco::CandidateRef & c1, cons
 
 auto_ptr<CandidateCollection> 
 CandCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
+  size_t srcSize = src.size();
+  if ( checkCharge_ && dauCharge_.size() != srcSize )
+    throw edm::Exception( edm::errors::Configuration ) 
+      << "CandCombiner: trying to combine " << srcSize << " collections"
+      << " but configured to check against " << dauCharge_.size() << " charges"
+      << endl;
+  
   auto_ptr<CandidateCollection> comps( new CandidateCollection );
   
-  if( src.size() == 2 ) {
+  if( srcSize == 2 ) {
     CandidateRefProd src1 = src[ 0 ], src2 = src[ 1 ];
     if ( src1 == src2 ) {
       const CandidateCollection & cands = * src1;
       const int n = cands.size();
       for( int i1 = 0; i1 < n; ++ i1 ) {
 	const Candidate & c1 = cands[ i1 ];
+	CandidateRef cr1( src1, i1 );
 	for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
 	  const Candidate & c2 = cands[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
-	    std::auto_ptr<Candidate> c( combine( CandidateRef( src1, i1 ), CandidateRef( src2, i2 ) ) );
+	    CandidateRef cr2( src2, i2 );
+	    std::auto_ptr<Candidate> c( combine( cr1, cr2 ) );
 	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
@@ -75,10 +89,12 @@ CandCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
       const int n1 = cands1.size(), n2 = cands2.size();
       for( int i1 = 0; i1 < n1; ++ i1 ) {
 	const Candidate & c1 = cands1[ i1 ];
+	CandidateRef cr1( src1, i1 );
 	for ( int i2 = 0; i2 < n2; ++ i2 ) {
 	  const Candidate & c2 = cands2[ i2 ];
 	  if ( preselect( c1, c2 ) ) {
-	    std::auto_ptr<Candidate> c( combine( CandidateRef( src1, i1 ), CandidateRef( src2, i2 ) ) );
+	    CandidateRef cr2( src2, i2 );
+	    std::auto_ptr<Candidate> c( combine( cr1, cr2 ) );
 	    if ( select( * c ) )
 	      comps->push_back( c.release() );
 	  }
@@ -89,6 +105,34 @@ CandCombinerBase::combine( const vector<CandidateRefProd> & src ) const {
     CandStack stack;
     ChargeStack qStack;
     combine( 0, stack, qStack, src.begin(), src.end(), comps );
+  }
+
+  return comps;
+}
+
+auto_ptr<CandidateCollection> 
+CandCombinerBase::combine( const CandidateRefProd & src ) const {
+  if ( checkCharge_ && dauCharge_.size() != 2 )
+    throw edm::Exception( edm::errors::Configuration ) 
+      << "CandCombiner: trying to combine 2 collections"
+      << " but configured to check against " << dauCharge_.size() << " charges"
+      << endl;
+
+  auto_ptr<CandidateCollection> comps( new CandidateCollection );
+  const CandidateCollection & cands = * src; 
+  const int n = cands.size();
+  for( int i1 = 0; i1 < n; ++ i1 ) {
+    const Candidate & c1 = cands[ i1 ];
+    CandidateRef cr1( src, i1 );
+    for ( int i2 = i1 + 1; i2 < n; ++ i2 ) {
+      const Candidate & c2 = cands[ i2 ];
+      if ( preselect( c1, c2 ) ) {
+	CandidateRef cr2( src, i2 );
+	std::auto_ptr<Candidate> c( combine( cr1, cr2 ) );
+	if ( select( * c ) )
+	  comps->push_back( c.release() );
+      }
+    } 
   }
 
   return comps;

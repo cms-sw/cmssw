@@ -1,11 +1,11 @@
-// $Id: testThrust.cc,v 1.4 2006/02/21 10:37:31 llista Exp $
+// $Id: testThrust.cc,v 1.5 2006/02/28 11:20:22 llista Exp $
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 using namespace reco;
 
-class testParticle : public CppUnit::TestFixture {
-  CPPUNIT_TEST_SUITE(testParticle);
+class testThrust : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(testThrust);
   CPPUNIT_TEST(checkAll);
   CPPUNIT_TEST_SUITE_END();
 public:
@@ -14,9 +14,9 @@ public:
   void checkAll(); 
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(testParticle);
+CPPUNIT_TEST_SUITE_REGISTRATION(testThrust);
 
-void testParticle::checkAll() {
+void testThrust::checkAll() {
   {
     CandidateCollection cands;
     cands.push_back( new LeafCandidate( +1, Particle::LorentzVector( 1, 1, 0, 1 ) ) );
