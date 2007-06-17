@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2007/03/18 19:00:21 $
-  *  $Revision: 1.2 $
+  *  $Date: 2007/06/16 13:17:42 $
+  *  $Revision: 1.3 $
   *  \author Maarten Thomas
  */
 
@@ -49,7 +49,7 @@
     int theTECWheel = 0;
     int theTOBStereoDet = 0;
 
-    switch (theDetUnitID.subdetId())
+    switch ((*detId_iter).subdetId())
     {
       case StripSubdetector::TIB:
       {
@@ -209,7 +209,7 @@
       theRecHitPositionsRvsZ->Fill(theStripDet->surface().toGlobal(rechit.localPosition()).z(),
         theStripDet->surface().toGlobal(rechit.localPosition()).perp());
 
-      if (thePart == "TEC+" || thePart = "TEC-")   
+      if (thePart == "TEC+" || thePart == "TEC-")   
       {             
         double r_ = sqrt(pow(theStripDet->surface().toGlobal(rechit.localPosition()).x(),2) + pow(theStripDet->surface().toGlobal(rechit.localPosition()).y(),2));
         double z_ = theStripDet->surface().toGlobal(rechit.localPosition()).z();
