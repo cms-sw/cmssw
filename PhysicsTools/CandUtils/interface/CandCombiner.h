@@ -119,15 +119,15 @@ public:
     CandCombinerBase( ), 
     select_( select ), setup_( setup ) { }
   /// constructor from a selector and two charges
-  CandCombiner( const S & select, int q1, int q2, const Setup & setup ) :
+  CandCombiner( const S & select, const Setup & setup, int q1, int q2 ) :
     CandCombinerBase( q1, q2 ), 
     select_( select ), setup_( setup ) { }
   /// constructor from a selector and three charges
-  CandCombiner( const S & select, int q1, int q2, int q3, const Setup & setup ) :
+  CandCombiner( const S & select, const Setup & setup, int q1, int q2, int q3 ) :
     CandCombinerBase( q1, q2, q3 ), 
     select_( select ), setup_( setup ) { }
   /// constructor from a selector and four charges
-  CandCombiner( const S & select, int q1, int q2, int q3, int q4, const Setup & setup ) :
+  CandCombiner( const S & select, const Setup & setup, int q1, int q2, int q3, int q4 ) :
     CandCombinerBase( q1, q2, q3, q4 ), 
     select_( select ), setup_( setup ) { }
   /// constructor from a selector, specifying optionally to check for charge
