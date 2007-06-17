@@ -13,8 +13,10 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.cc,v 1.4 2007/04/25 15:43:41 chinhan Exp $
+// $Id: FastL1Region.cc,v 1.5 2007/06/17 13:53:32 chinhan Exp $
 //
+
+// No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
 

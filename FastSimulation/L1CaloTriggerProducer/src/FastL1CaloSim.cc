@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.cc,v 1.3 2007/04/23 15:48:29 chinhan Exp $
+// $Id: FastL1CaloSim.cc,v 1.4 2007/06/17 13:53:32 chinhan Exp $
 //
 //
 
@@ -33,6 +33,8 @@ FastL1CaloSim::FastL1CaloSim(const edm::ParameterSet& iConfig)
   produces<l1extra::L1EmParticleCollection>("Egammas");
   produces<l1extra::L1EmParticleCollection>("isoEgammas");
 
+
+  // No BitInfos for release versions
   /*
   m_DoBitInfo = iConfig.getParameter<bool>("DoBitInfo");
 

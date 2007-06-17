@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1Region.h,v 1.6 2007/04/26 12:57:21 beaudett Exp $
+// $Id: FastL1Region.h,v 1.7 2007/06/17 13:53:31 chinhan Exp $
 //
 
 // user include files
@@ -47,6 +47,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1RegionMap.h"
+// No BitInfos for release versions
 //#include "DataFormats/FastL1/interface/FastL1BitInfo.h" // FastL1BitInfo is not yet for publication
 
 struct FastL1Config {

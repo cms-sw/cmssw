@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1CaloSim.h,v 1.1 2007/04/02 13:49:18 beaudett Exp $
+// $Id: FastL1CaloSim.h,v 1.2 2007/06/17 13:53:31 chinhan Exp $
 //
 //
 
@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
+// No BitInfos for release versions
 //#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
 
 //

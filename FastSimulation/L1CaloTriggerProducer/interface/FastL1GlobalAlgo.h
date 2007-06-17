@@ -15,7 +15,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.h,v 1.3 2007/04/23 15:48:29 chinhan Exp $
+// $Id: FastL1GlobalAlgo.h,v 1.4 2007/06/17 13:53:31 chinhan Exp $
 //
 
 // system include files
@@ -53,6 +53,7 @@
 #include "DataFormats/L1Trigger/interface/L1ParticleMapFwd.h"
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1Region.h"
+// No BitInfos for release versions
 //#include "DataFormats/FastL1/interface/FastL1BitInfo.h"
 
 //

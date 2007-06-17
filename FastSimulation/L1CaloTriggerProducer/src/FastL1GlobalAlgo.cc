@@ -13,8 +13,10 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.5 2007/04/25 15:43:41 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.6 2007/06/17 13:53:32 chinhan Exp $
 //
+
+// No BitInfos for release versions
 
 #include "FastSimulation/L1CaloTriggerProducer/interface/FastL1GlobalAlgo.h"
 
@@ -61,8 +63,6 @@ FastL1GlobalAlgo::FastL1GlobalAlgo(const edm::ParameterSet& iConfig)
   m_L1Config.TowerHBScale = iConfig.getParameter<double>("TowerHBScale");
   m_L1Config.TowerHEScale = iConfig.getParameter<double>("TowerHEScale");
 
-  // new: 
-  // turn off fg bit
   m_L1Config.noFGThreshold = iConfig.getParameter<double>("noFGThreshold");	
   
   m_L1Config.EmInputs = iConfig.getParameter <std::vector<edm::InputTag> >("EmInputs");
