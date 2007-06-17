@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.4 $
  *
- * $Id: CandCombiner.h,v 1.3 2007/06/17 09:20:54 llista Exp $
+ * $Id: CandCombiner.h,v 1.4 2007/06/17 09:28:37 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -31,9 +31,14 @@ namespace edm {
 namespace combiner {
   namespace helpers {
     template<typename Setup>
-      struct SetupInit {
-	static void init( Setup & s, const edm::EventSetup& es ) { }
-      };
+    struct NoSetupInit {
+      static void init( Setup & s, const edm::EventSetup& es ) { }
+    };
+
+    template<typename Setup>
+    struct SetupInit {
+      typedef NoSetupInit<Setup> type;
+    };
   }
 }
 
@@ -54,7 +59,7 @@ namespace reco {
     };
     
     template<typename S, typename H = ::combiner::helpers::NormalClone, typename Setup = AddFourMomenta,
-      typename Init = ::combiner::helpers::SetupInit<Setup> >
+      typename Init = typename ::combiner::helpers::SetupInit<Setup>::type >
     class CandCombiner : public CandCombinerBase {
     public:
       /// constructor from parameter set
