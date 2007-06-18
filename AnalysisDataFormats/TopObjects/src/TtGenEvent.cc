@@ -15,9 +15,9 @@
 
 TtGenEvent::TtGenEvent(){}
 
-TtGenEvent::TtGenEvent(int dec,std::vector<const reco::Candidate*> ps){
+TtGenEvent::TtGenEvent(int dec,vector<const Candidate*> ps){
   decay_ = dec;
-  for(unsigned int i= 0; i<ps.size(); i++) particles_.push_back( (reco::Candidate*) ps[i]);
+  for(unsigned int i= 0; i<ps.size(); i++) particles_.push_back( (Candidate*) ps[i]);
 }
 
 TtGenEvent::~TtGenEvent() {}

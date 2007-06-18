@@ -3,20 +3,23 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include <vector>
 
+using namespace reco;
+using namespace std;
+
 class TtGenEvent
 {
 
    public:
       TtGenEvent();
-      TtGenEvent(int,std::vector<const reco::Candidate *>);
+      TtGenEvent(int,vector<const Candidate *>);
       virtual ~TtGenEvent();
       
       int decay() const {return decay_;};
-      std::vector<reco::Candidate *> particles() const {return particles_;};
+      vector<Candidate *> particles() const {return particles_;};
 
    private:
       int decay_;
-      std::vector<reco::Candidate *> particles_;
+      vector<Candidate *> particles_;
 
 
 };
