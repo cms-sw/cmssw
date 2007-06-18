@@ -1,8 +1,8 @@
 /** \file RecoAnalyzerRecHits.cc
 *  plots for RecHits
   *
-  *  $Date: 2007/06/17 13:30:51 $
-  *  $Revision: 1.4 $
+  *  $Date: 2007/06/17 13:36:54 $
+  *  $Revision: 1.5 $
   *  \author Maarten Thomas
  */
 
@@ -212,8 +212,7 @@
       if (thePart == "TEC+" || thePart == "TEC-")   
       {             
         double r_ = sqrt(pow(theStripDet->surface().toGlobal(rechit.localPosition()).x(),2) + pow(theStripDet->surface().toGlobal(rechit.localPosition()).y(),2));
-        double z_ = theStripDet->surface().toGlobal(rechit.localPosition()).z();
-        fillLaserBeamPlots(r_,z_,thePart,theRing,theBeam);
+        fillLaserBeamPlots(r_,theTECWheel,thePart,theRing,theBeam);
       }
     }
   }
@@ -241,6 +240,13 @@
         theStripDet->surface().toGlobal(rechit.localPosition()).phi());
       theRecHitPositionsRvsZ->Fill(theStripDet->surface().toGlobal(rechit.localPosition()).z(),
         theStripDet->surface().toGlobal(rechit.localPosition()).perp());
+
+      if (thePart == "TEC+" || thePart == "TEC-")   
+      {             
+        double r_ = sqrt(pow(theStripDet->surface().toGlobal(rechit.localPosition()).x(),2) + pow(theStripDet->surface().toGlobal(rechit.localPosition()).y(),2));
+        fillLaserBeamPlots(r_,theTECWheel,thePart,theRing,theBeam);
+      }
+
     }
   }
 
@@ -268,6 +274,11 @@
       theRecHitPositionsRvsZ->Fill(theStripDet->surface().toGlobal(rechit.localPosition()).z(),
         theStripDet->surface().toGlobal(rechit.localPosition()).phi());
 
+      if (thePart == "TEC+" || thePart == "TEC-")   
+      {             
+        double r_ = sqrt(pow(theStripDet->surface().toGlobal(rechit.localPosition()).x(),2) + pow(theStripDet->surface().toGlobal(rechit.localPosition()).y(),2));
+        fillLaserBeamPlots(r_,theTECWheel,thePart,theRing,theBeam);
+      }
     }
   }
 }
