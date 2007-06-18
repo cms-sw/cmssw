@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: LRHelpFunctions.cc,v 1.6 2007/06/09 01:17:23 lowette Exp $
+// $Id: LRHelpFunctions.cc,v 1.7 2007/06/15 08:55:22 heyninck Exp $
 //
 #include "TopQuarkAnalysis/TopTools/interface/LRHelpFunctions.h"
 #include "TopQuarkAnalysis/TopEventProducers/bin/tdrstyle.C"
@@ -183,7 +183,7 @@ void LRHelpFunctions::readObsHistsAndFits(TString fileName, std::vector<int> obs
     hLRtotS = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotS")->ReadObj()));
     hLRtotB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotB")->ReadObj()));
     hLRtotSoverSplusB = new TH1F(*((TH1F*)fitFile->GetKey("hLRtotSoverSplusB")->ReadObj()));
-    fLRtotSoverSplusB = new TF1(*((TF1*)fitFile->GetKey("fLRtotSoverSplusB")));
+    fLRtotSoverSplusB = new TF1(*((TF1*)fitFile->GetKey("fLRtotSoverSplusB") -> ReadObj()));
   }
 }
 
