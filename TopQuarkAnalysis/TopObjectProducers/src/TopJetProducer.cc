@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.8 2007/06/16 00:48:31 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.9 2007/06/16 06:11:04 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -27,9 +27,9 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
   caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
   jetTagsLabel_                  = iConfig.getParameter<edm::InputTag> ("jetTagInput");
-  //topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
-  //topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
-  //doJetCleaning_               = iConfig.getParameter<bool> 	       ("doJetCleaning");
+  topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
+  topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
+  doJetCleaning_               = iConfig.getParameter<bool> 	       ("doJetCleaning");
   addResolutions_             	 = iConfig.getParameter<bool>          ("addResolutions");
   caliJetResoFile_               = iConfig.getParameter<std::string>   ("caliJetResoFile");
   storeBTagInfo_                 = iConfig.getParameter<bool>          ("storeBTagInfo");
@@ -41,9 +41,9 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   keepJetTagRefs_                = iConfig.getParameter<bool>          ("keepJetTagRefs");
   getJetMCFlavour_               = iConfig.getParameter<bool>          ("getJetMCFlavour");
 
-  //LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
-  //ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
-  //MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
+  LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
+  ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
+  MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
     
   // construct resolution calculator
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
@@ -72,12 +72,12 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.getByLabel(recJetsLabel_, recjets);
   edm::Handle<std::vector<JetType> > calijets;
   iEvent.getByLabel(caliJetsLabel_, calijets);
-  //edm::Handle<std::vector<TopElectron> > electronsHandle;
-  //iEvent.getByLabel(topElectronsLabel_, electronsHandle);
-  //std::vector<TopElectron> electrons=*electronsHandle;
-  //edm::Handle<std::vector<TopMuon> > muonsHandle;
-  //iEvent.getByLabel(topMuonsLabel_, muonsHandle);
-  //std::vector<TopMuon> muons=*muonsHandle;
+  edm::Handle<std::vector<TopElectron> > electronsHandle;
+  iEvent.getByLabel(topElectronsLabel_, electronsHandle);
+  std::vector<TopElectron> electrons=*electronsHandle;
+  edm::Handle<std::vector<TopMuon> > muonsHandle;
+  iEvent.getByLabel(topMuonsLabel_, muonsHandle);
+  std::vector<TopMuon> muons=*muonsHandle;
 
 
 
@@ -92,14 +92,14 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   if (getJetMCFlavour_) jetFlavId_->readEvent(iEvent);
 
   //select isolated leptons to remove from jets collection
-  //electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
-  //muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
+  electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
+  muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
 
 
   // loop over jets
   std::vector<TopJet> * topJets = new std::vector<TopJet>(); 
   for (size_t j = 0; j < recjets->size(); j++) {
-/* 
+ 
     //check that the jet doesn't match in deltaR with an isolated lepton
     //if it does, then it needs to be cleaned (ie don't put it in the TopJet collection)
     //FIXME: don't do muons until have a sensible cut value on their isolation
@@ -115,7 +115,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       continue;
     }
 
-*/
+
     // construct the TopJet
     TopJet ajet;
     // loop over cal jets to find corresponding jet
@@ -156,9 +156,6 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
 	    // FIXME: is this 0.0001 matching fullproof?
 	    if (DeltaR<reco::Candidate>()((*recjets)[j], (*jetTags)[t].jet()) < 0.00001) {
-	      if(jetTagsLabel_.label() == moduleLabel) ajet.setBDiscriminator((*jetTags)[t].discriminator());
-	    
-	    
 	    
 	      //FIXME add combined tagger
 	      //********store discriminators*********
@@ -223,7 +220,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   iEvent.put(myTopJetProducer);
 
 }
-/*
+
 
 //takes a vector of electrons and returns a vector that only contains the ones that are isolated
 //isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
@@ -265,4 +262,4 @@ std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &
   
   return output;
 }
-*/
+
