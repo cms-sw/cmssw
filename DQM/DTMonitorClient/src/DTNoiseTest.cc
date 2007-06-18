@@ -1,7 +1,7 @@
 /*
  * 
- * $Date: 2007/06/13 18:46:08 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/15 17:21:35 $
+ * $Revision: 1.3 $
  * \author A. Gresele - INFN Trento
  *
  */
@@ -29,7 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
-
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -42,10 +42,8 @@ using namespace edm;
 using namespace std;
 
 DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
-  
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTNoiseTest]: Constructor"<<endl;
+
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: Constructor";  
 
   parameters = ps;
   
@@ -57,16 +55,14 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
 
 DTNoiseTest::~DTNoiseTest(){
 
-  if(debug)
-    cout << "DTNoiseTest: analyzed " << updates << " events" << endl;
+edm::LogVerbatim ("noise") <<"DTNoiseTest: analyzed " << updates << " events";
 
 }
 
 void DTNoiseTest::endJob(){
 
-  if(debug)
-    cout<<"[DTNoiseTest] endjob called!"<<endl;
-
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest] endjob called!";
+  
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
   
@@ -75,8 +71,7 @@ void DTNoiseTest::endJob(){
 
 void DTNoiseTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTNoiseTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: BeginJob";
 
   updates = 0;
   nevents = 0;
@@ -97,7 +92,7 @@ void DTNoiseTest::bookHistos(const DTChamberId & ch, string folder, string histo
 
   string histoName =  histoTag + "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
  
-  if ( folder == "Dead Channels")
+  if (folder == "NoiseAverage")
   (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
  
   if ( folder == "New Noisy Channels")
@@ -129,14 +124,13 @@ void DTNoiseTest::bookHistos(const DTLayerId & lId, int nWires, string folder, s
 
 void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 
-
-
   // counts number of updats (online mode) or number of events (standalone mode)
   updates++;
   // if running in standalone perform diagnostic only after a reasonalbe amount of events
-  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) &&
        updates%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
 
+  edm::LogVerbatim ("noise") <<"[DTNoiseTest]: "<<updates<<" updates";
 
   ESHandle<DTStatusFlag> statusMap;
   context.get<DTStatusFlagRcd>().get(statusMap);
@@ -159,7 +153,9 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
       MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(noiseME);
       if (ob) {
 	TH2F * noiseHisto = dynamic_cast<TH2F*> (ob->operator->());
-	double nevents=noiseHisto->GetEntries();
+
+	// WARNING uncorrect normalization!! TO BE PROVIDED CENTRALLY
+	nevents = (int) noiseHisto->GetEntries();	
 	
 	double normalization =0;
 	
@@ -205,9 +201,9 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 	    }
 	    
 	    if (nOfChannels) noiseStatistics = average/nOfChannels;
-	    histoTag = "Dead Channels";
+	    histoTag = "NoiseAverage";
 
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("Dead Channels"), histoTag );
+	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NoiseAverage"), histoTag );
 	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(),noiseStatistics); 
 
 	    for ( vector<DTWireId>::const_iterator nb_it = theNoisyChannels.begin();
@@ -327,7 +323,7 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
   
-  string histoTag = parameters.getUntrackedParameter<string>("histoTagForDigiPerEventTest", "DigiPerEvent");
+  string histoTag = parameters.getUntrackedParameter<string>("folderTagForDigiPerEventTest", "DigiPerEvent");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 
