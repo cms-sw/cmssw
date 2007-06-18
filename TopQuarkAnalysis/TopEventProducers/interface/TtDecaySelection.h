@@ -13,7 +13,7 @@
 //
 // Original Author:  Jan Heyninck
 //         Created:  Tue Apr 10 18:17:49 CEST 2007
-// $Id: TtDecaySelection.h,v 1.2 2007/05/22 16:43:34 heyninck Exp $
+// $Id: TtDecaySelection.h,v 1.3 2007/06/09 01:17:49 lowette Exp $
 //
 //
 
@@ -56,7 +56,7 @@ class TtDecaySelection : public edm::EDFilter {
                                 //          4 if you allow no electrons
 				//	    5 if you allow no muons
                                 //          6 if you allow no taus
-				// decay = -1 means no selection at all
+				// negative decay value is inverision
 
 
 };

@@ -23,40 +23,43 @@ TtDecaySelection::~TtDecaySelection()
 bool TtDecaySelection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
-   if(decay_ == -1) return true;   
-
    // check the event decay
    edm::Handle<TtGenEvent>  genEvt;
    iEvent.getByLabel ("genEvt",genEvt);
    
-   int channel  = (int) (decay_*1./10.);
-   int allowLep = (int) decay_ - channel*10;   
+   int channel  = abs( (int) (decay_*1./10.) );
+   int allowLep = abs( (int) decay_ - channel*10 );   
+   
+   
+   bool decision = false;
    
    // fully hadronic decay
-   if(channel == 0 && genEvt->decay() == 0) return true;
+   if(channel == 0 && genEvt->decay() == 0) decision = true;
    
    // semilep decay
    if(channel == 1 && genEvt->decay() == 1){
-     if (allowLep == 0) return true; //no further demands on leptons
-     if (allowLep == 1 &&   abs(genEvt->particles()[4]->pdgId()) == 11)  return true; // only electron
-     if (allowLep == 2 &&   abs(genEvt->particles()[4]->pdgId()) == 13)  return true; // only muon
-     if (allowLep == 3 &&   abs(genEvt->particles()[4]->pdgId()) == 15)  return true; // only tau
-     if (allowLep == 4 && !(abs(genEvt->particles()[4]->pdgId()) == 11)) return true; // no electron
-     if (allowLep == 5 && !(abs(genEvt->particles()[4]->pdgId()) == 13)) return true; // no muon
-     if (allowLep == 6 && !(abs(genEvt->particles()[4]->pdgId()) == 15)) return true; // no tau
+     if (allowLep == 0) decision = true; //no further demands on leptons
+     if (allowLep == 1 &&   abs(genEvt->particles()[4]->pdgId()) == 11)  decision = true; // only electron
+     if (allowLep == 2 &&   abs(genEvt->particles()[4]->pdgId()) == 13)  decision = true; // only muon
+     if (allowLep == 3 &&   abs(genEvt->particles()[4]->pdgId()) == 15)  decision = true; // only tau
+     if (allowLep == 4 && !(abs(genEvt->particles()[4]->pdgId()) == 11)) decision = true; // no electron
+     if (allowLep == 5 && !(abs(genEvt->particles()[4]->pdgId()) == 13)) decision = true; // no muon
+     if (allowLep == 6 && !(abs(genEvt->particles()[4]->pdgId()) == 15)) decision = true; // no tau
    }
    
    // fully leptonic decay
    if(channel == 2 && genEvt->decay() == 2){
-     if (allowLep == 0) return true; //no further demands on leptons
-     if (allowLep == 1 &&   abs(genEvt->particles()[0]->pdgId()) == 11  &&   abs(genEvt->particles()[4]->pdgId()) == 11)  return true; // only electron
-     if (allowLep == 2 &&   abs(genEvt->particles()[0]->pdgId()) == 13  &&   abs(genEvt->particles()[4]->pdgId()) == 13)  return true; // only muon
-     if (allowLep == 3 &&   abs(genEvt->particles()[0]->pdgId()) == 15  &&   abs(genEvt->particles()[4]->pdgId()) == 15)  return true; // only tau
-     if (allowLep == 4 && !(abs(genEvt->particles()[0]->pdgId()) == 11) && !(abs(genEvt->particles()[4]->pdgId()) == 11)) return true; // no electron
-     if (allowLep == 5 && !(abs(genEvt->particles()[0]->pdgId()) == 13) && !(abs(genEvt->particles()[4]->pdgId()) == 13)) return true; // no muon
-     if (allowLep == 6 && !(abs(genEvt->particles()[0]->pdgId()) == 15) && !(abs(genEvt->particles()[4]->pdgId()) == 15)) return true; // no tau
+     if (allowLep == 0) decision = true; //no further demands on leptons
+     if (allowLep == 1 &&   abs(genEvt->particles()[0]->pdgId()) == 11  &&   abs(genEvt->particles()[4]->pdgId()) == 11)  decision = true; // only electron
+     if (allowLep == 2 &&   abs(genEvt->particles()[0]->pdgId()) == 13  &&   abs(genEvt->particles()[4]->pdgId()) == 13)  decision = true; // only muon
+     if (allowLep == 3 &&   abs(genEvt->particles()[0]->pdgId()) == 15  &&   abs(genEvt->particles()[4]->pdgId()) == 15)  decision = true; // only tau
+     if (allowLep == 4 && !(abs(genEvt->particles()[0]->pdgId()) == 11) && !(abs(genEvt->particles()[4]->pdgId()) == 11)) decision = true; // no electron
+     if (allowLep == 5 && !(abs(genEvt->particles()[0]->pdgId()) == 13) && !(abs(genEvt->particles()[4]->pdgId()) == 13)) decision = true; // no muon
+     if (allowLep == 6 && !(abs(genEvt->particles()[0]->pdgId()) == 15) && !(abs(genEvt->particles()[4]->pdgId()) == 15)) decision = true; // no tau
    }
    
-   return false;
+   if(decay_ < 0) decision = !decision;
+   return decision;
+   
 }
 
