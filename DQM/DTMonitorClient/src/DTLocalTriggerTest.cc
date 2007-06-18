@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/14 15:29:05 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/14 15:47:13 $
+ *  $Revision: 1.4 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -175,7 +175,7 @@ pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
     if (lposx>0)
       max = lposx+topo2.wirePosition(topo2.lastChannel());
     else 
-      min = lposx-topo2.wirePosition(topo2.firstChannel());
+      min = lposx+topo2.wirePosition(topo2.firstChannel());
   }
   
   return make_pair(min,max);
