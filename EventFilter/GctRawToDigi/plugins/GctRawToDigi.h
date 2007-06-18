@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.2 2007/05/14 14:58:14 jbrooke Exp $
+// $Id: GctRawToDigi.h,v 1.7 2007/06/07 13:32:43 jbrooke Exp $
 //
 //
 
