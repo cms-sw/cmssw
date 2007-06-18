@@ -1481,6 +1481,52 @@ process RECO = {
       vstring outputCommands = {"keep blah_*_*_*"}
    }
    replace outputStuff.outputCommands += toKeep.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block aTest = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }    
+   block toKeep = {
+      using aTest
+   }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+}
+""")
+            
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }
+   
+   block final = {
+        using outputStuff
+    }
+   replace outputStuff.outputCommands += toKeep.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+            self.assertEqual(t[0].final.outputCommands,["drop *","keep blah_*_*_*"])
+
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep = {
+      vstring outputCommands = {"keep blah_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep.outputCommands
    
    source = PoolSource {
      untracked vstring fileNames = {"file:foo.root"}
@@ -1498,6 +1544,7 @@ process RECO = {
             self.assertEqual(t[0].source.fileNames,["file:bar.root"])
             self.assertEqual(t[0].out.fileName.value(),"blih.root")
             self.assertEqual(t[0].source.foos,[1,2,3])
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             self.assertEqual(t[0].out.outputCommands,["drop *","keep blah_*_*_*"])
             t=process.parseString("""
 process RECO = {
