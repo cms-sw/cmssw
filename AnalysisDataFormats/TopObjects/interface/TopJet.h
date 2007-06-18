@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.h,v 1.6 2007/06/15 23:58:07 lowette Exp $
+// $Id: TopJet.h,v 1.7 2007/06/16 06:11:00 lowette Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -15,7 +15,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.6 2007/06/15 23:58:07 lowette Exp $
+  \version  $Id: TopJet.h,v 1.7 2007/06/16 06:11:00 lowette Exp $
 */
 
 
@@ -33,6 +33,12 @@ typedef reco::CaloJet JetType;
 class TopJet : public TopObject<JetType> {
 
    friend class TopJetProducer;
+   friend class TtSemiKinFitterEMom;
+   friend class TtSemiKinFitterEtEtaPhi;
+   friend class TtSemiKinFitterEtThetaPhi;
+   friend class StKinFitterEMom;
+   friend class StKinFitterEtEtaPhi;
+   friend class StKinFitterEtThetaPhi;
    
    public:
 
@@ -43,7 +49,6 @@ class TopJet : public TopObject<JetType> {
       reco::Particle	getGenJet() const;
       JetType 		getRecJet() const;
       TopParticle  	getFitJet() const;
-      double  		getBDiscriminator() const;
       double            getLRPhysicsJetVar(unsigned int i) const;
       double            getLRPhysicsJetVal(unsigned int i) const;
       double            getLRPhysicsJetLRval() const;
@@ -52,20 +57,18 @@ class TopJet : public TopObject<JetType> {
       reco::JetTagRef   getBJetTagRef(std::string theLabel) const;
       void              dumpBTagLabels() const;
       double            getPartonFlavour() const;
- 
-      void    		setFitJet(TopParticle fj);
-      void 		setLRPhysicsJetVarVal(std::vector<std::pair<double, double> >);
-      void 		setLRPhysicsJetLRval(double clr);
-      void 		setLRPhysicsJetProb(double plr);
       
    protected:
 
       void 		setGenJet(reco::Particle gj);
       void    		setRecJet(JetType rj);
-      void    	        setBDiscriminator(double);
       void              addBDiscriminatorPair(std::pair<std::string,double>);
       void              addBJetTagRefPair(std::pair<std::string, reco::JetTagRef>);
       void              setPartonFlavour(int jetf);
+      void    		setFitJet(TopParticle fj);
+      void 		setLRPhysicsJetVarVal(std::vector<std::pair<double, double> >);
+      void 		setLRPhysicsJetLRval(double clr);
+      void 		setLRPhysicsJetProb(double plr);
 
    protected:
 
@@ -73,7 +76,7 @@ class TopJet : public TopObject<JetType> {
       JetType     	recJet_;
       TopParticle 	fitJet_;
       int               jetFlavour_;
-      double      	bDiscr_, lrPhysicsJetLRval_, lrPhysicsJetProb_;
+      double      	lrPhysicsJetLRval_, lrPhysicsJetProb_;
       std::vector<std::pair<double, double> >               lrPhysicsJetVarVal_;
       std::vector<std::pair<std::string, double> >          pairDiscriVector_;
       std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TopJet.cc,v 1.5 2007/06/15 23:58:05 lowette Exp $
+// $Id: TopJet.cc,v 1.6 2007/06/16 06:11:03 lowette Exp $
 //
 
 // system include files
@@ -32,7 +32,6 @@ TopJet::~TopJet(){ }
 reco::Particle	TopJet::getGenJet() const	  	{ return genJet_; }
 JetType		TopJet::getRecJet() const	  	{ return recJet_; }
 TopParticle	TopJet::getFitJet() const	  	{ return fitJet_; }
-double   	TopJet::getBDiscriminator() const 	{ return bDiscr_; }
 double          TopJet::getLRPhysicsJetVar(unsigned int i) const { return (i < lrPhysicsJetVarVal_.size() ? lrPhysicsJetVarVal_[i].first  : 0); } 
 double          TopJet::getLRPhysicsJetVal(unsigned int i) const { return (i < lrPhysicsJetVarVal_.size() ? lrPhysicsJetVarVal_[i].second : 1); }
 double          TopJet::getLRPhysicsJetLRval() const 	{ return lrPhysicsJetLRval_; }
@@ -42,7 +41,6 @@ double          TopJet::getPartonFlavour() const        { return jetFlavour_;}
 void 		TopJet::setGenJet(reco::Particle gj)  	{ genJet_ = gj; }
 void 		TopJet::setRecJet(JetType rj)     	{ recJet_ = rj; }
 void 		TopJet::setFitJet(TopParticle fj) 	{ fitJet_ = fj; }
-void 		TopJet::setBDiscriminator(double b)	{ bDiscr_ = b; }
 void            TopJet::addBDiscriminatorPair(std::pair<std::string, double>  thepair ) { pairDiscriVector_.push_back(thepair); }
 void            TopJet::addBJetTagRefPair(std::pair<std::string, reco::JetTagRef>  thepair2 ){ pairJetTagRefVector_.push_back(thepair2); }
 void            TopJet::setPartonFlavour(int jetFl)      { jetFlavour_ = jetFl;}
