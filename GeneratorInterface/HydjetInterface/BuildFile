@@ -2,9 +2,7 @@
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=SimDataFormats/HepMCProduct>
-<use name=pythia>
-<use name=pyquen1_1>
-<use name=hydjet1_1>
+<use name=GeneratorInterface/PyquenInterface>
 
 <flags SEAL_PLUGIN_NAME="GeneratorInterfaceHydjetInterface">
 <export>
@@ -12,11 +10,8 @@
  <use name=hepmc>
  <use name=FWCore/Framework>
  <use name=SimDataFormats/HepMCProduct>
- <use name=pythia>
- <use name=pyquen1_1>
- <use name=hydjet1_1>
+ <use name=GeneratorInterface/PyquenInterface>
 </export>
 
 <lib name=g2c></lib>
 <lib name=m></lib>
-

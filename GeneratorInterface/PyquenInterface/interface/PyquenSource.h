@@ -45,6 +45,6 @@ namespace edm
     bool             pythiaHepMCVerbosity_;   //  HepMC verbosity flag
     unsigned int     pythiaPylistVerbosity_;  //! Pythia PYLIST Verbosity flag 
   };
-} 
+} /*end namespace*/ 
 
 #endif

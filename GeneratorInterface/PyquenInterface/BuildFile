@@ -3,8 +3,6 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=clhep> 
 <use name=hepmc>
-<use name=pythia>
-<use name=pyquen1_1>
 
 <flags SEAL_PLUGIN_NAME="GeneratorInterfacePyquenInterface">
 <export>
@@ -14,9 +12,7 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=clhep>
  <use name=hepmc>	 
- <use name=pythia>
- <use name=pyquen1_1>
 </export>
 
- <lib name=g2c></lib>
- <lib name=m></lib>
+<lib name=g2c></lib>
+<lib name=m></lib>

@@ -1,7 +1,7 @@
 #ifndef HydjetSource_h
 #define HydjetSource_h
 
-// $Id: HydjetSource.h,v 1.6 2007/05/02 22:25:44 mballint Exp $
+// $Id: HydjetSource.h,v 1.7 2007/05/21 14:49:07 mironov Exp $
 
 /** \class HydjetSource
 *
@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <math.h>
 
 namespace HepMC {
   class GenEvent;
@@ -34,7 +35,7 @@ namespace edm
   private:
     void						add_heavy_ion_rec(HepMC::GenEvent *evt);
     bool						build_vertices(int i, std::vector<HepMC::GenParticle*>& luj_entries,
-                        					HepMC::GenEvent* evt);
+                                                                       HepMC::GenEvent* evt);
     HepMC::GenParticle*	build_particle( int index );	
     bool						call_hyjgive(const std::string& iParm);
     bool						call_pygive(const std::string& iParm);
@@ -42,8 +43,8 @@ namespace edm
     bool						get_hydjet_particles(HepMC::GenEvent* evt);
     bool						hyjhydro_init(const ParameterSet &pset);
     bool						hyjpythia_init(const ParameterSet &pset);
-    inline double			nuclear_radius() const;
-    virtual bool        produce(Event & e);
+    inline double			                nuclear_radius() const;
+    virtual bool                                        produce(Event & e);
     
     HepMC::GenEvent *evt;
     float            abeamtarget_;            // beam/target atomic mass number 
@@ -67,7 +68,6 @@ namespace edm
 
   };
 
-
 double HydjetSource::nuclear_radius() const
 {
   // Return the nuclear radius derived from the 
@@ -76,6 +76,6 @@ double HydjetSource::nuclear_radius() const
   return 1.15 * pow((double)abeamtarget_, 1./3.);
 }
 
-} 
+} /*end namespace*/
 
 #endif
