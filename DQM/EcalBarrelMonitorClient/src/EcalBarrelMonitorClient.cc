@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/13 22:15:39 $
- * $Revision: 1.280 $
+ * $Date: 2007/06/14 12:00:09 $
+ * $Revision: 1.281 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -730,7 +730,21 @@ void EcalBarrelMonitorClient::endRun(void) {
 
   if ( baseHtmlDir_.size() != 0 ) this->htmlOutput();
 
-  if ( outputFile_.size() != 0 ) mui_->save(outputFile_);
+  if ( outputFile_.size() != 0 ) {
+    string fileName = outputFile_;
+    for ( unsigned int i = 0; i < fileName.size(); i++ ) {
+      if( fileName.substr(i, 9) == "RUNNUMBER" )  {
+        char tmp[10];
+        if ( run_ != -1 ) {
+          sprintf(tmp,"%09d", run_);
+        } else {
+          sprintf(tmp,"%09d", 0);
+        }
+        fileName.replace(i, 9, tmp);
+      }
+    }
+    mui_->save(fileName);
+  }
 
   if ( subrun_ != -1 ) {
 
@@ -1066,7 +1080,23 @@ void EcalBarrelMonitorClient::writeDb(void) {
 
     md.setNumEvents(int(nevt));
     md.setMonRunOutcomeDef(monRunOutcomeDef);
-    md.setRootfileName(outputFile_);
+
+    if ( outputFile_.size() != 0 ) {
+      string fileName = outputFile_;
+      for ( unsigned int i = 0; i < fileName.size(); i++ ) {
+        if( fileName.substr(i, 9) == "RUNNUMBER" )  {
+          char tmp[10];
+          if ( run_ != -1 ) {
+            sprintf(tmp,"%09d", run_);
+          } else {
+            sprintf(tmp,"%09d", 0);
+          }
+          fileName.replace(i, 5, tmp);
+        }
+      }
+      md.setRootfileName(fileName);
+    }
+
     md.setTaskList(taskl);
     md.setTaskOutcome(tasko);
 
