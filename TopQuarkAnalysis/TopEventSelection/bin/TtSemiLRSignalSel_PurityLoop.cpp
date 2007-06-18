@@ -28,10 +28,10 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //input files
-const  int       signal_nrFiles  	  	= 1;
-const  TString   signal_path     	  	= "/beo5/ghammad/CMSSW/src/TopQuarkAnalysis/TopEventProducers/test/RootFiles/TopRex_TtSemiMuEventsSignal_60pb_LooseCuts_";
-const  int       bckgd_nrFiles                  = 1;
-const  TString   bckgd_path     	  	= "/beo5/ghammad/CMSSW/src/TopQuarkAnalysis/TopEventProducers/test/RootFiles/TopRex_TtSemiMuEventsBckgd_60pb_LooseCuts_";
+const  int       signal_nrFiles                 = 51;
+const  TString   signal_path                    = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
+const  int       bckgd_nrFiles                  = 51;
+const  TString   bckgd_path                     = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtOtherTtEvents_";
 
 //observable histogram variables
 const  int      nrSignalSelObs  		= 3;
@@ -76,9 +76,10 @@ int main() {
     obsNrs.push_back(SignalSelObs[j]);
   }
   myLRhelper = new LRHelpFunctions(nrSignalSelLRtotBins, SignalSelLRtotMin, SignalSelLRtotMax, SignalSelLRtotFitFunction);
-  
+
   // read in S/S+N fits of observables to use
   myLRhelper -> readObsHistsAndFits(SignalSelInputFileName, obsNrs, false);
+
   
   // fill calculated LR value for each signal or background contributions
   doEventloop(); 
@@ -108,7 +109,9 @@ void doEventloop(){
 
   int okEvents = 0, totNrEv = 0;
   for (int nr = 1; nr <= signal_nrFiles; nr++) {
-    TString signal_ft = signal_path; signal_ft += nr-1; signal_ft += ".root";
+    TString signal_ft = signal_path; 
+    signal_ft += nr-1;
+    signal_ft += ".root";
     if (!gSystem->AccessPathName(signal_ft)) {
       TFile *signal_file = TFile::Open(signal_ft);
       TTree *signal_events = dynamic_cast<TTree*>( signal_file->Get( "Events" ) );
@@ -117,7 +120,7 @@ void doEventloop(){
       assert(   signal_solsbranch != 0 );
       vector<TtSemiEvtSolution> signal_sols;
       signal_solsbranch->SetAddress( & signal_sols );
-    
+
       //loop over all events in a file 
       for( int ev = 0; ev < signal_events->GetEntries(); ++ ev ) {
         ++totNrEv;
@@ -149,7 +152,9 @@ void doEventloop(){
 
   okEvents = 0, totNrEv = 0;
   for (int nr = 1; nr <= bckgd_nrFiles; nr++) {
-    TString bckgd_ft = bckgd_path; bckgd_ft += nr-1; bckgd_ft += ".root";
+    TString bckgd_ft = bckgd_path; 
+    bckgd_ft += nr-1; 
+    bckgd_ft += ".root";
     if (!gSystem->AccessPathName(bckgd_ft)) {
       TFile *bckgd_file = TFile::Open(bckgd_ft);
       TTree *bckgd_events = dynamic_cast<TTree*>( bckgd_file->Get( "Events" ) );
