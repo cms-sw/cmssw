@@ -28,8 +28,8 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //input files
-const  int       nrFiles  	  		= 1;
-const  TString   path     	  		= "../../TopEventProducers/test/TtSemiMuEvents";
+const  int       nrFiles  	  		= 51;
+const  TString   path     	  		= "dcap://maite.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 
 //matching variables
 const  bool  	 useSpaceAngle    		= true;
@@ -107,8 +107,9 @@ void doEventloop(){
   cout<<endl<<endl<<"**** STARTING EVENT LOOP ****"<<endl;
   int totNrEv = 0;
   for (int nr = 1; nr <= nrFiles; nr++) {
-   //TString ft = path; ft += nr-1; ft += ".root";
-   TString ft = path; ft += ".root";
+   TString ft = path; 
+   ft += nr-1;
+   ft += ".root";
     if (!gSystem->AccessPathName(ft)) {
       TFile *file = TFile::Open(ft);
       TTree * events = dynamic_cast<TTree*>( file->Get( "Events" ) );
@@ -125,28 +126,35 @@ void doEventloop(){
         if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) cout<< "  Processing event "<< totNrEv<<endl; 
         solsbranch->GetEntry( ev );
         if(sols.size()== 12){
-	  double maxLogLRVal = -999.;
-	  int    maxLogLRSol = -999;
-	  //loop over solutions
-	  for(int s=0; s<12; s++){
-            // get observable values
-	    vector<double> obsVals;
-	    for(int j = 0; j < nrJetCombObs; j++){
-	      if( myLRhelper->obsFitIncluded(obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal(obsNrs[j]));
+          // check if good matching solution exists
+          bool trueSolExists = false;
+          for(int s=0; s<12; s++){
+            if(sols[s].getSumDeltaRjp()<SumAlphaCut) trueSolExists = true;
+          }
+          if(trueSolExists){
+	    double maxLogLRVal = -999.;
+	    int    maxLogLRSol = -999;
+	    //loop over solutions
+	    for(int s=0; s<12; s++){
+              // get observable values
+	      vector<double> obsVals;
+	      for(int j = 0; j < nrJetCombObs; j++){
+	        if( myLRhelper->obsFitIncluded(obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal(obsNrs[j]));
+	      }
+	      double logLR =  myLRhelper -> calcLRval(obsVals);
+	      if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
 	    }
-	    double logLR =  myLRhelper -> calcLRval(obsVals);
-	    if(logLR>maxLogLRVal) { maxLogLRVal = logLR; maxLogLRSol = s; };
-	  }
-	  if(sols[maxLogLRSol].getSumDeltaRjp()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
-	    myLRhelper -> fillLRSignalHist(maxLogLRVal);
-	    //cout << "mxLR " << maxLogLRVal << endl;
-	  }
-	  else
-	  {
-	    myLRhelper -> fillLRBackgroundHist(maxLogLRVal);
-	    //cout << "mxLR (bg) " << maxLogLRVal << endl;
-	  }
-        }
+	    if(sols[maxLogLRSol].getSumDeltaRjp()<SumAlphaCut && sols[maxLogLRSol].getMCCorrJetComb()==maxLogLRSol) {
+	      myLRhelper -> fillLRSignalHist(maxLogLRVal);
+	      //cout << "mxLR " << maxLogLRVal << endl;
+	    }
+	    else
+	    {
+	      myLRhelper -> fillLRBackgroundHist(maxLogLRVal);
+	      //cout << "mxLR (bg) " << maxLogLRVal << endl;
+	    }
+          }
+        }  
       }
       file->Close();
     }

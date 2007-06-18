@@ -28,8 +28,8 @@ using namespace std;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //input files
-const  int       nrFiles  	  		= 1;
-const  TString   path     	  		= "/beo5/heyninck/CMSSW/src/TopQuarkAnalysis/TopEventProducers/test/TtSemiMuEvents";
+const  int       nrFiles  	  		= 51;
+const  TString   path     	  		= "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 
 //matching variables
 const  bool  	 useSpaceAngle    		= true;
@@ -52,7 +52,7 @@ const char*     JetCombObsFits[nrJetCombObs] 	= {  "[0]/(1 + 1/exp([1]*([2] - x)
 						     "gaus", //obs5
 						     "([0]+[3]*abs(x)/x)*(1-exp([1]*(abs(x)-[2])))",  //obs6	
 						     "[0]/(1 + 1/exp([1]*([2] - x)))"  //obs7
-						};
+						  };
 
 //output files ps/root
 const  TString  JetCombOutfileName   		= "../data/TtSemiLRJetCombAllObs.root";
@@ -128,8 +128,9 @@ void doEventloop(){
   cout<<endl<<endl<<"**** STARTING EVENT LOOP ****"<<endl;
   int okEvents = 0, totNrEv = 0;
   for (int nr = 1; nr <= nrFiles; nr++) {
-   //TString ft = path; ft += nr-1; ft += ".root";
-   TString ft = path; ft += ".root";
+    TString ft = path; 
+    ft += nr-1; 
+    ft += ".root";
     if (!gSystem->AccessPathName(ft)) {
       TFile *file = TFile::Open(ft);
       TTree * events = dynamic_cast<TTree*>( file->Get( "Events" ) );
@@ -145,24 +146,30 @@ void doEventloop(){
         if((double)((totNrEv*1.)/1000.) == (double) (totNrEv/1000)) cout<< "  Processing event "<< totNrEv<<endl; 
         solsbranch->GetEntry( ev );
         if(sols.size()== 12){
-	  //loop over solutions
-	  for(int s=0; s<12; s++){
-            // get observable values
-	    vector<double> obsVals;
-	    for(int j = 0; j < nrJetCombObs; j++){
-	      if( myLRhelper->obsFitIncluded((unsigned int)obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal((unsigned int)obsNrs[j]));
-	    }
-	    // Fill the observables for each jet combination
-	    // signal: best MC matching jet combination with a total sumDR of four jets lower than threshold 
-	    // background: all other solutions 
-	    if(sols[s].getSumDeltaRjp()<SumAlphaCut && sols[s].getMCCorrJetComb()==s) {
-	      myLRhelper -> fillToSignalHists(obsVals);
-	      ++okEvents;
-	    }
-	    else
-	    {
-	      myLRhelper -> fillToBackgroundHists(obsVals);
-	    }
+          // check if good matching solution exists
+          bool trueSolExists = false;
+          for(int s=0; s<12; s++){
+            if(sols[s].getSumDeltaRjp()<SumAlphaCut) trueSolExists = true;
+          }
+          if(trueSolExists){
+  	    for(int s=0; s<12; s++){
+              // get observable values
+	      vector<double> obsVals;
+	      for(int j = 0; j < nrJetCombObs; j++){
+	        if( myLRhelper->obsFitIncluded((unsigned int)obsNrs[j]) ) obsVals.push_back(sols[s].getLRJetCombObsVal((unsigned int)obsNrs[j]));
+	      }
+	      // Fill the observables for each jet combination if a good matching exists
+	      // signal: best matching solution
+              // background: all other solutions 
+	      if(sols[s].getMCCorrJetComb()==s) {
+	        myLRhelper -> fillToSignalHists(obsVals);
+	        ++okEvents;
+	      }
+	      else
+	      {
+	        myLRhelper -> fillToBackgroundHists(obsVals);
+       	      }
+            }
 	  }
         }
       }
