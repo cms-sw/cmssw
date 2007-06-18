@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.6 2007/05/23 09:00:15 heyninck Exp $
+// $Id: TtSemiEvtSolution.cc,v 1.7 2007/06/15 08:57:05 heyninck Exp $
 //
 
 // system include files
@@ -31,7 +31,7 @@ TtSemiEvtSolution::TtSemiEvtSolution()
   simpleCorrJetComb	= -999;
   lrCorrJetComb		= -999;
   lrJetCombLRval	= -999.;
-  lrJetCombProb	= -999.;
+  lrJetCombProb		= -999.;
   lrSignalEvtLRval	= -999.;
   lrSignalEvtProb	= -999.;
 }

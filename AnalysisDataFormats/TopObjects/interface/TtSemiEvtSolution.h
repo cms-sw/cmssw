@@ -10,57 +10,64 @@
 
 class TtSemiEvtSolution
 {
+   friend class TtSemiEvtSolutionMaker;
+   friend class TtSemiLRSignalSelObservables;
+   friend class TtSemiLRSignalSelCalc;
+   friend class TtSemiLRJetCombObservables;
+   friend class TtSemiLRJetCombCalc;
+   friend class TtSemiKinFitterEMom;
+   friend class TtSemiKinFitterEtEtaPhi;
+   friend class TtSemiKinFitterEtThetaPhi;
+   
    public:
       TtSemiEvtSolution();
-      virtual ~TtSemiEvtSolution();
-      
-      void setHadp(TopJet);
-      void setHadq(TopJet);
-      void setHadb(TopJet);
-      void setLepb(TopJet);
-      void setMuon(TopMuon);
-      void setElectron(TopElectron);
-      void setMET(TopMET);
-      void setJetParametrisation(int);
-      void setLeptonParametrisation(int);
-      void setMETParametrisation(int);
-      void setProbChi2(double);
-      
-      void setGenEvt(std::vector<reco::Candidate *>);
-      void setSumDeltaRjp(double);
-      void setDeltaRhadp(double);
-      void setDeltaRhadq(double);
-      void setDeltaRhadb(double);
-      void setDeltaRlepb(double);
-      void setChangeWQ(int);
-      
-      void setMCCorrJetComb(int);
-      void setSimpleCorrJetComb(int);
-      void setLRCorrJetComb(int);
-      void setLRJetCombObservables(std::vector<std::pair<unsigned int, double> >);
-      void setLRJetCombLRval(double);
-      void setLRJetCombProb(double);
-      void setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> >);
-      void setLRSignalEvtLRval(double);
-      void setLRSignalEvtProb(double);
-
-      
-      
-      
-      
+      virtual ~TtSemiEvtSolution();     
+     
+      // members to get original TopObjects 
       TopJet         		getHadp() const  		{ return hadp; };
       TopJet         		getHadq() const  		{ return hadq; };
       TopJet         		getHadb() const  		{ return hadb; };
       TopJet         		getLepb() const  		{ return lepb; };
       TopMuon	  		getMuon() const  		{ return muon; };
       TopElectron  		getElectron() const  		{ return electron; };
-      std::string  		getDecay() const  		{ return decay; };
-      TopMET    	  	getMET() const  		{ return met; };
-      int    			getJetParametrisation() const   { return jetparam; };
-      int    			getLeptonParametrisation() const{ return leptonparam; };
-      int    			getMETParametrisation() const   { return metparam; };
-      double 	    	  	getProbChi2() const 		{ return probChi2; };
+      TopMET    	  	getMET() const  		{ return met; }; 
+ 
+      // members to get reconstructed objects 
+      JetType		        getRecHadp() const;
+      JetType                   getRecHadq() const;
+      JetType                   getRecHadb() const;
+      JetType                   getRecLepb() const; 
+      TopMuon                   getRecLepm() const;
+      TopElectron               getRecLepe() const;
+      TopMET                    getRecLepn() const;  
+      reco::Particle            getRecLepW() const;  
+      reco::Particle            getRecHadW() const;       
+      reco::Particle            getRecHadt() const;
+      reco::Particle            getRecLept() const;      	
+	
+      // members to get calibrated objects 
+      TopJet                    getCalHadp() const;
+      TopJet                    getCalHadq() const;
+      TopJet                    getCalHadb() const;
+      TopJet                    getCalLepb() const;
+      reco::Particle            getCalHadW() const; 
+      reco::Particle            getCalHadt() const;
+      reco::Particle            getCalLept() const;      	
+	
+      // members to get fitted objects 
+      TopParticle               getFitHadp() const;
+      TopParticle               getFitHadq() const;
+      TopParticle               getFitHadb() const;
+      TopParticle               getFitLepb() const;
+      TopParticle               getFitLepm() const; 
+      TopParticle               getFitLepe() const;      
+      TopParticle               getFitLepn() const;    
+      reco::Particle 	        getFitHadW() const;
+      reco::Particle	        getFitLepW() const;
+      reco::Particle	        getFitHadt() const;
+      reco::Particle	        getFitLept() const;      
       
+      // members to get the MC matched particles and info on the matching itself
       reco::Particle 		getGenHadp() const		{ return genHadp; };
       reco::Particle 		getGenHadq() const		{ return genHadq; };
       reco::Particle 		getGenHadb() const		{ return genHadb; };
@@ -76,52 +83,84 @@ class TtSemiEvtSolution
       double 			getDeltaRhadq() const		{ return deltaRhadq; };
       double 			getDeltaRhadb() const		{ return deltaRhadb; };
       double 			getDeltaRlepb() const		{ return deltaRlepb; };
-      int			getChangeWQ() const		{ return changeWQ; };
+      int			getChangeWQ() const		{ return changeWQ; };      
       
+      // member to get the selected semileptonic decay chain 
+      std::string  		getDecay() const  		{ return decay; };      
+      
+      // members to get the selected kinfit parametrisations of each type of object 
+      int    			getJetParametrisation() const   { return jetparam; };
+      int    			getLeptonParametrisation() const{ return leptonparam; };
+      int    			getMETParametrisation() const   { return metparam; };    
+      
+      // member to get the prob. of the chi2 value resulting from the kinematic fit
+      double 	    	  	getProbChi2() const 		{ return probChi2; };      
+      
+      // members to get info on the outcome of the signal selection LR
+      double                    getLRSignalEvtObsVal(unsigned int) const;
+      double                    getLRSignalEvtLRval() const 	{return lrSignalEvtLRval;};
+      double                    getLRSignalEvtProb() const 	{return lrSignalEvtProb;};
+      
+      // members to get info on the outcome of the different jet combination methods
       int			getMCCorrJetComb() const	{ return mcCorrJetComb; };
       int			getSimpleCorrJetComb() const	{ return simpleCorrJetComb; };
-      int			getLRCorrJetComb() const	{ return lrCorrJetComb; };
-      
+      int			getLRCorrJetComb() const	{ return lrCorrJetComb; };      
       double                    getLRJetCombObsVal(unsigned int) const;
       double                    getLRJetCombLRval() const 	{return lrJetCombLRval;};
       double                    getLRJetCombProb() const 	{return lrJetCombProb;};
       
-      double                    getLRSignalEvtObsVal(unsigned int) const;
-      double                    getLRSignalEvtLRval() const 	{return lrSignalEvtLRval;};
-      double                    getLRSignalEvtProb() const 	{return lrSignalEvtProb;};
       	
-      JetType		        getRecHadp() const;
-      JetType                   getRecHadq() const;
-      JetType                   getRecHadb() const;
-      JetType                   getRecLepb() const; 
-      TopMuon                   getRecLepm() const;
-      TopElectron               getRecLepe() const;
-      TopMET                    getRecLepn() const;  
-      reco::Particle            getRecLepW() const;  
-      reco::Particle            getRecHadW() const;       
-      reco::Particle            getRecHadt() const;
-      reco::Particle            getRecLept() const;
-      	
-      TopJet                    getCalHadp() const;
-      TopJet                    getCalHadq() const;
-      TopJet                    getCalHadb() const;
-      TopJet                    getCalLepb() const;
-      reco::Particle            getCalHadW() const; 
-      reco::Particle            getCalHadt() const;
-      reco::Particle            getCalLept() const;
-      	
-      TopParticle               getFitHadp() const;
-      TopParticle               getFitHadq() const;
-      TopParticle               getFitHadb() const;
-      TopParticle               getFitLepb() const;
-      TopParticle               getFitLepm() const; 
-      TopParticle               getFitLepe() const;      
-      TopParticle               getFitLepn() const;    
-      reco::Particle 	        getFitHadW() const;
-      reco::Particle	        getFitLepW() const;
-      reco::Particle	        getFitHadt() const;
-      reco::Particle	        getFitLept() const;
+	
+	
+	
+   
+   protected:
+         
+      // members to set the TopObjects
+      void 			setHadp(TopJet);
+      void 			setHadq(TopJet);
+      void 			setHadb(TopJet);
+      void 			setLepb(TopJet);
+      void 			setMuon(TopMuon);
+      void 			setElectron(TopElectron);
+      void 			setMET(TopMET);
+      
+      // members to set the MC matched particles and info on the matching itself
+      void 			setGenEvt(std::vector<reco::Candidate *>);
+      void 			setSumDeltaRjp(double);
+      void			setDeltaRhadp(double);
+      void 			setDeltaRhadq(double);
+      void 			setDeltaRhadb(double);
+      void 			setDeltaRlepb(double);
+      void 			setChangeWQ(int);
+      
+      // members to set the kinfit parametrisations of each type of object 
+      void 			setJetParametrisation(int);
+      void 			setLeptonParametrisation(int);
+      void 			setMETParametrisation(int);
+      
+      // members to set the prob. of the chi2 value resulting from the kinematic fit 
+      void 			setProbChi2(double);
+      
+      
+      // members to set the outcome of the signal selection LR
+      void 			setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> >);
+      void 			setLRSignalEvtLRval(double);
+      void 			setLRSignalEvtProb(double);
+      
+      // members to set the outcome of the different jet combination methods
+      void 			setMCCorrJetComb(int);
+      void 			setSimpleCorrJetComb(int);
+      void 			setLRCorrJetComb(int);
+      void 			setLRJetCombObservables(std::vector<std::pair<unsigned int, double> >);
+      void 			setLRJetCombLRval(double);
+      void 			setLRJetCombProb(double);
+
         
+	
+	
+	
+	
    private:
       reco::Particle		genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
       TopJet         		hadp, hadq, hadb, lepb;
