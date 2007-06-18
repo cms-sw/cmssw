@@ -26,6 +26,7 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
   seed = 10000;	
   srand(seed);
   mean=-0.0009, min=0.035, minchi=1.5, M=1000;
+  float mydata=-999.0;
 
   //endcap=1 to 2,station=1 to 4, ring=1 to 4,chamber=1 to 36,layer=1 to 6 
   std::ifstream indata; 
@@ -45,6 +46,7 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
     chi2_r.push_back(chi2_right);
     chi2_l.push_back(chi2_left);
   }
+ 
 
   for(int iendcap=detId.minEndcapId(); iendcap<=detId.maxEndcapId(); iendcap++){
     for(int istation=detId.minStationId() ; istation<=detId.maxStationId(); istation++){
@@ -86,7 +88,7 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 	      itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
 	      itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
 	      itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-	      cncrosstalk->crosstalk[id_layer]=itemvector;
+	      //	      cncrosstalk->crosstalk[id_layer]=itemvector;
 
 	      if(istrip==0){
 		itemvector[istrip].xtalk_slope_right=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
@@ -95,7 +97,7 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 		itemvector[istrip].xtalk_slope_left=0.0;
 		itemvector[istrip].xtalk_intercept_left=0.0;
 		itemvector[istrip].xtalk_chi2_left=0.0;
-		cncrosstalk->crosstalk[id_layer]=itemvector;
+		//cncrosstalk->crosstalk[id_layer]=itemvector;
 	      }
 	      
 	      if(istrip==79){
@@ -105,20 +107,26 @@ void CSCFrontierCrosstalkMap::prefillCrosstalkMap(){
 		itemvector[istrip].xtalk_slope_left=-((double)rand()/((double)(RAND_MAX)+(double)(1)))/10000+mean;
 		itemvector[istrip].xtalk_intercept_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))/100+min;
 		itemvector[istrip].xtalk_chi2_left=((double)rand()/((double)(RAND_MAX)+(double)(1)))+minchi;
-		cncrosstalk->crosstalk[id_layer]=itemvector;
+		//cncrosstalk->crosstalk[id_layer]=itemvector;
 	      }
 	      
 	      for(unsigned int newId=0; newId<cham_id.size();newId++){
 		if(cham_id[newId]==id_layer){
-		  itemvector[istrip].xtalk_slope_right=slope_r[istrip];
-		  itemvector[istrip].xtalk_intercept_right=intercept_r[istrip];
-		  itemvector[istrip].xtalk_chi2_right=chi2_r[istrip];
-		  itemvector[istrip].xtalk_slope_left=slope_l[istrip];
-		  itemvector[istrip].xtalk_intercept_left=intercept_l[istrip];
-		  itemvector[istrip].xtalk_chi2_left=chi2_l[istrip];
-		  cncrosstalk->crosstalk[cham_id[newId]]=itemvector;
+		  mydata = slope_r[newId];
+		  itemvector[istrip].xtalk_slope_right=slope_r[newId];
+		  itemvector[istrip].xtalk_intercept_right=intercept_r[newId];
+		  itemvector[istrip].xtalk_chi2_right=chi2_r[newId];
+		  itemvector[istrip].xtalk_slope_left=slope_l[newId];
+		  itemvector[istrip].xtalk_intercept_left=intercept_l[newId];
+		  itemvector[istrip].xtalk_chi2_left=chi2_l[newId];
+		  //cncrosstalk->crosstalk[id_layer].push_back(itemvector[newId]);
+		  //std::cout<<slope_r[newId]<<std::endl;
+
 		}
 	      }
+	      
+	      //cncrosstalk->crosstalk[id_layer][istrip].xtalk_slope_right.push_back(slope_r[istrip]);
+	      cncrosstalk->crosstalk[id_layer].push_back(itemvector[istrip]);
 	    }
 	  }
 	}
@@ -171,3 +179,5 @@ CSCFrontierCrosstalkConditions::produceCrosstalk(const CSCcrosstalkRcd& iRecord)
  oValidity = edm::ValidityInterval(edm::IOVSyncValue::beginOfTime(),edm::IOVSyncValue::endOfTime());
  
  }
+
+
