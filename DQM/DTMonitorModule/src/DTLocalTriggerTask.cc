@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2006/10/18 18:00:14 $
- * $Revision: 1.2 $
+ * $Date: 2007/06/14 14:55:46 $
+ * $Revision: 1.9 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -702,7 +702,7 @@ pair<float,float> DTLocalTriggerTask::phiRange(const DTChamberId& id){
     if (lposx>0)
       max = lposx+topo2.wirePosition(topo2.lastChannel());
     else 
-      min = lposx-topo2.wirePosition(topo2.firstChannel());
+      min = lposx+topo2.wirePosition(topo2.firstChannel());
   }
   
   return make_pair(min,max);
