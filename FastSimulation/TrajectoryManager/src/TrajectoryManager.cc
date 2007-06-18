@@ -482,14 +482,12 @@ TrajectoryManager::makePSimHits( const GeomDet* det,
 	 i != comp.end(); i++) {
       const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(*i);
       if (du != 0)
-	// result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
-	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID));    
+	theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID));
     }
   }
   else {
     const GeomDetUnit* du = dynamic_cast<const GeomDetUnit*>(det);
     if (du != 0)
-      // result.push_back( makeSinglePSimHit( *du, ts, tkID, el, pID));
       theHitMap.insert(theHitMap.end(),makeSinglePSimHit( *du, ts, tkID, el, thick, pID));
   }
 
@@ -555,7 +553,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
 
   // Special treatment for TID and TEC trapeziodal modules
   if ( subdet == 4 || subdet == 6 ) 
-      boundX *=  1. - hit.localPosition().y()/theDetPlane.position().perp();
+    boundX *=  1. - hit.localPosition().y()/theDetPlane.position().perp();
 
 #ifdef FAMOS_DEBUG
   unsigned detid  = DetId(hit.detUnitId()).rawId();
@@ -594,10 +592,10 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
       theRing  = module.ring();
       unsigned int theSide = module.side();
       if ( theSide == 1 ) 
-	std::cout << "\tTEC Petal Back " << std::endl; 
+       	std::cout << "\tTID Petal Back " << std::endl; 
       else
-	std::cout << "\tTEC Petal Front" << std::endl; 
-      std::cout << "\tTEC Layer " << theLayer << std::endl;
+	std::cout << "\tTID Petal Front" << std::endl; 
+      std::cout << "\tTID Layer " << theLayer << std::endl;
       std::cout << "\tTID Ring " << theRing << std::endl;
       stereo = module.stereo();
       break;
@@ -659,7 +657,7 @@ TrajectoryManager::makeSinglePSimHit( const GeomDetUnit& det,
     : 
     // These hits are kept!
      ( det.surface().toGlobal(hit.localPosition()) - IP ).mag2();
-    
+
   // Fill Histos (~poor man event display)
   /* 
      GlobalPoint gpos( det.toGlobal(hit.localPosition()));
@@ -791,8 +789,6 @@ void
 TrajectoryManager::loadSimHits(edm::PSimHitContainer & c) const
 {
 
-  static int nhits = 0;
-  static int rhits = 0;
   std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrack = thePSimHits.begin();
   std::map<unsigned,std::map<double,PSimHit> >::const_iterator itrackEnd = thePSimHits.end();
   for ( ; itrack != itrackEnd; ++itrack ) {
