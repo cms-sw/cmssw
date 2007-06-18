@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxEstimatorProducer.cc,v 1.4 2007/06/12 13:40:49 arizzi Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.5 2007/06/13 12:04:26 arizzi Exp $
 //
 //
 
@@ -22,13 +22,16 @@
 #include <memory>
 
 #include "RecoTracker/DeDx/interface/DeDxEstimatorProducer.h"
-#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxEstimate.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
+#include "RecoTracker/DeDx/interface/GenericAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/TruncatedAverageDeDxEstimator.h"
+#include "RecoTracker/DeDx/interface/MedianDeDxEstimator.h"
 using namespace reco;
+using namespace std;
 //
 // constructors and destructor
 //
@@ -39,7 +42,10 @@ DeDxEstimatorProducer::DeDxEstimatorProducer(const edm::ParameterSet& iConfig)
    m_trackDeDxHitsTag = iConfig.getParameter<edm::InputTag>("trackDeDxHits");
 
    //FIXME: configurable, use ES?
-   m_estimator = new GenericAverageDeDxEstimator(-2.);
+   string estimatorName = iConfig.getParameter<string>("estimator");
+   if(estimatorName == "median")  m_estimator = new MedianDeDxEstimator(-2.);
+   if(estimatorName == "generic")  m_estimator = new GenericAverageDeDxEstimator(iConfig.getParameter<double>("exponent"));
+   if(estimatorName == "truncated")  m_estimator = new TruncatedAverageDeDxEstimator(iConfig.getParameter<double>("fraction"));
 
 }
 

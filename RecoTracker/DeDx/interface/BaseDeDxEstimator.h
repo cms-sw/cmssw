@@ -1,5 +1,5 @@
 #ifndef BaseDeDxEstimator_h
-#define baseDeDxEstimator_h
+#define BaseDeDxEstimator_h
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
 
 class BaseDeDxEstimator

@@ -1,5 +1,5 @@
-#ifndef BaseDeDxEstimator_h
-#define baseDeDxEstimator_h
+#ifndef GenericAverageDeDxEstimator_h
+#define GenericAverageDeDxEstimator_h
 
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "DataFormats/TrackReco/interface/TrackDeDxHits.h"
