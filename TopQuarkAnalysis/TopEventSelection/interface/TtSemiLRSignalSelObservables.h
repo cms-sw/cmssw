@@ -56,9 +56,9 @@ class TtSemiLRSignalSelObservables{
     struct CompareBdisc {
   	bool operator()( TopJet j1, TopJet j2 ) const
   	{
-  		return j1.getBDiscriminator() > j2.getBDiscriminator();
+  		return j1.getBDiscriminator("trackCountingJetTags") > j2.getBDiscriminator("trackCountingJetTags");
   	}
-		};
+    };
   
     CompareBdisc BdiscComparator;
 
@@ -68,7 +68,7 @@ class TtSemiLRSignalSelObservables{
   	{
   		return j1 > j2 ;
   	}
-		};
+    };
   
     CompareDouble dComparator;
   
