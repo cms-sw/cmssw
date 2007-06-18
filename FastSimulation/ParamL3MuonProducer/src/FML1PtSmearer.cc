@@ -1,6 +1,6 @@
 
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1PtSmearer.h"
-#include "FastSimulation/ParamL3MuonProducer/interface/SimpleL1MuGMTCand.h"
+#include "FastSimDataFormats/L1GlobalMuonTrigger/interface/SimpleL1MuGMTCand.h"
 
 #include "Utilities/General/interface/FileInPath.h"
 #include "Utilities/General/interface/CMSexception.h"

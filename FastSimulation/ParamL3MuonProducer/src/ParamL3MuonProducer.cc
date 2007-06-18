@@ -19,7 +19,7 @@
 //
 // Original Author:  Andrea Perrotta
 //         Created:  Mon Oct 30 14:37:24 CET 2006
-// $Id: ParamL3MuonProducer.cc,v 1.4 2007/06/13 10:38:37 aperrott Exp $
+// $Id: ParamL3MuonProducer.cc,v 1.5 2007/06/13 13:53:50 pjanot Exp $
 //
 //
 
@@ -40,7 +40,7 @@
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
 // L1
-#include "FastSimulation/ParamL3MuonProducer/interface/SimpleL1MuGMTCand.h"
+#include "FastSimDataFormats/L1GlobalMuonTrigger/interface/SimpleL1MuGMTCand.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1EfficiencyHandler.h"
 #include "FastSimulation/ParamL3MuonProducer/interface/FML1PtSmearer.h"
 
