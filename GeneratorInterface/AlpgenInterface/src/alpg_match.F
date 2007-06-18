@@ -438,8 +438,8 @@ c      CHARACTER XXX*500, PROCESS*500
 	WRITE(*,*)'        does not have to less than 1. So it set to 1.'
 	FIREVT=1
       ENDIF
-      CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR1)
-      CALL STRCATH('./',TMPSTR1,TMPSTR)
+      CALL STRCATH(FILENAME,'-pyt.dat',TMPSTR)
+cc      CALL STRCATH('./',TMPSTR1,TMPSTR)
       WRITE(*,*) 'NAME OF TXT FILE CONTAINING GENERATION PARAMETERS', 
      +     TMPSTR
       WRITE(*,*) '!!WARNING!!If the file already exists the program' 
