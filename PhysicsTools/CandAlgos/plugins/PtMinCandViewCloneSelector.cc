@@ -21,7 +21,7 @@
 
 typedef SingleObjectSelector<
           edm::View<reco::Candidate>,
-          PtMinSelector<reco::Candidate>,
+          PtMinSelector,
           reco::CandidateCollection
         > PtMinCandViewCloneSelector;
 

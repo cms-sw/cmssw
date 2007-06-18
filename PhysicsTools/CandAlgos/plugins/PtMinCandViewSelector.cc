@@ -20,7 +20,7 @@
 
 typedef SingleObjectSelector<
           edm::View<reco::Candidate>,
-          PtMinSelector<reco::Candidate>
+          PtMinSelector
         > PtMinCandViewSelector;
 
 DEFINE_FWK_MODULE( PtMinCandViewSelector );

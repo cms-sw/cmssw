@@ -4,12 +4,11 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AnySelector.h,v 1.3 2006/11/23 16:32:57 llista Exp $
+ * $Id: AnySelector.h,v 1.4 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct AnySelector {
-  typedef T value_type;
+  template<typename T>
   bool operator()( const T & ) const { return true; }
 };
 

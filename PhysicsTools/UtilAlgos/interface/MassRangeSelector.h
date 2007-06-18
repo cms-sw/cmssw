@@ -6,12 +6,12 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<MassRangeSelector<T> > {
-      static MassRangeSelector<T> make( const edm::ParameterSet & cfg ) {
+    template<>
+    struct ParameterAdapter<MassRangeSelector> {
+      static MassRangeSelector make( const edm::ParameterSet & cfg ) {
 	return 
-	  MassRangeSelector<T>( cfg.template getParameter<double>( "massMin" ),
-				cfg.template getParameter<double>( "massMax" ) );
+	  MassRangeSelector( cfg.getParameter<double>( "massMin" ),
+			     cfg.getParameter<double>( "massMax" ) );
       }
     };
     

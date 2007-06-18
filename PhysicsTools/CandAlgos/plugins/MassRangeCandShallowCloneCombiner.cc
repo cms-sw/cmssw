@@ -13,7 +13,7 @@ namespace reco {
   namespace modules {
 
     typedef CandCombiner< 
-              MassRangeSelector<reco::Candidate>,
+              MassRangeSelector,
               combiner::helpers::ShallowClone
             > MassRangeCandShallowCloneCombiner;
 

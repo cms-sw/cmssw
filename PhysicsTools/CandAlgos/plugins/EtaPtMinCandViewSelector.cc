@@ -25,8 +25,8 @@
 typedef SingleObjectSelector<
           edm::View<reco::Candidate>,
           AndSelector<
-            PtMinSelector<reco::Candidate>,
-            EtaRangeSelector<reco::Candidate>
+            PtMinSelector,
+            EtaRangeSelector
           >,
           reco::CandidateCollection
         > EtaPtMinCandViewSelector;

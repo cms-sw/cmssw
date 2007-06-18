@@ -4,15 +4,15 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MinObjectPairSelector.h,v 1.1 2006/10/03 12:06:40 llista Exp $
+ * $Id: MinObjectPairSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T, typename F>
+template<typename F>
 struct MinObjectPairSelector {
-  typedef T value_type;
   MinObjectPairSelector( double min ) : 
     min_( min ), fun_() { }
-  bool operator()( const value_type & t1, const value_type & t2 ) const { 
+  template<typename T1, typename T2>
+  bool operator()( const T1 & t1, const T2 & t2 ) const { 
     return min_ <= fun_( t1, t2 ); 
   }
 

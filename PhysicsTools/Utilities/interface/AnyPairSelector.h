@@ -4,13 +4,12 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: AnyPairSelector.h,v 1.1 2006/11/23 16:32:57 llista Exp $
+ * $Id: AnyPairSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct AnyPairSelector {
-  typedef T value_type;
-  bool operator()( const T &, const T & ) const { return true; }
+  template<typename T1, typename T2>
+  bool operator()( const T1 &, const T2 & ) const { return true; }
 };
 
 #endif

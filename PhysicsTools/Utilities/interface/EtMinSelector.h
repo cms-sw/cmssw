@@ -4,15 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: EtMinSelector.h,v 1.3 2006/10/03 12:06:23 llista Exp $
+ * $Id: EtMinSelector.h,v 1.4 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct EtMinSelector {
-  typedef T value_type;
-  EtMinSelector( double etMin ) : 
-    etMin_( etMin ) { }
-  bool operator()( const value_type & t ) const { return t.et() >= etMin_; }
+  EtMinSelector( double etMin ) : etMin_( etMin ) { }
+  template<typename T>
+  bool operator()( const T & t ) const { return t.et() >= etMin_; }
+
 private:
   double etMin_;
 };

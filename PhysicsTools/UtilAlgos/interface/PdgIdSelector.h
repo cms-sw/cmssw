@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<PdgIdSelector<T> > {
-      static PdgIdSelector<T> make( const edm::ParameterSet & cfg ) {
-	return PdgIdSelector<T>( cfg.template getParameter<std::vector<int> >( "pdgId" ) );
+    template<>
+    struct ParameterAdapter<PdgIdSelector> {
+      static PdgIdSelector make( const edm::ParameterSet & cfg ) {
+	return PdgIdSelector( cfg.getParameter<std::vector<int> >( "pdgId" ) );
       }
     };
 

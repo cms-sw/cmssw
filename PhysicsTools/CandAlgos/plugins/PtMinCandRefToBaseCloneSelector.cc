@@ -22,7 +22,7 @@
 
 typedef SingleObjectSelector<
           std::vector<edm::RefToBase<reco::Candidate> >,
-          RefSelector<PtMinSelector<reco::Candidate> >,
+          RefSelector<PtMinSelector>,
           reco::CandidateCollection
         > PtMinCandRefToBaseCloneSelector;
 

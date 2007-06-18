@@ -4,14 +4,12 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PdgIdSelector.h,v 1.1 2007/02/23 15:12:41 llista Exp $
+ * $Id: PdgIdSelector.h,v 1.2 2007/05/04 14:43:35 llista Exp $
  */
 #include <vector>
 #include <algorithm>
 
-template<typename T>
 struct PdgIdSelector {
-  typedef T value_type;
   PdgIdSelector( const std::vector<int> & pdgId ) { 
     for( std::vector<int>::const_iterator i = pdgId.begin(); i != pdgId.end(); ++ i )
       pdgId_.push_back( abs( * i ) );
@@ -23,7 +21,8 @@ struct PdgIdSelector {
   PdgIdSelector & operator==( const PdgIdSelector & o ) {
     * this = o; return * this;
   }
-  bool operator()( const value_type & t ) const { 
+template<typename T>
+  bool operator()( const T & t ) const { 
     return std::find( begin_, end_, abs( t.pdgId() ) ) != end_;
   }
 private:

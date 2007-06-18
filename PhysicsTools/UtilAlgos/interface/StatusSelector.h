@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<StatusSelector<T> > {
-      static StatusSelector<T> make( const edm::ParameterSet & cfg ) {
-	return StatusSelector<T>( cfg.template getParameter<std::vector<int> >( "status" ) );
+    template<>
+    struct ParameterAdapter<StatusSelector> {
+      static StatusSelector make( const edm::ParameterSet & cfg ) {
+	return StatusSelector( cfg.getParameter<std::vector<int> >( "status" ) );
       }
     };
 

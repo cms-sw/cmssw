@@ -46,7 +46,7 @@ namespace helper {
   };
 
   template<typename C, typename N>
-  struct CollectionFilterTrait<C, AnySelector<typename C::value_type>, N> {
+  struct CollectionFilterTrait<C, AnySelector, N> {
     typedef CollectionSizeFilter<C, N> type;
   };
 

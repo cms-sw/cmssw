@@ -24,8 +24,8 @@
 typedef SingleObjectSelector<
           reco::CandidateCollection,
           AndSelector<
-            PtMinSelector<reco::Candidate>,
-            EtaRangeSelector<reco::Candidate>
+            PtMinSelector,
+            EtaRangeSelector
           >
         > EtaPtMinCandSelector;
 

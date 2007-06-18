@@ -4,15 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MaxSelector.h,v 1.3 2007/01/31 14:42:59 llista Exp $
+ * $Id: MaxFunctionSelector.h,v 1.1 2007/05/15 16:07:53 llista Exp $
  */
 
 template<typename T, double (T::*fun)() const>
 struct MaxFunctionSelector {
-  typedef T value_type;
   MaxFunctionSelector( double max ) : 
     max_( max ) { }
-  bool operator()( const value_type & t ) const { return (t.*fun)() <= max_; }
+  bool operator()( const T & t ) const { return (t.*fun)() <= max_; }
 
 private:
   double max_;

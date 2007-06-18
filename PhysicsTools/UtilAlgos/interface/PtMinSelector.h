@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<PtMinSelector<T> > {
-      static PtMinSelector<T> make( const edm::ParameterSet & cfg ) {
-	return PtMinSelector<T>( cfg.template getParameter<double>( "ptMin" ) );
+    template<>
+    struct ParameterAdapter<PtMinSelector> {
+      static PtMinSelector make( const edm::ParameterSet & cfg ) {
+	return PtMinSelector( cfg.getParameter<double>( "ptMin" ) );
       }
     };
 

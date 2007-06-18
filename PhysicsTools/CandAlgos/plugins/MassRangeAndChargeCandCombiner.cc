@@ -17,8 +17,8 @@ namespace reco {
     
     typedef CandCombiner<
               AndSelector<
-                ChargeSelector<reco::Candidate>,
-                MassRangeSelector<reco::Candidate>
+                ChargeSelector,
+                MassRangeSelector
               >
             > MassRangeAndChargeCandCombiner;
 

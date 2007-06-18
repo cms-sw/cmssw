@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.9 $
  *
- * $Id: ObjectCountFilter.h,v 1.7 2007/01/31 14:51:37 llista Exp $
+ * $Id: ObjectCountFilter.h,v 1.9 2007/05/18 09:59:02 llista Exp $
  *
  */
 
@@ -20,7 +20,7 @@
 #include "PhysicsTools/UtilAlgos/interface/CollectionFilterTrait.h"
 
 template<typename C, 
-	 typename S = AnySelector<typename C::value_type>, 
+	 typename S = AnySelector,
 	 typename N = MinNumberSelector,
 	 typename CS = typename helper::CollectionFilterTrait<C, S, N>::type>
 class ObjectCountFilter : public edm::EDFilter {

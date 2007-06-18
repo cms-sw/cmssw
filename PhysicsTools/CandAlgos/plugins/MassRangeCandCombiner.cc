@@ -12,7 +12,7 @@
 namespace reco {
   namespace modules {
     typedef CandCombiner<
-              MassRangeSelector<reco::Candidate>
+              MassRangeSelector
             > MassRangeCandCombiner;
 
 DEFINE_FWK_MODULE( MassRangeCandCombiner );

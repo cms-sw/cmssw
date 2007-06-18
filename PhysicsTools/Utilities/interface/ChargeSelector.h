@@ -4,17 +4,16 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: ChargeSelector.h,v 1.1 2006/10/11 08:50:35 llista Exp $
+ * $Id: ChargeSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct ChargeSelector {
-  typedef T value_type;
-  ChargeSelector( int charge ) : 
-    charge_( charge ) { }
-  bool operator()( const value_type & t ) const { 
+  ChargeSelector( int charge ) : charge_( charge ) { }
+  template<typename T>
+  bool operator()( const T & t ) const { 
     return ( t.charge() == charge_ ); 
   }
+
 private:
   int charge_;
 };

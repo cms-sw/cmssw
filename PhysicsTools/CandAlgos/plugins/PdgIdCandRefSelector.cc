@@ -18,9 +18,9 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef SingleObjectSelector <
-            reco::CandidateCollection,
-            PdgIdSelector<reco::Candidate>,
-            edm::RefVector<reco::CandidateCollection>
+          reco::CandidateCollection,
+          PdgIdSelector,
+          reco::CandidateRefVector
         > PdgIdCandRefSelector;
 
 DEFINE_FWK_MODULE( PdgIdCandRefSelector );

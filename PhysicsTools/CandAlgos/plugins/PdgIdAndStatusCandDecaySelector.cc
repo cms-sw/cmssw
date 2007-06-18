@@ -24,8 +24,8 @@
 typedef SingleObjectSelector<
           reco::CandidateCollection,
           AndSelector<
-            PdgIdSelector<reco::Candidate>,
-            StatusSelector<reco::Candidate>
+            PdgIdSelector,
+            StatusSelector
           >
         > PdgIdAndStatusCandDecaySelector;
 

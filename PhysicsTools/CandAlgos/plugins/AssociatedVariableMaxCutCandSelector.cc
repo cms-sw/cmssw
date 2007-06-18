@@ -26,7 +26,7 @@ typedef double isolation;
 typedef SingleObjectSelector<
           edm::AssociationVector<reco::CandidateRefProd, std::vector<isolation> >,
           PairSelector<
-            RefSelector<AnySelector<reco::Candidate> >,
+            RefSelector<AnySelector>,
             MaxSelector<isolation>
           >
         > AssociatedVariableMaxCutCandSelector;

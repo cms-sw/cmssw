@@ -18,7 +18,7 @@
 
 typedef SingleObjectSelector<
           reco::CandidateCollection,
-          PdgIdSelector<reco::Candidate>
+          PdgIdSelector
         > PdgIdCandSelector;
 
 DEFINE_FWK_MODULE( PdgIdCandSelector );

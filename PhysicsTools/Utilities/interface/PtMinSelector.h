@@ -4,15 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: PtMinSelector.h,v 1.4 2006/10/03 11:44:47 llista Exp $
+ * $Id: PtMinSelector.h,v 1.5 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct PtMinSelector {
-  typedef T value_type;
-  PtMinSelector( double ptMin ) : 
-    ptMin_( ptMin ) { }
-  bool operator()( const value_type & t ) const { return t.pt() >= ptMin_; }
+  PtMinSelector( double ptMin ) : ptMin_( ptMin ) { }
+  template<typename T>
+  bool operator()( const T & t ) const { return t.pt() >= ptMin_; }
+
 private:
   double ptMin_;
 };

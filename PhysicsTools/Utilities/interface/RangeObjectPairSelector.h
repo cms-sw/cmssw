@@ -4,18 +4,18 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: RangeObjectPairSelector.h,v 1.2 2006/10/03 11:36:10 llista Exp $
+ * $Id: RangeObjectPairSelector.h,v 1.3 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T, typename F>
+template<typename F>
 struct RangeObjectPairSelector {
-  typedef T value_type;
   typedef F function;
   RangeObjectPairSelector( double min, double max, const F & fun ) : 
     min_( min ), max_( max ), fun_( fun ) { }
   RangeObjectPairSelector( double min, double max ) : 
     min_( min ), max_( max ), fun_() { }
-  bool operator()( const value_type & t1, const value_type & t2 ) const { 
+  template<typename T1, typename T2>
+  bool operator()( const T1 & t1, const T2 & t2 ) const { 
     double x = fun_( t1, t2 );
     return ( min_ <= x && x <= max_ ); 
   }

@@ -18,7 +18,7 @@
 
 typedef SingleObjectSelector<
           reco::CandidateCollection,
-          PtMinSelector<reco::Candidate>
+          PtMinSelector
         > PtMinCandSelector;
 
 DEFINE_FWK_MODULE( PtMinCandSelector );

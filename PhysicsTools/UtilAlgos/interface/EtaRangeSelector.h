@@ -6,12 +6,12 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<EtaRangeSelector<T> > {
-      static EtaRangeSelector<T> make( const edm::ParameterSet & cfg ) {
+    template<>
+    struct ParameterAdapter<EtaRangeSelector> {
+      static EtaRangeSelector make( const edm::ParameterSet & cfg ) {
 	return 
-	  EtaRangeSelector<T>( cfg.template getParameter<double>( "etaMin" ),
-			       cfg.template getParameter<double>( "etaMax" ) );
+	  EtaRangeSelector( cfg.getParameter<double>( "etaMin" ),
+			    cfg.getParameter<double>( "etaMax" ) );
       }
     };
 

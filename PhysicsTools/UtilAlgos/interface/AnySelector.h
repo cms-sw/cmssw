@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T>
-    struct ParameterAdapter<AnySelector<T> > {
-      static AnySelector<T> make( const edm::ParameterSet & cfg ) {
-	return AnySelector<T>();
+    template<>
+    struct ParameterAdapter<AnySelector> {
+      static AnySelector make( const edm::ParameterSet & cfg ) {
+	return AnySelector();
       }
     };
 

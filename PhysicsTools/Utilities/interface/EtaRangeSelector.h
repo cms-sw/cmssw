@@ -4,15 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: EtaRangeSelector.h,v 1.2 2006/10/03 10:34:03 llista Exp $
+ * $Id: EtaRangeSelector.h,v 1.3 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct EtaRangeSelector {
-  typedef T value_type;
   EtaRangeSelector( double etaMin, double etaMax ) : 
     etaMin_( etaMin ), etaMax_( etaMax ) { }
-  bool operator()( const value_type & t ) const { 
+  template<typename T>
+  bool operator()( const T & t ) const { 
     double eta = t.eta();
     return ( eta >= etaMin_ && eta <= etaMax_ ); 
   }

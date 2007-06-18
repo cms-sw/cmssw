@@ -6,10 +6,10 @@
 namespace reco {
   namespace modules {
     
-    template<typename T1, typename T2>
-    struct ParameterAdapter<MasslessInvariantMass<T1, T2> > {
-      static MasslessInvariantMass<T1, T2> make( const edm::ParameterSet & cfg ) {
-	return MasslessInvariantMass<T1, T2>();
+    template<>
+    struct ParameterAdapter<MasslessInvariantMass> {
+      static MasslessInvariantMass make( const edm::ParameterSet & cfg ) {
+	return MasslessInvariantMass();
       }
     };
     

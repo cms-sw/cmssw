@@ -4,15 +4,14 @@
  *
  * \author Luca Lista, INFN
  *
- * $Id: MassRangeSelector.h,v 1.1 2006/10/11 08:50:36 llista Exp $
+ * $Id: MassRangeSelector.h,v 1.2 2007/01/31 14:42:59 llista Exp $
  */
 
-template<typename T>
 struct MassRangeSelector {
-  typedef T value_type;
   MassRangeSelector( double massMin, double massMax ) : 
     massMin_( massMin ), massMax_( massMax ) { }
-  bool operator()( const value_type & t ) const { 
+  template<typename T>
+  bool operator()( const T & t ) const { 
     double mass = t.mass();
     return ( mass >= massMin_ && mass <= massMax_ ); 
   }
