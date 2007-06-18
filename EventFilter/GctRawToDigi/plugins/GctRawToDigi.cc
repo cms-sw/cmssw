@@ -1,4 +1,4 @@
-#include "EventFilter/GctRawToDigi/src/GctRawToDigi.h"
+#include "EventFilter/GctRawToDigi/plugins/GctRawToDigi.h"
 
 // system
 #include <vector>
