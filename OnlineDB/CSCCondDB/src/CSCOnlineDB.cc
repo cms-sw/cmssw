@@ -225,7 +225,7 @@
   con->commit();
   con->terminateStatement (stmt);
   con->terminateStatement (stmt1);
-}; //end of cdbon_write
+} //end of cdbon_write
 
 void condbon::cdbon_last_record (std::string obj_name, int *record)
 {
@@ -245,7 +245,7 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
      std::cout<<ex.getMessage() << std::endl;
     }
   con->terminateStatement (stmt);
-}; // end of cdbon_last_record
+} // end of cdbon_last_record
 
   void condbon::cdbon_read_rec (std::string obj_name, int record,
                                 CSCobject *obj)
@@ -324,4 +324,4 @@ sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+s
      std::cout<<"Error number: "<<  ex.getErrorCode() << std::endl;
      std::cout<<ex.getMessage() << std::endl;
     }
-}; // end of cdbon_read_rec
+} // end of cdbon_read_rec
