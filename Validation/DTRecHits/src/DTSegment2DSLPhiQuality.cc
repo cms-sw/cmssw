@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/08 15:50:30 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/18 15:29:13 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -210,7 +210,6 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
       }  // End of Loop over all 4D RecHits of this chambers
 
       if(bestRecHitFound) {
-<<<<<<< DTSegment2DSLPhiQuality.cc
         // Best rechit direction and position in Chamber RF
         LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
         LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
@@ -225,7 +224,7 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
         }
 
         // Fill Residual histos
-        h2DHitSuperPhi.Fill(angleSimSeg,
+        h2DHitSuperPhi->Fill(angleSimSeg,
                             angleBestRHit,
                             posSimSeg,
                             bestRecHitLocalPos.x(),
@@ -234,33 +233,15 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
                             sqrt(bestRecHitLocalPosErr.xx()),
                             sqrt(bestRecHitLocalDirErr.xx())
                            );
-=======
-	// Best rechit direction and position in Chamber RF
-	LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
-	LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
-
-	float angleBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
-	if(fabs(angleBestRHit - angleSimSeg) < 5*sigmaResAngle &&
-	   fabs(bestRecHitLocalPos.x() - posSimSeg) < 5*sigmaResPos) {
-	  recHitFound = true;
-	}
-
-	// Fill Residual histos
-	h2DHitSuperPhi->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
->>>>>>> 1.2
       }
     } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
-<<<<<<< DTSegment2DSLPhiQuality.cc
-    h2DHitEff_SuperPhi.Fill(etaSimSeg,
+    h2DHitEff_SuperPhi->Fill(etaSimSeg,
                             phiSimSeg,
                             posSimSeg,
                             angleSimSeg,
                             recHitFound);
-=======
-    h2DHitEff_SuperPhi->Fill(etaSimSeg, phiSimSeg, posSimSeg, angleSimSeg, recHitFound);
->>>>>>> 1.2
   } // End of loop over chambers
 }
 

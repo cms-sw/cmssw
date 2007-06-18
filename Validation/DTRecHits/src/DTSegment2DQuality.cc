@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/08 15:17:24 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/18 15:29:13 $
+ *  $Revision: 1.3 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -240,8 +240,7 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 	if((*slId).superlayer() == 1 || (*slId).superlayer() == 3) { //RPhi SL
 	  hRes = h2DHitRPhi;
 	} else if((*slId).superlayer() == 2) { //RZ SL
-<<<<<<< DTSegment2DQuality.cc
-	  h2DHitRZ.Fill(angleSimSeg,
+	  h2DHitRZ->Fill(angleSimSeg,
                     angleBestRHit,
                     posSimSeg,
                     bestRecHitLocalPos.x(),
@@ -250,9 +249,6 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
                     sqrt(bestRecHitLocalPosErr.xx()),
                     sqrt(bestRecHitLocalDirErr.xx())
                     );
-=======
-	  h2DHitRZ->Fill(angleSimSeg, angleBestRHit, posSimSeg, bestRecHitLocalPos.x(), etaSimSeg, phiSimSeg);
->>>>>>> 1.2
 	  if(abs((*slId).wheel()) == 0)
 	    hRes = h2DHitRZ_W0;
 	  else if(abs((*slId).wheel()) == 1)

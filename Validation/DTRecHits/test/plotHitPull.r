@@ -1,6 +1,6 @@
 
 /*
- * Format plots of resolutions, etc. produced by DTRecHits validation.
+ * Format plots of Pulllutions, etc. produced by DTRecHits validation.
  * The root tree containing the histograms must be already open when 
  * executing this macro.
  * 
@@ -12,17 +12,17 @@ class HRes1DHit;
 class HRes2DHit;
 class HRes4DHit;
 
-void plotHitReso();
-void plotWWWHitReso(int dimSwitch = 1, TString nameDir = "");
+void plotHitPull();
+void plotWWWHitPull(int dimSwitch = 1, TString nameDir = "");
 void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHit, bool ThreeIn1, int form);
-void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
-void plot2DResiduals(HRess2DHit * h1);
+void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1);
+void plot2DPulliduals(HPulls2DHit * h1);
 
-void plot4DResiduals(HRes4DHit * h1);
-void plot4DResVsEta(HRes4DHit * h1);
-void plot4DResVsPhi(HRes4DHit * h1);
+void plot4DPulliduals(HRes4DHit * h1);
+void plot4DPullVsEta(HRes4DHit * h1);
+void plot4DPullVsPhi(HRes4DHit * h1);
 
-void plot2DAngles(HRess2DHit * h1, bool ThreeIn1);
+void plot2DAngles(HPulls2DHit * h1, bool ThreeIn1);
 void plot4DAngles(HRes4DHit * h1, bool ThreeIn1);
 
 // Read user input
@@ -33,7 +33,7 @@ bool setPreferences(bool& do1DRecHit, bool& do2DRecHit, bool& do2DSLPhiRecHit, b
 
 
 // This is the main function
-void plotHitReso(){
+void plotHitPull(){
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
   gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
@@ -69,14 +69,14 @@ void plotHitReso(){
   //  style->SetOptStat("OURMEN");
   // style->SetOptStat("RME");
   style->SetOptStat(0);
-  style->SetFitFormat("5.3g");
+  style->SetFitFormat("4.2g");
   style->SetOptFit(11);
 
   //--------------------------------------------------------------------------------------
 
   // Check the choice
   if(!do1DRecHit && !do2DRecHit && !do2DSLPhiRecHit && !do4DRecHit) {
-    cout << "[plotHitReso]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
+    cout << "[plotHitPull]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
       << endl;
     return;
   }
@@ -86,7 +86,7 @@ void plotHitReso(){
 
 }
 
-void plotWWWHitReso(int dimSwitch, TString nameDir) {
+void plotWWWHitPull(int dimSwitch, TString nameDir) {
   // Load needed macros and files
   gROOT->LoadMacro("macros.C");     // Load service macros
   gROOT->LoadMacro("../src/Histograms.h"); // Load definition of histograms
@@ -131,7 +131,7 @@ void plotWWWHitReso(int dimSwitch, TString nameDir) {
 
   // Check the choice
   if(!do1DRecHit && !do2DRecHit && !do2DSLPhiRecHit && !do4DRecHit) {
-    cout << "[plotHitReso]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
+    cout << "[plotHitPull]***Error: Nothing to do! Set do1DRecHit, do2DRecHit, do4DRecHit correctly!"
       << endl;
     return;
   }
@@ -234,7 +234,7 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
     plot2DResiduals(h2DSLPhiHit);
   }
 
-  if(do4DRecHit) {
+  if(false && do4DRecHit) {
     plot4DResiduals(h4DHit);
     plot4DResidualsRZ(h4DHit);
     // plot4DResiduals(h4DHit_W0);
@@ -242,259 +242,259 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
     // plot4DResiduals(h4DHit_W2);
   }
 
-  // resovseta:
+  // Pullvseta:
 
   if(do1DRecHit) {
     const float min = -0.6;
     const float max =  0.6;
-    c1 = newCanvas("c_1D_S1RPhi_hResVsEta",form);
-    plotAndProfileX(h1RPhi->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S1RPhi_hPullVsEta",form);
+    plotAndProfileX(h1RPhi->hPullVsEta,min,max);
 
-    c1 = newCanvas("c_1D_S2RPhi_hResVsEta",form);
-    plotAndProfileX(h2RPhi->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S2RPhi_hPullVsEta",form);
+    plotAndProfileX(h2RPhi->hPullVsEta,min,max);
 
-    c1 = newCanvas("c_1D_S3RPhi_hResVsEta",form);
-    plotAndProfileX(h3RPhi->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S3RPhi_hPullVsEta",form);
+    plotAndProfileX(h3RPhi->hPullVsEta,min,max);
 
-    c1 = newCanvas("c_1D_S1RZ_hResVsEta",form);
-    plotAndProfileX(h1RZ->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S1RZ_hPullVsEta",form);
+    plotAndProfileX(h1RZ->hPullVsEta,min,max);
 
-    c1 = newCanvas("c_1D_S2RZ_hResVsEta",form);
-    plotAndProfileX(h2RZ->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S2RZ_hPullVsEta",form);
+    plotAndProfileX(h2RZ->hPullVsEta,min,max);
 
-    c1 = newCanvas("c_1D_S3RZ_hResVsEta",form);
-    plotAndProfileX(h3RZ->hResVsEta,min,max);
+    c1 = newCanvas("c_1D_S3RZ_hPullVsEta",form);
+    plotAndProfileX(h3RZ->hPullVsEta,min,max);
   }
 
   if(false && do2DRecHit) {
-    c1 = newCanvas("c_2D_RPhi_hResPosVsEta",form);
-    plotAndProfileX(h2DHitRPhi->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_RPhi_hPullPosVsEta",form);
+    plotAndProfileX(h2DHitRPhi->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_hResPosVsEta",form);
-    plotAndProfileX(h2DHitRZ->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_hPullPosVsEta",form);
+    plotAndProfileX(h2DHitRZ->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W0_hResPosVsEta",form);
-    plotAndProfileX(h2DHitRZ_W0->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W0_hPullPosVsEta",form);
+    plotAndProfileX(h2DHitRZ_W0->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W1_hResPosVsEta",form);
-    plotAndProfileX(h2DHitRZ_W1->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W1_hPullPosVsEta",form);
+    plotAndProfileX(h2DHitRZ_W1->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W2_hResPosVsEta",form);
-    plotAndProfileX(h2DHitRZ_W2->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W2_hPullPosVsEta",form);
+    plotAndProfileX(h2DHitRZ_W2->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RPhi_hResAngleVsEta",form);
-    plotAndProfileX(h2DHitRPhi->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_RPhi_hPullAngleVsEta",form);
+    plotAndProfileX(h2DHitRPhi->hPullAngleVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_hResAngleVsEta",form);
-    plotAndProfileX(h2DHitRZ->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_hPullAngleVsEta",form);
+    plotAndProfileX(h2DHitRZ->hPullAngleVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W0_hResAngleVsEta",form);
-    plotAndProfileX(h2DHitRZ_W0->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W0_hPullAngleVsEta",form);
+    plotAndProfileX(h2DHitRZ_W0->hPullAngleVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W1_hResAngleVsEta",form);
-    plotAndProfileX(h2DHitRZ_W1->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W1_hPullAngleVsEta",form);
+    plotAndProfileX(h2DHitRZ_W1->hPullAngleVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W2_hResAngleVsEta",form);
-    plotAndProfileX(h2DHitRZ_W2->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_RZ_W2_hPullAngleVsEta",form);
+    plotAndProfileX(h2DHitRZ_W2->hPullAngleVsEta,-3,3);
 
   }
 
   if(do2DSLPhiRecHit) {
-    c1 = newCanvas("c_2D_SuperPhi_hResPosVsEta",form);
-    plotAndProfileX(h2DSLPhiHit->hResPosVsEta,-3,3);
+    c1 = newCanvas("c_2D_SuperPhi_hPullPosVsEta",form);
+    plotAndProfileX(h2DSLPhiHit->hPullPosVsEta,-3,3);
 
-    c1 = newCanvas("c_2D_SuperPhi_hResAngleVsEta",form);
-    plotAndProfileX(h2DSLPhiHit->hResAngleVsEta,-3,3);
+    c1 = newCanvas("c_2D_SuperPhi_hPullAngleVsEta",form);
+    plotAndProfileX(h2DSLPhiHit->hPullAngleVsEta,-3,3);
 
   }
 
   if(do4DRecHit) {
-    plot4DResVsEta(h4DHit);
-    plot4DResVsEtaRZ(h4DHit);
-    // plot4DResVsEta(h4DHit_W0);
-    // plot4DResVsEta(h4DHit_W1);
-    // plot4DResVsEta(h4DHit_W2);
+    //// plot4DPullVsEta(h4DHit);
+    plot4DPullVsEtaRZ(h4DHit);
+    // plot4DPullVsEta(h4DHit_W0);
+    // plot4DPullVsEta(h4DHit_W1);
+    // plot4DPullVsEta(h4DHit_W2);
   }
 
-  // resovsphi:
+  // Pullvsphi:
 
   if(do1DRecHit) {
     const float min = -0.6;
     const float max =  0.6;
-    c1 = newCanvas("c_1D_S1RPhi_hResVsPhi",form);
-    plotAndProfileX(h1RPhi->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S1RPhi_hPullVsPhi",form);
+    plotAndProfileX(h1RPhi->hPullVsPhi,min, max);
 
-    c1 = newCanvas("c_1D_S2RPhi_hResVsPhi",form);
-    plotAndProfileX(h2RPhi->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S2RPhi_hPullVsPhi",form);
+    plotAndProfileX(h2RPhi->hPullVsPhi,min, max);
 
-    c1 = newCanvas("c_1D_S3RPhi_hResVsPhi",form);
-    plotAndProfileX(h3RPhi->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S3RPhi_hPullVsPhi",form);
+    plotAndProfileX(h3RPhi->hPullVsPhi,min, max);
 
-    c1 = newCanvas("c_1D_S1RZ_hResVsPhi",form);
-    plotAndProfileX(h1RZ->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S1RZ_hPullVsPhi",form);
+    plotAndProfileX(h1RZ->hPullVsPhi,min, max);
 
-    c1 = newCanvas("c_1D_S2RZ_hResVsPhi",form);
-    plotAndProfileX(h2RZ->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S2RZ_hPullVsPhi",form);
+    plotAndProfileX(h2RZ->hPullVsPhi,min, max);
 
-    c1 = newCanvas("c_1D_S3RZ_hResVsPhi",form);
-    plotAndProfileX(h3RZ->hResVsPhi,min, max);
+    c1 = newCanvas("c_1D_S3RZ_hPullVsPhi",form);
+    plotAndProfileX(h3RZ->hPullVsPhi,min, max);
 
   }
 
   if(false && do2DRecHit) {
-    c1 = newCanvas("c_2D_RPhi_hResPosVsPhi",form);
-    plotAndProfileX(h2DHitRPhi->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RPhi_hPullPosVsPhi",form);
+    plotAndProfileX(h2DHitRPhi->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_hResPosVsPhi",form);
-    plotAndProfileX(h2DHitRZ->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_hPullPosVsPhi",form);
+    plotAndProfileX(h2DHitRZ->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W0_hResPosVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W0->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W0_hPullPosVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W0->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W1_hResPosVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W1->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W1_hPullPosVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W1->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W2_hResPosVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W2->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W2_hPullPosVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W2->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RPhi_hResAngleVsPhi",form);
-    plotAndProfileX(h2DHitRPhi->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RPhi_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DHitRPhi->hPullAngleVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_hResAngleVsPhi",form);
-    plotAndProfileX(h2DHitRZ->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DHitRZ->hPullAngleVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W0_hResAngleVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W0->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W0_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W0->hPullAngleVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W1_hResAngleVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W1->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W1_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W1->hPullAngleVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_RZ_W2_hResAngleVsPhi",form);
-    plotAndProfileX(h2DHitRZ_W2->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_RZ_W2_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DHitRZ_W2->hPullAngleVsPhi,-3,3);
 
   }
 
   if(do2DSLPhiRecHit) {
-    c1 = newCanvas("c_2D_SuperPhi_hResPosVsPhi",form);
-    plotAndProfileX(h2DSLPhiHit->hResPosVsPhi,-3,3);
+    c1 = newCanvas("c_2D_SuperPhi_hPullPosVsPhi",form);
+    plotAndProfileX(h2DSLPhiHit->hPullPosVsPhi,-3,3);
 
-    c1 = newCanvas("c_2D_SuperPhi_hResAngleVsPhi",form);
-    plotAndProfileX(h2DSLPhiHit->hResAngleVsPhi,-3,3);
+    c1 = newCanvas("c_2D_SuperPhi_hPullAngleVsPhi",form);
+    plotAndProfileX(h2DSLPhiHit->hPullAngleVsPhi,-3,3);
   }
 
-  if(do4DRecHit) {
-    plot4DResVsPhi(h4DHit);
-    plot4DResVsPhiRZ(h4DHit);
-    // plot4DResVsPhi(h4DHit_W0);
-    // plot4DResVsPhi(h4DHit_W1);
-    // plot4DResVsPhi(h4DHit_W2);
+  if(false && do4DRecHit) {
+    plot4DPullVsPhi(h4DHit);
+    plot4DPullVsPhiRZ(h4DHit);
+    // plot4DPullVsPhi(h4DHit_W0);
+    // plot4DPullVsPhi(h4DHit_W1);
+    // plot4DPullVsPhi(h4DHit_W2);
   }
 
 
 
-  // resovspos:
+  // Pullvspos:
 
   if(do1DRecHit) {
     bool profile = true;
     const float min = -1;
     const float max =  1;
-    c1 = newCanvas("c_1D_S1RPhi_hResVsPos",form);
-    plotAndProfileX(h1RPhi->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S1RPhi_hPullVsPos",form);
+    plotAndProfileX(h1RPhi->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RPhi_hResVsPos",form);
-    plotAndProfileX(h2RPhi->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S2RPhi_hPullVsPos",form);
+    plotAndProfileX(h2RPhi->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RPhi_hResVsPos",form);
-    plotAndProfileX(h3RPhi->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S3RPhi_hPullVsPos",form);
+    plotAndProfileX(h3RPhi->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_hResVsPos",form);
-    plotAndProfileX(h1RZ->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_hPullVsPos",form);
+    plotAndProfileX(h1RZ->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W0_hResVsPos",form);
-    plotAndProfileX(h1RZ_W0->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W0_hPullVsPos",form);
+    plotAndProfileX(h1RZ_W0->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W1_hResVsPos",form);
-    plotAndProfileX(h1RZ_W1->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W1_hPullVsPos",form);
+    plotAndProfileX(h1RZ_W1->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W2_hResVsPos",form);
-    plotAndProfileX(h1RZ_W2->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W2_hPullVsPos",form);
+    plotAndProfileX(h1RZ_W2->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_hResVsPos",form);
-    plotAndProfileX(h2RZ->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_hPullVsPos",form);
+    plotAndProfileX(h2RZ->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W0_hResVsPos",form);
-    plotAndProfileX(h2RZ_W0->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W0_hPullVsPos",form);
+    plotAndProfileX(h2RZ_W0->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W1_hResVsPos",form);
-    plotAndProfileX(h2RZ_W1->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W1_hPullVsPos",form);
+    plotAndProfileX(h2RZ_W1->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W2_hResVsPos",form);
-    plotAndProfileX(h2RZ_W2->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W2_hPullVsPos",form);
+    plotAndProfileX(h2RZ_W2->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_hResVsPos",form);
-    plotAndProfileX(h3RZ->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_hPullVsPos",form);
+    plotAndProfileX(h3RZ->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W0_hResVsPos",form);
-    plotAndProfileX(h3RZ_W0->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W0_hPullVsPos",form);
+    plotAndProfileX(h3RZ_W0->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W1_hResVsPos",form);
-    plotAndProfileX(h3RZ_W1->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W1_hPullVsPos",form);
+    plotAndProfileX(h3RZ_W1->hPullVsPos, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W2_hResVsPos",form);
-    plotAndProfileX(h3RZ_W2->hResVsPos, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W2_hPullVsPos",form);
+    plotAndProfileX(h3RZ_W2->hPullVsPos, min, max, profile);
 
   }
 
-  // resovsangle:
+  // Pullvsangle:
 
   if(do1DRecHit) {
     bool profile = true;
     const float min = -1;
     const float max =  1;
-    c1 = newCanvas("c_1D_S1RPhi_hResVsAngle",form);
-    plotAndProfileX(h1RPhi->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S1RPhi_hPullVsAngle",form);
+    plotAndProfileX(h1RPhi->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RPhi_hResVsAngle",form);
-    plotAndProfileX(h2RPhi->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S2RPhi_hPullVsAngle",form);
+    plotAndProfileX(h2RPhi->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RPhi_hResVsAngle",form);
-    plotAndProfileX(h3RPhi->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S3RPhi_hPullVsAngle",form);
+    plotAndProfileX(h3RPhi->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_hResVsAngle",form);
-    plotAndProfileX(h1RZ->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_hPullVsAngle",form);
+    plotAndProfileX(h1RZ->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W0_hResVsAngle",form);
-    plotAndProfileX(h1RZ_W0->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W0_hPullVsAngle",form);
+    plotAndProfileX(h1RZ_W0->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W1_hResVsAngle",form);
-    plotAndProfileX(h1RZ_W1->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W1_hPullVsAngle",form);
+    plotAndProfileX(h1RZ_W1->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S1RZ_W2_hResVsAngle",form);
-    plotAndProfileX(h1RZ_W2->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S1RZ_W2_hPullVsAngle",form);
+    plotAndProfileX(h1RZ_W2->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_hResVsAngle",form);
-    plotAndProfileX(h2RZ->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_hPullVsAngle",form);
+    plotAndProfileX(h2RZ->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W0_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W0->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W0_hPullVsAngle",form);
+    plotAndProfileX(h2RZ_W0->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W1_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W1->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W1_hPullVsAngle",form);
+    plotAndProfileX(h2RZ_W1->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S2RZ_W2_hResVsAngle",form);
-    plotAndProfileX(h2RZ_W2->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S2RZ_W2_hPullVsAngle",form);
+    plotAndProfileX(h2RZ_W2->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_hResVsAngle",form);
-    plotAndProfileX(h3RZ->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_hPullVsAngle",form);
+    plotAndProfileX(h3RZ->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W0_hResVsAngle",form);
-    plotAndProfileX(h3RZ_W0->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W0_hPullVsAngle",form);
+    plotAndProfileX(h3RZ_W0->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W1_hResVsAngle",form);
-    plotAndProfileX(h3RZ_W1->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W1_hPullVsAngle",form);
+    plotAndProfileX(h3RZ_W1->hPullVsAngle, min, max, profile);
 
-    c1 = newCanvas("c_1D_S3RZ_W2_hResVsAngle",form);
-    plotAndProfileX(h3RZ_W2->hResVsAngle, min, max, profile);
+    c1 = newCanvas("c_1D_S3RZ_W2_hPullVsAngle",form);
+    plotAndProfileX(h3RZ_W2->hPullVsAngle, min, max, profile);
 
   }
 
@@ -524,7 +524,7 @@ void draw(bool do1DRecHit, bool do2DRecHit, bool do2DSLPhiRecHit, bool do4DRecHi
 }
 
 
-void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
+void plot1DPulliduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeIn1) {
   int i = 2;
 
   if(ThreeIn1)
@@ -536,33 +536,33 @@ void plot1DResiduals(HRes1DHit * h1, HRes1DHit * h2, HRes1DHit * h3, bool ThreeI
   TString N2 = "c_1D_" + h2->name;
   TString N3 = "c_1D_" + h3->name;
   int form = 2;
-  if (ThreeIn1) c1 = newCanvas(N1.Remove(5,2)+"_hRes",3,1,1200,500);
-  else newCanvas(N1+"_hRes",form);
-  drawGFit(h1->hRes, -0.2,0.2,-0.1,0.1);
+  if (ThreeIn1) c1 = newCanvas(N1.Remove(5,2)+"_hPull",3,1,1200,500);
+  else newCanvas(N1+"_hPull",form);
+  drawGFit(h1->hPull, -0.2,0.2,-0.1,0.1);
 
   if (ThreeIn1) c1->cd(i++);
-  else c1 = newCanvas(N2+"_hRes",form);
-  drawGFit(h2->hRes, -0.2,0.2,-0.1,0.1);
+  else c1 = newCanvas(N2+"_hPull",form);
+  drawGFit(h2->hPull, -0.2,0.2,-0.1,0.1);
 
   if (ThreeIn1) c1->cd(i++);
-  else c1 = newCanvas(N3+"_hRes",form);
-  drawGFit(h3->hRes, -0.2,0.2,-0.1,0.1);
+  else c1 = newCanvas(N3+"_hPull",form);
+  drawGFit(h3->hPull, -0.2,0.2,-0.1,0.1);
 
 }
 
-void plot2DResiduals(HRes2DHit * h1) {
+void plot2DPulliduals(HRes2DHit * h1) {
   int i = 2;
 
   TString N1 = "c_2D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResPos",form);
-  cout << "h1->hResPos " << h1->hResPos << endl;
-  drawGFit(h1->hResPos, -0.1,0.1,-0.1,0.1);
+  newCanvas(N1+"_hPullPos",form);
+  cout << "h1->hPullPos " << h1->hPullPos << endl;
+  drawGFit(h1->hPullPos, -0.1,0.1,-0.1,0.1);
 
-  newCanvas(N1+"_hResAngle",form);
-  cout << "h1->hResAngle " << h1->hResAngle << endl;
-  drawGFit(h1->hResAngle, -0.1,0.1,-0.1,0.1);
+  newCanvas(N1+"_hPullAngle",form);
+  cout << "h1->hPullAngle " << h1->hPullAngle << endl;
+  drawGFit(h1->hPullAngle, -0.1,0.1,-0.1,0.1);
 }
 
 void plot4DResiduals(HRes4DHit * h1) {
@@ -571,56 +571,56 @@ void plot4DResiduals(HRes4DHit * h1) {
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResX",form);
-  drawGFit(h1->hResX, -0.2,0.2,-0.1,0.1);
+  newCanvas(N1+"_hPullX",form);
+  drawGFit(h1->hPullX, -5,5,-2.5,2.5);
 
-  newCanvas(N1+"_hResY",form);
-  drawGFit(h1->hResY, -0.2,0.2,-0.1,0.1);
+  newCanvas(N1+"_hPullY",form);
+  drawGFit(h1->hPullY, -5,5,-2.5,2.5);
 
-  newCanvas(N1+"_hResAlpha",form);
-  drawGFit(h1->hResAlpha, -0.2,0.2,-0.1,0.1);
+  newCanvas(N1+"_hPullAlpha",form);
+  drawGFit(h1->hPullAlpha, -5,5,-2.5,2.5);
 
-  newCanvas(N1+"_hResBeta",form);
-  drawGFit(h1->hResBeta, -0.2,0.2,-0.1,0.1);
+  newCanvas(N1+"_hPullBeta",form);
+  drawGFit(h1->hPullBeta, -5,5,-2.5,2.5);
 
 }
 
-void plot4DResVsEta(HRes4DHit * h1) {
+void plot4DPullVsEta(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResXVsEta",form);
-  plotAndProfileX(h1->hResXVsEta,-3,3);
+  newCanvas(N1+"_hPullXVsEta",form);
+  plotAndProfileX(h1->hPullXVsEta,-5,5);
 
-  newCanvas(N1+"_hResYVsEta",form);
-  plotAndProfileX(h1->hResYVsEta,-3,3);
+  newCanvas(N1+"_hPullYVsEta",form);
+  plotAndProfileX(h1->hPullYVsEta,-5,5);
 
-  newCanvas(N1+"_hResAlphaVsEta",form);
-  plotAndProfileX(h1->hResAlphaVsEta,-3,3);
+  newCanvas(N1+"_hPullAlphaVsEta",form);
+  plotAndProfileX(h1->hPullAlphaVsEta,-5,5);
 
-  newCanvas(N1+"_hResBetaVsEta",form);
-  plotAndProfileX(h1->hResBetaVsEta,-3,3);
+  newCanvas(N1+"_hPullBetaVsEta",form);
+  plotAndProfileX(h1->hPullBetaVsEta,-5,5);
 }
 
-void plot4DResVsPhi(HRes4DHit * h1) {
+void plot4DPullVsPhi(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResXVsPhi",form);
-  plotAndProfileX(h1->hResXVsPhi,-3,3);
+  newCanvas(N1+"_hPullXVsPhi",form);
+  plotAndProfileX(h1->hPullXVsPhi,-5,5);
 
-  newCanvas(N1+"_hResYVsPhi",form);
-  plotAndProfileX(h1->hResYVsPhi,-3,3);
+  newCanvas(N1+"_hPullYVsPhi",form);
+  plotAndProfileX(h1->hPullYVsPhi,-5,5);
 
-  newCanvas(N1+"_hResAlphaVsPhi",form);
-  plotAndProfileX(h1->hResAlphaVsPhi,-3,3);
+  newCanvas(N1+"_hPullAlphaVsPhi",form);
+  plotAndProfileX(h1->hPullAlphaVsPhi,-5,5);
 
-  newCanvas(N1+"_hResBetaVsPhi",form);
-  plotAndProfileX(h1->hResBetaVsPhi,-3,3);
+  newCanvas(N1+"_hPullBetaVsPhi",form);
+  plotAndProfileX(h1->hPullBetaVsPhi,-5,5);
 }
 
 void plot2DAngles(HRes2DHit * h1, bool ThreeIn1) {
@@ -685,38 +685,38 @@ void plot4DResidualsRZ(HRes4DHit * h1) {
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResYRZ",form);
-  drawGFit(h1->hResYRZ, -0.1,0.1,-0.1,0.1);
+  newCanvas(N1+"_hPullYRZ",form);
+  drawGFit(h1->hPullYRZ, -5,5,-2.5,2.5);
 
-  newCanvas(N1+"_hResBetaRZ",form);
-  drawGFit(h1->hResBetaRZ, -0.1,0.1,-0.1,0.1);
+  newCanvas(N1+"_hPullBetaRZ",form);
+  drawGFit(h1->hPullBetaRZ, -5,5,-2.5,2.5);
 
 }
 
-void plot4DResVsEtaRZ(HRes4DHit * h1) {
+void plot4DPullVsEtaRZ(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResYVsEtaRZ",form);
-  plotAndProfileX(h1->hResYVsEtaRZ,-3,3);
+  newCanvas(N1+"_hPullYVsEtaRZ",form);
+  plotAndProfileXSpread(h1->hPullYVsEtaRZ,-5.,5., true,-2.5,2.5);
 
-  newCanvas(N1+"_hResBetaVsEtaRZ",form);
-  plotAndProfileX(h1->hResBetaVsEtaRZ,-3,3);
+  newCanvas(N1+"_hPullBetaVsEtaRZ",form);
+  plotAndProfileXSpread(h1->hPullBetaVsEtaRZ,-5.,5., true,-2.5,2.5);
 }
 
-void plot4DResVsPhiRZ(HRes4DHit * h1) {
+void plot4DPullVsPhiRZ(HRes4DHit * h1) {
   int i = 2;
 
   TString N1 = "c_4D_" + h1->name;
 
   int form = 2;
-  newCanvas(N1+"_hResYVsPhiRZ",form);
-  plotAndProfileX(h1->hResYVsPhiRZ,-3,3);
+  newCanvas(N1+"_hPullYVsPhiRZ",form);
+  plotAndProfileX(h1->hPullYVsPhiRZ,-3,3);
 
-  newCanvas(N1+"_hResBetaVsPhiRZ",form);
-  plotAndProfileX(h1->hResBetaVsPhiRZ,-3,3);
+  newCanvas(N1+"_hPullBetaVsPhiRZ",form);
+  plotAndProfileX(h1->hPullBetaVsPhiRZ,-3,3);
 }
 
 
@@ -731,7 +731,7 @@ bool setPreferences(bool& do1DRecHit,
   int dimension = 0;
 
   cout << "===================================================" << endl;
-  cout << "==== plotHitReso User Menu =====================" << endl;
+  cout << "==== plotHitPull User Menu =====================" << endl;
   cout << "Chose the plot you want to produce:" << endl;
   cout << "1 - 1D RecHit Plots" << endl;
   cout << "2 - 2D RecHit Plots" << endl;

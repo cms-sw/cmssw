@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/08 15:17:24 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/18 15:29:13 $
+ *  $Revision: 1.4 $
  *  \author S. Bolognesi and G. Cerminara - INFN Torino
  */
 
@@ -267,7 +267,7 @@ void DTSegment4DQuality::endJob() {
             "RZ SL: recPos " << bestRecHitLocalPosRZ <<
               "recDir " << bestRecHitLocalDirRZ <<
               "recAlpha " << alphaBestRHitRZ << endl <<
-            "RZ SL: simPos " << simSegLocalPosRZ <<
+              "RZ SL: simPos " << simSegLocalPosRZ <<
               "simDir " << simSegLocalDirRZ <<
               "simAlpha " << alphaSimSegRZ << endl ;
           //}
@@ -284,11 +284,11 @@ void DTSegment4DQuality::endJob() {
           HRes4DHit *histo=0;
 
           if((*chamberId).wheel() == 0)
-            histo = &h4DHit_W0;
+            histo = h4DHit_W0;
           else if(abs((*chamberId).wheel()) == 1)
-            histo = &h4DHit_W1;
+            histo = h4DHit_W1;
           else if(abs((*chamberId).wheel()) == 2)
-            histo = &h4DHit_W2;
+            histo = h4DHit_W2;
 
           histo->Fill(alphaSimSeg,
                       alphaBestRHit,
@@ -310,150 +310,42 @@ void DTSegment4DQuality::endJob() {
                       sqrt(bestRecHitLocalPosErr.yy()),
                       sqrt(bestRecHitLocalDirErrRZ.xx()),
                       sqrt(bestRecHitLocalPosErrRZ.xx())
-                      );
-
-          h4DHit.Fill(alphaSimSeg,
-                      alphaBestRHit,
-                      betaSimSeg,
-                      betaBestRHit,
-                      xSimSeg, 
-                      bestRecHitLocalPos.x(),
-                      ySimSeg,
-                      bestRecHitLocalPos.y(),
-                      etaSimSeg, 
-                      phiSimSeg,
-                      bestRecHitLocalPosRZ.x(),
-                      simSegLocalPosRZ.x(),
-                      alphaBestRHitRZ,
-                      alphaSimSegRZ,
-                      sqrt(bestRecHitLocalDirErr.xx()),
-                      sqrt(bestRecHitLocalDirErr.yy()),
-                      sqrt(bestRecHitLocalPosErr.xx()),
-                      sqrt(bestRecHitLocalPosErr.yy()),
-                      sqrt(bestRecHitLocalDirErrRZ.xx()),
-                      sqrt(bestRecHitLocalPosErrRZ.xx())
                      );
+
+          h4DHit->Fill(alphaSimSeg,
+                       alphaBestRHit,
+                       betaSimSeg,
+                       betaBestRHit,
+                       xSimSeg, 
+                       bestRecHitLocalPos.x(),
+                       ySimSeg,
+                       bestRecHitLocalPos.y(),
+                       etaSimSeg, 
+                       phiSimSeg,
+                       bestRecHitLocalPosRZ.x(),
+                       simSegLocalPosRZ.x(),
+                       alphaBestRHitRZ,
+                       alphaSimSegRZ,
+                       sqrt(bestRecHitLocalDirErr.xx()),
+                       sqrt(bestRecHitLocalDirErr.yy()),
+                       sqrt(bestRecHitLocalPosErr.xx()),
+                       sqrt(bestRecHitLocalPosErr.yy()),
+                       sqrt(bestRecHitLocalDirErrRZ.xx()),
+                       sqrt(bestRecHitLocalPosErrRZ.xx())
+                      );
         }
       } //end of if(nsegm!=0)
 
       // Fill Efficiency plot
       HEff4DHit *heff = 0;
 
-<<<<<<< DTSegment4DQuality.cc
       if((*chamberId).wheel() == 0)
-        heff = &hEff_W0;
+        heff = hEff_W0;
       else if(abs((*chamberId).wheel()) == 1)
-        heff = &hEff_W1;
+        heff = hEff_W1;
       else if(abs((*chamberId).wheel()) == 2)
-        heff = &hEff_W2;
+        heff = hEff_W2;
       heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-      hEff_All.Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
+      hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
     } // End of loop over chambers
   }
-=======
-    if (nsegm!=0) {
-      // Find the best RecHit: look for the 4D RecHit with the phi angle closest
-      // to that of segment made of SimHits. 
-      // RecHits must have delta alpha and delta position within 5 sigma of
-      // the residual distribution (we are looking for residuals of segments
-      // usefull to the track fit) for efficency purpose
-      const DTRecSegment4D* bestRecHit = 0;
-      bool bestRecHitFound = false;
-      double deltaAlpha = 99999;
-  
-      // Loop over the recHits of this chamberId
-      for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
-	   segment4D!=range.second;
-	   ++segment4D){
-	// Check the dimension
-	if((*segment4D).dimension() != 4) {
-	  cout << "[DTSegment4DQuality]***Error: This is not 4D segment!!!" << endl;
-	  continue;
-	}
-	// Segment Local Direction and position (in Chamber RF)
-	LocalVector recSegDirection = (*segment4D).localDirection();
-	//LocalPoint recSegPosition = (*segment4D).localPosition();
-      
-	float recSegAlpha = DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).first;
-	if(debug)
-	  cout << "  RecSegment direction: " << recSegDirection << endl
-	       << "             position : " <<  (*segment4D).localPosition() << endl
-	       << "             alpha    : " << recSegAlpha << endl
-	       << "             beta     : " <<  DTHitQualityUtils::findSegmentAlphaAndBeta(recSegDirection).second << endl;
-      
-	if(fabs(recSegAlpha - alphaSimSeg) < deltaAlpha) {
-	  deltaAlpha = fabs(recSegAlpha - alphaSimSeg);
-	  bestRecHit = &(*segment4D);
-	  bestRecHitFound = true;
-	}
-      }  // End of Loop over all 4D RecHits
-
-      if(bestRecHitFound) {
-	// Best rechit direction and position in Chamber RF
-	LocalPoint bestRecHitLocalPos = bestRecHit->localPosition();
-	LocalVector bestRecHitLocalDir = bestRecHit->localDirection();
-
-	float alphaBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).first;
-	float betaBestRHit = DTHitQualityUtils::findSegmentAlphaAndBeta(bestRecHitLocalDir).second;
-
-	if(fabs(alphaBestRHit - alphaSimSeg) < 5*sigmaResAlpha &&
-	   fabs(betaBestRHit - betaSimSeg) < 5*sigmaResBeta &&
-	   fabs(bestRecHitLocalPos.x() - xSimSeg) < 5*sigmaResX &&
-	   fabs(bestRecHitLocalPos.y() - ySimSeg) < 5*sigmaResY) {
-	  recHitFound = true;
-	}
-
-	// Fill Residual histos
-	HRes4DHit *histo=0;
-      
-	if((*chamberId).wheel() == 0)
-	  histo = h4DHit_W0;
-	else if(abs((*chamberId).wheel()) == 1)
-	  histo = h4DHit_W1;
-	else if(abs((*chamberId).wheel()) == 2)
-	  histo = h4DHit_W2;
-      
-	histo->Fill(alphaSimSeg,
-		    alphaBestRHit,
-		    betaSimSeg,
-		    betaBestRHit,
-		    xSimSeg, 
-		    bestRecHitLocalPos.x(),
-		    ySimSeg,
-		    bestRecHitLocalPos.y(),
-		    etaSimSeg, 
-		    phiSimSeg);
-
-	h4DHit->Fill(alphaSimSeg,
-		    alphaBestRHit,
-		    betaSimSeg,
-		    betaBestRHit,
-		    xSimSeg, 
-		    bestRecHitLocalPos.x(),
-		    ySimSeg,
-		    bestRecHitLocalPos.y(),
-		    etaSimSeg, 
-		    phiSimSeg);
-      }
-    } //end of if(nsegm!=0)
-
-      // Fill Efficiency plot
-    HEff4DHit *heff = 0;
-    
-    if((*chamberId).wheel() == 0)
-      heff = hEff_W0;
-    else if(abs((*chamberId).wheel()) == 1)
-      heff = hEff_W1;
-    else if(abs((*chamberId).wheel()) == 2)
-      heff = hEff_W2;
-    heff->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-    hEff_All->Fill(etaSimSeg, phiSimSeg, xSimSeg, ySimSeg, alphaSimSeg, betaSimSeg, recHitFound);
-  } // End of loop over chambers
-}
->>>>>>> 1.3
-
-
-
-
-
-
