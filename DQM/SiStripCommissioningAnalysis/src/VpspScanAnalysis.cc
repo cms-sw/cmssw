@@ -114,24 +114,24 @@ void VpspScanAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   if ( iapv == 1 || iapv == 2 ) { iapv--; }
   else { iapv = 0; }
   header( ss );
-  ss << " Monitorables for APV number     : " << iapv;
+  ss << " Monitorables for APV : " << iapv;
   if ( iapv == 0 ) { ss << " (first of pair)"; }
   else if ( iapv == 1 ) { ss << " (second of pair)"; } 
   ss << std::endl;
   ss <<  std::fixed << std::setprecision(2)
-     << " VPSP setting          : " << vpsp_[iapv] << std::endl 
-     << " Signal level    [ADC] : " << adcLevel_[iapv] << std::endl
-     << " Fraction          [%] : " << fraction_[iapv] << std::endl
-     << " Top edge        [bin] : " << topEdge_[iapv] << std::endl
-     << " Bottom edge     [bin] : " << bottomEdge_[iapv] << std::endl
-     << " Top level       [ADC] : " << topLevel_[iapv] << std::endl
-     << " Bottom level    [ADC] : " << bottomLevel_[iapv] << std::endl
+     << " VPSP setting         : " << vpsp_[iapv] << std::endl 
+     << " Signal level   [ADC] : " << adcLevel_[iapv] << std::endl
+     << " Fraction         [%] : " << "(N/A)" /*fraction_[iapv]*/ << std::endl
+     << " Top edge       [bin] : " << topEdge_[iapv] << std::endl
+     << " Bottom edge    [bin] : " << bottomEdge_[iapv] << std::endl
+     << " Top level      [ADC] : " << topLevel_[iapv] << std::endl
+     << " Bottom level   [ADC] : " << bottomLevel_[iapv] << std::endl
      << std::boolalpha 
-     << " isValid               : " << isValid()  << std::endl
+     << " isValid              : " << isValid()  << std::endl
      << std::noboolalpha
      << " Error codes (found "  
      << std::setw(2) << std::setfill(' ') << getErrorCodes().size() 
-     << ")  : ";
+     << "): ";
   if ( getErrorCodes().empty() ) { ss << "(none)"; }
   else { 
     VString::const_iterator istr = getErrorCodes().begin();

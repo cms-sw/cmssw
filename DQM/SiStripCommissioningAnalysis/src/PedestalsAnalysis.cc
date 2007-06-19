@@ -324,9 +324,9 @@ bool PedestalsAnalysis::isValid() const {
 	   rawMax_[0] < sistrip::maximum_ &&
 	   rawMax_[1] < sistrip::maximum_ &&
 	   rawMin_[0] < sistrip::maximum_ &&
-	   rawMin_[1] < sistrip::maximum_ &&
-	   noiseMean_[0] <= rawMean_[0] && //@@ temp
-	   noiseMean_[1] <= rawMean_[1] ); //@@ temp
+	   rawMin_[1] < sistrip::maximum_ );
+  //noiseMean_[0] <= rawMean_[0] && //@@ temp
+  //noiseMean_[1] <= rawMean_[1] ); //@@ temp
 } 
 
 // ----------------------------------------------------------------------------

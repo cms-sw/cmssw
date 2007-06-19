@@ -25,7 +25,7 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   FedCablingAnalysis( const uint32_t& key );
   FedCablingAnalysis();
   virtual ~FedCablingAnalysis() {;}
-
+  
   typedef std::map<uint32_t,uint16_t> Candidates;
 
   // ---------- Analysis results and histos ----------
@@ -55,9 +55,9 @@ class FedCablingAnalysis : public CommissioningAnalysis {
 
   /** Prints analysis results. */
   void print( std::stringstream&, uint32_t not_used = 0 );
-
+  
  private:
-
+  
   // ---------- Private methods ----------
   
   /** Resets analysis member data. */
@@ -69,7 +69,6 @@ class FedCablingAnalysis : public CommissioningAnalysis {
   /** Performs histogram anaysis. */
   void analyse();
 
-  // different algorithms:
   void algo1( TProfile*, TProfile* );
   void algo2( TProfile*, TProfile* );
   void algo3( TProfile*, TProfile* );

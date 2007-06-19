@@ -36,22 +36,22 @@ void CommissioningAnalysis::header( std::stringstream& ss ) const {
   ss << "[" << myName() << "] Monitorables:" << std::endl;
   ss << " FecKey/FedKey               : 0x" 
      << std::hex 
-     << std::setw(8) << std::setfill('0') << fec().key() << "/0x" 
-     << std::setw(8) << std::setfill('0') << fed().key() << std::endl
+     << std::setw(8) << std::setfill('0') << fecKey().key() << "/0x" 
+     << std::setw(8) << std::setfill('0') << fedKey().key() << std::endl
      << std::dec
      << " Crate/FEC/Ring/CCU/Mod/LLD  : " 
-     << fec().fecCrate() << "/" 
-     << fec().fecSlot() << "/" 
-     << fec().fecRing() << "/" 
-     << fec().ccuAddr() << "/" 
-     << fec().ccuChan() << "/" 
-     << fec().lldChan() << std::endl
+     << fecKey().fecCrate() << "/" 
+     << fecKey().fecSlot() << "/" 
+     << fecKey().fecRing() << "/" 
+     << fecKey().ccuAddr() << "/" 
+     << fecKey().ccuChan() << "/" 
+     << fecKey().lldChan() << std::endl
      << " FedId/FeUnit/FeChan/FedChan : " 
-     << fed().fedId() << "/" 
-     << fed().feUnit() << "/" 
-     << fed().feChan() << "/";
-  if ( fed().fedChannel() != sistrip::invalid_ ) {
-    ss << fed().fedChannel() << std::endl;
+     << fedKey().fedId() << "/" 
+     << fedKey().feUnit() << "/" 
+     << fedKey().feChan() << "/";
+  if ( fedKey().fedChannel() != sistrip::invalid_ ) {
+    ss << fedKey().fedChannel() << std::endl;
   } else { ss << "(invalid)" << std::endl; }
 }
 

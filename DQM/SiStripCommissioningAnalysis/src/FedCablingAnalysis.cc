@@ -95,7 +95,7 @@ void FedCablingAnalysis::extract( const std::vector<TH1*>& histos ) {
 // -----------------------------------------------------------------------------
 // 
 void FedCablingAnalysis::analyse() { 
-  
+
   if ( !hFedId_.first ) {
     addErrorCode(sistrip::nullPtr_);
     return;
@@ -122,7 +122,7 @@ void FedCablingAnalysis::analyse() {
   algo1( fedid_histo, fedch_histo );
   //algo2( fedid_histo, fedch_histo );
   //algo3( fedid_histo, fedch_histo );
-  
+
 }
 
 // ----------------------------------------------------------------------------
