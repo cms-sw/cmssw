@@ -2,7 +2,7 @@
 #define FWCore_ParameterSet_ParameterSet_h
 
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.h,v 1.34 2007/03/04 05:45:42 wmtan Exp $
+// $Id: ParameterSet.h,v 1.35 2007/06/14 04:55:59 wmtan Exp $
 //
 // Declaration for ParameterSet(parameter set) and related types
 // ----------------------------------------------------------------------
@@ -77,6 +77,9 @@ namespace edm {
     getAllFileInPaths(std::vector<edm::FileInPath>& output) const;
 
     std::vector<std::string> getParameterNames() const;
+
+    /// checks if a parameter exists
+    bool exists(const std::string & parameterName) const;
 
     template <class T>
     std::vector<std::string> getParameterNamesForType(bool trackiness = 

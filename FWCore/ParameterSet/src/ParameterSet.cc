@@ -1,5 +1,5 @@
 // ----------------------------------------------------------------------
-// $Id: ParameterSet.cc,v 1.30 2007/05/22 16:16:20 chrjones Exp $
+// $Id: ParameterSet.cc,v 1.31 2007/06/14 04:56:00 wmtan Exp $
 //
 // definition of ParameterSet's function members
 // ----------------------------------------------------------------------
@@ -278,6 +278,13 @@ namespace edm {
 		   boost::bind(&std::pair<std::string const, Entry>::first,_1));
     return returnValue;
   }
+
+
+  bool ParameterSet::exists(const std::string & parameterName) const
+  {
+    return( tbl_.find(parameterName) != tbl_.end() );
+  }
+
 
   ParameterSet
   ParameterSet::trackedPart() const
