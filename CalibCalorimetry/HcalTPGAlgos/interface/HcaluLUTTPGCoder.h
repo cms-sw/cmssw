@@ -19,8 +19,8 @@
   * [LUT 1(127)] [LUT 2(127)] ...
   * </pre>
   *
-  * $Date: 2007/04/17 03:31:45 $
-  * $Revision: 1.9 $
+  * $Date: 2007/06/02 02:58:06 $
+  * $Revision: 1.10 $
   * \author M. Weinberger -- TAMU
   * \author Tulika Bose and Greg Landsberg -- Brown
   */
@@ -33,6 +33,9 @@ public:
   virtual void adc2Linear(const HFDataFrame& df, IntegerCaloSamples& ics) const;
   virtual void compress(const IntegerCaloSamples& ics, const std::vector<bool>& featureBits, HcalTriggerPrimitiveDigi& tp) const;
   virtual void getConditions(const edm::EventSetup& es) const;
+  short unsigned int* getLUT(HcalDetId id); // returns pointer to the corresponding LUT[128]
+  float getPed(HcalDetId id);               // returns the PED for channel id
+  float getGain(HcalDetId id);              // returns the gain for channel id
   virtual void releaseConditions() const {}
   
 private:
@@ -43,6 +46,8 @@ private:
   float Rcalib[87];
   typedef short unsigned int LUT;
   LUT *inputLUT[nluts];
+  float *_gain;
+  float *_ped;
   static const float nominal_gain;              // Nominal HB/HE gain in GeV/fC
 };
   const float HcaluLUTTPGCoder::nominal_gain = 0.177; 

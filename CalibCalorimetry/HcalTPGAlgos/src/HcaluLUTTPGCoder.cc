@@ -31,11 +31,16 @@ HcaluLUTTPGCoder::~HcaluLUTTPGCoder() {
   for (int i = 0; i < nluts; i++) {
     if (inputLUT[i] != 0) delete inputLUT[i];
   }
+  delete _gain;
+  delete _ped;
 }
 
 void HcaluLUTTPGCoder::AllocateLUTs() {
   HcalTopology theTopo;
   HcalDetId did;
+
+  _ped = new float[nluts];
+  _gain = new float[nluts];
   for (int i = 0; i < nluts; i++) inputLUT[i] = 0;
   int maxid = 0, minid = 0x7FFFFFFF, rawid = 0;
   for (int ieta=-41; ieta <= 41; ieta++) {
@@ -130,6 +135,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
+	   _ped[id] = ped_;
+           _gain[id] = gain_;
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
@@ -156,6 +163,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HBHEDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
+	   _ped[id] = ped_;
+           _gain[id] = gain_;
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
@@ -181,7 +190,8 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
 	   HFDataFrame frame(cell);
 	   frame.setSize(1);
 	   CaloSamples samples(cell, 1);
-
+	   _ped[id] = ped_;
+           _gain[id] = gain_;
 	   for (int j = 0; j <= 0x7F; j++) {
 	     HcalQIESample adc(j);
 	     frame.setSample(0,adc);
@@ -220,3 +230,19 @@ void HcaluLUTTPGCoder::getRecHitCalib(const char* filename) {
      }
    }
  }
+
+short unsigned int* HcaluLUTTPGCoder::getLUT(HcalDetId id) {
+  int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
+  return inputLUT[ref];
+}
+
+float HcaluLUTTPGCoder::getPed(HcalDetId id) {
+  int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
+  return _ped[ref];
+}
+
+float HcaluLUTTPGCoder::getGain(HcalDetId id) {
+  int ref = GetLUTID(id.subdet(), id.ieta(), id.iphi(), id.depth());
+  return _gain[ref];
+}
+
