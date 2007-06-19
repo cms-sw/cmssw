@@ -16,13 +16,7 @@ double JetMCTagUtils::EnergyRatioFromBHadrons(const Candidate & c)
    for( Candidate::const_iterator itC  = c.begin();
                                   itC != c.end();
                                   itC ++) {
-
-      const Candidate* theMasterClone;
-      bool isFromB=false;
-      if (itC->hasMasterClone ()) {
-        theMasterClone = itC->masterClone().get();
-        isFromB = decayFromBHadron(*theMasterClone);
-      }
+      bool isFromB = decayFromBHadron(*itC);
       ratio = itC->energy() / c.energy() ;
       if( isFromB ) ratioForBjet += ratio;
    }   
@@ -36,13 +30,7 @@ double JetMCTagUtils::EnergyRatioFromCHadrons(const Candidate & c)
    for( Candidate::const_iterator itC  = c.begin();
                                   itC != c.end();
                                   itC ++) {
-
-      const Candidate* theMasterClone;
-      bool isFromC=false;
-      if (itC->hasMasterClone ()) {
-        theMasterClone = itC->masterClone().get();
-        isFromC = decayFromCHadron(*theMasterClone);
-      }
+      bool isFromC = decayFromCHadron(*itC);
       ratio = itC->energy() / c.energy() ;
       if( isFromC ) ratioForCjet += ratio;
    }
