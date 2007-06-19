@@ -4,8 +4,10 @@
 <SpecParSection label="regions.xml" eval="true">
   <SpecPar name="castor_plate">
     <PartSelector path="//CASF"/>
-    <PartSelector path="//C3TF"/>
-    <PartSelector path="//C4TF"/>
+    <PartSelector path="//C3EF"/>
+    <PartSelector path="//C4EF"/>
+    <PartSelector path="//C3HF"/>
+    <PartSelector path="//C4HF"/>
     <Parameter name="CMSCutsRegion" value="LayerRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
@@ -54,8 +56,9 @@
   </SpecPar>
 
   <SpecPar name="castor_tungsten">
-    <PartSelector path="//CASL"/>
-    <Parameter name="CMSCutsRegion" value="TangstenRegion" eval="false"/>
+    <PartSelector path="//CAEL"/>
+    <PartSelector path="//CAHL"/>
+    <Parameter name="CMSCutsRegion" value="TungstenRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="1*mm"/>
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="10*mm"/>

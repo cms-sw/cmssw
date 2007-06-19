@@ -3,54 +3,35 @@
 
 <SpecParSection label="castorsens" eval="true">
  <SpecPar name="castor_plate">
-   <PartSelector path="//CASR"/>
+   <PartSelector path="//CAER"/>
+   <PartSelector path="//CAHR"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorPL" eval="false"/>
  </SpecPar>  
  <SpecPar name="castor_fibre">
+   <PartSelector path="//C3EF"/>
+   <PartSelector path="//C4EF"/>
+   <PartSelector path="//C3HF"/>
+   <PartSelector path="//C4HF"/>
    <PartSelector path="//C3TF"/>
    <PartSelector path="//C4TF"/>
    <PartSelector path="//CASF"/>
-   <PartSelector path="//C001"/>
-   <PartSelector path="//C002"/>
-   <PartSelector path="//C003"/>
-   <PartSelector path="//C004"/>
-   <PartSelector path="//C005"/>
-   <PartSelector path="//C006"/>
-   <PartSelector path="//C007"/>
-   <PartSelector path="//C008"/>
-   <PartSelector path="//C009"/>
-   <PartSelector path="//C010"/>
-   <PartSelector path="//C011"/>
-   <PartSelector path="//C012"/>
-   <PartSelector path="//C013"/>
-   <PartSelector path="//C014"/>
-   <PartSelector path="//CP01"/>
-   <PartSelector path="//CP02"/>
-   <PartSelector path="//CP03"/>
-   <PartSelector path="//CP04"/>
-   <PartSelector path="//CP05"/>
-   <PartSelector path="//CP06"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorFI" eval="false"/>
  </SpecPar>  
  <SpecPar name="castor_bundle">
-   <PartSelector path="//CAAL"/>
-   <PartSelector path="//CAAI"/>
-   <PartSelector path="//CALM"/>
-   <PartSelector path="//CBU1"/>
-   <PartSelector path="//CBU2"/>
-   <PartSelector path="//CBU3"/>
-   <PartSelector path="//CBU4"/>
-   <PartSelector path="//CBU5"/>
-   <PartSelector path="//CBU6"/>
-   <PartSelector path="//CAEL"/>
-   <PartSelector path="//CABA"/>
+   <PartSelector path="//CEAL"/>
+   <PartSelector path="//CHAL"/>
+   <PartSelector path="//CEAI"/>
+   <PartSelector path="//CHAI"/>
+   <PartSelector path="//CHEL"/>
+   <PartSelector path="//CEEL"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorBU" eval="false"/>
  </SpecPar>  
  <SpecPar name="castor_tungsten">
-   <PartSelector path="//CASL"/>
+   <PartSelector path="//CAHL"/>
+   <PartSelector path="//CAEL"/>
    <Parameter name="SensitiveDetector" value="CastorSensitiveDetector" eval="false"/>
    <Parameter name="ReadOutName" value="CastorTU" eval="false"/>
  </SpecPar>  
