@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/13 08:42:18 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/14 17:49:15 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -234,8 +234,9 @@ string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId & lID) {
   stringstream superLayer; superLayer << lID.superlayerId().superlayer();
   stringstream layer; layer << lID.layer();
 
-  string folderName = 
-    "Collector/FU0/DT/DTEfficiencyTask/Wheel" +  wheel.str() +
+ string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
+ string folderName = 
+    folderRoot + "DT/DTEfficiencyTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + 
     "/SuperLayer" + superLayer.str() + "/";

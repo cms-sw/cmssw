@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 07:02:04 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/14 17:49:15 $
+ *  $Revision: 1.5 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -217,8 +217,9 @@ string DTDeadChannelTest::getMEName(string histoTag, const DTChamberId & chId) {
   stringstream station; station << chId.station();
   stringstream sector; sector << chId.sector();
 
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + 
     "/Occupancies" + "/";

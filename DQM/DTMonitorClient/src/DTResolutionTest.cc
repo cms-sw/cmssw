@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 07:06:21 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/06/14 17:49:15 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -197,7 +197,6 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   }
 
   // Mean test 
-  cout<<"[DTResolutionTest]: Residuals Mean Tests results"<<endl;
   string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName","ResidualsMeanInRange"); 
   for(map<string, MonitorElement*>::const_iterator hMean = MeanHistos.begin();
       hMean != MeanHistos.end();
@@ -218,7 +217,6 @@ void DTResolutionTest::analyze(const edm::Event& e, const edm::EventSetup& conte
   }
 
   // Sigma test
-  cout<<"[DTResolutionTest]: Residuals Sigma Tests results"<<endl;
   string SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName","ResidualsSigmaInRange"); 
   for(map<string , MonitorElement*>::const_iterator hSigma = SigmaHistos.begin();
       hSigma != SigmaHistos.end();
@@ -252,8 +250,9 @@ string DTResolutionTest::getMEName(const DTSuperLayerId & slID) {
   stringstream sector; sector << slID.sector();	
   stringstream superLayer; superLayer << slID.superlayer();
   
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    "Collector/FU0/DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTResolutionAnalysisTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 

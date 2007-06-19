@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 07:40:04 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/19 09:38:04 $
+ *  $Revision: 1.6 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -34,7 +34,7 @@ DTLocalTriggerTest::DTLocalTriggerTest(const edm::ParameterSet& ps){
 
   edm::LogVerbatim ("localTrigger") << "[DTLocalTriggerTest]: Constructor";
 
-  sourceFolder = ps.getUntrackedParameter<string>("sourceFolder", ""); 
+  sourceFolder = ps.getUntrackedParameter<string>("folderRoot", ""); 
   hwSource = ps.getUntrackedParameter<bool>("dataFromDDU", false) ? "DDU" : "DCC" ; 
   parameters = ps;
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
@@ -163,10 +163,12 @@ pair<float,float> DTLocalTriggerTest::phiRange(const DTChamberId& id){
 
 void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
-  if (nevents%1000 == 0)
-    edm::LogVerbatim ("localTrigger") <<"[DTLocalTriggerTest]: "<<nevents<<" updates";
-  
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
   // Loop over the TriggerUnits
   for (int stat=1; stat<=4; ++stat){
     for (int wh=-2; wh<=2; ++wh){

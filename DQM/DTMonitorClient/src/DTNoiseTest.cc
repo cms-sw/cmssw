@@ -1,8 +1,11 @@
 /*
  * 
- * $Date: 2007/05/15 17:21:35 $
- * $Revision: 1.3 $
- * \author A. Gresele - INFN Trento
+ * $Date: 2007/06/18 16:57:50 $
+ * $Revision: 1.10 $
+ * \authors:
+ *  A. Gresele - INFN Trento
+ *  G. Mila - INFN Torino
+ *  M. Zanetti - CERN PH
  *
  */
 
@@ -49,7 +52,7 @@ DTNoiseTest::DTNoiseTest(const edm::ParameterSet& ps){
   
   dbe = edm::Service<DaqMonitorBEInterface>().operator->();
   dbe->setVerbose(1);
-  dbe->setCurrentFolder("DT/TestNoise");
+  dbe->setCurrentFolder("DT/Tests/Noise");
 }
 
 
@@ -66,7 +69,7 @@ void DTNoiseTest::endJob(){
   if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
     dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTNoiseTest.root"));
   
-  dbe->rmdir("DT/TestNoise");
+  dbe->rmdir("DT/Tests/Noise");
 }
 
 void DTNoiseTest::beginJob(const edm::EventSetup& context){
@@ -74,7 +77,6 @@ void DTNoiseTest::beginJob(const edm::EventSetup& context){
   edm::LogVerbatim ("noise") <<"[DTNoiseTest]: BeginJob";
 
   updates = 0;
-  nevents = 0;
 
   // Get the geometry
   context.get<MuonGeometryRecord>().get(muonGeom);
@@ -88,14 +90,14 @@ void DTNoiseTest::bookHistos(const DTChamberId & ch, string folder, string histo
   stringstream station; station << ch.station();	
   stringstream sector; sector << ch.sector();	
 
-  dbe->setCurrentFolder("DT/TestNoise/" + folder);
+  dbe->setCurrentFolder("DT/Tests/Noise/" + folder);
 
   string histoName =  histoTag + "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str(); 
  
   if (folder == "NoiseAverage")
   (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
  
-  if ( folder == "New Noisy Channels")
+  if ( folder == "NewNoisyChannels")
   (histos[histoTag])[ch.rawId()] = dbe->book1D(histoName.c_str(),histoName.c_str(),3,0,3);
   
 }
@@ -111,7 +113,7 @@ void DTNoiseTest::bookHistos(const DTLayerId & lId, int nWires, string folder, s
 
   string histoName = histoTag + "_W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
 
-  dbe->setCurrentFolder("DT/TestNoise/" + folder +
+  dbe->setCurrentFolder("DT/Tests/Noise/" + folder +
 			"/Wheel" + wheel.str() +
 			"/Station" + station.str() +
 			"/Sector" + sector.str());
@@ -155,7 +157,7 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 	TH2F * noiseHisto = dynamic_cast<TH2F*> (ob->operator->());
 
 	// WARNING uncorrect normalization!! TO BE PROVIDED CENTRALLY
-	nevents = (int) noiseHisto->GetEntries();	
+	double nevents = (int) noiseHisto->GetEntries();	
 	
 	double normalization =0;
 	
@@ -220,8 +222,8 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 	      if (!isNoisy) newNoiseChannels++;
 	    }
 	    theNoisyChannels.clear();
-	    histoTag = "New Noisy Channels";
-	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("New Noisy Channels"), histoTag );
+	    histoTag = "NewNoisyChannels";
+	    if (histos[histoTag].find((*ch_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*ch_it)->id(),string("NewNoisyChannels"), histoTag );
 	    histos[histoTag].find((*ch_it)->id().rawId())->second->setBinContent(slID.superLayer(), newNoiseChannels);   
 	  }
 	}
@@ -251,7 +253,6 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
 		MeanDenominator+=noiseHistoPerEvent->GetBinContent(w,numDigi);
 	      }
 	      double Mean=MeanNumerator/MeanDenominator;
-	      cout<<"Mean: "<<Mean<<endl;
 	      if (histos[histoTag].find((*l_it)->id().rawId()) == histos[histoTag].end()) bookHistos((*l_it)->id(),nWires, string("MeanDigiPerEvent"), histoTag );
 	      histos[histoTag].find((*l_it)->id().rawId())->second->setBinContent(w, Mean);   
 	    } 
@@ -262,23 +263,21 @@ void DTNoiseTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   }
   
   // Noise Mean test 
-  cout<<"[DTNoiseTest]: Mean Noise Tests results"<<endl;
   histoTag = "MeanDigiPerEvent";
   string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName","NoiseMeanInRange");
   for(map<uint32_t, MonitorElement*>::const_iterator hMean = histos[histoTag].begin();
-  hMean != histos[histoTag].end();
+      hMean != histos[histoTag].end();
       hMean++) {
-      const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
+    const QReport * theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     if(theMeanQReport) {
-    vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
+      vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-      channel != badChannels.end(); channel++) {
-	cout<<"LayerId : "<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents()<<endl;
-	cout << "-------- LayerId : "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus()<<endl; 
-	}
+	   channel != badChannels.end(); channel++) {
+	LogVerbatim ("tTrigCalibration")<<"LayerId : "<<(*hMean).first<<" Bad mean channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
+	LogVerbatim ("tTrigCalibration") << "-------- LayerId : "<<(*hMean).first<<"  "<<theMeanQReport->getMessage()<<" ------- "<<theMeanQReport->getStatus(); 
       }
     }
-
+  }
   
   if (updates%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
@@ -292,12 +291,13 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
   stringstream station; station << ch.station();	
   stringstream sector; sector << ch.sector();	
   
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderTag = parameters.getUntrackedParameter<string>("folderTag", "Occupancies");
   string folderName = 
-    "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
-  
+
   string histoTag = parameters.getUntrackedParameter<string>("histoTag", "OccupancyNoise_perCh");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
@@ -309,7 +309,7 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
   
 }
 
-  string DTNoiseTest::getMEName(const DTLayerId & ly) {
+string DTNoiseTest::getMEName(const DTLayerId & ly) {
   
   stringstream wheel; wheel << ly.wheel();	
   stringstream station; station << ly.station();	
@@ -317,13 +317,14 @@ string DTNoiseTest::getMEName(const DTChamberId & ch) {
   stringstream superLayer; superLayer << ly.superlayer();
   stringstream layer; layer << ly.layer();
   
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderTag = parameters.getUntrackedParameter<string>("folderTagForDigiPerEventTest", "DigiPerEvent");
   string folderName = 
-    "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
   
-  string histoTag = parameters.getUntrackedParameter<string>("folderTagForDigiPerEventTest", "DigiPerEvent");
+  string histoTag = parameters.getUntrackedParameter<string>("histoTagForDigiPerEventTest", "DigiPerEvent");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 

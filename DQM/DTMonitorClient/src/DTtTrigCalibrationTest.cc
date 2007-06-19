@@ -1,8 +1,8 @@
 /*
  * \file DTtTrigCalibrationTest.cc
  * 
- * $Date: 2007/05/22 07:07:49 $
- * $Revision: 1.5 $
+ * $Date: 2007/06/14 17:49:15 $
+ * $Revision: 1.6 $
  * \author M. Zanetti - CERN
  *
  */
@@ -127,6 +127,8 @@ void DTtTrigCalibrationTest::analyze(const edm::Event& e, const edm::EventSetup&
       MonitorElement * tb_histo = dbe->get(getMEName(slID));
       if (tb_histo) {
 	
+	edm::LogVerbatim ("tTrigCalibration") <<"[DTtTrigCalibrationTest]: I've got the histo!!";	
+
 	MonitorElementT<TNamed>* ob = dynamic_cast<MonitorElementT<TNamed>*>(tb_histo);
 	if (ob) {
 	  TH1F * tb_histo_root = dynamic_cast<TH1F*> (ob->operator->());
@@ -174,13 +176,14 @@ string DTtTrigCalibrationTest::getMEName(const DTSuperLayerId & slID) {
   stringstream sector; sector << slID.sector();	
   stringstream superLayer; superLayer << slID.superlayer();
 
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderTag = parameters.getUntrackedParameter<string>("folderTag", "TimeBoxes");
   string folderName = 
-    "Collector/FU0/DT/DTDigiTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTDigiTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/" + folderTag + "/";
 
-  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "TimeBoxAllHits");
+  string histoTag = parameters.getUntrackedParameter<string>("histoTag", "TimeBox");
   string histoname = folderName + histoTag  
     + "_W" + wheel.str() 
     + "_St" + station.str() 

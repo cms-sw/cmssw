@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/05/22 06:59:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/14 17:49:15 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -225,9 +225,10 @@ string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & c
   stringstream wheel; wheel << chID.wheel();
   stringstream station; station << chID.station();
   stringstream sector; sector << chID.sector();
-
+ 
+  string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
   string folderName = 
-    "Collector/FU0/DT/DTChamberEfficiencyTask/Wheel" +  wheel.str() +
+    folderRoot + "DT/DTChamberEfficiencyTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + "/";
 
