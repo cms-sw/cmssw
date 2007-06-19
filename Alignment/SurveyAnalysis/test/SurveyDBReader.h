@@ -6,13 +6,13 @@
  * Module that reads survey info from DB and prints them out.
  *
  * Usage:
- *   module reader = SurveyDBReader {}
+ *   module reader = SurveyDBReader { string fileName = 'surveyDBDump.root' }
  *   path p = { reader }
  *
- * No configuration for module is necessary. Just put module in path.
+ * Only one parameter to set the name of the output ROOT file.
  *
- *  $Date: 2007/05/03 19:20:00 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/19 14:50:34 $
+ *  $Revision: 1.2 $
  *  \author Chung Khim Lae
  */
 
