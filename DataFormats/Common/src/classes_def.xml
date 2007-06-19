@@ -63,6 +63,7 @@
  <class name="std::pair<unsigned int,unsigned int>"/>
  <class name="std::pair<unsigned int,unsigned long>"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
+ <class mame="std::pair<unsigned int, int>" />
  <class name="std::pair<unsigned int,float>"/>
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<double,double>"/>
@@ -121,6 +122,7 @@
  <class name="edm::Wrapper<std::set<int> >"/>
  <class name="edm::Wrapper<std::pair<unsigned long,unsigned long> >"/>
  <class name="edm::Wrapper<std::pair<unsigned int,unsigned int> >"/>
+ <class name="edm::Wrapper<std::pair<unsigned int,int> >"/>
  <class name="edm::Wrapper<std::pair<unsigned short,unsigned short> >"/>
  <class name="edm::Wrapper<std::map<int,int> >"/>
  <class name="edm::Wrapper<std::map<unsigned long,unsigned long> >"/>
