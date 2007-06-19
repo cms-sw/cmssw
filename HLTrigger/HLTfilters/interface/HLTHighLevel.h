@@ -7,14 +7,15 @@
  *  This class is an HLTFilter (-> EDFilter) implementing filtering on
  *  HLT bits
  *
- *  $Date: 2006/10/04 16:02:42 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/03/26 11:31:42 $
+ *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include<vector>
 #include<string>
 
@@ -33,6 +34,7 @@ class HLTHighLevel : public HLTFilter {
   private:
 
     edm::InputTag inputTag_; // HLT TriggerResults EDProduct
+    edm::TriggerNames triggerNames_; // trigger names
 
     bool andOr_;
     // false=and-mode (all), true=or-mode(at least one)

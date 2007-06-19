@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/26 11:31:42 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 11:39:20 $
+ *  $Revision: 1.2 $
  *
  *  \author Martin Grunewald
  *
@@ -26,6 +26,7 @@
 //
 HLTHighLevel::HLTHighLevel(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag> ("TriggerResultsTag")),
+  triggerNames_(),
   andOr_    (iConfig.getParameter<bool> ("andOr" )),
   byName_   (iConfig.getParameter<bool> ("byName")),
   n_        (0)
@@ -74,19 +75,17 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      return false;
    }
 
-   // use event data to get the current HLT trigger table
-   // this is an ugly hack, the (possibly changing) HLT trigger table 
-   // should rather be taken from some runBlock or lumiBlock on file
+   triggerNames_.init(*trh);
 
    unsigned int n(n_);
    if (byName_) {
      for (unsigned int i=0; i!=n; i++) {
-       HLTPathsByIndex_[i]=trh->find(HLTPathsByName_[i]);
+       HLTPathsByIndex_[i]=triggerNames_.triggerIndex(HLTPathsByName_[i]);
      }
    } else {
      for (unsigned int i=0; i!=n; i++) {
        if (HLTPathsByIndex_[i]<trh->size()) {
-	 HLTPathsByName_[i]=trh->name(HLTPathsByIndex_[i]);
+	 HLTPathsByName_[i]=triggerNames_.triggerName(HLTPathsByIndex_[i]);
        } else {
 	 HLTPathsByName_[i]=invalid;
        }
@@ -99,7 +98,7 @@ HLTHighLevel::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      HLTPathsByName_.resize(n);
      HLTPathsByIndex_.resize(n);
      for (unsigned int i=0; i!=n; i++) {
-       HLTPathsByName_[i]=trh->name(i);
+       HLTPathsByName_[i]=triggerNames_.triggerName(i);
        HLTPathsByIndex_[i]=i;
      }
    }
