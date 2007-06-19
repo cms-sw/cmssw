@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/06/14 15:47:13 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/05/22 07:40:04 $
+ *  $Revision: 1.2 $
  *  \author C. Battilana S. Marcellini - INFN Bologna
  */
 
@@ -66,28 +66,6 @@ void DTLocalTriggerTest::beginJob(const edm::EventSetup& context){
   
 }
 
-void DTLocalTriggerTest::setLabelPh(MonitorElement* ME){
-
-  for (int i=0; i<48; ++i){
-    stringstream label;
-    int stat = (i%4) +1;
-    if (stat==1) label << "Sec " << i/4 +1 << " ";
-    ME->setBinLabel(i+1,label.str().c_str());
-  }
-
-}
-
-void DTLocalTriggerTest::setLabelTh(MonitorElement* ME){
-
-  for (int i=0; i<36; ++i){
-    stringstream label;
-    int stat = (i%3) +1;
-    if (stat==1) label << "Sec " << i/3 +1 << " ";
-    ME->setBinLabel(i+1,label.str().c_str());
-  }
-
-}
-
 void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
   
   stringstream wheel; wheel << chambId.wheel();
@@ -118,25 +96,26 @@ void DTLocalTriggerTest::bookChambHistos(DTChamberId chambId, string htype) {
 
 }
 
-void DTLocalTriggerTest::bookWheelHistos(int wheel, string folder, string htype) {
+void DTLocalTriggerTest::bookSectorHistos(int wheel,int sector,string folder, string htype) {
   
-  stringstream  wh;
-  wh << wheel;
-  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/"+folder);
+  stringstream wh; wh << wheel;
+  stringstream sc; sc << sector;
+  int sectorid = (wheel+3) + (sector-1)*5;
+  dbe->setCurrentFolder("DT/Tests/DTLocalTrigger/Wheel"+ wh.str()+"/Sector"+ sc.str()+"/"+folder);
 
   if (htype.find("Phi") != string::npos){    
-    string hname = htype + "_Wh" + wh.str();
-    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),48,1,49);
-    setLabelPh(me);
-    whME[wheel][htype] = me;
+    string hname = htype + "_W" + wh.str()+"_Sec" +sc.str();
+    MonitorElement* me = dbe->book1D(hname.c_str(),hname.c_str(),4,1,5);
+    //setLabelPh(me);
+    secME[sectorid][htype] = me;
     return;
   }
   
   if (htype.find("Theta") != string::npos){
-    string hname = htype + "_Wh" + wh.str();
-    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),36,1,37);
-    setLabelTh(me);
-    whME[wheel][htype] = me;
+    string hname = htype + "_W" + wh.str()+ "_Sec"+sc.str();
+    MonitorElement* me =dbe->book1D(hname.c_str(),hname.c_str(),3,1,4);
+    //setLabelTh(me);
+    secME[sectorid][htype] = me;
     return;
   }
   
@@ -193,8 +172,7 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
     for (int wh=-2; wh<=2; ++wh){
       for (int sect=1; sect<=12; ++sect){
 	DTChamberId chID(wh,stat,sect);
-	int pos_ph = (sect-1)*4+stat; 
-	int pos_th = (sect-1)*3+stat; 
+	int sector_id = (wh+3)+(sect-1)*5;
 	
 	// Get the ME produced by DTLocalTriggeTask Source (Phi ones)
 	MonitorElement * DDU_BXvsQual_ME = dbe->get(getMEName("BXvsQual","LocalTriggerPhi", chID));
@@ -222,15 +200,15 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 		Corr_trigs+=proj_Qual->GetBinContent(i);
 	      
 	      // Fill client histos
-	      if( whME[wh].find("CorrectBX_Phi") == whME[wh].end() ){
-		bookWheelHistos(wh,"LocalTriggerPhi","CorrectBX_Phi");
-		bookWheelHistos(wh,"LocalTriggerPhi","CorrFraction_Phi");
-		bookWheelHistos(wh,"LocalTriggerPhi","2ndFraction_Phi");
+	      if( secME[sector_id].find("CorrectBX_Phi") == secME[sector_id].end() ){
+		bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrectBX_Phi");
+		bookSectorHistos(wh,sect,"LocalTriggerPhi","CorrFraction_Phi");
+		bookSectorHistos(wh,sect,"LocalTriggerPhi","2ndFraction_Phi");
 	      }
-	      std::map<std::string,MonitorElement*> innerME = whME[wh];
-	      innerME.find("CorrectBX_Phi")->second->setBinContent(pos_ph,BX_OK);
-	      innerME.find("CorrFraction_Phi")->second->setBinContent(pos_ph,Corr_trigs/trigs);
-	      innerME.find("2ndFraction_Phi")->second->setBinContent(pos_ph,Flag2nd_trigs/trigs);
+	      std::map<std::string,MonitorElement*> innerME = secME[sector_id];
+	      innerME.find("CorrectBX_Phi")->second->setBinContent(stat,BX_OK);
+	      innerME.find("CorrFraction_Phi")->second->setBinContent(stat,Corr_trigs/trigs);
+	      innerME.find("2ndFraction_Phi")->second->setBinContent(stat,Flag2nd_trigs/trigs);
 	    
 	    }
 	  }
@@ -254,13 +232,13 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	      double H_trigs  = proj_Qual->GetBinContent(4);
 	      
 	      // Fill client histos
-	      if( whME[wh].find("HFraction_Theta") == whME[wh].end() ){
-		bookWheelHistos(wh,"LocalTriggerTheta","CorrectBX_Theta");
-		bookWheelHistos(wh,"LocalTriggerTheta","HFraction_Theta");
+	      if( secME[sector_id].find("HFraction_Theta") == secME[sector_id].end() ){
+		bookSectorHistos(wh,sect,"LocalTriggerTheta","CorrectBX_Theta");
+		bookSectorHistos(wh,sect,"LocalTriggerTheta","HFraction_Theta");
 	      }
-	      std::map<std::string,MonitorElement*> innerME = whME.find(wh)->second;
-	      innerME.find("CorrectBX_Theta")->second->setBinContent(pos_th,BX_OK);
-	      innerME.find("HFraction_Theta")->second->setBinContent(pos_th,H_trigs/trigs);
+	      std::map<std::string,MonitorElement*> innerME = secME.find(sector_id)->second;
+	      innerME.find("CorrectBX_Theta")->second->setBinContent(stat,BX_OK);
+	      innerME.find("HFraction_Theta")->second->setBinContent(stat,H_trigs/trigs);
 	    
 	    }
 	  }
@@ -288,15 +266,15 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	    if (Track_pos_histo && Track_pos_andtrig_histo && Track_angle_histo && Track_angle_andtrig_histo) {
 	      
 	      // Fill client histos
-	      if( whME[wh].find("TrigEff_Phi") == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEff_Phi");  
+	      if( secME[sector_id].find("TrigEff_Phi") == secME[sector_id].end() ){
+		bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEff_Phi");  
 	      }
-	      std::map<std::string,MonitorElement*> innerME = whME[wh];
+	      std::map<std::string,MonitorElement*> innerME = secME[sector_id];
 	      MonitorElement* globaleff = innerME.find("TrigEff_Phi")->second;
 	      float bineff = float(Track_pos_andtrig_histo->GetEntries())/Track_pos_histo->GetEntries();
 	      float binerr = sqrt(bineff*(1-bineff)/Track_pos_histo->GetEntries());
-	      globaleff->setBinContent(pos_ph,bineff);
-	      globaleff->setBinError(pos_ph,binerr);
+	      globaleff->setBinContent(stat,bineff);
+	      globaleff->setBinError(stat,binerr);
 	      DTChamberId dtChId(wh,stat,sect);
 	      uint32_t indexCh = dtChId.rawId();
 	      if( chambME[indexCh].find("TrigEffAngle_Phi") == chambME[indexCh].end()){
@@ -333,15 +311,15 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
 	    if (Track_thpos_histo && Track_thpos_andtrig_histo && Track_thangle_histo && Track_thangle_andtrig_histo) {
 	      
 	      // Fill client histos
-	      if( whME[wh].find("TrigEff_Theta") == whME[wh].end() ){
-		bookWheelHistos(wh,"TriggerAndSeg","TrigEff_Theta");  
+	      if( secME[sector_id].find("TrigEff_Theta") == secME[sector_id].end() ){
+		bookSectorHistos(wh,sect,"TriggerAndSeg","TrigEff_Theta");  
 	      }
-	      std::map<std::string,MonitorElement*> innerME = whME[wh];
+	      std::map<std::string,MonitorElement*> innerME = secME[sector_id];
 	      MonitorElement* globaleff = innerME.find("TrigEff_Theta")->second;
 	      float bineff = float(Track_thpos_andtrig_histo->GetEntries())/Track_thpos_histo->GetEntries();
 	      float binerr = sqrt(bineff*(1-bineff)/Track_thpos_histo->GetEntries());
-	      globaleff->setBinContent(pos_th,bineff);
-	      globaleff->setBinError(pos_th,binerr);
+	      globaleff->setBinContent(stat,bineff);
+	      globaleff->setBinError(stat,binerr);
 	      DTChamberId dtChId(wh,stat,sect);
 	      uint32_t indexCh = dtChId.rawId();
 	      if( chambME[indexCh].find("TrigEffAngle_Theta") == chambME[indexCh].end()){
@@ -386,20 +364,20 @@ void DTLocalTriggerTest::analyze(const edm::Event& e, const edm::EventSetup& con
   }
 
   // Efficiency test (performed on wheel plots)
-  for(map<int,map<string,MonitorElement*> >::const_iterator imapIt = whME.begin();
-      imapIt != whME.end();
+  for(map<int,map<string,MonitorElement*> >::const_iterator imapIt = secME.begin();
+      imapIt != secME.end();
       ++imapIt){
     for (map<string,MonitorElement*>::const_iterator effME = (*imapIt).second.begin();
 	 effME!=(*imapIt).second.end();
 	 ++effME){
       if ((*effME).second->getName().find("TrigEff_Phi") == 0) {
-	const QReport *effQReport = (*effME).second->getQReport("WheelTrigEffInRangePhi");
+	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangePhi");
 	if (effQReport) {
 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}
       }
       if ((*effME).second->getName().find("TrigEff_Theta") == 0) {
-	const QReport *effQReport = (*effME).second->getQReport("WheelTrigEffInRangeTheta");
+	const QReport *effQReport = (*effME).second->getQReport("SectorTrigEffInRangeTheta");
 	if (effQReport) {
 	  edm::LogWarning ("localTrigger") << "-------" << effQReport->getMessage() << " ------- " << effQReport->getStatus();
 	}

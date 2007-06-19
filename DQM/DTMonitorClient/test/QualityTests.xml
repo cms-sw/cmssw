@@ -93,37 +93,37 @@
 
 <QTEST name="ChambTrigEffInRangePhi">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.50</PARAM>
 	<PARAM name="warning">0.80</PARAM>
 </QTEST>
 
 
-<QTEST name="WheelTrigEffInRangePhi">
+<QTEST name="SectorTrigEffInRangePhi">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.08</PARAM>
-	<PARAM name="warning">0.08</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
 </QTEST>
 
 
 <QTEST name="ChambTrigEffInRangeTheta">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
 	<PARAM name="error">0.50</PARAM>
 	<PARAM name="warning">0.80</PARAM>
 </QTEST>
 
 
-<QTEST name="WheelTrigEffInRangeTheta">
+<QTEST name="SectorTrigEffInRangeTheta">
 	<TYPE>ContentsYRange</TYPE>	
-	<PARAM name="ymin">0.6</PARAM>
+	<PARAM name="ymin">0.5</PARAM>
 	<PARAM name="ymax">1.00</PARAM>
-	<PARAM name="error">0.08</PARAM>
-	<PARAM name="warning">0.08</PARAM>
+	<PARAM name="error">0.95</PARAM>
+	<PARAM name="warning">0.95</PARAM>
 </QTEST>
 
 
@@ -172,7 +172,7 @@
 </LINK>
 
 <LINK name="*TrigEff_Phi*">
-	<TestName activate="true">WheelTrigEffInRangePhi</TestName>
+	<TestName activate="true">SectorTrigEffInRangePhi</TestName>
 </LINK>
 
 <LINK name="*TrigEffPos_Theta*">
@@ -180,7 +180,7 @@
 </LINK>
 
 <LINK name="*TrigEff_Theta*">
-	<TestName activate="true">WheelTrigEffInRangeTheta</TestName>
+	<TestName activate="true">SectorTrigEffInRangeTheta</TestName>
 </LINK>
 
 

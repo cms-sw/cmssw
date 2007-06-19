@@ -54,20 +54,14 @@ protected:
   /// Endjob
   void endJob();
 
-  /// Book the new MEs (for each wheel)
-  void bookWheelHistos(int wheel, std::string folder, std::string htype );
+  /// Book the new MEs (for each sector)
+  void bookSectorHistos(int wheel, int sector, std::string folder, std::string htype );
 
   /// Book the new MEs (for each chamber)
   void bookChambHistos(DTChamberId chambId, std::string htype );
 
   /// Calculate phi range for histograms
   std::pair<float,float> phiRange(const DTChamberId& id);
-
-  /// Set labels Phi
-  void setLabelPh(MonitorElement* ME);
-  
-  /// Set labels Theta
-  void setLabelTh(MonitorElement* ME);
 
   /// Compute efficiency plots
   void makeEfficiencyME(TH1F* numerator, TH1F* denominator, MonitorElement* result);
@@ -84,7 +78,7 @@ protected:
   edm::ParameterSet parameters;
   std::string hwSource;
   edm::ESHandle<DTGeometry> muonGeom;
-  std::map<int,std::map<std::string,MonitorElement*> >      whME;
+  std::map<int,std::map<std::string,MonitorElement*> >      secME;
   std::map<uint32_t,std::map<std::string,MonitorElement*> > chambME;
 
 };
