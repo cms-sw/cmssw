@@ -11,10 +11,6 @@
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 #include "RecoLocalTracker/SubCollectionProducers/interface/RemainingClusterProducer.h"
 //
 // class decleration
@@ -46,7 +42,7 @@ RemainingClusterProducer::~RemainingClusterProducer()
 void
 RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  double cut = conf_.getParameter<double>("DistanceCut");
+
 
   using namespace edm;
   InputTag rphirecHitsTag    = conf_.getParameter<InputTag>("rphirecHits");
@@ -68,28 +64,77 @@ RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel( stereorecHitsTag  , stereorecHits);
   iEvent.getByLabel( pixelTag          , pixelHits);
   iEvent.getByLabel( tkTag             , trackingHits);
-
+  
   //
   thePixelClusterVector.clear();
+  theStripClusterVector.clear();
 
-  //TRACKING HITS
-  vector<const SiPixelRecHit*> pixelInTrack;
-  vector<const SiStripMatchedRecHit2D*> matchedInTrack;
-  vector<const SiStripRecHit2D*> monoInTrack;
-  //
 
+
+  //DETSETVECTOR OF TRACKING HITS
+  DetSetVector<const SiPixelRecHit *> pixelInTrack;
+  DetSetVector<const SiStripRecHit2D*> monoInTrack;
+  DetSetVector<const SiStripRecHit2D*> stereoInTrack;
+
+  for(TrackerGeometry::DetContainer::const_iterator it = 
+	pDD->dets().begin(); it != pDD->dets().end(); it++){
+    DetId detid = ((*it)->geographicalId());
+    unsigned int isub=detid.subdetId();
+    //PIXEL
+    if  ((isub==  PixelSubdetector::PixelBarrel) || (isub== PixelSubdetector::PixelEndcap)) {
+      SiPixelRecHitCollection::range pixelrechitRange = (pixelHits.product())->get((detid));
+      if (pixelrechitRange.second-pixelrechitRange.first!=0){
+ 	DetSet<const SiPixelRecHit *> Pix_tk(detid.rawId());
+ 	pixelInTrack.insert(Pix_tk);
+      }
+    }
+
+    //STRIP 
+    if ((uint(detid.subdetId())==StripSubdetector::TIB) ||
+	(uint(detid.subdetId())==StripSubdetector::TOB) ||
+	(uint(detid.subdetId())==StripSubdetector::TID) ||
+	(uint(detid.subdetId())==StripSubdetector::TEC)){
+      //rphi
+      SiStripRecHit2DCollection::range monorechitRange = (rphirecHits.product())->get((detid));
+      if (monorechitRange.second-monorechitRange.first!=0){
+ 	DetSet<const  SiStripRecHit2D*> Mono_tk(detid.rawId());
+ 	monoInTrack.insert(Mono_tk);
+      }
+      //stereo
+      SiStripRecHit2DCollection::range stereorechitRange = (stereorecHits.product())->get((detid));
+      if (stereorechitRange.second-stereorechitRange.first!=0){
+ 	DetSet<const  SiStripRecHit2D*> Stereo_tk(detid.rawId());
+ 	stereoInTrack.insert(Stereo_tk);
+      }
+    }
+  }
+
+  //FILL THE DETSETVECTOR
   TrackingRecHitCollection::const_iterator hit;
   for(hit=trackingHits.product()->begin();hit!=trackingHits.product()->end();hit++){
-    const SiPixelRecHit* pixelhit=dynamic_cast<const SiPixelRecHit*>(&(*hit));
-    if (pixelhit!=0)  pixelInTrack.push_back(pixelhit);
-    const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*hit));
-    if (matchedhit!=0)  matchedInTrack.push_back(matchedhit);
-    const SiStripRecHit2D* monohit=dynamic_cast<const SiStripRecHit2D*>(&(*hit)); 
-    if (monohit!=0) monoInTrack.push_back(monohit);
+    if ((*hit).isValid()){
+      const SiPixelRecHit* pixelhit=dynamic_cast<const SiPixelRecHit*>(&(*hit));
+      if (pixelhit!=0)
+	(*pixelInTrack.find(pixelhit->geographicalId().rawId())).push_back(pixelhit);
+
+     
+
+      const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>(&(*hit));
+      if (matchedhit!=0) {
+	(*stereoInTrack.find(matchedhit->stereoHit()->geographicalId().rawId())).
+	  push_back(matchedhit->stereoHit());
+	(*monoInTrack.find(matchedhit->monoHit()->geographicalId().rawId())).
+	  push_back(matchedhit->monoHit());
+      }
+
+      const SiStripRecHit2D* monohit=dynamic_cast<const SiStripRecHit2D*>(&(*hit)); 
+      if (monohit!=0)
+	(*monoInTrack.find(monohit->geographicalId().rawId())).push_back(monohit);
+    }
   }
   vector<const SiPixelRecHit*>::const_iterator ipix;
-  vector<const SiStripRecHit2D*>::const_iterator imono;
-  vector<const SiStripMatchedRecHit2D*>::const_iterator imatched;
+  vector<const SiStripRecHit2D*>::const_iterator istrip;
+ 
 
   //LOOP OVER ALL THE HITS
   for(TrackerGeometry::DetContainer::const_iterator it = 
@@ -97,96 +142,79 @@ RemainingClusterProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
     DetId detid = ((*it)->geographicalId());
     unsigned int isub=detid.subdetId();
-  
+    
     //PIXEL
     if  ((isub==  PixelSubdetector::PixelBarrel) || (isub== PixelSubdetector::PixelEndcap)) {  
-    
+      
       SiPixelRecHitCollection::range pixelrechitRange = (pixelHits.product())->get((detid));
       SiPixelRecHitCollection::const_iterator pixeliter =pixelrechitRange.first;
       SiPixelRecHitCollection::const_iterator pixelrechitRangeIteratorEnd   = pixelrechitRange.second;
-      DetSet<SiPixelCluster> Pix_second(detid.rawId()); 
-      for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {   
-	int itk=0;
-	for (ipix=pixelInTrack.begin();ipix!=pixelInTrack.end();ipix++){
-	  
-	  if (((*ipix)->geographicalId()==(*pixeliter).geographicalId())&&
-	      (((*ipix)->localPosition()-(*pixeliter).localPosition()).mag()<cut)) itk++;
-	}
+      if ((pixelrechitRangeIteratorEnd-pixeliter)>0){
 	
-	if (itk==0) Pix_second.push_back((*(*pixeliter).cluster()));
+        DetSet<const SiPixelRecHit*> sipix= *(pixelInTrack.find(detid.rawId()));	
+	DetSet<SiPixelCluster> Pix_second(detid.rawId()); 
+	
+	for ( ; pixeliter != pixelrechitRangeIteratorEnd; ++pixeliter) {   
+	  int itk=0; 
+	  
+	  for (ipix=sipix.begin();ipix!=sipix.end();ipix++){
+	    if ((*ipix)->sharesInput(&(*pixeliter) , TrackingRecHit::all )) itk++;
+	  }
+	  
+	  if (itk==0) Pix_second.push_back((*(*pixeliter).cluster()));
+	}
+	if(!Pix_second.empty())  thePixelClusterVector.push_back(Pix_second);
       }
-      if(!Pix_second.empty())  thePixelClusterVector.push_back(Pix_second);
     } //end pixel detid
 
-    //STRIP SINGLE SIDED
-    if (((uint(detid.subdetId())==StripSubdetector::TIB) && (TIBDetId(detid).layer()>2)) ||
-	((uint(detid.subdetId())==StripSubdetector::TOB) && (TOBDetId(detid).layer()>2)) ||
-	((uint(detid.subdetId())==StripSubdetector::TID) && (TIDDetId(detid).ring()>2))  ||
-	((uint(detid.subdetId())==StripSubdetector::TEC) && (TECDetId(detid).ring()>2) &&
-	 (TECDetId(detid).ring()!=5))){
-    
-      DetSet<SiStripCluster> Strip_second(detid.rawId()); 
+
+    //STRIP 
+    if ((uint(detid.subdetId())==StripSubdetector::TIB) ||
+	(uint(detid.subdetId())==StripSubdetector::TOB) ||
+	(uint(detid.subdetId())==StripSubdetector::TID) ||
+	(uint(detid.subdetId())==StripSubdetector::TEC)){
+      
+      //rphi hits
       SiStripRecHit2DCollection::range monorechitRange = (rphirecHits.product())->get((detid));
       SiStripRecHit2DCollection::const_iterator monoiter =monorechitRange.first;
       SiStripRecHit2DCollection::const_iterator monorechitRangeIteratorEnd   = monorechitRange.second;
-   
-      for ( ; monoiter != monorechitRangeIteratorEnd; ++monoiter) {
-
-	int itk=0;
-	for (imono=monoInTrack.begin();imono!=monoInTrack.end();imono++){
-
-	  if (((*imono)->geographicalId()==(*monoiter).geographicalId())&&
-	      (((*imono)->localPosition()-(*monoiter).localPosition()).mag()<cut))itk++;
-
+      if ((monorechitRangeIteratorEnd-monoiter)>0){
+	DetSet<SiStripCluster> Strip_second(detid.rawId()); 
+	DetSet<const SiStripRecHit2D*> simono= *(monoInTrack.find(detid.rawId()));
+	for ( ; monoiter != monorechitRangeIteratorEnd; ++monoiter) {
+	  
+	  int itk=0;
+	  for (istrip=simono.begin();istrip!=simono.end();istrip++){
+	    
+	    if ((*istrip)->sharesInput(&(*monoiter) , TrackingRecHit::all ))itk++;
+	  }
+	  if (itk==0) Strip_second.push_back((*(*monoiter).cluster()));
 	}
-
-	if (itk==0) Strip_second.push_back((*(*monoiter).cluster()));
+	
+	if(!Strip_second.empty())  theStripClusterVector.push_back(Strip_second);
       }
-   
-      if(!Strip_second.empty())  theStripClusterVector.push_back(Strip_second);
-    } // end single sided strip detid
-
-    //STRIP DOUBLE SIDED
-   if ((uint(detid.subdetId())==StripSubdetector::TOB)&&(TOBDetId(detid).layer()<3) ||
-	(uint(detid.subdetId())==StripSubdetector::TIB)&&(TIBDetId(detid).layer()<3) ||
-	(uint(detid.subdetId())==StripSubdetector::TEC)&&(TECDetId(detid).ring()<3) ||
-	(uint(detid.subdetId())==StripSubdetector::TEC)&&(TECDetId(detid).ring()==5) ||
-	(uint(detid.subdetId())==StripSubdetector::TID)&&(TIDDetId(detid).ring()<3)) {
-     DetSet<SiStripCluster> Strip_second(detid.rawId()); 
-   
-     //Rphi hits
-     SiStripRecHit2DCollection::range monorechitRange = (rphirecHits.product())->get((detid));
-     SiStripRecHit2DCollection::const_iterator monoiter =monorechitRange.first;
-     SiStripRecHit2DCollection::const_iterator monorechitRangeIteratorEnd =monorechitRange.second;
-     for ( ; monoiter != monorechitRangeIteratorEnd; ++monoiter) {
-           int itk=0;
-       for (imatched=matchedInTrack.begin();imatched!=matchedInTrack.end();imatched++){
-	 
-	 if(((((*imatched))->monoHit())->geographicalId()==(*monoiter).geographicalId()) &&
-	    ((((*imatched)->monoHit())->localPosition()-
-	      (*monoiter).localPosition()).mag()<cut)) itk++;
-       }
-       if (itk==0) Strip_second.push_back((*(*monoiter).cluster()));
-     }     
-   
-     //stereo hits
-     SiStripRecHit2DCollection::range stereorechitRange = (stereorecHits.product())->get((detid));
-     SiStripRecHit2DCollection::const_iterator stereoiter =stereorechitRange.first;
-     SiStripRecHit2DCollection::const_iterator stereorechitRangeIteratorEnd =stereorechitRange.second;
-     for ( ; stereoiter != stereorechitRangeIteratorEnd; ++stereoiter) {
-           int itk=0;
-       for (imatched=matchedInTrack.begin();imatched!=matchedInTrack.end();imatched++){
-	 
-	 if(((((*imatched))->stereoHit())->geographicalId()==(*stereoiter).geographicalId()) &&
-	    ((((*imatched)->stereoHit())->localPosition()-
-	      (*stereoiter).localPosition()).mag()<cut)) itk++;
-       }
-       if (itk==0) Strip_second.push_back((*(*stereoiter).cluster()));
-     } 
-     if(!Strip_second.empty())  theStripClusterVector.push_back(Strip_second);
-     
-   } // end double sided strip detid
-
+      
+      
+      //stereo hits
+      SiStripRecHit2DCollection::range stereorechitRange = (stereorecHits.product())->get((detid));
+      SiStripRecHit2DCollection::const_iterator stereoiter =stereorechitRange.first;
+      SiStripRecHit2DCollection::const_iterator stereorechitRangeIteratorEnd =stereorechitRange.second;
+      
+      if ((stereorechitRangeIteratorEnd-stereoiter)>0){
+	DetSet<SiStripCluster> Strip_second(detid.rawId()); 
+	DetSet<const SiStripRecHit2D*> sistereo= *(stereoInTrack.find(detid.rawId()));
+	for ( ; stereoiter != stereorechitRangeIteratorEnd; ++stereoiter) {
+	  int itk=0;
+	  for (istrip=sistereo.begin();istrip!=sistereo.end();istrip++){
+	    if ((*istrip)->sharesInput(&(*stereoiter) , TrackingRecHit::all ))itk++;
+	  }
+	  if (itk==0) Strip_second.push_back((*(*stereoiter).cluster()));
+	} 
+	if(!Strip_second.empty())  theStripClusterVector.push_back(Strip_second);
+      }
+    } // end strips
+    
+    
   } //end loop over tracker detid
   
   auto_ptr<DetSetVector<SiPixelCluster> > 
