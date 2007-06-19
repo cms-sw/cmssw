@@ -16,7 +16,7 @@
 //
 // Original Author: 
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: CastorSD.h,v 1.3 2006/05/17 16:18:57 sunanda Exp $
+// $Id: CastorSD.h,v 1.4 2007/05/08 21:27:29 sunanda Exp $
 //
  
 // system include files
@@ -38,7 +38,6 @@ public:
   void             setNumberingScheme(CastorNumberingScheme* scheme);
 
 private:    
-  double curve_Castor(G4String& , G4StepPoint*); 
   CastorNumberingScheme * numberingScheme;
 };
 

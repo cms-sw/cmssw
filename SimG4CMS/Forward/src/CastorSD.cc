@@ -130,18 +130,8 @@ C3TF, C4TF - for third release of CASTOR
  */
     double meanNCherPhot;
 
-    if(nameVolume == "C001" || nameVolume == "C002" || nameVolume == "C003" ||
-       nameVolume == "C004" || nameVolume == "C005" || nameVolume == "C006" ||
-       nameVolume == "C007" || nameVolume == "C008" || nameVolume == "C009" ||
-       nameVolume == "C010" || nameVolume == "C011" || nameVolume == "C012" || 
-       nameVolume == "C013" || nameVolume == "C014" || nameVolume == "CP01" || 
-       nameVolume == "CP02" || nameVolume == "CP03" || nameVolume == "CP04" ||
-       nameVolume == "CP05" || nameVolume == "CP06" || nameVolume == "CASF" ||
-       nameVolume == "CBU1" || nameVolume == "CBU2" || nameVolume == "CBU3" ||
-       nameVolume == "CBU4" || nameVolume == "CBU5" || nameVolume == "CBU6" ||
-       nameVolume == "CALM" || nameVolume == "GF2Q" || nameVolume == "GFNQ" ||
-       nameVolume == "GR2Q" || nameVolume == "GRNQ" ||
-       nameVolume == "C3TF" || nameVolume == "C4TF") {
+    if(nameVolume == "C3EF" || nameVolume == "C4EF" || nameVolume == "C3HF" ||
+       nameVolume == "C4HF") {
 
       float bThreshold = 0.67;
       float nMedium = 1.4925;
@@ -360,35 +350,4 @@ void CastorSD::setNumberingScheme(CastorNumberingScheme* scheme) {
     if (numberingScheme) delete numberingScheme;
     numberingScheme = scheme;
   }
-}
-
-double CastorSD::curve_Castor(G4String& nameVolume, G4StepPoint* stepPoint) {
-
-  // take into account light collection curve for sensitive plate
-  //                                 it is case - no fibres!!!
-
-  double weight = 1.;
-  G4ThreeVector  localPoint = setToLocal(stepPoint->GetPosition(),
-					 stepPoint->GetTouchable());
-  double crlength = 230.;
-  if (nameVolume == "CASF" || nameVolume == "C3TF" || nameVolume == "C4TF") 
-    crlength = 220.;
-  double dapd = 0.5 * crlength - localPoint.z();
-  if (dapd >= -0.1 || dapd <= crlength+0.1) {
-    if (dapd <= 100.)
-      weight = 1.05 - dapd * 0.0005;
-  } else {
-    edm::LogInfo("ForwardSim") << "CastorSD, light collection curve: wrong "
-			       << "distance " << dapd << " crlength = " 
-			       << crlength << " crystal name = " << nameVolume 
-			       << " z of localPoint = " << localPoint.z() 
-			       << " take weight = " << weight;
-  }
-#ifdef debug
-  LogDebug("ForwardSim") << "CastorSD, light collection curve : " << dapd 
-			 << " crlength = " << crlength << " crystal name = " 
-			 << nameVolume << " z of localPoint = " 
-			 << localPoint.z() << " take weight = " << weight;
-#endif
-  return weight;
 }

@@ -39,18 +39,21 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
       if(name[ich] == "CAST") {
 	// Z index +Z = 1 ; -Z = 2
 	zside   = copyno[ich];
-      } else if(name[ich] == "CASS" || name[ich] == "CADS") {
+      } else if(name[ich] == "CAES" || name[ich] == "CEDS" || name[ich] == "CAHS" || name[ich] == "CHDS") {
 	// sector number for dead material 1 - 8
-	sector   = copyno[ich];
-      } else if(name[ich] == "CASR" || name[ich] == "CADR") {
-	// zmodule number  1 - 18
-	zmodule   = copyno[ich];
-      } else if(name[ich] == "C3TF") {
+	sector = copyno[ich];
+      } else if(name[ich] == "CAER" || name[ich] == "CEDR") {
+	// zmodule number 1-2 for EM section (2 copies)
+	zmodule = copyno[ich];
+      } else if(name[ich] == "CAHR" || name[ich] == "CHDR") {
+	//zmodule number 3-14 for HAD section (12 copies)
+	zmodule = copyno[ich] + 2;  
+      } else if(name[ich] == "C3EF" || name[ich] == "C3HF") {
 	// sector number for sensitive material 1 - 16
-	sector   = sector*2 - 1 ;
-      } else if(name[ich] == "C4TF") {
+	sector = sector*2 - 1 ;
+      } else if(name[ich] == "C4EF" || name[ich] == "C4HF") {
 	// sector number for sensitive material 1 - 16
-	sector   = sector*2 ;
+	sector = sector*2 ;
       }
 #ifdef debug
       LogDebug("ForwardSim") << "CastorNumberingScheme  " << "ich = " << ich  
