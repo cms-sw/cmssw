@@ -44,7 +44,7 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
    nuclTester = new NuclearTester(es, iConfig);
 
-   currentSeed = new SeedFromNuclearInteraction(es, iConfig);
+   currentSeed = new SeedFromNuclearInteraction(es, iConfig) ;
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -132,17 +132,16 @@ NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double 
   LogDebug("NuclearSeedGenerator") << "currentState :" << currentState << "\n";
 
   currentState.rescaleError(rescale);
-  return findMeasurementsFromTSOS(currentState, lastMeas);
+  return findMeasurementsFromTSOS(currentState, lastMeas.recHit()->geographicalId());
 }
 
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
-NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const {
+NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const {
 
   using namespace std;
   int invalidHits = 0;
   vector<TM> result;
-  DetId detid = lastMeas.recHit()->geographicalId();
   const DetLayer* lastLayer = theGeomSearchTracker->detLayer( detid ); 
   vector<const DetLayer*> nl;
 
@@ -184,13 +183,13 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
 void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs ) {
   // This method returns the seeds calculated by the class SeedsFromNuclearInteraction
 
-            const TM& innerHit = tmPairs.first;
-            const std::vector<TM>& outerHits = tmPairs.second;
+            const TM& innerTM = tmPairs.first;
+            const std::vector<TM>& outerTMs = tmPairs.second;
 
             // Loop on all outer TM 
-            for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
-               if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
-                     currentSeed->setMeasurements(innerHit, *outhit);
+            for(std::vector<TM>::const_iterator outtm = outerTMs.begin(); outtm!=outerTMs.end(); outtm++) {
+               if((innerTM.recHit())->isValid() && (outtm->recHit())->isValid()) {
+                     currentSeed->setMeasurements(innerTM.updatedState(), innerTM.recHit(), outtm->recHit());
                      allSeeds.push_back(*currentSeed);
                 }
                 else  LogDebug("NuclearSeedGenerator") << "The initial hits for seeding are invalid" << "\n";
@@ -208,24 +207,31 @@ void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedC
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::improveSeeds() {
-        double rescaleFactor_ = 10;
         std::vector<SeedFromNuclearInteraction> newSeedCollection;
+        double rescaleFactor = 10;
 
         // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
 
+              // rescale outer TSOS of the seed
+              TSOS currentState = it_seed->updatedTSOS();
+              currentState.rescaleError(rescaleFactor);
+
               // find compatible TM in an outer layer
-              std::vector<TM> thirdTMs = findCompatibleMeasurements(  *(it_seed->outerMeasurement()), rescaleFactor_ );
+              std::vector<TM> thirdTMs = findMeasurementsFromTSOS(  currentState, it_seed->outerHitDetId() ); 
+
+              int i=0;
 
               // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
 
-                   // create circle = secondary track which pass by the outer hit of the seed and the new TM.
-                   // this circle has to be tangent to the primary circle
-                   TangentHelix helix(*thePrimaryHelix, (it_seed->outerMeasurement())->updatedState().globalParameters().position(), tm->updatedState().globalParameters().position() );
+                   if( ! tm->recHit()->isValid() ) continue;
+
                    // create new seeds collection using the circle equation
-                   currentSeed->setMeasurements(helix, *(it_seed->outerMeasurement()), *tm);
-                   newSeedCollection.push_back(*currentSeed );
+                   currentSeed->setMeasurements(*thePrimaryHelix, it_seed->initialTSOS(), it_seed->outerHit(), tm->recHit() );
+                   newSeedCollection.push_back( *currentSeed );
               }
        }
+       allSeeds.clear();
+       allSeeds = newSeedCollection;
 }     

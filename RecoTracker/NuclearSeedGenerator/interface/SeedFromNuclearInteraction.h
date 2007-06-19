@@ -32,16 +32,16 @@ public :
   SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
  
   /// Fill all data members from 2 TM's where the first one is supposed to be at the interaction point
-  void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
+  void setMeasurements(const TSOS& tsosAtInteractionPoint, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
-  /// Fill all data members from 2 TM's using the circle associated to the primary track as constraint
-  void setMeasurements(TangentHelix& primHelix, const TM& tmAtInteractionPoint, const TM& newTM);
+  /// Fill all data members from 1 TSOS and 2 rec Hits and using the circle associated to the primary track as constraint
+  void setMeasurements(TangentHelix& primHelix, const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit);
 
   PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
 
-  FreeTrajectoryState stateWithError() const;
+  FreeTrajectoryState* stateWithError() const;
 
-  FreeTrajectoryState stateWithError(TangentHelix& helix) const;
+  FreeTrajectoryState* stateWithError(TangentHelix& helix) const;
 
   PropagationDirection direction() const { return alongMomentum; }
 
@@ -51,25 +51,38 @@ public :
  
   bool isValid() const { return isValid_; }
 
-  const FreeTrajectoryState& updatedState() const { return freeTS; }
+  const TSOS& updatedTSOS() const { return *updatedTSOS_; }
 
-  const TM* outerMeasurement() const { return outerTM; }
+  const TSOS& initialTSOS() const { return *initialTSOS_; }
+
+  GlobalPoint outerHitPosition() const {
+          return pDD->idToDet(outerHitDetId())->surface().toGlobal(outerHit_->localPosition()); 
+  }
+
+  DetId outerHitDetId() const { return outerHit_->geographicalId(); }
+
+  ConstRecHitPointer outerHit() const { return outerHit_; }
 
 private :
-  FreeTrajectoryState                      freeTS; 
-  const TM*                                innerTM;
-  const TM*                                outerTM;
+  bool                                     isValid_;        /**< check if the seed is valid */
+
+  ConstRecHitContainer                     theHits;         /**< all the hits to be used to update the */
+                                                            /*   initial freeTS and to be fitted       */
+
+  ConstRecHitPointer                       innerHit_;        /**< Pointer to the hit of the inner TM */
+  ConstRecHitPointer                       outerHit_;        /**< Pointer to the outer hit */
+
+  boost::shared_ptr<TSOS>                      updatedTSOS_;   /**< Final TSOS */
+
+  boost::shared_ptr<TSOS>                      initialTSOS_;     /**< Initial TSOS used as input */
   
-  bool                                     isValid_;
+  boost::shared_ptr<FreeTrajectoryState>       freeTS_;          /**< Initial FreeTrajectoryState */
 
-  ConstRecHitContainer                     theHits;
+  boost::shared_ptr<PTrajectoryStateOnDet> pTraj;           /**< the final persistent TSOS */
 
-  ConstRecHitPointer                       outerHit;
 
-  boost::shared_ptr<PTrajectoryStateOnDet> pTraj;
-
-  const Propagator*                              thePropagator;
-  edm::ESHandle<TrackerGeometry>                 pDD;
+  const Propagator*                        thePropagator;
+  edm::ESHandle<TrackerGeometry>           pDD;
 
   bool construct();
 

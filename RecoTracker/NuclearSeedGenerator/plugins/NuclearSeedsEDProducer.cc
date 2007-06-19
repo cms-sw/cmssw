@@ -53,6 +53,9 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
          // run the finder
          theNuclearInteractionFinder->run( *iTraj );
 
+         // improve seeds
+         theNuclearInteractionFinder->improveSeeds();
+
          // push back the new persistent seeds in output
          theNuclearInteractionFinder->getPersistentSeeds( output );
    }

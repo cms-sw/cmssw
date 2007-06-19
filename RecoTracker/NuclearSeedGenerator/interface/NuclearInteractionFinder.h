@@ -51,15 +51,12 @@ private:
   /// get the seeds at the interaction point
   void fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs );
 
-  /// Improve the seeds with a third RecHit
-  void improveSeeds();
-
   /// Find compatible TM of a TM with error rescaled by rescaleFactor
   std::vector<TrajectoryMeasurement>
          findCompatibleMeasurements( const TM& lastMeas, double rescaleFactor) const;
 
   std::vector<TrajectoryMeasurement>
-         findMeasurementsFromTSOS(const TSOS& currentState, const TM& lastMeas) const;
+         findMeasurementsFromTSOS(const TSOS& currentState, DetId detid) const;
 
   /// Calculate the parameters of the circle representing the primary track at the interaction point
   void definePrimaryHelix(std::vector<TrajectoryMeasurement>::const_iterator it_meas);
@@ -75,10 +72,14 @@ public:
   /// Run the Finder
   bool  run(const Trajectory& traj);
 
-  void setEvent(const edm::Event& event) const;
+  /// define the measurement (to be called for each event)
+  void  setEvent(const edm::Event& event) const;
 
-  /// Fill output with persistent nuclear seeds
-  void getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output );
+  /// Fill 'output' with persistent nuclear seeds
+  void  getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output );
+
+  /// Improve the seeds with a third RecHit
+  void  improveSeeds();
 
 private:
 
@@ -91,8 +92,8 @@ private:
   edm::ESHandle<MagneticField>    theMagField;
 
   NuclearTester*                             nuclTester;
-  SeedFromNuclearInteraction*                currentSeed;
-  std::vector<SeedFromNuclearInteraction>    allSeeds;
+  SeedFromNuclearInteraction                   *currentSeed;
+  std::vector< SeedFromNuclearInteraction >    allSeeds;
   TangentHelix*                              thePrimaryHelix;
 
   // parameters

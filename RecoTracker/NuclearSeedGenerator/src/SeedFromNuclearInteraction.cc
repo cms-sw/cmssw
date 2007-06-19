@@ -24,78 +24,78 @@ rescaleCurvatureFactor(iConfig.getParameter<double>("rescaleCurvatureFactor")) {
 }
 
 //----------------------------------------------------------------------
-void SeedFromNuclearInteraction::setMeasurements(const TM& inner_TM, const TM& outer_TM) {
+void SeedFromNuclearInteraction::setMeasurements(const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit) {
 
        // delete pointer to TrackingRecHits
        theHits.clear();
 
        // get the inner and outer transient TrackingRecHits
-       outerHit = outer_TM.recHit().get();
+       innerHit_ = ihit;
+       outerHit_ = ohit;
 
        //theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
-       theHits.push_back(  outer_TM.recHit() );
+       theHits.push_back(  outerHit_  );
 
-       innerTM = &inner_TM;
-       outerTM = &outer_TM;
+       initialTSOS_.reset( new TrajectoryStateOnSurface(inner_TSOS) );
 
-       // calculate the initial FreeTrajectoryState from the inner and outer TM.
-       freeTS  = stateWithError();
+       // calculate the initial FreeTrajectoryState.
+       freeTS_.reset(stateWithError());
 
-       // convert freeTS into a persistent TSOS on the outer surface
+       // convert freeTS_ into a persistent TSOS on the outer surface
        isValid_ = construct();
 }
 //----------------------------------------------------------------------
-void SeedFromNuclearInteraction::setMeasurements(TangentHelix& helix, const TM& inner_TM, const TM& outer_TM) {
+void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix, const TSOS& inner_TSOS, ConstRecHitPointer ihit, ConstRecHitPointer ohit) {
 
        // delete pointer to TrackingRecHits
        theHits.clear();
 
        // get the inner and outer transient TrackingRecHits
-       outerHit = outer_TM.recHit().get();
+       innerHit_ = ihit;
+       outerHit_ = ohit;
 
-       theHits.push_back( inner_TM.recHit() );
-       theHits.push_back( outer_TM.recHit() );
+       GlobalPoint innerPos = pDD->idToDet(innerHit_->geographicalId())->surface().toGlobal(innerHit_->localPosition());
+       GlobalPoint outerPos = pDD->idToDet(outerHit_->geographicalId())->surface().toGlobal(outerHit_->localPosition());
 
-       innerTM = &inner_TM;
-       outerTM = &outer_TM;
+       TangentHelix helix(thePrimaryHelix, outerPos, innerPos);
+
+       theHits.push_back( innerHit_ );
+       theHits.push_back( outerHit_ );
+
+       initialTSOS_.reset(new TrajectoryStateOnSurface(inner_TSOS) );
 
        // calculate the initial FreeTrajectoryState from the inner and outer TM assuming that the helix equation is already known.
-       freeTS = stateWithError(helix); 
+       freeTS_.reset(stateWithError(helix)); 
 
-       // convert freeTS into a persistent TSOS on the outer surface
+       // convert freeTS_ into a persistent TSOS on the outer surface
        isValid_ = construct();
 }
-
 //----------------------------------------------------------------------
-FreeTrajectoryState SeedFromNuclearInteraction::stateWithError() const {
+FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError() const {
 
    // Calculation of the helix assuming that the secondary track has the same direction
    // than the primary track and pass through the inner and outer hits.
-   GlobalVector direction = innerTM->updatedState().globalDirection();
-   GlobalPoint inner = innerTM->updatedState().globalPosition();
-   GlobalPoint outer = pDD->idToDet(outerHit->geographicalId())->surface().toGlobal(outerHit->localPosition());
-   TangentHelix helix(direction, inner, outer);
+   GlobalVector direction = initialTSOS_->globalDirection();
+   GlobalPoint inner = initialTSOS_->globalPosition();
+   TangentHelix helix(direction, inner, outerHitPosition());
 
    return stateWithError(helix);
 }
 //----------------------------------------------------------------------
-FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(TangentHelix& helix) const {
+FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& helix) const {
 
 //   typedef TkRotation<float> Rotation;
 
    GlobalVector dirAtVtx = helix.directionAtVertex();
-   const MagneticField& mag = innerTM->updatedState().globalParameters().magneticField();
+   const MagneticField& mag = initialTSOS_->globalParameters().magneticField();
+
    // Get the global parameters of the trajectory
    // we assume that the magnetic field at the vertex is equal to the magnetic field at the inner TM.
    GlobalTrajectoryParameters gtp(helix.vertexPoint(), dirAtVtx , helix.charge(mag.inTesla(helix.vertexPoint()).z())/helix.rho(), 0, &mag);
-   LogDebug("NuclearSeedGenerator") << "Momentum = " << gtp.momentum() << "\n"
-                                    << "Charge = " << helix.charge(mag.inTesla(helix.vertexPoint()).z()) << "\n"
-                                    << "Inner = " << helix.innerPoint() << "\n"
-                                    << "Outer = " << helix.outerPoint() << "\n";
 
    // Error matrix in a frame where z is in the direction of the track at the vertex
    //AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
-   AlgebraicSymMatrix55 m(innerTM->updatedState().curvilinearError().matrix());
+   AlgebraicSymMatrix55 m(initialTSOS_->curvilinearError().matrix());
    double vtxerror = helix.circle().vertexError();
    double curvatureError = helix.curvatureError();
    m(0,0)=curvatureError*curvatureError;
@@ -143,11 +143,8 @@ FreeTrajectoryState SeedFromNuclearInteraction::stateWithError(TangentHelix& hel
    m(5,5) = momentum.zz();
  */  
 
-   FreeTrajectoryState result( gtp, CurvilinearTrajectoryError(m) );
 
-   LogDebug("NuclearSeedGenerator") << "FreeTrajectoryState used for seeds : " << result << "\n";
-
-   return result;
+   return new FreeTrajectoryState( gtp, CurvilinearTrajectoryError(m) );
 }
 
 //----------------------------------------------------------------------
@@ -155,26 +152,25 @@ bool SeedFromNuclearInteraction::construct() {
 
    // loop on all hits in theHits
    KFUpdator                 theUpdator;
-   TrajectoryStateOnSurface  updatedTSOS;
 
    const TrackingRecHit* hit = 0;
 
    for ( unsigned int iHit = 0; iHit < theHits.size(); iHit++) {
      hit = theHits[iHit]->hit();
      TrajectoryStateOnSurface state = (iHit==0) ? 
-        thePropagator->propagate(freeTS,pDD->idToDet(hit->geographicalId())->surface())
-       : thePropagator->propagate(updatedTSOS, pDD->idToDet(hit->geographicalId())->surface());
+        thePropagator->propagate( *freeTS_, pDD->idToDet(hit->geographicalId())->surface())
+       : thePropagator->propagate( *updatedTSOS_, pDD->idToDet(hit->geographicalId())->surface());
 
      if (!state.isValid()) return false; 
  
      const TransientTrackingRecHit::ConstRecHitPointer& tth = theHits[iHit]; 
-     updatedTSOS =  theUpdator.update(state, *tth);
+     updatedTSOS_.reset( new TrajectoryStateOnSurface(theUpdator.update(state, *tth)) );
 
    } 
 
    TrajectoryStateTransform transformer;
 
-   pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(updatedTSOS, outerHit->geographicalId().rawId()) );
+   pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(*updatedTSOS_, outerHitDetId().rawId()) );
    return true;
 }
 

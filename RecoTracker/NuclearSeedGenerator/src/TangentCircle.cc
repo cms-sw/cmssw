@@ -19,8 +19,8 @@ TangentCircle::TangentCircle(const GlobalVector& direction, const GlobalPoint& i
    theRho = (denominator != 0) ? ((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2))/denominator : 1E12;
 
    // TODO : variable not yet calculated look in nucl.C
-   theX0 = 1000;
-   theY0 = 1000;
+   theX0 = 1E10;
+   theY0 = 1E10;
 
    theDirectionAtVertex = direction;
    theDirectionAtVertex/=theDirectionAtVertex.mag();
@@ -49,7 +49,7 @@ TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint&
    if(theInnerPoint.perp2() > theOuterPoint.perp2()) { valid = false; }
    else valid = true;
 
-   int NITER = 5; 
+   int NITER = 10; 
 
    // Initial vertex used = outerPoint of the primary circle (should be the first estimation of the nuclear interaction position)
    GlobalPoint InitialVertex( primCircle.outerPoint().x() , primCircle.outerPoint().y(), 0);
@@ -63,7 +63,7 @@ TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint&
    double minTangentCondition = 1E12;
    TangentCircle theCorrectSecCircle;
    GlobalPoint vertex = InitialVertex;
-   int direction = 1;
+   int dir = 1;
    double theta = deltaTheta/(NITER-1);
 
    for(int i=0; i<NITER; i++) { 
@@ -77,16 +77,13 @@ TangentCircle::TangentCircle(const TangentCircle& primCircle, const GlobalPoint&
      // double dirDiff = (primCircle.direction(vertex) - secCircle.direction(vertex)).mag();
      // if( dirDiff > 1) dirDiff = 2-dirDiff;
 
-     LogDebug("NuclearSeedGenerator") << "Vertex position : " << vertex.x() << "  " << vertex.y() << "\n"
-                                      << "isTangent condition: " << minCond << "\n";
-
      if(minCond < minTangentCondition) { 
                 minTangentCondition = minCond;
                 theCorrectSecCircle = secCircle;
-                vertex = getPosition( primCircle, secCircle.vertexPoint(), theta, direction );
+                vertex = getPosition( primCircle, secCircle.vertexPoint(), theta, dir );
                 if( i==0 && ((vertex-SecInnerPoint).mag() > (InitialVertex-SecInnerPoint).mag()) ) {
-                       direction=-1;
-                       vertex = getPosition( primCircle, InitialVertex, theta, direction );
+                       dir=-1;
+                       vertex = getPosition( primCircle, InitialVertex, theta, dir );
                        LogDebug("NuclearSeedGenerator") << "Change direction to look for vertex" << "\n";
                  }
      }
@@ -118,10 +115,11 @@ double TangentCircle::isTangent(const TangentCircle& primCircle, const TangentCi
 
 GlobalVector TangentCircle::direction(const GlobalPoint& point) const {
 
-     if(theY0 > 999 || theX0 > 999) {
+     if(theY0 > 1E9 || theX0 > 1E9) {
         LogDebug("NuclearSeedGenerator") << "Center of TangentCircle not calculated but used !!!" << "\n";
      }
 
+     // calculate the direction perpendicular to the vector v = point - center_of_circle
      GlobalVector dir(point.y() - theY0, theX0 - point.x(), 0);
 
      dir/=dir.mag();
@@ -181,7 +179,7 @@ int TangentCircle::charge(float magz) {
 
    if(theCharge != 0) return theCharge;
 
-   if(theX0 > 999 || theY0 > 999) theCharge = chargeLocally(magz, directionAtVertex());
+   if(theX0 > 1E9 || theY0 > 1E9) theCharge = chargeLocally(magz, directionAtVertex());
    else {
        GlobalPoint  center(theX0, theY0, 0);
        GlobalVector u = center - theVertexPoint;
@@ -189,8 +187,8 @@ int TangentCircle::charge(float magz) {
 
        // F = force vector
        GlobalVector F( v.y() * magz, -v.x() * magz, 0);
-       if( u.x() * F.x() + u.y() * F.y() > 0) theCharge=1;
-       else theCharge=-1;
+       if( u.x() * F.x() + u.y() * F.y() > 0) theCharge=-1;
+       else theCharge=1;
 
        if(theCharge != chargeLocally(magz, v)) {
           LogDebug("NuclearSeedGenerator") << "Inconsistency in calculation of the charge" << "\n";
@@ -203,10 +201,6 @@ int TangentCircle::charge(float magz) {
 int TangentCircle::chargeLocally(float magz, GlobalVector v) const {
     GlobalVector  u = theOuterPoint - theVertexPoint;
     double tz = v.x() * u.y() - v.y() * u.x() ;
-    LogDebug("NuclearSeedGenerator") << "Charge calculation : \n DirectionAtVertex : " << v << "\n"
-                                     << "u = " << u << "\n"
-                                     << "tz  =" << tz << "\n"
-                                     << "magz = " << magz << "\n";
 
-    if(tz * magz > 0) return -1; else return 1;
+    if(tz * magz > 0) return 1; else return -1;
 }
