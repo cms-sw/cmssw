@@ -1,38 +1,25 @@
 #ifndef Input_MCFileSource_h
 #define Input_MCFileSource_h
 
-// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
-
 /** \class MCFileSource
  *
  * Reads in HepMC events
  * Joanna Weng & Filip Moortgat 08/2005 
  ***************************************/
 
-#include "FWCore/Sources/interface/ExternalInputSource.h"
-
+#include "FWCore/Framework/interface/ExternalInputSource.h"
+#include "IOMC/Input/interface/HepMCFileReader.h"
+#include <map>
+#include <string>
 
 class HepMCFileReader;
 
-namespace HepMC{
-  class GenEvent;
-}
-
-
 namespace edm
-<<<<<<< MCFileSource.h
 {  
   class Event;
   class ParameterSet;
   class InputSourceDescription;
 
-=======
-{
-  class Event;
-  class ParameterSet;
-  class InputSourceDescription;
-
->>>>>>> 1.4
   class MCFileSource : public ExternalInputSource {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
