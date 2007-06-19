@@ -22,16 +22,6 @@ CrossingFrame::CrossingFrame(int minb, int maxb, int bunchsp, std::vector<std::s
       pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it),myvec));
      }
 
-//     // for tracker (hightof/lowtof are created as they come)
-
-//     for(std::vector<std::string >::const_iterator it = trackersubdetectors.begin(); it != trackersubdetectors.end(); ++it) {  
-//       vector<PSimHitContainer> myvec(-minb+maxb+1);
-//       pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it)+"HighTof",myvec));    
-
-//       pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it)+"LowTof",myvec));
-//       //      pileupSimHits_.insert(map <string, vector<PSimHitContainer> >::value_type((*it),myvec));
-//      }
-
     // for calos
     for(vector<string >::const_iterator it = caloSubdetectors.begin(); it != caloSubdetectors.end(); ++it) {  
       vector<PCaloHitContainer> myvec(-minb+maxb+1);
@@ -59,12 +49,19 @@ void CrossingFrame::clear() {
   pileupVertices_.clear();
 }
 
-void CrossingFrame::addSignalSimHits(const std::string subdet, const PSimHitContainer *simhits) { 
-  signalSimHits_.insert(map <string, PSimHitContainer>::value_type(subdet,*simhits));
+void CrossingFrame::addSignalSimHits(const std::string subdet,
+ const PSimHitContainer *simhits) { 
+  std::pair<map<std::string, edm::PSimHitContainer>::iterator,bool> ret=signalSimHits_.insert(map <string, PSimHitContainer>::value_type(subdet,*simhits));
+  if (!ret.second) {
+    LogWarning("CrossingFrame") <<" Double signal SimHits from "<<subdet<<" in CrossingFrame, there will be discrepancy between signal and pileup hits!!!Please specify a label in your cfg file to choose your input products";
+  }
 }
 
 void CrossingFrame::addSignalCaloHits(const std::string subdet, const PCaloHitContainer *calohits) { 
-  signalCaloHits_.insert(map <string, PCaloHitContainer>::value_type(subdet,*calohits));
+    std::pair<map<std::string, edm::PCaloHitContainer>::iterator,bool> ret=signalCaloHits_.insert(map <string, PCaloHitContainer>::value_type(subdet,*calohits));
+  if (!ret.second) {
+    LogWarning("CrossingFrame") <<" Double signal CaloHits from "<<subdet<<" in CrossingFrame, there will be discrepancy between signal and pileup hits!!!Please specify a label in your cfg file to choose your input products";
+  }
 }
 
 void CrossingFrame::addSignalTracks(const SimTrackContainer *simtracks) { 
