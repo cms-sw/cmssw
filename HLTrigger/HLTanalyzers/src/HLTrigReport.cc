@@ -2,7 +2,7 @@
  *
  * See header file for documentation
  *
- *  $Date: 2007/03/28 12:58:55 $
+ *  $Date: 2007/03/28 20:33:07 $
  *  $Revision: 1.1 $
  *
  *  \author Martin Grunewald
@@ -12,11 +12,11 @@
 #include "HLTrigger/HLTanalyzers/interface/HLTrigReport.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "FWCore/Framework/interface/TriggerNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <cassert>
+
 #include <iomanip>
 
 //
@@ -24,6 +24,7 @@
 //
 HLTrigReport::HLTrigReport(const edm::ParameterSet& iConfig) :
   hlTriggerResults_ (iConfig.getParameter<edm::InputTag> ("HLTriggerResults")),
+  triggerNames_(),
   nEvents_(0),
   nWasRun_(0),
   nAccept_(0),
@@ -73,7 +74,8 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // initialisation (could be made dynamic)
   if (!init_) {
     init_=true;
-    hlNames_=HLTR->getTriggerNames();
+    triggerNames_.init(*HLTR);
+    hlNames_=triggerNames_.triggerNames();
     const unsigned int n(hlNames_.size());
     hlWasRun_.resize(n);
     hlAccept_.resize(n);

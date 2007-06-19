@@ -134,10 +134,12 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     int ntrigs=hltresults.size();
     if (ntrigs==0){std::cout << "%HLTInfo -- No trigger name given in TriggerResults of the input " << std::endl;}
 
+    triggerNames_.init(hltresults);
+
     // 1st event : Book as many branches as trigger paths provided in the input...
     if (evtCount==0){
       for (int itrig = 0; itrig != ntrigs; ++itrig){
-	TString trigName = hltresults.name(itrig);
+	TString trigName = triggerNames_.triggerName(itrig);
 	HltTree->Branch("TRIGG_"+trigName,trigflag+itrig,"TRIGG_"+trigName+"/I");
       }
       evtCount++;
@@ -145,7 +147,7 @@ void HLTInfo::analyze(const HLTFilterObjectWithRefs& hltobj,
     // ...Fill the corresponding accepts in branch-variables
     for (int itrig = 0; itrig != ntrigs; ++itrig){
 
-      string trigName=hltresults.name(itrig);
+      string trigName=triggerNames_.triggerName(itrig);
       bool accept = hltresults.accept(itrig);
 
       if (accept){trigflag[itrig] = 1;}
