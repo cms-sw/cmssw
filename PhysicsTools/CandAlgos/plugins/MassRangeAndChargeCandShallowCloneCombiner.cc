@@ -19,6 +19,7 @@ namespace reco {
                 ChargeSelector,
                 MassRangeSelector
               >,
+              AnyPairSelector,
               combiner::helpers::ShallowClone
             > MassRangeAndChargeCandShallowCloneCombiner;
 

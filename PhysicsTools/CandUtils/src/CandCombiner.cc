@@ -44,7 +44,7 @@ bool CandCombinerBase::preselect( const Candidate & c1, const Candidate & c2 ) c
     if (!matchCharge) return false; 
   }
   if ( overlap_( c1, c2 ) ) return false;
-  return true;
+  return selectPair( c1, c2 );
 }
 
 reco::Candidate * CandCombinerBase::combine( const reco::CandidateRef & c1, const reco::CandidateRef & c2 ) const {

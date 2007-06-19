@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: CandCombiner.h,v 1.4 2007/06/17 09:28:37 llista Exp $
+ * $Id: CandCombiner.h,v 1.5 2007/06/17 17:15:17 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -58,14 +58,18 @@ namespace reco {
       std::vector<cand::parser::ConjInfo> labels_;
     };
     
-    template<typename S, typename H = ::combiner::helpers::NormalClone, typename Setup = AddFourMomenta,
-      typename Init = typename ::combiner::helpers::SetupInit<Setup>::type >
+    template<typename Selector, 
+             typename PairSelector = AnyPairSelector,
+             typename Cloner = ::combiner::helpers::NormalClone, 
+             typename Setup = AddFourMomenta,
+             typename Init = typename ::combiner::helpers::SetupInit<Setup>::type >
     class CandCombiner : public CandCombinerBase {
     public:
       /// constructor from parameter set
       explicit CandCombiner( const edm::ParameterSet & cfg ) :
       CandCombinerBase( cfg ), 
-      combiner_( reco::modules::make<S>( cfg ), 
+      combiner_( reco::modules::make<Selector>( cfg ), 
+		 reco::modules::make<PairSelector>( cfg ),
 		 Setup( cfg ), 
 		 true, 
 		 dauCharge_ ) {
@@ -91,7 +95,7 @@ namespace reco {
     }
     
     /// combiner utility
-    ::CandCombiner<S, H, Setup> combiner_;
+    ::CandCombiner<Selector, PairSelector, Cloner, Setup> combiner_;
     };
 
   }

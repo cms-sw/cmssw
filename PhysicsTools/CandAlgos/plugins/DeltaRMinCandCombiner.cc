@@ -1,4 +1,4 @@
-/* \class reco::modules::plugins::CandCombiner
+/* \class DeltaRMinCandCombiner
  * 
  * Configurable Candidate Selector
  *
@@ -7,19 +7,13 @@
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/DeltaRMinPairSelector.h"
 #include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-DEFINE_SEAL_MODULE();
+typedef reco::modules::CandCombiner<
+  StringCutObjectSelector<reco::Candidate>,
+  DeltaRMinPairSelector
+> DeltaRMinCandCombiner;
 
-namespace reco {
-  namespace modules {
-    namespace plugin {
-      typedef reco::modules::CandCombiner<
-	StringCutObjectSelector<reco::Candidate>
-      > CandCombiner;
-      
-      DEFINE_ANOTHER_FWK_MODULE( CandCombiner );
-    }
-  }
-}
+DEFINE_FWK_MODULE( DeltaRMinCandCombiner );

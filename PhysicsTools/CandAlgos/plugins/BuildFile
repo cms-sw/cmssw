@@ -22,6 +22,8 @@
 <library file=MassRangeAndChargeCandCombiner.cc></library>
 <library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
 <library file=CandCombiner.cc></library>
+<library file=DeltaRMinCandCombiner.cc></library>
+<library file=DeltaPhiMinCandCombiner.cc></library>
 <library file=CandShallowCloneCombiner.cc></library>
 <library file=CandMerger.cc></library>
 <library file=CandShallowCloneProducer.cc></library>
