@@ -1,3 +1,8 @@
+2007-06-19  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-04-06
+        * remove xdaq3.9 changes from the head so we can submit changes to nightly
+
 2007-06-13  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-04-05

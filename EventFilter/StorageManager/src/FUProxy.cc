@@ -1,17 +1,17 @@
 // Created by Markus Klute on 2007 Mar 22.
-// $Id: FUProxy.cc,v 1.1 2007/03/29 07:18:11 klute Exp $
+// $Id: FUProxy.cc,v 1.2 2007/06/06 21:41:08 meschi Exp $
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <EventFilter/StorageManager/interface/FUProxy.h>
 
-#include <toolbox/mem/Reference.h>
-#include <toolbox/mem/MemoryPoolFactory.h>
-#include <toolbox/mem/exception/Exception.h>
+#include <toolbox/include/toolbox/mem/Reference.h>
+#include <toolbox/include/toolbox/mem/MemoryPoolFactory.h>
+#include <toolbox/include/toolbox/mem/exception/Exception.h>
 
-#include <i2o/Method.h>
-#include <i2o/utils/AddressMap.h>
+#include <i2o/include/i2o/Method.h>
+#include <i2o/utils/include/i2o/utils/AddressMap.h>
 
-#include <xcept/tools.h>
+#include <xcept/include/xcept/tools.h>
 
 #include <iostream> 
 #include <sstream>
