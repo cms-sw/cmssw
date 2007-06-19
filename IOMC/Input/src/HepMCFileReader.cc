@@ -1,11 +1,11 @@
-// $Id:$
+// $Id: HepMCFileReader.cc,v 1.6 2007/05/29 21:00:00 weng Exp $
 
 /**  
 *  See header file for a description of this class.
 *
 *
-*  $Date: 2007/03/22 18:17:57 $
-*  $Revision: 1.5 $
+*  $Date: 2007/05/29 21:00:00 $
+*  $Revision: 1.6 $
 *  \author Jo. Weng  - CERN, Ph Division & Uni Karlsruhe
 */
 
@@ -207,7 +207,7 @@ void HepMCFileReader::printEvent() const {
 void HepMCFileReader::ReadStats()
 {
   unsigned int particle_counter=0;
-  index_to_particle.reserve(evt_->particles_size()); 
+  index_to_particle.reserve(evt_->particles_size()+1); 
   index_to_particle[0] = 0; 
   for (HepMC::GenEvent::vertex_const_iterator v = evt_->vertices_begin();
        v != evt_->vertices_end(); ++v ) {
