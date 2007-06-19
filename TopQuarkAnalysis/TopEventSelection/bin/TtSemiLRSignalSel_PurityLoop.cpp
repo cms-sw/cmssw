@@ -31,7 +31,7 @@ using namespace std;
 const  int       signal_nrFiles                 = 51;
 const  TString   signal_path                    = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 const  int       bckgd_nrFiles                  = 51;
-const  TString   bckgd_path                     = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtOtherTtEvents_";
+const  TString   bckgd_path                     = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtOtherTtEvents_TopRex_Juni/TtOtherTtEvents_";
 
 //observable histogram variables
 const  int      nrSignalSelObs  		= 3;
@@ -40,7 +40,7 @@ const  TString  SignalSelInputFileName   	= "../data/TtSemiLRSignalSelAllObs.roo
 
 //likelihood histogram variables
 const  int   	nrSignalSelLRtotBins   		= 40;
-const  double 	SignalSelLRtotMin   		= -15;
+const  double 	SignalSelLRtotMin   		= -5;
 const  double 	SignalSelLRtotMax      		= 5;
 const  char* 	SignalSelLRtotFitFunction      	= "[0]/(1 + 1/exp([1]*([2] - x)))";
 

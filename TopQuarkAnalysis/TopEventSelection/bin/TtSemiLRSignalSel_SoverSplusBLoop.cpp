@@ -31,7 +31,7 @@ using namespace std;
 const  int       signal_nrFiles                 = 51;
 const  TString   signal_path                    = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 const  int       bckgd_nrFiles                  = 51;
-const  TString   bckgd_path                     = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtOtherTtEvents_";
+const  TString   bckgd_path                     = "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtOtherTtEvents_TopRex_Juni/TtOtherTtEvents_";
 
 //observable histogram variables
 const  int      nrSignalSelObs  		= 18;
@@ -42,7 +42,7 @@ const  double   SignalSelObsMax[nrSignalSelObs]	= {250,3,1,800,1500,1,7,8,250,0.
 
 //observable fit functions
 const char*     SignalSelObsFits[nrSignalSelObs]= {           
-						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs1	
+						     "[0]*(1-exp(-[1]*x))-[2]*(1-exp(-[3]*x))", //obs1
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs2
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs3
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs4
@@ -50,9 +50,9 @@ const char*     SignalSelObsFits[nrSignalSelObs]= {
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs6
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs7
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs8
-						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs9
+						     "[0]*exp(-pow((x-[1])/[2],2))+[3]*(1-exp(-[4]*x))", //obs9
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs10
-						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs11
+						     "[0]/(1 + 1/exp([1]*([2] - x)))+[3]", //obs11
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs12
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs13
 						     "[0]/(1 + 1/exp([1]*([2] - x)))", //obs14
@@ -99,6 +99,14 @@ int main() {
     obsFits.push_back(SignalSelObsFits[j]);
   }
   myLRhelper = new LRHelpFunctions(obsNrs, nrSignalSelHistBins, obsMin, obsMax, obsFits);  
+  
+  // manually set some initial values for fit function parameters
+  vector<double> parsFobs1; parsFobs1.push_back(20); parsFobs1.push_back(0.04); parsFobs1.push_back(21); parsFobs1.push_back(0.04);
+  myLRhelper -> setObsFitParameters(1,parsFobs1);
+  vector<double> parsFobs9; parsFobs9.push_back(0.2); parsFobs9.push_back(50); parsFobs9.push_back(30); parsFobs9.push_back(0.5); parsFobs9.push_back(0.03);
+  myLRhelper -> setObsFitParameters(9,parsFobs9);
+  vector<double> parsFobs11; parsFobs11.push_back(0.3); parsFobs11.push_back(-0.03); parsFobs11.push_back(90); parsFobs11.push_back(0.4);
+  myLRhelper -> setObsFitParameters(11,parsFobs11);
 
   // fill signal and background contributions to S and B histograms
   doEventloop(); 
