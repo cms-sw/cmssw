@@ -17,6 +17,10 @@
 #include<vector>
 #include<stdlib.h>
 
+namespace CLHEP {
+  class HepRandomEngine;
+  class RandFlat;
+}
 class RPCSimAverage : public RPCSim
 {
  public:
@@ -47,6 +51,9 @@ class RPCSimAverage : public RPCSim
   std::fstream *MyOutput1; 
   std::fstream *MyOutput2;
   std::fstream *MyOutput3;
+
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution;
 
 };
 #endif

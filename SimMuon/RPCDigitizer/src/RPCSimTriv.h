@@ -9,6 +9,12 @@
  */
 #include "SimMuon/RPCDigitizer/src/RPCSim.h"
 
+
+namespace CLHEP {
+  class HepRandomEngine;
+  class RandFlat;
+}
+
 class RPCSimTriv : public RPCSim
 {
  public:
@@ -18,5 +24,8 @@ class RPCSimTriv : public RPCSim
 			const edm::PSimHitContainer& rpcHits );
  private:
   void init(){};
+  CLHEP::HepRandomEngine* rndEngine;
+  CLHEP::RandFlat* flatDistribution;
+
 };
 #endif

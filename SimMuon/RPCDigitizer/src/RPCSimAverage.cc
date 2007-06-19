@@ -5,7 +5,11 @@
 #include "Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h"
 
 #include <cmath>
-
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 #include <CLHEP/Random/RandGaussQ.h>
 #include <CLHEP/Random/RandFlat.h>
 
@@ -64,6 +68,17 @@ RPCSimAverage::RPCSimAverage(const edm::ParameterSet& config) : RPCSim(config){
     }
     counter++;
   }
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "RPCDigitizer requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file or remove the modules that require it.";
+  }
+  
+  rndEngine = &(rng->getEngine());
+  flatDistribution = new CLHEP::RandFlat(rndEngine);
 }
 
 int RPCSimAverage::getClSize(float posX)
@@ -128,12 +143,12 @@ RPCSimAverage::simulate(const RPCRoll* roll,
     float posX = roll->strip(_hit->localPosition()) - static_cast<int>(roll->strip(_hit->localPosition()));
 
     // Effinciecy
-    if (RandFlat::shoot() < aveEff) {
+    if (flatDistribution->fire() < aveEff) {
       int centralStrip = topology.channel(entr)+1;  
       int fstrip=centralStrip;
       int lstrip=centralStrip;
       // Compute the cluster size
-      double w = RandFlat::shoot();
+      double w = flatDistribution->fire();
       if (w < 1.e-10) w=1.e-10;
       int clsize = this->getClSize(posX);
 
