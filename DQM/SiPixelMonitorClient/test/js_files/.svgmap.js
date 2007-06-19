@@ -165,7 +165,7 @@
   var currentMESrc  = new Array() ;
   where  = evt.currentTarget;
 
-  if (evt.type == "click") //   <-----------------------------------------------
+  if (evt.type == "click") //   <-------------------------------- C l i c k -------
   {
    drawMarker("black") ;
    var leftDoc  = top.left.document ;  
@@ -201,7 +201,7 @@
       var url1          = url_serv   + queryString;
       myTrackerPlot.setAttribute("src", url1);
       pausecomp(1000);
-      queryString       = "RequestID=UpdatePlot" ;
+      queryString       = "RequestID=UpdateTkMapPlot" ;
       queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
       var url2          = url_serv   + queryString;

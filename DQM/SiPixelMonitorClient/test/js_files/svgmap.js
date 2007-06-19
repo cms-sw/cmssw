@@ -32,12 +32,11 @@
  //____________________________________________________________________________
  function updateTrackerMap()
  {
-   DM_TraceWindow(thisFile,arguments.callee.name,"http_request.readyState="+http_request.readyState) ;
-   if( http_request.readyState == 2 ) 
-   {
-    DM_TraceWindow(thisFile,arguments.callee.name,"Still waiting for an answer...") ;
-    return ; // If previous submission got no answer, skip retry
-   }
+//   if( http_request.readyState != 4 ) 
+//   {
+//    DM_TraceWindow(thisFile,arguments.callee.name,"Still waiting for completion...") ;
+//    return ; // If previous submission got no answer, skip retry
+//   }
 //   DM_TraceWindow(thisFile,arguments.callee.name,"Udating...") ;
    var theMEList   = top.opener.document.getElementById("monitoring_element_list") ;
    var selME       =  theMEList.options[theMEList.selectedIndex].value;
@@ -166,7 +165,7 @@
   var currentMESrc  = new Array() ;
   where  = evt.currentTarget;
 
-  if (evt.type == "click") //   <-----------------------------------------------
+  if (evt.type == "click") //   <-------------------------------- C l i c k -------
   {
    drawMarker("black") ;
    var leftDoc  = top.left.document ;  
@@ -195,14 +194,14 @@
        destURL = "baseImage" + ++destId;
        myTrackerPlot = theRightInnerFrame[0].document.getElementById(destURL);
       }
-      var url_serv      = "http://lxplus213.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
+      var url_serv      = "http://lxplus219.cern.ch:1972/urn:xdaq-application:lid=15/Request?";
       var queryString   = "RequestID=PlotTkMapHistogram";
       queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
       var url1          = url_serv   + queryString;
       myTrackerPlot.setAttribute("src", url1);
       pausecomp(1000);
-      queryString       = "RequestID=UpdatePlot" ;
+      queryString       = "RequestID=UpdateTkMapPlot" ;
       queryString      += "&ModId="  + moduleId;
       queryString      += "&MEName=" + theMEList[i].value;
       var url2          = url_serv   + queryString;
