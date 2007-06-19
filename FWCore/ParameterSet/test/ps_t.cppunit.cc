@@ -1,5 +1,5 @@
 /*
- * $Id: ps_t.cppunit.cc,v 1.8 2006/10/25 13:31:02 rpw Exp $
+ * $Id: ps_t.cppunit.cc,v 1.9 2006/10/25 21:57:56 wmtan Exp $
  */
 
 #include <algorithm>
@@ -235,6 +235,8 @@ void testps::mapByIdTest()
   edm::ParameterSet a;
   a.addParameter<double>("pi",3.14);
   a.addParameter<std::string>("name", "Bub");
+  CPPUNIT_ASSERT( a.exists("pi") );
+  CPPUNIT_ASSERT( !a.exists("pie") );
 
   edm::ParameterSet b;
   b.addParameter<bool>("b", false);
