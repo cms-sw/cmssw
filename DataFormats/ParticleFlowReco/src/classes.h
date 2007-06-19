@@ -4,6 +4,7 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterShapeAssociation.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -54,5 +55,13 @@ namespace {
     edm::Ref< std::vector<reco::PFBlock>, reco::PFBlock, edm::refhelper::FindUsingAdvance< std::vector<reco::PFBlock>, reco::PFBlock> >  dummy18;
     edm::Ref<std::vector<reco::PFRecTrack>,reco::PFRecTrack,edm::refhelper::FindUsingAdvance<std::vector<reco::PFRecTrack>,reco::PFRecTrack> > dummy19;
     edm::Ref<std::vector<reco::PFCluster>,reco::PFCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCluster>,reco::PFCluster> > dummy20;
+
+    reco::PFClusterShapeAssociationCollection dummy21;
+    edm::Wrapper<reco::PFClusterShapeAssociationCollection> dummy22;
+    reco::PFClusterShapeAssociation dummy23;
+    reco::PFClusterShapeAssociationRef dummy24;
+    reco::PFClusterShapeAssociationRefProd dummy25;
+    reco::PFClusterShapeAssociationRefVector dummy26;
+
   }
 }
