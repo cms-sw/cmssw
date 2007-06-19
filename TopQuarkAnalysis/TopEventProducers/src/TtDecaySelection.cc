@@ -28,7 +28,7 @@ bool TtDecaySelection::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel ("genEvt",genEvt);
    
    int channel  = abs( (int) (decay_*1./10.) );
-   int allowLep = abs( (int) decay_ - channel*10 );   
+   int allowLep =  (int) abs(decay_) - channel*10;   
    
    
    bool decision = false;
