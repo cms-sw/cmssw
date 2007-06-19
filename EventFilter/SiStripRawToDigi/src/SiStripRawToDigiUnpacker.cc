@@ -81,18 +81,6 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
       << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
       << " Found " << feds.size() << " FED buffers with non-zero size!";
   }
-
-  // Some temporary debug
-  if ( !(event_%100) ) {
-    std::stringstream ss;
-    ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-       << " Contents of FEDRawDataCollection (FedId/#chars): ";
-    for ( uint16_t ifed = 0; ifed < sistrip::CMS_FED_ID_MAX; ifed++ ) {
-      uint16_t size = buffers.FEDData( static_cast<int>(ifed) ).size();
-      if ( size ) { ss << ifed << "/" << size << " "; }
-    }
-    LogTrace(mlRawToDigi_) << ss.str();
-  }
   
   // Retrieve FED ids from cabling map and iterate through 
   std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
@@ -101,15 +89,22 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     // Retrieve FED raw data for given FED 
     const FEDRawData& input = buffers.FEDData( static_cast<int>(*ifed) );
     
-    // Some temporary debug
-    if ( !(event_%100) && input.data() ) {
-      LogTrace(mlRawToDigi_)
-	<< "[SiStripRawToDigiUnpacker::" << __func__ << "]"
-	<< " Found data for FED id " << *ifed
-	<< " with ptr 0x" << input.data()
-	<< " and size (char) " << input.size();
+    // Some debug on FED buffer size
+    if ( event_ == 1 && input.data() ) {
+      std::stringstream ss;
+      ss << "[SiStripRawToDigiUnpacker::" << __func__ << "]"
+	 << " Found FED id " 
+	 << std::setw(4) << std::setfill(' ') << *ifed 
+	 << " in FEDRawDataCollection"
+	 << " with non-zero pointer 0x" 
+	 << std::hex
+	 << std::setw(4) << std::setfill('0') << *(input.data())
+	 << std::dec
+	 << " and size (#char) " 
+	 << std::setw(5) << std::setfill(' ') << input.size();
+      LogTrace(mlRawToDigi_) << ss.str();
     }	
-
+    
     // Dump of FEDRawData to stdout
     if ( fedBufferDumpFreq_ && !(event_%fedBufferDumpFreq_) ) {
       std::stringstream ss;
@@ -189,20 +184,26 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
+      // Check if FedId is valid
+      if ( !iconn->isConnected() ) { continue; }
+      
+      // Check DetId is valid (if to be used as key)
+      if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
+
       // Determine whether FED key is inferred from cabling or channel loop
       SiStripFedKey fed_path;
 
       uint32_t fed_key = 0;
 
-      if ( summary.runType() == sistrip::FED_CABLING )
+      if ( summary.runType() == sistrip::FED_CABLING ) {
 	fed_path = SiStripFedKey( *ifed, 
 				  SiStripFedKey::feUnit(chan),
 				  SiStripFedKey::feChan(chan) );
-      else
+      } else { 
 	fed_path = SiStripFedKey( iconn->fedId(), 
 				  SiStripFedKey::feUnit(iconn->fedCh()),
 				  SiStripFedKey::feChan(iconn->fedCh()) );
-      
+      }
       fed_key = fed_path.key();
       
       // Determine whether DetId or FED key should be used to index digi containers
