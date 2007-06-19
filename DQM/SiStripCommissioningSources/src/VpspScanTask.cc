@@ -67,11 +67,6 @@ void VpspScanTask::fill( const SiStripEventSummary& summary,
   uint32_t vpsp = const_cast<SiStripEventSummary&>(summary).vpsp();
   uint32_t ccu_chan = const_cast<SiStripEventSummary&>(summary).vpspCcuChan();
 
-  LogTrace(mlDqmSource_)
-    << "[VpspScanTask::" << __func__ << "]"
-    << " VPSP: " << vpsp
-    << " CCUchan: " << ccu_chan;
-
   // Check CCU channel from EventSummary is consistent with this module
   if ( SiStripFecKey( fecKey() ).ccuChan() != ccu_chan ) { return; }
 
