@@ -1,7 +1,7 @@
 #!/usr/bin/perl
-# $Id: $
+# $Id: valgrindMemcheckParser.pl,v 1.2 2007/06/13 09:04:20 rahatlou Exp $
 # Created: June 2007
-# Author: Gioivanni Petrucciani, INFN Pisa
+# Author: Giovanni Petrucciani, INFN Pisa
 #
 use strict;
 use warnings;
@@ -11,6 +11,7 @@ use Date::Format;
 use Getopt::Long;
 
 my $mstart = qr/^==\d+== (\S.*? bytes) in \S+ blocks are (.*?) in loss (record \S+ of \S+)/;
+my $mstartuni = qr/^==\d+== ()(\S.*uninitialised.*)()/;
 my $mtrace = qr/^==\d+== \s+(?:at|by)\s.*?:\s+(.*?)\s\((.*)\)/;
 my $version = "CMSSW_1_5_0_pre3";
 my @showstoppers = qq(libFWCoreFramework);
@@ -26,7 +27,7 @@ my %presets = (
 my $preset_names = join(', ', sort(keys(%presets)));
 
 my @trace = (); my @libs = (); my @presets = (); my @dump_presets = ();
-my $help = '';  my $all = ''; my $onecolumn = '';
+my $help = '';  my $all = ''; my $onecolumn = ''; my $uninitialised = undef;
 
 GetOptions(
         'rel|release|r=s' => \$version,
@@ -37,8 +38,9 @@ GetOptions(
         'all|a' => \$all,
         'preset=s'   => \@presets,
         'dump-preset=s'   => \@dump_presets,
+        'uninitialised|u' => \$uninitialised,
         'help|h|?' => \$help);
-
+if ($uninitialised) { $mstart = $mstartuni; print STDERR "Hunting for uninitialised stuff\n"; }
 if ($help) {
         print <<_END;
    Usage: valgrindMemcheckParser.pl [ --rel RELEASE ] 
