@@ -1,8 +1,9 @@
 #ifndef Math_LorentzVector_h
 #define Math_LorentzVector_h
-// $Id: LorentzVector.h,v 1.7 2006/11/20 09:06:52 llista Exp $
+// $Id: LorentzVector.h,v 1.8 2007/06/19 14:27:19 llista Exp $
 #include "Rtypes.h"
 #include "Math/PtEtaPhiE4D.h"
+#include "Math/PtEtaPhiM4D.h"
 #include "Math/PxPyPzE4D.h"
 #include "Math/LorentzVector.h"
 

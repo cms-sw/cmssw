@@ -3,6 +3,8 @@
   <class name="reco::Particle">
     <field name="p4_" iotype="ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<Double32_t> >" /> 
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+    <field name="p4Cache_" transient="true" />
+    <field name="hasCacheSet_" transient="true" />
   </class>
   <class name="reco::Candidate">
     <field name="mothers_" transient="true"/>
