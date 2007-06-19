@@ -3,8 +3,8 @@
  *  
  *  This class is an EDFilter for HWW events
  *
- *  $Date: 2007/05/31 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/05/31 16:52:02 $
+ *  $Revision: 1.1 $
  *
  *  \author Ezio Torassa  -  INFN Padova
  *
@@ -57,6 +57,7 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   nEvents_++;
   bool accepted = false;
+  bool accepted1 = false;
   using namespace edm;
 
   //  Handle<reco::TrackCollection> tracks;
@@ -78,14 +79,15 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // at least one track above a pt threshold singleTrackPtMin 
-  // or at least 2 tracks above a pt threshold diTrackPtMin
+  // and at least 2 tracks above a pt threshold diTrackPtMin
   int nTrackOver2ndCut = 0;
   for( size_t c = 0; c != tracks->size(); ++ c ) {
     CandidateRef cref( tracks, c );
-    if ( cref->pt() > singleTrackPtMin_ && cref->eta() > etaMin_ && cref->eta() < etaMax_ ) accepted = true;
+    if ( cref->pt() > singleTrackPtMin_ && cref->eta() > etaMin_ && cref->eta() < etaMax_ ) accepted1 = true;
     if ( cref->pt() > diTrackPtMin_     && cref->eta() > etaMin_ && cref->eta() < etaMax_ )  nTrackOver2ndCut++;
   }
-  if ( nTrackOver2ndCut >= 2 ) accepted = true;
+
+  if ( accepted1 = true && nTrackOver2ndCut >= 2 ) accepted = true;
 
   if ( accepted ) nAccepted_++;
 
