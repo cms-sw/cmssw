@@ -29,6 +29,9 @@ namespace {
     math::PtEtaPhiELorentzVector l1;
     math::PtEtaPhiELorentzVectorD ld1;
     math::PtEtaPhiELorentzVectorF lf1;
+    math::PtEtaPhiMLorentzVector l3;
+    math::PtEtaPhiMLorentzVectorD ld3;
+    math::PtEtaPhiMLorentzVectorF lf3;
     math::XYZTLorentzVector l2;
     math::XYZTLorentzVectorD ld2;
     math::XYZTLorentzVectorF lf2;
@@ -53,6 +56,9 @@ namespace {
     std::vector<math::PtEtaPhiELorentzVector> vl1;
     std::vector<math::PtEtaPhiELorentzVectorD> vld1;
     std::vector<math::PtEtaPhiELorentzVectorF> vlf1;
+    std::vector<math::PtEtaPhiMLorentzVector> vl3;
+    std::vector<math::PtEtaPhiMLorentzVectorD> vld3;
+    std::vector<math::PtEtaPhiMLorentzVectorF> vlf3;
     std::vector<math::XYZTLorentzVector> vl2;
     std::vector<math::XYZTLorentzVectorD> vld2;
     std::vector<math::XYZTLorentzVectorF> vlf2;
@@ -72,6 +78,9 @@ namespace {
     edm::Wrapper<math::PtEtaPhiELorentzVector> wl1;
     edm::Wrapper<math::PtEtaPhiELorentzVectorD> wld1;
     edm::Wrapper<math::PtEtaPhiELorentzVectorF> wlf1;
+    edm::Wrapper<math::PtEtaPhiMLorentzVector> wl3;
+    edm::Wrapper<math::PtEtaPhiMLorentzVectorD> wld3;
+    edm::Wrapper<math::PtEtaPhiMLorentzVectorF> wlf3;
     edm::Wrapper<math::XYZTLorentzVector> wl2;
     edm::Wrapper<math::XYZTLorentzVectorD> wld2;
     edm::Wrapper<math::XYZTLorentzVectorF> wlf2;
@@ -92,6 +101,9 @@ namespace {
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVector> > wvl1;
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorD> > wvld1;
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorF> > wvlf1;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVector> > wvl3;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVectorD> > wvld3;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVectorF> > wvlf3;
     edm::Wrapper<std::vector<math::XYZTLorentzVector> > wvl2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorD> > wvld2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorF> > wvlf2;
@@ -112,6 +124,9 @@ namespace {
     edm::Ref<std::vector<math::PtEtaPhiELorentzVector> > rl1;
     edm::Ref<std::vector<math::PtEtaPhiELorentzVectorD> > rld1;
     edm::Ref<std::vector<math::PtEtaPhiELorentzVectorF> > rlf1;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVector> > rl3;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVectorD> > rld3;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVectorF> > rlf3;
     edm::Ref<std::vector<math::XYZTLorentzVector> > rl2;
     edm::Ref<std::vector<math::XYZTLorentzVectorD> > rld2;
     edm::Ref<std::vector<math::XYZTLorentzVectorF> > rlf2;
@@ -131,6 +146,9 @@ namespace {
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVector> > rpl1;
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorD> > rpld1;
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorF> > rplf1;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVector> > rpl3;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVectorD> > rpld3;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVectorF> > rplf3;
     edm::RefProd<std::vector<math::XYZTLorentzVector> > rpl2;
     edm::RefProd<std::vector<math::XYZTLorentzVectorD> > rpld2;
     edm::RefProd<std::vector<math::XYZTLorentzVectorF> > rplf2;
@@ -150,6 +168,9 @@ namespace {
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVector> > rvl1;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorD> > rvld1;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorF> > rvlf1;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVector> > rvl3;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVectorD> > rvld3;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVectorF> > rvlf3;
     edm::RefVector<std::vector<math::XYZTLorentzVector> > rvl2;
     edm::RefVector<std::vector<math::XYZTLorentzVectorD> > rvld2;
     edm::RefVector<std::vector<math::XYZTLorentzVectorF> > rvlf2;
