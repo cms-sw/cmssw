@@ -453,6 +453,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     // 2) or particles with stable daughters (watch out! New status code = 1001!)
     bool testDaugh = false;
     if ( !testStable && 
+	 p->status() == 2 &&
 	 p->end_vertex() && 
 	 p->end_vertex()->particles_out_size() ) { 
       HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = 
