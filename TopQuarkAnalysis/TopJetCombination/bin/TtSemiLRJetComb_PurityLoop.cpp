@@ -29,7 +29,7 @@ using namespace std;
 
 //input files
 const  int       nrFiles  	  		= 51;
-const  TString   path     	  		= "dcap://maite.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
+const  TString   path     	  		= "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 
 //matching variables
 const  bool  	 useSpaceAngle    		= true;
