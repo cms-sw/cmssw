@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.1 2007/06/05 14:04:44 bainbrid Exp $
+// Last commit: $Id: ConstantsForCommissioningAnalysis.h,v 1.2 2007/06/07 14:34:57 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
 #define DataFormats_SiStripCommon_ConstantsForCommissioningAnalysis_H
@@ -17,13 +17,18 @@ namespace sistrip {
   static const std::string numberOfHistos_      = "UnexpectedNumberOfHistograms";
   static const std::string nullPtr_             = "NullPointerToHistogram";
   static const std::string numberOfBins_        = "UnexpectedNumberOfHistogramBins";
+  static const std::string noEntries_           = "NoEntriesInHistogramBin";
   static const std::string unexpectedTask_      = "UnexpectedTaskInHistoTitle";
   static const std::string unexpectedExtraInfo_ = "UnexpectedExtraInfoInHistoTitle";
   
+  // ---------- Fast FED cabling ----------
+  
+  static const std::string fastFedCablingAnalysis_ = "FastFedCablingAnalysis";
+
   // ---------- FED cabling ----------
   
-  static const std::string fedCablingAnalysis_  = "FedCablingAnalysis";
-  static const std::string noCandidates_        = "NoChannelsAboveThreshold";
+  static const std::string fedCablingAnalysis_ = "FedCablingAnalysis";
+  static const std::string noCandidates_       = "NoChannelsAboveThreshold";
   
   // ---------- APV timing ----------
   

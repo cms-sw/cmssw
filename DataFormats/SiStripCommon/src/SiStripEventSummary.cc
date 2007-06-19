@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.cc,v 1.1 2007/03/21 16:29:39 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.cc,v 1.2 2007/05/24 15:27:33 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -14,6 +14,8 @@ SiStripEventSummary::SiStripEventSummary() :
   runType_(sistrip::UNDEFINED_RUN_TYPE), 
   event_(0), 
   bx_(0),
+  spillNumber_(0),
+  nDataSenders_(0),
   fedReadoutMode_(sistrip::UNDEFINED_FED_READOUT_MODE),
   apvReadoutMode_(sistrip::UNDEFINED_APV_READOUT_MODE),
   apveAddress_(0),
@@ -27,12 +29,18 @@ SiStripEventSummary::SiStripEventSummary() :
 //
 void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
 					     const uint32_t& event ) {
-  
+
   // Set RunType
   sistrip::RunType tmp = static_cast<sistrip::RunType>( buffer[10] );
   if ( buffer[10] == 11 || buffer[10] == 16 ) { tmp = sistrip::FED_CABLING; }
   std::string run_type = SiStripEnumsAndStrings::runType(tmp);
   runType_ = SiStripEnumsAndStrings::runType(run_type);
+
+  // Set spill number
+  spillNumber_ = buffer[0];
+
+  // Set number of DataSenders
+  nDataSenders_ = buffer[20];
 
   // Set FED readout mode
   if      ( buffer[15] == 0 ) { fedReadoutMode_ = sistrip::FED_SCOPE_MODE; }
@@ -65,6 +73,13 @@ void SiStripEventSummary::commissioningInfo( const uint32_t* const buffer,
     params_[0] = buffer[11]; // pll coarse delay
     params_[1] = buffer[12]; // pll fine delay
     params_[2] = buffer[13]; // ttcrx delay
+
+  } else if ( buffer[10] == 21 ) { // "Very fast" connection 
+
+    params_[0] = event-1; // buffer[11]; // bin number
+    params_[1] = buffer[12]; // fec instance
+    params_[2] = buffer[13]; // fec ip
+    params_[3] = buffer[14]; // dcu hard id 
 
   } else if ( buffer[10] == 11 ||
 	      buffer[10] == 13 ||

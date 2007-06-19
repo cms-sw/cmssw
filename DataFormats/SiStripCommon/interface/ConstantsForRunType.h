@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForRunType.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForRunType.h,v 1.3 2007/03/22 22:12:55 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForRunType_H
 #define DataFormats_SiStripCommon_ConstantsForRunType_H
@@ -19,16 +19,17 @@ namespace sistrip {
   static const std::string unknownRunType_   = "UnknownRunType";
   static const std::string undefinedRunType_ = "UndefinedRunType";
   
-  static const std::string fedCabling_   = "FedCabling";
-  static const std::string apvTiming_    = "ApvTiming";
-  static const std::string fedTiming_    = "FedTiming";
-  static const std::string optoScan_     = "OptoScan";
-  static const std::string vpspScan_     = "VpspScan";
-  static const std::string pedestals_    = "Pedestals";
-  static const std::string apvLatency_   = "ApvLatency";
-  static const std::string fineDelay_    = "FineDelay";
-  static const std::string daqScopeMode_ = "DaqScopeMode";
-  static const std::string physics_      = "Physics";
+  static const std::string fastFedCabling_ = "FastCabling";
+  static const std::string fedCabling_     = "FedCabling";
+  static const std::string apvTiming_      = "ApvTiming";
+  static const std::string fedTiming_      = "FedTiming";
+  static const std::string optoScan_       = "OptoScan";
+  static const std::string vpspScan_       = "VpspScan";
+  static const std::string pedestals_      = "Pedestals";
+  static const std::string apvLatency_     = "ApvLatency";
+  static const std::string fineDelay_      = "FineDelay";
+  static const std::string daqScopeMode_   = "DaqScopeMode";
+  static const std::string physics_        = "Physics";
   
   // ---------- Enumerated type ---------- 
   
@@ -36,8 +37,10 @@ namespace sistrip {
    * Run types: (equivalent "TrackerSupervisor" enums in brackets): 
    * unknown run type,
    * undefined run type,
+   * "fast" connection of FED channels to APV pairs (XTOFS_CONNECTION = 21), 
    * connection of FED channels to APV pairs (BARE_CONNECTION = 13), 
-   * connection of FED channels to APV pairs (CONNECTION = 11), // FAST_CONNECTION?
+   * connection of FED channels to APV pairs (CONNECTION = 11),
+   * connection of FED channels to APV pairs (FAST_CONNECTION = 16),
    * relative APV synchronisation (TIMING = 5), 
    * relative APV synchronisation using FED delays (TIMING_FED = 12), 
    * bias and gain scan for LLD device (GAINSCAN = 4), 
@@ -54,16 +57,17 @@ namespace sistrip {
    */
   enum RunType { UNKNOWN_RUN_TYPE   = sistrip::unknown_,
 		 UNDEFINED_RUN_TYPE = sistrip::invalid_,
-		 FED_CABLING    = 13,
-		 APV_TIMING     = 5,
-		 FED_TIMING     = 12,
-		 OPTO_SCAN      = 4,
-		 VPSP_SCAN      = 14,
-		 PEDESTALS      = 2,
-		 APV_LATENCY    = 6,
-                 FINE_DELAY     = 7,
-		 DAQ_SCOPE_MODE = 15,
-		 PHYSICS        = 1
+		 FAST_FED_CABLING   = 21,
+		 FED_CABLING        = 13,
+		 APV_TIMING         = 5,
+		 FED_TIMING         = 12,
+		 OPTO_SCAN          = 4,
+		 VPSP_SCAN          = 14,
+		 PEDESTALS          = 2,
+		 APV_LATENCY        = 6,
+                 FINE_DELAY         = 7,
+		 DAQ_SCOPE_MODE     = 15,
+		 PHYSICS            = 1
   };
 
 }

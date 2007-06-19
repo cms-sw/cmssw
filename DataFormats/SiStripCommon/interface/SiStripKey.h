@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripKey.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripKey.h,v 1.3 2007/04/04 06:56:17 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripKey_H
 #define DataFormats_SiStripCommon_SiStripKey_H
@@ -33,6 +33,12 @@ class SiStripKey {
   /** Constructor using directory path. */
   SiStripKey( const std::string& directory_path );
   
+  /** Copy constructor. */
+  SiStripKey( const SiStripKey& );
+
+  /** Assignment. */
+  const SiStripKey& operator=( const SiStripKey& );
+  
   /** Default constructor. */
   SiStripKey();
 
@@ -53,36 +59,36 @@ class SiStripKey {
   /** Returns channel for key granularity. */
   inline const uint16_t& channel() const;
 
-  // ---------- Pure virtual utility methods ---------- 
+  // ---------- Virtual utility methods ---------- 
   
   /** Identifies key objects with identical member data. */
-  virtual bool isEqual( const SiStripKey& ) const = 0;
+  virtual bool isEqual( const SiStripKey& ) const;
   
   /** "Consistent" means identical and/or null (ie, "all") data. */
-  virtual bool isConsistent( const SiStripKey& ) const = 0;
+  virtual bool isConsistent( const SiStripKey& ) const;
 
   /** Identifies all member data as being "valid" or null ("all"). */
-  virtual bool isValid() const = 0;
+  virtual bool isValid() const;
   
   /** All member data to level of "Granularity" are valid. If
       sistrip::Granularity is "undefined", returns false. */
-  virtual bool isValid( const sistrip::Granularity& ) const = 0;
+  virtual bool isValid( const sistrip::Granularity& ) const;
   
   /** Identifies all member data as being invalid. */
-  virtual bool isInvalid() const = 0;
+  virtual bool isInvalid() const;
 
   /** All member data to level of "Granularity" are invalid. If
       sistrip::Granularity is "undefined", returns true.  */
-  virtual bool isInvalid( const sistrip::Granularity& ) const = 0;
+  virtual bool isInvalid( const sistrip::Granularity& ) const;
 
  protected: 
 
   // ---------- Protected methods ----------
 
-  virtual void initFromValue() = 0;
-  virtual void initFromKey() = 0;
-  virtual void initFromPath() = 0;
-  virtual void initGranularity() = 0;
+  virtual void initFromValue() {;}
+  virtual void initFromKey() {;}
+  virtual void initFromPath() {;}
+  virtual void initGranularity() {;}
   
   inline void key( const uint32_t& );
   inline void path( const std::string& );

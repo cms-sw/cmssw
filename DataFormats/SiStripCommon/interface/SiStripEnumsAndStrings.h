@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripEnumsAndStrings.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripEnumsAndStrings_H
 #define DataFormats_SiStripCommon_SiStripEnumsAndStrings_H
@@ -28,6 +28,9 @@ class SiStripEnumsAndStrings {
 
   static std::string fedReadoutMode( const sistrip::FedReadoutMode& );
   static sistrip::FedReadoutMode fedReadoutMode( const std::string& fed_readout_mode );
+  
+  static std::string histoType( const sistrip::HistoType& );
+  static sistrip::HistoType histoType( const std::string& histo_type );
   
   static std::string monitorable( const sistrip::Monitorable& );
   static sistrip::Monitorable monitorable( const std::string& histo_monitorable );

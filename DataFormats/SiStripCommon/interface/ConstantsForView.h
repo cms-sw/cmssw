@@ -25,9 +25,9 @@ namespace sistrip {
 
   enum View { UNKNOWN_VIEW   = sistrip::unknown_, 
 	      UNDEFINED_VIEW = sistrip::invalid_, 
-	      READOUT        = 1, 
-	      CONTROL        = 2, 
-	      DETECTOR       = 3 
+	      READOUT_VIEW   = 1, 
+	      CONTROL_VIEW   = 2, 
+	      DETECTOR_VIEW  = 3 
   };
   
 }

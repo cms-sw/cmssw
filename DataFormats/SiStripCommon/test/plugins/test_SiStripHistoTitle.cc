@@ -1,4 +1,4 @@
-// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.3 2007/03/21 08:23:00 bainbrid Exp $
+// Last commit: $Id: test_SiStripHistoTitle.cc,v 1.1 2007/04/24 12:20:00 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/test/plugins/test_SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -40,7 +40,22 @@ void test_SiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
     << "[SiStripHistoTitle::" << __func__ << "]"
     << " Checking HistoTitle...";
 
-  // Build vectors containing RunType, KeyType, Granularity
+  // Build vectors containing HistoType, RunType, KeyType, Granularity
+
+  std::vector<sistrip::HistoType> histo_types;
+  {
+    bool first = true;
+    for ( uint32_t cntr = 0; cntr <= sistrip::invalid_; cntr++ ) {
+      sistrip::HistoType in = static_cast<sistrip::HistoType>(cntr);
+      std::string str = SiStripEnumsAndStrings::histoType(in);
+      sistrip::HistoType out = SiStripEnumsAndStrings::histoType(str);
+      if ( out != sistrip::UNKNOWN_HISTO_TYPE ||
+	   ( out == sistrip::UNKNOWN_HISTO_TYPE && first ) ) {
+	first = false;
+	if ( out != sistrip::UNKNOWN_HISTO_TYPE ) { histo_types.push_back(in); }
+      }
+    }
+  }
 
   std::vector<sistrip::RunType> run_types;
   {
@@ -89,100 +104,107 @@ void test_SiStripHistoTitle::beginJob( const edm::EventSetup& setup ) {
 
   // Test SiStripHistoTitle class
   
-  std::vector<sistrip::RunType>::const_iterator irun = run_types.begin(); 
-  for ( ; irun != run_types.end(); irun++ ) {
+  std::vector<sistrip::HistoType>::const_iterator ihisto = histo_types.begin(); 
+  for ( ; ihisto != histo_types.end(); ihisto++ ) {
     
-    std::vector<sistrip::KeyType>::const_iterator ikey = key_types.begin(); 
-    for ( ; ikey != key_types.end(); ikey++ ) {
+    std::vector<sistrip::RunType>::const_iterator irun = run_types.begin(); 
+    for ( ; irun != run_types.end(); irun++ ) {
+    
+      std::vector<sistrip::KeyType>::const_iterator ikey = key_types.begin(); 
+      for ( ; ikey != key_types.end(); ikey++ ) {
 
-      if ( *ikey != sistrip::FED_KEY ) { continue; }
+	if ( *ikey != sistrip::FED_KEY ) { continue; }
 
-      // FED ids
-      for ( uint16_t ifed = 0; ifed <= sistrip::CMS_FED_ID_MAX+1; ifed++ ) {
-	if ( ifed > 1 && 
-	     ifed != sistrip::FED_ID_MIN+1 &&
-	     ifed < sistrip::CMS_FED_ID_MAX-1 ) { continue; }
+	// FED ids
+	for ( uint16_t ifed = 0; ifed <= sistrip::CMS_FED_ID_MAX+1; ifed++ ) {
+	  if ( ifed > 1 && 
+	       ifed != sistrip::FED_ID_MIN+1 &&
+	       ifed < sistrip::CMS_FED_ID_MAX-1 ) { continue; }
 
-	// FE units
-	for ( uint16_t ife = 0; ife <= sistrip::FEUNITS_PER_FED+1; ife++ ) {
-	  if ( ife > 1 && ife < sistrip::FEUNITS_PER_FED ) { continue; }
+	  // FE units
+	  for ( uint16_t ife = 0; ife <= sistrip::FEUNITS_PER_FED+1; ife++ ) {
+	    if ( ife > 1 && ife < sistrip::FEUNITS_PER_FED ) { continue; }
 
-	  // FE channels
-	  for ( uint16_t ichan = 0; ichan <= sistrip::FEDCH_PER_FEUNIT+1; ichan++ ) {
-	    if ( ichan > 1 && ichan < sistrip::FEDCH_PER_FEUNIT ) { continue; }
+	    // FE channels
+	    for ( uint16_t ichan = 0; ichan <= sistrip::FEDCH_PER_FEUNIT+1; ichan++ ) {
+	      if ( ichan > 1 && ichan < sistrip::FEDCH_PER_FEUNIT ) { continue; }
 
-	    // APVs 
-	    for ( uint16_t iapv = 0; iapv <= sistrip::APVS_PER_FEDCH+1; iapv++ ) {
-	      if ( iapv > 1 && iapv < sistrip::APVS_PER_FEDCH ) { continue; }
+	      // APVs 
+	      for ( uint16_t iapv = 0; iapv <= sistrip::APVS_PER_FEDCH+1; iapv++ ) {
+		if ( iapv > 1 && iapv < sistrip::APVS_PER_FEDCH ) { continue; }
 	  
-	      SiStripFedKey key( ifed, ife, ichan, iapv );
+		SiStripFedKey key( ifed, ife, ichan, iapv );
 	      
-	      for ( uint16_t iextra = 0; iextra < 2; iextra++ ) { 
-		std::string extra = "";
-		if ( iextra ) { extra = "SomeInfo"; }
+		for ( uint16_t iextra = 0; iextra < 2; iextra++ ) { 
+		  std::string extra = "";
+		  if ( iextra ) { extra = "SomeInfo"; }
 
-		// Generate title objects
+		  // Generate title objects
 
-		SiStripHistoTitle in1( *irun, 
-				       *ikey, 
-				       key.key(), 
-				       key.granularity(), 
-				       key.channel(), 
-				       extra );
+		  SiStripHistoTitle in1( *ihisto, 
+					 *irun, 
+					 *ikey, 
+					 key.key(), 
+					 key.granularity(), 
+					 key.channel(), 
+					 extra );
 		
-		SiStripHistoTitle in2( *irun, 
-				       key,
-				       extra );
+		  SiStripHistoTitle in2( *ihisto, 
+					 *irun, 
+					 key,
+					 extra );
 		
-		SiStripHistoTitle out1 = SiStripHistoTitle( in1.title() );
-		SiStripHistoTitle out2 = SiStripHistoTitle( in2.title() );
+		  SiStripHistoTitle out1 = SiStripHistoTitle( in1.title() );
+		  SiStripHistoTitle out2 = SiStripHistoTitle( in2.title() );
 
-		// Debug info
+		  // Debug info
 
-		std::stringstream ss;
+		  std::stringstream ss;
 
-		ss << std::endl 
-		   << "[test_SiStripHistoTitle::" << __func__ << "]"
-		   << " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl
-		   << std::endl;
+		  ss << std::endl 
+		     << "[test_SiStripHistoTitle::" << __func__ << "]"
+		     << " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl
+		     << std::endl;
 
-		ss << "[test_SiStripHistoTitle::" << __func__ << "]"
-		   << " RunType/KeyType: " << *irun << "/" << *ikey
-		   << " RunType: " << SiStripEnumsAndStrings::runType(*irun)
-		   << " KeyType: " << SiStripEnumsAndStrings::keyType(*ikey) << std::endl;
+		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		     << " HistoType/RunType/KeyType: " << *ihisto << "/" << *irun << "/" << *ikey
+		     << " HistoType: " << SiStripEnumsAndStrings::histoType(*ihisto)
+		     << " RunType: " << SiStripEnumsAndStrings::runType(*irun)
+		     << " KeyType: " << SiStripEnumsAndStrings::keyType(*ikey) << std::endl;
 
-		ss << "[test_SiStripHistoTitle::" << __func__ << "]"
-		   << " FedId/FeUnit/FeChan/APV: "
-		   << ifed << "/"
-		   << ife << "/"
-		   << ichan << "/"
-		   << iapv << std::endl;
+		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		     << " FedId/FeUnit/FeChan/APV: "
+		     << ifed << "/"
+		     << ife << "/"
+		     << ichan << "/"
+		     << iapv << std::endl;
 
-		ss << "[test_SiStripHistoTitle::" << __func__ << "]"
-		   << " Gran/Channel: " 
-		   << SiStripEnumsAndStrings::granularity( key.granularity() ) << "/"
-		   << key.channel()
-		   << " ExtraInfo: ";
-		if ( extra == "" ) { ss << "(none)" << std::endl; }
-		else { ss << extra << std::endl; }
+		  ss << "[test_SiStripHistoTitle::" << __func__ << "]"
+		     << " Gran/Channel: " 
+		     << SiStripEnumsAndStrings::granularity( key.granularity() ) << "/"
+		     << key.channel()
+		     << " ExtraInfo: ";
+		  if ( extra == "" ) { ss << "(none)" << std::endl; }
+		  else { ss << extra << std::endl; }
 
-		ss << key << std::endl;
+		  ss << key << std::endl;
 
-		ss << "IN1:  " << in1 << std::endl;
-		ss << "IN2:  " << in2 << std::endl;
-		ss << "OUT1: " << out1 << std::endl;
-		ss << "OUT2: " << out2 << std::endl;
+		  ss << "IN1:  " << in1 << std::endl;
+		  ss << "IN2:  " << in2 << std::endl;
+		  ss << "OUT1: " << out1 << std::endl;
+		  ss << "OUT2: " << out2 << std::endl;
 	
-		LogTrace(mlDqmCommon_) << ss.str();
+		  LogTrace(mlDqmCommon_) << ss.str();
+
+		}
 
 	      }
-
 	    }
 	  }
 	}
-      }
 
-    }      
+      }      
+    }
   }
 
 }

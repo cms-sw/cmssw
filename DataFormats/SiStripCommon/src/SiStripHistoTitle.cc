@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripHistoTitle.cc,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripHistoTitle.cc,v 1.3 2007/04/04 06:56:18 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
@@ -11,10 +11,12 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripHistoTitle::SiStripHistoTitle( const sistrip::RunType& run_type, 
-				      const SiStripKey&       key_object,
-				      const std::string&      extra_info ) 
+SiStripHistoTitle::SiStripHistoTitle( const sistrip::HistoType& histo_type, 
+				      const sistrip::RunType&   run_type, 
+				      const SiStripKey&         key_object,
+				      const std::string&        extra_info ) 
   : title_(""),
+    histoType_(histo_type),
     runType_(run_type),
     keyType_(sistrip::UNKNOWN_KEY),
     keyValue_(sistrip::invalid32_),
@@ -40,13 +42,15 @@ SiStripHistoTitle::SiStripHistoTitle( const sistrip::RunType& run_type,
 
 // -----------------------------------------------------------------------------
 //
-SiStripHistoTitle::SiStripHistoTitle( const sistrip::RunType&     run_type, 
+SiStripHistoTitle::SiStripHistoTitle( const sistrip::HistoType&   histo_type, 
+				      const sistrip::RunType&     run_type, 
 				      const sistrip::KeyType&     key_type,
 				      const uint32_t&             key_value,
 				      const sistrip::Granularity& gran,
 				      const uint16_t&             channel,
 				      const std::string&          extra_info ) 
   : title_(""),
+    histoType_(histo_type),
     runType_(run_type),
     keyType_(key_type),
     keyValue_(key_value),
@@ -61,6 +65,7 @@ SiStripHistoTitle::SiStripHistoTitle( const sistrip::RunType&     run_type,
 //
 SiStripHistoTitle::SiStripHistoTitle( const std::string& histo_title ) 
   : title_(histo_title),
+    histoType_(sistrip::UNDEFINED_HISTO_TYPE),
     runType_(sistrip::UNDEFINED_RUN_TYPE),
     keyType_(sistrip::UNDEFINED_KEY),
     keyValue_(sistrip::invalid32_),
@@ -77,8 +82,10 @@ void SiStripHistoTitle::setTitle() {
 
   std::stringstream title;
 
-  // Append RunType, KeyType and KeyValue
-  title << SiStripEnumsAndStrings::runType( runType_ )
+  // Append HistoType, RunType, KeyType and KeyValue
+  title << SiStripEnumsAndStrings::histoType( histoType_ )
+	<< sistrip::sep_
+	<< SiStripEnumsAndStrings::runType( runType_ )
 	<< sistrip::sep_
 	<< SiStripEnumsAndStrings::keyType( keyType_ )
 	<< sistrip::hex_ 
@@ -106,6 +113,13 @@ void SiStripHistoTitle::extractTitle() {
   std::string::size_type position = 0;
   std::string::size_type pos = 0;
   std::string::size_type siz = 0;
+  
+  // Extract HistoType
+  siz = title_.find(sistrip::sep_,position) - position;
+  histoType_ = SiStripEnumsAndStrings::histoType( title_.substr(position,siz) );
+  std::string histo_type = SiStripEnumsAndStrings::histoType( histoType_ );
+  position += title_.substr(position).find( histo_type ) + histo_type.size() + sistrip::sep_.size();
+  if ( position >= length ) { return; }
   
   // Extract RunType
   siz = title_.find(sistrip::sep_,position) - position;
@@ -164,6 +178,7 @@ std::ostream& operator<< ( std::ostream& os, const SiStripHistoTitle& title ) {
   std::stringstream ss;
   ss << "[SiStripHistoTitle::print]" << std::endl
      << " Title          : " << title.title() << std::endl
+     << " HistoType      : " << SiStripEnumsAndStrings::histoType( title.histoType() ) << std::endl
      << " RunType        : " << SiStripEnumsAndStrings::runType( title.runType() ) << std::endl
      << " KeyType        : " << SiStripEnumsAndStrings::keyType( title.keyType() ) << std::endl
      << " KeyValue (hex) : " << std::hex << std::setfill('0') << std::setw(8) << title.keyValue() << std::dec << std::endl

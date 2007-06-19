@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripKey.cc,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripKey.cc,v 1.3 2007/03/26 10:12:43 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -25,12 +25,80 @@ SiStripKey::SiStripKey( const std::string& path ) :
 
 // -----------------------------------------------------------------------------
 // 
+SiStripKey::SiStripKey( const SiStripKey& input ) :
+  key_( input.key() ),
+  path_( input.path() ),
+  granularity_( input.granularity() ),
+  channel_( input.channel() )
+{;}
+
+// -----------------------------------------------------------------------------
+// 
+const SiStripKey& SiStripKey::operator=( const SiStripKey& rhs ) {
+  if ( this == &rhs ) { return *this; }
+  key_ = rhs.key();
+  path_ = rhs.path();
+  granularity_ = rhs.granularity();
+  channel_ = rhs.channel();
+  return *this;
+}
+
+// -----------------------------------------------------------------------------
+// 
 SiStripKey::SiStripKey() : 
   key_(sistrip::invalid32_),
   path_(sistrip::null_),
   granularity_(sistrip::UNDEFINED_GRAN),
   channel_(sistrip::invalid_)
 {;}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripKey::isEqual( const SiStripKey& input ) const {
+  if ( !(&input) ) { return false; }
+  if ( key_ == input.key() &&
+       path_ == input.path() &&
+       granularity_ == input.granularity() &&
+       channel_ == input.channel() ) { 
+    return true;
+  } else { return false; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+bool SiStripKey::isConsistent( const SiStripKey& input ) const {
+  return isEqual(input); 
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripKey::isValid() const { 
+  return ( key_ != sistrip::invalid32_ &&
+	   path_ != sistrip::null_ &&
+	   granularity_ != sistrip::UNDEFINED_GRAN &&
+	   channel_ != sistrip::invalid_ );
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripKey::isValid( const sistrip::Granularity& gran ) const { 
+  return isValid();
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripKey::isInvalid() const { 
+  return ( key_ == sistrip::invalid32_ ||
+	   path_ == sistrip::null_ ||
+	   granularity_ == sistrip::UNDEFINED_GRAN ||
+	   channel_ == sistrip::invalid_ );
+}
+
+// -----------------------------------------------------------------------------
+//
+bool SiStripKey::isInvalid( const sistrip::Granularity& gran ) const { 
+  return isInvalid();
+}
 
 // -----------------------------------------------------------------------------
 //

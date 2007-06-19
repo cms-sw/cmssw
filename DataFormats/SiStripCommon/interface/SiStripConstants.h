@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripConstants.h,v 1.21 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripConstants.h,v 1.22 2007/06/05 13:55:18 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripConstants_H
 #define DataFormats_SiStripCommon_SiStripConstants_H
@@ -8,6 +8,7 @@
 #include "DataFormats/SiStripCommon/interface/ConstantsForCommissioningAnalysis.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForDqm.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
+#include "DataFormats/SiStripCommon/interface/ConstantsForHistoType.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForGranularity.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForKeyType.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForLogger.h"

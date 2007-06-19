@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripHistoTitle.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_SiStripHistoTitle_H
 #define DataFormats_SiStripCommon_SiStripHistoTitle_H
@@ -26,12 +26,14 @@ class SiStripHistoTitle {
   // ---------- Constructors, destructors ----------
   
   /** Constructs histogram title from key object. */
-  SiStripHistoTitle( const sistrip::RunType& run_type, 
-		     const SiStripKey&       key,
-		     const std::string&      extra_info = "" );
+  SiStripHistoTitle( const sistrip::HistoType& histo_type, 
+		     const sistrip::RunType&   run_type, 
+		     const SiStripKey&         key,
+		     const std::string&        extra_info = "" );
   
   /** Constructs histogram title from various data. */
-  SiStripHistoTitle( const sistrip::RunType&     run_type, 
+  SiStripHistoTitle( const sistrip::HistoType&   histo_type, 
+		     const sistrip::RunType&     run_type, 
 		     const sistrip::KeyType&     key_type,
 		     const uint32_t&             key_value,
 		     const sistrip::Granularity& gran,
@@ -45,6 +47,9 @@ class SiStripHistoTitle {
   
   /** Returns the histogram title. */ 
   inline const std::string& title() const;
+  
+  /** Returns the histogram type. */ 
+  inline const sistrip::HistoType& histoType() const;
   
   /** Returns the run type. */ 
   inline const sistrip::RunType& runType() const;
@@ -82,6 +87,9 @@ class SiStripHistoTitle {
   /** Histogram title. */
   std::string title_;
 
+  /** Defines histo type. */
+  sistrip::HistoType histoType_;
+
   /** Defines run type. */
   sistrip::RunType runType_;
 
@@ -105,6 +113,7 @@ class SiStripHistoTitle {
 // ---------- inline methods ----------
 
 const std::string& SiStripHistoTitle::title() const { return title_; }
+const sistrip::HistoType& SiStripHistoTitle::histoType() const { return histoType_; }
 const sistrip::RunType& SiStripHistoTitle::runType() const { return runType_; }
 const sistrip::KeyType& SiStripHistoTitle::keyType() const { return keyType_; } 
 const uint32_t& SiStripHistoTitle::keyValue() const { return keyValue_; }

@@ -1,13 +1,13 @@
-// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.8 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: SiStripEnumsAndStrings.cc,v 1.9 2007/03/22 22:12:56 delaer Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 
 // -----------------------------------------------------------------------------
 //
 std::string SiStripEnumsAndStrings::view( const sistrip::View& view ) {
-  if      ( view == sistrip::READOUT ) { return sistrip::readoutView_; }
-  else if ( view == sistrip::CONTROL ) { return sistrip::controlView_; }
-  else if ( view == sistrip::DETECTOR ) { return sistrip::detectorView_; }
+  if      ( view == sistrip::READOUT_VIEW ) { return sistrip::readoutView_; }
+  else if ( view == sistrip::CONTROL_VIEW ) { return sistrip::controlView_; }
+  else if ( view == sistrip::DETECTOR_VIEW ) { return sistrip::detectorView_; }
   else if ( view == sistrip::UNDEFINED_VIEW ) { return sistrip::undefinedView_; }
   else { return sistrip::unknownView_; }
 }
@@ -15,9 +15,9 @@ std::string SiStripEnumsAndStrings::view( const sistrip::View& view ) {
 // -----------------------------------------------------------------------------
 //
 sistrip::View SiStripEnumsAndStrings::view( const std::string& dir ) {
-  if      ( dir.find( sistrip::readoutView_ ) != std::string::npos ) { return sistrip::READOUT; } 
-  else if ( dir.find( sistrip::controlView_ ) != std::string::npos ) { return sistrip::CONTROL; } 
-  else if ( dir.find( sistrip::detectorView_ ) != std::string::npos ) { return sistrip::DETECTOR; } 
+  if      ( dir.find( sistrip::readoutView_ ) != std::string::npos ) { return sistrip::READOUT_VIEW; } 
+  else if ( dir.find( sistrip::controlView_ ) != std::string::npos ) { return sistrip::CONTROL_VIEW; } 
+  else if ( dir.find( sistrip::detectorView_ ) != std::string::npos ) { return sistrip::DETECTOR_VIEW; } 
   else if ( dir.find( sistrip::undefinedView_ ) != std::string::npos ) { return sistrip::UNDEFINED_VIEW; } 
   else { return sistrip::UNKNOWN_VIEW; }
 }
@@ -25,7 +25,8 @@ sistrip::View SiStripEnumsAndStrings::view( const std::string& dir ) {
 // -----------------------------------------------------------------------------
 // 
 std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) {
-  if ( run_type == sistrip::FED_CABLING ) { return sistrip::fedCabling_; }
+  if ( run_type == sistrip::FAST_FED_CABLING ) { return sistrip::fastFedCabling_; }
+  else if ( run_type == sistrip::FED_CABLING ) { return sistrip::fedCabling_; }
   else if ( run_type == sistrip::APV_TIMING ) { return sistrip::apvTiming_; }
   else if ( run_type == sistrip::FED_TIMING ) { return sistrip::fedTiming_; }
   else if ( run_type == sistrip::OPTO_SCAN ) { return sistrip::optoScan_; }
@@ -42,7 +43,8 @@ std::string SiStripEnumsAndStrings::runType( const sistrip::RunType& run_type ) 
 // -----------------------------------------------------------------------------
 // 
 sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) {
-  if ( run_type.find( sistrip::fedCabling_ ) != std::string::npos ) { return sistrip::FED_CABLING; }
+  if ( run_type.find( sistrip::fastFedCabling_ ) != std::string::npos ) { return sistrip::FAST_FED_CABLING; }
+  else if ( run_type.find( sistrip::fedCabling_ ) != std::string::npos ) { return sistrip::FED_CABLING; }
   else if ( run_type.find( sistrip::apvTiming_ ) != std::string::npos ) { return sistrip::APV_TIMING; }
   else if ( run_type.find( sistrip::fedTiming_ ) != std::string::npos ) { return sistrip::FED_TIMING; }
   else if ( run_type.find( sistrip::optoScan_ ) != std::string::npos ) { return sistrip::OPTO_SCAN; }
@@ -52,6 +54,7 @@ sistrip::RunType SiStripEnumsAndStrings::runType( const std::string& run_type ) 
   else if ( run_type.find( sistrip::daqScopeMode_ ) != std::string::npos ) { return sistrip::DAQ_SCOPE_MODE; }
   else if ( run_type.find( sistrip::physics_ ) != std::string::npos ) { return sistrip::PHYSICS; }
   else if ( run_type.find( sistrip::undefinedRunType_ ) != std::string::npos ) { return sistrip::UNDEFINED_RUN_TYPE; }
+  else if ( run_type == "FAST_CABLING" ) { return sistrip::FAST_FED_CABLING; }
   else if ( run_type == "FED_CABLING" ) { return sistrip::FED_CABLING; }
   else if ( run_type == "APV_TIMING" ) { return sistrip::APV_TIMING; }
   else if ( run_type == "FED_TIMING" ) { return sistrip::FED_TIMING; }
@@ -210,6 +213,24 @@ sistrip::FedReadoutMode SiStripEnumsAndStrings::fedReadoutMode( const std::strin
 
 // -----------------------------------------------------------------------------
 // 
+std::string SiStripEnumsAndStrings::histoType( const sistrip::HistoType& type ) {
+  if ( type == sistrip::EXPERT_HISTO ) { return sistrip::expertHisto_; } 
+  else if ( type == sistrip::SUMMARY_HISTO ) { return sistrip::summaryHisto_; } 
+  else if ( type == sistrip::UNDEFINED_HISTO_TYPE ) { return sistrip::undefinedHistoType_; }
+  else { return sistrip::unknownHistoType_; }
+}
+
+// -----------------------------------------------------------------------------
+// 
+sistrip::HistoType SiStripEnumsAndStrings::histoType( const std::string& type ) {
+  if ( type.find( sistrip::expertHisto_ ) != std::string::npos ) { return sistrip::EXPERT_HISTO; }
+  else if ( type.find( sistrip::summaryHisto_ ) != std::string::npos ) { return sistrip::SUMMARY_HISTO; }
+  else if ( type.find( sistrip::undefinedHistoType_ ) != std::string::npos ) { return sistrip::UNDEFINED_HISTO_TYPE; } 
+  else { return sistrip::UNKNOWN_HISTO_TYPE; }
+}
+
+// -----------------------------------------------------------------------------
+// 
 std::string SiStripEnumsAndStrings::monitorable( const sistrip::Monitorable& mon ) {
   
   // fed cabling
@@ -349,10 +370,10 @@ sistrip::Monitorable SiStripEnumsAndStrings::monitorable( const std::string& mon
 // -----------------------------------------------------------------------------
 // 
 std::string SiStripEnumsAndStrings::presentation( const sistrip::Presentation& type ) {
-  if ( type == sistrip::SUMMARY_HISTO ) { return sistrip::summaryHisto_; } 
-  else if ( type == sistrip::SUMMARY_1D ) { return sistrip::summary1D_; }
-  else if ( type == sistrip::SUMMARY_2D ) { return sistrip::summary2D_; }
-  else if ( type == sistrip::SUMMARY_PROF )  { return sistrip::summaryProf_; }
+  if ( type == sistrip::HISTO_1D ) { return sistrip::histo1d_; } 
+  else if ( type == sistrip::HISTO_2D_SUM ) { return sistrip::histo2dSum_; }
+  else if ( type == sistrip::HISTO_2D_SCATTER ) { return sistrip::histo2dScatter_; }
+  else if ( type == sistrip::PROFILE_1D )  { return sistrip::profile1D_; }
   else if ( type == sistrip::UNDEFINED_PRESENTATION ) { return sistrip::undefinedPresentation_; }
   else { return sistrip::unknownPresentation_; }
 }
@@ -360,10 +381,10 @@ std::string SiStripEnumsAndStrings::presentation( const sistrip::Presentation& t
 // -----------------------------------------------------------------------------
 // 
 sistrip::Presentation SiStripEnumsAndStrings::presentation( const std::string& type ) {
-  if ( type.find( sistrip::summaryHisto_ ) != std::string::npos ) { return sistrip::SUMMARY_HISTO; } 
-  else if ( type.find( sistrip::summary1D_ ) != std::string::npos ) { return sistrip::SUMMARY_1D; }
-  else if ( type.find( sistrip::summary2D_ ) != std::string::npos ) { return sistrip::SUMMARY_2D; }
-  else if ( type.find( sistrip::summaryProf_ ) != std::string::npos ) { return sistrip::SUMMARY_PROF; }
+  if ( type.find( sistrip::histo1d_ ) != std::string::npos ) { return sistrip::HISTO_1D; } 
+  else if ( type.find( sistrip::histo2dSum_ ) != std::string::npos ) { return sistrip::HISTO_2D_SUM; }
+  else if ( type.find( sistrip::histo2dScatter_ ) != std::string::npos ) { return sistrip::HISTO_2D_SCATTER; }
+  else if ( type.find( sistrip::profile1D_ ) != std::string::npos ) { return sistrip::PROFILE_1D; }
   else if ( type.find( sistrip::undefinedPresentation_ ) != std::string::npos ) { return sistrip::UNDEFINED_PRESENTATION; }
   else { return sistrip::UNKNOWN_PRESENTATION; }
 }

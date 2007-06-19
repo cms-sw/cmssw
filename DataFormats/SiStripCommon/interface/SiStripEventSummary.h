@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripEventSummary.h,v 1.1 2007/03/21 16:29:39 bainbrid Exp $
+// Last commit: $Id: SiStripEventSummary.h,v 1.2 2007/05/24 15:26:49 bainbrid Exp $
 
 #ifndef DataFormats_SiStripEventSummary_SiStripEventSummary_H
 #define DataFormats_SiStripEventSummary_SiStripEventSummary_H
@@ -72,6 +72,9 @@ class SiStripEventSummary {
   /** Returns values of all params. */
   inline const std::vector<uint32_t>& params() const; 
   
+  /** Returns bin number for very fast connection. */
+  inline const uint32_t& binNumber() const; 
+
   /** Returns PLL coarse delay setting. */
   inline const uint32_t& pllCoarse() const; 
   
@@ -144,6 +147,12 @@ class SiStripEventSummary {
   /** Bunch crossing number. */
   uint32_t bx_;
 
+  /** Spill number. */
+  uint32_t spillNumber_;
+
+  /** Number of DataSenders (c.f. ReadoutUnits). */
+  uint32_t nDataSenders_;
+
   // ---------- Hardware-related info ----------
 
   /** FED readout mode. */
@@ -185,6 +194,7 @@ const uint32_t& SiStripEventSummary::nApvsErrors() const { return nApvsErrors_; 
 
 bool SiStripEventSummary::nullParams() const { return ( !params_[0] && !params_[1] && !params_[2] && !params_[3] ); } 
 const std::vector<uint32_t>& SiStripEventSummary::params() const { return params_; } 
+const uint32_t& SiStripEventSummary::binNumber() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::pllCoarse() const { return params_[0]; }
 const uint32_t& SiStripEventSummary::pllFine() const { return params_[1]; }
 const uint32_t& SiStripEventSummary::latency() const { return params_[0]; }
