@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.20 2007/06/13 20:11:21 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.21 2007/06/19 10:17:32 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -37,20 +37,21 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
   bool abortOnUnknownPDGCode_;
   /// internal functional decomposition
   void fillIndices( const HepMC::GenEvent *, 
-	     std::vector<const HepMC::GenParticle *> & ) const;
+		    std::vector<const HepMC::GenParticle *>  &,
+		    std::map<int, size_t> &) const;
   /// internal functional decomposition
   void fillOutput( const std::vector<const HepMC::GenParticle *> &,
 		   reco::CandidateCollection &, 
 		   std::vector<reco::GenParticleCandidate *> & ) const;
   /// internal functional decomposition
   void fillRefs( const std::vector<const HepMC::GenParticle *> &,
+		 const std::map<int, size_t> &,
 		 const reco::CandidateRefProd,
 		 const std::vector<reco::GenParticleCandidate *> & ) const;
   /// charge indices
   std::vector<int> chargeP_, chargeM_;
   std::map<int, int> chargeMap_;
   int chargeTimesThree( int ) const;
-  mutable int firstBarcode_;
 };
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -127,36 +128,37 @@ void FastGenParticleCandidateProducer::produce( Event& evt, const EventSetup& es
     throw edm::Exception( edm::errors::InvalidReference ) 
       << "HepMC has null pointer to GenEvent" << endl;
   const size_t size = mc->particles_size();
-
+  
   vector<const GenParticle *> particles( size );
+  map<int, size_t> barcodes;
   auto_ptr<CandidateCollection> cands( new CandidateCollection );
   const CandidateRefProd ref = evt.getRefBeforePut<CandidateCollection>();
 
   vector<GenParticleCandidate *> candVector( size );
   /// fill indices
-  fillIndices( mc, particles );
+  fillIndices( mc, particles, barcodes );
   // fill output collection and save association
   fillOutput( particles, * cands, candVector );
   // fill references to daughters
-  fillRefs( particles, ref, candVector );
+  fillRefs( particles, barcodes, ref, candVector );
 
   evt.put( cands );
 }
 
 void FastGenParticleCandidateProducer::fillIndices( const GenEvent * mc,
-						    vector<const GenParticle *> & particles ) const {
-  size_t idx = 0;
+						    vector<const GenParticle *> & particles,
+						    map<int, size_t> & barcodes ) const {
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
-  if ( begin != end ) {
-    firstBarcode_ = (*begin)->barcode();
-    for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
-      const GenParticle * particle = * p;
-      size_t i = particle->barcode() - firstBarcode_;
-      if( i != idx ++ )
-	throw cms::Exception( "WrongReference" )
-	  << "barcodes is not properly ordered";
-      particles[ i ] = particle;
+  size_t idx = 0;
+  for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
+    const GenParticle * particle = * p;
+    size_t i = particle->barcode();
+    if( barcodes.find(i) != barcodes.end() ) {
+      throw cms::Exception( "WrongReference" )
+	<< "barcodes are duplicated! " << endl;
     }
+    particles[ idx ] = particle;
+    barcodes.insert( make_pair( i, idx ++) );
   }
 }
 
@@ -185,6 +187,7 @@ void FastGenParticleCandidateProducer::fillOutput( const std::vector<const GenPa
 }
 
 void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenParticle *> & particles,
+						 const std::map<int, size_t> & barcodes,
 						 const CandidateRefProd ref,
 						 const vector<GenParticleCandidate *> & candVector ) const {
   for( size_t d = 0; d < candVector.size(); ++ d ) {
@@ -196,7 +199,7 @@ void FastGenParticleCandidateProducer::fillRefs( const std::vector<const GenPart
         GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
         for( ; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
           const GenParticle * mother = * motherIt;
-          size_t m = mother->barcode() - firstBarcode_;
+	  size_t m = barcodes.find( mother->barcode() )->second;
           candVector[ m ]->addDaughter( CandidateRef( ref, d ) );  
         }
       }
