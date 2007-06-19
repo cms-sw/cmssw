@@ -5,7 +5,7 @@
  * Convert HepMC GenEvent format into a collection of type
  * CandidateCollection containing objects of type GenParticleCandidate
  *
- * \version $Id: FastGenParticleCandidateProducer.cc,v 1.19 2007/06/13 12:58:44 llista Exp $
+ * \version $Id: FastGenParticleCandidateProducer.cc,v 1.20 2007/06/13 20:11:21 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -64,7 +64,6 @@ class FastGenParticleCandidateProducer : public edm::EDProducer {
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <fstream>
 #include <algorithm>
-#include <iostream>
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -148,14 +147,16 @@ void FastGenParticleCandidateProducer::fillIndices( const GenEvent * mc,
 						    vector<const GenParticle *> & particles ) const {
   size_t idx = 0;
   GenEvent::particle_const_iterator begin = mc->particles_begin(), end = mc->particles_end();
-  firstBarcode_ = (*begin)->barcode();
-  for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
-    const GenParticle * particle = * p;
-    size_t i = particle->barcode() - firstBarcode_;
-    if( i != idx ++ )
-      throw cms::Exception( "WrongReference" )
-	<< "barcodes is not properly ordered";
-    particles[ i ] = particle;
+  if ( begin != end ) {
+    firstBarcode_ = (*begin)->barcode();
+    for( GenEvent::particle_const_iterator p = begin; p != end; ++ p ) {
+      const GenParticle * particle = * p;
+      size_t i = particle->barcode() - firstBarcode_;
+      if( i != idx ++ )
+	throw cms::Exception( "WrongReference" )
+	  << "barcodes is not properly ordered";
+      particles[ i ] = particle;
+    }
   }
 }
 
