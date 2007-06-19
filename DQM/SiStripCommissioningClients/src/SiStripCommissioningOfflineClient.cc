@@ -1,10 +1,11 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.9 2007/06/07 14:40:51 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.10 2007/06/12 07:32:39 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningClient.h"
+#include "DQM/SiStripCommissioningClients/interface/FastFedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/FedCablingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/ApvTimingHistograms.h"
 #include "DQM/SiStripCommissioningClients/interface/OptoScanHistograms.h"
@@ -20,7 +21,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-//#define DO_SUMMARY
+#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -303,7 +304,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 #else
   edm::LogWarning(mlDqmClient_) 
     << "[SiStripCommissioningOfflineClient::" << __func__ << "]" 
-    << " No access to doSummary() method! Inform expert!";
+    << " WARNING: No access to doSummary() method! >>> Inform expert! <<<";
 #endif
   
   // Perform analysis
@@ -389,13 +390,14 @@ void SiStripCommissioningOfflineClient::createCommissioningHistograms() {
   }
 
   // Create "commissioning histograms" object 
-  if      ( runType_ == sistrip::FED_CABLING )        { histos_ = new FedCablingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::APV_TIMING )         { histos_ = new ApvTimingHistograms( mui_ ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )          { histos_ = new OptoScanHistograms( mui_ ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )          { histos_ = new VpspScanHistograms( mui_ ); }
-  else if ( runType_ == sistrip::PEDESTALS )          { histos_ = new PedestalsHistograms( mui_ ); }
+  if ( runType_ == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistograms( mui_ ); }
+  else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistograms( mui_ ); }
+  else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistograms( mui_ ); }
+  else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistograms( mui_ ); }
+  else if ( runType_ == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistograms( mui_ ); }
+  else if ( runType_ == sistrip::PEDESTALS ) { histos_ = new PedestalsHistograms( mui_ ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
-  else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE )   { 
+  else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) { 
     histos_ = 0;
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
@@ -415,3 +417,12 @@ void SiStripCommissioningOfflineClient::analyze( const edm::Event& event,
   }
 }
 
+// -----------------------------------------------------------------------------
+// 
+void SiStripCommissioningOfflineClient::endJob() {
+#ifndef DO_SUMMARY  
+  edm::LogWarning(mlDqmClient_) 
+    << "[SiStripCommissioningOfflineClient::" << __func__ << "]" 
+    << " WARNING: No access to doSummary() method! >>> Inform expert! <<<";
+#endif
+}

@@ -1,4 +1,4 @@
-// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: PedestalsHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -117,6 +117,9 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
       // Locate appropriate analysis object 
       map<uint32_t,PedestalsAnalysis>::const_iterator iter = data_.find( fec_key.key() );
       if ( iter != data_.end() ) {
+
+	// Check if analysis is valid
+	if ( !iter->second.isValid() ) { continue; }
 	
 	// Iterate through APVs and strips
 	for ( uint16_t iapv = 0; iapv < sistrip::APVS_PER_FEDCH; iapv++ ) {

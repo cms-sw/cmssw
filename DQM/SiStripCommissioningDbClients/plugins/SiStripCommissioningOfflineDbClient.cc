@@ -1,9 +1,10 @@
-// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.2 2007/06/05 14:34:09 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineDbClient.cc,v 1.3 2007/06/07 14:38:47 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/plugins/SiStripCommissioningOfflineDbClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
@@ -27,11 +28,19 @@ using namespace sistrip;
 SiStripCommissioningOfflineDbClient::SiStripCommissioningOfflineDbClient( const edm::ParameterSet& pset ) 
   : SiStripCommissioningOfflineClient(pset),
     uploadToDb_( pset.getUntrackedParameter<bool>("UploadToConfigDb",false) ),
-    test_( pset.getUntrackedParameter<bool>("Test",false) )
+    test_( pset.getUntrackedParameter<bool>("Test",false) ),
+    uploadPllSettings_( pset.getUntrackedParameter<bool>("UploadPllSettings",true) ),
+    uploadFedSettings_( pset.getUntrackedParameter<bool>("UploadFedSettings",true) )
 {
   LogTrace(mlDqmClient_)
     << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
     << " Constructing object...";
+  if ( test_ ) {
+    edm::LogWarning(mlDqmClient_) 
+      << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
+      << " ===> TEST only! No hardware configuration"
+      << " settings will be uploaded to the DB...";
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -90,17 +99,25 @@ void SiStripCommissioningOfflineDbClient::createCommissioningHistograms() {
   } 
   
   // Create corresponding "commissioning histograms" object 
-  if      ( runType_ == sistrip::FED_CABLING )    { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
-  else if ( runType_ == sistrip::PEDESTALS )      { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
+  if ( runType_ == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistosUsingDb( mui_, db ); }
+  else if ( runType_ == sistrip::PEDESTALS ) { histos_ = new PedestalsHistosUsingDb( mui_, db ); }
   else if ( runType_ == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
   else if ( runType_ == sistrip::UNKNOWN_RUN_TYPE ) {
     histos_ = 0;
     edm::LogWarning(mlDqmClient_)
       << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
       << " Unknown run type!";
+  }
+
+  // 
+  ApvTimingHistosUsingDb* temp = dynamic_cast<ApvTimingHistosUsingDb*>(histos_);
+  if ( temp ) { 
+    temp->uploadPllSettings( uploadPllSettings_ );
+    temp->uploadFedSettings( uploadFedSettings_ );
   }
   
 }

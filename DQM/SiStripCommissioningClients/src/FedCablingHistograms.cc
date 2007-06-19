@@ -23,7 +23,7 @@ FedCablingHistograms::FedCablingHistograms( MonitorUserInterface* mui )
 // -----------------------------------------------------------------------------
 /** */
 FedCablingHistograms::FedCablingHistograms( DaqMonitorBEInterface* bei ) 
-  : CommissioningHistograms( bei, sistrip::APV_TIMING ),
+  : CommissioningHistograms( bei, sistrip::FED_CABLING ),
     factory_( new Factory )
 {
   LogTrace(mlDqmClient_) 

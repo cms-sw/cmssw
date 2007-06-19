@@ -1,12 +1,12 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripCommissioningDbClient.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/SiStripCommissioningDbClient.h"
 #include "DQM/SiStripCommissioningDbClients/interface/CommissioningHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/FastFedCablingHistosUsingDb.h"
+#include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/ApvTimingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/OptoScanHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
-//#include "DQM/SiStripCommissioningDbClients/interface/FedTimingHistosUsingDb.h"
-#include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DQM/SiStripCommissioningDbClients/interface/PedestalsHistosUsingDb.h"
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -65,12 +65,13 @@ void SiStripCommissioningDbClient::createHistograms( const sistrip::RunType& run
   params.minor_ = minor_.value_;
   
   // Create corresponding "commissioning histograms" object 
-  if      ( run_type == sistrip::APV_TIMING )     { histos_ = new ApvTimingHistosUsingDb( mui_, params ); }
-  else if ( run_type == sistrip::FED_CABLING )    { histos_ = new FedCablingHistosUsingDb( mui_, params ); }
-  //else if ( run_type == sistrip::FED_TIMING )     { histos_ = new FedTimingHistosUsingDb( mui_, params ); }
-  else if ( run_type == sistrip::PEDESTALS )      { histos_ = new PedestalsHistosUsingDb( mui_, params ); }
-  else if ( run_type == sistrip::VPSP_SCAN )      { histos_ = new VpspScanHistosUsingDb( mui_, params ); }
-  else if ( run_type == sistrip::OPTO_SCAN )      { histos_ = new OptoScanHistosUsingDb( mui_, params ); }
+  if ( run_type == sistrip::FAST_FED_CABLING ) { histos_ = new FastFedCablingHistosUsingDb( mui_, params ); }
+  else if ( run_type == sistrip::FED_CABLING ) { histos_ = new FedCablingHistosUsingDb( mui_, params ); }
+  else if ( run_type == sistrip::APV_TIMING ) { histos_ = new ApvTimingHistosUsingDb( mui_, params ); }
+  //else if ( run_type == sistrip::FED_TIMING ) { histos_ = new FedTimingHistosUsingDb( mui_, params ); }
+  else if ( run_type == sistrip::OPTO_SCAN ) { histos_ = new OptoScanHistosUsingDb( mui_, params ); }
+  else if ( run_type == sistrip::VPSP_SCAN ) { histos_ = new VpspScanHistosUsingDb( mui_, params ); }
+  else if ( run_type == sistrip::PEDESTALS ) { histos_ = new PedestalsHistosUsingDb( mui_, params ); }
   else if ( run_type == sistrip::UNDEFINED_RUN_TYPE ) { histos_ = 0; }
   else if ( run_type == sistrip::UNKNOWN_RUN_TYPE ) {
     histos_ = 0;

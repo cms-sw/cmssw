@@ -1,4 +1,6 @@
 #include "DQM/SiStripCommissioningClients/interface/CommissioningHistograms.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
+#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DQM/SiStripCommissioningSummary/interface/SummaryGenerator.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -311,18 +313,29 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
-    SiStripFecKey path( source_dir );
 
-    // Check path is valid 
+    // Extract view and create key
+    sistrip::View view = SiStripEnumsAndStrings::view( source_dir );
+    SiStripKey path;
+    if ( view == sistrip::CONTROL_VIEW ) { path = SiStripFecKey( source_dir ); }
+    else if ( view == sistrip::READOUT_VIEW ) { path = SiStripFedKey( source_dir ); }
+    else { path = SiStripKey(); }
+    
+    // Check path is valid
     if ( path.granularity() == sistrip::FEC_SYSTEM ||
+	 path.granularity() == sistrip::FED_SYSTEM || 
 	 path.granularity() == sistrip::UNKNOWN_GRAN ||
 	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
       continue; 
     }
     
     // Generate corresponding client path (removing trailing "/")
-    std::string client_dir = SiStripFecKey(path.key()).path();
-    client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
+    std::string client_dir(sistrip::undefinedView_);
+    if ( view == sistrip::CONTROL_VIEW ) { client_dir = SiStripFecKey( path.key() ).path(); }
+    else if ( view == sistrip::READOUT_VIEW ) { client_dir = SiStripFedKey( path.key() ).path(); }
+    else { client_dir = SiStripKey( path.key() ).path(); }
+    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
+    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
 
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei_->getContents( source_dir );
@@ -349,20 +362,26 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
 	channel = title.channel();
       }
       
-      // Build FEC key
-      uint32_t fec_key = SiStripFecKey( path.fecCrate(),
-					path.fecSlot(),
-					path.fecRing(),
-					path.ccuAddr(),
-					path.ccuChan(),
-					channel ).key();
+      // Build key 
+      uint32_t key = sistrip::invalid32_;
+      if ( view == sistrip::CONTROL_VIEW ) { 
+	SiStripFecKey temp( path.key() ); 
+	key = SiStripFecKey( temp.fecCrate(),
+			     temp.fecSlot(),
+			     temp.fecRing(),
+			     temp.ccuAddr(),
+			     temp.ccuChan(),
+			     channel ).key();
+      } else if ( view == sistrip::READOUT_VIEW ) { 
+	key = SiStripFedKey( path.key() ).key(); 
+      } else { key = SiStripKey( path.key() ).key(); }
       
       // Fill FED-FEC map
-      mapping_[title.keyValue()] = fec_key;
+      mapping_[title.keyValue()] = key;
       
       // Find histogram in map
       Histo* histo = 0;
-      HistosMap::iterator ihistos = histos_.find( fec_key );
+      HistosMap::iterator ihistos = histos_.find( key );
       if ( ihistos != histos_.end() ) { 
 	Histos::iterator ihis = ihistos->second.begin();
 	while ( !histo && ihis < ihistos->second.end() ) {
@@ -373,8 +392,8 @@ void CommissioningHistograms::extractHistograms( const std::vector<std::string>&
       
       // Insert histogram into map if missing
       if ( !histo ) {
-	histos_[fec_key].push_back( new Histo() );
-	histo = histos_[fec_key].back();
+	histos_[key].push_back( new Histo() );
+	histo = histos_[key].back();
 	histo->title_ = (*ime)->getName();
 	// If histogram present in client directory, add to map
 	if ( source_dir.find("Collector") == std::string::npos &&
@@ -424,18 +443,29 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
     
     // Extract source directory path 
     std::string source_dir = idir->substr( 0, idir->find(":") );
-    SiStripFecKey path( source_dir );
+
+    // Extract view and create key
+    sistrip::View view = SiStripEnumsAndStrings::view( source_dir );
+    SiStripKey path;
+    if ( view == sistrip::CONTROL_VIEW ) { path = SiStripFecKey( source_dir ); }
+    else if ( view == sistrip::READOUT_VIEW ) { path = SiStripFedKey( source_dir ); }
+    else { path = SiStripKey(); }
     
     // Check path is valid
     if ( path.granularity() == sistrip::FEC_SYSTEM ||
+	 path.granularity() == sistrip::FED_SYSTEM || 
 	 path.granularity() == sistrip::UNKNOWN_GRAN ||
 	 path.granularity() == sistrip::UNDEFINED_GRAN ) { 
       continue; 
     }
     
     // Generate corresponding client path (removing trailing "/")
-    std::string client_dir = SiStripFecKey(path.key()).path();
-    client_dir = client_dir.substr( 0, client_dir.size()-1 ); 
+    std::string client_dir(sistrip::undefinedView_);
+    if ( view == sistrip::CONTROL_VIEW ) { client_dir = SiStripFecKey( path.key() ).path(); }
+    else if ( view == sistrip::READOUT_VIEW ) { client_dir = SiStripFedKey( path.key() ).path(); }
+    else { client_dir = SiStripKey( path.key() ).path(); }
+    std::string slash = client_dir.substr( client_dir.size()-1, 1 ); 
+    if ( slash == sistrip::dir_ ) { client_dir = client_dir.substr( 0, client_dir.size()-1 ); }
 
     // Retrieve MonitorElements from pwd directory
     mui_->setCurrentFolder( source_dir );
@@ -447,6 +477,9 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
       
       // Retrieve histogram title
       SiStripHistoTitle title( *ime );
+
+      // Check histogram type
+      if ( title.histoType() != sistrip::EXPERT_HISTO ) { continue; }
       
       // Check granularity
       uint16_t channel = sistrip::invalid_;
@@ -462,20 +495,26 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 	channel = title.channel();
       }
       
-      // Build FEC key
-      uint32_t fec_key = SiStripFecKey( path.fecCrate(),
-					path.fecSlot(),
-					path.fecRing(),
-					path.ccuAddr(),
-					path.ccuChan(),
-					channel ).key();
+      // Build key 
+      uint32_t key = sistrip::invalid32_;
+      if ( view == sistrip::CONTROL_VIEW ) { 
+	SiStripFecKey temp( path.key() ); 
+	key = SiStripFecKey( temp.fecCrate(),
+			     temp.fecSlot(),
+			     temp.fecRing(),
+			     temp.ccuAddr(),
+			     temp.ccuChan(),
+			     channel ).key();
+      } else if ( view == sistrip::READOUT_VIEW ) { 
+	key = SiStripFedKey( path.key() ).key(); 
+      } else { key = SiStripKey( path.key() ).key(); }
       
-      // Fill FED-FEC map
-      mapping_[title.keyValue()] = fec_key;
-
+      // Fill map (typically FED-FEC, sometimes FEC_FED)
+      mapping_[title.keyValue()] = key;
+      
       // Find CollateME in histos map
       Histo* histo = 0;
-      HistosMap::iterator ihistos = histos_.find( fec_key );
+      HistosMap::iterator ihistos = histos_.find( key );
       if ( ihistos != histos_.end() ) { 
 	Histos::iterator ihis = ihistos->second.begin();
 	while ( !histo && ihis < ihistos->second.end() ) {
@@ -496,8 +535,8 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
 
 	// Create CollateME and extract pointer to ME
 	if ( prof || his ) { 
-	  histos_[fec_key].push_back( new Histo() );
-	  histo = histos_[fec_key].back();
+	  histos_[key].push_back( new Histo() );
+	  histo = histos_[key].back();
 	  histo->title_ = *ime;
 	  if ( prof ) {
 	    prof->SetErrorOption("s"); //@@ necessary?
@@ -514,7 +553,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
       }
 
       // Add to CollateME if found in histos map
-      HistosMap::iterator jhistos = histos_.find( fec_key );
+      HistosMap::iterator jhistos = histos_.find( key );
       if ( jhistos != histos_.end() ) { 
 	Histos::iterator ihis = jhistos->second.begin();
 	while ( ihis < jhistos->second.end() ) {
@@ -568,7 +607,7 @@ void CommissioningHistograms::printHistosMap() {
     std::stringstream ss;
     ss << " Found " << ihistos->second.size()
        << " histograms for FEC key: "
-       << SiStripFecKey(ihistos->first) << std::endl;
+       << SiStripFedKey(ihistos->first) << std::endl;
     Histos::const_iterator ihisto = ihistos->second.begin();
     for ( ; ihisto != ihistos->second.end(); ihisto++ ) {
       if ( *ihisto ) { (*ihisto)->print(ss); }
@@ -630,13 +669,13 @@ TH1* CommissioningHistograms::histogram( const sistrip::Monitorable& mon,
   std::string name = SummaryGenerator::name( task_, mon, pres, view, directory );
   MonitorElement* me = mui_->get( mui_->pwd() + "/" + name );
   if ( !me ) { 
-    if ( pres == sistrip::SUMMARY_HISTO ) { 
+    if ( pres == sistrip::HISTO_1D ) { 
       me = mui_->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
-    } else if ( pres == sistrip::SUMMARY_1D ) { 
+    } else if ( pres == sistrip::HISTO_2D_SUM ) { 
       me = mui_->getBEInterface()->book1D( name, name, xbins, 0., static_cast<float>(xbins) ); 
-    } else if ( pres == sistrip::SUMMARY_2D ) { 
+    } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
       me = mui_->getBEInterface()->book2D( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
-    } else if ( pres == sistrip::SUMMARY_PROF ) { 
+    } else if ( pres == sistrip::PROFILE_1D ) { 
       me = mui_->getBEInterface()->bookProfile( name, name, xbins, 0., static_cast<float>(xbins), 1025, 0., 1025 ); 
     } else { me = 0; 
     }

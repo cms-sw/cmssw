@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.5 2007/05/25 10:33:48 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -74,12 +74,12 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
     db_->uploadDeviceDescriptions(false); 
   } else {
     edm::LogWarning(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
+      << "[VpspScanHistosUsingDb::" << __func__ << "]"
       << " TEST only! No VPSP settings will be uploaded to DB...";
   }
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << "Upload of VPSP settings to DB finished!";
+    << " Upload of VPSP settings to DB finished!";
   
 }
 
@@ -92,22 +92,11 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
   for ( idevice = devices.begin(); idevice != devices.end(); idevice++ ) {
     
     // Check device type
-    if ( (*idevice)->getDeviceType() != APV25 ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Unexpected device type: " 
-	<< (*idevice)->getDeviceType();
-      continue;
-    }
+    if ( (*idevice)->getDeviceType() != APV25 ) { continue; }
     
-    // Retrieve description
+    // Cast to retrieve appropriate description object
     apvDescription* desc = dynamic_cast<apvDescription*>( *idevice );
-    if ( !desc ) {
-      edm::LogWarning(mlDqmClient_) 
-	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Unable to dynamic cast to apvDescription*";
-      continue;
-    }
+    if ( !desc ) { continue; }
     
     // Retrieve device addresses from device description
     const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*desc);
@@ -132,19 +121,21 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Initial VPSP setting: " << desc->getVpsp();
+	<< " Initial VPSP setting: " 
+	<< static_cast<uint16_t>(desc->getVpsp());
       
       if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp()[0] ); }
       if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp()[1] ); }
       
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Updated VPSP setting: " << desc->getVpsp();
+	<< " Updated VPSP setting: " 
+	<< static_cast<uint16_t>(desc->getVpsp());
       
     } else {
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
-	<< " Unable to find PLL settings for device with params FEC/slot/ring/CCU/LLDchan/APV: " 
+	<< " Unable to find FEC key with params FEC/slot/ring/CCU/LLDchan/APV: " 
 	<< fec_path.fecCrate() << "/"
 	<< fec_path.fecSlot() << "/"
 	<< fec_path.fecRing() << "/"

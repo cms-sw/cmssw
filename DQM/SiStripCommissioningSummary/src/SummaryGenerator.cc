@@ -27,9 +27,9 @@ SummaryGenerator::SummaryGenerator() :
 // 
 SummaryGenerator* SummaryGenerator::instance( const sistrip::View& view ) {
   SummaryGenerator* generator = 0;
-  if ( view == sistrip::CONTROL ) {
+  if ( view == sistrip::CONTROL_VIEW ) {
     generator = new SummaryGeneratorControlView();
-  } else if ( view == sistrip::READOUT ) {
+  } else if ( view == sistrip::READOUT_VIEW ) {
     generator = new SummaryGeneratorReadoutView();
   } else {
     generator = 0;
@@ -71,13 +71,13 @@ TH1* SummaryGenerator::histogram( const sistrip::Presentation& pres,
 				  const uint32_t& xbins ) {
   if ( !xbins ) { return 0; }
   TH1* summary = 0;
-  if ( pres == sistrip::SUMMARY_HISTO ) { 
+  if ( pres == sistrip::HISTO_1D ) { 
     summary = new TH1F( "", "", 1024, 0., static_cast<float>(1024) ); 
-  } else if ( pres == sistrip::SUMMARY_1D ) { 
+  } else if ( pres == sistrip::HISTO_2D_SUM ) { 
     summary = new TH1F( "", "", xbins, 0., static_cast<float>(xbins) ); 
-  } else if ( pres == sistrip::SUMMARY_2D ) { 
+  } else if ( pres == sistrip::HISTO_2D_SCATTER ) { 
     summary = new TH2F( "", "", 100*xbins, 0., static_cast<float>(100*xbins), 1025, 0., 1025. ); 
-  } else if ( pres == sistrip::SUMMARY_PROF ) { 
+  } else if ( pres == sistrip::PROFILE_1D ) { 
     summary = new TProfile( "", "", xbins, 0., static_cast<float>(xbins), 0., 1025. ); 
   } else { summary = 0; }
   return summary;
@@ -112,7 +112,7 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
   //gPad->SetLeftMargin(0.2);
   
   // Axis label
-  if ( pres == sistrip::SUMMARY_HISTO ) {
+  if ( pres == sistrip::HISTO_1D ) {
     std::string xtitle = label_ + " (for " + directory + ")";
     summary_histo.GetXaxis()->SetTitle( xtitle.c_str() );
     summary_histo.GetYaxis()->SetTitle( "Frequency" );
@@ -124,16 +124,16 @@ void SummaryGenerator::format( const sistrip::RunType& run_type,
   }    
   
   // Formatting for 2D plots
-  if ( pres == sistrip::SUMMARY_2D ) { 
+  if ( pres == sistrip::HISTO_2D_SCATTER ) { 
     // Markers (open circles)
     summary_histo.SetMarkerStyle(2); 
     summary_histo.SetMarkerSize(0.6);
   }
 
   // Semi-generic formatting
-  if ((pres == sistrip::SUMMARY_1D) || 
-      (pres == sistrip::SUMMARY_2D) ||
-      (pres == sistrip::SUMMARY_PROF)) {
+  if ((pres == sistrip::HISTO_2D_SUM) || 
+      (pres == sistrip::HISTO_2D_SCATTER) ||
+      (pres == sistrip::PROFILE_1D)) {
     /*
     //put solid and dotted lines on summary to separate top- and
     //2nd-from-top- level bin groups.

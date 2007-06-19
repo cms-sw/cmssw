@@ -94,7 +94,7 @@ void SiStripCommissioningWebClient::handleCustomRequest( xgi::Input* in,
   //@@ temporary
   std::string filename = "";
   sistrip::Monitorable mon = sistrip::APV_TIMING_DELAY;
-  sistrip::Presentation pres = sistrip::SUMMARY_HISTO;
+  sistrip::Presentation pres = sistrip::HISTO_1D;
   std::string dir = "SiStrip/ControlView/FecCrate0/";
   sistrip::Granularity gran = sistrip::MODULE;
   

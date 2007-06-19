@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: SiStripTFile.cc,v 1.1 2007/04/04 07:16:16 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripTFile.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -39,7 +39,7 @@ TDirectory* SiStripTFile::setDQMFormat( sistrip::RunType run_type,
   view_ = view;
   runType_ = run_type;
 
-  if (view == sistrip::CONTROL) {
+  if (view == sistrip::CONTROL_VIEW) {
     stringstream ss("");
     ss << sistrip::dqmRoot_ << sistrip::dir_ << sistrip::root_ << sistrip::dir_ << sistrip::controlView_;
     top_ = addPath( ss.str() );
@@ -69,7 +69,7 @@ TDirectory* SiStripTFile::readDQMFormat() {
   dqmTop_ = GetDirectory(sistrip::dqmRoot_.c_str());
   if (dqmTop_) sistripTop_ = dqmTop_->GetDirectory(sistrip::root_.c_str());
   if (sistripTop_) top_ = sistripTop_->GetDirectory(sistrip::controlView_.c_str());
-  if (top_!=gDirectory) view_ = sistrip::CONTROL;
+  if (top_!=gDirectory) view_ = sistrip::CONTROL_VIEW;
   
   //does file conform with DQM Format requirements?
   if (dqmTop_ && sistripTop_ && top_) {
@@ -140,8 +140,8 @@ sistrip::View& SiStripTFile::View() {
 
 void SiStripTFile::addDevice(unsigned int key) {
 
-  if (view_ == sistrip::CONTROL) {
-    if (!dqmFormat_) setDQMFormat(sistrip::UNKNOWN_RUN_TYPE, sistrip::CONTROL);
+  if (view_ == sistrip::CONTROL_VIEW) {
+    if (!dqmFormat_) setDQMFormat(sistrip::UNKNOWN_RUN_TYPE, sistrip::CONTROL_VIEW);
     SiStripFecKey control_path(key);
     string directory_path = control_path.path();
     cd(sistrip::dqmRoot_.c_str());

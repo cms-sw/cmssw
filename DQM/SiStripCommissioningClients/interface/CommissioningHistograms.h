@@ -2,8 +2,6 @@
 #define DQM_SiStripCommissioningClients_CommissioningHistograms_H
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
-#include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"

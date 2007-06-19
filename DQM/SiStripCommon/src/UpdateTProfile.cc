@@ -1,6 +1,8 @@
 #include "DQM/SiStripCommon/interface/UpdateTProfile.h"
 #include <iostream>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 using namespace std;
 
 // -----------------------------------------------------------------------------
@@ -26,15 +28,15 @@ void UpdateTProfile::setBinContents( TProfile* const prof,
     mean = sum_of_contents / num_of_entries;
     spread = sqrt( sum_of_squares/ num_of_entries - mean * mean ); 
   }
-  
-  //   cout << "[UpdateTProfile::setBinContents]"
-  //        << " bin: " << bin
-  //        << " entries: " << num_of_entries
-  //        << " contents: " << sum_of_contents
-  //        << " squared: " << sum_of_squares
-  //        << " mean: " << mean
-  //        << " spread: " << spread
-  //        << endl;
+   
+//   LogTrace("TEST")
+//     << "[UpdateTProfile::setBinContents]"
+//     << " bin: " << bin
+//     << " entries: " << num_of_entries
+//     << " contents: " << sum_of_contents
+//     << " squared: " << sum_of_squares
+//     << " mean: " << mean
+//     << " spread: " << spread;
   
   UpdateTProfile::setBinContent( prof, bin, num_of_entries, mean, spread );
   
@@ -130,7 +132,16 @@ void UpdateTProfile::setBinContent( TProfile* const prof,
   prof->SetBinEntries( bin, entries );
   prof->SetBinContent( bin, mean * entries );
   prof->SetBinError( bin, weight );
-  
+ 
+//   LogTrace("TEST")
+//     << "[UpdateTProfile::" << __func__ << "]"
+//     << " bin/entries/mean/content/error: " 
+//     << bin << "/"
+//     << entries << "/"
+//     << mean << "/"
+//     << mean*entries << "/"
+//     << weight;
+
   // Set total number of entries 
   if ( bin == 1 ) { prof->SetEntries( entries ); }
   else { prof->SetEntries( prof->GetEntries() + entries ); }
