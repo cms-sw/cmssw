@@ -1,15 +1,27 @@
+#include "TFile.h"
+#include "TTree.h"
+#include "TVector3.h"
+#include "Math/Cartesian3D.h"
+#include "Math/EulerAngles.h"
+#include "Math/Rotation3D.h"
+
 #include "CondFormats/Alignment/interface/Alignments.h"
 #include "CondFormats/Alignment/interface/SurveyErrors.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyRcd.h"
 #include "CondFormats/DataRecord/interface/TrackerSurveyErrorRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "Alignment/SurveyAnalysis/test/SurveyDBReader.h"
 
-void SurveyDBReader::analyze(const edm::Event&,
-			     const edm::EventSetup& setup)
+SurveyDBReader::SurveyDBReader(const edm::ParameterSet& cfg):
+  theFileName( cfg.getParameter<std::string>("fileName") )
+{
+}
+
+void SurveyDBReader::beginJob(const edm::EventSetup& setup)
 {
   typedef AlignTransform SurveyValue;
   typedef Alignments     SurveyValues;
@@ -33,18 +45,44 @@ void SurveyDBReader::analyze(const edm::Event&,
     return;
   }
 
+  uint8_t  type = 0;
+  uint32_t id   = 0;
+
+  ROOT::Math::Cartesian3D<double>* pos(0); // pointer required by ROOT
+  ROOT::Math::EulerAngles* rot(0); // pointer required by ROOT
+  const align::ErrorMatrix* cov(0); // pointer required by ROOT
+
+  TFile fout(theFileName.c_str(), "RECREATE");
+  TTree tree("survey", "");
+
+  tree.Branch("type", &type, "type/b");
+  tree.Branch("id",   &id,   "id/i");
+  tree.Branch("pos", "ROOT::Math::Cartesian3D<double>",    &pos);
+  tree.Branch("rot", "ROOT::Math::EulerAngles",   &rot);
+  tree.Branch("cov", "align::ErrorMatrix", &cov);
+
   for (unsigned int i = 0; i < size; ++i)
   {
     const SurveyValue& value = values[i];
     const SurveyError& error = errors[i];
 
-    edm::LogInfo("SurveyDBReader")
-      << "Type " << static_cast<unsigned int>( error.structureType() )
-      << " raw id " << error.rawId()
-      << " pos " << value.translation()
-      << " rot " << value.rotation()
-      << " errors\n" << error.matrix();
+    const CLHEP::Hep3Vector&  transl = value.translation();
+    const CLHEP::HepRotation& orient = value.rotation();
+    const align::ErrorMatrix& matrix = error.matrix();
+
+    ROOT::Math::Cartesian3D<double> coords( transl.x(),transl.y(),transl.z() );
+    ROOT::Math::EulerAngles angles( orient.phi(), orient.theta(), orient.psi() );
+
+    type = error.structureType();
+    id   = error.rawId();
+    pos  = &coords;
+    rot  = &angles;
+    cov  = &matrix;
+
+    tree.Fill();
   }
+
+  fout.Write();
 
   edm::LogInfo("SurveyDBReader")
     << "Number of alignables read " << size << std::endl;

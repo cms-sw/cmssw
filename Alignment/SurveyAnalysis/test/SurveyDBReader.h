@@ -10,10 +10,9 @@
  *   path p = { reader }
  *
  * No configuration for module is necessary. Just put module in path.
- * However, you should run only 1 event.
  *
- *  $Date: 2007/04/09 01:16:13 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/03 19:20:00 $
+ *  $Revision: 1.1 $
  *  \author Chung Khim Lae
  */
 
@@ -24,16 +23,24 @@ class SurveyDBReader:
 {
   public:
 
-  /// Do nothing. Required by framework.
+  /// Set file name
   SurveyDBReader(
 		 const edm::ParameterSet&
-		 ) {}
+		 );
 
   /// Read from DB and print survey info.
+  virtual void beginJob(
+			const edm::EventSetup&
+			);
+
   virtual void analyze(
 		       const edm::Event&,
 		       const edm::EventSetup&
-		       );
+		       ) {}
+
+  private:
+
+  std::string theFileName;
 };
 
 #endif
