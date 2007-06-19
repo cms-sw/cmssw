@@ -28,6 +28,7 @@ namespace edm
 			     label_(ps.getParameter<std::string>("Label"))
 
   {
+    // declare the product to produce
     if (label_.size()>0){
       sel_=new Selector( ModuleLabelSelector(label_));
       produces<CrossingFrame> (label_);
@@ -92,6 +93,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<PSimHit> > > resultsim;
     e.getMany((*sel_),resultsim);
     int ss=resultsim.size();
+    if (ss>1) LogWarning("MixingModule") << " Found "<<ss<<" PSimHit collections in signal file, only first one  will be stored!!!!!!";
     for (int ii=0;ii<ss;ii++) {
       edm::BranchDescription desc = resultsim[ii].provenance()->product();
       LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultsim[ii].product()->size()<<" Simhits added";
@@ -103,6 +105,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<PCaloHit> > > resultcalo;
     e.getMany((*sel_),resultcalo);
     int sc=resultcalo.size();
+    if (sc>1) LogWarning("MixingModule") << " Found "<<sc<<" PCaloHit collections in signal file, only first one  will be stored!!!!!!";
     for (int ii=0;ii<sc;ii++) {
       edm::BranchDescription desc = resultcalo[ii].provenance()->product();
       LogDebug("MixingModule") <<"For "<<desc.productInstanceName_<<" "<<resultcalo[ii].product()->size()<<" Calohits added";
@@ -114,6 +117,7 @@ namespace edm
     std::vector<edm::Handle<std::vector<SimTrack> > > result_t;
     e.getMany((*sel_),result_t);
     int str=result_t.size();
+    if (str>1) LogWarning("MixingModule") << " Found "<<str<<" SimTrack collections in signal file, only first one  will be stored!!!!!!";
     for (int ii=0;ii<str;ii++) {
       edm::BranchDescription desc =result_t[ii].provenance()->product();
       LogDebug("MixingModule") <<result_t[ii].product()->size()<<" Simtracks added";
@@ -123,7 +127,8 @@ namespace edm
 
     std::vector<edm::Handle<std::vector<SimVertex> > > result_v;
     e.getMany((*sel_),result_v);
-   int sv=result_v.size();
+    int sv=result_v.size();
+    if (sv>1) LogWarning("MixingModule") << " Found "<<sv<<" SimTrack collections in signal file, only first one  will be stored!!!!!!";
     for (int ii=0;ii<sv;ii++) {
       edm::BranchDescription desc = result_v[ii].provenance()->product();
       LogDebug("MixingModule") <<result_v[ii].product()->size()<<" Simvertices added";
