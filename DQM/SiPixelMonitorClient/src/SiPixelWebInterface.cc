@@ -128,11 +128,11 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
    theActionFlag = PlotSingleHistogram;
   } else if (requestID == "PlotTkMapHistogram") {
    theActionFlag = PlotTkMapHistogram;
-//    cout << ACYellow << ACBold 
-//         << "[SiPixelWebInterface::handleCustomRequest()]" 
-// 	<< ACPlain
-// 	<< " Requested PlotTkMapHistogram" 
-// 	<< endl ;
+   cout << ACYellow << ACBold 
+        << "[SiPixelWebInterface::handleCustomRequest()]" 
+	<< ACPlain
+	<< " Requested PlotTkMapHistogram" 
+	<< endl ;
   } else if (requestID == "UpdatePlot") {
    string theMEName = get_from_multimap(requestMap_, "MEName");
    out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -144,6 +144,19 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
 // 	<< ACPlain
 // 	<< " Shipping plot back to web client" 
 // 	<< endl ;
+   *out << infoExtractor_->getImage().str();
+    theActionFlag = NoAction;    
+  } else if (requestID == "UpdateTkMapPlot") {
+   string theMEName = get_from_multimap(requestMap_, "MEName");
+   out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
+   out->getHTTPResponseHeader().addHeader("Pragma", "no-cache");   
+   out->getHTTPResponseHeader().addHeader("Cache-Control", "no-store, no-cache, must-revalidate,max-age=0");
+   out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
+   cout << ACYellow << ACBold 
+        << "[SiPixelWebInterface::handleCustomRequest()]" 
+	<< ACPlain
+	<< " Shipping plot back to web client" 
+	<< endl ;
    *out << infoExtractor_->getNamedImage(theMEName).str();
     theActionFlag = NoAction;    
   } else if (requestID == "GetMEList") {
