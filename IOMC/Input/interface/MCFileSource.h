@@ -1,7 +1,7 @@
 #ifndef Input_MCFileSource_h
 #define Input_MCFileSource_h
 
-// $Id:$
+// $Id: MCFileSource.h,v 1.4 2007/05/29 21:00:22 weng Exp $
 
 /** \class MCFileSource
  *
@@ -20,11 +20,19 @@ namespace HepMC{
 
 
 namespace edm
+<<<<<<< MCFileSource.h
+{  
+  class Event;
+  class ParameterSet;
+  class InputSourceDescription;
+
+=======
 {
   class Event;
   class ParameterSet;
   class InputSourceDescription;
 
+>>>>>>> 1.4
   class MCFileSource : public ExternalInputSource {
   public:
     MCFileSource(const ParameterSet& pset, const InputSourceDescription& desc);
