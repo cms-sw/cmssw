@@ -44,7 +44,8 @@ void OptoScanTask::book() {
       extra_info << sistrip::gain_ << igain 
 		 << sistrip::digital_ << ilevel;
       
-      title = SiStripHistoTitle( sistrip::OPTO_SCAN, 
+      title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+				 sistrip::OPTO_SCAN, 
 				 sistrip::FED_KEY, 
 				 fedKey(),
 				 sistrip::LLD_CHAN, 

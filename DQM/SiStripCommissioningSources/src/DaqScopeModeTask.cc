@@ -26,7 +26,8 @@ DaqScopeModeTask::~DaqScopeModeTask() {
 void DaqScopeModeTask::book() {
   LogTrace(mlDqmSource_) << "[CommissioningTask::" << __func__ << "]";
   
-  std::string title = SiStripHistoTitle( sistrip::DAQ_SCOPE_MODE, 
+  std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+					 sistrip::DAQ_SCOPE_MODE, 
 					 sistrip::FED_KEY, 
 					 fedKey(),
 					 sistrip::LLD_CHAN, 

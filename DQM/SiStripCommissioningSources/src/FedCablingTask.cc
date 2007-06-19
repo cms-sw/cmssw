@@ -15,7 +15,7 @@ using namespace sistrip;
 FedCablingTask::FedCablingTask( DaqMonitorBEInterface* dqm,
 				const FedChannelConnection& conn ) :
   CommissioningTask( dqm, conn, "FedCablingTask" ),
-  cabling_()
+  histos_()
 {}
 
 // -----------------------------------------------------------------------------
@@ -26,14 +26,14 @@ FedCablingTask::~FedCablingTask() {
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::book() {
-
-  cabling_.resize(2);
+  
+  histos_.resize(2);
   
   std::string title;
   uint16_t nbins = 0;
   std::string extra_info = "";
   for ( uint16_t iter = 0; iter < 2; iter++ ) {
-    
+      
     // Define number of histo bins and title
     if ( iter == 0 )      { nbins = 1024; extra_info = sistrip::fedId_; }
     else if ( iter == 1 ) { nbins = 96;   extra_info = sistrip::fedChannel_; }
@@ -42,25 +42,25 @@ void FedCablingTask::book() {
 	<< "[FedCablingTask::" << __func__ << "]"
 	<< " Unexpected number of HistoSets: " << iter;
     }
-    
-    title = SiStripHistoTitle( sistrip::FED_CABLING,
+      
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			       sistrip::FED_CABLING,
 			       sistrip::FED_KEY, 
 			       fedKey(),
 			       sistrip::LLD_CHAN, 
 			       connection().lldChannel(),
 			       extra_info ).title();
-    
-    cabling_[iter].histo_ = dqm()->bookProfile( title, title, 
-						nbins, -0.5, nbins*1.-0.5,
-						1025, 0., 1025. );
-    
-    cabling_[iter].vNumOfEntries_.resize(nbins,0);
-    cabling_[iter].vSumOfContents_.resize(nbins,0);
-    cabling_[iter].vSumOfSquares_.resize(nbins,0);
-    //cabling_[iter].isProfile_ = false;
-    
+      
+    histos_[iter].histo_ = dqm()->bookProfile( title, title, 
+					      nbins, -0.5, nbins*1.-0.5,
+					      1025, 0., 1025. );
+      
+    histos_[iter].vNumOfEntries_.resize(nbins,0);
+    histos_[iter].vSumOfContents_.resize(nbins,0);
+    histos_[iter].vSumOfSquares_.resize(nbins,0);
+
   }
-  
+
 }
 
 // -----------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void FedCablingTask::book() {
 void FedCablingTask::fill( const SiStripEventSummary& summary,
 			   const uint16_t& fed_id,
 			   const std::map<uint16_t,float>& fed_ch ) {
-
+  
   if ( fed_ch.empty() ) { 
     edm::LogWarning(mlDqmSource_)  
       << "[FedCablingTask::" << __func__ << "]"
@@ -83,8 +83,8 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
   
   std::map<uint16_t,float>::const_iterator ichan = fed_ch.begin();
   for ( ; ichan != fed_ch.end(); ichan++ ) {
-    updateHistoSet( cabling_[0], fed_id, ichan->second );
-    updateHistoSet( cabling_[1], ichan->first, ichan->second );
+    updateHistoSet( histos_[0], fed_id, ichan->second );
+    updateHistoSet( histos_[1], ichan->first, ichan->second );
   } 
   
 }
@@ -92,9 +92,10 @@ void FedCablingTask::fill( const SiStripEventSummary& summary,
 // -----------------------------------------------------------------------------
 //
 void FedCablingTask::update() {
-  for ( uint32_t iter = 0; iter < cabling_.size(); iter++ ) {
-    updateHistoSet( cabling_[iter] );
+  for ( uint32_t iter = 0; iter < histos_.size(); iter++ ) {
+    updateHistoSet( histos_[iter] );
   }
 }
+
 
 

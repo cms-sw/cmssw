@@ -29,7 +29,8 @@ void ApvTimingTask::book() {
   
   uint16_t nbins = 24 * nBins_;
   
-  std::string title = SiStripHistoTitle( sistrip::APV_TIMING, 
+  std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+					 sistrip::APV_TIMING, 
 					 sistrip::FED_KEY, 
 					 fedKey(),
 					 sistrip::LLD_CHAN, 
@@ -38,12 +39,6 @@ void ApvTimingTask::book() {
   timing_.histo_ = dqm()->bookProfile( title, title, 
 				       nbins, -0.5, nBins_*25.-0.5, 
 				       1025, 0., 1025. );
-  
-//   float min_time_ns = static_cast<float>(nBins_) - 0.5;
-//   float max_time_ns = (25./static_cast<float>(nFineDelays_)) * static_cast<float>(nBins_) - 0.5;
-//   timing_.histo_ = dqm()->bookProfile( title, title, 
-// 				       nBins_, min_time_ns, max_time_ns,
-// 				       sistrip::maximum_, 0., sistrip::maximum_*1. );
   
   timing_.vNumOfEntries_.resize(nbins,0);
   timing_.vSumOfContents_.resize(nbins,0);

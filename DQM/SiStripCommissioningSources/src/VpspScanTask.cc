@@ -37,7 +37,8 @@ void VpspScanTask::book() {
       std::stringstream extra_info; 
       extra_info << sistrip::apv_ << iapv;
       
-      title = SiStripHistoTitle( sistrip::VPSP_SCAN, 
+      title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+				 sistrip::VPSP_SCAN, 
 				 sistrip::FED_KEY, 
 				 fedKey(),
 				 sistrip::LLD_CHAN, 

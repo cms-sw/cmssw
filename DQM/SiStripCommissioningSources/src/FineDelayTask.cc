@@ -26,7 +26,8 @@ FineDelayTask::~FineDelayTask() {
 void FineDelayTask::book() {
   LogDebug("Commissioning") << "[FineDelayTask::book]";
 
-  std::string title = SiStripHistoTitle( sistrip::FINE_DELAY, 
+  std::string title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+					 sistrip::FINE_DELAY, 
   					 sistrip::DET_KEY, 
 					 connection().detId(),
 					 sistrip::MODULE, 

@@ -55,7 +55,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void createCablingTasks();
 
   /** */
-  void createTasks();
+  void createTasks( sistrip::RunType );
   
   /** */
   void clearCablingTasks();

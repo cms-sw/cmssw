@@ -47,7 +47,8 @@ void PedestalsTask::book() {
     else if ( ihisto == 1 ) { extra_info = sistrip::residualsAndNoise_; } // "ResidualsAndNoise"; }
     else { /**/ }
     
-    title = SiStripHistoTitle( sistrip::PEDESTALS, 
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			       sistrip::PEDESTALS, 
 			       sistrip::FED_KEY, 
 			       fedKey(),
 			       sistrip::LLD_CHAN, 
@@ -69,7 +70,8 @@ void PedestalsTask::book() {
   nbins = 1024;
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) { 
     
-    title = SiStripHistoTitle( sistrip::PEDESTALS, 
+    title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			       sistrip::PEDESTALS, 
 			       sistrip::FED_KEY, 
 			       fedKey(),
 			       sistrip::APV, 

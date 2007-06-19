@@ -223,6 +223,13 @@ void CommissioningTask::updateHistoSet( HistoSet& histo_set ) {
     // if ( prof ) { prof->SetErrorOption("s"); } //@@ necessary?
     static UpdateTProfile profile;
     for ( uint32_t ibin = 0; ibin < histo_set.vNumOfEntries_.size(); ibin++ ) {
+//       edm::LogWarning(mlDqmSource_)
+// 	<< "[CommissioningTask::" << __func__ << "]"
+// 	<< "bin/entries/contents/squares: " 
+// 	<< ibin << "/"
+// 	<< histo_set.vNumOfEntries_[ibin] << "/"
+// 	<< histo_set.vSumOfContents_[ibin] << "/"
+// 	<< histo_set.vSumOfSquares_[ibin];
       profile.setBinContents( prof,
 			      ibin+1, 
 			      histo_set.vNumOfEntries_[ibin],

@@ -8,6 +8,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "DQM/SiStripCommissioningSources/interface/Averages.h"
+#include "DQM/SiStripCommissioningSources/interface/FastFedCablingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedCablingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/ApvTimingTask.h"
 #include "DQM/SiStripCommissioningSources/interface/FedTimingTask.h"
@@ -300,9 +301,10 @@ void SiStripCommissioningSource::analyze( const edm::Event& event,
   // Create commissioning task objects 
   if ( !tasksExist_ ) { createTask( summary.product() ); }
 
-  // Retrieve raw digis
+  // Retrieve raw digis with mode appropriate to task 
   edm::Handle< edm::DetSetVector<SiStripRawDigi> > raw;
-  if ( task_ == sistrip::FED_CABLING ||
+  if ( task_ == sistrip::FAST_FED_CABLING ||
+       task_ == sistrip::FED_CABLING ||
        task_ == sistrip::APV_TIMING ||
        task_ == sistrip::FED_TIMING ||
        task_ == sistrip::OPTO_SCAN ||
@@ -676,9 +678,12 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
        task_ == sistrip::UNDEFINED_RUN_TYPE ) {
     std::stringstream ss;
     ss << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Unexpected CommissioningTask: " << SiStripEnumsAndStrings::runType( task_ )
+       << " Unexpected CommissioningTask found (" 
+       << static_cast<uint16_t>(task_) << ") \""
+       << SiStripEnumsAndStrings::runType( task_ ) << "\""
        << " Unexpected value found in SiStripEventSummary and/or cfg file"
-       << " If SiStripEventSummary is not present in Event, check 'CommissioningTask' configurable in cfg file";
+       << " If SiStripEventSummary is not present in Event,"
+       << " check 'CommissioningTask' configurable in cfg file";
     edm::LogWarning(mlDqmSource_) << ss.str();
     return; 
   } else {
@@ -699,10 +704,16 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
      << SiStripEnumsAndStrings::runType( summary->runType() );
   LogTrace(mlDqmSource_) << ss.str();
 
+  edm::LogVerbatim(mlDqmSource_)
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " Creating CommissioningTask objects and booking histograms...";
   if ( cablingTask_ ) { createCablingTasks(); }
-  else { createTasks(); }
+  else { createTasks( task_ ); }
+  edm::LogVerbatim(mlDqmSource_)
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " Finished booking histograms!";
   tasksExist_ = true;
-
+  
 }
 
 // -----------------------------------------------------------------------------
@@ -710,6 +721,7 @@ void SiStripCommissioningSource::createTask( const SiStripEventSummary* const su
 void SiStripCommissioningSource::createCablingTasks() {
   
   // Iterate through FEC cabling and create commissioning task objects
+  uint16_t booked = 0;
   for ( std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++ ) {
     for ( std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++ ) {
       for ( std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++ ) {
@@ -792,12 +804,13 @@ void SiStripCommissioningSource::createCablingTasks() {
 		  if ( cablingTasks_[key] ) {
 		    cablingTasks_[key]->bookHistograms(); 
 		    cablingTasks_[key]->updateFreq(1); //@@ hardwired to update every event!!! 
-		    std::stringstream ss;
-		    ss << "[SiStripCommissioningSource::" << __func__ << "]"
-		       << " Booking histograms for '" << cablingTasks_[key]->myName()
-		       << "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << key << std::dec
-		       << " in directory " << dir;
-		    LogTrace(mlDqmSource_) << ss.str();
+		    booked++;
+		    //std::stringstream ss;
+		    //ss << "[SiStripCommissioningSource::" << __func__ << "]"
+		    //<< " Booking histograms for '" << cablingTasks_[key]->myName()
+		    //<< "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << key << std::dec
+		    //<< " in directory \"" << dir << "\"";
+		    //LogTrace(mlDqmSource_) << ss.str();
 		  } else {
 		    std::stringstream ss;
 		    ss << "[SiStripCommissioningSource::" << __func__ << "]"
@@ -833,15 +846,23 @@ void SiStripCommissioningSource::createCablingTasks() {
       } // loop through rings
     } // loop through fecs
   } // loop through crates
+
+  edm::LogVerbatim(mlDqmSource_)
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " Created " << booked 
+    << " CommissioningTask objects and booked histograms";
   
 }
 
 // -----------------------------------------------------------------------------
 //
-void SiStripCommissioningSource::createTasks() {
-  // list of already used detids
+void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
+
+  // List of already used detids
   std::map<uint32_t,bool> detids;
+
   // Iterate through FED ids and channels 
+  uint16_t booked = 0;
   std::vector<uint16_t>::const_iterator ifed = fedCabling_->feds().begin();
   for ( ; ifed != fedCabling_->feds().end(); ifed++ ) {
     
@@ -851,23 +872,29 @@ void SiStripCommissioningSource::createTasks() {
     for ( ; iconn != conns.end(); iconn++ ) {
       
       // Create FED key and check if non-zero
-      uint32_t fed_key = SiStripFedKey( iconn->fedId(), 
-					SiStripFedKey::feUnit(iconn->fedCh()),
-					SiStripFedKey::feChan(iconn->fedCh()) ).key();
+      SiStripFedKey fed_key( iconn->fedId(), 
+			     SiStripFedKey::feUnit(iconn->fedCh()),
+			     SiStripFedKey::feChan(iconn->fedCh()) );
       if ( !iconn->isConnected() ) { continue; }
       
+      // Create FEC key
+      SiStripFecKey fec_key( iconn->fecCrate(), 
+			     iconn->fecSlot(), 
+			     iconn->fecRing(), 
+			     iconn->ccuAddr(), 
+			     iconn->ccuChan() );
+
       // Set working directory prior to booking histograms 
-      SiStripFecKey path( iconn->fecCrate(), 
-			  iconn->fecSlot(), 
-			  iconn->fecRing(), 
-			  iconn->ccuAddr(), 
-			  iconn->ccuChan() );
-      std::string dir = base_ + path.path();
-      dqm()->setCurrentFolder( dir );
+      std::stringstream dir;
+      dir << base_;
+      if ( run_type == sistrip::FAST_FED_CABLING ) { dir << fed_key.path(); }
+      else { dir << fec_key.path(); }
+      dqm()->setCurrentFolder( dir.str() );
       
       // Create commissioning task objects
       if ( !tasks_[iconn->fedId()][iconn->fedCh()] ) { 
-	if ( task_ == sistrip::APV_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); } 
+	if ( task_ == sistrip::FAST_FED_CABLING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FastFedCablingTask( dqm(), *iconn ); } 
+	else if ( task_ == sistrip::APV_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new ApvTimingTask( dqm(), *iconn ); } 
 	else if ( task_ == sistrip::FED_TIMING ) { tasks_[iconn->fedId()][iconn->fedCh()] = new FedTimingTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::OPTO_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new OptoScanTask( dqm(), *iconn ); }
 	else if ( task_ == sistrip::VPSP_SCAN ) { tasks_[iconn->fedId()][iconn->fedCh()] = new VpspScanTask( dqm(), *iconn ); }
@@ -898,18 +925,22 @@ void SiStripCommissioningSource::createTasks() {
 	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
 	  tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
 	  tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
-	  std::stringstream ss;
-	  ss << "[SiStripCommissioningSource::" << __func__ << "]"
-	     << " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
-	     << "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
-	     << " in directory " << dir;
-	  LogTrace(mlDqmSource_) << ss.str();
+	  if ( task_ == sistrip::FAST_FED_CABLING ) { 
+	    tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq(34); 
+	  }
+	  booked++;
+	  //std::stringstream ss;
+	  //ss << "[SiStripCommissioningSource::" << __func__ << "]"
+	  //<< " Booking histograms for '" << tasks_[iconn->fedId()][iconn->fedCh()]->myName()
+	  //<< "' object with key 0x" << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+	  //<< " in directory " << dir.str();
+	  //LogTrace(mlDqmSource_) << ss.str();
 	} else {
 	  std::stringstream ss;
 	  ss << "[SiStripCommissioningSource::" << __func__ << "]"
 	     << " NULL pointer to CommissioningTask for key 0x"
-	     << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
-	     << " in directory " << dir 
+	     << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+	     << " in directory " << dir.str() 
 	     << " Unable to book histograms!";
 	  edm::LogWarning(mlDqmSource_) << ss.str();
 	}
@@ -918,19 +949,19 @@ void SiStripCommissioningSource::createTasks() {
 	std::stringstream ss;
 	ss << "[SiStripCommissioningSource::" << __func__ << "]"
 	   << " CommissioningTask object already exists for key 0x"
-	   << std::hex << std::setfill('0') << std::setw(8) << fed_key << std::dec
-	   << " in directory " << dir 
+	   << std::hex << std::setfill('0') << std::setw(8) << fed_key.key() << std::dec
+	   << " in directory " << dir.str() 
 	   << " Unable to create CommissioningTask object!";
 	edm::LogWarning(mlDqmSource_) << ss.str();
       }
       
     }
   }
-  
-  LogTrace(mlDqmSource_) 
-       << "[SiStripCommissioningSource::" << __func__ << "]"
-       << " Number of CommissioningTask objects created: " 
-       << tasks_.size();
+
+  edm::LogVerbatim(mlDqmSource_)
+    << "[SiStripCommissioningSource::" << __func__ << "]"
+    << " Created " << booked 
+    << " CommissioningTask objects and booked histograms";
   
 }
 

@@ -32,7 +32,8 @@ void FedTimingTask::book() {
   
   std::string title;
   
-  title = SiStripHistoTitle( sistrip::FED_TIMING, 
+  title = SiStripHistoTitle( sistrip::EXPERT_HISTO, 
+			     sistrip::FED_TIMING, 
 			     sistrip::FED_KEY, 
 			     fedKey(),
 			     sistrip::LLD_CHAN, 
