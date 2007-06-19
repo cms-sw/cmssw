@@ -10,6 +10,7 @@
 #include <TFile.h>
 
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "FWCore/Framework/interface/TriggerNames.h"
 
 // class for analyzing the trigger decisions
 class AnalyzeTriggerResults
@@ -41,10 +42,12 @@ class AnalyzeTriggerResults
     // has any trigger fired this event?
     if(trigRes.accept())++Nall_trig;
 
+    edm::TriggerNames triggerNames(trigRes);
+
     // loop over all paths, get trigger decision
     for(unsigned i = 0; i != size; ++i)
       {
-	std::string name = trigRes.name(i);
+	std::string name = triggerNames.triggerName(i);
 	fired[name] = trigRes.accept(i);
 	if(fired[name])
 	  ++(Ntrig[name]);
@@ -54,7 +57,7 @@ class AnalyzeTriggerResults
     // double-loop over all paths, get trigger overlaps
      for(unsigned i = 0; i != size; ++i)
       {
-	std::string name = trigRes.name(i);
+	std::string name = triggerNames.triggerName(i);
 	if(!fired[name])continue;
 
 	bool correlation = false;
@@ -64,7 +67,7 @@ class AnalyzeTriggerResults
 	    // skip the same name; 
 	    // this entry correponds to events triggered by single trigger
 	    if(i == j) continue;
-	    std::string name2 = trigRes.name(j);
+	    std::string name2 = triggerNames.triggerName(j);
 	    if(fired[name2])
 	      {
 		correlation = true;
