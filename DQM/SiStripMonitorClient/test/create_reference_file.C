@@ -4,14 +4,18 @@
 #include <TXMLAttr.h>
 #include <TFile.h>
 #include <TH1.h>
+#include <string>
 
-
-void create_reference_file(const char* fname1, const char* fname2)
+void create_reference_file(string fname1, string fname2)
 {
-  TFile* file1 = new TFile(fname1);
+  TFile* file1 = new TFile(fname1.c_str());
   if (!file1) return;
 
-  TFile* file2 = new TFile(fname2, "RECREATE");
+  bool online = false;
+  if (fname1.find("SiStripWebInterface") != string::npos) online = true;
+
+  cout << fname1 << " " << online << endl;
+  TFile* file2 = new TFile(fname2.c_str(), "RECREATE");
 
   TDOMParser *domParser = new TDOMParser();
 
@@ -23,7 +27,7 @@ void create_reference_file(const char* fname1, const char* fname2)
   TXMLNode *node = domParser->GetXMLDocument()->GetRootNode();
 
   TDirectory* td;
-  parseXML(node, file1, file2, td);
+  parseXML(node, file1, file2, online, td);
 
   delete domParser;
   file1->Close();
@@ -31,7 +35,7 @@ void create_reference_file(const char* fname1, const char* fname2)
   file2->Close();
 }
 
-void parseXML(TXMLNode *node, TFile* file1, TFile* file2, TDirectory* td)
+void parseXML(TXMLNode *node, TFile* file1, TFile* file2, bool flag, TDirectory* td)
 {
   for ( ; node; node = node->GetNextNode()) {
     if (node->GetNodeType() == TXMLNode::kXMLElementNode) { // Element Node
@@ -52,9 +56,16 @@ void parseXML(TXMLNode *node, TFile* file1, TFile* file2, TDirectory* td)
             }
 	  }
           if (node_name == "monitorable") {
-            string path = attr_value.replace(0,13,"DQMData");
+            string path, fname;
+            if (flag) path = "DQMData/" + attr_value;
+	    else path = attr_value.replace(0,13,"DQMData");
             TH1F* th1 = dynamic_cast<TH1F*> ( file1->Get(path.c_str()));
-	    th1->SetDirectory(td);
+            if (th1)   th1->SetDirectory(td);
+            else {
+              cout << "\n Requested Histogram does not exist !!! " << endl;
+              cout << " ==> " << path << endl;
+              cout << " ==> Please check the root file : "<< file1->GetName() << " !! "<< endl;
+            }
           }
 	}
       }
@@ -66,7 +77,7 @@ void parseXML(TXMLNode *node, TFile* file1, TFile* file2, TDirectory* td)
       cout << "Comment: " << node->GetContent();
     }
     
-    parseXML(node->GetChildren(), file1, file2, td);
+    parseXML(node->GetChildren(), file1, file2, flag, td);
   }
 }
 

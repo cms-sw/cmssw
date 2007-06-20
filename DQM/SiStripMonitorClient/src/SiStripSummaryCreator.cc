@@ -317,25 +317,29 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, string htype,
   TProfile* prof = ExtractTObject<TProfile>().extract( me_src );
   TH1F* hist1 = ExtractTObject<TH1F>().extract( me_src );
   TH2F* hist2 = ExtractTObject<TH2F>().extract( me_src );   
-  string name = me->getName();
+  int nbins = me_src->getNbinsX();
+  string name = me_src->getName();
   if (htype == "mean" || htype == "Mean" ) {
-    me->Fill(ival, me_src->getMean());
+    if (hist2 &&  name.find("NoisyStrips") != string::npos) {
+      float bad = 0.0;
+      float entries = me_src->getEntries();
+      if (entries > 0.0) {
+	float binEntry = entries/nbins;
+	for (int k=1; k<nbins+1; k++) {
+	  float noisy = me_src->getBinContent(k,3)+me_src->getBinContent(k,5);
+	  float dead = me_src->getBinContent(k,2)+me_src->getBinContent(k,4);
+	  float good = me_src->getBinContent(k,1);
+	  if (noisy >= binEntry*0.5 || dead >= binEntry*0.5) bad++;
+	}
+	bad = bad*100.0/nbins;    
+	me->Fill(ival, bad);
+      }
+    } else me->Fill(ival, me_src->getMean());
   } else if (htype == "bin-by-bin" || htype == "Bin-by-Bin") {
-    int nbins = me_src->getNbinsX();
     for (int k=1; k<nbins+1; k++) {
-      if ( hist2 &&  name.find("NoisyStrips") != string::npos) { 
-        float noisy = me_src->getBinContent(k,4);
-        float dead = me_src->getBinContent(k,3);
-        float good = me_src->getBinContent(k,2);
-        if (noisy > good) {
-          me->setBinContent(istep+k,2.0); 
-        } else if (dead > good) {
-          me->setBinContent(istep+k,1.0);
-        } else me->setBinContent(istep+k,0.0);
-      } else me->setBinContent(istep+k,me_src->getBinContent(k));
+      me->setBinContent(istep+k,me_src->getBinContent(k));
     }
   } else if (htype == "sum" || htype == "Sum") {  
-    int nbins = me_src->getNbinsX();
     if ( hist1) {
       for (int k=1; k<nbins+1; k++) {
         float val = me_src->getBinContent(k) + me->getBinContent(k) ;
