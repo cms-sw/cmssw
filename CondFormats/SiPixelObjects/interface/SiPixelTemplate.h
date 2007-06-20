@@ -1,12 +1,18 @@
 //
-//  SiPixelTemplate.h (v3.0)
+//  SiPixelTemplate.h (v3.40)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small index searching bug in interpolate method
 //  Change interpolation indexing to avoid complier complaining about possible un-initialized variables
-//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
+//  Replace containers with static arrays in calls to ysigma2 and xsigma2
+//  Add external threshold to calls to ysigma2 and xsigma2, fix parameter signal max for xsigma2
+//  Return to 5 pixel spanning but adjust boundaries to use only when needed
+//  Implement improved (faster) chi2min search that depends on pixel types
+//  Fill template arrays in single calls to this object
+//  Add qmin to the template
+//  Add qscale to match charge scales
 //
 // Created by Morris Swartz on 10/27/06.
 // Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
@@ -39,6 +45,7 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float sytwo;             //!< rms for one double-pixel y-clusters 
   float dxtwo;             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo;             //!< rms for one double-pixel x-clusters 
+  float qmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits) 
   float ypar[2][5];        //!< projected y-pixel uncertainty parameterization 
   float ytemp[9][21];      //!< templates for y-reconstruction (binned over 1 central pixel) 
   float xpar[2][5];        //!< projected x-pixel uncertainty parameterization 
@@ -76,6 +83,7 @@ struct SiPixelTemplateHeader {           //!< template header structure
   float vbias;            //!< detector bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
+  float qscale;           //!< Charge scaling to match cmssw and pixelav 
   float s50;              //!< 1/2 of the readout threshold in ADC units 
   int templ_version;      //!< Version number of the template to ensure code compatibility 
 } ;
@@ -124,10 +132,15 @@ class SiPixelTemplate {
   // Interpolate input alpha and beta angles to produce a working template for each individual hit. 
   void interpolate(int id, bool fpix, float cotalpha, float cotbeta);
   
-  // Convert vector of projected signals into uncertainties for fitting. 
-  void ysigma2(int fypix, int lypix, std::vector<float>& ysum, std::vector<float>& ysig2);
+  // retreive interpolated templates. 
+  void ytemp(int fybin, int lybin, float ytemplate[41][25]);
   
-  void xsigma2(int fxpix, int lxpix, std::vector<float>& xsum, std::vector<float>& xsig2);
+  void xtemp(int fxbin, int fxbin, float xtemplate[41][11]);
+  
+  // Convert vector of projected signals into uncertainties for fitting. 
+  void ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25]);
+  
+  void xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11]);
   
   // Interpolate qfl correction in y. 
   float yflcorr(int binq, float qfly);
@@ -136,6 +149,7 @@ class SiPixelTemplate {
   float xflcorr(int binq, float qflx);
   
   float qavg() {return pqavg;}        //!< average cluster charge for this set of track angles 
+  float qscale() {return pqscale;}         //!< charge scaling factor 
   float s50() {return ps50;}               //!< 1/2 of the pixel threshold signal in adc units 
   float symax() {return psymax;}             //!< average pixel signal for y-projection of cluster 
   float dyone() {return pdyone;}             //!< mean offset/correction for one pixel y-clusters 
@@ -147,13 +161,10 @@ class SiPixelTemplate {
   float sxone() {return psxone;}             //!< rms for one pixel x-clusters 
   float dxtwo() {return pdxtwo;}             //!< mean offset/correction for one double-pixel x-clusters 
   float sxtwo() {return psxtwo;}             //!< rms for one double-pixel x-clusters 
+  float qmin() {return pqmin;}               //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
   float yratio() {return pyratio;}            //!< fractional distance in y between cotbeta templates 
-  float ytemp(int i, int j) 
-  {assert(i>=0 && i<25 && j>= 0 && j<25); return pytemp[i][j];}     //!< templates for y-reconstruction (binned over 3 central pixels) 
   float yxratio() {return pyxratio;}           //!< fractional distance in y between cotalpha templates slices
   float xxratio() {return pxxratio;}           //!< fractional distance in x between cotalpha templates 
-  float xtemp(int i, int j) 
-  {assert(i>=0 && i<25 && j>= 0 && j<11); return pxtemp[i][j];}     //!< templates for x-reconstruction (binned over 3 central pixels) 
   float yavg(int i) {assert(i>=0 && i<4); return pyavg[i];}         //!< average y-bias of reconstruction binned in 4 charge bins 
   float yrms(int i) {assert(i>=0 && i<4); return pyrms[i];}         //!< average y-rms of reconstruction binned in 4 charge bins 
   float ygx0(int i) {assert(i>=0 && i<4); return pygx0[i];}         //!< average y0 from Gaussian fit binned in 4 charge bins 
@@ -185,6 +196,7 @@ class SiPixelTemplate {
   // Keep results of last interpolation to return through member functions
   
   float pqavg;              //!< average cluster charge for this set of track angles 
+  float pqscale;            //!< charge scaling factor 
   float ps50;               //!< 1/2 of the pixel threshold signal in adc units 
   float psymax;             //!< average pixel signal for y-projection of cluster 
   float pdyone;             //!< mean offset/correction for one pixel y-clusters 
@@ -197,18 +209,19 @@ class SiPixelTemplate {
   float psxone;             //!< rms for one pixel x-clusters 
   float pdxtwo;             //!< mean offset/correction for one double-pixel x-clusters 
   float psxtwo;             //!< rms for one double-pixel x-clusters 
+  float pqmin;              //!< minimum cluster charge for valid hit (keeps 99.9% of simulated hits)
   float pyratio;            //!< fractional distance in y between cotbeta templates 
   float pyparl[2][5];       //!< projected y-pixel uncertainty parameterization for smaller cotbeta 
   float pyparh[2][5];       //!< projected y-pixel uncertainty parameterization for larger cotbeta 
   float pxparly0[2][5];     //!< projected x-pixel uncertainty parameterization for smaller cotbeta (central alpha)
   float pxparhy0[2][5];     //!< projected x-pixel uncertainty parameterization for larger cotbeta (central alpha)
-  float pytemp[25][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
+  float pytemp[41][25];     //!< templates for y-reconstruction (binned over 5 central pixels) 
   float pyxratio;           //!< fractional distance in y between x-slices of cotalpha templates 
   float pxxratio;           //!< fractional distance in x between cotalpha templates 
   float pxpar0[2][5];       //!< projected x-pixel uncertainty parameterization for central cotalpha 
   float pxparl[2][5];       //!< projected x-pixel uncertainty parameterization for smaller cotalpha 
   float pxparh[2][5];       //!< projected x-pixel uncertainty parameterization for larger cotalpha 
-  float pxtemp[25][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
+  float pxtemp[41][11];     //!< templates for x-reconstruction (binned over 5 central pixels) 
   float pyavg[4];           //!< average y-bias of reconstruction binned in 4 charge bins 
   float pyrms[4];           //!< average y-rms of reconstruction binned in 4 charge bins 
   float pygx0[4];           //!< average y0 from Gaussian fit binned in 4 charge bins 
