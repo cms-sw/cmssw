@@ -1,5 +1,5 @@
-#ifndef Utilities_JobMode_h
-#define Utilities_JobMode_h
+#ifndef FWCore_Utilities_JobMode_h
+#define FWCore_Utilities_JobMode_h
 
 // -*- C++ -*-
 
@@ -19,4 +19,4 @@ namespace edm {
   };
 
 }
-#endif // Utilities_JobMode_h
+#endif // FWCore_Utilities_JobMode_h

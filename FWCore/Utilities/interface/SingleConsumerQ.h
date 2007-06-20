@@ -1,5 +1,5 @@
-#ifndef Utilities_SingleConsumerQ_h
-#define Utilities_SingleConsumerQ_h
+#ifndef FWCore_Utilities_SingleConsumerQ_h
+#define FWCore_Utilities_SingleConsumerQ_h
 
 // -*- C++ -*-
 
