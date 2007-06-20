@@ -1,4 +1,4 @@
-// $Id: reftobasevector_t.cppunit.cc,v 1.5 2007/06/08 09:57:43 llista Exp $
+// $Id: reftobasevector_t.cppunit.cc,v 1.6 2007/06/08 19:32:35 paterno Exp $
 
 #include <algorithm>
 
@@ -59,12 +59,6 @@ do_some_tests(edm::RefToBaseVector<Base> x)
     b = x.begin(), e = x.end(), cb = copy.begin(), ce = copy.end();
   CPPUNIT_ASSERT( e - b == ce - cb );
   CPPUNIT_ASSERT(std::distance(b, e) == std::distance(cb, ce) );
-  //CPPUNIT_ASSERT(x.capacity() == copy.capacity());
-
-  // caveat: capacity() returns always zero for an invalid RefToBaseVector
-//   size_t increment(1000);
-//   x.reserve(x.size() + increment);
-//   CPPUNIT_ASSERT(x.capacity() >= x.size()+increment);
 }
 
 void
