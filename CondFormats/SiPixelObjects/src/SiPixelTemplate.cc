@@ -1,23 +1,23 @@
 //
-//  SiPixelTemplate.cc  Version 2.42 
+//  SiPixelTemplate.cc  Version 3.40 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
 //  Add cot(beta) reflection to reduce y-entries and more sophisticated x-interpolation
 //  Fix small index searching bug in interpolate method
 //  Change interpolation indexing to avoid complier complaining about possible un-initialized variables
-//  Reduce Template binning to span 3 central pixels and implement improved (faster) chi2min search
+//  Replace containers with static arrays in calls to ysigma2 and xsigma2
+//  Add external threshold to calls to ysigma2 and xsigma2, fix parameter signal max for xsigma2
+//  Return to 5 pixel spanning but adjust boundaries to use only when needed
+//  Implement improved (faster) chi2min search that depends on pixel types
+//  Fill template arrays in single calls to this object
+//  Add qmin to the template
+//  Add qscale to match charge scales
 //
 //  Created by Morris Swartz on 10/27/06.
 //  Copyright 2006 __TheJohnsHopkinsUniversity__. All rights reserved.
 //
 //
-
-#ifndef SI_PIXEL_TEMPLATE_STANDALONE
-#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
-#else
-#include "SiPixelTemplate.h"
-#endif
 
 //#include <stdlib.h> 
 //#include <stdio.h>
@@ -31,6 +31,14 @@
 #include <fstream>
 
 
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+#include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+using namespace edm;
+#else
+#include "SiPixelTemplate.h"
+#endif
+
 //**************************************************************** 
 //! This routine initializes the global template structures from 
 //! an external file template_summary_zpNNNN where NNNN are four  
@@ -43,21 +51,30 @@ bool SiPixelTemplate::pushfile(int filenum)
     
     // Local variables 
     int i, j, k;
-	const char *tempfile;
-	char title[80];
+    const char *tempfile;
+    char title[80];
     char c;
-	const int code_version={6};
-	
+    const int code_version={8};
+    
+    
+    
+    //  Create a filename for this run 
+    
+    //std::ostringstream tout;
+    //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+    //std::string tempf = tout.str();
+    //tempfile = tempf.c_str();
 
-
-//  Create a filename for this run 
-
- std::ostringstream tout;
- //tout << "template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
- tout << "../data/template_summary_zp" << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
- std::string tempf = tout.str();
- tempfile = tempf.c_str();
-	
+    std::ostringstream tout;
+    tout << "RecoLocalTracker/SiPixelRecHits/data/template_summary_zp" 
+	 << std::setw(4) << std::setfill('0') << std::right << filenum << ".out" << std::ends;
+    std::string tempf = tout.str();
+    
+    std::cout << "tempf = " << tempf << std::endl;
+    edm::FileInPath file( tempf.c_str() );
+    tempfile = (file.fullPath()).c_str();
+    std::cout << "tempfile = " << tempfile << std::endl;
+    
 //  open the template file 
 
  std::ifstream in_file(tempfile, std::ios::in);
@@ -81,15 +98,16 @@ bool SiPixelTemplate::pushfile(int filenum)
     
     in_file >> theCurrentTemp.head.ID >> theCurrentTemp.head.NBy >> theCurrentTemp.head.NByx >> theCurrentTemp.head.NBxx
 	        >> theCurrentTemp.head.NFy >> theCurrentTemp.head.NFyx >> theCurrentTemp.head.NFxx >> theCurrentTemp.head.vbias 
-			>> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
+			>> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
+			>> theCurrentTemp.head.s50 >> theCurrentTemp.head.templ_version;
 			
 	if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	
     std::cout << "Template ID = " << theCurrentTemp.head.ID << ", NBy = " << theCurrentTemp.head.NBy << ", NByx = " << theCurrentTemp.head.NByx 
 		 << ", NBxx = " << theCurrentTemp.head.NBxx << ", NFy = " << theCurrentTemp.head.NFy << ", NFyx = " << theCurrentTemp.head.NFyx
 		 << ", NFxx = " << theCurrentTemp.head.NFxx << ", bias voltage " << theCurrentTemp.head.vbias << ", temperature "
-		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", 1/2 threshold " << theCurrentTemp.head.s50 
-         << ", Template Version " << theCurrentTemp.head.templ_version << std::endl;    
+		 << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
+		 << ", 1/2 threshold " << theCurrentTemp.head.s50 << ", Template Version " << theCurrentTemp.head.templ_version << std::endl;    
 			
 	if(theCurrentTemp.head.templ_version != code_version) {std::cout << "code expects version " << code_version << ", no template load" << std::endl; return false;}
 		 
@@ -118,7 +136,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entby[i].dytwo >> theCurrentTemp.entby[i].sytwo >> theCurrentTemp.entby[i].dxtwo 
-	           >> theCurrentTemp.entby[i].sxtwo;
+	           >> theCurrentTemp.entby[i].sxtwo >> theCurrentTemp.entby[i].qmin;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
@@ -238,7 +256,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entbx[k][i].dytwo >> theCurrentTemp.entbx[k][i].sytwo >> theCurrentTemp.entbx[k][i].dxtwo 
-	           >> theCurrentTemp.entbx[k][i].sxtwo;
+	           >> theCurrentTemp.entbx[k][i].sxtwo >> theCurrentTemp.entbx[k][i].qmin;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
@@ -356,7 +374,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 	   
        in_file >> theCurrentTemp.entfy[i].dytwo >> theCurrentTemp.entfy[i].sytwo >> theCurrentTemp.entfy[i].dxtwo 
-	           >> theCurrentTemp.entfy[i].sxtwo;
+	           >> theCurrentTemp.entfy[i].sxtwo >> theCurrentTemp.entfy[i].qmin;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
@@ -476,7 +494,7 @@ bool SiPixelTemplate::pushfile(int filenum)
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
     
        in_file >> theCurrentTemp.entfx[k][i].dytwo >> theCurrentTemp.entfx[k][i].sytwo >> theCurrentTemp.entfx[k][i].dxtwo 
-	           >> theCurrentTemp.entfx[k][i].sxtwo;
+	           >> theCurrentTemp.entfx[k][i].sxtwo >> theCurrentTemp.entfx[k][i].qmin;
 			
        if(in_file.fail()) {std::cout << "Error reading file, no template load" << std::endl; return false;}
 			  
@@ -649,7 +667,11 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
     
     abs_cotb = fabs((double)cotbeta);
 
-// Copy the pseudopixel signal size to the template     
+// Copy the charge scaling factor to the private variable     
+    
+    pqscale = thePixelTemp[index_id].head.qscale;
+
+// Copy the pseudopixel signal size to the private variable     
     
     ps50 = thePixelTemp[index_id].head.s50;
 	
@@ -702,6 +724,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   pdytwo = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].dytwo + yratio*thePixelTemp[index_id].entfy[ihigh].dytwo;
 	   if(cotbeta < 0.) {pdytwo = -pdytwo;}
 	   psytwo = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].sytwo + yratio*thePixelTemp[index_id].entfy[ihigh].sytwo;
+	   pqmin = (1. - yratio)*thePixelTemp[index_id].entfy[ilow].qmin + yratio*thePixelTemp[index_id].entfy[ihigh].qmin;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
 // Charge loss switches sides when cot(beta) changes sign
@@ -751,37 +774,55 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Interpolate and build the y-template 
 	
 	   for(i=0; i<9; ++i) {
-          pytemp[i+8][0] = 0.;
-          pytemp[i+8][1] = 0.;
-	      pytemp[i+8][23] = 0.;
-	      pytemp[i+8][24] = 0.;
+          pytemp[i+16][0] = 0.;
+          pytemp[i+16][1] = 0.;
+	      pytemp[i+16][23] = 0.;
+	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[16-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 } else {
-	            pytemp[i+8][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
+	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entfy[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entfy[ihigh].ytemp[i][j];
 			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pytemp[i][0] = 0.;
+          pytemp[i+8][0] = 0.;
+          pytemp[i+8][22] = 0.;
+	      pytemp[i+8][23] = 0.;
+	      pytemp[i+8][24] = 0.;
+	      for(j=0; j<21; ++j) {
+	        pytemp[i+8][j+1]=pytemp[i+16][j+2];
+	      }
+	   }
+	   for(i=0; i<8; ++i) {
+          pytemp[i][21] = 0.;
           pytemp[i][22] = 0.;
 	      pytemp[i][23] = 0.;
 	      pytemp[i][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i][j+1]=pytemp[i+8][j+2];
+	        pytemp[i][j]=pytemp[i+16][j+2];
 	      }
 	   }
   	   for(i=1; i<9; ++i) {
-          pytemp[i+16][0] = 0.;
-	      pytemp[i+16][1] = 0.;
-	      pytemp[i+16][2] = 0.;
-	      pytemp[i+16][24] = 0.;
+          pytemp[i+24][0] = 0.;
+	      pytemp[i+24][1] = 0.;
+	      pytemp[i+24][2] = 0.;
+	      pytemp[i+24][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	         pytemp[i+16][j+3]=pytemp[i+8][j+2];
+	         pytemp[i+24][j+3]=pytemp[i+16][j+2];
+	      }
+	   }
+  	   for(i=1; i<9; ++i) {
+          pytemp[i+32][0] = 0.;
+	      pytemp[i+32][1] = 0.;
+	      pytemp[i+32][2] = 0.;
+	      pytemp[i+32][3] = 0.;
+	      for(j=0; j<21; ++j) {
+	         pytemp[i+32][j+4]=pytemp[i+16][j+2];
 	      }
 	   }
 	
@@ -892,32 +933,51 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Interpolate and build the x-template 
 	
 	   for(i=0; i<9; ++i) {
-          pxtemp[i+8][0] = 0.;
-          pxtemp[i+8][1] = 0.;
-	      pxtemp[i+8][9] = 0.;
-	      pxtemp[i+8][10] = 0.;
+          pxtemp[i+16][0] = 0.;
+          pxtemp[i+16][1] = 0.;
+	      pxtemp[i+16][9] = 0.;
+	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+8][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
+	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entfx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entfx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pxtemp[i][0] = 0.;
+          pxtemp[i+8][0] = 0.;
+	      pxtemp[i+8][8] = 0.;
+          pxtemp[i+8][9] = 0.;
+	      pxtemp[i+8][10] = 0.;
+	      for(j=0; j<7; ++j) {
+	        pxtemp[i+8][j+1]=pxtemp[i+16][j+2];
+	      }
+	   }
+	   for(i=0; i<8; ++i) {
+          pxtemp[i][7] = 0.;
 	      pxtemp[i][8] = 0.;
           pxtemp[i][9] = 0.;
 	      pxtemp[i][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i][j+1]=pxtemp[i+8][j+2];
+	        pxtemp[i][j]=pxtemp[i+16][j+2];
 	      }
 	   }
 	   for(i=1; i<9; ++i) {
-          pxtemp[i+16][0] = 0.;
-	      pxtemp[i+16][1] = 0.;
-          pxtemp[i+16][2] = 0.;
-	      pxtemp[i+16][10] = 0.;
+          pxtemp[i+24][0] = 0.;
+	      pxtemp[i+24][1] = 0.;
+          pxtemp[i+24][2] = 0.;
+	      pxtemp[i+24][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+3]=pxtemp[i+8][j+2];
+	        pxtemp[i+24][j+3]=pxtemp[i+16][j+2];
 	      }
 	   }
+	   for(i=1; i<9; ++i) {
+          pxtemp[i+32][0] = 0.;
+	      pxtemp[i+32][1] = 0.;
+          pxtemp[i+32][2] = 0.;
+	      pxtemp[i+32][3] = 0.;
+	      for(j=0; j<7; ++j) {
+	        pxtemp[i+32][j+4]=pxtemp[i+16][j+2];
+	      }
+	   }
+
 	} else {
 	
     
@@ -966,6 +1026,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	   pdytwo = (1. - yratio)*thePixelTemp[index_id].entby[ilow].dytwo + yratio*thePixelTemp[index_id].entby[ihigh].dytwo;
 	   if(cotbeta < 0.) {pdytwo = -pdytwo;}
 	   psytwo = (1. - yratio)*thePixelTemp[index_id].entby[ilow].sytwo + yratio*thePixelTemp[index_id].entby[ihigh].sytwo;
+	   pqmin = (1. - yratio)*thePixelTemp[index_id].entby[ilow].qmin + yratio*thePixelTemp[index_id].entby[ihigh].qmin;
 	   for(i=0; i<2 ; ++i) {
 	      for(j=0; j<5 ; ++j) {
 // Charge loss switches sides when cot(beta) changes sign
@@ -1015,37 +1076,55 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Interpolate and build the y-template 
 	
 	   for(i=0; i<9; ++i) {
-          pytemp[i+8][0] = 0.;
-          pytemp[i+8][1] = 0.;
-	      pytemp[i+8][23] = 0.;
-	      pytemp[i+8][24] = 0.;
+          pytemp[i+16][0] = 0.;
+          pytemp[i+16][1] = 0.;
+	      pytemp[i+16][23] = 0.;
+	      pytemp[i+16][24] = 0.;
 	      for(j=0; j<21; ++j) {
 		  
 // Flip the basic y-template when the cotbeta is negative
 
 		     if(cotbeta < 0.) {
-	            pytemp[16-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+	            pytemp[24-i][22-j]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 } else {
-	            pytemp[i+8][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
+	            pytemp[i+16][j+2]=(1. - yratio)*thePixelTemp[index_id].entby[ilow].ytemp[i][j] + yratio*thePixelTemp[index_id].entby[ihigh].ytemp[i][j];
 			 }
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pytemp[i][0] = 0.;
+          pytemp[i+8][0] = 0.;
+          pytemp[i+8][22] = 0.;
+	      pytemp[i+8][23] = 0.;
+	      pytemp[i+8][24] = 0.;
+	      for(j=0; j<21; ++j) {
+	        pytemp[i+8][j+1]=pytemp[i+16][j+2];
+	      }
+	   }
+	   for(i=0; i<8; ++i) {
+          pytemp[i][21] = 0.;
           pytemp[i][22] = 0.;
 	      pytemp[i][23] = 0.;
 	      pytemp[i][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	        pytemp[i][j+1]=pytemp[i+8][j+2];
+	        pytemp[i][j]=pytemp[i+16][j+2];
 	      }
 	   }
   	   for(i=1; i<9; ++i) {
-          pytemp[i+16][0] = 0.;
-	      pytemp[i+16][1] = 0.;
-	      pytemp[i+16][2] = 0.;
-	      pytemp[i+16][24] = 0.;
+          pytemp[i+24][0] = 0.;
+	      pytemp[i+24][1] = 0.;
+	      pytemp[i+24][2] = 0.;
+	      pytemp[i+24][24] = 0.;
 	      for(j=0; j<21; ++j) {
-	         pytemp[i+16][j+3]=pytemp[i+8][j+2];
+	         pytemp[i+24][j+3]=pytemp[i+16][j+2];
+	      }
+	   }
+  	   for(i=1; i<9; ++i) {
+          pytemp[i+32][0] = 0.;
+	      pytemp[i+32][1] = 0.;
+	      pytemp[i+32][2] = 0.;
+	      pytemp[i+32][3] = 0.;
+	      for(j=0; j<21; ++j) {
+	         pytemp[i+32][j+4]=pytemp[i+16][j+2];
 	      }
 	   }
 	
@@ -1156,30 +1235,48 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 // Interpolate and build the x-template 
 	
 	   for(i=0; i<9; ++i) {
-          pxtemp[i+8][0] = 0.;
-          pxtemp[i+8][1] = 0.;
-	      pxtemp[i+8][9] = 0.;
-	      pxtemp[i+8][10] = 0.;
+          pxtemp[i+16][0] = 0.;
+          pxtemp[i+16][1] = 0.;
+	      pxtemp[i+16][9] = 0.;
+	      pxtemp[i+16][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+8][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
+	        pxtemp[i+16][j+2]=(1. - xxratio)*thePixelTemp[index_id].entbx[imaxx][ilow].xtemp[i][j] + xxratio*thePixelTemp[index_id].entbx[imaxx][ihigh].xtemp[i][j];
 	      }
 	   }
 	   for(i=0; i<8; ++i) {
-          pxtemp[i][0] = 0.;
+          pxtemp[i+8][0] = 0.;
+	      pxtemp[i+8][8] = 0.;
+          pxtemp[i+8][9] = 0.;
+	      pxtemp[i+8][10] = 0.;
+	      for(j=0; j<7; ++j) {
+	        pxtemp[i+8][j+1]=pxtemp[i+16][j+2];
+	      }
+	   }
+	   for(i=0; i<8; ++i) {
+          pxtemp[i][7] = 0.;
 	      pxtemp[i][8] = 0.;
           pxtemp[i][9] = 0.;
 	      pxtemp[i][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i][j+1]=pxtemp[i+8][j+2];
+	        pxtemp[i][j]=pxtemp[i+16][j+2];
 	      }
 	   }
 	   for(i=1; i<9; ++i) {
-          pxtemp[i+16][0] = 0.;
-	      pxtemp[i+16][1] = 0.;
-          pxtemp[i+16][2] = 0.;
-	      pxtemp[i+16][10] = 0.;
+          pxtemp[i+24][0] = 0.;
+	      pxtemp[i+24][1] = 0.;
+          pxtemp[i+24][2] = 0.;
+	      pxtemp[i+24][10] = 0.;
 	      for(j=0; j<7; ++j) {
-	        pxtemp[i+16][j+3]=pxtemp[i+8][j+2];
+	        pxtemp[i+24][j+3]=pxtemp[i+16][j+2];
+	      }
+	   }
+	   for(i=1; i<9; ++i) {
+          pxtemp[i+32][0] = 0.;
+	      pxtemp[i+32][1] = 0.;
+          pxtemp[i+32][2] = 0.;
+	      pxtemp[i+32][3] = 0.;
+	      for(j=0; j<7; ++j) {
+	        pxtemp[i+32][j+4]=pxtemp[i+16][j+2];
 	      }
 	   }
 	}
@@ -1195,28 +1292,27 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! Return vector of y errors (squared) for an input vector of projected signals 
 //! \param fypix - (input) index of the first real pixel in the projected cluster (doesn't include pseudopixels)
 //! \param lypix - (input) index of the last real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param sythr - (input) maximum signal before de-weighting
 //! \param ysum - (input) 25-element vector of pixel signals
 //! \param ysig2 - (output) 25-element vector of y errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::ysigma2(int fypix, int lypix, std::vector<float>& ysum, std::vector<float>& ysig2)
+  void SiPixelTemplate::ysigma2(int fypix, int lypix, float sythr, float ysum[25], float ysig2[25])
   
 {
     // Interpolate using quantities already stored in the private variables
     
     // Local variables 
     int i;
-	float sigi, sigi2, sigi3, sigi4, sythr;
+	float sigi, sigi2, sigi3, sigi4;
 	
     // Make sure that input is OK
     
-	assert(ysum.size() == 25);
 	assert(fypix > 1 && fypix < 23);
 	assert(lypix >= fypix && lypix < 23);
-	assert(ysig2.size() == 25);
 	   	     
 // Define the maximum signal to allow before de-weighting a pixel 
 
-       sythr = 1.1*psymax;
+//       sythr = 1.1*psymax;
 	   
 // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
 
@@ -1246,7 +1342,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 			 }
 		     if(ysum[i] > sythr) {ysig2[i] = 1.e8;}
 			 if(ysig2[i] <= 0.) {std::cout << "neg y-error-squared, id = " << id_current << ", index = " << index_id << 
-			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << std::endl;}
+			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << " sigi = " << sigi << std::endl;}
 	      }
 	   }
 	
@@ -1264,28 +1360,28 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 //! Return vector of x errors (squared) for an input vector of projected signals 
 //! \param fxpix - (input) index of the first real pixel in the projected cluster (doesn't include pseudopixels)
 //! \param lxpix - (input) index of the last real pixel in the projected cluster (doesn't include pseudopixels)
+//! \param sxthr - (input) maximum signal before de-weighting
 //! \param xsum - (input) 11-element vector of pixel signals
 //! \param xsig2 - (output) 11-element vector of x errors (squared)
 // ************************************************************************************************************ 
-  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, std::vector<float>& xsum, std::vector<float>& xsig2)
+  void SiPixelTemplate::xsigma2(int fxpix, int lxpix, float sxthr, float xsum[11], float xsig2[11])
   
 {
     // Interpolate using quantities already stored in the private variables
     
     // Local variables 
     int i;
-	float sigi, sigi2, sigi3, sigi4, sxthr, yint, x0;
+	float sigi, sigi2, sigi3, sigi4, yint, sxmax, x0;
 	
     // Make sure that input is OK
     
-	assert(xsum.size() == 11);
 	assert(fxpix > 1 && fxpix < 9);
 	assert(lxpix >= fxpix && lxpix < 9);
-	assert(xsig2.size() == 11);
 	   	     
-// Define the maximum signal to allow before de-weighting a pixel 
+// Define the maximum signal to use in the parameterization 
 
-       sxthr = 1.1*psxmax;
+       sxmax = psxmax;
+	   if(psxmax > psxparmax) {sxmax = psxparmax;}
 	   
 // Evaluate pixel-by-pixel uncertainties (weights) for the templ analysis 
 
@@ -1296,10 +1392,10 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 
 			 xsig2[i] = ps50*ps50;
 		  } else {
-			 if(xsum[i] < psxparmax) {
+			 if(xsum[i] < sxmax) {
 				sigi = xsum[i];
 			 } else {
-				sigi = psxparmax;
+				sigi = sxmax;
 			 }
 			 sigi2 = sigi*sigi; sigi3 = sigi2*sigi; sigi4 = sigi3*sigi;
 			 
@@ -1344,7 +1440,7 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 			 if(x0 != 0.) {xsig2[i] = xsig2[i]/x0 * yint;}
 		     if(xsum[i] > sxthr) {xsig2[i] = 1.e8;}
 			 if(xsig2[i] <= 0.) {std::cout << "neg x-error-squared, id = " << id_current << ", index = " << index_id << 
-			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << std::endl;}
+			 ", cot(alpha) = " << cota_current << ", cot(beta) = " << cotb_current << ", fpix = " << fpix_current << " sigi = " << sigi << std::endl;}
 	      }
 	   }
 	
@@ -1435,4 +1531,66 @@ if(id != id_current || fpix != fpix_current || cotalpha != cota_current || cotbe
 	return dx;
 	
 } // End xflcorr
+
+
+
+// ************************************************************************************************************ 
+//! Return interpolated y-template in single call
+//! \param fybin - (input) index of first bin (0-40) to fill
+//! \param fybin - (input) index of last bin (0-40) to fill
+//! \param ytemplate - (output) a 41x25 output buffer
+// ************************************************************************************************************ 
+  void SiPixelTemplate::ytemp(int fybin, int lybin, float ytemplate[41][25])
+  
+{
+    // Retrieve already interpolated quantities
+    
+    // Local variables 
+    int i, j;
+
+   // Verify that input parameters are in valid range
+
+	assert(fybin >= 0 && fybin < 41);
+	assert(lybin >= 0 && lybin < 41);
+
+	for(i=fybin; i<=lybin; ++i) {
+	   for(j=0; j<25; ++j) {
+	      ytemplate[i][j] = pytemp[i][j];
+	   }
+	}
+	
+	return;
+	
+} // End ytemp
+
+
+
+// ************************************************************************************************************ 
+//! Return interpolated y-template in single call
+//! \param fxbin - (input) index of first bin (0-40) to fill
+//! \param fxbin - (input) index of last bin (0-40) to fill
+//! \param xtemplate - (output) a 41x11 output buffer
+// ************************************************************************************************************ 
+  void SiPixelTemplate::xtemp(int fxbin, int lxbin, float xtemplate[41][11])
+  
+{
+    // Retrieve already interpolated quantities
+    
+    // Local variables 
+    int i, j;
+
+   // Verify that input parameters are in valid range
+
+	assert(fxbin >= 0 && fxbin < 41);
+	assert(lxbin >= 0 && lxbin < 41);
+
+	for(i=fxbin; i<=lxbin; ++i) {
+	   for(j=0; j<11; ++j) {
+	      xtemplate[i][j] = pxtemp[i][j];
+	   }
+	}
+	
+ 	return;
+	
+} // End xtemp
 
