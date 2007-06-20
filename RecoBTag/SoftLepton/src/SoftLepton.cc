@@ -13,7 +13,7 @@
 //
 // Original Author:  fwyzard
 //         Created:  Wed Oct 18 18:02:07 CEST 2006
-// $Id: SoftLepton.cc,v 1.25 2007/06/07 13:57:33 fwyzard Exp $
+// $Id: SoftLepton.cc,v 1.26 2007/06/11 13:47:33 fwyzard Exp $
 //
 
 
@@ -28,11 +28,17 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Provenance/interface/ProductID.h"
+#include "../interface/findProductIDByLabel.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchElectron.h"
+#include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectron.h"
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
@@ -70,11 +76,13 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // input objects
 
   // input jets (and possibly tracks)
+  ProductID jets_id;
   std::vector<edm::RefToBase<reco::Jet> > jets;
   std::vector<reco::TrackRefVector>       tracks;
-  try {
+  if (jets_id = edm::findProductIDByLabel<reco::JetTracksAssociationCollection>(iEvent, m_jets), jets_id.isValid())
+  {
     Handle<reco::JetTracksAssociationCollection> h_jtas;
-    iEvent.getByLabel(m_jets, h_jtas);
+    iEvent.get(jets_id, h_jtas);
 
     unsigned int size = h_jtas->size();
     jets.resize(size);
@@ -84,9 +92,11 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       tracks[i] = (*h_jtas)[i].second;
     }
   }
-  catch(edm::Exception e) {
+  else
+  if (jets_id = edm::findProductIDByLabel<reco::CaloJetCollection>(iEvent, m_jets), jets_id.isValid())
+  {
     Handle<reco::CaloJetCollection> h_jets;
-    iEvent.getByLabel(m_jets, h_jets);
+    iEvent.get(jets_id, h_jets);
 
     unsigned int size = h_jets->size();
     jets.resize(size);
@@ -94,57 +104,96 @@ SoftLepton::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     for (unsigned int i = 0; i < h_jets->size(); i++)
       jets[i] = edm::RefToBase<reco::Jet>( reco::CaloJetRef(h_jets, i) );
   }
+  else
+  {
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_jets << " of type among (\"reco::JetTracksAssociationCollection\", \"reco::CaloJetCollection\") not found";
+  }
   
   // input primary vetex (optional, can be "none")
   reco::Vertex vertex;
   Handle<reco::VertexCollection> h_primaryVertex;
-  if (m_primaryVertex.label() != "none")
-    iEvent.getByLabel(m_primaryVertex, h_primaryVertex);
-
-  if (h_primaryVertex->size()) {
-    PrimaryVertexSorter pvs;
-    vertex = pvs.sortedList(*(h_primaryVertex.product())).front();
-  } else {
+  if (m_primaryVertex.label() == "nominal") {
     vertex = s_nominalBeamSpot;
+  } else
+  if (m_primaryVertex.label() == "beamSpot") {
+    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+    iEvent.getByType(recoBeamSpotHandle);
+    vertex = reco::Vertex(recoBeamSpotHandle->position(), recoBeamSpotHandle->covariance3D(), 1, 1, 0);
+  } else {
+    iEvent.getByLabel(m_primaryVertex, h_primaryVertex);
+    if (h_primaryVertex->size()) {
+      PrimaryVertexSorter pvs;
+      // FIXME is this still needed in 1.5.x ?
+      vertex = pvs.sortedList(*(h_primaryVertex.product())).front();
+    } else {
+      // fall back to nominal beam spot
+      vertex = s_nominalBeamSpot;
+    }
   }
 
   // input leptons (can be of different types)
-  reco::TrackRefVector leptons;
+  ProductID leptons_id;
+  std::vector<edm::RefToBase<reco::Track> > leptons;
   // try to access the input collection as a collection of Electrons, Muons or Tracks
-  // FIXME: migrate to getMany() as it becomes available
-  try {
+  // look for Electrons
+  if (leptons_id = edm::findProductIDByLabel<reco::ElectronCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
     Handle<reco::ElectronCollection> h_electrons;
-    iEvent.getByLabel(m_leptons, h_electrons);
-    #ifdef DEBUG
-    cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as ElectronCollection" << endl;
-    #endif
+    iEvent.get(leptons_id, h_electrons);
     for (reco::ElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
-      leptons.push_back(electron->track());
+      leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
+  }
+  else
+  // look for PixelMatchElectrons
+  if (leptons_id = edm::findProductIDByLabel<reco::PixelMatchElectronCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::PixelMatchElectronCollection> h_electrons;
+    iEvent.get(leptons_id, h_electrons);
+    for (reco::PixelMatchElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+      leptons.push_back(edm::RefToBase<reco::Track>( electron->track() ));
   } 
-  catch(edm::Exception e)  { 
-    // electrons not found, look for muons
-    try {
-      Handle<reco::MuonCollection> h_muons;
-      iEvent.getByLabel(m_leptons, h_muons);
-      #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as MuonCollection" << endl;
-      #endif
-      for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
-        if(! muon->combinedMuon().isNull() )
-          leptons.push_back( muon->combinedMuon() );
-        else 
-          cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptons << ", skipping it" << endl;
-    }
-    catch(edm::Exception e) {
-      // electrons or muons not found, look for tracks
-      Handle<reco::TrackCollection> h_tracks;
-      iEvent.getByLabel(m_leptons, h_tracks);
-      #ifdef DEBUG
-      cerr << "SoftLepton::produce : collection " << m_leptons << " found, identified as TrackCollection" << endl;
-      #endif
-      for (unsigned int i = 0; i < h_tracks->size(); i++)
-        leptons.push_back( TrackRef(h_tracks, i) );
-    }
+  else
+  // look for PixelMatchGsfElectrons
+  if (leptons_id = edm::findProductIDByLabel<reco::PixelMatchGsfElectronCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::PixelMatchGsfElectronCollection> h_electrons;
+    iEvent.get(leptons_id, h_electrons);
+    for (reco::PixelMatchGsfElectronCollection::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron)
+      leptons.push_back(edm::RefToBase<reco::Track>( electron->gsfTrack() ));
+  } 
+  else
+  // electrons not found, look for muons
+  if (leptons_id = edm::findProductIDByLabel<reco::MuonCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::MuonCollection> h_muons;
+    iEvent.get(leptons_id, h_muons);
+    for (reco::MuonCollection::const_iterator muon = h_muons->begin(); muon != h_muons->end(); ++muon)
+      if(! muon->combinedMuon().isNull() )
+        leptons.push_back(edm::RefToBase<reco::Track>( muon->combinedMuon() ));
+      else 
+        cerr << "SoftLepton::produce : found a Null edm::Ref in MuonCollection " << m_leptons << ", skipping it" << endl;
+  }
+  else
+  // look for GsfTracks
+  if (leptons_id = edm::findProductIDByLabel<reco::GsfTrackCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::GsfTrackCollection> h_tracks;
+    iEvent.get(leptons_id, h_tracks);
+    for (unsigned int i = 0; i < h_tracks->size(); i++)
+      leptons.push_back(edm::RefToBase<reco::Track>( reco::GsfTrackRef(h_tracks, i) ));
+  }
+  else
+  // electrons or muons not found, look for tracks
+  if (leptons_id = edm::findProductIDByLabel<reco::TrackCollection>(iEvent, m_leptons), leptons_id.isValid())
+  {
+    Handle<reco::TrackCollection> h_tracks;
+    iEvent.get(leptons_id, h_tracks);
+    for (unsigned int i = 0; i < h_tracks->size(); i++)
+      leptons.push_back(edm::RefToBase<reco::Track>( reco::TrackRef(h_tracks, i) ));
+  }
+  else
+  {
+    throw edm::Exception(edm::errors::NotFound) << "Object " << m_leptons << " of type among (\"reco::ElectronCollection\", \"reco::PixelMatchElectronCollection\", \"reco::PixelMatchGsfElectronCollection\", \"reco::MuonCollection\", \"reco::GsfTrackCollection\", \"reco::TrackCollection\") not found";
   }
 
   // output collections

@@ -16,11 +16,11 @@
 
 namespace edm {
 
-template <typename PROD>
-edm::ProductID findProductIDByLabel(const edm::Event & event,
-                                    const edm::InputTag & tag)
+template <typename T>
+edm::ProductID findProductIDByLabel(edm::Event    const& event,
+                                    edm::InputTag const& tag)
 {
-  std::vector<Handle<PROD> > results;
+  std::vector<Handle<T> > results;
   event.getMany<T>( InputTagSelector(tag), results );
 
   if (results.empty())

@@ -18,9 +18,9 @@ public:
   virtual bool doMatch(SelectorProvenance const& p) const
   {
     return (
-        (p.moduleLabel() == tag.label()) and
-        (p.productInstanceName() == tag.instance()) and
-        (tag.process().empty() or tag.process() == "*" or p.processName() == tag.process())
+        (p.moduleLabel() == tag_.label()) and
+        (p.productInstanceName() == tag_.instance()) and
+        (tag_.process().empty() or tag_.process() == "*" or p.processName() == tag_.process())
     );
   }
 
@@ -31,5 +31,7 @@ public:
 private:
   edm::InputTag tag_;
 };
+
+}
 
 #endif // edm_InputTagSelector_h

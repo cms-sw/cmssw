@@ -29,6 +29,7 @@ private:
   edm::InputTag m_recoTracks;
   edm::InputTag m_standAloneMuons;
   edm::InputTag m_globalMuons;
+  edm::InputTag m_muons;
   edm::InputTag m_trackingTruth;
   unsigned int  m_flavour;
   double        m_ptcut;
@@ -131,9 +132,10 @@ std::ostream& operator<< (std::ostream& out, const std::pair<edm::Ref<T>, double
 }
 
 testLeptonAssociator::testLeptonAssociator(edm::ParameterSet const& iConfig) {
-  m_recoTracks      = iConfig.getParameter<edm::InputTag>( "recoTracks" );
-  m_standAloneMuons = iConfig.getParameter<edm::InputTag>( "standAloneMuons" );
-  m_globalMuons     = iConfig.getParameter<edm::InputTag>( "globalMuons" );
+  m_recoTracks      = iConfig.getParameter<edm::InputTag>( "tracks" );
+  m_standAloneMuons = iConfig.getParameter<edm::InputTag>( "standAloneMuonTracks" );
+  m_globalMuons     = iConfig.getParameter<edm::InputTag>( "globalMuonTracks" );
+  m_muons           = iConfig.getParameter<edm::InputTag>( "muons" );
   m_trackingTruth   = iConfig.getParameter<edm::InputTag>( "trackingTruth" );
   m_flavour         = iConfig.getParameter<unsigned int>(  "leptonFlavour" );
   m_ptcut           = iConfig.getParameter<double>(        "minPt" );
@@ -167,7 +169,7 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   const reco::TrackCollection& globalMuonTrackCollection = *(globalMuonTrackHandle.product()); 
   
   edm::Handle<reco::MuonCollection> globalMuonHandle;
-  iEvent.getByLabel(m_globalMuons, globalMuonHandle);
+  iEvent.getByLabel(m_muons, globalMuonHandle);
   const reco::MuonCollection& globalMuonCollection = *(globalMuonHandle.product()); 
   
   edm::Handle<TrackingParticleCollection> trackingParticleHandle ;
