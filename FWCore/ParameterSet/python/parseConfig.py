@@ -892,24 +892,32 @@ def _finalizeProcessFragment(values,usingLabels):
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
         class DictAdapter(object):
-            def __init__(self,d):
+            def __init__(self,d, addSource=False):
+                #copy 'd' since we need to be able to lookup a 'source' by
+                # it's type to do replace but we do NOT want to add it by its
+                # type to the final Process
                 self.__dict__['d'] = d
-            def __getattr__(self,name):
-                return self.d[name]
+                if addSource and self.d.has_key('source'):
+                    self.d[d['source'].type_()]=d['source']
             def __setattr__(self,name,value):
                 self.d[name]=value
-        adapted = DictAdapter(d)
-        for replace in replaces:
-            if replace.path[0] in usingLabels:
-                #print 'found '+replace.path[0]
-                replace.do(adapted)
-        _findAndHandleProcessUsingBlock(values)
+            def __getattr__(self,name):
+                #print 'asked for '+name
+                return self.d[name]
+        adapted = DictAdapter(dict(d),True)
+        #what order do we process replace and using directives?
+        # running a test on the C++ cfg parser it appears replace
+        # always happens before using
         for replace in replaces:
             replace.do(adapted)
+        _findAndHandleProcessUsingBlock(values)
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))    
     #FIX: now need to create Sequences, Paths, EndPaths from the available
     # information
+    #now we don't want 'source' to be added to 'd' but we do not want
+    # copies either
+    adapted = DictAdapter(d)
     pa = _ProcessAdapter(sequences,DictAdapter(dct))
     for label,obj in sequences.iteritems():
         if label not in dct:
@@ -968,7 +976,6 @@ def _makeProcess(s,loc,toks):
                     raise RuntimeError("multiple 'schedule's are present, only one is allowed")
         #pset replaces must be done first since PSets can be used in a 'using'
         # statement so we want their changes to be reflected
-        global _allUsingLabels
         class DictAdapter(object):
             def __init__(self,d):
                 #copy 'd' since we need to be able to lookup a 'source' by
@@ -981,15 +988,12 @@ def _makeProcess(s,loc,toks):
                 #print 'asked for '+name
                 return self.d[name]
         adapted = DictAdapter(d)
+        #what order do we process replace and using directives?
+        # running a test on the C++ cfg parser it appears replace
+        # always happens before using
         for replace in replaces:
-            if replace.path[0] in _allUsingLabels:
-                #print 'found '+replace.path[0]
-                replace.do(adapted)
+            replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
-        for replace in replaces:
-            if replace.path[0] not in _allUsingLabels:
-                replace.do(adapted)
-
 
         # adding modules to the process involves cloning.
         # but for the usings we only know the original object
@@ -1558,8 +1562,123 @@ process RECO = {
                                                               "keep blah2_*_*_*",
                                                               "keep blah3_*_*_*"])
 
-            _allUsingLabels = set()
             t=process.parseString("""
+process RECO = {
+   block FEVTEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block FEVTSIMEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   
+   block toKeepSim1 = {
+      vstring outputCommands = {"keep blahs1_*_*_*"}
+   }
+   block toKeepSim2 = {
+      vstring outputCommands = {"keep blahs2_*_*_*"}
+   }
+   block toKeepSim3 = {
+      vstring outputCommands = {"keep blahs3_*_*_*"}
+   }
+   
+   replace FEVTEventContent.outputCommands += toKeep1.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep2.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep3.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += FEVTEventContent.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += toKeepSim1.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim2.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim3.outputCommands
+
+}
+""")
+            self.assertEqual(t[0].FEVTEventContent.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            self.assertEqual(t[0].FEVTSIMEventContent.outputCommands,["drop *",
+                                                                      "drop *",
+                                                            "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*",
+                                                            "keep blahs1_*_*_*",
+                                                              "keep blahs2_*_*_*",
+                                                              "keep blahs3_*_*_*"])
+
+            t=process.parseString("""
+process RECO = {
+   block FEVTEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block FEVTSIMEventContent = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   
+   block toKeepSim1 = {
+      vstring outputCommands = {"keep blahs1_*_*_*"}
+   }
+   block toKeepSim2 = {
+      vstring outputCommands = {"keep blahs2_*_*_*"}
+   }
+   block toKeepSim3 = {
+      vstring outputCommands = {"keep blahs3_*_*_*"}
+   }
+   
+   replace FEVTEventContent.outputCommands += toKeep1.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep2.outputCommands
+   replace FEVTEventContent.outputCommands += toKeep3.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += FEVTEventContent.outputCommands
+
+   replace FEVTSIMEventContent.outputCommands += toKeepSim1.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim2.outputCommands
+   replace FEVTSIMEventContent.outputCommands += toKeepSim3.outputCommands
+
+   module out = PoolOutputModule {
+      using FEVTSIMEventContent
+   }
+}
+""")
+            self.assertEqual(t[0].FEVTEventContent.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            self.assertEqual(t[0].FEVTSIMEventContent.outputCommands,["drop *",
+                                                                      "drop *",
+                                                            "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*",
+                                                            "keep blahs1_*_*_*",
+                                                              "keep blahs2_*_*_*",
+                                                              "keep blahs3_*_*_*"])
+            self.assertEqual(t[0].out.outputCommands,
+                             t[0].FEVTSIMEventContent.outputCommands)
+
+
+#NOTE: standard cfg parser can't do the following
+            _allUsingLabels = set()
+            s="""
 process RECO = {
    block outputStuff = {
       vstring outputCommands = {"drop *"}
@@ -1572,8 +1691,9 @@ process RECO = {
    }
    replace outputStuff.outputCommands += toKeep.outputCommands
 }
-""")
-            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
+"""
+            self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
+            #self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             
             _allUsingLabels = set()
             t=process.parseString("""
