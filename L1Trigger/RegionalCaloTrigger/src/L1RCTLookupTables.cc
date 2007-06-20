@@ -45,6 +45,7 @@ L1RCTLookupTables::L1RCTLookupTables(const std::string& filename, edm::ESHandle<
 {
   loadLUTConstants(filename);
   transcoder_ = transcoder;
+  patternTest_ = false;
   useTranscoder_ = true;
 }
 
