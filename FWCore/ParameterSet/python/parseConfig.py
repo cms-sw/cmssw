@@ -927,7 +927,7 @@ def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
     #print toks
     global _usings
-    _usings = [] 
+    _usings = []
     label = toks[0][0]
     p=cms.Process(label)
 
@@ -1052,6 +1052,8 @@ def parseCfgFile(fileName):
     #NOTE: should check for file first in local directory
     # and then using FileInPath
 
+    global _allUsingLabels
+    _allUsingLabels = set()
     import os.path
     if os.path.exists(fileName):
         f=open(fileName)
@@ -1064,6 +1066,7 @@ def parseCffFile(fileName):
     """Read a .cff file and return a dictionary"""
     t=onlyFragment.parseFile(_fileFactory(fileName))
     global _allUsingLabels
+    #_allUsingLabels = set() # do I need to reset here?
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
 
@@ -1076,6 +1079,8 @@ def doTheUsings(process):
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
     creates a Process object"""
+    global _allUsingLabels
+    _allUsingLabels = set()
     return process.parseString(configString)[0]
 
 def importConfig(fileName):
@@ -1414,6 +1419,8 @@ PSet blah = {
                 _fileFactory = oldFactory
 
         def testProcess(self):
+            global _allUsingLabels
+            _allUsingLabels = set()
             t=process.parseString(
 """
 process RECO = {
@@ -1436,6 +1443,7 @@ process RECO = {
             try:
                 _fileFactory = TestFactory('Sub/Pack/data/foo.cfi',
                                            'module foo = FooProd {}')
+                _allUsingLabels = set()
                 t=process.parseString(
 """
 process RECO = {
@@ -1449,6 +1457,7 @@ process RECO = {
             finally:
                 _fileFactory = oldFactory
 
+            _allUsingLabels = set()
             t=process.parseString(
 """
 process RECO = {
@@ -1476,9 +1485,12 @@ process RECO = {
 """
             self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
             try:
+                _allUsingLabels = set()
                 t=process.parseString(s)
             except pp.ParseFatalException, e:
                 print e
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
@@ -1492,6 +1504,61 @@ process RECO = {
 """)
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
 
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep1.outputCommands
+   replace outputStuff.outputCommands += toKeep2.outputCommands
+   replace outputStuff.outputCommands += toKeep3.outputCommands
+}
+""")
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            _allUsingLabels = set()
+            t=process.parseString("""
+process RECO = {
+   block outputStuff = {
+      vstring outputCommands = {"drop *"}
+   }
+   block toKeep1 = {
+      vstring outputCommands = {"keep blah1_*_*_*"}
+   }
+   block toKeep2 = {
+      vstring outputCommands = {"keep blah2_*_*_*"}
+   }
+   block toKeep3 = {
+      vstring outputCommands = {"keep blah3_*_*_*"}
+   }
+   replace outputStuff.outputCommands += toKeep1.outputCommands
+   replace outputStuff.outputCommands += toKeep2.outputCommands
+   replace outputStuff.outputCommands += toKeep3.outputCommands
+
+    module out = PoolOutputModule {
+        using outputStuff
+    }
+}
+""")
+            self.assertEqual(t[0].out.outputCommands,["drop *",
+                                                              "keep blah1_*_*_*",
+                                                              "keep blah2_*_*_*",
+                                                              "keep blah3_*_*_*"])
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
@@ -1506,7 +1573,9 @@ process RECO = {
    replace outputStuff.outputCommands += toKeep.outputCommands
 }
 """)
+            self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
@@ -1525,6 +1594,7 @@ process RECO = {
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             self.assertEqual(t[0].final.outputCommands,["drop *","keep blah_*_*_*"])
 
+            _allUsingLabels = set()
             t=process.parseString("""
 process TEST = {
     service = MessageLogger {
@@ -1542,6 +1612,7 @@ process TEST = {
             self.assertEqual(t[0].MessageLogger.destinations,["dummy","goofy"])
             self.assertEqual(t[0].MessageLogger.dummy.threshold.value(),"WARNING")
 
+            _allUsingLabels = set()
             t=process.parseString("""
 process TEST = {
     es_module = UnnamedProd {
@@ -1560,6 +1631,7 @@ process TEST = {
             self.assertEqual(t[0].UnnamedProd.foo.value(),1)
             self.assertEqual(t[0].me.fii.value(),10)
             
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
@@ -1588,6 +1660,8 @@ process RECO = {
             self.assertEqual(t[0].source.foos,[1,2,3])
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             self.assertEqual(t[0].out.outputCommands,["drop *","keep blah_*_*_*"])
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process RECO = {
     module foo = FooProd {using b}
@@ -1619,6 +1693,8 @@ process RECO = {
 """
             self.assertRaises(pp.ParseFatalException,process.parseString,(s),**dict())
             #this was failing because of order in which the using was applied
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process USER = 
 {
@@ -1696,6 +1772,8 @@ process USER =
             self.assertEqual(t[0].J.j.value(),1)
             self.assertEqual(t[0].I.j.value(),1)
             #print t[0].dumpConfig()
+
+            _allUsingLabels = set()
             t=process.parseString("""
 process USER = 
 {
