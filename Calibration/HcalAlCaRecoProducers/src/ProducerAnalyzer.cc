@@ -73,7 +73,8 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
      " "<<(**ip).productInstanceName()<<endl;
   }
-
+   if(nameProd_ != "IsoProd")
+   {
    edm::Handle<HBHERecHitCollection> hbhe;
    iEvent.getByLabel(nameProd_,hbheInput_, hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
@@ -90,9 +91,36 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByLabel(nameProd_,hfInput_, hf);
    const HFRecHitCollection Hithf = *(hf.product());
    std::cout<<" Size of HF "<<(Hithf).size()<<std::endl;
-
-   if(nameProd_ == "GammaJet" || nameProd_ == "DiJProd")
+   }
+   if(nameProd_ == "IsoProd")
    {
+   cout<<" We are here "<<endl;
+   edm::Handle<reco::TrackCollection> tracks;
+   iEvent.getByLabel(nameProd_,Tracks_,tracks);
+   std::cout<<" Tracks size "<<(*tracks).size()<<std::endl;
+
+   edm::Handle<EcalRecHitCollection> ecal;
+   iEvent.getByLabel(nameProd_,ecalInput_,ecal);
+   const EcalRecHitCollection Hitecal = *(ecal.product());
+   std::cout<<" Size of HO "<<(Hitecal).size()<<std::endl;
+
+
+   edm::Handle<HBHERecHitCollection> hbhe;
+   iEvent.getByLabel(nameProd_,hbheInput_,hbhe);
+   const HBHERecHitCollection Hithbhe = *(hbhe.product());
+   std::cout<<" Size of HBHE "<<(Hithbhe).size()<<std::endl;
+   
+   edm::Handle<HORecHitCollection> ho;
+   iEvent.getByLabel(nameProd_,hoInput_,ho);
+   const HORecHitCollection Hitho = *(ho.product());
+   std::cout<<" Size of HBHE "<<(Hitho).size()<<std::endl;
+
+
+
+   }
+   if(nameProd_ == "GammaJetProd" || nameProd_ == "DiJProd")
+   {
+    cout<<" we are in GammaJetProd area "<<endl;
    edm::Handle<EcalRecHitCollection> ecal;
    iEvent.getByLabel(nameProd_,ecalInput_, ecal);
    std::cout<<" Size of ECAL "<<(*ecal).size()<<std::endl;
@@ -110,7 +138,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    iEvent.getByLabel(nameProd_,Tracks_, tracks);
    std::cout<<" Tracks size "<<(*tracks).size()<<std::endl; 
    }
-   if( nameProd_ == "GammaJet")
+   if( nameProd_ == "GammaJetProd")
    {
    edm::Handle<reco::SuperClusterCollection> eclus;
    iEvent.getByLabel(nameProd_,gammaClus_, eclus);

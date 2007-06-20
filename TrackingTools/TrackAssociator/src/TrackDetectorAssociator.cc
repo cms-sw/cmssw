@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.17 2007/05/09 22:55:46 jribnik Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.18 2007/05/16 09:26:23 dmytro Exp $
 //
 //
 
@@ -752,7 +752,7 @@ void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamb
    LogTrace("TrackAssociator")
      << "\teta hit: " << segmentGlobalPosition.eta() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().eta() << "\n"
      << "\tphi hit: " << segmentGlobalPosition.phi() << " \tpropagator: " << trajectoryStateOnSurface.freeState()->position().phi() << std::endl;
-
+   
    bool isGood = false;
    bool isDTOuterStation = false;
    if( const DTChamber* chamberDT = dynamic_cast<const DTChamber*>(chamber))
@@ -782,9 +782,11 @@ void TrackDetectorAssociator::addMuonSegmentMatch(MuonChamberMatch& matchedChamb
       muonSegment.segmentLocalErrorDyDz = segment->localDirectionError().yy();
       
       // DANGEROUS - compiler cannot guaranty parameters ordering
-      AlgebraicSymMatrix segmentCovMatrix = segment->parametersError();
-      muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
-      muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
+      // AlgebraicSymMatrix segmentCovMatrix = segment->parametersError();
+      // muonSegment.segmentLocalErrorXDxDz = segmentCovMatrix[2][0];
+      // muonSegment.segmentLocalErrorYDyDz = segmentCovMatrix[3][1];
+      muonSegment.segmentLocalErrorXDxDz = -999;
+      muonSegment.segmentLocalErrorYDyDz = -999;
 
       matchedChamber.segments.push_back(muonSegment);
    }

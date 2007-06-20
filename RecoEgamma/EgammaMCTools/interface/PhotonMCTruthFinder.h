@@ -13,8 +13,8 @@
 /** \class PhotonMCTruthFinder
  *   
  *        
- *  $Date: 2007/04/13 12:27:55 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/05/15 13:00:10 $
+ *  $Revision: 1.2 $
  *  \author N. Marinelli  Notre Dame
  *
  */
@@ -29,6 +29,7 @@ public:
 
  
  std::vector<PhotonMCTruth> find( std::vector<SimTrack> simTracks, std::vector<SimVertex> simVertices);  
+
      
 
  private:
@@ -39,10 +40,7 @@ public:
  std::map<unsigned, unsigned> geantToIndex_;
 
 
- int   idTrk1_[10];
- int   idTrk2_[10];
  
-
 
 };
 

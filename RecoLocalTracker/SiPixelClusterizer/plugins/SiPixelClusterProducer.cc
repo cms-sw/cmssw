@@ -143,9 +143,7 @@ namespace cms
     edm::DetSetVector<PixelDigi>::const_iterator DSViter = input.begin();
     for( ; DSViter != input.end(); DSViter++) {
       ++numberOfDetUnits;
-
-      //  LogDebug takes very long time, get rid off.
-      //LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
+      LogDebug("SiStripClusterizer") << "[SiPixelClusterProducer::run] DetID" << DSViter->id;
 
       std::vector<short> badChannels; 
       DetId detIdObject(DSViter->id);
@@ -173,9 +171,9 @@ namespace cms
 
     } // end of DetUnit loop
     
-    //LogDebug ("SiPixelClusterProducer") << " Executing " 
-    //      << clusterMode_ << " resulted in " << numberOfClusters
-    //				    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
+    LogDebug ("SiPixelClusterProducer") << " Executing " 
+	      << clusterMode_ << " resulted in " << numberOfClusters
+					    << " SiPixelClusters in " << numberOfDetUnits << " DetUnits."; 
   }
 
 }  // end of namespace cms

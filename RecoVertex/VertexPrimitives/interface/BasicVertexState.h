@@ -43,7 +43,7 @@ public:
   virtual GlobalPoint position() const = 0;
   virtual GlobalError error() const = 0;
   virtual GlobalWeight weight() const = 0;
-  virtual AlgebraicVector3 weightTimesPosition() const = 0;
+  virtual AlgebraicVector weightTimesPosition() const = 0;
   virtual double weightInMixture() const = 0;
   virtual std::vector<VertexState> components() const;
 

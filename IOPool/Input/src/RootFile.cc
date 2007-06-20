@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.63 2007/04/16 19:43:53 wmtan Exp $
+$Id: RootFile.cc,v 1.64 2007/05/08 16:24:15 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -48,7 +48,7 @@ namespace edm {
       lumiTree_(filePtr_, InLumi),
       runTree_(filePtr_, InRun),
       treePointers_(),
-      productRegistry_(new ProductRegistry),
+      productRegistry_(),
       luminosityBlockPrincipal_() {
     treePointers_[InEvent] = &eventTree_;
     treePointers_[InLumi]  = &lumiTree_;
@@ -87,6 +87,7 @@ namespace edm {
     // freeze our temporary product registry
     tempReg.setFrozen();
 
+    ProductRegistry *newReg = new ProductRegistry;
     // Do the translation from the old registry to the new one
     std::map<std::string,std::string> newBranchToOldBranch;
     {
@@ -100,11 +101,12 @@ namespace edm {
         newBD.friendlyClassName_ = friendlyname::friendlyName(newBD.className());
 
         newBD.init();
-        productRegistry_->addProduct(newBD);
+        newReg->addProduct(newBD);
 	newBranchToOldBranch[newBD.branchName()] = prod.branchName();
       }
       // freeze the product registry
-      productRegistry().setFrozen();
+      newReg->setFrozen();
+      productRegistry_ = boost::shared_ptr<ProductRegistry const>(newReg);
     }
 
     // Merge into the registries. For now, we do NOT merge the product registry.
@@ -122,7 +124,7 @@ namespace edm {
     } 
 
     // Set up information from the product registry.
-    ProductRegistry::ProductList const& prodList = productRegistry().productList();
+    ProductRegistry::ProductList const& prodList = productRegistry()->productList();
     for (ProductRegistry::ProductList::const_iterator it = prodList.begin(), itEnd = prodList.end();
         it != itEnd; ++it) {
       BranchDescription const& prod = it->second;
@@ -185,7 +187,7 @@ namespace edm {
   //  when it is asked to do so.
   //
   std::auto_ptr<EventPrincipal>
-  RootFile::read(ProductRegistry const& pReg) {
+  RootFile::read(boost::shared_ptr<ProductRegistry const> pReg) {
     EventAuxiliary evAux;
     EventAuxiliary *pEvAux = &evAux;
     if (fileFormatVersion_.value_ >= 3) {
@@ -223,7 +225,7 @@ namespace edm {
   }
 
   boost::shared_ptr<RunPrincipal>
-  RootFile::readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber) {
+  RootFile::readRun(boost::shared_ptr<ProductRegistry const> pReg, RunNumber_t const& runNumber) {
     if (!runTree().isValid()) {
       return boost::shared_ptr<RunPrincipal>(new RunPrincipal(runNumber, pReg, processConfiguration_));
     }
@@ -256,7 +258,7 @@ namespace edm {
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
-  RootFile::readLumi(ProductRegistry const& pReg, RunNumber_t const& runNumber,
+  RootFile::readLumi(boost::shared_ptr<ProductRegistry const> pReg, RunNumber_t const& runNumber,
 						  LuminosityBlockNumber_t const& lumiNumber,
 						  bool isNewRun) {
     boost::shared_ptr<RunPrincipal> runPrincipal = (isNewRun ?

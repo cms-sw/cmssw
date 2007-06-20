@@ -15,7 +15,7 @@ public:
   typedef CSCDigitizer::DigiSimLinks DigiSimLinks;
 
   explicit CSCDigiProducer(const edm::ParameterSet& ps);
-  virtual ~CSCDigiProducer() {}
+  virtual ~CSCDigiProducer();
 
   /**Produces the EDM products,*/
   virtual void produce(edm::Event& e, const edm::EventSetup& c);

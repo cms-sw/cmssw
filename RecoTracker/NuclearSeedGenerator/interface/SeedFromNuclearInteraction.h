@@ -26,42 +26,36 @@ private :
 public :
   SeedFromNuclearInteraction(const edm::EventSetup& es, const edm::ParameterSet& iConfig);
  
-  /// Fill all data members from 2 TM's
   void setMeasurements(const TM& tmAtInteractionPoint, const TM& newTM);
 
-  PTrajectoryStateOnDet trajectoryState() const { return *pTraj; }
+  PTrajectoryStateOnDet trajectoryState(){ return *pTraj; }
 
   TSOS stateWithError(const TSOS& state) const;
 
-  PropagationDirection direction() const { return alongMomentum; }
+  PropagationDirection direction(){ return alongMomentum; }
 
-  recHitContainer hits() const { return _hits; }
+  recHitContainer hits(){ return _hits; }
 
-  TrajectorySeed TrajSeed() const { return TrajectorySeed(trajectoryState(),hits(),direction()); }
+  TrajectorySeed TrajSeed(){ return TrajectorySeed(trajectoryState(),hits(),direction()); }
  
-  bool isValid() const { return isValid_; }
-
-  const TSOS& updatedState() const { return updatedTSOS; }
-
-  const TM* outerMeasurement() const { return outerTM; }
+  bool isValid() { return isValid_; }
 
 private :
-  TSOS                                     updatedTSOS; 
-  const TM*                                outerTM;
-  recHitContainer                          _hits;
-  bool                                     isValid_;
-  ConstRecHitPointer                       innerHit;
-  ConstRecHitPointer                       outerHit;
+  TSOS                updatedTSOS; 
+  const TM*           theNewTM;
+  recHitContainer     _hits;
+  bool                isValid_;
+  ConstRecHitPointer innerHit;
+  ConstRecHitPointer outerHit;
   boost::shared_ptr<PTrajectoryStateOnDet> pTraj;
 
+  edm::ESHandle<TrackerGeometry>                 tracker;
   const Propagator*                              thePropagator;
   edm::ESHandle<TransientTrackingRecHitBuilder>  theBuilder;
-  edm::ESHandle<TrackerGeometry>                 pDD;
 
   bool construct();
 
-  double rescaleDirectionFactor; /**< Rescale the direction error */
-  double rescalePositionFactor;  /**< Rescale the position error */
-  double rescaleCurvatureFactor; /**< Rescale the curvature error */
+  double rescaleDirectionFactor;
+  double rescalePositionFactor;
 };
 #endif

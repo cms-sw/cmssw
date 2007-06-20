@@ -7,7 +7,7 @@
 <use name=Geometry/HcalTowerAlgo>
 <use name=SimDataFormats/EncodedEventId>
 <use name=DataFormats/HcalDigi>
-<flags EDM_PLUGIN = 1>
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=SimCalorimetryHcalTrigPrimProducers>
    <use name=SimCalorimetry/HcalTrigPrimAlgos>

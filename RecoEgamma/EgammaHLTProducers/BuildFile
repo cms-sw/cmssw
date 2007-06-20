@@ -17,10 +17,6 @@
 <use name=Geometry/CommonDetUnit>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=SimDataFormats/HepMCProduct>
-<use name=DataFormats/FEDRawData>
-<use name=Geometry/EcalMapping>
-<use name=DataFormats/L1Trigger>
-<use name=DataFormats/EcalRawData>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=RecoEgammaEgammaHLTProducers>
@@ -43,8 +39,4 @@
    <use name=Geometry/CommonDetUnit>
    <use name=Geometry/TrackerGeometryBuilder>
    <use name=SimDataFormats/HepMCProduct>
-   <use name=DataFormats/FEDRawData>
-   <use name=Geometry/EcalMapping>
-   <use name=DataFormats/L1Trigger>
-   <use name=DataFormats/EcalRawData>
 </export>

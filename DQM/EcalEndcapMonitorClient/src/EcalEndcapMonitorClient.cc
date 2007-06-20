@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/05/25 09:43:55 $
- * $Revision: 1.18 $
+ * $Date: 2007/06/13 22:15:40 $
+ * $Revision: 1.36 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -14,12 +14,18 @@
 #include <fstream>
 #include <algorithm>
 
-#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
+#include "FWCore/Framework/interface/Run.h"
+
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/QTestStatus.h"
+#include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQMServices/UI/interface/MonitorUIRoot.h"
@@ -39,6 +45,8 @@
 
 #include "DQMServices/Core/interface/CollateMonitorElement.h"
 
+#include <DQM/EcalEndcapMonitorClient/interface/EcalEndcapMonitorClient.h>
+
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
@@ -51,6 +59,13 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
 
+#include "xgi/include/xgi/Method.h"
+#include "xgi/include/xgi/Utils.h"
+
+#include "extern/cgicc/linuxx86/include/cgicc/Cgicc.h"
+#include "extern/cgicc/linuxx86/include/cgicc/FormEntry.h"
+#include "extern/cgicc/linuxx86/include/cgicc/HTMLClasses.h"
+
 #include "TStyle.h"
 #include "TGaxis.h"
 #include "TColor.h"
@@ -59,19 +74,7 @@ using namespace cms;
 using namespace edm;
 using namespace std;
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
-
-  enableStateMachine_ = true;
-
-  mui_ = mui;
-
-  this->initialize(ps);
-
-}
-
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps){
-
-  enableStateMachine_ = false;
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const ParameterSet& ps) : ModuleWeb("EcalEndcapMonitorClient"){
 
   mui_ = 0;
 
@@ -89,17 +92,24 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // Set runTypes
 
-  runTypes_.resize( 13 );
+  runTypes_.resize( 22 );
   for ( unsigned int i=0; i<runTypes_.size(); ++i ) runTypes_[i] =  "UNKNOWN";
   runTypes_[EcalDCCHeaderBlock::COSMIC]                 = "COSMIC";
   runTypes_[EcalDCCHeaderBlock::BEAMH4]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::BEAMH2]                 = "BEAM";
   runTypes_[EcalDCCHeaderBlock::MTCC]                   = "PHYSICS";
-//  runTypes_[EcalDCCHeaderBlock::PHYSICS]                = "PHYSICS";
   runTypes_[EcalDCCHeaderBlock::LASER_STD]              = "LASER";
   runTypes_[EcalDCCHeaderBlock::TESTPULSE_MGPA]         = "TEST_PULSE";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_STD]           = "PEDESTAL";
   runTypes_[EcalDCCHeaderBlock::PEDESTAL_OFFSET_SCAN]   = "PEDESTAL-OFFSET";
+  
+  runTypes_[EcalDCCHeaderBlock::COSMICS_GLOBAL]         = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_GLOBAL]         = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::COSMICS_LOCAL]          = "COSMIC";
+  runTypes_[EcalDCCHeaderBlock::PHYSICS_LOCAL]          = "PHYSICS";
+  runTypes_[EcalDCCHeaderBlock::LASER_GAP]              = "LASER";
+  runTypes_[EcalDCCHeaderBlock::TESTPULSE_GAP]          = "TEST_PULSE";
+  runTypes_[EcalDCCHeaderBlock::PEDESTAL_GAP]           = "PEDESTAL";
 
   clients_.clear();
   clientNames_.clear();
@@ -159,12 +169,26 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   // enableSubRunDb switch
 
   enableSubRunDb_ = ps.getUntrackedParameter<bool>("enableSubRunDb", false);
-  dbRefreshTime_  = 60 * ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+  dbRefreshTime_  = ps.getUntrackedParameter<int>("dbRefreshTime", 15);
+
+  if ( enableSubRunDb_ ) {
+    cout << " enableSubRunDb switch is ON" << endl;
+    cout << " dbRefreshTime is " << dbRefreshTime_ << " minutes" << endl;
+  } else {
+    cout << " enableSubRunDb switch is OFF" << endl;
+  }
 
   // enableSubRunHtml switch
 
   enableSubRunHtml_ = ps.getUntrackedParameter<bool>("enableSubRunHtml", false);
-  htmlRefreshTime_  = 60 * ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+  htmlRefreshTime_  = ps.getUntrackedParameter<int>("htmlRefreshTime", 5);
+
+  if ( enableSubRunHtml_ ) {
+    cout << " enableSubRunHtml switch is ON" << endl;
+    cout << " htmlRefreshTime is " << htmlRefreshTime_ << " minutes" << endl;
+  } else {
+    cout << " enableSubRunHtml switch is OFF" << endl;
+  }
 
   // location
 
@@ -261,32 +285,41 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     cout << " enableMonitorDaemon switch is OFF" << endl;
   }
 
+  // enableStateMachine switch
+
+  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", "false");
+
+  if ( enableStateMachine_ ) {
+    cout << " enableStateMachine switch is ON" << endl;
+  } else {
+    cout << " enableStateMachine switch is OFF" << endl;
+  }
+
   // prefix to ME paths
 
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
+
+  cout << " prefixME is set to '" << prefixME_ << "'" << endl;
 
   // DQM Client name
 
   clientName_ = ps.getUntrackedParameter<string>("clientName", "EcalEndcapMonitorClient");
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
+  if ( enableMonitorDaemon_ ) {
 
-      // DQM Collector hostname
+    // DQM Collector hostname
 
-      hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
+    hostName_ = ps.getUntrackedParameter<string>("hostName", "localhost");
 
-      // DQM Collector port
+    // DQM Collector port
 
-      hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
+    hostPort_ = ps.getUntrackedParameter<int>("hostPort", 9090);
 
-      cout << " Client '" << clientName_ << "' " << endl
-           << " Collector on host '" << hostName_ << "'"
-           << " on port '" << hostPort_ << "'" << endl;
+    cout << " Client '" << clientName_ << "' " << endl
+         << " Collector on host '" << hostName_ << "'"
+         << " on port '" << hostPort_ << "'" << endl;
 
-    }
   }
-
 
   // Server switch
 
@@ -393,10 +426,21 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
   clients_.push_back( new EECosmicClient(ps) );
   clientNames_.push_back( "Cosmic" );
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMIC ));
-//  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
 
   clients_.push_back(  new EELaserClient(ps) );
   clientNames_.push_back( "Laser" );
@@ -405,9 +449,15 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
 
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+
   clients_.push_back(  new EEPedestalClient(ps) );
   clientNames_.push_back( "Pedestal" );
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_STD ));
+
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
 
   clients_.push_back(  new EEPedestalOnlineClient(ps) );
   clientNames_.push_back( "PedestalOnline" );
@@ -419,9 +469,19 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
 
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PEDESTAL_GAP ));
+
   clients_.push_back(  new EETestPulseClient(ps) );
   clientNames_.push_back( "TestPulse" );
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
+
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   clients_.push_back(  new EEBeamCaloClient(ps) );
   clientNames_.push_back( "BeamCalo" );
@@ -439,6 +499,11 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
   }
 
   clients_.push_back(  new EEClusterClient(ps) );
@@ -447,6 +512,9 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH4 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::BEAMH2 ));
     chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+    chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
   }
 
   clients_.push_back(  new EETimingClient(ps) );
@@ -455,6 +523,13 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_STD ));
 //  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_MGPA ));
   chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::MTCC ));
+
+//  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_GLOBAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_GLOBAL ));
+//  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::COSMICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::PHYSICS_LOCAL ));
+  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::LASER_GAP ));
+//  chb_.insert( EECIMMap::value_type( clients_.back(), EcalDCCHeaderBlock::TESTPULSE_GAP ));
 
   summaryClient_ = new EESummaryClient(ps);
 
@@ -474,14 +549,12 @@ EcalEndcapMonitorClient::~EcalEndcapMonitorClient(){
 
   delete summaryClient_;
 
-  if ( ! enableStateMachine_ ) {
-    mui_->disconnect();
-    // delete mui_;
-  }
+  mui_->disconnect();
+  // delete mui_;
 
 }
 
-void EcalEndcapMonitorClient::beginJob(void){
+void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   begin_run_ = false;
   end_run_   = false;
@@ -517,18 +590,16 @@ void EcalEndcapMonitorClient::beginJob(void){
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
-      if ( enableServer_ ) {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
-      } else {
-        mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
-      }
+  if ( enableMonitorDaemon_ ) {
+    if ( enableServer_ ) {
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, true);
     } else {
-      mui_ = new MonitorUIRoot();
-      if ( enableServer_ ) {
-        mui_->actAsServer(serverPort_, clientName_);
-      }
+      mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
+    }
+  } else {
+    mui_ = new MonitorUIRoot();
+    if ( enableServer_ ) {
+      mui_->actAsServer(serverPort_, clientName_);
     }
   }
 
@@ -538,12 +609,10 @@ void EcalEndcapMonitorClient::beginJob(void){
     mui_->setVerbose(0);
   }
 
-  if ( ! enableStateMachine_ ) {
-    if ( ! enableMonitorDaemon_ ) {
-      if ( inputFile_.size() != 0 ) {
-        DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-        dbe->open(inputFile_);
-      }
+  if ( ! enableMonitorDaemon_ ) {
+    if ( inputFile_.size() != 0 ) {
+      DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+      dbe->open(inputFile_);
     }
   }
 
@@ -587,6 +656,32 @@ void EcalEndcapMonitorClient::beginRun(void){
   }
 
   summaryClient_->beginRun();
+
+}
+
+void EcalEndcapMonitorClient::beginRun(const Run& r, const EventSetup& c) {
+
+  cout << endl;
+  cout << "Standard beginRun() for run " << r.id() << endl;
+  cout << endl;
+
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    if ( ! mergeRuns_ ) {
+
+      forced_update_ = true;
+      this->analyze();
+
+      if ( ! begin_run_ ) {
+
+        forced_status_ = false;
+        this->beginRun();
+
+      }
+
+    }
+
+  }
 
 }
 
@@ -661,7 +756,7 @@ void EcalEndcapMonitorClient::endRun(void) {
     }
   }
 
-  summaryClient_->beginRun();
+  summaryClient_->endRun();
 
   this->cleanup();
 
@@ -675,23 +770,39 @@ void EcalEndcapMonitorClient::endRun(void) {
   last_jevt_   = -1;
   last_update_ = 0;
 
-  if ( ! enableStateMachine_ ) {
-    if ( enableMonitorDaemon_ ) {
+}
 
-      // in this way we avoid ROOT memory leaks ...
+void EcalEndcapMonitorClient::endRun(const Run& r, const EventSetup& c) {
 
-      if ( enableExit_ ) {
+  cout << endl;
+  cout << "Standard endRun() for run " << r.id() << endl;
+  cout << endl;
 
-        cout << endl;
-        cout << ">>> endJob() after endRun() <<<" << endl;
-        cout << endl;
-        this->endJob();
-        throw exception();
+  if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+    if ( ! mergeRuns_ ) {
+
+      forced_update_ = true;
+      this->analyze();
+
+      if ( ! end_run_ ) {
+
+        forced_status_ = false;
+        this->endRun();
 
       }
 
     }
+
   }
+
+}
+
+void EcalEndcapMonitorClient::beginLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
+
+}
+
+void EcalEndcapMonitorClient::endLuminosityBlock(const LuminosityBlock &l, const EventSetup &c) {
 
 }
 
@@ -1171,12 +1282,20 @@ void EcalEndcapMonitorClient::analyze(void){
   // # of full monitoring cycles processed
   int updates = mui_->getNumUpdates();
 
+  if ( enableStateMachine_ ) updates = -1;
+  if ( enableStateMachine_ ) forced_update_ = true;
+
+  if ( verbose_ ) cout << " updates = " << updates << endl;
+
+  // run QTs on MEs updated during last cycle (offline mode)
   if ( ! enableStateMachine_ ) {
     if ( enableQT_ ) mui_->runQTests();
-    mui_->doMonitoring();
   }
 
-  this->subscribeNew();
+  // update MEs (online mode)
+  if ( ! enableStateMachine_ ) {
+    mui_->doMonitoring();
+  }
 
   Char_t histo[200];
 
@@ -1207,19 +1326,21 @@ void EcalEndcapMonitorClient::analyze(void){
       }
     }
 
+    int ecal_run = -1;
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/RUN").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &run_);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_run);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
+    int ecal_evt = -1;
     sprintf(histo, (prefixME_+"EcalEndcap/EcalInfo/EVT").c_str());
     me = mui_->get(histo);
     if ( me ) {
       s = me->valueString();
-      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &evt_);
+      sscanf((s.substr(2,s.length()-2)).c_str(), "%d", &ecal_evt);
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
@@ -1239,20 +1360,21 @@ void EcalEndcapMonitorClient::analyze(void){
       if ( verbose_ ) cout << "Found '" << histo << "'" << endl;
     }
 
-    if ( verbose_ ) cout << " updates = " << updates << endl;
-
     if ( ( jevt_ < 10 || jevt_ % 10 == 0 ) || status_ == "begin-of-run" || status_ == "end-of-run" || forced_update_ ) {
 
-      cout << " run = "      << run_      <<
-              " event = "    << evt_      <<
-              " status = "   << status_   << endl;
+      cout << " RUN status = \"" << status_ << "\"" << endl;
 
-      cout << " runtype = "  << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) <<
-              " location = " << location_ << flush;
+      cout << "   CMS  run/event = " << run_ << "/" << evt_ << endl;
+
+      cout << "   ECAL run/event = " << ecal_run << "/" << ecal_evt << endl;
+
+      cout << "   ECAL location = " << location_ << endl;
+
+      cout << "   ECAL run ( event ) type = " << ( runtype_ == -1 ? "UNKNOWN" : runTypes_[runtype_] ) << flush;
 
       if ( h_ ) {
         if ( h_->GetEntries() != 0 ) {
-          cout << "  ( " << flush;
+          cout << " ( " << flush;
           for ( int i=0; i<int(runTypes_.size()); ++i ) {
             if ( runTypes_[i] != "UNKNOWN" && h_->GetBinContent(i+1) != 0 ) {
               string s = runTypes_[i];
@@ -1267,6 +1389,10 @@ void EcalEndcapMonitorClient::analyze(void){
 
     }
 
+    // if the run number from the Event is less than zero,
+    // use the run number from the ECAL DCC header
+    if ( run_ <= 0 ) run_ = ecal_run;
+
     update = true;
 
     last_update_ = updates;
@@ -1276,15 +1402,6 @@ void EcalEndcapMonitorClient::analyze(void){
     if ( run_ != last_run_ ) forced_update_ = true;
 
   }
-
-  for ( int i=0; i<int(clients_.size()); i++ ) {
-    bool subscribed; subscribed = false;
-    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
-      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
-    }
-  }
-
-  summaryClient_->subscribeNew();
 
   if ( status_ == "begin-of-run" ) {
 
@@ -1316,44 +1433,58 @@ void EcalEndcapMonitorClient::analyze(void){
 
         summaryClient_->analyze();
 
-        if ( status_ == "end-of-run" || forced_update_ ) {
+        if ( status_ == "running" || status_ == "end-of-run" || forced_update_ ) {
 
-          if ( enableQT_ ) {
+          // run QTs on local MEs, updated in analyze()
+          if ( ! enableStateMachine_ ) {
+            if ( enableQT_ ) mui_->runQTests();
+          }
 
-            cout << endl;
-            switch ( mui_->getSystemStatus() ) {
-              case dqm::qstatus::ERROR:
-                cout << " Error(s)";
-                break;
-              case dqm::qstatus::WARNING:
-                cout << " Warning(s)";
-                break;
-              case dqm::qstatus::OTHER:
-                cout << " Some tests did not run;";
-                break;
-              default:
-                cout << " No problems";
-            }
-            cout << " reported after running the quality tests" << endl;
-            cout << endl;
-
+          // update MEs [again, just to silence a warning]
+          if ( ! enableStateMachine_ ) {
+            mui_->doMonitoring();
           }
 
         }
 
-        forced_update_ = false;
+      }
+
+      if ( status_ == "end-of-run" || forced_update_ ) {
+
+        if ( enableQT_ ) {
+
+          cout << endl;
+          switch ( mui_->getSystemStatus() ) {
+            case dqm::qstatus::ERROR:
+              cout << " Error(s)";
+              break;
+            case dqm::qstatus::WARNING:
+              cout << " Warning(s)";
+              break;
+            case dqm::qstatus::OTHER:
+              cout << " Some tests did not run;";
+              break;
+            default:
+              cout << " No problems";
+          }
+          cout << " reported after running the quality tests" << endl;
+          cout << endl;
+
+        }
 
       }
 
+      forced_update_ = false;
+
       if ( enableSubRunHtml_ ) {
-        if ( (current_time_ - last_time_html_) > htmlRefreshTime_ ) {
+        if ( (current_time_ - last_time_html_) > 60 * htmlRefreshTime_ ) {
           last_time_html_ = current_time_;
           this->htmlOutput( true );
         }
       }
 
       if ( enableSubRunDb_ ) {
-        if ( (current_time_ - last_time_db_) > dbRefreshTime_ ) {
+        if ( (current_time_ - last_time_db_) > 60 * dbRefreshTime_ ) {
           if ( runtype_ == EcalDCCHeaderBlock::COSMIC ||
                runtype_ == EcalDCCHeaderBlock::BEAMH2 ||
                runtype_ == EcalDCCHeaderBlock::BEAMH4 ) this->writeDb();
@@ -1395,6 +1526,55 @@ void EcalEndcapMonitorClient::analyze(void){
       cout << endl;
 
       if ( enableExit_ ) throw exception();
+
+    }
+
+  }
+
+  // run number transition
+
+  if ( status_ == "running" ) {
+
+    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
+
+      if ( ! mergeRuns_ ) {
+
+        int new_run_ = run_;
+        int old_run_ = last_run_;
+            
+        if ( new_run_ != old_run_ ) {
+
+          if ( begin_run_ && ! end_run_ ) {
+
+            cout << endl;
+            cout << " Old run has finished, issuing endRun() ... " << endl;
+            cout << endl;
+
+            // end old_run_
+            run_ = old_run_;
+
+            forced_status_ = false;
+            this->endRun();
+
+          }
+
+          if ( ! begin_run_ ) {
+
+            cout << endl;
+            cout << " New run has started, issuing beginRun() ... " << endl;
+            cout << endl;
+
+            // start new_run_
+            run_ = new_run_;
+
+            forced_status_ = false;
+            this->beginRun();
+
+          }
+
+        }
+
+      }
 
     }
 
@@ -1506,46 +1686,28 @@ void EcalEndcapMonitorClient::analyze(void){
 
   }
 
-  // missing 'end-of-run' state, use run number change
+  // END: run-time fixes for missing state transitions
 
-  if ( status_ == "running" ) {
+  this->subscribeNew();
 
-    if ( run_ != -1 && evt_ != -1 && runtype_ != -1 ) {
-
-      if ( begin_run_ && ! end_run_ ) {
-
-        if ( run_ != last_run_ ) {
-
-          // save run_
-          int new_run_ = run_;
-
-          // use last_run_
-          run_ = last_run_;
-
-          if ( ! mergeRuns_ ) {
-
-            cout << endl;
-            cout << " A new run has just started, issuing endRun() ... " << endl;
-            cout << endl;
-
-            forced_status_ = false;
-            this->endRun();
-
-          }
-
-          // restore run_
-          run_ = new_run_;
-          last_run_ = new_run_;
-
-        }
-
-      }
-
+  for ( int i=0; i<int(clients_.size()); i++ ) {
+    bool subscribed; subscribed = false;
+    for ( EECIMMap::iterator j = chb_.lower_bound(clients_[i]); j != chb_.upper_bound(clients_[i]); ++j ) {
+      if ( runtype_ != -1 && runtype_ == (*j).second && !subscribed ) { subscribed = true; clients_[i]->subscribeNew(); }
     }
-
   }
 
-  // END: run-time fixes for missing state transitions
+  summaryClient_->subscribeNew();
+
+}
+
+void EcalEndcapMonitorClient::analyze(const Event &e, const EventSetup &c) {
+
+  run_ = e.id().run();
+
+  evt_ = e.id().event();
+ 
+  this->analyze(); 
 
 }
 
@@ -1629,6 +1791,155 @@ void EcalEndcapMonitorClient::htmlOutput( bool current ){
     time_t elapsed = time(NULL) - start;
     std::cout << "==========> htmlOutput Elapsed Time: " << elapsed << std::endl;
   }
+
+}
+
+void EcalEndcapMonitorClient::defaultWebPage(xgi::Input *in, xgi::Output *out){
+
+  string path;
+  string mname;
+  
+  static bool autorefresh_ = false;
+  
+  try {
+  
+    cgicc::Cgicc cgi(in);
+
+    if ( xgi::Utils::hasFormElement(cgi,"autorefresh") ) {
+      autorefresh_ = xgi::Utils::getFormElement(cgi, "autorefresh")->getIntegerValue() != 0;
+    }
+
+    if ( xgi::Utils::hasFormElement(cgi,"module") ) {
+      mname = xgi::Utils::getFormElement(cgi, "module")->getValue();
+    }
+
+    cgicc::CgiEnvironment cgie(in);
+    path = cgie.getPathInfo() + "?" + cgie.getQueryString();
+
+  } catch (const std::exception & e) { }
+
+  *out << cgicc::HTMLDoctype(cgicc::HTMLDoctype::eStrict)            << endl;
+  *out << cgicc::html().set("lang", "en").set("dir","ltr")           << endl;
+
+  *out << "<html>"                                                   << endl;
+
+  *out << "<head>"                                                   << endl;
+
+  *out << "<title>" << typeid(EcalEndcapMonitorClient).name()
+       << " MAIN</title>"                                            << endl;
+
+  if ( autorefresh_ ) {
+    *out << "<meta http-equiv=\"refresh\" content=\"3\">"            << endl;
+  }
+
+  *out << "</head>"                                                  << endl;
+
+  *out << "<body>"                                                   << endl;
+
+  *out << cgicc::form().set("method","GET").set("action", path )
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","module").set("value", mname)
+       << std::endl;
+  *out << cgicc::input().set("type","hidden").set("name","autorefresh").set("value", autorefresh_?"0":"1")
+       << std::endl;
+  *out << cgicc::input().set("type","submit").set("value",autorefresh_?"Toggle AutoRefresh OFF":"Toggle AutoRefresh ON")
+       << std::endl;
+  *out << cgicc::form()                                              << endl;
+
+  *out << cgicc::h3( "EcalEndcapMonitorClient Status" ).set( "style", "font-family:arial" ) << endl;
+
+  *out << "<table style=\"font-family: arial\"><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Cycle</th><td align=right>" << this->getEvtPerJob();
+  int nevt = 0;
+  if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetEntries());
+  *out << "<tr><th>Event</th><td align=right>" << nevt
+       << "</td><tr><th>Run</th><td align=right>" << this->getRun()
+       << "</td><tr><th>Run Type</th><td align=right> " << this->getRunType()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Evt Type</th><th>Evt/Run</th><th>Evt Type</th><th>Evt/Run</th>" << endl;
+  vector<string> runTypes = this->getRunTypes();
+  for( unsigned int i=0, j=0; i<runTypes.size(); i++ ) {
+    if ( runTypes[i] != "UNKNOWN" ) {
+      if ( j++%2 == 0 ) *out << "<tr>";
+      nevt = 0;
+      if ( this->getEntryHisto() != 0 ) nevt = int( this->getEntryHisto()->GetBinContent(i+1));
+      *out << "<td>" << runTypes[i]
+           << "</td><td align=right>" << nevt << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th><th>Client</th><th>Cyc/Job</th><th>Cyc/Run</th>" << endl;
+  const vector<EEClient*> clients = this->getClients();
+  const vector<string> clientNames = this->getClientNames();
+  for( unsigned int i=0; i<clients.size(); i++ ) {
+    if ( clients[i] != 0 ) {
+      if ( i%2 == 0 ) *out << "<tr>";
+      *out << "<td>" << clientNames[i]
+           << "</td><td align=right>" << clients[i]->getEvtPerJob()
+           << "</td><td align=right>" << clients[i]->getEvtPerRun() << endl;
+    }
+  }
+  *out << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>RunIOV</th>"
+       << "<tr><td>Run Number</td><td align=right> " << this->getRunIOV().getRunNumber()
+       << "</td><tr><td>Run Start</td><td align=right> " << this->getRunIOV().getRunStart().str()
+       << "</td><tr><td>Run End</td><td align=right> " << this->getRunIOV().getRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colsapn=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>RunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getRunIOV().getRunTag().getGeneralTag()
+       << "</td><tr><td>Location</td><td align=right> " << this->getRunIOV().getRunTag().getLocationDef().getLocation()
+       << "</td><tr><td>Run Type</td><td align=right> " << this->getRunIOV().getRunTag().getRunTypeDef().getRunType()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><tr><td>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>MonRunIOV</th>"
+       << "<tr><td>SubRun Number</td><td align=right> " << this->getMonIOV().getSubRunNumber()
+       << "</td><tr><td>SubRun Start</td><td align=right> " << this->getMonIOV().getSubRunStart().str()
+       << "</td><tr><td>SubRun End</td><td align=right> " << this->getMonIOV().getSubRunEnd().str()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><td colspan=2>" << endl;
+
+  *out << "<p style=\"font-family: arial\">"
+       << "<table border=1>"
+       << "<tr><th colspan=2>MonRunTag</th>"
+       << "<tr><td>GeneralTag</td><td align=right> " << this->getMonIOV().getMonRunTag().getGeneralTag()
+       << "</td><tr><td>Monitoring Version</td><td align=right> " << this->getMonIOV().getMonRunTag().getMonVersionDef().getMonitoringVersion()
+       << "</td></table></p>" << endl;
+
+  *out << "</td><table>" << endl;
+
+
+  *out << "</body>"                                                  << endl;
+
+  *out << "</html>"                                                  << endl;
 
 }
 

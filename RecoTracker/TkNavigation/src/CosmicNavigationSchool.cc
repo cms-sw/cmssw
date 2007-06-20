@@ -123,22 +123,6 @@ void CosmicNavigationSchool::linkToAllRegularBarrelLayer( BDLC& reachableBL)
   }
 }
 
-void CosmicNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
-                                                  BDLC& reachableBL)
-{
-  if ( fl->position().z() > barrelLength()) return;
-
-  float outerRadius = fl->specificSurface().outerRadius();
-  float zpos        = fl->position().z();
-  for ( BDLI bli = theBarrelLayers.begin()+1; bli != theBarrelLayers.end(); bli++) {
-    if ( outerRadius < (**bli).specificSurface().radius() &&
-         zpos        < (**bli).surface().bounds().length() / 2.) {
-      reachableBL.push_back( *bli);
-      return;
-    }
-  }
-}
-
 void CosmicNavigationSchool::establishInverseRelations() {
 
   std::cout << "In CosmicNavigationSchool::establishInverseRelations()" << std::endl;
@@ -194,7 +178,7 @@ void CosmicNavigationSchool::establishInverseRelations() {
 	if (startLayerBarrel) {
 		std::cout << "Starting from Barrel" << startLayerBarrel->specificSurface().radius() << " we can go to: " << std::endl;
 	} else if (startLayerForward){
-		std::cout << "Starting from Forward" << startLayerForward->specificSurface().position().z() << " we can go to: " << std::endl;
+		std::cout << "Starting from Forward" << startLayerForward->specificSurface().innerRadius() << " we can go to: " << std::endl;
 	}
 	std::cout << "\tinsideOut: ";
 	std::vector<const DetLayer*> inOutLayers = navigableLayer->nextLayers(insideOut);
@@ -205,7 +189,7 @@ void CosmicNavigationSchool::establishInverseRelations() {
 		if (layerBarrel){
 			std::cout << "Barrel "<<layerBarrel->specificSurface().radius() << ", ";
 		} else if (layerForward){
-			std::cout << "Forward "<< layerForward->specificSurface().position().z() << ", ";
+			std::cout << "Forward "<< layerForward->specificSurface().innerRadius() << ", ";
 		}	
 	}  
 	std::cout << std::endl;
@@ -217,7 +201,7 @@ void CosmicNavigationSchool::establishInverseRelations() {
                 if (layerBarrel){
                         std::cout << "Barrel " <<  layerBarrel->specificSurface().radius() << ", ";
                 } else if (layerForward){
-                        std::cout << "Forward " << layerForward->specificSurface().position().z() << ", ";
+                        std::cout << "Forward " << layerForward->specificSurface().innerRadius() << ", ";
                 }
         } 
         std::cout << std::endl;

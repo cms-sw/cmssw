@@ -18,7 +18,7 @@ LocalPoint CSCWireGeometry::intersection( float m1, float c1,
 std::vector<float> CSCWireGeometry::wireValues( float wire ) const {
 
   // return x and y of mid-point of wire, and length of wire, as 3-dim vector.
-  // If wire does not intersect active area the returned vector is filled with 0's.
+  // If wire does not intersect active area the returned vector if filled with 0 
 
   std::vector<float> buf(3); // note all elem init to 0
   

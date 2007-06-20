@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.18 $
- *  $Date: 2007/04/30 16:23:18 $
+ *  $Revision: 1.16 $
+ *  $Date: 2007/04/05 16:30:26 $
  *  (last update by $Author: flucke $)
  */
 
@@ -33,7 +33,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentIORoot.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableNavigator.h"
-#include "Alignment/CommonAlignment/interface/AlignableDetOrUnitPtr.h"
+#include "Alignment/CommonAlignment/interface/AlignableDet.h"
 
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 
@@ -84,16 +84,18 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
                                              AlignmentParameterStore *store)
 {
   if (muon) {
-    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
-                               << "Running with AlignabeMuon not yet tested.";
+    edm::LogError("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::initialize"
+                               << "Ignoring AlignabeMuon != 0";
   }
 
-  theAlignableNavigator = new AlignableNavigator(tracker, muon);
+  theAlignableNavigator = new AlignableNavigator(tracker);
   theAlignmentParameterStore = store;
   theAlignables = theAlignmentParameterStore->alignables();
 
   edm::ParameterSet pedeSteerCfg(theConfig.getParameter<edm::ParameterSet>("pedeSteerer"));
-  thePedeSteer = new PedeSteerer(tracker, muon, theAlignmentParameterStore, pedeSteerCfg, theDir);
+  pedeSteerCfg.addUntrackedParameter("fileDir", theDir);
+  thePedeSteer = new PedeSteerer(tracker, theAlignmentParameterStore, pedeSteerCfg);
+
   // After (!) PedeSteerer which uses the SelectionUserVariables attached to the parameters:
   this->buildUserVariables(theAlignables); // for hit statistics and/or pede result
 
@@ -200,8 +202,6 @@ void MillePedeAlignmentAlgorithm::run(const edm::EventSetup &setup,
     } // end loop on hits
 
     if (nValidHitsX >= theMinNumHits) { // enough 'good' alignables hit: increase the hit statistics
-      // FIXME: Add also hit statistics for higher levels in hierarchy? But take care about
-      //        exclusion as for hierarchy constraints...
       for (unsigned int iHit = 0; iHit < validHitVecY.size(); ++iHit) {
         if (!parVec[iHit]) continue; // in case a non-selected alignable was hit (flagXY == 0)
         MillePedeVariables *mpVar = static_cast<MillePedeVariables*>(parVec[iHit]->userVariables());
@@ -280,8 +280,13 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
   globalDerivatives.clear();
   globalLabels.clear();
 
-  // get AlignableDet for this hit
-  AlignableDetOrUnitPtr alidet(theAlignableNavigator->alignableFromGeomDet(recHitPtr->det()));
+  // get AlignableDet for this hit, want const but ->selectedDerivatives needs non-const...
+  AlignableDet *alidet = theAlignableNavigator->alignableDetFromGeomDet(recHitPtr->det());
+  if (!alidet) {
+    edm::LogWarning("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::globalDerivatives"
+				 << "AlignableDet not found in Navigator";
+    return -1;
+  }
 
   if (this->globalDerivativesHierarchy(tsos, alidet, alidet, xOrY, // 2x alidet, sic!
                                        globalDerivatives, globalLabels, params)) {
@@ -294,13 +299,13 @@ int MillePedeAlignmentAlgorithm::globalDerivatives(const ConstRecHitPointer &rec
 //____________________________________________________
 bool MillePedeAlignmentAlgorithm
 ::globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-                             Alignable *ali, const AlignableDetOrUnitPtr &alidet,
-                             MeasurementDirection xOrY,
+                             Alignable *ali, AlignableDet *alidet, MeasurementDirection xOrY,
                              std::vector<float> &globalDerivatives,
                              std::vector<int> &globalLabels,
                              AlignmentParameters *&lowestParams) const
 {
   // derivatives and labels are recursively attached
+  if (!alidet) return false;
   if (!ali) return true; // no mother might be OK
 
   if (theMonitor && alidet != ali) theMonitor->fillFrameToFrame(alidet, ali);
@@ -324,11 +329,6 @@ bool MillePedeAlignmentAlgorithm
         globalDerivatives.push_back(derivs[iSel][xOrY]/thePedeSteer->cmsToPedeFactor(iSel));
         globalLabels.push_back(thePedeSteer->parameterLabel(alignableLabel, iSel));
       }
-    }
-    // Exclude mothers if selected to be no part of a hierarchy:
-    // FIXME: Currently full object independent of selection, cf. PedeSteerer::hierarchyConstraint
-    if (!thePedeSteer->noHieraParamSel(ali).empty()) {
-      return true;
     }
   }
 
@@ -370,11 +370,9 @@ void MillePedeAlignmentAlgorithm::callMille
 bool MillePedeAlignmentAlgorithm::is2D(const ConstRecHitPointer &recHit) const
 {
   // FIXME: Check whether this is a reliable and recommended way to find out...
-  // e.g. problem: What about glued detectors where only one module is hit? (changed in 13X?)
+  // e.g. problem: What about glued detectors where only one module is hit?
   // probably downcast the hit to a concrete class (matched?)
-  return (recHit->dimension() >=2 && // some muon stuff really has RecHit1D
-	  (!recHit->detUnit() // stereo strips (FIXME: endcap trouble due to non-parallel strips)
-	   || recHit->detUnit()->type().isTrackerPixel()));
+  return (!recHit->detUnit() || recHit->detUnit()->type().isTrackerPixel());
 }
 
 //____________________________________________________

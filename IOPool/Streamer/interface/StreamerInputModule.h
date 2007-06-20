@@ -61,7 +61,7 @@ namespace edm
     InitMsgView const* header = pr_->getHeader();
     std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header); 
     SendDescs & descs = p->descs_;
-    mergeWithRegistry(descs, productRegistry());
+    mergeWithRegistry(descs, productRegistryUpdate());
     // jbk - the next line should not be needed
     declareStreamers(descs);
     buildClassCache(descs);
@@ -79,7 +79,7 @@ namespace edm
         //Get header/init from Producer
         InitMsgView const* header = pr_->getHeader();
         std::auto_ptr<SendJobHeader> p = deserializeRegistry(*header);
-        if (!registryIsSubset(*p, productRegistry())) {
+        if (!registryIsSubset(*p, *productRegistry())) {
             std::cout << "\n\nUn matching Init Message Headers found.\n";
             throw cms::Exception("read","StreamerInputModule")
                  << "Un matching Headers found.\n";

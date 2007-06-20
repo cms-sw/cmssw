@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/05/25 17:05:10 $
- *  $Revision: 1.98 $
+ *  $Date: 2007/05/29 18:13:41 $
+ *  $Revision: 1.99 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -103,7 +103,7 @@ using namespace edm;
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : 
-  theTkSeedGenerator(0),theRSBuilder(0),theService(service) {
+  theTkSeedGenerator(0),theRSBuilder(0),theService(service),theNavigationSchool(0),theCacheId_DG(0),theCacheId_MG(0) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
@@ -195,6 +195,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;
   if (theRSBuilder) delete theRSBuilder;
   if (theRegionBuilder) delete theRegionBuilder;
+  if (theNavigationSchool) delete theNavigationSchool;
   delete theTkSeedGenerator;
 }
 
@@ -206,18 +207,28 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
-
-  
-  edm::ESHandle<GeometricSearchTracker> theGeomSearchTracker;
-  theService->eventSetup().get<TrackerRecoGeometryRecord>().get( theGeomSearchTracker );
-  
-  const NavigationSchool*  theNavigationSchool = new SimpleNavigationSchool(&(*theGeomSearchTracker),&(*theService->magneticField()));
-  
-  // set the correct navigation
-  NavigationSetter setter( *theNavigationSchool);
   
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|setEvent";
 
+  // DetLayer Geometry
+  unsigned long long newCacheId_DG = theService->eventSetup().get<TrackerRecoGeometryRecord>().cacheIdentifier();
+  unsigned long long newCacheId_MG = theService->eventSetup().get<IdealMagneticFieldRecord>().cacheIdentifier();
+  if(newCacheId_DG != theCacheId_DG || newCacheId_MG != theCacheId_MG) {
+    LogTrace(category) << "Tracker Reco Geometry changed!";
+    theCacheId_DG = newCacheId_DG;
+    theCacheId_MG = newCacheId_MG;
+    edm::ESHandle<GeometricSearchTracker> geomSearchTracker;
+    theService->eventSetup().get<TrackerRecoGeometryRecord>().get( geomSearchTracker );
+    
+    // NavigationSchool should live until its validity expires, and then DELETE
+    // the NavigableLayers
+    if(theNavigationSchool) delete theNavigationSchool;
+    theNavigationSchool = new SimpleNavigationSchool(&(*geomSearchTracker),&(*theService->magneticField()));
+  }
+  
+  // set the correct navigation
+  if(theNavigationSchool) NavigationSetter setter( *theNavigationSchool);
+  
   theEvent = &event;
 
   // get tracker TrackCollection from Event

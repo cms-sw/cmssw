@@ -111,14 +111,10 @@ void L1RCTJetSummaryCard::fillIsolatedEGObjects(vector<unsigned short> isoElectr
 
   asicSort(sortIso);
 
-  //for(int i = 0; i<4; i++){
+  for(int i = 0; i<4; i++){
     //isolatedEGObjects.at(i) = isoElectrons.at(i);
-    //isolatedEGObjects.at(i) = sortIso.at(2*i);
-  //}
-  isolatedEGObjects.at(0) = sortIso.at(4);
-  isolatedEGObjects.at(1) = sortIso.at(6);
-  isolatedEGObjects.at(2) = sortIso.at(0);
-  isolatedEGObjects.at(3) = sortIso.at(2);
+    isolatedEGObjects.at(i) = sortIso.at(2*i);
+  }
 }
 
 void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(vector<unsigned short> nonIsoElectrons){
@@ -152,14 +148,10 @@ void L1RCTJetSummaryCard::fillNonIsolatedEGObjects(vector<unsigned short> nonIso
 
   asicSort(sortNonIso);
 
-  //for(int i = 0; i<4; i++){
+  for(int i = 0; i<4; i++){
     //nonisolatedEGObjects.at(i) = nonIsoElectrons.at(i);
-    //nonisolatedEGObjects.at(i) = sortNonIso.at(2*i);
-  //}
-  nonisolatedEGObjects.at(0) = sortNonIso.at(4);
-  nonisolatedEGObjects.at(1) = sortNonIso.at(6);
-  nonisolatedEGObjects.at(2) = sortNonIso.at(0);
-  nonisolatedEGObjects.at(3) = sortNonIso.at(2);
+    nonisolatedEGObjects.at(i) = sortNonIso.at(2*i);
+  }
 }
 
 void L1RCTJetSummaryCard::fillMIPBits(vector<unsigned short> mip){
@@ -187,9 +179,9 @@ void L1RCTJetSummaryCard::fillQuietBits(){
   bitset<14> quiet;
   for(int i = 0; i<14; i++){
     if((barrelRegions.at(i))>quietThreshold)
-      quiet[i] = 0;  //switched 0 and 1
-    else
       quiet[i] = 1;
+    else
+      quiet[i] = 0;
   }
 
   quietBits = quiet.to_ulong();
@@ -248,7 +240,7 @@ void L1RCTJetSummaryCard::asicCompare(vector<unsigned short>& array)
   unsigned short temp;
   for (i = 0; i < 4; i++)
     {
-      if ((array.at(2 * i)>>4) < (array.at((2 * i) + 1)>>4)) // currently bottom 3 bits are rgn,crd
+      if ((array.at(2 * i)) < (array.at((2 * i) + 1)))
 	{
 	  temp = array.at(2 * i);
 	  array.at(2 * i) = array.at((2 * i) + 1);

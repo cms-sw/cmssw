@@ -12,7 +12,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/ParameterSet/interface/InputTag.h>
 
 #include "IORawData/RPCFileReader/interface/RPCPacData.h"
 
@@ -49,7 +48,7 @@ class LinkDataXMLWriter: public edm::EDAnalyzer
 		   int opticalLinkNum, int lbNumber, 
 		   int partitionNumber,  int partitionData, 
 		   int halfPart, int eod);
-
+  
   void writeLinkData();  
   
   std::pair<int,int> getTCandTBNumbers(int dccInputChannelNum);
@@ -57,7 +56,6 @@ class LinkDataXMLWriter: public edm::EDAnalyzer
   void clear();
 	
   std::string m_xmlDir;
-  edm::InputTag digiLabel;
 
   static int m_instanceCount;
 

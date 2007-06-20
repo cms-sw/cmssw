@@ -1,4 +1,4 @@
-// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.3 2007/04/04 07:21:08 bainbrid Exp $
+// Last commit: $Id: FedCablingHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/FedCablingHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -13,18 +13,6 @@ FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
 						  const DbParams& params )
   : FedCablingHistograms( mui ),
     CommissioningHistosUsingDb( params )
-{
-  LogTrace(mlDqmClient_)
-    << "[FedCablingHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
-FedCablingHistosUsingDb::FedCablingHistosUsingDb( MonitorUserInterface* mui,
-						  SiStripConfigDb* const db ) 
-  : FedCablingHistograms( mui ),
-    CommissioningHistosUsingDb( db )
 {
   LogTrace(mlDqmClient_)
     << "[FedCablingHistosUsingDb::" << __func__ << "]"
@@ -67,45 +55,27 @@ void FedCablingHistosUsingDb::uploadToConfigDb() {
   SiStripConfigDb::DeviceDescriptions dcus; 
   db_->getDeviceDescriptions( dcus, DCU ); 
   SiStripConfigDb::DcuDetIdMap detids;
-  detids = db_->getDcuDetIdMap(); 
-  
+  detids= db_->getDcuDetIdMap(); 
+
   // Update FED connection descriptions
   db_->resetFedConnections();
   const SiStripConfigDb::FedConnections& conns = db_->getFedConnections(); 
   update( const_cast<SiStripConfigDb::FedConnections&>(conns), dcus, detids );
-  if ( !test_ ) { 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " Uploading FED connections to DB...";
-    db_->uploadFedConnections(true); 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " Completed database upload of " << conns.size() 
-      << " FedChannelConnectionDescriptions!";
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No FED connections will be uploaded to DB...";
-  }
-  
+  if ( !test_ ) { db_->uploadFedConnections(false); }
+  LogTrace(mlDqmClient_)
+    << "[FedCablingHistosUsingDb::" << __func__ << "]"
+    << " Completed database upload of " << conns.size() 
+    << " FedChannelConnectionDescriptions!";
+
   // Update FED descriptions with enabled/disabled channels
   db_->resetFedDescriptions();
   const SiStripConfigDb::FedDescriptions& feds = db_->getFedDescriptions(); 
   update( const_cast<SiStripConfigDb::FedDescriptions&>(feds) );
-  if ( !test_ ) { 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " Uploading FED descriptions to DB...";
-    db_->uploadFedDescriptions(false); 
-    edm::LogVerbatim(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " Completed database upload of " << feds.size()
-      << " Fed9UDescriptions (with connected channels enabled)!";
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No FED descriptions will be uploaded to DB...";
-  }
+  if ( !test_ ) { db_->uploadFedDescriptions(false); }
+  LogTrace(mlDqmClient_) 
+    << "[FedCablingHistosUsingDb::" << __func__ << "]"
+    << " Completed database upload of " << feds.size()
+    << " Fed9UDescriptions (with connected channels enabled)!";
   
 }
 
@@ -115,33 +85,20 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
 				      const SiStripConfigDb::DeviceDescriptions& dcus, 
 				      const SiStripConfigDb::DcuDetIdMap& detids ) {
 
-  // Check no connections already exist in database
-  if ( !conns.empty() ) {
-    edm::LogWarning(mlDqmClient_)
-      << "[FedCablingHistosUsingDb::" << __func__ << "]"
-      << " Found existing FED channel connections!"
-      << " No upload to DB will be performed!";
-    test_ = true; // Inhibit DB upload
-    conns.clear();
-  }
-    
   // Retrieve and clear FED-FEC mapping in base class
   FedToFecMap& fed_map = const_cast<FedToFecMap&>( mapping() );
   fed_map.clear();
-
-  // Counter for unconnected channels
-  uint16_t unconnected = 0;
-
+    
   // Update FED-FEC mapping in base class, based on analysis results
-  map<uint32_t,FedCablingAnalysis*>::const_iterator ianal;
+  map<uint32_t,FedCablingAnalysis>::const_iterator ianal;
   for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) {
     
     // Generate FEC key
     SiStripFecKey fec_path( ianal->first );
 
     // Generate FED key
-    uint16_t fed_ch = ianal->second->fedCh();
-    SiStripFedKey fed_path( ianal->second->fedId(), 
+    uint16_t fed_ch = ianal->second.fedCh();
+    SiStripFedKey fed_path( ianal->second.fedId(), 
 			    SiStripFedKey::feUnit(fed_ch),
 			    SiStripFedKey::feChan(fed_ch) );
     uint32_t fed_key = fed_path.key();
@@ -149,66 +106,117 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     // Check if FedKey is valid 
     if ( fed_path.fedId() == sistrip::invalid_ || 
 	 fed_path.fedChannel() == sistrip::invalid_ ) {
-      unconnected++;
+      edm::LogWarning(mlDqmClient_)
+	<< "[FedCablingHistosUsingDb::" << __func__ << "]"
+	<< " Invalid FedId/Ch! " 
+	<< " Connection not established for"
+	<< " Crate/FEC/Ring/CCU/Module/LLDchan: "
+	<< fec_path.fecCrate() << "/"
+	<< fec_path.fecSlot() << "/"
+	<< fec_path.fecRing() << "/"
+	<< fec_path.ccuAddr() << "/"
+	<< fec_path.ccuChan() << "/"
+	<< fec_path.channel();
       continue;
     }
     
     // Add entry to FED-FEC mapping object if FedKey
-    if ( fed_map.find(fed_key) != fed_map.end() ) {
-      edm::LogWarning(mlDqmClient_)
+    if ( fed_map.find(fed_key) != fed_map.end() ) { 
+      LogTrace(mlDqmClient_)
 	<< "[FedCablingHistosUsingDb::" << __func__ << "]"
-	<< " FED key 0x" << std::hex 
-	<< std::setw(8) << std::setfill('0') << fed_key << std::dec
-	<< " with FedId/Ch: " << fed_path.fedId() << "/" 
-	<< fed_path.fedChannel() 
-	<< " already found! Overwriting...";
+	<< "FED key already found!!!" 
+	<< " KEY: " << fed_key
+	<< " ID: " << fed_path.fedId()
+	<< " CH: " << fed_path.fedChannel();
     }
     fed_map[fed_key] = ianal->first;
+
+    // Attempt to retrieve connection for given FEC key
+    FedChannelConnectionDescription* conn = 0;
+    SiStripConfigDb::FedConnections::iterator iconn = conns.begin();
+    for ( ; iconn != conns.end(); iconn++ ) {
+      if ( *iconn ) {
+	if ( (*iconn)->getFecInstance() == fec_path.fecCrate_ &&
+	     (*iconn)->getSlot() == fec_path.fecSlot_ &&
+	     (*iconn)->getRing() == fec_path.fecRing_ &&
+	     (*iconn)->getCcu() == fec_path.ccuAddr_ &&
+	     (*iconn)->getI2c() == fec_path.ccuChan_ &&
+	     (*iconn)->getApv() == static_cast<uint16_t>(32+2*fec_path.channel()) ) {
+	  conn = *iconn;
+	}
+      } else {
+	edm::LogWarning(mlDqmClient_)
+	  << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	  << " Vector contains NULL pointer to FedChannelConnectionDescription!";
+      }
+    }
     
-    // Create connection object and set member data 
-    FedChannelConnectionDescription* conn = new FedChannelConnectionDescription(); 
-    conn->setFedId( ianal->second->fedId() );
-    conn->setFedChannel( ianal->second->fedCh() );
-    conn->setFecSupervisor("");
-    conn->setFecSupervisorIP("");
-    conn->setFecInstance( fec_path.fecCrate() );
-    conn->setSlot( fec_path.fecSlot() );
-    conn->setRing( fec_path.fecRing() );
-    conn->setCcu( fec_path.ccuAddr() );
-    conn->setI2c( fec_path.ccuChan() );
-    conn->setApv( SiStripFecKey::i2cAddr(fec_path.channel(),true) );
+    // Create new connection if it does not already exist
+    if ( !conn ) { conn = new FedChannelConnectionDescription(); }
+    else if ( conn && 
+	      conn->getFedId() != ianal->second.fedId() &&
+	      conn->getFedChannel() != ianal->second.fedCh() ) {
+      uint16_t ichan = sistrip::invalid_;
+      if ( conn->getApv() ) { ichan = static_cast<uint16_t>((conn->getApv()-32)/2); }
+      edm::LogWarning(mlDqmClient_)
+	<< "[FedCablingHistosUsingDb::" << __func__ << "]"
+	<< " FedChannelConnectionDescription already exists for"
+	<< " Crate/FEC/Ring/CCU/Module/LLDchan: "	
+	<< conn->getFecInstance() << "/"
+	<< conn->getSlot() << "/"
+	<< conn->getRing() << "/"
+	<< conn->getCcu() << "/"
+	<< ichan
+	<< "! Updating FedId/Ch from "
+	<< conn->getFedId() << "/"
+	<< conn->getFedChannel() << "/"
+	<< " to "
+	<< ianal->second.fedId() << "/"
+	<< ianal->second.fedCh();
+    }
+
+    // Set data members (ie, "update" if connection already exists)
+    conn->setFedId( ianal->second.fedId() );
+    conn->setFedChannel( ianal->second.fedCh() );
+    conn->setFecInstance( fec_path.fecCrate_ );
+    conn->setSlot( fec_path.fecSlot_ );
+    conn->setRing( fec_path.fecRing_ );
+    conn->setCcu( fec_path.ccuAddr_ );
+    conn->setI2c( fec_path.ccuChan_ );
+    conn->setApv( 32+2*fec_path.channel() );
     conn->setDcuHardId( sistrip::invalid_ );
     conn->setDetId( sistrip::invalid_ );
     conn->setFiberLength( sistrip::invalid_ );
     conn->setApvPairs( sistrip::invalid_ );
-    
-    // Retrieve DCU id from DB and set member data 
+
+    // Retrieve DCU id 
     SiStripConfigDb::DeviceDescriptions::const_iterator idcu;
     for ( idcu = dcus.begin(); idcu != dcus.end(); idcu++ ) {
-
-      // Check if DCU on Front-End Hybrid
+      
       dcuDescription* dcu = dynamic_cast<dcuDescription*>( *idcu );
-      if ( !dcu ) { continue; }
-      if ( dcu->getDcuType() != "FEH" ) { continue; }
-
-      // Set DCU id if I2C address is consistent
-      const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
-      SiStripFecKey path( addr.fecCrate_ + sistrip::FEC_CRATE_OFFSET, 
-			  addr.fecSlot_, 
-			  addr.fecRing_ + sistrip::FEC_RING_OFFSET, 
-			  addr.ccuAddr_, 
-			  addr.ccuChan_ ); 
-      if ( path.fecCrate() == fec_path.fecCrate() && 
-	   path.fecRing() == fec_path.fecRing() && 
-	   path.fecSlot() == fec_path.fecSlot() && 
-	   path.ccuAddr() == fec_path.ccuAddr() && 
-	   path.ccuChan() == fec_path.ccuChan() ) {
-	conn->setDcuHardId( dcu->getDcuHardId() ); 
+      if ( !dcu ) {
+	edm::LogWarning(mlDqmClient_) 
+	  << "[ApvTimingHistosUsingDb::" << __func__ << "]"
+	  << " Unable to dynamic cast to dcuDescription*";
+	continue;
       }
-
+      
+      const SiStripConfigDb::DeviceAddress& addr = db_->deviceAddress(*dcu);
+      SiStripFecKey path( addr.fecCrate_, 
+				addr.fecSlot_, 
+				addr.fecRing_, 
+				addr.ccuAddr_, 
+				addr.ccuChan_ ); 
+      if ( path.fecCrate_ == fec_path.fecCrate_ && 
+	   path.fecRing_ == fec_path.fecRing_ && 
+	   path.fecSlot_ == fec_path.fecSlot_ && 
+	   path.ccuAddr_ == fec_path.ccuAddr_ && 
+	   path.ccuChan_ == fec_path.ccuChan_ ) {
+	if ( dcu ) { conn->setDcuHardId( dcu->getDcuHardId() ); }
+      }
     }
-    
-    // Retrieve DetId from DB and set member data 
+
+    // Retrieve DetId
     SiStripConfigDb::DcuDetIdMap::const_iterator idet = detids.find( conn->getDcuHardId() );
     if ( idet != detids.end() ) { 
       conn->setDetId( idet->second->getDetId() );
@@ -219,31 +227,27 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedConnections& conns,
     // Add FedChannelConnectionDescription to vector
     conns.push_back(conn);
     
+    // Some debug
+    LogTrace(mlDqmClient_)
+      << "[FedCablingHistosUsingDb::" << __func__ << "]"
+      << " Built new FedChannelConnectionDescription with "
+      << " FedId/Ch: " 
+      << ianal->second.fedId() << "/"
+      << ianal->second.fedCh()
+      << " and Crate/FEC/Ring/CCU/Module/LLDchan: "	
+      << fec_path.fecCrate_ << "/"
+      << fec_path.fecSlot_ << "/"
+      << fec_path.fecRing_ << "/"
+      << fec_path.ccuAddr_ << "/"
+      << fec_path.ccuChan_ << "/"
+      << fec_path.channel();
+    
   }
-
-  edm::LogVerbatim(mlDqmClient_)
+  
+  LogTrace(mlDqmClient_)
     << "[FedCablingHistosUsingDb::" << __func__ << "]"
     << " Added " << mapping().size()
     << " entries to FED-FEC mapping object!";
-  
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FedCablingHistosUsingDb::" << __func__ << "]"
-    << " Found " << conns.size() 
-    << " connections and "
-    << unconnected 
-    << " unconnected LLD channels ("
-    << 100 * conns.size() / ( conns.size() + unconnected ) 
-    << "% of total)";
-  
-  // Some debug
-  std::stringstream ss; 
-  ss << "[FedCablingHistosUsingDb::" << __func__ << "]"
-     << " Dump of " << conns.size() 
-     << " FedChannelConnection descriptions: "
-     << std::endl;
-  SiStripConfigDb::FedConnections::iterator ifed = conns.begin();
-  for ( ; ifed != conns.end(); ifed++ ) { (*ifed)->toXML(ss); }
-  LogTrace(mlTest_) << ss.str();
   
 }
 
@@ -268,61 +272,61 @@ void FedCablingHistosUsingDb::update( SiStripConfigDb::FedDescriptions& feds ) {
     edm::LogWarning(mlDqmClient_) << e.what();
   }
   
-  // Counters for number of connected / enabled channels
-  uint16_t connected = 0;
-  std::map< uint16_t, std::vector<uint16_t> > enabled;
-  
   // Iterate through feds and enable connected channels
   for ( ifed = feds.begin(); ifed != feds.end(); ifed++ ) {
     for ( uint16_t ichan = 0; ichan < sistrip::FEDCH_PER_FED; ichan++ ) {
       
       // Retrieve FEC key from FED-FEC map
       uint32_t fec_key = 0;
-      uint16_t fed_id = static_cast<uint16_t>( (*ifed)->getFedId() );
-      uint32_t fed_key = SiStripFedKey( fed_id,
+      uint32_t fed_key = SiStripFedKey( static_cast<uint16_t>((*ifed)->getFedId()), 
 					SiStripFedKey::feUnit(ichan),
 					SiStripFedKey::feChan(ichan) ).key();
       FedToFecMap::const_iterator ifec = mapping().find(fed_key);
       if ( ifec != mapping().end() ) { fec_key = ifec->second; }
-      else { continue; }
+      else {
+	stringstream ss;
+	ss << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	   << " Unable to find FecKey for FedKey/Id/Ch: 0x"
+	   << hex << setw(8) << setfill('0') << fed_key << dec << "/"
+	   << (*ifed)->getFedId() << "/" << ichan;
+	edm::LogWarning(mlDqmClient_) << ss.str();
+	continue; 
+      }
       
       // Enable front-end unit and channel
-      map<uint32_t,FedCablingAnalysis*>::const_iterator iter = data_.find( fec_key );
+      map<uint32_t,FedCablingAnalysis>::const_iterator iter = data_.find( fec_key );
       if ( iter != data_.end() ) { 
+	
 	Fed9U::Fed9UAddress addr( ichan );
 	Fed9U::Fed9UAddress addr0( ichan, static_cast<Fed9U::u8>(0) );
 	Fed9U::Fed9UAddress addr1( ichan, static_cast<Fed9U::u8>(1) );
 	(*ifed)->setFedFeUnitDisable( addr, false );
 	(*ifed)->setApvDisable( addr0, false );
 	(*ifed)->setApvDisable( addr1, false );
-	connected++;
-	enabled[fed_id].push_back(ichan);
+
+	SiStripFecKey path( fec_key );
+	LogTrace(mlDqmClient_)
+	  << "[FedCablingHistosUsingDb::" << __func__ << "]"
+	  << " Enabled FED channel for FedKey/Id/Ch: 0x"
+	  << hex << setw(8) << setfill('0') << fed_key << dec << "/"
+	  << (*ifed)->getFedId() << "/"
+	  << ichan 
+	  << " and device with FEC/slot/ring/CCU/LLDchan: " 
+	  << path.fecCrate_ << "/"
+	  << path.fecSlot_ << "/"
+	  << path.fecRing_ << "/"
+	  << path.ccuAddr_ << "/"
+	  << path.ccuChan_ << "/"
+	  << path.channel();
+
       }
-      
-    } 
-  } 
-  
-  // Some debug 
-  edm::LogVerbatim(mlDqmClient_)
-    << "[FedCablingHistosUsingDb::" << __func__ << "]"
-    << " Enabled a total of " << connected 
-    << " FED channels and disabled " << feds.size() * 96 - connected 
-    << " FED channels (" << 100 * connected / ( feds.size() * 96 )
-    << "% of total)";
-  
-  // Some debug 
-  std::stringstream ss;
-  ss << "[FedCablingHistosUsingDb::" << __func__ << "]"
-     << " Dump of enabled FED channels:" 
-     << std::endl;
-  std::map< uint16_t, std::vector<uint16_t> >::const_iterator fed = enabled.begin();
-  for ( ; fed != enabled.end(); fed++ ) {
-    ss << " Enabled " << fed->second.size()
-       << " channels for FED id " << fed->first << ": ";
-    std::vector<uint16_t>::const_iterator chan = fed->second.begin();
-    for ( ; chan != fed->second.end(); chan++ ) { ss << *chan << " "; }
-    ss << std::endl;
-  }
-  LogTrace(mlDqmClient_) << ss.str();
+
+    } // channel loop
+  } // fed loop
   
 }
+
+
+
+
+

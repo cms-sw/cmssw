@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.5 $
-///  $Date: 2007/04/19 11:36:57 $
+///  $Revision: 1.4 $
+///  $Date: 2007/04/05 16:33:19 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -34,7 +34,7 @@ namespace reco {
 }
 
 class Alignable;
-class AlignableDetOrUnitPtr;
+class AlignableDet;
 
 
 /***************************************
@@ -54,7 +54,7 @@ class MillePedeMonitor
 		 const std::vector<float> &localDerivs, 
 		 const std::vector<float> &globalDerivs,
 		 float residuum, float sigma);
-  void fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, const Alignable *ali);
+  void fillFrameToFrame(AlignableDet *aliDet, Alignable *ali);
 
  private:
   bool init(TDirectory *directory);

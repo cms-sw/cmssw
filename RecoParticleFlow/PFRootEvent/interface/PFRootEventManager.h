@@ -184,11 +184,14 @@ class PFRootEventManager {
   /// fills OutEvent with clusters
   void fillOutEventWithClusters(const reco::PFClusterCollection& clusters);
 
+  /// fills OutEvent with sim particles
+  void fillOutEventWithSimParticles(const reco::PFSimParticleCollection& ptcs);
+
   /// performs particle flow
   void particleFlow();
 
   //performs the jets reconstructions
-  void makeJets();
+  double makeJets();
 
 
   // display functions ------------------------------------------------
@@ -259,7 +262,10 @@ class PFRootEventManager {
 
 
   /// print information
-  void   print() const;
+  void   print(  std::ostream& out = std::cout ) const;
+
+  /// print event display 
+  void   printDisplay( const char* directory="" ) const;
 
   /// get tree
   TTree* tree() {return tree_;}
@@ -270,10 +276,13 @@ class PFRootEventManager {
   void   getMap(std::string& map);
 
   /// print a rechit
-  void   printRecHit(const reco::PFRecHit& rh, const char* seed="    ") const;
+  void   printRecHit(const reco::PFRecHit& rh, 
+		     const char* seed="    ",
+		     std::ostream& out = std::cout) const;
   
   /// print a rechit
-  void   printCluster(const reco::PFCluster& cluster) const;
+  void   printCluster(const reco::PFCluster& cluster,
+		      std::ostream& out = std::cout) const;
   
   /// is inside cut G? 
   bool   insideGCut(double eta, double phi) const;

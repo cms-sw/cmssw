@@ -54,11 +54,6 @@ public:
    */
   virtual LocalPoint localPosition(const MeasurementPoint&) const;
 
-  /**
-   * MeasurementPoint corresponding to given LocalPoint
-   */
-  virtual MeasurementPoint measurementPosition( const LocalPoint& ) const;
-
   /** Strip in which a given LocalPoint lies. This is a float which
    * represents the fractional strip position within the detector.<BR>
    * Returns zero if the LocalPoint falls at the extreme low edge of the

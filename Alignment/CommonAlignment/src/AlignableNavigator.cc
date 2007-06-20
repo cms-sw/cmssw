@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.16.2.2 $
-//   $Date: 2007/05/11 14:07:31 $
+//   $Revision: 1.16.2.1 $
+//   $Date: 2007/04/30 11:33:57 $
 //   (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -12,23 +12,27 @@
 
 //_____________________________________________________________________________
 
+AlignableNavigator::AlignableNavigator( Alignable* alignable )
+{
+  theMap.clear();
+
+  recursiveGetId( alignable );
+
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
+                            << theMap.size();
+}
+
+//_____________________________________________________________________________
+
 AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
 {
   theMap.clear();
 
-  const unsigned int numNonDets = this->recursiveGetId(tracker) + this->recursiveGetId(muon);
-  if (numNonDets) {
-    edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
-                                 << theMap.size() << ", but found also " << numNonDets 
-                                 << " Alignables that have DetId=0,\nbeing neither "
-				 << "AlignableDet nor AlignableDetUnit. This will "
-                                 << "lead to an exception in case alignableFromDetId(..) "
-				 << "is called for one of these DetIds.\n" 
-                                 << "If there is no exception, you can ignore this message.";
-  } else {
-    edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
-                              << theMap.size() << ".";
-  }
+  recursiveGetId( tracker );
+  recursiveGetId( muon );
+
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
+                            << theMap.size();
 }
 
 
@@ -38,22 +42,11 @@ AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
 {
   theMap.clear();
 
-  unsigned int numNonDets = 0;
-  for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it ) {
-    numNonDets += this->recursiveGetId(*it);
-  }
-  if (numNonDets) {
-    edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
-                                 << theMap.size() << ", but found also " << numNonDets 
-                                 << " Alignables that have DetId=0,\nbeing neither "
-				 << "AlignableDet nor AlignableDetUnit. This will "
-                                 << "lead to an exception in case alignableFromDetId(..) "
-				 << "is called for one of these DetIds.\n" 
-                                 << "If there is no exception, you can ignore this message.";
-  } else {
-    edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
-                              << theMap.size() << ".";
-  }
+  for ( std::vector<Alignable*>::iterator it = alignables.begin(); it != alignables.end(); ++it )
+    recursiveGetId( *it );
+
+  edm::LogInfo("Alignment") <<"@SUB=AlignableNavigator" << "created with map of size "
+                            << theMap.size();
 }
 
 //_____________________________________________________________________________
@@ -108,17 +101,11 @@ AlignableDet* AlignableNavigator::alignableDetFromDetId( const DetId &detId )
 
 //_____________________________________________________________________________
 
-unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
+void AlignableNavigator::recursiveGetId( Alignable* alignable )
 {
   // Recursive method to get the detIds of an alignable and its childs
-  // and add the to the map.
-  // Returns number of Alignables with DetId which are neither AlignableDet
-  // nor AlignableDetUnit and are thus not added to the map.
-
-  if (!alignable) return 0;
-
-  unsigned int nProblem = 0;
-  const DetId detId(alignable->geomDetId());
+  // and add the to the map
+  DetId detId(alignable->geomDetId());
   if ( detId.rawId()) {
     AlignableDet *aliDet = dynamic_cast<AlignableDet*>(alignable);
     if (aliDet) {
@@ -128,14 +115,12 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
       if (aliDetUnit) {
         theMap.insert( PairType( detId, aliDetUnit ) );
       } else {
-        ++nProblem;
-// Cannot be an exception since it happens (illegaly) in Muon DT hierarchy:
-//         throw cms::Exception("BadLogic") 
-//           << "[AlignableNavigator::recursiveGetId] Alignable with DetId " << detId.rawId() 
-//           << " neither AlignableDet nor AlignableDetUnit";
+        throw cms::Exception("BadLogic") 
+          << "[AlignableNavigator::recursiveGetId] Alignable with DetId " << detId.rawId() 
+          << " neither AlignableDet nor AlignableDetUnit";
       }
     }
-    if (!nProblem && !this->detAndSubdetInMap(detId)) {
+    if (!this->detAndSubdetInMap( detId )) {
       theDetAndSubdet.push_back(std::pair<int, int>( detId.det(), detId.subdetId() ));
     }
   }
@@ -143,10 +128,9 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
   if ( alignable->alignableObjectId() != AlignableObjectId::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
     for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
-      nProblem += this->recursiveGetId(*it);
+      this->recursiveGetId( *it );
     }
   }
-  return nProblem;
 }
 
 //_____________________________________________________________________________
@@ -165,6 +149,7 @@ AlignableNavigator::alignablesFromHits( const std::vector<const TransientTrackin
 }
 
 //_____________________________________________________________________________
+
 std::vector<AlignableDetOrUnitPtr>
 AlignableNavigator::alignablesFromHits
 (const TransientTrackingRecHit::ConstRecHitContainer &hitVec)

@@ -4,8 +4,8 @@
  *  The update method is called each event in order to update the
  *  pointers.
  *
- *  $Date: 2007/02/16 13:32:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/05/10 19:35:33 $
+ *  $Revision: 1.11 $
  *  \author N. Amapane - CERN <nicola.amapane@cern.ch>
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
@@ -69,6 +69,7 @@ MuonServiceProxy::~MuonServiceProxy(){
   
   // FIXME: is it enough?
   thePropagators.clear();
+  if(theSchool) delete theSchool;
 }
 
 // Operations

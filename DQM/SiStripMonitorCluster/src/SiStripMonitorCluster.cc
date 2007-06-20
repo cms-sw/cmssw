@@ -5,7 +5,7 @@
 */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.27 2007/04/24 09:42:42 dkcira Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.28 2007/05/08 21:37:16 dkcira Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -178,7 +178,12 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     uint32_t detid = iterMEs->first;  ModMEs modSingle = iterMEs->second;
     // get from DetSetVector the DetSet of clusters belonging to one detid - first make sure there exists clusters with this id
     edm::DetSetVector<SiStripCluster>::const_iterator isearch = cluster_detsetvektor->find(detid); // search  clusters of detid
-    if(isearch==cluster_detsetvektor->end()) continue; // no clusters for this detid => jump to next step of loop
+    if(isearch==cluster_detsetvektor->end()){
+      if(modSingle.NumberOfClusters != NULL){
+        (modSingle.NumberOfClusters)->Fill(0.,1.); // no clusters for this detector module, so fill histogram with 0
+      }
+      continue; // no clusters for this detid => jump to next step of loop
+    }
     //cluster_detset is a structure, cluster_detset.data is a std::vector<SiStripCluster>, cluster_detset.id is uint32_t
     edm::DetSet<SiStripCluster> cluster_detset = (*cluster_detsetvektor)[detid]; // the statement above makes sure there exists an element with 'detid'
 

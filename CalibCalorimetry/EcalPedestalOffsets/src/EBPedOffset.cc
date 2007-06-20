@@ -1,8 +1,8 @@
 /**
  * \file EBPedOffset.cc
  *
- * $Date: 2007/04/22 16:00:50 $
- * $Revision: 1.16 $
+ * $Date: 2007/04/23 07:41:33 $
+ * $Revision: 1.17 $
  * \author P. Govoni (pietro.govoni@cernNOSPAM.ch)
  * Last updated: @DATE@ @AUTHOR@
  *
@@ -141,7 +141,7 @@ void EBPedOffset::analyze (Event const& event,
    // (one digi for each crystal)
    Handle<EBDigiCollection> pDigis;
    try {
-     event.getByLabel (m_digiProducer, pDigis) ;
+     event.getByLabel (m_digiProducer, m_digiCollection, pDigis) ;
    } catch ( std::exception& ex ) 
    {
      edm::LogError ("EBPedOffset") << "Error! can't get the product " 

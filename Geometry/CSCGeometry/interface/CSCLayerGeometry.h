@@ -15,7 +15,6 @@
 #include <Geometry/CSCGeometry/interface/CSCWireTopology.h>
 #include <DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h>
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
 
 class CSCWireGroupPackage;
 
@@ -220,13 +219,6 @@ public:
    * Length of a wire group (center wire, across chamber face)
    */
   float lengthOfWireGroup( int wireGroup ) const;
-
-  /**
-   * Transform strip and wire errors to local x, y frame
-   * Need to supply (central) strip of the hit.
-   * The sigma's are in distance units.
-   */
-  LocalError localError( int strip, float sigmaStrip, float sigmaWire ) const;
   
   /**
    * Topology owned by this MELG

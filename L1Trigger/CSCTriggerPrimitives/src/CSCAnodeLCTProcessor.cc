@@ -20,8 +20,8 @@
 //                Porting from ORCA by S. Valuev (Slava.Valuev@cern.ch),
 //                May 2006.
 //
-//   $Date: 2007/03/07 09:35:44 $
-//   $Revision: 1.14 $
+//   $Date: 2007/04/18 16:08:55 $
+//   $Revision: 1.15 $
 //
 //   Modifications: 
 //
@@ -141,7 +141,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
 
   // ALCT configuration parameters.
   fifo_tbins   = conf.getParameter<unsigned int>("alctFifoTbins");  // def = 16
-  fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");// def = 16
+  fifo_pretrig = conf.getParameter<unsigned int>("alctFifoPretrig");// def = 10
   bx_width     = conf.getParameter<unsigned int>("alctBxWidth");    // def = 6
   drift_delay  = conf.getParameter<unsigned int>("alctDriftDelay"); // def = 3
   nph_thresh   = conf.getParameter<unsigned int>("alctNphThresh");  // def = 2
@@ -188,7 +188,7 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor() :
 void CSCAnodeLCTProcessor::setDefaultConfigParameters() {
   // Set default values for configuration parameters.
   fifo_tbins   = 16;
-  fifo_pretrig = 16;
+  fifo_pretrig = 10;
   bx_width     =  6;
   drift_delay  =  3;
   nph_thresh   =  2;
@@ -447,7 +447,7 @@ void CSCAnodeLCTProcessor::readWireDigis(int wire[CSCConstants::NUM_LAYERS][CSCC
       // Accept digis in expected time window.  Total number of time
       // bins in DAQ readout is given by fifo_tbins, which thus
       // determines the maximum length of time interval.  Anode raw
-      // hits in DAQ readout start (fifo_pretrig - 10) clocks before
+      // hits in DAQ readout start (fifo_pretrig - 6) clocks before
       // L1Accept.  If times earlier than L1Accept were recorded, we
       // use them since they can modify the ALCTs found later, via
       // ghost-cancellation logic.
@@ -837,7 +837,7 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     if (!plct->isValid()) continue;
 
     // Skip ALCTs found too early relative to L1Accept.
-    int early_tbins = fifo_pretrig - 10;
+    int early_tbins = fifo_pretrig - 6;
     if (early_tbins < 0) {
       edm::LogWarning("CSCAnodeLCTProcessor|OutOfTime")
 	<< "+++ fifo_pretrig = " << fifo_pretrig

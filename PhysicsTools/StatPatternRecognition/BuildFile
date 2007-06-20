@@ -1,6 +1,0 @@
-<export>
- <lib name=CommonToolsStatPatternRecognition>
- <use name=root>
-</export>
-
-<use name=root>

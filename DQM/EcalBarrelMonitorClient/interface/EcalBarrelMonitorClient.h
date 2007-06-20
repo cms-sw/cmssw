@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/05/25 07:04:16 $
- * $Revision: 1.72 $
+ * $Date: 2007/06/08 18:39:42 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -31,20 +31,24 @@
 
 #include <DQM/EcalBarrelMonitorClient/interface/EBSummaryClient.h>
 
+#include "EventFilter/Utilities/interface/ModuleWeb.h"
+
+#include "xgi/include/xgi/Input.h"
+#include "xgi/include/xgi/Output.h"
+
 #include "TROOT.h"
 #include "TH1.h"
 
-class EcalBarrelMonitorClient: public edm::EDAnalyzer{
+class EcalBarrelMonitorClient: public edm::EDAnalyzer, public evf::ModuleWeb{
 
 public:
 
 /// Constructor
 EcalBarrelMonitorClient(const edm::ParameterSet & ps);
-EcalBarrelMonitorClient(const edm::ParameterSet & ps, MonitorUserInterface* mui);
-  
+
 /// Destructor
 ~EcalBarrelMonitorClient();
-  
+
 /// Subscribe/Unsubscribe to Monitoring Elements
 void subscribe(void);
 void subscribeNew(void);
@@ -52,39 +56,50 @@ void unsubscribe(void);
 
 /// softReset
 void softReset(void);
-  
+
 // Initialize
 void initialize(const edm::ParameterSet & ps);
 
 /// Analyze
 void analyze(void);
-void analyze(const edm::Event & e, const edm::EventSetup & c){ this->analyze(); }
-  
+void analyze(const edm::Event & e, const edm::EventSetup & c);
+
 /// BeginJob
-void beginJob(void);
-void beginJob(const edm::EventSetup & c){ this->beginJob(); }
-  
+void beginJob(const edm::EventSetup & c);
+
 /// EndJob
 void endJob(void);
-  
+
 /// BeginRun
 void beginRun(void);
- 
+void beginRun(const edm::Run & r, const edm::EventSetup & c);
+
 /// EndRun
 void endRun(void);
-  
+void endRun(const edm::Run & r, const edm::EventSetup & c);
+
+/// BeginLumiBlock
+void beginLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
+/// EndLumiBlock
+void endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & c);
+
 /// Setup
 void setup(void);
-  
+
 /// Cleanup
 void cleanup(void);
-  
+
 /// HtmlOutput
 void htmlOutput(bool current=false);
-  
+
+/// XDAQ web page
+void defaultWebPage(xgi::Input *in, xgi::Output *out);
+void publish(xdata::InfoSpace *){};
+
 /// BeginRunDB
 void beginRunDb(void);
-  
+
 /// WriteDB
 void writeDb(void);
 

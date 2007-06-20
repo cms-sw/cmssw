@@ -66,7 +66,7 @@ class DDXMLElementRegistry
 /*    RegistryMap::iterator DDXMLElementRegistry::end() const; */
 
  private:
-  RegistryMap registry_;
+  RegistryMap* registry_;
 
 };
 

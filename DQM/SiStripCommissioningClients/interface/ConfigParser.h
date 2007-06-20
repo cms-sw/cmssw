@@ -63,19 +63,13 @@ class ConfigParser : public DQMParserBase {
   /** Returns SummaryPlot objects for given commissioning task. */
   std::vector<SummaryPlot> summaryPlots( const sistrip::RunType& );
   
-  /** Debug print method. */
-  void print( std::stringstream& ) const;
-  
  private:
-
+  
   /** Container holding the SummaryPlot objects. */
   std::map< sistrip::RunType, std::vector<SummaryPlot> > summaryPlotMap_;
   
 };
 
-// Overloaded "<<" operator for debug information 
-
-std::ostream& operator<< ( std::ostream&, const ConfigParser& );
 std::ostream& operator<< ( std::ostream&, const ConfigParser::SummaryPlot& );
 
 #endif // DQM_SiStripCommissioningClients_ConfigParser_H

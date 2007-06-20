@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May 23 11:03:31 EDT 2006
-// $Id: BareRootProductGetter.cc,v 1.13 2007/05/04 18:41:37 chrjones Exp $
+// $Id: BareRootProductGetter.cc,v 1.14 2007/05/14 20:04:29 chrjones Exp $
 //
 
 // system include files
@@ -76,6 +76,7 @@ BareRootProductGetter::~BareRootProductGetter()
 //
 edm::EDProduct const*
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
+  //std::cout <<"getIt called"<<std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
 
   if(currentFile !=presentFile_) {
@@ -133,6 +134,11 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
     return 0;
   }
   if(buffer->eventEntry_ != eventEntry_) {
+    //NOTE: Need to reset address because user could have set the address themselves
+    //std::cout <<"new event"<<std::endl;
+    void* address = &(buffer->address_);
+    buffer->branch_->SetAddress( address );
+
     buffer->branch_->GetEntry( eventEntry_ );
     buffer->eventEntry_=eventEntry_;
   }

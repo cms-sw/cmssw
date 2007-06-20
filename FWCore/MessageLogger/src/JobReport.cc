@@ -6,7 +6,7 @@
 // 
 //
 // Original Author:  Marc Paterno
-// $Id: JobReport.cc,v 1.19 2007/05/29 20:27:27 evansde Exp $
+// $Id: JobReport.cc,v 1.20 2007/05/29 21:33:08 evansde Exp $
 //
 
 
@@ -54,6 +54,10 @@ namespace edm
       os << "\n<TotalEvents>" 
 			<< f.numEventsWritten 
 			<< "</TotalEvents>\n";
+      os << "\n<DataType>" 
+			<< f.dataType 
+			<< "</DataType>\n";
+
       return os;      
     }
 
@@ -373,6 +377,7 @@ namespace edm
 				string const& outputModuleClassName,
 				string const& moduleLabel,
 				string const& guid,
+				string const& dataType,
 				vector<string> const& branchNames)
     {
       impl_->outputFiles_.push_back(JobReport::OutputFile());
@@ -384,6 +389,7 @@ namespace edm
       r.outputModuleClassName = outputModuleClassName;
       r.moduleLabel           = moduleLabel;
       r.guid           = guid;
+      r.dataType = dataType;
       // r.runsSeen is not modified
       r.numEventsWritten      = 0;
       r.branchNames           = branchNames;
@@ -395,23 +401,49 @@ namespace edm
       return impl_->outputFiles_.size()-1;
     }
 
+  
     JobReport::Token 
     JobReport::outputFileOpened(string const& physicalFileName,
 				string const& logicalFileName,
 				string const& catalog,
 				string const& outputModuleClassName,
 				string const& moduleLabel,
+				string const& guid,
 				vector<string> const& branchNames)
     {
-   
       return this->outputFileOpened(physicalFileName,
 				    logicalFileName,
 				    catalog,
 				    outputModuleClassName,
 				    moduleLabel,
+				    guid,
 				    "",
 				    branchNames);
+
     }
+  
+
+  
+  JobReport::Token 
+  JobReport::outputFileOpened(string const& physicalFileName,
+			      string const& logicalFileName,
+			      string const& catalog,
+			      string const& outputModuleClassName,
+			      string const& moduleLabel,
+			      vector<string> const& branchNames)
+  {
+   
+    return this->outputFileOpened(physicalFileName,
+				  logicalFileName,
+				  catalog,
+				  outputModuleClassName,
+				  moduleLabel,
+				  "",
+				  "",
+				  branchNames);
+  }
+  
+
 
     void
     JobReport::eventWrittenToFile(JobReport::Token fileToken, unsigned int run, unsigned int)

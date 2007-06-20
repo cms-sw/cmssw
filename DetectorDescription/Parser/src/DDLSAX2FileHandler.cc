@@ -37,6 +37,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
+#include <iterator>
+#include <stack>
 
 // ---------------------------------------------------------------------------
 //  DDLSAX2Handler: Constructors and Destructor
@@ -63,12 +66,15 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 				      , const XMLCh* const qname
 				      , const Attributes& attrs)
 {
-  // static seal::SealTimer tdds2fhse("DDLSAX2FileHandler::startElement(..)");
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).accumulate();
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).chrono().start();
-  DCOUT_V('P', "DDLSAX2FileHandler::startElement started");
+  // static seal::SealTimer tdds2fhse("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(..)");
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").accumulate();
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").chrono().start();
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement started");
   
-  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(StrX(qname).localForm()));
+  //***  char * buf = XMLString::transcode(qname);
+  StrX myName(qname);
+  //***  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(std::string(buf));
+  std::map<std::string, std::string*>::const_iterator namePtr = namesMap_.find(myName.stringForm());
   std::string* nameInt;
   if (namePtr != namesMap_.end())
     {
@@ -76,13 +82,24 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
     }
   else
     {
-      std::string * sp = new std::string(StrX(qname).localForm());
+      std::string * sp = new std::string(myName.stringForm());
       nameInt = sp;
       namesMap_[*sp] = nameInt;
     }
   names_.push_back(nameInt);
-  std::string myElementName(StrX(qname).localForm());
+  std::string myElementName = myName.stringForm();
 
+  //  std::cout << "start: namesMap_ = " << *(names_.back()) << "  names_.back()= " << names_.back() << std::endl;
+
+  //***  delete[] buf;
+
+//    char * xmlc = XMLString::transcode(qname);
+//    std::string myElementName = std::string(xmlc);
+//    delete[] xmlc;
+  //DDLSAX2Handler::startElement(uri, localname, qname, attrs);
+  //  std::cout << "names_.top() = " << names_.top() << std::endl;
+  // count types of elements.  Note, this is cumulative for all files handled by
+  // this handler.
   ++elementTypeCounter_[myElementName];
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
 
@@ -91,8 +108,17 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   for (unsigned int i = 0; i < numAtts; ++i)
     {
-      attrNames.push_back(std::string(StrX(attrs.getLocalName(i)).localForm()));
-      attrValues.push_back(std::string(StrX(attrs.getValue(i)).localForm()));
+      //***      char * buf = XMLString::transcode(attrs.getLocalName(i));
+      //***      std::string myattname(buf); delete[] buf;
+      //**** std::string myattname = StrX(attrs.getLocalName(i)).stringForm();
+      //***      buf = XMLString::transcode(attrs.getValue(i));
+      //***      std::string myvalue(buf); delete[] buf;
+      //****      std::string myvalue = StrX(attrs.getValue(i)).stringForm();
+      //***      buf = XMLString::transcode(attrs.getQName(i));
+      //***      std::string myQName(buf); delete[] buf;
+      //      std::string myQName = StrX(attrs.getQName(i)).stringForm();
+      attrNames.push_back(StrX(attrs.getLocalName(i)).stringForm());//myattname);
+      attrValues.push_back(StrX(attrs.getValue(i)).stringForm());//myvalue);
     }
 
   if (myElement != NULL)
@@ -106,13 +132,13 @@ void DDLSAX2FileHandler::startElement(const XMLCh* const uri
 
   else 
     {
-      std::string s = "DDLSAX2FileHandler::startElement ERROR No pointer returned from";
+      std::string s = "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement ERROR No pointer returned from";
       s += " DDLElementRegistry::getElement( name ).  MAJOR PROBLEM.  ";
       s += "  This should never be seen!  Element is " + myElementName;
       throw DDException(s);
     }
-  t_.item(std::string("DDLSAX2FileHandler::startElement(...)")).chrono().stop();
-  DCOUT_V('P', "DDLSAX2FileHandler::startElement completed");
+  t_.item("DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement(...)").chrono().stop();
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::startElement completed");
 }
 
 void DDLSAX2FileHandler::endElement(const XMLCh* const uri
@@ -121,7 +147,7 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
 {
   std::string myElementName = *(names_.back());
 
-  DCOUT_V('P', "DDLSAX2FileHandler::endElement started");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement started");
   DCOUT_V('P', "    " + myElementName);
 
   DDXMLElement* myElement = DDLElementRegistry::getElement(myElementName);
@@ -141,22 +167,36 @@ void DDLSAX2FileHandler::endElement(const XMLCh* const uri
     }
   else 
     {
-      std::string s = "DDLSAX2FileHandler::endElement ERROR No pointer returned from";
+      std::string s = "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement ERROR No pointer returned from";
       s += " DDLElement::getElement( name ).  MAJOR PROBLEM.  ";
       s += "  This should never be seen!  Element is " + myElementName;
       throw DDException(s);
     }
-  DCOUT_V('P', "DDLSAX2FileHandler::endElement completed");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::endElement completed");
   names_.pop_back();
 }
 
 void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
 				    , const unsigned int    length)
 {
-  DCOUT_V('P', "DDLSAX2FileHandler::characters started");
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::characters started");
+
+  //DDLSAX2Handler::characters ( chars, length );
 
   DDXMLElement* myElement = NULL;
-  myElement = DDLElementRegistry::getElement(*(names_.back()));
+//   // how to handle first one?  DDDefinition?  maybe make it in the registry instead...
+//   // for now, this will work.
+//   std::string myElementName = "**defaulted**";
+//   if (names_.size() == 1)
+//     {
+//       myElement = new DDXMLElement;
+//       myElement->loadText(std::string());
+//     }
+//   else
+//     {
+      myElement = DDLElementRegistry::getElement(*(names_.back()));
+      //      std::string myElementName = *(names_.back());
+//     }
 
   std::string inString = "";
   for (unsigned int i = 0; i < length; ++i)
@@ -169,7 +209,7 @@ void DDLSAX2FileHandler::characters(  const   XMLCh* const    chars
   else
     myElement->loadText(inString);
 
-  DCOUT_V('P', "DDLSAX2FileHandler::characters completed"); 
+  DCOUT_V('P', "DetectorDescription/Parser/interface/DDLSAX2FileHandler::characters completed"); 
 }
 
 void DDLSAX2FileHandler::comment( const   XMLCh* const    chars
@@ -181,10 +221,11 @@ void DDLSAX2FileHandler::comment( const   XMLCh* const    chars
 std::string DDLSAX2FileHandler::extractFileName(std::string fullname)
 {
   std::string ret = "";
-  size_t bit = fullname.rfind('/');
-  if ( bit < fullname.size() - 2 ) {
-    ret=fullname.substr(bit+1);
-  }
+  size_t startfrom = fullname.size() - 1;
+  while (startfrom > 0 && fullname[startfrom] != '/')
+    --startfrom;
+  if (fullname[startfrom] == '/') startfrom = startfrom + 1;
+  ret = fullname.substr(startfrom, fullname.size() - startfrom);
   return ret;
 }
 

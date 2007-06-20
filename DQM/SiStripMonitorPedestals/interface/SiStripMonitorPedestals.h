@@ -16,7 +16,7 @@
 //
 // Original Author:  gennai, dutta
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorPedestals.h,v 1.9 2007/02/15 15:32:18 dutta Exp $
+// $Id: SiStripMonitorPedestals.h,v 1.10 2007/03/23 14:31:28 dutta Exp $
 //
 
 // system include files
@@ -31,7 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/MonitorElement.h"
 
 // data formats
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -43,26 +42,17 @@
 #include "CalibTracker/Records/interface/SiStripDetCablingRcd.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 //
-#include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 //SiStripPedestalsService
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripPedestalsService.h"
 #include "CommonTools/SiStripZeroSuppression/interface/SiStripNoiseService.h"
 
 #include "boost/cstdint.hpp"
-#include <iostream>
-#include <sstream>
 #include <iomanip>
 #include <string>
-#include <vector>
 
-
-class FEDRawDataCollection;
-class FEDRawData;
-class SiStripDigi;
-class SiStripRawDigi;
-class SiStripEventSummary;
-class SiStripFedCabling;
-
+class ApvAnalysisFactory;
+class MonitorElement;
+class DaqMonitorBEInterface;
 
 class SiStripMonitorPedestals : public edm::EDAnalyzer {
    public:
@@ -96,6 +86,7 @@ class SiStripMonitorPedestals : public edm::EDAnalyzer {
 	 MonitorElement* CMSubNoisePerStripDB;
 	 MonitorElement* NoisyStripsDB;
        };
+
        DaqMonitorBEInterface* dbe_;
        edm::ParameterSet conf_;
        std::map<uint32_t, ModMEs> PedMEs;

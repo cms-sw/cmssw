@@ -14,8 +14,8 @@
 class EcalFEMSample {
  public:
   EcalFEMSample() { theSample=0; }
-  EcalFEMSample(uint16_t data) { theSample=data; }
-  EcalFEMSample(int adc, int gainId);
+  EcalFEMSample(const uint16_t& data) { theSample=data; }
+  EcalFEMSample(const int& adc, const int& gainId);
     
   /// get the raw word
   uint16_t raw() const { return theSample; }

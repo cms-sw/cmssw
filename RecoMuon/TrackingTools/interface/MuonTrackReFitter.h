@@ -9,8 +9,8 @@
  *   and a Kalman backward smoother.
  *
  *
- *   $Date: 2006/09/01 21:33:10 $
- *   $Revision: 1.4 $
+ *   $Date: 2007/04/12 00:39:14 $
+ *   $Revision: 1.5 $
  *
  *   \author   N. Neumeister            Purdue University
  */
@@ -61,14 +61,12 @@ class MuonTrackReFitter : public TrajectorySmoother {
     virtual TrajectoryContainer trajectory(const TrajectorySeed& seed,
 					   const ConstRecHitContainer& hits, 
 					   const TrajectoryStateOnSurface& firstPredTsos) const;
-
-    /// get the propagator(s)
-    Propagator* propagator(PropagationDirection propagationDirection = alongMomentum) const;
-
     /// clone
     MuonTrackReFitter* clone() const {
       return new MuonTrackReFitter(*this);
     }
+
+    std::string propagatorAlongMomentum() const {return theAlongMomentumProp;}
 
   private:    
 
@@ -87,17 +85,12 @@ class MuonTrackReFitter : public TrajectorySmoother {
   private:
 
     const MuonServiceProxy *theService;
-    static Propagator* thePropagator1;
-    static Propagator* thePropagator2;
-
     const TrajectoryStateUpdator* theUpdator;
     const MeasurementEstimator* theEstimator;
     float theErrorRescaling;
 
-    std::string theInPropagatorAlongMom;
-    std::string theOutPropagatorAlongMom;
-    std::string theInPropagatorOppositeToMom;
-    std::string theOutPropagatorOppositeToMom;
+    std::string theOppositeToMomentumProp;
+    std::string theAlongMomentumProp;
 };
 
 #endif

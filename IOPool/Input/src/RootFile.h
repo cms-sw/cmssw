@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.1 2007/04/16 19:43:51 wmtan Exp $
+$Id: RootFile.h,v 1.24 2007/05/08 16:24:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -43,9 +43,8 @@ namespace edm {
     ~RootFile();
     void open();
     void close();
-    std::auto_ptr<EventPrincipal> read(ProductRegistry const& pReg);
-    ProductRegistry const& productRegistry() const {return *productRegistry_;}
-    boost::shared_ptr<ProductRegistry> productRegistrySharedPtr() const {return productRegistry_;}
+    std::auto_ptr<EventPrincipal> read(boost::shared_ptr<ProductRegistry const> pReg);
+    boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     EventAuxiliary const& eventAux() {return eventAux_;}
     LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
     RunAuxiliary const& runAux() {return runAux_;}
@@ -57,8 +56,8 @@ namespace edm {
 
   private:
     void validateFile();
-    boost::shared_ptr<RunPrincipal> readRun(ProductRegistry const& pReg, RunNumber_t const& runNumber);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(ProductRegistry const& pReg,
+    boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg, RunNumber_t const& runNumber);
+    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<ProductRegistry const> pReg,
 							 RunNumber_t const& runNumber,
 							 LuminosityBlockNumber_t const& lumiID,
 							 bool isNewRun);
@@ -78,7 +77,7 @@ namespace edm {
     RootTree lumiTree_;
     RootTree runTree_;
     RootTreePtrArray treePointers_;
-    boost::shared_ptr<ProductRegistry> productRegistry_;
+    boost::shared_ptr<ProductRegistry const> productRegistry_;
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
   }; // class RootFile
 

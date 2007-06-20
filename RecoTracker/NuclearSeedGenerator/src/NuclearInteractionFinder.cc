@@ -7,6 +7,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 
@@ -23,12 +24,14 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
    edm::ESHandle<GeometricSearchTracker>       theGeomSearchTrackerHandle;
 
    es.get<TrackingComponentsRecord>().get("PropagatorWithMaterial",prop);
+   es.get<TrackingComponentsRecord>().get("KFUpdator",upd);
    es.get<TrackingComponentsRecord>().get("Chi2",est);
    es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
    es.get<TrackerRecoGeometryRecord>().get( theGeomSearchTrackerHandle );
    es.get<IdealMagneticFieldRecord>().get(theMagField);
 
    thePropagator = prop.product();
+   theUpdator = upd.product();
    theEstimator = est.product();
    theMeasurementTracker = measurementTrackerHandle.product();
    theLayerMeasurements = new LayerMeasurements(theMeasurementTracker);
@@ -43,8 +46,6 @@ checkCompletedTrack(iConfig.getParameter<bool>("checkCompletedTrack"))
                                         << "rescaleErrorFactor : " << rescaleErrorFactor << "\n"
                                         << "checkCompletedTrack : " << checkCompletedTrack << "\n";
    nuclTester = new NuclearTester(es, iConfig);
-
-   currentSeed = new SeedFromNuclearInteraction(es, iConfig);
 }
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::setEvent(const edm::Event& event) const
@@ -55,23 +56,23 @@ void NuclearInteractionFinder::setEvent(const edm::Event& event) const
 //----------------------------------------------------------------------
 NuclearInteractionFinder::~NuclearInteractionFinder() {
   delete theNavigationSchool;
-  delete nuclTester;
-  delete currentSeed;
-  delete thePrimaryCircle;
 }
 
 //----------------------------------------------------------------------
-bool  NuclearInteractionFinder::run(const Trajectory& traj) {
+std::vector<std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> > > NuclearInteractionFinder::run(const TrajectoryContainer& vTraj) const {
 
-        // initialization
-        nuclTester->reset();
-        allSeeds.clear();
+    int ite=0;
+    std::vector<std::pair<TM, std::vector<TM> > > result;
 
-        if(traj.empty() || !traj.isValid()) return false;
+    // Loop on all trajectories
+    for (TrajectoryContainer::const_iterator traj=vTraj.begin();
+         traj!=vTraj.end(); traj++, ite++) {
 
-        std::vector<TrajectoryMeasurement> measurements = traj.measurements();
+        if(traj->empty() || !traj->isValid()) break;
 
-        if(traj.direction()==alongMomentum)  {
+        std::vector<TrajectoryMeasurement> measurements = traj->measurements();
+
+        if(traj->direction()==alongMomentum)  {
                 LogDebug("NuclearInteractionFinder") << "NEW TRACK with direction along the momentum\n";
                 std::reverse(measurements.begin(), measurements.end());
         }
@@ -83,12 +84,14 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
         std::vector<double> ncompatibleHits;
         bool NIfound = false;
 
+        nuclTester->reset();
+
         // Loop on all the RecHits. 
         while(!NIfound)
          {
            if(it_meas == measurements.end()) break;
 
-           nuclTester->push_back(*it_meas, findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
+           nuclTester->push_back(findCompatibleMeasurements(*it_meas, rescaleErrorFactor));
            LogDebug("NuclearInteractionFinder") << "Number of compatible meas:" << (nuclTester->back()).size() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanHitDistance() << "\n"
                                                 << "Mean distance between hits :" << nuclTester->meanEstimate() << "\n";
@@ -99,39 +102,29 @@ bool  NuclearInteractionFinder::run(const Trajectory& traj) {
            if(nuclTester->isNuclearInteraction()) NIfound=true;
 
            ++it_meas;
-         }
-
+        }
         if(NIfound) {
             LogDebug("NuclearInteractionFinder") << "NUCLEAR INTERACTION FOUND at index : " << nuclTester->nuclearIndex() << "\n";
-
-            // Get correct parametrization of the circle of the primary track at the interaction point (to be used by improveCurrentSeed)
-            definePrimaryCircle(measurements.begin()+nuclTester->nuclearIndex()-1);
-
-            this->fillSeeds( nuclTester->goodTMPair());
-
-            return true;
+            TM nuclearTM = *(measurements.begin()+nuclTester->nuclearIndex()-1);
+            result.push_back(std::make_pair( nuclearTM,  findCompatibleMeasurements(nuclearTM, rescaleErrorFactor )));
         }
 
-    return false;
-}
-//----------------------------------------------------------------------
-void NuclearInteractionFinder::definePrimaryCircle(std::vector<TrajectoryMeasurement>::const_iterator it_meas) {
-    // This method uses the 3 last TM after the interaction point to calculate the circle parameters
-
-    GlobalPoint pt[3];
-    for(int i=0; i<3; i++) {
-       pt[i] = (it_meas->updatedState()).globalParameters().position();
-       it_meas++;
     }
-    thePrimaryCircle = new TangentCircle( pt[0], pt[1], pt[2] );
+    return result;
 }
 //----------------------------------------------------------------------
 std::vector<TrajectoryMeasurement>
 NuclearInteractionFinder::findCompatibleMeasurements(const TM& lastMeas, double rescale) const
 {
+//  double min_pt=1;
+
   TSOS currentState = lastMeas.updatedState();
   LogDebug("NuclearInteractionFinder") << "currentState :" << currentState << "\n";
-
+/*
+  TSOS currentStateError = stateWithLargeError(currentState, min_pt, rescale);
+  LogDebug("NuclearInteractionFinder") << "currentStateError :" << currentStateError << "\n";
+ //TSOS currentStateErrorInv = stateWithLargeError(currentState, min_pt, -1);
+*/
   currentState.rescaleError(rescale);
   return findMeasurementsFromTSOS(currentState, lastMeas);
 }
@@ -144,11 +137,12 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
   int invalidHits = 0;
   vector<TM> result;
   DetId detid = lastMeas.recHit()->geographicalId();
-  const DetLayer* lastLayer = theGeomSearchTracker->detLayer( detid ); 
+  const DetLayer* lastLayer = theGeomSearchTracker->detLayer( detid ); //traj.lastLayer();
   vector<const DetLayer*> nl;
 
   if(lastLayer) { 
           nl = lastLayer->nextLayers( *currentState.freeState(), alongMomentum);
+          LogDebug("NuclearInteractionFinder") << "In findCompatibleMeasurements :  number of compatible layers : " << nl.size() << "\n";
   }
   else {
       edm::LogError("NuclearInteractionFinder") << "In findCompatibleMeasurements : lastLayer not accessible";
@@ -182,43 +176,21 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, con
 }
 
 //----------------------------------------------------------------------
-void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement, std::vector<TrajectoryMeasurement> >& tmPairs ) {
-  // This method returns the seeds calculated by the class SeedsFromNuclearInteraction
+/*
+TrajectoryStateOnSurface NuclearInteractionFinder::stateWithLargeError(const TSOS& state, double min_pt,  int rescale) const {
+   // Modification of the momentum = momentum/2
+   LocalTrajectoryParameters ltp = state.localParameters();
+   AlgebraicVector v = ltp.vector();
+   //v[0] = 2*sign*v[0];
+   LocalTrajectoryParameters newltp(v, ltp.pzSign(), true);
 
-            const TM& innerHit = tmPairs.first;
-            const std::vector<TM>& outerHits = tmPairs.second;
+   // Modification of the error : on the all the parameters by a factor 10
+   // on the momentum by a factor 10000  
+   AlgebraicSymMatrix m(state.localError().matrix());
+   //double sigma = (v[0] > 0) ? fabs(v[0]-1/min_pt) : fabs(v[0]+1/min_pt);
+   m*=rescale*rescale;
+   //m[0][0] = v[0];
 
-            // Loop on all outer TM 
-            for(std::vector<TM>::const_iterator outhit = outerHits.begin(); outhit!=outerHits.end(); outhit++) {
-               if((innerHit.recHit())->isValid() && (outhit->recHit())->isValid()) {
-                     currentSeed->setMeasurements(innerHit, *outhit);
-                     allSeeds.push_back(*currentSeed);
-                }
-                else  LogDebug("NuclearInteractionFinder") << "The initial hits for seeding are invalid" << "\n";
-             } 
-             return;
+   return TSOS(newltp, m, state.surface(), &(state.globalParameters().magneticField()), state.surfaceSide());
 }
-//----------------------------------------------------------------------
-void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedCollection>& output ) {
-   for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
-       if(it_seed->isValid()) {
-           output->push_back( it_seed->TrajSeed() );
-            LogDebug("NuclearInteractionFinder") << "Seed put in event: " << "\n"
-                                                 << "State : " << (it_seed->trajectoryState()).parameters().position() << "\n";
-       }
-       else LogDebug("NuclearInteractionFinder") << "The seed is invalid" << "\n";
-   }
-}
-//----------------------------------------------------------------------
-void NuclearInteractionFinder::improveSeeds() {
-        std::vector<SeedFromNuclearInteraction> newSeedCollection;
-        for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
-              std::vector<TM> thirdTMs = findCompatibleMeasurements(  *(it_seed->outerMeasurement()), 10 );
-              for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {
-                   // TODO : write this constructor of TangentCircle :
-//                   TangentCircle circle(thePrimaryCircle, it_seed->outerMeasurement().updatedState().globalParameters().position(), tm->outerMeasurement().updatedState().globalParameters().position() );
-                   // TODO : write this constructor for SeedFromNuclearInteraction :
-//                   newSeedCollection.push_back(SeedFromNuclearInteraction(circle, it_seed->outerMeasurement(), *tm) );
-              }
-       }
-}     
+*/

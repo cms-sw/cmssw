@@ -3,7 +3,7 @@
 # Created by: Shahram Rahatlou
 #             University of Rome & INFN
 #             11 September 2006
-#  $Id: addpkg,v 1.4 2007/04/17 10:08:07 rahatlou Exp $
+#  $Id: addpkg,v 1.5 2007/04/28 09:17:51 elmer Exp $
 #
 use strict;
 use Getopt::Long;
@@ -34,6 +34,7 @@ die "CMSSW_VERSION not` defined! run scramv1 first!\n" unless defined $ENV{CMSSW
 my $relver = $ENV{CMSSW_VERSION};
 
 my $taglist = "$ENV{CMSSW_RELEASE_BASE}/src/PackageList.cmssw";
+die "Cannot find release package/tag list at $taglist\n" if (!-e $taglist);
 
 # addpkg <package> : use default tag for the release - 1 argument
 # addpkg <package> <tag>: use tag provided by user. simple cvs co - 2 arguments
@@ -48,14 +49,14 @@ if(($#ARGV == 0)||($#ARGV == 1)) {
     #print "package: <$package> tag list: <$taglist>\n";
     open IN, "$taglist";
     my $l2="";
+    my $thepack=""; my $thetag="";
     while(my $l = <IN>) {
       chomp $l;
-      if($l =~ m#$package#) { $l2 = $l; last; }
+      ($thepack,$thetag) = split '\s+', $l;
+      if($thepack eq $package) { $tagrel = $thetag; last; }
     }
     close IN;
-    die "No package <$package> found in the release.\n" if($l2 eq "");
-    my @v1 = split '\s+', $l2;
-    $tagrel = $v1[1];
+    die "No package <$package> found in the release.\n" if($tagrel eq "");
   }
   if ($#ARGV == 1) {
     $tagco = $ARGV[1];   # user provided tag

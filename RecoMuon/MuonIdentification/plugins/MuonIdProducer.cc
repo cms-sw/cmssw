@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.3 2007/05/16 00:36:14 jribnik Exp $
+// $Id: MuonIdProducer.cc,v 1.4 2007/05/16 09:41:46 dmytro Exp $
 //
 //
 
@@ -40,7 +40,8 @@
 
 #include <algorithm>
 
-MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
+MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig):
+muIsoExtractorCalo_(0),muIsoExtractorTrack_(0)
 {
    branchAlias_ = iConfig.getParameter<std::string>("branchAlias");
    produces<reco::MuonCollection>().setBranchAlias(branchAlias_);
@@ -99,7 +100,9 @@ MuonIdProducer::MuonIdProducer(const edm::ParameterSet& iConfig)
 
 MuonIdProducer::~MuonIdProducer()
 {
-  TimingReport::current()->dump(std::cout);
+   if (muIsoExtractorCalo_) delete muIsoExtractorCalo_;
+   if (muIsoExtractorTrack_) delete muIsoExtractorTrack_;
+   TimingReport::current()->dump(std::cout);
 }
 
 void MuonIdProducer::init(edm::Event& iEvent, const edm::EventSetup& iSetup)

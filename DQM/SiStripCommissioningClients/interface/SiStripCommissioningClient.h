@@ -57,9 +57,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   
   /** */
   void subscribeAll( std::string match_pattern = "" );
-  
-  /** */
-  void subscribeNew( std::string match_pattern = "" );
 
   /** */
   void unsubscribeAll( std::string match_pattern = "" );
@@ -109,9 +106,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   void subscribe( std::string match_pattern );
 
   /** */
-  void subscribenew( std::string match_pattern ) const;
-
-  /** */
   void unsubscribe( std::string match_pattern );
 
   /** */
@@ -148,8 +142,6 @@ class SiStripCommissioningClient : public DQMBaseClient, public dqm::UpdateObser
   mutable CommissioningHistograms* histos_;
   
   mutable sistrip::RunType runType_;
-  
-  mutable uint32_t runNumber_;
   
   mutable bool first_;
 

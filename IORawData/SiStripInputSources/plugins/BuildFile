@@ -1,4 +1,0 @@
-<use name=IORawData/SiStripInputSources>
-<library file=*.cc name=IORawDataSiStripInputSourcesPlugins>
-  <flags EDM_PLUGIN=1>
-</library>

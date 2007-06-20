@@ -4,6 +4,11 @@
 
 AlCaEcalHcalReadoutsProducer::AlCaEcalHcalReadoutsProducer(const edm::ParameterSet& iConfig)
 {
+
+   hoLabel_ = iConfig.getParameter<edm::InputTag>("hoInput");
+   hfLabel_ = iConfig.getParameter<edm::InputTag>("hfInput");
+   hbheLabel_ = iConfig.getParameter<edm::InputTag>("hbheInput");
+   
    //register your products
    produces<HBHERecHitCollection>("HBHERecHitCollection");
    produces<HORecHitCollection>("HORecHitCollection");
@@ -29,29 +34,26 @@ AlCaEcalHcalReadoutsProducer::produce(edm::Event& iEvent, const edm::EventSetup&
    edm::Handle<HORecHitCollection> ho;
    edm::Handle<HFRecHitCollection> hf;
 
-   try {
-     iEvent.getByType(hbhe);
-     } catch ( std::exception& ex ) {
-       LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
-     }
-
-   try {
-   iEvent.getByType(ho);
-   } catch ( std::exception& ex ) {
-     LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
+   iEvent.getByLabel(hbheLabel_,hbhe);
+   if(!hbhe.isValid()){
+     LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hbhe product!" << std::endl;
+     return ;
    }
 
-   try {
-   iEvent.getByType(hf);
-   } catch ( std::exception& ex ) {
-     LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
-   }
-  //Create empty output collections
-
+   iEvent.getByLabel(hoLabel_,ho);
+    if(!ho.isValid()) {
+      LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get ho product!" << std::endl;
+    }
+    
+    iEvent.getByLabel(hfLabel_,hf);
+    if(!hf.isValid()) {
+      LogDebug("") << "AlCaEcalHcalReadoutProducer: Error! can't get hf product!" << std::endl;
+    }
+    //Create empty output collections
+   
   std::auto_ptr<HBHERecHitCollection> miniHBHERecHitCollection(new HBHERecHitCollection);
   std::auto_ptr<HORecHitCollection> miniHORecHitCollection(new HORecHitCollection);
   std::auto_ptr<HFRecHitCollection> miniHFRecHitCollection(new HFRecHitCollection);
-
 
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
   for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)

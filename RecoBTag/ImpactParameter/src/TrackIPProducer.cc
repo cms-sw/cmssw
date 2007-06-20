@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Thu Apr  6 09:56:23 CEST 2006
-// $Id: TrackIPProducer.cc,v 1.3 2007/05/16 11:39:49 arizzi Exp $
+// $Id: TrackIPProducer.cc,v 1.4 2007/05/23 14:41:16 arizzi Exp $
 //
 //
 
@@ -211,7 +211,6 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
  
     std::auto_ptr<reco::TrackIPTagInfoCollection> result(outCollection);
    iEvent.put(result);
-   cout << "done"  << endl;
  
    if(!pvFound) delete pv; //dummy pv deleted
    delete pvRef;
@@ -238,7 +237,6 @@ using namespace edm::eventsetup;
 
    if(cacheId2D!=m_calibrationCacheId2D || cacheId3D!=m_calibrationCacheId3D  )  //Calibration changed
    {
-//     cout<< "Calibration data changed" << endl;
      //iSetup.get<BTagTrackProbabilityRcd>().get(calib);
      ESHandle<TrackProbabilityCalibration> calib2DHandle;
      iSetup.get<BTagTrackProbability2DRcd>().get(calib2DHandle);
@@ -253,13 +251,11 @@ using namespace edm::eventsetup;
 
      for(size_t i=0;i<ca3D->data.size(); i++)    
      {
-//        cout <<  "  Adding category" << endl;
         calib3d->addEntry(TrackClassFilterCategory(ca3D->data[i].category),ca3D->data[i].histogram); // convert category data to filtering category
      }
     
      for(size_t i=0;i<ca2D->data.size(); i++)    
      {
-//        cout <<  "  Adding category" << endl;
         calib2d->addEntry(TrackClassFilterCategory(ca2D->data[i].category),ca2D->data[i].histogram); // convert category data to filtering category
      }
   

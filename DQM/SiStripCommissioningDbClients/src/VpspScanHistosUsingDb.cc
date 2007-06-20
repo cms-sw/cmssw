@@ -1,4 +1,4 @@
-// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.4 2007/05/24 15:59:49 bainbrid Exp $
+// Last commit: $Id: VpspScanHistosUsingDb.cc,v 1.2 2007/03/21 16:55:07 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningDbClients/interface/VpspScanHistosUsingDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
@@ -21,14 +21,10 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::VpspScanHistosUsingDb( MonitorUserInterface* mui,
-					      SiStripConfigDb* const db ) 
-  : VpspScanHistograms( mui ),
-    CommissioningHistosUsingDb( db )
-{
+VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Constructing object...";
+    << " Destructing object...";
 }
 
 // -----------------------------------------------------------------------------
@@ -45,14 +41,6 @@ VpspScanHistosUsingDb::VpspScanHistosUsingDb( DaqMonitorBEInterface* bei,
 
 // -----------------------------------------------------------------------------
 /** */
-VpspScanHistosUsingDb::~VpspScanHistosUsingDb() {
-  LogTrace(mlDqmClient_) 
-    << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << " Destructing object...";
-}
-
-// -----------------------------------------------------------------------------
-/** */
 void VpspScanHistosUsingDb::uploadToConfigDb() {
   
   if ( !db_ ) {
@@ -65,21 +53,13 @@ void VpspScanHistosUsingDb::uploadToConfigDb() {
   
   // Update all APV device descriptions with new VPSP settings
   db_->resetDeviceDescriptions();
-  const SiStripConfigDb::DeviceDescriptions& devices = db_->getDeviceDescriptions();
-  update( const_cast<SiStripConfigDb::DeviceDescriptions&>(devices) );
-  if ( !test_ ) { 
-    LogTrace(mlDqmClient_) 
-      << "[VpspScanHistosUsingDb::" << __func__ << "]"
-      << " Uploading VPSP settings to DB...";
-    db_->uploadDeviceDescriptions(false); 
-  } else {
-    edm::LogWarning(mlDqmClient_) 
-      << "[PedestalsHistosUsingDb::" << __func__ << "]"
-      << " TEST only! No VPSP settings will be uploaded to DB...";
-  }
+  SiStripConfigDb::DeviceDescriptions devices;
+  db_->getDeviceDescriptions( devices, APV25 );
+  update( devices );
+  if ( !test_ ) { db_->uploadDeviceDescriptions(false); }
   LogTrace(mlDqmClient_) 
     << "[VpspScanHistosUsingDb::" << __func__ << "]"
-    << "Upload of VPSP settings to DB finished!";
+    << "Upload of LLD settings to DB finished!";
   
 }
 
@@ -134,8 +114,8 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
 	<< " Initial VPSP setting: " << desc->getVpsp();
       
-      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp()[0] ); }
-      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp()[1] ); }
+      if ( iapv == 0 ) { desc->setVpsp( iter->second.vpsp0() ); }
+      if ( iapv == 1 ) { desc->setVpsp( iter->second.vpsp1() ); }
       
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
@@ -145,11 +125,11 @@ void VpspScanHistosUsingDb::update( SiStripConfigDb::DeviceDescriptions& devices
       LogTrace(mlDqmClient_) 
 	<< "[VpspScanHistosUsingDb::" << __func__ << "]"
 	<< " Unable to find PLL settings for device with params FEC/slot/ring/CCU/LLDchan/APV: " 
-	<< fec_path.fecCrate() << "/"
-	<< fec_path.fecSlot() << "/"
-	<< fec_path.fecRing() << "/"
-	<< fec_path.ccuAddr() << "/"
-	<< fec_path.ccuChan() << "/"
+	<< fec_path.fecCrate_ << "/"
+	<< fec_path.fecSlot_ << "/"
+	<< fec_path.fecRing_ << "/"
+	<< fec_path.ccuAddr_ << "/"
+	<< fec_path.ccuChan_ << "/"
 	<< fec_path.channel() << "/" << iapv;
 
     }

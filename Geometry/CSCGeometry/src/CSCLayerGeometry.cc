@@ -9,7 +9,6 @@
 #include <Geometry/CSCGeometry/src/CSCWireGroupPackage.h>
 
 #include <DataFormats/GeometryVector/interface/LocalPoint.h>
-#include <DataFormats/GeometrySurface/interface/LocalError.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -159,6 +158,7 @@ float CSCLayerGeometry::stripAngle(int strip) const
   return M_PI_2 - theStripTopology->stripAngle(strip-0.5);
 }
 
+
 LocalPoint CSCLayerGeometry::localCenterOfWireGroup( int wireGroup ) const {
 
   // It can use CSCWireTopology::yOfWireGroup for y,
@@ -182,38 +182,6 @@ float CSCLayerGeometry::lengthOfWireGroup( int wireGroup ) const {
    float w = middleWireOfGroup( wireGroup );
    std::vector<float> store = theWireTopology->wireValues( w );
    return store[2];
-}
-
-LocalError CSCLayerGeometry::localError( int strip, float sigmaStrip, float sigmaWire ) const {
-  // Input sigmas are expected to be in _distance units_
-  // - uncertainty in strip measurement (typically from Gatti fit, value is in local x units)
-  // - uncertainty in wire measurement (along direction perpendicular to wires)
-
-  float wangle   = this->wireAngle();
-  float strangle = this->stripAngle( strip );
-
-  float sinAngdif  = sin(strangle-wangle);
-  float sinAngdif2 = sinAngdif * sinAngdif;
-  
-  float du = sigmaStrip/sin(strangle); // sigmaStrip is just x-component of strip error
-  float dv = sigmaWire;
-
-  // The notation is
-  // wsins = wire resol  * sin(strip angle)
-  // wcoss = wire resol  * cos(strip angle)
-  // ssinw = strip resol * sin(wire angle)
-  // scosw = strip resol * cos(wire angle)
-
-  float wsins = dv * sin(strangle);
-  float wcoss = dv * cos(strangle);
-  float ssinw = du * sin(wangle);
-  float scosw = du * cos(wangle);
-
-  float dx2 = (scosw*scosw + wcoss*wcoss)/sinAngdif2;
-  float dy2 = (ssinw*ssinw + wsins*wsins)/sinAngdif2;
-  float dxy = (scosw*ssinw + wcoss*wsins)/sinAngdif2;
-          
-  return LocalError(dx2, dxy, dy2);
 }
     
 void CSCLayerGeometry::setTopology( CSCStripTopology * newTopology ) {

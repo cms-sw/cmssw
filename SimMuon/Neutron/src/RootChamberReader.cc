@@ -1,5 +1,6 @@
 #include "SimMuon/Neutron/src/RootChamberReader.h"
 #include "SimMuon/Neutron/src/RootSimHit.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 using namespace std;
 
 RootChamberReader::RootChamberReader()
@@ -48,7 +49,8 @@ void RootChamberReader::read(edm::PSimHitContainer & hits)
     {
       hits.push_back(rootHit->get());
     }
-std::cout << "Event " << thePosition << " OF " << theSize << " has " << hits.size() << " hits " << std::endl;
+    LogTrace("Neutrons") << "Event " << thePosition << " OF " << theSize 
+         << " has " << hits.size() << " hits ";
   }
 }
 

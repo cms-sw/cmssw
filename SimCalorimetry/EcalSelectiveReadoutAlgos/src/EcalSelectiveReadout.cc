@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-"
 /*
- * $Id: EcalSelectiveReadout.cc,v 1.9 2006/07/21 06:41:24 pgras Exp $
+ * $Id: EcalSelectiveReadout.cc,v 1.12 2007/06/04 16:52:30 pgras Exp $
  */
 
 #include "SimCalorimetry/EcalSelectiveReadoutAlgos/src/EcalSelectiveReadout.h"
@@ -8,7 +8,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <string>
-
 #include <iostream> //for debugging
 
 using std::vector;
@@ -16,18 +15,8 @@ using std::vector;
 const char EcalSelectiveReadout::srpFlagMarker[] = {'.', 'S', 'N', 'C', 'F'};
 
 
-EcalSelectiveReadout::EcalSelectiveReadout(const vector<double>& thr,
-                                                       int dEta_,
-                                                       int dPhi_):
-  threshold(thr), dEta(dEta_), dPhi(dPhi_)
-{
-  if(threshold.size()!=2){
-      throw cms::Exception("EcalSelectiveReadout") 
-         << "Argument 'thresholds' of "
-      << "EcalSelectiveReadout::EcalSelectiveReadout(vector<int> thresholds) "
-      << "method must a vector of two elements (with the low and the high "
-      << "trigger tower Et for the selective readout flags. Aborts.";
-  }
+EcalSelectiveReadout::EcalSelectiveReadout(int dEta_, int dPhi_):
+  dEta(dEta_), dPhi(dPhi_){
 }
 
 void EcalSelectiveReadout::resetSupercrystalInterest(){
@@ -99,12 +88,11 @@ EcalSelectiveReadout::runSelectiveReadout0(const ttFlag_t ttFlags[nTriggerTowers
   for(int iZ0=0; iZ0<2; ++iZ0){//0->EE-, 1->EE+
     for(unsigned iX0=0; iX0<nEndcapXBins; ++iX0){
       for(unsigned iY0=0; iY0<nEndcapYBins; ++iY0){
-        try{
-          xtal = EEDetId(iX0+1, iY0+1, (iZ0>0?1:-1));
-        } catch(cms::Exception e){//exception thrown if no crystal at
-          //                        this position
-          continue;
+
+        if (!(xtal.validDetId(iX0+1, iY0+1, (iZ0>0?1:-1)))){ 
+          continue; 
         }
+        xtal = EEDetId(iX0+1, iY0+1, (iZ0>0?1:-1));
         //works around a EEDetId bug. To remove once the bug fixed.
         if(39 <= iX0 && iX0 <= 60 && 45 <= iY0 && iY0 <= 54){
           continue;
@@ -198,6 +186,22 @@ EcalSelectiveReadout::classifyTriggerTowers(const ttFlag_t ttFlags[nTriggerTower
       } else if(ttFlags[iEta][iPhi] & TTF_FORCED_RO_MASK){
         setHigher(towerInterest[iEta][iPhi], FORCED_RO);
       }
+    }
+  }
+
+  //dealing with pseudo-TT in the two innest eta-ring of the endcaps
+  //=>choose the highest priority  SRF of the 2 pseudo-TT constituting
+  //a TT. Note that for S and C, the 2 pseudo-TT must already have the
+  //same mask.
+  const size_t innerEtas[] = {0, 1,
+                              nTriggerTowersInEta-2, nTriggerTowersInEta-1};
+  for(size_t i=0; i < 4; ++i){
+    size_t iEta = innerEtas[i];
+    for(size_t iPhi = 0 ; iPhi < nTriggerTowersInPhi; iPhi+=2){
+      const towerInterest_t srf = std::max(towerInterest[iEta][iPhi],
+                                           towerInterest[iEta][iPhi+1]);
+      towerInterest[iEta][iPhi] = srf;
+      towerInterest[iEta][iPhi+1] = srf;
     }
   }
 }

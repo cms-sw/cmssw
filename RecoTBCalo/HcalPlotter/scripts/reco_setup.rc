@@ -17,30 +17,8 @@ FEDS=20
 # First FED
 #FIRSTFED=
 
-# Mode of operation [MTCC|TB06|TESTSTAND|USC]
-# MTCC      - not available currently
-#
-# TB06      - uses PoolSource
-#	    - assumes FIRSTFED=700
-#           - unpacks trigger data
-#
-# TESTSTAND - uses HcalTBSource
-#	    - assumes FIRSTFED=20 if not set.
-#           - unpacks trigger data
-#
-# USC       - uses HcalTBSource
-#	    - ignores FIRSTFED and FED environment variables
-#	    - tries to unpack all HCAL FEDs 700-731
-#           - unpacks trigger data
-#
-MODE=USC
-
-# To unpack calibration channels and plot them, 
-# give this variable a string with more than 1 character,
-# OTHERWISE LEAVE IT BLANK, or comment it out, as in:
-#DOCALIB=
-#
-DOCALIB=1234
+# Mode of operation [MTCC|TB06|TESTSTAND]
+MODE=TESTSTAND
 
 # "Printf"-style format string for the input filename -
 #                     allows input of run number only
@@ -53,9 +31,6 @@ FORMAT="/tmp/HTB_%06d.root"
 # Declare Histogram Bound parameters
 PED_E_GEV_LO=-5
 PED_E_GEV_HI=5
-#
-PED_E_ADC_LO=0
-PED_E_ADC_HI=200
 #
 LED_E_GEV_LO=-5
 LED_E_GEV_HI=250

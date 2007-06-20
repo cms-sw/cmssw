@@ -15,7 +15,6 @@
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <string>
@@ -24,16 +23,15 @@
 #include <iostream>
 #include <algorithm>
 
-#define nRUIs 40
+#define nRUIs 10
 
 CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
-	LogDebug("CSCFileReader|ctor")<<"Started ...";
 	// Get list of input files from .cfg file
 	for(int rui=0; rui<nRUIs; rui++){
 		std::ostringstream name;
-		name<<"RUI"<<(rui<10?"0":"")<<rui<<std::ends;
+		name<<"RUI0"<<rui<<std::ends;
 
-		fileNames[rui] = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str(),std::vector<std::string>(0));
+		fileNames[rui] = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str());
 		currentFile[rui] = fileNames[rui].begin();
 
 		if( currentFile[rui] != fileNames[rui].end() ){
@@ -55,29 +53,22 @@ CSCFileReader::CSCFileReader(const edm::ParameterSet& pset):DaqBaseReader(){
 	for(int fed=FEDNumbering::getCSCFEDIds().first; fed<=FEDNumbering::getCSCFEDIds().second; fed++){
 		std::ostringstream name;
 		name<<"FED"<<fed<<std::ends;
-		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str(),std::vector<std::string>(0));
+		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str());
 		for(std::vector<std::string>::const_iterator rui=rui_list.begin(); rui!=rui_list.end(); rui++)
 			FED[fed].push_back((unsigned int)atoi(rui->c_str()+rui->length()-1));
 	}
 	for(int fed=FEDNumbering::getCSCTFFEDIds().first; fed<=FEDNumbering::getCSCTFFEDIds().second; fed++){
 		std::ostringstream name;
 		name<<"FED"<<fed<<std::ends;
-		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str(),std::vector<std::string>(0));
+		std::vector<std::string> rui_list = pset.getUntrackedParameter< std::vector<std::string> >(name.str().c_str());
 		for(std::vector<std::string>::const_iterator rui=rui_list.begin(); rui!=rui_list.end(); rui++)
 			FED[fed].push_back((unsigned int)atoi(rui->c_str()+rui->length()-1));
 	}
 
-	firstEvent = pset.getUntrackedParameter<int>("firstEvent",0);
+	firstEvent = pset.getUntrackedParameter<int>("firstEvent");
 	nEvents = 0;
 	expectedNextL1A = -1;
-
-	// Create this big chunk of data only once for efficiency reasons
-	tmpBuf = new unsigned short[200000*nRUIs+4*4];
-
-	LogDebug("CSCFileReader|ctor")<<"... and finished";
 }
-
-CSCFileReader::~CSCFileReader(void){ if(tmpBuf) delete [] tmpBuf; }
 
 int CSCFileReader::readEvent(int rui, const unsigned short* &buf, size_t &length){
 	if( currentFile[rui] == fileNames[rui].end() ) return -1;
@@ -92,7 +83,7 @@ int CSCFileReader::readEvent(int rui, const unsigned short* &buf, size_t &length
 				try {
 					RUI[rui].open(currentFile[rui]->c_str());
 				} catch ( std::runtime_error err ){
-					throw cms::Exception("InputFileMissing")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
+					throw cms::Exception("InputFileMissing ")<<"CSCFileReader: "<<err.what()<<" (errno="<<errno<<")";
 				}
 			} else return -1;
 		}
@@ -137,7 +128,7 @@ bool CSCFileReader::fillRawData(edm::EventID& eID, edm::Timestamp& tstamp, FEDRa
 	for(std::map<unsigned int,std::list<unsigned int> >::const_iterator fed=FED.begin(); fed!=FED.end(); fed++)
 		if( fed->first<(unsigned int)FEDNumbering::getCSCTFFEDIds().first ){
 			// Now let's pretend that DDU data were wrapped with DCC Header (2 64-bit words) and Trailer (2 64-bit words):
-			unsigned short *dccBuf=tmpBuf, *dccCur=dccBuf;
+			unsigned short dccBuf[200000*nRUIs+4*4], *dccCur=dccBuf;
 			dccCur[3] = 0x5000; dccCur[2] = 0x0000; dccCur[1] = 0x0000; dccCur[0] = 0x005F; // Fake DCC Header 1
 			dccCur[7] = 0xD900; dccCur[6] = 0x0000; dccCur[5] = 0x0000; dccCur[4] = 0x0017; // Fake DCC Header 2
 			dccCur += 8;

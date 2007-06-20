@@ -100,6 +100,8 @@ ConvertedPhotonProducer::~ConvertedPhotonProducer() {
   
   delete theTrackPairFinder_;
   delete theVertexFinder_;
+  delete theLayerMeasurements_;
+  delete theNavigationSchool_;
   
 }
 

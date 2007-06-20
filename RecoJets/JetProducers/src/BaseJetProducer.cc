@@ -1,6 +1,6 @@
 // File: BaseJetProducer.cc
 // Author: F.Ratnikov UMd Aug 22, 2006
-// $Id: BaseJetProducer.cc,v 1.18 2007/05/17 23:56:48 fedor Exp $
+// $Id: BaseJetProducer.cc,v 1.20 2007/05/30 22:30:45 fedor Exp $
 //--------------------------------------------
 #include <memory>
 
@@ -49,7 +49,7 @@ namespace {
   }
 
   bool makeGenericJet (const string& fTag) {
-    return !makeCaloJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
+    return !makeCaloJet (fTag) && !makePFJet (fTag) && !makeGenJet (fTag) && !makeBasicJet (fTag);
   }
 
   template <class T>  
@@ -156,7 +156,7 @@ namespace cms
     // run algorithm
     vector <ProtoJet> output;
     if (input.empty ()) {
-      edm::LogWarning("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
+      edm::LogInfo ("Empty Event") << "empty input for jet algorithm: bypassing..." << std::endl;
     }
     else {
       runAlgorithm (input, &output);
@@ -164,15 +164,15 @@ namespace cms
 
     // produce output collection
     auto_ptr<CaloJetCollection> caloJets;
-    if (makeCaloJet (mJetType)) caloJets.reset (new CaloJetCollection);
     auto_ptr<PFJetCollection> pfJets;
-    if (makePFJet (mJetType)) pfJets.reset (new PFJetCollection);
     auto_ptr<GenJetCollection> genJets;
-    if (makeGenJet (mJetType)) genJets.reset (new GenJetCollection);
     auto_ptr<BasicJetCollection> basicJets;
-    if (makeBasicJet (mJetType)) basicJets.reset (new BasicJetCollection);
     auto_ptr<GenericJetCollection> genericJets;
-    if (makeGenericJet (mJetType)) genericJets.reset (new GenericJetCollection);
+    if (makeCaloJet (mJetType)) caloJets.reset (new CaloJetCollection);
+    else if (makePFJet (mJetType)) pfJets.reset (new PFJetCollection);
+    else if (makeGenJet (mJetType)) genJets.reset (new GenJetCollection);
+    else if (makeBasicJet (mJetType)) basicJets.reset (new BasicJetCollection);
+    else if (makeGenericJet (mJetType)) genericJets.reset (new GenericJetCollection);
     vector <ProtoJet>::const_iterator protojet = output.begin ();
     JetMaker jetMaker;
     for (; protojet != output.end (); protojet++) {
@@ -184,16 +184,16 @@ namespace cms
 	}
 	caloJets->push_back (jetMaker.makeCaloJet (*protojet, *towerGeometry));
       }
-      if (pfJets.get ()) { 
+      else if (pfJets.get ()) { 
 	pfJets->push_back (jetMaker.makePFJet (*protojet));
       }
-      if (genJets.get ()) { 
+      else if (genJets.get ()) { 
 	genJets->push_back (jetMaker.makeGenJet (*protojet));
       }
-      if (basicJets.get ()) { 
+      else if (basicJets.get ()) { 
 	basicJets->push_back (jetMaker.makeBasicJet (*protojet));
       }
-      if (genericJets.get ()) { 
+      else if (genericJets.get ()) { 
 	genericJets->push_back (jetMaker.makeGenericJet (*protojet));
       }
     }
@@ -208,25 +208,25 @@ namespace cms
       // make jet-track association
       e.put(caloJets);  //Puts Jet Collection into event
     }
-    if (genJets.get ()) {
+    else if (genJets.get ()) {
       GreaterByPt<GenJet> compJets;
       std::sort (genJets->begin (), genJets->end (), compJets);
       if (mVerbose) dumpJets (*genJets);
       e.put(genJets);  //Puts Jet Collection into event
     }
-    if (pfJets.get ()) {
+    else if (pfJets.get ()) {
       GreaterByPt<PFJet> compJets;
       std::sort (pfJets->begin (), pfJets->end (), compJets);
       if (mVerbose) dumpJets (*pfJets);
       e.put(pfJets);  //Puts Jet Collection into event
     }
-    if (basicJets.get ()) {
+    else if (basicJets.get ()) {
       GreaterByPt<BasicJet> compJets;
       std::sort (basicJets->begin (), basicJets->end (), compJets);
       if (mVerbose) dumpJets (*basicJets);
       e.put(basicJets);  //Puts Jet Collection into event
     }
-    if (genericJets.get ()) {
+    else if (genericJets.get ()) {
       GreaterByPt<GenericJet> compJets;
       std::sort (genericJets->begin (), genericJets->end (), compJets);
       if (mVerbose) dumpJets (*genericJets);

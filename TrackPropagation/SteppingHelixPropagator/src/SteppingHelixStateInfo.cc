@@ -1,15 +1,15 @@
 /** \class SteppingHelixStateInfo
  *  Implementation part of the stepping helix propagator state data structure
  *
- *  $Date: 2007/04/30 23:14:14 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/05/11 04:51:11 $
+ *  $Revision: 1.8 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Wed Jan  3 16:01:24 CST 2007
-// $Id: SteppingHelixStateInfo.cc,v 1.7 2007/04/30 23:14:14 slava77 Exp $
+// $Id: SteppingHelixStateInfo.cc,v 1.8 2007/05/11 04:51:11 slava77 Exp $
 //
 //
 
@@ -31,7 +31,10 @@ const std::string SteppingHelixStateInfo::ResultName[MAX_RESULT] = {
   "RESULT_UNDEFINED"
 };
 
-SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts){
+SteppingHelixStateInfo::SteppingHelixStateInfo(const FreeTrajectoryState& fts): 
+  path_(0), radPath(0), dir(0), magVol(0), field(0), dEdx(0), dEdXPrime(0), radX0(1e12),
+  status_(UNDEFINED)
+{
   p3.set(fts.momentum().x(), fts.momentum().y(), fts.momentum().z());
   r3.set(fts.position().x(), fts.position().y(), fts.position().z());
   q = fts.charge();

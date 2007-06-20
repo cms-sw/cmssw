@@ -16,21 +16,16 @@ PedestalsAnalysis::PedestalsAnalysis( const uint32_t& key )
   : CommissioningAnalysis(key,"PedestalsAnalysis"),
     peds_(2,VFloats(128,sistrip::invalid_)), 
     noise_(2,VFloats(128,sistrip::invalid_)), 
-    raw_(2,VFloats(128,sistrip::invalid_)), 
     dead_(2,VInts(0,sistrip::invalid_)), 
     noisy_(2,VInts(0,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
     noiseSpread_(2,sistrip::invalid_), 
-    rawMean_(2,sistrip::invalid_), 
-    rawSpread_(2,sistrip::invalid_), 
     pedsMax_(2,sistrip::invalid_), 
     pedsMin_(2,sistrip::invalid_), 
     noiseMax_(2,sistrip::invalid_), 
     noiseMin_(2,sistrip::invalid_),
-    rawMax_(2,sistrip::invalid_), 
-    rawMin_(2,sistrip::invalid_),
     hPeds_(0,""),
     hNoise_(0,"")
 {
@@ -44,21 +39,16 @@ PedestalsAnalysis::PedestalsAnalysis()
   : CommissioningAnalysis("PedestalsAnalysis"),
     peds_(2,VFloats(128,sistrip::invalid_)), 
     noise_(2,VFloats(128,sistrip::invalid_)), 
-    raw_(2,VFloats(128,sistrip::invalid_)), 
     dead_(2,VInts(0,sistrip::invalid_)), 
     noisy_(2,VInts(0,sistrip::invalid_)),
     pedsMean_(2,sistrip::invalid_), 
     pedsSpread_(2,sistrip::invalid_), 
     noiseMean_(2,sistrip::invalid_), 
     noiseSpread_(2,sistrip::invalid_), 
-    rawMean_(2,sistrip::invalid_), 
-    rawSpread_(2,sistrip::invalid_), 
     pedsMax_(2,sistrip::invalid_), 
     pedsMin_(2,sistrip::invalid_), 
     noiseMax_(2,sistrip::invalid_), 
     noiseMin_(2,sistrip::invalid_),
-    rawMax_(2,sistrip::invalid_), 
-    rawMin_(2,sistrip::invalid_),
     hPeds_(0,""),
     hNoise_(0,"")
 {
@@ -71,21 +61,16 @@ PedestalsAnalysis::PedestalsAnalysis()
 void PedestalsAnalysis::reset() {
   peds_        = VVFloats(2,VFloats(128,sistrip::invalid_)); 
   noise_       = VVFloats(2,VFloats(128,sistrip::invalid_)); 
-  raw_         = VVFloats(2,VFloats(128,sistrip::invalid_));
   dead_        = VVInts(2,VInts(0,sistrip::invalid_)); 
   noisy_       = VVInts(2,VInts(0,sistrip::invalid_));
   pedsMean_    = VFloats(2,sistrip::invalid_); 
   pedsSpread_  = VFloats(2,sistrip::invalid_); 
   noiseMean_   = VFloats(2,sistrip::invalid_); 
   noiseSpread_ = VFloats(2,sistrip::invalid_); 
-  rawMean_     = VFloats(2,sistrip::invalid_);
-  rawSpread_   = VFloats(2,sistrip::invalid_);
   pedsMax_     = VFloats(2,sistrip::invalid_); 
   pedsMin_     = VFloats(2,sistrip::invalid_); 
   noiseMax_    = VFloats(2,sistrip::invalid_); 
   noiseMin_    = VFloats(2,sistrip::invalid_);
-  rawMax_      = VFloats(2,sistrip::invalid_);
-  rawMin_      = VFloats(2,sistrip::invalid_);
   dead_[0].reserve(256); 
   dead_[1].reserve(256); 
   noisy_[0].reserve(256); 
@@ -206,37 +191,23 @@ void PedestalsAnalysis::analyse() {
   
   // Iterate through APVs 
   for ( uint16_t iapv = 0; iapv < 2; iapv++ ) {
-
     // Used to calc mean and rms for peds and noise
     float p_sum = 0., p_sum2 = 0., p_max = -1.*sistrip::invalid_, p_min = sistrip::invalid_;
     float n_sum = 0., n_sum2 = 0., n_max = -1.*sistrip::invalid_, n_min = sistrip::invalid_;
-    float r_sum = 0., r_sum2 = 0., r_max = -1.*sistrip::invalid_, r_min = sistrip::invalid_;
-
     // Iterate through strips of APV
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
-
       static uint16_t strip;
       strip = iapv*128 + istr;
-
-      // Pedestals and raw noise
+      // Pedestals 
       if ( peds_histo ) {
 	if ( peds_histo->GetBinEntries(strip+1) ) {
-
 	  peds_[iapv][istr] = peds_histo->GetBinContent(strip+1);
 	  p_sum += peds_[iapv][istr];
 	  p_sum2 += (peds_[iapv][istr] * peds_[iapv][istr]);
 	  if ( peds_[iapv][istr] > p_max ) { p_max = peds_[iapv][istr]; }
 	  if ( peds_[iapv][istr] < p_min ) { p_min = peds_[iapv][istr]; }
-
-	  raw_[iapv][istr] = peds_histo->GetBinError(strip+1);
-	  r_sum += raw_[iapv][istr];
-	  r_sum2 += (raw_[iapv][istr] * raw_[iapv][istr]);
-	  if ( raw_[iapv][istr] > r_max ) { r_max = raw_[iapv][istr]; }
-	  if ( raw_[iapv][istr] < r_min ) { r_min = raw_[iapv][istr]; }
-
 	}
       } 
-
       // Noise
       if ( noise_histo ) {
 	if ( noise_histo->GetBinEntries(strip+1) ) {
@@ -265,22 +236,12 @@ void PedestalsAnalysis::analyse() {
       noiseMean_[iapv] = n_sum;
       noiseSpread_[iapv] = sqrt( fabs(n_sum2 - n_sum*n_sum) );
     }
-
-    // Calc mean and rms for raw noise
-    if ( !raw_[iapv].empty() ) { 
-      r_sum /= static_cast<float>( raw_[iapv].size() );
-      r_sum2 /= static_cast<float>( raw_[iapv].size() );
-      rawMean_[iapv] = r_sum;
-      rawSpread_[iapv] = sqrt( fabs(r_sum2 - r_sum*r_sum) );
-    }
     
-    // Set max and min values for peds, noise and raw noise
+    // Set max and min values for both peds and noise
     if ( p_max > -1.*sistrip::maximum_ ) { pedsMax_[iapv] = p_max; }
     if ( p_min < 1.*sistrip::maximum_ )  { pedsMin_[iapv] = p_min; }
     if ( n_max > -1.*sistrip::maximum_ ) { noiseMax_[iapv] = n_max; }
     if ( n_min < 1.*sistrip::maximum_ )  { noiseMin_[iapv] = n_min; }
-    if ( r_max > -1.*sistrip::maximum_ ) { rawMax_[iapv] = r_max; }
-    if ( r_min < 1.*sistrip::maximum_ )  { rawMin_[iapv] = r_min; }
     
     // Set dead and noisy strips
     for ( uint16_t istr = 0; istr < 128; istr++ ) {
@@ -295,7 +256,7 @@ void PedestalsAnalysis::analyse() {
     }
     
   } // apv loop
-
+  
 }
 
 // ----------------------------------------------------------------------------
@@ -309,10 +270,6 @@ bool PedestalsAnalysis::isValid() {
 	   noiseMean_[1] < sistrip::maximum_ &&
 	   noiseSpread_[0] < sistrip::maximum_ &&
 	   noiseSpread_[1] < sistrip::maximum_ &&
-	   rawMean_[0] < sistrip::maximum_ &&
-	   rawMean_[1] < sistrip::maximum_ &&
-	   rawSpread_[0] < sistrip::maximum_ &&
-	   rawSpread_[1] < sistrip::maximum_ &&
 	   pedsMax_[0] < sistrip::maximum_ &&
 	   pedsMax_[1] < sistrip::maximum_ &&
 	   pedsMin_[0] < sistrip::maximum_ &&
@@ -320,13 +277,7 @@ bool PedestalsAnalysis::isValid() {
 	   noiseMax_[0] < sistrip::maximum_ &&
 	   noiseMax_[1] < sistrip::maximum_ &&
 	   noiseMin_[0] < sistrip::maximum_ &&
-	   noiseMin_[1] < sistrip::maximum_ &&
-	   rawMax_[0] < sistrip::maximum_ &&
-	   rawMax_[1] < sistrip::maximum_ &&
-	   rawMin_[0] < sistrip::maximum_ &&
-	   rawMin_[1] < sistrip::maximum_ &&
-	   noiseMean_[0] <= rawMean_[0] && //@@ temp
-	   noiseMean_[1] <= rawMean_[1] ); //@@ temp
+	   noiseMin_[1] < sistrip::maximum_ );
 } 
 
 // ----------------------------------------------------------------------------
@@ -335,33 +286,29 @@ void PedestalsAnalysis::print( std::stringstream& ss, uint32_t iapv ) {
   if ( iapv == 1 || iapv == 2 ) { iapv--; }
   else { iapv = 0; }
   header( ss );
-  ss << " Monitorables for APV number     : " << iapv;
+  ss << " Monitorables for APV number : " << iapv;
   if ( iapv == 0 ) { ss << " (first of pair)"; }
   else if ( iapv == 1 ) { ss << " (second of pair)"; } 
   ss << std::endl;
-  ss << " Number of pedestal values       : " << peds_[iapv].size() << std::endl
-     << " Number of noise values          : " << noise_[iapv].size() << std::endl
-     << " Number of raw noise values      : " << raw_[iapv].size() << std::endl
-     << " Dead strips  (<5s) [strip]      : (" << dead_[iapv].size() << " in total) ";
+  ss << " Number of pedestal values   : " << peds_[iapv].size() << std::endl
+     << " Number of noise values      : " << noise_[iapv].size() << std::endl
+     << " Dead strips  (<5s) [strip]  : (" << dead_[iapv].size() << " in total) ";
   for ( uint16_t ii = 0; ii < dead_[iapv].size(); ii++ ) { 
     ss << dead_[iapv][ii] << " "; }
   
   ss << std::endl;
-  ss << " Noisy strips (>5s) [strip]      : (" << noisy_[iapv].size() << " in total) ";
+  ss << " Noisy strips (>5s) [strip]  : (" << noisy_[iapv].size() << " in total) ";
   for ( uint16_t ii = 0; ii < noisy_[iapv].size(); ii++ ) { 
     ss << noisy_[iapv][ii] << " "; 
   } 
   ss << std::endl;
-  ss << std::fixed << std::setprecision(2)
-     << " Mean peds +/- spread [adc]      : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 
-     << " Min/Max pedestal [adc]          : " << pedsMin_[iapv] << " <-> " << pedsMax_[iapv] << std::endl
-     << " Mean noise +/- spread [adc]     : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << std::endl 
-     << " Min/Max noise [adc]             : " << noiseMin_[iapv] << " <-> " << noiseMax_[iapv] << std::endl
-     << " Mean raw noise +/- spread [adc] : " << rawMean_[iapv] << " +/- " << rawSpread_[iapv] << std::endl 
-     << " Min/Max raw noise [adc]         : " << rawMin_[iapv] << " <-> " << rawMax_[iapv] << std::endl
-     << " Normalised noise                : " << "(yet to be implemented...)" << std::endl
+  ss << " Mean peds +/- spread [adc]  : " << pedsMean_[iapv] << " +/- " << pedsSpread_[iapv] << std::endl 
+     << " Min/Max pedestal [adc]      : " << pedsMin_[iapv] << " <-> " << pedsMax_[iapv] << std::endl
+     << " Mean noise +/- spread [adc] : " << noiseMean_[iapv] << " +/- " << noiseSpread_[iapv] << std::endl 
+     << " Min/Max noise [adc]         : " << noiseMin_[iapv] << " <-> " << noiseMax_[iapv] << std::endl
+     << " Normalised noise (to come!) : " << std::endl
      << std::boolalpha 
-     << " isValid                         : " << isValid()  << std::endl
+     << " isValid                     : " << isValid()  << std::endl
      << std::noboolalpha;
 }
 

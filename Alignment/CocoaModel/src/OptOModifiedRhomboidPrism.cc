@@ -15,7 +15,6 @@
 #include "Alignment/IgCocoaFileWriter/interface/IgCocoaFileMgr.h"
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
-#include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Detailed simulation of Reflection in Plate Splitter
@@ -272,14 +271,3 @@ void OptOModifiedRhomboidPrism::fillIguana()
 }
 
 #endif
-
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOModifiedRhomboidPrism::constructSolidShape()
-{
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("VisScale", go );
-
-  theSolidShape = new CocoaSolidShapeBox( "Box", go*5.*cm/m, go*5.*cm/m, go*5.*cm/m ); //COCOA internal units are meters
-}

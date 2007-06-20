@@ -65,8 +65,8 @@ public:
   /// Number of MC particles
   unsigned int nGenParts() const;
 
-  /// Load containers of tracks and vertices for the edm::Event
-  void load(edm::SimTrackContainer & c) const;
+  /// Load containers of tracks (and muons) and vertices for the edm::Event
+  void load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const;
   void load(edm::SimVertexContainer & c) const;
 
 private:

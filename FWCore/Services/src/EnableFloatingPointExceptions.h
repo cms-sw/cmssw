@@ -7,64 +7,87 @@
 // 
 /**\class EnableFloatingPointExceptions EnableFloatingPointExceptions.h FWCore/Services/src/EnableFloatingPointExceptions.h
 
-    Description: This service gives cmsRun users the ability to
-    configure the behavior of the Floating Point (FP) Processor.
-    For now the whole job is configured the same way.  A future
-    enhancement might allow control on a module by module basis.
+    Description: This service gives cmsRun users the ability to configure the behavior
+    of the Floating Point (FP) Processor on a per-module basis.
 
-    Usage:  There are two separate aspects of the FP environment
-    this service can control: 
+    Usage:  There are two separate aspects of the FP environment this service can control: 
         1. exceptions
         2. precision control on x87 FP processors.
 
-    If you do not use the service at all, floating point exceptions
-    will not be trapped (FP exceptions will not cause a crash).  Add
-    the following to the configuration file to enable to the exceptions:
+    If you do not use the service at all, floating point exceptions will not be trapped
+    anywhere (FP exceptions will not cause a crash).  Add something like the following
+    to the configuration file to enable to the exceptions:
 
-      service = EnableFloatingPointExceptions 
-      {
-          untracked bool enableDivByZeroEx = true
-          untracked bool enableInvalidEx = true
-          untracked bool enableOverFlowEx = true
-          untracked bool enableUnderFlowEx = true
-      }
+    service = EnableFloatingPointExceptions 
+          {
+          untracked bool reportSettings = false
 
-    The defaults for these options are currently all false.
-    (in an earlier version DivByZero, Invalid, and Overflow
-    defaulted to true, we hope to return to those defaults
-    someday when the frequency of such exceptions has decreased)
+          untracked vstring moduleNames = {  "default" 
+                                            ,"sendMessages1" 
+                                            ,"sendMessages2"  }
 
-    Enabling exceptions is very useful if you are trying to
-    track down where a floating point value of 'nan' or 'inf'
-    is being generated and is even better if the goal is to
-    eliminate them.
+          untracked PSet default = {
+                            untracked bool enableDivByZeroEx = false
+                            untracked bool enableInvalidEx = false
+                            untracked bool enableOverFlowEx = false
+                            untracked bool enableUnderFlowEx = false
+                            }
 
-    One can also control the precision of floating point
-    operations in x87 FP processor.
+          untracked PSet sendMessages1 = {
+                            untracked bool enableDivByZeroEx = true
+                            untracked bool enableInvalidEx = false
+                            untracked bool enableOverFlowEx = false
+                            untracked bool enableUnderFlowEx = false
+                            }
+
+         untracked PSet sendMessages2 = {
+                            untracked bool enableDivByZeroEx = false
+                            untracked bool enableInvalidEx = true
+                            untracked bool enableOverFlowEx = false
+                            untracked bool enableUnderFlowEx = false
+                            }
+       }
+
+       path p = { sendMessages1, sendMessages2, sendMessages3  }
+
+       module sendMessages1 = makeSignals1 { }
+       module sendMessages2 = makeSignals2 { }
+       module sendMessages3 = makeSignals3 { }
+
+    In this example, the DivideByZero exception is enabled only for the module with
+    label sendMessages1, the Invalid exception is enabled only for the module with
+    label sendMessages2 and no floating point exceptions are otherwise enabled.
+
+    The defaults for these options are currently all false.  (in an earlier version
+    DivByZero, Invalid, and Overflow defaulted to true, we hope to return to those
+    defaults someday when the frequency of such exceptions has decreased)
+
+    Enabling exceptions is very useful if you are trying to track down where a
+    floating point value of 'nan' or 'inf' is being generated and is even better
+    if the goal is to eliminate them.
+
+    One can also control the precision of floating point operations in x87 FP processor.
 
       service = EnableFloatingPointExceptions 
       {
           untracked bool setPrecisionDouble = true
       }
 
-    If set true (the default if the service is used), the
-    floating precision in the x87 math processor will be
-    set to round results of addition, subtraction, multiplication,
-    division, and square root to 64 bits after each operation
-    instead of the x87 default, which is 80 bits for values
-    in registers (this is the default you get if this
-    service is not used at all).
+    If set true (the default if the service is used), the floating precision in theq
+    x87 math processor will be set to round results of addition, subtraction,
+    multiplication, division, and square root to 64 bits after each operation
+    instead of the x87 default, which is 80 bits for values in registers (this is
+    the default you get if this service is not used at all).
 
-    The precision control only affects Intel and AMD 32 bit CPUs
-    under LINUX.  We have not implemented precision control in the
-    service for other CPUs (some other CPUs round to 64 bits by
-    default and often CPUs do not allow control of the precision
-    of floating point calculations).
+    The precision control only affects Intel and AMD 32 bit CPUs under LINUX.
+    We have not implemented precision control in the service for other CPUs
+    (some other CPUs round to 64 bits by default and often CPUs do not allow control
+    of the precision of floating point calculations).
 */
 //
 // Original Author:  E. Sexton-Kennedy
 //         Created:  Tue Apr 11 13:43:16 CDT 2006
-// $Id: EnableFloatingPointExceptions.h,v 1.6 2007/05/22 13:27:25 marafino Exp $
+// $Id: EnableFloatingPointExceptions.h,v 1.7 2007/05/23 16:55:36 marafino Exp $
 //
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

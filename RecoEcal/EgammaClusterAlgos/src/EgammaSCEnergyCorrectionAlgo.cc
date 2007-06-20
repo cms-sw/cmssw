@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.4 2006/08/09 13:03:43 dlevans Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.5 2006/08/09 14:43:05 rahatlou Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -185,6 +185,14 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::AlgoId theAlgo, E
         std::cout << "trying to correct unknown cluster!!!" << std::endl;
       }
     }
+
+  //Rescale energy scale correction to take into account change in calibrated
+  //RecHit definition introduced in CMSSW_1_5_0
+  if(theBase == EcalBarrel) {
+    result/=0.965;
+  } else {
+    result/=0.975;
+  }
 
   return result;  
 }
