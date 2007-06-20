@@ -971,8 +971,14 @@ def _makeProcess(s,loc,toks):
         global _allUsingLabels
         class DictAdapter(object):
             def __init__(self,d):
-                self.d = d
+                #copy 'd' since we need to be able to lookup a 'source' by
+                # it's type to do replace but we do NOT want to add it by its
+                # type to the final Process
+                self.d = d.copy()
+                if self.d.has_key('source'):
+                    self.d[d['source'].type_()]=d['source']
             def __getattr__(self,name):
+                #print 'asked for '+name
                 return self.d[name]
         adapted = DictAdapter(d)
         for replace in replaces:
@@ -980,6 +986,9 @@ def _makeProcess(s,loc,toks):
                 #print 'found '+replace.path[0]
                 replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
+        for replace in replaces:
+            if replace.path[0] not in _allUsingLabels:
+                replace.do(adapted)
 
 
         # adding modules to the process involves cloning.
@@ -997,8 +1006,6 @@ def _makeProcess(s,loc,toks):
             setattr(pa,label,obj.make(pa))
         for label,obj in series:
             setattr(p,label,obj.make(p))
-        for replace in replaces:
-            replace.do(p)
         if schedule is not None:
             pathlist = []
             for label in schedule.labels:
@@ -1007,7 +1014,7 @@ def _makeProcess(s,loc,toks):
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
 #    p = cms.PSet(*[],**d)
-    doTheUsings(p)
+#    doTheUsings(p)
     return p
 
 
@@ -1518,6 +1525,41 @@ process RECO = {
             self.assertEqual(t[0].outputStuff.outputCommands,["drop *","keep blah_*_*_*"])
             self.assertEqual(t[0].final.outputCommands,["drop *","keep blah_*_*_*"])
 
+            t=process.parseString("""
+process TEST = {
+    service = MessageLogger {
+        untracked vstring destinations = {"dummy"}
+        untracked PSet default = {
+               untracked int32 limit = -1
+        }
+        untracked PSet dummy = {}
+    }
+    replace MessageLogger.default.limit = 10
+    replace MessageLogger.destinations += {"goofy"}
+    replace MessageLogger.dummy = { untracked string threshold = "WARNING" }
+}""")
+            self.assertEqual(t[0].MessageLogger.default.limit.value(),10)
+            self.assertEqual(t[0].MessageLogger.destinations,["dummy","goofy"])
+            self.assertEqual(t[0].MessageLogger.dummy.threshold.value(),"WARNING")
+
+            t=process.parseString("""
+process TEST = {
+    es_module = UnnamedProd {
+        int32 foo = 10
+    }
+    
+    es_module me = NamedProd {
+        int32 fii = 5
+    }
+    
+    replace UnnamedProd.foo = 1
+    
+    replace me.fii = 10
+}
+""")
+            self.assertEqual(t[0].UnnamedProd.foo.value(),1)
+            self.assertEqual(t[0].me.fii.value(),10)
+            
             t=process.parseString("""
 process RECO = {
    block outputStuff = {
