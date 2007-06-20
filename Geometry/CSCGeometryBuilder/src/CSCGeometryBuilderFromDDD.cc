@@ -419,11 +419,13 @@ void CSCGeometryBuilderFromDDD::buildChamber (
 
         BoundSurface::RotationType chamberRotation = chamber->surface().rotation();
         BoundPlane::PositionType layerPosition( gtran[0], gtran[1], zlayer );
-        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
-	std::vector<float> dims = bounds->parameters(); // returns hb, ht, d, a
+	//        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( *geom );
+	//	std::vector<float> dims = bounds->parameters(); // returns hb, ht, d, a
+	std::vector<float> dims = geom->parameters(); // returns hb, ht, d, a
         dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
-        delete bounds;        
-        bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
+	//        delete bounds;        
+	//        bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
+        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds( dims[0], dims[1], dims[3], dims[2] );
         BoundPlane::BoundPlanePointer plane = BoundPlane::build(layerPosition, chamberRotation, bounds);
 	delete bounds;
 
