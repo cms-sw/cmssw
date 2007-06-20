@@ -675,6 +675,8 @@ class _ReplaceNode(object):
         return self.setter.value
     value = property(fget = getValue,
                      doc='returns the value of the replace command (for testing)')
+    def rootLabel(self):
+        return self.path[0]
     def do(self,process):
         if hasattr(self.setter, 'setProcess'):
             self.setter.setProcess(process)
@@ -909,8 +911,12 @@ def _finalizeProcessFragment(values,usingLabels):
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
         for replace in replaces:
-            replace.do(adapted)
+            if isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
+        for replace in replaces:
+            if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
     except Exception, e:
         raise RuntimeError("the configuration contains the error \n"+str(e))    
     #FIX: now need to create Sequences, Paths, EndPaths from the available
@@ -992,8 +998,12 @@ def _makeProcess(s,loc,toks):
         # running a test on the C++ cfg parser it appears replace
         # always happens before using
         for replace in replaces:
-            replace.do(adapted)
+            if isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
         _findAndHandleProcessUsingBlock(values)
+        for replace in replaces:
+            if not isinstance(getattr(adapted,replace.rootLabel()),cms.PSet):
+                replace.do(adapted)
 
         # adding modules to the process involves cloning.
         # but for the usings we only know the original object
@@ -1732,6 +1742,28 @@ process TEST = {
             self.assertEqual(t[0].MessageLogger.destinations,["dummy","goofy"])
             self.assertEqual(t[0].MessageLogger.dummy.threshold.value(),"WARNING")
 
+            _allUsingLabels = set()
+            t=process.parseString("""
+process TEST = {
+  PSet first = {
+    int32 foo = 1
+    int32 fii = 2
+  }
+  
+  module second = AModule {
+    using first
+  }
+  
+  replace first.foo = 2
+  
+  replace second.fii = 3
+}
+""")
+            self.assertEqual(t[0].first.foo.value(), 2)
+            self.assertEqual(t[0].first.fii.value(),2)
+            self.assertEqual(t[0].second.foo.value(),2)
+            self.assertEqual(t[0].second.fii.value(),3)
+            
             _allUsingLabels = set()
             t=process.parseString("""
 process TEST = {
