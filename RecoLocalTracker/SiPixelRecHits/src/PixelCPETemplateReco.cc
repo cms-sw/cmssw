@@ -27,6 +27,9 @@ const float PI = 3.141593;
 const float HALFPI = PI * 0.5;
 const float degsPerRad = 57.29578;
 
+// &&& need a class const
+const float micronsToCm = 1.0e-4;
+
 //-----------------------------------------------------------------------------
 //  Constructor.  All detUnit-dependent quantities will be initialized later,
 //  in setTheDet().  Here we only load the templates into the template store templ_ .
@@ -47,6 +50,10 @@ PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf,
   // Initialize template store, CMSSW simulation w/ reduced difusion
   // as thePixelTemp[2]
   //templ_.pushfile(401);
+  
+  cout << "About to read speed..." << endl;
+  speed_ = conf.getParameter<int>( "speed");
+  cout << "PixelCPETemplateReco::PixelCPETemplateReco: Template speed = " << speed_ << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -77,8 +84,9 @@ PixelCPETemplateReco::measurementPosition(const SiPixelCluster& cluster,
 LocalPoint
 PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDetUnit & det) const 
 {
+
   setTheDet( det );
-  
+
   //int ierr;   //!< return status
   int ID = 2; //!< picks the third entry from the template store, namely 401
   bool fpix;  //!< barrel(false) or forward(true)
@@ -187,6 +195,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   // Output:
   float nonsense = -99999.9; // nonsense init value
   templXrec_ = templYrec_ = templSigmaX_ = templSigmaY_ = nonsense;
+  templProbY_ = templProbX_ = nonsense;
   
   // ******************************************************************
   // Do it! Use cotalpha_ and cotbeta_ calculated in PixelCPEBase
@@ -196,12 +205,11 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
                     clust_array_2d, ydouble, xdouble,
                     templ_,
                     templYrec_, templSigmaY_, templProbY_,
-                    templXrec_, templSigmaX_, templProbX_, templQbin_);
+                    templXrec_, templSigmaX_, templProbX_, 
+		    templQbin_, 
+		    speed_);
   // ******************************************************************
 
-  // &&& need a class const
-  const float micronsToCm = 1.0e-4;
-  
   LocalPoint template_lp = LocalPoint( nonsense, nonsense );
   
   // Check exit status
@@ -212,8 +220,11 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
       // Gavril: what do we do in this case ? For now, just return the cluster center of gravity in microns
       // In the x case, apply a rough Lorentz drift correction
       double lorentz_drift = 60.0;
-      templXrec_ = cluster.x() / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
-      templYrec_ = cluster.y() / micronsToCm;
+      templXrec_ = theTopol->localX( cluster.x() ) / micronsToCm - lorentz_drift; // very rough Lorentz drift correction
+      templYrec_ = theTopol->localY( cluster.y() ) / micronsToCm;
+    
+      cout << "templXrec_ = " << templXrec_ << endl;
+      cout << "templYrec_ = " << templYrec_ << endl;
     }
       
   // go from micrometer to centimeter      
@@ -229,7 +240,7 @@ PixelCPETemplateReco::localPosition(const SiPixelCluster& cluster, const GeomDet
   return template_lp;
 
 }
-
+  
 //------------------------------------------------------------------
 //  localError() relies on localPosition() being called FIRST!!!
 //------------------------------------------------------------------
@@ -252,16 +263,40 @@ PixelCPETemplateReco::localError( const SiPixelCluster& cluster,
   bool edgex = ( theTopol->isItEdgePixelInX( minPixelRow ) || theTopol->isItEdgePixelInX( maxPixelRow ) );
   bool edgey = ( theTopol->isItEdgePixelInY( minPixelCol ) || theTopol->isItEdgePixelInY( maxPixelCol ) );
   
-  if ( edgex || edgey || ierr !=0 ) 
+  // if ( edgex || edgey || ierr !=0 ) 
+  if ( ierr !=0 ) 
     {
-      // If the cluster is at the module edge or the template reconstruction fails 
-      // return a huge errors since the estimated position is not reliable
-      // The template reconstruction fails when the cluster size is larger than 7 in x
-      // or larger than 21 in y. These kind of clusters must be delta rays, so they are 
-      // not good.
+      // If reconstruction fails the hit position is calculated from cluster center of gravity 
+      // corrected in x by average Lorentz drift. The template reconstruction fails when the cluster 
+      // size is larger than 7 in y or larger than 21 in y. These kind of clusters must be delta rays, 
+      // so they are not reliable. Assign huge errors.
       xerr = 10.0 * xerr;
       yerr = 10.0 * yerr;
       return LocalError(xerr*xerr, 0, yerr*yerr);
+    }
+  else if ( edgex || edgey )
+    {
+      // for edge pixels assign errors according to observed residual RMS 
+      if      ( edgex && !edgey )
+	{
+	  xerr = 23.0 * micronsToCm;
+	  yerr = 39.0 * micronsToCm;
+	}
+      else if ( !edgex && edgey )
+	{
+	  xerr = 24.0 * micronsToCm;
+	  yerr = 96.0 * micronsToCm;
+	}
+      else if ( edgex && edgey )
+	{
+	  xerr = 31.0 * micronsToCm;
+	  yerr = 90.0 * micronsToCm;
+	}
+      else
+	{
+	  cout << " PixelCPETemplateReco::localError: Something wrong with pixel edge flag !!!" << endl;
+	  assert(0);
+	}
     }
   else 
     {
