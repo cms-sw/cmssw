@@ -8,7 +8,8 @@ const double pi = M_PI, pi2 = 2 * M_PI;
  
 using namespace reco;
 
-PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
+PixelMatchGsfElectron::PixelMatchGsfElectron(const LorentzVector & p4,
+					     const SuperClusterRef scl, const GsfTrackRef gsft,
 					     const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
                                              const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
 					     const GlobalPoint innPos, const GlobalVector innMom, 
@@ -27,11 +28,11 @@ PixelMatchGsfElectron::PixelMatchGsfElectron(const SuperClusterRef scl, const Gs
 //                           vtxMom.y()*scale,
 //                           vtxMom.z()*scale,
 // 			  superCluster_->energy());
-//   setCharge(track_->charge());
-//   setP4(momentum);
-//   setVertex(Point(track_->vertex()));
-//   setPdgId( -11 * charge() );
-  //  math::XYZPoint trackPos= track_->vertex();
+   setCharge(track_->charge());
+   setP4(p4);
+   setVertex(Point(vtxPos));
+   setPdgId( -11 * charge());
+
   trackPositionAtVtx_=math::XYZVector(vtxPos.x(),vtxPos.y(),vtxPos.z());
   trackPositionAtCalo_=math::XYZVector(tssuperPos.x(),
                                        tssuperPos.y(),

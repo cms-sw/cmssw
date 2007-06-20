@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.18 2007/06/14 09:02:23 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.19 2007/06/14 17:35:16 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.19  2007/06/14 17:35:16  uberthon
+// separate algorithmic from data part
+//
 // Revision 1.18  2007/06/14 09:02:23  uberthon
 //  add setSuperCluster + setGsfTrack
 //
@@ -94,14 +97,15 @@ class PixelMatchGsfElectron : public RecoCandidate {
 
  public:
   
-  PixelMatchGsfElectron() {;} 
+  PixelMatchGsfElectron() { } 
 
-  PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
+  PixelMatchGsfElectron(const LorentzVector & p4,
+			const SuperClusterRef scl, const GsfTrackRef gsft,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
-                        const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
-                        const GlobalPoint innPos, const GlobalVector innMom, 
-                        const GlobalPoint vtxPos, const GlobalVector vtxMom, 
-                        const GlobalPoint outPos, const GlobalVector outMom, 
+			const GlobalPoint tsseedPos, const GlobalVector tsseedMom, 
+			const GlobalPoint innPos, const GlobalVector innMom, 
+			const GlobalPoint vtxPos, const GlobalVector vtxMom, 
+			const GlobalPoint outPos, const GlobalVector outMom, 
                         double HoE);
 
   virtual ~PixelMatchGsfElectron(){};
