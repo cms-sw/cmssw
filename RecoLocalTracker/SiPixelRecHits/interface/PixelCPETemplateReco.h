@@ -71,6 +71,8 @@ class PixelCPETemplateReco : public PixelCPEBase
   mutable float templProbY_ ;
   mutable int templQbin_ ;
 
+  mutable int speed_ ;
+
   mutable int ierr;
 
 };
