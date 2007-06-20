@@ -18,6 +18,8 @@
 // 
 // 1 - 3/9/07 mf
 //	Addition of JOB command, to be used by --jobreport
+// 2 - 6/19/07 mf
+//	Addition of MOD command, to be used by --mode
 
 using namespace edm;
 
@@ -140,6 +142,20 @@ void
 
   OpCode o(JOBREPORT);
   void * v(static_cast<void *>(j));
+
+  std::memcpy(slot_p+0             , &o, sizeof(OpCode));
+  std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));
+  b.commit(buf_size);
+}  // MessageLoggerQ::JOB()
+
+void
+  MessageLoggerQ::MOD( std::string * jm )
+{
+  SingleConsumerQ::ProducerBuffer b(buf);
+  char * slot_p = static_cast<char *>(b.buffer());
+
+  OpCode o(JOBMODE);
+  void * v(static_cast<void *>(jm));
 
   std::memcpy(slot_p+0             , &o, sizeof(OpCode));
   std::memcpy(slot_p+sizeof(OpCode), &v, sizeof(void *));

@@ -18,7 +18,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.8 2007/03/30 20:51:28 fischler Exp $
+// $Id: MessageDrop.h,v 1.9 2007/03/31 00:17:07 fischler Exp $
 //
 
 // Framework include files
@@ -42,6 +42,9 @@
 //
 //  5  mf 2/22/07	jobreport_name to have a way to convey content
 //			of jobreport option from cmsRun to MessageLogger class
+//
+//  6  mf 6/18/07	jobMode to have a way to convey choice of hardwired
+//			MessageLogger defaults
 
 // user include files
 
@@ -53,6 +56,7 @@ private:
   : moduleName ("")
   , runEvent("pre-events")
   , jobreport_name()					// change log 5
+  , jobMode("")						// change log 6
   , debugEnabled(true) 					// change log 1
   , infoEnabled(true) 					// change log 3
   , warningEnabled(true)				// change log 3
@@ -62,6 +66,7 @@ public:
   std::string moduleName;
   std::string runEvent;
   std::string jobreport_name;				// change log 5
+  std::string jobMode;					// change log 6
   bool debugEnabled;
   bool infoEnabled;
   bool warningEnabled;

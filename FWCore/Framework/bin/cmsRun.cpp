@@ -4,7 +4,7 @@ This is a generic main that can be used with any plugin and a
 PSet script.   See notes in EventProcessor.cpp for details about
 it.
 
-$Id: cmsRun.cpp,v 1.33 2007/05/08 03:18:36 wmtan Exp $
+$Id: cmsRun.cpp,v 1.34 2007/05/11 18:04:17 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 
@@ -38,6 +38,7 @@ static char const* const kParameterSetOpt = "parameter-set";
 static char const* const kParameterSetCommandOpt = "parameter-set,p";
 static char const* const kJobreportCommandOpt = "jobreport,j";
 static char const* const kEnableJobreportCommandOpt = "enablejobreport,e";
+static char const* const kJobModeCommandOpt = "mode,m";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kProgramName = "cmsRun";
@@ -72,10 +73,6 @@ namespace {
 
 int main(int argc, char* argv[])
 {
-  // TODO - if any argv is -earlyDebug (and dont use the plugged in boost
-  //        parser to find this out!) send an enable debug command to MLQ.
-  //        This will allow output of debug messages concerning pre-
-  //        MessageServicePresence matters.  mf.
   
   // We must initialize the plug-in manager first
   try {
@@ -135,7 +132,9 @@ int main(int argc, char* argv[])
     (kJobreportCommandOpt, boost::program_options::value<std::string>(),
     	"file name to use for a job report file: default extension is .xml")
     (kEnableJobreportCommandOpt, 
-    	"enable job report files (if any) specified in configuration file");
+    	"enable job report files (if any) specified in configuration file")
+    (kJobModeCommandOpt, boost::program_options::value<std::string>(),
+    	"Job Mode for MessageLogger defaults - default mode is grid");
 
   boost::program_options::positional_options_description p;
   p.add(kParameterSetOpt, -1);
@@ -207,6 +206,14 @@ int main(int argc, char* argv[])
       configstring += "\n"; 
     }
   }
+
+  //
+  // Decide what mode of hardcoded MessageLogger defaults to use 
+  // 
+  if (vm.count("mode")) {
+    std::string jobMode = vm["mode"].as<std::string>();
+    edm::MessageDrop::instance()->jobMode = jobMode;
+  }  
 
   //
   // Decide whether to enable creation of job report xml file 

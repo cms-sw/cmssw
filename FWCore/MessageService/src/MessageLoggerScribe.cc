@@ -123,6 +123,10 @@
 //	 statistics destinations going to cerr to instead come out in a file 
 //	 err.log
 //
+//  24 - 6/15/07 mf - in configure_errlog and its descendants
+//	 Major mods to hardwire defaults taken from the .cfi file 
+//	 To allow flexibility, this depends on MessageLoggerDefaults.h
+//
 // ----------------------------------------------------------------------
 
 
@@ -135,6 +139,7 @@
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
+#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
@@ -280,7 +285,7 @@ void
 		 << "during extern dest configuration. "
 		 << "This is a serious problem, and the extern dest " 
 		 << "will not be produced.\n"
-		 << "The rest of the logger wil attempt to continue to run.\n";
+		 << "The rest of the logger will attempt to continue to run.\n";
 	  }
         break;
       }
@@ -326,6 +331,17 @@ void
         delete jobReportOption_p;  // dispose of the message text
         break;
       }
+      case MessageLoggerQ::JOBMODE:  {			// change log 24
+        std::string* jobMode_p =
+		static_cast<std::string*>(operand);
+        JobMode jm = MessageLoggerDefaults::mode(*jobMode_p);
+	messageLoggerDefaults = 
+	  value_ptr<MessageLoggerDefaults>(new MessageLoggerDefaults(jm));
+		// Note - since messageLoggerDefaults is a value_ptr, 
+		//        there is no concern about deleting here.
+	delete jobMode_p;  // dispose of the message text
+        break;
+      }
     }  // switch
 
   } while(! done);
@@ -359,7 +375,7 @@ void
   if (preconfiguration_message != empty_String) {
     // To test a preconfiguration message without first going thru the 
     // configuration we are about to do, we issue the message (so it sits
-    // on the queue), then copy the processing that the LOG_A_MESSAE case
+    // on the queue), then copy the processing that the LOG_A_MESSAGE case
     // does.  We suppress the timestamp to allow for automated unit testing.
     early_dest.suppressTime();
     LogError ("preconfiguration") << preconfiguration_message;
@@ -421,10 +437,21 @@ void
              );
   }  // no longer need messageIDs
 
+  // grab list of hardwired categories (hardcats) -- these are to be added
+  // to the list of categories -- change log 24
+  {
+    std::vector<std::string> hardcats = messageLoggerDefaults->categories;
+  // combine the lists, not caring about possible duplicates (for now)
+    std::copy( hardcats.begin(), hardcats.end(),
+               std::back_inserter(categories)
+             );
+  }  // no longer need hardcats
+
   // grab default threshold common to all destinations
   String default_threshold
-     = getAparameter<String>(job_pset_p,"threshold", COMMON_DEFAULT_THRESHOLD);
+     = getAparameter<String>(job_pset_p,"threshold",empty_String);
      						// change log 3a
+						// change log 24
 
   // grab default limit/interval/timespan common to all destinations/categories:
   PSet  default_pset
@@ -473,6 +500,10 @@ void
   // establish this destination's threshold:
   String dest_threshold
      = getAparameter<String>(&dest_pset,"threshold", default_threshold);
+  if (dest_threshold == empty_String) {
+    dest_threshold = messageLoggerDefaults->threshold(filename);
+  }
+  if (dest_threshold == empty_String) dest_threshold = COMMON_DEFAULT_THRESHOLD;
   ELseverityLevel  threshold_sev(dest_threshold);
   dest_ctrl.setThreshold(threshold_sev);
 
@@ -487,6 +518,7 @@ void
        = getAparameter<PSet>(&default_pset,msgID, empty_PSet);	// change log 5
     PSet  category_pset
        = getAparameter<PSet>(&dest_pset,msgID, default_category_pset);
+
     int  category_default_limit 
        = getAparameter<int>(&default_category_pset,"limit",NO_VALUE_SET);
     int  limit
@@ -505,7 +537,18 @@ void
       = getAparameter<int>(&category_pset,"timespan",category_default_timespan);
     if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
        								// change log 7 
-      
+
+    std::string category = msgID;
+    if ( limit     == NO_VALUE_SET )  {				// change log 24
+       limit = messageLoggerDefaults->limit(filename,category);
+    }  
+    if ( interval     == NO_VALUE_SET )  {			// change log 24
+       interval = messageLoggerDefaults->reportEvery(filename,category);
+    }  
+    if ( timespan     == NO_VALUE_SET )  {			// change log 24
+       timespan = messageLoggerDefaults->timespan(filename,category);
+    }  
+     
     if( limit     != NO_VALUE_SET )  {
       if ( limit < 0 ) limit = 2000000000;  
       dest_ctrl.setLimit(msgID, limit);
@@ -534,12 +577,21 @@ void
     	= getAparameter<PSet>(&dest_pset,sevID, default_sev_pset);
 						// change log 5
     int  limit     = getAparameter<int>(&sev_pset,"limit",    NO_VALUE_SET);
+    if ( limit     == NO_VALUE_SET )  {				// change log 24
+       limit = messageLoggerDefaults->sev_limit(filename,sevID);
+    }  
     if( limit    != NO_VALUE_SET )  dest_ctrl.setLimit(severity, limit   );
-    int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
-    if( timespan != NO_VALUE_SET )  dest_ctrl.setLimit(severity, timespan);
-						// change log 2
     int  interval  = getAparameter<int>(&sev_pset,"reportEvery", NO_VALUE_SET);
-    if( limit    != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval   );
+    if ( interval     == NO_VALUE_SET )  {			// change log 24
+       interval = messageLoggerDefaults->sev_reportEvery(filename,sevID);
+    }  
+    if( interval != NO_VALUE_SET )  dest_ctrl.setInterval(severity, interval);
+						// change log 2
+    int  timespan  = getAparameter<int>(&sev_pset,"timespan", NO_VALUE_SET);
+    if ( timespan     == NO_VALUE_SET )  {			// change log 24
+       timespan = messageLoggerDefaults->sev_timespan(filename,sevID);
+    }  
+    if( timespan != NO_VALUE_SET )  dest_ctrl.setTimespan(severity, timespan   );
     						// change log 6
   }  // for
 
@@ -617,6 +669,12 @@ void
   vString  fwkJobReports
      = getAparameter<vString>(job_pset_p, "fwkJobReports", empty_vString);
 
+  // Use the default list of fwkJobReports if and only if the grabbed list is
+  // empty						 	// change log 24
+  if (fwkJobReports.empty()) {
+    fwkJobReports = messageLoggerDefaults->fwkJobReports;
+  }
+  
   // establish each fwkJobReports destination:
   for( vString::const_iterator it = fwkJobReports.begin()
      ; it != fwkJobReports.end()
@@ -715,6 +773,12 @@ void
   vString  destinations
      = getAparameter<vString>(job_pset_p, "destinations", empty_vString);
 
+  // Use the default list of destinations if and only if the grabbed list is
+  // empty						 	// change log 24
+  if (destinations.empty()) {
+    destinations = messageLoggerDefaults->destinations;
+  }
+  
   // dial down the early destination if other dest's are supplied:
   if( ! destinations.empty() )
     early_dest.setThreshold(ELhighestSeverity);
@@ -815,6 +879,10 @@ void
   // grab list of statistics destinations:
   vString  statistics 
      = getAparameter<vString>(job_pset_p,"statistics", empty_vString);
+  
+  bool no_statistics_configured = statistics.empty();		// change log 24
+  std::vector<std::string> hardstats;
+  if ( no_statistics_configured ) hardstats = messageLoggerDefaults->statistics;
 
    // establish each statistics destination:
   for( vString::const_iterator it = statistics.begin()
@@ -884,7 +952,11 @@ void
     }
     
     // create (if statistics file does not match any destination file name)
-    // or note (if statistics file matches a destination file name) the ostream
+    // or note (if statistics file matches a destination file name) the ostream.
+    // But if no statistics destinations were provided in the config, do not
+    // create a new destination for this hardwired statistics - only act if
+    // it is matches a destination.  (shange log 24)
+    bool statistics_destination_is_real = !no_statistics_configured;
     std::ostream * os_p;
     if ( stream_ps.find(actual_filename) == stream_ps.end() ) {
       if ( actual_filename == "cout" ) {
@@ -898,25 +970,27 @@ void
       }
       stream_ps[actual_filename] = os_p;
     } else { 
+      statistics_destination_is_real = true;			// change log 24
       os_p = stream_ps[actual_filename];
     }
        
-    // attach the statistics destination, keeping a control handle to it:
-    ELdestControl dest_ctrl;
-    dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
-    statisticsDestControls.push_back(dest_ctrl);
-    bool reset = getAparameter<bool>(&stat_pset,"reset",false);
-    statisticsResets.push_back(reset);
+    if (statistics_destination_is_real)	{			// change log 24
+      // attach the statistics destination, keeping a control handle to it:
+      ELdestControl dest_ctrl;
+      dest_ctrl = admin_p->attach( ELstatistics(*os_p) );
+      statisticsDestControls.push_back(dest_ctrl);
+      bool reset = getAparameter<bool>(&stat_pset,"reset",false);
+      statisticsResets.push_back(reset);
+    
+      // now configure this destination:
+      configure_dest(dest_ctrl, psetname);
 
-    // now configure this destination:
-    configure_dest(dest_ctrl, psetname);
-
-    // and suppress the desire to do an extra termination summary just because
-    // of end-of-job info messages
-    dest_ctrl.noTerminationSummary();
- 
+      // and suppress the desire to do an extra termination summary just because
+      // of end-of-job info messages
+      dest_ctrl.noTerminationSummary();
+    }
+     
   }  // for [it = statistics.begin() to end()]
-
 
 } // configure_statistics
 

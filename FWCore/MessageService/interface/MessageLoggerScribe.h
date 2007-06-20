@@ -1,9 +1,12 @@
 #ifndef FWCore_MessageService_MessageLoggerScribe_h
 #define FWCore_MessageService_MessageLoggerScribe_h
 
+#include "FWCore/Utilities/interface/value_ptr.h"
+
 #include "FWCore/MessageService/interface/ELdestControl.h"
 #include "FWCore/MessageService/interface/MsgContext.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
+#include "FWCore/MessageService/interface/MessageLoggerDefaults.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -40,6 +43,9 @@ namespace service {
 //   4 - 3/26/07 mf
 //	 Added configure_default_fwkJobReport, which implements the config
 //	 originally placed in the .cfi file.
+//
+//   5 - 6/15/07 mf
+//	 Accommodations for use of MessageLoggerDefault structure 
 //
 // -----------------------------------------------------------------------
 
@@ -106,25 +112,40 @@ private:
   }								// changelog 2
 #endif
 
+#ifdef REMOVE
+  template <class T>
+  T  getCategoryDefault ( PSet * p, 
+  			  std::string const & id, 
+			  std::string const & def  ) 
+  {
+    T t;
+    t = p->template getUntrackedParameter<T>(id, def);
+    return t;
+  }								
+#endif
+
+
   // --- other helpers
   void parseCategories (std::string const & s, std::vector<std::string> & cats);
   void setStaticErrorLog_ptr() {static_errorlog_p = errorlog_p;}
   
   // --- data:
-  ELadministrator               * admin_p;
-  ELdestControl                   early_dest;
-  ErrorLog                      * errorlog_p;
-  std::vector<std::ofstream    *> file_ps;
-  MsgContext                      msg_context;
-  PSet *                          job_pset_p;
-  std::vector<NamedDestination *> extern_dests;
-  std::map<String,std::ostream *> stream_ps;
-  std::vector<String> 	  	  ordinary_destination_filenames;
-  std::vector<ELdestControl>      statisticsDestControls;
-  std::vector<bool>               statisticsResets;
-  std::string	  		  jobReportOption;
-  static ErrorLog		* static_errorlog_p;
-  bool				  clean_slate_configuration;
+  ELadministrator                   * admin_p;
+  ELdestControl                       early_dest;
+  ErrorLog                          * errorlog_p;
+  std::vector<std::ofstream        *> file_ps;
+  MsgContext                          msg_context;
+  PSet *                              job_pset_p;
+  std::vector<NamedDestination     *> extern_dests;
+  std::map<String,std::ostream     *> stream_ps;
+  std::vector<String> 	  	      ordinary_destination_filenames;
+  std::vector<ELdestControl>          statisticsDestControls;
+  std::vector<bool>                   statisticsResets;
+  std::string	  		      jobReportOption;
+  static ErrorLog		    * static_errorlog_p;
+  bool				      clean_slate_configuration;
+  value_ptr<MessageLoggerDefaults>    messageLoggerDefaults;
+  
 };  // MessageLoggerScribe
 
 

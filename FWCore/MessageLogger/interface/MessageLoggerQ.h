@@ -27,6 +27,7 @@ public:
   , EXTERN_DEST    // EXT
   , SUMMARIZE      // SUM
   , JOBREPORT      // JOB
+  , JOBMODE        // MOD
   };  // OpCode
 
   // ---  birth via a surrogate:
@@ -39,6 +40,7 @@ public:
   static  void  EXT( service::NamedDestination* p );
   static  void  SUM();
   static  void  JOB( std::string * j );
+  static  void  MOD( std::string * jm );
 
   // ---  obtain a message from the queue:
   static  void  consume( OpCode & opcode, void * & operand );

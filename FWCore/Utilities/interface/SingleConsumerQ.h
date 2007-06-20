@@ -1,5 +1,5 @@
-#ifndef Streamer_SingleConsumerQ_h
-#define Streamer_SingleConsumerQ_h
+#ifndef Utilities_SingleConsumerQ_h
+#define Utilities_SingleConsumerQ_h
 
 // -*- C++ -*-
 

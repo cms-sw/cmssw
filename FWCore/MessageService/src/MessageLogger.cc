@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.18 2007/04/18 18:59:37 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.19 2007/06/11 18:54:58 fischler Exp $
 //
 // Change log
 //
@@ -30,6 +30,8 @@
 //
 // 6 mf   6/6/07	Remove the catches for forgiveness of tracked
 //			parameters 
+//
+// 7 mf   6/19/07	Support for --jobreport option
 
 
 // system include files
@@ -136,6 +138,11 @@ MessageLogger( ParameterSet const & iPS
     std::string * jr_name_p = new std::string(jr_name);
     MessageLoggerQ::JOB( jr_name_p ); 
   }
+  
+  								// change log 7
+  std::string jm = edm::MessageDrop::instance()->jobMode; 
+  std::string * jm_p = new std::string(jm);
+  MessageLoggerQ::MOD( jm_p ); 
   
   MessageLoggerQ::CFG( new ParameterSet(iPS) );
 
