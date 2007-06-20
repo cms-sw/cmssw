@@ -15,7 +15,7 @@ EDProduct that is a sequence.
 //
 // Original Author:  
 //         Created:  Mon Dec 18 09:48:30 CST 2006
-// $Id: View.h,v 1.6 2007/06/08 19:33:11 paterno Exp $
+// $Id: View.h,v 1.7 2007/06/14 17:52:16 wmtan Exp $
 //
 
 #include <vector>
@@ -131,7 +131,6 @@ namespace edm
 
   private:
     seq_t                      items_;
-    //RefToBaseVector<T>         refs_;
     std::vector<RefToBase<T> > refs_;
 
     ViewBase* doClone() const;
