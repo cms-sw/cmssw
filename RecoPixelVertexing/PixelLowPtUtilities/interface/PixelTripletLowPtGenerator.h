@@ -17,7 +17,6 @@
 
 class TrackerGeometry;
 
-
 #include <vector>
 
 class   PixelTripletLowPtGenerator :

@@ -1,14 +1,13 @@
-<flags EDM_PLUGIN=1>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=FWCore/PluginManager>
 <use name=Geometry/Records>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/CommonTopologies>
 <use name=Geometry/TrackerGeometryBuilder>
 <use name=TrackingTools/PatternTools>
 <use name=RecoPixelVertexing/PixelTriplets>
 <use name=RecoPixelVertexing/PixelTrackFitting>
+<use name=SimDataFormats/HepMCProduct>
+<use name=RecoVertex/VertexTools>
 
 <export>
  <lib name=RecoPixelVertexingPixelLowPtUtilities>
@@ -16,10 +15,10 @@
  <use name=FWCore/ParameterSet>
  <use name=FWCore/PluginManager>
  <use name=Geometry/Records>
- <use name=Geometry/CommonDetUnit>
- <use name=Geometry/CommonTopologies>
  <use name=Geometry/TrackerGeometryBuilder>
  <use name=TrackingTools/PatternTools>
  <use name=RecoPixelVertexing/PixelTriplets>
  <use name=RecoPixelVertexing/PixelTrackFitting>
+ <use name=SimDataFormats/HepMCProduct>
+ <use name=RecoVertex/VertexTools>
 </export>

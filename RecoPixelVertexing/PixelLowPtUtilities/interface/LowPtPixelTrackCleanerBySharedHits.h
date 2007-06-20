@@ -1,35 +1,26 @@
-#ifndef _LowPtPixelTrackCleanerBySharedHits_H
-#define _LowPtPixelTrackCleanerBySharedHits_H
+#ifndef _LowPtPixelTrackCleanerBySharedHits_h_
+#define _LowPtPixelTrackCleanerBySharedHits_h_
 
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/TracksWithHits.h"
 #include "RecoPixelVertexing/PixelTrackFitting/interface/PixelTrackCleaner.h"
 
 #include <utility>
 #include <vector>
 
+using namespace std;
+using namespace pixeltrackfitting;
 
-class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner {
+class LowPtPixelTrackCleanerBySharedHits : public PixelTrackCleaner
+{
+  public:
+    LowPtPixelTrackCleanerBySharedHits(const edm::ParameterSet& ps);
+    virtual ~LowPtPixelTrackCleanerBySharedHits();
 
-public:
-  LowPtPixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg);
+    virtual TracksWithRecHits cleanTracks
+     (const TracksWithRecHits & tracksWithRecHits);
 
-  virtual ~LowPtPixelTrackCleanerBySharedHits();
-
-  typedef pixeltrackfitting::TracksWithRecHits TracksWithRecHits;
-  virtual TracksWithRecHits cleanTracks(const TracksWithRecHits & tracksWithRecHits);
-
-private:
-  void cleanTrack();
-  bool recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2);
-
-  std::vector<bool> trackOk;
-  reco::Track *track1, *track2;
-  int iTrack1, iTrack2;
-
+  private:
 };
 
 #endif

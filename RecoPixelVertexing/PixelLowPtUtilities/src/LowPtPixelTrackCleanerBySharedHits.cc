@@ -2,108 +2,130 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
-#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-using namespace std;
-using namespace reco;
-using namespace pixeltrackfitting;
-
-LowPtPixelTrackCleanerBySharedHits::LowPtPixelTrackCleanerBySharedHits( const edm::ParameterSet& cfg)
-{}
-
-LowPtPixelTrackCleanerBySharedHits::~LowPtPixelTrackCleanerBySharedHits()
-{}
-
-TracksWithRecHits LowPtPixelTrackCleanerBySharedHits::cleanTracks(const
-TracksWithRecHits & trackHitPairs_)
+/*****************************************************************************/
+class HitComparator
 {
-  typedef std::vector<const TrackingRecHit *> RecHits;
-  trackOk.clear();
-
-  // Local copy of trackHitPairs
-  TracksWithRecHits trackHitPairs = trackHitPairs_;
-
-  LogDebug("LowPtPixelTrackCleanerBySharedHits") << "Cleaning tracks" << "\n";
-  int size = trackHitPairs.size();
-  for (int i = 0; i < size; i++) trackOk.push_back(true);
-
-  for (iTrack1 = 0; iTrack1 < size; iTrack1++)
-  {
-    track1 = trackHitPairs.at(iTrack1).first;
-//    RecHits recHits1 = trackHitPairs.at(iTrack1).second;
-
-    if (!trackOk.at(iTrack1)) continue;
-
-    for (iTrack2 = iTrack1 + 1; iTrack2 < size; iTrack2++)
+  public:
+    bool operator() (const TrackingRecHit* a, const TrackingRecHit* b) const
     {
-      RecHits recHits1 = trackHitPairs.at(iTrack1).second;
-      if (!trackOk.at(iTrack1) || !trackOk.at(iTrack2)) continue;
+      if(a->geographicalId() < b->geographicalId()) return true;
+      if(b->geographicalId() < a->geographicalId()) return false;
 
-      track2 = trackHitPairs.at(iTrack2).first;
-      RecHits recHits2 = trackHitPairs.at(iTrack2).second;
+      if(a->localPosition().x() < b->localPosition().x() - 1e-5) return true;
+      if(b->localPosition().x() < a->localPosition().x() - 1e-5) return false;
 
-      vector<int> separateRecHits;
+      if(a->localPosition().y() < b->localPosition().y() - 1e-5) return true;
+      if(b->localPosition().y() < a->localPosition().y() - 1e-5) return false;
 
-      int commonRecHits = 0;
-      for (int iRecHit2 = 0; iRecHit2 < (int)recHits2.size(); iRecHit2++)
+      return false;
+    }
+};
+
+/*****************************************************************************/
+LowPtPixelTrackCleanerBySharedHits::LowPtPixelTrackCleanerBySharedHits
+  (const edm::ParameterSet& ps)
+{
+}
+
+/*****************************************************************************/
+LowPtPixelTrackCleanerBySharedHits::~LowPtPixelTrackCleanerBySharedHits()
+{
+}
+
+/*****************************************************************************/
+TracksWithRecHits LowPtPixelTrackCleanerBySharedHits::cleanTracks
+  (const TracksWithRecHits & tracks_)
+{
+  // Local copy
+  TracksWithRecHits tracks = tracks_;
+
+  // Fill the rechit map
+  typedef map<const TrackingRecHit*,vector<unsigned int>,HitComparator>
+    RecHitMap;
+  RecHitMap recHitMap;
+
+  vector<bool> keep(tracks.size(),true);
+
+  for(unsigned int i = 0; i < tracks.size(); i++)
+  {
+    for(vector<const TrackingRecHit *>::const_iterator
+        recHit = tracks[i].second.begin();
+        recHit!= tracks[i].second.end(); recHit++)
+      recHitMap[*recHit].push_back(i);
+  }
+
+  cerr << " [TrackCleaner ] initial tracks : " << tracks.size()
+                          << " (with " << recHitMap.size() << " hits)" << endl;
+
+  // Look at each track
+  typedef map<unsigned int,int,less<unsigned int> > TrackMap; 
+  vector<int> ntracks(3,0);
+
+  for(unsigned int i = 0; i < tracks.size(); i++)
+  {
+    // Skip if 'i' already removed
+    if(!keep[i]) continue;
+
+    TrackMap trackMap;
+
+    // Go trough all rechits of this track
+    for(vector<const TrackingRecHit *>::const_iterator
+        recHit = tracks[i].second.begin();
+        recHit!= tracks[i].second.end(); recHit++)
+    {
+      // Get tracks sharing this rechit
+      vector<unsigned int> sharing = recHitMap[*recHit];
+
+      for(vector<unsigned int>::iterator j = sharing.begin();
+                                         j!= sharing.end(); j++)
+        if(i < *j) trackMap[*j]++;
+    }
+
+    // Check for tracks with shared rechits
+    for(TrackMap::iterator sharing = trackMap.begin();
+                           sharing!= trackMap.end(); sharing++)
+    {
+      unsigned int j = (*sharing).first;
+      if(!keep[i] || !keep[j]) continue;
+
+      // At least 2 rechits shared
+      if((*sharing).second >= 2)
       {
-        bool match = false;
+        if(fabs(tracks[i].first->d0() - tracks[j].first->d0()) < 0.1)
+        { // merge tracks, add separate hits of the second to the first one
+          for(vector<const TrackingRecHit *>::const_iterator
+              recHit = tracks[j].second.begin();
+              recHit!= tracks[j].second.end(); recHit++)
+            if(find(tracks[i].second.begin(),
+                    tracks[i].second.end(),*recHit) == tracks[i].second.end())
+              tracks[i].second.push_back(*recHit);
 
-        for (int iRecHit1 = 0; iRecHit1 < (int)recHits1.size(); iRecHit1++)
-          if (recHitsAreEqual(recHits1.at(iRecHit1), recHits2.at(iRecHit2)))
-          {
-            match = true;
-            commonRecHits++;
-          }
-
-        if(!match) separateRecHits.push_back(iRecHit2);
-      }
-
-      // At least 2 rechits are shared -> add hits, remove second track
-      if((int)recHits2.size() - separateRecHits.size() >=2)
-      {
-        if(fabs(track1->d0() - track2->d0()) < 0.1)
-        { // merge
-          for(vector<int>::iterator iRecHit2 = separateRecHits.begin();
-                                    iRecHit2!= separateRecHits.end();
-                                    iRecHit2++)
-            trackHitPairs.at(iTrack1).second.push_back(recHits2.at(*iRecHit2));
-
-          cleanTrack();
+          // Remove second track
+          keep[j] = false;
         }
         else
         { // remove track with higher impact
-          if(fabs(track1->d0()) < fabs(track2->d0()))
-            trackOk.at(iTrack2) = false;
+          if(tracks[i].first->d0() < tracks[j].first->d0())
+            keep[j] = false;
           else
-            trackOk.at(iTrack1) = false;
+            keep[i] = false;
         }
       }
+
+      ntracks[(*sharing).second]++;
     }
   }
 
-  vector<TrackWithRecHits> cleanedTracks;
+  // Final copy
+  TracksWithRecHits cleaned;
+  
+  for(unsigned int i = 0; i < tracks.size(); i++)
+    if(keep[i]) cleaned.push_back(tracks[i]);
+                      else delete tracks_[i].first;
 
-  for (int i = 0; i < size; i++)
-  {
-    if (trackOk.at(i)) cleanedTracks.push_back(trackHitPairs.at(i));
-    else delete trackHitPairs_.at(i).first;
-  }
-  return cleanedTracks;
-}
-
-void LowPtPixelTrackCleanerBySharedHits::cleanTrack()
-{
-  trackOk.at(iTrack2) = false;
-}
+  cerr << " [TrackCleaner ] cleaned tracks : " << cleaned.size() << endl;
 
 
-bool LowPtPixelTrackCleanerBySharedHits::recHitsAreEqual(const TrackingRecHit *recHit1, const TrackingRecHit *recHit2)
-{
-  if (recHit1->geographicalId() != recHit2->geographicalId()) return false;
-  LocalPoint pos1 = recHit1->localPosition();
-  LocalPoint pos2 = recHit2->localPosition();
-  return ((pos1.x() == pos2.x()) && (pos1.y() == pos2.y()));
+  return cleaned;
 }

@@ -1,13 +1,12 @@
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/PixelTripletFilterByClusterShape.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-//#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShape.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
-
-#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <fstream>
 
@@ -43,8 +42,6 @@ void PixelTripletFilterByClusterShape::loadClusterLimits()
     fileInPath("RecoPixelVertexing/PixelLowPtUtilities/data/clusterShape.par");
   ifstream inFile(fileInPath.fullPath().c_str());
 
-  cerr << " [PixelTripletFilterByClusterShape] loading cluster shape data...";
-  
   while(inFile.eof() == false)
   {
     int part,dx,dy;
@@ -68,7 +65,7 @@ void PixelTripletFilterByClusterShape::loadClusterLimits()
   
   inFile.close();
 
-  cerr << " [done]" << endl;
+  cerr << " [TrackFilter  ] cluster shape filter loaded" << endl;
 }
 
 /*****************************************************************************/

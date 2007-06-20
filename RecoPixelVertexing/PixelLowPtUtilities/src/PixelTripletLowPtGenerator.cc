@@ -12,12 +12,12 @@
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-using namespace ctfseeding;
 using namespace std;
+using namespace ctfseeding;
 
 /*****************************************************************************/
 void PixelTripletLowPtGenerator::init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers,
+      const std::vector<SeedingLayer> & layers,
       LayerCacheType* layerCache)
 {
   thePairGenerator = pairs.clone();
@@ -60,7 +60,7 @@ void PixelTripletLowPtGenerator::hitTriplets(
 {
   // Generate pairs
   OrderedHitPairs pairs; pairs.reserve(30000);
-  thePairGenerator->hitPairs(region,pairs,es);
+  thePairGenerator->hitPairs(region,pairs,ev,es);
 
   if (pairs.size() == 0) return;
 
