@@ -63,7 +63,7 @@
  <class name="std::pair<unsigned int,unsigned int>"/>
  <class name="std::pair<unsigned int,unsigned long>"/>
  <class name="std::pair<unsigned short,unsigned short>"/>
- <class mame="std::pair<unsigned int, int>" />
+ <class name="std::pair<unsigned int, int>" />
  <class name="std::pair<unsigned int,float>"/>
  <class name="std::pair<unsigned int,bool>"/>
  <class name="std::pair<double,double>"/>
