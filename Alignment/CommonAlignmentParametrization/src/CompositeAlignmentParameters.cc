@@ -493,12 +493,8 @@ void CompositeAlignmentParameters::convert(const std::vector<AlignableDet*> &inp
 {
   output.clear();
   output.reserve(input.size());
-  //   Does not compile due to strange const-conversion problems, but why?
+
   std::vector<AlignableDet*>::const_iterator it, itEnd;
   for (it = input.begin(), itEnd = input.end(); it != itEnd; ++it)
     output.push_back(AlignableDetOrUnitPtr(*it));
-
-//   for (unsigned int i = 0; i < input.size(); ++i) {
-//     output.push_back(AlignableDetOrUnitPtr(input[i]));
-//   }
 }
