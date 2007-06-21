@@ -1,10 +1,6 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
-
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
-//
-// constructors and destructor
-//
 TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
   electronSource_ = iConfig.getParameter<edm::InputTag>("electronSource");
@@ -23,21 +19,14 @@ TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfi
   produces<std::vector<TtDilepEvtSolution> >();
 }
 
-
 TtDilepEvtSolutionMaker::~TtDilepEvtSolutionMaker()
 {
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
    using namespace edm;
+
    Handle<std::vector<TopMuon> > muons;
    iEvent.getByLabel(muonSource_, muons);
    Handle<std::vector<TopElectron> > electrons;
@@ -201,7 +190,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
        double bestSolDR = 9999.;
        int bestSol = 0;
        for(size_t s=0; s<evtsols->size(); s++) {
-         (*evtsols)[s].setGenEvt(genEvt->particles());
+         (*evtsols)[s].setGenEvt( *genEvt );
          //FIXME probably this should be moved to BestMatching.h
          double dRBB =       DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetB(), (reco::Particle) (*evtsols)[s].getGenB());
          double dRBbarBbar = DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetBbar(), (reco::Particle) (*evtsols)[s].getGenBbar());

@@ -1,24 +1,14 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/StGenEventReco.h"
 
-//
-// constructors and destructor
-//
 StGenEventReco::StGenEventReco(const edm::ParameterSet& iConfig)
 {
    produces<StGenEvent>();
 }
 
-
 StGenEventReco::~StGenEventReco()
 {
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void
 StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {     
@@ -106,6 +96,4 @@ StGenEventReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    StGenEvent * genEvt = new StGenEvent(decay,evtvec);
    auto_ptr<StGenEvent> myStGenEvent(genEvt);
    iEvent.put(myStGenEvent);
-   
-
 }

@@ -1,8 +1,5 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/StEvtSolutionMaker.h"
 
-//
-// constructors and destructor
-//
 StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
    electronSrc_     = iConfig.getParameter<edm::InputTag>("electronSource");
@@ -31,17 +28,10 @@ StEvtSolutionMaker::StEvtSolutionMaker(const edm::ParameterSet& iConfig)
    }
 }
 
-
 StEvtSolutionMaker::~StEvtSolutionMaker()
 {
 }
 
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   //

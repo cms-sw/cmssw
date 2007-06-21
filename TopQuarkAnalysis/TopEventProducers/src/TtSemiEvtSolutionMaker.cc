@@ -1,9 +1,5 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtSemiEvtSolutionMaker.h"
 
-//
-// constructors
-//
-
 TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
    electronSrc_     = iConfig.getParameter<edm::InputTag> 	("electronSource");
@@ -14,10 +10,10 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    leptonFlavour_   = iConfig.getParameter< std::string > 	("leptonFlavour");
    doKinFit_        = iConfig.getParameter< bool >        	("doKinFit");
    addLRSignalSel_  = iConfig.getParameter< bool >        	("addLRSignalSel");
-   lrSignalSelObs_  = iConfig.getParameter< vector<int> > 	("lrSignalSelObs");
+   lrSignalSelObs_  = iConfig.getParameter< std::vector<int> > 	("lrSignalSelObs");
    lrSignalSelFile_ = iConfig.getParameter< std::string > 	("lrSignalSelFile");
    addLRJetComb_    = iConfig.getParameter< bool >        	("addLRJetComb");
-   lrJetCombObs_    = iConfig.getParameter< vector<int> > 	("lrJetCombObs");
+   lrJetCombObs_    = iConfig.getParameter< std::vector<int> > 	("lrJetCombObs");
    lrJetCombFile_   = iConfig.getParameter< std::string > 	("lrJetCombFile");
    maxNrIter_       = iConfig.getParameter< int >         	("maxNrIter");
    maxDeltaS_       = iConfig.getParameter< double >      	("maxDeltaS");
@@ -42,18 +38,8 @@ TtSemiEvtSolutionMaker::TtSemiEvtSolutionMaker(const edm::ParameterSet& iConfig)
    produces<std::vector<TtSemiEvtSolution> >();
 }
 
-
-
-
-
-
-
-
-//
-// destructor
-//
-
-TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
+TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker()
+{
    delete mySimpleBestJetComb;
    delete myLRSignalSelObservables;
    delete myLRJetCombObservables;
@@ -61,21 +47,8 @@ TtSemiEvtSolutionMaker::~TtSemiEvtSolutionMaker() {
    if(addLRJetComb_)   delete myLRJetCombCalc;
 }
 
-
-
-
-
-
-
-
-//
-// member functions
-//
-
-// ------------ method called to produce the data  ------------
 void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
   //
   //  TopObject Selection
   //
@@ -122,13 +95,11 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
    iEvent.getByLabel(bJetSrc_, bJets);
    if (lJets->size() >= 4) jetsFound = true;
    
-   
-   
    //
    // Build Event solutions according to the ambiguity in the jet combination
    //
    
-   std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
+  std::vector<TtSemiEvtSolution> *evtsols = new std::vector<TtSemiEvtSolution>();
    if(leptonFound && metFound && jetsFound){
      //std::cout<<"constructing solutions"<<std::endl;
      for (unsigned int p=0; p<4; p++) {
@@ -190,7 +161,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
        double bestSolDR = 9999.;
        int bestSol = 0;
        for(size_t s=0; s<evtsols->size(); s++) {
-         (*evtsols)[s].setGenEvt(genEvt->particles());
+         (*evtsols)[s].setGenEvt( *genEvt );
          std::vector<double> bm = BestMatch((*evtsols)[s], false); //false to use DR, true SpaceAngles
          (*evtsols)[s].setSumDeltaRjp(bm[0]);
          (*evtsols)[s].setChangeWQ((int) bm[1]);
@@ -203,9 +174,8 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
        for(size_t s=0; s<evtsols->size(); s++) (*evtsols)[s].setMCCorrJetComb(bestSol);
      }
      
-     
      //store the vector of solutions to the event     
-     auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
+     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
    else
@@ -219,7 +189,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
      */
      TtSemiEvtSolution asol;
      evtsols->push_back(asol);
-     auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
+     std::auto_ptr<std::vector<TtSemiEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
 }
