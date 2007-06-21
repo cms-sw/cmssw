@@ -1,7 +1,7 @@
 //  \file AlignableNavigator.cc
 //
-//   $Revision: 1.16.2.2 $
-//   $Date: 2007/05/11 14:07:31 $
+//   $Revision: 1.16.2.3 $
+//   $Date: 2007/06/21 12:11:50 $
 //   (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignment/interface/AlignableDet.h"
@@ -20,7 +20,7 @@ AlignableNavigator::AlignableNavigator( Alignable* tracker, Alignable* muon )
   if (numNonDets) {
     edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
                                  << theMap.size() << ", but found also " << numNonDets 
-                                 << " Alignables that have DetId=0,\nbeing neither "
+                                 << " Alignables that have DetId!=0,\nbeing neither "
 				 << "AlignableDet nor AlignableDetUnit. This will "
                                  << "lead to an exception in case alignableFromDetId(..) "
 				 << "is called for one of these DetIds.\n" 
@@ -45,7 +45,7 @@ AlignableNavigator::AlignableNavigator( std::vector<Alignable*> alignables )
   if (numNonDets) {
     edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
                                  << theMap.size() << ", but found also " << numNonDets 
-                                 << " Alignables that have DetId=0,\nbeing neither "
+                                 << " Alignables that have DetId!=0,\nbeing neither "
 				 << "AlignableDet nor AlignableDetUnit. This will "
                                  << "lead to an exception in case alignableFromDetId(..) "
 				 << "is called for one of these DetIds.\n" 
@@ -128,7 +128,7 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
       if (aliDetUnit) {
         theMap.insert( PairType( detId, aliDetUnit ) );
       } else {
-        ++nProblem;
+        nProblem = 1; // equivalent to '++nProblem;' which could confuse to be ina loop...
 // Cannot be an exception since it happens (illegaly) in Muon DT hierarchy:
 //         throw cms::Exception("BadLogic") 
 //           << "[AlignableNavigator::recursiveGetId] Alignable with DetId " << detId.rawId() 
