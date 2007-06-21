@@ -479,7 +479,7 @@ void CommissioningHistograms::createCollations( const std::vector<std::string>& 
       SiStripHistoTitle title( *ime );
 
       // Check histogram type
-      if ( title.histoType() != sistrip::EXPERT_HISTO ) { continue; }
+      //if ( title.histoType() != sistrip::EXPERT_HISTO ) { continue; }
       
       // Check granularity
       uint16_t channel = sistrip::invalid_;

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.10 2007/06/12 07:32:39 bainbrid Exp $
+// Last commit: $Id: SiStripCommissioningOfflineClient.cc,v 1.11 2007/06/19 12:29:22 bainbrid Exp $
 
 #include "DQM/SiStripCommissioningClients/interface/SiStripCommissioningOfflineClient.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEnumsAndStrings.h"
@@ -21,7 +21,7 @@
 #include <sstream>
 #include "TProfile.h"
 
-#define DO_SUMMARY
+//#define DO_SUMMARY
 
 using namespace sistrip;
 
@@ -82,9 +82,7 @@ void SiStripCommissioningOfflineClient::beginJob( const edm::EventSetup& setup )
 	<< "[SiStripCommissioningOfflineClient::" << __func__ << "]"
 	<< " The input root file \"" << *ifile
 	<< "\" could not be opened!"
-	<< " Please check the path and filename!"
-	<< " Aborting...";
-      return;
+	<< " Please check the path and filename!";
     } else { 
       root_file.close(); 
       std::string::size_type found = ifile->find(sistrip::dqmClientFileName_);
