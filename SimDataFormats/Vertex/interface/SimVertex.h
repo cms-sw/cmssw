@@ -8,17 +8,18 @@ class SimVertex : public CoreSimVertex
   
   typedef CoreSimVertex Core;
   /// constructor
-    SimVertex();
-    SimVertex(const Hep3Vector & v, float tof);
-    /// full constructor (position, time, index of parent in final vector)
-    SimVertex(const Hep3Vector & v, float tof, int it);
-    /// constructor from transient
-    SimVertex(const CoreSimVertex & t, int it);
-    /// index of the parent in the Event SimTrack container (-1 if no parent)
-    int parentIndex() const { return  itrack; }
-    bool noParent() const { return  itrack==-1; }
+  SimVertex();
+  SimVertex(const Hep3Vector & v, float tof);
+  /// full constructor (position, time, index of parent in final vector)
+  SimVertex(const Hep3Vector & v, float tof, int it);
+  /// constructor from transient
+  SimVertex(const CoreSimVertex & t, int it);
+  /// G4 TrackId of the parent in the Event SimTrack container (-1 if no parent)
+  /// BE CAREFUL this is not a vector index
+  int parentIndex() const { return  itrack; }
+  bool noParent() const { return  itrack==-1; }
 private: 
-    int itrack;
+  int itrack;
 };
 
 #include <iosfwd>
