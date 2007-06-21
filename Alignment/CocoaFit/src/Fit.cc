@@ -1,11 +1,10 @@
+#include <FWCore/Utilities/interface/Exception.h>
 //   COCOA class implementation file
 //Id:  Fit.cc
 //CAT: Fit
 //
 //   History: v1.0 
 //   Pedro Arce
-#include "CLHEP/Matrix/SymMatrix.h"
-#include <tree.h>
 
 #include "Alignment/CocoaModel/interface/Model.h"
 #include "Alignment/CocoaModel/interface/OpticalObject.h"
@@ -32,6 +31,7 @@
 #include <iomanip>
 #include <math.h>
 #include <time.h>
+#include <set>
  
 Fit* Fit::instance = 0;
 
@@ -53,11 +53,10 @@ ALIint Fit::_NoColumnsA;
 ALIint Fit::theMinimumEntryQuality;
 ALIdouble Fit::thePreviousIterationFitQuality = DBL_MAX;
 ALIdouble Fit::theFitQualityCut = -1;
-ALIdouble  Fit::theRelativeFitQualityCut =  -1;
-ALIdouble Fit::fit_quality_cut = DBL_MAX;
-ALIdouble Fit::fit_quality_cut_previous = DBL_MAX;
+ALIdouble Fit::theRelativeFitQualityCut = -1;
 ALIint Fit::theNoFitIterations;
 ALIint Fit::MaxNoFitIterations = -1;
+ALIdouble Fit::theMinDaFactor = 1.e-8;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Gets the only instance of Model
@@ -68,16 +67,25 @@ Fit& Fit::getInstance()
     instance = new Fit;
     ALIdouble go;
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+
     gomgr->getGlobalOptionValue("maxDeviDerivative", go );
     ALIUtils::setMaximumDeviationDerivative( go );
     if( ALIUtils::debug >= 3 ) std::cout << " Fit::maximum_deviation_derivative " << ALIUtils::getMaximumDeviationDerivative() << std::endl;
+
     gomgr->getGlobalOptionValue("maxNoFitIterations", go );
     MaxNoFitIterations = int(go);
+
     gomgr->getGlobalOptionValue("fitQualityCut", go );
     theFitQualityCut = go;
-    gomgr->getGlobalOptionValue("relativeFitQualityCut", go );
+    if( ALIUtils::debug >= 3 ) std::cout << " theFitQualityCut " << theFitQualityCut << std::endl;
+
+    gomgr->getGlobalOptionValue("RelativeFitQualityCut", go );
     theRelativeFitQualityCut = go;
-    if( ALIUtils::debug >= 3 ) std::cout << " theFitQualityCut " << theFitQualityCut  << " theRelativeFitQualityCut " << theRelativeFitQualityCut << std::endl;
+    if( ALIUtils::debug >= 3 ) std::cout << " theRelativeFitQualityCut " << theRelativeFitQualityCut << std::endl;
+
+    gomgr->getGlobalOptionValue("minDaFactor", go );
+    theMinDaFactor = go;
+
   }
 
   return *instance;
@@ -89,15 +97,18 @@ Fit& Fit::getInstance()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::startFit()
 { 
-  Model::setCocoaStatus( COCOA_InitFit );
+  //  Model::setCocoaStatus( COCOA_InitFit );
 
   ALIuint nEvent = 0;
   ALIUtils::setFirstTime( 1 );
+
+  WriteVisualisationFiles();
+
   for(;;) {
 
-    if( fitNextEvent( nEvent ) ) break;
+    if( !fitNextEvent( nEvent ) ) break;
 
-    if ( ALIUtils::debug >= 0) std::cout << " FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
+    //-    if ( ALIUtils::debug >= 0) std::cout << " FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
 
   }
 
@@ -116,29 +127,33 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
 {
   if( Model::getFittedEntriesReader() != 0 ) Model::getFittedEntriesReader()->readFittedEntriesFromFile();
 
+  //----- Reset coordinates to those read at the start
   std::vector< OpticalObject* >::iterator voite;
   for( voite = Model::OptOList().begin(); voite !=  Model::OptOList().end(); voite++ ) {
     (*voite)->resetOriginalOriginalCoordinates();
   }
-
+  
+  //----- Reset entries displacements to 0.
   std::vector< Entry* >::iterator veite;
   for( veite = Model::EntryList().begin(); veite !=  Model::EntryList().end(); veite++ ) {    
     (*veite)->resetValueDisplacementByFitting();
   }
-
-
+  
+  
   ALIbool lastEvent = 0;
-
+  
   //-    DeviationsFromFileSensor2D::setApply( 1 );
-
+  
   //m  ALIbool moreDataSets = Model::readMeasurementsFromFile( Measurement::only1Date, Measurement::only1Time );
-
+  
+  //----- Check if there are more data sets
   ALIbool moreDataSets = 1;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
-
-     if(ALIUtils::debug >= -3)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
+  
+  if(ALIUtils::debug >= 2)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ moreData Sets " << moreDataSets << std::endl;
+  
   if( moreDataSets ) {
-    if( ALIUtils::debug >= 2 ) std::cout << "@@@@@@@@@@@@@@@@@@ Starting fit ..." << std::endl;
+    if( ALIUtils::debug >= 2 ) std::cout << "@@@@@@@@@@@@@@@@@@ Starting data set fit ..." << nEvent << std::endl;
 
     //----- Count entries to be fitted, and set their order in theFitPos
     setFittableEntries();
@@ -148,32 +163,75 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     fileout << std::endl << "@@@@@@@ NEW MEASUREMENT SET " << nEvent << std::endl;
     if( ALIUtils::report >= 1 ) ALIUtils::dumpDimensions( fileout );
     
-    //----- reset no of iterations of non linear fit
+    //----- reset Number of iterations of non linear fit
     theNoFitIterations = 0;
     
-    //---------- Calculate the original simulated values of each Measurement (when all entries have their read in values)
-    calculateSimulatedMeasurementsWithOriginalValues(); //?? original changed atfer each iteration
-   
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-#ifdef COCOA_VIS
-    if(gomgr->GlobalOptions()["VisWriteVRML"] > 0) {
-      if(ALIUtils::getFirstTime()) ALIVRMLMgr::getInstance().writeFile();
-    }
-    if(gomgr->GlobalOptions()["VisWriteIguana"] > 0) {
-      if(ALIUtils::getFirstTime()) IgCocoaFileMgr::getInstance().writeFile();
-    }
-    
-    if(gomgr->GlobalOptions()["VisOnly"] == 1) {
-      if(ALIUtils::debug >= 1 )std::cout << " Visualiation file(s) succesfully written. Ending.... " << std::endl;
-      lastEvent = 1;
-      return lastEvent;
-    }
-#endif    
+    ALIdouble dumpMat;
+    gomgr->getGlobalOptionValue("save_matrices", dumpMat );
 
-    //----- fitParameters
-    if( fitParameters( 1. ) == COCOA_FitMatrixNonInversable ) {
-      lastEvent = 1;
-      return lastEvent;
+    //----- Fit parameters
+    double daFactor = 1.;
+    Model::setCocoaStatus(COCOA_FirstIterationInEvent );
+    for(;; ){
+    //---------- Calculate the original simulated values of each Measurement (when all entries have their read in values)
+      calculateSimulatedMeasurementsWithOriginalValues(); //?? original changed atfer each iteration
+   
+      FitQuality fq = fitParameters( daFactor );
+      if( dumpMat > 1 ) dumpMatrices();
+
+      //-      evaluateFitQuality( fq, daFactor );
+
+      //----- Check if new iteration must be done
+      if( fq == FQsmallDistanceToMinimum ) {
+	addDaMatrixToEntries();
+	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
+	break;  // No more iterations
+      } else if( fq == FQbigDistanceToMinimum ) {
+	addDaMatrixToEntries();
+	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
+
+	//----- Next iteration (if not too many already)
+	theNoFitIterations++;
+	daFactor = 1.;
+
+	//----- Too many iterations: end event here
+	if( theNoFitIterations >= MaxNoFitIterations ) {
+	  std::cerr << "!!!! WARNING: Too many iterations " << theNoFitIterations << "  and fit DOES NOT CONVERGE " << std::endl;
+ 
+	  if(ALIUtils::report >= 2) {
+	    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	    fileout << "!!!! WARNING: Too many iterations " << theNoFitIterations << "  and fit DOES NOT CONVERGE " << std::endl;
+	  }
+	  //	  Model::setCocoaStatus( COCOA_FitCannotImprove );
+	  break;  // No more iterations
+	}
+
+      } else if( fq == FQchiSquareWorsened ) {
+	//----- Recalculate fit quality with decreasing values of Da
+	//	std::cout << " quality daFactor " << daFactor << " " << theMinDaFactor << std::endl;
+	daFactor *= 0.5;      
+	if( daFactor > theMinDaFactor ){
+	  substractLastDisplacementToEntries( 0.5 );
+
+	  if(ALIUtils::report >= 2) {
+	    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	    fileout << " Redoing iteration with Da factor " << daFactor << std::endl;
+	  }
+	} else {
+	  daFactor *= 2.;
+	  std::cerr << " !!!ERROR: not possible to get good fit quality even multiplying Da by " << daFactor << std::endl;
+	  if(ALIUtils::report >= 2) {
+	    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	    fileout << " !!!ERROR: not possible to get good fit quality even multiplying Da by " << daFactor << std::endl;
+	  }
+	  //	    Model::setCocoaStatus( COCOA_FitCannotImprove );
+	  //-    std::cout << "fdsaf FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
+	  break;  // No more iterations
+	}
+      }
+      Model::setCocoaStatus(COCOA_NextIterationInEvent );
+
     }
     
     //----- Iteration is finished: dump fitted entries
@@ -184,13 +242,10 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     
     
     //- only if not stopped in worsening quality state        if(ALIUtils::report >= 0) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-    ALIdouble dumpMat;
-    gomgr->getGlobalOptionValue("saveMatrices", dumpMat );
-    //t matrices are deleted!!!!!!!!!      if( dumpMat != 0 ) dumpMatrices();
     
     /*-      std::vector< OpticalObject* >::iterator voite;
       for( voite = Model::OptOList().begin(); voite !=  Model::OptOList().end(); voite++ ) {
-	//-??      	(*voite)->resetOriginalOriginalCoordinates();
+      //-??      	(*voite)->resetOriginalOriginalCoordinates();
 	}*/
     
     //---- If no measurement file, break after looping once
@@ -198,23 +253,46 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     if( CocoaDaqReader::GetDaqReader() == 0 ) {
       //m    if( Measurement::measurementsFileName() == "" ) {
       lastEvent = 1;
-      return lastEvent;
+      return !lastEvent;
     }
     
     //-      std::cout << "  Measurement::only1" <<  Measurement::only1 << std::endl;
     if( Measurement::only1 ) {
       lastEvent = 1;
-      return lastEvent;
+      return !lastEvent;
     }
     nEvent++;
   } else {
     lastEvent = 1;
-    return lastEvent;
+    return !lastEvent;
   }
 
-  return lastEvent;
+  return !lastEvent;
 }
 
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Fit::WriteVisualisationFiles()
+{
+#ifdef COCOA_VIS
+  if(gomgr->GlobalOptions()["VisOnly"] == 1) {
+      calculateSimulatedMeasurementsWithOriginalValues(); //?? original changed atfer each iteration
+  }
+
+  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+  if(gomgr->GlobalOptions()["VisWriteVRML"] > 0) {
+    if(ALIUtils::getFirstTime()) ALIVRMLMgr::getInstance().writeFile();
+  }
+  if(gomgr->GlobalOptions()["VisWriteIguana"] > 0) {
+    if(ALIUtils::getFirstTime()) IgCocoaFileMgr::getInstance().writeFile();
+  }
+  
+  if(gomgr->GlobalOptions()["VisOnly"] == 1) {
+    if(ALIUtils::debug >= 1 )std::cout << " Visualiation file(s) succesfully written. Ending.... " << std::endl;
+    exit(1);
+  }
+#endif    
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Count how many entries are going to be fitted (have quality >=  theMinimumEntryQuality)
@@ -248,7 +326,7 @@ void Fit::setFittableEntries()
 //@@ Main method in class Fit 
 //@@ fitParameters: get the parameters through the chi square fit
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-cocoaStatus Fit::fitParameters( const double daFactor )
+FitQuality Fit::fitParameters( const double daFactor )
 {
   redoMatrices();
 
@@ -258,9 +336,13 @@ cocoaStatus Fit::fitParameters( const double daFactor )
     std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
   }
 
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  if (gomgr->GlobalOptions()[ ALIstring("stopAfter1stIteration") ] == 1) {
-    if(theNoFitIterations > 0 ) {
+
+  //---- Get chi2 of first iteration
+  if( Model::getCocoaStatus() == COCOA_FirstIterationInEvent ) {
+    thePreviousIterationFitQuality = GetSChi2( 0 );
+
+    GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
+    if (gomgr->GlobalOptions()[ ALIstring("stopAfter1stIteration") ] == 1) {
       std::cout << "@!! STOPPED by user after 1st iteration " << std::endl;
       exit(1);
     }
@@ -274,17 +356,13 @@ cocoaStatus Fit::fitParameters( const double daFactor )
     fileout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
     }*/
  
-  FitQuality fq = getFitQuality( 1 );
-
-  evaluateFitQuality( fq, daFactor );
-
   //-    std::cout << "2 FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
 
   if(ALIUtils::debug >= 10) {
     std::cout << std::endl << " End fitParameters " << theNoFitIterations << " ..." << std::endl;
   }
 
-  return Model::getCocoaStatus(); // PropagateErrors() may have changed it to COCOA_FitMatrixNonInversable
+  return getFitQuality();
 
 }
 
@@ -295,97 +373,7 @@ void Fit::redoMatrices()
 
   calculateSimulatedMeasurementsWithOriginalValues();
 
-  calculateChi2();
-
-  if( GlobalOptionMgr::getInstance()->GlobalOptions()["onlyFirstPropagation"] >= 1) {
-    std::cout << "ENDING after first propagation is done ('onlyFirstPropagation' option set)" << std::endl;
-    exit(1);
-  }
-
-
   PropagateErrors();
-}
-
-//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::evaluateFitQuality( const FitQuality fq, double daFactor )
-{
-  ALIdouble dumpMat;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("saveMatrices", dumpMat );
-
-  //----- Good quality: end  
-  if( fq == FQsmallDistanceToMinimum ) {
-
-    //------ Correct entries with fitted values  
-    //-    if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-    addDaMatrixToEntries();
-    if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-    Model::setCocoaStatus( COCOA_FitOK );
-
-  //--------- Bad quality: go to next iteration
-  } else if( fq == FQbigDistanceToMinimum ) {
-
-    //----- Correct entries with fitted values 
-    //-    if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-    addDaMatrixToEntries();
-    if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-
-    //----- Next iteration (if not too many already)
-    if( theNoFitIterations < MaxNoFitIterations-1 ) {
-      Model::setCocoaStatus( COCOA_FitImproving );
-
-      theNoFitIterations++;
-      fit_quality_cut_previous = fit_quality_cut;
-
-      //      if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-
-      //----- Reset the original value of entries
-      std::vector< Measurement* >::const_iterator vmcite;
-      for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
-        //--- Calculate Simulated Value Original
-        (*vmcite)->calculateOriginalSimulatedValue();
-
-        if ( ALIUtils::debug >= 5 ) std::cout << "BuildMeasLinks: Meas " << (*vmcite) << std::endl;
-      }
-      if( dumpMat > 1 ) dumpMatrices();
-
-      //----- Make next iteration 
-      if( fitParameters( 1. ) == COCOA_FitMatrixNonInversable ) {
-	return;
-      }
-
-    //----- Too many iterations: end here
-    } else {
-      if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
-      if( dumpMat > 1 ) dumpMatrices();
-      std::cerr << "Too many iterations " << theNoFitIterations << "  and fit DOES NOT CONVERGE " << std::endl;
-
-      Model::setCocoaStatus( COCOA_FitCannotImprove );
-      //            return;
-      return;
-    }
-  } else if( fq == FQchiSquareWorsened ) {
-
-    Model::setCocoaStatus( COCOA_FitChi2Worsened );
-
-    //----- Recalculate fit quality with decreasing values of Da
-    double minDaFactor = 1.e-8;
-    //-    std::cout << " quality daFactor " << daFactor << " " << minDaFactor << std::endl;
-    if( daFactor > minDaFactor ){
-      substractLastDisplacementToEntries( 0.5 );
-      if( fitParameters( daFactor/2. ) == COCOA_FitMatrixNonInversable ) {
-	return;
-      }
-      
-    } else {
-      std::cerr << " ds!!!ERROR: not possible to get good fit quality even multiplying Da by " << daFactor << std::endl;
-      Model::setCocoaStatus( COCOA_FitCannotImprove );
-      //-    std::cout << "fdsaf FIT STATUS " << Model::printCocoaStatus( Model::getCocoaStatus() ) << std::endl;
-      return;
-      //      abort();
-    }
-
-  } 
 
 }
 
@@ -397,45 +385,44 @@ void Fit::evaluateFitQuality( const FitQuality fq, double daFactor )
 void Fit::PropagateErrors()
 {
 
-  //---------- Create empty matrices of appropiate size
+  //----- Create empty matrices of appropiate size
   CreateMatrices();
 
-  //------- count running time
+  //---- count running time
   time_t now;
   now = clock();
   if(ALIUtils::debug >= 2) std::cout << "TIME:CREATE_MAT    : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
-  //---------- Fill the A, W & y matrices with the measurements
+  //----- Fill the A, W & y matrices with the measurements
   FillMatricesWithMeasurements();
 
-  //------- count running time
+  //---- count running time
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:MAT_MEAS_FILLED: " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
-  //---------- Fill the A, W & y matrices with the calibrated parameters
+  //----- Fill the A, W & y matrices with the calibrated parameters
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if (gomgr->GlobalOptions()[ ALIstring("calcul_type") ] == 0) {
     FillMatricesWithCalibratedParameters();
 
-    //------- count running time
+    //---- count running time
     now = clock();
     if(ALIUtils::debug >= 0) std::cout << "TIME:MAT_CAL_FILLED : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
     ALIUtils::set_time_now(now); 
 
   }
 
-  //put by hand some correlations if known previously
+  //----- Put by hand some correlations if known previously
   setCorrelationsInWMatrix();
 
   if(ALIUtils::debug >= 3) WMatrix->Dump("WMatrix before inverse");
 
   //----- Check first that matrix can be inverted
   if( m_norm1( WMatrix->MatNonConst() ) == 0 ) {
-    Model::setCocoaStatus( COCOA_FitMatrixNonInversable );
-    return;
-// return  Model::getCocoaStatus();
+    //    Model::setCocoaStatus( COCOA_FitMatrixNonInversable );
+    return; //  Model::getCocoaStatus();
   } else {
     WMatrix->inverse();
   }
@@ -456,6 +443,7 @@ void Fit::PropagateErrors()
   ALIUtils::set_time_now(now); 
 
   if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( 0 );
+
 
 }
 
@@ -482,7 +470,6 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
   // It cannot be applied when calculating derivatives, because after a displacement the laser could hit another square in matrix and then cause a big step in the derivative
   DeviationsFromFileSensor2D::setApply( 0 );
 
-  //  calculateChi2();
 }
 
 
@@ -600,17 +587,17 @@ void Fit::FillMatricesWithMeasurements()
       //-------- If good quality, get derivative of measurement with respect to this Entry
       if ( (*vecite)->quality() >= theMinimumEntryQuality ) {
 	if ( ALIUtils::debug >= 4) {
-	  std::cout << "FillMatricesWithMeasurements: filling element ( " << Aline << " - " << Aline+measdim-1 << " , " << (*vecite)->fitPos() << std::endl;
+	  //	  std::cout << "FillMatricesWithMeasurements: filling element ( " << Aline << " - " << Aline+measdim-1 << " , " << (*vecite)->fitPos() << std::endl;
 	  std::cout <<"entry affecting: " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() <<std::endl;
 	}
 	derivRE = (*vmcite)->DerivativeRespectEntry(*vecite);
 	//---------- Fill matrix A with derivatives
 	for ( ALIuint jj = 0; jj < ALIuint(measdim); jj++) {
 	  AMatrix->AddData( Aline+jj, (*vecite)->fitPos(), derivRE[jj] );
-	  if( ALIUtils::debug >= 6) std::cout << "AMATRIX (" << Aline+jj << "," << (*vecite)->fitPos() << " = " << derivRE[jj] << std::endl;
+	  if( ALIUtils::debug >= 5) std::cout << "FillMatricesWithMeasurements: AMATRIX (" << Aline+jj << "," << (*vecite)->fitPos() << " = " << derivRE[jj] << std::endl;
 	  //---------- Reset Measurement simulated_value
 	  (*vmcite)->setValueSimulated( jj, (*vmcite)->valueSimulated_orig(jj) );	  
-}
+	}
       }
     }
     delete[] derivRE;
@@ -700,7 +687,7 @@ void Fit::FillMatricesWithCalibratedParameters()
 	//-       	yfMatrix->AddData( lineNo, 0, (*vecite)->lastAdditionToValueDisplacementByFitting() );
 	//-	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
 	//	fileout << "cal to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << endl;
-	//	cout << "cal to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << endl;
+	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
 
       } else {
         yfMatrix->AddData( lineNo, 0, 0. );
@@ -723,7 +710,7 @@ void Fit::setCorrelationsInWMatrix()
   ALIint siz = corrMgr->getNumberOfCorrelations();
   if( siz == 0 ) return;
 
-  //---------- Set correlations
+  //----- Set correlations
   ALIuint ii;
   for( ii = 0; ii < ALIuint(siz); ii++ ){
   //t    if(ALIUtils::debug >= 5) std::cout << "globaloption cmslink fit" << Model::GlobalOptions()["cms_link"] << std::endl;
@@ -789,11 +776,15 @@ void Fit::multiplyMatrices()
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:BEFORE_INVERSE : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
-std::cout << " norm1 AtWA " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
+
+  /*  std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
+  if( m_norm1( AtWAMatrix->MatNonConst() ) == 0 ) {
+    std::cout << " DETERMINANT W " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::endl;
+    std::exception();
+    } */
 
   AtWAMatrix->inverse();
   if(ALIUtils::debug >= 4) AtWAMatrix->Dump("inverse AtWAmatrix");
-
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:AFTER_INVERSE  : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
@@ -802,7 +793,7 @@ std::cout << " norm1 AtWA " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::end
 
   //op  VaMatrix = new ALIMatrix( *AtWAMatrix );
   
-  //---------- Print out propagated errors of parameters (=AtWA diagonal elements)
+  //----- Print out propagated errors of parameters (=AtWA diagonal elements)
   std::vector< Entry* >::const_iterator vecite;
  
   if( ALIUtils::debug >= 4 ) {
@@ -838,160 +829,122 @@ std::cout << " norm1 AtWA " <<  m_norm1( AtWAMatrix->MatNonConst() ) << std::end
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-//@@ fit_quality_cut = DSMat(0,0) has to be smaller than theFitQualityCut
 //@@ check also that the fit_quality = SMat(0,0) is smaller for each new iteration
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 FitQuality Fit::getFitQuality( const ALIbool canBeGood ) 
 {
-  //---------- Calculate variable to check quality of this set of parameters
 
-  //---------- Calculate Da = (At * W * A)-1 * At * W * (y-f)
-  /*t  DaMatrix = new ALIMatrix( *AtWAMatrix );
-  *DaMatrix *= *AtMatrix * *WMatrix;
-  if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix before yf ");
-  *DaMatrix *= *yfMatrix;
-  if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
-  */
+  double fit_quality = GetSChi2(1);
 
-  DaMatrix = new ALIMatrix(0, 0);   
-  //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
-  *DaMatrix = ( *AtWAMatrix * *AtMatrix * *WMatrix * *yfMatrix);
-  if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
+  double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
 
-  ALIMatrix* DaMatrix2 = new ALIMatrix( DaMatrix->NoLines(), DaMatrix->NoColumns() );
-  *DaMatrix2 = ( *AtWAMatrix * *AtMatrix * *WMatrix * *yfMatrix);
-  if(ALIUtils::debug >= 5) DaMatrix2->Dump("DaMatrix2"); 
-
-  ALIMatrix* DaMatrix3 = MatrixByMatrix( *AtWAMatrix, *AtMatrix );
-  ALIMatrix* DaMatrix4 = MatrixByMatrix( *DaMatrix3, *WMatrix );
-  ALIMatrix* DaMatrix5 = MatrixByMatrix( *DaMatrix4, *yfMatrix );
-  if(ALIUtils::debug >= 5) DaMatrix5->Dump("DaMatrix5"); 
   
-  //----- Calculate S = Fit quality = Distance to minimum
-  //op  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *PDMatrix );
-  //  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *yfMatrix );
-
-  ALIMatrix* tmpM = new ALIMatrix( 0,0 );
-  *tmpM  = *AMatrix * *DaMatrix5;
-  /*  ALIMatrix tmpMnn = ( *AMatrix * *DaMatrix + *yfMatrix );
-  ALIMatrix* tmpM = new ALIMatrix();
-  *tmpM = tmpMnn;
-  */
-
-  if(ALIUtils::debug >= 5) tmpM->Dump("A*Da + (y-f) Matrix ");
-  ALIMatrix* tmptM = new ALIMatrix( *tmpM );
-  //  if(ALIUtils::debug >= 5) tmptM->Dump("tmptM before transpose");
-  //  tmpM->transpose();
-  //  if(ALIUtils::debug >= 5) tmptM->Dump("X after transpose");
-  tmptM->transpose();
-  if(ALIUtils::debug >= 5) tmptM->Dump("tmptM after transpose");
-  //  std::cout << "smat " << std::endl;
-  //o  ALIMatrix* SMat = new ALIMatrix(*tmptM * *WMatrix * *tmpM);
-  ALIMatrix* SMat1 = MatrixByMatrix(*tmptM,*WMatrix);
-  //  ALIMatrix* SMat1 = MatrixByMatrix(*AMatrix,*WMatrix);
-  if(ALIUtils::debug >= 5) SMat1->Dump("SMat1");
-  ALIMatrix* SMat = MatrixByMatrix(*SMat1,*tmpM);
-  //  std::cout << "smatc " << std::endl;
-  delete tmpM;
-  delete tmptM;
-  if(ALIUtils::debug >= 5) SMat->Dump("SMatrixfinal");
-  ALIdouble fit_quality = (*SMat)(0,0);
-  delete SMat;
-  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality is = " << fit_quality << std::endl;
-  if( ALIUtils::report >= 1 ) {
-  //--------- Get report file handler
-    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-    fileout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
-    fileout << theNoFitIterations << " Fit quality is = " << fit_quality << std::endl;
-  }
-
-  //---------- Calculate DS = Variable to recognize convergence (distance to minimum)
-  ALIMatrix* DatMatrix = new ALIMatrix( *DaMatrix );
-  //  delete DaMatrix; //op
-  DatMatrix->transpose();
-  if(ALIUtils::debug >= 5) DatMatrix->Dump("DatMatrix");
-  //op  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *PDMatrix);
-  ALIMatrix* DSMat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *yfMatrix);
-  ALIMatrix* DSMattemp = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix);
-  if(ALIUtils::debug >= 5) DSMattemp->Dump("DSMattempMatrix=Dat*At*W");
-  ALIMatrix* DSMattemp2 = new ALIMatrix(*AtMatrix * *WMatrix * *yfMatrix);
-  if(ALIUtils::debug >= 5) DSMattemp2->Dump("DSMattempMatrix2=At*W*yf");
-  ALIMatrix* DSMattemp3 = new ALIMatrix(*AtMatrix * *WMatrix);
-  if(ALIUtils::debug >= 5) DSMattemp3->Dump("DSMattempMatrix3=At*W");
-  if(ALIUtils::debug >= 5) AtMatrix->Dump("AtMatrix");
-  /*  for( int ii = 0; ii < DatMatrix->NoColumns(); ii++ ){
-    std::cout << ii << " DS term " << (*DatMatrix)(0,ii) * (*DSMattemp2)(ii,0) << std::endl;
-    }*/
-  //  delete AtMatrix; //op
-  //  delete WMatrix; //op
-
-  //op  if(ALIUtils::debug >= 5) (*PDMatrix).Dump("PDMatrix");
-  if(ALIUtils::debug >= 5) (*yfMatrix).Dump("yfMatrix");
-  if(ALIUtils::debug >= 5) DSMat->Dump("DSMatrix final");
-  //  delete yfMatrix; //op
-
-  fit_quality_cut = (*DSMat)(0,0);  
-  //-  ALIdouble fit_quality_cut =fabs( (*DSMat)(0,0) );  
-  delete DSMat;
-  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality predicted improvement in distance to minimum is = " << fit_quality_cut << std::endl;
-  if( ALIUtils::report >= 2 ) {
-    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-    fileout << theNoFitIterations << " Fit quality cut is = " << fit_quality_cut << std::endl;
-  }
-
-  //---------- Derivative of S at 0
-  ALIMatrix* Sp0Mat = new ALIMatrix(*DatMatrix * *AtMatrix * *WMatrix * *AMatrix * *DaMatrix);
-  if(ALIUtils::debug >= 5) Sp0Mat->Dump("Sp0Matrixfinal");
-  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Fit quality derivative at 0 = " << -2. * (*Sp0Mat)(0,0) << std::endl;
-
-  delete DatMatrix; //op
-  delete Sp0Mat; //op
-
-  //---------- Check quality 
+  //----- Check quality 
   time_t now;
   now = clock();
   if(ALIUtils::debug >= 0) std::cout << "TIME:QUALITY_CHECKED: " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
   FitQuality fitQuality;
-  //----- quality good enough: end
-  if( (fit_quality_cut < theFitQualityCut || fabs(fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut < theRelativeFitQualityCut ) && canBeGood ) {
-    fitQuality = FQsmallDistanceToMinimum;
-    if(ALIUtils::report >= 1) {
-      ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-      fileout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " | " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " < " << theRelativeFitQualityCut << std::endl;
-    }
-    if(ALIUtils::debug >= 4) {
-      std::cout << "GOOD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << " | " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " < " << theRelativeFitQualityCut << std::endl;
-    }
 
-  //--------- Bad quality: go to next iteration
+  //----- Chi2 is bigger, bad
+  //    if( theNoFitIterations != 0 && fit_quality_cut > 0. ) {
+  if( fit_quality_cut < 0. ) {
+    fitQuality = FQchiSquareWorsened;
+    std::cerr << "!!WARNING: Fit quality has worsened: Fit Quality now = " << fit_quality
+	      << " before " << thePreviousIterationFitQuality << " diff " << fit_quality - thePreviousIterationFitQuality << std::endl;
+
+  //----- Chi2 is smaller, check if we make another iteration    
   } else {
-    //--------- Check that quality in this iteration is not worse than in previous one
-    //-    if( theNoFitIterations != 0 && (fit_quality - thePreviousIterationFitQuality) > 1.e-9 ) {
-    if( theNoFitIterations != 0 && (fit_quality - thePreviousIterationFitQuality) > 0. ) {
-      //t   if( theNoFitIterations != 0 && fit_quality > thePreviousIterationFitQuality ) {
-      fitQuality = FQchiSquareWorsened;
-      std::cerr << "!!! Fit quality has worsened: Fit Quality now = " << fit_quality
-		<< " before " << thePreviousIterationFitQuality << " diff " << fit_quality - thePreviousIterationFitQuality << std::endl;
-
-    } else {
-      fitQuality = FQbigDistanceToMinimum;
-      //----- set thePreviousIterationFitQuality for next iteration   
-      thePreviousIterationFitQuality = fit_quality;     
-
-      if(ALIUtils::report >= 2) {
+    //----- Small chi2 change: end
+    if( (fit_quality_cut < theFitQualityCut || fabs(thePreviousIterationFitQuality - fit_quality_cut )/fit_quality_cut < theRelativeFitQualityCut ) && canBeGood ) {
+      fitQuality = FQsmallDistanceToMinimum;
+      if(ALIUtils::report >= 1) {
 	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
-	fileout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " & " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " >= " << theRelativeFitQualityCut << std::endl;
+	fileout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
       }
       if(ALIUtils::debug >= 4) {
-	std::cout << "BAD QUALITY OF THE FIT FOR ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << " & " << (fit_quality_cut_previous - fit_quality_cut )/fit_quality_cut << " >= " << theRelativeFitQualityCut << std::endl;
+	std::cout << "STOP: SMALL IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " < " << theFitQualityCut << std::endl;
+      }
+      
+      //----- Big chi2 change: go to next iteration
+    } else {
+      fitQuality = FQbigDistanceToMinimum;
+      //----- set thePreviousIterationFitQuality for next iteration 
+      thePreviousIterationFitQuality = fit_quality;     
+      
+      if(ALIUtils::report >= 2) {
+	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+	fileout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
+      }
+      if(ALIUtils::debug >= 4) {
+	std::cout << "CONTINUE: BIG IMPROVEMENT IN ITERATION " << theNoFitIterations << " = " << fit_quality_cut << " >= " << theFitQualityCut << std::endl;
       } 
     }
-
-  } 
-
+  }
+  
   return fitQuality;
+
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ALIdouble Fit::GetSChi2( ALIbool useDa )
+{
+  ALIMatrix* SMat = 0;
+  if( useDa ){
+    //----- Calculate variables to check quality of this set of parameters
+    
+    //----- Calculate Da = (At * W * A)-1 * At * W * (y-f)
+    /*t  DaMatrix = new ALIMatrix( *AtWAMatrix );
+     *DaMatrix *= *AtMatrix * *WMatrix;
+     if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix before yf ");
+     *DaMatrix *= *yfMatrix;
+     if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
+    */
+    
+    DaMatrix = new ALIMatrix(0, 0);   
+    //  if(ALIUtils::debug >= 5) AtWAMatrix->Dump("AtWAMatrix=0");
+    *DaMatrix = ( *AtWAMatrix * *AtMatrix * *WMatrix * *yfMatrix);
+    if(ALIUtils::debug >= 5) DaMatrix->Dump("DaMatrix");
+    
+    //----- Calculate S = chi2 = Fit quality = r^T W r (r = residual = f + A*Da - y )
+    //op  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *PDMatrix );
+    //  ALIMatrix* tmpM = new ALIMatrix( *AMatrix * *DaMatrix + *yfMatrix );
+    
+    ALIMatrix* tmpM = new ALIMatrix( 0,0 );
+    *tmpM  = *AMatrix * *DaMatrix - *yfMatrix;    
+    if(ALIUtils::debug >= 5) tmpM->Dump("A*Da + f - y Matrix ");
+
+    ALIMatrix* tmptM = new ALIMatrix( *tmpM );
+    tmptM->transpose();
+    if(ALIUtils::debug >= 5) tmptM->Dump("tmptM after transpose");
+    if(ALIUtils::debug >= 5) WMatrix->Dump("WMatrix");
+
+    //  std::cout << "smat " << std::endl;
+    //o  ALIMatrix* SMat = new ALIMatrix(*tmptM * *WMatrix * *tmpM);
+    ALIMatrix* SMat1 = MatrixByMatrix(*tmptM,*WMatrix);
+    //  ALIMatrix* SMat1 = MatrixByMatrix(*AMatrix,*WMatrix);
+    if(ALIUtils::debug >= 5) SMat1->Dump("(A*Da + f - y)^T * W  Matrix");
+    SMat = MatrixByMatrix(*SMat1,*tmpM);
+    //  std::cout << "smatc " << std::endl;
+    delete tmpM;
+    delete tmptM;
+    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix with Da");
+  } else {
+    ALIMatrix* yftMat = new ALIMatrix(*yfMatrix);
+    yftMat->transpose();
+    SMat = new ALIMatrix(*yftMat *  *WMatrix * *yfMatrix);
+    delete yftMat;
+    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix no Da");
+  }
+  ALIdouble fit_quality = (*SMat)(0,0);
+  delete SMat;
+  if(ALIUtils::debug >= -5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
+
+  PrintChi2( fit_quality, !useDa );
+
+  return fit_quality;
+  
 }
 
 
@@ -1082,8 +1035,6 @@ void Fit::substractLastDisplacementToEntries( const ALIdouble factor )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
 {
-  //  calculateChi2(); here it is calculated when values have already changed after fit, but measurement simulation values is still with old values
-
   //---------- print
   if(ALIUtils::debug >= 0) {
     std::cout << "SRPARPOS " << "               Optical Object  " 
@@ -1210,7 +1161,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
     fileout << "FIX: -1 ";
   }
   
-  fileout << " " << std::setw(30) << entry->OptOCurrent()->name()
+  fileout << std::setw(30)  << entry->OptOCurrent()->name()
 	  << std::setw(8) << " " << entry->name() << " " 
 	  << std::setw(8) << std::setprecision(8) << entryvalue;
   if ( entry->quality() >= theMinimumEntryQuality ) {
@@ -1221,8 +1172,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
   fileout << std::setw(8) << " " << entry->value() / dimv;
   if( printErrors ) fileout << " +- " << std::setw(8) << entry->sigma() /dims << " Q" << entry->quality();
   if( ALIUtils::report >= 2) {
-    //-    float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
-    float dif = entry->valueDisplacementByFitting() / dimv;
+    float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
     if( fabs(dif) < 1.E-9 ) dif = 0.;
     fileout << " DIFF= " << dif;
     // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
@@ -1291,7 +1241,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int nEntUnk )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::dumpMatrices() 
 {
-  //----- Fill matrices for this iteration
+  //----- Dump matrices for this iteration
   ALIFileOut& matout = ALIFileOut::getInstance( Model::MatricesFName() );
   //  ofstream matout("matrices.out");
   matout << std::endl << " @@@@@@@@@@@@@@@  Iteration No : " << theNoFitIterations << std::endl;
@@ -1346,8 +1296,30 @@ ALIint Fit::findEntryFitPosition( const ALIstring& opto_name, const ALIstring& e
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::pair<double,double> Fit::calculateChi2( )
+void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 {
+  if( !isFirst ) {
+    double fit_quality_cut = thePreviousIterationFitQuality - fit_quality;
+    
+    if(ALIUtils::debug >= 0) { 
+      std::cout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
+      std::cout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_cut << std::endl;
+    }
+    if( ALIUtils::report >= 1 ) {
+      ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+      fileout << std::endl << "Fit iteration " << theNoFitIterations << " ..." << std::endl;
+      fileout << theNoFitIterations << " Chi2 improvement in this iteration = " << fit_quality_cut << std::endl;
+    }
+  }
+
+  //---- Print chi2
+  if(ALIUtils::debug >= 0) std::cout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
+  if( ALIUtils::report >= 1 ) {
+    //--------- Get report file handler
+    ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
+    fileout << theNoFitIterations << " Chi2 after iteration = " << fit_quality << std::endl;
+  }
+  
   double chi2meas = 0; 
   double chi2cal = 0;
   ALIint nMeas = 0, nUnk = 0;
@@ -1360,7 +1332,7 @@ std::pair<double,double> Fit::calculateChi2( )
       nMeas++;
       double c2 = ( (*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii) ) / (*vmcite)->sigma(ii);
       chi2meas += c2*c2; 
-      if( ALIUtils::debug >= -3) {
+      if( ALIUtils::debug >= 0) {
 	std::cout << c2 << " adding chi2meas "  << chi2meas << " " << (*vmcite)->name() << ": " << ii << " (mm)R: " << (*vmcite)->value(ii)*1000. << " S: " << (*vmcite)->valueSimulated(ii)*1000. << " Diff= " << ((*vmcite)->value(ii) - (*vmcite)->valueSimulated(ii))*1000. << std::endl;
       }
     }
@@ -1375,7 +1347,7 @@ std::pair<double,double> Fit::calculateChi2( )
       double c2 = (*veite)->valueDisplacementByFitting() / (*veite)->sigma();
       //double c2 = (*veite)->value() / (*veite)->sigma();
       chi2cal += c2*c2;
-      if( ALIUtils::debug >= 3) std::cout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
+      if( ALIUtils::debug >= 0) std::cout << c2 << " adding chi2cal "  << chi2cal << " " << (*veite)->OptOCurrent()->name() << " " << (*veite)->name() << std::endl;
       //-	std::cout << " valueDisplacementByFitting " << (*veite)->valueDisplacementByFitting() << " sigma " << (*veite)->sigma() << std::endl;
     }
   }
@@ -1384,25 +1356,159 @@ std::pair<double,double> Fit::calculateChi2( )
     ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
     fileout << " Chi2= " << chi2meas+chi2cal << " / " << nMeas-nUnk << " dof " << "  From measurements= " << chi2meas << " from calibrated parameters= " << chi2cal << std::endl;
   }
-  if( ALIUtils::debug >= 3) std::cout << " quality calculateChi2 " << chi2meas+chi2cal << " " << chi2meas << " " << chi2cal << std::endl;
-  std::pair<double, double > chi2(chi2meas, chi2cal);
-  return chi2;
+  if( ALIUtils::debug >= 3) std::cout << " quality Chi2 (no correlations) " << chi2meas+chi2cal << " " << chi2meas << " " << chi2cal << std::endl;
+
+
 }
 
-
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::CheckIfFitPossible()
-{
-  CLHEP::HepSymMatrix sm(AtWAMatrix->NoLines());
-  for (uint ii=0; ii<AtWAMatrix->NoLines(); ii++) {
-    for (uint jj=0; jj<AtWAMatrix->NoColumns(); jj++) {
-      sm(ii+1,jj+1) = AtWAMatrix->Mat()->me[ii][jj];
+{   
+  std::cout << "Fit::CheckFitIsPossible looping for entry " <<  std::endl;
+
+  //----- Check if there is an unknown parameter that is not affecting any measurement
+  ALIint NolinMes = 0;
+  std::vector<Measurement*>::const_iterator vmcite;
+  for ( vmcite = Model::MeasurementList().begin();
+        vmcite != Model::MeasurementList().end(); vmcite++) {
+    NolinMes += (*vmcite)->dim();
+  }
+  
+  std::vector< Entry* >::const_iterator vecite;
+  for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
+    if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << (*vecite)->longName() << std::endl;
+    if ( (*vecite)->quality() == 2 ) {
+      ALIint nCol =  (*vecite)->fitPos();
+      //--- Check all measurements
+      ALIbool noDepend = TRUE;
+      if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << nCol << std::endl;
+      for( ALIint ii = 0; ii < NolinMes; ii++ ) {
+        if( ALIUtils::debug >= -4 ) std::cout << ii << "Derivative " <<  (*AMatrix)(ii,nCol)  << std::endl;
+
+        if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
+          if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
+          noDepend = FALSE;
+          break;
+        }
+      }
+      if( noDepend ){
+        throw cms::Exception("SDFError") << "!!!FATAL ERROR: Fit::CheckIfFitPossible() no measurement depends on unknown entry " << (*vecite)->OptOCurrent()->name() << "/" << (*vecite)->name() << std::endl
+                  << "!!! Fit will not be possible! " << std::endl;
+      }
     }
   }
   
-  std::cout << " AtWA determinant " << sm.determinant()  << std::endl << sm << std::endl;
+  //------ Check if there are two unknown entries that have the derivatives of all measurements w.r.t. then equal (or 100% proportional). In this case any value of the first entry can be fully compensated by another value in the second entry without change in any measurement ---> the two entries cannot be fitted!
 
-  if( sm.determinant() < ALI_DBL_MIN ) {
-    //----- Check if there is an unknown parameter that is not affecting any measurement
-
+  std::vector< Entry* >::const_iterator vecite1,vecite2;
+  ALIint nLin = AMatrix->NoLines();
+  ALIdouble derivPrec = ALI_DBL_MIN;
+  //---------- Loop entries 
+  for ( vecite1 = Model::EntryList().begin();
+	vecite1 != Model::EntryList().end(); vecite1++ ) {
+    if( (*vecite1)->quality() == 2 ) {
+      vecite2 = vecite1; vecite2++;
+      for ( ;vecite2 != Model::EntryList().end(); vecite2++ ) {
+	if( (*vecite2)->quality() == 2 ) { 
+	  ALIint fitpos1 =  (*vecite1)->fitPos();
+	  ALIint fitpos2 =  (*vecite2)->fitPos();
+          if( ALIUtils::debug >= -5 ) std::cout << "Fit::CheckIfFitIsPossible checking " << (*vecite1)->longName() << " ( " << fitpos1 << " ) & " << (*vecite2)->longName() << " ( " << fitpos2 << " ) "<< std::endl;
+          ALIdouble prop = DBL_MAX;
+          ALIbool isProp = TRUE;
+	  for( ALIint ii = 0; ii < nLin; ii++ ) {
+	    if( ALIUtils::debug >= -5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
+            if( fabs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
+	      if( fabs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
+		isProp = FALSE;
+		break;
+	      }
+	    } else {
+	      ALIdouble propn = (*AMatrix)(ii,fitpos2) / (*AMatrix)(ii,fitpos1);
+	      if( prop != DBL_MAX && prop != propn ) {
+		isProp = FALSE;
+		break;
+	      }
+	      prop = propn;
+	    }
+	  }
+	  if( isProp ) {
+	      std::cerr << "!!!FATAL ERROR: Fit::CheckIfFitPossible() two entries for which the measurements have the same dependency (or 100% proportional) " <<  (*vecite1)->longName() << " & " <<  (*vecite2)->longName() << std::endl
+	    		<< "!!! Fit will not be possible! " << std::endl;
+	    throw cms::Exception("SDFError");
+	  }
+	}
+      }
+    }
   }
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
+{
+  int measProp = -1;
+
+  std::set<uint> columnsEqual;
+  std::set<uint> columnsEqualSave;
+  uint biggestColumn = 0;
+  ALIdouble biggest = 0.;
+  for (uint ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+    if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
+      biggest = fabs((*AMatrix)(measNo,ii));
+      biggestColumn = ii;
+    }
+    columnsEqualSave.insert(ii); 
+  }
+  
+  ALIdouble div;
+
+  for( uint jj = 0; jj < AMatrix->NoLines(); jj++ ){
+    if( jj == measNo ) continue;
+    columnsEqual = columnsEqualSave;
+    // check if ratio of each column to 'biggestColumn' is the same as for the N measurement
+    for (uint ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+      div = (*AMatrix)(measNo,ii)/(*AMatrix)(measNo,biggestColumn);
+      if( fabs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
+	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns = " << ii << " in " << measNo << " & " << jj << std::endl;
+      } else {
+	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj << std::endl;
+	// if it is not equal delete this column 
+	std::set<uint>::iterator ite = columnsEqual.find( ii );
+        if( ite != columnsEqual.end() ){
+	  columnsEqual.erase(ite);
+	}
+      }  
+    }
+    // check if not all columns have been deleted from columnsEqual
+    if( columnsEqual.size() != 0 ) {
+      if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother " <<  measNo << " = " << jj << std::endl;
+      measProp = jj;
+      break;
+    }
+  }
+
+  return measProp;
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+std::string Fit::GetMeasurementName( int imeas )
+{
+  std::string measname = " ";
+  
+  std::cout << " imeas " << imeas << std::endl;
+  int Aline = 0;  
+  std::vector< Measurement* >::const_iterator vmcite;
+  for ( vmcite = Model::MeasurementList().begin(); vmcite != Model::MeasurementList().end(); vmcite++) {
+    for ( ALIuint jj = 0; jj < ALIuint((*vmcite)->dim()); jj++) {
+      if( Aline == imeas ) {
+	char ctmp[20];
+	gcvt( jj, 10, ctmp );
+	return ((*vmcite)->name()) + ":" + std::string(ctmp);
+      }
+      Aline++;
+    }
+  }
+
+  std::cout << " return measname " << measname << std::endl;
+  return measname;
 }
