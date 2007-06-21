@@ -85,3 +85,27 @@ namespace {
     std::map<uint32_t, EcalMonitoringCorrections::EcalMonitoringCorrection> monCorrectionMap;
   }
 }
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAlphas.h"
+namespace {
+  namespace {
+    EcalLaserAlphas laserAplhas;
+    std::map<uint32_t, EcalLaserAlphas::EcalLaserAlpha> laserAlphaMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatios.h"
+namespace {
+  namespace {
+    std::map< uint32_t, EcalLaserAPDPNRatios::EcalLaserAPDPNpair>  laser_map;
+    std::map< uint32_t, EcalLaserAPDPNRatios::EcalLaserTimeStamp> time_map  ;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalLaserAPDPNRatiosRef.h"
+namespace {
+  namespace {
+    EcalLaserAPDPNRatiosRef laserAPDPNRatiosRef;
+    std::map<uint32_t, EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
+  }
+}

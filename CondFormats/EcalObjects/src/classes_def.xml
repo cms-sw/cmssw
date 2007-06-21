@@ -23,6 +23,10 @@
 
  <class name="EcalMonitoringCorrections"/>
 
+ <class name="EcalLaserAlphas"/>
+ <class name="EcalLaserAPDPNRatios"/>
+ <class name="EcalLaserAPDPNRatiosRef"/>
+
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
 </lcgdict>
