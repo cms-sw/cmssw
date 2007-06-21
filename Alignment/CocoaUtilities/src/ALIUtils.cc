@@ -15,17 +15,17 @@
 
 ALIint ALIUtils::debug = -1;
 ALIint ALIUtils::report = 1;
-ALIdouble ALIUtils::_LengthValueDimensionFactor;
-ALIdouble ALIUtils::_LengthSigmaDimensionFactor;
-ALIdouble ALIUtils::_AngleValueDimensionFactor;
-ALIdouble ALIUtils::_AngleSigmaDimensionFactor;
-ALIdouble ALIUtils::_OutputLengthValueDimensionFactor;
-ALIdouble ALIUtils::_OutputLengthSigmaDimensionFactor;
-ALIdouble ALIUtils::_OutputAngleValueDimensionFactor;
-ALIdouble ALIUtils::_OutputAngleSigmaDimensionFactor;
+ALIdouble ALIUtils::_LengthValueDimensionFactor = 1.;
+ALIdouble ALIUtils::_LengthSigmaDimensionFactor = 1.;
+ALIdouble ALIUtils::_AngleValueDimensionFactor = 1.;
+ALIdouble ALIUtils::_AngleSigmaDimensionFactor = 1.;
+ALIdouble ALIUtils::_OutputLengthValueDimensionFactor = 1.;
+ALIdouble ALIUtils::_OutputLengthSigmaDimensionFactor = 1.;
+ALIdouble ALIUtils::_OutputAngleValueDimensionFactor = 1.;
+ALIdouble ALIUtils::_OutputAngleSigmaDimensionFactor = 1.;
 time_t ALIUtils::_time_now;
 ALIdouble ALIUtils::deg = 0.017453293;
-ALIbool ALIUtils::firstTime;
+ALIbool ALIUtils::firstTime = false;
 ALIdouble ALIUtils::maximum_deviation_derivative = 1.E-6;
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
