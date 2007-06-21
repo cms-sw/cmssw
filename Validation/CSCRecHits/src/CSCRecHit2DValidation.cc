@@ -11,24 +11,25 @@ CSCRecHit2DValidation::CSCRecHit2DValidation(DaqMonitorBEInterface* dbe, const e
 
    for(int i = 0; i < 10; ++i)
   {
-    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200];
+    char title1[200], title2[200], title3[200], title4[200], title5[200], title6[200], title7[200], title8[200];
     sprintf(title1, "CSCRecHitResolution%d", i+1);
     sprintf(title2, "CSCRecHitPull%d", i+1);
     sprintf(title3, "CSCRecHitYResolution%d", i+1);
     sprintf(title4, "CSCRecHitYPull%d", i+1);
-    //sprintf(title5, "CSCRecHitLocalPhi%d", i+1);
-    //sprintf(title6, "CSCRecHitLocalY%d", i+1);
+    sprintf(title5, "CSCRecHitPosInStrip%d", i+1);
+    sprintf(title6, "CSCSimHitPosInStrip%d", i+1);
     sprintf(title7, "CSCRecHit%d", i+1);
+    sprintf(title8, "CSCSimHit%d", i+1);
 
 
     theResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.2, 0.2);
     thePullPlots[i] = dbe_->book1D(title2, title2, 100, -3, 3);
     theYResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -5, 5);
     theYPullPlots[i] = dbe_->book1D(title4, title4, 100, -3, 3);
-
-    //thePhiPlots[i] =  dbe_->book1D(title5, title5, 100, -30, 30);
-    //theYPlots[i] = dbe_->book1D(title6, title6, 100, -350, 350);
-    theScatterPlots[i] = dbe->book2D(title7, title7, 100, -30, 30, 100, -350, 350);
+    theRecHitPosInStrip[i] = dbe_->book1D(title5, title5, 100, -2, 2);
+    theSimHitPosInStrip[i] = dbe_->book1D(title6, title6, 100, -2, 2);
+    theScatterPlots[i] = dbe->book2D(title7, title7, 200, -20, 20, 200, -250, 250);
+    theSimHitScatterPlots[i] = dbe->book2D(title8, title8, 200, -20, 20, 200, -250, 250);
   }
 
 }
@@ -68,6 +69,29 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
   }    
   theNPerEventPlot->Fill(nPerEvent);
 
+  // fill sim hits
+  std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
+  for(int i = 0; i < layersWithSimHits.size(); ++i)
+   {
+    edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
+    for(edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr)
+    {
+    const CSCLayer * layer = findLayer(layersWithSimHits[i]);
+std::cout << "alery " << layer << " " << layersWithSimHits[i] << std::endl;
+    int chamberType = layer->chamber()->specs()->chamberType();
+std::cout << "type " << chamberType << std::endl;
+      float localX = hitItr->localPosition().x();
+      float localY = hitItr->localPosition().y();
+      //theYPlots[chamberType-1]->Fill(localY);
+      // find a local phi
+      float globalR = layer->toGlobal(LocalPoint(0.,0.,0.)).perp();
+      GlobalPoint axisThruChamber(globalR+localY, localX, 0.);
+      float localPhi = axisThruChamber.phi().degrees();
+      //thePhiPlots[chamberType-1]->Fill(axisThruChamber.phi().degrees());
+      theSimHitScatterPlots[chamberType-1]->Fill( localPhi, localY);
+    }
+  }
+
 }
 
 
@@ -86,5 +110,10 @@ std::cout << "XX " << sqrt(recHit.localPositionError().xx()) << std::endl;
   theYResolutionPlots[chamberType-1]->Fill( dy );
   theYPullPlots[chamberType-1]->Fill( dy/ sqrt(recHit.localPositionError().yy()) );
 
+  const CSCLayerGeometry * layerGeometry = layer->geometry();
+  float recStrip = layerGeometry->strip(recHit.localPosition());
+  float simStrip = layerGeometry->strip(simHit.localPosition());
+  theRecHitPosInStrip[chamberType-1]->Fill( recStrip - int(recStrip) );
+  theSimHitPosInStrip[chamberType-1]->Fill( simStrip - int(simStrip) );
 }
 

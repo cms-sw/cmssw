@@ -23,6 +23,9 @@ public:
   MonitorElement* theYResolutionPlots[10];
   MonitorElement* theYPullPlots[10];
   MonitorElement* theScatterPlots[10];
+  MonitorElement* theSimHitScatterPlots[10];
+  MonitorElement* theRecHitPosInStrip[10];
+  MonitorElement* theSimHitPosInStrip[10];
 };
 
 #endif
