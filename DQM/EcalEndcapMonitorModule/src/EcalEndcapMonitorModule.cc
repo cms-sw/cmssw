@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorModule.cc
  *
- * $Date: 2007/06/02 10:50:25 $
- * $Revision: 1.8 $
+ * $Date: 2007/06/15 08:36:44 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -177,7 +177,7 @@ void EcalEndcapMonitorModule::setup(void){
   // this should give enough time to our control MEs to reach the Collector,
   // and then hopefully the Client
 
-  sleep(5);
+  if ( enableMonitorDaemon_ ) sleep(5);
 
   Char_t histo[20];
 
@@ -272,7 +272,7 @@ void EcalEndcapMonitorModule::endJob(void) {
 
   // we should always sleep at least a little ...
 
-  sleep(5);
+  if ( enableMonitorDaemon_ ) sleep(5);
 
   if ( init_ ) this->cleanup();
 
@@ -375,7 +375,9 @@ void EcalEndcapMonitorModule::analyze(const Event& e, const EventSetup& c){
   // and then hopefully the Client, especially when using CollateMEs,
   // even for short runs
 
-  if ( ievt_ == 1 ) sleep(5);
+  if ( ievt_ == 1 ) {
+    if ( enableMonitorDaemon_ ) sleep(5);
+  }
 
   try {
 
