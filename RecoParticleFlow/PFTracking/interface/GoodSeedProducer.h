@@ -12,9 +12,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "TMVA/Reader.h"
+
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -28,9 +30,9 @@
  It also transform  all the tracks in the first PFRecTrack collection.
 */
 
-
+//namespace reco {
 class PFResolutionMap;
-
+// }
 
 class PFTrackTransformer;
 class TrajectoryFitter;
@@ -39,7 +41,6 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class Propagator;
 class StraightLinePropagator;
-
 
 class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
@@ -55,8 +56,7 @@ class GoodSeedProducer : public edm::EDProducer {
       ///Find the bin in pt and eta
       int getBin(float,float);
       bool PSCorrEnergy(const TSOS, int ptbin);
-
-
+      void PSforTMVA(const TSOS);
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
@@ -100,6 +100,7 @@ class GoodSeedProducer : public edm::EDProducer {
       ///vector of thresholds for different bins of eta and pt
       float thr[150];
       float thrPS[20];
+      float thrTMVA[15];
 
       // ----------access to event data
       edm::ParameterSet conf_;
@@ -113,7 +114,18 @@ class GoodSeedProducer : public edm::EDProducer {
 
       static PFResolutionMap* resMapEtaECAL_;
       static PFResolutionMap* resMapPhiECAL_;
- 
 
+      ///READER FOR TMVA
+      TMVA::Reader *reader;
+
+      ///VARIABLES NEEDED FOR TMVA
+      float  EP,Chi,Chired,ChiRatio,Nhit,Dpt;
+      float PS1En,PS1chi,PS2En,PS2chi;
+      
+      ///USE OF TMVA 
+      bool useTmva_;
+
+      ///TMVA method
+	std::string Method;
 };
 #endif

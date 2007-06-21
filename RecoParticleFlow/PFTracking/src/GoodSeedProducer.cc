@@ -80,6 +80,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
     produces<reco::PFRecTrackCollection>();
   }
 
+
+  useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
 }
 
 
@@ -105,7 +107,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("GoodSeedProducer")<<"START event: "<<iEvent.id().event()
 			      <<" in run "<<iEvent.id().run();
 
-
   auto_ptr<TrajectorySeedCollection> output_preid(new TrajectorySeedCollection);
   auto_ptr<TrajectorySeedCollection> output_nopre(new TrajectorySeedCollection);
   auto_ptr< reco::PFRecTrackCollection > 
@@ -128,7 +129,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(pfCLusTagPSLabel_,thePSPfClustCollection);
   vector<reco::PFCluster> basClus;
   vector<reco::PFCluster>::const_iterator iklus;
-
   for (iklus=theECPfClustCollection.product()->begin();
        iklus!=theECPfClustCollection.product()->end();
        iklus++){
@@ -147,55 +147,56 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
   }
 
-
   LogDebug("GoodSeedProducer")<<"Number of tracks to be analyzed "<<Tj.size();
 
   for(uint i=0;i<Tk.size();i++){
+    int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
 
+    int ibin=ipteta*9;
     reco::TrackRef trackRef(tkRefCollection, i);
+    TrajectorySeed Seed=Tj[i].seed();
 
     float PTOB=Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
     float chired=Tk[i].normalizedChi2();
     int nhitpi=Tj[i].foundHits();
-    TrajectorySeed Seed=Tj[i].seed();
- 
+    EP=900;
+
 
     //CLUSTERS - TRACK matching
-
+      
     int side=0;  
     TSOS ecalTsos=
       pfTransformer_->getStateOnSurface(PFGeometry::ECALInnerWall,
-				       Tj[i].firstMeasurement().updatedState(),
-				       propagator_.product(),side);  
- 
+					Tj[i].firstMeasurement().updatedState(),
+					propagator_.product(),side);  
+    
     float toteta=1000;
     float totphi=1000;
     float dr=1000;
-    float EP=900;
     float EE=0;
     float feta=0;
 
     if(ecalTsos.isValid()){
       float etarec=ecalTsos.globalPosition().eta();
       float phirec=ecalTsos.globalPosition().phi();
-      
       for(vector<reco::PFCluster>::const_iterator aClus = basClus.begin();
 	  aClus != basClus.end(); aClus++) {
-
+	
+	
 	ReferenceCountingPointer<Surface> showerMaxWall=
 	  pfTransformer_->showerMaxSurface(aClus->energy(),true,ecalTsos,side);
-
+	
 	if (&(*showerMaxWall)!=0){
 	  TSOS maxShTsos= maxShPropagator_->propagate
 	    (*(ecalTsos.freeTrajectoryState()), *showerMaxWall);
-
-
+	  
+	  
 	  if (maxShTsos.isValid()){
 	    etarec=maxShTsos.globalPosition().eta();
 	    phirec=maxShTsos.globalPosition().phi();
 	  }
 	}
-
+	
 	float tmp_dr=sqrt(pow((aClus->positionXYZ().phi()-phirec),2)+
 			  pow((aClus->positionXYZ().eta()-etarec),2));
 	if (tmp_dr<dr) {
@@ -208,26 +209,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	}
       }
     }
-  
-  
-    //thresholds 
-    int ibin=getBin(Tk[i].eta(),Tk[i].pt())*9;
-
-    float chi2cut=thr[ibin+0];
-    float ep_cutmin=thr[ibin+1];
-    //
-    int hit1max=int(thr[ibin+2]);
-    float chiredmin=thr[ibin+3];
-    //
-    float chiratiocut=thr[ibin+4]; 
-    float gschicut=thr[ibin+5]; 
-    float gsptmin=thr[ibin+6];
-    // 
-    int hit2max=int(thr[ibin+7]);
-    float finchicut=thr[ibin+8]; 
-    //
-
-
 
     double ecaletares 
       = resMapEtaECAL_->GetBinContent(resMapEtaECAL_->FindBin(feta,EE));
@@ -238,75 +219,145 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     float chiphi= totphi/ecalphires;
     float chichi= sqrt(chieta*chieta + chiphi*chiphi);
 
-    //Matching criteria
-    bool aa1= (chichi<chi2cut);
-    bool aa2= ((EP>ep_cutmin)&&(EP<1.2));
-    bool aa3= (aa1 && aa2);
-    int ipsbin=(ibin>=90)? 4*((ibin/9)-10) :-1;
-    bool aa4= ((aa3)||(ibin<90))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),ipsbin);
-    bool aa5= (aa3 || aa4);
-    //KF filter
-    bool bb1 =
-      ((chired>chiredmin) || (nhitpi<hit1max));
+    bool cc1= false;
 
-    bool bb2 = false;
-    bool bb3 = false;
-
-    if((!aa5)&&bb1){
+    //TMVA Analysis
+    if(useTmva_){
+      Chi=chichi;
+      Chired=1000;
+      ChiRatio=1000;
+      Dpt=0;
+      Nhit=nhitpi;
 
       Trajectory::ConstRecHitContainer tmp;
       Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
       for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
-      
       vector<Trajectory> FitTjs=(fitter_.product())->fit(Seed,tmp,Tj[i].lastMeasurement().updatedState());
-      
+	
       if(FitTjs.size()>0){
 	if(FitTjs[0].isValid()){
 	  vector<Trajectory> SmooTjs=(smoother_.product())->trajectories(FitTjs[0]);
 	  if(SmooTjs.size()>0){
 	    if(SmooTjs[0].isValid()){
-
+		
 	      //Track refitted with electron hypothesis
-
+		
 	      float pt_out=SmooTjs[0].firstMeasurement().
 		updatedState().globalMomentum().perp();
 	      float pt_in=SmooTjs[0].lastMeasurement().
 		updatedState().globalMomentum().perp();
-	      float el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
-	      float chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
-	      float gchi=chiratio*chired;
-
-	      //Criteria based on electron tracks
-	      bb2=((el_dpt>gsptmin)&&(gchi<gschicut)&&(chiratio<chiratiocut));
-	      bb3=((gchi<finchicut)&&(nhitpi<hit2max));
+	      Dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
+	      ChiRatio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
+	      Chired=ChiRatio*chired;
 	    }
 	  }
 	}
       }
-    }
+
+      int ihh=int(ipteta/5)+1;
+      //ENDCAP
+      //USE OF PRESHOWER 
+      if (ihh==3){
+	PS2En=0;PS1En=0;
+	PS2chi=100.; PS1chi=100.;
+	PSforTMVA(Tj[i].firstMeasurement().updatedState());
+      }
+      //
+      char eta_s[10];
+      char pt_s[10];
+      sprintf(eta_s," eta%d",ihh);
+      sprintf(pt_s," pt%d",ipteta-(ihh*5)+6);
+      string met=Method+eta_s+pt_s;
+      if (reader->EvaluateMVA( met )>thrTMVA[ipteta]) cc1=true;
+    }else{ 
+
+      //thresholds     
+      float chi2cut=thr[ibin+0];
+      float ep_cutmin=thr[ibin+1];
+      //
+      int hit1max=int(thr[ibin+2]);
+      float chiredmin=thr[ibin+3];
+      //
+      float chiratiocut=thr[ibin+4]; 
+      float gschicut=thr[ibin+5]; 
+      float gsptmin=thr[ibin+6];
+      // 
+      int hit2max=int(thr[ibin+7]);
+      float finchicut=thr[ibin+8]; 
+      //
+      
+      
+      
+      
+      //Matching criteria
+      bool aa1= (chichi<chi2cut);
+      bool aa2= ((EP>ep_cutmin)&&(EP<1.2));
+      bool aa3= (aa1 && aa2);
+      int ipsbin=(ibin>=90)? 4*((ibin/9)-10) :-1;
+      bool aa4= ((aa3)||(ibin<90))? false : PSCorrEnergy(Tj[i].firstMeasurement().updatedState(),ipsbin);
+      bool aa5= (aa3 || aa4);
+      //KF filter
+      bool bb1 =
+	((chired>chiredmin) || (nhitpi<hit1max));
+
+      bool bb2 = false;
+      bool bb3 = false;
+
+      if((!aa5)&&bb1){
+
+	Trajectory::ConstRecHitContainer tmp;
+	Trajectory::ConstRecHitContainer hits=Tj[i].recHits();
+	for (int ih=hits.size()-1; ih>=0; ih--)  tmp.push_back(hits[ih]);
+	
+	vector<Trajectory> FitTjs=(fitter_.product())->fit(Seed,tmp,Tj[i].lastMeasurement().updatedState());
+	
+	if(FitTjs.size()>0){
+	  if(FitTjs[0].isValid()){
+	    vector<Trajectory> SmooTjs=(smoother_.product())->trajectories(FitTjs[0]);
+	    if(SmooTjs.size()>0){
+	      if(SmooTjs[0].isValid()){
+		
+		//Track refitted with electron hypothesis
+		
+		float pt_out=SmooTjs[0].firstMeasurement().
+		  updatedState().globalMomentum().perp();
+		float pt_in=SmooTjs[0].lastMeasurement().
+		  updatedState().globalMomentum().perp();
+		float el_dpt=(pt_in>0) ? fabs(pt_out-pt_in)/pt_in : 0.;
+		float chiratio=SmooTjs[0].chiSquared()/Tj[i].chiSquared();
+		float gchi=chiratio*chired;
+		
+		//Criteria based on electron tracks
+		bb2=((el_dpt>gsptmin)&&(gchi<gschicut)&&(chiratio<chiratiocut));
+		bb3=((gchi<finchicut)&&(nhitpi<hit2max));
+	      }
+	    }
+	  }
+	}
+      }
   
 
-
-    bool bb4=(bb2 || bb3);
-    bool bb5=(bb4 && bb1);
-    bool cc1=(aa5 || bb5); 
-   
-    if(cc1)
-      LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
-	"GeV/c, eta= "<<Tk[i].eta() <<
-	") preidentified for agreement between  track and ECAL cluster";
-    if(cc1 &&(!bb1))
-      LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
-	"GeV/c, eta= "<<Tk[i].eta() <<
-	") preidentified only for track properties";
-
-
+      
+      bool bb4=(bb2 || bb3);
+      bool bb5=(bb4 && bb1);
+      cc1=(aa5 || bb5); 
+      
+      if(cc1)
+	LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
+	  "GeV/c, eta= "<<Tk[i].eta() <<
+	  ") preidentified for agreement between  track and ECAL cluster";
+      if(cc1 &&(!bb1))
+	LogDebug("GoodSeedProducer")<<"Track (pt= "<<Tk[i].pt()<<
+	  "GeV/c, eta= "<<Tk[i].eta() <<
+	  ") preidentified only for track properties";
+      
+    }
  
     if (cc1){
-
+      
       //NEW SEED with n hits
       int nHitsinSeed= min(nHitsInSeed_,Tj[i].foundHits());
-
+      
       Trajectory seedTraj;
       OwnVector<TrackingRecHit>  rhits;
 
@@ -329,11 +380,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       output_preid->push_back(NewSeed);
       delete state;
       if(produceCkfPFT_){
-
+	
 	reco::PFRecTrack pftrack( trackRef->charge(), 
 				  reco::PFRecTrack::KF_ELCAND, 
 				  i, trackRef );
-
+	
 	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
 	if(valid)
 	  pOutputPFRecTrackCollection->push_back(pftrack);		
@@ -349,10 +400,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 				  i, trackRef );
 
 	bool valid = pfTransformer_->addPoints( pftrack, *trackRef, Tj[i] );
-
+	
 	if(valid)
 	  pOutputPFRecTrackCollection->push_back(pftrack);		
-
+	
       }
     }
   }
@@ -382,22 +433,60 @@ GoodSeedProducer::beginJob(const EventSetup& es)
   es.get<TrackingComponentsRecord>().get(smootherName_, smoother_);
   maxShPropagator_=new StraightLinePropagator(magField.product());
 
+ 
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
   FileInPath ecalPhiMap(conf_.getParameter<string>("PhiMap"));
   resMapEtaECAL_ = new PFResolutionMap("ECAL_eta",ecalEtaMap.fullPath().c_str());
   resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
-  //read threshold
-  FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
-  ifstream ifs(parFile.fullPath().c_str());
-  for (int iy=0;iy<135;iy++) ifs >> thr[iy];
+  if(useTmva_){
+    reader = new TMVA::Reader();
+    Method = conf_.getParameter<string>("TMVAMethod");
+    
+    reader->AddVariable("EP",&EP);
+    reader->AddVariable("Chi",&Chi);
+    reader->AddVariable("Chired",&Chired);
+    reader->AddVariable("ChiRatio",&ChiRatio);
+    reader->AddVariable("Dpt",&Dpt);
+    reader->AddVariable("Nhit",&Nhit);
+    reader->AddVariable("PS1En",&PS1En);
+    reader->AddVariable("PS1chi",&PS1chi);
+    reader->AddVariable("PS2En",&PS2En);
+    reader->AddVariable("PS2chi",&PS2chi);
+    
+    string weights =conf_.getParameter<string>("Weights");
+    
+    char name[300];
+    char eta_s[10];
+    char pt_s[10];
+    for (int ih=1;ih<4;ih++){
+      sprintf(eta_s," eta%d",ih);
+      
+      for (int ipt=1;ipt<6;ipt++){
+	sprintf(pt_s," pt%d",ipt);
+	sprintf (name,"%s%d%s%d%s",weights.c_str(),ih,"pt",ipt,".txt");
+	FileInPath Weigths(name);
+	string met=Method+eta_s+pt_s;
+	reader->BookMVA( met , Weigths.fullPath().c_str()  );	
+      }
+    }
+    FileInPath parTMVAFile(conf_.getParameter<string>("TMVAThresholdFile"));
+    ifstream ifsTMVA(parTMVAFile.fullPath().c_str());
+    for (int iy=0;iy<15;iy++) ifsTMVA >> thrTMVA[iy];
+  }else{
 
-  //read PS threshold
-  FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
-  ifstream ifsPS(parPSFile.fullPath().c_str());
-  for (int iy=0;iy<20;iy++) ifsPS >> thrPS[iy];
-
+    
+    //read threshold
+    FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
+    ifstream ifs(parFile.fullPath().c_str());
+    for (int iy=0;iy<135;iy++) ifs >> thr[iy];
+    
+    //read PS threshold
+    FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
+    ifstream ifsPS(parPSFile.fullPath().c_str());
+    for (int iy=0;iy<20;iy++) ifsPS >> thrPS[iy];
+  }
 }
 
 int GoodSeedProducer::getBin(float eta, float pt){
@@ -463,7 +552,65 @@ bool GoodSeedProducer::PSCorrEnergy(const TSOS tsos, int ibin){
 	(v2.z()*(*ips).positionXYZ().z()>0)&&
 	((*ips).energy()>psEn2)) Ps2g=true;    
   }
-  
+
   return Ps2g;
   
+}
+void GoodSeedProducer::PSforTMVA(const TSOS tsos){
+  int sder=0;
+  TSOS ps1TSOS =
+    pfTransformer_->getStateOnSurface(PFGeometry::PS1Wall, tsos,
+                                      propagator_.product(), sder);
+  if (ps1TSOS.isValid()){
+    GlobalPoint v1=ps1TSOS.globalPosition();
+  
+    if ((v1.perp() >=
+	 PFGeometry::innerRadius(PFGeometry::PS1)) &&
+	(v1.perp() <=
+	 PFGeometry::outerRadius(PFGeometry::PS1))) {
+      float enPScl1=0;
+      float chi1=100;
+      vector<reco::PFCluster>::const_iterator ips;
+      for (ips=ps1Clus.begin(); ips!=ps1Clus.end();ips++){
+	float ax=((*ips).positionXYZ().x()-v1.x())/0.114;
+	float ay=((*ips).positionXYZ().y()-v1.y())/2.43;
+	float pschi= sqrt(ax*ax+ay*ay);
+	if (pschi<chi1){
+	  chi1=pschi;
+	  enPScl1=(*ips).energy();
+	}
+      }
+      PS1En=enPScl1;
+      PS1chi=chi1;
+
+      TSOS ps2TSOS =
+	pfTransformer_->getStateOnSurface(PFGeometry::PS2Wall, ps1TSOS,
+					  propagator_.product(), sder);
+      if (ps2TSOS.isValid()){
+	GlobalPoint v2=ps2TSOS.globalPosition();
+	if ((v2.perp() >=
+	     PFGeometry::innerRadius(PFGeometry::PS2)) &&
+	    (v2.perp() <=
+	     PFGeometry::outerRadius(PFGeometry::PS2))){
+	  float enPScl2=0;
+	  float chi2=100;
+	  for (ips=ps2Clus.begin(); ips!=ps2Clus.end();ips++){
+	    float ax=((*ips).positionXYZ().x()-v2.x())/1.88;
+	    float ay=((*ips).positionXYZ().y()-v2.y())/0.1449;
+	    float pschi= sqrt(ax*ax+ay*ay);
+	    if (pschi<chi2){
+	      chi2=pschi;
+	      enPScl2=(*ips).energy();
+	    }
+	  }
+
+	  PS2En=enPScl2;
+	  PS2chi=chi2;
+
+	}
+      }
+      
+    }
+    
+  }
 }

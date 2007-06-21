@@ -10,6 +10,7 @@
 <use name=RecoTracker/TrackProducer>
 <use name=clhep>
 <use name=boost>
+<flags LDFLAGS="-lTMVA">
 <export>	
 <lib name=RecoParticleFlowPFTracking>
 <use name=FWCore/Framework>
