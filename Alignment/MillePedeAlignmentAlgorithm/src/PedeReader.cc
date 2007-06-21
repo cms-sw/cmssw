@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.3 $
- *  $Date: 2007/02/05 12:51:43 $
+ *  $Revision: 1.4.2.1 $
+ *  $Date: 2007/05/18 13:18:37 $
  *  (last update by $Author: flucke $)
  */
 
@@ -188,6 +188,8 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable) const
     const AlgebraicSymMatrix cov(RigidBodyAlignmentParameters::N_PARAM, 0);
     
     bool isHigherLevel = false;
+    // FIXME: More clever check needed:
+    //        alignment with cosmic track finder needs CompositeRigidBody for strip stereo layers!  
     AlignableDet *alidet = dynamic_cast<AlignableDet*>(alignable);
     if (alidet != 0) { // alignable Det
       params = new RigidBodyAlignmentParameters(alignable, par, cov);

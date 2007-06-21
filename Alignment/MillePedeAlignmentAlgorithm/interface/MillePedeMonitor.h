@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.5 $
-///  $Date: 2007/04/19 11:36:57 $
+///  $Revision: 1.4.2.2 $
+///  $Date: 2007/05/18 13:17:51 $
 ///  (last update by $Author: flucke $)
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
@@ -35,7 +35,7 @@ namespace reco {
 
 class Alignable;
 class AlignableDetOrUnitPtr;
-
+class TrajectoryStateOnSurface;
 
 /***************************************
 ****************************************/
@@ -50,18 +50,27 @@ class MillePedeMonitor
 
   void fillTrack(const reco::Track *track, const Trajectory *traj);
   void fillRefTrajectory(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr);
-  void fillMille(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-		 const std::vector<float> &localDerivs, 
-		 const std::vector<float> &globalDerivs,
-		 float residuum, float sigma);
+  void fillDerivatives(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
+		       const std::vector<float> &localDerivs,
+		       const std::vector<float> &globalDerivs, bool isY);
+  void fillResiduals(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
+		     const TrajectoryStateOnSurface &tsos, unsigned int nHit,
+		     float residuum, float sigma, bool isY);
   void fillFrameToFrame(const AlignableDetOrUnitPtr &aliDet, const Alignable *ali);
 
  private:
   bool init(TDirectory *directory);
   bool equidistLogBins(double* bins, int nBins, double first, double last) const;
+  void fillResidualHists(const std::vector<TH1*> &hists, float phiSensToNorm,
+			 float residuum, float sigma);
+  void fillResidualHitHists(const std::vector<TH1*> &hists, float angle,
+			    float residuum, float sigma, unsigned int nHit);
 
   template <class OBJECT_TYPE>  
     int GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TString &name);
+  template <class OBJECT_TYPE>  
+  std::vector<OBJECT_TYPE*> cloneHists(const std::vector<OBJECT_TYPE*> &orgs,
+				       const TString &namAd, const TString &titAd) const;
 
   TDirectory *myRootDir;
   bool        myDeleteDir; 
@@ -70,7 +79,14 @@ class MillePedeMonitor
   std::vector<TH2*> myTrackHists2D;
   std::vector<TH1*> myTrajectoryHists1D;
   std::vector<TH2*> myTrajectoryHists2D;
-  std::vector<TH2*> myMilleHists2D;
+  std::vector<TH2*> myDerivHists2D;
+  std::vector<TH2*> myResidHists2D;
+  std::vector<std::vector<TH1*> > myResidHistsVec1DX;///[0]=all [1]=TPB [2]=TPE [3]=TIB [4]=TID [5]=TOB [6]=TEC
+  std::vector<std::vector<TH1*> > myResidHistsVec1DY;///[0]=all [1]=TPB [2]=TPE [3]=TIB [4]=TID [5]=TOB [6]=TEC
+  std::vector<TH1*> myResidHitHists1DX;
+  std::vector<TH1*> myResidHitHists1DY;
+
+
   std::vector<TH2*> myFrame2FrameHists2D;
 
 };
@@ -85,5 +101,24 @@ int MillePedeMonitor::GetIndex(const std::vector<OBJECT_TYPE*> &vec, const TStri
   }
   edm::LogError("Alignment") << "@SUB=MillePedeMonitor::GetIndex" << " could not find " << name;
   return -1;
+}
+
+template <class OBJECT_TYPE>  
+std::vector<OBJECT_TYPE*> MillePedeMonitor::cloneHists(const std::vector<OBJECT_TYPE*> &orgs,
+						       const TString &namAd,
+						       const TString &titAd) const
+{
+  // OBJECT_TYPE required to have methods Clone(const char*), GetName(), SetTitle(const char*) and GetTitle()
+  std::vector<OBJECT_TYPE*> result;
+  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = orgs.begin(), iterEnd = orgs.end();
+       iter != iterEnd; ++iter) {
+    if (!(*iter)) continue;
+    result.push_back(static_cast<OBJECT_TYPE*>((*iter)->Clone(namAd + (*iter)->GetName())));
+    if (result.back()) result.back()->SetTitle((*iter)->GetTitle() + titAd);
+    else edm::LogError("Alignment") <<"@SUB=MillePedeMonitor::cloneHists"
+				    << "out of memory?";
+  }
+  
+  return result;
 }
 #endif

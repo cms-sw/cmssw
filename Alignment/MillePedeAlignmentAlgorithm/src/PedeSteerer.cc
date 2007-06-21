@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.11.2.1 $
- *  $Date: 2007/05/11 16:14:43 $
+ *  $Revision: 1.11.2.4 $
+ *  $Date: 2007/06/21 12:43:03 $
  *  (last update by $Author: flucke $)
  */
 
@@ -14,6 +14,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterStore.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentParameterSelector.h"
 #include "Alignment/CommonAlignmentAlgorithm/interface/SelectionUserVariables.h"
@@ -33,20 +34,27 @@
 
 // from ROOT
 #include <TSystem.h>
+#include <TMath.h>
 
 // NOTE: The '+4', is backward incompatible for results with older binary files...
 const unsigned int PedeSteerer::theMaxNumParam = RigidBodyAlignmentParameters::N_PARAM + 4;
 const unsigned int PedeSteerer::theMinLabel = 1; // must be > 0
 
 //___________________________________________________________________________
-
 PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
 			 AlignmentParameterStore *store,
 			 const edm::ParameterSet &config, const std::string &defaultDir) :
   myParameterStore(store), myConfig(config),
-  myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir"))
+  myDirectory(myConfig.getUntrackedParameter<std::string>("fileDir")),
+  myParameterSign(myConfig.getUntrackedParameter<int>("parameterSign")),
+  theCoordMaster(0)
 {
-  // Correct directory before building maps:
+  if (myParameterSign != 1 && myParameterSign != -1) {
+    cms::Exception("BadConfig") << "Expect PedeSteerer.parameterSign = +/-1, "
+				<< "found " << myParameterSign << ".";
+  }
+
+  // Correct directory, needed before asking for fileName(..):
   if (myDirectory.empty()) myDirectory = defaultDir;
   if (!myDirectory.empty() && myDirectory.find_last_of('/') != myDirectory.size() - 1) {
     myDirectory += '/'; // directory may need '/'
@@ -55,9 +63,23 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
   this->buildMap(aliTracker, aliMuon); //has to be done first
   const std::vector<Alignable*> &alis = myParameterStore->alignables();
 
-  this->buildNoHierarchyMap(aliTracker, aliMuon, // before hierarchyConstraints(..)
-			    myConfig.getParameter<edm::ParameterSet>("noHierarchyConstraint"));
+  // Coordinate system selection and correction before fixing, at least for fixing at truth:
+  theCoordDefiners = this->selectCoordinateAlis(alis);
+  if (!theCoordDefiners.empty()) { // Create steering with constraints to define coordinate system:
+    const std::string nameCoordFile(this->fileName("Coord"));
+    theCoordMaster = aliTracker; // Both tracker and muon have global coordinates, though...
+    if (!theCoordMaster) theCoordMaster = aliMuon; // ...which coordinates should not really matter anyway.
+    // FIXME: With both tracker and muon, only tracker will be shifted in correctToReferenceSystem!
+    // Could be fixed by introducing AlignableComposite with both, but must prevent double deletion.
+    // If this has 'global frame', correctToReferenceSystem can use globalParameters (as it does)
+    this->defineCoordinates(theCoordDefiners, theCoordMaster, nameCoordFile);
+    edm::LogInfo("Alignment") << "@SUB=PedeSteerer" 
+                              << theCoordDefiners.size() << " highest level objects define the "
+			      << "coordinate system, steering file " << nameCoordFile << ".";
+    this->correctToReferenceSystem();
+  } 
 
+  // Fixing parameters also checks for invalid parameter choices (should that be done first?):
   const std::string nameFixFile(this->fileName("FixPara"));
   const std::pair<unsigned int, unsigned int> nFixFixCor(this->fixParameters(alis, nameFixFile));
   if (nFixFixCor.first != 0 || nFixFixCor.second != 0) {
@@ -67,6 +89,11 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
                               << "steering file " << nameFixFile << ".";
   } 
 
+  if (this->buildNoHierarchyCollection(alis)) { // before hierarchyConstraints(..)
+    edm::LogInfo("Alignment")
+      << "@SUB=PedeSteerer" << myNoHieraCollection.size() << " alignables taken out of hierarchy.";
+  }
+
   const std::string nameHierarchyFile(this->fileName("Hierarchy"));
   unsigned int nConstraint = this->hierarchyConstraints(alis, nameHierarchyFile);
   if (nConstraint) {
@@ -74,6 +101,8 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
                               << "Hierarchy constraints for " << nConstraint << " alignables, "
                               << "steering file " << nameHierarchyFile << ".";
   }
+
+  // Delete all SelectionUserVariables now? They will anyway be overwritten by MillePedeVariables...
 }
 
 //___________________________________________________________________________
@@ -178,15 +207,9 @@ Alignable* PedeSteerer::alignableFromLabel(unsigned int label) const
 }
 
 //_________________________________________________________________________
-const std::vector<char>& PedeSteerer::noHieraParamSel(const Alignable* ali) const
+bool PedeSteerer::isNoHiera(const Alignable* ali) const
 {
-  AlignableSelVecMap::const_iterator iter = myNoHierarchyMap.find(ali);
-  if (iter != myNoHierarchyMap.end()) {
-    return (*iter).second;
-  } else {
-    static const std::vector<char> emptyParSel;
-    return emptyParSel;
-  }
+  return (myNoHieraCollection.find(ali) != myNoHieraCollection.end());
 }
 
 //_________________________________________________________________________
@@ -208,12 +231,6 @@ double PedeSteerer::cmsToPedeFactor(unsigned int parNum) const
   default:
     return 1.;
   }
-}
-
-//_________________________________________________________________________
-double PedeSteerer::parameterSign() const
-{
-  return -1.;
 }
 
 //_________________________________________________________________________
@@ -261,31 +278,46 @@ unsigned int PedeSteerer::buildReverseMap()
 }
 
 //_________________________________________________________________________
-void PedeSteerer::buildNoHierarchyMap(AlignableTracker *aliTracker, AlignableMuon *aliMuon,
-				      const edm::ParameterSet &selPSet)
+unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable*> &alis)
 {
-  myNoHierarchyMap.clear();  // just in case of re-use...
+  myNoHieraCollection.clear();  // just in case of re-use...
 
-  AlignmentParameterSelector noHieraSelector(aliTracker, aliMuon);
-  noHieraSelector.addSelections(selPSet);
+  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+    AlignmentParameters *params = (*iAli)->alignmentParameters();
+    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
+    if (!selVar) continue;
+    // Now check whether taking out of hierarchy is selected - must be consistent!
+    unsigned int numNoHieraPar = 0;
+    unsigned int numHieraPar = 0;
+    for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
+      const char selector = selVar->fullSelection()[iParam];
+      if (selector == 'C' || selector == 'F' || selector == 'H') {
+	++numNoHieraPar;
+      } else if (selector == 'c' || selector == 'f' || selector == '1' || selector == 'r') {
+	++numHieraPar;
+      } // else ... accept '0' as undetermined
+    }
+    if (numNoHieraPar) { // Selected to be taken out.
+      if (numHieraPar) { // Inconsistent: Some parameters still in hierarchy ==> exception!
+	throw cms::Exception("BadConfig") 
+	  << "[PedeSteerer::buildNoHierarchyCollection] All active parameters of alignables to be "
+	  << " taken out of the hierarchy must be marked with capital letters 'C', 'F' or 'H'!";
+      }
+      bool isInHiera = false; // Check whether Alignable is really part of hierarchy:
+      Alignable *mother = *iAli;
+      while ((mother = mother->mother())) {
+	if (mother->alignmentParameters()) isInHiera = true; // could 'break;', but loop is short
+      }
+      // Complain, but keep collection short if not in hierarchy:
+      if (isInHiera) myNoHieraCollection.insert(*iAli);
+      else edm::LogWarning("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyCollection"
+					<< "Alignable not in hierarchy, no need to remove it!";
+    }
+  } // end loop on alignables
 
-  // These two vectors are granted to be parallel:
-  const std::vector<Alignable*>& noHieraAlis = noHieraSelector.selectedAlignables();
-  const std::vector<std::vector<char> >& noHieraParSel = noHieraSelector.selectedParameters();
-
-  std::vector<Alignable*>::const_iterator iNoHieraAli = noHieraAlis.begin();
-  std::vector<std::vector<char> >::const_iterator iNoHieraParSel = noHieraParSel.begin();
-
-  while (iNoHieraAli != noHieraAlis.end() && iNoHieraParSel != noHieraParSel.end()) {
-    myNoHierarchyMap[*iNoHieraAli] = *iNoHieraParSel; // add paramsel with Alignable* as key
-    ++iNoHieraAli;
-    ++iNoHieraParSel;
-  }
-  if (!myNoHierarchyMap.empty()) {
-    edm::LogInfo("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyMap"
-			      << myNoHierarchyMap.size() << " alignables to take out of hierarchy.";
-  }
+  return myNoHieraCollection.size();
 }
+
 
 //_________________________________________________________________________
 std::pair<unsigned int, unsigned int>
@@ -298,25 +330,18 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
 
   for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
     AlignmentParameters *params = (*iAli)->alignmentParameters();
-    if (!params) continue; // should not happen, but not worth to log an error here...
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
     if (!selVar) continue;
 
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
-      char selector = selVar->fullSelection()[iParam];
-      if (selector == '0' || selector == '1') continue; // free or ignored parameter FIXME: ugly!
-      if (!filePtr) {
-        filePtr = this->createSteerFile(fileName, true);
-        (*filePtr) << "Parameter\n";
-      }
-      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam], *filePtr);
+      int whichFix = this->fixParameter(*iAli, iParam, selVar->fullSelection()[iParam], filePtr,
+					fileName);
       if (whichFix == 1) {
         ++(numFixNumFixCor.first);
       } else if (whichFix == -1) {
         ++(numFixNumFixCor.second);
       }
     }
-    params->setUserVariables(0); // erase the info since it is not needed anymore
   }
 
   delete filePtr; // automatically flushes, no problem if NULL ptr.   
@@ -326,22 +351,31 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
 
 //_________________________________________________________________________
 int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector,
-                              std::ofstream &file) const
+                              std::ofstream* &filePtr, const std::string &fileName)
 {
   int result = 0;
   float fixAt = 0.;
-  if (selector == 'c') {
-    fixAt = -this->parameterSign() * RigidBodyAlignmentParameters(ali).parameters()[iParam];
+  if (selector == 'c' || selector == 'C') {
+    fixAt = -this->parameterSign() * RigidBodyAlignmentParameters(ali, true).parameters()[iParam];
     result = -1;
-  } else if (selector == 'f') {
+  } else if (selector == 'f' || selector == 'F') {
     result = 1;
-  } else if (selector != '1' && selector != '0') {
+  } else if (selector != '1' && selector != '0' && selector != 'r' && selector != 'H') {
     throw cms::Exception("BadConfig")
-      << "@SUB=PedeSteerer::fixParameter" << "Unexpected parameter selector '" << selector
-      << "', use 'f' (fix), 'c' (fix at correct pos.), '1' (free) or '0' (ignore).";
+      << "[PedeSteerer::fixParameter] " << "Unexpected parameter selector '" << selector
+      << "', use \n'f/F' (fix),\n'c/C' (fix at correct pos.),\n'1/H' (free),\n"
+      << "'r' (free, but defining reference system) or \n'0' (ignore).\n"
+      << "Capital letters mean that the Alignable is taken out of a possible hierarchy,\n"
+      << "but must be used consistently for all its parameters.";
   }
 
   if (result) {
+    if (!filePtr) {
+      filePtr = this->createSteerFile(fileName, true);
+      (*filePtr) << "Parameter\n";
+    }
+    std::ofstream &file = *filePtr;
+
     const unsigned int aliLabel = this->alignableLabel(ali);
     file << this->parameterLabel(aliLabel, iParam) << "  " 
          << fixAt * this->cmsToPedeFactor(iParam) << " -1.0";
@@ -354,6 +388,118 @@ int PedeSteerer::fixParameter(Alignable *ali, unsigned int iParam, char selector
   }
 
   return result;
+}
+
+//_________________________________________________________________________
+std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alignable*> &alis) const
+{
+  std::vector<Alignable*> coordAlis;
+
+  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+    AlignmentParameters *params = (*iAli)->alignmentParameters();
+    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
+    if (!selVar) continue;
+    unsigned int refParam = 0;
+    unsigned int nonRefParam = 0;
+    for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
+      const char selector = selVar->fullSelection()[iParam];
+      if (selector == 'r') {
+	++refParam;
+      } else if (selector != '0') { // allow inactive parameters
+	++nonRefParam;
+      }
+    }
+    // Check whether some 'r' selection string. If yes and selection makes sense, add to result:
+    if (refParam) {
+      if (nonRefParam) {
+	throw cms::Exception("BadConfig") << "[PedeSteerer::selectCoordinateAlis] "
+					  << "All active parameters of alignables defining "
+					  << "the coordinate system must be marked with 'r'!";
+      } else {
+	Alignable *mother = *iAli;
+	while ((mother = mother->mother())) {
+	  if (mother->alignmentParameters()) {
+	    throw cms::Exception("BadConfig") << "[PedeSteerer::selectCoordinateAlis] "
+					      << "Alignables defining the coordinate system must "
+					      << "be highest level!";
+	  }
+	}
+	coordAlis.push_back(*iAli);
+      }
+    }
+  } // end loop on alignables
+
+  return coordAlis;
+}
+
+
+//_________________________________________________________________________
+void PedeSteerer::defineCoordinates(const std::vector<Alignable*> &alis, Alignable *aliMaster,
+				    const std::string &fileName)
+{
+  std::ofstream *filePtr = this->createSteerFile(fileName, true);
+  (*filePtr) << "* Contraints to define coordinate system:\n";
+  if (!aliMaster || aliMaster->alignmentParameters()) {
+    throw cms::Exception("BadConfig")
+      << "[PedeSteerer::defineCoordinates] " << "No master alignable or it has parameters!";
+  }
+  AlignmentParameters *par = new RigidBodyAlignmentParameters(aliMaster, false);
+  aliMaster->setAlignmentParameters(par); // hierarchyConstraint needs parameters
+  this->hierarchyConstraint(aliMaster, alis, *filePtr);
+  aliMaster->setAlignmentParameters(0); // erase dummy parameters
+
+  delete filePtr; // automatically flushes, no problem if NULL ptr.   
+}
+
+//_________________________________________________________________________
+void PedeSteerer::correctToReferenceSystem()
+{
+  typedef RigidBodyAlignmentParameters RbPars;
+  if (!theCoordMaster || theCoordDefiners.empty()) return; // nothing was defined
+
+  std::vector<Alignable*> definerDets; // or ...DetUnits
+  for (std::vector<Alignable*>::iterator it = theCoordDefiners.begin(), iE = theCoordDefiners.end();
+       it != iE; ++it) {// find lowest level objects of alignables that define the coordinate system
+    (*it)->deepComponents(definerDets);
+  }
+
+  for (unsigned int iLoop = 0; ; ++iLoop) { // iterate: shifts and rotations are not independent
+    AlgebraicVector meanPars(RbPars::N_PARAM);
+    for (std::vector<Alignable*>::iterator it = definerDets.begin(), iE = definerDets.end();
+	 it != iE; ++it) { // sum up mean displacements/misrotations:
+      meanPars += RbPars(*it, true).globalParameters();// requires theCoordMaster has global frame
+    }
+    meanPars /= definerDets.size();
+
+    align::Scalar squareSum = 0.;
+    for (unsigned int i = 0; i < RbPars::N_PARAM; ++i) {
+      squareSum += meanPars[i] * meanPars[i] * this->cmsToPedeFactor(i) * this->cmsToPedeFactor(i);
+    }
+
+    if (true || iLoop == 0) {
+      edm::LogInfo("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
+				<< "Loop " << iLoop << " "
+				<< "Mean misalignment of dets of defined coordinate system "
+				<< "(will be iteratively corrected to about 0.):" << meanPars;
+    }
+    if (iLoop >=5 || squareSum < 1.e-20) { // sqrt(1.e-20)=1.e-10: close enough to stop iterating
+      if (iLoop >=5) {
+	edm::LogError("Alignment") << "@SUB=PedeSteerer::correctToReferenceSystem"
+				   << "No convergence in " << iLoop << " iterations, " 
+				   << "remaining misalignment: " << meanPars;
+      }
+      break;
+    }
+
+    const GlobalVector globalShift(meanPars[RbPars::dx],meanPars[RbPars::dy],meanPars[RbPars::dz]);
+    align::EulerAngles globalAngles(3);
+    globalAngles[0] = meanPars[RbPars::dalpha];
+    globalAngles[1] = meanPars[RbPars::dbeta];
+    globalAngles[2] = meanPars[RbPars::dgamma];
+    theCoordMaster->move(-globalShift); // sign to revert
+    theCoordMaster->rotateInGlobalFrame(align::toMatrix(-globalAngles)); // sign to revert
+  }
+  
 }
 
 //_________________________________________________________________________
@@ -415,9 +561,7 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
     for (unsigned int iParam = 0; iParam < parIds.size(); ++iParam) {
       Alignable *aliSubComp = parIds[iParam].first;
       const unsigned int compParNum = parIds[iParam].second;
-      const std::vector<char> &noParSel = this->noHieraParamSel(aliSubComp);
-//       if (noParSel.size() > compParNum) && noParSel[compParNum] != '0') { // FIXME: take full...
-      if (!noParSel.empty()) { //...object out, cf.  ...Algorithm::globalDerivativesHierarchy
+      if (this->isNoHiera(aliSubComp)) {
 	if (0) aConstr << "* Taken out of hierarchy: "; // conflict with !aConstr.str().empty()
 	else continue;
       }
@@ -426,17 +570,19 @@ void PedeSteerer::hierarchyConstraint(const Alignable *ali,
       // FIXME: multiply by cmsToPedeFactor(subcomponent)/cmsToPedeFactor(mother) (or vice a versa?)
       aConstr << paramLabel << "    " << factors[iParam];
       if (true) { // debug
-	aConstr << "   ! for param " << compParNum << " of " << aliLabel;
+	const TrackerAlignableId aliId;
+	aConstr << "   ! for param " << compParNum << " of a " 
+		<< aliId.alignableTypeName(aliSubComp) << " (label " << aliLabel << ")";
       }
       aConstr << "\n";
     } // end loop on params
 
     if (!aConstr.str().empty()) {
       if (true) { //debug
-	TrackerAlignableId aliId;
-	file << "\n* Nr. " << iConstr << " of " << aliId.alignableTypeName(ali) << " " 
+	const TrackerAlignableId aliId;
+	file << "\n* Nr. " << iConstr << " of a '" << aliId.alignableTypeName(ali) << "' (label "
 	     << this->alignableLabel(const_cast<Alignable*>(ali)) // ugly cast: FIXME!
-	     << ", layer " << aliId.typeAndLayerFromAlignable(ali).second
+	     << "), layer " << aliId.typeAndLayerFromAlignable(ali).second
 	     << ", position " << ali->globalPosition()
 	     << ", r = " << ali->globalPosition().perp();
       }
@@ -496,16 +642,9 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   // add method
   mainSteerRef << "\nmethod  " << myConfig.getParameter<std::string>("method") << "\n";
 
-  // add outlier treatment
-  const std::vector<std::string> outTr(myConfig.getParameter<std::vector<std::string> >("outlier"));
-  mainSteerRef << "\n* Outlier treatment\n";
-  for (unsigned int i = 0; i < outTr.size(); ++i) {
-    mainSteerRef << outTr[i] << "\n";
-  }
-
   // add further options
   const std::vector<std::string> opt(myConfig.getParameter<std::vector<std::string> >("options"));
-  mainSteerRef << "\n* Further options \n";
+  mainSteerRef << "\n* Outlier treatment and other options \n";
   for (unsigned int i = 0; i < opt.size(); ++i) {
     mainSteerRef << opt[i] << "\n";
   }

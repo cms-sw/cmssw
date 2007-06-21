@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.10 $
-///  $Date: 2007/04/19 11:36:57 $
+///  $Revision: 1.9.2.3 $
+///  $Date: 2007/06/13 09:00:46 $
 ///  (last update by $Author: flucke $)
 
 
@@ -64,22 +64,16 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
     referenceTrajectory(const TrajectoryStateOnSurface &refTsos,
 			const Trajectory *traj, const MagneticField *magField) const;
   /// If hit is usable: callMille for x and (probably) y direction.
-  /// If globalDerivatives fine: returns 2 if 2D-hit and 1 if 1D-hit. Returns -1 if any problem.
-  /// (for params cf. globalDerivatives)
+  /// If globalDerivatives fine: returns 2 if 2D-hit, 1 if 1D-hit, 0 if no Alignable for hit.
+  /// Returns -1 if any problem (for params cf. globalDerivativesHierarchy)
   int addGlobalDerivatives(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			   unsigned int iHit, const TrajectoryStateOnSurface &trackTsos,
 			   AlignmentParameters *&params);
-  /// -1: problem, 0: no hit on considered alignable, 1: OK
-  /// if OK: params filled with pointer to parameters of the alignable which is hit
-  int globalDerivatives(const TransientTrackingRecHit::ConstRecHitPointer &recHit,
-			const TrajectoryStateOnSurface &tsos, MeasurementDirection xOrY,
-			std::vector<float> &globalDerivatives, std::vector<int> &globalLabels,
-			AlignmentParameters *&params) const;
-  /// recursively adding derivatives and labels
+  /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const TrajectoryStateOnSurface &tsos,
-				  Alignable *ali, const AlignableDetOrUnitPtr &alidet,
-				  MeasurementDirection xOrY,
-				  std::vector<float> &globalDerivatives,
+				  Alignable *ali, const AlignableDetOrUnitPtr &alidet, bool hit2D,
+				  std::vector<float> &globalDerivativesX,
+				  std::vector<float> &globalDerivativesY,
 				  std::vector<int> &globalLabels,
 				  AlignmentParameters *&lowestParams) const;
   void callMille(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, 
@@ -103,7 +97,7 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			const std::vector<std::string> &inFiles) const;
   bool addHits(const std::vector<Alignable*> &alis,
 	       const std::vector<AlignmentUserVariables*> &mpVars) const;
-  void orderedTsos(const Trajectory *traj, 
+  bool orderedTsos(const Trajectory *traj, 
 		   std::vector<TrajectoryStateOnSurface> &trackTsos) const;
   edm::ParameterSet         theConfig;
   unsigned int              theMode;
@@ -117,7 +111,8 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   int                       theMinNumHits;
   bool                      theUseTrackTsos;
 
-  std::vector<float>        theFloatBuffer;
+  std::vector<float>        theFloatBufferX;
+  std::vector<float>        theFloatBufferY;
   std::vector<int>          theIntBuffer;
 };
 

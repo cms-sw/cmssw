@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.6.2.1 $
- *  $Date: 2007/04/30 14:19:54 $
+ *  $Revision: 1.6.2.2 $
+ *  $Date: 2007/05/18 13:17:52 $
  *  (last update by $Author: flucke $)
  */
 
@@ -15,6 +15,7 @@
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
@@ -89,7 +90,7 @@ bool MillePedeMonitor::init(TDirectory *directory)
   myTrackHists1D.push_back(new TH1F("etaTrack", "#eta(track);#eta", 26, -2.6, 2.6));
   myTrackHists1D.push_back(new TH1F("phiTrack", "#phi(track);#phi", 15, -TMath::Pi(), TMath::Pi()));
 
-  myTrackHists1D.push_back(new TH1F("nHitTrack", "N_{hit}(track);N_{hit}", 25, 5., 30.));
+  myTrackHists1D.push_back(new TH1F("nHitTrack", "N_{hit}(track);N_{hit}", 30, 5., 35.));
   myTrackHists1D.push_back(new TH1F("nHitInvalidTrack", "N_{hit, invalid}(track)", 5, 0., 5.));
   myTrackHists1D.push_back(new TH1F("r1Track", "r(1st hit);r [cm]", 20, 0., 20.));
   myTrackHists1D.push_back(new TH1F("phi1Track", "#phi(1st hit);#phi",
@@ -210,54 +211,174 @@ bool MillePedeMonitor::init(TDirectory *directory)
   //  myTrajectoryHists2D.back()->SetBit(TH1::kCanRebin);
 
 
-  TDirectory *dirMille = directory->mkdir("milleHists", "derivatives etc.");
-  if (dirMille) dirMille->cd();
-  myMilleHists2D.push_back
+  TDirectory *dirDerivs = directory->mkdir("derivatives", "derivatives etc.");
+  if (dirDerivs) dirDerivs->cd();
+  myDerivHists2D.push_back
     (new TH2F("localDerivsPar","local derivatives vs. paramater;parameter;#partial/#partial(param)",
               6, 0., 6., 101, -200., 200.));
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("localDerivsPhi","local derivatives vs. #phi(det);#phi(det);#partial/#partial(param)",
               51, -TMath::Pi(), TMath::Pi(), 101, -150., 150.));
   this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-13, 150.);
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("localDerivsParLog",
               "local derivatives (#neq 0) vs. parameter;parameter;|#partial/#partial(param)|",
               6, 0., 6., logBins.GetSize()-1, logBins.GetArray()));
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("localDerivsPhiLog",
               "local derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("globalDerivsPar",
               "global derivatives vs. paramater;parameter;#partial/#partial(param)",
               6, 0., 6., 101, -.01, .01));
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("globalDerivsPhi",
               "global derivatives vs. #phi(det);#phi(det);#partial/#partial(param)",
               51, -TMath::Pi(), TMath::Pi(), 101, -0.01, 0.01));
   this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.E-36, 0.04);
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("globalDerivsParLog",
               "global derivatives (#neq 0) vs. parameter;parameter;|#partial/#partial(param)|",
               6, 0., 6., logBins.GetSize()-1, logBins.GetArray()));
-  myMilleHists2D.push_back
+  myDerivHists2D.push_back
     (new TH2F("globalDerivsPhiLog",
               "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
 //   this->equidistLogBins(logBins.GetArray(), logBins.GetSize()-1, 1.e-40, 1.E-35);
-//   myMilleHists2D.push_back
+//   myDerivHists2D.push_back
 //     (new TH2F("globalDerivsPhiLog2",
 //               "global derivatives (#neq 0) vs. #phi(det);#phi(det);|#partial/#partial(param)|",
 //               51, -TMath::Pi(), TMath::Pi(), logBins.GetSize()-1, logBins.GetArray()));
 
-  myMilleHists2D.push_back(new TH2F("residPhi","residuum vs. #phi(det);#phi(det);residuum[cm]",
+  directory->cd();
+  TDirectory *dirResid = directory->mkdir("residuals", "hit residuals, sigma,...");
+  if (dirResid) dirResid->cd();
+
+  myResidHists2D.push_back(new TH2F("residPhi","residuum vs. #phi(det);#phi(det);residuum[cm]",
                                     51, -TMath::Pi(), TMath::Pi(), 101, -.5, .5));
-  myMilleHists2D.push_back(new TH2F("sigmaPhi","#sigma vs. #phi(det);#phi(det);#sigma[cm]",
+  myResidHists2D.push_back(new TH2F("sigmaPhi","#sigma vs. #phi(det);#phi(det);#sigma[cm]",
                                     51, -TMath::Pi(), TMath::Pi(), 101, .0, .1));
-  myMilleHists2D.push_back(new TH2F("reduResidPhi",
+  myResidHists2D.push_back(new TH2F("reduResidPhi",
                                     "residuum/#sigma vs. #phi(det);#phi(det);residuum/#sigma",
                                     51, -TMath::Pi(), TMath::Pi(), 101, -14., 14.));
+  
+//   myResidHists2D.push_back(new TProfile2D("residXProfXy",
+// 					  "mean |residuum| (u);x [cm];y [cm];#LT|residuum|#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("residXProfZr",
+// 					  "mean |residuum| (u);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("residYProfXy",
+// 					  "mean |residuum| (v);x [cm];y [cm];#LT|residuum|#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("residYProfZr",
+// 					  "mean |residuum| (v);z [cm];r_{#pm} [cm];#LT|residuum|#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("reduResidXProfXy",
+// 					  "mean |residuum/#sigma| (u);x [cm];y [cm];#LT|res./#sigma|#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("reduResidXProfZr",
+// 					  "mean |residuum/#sigma| (u);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("reduResidYProfXy",
+// 					  "mean |residuum/#sigma| (v);x [cm];y [cm];#LT|res./#sigma|#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("reduResidYProfZr",
+// 					  "mean |residuum/#sigma| (v);z [cm];r_{#pm} [cm];#LT|res./#sigma|#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("sigmaXProfXy",
+// 					  "mean sigma (u);x [cm];y [cm];#LT#sigma#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("sigmaXProfZr",
+// 					  "mean sigma (u);z [cm];r_{#pm} [cm];#LT#sigma#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("sigmaYProfXy",
+// 					  "mean sigma (v);x [cm];y [cm];#LT#sigma#GT",
+// 					  25, -110., 110., 25, -110., 110.));
+//   myResidHists2D.push_back(new TProfile2D("sigmaYProfZr",
+// 					  "mean sigma (v);z [cm];r_{#pm} [cm];#LT#sigma#GT",
+// 					  25, -275., 275., 25, -110., 110.));
+  
+  TDirectory *dirResidX =
+    (dirResid ? dirResid : directory)->mkdir("X", "hit residuals etc. for x measurements");
+  if (dirResidX) dirResidX->cd();
+  // Residuum, hit sigma and res./sigma for all sensor/track angles and separated for large and
+  // small angles with respect to the sensor normal in sensitive direction. 
+  // Here for x-measurements:
+  std::vector<TH1*> allResidHistsX;
+  allResidHistsX.push_back(new TH1F("resid", "hit residuals;residuum [cm]", 51, -.05, .05));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("sigma", "hit uncertainties;#sigma [cm]", 50, 0., .02));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("reduResid", "reduced hit residuals;res./#sigma",
+				    51, -3., 3.));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("angle", "#phi_{tr} wrt normal (sens. plane);#phi_{n}^{sens}",
+				    50, 0., TMath::PiOver2()));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+
+
+  allResidHistsX.push_back(new TH1F("residGt45",
+				    "hit residuals (#phi_{n}^{sens}>45#circ);residuum [cm]",
+				    51, -.05, .05));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("sigmaGt45",
+				    "hit uncertainties(#phi_{n}^{sens}>45#circ);#sigma [cm]",
+				    50, 0., .02));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("reduResidGt45",
+				    "reduced hit residuals(#phi_{n}^{sens}>45#circ);res./#sigma",
+				    51,-3.,3.));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("residLt45",
+				    "hit residuals (#phi_{n}^{sens}<45#circ);residuum [cm]",
+				    51, -.15, .15));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("sigmaLt45",
+				    "hit uncertainties(#phi_{n}^{sens}<45#circ);#sigma [cm]",
+				    50, 0., .01));
+  allResidHistsX.back()->SetBit(TH1::kCanRebin);
+  allResidHistsX.push_back(new TH1F("reduResidLt45",
+				    "reduced hit residuals(#phi_{n}^{sens}<45#circ);res./#sigma",
+				    51,-3.,3.));
+  myResidHistsVec1DX.push_back(allResidHistsX); // at [0] for all subdets together...
+  // ... then separately - indices/order like DetId.subdetId() in tracker:
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TPB", " x-coord. in pixel barrel"));
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TPE", " x-coord. in pixel discs"));
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TIB", " x-coord. in TIB"));
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TID", " x-coord. in TID"));
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TOB", " x-coord. in TOB"));
+  myResidHistsVec1DX.push_back(this->cloneHists(allResidHistsX, "TEC", " x-coord. in TEC"));
+  // finally, differential in hit number (but subdet independent)
+  for (unsigned int iHit = 0; iHit < 30; ++iHit) { // 4: for each hit fill only angle independent plots
+    for (unsigned int iHist = 0; iHist < 4 && iHist < allResidHistsX.size(); ++iHist) {
+      TH1 *h = allResidHistsX[iHist];
+      myResidHitHists1DX.push_back(static_cast<TH1*>(h->Clone(Form("%s_%d", h->GetName(), iHit))));
+      myResidHitHists1DX.back()->SetTitle(Form("%s, hit %d", h->GetTitle(), iHit));
+    }
+  }
+  if (dirResid) dirResid->cd();
+
+  // Now clone the same as above for y-ccordinate:
+  TDirectory *dirResidY = 
+    (dirResid ? dirResid : directory)->mkdir("Y", "hit residuals etc. for y measurements");
+  if (dirResidY) dirResidY->cd();
+  myResidHistsVec1DY.push_back(this->cloneHists(allResidHistsX, "", " y-coord."));// all subdets
+  std::vector<TH1*> &yHists1D = allResidHistsX;//myResidHistsVec1DY.back(); crashes? ROOT?
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TPB", " y-coord. in pixel barrel"));
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TPE", " y-coord. in pixel discs"));
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TIB", " y-coord. in TIB"));
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TID", " y-coord. in TID"));
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TOB", " y-coord. in TOB"));
+  myResidHistsVec1DY.push_back(this->cloneHists(yHists1D, "TEC", " y-coord. in TEC"));
+  myResidHitHists1DY = this->cloneHists(myResidHitHists1DX, "", " y-coord.");// diff. in nHit
+
   directory->cd();
+
+  edm::LogInfo("Alignment") << "@SUB=init" << " built resid hists";
+//   throw cms::Exception("stophere") << "here we are";
+//   edm::LogInfo("Alignment") << "@SUB=init" << " after exception";
 
   TDirectory *dirF2f = directory->mkdir("frame2FrameHists", "derivatives etc.");
   if (dirF2f) dirF2f->cd();
@@ -440,7 +561,7 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
   for (int iRow = 0; iRow < covMeasLoc.num_row(); ++iRow) {
     const double residuum = measurementsLoc[iRow] - trajectoryLoc[iRow];
     const double covMeasLocRow = covMeasLoc[iRow][iRow];
-    const bool is2DhitRow = (!recHits[iRow/2]->detUnit() 
+    const bool is2DhitRow = (!recHits[iRow/2]->detUnit() // FIXME: as in MillePedeAlignmentAlgorithm::is2D()
 	 		     || recHits[iRow/2]->detUnit()->type().isTrackerPixel());
     //the GeomDetUnit* is zero for composite hits (matched hits in the tracker,...). 
     if (TMath::Even(iRow)) { // local x
@@ -543,47 +664,184 @@ void MillePedeMonitor::fillRefTrajectory(const ReferenceTrajectoryBase::Referenc
 }
 
 //____________________________________________________________________
-void MillePedeMonitor::fillMille(const ConstRecHitPointer &recHit,
-                                 const std::vector<float> &localDerivs,
-                                 const std::vector<float> &globalDerivs,
-                                 float residuum, float sigma)
+void MillePedeMonitor::fillDerivatives(const ConstRecHitPointer &recHit,
+				       const std::vector<float> &localDerivs,
+				       const std::vector<float> &globalDerivs, bool isY)
 {
+  // isY == false: x-measurements
+  // isY == true:  y-measurements
   const double phi = recHit->det()->position().phi();
 
-  static const int iLocPar = this->GetIndex(myMilleHists2D, "localDerivsPar");
-  static const int iLocPhi = this->GetIndex(myMilleHists2D, "localDerivsPhi");
-  static const int iLocParLog = this->GetIndex(myMilleHists2D, "localDerivsParLog");
-  static const int iLocPhiLog = this->GetIndex(myMilleHists2D, "localDerivsPhiLog");
+  static const int iLocPar = this->GetIndex(myDerivHists2D, "localDerivsPar");
+  static const int iLocPhi = this->GetIndex(myDerivHists2D, "localDerivsPhi");
+  static const int iLocParLog = this->GetIndex(myDerivHists2D, "localDerivsParLog");
+  static const int iLocPhiLog = this->GetIndex(myDerivHists2D, "localDerivsPhiLog");
   for (unsigned int i = 0; i < localDerivs.size(); ++i) {
-    myMilleHists2D[iLocPar]->Fill(i, localDerivs[i]);
-    myMilleHists2D[iLocPhi]->Fill(phi, localDerivs[i]);
+    myDerivHists2D[iLocPar]->Fill(i, localDerivs[i]);
+    myDerivHists2D[iLocPhi]->Fill(phi, localDerivs[i]);
     if (localDerivs[i]) {
-      myMilleHists2D[iLocParLog]->Fill(i, TMath::Abs(localDerivs[i]));
-      myMilleHists2D[iLocPhiLog]->Fill(phi, TMath::Abs(localDerivs[i]));
+      myDerivHists2D[iLocParLog]->Fill(i, TMath::Abs(localDerivs[i]));
+      myDerivHists2D[iLocPhiLog]->Fill(phi, TMath::Abs(localDerivs[i]));
     }
   }
 
-  static const int iGlobPar = this->GetIndex(myMilleHists2D, "globalDerivsPar");
-  static const int iGlobPhi = this->GetIndex(myMilleHists2D, "globalDerivsPhi");
-  static const int iGlobParLog = this->GetIndex(myMilleHists2D, "globalDerivsParLog");
-  static const int iGlobPhiLog = this->GetIndex(myMilleHists2D, "globalDerivsPhiLog");
-//   static const int iGlobPhiLog2 = this->GetIndex(myMilleHists2D, "globalDerivsPhiLog2");
+  static const int iGlobPar = this->GetIndex(myDerivHists2D, "globalDerivsPar");
+  static const int iGlobPhi = this->GetIndex(myDerivHists2D, "globalDerivsPhi");
+  static const int iGlobParLog = this->GetIndex(myDerivHists2D, "globalDerivsParLog");
+  static const int iGlobPhiLog = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog");
+//   static const int iGlobPhiLog2 = this->GetIndex(myDerivHists2D, "globalDerivsPhiLog2");
   for (unsigned int i = 0; i < globalDerivs.size(); ++i) {
-    myMilleHists2D[iGlobPar]->Fill(i, globalDerivs[i]);
-    myMilleHists2D[iGlobPhi]->Fill(phi, globalDerivs[i]);
+    myDerivHists2D[iGlobPar]->Fill(i, globalDerivs[i]);
+    myDerivHists2D[iGlobPhi]->Fill(phi, globalDerivs[i]);
     if (globalDerivs[i]) {
-      myMilleHists2D[iGlobParLog]->Fill(i, TMath::Abs(globalDerivs[i]));
-      myMilleHists2D[iGlobPhiLog]->Fill(phi, TMath::Abs(globalDerivs[i]));
-//       myMilleHists2D[iGlobPhiLog2]->Fill(phi, TMath::Abs(globalDerivs[i]));
+      myDerivHists2D[iGlobParLog]->Fill(i, TMath::Abs(globalDerivs[i]));
+      myDerivHists2D[iGlobPhiLog]->Fill(phi, TMath::Abs(globalDerivs[i]));
+//       myDerivHists2D[iGlobPhiLog2]->Fill(phi, TMath::Abs(globalDerivs[i]));
     }
   }
 
-  static const int iResPhi = this->GetIndex(myMilleHists2D, "residPhi");
-  static const int iSigPhi = this->GetIndex(myMilleHists2D, "sigmaPhi");
-  static const int iReduResPhi = this->GetIndex(myMilleHists2D, "reduResidPhi");
-  myMilleHists2D[iResPhi]->Fill(phi, residuum);
-  myMilleHists2D[iSigPhi]->Fill(phi, sigma);
-  if (sigma) myMilleHists2D[iReduResPhi]->Fill(phi, residuum/sigma);
+}
+
+
+//____________________________________________________________________
+void MillePedeMonitor::fillResiduals(const ConstRecHitPointer &recHit,
+				     const TrajectoryStateOnSurface &tsos,
+				     unsigned int nHit, float residuum, float sigma, bool isY)
+{
+  // isY == false: x-measurements
+  // isY == true:  y-measurements
+  const GlobalPoint detPos(recHit->det()->position());
+  const double phi = detPos.phi();
+//  const double rSigned = (detPos.y() > 0. ? detPos.perp() : -detPos.perp());
+
+  static const int iResPhi = this->GetIndex(myResidHists2D, "residPhi");
+  myResidHists2D[iResPhi]->Fill(phi, residuum);
+  static const int iSigPhi = this->GetIndex(myResidHists2D, "sigmaPhi");
+  myResidHists2D[iSigPhi]->Fill(phi, sigma);
+  if (sigma) {
+    static const int iReduResPhi = this->GetIndex(myResidHists2D, "reduResidPhi");
+    myResidHists2D[iReduResPhi]->Fill(phi, residuum/sigma);
+  }
+
+//   if (isY) {
+//     static const int iResYXy = this->GetIndex(myResidHists2D, "residYProfXy");
+//     myResidHists2D[iResYXy]->Fill(detPos.x(), detPos.y(), TMath::Abs(residuum));
+//     static const int iResYZr = this->GetIndex(myResidHists2D, "residYProfZr");
+//     myResidHists2D[iResYZr]->Fill(detPos.z(), rSigned, TMath::Abs(residuum));
+//     static const int iSigmaYXy = this->GetIndex(myResidHists2D, "sigmaYProfXy");
+//     myResidHists2D[iSigmaYXy]->Fill(detPos.x(), detPos.y(), sigma);
+//     static const int iSigmaYZr = this->GetIndex(myResidHists2D, "sigmaYProfZr");
+//     myResidHists2D[iSigmaYZr]->Fill(detPos.z(), rSigned, sigma);
+//     if (sigma) {
+//       static const int iReduResYXy = this->GetIndex(myResidHists2D, "reduResidYProfXy");
+//       myResidHists2D[iReduResYXy]->Fill(detPos.x(), detPos.y(), TMath::Abs(residuum/sigma));
+//       static const int iReduResYZr = this->GetIndex(myResidHists2D, "reduResidYProfZr");
+//       myResidHists2D[iReduResYZr]->Fill(detPos.z(), rSigned, TMath::Abs(residuum/sigma));
+//     }
+//   } else {
+//     static const int iResXXy = this->GetIndex(myResidHists2D, "residXProfXy");
+//     myResidHists2D[iResXXy]->Fill(detPos.x(), detPos.y(), TMath::Abs(residuum));
+//     static const int iResXZr = this->GetIndex(myResidHists2D, "residXProfZr");
+//     myResidHists2D[iResXZr]->Fill(detPos.z(), rSigned, TMath::Abs(residuum));
+//     static const int iSigmaXXy = this->GetIndex(myResidHists2D, "sigmaXProfXy");
+//     myResidHists2D[iSigmaXXy]->Fill(detPos.x(), detPos.y(), sigma);
+//     static const int iSigmaXZr = this->GetIndex(myResidHists2D, "sigmaXProfZr");
+//     myResidHists2D[iSigmaXZr]->Fill(detPos.z(), rSigned, sigma);
+//     if (sigma) {
+//       static const int iReduResXXy = this->GetIndex(myResidHists2D, "reduResidXProfXy");
+//       myResidHists2D[iReduResXXy]->Fill(detPos.x(), detPos.y(), TMath::Abs(residuum/sigma));
+//       static const int iReduResXZr = this->GetIndex(myResidHists2D, "reduResidXProfZr");
+//       myResidHists2D[iReduResXZr]->Fill(detPos.z(), rSigned, TMath::Abs(residuum/sigma));
+//     }
+//   }
+
+  const LocalVector mom(tsos.localDirection()); // mom.z()==0. impossible for TSOS:
+  const float phiSensToNorm = TMath::ATan(TMath::Abs((isY ? mom.y() : mom.x())/mom.z()));
+
+  std::vector<std::vector<TH1*> > &histArrayVec = (isY ? myResidHistsVec1DY : myResidHistsVec1DX);
+  std::vector<TH1*> &hitHists =                   (isY ? myResidHitHists1DY : myResidHitHists1DX);
+
+  // call with histArrayVec[0] first: 'static' inside is referring to "subdet-less" names (X/Y irrelevant)
+  this->fillResidualHists(histArrayVec[0], phiSensToNorm, residuum, sigma);
+  this->fillResidualHitHists(hitHists, phiSensToNorm, residuum, sigma, nHit);
+
+  if (recHit->det()->geographicalId().det() == DetId::Tracker) {
+    //   const GeomDet::SubDetector subDetNum = recHit->det()->subDetector();
+    unsigned int subDetNum = recHit->det()->geographicalId().subdetId();
+    if (subDetNum < histArrayVec.size() && subDetNum > 0) {
+      this->fillResidualHists(histArrayVec[subDetNum], phiSensToNorm, residuum, sigma);
+    } else {
+      edm::LogWarning("Alignment") << "@SUB=MillePedeMonitor::fillResiduals"
+				   << "Expect subDetNum from 1 to 6, got " << subDetNum;
+    }
+  }
+}
+
+//____________________________________________________________________
+void MillePedeMonitor::fillResidualHists(const std::vector<TH1*> &hists,
+					 float phiSensToNorm, float residuum, float sigma)
+{
+  // Histogram indices are calculated at first call, so make sure the vector of hists at the first
+  // call has the correct names (i.e. without subdet extension) and all later calls have the
+  // same order of hists...
+  
+  static const int iRes = this->GetIndex(hists, "resid");
+  hists[iRes]->Fill(residuum);
+  static const int iSigma = this->GetIndex(hists, "sigma");
+  hists[iSigma]->Fill(sigma);
+  static const int iReduRes = this->GetIndex(hists, "reduResid");
+  if (sigma) {
+    hists[iReduRes]->Fill(residuum/sigma);
+  }
+  static const int iAngle = this->GetIndex(hists, "angle");
+  hists[iAngle]->Fill(phiSensToNorm);
+  
+  if (phiSensToNorm > TMath::DegToRad()*45.) {
+    static const int iResGt45 = this->GetIndex(hists, "residGt45");
+    hists[iResGt45]->Fill(residuum);
+    static const int iSigmaGt45 = this->GetIndex(hists, "sigmaGt45");
+    hists[iSigmaGt45]->Fill(sigma);
+    static const int iReduResGt45 = this->GetIndex(hists, "reduResidGt45");
+    if (sigma) hists[iReduResGt45]->Fill(residuum/sigma);
+  } else {
+    static const int iResLt45 = this->GetIndex(hists, "residLt45");
+    hists[iResLt45]->Fill(residuum);
+    static const int iSigmaLt45 = this->GetIndex(hists, "sigmaLt45");
+    hists[iSigmaLt45]->Fill(sigma);
+    static const int iReduResLt45 = this->GetIndex(hists, "reduResidLt45");
+    if (sigma) hists[iReduResLt45]->Fill(residuum/sigma);
+  }
+}
+
+//____________________________________________________________________
+void MillePedeMonitor::fillResidualHitHists(const std::vector<TH1*> &hists, float angle,
+					    float residuum, float sigma, unsigned int nHit)
+{
+  // Histogram indices are calculated at first call, so make sure the vector of hists at the first
+  // call has the correct names (i.e. without subdet extension) and all later calls have the
+  // same order of hists...
+  
+  static const unsigned int maxNhit = 29;  // 0...29 foreseen in initialisation...
+  static int iResHit[maxNhit+1] = {-1};
+  static int iSigmaHit[maxNhit+1] = {-1};
+  static int iReduResHit[maxNhit+1] = {-1};
+  static int iAngleHit[maxNhit+1] = {-1};
+  if (iResHit[0] == -1) { // first event only...
+    for (unsigned int i = 0; i <= maxNhit; ++i) {
+      iResHit[i] = this->GetIndex(hists, Form("resid_%d", i));
+      iSigmaHit[i] = this->GetIndex(hists, Form("sigma_%d", i));
+      iReduResHit[i] = this->GetIndex(hists, Form("reduResid_%d", i));
+      iAngleHit[i] = this->GetIndex(hists, Form("angle_%d", i));
+    }
+  }
+  if (nHit > maxNhit) nHit = maxNhit; // limit of hists
+
+  hists[iResHit[nHit]]->Fill(residuum);
+  hists[iSigmaHit[nHit]]->Fill(sigma);
+  if (sigma) {
+    hists[iReduResHit[nHit]]->Fill(residuum/sigma);
+  }
+  hists[iAngleHit[nHit]]->Fill(angle);
 }
 
 //____________________________________________________________________
