@@ -76,7 +76,9 @@ void CocoaToDDLMgr::writeMaterials()
     if( (*ite)->type() == "system" ) continue;
     CocoaMaterialElementary* mat = (*ite)->getMaterial();
     //-    std::cout << " mat of opto " << (*ite)->name() << " = " << mat->getName() << std::endl;
-    if( !materialIsRepeated( mat ) ) ma( mat );
+    if( mat ) {
+      if( !materialIsRepeated( mat ) ) ma( mat );
+    }
   }
 
   newSectPost_ma("");
@@ -96,6 +98,8 @@ void CocoaToDDLMgr::writeSolids()
 	alreadyWritten = true;
       }
     }
+std::cout << " CocoaToDDLMgr::writeSolids() " << alreadyWritten << *ite;
+std::cout << (*ite)->name() << std::endl;
     if( !alreadyWritten ) so( *ite );
   }
   
@@ -273,6 +277,9 @@ void CocoaToDDLMgr::newSectPre_so(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::so(OpticalObject * opto) 
 {
+ std::cout << " CocoaToDDLMgr::so( " << opto;
+std::cout << " " << opto->shortName() << std::endl;
+
   std::string name = opto->shortName();
 
   if( opto->type() == "system" ){
@@ -287,7 +294,8 @@ void CocoaToDDLMgr::so(OpticalObject * opto)
 
   CocoaSolidShape* so = opto->getSolidShape();
 
-  std::string solidType = so->getType();
+ std::cout << " CocoaToDDLMgr::so( so " << so << std::endl;  
+std::string solidType = so->getType();
 
   if (solidType == "Box")
     {
