@@ -163,17 +163,17 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
     std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
     for ( ; iconn != conns.end(); iconn++ ) {
 
-      // Check FedId is non-zero, DetId is valid and channel is connected
-      if (!iconn->detId() ||
-	  (iconn->detId() == sistrip::invalid32_) ||
-	  !iconn->fedId() ||
-	  !iconn->isConnected()) { continue; }
+      // Check if FedId is valid
+      if ( !iconn->isConnected() ) { continue; }
+      
+      // Check DetId is valid (if to be used as key)
+      if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
 
+      // Retrieve channel using Fed9UAddress 
       uint16_t channel = iconn->fedCh();
       uint16_t iunit = channel / 12;
       uint16_t ichan = channel % 12;
       uint16_t chan  = 12 * iunit + ichan;
-      
       try {
 	Fed9U::Fed9UAddress addr;
 	addr.setFedChannel( static_cast<unsigned char>( channel ) );
@@ -184,17 +184,9 @@ void SiStripRawToDigiUnpacker::createDigis( const SiStripFedCabling& cabling,
 	handleException( __func__, "Problem using Fed9UAddress" ); 
       } 
       
-      // Check if FedId is valid
-      if ( !iconn->isConnected() ) { continue; }
-      
-      // Check DetId is valid (if to be used as key)
-      if ( !useFedKey_ && ( !iconn->detId() || iconn->detId() == sistrip::invalid32_ ) ) { continue; }
-
       // Determine whether FED key is inferred from cabling or channel loop
-      SiStripFedKey fed_path;
-
       uint32_t fed_key = 0;
-
+      SiStripFedKey fed_path;
       if ( summary.runType() == sistrip::FED_CABLING ) {
 	fed_path = SiStripFedKey( *ifed, 
 				  SiStripFedKey::feUnit(chan),
