@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/03/26 16:13:37 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/06/21 16:28:03 $
+ *  $Revision: 1.3 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -61,8 +61,8 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
          }   
 	 
 	 
-  int maxevents = maxEvents();
-  int firstevent = firstEvent();
+  //int maxevents = maxEvents();
+  //int firstevent = firstEvent();
   
   cout << "AlpgenSource: initializing Pythia. " << endl;
   
