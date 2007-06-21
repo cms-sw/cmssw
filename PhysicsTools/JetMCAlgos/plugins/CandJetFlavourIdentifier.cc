@@ -167,7 +167,7 @@ int CandJetFlavourIdentifier::fillAlgoritDefinition( const Candidate& theJet ) c
 //
 int CandJetFlavourIdentifier::fillPhysicsDefinition( const Candidate& theJet ) const {
 
-  float TheBiggerConeSize = 0.3;
+  float TheBiggerConeSize = 0.7; // In HepMC it's 0.3 --> it's a mistake: value has to be 0.7
   int tempParticle = -1;
   int nInTheCone = 0;
 
