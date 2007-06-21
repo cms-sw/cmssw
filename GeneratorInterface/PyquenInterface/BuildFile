@@ -4,7 +4,6 @@
 <use name=clhep> 
 <use name=hepmc>
 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfacePyquenInterface">
 <export>
  <lib name=GeneratorInterfacePyquenInterface> 
  <use name=boost>

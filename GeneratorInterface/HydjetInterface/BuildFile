@@ -4,7 +4,9 @@
 <use name=SimDataFormats/HepMCProduct>
 <use name=GeneratorInterface/PyquenInterface>
 
-<flags SEAL_PLUGIN_NAME="GeneratorInterfaceHydjetInterface">
+<lib name=g2c></lib>
+<lib name=m></lib>
+
 <export>
  <lib name=GeneratorInterfaceHydjetInterface>
  <use name=hepmc>
@@ -12,6 +14,3 @@
  <use name=SimDataFormats/HepMCProduct>
  <use name=GeneratorInterface/PyquenInterface>
 </export>
-
-<lib name=g2c></lib>
-<lib name=m></lib>
