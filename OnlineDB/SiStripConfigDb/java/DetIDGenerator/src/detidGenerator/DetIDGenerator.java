@@ -13,9 +13,13 @@ import java.sql.*;
 **/
 
 /*
-  $Date: 2006/12/12 17:09:15 $
+  $Date: 2007/01/18 17:04:45 $
   
   $Log: DetIDGenerator.java,v $
+  Revision 1.7  2007/01/18 17:04:45  gbaulieu
+  Use an external library for database connections
+  Use preparedStatements to speed up the queries
+
   Revision 1.6  2006/12/12 17:09:15  gbaulieu
   Allow to store the data in a table of the construction DB (useful for cross-checking)
 
@@ -285,8 +289,8 @@ public class DetIDGenerator
 			
 			ArrayList<ArrayList<String>> lengthRes2 = c.preparedSelectQuery(length, aoh_id);
 			if(lengthRes2.size()==1){
-			    int total_length = aoh_length+Integer.parseInt((lengthRes2.get(0)).get(0));
-			    v.add(total_length+".0");
+			    float total_length = aoh_length+Integer.parseInt((lengthRes2.get(0)).get(0));
+			    v.add((total_length/1000)+"");//The size should be in meters
 			}
 			else{
 			    v.add("1");
@@ -538,8 +542,13 @@ public class DetIDGenerator
 	    float length = new java.lang.Float(v.get(2));
 	    int apvNumber = Integer.parseInt(v.get(3));
 	    if(DetIDGenerator.export){
-		System.out.println(v);
 		int res=((OracleConnection)c).callFunction("PkgDcuInfo.setValues", dcuID, detID, length, apvNumber);
+//		ArrayList<ArrayList<String>> count = c.selectQuery("select count(*) from dcuInfo");
+//		if(count.size()!=0){
+//		    int nbOk = Integer.parseInt(count.get(0).get(0));
+//		    System.out.println(v);
+//		    System.out.println("Trace : Nb in db : "+nbOk+"\nInsertion Nb : "+i+"\nPLSQL result :"+res+"\n");
+//		}
 	    }
 	    else{
 		System.out.println("<DCUINFO dcuHardId=\""+dcuID+"\" detId=\""+detID+"\" fibreLength=\""+length+"\" apvNumber=\""+apvNumber+"\" />");
