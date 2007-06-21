@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/14 12:00:09 $
- * $Revision: 1.281 $
+ * $Date: 2007/06/18 08:40:12 $
+ * $Revision: 1.282 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -22,6 +22,8 @@
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+
 #include "DQMServices/Core/interface/QTestStatus.h"
 #include "DQMServices/QualityTests/interface/QCriterionRoot.h"
 
@@ -592,6 +594,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     } else {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
     }
+    Service<DaqMonitorBEInterface>().operator->();
   } else {
     mui_ = new MonitorUIRoot();
     if ( enableServer_ ) {
