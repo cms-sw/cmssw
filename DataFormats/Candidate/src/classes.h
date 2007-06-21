@@ -9,6 +9,7 @@
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Candidate/interface/CandMatchMapMany.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
 
 namespace {
   namespace {
@@ -27,10 +28,10 @@ namespace {
     std::vector<edm::RefToBase<reco::Candidate> > vrb1;
     edm::reftobase::Holder<reco::Candidate, reco::CandidateRef> rhcr1;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CandidateRefVector> rhcr2;
-    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<double> > > wav1;
-    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<float> > > wav2;
-    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<int> > > wav3;
-    edm::Wrapper<edm::AssociationVector<edm::RefProd<reco::CandidateCollection>, std::vector<unsigned int> > > wav4;
+    edm::Wrapper<reco::CandFloatAssociations> wav1;
+    edm::Wrapper<reco::CandDoubleAssociations> wav2;
+    edm::Wrapper<reco::CandIntAssociations> wav3;
+    edm::Wrapper<reco::CandUIntAssociations> wav4;
     edm::helpers::KeyVal<reco::CandidateRef,reco::CandidateRef> kv1;
     reco::CandMatchMap cmm1;
     reco::CandMatchMap::const_iterator cmm1it;
