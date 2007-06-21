@@ -936,9 +936,6 @@ void SiStripCommissioningSource::createTasks( sistrip::RunType run_type ) {
 	if ( tasks_[iconn->fedId()][iconn->fedCh()] ) {
 	  tasks_[iconn->fedId()][iconn->fedCh()]->bookHistograms(); 
 	  tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq( updateFreq_ ); 
-	  if ( task_ == sistrip::FAST_FED_CABLING ) { 
-	    tasks_[iconn->fedId()][iconn->fedCh()]->updateFreq(1); 
-	  }
 	  booked++;
 	  //std::stringstream ss;
 	  //ss << "[SiStripCommissioningSource::" << __func__ << "]"
