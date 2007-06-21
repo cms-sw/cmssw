@@ -1,20 +1,24 @@
 #include "TopQuarkAnalysis/TopEventProducers/interface/TtDilepEvtSolutionMaker.h"
 
+#include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 //
 // constructors and destructor
 //
 TtDilepEvtSolutionMaker::TtDilepEvtSolutionMaker(const edm::ParameterSet& iConfig)
 {
-  jetInput_        = iConfig.getParameter< std::string >  ("jetInput");
-  matchToGenEvt_   = iConfig.getParameter< bool > 	  ("matchToGenEvt");
-  calcTopMass_     = iConfig.getParameter< bool >         ("calcTopMass"); 
-  eeChannel_     = iConfig.getParameter< bool >           ("eeChannel"); 
-  emuChannel_     = iConfig.getParameter< bool >          ("emuChannel");
-  mumuChannel_     = iConfig.getParameter< bool >         ("mumuChannel");
-  tmassbegin_     = iConfig.getParameter< double >         ("tmassbegin");
-  tmassend_     = iConfig.getParameter< double >         ("tmassend");
-  tmassstep_     = iConfig.getParameter< double >         ("tmassstep");
+  electronSource_ = iConfig.getParameter<edm::InputTag>("electronSource");
+  muonSource_     = iConfig.getParameter<edm::InputTag>("muonSource");
+  metSource_      = iConfig.getParameter<edm::InputTag>("metSource");
+  jetSource_      = iConfig.getParameter<edm::InputTag>("jetSource");
+  matchToGenEvt_  = iConfig.getParameter<bool>         ("matchToGenEvt");
+  calcTopMass_    = iConfig.getParameter<bool>         ("calcTopMass"); 
+  eeChannel_      = iConfig.getParameter<bool>         ("eeChannel"); 
+  emuChannel_     = iConfig.getParameter<bool>         ("emuChannel");
+  mumuChannel_    = iConfig.getParameter<bool>         ("mumuChannel");
+  tmassbegin_     = iConfig.getParameter<double>       ("tmassbegin");
+  tmassend_       = iConfig.getParameter<double>       ("tmassend");
+  tmassstep_      = iConfig.getParameter<double>       ("tmassstep");
   
   produces<std::vector<TtDilepEvtSolution> >();
 }
@@ -34,14 +38,14 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
 {
 
    using namespace edm;
-   Handle<std::vector<TopMuon> >  muons;
-   iEvent.getByType(muons);
-   Handle<std::vector<TopElectron> >  electrons;
-   iEvent.getByType(electrons);
-   Handle<std::vector<TopMET> >  mets;
-   iEvent.getByType(mets);
-   Handle<std::vector<TopJet> >  jets;
-   iEvent.getByLabel(jetInput_,jets);
+   Handle<std::vector<TopMuon> > muons;
+   iEvent.getByLabel(muonSource_, muons);
+   Handle<std::vector<TopElectron> > electrons;
+   iEvent.getByLabel(electronSource_, electrons);
+   Handle<std::vector<TopMET> > mets;
+   iEvent.getByLabel(metSource_, mets);
+   Handle<std::vector<TopJet> > jets;
+   iEvent.getByLabel(jetSource_, jets);
    
    //select lepton (the TtLepton vectors are, for the moment, sorted on pT)
    TopMuon selMuonp;
@@ -199,16 +203,9 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
        for(size_t s=0; s<evtsols->size(); s++) {
          (*evtsols)[s].setGenEvt(genEvt->particles());
          //FIXME probably this should be moved to BestMatching.h
-         double sqrDRBB = pow((*evtsols)[s].getCalJetB().eta() -
-	                      (*evtsols)[s].getGenB().eta(), 2) +
-	                  pow((*evtsols)[s].getCalJetB().phi() -
-			      (*evtsols)[s].getGenB().phi(), 2);
-	 double sqrDRBbarBbar = pow((*evtsols)[s].getCalJetBbar().eta() -
-	                            (*evtsols)[s].getGenBbar().eta(), 2) +
-	                        pow((*evtsols)[s].getCalJetBbar().phi() -
-				    (*evtsols)[s].getGenBbar().phi(), 2);
-	 double SolDR = sqrt(sqrDRBB) + sqrt(sqrDRBbarBbar);
-	 if (SolDR < bestSolDR) { bestSolDR =  SolDR; bestSol = s; }
+         double dRBB =       DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetB(), (reco::Particle) (*evtsols)[s].getGenB());
+         double dRBbarBbar = DeltaR<reco::Particle>()((reco::Particle) (*evtsols)[s].getCalJetBbar(), (reco::Particle) (*evtsols)[s].getGenBbar());
+	 if (dRBB + dRBbarBbar < bestSolDR) { bestSolDR = dRBB + dRBbarBbar; bestSol = s; }
        }
        (*evtsols)[bestSol].setBestSol(true);
      }
@@ -222,6 +219,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
      std::auto_ptr<std::vector<TtDilepEvtSolution> > pOut(evtsols);
      iEvent.put(pOut);
    }
+
 }
 
 bool TtDilepEvtSolutionMaker::PTComp(TopElectron e, TopMuon m) {

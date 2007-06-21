@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtDilepKinSolver.h"
 #include <string>
@@ -38,7 +39,10 @@ class TtDilepEvtSolutionMaker : public edm::EDProducer {
       bool HasPositiveCharge(TopMuon m);
       bool HasPositiveCharge(TopElectron e);
          
-      std::string jetInput_;
+      edm::InputTag electronSource_;
+      edm::InputTag muonSource_;
+      edm::InputTag metSource_;
+      edm::InputTag jetSource_;
       bool matchToGenEvt_, calcTopMass_;
       bool eeChannel_, emuChannel_, mumuChannel_;
       double tmassbegin_, tmassend_, tmassstep_;
