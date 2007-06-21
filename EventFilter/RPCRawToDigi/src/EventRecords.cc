@@ -24,8 +24,8 @@ void EventRecords::add(const DataRecord & record)
     theValidLB = true;
   } 
   else {
-    theValidBX = false;
-    theValidTB = false;
+//    theValidBX = false;
+//    theValidTB = false;
     theValidLB = false;
   }
 }
