@@ -4,10 +4,11 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
+ * $Log$
 */
 
 // system include files
@@ -61,6 +62,9 @@ void endJob(void);
 private:
   // ----------member data ---------------------------
   DaqMonitorBEInterface * dbe;
+
+  MonitorElement* dttfetapacked;
+  MonitorElement* dttfphipacked;
 
   MonitorElement* dttfetavalue;
   MonitorElement* dttfphivalue;
