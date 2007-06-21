@@ -277,6 +277,7 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
     chi2min=20000000;
     ibestdet=1000;
      if (prSt.isValid()){
+       LocalPoint  prLoc = prSt.localPosition();
        LogDebug("CosmicTrackFinder") <<"STATE PROPAGATED AT DET "<<iraw<<" "<<prSt;
        for(icosm2=icosmhit;icosm2<Hits.size();icosm2++){
 
@@ -301,8 +302,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	   traj.firstMeasurement().updatedState().globalPosition();
 	 if ((abs(ck.x()/ck.y())>2)||(abs(ck.z()/ck.y())>2))  chi2min=300;
        }
-       if (chi2min<chi2cut)
-	 {	 
+       if (chi2min<chi2cut){
+	 if ( abs(prLoc.x()) < 25  && abs(prLoc.y()) < 25 ){
 	   TransientTrackingRecHit::RecHitPointer tmphitbestdet=RHBuilder->build(Hits[ibestdet]);
 	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
 	   if (UpdatedState.isValid()){
@@ -317,11 +318,9 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 	     hits.push_back(&(*tmphitbestdet));
 	   }
-	 }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position "
-						   <<gphit;
-     }else LogDebug("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
-     
-     
+	 }else LogDebug("CosmicTrackFinder")<<" Hits outside module surface "<< prLoc;
+       }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position " <<gphit;
+     }else LogDebug("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;    
   }
   
   

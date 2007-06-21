@@ -18,6 +18,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "FWCore/ParameterSet/interface/InputTag.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 
 namespace cms
 {
@@ -31,7 +33,10 @@ namespace cms
     produces<reco::TrackCollection>();
     produces<TrackingRecHitCollection>();
     produces<reco::TrackExtraCollection>();
-    if (trinevents) produces<std::vector<Trajectory> >();
+    if (trinevents) {
+      produces<std::vector<Trajectory> >();
+      produces<TrajTrackAssociationCollection>();
+    }
   }
 
 
@@ -44,15 +49,17 @@ namespace cms
     edm::InputTag matchedrecHitsTag = conf_.getParameter<edm::InputTag>("matchedRecHits");
     edm::InputTag rphirecHitsTag = conf_.getParameter<edm::InputTag>("rphirecHits");
     edm::InputTag stereorecHitsTag = conf_.getParameter<edm::InputTag>("stereorecHits");
-  
+    edm::InputTag pixelRecHitsTag = conf_.getParameter<edm::InputTag>("pixelRecHits");  
+
+
     edm::InputTag seedTag = conf_.getParameter<edm::InputTag>("cosmicSeeds");
     // retrieve seeds
     edm::Handle<TrajectorySeedCollection> seed;
-    //   e.getByType(seed);
     e.getByLabel(seedTag,seed);  
+
   //retrieve PixelRecHits
     edm::Handle<SiPixelRecHitCollection> pixelHits;
-    if (geometry!="MTCC")  e.getByType(pixelHits);
+    if (geometry!="MTCC")   e.getByLabel(pixelRecHitsTag, pixelHits); //e.getByType(pixelHits);
     //retrieve StripRecHits
     edm::Handle<SiStripMatchedRecHit2DCollection> matchedrecHits;
     e.getByLabel( matchedrecHitsTag ,matchedrecHits);
@@ -201,8 +208,19 @@ namespace cms
       e.put( outputRHColl );
       e.put(outputTEColl);    
     }
-    e.put(output);
-    if (trinevents) e.put(outputTJ);
-
+    edm::OrphanHandle<reco::TrackCollection> rTracks = e.put(output);  
+    if (trinevents) {
+      edm::OrphanHandle<std::vector<Trajectory> > rTrajs = e.put(outputTJ);
+      // Now Create traj<->tracks association map, we have only one track at 0:
+      std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+      if (rTracks->size() == 1) {
+ 	trajTrackMap->insert(edm::Ref<std::vector<Trajectory> > (rTrajs, 0),
+			     edm::Ref<reco::TrackCollection>    (rTracks, 0));
+      } else if (rTracks->size() != 0) {
+	edm::LogError("WrongSize") <<"@SUB=produce" << "Expected <= 1 track, not " 
+				   << rTracks->size();
+      }
+      e.put( trajTrackMap );
+    }
   }
 }
