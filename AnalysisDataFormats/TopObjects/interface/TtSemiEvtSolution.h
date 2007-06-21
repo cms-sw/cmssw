@@ -1,12 +1,13 @@
 #ifndef TopObjects_TtSemiEvtSolution_h
 #define TopObjects_TtSemiEvtSolution_h
+#include <vector>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Candidate/interface/Particle.h"
 #include "TtGenEvent.h"
 #include "TopJet.h"
 #include "TopLepton.h"
 #include "TopMET.h"
-#include <vector>
-#include "DataFormats/Candidate/interface/Particle.h"
 
 class TtSemiEvtSolution
 {
@@ -84,7 +85,6 @@ class TtSemiEvtSolution
       double 			getDeltaRhadb() const		{ return deltaRhadb; };
       double 			getDeltaRlepb() const		{ return deltaRlepb; };
       int			getChangeWQ() const		{ return changeWQ; };      
-      
       // member to get the selected semileptonic decay chain 
       std::string  		getDecay() const  		{ return decay; };      
       
@@ -109,13 +109,7 @@ class TtSemiEvtSolution
       double                    getLRJetCombLRval() const 	{return lrJetCombLRval;};
       double                    getLRJetCombProb() const 	{return lrJetCombProb;};
       
-      	
-	
-	
-	
-   
-   protected:
-         
+   protected:         
       // members to set the TopObjects
       void 			setHadp(TopJet);
       void 			setHadq(TopJet);
@@ -126,7 +120,7 @@ class TtSemiEvtSolution
       void 			setMET(TopMET);
       
       // members to set the MC matched particles and info on the matching itself
-      void 			setGenEvt(std::vector<reco::Candidate *>);
+      void 			setGenEvt(const TtGenEvent&);
       void 			setSumDeltaRjp(double);
       void			setDeltaRhadp(double);
       void 			setDeltaRhadq(double);
@@ -141,8 +135,7 @@ class TtSemiEvtSolution
       
       // members to set the prob. of the chi2 value resulting from the kinematic fit 
       void 			setProbChi2(double);
-      
-      
+            
       // members to set the outcome of the signal selection LR
       void 			setLRSignalEvtObservables(std::vector<std::pair<unsigned int, double> >);
       void 			setLRSignalEvtLRval(double);
@@ -155,14 +148,9 @@ class TtSemiEvtSolution
       void 			setLRJetCombObservables(std::vector<std::pair<unsigned int, double> >);
       void 			setLRJetCombLRval(double);
       void 			setLRJetCombProb(double);
-
-        
-	
-	
-	
 	
    private:
-      reco::Particle		genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
+      const reco::Particle	genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
       TopJet         		hadp, hadq, hadb, lepb;
       TopMuon        		muon;
       TopElectron    		electron;

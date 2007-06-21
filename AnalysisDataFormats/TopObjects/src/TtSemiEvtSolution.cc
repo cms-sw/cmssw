@@ -1,22 +1,6 @@
-// -*- C++ -*-
-//
-// Package:     TtSemiEvtSolution
-// Class  :     TtSemiEvtSolution
-// 
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  
-//         Created:  Wed May 10 11:48:25 CEST 2006
-// $Id: TtSemiEvtSolution.cc,v 1.7 2007/06/15 08:57:05 heyninck Exp $
-//
-
-// system include files
-
-// user include files
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
-
-
 
 TtSemiEvtSolution::TtSemiEvtSolution()
 {
@@ -36,46 +20,48 @@ TtSemiEvtSolution::TtSemiEvtSolution()
   lrSignalEvtProb	= -999.;
 }
 
-
 TtSemiEvtSolution::~TtSemiEvtSolution()
 {
 }
 
+void TtSemiEvtSolution::setHadp(TopJet j) { hadp = j; }
+void TtSemiEvtSolution::setHadq(TopJet j) { hadq = j; }
+void TtSemiEvtSolution::setHadb(TopJet j) { hadb = j; }
+void TtSemiEvtSolution::setLepb(TopJet j) { lepb = j; }
+void TtSemiEvtSolution::setMuon(TopMuon m) { muon = m; decay = "muon";}
+void TtSemiEvtSolution::setElectron(TopElectron e) { electron = e;  decay = "electron";}
+void TtSemiEvtSolution::setMET(TopMET n) { met = n; }
+void TtSemiEvtSolution::setJetParametrisation(int jp) { jetparam = jp; }
+void TtSemiEvtSolution::setLeptonParametrisation(int lp) { jetparam = lp; }
+void TtSemiEvtSolution::setMETParametrisation(int mp) { jetparam = mp; }
+void TtSemiEvtSolution::setProbChi2(double c) { probChi2 = c; }
 
-void TtSemiEvtSolution::setHadp(TopJet j)      			{ hadp = j; }
-void TtSemiEvtSolution::setHadq(TopJet j)      			{ hadq = j; }
-void TtSemiEvtSolution::setHadb(TopJet j)      			{ hadb = j; }
-void TtSemiEvtSolution::setLepb(TopJet j)      			{ lepb = j; }
-void TtSemiEvtSolution::setMuon(TopMuon m)			{ muon = m; decay = "muon";}
-void TtSemiEvtSolution::setElectron(TopElectron e)		{ electron = e;  decay = "electron";}
-void TtSemiEvtSolution::setMET(TopMET   n)			{ met = n; }
-void TtSemiEvtSolution::setJetParametrisation(int jp) 		{ jetparam = jp; }
-void TtSemiEvtSolution::setLeptonParametrisation(int lp) 	{ jetparam = lp; }
-void TtSemiEvtSolution::setMETParametrisation(int mp) 		{ jetparam = mp; }
-void TtSemiEvtSolution::setProbChi2(double c)     	        { probChi2 = c; }
-
-void TtSemiEvtSolution::setGenEvt(std::vector<reco::Candidate *> particles){
-  genHadp = (reco::Particle) (*(particles[0]));
-  genHadq = (reco::Particle) (*(particles[1]));
-  genHadb = (reco::Particle) (*(particles[2]));
-  genLepb = (reco::Particle) (*(particles[3]));
-  genLepl = (reco::Particle) (*(particles[4]));
-  genLepn = (reco::Particle) (*(particles[5]));
-  genHadW = (reco::Particle) (*(particles[6]));
-  genLepW = (reco::Particle) (*(particles[7]));
-  genHadt = (reco::Particle) (*(particles[8]));
-  genLept = (reco::Particle) (*(particles[9]));
+void TtSemiEvtSolution::setGenEvt(const TtGenEvent& genEvt){
+  if( !genEvt.isSemiLeptonic() ){
+    throw edm::Exception( edm::errors::Configuration, "found genEvt which is not semi-leptonic" );
+  }
+  genHadp = *(genEvt.hadronicQuark());
+  genHadq = *(genEvt.hadronicQuarkBar());
+  genHadb = *(genEvt.hadronicB());
+  genLepb = *(genEvt.leptonicB());
+  genLepl = *(genEvt.singleLepton());
+  genLepn = *(genEvt.singleNeutrino());
+  genHadW = *(genEvt.hadronicW());
+  genLepW = *(genEvt.leptonicW());
+  genHadt = *(genEvt.hadronicTop());
+  genLept = *(genEvt.leptonicTop());
 }
-void TtSemiEvtSolution::setSumDeltaRjp(double sdr)		{ sumDeltaRjp   = sdr;  }
-void TtSemiEvtSolution::setDeltaRhadp(double adr)		{ deltaRhadp    = adr;  }
-void TtSemiEvtSolution::setDeltaRhadq(double adr)		{ deltaRhadq    = adr;  }
-void TtSemiEvtSolution::setDeltaRhadb(double adr)		{ deltaRhadb    = adr;  }
-void TtSemiEvtSolution::setDeltaRlepb(double adr)		{ deltaRlepb    = adr;  }
-void TtSemiEvtSolution::setChangeWQ(int wq)			{ changeWQ      = wq;   }
 
-void TtSemiEvtSolution::setMCCorrJetComb(int mcbs)		{ mcCorrJetComb = mcbs; }
-void TtSemiEvtSolution::setSimpleCorrJetComb(int sbs)		{ simpleCorrJetComb = sbs;  }
-void TtSemiEvtSolution::setLRCorrJetComb(int lrbs)		{ lrCorrJetComb = lrbs;  }
+void TtSemiEvtSolution::setSumDeltaRjp(double sdr) { sumDeltaRjp = sdr; }
+void TtSemiEvtSolution::setDeltaRhadp(double adr) { deltaRhadp = adr;  }
+void TtSemiEvtSolution::setDeltaRhadq(double adr) { deltaRhadq = adr;  }
+void TtSemiEvtSolution::setDeltaRhadb(double adr) { deltaRhadb = adr;  }
+void TtSemiEvtSolution::setDeltaRlepb(double adr) { deltaRlepb = adr;  }
+void TtSemiEvtSolution::setChangeWQ(int wq) { changeWQ = wq;   }
+
+void TtSemiEvtSolution::setMCCorrJetComb(int mcbs) { mcCorrJetComb = mcbs; }
+void TtSemiEvtSolution::setSimpleCorrJetComb(int sbs) { simpleCorrJetComb = sbs;  }
+void TtSemiEvtSolution::setLRCorrJetComb(int lrbs) { lrCorrJetComb = lrbs;  }
 void TtSemiEvtSolution::setLRJetCombObservables(std::vector<std::pair<unsigned int, double> > varval) {
   for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal.push_back(varval[ijc]);
 }
@@ -104,8 +90,6 @@ double TtSemiEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
   return val;
 }
 
-
-
 // return functions for reconstructed fourvectors
 JetType TtSemiEvtSolution::getRecHadp() const 	  { return this->getHadp().getRecJet(); }
 JetType TtSemiEvtSolution::getRecHadq() const 	  { return this->getHadq().getRecJet(); }
@@ -129,8 +113,6 @@ reco::Particle TtSemiEvtSolution::getRecLept() const    {
   return p;
 }
 
-
-
 // return functions for calibrated fourvectors
 TopJet TtSemiEvtSolution::getCalHadp() const 	 { return this->getHadp(); }
 TopJet TtSemiEvtSolution::getCalHadq() const 	 { return this->getHadq(); }
@@ -144,8 +126,6 @@ reco::Particle TtSemiEvtSolution::getCalLept() const   {
   if (this->getDecay() == "electron") p = reco::Particle(0,this->getRecLepe().p4() + this->getRecLepn().p4() + this->getCalLepb().p4(),math::XYZPoint());
   return p;
 }
-
-
 
 // return functions for fitted fourvectors
 TopParticle TtSemiEvtSolution::getFitHadp() const { return this->getHadp().getFitJet(); }

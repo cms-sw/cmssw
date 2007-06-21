@@ -1,23 +1,294 @@
-// -*- C++ -*-
-//
-// Package:     TtGenEvent
-// Class  :     TtGenEvent
-// 
-// Implementation:
-//     <Notes on implementation>
-//
-// Original Author:  Jan Heyninck
-//         Created:  Tue Apr 10 11:48:25 CEST 2007
-// $Id: TtGenEvent.cc,v 1.1 2007/05/02 15:05:04 lowette Exp $
-//
-
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
-TtGenEvent::TtGenEvent(){}
-
-TtGenEvent::TtGenEvent(int dec,vector<const Candidate*> ps){
-  decay_ = dec;
-  for(unsigned int i= 0; i<ps.size(); i++) particles_.push_back( (Candidate*) ps[i]);
+TtGenEvent::TtGenEvent()
+{
 }
 
-TtGenEvent::~TtGenEvent() {}
+TtGenEvent::TtGenEvent(reco::CandidateCollection& ref)
+{
+  parts_=ref;
+}
+
+TtGenEvent::~TtGenEvent()
+{
+}
+
+int
+TtGenEvent::numberOfLeptons() const
+{
+  int lep=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( isLepton(*part) ){
+      ++lep;
+    }
+  }  
+  return lep;  
+}
+
+const reco::Candidate*
+TtGenEvent::candidate(int id) const
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( part->pdgId()==id ) cand=&(*part);
+  }  
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::singleLepton() const 
+{
+  const reco::Candidate* cand=0;
+  if( numberOfLeptons()==1 ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( isLepton(*part) ){
+	cand=&(*part);
+      }  
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::singleNeutrino() const 
+{
+  const reco::Candidate* cand=0;
+  if( numberOfLeptons()==1 ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( isNeutrino(*part) ){
+	cand=&(*part);
+      }  
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::hadronicQuark() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId()) < 5 && flavour(*part)>0 )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::hadronicQuarkBar() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId()) < 5 && flavour(*part)<0 )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::hadronicB() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==5 && 
+	  flavour(*singleLepton())==flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::hadronicW() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==24 && 
+	  flavour(*singleLepton())!=flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::hadronicTop() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==6 && 
+	  flavour(*singleLepton())==flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::leptonicB() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==5 && 
+	  flavour(*singleLepton())!=flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::leptonicW() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==24 && 
+	  flavour(*singleLepton())==flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::leptonicTop() const 
+{
+  const reco::Candidate* cand=0;
+  if( singleLepton() ){
+    reco::CandidateCollection::const_iterator part = parts_.begin();
+    for( ; part!=parts_.end(); ++part ){
+      if( abs(part->pdgId())==6 && 
+	  flavour(*singleLepton())!=flavour(*part) )
+	cand=&(*part);
+    }
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::lepton() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( isLepton(*part) && flavour(*part)>0 ){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::neutrino() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( isNeutrino(*part) && flavour(*part)>0 ){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::leptonBar() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( isLepton(*part) && flavour(*part)<0 ){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::neutrinoBar() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( isNeutrino(*part) && flavour(*part)<0 ){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::QuarkFromTop() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( part->mother() && flavour(*(part->mother()))<0
+	&& abs(part->pdgId())<5 && flavour(*part)>0){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::QuarkFromTopBar() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( part->mother() && flavour(*(part->mother()))<0
+	&& abs(part->pdgId())<5 && flavour(*part)<0){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::QuarkFromAntiTop() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( part->mother() && flavour(*(part->mother()))>0
+	&& abs(part->pdgId())<5 && flavour(*part)>0){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}
+
+const reco::Candidate* 
+TtGenEvent::QuarkFromAntiTopBar() const 
+{
+  const reco::Candidate* cand=0;
+  reco::CandidateCollection::const_iterator part = parts_.begin();
+  for( ; part!=parts_.end(); ++part ){
+    if( part->mother() && flavour(*(part->mother()))>0
+	&& abs(part->pdgId())<5 && flavour(*part)<0){
+      cand=&(*part);
+    }  
+  }
+  return cand;
+}

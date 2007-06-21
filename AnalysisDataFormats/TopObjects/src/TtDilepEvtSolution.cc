@@ -1,15 +1,9 @@
-
-// system include files
-
-// user include files
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
-
-
 
 TtDilepEvtSolution::TtDilepEvtSolution()
 {
-
-
   bestSol	= false;
   WpDecay       = "NotDefined";
   WmDecay       = "NotDefined";
@@ -20,57 +14,24 @@ TtDilepEvtSolution::~TtDilepEvtSolution()
 {
 }
 
-void TtDilepEvtSolution::setGenEvt(std::vector<reco:: Candidate *> particles){
-
-  if ((*particles[0]).pdgId() > 0) {
-    genLepm = (reco::Particle) (*(particles[0]));
-    genLepp = (reco::Particle) (*(particles[4]));
+void TtDilepEvtSolution::setGenEvt(const TtGenEvent& genEvt)
+{
+  if( !genEvt.isFullLeptonic() ){
+    throw edm::Exception( edm::errors::Configuration, "found genEvt which is not di-leptonic" );
   }
-  else {
-    genLepp = (reco::Particle) (*(particles[0]));
-    genLepm = (reco::Particle) (*(particles[4]));
-  }
-  
-  if ((*particles[1]).pdgId() > 0) {
-    genN = (reco::Particle) (*(particles[1]));
-    genNbar = (reco::Particle) (*(particles[5]));
-  }
-  else {
-    genNbar = (reco::Particle) (*(particles[1]));
-    genN = (reco::Particle) (*(particles[5]));
-  }
-  
-  if ((*particles[2]).pdgId() > 0) {
-    genB = (reco::Particle) (*(particles[2]));
-    genBbar = (reco::Particle) (*(particles[3]));
-  }
-  else {
-    genBbar = (reco::Particle) (*(particles[2]));
-    genB = (reco::Particle) (*(particles[3]));
-  }
-  
-  if ((*particles[8]).pdgId() > 0) {
-    genT = (reco::Particle) (*(particles[8]));
-    genTbar = (reco::Particle) (*(particles[9]));
-  }
-  else {
-    genTbar = (reco::Particle) (*(particles[8]));
-    genT = (reco::Particle) (*(particles[9]));
-  }
-  
-  if ((*particles[6]).charge() > 0) {
-    genWp = (reco::Particle) (*(particles[6]));
-    genWm = (reco::Particle) (*(particles[7]));
-  }
-  else {
-    genWm = (reco::Particle) (*(particles[6]));
-    genWp = (reco::Particle) (*(particles[7]));
-  }
-  
+  genLepm = *(genEvt.lepton());
+  genLepp = *(genEvt.leptonBar());
+  genN    = *(genEvt.neutrino());
+  genNbar = *(genEvt.neutrinoBar());
+  genB    = *(genEvt.b());
+  genBbar = *(genEvt.bBar());;
+  genT    = *(genEvt.top());
+  genTbar = *(genEvt.topBar());
+  genWm   = *(genEvt.w());
+  genWp   = *(genEvt.wBar());
 }
 
-void TtDilepEvtSolution::setBestSol(bool bs)			{ bestSol     = bs;  }
-
+void TtDilepEvtSolution::setBestSol(bool bs) { bestSol = bs; }
 
 //SolutionMaker Method should call next methods
 void TtDilepEvtSolution::setMuonLepp(TopMuon j) {muonLepp = j; WpDecay = "muon";}

@@ -1,6 +1,7 @@
 #ifndef TopObjects_BestMatching_h
 #define TopObjects_BestMatching_h
 
+#include <vector>
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 #include "AnalysisDataFormats/TopObjects/interface/StEvtSolution.h" // Andrea
 
@@ -33,13 +34,13 @@ inline double deltaR(double eta1, double phi1, double eta2, double phi2) {
 
 inline double deltaSpA(double theta1, double phi1, double theta2, double phi2) {
   return acos(sin(theta1) * cos(phi1) * sin(theta2) * cos(phi2)
-            + sin(theta1) * sin(phi1) * sin(theta2) * sin(phi2)
-            + cos(theta1) * cos(theta2));
+	      + sin(theta1) * sin(phi1) * sin(theta2) * sin(phi2)
+	      + cos(theta1) * cos(theta2));
 }
 
 
-inline vector<double> BestMatch(TtSemiEvtSolution &sol, bool useSpaceAngle) {
-  vector<double> output;
+inline std::vector<double> BestMatch(TtSemiEvtSolution &sol, bool useSpaceAngle) {
+  std::vector<double> output;
   output.clear(); 
   double dRHadb, dRHadpp, dRHadqq, dRHadpq, dRHadqp, dRLepb;
   if (useSpaceAngle) {
@@ -82,8 +83,8 @@ inline vector<double> BestMatch(TtSemiEvtSolution &sol, bool useSpaceAngle) {
   return output;
 }
 
-inline vector<double> BestMatch(StEvtSolution &sol, bool useSpaceAngle) { // Andrea
-  vector<double> output;
+inline std::vector<double> BestMatch(StEvtSolution &sol, bool useSpaceAngle) { // Andrea
+  std::vector<double> output;
   output.clear(); 
   double dRBB, dRLL, dRBL, dRLB;
   if (useSpaceAngle) {
@@ -129,7 +130,5 @@ inline vector<double> BestMatch(StEvtSolution &sol, bool useSpaceAngle) { // And
   output.push_back(dRLL);
   return output;
 }
-
-
 
 #endif
