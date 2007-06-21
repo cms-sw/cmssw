@@ -12,7 +12,7 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Thu july 6 13:22:06 CEST 2006
-// $Id: PixelMatchElectronAlgo.cc,v 1.41 2007/06/10 19:29:08 futyand Exp $
+// $Id: PixelMatchElectronAlgo.cc,v 1.42 2007/06/14 17:34:30 uberthon Exp $
 //
 //
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchElectronAlgo.h"
@@ -229,16 +229,12 @@ void PixelMatchElectronAlgo::process(edm::Handle<GsfTrackCollection> tracksH, co
       GlobalPoint  outPos=outTSOS.globalPosition();
 
       //create electron
-      PixelMatchGsfElectron ele((*sclAss)[seed],trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
-      ele.setCharge(ele.gsfTrack()->charge());
-      ele.setVertex(math::XYZPoint(ele.gsfTrack()->vertex()));
-      ele.setPdgId( -11 * ele.charge() );
       double scale = theClus.energy()/vtxMom.mag();    
       math::XYZTLorentzVectorD momentum= math::XYZTLorentzVector(vtxMom.x()*scale,
 								 vtxMom.y()*scale,
 								 vtxMom.z()*scale,
 								 theClus.energy());
-      ele.setP4(momentum);
+      PixelMatchGsfElectron ele(momentum,(*sclAss)[seed],trackRef,sclPos,sclMom,seedPos,seedMom,innPos,innMom,vtxPos,vtxMom,outPos,outMom,HoE);
 
       //and set various properties
       float trackEta = ecalEta(
