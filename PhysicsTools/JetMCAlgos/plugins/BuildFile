@@ -1,4 +1,5 @@
 <use name=PhysicsTools/JetMCAlgos>
 <use name=SimGeneral/HepPDTRecord>
+<use name=DataFormats/Math>
 <use name=root>
 <library file="*.cc" name=PhysicsToolsJetMCAlgosPlugins></library>
