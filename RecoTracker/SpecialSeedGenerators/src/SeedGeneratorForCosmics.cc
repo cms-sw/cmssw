@@ -57,13 +57,15 @@ SeedGeneratorForCosmics::SeedGeneratorForCosmics(edm::ParameterSet const& conf):
   float originradius=conf_.getParameter<double>("originRadius");
   float halflength=conf_.getParameter<double>("originHalfLength");
   float originz=conf_.getParameter<double>("originZPosition");
+  seedpt = conf_.getParameter<double>("SeedPt");
+
   builderName = conf_.getParameter<std::string>("TTRHBuilder");   
   geometry=conf_.getUntrackedParameter<std::string>("GeometricStructure","STANDARD");
   region=GlobalTrackingRegion(ptmin,originradius,
  			      halflength,originz);
   hitsforseeds=conf_.getUntrackedParameter<std::string>("HitsForSeeds","pairs");
   edm::LogInfo("SeedGeneratorForCosmics")<<" PtMin of track is "<<ptmin<< 
-    " The Radius of the cylinder for seeds is "<<originradius <<"cm" ;
+    " The Radius of the cylinder for seeds is "<<originradius <<"cm"  << " The set Seed Momentum" <<  seedpt;
 
 
 
@@ -175,7 +177,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       int predsign=(2*i)-1;
       if((outer.y()-inner.y())>0){
 	GlobalTrajectoryParameters Gtp(outer,
-				       inner-outer,
+				       (inner-outer)*(seedpt/(inner-outer).mag()),
 				       predsign, 
 				       &(*magfield));
 	
@@ -207,7 +209,7 @@ void SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
       }
       else{
 	GlobalTrajectoryParameters Gtp(outer,
-				       outer-inner,
+				       (outer-inner)*(seedpt/(outer-inner).mag()),
 				       predsign, 
 				       &(*magfield));
 	FreeTrajectoryState CosmicSeed(Gtp,

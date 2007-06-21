@@ -55,6 +55,7 @@ class SeedGeneratorForCosmics{
   std::string builderName;
   std::string geometry;
   std::string hitsforseeds;
+  float seedpt;
   OrderedHitPairs HitPairs;
   OrderedHitTriplets HitTriplets;
 };
