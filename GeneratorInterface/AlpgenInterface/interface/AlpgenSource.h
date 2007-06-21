@@ -14,7 +14,7 @@
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
@@ -29,7 +29,7 @@ namespace CLHEP
 
 namespace edm
 {
-  class AlpgenSource : public GeneratedInputSource {
+  class AlpgenSource : public ExternalInputSource {
   public:
 
     /// Constructor

@@ -1,6 +1,6 @@
 /*
- *  $Date: 2006/11/24 08:48:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/03/26 16:13:37 $
+ *  $Revision: 1.2 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -47,12 +47,22 @@ HepMC::IO_HEPEVT conv;
 
 AlpgenSource::AlpgenSource( const ParameterSet & pset, 
 			    InputSourceDescription const& desc ) :
-  GeneratedInputSource(pset, desc), evt(0), 
+  ExternalInputSource(pset, desc), evt(0), 
   pythiaPylistVerbosity_ (pset.getUntrackedParameter<int>("pythiaPylistVerbosity",0)),
   pythiaHepMCVerbosity_ (pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false)),
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1))
-  
 {
+  
+   cout << "ALPGEN file base: " << fileNames()[0] << endl;
+         string fileName = fileNames()[0];
+         // strip the file: 
+         if ( fileName.find("file:") || fileName.find("rfio:")){
+           fileName.erase(0,5);
+         }   
+	 
+	 
+  int maxevents = maxEvents();
+  int firstevent = firstEvent();
   
   cout << "AlpgenSource: initializing Pythia. " << endl;
   
@@ -100,7 +110,25 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 
 
 // Read the Alpgen parameters
-#include "GeneratorInterface/CommonInterface/interface/ExternalGenRead.inc"
+
+ // read External Generator parameters
+{   ParameterSet generator_params = 
+    pset.getParameter<ParameterSet>("GeneratorParameters") ;
+     vector<string> pars = 
+      generator_params.getParameter<vector<string> >("generator");
+     cout << "----------------------------------------------" << endl;
+     cout << "Read External Generator parameter set "  << endl;
+     cout << "----------------------------------------------" << endl;
+   for( vector<string>::const_iterator  
+	   itPar = pars.begin(); itPar != pars.end(); ++itPar ) 
+       {
+      call_txgive(*itPar);          
+       }
+       // giving to txgive a string with the alpgen filename
+       string tmpstring = "UNWFILE = " + fileName;
+       call_txgive(tmpstring);
+}
+
 
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
