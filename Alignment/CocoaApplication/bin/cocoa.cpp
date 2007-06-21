@@ -7,6 +7,7 @@
 #include "Alignment/CocoaUtilities/interface/ALIFileOut.h"
 //#include "Analysis/FittedEntriesRoot/interface/FERootDump.h"
 #include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <time.h>
 #include "CLHEP/Vector/Rotation.h"
