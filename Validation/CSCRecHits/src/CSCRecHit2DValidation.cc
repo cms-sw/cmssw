@@ -77,9 +77,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
     for(edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr)
     {
     const CSCLayer * layer = findLayer(layersWithSimHits[i]);
-std::cout << "alery " << layer << " " << layersWithSimHits[i] << std::endl;
     int chamberType = layer->chamber()->specs()->chamberType();
-std::cout << "type " << chamberType << std::endl;
       float localX = hitItr->localPosition().x();
       float localY = hitItr->localPosition().y();
       //theYPlots[chamberType-1]->Fill(localY);
@@ -105,7 +103,6 @@ void CSCRecHit2DValidation::plotResolution(const PSimHit & simHit, const CSCRecH
   double rdphi = recHitPos.perp() * dphi;
   theResolutionPlots[chamberType-1]->Fill( rdphi );
   thePullPlots[chamberType-1]->Fill( rdphi/ sqrt(recHit.localPositionError().xx()) );
-std::cout << "XX " << sqrt(recHit.localPositionError().xx()) << std::endl;
   double dy = recHit.localPosition().y() - simHit.localPosition().y();
   theYResolutionPlots[chamberType-1]->Fill( dy );
   theYPullPlots[chamberType-1]->Fill( dy/ sqrt(recHit.localPositionError().yy()) );
