@@ -1,4 +1,4 @@
-// $Id: PoolOutputModule.cc,v 1.73 2007/05/29 23:13:38 wmtan Exp $
+// $Id: PoolOutputModule.cc,v 1.75 2007/05/30 02:31:53 wmtan Exp $
 
 #include "IOPool/Output/src/PoolOutputModule.h"
 #include "IOPool/Common/interface/PoolDataSvc.h"
@@ -249,13 +249,8 @@ namespace edm {
     ++eventCount_;
     startTransaction();
     // Write auxiliary branch
-    EventAuxiliary aux;
-    aux.processHistoryID_ = e.processHistoryID();
-    aux.id_ = e.id();
-    aux.luminosityBlock_ = e.luminosityBlock();
-    aux.time_ = e.time();
 
-    pool::Ref<EventAuxiliary const> ra(context(), &aux);
+    pool::Ref<EventAuxiliary const> ra(context(), &e.aux());
     ra.markWrite(auxiliaryPlacement_[InEvent]);	
 
     if (!outputItemList_[InEvent].empty()) fillBranches(outputItemList_[InEvent], e.groupGetter());
@@ -287,10 +282,7 @@ namespace edm {
   void PoolOutputModule::PoolFile::writeLuminosityBlock(LuminosityBlockPrincipal const& lb) {
     startTransaction();
     // Write auxiliary branch
-    LuminosityBlockAuxiliary aux;
-    aux.processHistoryID_ = lb.processHistoryID();
-    aux.id_ = lb.id();
-    pool::Ref<LuminosityBlockAuxiliary const> ra(context(), &aux);
+    pool::Ref<LuminosityBlockAuxiliary const> ra(context(), &lb.aux());
     ra.markWrite(auxiliaryPlacement_[InLumi]);	
     if (!outputItemList_[InLumi].empty()) fillBranches(outputItemList_[InLumi], lb.groupGetter());
     commitTransaction();
@@ -299,10 +291,7 @@ namespace edm {
   bool PoolOutputModule::PoolFile::writeRun(RunPrincipal const& r) {
     startTransaction();
     // Write auxiliary branch
-    RunAuxiliary aux;
-    aux.processHistoryID_ = r.processHistoryID();
-    aux.id_ = r.id();
-    pool::Ref<RunAuxiliary const> ra(context(), &aux);
+    pool::Ref<RunAuxiliary const> ra(context(), &r.aux());
     ra.markWrite(auxiliaryPlacement_[InRun]);	
     if (!outputItemList_[InRun].empty()) fillBranches(outputItemList_[InRun], r.groupGetter());
     commitTransaction();

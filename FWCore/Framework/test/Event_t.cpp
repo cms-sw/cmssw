@@ -3,7 +3,7 @@
 
 Test program for edm::Event.
 
-$Id: Event_t.cpp,v 1.13 2007/04/09 22:18:57 wdd Exp $
+$Id: Event_t.cpp,v 1.14 2007/06/06 23:33:49 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -129,7 +129,7 @@ namespace
   template <class T> void kill_and_clear(T*& p) { delete p; p = 0; }
 }
 
-EventID   make_id() { return EventID(2112, 25, true); }
+EventID   make_id() { return EventID(2112, 25); }
 Timestamp make_timestamp() { return Timestamp(1); }
 
 template <class T>
@@ -339,6 +339,7 @@ void testEvent::setUp()
 				   preg,
                                    1,
                                    currentModuleDescription_->processConfiguration(),
+                                   true,
                                    processHistoryID);
 
   currentEvent_ = new Event(*principal_, *currentModuleDescription_);

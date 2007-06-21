@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.18 2007/03/22 06:09:27 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.19 2007/03/22 22:26:12 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -33,6 +33,7 @@ namespace edm {
     luminosityBlock_(pset.getUntrackedParameter<unsigned int>("firstLuminosityBlock", 1)),
     origLuminosityBlockNumber_t_(luminosityBlock_),
     justBegun_(true),
+    isRealData_(pset.getUntrackedParameter<bool>("realData:", false)),
     luminosityBlockPrincipal_()
   { }
 
@@ -111,7 +112,8 @@ namespace edm {
     std::auto_ptr<EventPrincipal> result = 
       std::auto_ptr<EventPrincipal>(
 	  new EventPrincipal(eventID_, Timestamp(presentTime_),
-	  productRegistry(), luminosityBlockPrincipal_, processConfiguration()));
+	  productRegistry(), luminosityBlockPrincipal_, processConfiguration(),
+          isRealData_));
     Event e(*result, moduleDescription());
     if (!produce(e)) {
       return std::auto_ptr<EventPrincipal>(0); 

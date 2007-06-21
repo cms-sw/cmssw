@@ -7,8 +7,7 @@
 // 
 /**\class EventID EventID.h DataFormats/Provenance/interface/EventID.h
 
- Description: Holds run and event number, and flag to indicate
- if the event is simulated.
+ Description: Holds run and event number.
 
  Usage:
     <usage>
@@ -17,11 +16,10 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Aug  8 15:13:14 EDT 2005
-// $Id: EventID.h,v 1.2 2007/03/15 21:43:39 wmtan Exp $
+// $Id: EventID.h,v 1.3 2007/03/27 22:57:57 wmtan Exp $
 //
 
 // system include files
-#include <functional>
 #include <iosfwd>
 
 // user include files
@@ -33,15 +31,14 @@ namespace edm {
    typedef unsigned int EventNumber_t;
 
    
-class EventID
-{
+class EventID {
 
    public:
    
    
-      EventID() : run_(0), event_(0), simulated_(false) {}
-      EventID(RunNumber_t iRun, EventNumber_t iEvent, bool iSim=false) :
-	run_(iRun), event_(iEvent), simulated_(iSim) {}
+      EventID() : run_(0), event_(0) {}
+      EventID(RunNumber_t iRun, EventNumber_t iEvent) :
+	run_(iRun), event_(iEvent) {}
       
       // ---------- const member functions ---------------------
       RunNumber_t run() const { return run_; }
@@ -77,25 +74,30 @@ class EventID
          return EventID(0,0);
       }
       
-      bool operator==(EventID const& iRHS) const {
-         return iRHS.run_ == run_ && iRHS.event_ == event_;
-      }
-      bool operator!=(EventID const& iRHS) const {
-         return ! (*this == iRHS);
-      }
-      
       bool operator<(EventID const& iRHS) const {
-         return doOp<std::less>(iRHS);
+         return (run_ == iRHS.run_ ? event_ < iRHS.event_ : run_ < iRHS.run_);
       }
-      bool operator<=(EventID const& iRHS) const {
-         return doOp<std::less_equal>(iRHS);
-      }
-      bool operator>(EventID const& iRHS) const {
-         return doOp<std::greater>(iRHS);
-      }
+
       bool operator>=(EventID const& iRHS) const {
-         return doOp<std::greater_equal>(iRHS);
+         return !(*this < iRHS);
       }
+
+      bool operator==(EventID const& iRHS) const {
+         return !(*this < iRHS || iRHS < *this);
+      }
+
+      bool operator!=(EventID const& iRHS) const {
+         return !(*this == iRHS);
+      }
+
+      bool operator<=(EventID const& iRHS) const {
+         return (*this < iRHS || *this == iRHS);
+      }
+
+      bool operator>(EventID const& iRHS) const {
+         return !(*this <= iRHS);
+      }
+
       // ---------- static functions ---------------------------
 
       static EventNumber_t maxEventNumber() {
@@ -108,16 +110,6 @@ class EventID
       // ---------- member functions ---------------------------
    
    private:
-      template< template <typename> class Op >
-      bool doOp(EventID const& iRHS) const {
-         //Run takes presidence for comparisions
-         if(run_ == iRHS.run_) {
-            Op<EventNumber_t> op_e;
-            return op_e(event_, iRHS.event_);
-         }
-         Op<RunNumber_t> op;
-         return op(run_, iRHS.run_) ;
-      }
       //EventID(EventID const&); // stop default
 
       //EventID const& operator=(EventID const&); // stop default
@@ -125,7 +117,6 @@ class EventID
       // ---------- member data --------------------------------
       RunNumber_t run_;
       EventNumber_t event_;
-      bool simulated_;
 };
 
 std::ostream& operator<<(std::ostream& oStream, EventID const& iID);

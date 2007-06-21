@@ -139,6 +139,7 @@ namespace edm
                                                    productRegistry,
                                                    eventView.lumi(),
                                                    processConfiguration_,
+                                                   true,
 						   processHistoryID_));
     // no process name list handling
 

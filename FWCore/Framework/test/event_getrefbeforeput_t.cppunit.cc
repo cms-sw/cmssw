@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: event_getrefbeforeput_t.cppunit.cc,v 1.11 2007/05/08 03:18:39 wmtan Exp $
+$Id: event_getrefbeforeput_t.cppunit.cc,v 1.12 2007/06/06 23:33:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <cassert>
@@ -57,7 +57,7 @@ void testEventGetRefBeforePut::failGetProductNotRegisteredTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc, true);
   try {
      edm::ModuleDescription modDesc;
      modDesc.moduleName_ = "Blah";
@@ -108,7 +108,7 @@ void testEventGetRefBeforePut::getRefTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc(processName, edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc, true);
 
   edm::RefProd<edmtest::IntProduct> refToProd;
   try {

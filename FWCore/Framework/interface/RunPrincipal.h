@@ -10,7 +10,7 @@ such code sees the Run class, which is a proxy for RunPrincipal.
 The major internal component of the RunPrincipal
 is the DataBlock.
 
-$Id: RunPrincipal.h,v 1.12 2007/06/06 23:33:48 wmtan Exp $
+$Id: RunPrincipal.h,v 1.13 2007/06/08 23:51:58 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -33,6 +33,7 @@ namespace edm {
     ~RunPrincipal() {}
 
     RunAuxiliary const& aux() const {
+      aux_.processHistoryID_ = processHistoryID();
       return aux_;
     }
 

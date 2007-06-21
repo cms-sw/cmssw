@@ -2,7 +2,7 @@
 
 Test of the EventPrincipal class.
 
-$Id: generichandle_t.cppunit.cc,v 1.20 2007/05/08 03:18:40 wmtan Exp $
+$Id: generichandle_t.cppunit.cc,v 1.21 2007/06/06 23:33:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/  
 #include <string>
@@ -59,7 +59,7 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::Timestamp time;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> preg(new edm::ProductRegistry);
-  edm::EventPrincipal ep(id, time, preg, 1, pc);
+  edm::EventPrincipal ep(id, time, preg, 1, pc, true);
   edm::GenericHandle h("edmtest::DummyProduct");
   try {
      edm::ModuleDescription modDesc;
@@ -121,7 +121,7 @@ void testGenericHandle::getbyLabelTest() {
   edm::Timestamp fakeTime;
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
   boost::shared_ptr<edm::ProductRegistry const> pregc(preg);
-  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc);
+  edm::EventPrincipal ep(col, fakeTime, pregc, 1, pc, true);
 
   std::auto_ptr<edm::Provenance> pprov(new edm::Provenance(product, edm::BranchEntryDescription::Success));
   ep.put(pprod, pprov);

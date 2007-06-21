@@ -17,12 +17,14 @@ namespace edm
 	processHistoryID_(),
 	id_(),
 	time_(),
-	luminosityBlock_() {}
-    EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb) :
+	luminosityBlock_(),
+	isRealData_(false) {}
+    EventAuxiliary(EventID const& theId, Timestamp const& theTime, LuminosityBlockNumber_t lb, bool isReal) :
 	processHistoryID_(),
 	id_(theId),
 	time_(theTime),
-	luminosityBlock_(lb) {}
+	luminosityBlock_(lb),
+	isRealData_(isReal) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID& processHistoryID() const {return processHistoryID_;}
@@ -31,6 +33,7 @@ namespace edm
     LuminosityBlockNumber_t const& luminosityBlock() const {return luminosityBlock_;}
     EventNumber_t event() const {return id_.event();}
     RunNumber_t run() const {return id_.run();}
+    bool isRealData() const {return isRealData_;}
     // most recently process that processed this event
     // is the last on the list, this defines what "latest" is
     mutable ProcessHistoryID processHistoryID_;
@@ -40,6 +43,8 @@ namespace edm
     Timestamp time_;
     // Associated Luminosity Block identifier.
     LuminosityBlockNumber_t luminosityBlock_;
+    // Is this real data (i.e. not simulated)
+    bool isRealData_;
   };
 
   inline
