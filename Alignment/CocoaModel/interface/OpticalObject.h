@@ -351,11 +351,12 @@ private:
   Hep3Vector axisYLocalInGlobal;
   Hep3Vector axisZLocalInGlobal;
 
+  uint32_t theCmsSwID;
+
+ protected:
   CocoaMaterialElementary* theMaterial;
   CocoaSolidShape* theSolidShape;
 
-  uint32_t theCmsSwID;
- protected:
   ALIint verbose;
 };
 

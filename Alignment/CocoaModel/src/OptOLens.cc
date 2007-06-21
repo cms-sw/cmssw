@@ -17,6 +17,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 OptOLens::OptOLens()

@@ -16,6 +16,7 @@
 #include "Alignment/CocoaVisMgr/interface/ALIColour.h"
 #endif
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
   //---------- Default behaviour: create a LightRay object
 void OptOMirror::defaultBehaviour( LightRay& lightray, Measurement& meas ) 

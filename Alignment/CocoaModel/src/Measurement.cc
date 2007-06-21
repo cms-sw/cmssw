@@ -105,7 +105,7 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo )
   buildOptONamesList( wordlist );
   
   if(ALIUtils::debug >= 3) {
-    std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << std::endl
+    std::cout << "@@@@ Reading Measurement " << name() << " TYPE= " << type() << " " << measInfo << std::endl
 	      << " MEASURED OPTO NAMES: ";
     std::ostream_iterator<ALIstring> outs(std::cout," ");
     copy(wordlist.begin(), wordlist.end(), outs);
@@ -131,9 +131,10 @@ void Measurement::constructFromOA( OpticalAlignMeasurementInfo&  measInfo )
       gcvt( val, 10, ctmp );
       wordlist.push_back( ctmp );
     }
-    ALIdouble err = (measInfo.values_)[ii].error_ / valueDimensionFactor(); //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
+    ALIdouble err = (measInfo.values_)[ii].error_ / sigmaDimensionFactor(); //in XML  values are without dimensions, so neutralize multiplying by valueDimensionFactor() in fillData
     gcvt( err, 10, ctmp );
     wordlist.push_back( ctmp );
+    std::cout << " sigma " << err << " = " << ctmp << " " << (measInfo.values_)[ii].error_ << std::endl;
     //-    wordlist.push_back( "simulated_value" );
     //-   wordlist.push_back( "1." );
       if ( ALIUtils::debug >= 5 ) ALIUtils::dumpVS(wordlist, " Measurement: calling fillData ");
@@ -181,7 +182,7 @@ void Measurement::buildOptONamesList( const std::vector<ALIstring>& wl )
     _OptONameList.push_back( wl[ii*2] );
     // Check for separating '&'
     if (ii != NPairs-1 && wl[2*ii+1] != ALIstring("&") ) {
-      ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
+      //      ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
       std::cerr << "!!! Measured Optical Objects should be separated by '&', not by" 
 		<< wl[2*ii+1] << std::endl; 
       exit(2);
@@ -206,7 +207,7 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
   //---------- Check that there are 3 attributes: name, value, error
   if( wordlist.size() != 3 ) {
-    //?    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
+    //    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
     std::cerr << " Incorrect format for Measurement value:" << std::endl; 
     std::ostream_iterator<ALIstring> outs(std::cout," ");
     copy(wordlist.begin(), wordlist.end(), outs);
@@ -216,7 +217,7 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
 
   //---------- check coor value
   if (coor >= theDim ) {
-    ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
+    // ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
     std::cerr << "Trying to fill Measurement coordinate No "
 	 << coor << " but the dimension is " << theDim << std::endl; 
     exit(2);
@@ -234,7 +235,7 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
       if( wordlist[1] == ALIstring("simulated_value") ) {
 	theValueIsSimulated[coor] = 1;
       } else {
-	ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
+	//	ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
 	std::cerr << "!!! parameter for value not found: " << wordlist[1].c_str() << std::endl;
 	exit(2);
       }
@@ -251,7 +252,7 @@ void Measurement::fillData( ALIuint coor, const std::vector<ALIstring>& wordlist
   ALIdouble sig = 0.;
   if( !ALIUtils::IsNumber(wordlist[2]) ) {
     if ( parmgr->getParameterValue( wordlist[2], sig ) == 0 ) {
-      ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
+      // ALIFileIn::getInstance( Model::SDFName() ).ErrorInLine();
       std::cerr << "!!! parameter for sigma not found: " << wordlist[2].c_str() << std::endl;
       exit(2);
     }

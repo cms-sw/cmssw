@@ -12,6 +12,7 @@
 #include <iostream>
 #include <iomanip>
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 void OptORisleyPrism::participateInMeasurement( LightRay& lightray, Measurement& meas, const ALIstring& behav )
 {

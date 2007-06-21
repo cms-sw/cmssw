@@ -33,7 +33,7 @@ class OpticalAlignMeasurements;
 
 enum sectionType{ sectGlobalOptions, sectParameters, sectSystemTreeDescription, sectSystemTreeData, sectMeasurements, sectReportOut };
 
-enum cocoaStatus{ COCOA_Init, COCOA_ReadingModel, COCOA_InitFit, COCOA_FitOK, COCOA_FitImproving, COCOA_FitCannotImprove, COCOA_FitChi2Worsened, COCOA_FitMatrixNonInversable };
+enum cocoaStatus{ COCOA_Init, COCOA_ReadingModel, COCOA_InitFit, COCOA_FirstIterationInEvent, COCOA_NextIterationInEvent, COCOA_FitOK, COCOA_FitImproving, COCOA_FitCannotImprove, COCOA_FitChi2Worsened, COCOA_FitMatrixNonInversable };
 
 class Model 
 {

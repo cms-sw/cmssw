@@ -16,6 +16,7 @@
 #include "Alignment/CocoaModel/interface/ALILine.h"
 #include "Alignment/CocoaModel/interface/ALIPlane.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 #include <iostream>
 #include <iomanip>

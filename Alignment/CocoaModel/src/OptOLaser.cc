@@ -14,6 +14,7 @@
 #endif
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
+#include "Alignment/CocoaUtilities/interface/GlobalOptionMgr.h"
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
