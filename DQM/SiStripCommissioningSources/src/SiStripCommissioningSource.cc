@@ -202,7 +202,7 @@ void SiStripCommissioningSource::endJob() {
   else { name = filename_.substr( 0, filename_.find(".root",0) ); }
 
   // Retrieve SCRATCH directory
-  std::string scratch = "SCRATCH";
+  std::string scratch = "SCRATCH"; //@@ remove trailing slash!!!
   std::string dir = "";
   if ( getenv(scratch.c_str()) != NULL ) { 
     dir = getenv(scratch.c_str()); 
@@ -233,8 +233,19 @@ void SiStripCommissioningSource::endJob() {
   // Append ".root" extension
   ss << ".root";
 
-  // Save file with appropriate filename
-  if ( !filename_.empty() ) { dqm()->save( ss.str() ); }
+  // Save file with appropriate filename (if run number is known)
+  if ( !filename_.empty() ) { 
+    if ( run_ != 0 ) { dqm()->save( ss.str() ); }
+    else {
+      edm::LogWarning(mlDqmSource_)
+	<< "[SiStripCommissioningSource::" << __func__ << "]"
+	<< " NULL value for RunNumber! No root file saved!";
+    }
+  } else {
+    edm::LogWarning(mlDqmSource_)
+      << "[SiStripCommissioningSource::" << __func__ << "]"
+      << " NULL value for filename! No root file saved!";
+  }
   
   LogTrace(mlDqmSource_)
     << "[SiStripCommissioningSource::" << __func__ << "]"
