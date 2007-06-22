@@ -27,6 +27,22 @@
  <class name="EcalLaserAPDPNRatios"/>
  <class name="EcalLaserAPDPNRatiosRef"/>
 
+ <class name="EcalTPGFineGrainConstEB"/>
+ <class name="EcalTPGFineGrainEBIdMap"/>
+ <class name="EcalTPGFineGrainStripEE"/>
+ <class name="EcalTPGFineGrainStripEE::Item"/>
+ <class name="EcalTPGFineGrainTowerEE"/>
+ <class name="EcalTPGGroups"/>
+ <class name="EcalTPGLinearizationConst"/>
+ <class name="EcalTPGLinearizationConst::Item"/>
+ <class name="EcalTPGLut"/>
+ <class name="EcalTPGLutIdMap"/>
+ <class name="EcalTPGPedestals"/>
+ <class name="EcalTPGPedestals::Item"/>
+ <class name="EcalTPGSlidingWindow"/>
+ <class name="EcalTPGWeightIdMap"/>
+ <class name="EcalTPGWeights"/>
+ 
  <class pattern="*pair*"/>
  <class pattern="*map*"/>
 </lcgdict>

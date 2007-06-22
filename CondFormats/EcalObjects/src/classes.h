@@ -109,3 +109,69 @@ namespace {
     std::map<uint32_t, EcalLaserAPDPNRatiosRef::EcalLaserAPDPNref> laserAPDPNRatiosRefMap;
   }
 }
+
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
+namespace {
+  namespace {
+    EcalTPGFineGrainConstEB grain;
+    std::map<uint32_t, EcalTPGFineGrainConstEB::EcalTPGFineGrainConstEB> EcalTPGFineGrainEBMap ;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
+namespace {
+  namespace {   
+    std::map< uint32_t, EcalTPGFineGrainStripEE::Item > EcalTPGFineGrainStripEEMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+namespace {
+  namespace {   
+    std::map< uint32_t, uint32_t> EcalTPGFineGrainTowerEEMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGGroups.h"
+namespace {
+  namespace {   
+     std::map<uint32_t, uint32_t> EcalTPGGroupsMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
+namespace {
+  namespace {   
+    std::map< uint32_t, EcalTPGLinearizationConst::Item > EcalTPGLinearizationConstMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+namespace {
+  namespace {   
+    EcalTPGLut lut;
+    std::map< uint32_t, EcalTPGLut::EcalTPGLut > EcalTPGLutMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+namespace {
+  std::map< uint32_t, EcalTPGPedestals::Item > EcalTPGPedestalsMap;
+}
+
+
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+namespace {
+  namespace {   
+    EcalTPGWeights weights;
+   std::map<uint32_t, EcalTPGWeights::EcalTPGWeights> EcalTPGWeightMap;
+  }
+}
+
+#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
+namespace {
+  namespace {   
+   std::map<uint32_t, uint32_t>                 EcalTPGSlidingWindowMap;
+  }
+}
+
