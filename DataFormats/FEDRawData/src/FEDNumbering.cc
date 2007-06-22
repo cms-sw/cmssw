@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/03/26 11:03:30 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/05/31 22:17:24 $
+ *  $Revision: 1.9 $
  *  \author G. Bruno  - CERN, EP Division
  */
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -44,6 +44,10 @@ const int FEDNumbering::MINTriggerGTPFEDID = 812;
 const int FEDNumbering::MAXTriggerGTPFEDID = 813;
 const int FEDNumbering::MINTriggerEGTPFEDID = 814;
 const int FEDNumbering::MAXTriggerEGTPFEDID = 815;
+const int FEDNumbering::MINTriggerGCTFEDID = 745;
+const int FEDNumbering::MAXTriggerGCTFEDID = 749;
+
+
 const int FEDNumbering::MINTriggerLTCFEDID = 816;
 const int FEDNumbering::MAXTriggerLTCFEDID = 823;
 const int FEDNumbering::MINTriggerLTCmtccFEDID = 815;
@@ -159,11 +163,20 @@ pair<int,int> FEDNumbering::getTriggerGTPFEDIds(){
 
 }
 
+
 pair<int,int> FEDNumbering::getTriggerEGTPFEDIds(){
 
   return pair<int,int> (MINTriggerEGTPFEDID, MAXTriggerEGTPFEDID);
 
 }
+
+
+pair<int,int> FEDNumbering::getTriggerGCTFEDIds(){
+
+  return pair<int,int> (MINTriggerGCTFEDID, MAXTriggerGCTFEDID);
+
+}
+
 
 pair<int,int> FEDNumbering::getTriggerLTCmtccFEDIds(){
 
@@ -321,6 +334,11 @@ void FEDNumbering::init()
     {
       in_[i] = true;
       from_[i] = "TriggerEGTP";
+    }
+  for(i=getTriggerGCTFEDIds().first; i<=getTriggerGCTFEDIds().second; i++)
+    {
+      in_[i] = true;
+      from_[i] = "TriggerGCT";
     }
   for(i=getTriggerLTCFEDIds().first; i<=getTriggerLTCFEDIds().second; i++)
     {
