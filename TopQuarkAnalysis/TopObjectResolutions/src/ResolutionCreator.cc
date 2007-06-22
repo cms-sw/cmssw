@@ -185,18 +185,18 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      edm::Handle<std::vector<TopElectron> >  electrons; //to calculate the resolutions for the electrons, i used the TopElectron instead of the AOD information
      iEvent.getByType(electrons);
      if(electrons->size()>=1) {	 
-       if( ROOT::Math::VectorUtil::DeltaR( genEvt->particles()[4]->p4(),(*electrons)[0].p4()) < minDR_)  {
-         p4gen.push_back(new reco::Particle(*(genEvt->particles()[4]))); 
-	 p4rec.push_back(new reco::Particle((TopElectron)((*electrons)[0]))); //changed this too	 
+       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[4].p4(), (*electrons)[0].p4()) < minDR_) {
+         p4gen.push_back(new reco::Particle(genEvt->particles()[4]));
+	 p4rec.push_back(new reco::Particle((TopElectron)((*electrons)[0])));
        }
      }
    }else if(objectType_ == "muon"){
      edm::Handle<std::vector<muonType> >  muons;
      iEvent.getByType(muons);
      if(muons->size()>=1) { 
-       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[4]->p4(), (*muons)[0].p4()) < minDR_){
-         p4gen.push_back(new reco::Particle(*(genEvt->particles()[4]))); 
-         p4rec.push_back(new reco::Particle((muonType)((*muons)[0]))); 
+       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[4].p4(), (*muons)[0].p4()) < minDR_) {
+         p4gen.push_back(new reco::Particle(genEvt->particles()[4]));
+         p4rec.push_back(new reco::Particle((muonType)((*muons)[0])));
        }
      }
    }else if(objectType_ == "lJets"){
@@ -205,9 +205,9 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      if(ljets->size()>=4) { 
        for(unsigned int p = 0; p<2; p++){
          for(unsigned int j = 0; j<4; j++){
-           if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p]->p4(), (*ljets)[j].p4())< minDR_)  {
-	      p4gen.push_back(new reco::Particle(*(genEvt->particles()[p]))); 
-	      p4rec.push_back(new reco::Particle((jetType)(*ljets)[j])); 
+           if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*ljets)[j].p4())< minDR_) {
+	      p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
+	      p4rec.push_back(new reco::Particle((jetType)(*ljets)[j]));
 	   }
 	 }
        }
@@ -218,9 +218,9 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      if(bjets->size()>=4) { 
        for(unsigned int p = 2; p<4; p++){
          for(unsigned int j = 0; j<4; j++){
-           if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p]->p4(), (*bjets)[j].p4())< minDR_)  {
-	      p4gen.push_back(new reco::Particle(*(genEvt->particles()[p]))); 
-	      p4rec.push_back(new reco::Particle((jetType)(*bjets)[j])); 
+           if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[p].p4(), (*bjets)[j].p4())< minDR_) {
+	      p4gen.push_back(new reco::Particle(genEvt->particles()[p]));
+	      p4rec.push_back(new reco::Particle((jetType)(*bjets)[j]));
 	   }
 	 }
        }
@@ -230,9 +230,9 @@ void ResolutionCreator::analyze(const edm::Event& iEvent, const edm::EventSetup&
      edm::Handle<std::vector<metType> >  mets;
      iEvent.getByLabel(jetmetLabel_,mets);
      if(mets->size()>=1) { 
-       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[5]->p4(), (*mets)[0].p4()) < minDR_){
-         p4gen.push_back(new reco::Particle(*(genEvt->particles()[5]))); 
-         p4rec.push_back(new reco::Particle((metType)((*mets)[0]))); 
+       if( ROOT::Math::VectorUtil::DeltaR(genEvt->particles()[5].p4(), (*mets)[0].p4()) < minDR_) {
+         p4gen.push_back(new reco::Particle(genEvt->particles()[5]));
+         p4rec.push_back(new reco::Particle((metType)((*mets)[0])));
        }
      }
    }
