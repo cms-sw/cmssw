@@ -59,7 +59,7 @@ class TtDilepEvtSolution
   void setRecWeightMax(double);
     
  private:
-  const reco::Particle genLepp, genN, genB, genBbar, genLepm, genNbar, genWp, genWm, genT, genTbar;
+  reco::Particle genLepp, genN, genB, genBbar, genLepm, genNbar, genWp, genWm, genT, genTbar;
   TopElectron elecLepp, elecLepm;
   TopMuon muonLepp, muonLepm;
   TopJet jetB, jetBbar;

@@ -150,7 +150,7 @@ class TtSemiEvtSolution
       void 			setLRJetCombProb(double);
 	
    private:
-      const reco::Particle	genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
+      reco::Particle	genHadp, genHadq, genHadb, genLepb, genLepl, genLepn, genHadW, genLepW, genHadt, genLept;
       TopJet         		hadp, hadq, hadb, lepb;
       TopMuon        		muon;
       TopElectron    		electron;
