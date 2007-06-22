@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/06/21 17:45:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/22 16:29:15 $
+ *  $Revision: 1.5 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -77,7 +77,7 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
     cout << "                Execution will be stoped after processing the last unweighted event" << endl;  
   }
 
-  if(maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
+  if(maxEvents() != -1 && maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
     Nev_ = maxEvents();
  
   cout << "AlpgenSource: initializing Pythia. " << endl;
