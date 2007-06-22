@@ -12,11 +12,11 @@ using namespace std;
 // ***                        So - use the following instead                    ***
 const unsigned int L1GctTdrJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctTdrJetFinder::N_COLS;
 
-const int L1GctTdrJetFinder::N_COLS = 4;
+const unsigned int L1GctTdrJetFinder::N_COLS = 4;
 const unsigned int L1GctTdrJetFinder::CENTRAL_COL0 = 1;
 
-L1GctTdrJetFinder::L1GctTdrJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
-  L1GctJetFinderBase(id, sourceCards)
+L1GctTdrJetFinder::L1GctTdrJetFinder(int id):
+  L1GctJetFinderBase(id)
 {
   this->reset();
 }
@@ -35,8 +35,6 @@ ostream& operator << (ostream& os, const L1GctTdrJetFinder& algo)
 
 void L1GctTdrJetFinder::fetchInput()
 {
-  fetchCentreStripsInput();
-  fetchEdgeStripsInput();
 }
 
 void L1GctTdrJetFinder::process() 

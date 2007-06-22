@@ -13,7 +13,6 @@
 #include <vector>
 
 class L1GctJetEtCalibrationLut;
-class L1GctSourceCard;
 
 
 /*! \class L1GctJetFinderBase
@@ -23,14 +22,11 @@ class L1GctSourceCard;
  *  Individual jetFinders must define the fetchInput() and process() methods,
  *  using protected methods of the base class where necessary.
  *
- *  The jetFinder looks for jets over a 2x11 search area. It can pull in
- *  additional input regions from source cards to the left and right,
- *  and from across the eta=0 boundary between Wheels. The input regions
+ *  The jetFinder looks for jets over a 2x11 search area. Its 
+ *  input region are pushed in from the appropriate (phi, eta) range,
+ *  including across the eta=0 boundary between Wheels. The input regions
  *  are copied into a vector of dimension N_COLS*COL_OFFSET.
  *
- *  SourceCard pointers should be set up according to:
- *  http://frazier.home.cern.ch/frazier/wiki_resources/GCT/jetfinder_sourcecard_wiring.jpg
- * 
  *  The array of input regions is filled in a certain order with respect
  *  to the index i: 
  * 
@@ -55,13 +51,12 @@ public:
   typedef std::vector<L1GctJetCand> JetVector;
 
   //Statics
-  static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area
-  static const unsigned int MAX_SOURCE_CARDS; ///< Need data from 9 separate source cards to find jets in the 2*11 search region.
+  static const unsigned int MAX_JETS_OUT;  ///< Max of 6 jets found per jetfinder in a 2*11 search area.
   static const unsigned int COL_OFFSET;  ///< The index offset between columns
   static const unsigned int N_JF_PER_WHEEL; ///< No of jetFinders per Wheel
     
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctJetFinderBase(int id, std::vector<L1GctSourceCard*> sourceCards);
+  L1GctJetFinderBase(int id);
                  
   ~L1GctJetFinderBase();
    
@@ -87,7 +82,7 @@ public:
   virtual void process() = 0;
 
   /// Set input data
-  void setInputRegion(unsigned i, L1CaloRegion region);
+  void setInputRegion(L1CaloRegion region);
     
   /// Return input data   
   RegionsVector getInputRegions() const { return m_inputRegions; }
@@ -129,9 +124,6 @@ public:
   /// algo ID
   int m_id;
 	
-  /// Store source card pointers
-  std::vector<L1GctSourceCard*> m_sourceCards;
-  
   /// Store neighbour pointers
   std::vector<L1GctJetFinderBase*> m_neighbourJetFinders;
   
@@ -166,13 +158,9 @@ public:
   // function definitions below.
   virtual unsigned maxRegionsIn() const { return MAX_REGIONS_IN; }
   virtual unsigned centralCol0() const { return CENTRAL_COL0; }
-  virtual int nCols() const { return N_COLS; }
+  virtual unsigned nCols() const { return N_COLS; }
 
   /// Helper functions for the fetchInput() and process() methods
-  /// Get the input regions for the 2x11 search window plus eta=0 neighbours
-  void fetchCentreStripsInput();
-  /// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
-  void fetchEdgeStripsInput();
   /// fetch the protoJets from neighbour jetFinder
   void fetchProtoJetsFromNeighbour(const fetchType ft);
   /// Sort the found jets. All jetFinders should call this in process().
@@ -180,11 +168,6 @@ public:
   /// Fill the Et strip sums and Ht sum. All jetFinders should call this in process().
   void doEnergySums();
     
-  /// Copy the input regions from one source card into the m_inputRegions vector
-  void fetchScInput(L1GctSourceCard* sourceCard, int col0);
-  /// Copy the input regions from one eta=0 neighbour source card
-  void fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0);
-
   /// Calculates total (raw) energy in a phi strip
   L1GctUnsignedInt<12> calcEtStrip(const UShort strip) const;
 
@@ -195,9 +178,11 @@ public:
 
   /// The real jetFinders must define these constants
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
-  static const int N_COLS;
+  static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
+  /// parameters determine which Regions belong in our acceptance
+  unsigned m_minColThisJf;
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);

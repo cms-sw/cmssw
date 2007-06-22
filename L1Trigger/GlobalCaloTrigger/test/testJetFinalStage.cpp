@@ -17,7 +17,6 @@
 #include "L1Trigger/GlobalCaloTrigger/test/produceTrivialCalibrationLut.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
@@ -90,12 +89,6 @@ int main(int argc, char **argv)
   {
     //Create a whole bunch of objects to allow various other objects
     //to be constructed...
-    vector<L1GctSourceCard*> srcCrds(L1GctJetLeafCard::MAX_SOURCE_CARDS);
-    for(unsigned i=0; i < L1GctJetLeafCard::MAX_SOURCE_CARDS; ++i)
-    {
-      srcCrds[i] = new L1GctSourceCard(i*3+2, L1GctSourceCard::cardType3);
-    }
-    
     //create jet calibration lookup table
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
@@ -112,7 +105,7 @@ int main(int argc, char **argv)
     vector<L1GctJetLeafCard*> jetLeafCrds(L1GctWheelJetFpga::MAX_LEAF_CARDS);
     for(unsigned i=0; i < L1GctWheelJetFpga::MAX_LEAF_CARDS; ++i)
     {
-      jetLeafCrds[i] = new L1GctJetLeafCard(0, 0, srcCrds);
+      jetLeafCrds[i] = new L1GctJetLeafCard(0, 0);
       jetLeafCrds[i]->getJetFinderA()->setJetEtCalibrationLut(myJetEtCalLut);
       jetLeafCrds[i]->getJetFinderB()->setJetEtCalibrationLut(myJetEtCalLut);
       jetLeafCrds[i]->getJetFinderC()->setJetEtCalibrationLut(myJetEtCalLut);
@@ -139,10 +132,6 @@ int main(int argc, char **argv)
     }
     delete myJetEtCalLut;     
     for(vector<L1GctJetCounterLut*>::iterator it = myJetCounterLuts.begin(); it != myJetCounterLuts.end(); ++it)
-    {
-      delete *it;
-    }
-    for(vector<L1GctSourceCard*>::iterator it = srcCrds.begin(); it != srcCrds.end(); ++it)
     {
       delete *it;
     }

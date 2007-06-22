@@ -16,7 +16,7 @@
  * \brief Class that sorts electron candidates
  *
  * This class can be constructed to sort iso or non-iso
- * electron candidates from 4 or 5 source cards.
+ * electron candidates.
  * The electrons are sorted in ascending order and the 4
  * highest in rank will be returned.
  * It represents the 1st stage sorter FPGA's on the electron
@@ -26,15 +26,11 @@
  * \date    21/04/06
  */
 
-class L1GctSourceCard;
-
 class L1GctElectronSorter : public L1GctProcessor
 {
  public:
   
   /// constructor; set type (isolated or non-isolated)
-  L1GctElectronSorter(int nInputs, bool iso,  std::vector<L1GctSourceCard*> sCards);
-  /// constructor for test purposes, takes no of inputs and type
   L1GctElectronSorter(int nInputs, bool iso);
   ///   
   ~L1GctElectronSorter();
@@ -49,7 +45,7 @@ class L1GctElectronSorter : public L1GctProcessor
   virtual void process();
   ///
   /// set input candidate
-  void setInputEmCand(int i, L1CaloEmCand cand);
+  void setInputEmCand(L1CaloEmCand cand);
   ///	
   /// get input candidates
   inline std::vector<L1CaloEmCand> getInputCands() { return m_inputCands; }
@@ -77,9 +73,6 @@ class L1GctElectronSorter : public L1GctProcessor
   ///
   /// type of electron to sort (isolated = 0 or non isolated = 1)
   bool m_isolation;
-  ///
-  /// source card input
-  std::vector<L1GctSourceCard*> m_theSCs;
   ///
   /// input data
   std::vector<L1CaloEmCand> m_inputCands;

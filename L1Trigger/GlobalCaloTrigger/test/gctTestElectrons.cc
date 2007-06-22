@@ -20,8 +20,8 @@ using std::endl;
 
 gctTestElectrons::gctTestElectrons()
 {
-  m_theIsoEmCandSorter = new L1GctElectronSorter(72,0);
-  m_nonIsoEmCandSorter = new L1GctElectronSorter(72,1);
+  m_theIsoEmCandSorter = new L1GctElectronSorter(18,0);
+  m_nonIsoEmCandSorter = new L1GctElectronSorter(18,1);
 }
 
 gctTestElectrons::~gctTestElectrons()
@@ -72,8 +72,8 @@ bool gctTestElectrons::checkElectrons(const L1GlobalCaloTrigger* gct)
   }
  
   for(unsigned int i=0;i!=72;i++){
-    m_theIsoEmCandSorter->setInputEmCand(i,m_theIsoEmCandsFromFileInput[i]);
-    m_nonIsoEmCandSorter->setInputEmCand(i,m_nonIsoEmCandsFromFileInput[i]);
+    m_theIsoEmCandSorter->setInputEmCand(m_theIsoEmCandsFromFileInput[i]);
+    m_nonIsoEmCandSorter->setInputEmCand(m_nonIsoEmCandsFromFileInput[i]);
   }
   m_theIsoEmCandSorter->process();
   m_nonIsoEmCandSorter->process();

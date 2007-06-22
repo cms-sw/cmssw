@@ -18,7 +18,6 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJet.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
@@ -89,29 +88,18 @@ int main(int argc, char **argv)
 
   try
   {
-    //make up some source card pointers to pass into jet finder
-    vector<L1GctSourceCard*> srcCrds(L1GctJetFinderBase::MAX_SOURCE_CARDS);
-    for(unsigned i=0; i < L1GctJetFinderBase::MAX_SOURCE_CARDS; ++i)
-    {
-      srcCrds[i] = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
-    }
-        
     produceTrivialCalibrationLut* lutProducer=new produceTrivialCalibrationLut();
 
     // Instance of the class
     L1GctJetEtCalibrationLut* myJetEtCalLut = lutProducer->produce();
     delete lutProducer;
   
-    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9, srcCrds); //TEST OBJECT on heap;
+    L1GctTdrJetFinder * myJetFinder = new L1GctTdrJetFinder(9); //TEST OBJECT on heap;
     myJetFinder->setJetEtCalibrationLut(myJetEtCalLut); 
        
     classTest(myJetFinder);
     
     //clean up
-    for(vector<L1GctSourceCard*>::iterator it = srcCrds.begin(); it != srcCrds.end(); ++it)
-    {
-      delete *it;
-    }
     delete myJetEtCalLut; 
     delete myJetFinder;
   }
@@ -151,7 +139,7 @@ void classTest(L1GctTdrJetFinder *myJetFinder)
   //Fill the L1GctJetFinder with regions.
   for(int i = 0; i < numInputRegions; ++i)
   {
-    myJetFinder->setInputRegion(i, inputRegions.at(i));
+    myJetFinder->setInputRegion(inputRegions.at(i));
   }
 
   // Test the getInputRegion method

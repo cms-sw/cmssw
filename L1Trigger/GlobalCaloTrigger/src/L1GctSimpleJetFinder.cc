@@ -8,11 +8,11 @@ using namespace std;
 //DEFINE STATICS
 const unsigned int L1GctSimpleJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctSimpleJetFinder::N_COLS;
 
-const int L1GctSimpleJetFinder::N_COLS = 2;
+const unsigned int L1GctSimpleJetFinder::N_COLS = 2;
 const unsigned int L1GctSimpleJetFinder::CENTRAL_COL0 = 0;
 
-L1GctSimpleJetFinder::L1GctSimpleJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
-  L1GctJetFinderBase(id, sourceCards)
+L1GctSimpleJetFinder::L1GctSimpleJetFinder(int id):
+  L1GctJetFinderBase(id)
 {
   this->reset();
 }
@@ -31,7 +31,6 @@ ostream& operator << (ostream& os, const L1GctSimpleJetFinder& algo)
 
 void L1GctSimpleJetFinder::fetchInput()
 {
-  fetchCentreStripsInput();
 }
 
 void L1GctSimpleJetFinder::process() 

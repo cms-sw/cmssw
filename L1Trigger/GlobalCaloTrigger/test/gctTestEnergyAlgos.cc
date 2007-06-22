@@ -6,7 +6,7 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctGlobalEnergyAlgos.h"
 
 #include <math.h>
-
+#include <iostream>
 
 using namespace std;
 

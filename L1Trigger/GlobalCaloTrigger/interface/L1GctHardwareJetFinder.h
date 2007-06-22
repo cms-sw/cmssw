@@ -23,7 +23,7 @@ class L1GctHardwareJetFinder : public L1GctJetFinderBase
  public:
 
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctHardwareJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards);
+  L1GctHardwareJetFinder(int id);
                  
   ~L1GctHardwareJetFinder();
    
@@ -45,13 +45,13 @@ class L1GctHardwareJetFinder : public L1GctJetFinderBase
   // function definitions below.
   virtual unsigned maxRegionsIn() const { return MAX_REGIONS_IN; }
   virtual unsigned centralCol0() const { return CENTRAL_COL0; }
-  virtual int nCols() const { return N_COLS; }
+  virtual unsigned nCols() const { return N_COLS; }
 
 private:
 
   /// The real jetFinders must define these constants
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
-  static const int N_COLS;
+  static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
   /// Threshold value to find a local et maximum

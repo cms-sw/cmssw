@@ -1,7 +1,6 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctEmLeafCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelJetFpga.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctWheelEnergyFpga.h"
@@ -19,7 +18,6 @@ using std::endl;
 using std::vector;
 
 //DEFINE STATICS
-const int L1GlobalCaloTrigger::N_SOURCE_CARDS = 54;
 const int L1GlobalCaloTrigger::N_JET_LEAF_CARDS = 6;
 const int L1GlobalCaloTrigger::N_EM_LEAF_CARDS = 2;
 const int L1GlobalCaloTrigger::N_WHEEL_CARDS = 2;
@@ -29,9 +27,11 @@ const unsigned int L1GlobalCaloTrigger::N_JET_COUNTERS_PER_WHEEL = L1GctWheelJet
 
 // constructor
 L1GlobalCaloTrigger::L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType) :
-  theSourceCards(N_SOURCE_CARDS),
   theJetLeafCards(N_JET_LEAF_CARDS),
+  theJetFinders(N_JET_LEAF_CARDS*3),
   theEmLeafCards(N_EM_LEAF_CARDS),
+  theIsoElectronSorters(N_EM_LEAF_CARDS*2),
+  theNonIsoElectronSorters(N_EM_LEAF_CARDS*2),
   theWheelJetFpgas(N_WHEEL_CARDS),
   theWheelEnergyFpgas(N_WHEEL_CARDS),
   m_jetEtCalLut(0)
@@ -45,17 +45,39 @@ L1GlobalCaloTrigger::L1GlobalCaloTrigger(L1GctJetLeafCard::jetFinderType jfType)
 
 }
 
+/// GCT Destructor
 L1GlobalCaloTrigger::~L1GlobalCaloTrigger()
 {
-  theSourceCards.clear();
+  // Delete the components of the GCT that we made in build()
+  // (But not the LUTs, since these don't belong to us)
+
+  if (theNonIsoEmFinalStage != 0) delete theNonIsoEmFinalStage;
+  
+  if (theIsoEmFinalStage != 0) delete theIsoEmFinalStage;
+  
+  if (theEnergyFinalStage != 0) delete theEnergyFinalStage;	
+  
+  if (theJetFinalStage != 0) delete theJetFinalStage;			
+  
+  for (unsigned i=0; i<theWheelEnergyFpgas.size(); ++i) { 
+    if (theWheelEnergyFpgas.at(i) != 0) delete theWheelEnergyFpgas.at(i); }
+  theWheelEnergyFpgas.clear();
+  
+  for (unsigned i=0; i<theWheelJetFpgas.size(); ++i) { 
+    if (theWheelJetFpgas.at(i) != 0) delete theWheelJetFpgas.at(i); }
+  theWheelJetFpgas.clear();		
+
+  for (unsigned i=0; i<theEmLeafCards.size(); ++i) { 
+    if (theEmLeafCards.at(i) != 0) delete theEmLeafCards.at(i); }
+  theEmLeafCards.clear();
+
+  for (unsigned i=0; i<theJetLeafCards.size(); ++i) { 
+    if (theJetLeafCards.at(i) != 0) delete theJetLeafCards.at(i); }
+  theJetLeafCards.clear();
+  
 }
 
 void L1GlobalCaloTrigger::reset() {
-
-  // Source cards
-  for (int i=0; i<N_SOURCE_CARDS; i++) {
-    theSourceCards.at(i)->reset();
-  }
 
   // EM Leaf Card
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
@@ -65,6 +87,11 @@ void L1GlobalCaloTrigger::reset() {
   // Jet Leaf cards
   for (int i=0; i<N_JET_LEAF_CARDS; i++) {
     theJetLeafCards.at(i)->reset();
+  }
+
+  // Jet Finders
+  for (int i=0; i<N_JET_LEAF_CARDS*3; i++) {
+    theJetFinders.at(i)->reset();
   }
 
   // Wheel Cards
@@ -152,12 +179,22 @@ void L1GlobalCaloTrigger::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut) 
 
 void L1GlobalCaloTrigger::setRegion(L1CaloRegion region) 
 {
-  unsigned scnum = region.gctCard();
-  unsigned input = region.gctRegionIndex();
-  L1GctSourceCard* sc = theSourceCards.at(scnum);
-  std::vector<L1CaloRegion> tempRegions = sc->getRegions();
-  tempRegions.at(input) = region;
-  sc->setRegions(tempRegions);
+  if (region.bx()==0) {
+    unsigned crate = region.rctCrate();
+    // Find the relevant jetFinders
+    static const unsigned NPHI = L1CaloRegionDetId::N_PHI/2;
+    unsigned thisphi = crate % NPHI;
+    unsigned nextphi = (crate+1) % NPHI;
+    unsigned prevphi = (crate+NPHI-1) % NPHI;
+
+    // Send the region to six jetFinders.
+    theJetFinders.at(thisphi)->setInputRegion(region);
+    theJetFinders.at(nextphi)->setInputRegion(region);
+    theJetFinders.at(prevphi)->setInputRegion(region);
+    theJetFinders.at(thisphi+NPHI)->setInputRegion(region);
+    theJetFinders.at(nextphi+NPHI)->setInputRegion(region);
+    theJetFinders.at(prevphi+NPHI)->setInputRegion(region);
+  }
 }
 
 void L1GlobalCaloTrigger::setRegion(unsigned et, unsigned ieta, unsigned iphi, bool overFlow, bool fineGrain)
@@ -168,30 +205,30 @@ void L1GlobalCaloTrigger::setRegion(unsigned et, unsigned ieta, unsigned iphi, b
 
 void L1GlobalCaloTrigger::setIsoEm(L1CaloEmCand em) 
 {
-  unsigned scnum = em.rctCrate()*3;
-  L1GctSourceCard* sc = theSourceCards.at(scnum);
-  std::vector<L1CaloEmCand> tempEmCands = sc->getIsoElectrons();
-  for (uint input=0; input<tempEmCands.size();input++){
-    if (tempEmCands.at(input).rank()==0) {
-      tempEmCands.at(input) = em;
-      break;
+  if (em.bx()==0) {
+    unsigned crate = em.rctCrate();
+    unsigned sorterNo;
+    if ((crate%9) < 4) {
+      sorterNo = (crate/9)*2;
+    } else {
+      sorterNo = (crate/9)*2 + 1;
     }
+    theIsoElectronSorters.at(sorterNo)->setInputEmCand(em); 
   }
-  sc->setIsoEm(tempEmCands);
 }
 
 void L1GlobalCaloTrigger::setNonIsoEm(L1CaloEmCand em) 
 {
-  unsigned scnum = em.rctCrate()*3;
-  L1GctSourceCard* sc = theSourceCards.at(scnum);
-  std::vector<L1CaloEmCand> tempEmCands = sc->getNonIsoElectrons();
-  for (uint input=0; input<tempEmCands.size();input++){
-    if (tempEmCands.at(input).rank()==0) {
-      tempEmCands.at(input) = em;
-      break;
+  if (em.bx()==0) {
+    unsigned crate = em.rctCrate();
+    unsigned sorterNo;
+    if ((crate%9) < 4) {
+      sorterNo = (crate/9)*2;
+    } else {
+      sorterNo = (crate/9)*2 + 1;
     }
+    theNonIsoElectronSorters.at(sorterNo)->setInputEmCand(em); 
   }
-  sc->setNonIsoEm(tempEmCands);
 }
 
 void L1GlobalCaloTrigger::fillRegions(vector<L1CaloRegion> rgn)
@@ -218,17 +255,10 @@ void L1GlobalCaloTrigger::print() {
   cout << "=== START DEBUG OUTPUT  ===" << endl;
 
   cout << endl;
-  cout << "N Source Cards " << theSourceCards.size() << endl;
   cout << "N Jet Leaf Cards " << theJetLeafCards.size() << endl;
   cout << "N Wheel Jet Fpgas " << theWheelJetFpgas.size() << endl;
   cout << "N Wheel Energy Fpgas " << theWheelEnergyFpgas.size() << endl;
   cout << "N Em Leaf Cards " << theEmLeafCards.size() << endl;
-  cout << endl;
-
-  for (unsigned i=0; i<theSourceCards.size(); i++) {
-    cout << "Source Card " << i << " : " << theSourceCards.at(i) << endl;
-    //cout << (*theSourceCards.at(i)); 
-  }
   cout << endl;
 
   for (unsigned i=0; i<theJetLeafCards.size(); i++) {
@@ -324,54 +354,12 @@ L1GctJetCount<5> L1GlobalCaloTrigger::getJetCount(unsigned jcnum) const {
 // instantiate hardware/algorithms
 void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
 
-  // Source cards
-  for (int i=0; i<(N_SOURCE_CARDS/3); i++) {
-    theSourceCards.at(3*i)   = new L1GctSourceCard(3*i,   L1GctSourceCard::cardType1);
-    theSourceCards.at(3*i+1) = new L1GctSourceCard(3*i+1, L1GctSourceCard::cardType2);
-    theSourceCards.at(3*i+2) = new L1GctSourceCard(3*i+2, L1GctSourceCard::cardType3);
-  }
-
-   // Now we have the source cards prepare vectors of the relevent cards for the connections
-
-  // Jet leaf cards
-  vector<L1GctSourceCard*> jetSourceCards(15);
-
   // Jet Leaf cards
   for (int jlc=0; jlc<N_JET_LEAF_CARDS; jlc++) {
-    // Define local constant for ease of typing
-    static const int NL = N_JET_LEAF_CARDS/2;
-    // neighbour leaf cards
-    int nlc = (jlc+NL) % N_JET_LEAF_CARDS;         // The neighbour across the eta=0 boundary
-    int jup = (NL*(jlc/NL)) + ((jlc+1)%NL);        // The adjacent leaf in increasing phi direction
-    int jdn = (NL*(jlc/NL)) + ((jlc+(NL-1))%NL);   // The adjacent leaf in decreasing phi direction
-    int nup = (jup+NL) % N_JET_LEAF_CARDS;         // The leaf across eta=0 and increasing phi
-    int ndn = (jdn+NL) % N_JET_LEAF_CARDS;         // The leaf across eta=0 and decreasing phi
-    // Initialise index for counting SourceCards for this JetLeafCard
-    int sc = 0;
-    // Each Leaf card contains three jetFinders
-    for (int jf=0; jf<3; jf++) {
-      // Source card numbering:
-      // 3*i+1 cover the endcap and HF regions
-      // 3*i+2 cover the barrel regions
-      //
-      // Three source cards for each jetFinder:
-      // First is endcap source card
-      jetSourceCards.at(sc++) = theSourceCards.at((jlc*9) + (3*jf) + 1);
-      // Second is barrel source card
-      jetSourceCards.at(sc++) = theSourceCards.at((jlc*9) + (3*jf) + 2);
-      // Third is the barrel source card that supplies
-      // data from across the eta=0 boundary
-      jetSourceCards.at(sc++) = theSourceCards.at((nlc*9) + (3*jf) + 2);
-    }
-    // Neighbour connections
-    jetSourceCards.at(sc++)=theSourceCards.at((jup*9+1));
-    jetSourceCards.at(sc++)=theSourceCards.at((jup*9+2));
-    jetSourceCards.at(sc++)=theSourceCards.at((nup*9+2));
-    jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+7));
-    jetSourceCards.at(sc++)=theSourceCards.at((jdn*9+8));
-    jetSourceCards.at(sc++)=theSourceCards.at((ndn*9+8));
-
-    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3,jetSourceCards, jfType);
+    theJetLeafCards.at(jlc) = new L1GctJetLeafCard(jlc,jlc % 3, jfType);
+    theJetFinders.at( 3*jlc ) = theJetLeafCards.at(jlc)->getJetFinderA();
+    theJetFinders.at(3*jlc+1) = theJetLeafCards.at(jlc)->getJetFinderB();
+    theJetFinders.at(3*jlc+2) = theJetLeafCards.at(jlc)->getJetFinderC();
   }
 
   //Link jet leaf cards together
@@ -390,13 +378,12 @@ void L1GlobalCaloTrigger::build(L1GctJetLeafCard::jetFinderType jfType) {
   }
 
   // EM leaf cards  
-  vector<L1GctSourceCard*> emSourceCards(9);
-
   for (int i=0; i<N_EM_LEAF_CARDS; i++) {
-    for (int j=0; j<9; j++) {
-      emSourceCards.at(j)=theSourceCards.at((i*9+j)*3);
-    }
-    theEmLeafCards.at(i) = new L1GctEmLeafCard(i,emSourceCards);
+    theEmLeafCards.at(i) = new L1GctEmLeafCard(i);
+    theIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getIsoElectronSorter0();
+    theIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getIsoElectronSorter1();
+    theNonIsoElectronSorters.at( 2*i ) = theEmLeafCards.at(i)->getNonIsoElectronSorter0();
+    theNonIsoElectronSorters.at(2*i+1) = theEmLeafCards.at(i)->getNonIsoElectronSorter1();
   }
 
    // Wheel Fpgas

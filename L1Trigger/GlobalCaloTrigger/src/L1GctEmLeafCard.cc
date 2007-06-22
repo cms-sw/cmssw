@@ -7,49 +7,20 @@ using std::vector;
 using std::ostream;
 using std::endl;
 
-const unsigned L1GctEmLeafCard::N_SOURCE_CARDS = 9;
 const unsigned L1GctEmLeafCard::N_SORTERS = 4;
 
-L1GctEmLeafCard::L1GctEmLeafCard(int id, vector<L1GctSourceCard*> srcCards) :
+L1GctEmLeafCard::L1GctEmLeafCard(int id) :
   m_id(id),
-  m_sorters(4),
-  m_sourceCards(srcCards)
+  m_sorters(4)
 {
-  vector<L1GctSourceCard*> firstHalf(4);
-  vector<L1GctSourceCard*> secondHalf(5);
-  
-  
-  // check for the right number of source cards
-  if (m_sourceCards.size()!=N_SOURCE_CARDS) {
-    throw cms::Exception("L1GctSetupError")
-      << "L1GctEmLeafCard::L1GctEmLeafCard() : EM Leaf Card ID " << m_id << " has been incorrectly constructed!" << endl
-      << "Expected " << N_SOURCE_CARDS << " source card pointers, only received " << m_sourceCards.size() << endl;
-  }
-
-  for (unsigned i=0; i<N_SOURCE_CARDS; i++) {
-    if (m_sourceCards.at(i)==0) {
-     throw cms::Exception("L1GctSetupError")
-       << "L1GctEmLeafCard::L1GctEmLeafCard() : EM Leaf Card ID " << m_id << " has been incorrectly constructed!" << endl
-       << "SourceCard pointer " << i << " is null" << endl;
-
-    }
-  }
-
-  for(unsigned i=0;i!=m_sourceCards.size();i++){
-    if(i<4){
-      firstHalf.at(i) = m_sourceCards.at(i);
-    }else{
-      secondHalf.at(i-4) = m_sourceCards.at(i);
-    }
-  }
 
   // sorters 0 and 1 are in FPGA 0
-  m_sorters.at(0) = new L1GctElectronSorter(4,true, firstHalf);
-  m_sorters.at(1) = new L1GctElectronSorter(4,false,firstHalf);
+  m_sorters.at(0) = new L1GctElectronSorter(4,true);
+  m_sorters.at(1) = new L1GctElectronSorter(4,false);
   
   // sorters 2 and 3 are in FPGA 1
-  m_sorters.at(2) = new L1GctElectronSorter(5,true, secondHalf);
-  m_sorters.at(3) = new L1GctElectronSorter(5,false,secondHalf);
+  m_sorters.at(2) = new L1GctElectronSorter(5,true);
+  m_sorters.at(3) = new L1GctElectronSorter(5,false);
 }
 
 
@@ -106,10 +77,6 @@ vector<L1GctEmCand> L1GctEmLeafCard::getOutputNonIsoEmCands(int fpga) {
 ostream& operator<<(ostream& s, const L1GctEmLeafCard& card) {
   s << "===L1GctEmLeafCard===" <<endl;
   s << "ID = "<<card.m_id<<endl;
-  s << "No of Source Cards = " <<card.m_sourceCards.size() << endl;
-  for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    s << "SourceCard* " << i << " = " << card.m_sourceCards.at(i) << endl;
-  }
   s << "No of Electron Sorters = " << card.m_sorters.size() << endl;
   for (unsigned i=0; i<card.m_sorters.size(); i++) {
     s << std::endl;

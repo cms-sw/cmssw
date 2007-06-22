@@ -12,8 +12,7 @@
  *  Locates the jets from 48 inputted L1CaloRegions.
  *  This uses the 3*3 sliding window algorithm.
  * 
- *  The details of the sourceCard wiring, and the filling of the input
- *  L1CaloRegions, are now contained in the L1GctJetFinderBase class
+ *  The the filling of the input L1CaloRegions happens in the L1GctJetFinderBase class
  *
  *  Inputted regions are expected in a certain order with respect
  *  to the index i:
@@ -57,7 +56,7 @@ class L1GctTdrJetFinder : public L1GctJetFinderBase
  public:
 
   /// id is 0-8 for -ve Eta jetfinders, 9-17 for +ve Eta, for increasing Phi.
-  L1GctTdrJetFinder(int id, std::vector<L1GctSourceCard*> sourceCards);
+  L1GctTdrJetFinder(int id);
                  
   ~L1GctTdrJetFinder();
    
@@ -76,13 +75,13 @@ class L1GctTdrJetFinder : public L1GctJetFinderBase
   // function definitions below.
   virtual unsigned maxRegionsIn() const { return MAX_REGIONS_IN; }
   virtual unsigned centralCol0() const { return CENTRAL_COL0; }
-  virtual int nCols() const { return N_COLS; }
+  virtual unsigned int nCols() const { return N_COLS; }
 
 private:
 
   /// The real jetFinders must define these constants
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
-  static const int N_COLS;
+  static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
 
   /// Here is the TDR 3x3 sliding window jet finder algorithm

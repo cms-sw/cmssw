@@ -3,7 +3,6 @@
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctEmCand.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctElectronSorter.h"
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 
 #include <vector>
 #include <ostream>
@@ -12,8 +11,7 @@
  * \Class L1GctEmLeafCard
  * \brief Emulates a leaf card programmed for electron sorting
  *
- * This class get the electron candidates from the source cards
- * and do the 1st stage sorting of them.
+ * This class does the 1st stage sorting of the electron candidates.
  *
  * \author  Jim Brooke
  * \date    20/02/06
@@ -21,12 +19,11 @@
 
 class L1GctEmLeafCard : L1GctProcessor {
  public:
-  static const unsigned N_SOURCE_CARDS;
   static const unsigned N_SORTERS;
 
  public:
-  /// construct with ID and vector of pointers to Source Cards
-  L1GctEmLeafCard(int id, std::vector<L1GctSourceCard*> srcCards);
+  /// construct with ID
+  L1GctEmLeafCard(int id);
   ///
   /// destruct
   ~L1GctEmLeafCard();
@@ -52,15 +49,17 @@ class L1GctEmLeafCard : L1GctProcessor {
   /// overload of cout operator
   friend std::ostream& operator<<(std::ostream& s,const L1GctEmLeafCard& card);
 
+  L1GctElectronSorter* getIsoElectronSorter0()    { return m_sorters.at(0); }
+  L1GctElectronSorter* getNonIsoElectronSorter0() { return m_sorters.at(1); }
+  L1GctElectronSorter* getIsoElectronSorter1()    { return m_sorters.at(2); }
+  L1GctElectronSorter* getNonIsoElectronSorter1() { return m_sorters.at(3); }
+
 private:
   /// card ID (0 or 1)
   int m_id;
   ///  
   /// processing - 0,1 are iso sorters, 2,3 are non-iso
   std::vector<L1GctElectronSorter*> m_sorters;
-  ///
-  /// pointers to data source
-  std::vector<L1GctSourceCard*> m_sourceCards;
   
 };
 

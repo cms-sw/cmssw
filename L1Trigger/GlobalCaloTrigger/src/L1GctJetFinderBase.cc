@@ -1,6 +1,5 @@
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetEtCalibrationLut.h"
 
 #include "FWCore/Utilities/interface/Exception.h"  
@@ -10,18 +9,16 @@ using namespace std;
 
 //DEFINE STATICS
 const unsigned int L1GctJetFinderBase::MAX_JETS_OUT = 6;
-const unsigned int L1GctJetFinderBase::MAX_SOURCE_CARDS = 9;
 const unsigned int L1GctJetFinderBase::COL_OFFSET = ((L1CaloRegionDetId::N_ETA)/2)+1;
 const unsigned int L1GctJetFinderBase::N_JF_PER_WHEEL = ((L1CaloRegionDetId::N_PHI)/2);
 
 const unsigned int L1GctJetFinderBase::MAX_REGIONS_IN = L1GctJetFinderBase::COL_OFFSET*L1GctJetFinderBase::N_COLS;
-const int L1GctJetFinderBase::N_COLS = 2;
+const unsigned int L1GctJetFinderBase::N_COLS = 2;
 const unsigned int L1GctJetFinderBase::CENTRAL_COL0 = 0;
 
 
-L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCards):
+L1GctJetFinderBase::L1GctJetFinderBase(int id):
   m_id(id),
-  m_sourceCards(sourceCards),
   m_neighbourJetFinders(2),
   m_gotNeighbourPointers(false),
   m_jetEtCalLut(0),
@@ -37,25 +34,9 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id, vector<L1GctSourceCard*> sourceCa
     << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
     << "ID number should be between the range of 0 to " << L1CaloRegionDetId::N_PHI-1 << "\n";
   } 
-  
-  if(m_sourceCards.size() != MAX_SOURCE_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_SOURCE_CARDS << " source card pointers, yet only " << m_sourceCards.size()
-    << " source card pointers are present.\n";
-  }
-  
-  for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
-  {
-    if(m_sourceCards.at(i) == 0)
-    {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
-      << "Source card pointer " << i << " has not been set!\n";
-    }
-  }
-  
+  // Initialise parameters for Region input calculations
+  static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
+  m_minColThisJf = (NPHI + m_id*2 - this->centralCol0()) % NPHI;
 }
 
 L1GctJetFinderBase::~L1GctJetFinderBase()
@@ -94,11 +75,6 @@ void L1GctJetFinderBase::setJetEtCalibrationLut(L1GctJetEtCalibrationLut* lut)
 ostream& operator << (ostream& os, const L1GctJetFinderBase& algo)
 {
   os << "ID = " << algo.m_id << endl;
-  os << "No of Source cards " << algo.m_sourceCards.size() << endl;
-  for (unsigned i=0; i<algo.m_sourceCards.size(); i++) {
-    os << "SourceCard* " << i << " = " << algo.m_sourceCards.at(i)<< endl;
-    os << "No of regions from this sourceCard " << algo.m_sourceCards.at(i)->getRegions().size() << endl;
-  }
   os << "JetEtCalibrationLut* = " <<  algo.m_jetEtCalLut << endl;
   os << "No of input regions " << algo.m_inputRegions.size() << endl;
 //   for(unsigned i=0; i < algo.m_inputRegions.size(); ++i)
@@ -140,76 +116,33 @@ void L1GctJetFinderBase::reset()
   m_outputHt = 0;
 }
 
-void L1GctJetFinderBase::setInputRegion(unsigned i, L1CaloRegion region)
+// This is how the regions from the RCT get into the GCT for processing 
+void L1GctJetFinderBase::setInputRegion(L1CaloRegion region)
 {
-  if(i >= 0 && i < this->maxRegionsIn())
-  {
-    m_inputRegions.at(i) = region;
-  }
-  else
-  {
-    throw cms::Exception("L1GctInputError")
-    << "L1GctJetFinderBase::setInputRegion() : In Jet Finder ID " << m_id << ", inputted region " 
-    << i << " is outside input index range of 0 to " << (this->maxRegionsIn()-1) << "\n";
+  static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
+  unsigned crate = region.rctCrate();
+  // Find the column for this region in a global (eta,phi) array
+  // Note the column numbers here are not the same as region->gctPhi()
+  // because the RCT crates are not numbered from phi=0.
+  unsigned colAbsolute = crate*2 + region.rctPhi();
+  unsigned colRelative = ((colAbsolute+NPHI) - m_minColThisJf) % NPHI;
+  if (colRelative < this->nCols()) {
+    // We are in the right range in phi
+    // Now check we are in the right wheel (positive or negative eta)
+    if ( (crate/N_JF_PER_WHEEL) == (m_id/N_JF_PER_WHEEL) ) {
+      unsigned i = colRelative*COL_OFFSET + region.rctEta() + 1;
+      m_inputRegions.at(i) = region;
+    } else {
+      // Accept neighbouring regions from the other wheel
+      if (region.rctEta() == 0) {
+	unsigned i = colRelative*COL_OFFSET;
+	m_inputRegions.at(i) = region;
+      }
+    }
   }
 }
 
 // PROTECTED METHODS BELOW
-/// Get the input regions for the 2x11 search window plus eta=0 neighbours
-void L1GctJetFinderBase::fetchCentreStripsInput() {
-  fetchScInput(m_sourceCards.at(0), this->centralCol0());
-  fetchScInput(m_sourceCards.at(1), this->centralCol0());
-  fetchNeighbourScInput(m_sourceCards.at(2), this->centralCol0());
-}
-
-/// Get the input regions for adjacent 2x11 search windows plus eta=0 neighbours
-void L1GctJetFinderBase::fetchEdgeStripsInput() {
-  fetchScInput(m_sourceCards.at(3), (this->centralCol0()+2));
-  fetchScInput(m_sourceCards.at(4), (this->centralCol0()+2));
-  fetchNeighbourScInput(m_sourceCards.at(5), (this->centralCol0()+2));
-  fetchScInput(m_sourceCards.at(6), (this->centralCol0()-2));
-  fetchScInput(m_sourceCards.at(7), (this->centralCol0()-2));
-  fetchNeighbourScInput(m_sourceCards.at(8), (this->centralCol0()-2));
-}
-
-/// Copy the input regions from one source card into the m_inputRegions vector
-void L1GctJetFinderBase::fetchScInput(L1GctSourceCard* sourceCard, int col0) {
-  for ( unsigned pos = 0; pos<sourceCard->getRegions().size(); ++pos) {
-    // Cross-check position in output array
-    if ( (sourceCard->getRegions().at(pos).gctRegionIndex() == pos) ) {
-      unsigned localEta = sourceCard->getRegions().at(pos).rctEta();
-      unsigned localPhi = sourceCard->getRegions().at(pos).rctPhi();
-
-      int col = col0+localPhi;
-      if (col>=0 && col<this->nCols()) {
-		unsigned offset = col*COL_OFFSET + localEta + 1;
-		m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
-      }
-    }
-  }
-}
-
-/// Copy the input regions from one eta=0 neighbour source card
-/// No method to find the eta=0 regions directly so we loop 
-/// over all regions as in fetchScInput
-void L1GctJetFinderBase::fetchNeighbourScInput(L1GctSourceCard* sourceCard, int col0) {
-  for ( unsigned pos = 0; pos<sourceCard->getRegions().size(); ++pos) {
-    // Cross-check position in output array
-    if ( (sourceCard->getRegions().at(pos).gctRegionIndex() == pos) ) {
-      unsigned localEta = sourceCard->getRegions().at(pos).rctEta();
-      unsigned localPhi = sourceCard->getRegions().at(pos).rctPhi();
-
-      if (localEta == 0) {
-	int col = col0+localPhi;
-	if (col>=0 && col<this->nCols()) {
-	  unsigned offset = col*COL_OFFSET;
-	  m_inputRegions.at(offset) = sourceCard->getRegions().at(pos);
-	}
-      }
-    }
-  }
-}
-
 /// fetch the protoJets from neighbour jetFinder
 void L1GctJetFinderBase::fetchProtoJetsFromNeighbour(const fetchType ft)
 {

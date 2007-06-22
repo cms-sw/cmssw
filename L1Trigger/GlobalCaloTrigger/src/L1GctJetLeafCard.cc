@@ -12,13 +12,10 @@ using namespace std;
 
 //DEFINE STATICS
 const int L1GctJetLeafCard::MAX_JET_FINDERS = 3;  
-const unsigned int L1GctJetLeafCard::MAX_SOURCE_CARDS = 15;
 
-L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> sourceCards,
-				   jetFinderType jfType):
+L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, jetFinderType jfType):
   m_id(id),
   m_whichJetFinder(jfType),
-  m_sourceCards(sourceCards),
   phiPosition(iphi)
 {
   //Check jetLeafCard setup
@@ -37,70 +34,17 @@ L1GctJetLeafCard::L1GctJetLeafCard(int id, int iphi, vector<L1GctSourceCard*> so
     << "Argument iphi is " << phiPosition << ", should be " << (m_id%3) << " for this ID value \n";
   } 
   
-  if(m_sourceCards.size() != MAX_SOURCE_CARDS)
-  {
-    throw cms::Exception("L1GctSetupError")
-    << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-    << "This class needs " << MAX_SOURCE_CARDS << " source card pointers, yet only " << m_sourceCards.size()
-    << " source card pointers are present.\n";
-  }
-  
-  for(unsigned int i = 0; i < m_sourceCards.size(); ++i)
-  {
-    if(m_sourceCards.at(i) == 0)
-    {
-      throw cms::Exception("L1GctSetupError")
-      << "L1GctJetLeafCard::L1GctJetLeafCard() : Jet Leaf Card ID " << m_id << " has been incorrectly constructed!\n"
-      << "Source card pointer " << i << " has not been set!\n";
-    }
-  }
-
-  //create vectors to pass into the three jetfinders
-  vector<L1GctSourceCard*> srcCardsForJetFinderA(L1GctJetFinderBase::MAX_SOURCE_CARDS);
-  vector<L1GctSourceCard*> srcCardsForJetFinderB(L1GctJetFinderBase::MAX_SOURCE_CARDS);
-  vector<L1GctSourceCard*> srcCardsForJetFinderC(L1GctJetFinderBase::MAX_SOURCE_CARDS);
-
-  srcCardsForJetFinderA.at(0) = m_sourceCards.at(0);
-  srcCardsForJetFinderA.at(1) = m_sourceCards.at(1);
-  srcCardsForJetFinderA.at(2) = m_sourceCards.at(2);
-  srcCardsForJetFinderA.at(3) = m_sourceCards.at(3);
-  srcCardsForJetFinderA.at(4) = m_sourceCards.at(4);
-  srcCardsForJetFinderA.at(5) = m_sourceCards.at(5);
-  srcCardsForJetFinderA.at(6) = m_sourceCards.at(12);
-  srcCardsForJetFinderA.at(7) = m_sourceCards.at(13);
-  srcCardsForJetFinderA.at(8) = m_sourceCards.at(14);
-  
-  srcCardsForJetFinderB.at(0) = m_sourceCards.at(3);
-  srcCardsForJetFinderB.at(1) = m_sourceCards.at(4);
-  srcCardsForJetFinderB.at(2) = m_sourceCards.at(5);
-  srcCardsForJetFinderB.at(3) = m_sourceCards.at(6);
-  srcCardsForJetFinderB.at(4) = m_sourceCards.at(7);
-  srcCardsForJetFinderB.at(5) = m_sourceCards.at(8);
-  srcCardsForJetFinderB.at(6) = m_sourceCards.at(0);
-  srcCardsForJetFinderB.at(7) = m_sourceCards.at(1);
-  srcCardsForJetFinderB.at(8) = m_sourceCards.at(2);
-
-  srcCardsForJetFinderC.at(0) = m_sourceCards.at(6);
-  srcCardsForJetFinderC.at(1) = m_sourceCards.at(7);
-  srcCardsForJetFinderC.at(2) = m_sourceCards.at(8);
-  srcCardsForJetFinderC.at(3) = m_sourceCards.at(9);
-  srcCardsForJetFinderC.at(4) = m_sourceCards.at(10);
-  srcCardsForJetFinderC.at(5) = m_sourceCards.at(11);
-  srcCardsForJetFinderC.at(6) = m_sourceCards.at(3);
-  srcCardsForJetFinderC.at(7) = m_sourceCards.at(4);
-  srcCardsForJetFinderC.at(8) = m_sourceCards.at(5);
-  
   switch (m_whichJetFinder) {
   case tdrJetFinder :
-    m_jetFinderA = new L1GctTdrJetFinder(3*id, srcCardsForJetFinderA);
-    m_jetFinderB = new L1GctTdrJetFinder(3*id+1, srcCardsForJetFinderB);
-    m_jetFinderC = new L1GctTdrJetFinder(3*id+2, srcCardsForJetFinderC);
+    m_jetFinderA = new L1GctTdrJetFinder( 3*id );
+    m_jetFinderB = new L1GctTdrJetFinder(3*id+1);
+    m_jetFinderC = new L1GctTdrJetFinder(3*id+2);
     break;
 
   case hardwareJetFinder :
-    m_jetFinderA = new L1GctHardwareJetFinder(3*id, srcCardsForJetFinderA);
-    m_jetFinderB = new L1GctHardwareJetFinder(3*id+1, srcCardsForJetFinderB);
-    m_jetFinderC = new L1GctHardwareJetFinder(3*id+2, srcCardsForJetFinderC);
+    m_jetFinderA = new L1GctHardwareJetFinder( 3*id );
+    m_jetFinderB = new L1GctHardwareJetFinder(3*id+1);
+    m_jetFinderC = new L1GctHardwareJetFinder(3*id+2);
     break;
 
   default :
@@ -151,10 +95,6 @@ std::ostream& operator << (std::ostream& s, const L1GctJetLeafCard& card)
   s << "===L1GctJetLeafCard===" << endl;
   s << "ID = " << card.m_id << endl;
   s << "i_phi = " << card.phiPosition << endl;;
-  s << "No of Source Cards = " << card.m_sourceCards.size() << endl;
-  for (unsigned i=0; i<card.m_sourceCards.size(); i++) {
-    s << "SourceCard* " << i << " = " << card.m_sourceCards.at(i)<< endl;
-  }
   s << "Ex " << card.m_exSum << endl;
   s << "Ey " << card.m_eySum << endl;
   s << "Et " << card.m_etSum << endl;

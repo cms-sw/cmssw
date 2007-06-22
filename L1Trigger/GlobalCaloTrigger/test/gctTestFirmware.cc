@@ -4,6 +4,8 @@
 
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GlobalCaloTrigger.h"
 
+#include <iostream>
+
 using std::vector;
 using std::cout;
 using std::endl;

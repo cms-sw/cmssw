@@ -28,9 +28,10 @@
  */
 
 
-class L1GctSourceCard;
 class L1GctJetLeafCard;
+class L1GctJetFinderBase;
 class L1GctEmLeafCard;
+class L1GctElectronSorter;
 
 class L1GctWheelJetFpga;
 class L1GctWheelEnergyFpga;
@@ -43,8 +44,6 @@ class L1CaloEtScale;
 
 class L1GlobalCaloTrigger {
 public:
-  /// Number of source cards
-  static const int N_SOURCE_CARDS;
   /// Number of Leaf Cards configured for jet processing
   static const int N_JET_LEAF_CARDS;
   /// Number of Leaf Cards configured for EM processing
@@ -118,9 +117,6 @@ public:
   // Jet Count output to GT
   L1GctJetCount<5> getJetCount(unsigned jcnum) const;
 
-  /// get the Source cards
-  std::vector<L1GctSourceCard*> getSourceCards() const { return theSourceCards; }
-  
   /// get the Jet Leaf cards
   std::vector<L1GctJetLeafCard*> getJetLeafCards() const { return theJetLeafCards; }
   
@@ -162,14 +158,18 @@ public:
   bool setupOk() { return (m_jetEtCalLut != 0); }
  private:
   
-  /// pointers to the Source Cards
-  std::vector<L1GctSourceCard*> theSourceCards;
-  
   /// pointers to the Jet Leaf cards
   std::vector<L1GctJetLeafCard*> theJetLeafCards;
   
+  /// pointers to the Jet Finders
+  std::vector<L1GctJetFinderBase*> theJetFinders;
+  
   /// pointers to the EM Leaf cards
   std::vector<L1GctEmLeafCard*> theEmLeafCards;
+  
+  /// pointers to the electron sorters
+  std::vector<L1GctElectronSorter*> theIsoElectronSorters;
+  std::vector<L1GctElectronSorter*> theNonIsoElectronSorters;
   
   /// Wheel Card Jet Fpgas	
   std::vector<L1GctWheelJetFpga*> theWheelJetFpgas;		
@@ -192,9 +192,6 @@ public:
   /// Jet Et calibration LUT
   L1GctJetEtCalibrationLut* m_jetEtCalLut;
 
-  /// default jet rank scale
-  L1CaloEtScale* m_defaultJetEtScale;
-  
 };
 
 #endif /*L1GLOBALCALOTRIGGER_H_*/

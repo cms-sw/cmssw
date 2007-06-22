@@ -77,7 +77,7 @@ int main()
   
   try{
       //Constructor with noElectrons non iso (iso = 0) electron candidates
-      L1GctElectronSorter* testSort = new L1GctElectronSorter(noElectrons,1);
+      L1GctElectronSorter* testSort = new L1GctElectronSorter(noElectrons/4,1);
 
       // Check the number of inputs/size of input vector corresponds to the expected value
       inputs = testSort->getInputCands();
@@ -101,7 +101,7 @@ int main()
       cout<<" Data loaded in from input file"<<endl;
       print(gctData);
       for(unsigned int i=0;i<data.size();i++){
-	testSort->setInputEmCand(i,data[i]);
+	testSort->setInputEmCand(data[i]);
       }
       inputs = testSort->getInputCands();
      

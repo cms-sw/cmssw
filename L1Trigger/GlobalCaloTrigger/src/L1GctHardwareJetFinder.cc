@@ -8,13 +8,13 @@ using namespace std;
 //DEFINE STATICS
 const unsigned int L1GctHardwareJetFinder::MAX_REGIONS_IN = (((L1CaloRegionDetId::N_ETA)/2)+1)*L1GctHardwareJetFinder::N_COLS;
 
-const int L1GctHardwareJetFinder::N_COLS = 2;
+const unsigned int L1GctHardwareJetFinder::N_COLS = 2;
 const unsigned int L1GctHardwareJetFinder::CENTRAL_COL0 = 0;
 
 const unsigned int L1GctHardwareJetFinder::JET_THRESHOLD = 1;
 
-L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id, vector<L1GctSourceCard*> sourceCards):
-  L1GctJetFinderBase(id, sourceCards),
+L1GctHardwareJetFinder::L1GctHardwareJetFinder(int id):
+  L1GctJetFinderBase(id),
   m_protoJetRegions(MAX_REGIONS_IN)
 {
   // Setup the position info in protoJetRegions.
@@ -59,7 +59,6 @@ void L1GctHardwareJetFinder::reset()
 
 void L1GctHardwareJetFinder::fetchInput()
 {
-  fetchCentreStripsInput();
   findProtoJets();
 }
 

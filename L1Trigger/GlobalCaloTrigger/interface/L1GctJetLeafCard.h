@@ -1,7 +1,6 @@
 #ifndef L1GCTJETLEAFCARD_H_
 #define L1GCTJETLEAFCARD_H_
 
-#include "L1Trigger/GlobalCaloTrigger/interface/L1GctSourceCard.h"
 #include "L1Trigger/GlobalCaloTrigger/interface/L1GctJetFinderBase.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctTwosComplement.h"
 #include "L1Trigger/GlobalCaloTrigger/src/L1GctUnsignedInt.h"
@@ -27,11 +26,9 @@ public:
 
   //Statics
   static const int MAX_JET_FINDERS;  ///< Number of jetfinders per jet leaf card
-  static const unsigned int MAX_SOURCE_CARDS;  ///< Number of source cards required to provide input per jet leaf card
 
   //Construtors/destructor
-  L1GctJetLeafCard(int id, int iphi, std::vector<L1GctSourceCard*> sourceCards,
-		   jetFinderType jfType = tdrJetFinder);
+  L1GctJetLeafCard(int id, int iphi, jetFinderType jfType = tdrJetFinder);
                    
   ~L1GctJetLeafCard();
 
@@ -54,9 +51,6 @@ public:
  
   /// process the data and set outputs
   virtual void process();
-
-  /// get pointers to associated source cards
-  std::vector<L1GctSourceCard*> getSourceCards() const { return m_sourceCards; }
 
   /// get pointers to associated jetfinders
   L1GctJetFinderBase* getJetFinderA() const { return m_jetFinderA; }
@@ -90,9 +84,6 @@ private:
   L1GctJetFinderBase* m_jetFinderA;  ///< lowest jetFinder in phi
   L1GctJetFinderBase* m_jetFinderB;  ///< middle jetFinder in phi
   L1GctJetFinderBase* m_jetFinderC;  ///< highest jetFinder in phi
-  
-  // pointers to data source
-  std::vector<L1GctSourceCard*> m_sourceCards;
   
   // internal data (other than jets)
 
