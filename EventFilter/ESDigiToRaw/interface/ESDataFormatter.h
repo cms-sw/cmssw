@@ -25,13 +25,16 @@ class ESDataFormatter {
   typedef vector<ESDataFrame> DetDigis;
   typedef map<int, DetDigis> Digis;
 
+  typedef unsigned char Word8;
+  typedef unsigned short Word16;
   typedef unsigned int Word32;
   typedef long long Word64;  
 
   ESDataFormatter(const ParameterSet& ps);
   ~ESDataFormatter();
 
-  FEDRawData * DigiToRaw(int fedId, const Digis & digis); 
+  FEDRawData * DigiToRaw(int fedId, const Digis & digis);
+  FEDRawData * DigiToRawTB(int fedId, const Digis & digis);
 
   void setRunNumber(int i) {run_number_ = i;};
   void setOrbitNumber(int i) {orbit_number_ = i;};
@@ -52,6 +55,7 @@ class ESDataFormatter {
   bool debug_;
 
   string print(const Word64 & word) const;
+  string print(const Word16 & word) const;
 
   protected :
 
