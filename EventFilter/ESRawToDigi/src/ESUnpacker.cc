@@ -98,7 +98,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     ++header;
     FEDHeader ESHeader( reinterpret_cast<const unsigned char*>(header) );
     if ( !ESHeader.check() ) break; // throw exception?
-    if ( ESHeader.sourceID() != fedId) throw cms::Exception("PROBLEM in PixelDataFormatter !");
+    if ( ESHeader.sourceID() != fedId) throw cms::Exception("PROBLEM in ESUnpacker !");
 
     fedId_ = ESHeader.sourceID();
     lv1_   = ESHeader.lvl1ID();
@@ -121,7 +121,7 @@ void ESUnpacker::interpretRawData(int fedId, const FEDRawData & rawData, ESDigiC
     --trailer;
     FEDTrailer ESTrailer(reinterpret_cast<const unsigned char*>(trailer));
     if ( !ESTrailer.check()) { ++trailer; break; } // throw exception?
-    if ( ESTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM in PixelDataFormatter !!");
+    if ( ESTrailer.lenght()!= nWords) throw cms::Exception("PROBLEM in ESUnpacker !!");
 
     if (debug_)  {
       cout<<"[ESUnpacker]: FED Trailer candidate. Is trailer? "<<ESTrailer.check();
