@@ -27,6 +27,7 @@ CSCRecHit2D::CSCRecHit2D( const CSCDetId& id,
   theLocalError( err ),
   theChaCo( channels ),
   theADCs( adcs ),
+  theWireGroups( wgroups ),
   theTpeak( tpeak ),
   theChi2( chi2 ), 
   theProb( prob )
