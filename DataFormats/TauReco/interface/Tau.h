@@ -22,19 +22,25 @@ namespace reco {
 
     //Regerence to the leadingTrack
     TrackRef getLeadingTrack() const {return leadingTrack_};
+
     // reference to Track reconstructed in the signal Cone
     TrackRefVector getSignalTracks() const {return signalTracks_};
+
     //reference to the Track in Isolation annulus
     TrackRefVector getIsolationTracks() const {return isolationTracks_};
+
     //references to the selectedTracks (all the tracks passing quality cuts)
     TrackRefVector getSelectedTracks() const {return selectedTracks_};
+
     //reference to the Charged and Neutral Hadrons and to Gamma candidates
-    PFCandidateRefVector getChargedHadrons const {return selectedPFChargedHadrons_};
-    PFCandidateRefVector getNeutralHadrons const {return selectedPFNeutralHadrons_};
-    PFCandidateRefVector getGammaCandidates const {return selectedPFGammaCandidates__};
+    PFCandidateRefVector getChargedHadrons() const {return selectedPFChargedHadrons_};
+    PFCandidateRefVector getNeutralHadrons() const {return selectedPFNeutralHadrons_};
+    PFCandidateRefVector getGammaCandidates() const {return selectedPFGammaCandidates__};
+
     //get the impact parameter of the leading track
     Measurement1D getLeadTkTIP() const {return transverseIp_leadTk};
     Measurement1D getLeadTk3DIP() const {return  3DIp_leadTk_};
+
     //get the invariantMass
     float getInvariantMass() const { return mass_};
 
@@ -47,9 +53,31 @@ namespace reco {
     //get the ratio EM energy / Hadron energy
     float getEmOverHadronEnergy() const { return  emOverHadronEnergy_};
     //get maximum Hcal tower energy
-    float getMaximumHcalTowerEnergy const { return maximumHcalTowerEnergy_};
+    float getMaximumHcalTowerEnergy() const { return maximumHcalTowerEnergy_};
     //get em isolation variable
     float getEMIsolation() const { return emIsolation_};
+
+
+    void setLeadingTrack(const TrackRef& myTrack) { leadingTrack_ = myTrack};
+    void setSignalTracks(const TrackRefVector& myTracks)  { signalTracks_ = myTracks};
+    void setIsolationTracks(const TrackRefVector& myTracks)  { isolationTracks_ = myTracks};
+    void setSelectedTracks(const TrackRefVector& myTracks)  {selectedTracks_ =myTracks};
+    void setChargedHadrons(const FCandidateRefVector& myParts)  { selectedPFChargedHadrons_ = myParts};
+    void setNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedPFNeutralHadrons_ = myParts};
+    void setGammaCandidates( const PFCandidateRefVector& myParts)  { selectedPFGammaCandidates_ = myParts};
+    void setLeadTkTIP(const Measurement1D& myIP)  { transverseIp_leadTk = myIP};
+    void setLeadTk3DIP(const Measurement1D& myIP)  {  3DIp_leadTk_=myIP};
+    void setInvariantMass(const float& mass)  {  mass_= mass};
+
+    //set invariantMass with tracks only 
+    //void setTksInvariantMass()  { trackerMass_};
+
+    void setSumPtSignalTracks(const float& sumPt)  { sumPtSignalTracks_ = sumPt};
+    void setSumPtIsolationTracks(const float& sumPt)  { sumPtIsolationTracks_ = sumPt};
+    void setEmOverHadronEnergy()const float& emOverH  {   emOverHadronEnergy_ = emOverH};
+    void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal};
+    void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso};
+
 
   private:
     virtual bool orverlap (const Candidate &) const;
