@@ -12,6 +12,13 @@
 <use name=Geometry/TrackerGeometryBuilder>
 <flags EDM_PLUGIN=1></library>
 
+<library name="SurveyMisalignmentInput" file="SurveyMisalignmentInput.cc">
+<use name=FWCore/Framework>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<flags EDM_PLUGIN=1></library>
+
+
 <library name="SurveyDBUploader" file="SurveyDBUploader.cc">
 <use name=CondCore/DBOutputService>
 <use name=CondFormats/Alignment>
