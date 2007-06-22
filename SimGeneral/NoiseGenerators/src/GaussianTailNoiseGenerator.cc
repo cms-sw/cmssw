@@ -15,6 +15,7 @@ GaussianTailNoiseGenerator::GaussianTailNoiseGenerator(CLHEP::HepRandomEngine& e
 }
 
 GaussianTailNoiseGenerator::~GaussianTailNoiseGenerator() {
+  gsl_rng_free(mt19937);
   delete poissonDistribution_;
   delete flatDistribution_;
   delete mt19937;
