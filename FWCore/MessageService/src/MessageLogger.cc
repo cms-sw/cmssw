@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.19 2007/06/11 18:54:58 fischler Exp $
+// $Id: MessageLogger.cc,v 1.20 2007/06/20 16:04:35 fischler Exp $
 //
 // Change log
 //
@@ -257,6 +257,8 @@ MessageLogger::preSource()
     MessageDrop::instance()->debugEnabled = 
     			debugEnabledModules_.count("source");
   }
+  MessageDrop::instance()->infoEnabled = true;
+  MessageDrop::instance()->warningEnabled = true;
 }
 
 
