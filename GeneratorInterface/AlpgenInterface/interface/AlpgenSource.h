@@ -43,6 +43,7 @@ namespace edm
     /// Interface to the PYGIVE/TXGIVE pythia routine, with add'l protections
     bool call_pygive(const std::string& iParm );
     bool call_txgive(const std::string& iParm );
+    int Nev_; // number of events in the input file
 
   private:
     

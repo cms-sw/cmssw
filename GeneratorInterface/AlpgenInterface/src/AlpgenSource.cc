@@ -1,6 +1,6 @@
 /*
- *  $Date: 2007/06/21 16:28:03 $
- *  $Revision: 1.3 $
+ *  $Date: 2007/06/21 17:45:42 $
+ *  $Revision: 1.4 $
  *  
  *  Filip Moorgat & Hector Naves 
  *  26/10/05
@@ -20,6 +20,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <iostream>
+#include <fstream>
 #include "time.h"
 
 using namespace edm; 
@@ -53,17 +54,32 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   maxEventsToPrint_ (pset.getUntrackedParameter<int>("maxEventsToPrint",1))
 {
   
-   cout << "ALPGEN file base: " << fileNames()[0] << endl;
-         string fileName = fileNames()[0];
-         // strip the file: 
-         if ( fileName.find("file:") || fileName.find("rfio:")){
-           fileName.erase(0,5);
-         }   
-	 
-	 
-  //int maxevents = maxEvents();
-  //int firstevent = firstEvent();
+  cout << "ALPGEN file base: " << fileNames()[0] << endl;
+  string fileName = fileNames()[0];
+  // strip the file: 
+  if ( fileName.find("file:") || fileName.find("rfio:")){
+    fileName.erase(0,5);
+  }   
   
+  // get the number of input events from  _unw.par files
+  char buffer[256];
+  ifstream reader((fileName+"_unw.par").c_str());
+  char sNev[80];
+  while ( reader.getline (buffer,256) ) {
+    istringstream is(buffer);
+    is >> sNev;
+    Nev_ = atoi(sNev);
+  }
+
+  //check that N(asked events) <= N(input events)
+  if(maxEvents()>Nev_) {
+    cout << "ALPGEN warning: Number of events requested > Number of unweighted events" << endl;
+    cout << "                Execution will be stoped after processing the last unweighted event" << endl;  
+  }
+
+  if(maxEvents() < Nev_) // stop at N(asked events) if N(asked events)<N(input events)
+    Nev_ = maxEvents();
+ 
   cout << "AlpgenSource: initializing Pythia. " << endl;
   
   // PYLIST Verbosity Level
@@ -74,17 +90,16 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
   // HepMC event verbosity Level
   pythiaHepMCVerbosity_ = pset.getUntrackedParameter<bool>("pythiaHepMCVerbosity",false);
   cout << "Pythia HepMC verbosity = " << pythiaHepMCVerbosity_ << endl; 
-
+  
   //Max number of events printed on verbosity level 
   maxEventsToPrint_ = pset.getUntrackedParameter<int>("maxEventsToPrint",0);
   cout << "Number of events to be printed = " << maxEventsToPrint_ << endl;
-
   
-   // Set PYTHIA parameters in a single ParameterSet
+  // Set PYTHIA parameters in a single ParameterSet
   {
-  ParameterSet pythia_params = 
-    pset.getParameter<ParameterSet>("PythiaParameters") ;
-  
+    ParameterSet pythia_params = 
+      pset.getParameter<ParameterSet>("PythiaParameters") ;
+    
     // Read the PYTHIA parameters for each set of parameters
     vector<string> pars = 
       pythia_params.getParameter<vector<string> >("pythia");
@@ -106,44 +121,43 @@ AlpgenSource::AlpgenSource( const ParameterSet & pset,
 	  <<" pythia did not accept the following \""<<*itPar<<"\"";
       }
     }
-}
+  }
 
-
-// Read the Alpgen parameters
-
- // read External Generator parameters
-{   ParameterSet generator_params = 
-    pset.getParameter<ParameterSet>("GeneratorParameters") ;
-     vector<string> pars = 
-      generator_params.getParameter<vector<string> >("generator");
-     cout << "----------------------------------------------" << endl;
-     cout << "Read External Generator parameter set "  << endl;
-     cout << "----------------------------------------------" << endl;
-   for( vector<string>::const_iterator  
-	   itPar = pars.begin(); itPar != pars.end(); ++itPar ) 
-       {
+  // Read the Alpgen parameters
+  
+  // read External Generator parameters
+  {   ParameterSet generator_params = 
+	pset.getParameter<ParameterSet>("GeneratorParameters") ;
+  vector<string> pars = 
+    generator_params.getParameter<vector<string> >("generator");
+  cout << "----------------------------------------------" << endl;
+  cout << "Read External Generator parameter set "  << endl;
+  cout << "----------------------------------------------" << endl;
+  for( vector<string>::const_iterator  
+	 itPar = pars.begin(); itPar != pars.end(); ++itPar ) 
+    {
       call_txgive(*itPar);          
-       }
-       // giving to txgive a string with the alpgen filename
-       string tmpstring = "UNWFILE = " + fileName;
-       call_txgive(tmpstring);
-}
-
-
+    }
+  // giving to txgive a string with the alpgen filename
+  string tmpstring = "UNWFILE = " + fileName;
+  call_txgive(tmpstring);
+  }
+  
+  
   //In the future, we will get the random number seed on each event and tell 
   // pythia to use that new seed
-    cout << "----------------------------------------------" << endl;
-    cout << "Setting Pythia random number seed " << endl;
-    cout << "----------------------------------------------" << endl;
+  cout << "----------------------------------------------" << endl;
+  cout << "Setting Pythia random number seed " << endl;
+  cout << "----------------------------------------------" << endl;
   edm::Service<RandomNumberGenerator> rng;
   uint32_t seed = rng->mySeed();
   ostringstream sRandomSet;
   sRandomSet <<"MRPY(1)="<<seed;
   call_pygive(sRandomSet.str());
-
+  
   //  call_pretauola(-1);     // TAUOLA initialization
   call_pyinit( "USER", "p", "p", 14000. );
- 
+  
   cout << endl; // Stetically add for the output
   //********                                      
   
@@ -161,21 +175,23 @@ AlpgenSource::~AlpgenSource(){
 }
 
 void AlpgenSource::clear() {
- 
+  
 }
 
 
 bool AlpgenSource::produce(Event & e) {
 
+  // exit if N(events asked) has been exceeded
+  if(event()> Nev_) {
+    return false;
+  } else {
+    
     auto_ptr<HepMCProduct> bare_product(new HepMCProduct());  
     //cout << "AlpgenSource: Generating event ...  " << endl;
-
-    //********                                         
-    //
-
-	call_pyevnt();      // generate one event with Pythia
-	//        call_pretauola(0);  // tau-lepton decays with TAUOLA 
-
+    
+    call_pyevnt();      // generate one event with Pythia
+    //        call_pretauola(0);  // tau-lepton decays with TAUOLA 
+    
     call_pyhepc( 1 );
     
     //    HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
@@ -183,12 +199,11 @@ bool AlpgenSource::produce(Event & e) {
     evt->set_signal_process_id(pypars.msti[0]);
     evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
     
-
     //******** Verbosity ********
     
     if(event() <= maxEventsToPrint_ &&
        (pythiaPylistVerbosity_ || pythiaHepMCVerbosity_)) {
-
+      
       // Prints PYLIST info
       if(pythiaPylistVerbosity_) {
 	call_pylist(pythiaPylistVerbosity_);
@@ -197,20 +212,20 @@ bool AlpgenSource::produce(Event & e) {
       // Prints HepMC event
       if(pythiaHepMCVerbosity_) {
 	cout << "Event process = " << pypars.msti[0] << endl 
-	<< "----------------------" << endl;
+	     << "----------------------" << endl;
 	evt->print();
       }
     }
     
-    
     //evt = reader_->fillCurrentEventData(); 
     //********                                      
-
+    
     if(evt)  bare_product->addHepMCData(evt );
-
+    
     e.put(bare_product);
-
+    
     return true;
+  }
 }
 
 bool 
