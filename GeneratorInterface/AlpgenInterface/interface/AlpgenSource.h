@@ -14,7 +14,7 @@
 
 #define PYCOMP pycomp_
 
-#include "FWCore/Framework/interface/GeneratedInputSource.h"
+#include "FWCore/Framework/interface/ExternalInputSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <map>
 #include <string>
@@ -29,7 +29,7 @@ namespace CLHEP
 
 namespace edm
 {
-  class AlpgenSource : public GeneratedInputSource {
+  class AlpgenSource : public ExternalInputSource {
   public:
 
     /// Constructor
@@ -43,6 +43,7 @@ namespace edm
     /// Interface to the PYGIVE/TXGIVE pythia routine, with add'l protections
     bool call_pygive(const std::string& iParm );
     bool call_txgive(const std::string& iParm );
+    int Nev_; // number of events in the input file
 
   private:
     

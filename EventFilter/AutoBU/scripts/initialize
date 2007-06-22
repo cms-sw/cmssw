@@ -154,25 +154,30 @@ print XML makeXmlProfileTrailer();
 print "make xdaq configuration ...\n";
 
 my @apps = ($BUappname,$BUlocalid,$RBappname,$RBlocalid);
-if ($doSM) { push (@apps,$SMappname);push (@apps,$SMlocalid); }
+if ($doSM) { push (@apps,$SMappname); push (@apps,$SMlocalid); }
 
 my @PBproperties = ("parameterSet","string","file:$pwd/cfg/playback.cfg",
 		    "collReconnSec","integer","-1");
 
-my @RBproperties = ("buClassName","string",$BUappname);
+my @RBproperties = ("buClassName", "string",     $BUappname,
+		    "nbRawCells",  "unsignedInt","16",
+		    "nbRecoCells", "unsignedInt","3",
+		    "nbDqmCells",  "unsignedInt","3",
+		    "rawCellSize", "unsignedInt","0x300000",
+		    "recoCellSize","unsignedInt","0x300000",
+		    "dqmCellSize", "unsignedInt","0x300000");
 if (!$doEP) { push (@RPproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet", "string","file:$pwd/cfg/fu.cfg",
 		    "collReconnSec","integer","-1");
+if (!$doSM) { push (@EPproperties,"outputEnabled","boolean","false"); }
 
 my @SMproperties = ("STparameterSet",   "string",     "file:$pwd/cfg/sm.cfg",
-		    "oneinN",           "integer",    "0",
 		    "runNumber",        "unsignedInt","0",
 		    "fileCatalog",      "string",     "summaryCatalog.txt",
 		    "closeFileScript",  "string",     "$smperl/dummy.pl",
 		    "notifyTier0Script","string",     "$smperl/dummy.pl",
-		    "insertFileScript", "string",     "$smperl/dummy.pl",
-		    "streamerOnly",     "boolean",    "true");
+		    "insertFileScript", "string",     "$smperl/dummy.pl");
 
 
 open (XML,">./xml/evf.xml") or die ("Can't open file: $!\n");
@@ -296,7 +301,7 @@ close (CTL);
 # stop
 open (CTL,">stop") or die ("Can't open file: $!\n");
 print CTL "#!/usr/bin/perl\n\n";
-print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,0);
+print CTL makeCtlCommand("Stop",$BUappname,"BU",$hostname,$BUport,10);
 print CTL makeCtlCommand("Stop",$RBappname,"RB",$hostname,$BUport,0);
 if ($doEP) {
     print CTL makeCtlCommand("Stop",$EPappname,"EP",$hostname,$EPport,5);
@@ -316,7 +321,7 @@ if ($doPB) {
     print CTL makeCtlCommand("Halt",$EPappname,"PB",$hostname,$PBport,1);
 }
 if ($doEP) {
-    print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,5);
+    print CTL makeCtlCommand("Halt",$EPappname,"EP",$hostname,$EPport,1);
 }
 if ($doSM) {
     print CTL makeCtlCommand("Halt",$SMappname,"SM",$hostname,$SMport,0);
@@ -335,7 +340,6 @@ close (CTL);
 #
 # start processes
 #
-my $cmd;
 
 print "\nstart xdaq.exe on $hostname:$BUport\n";
 `nice -n 15 xdaq.exe -h $hostname -p $BUport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$BUport.log &`;
@@ -348,7 +352,6 @@ if ($doEP) {
 if ($doSM) {
     print "\nstart xdaq.exe on $hostname:$SMport\n";
     `nice -n 15 xdaq.exe -h $hostname -p $SMport -e xml/profile.xml -c xml/evf.xml >& log/$hostname.$SMport.log &`;
-    
 }
 
 
@@ -444,12 +447,9 @@ sub makeCfgFu
     }
 
     $result = $result . "\n  // endpaths\n";
+    $result = $result . "  endpath ep = { out }\n\n";
     
-    if ($doSM) {
-	$result = $result . "  endpath ep = { out }\n";
-    }
-    
-    $result = $result . "\n  // services\n\n";
+    $result = $result . "  // services\n\n";
     $result = $result . "  service = MessageLogger {\n";
     $result = $result . "    untracked vstring destinations = { \"cout\" }\n";
     $result = $result . "    untracked PSet    cout         = " .
@@ -458,21 +458,19 @@ sub makeCfgFu
                         "{ untracked string threshold = \"WARNING\" }\n";
     $result = $result . "  }\n\n";
 
-    if ($doDQM) {
-	$result = $result . "  service = FUShmDQMOutputService {\n";
-	$result = $result . "    untracked int32 initialMessageBufferSize=1000000\n";
-	$result = $result . "    double          lumiSectionsPerUpdate   =    1.0\n";
-	$result = $result . "    bool            useCompression          =   true\n";
-	$result = $result . "    int32           compressionLevel        =      1\n";
-	$result = $result . "    untracked int32 lumiSectionInterval     =     30\n";
-	$result = $result . "  }\n\n";
-    }
-
+    $result = $result . "  service = FUShmDQMOutputService {\n";
+    $result = $result . "    untracked int32 initialMessageBufferSize=1000000\n";
+    $result = $result . "    double          lumiSectionsPerUpdate   =    1.0\n";
+    $result = $result . "    bool            useCompression          =   true\n";
+    $result = $result . "    int32           compressionLevel        =      1\n";
+    $result = $result . "    untracked int32 lumiSectionInterval     =     30\n";
+    $result = $result . "  }\n\n";
+    
     $result = $result . "  // modules\n\n";
     $result = $result . "  module m1 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 20000\n";
-    $result = $result . "    int32 instance_count=    11\n";
+    $result = $result . "    int32 array_size    = 100\n";
+    $result = $result . "    int32 instance_count=   2\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a1 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
@@ -480,8 +478,8 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
     $result = $result . "  module m2 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 10000\n";
-    $result = $result . "    int32 instance_count=     5\n";
+    $result = $result . "    int32 array_size    = 50\n";
+    $result = $result . "    int32 instance_count=  4\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a2 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
@@ -489,8 +487,8 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
     $result = $result . "  module m3 = StreamThingProducer\n";
     $result = $result . "  {\n";
-    $result = $result . "    int32 array_size    = 5000\n";
-    $result = $result . "    int32 instance_count=   20\n";
+    $result = $result . "    int32 array_size    = 25\n";
+    $result = $result . "    int32 instance_count= 10\n";
     $result = $result . "  }\n\n";
     $result = $result . "  module a3 = StreamThingAnalyzer\n";
     $result = $result . "  {\n";
@@ -498,19 +496,17 @@ sub makeCfgFu
     $result = $result . "  }\n\n";
 
     if ($doDQM) {
-	$result = $result . "  module dqm = DQMSourceExample{}\n\n";
+	$result = $result . "  module dqm = SMDQMSourceExample{}\n\n";
     }
     
-    if ($doSM) {
-	$result = $result . "  module out = ShmStreamConsumer\n";
-	$result = $result . "  {\n";
-	$result = $result . "    int32           max_event_size       = 7000000\n";
-	$result = $result . "    int32           max_queue_depth      =       5\n";
-	$result = $result . "    bool            use_compression      =    true\n";
-	$result = $result . "    int32           compression_level    =       1\n";
-	$result = $result . "    untracked int32 lumiSection_interval =     600\n";
-	$result = $result . "  }\n\n";
-    }
+    $result = $result . "  module out = ShmStreamConsumer\n";
+    $result = $result . "  {\n";
+    $result = $result . "    int32           max_event_size       = 7000000\n";
+    $result = $result . "    int32           max_queue_depth      =       5\n";
+    $result = $result . "    bool            use_compression      =    true\n";
+    $result = $result . "    int32           compression_level    =       1\n";
+    $result = $result . "    untracked int32 lumiSection_interval =     600\n";
+    $result = $result . "  }\n\n";
     
     $result = $result . "}\n";
     
@@ -680,15 +676,18 @@ sub makeXmlProfileHeader
 ################################################################################
 sub makeXmlComm
 {
-    my ($BUappname,$BUlocalid,$RBappname,$RBlocalid,$SMappname,$SMlocalid) = @_;
-
     my $result = "";
     
     $result = $result . "  <!-- communication protocoll -->\n";
-    $result = $result . "  <i2o:protocol xmlns:i2o=\"http://xdaq.web.cern.ch/xdaq/xsd/2004/I2OConfiguration-30\">\n";
-    $result = $result . "    <i2o:target class=\"" . $BUappname . "\" instance=\"0\" tid=\"" . $BUlocalid . "\"/>\n";
-    $result = $result . "    <i2o:target class=\"" . $RBappname . "\" instance=\"0\" tid=\"" . $RBlocalid . "\"/>\n";
-    $result = $result . "    <i2o:target class=\"" . $SMappname . "\" instance=\"0\" tid=\"" . $SMlocalid . "\"/>\n";
+    $result = $result . "  <i2o:protocol xmlns:i2o=" .
+	"\"http://xdaq.web.cern.ch/xdaq/xsd/2004/I2OConfiguration-30\">\n";
+    
+    while (@_>0) {
+	my $appname  = shift (@_);
+	my $localid  = shift (@_);
+	$result = $result . "    <i2o:target class=\"" . $appname .
+	                    "\" instance=\"0\" tid=\"" . $localid . "\"/>\n";
+    }
     $result = $result . "  </i2o:protocol>\n\n";
     
     return $result;
@@ -816,9 +815,9 @@ sub makeCtlDestroy
     $result = $result . "`$cmd`;\n\n";
     $result = $result . "print \"remove files and dirs ...\n\";\n\n";
     $result = $result . "`rm -rf cfg/ soap/ xml/ log/ /tmp/sm " .
-	"configure enable halt stop gennums.txt summaryCatalog.txt`;\n\n";
-    $result = $result . "print \"FUShmCleanup_t ...\\n\";\n\n";
-    $result = $result . "`FUShmCleanup_t`;\n\n";
+	"configure enable halt stop gennums.txt summaryCatalog.txt test.root`;\n\n";
+    $result = $result . "print \"FUShmCleanUp_t ...\\n\";\n\n";
+    $result = $result . "`FUShmCleanUp_t`;\n\n";
     $result = $result . "print \"XDAQ session destroyed!\\n\";\n\n";
     $result = $result . "`rm destroy`;\n";
     

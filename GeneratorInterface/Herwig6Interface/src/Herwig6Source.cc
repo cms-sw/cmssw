@@ -36,28 +36,13 @@ extern"C" {
   void setherwpdf_(void);
   // function to chatch 'STOP' in original HWWARN
   void cmsending_(int*);
-
-  // struct to check wheter HERWIG killed an event
-  extern struct {
-    double eventisok;
-  } eventstat_;
 }
-
-#define eventstat eventstat_
 
 #define setpdfpath setpdfpath_
 #define mysetpdfpath mysetpdfpath_
 #define setlhaparm setlhaparm_
 #define setherwpdf setherwpdf_
 #define cmsending cmsending_
-
-
-// -----------------  HepMC converter -----------------------------------------
-HepMC::IO_HERWIG conv;
-
-// -----------------  used for defaults --------------------------------------
-  static const unsigned long kNanoSecPerSec = 1000000000;
-  static const unsigned long kAveEventPerSec = 200;
 
 // -----------------  Source Code -----------------------------------------
 Herwig6Source::Herwig6Source( const ParameterSet & pset, 
@@ -98,6 +83,18 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
       cout << "   JIMMY trying to generate multiple interactions." << endl;
   }
   
+  // setting up lhapdf path name from environment varaible (***)
+  char* lhaPdfs = NULL;
+  std::cout<<"   Trying to find LHAPATH in environment ...";
+  lhaPdfs = getenv("LHAPATH");
+  if(lhaPdfs != NULL) {
+    std::cout<<" done."<<std::endl;
+    lhapdfSetPath_=std::string(lhaPdfs);
+  }
+  else
+    std::cout<<" failed."<<std::endl;
+  
+
   // Call hwudat to set up HERWIG block data
   hwudat();
   
@@ -109,9 +106,9 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   for(int i=1;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-  hwproc.MAXEV = pset.getUntrackedParameter<int>("maxEvents",10);
-  hwevnt.MAXER = hwproc.MAXEV/10;
-  if(hwevnt.MAXER<10) hwevnt.MAXER = 10;
+  int numEvents = desc.maxEvents_;  
+  hwevnt.MAXER = int(numEvents/10);
+  if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
   if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
@@ -218,22 +215,19 @@ bool Herwig6Source::produce(Event & e) {
   double mpiok = 1.0;
 
   while(mpiok > 0.5 && counter < numTrials_) {
-    // so far event is ok :)
-    eventstat.eventisok = 0.0;
-
+    
     // call herwig routines to create HEPEVT
     hwuine();
     hwepro();
     hwbgen();  
-
+    
     // call jimmy ... only if event is not killed yet by HERWIG
-    if(useJimmy_ && doMPInteraction_ && (eventstat.eventisok < 0.5)) {
+    if(useJimmy_ && doMPInteraction_ && hwevnt.IERROR==0)
       mpiok = hwmsct_dummy(1.1);
-    }
     else mpiok = 0.0;
     counter++;
   }
-
+  
   // event after numTrials MP is not ok -> skip event
   if(mpiok > 0.5) {
     cout<<"   JIMMY could not produce MI in "<<numTrials_<<" trials."<<endl;
@@ -250,8 +244,11 @@ bool Herwig6Source::produce(Event & e) {
   hwufne();
   
   // if event was killed by HERWIG; skip 
-  if(eventstat.eventisok > 0.5) return true;
-
+  if(hwevnt.IERROR!=0) return true;
+  
+  // -----------------  HepMC converter -------------------------
+  HepMC::IO_HERWIG conv;
+  
   // HEPEVT is ok, create new HepMC event
   evt = new HepMC::GenEvent();
   bool ok = conv.fill_next_event( evt );
@@ -1026,7 +1023,7 @@ bool Herwig6Source::hwgive(const std::string& ParameterString) {
 #define hwaend hwaend_
 
 extern "C" {
-  void hwaend(){/*dummy*/};
+  void hwaend(){/*dummy*/}
 }
 //-------------------------------------------------------------------------------
 

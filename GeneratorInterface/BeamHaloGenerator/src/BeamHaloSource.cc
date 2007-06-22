@@ -12,10 +12,11 @@
 using namespace edm;
 using namespace std;
 
+#include "HepMC/IO_HEPEVT.h"
 
-#include "CLHEP/HepMC/ConvertHEPEVT.h"
-#include "CLHEP/HepMC/CBhepevt.h"
-#include "CLHEP/HepMC/WeightContainer.h"
+// #include "HepMC/ConvertHEPEVT.h"
+// #include "HepMC/CBhepevt.h"
+#include "HepMC/WeightContainer.h"
 
 
 #define KI_BHG_INIT ki_bhg_init_
@@ -39,7 +40,9 @@ extern "C" {
 }
 
 
-HepMC::ConvertHEPEVT conv;
+// HepMC::ConvertHEPEVT conv;
+HepMC::IO_HEPEVT conv;
+
 
 BeamHaloSource::~BeamHaloSource() {
 	int iret=0;
@@ -90,15 +93,22 @@ void BeamHaloSource::clear()
 
 bool BeamHaloSource::produce(Event & e) {
 
+	// cout << "in produce " << endl;
 
     	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+
+	// cout << "apres autoptr " << endl;
 
 	int iret=0;
         float weight = 0;
     	call_ki_bhg_fill(iret, weight);
 
+	// cout << "apres fortran " << endl;
 
-    	HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+
+    	// HepMC::GenEvent* evt = conv.getGenEventfromHEPEVT();
+	HepMC::GenEvent* evt = conv.read_next_event();
+
 	HepMC::WeightContainer& weights = evt -> weights();
 	weights.push_back(weight);
 

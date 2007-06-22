@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/03/26 17:35:05 $
- * $Revision: 1.11 $
+ * $Date: 2007/05/23 10:04:05 $
+ * $Revision: 1.15 $
  * \author G. Della Ricca
  *
 */
@@ -26,10 +26,9 @@
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include <DQM/EcalCommon/interface/UtilsClient.h>
+#include <DQM/EcalCommon/interface/Numbers.h>
 
-#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
-#include <DQM/EcalEndcapMonitorClient/interface/EEMUtilsClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EECosmicClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EELaserClient.h>
@@ -41,6 +40,8 @@
 #include <DQM/EcalEndcapMonitorClient/interface/EETriggerTowerClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EEClusterClient.h>
 #include <DQM/EcalEndcapMonitorClient/interface/EETimingClient.h>
+
+#include <DQM/EcalEndcapMonitorClient/interface/EESummaryClient.h>
 
 using namespace cms;
 using namespace edm;
@@ -66,9 +67,9 @@ EESummaryClient::EESummaryClient(const ParameterSet& ps){
   // prefix to ME paths
   prefixME_ = ps.getUntrackedParameter<string>("prefixME", "");
 
-  // vector of selected Super Modules (Defaults to all 36).
-  superModules_.reserve(36);
-  for ( unsigned int i = 1; i < 37; i++ ) superModules_.push_back(i);
+  // vector of selected Super Modules (Defaults to all 18).
+  superModules_.reserve(18);
+  for ( unsigned int i = 1; i < 19; i++ ) superModules_.push_back(i);
   superModules_ = ps.getUntrackedParameter<vector<int> >("superModules", superModules_);
 
   meIntegrity_      = 0;
@@ -136,11 +137,11 @@ void EESummaryClient::setup(void) {
 
   if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EEIT integrity quality summary");
-  meIntegrity_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
   if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EEPOT pedestal quality summary G12");
-  mePedestalOnline_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
 }
 
@@ -220,17 +221,15 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
+              int iex;
+              int ipx;
 
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
-
-              if ( ism <= 18 ) {
-                iex = iex + 85;
+              if ( ism <= 9 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-10);
               }
 
               meIntegrity_->setBinContent( ipx, iex, xval );
@@ -260,17 +259,15 @@ void EESummaryClient::analyze(void){
 
               float xval = me->getBinContent( ie, ip );
 
-              int ic = (ip-1) + 20*(ie-1) + 1;
+              int iex;
+              int ipx;
 
-              EBDetId id(ism, ic, EBDetId::SMCRYSTALMODE);
-
-              int iex = id.ieta();
-              int ipx = id.iphi();
-
-              if ( ism <= 18 ) {
-                iex = iex + 85;
+              if ( ism <= 9 ) {
+                iex = 1+(85-ie);
+                ipx = ip+20*(ism-1);
               } else {
-                iex = iex + 85 + 1;
+                iex = 85+ie;
+                ipx = 1+(20-ip)+20*(ism-10);
               }
 
               mePedestalOnline_->setBinContent( ipx, iex, xval );
@@ -327,9 +324,19 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   int pCol3[6] = { 301, 302, 303, 304, 305, 306 };
 
+  // dummy histogram labelling the SM's
+  TH2C labelGrid("labelGrid","label grid for SM", 9, 0., 360., 2, -85., 85.);
+  for ( short sm=0; sm<18; sm++ ) {
+    int x = 1 + sm%9;
+    int y = 1 + sm/9;
+    labelGrid.SetBinContent(x, y, Numbers::iEE(sm+1));
+  }
+  labelGrid.SetMarkerSize(2);
+  labelGrid.SetMinimum(-9.01);
+
   string imgNameMapI, imgNameMapPO, imgName, meName;
 
-  TCanvas* cMap = new TCanvas("cMap", "Temp", 2*csize, csize);
+  TCanvas* cMap = new TCanvas("cMap", "Temp", int(360./170.*csize), csize);
 
   float saveHeigth = gStyle->GetTitleH();
   gStyle->SetTitleH(0.07);
@@ -340,8 +347,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   imgNameMapI = "";
 
+  gStyle->SetPaintTextFormat("+g");
+
   obj2f = 0;
-  obj2f = EEMUtilsClient::getHisto<TH2F*>( meIntegrity_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( meIntegrity_ );
 
   if ( obj2f ) {
 
@@ -358,7 +367,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
-    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions(9, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(2);
     cMap->SetGridx();
     cMap->SetGridy();
@@ -366,6 +375,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     obj2f->SetMaximum(6.0);
     obj2f->SetTitleSize(0.5);
     obj2f->Draw("col");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
@@ -374,7 +384,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   imgNameMapPO = "";
 
   obj2f = 0;
-  obj2f = EEMUtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
+  obj2f = UtilsClient::getHisto<TH2F*>( mePedestalOnline_ );
 
   if ( obj2f ) {
 
@@ -391,24 +401,27 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
     cMap->cd();
     gStyle->SetOptStat(" ");
     gStyle->SetPalette(6, pCol3);
-    obj2f->GetXaxis()->SetNdivisions(18, kFALSE);
+    obj2f->GetXaxis()->SetNdivisions(9, kFALSE);
     obj2f->GetYaxis()->SetNdivisions(2);
     cMap->SetGridx();
     cMap->SetGridy();
     obj2f->SetMinimum(-0.00000001);
     obj2f->SetMaximum(6.0);
     obj2f->Draw("col");
+    labelGrid.Draw("text,same");
     cMap->Update();
     cMap->SaveAs(imgName.c_str());
 
   }
+
+  gStyle->SetPaintTextFormat();
 
   htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
   htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapI.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Int"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapI << "\" usemap=""#Integrity"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -421,7 +434,7 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<tr align=\"center\">" << endl;
 
   if ( imgNameMapPO.size() != 0 )
-    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PeOnl"" border=0></td>" << endl;
+    htmlFile << "<td><img src=\"" << imgNameMapPO << "\" usemap=""#PedestalOnline"" border=0></td>" << endl;
   else
     htmlFile << "<td><img src=\"" << " " << "\"></td>" << endl;
 
@@ -431,8 +444,10 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   delete cMap;
 
-  this->writeMap( htmlFile, "Int" );
-  this->writeMap( htmlFile, "PeOnl" );
+  gStyle->SetPaintTextFormat();
+
+  if ( imgNameMapI.size() != 0 ) this->writeMap( htmlFile, "Integrity" );
+  if ( imgNameMapPO.size() != 0 ) this->writeMap( htmlFile, "PedestalOnline" );
 
   // html page footer
   htmlFile << "</body> " << endl;
@@ -442,30 +457,34 @@ void EESummaryClient::htmlOutput(int run, string htmlDir, string htmlName){
 
   gStyle->SetTitleH( saveHeigth );
   gStyle->SetTitleFontSize( saveFontSize );
+
 }
 
 void EESummaryClient::writeMap( std::ofstream& hf, std::string mapname ) {
 
  std::map<std::string, std::string> refhtml;
- refhtml["Int"] = "EEIntegrityClient.html";
- refhtml["PeOnl"] = "EEPedestalOnlineClient.html";
+ refhtml["Integrity"] = "EEIntegrityClient.html";
+ refhtml["PedestalOnline"] = "EEPedestalOnlineClient.html";
 
- const int A0 =  78;
- const int A1 = 716;
+ const int A0 =  85;
+ const int A1 = 759;
  const int B0 =  35;
  const int B1 = 334;
 
  hf << "<map name=\"" << mapname << "\">" << std::endl;
- for( unsigned int sm=0; sm<superModules_.size(); sm ++ ) {
-  int i=(superModules_[sm]-1)/18;
-  int j=(superModules_[sm]-1)%18;
-  int x0 = A0 + (A1-A0)*j/18;
-  int x1 = A0 + (A1-A0)*(j+1)/18;
-  int y0 = B0 + (B1-B0)*i/2;
-  int y1 = B0 + (B1-B0)*(i+1)/2;
-  hf << "<area shape=\"rect\" href=\"" << refhtml[mapname] << "#" << 1+j+18*i << "\" coords=\"";
-  hf << x0+1 << ", " << y0+1 << ", " << x1 << ", " << y1 << "\">" << std::endl;
+ for( unsigned int sm=0; sm<superModules_.size(); sm++ ) {
+  int i=(superModules_[sm]-1)/9;
+  int j=(superModules_[sm]-1)%9;
+  int x0 = A0 + (A1-A0)*j/9;
+  int x1 = A0 + (A1-A0)*(j+1)/9;
+  int y0 = B0 + (B1-B0)*(1-i)/2;
+  int y1 = B0 + (B1-B0)*((1-i)+1)/2;
+  hf << "<area title=\"" << Numbers::sEE((j+1)+9*i).c_str()
+     << "\" shape=\"rect\" href=\"" << refhtml[mapname] << "#"
+     << Numbers::sEE((j+1)+9*i).c_str() << "\" coords=\"";
+  hf << x0 << ", " << y0 << ", " << x1 << ", " << y1 << "\">" << std::endl;
  }
  hf << "</map>" << std::endl;
+
 }
 

@@ -13,8 +13,8 @@
  * \author: Vasile Mihai Ghete - HEPHY Vienna -  GT 
  * \author: Ivan Mikulec       - HEPHY Vienna - GMT
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -65,12 +65,13 @@ private:
     /// block packers -------------
 
     /// pack header
-    void packHeader(const unsigned char*);
+    void packHeader(unsigned char*);
 
     /// pack the GTFE block
     /// gives the number of bunch crosses in the event, as well as the active boards
     /// records for inactive boards are not written in the GT DAQ record
-    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&);
+    void packGTFE(const edm::EventSetup&, unsigned char*, L1GtfeWord&,
+                  boost::uint16_t activeBoardsGtValue);
 
     /// pack FDL blocks for various bunch crosses
     void packFDL(const edm::EventSetup&, unsigned char*, L1GtFdlWord&);
@@ -88,24 +89,32 @@ private:
     unsigned int packGMT(L1MuGMTReadoutRecord const&, unsigned char*);
 
     /// pack trailer word
-    void packTrailer(const unsigned char*);
+    void packTrailer(unsigned char*, int);
 
     /// end of job stuff
     virtual void endJob();
 
 private:
 
-    // input tags for GT DAQ record
+    /// input tag for GT DAQ record
     edm::InputTag m_daqGtInputTag;
-    
-    /// total Bx's in the event, obtained from GTFE block    
+
+    /// input tag for GMT record
+    edm::InputTag m_muGmtInputTag;
+
+    /// mask for active boards
+    boost::uint16_t m_activeBoardsMaskGt;
+
+    /// total Bx's in the event, obtained from GTFE block
     int m_totalBxInEvent;
-    
-    /// flag to keep or change the active boards
-    bool m_keepActiveBoardsStatus;
-    
-    // list of active boards (actually 16 bits)
-    boost::uint16_t m_activeBoardsGt;
+
+    /// min Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+    /// assume symmetrical number of BX around L1Accept
+    int m_minBxInEvent;
+
+    /// max Bx's in the event, computed after m_totalBxInEvent is obtained from GTFE block
+    /// assume symmetrical number of BX around L1Accept
+    int m_maxBxInEvent;
 
 
 };

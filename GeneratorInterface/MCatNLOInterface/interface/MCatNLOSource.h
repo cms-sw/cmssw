@@ -67,6 +67,7 @@ namespace edm
     bool useJimmy_;
     bool doMPInteraction_;
     bool printCards_;
+    int eventCounter_;
 
   };
 } 

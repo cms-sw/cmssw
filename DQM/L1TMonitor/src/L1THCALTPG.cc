@@ -1,11 +1,14 @@
 /*
  * \file L1THCALTPG.cc
  *
- * $Date: 2007/02/22 19:43:53 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/23 22:00:16 $
+ * $Revision: 1.3 $
  * \author J. Berryhill
  *
- * $Log$
+ * $Log: L1THCALTPG.cc,v $
+ * Revision 1.3  2007/02/23 22:00:16  wittich
+ * add occ (weighted and unweighted) and rank histos
+ *
  *
  */
 
@@ -128,18 +131,36 @@ void L1THCALTPG::analyze(const Event& e, const EventSetup& c)
   edm::Handle<HcalTrigPrimDigiCollection> hcalTpgs;
 
   try {
-    e.getByLabel(hcaltpgSource_, hcalTpgs);
+        e.getByLabel(hcaltpgSource_, hcalTpgs);
+    //     e.getByType(hcalTpgs);
   }
   catch (...) {
     edm::LogInfo("L1THCALTPG") << "can't find HCAL TPG's with label "
 			       << hcaltpgSource_.label() ;
     return;
   }
-//   std::cout << "--> event" << std::endl;
+//
+  std::cout << "--> event  " << hcalTpgs->size() << std::endl;
 //   int j = 0;
   for ( HcalTrigPrimDigiCollection::const_iterator i = hcalTpgs->begin();
 	i != hcalTpgs->end(); ++i ) {
-    int e = i->SOI_compressedEt();
+
+    if (verbose_)
+      {
+  std::cout << "size  " <<  i->size() << std::endl;
+  std::cout << "iphi  " <<  i->id().iphi() << std::endl;
+  std::cout << "ieta  " <<  i->id().ieta() << std::endl;
+  std::cout << "compressed Et  " <<  i->SOI_compressedEt() << std::endl;
+  std::cout << "FG bit  " <<  i->SOI_fineGrain() << std::endl;
+  std::cout << "raw  " <<  i->t0().raw() << std::endl;
+  std::cout << "raw Et " <<  i->t0().compressedEt() << std::endl;
+  std::cout << "raw FG " <<  i->t0().fineGrain() << std::endl;
+  std::cout << "raw fiber " <<  i->t0().fiber() << std::endl;
+  std::cout << "raw fiberChan " <<  i->t0().fiberChan() << std::endl;
+  std::cout << "raw fiberAndChan " <<  i->t0().fiberAndChan() << std::endl;
+      }
+
+   int e = i->SOI_compressedEt();
     if ( e != 0 ) {
       // occupancy maps (weighted and unweighted
       hcalTpOccEtaPhi_->Fill(i->id().iphi(), i->id().ieta());

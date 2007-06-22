@@ -76,7 +76,7 @@ void DumpEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 void DumpEvent::WriteElectrons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get Reco Electrons
-  Handle<ElectronCollection> ElectronHandle;
+  edm::Handle<ElectronCollection> ElectronHandle;
   iEvent.getByLabel("pixelMatchElectrons",ElectronHandle);
   const ElectronCollection *Electrons = ElectronHandle.product();
   ElectronCollection::const_iterator elec;
@@ -99,7 +99,7 @@ void DumpEvent::WriteElectrons(const edm::Event& iEvent, const edm::EventSetup& 
 void DumpEvent::WritePhotons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get Reco Photons
-  Handle<PhotonCollection> PhotonHandle; 
+  edm::Handle<PhotonCollection> PhotonHandle; 
   iEvent.getByLabel("photons",PhotonHandle);
   const PhotonCollection *Photons = PhotonHandle.product();
   PhotonCollection::const_iterator gamma; 
@@ -122,11 +122,11 @@ void DumpEvent::WritePhotons(const edm::Event& iEvent, const edm::EventSetup& iS
 void DumpEvent::WriteJets(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Jets
-  Handle<CaloJetCollection> JetHandle;
+  edm::Handle<CaloJetCollection> JetHandle;
   iEvent.getByLabel( "iterativeCone5CaloJets", JetHandle );
   const CaloJetCollection *Jets = JetHandle.product();
   // Towers
-  Handle<CaloTowerCollection> caloTowers;
+  edm::Handle<CaloTowerCollection> caloTowers;
   iEvent.getByLabel( "towerMaker", caloTowers );
   
   CaloJetCollection::const_iterator jet; 
@@ -160,7 +160,7 @@ void DumpEvent::WriteJets(const edm::Event& iEvent, const edm::EventSetup& iSetu
 void DumpEvent::WriteMuons(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get Reco Muons
-  Handle<MuonCollection> MuonHandle; 
+  edm::Handle<MuonCollection> MuonHandle; 
   iEvent.getByLabel("globalMuons",MuonHandle);
   const MuonCollection *Muons = MuonHandle.product();
   MuonCollection::const_iterator muon; 
@@ -185,7 +185,7 @@ void DumpEvent::WriteMET(const edm::Event& iEvent, const edm::EventSetup& iSetup
 { 
   {
     // Reco MET
-    Handle<CaloMETCollection> metHandle;
+    edm::Handle<CaloMETCollection> metHandle;
     iEvent.getByLabel("met", metHandle);
     const CaloMETCollection *MET = metHandle.product();
     const CaloMET caloMET = MET->front();
@@ -199,7 +199,7 @@ void DumpEvent::WriteMET(const edm::Event& iEvent, const edm::EventSetup& iSetup
   
   {
     // Get GenMET objects from event
-    Handle<GenMETCollection> genmetHandle;
+    edm::Handle<GenMETCollection> genmetHandle;
     iEvent.getByLabel("genMet", genmetHandle);
     const GenMETCollection *gmet = genmetHandle.product();
     const GenMET genMET = gmet->front();
@@ -215,7 +215,7 @@ void DumpEvent::WriteMET(const edm::Event& iEvent, const edm::EventSetup& iSetup
 void DumpEvent::WriteSCs(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // Get ECAL Barrel identified SuperClusters
-  Handle<SuperClusterCollection> BSCHandle;
+  edm::Handle<SuperClusterCollection> BSCHandle;
   iEvent.getByLabel("correctedHybridSuperClusters",BSCHandle);
   const SuperClusterCollection *BSuperClusters = BSCHandle.product();
   DEBUG("***Barrel Super Clusters***");
@@ -248,7 +248,7 @@ void DumpEvent::WriteSCs(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   // Get ECAL EndCap identified SuperClusters
-  Handle<SuperClusterCollection> ESCHandle;
+  edm::Handle<SuperClusterCollection> ESCHandle;
   iEvent.getByLabel("correctedIslandEndcapSuperClusters",ESCHandle);
   const SuperClusterCollection *ESuperClusters = ESCHandle.product();
   DEBUG("***EndCap Super Clusters***");

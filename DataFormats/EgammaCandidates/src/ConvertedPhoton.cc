@@ -14,14 +14,15 @@ reco::SuperClusterRef ConvertedPhoton::superCluster() const {
 }
 
 
-// reco::TrackRefVector  ConvertedPhoton::tracks() const { 
-//  return tracks_;
-//}
 
 
-
-std::vector<reco::TrackRef>  ConvertedPhoton::tracks() const { 
+const std::vector<reco::TrackRef>&  ConvertedPhoton::tracks() const { 
    return tracks_;
+}
+
+
+TrackRef ConvertedPhoton::track( size_t ind ) const {
+  return tracks_[ind];
 }
 
 

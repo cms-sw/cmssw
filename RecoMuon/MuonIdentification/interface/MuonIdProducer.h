@@ -1,5 +1,5 @@
 #ifndef MuonIdentification_MuonIdProducer_h
-#define MuonIdentification_MuonIdProducer_h 1
+#define MuonIdentification_MuonIdProducer_h
 
 // -*- C++ -*-
 //
@@ -16,7 +16,7 @@
 */
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.h,v 1.8 2007/03/07 19:07:51 bellan Exp $
+// $Id: MuonIdProducer.h,v 1.10 2007/04/13 06:13:44 dmytro Exp $
 //
 //
 
@@ -34,10 +34,9 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonWithMatchInfo.h"
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-#include "TrackingTools/TrackAssociator/interface/TimerStack.h"
+#include "Utilities/Timing/interface/TimerStack.h"
 
 class MuonIdProducer : public edm::EDProducer {
  public:
@@ -50,9 +49,9 @@ class MuonIdProducer : public edm::EDProducer {
 
  private:
    void               fillMuonId(edm::Event&, const edm::EventSetup&,
-				 reco::MuonWithMatchInfo& aMuon);
+				 reco::Muon& aMuon);
    void               init(edm::Event&, const edm::EventSetup&);
-   reco::MuonWithMatchInfo*      getNewMuon(edm::Event& iEvent, 
+   reco::Muon*      getNewMuon(edm::Event& iEvent, 
 				 const edm::EventSetup& iSetup);
 
    TrackDetectorAssociator trackAssociator_;

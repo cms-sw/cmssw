@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2007/03/29 10:06:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2007/06/14 17:49:15 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,6 +29,7 @@
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -42,9 +43,7 @@ using namespace std;
 
 DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
-  debug = ps.getUntrackedParameter<bool>("debug", "false");
-  if(debug)
-    cout<<"[DTEfficiencyTest]: Constructor"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Constructor";
 
   parameters = ps;
 
@@ -55,15 +54,13 @@ DTEfficiencyTest::DTEfficiencyTest(const edm::ParameterSet& ps){
 
 DTEfficiencyTest::~DTEfficiencyTest(){
 
-  if(debug)
-    cout << "DTEfficiencyTest: analyzed " << nevents << " events" << endl;
+  edm::LogVerbatim ("efficiency") << "DTEfficiencyTest: analyzed " << nevents << " events";
 
 }
 
 void DTEfficiencyTest::endJob(){
 
-  if(debug)
-    cout<<"[DTEfficiencyTest] endjob called!"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest] endjob called!";
 
   dbe->rmdir("DT/Tests/DTEfficiency");
 
@@ -71,8 +68,7 @@ void DTEfficiencyTest::endJob(){
 
 void DTEfficiencyTest::beginJob(const edm::EventSetup& context){
 
-  if(debug)
-    cout<<"[DTEfficiencyTest]: BeginJob"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: BeginJob";
 
   nevents = 0;
 
@@ -94,7 +90,9 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
   string EfficiencyHistoName =  "Efficiency_" + HistoName; 
   string UnassEfficiencyHistoName =  "UnassEfficiency_" + HistoName; 
 
-  dbe->setCurrentFolder("DT/Tests/DTEfficiency");
+  dbe->setCurrentFolder("DT/Tests/DTEfficiency/Wheel" + wheel.str() +
+			   "/Station" + station.str() +
+			   "/Sector" + sector.str());
 
   EfficiencyHistos[HistoName] = dbe->book1D(EfficiencyHistoName.c_str(),EfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   UnassEfficiencyHistos[HistoName] = dbe->book1D(UnassEfficiencyHistoName.c_str(),UnassEfficiencyHistoName.c_str(),lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
@@ -103,15 +101,18 @@ void DTEfficiencyTest::bookHistos(const DTLayerId & lId, int firstWire, int last
 
 void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& context){
   
+  // counts number of updats (online mode) or number of events (standalone mode)
   nevents++;
-  if (nevents%1 == 0 && debug) 
-    cout<<"[DTEfficiencyTest]: "<<nevents<<" updates"<<endl;
+  // if running in standalone perform diagnostic only after a reasonalbe amount of events
+  if ( parameters.getUntrackedParameter<bool>("runningStandalone", false) && 
+       nevents%parameters.getUntrackedParameter<int>("diagnosticPrescale", 1000) != 0 ) return;
+
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: "<<nevents<<" updates";
 
   vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
   vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
-  cout<<endl;
-  cout<<"[DTEfficiencyTest]: Efficiency tests results"<<endl;
+  edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Efficiency tests results";
   
   // Loop over the chambers
   for (; ch_it != ch_end; ++ch_it) {
@@ -122,26 +123,26 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
     // Loop over the SuperLayers
     for(; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slID = (*sl_it)->id();
-      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin(); 
+      vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
       vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
       
       // Loop over the layers
-      for(; l_it != l_end; ++l_it) {	
+      for(; l_it != l_end; ++l_it) {
 	DTLayerId lID = (*l_it)->id();
-
+	 
 	stringstream wheel; wheel << chID.wheel();
 	stringstream station; station << chID.station();
 	stringstream sector; sector << chID.sector();
 	stringstream superLayer; superLayer << slID.superlayer();
 	stringstream layer; layer << lID.layer();
-
-	string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str(); 
-
+	
+	string HistoName = "W" + wheel.str() + "_St" + station.str() + "_Sec" + sector.str() +  "_SL" + superLayer.str() +  "_L" + layer.str();
+	
 	// Get the ME produced by EfficiencyTask Source
 	MonitorElement * occupancy_histo = dbe->get(getMEName("hEffOccupancy", lID));	
 	MonitorElement * unassOccupancy_histo = dbe->get(getMEName("hEffUnassOccupancy", lID));
 	MonitorElement * recSegmOccupancy_histo = dbe->get(getMEName("hRecSegmOccupancy", lID));
-
+	 
 	// ME -> TH1F
 	if(occupancy_histo && unassOccupancy_histo && recSegmOccupancy_histo) {	  
 	  MonitorElementT<TNamed>* occ = dynamic_cast<MonitorElementT<TNamed>*>(occupancy_histo);
@@ -160,63 +161,67 @@ void DTEfficiencyTest::analyze(const edm::Event& e, const edm::EventSetup& conte
 	      // Loop over the TH1F bin and fill the ME to be used for the Quality Test
 	      for(int bin=firstWire; bin <= lastWire; bin++) {
 		if((recSegmOccupancy_histo_root->GetBinContent(bin))!=0) {
-		  cout<<"book histos"<<endl;
+		  //cout<<"book histos"<<endl;
 		  if (EfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float efficiency = occupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+		  float errorEff = sqrt(efficiency*(1-efficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
 		  EfficiencyHistos.find(HistoName)->second->setBinContent(bin, efficiency);
-
+		  EfficiencyHistos.find(HistoName)->second->setBinError(bin, errorEff);
+		  
 		  if (UnassEfficiencyHistos.find(HistoName) == EfficiencyHistos.end()) bookHistos(lID, firstWire, lastWire);
 		  float unassEfficiency = unassOccupancy_histo_root->GetBinContent(bin) / recSegmOccupancy_histo_root->GetBinContent(bin);
+		  float errorUnassEff = sqrt(unassEfficiency*(1-unassEfficiency) / recSegmOccupancy_histo_root->GetBinContent(bin));
 		  UnassEfficiencyHistos.find(HistoName)->second->setBinContent(bin, unassEfficiency);	
+		  UnassEfficiencyHistos.find(HistoName)->second->setBinError(bin, errorUnassEff);
 		}
 	      }
-
+	      
 	    }
 	  }
 	}
-
-	// Efficiency test 
-	cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
-	string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
-	for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
-	    hEff != EfficiencyHistos.end();
-	    hEff++) {
-	  const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
-	  if(theEfficiencyQReport) {
-	    vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cout<<"Bad efficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	    }
-	    cout<<"-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus()<<endl;
-	  }
-	}
-	
-	// UnassEfficiency test 
-	cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
-	string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
-	for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
-	    hUnassEff != UnassEfficiencyHistos.end();
-	    hUnassEff++) {
-	  const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
-	  if(theUnassEfficiencyQReport) {
-	    vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
-	    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-		 channel != badChannels.end(); channel++) {
-	      cout<<"Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents()<<endl;
-	    }
-	    //cout<<"-------- "<<theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus()<<endl;
-	  }
-	}
-
-
+      } // loop on layers
+    } // loop on superlayers
+  } //loop on chambers
+  
+  // Efficiency test 
+  //cout<<"[DTEfficiencyTest]: Efficiency Tests results"<<endl;
+  string EfficiencyCriterionName = parameters.getUntrackedParameter<string>("EfficiencyTestName","EfficiencyInRange"); 
+  for(map<string, MonitorElement*>::const_iterator hEff = EfficiencyHistos.begin();
+      hEff != EfficiencyHistos.end();
+      hEff++) {
+    const QReport * theEfficiencyQReport = (*hEff).second->getQReport(EfficiencyCriterionName);
+    if(theEfficiencyQReport) {
+      vector<dqm::me_util::Channel> badChannels = theEfficiencyQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	edm::LogError ("efficiency") <<"LayerID : "<<(*hEff).first<< " Bad efficiency channels: "<<(*channel).getBin()<<"  Contents : "<<(*channel).getContents();
       }
+      edm::LogWarning ("efficiency") << "-------- "<<theEfficiencyQReport->getMessage()<<" ------- "<<theEfficiencyQReport->getStatus();
+    }
+  }
+	
+  // UnassEfficiency test 
+  //cout<<"[DTEfficiencyTest]: UnassEfficiency Tests results"<<endl;
+  string UnassEfficiencyCriterionName = parameters.getUntrackedParameter<string>("UnassEfficiencyTestName","UnassEfficiencyInRange"); 
+  for(map<string, MonitorElement*>::const_iterator hUnassEff = UnassEfficiencyHistos.begin();
+      hUnassEff != UnassEfficiencyHistos.end();
+      hUnassEff++) {
+    const QReport * theUnassEfficiencyQReport = (*hUnassEff).second->getQReport(UnassEfficiencyCriterionName);
+    if(theUnassEfficiencyQReport) {
+      vector<dqm::me_util::Channel> badChannels = theUnassEfficiencyQReport->getBadChannels();
+      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	   channel != badChannels.end(); channel++) {
+	edm::LogError ("efficiency") << "Bad unassEfficiency channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
+      }
+      edm::LogWarning ("efficiency") << theUnassEfficiencyQReport->getMessage()<<" ------- "<<theUnassEfficiencyQReport->getStatus();
     }
   }
 
+  
   if (nevents%parameters.getUntrackedParameter<int>("resultsSavingRate",10) == 0){
     if ( parameters.getUntrackedParameter<bool>("writeHisto", true) ) 
       dbe->save(parameters.getUntrackedParameter<string>("outputFile", "DTEfficiencyTest.root"));
+    edm::LogStatistics();
   }
 }
 
@@ -229,8 +234,9 @@ string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId & lID) {
   stringstream superLayer; superLayer << lID.superlayerId().superlayer();
   stringstream layer; layer << lID.layer();
 
-  string folderName = 
-    "Collector/FU0/DT/DTEfficiencyTask/Wheel" +  wheel.str() +
+ string folderRoot = parameters.getUntrackedParameter<string>("folderRoot", "Collector/FU0/");
+ string folderName = 
+    folderRoot + "DT/DTEfficiencyTask/Wheel" +  wheel.str() +
     "/Station" + station.str() +
     "/Sector" + sector.str() + 
     "/SuperLayer" + superLayer.str() + "/";

@@ -22,7 +22,7 @@
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
 
-
+class Run;
 
 namespace edm
 {
@@ -33,6 +33,8 @@ namespace edm
     PythiaSource(const ParameterSet &, const InputSourceDescription &);
     /// Destructor
     virtual ~PythiaSource();
+
+    void endRun( Run& r);
 
 
   private:
@@ -57,7 +59,10 @@ namespace edm
     bool pythiaHepMCVerbosity_;
     /// Events to print if verbosity
     unsigned int maxEventsToPrint_;    
-    
+   
+    // external cross section and filter efficiency
+    double extCrossSect;
+    double extFilterEff;    
  
     // for single particle generation in pythia
     int    particleID;

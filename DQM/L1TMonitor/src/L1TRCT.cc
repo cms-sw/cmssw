@@ -1,8 +1,8 @@
 /*
  * \file L1TRCT.cc
  *
- * $Date: 2007/02/19 22:49:54 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/23 21:58:43 $
+ * $Revision: 1.2 $
  * \author P. Wittich
  *
  */
@@ -172,8 +172,25 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1CaloRegionCollection > rgn;
 
   // need to change to getByLabel
-  e.getByLabel(rctSource_, em);
-  e.getByLabel(rctSource_, rgn);
+ 
+  try {
+  e.getByLabel(rctSource_,em);
+  }
+  catch (...) {
+    edm::LogInfo("L1TRCT") << "can't find L1CaloEmCollection with label "
+			       << rctSource_.label() ;
+    return;
+  }
+
+  try {
+  e.getByLabel(rctSource_,rgn);
+  }
+  catch (...) {
+    edm::LogInfo("L1TRCT") << "can't find L1CaloRegionCollection with label "
+			       << rctSource_.label() ;
+    return;
+  }
+
 
   // Fill the RCT histograms
 

@@ -49,8 +49,11 @@ FUResourceTable::FUResourceTable(bool              segmentationMode,
   , asDiscard_(0)
   , shmBuffer_(0)
   , doCrcCheck_(1)
+  , nbPending_(0)
   , nbClientsToShutDown_(0)
   , isReadyToShutDown_(true)
+  , isActive_(false)
+  , isHalting_(false)
   , lock_(BSem::FULL)
 {
   initialize(segmentationMode,
@@ -92,7 +95,12 @@ void FUResourceTable::initialize(bool   segmentationMode,
     return;
   }
   
-  for (UInt_t i=0;i<nbRawCells;i++) resources_.push_back(new FUResource(log_));
+  for (UInt_t i=0;i<nbRawCells;i++) {
+    resources_.push_back(new FUResource(i,log_));
+    freeResourceIds_.push(i);
+  }
+  
+  resetCounters();
 }
 
 
@@ -121,25 +129,41 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
   FUShmRecoCell* cell=shmBuffer_->recoCellToRead();
   
   if (0==cell->eventSize()) {
-    LOG4CPLUS_WARN(log_,"Don't reschedule sendData workloop.");
-    shmBuffer_->discardRecoCell(cell->index());
+    LOG4CPLUS_INFO(log_,"Don't reschedule sendData workloop.");
+    UInt_t cellIndex=cell->index();
+    shmBuffer_->finishReadingRecoCell(cell);
+    shmBuffer_->discardRecoCell(cellIndex);
     reschedule=false;
+  }
+  else if (isHalting_) {
+    LOG4CPLUS_INFO(log_,"sendData: isHalting, discard recoCell.");
+    UInt_t cellIndex=cell->index();
+    shmBuffer_->finishReadingRecoCell(cell);
+    shmBuffer_->discardRecoCell(cellIndex);
   }
   else {
     try {
       if (cell->type()==0) {
-	lock();
-	sendInitMessage(cell->index(),cell->payloadAddr(),cell->eventSize());
+	UInt_t   cellIndex       = cell->index();
+	UChar_t* cellPayloadAddr = cell->payloadAddr();
+	UInt_t   cellEventSize   = cell->eventSize();
 	shmBuffer_->finishReadingRecoCell(cell);
-	unlock();
+	
+	sendInitMessage(cellIndex,cellPayloadAddr,cellEventSize);
       }
       else if (cell->type()==1) {
 	lock();
 	nbAccepted_++;
-	sendDataEvent(cell->index(),cell->runNumber(),cell->evtNumber(),
-		      cell->payloadAddr(),cell->eventSize());
-	shmBuffer_->finishReadingRecoCell(cell);
 	unlock();
+	UInt_t   cellIndex       = cell->index();
+	UInt_t   cellRunNumber   = cell->runNumber();
+	UInt_t   cellEvtNumber   = cell->evtNumber();
+	UChar_t *cellPayloadAddr = cell->payloadAddr();
+	UInt_t   cellEventSize   = cell->eventSize();
+	shmBuffer_->finishReadingRecoCell(cell);	
+
+	sendDataEvent(cellIndex,cellRunNumber,cellEvtNumber,
+		      cellPayloadAddr,cellEventSize);
       }
       else {
 	string errmsg="Unknown RecoCell type (neither DATA nor INIT).";
@@ -147,8 +171,6 @@ bool FUResourceTable::sendData(toolbox::task::WorkLoop* /* wl */)
       }
     }
     catch (xcept::Exception& e) {
-      shmBuffer_->finishReadingRecoCell(cell); // ?
-      unlock();                                // ?
       LOG4CPLUS_FATAL(log_,"Failed to send EVENT DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
@@ -185,21 +207,30 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
   
   if (state==dqm::EMPTY) {
     LOG4CPLUS_WARN(log_,"Don't reschedule sendDqm workloop.");
-    shmBuffer_->discardDqmCell(cell->index());
+    UInt_t cellIndex=cell->index();
+    shmBuffer_->finishReadingDqmCell(cell);
+    shmBuffer_->discardDqmCell(cellIndex);
     reschedule=false;
+  }
+  else if (isHalting_) {
+    UInt_t cellIndex=cell->index();
+    shmBuffer_->finishReadingDqmCell(cell);
+    shmBuffer_->discardDqmCell(cellIndex);
   }
   else {
     try {
-      lock();
-      sendDqmEvent(cell->index(),
-		   cell->runNumber(),cell->evtAtUpdate(),cell->folderId(),
-		   cell->payloadAddr(),cell->eventSize());
-      shmBuffer_->finishReadingDqmCell(cell);
-      unlock();
+      UInt_t   cellIndex       = cell->index();
+      UInt_t   cellRunNumber   = cell->runNumber();
+      UInt_t   cellEvtAtUpdate = cell->evtAtUpdate();
+      UInt_t   cellFolderId    = cell->folderId();
+      UChar_t *cellPayloadAddr = cell->payloadAddr();
+      UInt_t   cellEventSize   = cell->eventSize();
+      shmBuffer_->finishReadingDqmCell(cell);      
+
+      sendDqmEvent(cellIndex,cellRunNumber,cellEvtAtUpdate,cellFolderId,
+		   cellPayloadAddr,cellEventSize);
     }
     catch (xcept::Exception& e) {
-      shmBuffer_->finishReadingDqmCell(cell); // ?
-      unlock(); // ?
       LOG4CPLUS_FATAL(log_,"Failed to send DQM DATA to StorageManager: "
 		      <<xcept::stdformat_exception_history(e));
       reschedule=false;
@@ -214,10 +245,12 @@ bool FUResourceTable::sendDqm(toolbox::task::WorkLoop* /* wl */)
 void FUResourceTable::startDiscardWorkLoop() throw (evf::Exception)
 {
   try {
+    LOG4CPLUS_INFO(log_,"Start 'discard' workloop.");
     wlDiscard_=toolbox::task::getWorkLoopFactory()->getWorkLoop("Discard","waiting");
     if (!wlDiscard_->isActive()) wlDiscard_->activate();
     asDiscard_=toolbox::task::bind(this,&FUResourceTable::discard,"Discard");
     wlDiscard_->submit(asDiscard_);
+    isActive_=true;
   }
   catch (xcept::Exception& e) {
     string msg = "Failed to start workloop 'Discard'.";
@@ -239,25 +272,47 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
   UInt_t buResourceId=cell->buResourceId();
 
   if (shutDown) {
-    LOG4CPLUS_WARN(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
+    LOG4CPLUS_INFO(log_,"nbClientsToShutDown = "<<nbClientsToShutDown_);
     if (nbClientsToShutDown_>0) --nbClientsToShutDown_;
     if (nbClientsToShutDown_==0) {
-      LOG4CPLUS_WARN(log_,"Don't reschedule discard-workloop.");
-      reschedule = false;
+      LOG4CPLUS_INFO(log_,"Don't reschedule discard-workloop.");
+      isActive_ =false;
+      reschedule=false;
     }
   }
   
-  resources_[fuResourceId]->release();
   shmBuffer_->discardRawCell(cell);
+  
   if (!shutDown) {
-    sendDiscard(buResourceId);
-    sendAllocate();
+    resources_[fuResourceId]->release();
+    lock();
+    freeResourceIds_.push(fuResourceId);
+    assert(freeResourceIds_.size()<=resources_.size());
+    unlock();
+    
+    if (!isHalting_) {
+      sendDiscard(buResourceId);
+      sendAllocate();
+    }
   }
   
   if (!reschedule) {
     shmBuffer_->writeRecoEmptyEvent();
     shmBuffer_->writeDqmEmptyEvent();
-    isReadyToShutDown_ = true;
+    
+    UInt_t count=0;
+    while (count<10) {
+      if (shmBuffer_->nbClients()==0) {
+	isReadyToShutDown_ = true;
+	break;
+      }
+      else {
+	LOG4CPLUS_DEBUG(log_,"FUResourceTable: Wait for all clients to detach, "
+			<<"nbClients="<<shmBuffer_->nbClients()<<" ("<<++count<<")");
+	::sleep(1);
+      }
+    }
+
   }
   
   return reschedule;
@@ -268,20 +323,15 @@ bool FUResourceTable::discard(toolbox::task::WorkLoop* /* wl */)
 //______________________________________________________________________________
 UInt_t FUResourceTable::allocateResource()
 {
-  FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
-  UInt_t fuResourceId=cell->fuResourceId();
-  
-  resources_[fuResourceId]->allocate(cell);
+  assert(!freeResourceIds_.empty());
+
+  lock();
+  UInt_t fuResourceId=freeResourceIds_.front();
+  freeResourceIds_.pop();
   nbPending_++;
   nbAllocated_++;
+  unlock();
   
-  if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_) {
-    resources_[fuResourceId]->doCrcCheck(true);
-  }
-  else {
-    resources_[fuResourceId]->doCrcCheck(false);
-  }
-
   return fuResourceId;
 }
 
@@ -298,12 +348,21 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   UInt_t      buResourceId=(UInt_t)block->buResourceId;
   FUResource* resource    =resources_[fuResourceId];
   
+  // allocate resource
+  if (!resource->isAllocated()) {
+    FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
+    resource->allocate(cell);
+    if (doCrcCheck_>0&&0==nbAllocated_%doCrcCheck_)  resource->doCrcCheck(true);
+    else                                             resource->doCrcCheck(false);
+  }
+  
+  
   // keep building this resource if it is healthy
   if (!resource->fatalError()) {
     resource->process(bufRef);
     lock();
-    nbErrors_         +=resource->nbErrors();
-    nbCrcErrors_      +=resource->nbCrcErrors();
+    nbErrors_   +=resource->nbErrors();
+    nbCrcErrors_+=resource->nbCrcErrors();
     unlock();
     
     // make resource available for pick-up
@@ -327,13 +386,15 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
     bool lastMsg=isLastMessageOfEvent(bufRef);
     bufRef->release();
     if (lastMsg) {
-      lock();
       bu_->sendDiscard(buResourceId);
+      shmBuffer_->releaseRawCell(resource->shmCell());
+      resource->release();
+      lock();
+      freeResourceIds_.push(fuResourceId);
       nbDiscarded_++;
       nbLost_++;
       nbPending_--;
       unlock();
-      shmBuffer_->releaseRawCell(resource->shmCell());
     }
   }
   
@@ -344,13 +405,16 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 {
-  lock();
+  if (isHalting_) {
+    bufRef->release();
+    return false;
+  }
+
   I2O_FU_DATA_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DATA_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t recoIndex=msg->fuID;
   shmBuffer_->discardRecoCell(recoIndex);
   bufRef->release();
-  unlock();
   return true;
 }
 
@@ -358,13 +422,16 @@ bool FUResourceTable::discardDataEvent(MemRef_t* bufRef)
 //______________________________________________________________________________
 bool FUResourceTable::discardDqmEvent(MemRef_t* bufRef)
 {
-  lock();
+  if (isHalting_) {
+    bufRef->release();
+    return false;
+  }
+  
   I2O_FU_DQM_DISCARD_MESSAGE_FRAME *msg;
   msg=(I2O_FU_DQM_DISCARD_MESSAGE_FRAME*)bufRef->getDataLocation();
   UInt_t dqmIndex=msg->fuID;
   shmBuffer_->discardDqmCell(dqmIndex);
   bufRef->release();
-  unlock();
   return true;
 }
 
@@ -403,18 +470,30 @@ void FUResourceTable::dumpEvent(FUShmRawCell* cell)
 
 
 //______________________________________________________________________________
+void FUResourceTable::stop()
+{
+  shutDownClients();
+}
+
+
+//______________________________________________________________________________
+void FUResourceTable::halt()
+{
+  isHalting_=true;
+  shutDownClients();
+}
+
+
+//______________________________________________________________________________
 void FUResourceTable::shutDownClients()
 {
   nbClientsToShutDown_ = nbShmClients();
   isReadyToShutDown_   = false;
   
-  if (nbClientsToShutDown_==0) {
-    shmBuffer_->scheduleRawEmptyCellForDiscard();
-  }
+  if (nbClientsToShutDown_==0) shmBuffer_->scheduleRawEmptyCellForDiscard();
   else {
-    for (UInt_t i=0;i<nbClientsToShutDown_;++i) {
-      shmBuffer_->writeRawEmptyEvent();
-    }
+    UInt_t n=nbClientsToShutDown_;
+    for (UInt_t i=0;i<n;++i) shmBuffer_->writeRawEmptyEvent();
   }
 }
 
@@ -427,24 +506,15 @@ void FUResourceTable::clear()
     delete resources_[i];
   }
   resources_.clear();
-}
-
-
-//______________________________________________________________________________
-void FUResourceTable::reset()
-{
-  shmBuffer_->reset();
-  resetCounters();
+  while (!freeResourceIds_.empty()) freeResourceIds_.pop();
 }
 
 
 //______________________________________________________________________________
 void FUResourceTable::resetCounters()
 {
-  nbAllocated_       =0;
-  nbPending_         =0;
+  nbAllocated_       =nbPending_;
   nbCompleted_       =0;
-  nbProcessed_       =0;
   nbAccepted_        =0;
   nbSent_            =0;
   nbDiscarded_       =0;
@@ -465,7 +535,12 @@ void FUResourceTable::resetCounters()
 UInt_t FUResourceTable::nbShmClients() const
 {
   UInt_t result(0);
-  if (0!=shmBuffer_) result=shmBuffer_->nbClients();
+  if (0!=shmBuffer_) {
+    UInt_t nbClients=shmBuffer_->nbClients();
+    if (nbClients>0&&nbClients%3)
+      cout<<"FUResourceTable::nbShmClients() WARNING: wrong estimate!"<<endl;
+    result=nbClients/3;
+  }
   return result;
 }
 
@@ -495,7 +570,6 @@ void FUResourceTable::sendDiscard(UInt_t buResourceId)
 {
   bu_->sendDiscard(buResourceId);
   nbDiscarded_++;
-  nbProcessed_++;
 }
 
 
@@ -504,9 +578,14 @@ void FUResourceTable::sendInitMessage(UInt_t   fuResourceId,
 				      UChar_t *data,
 				      UInt_t   dataSize)
 {
-  UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
-  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSizes_  +=nbBytes;
+  if (0==sm_) {
+    LOG4CPLUS_ERROR(log_,"No StorageManager, DROP INIT MESSAGE!");
+  }
+  else {
+    UInt_t   nbBytes    =sm_->sendInitMessage(fuResourceId,data,dataSize);
+    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    outputSumOfSizes_  +=nbBytes;
+  }
 }
 
 
@@ -517,11 +596,16 @@ void FUResourceTable::sendDataEvent(UInt_t   fuResourceId,
 				    UChar_t *data,
 				    UInt_t   dataSize)
 {
-  UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
-					  runNumber,evtNumber,data,dataSize);
-  outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
-  outputSumOfSizes_  +=nbBytes;
-  nbSent_++;
+  if (0==sm_) {
+    LOG4CPLUS_ERROR(log_,"No StorageManager, DROP DATA EVENT!");
+  }
+  else {
+    UInt_t   nbBytes    =sm_->sendDataEvent(fuResourceId,
+					    runNumber,evtNumber,data,dataSize);
+    outputSumOfSquares_+=(uint64_t)nbBytes*(uint64_t)nbBytes;
+    outputSumOfSizes_  +=nbBytes;
+    nbSent_++;
+  }
 }
 
 
@@ -533,8 +617,13 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 				   UChar_t* data,
 				   UInt_t   dataSize)
 {
-  sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
-  nbSentDqm_++;
+  if (0==sm_) {
+    LOG4CPLUS_WARN(log_,"No StorageManager, DROP DQM EVENT.");
+  }
+  else {
+    sm_->sendDqmEvent(fuDqmId,runNumber,evtAtUpdate,folderId,data,dataSize);
+    nbSentDqm_++;
+  }
 }
 
 

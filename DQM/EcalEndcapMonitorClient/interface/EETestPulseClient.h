@@ -4,8 +4,8 @@
 /*
  * \file EETestPulseClient.h
  *
- * $Date: 2007/03/26 17:35:04 $
- * $Revision: 1.47 $
+ * $Date: 2007/05/12 09:39:05 $
+ * $Revision: 1.2 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -101,59 +101,62 @@ vector<int> superModules_;
 
 MonitorUserInterface* mui_;
 
-CollateMonitorElement* me_ha01_[36];
-CollateMonitorElement* me_ha02_[36];
-CollateMonitorElement* me_ha03_[36];
+CollateMonitorElement* me_ha01_[18];
+CollateMonitorElement* me_ha02_[18];
+CollateMonitorElement* me_ha03_[18];
 
-CollateMonitorElement* me_hs01_[36];
-CollateMonitorElement* me_hs02_[36];
-CollateMonitorElement* me_hs03_[36];
+CollateMonitorElement* me_hs01_[18];
+CollateMonitorElement* me_hs02_[18];
+CollateMonitorElement* me_hs03_[18];
 
-CollateMonitorElement* me_he01_[36];
-CollateMonitorElement* me_he02_[36];
-CollateMonitorElement* me_he03_[36];
+CollateMonitorElement* me_he01_[18];
+CollateMonitorElement* me_he02_[18];
+CollateMonitorElement* me_he03_[18];
 
-TProfile2D* ha01_[36];
-TProfile2D* ha02_[36];
-TProfile2D* ha03_[36];
+TProfile2D* ha01_[18];
+TProfile2D* ha02_[18];
+TProfile2D* ha03_[18];
 
-MEContentsProf2DWithinRangeROOT* qtha01_[36];
-MEContentsProf2DWithinRangeROOT* qtha02_[36];
-MEContentsProf2DWithinRangeROOT* qtha03_[36];
+MEContentsProf2DWithinRangeROOT* qtha01_[18];
+MEContentsProf2DWithinRangeROOT* qtha02_[18];
+MEContentsProf2DWithinRangeROOT* qtha03_[18];
 
-MEContentsProf2DWithinRangeROOT* qtha04_[36];
-MEContentsProf2DWithinRangeROOT* qtha05_[36];
-MEContentsProf2DWithinRangeROOT* qtha06_[36];
-MEContentsProf2DWithinRangeROOT* qtha07_[36];
+MEContentsProf2DWithinRangeROOT* qtha04_[18];
+MEContentsProf2DWithinRangeROOT* qtha05_[18];
+MEContentsProf2DWithinRangeROOT* qtha06_[18];
+MEContentsProf2DWithinRangeROOT* qtha07_[18];
 
-TProfile2D* hs01_[36];
-TProfile2D* hs02_[36];
-TProfile2D* hs03_[36];
+TProfile2D* hs01_[18];
+TProfile2D* hs02_[18];
+TProfile2D* hs03_[18];
 
-TH2F* he01_[36];
-TH2F* he02_[36];
-TH2F* he03_[36];
+TH2F* he01_[18];
+TH2F* he02_[18];
+TH2F* he03_[18];
 
-MonitorElement* meg01_[36];
-MonitorElement* meg02_[36];
-MonitorElement* meg03_[36];
+MonitorElement* meg01_[18];
+MonitorElement* meg02_[18];
+MonitorElement* meg03_[18];
 
-MonitorElement* meg04_[36];
-MonitorElement* meg05_[36];
+MonitorElement* meg04_[18];
+MonitorElement* meg05_[18];
 
-MonitorElement* mea01_[36];
-MonitorElement* mea02_[36];
-MonitorElement* mea03_[36];
+MonitorElement* mea01_[18];
+MonitorElement* mea02_[18];
+MonitorElement* mea03_[18];
 
-CollateMonitorElement* me_i01_[36];
-CollateMonitorElement* me_i02_[36];
-CollateMonitorElement* me_i03_[36];
-CollateMonitorElement* me_i04_[36];
+MonitorElement* mer04_[18];
+MonitorElement* mer05_[18];
 
-TProfile2D* i01_[36];
-TProfile2D* i02_[36];
-TProfile2D* i03_[36];
-TProfile2D* i04_[36];
+CollateMonitorElement* me_i01_[18];
+CollateMonitorElement* me_i02_[18];
+CollateMonitorElement* me_i03_[18];
+CollateMonitorElement* me_i04_[18];
+
+TProfile2D* i01_[18];
+TProfile2D* i02_[18];
+TProfile2D* i03_[18];
+TProfile2D* i04_[18];
 
 // Quality check on crystals
 
@@ -165,7 +168,9 @@ float threshold_on_AmplitudeErrorsNumber_;
 
 float amplitudeThresholdPnG01_;
 float amplitudeThresholdPnG16_;
-float pedestalThresholdPn_;
+float pedPnExpectedMean_[2];
+float pedPnDiscrepancyMean_[2];
+float pedPnRMSThreshold_[2];
 
 };
 

@@ -13,11 +13,12 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.4 2005/10/06 01:01:43 mansj Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.5 2005/12/01 18:24:43 mansj Exp $
 //
 //
 
 #include "Geometry/HcalEventSetup/src/HcalHardcodeGeometryEP.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // constants, enums and typedefs
@@ -63,7 +64,7 @@ HcalHardcodeGeometryEP::produce(const IdealGeometryRecord& iRecord)
        loader_=new HcalHardcodeGeometryLoader(*topo); 
      } catch (...) {
        loader_=new HcalHardcodeGeometryLoader();
-       std::cout << "Using default HCAL topology" << std::endl;
+       edm::LogInfo("HCAL") << "Using default HCAL topology";
      }
    }
 

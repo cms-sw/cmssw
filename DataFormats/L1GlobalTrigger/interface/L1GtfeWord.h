@@ -12,8 +12,8 @@
  *   
  * \author: Vasile Mihai Ghete - HEPHY Vienna
  * 
- * $Date:$
- * $Revision:$
+ * $Date$
+ * $Revision$
  *
  */
 
@@ -74,7 +74,7 @@ public:
 
     /// set the BoardId value from a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBoardId(boost::uint64_t& word64, int iWord);
+    void setBoardId(const boost::uint64_t& word64, int iWord);
 
     /// set the BoardId value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -92,7 +92,7 @@ public:
         m_recordLength = recordLengthValue;
     }
 
-    void setRecordLength(boost::uint64_t& word64, int iWord);
+    void setRecordLength(const boost::uint64_t& word64, int iWord);
 
     /// set the RecordLength value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -110,7 +110,7 @@ public:
         m_bxNr = bxNrValue;
     }
 
-    void setBxNr(boost::uint64_t& word64, int iWord);
+    void setBxNr(const boost::uint64_t& word64, int iWord);
 
     /// set the BxNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -127,7 +127,7 @@ public:
         m_setupVersion = setupVersionValue;
     }
 
-    void setSetupVersion(boost::uint64_t& word64, int iWord);
+    void setSetupVersion(const boost::uint64_t& word64, int iWord);
 
     /// set the SetupVersion value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -144,12 +144,16 @@ public:
         m_activeBoards = activeBoardsValue;
     }
 
-    void setActiveBoards(boost::uint64_t& word64, int iWord);
+    void setActiveBoards(const boost::uint64_t& word64, int iWord);
 
     /// set the ActiveBoards value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
     void setActiveBoardsWord64(boost::uint64_t& word64, int iWord);
 
+    /// set the ActiveBoards value in a 64-bits word, having the index iWord
+    /// in the GTFE raw record from the value activeBoardsValue
+    void setActiveBoardsWord64(boost::uint64_t& word64, int iWord,
+                               boost::int16_t activeBoardsValue);
 
     /// get/set total number of L1A sent since start of run
     inline const boost::uint32_t totalTriggerNr() const
@@ -162,7 +166,7 @@ public:
         m_totalTriggerNr = totalTriggerNrValue;
     }
 
-    void setTotalTriggerNr(boost::uint64_t& word64, int iWord);
+    void setTotalTriggerNr(const boost::uint64_t& word64, int iWord);
 
     /// set the TotalTriggerNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
@@ -179,7 +183,7 @@ public:
 
 public:
 
-    /// reset the content of a L1GtFdlWord
+    /// reset the content of a L1GtfeWord
     void reset();
 
 private:

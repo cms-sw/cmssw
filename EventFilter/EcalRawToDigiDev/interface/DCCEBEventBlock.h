@@ -10,8 +10,8 @@
  *
  * \file DCCEBEventBlock.h
  *
- * $Date: 2007/03/28 00:43:16 $
- * $Revision: 1.1.2.3 $
+ * $Date: 2007/04/02 11:09:45 $
+ * $Revision: 1.3 $
  *
  * \author N. Almeida
  * 
@@ -23,7 +23,6 @@
 #include "DCCRawDataDefinitions.h"
 #include "DCCEventBlock.h"
 
-using namespace std;
 
 class DCCEBEventBlock : public DCCEventBlock{
 	

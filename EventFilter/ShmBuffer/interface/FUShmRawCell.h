@@ -19,11 +19,10 @@ namespace evf {
     //
     void           initialize(unsigned int index);
     
-    unsigned int   index()                        const { return fuResourceId_; }
+    unsigned int   index()                        const { return index_; }
     unsigned int   fuResourceId()                 const { return fuResourceId_; }
     unsigned int   buResourceId()                 const { return buResourceId_; }
     unsigned int   evtNumber()                    const { return evtNumber_; }
-    unsigned int   nSkip()                        const { return nSkip_; }
 
     unsigned int   payloadSize()                  const { return payloadSize_; }
     unsigned char* payloadAddr()                  const;
@@ -38,12 +37,10 @@ namespace evf {
     
     unsigned int   eventSize()                    const;
 
+    void           setFuResourceId(unsigned int id) { fuResourceId_=id; }
     void           setBuResourceId(unsigned int id) { buResourceId_=id; }
     void           setEvtNumber(unsigned int evt)   { evtNumber_   =evt; }
 
-    void           skip()              { nSkip_++; }
-    void           resetSkip()         { nSkip_=0; }
-    
     void           clear();
     void           dump() const;
     
@@ -64,10 +61,10 @@ namespace evf {
     //
     // member data
     //
+    unsigned int index_;
     unsigned int fuResourceId_;
     unsigned int buResourceId_;
     unsigned int evtNumber_;
-    unsigned int nSkip_;
     unsigned int payloadSize_;
     unsigned int nFed_;
     unsigned int nSuperFrag_;

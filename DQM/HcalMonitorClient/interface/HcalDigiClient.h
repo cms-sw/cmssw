@@ -77,7 +77,7 @@ void cleanup(void);
   bool hasWarnings() const { return dqmReportMapWarn_.size(); }
   bool hasOther() const { return dqmReportMapOther_.size(); }
 
-  void resetME();
+  void resetAllME();
   void createTests();
 
 private:
@@ -91,27 +91,28 @@ private:
   string process_;
 
   MonitorUserInterface* mui_;
+  bool subDetsOn_[4];
+
+  TH2F* gl_occ_geo_[4];
+  TH2F* gl_occ_elec_[3];
+  TH1F* gl_occ_eta_;
+  TH1F* gl_occ_phi_;
+  TH2F* gl_err_geo_;
+  TH2F* gl_err_elec_[3];
+
+  TH2F* sub_occ_geo_[4][4];
+  TH2F* sub_occ_elec_[4][3];
+  TH1F* sub_occ_eta_[4];
+  TH1F* sub_occ_phi_[4];
+
+  TH2F* sub_err_geo_[4];
+  TH2F* sub_err_elec_[4][3];
+
+  TH2F* geoRef_;
   
-  TH2F* gl_occ_geo[4];
-  TH2F* gl_occ_elec[3];
-  TH1F* gl_occ_eta;
-  TH1F* gl_occ_phi;
-  TH2F* gl_err_geo;
-  TH2F* gl_err_elec[3];
-
-  TH2F* sub_occ_geo[4][4];
-  TH2F* sub_occ_elec[4][3];
-  TH1F* sub_occ_eta[4];
-  TH1F* sub_occ_phi[4];
-
-  TH2F* sub_err_geo[4];
-  TH2F* sub_err_elec[4][3];
-
-  TH2F* geoRef;
-
-  TH1F* qie_adc[4];
-  TH1F* num_digi[4];
-  TH1F* qie_capid[4];
+  TH1F* qie_adc_[4];
+  TH1F* num_digi_[4];
+  TH1F* qie_capid_[4];
 
   // Quality criteria for data integrity
   map<string, vector<QReport*> > dqmReportMapErr_;

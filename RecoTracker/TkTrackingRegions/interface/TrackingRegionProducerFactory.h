@@ -4,7 +4,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 namespace edm {class ParameterSet;}
 
-#include <PluginManager/PluginFactory.h>
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 
 class TrackingRegionProducerFactory 
    : public seal::PluginFactory< TrackingRegionProducer * (const edm::ParameterSet&) > {

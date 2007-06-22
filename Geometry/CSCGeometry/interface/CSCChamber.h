@@ -12,10 +12,10 @@
  */
 
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
+#include <DataFormats/GeometrySurface/interface/BoundPlane.h>
 #include <Geometry/CommonDetUnit/interface/GeomDetType.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/CSCGeometry/interface/CSCChamberSpecs.h>
-//#include <Geometry/CSCGeometry/interface/CSCLayer.h>
 
 class CSCLayer;
 
@@ -23,7 +23,7 @@ class CSCChamber : public GeomDet {
 
 public:
 
-  CSCChamber( BoundPlane* bp, CSCDetId id, CSCChamberSpecs* specs ) :
+  CSCChamber( const BoundPlane::BoundPlanePointer bp, CSCDetId id, CSCChamberSpecs* specs ) :
   GeomDet( bp ), theId( id ), theChamberSpecs( specs ), 
     theComponents(6,(const CSCLayer*)0) {}
 

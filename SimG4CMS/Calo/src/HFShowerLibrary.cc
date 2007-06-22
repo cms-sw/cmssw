@@ -52,9 +52,7 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   }
 
   emTree  = (TTree *) hf->Get(emTree_name.c_str());
-  emTree->Print();
   hadTree = (TTree *) hf->Get(hadTree_name.c_str());
-  hadTree->Print();
   edm::LogInfo("HFShower") << "HFShowerLibrary:Ntuple " << emTree_name 
 			   << " has " << emTree->GetEntries() 
 			   << " entries and Ntuple "  << hadTree_name 
@@ -172,7 +170,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 
   LogDebug("HFShower") << "HFShowerLibrary: getHits " << partType
 		       << " of energy " << pin/GeV << " GeV" 
-                       << " in.Pos x,y,z = " << xint << "," << yint << "," 
+                       << " Pos x,y,z = " << xint << "," << yint << "," 
                        << zint << "   sphi,cphi,stheta,ctheta  =" 
                        << sphi << "," << cphi << ","   
                        << stheta << "," << ctheta ; 
@@ -202,20 +200,18 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
     hit.clear(); hit.resize(npe);
   }
   for (int i = 0; i < npe; i++) {
-    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " position " 
-			 << pe[i].x << ", " << pe[i].y << ", " << pe[i].z 
-			 << " Lambda " <<pe[i].lambda << " Time " <<pe[i].time;
-    double zv = (pe[i].z >= 0 ? pe[i].z : -pe[i].z);
-    if (zv <= gpar[1] && pe[i].lambda > 0 &&
-	(pe[i].z >= 0 || pe[i].z <= -gpar[0])) {
+    LogDebug("HFShower") << "HFShowerLibrary: Hit " << i << " " << pe[i];
+    double zv = std::abs(pe[i].z());
+    if (zv <= gpar[1] && pe[i].lambda() > 0 &&
+	(pe[i].z() >= 0 || pe[i].z() <= -gpar[0])) {
       int depth = 1;
-      if (pe[i].z < 0) depth = 2;
+      if (pe[i].z() < 0) depth = 2;
 
 
       // Updated coordinate transformation from local
       //  back to global using two Euler angles: phi and theta
-      double pex = pe[i].x;
-      double pey = pe[i].y;
+      double pex = pe[i].x();
+      double pey = pe[i].y();
 
       double xx = pex*ctheta*cphi - pey*sphi + zv*stheta*cphi; 
       double yy = pex*ctheta*sphi + pey*cphi + zv*stheta*sphi;
@@ -234,7 +230,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 
       zv = gpar[1] - zv;
       double r  = pos.perp();
-      double p  = fibre->attLength(pe[i].lambda);
+      double p  = fibre->attLength(pe[i].lambda());
       double fi = pos.phi();
       if (fi < 0) fi += twopi;
       int    isect = int(fi/dphi) + 1;
@@ -267,7 +263,7 @@ int HFShowerLibrary::getHits(G4Step * aStep) {
 	  zz >= gpar[4] && zz <= gpar[4]+gpar[1]) {
 	hit[nHit].position = pos;
 	hit[nHit].depth    = depth;
-	hit[nHit].time     = (tSlice + (pe[i].time));
+	hit[nHit].time     = (tSlice + (pe[i].t()));
 	LogDebug("HFShower") << "HFShowerLibrary: Final Hit " << nHit 
 			     <<" position " << (hit[nHit].position) <<" Depth "
 			     <<(hit[nHit].depth) <<" Time " <<(hit[nHit].time);
@@ -289,7 +285,7 @@ G4ThreeVector HFShowerLibrary::getPosHit(int i) {
 
   G4ThreeVector pos;
   if (i < nHit) pos = (hit[i].position);
-  LogDebug("HFShower") << " HFShowerLibrary: PosHit (" << i << "/" << nHit 
+  LogDebug("HFShower") << " HFShowerLibrary: getPosHit (" << i << "/" << nHit 
 		       << ") " << pos;
   return pos;
 }
@@ -298,7 +294,7 @@ int HFShowerLibrary::getDepth(int i) {
 
   int depth = 0;
   if (i < nHit) depth = (hit[i].depth);
-  LogDebug("HFShower") << " HFShowerLibrary: Depth (" << i << "/" << nHit 
+  LogDebug("HFShower") << " HFShowerLibrary: getDepth (" << i << "/" << nHit 
 		       << ") "  << depth;
   return depth;
 }
@@ -322,11 +318,13 @@ bool HFShowerLibrary::rInside(double r) {
 int HFShowerLibrary::getPhoton(TTree* tree, int record) {
 
   int nph = 0;
-  if (tree && record > 0) {
+  if (record > 0) {
     tree->SetBranchAddress("NPH", &nph);
     int nrc = record-1;
     tree->GetEntry(nrc);
   }
+  LogDebug("HFShower") << "HFShowerLibrary::getPhoton: Record " << record 
+		       << " with " << nph << " photons";
   return nph;
 }
 
@@ -334,8 +332,8 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
 
   int nrc = record-1;
   nPhoton = getPhoton(tree, record);
-  if (nPhoton > 0 && tree && nrc >= 0) {
-    photon.clear(); photon.resize(nPhoton);
+  if (nPhoton > 0) {
+    photon.clear();
     LogDebug("HFShower") << "HFShowerLibrary: Record " << record << " with "
 			 << nPhoton << " photons";
     float  x[10000], y[10000], z[10000];
@@ -353,27 +351,20 @@ void HFShowerLibrary::getRecord(TTree* tree, int record) {
     tree->GetEntry(nrc);
     for (int j = 0; j < nPhoton; j++) {
       if (packXYZ) {
-	int ix = (coor[j])/xMultiplier;
-	int iy = (coor[j])/yMultiplier - ix*yMultiplier;
-	int iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
-	photon[j].x    = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
-	photon[j].y    = (iy/yScale - yOffset)*cm + 35.;//idem
-	photon[j].z    = (iz/zScale - zOffset)*cm;
+	int   ix = (coor[j])/xMultiplier;
+	int   iy = (coor[j])/yMultiplier - ix*yMultiplier;
+	int   iz = (coor[j])/zMultiplier - ix*xMultiplier - iy*yMultiplier;
+	float xx = (ix/xScale - xOffset)*cm + 5.; //account for wrong offset
+	float yy = (iy/yScale - yOffset)*cm + 35.;//idem
+	float zz = (iz/zScale - zOffset)*cm;
+	HFShowerPhoton hfPhot = HFShowerPhoton(xx,yy, zz, wl[j],time[j]/100.);
+	photon.push_back(hfPhot);
       } else {
-	photon[j].x    = x[j];
-	photon[j].y    = y[j];
-	photon[j].z    = z[j];
+	HFShowerPhoton hfPhot = HFShowerPhoton(x[j],y[j],z[j],wl[j],time[j]/100.);
+	photon.push_back(hfPhot);
       }
-      photon[j].lambda = wl[j];
-      photon[j].time   = time[j];
      
-      LogDebug("HFShower") << "Photon " << j << " xyz " 
-			   << photon[j].x << ", " 
-			   << photon[j].y << ", "  
-			   << photon[j].z << "  "  
- 			   << " L " << photon[j].lambda << " Time " 
-			   << photon[j].time;
-     
+      LogDebug("HFShower") << "Photon " << j << photon[j];
     }
   }
 }
@@ -474,7 +465,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
     npold += nPhoton;
   }
   if (npold <= 0) npold = 1;
-  pe.clear(); pe.resize(npold);
+  pe.clear(); 
 
   npe = 0;
   if (irc[0]>0) {
@@ -482,7 +473,6 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
       r = G4UniformRand();
       if (r > w) {
 	storePhoton (j);
-	npe++;
       }
     }
   }
@@ -492,7 +482,6 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
     r = G4UniformRand();
     if (r < w) {
       storePhoton (j);
-      npe++;
     }
   }
 
@@ -503,9 +492,7 @@ void HFShowerLibrary::interpolate(TTree * tree, double pin) {
   LogDebug("HFShower") << "HFShowerLibrary: Interpolation gives " << npe
 		       << " Photons == buffer " << npold;
   for (j=0; j<npe; j++) {
-    LogDebug("HFShower") << "Photon " << j << " X " << (pe[j].x) << " Y " 
-			 << (pe[j].y) << " Z " << (pe[j].z) << " Lam " 
-			 << (pe[j].lambda) << " T " << (pe[j].time);
+    LogDebug("HFShower") << "Photon " << j << " " << pe[j];
   }
 }
 
@@ -545,7 +532,7 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   }
   LogDebug("HFShower") << "HFShowerLibrary:: uses " << npold << " photons";
   if (npold <= 0) npold = 1;
-  pe.clear(); pe.resize(npold);
+  pe.clear(); 
 
   for (ir=0; ir<nrec; ir++) {
     getRecord (tree, irc[ir]);
@@ -553,7 +540,6 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
       r = G4UniformRand();
       if (ir != nrec-1 || r < w) {
 	storePhoton (j);
-	npe++;
       }
     }
   }
@@ -565,24 +551,16 @@ void HFShowerLibrary::extrapolate(TTree * tree, double pin) {
   LogDebug("HFShower") << "HFShowerLibrary: Extrapolation gives " << npe
 		       << " Photons == buffer "  << npold;
   for (j=0; j<npe; j++) {
-    LogDebug("HFShower") << "Photon " << j << " X " << (pe[j].x) << " Y " 
-			 << (pe[j].y) << " Z " << (pe[j].z) << " Lam " 
-			 << (pe[j].lambda) << " T " << (pe[j].time);
+    LogDebug("HFShower") << "Photon " << j << " " << pe[j];
   }
 }
 
 void HFShowerLibrary::storePhoton(int j) {
 
-  pe[npe].x      = (double)photon[j].x;
-  pe[npe].y      = (double)photon[j].y;
-  pe[npe].z      = (double)photon[j].z;
-
-  pe[npe].lambda = (double)(photon[j].lambda);
-  pe[npe].time   = (photon[j].time)/100.;
-  LogDebug("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " <<npe
-		       << " x " << (pe[npe].x) << " y " << (pe[npe].y) << " z "
-		       << (pe[npe].z) << " l " << (pe[npe].lambda) << " t " 
-		       << (pe[npe].time);
+  pe.push_back(photon[j]);
+  LogDebug("HFShower") << "HFShowerLibrary: storePhoton " << j << " npe " 
+		       << npe << " " << pe[npe];
+  npe++;
 }
 
 std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str, 

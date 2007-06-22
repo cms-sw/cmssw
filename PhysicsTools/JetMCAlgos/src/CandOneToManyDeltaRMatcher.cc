@@ -80,9 +80,9 @@ void CandOneToManyDeltaRMatcher::produce( Event& evt, const EventSetup& es ) {
     if ( v.size() > 0 ) {
       sort( v.begin(), v.end(), helper::SortBySecond() );
       for( size_t m = 0; m != v.size(); ++ m ) {
-	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ m ].et() << "," << 
-                                                                                               ( * matched )[ m ].eta() << "," << 
-                                                                                               ( * matched )[ m ].phi() << ") DeltaR=" << 
+	if (printdebug_) cout << "[CandOneToManyDeltaRMatcher]       match (Et,Eta,Phi) =(" << ( * matched )[ v[m].first ].et() << "," << 
+                                                                                               ( * matched )[ v[m].first ].eta() << "," << 
+                                                                                               ( * matched )[ v[m].first ].phi() << ") DeltaR=" << 
 			                                                                       v[m].second  << endl;
 	matchMap->insert( CandidateRef( source, c ), make_pair( CandidateRef( matched, v[m].first ), v[m].second  )  );
       }    

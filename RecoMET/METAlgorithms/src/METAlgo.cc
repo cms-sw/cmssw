@@ -61,7 +61,7 @@ void METAlgo::run(const CandidateCollection *input, CommonMETData *met, double g
   met->mey   = -sum_ey;
   met->mez   = -sum_ez;
   met->met   = sqrt( sum_ex*sum_ex + sum_ey*sum_ey );
-  cout << "MET = " << met->met << endl;
+  // cout << "MET = " << met->met << endl;
   met->sumet = sum_et;
   met->phi   = atan2( -sum_ey, -sum_ex ); // since MET is now a candidate,
 }                                         // this is no longer needed

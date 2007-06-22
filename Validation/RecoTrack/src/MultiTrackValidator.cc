@@ -32,7 +32,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
 
       dbe_->cd();
       InputTag algo = label[www];
-      string dirName="Tracks/";
+      string dirName="Track/";
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
       if(algo.label()!="")
@@ -133,13 +133,13 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       etares_vs_eta.push_back( dbe_->book2D("etares_vs_eta","etaresidue vs eta",nint,min,max,200,-0.1,0.1) );
       nrec_vs_nsim.push_back( dbe_->book2D("nrec_vs_nsim","nrec vs nsim",20,-0.5,19.5,20,-0.5,19.5) );
 
-      chi2_vs_eta.push_back(new TH2F("chi2_vs_eta","chi2_vs_eta",nint,min,max, 200, 0, 20 ));
+      chi2_vs_eta.push_back( dbe_->book2D("chi2_vs_eta","chi2_vs_eta",nint,min,max, 200, 0, 20 ));
       h_chi2meanh.push_back( dbe_->book1D("chi2mean","mean #chi^{2} vs #eta",nint,min,max) );
 
-      nhits_vs_eta.push_back( new TH2F("nhits_vs_eta","nhits_vs_eta",nint,min,max,25,0,25) );
+      nhits_vs_eta.push_back( dbe_->book2D("nhits_vs_eta","nhits vs eta",nint,min,max,25,0,25) );
       h_hits_eta.push_back( dbe_->book1D("hits_eta","mean #hits vs eta",nint,min,max) );
 
-      nlosthits_vs_eta.push_back( new TH2F("nlosthits_vs_eta","nlosthits vs eta",nint,min,max,25,0,25) );
+      nlosthits_vs_eta.push_back( dbe_->book2D("nlosthits_vs_eta","nlosthits vs eta",nint,min,max,25,0,25) );
       h_losthits_eta.push_back( dbe_->book1D("losthits_eta","losthits_eta",nint,min,max) );
 
       //resolution of track parameters
@@ -147,27 +147,27 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       // log10(pt)<0.5        100,0.1    240,0.08     100,0.015      100,0.1000    150,0.3000
       // 0.5<log10(pt)<1.5    100,0.1    120,0.01     100,0.003      100,0.0100    150,0.0500
       // >1.5                 100,0.3    100,0.005    100,0.0008     100,0.0060    120,0.0300
-      ptres_vs_eta.push_back(new TH2F("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.1, 0.1));
+      ptres_vs_eta.push_back(dbe_->book2D("ptres_vs_eta","ptres_vs_eta",nint,min,max, 100, -0.1, 0.1));
       h_ptrmsh.push_back( dbe_->book1D("sigmapt","#sigma(#deltap_{t}/p_{t}) vs #eta",nint,min,max) );
 
-      cotThetares_vs_eta.push_back(new TH2F("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 120, -0.01, 0.01));
+      cotThetares_vs_eta.push_back(dbe_->book2D("cotThetares_vs_eta","cotThetares_vs_eta",nint,min,max, 120, -0.01, 0.01));
       h_cotThetarmsh.push_back( dbe_->book1D("sigmacotTheta","#sigma(#deltacot(#theta)) vs #eta",nint,min,max) );
 
-      phires_vs_eta.push_back(new TH2F("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.003, 0.003));
+      phires_vs_eta.push_back(dbe_->book2D("phires_vs_eta","phires_vs_eta",nint,min,max, 100, -0.003, 0.003));
       h_phirmsh.push_back( dbe_->book1D("sigmaphi","#sigma(#delta#phi) vs #eta",nint,min,max) );
 
-      d0res_vs_eta.push_back(new TH2F("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
+      d0res_vs_eta.push_back(dbe_->book2D("d0res_vs_eta","d0res_vs_eta",nint,min,max, 100, -0.01, 0.01));
       h_d0rmsh.push_back( dbe_->book1D("sigmad0","#sigma(#deltad_{0}) vs #eta",nint,min,max) );
 
-      z0res_vs_eta.push_back(new TH2F("z0res_vs_eta","z0res_vs_eta",nint,min,max, 150, -0.05, 0.05));
+      z0res_vs_eta.push_back(dbe_->book2D("z0res_vs_eta","z0res_vs_eta",nint,min,max, 150, -0.05, 0.05));
       h_z0rmsh.push_back( dbe_->book1D("sigmaz0","#sigma(#deltaz_{0}) vs #eta",nint,min,max) );
 
       //pulls of track params vs eta: to be used with fitslicesytool
-      d0pull_vs_eta.push_back(new TH2F("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10));
-      ptpull_vs_eta.push_back(new TH2F("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10)); 
-      z0pull_vs_eta.push_back(new TH2F("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10)); 
-      phipull_vs_eta.push_back(new TH2F("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10)); 
-      thetapull_vs_eta.push_back(new TH2F("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10));
+      d0pull_vs_eta.push_back(dbe_->book2D("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10));
+      ptpull_vs_eta.push_back(dbe_->book2D("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10)); 
+      z0pull_vs_eta.push_back(dbe_->book2D("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10)); 
+      phipull_vs_eta.push_back(dbe_->book2D("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10)); 
+      thetapull_vs_eta.push_back(dbe_->book2D("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10));
       h_d0pulleta.push_back( dbe_->book1D("h_d0pulleta","#sigma of d0 pull vs #eta",nint,min,max) ); 
       h_ptpulleta.push_back( dbe_->book1D("h_ptpulleta","#sigma of p_{t} pull vs #eta",nint,min,max) ); 
       h_z0pulleta.push_back( dbe_->book1D("h_z0pulleta","#sigma of z0 pull vs #eta",nint,min,max) ); 
@@ -422,7 +422,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	  double ptres=track->pt()-assocTrack->momentum().perp(); 
 	  double etares=track->eta()-assocTrack->momentum().pseudoRapidity();
-	  double ptError = track->p()*track->p()*sin(track->theta())*track->qoverpError()/track->charge()+track->p()*cos(track->theta())*track->thetaError();
+	  double ptError = 
+	    sqrt(track->pt()*track->pt()*track->p()*track->p()/track->charge()/track->charge() * track->covariance(reco::TrackBase::i_qoverp,reco::TrackBase::i_qoverp)
+		 + 2*track->pt()*track->p()/track->charge()*track->pz() * track->covariance(reco::TrackBase::i_qoverp,reco::TrackBase::i_lambda)
+		 + track->pz()*track->pz() * track->covariance(reco::TrackBase::i_lambda,reco::TrackBase::i_lambda) );
 	  h_pt[w]->Fill(ptres/ptError);
 	  h_eta[w]->Fill(etares);
 	  etares_vs_eta[w]->Fill(fabs(track->eta()),etares);
@@ -468,34 +471,69 @@ void MultiTrackValidator::endJob() {
     for (unsigned int www=0;www<label.size();www++){
 
       //resolution of track params: get sigma from 2D histos
-      FitSlicesYTool fsyt_d0(d0res_vs_eta[w]);
+      TH2F* d0res_eta = new TH2F("d0res_eta","d0res_eta",nint,min,max, 100, -0.01, 0.01);
+      copy2D(d0res_eta,d0res_vs_eta[w]);
+      FitSlicesYTool fsyt_d0(d0res_eta);
       fsyt_d0.getFittedSigmaWithError(h_d0rmsh[w]);
-      FitSlicesYTool fsyt_pt(ptres_vs_eta[w]);
+      delete d0res_eta;
+      TH2F* ptres_eta = new TH2F("ptres_eta","ptres_eta",nint,min,max, 100, -0.1, 0.1);
+      copy2D(ptres_eta,ptres_vs_eta[w]);
+      FitSlicesYTool fsyt_pt(ptres_eta);
       fsyt_pt.getFittedSigmaWithError(h_ptrmsh[w]);
-      FitSlicesYTool fsyt_z0(z0res_vs_eta[w]);
+      delete ptres_eta;
+      TH2F* z0res_eta = new TH2F("z0res_eta","z0res_eta",nint,min,max, 150, -0.05, 0.05);
+      copy2D(z0res_eta,z0res_vs_eta[w]);
+      FitSlicesYTool fsyt_z0(z0res_eta);
       fsyt_z0.getFittedSigmaWithError(h_z0rmsh[w]);
-      FitSlicesYTool fsyt_phi(phires_vs_eta[w]);
+      delete z0res_eta;
+      TH2F* phires_eta = new TH2F("phires_eta","phires_eta",nint,min,max, 100, -0.003, 0.003);
+      copy2D(phires_eta,phires_vs_eta[w]);
+      FitSlicesYTool fsyt_phi(phires_eta);
       fsyt_phi.getFittedSigmaWithError(h_phirmsh[w]);
-      FitSlicesYTool fsyt_cotTheta(cotThetares_vs_eta[w]);
+      delete phires_eta;
+      TH2F* cotThetares_eta = new TH2F("cotThetares_eta","cotThetares_eta",nint,min,max, 120, -0.01, 0.01);
+      copy2D(cotThetares_eta,cotThetares_vs_eta[w]);
+      FitSlicesYTool fsyt_cotTheta(cotThetares_eta);
       fsyt_cotTheta.getFittedSigmaWithError(h_cotThetarmsh[w]);
+      delete cotThetares_eta;
 
       //chi2 and #hit vs eta: get mean from 2D histos
-      doProfileX(chi2_vs_eta[w],h_chi2meanh[w]);
-      doProfileX(nhits_vs_eta[w],h_hits_eta[w]);    
-      doProfileX(nlosthits_vs_eta[w],h_losthits_eta[w]);    
+      TH2F* chi2_eta = new TH2F("chi2_eta","chi2_eta",nint,min,max, 200, 0, 20 );
+      copy2D(chi2_eta,chi2_vs_eta[w]);
+      doProfileX(chi2_eta,h_chi2meanh[w]);
+      delete chi2_eta;
+      TH2F* nhits_eta = new TH2F("nhits_eta","nhits_eta",nint,min,max,25,0,25);
+      copy2D(nhits_eta,nhits_vs_eta[w]);
+      doProfileX(nhits_eta,h_hits_eta[w]);    
+      delete nhits_eta;
    
       //pulls of track params vs eta: get sigma from 2D histos
-      FitSlicesYTool fsyt_d0p(d0pull_vs_eta[w]);
+      TH2F* d0pull_eta = new TH2F("d0pull_vs_eta","d0pull_vs_eta",nint,min,max,100,-10,10);
+      copy2D(d0pull_eta,d0pull_vs_eta[w]);
+      FitSlicesYTool fsyt_d0p(d0pull_eta);
       fsyt_d0p.getFittedSigmaWithError(h_d0pulleta[w]);
-      FitSlicesYTool fsyt_ptp(ptpull_vs_eta[w]);
+      delete d0pull_eta;
+      TH2F* ptpull_eta = new TH2F("ptpull_vs_eta","ptpull_vs_eta",nint,min,max,100,-10,10); 
+      copy2D(ptpull_eta,ptpull_vs_eta[w]);
+      FitSlicesYTool fsyt_ptp(ptpull_eta);
       fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
-      FitSlicesYTool fsyt_z0p(z0pull_vs_eta[w]);
+      delete ptpull_eta;
+      TH2F* z0pull_eta = new TH2F("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10); 
+      copy2D(z0pull_eta,z0pull_vs_eta[w]);
+      FitSlicesYTool fsyt_z0p(z0pull_eta);
       fsyt_z0p.getFittedSigmaWithError(h_z0pulleta[w]);
-      FitSlicesYTool fsyt_phip(phipull_vs_eta[w]);
+      delete z0pull_eta;
+      TH2F* phipull_eta = new TH2F("phipull_vs_eta","phipull_vs_eta",nint,min,max,100,-10,10); 
+      copy2D(phipull_eta,phipull_vs_eta[w]);
+      FitSlicesYTool fsyt_phip(phipull_eta);
       fsyt_phip.getFittedSigmaWithError(h_phipulleta[w]);
-      FitSlicesYTool fsyt_thetap(thetapull_vs_eta[w]);
+      delete phipull_eta;
+      TH2F* thetapull_eta = new TH2F("thetapull_vs_eta","thetapull_vs_eta",nint,min,max,100,-10,10);
+      copy2D(thetapull_eta,thetapull_vs_eta[w]);
+      FitSlicesYTool fsyt_thetap(thetapull_eta);
       fsyt_thetap.getFittedSigmaWithError(h_thetapulleta[w]);
-
+      delete thetapull_eta;
+      
       //fill efficiency plot
       double eff,err;
       for (unsigned int j=0; j<totASSeta[w].size(); j++){

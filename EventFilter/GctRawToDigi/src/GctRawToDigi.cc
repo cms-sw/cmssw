@@ -38,7 +38,8 @@ unsigned GctRawToDigi::MAX_BLOCKS = 128;
 
 
 GctRawToDigi::GctRawToDigi(const edm::ParameterSet& iConfig) :
-  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",745))
+  fedId_(iConfig.getUntrackedParameter<int>("GctFedId",745)),
+  verbose_(iConfig.getUntrackedParameter<bool>("Verbose", false))
 {
 
   edm::LogInfo("GCT") << "GctRawToDigi will unpack FED Id " << fedId_ << endl;
@@ -161,18 +162,19 @@ void GctRawToDigi::unpack(const FEDRawData& d, edm::Event& e) {
   }
 
   // print info (to be removed!)
-  std::ostringstream os;
-  os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
-  for (unsigned i=0; i<bHdrs.size(); i++) {
-    os << bHdrs[i]<< endl;
+  if (verbose_) {
+    std::ostringstream os;
+    os << "Found " << bHdrs.size() << " GCT internal headers" << endl;
+    for (unsigned i=0; i<bHdrs.size(); i++) {
+      os << bHdrs[i]<< endl;
+    }
+    os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
+    os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
+    os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
+    os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
+    
+    edm::LogVerbatim("GCT") << os.str();
   }
-  os << "Read " << rctEm.get()->size() << " RCT EM candidates" << endl;
-  os << "Read " << gctIsoEm.get()->size() << " GCT iso EM candidates" << endl;
-  os << "Read " << gctNonIsoEm.get()->size() << " GCT non-iso EM candidates" << endl;
-  os << "Read " << gctInternEm.get()->size() << " GCT intermediate EM candidates" << endl;
-
-  edm::LogVerbatim("GCT") << os.str();
-
 
   // put data into the event
   e.put(rctEm);
