@@ -1,4 +1,4 @@
-// $Id: MLlog4cplus.h,v 1.1 2006/06/13 14:35:03 meschi Exp $
+// $Id: MLlog4cplus.h,v 1.2.2.1 2007/05/31 21:01:39 meschi Exp $
 //
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -33,10 +33,11 @@ namespace ML {
       
     void preModule(const edm::ModuleDescription&);
     void postModule(const edm::ModuleDescription&);
-    void setAppl(xdaq::Application *app);
+    static void setAppl(xdaq::Application *app);
   private:
     edm::EventID curr_event_;
     edm::ELlog4cplus * dest_p;
+    static xdaq::Application *appl_;
   };
 }
 

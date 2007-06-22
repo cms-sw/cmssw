@@ -5,9 +5,10 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: MLlog4cplus.cc,v 1.4 2007/03/09 10:13:09 meschi Exp $
+// $Id: MLlog4cplus.cc,v 1.4.2.2 2007/05/31 21:59:08 meschi Exp $
 //
 
+#include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
 #include "FWCore/MessageService/interface/NamedDestination.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -23,6 +24,7 @@ using namespace edm;
 
 using namespace ML;
 
+  xdaq::Application *MLlog4cplus::appl_ = 0;
   MLlog4cplus::MLlog4cplus(const ParameterSet& iPS, ActivityRegistry&iRegistry)
   {
     // we may want these in the future, but probably not, since the
@@ -50,6 +52,7 @@ using namespace ML;
     // edm::Service<edm::MessageLogger> handle;
 
     dest_p = new ELlog4cplus;
+    dest_p->setAppl(appl_);
     edm::service::NamedDestination * ndest = new edm::service::NamedDestination ( "log4cplus", dest_p ); 
     edm::MessageLoggerQ::EXT(ndest);
   }
@@ -85,7 +88,9 @@ using namespace ML;
   }
   void MLlog4cplus::setAppl(xdaq::Application *app)
   {
-    if(dest_p!=0)dest_p->setAppl(app);
+    appl_ = app;
   }
 
 
+using ML::MLlog4cplus;
+DEFINE_FWK_SERVICE(MLlog4cplus);
