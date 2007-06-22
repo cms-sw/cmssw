@@ -13,7 +13,7 @@
 //
 // Original Author:  Roberto Covarelli
 //         Created:  Mon Jan 15 10:39:42 CET 2007
-// $Id$
+// $Id: TrackHitFilter.h,v 1.2 2007/01/19 15:40:30 covarell Exp $
 //
 //
 
@@ -52,10 +52,11 @@ class TrackHitFilter : public edm::EDProducer {
       virtual void beginJob(const edm::EventSetup&) ;
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
+      bool keepThisHit(int type, int layer);
 
    protected:
       edm::InputTag theSrc;    
       std::string theHitSel;
-  // edm::InputTag alias;
+      unsigned int theMinHits;
 
 };
