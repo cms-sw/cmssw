@@ -94,7 +94,7 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
   case (0xcB) :
     blockToGctInternEmCand(data, id, nSamples);
     break;
-  default:
+  default :
     std::cout << "Trying to unpack an identified block!" << std::endl;
     break;
   }
@@ -102,12 +102,39 @@ void GctBlockConverter::convertBlock(const unsigned char * data, unsigned id, un
 }
 
 
+void GctBlockConverter::writeBlock(unsigned char * data, unsigned id) {
 
-// ConcElec: Output to Global Trigger
-// formats defined for GT output, no need to change
-// NB - need to get GCT output digis in the right place in the record!
+  writeHeader(data, id);
+  unsigned char * d = &data[4];
+
+  switch (id) {
+  case (0x68) :  // ConcElec: Output to Global Trigger
+    gctEmCandToBlock(d, id);
+    break;
+  case (0x81) :  // Leaf-U1, Elec, NegEta, Raw Input
+    rctEmCandToBlock(d, id);
+    break;
+  case (0x89) :  // Leaf-U2, Elec, NegEta, Raw Input
+    rctEmCandToBlock(d, id);
+    break;
+  case (0xc1) :  // Leaf-U1, Elec, PosEta, Raw Input
+    rctEmCandToBlock(d, id);
+    break;
+  case (0xcB) :  // Leaf-U2, Elec, PosEta, Raw Input
+    rctEmCandToBlock(d, id);
+    break;
+  default :
+    std::cout << "Trying to pack an unknown block!" << std::endl;
+    break;
+
+  }
+
+}
+
+
+// Output EM Candidates unpacking
 void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
-  for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
+  for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {
     unsigned offset = i*4*nSamples;
     bool iso = (i > 1);
     if (i > 1) {
@@ -121,8 +148,29 @@ void GctBlockConverter::blockToGctEmCand(const unsigned char * data, unsigned id
   }  
 }
 
-// ConcElec: Sort Input
-// re-arrange intermediate data to match GT output format
+// Output EM Candidates packing
+void GctBlockConverter::gctEmCandToBlock(unsigned char * data, unsigned id) {
+
+  for (int i=0; i<gctIsoEm_->size(); i++) {
+    if (gctIsoEm_->at(i).bx() == 0) {  // only pack digis for the 0th crossing
+      int j = gctIsoEm_->at(i).capIndex();
+      data[j*2] = gctIsoEm_->at(i).raw() & 0xff;
+      data[j*2+1] = (gctIsoEm_->at(i).raw()>>8) & 0xff;
+    }
+  }
+
+  for (int i=0; i<gctNonIsoEm_->size(); i++) {
+    if (gctNonIsoEm_->at(i).bx() == 0) {  // only pack digis for the 0th crossing
+      int j = gctNonIsoEm_->at(i).capIndex();
+      data[4+j*2] = gctNonIsoEm_->at(i).raw() & 0xff;
+      data[4+j*2+1] = (gctNonIsoEm_->at(i).raw()>>8) & 0xff;
+    }
+  }
+
+}
+
+
+// Internal EM Candidates unpacking
 void GctBlockConverter::blockToGctInternEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   for (int i=0; i<blockLength(id)*nSamples; i=i+nSamples) {  // temporarily just take 0th time sample
     unsigned offset = i*4*nSamples;
@@ -133,7 +181,8 @@ void GctBlockConverter::blockToGctInternEmCand(const unsigned char * data, unsig
   }
 }
 
-// Leaf-U2, Elec, NegEta, Raw Input
+
+// Input EM Candidates unpacking
 // this is the last time I deal the RCT bit assignment travesty!!!
 void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id, unsigned nSamples) {
   
@@ -181,4 +230,20 @@ void GctBlockConverter::blockToRctEmCand(const unsigned char * data, unsigned id
     rctEm_->push_back( L1CaloEmCand( d[5] & 0x3ff, crate, false, 0, 0, true) );
   }
 
+}
+
+
+// Input EM Candidates packing
+void GctBlockConverter::rctEmCandToBlock(unsigned char * data, unsigned id) {
+
+
+}
+
+
+// Write a header for packing
+void GctBlockConverter::writeHeader(unsigned char * data, unsigned id) {
+  data[0] = id & 0xff;
+  data[1] = 0;
+  data[2] = 0;
+  data[3] = 0;
 }

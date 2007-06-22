@@ -18,28 +18,47 @@ class GctBlockConverter {
   GctBlockConverter();
   ~GctBlockConverter();
   
-  // recognised block ID
+  /// find out whether a block ID is recognised
   bool validBlock(unsigned id);
 
-  // return block length in 32-bit words
+  /// return block length in 32-bit words
   unsigned blockLength(unsigned id);
     
-  // convert a block
-  void convertBlock(const unsigned char * d, unsigned id, unsigned nSamples);
-
-  // set collection pointers
+  /// set collection pointers
+  /// when unpacking set these to empty collections which will be filled
+  /// when packing, set these to the full collections of input data
   void setRctEmCollection(L1CaloEmCollection* coll) { rctEm_ = coll; }
   void setIsoEmCollection(L1GctEmCandCollection* coll) { gctIsoEm_ = coll; }
   void setNonIsoEmCollection(L1GctEmCandCollection* coll) { gctNonIsoEm_ = coll; }
   void setInternEmCollection(L1GctInternEmCandCollection* coll) { gctInternEm_ = coll; }
 
+  // get digis from block
+  void convertBlock(const unsigned char * data, unsigned id, unsigned nSamples);
+
+  /// get block from digis
+  void writeBlock(unsigned char * data, unsigned id);
+
  private:
 
   // convert functions for each type of block
+  /// unpack RCT EM Candidates
   void blockToRctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+
+  /// unpack GCT internal EM Candidates
   void blockToGctInternEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
+
+  /// unpack GCT EM Candidates
   void blockToGctEmCand(const unsigned char * d, unsigned id, unsigned nSamples);
 
+  // reverse functions for each type of block
+  /// pack RCT EM Candidates (for triggered crossing only)
+  void rctEmCandToBlock(unsigned char * data, unsigned id);
+
+  /// pack GCT EM Candidates (for triggered crossing only)
+  void gctEmCandToBlock(unsigned char * data, unsigned id);
+
+  /// write header for packing
+  void writeHeader(unsigned char * data, unsigned id);
 
  private:
 

@@ -1,14 +1,14 @@
-#ifndef GctRawToDigi_h
-#define GctRawToDigi_h
+#ifndef GctDigiToRaw_h
+#define GctDigiToRaw_h
 
 // -*- C++ -*-
 //
-// Package:    GctRawToDigi
-// Class:      GctRawToDigi
+// Package:    GctDigiToRaw
+// Class:      GctDigiToRaw
 // 
-/**\class GctRawToDigi GctRawToDigi.cc EventFilter/GctRawToDigi/src/GctRawToDigi.cc
+/**\class GctDigiToRaw GctDigiToRaw.cc EventFilter/GctRawToDigi/src/GctDigiToRaw.cc
 
- Description: Produce GCT digis from raw data
+ Description: Produce fake GCT raw data from digis
 
  Implementation:
      <Notes on implementation>
@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Brooke
 //         Created:  Wed Nov  1 11:57:10 CET 2006
-// $Id: GctRawToDigi.h,v 1.4 2007/06/18 12:12:34 jbrooke Exp $
+// $Id: GctDigiToRaw.h,v 1.4 2007/06/18 12:12:34 jbrooke Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/InputTag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
@@ -38,10 +39,10 @@
 // class decleration
 //
 
-class GctRawToDigi : public edm::EDProducer {
+class GctDigiToRaw : public edm::EDProducer {
  public:
-  explicit GctRawToDigi(const edm::ParameterSet&);
-  ~GctRawToDigi();
+  explicit GctDigiToRaw(const edm::ParameterSet&);
+  ~GctDigiToRaw();
   
  private: // methods
   virtual void beginJob(const edm::EventSetup&) ;
@@ -52,10 +53,9 @@ class GctRawToDigi : public edm::EDProducer {
 
  private:  // members
 
-  static unsigned MAX_EXCESS;
-  static unsigned MAX_BLOCKS;
-
   bool verbose_;         // print out for each event
+
+  edm::InputTag inputLabel_;
 
   int fedId_;            // GCT FED ID
   int nDebugSamples_;    // number of samples per block in debug mode
