@@ -460,15 +460,17 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
         setDrawingOption(hist2, xlow, xhigh);
         hist2->SetFillColor(1);
         if (dopt.find("projection") != string::npos) {
-          string ptit = hist1->GetTitle();
+          string ptit = hist2->GetTitle();
           ptit += " (y-projection)";
           TH1F thproj(hist2->GetName(),ptit.c_str(),hist2->GetNbinsY(), 
 	      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
           thproj.GetXaxis()->SetTitle(ptit.c_str());
 	  for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
+            float tot_count = 0.0;
 	    for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
-	      thproj.SetBinContent(j, hist2->GetBinContent(i,j));
+	      tot_count += hist2->GetBinContent(i,j);
             }
+            thproj.SetBinContent(j, tot_count);
 	  }
           thproj.DrawCopy();
 	} else hist2->Draw(dopt.c_str());
