@@ -4,6 +4,7 @@
 ################################################################################
 
 use strict;
+use Getopt::Long;
 use DBI;
 
 ################################################################################
@@ -20,18 +21,14 @@ sub show_help {
 
   Syntax:
   ======= 
-  insertFile.pl <RUNNUMBER> <LUMISECTION> <INSTANCE> <PRODUCER> <PATHNAME> <FILENAME>\
-    <HOSTNAME> <STREAM> <DATASET> <STATUS> <NEVENTS> <FILESIZE> <START_TIME>\
-    <STOP_TIME> <CHECKSUM> <CRC> <SAFETY> <COUNT> <TYPE>
-  - h          to get this help
- 
+  ./insertFile.pl  --RUNNUMBER 999999  --LUMISECTION 0  --INSTANCE 0  --COUNT 0  
+                   --START_TIME  1181833642  --STOP_TIME  1181834642 
+                   --FILENAME test.00999999.0000.A.test.0.0000.dat
+                   --PATHNAME /data1/ --HOSTNAME cmsdisk1
+                   --DATASET test --STREAM A  --STATUS closed  --TYPE streamer               
+                   --SAFETY 0  --NEVENTS 999  --FILESIZE 1024  --CHECKSUM 0 
   Example:
   ========
-  ./insertFile.pl '43000' '0' '0' 'StorageManager' '/data/' \ 
-         'test.00000000.A.StorageManager' 'cmsdisk0' \
-         'A' '0' 'open' '0' '0' '1171550007' \
-         '1171550007' '0' '0' '0' '0' 'test'
-  inserts dummy entry in run_files table
   
   ##############################################################################   
   \n";
@@ -39,62 +36,53 @@ sub show_help {
 }
 ################################################################################
 
-my ($RUNNUMBER)   = ('0');  
-my ($LUMISECTION) = ('0');  
-my ($INSTANCE)    = ('0');
-#
-my ($PRODUCER)    = ('StorageManager');  
-my ($PATHNAME)    = ('/data/');  
-my ($FILENAME)    = ('test.00000000.A.StorageManager');
-my ($HOSTNAME)    = ('cmsdisk0');  
-my ($STREAM)      = ('A');  
-my ($DATASET)     = ('test');  
-my ($STATUS)      = ('open');  
-my ($NEVENTS)     = ('0');  
-my ($FILESIZE)    = ('0');  
-my ($START_TIME)  = ('1171550007');  
-my ($STOP_TIME)   = ('1171550007');
-my ($CHECKSUM)    = ('0');
-my ($CRC)         = ('0');
-my ($SAFETY)      = ('0');
-my ($COUNT)       = ('0');  
-my ($TYPE)        = ('streamer');  
+open LOG, ">> /nfshome0/klute/globalRun-06-2007/log/insert.log";
+print LOG scalar localtime(time),' ',join(' ',@ARGV),"\n";
+close LOG;
+
+my ($runnumber,$lumisection,$instance,$count,$stoptime,$filename,$pathname);
+my ($hostname,$dataset,$stream,$status,$type,$safety,$nevents,$filesize);
+my ($starttime,$checksum);
+
+my ($CRC)      = ('0');
+my ($PRODUCER) = ('StorageManager');
+
+my $sender;
 
 
-if ("$ARGV[0]" eq "-h") { &show_help(0);          }
-if ($#ARGV ==  18)      { $RUNNUMBER   = "$ARGV[0]";
-			  $LUMISECTION = "$ARGV[1]";
-			  $INSTANCE    = "$ARGV[2]";  
-			  $PRODUCER    = "$ARGV[3]";  
-			  $PATHNAME    = "$ARGV[4]";    
-			  $FILENAME    = "$ARGV[5]";    
-			  $HOSTNAME    = "$ARGV[6]";    
-			  $STREAM      = "$ARGV[7]";      
-			  $DATASET     = "$ARGV[8]";     
-			  $STATUS      = "$ARGV[9]";      
-			  $NEVENTS     = "$ARGV[10]";     
-			  $FILESIZE    = "$ARGV[11]";    
-			  $START_TIME  = "$ARGV[12]";  
-			  $STOP_TIME   = "$ARGV[13]";   
-			  $CHECKSUM    = "$ARGV[14]";    
-			  $CRC         = "$ARGV[15]"; 
-		          $SAFETY      = "$ARGV[16]";
-		          $COUNT       = "$ARGV[17]";
-		          $TYPE        = "$ARGV[18]"
-			  }
-else                    { &show_help(1);          }
+# get options
+GetOptions(
+           "RUNNUMBER=i"   => \$runnumber,
+           "LUMISECTION=i" => \$lumisection,
+           "INSTANCE=i"    => \$instance,
+           "COUNT=i"       => \$count,
+           "START_TIME=i"  => \$starttime,
+           "STOP_TIME=i"   => \$stoptime,
+           "FILENAME=s"    => \$filename,
+           "PATHNAME=s"    => \$pathname,
+           "HOSTNAME=s"    => \$hostname,
+           "DATASET=s"     => \$dataset,
+           "STREAM=s"      => \$stream,
+           "STATUS=s"      => \$status,
+           "TYPE=s"        => \$type,
+           "SAFETY=i"      => \$safety,
+           "NEVENTS=i"     => \$nevents,
+           "FILESIZE=i"    => \$filesize,
+           "CHECKSUM=s"    => \$checksum
+          );
 
-# Connect to DB
+
+# connect to DB
 my $dbi    = "DBI:Oracle:omds";
 my $reader = "cms_sto_mgr";
 my $dbh    = DBI->connect($dbi,$reader,"qwerty");
+ 
+# do the update
+my $SQL = "INSERT INTO CMS_STO_MGR_ADMIN.TIER0_INJECTION (RUNNUMBER,LUMISECTION,INSTANCE,PRODUCER,PATHNAME,FILENAME,HOSTNAME,STREAM,DATASET,STATUS,NEVENTS,FILESIZE,START_TIME,STOP_TIME,CHECKSUM,CRC,SAFETY,COUNT,TYPE) VALUES ($runnumber,$lumisection,$instance,'$PRODUCER','$pathname','$filename','$hostname','$stream','$dataset','$status',$nevents,$filesize,'$starttime','$stoptime',$checksum,$CRC,$safety,$count,'$type')";
+my $sth = $dbh->do($SQL);
 
-# Do the update
-my $SQLUPDATE = "INSERT INTO CMS_STO_MGR_ADMIN.TIER0_INJECTION (RUNNUMBER,LUMISECTION,INSTANCE,PRODUCER,PATHNAME,FILENAME,HOSTNAME,STREAM,DATASET,STATUS,NEVENTS,FILESIZE,START_TIME,STOP_TIME,CHECKSUM,CRC,SAFETY,COUNT,TYPE) VALUES ($RUNNUMBER,$LUMISECTION,$INSTANCE,'$PRODUCER','$PATHNAME','$FILENAME','$HOSTNAME','$STREAM','$DATASET','$STATUS',$NEVENTS,$FILESIZE,'$START_TIME','$STOP_TIME',$CHECKSUM,$CRC,$SAFETY,$COUNT,'$TYPE')";
-
-my $sth = $dbh->do($SQLUPDATE);
-#print "$SQLUPDATE \n";
-
+# print $SQL;
 # Disconnect from DB
 $dbh->disconnect;
+
 exit 0;
