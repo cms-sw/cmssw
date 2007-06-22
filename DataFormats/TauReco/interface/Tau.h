@@ -33,9 +33,12 @@ namespace reco {
     TrackRefVector getSelectedTracks() const {return selectedTracks_};
 
     //reference to the Charged and Neutral Hadrons and to Gamma candidates
-    PFCandidateRefVector getChargedHadrons() const {return selectedPFChargedHadrons_};
-    PFCandidateRefVector getNeutralHadrons() const {return selectedPFNeutralHadrons_};
-    PFCandidateRefVector getGammaCandidates() const {return selectedPFGammaCandidates__};
+    PFCandidateRefVector getSignalChargedHadrons() const {return selectedSignalPFChargedHadrons_};
+    PFCandidateRefVector getSignalNeutralHadrons() const {return selectedSignalPFNeutralHadrons_};
+    PFCandidateRefVector getSignalGammaCandidates() const {return selectedSignalPFGammaCandidates__};
+    PFCandidateRefVector getIsolationChargedHadrons() const {return selectedIsolationPFChargedHadrons_};
+    PFCandidateRefVector getIsolationNeutralHadrons() const {return selectedIsolationPFNeutralHadrons_};
+    PFCandidateRefVector getIsolationGammaCandidates() const {return selectedIsolationPFGammaCandidates__};
 
     //get the impact parameter of the leading track
     Measurement1D getLeadTkTIP() const {return transverseIp_leadTk};
@@ -48,8 +51,8 @@ namespace reco {
     //float getTksInvariantMass() const {return trackerMass_};
 
     //get the sum of the Pt of the signal and isolation tracks
-    float getSumPtSignalTracks() const {return sumPtSignalTracks_};
-    float getSumPtIsolationTracks() const {return sumPtIsolationTracks_};
+    float getSumPtSignalCone() const {return sumPtSignal_};
+    float getSumPtIsolation() const {return sumPtIsolation_};
     //get the ratio EM energy / Hadron energy
     float getEmOverHadronEnergy() const { return  emOverHadronEnergy_};
     //get maximum Hcal tower energy
@@ -62,9 +65,12 @@ namespace reco {
     void setSignalTracks(const TrackRefVector& myTracks)  { signalTracks_ = myTracks};
     void setIsolationTracks(const TrackRefVector& myTracks)  { isolationTracks_ = myTracks};
     void setSelectedTracks(const TrackRefVector& myTracks)  {selectedTracks_ =myTracks};
-    void setChargedHadrons(const FCandidateRefVector& myParts)  { selectedPFChargedHadrons_ = myParts};
-    void setNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedPFNeutralHadrons_ = myParts};
-    void setGammaCandidates( const PFCandidateRefVector& myParts)  { selectedPFGammaCandidates_ = myParts};
+    void setSignalChargedHadrons(const FCandidateRefVector& myParts)  { selectedSignalPFChargedHadrons_ = myParts};
+    void setIsolationChargedHadrons(const FCandidateRefVector& myParts)  { selectedSignalPFChargedHadrons_ = myParts};
+    void setSignalNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedSignalPFNeutralHadrons_ = myParts};
+    void setIsolationNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedIsolationPFNeutralHadrons_ = myParts};
+    void setSignalGammaCandidates( const PFCandidateRefVector& myParts)  { selectedPFSignalGammaCandidates_ = myParts};
+    void setIsolationGammaCandidates( const PFCandidateRefVector& myParts)  { selectedPFIsolationGammaCandidates_ = myParts};
     void setLeadTkTIP(const Measurement1D& myIP)  { transverseIp_leadTk = myIP};
     void setLeadTk3DIP(const Measurement1D& myIP)  {  3DIp_leadTk_=myIP};
     void setInvariantMass(const float& mass)  {  mass_= mass};
@@ -72,8 +78,8 @@ namespace reco {
     //set invariantMass with tracks only 
     //void setTksInvariantMass()  { trackerMass_};
 
-    void setSumPtSignalTracks(const float& sumPt)  { sumPtSignalTracks_ = sumPt};
-    void setSumPtIsolationTracks(const float& sumPt)  { sumPtIsolationTracks_ = sumPt};
+    void setSumPtSignal(const float& sumPt)  { sumPtSignal_ = sumPt};
+    void setSumPtIsolation(const float& sumPt)  { sumPtIsolation_ = sumPt};
     void setEmOverHadronEnergy()const float& emOverH  {   emOverHadronEnergy_ = emOverH};
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal};
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso};
@@ -84,15 +90,16 @@ namespace reco {
     TrackRef leadingTrack_;
     TrackRefVector signalTracks_, isolationTracks_;
     TrackRefVector selectedTracks_;
-    PFCandidateRefVector selectedPFChargedHadrons_, selectedPFNeutralHadrons_, selectedPFGammaCandidates_;
+    PFCandidateRefVector selectedSignalPFChargedHadrons_, selectedSignalPFNeutralHadrons_, selectedSignalPFGammaCandidates_;
+    PFCandidateRefVector selectedIsolationPFChargedHadrons_, selectedIsolationPFNeutralHadrons_, selectedIsolationPFGammaCandidates_;
 
     float maximumHcalTowerEnergy_;
     Measurement1D  transverseIp_leadTk_;
     Measurement1D  3DIp_leadTk_;
     float mass_; 
     float trackerMass_;
-    float sumPtSignalTracks_;
-    float sumPtIsolationTracks_;
+    float sumPtSignal_;
+    float sumPtIsolation_;
     float emOverHadronEnergy_;
     float emIsolation_;
 
