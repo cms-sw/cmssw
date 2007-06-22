@@ -3,6 +3,7 @@
 <use name=DataFormats/EcalDigi>
 <use name=DataFormats/EcalDetId>
 <use name=DataFormats/FEDRawData>
+<use name=TBDataFormats/ESTBRawData>
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
 <use name=Foundation/PluginManager>
@@ -13,6 +14,7 @@
    <use name=DataFormats/EcalDigi>
    <use name=DataFormats/EcalDetId>
    <use name=DataFormats/FEDRawData>
+   <use name=TBDataFormats/ESTBRawData>
    <use name=FWCore/Framework>
    <use name=FWCore/ParameterSet>
    <use name=Foundation/PluginManager>
