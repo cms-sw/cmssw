@@ -33,9 +33,6 @@ public:
   /// constructor for RCT emulator (HF regions)
   L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned rgn);
 
-  /// construct from GCT source card indices - note argument ordering!
-  L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet);
-
   /// construct with GCT eta,phi indices, for testing GCT emulator - note argument ordering!
   L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi);
 
@@ -95,12 +92,6 @@ public:
 
   /// get local phi index (within RCT crate)
   unsigned rctPhi() const { return m_id.rctPhi(); } 
-
-  /// get GCT source card ID
-  unsigned gctCard() const { return m_id.gctCard(); }
-
-  /// get GCT source card region index
-  unsigned gctRegionIndex() const { return m_id.gctRegion(); }
 
   /// get GCT eta index
   unsigned gctEta() const { return m_id.ieta(); }

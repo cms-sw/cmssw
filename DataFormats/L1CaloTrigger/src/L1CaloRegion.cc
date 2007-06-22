@@ -29,14 +29,6 @@ L1CaloRegion::L1CaloRegion(unsigned et, bool fineGrain, unsigned crate, unsigned
   pack((et & 0xff), (et >= 0xff), fineGrain, false, false);
 }
 
-// constructor from GCT card, region numbers
-L1CaloRegion::L1CaloRegion(unsigned card, unsigned input, unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet) :
-  m_id(false, card, input), // use constructor with dummy argument here (GCT card/input # NOT eta/phi!)
-  m_bx(0)
-{
-  pack(et, overFlow, fineGrain, mip, quiet);
-}
-
 // construct from global eta, phi indices
 L1CaloRegion::L1CaloRegion(unsigned et, bool overFlow, bool fineGrain, bool mip, bool quiet, unsigned ieta, unsigned iphi) :
   m_id(ieta, iphi),
@@ -97,7 +89,6 @@ ostream& operator << (ostream& os, const L1CaloRegion& reg) {
   os << " RCT phi=" << reg.rctPhi();
   os << endl;
   os << "             ";
-  os << " GCT card=" << reg.gctCard();
   os << " GCT eta=" << reg.gctEta();
   os << " GCT phi=" << reg.gctPhi();
   os << endl;
