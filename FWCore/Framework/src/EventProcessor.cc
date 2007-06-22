@@ -53,7 +53,6 @@
 #include "FWCore/Framework/interface/EDLooperHelper.h"
 #include "FWCore/Framework/interface/EDLooper.h"
 
-using namespace std;
 using boost::shared_ptr;
 using edm::serviceregistry::ServiceLegacy; 
 using edm::serviceregistry::kOverlapIsError;
@@ -77,11 +76,11 @@ namespace edm {
   using namespace event_processor;
   using namespace edm::service;
 
-  typedef vector<string>   StrVec;
-  typedef list<string>     StrList;
+  typedef std::vector<std::string>   StrVec;
+  typedef std::list<std::string>     StrList;
   typedef Worker*          WorkerPtr;
-  typedef list<WorkerPtr>  WorkerList;
-  typedef list<WorkerList> PathList;
+  typedef std::list<WorkerPtr>  WorkerList;
+  typedef std::list<WorkerList> PathList;
 
 
   namespace {
@@ -269,8 +268,8 @@ namespace edm {
   {
     using namespace std;
     using namespace edm::eventsetup;
-    vector<string> prefers =
-      params.getParameter<vector<string> >("@all_esprefers");
+    std::vector<std::string> prefers =
+      params.getParameter<std::vector<std::string> >("@all_esprefers");
 
     if(prefers.empty()) {
       return std::auto_ptr<EventSetupProvider>(new EventSetupProvider());
@@ -284,14 +283,14 @@ namespace edm {
     //preferInfo[ComponentDescription("DummyProxyProvider","",false)]=
     //      recordToData;
 
-    for(vector<string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
+    for(std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end();
 	itName != itNameEnd;
 	++itName) 
       {
         recordToData.clear();
 	ParameterSet preferPSet = params.getParameter<ParameterSet>(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for(vector<string>::iterator itRecordName = recordNames.begin(),
+        for(std::vector<std::string>::iterator itRecordName = recordNames.begin(),
 	    itRecordNameEnd = recordNames.end();
             itRecordName != itRecordNameEnd;
             ++itRecordName) {
@@ -304,7 +303,7 @@ namespace edm {
 	  //this should be a record name with its info
 	  try {
 	    std::vector<std::string> dataInfo =
-	      preferPSet.getParameter<vector<std::string> >(*itRecordName);
+	      preferPSet.getParameter<std::vector<std::string> >(*itRecordName);
 	    
 	    if(dataInfo.empty()) {
 	      //FUTURE: empty should just mean all data
@@ -354,10 +353,10 @@ namespace edm {
   {
     using namespace std;
     using namespace edm::eventsetup;
-    vector<string> providers =
-      params.getParameter<vector<string> >("@all_esmodules");
+    std::vector<std::string> providers =
+      params.getParameter<std::vector<std::string> >("@all_esmodules");
 
-    for(vector<string>::iterator itName = providers.begin(), itNameEnd = providers.end();
+    for(std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
 	itName != itNameEnd;
 	++itName) 
       {
@@ -369,10 +368,10 @@ namespace edm {
 				    common.passID_);
       }
     
-    vector<string> sources = 
-      params.getParameter<vector<string> >("@all_essources");
+    std::vector<std::string> sources = 
+      params.getParameter<std::vector<std::string> >("@all_essources");
 
-    for(vector<string>::iterator itName = sources.begin(), itNameEnd = sources.end();
+    for(std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end();
 	itName != itNameEnd;
 	++itName) 
       {
@@ -416,24 +415,24 @@ namespace edm {
   // set for the message logger is included in the services list
 
   // Add a service to the services list
-  void adjustForService(vector<ParameterSet>& adjust,
-			string const& service)
+  void adjustForService(std::vector<ParameterSet>& adjust,
+			std::string const& service)
   {
     FDEBUG(1) << "Adding default " << service << " Service\n";
     ParameterSet newpset;
-    newpset.addParameter<string>("@service_type",service);
+    newpset.addParameter<std::string>("@service_type",service);
     adjust.push_back(newpset);
     // Record this new ParameterSet in the Registry!
     pset::Registry::instance()->insertMapped(newpset);
   }
 
   // Add a service to the services list if it is not already there
-  void adjustForDefaultService(vector<ParameterSet>& adjust,
-			       string const& service)
+  void adjustForDefaultService(std::vector<ParameterSet>& adjust,
+			       std::string const& service)
   {
     typedef std::vector<edm::ParameterSet>::iterator Iter;
     for(Iter it = adjust.begin(), itEnd = adjust.end(); it != itEnd; ++it) {
-	string name = it->getParameter<std::string>("@service_type");
+	std::string name = it->getParameter<std::string>("@service_type");
 
 	if (name == service) {
  
@@ -459,12 +458,11 @@ namespace edm {
 			 ParameterSet const& params,
 			 EventProcessor::CommonParams const& common)
   {
-    using namespace std;
     using namespace edm::eventsetup;
     boost::shared_ptr<edm::EDLooper> vLooper;
     
-    vector<string> loopers =
-      params.getParameter<vector<string> >("@all_loopers");
+    std::vector<std::string> loopers =
+      params.getParameter<std::vector<std::string> >("@all_loopers");
 
     if(loopers.size() == 0) {
        return vLooper;
@@ -472,7 +470,7 @@ namespace edm {
    
     assert(1 == loopers.size());
 
-    for(vector<string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
+    for(std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end();
 	itName != itNameEnd;
 	++itName) 
       {
@@ -491,11 +489,11 @@ namespace edm {
 
   // ---------------------------------------------------------------
 
-  EventProcessor::EventProcessor(string const& config,
+  EventProcessor::EventProcessor(std::string const& config,
 				ServiceToken const& iToken, 
 				serviceregistry::ServiceLegacy iLegacy,
-			        vector<string> const& defaultServices,
-				vector<string> const& forcedServices) :
+			        std::vector<std::string> const& defaultServices,
+				std::vector<std::string> const& forcedServices) :
     preProcessEventSignal(),
     postProcessEventSignal(),
     plug_init_(),
@@ -525,9 +523,9 @@ namespace edm {
     init(config, iToken, iLegacy, defaultServices, forcedServices);
   }
 
-  EventProcessor::EventProcessor(string const& config,
-			        vector<string> const& defaultServices,
-				vector<string> const& forcedServices) :
+  EventProcessor::EventProcessor(std::string const& config,
+			        std::vector<std::string> const& defaultServices,
+				std::vector<std::string> const& forcedServices) :
     preProcessEventSignal(),
     postProcessEventSignal(),
     plug_init_(),
@@ -558,17 +556,17 @@ namespace edm {
   }
 
   void
-  EventProcessor::init(string const& config,
+  EventProcessor::init(std::string const& config,
 			ServiceToken const& iToken, 
 			serviceregistry::ServiceLegacy iLegacy,
-		        vector<string> const& defaultServices,
-			vector<string> const& forcedServices) {
+		        std::vector<std::string> const& defaultServices,
+			std::vector<std::string> const& forcedServices) {
     // TODO: Fix const-correctness. The ParameterSets that are
     // returned here should be const, so that we can be sure they are
     // not modified.
 
     shared_ptr<ParameterSet> parameterSet;
-    shared_ptr<vector<ParameterSet> > pServiceSets;
+    shared_ptr<std::vector<ParameterSet> > pServiceSets;
     makeParameterSets(config, parameterSet, pServiceSets);
     maxEventsPset_ = parameterSet->getUntrackedParameter<ParameterSet>("maxEvents", ParameterSet());
     maxEventsInput_ = maxEventsPset_.getUntrackedParameter<int>("input", -1);
@@ -577,14 +575,14 @@ namespace edm {
     // In pServiceSets, we want the default services first, then the forced
     // services, then the services from the configuration.  It is efficient
     // and convenient to add them in reverse order.  Then after we are done
-    // adding, we reverse the vector again to get the desired order.
+    // adding, we reverse the std::vector again to get the desired order.
     std::reverse(pServiceSets->begin(), pServiceSets->end());
-    for(vector<string>::const_reverse_iterator j = forcedServices.rbegin(),
+    for(std::vector<std::string>::const_reverse_iterator j = forcedServices.rbegin(),
                                             jEnd = forcedServices.rend();
 	 j != jEnd; ++j) {
       adjustForService(*(pServiceSets.get()), *j);
     }
-    for(vector<string>::const_reverse_iterator i = defaultServices.rbegin(),
+    for(std::vector<std::string>::const_reverse_iterator i = defaultServices.rbegin(),
                                             iEnd = defaultServices.rend();
 	 i != iEnd; ++i) {
       adjustForDefaultService(*(pServiceSets.get()), *i);
@@ -608,7 +606,7 @@ namespace edm {
 
     // the next thing is ugly: pull out the trigger path pset and 
     // create a service and extra token for it
-    string processName = parameterSet->getParameter<string>("@process_name");
+    std::string processName = parameterSet->getParameter<std::string>("@process_name");
 
     typedef edm::service::TriggerNamesService TNS;
     typedef serviceregistry::ServiceWrapper<TNS> w_TNS;
@@ -697,7 +695,7 @@ namespace edm {
   }
   
   EventHelperDescription
-  EventProcessor::runOnce()
+  EventProcessor::runOnce(boost::shared_ptr<LuminosityBlockPrincipal> lbp)
   {
     try {
        // Job should be in sJobReady state, then we send mRunCount message and move job sRunning state
@@ -723,20 +721,56 @@ namespace edm {
 //  They are NOT gratuitous! Bad things will happen without them!
     {
       boost::mutex::scoped_lock sl(usr2_lock);
-      if(edm::shutdown_flag)
-      {
+      if(edm::shutdown_flag) {
          changeState(mShutdownSignal);
          toerror.succeeded();
          return evtDesc;
       }
     }
 
-    std::auto_ptr<EventPrincipal> pep;
-    CallPrePost holder(*actReg_);
+    // Dummy value for now, for runs and lumis.
+    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
+    EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
 
-    pep = input_->readEvent();
+    if (lbp.get() == 0) {
+      boost::shared_ptr<RunPrincipal> rp;
+      {
+        CallPrePost holder(*actReg_);
+        rp = input_->readRun();
+      }
+      if(rp.get() != 0) {
+        schedule_->runOneEvent(*rp, esDummy, BranchActionBegin);
+        boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+        {
+          CallPrePost holder(*actReg_);
+          lbp = input_->readLuminosityBlock(rp);
+        }
+      }
+      if (lbp.get() == 0) {
+        changeState(mInputExhausted);
+        toerror.succeeded();
+        return evtDesc;
+      }
+      schedule_->runOneEvent(*lbp, esDummy, BranchActionBegin);
+    }
+
+    std::auto_ptr<EventPrincipal> pep;
+    {
+      CallPrePost holder(*actReg_);
+      pep = input_->readEvent(lbp);
+    }
 
     if(pep.get() == 0) {
+      {
+        CallPrePost holder(*actReg_);
+        input_->doFinishLumi(*lbp);
+      }
+      schedule_->runOneEvent(*lbp, esDummy, BranchActionEnd);
+      {
+        CallPrePost holder(*actReg_);
+        input_->doFinishRun(lbp->runPrincipal());
+      }
+      schedule_->runOneEvent(lbp->runPrincipal(), esDummy, BranchActionEnd);
       changeState(mInputExhausted);
       toerror.succeeded();
       return evtDesc;
@@ -750,35 +784,11 @@ namespace edm {
     return EventHelperDescription(pep,&es);
   }
   
-  void
-  EventProcessor::endLumiAndRun(EventPrincipal & ep, bool isNewRun) const {
-    IOVSyncValue ts(ep.id(), ep.time());
-    input_->doFinishLumi();
-    EventSetup const& es = esp_->eventSetupForInstance(ts);
-    LuminosityBlockPrincipal & lbp = const_cast<LuminosityBlockPrincipal&>(ep.luminosityBlockPrincipal());
-    schedule_->runOneEvent(lbp, es, BranchActionEnd);
-    if (isNewRun) {
-      input_->doFinishRun();
-      RunPrincipal & rp = const_cast<RunPrincipal&>(ep.luminosityBlockPrincipal().runPrincipal());
-      schedule_->runOneEvent(rp, es, BranchActionEnd);
-    }
-  }
-
   EventProcessor::StatusCode
-  EventProcessor::run_p(int numberToProcess, Msg m)
-  {
-    changeState(m);
-    StateSentry toerror(this);
-
-    //make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-
-    bool runforever = numberToProcess < 0;
+  EventProcessor::processEvents(int & numberEventsToProcess, boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    bool runforever = numberEventsToProcess < 0;
     bool got_sig = false;
-    int eventcount = 0;
     StatusCode rc = epSuccess;
-
-    std::auto_ptr<EventPrincipal> previousPep;
 
     while(state_ == sRunning) {
 
@@ -786,7 +796,6 @@ namespace edm {
       {
         boost::mutex::scoped_lock sl(usr2_lock);
         if(edm::shutdown_flag) {
-          if (previousPep.get() != 0) endLumiAndRun(*previousPep);
           changeState(mShutdownSignal);
           rc = epSignal;
           got_sig = true;
@@ -794,53 +803,148 @@ namespace edm {
         }
       }
 
-      if(!runforever && eventcount >= numberToProcess) {
-	if (previousPep.get() != 0) {
-	  endLumiAndRun(*previousPep);
-	}
+      if(numberEventsToProcess == 0) {
 	changeState(mCountComplete);
 	continue;
       }
 
-      ++eventcount;
-      FDEBUG(1) << eventcount << std::endl;
+      if (!runforever) {
+        --numberEventsToProcess;
+      }
+      FDEBUG(1) << numberEventsToProcess << std::endl;
       std::auto_ptr<EventPrincipal> pep;
       {
         CallPrePost holder(*actReg_);
-        pep = input_->readEvent();
+        pep = input_->readEvent(lbp);
       }
         
       if (pep.get() == 0) {
-	if (previousPep.get() != 0) endLumiAndRun(*previousPep);
 	changeState(mInputExhausted);
 	rc = epInputComplete;
 	continue;
       }
 
-      bool isANewLumi = !isSameLumi(previousPep.get(), pep.get());
-      bool isANewRun = !isSameRun(previousPep.get(), pep.get());
-      if(isANewLumi) {
-      if (previousPep.get() != 0) endLumiAndRun(*previousPep, isANewRun);
-      }
-
       IOVSyncValue ts(pep->id(), pep->time());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
-	
-      if (isANewLumi) {
-        if (isANewRun) {
-          RunPrincipal & rp = const_cast<RunPrincipal&>(pep->luminosityBlockPrincipal().runPrincipal());
-	  schedule_->runOneEvent(rp, es, BranchActionBegin);
-        }
-        LuminosityBlockPrincipal & lbp = const_cast<LuminosityBlockPrincipal&>(pep->luminosityBlockPrincipal());
-	schedule_->runOneEvent(lbp, es, BranchActionBegin);
-      }
       schedule_->runOneEvent(*pep, es, BranchActionEvent);
       if (schedule_->terminate()) {
-        endLumiAndRun(*pep, true);
 	changeState(mCountComplete);
       }
 
-      previousPep = pep;
+    }
+
+    // check once more for shutdown signal
+    {
+      boost::mutex::scoped_lock sl(usr2_lock);
+      if(!got_sig && edm::shutdown_flag) {
+        changeState(mShutdownSignal);
+        rc = epSignal;
+      }
+    }
+
+    return rc;
+  }
+
+  EventProcessor::StatusCode
+  EventProcessor::processLumis(int & numberEventsToProcess, boost::shared_ptr<RunPrincipal> rp) {
+    bool got_sig = false;
+    StatusCode rc = epSuccess;
+
+    // Dummy value for now, for runs and lumis.
+    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
+    EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
+
+    while(state_ == sRunning) {
+
+//  Lay on a lock
+      {
+        boost::mutex::scoped_lock sl(usr2_lock);
+        if(edm::shutdown_flag) {
+          changeState(mShutdownSignal);
+          rc = epSignal;
+          got_sig = true;
+          continue;
+        }
+      }
+
+      boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+      {
+        CallPrePost holder(*actReg_);
+        lbp = input_->readLuminosityBlock(rp);
+      }
+        
+      if (lbp.get() == 0) {
+	break;
+      }
+
+      schedule_->runOneEvent(*lbp, esDummy, BranchActionBegin);
+      rc = processEvents(numberEventsToProcess, lbp);
+      {
+        CallPrePost holder(*actReg_);
+        input_->doFinishLumi(*lbp);
+      }
+      schedule_->runOneEvent(*lbp, esDummy, BranchActionEnd);
+    }
+
+    // check once more for shutdown signal
+    {
+      boost::mutex::scoped_lock sl(usr2_lock);
+      if(!got_sig && edm::shutdown_flag) {
+        changeState(mShutdownSignal);
+        rc = epSignal;
+      }
+    }
+
+    return rc;
+  }
+
+  EventProcessor::StatusCode
+  EventProcessor::processRuns(int numberEventsToProcess, Msg m) {
+    changeState(m);
+    StateSentry toerror(this);
+
+    //make the services available
+    ServiceRegistry::Operate operate(serviceToken_);
+
+    bool got_sig = false;
+    StatusCode rc = epSuccess;
+
+    // Dummy value for now, for runs and lumis.
+    IOVSyncValue tsDummy(EventID(1,1), Timestamp::beginOfTime());
+    EventSetup const& esDummy = esp_->eventSetupForInstance(tsDummy);
+
+    while(state_ == sRunning) {
+
+//  Lay on a lock
+      {
+        boost::mutex::scoped_lock sl(usr2_lock);
+        if(edm::shutdown_flag) {
+          changeState(mShutdownSignal);
+          rc = epSignal;
+          got_sig = true;
+          continue;
+        }
+      }
+
+      boost::shared_ptr<RunPrincipal> rp;
+      {
+        CallPrePost holder(*actReg_);
+        rp = input_->readRun();
+      }
+        
+      if (rp.get() == 0) {
+	changeState(mInputExhausted);
+	rc = epInputComplete;
+	continue;
+      }
+
+      schedule_->runOneEvent(*rp, esDummy, BranchActionBegin);
+      rc = processLumis(numberEventsToProcess, rp);
+      {
+        CallPrePost holder(*actReg_);
+        input_->doFinishRun(*rp);
+      }
+      schedule_->runOneEvent(*rp, esDummy, BranchActionEnd);
     }
 
     // check once more for shutdown signal
@@ -857,17 +961,17 @@ namespace edm {
   }
 
   EventProcessor::StatusCode
-  EventProcessor::run(int numberToProcess)
+  EventProcessor::run(int numberEventsToProcess)
   {
     beginJob(); //make sure this was called
     StatusCode rc = epInputComplete;
     if(looper_) {
        EDLooperHelper looperHelper(this);
-       looper_->loop(looperHelper,numberToProcess);
+       looper_->loop(looperHelper,numberEventsToProcess);
        //make sure we are in the stop state
        changeState(mStopAsync);
     } else {
-       rc = run_p(numberToProcess,mRunCount);
+       rc = processRuns(numberEventsToProcess,mRunCount);
     }
     changeState(mFinished);
     return rc;
@@ -1244,12 +1348,11 @@ namespace edm {
     beginJob();
     {
       boost::mutex::scoped_lock sl(stop_lock_);
-      if(id_set_==true)
-	{
-	  string err("runAsync called while async event loop already running\n");
+      if(id_set_==true) {
+	  std::string err("runAsync called while async event loop already running\n");
 	  edm::LogError("FwkJob") << err;
 	  throw cms::Exception("BadState") << err;
-	}
+      }
 
       stop_count_=0;
       last_rc_=epSuccess; // forget the last value!
@@ -1257,12 +1360,11 @@ namespace edm {
       boost::xtime timeout;
       boost::xtime_get(&timeout, boost::TIME_UTC); 
       timeout.sec += 60; // 60 seconds to start!!!!
-      if(starter_.timed_wait(sl,timeout)==false)
-	{
+      if(starter_.timed_wait(sl,timeout)==false) {
 	  // yikes - the thread did not start
 	  throw cms::Exception("BadState")
 	    << "Async run thread did not start in 60 seconds\n";
-	}      
+      }
     }
   }
 
@@ -1293,7 +1395,7 @@ namespace edm {
     FDEBUG(2) << "asyncRun starting >>>>>>>>>>>>>>>>>>>>>>\n";
 
     try {
-	rc = me->run_p(-1, mRunAsync);
+	rc = me->processRuns(-1, mRunAsync);
     }
     catch (cms::Exception& e) {
       edm::LogError("FwkJob") << "cms::Exception caught in "

@@ -1,9 +1,12 @@
 /*----------------------------------------------------------------------
-$Id: RawInputSource.cc,v 1.1 2007/05/01 20:21:57 wmtan Exp $
+$Id: RawInputSource.cc,v 1.2 2007/06/21 16:52:43 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -13,7 +16,10 @@ namespace edm {
     InputSource(pset, desc),
     remainingEvents_(maxEvents()),
     runNumber_(RunNumber_t()),
-    ep_()
+    newRun_(true),
+    newLumi_(true),
+    ep_(),
+    lbp_()
   { }
 
   RawInputSource::~RawInputSource() {
@@ -24,17 +30,38 @@ namespace edm {
     // Do nothing if the run is not changed.
     if (r != runNumber_) {
       runNumber_ = r;
+      newRun_ = newLumi_ = true;
     }
   }
 
   void
   RawInputSource::setLumi(LuminosityBlockNumber_t lb) {
-    luminosityBlockNumber_ = lb;
+    if (lb != luminosityBlockNumber_) {
+      luminosityBlockNumber_ = lb;
+      newLumi_ = true;
+    }
+  }
+
+  boost::shared_ptr<RunPrincipal>
+  RawInputSource::readRun_() {
+    newRun_ = false;
+    return boost::shared_ptr<RunPrincipal>(
+	new RunPrincipal(runNumber_, productRegistry(), processConfiguration()));
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  RawInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+    if (newRun_) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
+    newLumi_ = false;
+    return boost::shared_ptr<LuminosityBlockPrincipal>(
+	new LuminosityBlockPrincipal(luminosityBlockNumber_, productRegistry(), rp, processConfiguration()));
   }
 
   std::auto_ptr<EventPrincipal>
-  RawInputSource::read() {
-    if (remainingEvents_ == 0) {
+  RawInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) {
+    if (remainingEvents_ == 0 || newRun_ || newLumi_) {
       return std::auto_ptr<EventPrincipal>(0); 
     }
     std::auto_ptr<Event> e(readOneEvent());
@@ -51,14 +78,14 @@ namespace edm {
     eventId = EventID(runNumber_, eventId.event());
     ep_ = std::auto_ptr<EventPrincipal>(
 	new EventPrincipal(eventId, Timestamp(tstamp),
-	productRegistry(), luminosityBlockNumber_, processConfiguration(), true));
+	productRegistry(), lbp_, processConfiguration(), true));
     std::auto_ptr<Event> e(new Event(*ep_, moduleDescription()));
     return e;
   }
 
   std::auto_ptr<EventPrincipal>
   RawInputSource::readIt(EventID const&) {
-      throw cms::Exception("LogicError","RawInputSource::read(EventID const& eventID)")
+      throw cms::Exception("LogicError","RawInputSource::readEvent_(EventID const& eventID)")
         << "Random access read cannot be used for RawInputSource.\n"
         << "Contact a Framework developer.\n";
   }

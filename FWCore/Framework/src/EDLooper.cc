@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.4 2006/12/19 00:28:56 wmtan Exp $
+// $Id: EDLooper.cc,v 1.5 2007/01/19 05:25:11 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.5  2007/01/19 05:25:11  wmtan
+// Evaluate end() only at the beginning of an iteration
+//
 // Revision 1.4  2006/12/19 00:28:56  wmtan
 // changed (u)long to (u)int so that data is the same size on 32 and 64 bit machines
 //
@@ -115,9 +118,10 @@ EDLooper::loop(EDLooperHelper& iHelper,
    */
    const edm::EventSetup* eventSetup = 0;
    do {
+       boost::shared_ptr<edm::LuminosityBlockPrincipal> lbp;
        startingNewLoop(iCounter);
        do {
-           EventHelperDescription evtDesc = iHelper.runOnce();
+           EventHelperDescription evtDesc = iHelper.runOnce(lbp);
            if(evtDesc.eventPrincipal_.get()==0) {
               break;
            }

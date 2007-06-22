@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:38:09 EDT 2006
-// $Id: EDLooperHelper.cc,v 1.2 2006/10/13 01:47:35 wmtan Exp $
+// $Id: EDLooperHelper.cc,v 1.3 2007/06/14 17:52:18 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.cc,v $
+// Revision 1.3  2007/06/14 17:52:18  wmtan
+// Remove unnecessary includes
+//
 // Revision 1.2  2006/10/13 01:47:35  wmtan
 // Remove unnecessary argument from runOnce()
 //
@@ -36,8 +39,8 @@ namespace edm {
 static const char* const kFacilityString = "FWCore.Framework.EDLooperHelper" ;
 
 // ---- cvs-based strings (Id and Tag with which file was checked out)
-static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.2 2006/10/13 01:47:35 wmtan Exp $";
-static const char* const kTagString = "$Name: temporary $";
+static const char* const kIdString  = "$Id: EDLooperHelper.cc,v 1.3 2007/06/14 17:52:18 wmtan Exp $";
+static const char* const kTagString = "$Name:  $";
 
 //
 // static data member definitions
@@ -78,9 +81,9 @@ EDLooperHelper::~EDLooperHelper()
 // member functions
 //
 EventHelperDescription
-EDLooperHelper::runOnce()
+EDLooperHelper::runOnce(boost::shared_ptr<edm::LuminosityBlockPrincipal> lbp)
 {
-    return eventProcessor_->runOnce();
+    return eventProcessor_->runOnce(lbp);
 }
 
 void

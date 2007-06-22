@@ -32,7 +32,7 @@ problems:
   where does the pluginmanager initialize call go?
 
 
-$Id: EventProcessor.h,v 1.35 2007/05/08 03:18:38 wmtan Exp $
+$Id: EventProcessor.h,v 1.36 2007/06/14 17:52:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -180,12 +180,12 @@ namespace edm {
     // -------------
 
     // Invoke event processing.  We will process a total of
-    // 'numberToProcess' events. If numberToProcess is -1, we will
+    // 'numberEventsToProcess' events. If numberEventsToProcess is -1, we will
     // process events intil the input sources are exhausted. If it is
     // given a non-negative number, processing continues until either (1)
     // this number of events has been processed, or (2) the input
     // sources are exhausted.
-    StatusCode run(int numberToProcess);
+    StatusCode run(int numberEventsToProcess);
 
     // Process until the input source is exhausted.
     StatusCode run();
@@ -294,13 +294,15 @@ namespace edm {
 		std::vector<std::string> const& defaultServices,
 		std::vector<std::string> const& forcedServices);
   
-    StatusCode run_p(int numberToProcess,
+    StatusCode processEvents(int & numberEventsToProcess,
+		     boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    StatusCode processLumis(int & numberEventsToProcess,
+		     boost::shared_ptr<RunPrincipal> rp);
+    StatusCode processRuns(int numberEventsToProcess,
 		     event_processor::Msg m);
     StatusCode doneAsync(event_processor::Msg m);
-    EventHelperDescription runOnce();
+    EventHelperDescription runOnce(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
     
-    void endLumiAndRun(EventPrincipal & ep, bool isNewRun = true) const;
-
     void rewind();
 
     StatusCode waitForAsyncCompletion(unsigned int timeout_seconds);

@@ -16,7 +16,7 @@ pointer to a Group, when queried.
 
 (Historical note: prior to April 2007 this class was named DataBlockImpl)
 
-$Id: Principal.h,v 1.8 2007/06/06 23:33:48 wmtan Exp $
+$Id: Principal.h,v 1.9 2007/06/08 23:51:44 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <map>
@@ -117,6 +117,8 @@ namespace edm {
     void addGroup(std::auto_ptr<Provenance>, bool onDemand = false);
 
     void addGroup(std::auto_ptr<EDProduct> prod, std::auto_ptr<Provenance> prov);
+
+    ProcessConfiguration const& processConfiguration() const {return processConfiguration_;}
 
     ProductRegistry const& productRegistry() const {return *preg_;}
 

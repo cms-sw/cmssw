@@ -38,7 +38,7 @@ Some examples of InputSource subclasses may be:
  3) DAQInputSource: creats EventPrincipals which contain raw data, as
     delivered by the L1 trigger and event builder. 
 
-$Id: InputSource.h,v 1.26 2007/06/08 23:52:59 wmtan Exp $
+$Id: InputSource.h,v 1.27 2007/06/14 17:52:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -75,10 +75,16 @@ namespace edm {
     /// Indicate inability to get a new event by returning a null auto_ptr.
 
     /// Read next event
-    std::auto_ptr<EventPrincipal> readEvent();
+    std::auto_ptr<EventPrincipal> readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
 
     /// Read a specific event
     std::auto_ptr<EventPrincipal> readEvent(EventID const&);
+
+    /// Read next luminosity block
+    boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp);
+
+    /// Read next run
+    boost::shared_ptr<RunPrincipal> readRun();
 
     /// Skip the number of events specified.
     /// Offset may be negative.
@@ -131,8 +137,8 @@ namespace edm {
     void doEndJob();
 
     /// Called by framework when events are exhausted.
-    void doFinishLumi() {finishLumi();}
-    void doFinishRun() {finishRun();}
+    void doFinishLumi(LuminosityBlockPrincipal& lbp) {finishLumi(lbp);}
+    void doFinishRun(RunPrincipal& rp) {finishRun(rp);}
 
     using ProductRegistryHelper::produces;
     using ProductRegistryHelper::typeLabelList;
@@ -144,8 +150,10 @@ namespace edm {
 
     // Indicate inability to get a new event by returning a null
     // auto_ptr.
-    virtual std::auto_ptr<EventPrincipal> read() = 0;
+    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal>) = 0;
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const&);
+    virtual boost::shared_ptr<RunPrincipal> readRun_() = 0;
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal>) = 0;
     virtual void skip(int);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
@@ -153,8 +161,8 @@ namespace edm {
     virtual void wakeUp_(){}
     void preRead();
     void postRead(Event& event);
-    virtual void finishLumi(){}
-    virtual void finishRun(){}
+    virtual void finishLumi(LuminosityBlockPrincipal &){}
+    virtual void finishRun(RunPrincipal &){}
     virtual void beginJob(EventSetup const&){}
     virtual void endJob(){}
 

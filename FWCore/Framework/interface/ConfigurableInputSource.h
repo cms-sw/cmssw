@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.20 2007/03/27 23:06:12 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.21 2007/06/21 16:52:42 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -18,7 +18,7 @@ namespace edm {
   class ParameterSet;
   class ConfigurableInputSource : public InputSource {
   public:
-    explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc);
+    explicit ConfigurableInputSource(ParameterSet const& pset, InputSourceDescription const& desc, bool realData = true);
     virtual ~ConfigurableInputSource();
 
     unsigned int numberEventsInRun() const {return numberEventsInRun_;} 
@@ -41,18 +41,17 @@ namespace edm {
     void setTime(TimeValue_t t) {presentTime_ = t;}
 
   private:
-    void startRun();
-    void startLumi();
-    virtual void finishLumi();
-    virtual void finishRun();
+    virtual void finishLumi(LuminosityBlockPrincipal& lbp);
+    virtual void finishRun(RunPrincipal& rp);
     virtual void setRunAndEventInfo();
     virtual bool produce(Event & e) = 0;
     virtual void beginRun(Run &) {}
     virtual void endRun(Run &) {}
     virtual void beginLuminosityBlock(LuminosityBlock &) {}
     virtual void endLuminosityBlock(LuminosityBlock &) {}
-    virtual std::auto_ptr<EventPrincipal> readIt(EventID const& eventID);
-    virtual std::auto_ptr<EventPrincipal> read();
+    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
+    virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual void skip(int offset);
     virtual void setRun(RunNumber_t r);
     virtual void setLumi(LuminosityBlockNumber_t lb);
@@ -72,11 +71,9 @@ namespace edm {
     EventID origEventID_;
     LuminosityBlockNumber_t luminosityBlock_;
     LuminosityBlockNumber_t origLuminosityBlockNumber_t_;
-    bool justBegun_;
+    bool newRun_;
+    bool newLumi_;
     bool isRealData_;
-
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
-    boost::shared_ptr<RunPrincipal> runPrincipal_;
   };
 }
 #endif

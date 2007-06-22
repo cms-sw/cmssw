@@ -4,8 +4,8 @@
 #include "boost/shared_ptr.hpp"
 
 #include "DataFormats/Streamer/interface/StreamedProducts.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "IOPool/Streamer/interface/StreamDeserializer.h"
 
@@ -34,7 +34,19 @@ namespace edm {
     void saveTriggerNames(InitMsgView const* header);
 
   private:
+    virtual std::auto_ptr<EventPrincipal> read() = 0;
+
+    virtual boost::shared_ptr<RunPrincipal> readRun_();
+
+    virtual boost::shared_ptr<LuminosityBlockPrincipal>
+    readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
+
+    virtual std::auto_ptr<EventPrincipal>
+    readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+
     StreamDeserializer deserializer_;
+    
+    std::auto_ptr<EventPrincipal> holder_;
   }; //end-of-class-def
 } // end of namespace-edm
   

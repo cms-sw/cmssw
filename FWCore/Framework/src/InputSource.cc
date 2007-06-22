@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.24 2007/06/06 23:33:48 wmtan Exp $
+$Id: InputSource.cc,v 1.25 2007/06/08 23:52:59 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -78,14 +78,30 @@ namespace edm {
     }
   }
 
+  boost::shared_ptr<RunPrincipal>
+  InputSource::readRun() {
+    // Note: For the moment, we do not support saving and restoring the state of the
+    // random number generator if random numbers are generated during processing of runs
+    // (e.g. beginRun(), endRun())
+    return readRun_();
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  InputSource::readLuminosityBlock(boost::shared_ptr<RunPrincipal> rp) {
+    // Note: For the moment, we do not support saving and restoring the state of the
+    // random number generator if random numbers are generated during processing of lumi blocks
+    // (e.g. beginLuminosityBlock(), endLuminosityBlock())
+    return readLuminosityBlock_(rp);
+  }
+
   std::auto_ptr<EventPrincipal>
-  InputSource::readEvent() {
+  InputSource::readEvent(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
 
     std::auto_ptr<EventPrincipal> result(0);
 
     if (remainingEvents_ != 0) {
       preRead();
-      result = read();
+      result = readEvent_(lbp);
       if (result.get() != 0) {
         Event event(*result, moduleDescription());
         postRead(event);

@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.25 2007/06/06 23:33:50 wmtan Exp $
+$Id: RootFile.h,v 1.26 2007/06/14 22:02:15 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -42,7 +42,13 @@ namespace edm {
     ~RootFile();
     void open();
     void close();
-    std::auto_ptr<EventPrincipal> read(boost::shared_ptr<ProductRegistry const> pReg);
+    std::auto_ptr<EventPrincipal> readEvent(
+	boost::shared_ptr<ProductRegistry const> pReg,
+	boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(
+	boost::shared_ptr<ProductRegistry const> pReg,
+	boost::shared_ptr<RunPrincipal> rp);
+    boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg);
     boost::shared_ptr<ProductRegistry const> productRegistry() const {return productRegistry_;}
     EventAuxiliary const& eventAux() {return eventAux_;}
     LuminosityBlockAuxiliary const& luminosityBlockAux() {return lumiAux_;}
@@ -55,11 +61,6 @@ namespace edm {
 
   private:
     void validateFile();
-    boost::shared_ptr<RunPrincipal> readRun(boost::shared_ptr<ProductRegistry const> pReg, RunNumber_t const& runNumber);
-    boost::shared_ptr<LuminosityBlockPrincipal> readLumi(boost::shared_ptr<ProductRegistry const> pReg,
-							 RunNumber_t const& runNumber,
-							 LuminosityBlockNumber_t const& lumiID,
-							 bool isNewRun);
     RootFile(RootFile const&); // disable copy construction
     RootFile & operator=(RootFile const&); // disable assignment
     std::string const file_;

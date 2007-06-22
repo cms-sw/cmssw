@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.50 2007/06/06 23:33:49 wmtan Exp $
+$Id: PoolSource.cc,v 1.51 2007/06/14 22:02:14 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -9,6 +9,8 @@ $Id: PoolSource.cc,v 1.50 2007/06/06 23:33:49 wmtan Exp $
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -27,6 +29,8 @@ namespace edm {
     fileIter_(fileCatalogItems().begin()),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
+    lumiNumber_(0),
+    runNumber_(0),
     flatDistribution_(0),
     eventsRemainingInFile_(0)
   {
@@ -62,8 +66,9 @@ namespace edm {
     if (firstEventID != EventID()) {
       EventID id = EventID(pset.getUntrackedParameter<unsigned int>("firstRun", 1),
 		  pset.getUntrackedParameter<unsigned int>("firstEvent", 1));
-      RootTree::EntryNumber entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
-      while (entry < 0) {
+      RootTree::EntryNumber eventEntry =
+	rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
+      while (eventEntry < 0) {
         // Set the entry to the last entry in this file
         rootFile_->eventTree().setEntryNumber(rootFile_->eventTree().entries()-1);
 
@@ -72,9 +77,15 @@ namespace edm {
           throw cms::Exception("MismatchedInput","PoolSource::PoolSource()")
 	    << "Input files have no " << id << "\n";
         }
-        entry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
+        eventEntry = rootFile_->eventTree().getBestEntryNumber(id.run(), id.event());
       }
-      rootFile_->eventTree().setEntryNumber(entry - 1);
+      RootTree::EntryNumber runEntry = rootFile_->runTree().getBestEntryNumber(id.run(), 0);
+      RootTree::EntryNumber lumiEntry = rootFile_->lumiTree().getBestEntryNumber(id.run(), 1);
+      if (runEntry < 0) runEntry = 0;
+      if (lumiEntry < 0) lumiEntry = 0;
+      rootFile_->eventTree().setEntryNumber(eventEntry - 1);
+      rootFile_->lumiTree().setEntryNumber(lumiEntry - 1);
+      rootFile_->runTree().setEntryNumber(runEntry - 1);
     }
     int eventsToSkip = pset.getUntrackedParameter<unsigned int>("skipEvents", 0);
     if (eventsToSkip > 0) {
@@ -111,7 +122,12 @@ namespace edm {
   }
 
   bool PoolSource::next() {
-    if(rootFile_->eventTree().next()) return true;
+    if (rootFile_->eventTree().next()) return true;
+    if (!nextFile()) return false;
+    return next();
+  }
+
+  bool PoolSource::nextFile() {
     if(fileIter_ != fileCatalogItems().end()) ++fileIter_;
     if(fileIter_ == fileCatalogItems().end()) {
       if (primary()) {
@@ -134,7 +150,7 @@ namespace edm {
         throw cms::Exception("MismatchedInput","PoolSource::next()") << mergeInfo;
       }
     }
-    return next();
+    return true;
   }
 
   bool PoolSource::previous() {
@@ -168,7 +184,35 @@ namespace edm {
   PoolSource::~PoolSource() {
   }
 
-  // read() is responsible for creating, and setting up, the
+  boost::shared_ptr<RunPrincipal>
+  PoolSource::readRun_() {
+    while (!rootFile_->runTree().next()) {
+      if (!nextFile()) return boost::shared_ptr<RunPrincipal>();
+    }
+    boost::shared_ptr<RunPrincipal> rp =
+	 rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    runNumber_ = rp->run();
+    return rp;
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  PoolSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+    if (!rootFile_->lumiTree().next()) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp =
+	 rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), rp); 
+    
+    if (runNumber_ != lbp->runNumber()) {
+      // The lumi block is in a different run.  Back up, and return a null pointer.
+      rootFile_->lumiTree().previous();
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
+    lumiNumber_ = lbp->luminosityBlock();
+    return lbp;
+  }
+
+  // readEvent_() is responsible for creating, and setting up, the
   // EventPrincipal.
   //
   //   1. create an EventPrincipal with a unique EventID
@@ -181,6 +225,22 @@ namespace edm {
   // the branch containing this EDProduct. That will be done by the Delayed Reader,
   //  when it is asked to do so.
   //
+
+  std::auto_ptr<EventPrincipal>
+  PoolSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (!rootFile_->eventTree().next()) {
+      return std::auto_ptr<EventPrincipal>(0);
+    }
+    std::auto_ptr<EventPrincipal> ep =
+	 rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
+    if (runNumber_ != ep->runNumber() || lumiNumber_ != ep->luminosityBlock()) {
+      // The event is in a different run or lumi block.  Back up, and return a null pointer.
+      rootFile_->eventTree().previous();
+      return std::auto_ptr<EventPrincipal>(0);
+    }
+    return ep;
+  }
+
   std::auto_ptr<EventPrincipal>
   PoolSource::read() {
     if (!next()) {
@@ -189,7 +249,8 @@ namespace edm {
       }
       return std::auto_ptr<EventPrincipal>(0);
     }
-    return rootFile_->read(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    boost::shared_ptr<LuminosityBlockPrincipal> lbp;
+    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
   std::auto_ptr<EventPrincipal>

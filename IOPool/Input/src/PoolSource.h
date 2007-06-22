@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.34 2007/05/08 16:24:15 wmtan Exp $
+$Id: PoolSource.h,v 1.35 2007/06/14 22:02:14 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -19,6 +19,8 @@ $Id: PoolSource.h,v 1.34 2007/05/08 16:24:15 wmtan Exp $
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 #include "boost/shared_ptr.hpp"
 
@@ -45,6 +47,9 @@ namespace edm {
     PoolSource(PoolSource const&); // disable copy construction
     PoolSource & operator=(PoolSource const&); // disable assignment
     virtual std::auto_ptr<EventPrincipal> read();
+    virtual std::auto_ptr<EventPrincipal> readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    virtual boost::shared_ptr<LuminosityBlockPrincipal> readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp);
+    virtual boost::shared_ptr<RunPrincipal> readRun_();
     virtual std::auto_ptr<EventPrincipal> readIt(EventID const& id);
     virtual void skip(int offset);
     virtual void rewind_();
@@ -52,6 +57,7 @@ namespace edm {
     void init(FileCatalogItem const& file);
     void updateProductRegistry() const;
     void setInitialPosition(ParameterSet const& pset);
+    bool nextFile();
     bool next();
     bool previous();
     void rewindFile();
@@ -61,6 +67,8 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
+    LuminosityBlockNumber_t lumiNumber_;
+    RunNumber_t runNumber_;
 
     CLHEP::RandFlat * flatDistribution_;
     int eventsRemainingInFile_;

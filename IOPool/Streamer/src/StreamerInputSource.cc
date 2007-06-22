@@ -4,6 +4,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/ClassFiller.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "IOPool/Streamer/interface/InitMessage.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
@@ -23,7 +25,8 @@ namespace edm {
                     ParameterSet const& pset,
                     InputSourceDescription const& desc):
     InputSource(pset, desc),
-    deserializer_()
+    deserializer_(),
+    holder_(0)
   {
   }
 
@@ -127,6 +130,40 @@ namespace edm {
     trigger_pset.addParameter<Strings>("@trigger_paths", paths);
     pset::Registry* psetRegistry = pset::Registry::instance();
     psetRegistry->insertMapped(trigger_pset);
+  }
+
+  boost::shared_ptr<RunPrincipal>
+  StreamerInputSource::readRun_() {
+    if (holder_.get() == 0) holder_ = read();
+    if (holder_.get() == 0) return boost::shared_ptr<RunPrincipal>();
+    return boost::shared_ptr<RunPrincipal>(
+	new RunPrincipal(holder_->runNumber(),
+			 productRegistry(),
+			 holder_->processConfiguration()));
+  }
+
+  boost::shared_ptr<LuminosityBlockPrincipal>
+  StreamerInputSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
+    if (holder_.get() == 0) holder_ = read();
+    if (holder_.get() == 0 || rp->run() != holder_->runNumber()) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
+    return boost::shared_ptr<LuminosityBlockPrincipal>(
+	new LuminosityBlockPrincipal(holder_->luminosityBlock(),
+				     productRegistry(),
+				     rp,
+				     holder_->processConfiguration()));
+  }
+
+  std::auto_ptr<EventPrincipal>
+  StreamerInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (holder_.get() == 0) holder_ = read();
+    if (holder_.get() == 0 ||
+        lbp->runNumber() != holder_->runNumber() ||
+	lbp->luminosityBlock() != holder_->luminosityBlock()) {
+      return std::auto_ptr<EventPrincipal>(0);
+    }
+    return holder_;
   }
 
 } // end of namespace-edm

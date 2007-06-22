@@ -16,11 +16,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul 12 11:26:26 EDT 2006
-// $Id: EDLooperHelper.h,v 1.2 2006/10/13 01:47:34 wmtan Exp $
+// $Id: EDLooperHelper.h,v 1.3 2007/06/14 17:52:15 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooperHelper.h,v $
+// Revision 1.3  2007/06/14 17:52:15  wmtan
+// Remove unnecessary includes
+//
 // Revision 1.2  2006/10/13 01:47:34  wmtan
 // Remove unnecessary argument from runOnce()
 //
@@ -29,6 +32,7 @@
 //
 
 // system include files
+#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/EventHelperDescription.h"
@@ -38,6 +42,7 @@
 
 namespace edm {
 class EventProcessor;
+class LuminosityBlockPrincipal;
 
 namespace eventsetup {
 class EventSetupRecordKey;
@@ -55,7 +60,7 @@ class EDLooperHelper
       virtual ~EDLooperHelper();
 
       // ---------- member functions ---------------------------
-      EventHelperDescription runOnce();
+      EventHelperDescription runOnce(boost::shared_ptr<edm::LuminosityBlockPrincipal> lbp);
       void rewind(const std::set<edm::eventsetup::EventSetupRecordKey>& keys);
 
       // ---------- const member functions ---------------------
