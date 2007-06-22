@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/21 10:17:34 $
- * $Revision: 1.40 $
+ * $Date: 2007/06/21 11:07:23 $
+ * $Revision: 1.41 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -289,7 +289,7 @@ void EcalEndcapMonitorClient::initialize(const ParameterSet& ps){
 
   // enableStateMachine switch
 
-  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", "false");
+  enableStateMachine_ = ps.getUntrackedParameter<bool>("enableStateMachine", false);
 
   if ( enableStateMachine_ ) {
     cout << " enableStateMachine switch is ON" << endl;
