@@ -7,9 +7,11 @@
 #include "PixelLayerPairsESProducer.h"
 #include "MixedLayerPairsESProducer.h"
 #include "PixelLayerTripletsESProducer.h"
+#include "PixelLessLayerPairsESProducer.h"
 #include "MixedLayerTripletsESProducer.h"
 
 DEFINE_FWK_EVENTSETUP_MODULE(PixelLayerPairsESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(MixedLayerPairsESProducer);
-DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelLayerTripletsESProducer);
 DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(MixedLayerTripletsESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelLayerTripletsESProducer);
+DEFINE_ANOTHER_FWK_EVENTSETUP_MODULE(PixelLessLayerPairsESProducer);
