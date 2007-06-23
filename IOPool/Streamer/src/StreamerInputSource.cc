@@ -136,10 +136,7 @@ namespace edm {
   StreamerInputSource::readRun_() {
     if (holder_.get() == 0) holder_ = read();
     if (holder_.get() == 0) return boost::shared_ptr<RunPrincipal>();
-    return boost::shared_ptr<RunPrincipal>(
-	new RunPrincipal(holder_->runNumber(),
-			 productRegistry(),
-			 holder_->processConfiguration()));
+    return holder_->luminosityBlockPrincipal().runPrincipalSharedPtr();
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
@@ -148,11 +145,7 @@ namespace edm {
     if (holder_.get() == 0 || rp->run() != holder_->runNumber()) {
       return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
-    return boost::shared_ptr<LuminosityBlockPrincipal>(
-	new LuminosityBlockPrincipal(holder_->luminosityBlock(),
-				     productRegistry(),
-				     rp,
-				     holder_->processConfiguration()));
+    return holder_->luminosityBlockPrincipalSharedPtr();
   }
 
   std::auto_ptr<EventPrincipal>
