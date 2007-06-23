@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: ?
 //
-// $Id: TopObject.h,v 1.4 2007/05/15 15:58:28 heyninck Exp $
+// $Id: TopObject.h,v 1.5 2007/05/22 16:36:50 heyninck Exp $
 //
 
 #ifndef TopObject_h
@@ -15,7 +15,7 @@
    TopObject is the templated base top object that wraps around reco objects
 
   \author   Jan Heyninck
-  \version  $Id: TopObject.h,v 1.4 2007/05/15 15:58:28 heyninck Exp $
+  \version  $Id: TopObject.h,v 1.5 2007/05/22 16:36:50 heyninck Exp $
 */
 
 #include <vector>
@@ -26,8 +26,8 @@ class TopObject : public ObjectType {
 
   public:
 
-    TopObject() {}
-    TopObject(ObjectType obj) : ObjectType(obj) {}
+    TopObject();
+    TopObject(ObjectType obj);
     virtual ~TopObject() {}
 
     void setResET(double);
@@ -58,6 +58,21 @@ class TopObject : public ObjectType {
     std::vector<double> covM_;
 
 };
+
+
+/// default constructor
+template <class ObjectType> TopObject<ObjectType>::TopObject() :
+  resET_(0), resEta_(0), resPhi_(0), resD_(0), resPinv_(0), resTheta_(0),
+  parametrisation_(0) {
+}
+
+
+/// constructor from a base object
+template <class ObjectType> TopObject<ObjectType>::TopObject(ObjectType obj) :
+  ObjectType(obj),
+  resET_(0), resEta_(0), resPhi_(0), resD_(0), resPinv_(0), resTheta_(0),
+  parametrisation_(0) {
+}
 
 
 template <class ObjectType> void TopObject<ObjectType>::setResET(double et)       { resET_ = et; }
