@@ -2,11 +2,11 @@
 // Author:  Steven Lowette
 // Created: Wed May  2 16:48:32 PDT 2007
 //
-// $Id: TopLepton.h,v 1.4 2007/05/30 19:13:18 lowette Exp $
+// $Id: TopLepton.h,v 1.5 2007/06/09 01:18:48 lowette Exp $
 //
 
-#ifndef TopLepton_h
-#define TopLepton_h
+#ifndef TopObjects_TopLepton_h
+#define TopObjects_TopLepton_h
 
 /**
   \class    TopLepton TopLepton.h "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
@@ -16,7 +16,7 @@
    store and retrieve the high-level likelihood ratio information.
 
   \author   Steven Lowette
-  \version  $Id: TopLepton.h,v 1.4 2007/05/30 19:13:18 lowette Exp $
+  \version  $Id: TopLepton.h,v 1.5 2007/06/09 01:18:48 lowette Exp $
 */
 
 
@@ -28,64 +28,162 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 
 
-typedef reco::PixelMatchGsfElectron ElectronType;
-typedef reco::Muon MuonType;
-typedef reco::GenParticleCandidate GenPartType;
+typedef reco::PixelMatchGsfElectron TopElectronType;
+typedef reco::Muon TopMuonType;
 
 
 template <class LeptonType>
 class TopLepton : public TopObject<LeptonType> {
 
+  friend class TopElectronProducer;
+  friend class TopMuonProducer;
+  friend class TtSemiKinFitterEMom;
+  friend class TtSemiKinFitterEtEtaPhi;
+  friend class TtSemiKinFitterEtThetaPhi;
+  friend class StKinFitterEMom;
+  friend class StKinFitterEtEtaPhi;
+  friend class StKinFitterEtThetaPhi;
   friend class TopLeptonLRCalc;
 
   public:
 
-    TopLepton() {}
-    TopLepton(LeptonType aLep): TopObject<LeptonType>(aLep) {}
-    virtual ~TopLepton() {}
+    TopLepton();
+    TopLepton(const LeptonType & aLepton);
+    virtual ~TopLepton();
 
-    GenPartType getGenLepton() const;
-    TopParticle getFitLepton() const;
-    double      getLRVar(const unsigned int i) const;
-    double      getLRVal(const unsigned int i) const;
-    double      getLRComb() const;
-    void        setGenLepton(const GenPartType & gl);
-    void        setFitLepton(const TopParticle & fl);
+    reco::GenParticleCandidate getGenLepton() const;
+    TopParticle                getFitLepton() const;
+    double                     getLRVar(const unsigned int i) const;
+    double                     getLRVal(const unsigned int i) const;
+    double                     getLRComb() const;
 
   protected:
 
-    unsigned int getLRSize() const;
+    void setGenLepton(const reco::GenParticleCandidate & gl);
+    void setFitLepton(const TopParticle & fl);
     void setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i);
     void setLRComb(const double lr);
+    unsigned int getLRSize() const;
 
   protected:
 
-    GenPartType genLepton;
-    TopParticle fitLepton;
-    double lrComb_;
+    std::vector<reco::GenParticleCandidate> genLepton_;
+    std::vector<TopParticle>                fitLepton_;
     std::vector<std::pair<double, double> > lrVarVal_;
+    double lrComb_;
 
 };
 
 
-template <class LeptonType> 	GenPartType  TopLepton<LeptonType>::getGenLepton() const                 { return genLepton; }  
-template <class LeptonType> 	TopParticle  TopLepton<LeptonType>::getFitLepton() const                 { return fitLepton; }
-template <class LeptonType> 	double       TopLepton<LeptonType>::getLRVar(const unsigned int i) const { return (i < lrVarVal_.size() ? lrVarVal_[i].first  : 0); }
-template <class LeptonType> 	double       TopLepton<LeptonType>::getLRVal(const unsigned int i) const { return (i < lrVarVal_.size() ? lrVarVal_[i].second : 1); }
-template <class LeptonType> 	double       TopLepton<LeptonType>::getLRComb() const                    { return lrComb_; }
-template <class LeptonType> 	unsigned int TopLepton<LeptonType>::getLRSize() const                    { return lrVarVal_.size(); }
+/// default constructor
+template <class LeptonType>
+TopLepton<LeptonType>::TopLepton() :
+    TopObject<LeptonType>(LeptonType()),
+    lrComb_(0) {
+  // no common constructor, so initialize the candidate manually
+  this->setCharge(0);
+  this->setP4(reco::Particle::LorentzVector(0, 0, 0, 0));
+  this->setVertex(reco::Particle::Point(0, 0, 0));
+}
 
-template <class LeptonType> 	void         TopLepton<LeptonType>::setGenLepton(const GenPartType & gl) { genLepton = gl; }
-template <class LeptonType> 	void         TopLepton<LeptonType>::setFitLepton(const TopParticle & fl) { fitLepton = fl; }
-template <class LeptonType> 	void         TopLepton<LeptonType>::setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i) {
+
+/// constructor from LeptonType
+template <class LeptonType>
+TopLepton<LeptonType>::TopLepton(const LeptonType & aLepton) :
+  TopObject<LeptonType>(aLepton),
+  lrComb_(0) {
+}
+
+
+/// destructor
+template <class LeptonType>
+TopLepton<LeptonType>::~TopLepton() {
+}
+
+
+/// return the match to the generated lepton
+template <class LeptonType>
+reco::GenParticleCandidate TopLepton<LeptonType>::getGenLepton() const {
+  return (genLepton_.size() > 0 ?
+    genLepton_.front() :
+    reco::GenParticleCandidate(0, reco::Particle::LorentzVector(0, 0, 0, 0), reco::Particle::Point(0,0,0), 0, 0)
+  );
+}
+
+
+/// return the fitted lepton
+template <class LeptonType>
+TopParticle  TopLepton<LeptonType>::getFitLepton() const {
+  return (genLepton_.size() > 0 ?
+    fitLepton_.front() :
+    TopParticle()
+  );
+}
+
+
+/// return the i'th lepton likelihood ratio variable
+template <class LeptonType>
+double TopLepton<LeptonType>::getLRVar(const unsigned int i) const {
+  return (i < lrVarVal_.size() ? lrVarVal_[i].first  : 0);
+}
+
+
+/// return the lepton likelihood value for the i'th variable
+template <class LeptonType>
+double TopLepton<LeptonType>::getLRVal(const unsigned int i) const {
+  return (i < lrVarVal_.size() ? lrVarVal_[i].second : 1);
+}
+
+
+/// return the combined lepton likelihood ratio value
+template <class LeptonType>
+double TopLepton<LeptonType>::getLRComb() const {
+  return lrComb_;
+}
+
+
+/// method to set the generated lepton
+template <class LeptonType>
+void TopLepton<LeptonType>::setGenLepton(const reco::GenParticleCandidate & gl) {
+  genLepton_.clear();
+  genLepton_.push_back(gl);
+}
+
+
+/// method to set the fitted lepton
+template <class LeptonType>
+void TopLepton<LeptonType>::setFitLepton(const TopParticle & fl) {
+  fitLepton_.clear();
+  fitLepton_.push_back(fl);
+}
+
+
+/// method to set the i'th lepton LR variable and value pair
+template <class LeptonType>
+void TopLepton<LeptonType>::setLRVarVal(const std::pair<double, double> lrVarVal, const unsigned int i) {
   while (lrVarVal_.size() <= i) lrVarVal_.push_back(std::pair<double, double>(0, 1));
   lrVarVal_[i] = lrVarVal;
 }
-template <class LeptonType> 	void         TopLepton<LeptonType>::setLRComb(const double lr)           { lrComb_ = lr; }
 
 
-typedef TopLepton<ElectronType> TopElectron;
-typedef TopLepton<MuonType> TopMuon;
+/// method to set the combined lepton likelihood ratio
+template <class LeptonType>
+void TopLepton<LeptonType>::setLRComb(const double lr) {
+  lrComb_ = lr;
+}
+
+
+/// method to give back the size of the LR vector
+template <class LeptonType>
+unsigned int TopLepton<LeptonType>::getLRSize() const {
+  return lrVarVal_.size();
+}
+
+
+/// definition of TopElectron as a TopLepton of TopElectronType
+typedef TopLepton<TopElectronType> TopElectron;
+/// definition of TopMuon as a TopLepton of TopMuonType
+typedef TopLepton<TopMuonType> TopMuon;
 
 
 #endif
