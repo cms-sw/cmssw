@@ -31,7 +31,8 @@
 #include <Math/VectorUtil.h>
 
 
-typedef TopLepton<ElectronType> TopElectron; //added to work with TopElectron
+// the following line was commented because it is already included in TopLepton.h
+//typedef TopLepton<TopElectronType> TopElectron; //added to work with TopElectron
 //typedef reco::PixelMatchGsfElectron electronType;
 typedef reco::Muon muonType;
 typedef reco::CaloJet jetType;
