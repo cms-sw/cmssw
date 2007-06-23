@@ -138,10 +138,10 @@ void TracksCompare()
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rc3,sc3);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4);
- 
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
+
    canvas->Print("ctf_pullPt_Qoverp_Phi.eps");
    canvas->Print("ctf_pullPt_Qoverp_Phi.gif");
 
@@ -168,9 +168,9 @@ void TracksCompare()
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rc3,sc3);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
  
    canvas->Print("ctf_pullD0_Z0_Theta.eps");
    canvas->Print("ctf_pullD0_Z0_Theta.gif");
@@ -322,9 +322,9 @@ void TracksCompare()
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rc3,sc3);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
  
    canvas->Print("rs_pullPt_Qoverp_Phi.eps");
    canvas->Print("rs_pullPt_Qoverp_Phi.gif");
@@ -352,9 +352,9 @@ void TracksCompare()
    NormalizeHistograms(rh3,sh3);
    NormalizeHistograms(rc3,sc3);
 
-   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4);
-   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4);
-   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4);
+   if (hit&&chi2) plotHist23(canvas,sh1,rh1,sc1,rc1,sh2,rh2,sc2,rc2,sh3,rh3,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (hit)  plotHist13(canvas,sh1,rh1,sh2,rh2,sh3,rh3,myPV,te,"UUNORM",0.4,0.1,true);
+   else if (chi2) plotHist13(canvas,sc1,rc1,sc2,rc2,sc3,rc3,myPV,te,"UUNORM",0.4,0.1,true);
  
    canvas->Print("rs_pullD0_Z0_Theta.eps");
    canvas->Print("rs_pullD0_Z0_Theta.gif");
@@ -425,14 +425,14 @@ void plotHist12(TCanvas *canvas,
 		TH1F *sh1,TH1F *rh1,
 		TH1F *sh2,TH1F *rh2,
 		HistoCompare_Tracks * myPV, TText* te,
-		char * option, double startingY, double startingX = .1){
+		char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(1,2);
 
   canvas->cd(1);
   rh1->SetLineColor(2);
   sh1->SetLineColor(4);
   sh1->SetLineStyle(2);
-  setStats(rh1,sh1, startingY, startingX);
+  setStats(rh1,sh1, startingY, startingX, fit);
   rh1->Draw();
   sh1->Draw("sames");
   myPV->PVCompute(rh1, sh1, te, option );
@@ -441,7 +441,7 @@ void plotHist12(TCanvas *canvas,
   rh2->SetLineColor(2);
   sh2->SetLineColor(4);
   sh2->SetLineStyle(2);
-  setStats(rh2,sh2, startingY, startingX);
+  setStats(rh2,sh2, startingY, startingX, fit);
   rh2->Draw();
   sh2->Draw("sames");
   myPV->PVCompute(rh2, sh2, te, option );  
@@ -451,14 +451,14 @@ void plotHist22(TCanvas *canvas,
 		TH1F *sh1,TH1F *rh1, TH1F *sc1,TH1F *rc1, 
 		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
 		HistoCompare_Tracks * myPV, TText* te,
-		char * option, double startingY, double startingX = .1){
+		char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,2);
 
   canvas->cd(1);
   rh1->SetLineColor(2);
   sh1->SetLineColor(4);
   sh1->SetLineStyle(1);
-  setStats(rh1,sh1, startingY, startingX);
+  setStats(rh1,sh1, startingY, startingX, fit);
   rh1->Draw();
   sh1->Draw("sames");
   myPV->PVCompute(rh1, sh1, te, option );
@@ -467,7 +467,7 @@ void plotHist22(TCanvas *canvas,
   rc1->SetLineColor(2);
   sc1->SetLineColor(4);
   sc1->SetLineStyle(2);
-  setStats(rc1,sc1, startingY, startingX);
+  setStats(rc1,sc1, startingY, startingX, fit);
   rc1->Draw();
   sc1->Draw("sames");
   myPV->PVCompute(rc1, sc1, te, option );
@@ -476,7 +476,7 @@ void plotHist22(TCanvas *canvas,
   rh2->SetLineColor(2);
   sh2->SetLineColor(4);
   sh2->SetLineStyle(2);
-  setStats(rh2,sh2, startingY, startingX);
+  setStats(rh2,sh2, startingY, startingX, fit);
   rh2->Draw();
   sh2->Draw("sames");
   myPV->PVCompute(rh2, sh2, te, option );
@@ -485,7 +485,7 @@ void plotHist22(TCanvas *canvas,
   rc2->SetLineColor(2);
   sc2->SetLineColor(4);
   sc2->SetLineStyle(2);
-  setStats(rc2,sc2, startingY, startingX);
+  setStats(rc2,sc2, startingY, startingX, fit);
   rc2->Draw();
   sc2->Draw("sames");
   myPV->PVCompute(rc2, sc2, te, option );
@@ -497,14 +497,14 @@ void plotHist13(TCanvas *canvas,
  		TH1F *sh2,TH1F *rh2,
  		TH1F *sh3,TH1F *rh3,
 		HistoCompare_Tracks * myPV, TText* te,
-		char * option, double startingY, double startingX = .1){
+		char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(1,3);
 
   canvas->cd(1);
   rh1->SetLineColor(2);
   sh1->SetLineColor(4);
   sh1->SetLineStyle(2);
-  setStats(rh1,sh1, startingY, startingX);
+  setStats(rh1,sh1, startingY, startingX, fit);
   rh1->Draw();
   sh1->Draw("sames");
   myPV->PVCompute(rh1, sh1, te, option );
@@ -513,7 +513,7 @@ void plotHist13(TCanvas *canvas,
   rh2->SetLineColor(2);
   sh2->SetLineColor(4);
   sh2->SetLineStyle(2);
-  setStats(rh2,sh2, startingY, startingX);
+  setStats(rh2,sh2, startingY, startingX, fit);
   rh2->Draw();
   sh2->Draw("sames");
   myPV->PVCompute(rh2, sh2, te, option );
@@ -522,7 +522,7 @@ void plotHist13(TCanvas *canvas,
   rh3->SetLineColor(2);
   sh3->SetLineColor(4);
   sh3->SetLineStyle(2);
-  setStats(rh3,sh3, startingY, startingX);
+  setStats(rh3,sh3, startingY, startingX, fit);
   rh3->Draw();
   sh3->Draw("sames");
   myPV->PVCompute(rh3, sh3, te, option );
@@ -533,14 +533,14 @@ void plotHist23(TCanvas *canvas,
  		TH1F *sh2,TH1F *rh2, TH1F *sc2,TH1F *rc2,
  		TH1F *sh3,TH1F *rh3, TH1F *sc3,TH1F *rc3,
 		HistoCompare_Tracks * myPV, TText* te,
-		char * option, double startingY, double startingX = .1){
+		char * option, double startingY, double startingX = .1,bool fit = false){
   canvas->Divide(2,3);
 
   canvas->cd(1);
   rh1->SetLineColor(2);
   sh1->SetLineColor(4);
   sh1->SetLineStyle(2);
-  setStats(rh1,sh1, startingY, startingX);
+  setStats(rh1,sh1, startingY, startingX, fit);
   rh1->Draw();
   sh1->Draw("sames");
   myPV->PVCompute(rh1, sh1, te, option );
@@ -549,7 +549,7 @@ void plotHist23(TCanvas *canvas,
   rc1->SetLineColor(2);
   sc1->SetLineColor(4);
   sc1->SetLineStyle(2);
-  setStats(rc1,sc1, startingY, startingX);
+  setStats(rc1,sc1, startingY, startingX, fit);
   rc1->Draw();
   sc1->Draw("sames");
   myPV->PVCompute(rc1, sc1, te, option );
@@ -558,7 +558,7 @@ void plotHist23(TCanvas *canvas,
   rh2->SetLineColor(2);
   sh2->SetLineColor(4);
   sh2->SetLineStyle(2);
-  setStats(rh2,sh2, startingY, startingX);
+  setStats(rh2,sh2, startingY, startingX, fit);
   rh2->Draw();
   sh2->Draw("sames");
   myPV->PVCompute(rh2, sh2, te, option );
@@ -567,7 +567,7 @@ void plotHist23(TCanvas *canvas,
   rc2->SetLineColor(2);
   sc2->SetLineColor(4);
   sc2->SetLineStyle(2);
-  setStats(rc2,sc2, startingY, startingX);
+  setStats(rc2,sc2, startingY, startingX, fit);
   rc2->Draw();
   sc2->Draw("sames");
   myPV->PVCompute(rc2, sc2, te, option );
@@ -576,7 +576,7 @@ void plotHist23(TCanvas *canvas,
   rh3->SetLineColor(2);
   sh3->SetLineColor(4);
   sh3->SetLineStyle(2);
-  setStats(rh3,sh3, startingY, startingX);
+  setStats(rh3,sh3, startingY, startingX, fit);
   rh3->Draw();
   sh3->Draw("sames");
   myPV->PVCompute(rh3, sh3, te, option );
@@ -585,20 +585,22 @@ void plotHist23(TCanvas *canvas,
   rc3->SetLineColor(2);
   sc3->SetLineColor(4);
   sc3->SetLineStyle(2);
-  setStats(rc3,sc3, startingY, startingX);
+  setStats(rc3,sc3, startingY, startingX, fit);
   rc3->Draw();
   sc3->Draw("sames");
   myPV->PVCompute(rc3, sc3, te, option );
 }
 
-void setStats(TH1* r,TH1* s, double startingY, double startingX = .1){
+void setStats(TH1* r,TH1* s, double startingY, double startingX = .1,bool fit){
   if (startingY<0){
     r->SetStats(0);
     s->SetStats(0);
   } else {
+    if (fit) r->Fit("gaus");
     r->Draw();
     gPad->Update(); 
     TPaveStats* st1 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
+    if (fit) st1->SetOptFit();
     st1->SetX1NDC(startingX);
     st1->SetX2NDC(startingX+0.2);
     st1->SetY1NDC(startingY+0.15);
