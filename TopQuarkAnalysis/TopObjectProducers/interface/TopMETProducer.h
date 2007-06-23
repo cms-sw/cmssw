@@ -2,11 +2,11 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id$
+// $Id: TopMETProducer.h,v 1.3 2007/06/08 23:23:51 lowette Exp $
 //
 
-#ifndef TopMETProducer_h
-#define TopMETProducer_h
+#ifndef TopObjectProducers_TopMETProducer_h
+#define TopObjectProducers_TopMETProducer_h
 
 /**
   \class    TopMETProducer TopMETProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -17,7 +17,7 @@
    correction for a given collection of muons.
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id$
+  \version  $Id: TopMETProducer.h,v 1.3 2007/06/08 23:23:51 lowette Exp $
 */
 
 

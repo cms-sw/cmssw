@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMETProducer.cc,v 1.3 2007/06/08 23:23:51 lowette Exp $
+// $Id: TopMETProducer.cc,v 1.4 2007/06/09 01:17:35 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMETProducer.h"
@@ -52,7 +52,7 @@ TopMETProducer::~TopMETProducer() {
 void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
   // Get the vector of MET's from the event
-  edm::Handle<std::vector<METType> > mets;
+  edm::Handle<std::vector<TopMETType> > mets;
   iEvent.getByLabel(metSrc_, mets);
 
   // Get the vector of generated particles from the event if needed
@@ -62,7 +62,7 @@ void TopMETProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   }
 
   // read in the muons if demanded
-  edm::Handle<std::vector<MuonType> > muons;
+  edm::Handle<std::vector<TopMuonType> > muons;
   if (addMuonCorr_) {
     iEvent.getByLabel(muonSrc_, muons);
   }
