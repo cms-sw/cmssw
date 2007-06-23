@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/22 15:27:35 $
- * $Revision: 1.286 $
+ * $Date: 2007/06/23 17:20:28 $
+ * $Revision: 1.287 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -594,12 +594,12 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     } else {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
     }
-    Service<DaqMonitorBEInterface>().operator->();
   } else {
     mui_ = new MonitorUIRoot();
     if ( enableServer_ ) {
       mui_->actAsServer(serverPort_, clientName_);
     }
+    Service<DaqMonitorBEInterface>().operator->();
   }
 
   if ( verbose_ ) {

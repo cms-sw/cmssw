@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/22 15:27:35 $
- * $Revision: 1.42 $
+ * $Date: 2007/06/23 17:20:29 $
+ * $Revision: 1.43 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -598,12 +598,12 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     } else {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
     }
-    Service<DaqMonitorBEInterface>().operator->();
   } else {
     mui_ = new MonitorUIRoot();
     if ( enableServer_ ) {
       mui_->actAsServer(serverPort_, clientName_);
     }
+    Service<DaqMonitorBEInterface>().operator->();
   }
 
   if ( verbose_ ) {
