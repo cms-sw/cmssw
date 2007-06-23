@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.h,v 1.7 2007/06/16 06:11:00 lowette Exp $
+// $Id: TopJet.h,v 1.8 2007/06/18 09:21:50 heyninck Exp $
 //
 
 #ifndef TopObjects_TopJet_h
@@ -15,7 +15,7 @@
    TopJet contains a jet as a TopObject
 
   \author   Steven Lowette
-  \version  $Id: TopJet.h,v 1.7 2007/06/16 06:11:00 lowette Exp $
+  \version  $Id: TopJet.h,v 1.8 2007/06/18 09:21:50 heyninck Exp $
 */
 
 
@@ -27,59 +27,68 @@
 #include "DataFormats/BTauReco/interface/JetTag.h"
 
 
-typedef reco::CaloJet JetType;
+typedef reco::CaloJet TopJetType;
 
 
-class TopJet : public TopObject<JetType> {
+class TopJet : public TopObject<TopJetType> {
 
-   friend class TopJetProducer;
-   friend class TtSemiKinFitterEMom;
-   friend class TtSemiKinFitterEtEtaPhi;
-   friend class TtSemiKinFitterEtThetaPhi;
-   friend class StKinFitterEMom;
-   friend class StKinFitterEtEtaPhi;
-   friend class StKinFitterEtThetaPhi;
-   
-   public:
+  friend class TopJetProducer;
+  friend class TtSemiKinFitterEMom;
+  friend class TtSemiKinFitterEtEtaPhi;
+  friend class TtSemiKinFitterEtThetaPhi;
+  friend class StKinFitterEMom;
+  friend class StKinFitterEtEtaPhi;
+  friend class StKinFitterEtThetaPhi;
 
-      TopJet();
-      TopJet(JetType);
-      virtual ~TopJet();
-            
-      reco::Particle	getGenJet() const;
-      JetType 		getRecJet() const;
-      TopParticle  	getFitJet() const;
-      double            getLRPhysicsJetVar(unsigned int i) const;
-      double            getLRPhysicsJetVal(unsigned int i) const;
-      double            getLRPhysicsJetLRval() const;
-      double            getLRPhysicsJetProb() const;
-      double            getBDiscriminator(std::string theLabel) const;
-      reco::JetTagRef   getBJetTagRef(std::string theLabel) const;
-      void              dumpBTagLabels() const;
-      double            getPartonFlavour() const;
-      
-   protected:
+  public:
 
-      void 		setGenJet(reco::Particle gj);
-      void    		setRecJet(JetType rj);
-      void              addBDiscriminatorPair(std::pair<std::string,double>);
-      void              addBJetTagRefPair(std::pair<std::string, reco::JetTagRef>);
-      void              setPartonFlavour(int jetf);
-      void    		setFitJet(TopParticle fj);
-      void 		setLRPhysicsJetVarVal(std::vector<std::pair<double, double> >);
-      void 		setLRPhysicsJetLRval(double clr);
-      void 		setLRPhysicsJetProb(double plr);
+    TopJet();
+    TopJet(TopJetType);
+    virtual ~TopJet();
 
-   protected:
+    reco::Particle  getGenParton() const;
+    // FIXME: add parton jet
+    // FIXME: add GenJet
+    TopJetType      getRecJet() const;
+    TopParticle     getFitJet() const;
+    int             getPartonFlavour() const;
+    double          getBDiscriminator(std::string theLabel) const;
+    reco::JetTagRef getBJetTagRef(std::string theLabel) const;
+    void            dumpBTagLabels() const;
+    double          getLRPhysicsJetVar(unsigned int i) const;
+    double          getLRPhysicsJetVal(unsigned int i) const;
+    double          getLRPhysicsJetLRval() const;
+    double          getLRPhysicsJetProb() const;
 
-      reco::Particle    genJet_;
-      JetType     	recJet_;
-      TopParticle 	fitJet_;
-      int               jetFlavour_;
-      double      	lrPhysicsJetLRval_, lrPhysicsJetProb_;
-      std::vector<std::pair<double, double> >               lrPhysicsJetVarVal_;
-      std::vector<std::pair<std::string, double> >          pairDiscriVector_;
-      std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;
+  protected:
+
+    void            setGenParton(reco::Particle gj);
+    // FIXME: add parton jet
+    // FIXME: add GenJet
+    void            setRecJet(TopJetType rj);
+    void            setFitJet(TopParticle fj);
+    void            setPartonFlavour(int jetFl);
+    void            addBDiscriminatorPair(std::pair<std::string,double> thePair);
+    void            addBJetTagRefPair(std::pair<std::string, reco::JetTagRef> thePair);
+    void            setLRPhysicsJetVarVal(std::vector<std::pair<double, double> > varValVec);
+    void            setLRPhysicsJetLRval(double clr);
+    void            setLRPhysicsJetProb(double plr);
+
+  protected:
+
+    std::vector<reco::Particle> genParton_;
+    // FIXME: add parton jet
+    // FIXME: add GenJet
+    std::vector<TopJetType>     recJet_;
+    std::vector<TopParticle>    fitJet_;
+    // b-tag related members
+    int jetFlavour_;
+    std::vector<std::pair<std::string, double> >          pairDiscriVector_;
+    std::vector<std::pair<std::string, reco::JetTagRef> > pairJetTagRefVector_;
+    // jet cleaning members
+    std::vector<std::pair<double, double> > lrPhysicsJetVarVal_;
+    double lrPhysicsJetLRval_;
+    double lrPhysicsJetProb_;
 
 };
 
