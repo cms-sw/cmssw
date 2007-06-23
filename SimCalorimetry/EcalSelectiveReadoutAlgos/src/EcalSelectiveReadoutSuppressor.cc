@@ -161,13 +161,15 @@ bool EcalSelectiveReadoutSuppressor::accept(const T& frame,
   const int gain12 = 0x01; 
   const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
   //LogDebug("DccFir") << "DCC FIR operation: ";
-  for(int i=firstFIRSample-1; i<lastFIRSample; ++i){
-    if(i>=0 && i < frame.size()){
-      const EcalMGPASample& sample = frame[i];
+  int iWeight = 0;
+  for(int iSample=firstFIRSample-1;
+      iSample<lastFIRSample; ++iSample, ++iWeight){
+    if(iSample>=0 && iSample < frame.size()){
+      const EcalMGPASample& sample = frame[iSample];
       if(sample.gainId()!=gain12) gain12saturated = true;
-      //LogTrace("DccFir") << (i>=firstFIRSample?"+":"") << sample.adc()
-      // 			  << "*(" << w[i] << ")";
-      acc+=sample.adc()*w[i];
+      //LogTrace("DccFir") << (iSample>=firstFIRSample?"+":"") << sample.adc()
+      //		 << "*(" << w[iWeight] << ")";
+      acc+=sample.adc()*w[iWeight];
     } else{
       edm::LogWarning("DccFir") << __FILE__ << ":" << __LINE__ <<
 	": Not enough samples in data frame or 'ecalDccZs1stSample' module "
