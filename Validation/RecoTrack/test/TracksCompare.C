@@ -596,7 +596,12 @@ void setStats(TH1* r,TH1* s, double startingY, double startingX = .1,bool fit){
     r->SetStats(0);
     s->SetStats(0);
   } else {
-    if (fit) r->Fit("gaus");
+    if (fit){
+      r->Fit("gaus");
+      TF1* f1 = (TF1*) r->GetListOfFunctions()->FindObject("gaus");
+      f1->SetLineColor(2);
+      f1->SetLineWidth(1);
+    }
     r->Draw();
     gPad->Update(); 
     TPaveStats* st1 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
@@ -606,9 +611,16 @@ void setStats(TH1* r,TH1* s, double startingY, double startingX = .1,bool fit){
     st1->SetY1NDC(startingY+0.15);
     st1->SetY2NDC(startingY+0.3);
     st1->SetTextColor(2);
+    if (fit) {
+      s->Fit("gaus");
+      TF1* f2 = (TF1*) s->GetListOfFunctions()->FindObject("gaus");
+      f2->SetLineColor(4);
+      f2->SetLineWidth(1);    
+    }
     s->Draw();
     gPad->Update(); 
     TPaveStats* st2 = (TPaveStats*) s->GetListOfFunctions()->FindObject("stats");
+    if (fit) st2->SetOptFit();
     st2->SetX1NDC(startingX);
     st2->SetX2NDC(startingX+0.2);
     st2->SetY1NDC(startingY);
