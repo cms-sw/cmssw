@@ -1,3 +1,13 @@
+//
+// Author:  Steven Lowette
+// Created: Thu Jun  7 05:49:16 2007 UTC
+//
+// $Id$
+//
+
+#ifndef TopObjectProducer_TopObjectSelector_h
+#define TopObjectProducer_TopObjectSelector_h
+
 
 #include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
@@ -6,14 +16,15 @@
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopMET.h"
+#include "AnalysisDataFormats/TopObjects/interface/TopParticle.h"
 
 #include <vector>
 
 
 typedef ObjectSelector<
           SingleElementCollectionSelector<
-            std::vector<JetType>,
-            SingleObjectSelector<JetType>
+            std::vector<TopJetType>,
+            SingleObjectSelector<TopJetType>
           >
         > CaloJetSelector;
 typedef ObjectSelector<
@@ -40,3 +51,12 @@ typedef ObjectSelector<
             SingleObjectSelector<TopMET>
           >
         > TopMETSelector;
+typedef ObjectSelector<
+          SingleElementCollectionSelector<
+            std::vector<TopParticle>,
+            SingleObjectSelector<TopParticle>
+          >
+        > TopParticleSelector;
+
+
+#endif
