@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopMuonProducer.cc,v 1.5 2007/06/08 23:22:39 lowette Exp $
+// $Id: TopMuonProducer.cc,v 1.6 2007/06/09 01:17:35 lowette Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -55,7 +55,7 @@ TopMuonProducer::~TopMuonProducer() {
 void TopMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {     
  
   // Get the collection of muons from the event
-  edm::Handle<std::vector<MuonType> > muons;
+  edm::Handle<std::vector<TopMuonType> > muons;
   iEvent.getByLabel(muonSrc_, muons);
 
   // Get the vector of generated particles from the event if needed

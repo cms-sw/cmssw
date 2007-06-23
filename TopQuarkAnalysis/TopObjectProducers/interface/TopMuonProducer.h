@@ -2,11 +2,11 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id$
+// $Id: TopMuonProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
 //
 
-#ifndef TopMuonProducer_h
-#define TopMuonProducer_h
+#ifndef TopObjectProducers_TopMuonProducer_h
+#define TopObjectProducers_TopMuonProducer_h
 
 /**
   \class    TopMuonProducer TopMuonProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopMuonProducer.h"
@@ -17,7 +17,7 @@
    calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id$
+  \version  $Id: TopMuonProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
 */
 
 
