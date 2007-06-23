@@ -4,8 +4,8 @@
 /** \class MultiTrackValidator
  *  Class that prodecs histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2007/06/09 10:46:18 $
- *  $Revision: 1.26 $
+ *  $Date: 2007/06/09 16:32:33 $
+ *  $Revision: 1.27 $
  *  \author cerati
  */
 
@@ -53,12 +53,6 @@ class MultiTrackValidator : public edm::EDAnalyzer {
     nintpT(pset.getParameter<int>("nintpT"))
     {
       dbe_ = edm::Service<DaqMonitorBEInterface>().operator->();
-/*       selectRecoTracks = reco::modules::ParameterAdapter<RecoTrackSelector>:: */
-/* 	make(pset.getParameter<edm::ParameterSet>("RecoTracksCuts")); */
-/*       selectTPs4Efficiency = reco::modules::ParameterAdapter<TrackingParticleSelector>:: */
-/* 	make(pset.getParameter<edm::ParameterSet>("TPEfficCuts")); */
-/*       selectTPs4FakeRate = reco::modules::ParameterAdapter<TrackingParticleSelector>:: */
-/* 	make(pset.getParameter<edm::ParameterSet>("TPFakeRateCuts")); */
     }
 
   /// Destructor
@@ -113,6 +107,7 @@ class MultiTrackValidator : public edm::EDAnalyzer {
   //pulls of track params vs eta: to be used with fitslicesytool
   std::vector<MonitorElement*> d0pull_vs_eta, ptpull_vs_eta, z0pull_vs_eta, phipull_vs_eta, thetapull_vs_eta;
   std::vector<MonitorElement*> h_d0pulleta, h_ptpulleta, h_z0pulleta, h_phipulleta, h_thetapulleta;
+  std::vector<MonitorElement*> h_ptshifteta;
   
   std::vector< std::vector<double> > etaintervals;
   std::vector< std::vector<double> > pTintervals;
@@ -123,9 +118,6 @@ class MultiTrackValidator : public edm::EDAnalyzer {
 
   std::vector<const TrackAssociatorBase*> associator;
   const TrackAssociatorByChi2 * associatorForParamAtPca;
-/*   RecoTrackSelector selectRecoTracks; */
-/*   TrackingParticleSelector selectTPs4Efficiency; */
-/*   TrackingParticleSelector selectTPs4FakeRate; */
   
   void doProfileX(TH2 * th2, MonitorElement* me){
     if (th2->GetNbinsX()==me->getNbinsX()){

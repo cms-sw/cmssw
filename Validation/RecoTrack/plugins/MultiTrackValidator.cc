@@ -190,6 +190,7 @@ void MultiTrackValidator::beginJob( const EventSetup & setup) {
       h_z0pulleta.push_back( dbe_->book1D("h_z0pulleta","#sigma of z0 pull vs #eta",nint,min,max) ); 
       h_phipulleta.push_back( dbe_->book1D("h_phipulleta","#sigma of #phi pull vs #eta",nint,min,max) ); 
       h_thetapulleta.push_back( dbe_->book1D("h_thetapulleta","#sigma of #theta pull vs #eta",nint,min,max) );
+      h_ptshifteta.push_back( dbe_->book1D("h_ptshifteta","mean of p_{t} pull vs #eta",nint,min,max) ); 
 
       j++;
     }
@@ -567,6 +568,7 @@ void MultiTrackValidator::endJob() {
       copy2D(ptpull_eta,ptpull_vs_eta[w]);
       FitSlicesYTool fsyt_ptp(ptpull_eta);
       fsyt_ptp.getFittedSigmaWithError(h_ptpulleta[w]);
+      fsyt_ptp.getFittedMeanWithError(h_ptshifteta[w]);      
       delete ptpull_eta;
       TH2F* z0pull_eta = new TH2F("z0pull_vs_eta","z0pull_vs_eta",nint,min,max,100,-10,10); 
       copy2D(z0pull_eta,z0pull_vs_eta[w]);
