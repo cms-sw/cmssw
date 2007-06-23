@@ -2,13 +2,21 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.cc,v 1.9 2007/06/16 06:11:04 lowette Exp $
+// $Id: TopJetProducer.cc,v 1.10 2007/06/18 10:03:35 heyninck Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
+#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
+#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 #include "PhysicsTools/Utilities/interface/DeltaR.h"
 
 #include "TopQuarkAnalysis/TopObjectResolutions/interface/TopObjectResolutionCalc.h"
@@ -26,10 +34,11 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   // initialize the configurables
   recJetsLabel_                  = iConfig.getParameter<edm::InputTag> ("recJetInput");
   caliJetsLabel_                 = iConfig.getParameter<edm::InputTag> ("caliJetInput");
-  jetTagsLabel_                  = iConfig.getParameter<edm::InputTag> ("jetTagInput");
+  // TEMP Jet cleaning from electrons
   topElectronsLabel_           = iConfig.getParameter<edm::InputTag> ("topElectronsInput");
   topMuonsLabel_               = iConfig.getParameter<edm::InputTag> ("topMuonsInput");
   doJetCleaning_               = iConfig.getParameter<bool> 	       ("doJetCleaning");
+  // TEMP End
   addResolutions_             	 = iConfig.getParameter<bool>          ("addResolutions");
   caliJetResoFile_               = iConfig.getParameter<std::string>   ("caliJetResoFile");
   storeBTagInfo_                 = iConfig.getParameter<bool>          ("storeBTagInfo");
@@ -41,9 +50,11 @@ TopJetProducer::TopJetProducer(const edm::ParameterSet& iConfig) {
   keepJetTagRefs_                = iConfig.getParameter<bool>          ("keepJetTagRefs");
   getJetMCFlavour_               = iConfig.getParameter<bool>          ("getJetMCFlavour");
 
+  // TEMP Jet cleaning from electrons
   LEPJETDR_=0.3;//deltaR cut used to associate a jet to an electron for jet cleaning.  Make it configurable?
   ELEISOCUT_=0.1;//cut on electron isolation for jet cleaning
   MUISOCUT_=0.1;//cut on muon isolation for jet cleaning
+  // TEMP End
     
   // construct resolution calculator
   if (addResolutions_) theResoCalc_ = new TopObjectResolutionCalc(caliJetResoFile_);
@@ -67,39 +78,44 @@ TopJetProducer::~TopJetProducer() {
 
 void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
-  // Get the vector of generated particles from the event
-  edm::Handle<std::vector<JetType> > recjets;
+  // Get the vector of non-calibrated jets
+  edm::Handle<std::vector<TopJetType> > recjets;
   iEvent.getByLabel(recJetsLabel_, recjets);
-  edm::Handle<std::vector<JetType> > calijets;
+  // Get the vector of calibrated jets
+  edm::Handle<std::vector<TopJetType> > calijets;
   iEvent.getByLabel(caliJetsLabel_, calijets);
+  // TEMP Jet cleaning from electrons
   edm::Handle<std::vector<TopElectron> > electronsHandle;
   iEvent.getByLabel(topElectronsLabel_, electronsHandle);
   std::vector<TopElectron> electrons=*electronsHandle;
   edm::Handle<std::vector<TopMuon> > muonsHandle;
   iEvent.getByLabel(topMuonsLabel_, muonsHandle);
   std::vector<TopMuon> muons=*muonsHandle;
+  // TEMP End
 
-
-
+  // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<std::vector<reco::JetTag> > > jetTags_testManyByType ;
   iEvent.getManyByType(jetTags_testManyByType); 
-
+  // Define the handles for the specific algorithms
   edm::Handle<reco::SoftLeptonTagInfoCollection> jetsInfoHandle_sl;
   edm::Handle<reco::TrackProbabilityTagInfoCollection> jetsInfoHandleTP;
   edm::Handle<reco::TrackCountingTagInfoCollection> jetsInfoHandleTC;
-  
-  //for jet flavour
+
+  // for jet flavour
   if (getJetMCFlavour_) jetFlavId_->readEvent(iEvent);
 
+  // TEMP Jet cleaning from electrons
   //select isolated leptons to remove from jets collection
   electrons=selectIsolated(electrons,ELEISOCUT_,iSetup,iEvent);
   muons=selectIsolated(muons,MUISOCUT_,iSetup,iEvent);
+  // TEMP End
 
 
   // loop over jets
   std::vector<TopJet> * topJets = new std::vector<TopJet>(); 
   for (size_t j = 0; j < recjets->size(); j++) {
  
+  // TEMP Jet cleaning from electrons
     //check that the jet doesn't match in deltaR with an isolated lepton
     //if it does, then it needs to be cleaned (ie don't put it in the TopJet collection)
     //FIXME: don't do muons until have a sensible cut value on their isolation
@@ -114,6 +130,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
     if (mindr<LEPJETDR_ && doJetCleaning_) {
       continue;
     }
+  // TEMP End
 
 
     // construct the TopJet
@@ -144,7 +161,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  //get label and module names
 	  std::string moduleTagInfoName = (jetTags).provenance()->moduleName();	 
 	  std::string moduleLabel = (jetTags).provenance()->moduleLabel();
-	  //********drop taggers from AOD*********
+	  //********ignore taggers from AOD*********
 	  if(  (moduleLabel == "trackCountingJetTags"    && ignoreTrackCountingFromAOD_    == true ) ) continue;
 	  if(  (moduleLabel == "trackProbabilityJetTags" && ignoreTrackProbabilityFromAOD_ == true ) ) continue;
 	  if(  (moduleLabel == "softMuonJetTags"         && ignoreSoftMuonFromAOD_         == true ) ) continue;
@@ -222,6 +239,7 @@ void TopJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 }
 
 
+// TEMP Jet cleaning from electrons
 //takes a vector of electrons and returns a vector that only contains the ones that are isolated
 //isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
 //to use
@@ -241,7 +259,10 @@ std::vector<TopElectron> TopJetProducer::selectIsolated(const std::vector<TopEle
   
   return output;
 }
+// TEMP End
 
+
+// TEMP Jet cleaning from electrons
 //takes a vector of muons and returns a vector that only contains the ones that are isolated
 //isolation is calculated by TopLeptonTrackerIsolationPt.  The second argument is the isolation cut
 //to use
@@ -262,4 +283,5 @@ std::vector<TopMuon> TopJetProducer::selectIsolated(const std::vector<TopMuon> &
   
   return output;
 }
+// TEMP End
 

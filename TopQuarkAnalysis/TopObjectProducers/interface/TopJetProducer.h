@@ -2,11 +2,11 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopJetProducer.h,v 1.9 2007/06/16 06:11:04 lowette Exp $
+// $Id: TopJetProducer.h,v 1.10 2007/06/18 10:03:34 heyninck Exp $
 //
 
-#ifndef TopJetProducer_h
-#define TopJetProducer_h
+#ifndef TopObjectProducers_TopJetProducer_h
+#define TopObjectProducers_TopJetProducer_h
 
 /**
   \class    TopJetProducer TopJetProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopJetProducer.h"
@@ -16,7 +16,7 @@
    with possible adding of resolutions and more things to come
 
   \author   Jan Heyninck
-  \version  $Id: TopJetProducer.h,v 1.9 2007/06/16 06:11:04 lowette Exp $
+  \version  $Id: TopJetProducer.h,v 1.10 2007/06/18 10:03:34 heyninck Exp $
 */
 
 
@@ -29,18 +29,9 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TopJet.h"
 #include "AnalysisDataFormats/TopObjects/interface/TopLepton.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackProbabilityTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
-#include "DataFormats/BTauReco/interface/SoftLeptonTagInfoFwd.h"
-#include "DataFormats/BTauReco/interface/TrackCountingTagInfoFwd.h"
-#include "RecoBTag/MCTools/interface/JetFlavourIdentifier.h"
 
 
+class JetFlavourIdentifier;
 class TopObjectResolutionCalc;
 
 
@@ -55,19 +46,21 @@ class TopJetProducer : public edm::EDProducer {
 
   private:
 
+    // TEMP Jet cleaning from electrons
     std::vector<TopElectron> selectIsolated(const std::vector<TopElectron> &electrons, float isoCut,
     							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
     std::vector<TopMuon> selectIsolated(const std::vector<TopMuon> &muons, float isoCut,
     							    const edm::EventSetup &iSetup, const edm::Event &iEvent);
-
+    // TEMP End
 
     // configurables
     edm::InputTag recJetsLabel_;
     edm::InputTag caliJetsLabel_;
-    edm::InputTag jetTagsLabel_;
+    // TEMP Jet cleaning from electrons
     edm::InputTag topElectronsLabel_;
     edm::InputTag topMuonsLabel_;
     bool          doJetCleaning_;
+    // TEMP End
     bool          addResolutions_;
     std::string   caliJetResoFile_;
     bool          storeBTagInfo_;
@@ -79,10 +72,11 @@ class TopJetProducer : public edm::EDProducer {
     bool          keepJetTagRefs_;
     bool          getJetMCFlavour_;
 
+    // TEMP Jet cleaning from electrons
     float LEPJETDR_;
     float ELEISOCUT_;
     float MUISOCUT_;
-
+    // TEMP End
 
     // tools
     TopObjectResolutionCalc *   theResoCalc_;
