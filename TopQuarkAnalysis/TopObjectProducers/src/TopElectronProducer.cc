@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.cc,v 1.6 2007/06/09 01:17:35 lowette Exp $
+// $Id: TopElectronProducer.cc,v 1.7 2007/06/14 19:34:24 jlamb Exp $
 //
 
 #include "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -55,9 +55,9 @@ TopElectronProducer::~TopElectronProducer() {
 void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
  
   // Get the collection of electrons from the event
-  edm::Handle<std::vector<ElectronType> > electronsHandle; 
+  edm::Handle<std::vector<TopElectronType> > electronsHandle; 
   iEvent.getByLabel(electronSrc_, electronsHandle);
-  std::vector<ElectronType> electrons=*electronsHandle;
+  std::vector<TopElectronType> electrons=*electronsHandle;
 
   //remove any duplicate electrons that might be in the event
   electrons=removeEleDupes(electrons);
@@ -125,7 +125,7 @@ void TopElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 // (i would guess the latter doesn't actually happen).  Mostly they should be removed by the regular selection but...
 //this function removes these duplicate electrons from the selected electrons vector (and returns the new vector, the input
 //is unmodified).  
-std::vector<ElectronType> TopElectronProducer::removeEleDupes(const std::vector<ElectronType> &electrons) {
+std::vector<TopElectronType> TopElectronProducer::removeEleDupes(const std::vector<TopElectronType> &electrons) {
   
   //contains indices of duplicate electrons marked for removal
   //I do it this way because removal during the loop is more confusing
@@ -154,7 +154,7 @@ std::vector<ElectronType> TopElectronProducer::removeEleDupes(const std::vector<
       }
     }
   }
-  std::vector<ElectronType> output;
+  std::vector<TopElectronType> output;
   //now remove the ones marked
   for (size_t ie=0;ie<electrons.size();ie++) {
     if (find(indicesToRemove.begin(),indicesToRemove.end(),ie)!=indicesToRemove.end()) {

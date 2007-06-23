@@ -2,11 +2,11 @@
 // Author:  Jan Heyninck, Steven Lowette
 // Created: Tue Apr  10 12:01:49 CEST 2007
 //
-// $Id: TopElectronProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
+// $Id: TopElectronProducer.h,v 1.5 2007/06/14 19:34:25 jlamb Exp $
 //
 
-#ifndef TopElectronProducer_h
-#define TopElectronProducer_h
+#ifndef TopObjectProducers_TopElectronProducer_h
+#define TopObjectProducers_TopElectronProducer_h
 
 /**
   \class    TopElectronProducer TopElectronProducer.h "TopQuarkAnalysis/TopObjectProducers/interface/TopElectronProducer.h"
@@ -17,7 +17,7 @@
    and calculation of a lepton likelihood ratio
 
   \author   Jan Heyninck, Steven Lowette
-  \version  $Id: TopElectronProducer.h,v 1.4 2007/06/07 05:49:16 lowette Exp $
+  \version  $Id: TopElectronProducer.h,v 1.5 2007/06/14 19:34:25 jlamb Exp $
 */
 
 
@@ -48,7 +48,7 @@ class TopElectronProducer : public edm::EDProducer {
 
   private:
 
-    std::vector<ElectronType> removeEleDupes(const std::vector<ElectronType> &electrons);
+    std::vector<TopElectronType> removeEleDupes(const std::vector<TopElectronType> &electrons);
     
     // configurables
     edm::InputTag  electronSrc_;
