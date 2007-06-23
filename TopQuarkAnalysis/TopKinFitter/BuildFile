@@ -1,19 +1,9 @@
-<use name=FWCore/Framework>
-<use name=Foundation/PluginManager>
-<use name=FWCore/ParameterSet>
 <use name=AnalysisDataFormats/TopObjects>
-<use name=rootcint>
-<use name=root>
-<use name=clhep>
+<use name=PhysicsTools/KinFitter>
 
 <export>
   <lib name=TopQuarkAnalysisTopKinFitter>
-  <use name=FWCore/Framework>
-  <use name=Foundation/PluginManager>
-  <use name=FWCore/ParameterSet>
   <use name=AnalysisDataFormats/TopObjects>
-  <use name=rootcint>
-  <use name=root>
-  <use name=clhep>
+  <use name=PhysicsTools/KinFitter>
 </export>
 

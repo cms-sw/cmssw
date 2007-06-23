@@ -1,17 +1,17 @@
-#ifndef TtSemiKinFitterEtThetaPhi_h
-#define TtSemiKinFitterEtThetaPhi_h
+#ifndef TopKinFitter_TtSemiKinFitterEtThetaPhi_h
+#define TopKinFitter_TtSemiKinFitterEtThetaPhi_h
 
 // includes for kinematic fit
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleESpher.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleMCPInvSpher.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleEMomDev.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleEScaledMomDev.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitConstraintM.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleEtEtaPhi.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitParticleEtThetaPhi.hh"
-//#include "TopQuarkAnalysis/TopKinFitter/src/TFitConstraintMGaus.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TFitConstraintEp.hh"
-#include "TopQuarkAnalysis/TopKinFitter/src/TKinFitter.hh"
+#include "PhysicsTools/KinFitter/interface/TFitParticleESpher.h"
+#include "PhysicsTools/KinFitter/interface/TFitParticleMCPInvSpher.h"
+#include "PhysicsTools/KinFitter/interface/TFitParticleEMomDev.h"
+#include "PhysicsTools/KinFitter/interface/TFitParticleEScaledMomDev.h"
+#include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
+#include "PhysicsTools/KinFitter/interface/TFitParticleEtEtaPhi.h"
+#include "PhysicsTools/KinFitter/interface/TFitParticleEtThetaPhi.h"
+//#include "PhysicsTools/KinFitter/interface/TFitConstraintMGaus.h"
+#include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
+#include "PhysicsTools/KinFitter/interface/TKinFitter.h"
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
