@@ -47,8 +47,8 @@ void TtDilepEvtSolution::setMET(TopMET j) {met = j;}
 void TtDilepEvtSolution::setRecTopMass(double j) {topmass_ = j;}
 void TtDilepEvtSolution::setRecWeightMax(double j) {weightmax_ = j;}
 
-JetType TtDilepEvtSolution::getRecJetB() const 	  { return this->getJetB().getRecJet();}
-JetType TtDilepEvtSolution::getRecJetBbar() const 	  { return this->getJetBbar().getRecJet();}
+TopJetType TtDilepEvtSolution::getRecJetB() const 	  { return this->getJetB().getRecJet();}
+TopJetType TtDilepEvtSolution::getRecJetBbar() const 	  { return this->getJetBbar().getRecJet();}
 TopMET   TtDilepEvtSolution::getRecMET() const 	  { return this->getMET();}
 
 reco::Particle TtDilepEvtSolution::getRecLepp() const {

@@ -91,10 +91,10 @@ double TtSemiEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
 }
 
 // return functions for reconstructed fourvectors
-JetType TtSemiEvtSolution::getRecHadp() const 	  { return this->getHadp().getRecJet(); }
-JetType TtSemiEvtSolution::getRecHadq() const 	  { return this->getHadq().getRecJet(); }
-JetType TtSemiEvtSolution::getRecHadb() const 	  { return this->getHadb().getRecJet(); }
-JetType TtSemiEvtSolution::getRecLepb() const 	  { return this->getLepb().getRecJet(); }  
+TopJetType TtSemiEvtSolution::getRecHadp() const  { return this->getHadp().getRecJet(); }
+TopJetType TtSemiEvtSolution::getRecHadq() const  { return this->getHadq().getRecJet(); }
+TopJetType TtSemiEvtSolution::getRecHadb() const  { return this->getHadb().getRecJet(); }
+TopJetType TtSemiEvtSolution::getRecLepb() const  { return this->getLepb().getRecJet(); }  
 TopMET   TtSemiEvtSolution::getRecLepn() const 	  { return this->getMET();  }  
 TopMuon  TtSemiEvtSolution::getRecLepm() const 	  { return this->getMuon(); }
 TopElectron TtSemiEvtSolution::getRecLepe() const { return this->getElectron(); }

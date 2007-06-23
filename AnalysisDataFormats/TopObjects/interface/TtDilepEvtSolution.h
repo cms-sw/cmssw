@@ -38,8 +38,8 @@ class TtDilepEvtSolution
   reco::Particle getGenT() const {return genT;};
   reco::Particle getGenTbar() const {return genTbar;};
   bool getBestSol() const { return bestSol; };      
-  JetType getRecJetB() const;
-  JetType getRecJetBbar() const;
+  TopJetType getRecJetB() const;
+  TopJetType getRecJetBbar() const;
   TopMET getRecMET() const;
   reco::Particle getRecLepp() const;
   reco::Particle getRecLepm() const;

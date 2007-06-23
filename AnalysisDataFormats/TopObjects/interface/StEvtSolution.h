@@ -66,8 +66,8 @@ class StEvtSolution
       int			getChangeBL() const		{ return changeBL; };
       bool			getBestSol() const		{ return bestSol; };
       
-      JetType		        getRecBottom() const;
-      JetType                   getRecLight() const;
+      TopJetType                getRecBottom() const;
+      TopJetType                getRecLight() const;
       TopMuon                   getRecLepm() const;
       TopElectron               getRecLepe() const;
       TopMET                    getRecLepn() const;  

@@ -34,10 +34,10 @@ class TtSemiEvtSolution
       TopMET    	  	getMET() const  		{ return met; }; 
  
       // members to get reconstructed objects 
-      JetType		        getRecHadp() const;
-      JetType                   getRecHadq() const;
-      JetType                   getRecHadb() const;
-      JetType                   getRecLepb() const; 
+      TopJetType                getRecHadp() const;
+      TopJetType                getRecHadq() const;
+      TopJetType                getRecHadb() const;
+      TopJetType                getRecLepb() const; 
       TopMuon                   getRecLepm() const;
       TopElectron               getRecLepe() const;
       TopMET                    getRecLepn() const;  

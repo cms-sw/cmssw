@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed May 9 12:30:00 CEST 2007
-// $Id: StEvtSolution.cc,v 1.2 2007/05/15 10:44:17 giamman Exp $
+// $Id: StEvtSolution.cc,v 1.3 2007/05/22 16:36:50 heyninck Exp $
 //
 
 // system include files
@@ -68,8 +68,8 @@ void StEvtSolution::setBestSol(bool bs)			{ bestSol     = bs;  }
 
 
 // return functions for reconstructed fourvectors
-JetType StEvtSolution::getRecBottom() const 	  { return this->getBottom().getRecJet(); }
-JetType StEvtSolution::getRecLight() const 	  { return this->getLight().getRecJet(); }
+TopJetType StEvtSolution::getRecBottom() const 	  { return this->getBottom().getRecJet(); }
+TopJetType StEvtSolution::getRecLight() const 	  { return this->getLight().getRecJet(); }
 TopMET   StEvtSolution::getRecLepn() const 	  { return this->getMET();  }  
 TopMuon  StEvtSolution::getRecLepm() const 	  { return this->getMuon(); }
 TopElectron StEvtSolution::getRecLepe() const { return this->getElectron(); }
