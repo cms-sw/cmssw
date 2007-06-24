@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.25 2007/06/08 23:52:59 wmtan Exp $
+$Id: InputSource.cc,v 1.26 2007/06/22 23:26:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
@@ -83,6 +83,9 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of runs
     // (e.g. beginRun(), endRun())
+    if (remainingEvents_ == 0) {
+      return boost::shared_ptr<RunPrincipal>();
+    }
     return readRun_();
   }
 
@@ -91,6 +94,9 @@ namespace edm {
     // Note: For the moment, we do not support saving and restoring the state of the
     // random number generator if random numbers are generated during processing of lumi blocks
     // (e.g. beginLuminosityBlock(), endLuminosityBlock())
+    if (remainingEvents_ == 0) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
     return readLuminosityBlock_(rp);
   }
 
