@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/08 18:39:42 $
- * $Revision: 1.78 $
+ * $Date: 2007/06/10 09:40:39 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -21,6 +21,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DQMServices/Core/interface/MonitorUserInterface.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunIOV.h"
 
@@ -183,6 +185,7 @@ vector<string> clientNames_;
 EBSummaryClient* summaryClient_;
 
 MonitorUserInterface* mui_;
+DaqMonitorBEInterface* dbe_;
  
 bool enableStateMachine_;
  

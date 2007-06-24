@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2007/05/22 13:57:54 $
- * $Revision: 1.149 $
+ * $Date: 2007/05/22 15:05:46 $
+ * $Revision: 1.150 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -264,19 +264,19 @@ void EBIntegrityClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBIT data integrity quality MEM %s", Numbers::sEB(ism).c_str());
-    meg02_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
+    meg02_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 5, 0.,5.);
 
   }
 
@@ -353,16 +353,16 @@ void EBIntegrityClient::cleanup(void) {
   }
 
   mui_->setCurrentFolder( "EcalBarrel/EBIntegrityClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
 
   }

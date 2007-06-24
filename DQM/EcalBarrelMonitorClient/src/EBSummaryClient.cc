@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2007/06/04 21:22:38 $
- * $Revision: 1.34 $
+ * $Date: 2007/06/08 10:05:20 $
+ * $Revision: 1.35 $
  * \author G. Della Ricca
  *
 */
@@ -199,76 +199,76 @@ void EBSummaryClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
-  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EBIT integrity quality summary");
-  meIntegrity_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meIntegrity_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meOccupancy_ ) bei->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dbe->removeElement( meOccupancy_->getName() );
   sprintf(histo, "EBOT occupancy summary");
-  meOccupancy_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meOccupancy_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EBPOT pedestal quality summary G12");
-  mePedestalOnline_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dbe->removeElement( meLaserL1_->getName() );
   sprintf(histo, "EBLT laser quality summary L1");
-  meLaserL1_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meLaserL1_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if ( meLaserL1PN_ ) bei->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dbe->removeElement( meLaserL1PN_->getName() );
   sprintf(histo, "EBLT PN laser quality summary L1");
-  meLaserL1PN_ = bei->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meLaserL1PN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
-  if( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
+  if( mePedestal_ ) dbe->removeElement( mePedestal_->getName() );
   sprintf(histo, "EBPT pedestal quality summary");
-  mePedestal_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  mePedestal_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if( mePedestalPN_ ) bei->removeElement( mePedestalPN_->getName() );
+  if( mePedestalPN_ ) dbe->removeElement( mePedestalPN_->getName() );
   sprintf(histo, "EBPT PN pedestal quality summary");
-  mePedestalPN_ = bei->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
+  mePedestalPN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10, 10.);
 
-  if( meTestPulse_ ) bei->removeElement( meTestPulse_->getName() );
+  if( meTestPulse_ ) dbe->removeElement( meTestPulse_->getName() );
   sprintf(histo, "EBTPT test pulse quality summary");
-  meTestPulse_ = bei->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTestPulse_ = dbe->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
 
-  if( meTestPulsePN_ ) bei->removeElement( meTestPulsePN_->getName() );
+  if( meTestPulsePN_ ) dbe->removeElement( meTestPulsePN_->getName() );
   sprintf(histo, "EBTPT PN test pulse quality summary");
-  meTestPulsePN_ = bei->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
+  meTestPulsePN_ = dbe->book2D(histo, histo, 90, 0., 90., 20, -10., 10.);
 
 }
 
 void EBSummaryClient::cleanup(void) {
 
   mui_->setCurrentFolder( "EcalBarrel/EBSummaryClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
-  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
-  if ( meOccupancy_ ) bei->removeElement( meOccupancy_->getName() );
+  if ( meOccupancy_ ) dbe->removeElement( meOccupancy_->getName() );
   meOccupancy_ = 0;
 
-  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
-  if ( meLaserL1_ ) bei->removeElement( meLaserL1_->getName() );
+  if ( meLaserL1_ ) dbe->removeElement( meLaserL1_->getName() );
   meLaserL1_ = 0;
 
-  if ( meLaserL1PN_ ) bei->removeElement( meLaserL1PN_->getName() );
+  if ( meLaserL1PN_ ) dbe->removeElement( meLaserL1PN_->getName() );
   meLaserL1PN_ = 0;
 
-  if ( mePedestal_ ) bei->removeElement( mePedestal_->getName() );
+  if ( mePedestal_ ) dbe->removeElement( mePedestal_->getName() );
   mePedestal_ = 0;
 
-  if ( mePedestalPN_ ) bei->removeElement( mePedestalPN_->getName() );
+  if ( mePedestalPN_ ) dbe->removeElement( mePedestalPN_->getName() );
   mePedestalPN_ = 0;
 
-  if ( meTestPulse_ ) bei->removeElement( meTestPulse_->getName() );
+  if ( meTestPulse_ ) dbe->removeElement( meTestPulse_->getName() );
   meTestPulse_ = 0;
 
-  if ( meTestPulsePN_ ) bei->removeElement( meTestPulsePN_->getName() );
+  if ( meTestPulsePN_ ) dbe->removeElement( meTestPulsePN_->getName() );
   meTestPulsePN_ = 0;
 
 }

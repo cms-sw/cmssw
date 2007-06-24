@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/06/10 15:10:26 $
- * $Revision: 1.145 $
+ * $Date: 2007/06/12 18:18:05 $
+ * $Revision: 1.146 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -297,45 +297,45 @@ void EBTestPulseClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
+    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-    meg02_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
-    if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
+    meg02_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-    meg03_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg03_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dbe->removeElement( meg04_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-    meg04_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
-    if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
+    meg04_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-    meg05_[ism-1] = bei->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+    meg05_[ism-1] = dbe->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
 
-    if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G01 %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
-    if ( mea02_[ism-1] ) bei->removeElement( mea02_[ism-1]->getName() );
+    mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    if ( mea02_[ism-1] ) dbe->removeElement( mea02_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G06 %s", Numbers::sEB(ism).c_str());
-    mea02_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
-    if ( mea03_[ism-1] ) bei->removeElement( mea03_[ism-1]->getName() );
+    mea02_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
+    if ( mea03_[ism-1] ) dbe->removeElement( mea03_[ism-1]->getName() );
     sprintf(histo, "EBTPT test pulse amplitude G12 %s", Numbers::sEB(ism).c_str());
-    mea03_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
+    mea03_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mer04_[ism-1] ) bei->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dbe->removeElement( mer04_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
-    mer04_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
-    if ( mer05_[ism-1] ) bei->removeElement( mer05_[ism-1]->getName() );
+    mer04_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
+    if ( mer05_[ism-1] ) dbe->removeElement( mer05_[ism-1]->getName() );
     sprintf(histo, "EBPDT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
-    mer05_[ism-1] = bei->book1D(histo, histo, 100, 0., 10.);
+    mer05_[ism-1] = dbe->book1D(histo, histo, 100, 0., 10.);
 
   }
 
@@ -427,30 +427,30 @@ void EBTestPulseClient::cleanup(void) {
     int ism = superModules_[i];
 
     mui_->setCurrentFolder( "EcalBarrel/EBTestPulseClient" );
-    DaqMonitorBEInterface* bei = mui_->getBEInterface();
+    DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
-    if ( meg02_[ism-1] ) bei->removeElement( meg02_[ism-1]->getName() );
+    if ( meg02_[ism-1] ) dbe->removeElement( meg02_[ism-1]->getName() );
     meg02_[ism-1] = 0;
-    if ( meg03_[ism-1] ) bei->removeElement( meg03_[ism-1]->getName() );
+    if ( meg03_[ism-1] ) dbe->removeElement( meg03_[ism-1]->getName() );
     meg03_[ism-1] = 0;
 
-    if ( meg04_[ism-1] ) bei->removeElement( meg04_[ism-1]->getName() );
+    if ( meg04_[ism-1] ) dbe->removeElement( meg04_[ism-1]->getName() );
     meg04_[ism-1] = 0;
-    if ( meg05_[ism-1] ) bei->removeElement( meg05_[ism-1]->getName() );
+    if ( meg05_[ism-1] ) dbe->removeElement( meg05_[ism-1]->getName() );
     meg05_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
-    if ( mea02_[ism-1] ) bei->removeElement( mea02_[ism-1]->getName() );
+    if ( mea02_[ism-1] ) dbe->removeElement( mea02_[ism-1]->getName() );
     mea02_[ism-1] = 0;
-    if ( mea03_[ism-1] ) bei->removeElement( mea03_[ism-1]->getName() );
+    if ( mea03_[ism-1] ) dbe->removeElement( mea03_[ism-1]->getName() );
     mea03_[ism-1] = 0;
 
-    if ( mer04_[ism-1] ) bei->removeElement( mer04_[ism-1]->getName() );
+    if ( mer04_[ism-1] ) dbe->removeElement( mer04_[ism-1]->getName() );
     mer04_[ism-1] = 0;
-    if ( mer05_[ism-1] ) bei->removeElement( mer05_[ism-1]->getName() );
+    if ( mer05_[ism-1] ) dbe->removeElement( mer05_[ism-1]->getName() );
     mer05_[ism-1] = 0;
 
   }

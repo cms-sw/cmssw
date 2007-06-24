@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/23 17:20:28 $
- * $Revision: 1.287 $
+ * $Date: 2007/06/23 17:30:34 $
+ * $Revision: 1.288 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -20,7 +20,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -594,12 +593,13 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
     } else {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
     }
+    dbe_ = mui_->getBEInterface();
   } else {
     mui_ = new MonitorUIRoot();
     if ( enableServer_ ) {
       mui_->actAsServer(serverPort_, clientName_);
     }
-    Service<DaqMonitorBEInterface>().operator->();
+    dbe_ = Service<DaqMonitorBEInterface>().operator->();
   }
 
   if ( verbose_ ) {
@@ -610,8 +610,7 @@ void EcalBarrelMonitorClient::beginJob(const EventSetup &c) {
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
-      DaqMonitorBEInterface* dbe = mui_->getBEInterface();
-      dbe->open(inputFile_);
+      dbe_->open(inputFile_);
     }
   }
 
