@@ -7,15 +7,15 @@ EcalPedestals::~EcalPedestals(){}
 
 namespace {
   template<typename DetId, typename Item>
-  Inserter {
+  class Inserter {
   public:
     Inserter(std::vector<Item> & iv) : v(iv){}
 
-    void operator(){ std::pair<uint32_t, const Item> & p) {
+    void operator()(std::pair<uint32_t, const Item> const & p) {
       DetId id(p.first);
-      if (id.null() || id.det()!=Ecal || id.subdetId()!=EcalBarrel ) 
+      if (id.null() || id.det()!=DetId::Ecal || id.subdetId()!=EcalBarrel ) 
 	return;
-      v.at(id.dhashedIndex()) = p.second;
+      v.at(id.hashedIndex()) = p.second;
     }
 
     std::vector<Item> & v;

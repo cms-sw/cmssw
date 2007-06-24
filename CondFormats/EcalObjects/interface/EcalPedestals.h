@@ -1,6 +1,7 @@
 #ifndef EcalPedestals_h
 #define EcalPedestals_h
 
+#include <vector>
 #include <map>
 #include <boost/cstdint.hpp>
 
