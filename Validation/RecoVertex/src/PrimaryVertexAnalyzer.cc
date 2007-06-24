@@ -139,6 +139,8 @@ void PrimaryVertexAnalyzer::beginJob(edm::EventSetup const& iSetup){
     h["rapidity"+ *isuffix] = new TH1F(TString("rapidity"+ *isuffix),"rapidity ",100,-10., 10.);
     h["pt"+ *isuffix] = new TH1F(TString("pt"+ *isuffix),"pt ",100,0., 20.);
     h["nrectrk0vtx"+ *isuffix] = new TH1F(TString("nrectrk0vtx"+ *isuffix),"# rec tracks no vertex ",50,0., 50.);
+    h["zdistancetag"+ *isuffix] = new TH1F(TString("zdistancetag"+ *isuffix),"z-distance between tagged and generated",100, -0.1, 0.1);
+    h["puritytag"+ *isuffix]    = new TH1F(TString("puritytag"+ *isuffix),"purity of primary vertex tags",2, -0.5, 1.5);
   }
 
 }
