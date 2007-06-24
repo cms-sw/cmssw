@@ -7,34 +7,35 @@
 using namespace align;
 
 SurveyResidual::SurveyResidual(const Alignable& ali,
-			       ObjectId type,
+			       StructureType type,
 			       bool bias):
   theSurface( ali.surface() ),
   theMother(0)
 {
 // Find mother matching given type
 
-  const Alignable* dau = &ali; // start finding from sensor
+  theMother = &ali; // start finding from this alignable
 
-  while (dau)
+  while (theMother->alignableObjectId() != type)
   {
-    theMother = dau->mother();
+    theMother = theMother->mother(); // move up a level
 
     if (!theMother)
     {
       throw cms::Exception("ConfigError")
 	<< "Alignable (id = " << ali.geomDetId().rawId()
-	<< ") does not belong to a composite of type " << type
-	<< ". Abort!"
-	<< std::endl;
+	<< ") does not belong to a composite of type " << type;
     }
-
-    if (theMother->alignableObjectId() == type) break; // found
-
-    dau = theMother; // move up a level
   }
 
-  findSisters(dau, bias);
+  if ( !theMother->mother() )
+  {
+    throw cms::Exception("ConfigError")
+      << "The type " << type << " does not have a survey residual defined!\n"
+      << "You have probably set the highest hierarchy. Choose a lower level.";
+  }
+
+  findSisters(theMother, bias);
 
   if (theSisters.size() == 0)
   {
@@ -100,7 +101,14 @@ AlgebraicSymMatrix SurveyResidual::inverseCovariance() const
 {
   ErrorMatrix invCov = theMother->survey()->errors();
 
-  invCov.Invert();
+  if ( !invCov.Invert() )
+  {
+    throw cms::Exception("ConfigError")
+      << "Cannot invert survey error of Alignable (id = "
+      << theMother->geomDetId().rawId()
+      << ") of type " << theMother->alignableObjectId()
+      << invCov;
+  }
 
   const unsigned int dim = ErrorMatrix::kRows;
 
@@ -119,7 +127,7 @@ void SurveyResidual::findSisters(const Alignable* ali,
   theSisters.clear();
   theSisters.reserve(1000);
 
-  const std::vector<Alignable*>& comp = theMother->components();
+  const std::vector<Alignable*>& comp = ali->mother()->components();
 
   unsigned int nComp = comp.size();
 
@@ -127,7 +135,9 @@ void SurveyResidual::findSisters(const Alignable* ali,
   {
     const Alignable* dau = comp[i];
 
-    if (dau != ali || bias) dau->deepComponents(theSisters);
+    if (dau != ali || bias)
+      theSisters.insert( theSisters.end(), dau->deepComponents().begin(), dau->deepComponents().end() );
+//     if (dau != ali || bias) theSisters.push_back(dau);
   }
 }
 

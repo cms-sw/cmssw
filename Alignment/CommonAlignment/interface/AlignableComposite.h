@@ -92,8 +92,7 @@ private:
 
   AlignableObjectIdType theStructureType;
 
-  Alignables theComponents;
-
+  Alignables theComponents; // direct daughters
 };
 
 #endif
