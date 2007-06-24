@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2007/06/23 17:30:34 $
- * $Revision: 1.44 $
+ * $Date: 2007/06/24 09:37:59 $
+ * $Revision: 1.45 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -23,6 +23,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
+#include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/QTestStatus.h"
@@ -588,6 +590,9 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
   last_time_db_ = current_time_;
   last_time_html_ = current_time_;
 
+  // get hold of back-end interface
+  DaqMonitorBEInterface* dbe = Service<DaqMonitorBEInterface>().operator->();
+
   // start DQM user interface instance
   // will attempt to reconnect upon connection problems (w/ a 5-sec delay)
 
@@ -597,13 +602,11 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
     } else {
       mui_ = new MonitorUIRoot(hostName_, hostPort_, clientName_, 5, false);
     }
-    dbe_ = mui_->getBEInterface();
   } else {
     mui_ = new MonitorUIRoot();
     if ( enableServer_ ) {
       mui_->actAsServer(serverPort_, clientName_);
     }
-    dbe_ = Service<DaqMonitorBEInterface>().operator->();
   }
 
   if ( verbose_ ) {
@@ -614,7 +617,9 @@ void EcalEndcapMonitorClient::beginJob(const EventSetup &c) {
 
   if ( ! enableMonitorDaemon_ ) {
     if ( inputFile_.size() != 0 ) {
-      dbe_->open(inputFile_);
+      if ( dbe ) {
+        dbe->open(inputFile_);
+      }
     }
   }
 
