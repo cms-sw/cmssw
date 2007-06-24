@@ -9,3 +9,8 @@ DEFINE_FWK_MODULE(EventCoordinatesSource);
 // The DQM Client input source
 DEFINE_ANOTHER_FWK_INPUT_SOURCE(DQMEventSource);
 
+//
+#include "DQMServices/Components/interface/QualityTester.h"
+DEFINE_ANOTHER_FWK_MODULE(QualityTester);
+
+
