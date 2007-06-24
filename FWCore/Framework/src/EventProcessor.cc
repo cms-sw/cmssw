@@ -808,9 +808,6 @@ namespace edm {
 	continue;
       }
 
-      if (!runforever) {
-        --numberEventsToProcess;
-      }
       FDEBUG(1) << numberEventsToProcess << std::endl;
       std::auto_ptr<EventPrincipal> pep;
       {
@@ -819,9 +816,11 @@ namespace edm {
       }
         
       if (pep.get() == 0) {
-	changeState(mInputExhausted);
-	rc = epInputComplete;
-	continue;
+	break;
+      }
+
+      if (!runforever) {
+        --numberEventsToProcess;
       }
 
       IOVSyncValue ts(pep->id(), pep->time());
