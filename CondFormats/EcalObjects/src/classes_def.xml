@@ -1,5 +1,9 @@
 <lcgdict>
- <class name="EcalPedestals"/>
+ <class name="EcalPedestals">
+  <field name="m_barrel" transient="true"/>
+  <field name="m_endcap" transient="true"/>
+ </class>
+ 
  <class name="EcalPedestals::Item"/>
 
  <class name="EcalWeightSet"/>
