@@ -4,8 +4,8 @@
 /*
  * \file EcalEndcapMonitorClient.h
  *
- * $Date: 2007/06/24 09:37:58 $
- * $Revision: 1.15 $
+ * $Date: 2007/06/24 15:19:04 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -125,9 +125,6 @@ bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
-bool enableTCC_;
-bool enableCluster_;
- 
 bool verbose_;
 
 bool enableMonitorDaemon_;
@@ -172,6 +169,8 @@ time_t htmlRefreshTime_;
 string baseHtmlDir_;
 
 vector<int> superModules_;
+
+vector<string> enabledClients_;
 
 typedef multimap<EEClient*,int> EECIMMap; 
 EECIMMap chb_;

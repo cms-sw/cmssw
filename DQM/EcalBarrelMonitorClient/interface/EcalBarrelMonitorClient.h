@@ -4,8 +4,8 @@
 /*
  * \file EcalBarrelMonitorClient.h
  *
- * $Date: 2007/06/24 09:41:11 $
- * $Revision: 1.80 $
+ * $Date: 2007/06/24 15:19:03 $
+ * $Revision: 1.81 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -128,9 +128,6 @@ bool collateSources_;
 bool cloneME_;
 bool enableQT_;
 
-bool enableTCC_;
-bool enableCluster_;
- 
 bool verbose_;
 
 bool enableMonitorDaemon_;
@@ -174,6 +171,8 @@ time_t htmlRefreshTime_;
 string baseHtmlDir_;
 
 vector<int> superModules_;
+
+vector<string> enabledClients_;
 
 typedef multimap<EBClient*,int> EBCIMMap; 
 EBCIMMap chb_;
