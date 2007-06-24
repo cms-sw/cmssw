@@ -13,13 +13,11 @@ calParamInyfMatrix 1
 
 rotateAroundLocal 1
 
-report_verbose 3
+report_verbose 5
 
-save_matrices 0
+saveMatrices 0
 
 debug_verbose 0
-
-calcul_type 0
 
 length_value_dimension 1//millimeter
 
@@ -37,13 +35,9 @@ output_angle_value_dimension 3//degrees
 
 output_angle_error_dimension 3//millirad
 
-VisWriteVRML 1
-VisWriteIguana 2
-MaxNoFitIterations 5000
+maxNoFitIterations 5000
 
-VisOnly 0
-
-FitQualityCut 0.001
+fitQualityCut 0.001
 reportOutReadSigma 0
 reportOutReadQuality 0
 //#include report.outyf
