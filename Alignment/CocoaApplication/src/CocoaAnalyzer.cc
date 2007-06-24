@@ -166,13 +166,14 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     DDExpandedNode parent = fv.geoHistory()[ fv.geoHistory().size()-2 ];
     DDTranslation parentTransl = parent.absTranslation();
     DDRotationMatrix parentRot = parent.absRotation();
-    transl = parentRot.inverse()*(transl - parentTransl );
-    rot = parentRot.inverse()*rot;
-    rot = rot.inverse(); //DDL uses opposite convention than COCOA
-    if(ALIUtils::debug >= 4) {
+    transl = parentRot.Inverse()*(transl - parentTransl );
+    rot = parentRot.Inverse()*rot;
+    rot = rot.Inverse(); //DDL uses opposite convention than COCOA
+    /*    if(ALIUtils::debug >= 4) {
       ALIUtils::dumprm( rot, "local rotation ");
       ALIUtils::dump3v( transl, "local translation");
-    }
+      } */
+
     oaInfo.x_.name_ = "X";
     oaInfo.x_.dim_type_ = "centre";
     oaInfo.x_.value_ = transl.x(); 
@@ -192,7 +193,16 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     oaInfo.z_.quality_  = int (myFetchDbl(params, "centre_Z_quality", 0));
 
   //---- DDD convention is to use the inverse matrix, COCOA is the direct one!!!
-    std::vector<double> angles = ALIUtils::GetRotationAnglesFromMatrix( rot, 0. ,0., 0. );
+    //---- convert it to CLHEP::Matrix
+    double xx,xy,xz,yx,yy,yz,zx,zy,zz;
+    rot.GetComponents (xx, xy, xz,
+                 yx, yy, yz,
+                 zx, zy, zz);
+    Hep3Vector colX(xx,xy,xz);
+    Hep3Vector colY(yx,yy,yz);
+    Hep3Vector colZ(zx,zy,zz);
+    CLHEP::HepRotation rotclhep( colX, colY, colZ );
+    std::vector<double> angles = ALIUtils::GetRotationAnglesFromMatrix( rotclhep,0., 0., 0. );
 
     oaInfo.angx_.name_ = "X";
     oaInfo.angx_.dim_type_ = "angles";
