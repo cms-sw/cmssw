@@ -1,8 +1,8 @@
 /*
  * \file EcalBarrelMonitorClient.cc
  *
- * $Date: 2007/06/24 09:41:12 $
- * $Revision: 1.289 $
+ * $Date: 2007/06/24 15:19:03 $
+ * $Revision: 1.290 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -1316,7 +1316,7 @@ void EcalBarrelMonitorClient::analyze(void){
   int updates = mui_->getNumUpdates();
 
   if ( enableStateMachine_ ) updates = -1;
-  if ( enableStateMachine_ ) forced_update_ = true;
+  // if ( enableStateMachine_ ) forced_update_ = true;
 
   if ( verbose_ ) cout << " updates = " << updates << endl;
 
