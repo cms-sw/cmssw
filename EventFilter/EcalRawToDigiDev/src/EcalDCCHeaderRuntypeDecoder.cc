@@ -14,7 +14,7 @@ bool EcalDCCHeaderRuntypeDecoder::Decode( ulong TrigType,             // dcc hea
 					  EcalDCCHeaderBlock* EcalDCCHeaderInfos)
 {
   
-  uint DCCNumberMask   = 63;//2^6-1
+  //  uint DCCNumberMask   = 63;//2^6-1
 
   uint WhichHalfOffSet    = 64;//2^6 
   uint TypeOffSet            = 256;//2^8
@@ -91,7 +91,7 @@ void EcalDCCHeaderRuntypeDecoder::DecodeSettingGlobal ( ulong TrigType, ulong de
     EcalDCCHeaderBlock::EcalDCCEventSettings theSettings;
     CleanEcalDCCSettingsInfo(&theSettings);
     
-    int dccIdFromTCCCommand                        = (detTrigType >> H_DCCID_B)      & H_DCCID_MASK;
+    //    int dccIdFromTCCCommand                        = (detTrigType >> H_DCCID_B)      & H_DCCID_MASK;
     int halfFromTCCCommand                            = (detTrigType >> H_HALF_B)        &  H_HALF_MASK;
     int detailedTriggerTypefromTCCCommand = (detTrigType >> H_TR_TYPE_B) &  H_TR_TYPE_MASK;
     int wavelengthFromTCCCommand               = (detTrigType >> H_WAVEL_B)    &  H_WAVEL_MASK;
