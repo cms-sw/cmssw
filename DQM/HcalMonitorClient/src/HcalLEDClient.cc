@@ -385,8 +385,8 @@ void HcalLEDClient::getHistograms(){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HF";
-    if(i==3) type = "HO";
+    else if(i==2) type = "HF";
+    else if(i==3) type = "HO";
 
     sprintf(name,"LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      
     avg_shape_[i] = getHisto(name, process_,mui_,verbose_,cloneME_);
@@ -429,9 +429,9 @@ void HcalLEDClient::getHistograms(){
 	for(int depth=1; depth<=4; depth++){
 	  if(!isValidGeom(i, ieta, iphi,depth)) continue;
 	  HcalSubdetector subdet = HcalBarrel;
-	  if(i==1) subdet = HcalOuter;
+	  if(i==1) subdet = HcalEndcap;	  
 	  else if(i==2) subdet = HcalForward;
-	  else if(i==3) subdet = HcalEndcap;	  
+	  else if(i==3) subdet = HcalOuter;
 	  HcalDetId id(subdet,ieta,iphi,depth);
 	  HcalElectronicsId eid = readoutMap_->lookup(id);
 	  
@@ -631,8 +631,8 @@ void HcalLEDClient::resetAllME(){
     if(!subDetsOn_[i]) continue;
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO"; 
+    else if(i==2) type = "HF"; 
+    else if(i==3) type = "HO"; 
 
     sprintf(name,"%sHcalMonitor/LEDMonitor/%s/%s Ped Subtracted Pulse Shape",process_.c_str(),type.c_str(),type.c_str());
     resetME(name,mui_);
@@ -815,8 +815,8 @@ void HcalLEDClient::htmlOutput(int run, string htmlDir, string htmlName){
      if(!subDetsOn_[i]) continue; 
      string type = "HB";
      if(i==1) type = "HE"; 
-     if(i==2) type = "HF"; 
-     if(i==3) type = "HO"; 
+     else if(i==2) type = "HF"; 
+     else if(i==3) type = "HO"; 
      
      htmlFile << "<tr align=\"left\">" << endl;  
      htmlFile << "<td>&nbsp;&nbsp;&nbsp;<a name=\""<<type<<"_Plots\"><h3>" << type << " Histograms</h3></td></tr>" << endl;
@@ -893,8 +893,8 @@ void HcalLEDClient::loadHistograms(TFile* infile){
     if(!subDetsOn_[i]) continue; 
     string type = "HB";
     if(i==1) type = "HE"; 
-    if(i==2) type = "HF"; 
-    if(i==3) type = "HO";
+    else if(i==2) type = "HF"; 
+    else if(i==3) type = "HO";
 
 
     sprintf(name,"DQMData/HcalMonitor/LEDMonitor/%s/%s Average Pulse Shape",type.c_str(),type.c_str());      

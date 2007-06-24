@@ -114,6 +114,7 @@ private:
   int run_;
   int nTimeouts_;
   int last_update_;
+  int last_reset_Evts_;
   int resetUpdate_;
   int resetEvents_;
   int resetTime_;

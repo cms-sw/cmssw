@@ -4,6 +4,7 @@
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps, MonitorUserInterface* mui){
   mui_ = mui;
   trigger_=0;
+  last_reset_Evts_=0;
   subscribed_=0;
   this->initialize(ps);
 }
@@ -11,6 +12,7 @@ HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps, MonitorUserInterfac
 HcalMonitorClient::HcalMonitorClient(const ParameterSet& ps){
   mui_ = 0;
   trigger_=0;
+  last_reset_Evts_=0;
   subscribed_=0;
   this->initialize(ps);
 }
@@ -61,10 +63,10 @@ void HcalMonitorClient::initialize(const ParameterSet& ps){
   status_  = "unknown"; runtype_ = "UNKNOWN";
   run_     = -1; mon_evt_     = -1;
   nTimeouts_ = 0;
-
+  
   last_mon_evt_   = -1; 
   last_update_ = 0;
-
+  last_reset_Evts_=0;
 
   // DQM ROOT output
   outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
@@ -366,7 +368,6 @@ void HcalMonitorClient::endRun(void) {
   last_mon_evt_ = -1;
   last_update_ = -1;
   run_=-1;
-
   
   // this is an effective way to avoid ROOT memory leaks ...
   if( enableExit_ ) {
@@ -478,13 +479,11 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
   
   ievt_++;
   
-
   printf("\nClient heartbeat....\n");
   if(!mui_){
     printf("HcalMonitorClient:  MonitorUserInterface NULL!!\n");
     return;
   }
-
   
   Char_t histo[150];
   MonitorElement* me =0;
@@ -565,7 +564,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
 	if( verbose_ ) cout << "Found '" << histo << "'" << endl;
       }
     }
-
+    
     printf("HcalClient: run: %d, evts: %d, type: %s, status: %s, iter: %d, updates: %d\n",
 	   run_, mon_evt_, runtype_.c_str(),status_.c_str(),ievt_, updates);
     
@@ -601,7 +600,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     }
     
     int addEvts = mon_evt_ - last_mon_evt_;
-    if(addEvts>nUpdateEvents_){
+    if(addEvts>=nUpdateEvents_){
       printf("-->Creating report after %d events!\n",mon_evt_);
       this->report(true);
       last_mon_evt_ = mon_evt_;
@@ -610,7 +609,7 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     nTimeouts_=0;
   }
   else nTimeouts_++;
-
+  
   last_update_ = updates;
   
   ///histogram reset functions
@@ -621,9 +620,11 @@ void HcalMonitorClient::analyze(const Event& e, const edm::EventSetup& eventSetu
     }
   }
   if(resetEvents_!=-1 && mon_evt_>0){ 
-    if((mon_evt_%resetEvents_)==0){
+    int nSeenEvts = mon_evt_ - last_reset_Evts_;
+    if(nSeenEvts>=resetEvents_){
       printf("-->Resetting histograms after %d events!\n",mon_evt_);    
       this->resetAllME();
+      last_reset_Evts_ = mon_evt_;
     }
   }
   if(resetTime_!=-1){ 
@@ -808,7 +809,6 @@ void HcalMonitorClient::offlineSetup(){
   offline_ = true;
 
   status_  = "unknown"; runtype_ = "UNKNOWN";
-
   run_     = -1; mon_evt_     = -1;
   nTimeouts_ = 0;
 
