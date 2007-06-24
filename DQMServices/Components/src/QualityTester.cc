@@ -1,13 +1,13 @@
 /*
  * \file QualityTester.cc
  * 
- * $Date: 2007/06/15 18:14:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/06/18 10:08:50 $
+ * $Revision: 1.3 $
  * \author M. Zanetti - CERN PH
  *
  */
 
-#include "QualityTester.h"
+#include "DQMServices/Components/interface/QualityTester.h"
 
 // Framework
 #include <FWCore/Framework/interface/Event.h>
