@@ -11,13 +11,33 @@ class EcalPedestals {
   ~EcalPedestals();
 
   struct Item {
+    struct Zero { float z1; float z2;}
+      static Zero zero;
     float mean_x12;
     float rms_x12;
     float mean_x6;
     float rms_x6;
     float mean_x1;
     float rms_x1;
+
+  public:
+    float * mean_rms(int i) {
+      if (i==0) return &zero.z1;
+      return (&mean_x12)+(2*(i-1));
+    }
+    
+    float mean(int i) {
+      if (i==0) return 0.;
+      return *(&mean_x12+(2*(i-1)));
+    }
+    float rms(int i) {
+      if (i==0) return 0.;
+      return *(&rms_x12+(2*(i-1)));
+    }
   };
+
+
+
   std::map<uint32_t, Item> m_pedestals;
 
   void update() const;
