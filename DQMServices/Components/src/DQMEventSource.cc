@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2007/03/31 11:07:53 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/03 09:51:57 $
+ *  $Revision: 1.6 $
  *  \author S. Bolognesi - M. Zanetti
  */
 
@@ -37,12 +37,13 @@ DQMEventSource::DQMEventSource(const ParameterSet& pset,
   qtHandler=new QTestHandle;
 
   getMESubscriptionListFromFile = pset.getUntrackedParameter<bool>("getMESubscriptionListFromFile", true);
-  getQualityTestsFromFile = pset.getUntrackedParameter<bool>("getQualityTestsFromFile", true);
+  getQualityTestsFromFile = pset.getUntrackedParameter<bool>("getQualityTestsFromFile", false);
   skipUpdates = pset.getUntrackedParameter<int>("numberOfUpdatesToBeSkipped", 1);
 
-  // subscribe to MEs and configure the quality tests
+  // subscribe to MEs ty tests
   if (getMESubscriptionListFromFile)
   subscriber->getMEList(pset.getUntrackedParameter<string>("meSubscriptionList", "MESubscriptionList.xml")); 
+  // configure quality tests (default false, as this should usually be done in a separate module and NOT in the source)
   if (getQualityTestsFromFile)
     qtHandler->configureTests(pset.getUntrackedParameter<string>("qtList", "QualityTests.xml"),mui);
 
