@@ -25,19 +25,23 @@ namespace {
   template<typename Item>
   class EcalCalibInserter {
   public:
-    Inserter(std::vector<Item> & ib, std::vector<Item> & ie ) : b(ib),e(ie){}
+    EcalCalibInserter(std::vector<Item> & ib, std::vector<Item> & ie ) : b(ib),e(ie){}
 
     void operator()(std::pair<uint32_t, const Item> const & p) {
       ::DetId id(p.first);
       if (id.null() || id.det()!=::DetId::Ecal) return;
-      switch (id.subdetId()) :
-      case (EcalBarrel ) : 
+      switch (id.subdetId()) {
+      case EcalBarrel : 
 	EBDetId ib(p.first);
 	b.at(ib.hashedIndex()) = p.second;
 	break;
-      case (EcalBarrel ) : 
+      case EcalEndcap : 
 	EEDetId ie(p.first);
 	// e.at(ie.hashedIndex()) = p.second;
+        break;
+      default:
+        return;
+      }
     }
 
     std::vector<Item> & b;
