@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.cc,v 1.20 2007/06/21 16:52:42 wmtan Exp $
+$Id: ConfigurableInputSource.cc,v 1.21 2007/06/22 23:26:33 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +34,8 @@ namespace edm {
     origLuminosityBlockNumber_t_(luminosityBlock_),
     newRun_(true),
     newLumi_(true),
-    isRealData_(realData)
+    isRealData_(realData),
+    holder_(0)
   { }
 
   ConfigurableInputSource::~ConfigurableInputSource() {
@@ -82,17 +83,26 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   ConfigurableInputSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    setRunAndEventInfo();
-    if (eventID_ == EventID()) {
-      return std::auto_ptr<EventPrincipal>(0); 
-    }
-    if (newRun_ || newLumi_) return std::auto_ptr<EventPrincipal>(0);
-    std::auto_ptr<EventPrincipal> result = 
-      std::auto_ptr<EventPrincipal>(
+    std::auto_ptr<EventPrincipal> result;
+    if (holder_.get() == 0) {
+      setRunAndEventInfo();
+      if (eventID_ == EventID()) {
+        noMoreInput();
+        return result; 
+      }
+      result = std::auto_ptr<EventPrincipal>(
 	  new EventPrincipal(eventID_, Timestamp(presentTime_),
 	  productRegistry(), lbp, processConfiguration(), isRealData_));
+      if (newRun_ || newLumi_) {
+	holder_ = result;
+	return result;
+      }
+    } else {
+      result = holder_;
+    }
     Event e(*result, moduleDescription());
     if (!produce(e)) {
+      noMoreInput();
       return std::auto_ptr<EventPrincipal>(0); 
     }
     e.commit_();

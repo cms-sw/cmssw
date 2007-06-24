@@ -2,7 +2,7 @@
 #define Framework_ConfigurableInputSource_h
 
 /*----------------------------------------------------------------------
-$Id: ConfigurableInputSource.h,v 1.21 2007/06/21 16:52:42 wmtan Exp $
+$Id: ConfigurableInputSource.h,v 1.22 2007/06/22 23:26:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
@@ -74,6 +74,7 @@ namespace edm {
     bool newRun_;
     bool newLumi_;
     bool isRealData_;
+    std::auto_ptr<EventPrincipal> holder_;
   };
 }
 #endif
