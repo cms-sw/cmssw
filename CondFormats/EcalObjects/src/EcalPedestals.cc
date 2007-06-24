@@ -31,13 +31,17 @@ namespace {
       ::DetId id(p.first);
       if (id.null() || id.det()!=::DetId::Ecal) return;
       switch (id.subdetId()) {
-      case EcalBarrel : 
-	EBDetId ib(p.first);
-	b.at(ib.hashedIndex()) = p.second;
+      case EcalBarrel :
+	{ 
+	  EBDetId ib(p.first);
+	  b.at(ib.hashedIndex()) = p.second;
+	}
 	break;
-      case EcalEndcap : 
+      case EcalEndcap :
+	{ 
 	EEDetId ie(p.first);
 	// e.at(ie.hashedIndex()) = p.second;
+	}
         break;
       default:
         return;
