@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2007/05/23 10:04:05 $
- * $Revision: 1.15 $
+ * $Date: 2007/05/25 14:08:27 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -133,27 +133,27 @@ void EESummaryClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
-  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
   sprintf(histo, "EEIT integrity quality summary");
-  meIntegrity_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
+  meIntegrity_ = dbe->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
-  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
   sprintf(histo, "EEPOT pedestal quality summary G12");
-  mePedestalOnline_ = bei->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
+  mePedestalOnline_ = dbe->book2D(histo, histo, 180, 0., 360., 170, -85., 85.);
 
 }
 
 void EESummaryClient::cleanup(void) {
 
   mui_->setCurrentFolder( "EcalEndcap/EESummaryClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
-  if ( meIntegrity_ ) bei->removeElement( meIntegrity_->getName() );
+  if ( meIntegrity_ ) dbe->removeElement( meIntegrity_->getName() );
   meIntegrity_ = 0;
 
-  if ( mePedestalOnline_ ) bei->removeElement( mePedestalOnline_->getName() );
+  if ( mePedestalOnline_ ) dbe->removeElement( mePedestalOnline_->getName() );
   mePedestalOnline_ = 0;
 
 }

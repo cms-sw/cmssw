@@ -1,8 +1,8 @@
 /*
  * \file EEBeamCaloClient.cc
  *
- * $Date: 2007/05/12 09:39:06 $
- * $Revision: 1.6 $
+ * $Date: 2007/05/22 09:53:49 $
+ * $Revision: 1.7 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -163,10 +163,10 @@ void EEBeamCaloClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-  if ( meEEBCaloRedGreen_ ) bei->removeElement( meEEBCaloRedGreen_->getName() );
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  if ( meEEBCaloRedGreen_ ) dbe->removeElement( meEEBCaloRedGreen_->getName() );
   sprintf(histo, "EEBCT quality");
-  meEEBCaloRedGreen_ = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+  meEEBCaloRedGreen_ = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
   UtilsClient::resetHisto( meEEBCaloRedGreen_ );
 
@@ -178,15 +178,15 @@ void EEBeamCaloClient::setup(void) {
     }
   }
 
-  if ( meEEBCaloRedGreenReadCry_ ) bei->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_ ) dbe->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   sprintf(histo, "EEBCT quality read crystal errors");
-  meEEBCaloRedGreenReadCry_ = bei->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
+  meEEBCaloRedGreenReadCry_ = dbe->book2D(histo, histo, 1, 0., 1., 1, 0., 1.);
   UtilsClient::resetHisto( meEEBCaloRedGreenReadCry_ );
   meEEBCaloRedGreenReadCry_ ->setBinContent( 1, 1, 2. );
 
-  if( meEEBCaloRedGreenSteps_ )  bei->removeElement( meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ )  dbe->removeElement( meEEBCaloRedGreenSteps_->getName() );
   sprintf(histo, "EEBCT quality entries or read crystals errors");
-  meEEBCaloRedGreenSteps_ = bei->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
+  meEEBCaloRedGreenSteps_ = dbe->book2D(histo, histo, 86, 1., 87., 1, 0., 1.);
   UtilsClient::resetHisto( meEEBCaloRedGreenSteps_ );
   for( int bin=1; bin <87; bin++){ meEEBCaloRedGreenSteps_->setBinContent( bin, 1, 2. );}
 
@@ -244,12 +244,12 @@ void EEBeamCaloClient::cleanup(void) {
   pBCriInBeamEvents_ =0;
 
   mui_->setCurrentFolder( "EcalEndcap/EEBeamCaloClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
-  if ( meEEBCaloRedGreen_) bei->removeElement( meEEBCaloRedGreen_->getName() );
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
+  if ( meEEBCaloRedGreen_) dbe->removeElement( meEEBCaloRedGreen_->getName() );
   meEEBCaloRedGreen_ = 0;
-  if ( meEEBCaloRedGreenReadCry_) bei->removeElement( meEEBCaloRedGreenReadCry_->getName() );
+  if ( meEEBCaloRedGreenReadCry_) dbe->removeElement( meEEBCaloRedGreenReadCry_->getName() );
   meEEBCaloRedGreenReadCry_ = 0;
-  if( meEEBCaloRedGreenSteps_ ) bei->removeElement (  meEEBCaloRedGreenSteps_->getName() );
+  if( meEEBCaloRedGreenSteps_ ) dbe->removeElement (  meEEBCaloRedGreenSteps_->getName() );
   meEEBCaloRedGreenSteps_ = 0;
 }
 
@@ -696,7 +696,7 @@ void EEBeamCaloClient::analyze(void){
   if (hBcryDone_){
     for(int cry=1 ; cry<1701 ; cry ++){
       int step = (int) hBcryDone_->GetBinContent(cry);
-      if( step>0 ){//this crystal has been scanned or is being scanned
+      if( step>0 ){//this crystal has been scanned or is dbeng scanned
 	DoneCry++;
 	float E3x3RMS = -1, E3x3 =-1, E1=-1;
 	if(hBE3x3vsCry_){

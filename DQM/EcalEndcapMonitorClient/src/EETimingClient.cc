@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2007/05/22 14:23:38 $
- * $Revision: 1.8 $
+ * $Date: 2007/05/22 15:05:47 $
+ * $Revision: 1.9 $
  * \author G. Della Ricca
  *
 */
@@ -173,27 +173,27 @@ void EETimingClient::setup(void) {
   Char_t histo[200];
 
   mui_->setCurrentFolder( "EcalEndcap/EETimingClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = bei->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    meg01_[ism-1] = dbe->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
 
-    if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = bei->book1D(histo, histo, 1700, 0., 1700.);
+    mea01_[ism-1] = dbe->book1D(histo, histo, 1700, 0., 1700.);
 
-    if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = bei->book1D(histo, histo, 100, 0.0, 10.0);
+    mep01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0, 10.0);
 
-    if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
     sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = bei->book1D(histo, histo, 100, 0.0,  2.5);
+    mer01_[ism-1] = dbe->book1D(histo, histo, 100, 0.0,  2.5);
 
   }
 
@@ -236,22 +236,22 @@ void EETimingClient::cleanup(void) {
   }
 
   mui_->setCurrentFolder( "EcalEndcap/EETimingClient" );
-  DaqMonitorBEInterface* bei = mui_->getBEInterface();
+  DaqMonitorBEInterface* dbe = mui_->getBEInterface();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    if ( meg01_[ism-1] ) bei->removeElement( meg01_[ism-1]->getName() );
+    if ( meg01_[ism-1] ) dbe->removeElement( meg01_[ism-1]->getName() );
     meg01_[ism-1] = 0;
 
-    if ( mea01_[ism-1] ) bei->removeElement( mea01_[ism-1]->getName() );
+    if ( mea01_[ism-1] ) dbe->removeElement( mea01_[ism-1]->getName() );
     mea01_[ism-1] = 0;
 
-    if ( mep01_[ism-1] ) bei->removeElement( mep01_[ism-1]->getName() );
+    if ( mep01_[ism-1] ) dbe->removeElement( mep01_[ism-1]->getName() );
     mep01_[ism-1] = 0;
 
-    if ( mer01_[ism-1] ) bei->removeElement( mer01_[ism-1]->getName() );
+    if ( mer01_[ism-1] ) dbe->removeElement( mer01_[ism-1]->getName() );
     mer01_[ism-1] = 0;
 
   }
