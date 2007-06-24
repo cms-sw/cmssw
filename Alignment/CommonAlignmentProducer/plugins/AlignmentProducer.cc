@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.4 $
-///  last update: $Date: 2007/05/02 20:53:00 $
-///  by         : $Author: cklae $
+///  Revision   : $Revision: 1.5 $
+///  last update: $Date: 2007/05/11 21:22:36 $
+///  by         : $Author: flucke $
 
 #include "Alignment/CommonAlignmentProducer/plugins/AlignmentProducer.h"
 
@@ -538,6 +538,15 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
 
   for (unsigned int i = 0; i < nComp; ++i) addSurveyInfo_(comp[i]);
 
+  const SurveyError& error = theSurveyErrors->m_surveyErrors[s];
+
+  if ( ali->geomDetId().rawId() != error.rawId() ||
+       ali->alignableObjectId() != error.structureType() )
+  {
+    throw cms::Exception("DatabaseError")
+      << "Error reading survey info from DB. Mismatched id!";
+  }
+
   const CLHEP::Hep3Vector&  pos = theSurveyValues->m_align[s].translation();
   const CLHEP::HepRotation& rot = theSurveyValues->m_align[s].rotation();
 
@@ -549,7 +558,7 @@ void AlignmentProducer::addSurveyInfo_(Alignable* ali)
   surf.setWidth( ali->surface().width() );
   surf.setLength( ali->surface().length() );
 
-  ali->setSurvey( new SurveyDet( surf, theSurveyErrors->m_surveyErrors[s].matrix() ) );
+  ali->setSurvey( new SurveyDet( surf, error.matrix() ) );
 
   ++s;
 }
