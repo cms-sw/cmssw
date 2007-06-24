@@ -55,7 +55,7 @@ namespace {
   };
 }
 
-Item const & EcalPedestals::operator()(DetId id) const {
+EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
   static Item dummy;
   switch (id.subdetId()) {
   case EcalBarrel :

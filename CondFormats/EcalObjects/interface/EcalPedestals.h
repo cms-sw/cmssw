@@ -5,6 +5,8 @@
 #include <map>
 #include <boost/cstdint.hpp>
 
+class DetId;
+
 class EcalPedestals {
  public:
   EcalPedestals();
