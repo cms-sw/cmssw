@@ -3,6 +3,8 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include <algorithm>
 
+EcalPedestals::Item::Zero EcalPedestals::Item::zero;
+
 EcalPedestals::EcalPedestals(){}
 EcalPedestals::~EcalPedestals(){}
 

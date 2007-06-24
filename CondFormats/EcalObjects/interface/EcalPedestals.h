@@ -11,8 +11,10 @@ class EcalPedestals {
   ~EcalPedestals();
 
   struct Item {
-    struct Zero { float z1; float z2;}
-      static Zero zero;
+    struct Zero { float z1; float z2;};
+
+    static Zero zero;
+
     float mean_x12;
     float rms_x12;
     float mean_x6;
