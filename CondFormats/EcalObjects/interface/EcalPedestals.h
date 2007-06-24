@@ -44,6 +44,8 @@ class EcalPedestals {
 
   void update() const;
 
+  Item const & operator(DetId id) const;
+
   Item const & barrel(size_t hashid) const {
     return m_barrel[hashid];
   }

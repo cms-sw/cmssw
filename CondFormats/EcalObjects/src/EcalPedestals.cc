@@ -55,6 +55,29 @@ namespace {
   };
 }
 
+Item const & EcalPedestals::operator()(DetId id) const {
+  static Item dummy;
+  switch (id.subdetId()) {
+  case EcalBarrel :
+    { 
+      EBDetId ib(id);
+      return barrel(ib.hashedIndex());
+    }
+    break;
+  case EcalEndcap :
+    { 
+      // EEDetId ie(id);
+      const_cast<EcalPedestals*>(this)->m_pedestals[id];
+    }
+    break;
+  default:
+    return dummy;
+  }
+  return dummy;
+}
+
+
+
 void EcalPedestals::update() const {
   if (m_barrel.empty()) {
     // FIXME
