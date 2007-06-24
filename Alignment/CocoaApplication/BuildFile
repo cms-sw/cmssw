@@ -23,5 +23,4 @@
  <lib name=AlignmentCocoaApplication></lib> 
 </export>
 
-<flags EDM_PLUGIN=1>
 
