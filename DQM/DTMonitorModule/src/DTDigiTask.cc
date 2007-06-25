@@ -1,8 +1,8 @@
  /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2007/05/03 07:20:22 $
- * $Revision: 1.21 $
+ * $Date: 2007/06/12 14:31:41 $
+ * $Revision: 1.24 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -52,6 +52,7 @@ DTDigiTask::DTDigiTask(const edm::ParameterSet& ps){
     cout<<"[DTDigiTask]: Constructor"<<endl;
 
   outputFile = ps.getUntrackedParameter<string>("outputFile", "DTDigiSources.root");
+  maxTDCHits = ps.getUntrackedParameter<int>("maxTDCHits",1000);
 
   parameters = ps;
   
@@ -278,7 +279,20 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   string histoTag;
 
+  int tdcCount = 0;
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
+  for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
+    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
+	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
+      tdcCount++;
+    }
+  }
+
+  bool isSyncNoisy = false;
+  if (tdcCount > maxTDCHits) isSyncNoisy = true;
+
+
+
   for (dtLayerId_It=dtdigis->begin(); dtLayerId_It!=dtdigis->end(); ++dtLayerId_It){
     for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
 	 digiIt!=((*dtLayerId_It).second).second; ++digiIt){
@@ -323,7 +337,7 @@ void DTDigiTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	}
 	
 	// avoid to fill TB and PhotoPeak with noise. Occupancy are anyway filled
-	if ( !isNoisy ) {
+	if (( !isNoisy ) && (!isSyncNoisy)) {
 	  
 	  // TimeBoxes per SL
 	  histoTag = "TimeBox" + triggerSource();

@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2007/03/13 18:59:53 $
- * $Revision: 1.10 $
+ * $Date: 2007/03/22 18:52:01 $
+ * $Revision: 1.11 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -74,6 +74,7 @@ private:
 
   /// no needs to be precise. Value from PSets will always be used
   int tMax;
+  int maxTDCHits;
 
   /// tTrig from the DB
   float tTrig;
