@@ -5,9 +5,8 @@
 <use name=rootrflx>
 <export>
   <use name=DataFormats/Common>
-  <use name=DataFormats/DetId>
   <use name=DataFormats/RecoCandidate>
   <use name=DataFormats/TrackReco>
-  <lib name=DataFormatsMuonReco>
+  <lib name=DataFormatsTauReco>
 </export>
 
