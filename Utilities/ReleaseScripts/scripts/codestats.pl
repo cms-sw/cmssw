@@ -35,25 +35,26 @@ while(my $line=<LOGFILE>)
   if ($line=~/^File:\s+([^\s]+?)\s*$/)
   {
     $file=$1;
-    foreach my $key ("TotalLines", "CodeLines", "CommentedLines", "EmptyLines", "IncludeStatements", "ActualAdded", "ActualRemoved")
+    foreach my $key ("Total Lines", "Code Lines", "Commented Lines", "Empty Lines", "Include Statements", "Include Added", "Include Removed")
     {&addValue ($cache, $file, $key);}
+    &addValue ($cache,$file,"Files",1);
     if($html && (-f "${dir}/includechecker/src/${file}"))
     {$urls{"src/${file}"}=1;}
   }
   elsif ($line=~/^\s+Total\s+lines\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "TotalLines", $1);}
+  {&addValue ($cache, $file, "Total Lines", $1);}
   elsif ($line=~/^\s+Code\s+lines\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "CodeLines", $1);}
+  {&addValue ($cache, $file, "Code Lines", $1);}
   elsif ($line=~/^\s+Commented\s+lines\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "CommentedLines", $1);}
+  {&addValue ($cache, $file, "Commented Lines", $1);}
   elsif ($line=~/^\s+Empty\s+lines\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "EmptyLines", $1);}
+  {&addValue ($cache, $file, "Empty Lines", $1);}
   elsif ($line=~/^\s+Number\s+of\s+includes\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "IncludeStatements", $1);}
+  {&addValue ($cache, $file, "Include Statements", $1);}
   elsif ($line=~/^\s+Actual\s+include\s+added\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "ActualAdded", $1);}
+  {&addValue ($cache, $file, "Include Added", $1);}
   elsif ($line=~/^\s+Actual\s+include\s+removed\s+:\s+(\d+)\s*$/)
-  {&addValue ($cache, $file, "ActualRemoved", $1);}
+  {&addValue ($cache, $file, "Include Removed", $1);}
 }
 close(LOGFILE);
 &process ($cache);
@@ -63,32 +64,33 @@ sub process ()
 {
   my $cache = shift;
   my $base=shift || "";
-  my $totals = shift || [];
-  my $num=scalar(@$totals);
+  my $totals = shift || {};
   if (!defined $cache){return;}
   foreach my $key (sort keys %$cache)
   {
     if($key eq "_DATA"){next;}
-    my $total = $cache->{$key}{_DATA}{TotalLines};
-    my $empty = $cache->{$key}{_DATA}{EmptyLines};
-    my $code = $cache->{$key}{_DATA}{CodeLines};
-    my $comment = $cache->{$key}{_DATA}{CommentedLines};
+    my $ctype = "Total Lines";
+    my $total = $cache->{$key}{_DATA}{$ctype};
+    my $num   = scalar(@{$totals->{$ctype}});
+    my $empty = $cache->{$key}{_DATA}{"Empty Lines"};
+    my $code = $cache->{$key}{_DATA}{"Code Lines"};
+    my $comment = $cache->{$key}{_DATA}{"Commented Lines"};
     my $lines=($comment - ($total - $empty - $code))/2;
     if($lines != int($lines)){$code++;$lines=int($lines)+1;}
     $code = $code - $lines;
     $comment = $comment - $lines;
-    $cache->{$key}{_DATA}{CodeLines} = $code;
-    $cache->{$key}{_DATA}{CommentedLines} = $comment;
+    $cache->{$key}{_DATA}{"Code Lines"} = $code;
+    $cache->{$key}{_DATA}{"Commented Lines"} = $comment;
     my $url="";
     if($html)
     {
       if(exists $urls{"${base}${key}"}){$url="${base}${key}";}
       else{next;}
     }
-    print "################################\n";
+    print "###########################################################################\n";
     if($url){print "For <A href=\"$url\">${base}${key}</a>\n";}
     else{print "For ${base}${key}\n";}
-    foreach my $skey ("TotalLines", "CodeLines", "CommentedLines", "EmptyLines")
+    foreach my $skey ("Total Lines", "Code Lines", "Commented Lines", "Empty Lines")
     {
       my $value=$cache->{$key}{_DATA}{$skey};
       my $precentage = "-";
@@ -97,23 +99,62 @@ sub process ()
       print &SCRAMGenUtils::leftAdjust($skey, 20).": ".&SCRAMGenUtils::leftAdjust($value, $value_length).&SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
       for(my $i=$num-1; $i>=0; $i--)
       {
-        my $t=$totals->[$i];
+        my $t=$totals->{$ctype}[$i];
 	if ($t>0)
 	{$precentage=&SCRAMGenUtils::setPrecision(($value * 100)/$t, $precentage_prec);}
 	print &SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
       }
       print "\n";
     }
-    print &SCRAMGenUtils::leftAdjust("Includes", 20).": ".$cache->{$key}{_DATA}{IncludeStatements}."\n";
-    print &SCRAMGenUtils::leftAdjust("Includes added", 20).": ".$cache->{$key}{_DATA}{ActualAdded}."\n";
-    print &SCRAMGenUtils::leftAdjust("Includes removed", 20).": ".$cache->{$key}{_DATA}{ActualRemoved}."\n";
+    $ctype = "Files";
+    $total=$cache->{$key}{_DATA}{$ctype};
+    $num = scalar(@{$totals->{$ctype}});
+    foreach my $skey ("Files")
+    {
+      my $value=$cache->{$key}{_DATA}{$skey};
+      if($value<=1){next;}
+      my $precentage = "-";
+      if ($total>0)
+      {$precentage=&SCRAMGenUtils::setPrecision(($value * 100)/$total, $precentage_prec);}
+      print &SCRAMGenUtils::leftAdjust($skey, 20).": ".&SCRAMGenUtils::leftAdjust($value, $value_length).&SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
+      for(my $i=$num-1; $i>=0; $i--)
+      {
+        my $t=$totals->{$ctype}[$i];
+	if ($t>0)
+	{$precentage=&SCRAMGenUtils::setPrecision(($value * 100)/$t, $precentage_prec);}
+	print &SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
+      }
+      print "\n";
+    }
+    $ctype = "Include Statements";
+    $total=$cache->{$key}{_DATA}{$ctype};
+    $num = scalar(@{$totals->{$ctype}});
+    foreach my $skey ("Include Statements", "Include Added", "Include Removed")
+    {
+      my $value=$cache->{$key}{_DATA}{$skey};
+      if($value==0){next;}
+      my $precentage = "-";
+      if ($total>0)
+      {$precentage=&SCRAMGenUtils::setPrecision(($value * 100)/$total, $precentage_prec);}
+      print &SCRAMGenUtils::leftAdjust($skey, 20).": ".&SCRAMGenUtils::leftAdjust($value, $value_length).&SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
+      for(my $i=$num-1; $i>=0; $i--)
+      {
+        my $t=$totals->{$ctype}[$i];
+	if ($t>0)
+	{$precentage=&SCRAMGenUtils::setPrecision(($value * 100)/$t, $precentage_prec);}
+	print &SCRAMGenUtils::rightAdjust("$precentage%",$precentage_prec+5)."  ";
+      }
+      print "\n";
+    }
   }
   foreach my $key (sort keys %$cache)
   {
     if($key eq "_DATA"){next;}
-    push @$totals, $cache->{$key}{_DATA}{TotalLines};
-    &process($cache->{$key}, "${base}${key}/", $totals);
-    pop @$totals;
+    foreach my $ctype ("Total Lines", "Files", "Include Statements")
+    {push @{$totals->{$ctype}}, $cache->{$key}{_DATA}{$ctype};}
+    &process($cache->{$key}, "${base}${key}/",$totals);
+    foreach my $ctype ("Total Lines", "Files", "Include Statements")
+    {pop @{$totals->{$ctype}};}
   }
 }
 
