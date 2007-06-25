@@ -398,7 +398,7 @@ sub check_includes ()
     if ($skip_inc eq "")
     {if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to \"$sinc_exp\" SKIP_INCLUDES flag in the config file\n";} next;}
     if ($inc_file eq $own_header)
-    {if($detail){print "  Skipping the checking of $inc_file (Assumption: .cc always needs its own .h)\n";} next;}
+    {if($detail){print "  Skipping checking of \"$inc_file\" (Assumption: .cc always needs its own .h)\n";} next;}
 
     my $force_inc_remove=0;
     my $exists_in_own_header=0;
@@ -924,10 +924,10 @@ sub read_file ()
     while($line=~/\\\//){$line=~s/\\\//\//;}
     if($line=~/^\s*extern\s+\"C(\+\+|)\"\s+\{\s*$/){$extern=1;next;}
     if($extern && $line=~/^\s*\}.*/){$extern=0; next;}
-    if ($line=~/^\s*#\s*include\s*([\"<](.+?)[\">])\s*/)
+    if ($line=~/^\s*#\s*include\s*([\"<](.+?)[\">])\s*(.*)$/)
     {
-      if($extern){next;}
       my $inc_file=$2;
+      my $comment=$3;
       if($inc_file!~/^\./)
       {
         my $inc_filex=&SCRAMGenUtils::fixPath($inc_file);
@@ -940,6 +940,8 @@ sub read_file ()
 	}
       }
       else{print "WARNING: Include statement \"$inc_file\" on line NO. $num of file \"$origfile\" has a relative path. Please fix this.\n";}
+      if($comment=~/\/\/\s*INCLUDECHECKER\s*:\s*SKIP/i){print "  Skipped checking of \"$inc_file\" in \"$origfile\"(Developer forced skipping)\n";next;}
+      if($extern){print "  Skipped checking of \"$inc_file\" in \"$origfile\"(\"extern\" section include)\n";next;}
       push @{$cache->{includes}}, $inc_file;
       push @{$cache->{includes_line_number}}, $num;
       push @{$cache->{includes_line}}, $line;
