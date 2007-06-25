@@ -15,7 +15,7 @@
 //
 // Original Author:  Vincenzo CHIOCHIA
 //         Created:  Tue Oct 17 17:40:56 CEST 2006
-// $Id: SiPixelCondObjBuilder.h,v 1.5 2007/01/26 06:47:16 konec Exp $
+// $Id: SiPixelCondObjBuilder.h,v 1.6 2007/03/13 13:42:19 chiochia Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -26,7 +26,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 //#include "CondFormats/SiPixelObjects/interface/SiPixelGainCalibration.h"
 #include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
-#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 #include <string>
 
 namespace cms{

@@ -12,7 +12,6 @@
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "CLHEP/Random/RandGauss.h"
 
 namespace cms{
