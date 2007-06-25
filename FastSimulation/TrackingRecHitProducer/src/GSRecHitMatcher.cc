@@ -128,3 +128,36 @@ GSRecHitMatcher::project(const GeomDetUnit *det,
 
   return StripPosition(projpositiononGluedini,projpositiononGluedend);
 }
+
+
+
+SiTrackerGSRecHit2D * GSRecHitMatcher::projectOnly( const SiTrackerGSRecHit2D *monoRH,
+						    const GeomDet * monoDet,
+						    const GluedGeomDet* gluedDet,
+					            LocalVector& ldir) const
+{
+
+  const BoundPlane& gluedPlane = gluedDet->surface();
+  const BoundPlane& hitPlane = monoDet->surface();
+
+  double delta = gluedPlane.localZ( hitPlane.position());
+
+  LocalPoint lhitPos = gluedPlane.toLocal( monoDet->surface().toGlobal( monoRH->localPosition()) );
+  LocalPoint projectedHitPos = lhitPos - ldir * delta/ldir.z();
+
+  LocalVector hitXAxis = gluedPlane.toLocal( hitPlane.toGlobal( LocalVector(1,0,0)));
+  LocalError hitErr = monoRH->localPositionError();
+
+  if (gluedPlane.normalVector().dot( hitPlane.normalVector()) < 0) {
+    // the two planes are inverted, and the correlation element must change sign
+    hitErr = LocalError( hitErr.xx(), -hitErr.xy(), hitErr.yy());
+  }
+  LocalError rotatedError = hitErr.rotate( hitXAxis.x(), hitXAxis.y());
+
+  // set y=0
+  LocalPoint position( projectedHitPos.x(), 0. , 0. );
+
+ return new SiTrackerGSRecHit2D(position,rotatedError, gluedDet->geographicalId(), monoRH->simhitId(), 
+				 monoRH->simtrackId(), monoRH->eeId(), monoRH->simMultX(), monoRH->simMultY() );
+}
+

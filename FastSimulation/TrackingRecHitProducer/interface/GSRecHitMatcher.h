@@ -7,6 +7,7 @@
 
 class GluedGeomDet;
 class GeomDetUnit;
+class GeomDet;
 
 class GSRecHitMatcher {
  public:
@@ -26,6 +27,11 @@ class GSRecHitMatcher {
 			const GluedGeomDet* glueddet,
 			const StripPosition& strip,
 			const LocalVector& trackdirection) const;
+
+  SiTrackerGSRecHit2D * projectOnly( const SiTrackerGSRecHit2D *monoRH,
+				     const GeomDet * monoDet,
+				     const GluedGeomDet* gluedDet,
+				     LocalVector& ldir) const;
 
 };
 

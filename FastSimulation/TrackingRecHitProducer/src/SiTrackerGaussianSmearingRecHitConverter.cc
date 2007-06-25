@@ -522,34 +522,40 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(
       // this is necessary as intermediate step for the matching of hits
 
       // do it only if we do rec hit matching
-      if(doMatching){
-	StripSubdetector specDetId=StripSubdetector(det);
+//       if(doMatching){
+// 	StripSubdetector specDetId=StripSubdetector(det);
 	
-	if(specDetId.glued()) if(subdet==6 || subdet==4){         // check if on double layer in TEC or TID
+// 	if(specDetId.glued()) if(subdet==6 || subdet==4){         // check if on double layer in TEC or TID
 	  
-	  const GeomDetUnit* theDetUnit = geometry->idToDetUnit(det);
-	  const StripTopology& topol=(const StripTopology&)theDetUnit->topology();      
+// 	  const GeomDetUnit* theDetUnit = geometry->idToDetUnit(det);
+// 	  const StripTopology& topol=(const StripTopology&)theDetUnit->topology();      
 	  
-	  // check if radial topology
-	  if(dynamic_cast <const RadialStripTopology*>(&topol)){
+// 	  // check if radial topology
+// 	  if(dynamic_cast <const RadialStripTopology*>(&topol)){
 	    
-	    const RadialStripTopology *rtopol = dynamic_cast <const RadialStripTopology*>(&topol);
+// 	    const RadialStripTopology *rtopol = dynamic_cast <const RadialStripTopology*>(&topol);
 	    
-	    // translate to measurement coordinates
-	    MeasurementPoint mpoint=rtopol->measurementPosition(position);
-	    // set y=0
-	    MeasurementPoint mpoint0=MeasurementPoint(mpoint.x(),0.);
-	    // translate back to local coordinates with y=0
-	    LocalPoint lpoint0 = rtopol->localPosition(mpoint0);
-	    position = Local3DPoint(lpoint0.x(),0.,0.);
+// 	    // translate to measurement coordinates
+// 	    MeasurementPoint mpoint=rtopol->measurementPosition(position);
+// 	    // set y=0
+// 	    MeasurementPoint mpoint0=MeasurementPoint(mpoint.x(),0.);
+// 	    // translate back to local coordinates with y=0
+// 	    LocalPoint lpoint0 = rtopol->localPosition(mpoint0);
+// 	    position = Local3DPoint(lpoint0.x(),0.,0.);
 	    
-	  }
-	} // end if( specDetId.glued()...
-      } // end if(doMatching)
+// 	  }
+// 	} // end if( specDetId.glued()...
+//       } // end if(doMatching)
       
-      // set y=0 in strip detectors
-      if(subdet>2) position = Local3DPoint(position.x(),0.,0.);
-      
+      // set y=0 in single-sided strip detectors 
+      if(doMatching && (subdet>2)){    
+	StripSubdetector specDetId=StripSubdetector(det);
+	if( !specDetId.glued() ){  // this is a single-sided module
+	  position = Local3DPoint(position.x(),0.,0.); // set y to 0 on single-sided modules
+	}
+      }
+      else{  if(subdet>2) position = Local3DPoint(position.x(),0.,0.);    }  // no matching, set y=0 on strips
+
       // create rechit
       temporaryRecHits[trackID].push_back(
 		 new SiTrackerGSRecHit2D(position, error, det, 
@@ -956,12 +962,14 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator it = theRecHits.begin();
   std::map<unsigned, edm::OwnVector<SiTrackerGSRecHit2D> >::iterator lastTrack = theRecHits.end();
 
+
   int recHitCounter = 0;
 
   //loop over single sided tracker RecHit
   for(  ; it !=  lastTrack; ++it ) {
 
     edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator rit = it->second.begin();
+    edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator firstRecHit = it->second.begin();
     edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator lastRecHit = it->second.end();
 
     //loop over rechits in track
@@ -979,7 +987,15 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 
 	  // get the track direction from the simhit
 	  LocalVector simtrackdir = correspondingSimHit[recHitCounter]->localDirection();	    
+
+	  const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry->idToDet(DetId(specDetId.glued()));
+	  const StripGeomDetUnit* stripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
 	  
+	  // global direction of track
+	  GlobalVector globaldir= stripdet->surface().toGlobal(simtrackdir);
+	  LocalVector gluedsimtrackdir=gluedDet->surface().toLocal(globaldir);
+
+
 	  // get partner layer, it is the next one or previous one in the vector
 	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partner = rit;
 	  edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator partnerNext = rit;
@@ -1004,21 +1020,27 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 		partner= partnerPrev;
 	      }
 	    
-	    const GluedGeomDet* gluedDet = (const GluedGeomDet*)geometry->idToDet(DetId(specDetId.glued()));
-	    const StripGeomDetUnit* stripdet =(StripGeomDetUnit*) gluedDet->stereoDet();
 	    
-	    // global direction of track
-	    GlobalVector globaldir= stripdet->surface().toGlobal(simtrackdir);
-	    LocalVector gluedsimtrackdir=gluedDet->surface().toLocal(globaldir);
-	    
+	    // in case partner has not been found this way, need to loop over all rechits in track to be sure
+	    // (rare cases fortunately)
+	    if(partnersFound==0){
+	      for(edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator iter = firstRecHit; iter != lastRecHit; ++iter  ){
+		if( StripSubdetector( iter->geographicalId() ).partnerDetId() == detid.rawId()){
+		  partnersFound++;
+		  partner = iter;
+		}
+	      }
+      	    }
+
 	    
 	    if(partnersFound == 1) {
 	      SiTrackerGSRecHit2D * theMatchedHit =GSRecHitMatcher().match( &(*partner),  &(*rit),  gluedDet  , gluedsimtrackdir );
 	      matchedMap[it->first].push_back( theMatchedHit );
 	    } 
 	    else{
-	      // no partner to match
-	      matchedMap[it->first].push_back( rit->clone() );
+	      // no partner to match, place projected one in map
+	      SiTrackerGSRecHit2D * theProjectedHit = GSRecHitMatcher().projectOnly( &(*rit), geometry->idToDet(detid),gluedDet, gluedsimtrackdir  );
+	      matchedMap[it->first].push_back( theProjectedHit );
 	    }
 	  } // end if stereo
 	  else {   // we are on a mono layer
@@ -1036,9 +1058,20 @@ SiTrackerGaussianSmearingRecHitConverter::matchHits(
 	      if(  StripSubdetector( partnerPrev->geographicalId() ).partnerDetId() == detid.rawId() ) {
 		partnersFound++;
 	      }
-	    if(partnersFound==0){ // no partner hit found
-	      // no partner to match
-	      matchedMap[it->first].push_back( rit->clone() );
+
+	    if(partnersFound==0){ // no partner hit found this way, need to iterate over all hits to be sure (rare cases)
+	      for(edm::OwnVector<SiTrackerGSRecHit2D>::const_iterator iter = firstRecHit; iter != lastRecHit; ++iter  ){
+		if( StripSubdetector( iter->geographicalId() ).partnerDetId() == detid.rawId()){
+		  partnersFound++;
+		}
+	      }
+	    }	    
+
+
+	    if(partnersFound==0){ // no partner hit found 
+	      // no partner to match, place projected one one in map
+	      SiTrackerGSRecHit2D * theProjectedHit = GSRecHitMatcher().projectOnly( &(*rit), geometry->idToDet(detid),gluedDet, gluedsimtrackdir  );
+	      matchedMap[it->first].push_back( theProjectedHit );
 	    }	    
 	  } // end we are on a a mono layer
 	} // end if glued
