@@ -24,10 +24,10 @@ CSCDbStripConditions::CSCDbStripConditions()
 
 CSCDbStripConditions::~CSCDbStripConditions()
 {
-  delete theNoiseMatrix;
-  delete theGains;
-  delete thePedestals;
-  delete theCrosstalk;
+  //delete theNoiseMatrix;
+  //delete theGains;
+  //delete thePedestals;
+  //delete theCrosstalk;
   if(theNoisifier != 0) delete theNoisifier;
 }
 
