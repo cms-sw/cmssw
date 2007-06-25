@@ -195,19 +195,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap outInTrack collection size " << (*outInTrkEndcapHandle).size() << "\n";
   
   // Loop over Out In Tracks in the Barrel
-  for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkBarrelHandle).begin(); iTk !=  (*outInTrkBarrelHandle).end(); iTk++) { 
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
-    
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
-    
-  }
+  //  for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkBarrelHandle).begin(); iTk !=  (*outInTrkBarrelHandle).end(); iTk++) { 
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+  // }
+
   // Loop over Out In Tracks in the Endcap
-  for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkEndcapHandle).begin(); iTk !=  (*outInTrkEndcapHandle).end(); iTk++) {
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+  //  for( reco::TrackCollection::const_iterator  iTk =  (*outInTrkEndcapHandle).begin(); iTk !=  (*outInTrkEndcapHandle).end(); iTk++) {
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
     
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+  //LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap Out In Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
     
-  }
+  // }
   
   //// Get the association map between CKF Out In tracks and the SC Barrel where they originated
   Handle<reco::TrackSuperClusterAssociationCollection> outInTrkSCBarrelAssocHandle;
@@ -230,19 +229,16 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   theEvent.getByLabel(conversionIOTrackProducerEndcap_, inOutTrkEndcapHandle);
   LogDebug("ConvertedPhotonProducer") << " ConvertedPhotonProducer Endcap inOutTrack collection size " << (*inOutTrkEndcapHandle).size() << "\n";
   // Loop over In Out  Tracks in the Barrel
-  for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkBarrelHandle).begin(); iTk !=  (*inOutTrkBarrelHandle).end(); iTk++) {
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
-    
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
-    
-  }
+  //for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkBarrelHandle).begin(); iTk !=  (*inOutTrkBarrelHandle).end(); iTk++) {
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Barrel In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+  // }
+
   // Loop over In Out  Tracks in the Endcap
-  for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkEndcapHandle).begin(); iTk !=  (*inOutTrkEndcapHandle).end(); iTk++) {
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
-    
-    LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
-    
-  }
+  //  for( reco::TrackCollection::const_iterator  iTk =  (*inOutTrkEndcapHandle).begin(); iTk !=  (*inOutTrkEndcapHandle).end(); iTk++) {
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->innerMomentum() << "\n";  
+  // LogDebug("ConvertedPhotonProducer") << "ConvertedPhotonProducer Endcap In Out  Track Extra inner momentum  " << iTk->extra()->innerMomentum() << "\n";  
+  // }
   
   
   //// Get the association map between CKF in out tracks and the SC Barrel where they originated
