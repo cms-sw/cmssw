@@ -21,6 +21,7 @@ namespace reco {
   public:
     Tau();
     Tau(Charge q, const LorentzVector &, const Point & = Point( 0, 0, 0 ) );
+    ~Tau();
     Tau * clone () const;
 
     //Regerence to the leadingTrack
