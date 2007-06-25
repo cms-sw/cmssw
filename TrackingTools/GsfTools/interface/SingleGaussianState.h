@@ -4,6 +4,10 @@
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 
+/** Multi-dimensional (single) Gaussian state. Used for the description 
+ * of Gaussian mixtures.
+ */
+
 template <unsigned int N> class SingleGaussianState {
 public:
   typedef ROOT::Math::SVector<double, N> Vector;

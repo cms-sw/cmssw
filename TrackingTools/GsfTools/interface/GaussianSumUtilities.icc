@@ -1,0 +1,565 @@
+#include "TrackingTools/GsfTools/interface/GaussianSumUtilities.h"
+
+#include "TrackingTools/GsfTools/interface/SingleGaussianState1D.h"
+#include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
+#include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
+
+#include <TROOT.h>
+#include <TMath.h>
+
+#include <TVectorD.h>
+#include <TMatrixDSym.h>
+#include <TMatrixDSymEigen.h>
+
+#include <iostream>
+#include <cmath>
+
+#include <map>
+#include <functional>
+
+using std::cout;
+using std::endl;
+using std::multimap;
+using std::pair;
+using std::greater;
+
+#define DBG_GSND
+#ifdef DRAW_GSND
+#include "TCanvas.h"
+#include "TF2.h"
+#include "TGraph.h"
+#endif
+
+
+template <unsigned int N>
+bool
+GaussianSumUtilities<N>::modeIsValid () const
+{
+  if ( theModeStatus==NotComputed )  computeMode();
+  return theModeStatus==Valid;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Vector
+GaussianSumUtilities<N>::mode () const
+{
+  if ( theModeStatus==NotComputed )  computeMode();
+  return theMode;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Vector
+GaussianSumUtilities<N>::computeMode () const
+{
+//   static TimingReport::Item* timer =
+//     &(*TimingReport::current())[string("GaussianSumUtilities<N>::computeMode")];
+//   timer->switchCPU(false);
+//   TimeMe t(*timer,false);
+
+  theModeStatus = NotValid;
+  //
+  //
+  // diagonalize / normalize (better convergence)
+  //
+//   Matrix diag(covariance(0));
+//   GenMatrix rot(diagonalize(&diag));
+  TMatrixDSym diag(N);
+  // need to copy the matrix since diagonalization is not
+  // available for SMatrix but there must be a better way 
+  // to copy the matrix ...
+  for ( unsigned int i=0; i<N; ++i ) {
+    for ( unsigned int j=0; j<N; ++j ) {
+      diag(i,j) = covariance(0)(i,j);
+    }
+  }
+  TMatrixDSymEigen eigen(diag);
+  TVectorD eigenValues = eigen.GetEigenValues();
+  TMatrixD eigenVectors = eigen.GetEigenVectors();
+  diag.SimilarityT(eigenVectors);
+//   for ( unsigned int i=0; i<N; ++i ) {
+//     cout << i << eigenValues(i);
+//     for ( unsigned int j=0; j<N; ++j ) {
+//       cout << " " << diag(i,j);
+//     }
+//     cout << endl;
+//   }
+  GenMatrix rotT;
+  for ( unsigned int i=0; i<N; ++i ) {
+    for ( unsigned int j=0; j<N; ++j ) {
+      rotT(i,j) = eigenVectors(j,i);
+    }
+  }
+  Vector trans(mean(0));
+
+//   GenMatrix rotT(rot.T());
+//   Matrix scale(N,1);
+//   Matrix scaleT(N,1);
+//   rotT = scaleT*rotT;
+//   rot = rot*scale;
+  //
+  // calculate transformed state
+  //
+  SingleStateContainer newStates;
+//   newStates.reserve(size());
+  for ( typename SingleStateContainer::const_iterator i=components().begin();
+ 	i!=components().end(); i++ ) {
+    Vector newMean = rotT*((**i).mean()-trans);
+    Matrix newCov = ROOT::Math::Similarity(rotT,(**i).covariance());
+    SingleStatePtr sgs(new SingleState(newMean,newCov,(**i).weight()));
+    newStates.push_back(sgs);
+  }
+  MultiState newState(newStates);
+  GaussianSumUtilities<N> newGSU(newState);
+  //
+  // get mode in transformed system
+  //
+  Vector newMode = newGSU.computeModeWithoutTransform();
+  //
+  // transform back
+  //
+  if ( newGSU.modeIsValid() )  theModeStatus = Valid;
+  theMode = (ROOT::Math::Transpose(rotT)*newMode) + trans;
+
+  return theMode;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Vector
+GaussianSumUtilities<N>::computeModeWithoutTransform () const
+{
+#ifdef DRAW_GSND
+  gPad->Clear();
+  double x1 = mean()(v1Draw_);
+  double x2 = mean()(v2Draw_);
+  double sig1 = sqrt(covariance()(v1Draw_,v1Draw_));
+  double sig2 = sqrt(covariance()(v2Draw_,v2Draw_));
+  gPad->DrawFrame(x1-3*sig1,x2-3*sig2,x1+3*sig1,x2+3*sig2);  
+#endif
+  theModeStatus = NotValid;
+  //
+  // start values = means of components
+  //
+  typedef multimap<double, int, greater<double> > StartMap;
+  StartMap xStart;
+  for ( UInt_t i=0; i<size(); i++ ) {
+    xStart.insert(std::make_pair(pdf(mean(i)),i));
+  }
+  //
+  // now try with each start value
+  //
+#ifdef DRAW_GSND
+  int ind(0);
+#endif
+  pair<double,Vector> result(-1.,mean((*xStart.begin()).second));
+  for ( StartMap::const_iterator i=xStart.begin();
+	i!=xStart.end(); i++ ) {
+//     if ( theModeStatus==Valid &&
+// 	 (*i).first/(*xStart.begin()).first<0.75 )  break;
+    Vector x;  // Rely on root doc that x is initialised to 0!
+    double y;
+    bool valid = findMode(x,y,mean((*i).second));
+
+#ifdef DRAW_GSND
+    double xp[2];
+    double yp[2];
+    TGraph* g = new TGraph();
+    g->SetMarkerStyle(20+ind/4);
+    g->SetMarkerColor(1+ind%4);
+    g->SetLineColor(1+ind%4);
+    ++ind;
+#endif
+    if ( result.first<0. || 
+	 (y-result.first)/(y+result.first)>1.e-5 ) {
+      if ( valid )  theModeStatus = Valid;
+      result = std::make_pair(y,x);
+    }
+#ifdef DRAW_GSND
+    xp[0] = xp[1] = mean((*i).second)(v1Draw_);
+    yp[0] = yp[1] = mean((*i).second)(v2Draw_);
+    if ( valid ) {
+      xp[1] = x(v1Draw_);
+      yp[1] = x(v2Draw_);
+    }
+    g->DrawGraph(2,xp,yp,"LP");
+#endif
+  } 
+  //
+  // results
+  //
+  theMode = result.second;
+
+#ifdef DRAW_GSND
+//   {
+    TF2 f2("pdf2",&fcn2,x1-3*sig1,x1+3*sig1,x2-3*sig2,x2+3*sig2);  
+    f2.SetNpx(100);
+    f2.SetNpy(100);
+    f2.DrawClone("same");
+    gPad->Modified();
+    gPad->Update();
+//   }
+#endif
+#ifdef DBG_GSND
+  std::cout << "Scanning around iv " << v1Draw_ << " sig = ";
+  double sigv1 = sqrt(localCovariance(theMode)(v1Draw_,v1Draw_));
+  std::cout << sigv1 << std::endl;
+  for ( int i=-5; i<=5; ++i ) {
+    Vector xtest(theMode);
+    xtest(v1Draw_) = xtest(v1Draw_) + i/10.*sigv1;
+    std::cout << " " << pdf(xtest);
+  }
+  std::cout << std::endl;
+  std::cout << "Scanning around iv " << v2Draw_ << " sig = ";
+  double sigv2 = sqrt(localCovariance(theMode)(v2Draw_,v2Draw_));
+  std::cout << sigv2 << std::endl;
+  for ( int i=-5; i<=5; ++i ) {
+    Vector xtest(theMode);
+    xtest(v2Draw_) = xtest(v2Draw_) + i/10.*sigv2;
+    std::cout << " " << pdf(xtest);
+  }
+  std::cout << std::endl;
+  std::cout << "Test points" << std::endl;
+  Vector xtest(theMode);
+  xtest(v2Draw_) = 0.00012;
+  std::cout << " " << pdf(xtest);
+  xtest(v2Draw_) = 0.00040;
+  std::cout << " " << pdf(xtest);
+  xtest(v2Draw_) = 0.00075;
+  std::cout << " " << pdf(xtest);
+  std::cout << std::endl;
+#endif
+   return theMode;
+}
+
+// template <unsigned int N>
+// bool
+// GaussianSumUtilities<N>::findModeAlternative (Vector& xMode, double& yMode,
+// 					   const Vector& xStart) const
+// {
+//   //
+//   // follow gradient and reduce problem to 1D
+//   //
+//   bool result(false);
+//   Vector x1(N,0);
+//   double y1(0.);
+//   Vector x2(xStart);
+//   double y2(pdf(xStart));
+//   Vector yd(d1Pdf(xStart));
+//   int nLoop(0);
+//   while ( nLoop++<50 ) {
+// //   if ( fabs(y2-y1)/(y2+y1)<1.e-5 || yd.normsq()<DBL_MIN ) {
+//   if ( fabs(y2-y1)/(y2+y1)<1.e-5 || ROOT::Math::Mag2(yd)<DBL_MIN ) {
+//     result = true;
+//     break;
+//   }
+//     //
+//     // restrict to direction of gradient
+//     //
+//     MultiGaussianState1D oneDimState(constrainedState(yd,x2));
+//     GaussianSumUtilities1D gsUtils(oneDimState);
+
+//     x1 = x2;
+//     y1 = y2;
+//     double s = gsUtils.mode();
+//     x2 += s*yd;
+//     y2 = pdf(x2);
+//     yd = d1Pdf(x2);
+//   }
+//   xMode = x2;
+//   yMode = y2;
+//   return result;
+// }
+
+template <unsigned int N>
+bool
+GaussianSumUtilities<N>::findMode (Vector& xMode, double& yMode,
+			   const Vector& xStart) const
+{
+  //
+  // follow gradient and reduce problem to 1D
+  //
+  bool result(false);
+  Vector x1;  // Rely on root doc that x is initialised to 0!
+  double y1(0.);
+  Vector yd1; // Rely on root doc that x is initialised to 0!
+  Vector ydh1(yd1);
+  Vector x2(xStart);
+  double y2(pdf(xStart));
+  Vector yd2(d1LnPdf(xStart));
+  Vector ydh2(yd2);
+  Matrix hesse1 = ROOT::Math::SMatrixIdentity();
+  Matrix hesse2 = ROOT::Math::SMatrixIdentity();
+  hesse2 = d2LnPdf(xStart);
+  bool usedHesse(false);
+  int ifail;
+//   GenMatrix invHesse2(hesse2.inverse(ifail));
+  Matrix invHesse2 = hesse2.Inverse(ifail);
+  if ( ifail==0 ) {
+    ydh2 = -invHesse2*yd2;
+    usedHesse = true;
+  }
+  else {
+    // vector in direction of the gradient
+    // unit: 0.1 to get a similar range for the step size
+    // (distribution is assumed to be normalised)
+//     yd2 *= 0.1/yd2.normsq();
+    yd2 *= 0.1/ROOT::Math::Mag2(yd2);
+  }
+  if ( !usedHesse )  cout << "Hesse inversion failed" << endl;
+  int nLoop(0);
+  while ( nLoop++<50 ) {
+//     if ( fabs(y2-y1)/(y2+y1)<1.e-5 || yd2.normsq()<DBL_MIN ) {
+    std::cout << "Loop " << nLoop << std::endl;
+    for ( unsigned int i=0; i<N; ++i )  std::cout << " " << x1(i);
+    std::cout << " " << y1 << std::endl;
+    for ( unsigned int i=0; i<N; ++i )  std::cout << " " << x2(i);
+    std::cout << " " << y2 << std::endl;
+    for ( unsigned int i=0; i<N; ++i )  std::cout << " " << yd2(i);
+    std::cout << " " << ROOT::Math::Mag2(yd2) << std::endl;
+    if ( fabs(y2-y1)/(y2+y1)<1.e-5 || ROOT::Math::Mag2(yd2)<DBL_MIN ) {
+      result = true;
+      break;
+    }
+    double s(1.);
+      //
+      // restrict to direction of gradient
+      //
+      MultiGaussianState1D oneDimState(constrainedState(ydh2,x2));
+      GaussianSumUtilities1D gsUtils(oneDimState);
+      if ( !usedHesse || gsUtils.d2Pdf(0.)>=0. ) {
+	s = gsUtils.mode();
+	if ( !gsUtils.modeIsValid() )  s = 0.1;
+	if ( s<-3. )  s = -3.;
+	else if ( s>3. )  s = 3.;
+      }
+      x1 = x2;
+      y1 = y2;
+      yd1 = yd2;
+      ydh1 = ydh2;
+    x2 += s*ydh2;
+    y2 = pdf(x2);
+    yd2 = d1LnPdf(x2);
+    ydh2 = yd2;
+    Vector dyd(yd2-yd1);
+    hesse1 = hesse2;
+//     hesse2 += vT_times_v(dyd)/dot(dyd,ydh1)/s;
+//     hesse2 -= vT_times_v(yd1)/hesse1.similarity(ydh1)/s/s;
+    hesse2 += tensorProduct(dyd)/ROOT::Math::Dot(dyd,ydh1)/s;
+    hesse2 -= tensorProduct(yd1)/ROOT::Math::Similarity(ydh1,hesse1)/s/s;
+    hesse2 = d2LnPdf(x2);
+    usedHesse = false;
+    int ifail;
+//     GenMatrix invHesse2(hesse2.inverse(ifail));
+    Matrix invHesse2 = hesse2.Inverse(ifail);
+    if ( ifail==0 ) {
+      ydh2 = -invHesse2*yd2;
+      usedHesse = true;
+    }
+  else {
+    // vector in direction of the gradient
+    // unit: 0.1 to get a similar range for the step size
+    // (distribution is assumed to be normalised)
+//     yd2 *= 0.1/yd2.normsq();
+    yd2 *= 0.1/ROOT::Math::Mag2(yd2);
+  }
+  }
+#ifdef DBG_GSND
+  std::cout << "findMode started from" << std::endl;
+  for ( unsigned int i=0; i<N; ++i )  std::cout << " " << xStart(i);
+  std::cout << " " << pdf(xStart) << endl;
+  std::cout << "findMode terminated at" << std::endl;
+  for ( unsigned int i=0; i<N; ++i )  std::cout << " " << x2(i);
+  std::cout << " " << y2 << endl;
+  std::cout << "after " << nLoop << " iterations, result = " 
+	    << result << std::endl;
+#endif
+  xMode = x2;
+  yMode = y2;
+  return result;
+}
+
+template <unsigned int N>
+MultiGaussianState1D
+GaussianSumUtilities<N>::constrainedState (const Vector& d,
+			       const Vector& x0) const
+{
+  const double fNorm(1./(2*TMath::Pi()));
+  std::vector<SingleGaussianState1D> states;
+  states.reserve(size());
+  for ( typename SingleStateContainer::const_iterator i=components().begin();
+	i!=components().end(); i++ ) {
+    Vector dx((**i).mean()-x0);
+//     double dGd = (**i).weightMatrix().similarity(d);
+    double dGd = ROOT::Math::Similarity(d,(**i).weightMatrix());
+    Vector gDx = (**i).weightMatrix()*dx;
+//     double dxGdx = dot(dx,gDx);
+//     double dGdx = dot(d,gDx);
+    double dxGdx = ROOT::Math::Dot(dx,gDx);
+    double dGdx = ROOT::Math::Dot(d,gDx);
+    double weight((**i).weight());
+//     weight *= sqrt(determinant((**i).weightMatrix())*
+// 		   pow(fNorm,N-1)/dGd);
+    double det;
+    (**i).weightMatrix().Det2(det);
+    weight *= sqrt(det*pow(fNorm,N-1)/dGd);
+    double exponent = dxGdx - dGdx*dGdx/dGd;
+    if ( exponent>-400. )  weight *= exp(-0.5*exponent);
+    else  weight = 0.;
+    states.push_back(SingleGaussianState1D(dGdx/dGd,1./dGd,weight));
+  }
+  return MultiGaussianState1D(states);
+}
+
+template <unsigned int N>
+double
+GaussianSumUtilities<N>::pdf (const Vector& x) const
+{
+  double result(0.);
+  for ( typename SingleStateContainer::const_iterator i=components().begin();
+	i!=components().end(); i++ ) {
+    result += (**i).weight()*gauss(x,(**i).mean(),(**i).weightMatrix());
+  }
+  return result;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Vector
+GaussianSumUtilities<N>::d1Pdf (const Vector& x) const
+{
+  Vector result; // rely on root doc that vector is initialised to 0
+  for ( typename SingleStateContainer::const_iterator i=components().begin();
+	i!=components().end(); i++ ) {
+    Vector gx((**i).weightMatrix()*(x-(**i).mean()));
+    gx *= -(**i).weight()*gauss(x,(**i).mean(),(**i).weightMatrix());
+    result += gx;
+  }
+  return result;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Matrix
+GaussianSumUtilities<N>::d2Pdf (const Vector& x) const
+{
+  Matrix result; // (N,0);
+  for ( typename SingleStateContainer::const_iterator i=components().begin();
+	i!=components().end(); i++ ) {
+    Vector gx((**i).weightMatrix()*(x-(**i).mean()));
+//     Matrix c(vT_times_v(gx));
+    Matrix c(tensorProduct(gx));
+    c -= (**i).weightMatrix();
+    c *= (**i).weight()*gauss(x,(**i).mean(),(**i).weightMatrix());
+    result += c;
+  }
+  return result;
+}
+
+template <unsigned int N>
+double
+GaussianSumUtilities<N>::lnPdf (const Vector& x) const
+{
+  double result = pdf(x);
+  if ( result>DBL_MIN )  result = log(result);
+  else  result = -FLT_MAX;
+  return result;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Vector
+GaussianSumUtilities<N>::d1LnPdf (const Vector& x) const
+{
+  double f = pdf(x);
+  Vector result(d1Pdf(x));
+  if ( f>DBL_MIN )  result /= f;
+  else  result *= 0.;
+  return result;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Matrix
+GaussianSumUtilities<N>::d2LnPdf (const Vector& x) const
+{
+  double f(pdf(x));
+  Vector df(d1LnPdf(x));
+//   Matrix result(-vT_times_v(df));
+  Matrix result(-tensorProduct(df));
+  if ( f>DBL_MIN )  result += d2Pdf(x)/f;
+  return result;
+}
+
+template <unsigned int N>
+double 
+GaussianSumUtilities<N>::gauss (const double& x, const double& mean,
+		    const double& sigma) const 
+{
+  const double fNorm(1./sqrt(2*TMath::Pi()));
+  double result(0.);
+
+  double d((x-mean)/sigma);
+  if ( fabs(d)<20. )  result = exp(-d*d/2.);
+  result *= fNorm/sigma;
+  return result;
+}
+
+template <unsigned int N>
+double 
+GaussianSumUtilities<N>::gauss (const Vector& x, 
+		    const Vector& means,
+		    const Matrix& weightMatrix) const 
+{
+  const double fNorm(1./(2*TMath::Pi()));
+  double result(0.);
+
+  Vector dx(x-means);
+//   double d = weightMatrix.similarity(dx);
+  double d = ROOT::Math::Similarity(dx,weightMatrix);
+  if ( d<400. )  result = exp(-d/2.);
+  double det;
+  weightMatrix.Det2(det);
+//   result *= sqrt(pow(fNorm,N)*determinant(weightMatrix));
+  result *= sqrt(pow(fNorm,N)*det);
+  return result;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Matrix
+GaussianSumUtilities<N>::localCovariance (const Vector& x) const
+{
+  Matrix weightMatrix(d2Pdf(x));
+  weightMatrix *= -1./pdf(x);
+
+  int ifail;
+//   Matrix covariance(weightMatrix.inverse(ifail));
+  Matrix covariance = weightMatrix.Inverse(ifail);
+
+  if ( ifail!=0 ) {
+    std::cout << "GaussianSumUtilities<N>::sigmaAtMode : weight matrix is not pos. def." << std::endl;
+  }
+  return covariance;
+}
+
+template <unsigned int N>
+typename GaussianSumUtilities<N>::Matrix
+GaussianSumUtilities<N>::tensorProduct (const Vector& v) const
+{
+  Matrix result;
+  for ( unsigned int i=0; i<N; ++i ) {
+    for ( unsigned int j=0; j<N; ++j ) {
+      result(i,j) = v(i)*v(j);
+    }
+  }
+  return result;
+}
+
+#ifdef DRAW_GSND
+template <unsigned int N>
+double
+GaussianSumUtilities<N>::fcn2 (double* x, double* p) {
+  Vector point(instance_->mode());
+  point(v1Draw_) = x[0];
+  point(v2Draw_) = x[1];
+  return instance_->pdf(point);
+}
+
+template <unsigned int N> int GaussianSumUtilities<N>::v1Draw_ = 1;
+template <unsigned int N> int GaussianSumUtilities<N>::v2Draw_ = 2;
+template <unsigned int N> GaussianSumUtilities<N>* GaussianSumUtilities<N>::instance_ = 0;
+#endif

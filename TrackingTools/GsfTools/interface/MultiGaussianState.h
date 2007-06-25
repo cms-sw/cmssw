@@ -10,6 +10,10 @@
 // #include <signal.h>
 /// Mixture of multi-variate gaussian states
 
+/** Multi-dimensional multi-Gaussian mixture: weighted sum of single
+ *  Gaussian components.
+ */
+
 template <unsigned int N>
 class MultiGaussianState {
 public:
