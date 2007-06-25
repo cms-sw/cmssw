@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.51 2007/06/14 22:02:14 wmtan Exp $
+$Id: PoolSource.cc,v 1.52 2007/06/22 23:26:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -29,8 +29,6 @@ namespace edm {
     fileIter_(fileCatalogItems().begin()),
     rootFile_(),
     matchMode_(BranchDescription::Permissive),
-    lumiNumber_(0),
-    runNumber_(0),
     flatDistribution_(0),
     eventsRemainingInFile_(0)
   {
@@ -191,25 +189,12 @@ namespace edm {
     }
     boost::shared_ptr<RunPrincipal> rp =
 	 rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
-    runNumber_ = rp->run();
     return rp;
   }
 
   boost::shared_ptr<LuminosityBlockPrincipal>
   PoolSource::readLuminosityBlock_(boost::shared_ptr<RunPrincipal> rp) {
-    if (!rootFile_->lumiTree().next()) {
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    boost::shared_ptr<LuminosityBlockPrincipal> lbp =
-	 rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), rp); 
-    
-    if (runNumber_ != lbp->runNumber()) {
-      // The lumi block is in a different run.  Back up, and return a null pointer.
-      rootFile_->lumiTree().previous();
-      return boost::shared_ptr<LuminosityBlockPrincipal>();
-    }
-    lumiNumber_ = lbp->luminosityBlock();
-    return lbp;
+    return rootFile_->readLumi(primary() ? productRegistry() : rootFile_->productRegistry(), rp); 
   }
 
   // readEvent_() is responsible for creating, and setting up, the
@@ -228,17 +213,7 @@ namespace edm {
 
   std::auto_ptr<EventPrincipal>
   PoolSource::readEvent_(boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
-    if (!rootFile_->eventTree().next()) {
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    std::auto_ptr<EventPrincipal> ep =
-	 rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
-    if (runNumber_ != ep->runNumber() || lumiNumber_ != ep->luminosityBlock()) {
-      // The event is in a different run or lumi block.  Back up, and return a null pointer.
-      rootFile_->eventTree().previous();
-      return std::auto_ptr<EventPrincipal>(0);
-    }
-    return ep;
+    return rootFile_->readEvent(primary() ? productRegistry() : rootFile_->productRegistry(), lbp); 
   }
 
   std::auto_ptr<EventPrincipal>

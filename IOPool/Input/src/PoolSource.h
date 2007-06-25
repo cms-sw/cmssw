@@ -5,7 +5,7 @@
 
 PoolSource: This is an InputSource
 
-$Id: PoolSource.h,v 1.35 2007/06/14 22:02:14 wmtan Exp $
+$Id: PoolSource.h,v 1.36 2007/06/22 23:26:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -67,8 +67,6 @@ namespace edm {
     std::vector<FileCatalogItem>::const_iterator fileIter_;
     RootFileSharedPtr rootFile_;
     BranchDescription::MatchMode matchMode_;
-    LuminosityBlockNumber_t lumiNumber_;
-    RunNumber_t runNumber_;
 
     CLHEP::RandFlat * flatDistribution_;
     int eventsRemainingInFile_;

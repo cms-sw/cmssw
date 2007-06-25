@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.67 2007/06/21 16:52:44 wmtan Exp $
+$Id: RootFile.cc,v 1.68 2007/06/22 23:26:35 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -190,6 +190,9 @@ namespace edm {
   std::auto_ptr<EventPrincipal>
   RootFile::readEvent(boost::shared_ptr<ProductRegistry const> pReg,
 boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
+    if (!eventTree().next()) {
+      return std::auto_ptr<EventPrincipal>(0);
+    }
     if (fileFormatVersion_.value_ >= 3) {
       EventAuxiliary *pEvAux = &eventAux_;
       eventTree().fillAux<EventAuxiliary>(pEvAux);
@@ -214,6 +217,12 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
 				       processConfiguration_));
     }
 
+    if (eventAux_.run() != lbp->runNumber() ||
+	eventAux_.luminosityBlock() != lbp->luminosityBlock()) {
+      // The event is in a different run or lumi block.  Back up, and return a null pointer.
+      eventTree().previous();
+      return std::auto_ptr<EventPrincipal>(0);
+    }
     // We're not done ... so prepare the EventPrincipal
     std::auto_ptr<EventPrincipal> thisEvent(new EventPrincipal(
                 eventID(), eventAux_.time(), pReg,
@@ -262,6 +271,9 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(1, pReg, rp, processConfiguration_));
     }
+    if (!lumiTree().next()) {
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
+    }
     if (fileFormatVersion_.value_ >= 3) {
       LuminosityBlockAuxiliary *pLumiAux = &lumiAux_;
       lumiTree().fillAux<LuminosityBlockAuxiliary>(pLumiAux);
@@ -270,6 +282,12 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
       LuminosityBlockAux *pLumiAux = &lumiAux;
       lumiTree().fillAux<LuminosityBlockAux>(pLumiAux);
       conversion(lumiAux, lumiAux_);
+    }
+
+    if (lumiAux_.run() != rp->run()) {
+      // The lumi block is in a different run.  Back up, and return a null pointer.
+      lumiTree().previous();
+      return boost::shared_ptr<LuminosityBlockPrincipal>();
     }
     boost::shared_ptr<LuminosityBlockPrincipal> thisLumi(
 	new LuminosityBlockPrincipal(lumiAux_.luminosityBlock(), pReg, rp, processConfiguration_,
