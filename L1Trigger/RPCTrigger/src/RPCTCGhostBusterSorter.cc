@@ -56,7 +56,7 @@ L1RpcTBMuonsVec RPCTCGhostBusterSorter::run(L1RpcTBMuonsVec2 &tbMuonsVec2) {
       if(tbMuonsVec2[iTB][iMu].isLive()) {
         int etaAddr = tbMuonsVec2[iTB][iMu].getEtaAddr() | (iTB<<2); //m_tower number natural <0...35>
         etaAddr = m_TriggerConfig->towAddr2TowNum(etaAddr); //m_tower number: -16 : 16
-        etaAddr = etaAddr + 16;                     // m_tower number continous 0 : 32
+        //etaAddr = etaAddr + 16;                     // m_tower number continous 0 : 32
         etaAddr = m_TriggerConfig->towNum2TowNum2Comp(etaAddr); // 10 oct 2006 - moved from FS
         tbMuonsVec2[iTB][iMu].setEtaAddr(etaAddr);
 

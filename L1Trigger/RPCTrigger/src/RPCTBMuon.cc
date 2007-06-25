@@ -85,7 +85,7 @@ std::string RPCTBMuon::printDebugInfo(int debugFormat) const {
 // Simple setters and getters
 
 ///Combined quality and ptCode, 8 bits [7...5 m_Quality, 4...0 m_PtCode], used in GhoustBusters
-int RPCTBMuon::getCode() const {  return (m_Quality<<5 | m_PtCode); }
+int RPCTBMuon::getCode() const {  return (m_Quality<<5 | m_PtCode << 1 | m_Sign ); }
 
 ///Sets combined code: 8 bits [7...5 m_Quality, 4...0 m_PtCode].
 void RPCTBMuon::setCode(int code) {
