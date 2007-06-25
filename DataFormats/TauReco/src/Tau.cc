@@ -1,7 +1,6 @@
 #include "DataFormats/TauReco/interface/Tau.h"
 
 using namespace reco;
-Tau::~Tau(){}
 
 Tau::Tau() {
  TrackRefVector tmp;
