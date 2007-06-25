@@ -180,6 +180,8 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
   // Convert to TrackCandidates and fill in the output_p
   for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+
+    if( !it->isValid() ) continue;
     
     edm::OwnVector<TrackingRecHit> recHits;
     Trajectory::RecHitContainer thits = it->recHits();

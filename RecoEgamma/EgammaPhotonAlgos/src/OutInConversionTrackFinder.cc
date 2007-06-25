@@ -86,6 +86,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   ///// This loop is only for debugging
+  /*
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
     DetId tmpId = DetId( iSeed->startingState().detId());
     const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
@@ -105,6 +106,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     }
   } 
   
+  */
+
+
   
   
   
@@ -221,7 +225,8 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   // Converted to track candidates  
   for (std::vector<Trajectory>::const_iterator it =  result.begin(); it != result.end(); it++) {
-    
+    if( !it->isValid() ) continue;
+
     edm::OwnVector<TrackingRecHit> recHits;
     Trajectory::RecHitContainer thits = it->recHits();
     for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
