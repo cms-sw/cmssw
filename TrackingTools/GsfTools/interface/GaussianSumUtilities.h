@@ -6,7 +6,7 @@
 #include "TrackingTools/GsfTools/interface/MultiGaussianState.h"
 #include <vector>
 
-#define DRAW_GSND
+// #define DRAW_GSND
 
 /** Utility class for the analysis of multi-dimensional Gaussian
  *  mixtures. The input state is assumed to exist for 

@@ -3,13 +3,13 @@
 #include "TrackingTools/GsfTools/interface/SingleGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"
 #include "TrackingTools/GsfTools/interface/GaussianSumUtilities1D.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <TROOT.h>
-#include <TMath.h>
-
-#include <TVectorD.h>
-#include <TMatrixDSym.h>
-#include <TMatrixDSymEigen.h>
+#include "TROOT.h"
+#include "TMath.h"
+#include "TVectorD.h"
+#include "TMatrixDSym.h"
+#include "TMatrixDSymEigen.h"
 
 #include <iostream>
 #include <cmath>
@@ -17,13 +17,7 @@
 #include <map>
 #include <functional>
 
-using std::cout;
-using std::endl;
-using std::multimap;
-using std::pair;
-using std::greater;
-
-#define DBG_GSND
+// #define DBG_GSND
 #ifdef DRAW_GSND
 #include "TCanvas.h"
 #include "TF2.h"
@@ -77,11 +71,11 @@ GaussianSumUtilities<N>::computeMode () const
   TMatrixD eigenVectors = eigen.GetEigenVectors();
   diag.SimilarityT(eigenVectors);
 //   for ( unsigned int i=0; i<N; ++i ) {
-//     cout << i << eigenValues(i);
+//     std::cout << i << eigenValues(i);
 //     for ( unsigned int j=0; j<N; ++j ) {
-//       cout << " " << diag(i,j);
+//       std::cout << " " << diag(i,j);
 //     }
-//     cout << endl;
+//     std::cout << std::endl;
 //   }
   GenMatrix rotT;
   for ( unsigned int i=0; i<N; ++i ) {
@@ -120,6 +114,9 @@ GaussianSumUtilities<N>::computeMode () const
   if ( newGSU.modeIsValid() )  theModeStatus = Valid;
   theMode = (ROOT::Math::Transpose(rotT)*newMode) + trans;
 
+  if ( theModeStatus!=Valid )
+    edm::LogWarning("GaussianSumUtilities") << "multi-dimensional mode calculation failed";
+
   return theMode;
 }
 
@@ -137,20 +134,21 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
 #endif
   theModeStatus = NotValid;
   //
-  // start values = means of components
+  // Use means of individual components as start values.
+  // Sort by value of pdf.
   //
-  typedef multimap<double, int, greater<double> > StartMap;
+  typedef std::multimap<double, int, std::greater<double> > StartMap;
   StartMap xStart;
   for ( UInt_t i=0; i<size(); i++ ) {
     xStart.insert(std::make_pair(pdf(mean(i)),i));
   }
   //
-  // now try with each start value
+  // Now try with each start value
   //
 #ifdef DRAW_GSND
   int ind(0);
 #endif
-  pair<double,Vector> result(-1.,mean((*xStart.begin()).second));
+  std::pair<double,Vector> result(-1.,mean((*xStart.begin()).second));
   for ( StartMap::const_iterator i=xStart.begin();
 	i!=xStart.end(); i++ ) {
 //     if ( theModeStatus==Valid &&
@@ -168,10 +166,12 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
     g->SetLineColor(1+ind%4);
     ++ind;
 #endif
+    if ( valid ) {
     if ( result.first<0. || 
 	 (y-result.first)/(y+result.first)>1.e-5 ) {
       if ( valid )  theModeStatus = Valid;
       result = std::make_pair(y,x);
+    }
     }
 #ifdef DRAW_GSND
     xp[0] = xp[1] = mean((*i).second)(v1Draw_);
@@ -184,9 +184,14 @@ GaussianSumUtilities<N>::computeModeWithoutTransform () const
 #endif
   } 
   //
-  // results
+  // check (existance of) solution
   //
-  theMode = result.second;
+  if ( theModeStatus==Valid ) {
+    theMode = result.second;
+  }
+  else {
+    theMode = mean();
+  }
 
 #ifdef DRAW_GSND
 //   {
@@ -304,7 +309,7 @@ GaussianSumUtilities<N>::findMode (Vector& xMode, double& yMode,
 //     yd2 *= 0.1/yd2.normsq();
     yd2 *= 0.1/ROOT::Math::Mag2(yd2);
   }
-  if ( !usedHesse )  cout << "Hesse inversion failed" << endl;
+  if ( !usedHesse )  std::cout << "Hesse inversion failed" << std::endl;
   int nLoop(0);
   while ( nLoop++<50 ) {
 //     if ( fabs(y2-y1)/(y2+y1)<1.e-5 || yd2.normsq()<DBL_MIN ) {
@@ -365,10 +370,10 @@ GaussianSumUtilities<N>::findMode (Vector& xMode, double& yMode,
 #ifdef DBG_GSND
   std::cout << "findMode started from" << std::endl;
   for ( unsigned int i=0; i<N; ++i )  std::cout << " " << xStart(i);
-  std::cout << " " << pdf(xStart) << endl;
+  std::cout << " " << pdf(xStart) << std::endl;
   std::cout << "findMode terminated at" << std::endl;
   for ( unsigned int i=0; i<N; ++i )  std::cout << " " << x2(i);
-  std::cout << " " << y2 << endl;
+  std::cout << " " << y2 << std::endl;
   std::cout << "after " << nLoop << " iterations, result = " 
 	    << result << std::endl;
 #endif
