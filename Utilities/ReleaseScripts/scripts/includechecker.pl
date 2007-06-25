@@ -14,6 +14,7 @@ my $cache_file="config_cache";
 my $max_pack_depth=2;
 my %extra_dummy_file;
 $extra_dummy_file{string}{"bits/stringfwd.h"}=1;
+$extra_dummy_file{stdexcept}{"exception"}=1;
 $config_cache->{COMPILER}="c++";
 $config_cache->{COMPILER_FLAGS}[0]="";
 $config_cache->{HEADER_EXT}="\\.(h|hpp)";
@@ -21,16 +22,22 @@ $config_cache->{SOURCE_EXT}="\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)";
 $config_cache->{INCLUDE_FILTER}=".+";
 $config_cache->{SKIP_INCLUDES}{".+?:.+?\\.icc"}=1;
 $config_cache->{OWNHEADER}{"^(.*?)\\.(cc|CC|cpp|C|c|CPP|cxx|CXX)"}="\"\${1}.h\"";
-$config_cache->{FWDHEADER}{"^.*?(\\/|)[^\\/]*[Ff][Ww][Dd].h"}=1;
+$config_cache->{FWDHEADER}{'^.*?(\\/|)[^\\/]*[Ff][Ww][Dd].h$'}=1;
+$config_cache->{FWDHEADER}{'^iosfwd$'}=1;
+$config_cache->{FWDHEADER}{'^bits\/stringfwd.h$'}=1;
 
 if(&GetOptions(
                "--config=s",\$config,
 	       "--tmpdir=s",\$tmp_dir,
+	       "--filter=s",\$filefilter,
+	       "--redo=s",\$redo,
+	       "--redoerr",\$redoerr,
 	       "--keep",\$keep,
                "--detail",\$detail,
                "--recursive",\$recursive,
 	       "--includeall",\$includeall,
                "--unique",\$unique,
+	       "--sysheader",\$system_header_skip,
                "--help",\$help,
               ) eq ""){print "ERROR: Wrong arguments.\n"; &usage_msg();}
 
@@ -45,6 +52,12 @@ if ((!defined $config) || ($config=~/^\s*$/) || (!-f $config))
 if(defined $unique){$unique=1;}
 else{$unique=0;}
 
+if(defined $redoerr){$redoerr=1;}
+else{$redoerr=0;}
+
+if(defined $system_header_skip){$system_header_skip=0;}
+else{$system_header_skip=1;}
+
 if(defined $includeall){$includeall=1;}
 else{$includeall=0;}
 
@@ -53,6 +66,10 @@ else{$detail=0;}
 
 if(defined $recursive){$recursive=1;}
 else{$recursive=0;}
+
+if((!defined $filefilter) || ($filefilter=~/^\s*$/)){$filefilter="";}
+
+if((!defined $redo) || ($redo=~/^\s*$/)){$redo="";}
 
 if(!defined $keep){$keep=0;}
 else{$keep=1;}
@@ -68,6 +85,8 @@ system("mkdir -p $tmp_dir");
 print "TMP directory:$tmp_dir\n";
 &init ($config);
 chdir($tmp_dir);
+if($filefilter eq ""){$filefilter=".+";}
+print "MSG: Skipping the checking of system headers:$system_header_skip\n";
 
 foreach my $f (sort(keys %{$config_cache->{FILES}}))
 {&check_file($f);}
@@ -106,11 +125,10 @@ sub check_includes ()
   {$config_cache->{FILES}{$origfile}{INCLUDES}{$cache->{includes}[$i]}=$cache->{includes_line}[$i];}
   
   my $skip=&is_skipped($origfile);
-  my $deperror=0;
+  $config_cache->{FILES}{$origfile}{INTERNAL_SKIP}=$skip;
   my %pincs=();
   for(my $i=0; $i<$total_inc; $i++)
   {
-    my $inc_deperr=0;
     my $inc_file=$cache->{includes}[$i];
     my $inc_line=$cache->{includes_line}[$i];
     my $b="";
@@ -127,42 +145,41 @@ sub check_includes ()
 	$cache->{includes}[$i]=$inc_file;
 	$cache->{includes_line}[$i]=$inc_line;
 	$pincs{$inc_file}=1;
+	$config_cache->{FILES}{$origfile}{INCLUDES}{$inc_file}=$inc_line;
+	delete $config_cache->{FILES}{$origfile}{INCLUDES}{$pinc};
 	print "MSG: Private header $pinc in $origfile file.($inc_file : $inc_line)\n";
       }
     }
     else{$b=&find_file ($inc_file);}
     
-    if((exists $config_cache->{FILES}{$inc_file}) && ($config_cache->{FILES}{$inc_file}{DONE}) && (exists $config_cache->{FILES}{$inc_file}{ERROR}))
-    {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$inc_deperr=1;}}
-
     my $inc_skip = &is_skipped($inc_file);
-    if(!$inc_skip && $includeall && (!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}))
+    if(!$inc_skip)
     {
-      push @{$config_cache->{FILES}{$origfile}{ALL_INCLUDES_ORDERED}}, $inc_file;
-      $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}=$inc_line;
+      if (!$recursive && !exists $config_cache->{FILES}{$inc_file}){$inc_skip=1;}
+      elsif ($inc_file!~/$filter/){$inc_skip=1;}
     }
-    
-    if (!$recursive && !exists $config_cache->{FILES}{$inc_file}){next;}
-    if ($inc_file!~/$filter/){next;}
     if ($b ne "")
     {
       if (!exists $config_cache->{FILES}{$inc_file})
       {
-	my $incdir1=$inc_file;
-	my $dirdepth=0;
-	while((!exists $config_cache->{FILES}{$inc_file}) && ($dirdepth<$max_pack_depth))
+	if(!$inc_skip)
 	{
-	  $dirdepth++;
-	  $incdir1=dirname($incdir1);
-	  if (($incdir1 eq "/") || ($incdir1 eq ".") || ($incdir1 eq "")){last;}
-	  foreach my $tmpfile (keys %{$config_cache->{FILES}})
+	  my $incdir1=$inc_file;
+	  my $dirdepth=0;
+	  while((!exists $config_cache->{FILES}{$inc_file}) && ($dirdepth<$max_pack_depth))
 	  {
-	    if ($config_cache->{FILES}{$tmpfile}{BASE_DIR} eq $b)
+	    $dirdepth++;
+	    $incdir1=dirname($incdir1);
+	    if (($incdir1 eq "/") || ($incdir1 eq ".") || ($incdir1 eq "")){last;}
+	    foreach my $tmpfile (keys %{$config_cache->{FILES}})
 	    {
-	      my $incdir2=$tmpfile;
-	      for(my $k=0;$k<$dirdepth;$k++){$incdir2=dirname($incdir2);}
-	      if ($incdir1 eq $incdir2)
-	      {$config_cache->{FILES}{$inc_file}{COMPILER_FLAGS_INDEX}=$config_cache->{FILES}{$tmpfile}{COMPILER_FLAGS_INDEX};last;}
+	      if ($config_cache->{FILES}{$tmpfile}{BASE_DIR} eq $b)
+	      {
+	        my $incdir2=$tmpfile;
+	        for(my $k=0;$k<$dirdepth;$k++){$incdir2=dirname($incdir2);}
+	        if ($incdir1 eq $incdir2)
+	        {$config_cache->{FILES}{$inc_file}{COMPILER_FLAGS_INDEX}=$config_cache->{FILES}{$tmpfile}{COMPILER_FLAGS_INDEX};last;}
+	      }
 	    }
 	  }
 	}
@@ -170,9 +187,8 @@ sub check_includes ()
 	if (!exists $config_cache->{FILES}{$inc_file}{COMPILER_FLAGS_INDEX})
 	{$config_cache->{FILES}{$inc_file}{COMPILER_FLAGS_INDEX}=scalar(@{$config_cache->{COMPILER_FLAGS}})-1;}
       }
+      $config_cache->{FILES}{$inc_file}{INTERNAL_SKIP}=$inc_skip;
       &check_file($inc_file);
-      if(exists $config_cache->{FILES}{$inc_file}{ERROR})
-      {if($config_cache->{FILES}{$inc_file}{ERROR} > 0){$inc_deperr=1;}}
       
       my $num=$cache->{includes_line_number}[$i];
       my $cur_total = scalar(@{$cache->{includes}});
@@ -187,7 +203,7 @@ sub check_includes ()
 	    $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc}=$l;
 	  }
         }
-        if($inc_skip && (!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}))
+        if(!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file})
         {
           push @{$config_cache->{FILES}{$origfile}{ALL_INCLUDES_ORDERED}}, $inc_file;
           $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}=$inc_line;
@@ -198,8 +214,11 @@ sub check_includes ()
         foreach my $inc (@{$config_cache->{FILES}{$inc_file}{ALL_INCLUDES_REMOVED_ORDERED}})
 	{
 	  my $l=$config_cache->{FILES}{$inc_file}{ALL_INCLUDES_REMOVED}{$inc};
-	  push @{$config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED_ORDERED}}, $inc;
-	  $config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED}{$inc}=$l;
+	  if(!exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED}{$inc})
+	  {
+	    push @{$config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED_ORDERED}}, $inc;
+	    $config_cache->{FILES}{$origfile}{ALL_INCLUDES_REMOVED}{$inc}=$l;
+	  }
 	}
 	next;
       }
@@ -226,13 +245,18 @@ sub check_includes ()
 	  &add_include ($srcfile, $num, $l);
 	}
 	if($detail)
-	{print "Added \"$inc\" as it was removed from or included in \"$inc_file\" file.\n";}
+	{print "Added \"$inc\" in \"$origfile\". Removed/included in \"$inc_file\"\n";}
 	$num++;
 	$cur_total++;
 	$config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT}{$inc}=1;
 	$config_cache->{FILES}{$origfile}{INCLUDES}{$inc}=$l;
 	$inc_added++;
       }
+    }
+    elsif($includeall && !exists $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file})
+    {
+      push @{$config_cache->{FILES}{$origfile}{ALL_INCLUDES_ORDERED}}, $inc_file;
+      $config_cache->{FILES}{$origfile}{ALL_INCLUDES}{$inc_file}=$inc_line;
     }
   }
   print "#################################################\n";
@@ -243,44 +267,53 @@ sub check_includes ()
   print "  Empty lines            : ".$cache->{empty_lines}."\n";
   print "  Number of includes     : ".$total_inc."\n";
   print "  Additional Includes    : ".$inc_added."\n\n";
-  
-  $config_cache->{FILES}{$origfile}{ERROR}=$deperror;
+  $config_cache->{FILES}{$origfile}{ERROR}=0;
   if($skip)
   {
-    if($detail)
-    {
-      my $msg="Skipping \"$origfile\" due to ";
-      if($skip && $deperror)
-      {$msg.="SKIP_FILES flag in the config file and errors ($deperror) in files included by it.";}
-      elsif($deperror){$msg.="errors ($deperror) in files included by it.";}
-      else{$msg.="SKIP_FILES flag in the config file.";}
-      print "$msg\n";
-    }
+    if($detail){print "SKIPPED:$origfile\n";}
     return;
   }
   
   my $stime=time;
   my $oflags=$config_cache->{COMPILER_FLAGS}[$config_cache->{FILES}{$origfile}{COMPILER_FLAGS_INDEX}];
-  my $xflags="-I-";  
-  #my $xflags="";
+  my $xflags="-I-";
   $oflags=~s/\B$xflags\B//;
-  my $flags="-shared -fsyntax-only -I -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $xflags -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir}  $oflags";
   my $compiler=$config_cache->{COMPILER};
+  my $xincshash={};
+  my $xincs="";
   my $error=0;
-  my @origwarns=`$compiler $flags -o ${srcfile}.o $srcfile 2>&1`;
-  if ($? != 0)
-  {$error=1;}
-  
+  my $flags="-shared -fsyntax-only -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $oflags";
+  my @origwarns=`$compiler -MMD $flags -o ${srcfile}.o $srcfile 2>&1`;
+  if ($? != 0){$error=1;}
+  elsif(-f "${srcfile}.d")
+  {
+    my $inc_cache=&read_mmd("${srcfile}.d");
+    foreach my $inc (@$inc_cache)
+    {
+      if($inc=~/^\/.+$/)
+      {
+        my $d=dirname($inc);
+        if(!exists $xincshash->{$d}){$xincshash->{$d}=1;$xincs.=" -I$d";}
+      }
+    }
+    $config_cache->{FILES}{$origfile}{ALL_ACTUAL_INCLUDE_DIRS}=$xincshash;
+  }
   my $origwarns_count=scalar(@origwarns);
   foreach my $warn (@origwarns)
   {chomp $warn;$warn=~s/$srcfile/${base_dir}\/${origfile}/;}
 
+  if($detail)
+  {
+    print "---------------- COMPILATION FLAGS ----------------\n";
+    print "$flags\n";
+    print "---------------------------------------------------\n";
+  }
   $total_inc=scalar(@{$cache->{includes}});
   if($detail && (exists $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT}))
   {
     if($includeall)
-    {print "Following files are added (because those were removed or indirectly added from included headers)\n";}
-    else{print "Following files are added (because those were removed from included headers)\n"}
+    {print "Following files are added (because those were removed or indirectly added from included headers) ";}
+    else{print "Following files are added (because those were removed from included headers)";}
     print "inorder to make the compilation work.\n";
     foreach my $f (keys %{$config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT}})
     {print "  $f\n";}
@@ -290,11 +323,7 @@ sub check_includes ()
   {
     print "File should be compiled without errors.\n";
     print "Compilation errors are:\n";
-    foreach my $w (@origwarns)
-    {
-      $w=~s/$srcfile/${base_dir}\/${origfile}/;
-      print "$w\n";
-    }
+    foreach my $w (@origwarns){print "$w\n";}
     print "\nCompilation might be failed due to the fact that this file\n";
     print "is not self parsed";
     if (exists $config_cache->{FILES}{$origfile}{INCLUDE_REMOVED_INDIRECT})
@@ -313,7 +342,6 @@ sub check_includes ()
       }
     }
     else{print ".\n";}
-    print "\nCompiler flags used are:\n$flags\n";
     delete $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT};
     delete $config_cache->{FILES}{$origfile}{INCLUDE_REMOVED_INDIRECT};
     $config_cache->{FILES}{$origfile}{ERROR}=1;
@@ -342,16 +370,17 @@ sub check_includes ()
   if($detail && $origwarns_count>0)
   {
     print "---------------- $origfile: ORIGINAL WARNINGS -------------------\n";
-    print "ORIGINAL WARNINGS\n";
-    foreach my $w (@origwarns)
-    {print "$w\n";}
+    foreach my $w (@origwarns){print "$w\n";}
     print "---------------- $origfile: ORIGINAL WARNINGS : DONE ------------\n";
   }
   
   my $num = -1;
   my $fwdcheck=0; 
-  $flags=~s/\B$xflags\B//;
-  while(1){
+  `$compiler -M $flags -o ${srcfile}.d $srcfile 2>&1`;
+  $config_cache->{FILES}{$origfile}{INC_ORIG_PATH}=&find_incs_in_deps("${srcfile}.d",$config_cache->{FILES}{$origfile}{INCLUDES});
+  my $minc={};
+  while(1)
+  {
     my $i=&find_next_index ($cache, $num, $fwdcheck);
     if ($i==-1)
     {
@@ -367,62 +396,143 @@ sub check_includes ()
     foreach my $sinc (keys %{$config_cache->{SKIP_INCLUDES}})
     {if($skip_inc=~/$sinc$/){$skip_inc=""; $sinc_exp=$sinc;last;}}
     if ($skip_inc eq "")
-    {
-      if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to \"$sinc_exp\" SKIP_INCLUDES flag in the config file\n";}
-      next;
-    }
+    {if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to \"$sinc_exp\" SKIP_INCLUDES flag in the config file\n";} next;}
     if ($inc_file eq $own_header)
-    { 
-      if($detail){print "  Skipping the checking of $inc_file (Assumption: .cc always needs its own .h)\n";}
-      next;
-    }
-    &comment_line ($srcfile, $num);
-    if(!$includeall)
-    {if(exists $extra_dummy_file{$inc_file}){&createdummyfile ($inc_file,1);}}
-    my $inc_req=0;
+    {if($detail){print "  Skipping the checking of $inc_file (Assumption: .cc always needs its own .h)\n";} next;}
+
+    my $force_inc_remove=0;
     my $exists_in_own_header=0;
+    my $sys_flags="";
     if (($own_header ne "") && 
         (exists $config_cache->{FILES}{$own_header}) &&
 	(exists $config_cache->{FILES}{$own_header}{INCLUDES}{$inc_file}))
-    {$exists_in_own_header=1;}
+    {$exists_in_own_header=1;$force_inc_remove=1;}
+    else
+    {
+      my $inc_fpath=$config_cache->{FILES}{$origfile}{INC_ORIG_PATH}{$inc_file};
+      if(!$inc_fpath){print "ERROR: Could not find full include path for \"$inc_file\" from \"$origfile\"\n";}
+      if(&is_system_header($inc_fpath,$xincshash))
+      {
+        $sys_flags="-I";
+	if($system_header_skip)
+	{
+	  if(!exists $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT} ||
+	     !exists $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT}{$inc_file})
+	  {if($detail){print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to SYSTEM HEADERS\n";} next;}
+	  else{$force_inc_remove=1; print "  FORCED REMOVED:$origfile:$inc_file\n";}
+        }
+      }
+    }
+    
+    &comment_line ($srcfile, $num);
+    if (exists $minc->{$inc_file})
+    {
+      print "  Skipping checking of \"$inc_file\" in \"$origfile\" due to MULTIPLE INCLUDE STATEMENTS\n";
+      $force_inc_remove=1;
+    }
+    else{$minc->{$inc_file}=1;}
     my $loop=2;
-    if($unique){$loop=1;};
+    if($force_inc_remove){$loop=0;}
+    elsif($unique){$loop=1;}
     my @warns=();
-    $flags="-shared -fsyntax-only -I -I${tmp_dir}/${dummy_inc} -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $xflags -I${tmp_dir}/${dummy_inc} -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $oflags";
+    my $xincflags="";
+    my $inc_req=0;
+    my $process_flag=0;
     for(my $x=0;$x<$loop;$x++)
     {
       @warns=();
+      system("rm -f ${srcfile}.o ${srcfile}.d"); 
+      if($x==0)
+      {
+	my $xf="";
+	if(!$unique){$xf="-MD";}
+        $flags="-shared -fsyntax-only $xf -I $xflags -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $oflags";
+      }
+      elsif($x==1)
+      {$flags="-MD -shared -fsyntax-only $sys_flags $xflags $xincflags -I${tmp_dir}/${dummy_inc} -I${tmp_dir}/${tmp_inc}/${origrel_dir} -I${tmp_dir}/${tmp_inc} -I${orig_dir} $xincs $oflags";}
       @warns=`$compiler $flags -o ${srcfile}.o $srcfile 2>&1`;
       my $ret_val=$?;
       foreach my $w (@warns)
       {chomp $w;$w=~s/$srcfile/${base_dir}\/${origfile}/;}
       my $nwcount=scalar(@warns);
-      if($detail && $nwcount)
+      if($detail)
       {
-        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (ieration: ",$x+1,") ----------\n";
+        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (iteration: $x) ----------\n";
         foreach my $w (@warns){print "$w\n";}
-        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (ieration: ",$x+1,") DONE -----\n";
+        print "---------- $origfile : ACTUAL WARN/ERRORS AFTER REMOVING $inc_file (iteration: $x) DONE -----\n";
+      }
+      if($x==1)
+      {
+        if(-f "${srcfile}.d")
+        {
+          my $xc=&find_inc_in_deps("${srcfile}.d",$inc_file);
+          $config_cache->{FILES}{$origfile}{DUMMY_INCLUDE}{"$x:$process_flag:$ret_val"}=$xc;
+	  my $dc=0;my $dct=0;
+          foreach my $fn (keys %$xc)
+          {
+	    $dct++;
+	    if($fn!~/^${tmp_dir}\/${dummy_inc}\/.+/){$dc++;}
+	    else{delete $xc->{$fn};}
+	  }
+          if($dc)
+          {
+            print "XINCLUDE SELECTED:$origfile:$inc_file:$dc:",join(",",keys %$xc),"\n";
+	    if($process_flag==0)
+	    {
+              print "CREATING EXTRA REL FILES:$origfile:$inc_file\n";
+	      my $relpaths=&find_inc_rel_path($flags,$xc);
+	      foreach my $d (@$relpaths){&createdummyfile1($d);print "  $d\n";}
+	      $x--;
+	      $process_flag++;
+	      next;
+	    }
+	    if($process_flag==1)
+            {
+	      if($sys_flags){$sys_flags="";}
+              else{$sys_flags="-I";}
+              $x--;
+	      $process_flag++;
+              next;
+            }
+	    print "STILL HAVE NON-DUMMY INCLUDE:$origfile:$inc_file:$sys_flags\n";
+	    $inc_req=&islocalinc($config_cache->{FILES}{$origfile},$inc_file);
+	    last;
+	  }
+	  elsif($dct==0)
+	  {
+	    print "NO INDIRECT INCLUDE:$origfile:$inc_file:$sys_flags\n";
+	    $inc_req=&islocalinc($config_cache->{FILES}{$origfile},$inc_file);
+	    last;
+	  }
+        }
+	else
+	{
+	  print "NO DEPENDENCY FILE:$origfile:$inc_file:$sys_flags\n";
+	  $inc_req=&islocalinc($config_cache->{FILES}{$origfile},$inc_file);
+	  last;
+	}
       }
       if ($ret_val != 0)
       {
 	if($x==0){$inc_req=1;}
 	else
 	{
-	  my @warns1=();
 	  my $sf="${base_dir}/${origfile}";
 	  foreach my $w (@warns)
 	  {
-	    if($w=~/^\s*$sf:\d+:\s*/)
-	    {$inc_req=1;push @warns1, $w;}
-	    elsif(($inc_req==0) && ($w=~/^.+?:\d+:\s+confused by earlier errors/))
+	    foreach my $ow (@origwarns)
+	    {if("$ow" eq "$w"){$w="";last;}}
+	    if($w)
 	    {
-	      $inc_req=1;
-	      foreach my $w (@warns)
-	      {push @warns1, $w;}
-	      last;
+	      if($w=~/^\s*$sf:\d+:\s*/)
+	      {
+	        if($w!~/\s+instantiated from here\s*$/)
+	        {$inc_req=1; last;}
+	      }
+	      elsif($w=~/^.+?:\d+:\s+confused by earlier errors/)
+	      {$inc_req=1;last;}
 	    }
 	  }
-	  @warns=@warns1;
 	}
       }
       elsif ($origwarns_count == scalar(@warns))
@@ -435,16 +545,25 @@ sub check_includes ()
         }
       }
       else{$inc_req=1;}
-      if(($x==0) && (!$inc_req) && (!$unique) && (!$exists_in_own_header))
+      if($inc_req || $unique){last;}
+      elsif($x==0)
       {
-        if($includeall || (!exists $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT}{$inc_file})){&createdummyfile ($inc_file);}
-	else{last;}
+        my $c=&find_inc_in_deps("${srcfile}.d",$inc_file);
+	my $icount=scalar(keys %$c);
+        if($icount==0){last;}
+	&createdummyfile ($config_cache->{FILES}{$origfile},$inc_file);
+	my $d=dirname($inc_file);
+	while(($d ne ".") && ($d ne "/"))
+	{
+	  $xincflags.=" -I${tmp_dir}/${dummy_inc}/${d}";
+	  $d=dirname($d);
+	}
       }
-      else{last;}
     }
     &cleanupdummydir();
     if($inc_req==0)
     {
+      if($unique){delete $minc->{$inc_file};}
       system("rm -f ${srcfile}.backup");
       $inc_removed++;
       if($detail || !exists $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT} ||
@@ -476,16 +595,8 @@ sub check_includes ()
       {print "  Checking \"$inc_file\" at line number \"$num\" ..... [ Required (ADD) ]\n";$actual_inc_added++;}
       elsif($detail)
       {print "  Checking \"$inc_file\" at line number \"$num\" ..... [ Required ]\n";}
-      
-      if(($detail || $extra) && scalar(@warns) > 0)
-      {
-	print "------------ $origfile : DIFF in WARN/ERRORS ($inc_file) -------------\n";
-	foreach my $w (@warns)
-	{print "$w\n";}
-	print "------------ $origfile : DIFF in WARN/ERRORS ($inc_file) DONE --------\n";
-      }
     }
-    system("rm -f ${srcfile}.o");
+    system("rm -f ${srcfile}.o ${srcfile}.d");
   }
   system("grep -v \"//INCLUDECHECKER: Removed this line:.*//INCLUDECHECKER: Added this line\" $srcfile > ${srcfile}.new");
   my $diff=`diff ${srcfile}.new ${base_dir}/${origfile}`; chomp $diff;
@@ -498,10 +609,10 @@ sub check_includes ()
     {
       my $file="${tmp_dir}/${tmp_inc}/${pinc}";
       my $b=$config_cache->{FILES}{$pinc}{BASE_DIR};
-      print "MSG: Private Include Copy: ${b}/${pinc} => $file\n";
       if(!-f $file)
       {
-        $dir=dirname($file);
+        print "MSG: Private Include Copy: ${b}/${pinc} => $file\n";
+	$dir=dirname($file);
         system("mkdir -p $dir; cp ${b}/${pinc} $file");
       }
     }
@@ -516,24 +627,107 @@ sub check_includes ()
   delete $config_cache->{FILES}{$origfile}{INCLUDE_ADDED_INDIRECT};
 }
 
+sub  islocalinc ()
+{
+  my $cache=shift;
+  my $inc=shift;
+  if(!exists $cache->{INCLUDE_ADDED_INDIRECT} ||
+     !exists $cache->{INCLUDE_ADDED_INDIRECT}{$inc})
+  {return 1;}
+  return 0;
+}
+
 sub createdummyfile ()
 {
+  my $cache=shift;
   my $file=shift;
-  my $extra_only=shift || 0;;
-  my $dir="${tmp_dir}/${dummy_inc}/".dirname($file);
-  my $file1=basename($file);
+  my $extra_only=shift || 0;
   if(!$extra_only)
-  {system("mkdir -p $dir; touch ${dir}/${file1}");}
+  {&createdummyfile1 ($file);}
   if(exists $extra_dummy_file{$file})
   {
     foreach my $f (keys %{$extra_dummy_file{$file}})
-    {&createdummyfile ($f);}
+    {
+      if(!exists $cache->{INCLUDES}{$f})
+      {&createdummyfile ($cache,$f);}
+    }
   }
+}
+
+sub createdummyfile1 ()
+{
+  my $file=shift;
+  my $dir="${tmp_dir}/${dummy_inc}/".dirname($file);
+  my $file1=basename($file);
+  system("mkdir -p $dir; touch ${dir}/${file1}");
 }
 
 sub cleanupdummydir()
 {
   system("rm -rf ${tmp_dir}/${dummy_inc}/* 2>&1 > /dev/null");
+}
+
+sub is_system_header ()
+{
+  my $file=shift;
+  my $cache=shift;
+  if($file=~/^${tmp_dir}\/${tmp_inc}\/.+/){return 0;}
+  foreach my $d (@{$config_cache->{BASE_DIR_ORDERED}})
+  {if($file=~/^$d\/.+/){return 0;}}
+  foreach my $d (keys %$cache)
+  {
+    my $d1=$d;
+    $d1=~s/\+/\\\+/g;
+    if($file=~/^$d1\/.+/){return 0;}
+  }
+  return 1;
+}
+
+sub find_inc_in_deps ()
+{
+  my $file=shift;
+  my $inc=shift;
+  my $paths={};
+  if(!-f "$file"){return $paths;}
+  $inc=~s/\+/\\\+/g;
+  my $lines=&read_mmd($file);
+  foreach my $line (@$lines)
+  {if($line=~/^(.+?\/$inc)$/){$paths->{$1}=1;}}
+  return $paths;
+}
+
+sub find_incs_in_deps ()
+{
+  my $file=shift;
+  my $cache=shift;
+  my $paths={};
+  if(!-f "$file"){return $paths;}
+  my %incs=();
+  my $hasinc=0;
+  foreach my $inc (keys %$cache)
+  {
+    my $xinc=$inc;
+    $xinc=~s/\+/\\\+/g;
+    $incs{$xinc}=$inc;
+    $hasinc++;
+  }
+  if(!$hasinc){return $paths;}
+  my $lines=&read_mmd($file);
+  foreach my $line (@$lines)
+  {
+    foreach my $xinc (keys %incs)
+    {
+      if($line=~/^(.+?\/$xinc)$/)
+      {$paths->{$incs{$xinc}}=$line;delete $incs{$xinc};$hasinc--;last;}
+    }
+    if(!$hasinc){return $paths;}
+  }
+  if($hasinc)
+  {
+    print "MSG: Could not find the following includes:\n";
+    foreach my $inc (keys %incs){print "  ",$incs{$inc},"\n";}
+  }
+  return $paths;
 }
 
 sub find_next_index ()
@@ -560,6 +754,23 @@ sub find_next_index ()
   return $index;
 }
 
+sub read_mmd()
+{
+  my $file=shift;
+  my $cache=[];
+  if(!open(MMDFILE,$file)){die "Can not open \"$file\" for reading.";}
+  while(my $line=<MMDFILE>)
+  {
+    chomp $line;
+    $line=~s/\s*(\\|)$//;$xline=~s/^\s*//;
+    if($line=~/:$/){next;}
+    foreach my $l (split /\s+/,$line)
+    {push @$cache,$l;}
+  }
+  close(MMDFILE);
+  return $cache;
+}
+
 sub check_file ()
 {
   my $file=shift;
@@ -577,11 +788,7 @@ sub check_file ()
       }
     }
   }
-  if (exists $config_cache->{FILES}{$file}{DONE})
-  {
-    if($detail){print "Already done: $file\n";}
-    return;
-  }
+  if (exists $config_cache->{FILES}{$file}{DONE}){return;}
   $depth++;
   $config_cache->{FILES}{$file}{DONE}=1;
   delete $config_cache->{FILES}{$file}{ERROR};
@@ -623,6 +830,9 @@ sub check_file ()
      if($config_cache->{FILES}{$file}{ERROR} == 0)
      {$config_cache->{FILES}{$file}{FINAL_DONE}=1;}
      if($keep){&SCRAMGenUtils::writeHashCache($config_cache->{FILES}{$file}, "${tmp_dir}/cache/files/$file");}
+     delete $config_cache->{FILES}{$file}{INC_ORIG_PATH};
+     delete $config_cache->{FILES}{$file}{ALL_ACTUAL_INCLUDE_DIRS};
+     delete $config_cache->{FILES}{$file}{DUMMY_INCLUDE};
   }
   system("rm -rf $dir");
   pop @{$config_cache->{INC_LIST}};
@@ -712,13 +922,24 @@ sub read_file ()
     {$i=&SCRAMGenUtils::skipIfDirectiveCXX ($cache->{lines}, $i+1, $total_lines);next;}
     
     while($line=~/\\\//){$line=~s/\\\//\//;}
-    if($line=~/^\s*extern\s+\"C\"\s+\{\s*$/)
-    {$extern=1;next;}
+    if($line=~/^\s*extern\s+\"C(\+\+|)\"\s+\{\s*$/){$extern=1;next;}
     if($extern && $line=~/^\s*\}.*/){$extern=0; next;}
     if ($line=~/^\s*#\s*include\s*([\"<](.+?)[\">])\s*/)
     {
       if($extern){next;}
       my $inc_file=$2;
+      if($inc_file!~/^\./)
+      {
+        my $inc_filex=&SCRAMGenUtils::fixPath($inc_file);
+	if($inc_file ne $inc_filex)
+	{
+	  $line=~s/$inc_file/$inc_filex/;
+	  print "WARNING: Please fix the include statement on line NO. $num of file \"$origfile\"\n";
+	  print "         by replacing \"$inc_file\" with \"$inc_file1\".\n";
+	  $inc_file=$inc_file1;
+	}
+      }
+      else{print "WARNING: Include statement \"$inc_file\" on line NO. $num of file \"$origfile\" has a relative path. Please fix this.\n";}
       push @{$cache->{includes}}, $inc_file;
       push @{$cache->{includes_line_number}}, $num;
       push @{$cache->{includes_line}}, $line;
@@ -739,28 +960,24 @@ sub init ()
       $config_cache=&SCRAMGenUtils::readHashCache("${tmp_dir}/cache/${cache_file}");
       foreach my $f (keys %{$config_cache->{FILES}})
       {
+	if($redo && ($f=~/$redo/)){delete $config_cache->{FILES}{$f}{DONE};next;}
 	if((!exists $config_cache->{FILES}{$f}{DONE}) && (-f "${tmp_dir}/cache/files/$f"))
 	{
 	  $config_cache->{FILES}{$f}={};
 	  $config_cache->{FILES}{$f}=&SCRAMGenUtils::readHashCache("${tmp_dir}/cache/files/$f");
+          delete $config_cache->{FILES}{$file}{INC_ORIG_PATH};
+          delete $config_cache->{FILES}{$file}{ALL_ACTUAL_INCLUDE_DIRS};
+          delete $config_cache->{FILES}{$file}{DUMMY_INCLUDE};
 	}
-	if ($config_cache->{FILES}{$f}{ERROR})
-	{
-	  delete $config_cache->{FILES}{$f}{DONE};
-	  delete $config_cache->{FILES}{$f}{ERROR};
-	  if($detail){print "REDO due to errors in previous run: $f\n";}
-	}
-	elsif (exists $config_cache->{FILES}{$f}{FINAL_DONE}){$config_cache->{FILES}{$f}{DONE}=1;}
-	else{delete $config_cache->{FILES}{$f}{DONE};}
-        foreach my $regexp (keys %{$config_cache->{SKIP_FILES}})
+        if(exists $config_cache->{FILES}{$f}{DONE})
         {
-          if ($f=~/$regexp/)
-          {
-            delete $config_cache->{FILES}{$f};
-	    print "SKIPPED:$f\n";
-	    last;
-          }
+          if(($config_cache->{FILES}{$f}{FINAL_DONE}==1) || 
+	      (($config_cache->{FILES}{$f}{ERROR}==1) && ($redoerr==0))){$config_cache->{FILES}{$f}{DONE}=1;}
+	  else{delete $config_cache->{FILES}{$f}{DONE};}
         }
+        foreach my $regexp (keys %{$config_cache->{SKIP_FILES}})
+        {if ($f=~/$regexp/){delete $config_cache->{FILES}{$f};last;}}
+	if($f!~/$filefilter/){delete $config_cache->{FILES}{$f};}
       }
       if(exists $config_cache->{INCLUDEALL})
       {
@@ -774,6 +991,26 @@ sub init ()
 	}
       }
       else{$config_cache->{INCLUDEALL}=$includeall;}
+      if(exists $config_cache->{SYSTEM_HEADER_SKIP})
+      {
+        if($config_cache->{SYSTEM_HEADER_SKIP} != $system_header_skip)
+	{
+	  my $msg="without";
+	  if($system_header_skip){$msg="with";}
+	  print "WARNING: Previously you had run includechecker.pl ",$msg," --sysheader command-line option.\n";
+	  print "WARNING: Using the previous value of sysheader\n";
+	  $system_header_skip=$config_cache->{SYSTEM_HEADER_SKIP};
+	}
+      }
+      else{$config_cache->{SYSTEM_HEADER_SKIP}=$system_header_skip;}
+      my $pfil=$config_cache->{FILEFILTER};
+      if(($pfil ne $filefilter) && ($filefilter ne ""))
+      {
+        print "WARNING: You have tried to change the file filter used for previous run. Script is going to use the previous value.\n";
+	print "         New filter:\"$filefilter\"\n";
+	print "         Old filter:\"$pfil\"\n";
+      }
+      $filefilter=$pfil;
       delete $config_cache->{INC_LIST};
       &SCRAMGenUtils::writeHashCache($config_cache, "${tmp_dir}/cache/${cache_file}");
       return;
@@ -781,6 +1018,8 @@ sub init ()
   }
   &read_config ($config);
   $config_cache->{INCLUDEALL}=$includeall;
+  $config_cache->{FILEFILTER}=$filefilter;
+  $config_cache->{SYSTEM_HEADER_SKIP}=$system_header_skip;
   delete $config_cache->{INC_LIST};
   if($keep){&SCRAMGenUtils::writeHashCache($config_cache, "${tmp_dir}/cache/${cache_file}");}
 }
@@ -820,14 +1059,12 @@ sub read_config ()
     {
       $line=$1;
       $config_cache->{COMPILER}=$line;
-      #if($detail){print "COMPILER=$line\n";}
     }
     elsif($line=~/^\s*COMPILER_FLAGS\s*=\s*(.+)$/)
     {
       $line="$1";
       push @{$config_cache->{COMPILER_FLAGS}}, $line;
       $flag_index++;
-      #if($detail){print "COMPILER_FLAGS=$line\n";}
     }
     elsif($line=~/^\s*BASE_DIR\s*=\s*(.+)$/)
     {
@@ -839,8 +1076,8 @@ sub read_config ()
         if(!exists $config_cache->{BASE_DIR}{$dir})
         {
           $config_cache->{BASE_DIR}{$dir}=1;
+	  $config_cache->{NON_SYSTEM_INCLUDE}{$dir}=1;
           push @{$config_cache->{BASE_DIR_ORDERED}}, $dir;
-          #if($detail){print "BASE_DIR=$dir\n";}
         }
       }
     }
@@ -896,17 +1133,13 @@ sub read_config ()
   {$config_cache->{OWNHEADER}{"^(.+?)\\.[^\\.].+"}="\$1.h";}
   if(!exists $config_cache->{FWDHEADER})
   {$config_cache->{FWDHEADER}{"^.*?(\\/|)[^\\/]*fwd.h"}=1;}
+  my $fil=$filefilter;
+  if($fil eq ""){$fil=".+";}
   foreach my $f (sort keys %{$config_cache->{FILES}})
   {
+    if($f!~/$fil/){delete $config_cache->{FILES}{$f};next;}
     foreach my $regexp (keys %{$config_cache->{SKIP_FILES}})
-    {
-      if ($f=~/$regexp/)
-      {
-        delete $config_cache->{FILES}{$f};
-    	$f="";
-    	last;
-      }
-    }
+    {if ($f=~/$regexp/){delete $config_cache->{FILES}{$f};$f="";last;}}
     if($f)
     {
       my $b=&find_file($f);
@@ -916,25 +1149,57 @@ sub read_config ()
   }
 }
 
+sub find_inc_rel_path
+{
+  my $flags=shift;
+  my $files=shift;
+  my $dirs={};
+  my $odirs=[];
+  my $fcount=scalar(keys %$files);
+  if(!$fcount){return $odirs;}
+  foreach my $dir (split /\s+/,$flags)
+  {
+    if($dir=~/^\-I(.+)$/)
+    {
+      $dir=$1;
+      foreach my $file (keys %$files)
+      {
+        if($file=~/^$dir\/+(.+)$/)
+        {
+	  $dir=$1;
+	  if(!exists $dirs->{$dir})
+	  {
+	    $dirs->{$dir}=1;
+	    push @$odirs,$dir;
+	    delete $files->{$file};
+	    $fcount--;
+	  }
+	}
+      }
+      if(!$fcount){return $odirs;}
+    }
+  }
+  return $odirs;
+}
+
 sub is_skipped()
 {
   my $file=shift;
-  my $skip=0;
+  if($file!~/$filefilter/){return 1;}
+  if((exists $config_cache->{FILES}{$file}) && (exists $config_cache->{FILES}{$file}{INTERNAL_SKIP}))
+  {return $config_cache->{FILES}{$file}{INTERNAL_SKIP};}
   foreach my $exp (keys %{$config_cache->{SKIP_FILES}})
-  {
-    if ($file=~/${exp}/){return 1;}
-  }
+  {if ($file=~/${exp}/){return 1;}}
   foreach my $fwd (keys %{$config_cache->{FWDHEADER}})
-  {
-    if($file=~/$fwd/){return 1;}
-  }
+  {if($file=~/$fwd/){return 1;}}
   return 0;
 }
 
 sub usage_msg()
 {
-  print "Usage: \n$0 \\\n\t[--config <file>] [--tmpdir <path>]\\\n";
-  print "   [--keep] [--detail] [--recursive] [--unique] [--help]\n\n";
+  print "Usage: \n$0 \\\n\t[--config <file>] [--tmpdir <path>] [--filter <redexp>] [--redo <regexp>]\\\n";
+  print "   [--redoerr] [--keep] [--recursive] [--unique] [--includeall] [--sysheader]\\\n";
+  print "    [--detail] [--help]\n\n";
   print "  --config <file>    File which contains the list of files to check.\n";
   print "                     File format is:\n";
   print "                       COMPILER=<compiler path> #Optional: Default is \"".$config_cache->{COMPILER}."\".\n";
@@ -963,6 +1228,9 @@ sub usage_msg()
   print "                     will use these new flags.\n";
   print "  --tmpdir <path>    Tmp directory where the tmp files will be generated.\n";
   print "                     Default is /tmp/delete_me_includechecker_<pid>.\n";
+  print "  --filter <regexp>  Process only those files which matches the filter <regexp>.\n";
+  print "  --redo <regexp>    Recheck all the files which matches the filter <regexp>.\n";
+  print "  --redoerr          Recheck all the files had errors durring last run.\n";
   print "  --keep             Do not delete the tmp files.\n";
   print "  --recursive        Recursively check all the included headers if\n";
   print "                     they exist in one of the BASE_DIR.\n";
@@ -971,6 +1239,7 @@ sub usage_msg()
   print "                     C.h as its alreay included by B.h. If this option is not used then script will\n";
   print "                     check if a included header is really used or not by compiling it couple of time.\n";
   print "  --includeall       Add all the headers from an included header file (which are not already included in file to check).\n";
+  print "  --sysheader        Do not skip checking for system headers.\n";
   print "  --detail           To get more detailed output.\n";
   print "  --help             To see this help message.\n";
   exit 0;
