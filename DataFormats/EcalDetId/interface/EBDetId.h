@@ -12,13 +12,13 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.14 2007/05/29 17:32:05 meridian Exp $
+ *  $Id: EBDetId.h,v 1.15 2007/06/25 10:03:33 innocent Exp $
  */
 
 
 class EBDetId : public DetId {
  public:
-  enum { Subdet=EcalBarrel;}
+  enum { Subdet=EcalBarrel};
   /** Constructor of a null id */
   EBDetId() {}
   /** Constructor from a raw value */
@@ -69,7 +69,7 @@ class EBDetId : public DetId {
     return (ietaAbs()-1 + positiveZ()?MAX_IETA:0)*MAX_IPHI+ iphi()-1;
   }
 
-  static bool validHashIndex(int it) {
+  static bool validHashIndex(int i) {
     return !(i<MIN_HASH || i>MAX_HASH);
   }
 
