@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="reco::Tau"/>
+  <class name="std::vector<reco::Tau>"/>
+  <class name="edm::Wrapper<std::vector<reco::Tau> >"/>
+  <class name="edm::Ref<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> >"/>
+  <class name="edm::RefProd<std::vector<reco::Tau> >"/>
+  <class name="edm::RefVector<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> >"/>
+  <class name="edm::reftobase::Holder<reco::Candidate, edm::Ref<std::vector<reco::Tau>,reco::Tau,edm::refhelper::FindUsingAdvance<std::vector<reco::Tau>,reco::Tau> > >" />
+</lcgdict>
