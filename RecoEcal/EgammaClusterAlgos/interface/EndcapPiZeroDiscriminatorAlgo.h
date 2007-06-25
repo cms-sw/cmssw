@@ -1,14 +1,6 @@
 #ifndef RecoEcal_EgammaClusterAlgos_EndcapPiZeroDiscriminatorAlgo_h
 #define RecoEcal_EgammaClusterAlgos_EndcapPiZeroDiscriminatorAlgo_h
-//
-// $Id: EndcapPiZeroDiscriminatorAlgo.h,v 1.1 2006/09/22 16:04:17 rahatlou Exp $
-//
 
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "DataFormats/Math/interface/Point3D.h"
-//#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-//#include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
@@ -18,35 +10,28 @@
 #include <string>
 #include <vector>
 #include <map>
-//#include <set>
+
+// authors A. Kyriakis , D. Maletic
 
 class EndcapPiZeroDiscriminatorAlgo {
 
  public:
- 
-   enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };
 
-   //typedef math::XYZPoint Point;
+   enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };
 
    typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
-   EndcapPiZeroDiscriminatorAlgo() : 
+   EndcapPiZeroDiscriminatorAlgo() :
    preshStripEnergyCut_(0.), preshSeededNstr_(5), debugLevel_(pINFO), pathToFiles_("")
    {}
 
-   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const std::string& path, 
-                                 DebugLevel_pi0 debugLevel = pINFO ) :
-   preshStripEnergyCut_(stripEnergyCut),  preshSeededNstr_(nStripCut), debugLevel_(debugLevel), pathToFiles_(path)
-   {}
+   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const std::string& path,
+                                 DebugLevel_pi0 debugLevel );
 
    ~EndcapPiZeroDiscriminatorAlgo() {};
 
-// Aris 10/7/2006
-// ---------------
    std::vector<float>  findPreshVector(ESDetId strip, RecHitsMap *rechits_map,
 					 CaloSubdetectorTopology *topology_p);
-//   void findPreshVector(ESDetId strip, RecHitsMap *rechits_map,
-//					 CaloSubdetectorTopology *topology_p, std::vector<float>& vout_stripE);
 
    void findPi0Road(ESDetId strip, EcalPreshowerNavigator& theESNav, int plane, std::vector<ESDetId>& vout);
 
@@ -56,27 +41,51 @@ class EndcapPiZeroDiscriminatorAlgo {
 
    float Activation_fun(float SUM);
 
-   float getNNoutput(float *input);
+   float getNNoutput(int sel_wfile);
 
-   void calculateNNInputVariables(std::vector<float>& vph1, std::vector<float>& vph2,
-                                                                      float pS1_max, float pS9_max, float pS25_max, 
-                                                                      float *nn_invar);
-   float GetNNOutput(float Et_SE, float *input_var);
+   bool calculateNNInputVariables(std::vector<float>& vph1, std::vector<float>& vph2,
+                                          float pS1_max, float pS9_max, float pS25_max);
+
+   void calculateBarrelNNInputVariables(float et, double s1, double s9, double s25, double m2, double cee, double cep,
+   					double cpp, double s4, double s6, double ratio, double xcog, double ycog);  
+
+
+   float GetNNOutput(float EE_Et);
+
+   float GetBarrelNNOutput(float EB_Et);  
+
+
+   float* get_input_vector() {return input_var;};
+
  private:
-  
+
    double preshStripEnergyCut_;
    int preshSeededNstr_;
    int debugLevel_;
 
    int inp_var;
+   int barrelstart;  
+
+   int Nfiles_EB;
+   int Nfiles_EE;
+
    int Layers, Indim, Hidden, Outdim;
+   int EE_Layers, EE_Indim, EE_Hidden, EE_Outdim;
+   int EB_Layers, EB_Indim, EB_Hidden, EB_Outdim;
 
    float* I_H_Weight;
    float* H_O_Weight;
    float* H_Thresh;
    float* O_Thresh;
 
-//   std::vector<ESDetId> road_2d;
+   std::vector<float> I_H_Weight_all;
+   std::vector<float> H_O_Weight_all;
+   std::vector<float> H_Thresh_all;
+   std::vector<float> O_Thresh_all;
+
+   float* input_var;
+//   float input_var[25]; // array with the 25 variables to be used as input in NN
+
 
    // The map of hits
    RecHitsMap *rechits_map;
