@@ -1,12 +1,12 @@
-<use name=DataFormats/Common>
-<use name=DataFormats/FEDRawData>
-<use name=DataFormats/SiStripCommon>
-<use name=FWCore/Framework>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/ParameterSet>
-<use name=IORawData/SiStripInputSources>
-<use name=boost>
-<use name=xdaq>
 <library file=*.cc name=IORawDataSiStripInputSourcesPlugins>
+  <use name=DataFormats/Common>
+  <use name=DataFormats/FEDRawData>
+  <use name=DataFormats/SiStripCommon>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=IORawData/SiStripInputSources>
+  <use name=boost>
+  <use name=xdaq>
   <flags EDM_PLUGIN=1>
 </library>

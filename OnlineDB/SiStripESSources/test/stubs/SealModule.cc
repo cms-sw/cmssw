@@ -1,5 +1,4 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 DEFINE_SEAL_MODULE();
 
 #include "OnlineDB/SiStripESSources/test/stubs/test_FedCablingBuilder.h"
