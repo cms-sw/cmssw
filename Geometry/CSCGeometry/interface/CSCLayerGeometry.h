@@ -229,7 +229,7 @@ public:
   LocalError localError( int strip, float sigmaStrip, float sigmaWire ) const;
   
   /**
-   * 'The' Topology (i.e. Strip tTopology) owned by this MELG
+   * 'The' Topology (i.e. Strip Topology) owned by this MELG
    */
   const CSCStripTopology* topology() const {
     return theStripTopology; 
