@@ -46,13 +46,15 @@ $SCRAMGenUtils::SCRAM_CMD=$SCRAM_CMD;
 print "DATA:OWNHEADER=^(.+?)\\/src\\/(.+?)\\.[^\\.]+:\"\$1/.+?/\$2\.h\"\n";
 print "DATA:BASE_DIR=${release}/${src}\n";
 $flags="-I${release}/${src}";
+my $dev=0;
 if($releasetop ne $release)
 {
+  $dev=1;
   print "DATA:BASE_DIR=${releasetop}/${src}\n";
   $flags.=" -I${releasetop}/${src}";
 }
 
-my $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop);
+my $tmprel=&SCRAMGenUtils::createTmpReleaseArea($releasetop,$dev);
 {
   if(-f "${release}/tmp/${arch}/Makefile")
   {
