@@ -11,6 +11,7 @@
 <use name=SimTracker/Common>
 <use name=SimGeneral/NoiseGenerators>
 <use name=SimGeneral/HepPDT>
+<use name=CondFormats/SiPixelObjects>
 <use name=gsl>
 <use name=boost>
 <use name=clhep>
@@ -30,6 +31,7 @@
    <use name=SimTracker/Common>
    <use name=SimGeneral/NoiseGenerators>
    <use name=SimGeneral/HepPDT>
+   <use name=CondFormats/SiPixelObjects>
    <use name=gsl> 
    <use name=boost>
    <use name=clhep>

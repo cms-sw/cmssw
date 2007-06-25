@@ -31,7 +31,6 @@
 #include "CLHEP/Random/RandGaussQ.h"
 #include "CLHEP/Random/RandFlat.h"
 
-//#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 

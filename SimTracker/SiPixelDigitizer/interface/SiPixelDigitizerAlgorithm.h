@@ -10,9 +10,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-//#include "SimGeneral/HepPDT/interface/HepPDTable.h"
-//#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
-
 #include "SimTracker/Common/interface/SiG4UniversalFluctuation.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -27,7 +24,7 @@
 //#include "SimDataFormats/TrackerDigiSimLink/interface/PixelDigiSimLinkCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 
-#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
 // For the random numbers
 namespace CLHEP {
