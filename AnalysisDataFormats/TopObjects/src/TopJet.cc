@@ -2,7 +2,7 @@
 // Author:  Steven Lowette
 // Created: Thu May  3 10:37:17 PDT 2007
 //
-// $Id: TopJet.cc,v 1.8 2007/06/23 07:03:22 lowette Exp $
+// $Id: TopJet.cc,v 1.9 2007/06/25 08:52:20 jandrea Exp $
 //
 
 
@@ -63,8 +63,8 @@ int TopJet::getPartonFlavour() const {
 
 /// get b discriminant from label name
 double TopJet::getBDiscriminator(std::string theLabel) const {
-  double discriminator = -100.;
-  if(theLabel = "default") theLabel = "trackCountingJetTags"
+  double discriminator = -10.;
+  if (theLabel == "default") theLabel = "trackCountingJetTags";
   for(unsigned int i=0; i!=pairDiscriVector_.size(); i++){
     if(pairDiscriVector_[i].first == theLabel){
       discriminator = pairDiscriVector_[i].second;
