@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2006/10/18 18:04:09 $
- * $Revision: 1.8 $
+ * $Date: 2006/10/08 16:05:58 $
+ * $Revision: 1.7 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -21,7 +21,6 @@
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
-#include "DQMServices/Core/interface/MonitorElementBaseT.h"
 #include "DQMServices/Daemon/interface/MonitorDaemon.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -38,7 +37,6 @@ class DTSuperLayerId;
 class DTChamberId;
 class DTTtrig;
 class DTT0;
-
 
 class DTDigiTask: public edm::EDAnalyzer{
 
@@ -98,8 +96,7 @@ private:
 
   std::map<std::string, std::map<uint32_t, MonitorElement*> > digiHistos;
 
-  MonitorElement * runId;
-
+  
 };
 
 #endif

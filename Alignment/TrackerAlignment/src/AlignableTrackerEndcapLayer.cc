@@ -1,6 +1,4 @@
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerPetal.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
 #include "Alignment/TrackerAlignment/interface/AlignableTrackerEndcapLayer.h"
 
 //__________________________________________________________________________________________________

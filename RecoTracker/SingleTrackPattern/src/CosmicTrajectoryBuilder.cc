@@ -12,7 +12,7 @@
 #include "TrackingTools/TrajectoryState/interface/BasicSingleTrajectoryState.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h" 
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
@@ -317,9 +317,9 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 
 	     hits.push_back(&(*tmphitbestdet));
 	   }
-	 }else edm::LogWarning("CosmicTrackFinder")<<" State can not be updated with hit at position "
+	 }else LogDebug("CosmicTrackFinder")<<" State can not be updated with hit at position "
 						   <<gphit;
-     }else edm::LogWarning("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
+     }else LogDebug("CosmicTrackFinder")<<" State can not be propagated at det "<< iraw;
      
      
   }

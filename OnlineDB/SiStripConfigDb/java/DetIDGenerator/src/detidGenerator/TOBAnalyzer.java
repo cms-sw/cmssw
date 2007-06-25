@@ -1,8 +1,7 @@
 package detidGenerator;
 
-//import db.*;
-import fr.in2p3.ipnl.db.*;
-import java.util.ArrayList;
+import db.*;
+import java.util.Vector;
 import java.util.Hashtable;
 
 import java.net.URL;
@@ -18,7 +17,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
     private final String ROD_POSITION_FILE = "/ressources/RodNumbering.csv";
     private final String TOB_PREFIXE = "1.5";
 
-    private ArrayList<ArrayList<String>> detIds;
+    private Vector<Vector<String>> detIds;
     private CDBConnection c;
     private Hashtable<String, Integer> rodPositionMap;
 
@@ -28,7 +27,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
        scans the DB to find all modules in the TOB and generates the det_ids.
     **/
     public TOBAnalyzer() throws java.sql.SQLException, java.lang.ClassNotFoundException{
-	detIds = new ArrayList<ArrayList<String>>();
+	detIds = new Vector<Vector<String>>();
 	c = CDBConnection.getConnection();
 	rodPositionMap = new Hashtable<String, Integer>();
 
@@ -36,7 +35,7 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	// OK, now rodPositionMap.get("TOBH.Layer.CS.CR.ROD") gives us the det_id Rod number
 	
 	if(!DetIDGenerator.mtcc){//static member of DetIDGenerator : is it for the magnet test?
-	    ArrayList<ArrayList<String>> v = c.selectQuery("select object_id from cmstrkdb.object_assembly where object='TOB'");
+	    Vector<Vector<String>> v = c.selectQuery("select object_id from cmstrkdb.object_assembly where object='TOB'");
 	    if(v.size()==1){
 		String tobID = (v.get(0)).get(0);
 		getCoolingSegments(tobID);
@@ -102,10 +101,10 @@ public class TOBAnalyzer implements IDetIdGenerator{
        @param tobId The ID of the TOB
     **/
     private void getCoolingSegments(String tobId) throws java.sql.SQLException{
-	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, type from "+
+	Vector<Vector<String>> v = c.selectQuery("select object_id, type from "+
 						 "cmstrkdb.object_assembly where container_id="+tobId+
 						 " and object='TOBCS' order by number_in_container");
-	for(ArrayList<String> element : v){
+	for(Vector<String> element : v){
 	    String tobcsID = element.get(0);
 	    String tobcsPosition = element.get(1);// The type of the TOBCS is TOBH.Layer.Position_in_layer
 	    getControlRings(tobcsID, tobcsPosition);
@@ -118,9 +117,9 @@ public class TOBAnalyzer implements IDetIdGenerator{
        @param position The position of the cooling segment in the layer (TOBH.L.CS)
     **/
     private void getControlRings(String tobcsId, String position) throws java.sql.SQLException{
-	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
+	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
 						 "where container_id="+tobcsId+" and object='TOBCR' order by number_in_container");
-	for(ArrayList<String> element : v){
+	for(Vector<String> element : v){
 	    String tobcrID = element.get(0);
 	    String tobcrPosition = element.get(1);
 	    getRods(tobcrID, position+"."+tobcrPosition);
@@ -133,9 +132,9 @@ public class TOBAnalyzer implements IDetIdGenerator{
        @param position The position of the control ring in the cooling segment (TOBH.L.CS.CR)
     **/
     private void getRods(String tobcrId, String position) throws java.sql.SQLException{
-	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
+	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
 						 "where container_id="+tobcrId+" and object='ROD' order by number_in_container");
-	for(ArrayList<String> element : v){
+	for(Vector<String> element : v){
 	    String rodID = element.get(0);
 	    String rodPosition = element.get(1);
 	    rodPosition = databasePositionToDetId(position+"."+rodPosition);//Convert to det_id position
@@ -149,9 +148,9 @@ public class TOBAnalyzer implements IDetIdGenerator{
        @param position The position of the rod in the TOB (Layer.bkdFrwd.Rod)
     **/
     private void getMods(String rodId, String position) throws java.sql.SQLException{
-	ArrayList<ArrayList<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
+	Vector<Vector<String>> v = c.selectQuery("select object_id, number_in_container from cmstrkdb.object_assembly "+
 						 "where container_id="+rodId+" and object='MOD' order by number_in_container");
-	for(ArrayList<String> element : v){
+	for(Vector<String> element : v){
 	    String modID = element.get(0);
 	    String modPosition = element.get(1);
 
@@ -182,14 +181,14 @@ public class TOBAnalyzer implements IDetIdGenerator{
 	    }
 	    
 	    String detId = TOB_PREFIXE+"."+position+"."+modPos+"."+stereoFlag;
-	    ArrayList<String> couple = new ArrayList<String>();
+	    Vector<String> couple = new Vector<String>();
 	    couple.add(modID);
 	    couple.add(detId);
 	    detIds.add(couple);
 	}
     }
 
-    public ArrayList<ArrayList<String>> getDetIds(){
+    public Vector<Vector<String>> getDetIds(){
 	return detIds;
     }
 

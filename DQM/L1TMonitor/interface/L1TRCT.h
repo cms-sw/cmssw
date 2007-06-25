@@ -5,14 +5,11 @@
 /*
  * \file L1TRCT.h
  *
- * $Date: 2007/02/19 22:49:53 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/19 21:11:23 $
+ * $Revision: 1.2 $
  * \author P. Wittich
- * $Id: L1TRCT.h,v 1.1 2007/02/19 22:49:53 wittich Exp $
+ * $Id: L1TRCT.h,v 1.2 2007/02/19 21:11:23 wittich Exp $
  * $Log: L1TRCT.h,v $
- * Revision 1.1  2007/02/19 22:49:53  wittich
- * - Add RCT monitor
- *
  *
  *
 */
@@ -95,7 +92,7 @@ private:
   bool monitorDaemon_;
   ofstream logFile_;
 
-  edm::InputTag rctSource_;
+  //edm::InputTag l1ExtraLabel_;
 
 
 };

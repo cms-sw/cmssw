@@ -2,88 +2,18 @@
 \page PhysicsTools_CandAlgos Package PhysicsTools/CandAlgos
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/CandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/CandAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/CandAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
 \section desc Description
-Framework module for common particle candidate manupulation
+Common Framework modules to manipulate collections of particle Candidates.
 
-\subsection interface Public interface
-- CandSelectorBase: base class for all candidate selectors. It is a specialization of the
-generic selector module SelectorProducer.
+For more details, refer to the 
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide. 
 
-\subsection modules Modules
-- cand::modules::CandCombiner: combine pairs of candidates. The collection names that
-have to be combined and their charge combination is specified by the user. 
-Particle charge is specified using the <tt>"@"</tt> character. Not specifying
-it is interpreted as particle with charge zero. A string
-can also specify the selection cut on the composite candidates 
-(see \ref PhysicsTools_Parser "Parser" package for more details).<br>
-Examples of configuration for this module are the following:
-\htmlonly
-<pre>
-  module ZCandidates = CandCombiner {
-    string decay = "muons@+ muons@-"
-    string cut = "86.0 < mass < 96.0"
-  }
-
-  module BsCandidates = CandCombiner {
-    string decay = "JPsiCandidates PhiCandidats"
-    string cut = "2.8 < mass < 3.4"
-  }
-</pre>
-\endhtmlonly
-Everywhere, charge conjugate final state is implied. E.g.: <tt>"x@+ y@-"</tt> selects
-both decays to <i>x<sup>+</sup>y<sup>-</sup></i> and <i>x<sup>-</sup>y<sup>+</sup></i>.
-
-- cand::modules::CandSelector: selects candidates from a collection and saves their clones in 
-a new collection. The selection cut can be specified by the user as a string 
-(see \ref PhysicsTools_Parser "Parser" package for more details).<br> The module can
-also be used as filter specifying the boolean parameter <tt>filter</tt>.<br>
-Examples of configuration for this module are the following:
-\htmlonly
-<pre>
-  module goodMuons = CandSelector {
-    InputTag src = allMuons
-    string cut = "pt > 5.0"
-    bool filter = false
-  }
-
-  module goodZ = CandSelector {
-    InputTag src = allZ
-    string cut = "86.0 < mass < 96.0"
-    bool filter = false
-  }
-</pre>
-\endhtmlonly
-
-- cand::modules::CandReducer: clones a collection of candidates removing all daughters and external
-components, leaving only kinematic information. This is ment to produce a "light" collection
-of candiadates just containing kimenatics information for very fast analysis purpose.
-Example of configuration for this module is the following:
-\htmlonly
-<pre>
-  module caloTowerFourVectorOnly = CandReducer {
-    string src = "caloTowerCandidates"
-  }
-</pre>
-\endhtmlonly
-
-- cand::modules::CandMerger: merges an arbitray number of candidate collection. 
-Example of configuration for this module is the following:
-\htmlonly
-<pre>
-  module Ztoll = CandMerger {
-    vInputTag src = { Ztoee, Ztomumu }
-  }
-</pre>
-\endhtmlonly
-
-- ShallowCloneProducer: producer templatr. Produces a reco::CandidateCollection filled 
-with reco::ShallowCloneCandidate that have as master reference the candidate objects 
-form the original collection.
 
 <hr>
 Last updated: @DATE@ L. Lista

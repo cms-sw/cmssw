@@ -10,8 +10,8 @@
  *  it is in its specific interface. Once the interface of the Propagator base class will be updated, 
  *  then propagator will become generic. 
  *
- *  $Date: 2007/02/15 20:40:18 $
- *  $Revision: 1.12 $
+ *  $Date: 2007/02/18 16:01:47 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
@@ -37,25 +37,32 @@ public:
 
   // Operations
   
-  /// Propagate the state to the vertex
-  // FIXME it is const. It will be when setPropagator() will be removed
+  /// Propagate the state to the 3D-PCA
   std::pair<bool,FreeTrajectoryState>
     propagate(const TrajectoryStateOnSurface &tsos, 
 	      const GlobalPoint &vtxPosition);
   
-  /// Aplies the vertex constraint
+  /// Propagate the state to the 2D-PCA
+  std::pair<bool,FreeTrajectoryState>
+    propagate(const TrajectoryStateOnSurface &tsos);
+
+  /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState> 
     update(const reco::TransientTrack &track);
-
-  /// Put the vertex constraint
+  
+  /// Applies the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     update(const FreeTrajectoryState& ftsAtVtx);
 
-
+  /// Propagate to the 3D-PCA and apply the vertex constraint
   std::pair<bool,FreeTrajectoryState>
     propagateWithUpdate(const TrajectoryStateOnSurface &tsos, 
 			const GlobalPoint &vtxPosition);
   
+  /// Propagate to the 2D-PCA and apply the vertex constraint
+  std::pair<bool,FreeTrajectoryState>
+    propagateWithUpdate(const TrajectoryStateOnSurface &tsos);
+
 protected:
 
 private:

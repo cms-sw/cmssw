@@ -2,133 +2,18 @@
 \page PhysicsTools_UtilAlgos Package PhysicsTools/UtilAlgos
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/UtilAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/UtilAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/UtilAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/UtilAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
 \section desc Description
-Framework generic utility modules
+Common framework modules for physics analysis.
 
-\subsection selectors Selector modules
-- ObjectSelector<b>&lt;S&gt;</b>: generic object selection module. <br>
-  The <a name="sel_algo"><b>Selection Algorithm</b></a> <tt>S</tt> should
-  define the following interface:
-\htmlonly
-<pre>
-  class MySelection {
-    // collection type
-    typedef [...] collection;
-    // iterator over result type. 
-    // could be std::vector&lt;const collection::value_type *&gt;::const_iterator
-    typedef [...] const_iterator;
-    // constructor from parameter set configurability
-    MySelection( const edm::ParameterSet & );
-    // select object from a collection and 
-    // possibly event content
-    void select( const collection &, const edm::Event & );
-    // iterators over selected objects: collection begin
-    const_iterator begin() const;
-    // iterators over selected objects: collection end
-    const_iterator end() const;
-    // true if no object has been selected
-    bool empty() const;
-  };
-</pre>
-\endhtmlonly
 
-\subsection sel_utilities Selector module utilities 
-- SingleElementCollectionSelector<b><C, S></b>: model of <a href="#sel_algo">Selection Algorithm</a> that selects
-  objects one by one from a collection of type <tt>C</tt> based on a <a href="http://www.sgi.com/tech/stl/Predicate.html">predicate
-  object</a> of type <tt>S</tt>.
-  For instance, to select all tracks with <i>p<sub>t</sub></i> larger than a specified
-  cut, it is possible to use the following module:
-\htmlonly
-<pre>
-  typedef ObjectSelector<
-            SingleElementCollectionSelector<
-              reco::TrackCollection,
-              PtMinSelector<reco::Track> 
-            >
-          > PtMinTrackSelector;
-</pre>
-\endhtmlonly
-
-- SortCollectionSelector<b><C, S></b>: model of <a href="#sel_algo>Selection Algorithm</a> that takes the
-  first N objects of a collection of type <tt>C</tt> sorting them according to the
-  http://www.sgi.com/tech/stl/StrictWeakOrdering.html">strict weak ordering</a> <tt>S</tt>.
-  The parameter <tt>max</tt> can be used via configuration file.
-  For instance, to select the N tracks with the largest <i>p<sub>t</sub></i>, it is possible
-  to use the following module:
-\htmlonly
-<pre>
-  typedef ObjectSelector<
-            SortCollectionSelector<
-              reco::TrackCollection,
-              PtInverseComparator<reco::Track> 
-            >
-          > LargestPtTrackSelector;
-</pre>
-\endhtmlonly
-
-- ObjectPairCollectionSelector<b><C, S></b>: model of <a href="#sel_algo>Selection Algorithm</a> that
-  selects object pairs whose combination is selected according to a
-  <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a> of type <tt>S</tt>.
-  For instance, to select track pairs with invariant mass within a specified range, 
-  it is possible to use the following module:
-\htmlonly
-<pre>
-    extern const std::string massParamPrefix( "mass" );
-
-    typedef ObjectSelector<
-              ObjectPairCollectionSelector<
-                reco::TrackCollection,
-                RangeObjectPairSelector<
-                  reco::Track,
-                  MasslessInvariantMass<reco::Track>,
-                  massParamPrefix
-                >
-              >
-            > MassWindowTrackSelector;
-</pre>
-\endhtmlonly
-- ObjectCountFilter<b><C, S></b>: selects an event if contains at least one or more
-  objects in a collection of type <b>C</b> that satisfy
-  a <a href="http://www.sgi.com/tech/stl/Predicate.html">predicate
-  object</a> of type <tt>S</tt>. For instance, the following module
-  filters events with jets above a specified <i>E<sub>t</sub></i> threshold:
-\htmlonly
-<pre>
-  typedef ObjectCountFilter<
-            reco::CaloJetCollection,
-            EtMinSelector<reco::CaloJet>
-            >
-          > EtMinCaloJetCountFilter;
-</pre>
-\endhtmlonly
-- ObjectPairFilter<b><C, S></b>: selects an event if contains at least one or more
-  object pairs in a collection of type <b>C</b> that satisfy
-  a <a href="http://www.sgi.com/tech/stl/BinaryFunction.html">binary function</a>
-  of type <b>S</b>. For instance, the following module filters events with
-  electron pairs with invariant mass around a specified range:
-\htmlonly
-<pre>
-  typedef ObjectPairFilter<
-              reco::ElectronCollection,
-              MasslessInvariantMass<reco::Electron>
-            >
-          > ElectronPairMassFilter;
-</pre>
-\endhtmlonly
-- StopAfterNEvents: EDFilter that filters out all events but the first N, N being a configurable parameter. 
-It can be used to write out only the first N events, for instance for file size measurements.
-
-\subsection other Other utility modules
-- Merger: merges an arbitrary number of collections into a single collection. 
-No overlap is checked, so if the same object appears in more than one collection
-it is saved more than once in the output collection.
-- ObjectCounter: counts the number of objects in a collection and prints a
-summary report at the end of a job.
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
 
 <hr>
 Last updated: @DATE@ L. Lista

@@ -4,6 +4,7 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/Math/interface/Matrix.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
@@ -28,6 +29,9 @@ namespace {
     math::PtEtaPhiELorentzVector l1;
     math::PtEtaPhiELorentzVectorD ld1;
     math::PtEtaPhiELorentzVectorF lf1;
+    math::PtEtaPhiMLorentzVector l3;
+    math::PtEtaPhiMLorentzVectorD ld3;
+    math::PtEtaPhiMLorentzVectorF lf3;
     math::XYZTLorentzVector l2;
     math::XYZTLorentzVectorD ld2;
     math::XYZTLorentzVectorF lf2;
@@ -52,6 +56,9 @@ namespace {
     std::vector<math::PtEtaPhiELorentzVector> vl1;
     std::vector<math::PtEtaPhiELorentzVectorD> vld1;
     std::vector<math::PtEtaPhiELorentzVectorF> vlf1;
+    std::vector<math::PtEtaPhiMLorentzVector> vl3;
+    std::vector<math::PtEtaPhiMLorentzVectorD> vld3;
+    std::vector<math::PtEtaPhiMLorentzVectorF> vlf3;
     std::vector<math::XYZTLorentzVector> vl2;
     std::vector<math::XYZTLorentzVectorD> vld2;
     std::vector<math::XYZTLorentzVectorF> vlf2;
@@ -71,6 +78,9 @@ namespace {
     edm::Wrapper<math::PtEtaPhiELorentzVector> wl1;
     edm::Wrapper<math::PtEtaPhiELorentzVectorD> wld1;
     edm::Wrapper<math::PtEtaPhiELorentzVectorF> wlf1;
+    edm::Wrapper<math::PtEtaPhiMLorentzVector> wl3;
+    edm::Wrapper<math::PtEtaPhiMLorentzVectorD> wld3;
+    edm::Wrapper<math::PtEtaPhiMLorentzVectorF> wlf3;
     edm::Wrapper<math::XYZTLorentzVector> wl2;
     edm::Wrapper<math::XYZTLorentzVectorD> wld2;
     edm::Wrapper<math::XYZTLorentzVectorF> wlf2;
@@ -91,6 +101,9 @@ namespace {
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVector> > wvl1;
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorD> > wvld1;
     edm::Wrapper<std::vector<math::PtEtaPhiELorentzVectorF> > wvlf1;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVector> > wvl3;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVectorD> > wvld3;
+    edm::Wrapper<std::vector<math::PtEtaPhiMLorentzVectorF> > wvlf3;
     edm::Wrapper<std::vector<math::XYZTLorentzVector> > wvl2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorD> > wvld2;
     edm::Wrapper<std::vector<math::XYZTLorentzVectorF> > wvlf2;
@@ -111,6 +124,9 @@ namespace {
     edm::Ref<std::vector<math::PtEtaPhiELorentzVector> > rl1;
     edm::Ref<std::vector<math::PtEtaPhiELorentzVectorD> > rld1;
     edm::Ref<std::vector<math::PtEtaPhiELorentzVectorF> > rlf1;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVector> > rl3;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVectorD> > rld3;
+    edm::Ref<std::vector<math::PtEtaPhiMLorentzVectorF> > rlf3;
     edm::Ref<std::vector<math::XYZTLorentzVector> > rl2;
     edm::Ref<std::vector<math::XYZTLorentzVectorD> > rld2;
     edm::Ref<std::vector<math::XYZTLorentzVectorF> > rlf2;
@@ -130,6 +146,9 @@ namespace {
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVector> > rpl1;
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorD> > rpld1;
     edm::RefProd<std::vector<math::PtEtaPhiELorentzVectorF> > rplf1;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVector> > rpl3;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVectorD> > rpld3;
+    edm::RefProd<std::vector<math::PtEtaPhiMLorentzVectorF> > rplf3;
     edm::RefProd<std::vector<math::XYZTLorentzVector> > rpl2;
     edm::RefProd<std::vector<math::XYZTLorentzVectorD> > rpld2;
     edm::RefProd<std::vector<math::XYZTLorentzVectorF> > rplf2;
@@ -149,6 +168,9 @@ namespace {
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVector> > rvl1;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorD> > rvld1;
     edm::RefVector<std::vector<math::PtEtaPhiELorentzVectorF> > rvlf1;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVector> > rvl3;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVectorD> > rvld3;
+    edm::RefVector<std::vector<math::PtEtaPhiMLorentzVectorF> > rvlf3;
     edm::RefVector<std::vector<math::XYZTLorentzVector> > rvl2;
     edm::RefVector<std::vector<math::XYZTLorentzVectorD> > rvld2;
     edm::RefVector<std::vector<math::XYZTLorentzVectorF> > rvlf2;
@@ -172,6 +194,7 @@ namespace {
     math::VectorF<4>::type vVf4;
     math::VectorF<5>::type vVf5;
     math::VectorF<6>::type vVf6;
+	math::VectorF<7>::type vVf7;
 
     math::Error<1>::type e1;
     math::Error<2>::type e2;
@@ -179,6 +202,8 @@ namespace {
     math::Error<4>::type e4;
     math::Error<5>::type e5;
     math::Error<6>::type e6;
+	math::Error<7>::type e7;
+	
     math::ErrorD<1>::type ed1;
     math::ErrorD<2>::type ed2;
     math::ErrorD<3>::type ed3;
@@ -191,6 +216,7 @@ namespace {
     math::ErrorF<4>::type ef4;
     math::ErrorF<5>::type ef5;
     math::ErrorF<6>::type ef6;
+	math::ErrorF<7>::type ef7;
 
     std::vector<math::Error<1>::type> ve1;
     std::vector<math::Error<2>::type> ve2;
@@ -198,6 +224,7 @@ namespace {
     std::vector<math::Error<4>::type> ve4;
     std::vector<math::Error<5>::type> ve5;
     std::vector<math::Error<6>::type> ve6;
+	std::vector<math::Error<7>::type> ve7;
 
     edm::Wrapper<math::Error<1>::type> we1;
     edm::Wrapper<math::Error<2>::type> we2;
@@ -205,6 +232,7 @@ namespace {
     edm::Wrapper<math::Error<4>::type> we4;
     edm::Wrapper<math::Error<5>::type> we5;
     edm::Wrapper<math::Error<6>::type> we6;
+	edm::Wrapper<math::Error<7>::type> we7;
 
     edm::Wrapper<std::vector<math::Error<1>::type> > wve1;
     edm::Wrapper<std::vector<math::Error<2>::type> > wve2;
@@ -212,6 +240,7 @@ namespace {
     edm::Wrapper<std::vector<math::Error<4>::type> > wve4;
     edm::Wrapper<std::vector<math::Error<5>::type> > wve5;
     edm::Wrapper<std::vector<math::Error<6>::type> > wve6;
+	edm::Wrapper<std::vector<math::Error<7>::type> > wve7;
 
     ROOT::Math::MatRepSym<Double32_t, 1> sm1;
     ROOT::Math::MatRepSym<Double32_t, 2> sm2;
@@ -219,24 +248,34 @@ namespace {
     ROOT::Math::MatRepSym<Double32_t, 4> sm4;
     ROOT::Math::MatRepSym<Double32_t, 5> sm5;
     ROOT::Math::MatRepSym<Double32_t, 6> sm6;
+	ROOT::Math::MatRepSym<Double32_t, 7> sm7;
     ROOT::Math::MatRepSym<double, 1> smd1;
     ROOT::Math::MatRepSym<double, 2> smd2;
     ROOT::Math::MatRepSym<double, 3> smd3;
     ROOT::Math::MatRepSym<double, 4> smd4;
     ROOT::Math::MatRepSym<double, 5> smd5;
     ROOT::Math::MatRepSym<double, 6> smd6;
+	ROOT::Math::MatRepSym<double, 7> smd7;
     ROOT::Math::MatRepSym<float, 1> smf1;
     ROOT::Math::MatRepSym<float, 2> smf2;
     ROOT::Math::MatRepSym<float, 3> smf3;
     ROOT::Math::MatRepSym<float, 4> smf4;
     ROOT::Math::MatRepSym<float, 5> smf5;
     ROOT::Math::MatRepSym<float, 6> smf6;
- 
+	ROOT::Math::MatRepSym<float, 7> smf7;
+	
     ROOT::Math::RowOffsets<1> ro1;
     ROOT::Math::RowOffsets<2> ro2;
     ROOT::Math::RowOffsets<3> ro3;
     ROOT::Math::RowOffsets<4> ro4;
     ROOT::Math::RowOffsets<5> ro5;
     ROOT::Math::RowOffsets<6> ro6;
+	ROOT::Math::RowOffsets<7> ro7;
+
+    //Used by ECAL Weights reconstruction
+    math::Matrix<3,10>::type mw; 
+    math::Matrix<10,10>::type mcw; 
+    ROOT::Math::MatRepStd<double, 3 ,10> smdw;
+    ROOT::Math::MatRepStd<double, 10 , 10> smdcw;
    }
 }

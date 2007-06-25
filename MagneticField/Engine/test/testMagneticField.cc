@@ -1,8 +1,8 @@
 /** \file
  *  A simple example of ho to access the magnetic field.
  *
- *  $Date: 2007/01/18 19:01:22 $
- *  $Revision: 1.3 $
+ *  $Date: 2005/12/12 18:19:07 $
+ *  $Revision: 1.1 $
  *  \author N. Amapane - CERN
  */
 
@@ -22,47 +22,23 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "DataFormats/GeometryVector/interface/Pi.h"
-#include "DataFormats/GeometryVector/interface/CoordinateSets.h"
-
-
 #include <iostream>
 #include <string>
 
-using namespace edm;
-using namespace Geom;
-#include "MagneticField/Layers/interface/MagVerbosity.h"
-
-
 class testMagneticField : public edm::EDAnalyzer {
  public:
-  testMagneticField(const edm::ParameterSet& pset) {
-
-    //    verbose::debugOut = true;
-
-  }
+  testMagneticField(const edm::ParameterSet& pset) {}
 
   ~testMagneticField(){}
 
-
-  void go(GlobalPoint g, const MagneticField*f) {
-    std::cout << "At: " << g << " phi=" << g.phi()<< " B= " << f->inTesla(g) << std::endl;
-  }
-  
-
-
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){
+   using namespace edm;
    ESHandle<MagneticField> magfield;
    setup.get<IdealMagneticFieldRecord>().get(magfield);
-
-   go(GlobalPoint(0,0,0), magfield.product());
-
-//    for (float phi = 0; phi<Geom::twoPi(); phi+=Geom::pi()/48.) {
-//      go(GlobalPoint(Cylindrical2Cartesian<float>(89.,phi,145.892)), magfield.product());
-//   }
+   const GlobalPoint g(0.,0.,0.);
+   std::cout << "B-field(T) at (0,0,0)(cm): " << magfield->inTesla(g) << std::endl;
   }
   
-   
  private:
 };
 

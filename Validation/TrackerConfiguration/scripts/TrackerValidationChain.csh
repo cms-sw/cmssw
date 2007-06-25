@@ -8,19 +8,10 @@ cd ${DATADIR}
 
 project CMSSW
 
-cvs co Validation/Geometry
 cvs co Validation/TrackerHits
 cvs co Validation/TrackerDigis
 cvs co Validation/TrackerRecHits
-#
-# Geometry Validation
-#
-cd ${DATADIR}/Validation/Geometry/test
-./TrackerGeometryValidation.sh
-./copyWWWTrackerGeometry.sh
-#
-# Run validation chain
-#
+
 cd ${DATADIR}/Validation/TrackerConfiguration/test
 
 cp /afs/cern.ch/cms/data/CMSSW/Validation/TrackerHits/data/Muon.root .
@@ -48,9 +39,6 @@ root -b -p -q  SiStripDigiCompare.C
 source copyWWWStrip.csh
 
 cd ${DATADIR}/Validation/TrackerRecHits/test
-
-cp ${DATADIR}/Validation/TrackerConfiguration/test/striprechitshisto.root .
-cp ${DATADIR}/Validation/TrackerConfiguration/test/pixelrechitshisto.root
 
 root -b -p -q SiPixelRecHitsCompare.C
 source copyWWWPixel.csh

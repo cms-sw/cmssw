@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.7 $
+ * \version $Revision: 1.8 $
  *
- * $Id: ElectronSelector.h,v 1.7 2006/12/07 10:28:30 llista Exp $
+ * $Id: ElectronSelector.h,v 1.8 2006/12/07 11:28:31 llista Exp $
  *
  */
 
@@ -91,11 +91,13 @@ namespace helper {
     }
    };
 
+
   template<>
-  struct CollectionStoreManager<reco::ElectronCollection> {
+  struct StoreManagerTrait<reco::ElectronCollection> {
     typedef ElectronCollectionStoreManager type;
     typedef ElectronSelectorBase base;
   };
+
 }
 
 #endif

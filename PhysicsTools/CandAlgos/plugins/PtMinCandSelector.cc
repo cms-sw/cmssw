@@ -12,16 +12,13 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/ObjectSelector.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
+#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "PhysicsTools/UtilAlgos/interface/PtMinSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
-typedef ObjectSelector<
-          SingleElementCollectionSelector<
-            reco::CandidateCollection,
-            PtMinSelector<reco::Candidate>
-          >
+typedef SingleObjectSelector<
+          reco::CandidateCollection,
+          PtMinSelector<reco::Candidate>
         > PtMinCandSelector;
 
 DEFINE_FWK_MODULE( PtMinCandSelector );

@@ -2,31 +2,17 @@
 \page PhysicsTools_RecoAlgos Package PhysicsTools/RecoAlgos
 <center>
 <small>
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
-<a href=http://cmsdoc.cern.ch/swdev/viewcvs/viewcvs.cgi/CMSSW/PhysicsTools/RecoAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/RecoAlgos/?cvsroot=CMSSW>CVS head for this package</a> - 
+<a href=http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/RecoAlgos/.admin/developers?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>Administrative privileges</a>
 </small>
 </center>
 
 \section desc Description
-Common algrithtm for  \ref RecoPackages "Reco objects".
+Common framework modules for RECO/AOD objects.
 
-\subsection interface Public interface
-None.
-
-\subsection modules Modules
-- reco::modules::TrackMerger: merges an arbitrary number of reco::TrackCollection.
-- reco::modules::MuonMerger:  merges an arbitrary number of reco::MuonCollection.
-- reco::modules::ElectronMerger: merges an arbitrary number of reco::ElectronCollection.
-- reco::modules::PhotonMerger: merges an arbitrary number of reco::PhotonCollection.
-<br>
-Examples of configuration for the merger modules is the following:
-\htmlonly
-<pre>
-  module allTracks = TrackMerger {
-    vstring src = { "tracksA", "tracksB", "tracksC" }
-  }
-</pre>
-\endhtmlonly
+For more details, refer to the
+<a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePhysicsTools">Analysis Tools</a>
+TWiki on the Software Guide.
 
 <hr>
 Last updated: @DATE@ L. Lista

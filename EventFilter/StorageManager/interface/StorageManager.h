@@ -11,7 +11,7 @@
      See CMS EventFilter wiki page for further notes.
 */
 
-// $Id: StorageManager.h,v 1.2 2007/02/05 16:39:40 klute Exp $
+// $Id: StorageManager.h,v 1.1 2007/02/04 06:27:48 hcheung Exp $
 
 #include <string>
 #include <list>
@@ -81,7 +81,6 @@ namespace stor {
     void receiveRegistryMessage(toolbox::mem::Reference *ref);
     void receiveDataMessage(toolbox::mem::Reference *ref);
     void receiveOtherMessage(toolbox::mem::Reference *ref);
-    void receiveDQMMessage(toolbox::mem::Reference *ref);
 
     void defaultWebPage
       (xgi::Input *in, xgi::Output *out) throw (xgi::exception::Exception);

@@ -17,14 +17,14 @@
    cells which would normally exist in the full CMS HCAL, but are not
    present for the specified topology.
     
-   $Date: 2006/03/30 14:43:28 $
-   $Revision: 1.6 $
+   $Date: 2006/07/08 02:46:15 $
+   $Revision: 1.7 $
    \author J. Mans - Minnesota
 */
 class HcalTopology : public CaloSubdetectorTopology {
 public:
-  HcalTopology();
-  
+  HcalTopology(bool h2_mode=false);
+
   /** Add a cell to exclusion list */
   void exclude(const HcalDetId& id);
   /** Exclude an entire subdetector */
@@ -92,6 +92,7 @@ private:
   std::vector<HcalDetId> exclusionList_;
   bool excludeHB_, excludeHE_, excludeHO_, excludeHF_;
 
+  bool h2mode_;
   bool isExcluded(const HcalDetId& id) const;
 
   const int firstHBRing_;

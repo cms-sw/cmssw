@@ -1,7 +1,16 @@
 #ifndef Alignment_CommonAlignment_AlignableComposite_H
 #define Alignment_CommonAlignment_AlignableComposite_H
 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Alignment/CommonAlignment/interface/AlignableSurface.h"
+#include "CondFormats/Alignment/interface/Alignments.h"
+#include "CondFormats/Alignment/interface/AlignmentErrors.h"
+
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/Vector/interface/Basic3DVector.h"
+
+#include <vector>
 
 /// Abstract base class for composites of Alignable objects.
 /// The AlignableComposite is itself Alignable.
@@ -20,14 +29,12 @@
 /// Misalignment can be de-/reactivated (forwarded to components).
 ///
 
-class GeomDet;
-
 class AlignableComposite : public Alignable 
 {
 
 public:
 
-  /// Default constructor: surface position = 0, rotation = identity
+  /// Default constructor
   AlignableComposite();
 
   /// Constructor from GeomDet
@@ -39,10 +46,10 @@ public:
   virtual void recursiveComponents(std::vector<Alignable*> &result) const;
   
   /// Return the global position of the object 
-  virtual const GlobalPoint& globalPosition() const { return theSurface.position(); }
+  virtual const GlobalPoint globalPosition() const { return theSurface.position(); }
   
   /// Return the global orientation of the object 
-  virtual const RotationType& globalRotation() const { return theSurface.rotation(); }
+  virtual const RotationType globalRotation() const { return theSurface.rotation(); }
 
   /// Return the Surface (global position and orientation) of the object 
   virtual const AlignableSurface& surface() const { return theSurface; }
@@ -58,9 +65,6 @@ public:
 
   /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );
-
-  /// Rotation intepreted in the local reference frame
-  virtual void rotateInLocalFrame( const RotationType& rotation );
 
   /// Set the AlignmentPositionError to all the components of the composite
   virtual void setAlignmentPositionError( const AlignmentPositionError& ape );
@@ -98,3 +102,7 @@ private:
 };
 
 #endif
+
+
+
+

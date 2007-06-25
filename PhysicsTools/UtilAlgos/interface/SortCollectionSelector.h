@@ -6,9 +6,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.6 $
+ * \version $Revision: 1.8 $
  *
- * $Id: SortCollectionSelector.h,v 1.6 2006/10/27 10:21:25 llista Exp $
+ * $Id: SortCollectionSelector.h,v 1.8 2007/03/09 14:07:08 llista Exp $
  *
  */
 
@@ -18,44 +18,45 @@
 #include <utility>
 namespace edm { class Event; }
 
-template<typename C, typename CMP, 
-	 typename SC = std::vector<const typename C::value_type *>, 
-	 typename A = typename helper::SelectionAdderTrait<SC>::type>
+template<typename InputCollection, typename Comparator, 
+	 typename StoreContainer = std::vector<const typename InputCollection::value_type *>, 
+	 typename RefAdder = typename helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class SortCollectionSelector {
 public:
-  typedef C collection;
+  typedef InputCollection collection;
 private:
-  typedef const typename C::value_type * reference;
+  typedef const typename InputCollection::value_type * reference;
   typedef std::pair<reference, size_t> pair;
-  typedef SC container;
+  typedef StoreContainer container;
   typedef typename container::const_iterator const_iterator;
 
 public:
   SortCollectionSelector( const edm::ParameterSet & cfg ) : 
-    compare_( CMP() ),
+    compare_( Comparator() ),
     maxNumber_( cfg.template getParameter<unsigned int>( "maxNumber" ) ) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
-  void select( const edm::Handle<C> & c, const edm::Event & ) {
+  void select( const edm::Handle<InputCollection> & c, const edm::Event & ) {
     std::vector<pair> v;
     for( size_t idx = 0; idx < c->size(); ++ idx )
       v.push_back( std::make_pair( & ( * c )[ idx ], idx ) );
     std::sort( v.begin(), v.end(), compare_ );
     selected_.clear();
     for( size_t i = 0; i < maxNumber_ && i < v.size(); ++i )
-      A::add( selected_, c, v[ i ].second );
+      addRef_( selected_, c, v[ i ].second );
   }
 private:
-  struct Comparator {
-    Comparator( const CMP & cmp ) : cmp_( cmp ) { }
+  struct PairComparator {
+    PairComparator( const Comparator & cmp ) : cmp_( cmp ) { }
     bool operator()( const pair & t1, const pair & t2 ) const {
       return cmp_( * t1.first, * t2.first );
     } 
-    CMP cmp_;
+    Comparator cmp_;
   };
-  Comparator compare_;
+  PairComparator compare_;
   unsigned int maxNumber_;
-  container selected_;
+  StoreContainer selected_;
+  RefAdder addRef_;
 };
 
 #endif

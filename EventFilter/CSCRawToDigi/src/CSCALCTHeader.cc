@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <bitset>
 
-bool CSCALCTHeader::debug=false;
+bool CSCALCTHeader::debug = false;
 
 
 CSCALCTHeader::CSCALCTHeader(int chamberType) {
@@ -19,6 +19,7 @@ CSCALCTHeader::CSCALCTHeader(int chamberType) {
   bzero(this, sizeInWords()*2); 
   flag_0 = 0xC;
   lctChipRead = activeFEBsForChamberType[chamberType];
+  
   activeFEBs = lctChipRead;
   nTBins = nTBinsForChamberType[chamberType];
   if (debug)

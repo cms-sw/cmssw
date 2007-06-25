@@ -9,6 +9,7 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+
 #include "RecoParticleFlow/PFAlgo/interface/PFBlock.h"
 #include "RecoParticleFlow/PFClusterAlgo/interface/PFClusterAlgo.h"
 
@@ -29,9 +30,6 @@ class TCanvas;
 class TH2F;
 class TGraph;
 class IO;
-class TH1F;
-class PFJetAlgorithm;
-class Utils;
 
 class PFBlockElement;
 
@@ -133,8 +131,6 @@ class PFRootEventManager {
   /// performs particle flow
   void particleFlow();
 
-  //performs the jets reconstructions
-  void makeJets();
 
   /// process and display one entry 
   void display(int ientry);
@@ -484,19 +480,5 @@ class PFRootEventManager {
   // particle flow ------------------------------------------
   bool   displayJetColors_;
   int    reconMethod_;
-
-  // jets parameters ----------------------------------------
-  bool   doJets_;
-  double coneAngle_;
-  double seedEt_;
-  double coneMerge_;
-  bool   jetsDebug_;
-
- private:
-
-  TH1F *h_deltaETvisible_MCEHT_;
-  TH1F *h_deltaETvisible_MCPF_;
-  PFJetAlgorithm*  JetAlgo_;
-
 };
 #endif

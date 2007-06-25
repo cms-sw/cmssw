@@ -2,9 +2,8 @@
 using namespace reco;
 
 Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) : 
-      RecoCandidate( q, p4, vtx ) { 
+  RecoCandidate( q, p4, vtx ) { 
 }
-
 
 bool Muon::overlap( const Candidate & c ) const {
   const RecoCandidate * o = dynamic_cast<const RecoCandidate *>( & c );
@@ -16,5 +15,7 @@ bool Muon::overlap( const Candidate & c ) const {
 	   );
 }
 
-
+Muon * Muon::clone() const {
+  return new Muon( * this );
+}
 

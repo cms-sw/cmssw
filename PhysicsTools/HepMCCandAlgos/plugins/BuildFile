@@ -3,32 +3,53 @@
 <use name=PhysicsTools/UtilAlgos>
 <use name=DataFormats/HepMCCandidate>
 
-<library file=GenParticleCandidateProducer.cc>
+<library file=GenParticleCandidateProducer.cc name=GenParticleCandidateProducerPlugin>
   <use name=SimGeneral/HepPDTRecord>
   <use name=SimDataFormats/HepMCProduct>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=FastGenParticleCandidateProducer.cc>
+<library file=FastGenParticleCandidateProducer.cc name=FastGenParticleCandidateProducerPlugin>
   <use name=SimGeneral/HepPDTRecord>
   <use name=SimDataFormats/HepMCProduct>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=GenParticleCandidateSelector.cc>
+<library file=GenParticleCandidateSelector.cc name=GenParticleCandidateSelectorPlugin>
   <use name=SimGeneral/HepPDTRecord>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=ParticleTreeDrawer.cc>
+<library file=ParticleTreeDrawer.cc name=ParticleTreeDrawerPlugin>
   <use name=SimGeneral/HepPDTRecord>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=ParticleDecayDrawer.cc>
+<library file=ParticleDecayDrawer.cc name=ParticleDecayDrawerPlugin>
   <use name=SimGeneral/HepPDTRecord>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=MCTruthDeltaRMatcher.cc>
+<library file=MCTruthDeltaRMatcher.cc name=MCTruthDeltaRMatcherPlugin>
   <use name=PhysicsTools/CandAlgos>
+  <flags EDM_PLUGIN=1>
 </library>
 
-<library file=MCTruthCompositeMatcher.cc>
-  <use name=PhysicsTools/HepMCCandAlgos>
+<library file=MCTruthCompositeMatcher.cc name=MCTruthCompositeMatcherPlugin>
+  <flags EDM_PLUGIN=1>
+</library>
+
+<library file=MCTruthMuonCompositeMatcher.cc name=MCTruthMuonCompositeMatcherPlugin>
+  <flags EDM_PLUGIN=1>
+  <use name=DataFormats/MuonReco>
+</library>
+
+<library file=MCTruthPixelMatchGsfElectronCompositeMatcher.cc name=MCTruthPixelMatchGsfElectronCompositeMatcherPlugin>
+  <flags EDM_PLUGIN=1>
+  <use name=DataFormats/EgammaCandidates>
+</library>
+
+<library file=MCTruthCaloJetCompositeMatcher.cc name=MCTruthCaloJetCompositeMatcherPlugin>
+  <flags EDM_PLUGIN=1>
+  <use name=DataFormats/JetReco>
 </library>

@@ -3,8 +3,6 @@
 
 #include <bitset>
 
-using namespace std;
-
 /*
  * A calorimeter trigger region
  * as represented in the GCT
@@ -37,7 +35,7 @@ public:
 		
 private:
 
-	bitset<10> myEt;
+	std::bitset<10> myEt;
 	bool myMip;
 	bool myQuiet;
 	

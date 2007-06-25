@@ -11,16 +11,13 @@
 //
 // Original Author:  David Futyan
 
+
 #include <vector>
 #include "Geometry/Vector/interface/GlobalPoint.h"
 
 // Framework
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ProducerBase.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LooperFactory.h"
+#include "FWCore/Framework/interface/ESProducerLooper.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
@@ -33,7 +30,7 @@
 #include "TGraph.h"
 #include "TCanvas.h"
 
-class PhiSymmetryCalibration :  public edm::EDAnalyzer
+class PhiSymmetryCalibration :  public edm::ESProducerLooper
 {
 
  public:
@@ -44,19 +41,29 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   /// Destructor
   ~PhiSymmetryCalibration();
 
+  /// Dummy implementation (job done in duringLoop)
+  virtual void produce(edm::Event&, const edm::EventSetup&) {};
+
   /// Called at beginning of job
-  virtual void beginJob(const edm::EventSetup&);
+  virtual void beginOfJob(const edm::EventSetup&);
 
   /// Called at end of job
-  virtual void endJob();
+  virtual void endOfJob();
+
+  /// Called at beginning of loop
+  virtual void startingNewLoop( unsigned int iLoop );
+
+  /// Called at end of loop
+  virtual Status endOfLoop( const edm::EventSetup&, unsigned int iLoop );
 
   /// Called at each event 
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
+  virtual Status duringLoop( const edm::Event&, const edm::EventSetup& );
 
  private:
 
   // private member functions
 
+  void getCellAreas();
   void getKfactors();
   void fillHistos();
 
@@ -75,7 +82,6 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   // crystal geometry information
   double cellEta_[85];
   GlobalPoint cellPos_[100][100];
-  double cellPhi_[100][100];
   double cellArea_[100][100];
   double meanCellArea_[39];
   double etaBoundary_[40];
@@ -104,7 +110,9 @@ class PhiSymmetryCalibration :  public edm::EDAnalyzer
   std::string endcapHits_;
   double eCut_barl_;
   double eCut_endc_;  
-  int eventSet_;
+
+  // root tree
+  TFile* theFile;
 
   TH1F* etsum_barl_histos_[85];
   TH1F* etsum_endc_histos_[39];

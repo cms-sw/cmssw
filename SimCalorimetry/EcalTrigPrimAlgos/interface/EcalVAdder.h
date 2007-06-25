@@ -20,7 +20,7 @@ class EcalVAdder {
 
 
  public:
-  virtual std::vector<int> process(const std::vector<EBDataFrame *> &) =0;
+  virtual std::vector<int> process(const std::vector<std::vector<int> > ) =0;
   };
 
 #endif

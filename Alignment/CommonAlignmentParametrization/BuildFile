@@ -1,18 +1,7 @@
-<use name=Alignment/CommonAlignment>
-<use name=DataFormats/Math>
-<use name=FWCore/MessageLogger>
-<use name=FWCore/Utilities>
-<use name=Geometry/CommonDetAlgo>
-<use name=Geometry/CommonDetUnit>
-<use name=Geometry/Surface>
-<use name=TrackingTools/TrajectoryState>
-<use name=clhep>
 <export>
-  <use name=Alignment/CommonAlignment>
-  <use name=DataFormats/Math>
-  <use name=Geometry/CommonDetAlgo>
-  <use name=Geometry/CommonDetUnit>
-  <use name=Geometry/Surface>
-  <use name=TrackingTools/TrajectoryState>
-  <lib name=AlignmentCommonAlignmentParametrization>
+ <lib name=AlignmentCommonAlignmentParametrization>
 </export>
+
+<use name=FWCore/Framework>
+<use name=Geometry/CommonDetUnit>
+<use name=Alignment/CommonAlignment>

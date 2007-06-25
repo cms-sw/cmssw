@@ -71,6 +71,14 @@ namespace edmtest
     return a.key < b.key;
   }
 
+  struct SimpleDerived : public Simple
+  {
+    SimpleDerived() : Simple(), dummy(0.0) { }
+    SimpleDerived(const SimpleDerived& in) : Simple(in), dummy(in.dummy) { }
+    double      dummy;
+    SimpleDerived* clone() const { return new SimpleDerived(*this); }
+  };
+
   struct Sortable
   {
     int data;
@@ -108,8 +116,10 @@ namespace edmtest
     
 
   typedef edm::SortedCollection<Simple> SCSimpleProduct;
+  typedef std::vector<Simple>           VSimpleProduct;
   typedef edm::OwnVector<Simple>        OVSimpleProduct;
-  typedef edm::AssociationVector<std::vector<Simple>, std::vector<Simple> > AVSimpleProduct;
+  typedef edm::OwnVector<SimpleDerived> OVSimpleDerivedProduct;
+  typedef edm::AssociationVector<edm::RefProd<std::vector<Simple> >, std::vector<Simple> > AVSimpleProduct;
   typedef edm::DetSetVector<Sortable>   DSVSimpleProduct;
   typedef edm::DetSetVector<Unsortable> DSVWeirdProduct;
 

@@ -1151,12 +1151,6 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
 
   dumpEntryCorrelations( fileout, nEntUnk );
 
-  ALIdouble go;
-  GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
-  gomgr->getGlobalOptionValue("dumpOptOGlobalInReport", go );
-
-  if( go ) OpticalObjectMgr::getInstance()->dumpOptOsGlobal(fileout);
-
 }
 
 
@@ -1269,7 +1263,7 @@ void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int nEntUnk )
     }
   }
   //------- Dump optical object list 
-  if( ALIUtils::debug >= 2) OpticalObjectMgr::getInstance()->dumpCentreOptOs();
+  if( ALIUtils::debug >= 2) OpticalObjectMgr::getInstance()->dumpOptOs();
  
 }
 

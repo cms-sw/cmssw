@@ -2,7 +2,6 @@
 #define TrackerHitProducer_h
 
 // framework & common header files
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -134,7 +133,6 @@ class TrackerHitProducer : public edm::EDProducer
   edm::InputTag PxlFwdLowSrc_;
   edm::InputTag PxlFwdHighSrc_;
 
-  edm::ParameterSet config_;
   // private statistics information
   unsigned int count;
 

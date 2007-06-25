@@ -16,12 +16,12 @@
 //
 // Original Author:  Ursula Berthon, Claude Charlot
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
-// $Id: ForwardMeasurementEstimator.h,v 1.1 2006/06/02 16:21:02 uberthon Exp $
+// $Id: ForwardMeasurementEstimator.h,v 1.2 2006/06/30 12:36:56 uberthon Exp $
 //
 //
 #include "TrackingTools/PatternTools/interface/MeasurementEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "Geometry/Surface/interface/BoundPlane.h"
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 #include <utility>
 
 class ForwardMeasurementEstimator : public MeasurementEstimator {

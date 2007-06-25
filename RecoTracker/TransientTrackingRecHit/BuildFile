@@ -6,6 +6,7 @@
 <use name=RecoLocalTracker/SiPixelRecHits>
 <use name=RecoLocalTracker/SiStripRecHitConverter>
 <use name=FWCore/Framework>
+<use name=DataFormats/Common>
 <use name=clhep>
 <export>
  <lib name=RecoTrackerTransientTrackingRecHit>
@@ -17,3 +18,4 @@
 </export>
 
 <flags SEAL_PLUGIN_NAME="RecoTrackerTransientTrackingRecHit">
+

@@ -92,16 +92,6 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   typedef std::map <const reco::Track *, TrackLocalAngleNew::HitGlbDirAssociation> trkglbdirmap;
   typedef std::vector<SiStripDigi> DigisVector;
 
-  struct Cluster {
-    int   nModule;
-    int   nPosition;
-    int   nWidth;
-    float dBaryCenter;
-    float dClusterEta;
-
-    // See SiStripCluster interface for details
-  };
-
   double getClusterEta( const std::vector<uint16_t> &roSTRIP_AMPLITUDES,
 			const int		    &rnFIRST_STRIP,
 			const DigisVector	    &roDIGIS) const;
@@ -118,14 +108,6 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   std::string filename_;
   std::string oSiStripDigisLabel_;
   std::string oSiStripDigisProdInstName_;
-  std::string oSiStripClusterInfoLabel_;
-  std::string oSiStripClusterInfoProdInstName_;
-  std::string oSeedsLabel_;
-  std::string oSeedsProdInstName_;
-  std::string oTracksLabel_;
-  std::string oTracksProdInstName_;
-
-  float dDigiAmplifySigma_;
   bool bUseLTCDigis_;
   const double dCROSS_TALK_ERR;
   //SiStripNoiseService m_oSiStripNoiseService; 
@@ -133,8 +115,6 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   std::vector<DetId> Detvector;
   
   TrackLocalAngleNew *anglefinder_;
-
-  Cluster oCluster_;
   
   int mtcctibcorr, mtcctobcorr;
   
@@ -168,18 +148,6 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   float clusterseednoise;
   float clustercrosstalk;
 
-  float newclusterpos;
-  float newclustereta;
-  float newclusterchg;
-  float newclusterchgl;
-  float newclusterchgr;
-  float newclusternoise;
-  float newclustermaxchg;
-  float newclusterbarycenter;
-  float newclusterseednoise;
-  float newclustercrosstalk;
-  float newclusterwidth;
-
   float angle;
   float stereocorrection;
   float localmagfield;
@@ -210,7 +178,6 @@ class MTCCNtupleMaker : public edm::EDAnalyzer
   TFile* hFile;
   TTree* MTCCNtupleMakerTree;
   TTree	*poTrackTree;
-  TTree *poClusterTree_;
    
   TH1F  *poClusterChargeTH1F;
   TH1F  *hphi, *hnhit;

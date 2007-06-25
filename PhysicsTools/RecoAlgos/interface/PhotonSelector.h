@@ -7,9 +7,9 @@
  * 
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.4 $
+ * \version $Revision: 1.5 $
  *
- * $Id: PhotonSelector.h,v 1.4 2006/12/07 10:28:30 llista Exp $
+ * $Id: PhotonSelector.h,v 1.5 2006/12/07 11:28:31 llista Exp $
  *
  */
 
@@ -58,10 +58,11 @@ namespace helper {
    };
 
   template<>
-  struct CollectionStoreManager<reco::PhotonCollection> {
+  struct StoreManagerTrait<reco::PhotonCollection> {
     typedef PhotonCollectionStoreManager type;
     typedef PhotonSelectorBase base;
   };
+
 }
 
 #endif

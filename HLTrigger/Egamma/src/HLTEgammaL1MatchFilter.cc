@@ -1,6 +1,6 @@
 /** \class HLTEgammaL1MatchFilter
  *
- * $Id: HLTEgammaL1MatchFilter.cc,v 1.2 2007/02/01 15:17:47 monicava Exp $
+ * $Id: HLTEgammaL1MatchFilter.cc,v 1.3 2007/02/04 20:41:41 monicava Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -8,7 +8,7 @@
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilter.h"
 
-#include "FWCore/Framework/interface/Handle.h"
+#include "DataFormats/Common/interface/Handle.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/HLTReco/interface/HLTFilterObject.h"

@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloTask.cc
  *
- * $Date: 2007/02/16 20:23:19 $
- * $Revision: 1.38 $
+ * $Date: 2007/02/01 15:50:03 $
+ * $Revision: 1.37 $
  * \author A. Ghezzi
  *
  */
@@ -623,7 +623,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
 
     //int ism = id.ism();
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    //if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
     int ic = id.ic();
     int ie = (ic-1)/20;
@@ -726,7 +726,7 @@ void EBBeamCaloTask::analyze(const Event& e, const EventSetup& c){
     EBDetId id = hit.id();
     //int ism = id.ism();
     // FIX this if can not work on the 2004 data since they do not fill in the  EcalDCCHeaderBlock
-    //    if ( dccMap[ism].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
+    //    if ( dccMap[ism-1].getRunType() != EcalDCCHeaderBlock::BEAMH4 ) continue;//FIX ME add the autoscan runtype
 
     int ic = id.ic();
     int ie = (ic-1)/20;

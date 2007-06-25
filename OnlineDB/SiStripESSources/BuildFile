@@ -3,22 +3,18 @@
 <use name=CondFormats/SiStripObjects>
 <use name=CalibFormats/SiStripObjects>
 <use name=CalibTracker/SiStripConnectivity>
-<use name=CalibTracker/SiStripPedestals>
 <use name=OnlineDB/SiStripConfigDb>
-<use name=TkOnlineSw>
 <use name=boost>
 <flags SEAL_PLUGIN_NAME="OnlineDBSiStripESSources">
 
 <export>
-  <lib name=OnlineDBSiStripESSources>
-  <use name=FWCore/MessageLogger>
-  <use name=DataFormats/SiStripCommon>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
-  <use name=CalibTracker/SiStripConnectivity>
-  <use name=CalibTracker/SiStripPedestals>
-  <use name=OnlineDB/SiStripConfigDb>
-  <use name=TkOnlineSw>
-  <use name=boost>
+   <lib name=OnlineDBSiStripESSources>
+   <use name=FWCore/MessageLogger>
+   <use name=DataFormats/SiStripCommon>
+   <use name=CondFormats/SiStripObjects>
+   <use name=CalibFormats/SiStripObjects>
+   <use name=CalibTracker/SiStripConnectivity>
+   <use name=OnlineDB/SiStripConfigDb>
+   <use name=boost>
 </export>
 

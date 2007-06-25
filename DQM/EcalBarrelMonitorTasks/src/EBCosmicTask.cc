@@ -1,8 +1,8 @@
 /*
  * \file EBCosmicTask.cc
  *
- * $Date: 2007/02/22 10:57:00 $
- * $Revision: 1.64 $
+ * $Date: 2007/02/17 17:04:43 $
+ * $Revision: 1.61 $
  * \author G. Della Ricca
  *
 */
@@ -74,7 +74,7 @@ void EBCosmicTask::setup(void){
     dbe->setCurrentFolder("EcalBarrel/EBCosmicTask/Spectrum");
     for (int i = 0; i < 36 ; i++) {
       sprintf(histo, "EBCT energy spectrum SM%02d", i+1);
-      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 1.5);
+      meSpectrumMap_[i] = dbe->book1D(histo, histo, 100, 0., 5.);
     }
 
   }
@@ -171,11 +171,11 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
     float xie = ie - 0.5;
     float xip = ip - 0.5;
 
-    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism);
+    map<int, EcalDCCHeaderBlock>::iterator i = dccMap.find(ism-1);
     if ( i == dccMap.end() ) continue;
 
-    if ( ! ( dccMap[ism].getRunType() == EcalDCCHeaderBlock::COSMIC ||
-             dccMap[ism].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
+    if ( ! ( dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::COSMIC ||
+             dccMap[ism-1].getRunType() == EcalDCCHeaderBlock::MTCC ) ) continue;
 
     LogDebug("EBCosmicTask") << " det id = " << id;
     LogDebug("EBCosmicTask") << " sm, eta, phi " << ism << " " << ie << " " << ip;
@@ -185,8 +185,8 @@ void EBCosmicTask::analyze(const Event& e, const EventSetup& c){
 
     LogDebug("EBCosmicTask") << " hit energy " << xval;
 
-    const float lowThreshold  = 0.06125;
-    const float highThreshold = 0.12500;
+    const float lowThreshold = 0.25;
+    const float highThreshold = 0.50;
 
     if ( xval >= lowThreshold ) {
       if ( meCutMap_[ism-1] ) meCutMap_[ism-1]->Fill(xie, xip, xval);

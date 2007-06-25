@@ -185,7 +185,8 @@ void PhotonProducer::fillPhotonCollection(
     // does the SuperCluster have a matched pixel seed?
     bool hasSeed = false;
     for(pixelSeedAssocItr = pixelSeedAssoc.begin(); pixelSeedAssocItr != pixelSeedAssoc.end(); pixelSeedAssocItr++) {
-      if (&(*(pixelSeedAssocItr->val)) == &(*aClus)) {
+      if (fabs(pixelSeedAssocItr->val->eta() - aClus->eta()) < 0.0001 &&
+	  fabs(pixelSeedAssocItr->val->phi() - aClus->phi()) < 0.0001) {
 	hasSeed=true;
 	break;
       }

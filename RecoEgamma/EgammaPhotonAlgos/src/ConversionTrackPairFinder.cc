@@ -150,7 +150,14 @@ ConversionTrackPairFinder::~ConversionTrackPairFinder() {
     for( iMap1 =   scTrkAssocMap.begin(); iMap1 !=   scTrkAssocMap.end(); ++iMap1) {
       for( iMap2 =  iMap1; iMap2 !=   scTrkAssocMap.end(); ++iMap2) {
 	if (   ((iMap1->first)).charge() *  ((iMap2->first)).charge()  > 0 ) continue;
-	if (   ((iMap1->second)).energy() !=  ((iMap2->second)).energy()  )  continue;
+
+
+	if( !( (  fabs( ((iMap1->second)).energy() -((iMap2->second)).energy() ) < 0.001 ) &&  
+	       (   fabs( ((iMap1->second)).eta() -   ((iMap2->second)).eta() ) < 0.001 )      &&
+	       (    fabs( ((iMap1->second)).phi() - ((iMap2->second)).phi() ) < 0.001  ) ) )   continue;
+	
+
+
 	
 
 	LogDebug("ConversionTrackPairFinder") << " ConversionTrackPairFinde All selected from the map First  Track charge " <<   (iMap1->first).charge() << " Num of RecHits " <<  ((iMap1->first)).recHitsSize() << " inner momentum " <<  ((iMap1->first)).track().innerMomentum() << " Ass SC " << (iMap1->second).energy() <<  "\n";  

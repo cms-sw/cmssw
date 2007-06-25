@@ -6,7 +6,6 @@
 // forward declarations
 class TFile;
 class TH1D;
-class TH2D;
 
 class VtxTester : public edm::EDAnalyzer
 {
@@ -25,10 +24,7 @@ class VtxTester : public edm::EDAnalyzer
    
      //
      TFile* fOutputFile ;
-     TH1D*  fVtxHistz ;
-	 TH1D*  fVtxHistx ;
-	 TH1D*  fVtxHisty ;
-	 TH2D* fVtxHistxy;
+     TH1D*  fVtxHist ;
      TH1D*  fPhiHistOrg ;
      TH1D*  fPhiHistSmr ;
      TH1D*  fEtaHistOrg ;

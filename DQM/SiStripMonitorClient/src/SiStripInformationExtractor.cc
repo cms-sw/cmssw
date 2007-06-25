@@ -2,7 +2,6 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/WebComponents/interface/CgiReader.h"
-#include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
@@ -14,7 +13,6 @@
 #include "TImage.h"
 #include "TPaveText.h"
 #include "TImageDump.h"
-#include "TAxis.h"
 
 #include <iostream>
 using namespace std;
@@ -207,55 +205,8 @@ void SiStripInformationExtractor::plotSingleHistogram(MonitorUserInterface * mui
   MonitorElement* me = mui->get(path_name);
   vector<MonitorElement*> me_list;
   if (me) {
-    TProfile* prof = ExtractTObject<TProfile>().extract(me);
-    TH1F* hist1 = ExtractTObject<TH1F>().extract(me);
-    TH2F* hist2 = ExtractTObject<TH2F>().extract(me);
-  
-    TCanvas canvas("TestCanvas", "Test Canvas");
-    canvas.Clear();
-    canvas.Divide(1,2);
-    if (prof|| hist1 || hist2) {
-      if (hist2) {
-        canvas.cd(1);
-        hist2->Draw();
-	TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
-		    hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
-	for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
-	  for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
-	    thproj.SetBinContent(j, hist2->GetBinContent(i,j));
-	  }
-	}
-        canvas.cd(2);
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-      } else if (prof) {
-        canvas.cd(1);
-        prof->Draw(); 
-	TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
-		    0.0,prof->GetMaximum()*1.2);
-	for (int i = 1; i < prof->GetNbinsX()+1; i++) {
-	  thproj.Fill(prof->GetBinContent(i));
-	}
-        canvas.cd(2);
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-
-      } else { 
-        canvas.cd(1);
-        hist1->Draw();
-	TH1F thproj(hist1->GetName(),hist1->GetTitle(),100, 
-		    0.0,hist1->GetMaximum()*1.2);
-	for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
-	  thproj.Fill(hist1->GetBinContent(i));
-	}
-        canvas.cd(2);        
-	gPad->SetLogy(1);
-	thproj.DrawCopy();
-      }
-    }
-    canvas.Update();
-    fillImageBuffer(canvas);
-    canvas.Clear();
+    me_list.push_back(me);
+    plotHistos(req_map,me_list);
   }
 }
 //
@@ -312,9 +263,6 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
   if (hasItem(req_map,"height"))
               height = atoi(getItemValue(req_map, "height").c_str());
 
-  string dopt;
-  if (hasItem(req_map,"drawopt")) dopt = getItemValue(req_map, "drawopt");
-
   canvas.SetWindowSize(width,height);
   canvas.Divide(ncol, nrow);
   int i=0;
@@ -325,57 +273,14 @@ void SiStripInformationExtractor::plotHistos(multimap<string,string>& req_map,
     string tag;
     int icol;
     SiStripUtility::getStatusColor(istat, icol, tag);
-
-    TProfile* prof = ExtractTObject<TProfile>().extract((*it));
-    TH1F* hist1 = ExtractTObject<TH1F>().extract((*it));
-    TH2F* hist2 = ExtractTObject<TH2F>().extract((*it));
   
-    if (prof|| hist1 || hist2) {
+    MonitorElementT<TNamed>* ob = 
+      dynamic_cast<MonitorElementT<TNamed>*>((*it));
+    if (ob) {
       canvas.cd(i);
-
-      if (hist2) {
-        if (xlow != -1.0 && xhigh != -1.0) {
-          TAxis* xa = hist2->GetXaxis();
-          xa->SetRangeUser(xlow, xhigh);
-        }
-        hist2->SetFillColor(1);
-        if (dopt.find("projection") != string::npos) {
-          TH1F thproj(hist2->GetName(),hist2->GetTitle(),hist2->GetNbinsY(), 
-	      hist2->GetYaxis()->GetXmin(),hist2->GetYaxis()->GetXmax());
-	  for (int j = 1; j < hist2->GetNbinsY()+1; j++) {
-	    for (int i = 1; i < hist2->GetNbinsX()+1; i++) {
-	      thproj.SetBinContent(j, hist2->GetBinContent(i,j));
-            }
-	  }
-          thproj.DrawCopy();
-	} else hist2->Draw(dopt.c_str());
-      } else if (prof) {
-        if (xlow != -1 &&  xhigh != -1.0) {
-          TAxis* xa = prof->GetXaxis();
-          xa->SetRangeUser(xlow, xhigh);
-        }
-        if (dopt.find("projection") != string::npos) {
-          TH1F thproj(prof->GetName(),prof->GetTitle(),prof->GetNbinsX(), 
-		      0.0,prof->GetMaximum()*1.2);
-          for (int i = 1; i < prof->GetNbinsX()+1; i++) {
-	    thproj.Fill(prof->GetBinContent(i));
-	  }
-	  thproj.DrawCopy();
-        } else prof->Draw(dopt.c_str());
-      } else {
-        if (xlow != -1 &&  xhigh != -1.0) {
-          TAxis* xa = hist1->GetXaxis();
-          xa->SetRangeUser(xlow, xhigh);
-        }
-        if (dopt.find("projection") != string::npos) {
-          TH1F thproj(hist1->GetName(),hist1->GetTitle(),hist1->GetNbinsX(), 
-		      0.0,hist1->GetMaximum()*1.2);
-          for (int i = 1; i < hist1->GetNbinsX()+1; i++) {
-	    thproj.Fill(hist1->GetBinContent(i));
-	  }
-          thproj.DrawCopy();
-        } else hist1->Draw();
-      }
+      //      TAxis* xa = ob->operator->()->GetXaxis();
+      //      xa->SetRangeUser(xlow, xhigh);
+      ob->operator->()->Draw();
       if (icol != 1) {
 	TText tt;
 	tt.SetTextSize(0.12);

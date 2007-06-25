@@ -7,8 +7,8 @@
  *   consecutive tracker layers
  * 
  *
- *   $Date: 2006/07/26 20:26:46 $
- *   $Revision: 1.3 $
+ *   $Date: 2006/07/27 08:49:25 $
+ *   $Revision: 1.4 $
  *
  *   \author   N. Neumeister            Purdue University
  *   \author porting C. Liu             Purdue University
@@ -21,7 +21,7 @@
 //------------------------------------
 
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
-#include "Geometry/CommonDetAlgo/interface/GlobalError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"

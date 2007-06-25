@@ -5,7 +5,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <iostream>
 #include <fstream>
-
+using namespace std;
 EcalFenixLinearizer::EcalFenixLinearizer(DBInterface * db)
   : db_(db)
 {
@@ -14,8 +14,7 @@ EcalFenixLinearizer::EcalFenixLinearizer(DBInterface * db)
 EcalFenixLinearizer::~EcalFenixLinearizer(){
 }
 
-
-void EcalFenixLinearizer::process(const EBDataFrame &df, EBDataFrame *dfout)
+std::vector<int> EcalFenixLinearizer::process(const EBDataFrame &df)
 {
 //We know a tower numbering is:
 // S1 S2 S3 S4 S5
@@ -25,19 +24,22 @@ void EcalFenixLinearizer::process(const EBDataFrame &df, EBDataFrame *dfout)
 // 2  7  12 17 22
 // 1  8  11 18 21
 // 0  9  10 19 20
-  dfout->setSize(SIZEMAX);
+
+  std::vector<int> output_percry;
+  // cout<<"dfsize input lin= "<<df.size()<<endl;
   for (int i=0;i<df.size();i++) {
     setInput(df[i]);
-    dfout->setSample(i,EcalMGPASample(process(),gainID_)); 
+    output_percry.push_back(process());
   }
-  return;
+
+  return(output_percry);
 }	 
 
 int EcalFenixLinearizer::process()
 {
   int output=(uncorrectedSample_-base_); //Substract base
   if(output<0) return 0;
-  output=(output*mult_)>>(shift_+2);        //Apply multiplicative factor
+  output=(output*mult_)>>(shift_+2); //Apply multiplicative factor
   if(output>0X3FFFF)output=0X3FFFF;         //Saturation if too high
   return output;
 }
@@ -55,6 +57,7 @@ int EcalFenixLinearizer::setInput(EcalMGPASample RawSam)
   base_ = params_[3*gainID_] ;
   mult_ = params_[3*gainID_+1] ;
   shift_ = params_[3*gainID_+2] ;
+if (uncorrectedSample_==2568)  std::cout<<"base= "<<base_<<" mult= "<<mult_<<" shift= "<<shift_<<std::endl;
   return 1;
 }
 

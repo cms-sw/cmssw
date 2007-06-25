@@ -1,114 +1,71 @@
 /** \file
  * 
- *  $Date: 2006/11/16 16:55:47 $
- *  $Revision: 1.7 $
+ *  $Date: 2006/04/06 11:18:37 $
+ *  $Revision: 1.5 $
  *
  * \author M.Schmitt, Northwestern
  */
 #include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
 #include <iostream>
-#include <algorithm>
-#include <iterator>
+#include <bitset>
 
 using namespace std;
 
 // Constructors
-CSCComparatorDigi::CSCComparatorDigi( int strip, int comparator, int timeBinWord )
-  : strip_( strip ), comparator_( comparator ), timeBinWord_( timeBinWord ) {
+CSCComparatorDigi::CSCComparatorDigi (int istrip, int icomparator, int itimeBin){
+  strip = istrip;
+  comparator = icomparator;
+  timeBin = itimeBin;
 }
 
 
-CSCComparatorDigi::CSCComparatorDigi() 
-  : strip_( 0 ), comparator_( 0 ), timeBinWord_( 0 ) {
+CSCComparatorDigi::CSCComparatorDigi (){
+  strip = comparator = timeBin =0;
 }
 
 
 // Comparison
-
 bool
 CSCComparatorDigi::operator == (const CSCComparatorDigi& digi) const {
   if ( getStrip() != digi.getStrip() ) return false;
   if ( getComparator() != digi.getComparator() ) return false;
-  if ( getTimeBinWord() != digi.getTimeBinWord() ) return false;
   return true;
 }
 
 
-//@@ If one wanted to order comparator digis how would one want op< to behave?
-// I don't know...
-// I think LHS < RHS only makes sense if
-// i) time(LHS) .eq. time(RHS)
-// AND
-// ii) strip(LHS) .lt. strip(RHS)
-// But I don't see how this can be useful.
-
 bool 
 CSCComparatorDigi::operator<(const CSCComparatorDigi& digi) const {
-  bool result = false;
+  bool result = true;
+  // sort on time first, then strip
   if(getTimeBin() == digi.getTimeBin()) {
     result = (getStrip() < digi.getStrip());
+  }
+  else {
+    result = (getTimeBin() == digi.getTimeBin());
   }
   return result;
 }
 
 
 // Getters
-
-int CSCComparatorDigi::getTimeBin() const {
-  // Find first bin which fired, counting from 0
-  uint16_t tbit=1;
-  int tbin=-1;
-  for(int i=0;i<16;++i) {
-    if(tbit & timeBinWord_) {
-      tbin=i;
-      break;
-    }
-    tbit=tbit<<1;
-  }
-  return tbin;
-}
-
-std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
-  std::vector<int> tbins;
-  uint16_t tbit = timeBinWord_;
-  const uint16_t one=1;
-  for(int i=0;i<16;++i) {
-    if(tbit & one) tbins.push_back(i);
-    tbit=tbit>>1;
-    if(tbit==0) break; // end already if no more bits set
-  }
-  return tbins;                                  
-}
+int CSCComparatorDigi::getStrip() const { return strip; }
+int CSCComparatorDigi::getComparator() const { return comparator; }
+int CSCComparatorDigi::getTimeBin() const {return timeBin; }
 
 // Setters
-//@@ No way to set time word?
-
-void CSCComparatorDigi::setStrip(int strip) {
-  strip_ = strip;
+void CSCComparatorDigi::setStrip(int istrip) {
+  strip = istrip;
 }
-void CSCComparatorDigi::setComparator(int comparator) {
-  comparator_ = comparator;
+void CSCComparatorDigi::setComparator(int icomparator) {
+  comparator = icomparator;
 }
 
-// Output
-
+// Debug
 void
 CSCComparatorDigi::print() const {
-  std::cout << "CSCComparatorDigi strip: " << getStrip() 
-       << " comparator: " << getComparator() 
-	    << " first time bin: "<< getTimeBin() << std::endl;
-  std::cout << " time bins on:";
-  std::vector<int> tbins=getTimeBinsOn();
-  std::copy( tbins.begin(), tbins.end(), 
-     std::ostream_iterator<int>( std::cout, " "));
-  std::cout << std::endl; 
+  cout << "CSC Comparator strip: " << getStrip() 
+       << " Comparator: " << getComparator() 
+       << " Time Bin: "<< getTimeBin() << endl;
 }
-
-//@@ Doesn't print all time bins
-std::ostream & operator<<(std::ostream & o, const CSCComparatorDigi& digi) {
-  return o << " " << digi.getStrip()
-	   << " " << digi.getComparator()
-	   << " " << digi.getTimeBin();
-}  
 
 

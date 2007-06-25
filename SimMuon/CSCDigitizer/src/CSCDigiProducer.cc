@@ -8,35 +8,15 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
-#include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
+
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 
-:  theDigitizer(ps),
-   theStripConditions(0)
+:  theDigitizer(ps)
 {
   produces<CSCWireDigiCollection>("MuonCSCWireDigi");
   produces<CSCStripDigiCollection>("MuonCSCStripDigi");
   produces<CSCComparatorDigiCollection>("MuonCSCComparatorDigi");
-
-  std::string stripConditions( ps.getParameter<std::string>("stripConditions") );
-  if( stripConditions == "Configurable" )
-  {
-    theStripConditions = new CSCConfigurableStripConditions(ps);
-  }
-  else if ( stripConditions == "Database" )
-  {
-    theStripConditions = new CSCDbStripConditions();
-  }
-  else
-  {
-    throw cms::Exception("CSCDigiProducer") 
-      << "Bad option for strip conditions: "
-      << stripConditions;
-  }
-  theDigitizer.setStripConditions(theStripConditions);
 }
 
 
@@ -71,12 +51,6 @@ void CSCDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup) 
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
 
   theDigitizer.setMagneticField(&*magfield);
-
-
-  // set the particle table
-  edm::ESHandle < ParticleDataTable > pdt;
-  eventSetup.getData( pdt );
-  theDigitizer.setParticleDataTable(&*pdt);
 
   // run the digitizer
   theDigitizer.doAction(*hits, *pWireDigis, *pStripDigis, *pComparatorDigis);

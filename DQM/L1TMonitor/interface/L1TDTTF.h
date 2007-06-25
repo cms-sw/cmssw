@@ -4,8 +4,8 @@
 /*
  * \file L1TDTTF.h
  *
- * $Date: 2007/02/19 19:24:08 $
- * $Revision: 1.1 $
+ * $Date: 2007/02/02 20:56:20 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
 */
@@ -75,7 +75,7 @@ private:
   bool verbose_;
   bool monitorDaemon_;
   ofstream logFile_;
-  edm::InputTag dttfSource_;
+
 };
 
 #endif

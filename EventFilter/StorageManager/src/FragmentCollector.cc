@@ -1,4 +1,4 @@
-// $Id: FragmentCollector.cc,v 1.27 2007/02/05 11:19:57 klute Exp $
+// $Id: FragmentCollector.cc,v 1.26 2007/01/10 22:51:26 wmtan Exp $
 
 #include "EventFilter/StorageManager/interface/FragmentCollector.h"
 #include "EventFilter/StorageManager/interface/ProgressMarker.h"
@@ -32,7 +32,7 @@ namespace stor
     evtbuf_q_(&(h.getEventQueue())),
     frag_q_(&(h.getFragmentQueue())),
     buffer_deleter_(d),
-    //event_area_(1000*1000*7),
+    event_area_(1000*1000*7),
     // inserter_(*evtbuf_q_),
     prods_(0),//prods_(&p),
 	info_(&h), 
@@ -43,7 +43,6 @@ namespace stor
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
-    event_area_.reserve(7000000);
   }
   FragmentCollector::FragmentCollector(std::auto_ptr<HLTInfo> info,Deleter d,
                                        const string& config_str):
@@ -51,7 +50,7 @@ namespace stor
     evtbuf_q_(&(info.get()->getEventQueue())),
     frag_q_(&(info.get()->getFragmentQueue())),
     buffer_deleter_(d),
-    //event_area_(1000*1000*7),
+    event_area_(1000*1000*7),
     // inserter_(*evtbuf_q_),
     prods_(0),
 	info_(info.get()), 
@@ -62,7 +61,6 @@ namespace stor
   {
     // supposed to have given parameterSet smConfigString to writer_
     // at ctor
-    event_area_.reserve(7000000);
   }
 
   FragmentCollector::~FragmentCollector()
@@ -122,12 +120,6 @@ namespace stor
 	      processHeader(entry);
 	      break;
 	    }
-	  case Header::DQM_EVENT:
-	    {
-	      FR_DEBUG << "FragColl: Got a DQM_Event" << endl;
-	      processDQMEvent(entry);
-	      break;
-	    }
 	  default:
 	    {
 	      FR_DEBUG << "FragColl: Got junk" << endl;
@@ -171,6 +163,14 @@ namespace stor
         if(!streamerOnly_)
         {
           // Not a valid choice anymore - maybe later we put this back in
+          /*
+          std::auto_ptr<edm::EventPrincipal> evtp;
+          {
+            boost::mutex::scoped_lock sl(info_->getExtraLock());
+            evtp = StreamTranslator::deserializeEvent(emsg, *prods_);
+           }
+           inserter_.send(evtp);
+           */
         } else {
           FR_DEBUG << "FragColl: writing event size " << entry->buffer_size_ << endl;
           writer_->manageEventMsg(emsg);
@@ -194,7 +194,7 @@ namespace stor
       } // end of single segment test
 
     pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, 0, entry->id_, 0), Fragments()));
+      fragment_area_.insert(make_pair(entry->id_,Fragments()));
     
     rc.first->second.push_back(*entry);
     FR_DEBUG << "FragColl: added fragment" << endl;
@@ -203,13 +203,9 @@ namespace stor
       {
 	FR_DEBUG << "FragColl: completed an event with "
 		 << entry->totalSegs_ << " segments" << endl;
-        // we are done with this event so assemble parts
-        // but first make sure we have enough room; use an overestimate
-        unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
-        if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
-          event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
-        }
-        unsigned char* pos = (unsigned char*)&event_area_[0];
+	// we are done with this event
+	// assemble parts
+	unsigned char* pos = (unsigned char*)&event_area_[0];
 	
 	int sum=0;
 	unsigned int lastpos=0;
@@ -262,7 +258,6 @@ namespace stor
       }
     ProgressMarker::instance()->processing(false);
   }
-
   void FragmentCollector::processHeader(FragEntry* entry)
   {
     // This does not yet handle fragmented INIT messages, so one should
@@ -276,66 +271,5 @@ namespace stor
     FR_DEBUG << "FragColl: writing INIT size " << entry->buffer_size_ << endl;
 
     writer_->manageInitMsg(catalog_, disks_, sourceId_, msg);
-  }
-
-  void FragmentCollector::processDQMEvent(FragEntry* entry)
-  {
-    ProgressMarker::instance()->processing(true);
-    if(entry->totalSegs_==1)
-    {
-      FR_DEBUG << "FragColl: Got a DQM_Event with one segment" << endl;
-      FR_DEBUG << "FragColl: DQM_Event size " << entry->buffer_size_ << endl;
-      FR_DEBUG << "FragColl: DQM_Event ID " << entry->id_ << endl;
-      FR_DEBUG << "FragColl: DQM_Event folderID " << entry->folderid_ << endl;
-
-      // do the appropriate thing with this DQM_Event
-      //std::cout << "FragColl: Got a DQM_Event with one segment" 
-      //          << " DQM_Event size " << entry->buffer_size_
-      //          << " DQM_Event ID " << entry->id_
-      //          << " DQM_Event folderID " << entry->folderid_ << std::endl;
-      // properly release (delete) the buffer
-      (*buffer_deleter_)(entry);
-      return;
-    } // end of single segment test
-
-    pair<Collection::iterator,bool> rc =
-      fragment_area_.insert(make_pair(FragKey(entry->code_, 0, entry->id_, 0), Fragments()));
-    
-    rc.first->second.push_back(*entry);
-    FR_DEBUG << "FragColl: added DQM fragment" << endl;
-    
-    if((int)rc.first->second.size()==entry->totalSegs_)
-    {
-      FR_DEBUG << "FragColl: completed a DQM_event with "
-       << entry->totalSegs_ << " segments" << endl;
-      // we are done with this event so assemble parts
-      // but first make sure we have enough room; use an overestimate
-      unsigned int max_sizePerFrame = rc.first->second.begin()->buffer_size_;
-      if((entry->totalSegs_ * max_sizePerFrame) > event_area_.capacity()) {
-        event_area_.resize(entry->totalSegs_ * max_sizePerFrame);
-      }
-      unsigned char* pos = (unsigned char*)&event_area_[0];
-
-      int sum=0;
-      unsigned int lastpos=0;
-      Fragments::iterator
-        i(rc.first->second.begin()),e(rc.first->second.end());
-
-      for(;i!=e;++i)
-      {
-        int dsize = i->buffer_size_;
-        sum+=dsize;
-        unsigned char* from=(unsigned char*)i->buffer_address_;
-        copy(from,from+dsize,pos+lastpos);
-        lastpos = lastpos + dsize;
-        // ask deleter to kill off the buffer
-        (*buffer_deleter_)(&(*i));
-      }
-      // the reformed DQM data is now in event_area_ deal with it
-
-      // remove the entry from the map
-      fragment_area_.erase(rc.first);
-    }
-    ProgressMarker::instance()->processing(false);
   }
 }

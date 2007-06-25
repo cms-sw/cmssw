@@ -4,12 +4,12 @@
  *
  */
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "PhysicsTools/UtilAlgos/interface/SingleObjectSelector.h"
-#include "PhysicsTools/CandAlgos/src/CandCombiner.h"
+#include "PhysicsTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "PhysicsTools/CandAlgos/interface/CandCombiner.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 typedef CandCombiner<
-          SingleObjectSelector<reco::Candidate>,
+          StringCutObjectSelector<reco::Candidate>,
           combiner::helpers::ShallowClone
         > CandShallowCloneCombiner;
 

@@ -31,13 +31,9 @@ ApvTimingHistograms::~ApvTimingHistograms() {
 // -----------------------------------------------------------------------------	 
 /** */	 
 void ApvTimingHistograms::histoAnalysis( bool debug ) {
-  
-  map<uint32_t,ApvTimingAnalysis*>::iterator ianal;
 
   // Clear map holding analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
-    if ( ianal->second ) { delete ianal->second; }
-  } 
+  data_.clear();
   
   // Reset minimum / maximum delays
   float time_min =  1. * sistrip::invalid_;
@@ -136,7 +132,8 @@ void ApvTimingHistograms::histoAnalysis( bool debug ) {
        << " has minimum delay (rising edge) [ns]:" << time_min;
   
   // Set maximum time for all analysis objects
-  for ( ianal = data_.begin(); ianal != data_.end(); ianal++ ) { 
+  map<uint32_t,ApvTimingAnalysis*>::iterator ianal = data_.begin();
+  for ( ; ianal != data_.end(); ianal++ ) { 
     ianal->second->maxTime( time_max ); 
     static uint16_t cntr = 0;
     if ( debug ) {

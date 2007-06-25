@@ -287,7 +287,24 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	if ( (iPair->second).energy() != aClus->energy() ) continue;        
 
 	CachingVertex theConversionVertex;
-	if ( (iPair->first).size()  > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
+
+	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
+	if ( (iPair->first).size()  > 1 ) {
+	  try{
+	    
+	    theConversionVertex=theVertexFinder_->run(iPair->first);
+	  }
+	  catch ( cms::Exception& e ) {
+	    LogDebug("ConvertedPhotonProducer") << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
+	    edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
+				     << e.explainSelf();
+	 
+	  }
+	  
+	}
+
+
+
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );
@@ -395,7 +412,22 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
 	if ( (iPair->second).energy() != aClus->energy() ) continue;
 	
 	CachingVertex theConversionVertex;
-	if ( (iPair->first).size()  > 1 ) theConversionVertex=theVertexFinder_->run(iPair->first);
+	const string metname = "ConvertedPhotons|ConvertedPhotonProducer";
+	if ( (iPair->first).size()  > 1 ) {
+	  try{
+	    
+	    theConversionVertex=theVertexFinder_->run(iPair->first);
+	  }
+	  catch ( cms::Exception& e ) {
+	    LogDebug("ConvertedPhotonProducer") << " cms::Exception caught in ConvertedPhotonProducer::produce" << "\n" ;
+	    edm::LogWarning(metname) << "cms::Exception caught in ConvertedPhotonProducer::produce\n"
+				     << e.explainSelf();
+	 
+	  }
+	  
+	}
+
+
 
         if ( theConversionVertex.isValid() ) {	
 	  convVtx.SetXYZ( theConversionVertex.position().x(), theConversionVertex.position().y(),  theConversionVertex.position().z() );

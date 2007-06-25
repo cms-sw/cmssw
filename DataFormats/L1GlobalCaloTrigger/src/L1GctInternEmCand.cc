@@ -54,7 +54,7 @@ ostream& operator<<(ostream& s, const L1GctInternEmCand& cand) {
   s << "rank=" << hex << cand.rank();
   s << ", etaSign=" << cand.etaSign() << ", ieta=" << (cand.etaIndex()&0x7) << ", iphi=" << cand.phiIndex();
   s << ", iso=" << cand.isolated();
-  s << " cap block=" << cand.capBlock() << ", index=" << cand.capIndex() << dec;
+  s << "Captured : block=" << cand.capBlock() << ", index=" << cand.capIndex() << dec;
   return s;
 }
 

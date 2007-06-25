@@ -7,7 +7,7 @@
  *
  * \author U.Berthon, ClaudeCharlot,LLR
  *
- * \version $Id: PixelMatchGsfElectron.h,v 1.11 2007/01/31 15:11:48 uberthon Exp $
+ * \version $Id: PixelMatchGsfElectron.h,v 1.15 2007/03/16 12:46:30 uberthon Exp $
  *
  */
 
@@ -25,6 +25,9 @@
 // Ursula Berthon - LLR Ecole polytechnique
 // 
 // $Log: PixelMatchGsfElectron.h,v $
+// Revision 1.15  2007/03/16 12:46:30  uberthon
+// make PixelMatchElectrons inherit from RecoCandidate
+//
 // Revision 1.11  2007/01/31 15:11:48  uberthon
 // adapt to changes in GsfTrack class
 //
@@ -65,7 +68,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/PixelMatchGsfElectronFwd.h"
-#include "DataFormats/Candidate/interface/LeafCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
@@ -78,12 +81,11 @@
 
 namespace reco {
 
-  // inheritance of the Electron class is not possible because of the different track type (lack of polymorphism!)
-class PixelMatchGsfElectron : public LeafCandidate {
+class PixelMatchGsfElectron : public RecoCandidate {
 
  public:
   
-  PixelMatchGsfElectron(): LeafCandidate() {;}  //FIXME: defaults
+  PixelMatchGsfElectron() {;} 
 
   PixelMatchGsfElectron(const SuperClusterRef scl, const GsfTrackRef gsft,
 			const GlobalPoint tssuperPos, const GlobalVector tssuperMom, 
@@ -106,6 +108,8 @@ class PixelMatchGsfElectron : public LeafCandidate {
                (130: showering nbrem=0, 131: showering nbrem=1, 132: showering nbrem=2 ,133: showering nbrem=3, 134: showering nbrem>=4)
    */
   int classification() const {return electronClass_;}
+
+  PixelMatchGsfElectron * clone() const;
 
   // supercluster and electron track related quantities
   //! the super cluster energy corrected by EnergyScaleFactor
@@ -157,10 +161,10 @@ class PixelMatchGsfElectron : public LeafCandidate {
   float trackMomentumError() const {return trackMomentumError_;}
 
   //! get associated superCluster Pointer
-  const SuperClusterRef superCluster() const { return superCluster_; } 
+  SuperClusterRef superCluster() const { return superCluster_; } 
 
   //! get associated GsfTrack pointer
-  const GsfTrackRef track() const { return track_; } 
+  reco::GsfTrackRef gsfTrack() const { return track_; } 
 
   //! number of related brem clusters
   int numberOfClusters() const {return superCluster_->clustersSize();}
@@ -206,6 +210,9 @@ class PixelMatchGsfElectron : public LeafCandidate {
 
   bool energyScaleCorrected_;
   bool momentumFromEpCombination_;
+
+  /// check overlap with another candidate
+  virtual bool overlap( const Candidate & ) const;
 
 };
 

@@ -22,7 +22,8 @@
       for (unsigned int i=0;i<temp.size();i++) {
 	//	std::cout<<" "<<temp[i];
 	output[i]+=temp[i];
-	if(output[i]>0X3FFFF)output[i]=0X3FFFF;
+	//	if(output[i]>0X3FFFF)output[i]=0X3FFFF;
+	if(output[i]>0XFFF)output[i]=0XFFF;
       }
       //      std::cout<<endl;
     }

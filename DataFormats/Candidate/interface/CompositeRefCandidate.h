@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.8 2007/02/19 12:59:04 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.11.2.1 2007/05/11 10:57:14 llista Exp $
  *
  */
 
@@ -107,6 +107,7 @@ namespace reco {
   inline void CompositeRefCandidate::addDaughter( const CandidateRef & cand ) { 
     dau.push_back( cand ); 
   }
+
 }
 
 #endif

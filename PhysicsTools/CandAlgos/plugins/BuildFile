@@ -1,20 +1,29 @@
 <use name=FWCore/Framework>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/Candidate>
+<use name=DataFormats/Candate>
 <use name=PhysicsTools/UtilAlgos>
 <use name=PhysicsTools/CandAlgos>
 <library file=CandSelector.cc></library>
 <library file=PtMinCandSelector.cc></library>
+<library file=AssociatedVariableMaxCutCandSelector.cc></library>
+<library file=AssociatedVariableMaxCutCandRefVectorSelector.cc></library>
+<library file=PtMinAssociatedVariableMaxCutCandSelector.cc></library>
+<library file=LargestPtCandSelector.cc></library>
 <library file=EtaPtMinCandSelector.cc></library>
 <library file=EtaPtMinPdgIdCandSelector.cc></library>
 <library file=PdgIdCandSelector.cc></library>
+<library file=PdgIdAndStatusCandSelector.cc><use name=DataFormats/HepMCCandidate></library>
+<library file=PdgIdAndStatusCandDecaySelector.cc><use name=DataFormats/HepMCCandidate></library>
 <library file=PdgIdCandRefVectorSelector.cc></library>
+<library file=MassRangeCandCombiner.cc></library>
+<library file=MassRangeCandShallowCloneCombiner.cc></library>
 <library file=MassRangeAndChargeCandCombiner.cc></library>
 <library file=MassRangeAndChargeCandShallowCloneCombiner.cc></library>
 <library file=CandCombiner.cc></library>
 <library file=CandShallowCloneCombiner.cc></library>
 <library file=CandMerger.cc></library>
 <library file=CandShallowCloneProducer.cc></library>
+<library file=CandCountFilter.cc></library>
 <library file=CandReducer.cc></library>
 <library file=TrivialDeltaRMatcher.cc></library>
-
+<library file=CandMatchedCloneProducer.cc><use name=DataFormats/HepMCCandidate></library>

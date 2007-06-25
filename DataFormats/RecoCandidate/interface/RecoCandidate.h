@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.18 2007/02/01 11:23:23 llista Exp $
+ * \version $Id: RecoCandidate.h,v 1.20 2007/04/02 13:35:15 llista Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -23,9 +23,8 @@ namespace reco {
     /// default constructor
     RecoCandidate() : LeafCandidate() { }
     /// constructor from values
-    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ),
-		   int pdgId = 0, int status = 0 ) : 
-      LeafCandidate( q, p4, vtx, pdgId, status ) { }
+    RecoCandidate( Charge q, const LorentzVector & p4, const Point & vtx = Point( 0, 0, 0 ) ) : 
+      LeafCandidate( q, p4, vtx ) { }
     /// destructor
     virtual ~RecoCandidate();
     /// check overlap with another candidate
@@ -46,7 +45,12 @@ namespace reco {
     virtual reco::SuperClusterRef superCluster() const;
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
-
+    /// best track pointer
+    const Track * bestTrack() const;
+    /// track type
+    enum TrackType { noTrackType, recoTrackType, gsfTrackType };
+    ///track type
+    TrackType bestTrackType() const;
   protected:
     /// check if two components overlap
     template<typename R>
@@ -77,6 +81,10 @@ namespace reco {
   GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, SuperClusterRef, superCluster );
   /// get default CaloTower component
   GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, CaloTowerRef, caloTower );
+  /// get default CaloTower component
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, const Track *, bestTrack );
+  /// get default CaloTower component
+  GET_DEFAULT_CANDIDATE_COMPONENT( RecoCandidate, RecoCandidate::TrackType, bestTrackType );
   
 }
 

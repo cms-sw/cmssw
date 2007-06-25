@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2007/02/20 13:27:16 $
- * $Revision: 1.128 $
+ * $Date: 2007/02/17 13:52:54 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -11,7 +11,6 @@
 #include <memory>
 #include <iostream>
 #include <fstream>
-#include <iomanip>
 
 #include "TStyle.h"
 
@@ -122,9 +121,8 @@ EBTestPulseClient::EBTestPulseClient(const ParameterSet& ps){
   RMSThreshold_ = 300.0;
   threshold_on_AmplitudeErrorsNumber_ = 0.02;
 
-  amplitudeThresholdPnG01_ = 200./16.;
-  amplitudeThresholdPnG16_ = 200.;
-  pedestalThresholdPn_ = 200.;
+  amplitudeThresholdPN_ = 200.;
+  meanThresholdPN_ = 200.;
 
 }
 
@@ -174,10 +172,10 @@ void EBTestPulseClient::beginJob(MonitorUserInterface* mui){
       qtha02_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
       qtha03_[ism-1]->setMeanRange(amplitudeThreshold_, 4096.0*12.);
 
-      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPnG01_, 4096.0);
-      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPnG16_, 4096.0);
-      qtha06_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
-      qtha07_[ism-1]->setMeanRange(pedestalThresholdPn_, 4096.0);
+      qtha04_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qtha05_[ism-1]->setMeanRange(amplitudeThresholdPN_, 4096.0);
+      qtha06_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
+      qtha07_[ism-1]->setMeanRange(meanThresholdPN_, 4096.0);
 
       qtha01_[ism-1]->setRMSRange(0.0, RMSThreshold_);
       qtha02_[ism-1]->setRMSRange(0.0, RMSThreshold_);
@@ -1253,9 +1251,9 @@ void EBTestPulseClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean01 < amplitudeThresholdPnG01_ )
+        if ( mean01 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean03 < pedestalThresholdPn_ )
+        if ( mean03 < meanThresholdPN_ )
           val = 0.;
         if ( meg04_[ism-1] ) meg04_[ism-1]->setBinContent(i, 1, val);
 
@@ -1266,9 +1264,9 @@ void EBTestPulseClient::analyze(void){
         float val;
 
         val = 1.;
-        if ( mean02 < amplitudeThresholdPnG16_ )
+        if ( mean02 < amplitudeThresholdPN_ )
           val = 0.;
-        if ( mean04 < pedestalThresholdPn_ )
+        if ( mean04 < meanThresholdPN_ )
           val = 0.;
         if ( meg05_[ism-1] ) meg05_[ism-1]->setBinContent(i, 1, val);
 
@@ -1382,8 +1380,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "</head>  " << endl;
   htmlFile << "<style type=\"text/css\"> td { font-weight: bold } </style>" << endl;
   htmlFile << "<body>  " << endl;
-  //htmlFile << "<br>  " << endl;
-  htmlFile << "<a name=""top""></a>" << endl;
+  htmlFile << "<br>  " << endl;
   htmlFile << "<h2>Run:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" << endl;
   htmlFile << "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span " << endl;
   htmlFile << " style=\"color: rgb(0, 0, 153);\">" << run << "</span></h2>" << endl;
@@ -1393,13 +1390,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
   htmlFile << "<table border=1><tr><td bgcolor=red>channel has problems in this task</td>" << endl;
   htmlFile << "<td bgcolor=lime>channel has NO problems</td>" << endl;
   htmlFile << "<td bgcolor=yellow>channel is missing</td></table>" << endl;
-  htmlFile << "<br>" << endl;
-  htmlFile << "<table border=1>" << std::endl;
-  for ( unsigned int i=0; i<superModules_.size(); i ++ ) {
-    htmlFile << "<td bgcolor=white><a href=""#" << superModules_[i] << ">" 
-	     << setfill( '0' ) << setw(2) << superModules_[i] << "</a></td>";
-  } 
-  htmlFile << std::endl << "</table>" << std::endl;
+  htmlFile << "<hr>" << endl;
 
   // Produce the plots to be shown as .png files from existing histograms
 
@@ -1733,10 +1724,7 @@ void EBTestPulseClient::htmlOutput(int run, string htmlDir, string htmlName){
 
     }
 
-    if( i>0 ) htmlFile << "<a href=""#top"">Top</a>" << std::endl;
-    htmlFile << "<hr>" << std::endl;
-    htmlFile << "<h3><a name=""" << ism << """></a><strong>Supermodule&nbsp;&nbsp;" 
-	     << ism << "</strong></h3>" << endl;
+    htmlFile << "<h3><strong>Supermodule&nbsp;&nbsp;" << ism << "</strong></h3>" << endl;
     htmlFile << "<table border=\"0\" cellspacing=\"0\" " << endl;
     htmlFile << "cellpadding=\"10\" align=\"center\"> " << endl;
     htmlFile << "<tr align=\"center\">" << endl;

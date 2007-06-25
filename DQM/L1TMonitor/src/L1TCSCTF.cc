@@ -1,8 +1,8 @@
 /*
  * \file L1TCSCTF.cc
  *
- * $Date: 2007/02/20 21:42:10 $
- * $Revision: 1.2 $
+ * $Date: 2007/02/02 06:01:40 $
+ * $Revision: 1.00 $
  * \author J. Berryhill
  *
  */
@@ -13,7 +13,6 @@ using namespace std;
 using namespace edm;
 
 L1TCSCTF::L1TCSCTF(const ParameterSet& ps)
-  : csctfSource_( ps.getParameter< InputTag >("csctfSource") )
 {
 
   // verbosity switch
@@ -118,11 +117,18 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 
   edm::Handle<std::vector<L1MuRegionalCand> > pCSCTFtracks;  
-  e.getByLabel(csctfSource_,pCSCTFtracks);
+  e.getByLabel("csctfmuonsorter","CSC",pCSCTFtracks);
+  const std::vector<L1MuRegionalCand>* myCSCTFTracks = 
+    pCSCTFtracks.product();
+  std::auto_ptr<std::vector<L1MuRegionalCand> > L1CSCTFTracks(new std::vector<L1MuRegionalCand>);
+  L1CSCTFTracks->insert(L1CSCTFTracks->end(), myCSCTFTracks->begin(), myCSCTFTracks->end());
+  
+  std::cout << "CSC TF collection size: " << L1CSCTFTracks->size()
+   	    << std::endl;
   int ncsctftrack = 0;
-   for( vector<L1MuRegionalCand>::const_iterator 
-        CSCTFtrackItr =  pCSCTFtracks->begin() ;
-        CSCTFtrackItr != pCSCTFtracks->end() ;
+   for( vector<L1MuRegionalCand>::iterator 
+        CSCTFtrackItr =  L1CSCTFTracks->begin() ;
+        CSCTFtrackItr != L1CSCTFTracks->end() ;
         ++CSCTFtrackItr ) 
    {
 

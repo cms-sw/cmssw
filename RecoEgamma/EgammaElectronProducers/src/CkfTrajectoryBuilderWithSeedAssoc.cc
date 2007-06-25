@@ -286,7 +286,7 @@ bool CkfTrajectoryBuilderWithSeedAssoc::toBeContinued (const Trajectory& traj) c
   return true;
 }
 
-#include "Geometry/CommonDetAlgo/interface/AlgebraicObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 
 std::vector<TrajectoryMeasurement> 
 CkfTrajectoryBuilderWithSeedAssoc::findCompatibleMeasurements( const Trajectory& traj) const
