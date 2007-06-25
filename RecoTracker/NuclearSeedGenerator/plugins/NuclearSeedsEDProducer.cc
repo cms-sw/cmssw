@@ -15,7 +15,8 @@ using namespace reco;
 //
 // constructors and destructor
 //
-NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig)
+NuclearSeedsEDProducer::NuclearSeedsEDProducer(const edm::ParameterSet& iConfig) : conf_(iConfig),
+improveSeeds(iConfig.getParameter<bool>("improveSeeds"))
 {
    produces<TrajectorySeedCollection>();
 }
@@ -54,7 +55,7 @@ NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
          theNuclearInteractionFinder->run( *iTraj );
 
          // improve seeds
-         theNuclearInteractionFinder->improveSeeds();
+         if( improveSeeds == true ) theNuclearInteractionFinder->improveSeeds();
 
          // push back the new persistent seeds in output
          theNuclearInteractionFinder->getPersistentSeeds( output );

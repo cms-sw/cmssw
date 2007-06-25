@@ -208,19 +208,12 @@ void NuclearInteractionFinder::getPersistentSeeds( std::auto_ptr<TrajectorySeedC
 //----------------------------------------------------------------------
 void NuclearInteractionFinder::improveSeeds() {
         std::vector<SeedFromNuclearInteraction> newSeedCollection;
-        double rescaleFactor = 10;
 
         // loop on all actual seeds
         for(std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
 
-              // rescale outer TSOS of the seed
-              TSOS currentState = it_seed->updatedTSOS();
-              currentState.rescaleError(rescaleFactor);
-
               // find compatible TM in an outer layer
-              std::vector<TM> thirdTMs = findMeasurementsFromTSOS(  currentState, it_seed->outerHitDetId() ); 
-
-              int i=0;
+              std::vector<TM> thirdTMs = findMeasurementsFromTSOS( it_seed->updatedTSOS() , it_seed->outerHitDetId() ); 
 
               // loop on those new TMs
               for(std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm!= thirdTMs.end(); tm++) {

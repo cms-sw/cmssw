@@ -170,6 +170,8 @@ bool SeedFromNuclearInteraction::construct() {
 
    TrajectoryStateTransform transformer;
 
+   updatedTSOS_->rescaleError(10);
+
    pTraj = boost::shared_ptr<PTrajectoryStateOnDet>( transformer.persistentState(*updatedTSOS_, outerHitDetId().rawId()) );
    return true;
 }
