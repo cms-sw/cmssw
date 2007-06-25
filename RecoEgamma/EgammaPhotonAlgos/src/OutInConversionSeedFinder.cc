@@ -105,6 +105,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
   LogDebug("OutInConversionSeedFinder") << "Built vector of seeds of size  " << theSeeds_.size() <<  "\n" ;
   
   ///// This part is only for local debugging: will be trhown away when no longer needed
+  /*
   int nSeed=0;
   for ( std::vector<TrajectorySeed>::const_iterator iSeed= theSeeds_.begin(); iSeed != theSeeds_.end(); ++iSeed) {
     nSeed++;
@@ -135,7 +136,7 @@ void OutInConversionSeedFinder::makeSeeds( const reco::BasicClusterCollection& a
     }
   } 
   
-
+  */
 
   
   

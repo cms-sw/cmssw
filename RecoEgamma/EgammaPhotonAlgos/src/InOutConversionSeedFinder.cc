@@ -81,6 +81,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
   //Start looking for seeds for both of the 2 best tracks from the inward tracking
   
   ///// This bit is for debugging; it will go away  
+  /*
   for(outInTrackItr = theOutInTracks_.begin(); outInTrackItr != theOutInTracks_.end();  ++outInTrackItr) {
     nSeedsPerInputTrack_=0;
 
@@ -103,6 +104,8 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     }
 
   }
+
+  */
 
 
   //Start looking for seeds for both of the 2 best tracks from the inward tracking
