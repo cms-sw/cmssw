@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.20 2007/06/20 16:04:35 fischler Exp $
+// $Id: MessageLogger.cc,v 1.21 2007/06/22 23:17:12 wmtan Exp $
 //
 // Change log
 //
@@ -32,6 +32,8 @@
 //			parameters 
 //
 // 7 mf   6/19/07	Support for --jobreport option
+//
+// 8 wmtan 6/25/07	Enable suppression for sources, just as for modules
 
 
 // system include files
@@ -245,20 +247,31 @@ MessageLogger::preSourceConstruction(const ModuleDescription& desc)
 void
 MessageLogger::preSource()
 {
+  MessageDrop* messageDrop = MessageDrop::instance();
   curr_module_ = kSource;
   //curr_module_ += ":";
   //curr_module_ += "source";
-  MessageDrop::instance()->moduleName = curr_module_;  
+  messageDrop->moduleName = curr_module_;  
   if (!anyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = false;
+    messageDrop->debugEnabled = false;
   } else if (everyDebugEnabled_) {
-    MessageDrop::instance()->debugEnabled = true;
+    messageDrop->debugEnabled = true;
   } else {
-    MessageDrop::instance()->debugEnabled = 
-    			debugEnabledModules_.count("source");
+    messageDrop->debugEnabled = 
+    		debugEnabledModules_.count("source");
   }
-  MessageDrop::instance()->infoEnabled = true;
-  MessageDrop::instance()->warningEnabled = true;
+  std::map<const std::string,ELseverityLevel>::const_iterator it =
+       suppression_levels_.find("source");
+  if ( it != suppression_levels_.end() ) {
+    messageDrop->debugEnabled  = messageDrop->debugEnabled
+                                           && (it->second < ELseverityLevel::ELsev_success );
+    messageDrop->infoEnabled    = (it->second < ELseverityLevel::ELsev_info );
+    messageDrop->warningEnabled = (it->second < ELseverityLevel::ELsev_warning );
+  } else {
+    messageDrop->infoEnabled    = true;
+    messageDrop->warningEnabled = true;
+  }
+
 }
 
 
