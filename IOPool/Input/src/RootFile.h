@@ -5,7 +5,7 @@
 
 RootFile.h // used by ROOT input sources
 
-$Id: RootFile.h,v 1.26 2007/06/14 22:02:15 wmtan Exp $
+$Id: RootFile.h,v 1.27 2007/06/22 23:26:35 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
@@ -18,8 +18,6 @@ $Id: RootFile.h,v 1.26 2007/06/14 22:02:15 wmtan Exp $
 #include "Inputfwd.h"
 #include "RootTree.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"

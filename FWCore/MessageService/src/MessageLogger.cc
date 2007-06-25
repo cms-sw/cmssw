@@ -8,7 +8,7 @@
 //
 // Original Author:  W. Brown, M. Fischler
 //         Created:  Fri Nov 11 16:42:39 CST 2005
-// $Id: MessageLogger.cc,v 1.21 2007/06/22 23:17:12 wmtan Exp $
+// $Id: MessageLogger.cc,v 1.22 2007/06/25 18:27:38 wmtan Exp $
 //
 // Change log
 //
@@ -38,6 +38,8 @@
 
 // system include files
 // user include files
+
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/MessageService/interface/ELcontextSupplier.h"
 #include "FWCore/MessageService/interface/MessageLogger.h"

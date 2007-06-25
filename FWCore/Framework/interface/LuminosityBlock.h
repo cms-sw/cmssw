@@ -16,13 +16,12 @@ For its usage, see "FWCore/Framework/interface/DataViewImpl.h"
 */
 /*----------------------------------------------------------------------
 
-$Id: LuminosityBlock.h,v 1.9 2007/03/04 06:00:22 wmtan Exp $
+$Id: LuminosityBlock.h,v 1.10 2007/03/27 23:07:49 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/RunID.h"

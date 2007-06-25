@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: InputSource.cc,v 1.26 2007/06/22 23:26:33 wmtan Exp $
+$Id: InputSource.cc,v 1.27 2007/06/24 23:00:54 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include <cassert> 
 #include "FWCore/Framework/interface/InputSource.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"

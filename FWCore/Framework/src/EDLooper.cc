@@ -10,11 +10,14 @@
 //
 // Author:      Valentin Kuznetsov
 // Created:     Wed Jul  5 11:44:26 EDT 2006
-// $Id: EDLooper.cc,v 1.5 2007/01/19 05:25:11 wmtan Exp $
+// $Id: EDLooper.cc,v 1.6 2007/06/22 23:26:33 wmtan Exp $
 //
 // Revision history
 //
 // $Log: EDLooper.cc,v $
+// Revision 1.6  2007/06/22 23:26:33  wmtan
+// Add Run and Lumi loops to the EventProcessor
+//
 // Revision 1.5  2007/01/19 05:25:11  wmtan
 // Evaluate end() only at the beginning of an iteration
 //
@@ -45,6 +48,8 @@
 
 // user include files
 #include "FWCore/Framework/interface/EDLooper.h"
+#include "FWCore/Framework/interface/EDLooperHelper.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 #include "FWCore/Framework/interface/EventHelperDescription.h"
 

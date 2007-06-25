@@ -16,16 +16,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 11 11:16:12 EDT 2006
-// $Id: IterateNTimesLooper.h,v 1.1 2006/07/23 01:24:35 valya Exp $
+// $Id: IterateNTimesLooper.h,v 1.2 2006/07/28 13:24:35 valya Exp $
 //
 
 // system include files
 
 // user include files
 #include "FWCore/Framework/interface/EDLooper.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // forward declarations
+
+namespace edm {
+  class ParameterSet;
+}
 
 class IterateNTimesLooper : public edm::EDLooper
 {

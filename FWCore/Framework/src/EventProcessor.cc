@@ -36,6 +36,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/interface/InputSourceDescription.h"
 
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"

@@ -8,12 +8,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Jul 11 11:16:14 EDT 2006
-// $Id: IterateNTimesLooper.cc,v 1.1 2006/07/23 01:24:35 valya Exp $
+// $Id: IterateNTimesLooper.cc,v 1.2 2006/07/28 13:24:35 valya Exp $
 //
 
 // system include files
 
 // user include files
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Modules/src/IterateNTimesLooper.h"
 
 

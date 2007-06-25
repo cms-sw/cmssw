@@ -6,26 +6,20 @@
 OutputModule: The base class of all "modules" that write Events to an
 output stream.
 
-$Id: OutputModule.h,v 1.40 2007/06/08 23:52:59 wmtan Exp $
+$Id: OutputModule.h,v 1.41 2007/06/15 18:41:46 wdd Exp $
 
 ----------------------------------------------------------------------*/
 
 #include "boost/array.hpp"
 #include <vector>
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/ProvenanceFwd.h"
 
 #include "FWCore/Framework/interface/CachedProducts.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EventSelector.h"
 #include "FWCore/Framework/interface/GroupSelector.h"
-#include "FWCore/Framework/interface/Selector.h"
-
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/Common/interface/Handle.h"
 
 namespace edm {
 
