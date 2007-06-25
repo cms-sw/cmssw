@@ -10,13 +10,10 @@
  *
  * Fills in a map \< channel number, generated noise \>
  */
-#ifndef GaussianTailNoiseGenerator_h
-#define GaussianTailNoiseGenerator_h
 
-#include <gsl/gsl_sf_erf.h>
-#include <gsl/gsl_sf_result.h>
-#include <gsl/gsl_randist.h>
-#include <gsl/gsl_rng.h>
+#ifndef GaussianTailNoiseGenerator_h
+#define GaussianTailNoiseGenerator_h _ 1
+
 #include <map>
 
 namespace CLHEP {
@@ -42,7 +39,7 @@ private:
   CLHEP::RandPoisson *poissonDistribution_;
   CLHEP::RandFlat *flatDistribution_;
   CLHEP::HepRandomEngine& rndEngine;
-  gsl_rng * mt19937;
+
 };
 
 #endif
