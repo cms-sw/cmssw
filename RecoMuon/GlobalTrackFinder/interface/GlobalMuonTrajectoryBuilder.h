@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/06/05 17:32:04 $
- *  $Revision: 1.58 $
+ *  $Date: 2007/06/16 19:04:57 $
+ *  $Revision: 1.59 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -161,19 +161,21 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     float theCSCChi2Cut;
     float theRPCChi2Cut;
     edm::InputTag theTkTrackLabel;
-    std::string theCkfBuilderName;
+    //JR    std::string theCkfBuilderName;
+    std::string theTkBuilderName;//JR
     std::string trackerPropagatorName;
     std::string theKFFitterName;
 
     bool theTkTrajsAvailableFlag;
     bool theMakeTkSeedFlag;
-    bool theRSFlag;
+    //JR    bool theRSFlag;
     bool theFirstEvent;
     bool theMIMFlag;
 
-    GlobalMuonRSTrajectoryBuilder * theRSBuilder;
+    //JR    GlobalMuonRSTrajectoryBuilder * theRSBuilder;
 
-    edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
+    //JR    edm::ESHandle<TrackerTrajectoryBuilder> theCkfBuilder;
+    edm::ESHandle<TrackerTrajectoryBuilder> theTkBuilder;//JR
     edm::Handle<reco::TrackCollection> allTrackerTracks;
     edm::ESHandle<TrajectoryFitter> theKFFitter;
     edm::Handle<TrajTrackAssociationCollection> tkAssoMap;

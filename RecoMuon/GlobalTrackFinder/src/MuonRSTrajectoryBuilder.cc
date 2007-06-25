@@ -1,9 +1,9 @@
-#include <RecoMuon/GlobalTrackFinder/interface/GlobalMuonRSTrajectoryBuilder.h>
+#include <RecoMuon/GlobalTrackFinder/interface/MuonRSTrajectoryBuilder.h>
 
-/** \file RecoMuon/GlobalTrackFinder/src/GlobalMuonRSTrajectoryBuilder.cc
+/** \file RecoMuon/
  *
- *  $Date: 2007/04/30 15:04:12 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/04/12 21:27:41 $
+ *  $Revision: 1.4 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -36,18 +36,24 @@
 #include <DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h>
 #include <DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h>
 
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
-//constructor
-GlobalMuonRSTrajectoryBuilder::GlobalMuonRSTrajectoryBuilder(const edm::ParameterSet & iConfig) : 
-  theProxyService(0),theRoadEstimator(0),theHitEstimator(0),theUpdator(0),theSmoother(0)
+//alternative constructor
+MuonRSTrajectoryBuilder::MuonRSTrajectoryBuilder(const edm::ParameterSet & iConfig,
+						 const MeasurementTracker * mt,
+						 const MagneticField * f,
+						 const Propagator * p):
+  theRoadEstimator(0),theHitEstimator(0),theUpdator(0),theSmoother(0)
 {
-  theCategory = "Muon|RecoMuon|GlobalMuonRSTrajectoryBuilder";
+
+  theMeasurementTracker = mt;
+  theField = f;
+  thePropagator = p;
+
+  theCategory = "Muon|RecoMuon|MuonRSTrajectoryBuilder";
 
   //get parameters from ParameterSet
 
   //propagator name to get from muon service
-  thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
+  //  thePropagatorName = iConfig.getParameter<std::string>("propagatorName");
 
   //chi2 estimator
   double chi2R=iConfig.getParameter<double>("maxChi2Road");
@@ -63,7 +69,7 @@ GlobalMuonRSTrajectoryBuilder::GlobalMuonRSTrajectoryBuilder(const edm::Paramete
 
   //limit the type of module considered to gather rechits
   theDynamicMaxNumberOfHitPerModule = iConfig.getParameter<bool>("dynamicMaxNumberOfHitPerModule");
-  theNumberOfHitPerModule = iConfig.getParameter<uint>("numberOfHitPerModule");
+  theNumberOfHitPerModuleDefault = iConfig.getParameter<uint>("numberOfHitPerModule");
   theMaxTrajectoriesThreshold = iConfig.getParameter<std::vector<uint> >("maxTrajectoriesThreshold");
   theNumberOfHitPerModuleThreshold = iConfig.getParameter<std::vector<uint> >("numberOfHitPerModuleThreshold");
 
@@ -78,11 +84,12 @@ GlobalMuonRSTrajectoryBuilder::GlobalMuonRSTrajectoryBuilder(const edm::Paramete
   //single or multiple trajectories per muon
   theOutputAllTraj = iConfig.getParameter<bool>("outputAllTraj");
 
-  //  theDebug = iConfig.getParameter<bool>("debug");
+  if (!theSmoother)
+    theSmoother = new KFTrajectorySmoother(thePropagator,theUpdator,theRoadEstimator);
 }
 
 //destructor
-GlobalMuonRSTrajectoryBuilder::~GlobalMuonRSTrajectoryBuilder()
+MuonRSTrajectoryBuilder::~MuonRSTrajectoryBuilder()
 {
   edm::LogInfo(theCategory)<<"cleaning the object";
   if (theRoadEstimator) delete theRoadEstimator;
@@ -91,34 +98,14 @@ GlobalMuonRSTrajectoryBuilder::~GlobalMuonRSTrajectoryBuilder()
   if (theSmoother) delete theSmoother;
 }
 
-void GlobalMuonRSTrajectoryBuilder::init(const MuonServiceProxy* service){
-  theProxyService = service;
-}
-
-void GlobalMuonRSTrajectoryBuilder::setEvent(const edm::Event & iEvent){
+void MuonRSTrajectoryBuilder::setEvent(const edm::Event & iEvent) const {
   theMeasurementTracker->update(iEvent);
-  setSetup(theProxyService->eventSetup());
-}
-
-void GlobalMuonRSTrajectoryBuilder::setSetup(const edm::EventSetup& iSetup)
-{
-  //get the measurementtracker
-  iSetup.get<CkfComponentsRecord>().get(theMeasurementTracker);
-  if (!theMeasurementTracker.isValid())/*abort*/{edm::LogError(theCategory)<<"measurement tracker geometry not found ";}
-  
-  //get the magnetic field
-  iSetup.get<IdealMagneticFieldRecord>().get(theField);
-  if (!theField.isValid()) /*abort*/{edm::LogError(theCategory)<<"no mag field found ."; }
-  
-  iSetup.get<TrackingComponentsRecord>().get(thePropagatorName,theProp);
-  if (!theProp.isValid())  /*abort*/{edm::LogError(theCategory)<<"no propagator found."; } 
-
-  if (!theSmoother)
-    theSmoother = new KFTrajectorySmoother(theProp.product(),theUpdator,theRoadEstimator);
 }
 
 
-bool trajectoryOrder(const GlobalMuonRSTrajectoryBuilder::trajectory & traj1, const GlobalMuonRSTrajectoryBuilder::trajectory & traj2)
+
+
+bool trajectoryOrder(const MuonRSTrajectoryBuilder::trajectory & traj1, const MuonRSTrajectoryBuilder::trajectory & traj2)
 { //order so that first element of the list have
   //most hits, if equal smallest chi2
   uint s1=traj1.measurements.size();
@@ -132,7 +119,7 @@ bool trajectoryOrder(const GlobalMuonRSTrajectoryBuilder::trajectory & traj1, co
 
 
 //reconstruct trajectory for the trajectory seed
-std::vector<Trajectory> GlobalMuonRSTrajectoryBuilder::trajectories(const TrajectorySeed & seed)
+std::vector<Trajectory> MuonRSTrajectoryBuilder::trajectories(const TrajectorySeed & seed) const 
 {
   LogDebug(theCategory)<<"makeTrajectories START";
   
@@ -148,14 +135,14 @@ std::vector<Trajectory> GlobalMuonRSTrajectoryBuilder::trajectories(const Trajec
 
 
 
-void GlobalMuonRSTrajectoryBuilder::makeTrajectories(const TrajectorySeed & seed, std::vector<Trajectory> & result,int version)
+void MuonRSTrajectoryBuilder::makeTrajectories(const TrajectorySeed & seed, std::vector<Trajectory> & result,int version) const
 {  if (version==0) { makeTrajectories_0(seed,result);}
   else if (version==1) { makeTrajectories_1(seed,result);}}
 
 
 //home grown tools
 //old implementation
-void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & seed, std::vector<Trajectory> & result)
+void MuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & seed, std::vector<Trajectory> & result) const 
 {
   Trajectory basicTrajectory(seed,alongMomentum);
   //add the muon system measurement to the basicTrajectory
@@ -166,7 +153,7 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
   DetId detId(PTstart.detId());
   const BoundPlane * surface =(&theMeasurementTracker->geomTracker()->idToDet(detId)->surface());
   //start from this point
-  TrajectoryStateOnSurface TSOS = theTransformer.transientState(PTstart,surface,theField.product());
+  TrajectoryStateOnSurface TSOS = theTransformer.transientState(PTstart,surface,theField);
   if (!TSOS.isValid())/*/abort*/{ edm::LogError(theCategory)<<"TSOS from PTSOD is not valid.";return ;}
   
   LogDebug(theCategory) <<"(detId.rawId()) "<<(detId.rawId())<<"(detId.subdetId()) "<<(detId.subdetId())
@@ -174,7 +161,12 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
 			<<"(TSOS.globalMomentum()) "<<(TSOS.globalMomentum());
  
   //initialization
+  //----------------------
+  //  WARNING. this is mutable 
+  //  you should never remove this line
   theFirstlayer=true;
+  theNumberOfHitPerModule = theNumberOfHitPerModuleDefault;
+  //----------------------
   int Nhits=0;
   GlobalPoint position;
   double z=0,r=0;
@@ -229,11 +221,13 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
   int indexinpart=0;
   //loop while in a valid part of the tracker
   while(inapart){
-    //check on the trajectory list and stuff
-    if (!checkStep(Trajectories.head())) break;
-    //................
+
+      //check on the trajectory list and stuff
+      if (!checkStep(Trajectories.head())) break;
+      //................
 
     switch (whichpart){
+
     case fault: /*abort*/ {edm::LogError(theCategory)<<"something's wrong with the seed";return;}
     case PXB: /*abort*/ {edm::LogError(theCategory)<<"PXB no yet implemented";return;}
     case PXF: /*abort*/ {edm::LogError(theCategory)<<"PXF no yet implemented";return;}
@@ -245,7 +239,7 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
       LogDebug(theCategory)<<"within TIB "<<indexinpart+1;
 	
       //propagate to corresponding surface
-      if (!firstRound) TSOS = theProp->propagate(*TSOS.freeState(),tiblc[indexinpart]->surface());
+      if (!firstRound) TSOS = thePropagator->propagate(*TSOS.freeState(),tiblc[indexinpart]->surface());
       if (!TSOS.isValid()) {;break;} //go to the next one 
 	    
       z=TSOS.globalPosition().z();
@@ -265,7 +259,7 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
       LogDebug(theCategory)<<"within TID "<<indexinpart+1;
 
       //propagate to corresponding surface
-      if (!firstRound) TSOS = theProp->propagate(*TSOS.freeState(),tidlc[(z>0)][indexinpart]->surface());
+      if (!firstRound) TSOS = thePropagator->propagate(*TSOS.freeState(),tidlc[(z>0)][indexinpart]->surface());
       if (!TSOS.isValid()){break;}//go to the next one 
 	  
       position =  TSOS.globalPosition();
@@ -296,7 +290,7 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
       LogDebug(theCategory)<<"within TOB "<<indexinpart+1;
 	
       //propagate to corresponding surface
-      if (!firstRound) TSOS = theProp->propagate(*TSOS.freeState(),toblc[indexinpart]->surface());
+      if (!firstRound) TSOS = thePropagator->propagate(*TSOS.freeState(),toblc[indexinpart]->surface());
       if (!TSOS.isValid())  {break;} //go to the next one 
 	    
       z =  TSOS.globalPosition().z();
@@ -316,7 +310,7 @@ void GlobalMuonRSTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & se
       LogDebug(theCategory)<<"within TEC "<<indexinpart+1;
 	  
       //propagate to corresponding TEC disk
-      if (!firstRound) TSOS = theProp->propagate(*TSOS.freeState(),teclc[(z>0)][indexinpart]->surface());
+      if (!firstRound) TSOS = thePropagator->propagate(*TSOS.freeState(),teclc[(z>0)][indexinpart]->surface());
       if (!TSOS.isValid()) {break;} //go to the next one
 	  
       position = TSOS.globalPosition();
@@ -392,7 +386,7 @@ bool trajectorymeasurementInverseOrder(const TrajectoryMeasurement & meas_1 ,con
 
 
 
- void GlobalMuonRSTrajectoryBuilder::cleanTrajectory(Trajectory & traj){
+ void MuonRSTrajectoryBuilder::cleanTrajectory(Trajectory & traj) const {
    //remove the overlapping recHits since the smoother will chock on it
    Trajectory::DataContainer meas =traj.measurements();
    
@@ -438,7 +432,7 @@ bool trajectorymeasurementInverseOrder(const TrajectoryMeasurement & meas_1 ,con
   traj = newTraj;
  }
 
-Trajectory GlobalMuonRSTrajectoryBuilder::smooth(Trajectory & traj){
+Trajectory MuonRSTrajectoryBuilder::smooth(Trajectory & traj) const {
   
   //need to order the list of measurements on the trajectory first
   sortTrajectoryMeasurements(traj);
@@ -457,14 +451,14 @@ Trajectory GlobalMuonRSTrajectoryBuilder::smooth(Trajectory & traj){
 }
 
 //function called for each layer during propagation
-int  GlobalMuonRSTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface & step,const DetLayer * thislayer , TrajectoryCollectionFPair & Trajectories)
+int  MuonRSTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface & step,const DetLayer * thislayer , TrajectoryCollectionFPair & Trajectories) const 
 {
   TrajectoryStateOnSurface restep;
   bool atleastoneadded=false;
   int Nhits=0;
 
   //find compatible modules
-  std::vector<DetLayer::DetWithState>  compatible =thislayer->compatibleDets( step, *theProp , *theRoadEstimator);
+  std::vector<DetLayer::DetWithState>  compatible =thislayer->compatibleDets( step, *thePropagator , *theRoadEstimator);
   
   //loop over compatible modules
   for (std::vector< DetLayer::DetWithState > ::iterator dws = compatible.begin();dws != compatible.end();dws++)
@@ -521,15 +515,12 @@ int  GlobalMuonRSTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface &
 		{
 		  //what is the previous state for this trajectory
 		  const TrajectoryStateOnSurface & previousState = traj->TSOS;
-
-//		  if (previousFreestate.cartesianError().matrix().num_col() !=6 )/*skip*/
-                if ( !previousState.isValid() )/*skip*/ //C.L.: FIXME
+		  if (!previousState.isValid())
 		    {edm::LogError(theCategory)<<"previous free state is invalid at trajectory update, this is WRONG"; continue;}
+		  const FreeTrajectoryState & previousFreestate = *previousState.freeState();
 		  
-                  const FreeTrajectoryState & previousFreestate = *previousState.freeState();
-
 		  //propagate it to the current surface
-		  TrajectoryStateOnSurface predictedState = theProp->propagate(previousFreestate,surface);
+		  TrajectoryStateOnSurface predictedState = thePropagator->propagate(previousFreestate,surface);
 		  if (!predictedState.isValid())/*skip*/{edm::LogError(theCategory)
 			<<"predicted state is not valid at trajectory update, rechit surface cannot be reached by the previous updated state.";continue;}
 
@@ -666,7 +657,7 @@ int  GlobalMuonRSTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface &
 }
 
 
-bool GlobalMuonRSTrajectoryBuilder::checkStep(TrajectoryCollection & collection)
+bool MuonRSTrajectoryBuilder::checkStep(TrajectoryCollection & collection) const 
 {
   //dynamic cut on the max number of rechit allowed on a single module
   if (theDynamicMaxNumberOfHitPerModule) {
@@ -689,7 +680,7 @@ bool GlobalMuonRSTrajectoryBuilder::checkStep(TrajectoryCollection & collection)
   return true;
 }
 
-void GlobalMuonRSTrajectoryBuilder::checkDuplicate(TrajectoryCollection & collection)
+void MuonRSTrajectoryBuilder::checkDuplicate(TrajectoryCollection & collection) const
 {
   LogDebug(theCategory)<<"checking for duplicates here. list size: "<<collection.size();
 
@@ -763,7 +754,7 @@ void GlobalMuonRSTrajectoryBuilder::checkDuplicate(TrajectoryCollection & collec
 
 //CTF tool implementation
 //first find the collection of rechits, then do something about it
-void GlobalMuonRSTrajectoryBuilder::makeTrajectories_1(const TrajectorySeed & seed, std::vector<Trajectory> & result)
+void MuonRSTrajectoryBuilder::makeTrajectories_1(const TrajectorySeed & seed, std::vector<Trajectory> & result) const 
 {
   Trajectory basicTrajectory(seed,alongMomentum);
   //add the muon system measurement to the basicTrajectory

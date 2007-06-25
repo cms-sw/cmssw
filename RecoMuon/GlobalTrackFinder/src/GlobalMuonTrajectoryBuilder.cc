@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/06/05 17:32:05 $
- *  $Revision: 1.100 $
+ *  $Date: 2007/06/16 19:04:58 $
+ *  $Revision: 1.101 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -103,7 +103,8 @@ using namespace edm;
 
 GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet& par,
 							 const MuonServiceProxy* service) : 
-  theTkSeedGenerator(0),theRSBuilder(0),theService(service),theNavigationSchool(0),theCacheId_DG(0),theCacheId_MG(0) {
+  //JR  theTkSeedGenerator(0),theRSBuilder(0),theService(service),theNavigationSchool(0),theCacheId_DG(0),theCacheId_MG(0) {
+  theTkSeedGenerator(0),theService(service),theNavigationSchool(0),theCacheId_DG(0),theCacheId_MG(0) {
 
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
@@ -156,16 +157,17 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
     //
     // Start Tk trajectory builder
     //
-    theRSFlag = false;
-    if(seedGenName=="TSGForRoadSearch") {
+    /*//JR    theRSFlag = false;
+      if(seedGenName=="TSGForRoadSearch") {
       theRSFlag = true;
       ParameterSet builderPar = par.getParameter<edm::ParameterSet>("MuonRSBuilder");
       theRSBuilder = new GlobalMuonRSTrajectoryBuilder(builderPar);
       theRSBuilder->init(theService);
-    } else {
+      } else {
       theCkfBuilderName = par.getParameter<std::string>("TkTrackBuilder");
-    }
-
+      }
+    */ //JR
+    theTkBuilderName = par.getParameter<std::string>("TkTrackBuilder");//JR
 
 
   } else {
@@ -195,7 +197,7 @@ GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;
-  if (theRSBuilder) delete theRSBuilder;
+  //JR  if (theRSBuilder) delete theRSBuilder;
   if (theRegionBuilder) delete theRegionBuilder;
   if (theNavigationSchool) delete theNavigationSchool;
   delete theTkSeedGenerator;
@@ -255,16 +257,19 @@ void GlobalMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     if (theFirstEvent) {
       theFirstEvent = false;
       LogInfo(category) << "Constructing a Tk Trajectory Builder";
-      if(theRSFlag == false) theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
+      //JR      if(theRSFlag == false) theService->eventSetup().get<CkfComponentsRecord>().get(theCkfBuilderName,theCkfBuilder);
+      theService->eventSetup().get<CkfComponentsRecord>().get(theTkBuilderName,theTkBuilder);//JR
     }
 
 
 
-    if(theRSFlag == false) {
-      theCkfBuilder->setEvent(event);
-    } else {
-      theRSBuilder->setEvent(event);
-    }
+    /* //JR
+       if(theRSFlag == false) {
+       theCkfBuilder->setEvent(event);
+       } else {
+       theRSBuilder->setEvent(event);
+       }*/ //JR
+    theTkBuilder->setEvent(event);//JR
     
     theTkSeedGenerator->setEvent(event);
 
@@ -1064,11 +1069,13 @@ GlobalMuonTrajectoryBuilder::TC GlobalMuonTrajectoryBuilder::makeTrajsFromSeeds(
     LogTrace(category) << "Building a trajectory from seed " << nseed;
     
     TC tkTrajs;
-    if(theRSFlag == false) {
-      tkTrajs = theCkfBuilder->trajectories(*seed);
-    } else {
-      tkTrajs = theRSBuilder->trajectories(*seed);
-    }
+    /* //JR
+       if(theRSFlag == false) {
+       tkTrajs = theCkfBuilder->trajectories(*seed);
+       } else {
+       tkTrajs = theRSBuilder->trajectories(*seed);
+       }*/ //JR
+    tkTrajs = theTkBuilder->trajectories(*seed);//JR
 
     LogTrace(category) << "Trajectories from Seed " << tkTrajs.size();
     
