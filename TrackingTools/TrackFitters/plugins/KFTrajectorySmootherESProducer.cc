@@ -32,6 +32,7 @@ KFTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord
   std::string pname = pset_.getParameter<std::string>("Propagator");
   std::string uname = pset_.getParameter<std::string>("Updator");
   std::string ename = pset_.getParameter<std::string>("Estimator");
+  double rescaleFactor =  pset_.getParameter<double>("errorRescaling");
 
   edm::ESHandle<Propagator> prop;
   edm::ESHandle<TrajectoryStateUpdator> upd;
@@ -43,7 +44,8 @@ KFTrajectorySmootherESProducer::produce(const TrackingComponentsRecord & iRecord
 
   _smoother  = boost::shared_ptr<TrajectorySmoother>(new KFTrajectorySmoother(prop.product(),
 									      upd.product(),
-									      est.product()));
+									      est.product(),
+									      rescaleFactor));
   return _smoother;
 }
 
