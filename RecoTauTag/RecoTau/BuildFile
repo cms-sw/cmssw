@@ -1,0 +1,20 @@
+<use name=DataFormats/BTauReco>
+<use name=DataFormats/Math>
+<use name=DataFormats/TauReco>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
+<use name=FWCore/PluginManager>
+<use name=SimDataFormats/Vertex>
+<export>
+  <use name=DataFormats/BTauReco>
+  <use name=DataFormats/TauReco>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=SimDataFormats/Vertex>
+  <lib name=RecoTauTagRecoTau>
+</export>
+
