@@ -21,9 +21,9 @@
  * The class derives from DetPositioner, a friend class of
  * GeomDet, which allows to move the GeomDet. 
  *
- *  $Date: 2007/06/21 16:18:27 $
- *  $Revision: 1.24 $
- *  (last update by $Author: flucke $)
+ *  $Date: 2007/06/24 01:08:20 $
+ *  $Revision: 1.25 $
+ *  (last update by $Author: cklae $)
  */
 
 class AlignmentParameters;
@@ -71,6 +71,7 @@ public:
 
   /// Return the list of lowest daughters (non-composites) of Alignable
   const Alignables& deepComponents() const { return theDeepComponents; }
+  void deepComponents( std::vector<Alignable*>& result );
 
   /// Provide all components, subcomponents, subsub... etc. of Alignable
   /// down to AlignableDetUnit, except for 'single childs' like e.g.
