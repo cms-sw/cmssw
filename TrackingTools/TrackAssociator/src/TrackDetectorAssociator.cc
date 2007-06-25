@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.18 2007/05/16 09:26:23 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.19 2007/06/09 21:52:20 dmytro Exp $
 //
 //
 
@@ -616,51 +616,68 @@ void TrackDetectorAssociator::getMuonChamberMatches(std::vector<MuonChamberMatch
    LogTrace("TrackAssociator") << "Number of chambers to check: " << muonIdsInRegion.size();
 	
    for(std::set<DetId>::const_iterator detId = muonIdsInRegion.begin(); detId != muonIdsInRegion.end(); detId++)
-     {
-	const GeomDet* geomDet = muonDetIdAssociator_.getGeomDet(*detId);
-	// timers.push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::localPropagation",TimerStack::FastMonitoring);
-	TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate( &geomDet->surface() );
-	if (! stateOnSurface.isValid()) {
-	   LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n\t"<<
-	     detId->rawId() << " not crossed\n"; ;
-	   continue;
-	}
-	// timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::geometryAccess",TimerStack::FastMonitoring);
-	LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
-   float distanceX = 0;
-   float distanceY = 0;
-   if(const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
-      const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
-      const CSCLayerGeometry* layerGeometry = chamberSpecs->oddLayerGeometry(1);
-      std::vector<float> trapBounds = layerGeometry->parameters();
-      // TrapezoidalPlaneBounds::parameters()
-      // vec[0] = hbotedge, vec[1] = htopedge, vec[3] = hapothem; vec[2] = hthickness
-      // mind the above ordering!; above values are all halves
+   {
+      const GeomDet* geomDet = muonDetIdAssociator_.getGeomDet(*detId);
+      // timers.push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::localPropagation",TimerStack::FastMonitoring);
+      TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate( &geomDet->surface() );
+      if (! stateOnSurface.isValid()) {
+         LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n\t"<<
+            detId->rawId() << " not crossed\n";
+         continue;
+      }
+      // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::geometryAccess",TimerStack::FastMonitoring);
+      LocalPoint localPoint = geomDet->surface().toLocal(stateOnSurface.freeState()->position());
+      float distanceX = 0;
+      float distanceY = 0;
+      if(const CSCChamber* cscChamber = dynamic_cast<const CSCChamber*>(geomDet) ) {
+         const CSCChamberSpecs* chamberSpecs = cscChamber->specs();
+         if(! chamberSpecs) {
+            LogTrace("TrackAssociator") << "Failed to get CSCChamberSpecs from CSCChamber; moving on\n";
+            continue;
+         }
+         const CSCLayerGeometry* layerGeometry = chamberSpecs->oddLayerGeometry(1);
+         if(! layerGeometry) {
+            LogTrace("TrackAssociator") << "Failed to get CSCLayerGeometry from CSCChamberSpecs; moving on\n";
+            continue;
+         }
+         const CSCWireTopology* wireTopology = layerGeometry->wireTopology();
+         if(! wireTopology) {
+            LogTrace("TrackAssociator") << "Failed to get CSCWireTopology from CSCLayerGeometry; moving on\n";
+            continue;
+         }
 
-      // tangent of the incline angle from inside the trapezoid
-      float tangent = (trapBounds.at(1)-trapBounds.at(0))/(2*trapBounds.at(3));
-      // y position wrt bottom of trapezoid
-      float yPrime  = localPoint.y()+trapBounds.at(3);
-      // half trapezoid width at y' is hbotedge + x side of triangle with the above tangent and side y'
-      float halfWidthAtYPrime = trapBounds.at(0)+yPrime*tangent;
-      distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
-      distanceY = fabs(localPoint.y()) - trapBounds.at(3);
-   } else {
-      distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2;
-      distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2;
+         float wideWidth      = wireTopology->wideWidthOfPlane();
+         float narrowWidth    = wireTopology->narrowWidthOfPlane();
+         float length         = wireTopology->lengthOfPlane();
+         // If slanted, there is no y offset between local origin and symmetry center of wire plane
+         float yOfFirstWire   = fabs(wireTopology->wireAngle())>1.E-06 ? -0.5*length : wireTopology->yOfWire(1);
+         // y offset between local origin and symmetry center of wire plane
+         float yCOWPOffset    = yOfFirstWire+0.5*length;
+
+         // tangent of the incline angle from inside the trapezoid
+         float tangent = (wideWidth-narrowWidth)/(2.*length);
+         // y position wrt bottom of trapezoid
+         float yPrime  = localPoint.y()+fabs(yOfFirstWire);
+         // half trapezoid width at y' is 0.5 * narrowWidth + x side of triangle with the above tangent and side y'
+         float halfWidthAtYPrime = 0.5*narrowWidth+yPrime*tangent;
+         distanceX = fabs(localPoint.x()) - halfWidthAtYPrime;
+         distanceY = fabs(localPoint.y()-yCOWPOffset) - 0.5*length;
+      } else {
+         distanceX = fabs(localPoint.x()) - geomDet->surface().bounds().width()/2.;
+         distanceY = fabs(localPoint.y()) - geomDet->surface().bounds().length()/2.;
+      }
+      // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
+      if (distanceX < maxDistanceX && distanceY < maxDistanceY) {
+         LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
+         MuonChamberMatch match;
+         match.tState = stateOnSurface;
+         match.localDistanceX = distanceX;
+         match.localDistanceY = distanceY;
+         match.id = *detId;
+         matches.push_back(match);
+      }
+      //timers.pop();
    }
-	// timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
-	if (distanceX < maxDistanceX && distanceY < maxDistanceY) {
-	   LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
-	   MuonChamberMatch match;
-	   match.tState = stateOnSurface;
-	   match.localDistanceX = distanceX;
-	   match.localDistanceY = distanceY;
-	   match.id = *detId;
-	   matches.push_back(match);
-	}
-	//timers.pop();
-     }
    //timers.pop();
    
 }
