@@ -1,24 +1,25 @@
+<use name=CalibTracker/SiStripConnectivity>
+<use name=CalibFormats/SiStripObjects>
+<use name=CalibTracker/SiStripPedestals>
+<use name=CondFormats/SiStripObjects>
+<use name=DataFormats/SiStripCommon>
 <use name=FWCore/MessageLogger>
 <use name=FWCore/PluginManager>
-<use name=DataFormats/SiStripCommon>
-<use name=CondFormats/SiStripObjects>
-<use name=CalibFormats/SiStripObjects>
-<use name=CalibTracker/SiStripConnectivity>
-<use name=CalibTracker/SiStripPedestals>
 <use name=OnlineDB/SiStripConfigDb>
 <use name=TkOnlineSw>
 <use name=boost>
 
 <export>
   <lib name=OnlineDBSiStripESSources>
-  <use name=FWCore/MessageLogger>
-  <use name=DataFormats/SiStripCommon>
-  <use name=CondFormats/SiStripObjects>
-  <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/SiStripConnectivity>
+  <use name=CalibFormats/SiStripObjects>
   <use name=CalibTracker/SiStripPedestals>
+  <use name=CondFormats/SiStripObjects>
+  <use name=DataFormats/SiStripCommon>
+  <use name=FWCore/MessageLogger>
   <use name=OnlineDB/SiStripConfigDb>
   <use name=TkOnlineSw>
   <use name=boost>
 </export>
+
 
