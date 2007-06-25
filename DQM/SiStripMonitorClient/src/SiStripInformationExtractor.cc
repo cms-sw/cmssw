@@ -350,6 +350,7 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
     defineZone(it->second.size(), ncol, nrow);
     canvas_->Divide(ncol, nrow);
     int ival = 0;
+    gStyle->SetOptTitle(0);
     for (vector<string>::iterator im = it->second.begin(); 
 	 im != it->second.end(); im++) {  
       string path_name = (*im);
@@ -361,10 +362,18 @@ void SiStripInformationExtractor::plotHistosFromLayout(MonitorUserInterface * mu
       else {
 	TH1* hist1 = ExtractTObject<TH1>().extract(me);
 	if (hist1) {
+
+	  TText tTitle;
+	  tTitle.SetTextFont(64);
+	  tTitle.SetTextSizePixels(20);
+
           setDrawingOption(hist1);
 	  hist1->DrawCopy();
+
 	  string ref_path = it->first + "/" + path_name.substr(path_name.rfind("/")+1);
           string hname = hist1->GetTitle();
+ 
+          tTitle.DrawTextNDC(0.1, 0.92, hname.c_str());
 	  MonitorElement* me_ref = mui->get(ref_path);
 	  if (me_ref) {
 	    TH1* hist1_ref = ExtractTObject<TH1>().extract(me_ref);

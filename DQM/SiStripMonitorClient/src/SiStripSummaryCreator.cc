@@ -238,7 +238,10 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(MonitorUserInterface* mui,
     // Set the axis title 
     if (me) { 
       TH1F* hist = ExtractTObject<TH1F>().extract( me );
-      if (hist) hist->GetYaxis()->SetTitle(name.c_str());
+      if (hist) {
+       if (name.find("NoisyStrips") != string::npos) hist->GetYaxis()->SetTitle("Noisy Strips (%)");
+       else hist->GetYaxis()->SetTitle(name.c_str());
+      }
     }   
     for (map<int,string>::const_iterator ic = tags.begin();
       ic != tags.end(); ic++) {
