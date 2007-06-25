@@ -128,7 +128,8 @@ namespace edm {
      }
      else {
          throw edm::Exception(errors::Configuration)
-           << "Bad Entry Node type: " << type();
+           << "Bad Entry Node type: " << type()
+           << "\nfrom " << traceback();
      }
 
    }
@@ -137,15 +138,9 @@ namespace edm {
      {
        if(*end != 0)
        {
-         std::ostringstream os, os2;
-         os <<  "Cannot create a value of type " << type()
-            <<  " for parameter " << name() << " from input " << s;
-         printTrace(os2);
-         if(!os2.str().empty())
-         {
-           os << os2.str();
-         }
-         throw cms::Exception("Configuration") << os.str();
+         throw cms::Exception("Configuration") <<  "Cannot create a value of type " << type()
+            <<  " for parameter " << name() << " from input " << s
+            << "\nIncluded from " << traceback();
        }
      }
         

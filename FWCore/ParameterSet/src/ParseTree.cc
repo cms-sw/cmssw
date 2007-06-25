@@ -547,12 +547,9 @@ namespace edm {
     {
       if(targetNode->isModified() && !(replaceNode->okToRemodify()))
       {
-        std::ostringstream trace;
-        targetNode->printTrace(trace);
-
         throw edm::Exception(errors::Configuration)
           << "Cannot replace a node that has already been modified: " 
-          << targetNode->name() << "\n" << trace.str();
+          << targetNode->name() << "\n" << targetNode->traceback();
       }
       if( replaceNode->isEmbedded() && !(targetNode->isCloned()) 
           && targetNode->isTracked()

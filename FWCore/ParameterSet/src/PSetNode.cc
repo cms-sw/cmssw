@@ -112,7 +112,8 @@ namespace edm {
       {
         throw edm::Exception(errors::Configuration,"PSetError")
           << "ParameterSet: problem with making a parameter set.\n"
-          << "Attempt to make a ProcessDesc with a PSetNode which is not a process";
+          << "Attempt to make a ProcessDesc with a PSetNode which is not a process"
+          << "\nIn " << traceback();
       }
 
       procDesc.getProcessPSet()->addParameter("@process_name", name());
@@ -128,8 +129,7 @@ namespace edm {
         {
           // print some extra debugging
           ostringstream message;
-          message << "In variable " << (**i).name() << "\nIncluded from:\n";
-          (**i).printTrace(message);
+          message << "In variable " << (**i).name() << "\nIncluded from:\n" << (**i).traceback();
           e.append(message.str());
          
           // pass it on(errors::Configuration

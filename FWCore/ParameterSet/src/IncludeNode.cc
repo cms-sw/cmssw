@@ -77,7 +77,8 @@ namespace edm {
          != openFiles.end())
       {
         throw edm::Exception(errors::Configuration, "IncludeError")
-         << "Circular inclusion of file " << name();
+         << "Circular inclusion of file " << name()
+         << "\nfrom " << traceback();
       }
 
       // ignore second includes at the same level
@@ -111,11 +112,9 @@ namespace edm {
         catch(const edm::Exception & e)
         {
           // re-throw with the traceback info
-          std::ostringstream traceback;
-          printTrace(traceback);
           throw edm::Exception(errors::Configuration, "IncludeError")
           << "Exception found trying to include " << name() << ":\n"
-          << e.what() << "\nIncluded from:\n" << traceback.str();
+          << e.what() << "\nIncluded from:\n" << traceback();
         }
 
         isResolved_ = true;

@@ -27,7 +27,8 @@ namespace edm {
           throw edm::Exception(errors::Configuration)
             << "Included node " << newName_
             << "is of type " << node->type()
-            << ", not " <<  targetType_;
+            << ", not " <<  targetType_
+            << "\nfrom " << traceback();
         }
         node->setName(newName_);
         node->setCloned(true);
@@ -52,7 +53,8 @@ namespace edm {
       {
         throw edm::Exception(errors::Configuration)
           << "Could not find node " << targetName_ 
-          << " in file " << name();
+          << " in file " << name()
+          << "\nfrom " << traceback();
       }
     }
 

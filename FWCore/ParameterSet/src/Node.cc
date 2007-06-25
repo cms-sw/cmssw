@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <iosfwd>
+#include <iostream>
 
 namespace edm {
 
@@ -27,7 +27,8 @@ namespace edm {
 
     void Node::replaceWith(const ReplaceNode *) {
        throw edm::Exception(errors::Configuration)
-          << "No way to replace node " << name();
+          << "No way to replace node " << name()
+          << "\nfrom " << traceback();
     }
 
 
@@ -56,6 +57,16 @@ namespace edm {
         parent_->printTrace(out);
       }
     }     
+
+
+    std::string Node::traceback() const
+    {
+      std::ostringstream tr;
+      printTrace(tr);
+      std::string result = tr.str();
+      if(result.empty()) result = "<MAIN CFG>";
+      return result;
+    }
 
    
     void Node::locate(const std::string & s, std::ostream & out) const

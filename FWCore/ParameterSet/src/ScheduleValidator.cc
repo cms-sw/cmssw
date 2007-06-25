@@ -3,11 +3,11 @@
    Implementation of class ScheduleValidator
 
    \author Stefano ARGIRO
-   \version $Id: ScheduleValidator.cc,v 1.21 2007/05/23 23:14:47 rpw Exp $
+   \version $Id: ScheduleValidator.cc,v 1.22 2007/06/14 04:56:00 wmtan Exp $
    \date 10 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.21 2007/05/23 23:14:47 rpw Exp $";
+static const char CVSId[] = "$Id: ScheduleValidator.cc,v 1.22 2007/06/14 04:56:00 wmtan Exp $";
 
 #include "FWCore/ParameterSet/src/ScheduleValidator.h"
 #include "FWCore/ParameterSet/interface/OperatorNode.h"
@@ -155,7 +155,7 @@ void ScheduleValidator::validateDependencies(const std::string & leafName, const
     // then we have an inconsitency
     if (old_deplist != dep) {
 
-      std::ostringstream olddepstr,newdepstr, traceback;
+      std::ostringstream olddepstr,newdepstr;
       std::copy(old_deplist.begin(), old_deplist.end(),
             std::ostream_iterator<std::string>(olddepstr,","));
       std::copy(dep.begin(), dep.end(),
@@ -165,10 +165,6 @@ void ScheduleValidator::validateDependencies(const std::string & leafName, const
       std::string newdeps = newdepstr.str();
       if(newdeps == "") newdeps = "<NOTHING>";
 
-      leafNode->printTrace(traceback);
-      std::string traceStr = traceback.str();
-      if(traceStr == "") traceStr = "<MAIN CFG>";
-
       throw edm::Exception(errors::Configuration,"InconsistentSchedule")
         << "Inconsistent schedule for module "
         << leafName
@@ -176,7 +172,7 @@ void ScheduleValidator::validateDependencies(const std::string & leafName, const
         << "Depends on " << olddeps
         << " but also on " << newdeps
         << "\n"
-        << "Second set of dependencies comes from: " << traceStr << "\n";
+        << "Second set of dependencies comes from: " << leafNode->traceback();
     }
   }
   else {

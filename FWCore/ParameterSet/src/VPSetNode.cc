@@ -65,7 +65,8 @@ namespace edm {
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
           if(blockPtrItr == blocks.end()) {
              throw edm::Exception(errors::Configuration,"")
-               << "Cannot find parameter block " << blockName;
+               << "VPSet: Cannot find parameter block " << blockName
+               << "\nfrom " << traceback();
           }
 
           //@@ will this destruct the old entry correctly?
@@ -123,7 +124,8 @@ namespace edm {
         if(replacement == 0) {
           throw edm::Exception(errors::Configuration)
             << "Cannot replace entry vector" << name()
-            <<   " with " << replaceNode->type();
+            <<   " with " << replaceNode->type()
+            << "\nfrom " << traceback();
         }
        
         nodes_ = replacement->nodes_;
@@ -136,7 +138,8 @@ namespace edm {
       {
          throw edm::Exception(errors::Configuration)
             << "Cannot replace entry vector" << name()
-            <<   " with " << replaceNode->type();
+            <<   " with " << replaceNode->type()
+            << "\nfrom " << traceback();
       }
 
       setModified(true);

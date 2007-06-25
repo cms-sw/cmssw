@@ -95,7 +95,8 @@ namespace edm {
         if(replacement == 0) {
           throw edm::Exception(errors::Configuration)
             << "Cannot replace entry vector" << name()
-            <<   " with " << replaceNode->type();
+            <<   " with " << replaceNode->type()
+            << "\nfrom " << traceback();
         }
         // replace the value, keep the type
         value_ = replacement->value_;
@@ -108,7 +109,8 @@ namespace edm {
       {
          throw edm::Exception(errors::Configuration)
             << "Cannot replace entry vector" << name()
-            <<   " with " << replaceNode->type();
+            <<   " with " << replaceNode->type()
+            << "\nfrom " << traceback();
       }
       setModified(true);
     }
@@ -140,7 +142,8 @@ namespace edm {
         { 
           throw edm::Exception(errors::Configuration)
             << "Bad type to append to VEntry " 
-            <<  ptr->type();
+            <<  ptr->type()
+            << " \nfrom " << traceback();
         }
       }
     }  
@@ -206,7 +209,8 @@ namespace edm {
      else
        {
          throw edm::Exception(errors::Configuration)
-           << "Bad VEntry Node type: " << type();
+           << "Bad VEntry Node type: " << type()
+           << "\nfrom " << traceback();
        }
     }
 

@@ -78,7 +78,8 @@ namespace edm {
       {
         throw edm::Exception(errors::Configuration)
          << "A child named " << childName 
-         << " was found on both sides of an operator";
+         << " was found on both sides of an operator"
+         << "\nfrom " << traceback();
       }
       return (foundLeft || foundRight);
     }

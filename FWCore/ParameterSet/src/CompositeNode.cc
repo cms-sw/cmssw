@@ -286,16 +286,9 @@ namespace edm {
           }
           else
           {
-            std::ostringstream errorMessage, trace;
-            errorMessage << "Duplicate node name: parameter " << (**i).name() 
-              << " in " << name();
-            printTrace(trace);
-            if(!trace.str().empty())
-            {
-              errorMessage << " from: " << trace.str();
-            } 
- 
-            throw edm::Exception(errors::Configuration,"") << errorMessage.str();
+            throw edm::Exception(errors::Configuration,"") 
+              << "Duplicate node name: parameter " << (**i).name() << " in " << name()
+              << "\nfrom: " << traceback();
           }
         }
       }

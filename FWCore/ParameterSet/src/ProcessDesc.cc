@@ -3,11 +3,11 @@
    Implementation of calss ProcessDesc
 
    \author Stefano ARGIRO
-   \version $Id: ProcessDesc.cc,v 1.15 2007/06/14 04:56:00 wmtan Exp $
+   \version $Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $
    \date 17 Jun 2005
 */
 
-static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.15 2007/06/14 04:56:00 wmtan Exp $";
+static const char CVSId[] = "$Id: ProcessDesc.cc,v 1.16 2007/06/15 18:41:49 wdd Exp $";
 
 
 #include "FWCore/ParameterSet/interface/ProcessDesc.h"
@@ -230,10 +230,8 @@ namespace edm
         // no duplicates
         if(found)
         {
-          std::ostringstream trace;
-          (*pathIt)->printTrace(trace);
           throw edm::Exception(errors::Configuration,"duplicate schedule")
-             << "Second schedule statement found at " << trace.str();
+             << "Second schedule statement found at " << (*pathIt)->traceback();
         }
         else 
         {

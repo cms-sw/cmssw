@@ -54,7 +54,8 @@ namespace edm {
       ModuleNode * replacement = replaceNode->value<ModuleNode>();
       if(replacement == 0) {
         throw edm::Exception(errors::Configuration)
-          << "Cannot replace this module with a non-module  " << name();
+          << "Cannot replace this module with a non-module  " << name()
+          << "\nfrom " << traceback();
       }
       nodes_ = replacement->nodes_;
       class_ = replacement->class_;
@@ -67,7 +68,8 @@ namespace edm {
        {
         throw edm::Exception(errors::Configuration)
           << "The only type of Module that can exist inside another"
-          << " ParameterSet is a secsource";
+          << " ParameterSet is a secsource"
+          << "\nfrom " << traceback();
        }
           
        boost::shared_ptr<ParameterSet> pset(new ParameterSet);
