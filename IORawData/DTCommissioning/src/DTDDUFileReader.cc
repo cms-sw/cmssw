@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/10/29 16:46:52 $
- *  $Revision: 1.10 $
+ *  $Date: 2007/03/12 01:01:57 $
+ *  $Revision: 1.11 $
  *  \author M. Zanetti
  */
 
@@ -34,6 +34,7 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
   const string & filename = pset.getParameter<string>("fileName");
 
   readFromDMA = pset.getUntrackedParameter<bool>("isRaw",false);
+  
 
   inputFile.open(filename.c_str());
   if( inputFile.fail() ) {
@@ -44,7 +45,7 @@ DTDDUFileReader::DTDDUFileReader(const edm::ParameterSet& pset) :
   }
   
   //else if (readFromDMA) 
-  inputFile.ignore(4*7);
+  inputFile.ignore(4*pset.getUntrackedParameter<int>("numberOfHeaderWords",10));
   
   skipEvents = pset.getUntrackedParameter<int>("skipEvents",0);
   if (skipEvents) { 
@@ -85,7 +86,7 @@ bool DTDDUFileReader::fillRawData(EventID& eID,
       int nread;
       word = dmaUnpack(dataTag,nread);
       if ( nread<=0 ) {
-	cout<<"[DTDDUFileReader]: ERROR! failed to get the trailer"<<endl;
+	cout<<"[DTDDUFileReader]: ERROR! no more words and failed to get the trailer"<<endl;
 	delete data; data=0;
 	return false;
       }
