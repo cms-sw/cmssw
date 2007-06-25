@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.68 2007/06/22 23:26:35 wmtan Exp $
+$Id: RootFile.cc,v 1.69 2007/06/25 03:55:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
@@ -241,8 +241,19 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
   boost::shared_ptr<RunPrincipal>
   RootFile::readRun(boost::shared_ptr<ProductRegistry const> pReg) {
     if (!runTree().isValid()) {
-      // should throw
-      return boost::shared_ptr<RunPrincipal>(new RunPrincipal(1, pReg, processConfiguration_));
+      // prior to the support of run trees, the run number must be retrieved from the next event.
+      if (!eventTree().next()) {
+        return boost::shared_ptr<RunPrincipal>();
+      }
+      EventAux eventAux;
+      EventAux *pEvAux = &eventAux;
+      eventTree().fillAux<EventAux>(pEvAux);
+      // back up, so event will not be skipped.
+      eventTree().previous();
+      return boost::shared_ptr<RunPrincipal>(new RunPrincipal(eventAux.id_.run(), pReg, processConfiguration_));
+    }
+    if (!runTree().next()) {
+      return boost::shared_ptr<RunPrincipal>();
     }
     if (fileFormatVersion_.value_ >= 3) {
       RunAuxiliary *pRunAux = &runAux_;
@@ -267,7 +278,20 @@ boost::shared_ptr<LuminosityBlockPrincipal> lbp) {
   boost::shared_ptr<LuminosityBlockPrincipal>
   RootFile::readLumi(boost::shared_ptr<ProductRegistry const> pReg, boost::shared_ptr<RunPrincipal> rp) {
     if (!lumiTree().isValid()) {
-      // should throw
+      // prior to the support of lumi trees, the run number must be retrieved from the next event.
+      if (!eventTree().next()) {
+        return boost::shared_ptr<LuminosityBlockPrincipal>();
+      }
+      EventAux eventAux;
+      EventAux *pEvAux = &eventAux;
+      eventTree().fillAux<EventAux>(pEvAux);
+      // back up, so event will not be skipped.
+      eventTree().previous();
+      if (eventAux.id_.run() != rp->run()) {
+        // The next event is in a different run.  Return a null pointer.
+        return boost::shared_ptr<LuminosityBlockPrincipal>();
+      }
+      // Prior to support of lumi blocks, always use 1 for lumi block number.
       return boost::shared_ptr<LuminosityBlockPrincipal>(
 	new LuminosityBlockPrincipal(1, pReg, rp, processConfiguration_));
     }

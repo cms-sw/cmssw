@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.52 2007/06/22 23:26:35 wmtan Exp $
+$Id: PoolSource.cc,v 1.53 2007/06/25 03:55:31 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
@@ -184,11 +184,10 @@ namespace edm {
 
   boost::shared_ptr<RunPrincipal>
   PoolSource::readRun_() {
-    while (!rootFile_->runTree().next()) {
-      if (!nextFile()) return boost::shared_ptr<RunPrincipal>();
-    }
-    boost::shared_ptr<RunPrincipal> rp =
-	 rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    boost::shared_ptr<RunPrincipal> rp;
+    do {
+	 rp = rootFile_->readRun(primary() ? productRegistry() : rootFile_->productRegistry()); 
+    } while (rp.get() == 0 && nextFile());
     return rp;
   }
 
