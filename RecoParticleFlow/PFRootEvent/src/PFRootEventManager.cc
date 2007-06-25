@@ -29,6 +29,12 @@
 
 #include "FWCore/FWLite/src/AutoLibraryLoader.h"
 
+#include "RecoParticleFlow/PFRootEvent/interface/GPFRecHit.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFCluster.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFTrack.h"
+#include "RecoParticleFlow/PFRootEvent/interface/GPFPart.h"
+
+
 #include <TFile.h>
 #include <TTree.h>
 #include <TCanvas.h>
@@ -100,7 +106,13 @@ PFRootEventManager::PFRootEventManager(const char* file)
     displayView_[iView] = 0;
     displayHist_[iView] = 0;
   }
-
+  
+  vectGHits_.resize(NViews);
+  vectGClus_.resize(NViews);
+  vectGTracks_.resize(NViews);
+  vectGParts_.resize(NViews);
+ 
+       
 //   maxERecHitEcal_ = -1;
 //   maxERecHitHcal_ = -1;
 
@@ -116,6 +128,8 @@ void PFRootEventManager::reset() {
     outEvent_->reset();
     outTree_->GetBranch("event")->SetAddress(&outEvent_);
   } 
+  
+  
  
 }
 
@@ -1440,12 +1454,13 @@ void PFRootEventManager::displayNext(bool init) {
 
 
 void PFRootEventManager::display() {
+  resetGraphicContainers();
   if(displayRZ_) displayView(RZ);
   if(displayXY_) displayView(XY);
   if(displayEtaPhi_) { 
     displayView(EPE);
     displayView(EPH);
-  }  
+  } 
 }
 
 
@@ -1602,6 +1617,9 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
   int color = TColor::GetColor(210,210,210);
   int seedcolor = TColor::GetColor(145,145,145);
   int specialcolor = TColor::GetColor(255,140,0);
+  
+  unsigned recHitSize=(rechitsECAL_.size()+rechitsHCAL_.size()+rechitsPS_.size())*2;
+  vectGHits_[viewType].reserve(recHitSize);
 
   for(unsigned i=0; i<rechitsECAL_.size(); i++) { 
     int rhcolor = color;
@@ -1613,7 +1631,7 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsECAL_[i], viewType, maxe, phi0, rhcolor);
+    displayRecHit(rechitsECAL_[i],i, viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsHCAL_.size(); i++) { 
     int rhcolor = color;
@@ -1625,8 +1643,9 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsHCAL_[i], viewType, maxe, phi0, rhcolor);
+    displayRecHit(rechitsHCAL_[i],i, viewType, maxe, phi0, rhcolor);
   }
+  
   for(unsigned i=0; i<rechitsPS_.size(); i++) { 
     int rhcolor = color;
     if( unsigned col = clusterAlgoPS_.color(i) ) {
@@ -1637,12 +1656,14 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsPS_[i], viewType, maxe, phi0, rhcolor);
-  }   
+    displayRecHit(rechitsPS_[i],i, viewType, maxe, phi0, rhcolor);
+  } 
+  drawRecHits(viewType);
+  
 }
 
 
-void PFRootEventManager::displayRecHit(reco::PFRecHit& rh, 
+void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,int hitNr, 
 				       unsigned viewType,
 				       double maxe, 
 				       double phi0, 
@@ -1824,60 +1845,50 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
   
 
 
-
+  int npoints=5;
   
   switch( viewType ) {
   case  XY:
     {
-      TPolyLine lineSizeXY;
-      TPolyLine linePropXY;          
       if(layer == PFLayer::ECAL_BARREL || 
 	 layer == PFLayer::HCAL_BARREL1 || 
 	 layer == PFLayer::HCAL_BARREL2) {
-	lineSizeXY.SetLineColor(color);
-	//cout << "x,y " << x[0] << " " << y[0] << endl;
-	lineSizeXY.SetFillColor(color);
-	lineSizeXY.DrawPolyLine(5,x,y,"f");
+	vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,x,y,color,"f"));
       } else {
-	//cout << "x,y " << x[0] << " " << y[0] << endl;
-	lineSizeXY.SetLineColor(color);
-	lineSizeXY.DrawPolyLine(5,x,y);
-	
+	vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,x,y,color,"l"));
 	if( ampl>0 ) { // not for preshower
 	  xprop[4]=xprop[0];
 	  yprop[4]=yprop[0]; // closing the polycell    
-	  linePropXY.SetLineColor(color);
-	  linePropXY.SetFillColor(color);
-	  linePropXY.DrawPolyLine(5,xprop,yprop,"F");
+          vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,xprop,yprop,color,"f"));
 	}
       }
       break;
     }
   case RZ:
     {
-      TPolyLine lineSizeRZ;
-      lineSizeRZ.SetLineColor(color);
-      lineSizeRZ.SetFillColor(color);
-      // cout << "z,r " << z[0] << " " << r[0] << endl;
-      lineSizeRZ.DrawPolyLine(5,z,r,"f");
+      vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,z,r,color,"f"));
       break;
     }
   case EPE:
-  case EPH:
     {
-      TPolyLine lineSizeEP;
-      TPolyLine linePropEP;          
-      
-      lineSizeEP.SetLineColor(color);
-      lineSizeEP.SetFillColor(color);
-      lineSizeEP.DrawPolyLine(5,eta,phi);
+       vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,eta,phi,color,"l"));
+       
+      if( ampl>0 ) { // not for preshower
+	etaprop[4]=etaprop[0];
+	phiprop[4]=phiprop[0]; // closing the polycell    
+        vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,etaprop,phiprop,color,"f"));
+      }
+      break;
+    }
+    
+  case EPH:
+    {      
+      vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,eta,phi,color,"l"));
       
       if( ampl>0 ) { // not for preshower
 	etaprop[4]=etaprop[0];
 	phiprop[4]=phiprop[0]; // closing the polycell    
-	linePropEP.SetLineColor(color);
-	linePropEP.SetFillColor(color);
-	linePropEP.DrawPolyLine(5,etaprop,phiprop,"F");
+        vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,etaprop,phiprop,color,"f"));
       }
       break;
     }
@@ -1886,19 +1897,70 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
     
   }
 }
-
+//_______________________________________________________________________________________________
+void PFRootEventManager::drawRecHits(unsigned viewType)
+{
+  int size=vectGHits_[viewType].size();
+  //std::cout<<"size of vectGHit_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
+  if (size)
+    for (int i=0;i<size;i++) 
+      (vectGHits_[viewType])[i].Draw();
+   
+  
+}
+//_______________________________________________________________________________________________
+void PFRootEventManager::drawClusters(unsigned viewType)
+{
+  int size=vectGClus_[viewType].size();
+  //std::cout<<"size of vectGClus_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
+  if (size)
+    for (int i=0;i<size;i++) 
+      (vectGClus_[viewType])[i].Draw();
+}
+//_______________________________________________________________________________________________
+void PFRootEventManager::drawTracks(unsigned viewType)
+{
+  int size=vectGTracks_[viewType].size();
+  //std::cout<<"size of vectGTracks_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
+  if (size)
+    for (int i=0;i<size;i++) 
+      (vectGTracks_[viewType])[i].Draw();
+}
+//_______________________________________________________________________________________________
+void PFRootEventManager::drawParts(unsigned viewType)
+{
+  int size=vectGParts_[viewType].size();
+  //std::cout<<"size of vectGParts_["<<viewType<<"] size="<<size<<std::flush<<std::endl;
+  if (size)
+    for (int i=0;i<size;i++) 
+      (vectGParts_[viewType])[i].Draw();
+}
+//_______________________________________________________________________________________________
+void PFRootEventManager::resetGraphicContainers()
+{
+ for (int i=0;i<NViews;i++) {
+   vectGHits_[i].clear();
+   vectGClus_[i].clear();
+   vectGTracks_[i].clear();
+   vectGParts_[i].clear();
+ }  
+}
+//________________________________________________________________________________________________
 
 void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   
   // std::vector<reco::PFCluster>::iterator itCluster;
   // for(itCluster = clusters_->begin(); itCluster != clusters_->end(); 
   //     itCluster++) {
+  unsigned clusterSize=clustersECAL_->size()+clustersHCAL_->size()+clustersPS_->size();
+  vectGClus_[viewType].reserve(clusterSize);
+  
   for(unsigned i=0; i<clustersECAL_->size(); i++) 
-    displayCluster( (*clustersECAL_)[i], viewType, phi0);
+    displayCluster( (*clustersECAL_)[i], i, viewType, phi0);
   for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-    displayCluster( (*clustersHCAL_)[i], viewType, phi0);
+    displayCluster( (*clustersHCAL_)[i], i, viewType, phi0);
   for(unsigned i=0; i<clustersPS_->size(); i++) 
-    displayCluster( (*clustersPS_)[i], viewType, phi0);
+    displayCluster( (*clustersPS_)[i], i, viewType, phi0);
 
   for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
     int layer = PFLayer::ECAL_BARREL;
@@ -1907,14 +1969,14 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
 			     clustersIslandBarrel_[i].x(),
 			     clustersIslandBarrel_[i].y(),
 			     clustersIslandBarrel_[i].z() ); 
-    displayCluster( cluster, viewType, phi0);
+    displayCluster( cluster, i, viewType, phi0);
   }
-    
+  drawClusters(viewType);  
 }
 
 
 
-void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
+void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,unsigned clusNr,
 					unsigned viewType, double phi0) {
   
 
@@ -1929,43 +1991,42 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 //   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");  
 //   if( cutg && !cutg->IsInside( eta, phi ) ) return;
 
-  TMarker m;
 
   int color = 4;
   if( displayColorClusters_ ) 
 //     color = cluster.type();
     color = 2;
 
-  m.SetMarkerColor(color);
-  m.SetMarkerStyle(20);  
-
-
   const math::XYZPoint& xyzPos = cluster.positionXYZ();
 
   switch(viewType) {
   case XY:
-    m.DrawMarker(xyzPos.X(), xyzPos.Y());
+    vectGClus_[viewType].push_back( GPFCluster(&cluster,xyzPos.X(),xyzPos.Y(),color,clusNr));
     break;
   case RZ:
     {
       double sign = 1.;
       if (cos(phi0 - phi) < 0.)
 	sign = -1.;
-      m.DrawMarker(xyzPos.Z(), sign*xyzPos.Rho());
+      vectGClus_[viewType].push_back(GPFCluster(&cluster,xyzPos.z(),sign*xyzPos.Rho(),color,clusNr));
       break;
     }
   case EPE:
-    if( cluster.layer()<0 ) {
-      m.DrawMarker(eta, phi);
-      if( displayClusterLines_ ) displayClusterLines(cluster);
+    {
+     if( cluster.layer()<0 ) {
+       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color,clusNr));
+       if( displayClusterLines_ ) displayClusterLines(cluster);
+     }
+     break;
     }
-    break;
   case EPH:
-    if( cluster.layer()>0 ) {
-      m.DrawMarker(eta, phi);
-      if( displayClusterLines_ ) displayClusterLines(cluster);
-    }
-    break;
+    {
+     if( cluster.layer()>0 ) {
+       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color,clusNr));
+       if( displayClusterLines_ ) displayClusterLines(cluster);
+     }
+     break;
+    } 
   }      
 }
 
@@ -2024,6 +2085,9 @@ void PFRootEventManager::displayClusterLines(const reco::PFCluster& cluster) {
 
 
 void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
+  
+  unsigned recTrackSize=recTracks_.size();
+  vectGTracks_[viewType].reserve(recTrackSize);
 
   std::vector<reco::PFRecTrack>::iterator itRecTrack;
   for (itRecTrack = recTracks_.begin(); itRecTrack != recTracks_.end();
@@ -2051,16 +2115,20 @@ void PFRootEventManager::displayRecTracks(unsigned viewType, double phi0) {
     double markersize = 0.8;
     int    color = 103;
     
-    displayTrack( points, viewType, phi0, sign, false,
+    displayTrack(*itRecTrack,points, viewType, phi0, sign, false,
 		  linestyle, markerstyle, markersize, color );
   }
+  drawTracks(viewType);
 }
 
 
 
 void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
-  for(unsigned i=0; i<trueParticles_.size(); i++) {
+  unsigned trueParticlesSize = trueParticles_.size();
+  vectGParts_[viewType].reserve(trueParticlesSize);
+
+  for(unsigned i=0; i<trueParticlesSize; i++) {
     
     const reco::PFSimParticle& ptc = trueParticles_[i];
     
@@ -2081,7 +2149,7 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
 
     const std::vector<reco::PFTrajectoryPoint>& points = 
       ptc.trajectoryPoints();
-
+      
     int markerstyle;
     switch( abs(ptc.pdgCode() ) ) {
     case 22:   markerstyle = 3 ;   break; // photons
@@ -2098,27 +2166,92 @@ void PFRootEventManager::displayTrueParticles(unsigned viewType, double phi0) {
     int    color = 4;
     int    linestyle = 2;
     double markersize = 0.8;
-    
     bool displayInitial=true;
     if( ptc.motherId() < 0 ) displayInitial=false;
+    
 
-    displayTrack( points, viewType, phi0, 
-		  sign, displayInitial, 
-		  linestyle, markerstyle, markersize, 
-		  color );
+    displayPart(ptc,points, viewType, phi0,
+		sign, displayInitial,	       
+		linestyle, markerstyle, markersize,
+		color );
   }
+  drawParts(viewType);
+}
+
+void PFRootEventManager::displayPart( const reco::PFSimParticle &ptc,
+                                      const std::vector<reco::PFTrajectoryPoint>& points, 
+                                      unsigned viewType, double phi0, double sign, bool displayInitial,
+                                      int linestyle, 
+                                      int markerstyle, double markersize, 
+                                      int color
+				    )
+{
+
+  // reserving space. nb not all trajectory points are valid
+
+  vector<double> xPos;
+  xPos.reserve( points.size() );
+  vector<double> yPos;
+  yPos.reserve( points.size() );
+
+    
+  bool inside = false; 
+  TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
+
+  for(unsigned i=0; i<points.size(); i++) {
+    
+    if( !points[i].isValid() ) continue;
+	
+    const math::XYZPoint& xyzPos = points[i].positionXYZ();      
+
+    double eta = xyzPos.Eta();
+    double phi = xyzPos.Phi();
+    
+    if( !displayInitial && 
+	points[i].layer() == reco::PFTrajectoryPoint::ClosestApproach ) {
+      const math::XYZTLorentzVector& mom = points[i].momentum();
+      eta = mom.Eta();
+      phi = mom.Phi();
+    }
+    
+    if( !cutg || cutg->IsInside( eta, phi ) ) 
+      inside = true;
+    
+
+    switch(viewType) {
+    case XY:
+      xPos.push_back(xyzPos.X());
+      yPos.push_back(xyzPos.Y());
+      break;
+    case RZ:
+      xPos.push_back(xyzPos.Z());
+      yPos.push_back(sign*xyzPos.Rho());
+      break;
+    case EPE:
+    case EPH:
+      xPos.push_back( eta );
+      yPos.push_back( phi );
+      
+      break;
+    }
+  }  
+
+  /// no point inside graphical cut.
+  if( !inside ) return;
+
+  vectGParts_[viewType].push_back(GPFPart(&ptc,xPos.size(),&xPos[0],&yPos[0],linestyle,markerstyle,markersize,color,"pl"));
+
 }
 
 
 
-
-void 
-PFRootEventManager::displayTrack 
-( const std::vector<reco::PFTrajectoryPoint>& points, 
-  unsigned viewType, double phi0, double sign, bool displayInitial,
-  int linestyle, 
-  int markerstyle, double markersize, 
-  int color) {
+void PFRootEventManager::displayTrack( reco::PFRecTrack &tr,
+                                        const std::vector<reco::PFTrajectoryPoint>& points, 
+                                        unsigned viewType, double phi0, double sign, bool displayInitial,
+                                        int linestyle, 
+                                        int markerstyle, double markersize, 
+                                        int color)
+{
   
   // reserving space. nb not all trajectory points are valid
 
@@ -2182,14 +2315,8 @@ PFRootEventManager::displayTrack
 
   /// no point inside graphical cut.
   if( !inside ) return;
-
-  TGraph graph;
-  graph.SetLineStyle(linestyle);
-  graph.SetMarkerStyle(markerstyle);
-  graph.SetMarkerColor(color);
-  graph.SetMarkerSize(markersize);
-  graph.SetLineColor(color);
-  graph.DrawGraph( xPos.size(), &xPos[0], &yPos[0], "pl" );
+  //fill vector with graphic objects
+  vectGTracks_[viewType].push_back(GPFTrack(&tr,xPos.size(),&xPos[0],&yPos[0],linestyle,markerstyle,markersize,color,"pl"));
 }
 
 

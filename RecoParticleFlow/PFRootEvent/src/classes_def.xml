@@ -10,5 +10,15 @@
   <class name="EventColin::Jet"/>
   <class name="std::vector<EventColin::Jet>"/>
   <class name="ResidualFitter"/>
+  <class name="GPFRecHit"/>
+  <class name="std::vector<GPFRecHit>"/>
+  <class name="GPFCluster"/>
+  <class name="std::vector<GPFCluster>"/>
+  <class name="GPFTrack"/>
+  <class name="std::vector<GPFTrack>"/>
+  
+  
+  
+     
 </lcgdict>
 
