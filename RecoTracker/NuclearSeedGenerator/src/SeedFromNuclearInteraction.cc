@@ -96,7 +96,6 @@ FreeTrajectoryState* SeedFromNuclearInteraction::stateWithError(TangentHelix& he
    // Error matrix in a frame where z is in the direction of the track at the vertex
    //AlgebraicSymMatrix55 m = ROOT::Math::SMatrixIdentity();
    AlgebraicSymMatrix55 m(initialTSOS_->curvilinearError().matrix());
-   double vtxerror = helix.circle().vertexError();
    double curvatureError = helix.curvatureError();
    m(0,0)=curvatureError*curvatureError;
    m(1,1)=m(1,1)*rescaleDirectionFactor*rescaleDirectionFactor;
