@@ -4,9 +4,8 @@
 //#include <iostream>
 const int EBDetId::kModuleBoundaries[4] = { 25, 45, 65, 85 };
 
-EBDetId::EBDetId() : DetId() {
-}
-  
+EBDetId::EBDetId();
+
 EBDetId::EBDetId(uint32_t rawid) : DetId(rawid) {
 }
   

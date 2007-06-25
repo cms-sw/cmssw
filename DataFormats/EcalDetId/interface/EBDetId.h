@@ -12,16 +12,17 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.13 2006/11/13 16:26:52 meridian Exp $
+ *  $Id: EBDetId.h,v 1.14 2007/05/29 17:32:05 meridian Exp $
  */
 
 
 class EBDetId : public DetId {
  public:
+  enum { Subdet=EcalBarrel;}
   /** Constructor of a null id */
-  EBDetId();
+  EBDetId() {}
   /** Constructor from a raw value */
-  EBDetId(uint32_t rawid);
+  EBDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from crystal ieta and iphi 
       or from SM# and crystal# */
   EBDetId(int index1, int index2, int mode = ETAPHIMODE);
@@ -30,8 +31,9 @@ class EBDetId : public DetId {
   /** Assignment operator from cell id */
   EBDetId& operator=(const DetId& id);
 
-  /// get the subdetector
-  EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
+  /// get the subdetector .i.e EcalBarrel (what else?)
+  // EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
+  static EcalSubdetector subdet() { return EcalBarrel;}
 
   /// get the z-side of the crystal (1/-1)
   int zside() const { return (id_&0x10000)?(1):(-1); }
@@ -60,6 +62,17 @@ class EBDetId : public DetId {
   /// get a compact index for arrays
   int hashedIndex() const;
 
+  // is z positive?
+  bool positiveZ() const { return id_&0x10000;}
+  // crystal number in eta-phi grid
+  int fastHashedIndex() const { 
+    return (ietaAbs()-1 + positiveZ()?MAX_IETA:0)*MAX_IPHI+ iphi()-1;
+  }
+
+  static bool validHashIndex(int it) {
+    return !(i<MIN_HASH || i>MAX_HASH);
+  }
+
   /// check if a valid index combination
   static bool validDetId(int i, int j) ;
 
@@ -79,7 +92,10 @@ class EBDetId : public DetId {
   static const int MAX_SM = 36;
   static const int MIN_C = 1;
   static const int MAX_C = kCrystalsPerSM;
-
+  static const int MIN_HASH = 0; // always 0 ...
+  static const int MAX_HASH = 2*MAX_IPHI*MAX_IETA-1;
+  static const int SIZE_HASH = 2*MAX_IPHI*MAX_IETA;
+  
 
   // function modes for (int, int) constructor
   static const int ETAPHIMODE = 0;
