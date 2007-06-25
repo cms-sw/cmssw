@@ -1,4 +1,4 @@
 <use name=HLTrigger/HLTcore>
-<library file=*.cc" name=HLTriggerHLTcorePlugins>
+<library file="*.cc" name=HLTriggerHLTcorePlugins>
   <flags EDM_PLUGIN=1>
 </library>
