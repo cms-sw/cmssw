@@ -157,7 +157,6 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
     if((*itraw).isValid()) {
-      //      unsmoothedResult.push_back( *itraw);
       tmpO.push_back( *itraw );
       LogDebug("OutInConversionTrackFinder") << " rawResult num hits " << (*itraw).foundHits() << "\n";
     }
@@ -166,28 +165,26 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " before sorting " << "\n"; 
-  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO num of hits " << (*it).foundHits() << " before ordering " << "\n"; 
-    
-  }
+  //  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
+  // LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO num of hits " << (*it).foundHits() << " before ordering " << "\n"; 
+  // }
   
   precomputed_value_sort( tmpO.begin(), tmpO.end(), ExtractNumOfHits()  ); 
 
   
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO after sorting " << "\n"; 
-  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << "\n"; 
-  }
+  //  for (std::vector<Trajectory>::const_iterator it =tmpO.begin(); it != tmpO.end(); it++) {
+  // LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO  num of hits " << (*it).foundHits() << "\n"; 
+  // }
   
   for (int i=tmpO.size()-1; i>=0; i--) {
     unsmoothedResult.push_back(  tmpO[i] );  
   }
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  unsmoothedResult size  " <<  unsmoothedResult.size() << "\n";   
   
-  for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it !=  unsmoothedResult.end(); it++) {
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  unsmoothedResult  after reordering " <<(*it).foundHits() <<  "\n"; 
-
-  }
+  // for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it !=  unsmoothedResult.end(); it++) {
+  // LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  unsmoothedResult  after reordering " <<(*it).foundHits() <<  "\n"; 
+  //  }
 
 
   
@@ -195,7 +192,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   tmpO.clear();
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " after clearing " << "\n"; 
   for (std::vector<Trajectory>::const_iterator it =  unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
-    
+    if( !it->isValid() ) continue;
+
+
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
     //  LogDebug("OutInConversionTrackFinder") << " Initial state parameters " << initState.first << "\n";    
     
@@ -217,10 +216,9 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
     if ( tmpO.size() > 1) result.push_back(*(++it));
   }
   
-  for (std::vector<Trajectory>::const_iterator it =result.begin(); it != result.end(); it++) {
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << "\n"; 
-    
-  }
+  //  for (std::vector<Trajectory>::const_iterator it =result.begin(); it != result.end(); it++) {
+  // LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  Result  num of hits " << (*it).foundHits() << "\n"; 
+  //}
   
   
   // Converted to track candidates  
