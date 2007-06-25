@@ -36,7 +36,7 @@ namespace {
       case EcalBarrel :
 	{ 
 	  EBDetId ib(p.first);
-	  b.at(ib.hashedIndex()) = p.second;
+	  b.at(ib.fastHashedIndex()) = p.second;
 	}
 	break;
       case EcalEndcap :
@@ -60,19 +60,21 @@ EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
   switch (id.subdetId()) {
   case EcalBarrel :
     { 
-      EBDetId ib(id);
-      return barrel(ib.hashedIndex());
+      EBDetId ib(id.rawId());
+      return barrel(ib.fastHashedIndex());
     }
     break;
   case EcalEndcap :
     { 
-      // EEDetId ie(id);
+      // EEDetId ie(id.rawId());
       const_cast<EcalPedestals*>(this)->m_pedestals[id];
     }
     break;
   default:
+    // FIXME (add throw)
     return dummy;
   }
+  // make compiler happy
   return dummy;
 }
 
@@ -81,7 +83,7 @@ EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
 void EcalPedestals::update() const {
   if (m_barrel.empty()) {
     // FIXME
-    m_barrel.resize(m_pedestals.size());
+    m_barrel.resize(EBDetId::SIZE_HASH);
     std::for_each(m_pedestals.begin(),m_pedestals.end(),
 		  EcalCalibInserter<Item>(m_barrel,m_endcap));
   }
