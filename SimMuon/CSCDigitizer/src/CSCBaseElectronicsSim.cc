@@ -4,14 +4,10 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "SimMuon/CSCDigitizer/src/CSCBaseElectronicsSim.h"
 #include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
-#include "SimMuon/CSCDigitizer/src/CSCAnalogSignal.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
-#include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
-#include<vector>
-#include<map>
 #include<list>
 #include<algorithm>
 

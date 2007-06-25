@@ -1,18 +1,20 @@
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "SimMuon/CSCDigitizer/src/CSCDigiProducer.h"
-#include "SimMuon/CSCDigitizer/src/CSCDigitizer.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimMuon/CSCDigitizer/src/CSCConfigurableStripConditions.h"
 #include "SimMuon/CSCDigitizer/src/CSCDbStripConditions.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+
 
 
 CSCDigiProducer::CSCDigiProducer(const edm::ParameterSet& ps) 

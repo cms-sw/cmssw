@@ -19,7 +19,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <fstream>
-#include <string>
 
 // stdlib math functions
 // for 'abs':

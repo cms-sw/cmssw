@@ -1,5 +1,4 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripConditions.h"
-#include "CLHEP/Random/RandGaussQ.h"
 
 CSCStripConditions::CSCStripConditions()
   : theNoisifier(0),

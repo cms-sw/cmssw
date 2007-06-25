@@ -1,5 +1,4 @@
 #include "SimMuon/CSCDigitizer/src/CSCStripHitSim.h"
-#include "SimMuon/CSCDigitizer/src/CSCDetectorHit.h"
 #include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include "Geometry/CSCGeometry/interface/CSCLayerGeometry.h"
