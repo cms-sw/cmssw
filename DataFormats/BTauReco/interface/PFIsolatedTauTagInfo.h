@@ -5,12 +5,13 @@
  * Extended object for the Particle Flow Tau Isolation algorithm,
  * contains the result and the methods used in the PFConeIsolation Algorithm
  * created: Apr 21 2007,
- * revised: May 10 2007,
+ * revised: Jun 23 2007,
  * authors: Simone Gennai, Ludovic Houchu
  */
+
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfoFwd.h"
-#include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
@@ -52,7 +53,12 @@ namespace reco{
       PFChargedHadrCands_=initialPFChargedHadrCands_;
       PFNeutrHadrCands_=initialPFNeutrHadrCands_;
       PFGammaCands_=initialPFGammaCands_;
-      discriminator_=NAN;
+      alternatLorentzVect_.SetPx(NAN);
+      alternatLorentzVect_.SetPy(NAN);
+      alternatLorentzVect_.SetPz(NAN);
+      alternatLorentzVect_.SetE(NAN);
+      passedtrackerisolation_=false;
+      passedECALisolation_=false;
     }
     virtual ~PFIsolatedTauTagInfo(){};
     virtual PFIsolatedTauTagInfo* clone()const{return new PFIsolatedTauTagInfo(*this);}
@@ -63,13 +69,23 @@ namespace reco{
     const PFCandidateRefVector& PFNeutrHadrCands() const {return PFNeutrHadrCands_;}
     const PFCandidateRefVector& PFGammaCands() const {return PFGammaCands_;}
     
-    //the reference to the GenericJet
-    const GenericJetRef& genericjetRef()const{return GenericJetRef_;}
-    void setgenericjetRef(const GenericJetRef x){GenericJetRef_=x;}
+    // rec. jet Lorentz-vector combining charged hadr. PFCandidate's and gamma PFCandidate's  
+    math::XYZTLorentzVector alternatLorentzVect()const{return(alternatLorentzVect_);} 
+    void setalternatLorentzVect(math::XYZTLorentzVector x){alternatLorentzVect_=x;}
 
-    //default discriminator, computed with the parameters taken from the RecoTauTag/PFConeIsolation/data/pfConeIsolation.cfi file
-    double discriminator()const{return discriminator_;}
-    void setdiscriminator(double x){discriminator_=x;}
+    //the reference to the PFJet
+    const PFJetRef& pfjetRef()const{return PFJetRef_;}
+    void setpfjetRef(const PFJetRef x){PFJetRef_=x;}
+
+    //JetTag::discriminator() computed with the parameters taken from the RecoTauTag/PFConeIsolation/data/pfConeIsolation.cfi file
+    
+    // true if a lead. PFCandidate exists and no charged hadron PFCandidate was found in an DR isolation ring around it (DR isolation ring limits defined in the RecoTauTag/PFConeIsolation/data/pfConeIsolation.cfi file
+    bool passedtrackerisolation()const{return passedtrackerisolation_;}
+    void setpassedtrackerisolation(bool x){passedtrackerisolation_=x;}
+
+    // true if a lead. PFCandidate exists and no gamma PFCandidate was found in an DR isolation ring around it (DR isolation ring limits defined in the RecoTauTag/PFConeIsolation/data/pfConeIsolation.cfi file
+    bool passedECALisolation()const{return passedECALisolation_;}
+    void setpassedECALisolation(bool x){passedECALisolation_=x;}
 
     //methods to be used to recompute the isolation with a new set of parameters
     double discriminatorByIsolPFCandsN(float matchingcone_size,float signalcone_size,float isolcone_size,bool useOnlyChargedHadrforleadPFCand,float minPt_leadPFCand,float minPt_PFCand,int IsolPFCands_maxN=0)const;
@@ -111,12 +127,12 @@ namespace reco{
     const PFCandidateRef leadPFGammaCand(const float matchingcone_size, const float minPt)const;
     const PFCandidateRef leadPFGammaCand(const math::XYZVector myVector,const float matchingcone_size, const float minPt)const;  
  
-    void filterPFChargedHadrCands(double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tkmaxPVtxDZ,double PVtx_Z);
+    void filterPFChargedHadrCands(double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointDZ,bool UsePVconstraint,double PVtx_Z,bool UseOnlyChargedHadr_for_LeadCand,double LeadChargedHadrCandtoJet_MatchingConeSize,double LeadChargedHadrCand_minPt);
     void filterPFNeutrHadrCands(double NeutrHadrCand_HcalclusminEt);
     void filterPFGammaCands(double GammaCand_EcalclusminEt);
     void removefilters();
   private:
-    GenericJetRef GenericJetRef_;
+    PFJetRef PFJetRef_;
     PFCandidateRefVector initialPFCands_;
     PFCandidateRefVector PFCands_;
     PFCandidateRefVector initialPFChargedHadrCands_;
@@ -125,7 +141,9 @@ namespace reco{
     PFCandidateRefVector PFNeutrHadrCands_;
     PFCandidateRefVector initialPFGammaCands_;
     PFCandidateRefVector PFGammaCands_;
-    double discriminator_;
+    math::XYZTLorentzVector alternatLorentzVect_;
+    bool passedtrackerisolation_;
+    bool passedECALisolation_;
   };
 }
 

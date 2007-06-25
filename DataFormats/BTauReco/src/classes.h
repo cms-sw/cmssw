@@ -11,8 +11,10 @@
 #include "DataFormats/BTauReco/interface/TrackCountingTagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackProbabilityTagInfo.h"
 #include "DataFormats/BTauReco/interface/IsolatedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
+#include "DataFormats/BTauReco/interface/PFCombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedSVTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
@@ -60,6 +62,13 @@ namespace {
     reco::CombinedTauTagInfoRefVector                                   ct_rv;
     edm::Wrapper<reco::CombinedTauTagInfoCollection>                    ct_wc;
 
+    reco::PFCombinedTauTagInfo                                          pfct;
+    reco::PFCombinedTauTagInfoCollection                                pfct_c;
+    reco::PFCombinedTauTagInfoRef                                       pfct_r;
+    reco::PFCombinedTauTagInfoRefProd                                   pfct_rp;
+    reco::PFCombinedTauTagInfoRefVector                                 pfct_rv;
+    edm::Wrapper<reco::PFCombinedTauTagInfoCollection>                  pfct_wc;
+
     reco::EMIsolatedTauTagInfo                                          em;
     reco::EMIsolatedTauTagInfoCollection                                em_c;
     reco::EMIsolatedTauTagInfoRef                                       em_r;
@@ -73,6 +82,13 @@ namespace {
     reco::IsolatedTauTagInfoRefProd                                     it_rp;
     reco::IsolatedTauTagInfoRefVector                                   it_rv;
     edm::Wrapper<reco::IsolatedTauTagInfoCollection>                    it_wc;
+
+    reco::PFIsolatedTauTagInfo                                          pfit;
+    reco::PFIsolatedTauTagInfoCollection                                pfit_c;
+    reco::PFIsolatedTauTagInfoRef                                       pfit_r;
+    reco::PFIsolatedTauTagInfoRefProd                                   pfit_rp;
+    reco::PFIsolatedTauTagInfoRefVector                                 pfit_rv;
+    edm::Wrapper<reco::PFIsolatedTauTagInfoCollection>                  pfit_wc;
 
     reco::SoftLeptonProperties                                          slp;
     std::pair<reco::TrackRef, reco::SoftLeptonProperties>               slp_p;
@@ -201,7 +217,9 @@ namespace {
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>          rb_tcip;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedSVTagInfoRef>       rb_sv;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::PFCombinedTauTagInfoRef>    rb_pfct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::PFIsolatedTauTagInfoRef>    rb_pfit;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>       rb_sl;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>          rb_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;

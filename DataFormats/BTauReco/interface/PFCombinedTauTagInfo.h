@@ -4,7 +4,7 @@
 /* class PFCombinedTauTagInfo
  *  Extended object for the Particle Flow Tau Combination algorithm, 
  *  created: Apr 21 2007,
- *  revised: May 08 2007,
+ *  revised: Jun 23 2007,
  *  author: Ludovic Houchu.
  */
 
@@ -12,7 +12,7 @@
 #include "DataFormats/BTauReco/interface/PFCombinedTauTagInfoFwd.h"
 #include "DataFormats/BTauReco/interface/PFIsolatedTauTagInfo.h"
 
-#include "DataFormats/JetReco/interface/GenericJet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -33,10 +33,14 @@ namespace reco {
       PFChargedHadrCands_.clear();
       selectedPFChargedHadrCands_.clear();
       signalPFChargedHadrCands_.clear();
+      isolPFChargedHadrCands_.clear();
       leadPFChargedHadrCandsignedSipt_=NAN;
       leadPFChargedHadrCandsignedSip3D_=NAN;
       signedSflightpath_=NAN;
       PFChargedHadrCandsEtJetEtRatio_=NAN;
+      PFNeutrHadrCandsE_=NAN;
+      PFNeutrHadrCandsN_=numeric_limits<int>::quiet_NaN();
+      PFNeutrHadrCandsRadius_=NAN;
       PFGammaCandsE_=NAN;
       isolPFGammaCandsE_=NAN;
       PFGammaCandsN_=numeric_limits<int>::quiet_NaN();
@@ -53,9 +57,9 @@ namespace reco {
     }
     virtual ~PFCombinedTauTagInfo() {};
     
-    //the reference to the GenericJet;
-    const GenericJetRef& genericjetRef()const{return GenericJetRef_;}
-    void setgenericjetRef(const GenericJetRef x){GenericJetRef_=x;}
+    //the reference to the PFJet;
+    const PFJetRef& pfjetRef()const{return PFJetRef_;}
+    void setpfjetRef(const PFJetRef x){PFJetRef_=x;}
 
     //the reference to the PFIsolatedTauTagInfo;
     const PFIsolatedTauTagInfoRef& isolatedtautaginfoRef()const{return PFIsolatedTauTagInfoRef_;}
@@ -73,16 +77,17 @@ namespace reco {
     const PFCandidateRefVector& signalPFChargedHadrCands()const{return signalPFChargedHadrCands_;}
     void setsignalPFChargedHadrCands(const PFCandidateRefVector& x) {signalPFChargedHadrCands_=x;}
     
+    //the PF charged hadron candidates inside isolation band;
+    const PFCandidateRefVector& isolPFChargedHadrCands()const{return isolPFChargedHadrCands_;}
+    void setisolPFChargedHadrCands(const PFCandidateRefVector& x) {isolPFChargedHadrCands_=x;}
+    
     virtual PFCombinedTauTagInfo* clone() const{return new PFCombinedTauTagInfo(*this );}
     
-    // float discriminator() returns 0.        if candidate did not pass PF charged hadron candidates selection,   
-    //                               1.        if candidate passed PF charged hadron candidates selection and did not contain PF gamma candidate(s),   
-    //                               0<=  <=1  if candidate passed PF charged hadron candidates selection, contained PF gamma candidate(s) and went through the likelihood ratio mechanism,   
-    //                               NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));   
-   
-    //default discriminator, computed with the parameters taken from the RecoTauTag/PFCombinedTauTag/data/ .cfi files
-    float discriminator()const{return discriminator_;}
-    void setdiscriminator(double x){discriminator_=x;}
+    // float JetTag::discriminator() returns 0.        if candidate did not pass PF charged hadron candidates selection,   
+    //                                       1.        if candidate passed PF charged hadron candidates selection and did not contain PF gamma candidate(s),   
+    //                                       0<=  <=1  if candidate passed PF charged hadron candidates selection, contained PF gamma candidate(s) and went through the likelihood ratio mechanism,   
+    //                                       NaN       the values of the likelihood functions PDFs are 0 (test the result of discriminator() with bool isnan(.));   
+    //computed with the parameters taken from the RecoTauTag/PFCombinedTauTag/data/ .cfi files
     
     bool selectedByPFChargedHadrCands()const{return(candidate_selectedByPFChargedHadrCands_);}
     void setselectedByPFChargedHadrCands(bool x){candidate_selectedByPFChargedHadrCands_=x;}
@@ -105,6 +110,17 @@ namespace reco {
    // Et_PFchargedhadrcands/Etjet;
    double PFChargedHadrCandsEtJetEtRatio()const{return(PFChargedHadrCandsEtJetEtRatio_);} 
    void setPFChargedHadrCandsEtJetEtRatio(double x){PFChargedHadrCandsEtJetEtRatio_=x;}
+
+   // PF neutral hadron candidates E sum;
+   double PFNeutrHadrCandsE()const{return(PFNeutrHadrCandsE_);} 
+   void setPFNeutrHadrCandsE(double x){PFNeutrHadrCandsE_=x;}
+
+   int PFNeutrHadrCandsN()const{return(PFNeutrHadrCandsN_);}
+   void setPFNeutrHadrCandsN(int x){PFNeutrHadrCandsN_=x;}
+
+   //mean DR_PFNeutrHadrcands-lead.PFcand.;
+   double PFNeutrHadrCandsRadius()const{return(PFNeutrHadrCandsRadius_);} // NaN : PFNeutrHadrCandsN()=0;
+   void setPFNeutrHadrCandsRadius(double x){PFNeutrHadrCandsRadius_=x;}
 
    // PF gamma candidates E sum;
    double PFGammaCandsE()const{return(PFGammaCandsE_);} 
@@ -144,12 +160,12 @@ namespace reco {
    double HCALEtleadPFChargedHadrCandPtRatio()const{return(HCALEtleadPFChargedHadrCandPtRatio_);} // NaN : failure when trying to find the lead. charged hadr. candidate contact on ECAL surface point; 
    void setHCALEtleadPFChargedHadrCandPtRatio(double x){HCALEtleadPFChargedHadrCandPtRatio_=x;}
  private:
-   GenericJetRef GenericJetRef_;
+   PFJetRef PFJetRef_;
    PFIsolatedTauTagInfoRef PFIsolatedTauTagInfoRef_;
    PFCandidateRefVector PFChargedHadrCands_;
    PFCandidateRefVector selectedPFChargedHadrCands_;
    PFCandidateRefVector signalPFChargedHadrCands_;
-   double discriminator_;
+   PFCandidateRefVector isolPFChargedHadrCands_;
    bool candidate_selectedByPFChargedHadrCands_;
    bool electronTagged_;
    bool muonTagged_;
@@ -157,6 +173,9 @@ namespace reco {
    double leadPFChargedHadrCandsignedSip3D_;
    double signedSflightpath_;
    double PFChargedHadrCandsEtJetEtRatio_;
+   double PFNeutrHadrCandsE_;
+   int PFNeutrHadrCandsN_;
+   double PFNeutrHadrCandsRadius_;
    double PFGammaCandsE_;
    double isolPFGammaCandsE_;
    int PFGammaCandsN_;

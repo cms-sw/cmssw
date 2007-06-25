@@ -86,9 +86,9 @@ const PFCandidateRefVector PFIsolatedTauTagInfo::PFGammaCandsInBand(const math::
 }
 const PFCandidateRef PFIsolatedTauTagInfo::leadPFCand(const float matchingcone_size,const float minPt)const{
   PFCandidateRef myleadPFCand;
-  if (!GenericJetRef_) return myleadPFCand;
-  math::XYZVector GenericJet_XYZVector=(*GenericJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFCandsInCone(GenericJet_XYZVector,matchingcone_size,minPt);
+  if (!PFJetRef_) return myleadPFCand;
+  math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
+  const PFCandidateRefVector tmp=PFCandsInCone(PFJet_XYZVector,matchingcone_size,minPt);
   float pt_cut=minPt;
   if (tmp.size()>0.){
     for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
@@ -116,9 +116,9 @@ const PFCandidateRef PFIsolatedTauTagInfo::leadPFCand(const math::XYZVector myVe
 }
 const PFCandidateRef PFIsolatedTauTagInfo::leadPFChargedHadrCand(const float matchingcone_size,const float minPt)const{
   PFCandidateRef myleadPFCand;
-  if (!GenericJetRef_) return myleadPFCand;
-  math::XYZVector GenericJet_XYZVector=(*GenericJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFChargedHadrCandsInCone(GenericJet_XYZVector,matchingcone_size,minPt);
+  if (!PFJetRef_) return myleadPFCand;
+  math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
+  const PFCandidateRefVector tmp=PFChargedHadrCandsInCone(PFJet_XYZVector,matchingcone_size,minPt);
   float pt_cut=minPt;
   if (tmp.size()>0.){
     for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
@@ -146,9 +146,9 @@ const PFCandidateRef PFIsolatedTauTagInfo::leadPFChargedHadrCand(const math::XYZ
 }
 const PFCandidateRef PFIsolatedTauTagInfo::leadPFNeutrHadrCand(const float matchingcone_size,const float minPt)const{
   PFCandidateRef myleadPFCand;
-  if (!GenericJetRef_) return myleadPFCand;
-  math::XYZVector GenericJet_XYZVector=(*GenericJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFNeutrHadrCandsInCone(GenericJet_XYZVector,matchingcone_size,minPt);
+  if (!PFJetRef_) return myleadPFCand;
+  math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
+  const PFCandidateRefVector tmp=PFNeutrHadrCandsInCone(PFJet_XYZVector,matchingcone_size,minPt);
   float pt_cut=minPt;
   if (tmp.size()>0.){
     for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
@@ -176,9 +176,9 @@ const PFCandidateRef PFIsolatedTauTagInfo::leadPFNeutrHadrCand(const math::XYZVe
 }
 const PFCandidateRef PFIsolatedTauTagInfo::leadPFGammaCand(const float matchingcone_size,const float minPt)const{
   PFCandidateRef myleadPFCand;
-  if (!GenericJetRef_) return myleadPFCand;
-  math::XYZVector GenericJet_XYZVector=(*GenericJetRef_).momentum();
-  const PFCandidateRefVector tmp=PFGammaCandsInCone(GenericJet_XYZVector,matchingcone_size,minPt);
+  if (!PFJetRef_) return myleadPFCand;
+  math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
+  const PFCandidateRefVector tmp=PFGammaCandsInCone(PFJet_XYZVector,matchingcone_size,minPt);
   float pt_cut=minPt;
   if (tmp.size()>0.){
     for(PFCandidateRefVector::const_iterator iPFCand =tmp.begin();iPFCand!=tmp.end();iPFCand++){
@@ -414,30 +414,60 @@ double PFIsolatedTauTagInfo::discriminatorByIsolPFGammaCandsEtSum(math::XYZVecto
   return myDiscriminator;
 }
 // ***
-void PFIsolatedTauTagInfo::filterPFChargedHadrCands(double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tkmaxPVtxDZ,double PVtx_Z){
+void PFIsolatedTauTagInfo::filterPFChargedHadrCands(double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointDZ,bool UsePVconstraint,double PVtx_Z,bool UseOnlyChargedHadr_for_LeadCand,double LeadChargedHadrCandtoJet_MatchingConeSize,double LeadChargedHadrCand_minPt){
   PFCandidateRefVector filteredPFCands;
   PFCandidateRefVector filteredPFChargedHadrCands;
   for(PFCandidateRefVector::const_iterator iPFCand=PFCands_.begin();iPFCand!=PFCands_.end();iPFCand++){
     if ((**iPFCand).particleId()==PFChargedHadrCand_codenumber){
       // *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
       TrackRef PFChargedHadrCand_rectk;
-      if ((**iPFCand).blockRef()->elements().size()!=0){
-	for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).blockRef()->elements().begin();iPFBlock!=(**iPFCand).blockRef()->elements().end();iPFBlock++){
-	  if ((*iPFBlock).type()==PFRecTrack_codenumber) PFChargedHadrCand_rectk=(*iPFBlock).trackRef();
+      if ((**iPFCand).block()->elements().size()!=0){
+	for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
+	  if ((*iPFBlock).type()==PFRecTrack_codenumber && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001){
+	    PFChargedHadrCand_rectk=(*iPFBlock).trackRef();
+	  }
 	}
       }else continue;
-      if (PFChargedHadrCand_rectk.isNull())continue;
+      if (!PFChargedHadrCand_rectk)continue;
       if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	  (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	  fabs((*PFChargedHadrCand_rectk).d0())<=ChargedHadrCand_tkmaxipt &&
 	  (*PFChargedHadrCand_rectk).recHitsSize()>=(unsigned int)ChargedHadrCand_tkminTrackerHitsn &&
-	  (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn &&
-	  fabs((*PFChargedHadrCand_rectk).dz()-PVtx_Z)<=ChargedHadrCand_tkmaxPVtxDZ){
-	filteredPFCands.push_back(*iPFCand);
-	filteredPFChargedHadrCands.push_back(*iPFCand);
+	  (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn){
+	if (UsePVconstraint){
+	  if (fabs((*PFChargedHadrCand_rectk).dz()-PVtx_Z)<=ChargedHadrCand_tktorefpointDZ){
+	    filteredPFChargedHadrCands.push_back(*iPFCand);
+	  }
+	}else{
+	  filteredPFChargedHadrCands.push_back(*iPFCand);
+	}
       }
     }else filteredPFCands.push_back(*iPFCand);
   }
+  if (!UsePVconstraint){
+    if (UseOnlyChargedHadr_for_LeadCand){
+      PFCandidateRef myleadPFChargedHadrCand=leadPFChargedHadrCand(LeadChargedHadrCandtoJet_MatchingConeSize,LeadChargedHadrCand_minPt);  
+      if (!myleadPFChargedHadrCand){}
+      else{
+	PFCandidateRefVector filteredPFChargedHadrCandsbis;        
+	TrackRef myleadPFChargedHadrCand_rectk;
+	for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(*myleadPFChargedHadrCand).block()->elements().begin();iPFBlock!=(*myleadPFChargedHadrCand).block()->elements().end();iPFBlock++){
+	  if ((*iPFBlock).type()==PFRecTrack_codenumber && ROOT::Math::VectorUtil::DeltaR((*myleadPFChargedHadrCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001) myleadPFChargedHadrCand_rectk=(*iPFBlock).trackRef();
+	}
+	for(PFCandidateRefVector::const_iterator iPFCand=filteredPFChargedHadrCands.begin();iPFCand!=filteredPFChargedHadrCands.end();iPFCand++){	  
+	  TrackRef PFChargedHadrCand_rectk;
+	  for (OwnVector<PFBlockElement>::const_iterator iPFBlock=(**iPFCand).block()->elements().begin();iPFBlock!=(**iPFCand).block()->elements().end();iPFBlock++){
+	    if ((*iPFBlock).type()==PFRecTrack_codenumber && ROOT::Math::VectorUtil::DeltaR((**iPFCand).momentum(),(*iPFBlock).trackRef()->momentum())<0.001) PFChargedHadrCand_rectk=(*iPFBlock).trackRef();
+	  }
+	  if (fabs((*PFChargedHadrCand_rectk).dz()-(*myleadPFChargedHadrCand_rectk).dz())<=ChargedHadrCand_tktorefpointDZ){
+	    filteredPFChargedHadrCandsbis.push_back(*iPFCand);
+	  }
+	}
+	filteredPFChargedHadrCands=filteredPFChargedHadrCandsbis;
+      }
+    }
+  }
+  for(PFCandidateRefVector::const_iterator iPFCand=filteredPFChargedHadrCands.begin();iPFCand!=filteredPFChargedHadrCands.end();iPFCand++)filteredPFCands.push_back(*iPFCand);
   PFCands_=filteredPFCands;
   PFChargedHadrCands_=filteredPFChargedHadrCands;
 }
