@@ -41,8 +41,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
 
   //now do what ever initialization is needed
  
-  refitLabel_= 
-    iConfig.getParameter<InputTag>("RefitModuleLabel");
+  tracksContainers_ = 
+    iConfig.getParameter< vector < string > >("ROUList");
 
   pfCLusTagECLabel_=
     iConfig.getParameter<InputTag>("PFEcalClusterLabel");
@@ -114,13 +114,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
 
 
-  Handle<vector<Trajectory> > tjCollection;
-  iEvent.getByLabel(refitLabel_, tjCollection);
-  vector<Trajectory> Tj=*(tjCollection.product());
 
-  Handle<reco::TrackCollection> tkRefCollection;
-  iEvent.getByLabel(refitLabel_, tkRefCollection);
-  reco::TrackCollection  Tk=*(tkRefCollection.product());
+
+
 
 			      
   Handle<reco::PFClusterCollection> theECPfClustCollection;
@@ -147,7 +143,24 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     if ((*iklus).layer()==-12) ps2Clus.push_back(*iklus);
   }
 
-  LogDebug("GoodSeedProducer")<<"Number of tracks to be analyzed "<<Tj.size();
+
+  for (uint istr=0; istr<tracksContainers_.size();istr++){
+    
+    Handle<reco::TrackCollection> tkRefCollection;
+    iEvent.getByLabel(tracksContainers_[istr], tkRefCollection);
+    reco::TrackCollection  Tk=*(tkRefCollection.product());
+    
+    Handle<vector<Trajectory> > tjCollection;
+    iEvent.getByLabel(tracksContainers_[istr], tjCollection);
+    vector<Trajectory> Tj=*(tjCollection.product());
+
+   
+    LogDebug("GoodSeedProducer")<<"Number of tracks in colloction "
+                                <<tracksContainers_[istr] <<" to be analyzed "
+                                <<Tj.size();
+
+
+ 
 
   for(uint i=0;i<Tk.size();i++){
     int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
@@ -407,7 +420,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       }
     }
   }
-  
+  }
   if(produceCkfPFT_){
     iEvent.put(pOutputPFRecTrackCollection);
   }

@@ -106,7 +106,7 @@ class GoodSeedProducer : public edm::EDProducer {
       edm::ParameterSet conf_;
       edm::InputTag pfCLusTagPSLabel_;
       edm::InputTag pfCLusTagECLabel_;
-      edm::InputTag refitLabel_;
+      std::vector<std::string> tracksContainers_;
 
       std::string fitterName_;
       std::string smootherName_;
