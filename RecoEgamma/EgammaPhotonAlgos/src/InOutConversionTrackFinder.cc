@@ -6,6 +6,10 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
+#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
+
 //
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
@@ -20,7 +24,7 @@
 
 InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder( field, theInputMeasurementTracker) , conf_(conf) {
 
-  seedClean_ = conf_.getParameter<bool>("inOutSeedCleaning");
+
   smootherChiSquare_ = conf_.getParameter<double>("smootherChiSquareCut");   
 
   edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
@@ -41,6 +45,24 @@ InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
 
 
+  // get the seed cleaner
+  std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
+  if (cleaner == "SeedCleanerByHitPosition") {
+    theSeedCleaner_ = new SeedCleanerByHitPosition();
+  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
+    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
+  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+    
+    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
+  } else if (cleaner == "none") {
+    theSeedCleaner_ = 0;
+  } else {
+    throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
+  }
+
+
+
+
 }
 
 
@@ -48,6 +70,7 @@ InOutConversionTrackFinder::~InOutConversionTrackFinder() {
 
   delete theTrajectoryCleaner_;
   delete theInitialState_;
+  if (theSeedCleaner_) delete theSeedCleaner_;
 }
 
 
@@ -68,13 +91,15 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
 
   std::vector<Trajectory> rawResult;
-  rawResult.erase(rawResult.begin(), rawResult.end() ) ;
+   if (theSeedCleaner_) theSeedCleaner_->init( &rawResult );
 
 
 
   // Loop over the seeds
+  int goodSeed=0;
   for(TrajectorySeedCollection::const_iterator iSeed=inOutSeeds.begin(); iSeed!=inOutSeeds.end();iSeed++){
-
+    if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
+    goodSeed++;
     
     LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
     LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << "\n";
@@ -93,13 +118,20 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
     for(std::vector<Trajectory>::const_iterator it=theTmpTrajectories.begin(); it!=theTmpTrajectories.end(); it++){
       if( it->isValid() ) {
 	rawResult.push_back(*it);
-		
+	if (theSeedCleaner_) theSeedCleaner_->add( & (*it) );	
       }
     }
-
-  }
+    }
+  }  // end loop over the seeds 
    
  
+
+  LogDebug("InOutConversionTrackFinder") << "InOutConversionTrackFinder::track Good seeds " << goodSeed   << "\n"  ;
+  LogDebug("InOutConversionTrackFinder") << "InOutConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << "\n";  
+
+  if (theSeedCleaner_) theSeedCleaner_->done();
+
+
   std::vector<Trajectory> unsmoothedResult;
   LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::track  Start second cleaning " << "\n";
   theTrajectoryCleaner_->clean(rawResult);

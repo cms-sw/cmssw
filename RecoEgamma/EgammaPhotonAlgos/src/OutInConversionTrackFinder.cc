@@ -4,6 +4,9 @@
 #include "RecoTracker/CkfPattern/interface/TrackerTrajectoryBuilder.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"
 #include "RecoTracker/CkfPattern/interface/GroupedTrajCandLess.h"
+#include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
+#include "RecoTracker/CkfPattern/interface/CachingSeedCleanerBySharedInput.h"
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
@@ -22,8 +25,7 @@
 
 OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es, const edm::ParameterSet& conf, const MagneticField* field,  const MeasurementTracker* theInputMeasurementTracker ) :  ConversionTrackFinder(  field, theInputMeasurementTracker), conf_(conf)
 {
-  
-  seedClean_ = conf_.getParameter<bool>("outInSeedCleaning");
+
   // get nested parameter set for the TransientInitialStateEstimator
   edm::ParameterSet tise_params = conf_.getParameter<edm::ParameterSet>("TransientInitialStateEstimatorParameters") ;
   theInitialState_       = new TransientInitialStateEstimator( es,  tise_params );
@@ -35,7 +37,24 @@ OutInConversionTrackFinder::OutInConversionTrackFinder(const edm::EventSetup& es
   theCkfTrajectoryBuilder_ = theTrajectoryBuilderHandle.product();
   //
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits();
+
+  // get the seed cleaner
+  std::string cleaner = conf_.getParameter<std::string>("OutInRedundantSeedCleaner");
+  if (cleaner == "SeedCleanerByHitPosition") {
+    theSeedCleaner_ = new SeedCleanerByHitPosition();
+  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
+    theSeedCleaner_ = new CachingSeedCleanerByHitPosition();
+  } else if (cleaner == "CachingSeedCleanerBySharedInput") {
+    theSeedCleaner_ = new CachingSeedCleanerBySharedInput();
+  } else if (cleaner == "none") {
+    theSeedCleaner_ = 0;
+  } else {
+    throw cms::Exception("OutInRedundantSeedCleaner not found", cleaner);
+  }
   
+
+ 
+ 
   
 }
 
@@ -44,6 +63,7 @@ OutInConversionTrackFinder::~OutInConversionTrackFinder() {
 
   delete theTrajectoryCleaner_;
   delete  theInitialState_;
+  if (theSeedCleaner_) delete theSeedCleaner_;
 
 }
 
@@ -62,7 +82,8 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   
   std::vector<Trajectory> rawResult;
-  rawResult.erase(rawResult.begin(), rawResult.end() ) ;
+  if (theSeedCleaner_) theSeedCleaner_->init( &rawResult );
+
 
   ///// This loop is only for debugging
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
@@ -87,37 +108,45 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   
   
-  
+  int goodSeed=0;  
   for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
 
-    DetId tmpId = DetId( iSeed->startingState().detId());
-    const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
-    GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+    
+    if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
+      goodSeed++;
 
-    
-    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
-    LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
-    
-    
-    std::vector<Trajectory> theTmpTrajectories;
-
-    theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
-    
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
-    
-    theTrajectoryCleaner_->clean(theTmpTrajectories);
-    
-    for(std::vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
-	it!=theTmpTrajectories.end(); it++){
-      if( it->isValid() ) {
-	rawResult.push_back(*it);
+      DetId tmpId = DetId( iSeed->startingState().detId());
+      const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
+      GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+      
+      
+      LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
+      LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
+      
+      
+      std::vector<Trajectory> theTmpTrajectories;
+      
+      theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
+      
+      LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
+      
+      theTrajectoryCleaner_->clean(theTmpTrajectories);
+      
+      for(std::vector<Trajectory>::const_iterator it=theTmpTrajectories.begin();
+	  it!=theTmpTrajectories.end(); it++){
+	if( it->isValid() ) {
+	  rawResult.push_back(*it);
+	  if (theSeedCleaner_) theSeedCleaner_->add( & (*it) );
+	}
       }
+  
+      
     }
-    LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << "\n";
+  }  // end loop over the seeds 
+  LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::track Good seeds " << goodSeed   << "\n";
+  LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track rawResult size after cleaning " << rawResult.size() << "\n";
 
-  }
-  
-  
+  if (theSeedCleaner_) theSeedCleaner_->done();
   
   std::vector<Trajectory> unsmoothedResult;
   theTrajectoryCleaner_->clean(rawResult);
