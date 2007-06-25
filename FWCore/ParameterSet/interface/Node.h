@@ -56,6 +56,9 @@ namespace edm {
       /// Shows where this was included from
       /// default passes up to parent
       virtual void printTrace(std::ostream& ost) const;
+      /// returns a trace of all the nodes above this one
+      std::string traceback() const;
+
       /// will print a trace if the node matches.
       /// good for searching through deep include hierarchies
       virtual void locate(const std::string & s, std::ostream& ost) const;
