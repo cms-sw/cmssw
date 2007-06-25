@@ -229,7 +229,7 @@ public:
   LocalError localError( int strip, float sigmaStrip, float sigmaWire ) const;
   
   /**
-   * Topology owned by this MELG
+   * 'The' Topology (i.e. Strip tTopology) owned by this MELG
    */
   const CSCStripTopology* topology() const {
     return theStripTopology; 
@@ -240,6 +240,12 @@ public:
    */
   void setTopology( CSCStripTopology * topology );
 
+  /**
+   * The Wire Topology owned by this MELG
+   */
+  const CSCWireTopology* wireTopology() const {
+    return theWireTopology; 
+  }
 
   /**
    * Utility method to handle proper copying of the class
