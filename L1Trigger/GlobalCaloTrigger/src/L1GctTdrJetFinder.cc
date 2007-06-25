@@ -19,6 +19,10 @@ L1GctTdrJetFinder::L1GctTdrJetFinder(int id):
   L1GctJetFinderBase(id)
 {
   this->reset();
+  // Initialise parameters for Region input calculations in the 
+  // derived class so we get the right values of constants.
+  static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
+  m_minColThisJf = (NPHI + m_id*2 - CENTRAL_COL0) % NPHI;
 }
 
 L1GctTdrJetFinder::~L1GctTdrJetFinder()

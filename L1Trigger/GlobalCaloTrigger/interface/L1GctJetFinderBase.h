@@ -174,15 +174,15 @@ public:
   /// Calculates total calibrated energy in jets (Ht) sum
   L1GctUnsignedInt<12> calcHt() const;
   
+  /// parameter to determine which Regions belong in our acceptance
+  unsigned m_minColThisJf;
+
  private:
 
   /// The real jetFinders must define these constants
   static const unsigned int MAX_REGIONS_IN; ///< Dependent on number of rows and columns.
   static const unsigned int N_COLS;
   static const unsigned int CENTRAL_COL0;
-
-  /// parameters determine which Regions belong in our acceptance
-  unsigned m_minColThisJf;
 };
 
 std::ostream& operator << (std::ostream& os, const L1GctJetFinderBase& algo);

@@ -34,9 +34,6 @@ L1GctJetFinderBase::L1GctJetFinderBase(int id):
     << "L1GctJetFinderBase::L1GctJetFinderBase() : Jet Finder ID " << m_id << " has been incorrectly constructed!\n"
     << "ID number should be between the range of 0 to " << L1CaloRegionDetId::N_PHI-1 << "\n";
   } 
-  // Initialise parameters for Region input calculations
-  static const unsigned NPHI = L1CaloRegionDetId::N_PHI;
-  m_minColThisJf = (NPHI + m_id*2 - this->centralCol0()) % NPHI;
 }
 
 L1GctJetFinderBase::~L1GctJetFinderBase()

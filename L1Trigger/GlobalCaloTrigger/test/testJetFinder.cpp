@@ -343,9 +343,11 @@ L1CaloRegion readSingleRegion(ifstream &fin)
   
   // First input value is position in JetFinder array.
   // Convert to eta and phi in global coordinates.
+  // Give the two central columns (out of four) the
+  // (phi, eta) values corresponding to RCT crate 9.
   // This assumes we have created jetFinder id=9.
-  unsigned ieta = (regionComponents[0]%12 + 10);
-  unsigned iphi = (regionComponents[0]/12 + 17)%18;
+  unsigned ieta = (10 + regionComponents[0]%12);
+  unsigned iphi = (23 - regionComponents[0]/12)%18;
   //return object
   L1CaloRegion tempRegion(regionComponents[1],
 			  static_cast<bool>(regionComponents[2]),
