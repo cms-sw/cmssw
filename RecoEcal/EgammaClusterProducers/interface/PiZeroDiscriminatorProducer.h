@@ -2,8 +2,8 @@
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
 // $Author: rahatlou $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.1 2006/09/23 14:22:24 rahatlou Exp $
-// $Date: 2006/09/23 14:22:24 $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.2 2006/10/29 11:08:38 rahatlou Exp $
+// $Date: 2006/10/29 11:08:38 $
 
 #include <memory>
 
@@ -27,6 +27,8 @@
 class TFile;
 
 
+// authors A. Kyriakis, D. Maletic
+
 class PiZeroDiscriminatorProducer : public edm::EDProducer {
 
  public:
@@ -46,11 +48,15 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   //clustering parameters:
   std::string endcapHitProducer_;
   std::string endcapHitCollection_;
+  std::string barrelHitProducer_;  
+  std::string barrelHitCollection_;  
 
   std::string preshHitProducer_;   // name of module/plugin/producer producing hits
   std::string preshHitCollection_; // secondary name given to collection of hits by hitProducer
   std::string endcapSClusterCollection_;
   std::string endcapSClusterProducer_;
+  std::string barrelSClusterCollection_;  
+  std::string barrelSClusterProducer_;  
 
   std::string endcapPiZeroDiscriminatorCollection_;
   std::string barrelPiZeroDiscriminatorCollection_;
