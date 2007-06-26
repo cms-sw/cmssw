@@ -35,7 +35,6 @@ Tau::Tau() {
      sumPtIsolation_=-1000;
      emOverHadronEnergy_=-1000;
      emIsolation_=-1000;
-     charge_=-1000;  
 }
 
 Tau::Tau(Charge q, const LorentzVector & p4, const Point & vtx ) :
@@ -72,7 +71,6 @@ Tau::Tau(Charge q, const LorentzVector & p4, const Point & vtx ) :
      sumPtIsolation_=-1000;
      emOverHadronEnergy_=-1000;
      emIsolation_=-1000;
-     charge_=-1000;  
 }
 
 
