@@ -24,13 +24,7 @@ TtGenEventReco::produce(edm::Event& evt, const edm::EventSetup& setup)
   edm::Handle<reco::CandidateCollection> parts;
   evt.getByLabel(src_, parts);
 
-  reco::CandidateCollection cands;
-  reco::CandidateCollection::const_iterator part = parts->begin(); 
-  for( int idx=0; part!=parts->end(); ++part, ++idx ) {
-    CandidateBaseRef ref( CandidateRef( parts, idx ) );
-    cands.push_back( new reco::ShallowCloneCandidate( ref ) );
-  }
-  
+  reco::CandidateRefProd cands( parts );
   TtGenEvent* genEvt = new TtGenEvent( cands );
   std::auto_ptr<TtGenEvent> gen( genEvt );
 
