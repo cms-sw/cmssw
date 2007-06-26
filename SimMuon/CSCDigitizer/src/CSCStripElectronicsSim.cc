@@ -354,11 +354,11 @@ void CSCStripElectronicsSim::addCrosstalk() {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor
     if(thisStrip > 1) {
-      int otherStrip = readoutElement(thisStrip - 1);
+      int otherStrip = thisStrip - 1;
       addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
     if(thisStrip < nElements) {
-      int otherStrip = readoutElement(thisStrip + 1);
+      int otherStrip = thisStrip + 1;
       addCrosstalk(*realSignalItr, thisStrip, otherStrip);
     }
   }
@@ -370,7 +370,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 {
   float capacitiveCrosstalk, resistiveCrosstalk;
   bool leftRight = (otherStrip > thisStrip);
-  theStripConditions->crosstalk(layerId(), otherStrip, 
+  theStripConditions->crosstalk(layerId(), thisStrip, 
                                 theLayerGeometry->length(), leftRight,
                                 capacitiveCrosstalk, resistiveCrosstalk);
   theCrosstalkGenerator->setParameters(capacitiveCrosstalk, 0., resistiveCrosstalk);
@@ -379,7 +379,7 @@ void CSCStripElectronicsSim::addCrosstalk(const CSCAnalogSignal & signal,
 
   // Now subtract the crosstalk signal from the original signal
   crosstalkSignal *= -1.;
-  find(readoutElement(thisStrip)).superimpose(crosstalkSignal);
+  find(thisStrip).superimpose(crosstalkSignal);
 
 }
 
