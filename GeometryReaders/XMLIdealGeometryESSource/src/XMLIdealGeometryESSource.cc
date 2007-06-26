@@ -82,9 +82,11 @@ XMLIdealGeometryESSource::produce() {
 				      <<rootNodeName_<<"\"";
    }
    std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+
+// NOTE TO SELF:  Mike, DO NOT try to fix the memory leak here by going global again!!!
    //copy the graph from the global one
-   //   DDCompactView globalOne;
-   //   returnValue->writeableGraph() = globalOne.graph();
+   DDCompactView globalOne;
+   returnValue->writeableGraph() = globalOne.graph();
    //std::cout <<"made the view"<<std::endl;
    return returnValue;
 }
