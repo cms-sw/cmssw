@@ -22,18 +22,14 @@ namespace edm {
       /// some subclasses may wish to allow multiple includes
       virtual bool checkMultipleIncludes() const {return false;}
 
-      /// only accept the named node.  Will rename it to newName_;
-      virtual bool checkTarget(NodePtr node);
-
-      /// adds the filtering
-      virtual void resolve(std::list<std::string> & openFiles,
-                           std::list<std::string> & sameLevelIncludes,
-                           bool strict);
-
+      virtual bool check(bool strict) const;
 
       virtual void print(std::ostream & out, PrintOptions options) const;
 
     private:
+      /// only accept the named node.  Will rename it to newName_;
+      bool checkTarget(NodePtr node) const;
+
       /// used for a check: the type of the subnode to be renamed
       std::string targetType_;
       std::string newName_;

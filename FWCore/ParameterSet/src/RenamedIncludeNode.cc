@@ -16,7 +16,7 @@ namespace edm {
     }
 
 
-    bool RenamedIncludeNode::checkTarget(NodePtr node)
+    bool RenamedIncludeNode::checkTarget(NodePtr node) const
     {
       bool result = ( node->name() == targetName_ );
       if( result )
@@ -38,22 +38,20 @@ namespace edm {
     }
 
 
-    void RenamedIncludeNode::resolve(std::list<std::string> & openFiles,
-                             std::list<std::string> & sameLevelIncludes,
-                             bool strict)
+    bool RenamedIncludeNode::check(bool strict) const
     {
+      //@@ doesn't check for things like multiple modules in a file
       bool found = false;
-      IncludeNode::resolve(openFiles, sameLevelIncludes, strict);
       for(NodePtrList::iterator nodeItr = nodes_->begin(), nodeItrEnd = nodes_->end();
           !found && nodeItr != nodeItrEnd; ++nodeItr)
       {
-        found = checkTarget(*nodeItr); 
+        found = checkTarget(*nodeItr);
       }
 
       if(!found)
       {
         throw edm::Exception(errors::Configuration)
-          << "Could not find node " << targetName_ 
+          << "Could not find node " << targetName_
           << " in file " << name()
           << "\nfrom " << traceback();
       }

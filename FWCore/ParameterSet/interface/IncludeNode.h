@@ -44,7 +44,7 @@ namespace edm {
       bool isResolved() const {return isResolved_;}
 
     private:
-      bool check(bool strict) const;
+      virtual bool check(bool strict) const;
 
       std::string type_;
       std::string fullPath_;
