@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.9 2007/03/27 13:04:45 meridian Exp $
+ *  $Id: EEDetId.h,v 1.10 2007/05/29 17:32:05 meridian Exp $
  */
 
 
@@ -44,6 +44,8 @@ class EEDetId : public DetId {
   int iquadrant() const ;
   /// get a compact index for arrays
   int hashedIndex() const;
+  /// get a DetId from a compact index for arrays
+  EEDetId unhashIndex(int hi) const;
 
   /// check if a valid index combination
   static bool validDetId(int i, int j, int iz) ;
@@ -56,6 +58,10 @@ class EEDetId : public DetId {
   static const int ICR_MIN=1;
   static const int ISC_MAX=316;
   static const int ICR_MAX=25;
+
+  // to speed up hashedIndex()
+  static const int ICR_FD=3870;
+  static const int ICR_FEE=7740;
 
   // function modes for (int, int) constructor
   static const int XYMODE = 0;
@@ -70,10 +76,15 @@ class EEDetId : public DetId {
   static const int nCrys = 5; /* Number of crystals per row in SC */
   static const int QuadColLimits[nCols+1];
   static const int iYoffset[nCols+1];
+
+  static const int nBegin[IX_MAX];
+  static const int nIntegral[IX_MAX];
+  
   int ix(int iSC,int iCrys) const;
   int iy(int iSC,int iCrys) const;
   int ixQuadrantOne() const;
   int iyQuadrantOne() const;
+  int binarySearch(int key, int start, int end) const;
 };
 
 
