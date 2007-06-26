@@ -43,9 +43,10 @@ int RPCBasicTrigConfig::getTBsInTC() { return m_TB_IN_TC_CNT; }
  *
  * Returns the index of TC that should run given LogCone.
  *
+ *
 */
 int RPCBasicTrigConfig::getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
-  return coneCrdnts.m_LogSector+1;
+  return coneCrdnts.m_LogSector;
 }
 /**
  *
