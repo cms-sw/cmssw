@@ -16,6 +16,7 @@ class  PFRecoTauAlgorithm  {
   PFRecoTauAlgorithm(){}  
   PFRecoTauAlgorithm(const ParameterSet& parameters){
     LeadCand_minPt_                     = parameters.getParameter<double>("LeadCand_minPt"); 
+    Candidates_minPt_                   =parameters.getParameter<double>("Cand_minPt"); 
     MatchingConeSize_                   = parameters.getParameter<double>("MatchingConeSize");
     //
     TrackerSignalConeSize_              = parameters.getParameter<double>("TrackerSignalConeSize");
@@ -40,6 +41,7 @@ class  PFRecoTauAlgorithm  {
   double TrackerSignalConeVariableSize_max_;
   double TrackerSignalConeVariableSize_min_; 
   double TrackerIsolConeSize_; 
+  double Candidates_minPt_ ;
   //
   double ECALSignalConeSize_;  
   double ECALIsolConeSize_;  

@@ -22,10 +22,60 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
   }
   
   math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
+  //create the Tau
   Tau myTau(myJet->charge(),myJet->p4(),vtx);
-  myTau.setLeadingTrack(myLeadTk);
-  myTau.setLeadingChargedHadron(myTagInfo.leadPFChargedHadrCand(MatchingConeSize_, LeadCand_minPt_));
 
+  //setting the mass
+  myTau.setInvariantMass(myTau.mass());
+
+  //Setting the LeadChargedHadrons
+  PFCandidateRef leadPFChargedHadron = myTagInfo.leadPFChargedHadrCand(MatchingConeSize_, LeadCand_minPt_);
+  myTau.setLeadingChargedHadron(leadPFChargedHadron);
+  math::XYZVector leadPFCand_XYZVector=(*leadPFChargedHadron).momentum() ;
+
+  //Setting the ChargedHadrons
+  PFCandidateRefVector myChargedHadrons = myTagInfo.PFChargedHadrCands();
+  myTau.setSelectedChargedHadrons(myChargedHadrons);  
+
+  //Setting the SignalChargedHadrons
+  PFCandidateRefVector mySignalChargedHadrons = 
+    myTagInfo.PFChargedHadrCandsInCone(leadPFCand_XYZVector, TrackerSignalConeSize_,Candidates_minPt_);
+  myTau.setSignalChargedHadrons(mySignalChargedHadrons);  
+
+  //Setting the IsolationChargedHadrons
+  PFCandidateRefVector myIsolationChargedHadrons = 
+    myTagInfo.PFChargedHadrCandsInCone(leadPFCand_XYZVector, TrackerIsolConeSize_,Candidates_minPt_);
+  myTau.setIsolationChargedHadrons(myIsolationChargedHadrons);  
+
+  //Setting the NeutralHadrons
+  PFCandidateRefVector myNeutralHadrons = myTagInfo.PFNeutrHadrCands();
+  myTau.setSelectedNeutralHadrons(myNeutralHadrons);  
+
+  //Setting the SignalNeutralHadrons
+  PFCandidateRefVector mySignalNeutralHadrons = 
+    myTagInfo.PFNeutrHadrCandsInCone(leadPFCand_XYZVector, ECALSignalConeSize_ ,Candidates_minPt_);
+  myTau.setSignalNeutralHadrons(mySignalNeutralHadrons);  
+
+  //Setting the IsolationNeutralHadrons
+  PFCandidateRefVector myIsolationNeutralHadrons = 
+    myTagInfo.PFNeutrHadrCandsInCone(leadPFCand_XYZVector, ECALIsolConeSize_,Candidates_minPt_);
+  myTau.setIsolationNeutralHadrons(myIsolationNeutralHadrons);  
+  
+  //Setting the GammaCandidates
+  PFCandidateRefVector myGammaCandidates = myTagInfo.PFGammaCands();
+  myTau.setSelectedGammaCandidates(myGammaCandidates);  
+
+  //Setting the SignalGammaCandidates
+  PFCandidateRefVector mySignalGammaCandidates = 
+    myTagInfo.PFGammaCandsInCone(leadPFCand_XYZVector, ECALSignalConeSize_ ,Candidates_minPt_);
+  myTau.setSignalGammaCandidates(mySignalGammaCandidates);  
+
+  //Setting the IsolationGammaCandidates
+  PFCandidateRefVector myIsolationGammaCandidates = 
+    myTagInfo.PFGammaCandsInCone(leadPFCand_XYZVector, ECALIsolConeSize_ ,Candidates_minPt_);
+  myTau.setIsolationGammaCandidates(myIsolationGammaCandidates);  
+  
+    
   return myTau;
   
 }
