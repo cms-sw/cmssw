@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Thu Apr 26 10:38:32 CEST 2007
-// $Id$
+// $Id: SiPixelGainCalibrationUnpackLocal.h,v 1.1 2007/05/20 18:08:09 fblekman Exp $
 //
 //
 // system include files
@@ -38,7 +38,7 @@ Implementation:
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalibHists.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 //#include "CondTools/SiPixel/interface/SiPixelGainCalibrationService.h"
-#include "SimTracker/SiPixelDigitizer/interface/PixelIndices.h"
+#include "CondFormats/SiPixelObjects/interface/PixelIndices.h"
 
 #include <string>
 #include <vector>
