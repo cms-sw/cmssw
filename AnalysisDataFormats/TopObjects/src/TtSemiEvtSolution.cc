@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
@@ -38,7 +37,8 @@ void TtSemiEvtSolution::setProbChi2(double c) { probChi2 = c; }
 
 void TtSemiEvtSolution::setGenEvt(const TtGenEvent& genEvt){
   if( !genEvt.isSemiLeptonic() ){
-    throw edm::Exception( edm::errors::Configuration, "found genEvt which is not semi-leptonic" );
+    edm::LogWarning( "TtGenEventNotFilled" ) << "genEvt is not semi-leptonic; TtGenEvent is not filled";
+    return;
   }
   genHadp = *(genEvt.hadronicQuark());
   genHadq = *(genEvt.hadronicQuarkBar());

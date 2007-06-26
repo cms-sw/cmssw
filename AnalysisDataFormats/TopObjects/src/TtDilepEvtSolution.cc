@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "AnalysisDataFormats/TopObjects/interface/TtDilepEvtSolution.h"
 
@@ -9,7 +8,6 @@ TtDilepEvtSolution::TtDilepEvtSolution()
   WmDecay       = "NotDefined";
 }
 
-
 TtDilepEvtSolution::~TtDilepEvtSolution()
 {
 }
@@ -17,7 +15,8 @@ TtDilepEvtSolution::~TtDilepEvtSolution()
 void TtDilepEvtSolution::setGenEvt(const TtGenEvent& genEvt)
 {
   if( !genEvt.isFullLeptonic() ){
-    throw edm::Exception( edm::errors::Configuration, "found genEvt which is not di-leptonic" );
+    edm::LogWarning( "TtGenEventNotFilled" ) << "genEvt is not di-leptonic; TtGenEvent is not filled";
+    return;
   }
   genLepm = *(genEvt.lepton());
   genLepp = *(genEvt.leptonBar());
