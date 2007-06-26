@@ -6,9 +6,9 @@ class TtGenEvent
 {
  public:
   TtGenEvent();
-  TtGenEvent(reco::CandidateCollection&);
+  TtGenEvent(reco::CandidateRefProd&);
   virtual ~TtGenEvent();
-  reco::CandidateCollection particles() const {return parts_;};
+  const reco::CandidateCollection& particles() const {return *parts_;};
   int numberOfLeptons() const;
   bool isFullHadronic() const { return (numberOfLeptons()==0);};
   bool isSemiLeptonic() const { return (numberOfLeptons()==1);};
@@ -34,10 +34,10 @@ class TtGenEvent
   const reco::Candidate* neutrinoBar() const;
 
   //full-hadronic getters
-  const reco::Candidate* QuarkFromTop() const;
-  const reco::Candidate* QuarkFromTopBar() const;
-  const reco::Candidate* QuarkFromAntiTop() const;
-  const reco::Candidate* QuarkFromAntiTopBar() const;
+  const reco::Candidate* quarkFromTop() const;
+  const reco::Candidate* quarkFromTopBar() const;
+  const reco::Candidate* quarkFromAntiTop() const;
+  const reco::Candidate* quarkFromAntiTopBar() const;
 
   //common getters
   const reco::Candidate* electron() const { return candidate( 11 );};
@@ -61,7 +61,7 @@ class TtGenEvent
   double flavour(const reco::Candidate& part) const 
   {return (double)(part.pdgId() / abs(part.pdgId()) );};
   
-  reco::CandidateCollection parts_;
+  reco::CandidateRefProd parts_;
 };
 
 #endif
