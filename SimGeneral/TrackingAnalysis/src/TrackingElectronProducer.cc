@@ -33,8 +33,8 @@ using CLHEP::HepLorentzVector;
 typedef TkNavigableSimElectronAssembler::VertexPtr VertexPtr;
 
 TrackingElectronProducer::TrackingElectronProducer(const edm::ParameterSet &conf) {
-  produces<TrackingVertexCollection>("ElectronVertexTruth");
-  produces<TrackingParticleCollection>("ElectronTrackTruth");
+  produces<TrackingVertexCollection>();
+  produces<TrackingParticleCollection>();
 
   std::cout << " TrackingElectronProducer CTOR " << std::endl;
 
