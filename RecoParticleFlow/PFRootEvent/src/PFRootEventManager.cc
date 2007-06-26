@@ -1631,7 +1631,7 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsECAL_[i],i, viewType, maxe, phi0, rhcolor);
+    displayRecHit(rechitsECAL_[i], viewType, maxe, phi0, rhcolor);
   }
   for(unsigned i=0; i<rechitsHCAL_.size(); i++) { 
     int rhcolor = color;
@@ -1643,7 +1643,7 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsHCAL_[i],i, viewType, maxe, phi0, rhcolor);
+    displayRecHit(rechitsHCAL_[i], viewType, maxe, phi0, rhcolor);
   }
   
   for(unsigned i=0; i<rechitsPS_.size(); i++) { 
@@ -1656,14 +1656,15 @@ void PFRootEventManager::displayRecHits(unsigned viewType, double phi0) {
 	cerr<<"PFRootEventManager::displayRecHits: unknown color"<<endl;
       }
     }
-    displayRecHit(rechitsPS_[i],i, viewType, maxe, phi0, rhcolor);
+    displayRecHit(rechitsPS_[i], viewType, maxe, phi0, rhcolor);
   } 
   drawRecHits(viewType);
   
 }
 
 
-void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,int hitNr, 
+void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,
+ 
 				       unsigned viewType,
 				       double maxe, 
 				       double phi0, 
@@ -1853,42 +1854,42 @@ void PFRootEventManager::displayRecHit(reco::PFRecHit& rh,int hitNr,
       if(layer == PFLayer::ECAL_BARREL || 
 	 layer == PFLayer::HCAL_BARREL1 || 
 	 layer == PFLayer::HCAL_BARREL2) {
-	vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,x,y,color,"f"));
+	vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,x,y,color,"f"));
       } else {
-	vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,x,y,color,"l"));
+	vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,x,y,color,"l"));
 	if( ampl>0 ) { // not for preshower
 	  xprop[4]=xprop[0];
 	  yprop[4]=yprop[0]; // closing the polycell    
-          vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,xprop,yprop,color,"f"));
+          vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,xprop,yprop,color,"f"));
 	}
       }
       break;
     }
   case RZ:
     {
-      vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,z,r,color,"f"));
+      vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,z,r,color,"f"));
       break;
     }
   case EPE:
     {
-       vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,eta,phi,color,"l"));
+       vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,eta,phi,color,"l"));
        
       if( ampl>0 ) { // not for preshower
 	etaprop[4]=etaprop[0];
 	phiprop[4]=phiprop[0]; // closing the polycell    
-        vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,etaprop,phiprop,color,"f"));
+        vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,etaprop,phiprop,color,"f"));
       }
       break;
     }
     
   case EPH:
     {      
-      vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,eta,phi,color,"l"));
+      vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,eta,phi,color,"l"));
       
       if( ampl>0 ) { // not for preshower
 	etaprop[4]=etaprop[0];
 	phiprop[4]=phiprop[0]; // closing the polycell    
-        vectGHits_[viewType].push_back(GPFRecHit(&rh,hitNr,npoints,etaprop,phiprop,color,"f"));
+        vectGHits_[viewType].push_back(GPFRecHit(&rh,npoints,etaprop,phiprop,color,"f"));
       }
       break;
     }
@@ -1956,11 +1957,11 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
   vectGClus_[viewType].reserve(clusterSize);
   
   for(unsigned i=0; i<clustersECAL_->size(); i++) 
-    displayCluster( (*clustersECAL_)[i], i, viewType, phi0);
+    displayCluster( (*clustersECAL_)[i], viewType, phi0);
   for(unsigned i=0; i<clustersHCAL_->size(); i++) 
-    displayCluster( (*clustersHCAL_)[i], i, viewType, phi0);
+    displayCluster( (*clustersHCAL_)[i], viewType, phi0);
   for(unsigned i=0; i<clustersPS_->size(); i++) 
-    displayCluster( (*clustersPS_)[i], i, viewType, phi0);
+    displayCluster( (*clustersPS_)[i], viewType, phi0);
 
   for(unsigned i=0; i<clustersIslandBarrel_.size(); i++) {
     int layer = PFLayer::ECAL_BARREL;
@@ -1969,14 +1970,14 @@ void PFRootEventManager::displayClusters(unsigned viewType, double phi0) {
 			     clustersIslandBarrel_[i].x(),
 			     clustersIslandBarrel_[i].y(),
 			     clustersIslandBarrel_[i].z() ); 
-    displayCluster( cluster, i, viewType, phi0);
+    displayCluster( cluster, viewType, phi0);
   }
   drawClusters(viewType);  
 }
 
 
 
-void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,unsigned clusNr,
+void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,
 					unsigned viewType, double phi0) {
   
 
@@ -2001,20 +2002,20 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,unsigned 
 
   switch(viewType) {
   case XY:
-    vectGClus_[viewType].push_back( GPFCluster(&cluster,xyzPos.X(),xyzPos.Y(),color,clusNr));
+    vectGClus_[viewType].push_back( GPFCluster(&cluster,xyzPos.X(),xyzPos.Y(),color));
     break;
   case RZ:
     {
       double sign = 1.;
       if (cos(phi0 - phi) < 0.)
 	sign = -1.;
-      vectGClus_[viewType].push_back(GPFCluster(&cluster,xyzPos.z(),sign*xyzPos.Rho(),color,clusNr));
+      vectGClus_[viewType].push_back(GPFCluster(&cluster,xyzPos.z(),sign*xyzPos.Rho(),color));
       break;
     }
   case EPE:
     {
      if( cluster.layer()<0 ) {
-       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color,clusNr));
+       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color));
        if( displayClusterLines_ ) displayClusterLines(cluster);
      }
      break;
@@ -2022,7 +2023,7 @@ void PFRootEventManager::displayCluster(const reco::PFCluster& cluster,unsigned 
   case EPH:
     {
      if( cluster.layer()>0 ) {
-       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color,clusNr));
+       vectGClus_[viewType].push_back(GPFCluster(&cluster,eta,phi,color));
        if( displayClusterLines_ ) displayClusterLines(cluster);
      }
      break;

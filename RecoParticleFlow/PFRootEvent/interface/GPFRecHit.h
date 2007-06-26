@@ -14,7 +14,7 @@
 class GPFRecHit : public TGraph {
   public:
     GPFRecHit() ;
-    GPFRecHit(reco::PFRecHit *hit,int hitNr,int size,
+    GPFRecHit(reco::PFRecHit *hit,int size,
               double *x,double *y , int color, std::string option);
     virtual ~GPFRecHit() {;}
     
@@ -25,8 +25,6 @@ class GPFRecHit : public TGraph {
     
   private:
     reco::PFRecHit *recHit_;
-    // hit index in vector
-    Int_t           hitNr_;
     // Draw option
     std::string     option_;
 };  

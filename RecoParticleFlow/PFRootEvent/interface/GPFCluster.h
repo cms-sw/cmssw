@@ -14,7 +14,7 @@ class GPFCluster : public TMarker {
   public:
     GPFCluster() ;
     GPFCluster(const reco::PFCluster* clus,
-	       double x,double y,int color,unsigned index);
+	       double x,double y,int color);
     virtual ~GPFCluster() {;}
     
     //override ROOT method 
@@ -23,15 +23,11 @@ class GPFCluster : public TMarker {
     
     const GPFCluster& operator=( const GPFCluster& other ) {
       clus_ = other.clus_;
-      clusNr_ = other.clusNr_;
       return *this;
     }
 
   private:
     const reco::PFCluster*   clus_;
-    // cluster index
-    unsigned                 clusNr_;
     
-    //static const reco::PFCluster dummy_; 
 };  
 #endif

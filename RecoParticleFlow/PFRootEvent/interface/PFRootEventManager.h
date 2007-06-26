@@ -217,14 +217,14 @@ class PFRootEventManager {
   void displayRecHits(unsigned viewType, double phi0 = 0.);
 
   /// display a reconstructed calorimeter hit in x/y or r/z view
-  void displayRecHit(reco::PFRecHit& rh, int hitNr, unsigned viewType,
+  void displayRecHit(reco::PFRecHit& rh, unsigned viewType,
 		     double maxe, double phi0 = 0., int color=4);
 
   /// display clusters in x/y or r/z view
   void displayClusters(unsigned viewType, double phi0 = 0.);
 
   /// display one cluster
-  void displayCluster(const reco::PFCluster& cluster, unsigned indexNr,
+  void displayCluster(const reco::PFCluster& cluster,
 		      unsigned viewType, double phi0 = 0.);
   
   /// display cluster-to-rechits lines
@@ -233,24 +233,33 @@ class PFRootEventManager {
   /// display reconstructed tracks
   void displayRecTracks(unsigned viewType, double phi0 = 0.);
 
-  /// display true particles
-  void displayTrueParticles(unsigned viewType, double phi0 = 0.);
-
-  /// display track (for rectracks and particles)
-//Mu  void displayTrack( const std::vector<reco::PFTrajectoryPoint>& points, 
-//Mu 		    unsigned viewType, double phi0, 
-//Mu 		    double sign, bool displayInitial, 
-//Mu 		    int linestyle, int markerstyle, double markersize, 
-//Mu 		    int color);
-
+  /// create graphic objet track
   void displayTrack(reco::PFRecTrack &tr,const std::vector<reco::PFTrajectoryPoint>& points, 
  		    unsigned viewType, double phi0, 
 		    double sign, bool displayInitial, 
 		    int linestyle, int markerstyle, double markersize, 
  		    int color);
- 
+		    
+  /// display true particles
+  void displayTrueParticles(unsigned viewType, double phi0 = 0.);
+
+  /// create graphic objet Particule
+  void displayPart(const reco::PFSimParticle &ptc, const std::vector<reco::PFTrajectoryPoint>& points, 
+ 		   unsigned viewType, double phi0, 
+		   double sign, bool displayInitial, 
+		   int linestyle, int markerstyle, double markersize, 
+ 		   int color); 
 
 
+  /// reset of graphic containers before next event
+  void   resetGraphicContainers();
+  
+  ///display graphic objects
+  void   drawRecHits(unsigned viewType);
+  void   drawClusters(unsigned viewType);
+  void   drawTracks(unsigned viewType);
+  void   drawParts(unsigned viewType);
+  
   /// unzooms all support histograms
   void unZoom();
 
@@ -463,7 +472,13 @@ class PFRootEventManager {
   bool                     displayClusterLines_;
 
   /// display pad xy size for eta/phi view
-  std::vector<int>         viewSizeEtaPhi_;        
+  std::vector<int>         viewSizeEtaPhi_; 
+  
+  /// containers og graphic objects      
+  std::vector< std::vector<GPFRecHit> >   vectGHits_;
+  std::vector< std::vector<GPFCluster> >  vectGClus_;
+  std::vector< std::vector<GPFTrack> >    vectGTracks_;
+  std::vector< std::vector<GPFPart> >     vectGParts_;
 
   //------------ display settings -----------------------------
 
@@ -576,31 +591,7 @@ class PFRootEventManager {
   /// debug printouts for jet algo on/off
   bool   jetsDebug_;
   
-  //_____________________________________________________________________
-  //Mu - graphic gear
-  void   resetGraphicContainers();
-  void   drawRecHits(unsigned viewType);
-  void   drawClusters(unsigned viewType);
-  void   drawTracks(unsigned viewType);
-  void   drawParts(unsigned viewType);
-  
-  //grahic Objects
-  //std::vector<GPFRecHit> vectHitXY_;
-  //std::vector<GPFRecHit> vectHitRZ_;
-  //std::vector<GPFRecHit> vectHitEPE_;
-  //std::vector<GPFRecHit> vectHitEPH_;
-  
-  std::vector< std::vector<GPFRecHit> >   vectGHits_;
-  std::vector< std::vector<GPFCluster> >  vectGClus_;
-  std::vector< std::vector<GPFTrack> >    vectGTracks_;
-  std::vector< std::vector<GPFPart> >     vectGParts_;
-  
-  void displayPart(const reco::PFSimParticle &ptc, const std::vector<reco::PFTrajectoryPoint>& points, 
- 		   unsigned viewType, double phi0, 
-		   double sign, bool displayInitial, 
-		   int linestyle, int markerstyle, double markersize, 
- 		   int color);
-  
+    
 
 };
 #endif

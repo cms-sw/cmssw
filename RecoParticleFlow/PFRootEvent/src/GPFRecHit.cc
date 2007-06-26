@@ -11,15 +11,13 @@
 GPFRecHit::GPFRecHit() : recHit_(new reco::PFRecHit)
 {}
 //________________________________________________________________________
-GPFRecHit::GPFRecHit(reco::PFRecHit *rechit,int hitNr,int size,
+GPFRecHit::GPFRecHit(reco::PFRecHit *rechit,int size,
                      double *x, double *y, int color, std::string option)
 		     : TGraph(size,x,y), recHit_(rechit), option_(option)
 {
     
   ResetBit(kCanDelete);
-  
-  hitNr_  = hitNr;
-  
+    
   SetLineColor(color);
   SetFillColor(color);
   
@@ -27,7 +25,6 @@ GPFRecHit::GPFRecHit(reco::PFRecHit *rechit,int hitNr,int size,
 //____________________________________________________________________________________________________________
 void GPFRecHit::Print()
 {
-  std::cout<< "hitNr:"<<hitNr_<<std::endl;
   std::cout<<*recHit_<<std::endl;
 }
 //_______________________________________________________________________________    

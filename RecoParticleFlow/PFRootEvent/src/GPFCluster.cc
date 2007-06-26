@@ -6,18 +6,16 @@
 
 
 //_________________________________________________________________
-GPFCluster::GPFCluster() : clus_(0), clusNr_(0) {}
+GPFCluster::GPFCluster() : clus_(0) {}
 //_________________________________________________________________
-GPFCluster::GPFCluster(const reco::PFCluster* clus,double x,double y,
-                       int color,unsigned clusNr)
-		       :TMarker(x,y,20),clus_(clus),clusNr_(clusNr)
+GPFCluster::GPFCluster(const reco::PFCluster* clus,double x,double y,int color)
+		       :TMarker(x,y,20),clus_(clus)
 {
  SetMarkerColor(color);
 }                       
 //_________________________________________________________________
 void GPFCluster::Print()
 {
-  std::cout<< "clusNr:"<<clusNr_<<std::endl;
   std::cout<<*clus_<<std::endl;
 }
 //_________________________________________________________________    
