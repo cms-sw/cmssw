@@ -8,3 +8,8 @@
   <use name=PhysicsTools/UtilAlgos>
   <use name=FWCore/ServiceRegistry>
 </library>
+
+<library file=DoubleProducer.cc>
+  <use name=FWCore/ParameterSet>
+</library>
+
