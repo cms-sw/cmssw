@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.4 2007/03/27 09:53:41 meridian Exp $
+   \version $Id: testEcalDetId.cpp,v 1.5 2007/06/26 13:42:14 innocent Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.4 2007/03/27 09:53:41 meridian Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.5 2007/06/26 13:42:14 innocent Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -81,7 +81,7 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ism()<=EBDetId::MAX_SM);
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
-	      CPPUNIT_ASSERT(validHashIndex(aPositiveId.fastHashedIndex()));
+	      CPPUNIT_ASSERT(EBDetId::validHashIndex(aPositiveId.fastHashedIndex()));
 	      detIds.at(aPositiveId.fastHashedIndex()) = aPositiveId;
 	    }
 
@@ -102,7 +102,7 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ism()<=EBDetId::MAX_SM);
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
-	      CPPUNIT_ASSERT(validHashIndex(aNegativeId.fastHashedIndex()));
+	      CPPUNIT_ASSERT(EBDetId::validHashIndex(aNegativeId.fastHashedIndex()));
 	      detIds.at(aNegativeId.fastHashedIndex()) = aNegativeId;
 	      
 
@@ -121,8 +121,8 @@ void testEcalDetId::testEBDetId(){
       }
   
   for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
-    CPPUNIT_ASSERT(deIds[i]!=0);
-    CPPUNIT_ASSERT(EBDetId(deIds[i]).fastHashedIndex()==i);
+    CPPUNIT_ASSERT(detIds[i]!=0);
+    CPPUNIT_ASSERT(EBDetId(detIds[i]).fastHashedIndex()==i);
   }
   
 }
