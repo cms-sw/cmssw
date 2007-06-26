@@ -179,11 +179,11 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
   es.get<RPCReadOutMappingRcd>().get(readoutMapping);
 
   int trigger_BX = 200;
-  int dccFactor = -1;
+  int dccFactor = 3;
   
    pair<int,int> rpcFEDS=FEDNumbering::getRPCFEDIds();
    for (int id= rpcFEDS.first; id<=rpcFEDS.second; ++id){
-     dccFactor++;
+     dccFactor--;
 
     RPCRecordFormatter formatter(id, readoutMapping.product()) ;
     std::vector<rpcrawtodigi::EventRecords> myEventRecords = RPCPackingModule::eventRecords(id,
@@ -191,7 +191,7 @@ void LinkDataXMLWriter::analyze(const edm::Event& ev, const edm::EventSetup& es)
 											    digiCollection.product(),
 											    formatter); 
     std::cout<<" FED id: "<< id;
-    //std::cout<<" myEventRecords.size(): "<< myEventRecords.size()<<std::endl;
+    std::cout<<" myEventRecords.size(): "<< myEventRecords.size()<<std::endl;
     
     std::vector<rpcrawtodigi::EventRecords>::const_iterator CI =  myEventRecords.begin();
     for(;CI!= myEventRecords.end();CI++){ 
@@ -386,7 +386,7 @@ std::pair<int,int>  LinkDataXMLWriter::getTCandTBNumbers(int dccInputChannelNum,
        dccInputChannelNum==27+i) tbNumber = i;
   }
   /////////////////////
-  cout<<"dcc: "<<dccInputChannelNum<<endl;
+  ///cout<<"dcc: "<<dccInputChannelNum<<endl;
   /////////////////////
  for(int i=0;i<4;i++){
     if(dccInputChannelNum>=i*9 &&
