@@ -14,7 +14,8 @@ namespace edm {
 
 
     void ImplicitIncludeNode::resolve(std::list<std::string> & openFiles,
-                                       std::list<std::string> & sameLevelIncludes)
+                                      std::list<std::string> & sameLevelIncludes, 
+                                      bool strict)
     {
       // wish there were a way to initialize this only once
       IncludeFileFinder finder;
@@ -22,7 +23,7 @@ namespace edm {
 
       // going back to relative path, for coding convenience
       setName(file.relativePath());
-      IncludeNode::resolve(openFiles, sameLevelIncludes);
+      IncludeNode::resolve(openFiles, sameLevelIncludes, strict);
     }
 
   }

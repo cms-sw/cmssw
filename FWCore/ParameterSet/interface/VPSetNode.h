@@ -28,7 +28,7 @@ namespace edm {
 
       /// when a sub-node is a StringNode, find the PSet
       /// it refers to
-      virtual void resolveUsingNodes(const NodeMap & blocks);
+      virtual void resolveUsingNodes(const NodeMap & blocks, bool strict);
 
       /// Nodes which can exist on the top level of the
       /// parse tree should implement this

@@ -44,11 +44,12 @@ namespace edm {
 
       /// resolve any includes in sub-nodes
       virtual void resolve(std::list<std::string> & openFiles,
-                           std::list<std::string> & sameLevelIncludes);
+                           std::list<std::string> & sameLevelIncludes,
+                           bool strict);
 
       /// if a direct descendant is a using block, inline it.
       /// otherwise, pass the call to the child nodes
-      virtual void resolveUsingNodes(const NodeMap & blocks);
+      virtual void resolveUsingNodes(const NodeMap & blocks, bool strict);
 
       /// inserts all subnodes
       virtual void insertInto(ParameterSet & pset) const;

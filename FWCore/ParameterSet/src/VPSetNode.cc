@@ -52,7 +52,7 @@ namespace edm {
     }
 
 
-    void VPSetNode::resolveUsingNodes(const NodeMap & blocks)
+    void VPSetNode::resolveUsingNodes(const NodeMap & blocks, bool strict)
     {
       // if a node is just a std::string, find the block it refers to
       NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
@@ -76,7 +76,7 @@ namespace edm {
         else
         {
           // if it isn't a using node, check the grandchildren
-          (**nodeItr).resolveUsingNodes(blocks);
+          (**nodeItr).resolveUsingNodes(blocks, strict);
         }
       } // loop over subnodes
     }

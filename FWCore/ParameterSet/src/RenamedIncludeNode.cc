@@ -39,10 +39,11 @@ namespace edm {
 
 
     void RenamedIncludeNode::resolve(std::list<std::string> & openFiles,
-                             std::list<std::string> & sameLevelIncludes)
+                             std::list<std::string> & sameLevelIncludes,
+                             bool strict)
     {
       bool found = false;
-      IncludeNode::resolve(openFiles, sameLevelIncludes);
+      IncludeNode::resolve(openFiles, sameLevelIncludes, strict);
       for(NodePtrList::iterator nodeItr = nodes_->begin(), nodeItrEnd = nodes_->end();
           !found && nodeItr != nodeItrEnd; ++nodeItr)
       {

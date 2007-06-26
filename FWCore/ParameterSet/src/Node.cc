@@ -32,6 +32,48 @@ namespace edm {
     }
 
 
+    bool Node::isInclude() const
+    {
+      return (type().substr(0,7) == "include");
+    }
+
+
+    const Node * Node::getIncludeParent() const
+    {
+      const Node * result = 0; 
+      const Node * currentNode = this; 
+      bool done = false;
+      while(!done)
+      {
+        currentNode = currentNode->getParent();
+        if(currentNode == 0)
+        {
+          done = true;
+        }
+        else 
+        {
+          if(currentNode->isInclude())
+          {
+            result = currentNode;
+            done = true;
+          }
+        }
+      }
+      return result;
+    }
+          
+
+    std::string Node::includeParentSuffix() const
+    {
+      const Node * includeParent = getIncludeParent();
+      if(includeParent == 0) return "";
+
+      int nletters = includeParent->name().length();
+      assert(nletters >= 3);
+      return includeParent->name().substr(nletters-3);
+    }
+    
+ 
     void Node::dotDelimitedPath(std::string & path) const
     {
       if(!path.empty())

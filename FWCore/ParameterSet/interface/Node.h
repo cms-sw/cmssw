@@ -42,6 +42,13 @@ namespace edm {
 
       virtual void  setParent(Node*  parent) { parent_ = parent;}
       virtual Node* getParent() const { return parent_; }
+      bool isInclude() const;
+      /// the IncludeNode parent
+      virtual const Node * getIncludeParent() const;
+      /// some people care whether the parent was cfi, cff, or cfg
+      std::string includeParentSuffix() const;
+           
+
       /// leaf nodes won't do anything
       virtual void setAsChildrensParent() {}
       /// finds a first-level subnode with this name
@@ -84,8 +91,9 @@ namespace edm {
       typedef std::map<std::string, Ptr> NodeMap;
       /// most subclasses won't do anything
       virtual void resolve(std::list<std::string> & openFiles, 
-                           std::list<std::string> & sameLevelIncludes) {}
-      virtual void resolveUsingNodes(const NodeMap & blocks) {}
+                           std::list<std::string> & sameLevelIncludes,
+                           bool strict) {}
+      virtual void resolveUsingNodes(const NodeMap & blocks, bool strict) {}
 
       /// Nodes which can exist on the top level of the
       /// parse tree should implement this

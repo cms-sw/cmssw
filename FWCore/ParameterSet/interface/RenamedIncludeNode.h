@@ -27,7 +27,8 @@ namespace edm {
 
       /// adds the filtering
       virtual void resolve(std::list<std::string> & openFiles,
-              std::list<std::string> & sameLevelIncludes);
+                           std::list<std::string> & sameLevelIncludes,
+                           bool strict);
 
 
       virtual void print(std::ostream & out, PrintOptions options) const;

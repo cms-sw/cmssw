@@ -17,7 +17,7 @@ namespace edm {
                           const std::string & moduleLabel, int line);
 
       void resolve(std::list<std::string> & openFiles,
-                   std::list<std::string> & sameLevelIncludes);
+                   std::list<std::string> & sameLevelIncludes, bool strict);
 
     private:
       std::string moduleClass_;

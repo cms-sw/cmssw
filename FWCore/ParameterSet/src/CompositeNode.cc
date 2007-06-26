@@ -1,5 +1,6 @@
 #include "FWCore/ParameterSet/interface/CompositeNode.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <ostream>
 
 namespace edm {
@@ -108,7 +109,7 @@ namespace edm {
       NodePtrList::const_iterator i(nodes_->begin()),e(nodes_->end());
       for(; i != e; ++i)
       {
-        if((**i).type().substr(0,7) == "include")
+        if((**i).isInclude())
         {
           CompositeNode * includeNode = dynamic_cast<CompositeNode *>(i->get());
           NodePtrListPtr includedChildren = includeNode->children();
@@ -182,7 +183,8 @@ namespace edm {
     
 
     void CompositeNode::resolve(std::list<std::string> & openFiles,
-                                std::list<std::string> & sameLevelIncludes)
+                                std::list<std::string> & sameLevelIncludes,
+                                bool strict)
     {
       // make sure that no siblings are IncludeNodes with the 
       // same name
@@ -191,7 +193,7 @@ namespace edm {
       // own stack
       std::list<std::string> newList;
       std::list<std::string> & thisLevelIncludes = 
-                             (type().substr(0,7) == "include")
+                             isInclude()
                              ? sameLevelIncludes
                              : newList; 
 
@@ -200,18 +202,33 @@ namespace edm {
       NodePtrList::const_iterator i(copyOfNodes.begin()),e(copyOfNodes.end());
       for(; i != e; ++i)
       {
-        (**i).resolve(openFiles, thisLevelIncludes);
+        (**i).resolve(openFiles, thisLevelIncludes, strict);
       }
     }
 
 
-    void CompositeNode::resolveUsingNodes(const NodeMap & blocks)
+    void CompositeNode::resolveUsingNodes(const NodeMap & blocks, bool strict)
     {
       NodePtrList::iterator nodeItr(nodes_->begin()),e(nodes_->end());
       for(; nodeItr != e; ++nodeItr)
       {
         if((**nodeItr).type() == "using")
         {
+          // using nodes in .cfis are either deprecated or forbidden
+          if((**nodeItr).includeParentSuffix() == "cfi")
+          {
+             std::string message = "using statements should not be used in .cfi files.\nfrom:";
+             message += (**nodeItr).traceback();
+             if(strict)
+             {
+               throw edm::Exception(errors::Configuration,"") << message;
+             }
+             else
+             {
+                edm::LogWarning("Configuration") << message;
+             }
+          }
+
           // find the block
           std::string blockName = (**nodeItr).name();
           NodeMap::const_iterator blockPtrItr = blocks.find(blockName);
@@ -248,7 +265,7 @@ namespace edm {
         else
         {
           // if it isn't a using node, check the grandchildren
-          (**nodeItr).resolveUsingNodes(blocks);
+          (**nodeItr).resolveUsingNodes(blocks, strict);
         }
       } // loop over subnodes
     }

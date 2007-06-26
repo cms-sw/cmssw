@@ -19,7 +19,7 @@ using std::map;
 namespace edm {
   namespace pset {
 
-    ParseTree::ParseTree(const string & configString)
+    ParseTree::ParseTree(const string & configString, bool strict)
     : blocks_(),
       blockCopyNodes_(),
       blockRenameNodes_(),
@@ -28,7 +28,8 @@ namespace edm {
       renameNodes_(),
       replaceNodes_(),
       modulesAndSources_(),
-      nodes_(parse(configString.c_str()))
+      nodes_(parse(configString.c_str())),
+      strict_(strict)
     {
       process();
     }
@@ -115,7 +116,7 @@ namespace edm {
       // so it never gets circularly included
       std::list<std::string> openFiles;
       std::list<std::string> sameLevelIncludes;
-      topLevelNode->resolve(openFiles, sameLevelIncludes);
+      topLevelNode->resolve(openFiles, sameLevelIncludes, strict_);
       // make the final backwards linksa.  Needed?
       //processNode->setAsChildrensParent();
 
@@ -351,14 +352,14 @@ namespace edm {
       for(NodePtrMap::iterator blockItr = blocks_.begin(), blockItrEnd = blocks_.end();
           blockItr != blockItrEnd; ++blockItr)
       {
-        blockItr->second->resolveUsingNodes(blocks_);
+        blockItr->second->resolveUsingNodes(blocks_, strict_);
       }
 
       for(NodePtrMap::iterator moduleItr = modulesAndSources_.begin(),
           moduleItrEnd = modulesAndSources_.end();
           moduleItr != moduleItrEnd; ++moduleItr)
       {
-        moduleItr->second->resolveUsingNodes(blocks_);
+        moduleItr->second->resolveUsingNodes(blocks_, strict_);
       }
 
       // maybe there's a using statement inside a replace PSet?
@@ -371,7 +372,7 @@ namespace edm {
         CompositeNode * compositeNode = dynamic_cast<CompositeNode *>(replaceNode->value().get());
         if(compositeNode != 0)
         {
-          compositeNode->resolveUsingNodes(blocks_);
+          compositeNode->resolveUsingNodes(blocks_, strict_);
         }
       } 
 
@@ -525,7 +526,7 @@ namespace edm {
           inputNodeItr != inputNodeItrEnd; ++inputNodeItr)
       {
         // make IncludeNodes transparent
-        if((**inputNodeItr).type().substr(0,7) == "include")
+        if((**inputNodeItr).isInclude())
         {
           const IncludeNode * includeNode 
             = dynamic_cast<const IncludeNode*>(inputNodeItr->get());
@@ -533,7 +534,7 @@ namespace edm {
           // recursive call!
           findTopLevelNodes(*(includeNode->nodes()), output);
           // just to make sure recursion didn't bite me
-          assert((**inputNodeItr).type().substr(0,7) == "include");
+          assert((**inputNodeItr).isInclude());
         }
         else 
         {

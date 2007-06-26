@@ -70,7 +70,8 @@ namespace edm {
 
 
     void IncludeNode::resolve(std::list<std::string> & openFiles,
-                              std::list<std::string> & sameLevelIncludes)
+                              std::list<std::string> & sameLevelIncludes,
+                              bool strict)
     {
       // we don't allow circular opening of already-open files,
       if(std::find(openFiles.begin(), openFiles.end(), name())
@@ -127,14 +128,14 @@ namespace edm {
         // put in the backwards links right away
         setAsChildrensParent();
         // resolve the includes in any subnodes
-        CompositeNode::resolve(openFiles, sameLevelIncludes);
+        CompositeNode::resolve(openFiles, sameLevelIncludes, strict);
       
         currentFile = oldFile;
         // make sure the openFiles list isn't corrupted
         assert(openFiles.back() == name());
         openFiles.pop_back();
       }
-      check();
+      check(strict);
     }
 
     void IncludeNode::insertInto(edm::ProcessDesc & procDesc) const
@@ -149,8 +150,9 @@ namespace edm {
     }
 
 
-    bool IncludeNode::check() const
+    bool IncludeNode::check(bool strict) const
     {
+      bool ok = true;
       int nletters = name().length();
       assert(nletters >= 3);
       std::string lastThreeLetters = name().substr(nletters-3);
@@ -170,14 +172,45 @@ namespace edm {
        
         if(nModules > 1)
         {
-          edm::LogWarning("Configuration")
+          ok = false;
+          std::ostringstream message;
+   
+          message
            << "WARNING: " << nModules << " modules were defined in " 
            << name() << ".\nOnly one module should be defined per .cfi."
-           << "\nThis will be an error in future releases, "
-           << "so please contact the responsible developers." << std::endl;
+           <<"\nfrom: " << traceback();
+
+          if(strict)
+          {
+            throw edm::Exception(errors::Configuration) << message.str();
+          }
+          else 
+          {
+            edm::LogWarning("Configuration") << message.str();
+          }
+
         }
       }
-      return (nModules < 2);
+
+      // now check if this is included from a .cfi
+      if(includeParentSuffix() == "cfi")
+      {
+        ok = false;
+        std::ostringstream message;
+        message << "include statements should not be used in a .cfi file."
+                << "\nfrom:" << traceback();
+
+        if(strict)
+        {
+          throw edm::Exception(errors::Configuration) << message.str();
+        }
+        else 
+        {
+          edm::LogWarning("Configuration") << message.str();
+        }
+      }
+
+      return ok;
     }
 
 

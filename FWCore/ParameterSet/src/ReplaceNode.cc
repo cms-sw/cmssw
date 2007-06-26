@@ -15,7 +15,7 @@ namespace edm {
 
     bool ReplaceNode::isEmbedded() const
     {
-      return (getParent()->type().substr(0,7) == "include");
+      return (getParent()->isInclude());
     }
  
     void ReplaceNode::print(std::ostream& ost, Node::PrintOptions options) const

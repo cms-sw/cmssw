@@ -31,7 +31,8 @@ namespace edm {
       /// fills in the CompositeNode by parsing the included file
       /// the argument prevents circular includes
       virtual void resolve(std::list<std::string> & openFiles,
-                           std::list<std::string> & sameLevelIncludes);
+                           std::list<std::string> & sameLevelIncludes,
+                           bool strict);
 
       /// some subclasses may wish to allow multiple includes
       virtual bool checkMultipleIncludes() const {return true;}
@@ -43,8 +44,7 @@ namespace edm {
       bool isResolved() const {return isResolved_;}
 
     private:
-      //throws an exception if more than one module defined in a .cfi
-      bool check() const;
+      bool check(bool strict) const;
 
       std::string type_;
       std::string fullPath_;
