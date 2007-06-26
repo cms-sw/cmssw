@@ -10,8 +10,10 @@ RKOneCashKarpStep<T,N>::operator()( Scalar x, const Vector& v,
   const Scalar b41=0.3,    b42=-0.9,  b43=1.2;
   const Scalar b51=-11./54., b52=5./2., b53=-70./27., b54=35./27.;
   const Scalar b61=1631./55296., b62=175./512., b63=575./13824., b64=44275./110592., b65=253./4096.;
-  const Scalar c1=37./378., c2=0, c3=250./621., c4=125./594., c5=0, c6=512./1771.;
-  const Scalar d1=2825./27648., d2=0, d3=18575./48384., d4=13525./55296., d5=277./14336., d6=0.25;
+  const Scalar c1=37./378., c3=250./621., c4=125./594., c6=512./1771.;
+  // removed unused variables c2=0, c5=0 MM 25/6/07
+  const Scalar d1=2825./27648., d3=18575./48384., d4=13525./55296., d5=277./14336., d6=0.25;
+  // reomved unused variable d2=0
 
   Vector k1 = step*deriv( x, v);
   Vector k2 = step*deriv( x+a2*step, v + b21*k1);
