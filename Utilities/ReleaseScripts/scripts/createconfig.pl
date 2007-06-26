@@ -112,6 +112,7 @@ my $tmpl_compile_support=&checkTemplateCompilationSupport ();
 my $def_compile_support=&checkDefineCompilationSupport ();
 if(($tmpl_compile_support==0) || ($def_compile_support==0)){&genSkip ("${release}/${src}");}
 print "DATA:SKIP_FILES=.*?\/classes.h\n";
+print "DATA:SKIP_INCLUDES=.*?\/interface\/config.h:classlib\/sysapi\/system\.h\n";
 &final_exit(0);
 
 sub final_exit ()
