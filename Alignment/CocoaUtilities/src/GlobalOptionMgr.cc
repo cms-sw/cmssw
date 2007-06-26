@@ -81,7 +81,7 @@ void GlobalOptionMgr::setDefaultGlobalOptions()
   theGlobalOptions[ ALIstring("stopAfter1stIteration") ] = 0;
   theGlobalOptions[ ALIstring("calParamInyfMatrix") ] = 0;
   theGlobalOptions[ ALIstring("writeXML") ] = 0;
-
+  theGlobalOptions[ ALIstring("dumpInAllFrames") ] = 0;
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

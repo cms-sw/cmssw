@@ -103,7 +103,7 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
 
   CLHEP::HepRotation diffRm =  OptOCurrent()->rmGlob() * OptOCurrent()->rmGlobOriginal().inverse();
   CLHEP::HepRotation rmLocal = diffRm * OptOCurrent()->parent()->rmGlobOriginal().inverse();
-  std::vector<double> localrot = OptOCurrent()->GetRotationAnglesFromMatrix( rmLocal, OptOCurrent()->CoordinateEntryList() );
+  std::vector<double> localrot = OptOCurrent()->getRotationAnglesFromMatrix( rmLocal, OptOCurrent()->CoordinateEntryList() );
   if(ALIUtils::debug >= 5) {
     ALIUtils::dumprm( diffRm , " diffRm ");
     ALIUtils::dumprm( rmLocal , " rmLocal ");
@@ -122,7 +122,7 @@ ALIdouble EntryAngleAffAngles::valueDisplaced() const
   CLHEP::HepRotation rmLocalOrig = OptOCurrent()->parent()->rmGlobOriginal().inverse() *  OptOCurrent()->rmGlobOriginal();
   
   CLHEP::HepRotation rmLocal = OptOCurrent()->parent()->rmGlob().inverse() *  OptOCurrent()->rmGlob();
-  std::vector<double> localrot = OptOCurrent()->GetRotationAnglesFromMatrix(  rmLocal, OptOCurrent()->CoordinateEntryList() );
+  std::vector<double> localrot = OptOCurrent()->getRotationAnglesFromMatrix(  rmLocal, OptOCurrent()->CoordinateEntryList() );
 
   std::cout << " localrot " << localrot[0] << " " << localrot[1] << " " << localrot[2] << std::endl;
   std::cout << " localrotorig " << localrotorig[0] << " " << localrotorig[1] << " " << localrotorig[2] << std::endl;

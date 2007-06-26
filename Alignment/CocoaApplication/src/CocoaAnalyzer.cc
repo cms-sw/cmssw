@@ -202,7 +202,7 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     Hep3Vector colY(yx,yy,yz);
     Hep3Vector colZ(zx,zy,zz);
     CLHEP::HepRotation rotclhep( colX, colY, colZ );
-    std::vector<double> angles = ALIUtils::GetRotationAnglesFromMatrix( rotclhep,0., 0., 0. );
+    std::vector<double> angles = ALIUtils::getRotationAnglesFromMatrix( rotclhep,0., 0., 0. );
 
     oaInfo.angx_.name_ = "X";
     oaInfo.angx_.dim_type_ = "angles";
@@ -700,7 +700,7 @@ OpticalAlignInfo CocoaAnalyzer::GetOptAlignInfoFromOptO( OpticalObject* opto )
   data.z_.error_= GetEntryError( theCoordinateEntryVector[2] ) / 100.; // in cm
 
   //----- angles in local coordinates
-  std::vector<double> anglocal = opto->GetLocalRotationAngles( theCoordinateEntryVector );
+  std::vector<double> anglocal = opto->getLocalRotationAngles( theCoordinateEntryVector );
 
   data.angx_.value_= anglocal[0] *180./M_PI; // in deg
   std::cout << " matrix " << Fit::GetAtWAMatrix()->Mat() << theCoordinateEntryVector[3]->fitPos() << std::endl;

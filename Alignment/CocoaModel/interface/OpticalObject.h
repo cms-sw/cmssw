@@ -242,8 +242,9 @@ class OpticalObject
     return theCurrentMeas;
   }
 
-  std::vector<double> GetLocalRotationAngles(  std::vector< Entry* > entries );
-  std::vector<double> GetRotationAnglesFromMatrix( HepRotation& rmLocal, std::vector< Entry* > entries );
+  std::vector<double> getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, std::vector< Entry* > entries ) const;
+  std::vector<double> getLocalRotationAngles(  std::vector< Entry* > entries ) const;
+  std::vector<double> getRotationAnglesFromMatrix( HepRotation& rmLocal, std::vector< Entry* > entries ) const;
   double diff2pi( double ang1, double ang2 );
   bool eq2ang( double ang1, double ang2 );
   double approxTo0( double val );

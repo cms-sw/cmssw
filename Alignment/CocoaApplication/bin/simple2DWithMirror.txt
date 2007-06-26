@@ -6,6 +6,7 @@ sens1_posY  0.
 sens2_posY 0.
 
 GLOBAL_OPTIONS
+dumpInAllFrames 1
 
 //stopAfter1stIteration 1
 
@@ -17,7 +18,7 @@ report_verbose 3
 
 saveMatrices 0
 
-debug_verbose 5
+debug_verbose -1
 
 length_value_dimension 1//millimeter
 

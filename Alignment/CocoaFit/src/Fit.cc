@@ -185,11 +185,16 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
       //----- Check if new iteration must be done
       if( fq == FQsmallDistanceToMinimum ) {
 	addDaMatrixToEntries();
-	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
+	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
+	//--- Print entries in all ancestor frames
+	ALIdouble go;	
+	gomgr->getGlobalOptionValue("dumpInAllFrames", go );
+	if(go >= 1) dumpFittedValuesInAllAncestorFrames( ALIFileOut::getInstance( Model::ReportFName() ), FALSE, FALSE );
+
 	break;  // No more iterations
       } else if( fq == FQbigDistanceToMinimum ) {
 	addDaMatrixToEntries();
-	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ));
+	if(ALIUtils::report >= 1) dumpFittedValues( ALIFileOut::getInstance( Model::ReportFName() ), TRUE, TRUE );
 
 	//----- Next iteration (if not too many already)
 	theNoFitIterations++;
@@ -687,7 +692,7 @@ void Fit::FillMatricesWithCalibratedParameters()
 	//-       	yfMatrix->AddData( lineNo, 0, (*vecite)->lastAdditionToValueDisplacementByFitting() );
 	//-	ALIFileOut& fileout = ALIFileOut::getInstance( Model::ReportFName() );
 	//	fileout << "cal to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << endl;
-	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
+	//	std::cout << "call to yf " << (*vecite)->OptOCurrent()->name() << " " << (*vecite)->name() << " " << (*vecite)->valueDisplacementByFitting() << std::endl;
 
       } else {
         yfMatrix->AddData( lineNo, 0, 0. );
@@ -851,7 +856,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
   //    if( theNoFitIterations != 0 && fit_quality_cut > 0. ) {
   if( fit_quality_cut < 0. ) {
     fitQuality = FQchiSquareWorsened;
-    std::cerr << "!!WARNING: Fit quality has worsened: Fit Quality now = " << fit_quality
+   if(ALIUtils::debug >= 0) std::cerr << "!!WARNING: Fit quality has worsened: Fit Quality now = " << fit_quality
 	      << " before " << thePreviousIterationFitQuality << " diff " << fit_quality - thePreviousIterationFitQuality << std::endl;
 
   //----- Chi2 is smaller, check if we make another iteration    
@@ -929,17 +934,17 @@ ALIdouble Fit::GetSChi2( ALIbool useDa )
     //  std::cout << "smatc " << std::endl;
     delete tmpM;
     delete tmptM;
-    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix with Da");
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix with Da");
   } else {
     ALIMatrix* yftMat = new ALIMatrix(*yfMatrix);
     yftMat->transpose();
     SMat = new ALIMatrix(*yftMat *  *WMatrix * *yfMatrix);
     delete yftMat;
-    if(ALIUtils::debug >= -5) SMat->Dump("SMatrix no Da");
+    if(ALIUtils::debug >= 5) SMat->Dump("SMatrix no Da");
   }
   ALIdouble fit_quality = (*SMat)(0,0);
   delete SMat;
-  if(ALIUtils::debug >= -5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
+  if(ALIUtils::debug >= 5) std::cout << " GetSChi2 " << useDa << " = " << fit_quality << std::endl;
 
   PrintChi2( fit_quality, !useDa );
 
@@ -1033,7 +1038,7 @@ void Fit::substractLastDisplacementToEntries( const ALIdouble factor )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Dump all the entries that have been fitted (those that were 'cal' or 'unk'
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
+void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors, ALIbool printOrig )
 {
   //---------- print
   if(ALIUtils::debug >= 0) {
@@ -1056,7 +1061,6 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
   fileout << " quality" 
 	  << std::endl; 
 
-  ALIint nEntUnk = 0;
   //---------- Iterate over OptO list
   std::vector< Entry* > entries;
   //  const Entry* entry;
@@ -1077,50 +1081,115 @@ void Fit::dumpFittedValues( ALIFileOut& fileout, ALIbool printErrors )
     //----- Dump entry centre coordinates (centre in current coordinates of parent frame <> summ of displacements, as each displacement is done with a different rotation of parent frame)
     OpticalObject* opto = entries[0]->OptOCurrent();
     const OpticalObject* optoParent = opto->parent();
-    Hep3Vector centreLocal;
-    if( optoParent->type() == "system" ) {
-      centreLocal = opto->centreGlob();
-    } else {
-      centreLocal = opto->centreGlob() - optoParent->centreGlob();
-      CLHEP::HepRotation parentRmGlobInv = inverseOf( optoParent->rmGlob() );
-      centreLocal = parentRmGlobInv * centreLocal;
-    }
-    if(ALIUtils::debug >= 2 ) {
-      std::cout << "CENTRE LOCAL "<< opto->name() << " " << centreLocal << " GLOBL " << opto->centreGlob() << " parent GLOB " << optoParent->centreGlob() << std::endl;
-      ALIUtils::dumprm( optoParent->rmGlob(), " parent rm " );
-    }
-
-    for( ii = 0; ii < 3; ii++ ){
-      /*    double entryvalue = getEntryValue( entries[ii] );
-      ALIdouble entryvalue;
-      if( ii == 0 ) {
-	entryvalue = centreLocal.x();
-      }else if( ii == 1 ) {
-	entryvalue = centreLocal.y();
-      }else if( ii == 2 ) {
-	entryvalue = centreLocal.z();
-	}*/
-      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, centreLocal[ii] / entries[ii]->OutputValueDimensionFactor() );
-    }
+    printCentreInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
 
     //----- Dump entry angles coordinates
-    std::vector<double> entryvalues = entries[5]->OptOCurrent()->GetLocalRotationAngles( entries );
-    //-    std::cout << " after return entryvalues[0] " << entryvalues[0] << " entryvalues[1] " << entryvalues[1] << " entryvalues[2] " << entryvalues[2] << std::endl;
-    for( ii = 3; ii < siz; ii++ ){
-      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, entryvalues[ii-3]/ entries[ii]->OutputValueDimensionFactor() );
-    }
+    printRotationAnglesInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
+
+    //----- Dump extra entries
     entries = (*vocite)->ExtraEntryList();
     siz = entries.size();
     for( ii = 0; ii < siz; ii++ ){
       double entryvalue = getEntryValue( entries[ii] );
-      dumpEntryAfterFit( fileout, entries[ii], nEntUnk, entryvalue );
+      dumpEntryAfterFit( fileout, entries[ii], entryvalue, printErrors, printOrig );
     }
   }
 
-  dumpEntryCorrelations( fileout, nEntUnk );
+  dumpEntryCorrelations( fileout );
+
+}
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+//@@  Dump all the entries that have been fitted in reference frames of all ancestors
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Fit::dumpFittedValuesInAllAncestorFrames( ALIFileOut& fileout, ALIbool printErrors, ALIbool printOrig )
+{
+  //---------- print
+  fileout << std::endl << "@@@@ FITTED VALUES IN ALL ANCESTORS " << std::endl 
+	  << "nEnt_unk"
+	  << "             Optical Object" 
+	  << "        Parameter  ";
+  if( printErrors ) {
+    fileout << " value (+-error)"; 
+      if( printOrig ){
+	fileout << " orig.val (+-error)";
+      }
+  } else {
+    fileout << " value ";
+      if( printOrig ){
+	fileout << " orig.val ";
+      }
+  }
+  fileout << " quality" 
+	  << std::endl; 
+
+  //---------- Iterate over OptO list
+  std::vector< Entry* > entries;
+  std::vector< OpticalObject* >::const_iterator vocite;
+  for( vocite = Model::OptOList().begin(); vocite != Model::OptOList().end(); vocite++ ) {
+    if( (*vocite)->type() == ALIstring("system") ) continue;
+
+    fileout << " %%%% Optical Object: " << (*vocite)->longName() << std::endl;
+
+    entries = (*vocite)->CoordinateEntryList();
+
+    //----- Dump entry centre coordinates (centre in current coordinates of parent frame <> summ of displacements, as each displacement is done with a different rotation of parent frame)
+    OpticalObject* opto = *vocite;
+    const OpticalObject* optoParent = opto->parent();
+    do {
+      fileout << " %% IN FRAME : " << optoParent->longName() << std::endl;
+      printCentreInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
+
+      //----- Dump entry angles coordinates
+      printRotationAnglesInOptOFrame( opto, optoParent, fileout, printErrors, printOrig );
+      optoParent = optoParent->parent();
+    }while( optoParent );
+  }
 
 }
 
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Fit::printCentreInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors, ALIbool printOrig )
+{
+  Hep3Vector centreLocal;
+  if( optoAncestor->type() == "system" ) {
+    centreLocal = opto->centreGlob();
+  } else {
+    centreLocal = opto->centreGlob() - optoAncestor->centreGlob();
+    CLHEP::HepRotation parentRmGlobInv = inverseOf( optoAncestor->rmGlob() );
+    centreLocal = parentRmGlobInv * centreLocal;
+  }
+  if(ALIUtils::debug >= 2 ) {
+    std::cout << "CENTRE LOCAL "<< opto->name() << " " << centreLocal << " GLOBL " << opto->centreGlob() << " parent GLOB " << optoAncestor->centreGlob() << std::endl;
+    ALIUtils::dumprm( optoAncestor->rmGlob(), " parent rm " );
+  }
+  std::vector< Entry* > entries = opto->CoordinateEntryList();  
+  for( uint ii = 0; ii < 3; ii++ ){
+    /* double entryvalue = getEntryValue( entries[ii] );
+       ALIdouble entryvalue;
+       if( ii == 0 ) {
+       entryvalue = centreLocal.x();
+       }else if( ii == 1 ) {
+       entryvalue = centreLocal.y();
+       }else if( ii == 2 ) {
+       entryvalue = centreLocal.z();
+       }*/
+    dumpEntryAfterFit( fileout, entries[ii], centreLocal[ii] / entries[ii]->OutputValueDimensionFactor(), printErrors, printOrig );
+  }
+
+}
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+void Fit::printRotationAnglesInOptOFrame( const OpticalObject* opto, const OpticalObject* optoAncestor, ALIFileOut& fileout, ALIbool printErrors, ALIbool printOrig )
+{
+  std::vector< Entry* > entries = opto->CoordinateEntryList();  
+  std::vector<double> entryvalues = opto->getRotationAnglesInOptOFrame( optoAncestor, entries );
+  //-    std::cout << " after return entryvalues[0] " << entryvalues[0] << " entryvalues[1] " << entryvalues[1] << " entryvalues[2] " << entryvalues[2] << std::endl;
+  for( uint ii = 3; ii < entries.size(); ii++ ){
+    dumpEntryAfterFit( fileout, entries[ii], entryvalues[ii-3]/entries[ii]->OutputValueDimensionFactor(), printErrors, printOrig );
+  }
+
+}
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 double Fit::getEntryValue( const Entry* entry )
@@ -1134,9 +1203,8 @@ double Fit::getEntryValue( const Entry* entry )
   return entryvalue;
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntUnk, double entryvalue, ALIbool printErrors )
+void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, double entryvalue, ALIbool printErrors, ALIbool printOrig )
 {
   //-  std::cout << " Fit::dumpEntryAfterFit " << entryvalue << std::endl;
   ALIdouble dimv = entry->OutputValueDimensionFactor();
@@ -1152,8 +1220,7 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
   }
   
   if ( entry->quality() == 2 ) {
-    fileout << "UNK: " << entry->fitPos() << " "; 
-    //-    fileout << "UNK: " << nEntUnk << " "; 
+    fileout << "UNK: " << entry->fitPos() << " ";   
   } else if ( entry->quality() == 1 ) {
     fileout << "CAL: " << entry->fitPos() << " "; 
     //    fileout << "CAL: -1 "; 
@@ -1169,31 +1236,32 @@ void Fit::dumpEntryAfterFit( ALIFileOut& fileout, const Entry* entry, int& nEntU
   } else { 
     if( printErrors ) fileout << " +- " << std::setw(8) << 0.;
   }
-  fileout << std::setw(8) << " " << entry->value() / dimv;
-  if( printErrors ) fileout << " +- " << std::setw(8) << entry->sigma() /dims << " Q" << entry->quality();
-  if( ALIUtils::report >= 2) {
-    float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
-    if( fabs(dif) < 1.E-9 ) dif = 0.;
-    fileout << " DIFF= " << dif;
-    // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
-  } else {
-    //	fileout << std::endl;
-  }
-  fileout << std::endl;
+  if( printOrig ) {
+    fileout << std::setw(8) << " " << entry->value() / dimv;
+    if( printErrors ) fileout << " +- " << std::setw(8) << entry->sigma() /dims << " Q" << entry->quality();
 
-  if ( entry->quality() == 2 ) nEntUnk++;
+    if( ALIUtils::report >= 2) {
+      float dif = ( entry->value() + entry->valueDisplacementByFitting() ) / dimv - entry->value() / dimv;
+      if( fabs(dif) < 1.E-9 ) dif = 0.;
+      fileout << " DIFF= " << dif;
+      // << " == " << ( entry->value() + entry->valueDisplacementByFitting() )  / dimv - entryvalue << " @@ " << ( entry->value() + entry->valueDisplacementByFitting() ) / dimv << " @@ " <<  entryvalue;
+    } else {
+      //	fileout << std::endl;
+    }
+  }
+
+  fileout << std::endl;
   
 }
 
-
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void Fit::dumpEntryCorrelations( ALIFileOut& fileout, const int nEntUnk )
+void Fit::dumpEntryCorrelations( ALIFileOut& fileout )
 {
   //----- Only dump correlations bigger than a factor
   ALIdouble minCorrel = 1.E-6;
   //----- Dump correlations
   fileout << std::endl << "CORRELATION BETWEEN 'unk' ENTRIES: (>= " << minCorrel<< " )" << std::endl
-	  << "No_1  No_2   correlation " << nEntUnk << std::endl;
+	  << "No_1  No_2   correlation " << std::endl;
 
   ALIuint i1,i2;
   std::vector< Entry* >::iterator veite1, veite2;
@@ -1364,8 +1432,6 @@ void Fit::PrintChi2( ALIdouble fit_quality, ALIbool isFirst )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void Fit::CheckIfFitPossible()
 {   
-  std::cout << "Fit::CheckFitIsPossible looping for entry " <<  std::endl;
-
   //----- Check if there is an unknown parameter that is not affecting any measurement
   ALIint NolinMes = 0;
   std::vector<Measurement*>::const_iterator vmcite;
@@ -1376,17 +1442,17 @@ void Fit::CheckIfFitPossible()
   
   std::vector< Entry* >::const_iterator vecite;
   for ( vecite = Model::EntryList().begin(); vecite != Model::EntryList().end(); vecite++ ) {
-    if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << (*vecite)->longName() << std::endl;
+    if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << (*vecite)->longName() << std::endl;
     if ( (*vecite)->quality() == 2 ) {
       ALIint nCol =  (*vecite)->fitPos();
       //--- Check all measurements
       ALIbool noDepend = TRUE;
-      if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << nCol << std::endl;
+      if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckFitIsPossible looping for entry " << nCol << std::endl;
       for( ALIint ii = 0; ii < NolinMes; ii++ ) {
-        if( ALIUtils::debug >= -4 ) std::cout << ii << "Derivative " <<  (*AMatrix)(ii,nCol)  << std::endl;
+        if( ALIUtils::debug >= 4 ) std::cout << ii << "Derivative " <<  (*AMatrix)(ii,nCol)  << std::endl;
 
         if( fabs((*AMatrix)(ii,nCol)) > ALI_DBL_MIN ) {
-          if( ALIUtils::debug >= -3 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
+          if( ALIUtils::debug >= 3 ) std::cout << "Fit::CheckIfFitIsPossible " << nCol << " " << ii << " = " << (*AMatrix)(ii,nCol) << std::endl;
           noDepend = FALSE;
           break;
         }
@@ -1412,11 +1478,11 @@ void Fit::CheckIfFitPossible()
 	if( (*vecite2)->quality() == 2 ) { 
 	  ALIint fitpos1 =  (*vecite1)->fitPos();
 	  ALIint fitpos2 =  (*vecite2)->fitPos();
-          if( ALIUtils::debug >= -5 ) std::cout << "Fit::CheckIfFitIsPossible checking " << (*vecite1)->longName() << " ( " << fitpos1 << " ) & " << (*vecite2)->longName() << " ( " << fitpos2 << " ) "<< std::endl;
+          if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible checking " << (*vecite1)->longName() << " ( " << fitpos1 << " ) & " << (*vecite2)->longName() << " ( " << fitpos2 << " ) "<< std::endl;
           ALIdouble prop = DBL_MAX;
           ALIbool isProp = TRUE;
 	  for( ALIint ii = 0; ii < nLin; ii++ ) {
-	    if( ALIUtils::debug >= -5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
+	    if( ALIUtils::debug >= 5 ) std::cout << "Fit::CheckIfFitIsPossible " << ii << " : " << (*AMatrix)(ii,fitpos1) << " ?= " << (*AMatrix)(ii,fitpos2) << std::endl;
             if( fabs((*AMatrix)(ii,fitpos1)) < derivPrec ) {
 	      if( fabs((*AMatrix)(ii,fitpos2)) > derivPrec ) {
 		isProp = FALSE;
@@ -1451,7 +1517,7 @@ int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
   std::set<uint> columnsEqualSave;
   uint biggestColumn = 0;
   ALIdouble biggest = 0.;
-  for (uint ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+  for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
     if( fabs((*AMatrix)(measNo,ii)) > biggest ) {
       biggest = fabs((*AMatrix)(measNo,ii));
       biggestColumn = ii;
@@ -1461,11 +1527,11 @@ int Fit::CheckIfMeasIsProportionalToAnother( uint measNo )
   
   ALIdouble div;
 
-  for( uint jj = 0; jj < AMatrix->NoLines(); jj++ ){
-    if( jj == measNo ) continue;
+  for( int jj = 0; jj < AMatrix->NoLines(); jj++ ){
+    if( jj == int(measNo) ) continue;
     columnsEqual = columnsEqualSave;
     // check if ratio of each column to 'biggestColumn' is the same as for the N measurement
-    for (uint ii = 0; ii < AMatrix->NoColumns(); ii++ ){
+    for (int ii = 0; ii < AMatrix->NoColumns(); ii++ ){
       div = (*AMatrix)(measNo,ii)/(*AMatrix)(measNo,biggestColumn);
       if( fabs((*AMatrix)(jj,ii))  > ALI_DBL_MIN && fabs(div - (*AMatrix)(jj,ii)/(*AMatrix)(jj,biggestColumn) ) > ALI_DBL_MIN ) {
 	if( ALIUtils::debug >= 3 ) std::cout << "CheckIfMeasIsProportionalToAnother 2 columns = " << ii << " in " << measNo << " & " << jj << std::endl;
@@ -1512,3 +1578,4 @@ std::string Fit::GetMeasurementName( int imeas )
   std::cout << " return measname " << measname << std::endl;
   return measname;
 }
+

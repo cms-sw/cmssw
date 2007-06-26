@@ -589,7 +589,7 @@ std::string ALIUtils::changeName( const std::string& oldName, const std::string&
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> ALIUtils::GetRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ )
+std::vector<double> ALIUtils::getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, double origAngleX, double origAngleY, double origAngleZ )
 {
   double pii = acos(0.)*2;
   std::vector<double> newang(3);

@@ -1744,33 +1744,39 @@ const HepRotation OpticalObject::rmLocal() const
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> OpticalObject::GetLocalRotationAngles( std::vector< Entry* > entries )
+std::vector<double> OpticalObject::getLocalRotationAngles( std::vector< Entry* > entries ) const
 {
-  CLHEP::HepRotation rmParent = theParent->rmGlob();  //ORIGINAL ?????????????????
+  return getRotationAnglesInOptOFrame( theParent, entries );
+}
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+std::vector<double> OpticalObject::getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, std::vector< Entry* > entries ) const
+{
+  CLHEP::HepRotation rmParent = optoAncestor->rmGlob();  //ORIGINAL ?????????????????
   CLHEP::HepRotation rmLocal = rmParent.inverse() * theRmGlob;
      
   //I was using theRmGlobOriginal, assuming it has been set to theRmGlob already, check it, in case it may have other consequences
   if( theRmGlobOriginal != theRmGlob ){
-    std::cerr << " !!!FATAL ERROR: OpticalObject::GetLocalRotationAngles   theRmGlobOriginal != theRmGlob " << std::endl;
+    std::cerr << " !!!FATAL ERROR: OpticalObject::getRotationAnglesInOptOFrame   theRmGlobOriginal != theRmGlob " << std::endl;
     ALIUtils::dumprm( theRmGlobOriginal, " theRmGlobOriginal ");
     ALIUtils::dumprm( theRmGlob, " theRmGlob ");
     exit(1);
   }
 
   if( ALIUtils::debug >= 5 ) {
-    std::cout << " OpticalObject::GetLocalRotationAngles " << name() << " theParent " << theParent->name() << std::endl;
+    std::cout << " OpticalObject::getRotationAnglesInOptOFrame " << name() << " optoAncestor " << optoAncestor->name() << std::endl;
     ALIUtils::dumprm( rmParent, " rm parent ");
     ALIUtils::dumprm( rmLocal, " rm local ");
     ALIUtils::dumprm( theRmGlobOriginal, " theRmGlobOriginal ");
     ALIUtils::dumprm( theRmGlob, " theRmGlob ");
   }
-  return GetRotationAnglesFromMatrix( rmLocal, entries );
+  return getRotationAnglesFromMatrix( rmLocal, entries );
 
 }
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<double> OpticalObject::GetRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries )
+std::vector<double> OpticalObject::getRotationAnglesFromMatrix( CLHEP::HepRotation& rmLocal, std::vector< Entry* > entries ) const
 {
   std::vector<double> newang(3);
   double angleX = entries[3]->value()+entries[3]->valueDisplacementByFitting();
@@ -1779,7 +1785,7 @@ std::vector<double> OpticalObject::GetRotationAnglesFromMatrix( CLHEP::HepRotati
   if( ALIUtils::debug >= 4 ) {
     std::cout << " angles as value entries: X= " << angleX << " Y= " << angleY << " Z " << angleZ << std::endl;
   }
-  return ALIUtils::GetRotationAnglesFromMatrix( rmLocal, angleX, angleY, angleZ );
+  return ALIUtils::getRotationAnglesFromMatrix( rmLocal, angleX, angleY, angleZ );
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -2150,7 +2156,7 @@ void OpticalObject::constructFromOptAligInfo( const OpticalAlignInfo& oaInfo )
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam( const OpticalAlignParam& oaParam )
+std::vector<ALIstring> OpticalObject::getCoordinateFromOptAlignParam( const OpticalAlignParam& oaParam ) 
 {
   char chartmp[20];
   std::vector<ALIstring> wordlist;

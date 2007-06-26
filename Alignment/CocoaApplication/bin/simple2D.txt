@@ -6,6 +6,7 @@ sens1_posY  0.
 sens2_posY 0.
 
 GLOBAL_OPTIONS
+dumpInAllFrames 1
 
 //stopAfter1stIteration 1
 
