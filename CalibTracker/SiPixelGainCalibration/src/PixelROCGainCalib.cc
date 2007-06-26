@@ -10,10 +10,19 @@
 
 
 PixelROCGainCalib::PixelROCGainCalib(): 
-vcalrangemin_(0),vcalrangestep_(256),vcalrangemax_(256),nrowsmax_(80),ncolsmax_(52),
-linkid_(0),rocid_(0),nvcal_(1), thisROCTitle_(""),ncolslimit_(52),nrowslimit_(80)
+  vcalrangestep_(256),
+  vcalrangemin_(0),
+  vcalrangemax_(256),
+  nrowsmax_(80),
+  nrowslimit_(80),
+  ncolsmax_(52),
+  ncolslimit_(52),
+  linkid_(0),
+  rocid_(0),
+  nvcal_(1), 
+  thisROCTitle_("")
 {
-  // some ugly asserts to make sure none of the arrays run over limits 
+ 
 }
 //*********************
 void PixelROCGainCalib::init(unsigned int linkid, unsigned int rocid,unsigned int nvcal,unsigned int vcalRangeMin, unsigned vcalRangeMax, unsigned vcalRangeStep,unsigned int ncols,unsigned int nrows){

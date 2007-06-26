@@ -15,7 +15,7 @@
 //
 // Original Author:  Freya Blekman
 //         Created:  Mon May  7 14:22:37 CEST 2007
-// $Id$
+// $Id: SiPixelGainCalibrationDBAnalysis.h,v 1.1 2007/05/20 18:08:09 fblekman Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "CalibTracker/SiPixelGainCalibration/interface/PixelCalib.h"
+#include "CalibFormats/SiPixelObjects/interface/PixelCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelROCGainCalib.h"
 #include "CalibTracker/SiPixelGainCalibration/interface/PixelSLinkDataHit.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
