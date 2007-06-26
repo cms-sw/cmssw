@@ -69,7 +69,6 @@ namespace reco {
     float getMaximumHcalTowerEnergy() const { return maximumHcalTowerEnergy_;}
     //get em isolation variable
     float getEMIsolation() const { return emIsolation_;}
-    float getCharge() const{return charge_;}
 
     void setLeadingTrack(const TrackRef& myTrack) { leadingTrack_ = myTrack;}
     void setSignalTracks(const TrackRefVector& myTracks)  { signalTracks_ = myTracks;}
@@ -102,7 +101,7 @@ namespace reco {
     void setEmOverHadronEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso;}
-    void setCharge(const float& charge){charge_ = charge;}
+
 
   private:
     /// check overlap with another candidate
@@ -125,7 +124,7 @@ namespace reco {
     float sumPtIsolation_;
     float emOverHadronEnergy_;
     float emIsolation_;
-    float charge_;
+
   };
 }
 

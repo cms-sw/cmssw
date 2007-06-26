@@ -3,8 +3,8 @@
 Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
 {
   //Takes the jet
-  const Jet & jet = *(myTagInfo.jet());
-  const  PFJet * pfJet = dynamic_cast<const PFJet*>( &jet );
+  //  const Jet & jet = * (myTagInfo.jet());
+  PFJetRef myJet = myTagInfo.pfjetRef();
 
   //Takes the LeadChargedHadron
   float z_PV = 0;
@@ -22,8 +22,7 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
   }
   
   math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
-  //Qui che ci mettiamo per il vertice
-  Tau myTau(pfJet->charge(), pfJet->p4(), vtx );
+  Tau myTau(myJet->charge(),myJet->p4(),vtx);
   myTau.setLeadingTrack(myLeadTk);
   myTau.setLeadingChargedHadron(myTagInfo.leadPFChargedHadrCand(MatchingConeSize_, LeadCand_minPt_));
 
