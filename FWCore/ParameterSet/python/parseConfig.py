@@ -167,7 +167,6 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
     otherUsings = set( (label,))
     values = []
     usingLabels = []
-    global _usings
     for tempLabel,param in item.__dict__.iteritems():
         if isinstance(param,_UsingNode):
             values.extend(_handleUsing(param,otherUsings,process,allUsingLabels))
@@ -184,7 +183,6 @@ def _findAndHandleUsingBlocksRecursive(label,item,process,allUsingLabels):
             raise RuntimeError("the using labelled '"+using.label+"' tried to add the label '"+
                                plabel+"' which already exists in this block")
         setattr(item,plabel,param)
-        _usings.append([item,plabel,param]) # let's remember the usings
 
 def _findAndHandleProcessUsingBlock(values):
     d=dict(values)
@@ -940,8 +938,6 @@ def _finalizeProcessFragment(values,usingLabels):
 def _makeProcess(s,loc,toks):
     """create a Process from the tokens"""
     #print toks
-    global _usings
-    _usings = []
     label = toks[0][0]
     p=cms.Process(label)
 
@@ -1028,7 +1024,6 @@ def _makeProcess(s,loc,toks):
     except Exception, e:
         raise pp.ParseFatalException(s,loc,"the process contains the error \n"+str(e))    
 #    p = cms.PSet(*[],**d)
-#    doTheUsings(p)
     return p
 
 
@@ -1083,12 +1078,6 @@ def parseCffFile(fileName):
     #_allUsingLabels = set() # do I need to reset here?
     d=_finalizeProcessFragment(t,_allUsingLabels)
     return _ConfigReturn(d)
-
-def doTheUsings(process):
-    global _usings
-    global _lookuptable
-    for item, label, param in _usings:
-        process.__dict__[_lookuptable[item]].__dict__[label] = param
 
 def processFromString(configString):
     """Reads a string containing the equivalent content of a .cfg file and
