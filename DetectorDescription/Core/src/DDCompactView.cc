@@ -30,13 +30,11 @@ DDCompactView::DDCompactView()
     global();
 }  
 
-
+// NOTE TO SELF:  Mike, DO NOT try to fix the memory leak here by going global again!!!
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  //  : rep_(new DDCompactViewImpl(rootnodedata))
+  : rep_(new DDCompactViewImpl(rootnodedata))
   {
     // global_ = rep_;
-    DDRootDef::instance().set(rootnodedata);
-    global();
   }
 
 // Prototypish, to be used from within DDpos(...)
