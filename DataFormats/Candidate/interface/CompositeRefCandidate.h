@@ -9,7 +9,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: CompositeRefCandidate.h,v 1.13 2007/05/14 11:59:26 llista Exp $
+ * \version $Id: CompositeRefCandidate.h,v 1.14 2007/06/12 21:27:21 llista Exp $
  *
  */
 
@@ -53,6 +53,9 @@ namespace reco {
     void clearDaughters() { dau.clear(); }
     /// reference to daughter at given position
     CandidateRef daughterRef( size_type i ) const { return dau[ i ]; }
+    /// references to daughtes
+    const daughters & daughterRefVector() const { return dau; }
+
   private:
     /// const iterator implementation
     typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
