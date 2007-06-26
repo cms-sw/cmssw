@@ -45,7 +45,7 @@ int RPCBasicTrigConfig::getTBsInTC() { return m_TB_IN_TC_CNT; }
  *
 */
 int RPCBasicTrigConfig::getTCNum(const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
-  return coneCrdnts.m_LogSector;
+  return coneCrdnts.m_LogSector+1;
 }
 /**
  *
