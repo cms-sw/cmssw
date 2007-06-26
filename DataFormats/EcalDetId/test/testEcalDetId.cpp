@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.3 2006/08/23 15:40:06 meridian Exp $
+   \version $Id: testEcalDetId.cpp,v 1.4 2007/03/27 09:53:41 meridian Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.3 2006/08/23 15:40:06 meridian Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.4 2007/03/27 09:53:41 meridian Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -18,6 +18,8 @@ static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.3 2006/08/23 15:40:06 me
 #include <DataFormats/EcalDetId/interface/EcalElectronicsId.h>
 #include <DataFormats/EcalDetId/interface/EcalPnDiodeDetId.h>
 #include "FWCore/Utilities/interface/Exception.h"
+
+#include<vector>
 
 #include <iostream>
 
@@ -55,6 +57,8 @@ void testEcalDetId::testEBDetId(){
 
   EBDetId smId;
 
+  std::vector<unsigned int> detIds(EBDetId::SIZE_HASH,0);
+
   for (int ieta=EBDetId::MIN_IETA;ieta<=EBDetId::MAX_IETA;ieta++)
     for (int iphi=EBDetId::MIN_IPHI;iphi<=EBDetId::MAX_IPHI;iphi++)
       {
@@ -77,6 +81,8 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ism()<=EBDetId::MAX_SM);
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
+	      CPPUNIT_ASSERT(validHashIndex(aPositiveId.fastHashedIndex()));
+	      detIds.at(aPositiveId.fastHashedIndex()) = aPositiveId;
 	    }
 
 	    //EBDetId Zside -1 
@@ -96,14 +102,28 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ism()<=EBDetId::MAX_SM);
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
+	      CPPUNIT_ASSERT(validHashIndex(aNegativeId.fastHashedIndex()));
+	      detIds.at(aNegativeId.fastHashedIndex()) = aNegativeId;
+	      
 
 	    }
 	  }
 	catch ( cms::Exception &e ) 
 	  { 
+	    bool cmsExceptionCought=false;
+	    CPPUNIT_ASSERT(cmsExceptionCought);
+	  }
+	catch ( std::exception &e ) 
+	  { 
+	    bool stdExceptionCought=false;
+	    CPPUNIT_ASSERT(stdExceptionCought);
 	  }
       }
-
+  
+  for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
+    CPPUNIT_ASSERT(deIds[i]!=0);
+    CPPUNIT_ASSERT(EBDetId(deIds[i]).fastHashedIndex()==i);
+  }
   
 }
 
