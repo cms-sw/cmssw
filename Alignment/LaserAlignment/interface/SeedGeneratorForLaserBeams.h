@@ -4,8 +4,8 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: 2007/03/18 19:00:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/10 12:00:32 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -24,6 +24,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
+#include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/KalmanUpdators/interface/KFUpdator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
@@ -48,6 +49,11 @@ class SeedGeneratorForLaserBeams
   void run(TrajectorySeedCollection &, const edm::EventSetup & iSetup);
 
  private:
+  /// propagate using PropagatorWithMaterial
+  void propagateWithMaterial(edm::OwnVector<TrackingRecHit> & hits, OrderedLaserHitPairs & HitPairs, GlobalPoint & inner, GlobalPoint & outer);
+  /// propagate using AnalyticalPropagator
+  void propagateAnalytical(edm::OwnVector<TrackingRecHit> & hits, OrderedLaserHitPairs & HitPairs, GlobalPoint & inner, GlobalPoint & outer);
+   
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
   LaserHitPairGenerator * thePairGenerator;
@@ -55,9 +61,12 @@ class SeedGeneratorForLaserBeams
   edm::ESHandle<TrackerGeometry> tracker;
   TrajectoryStateTransform transformer;
   KFUpdator * theUpdator;
-  PropagatorWithMaterial * thePropagatorAl;
-  PropagatorWithMaterial * thePropagatorOp;
+  PropagatorWithMaterial * thePropagatorMaterialAl;
+  PropagatorWithMaterial * thePropagatorMaterialOp;
+  AnalyticalPropagator * thePropagatorAnalyticalAl;
+  AnalyticalPropagator * thePropagatorAnalyticalOp;
   const TransientTrackingRecHitBuilder * TTRHBuilder;
   std::string builderName;
+  std::string propagatorName;
 };
 #endif

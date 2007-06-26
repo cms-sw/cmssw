@@ -1,8 +1,8 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: 2007/05/10 10:38:16 $
- *  $Revision: 1.5 $
+ *  $Date: 2007/05/10 12:00:46 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -18,13 +18,15 @@
 	SeedGeneratorForLaserBeams::SeedGeneratorForLaserBeams(edm::ParameterSet const& iConfig) 
 	  : conf_(iConfig), region(), 
 	thePairGenerator(), magfield(), tracker(), transformer(), theUpdator(),
-	thePropagatorAl(), thePropagatorOp(), TTRHBuilder(), builderName()
+	thePropagatorMaterialAl(), thePropagatorMaterialOp(), thePropagatorAnalyticalAl(),
+	thePropagatorAnalyticalOp(), TTRHBuilder(), builderName(), propagatorName()
 {
 	double ptmin = conf_.getParameter<double>("ptMin");
 	double originradius = conf_.getParameter<double>("originRadius");
 	double halflength = conf_.getParameter<double>("originHalfLength");
 	double originz = conf_.getParameter<double>("originZPosition");
 	builderName = conf_.getParameter<std::string>("TTRHBuilder");
+  propagatorName = conf_.getParameter<std::sting>("Propagator");
 
 	region = GlobalTrackingRegion(ptmin, originradius, halflength, originz);
 
@@ -34,9 +36,17 @@
 
 SeedGeneratorForLaserBeams::~SeedGeneratorForLaserBeams()
 {
-	if ( thePropagatorAl != 0 ) { delete thePropagatorAl; }
-	if ( thePropagatorOp != 0 ) { delete thePropagatorOp; }
-	if ( theUpdator != 0 ) { delete theUpdator; }
+  if (propagatorName == "WithMaterial")
+  {
+    if ( thePropagatorMaterialAl != 0 ) { delete thePropagatorMaterialAl; }
+    if ( thePropagatorMaterialOp != 0 ) { delete thePropagatorMaterialOp; }
+  }
+  else if (propagatorName == "Analytical")
+  {
+    if ( thePropagatorAnalyticalAl != 0 ) { delete thePropagatorAnalyticalAl; }
+    if ( thePropagatorAnalyticalOp != 0 ) { delete thePropagatorAnalyticalOp; }
+  }	
+  if ( theUpdator != 0 ) { delete theUpdator; }
 	if ( thePairGenerator != 0) { delete thePairGenerator; }
 }
 
@@ -48,9 +58,18 @@ void SeedGeneratorForLaserBeams::init(const SiStripRecHit2DCollection &collstere
 	iSetup.get<IdealMagneticFieldRecord>().get(magfield);
 	iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
 
-	thePropagatorAl = new PropagatorWithMaterial(alongMomentum, 0.0, &(*magfield) );
-	thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum, 0.0, &(*magfield) );
-	theUpdator = new KFUpdator();
+  if ( propagatorName == "WithMaterial" )
+  {
+    thePropagatorMaterialAl = new PropagatorWithMaterial(alongMomentum, 0.0, &(*magfield) );
+    thePropagatorMaterialOp = new PropagatorWithMaterial(oppositeToMomentum, 0.0, &(*magfield) );
+  }	
+  else if ( propagatorName == "Analytical" )
+  {
+    thePropagatorAnalyticalAl = new AnalyticalPropagator(&(*magfield), alongMomentum);
+    thePropagatorAnalyticalOp = new AnalyticalPropagator(&(*magfield), oppositeToMomentum);
+  }
+
+  theUpdator = new KFUpdator();
 
 	// get the transient builder
 	edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
@@ -85,63 +104,137 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 			if ( ( (outer.z()-inner.z())>0 && outer.z() > 0 && inner.z() > 0 ) 
 				|| ( (outer.z() - inner.z()) < 0 && outer.z() < 0 && inner.z() < 0 ) )
 			{
-				// the 0 is a possible problem!!!!
-				// 	  GlobalTrajectoryParameters Gtp(outer, inner-outer, 0, &(*magfield));
-				GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
-				FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
-
-				LogDebug("LaserSeedFinder") << " FirstTSOS " << LaserSeed;
-
-				// First propagation
-				const TSOS outerState = thePropagatorAl->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
-
-				if (outerState.isValid())
-				{
-					LogDebug("LaserSeedFinder") << " outerState " << outerState;
-					const TSOS outerUpdated = theUpdator->update( outerState, *outrhit);
-
-					if (outerUpdated.isValid())
-					{
-						LogDebug("LaserSeedFinder") << " outerUpdated " << outerUpdated;
-
-						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
-						TrajectorySeed * trSeed = new TrajectorySeed(*pTraj, hits, alongMomentum);
-					// store seed
-						output.push_back(*trSeed);
-					}
-					else { edm::LogError("LaserSeedFinder") << " SeedForLaserBeams first update failed "; }
-				}
-				else { edm::LogError("LaserSeedFinder") << " SeedForLaserBeams first propagation failed "; }
-			}
-			else 
-			{
-				// the 0 is a possible problem!!!!
-				// 	  GlobalTrajectoryParameters Gtp(outer, outer-inner, 0, &(*magfield));
-				GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
-				FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
-				LogDebug("LaserSeedFinder") << " FirstTSOS " << LaserSeed;
-
-				// First propagation
-				const TSOS outerState = thePropagatorOp->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
-
-				if (outerState.isValid())
-				{
-					LogDebug("LaserSeedFinder") << " outerState " << outerState;
-					const TSOS outerUpdated = theUpdator->update(outerState, *outrhit);
-
-					if (outerUpdated.isValid())
-					{
-						LogDebug("LaserSeedFinder") << " outerUpdated " << outerUpdated;
-						PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
-
-						TrajectorySeed *trSeed = new TrajectorySeed(*pTraj, hits, oppositeToMomentum);
-					// store seed
-						output.push_back(*trSeed);
-					}
-					else { edm::LogError("LaserSeedFinder") << " SeedForLaserBeams first update failed "; }
-				}
-				else { edm::LogError("LaserSeedFinder") << " SeedForLaserBeams first propagation failed "; }
+        if (propagatorName == "WithMaterial")
+        {
+          propateWithMaterial(hits, HitPairs, inner, outer);
+        }
+        else if ( propagatorName == "Analytical")
+        {
+          propagateAnalytical(hits, HitPairs, inner, outer);
+        }
 			}
 		}
 	}
 }
+
+void SeedGeneratorForLaserBeams::propagateWithMaterial(edm::OwnVector<TrackingRecHit> & hits, OrderedLaserHitPairs & HitPairs, GlobalPoint & inner, GlobalPoint & outer)
+{
+        // the 0 is a possible problem!!!!
+        // 	  GlobalTrajectoryParameters Gtp(outer, inner-outer, 0, &(*magfield));
+  GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
+  FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+
+  LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " FirstTSOS " << LaserSeed;
+
+          // First propagation
+  const TSOS outerState = thePropagatorMaterialAl->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+
+  if (outerState.isValid())
+  {
+    LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " outerState " << outerState;
+    const TSOS outerUpdated = theUpdator->update( outerState, *outrhit);
+
+    if (outerUpdated.isValid())
+    {
+      LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " outerUpdated " << outerUpdated;
+
+      PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+      TrajectorySeed * trSeed = new TrajectorySeed(*pTraj, hits, alongMomentum);
+            // store seed
+      output.push_back(*trSeed);
+    }
+    else { edm::LogError("SeedGeneratorForLaserBeams:propagateWithMaterial") << " SeedForLaserBeams first update failed "; }
+  }
+  else { edm::LogError("SeedGeneratorForLaserBeams:propagateWithMaterial") << " SeedForLaserBeams first propagation failed "; }
+}
+else 
+{
+          // the 0 is a possible problem!!!!
+          // 	  GlobalTrajectoryParameters Gtp(outer, outer-inner, 0, &(*magfield));
+  GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
+  FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+  LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " FirstTSOS " << LaserSeed;
+
+          // First propagation
+  const TSOS outerState = thePropagatorMaterialOp->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+
+  if (outerState.isValid())
+  {
+    LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " outerState " << outerState;
+    const TSOS outerUpdated = theUpdator->update(outerState, *outrhit);
+
+    if (outerUpdated.isValid())
+    {
+      LogDebug("SeedGeneratorForLaserBeams:propagateWithMaterial") << " outerUpdated " << outerUpdated;
+      PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+
+      TrajectorySeed *trSeed = new TrajectorySeed(*pTraj, hits, oppositeToMomentum);
+            // store seed
+      output.push_back(*trSeed);
+    }
+    else { edm::LogError("SeedGeneratorForLaserBeams:propagateWithMaterial") << " SeedForLaserBeams first update failed "; }
+  }
+  else { edm::LogError("SeedGeneratorForLaserBeams:propagateWithMaterial") << " SeedForLaserBeams first propagation failed "; }
+}
+
+
+void SeedGeneratorForLaserBeams::propagateAnalytical(edm::OwnVector<TrackingRecHit> & hits, OrderedLaserHitPairs & HitPairs, GlobalPoint & inner, GlobalPoint & outer)
+{
+        // the 0 is a possible problem!!!!
+        // 	  GlobalTrajectoryParameters Gtp(outer, inner-outer, 0, &(*magfield));
+  GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
+  FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+
+  LogDebug("SeedGeneratorForLaserBeams:propagateAnalytical") << " FirstTSOS " << LaserSeed;
+
+          // First propagation
+  const TSOS outerState = thePropagatorAnalyticalAl->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+
+  if (outerState.isValid())
+  {
+    LogDebug("SeedGeneratorForLaserBeams:propagateAnalytical") << " outerState " << outerState;
+    const TSOS outerUpdated = theUpdator->update( outerState, *outrhit);
+
+    if (outerUpdated.isValid())
+    {
+      LogDebug("SeedGeneratorForLaserBeams:propagateAnalytical") << " outerUpdated " << outerUpdated;
+
+      PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+      TrajectorySeed * trSeed = new TrajectorySeed(*pTraj, hits, alongMomentum);
+            // store seed
+      output.push_back(*trSeed);
+    }
+    else { edm::LogError("SeedGeneratorForLaserBeams:propagateAnalytical") << " SeedForLaserBeams first update failed "; }
+  }
+  else { edm::LogError("SeedGeneratorForLaserBeams:propagateAnalytical") << " SeedForLaserBeams first propagation failed "; }
+}
+else 
+{
+          // the 0 is a possible problem!!!!
+          // 	  GlobalTrajectoryParameters Gtp(outer, outer-inner, 0, &(*magfield));
+  GlobalTrajectoryParameters Gtp(outer, outer-inner, -1, &(*magfield));
+  FreeTrajectoryState LaserSeed(Gtp, CurvilinearTrajectoryError(AlgebraicSymMatrix(5,1)));
+  LogDebug("SeedGeneratorForLaserBeams:propagateWithAnalytical") << " FirstTSOS " << LaserSeed;
+
+          // First propagation
+  const TSOS outerState = thePropagatorAnalyticalOp->propagate(LaserSeed, tracker->idToDet(HitPairs[i].outer()->geographicalId())->surface());
+
+  if (outerState.isValid())
+  {
+    LogDebug("SeedGeneratorForLaserBeams:propagateAnalytical") << " outerState " << outerState;
+    const TSOS outerUpdated = theUpdator->update(outerState, *outrhit);
+
+    if (outerUpdated.isValid())
+    {
+      LogDebug("SeedGeneratorForLaserBeams:propagateAnalytical") << " outerUpdated " << outerUpdated;
+      PTrajectoryStateOnDet *pTraj = transformer.persistentState(outerUpdated, HitPairs[i].outer()->geographicalId().rawId());
+
+      TrajectorySeed *trSeed = new TrajectorySeed(*pTraj, hits, oppositeToMomentum);
+            // store seed
+      output.push_back(*trSeed);
+    }
+    else { edm::LogError("SeedGeneratorForLaserBeams:propagateAnalytical") << " SeedForLaserBeams first update failed "; }
+  }
+  else { edm::LogError("SeedGeneratorForLaserBeams:propagateAnalytical") << " SeedForLaserBeams first propagation failed "; }
+}
+
