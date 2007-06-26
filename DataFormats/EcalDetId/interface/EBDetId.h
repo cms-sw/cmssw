@@ -12,7 +12,7 @@
  *  Crystal identifier class for the ECAL barrel
  *
  *
- *  $Id: EBDetId.h,v 1.15 2007/06/25 10:03:33 innocent Exp $
+ *  $Id: EBDetId.h,v 1.16 2007/06/25 10:07:59 innocent Exp $
  */
 
 
@@ -66,7 +66,7 @@ class EBDetId : public DetId {
   bool positiveZ() const { return id_&0x10000;}
   // crystal number in eta-phi grid
   int fastHashedIndex() const { 
-    return (ietaAbs()-1 + positiveZ()?MAX_IETA:0)*MAX_IPHI+ iphi()-1;
+    return (MAX_IETA + (positiveZ() ? ietaAbs()-1 : ietaAbs()) )*MAX_IPHI+ iphi()-1;
   }
 
   static bool validHashIndex(int i) {
@@ -92,8 +92,8 @@ class EBDetId : public DetId {
   static const int MAX_SM = 36;
   static const int MIN_C = 1;
   static const int MAX_C = kCrystalsPerSM;
-  static const int MIN_HASH = 0; // always 0 ...
-  static const int MAX_HASH = 2*MAX_IPHI*MAX_IETA-1;
+  static const int MIN_HASH =  0; // always 0 ...
+  static const int MAX_HASH =  2*MAX_IPHI*MAX_IETA-1;
   static const int SIZE_HASH = 2*MAX_IPHI*MAX_IETA;
   
 
