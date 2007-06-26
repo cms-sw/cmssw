@@ -34,7 +34,7 @@ using namespace std;
 class PFRecoTauProducer : public EDProducer {
  public:
   explicit PFRecoTauProducer(const ParameterSet& iConfig){
-    PFTagInfo_  = iConfig.getParameter<string>("PFTagInfo");
+    PFTagInfo_  = iConfig.getParameter<InputTag>("PFTagInfo");
     PFRecoTauAlgo_=new PFRecoTauAlgorithm(iConfig);
     produces<TauCollection>();      
   }
@@ -43,7 +43,6 @@ class PFRecoTauProducer : public EDProducer {
   }
   virtual void produce(Event&,const EventSetup&);
  private:
-  string PFJetmodule_;
   InputTag PFTagInfo_;
   double PFJetConeSize_;
   PFRecoTauAlgorithm* PFRecoTauAlgo_;
