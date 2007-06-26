@@ -1205,16 +1205,26 @@ namespace edm {
     return last_rc_;
   }
 
-  void EventProcessor::setRunNumber(RunNumber_t runNumber)
+  void
+  EventProcessor::setRunNumber(RunNumber_t runNumber)
   {
+    // inside of beginJob there is a check to see if it has been called before
     beginJob();
     changeState(mSetRun);
 
     // interface not correct yet
-    getInputSource().setRunNumber(runNumber);
+    input_->setRunNumber(runNumber);
+  }
 
-    LogWarning("state")
-      << "EventProcessor::setRunNumber not yet implemented\n";
+  void
+  EventProcessor::declareRunNumber(RunNumber_t runNumber)
+  {
+    // inside of beginJob there is a check to see if it has been called before
+    beginJob();
+    changeState(mSetRun);
+
+    // interface not correct yet - wait for Bill to be done with run/lumi loop stuff 21-Jun-2007
+    //input_->declareRunNumber(runNumber);
   }
 
   EventProcessor::StatusCode 
