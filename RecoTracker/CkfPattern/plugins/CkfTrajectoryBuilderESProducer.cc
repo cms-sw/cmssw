@@ -40,6 +40,7 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   std::string propagatorOppositeName = pset_.getParameter<std::string>("propagatorOpposite");   
   std::string estimatorName          = pset_.getParameter<std::string>("estimator"); 
   std::string recHitBuilderName      = pset_.getParameter<std::string>("TTRHBuilder");     
+  std::string measurementTrackerName = pset_.getParameter<std::string>("MeasurementTrackerName");     
 
   edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
   edm::ESHandle<Propagator>             propagatorAlongHandle;
@@ -53,7 +54,7 @@ CkfTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
   iRecord.getRecord<TrackingComponentsRecord>().get(propagatorOppositeName,propagatorOppositeHandle);
   iRecord.getRecord<TrackingComponentsRecord>().get(estimatorName,estimatorHandle);  
   iRecord.getRecord<TransientRecHitRecord>().get(recHitBuilderName,recHitBuilderHandle);  
-  iRecord.get(measurementTrackerHandle);  
+  iRecord.get(measurementTrackerName, measurementTrackerHandle);  
     
   _trajectoryBuilder  = 
     boost::shared_ptr<TrackerTrajectoryBuilder>(new CkfTrajectoryBuilder(pset_,
