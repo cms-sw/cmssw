@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.4 2007/06/13 12:04:26 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.5 2007/06/26 10:22:58 arizzi Exp $
 //
 //
 
@@ -132,7 +132,6 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(TrajTrackAssociationCollection::const_iterator it = trajectoryToTrackMap->begin(); it!=trajectoryToTrackMap->end(); ++it)
    {
     trackToTrajectoryMap[&(*it->val)]=&(*it->key);
-    cout << "keys " << &(*it->val) << endl; 
    }
 
 
@@ -140,10 +139,8 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    for(int j=0;tk_it!=tracks.end();tk_it++,j++)  //loop also index j for AssoVector::setValue
    {
      //Get trajectory from the map for the given track
-     
      //call fnction to compute the normalized hits... given track and trajectory
      //angle,detid,rawCharge
-     cout << "pointer " << &(*tk_it) << endl;
 
      DeDxHitCollection dedxHits; // the output hits for this track
 
@@ -240,10 +237,10 @@ double DeDxHitsProducer::distance(DetId id)
    return (*dist).second;
  else
  {
-  float dist=1.;
-  //FIXME: get module distance 
-   m_distanceMap[id]=dist;//computed value
-   return dist;
+  const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
+   float   d=it->position().mag();
+   m_distanceMap[id]=d;
+   return d;
  }
  
 }
