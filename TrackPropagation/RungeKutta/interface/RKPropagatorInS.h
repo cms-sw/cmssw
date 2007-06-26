@@ -20,9 +20,11 @@ class RKPropagatorInS : public Propagator {
 public:
 
   // RKPropagatorInS( PropagationDirection dir = alongMomentum) : Propagator(dir), theVolume(0) {}
+  // tolerance (see below) used to be 1.e-5 --> this was observed to cause problems with convergence 
+  // when propagating to cylinder with large radius (~10 meter) MM 22/6/07
 
   explicit RKPropagatorInS( const MagVolume& vol, PropagationDirection dir = alongMomentum,
-			    double tolerance = 1.e-5) : 
+			    double tolerance = 5.e-5) : 
     Propagator(dir), theVolume( &vol), theTolerance( tolerance) {}
 
   ~RKPropagatorInS() {}
