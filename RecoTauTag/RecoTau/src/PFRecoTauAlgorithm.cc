@@ -20,18 +20,26 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
       }
     }
   }
-  
+  //  cout <<"Vertex "<<myLeadTk->vz()<<endl;
+  //  cout <<"Z_imp "<<myLeadTk->dz()<<endl;
   math::XYZPoint  vtx = math::XYZPoint( 0, 0, z_PV );
   //create the Tau
+  
   Tau myTau(myJet->charge(),myJet->p4(),vtx);
 
   //setting the mass
   myTau.setInvariantMass(myTau.mass());
 
+  //Setting the EmOverHcal energy
+  myTau.setEmOverHadronEnergy((myJet->chargedEmEnergy() + myJet->neutralEmEnergy())/ (myJet->chargedHadronEnergy()  +myJet->neutralHadronEnergy()) );
+
   //Setting the LeadChargedHadrons
   PFCandidateRef leadPFChargedHadron = myTagInfo.leadPFChargedHadrCand(MatchingConeSize_, LeadCand_minPt_);
-  myTau.setLeadingChargedHadron(leadPFChargedHadron);
   math::XYZVector leadPFCand_XYZVector=(*leadPFChargedHadron).momentum() ;
+  myTau.setLeadingChargedHadron(leadPFChargedHadron);
+
+  //Setting the HCalEnergy from the LeadHadron
+  myTau.setMaximumHcalTowerEnergy(leadPFChargedHadron->energy());
 
   //Setting the ChargedHadrons
   PFCandidateRefVector myChargedHadrons = myTagInfo.PFChargedHadrCands();
@@ -40,7 +48,15 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
   //Setting the SignalChargedHadrons
   PFCandidateRefVector mySignalChargedHadrons = 
     myTagInfo.PFChargedHadrCandsInCone(leadPFCand_XYZVector, TrackerSignalConeSize_,Candidates_minPt_);
-  myTau.setSignalChargedHadrons(mySignalChargedHadrons);  
+  myTau.setSignalChargedHadrons(mySignalChargedHadrons); 
+  
+  //Setting charge
+  int myCharge = 0.;
+  for(int i=0; i<mySignalChargedHadrons.size();i++)
+    {
+      myCharge = myCharge + mySignalChargedHadrons[i]->charge();
+    }
+  myTau.setCharge(myCharge);
 
   //Setting the IsolationChargedHadrons
   PFCandidateRefVector myIsolationChargedHadrons = 
@@ -74,7 +90,9 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
   PFCandidateRefVector myIsolationGammaCandidates = 
     myTagInfo.PFGammaCandsInCone(leadPFCand_XYZVector, ECALIsolConeSize_ ,Candidates_minPt_);
   myTau.setIsolationGammaCandidates(myIsolationGammaCandidates);  
-  
+
+
+ 
     
   return myTau;
   
