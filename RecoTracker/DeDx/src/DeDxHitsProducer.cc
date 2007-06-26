@@ -13,7 +13,7 @@
 //
 // Original Author:  andrea
 //         Created:  Thu May 31 14:09:02 CEST 2007
-// $Id: DeDxHitsProducer.cc,v 1.3 2007/06/11 15:53:32 arizzi Exp $
+// $Id: DeDxHitsProducer.cc,v 1.4 2007/06/13 12:04:26 arizzi Exp $
 //
 //
 
@@ -153,7 +153,9 @@ DeDxHitsProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         vector<DeDxTools::RawHits> hits = trajectoryRawHits(*trajectory);  
         for(size_t i=0; i < hits.size(); i++)
           {
-             dedxHits.push_back( DeDxHit( normalize(hits[i].detId,hits[i].charge*std::abs(hits[i].angleCosine)), distance(hits[i].detId), hits[i].detId.rawId() ));
+              float pathLen=thickness(hits[i].detId)/std::abs(hits[i].angleCosine);
+              float charge=normalize(hits[i].detId,hits[i].charge*std::abs(hits[i].angleCosine)); 
+             dedxHits.push_back( DeDxHit( charge, distance(hits[i].detId), pathLen, hits[i].detId) );
           }
      }
      sort(dedxHits.begin(),dedxHits.end(),less<DeDxHit>());
@@ -180,6 +182,32 @@ DeDxHitsProducer::endJob() {
 //TODO: if verbose level very high, print the detid->calib map
 }
 
+double DeDxHitsProducer::thickness(DetId id)
+{
+ map<DetId,double>::iterator th=m_thicknessMap.find(id);
+ if(th!=m_thicknessMap.end())
+   return (*th).second;
+ else
+ {
+  double detThickness=1.;
+  //compute thickness normalization
+  const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
+  bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it)!=0;
+  bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
+  if (!isPixel && ! isStrip) {
+  //FIXME throw exception
+    cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
+  }else{
+    detThickness = it->surface().bounds().thickness();
+  }
+
+   m_thicknessMap[id]=detThickness;//computed value
+   return detThickness;
+ }
+
+}
+
+
 double DeDxHitsProducer::normalization(DetId id)
 {
  map<DetId,double>::iterator norm=m_normalizationMap.find(id);
@@ -187,19 +215,13 @@ double DeDxHitsProducer::normalization(DetId id)
    return (*norm).second;
  else
  {
-  double detNormalization=1.;
-  //compute thickness normalization 
+  double detNormalization=1./thickness(id);
+  
+//compute other normalization
   const GeomDetUnit* it = m_tracker->idToDetUnit(DetId(id));
   bool isPixel = dynamic_cast<const PixelGeomDetUnit*>(it)!=0;
   bool isStrip = dynamic_cast<const StripGeomDetUnit*>(it)!=0;
-  //FIXME throw exception (taken from RecoLocalTracker/SiStripClusterizer/src/SiStripNoiseService.cc)
-  if (!isPixel && ! isStrip) {
-    cout << "\t\t this detID doesn't seem to belong to the Tracker" << endl;
-  }else{
-    detNormalization /= it->surface().bounds().thickness();
-  }
-  
-//compute other normalization
+
   //FIXME: include gain et al calib
    if(isPixel) detNormalization*=3.61e-06;
    if(isStrip) detNormalization*=3.61e-06*250;

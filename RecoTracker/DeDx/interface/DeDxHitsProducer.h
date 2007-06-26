@@ -30,6 +30,9 @@ class DeDxHitsProducer : public edm::EDProducer {
 
       /**cached access to normalization map */ 
       double normalization(DetId id);
+     
+      /**cached access to thickness map */ 
+      double thickness(DetId id);
 
       /**cached access to distance map */
       double distance(DetId id);
@@ -55,6 +58,7 @@ class DeDxHitsProducer : public edm::EDProducer {
      
      std::map<DetId,double> m_normalizationMap;
      std::map<DetId,double> m_distanceMap;
+     std::map<DetId,double> m_thicknessMap;
 
      const TrackerGeometry * m_tracker;
  
