@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Digi-to-Raw
 //
 //
-//   $Date: 2007/03/07 14:37:42 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/12 00:44:19 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -74,9 +74,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
   int newCRC =  0xFFFF;
   calcCRC(*dataWord1, *dataWord2, newCRC);
-  *((long*)LineFED)=*dataWord1; 
-  LineFED+=4;
   *((long*)LineFED)=*dataWord2; 
+  LineFED+=4;
+  *((long*)LineFED)=*dataWord1; 
 
   //--> DTTF data 
 
@@ -124,9 +124,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
 
       calcCRC(*dataWord1, *dataWord2, newCRC);
       LineFED+=4;
-      *((long*)LineFED)=*dataWord1; 
-      LineFED+=4;
       *((long*)LineFED)=*dataWord2; 
+      LineFED+=4;
+      *((long*)LineFED)=*dataWord1; 
     }
   }
   //Input
@@ -142,9 +142,9 @@ bool DTTFFEDSim::fillRawData(edm::Event& e,
   *dataWord2 += (newCRC&0xFFFF)<<16;
 
   LineFED+=4;
-  *((long*)LineFED)=*dataWord1; 
-  LineFED+=4;
   *((long*)LineFED)=*dataWord2; 
+  LineFED+=4;
+  *((long*)LineFED)=*dataWord1; 
 
   delete dataWord1;
   delete dataWord2;
