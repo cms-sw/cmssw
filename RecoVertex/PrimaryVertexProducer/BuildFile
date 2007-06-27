@@ -1,17 +1,23 @@
-<use name=FWCore/ParameterSet>
-<use name=DataFormats/TrackReco>
+<use name=DataFormats/BeamSpot>
 <use name=DataFormats/VertexReco>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=RecoVertex/AdaptiveVertexFit>
-<use name=RecoVertex/LinearizationPointFinders>
+<use name=RecoVertex/KalmanVertexFit>
 <use name=RecoVertex/TrimmedKalmanVertexFinder>
+<use name=RecoVertex/VertexPrimitives>
+<use name=RecoVertex/VertexTools>
+<use name=TrackingTools/TransientTrack>
 <export>
-   <lib name=RecoVertexPrimaryVertexProducer>
-   <use name=FWCore/Framework>
-   <use name=FWCore/PluginManager>
-   <use name=FWCore/ParameterSet>
-   <use name=DataFormats/TrackReco>
-   <use name=DataFormats/VertexReco>
-   <use name=RecoVertex/TrimmedKalmanVertexFinder>
-   <use name=RecoVertex/AdaptiveVertexFit>
-   <use name=RecoVertex/LinearizationPointFinders>
+  <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/Framework>
+  <use name=FWCore/MessageLogger>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoVertex/TrimmedKalmanVertexFinder>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/VertexTools>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoVertexPrimaryVertexProducer>
 </export>

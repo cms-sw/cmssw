@@ -1,12 +1,32 @@
-<export>
- <lib name=RecoVertexVertexTools>
- <use name=RecoVertex/VertexPrimitives>
- <use name=TrackingTools/TrajectoryState>
- <use name=TrackingTools/PatternTools>
- <use name=FWCore/Utilities>
-</export>
-
-<use name=RecoVertex/VertexPrimitives>
-<use name=TrackingTools/TrajectoryState>
-<use name=TrackingTools/PatternTools>
+<use name=CommonTools/Clustering1D>
+<use name=CommonTools/Statistics>
+<use name=DataFormats/BeamSpot>
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometryVector>
+<use name=DataFormats/TrackReco>
+<use name=DataFormats/TrajectorySeed>
+<use name=DataFormats/VertexReco>
+<use name=FWCore/MessageLogger>
+<use name=FWCore/ParameterSet>
 <use name=FWCore/Utilities>
+<use name=MagneticField/Engine>
+<use name=RecoVertex/VertexPrimitives>
+<use name=TrackingTools/GeomPropagators>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryParametrization>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrack>
+<export>
+  <use name=DataFormats/BeamSpot>
+  <use name=DataFormats/CLHEP>
+  <use name=DataFormats/GeometryCommonDetAlgo>
+  <use name=DataFormats/GeometryVector>
+  <use name=DataFormats/VertexReco>
+  <use name=FWCore/ParameterSet>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoVertexVertexTools>
+</export>

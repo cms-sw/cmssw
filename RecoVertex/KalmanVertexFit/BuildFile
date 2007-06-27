@@ -1,14 +1,19 @@
-<export>
- <lib name=RecoVertexKalmanVertexFit>
- <use name=RecoVertex/VertexPrimitives>
- <use name=RecoVertex/VertexTools>
- <use name=RecoVertex/LinearizationPointFinders>
- <use name=TrackingTools/TransientTrack>
- <use name=DataFormats/Math>
-</export>
-
+<use name=DataFormats/CLHEP>
+<use name=DataFormats/GeometryCommonDetAlgo>
+<use name=DataFormats/GeometrySurface>
+<use name=DataFormats/GeometryVector>
+<use name=FWCore/MessageLogger>
+<use name=RecoVertex/LinearizationPointFinders>
 <use name=RecoVertex/VertexPrimitives>
 <use name=RecoVertex/VertexTools>
-<use name=RecoVertex/LinearizationPointFinders>
-<use name=DataFormats/Math>
+<use name=TrackingTools/PatternTools>
+<use name=TrackingTools/TrajectoryState>
 <use name=TrackingTools/TransientTrack>
+<export>
+  <use name=RecoVertex/VertexPrimitives>
+  <use name=RecoVertex/VertexTools>
+  <use name=TrackingTools/PatternTools>
+  <use name=TrackingTools/TransientTrack>
+  <lib name=RecoVertexKalmanVertexFit>
+</export>
+
