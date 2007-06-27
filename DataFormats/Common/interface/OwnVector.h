@@ -1,6 +1,6 @@
 #ifndef Common_OwnVector_h
 #define Common_OwnVector_h
-// $Id: OwnVector.h,v 1.27 2007/05/24 16:35:46 paterno Exp $
+// $Id: OwnVector.h,v 1.28 2007/06/08 12:23:33 llista Exp $
 
 #include <algorithm>
 #include <functional>
@@ -165,10 +165,11 @@ namespace edm {
 
     void swap(OwnVector<T, P> & other);
 
-  void fillView(ProductID const& id,
-		std::vector<void const*>& pointers,
-		std::vector<helper_ptr>& helpers) const;
+    void fillView(ProductID const& id,
+		  std::vector<void const*>& pointers,
+		  std::vector<helper_ptr>& helpers) const;
 
+    void fixup() { fixup_(data_); }
   private:
     void destroy();
     template<typename O>
