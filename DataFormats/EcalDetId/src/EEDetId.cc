@@ -8,10 +8,6 @@ const int EEDetId::iYoffset[EEDetId::nCols+1]      = { 0, 2, 1, 0, 0, 0, 0, 0, 0
 const int EEDetId::nBegin[IX_MAX] = { 41, 41, 41, 36, 36, 26, 26, 26, 21, 21, 21, 21, 21, 16, 16, 14, 14, 14, 14, 14, 9, 9, 9, 9, 9, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 4, 4, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 9, 9, 9, 9, 9, 14, 14, 14, 14, 14, 16, 16, 21, 21, 21, 21, 21, 26, 26, 26, 36, 36, 41, 41, 41 };
 const int EEDetId::nIntegral[IX_MAX] = { 0, 20, 40, 60, 90, 120, 170, 220, 270, 330, 390, 450, 510, 570, 640, 710, 784, 858, 932, 1006, 1080, 1164, 1248, 1332, 1416, 1500, 1590, 1680, 1770, 1860, 1950, 2040, 2130, 2220, 2310, 2400, 2494, 2588, 2682, 2776, 2870, 2970, 3070, 3170, 3270, 3370, 3470, 3570, 3670, 3770, 3870, 3970, 4070, 4170, 4270, 4370, 4470, 4570, 4670, 4770, 4870, 4964, 5058, 5152, 5246, 5340, 5430, 5520, 5610, 5700, 5790, 5880, 5970, 6060, 6150, 6240, 6324, 6408, 6492, 6576, 6660, 6734, 6808, 6882, 6956, 7030, 7100, 7170, 7230, 7290, 7350, 7410, 7470, 7520, 7570, 7620, 7650, 7680, 7700, 7720 };
 
-EEDetId::EEDetId() : DetId() {
-}
-EEDetId::EEDetId(uint32_t rawid) : DetId(rawid) {
-}
 EEDetId::EEDetId(int index1, int index2, int iz, int mode) : DetId(Ecal,EcalEndcap) 
 {
   int crystal_ix=0;
@@ -71,7 +67,7 @@ int EEDetId::hashedIndex() const
 	return iy() - nBegin[ ix() - 1 ] + nIntegral[ ix() - 1 ]  + ( zside() + 1 ) / 2 * ICR_FEE;
 }
 
-EEDetId EEDetId::unhashIndex( int hi ) const
+EEDetId EEDetId::unhashIndex( int hi )
 {
 	int zside = hi / ICR_FEE * 2 - 1;
 	int ix = binarySearch(  hi % ICR_FEE, 0, IX_MAX ) + 1;

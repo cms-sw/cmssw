@@ -10,16 +10,17 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.10 2007/05/29 17:32:05 meridian Exp $
+ *  $Id: EEDetId.h,v 1.11 2007/06/26 22:57:08 ferriff Exp $
  */
 
 
 class EEDetId : public DetId {
  public:
+  enum { Subdet=EcalEndcap};
   /** Constructor of a null id */
-  EEDetId();
+  EEDetId() {}
   /** Constructor from a raw value */
-  EEDetId(uint32_t rawid);
+  EEDetId(uint32_t rawid) : DetId(rawid) {}
   /** Constructor from crystal ix,iy,iz (iz=+1/-1) 
    or from sc,cr,iz */
   EEDetId(int i, int j, int iz, int mode = XYMODE);  
@@ -29,7 +30,9 @@ class EEDetId : public DetId {
   EEDetId& operator=(const DetId& id);
 
   /// get the subdetector
-  EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
+  //  EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
+  static EcalSubdetector subdet() { return EcalEndCap;}
+
   /// get the z-side of the crystal (1/-1)
   int zside() const { return (id_&0x4000)?(1):(-1); }
   /// get the crystal ix
@@ -42,10 +45,22 @@ class EEDetId : public DetId {
   int ic() const;
   /// get the quadrant of the DetId
   int iquadrant() const ;
+    // is z positive?
+  bool positiveZ() const { return id_&0x4000;}
+
   /// get a compact index for arrays
-  int hashedIndex() const;
+  int hashedIndex() const {
+    return iy() - nBegin[ ix() - 1 ] + nIntegral[ ix() - 1 ]  + (positiveZ() ? ICR_FEE : 0);
+  }
+
   /// get a DetId from a compact index for arrays
-  EEDetId unhashIndex(int hi) const;
+  static EEDetId unhashIndex(int hi);
+
+  //FIXME (not really true, there are holes...
+  static bool validHashIndex(int i) {
+    return !(i<MIN_HASH || i>MAX_HASH);
+  }
+
 
   /// check if a valid index combination
   static bool validDetId(int i, int j, int iz) ;
@@ -62,6 +77,10 @@ class EEDetId : public DetId {
   // to speed up hashedIndex()
   static const int ICR_FD=3870;
   static const int ICR_FEE=7740;
+  static const int SIZE_HASH=2*ICR_FEE;
+  static const int MIN_HASH =  0; // always 0 ...
+  static const int MAX_HASH =  2*ICR_FEE-1;
+ 
 
   // function modes for (int, int) constructor
   static const int XYMODE = 0;
