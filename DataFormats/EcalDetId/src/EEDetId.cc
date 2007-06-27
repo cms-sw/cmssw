@@ -65,33 +65,10 @@ EEDetId& EEDetId::operator=(const DetId& gen) {
 EEDetId EEDetId::unhashIndex( int hi )
 {
 	int zside = hi / ICR_FEE * 2 - 1;
-	int ix = binarySearch(  hi % ICR_FEE, 0, IX_MAX ) + 1;
+	int ix = (const int*)std::upper_bound( nIntegral, nIntegral + IX_MAX,  hi % ICR_FEE ) - nIntegral;
 	int iy = hi % ICR_FEE - nIntegral[ ix - 1 ] + nBegin[ ix - 1 ];
 	return EEDetId(ix, iy, zside, XYMODE);
 }
-
-int EEDetId::binarySearch(int key, int start, int end)
-{
-	int middle = start + (end-start) / 2;
-	if (end<=start) {
-		return start;
-	}
-	if (key < nIntegral[middle]) {
-		if (middle == start + 1 ) {
-			return start;
-		}
-		return binarySearch( key, start, middle );
-	} else if (key > nIntegral[middle]) {
-		if (middle == end - 1 ) {
-			return middle;
-		}
-		return binarySearch( key, middle, end );
-	} else {
-		return middle;
-	}
-	return 0;
-}
-
 
 int EEDetId::ix(int iSC, int iCrys) const 
 {
@@ -344,6 +321,30 @@ bool EEDetId::validDetId(int crystal_ix, int crystal_iy, int iz) {
     { return valid; }
   valid = true;
   return valid;
+}
+
+bool EEDetId::validHashIndex(int hi)
+{
+	if ( hi > 10557 ) {
+		hi -= 7740;
+	}
+	if ( 
+		hi < MIN_HASH || hi > MAX_HASH ||
+		( hi >= 2818 && hi <= 2827 ) || ( hi >= 2913 && hi <= 2926 ) ||
+		( hi >= 3012 && hi <= 3027 ) || ( hi >= 3111 && hi <= 3128 ) ||
+		( hi >= 3210 && hi <= 3229 ) || ( hi >= 3310 && hi <= 3329 ) ||
+		( hi >= 3409 && hi <= 3430 ) || ( hi >= 3509 && hi <= 3530 ) ||
+		( hi >= 3609 && hi <= 3630 ) || ( hi >= 3709 && hi <= 3730 ) ||
+		( hi >= 3809 && hi <= 3830 ) || ( hi >= 3909 && hi <= 3930 ) ||
+		( hi >= 4009 && hi <= 4030 ) || ( hi >= 4109 && hi <= 4130 ) ||
+		( hi >= 4209 && hi <= 4230 ) || ( hi >= 4309 && hi <= 4330 ) ||
+		( hi >= 4410 && hi <= 4429 ) || ( hi >= 4510 && hi <= 4529 ) ||
+		( hi >= 4611 && hi <= 4628 ) || ( hi >= 4712 && hi <= 4727 ) ||
+		( hi >= 4813 && hi <= 4826 ) || ( hi >= 4912 && hi <= 4921 )
+		) {
+			return false;
+		}
+	return true;
 }
 
 std::ostream& operator<<(std::ostream& s,const EEDetId& id) {

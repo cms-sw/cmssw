@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.12 2007/06/27 05:51:13 innocent Exp $
+ *  $Id: EEDetId.h,v 1.13 2007/06/27 06:01:51 innocent Exp $
  */
 
 
@@ -56,11 +56,8 @@ class EEDetId : public DetId {
   /// get a DetId from a compact index for arrays
   static EEDetId unhashIndex(int hi);
 
-  //FIXME (not really true, there are holes...
-  static bool validHashIndex(int i) {
-    return !(i<MIN_HASH || i>MAX_HASH);
-  }
-
+  /// check if a valid hash index
+  static bool validHashIndex(int i);
 
   /// check if a valid index combination
   static bool validDetId(int i, int j, int iz) ;
@@ -103,8 +100,6 @@ class EEDetId : public DetId {
   int iy(int iSC,int iCrys) const;
   int ixQuadrantOne() const;
   int iyQuadrantOne() const;
-
-  static int binarySearch(int key, int start, int end);
 
 };
 
