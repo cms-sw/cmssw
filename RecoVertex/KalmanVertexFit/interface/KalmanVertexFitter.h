@@ -95,7 +95,7 @@ public:
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
   virtual inline CachingVertex 
-  vertex(const vector<reco::TransientTrack> & tracks, const BeamSpot& beamSpot) const
+  vertex(const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const
   {
     return theSequentialFitter->vertex(tracks, beamSpot);
   }

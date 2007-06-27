@@ -3,7 +3,7 @@
 
 #include "RecoVertex/VertexPrimitives/interface/CachingVertex.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <vector>
 
@@ -55,7 +55,7 @@ public:
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
   virtual CachingVertex 
-  vertex(const vector<reco::TransientTrack> & tracks, const BeamSpot& beamSpot) const = 0;
+  vertex(const vector<reco::TransientTrack> & tracks, const reco::BeamSpot& beamSpot) const = 0;
 
   /** Fit vertex out of a set of VertexTracks.
    *  Uses the specified point and error as the prior estimate of the vertex.

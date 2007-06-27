@@ -134,14 +134,14 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
  */
 CachingVertex 
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
-			       const BeamSpot& beamSpot) const
+			       const reco::BeamSpot& beamSpot) const
 {
   if ( tracks.size() < 1 )
   {
     throw VertexException( "Supplied no tracks" );
   };
 
-  VertexState beamSpotState(beamSpot.position(), beamSpot.error());
+  VertexState beamSpotState(beamSpot);
   vector<RefCountedVertexTrack> vtContainer;
 
   if (tracks.size() > 1) {

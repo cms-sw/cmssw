@@ -4,18 +4,19 @@
 #include "RecoVertex/VertexTools/interface/VertexDistance.h"
 #include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
 
+using namespace reco;
 
 VertexCompatibleWithBeam::VertexCompatibleWithBeam(const VertexDistance & d, 
 						   float cut) 
   : theDistance(d.clone()), theCut(cut) 
 {
   BeamSpot beamSpot;
-  theBeam = VertexState(beamSpot.position(), beamSpot.error()); 
+  theBeam = VertexState(beamSpot);
 }
 
 VertexCompatibleWithBeam::VertexCompatibleWithBeam(const VertexDistance & d, 
 						   float cut, const BeamSpot & beamSpot) 
-    : theDistance(d.clone()), theCut(cut), theBeam(beamSpot.position(),beamSpot.error()){}
+    : theDistance(d.clone()), theCut(cut), theBeam(beamSpot){}
 
 
 VertexCompatibleWithBeam::VertexCompatibleWithBeam(
@@ -41,7 +42,7 @@ VertexCompatibleWithBeam::operator=(const VertexCompatibleWithBeam & other)
 }
 
 void VertexCompatibleWithBeam::setBeamSpot(const BeamSpot & beamSpot){
-  theBeam = VertexState(beamSpot.position(), beamSpot.error());
+  theBeam = VertexState(beamSpot);
 }
 
 bool VertexCompatibleWithBeam::operator()(const reco::Vertex & v) const 

@@ -2,6 +2,8 @@
 #define VertexState_H
 
 #include "RecoVertex/VertexPrimitives/interface/BasicVertexState.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include <vector>
 
 /** Class containing a measurement of a vertex. Some data is calculated
@@ -20,9 +22,10 @@ public:
   		const double & weightInMix = 1.0);
   VertexState(const GlobalPoint & pos, const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
-  VertexState(const AlgebraicVector3 & weightTimesPosition,
+  VertexState(const AlgebraicVector & weightTimesPosition,
 		const GlobalWeight & posWeight,
   		const double & weightInMix = 1.0);
+  VertexState(const reco::BeamSpot& beamSpot);
 
   GlobalPoint position() const
   {
@@ -39,7 +42,7 @@ public:
     return data().weight();
   }
 
-  AlgebraicVector3 weightTimesPosition() const
+  AlgebraicVector weightTimesPosition() const
   {
     return data().weightTimesPosition();
   }

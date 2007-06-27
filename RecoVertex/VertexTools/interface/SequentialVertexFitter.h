@@ -109,7 +109,7 @@ public:
    * The specified LinearizationPointFinder will be used to find the linearization point.
    */
   virtual CachingVertex vertex(const vector<reco::TransientTrack> & tracks,
-		const BeamSpot& beamSpot) const;
+		const reco::BeamSpot& beamSpot) const;
 
 
   /** Fit vertex out of a set of RecTracks. 

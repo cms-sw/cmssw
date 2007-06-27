@@ -4,6 +4,7 @@
 
 #include <algorithm>
 using namespace std;
+using namespace reco;
 
 namespace {
   // FIXME
@@ -126,7 +127,7 @@ CachingVertex
 SequentialVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
 			       const BeamSpot& beamSpot) const
 {
-  VertexState beamSpotState(beamSpot.position(), beamSpot.error());
+  VertexState beamSpotState(beamSpot);
   vector<RefCountedVertexTrack> vtContainer;
 
   if (tracks.size() > 1) {
