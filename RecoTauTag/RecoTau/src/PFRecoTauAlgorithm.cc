@@ -58,15 +58,16 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
     }
   myTau.setCharge(myCharge);
 
-  //Setting the IsolationChargedHadrons
+  //Setting the IsolationBandChargedHadrons
   PFCandidateRefVector myIsolationChargedHadrons = 
-    myTagInfo.PFChargedHadrCandsInCone(leadPFCand_XYZVector, TrackerIsolConeSize_,Candidates_minPt_);
+    myTagInfo.PFChargedHadrCandsInBand(leadPFCand_XYZVector, TrackerSignalConeSize_,TrackerIsolConeSize_,Candidates_minPt_);
   myTau.setIsolationChargedHadrons(myIsolationChargedHadrons);  
+
 
   //Setting the NeutralHadrons
   PFCandidateRefVector myNeutralHadrons = myTagInfo.PFNeutrHadrCands();
   myTau.setSelectedNeutralHadrons(myNeutralHadrons);  
-
+  
   //Setting the SignalNeutralHadrons
   PFCandidateRefVector mySignalNeutralHadrons = 
     myTagInfo.PFNeutrHadrCandsInCone(leadPFCand_XYZVector, ECALSignalConeSize_ ,Candidates_minPt_);
@@ -74,7 +75,7 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
 
   //Setting the IsolationNeutralHadrons
   PFCandidateRefVector myIsolationNeutralHadrons = 
-    myTagInfo.PFNeutrHadrCandsInCone(leadPFCand_XYZVector, ECALIsolConeSize_,Candidates_minPt_);
+    myTagInfo.PFNeutrHadrCandsInBand(leadPFCand_XYZVector, ECALSignalConeSize_, ECALIsolConeSize_,Candidates_minPt_);
   myTau.setIsolationNeutralHadrons(myIsolationNeutralHadrons);  
   
   //Setting the GammaCandidates
@@ -88,10 +89,30 @@ Tau PFRecoTauAlgorithm::tag(const PFIsolatedTauTagInfo& myTagInfo)
 
   //Setting the IsolationGammaCandidates
   PFCandidateRefVector myIsolationGammaCandidates = 
-    myTagInfo.PFGammaCandsInCone(leadPFCand_XYZVector, ECALIsolConeSize_ ,Candidates_minPt_);
+    myTagInfo.PFGammaCandsInBand(leadPFCand_XYZVector, ECALSignalConeSize_ , ECALIsolConeSize_ ,Candidates_minPt_);
   myTau.setIsolationGammaCandidates(myIsolationGammaCandidates);  
 
+  //Setting sum of the pT of isolation Annulus charged hadrons
+  float mySumPt=0.;
+  for(int i=0; i<myIsolationChargedHadrons.size();i++)
+    {
+      mySumPt= mySumPt + myIsolationChargedHadrons[i]->pt();
+    }
+  myTau.setSumPtIsolation(mySumPt);  
 
+  //Setting sum of the E_T of isolation Annulus gamma candidates
+  float mySumEt=0.;
+  for(int i=0; i<myIsolationGammaCandidates.size();i++)
+    {
+      mySumEt= mySumEt + myIsolationGammaCandidates[i]->pt();
+    }
+  myTau.setEMIsolation(mySumEt);
+
+
+/*
+setLeadTkTIP(const Measurement1D& myIP)  { transverseIp_leadTk_ = myIP;}
+setLeadTk3DIP(const Measurement1D& myIP)  {  ip3D_leadTk_=myIP;}
+*/
  
     
   return myTau;
