@@ -1,5 +1,5 @@
-#ifndef DataFormats_SiStripCommon_SiStripLazyGetter_h
-#define DataFormats_SiStripCommon_SiStripLazyGetter_h
+#ifndef DataFormats_SiStripCommon_SiStripLazyGetter_H
+#define DataFormats_SiStripCommon_SiStripLazyGetter_H
 
 #include <algorithm>
 #include <vector>
