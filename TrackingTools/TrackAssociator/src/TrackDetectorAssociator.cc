@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.19 2007/06/09 21:52:20 dmytro Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.20 2007/06/25 21:06:50 jribnik Exp $
 //
 //
 
@@ -163,11 +163,10 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
      "Configuration error! No subdetector was selected for the track association.";
    TimerStack timers;
    timers.push("TrackDetectorAssociator::associate",TimerStack::DetailedMonitoring);
+
    SteppingHelixStateInfo trackOrigin(*innerState);
    info.stateAtIP = *innerState;
    cachedTrajectory_.setStateAtIP(trackOrigin);
-   // make use of outer most trajectory state if it's available
-   if (outerState) trackOrigin = SteppingHelixStateInfo(*outerState);
    
    init( iSetup );
    // get track trajectory
@@ -194,14 +193,45 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    // requested sub-detector information. For now limit
    // propagation region only if muon matching is not 
    // requested.
-   double maxR = hoDetIdAssociator_.volume().maxR();
-   double maxZ = hoDetIdAssociator_.volume().maxZ();
+   double HOmaxR = hoDetIdAssociator_.volume().maxR();
+   double HOmaxZ = hoDetIdAssociator_.volume().maxZ();
+   double minR = ecalDetIdAssociator_.volume().minR();
+   double minZ = ecalDetIdAssociator_.volume().minZ();
+   cachedTrajectory_.setMaxHORadius(HOmaxR);
+   cachedTrajectory_.setMaxHOLength(HOmaxZ*2.);
+   cachedTrajectory_.setMinDetectorRadius(minR);
+   cachedTrajectory_.setMinDetectorLength(minZ*2.);
+
+   double maxR;
+   double maxZ;
+
    if (parameters.useMuon) {
-      maxR = muonDetIdAssociator_.volume().maxR();
-      maxZ = muonDetIdAssociator_.volume().maxZ();
+     maxR = muonDetIdAssociator_.volume().maxR();
+     maxZ = muonDetIdAssociator_.volume().maxZ();
+     cachedTrajectory_.setMaxDetectorRadius(maxR);
+     cachedTrajectory_.setMaxDetectorLength(maxZ*2.);
    }
-   cachedTrajectory_.setDetectorRadius(maxR);
-   cachedTrajectory_.setDetectorLength(maxZ*2);
+   else {
+     maxR = HOmaxR;
+     maxZ = HOmaxZ;
+     cachedTrajectory_.setMaxDetectorRadius(HOmaxR);
+     cachedTrajectory_.setMaxDetectorLength(HOmaxZ*2.);
+   }
+
+   // If track extras exist and outerState is before HO maximum, then use outerState
+   if (outerState) {
+     if (outerState->position().perp()<HOmaxR && fabs(outerState->position().z())<HOmaxZ) {
+       LogTrace("TrackAssociator") << "Using outerState as trackOrigin at Rho=" << outerState->position().perp()
+             << "  Z=" << outerState->position().z() << "\n";
+       trackOrigin = SteppingHelixStateInfo(*outerState);
+     }
+     else if(innerState) {
+       LogTrace("TrackAssociator") << "Using innerState as trackOrigin at Rho=" << innerState->position().perp()
+             << "  Z=" << innerState->position().z() << "\n";
+       trackOrigin = SteppingHelixStateInfo(*innerState);
+     }
+   }
+
    if ( ! cachedTrajectory_.propagateAll(trackOrigin) ) return info;
    
    // get trajectory in calorimeters
@@ -945,9 +975,17 @@ TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,
    edm::ESHandle<MagneticField> bField;
    iSetup.get<IdealMagneticFieldRecord>().get(bField);
 
-   FreeTrajectoryState innerState = tsTransform.initialFreeState(track,&*bField);
-   FreeTrajectoryState outerState = tsTransform.outerFreeState(track,&*bField);
-   return associate(iEvent, iSetup, parameters, &innerState, &outerState);
+   if(track.extra().isNull()) {
+     LogTrace("TrackAssociator") << "Track Extras not found\n";
+     FreeTrajectoryState initialState = tsTransform.initialFreeState(track,&*bField);
+     return associate(iEvent, iSetup, parameters, &initialState); // 5th argument is null pointer
+   }
+   else {
+     LogTrace("TrackAssociator") << "Track Extras found\n";
+     FreeTrajectoryState innerState = tsTransform.innerFreeState(track,&*bField);
+     FreeTrajectoryState outerState = tsTransform.outerFreeState(track,&*bField);
+     return associate(iEvent, iSetup, parameters, &innerState, &outerState);
+   }
 }
 
 TrackDetMatchInfo TrackDetectorAssociator::associate( const edm::Event& iEvent,

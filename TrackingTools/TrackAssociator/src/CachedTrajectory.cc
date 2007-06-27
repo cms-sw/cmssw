@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.10 2007/05/07 20:45:59 jribnik Exp $
+// $Id: CachedTrajectory.cc,v 1.11 2007/05/16 09:26:23 dmytro Exp $
 //
 //
 
@@ -19,8 +19,10 @@
 
 CachedTrajectory::CachedTrajectory():propagator_(0){
    reset_trajectory();
-   setDetectorRadius();
-   setDetectorLength();
+   setMaxDetectorRadius();
+   setMaxDetectorLength();
+   setMinDetectorRadius();
+   setMinDetectorLength();
    setPropagationStep();
 }
 
@@ -80,15 +82,38 @@ bool CachedTrajectory::propagateAll(const SteppingHelixStateInfo& initialState)
    reset_trajectory();
    if (propagator_==0) throw cms::Exception("FatalError") << "Track propagator is not defined\n";
    SteppingHelixStateInfo currentState(initialState);
-   
+
    while (currentState.position().perp()<maxRho_ && fabs(currentState.position().z())<maxZ_ ){
-      propagateForward(currentState,step_);
-      if (! currentState.isValid() ) {
-	 LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
-	 break;
-      }
-      fullTrajectory_.push_back(currentState);
+     LogTrace("TrackAssociator") << "[propagateAll] Propagated outward from (Rho, z) (" << currentState.position().perp()
+       << "," << currentState.position().z() << ") to (";
+     propagateForward(currentState,step_);
+     if (! currentState.isValid() ) {
+       LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
+       break;
+     }
+     LogTrace("TrackAssociator") << currentState.position().perp() << ", " << currentState.position().z() << ")\n";
+     fullTrajectory_.push_back(currentState);
    }
+
+   SteppingHelixStateInfo currentState2(initialState);
+   
+   while (currentState2.position().perp()>minRho_ || fabs(currentState2.position().z())>minZ_) {
+     LogTrace("TrackAssociator") << "[propagateAll] Propagated inward from (Rho, z) (" << currentState2.position().perp()
+       << "," << currentState2.position().z() << ") to (";
+     propagateForward(currentState2,-step_);
+     if (! currentState2.isValid() ) {
+       LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n";
+       break;
+     }
+     LogTrace("TrackAssociator") << currentState2.position().perp() << ", " << currentState2.position().z() << ")\n";
+     fullTrajectory_.push_front(currentState2);
+   }
+   // LogTrace("TrackAssociator") << "fullTrajectory_ has " << fullTrajectory_.size() << " states with (R, z):\n";
+   // for(uint i=0; i<fullTrajectory_.size(); i++) {
+   //  LogTrace("TrackAssociator") << "state " << i << ": (" << fullTrajectory_[i].position().perp() << ", "
+   //    << fullTrajectory_[i].position().z() << ")\n";
+   // }
+
    LogTrace("TrackAssociator") << "Done with the track propagation in the detector. Number of steps: " << fullTrajectory_.size();
    fullTrajectoryFilled_ = true;
    return ! fullTrajectory_.empty();

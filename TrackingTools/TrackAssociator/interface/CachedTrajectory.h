@@ -18,7 +18,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: CachedTrajectory.h,v 1.5 2007/04/13 02:52:10 dmytro Exp $
+// $Id: CachedTrajectory.h,v 1.6 2007/05/16 09:26:22 dmytro Exp $
 //
 //
 
@@ -29,6 +29,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include <deque>
 
 class CachedTrajectory {
  public:
@@ -75,8 +76,13 @@ class CachedTrajectory {
    // units: cm
    // HINT: use lower bounds to limit propagateAll() action within
    //       smaller region, such as ECAL for example
-   void setDetectorRadius(float r = 800.){ maxRho_ = r;}
-   void setDetectorLength(float l = 2200.){ maxZ_ = l/2;}
+   void setMaxDetectorRadius(float r = 800.){ maxRho_ = r;}
+   void setMaxDetectorLength(float l = 2200.){ maxZ_ = l/2.;}
+   void setMaxHORadius(float r = 800.) { HOmaxRho_ = r;}
+   void setMaxHOLength(float l = 2200.) { HOmaxZ_ = l/2.;}
+   void setMinDetectorRadius(float r = 0.){ minRho_ = r;}
+   void setMinDetectorLength(float l = 0.){ minZ_ = l/2.;}
+
    void setPropagationStep(float s = 20.){ step_ = s;}
    
  protected:
@@ -99,7 +105,7 @@ class CachedTrajectory {
       return plane->localZ(fullTrajectory_[index].position());
    }
    
-   std::vector<SteppingHelixStateInfo> fullTrajectory_;
+   std::deque<SteppingHelixStateInfo> fullTrajectory_;
    std::vector<SteppingHelixStateInfo> ecalTrajectory_;
    std::vector<SteppingHelixStateInfo> hcalTrajectory_;
    std::vector<SteppingHelixStateInfo> hoTrajectory_;
@@ -111,6 +117,10 @@ class CachedTrajectory {
    
    float maxRho_;
    float maxZ_;
+   float HOmaxRho_;
+   float HOmaxZ_;
+   float minRho_;
+   float minZ_;
    float step_;
 
 };
