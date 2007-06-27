@@ -6,7 +6,6 @@
 #include <cmath>
 #include <algorithm>
 
-namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Base/interface/DDutils.h"
@@ -65,11 +64,13 @@ void DDHCalAngular::execute() {
   for (int ii=0; ii<n; ii++) {
 
     double phideg = phi/deg;
-    int    iphi   = int(phideg+0.1);
+    int    iphi;
+    if (phideg > 0) iphi = int(phideg+0.1);
+    else            iphi = int(phideg-0.1);
     if (iphi >= 360) iphi   -= 360;
     phideg = iphi;
     DDRotation rotation;
-    string rotstr("NULL");
+    std::string rotstr("NULL");
 
     if (iphi != 0) {
       rotstr = "R"; 
