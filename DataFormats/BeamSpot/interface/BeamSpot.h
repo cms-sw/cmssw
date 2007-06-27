@@ -7,13 +7,15 @@
  *
  * \author Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
  *
- * \version $Id: BeamSpot.h,v 1.1 2007/01/21 18:25:22 yumiceva Exp $
+ * \version $Id: BeamSpot.h,v 1.2 2007/01/22 04:48:40 yumiceva Exp $
  *
  */
 
 #include <Rtypes.h>
 #include "DataFormats/Math/interface/Error.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Math/interface/Vector3D.h"
+#include "DataFormats/Math/interface/Vector.h"
 #include <string>
 #include <sstream>
 
@@ -99,6 +101,8 @@ namespace reco {
       }
       return matrix;
     };
+
+    Covariance3DMatrix rotatedCovariance3D() const;
 
     /// print information
     void print( std::stringstream& ss ) const;
