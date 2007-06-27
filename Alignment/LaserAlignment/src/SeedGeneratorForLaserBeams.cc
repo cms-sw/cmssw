@@ -1,8 +1,8 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: 2007/06/26 17:25:42 $
- *  $Revision: 1.7 $
+ *  $Date: 2007/06/27 06:13:21 $
+ *  $Revision: 1.8 $
  *  \author Maarten Thomas
  */
 
@@ -92,16 +92,16 @@ void SeedGeneratorForLaserBeams::run(TrajectorySeedCollection & output, const ed
 
     if (propagatorName == "WithMaterial")
     {
-      propagateWithMaterial(hits, HitPairs, inner, outer, outrhit, i);
+      propagateWithMaterial(HitPairs, output);
     }
     else if ( propagatorName == "Analytical")
     {
-      propagateAnalytical(hits, HitPairs, inner, outer, outrhit, i);
+      propagateAnalytical(HitPairs, output);
     }
 	}
 }
 
-void SeedGeneratorForLaserBeams::propagateWithMaterial(OrderedLaserHitPairs & HitPairs)
+void SeedGeneratorForLaserBeams::propagateWithMaterial(OrderedLaserHitPairs & HitPairs, TrajectorySeedCollection & output)
 {
   for (uint i = 0; i < HitPairs.size(); i++)
   {
@@ -177,7 +177,7 @@ void SeedGeneratorForLaserBeams::propagateWithMaterial(OrderedLaserHitPairs & Hi
   }
 }
 
-void SeedGeneratorForLaserBeams::propagateAnalytical(OrderedLaserHitPairs & HitPairs)
+void SeedGeneratorForLaserBeams::propagateAnalytical(OrderedLaserHitPairs & HitPairs, TrajectorySeedCollection & output)
 {
   for (uint i = 0; i < HitPairs.size(); i++)
   {

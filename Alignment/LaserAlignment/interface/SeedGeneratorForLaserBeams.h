@@ -4,8 +4,8 @@
 /** \class SeedGeneratorForLaserBeams
  *  seed finding algorithm for the LAS
  *
- *  $Date: 2007/06/26 17:25:42 $
- *  $Revision: 1.4 $
+ *  $Date: 2007/06/27 06:13:21 $
+ *  $Revision: 1.5 $
  *  \author Maarten Thomas
  */
 
@@ -50,9 +50,9 @@ class SeedGeneratorForLaserBeams
 
  private:
   /// propagate using PropagatorWithMaterial
-  void propagateWithMaterial(OrderedLaserHitPairs & HitPairs);
+  void propagateWithMaterial(OrderedLaserHitPairs & HitPairs, TrajectorySeedCollection & output);
   /// propagate using AnalyticalPropagator
-  void propagateAnalytical(OrderedLaserHitPairs & HitPairs);
+  void propagateAnalytical(OrderedLaserHitPairs & HitPairs, TrajectorySeedCollection & output);
    
   edm::ParameterSet conf_;
   GlobalTrackingRegion region;
