@@ -1,5 +1,5 @@
-#ifndef DataFormats_SiStripCommon_SiStripRefGetter_h
-#define DataFormats_SiStripCommon_SiStripRefGetter_h
+#ifndef DataFormats_SiStripCommon_SiStripRefGetter_H
+#define DataFormats_SiStripCommon_SiStripRefGetter_H
 
 #include <algorithm>
 #include <vector>
