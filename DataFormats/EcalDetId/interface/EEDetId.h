@@ -10,7 +10,7 @@
  *  Crystal/cell identifier class for the ECAL endcap
  *
  *
- *  $Id: EEDetId.h,v 1.11 2007/06/26 22:57:08 ferriff Exp $
+ *  $Id: EEDetId.h,v 1.12 2007/06/27 05:51:13 innocent Exp $
  */
 
 
@@ -31,7 +31,7 @@ class EEDetId : public DetId {
 
   /// get the subdetector
   //  EcalSubdetector subdet() const { return EcalSubdetector(subdetId()); }
-  static EcalSubdetector subdet() { return EcalEndCap;}
+  static EcalSubdetector subdet() { return EcalEndcap;}
 
   /// get the z-side of the crystal (1/-1)
   int zside() const { return (id_&0x4000)?(1):(-1); }
@@ -103,7 +103,9 @@ class EEDetId : public DetId {
   int iy(int iSC,int iCrys) const;
   int ixQuadrantOne() const;
   int iyQuadrantOne() const;
-  int binarySearch(int key, int start, int end) const;
+
+  static int binarySearch(int key, int start, int end);
+
 };
 
 
