@@ -7,9 +7,9 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Revision: 1.5 $
+ * \version $Revision: 1.6 $
  *
- * $Id: CandCombiner.h,v 1.5 2007/06/17 17:15:17 llista Exp $
+ * $Id: CandCombiner.h,v 1.6 2007/06/19 15:39:03 llista Exp $
  *
  */
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -21,25 +21,12 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/UtilAlgos/interface/ParameterAdapter.h"
+#include "PhysicsTools/CandAlgos/interface/SetupInitTrait.h"
 #include <string>
 #include <vector>
 
 namespace edm {
   class ParameterSet;
-}
-
-namespace combiner {
-  namespace helpers {
-    template<typename Setup>
-    struct NoSetupInit {
-      static void init( Setup & s, const edm::EventSetup& es ) { }
-    };
-
-    template<typename Setup>
-    struct SetupInit {
-      typedef NoSetupInit<Setup> type;
-    };
-  }
 }
 
 namespace reco {
@@ -62,7 +49,7 @@ namespace reco {
              typename PairSelector = AnyPairSelector,
              typename Cloner = ::combiner::helpers::NormalClone, 
              typename Setup = AddFourMomenta,
-             typename Init = typename ::combiner::helpers::SetupInit<Setup>::type >
+             typename Init = typename ::reco::helpers::SetupInit<Setup>::type >
     class CandCombiner : public CandCombinerBase {
     public:
       /// constructor from parameter set
