@@ -4,9 +4,9 @@
 /*
  * \file L1TLTC.h
  *
- * $Date: 2006/06/27 20:56:20 $
- * $Revision: 1.37 $
- * \author G. Della Ricca
+ * $Date: 2007/02/22 19:43:52 $
+ * $Revision: 1.2 $
+ * \author J. Berryhill
  *
 */
 
@@ -30,19 +30,38 @@
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
+#include <iostream>
+#include <fstream>
+#include <vector>
+
 //
 // class decleration
 //
 
 class L1TLTC : public edm::EDAnalyzer {
+
 public:
-  explicit L1TLTC(const edm::ParameterSet&);
-  ~L1TLTC();
 
+// Constructor
+L1TLTC(const edm::ParameterSet& ps);
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void);
+// Destructor
+virtual ~L1TLTC();
+
+protected:
+// Analyze
+void analyze(const edm::Event& e, const edm::EventSetup& c);
+
+// BeginJob
+void beginJob(const edm::EventSetup& c);
+
+// EndJob
+void endJob(void);
+
 private:
+  // ----------member data ---------------------------
+  DaqMonitorBEInterface * dbe;
+
   // ----------member data ---------------------------
   MonitorElement* h1;
   MonitorElement* h2;
@@ -54,13 +73,12 @@ private:
   MonitorElement* event;
   MonitorElement* gps_time;
   float XMIN; float XMAX;
-  // event counter
-  int counter;
-  // back-end interface
-  DaqMonitorBEInterface * dbe;
   int nev_; // Number of events processed
-  bool saveMe_; // save histograms or no?
-  std::string rootFileName_;
+  std::string outputFile_; //file name for ROOT ouput
+  bool verbose_;
+  bool monitorDaemon_;
+  ofstream logFile_;
+  edm::InputTag ltcSource_ ;
 };
 
 #endif

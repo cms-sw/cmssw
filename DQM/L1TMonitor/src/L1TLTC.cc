@@ -1,103 +1,123 @@
-// -*- C++ -*-
-//
-// Package:    L1TLTC
-// Class:      L1TLTC
-// 
-/**\class L1TLTC L1TLTC.cc DQM/L1TMonitor/src/L1TLTC.cc
-
-   Description: DQM Source for LTC data
-
-   Implementation:
-   <Notes on implementation>
-*/
-//
-// Original Author:  Werner Sun
-//         Created:  Wed May 24 11:58:16 EDT 2006
-// $Id: LTCDQMSource.cc,v 1.6 2006/10/31 20:26:51 meschi Exp $
-//
-//
-
+/*
+ * \file L1TLTC.cc
+ *
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.4 $
+ * \author J. Berryhill
+ *
+ */
 
 #include "DQM/L1TMonitor/interface/L1TLTC.h"
 
-//
-// constructors and destructor
-//
-L1TLTC::L1TLTC(const edm::ParameterSet& iConfig):
-  nev_(0)
-{
-  // get hold of back-end interface
-  dbe = edm::Service<DaqMonitorBEInterface>().operator->();
+using namespace std;
+using namespace edm;
 
-  // now do what ever initialization is needed
-  edm::Service<MonitorDaemon> daemon;
-  daemon.operator->();
+L1TLTC::L1TLTC(const ParameterSet& ps)
+ {
 
-  // book some histograms here
+  // verbosity switch
+  verbose_ = ps.getUntrackedParameter<bool>("verbose", false);
 
-  // create and cd into new folder
-  // Every filter unit will prepend this with a filter unit string
-  // so to see all the LTC data you need to select
-  // Collector/*/L1Trigger/LTC/*
-  dbe->setCurrentFolder("L1Trigger/LTC");
-  h1 = dbe->book1D("Bunch", "Bunch Number", 100, 0., 5000.) ;
-  h2 = dbe->book1D("Orbit", "Orbit Number", 100, 0., 100000. ) ;
-  h3 = dbe->book1D("Triggers", "Triggers", 8, -0.5, 7.5 ) ;
+  if(verbose_) cout << "L1TLTC: constructor...." << endl;
 
-  overlaps = dbe->book2D("olaps", "Trigger Overlaps", 8, -0.5, 7.5 ,
-			 8, -0.5, 7.5);
-			 
-  n_inhibit    = dbe->bookInt("n_inhibit");
-  run          = dbe->bookInt("run");
-  event        = dbe->bookInt("event");
-  gps_time     = dbe->bookInt("gps_time");
+  logFile_.open("L1TLTC.log");
 
-  saveMe_ = iConfig.getUntrackedParameter<bool>("saveRootFile",false);
-  rootFileName_ = iConfig.getUntrackedParameter<std::string>("RootFileName","ciccio.root");
+  dbe = NULL;
+  if ( ps.getUntrackedParameter<bool>("DaqMonitorBEInterface", false) ) 
+  {
+    dbe = Service<DaqMonitorBEInterface>().operator->();
+    dbe->setVerbose(0);
+  }
+
+  monitorDaemon_ = false;
+  if ( ps.getUntrackedParameter<bool>("MonitorDaemon", false) ) {
+    Service<MonitorDaemon> daemon;
+    daemon.operator->();
+    monitorDaemon_ = true;
+  }
+
+  outputFile_ = ps.getUntrackedParameter<string>("outputFile", "");
+  if ( outputFile_.size() != 0 ) {
+    cout << "L1T Monitoring histograms will be saved to " << outputFile_.c_str() << endl;
+  }
+  else{
+    outputFile_ = "L1TDQM.root";
+  }
+
+  bool disable = ps.getUntrackedParameter<bool>("disableROOToutput", false);
+  if(disable){
+    outputFile_="";
+  }
 
 
-  //    // contents of h5 & h6 will be reset at end of monitoring cycle
-  //    h5->setResetMe(true);
-  //    h6->setResetMe(true);
-  std::cout << "L1TLTC: configured histograms." << std::endl;
+  if ( dbe !=NULL ) {
+    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
+  }
+
+
 }
-
 
 L1TLTC::~L1TLTC()
 {
- 
-  // do anything here that needs to be done at desctruction time
-  // (e.g. close files, deallocate resources etc.)
-
 }
 
+void L1TLTC::beginJob(const EventSetup& c)
+{
 
-//
-// member functions
-//
-// void L1TLTC::beginRun()
-// {
-// }
+  nev_ = 0;
+
+  // get hold of back-end interface
+  DaqMonitorBEInterface* dbe = 0;
+  dbe = Service<DaqMonitorBEInterface>().operator->();
+
+  if ( dbe ) {
+    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
+    dbe->rmdir("L1TMonitor/L1TLTC");
+  }
+
+
+  if ( dbe ) 
+  {
+    dbe->setCurrentFolder("L1TMonitor/L1TLTC");
+    h1 = dbe->book1D("Bunch", "Bunch Number", 100, 0., 5000.) ;
+    h2 = dbe->book1D("Orbit", "Orbit Number", 100, 0., 100000. ) ;
+    h3 = dbe->book1D("Triggers", "Triggers", 8, -0.5, 7.5 ) ;
+
+    overlaps = dbe->book2D("olaps", "Trigger Overlaps", 8, -0.5, 7.5 ,
+			 8, -0.5, 7.5);
+			 
+    n_inhibit    = dbe->bookInt("n_inhibit");
+    run          = dbe->bookInt("run");
+    event        = dbe->bookInt("event");
+    gps_time     = dbe->bookInt("gps_time");
+  }  
+}
 
 
 void L1TLTC::endJob(void)
 {
-  std::cout << "L1TLTC: saw " << nev_ << " events. " << std::endl;
-  if ( saveMe_ ) 
-    dbe->save(rootFileName_);
-  dbe->setCurrentFolder("L1Trigger/LTC");
-  dbe->removeContents();
+  if(verbose_) cout << "L1TLTC: end job...." << endl;
+  LogInfo("L1TLTC") << "analyzed " << nev_ << " events"; 
+
+ if ( outputFile_.size() != 0  && dbe ) dbe->save(outputFile_);
+
+ return;
 }
 
-// ------------ method called to produce the data  ------------
-void
-L1TLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void L1TLTC::analyze(const Event& e, const EventSetup& c)
 {
-  using namespace edm;
-
+  nev_++; 
+  if(verbose_) cout << "L1TLTC: analyze...." << endl;
   Handle< LTCDigiCollection > digis ;
-  //  iEvent.getByLabel( "digis", digis ) ;
-  iEvent.getByType( digis ) ;
+
+
+  try {
+  e.getByType(digis);
+  }
+  catch (...) {
+    edm::LogInfo("L1TLTC") << "can't find LTCDigiCollection ";
+    return;
+  }
 
   for( LTCDigiCollection::const_iterator digiItr = digis->begin() ;
        digiItr != digis->end() ;
@@ -137,7 +157,6 @@ L1TLTC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       event    ->Fill(digiItr->eventNumber());
       gps_time ->Fill(digiItr->bstGpsTime());
     }
-  ++nev_;
-  //usleep(10000);
+
 }
 
