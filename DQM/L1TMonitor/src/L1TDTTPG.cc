@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/05/15 19:27:02 $
- * $Revision: 1.5 $
+ * $Date: 2007/05/25 15:45:48 $
+ * $Revision: 1.6 $
  * \author J. Berryhill
  *
  */
@@ -81,40 +81,40 @@ void L1TDTTPG::beginJob(const EventSetup& c)
   {
     dbe->setCurrentFolder("L1TMonitor/L1TDTTPG");
 
-    dttpgphbx = dbe->book1D("DT TPG phi bx", 
-       "DT TPG phi bx", 25, -0.5, 24.5 ) ;  
-    dttpgphwheel = dbe->book1D("DT TPG phi wheel number", 
+    dttpgphbx = dbe->book1D("DT_TPG_phi_bx", 
+       "DT TPG phi bx", 50, -24.5, 24.5 ) ;  
+    dttpgphwheel = dbe->book1D("DT_TPG_phi_wheel_number", 
        "DT TPG phi wheel number", 5, -2.5, 2.5 ) ;  
-    dttpgphsector = dbe->book1D("DT TPG phi sector number", 
-       "DT TPG phi sector number", 11, -0.5, 10.5 ) ;  
-    dttpgphstation = dbe->book1D("DT TPG phi station number", 
-       "DT TPG phi station number", 4, 0.5, 4.5 ) ;  
-    dttpgphphi = dbe->book1D("DT TPG phi", 
-       "DT TPG phi", 20, -0.5, 19.5 ) ;  
-    dttpgphphiB = dbe->book1D("DT TPG phiB", 
-       "DT TPG phiB", 20, -0.5, 19.5 ) ;  
-    dttpgphquality = dbe->book1D("DT TPG phi quality", 
-       "DT TPG phi quality", 100, -0.5, 99.5 ) ;  
-    dttpgphts2tag = dbe->book1D("DT TPG phi Ts2Tag", 
-       "DT TPG phi Ts2Tag", 10, -0.5, 9.5 ) ;  
-    dttpgphbxcnt = dbe->book1D("DT TPG phi BxCnt", 
+    dttpgphsector = dbe->book1D("DT_TPG_phi_sector_number", 
+       "DT TPG phi sector number", 12, -0.5, 11.5 ) ;  
+    dttpgphstation = dbe->book1D("DT_TPG_phi_station_number", 
+       "DT TPG phi station number", 5, 0.5, 4.5 ) ;  
+    dttpgphphi = dbe->book1D("DT_TPG_phi", 
+       "DT TPG phi", 100, -2000., 2000. ) ;  
+    dttpgphphiB = dbe->book1D("DT_TPG_phiB", 
+       "DT TPG phiB", 100, -500., 500. ) ;  
+    dttpgphquality = dbe->book1D("DT_TPG_phi_quality", 
+       "DT TPG phi quality", 8, -0.5, 7.5 ) ;  
+    dttpgphts2tag = dbe->book1D("DT_TPG_phi_Ts2Tag", 
+       "DT TPG phi Ts2Tag", 2, -0.5, 1.5 ) ;  
+    dttpgphbxcnt = dbe->book1D("DT_TPG_phi_BxCnt", 
        "DT TPG phi BxCnt", 10, -0.5, 9.5 ) ;  
-    dttpgphntrack = dbe->book1D("DT TPG phi ntrack", 
+    dttpgphntrack = dbe->book1D("DT_TPG_phi_ntrack", 
        "DT TPG phi ntrack", 20, -0.5, 19.5 ) ;  
 
-    dttpgthbx = dbe->book1D("DT TPG theta bx", 
-       "DT TPG theta bx", 10, -0.5, 9.5 ) ;  
-    dttpgthwheel = dbe->book1D("DT TPG theta wheel number", 
-       "DT TPG theta wheel number", 10, -0.5, 9.5 ) ;  
-    dttpgthsector = dbe->book1D("DT TPG theta sector number", 
-       "DT TPG theta sector number", 10, -0.5, 9.5 ) ;  
-    dttpgthstation = dbe->book1D("DT TPG theta station number", 
-       "DT TPG theta station number", 10, -0.5, 9.5 ) ;  
-    dttpgththeta = dbe->book1D("DT TPG theta", 
+    dttpgthbx = dbe->book1D("DT_TPG_theta_bx", 
+       "DT TPG theta bx", 50, -24.5, 24.5 ) ;  
+    dttpgthwheel = dbe->book1D("DT_TPG_theta_wheel_number", 
+       "DT TPG theta wheel number", 5, -2.5, 2.5 ) ;  
+    dttpgthsector = dbe->book1D("DT_TPG_theta_sector_number", 
+       "DT TPG theta sector number", 12, -0.5, 11.5 ) ;  
+    dttpgthstation = dbe->book1D("DT_TPG_theta_station_number", 
+       "DT TPG theta station number", 5, -0.5, 4.5 ) ;  
+    dttpgththeta = dbe->book1D("DT_TPG_theta", 
        "DT TPG theta", 20, -0.5, 19.5 ) ;  
-    dttpgthquality = dbe->book1D("DT TPG theta quality", 
-       "DT TPG theta quality", 100, -0.5, 99.5 ) ;  
-    dttpgthntrack = dbe->book1D("DT TPG theta ntrack", 
+    dttpgthquality = dbe->book1D("DT_TPG_theta_quality", 
+       "DT TPG theta quality", 8, -0.5, 7.5 ) ;  
+    dttpgthntrack = dbe->book1D("DT_TPG_theta_ntrack", 
        "DT TPG theta ntrack", 20, -0.5, 19.5 ) ;  
   }  
 }
