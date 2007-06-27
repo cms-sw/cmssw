@@ -12,7 +12,7 @@ using namespace sistrip;
 
 SiStripRawToClustersLazyUnpacker::SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling& regioncabling, const SiStripClusterizerFactory& clustfact, const FEDRawDataCollection& data) :
 
-  edm::SiStripLazyUnpacker<SiStripCluster>(regioncabling.getRegionCabling().size()),
+  Base(regioncabling.getRegionCabling().size()*SiStripRegionCabling::MAXSUBDETS*SiStripRegionCabling::MAXLAYERS),
   raw_(&data),
   regions_(&(regioncabling.getRegionCabling())),
   clusterizer_(&clustfact),
@@ -34,14 +34,19 @@ SiStripRawToClustersLazyUnpacker::~SiStripRawToClustersLazyUnpacker() {
   }
 }
 
-void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
-
-  //Get region cabling and record
-  const SiStripRegionCabling::RegionMap& rmap = (*regions_)[iregion];
-
-  //Loop regions dets
-  SiStripRegionCabling::RegionMap::const_iterator idet = rmap.begin();
-  for (;idet!=rmap.end();idet++) {
+void SiStripRawToClustersLazyUnpacker::fill(uint32_t& index) {
+  
+  //Get region, subdet and layer from element-index
+  SiStripRegionCabling::Region region = SiStripRegionCabling::region(index);
+  uint32_t subdet = static_cast<uint32_t>(SiStripRegionCabling::subdet(index));
+  SiStripRegionCabling::Layer layer = SiStripRegionCabling::layer(index);
+ 
+  //Retrieve cabling for element
+  const SiStripRegionCabling::ElementCabling& element = (*regions_)[region][subdet][layer];
+  
+  //Loop dets
+  SiStripRegionCabling::ElementCabling::const_iterator idet = element.begin();
+  for (;idet!=element.end();idet++) {
     
     //If det id is null or invalid continue.
     if ( !(idet->first) || (idet->first == sistrip::invalid32_) ) { continue; }
@@ -49,10 +54,10 @@ void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
     //Loop over apv-pairs of det
     std::vector<FedChannelConnection>::const_iterator iconn = idet->second.begin();
     for (;iconn!=idet->second.end();iconn++) {
-   
+      
       //If fed id is null or connection is invalid continue
       if ( !iconn->fedId() || !iconn->isConnected() ) { continue; }    
-   
+      
       //If Fed hasnt already been initialised, extract data and initialise
       if (!fedEvents_[iconn->fedId()]) {
 	
@@ -143,7 +148,7 @@ void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
       } 
       
       try {
- 
+	
 	Fed9U::Fed9UEventIterator fed_iter = const_cast<Fed9U::Fed9UEventChannel&>(fedEvents_[iconn->fedId()]->channel( iunit, ichan )).getIterator();
 	
 	for (Fed9U::Fed9UEventIterator i = fed_iter+7; i.size() > 0;) {
@@ -166,3 +171,4 @@ void SiStripRawToClustersLazyUnpacker::fill(uint32_t& iregion) {
     clusterizer_->algorithm()->endDet(record(),idet->first);
   }
 }
+  
