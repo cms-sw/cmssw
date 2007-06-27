@@ -1,8 +1,8 @@
 /*
  * \file L1TLTC.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.4 $
+ * $Date: 2007/06/27 13:54:00 $
+ * $Revision: 1.2 $
  * \author J. Berryhill
  *
  */
@@ -79,8 +79,8 @@ void L1TLTC::beginJob(const EventSetup& c)
   if ( dbe ) 
   {
     dbe->setCurrentFolder("L1TMonitor/L1TLTC");
-    h1 = dbe->book1D("Bunch", "Bunch Number", 100, 0., 5000.) ;
-    h2 = dbe->book1D("Orbit", "Orbit Number", 100, 0., 100000. ) ;
+    h1 = dbe->book1D("Bunch", "Bunch Number", 100, -0.5, 5000.) ;
+    h2 = dbe->book1D("Orbit", "Orbit Number", 100, -0.5, 100000. ) ;
     h3 = dbe->book1D("Triggers", "Triggers", 8, -0.5, 7.5 ) ;
 
     overlaps = dbe->book2D("olaps", "Trigger Overlaps", 8, -0.5, 7.5 ,
