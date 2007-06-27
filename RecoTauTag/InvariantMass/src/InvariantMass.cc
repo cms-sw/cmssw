@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //      Created:  Thu Oct 19 09:02:32 CEST 2006
-// $Id: InvariantMass.cc,v 1.5 2007/04/23 15:09:01 gennai Exp $
+// $Id: InvariantMass.cc,v 1.6 2007/05/10 18:14:24 dutta Exp $
 //
 //
 
@@ -44,6 +44,9 @@
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include <boost/regex.hpp>
 
+#include <string>
+#include <pair>
+using namespace std;
 
 //
 // constructors and destructor
@@ -95,28 +98,20 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel(m_ecalBClSrc,"islandEndcapBasicClusters",endcapBasicClusterHandle);
    reco::BasicClusterCollection endcapClusters = *(endcapBasicClusterHandle.product());
 
-   reco::BasicClusterCollection allClusters;
-   //   reco::BasicClusterRef clusterRef;
-   for (BasicClusterCollection::const_iterator iclus1 = barrelClusters.begin();
-	iclus1 != barrelClusters.end(); iclus1++) allClusters.push_back(*iclus1);
-   for (BasicClusterCollection::const_iterator iclus2 = endcapClusters.begin();
-	iclus2 != endcapClusters.end(); iclus2++) allClusters.push_back(*iclus2);
-
 
    int theKey = 0;
-   for(IsolatedTauTagInfoCollection::const_iterator it = isolatedTaus->begin(); 
-                 it != isolatedTaus->end(); it++) {
+   for(IsolatedTauTagInfoCollection::const_iterator it  = isolatedTaus->begin(); 
+                                                    it != isolatedTaus->end(); it++) 
+   {
      IsolatedTauTagInfoRef tauRef(isolatedTaus,theKey);
-
      const Jet & jet = *(tauRef->jet()); 
      math::XYZVector jetDir(jet.px(),jet.py(),jet.pz());  
 
      pair<JetTag,TauMassTagInfo> jetTauPair;
-     if (jetDir.eta() < 1.2) { //barrel  
-       jetTauPair = m_algo->tag(iEvent,iSetup,tauRef,barrelBasicClusterHandle);
-     } else {
-       jetTauPair = m_algo->tag(iEvent,iSetup,tauRef, endcapBasicClusterHandle);
-     }
+     if (jetDir.eta() < 1.2) //barrel  
+       jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, barrelBasicClusterHandle);
+     else 
+       jetTauPair = m_algo->tag(iEvent, iSetup, tauRef, endcapBasicClusterHandle);
      baseCollection->push_back(jetTauPair.first);    
      extCollection->push_back(jetTauPair.second);
      theKey++;
@@ -135,5 +130,3 @@ InvariantMass::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::auto_ptr<reco::JetTagCollection> resultBase(baseCollection);
    iEvent.put(resultBase);
 }
-
-

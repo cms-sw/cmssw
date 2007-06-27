@@ -44,11 +44,11 @@ private:
 
 //algorithm parameters
   
-  double isolation_cone;
+  double matching_cone;
   double leading_trk_pt;
   double signal_cone;
-  double jet_matching_cone;
-  double track_matching_cone;
+  double cluster_jet_matching_cone;
+  double cluster_track_matching_cone;
   double inv_mass_cut;
 
   TrackDetectorAssociator* trackAssociator_;
