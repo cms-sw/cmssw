@@ -5,8 +5,8 @@
 //   L1 DT Track Finder Raw-to-Digi
 //
 //
-//   $Date: 2007/03/07 14:37:42 $
-//   $Revision: 1.2 $
+//   $Date: 2007/03/12 00:44:19 $
+//   $Revision: 1.3 $
 //
 //   Author :
 //   J. Troconiz  UAM Madrid
@@ -106,9 +106,9 @@ void DTTFFEDReader::process(edm::Event& e) {
   long* dataWord1 = new long;
   long* dataWord2 = new long;
   unsigned char* LineFED=dttfdata.data();
-  *dataWord1=*((long*)LineFED);
-  LineFED+=4;
   *dataWord2=*((long*)LineFED);
+  LineFED+=4;
+  *dataWord1=*((long*)LineFED);
   int lines  = 1; // already counting header
 
   BOEevTy = ((*dataWord1)&0xFF000000)>>24; // positions 57 ->64
@@ -126,9 +126,9 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> DTTF data 
 
   LineFED+=4;
-  *dataWord1=*((long*)LineFED);
-  LineFED+=4;
   *dataWord2=*((long*)LineFED);
+  LineFED+=4;
+  *dataWord1=*((long*)LineFED);
   int chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
   lines++;
 
@@ -142,9 +142,9 @@ void DTTFFEDReader::process(edm::Event& e) {
     DTTFWordContainer.push_back(DTTFWord);
 
     LineFED+=4;
-    *dataWord1=*((long*)LineFED);
-    LineFED+=4;
     *dataWord2=*((long*)LineFED);
+    LineFED+=4;
+    *dataWord1=*((long*)LineFED);
     chkEOE = ((*dataWord1)&0xFFF00000)>>20; 
     lines++;
 
