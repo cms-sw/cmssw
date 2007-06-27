@@ -1,8 +1,8 @@
 /** \file SeedGeneratorForLaserBeams.cc
  *  
  *
- *  $Date: 2007/06/27 06:13:21 $
- *  $Revision: 1.8 $
+ *  $Date: 2007/06/27 06:28:16 $
+ *  $Revision: 1.9 $
  *  \author Maarten Thomas
  */
 
@@ -30,7 +30,8 @@
 
 	region = GlobalTrackingRegion(ptmin, originradius, halflength, originz);
 
-	edm::LogInfo("SeedGeneratorForLaserBeams") << " PtMin of track is " << ptmin
+	edm::LogInfo("SeedGeneratorForLaserBeams") << " Using " << propagatorName 
+	  << " Propagator,  PtMin of track is " << ptmin
 		<< " The Radius of the cylinder for seeds is " << originradius << " cm";
 }
 
