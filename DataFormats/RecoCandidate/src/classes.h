@@ -3,6 +3,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCaloTowerCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
+#include "DataFormats/RecoCandidate/interface/FitResult.h"
 #include "DataFormats/RecoCandidate/interface/CaloRecHitCandidate.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -36,5 +37,7 @@ namespace {
     edm::reftobase::Holder<CaloRecHit, ZDCRecHitRef> rb7;
     edm::reftobase::Holder<CaloRecHit, EcalRecHitRef> rb8;
     edm::RefToBase<CaloRecHit> rbh3;
+
+    reco::FitResultCollection fr1;
   }
 }

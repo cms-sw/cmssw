@@ -6,6 +6,13 @@
   <class name="edm::RefToBase<CaloRecHit>" />
   <class name="reco::CaloRecHitCandidate"/> 
 
+  <class name="reco::FitQuality" />
+  <class name="std::vector<reco::FitQuality>" />
+  <class name="reco::FitResultCollection">
+    <field name="transientVector_" transient="true"/>
+    <field name="fixed_" transient="true"/>
+  </class>
+
   <class name="std::vector<reco::RecoChargedCandidate>"/>
   <class name="edm::Wrapper<std::vector<reco::RecoChargedCandidate> >"/>
   <class name="edm::Ref<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoChargedCandidate>,reco::RecoChargedCandidate> >"/>
