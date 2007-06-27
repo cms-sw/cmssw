@@ -100,26 +100,77 @@ void SiStripRawToClustersRoI::random(SiStripRegionCabling::Regions& regions) con
   
   uint32_t total = cabling_->getRegionCabling().size();
   uint32_t required = (uint32_t)(RandFlat::shoot()*(total+1));
-  for (uint32_t iregion = 0; iregion < required; iregion++) {
-    regions.push_back(iregion);
+
+  for (uint32_t iregion = 0; 
+       iregion < required; 
+       iregion++) {
+    
+    for (uint32_t isubdet = 0; 
+         isubdet < cabling_->getRegionCabling()[iregion].size(); 
+         isubdet++) {
+      
+      for (uint32_t ilayer = 0; 
+	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
+	   ilayer++) {
+	
+	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
+	regions.push_back(index);
+      }
+    }
   }
 }
 
 void SiStripRawToClustersRoI::all(SiStripRegionCabling::Regions& regions) const {
-
+  
   uint32_t total = cabling_->getRegionCabling().size();
-  for (uint32_t iregion = 0; iregion < total; iregion++) {
-    regions.push_back(iregion);
+  
+  for (uint32_t iregion = 0; 
+       iregion < total; 
+       iregion++) {
+    
+    for (uint32_t isubdet = 0; 
+         isubdet < cabling_->getRegionCabling()[iregion].size(); 
+         isubdet++) {
+      
+      for (uint32_t ilayer = 0; 
+	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
+	   ilayer++) {
+
+	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
+	regions.push_back(index);
+      }
+    }
   }
 }
 
 void SiStripRawToClustersRoI::superclusters(const reco::SuperClusterCollection& coll, SiStripRegionCabling::Regions& regions) const {
-
+  
   reco::SuperClusterCollection::const_iterator iclust = coll.begin();
-  for (;iclust!=coll.end();iclust++) {
-    SiStripRegionCabling::Position position(iclust->seed()->position().eta(),
-					    iclust->seed()->position().phi());
+  for (;
+       iclust!=coll.end();
+       iclust++) {
+    
+    SiStripRegionCabling::Position position(iclust->seed()->position().eta(),iclust->seed()->position().phi());
     SiStripRegionCabling::Regions newregions = cabling_->regions(position,dR_);
-    std::copy(newregions.begin(),newregions.end(),std::back_inserter(regions));
+    
+    SiStripRegionCabling::Regions::const_iterator iregion = newregions.begin();
+    for (;
+	 iregion!=newregions.end();
+	 iregion++) {
+      
+      for (uint32_t isubdet = 0; 
+	   isubdet < cabling_->getRegionCabling()[*iregion].size(); 
+	   isubdet++) {
+	
+	for (uint32_t ilayer = 0; 
+	     ilayer < cabling_->getRegionCabling()[*iregion][isubdet].size(); 
+	     ilayer++) {
+	  
+	  uint32_t index = SiStripRegionCabling::elementIndex(*iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
+	  regions.push_back(index);
+	}
+      }
+    }
   }
 }
+  

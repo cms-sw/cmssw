@@ -33,8 +33,7 @@ SiStripRawToClusters::SiStripRawToClusters( const edm::ParameterSet& conf ) :
     << " Constructing object...";
   
   clusterizer_ = new SiStripClusterizerFactory(conf);
-
-  produces< edm::SiStripLazyGetter<SiStripCluster> >();
+  produces< LazyGetter >();
   produces< RefGetter >();
 }
 
@@ -57,14 +56,29 @@ void SiStripRawToClusters::beginJob( const edm::EventSetup& setup) {
   //Fill cabling
   setup.get<SiStripRegionCablingRcd>().get(cabling_);
 
-  //Configure clusterizer factory and pass to LazyGetter
+  //Configure clusterizer factory
   clusterizer_->eventSetup(setup);
 
   //Fill allregions_ record
   uint32_t nregions = cabling_->getRegionCabling().size();
   allregions_.reserve(nregions);
-  for (uint32_t iregion = 0;iregion < nregions;iregion++) {
-    allregions_.push_back(iregion);
+  
+  for (uint32_t iregion = 0;
+       iregion < nregions;
+       iregion++) {
+    
+    for (uint32_t isubdet = 0; 
+	 isubdet < cabling_->getRegionCabling()[iregion].size(); 
+	 isubdet++) {
+      
+      for (uint32_t ilayer = 0; 
+	   ilayer < cabling_->getRegionCabling()[iregion][isubdet].size(); 
+	   ilayer++) {
+	
+	uint32_t index = SiStripRegionCabling::elementIndex(iregion,static_cast<SiStripRegionCabling::SubDet>(isubdet),ilayer);
+	allregions_.push_back(index);
+      }
+    }
   }
 }
 
@@ -83,15 +97,14 @@ void SiStripRawToClusters::produce( edm::Event& event,
   event.getByLabel( productLabel_, productInstance_, buffers ); 
   
   //Construct.
-  boost::shared_ptr<SiStripRawToClustersLazyUnpacker> getter(new SiStripRawToClustersLazyUnpacker(*cabling_,*clusterizer_,*buffers));
+  boost::shared_ptr<LazyUnpacker> unpacker(new LazyUnpacker(*cabling_,*clusterizer_,*buffers));
 
   //Store SiStripLazyGetter in event.
-  std::auto_ptr< edm::SiStripLazyGetter<SiStripCluster> > collection(new edm::SiStripLazyGetter<SiStripCluster>(getter));
-  edm::OrphanHandle< edm::SiStripLazyGetter<SiStripCluster> > pcollection = event.put(collection);
+  std::auto_ptr<LazyGetter> collection(new LazyGetter(unpacker));
+  edm::OrphanHandle<LazyGetter> pcollection = event.put(collection);
 
   //Store SiStripRefGetter for global unpacking in event. 
   std::auto_ptr<RefGetter> rcollection(new RefGetter(pcollection,allregions_));
   event.put(rcollection);
-
 }
 
