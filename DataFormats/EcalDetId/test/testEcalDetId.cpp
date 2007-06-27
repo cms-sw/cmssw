@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.7 2007/06/27 05:51:14 innocent Exp $
+   \version $Id: testEcalDetId.cpp,v 1.10 2007/06/27 06:09:58 innocent Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.7 2007/06/27 05:51:14 innocent Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.10 2007/06/27 06:09:58 innocent Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -132,7 +132,7 @@ void testEcalDetId::testEBDetId(){
 
 void testEcalDetId::testEEDetId(){
 
-  std::vector<unsigned int> detIds(EBDetId::SIZE_HASH,0);
+  std::vector<unsigned int> detIds(EEDetId::SIZE_HASH,0);
   
   
   for (int ix=EEDetId::IX_MIN;ix<=EEDetId::IX_MAX;ix++)
@@ -172,15 +172,15 @@ void testEcalDetId::testEEDetId(){
 	}
 
   int holes=0;
-  for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
+  for (int i=0;i!=EEDetId::SIZE_HASH;++i) {
     // CPPUNIT_ASSERT(detIds[i]!=0);
     if (detIds[i]==0) { holes++; continue; }// there are holes...
     CPPUNIT_ASSERT(EEDetId(detIds[i]).hashedIndex()==i);
     CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i]);
   }
   //FIXME hope a better test...
-  CPPUNIT_ASSERT(holes>EBDetId::SIZE_HASH/100);
-  CPPUNIT_ASSERT(holes<EBDetId::SIZE_HASH/10);
+  CPPUNIT_ASSERT(holes>EEDetId::SIZE_HASH/100);
+  CPPUNIT_ASSERT(holes<EEDetId::SIZE_HASH/10);
 }
 
 void testEcalDetId::testESDetId(){
