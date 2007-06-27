@@ -16,7 +16,7 @@ namespace {
 
     void operator()(std::pair<uint32_t, const Item> const & p) {
       DetId id(p.first);
-      if (id.null() || id.det()!=DetId::Ecal || id.subdetId()!=EcalBarrel ) 
+      if (id.null() || id.det()!=DetId::Ecal || id.subdetId()!=DetId::Subdet ) 
 	return;
       v.at(id.hashedIndex()) = p.second;
     }
@@ -36,13 +36,13 @@ namespace {
       case EcalBarrel :
 	{ 
 	  EBDetId ib(p.first);
-	  b.at(ib.fastHashedIndex()) = p.second;
+	  b.at(ib.hashedIndex()) = p.second;
 	}
 	break;
       case EcalEndcap :
 	{ 
-	EEDetId ie(p.first);
-	// e.at(ie.hashedIndex()) = p.second;
+	  EEDetId ie(p.first);
+	  e.at(ie.hashedIndex()) = p.second;
 	}
         break;
       default:
@@ -61,13 +61,14 @@ EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
   case EcalBarrel :
     { 
       EBDetId ib(id.rawId());
-      return barrel(ib.fastHashedIndex());
+      return m_barrel(ib.hashedIndex());
     }
     break;
   case EcalEndcap :
     { 
-      // EEDetId ie(id.rawId());
-      const_cast<EcalPedestals*>(this)->m_pedestals[id];
+      EEDetId ie(id.rawId());
+      return m_endcap(ie.hashedIndex());
+      //const_cast<EcalPedestals*>(this)->m_pedestals[id];
     }
     break;
   default:
@@ -79,11 +80,15 @@ EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
 }
 
 
-
+// safer than mutable vectors...
 void EcalPedestals::update() const {
+  const_cast<EcalPedestals&>(*this).doUpdate();
+}
+ 
+void EcalPedestals::doUpdate(){
   if (m_barrel.empty()) {
-    // FIXME
     m_barrel.resize(EBDetId::SIZE_HASH);
+    m_endcap.resize(EEDetId::SIZE_HASH);
     std::for_each(m_pedestals.begin(),m_pedestals.end(),
 		  EcalCalibInserter<Item>(m_barrel,m_endcap));
   }

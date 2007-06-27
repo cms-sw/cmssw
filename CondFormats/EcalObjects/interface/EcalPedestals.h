@@ -57,8 +57,9 @@ class EcalPedestals {
   }
 
 private:
-  mutable std::vector<Item> m_barrel;
-  mutable std::vector<Item> m_endcap;
+  void doUpdate();
+  std::vector<Item> m_barrel;
+  std::vector<Item> m_endcap;
 
 };
 
