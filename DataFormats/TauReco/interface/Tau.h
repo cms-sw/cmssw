@@ -77,7 +77,7 @@ namespace reco {
 
     void setLeadingChargedHadron(const PFCandidateRef& myLead) { leadingPFChargedHadron_ = myLead;}   
     void setSignalChargedHadrons(const PFCandidateRefVector& myParts)  { selectedSignalPFChargedHadrons_ = myParts;}
-    void setIsolationChargedHadrons(const PFCandidateRefVector& myParts)  { selectedSignalPFChargedHadrons_ = myParts;}
+    void setIsolationChargedHadrons(const PFCandidateRefVector& myParts)  { selectedIsolationPFChargedHadrons_ = myParts;}
     void setSignalNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedSignalPFNeutralHadrons_ = myParts;}
     void setIsolationNeutralHadrons(const PFCandidateRefVector& myParts)  { selectedIsolationPFNeutralHadrons_ = myParts;}
     void setSignalGammaCandidates( const PFCandidateRefVector& myParts)  { selectedSignalPFGammaCandidates_ = myParts;}
