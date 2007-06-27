@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTPG.cc
  *
- * $Date: 2007/05/25 15:45:48 $
- * $Revision: 1.6 $
+ * $Date: 2007/06/27 12:55:02 $
+ * $Revision: 1.7 $
  * \author J. Berryhill
  *
  */
@@ -90,9 +90,9 @@ void L1TDTTPG::beginJob(const EventSetup& c)
     dttpgphstation = dbe->book1D("DT_TPG_phi_station_number", 
        "DT TPG phi station number", 5, 0.5, 4.5 ) ;  
     dttpgphphi = dbe->book1D("DT_TPG_phi", 
-       "DT TPG phi", 100, -2000., 2000. ) ;  
+       "DT TPG phi", 100, -2100., 2100. ) ;  
     dttpgphphiB = dbe->book1D("DT_TPG_phiB", 
-       "DT TPG phiB", 100, -500., 500. ) ;  
+       "DT TPG phiB", 100, -550., 550. ) ;  
     dttpgphquality = dbe->book1D("DT_TPG_phi_quality", 
        "DT TPG phi quality", 8, -0.5, 7.5 ) ;  
     dttpgphts2tag = dbe->book1D("DT_TPG_phi_Ts2Tag", 
