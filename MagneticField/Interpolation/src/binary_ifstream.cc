@@ -70,10 +70,10 @@ binary_ifstream& binary_ifstream::operator>>( bool& n) {
 }
 
 binary_ifstream& binary_ifstream::operator>>( std::string& n) {
-  size_t nchar;
+  unsigned int nchar;
   (*this) >> nchar;  
   char* tmp = new char[nchar+1];
-  size_t nread = fread( tmp, 1, nchar, file_);
+  unsigned int nread = fread( tmp, 1, nchar, file_);
   if (nread != nchar) std::cout << "binary_ifstream error: read less then expected " << std::endl;
   n.assign( tmp, nread);
   delete[] tmp;
