@@ -92,7 +92,7 @@ int EBDetId::ic() const {
 }
 
 //Maintains SM crystals in bunch of 1700 indices
-int EBDetId::hashedIndex() const {
+int EBDetId::numberBySM() const {
   return (ism()-1) * kCrystalsPerSM + ic() -1;
 }
 

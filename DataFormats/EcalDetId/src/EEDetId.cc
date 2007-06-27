@@ -62,11 +62,6 @@ EEDetId& EEDetId::operator=(const DetId& gen) {
   return *this;
 }
 
-int EEDetId::hashedIndex() const
-{
-	return iy() - nBegin[ ix() - 1 ] + nIntegral[ ix() - 1 ]  + ( zside() + 1 ) / 2 * ICR_FEE;
-}
-
 EEDetId EEDetId::unhashIndex( int hi )
 {
 	int zside = hi / ICR_FEE * 2 - 1;
@@ -75,7 +70,7 @@ EEDetId EEDetId::unhashIndex( int hi )
 	return EEDetId(ix, iy, zside, XYMODE);
 }
 
-int EEDetId::binarySearch(int key, int start, int end) const
+int EEDetId::binarySearch(int key, int start, int end)
 {
 	int middle = start + (end-start) / 2;
 	if (end<=start) {

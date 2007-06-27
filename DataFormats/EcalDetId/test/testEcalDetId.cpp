@@ -2,12 +2,12 @@
    \file
    Test suit for EcalDetId
 
-   \version $Id: testEcalDetId.cpp,v 1.6 2007/06/26 13:45:58 innocent Exp $
+   \version $Id: testEcalDetId.cpp,v 1.7 2007/06/27 05:51:14 innocent Exp $
 
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.6 2007/06/26 13:45:58 innocent Exp $";
+static const char CVSId[] = "$Id: testEcalDetId.cpp,v 1.7 2007/06/27 05:51:14 innocent Exp $";
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
@@ -82,7 +82,7 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
 	      CPPUNIT_ASSERT(EBDetId::validHashIndex(aPositiveId.hashedIndex()));
-	      CPPUNIT_ASSERT(EBDetId::unHashIndex(aPositiveId.hashedIndex())==aPositiveId);
+	      CPPUNIT_ASSERT(EBDetId::unhashIndex(aPositiveId.hashedIndex())==aPositiveId);
 	      detIds.at(aPositiveId.hashedIndex()) = aPositiveId;
 	    }
 
@@ -104,7 +104,7 @@ void testEcalDetId::testEBDetId(){
 	      CPPUNIT_ASSERT(smId.ic()>=EBDetId::MIN_C);
 	      CPPUNIT_ASSERT(smId.ic()<=EBDetId::MAX_C);
 	      CPPUNIT_ASSERT(EBDetId::validHashIndex(aNegativeId.hashedIndex()));
-	      CPPUNIT_ASSERT(EBDetId::unHashIndex(aNegativeId.hashedIndex())==aNegativeId);
+	      CPPUNIT_ASSERT(EBDetId::unhashIndex(aNegativeId.hashedIndex())==aNegativeId);
 	      detIds.at(aNegativeId.hashedIndex()) = aNegativeId;
 	      
 
@@ -125,7 +125,7 @@ void testEcalDetId::testEBDetId(){
   for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
     CPPUNIT_ASSERT(detIds[i]!=0);
     CPPUNIT_ASSERT(EBDetId(detIds[i]).hashedIndex()==i);
-    CPPUNIT_ASSERT(EBDetId::unHashIndex(i)==detIds[i];);
+    CPPUNIT_ASSERT(EBDetId::unhashIndex(i)==detIds[i];);
   }
   
 }
@@ -146,7 +146,7 @@ void testEcalDetId::testEEDetId(){
 	    CPPUNIT_ASSERT(aPositiveId.iy()==iy);
 	    CPPUNIT_ASSERT(aPositiveId.zside()==1);
 	    CPPUNIT_ASSERT(EEDetId::validHashIndex(aPositiveId.hashedIndex()));
-	    CPPUNIT_ASSERT(EEDetId::unHashIndex(aPositiveId.hashedIndex())==aPositiveId);
+	    CPPUNIT_ASSERT(EEDetId::unhashIndex(aPositiveId.hashedIndex())==aPositiveId);
 	    detIds.at(aPositiveId.hashedIndex()) = aPositiveId;
 	  }
 	  //EEDetId Zside -1 
@@ -156,7 +156,7 @@ void testEcalDetId::testEEDetId(){
 	    CPPUNIT_ASSERT(aNegativeId.iy()==iy);
 	    CPPUNIT_ASSERT(aNegativeId.zside()==-1);
 	    CPPUNIT_ASSERT(EEDetId::validHashIndex(aNegativeId.hashedIndex()));
-	    CPPUNIT_ASSERT(EEDetId::unHashIndex(aNegativeId.hashedIndex())==aNegativeId);
+	    CPPUNIT_ASSERT(EEDetId::unhashIndex(aNegativeId.hashedIndex())==aNegativeId);
 	    detIds.at(aNegativeId.hashedIndex()) = aNegativeId;
 	  }
 	}
@@ -174,7 +174,7 @@ void testEcalDetId::testEEDetId(){
   for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
     CPPUNIT_ASSERT(detIds[i]!=0);
     CPPUNIT_ASSERT(EEDetId(detIds[i]).hashedIndex()==i);
-    CPPUNIT_ASSERT(EEDetId::unHashIndex(i)==detIds[i];);
+    CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i];);
   }
   
 }
