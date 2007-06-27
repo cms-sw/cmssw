@@ -28,7 +28,7 @@ namespace {
 namespace {
   namespace {
     edm::Wrapper< edm::SiStripLazyGetter<SiStripCluster> > dummy6;
-    edm::Wrapper< edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > > dummy7;
+    edm::Wrapper< edm::SiStripRefGetter<SiStripCluster> > dummy7;
   }
 }
 
