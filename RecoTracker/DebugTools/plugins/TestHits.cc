@@ -55,6 +55,9 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
       title.str("");
       title << "PullGP_Z_" << i+1 << "-" << j+1 << "_ts";
       hPullGP_Z_ts[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,-50,50);
+      title.str("");
+      title << "Chi2Increment_" << i+1 << "-" << j+1;
+      hChi2Increment[title.str()] = new TH1F(title.str().c_str(),title.str().c_str(),1000,0,100);
 
       title.str("");
       title << "PullGM_X_" << i+1 << "-" << j+1 << "_ts";
@@ -172,6 +175,13 @@ void TestHits::beginJob(const edm::EventSetup& iSetup)
     }
 }
 
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
+#include "DataFormats/SiStripDetId/interface/TECDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
+#include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
+
 void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   LogTrace("TestHits") << "new event" << std::endl;
@@ -217,7 +227,14 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if ((*rhit)->isValid()==0) continue;
 
       int subdetId = (*rhit)->det()->geographicalId().subdetId();
-      int layerId  = ((int)((((*rhit)->det()->geographicalId().rawId() >>16) & 0xF)));
+      int layerId  = 0;
+      DetId id = (*rhit)->det()->geographicalId();
+      if (id.subdetId()==3) layerId = ((TIBDetId)(id)).layer();
+      if (id.subdetId()==5) layerId = ((TOBDetId)(id)).layer();
+      if (id.subdetId()==1) layerId = ((PXBDetId)(id)).layer();
+      if (id.subdetId()==4) layerId = ((TIDDetId)(id)).wheel();
+      if (id.subdetId()==6) layerId = ((TECDetId)(id)).wheel();
+      if (id.subdetId()==2) layerId = ((PXFDetId)(id)).disk();
       const Surface * surf = &( (*rhit)->det()->surface() );
       currentState=thePropagator->propagate(lastState,*surf);	
       if (currentState.isValid()==0) continue;
@@ -247,6 +264,14 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 //       double pullGPY_rs = (rhitGPos.y()-shitGPos.y())/*/sqrt(rhitGPEr.cyy())*/;
 //       double pullGPZ_rs = (rhitGPos.z()-shitGPos.z())/*/sqrt(rhitGPEr.czz())*/;
 
+      //plot chi2 increment
+      MeasurementExtractor me(currentState);
+      double chi2increment = computeChi2Increment(me,*rhit);
+      LogTrace("TestHits") << "chi2increment=" << chi2increment << endl;
+      title.str("");
+      title << "Chi2Increment_" << subdetId << "-" << layerId;
+      hChi2Increment[title.str()]->Fill( chi2increment );
+      
       LogTrace("TestHits") << "rs" << std::endl;
 
       title.str("");
@@ -513,6 +538,8 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 void TestHits::endJob() {
   //file->Write();
+  TDirectory * chi2i = file->mkdir("Chi2_Increment");
+
   TDirectory * gp_ts = file->mkdir("GP_TSOS-SimHit");
   TDirectory * gm_ts = file->mkdir("GM_TSOS-SimHit");
   TDirectory * gp_tr = file->mkdir("GP_TSOS-RecHit");
@@ -565,6 +592,11 @@ void TestHits::endJob() {
       if (i==3 && j>2) break;
       if (i==4 && j>5) break;
       if (i==5 && j>8) break;
+      chi2i->cd();
+      title.str("");
+      title << "Chi2Increment_" << i+1 << "-" << j+1;
+      hChi2Increment[title.str()]->Write();
+
       gp_ts->cd();
       gp_tsx->cd();
       title.str("");
@@ -740,6 +772,19 @@ void TestHits::endJob() {
 
   file->Close();
 }
+
+template<unsigned int D> 
+double TestHits::computeChi2Increment(MeasurementExtractor me, 
+				      TransientTrackingRecHit::ConstRecHitPointer rhit) {
+  typedef typename AlgebraicROOTObject<D>::Vector VecD;
+  typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
+  VecD r = asSVector<D>(rhit->parameters()) - me.measuredParameters<D>(*rhit);
+  
+  SMatDD R = asSMatrix<D>(rhit->parametersError()) + me.measuredError<D>(*rhit);
+  R.Invert();
+  return ROOT::Math::Similarity(r,R) ;
+}
+
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
