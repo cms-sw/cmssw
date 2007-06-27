@@ -30,6 +30,7 @@ class SiStripRawToClustersLazyUnpacker : public edm::SiStripLazyUnpacker<SiStrip
  public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
+  typedef edm::SiStripLazyUnpacker<SiStripCluster> Base;
 
   SiStripRawToClustersLazyUnpacker(const SiStripRegionCabling&,
 				   const SiStripClusterizerFactory&,
@@ -47,7 +48,7 @@ class SiStripRawToClustersLazyUnpacker : public edm::SiStripLazyUnpacker<SiStrip
   const FEDRawDataCollection* raw_;
 
   //Cabling
-  const SiStripRegionCabling::RegionCabling* regions_;
+  const SiStripRegionCabling::Cabling* regions_;
 
   //Clusterizer Factory
   const SiStripClusterizerFactory* clusterizer_;
