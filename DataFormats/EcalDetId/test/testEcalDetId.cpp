@@ -125,7 +125,7 @@ void testEcalDetId::testEBDetId(){
   for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
     CPPUNIT_ASSERT(detIds[i]!=0);
     CPPUNIT_ASSERT(EBDetId(detIds[i]).hashedIndex()==i);
-    CPPUNIT_ASSERT(EBDetId::unhashIndex(i)==detIds[i];);
+    CPPUNIT_ASSERT(EBDetId::unhashIndex(i)==detIds[i]);
   }
   
 }
@@ -174,7 +174,7 @@ void testEcalDetId::testEEDetId(){
   for (int i=0;i!=EBDetId::SIZE_HASH;++i) {
     CPPUNIT_ASSERT(detIds[i]!=0);
     CPPUNIT_ASSERT(EEDetId(detIds[i]).hashedIndex()==i);
-    CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i];);
+    CPPUNIT_ASSERT(EEDetId::unhashIndex(i)==detIds[i]);
   }
   
 }
