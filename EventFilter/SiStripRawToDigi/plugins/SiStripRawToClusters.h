@@ -32,7 +32,10 @@ class SiStripRawToClusters : public edm::EDProducer {
   
  public:
 
-  typedef edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > RefGetter;
+  typedef edm::SiStripLazyGetter<SiStripCluster> LazyGetter;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
+  typedef SiStripRawToClustersLazyUnpacker LazyUnpacker;
+
   SiStripRawToClusters( const edm::ParameterSet& );
   ~SiStripRawToClusters();
   

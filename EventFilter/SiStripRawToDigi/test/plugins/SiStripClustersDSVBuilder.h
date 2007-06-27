@@ -23,7 +23,7 @@ class SiStripClustersDSVBuilder : public edm::EDProducer {
 
   typedef edm::DetSet<SiStripCluster> DetSet;
   typedef edm::DetSetVector<SiStripCluster> DSV;
-  typedef edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > RefGetter;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripClustersDSVBuilder( const edm::ParameterSet& );
   ~SiStripClustersDSVBuilder();

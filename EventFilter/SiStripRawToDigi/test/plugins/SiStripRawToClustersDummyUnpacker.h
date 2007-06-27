@@ -27,7 +27,7 @@ class SiStripRawToClustersDummyUnpacker : public edm::EDAnalyzer {
  public:
 
   typedef edm::DetSet<SiStripCluster> DetSet;
-  typedef edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > RefGetter;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripRawToClustersDummyUnpacker( const edm::ParameterSet& );
   ~SiStripRawToClustersDummyUnpacker();

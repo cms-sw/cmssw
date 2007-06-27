@@ -31,7 +31,7 @@ class SiStripRawToClustersRoI : public edm::EDProducer {
   
  public:
 
-  typedef edm::SiStripRefGetter< SiStripCluster, edm::SiStripLazyGetter<SiStripCluster> > RefGetter;
+  typedef edm::SiStripRefGetter<SiStripCluster> RefGetter;
 
   SiStripRawToClustersRoI( const edm::ParameterSet& );
   ~SiStripRawToClustersRoI();
