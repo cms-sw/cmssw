@@ -60,8 +60,7 @@ namespace reco {
     //get invariantMass with tracks only 
     //float getTksInvariantMass() const {return trackerMass_;}
 
-    //get the sum of the Pt of the signal and isolation tracks
-    float getSumPtSignalCone() const {return sumPtSignal_;}
+    //get the sum of the Pt of the  isolation Annulus tracks
     float getSumPtIsolation() const {return sumPtIsolation_;}
     //get the ratio EM energy / Hadron energy
     float getEmOverHadronEnergy() const { return  emOverHadronEnergy_;}
@@ -96,7 +95,6 @@ namespace reco {
     //set invariantMass with tracks only 
     //void setTksInvariantMass()  { trackerMass_;}
 
-    void setSumPtSignal(const float& sumPt)  { sumPtSignal_ = sumPt;}
     void setSumPtIsolation(const float& sumPt)  { sumPtIsolation_ = sumPt;}
     void setEmOverHadronEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
@@ -120,7 +118,6 @@ namespace reco {
     Measurement1D  ip3D_leadTk_;
     float mass_; 
     float trackerMass_;
-    float sumPtSignal_;
     float sumPtIsolation_;
     float emOverHadronEnergy_;
     float emIsolation_;

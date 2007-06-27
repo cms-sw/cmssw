@@ -31,7 +31,6 @@ Tau::Tau() {
     ip3D_leadTk_ = nullIP;
     mass_ = -1000; 
      trackerMass_ = -1000;
-     sumPtSignal_=-1000;
      sumPtIsolation_=-1000;
      emOverHadronEnergy_=-1000;
      emIsolation_=-1000;
@@ -67,7 +66,6 @@ Tau::Tau(Charge q, const LorentzVector & p4, const Point & vtx ) :
     ip3D_leadTk_ = nullIP;
     mass_ = -1000; 
      trackerMass_ = -1000;
-     sumPtSignal_=-1000;
      sumPtIsolation_=-1000;
      emOverHadronEnergy_=-1000;
      emIsolation_=-1000;
