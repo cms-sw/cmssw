@@ -61,13 +61,13 @@ EcalPedestals::Item const & EcalPedestals::operator()(DetId id) const {
   case EcalBarrel :
     { 
       EBDetId ib(id.rawId());
-      return m_barrel(ib.hashedIndex());
+      return m_barrel[ib.hashedIndex()];
     }
     break;
   case EcalEndcap :
     { 
       EEDetId ie(id.rawId());
-      return m_endcap(ie.hashedIndex());
+      return m_endcap[ie.hashedIndex()];
       //const_cast<EcalPedestals*>(this)->m_pedestals[id];
     }
     break;
