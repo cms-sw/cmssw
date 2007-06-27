@@ -1,10 +1,14 @@
 <use name=DQM/SiPixelCommon>
+<use name=AnalysisDataFormats/TrackInfo>
+<use name=DataFormats/TrackerRecHit2D>
 <lib name=GeometryTrackerGeometryBuilder>
 <use name=TrackingTools/TrackFitters>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=DQMSiPixelMonitorTrack>
    <use name=DQM/SiPixelCommon>
+   <use name=AnalysisDataFormats/TrackInfo>
+   <use name=DataFormats/TrackerRecHit2D>
    <lib name=GeometryTrackerGeometryBuilder>
    <use name=TrackingTools/TrackFitters>
 </export>
