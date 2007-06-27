@@ -4,8 +4,8 @@
 /** \class LaserLayerPairs
  *  find all (resonable) pairs of endcap layers
  *
- *  $Date: 2007/03/18 19:00:19 $
- *  $Revision: 1.2 $
+ *  $Date: 2007/05/10 06:41:09 $
+ *  $Revision: 1.3 $
  *  \author Maarten Thomas
  */
 
@@ -44,6 +44,9 @@ class LaserLayerPairs : public SeedLayerPairs
   SiStripRecHit2DCollection::range rphi_pos_range4;
   SiStripRecHit2DCollection::range rphi_pos_range5;
   SiStripRecHit2DCollection::range rphi_pos_range6;
+  SiStripRecHit2DCollection::range rphi_pos_range7;
+  SiStripRecHit2DCollection::range rphi_pos_range8;
+  SiStripRecHit2DCollection::range rphi_pos_range9;
 
   SiStripRecHit2DCollection::range rphi_neg_range1;
   SiStripRecHit2DCollection::range rphi_neg_range2;
@@ -51,6 +54,9 @@ class LaserLayerPairs : public SeedLayerPairs
   SiStripRecHit2DCollection::range rphi_neg_range4;
   SiStripRecHit2DCollection::range rphi_neg_range5;
   SiStripRecHit2DCollection::range rphi_neg_range6;
+  SiStripRecHit2DCollection::range rphi_neg_range7;
+  SiStripRecHit2DCollection::range rphi_neg_range8;
+  SiStripRecHit2DCollection::range rphi_neg_range9;
 
   TrackerLayerIdAccessor acc;
 
@@ -60,6 +66,9 @@ class LaserLayerPairs : public SeedLayerPairs
   LayerWithHits * lh4pos;
   LayerWithHits * lh5pos;
   LayerWithHits * lh6pos;
+  LayerWithHits * lh7pos;
+  LayerWithHits * lh8pos;
+  LayerWithHits * lh9pos;
 
   LayerWithHits * lh1neg;
   LayerWithHits * lh2neg;
@@ -67,6 +76,9 @@ class LaserLayerPairs : public SeedLayerPairs
   LayerWithHits * lh4neg;
   LayerWithHits * lh5neg;
   LayerWithHits * lh6neg;
+  LayerWithHits * lh7neg;
+  LayerWithHits * lh8neg;
+  LayerWithHits * lh9neg;
 
   std::vector<ForwardDetLayer*> fpos;
   std::vector<ForwardDetLayer*> fneg;
