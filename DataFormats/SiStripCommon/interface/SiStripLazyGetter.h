@@ -25,29 +25,32 @@ namespace edm {
   template <class T> class LazyAdapter;
 
   //------------------------------------------------------------
-  // Helper function, to regularize throwing of exceptions.
-  //------------------------------------------------------------
 
-  namespace lgdetail
+  namespace sistripdetail
     {
-      // Throw an edm::Exception with an appropriate message
       inline
-	void _throw_range(uint32_t i)
+	void _throw_range(uint32_t region)
 	{
 	  throw edm::Exception(errors::InvalidReference)
-	    << "SiStripLazyGetter:: "
-	    << "operator[] called with index not in collection;\n"
-	    << "index value: " << i;
+	    << "SiStripLazyGetter::"
+	    << "find(uint32_t,uint32_t) called with index not in collection;\n"
+	    << "index value: " 
+	    << region;
 	}
     }
   
+  //------------------------------------------------------------
+
   template<typename T>
     class RegionIndex {
     
     friend class LazyAdapter<T>;
 
     public:
+
     typedef typename std::vector<T>::const_iterator const_iterator;
+    typedef typename std::pair<const_iterator,const_iterator> pair_iterator;
+
     RegionIndex(uint32_t& region, const_iterator begin, const_iterator end) :
      region_(region), begin_(begin), end_(end), unpacked_(false) {}
     ~RegionIndex() {}
@@ -55,6 +58,7 @@ namespace edm {
     const_iterator begin() const {return begin_;}
     const_iterator end() const {return end_;}
     const bool unpacked() const {return unpacked_;}
+    pair_iterator find(uint32_t key) const {return std::equal_range(begin_,end_,key);}
    
     private:
     RegionIndex() {}
@@ -67,6 +71,8 @@ namespace edm {
     bool unpacked_;
   };
 
+  //------------------------------------------------------------
+
   template<typename T>
     class SiStripLazyUnpacker {
 
@@ -75,20 +81,20 @@ namespace edm {
 
     public: 
 
-    typedef RegionIndex<T> register_index;
-    typedef std::vector< register_index > register_type;
+    typedef std::vector< RegionIndex<T> > register_type;
     typedef std::vector<T> record_type;
 
     SiStripLazyUnpacker(uint32_t nregions) :
       record_(), register_()
       {
-	register_.reserve(nregions);
 	//At high luminosity:
 	//tracker occupancy 1.2%, 3 strip clusters -> ~40,000 clusters.
 	//Reserve 100,000 to absorb event-by-event fluctuations.
 	record_.reserve(100000); 
+	register_.reserve(nregions);
 	for (uint32_t iregion=0;iregion<nregions;iregion++) {
-	  register_.push_back(RegionIndex<T>(iregion,record().begin(),record().begin()));}
+	  register_.push_back(RegionIndex<T>(iregion,record().begin(),record().begin()));
+	}
       }
     virtual ~SiStripLazyUnpacker() {}
 
@@ -101,11 +107,13 @@ namespace edm {
     register_type register_;
   };
   
+  //------------------------------------------------------------
+
   template<typename T>
     struct LazyAdapter : public std::unary_function<const RegionIndex<T>&, const RegionIndex<T>& > {
 
       /// Constructor with SiStripLazyUnpacker
-      LazyAdapter(boost::shared_ptr<SiStripLazyUnpacker<T> > iGetter) : 
+      LazyAdapter(boost::shared_ptr< SiStripLazyUnpacker<T> > iGetter) : 
 	unpacker_(iGetter) {}
 
       /// () operator for construction of iterator
@@ -113,7 +121,8 @@ namespace edm {
 	if (!index.unpacked()) {
 	uint32_t region = index.region();
 	unpacker_->register_[region].begin(unpacker_->record().end());
-	unpacker_->fill(region); const_cast< RegionIndex<T>& >(index).unpacked(true);
+	unpacker_->fill(region); 
+	const_cast< RegionIndex<T>& >(index).unpacked(true);
 	unpacker_->register_[region].end(unpacker_->record().end());
 	}
 	return index;
@@ -123,7 +132,8 @@ namespace edm {
     
       boost::shared_ptr<SiStripLazyUnpacker<T> > unpacker_;
     };
-  
+
+  //------------------------------------------------------------
 
   template <class T>
   class SiStripLazyGetter 
@@ -133,14 +143,11 @@ namespace edm {
 
   public:
 
-    typedef RegionIndex<T> register_index;
-    typedef std::vector< register_index > register_type;
+    typedef std::vector< RegionIndex<T> > register_type;
     typedef std::vector<T> record_type;
-
-    typedef register_index const&  const_reference;
+    typedef typename record_type::const_iterator record_iterator;
     typedef boost::transform_iterator< LazyAdapter<T>, typename register_type::const_iterator > const_iterator;
-    typedef typename register_type::size_type size_type;
-
+  
     SiStripLazyGetter() {}
     
     SiStripLazyGetter(boost::shared_ptr< SiStripLazyUnpacker<T> > iGetter) :
@@ -148,27 +155,26 @@ namespace edm {
 
     void swap(SiStripLazyGetter& other);
 
-    /// Return true if SiStripLazyUnpacker::record_ is empty.
+    /// Returns true if SiStripLazyUnpacker::record_ is empty.
     bool empty() const;
 
-    /// Return the size of SiStripLazyUnpacker::record_.
-    size_type size() const;
+    /// Returns the size of SiStripLazyUnpacker::record_.
+    uint32_t size() const;
 
-    /// Return an iterator to the SiStripLazyUnpacker<T>::register_ for a 
-    /// given Region id, or end() if there is no such Region.
-    const_iterator find(uint32_t region) const;
+    /// Returns an iterator to the RegionIndex<T> for a given region, 
+    /// or throws an exception if there is no such index.
+    const_iterator find(uint32_t) const;
 
-    /// Return a reference to the SiStripLazyUnpacker<T>::register_ for a 
-    /// given Region id, or throw an edm::Exception if there is no such 
-    /// Region.
-    const_reference operator[](uint32_t region) const;
+    /// Returns a reference to the RegionIndex<T> for a given region.
+    const RegionIndex<T>& operator[](uint32_t) const;
 
-    /// Return an iterator to the first element of 
-    /// SiStripLazyUnpacker<T>::register_.
+    /// Returns start end end iterators for values of a given det-id
+    std::pair<record_iterator,record_iterator> find(uint32_t,uint32_t) const;
+
+    /// Return an iterator to the first RegionIndex<T> for a given region.
     const_iterator begin() const;
 
-    /// Return the off-the-end iterator of 
-    /// SiStripLazyUnpacker<T>::register_ .
+    /// Return the off-the-end iterator for a given region.
     const_iterator end() const;
 
   private:
@@ -176,85 +182,105 @@ namespace edm {
   };
 
   template <class T>
-  inline
-  void
-  SiStripLazyGetter<T>::swap(SiStripLazyGetter<T>& other) 
-  {
-    std::swap(unpacker_,other.unpacker_);
-  }
-
+    inline
+    void
+    SiStripLazyGetter<T>::swap(SiStripLazyGetter<T>& other) 
+    {
+      std::swap(unpacker_,other.unpacker_);
+    }
+  
   template <class T>
-  inline
-  bool
-  SiStripLazyGetter<T>::empty() const 
-  {
-    return unpacker_->record().empty();
-  }
-
+    inline
+    bool
+    SiStripLazyGetter<T>::empty() const 
+    {
+      return unpacker_->record().empty();
+    }
+  
   template <class T>
-  inline
-  typename SiStripLazyGetter<T>::size_type
-  SiStripLazyGetter<T>::size() const
-  {
-    return unpacker_->record().size();
-  }
-
+    inline
+    uint32_t
+    SiStripLazyGetter<T>::size() const
+    {
+      return unpacker_->record().size();
+    }
+  
   template <class T>
-  inline
-  typename SiStripLazyGetter<T>::const_iterator
-  SiStripLazyGetter<T>::find(uint32_t region) const
-  {
-    typename register_type::const_iterator it;
-    if (unpacker_->register_.size() < region+1) it = unpacker_->register_.end();
-    else it = unpacker_->register_.begin()+region;
-    LazyAdapter<T> adapter(unpacker_);
-    return boost::make_transform_iterator(it,adapter);
-  }
-
+    inline
+    typename SiStripLazyGetter<T>::const_iterator
+    SiStripLazyGetter<T>::find(uint32_t region) const
+    {
+      typename register_type::const_iterator it;
+      if (size() < region+1) it = unpacker_->register_.end();
+      else it = unpacker_->register_.begin()+region;
+      LazyAdapter<T> adapter(unpacker_);
+      return boost::make_transform_iterator(it,adapter);
+    }
+  
   template <class T>
-  inline
-  typename SiStripLazyGetter<T>::const_reference
-  SiStripLazyGetter<T>::operator[](uint32_t region) const 
-  {
-    const_iterator it = this->find(region);
-    if (it == this->end()) lgdetail::_throw_range(region);
-    return *it;
-  }
-
+    inline
+    const RegionIndex<T>&
+    SiStripLazyGetter<T>::operator[](uint32_t region) const 
+    {
+      const_iterator it = find(region);
+      if (it == end()) sistripdetail::_throw_range(region);
+      return *it;
+    }
+  
   template <class T>
-  inline
-  typename SiStripLazyGetter<T>::const_iterator
-  SiStripLazyGetter<T>::begin() const
-  {
-    LazyAdapter<T> adapter(unpacker_);
-    return boost::make_transform_iterator(unpacker_->register_.begin(),adapter);
-  }
-
+    inline
+    std::pair<typename SiStripLazyGetter<T>::record_iterator,typename SiStripLazyGetter<T>::record_iterator> 
+    SiStripLazyGetter<T>::find(uint32_t region,uint32_t detid) const 
+    {
+      const RegionIndex<T>& index = (*this)[region];
+      return index.find(detid);
+    }
+  
   template <class T>
-  inline
-  typename SiStripLazyGetter<T>::const_iterator
-  SiStripLazyGetter<T>::end() const
-  {
-    LazyAdapter<T> adapter(unpacker_);
-    return boost::make_transform_iterator(unpacker_->register_.end(),adapter);
-  }
-
+    inline
+    typename SiStripLazyGetter<T>::const_iterator
+    SiStripLazyGetter<T>::begin() const
+    {
+      LazyAdapter<T> adapter(unpacker_);
+      return boost::make_transform_iterator(unpacker_->register_.begin(),adapter);
+    }
+  
   template <class T>
-  inline
-  void
-  swap(SiStripLazyGetter<T>& a, SiStripLazyGetter<T>& b) 
-  {
-    a.swap(b);
-  }
+    inline
+    typename SiStripLazyGetter<T>::const_iterator
+    SiStripLazyGetter<T>::end() const
+    {
+      LazyAdapter<T> adapter(unpacker_);
+      return boost::make_transform_iterator(unpacker_->register_.end(),adapter);
+    }
+  
+  template <class T>
+    inline
+    void
+    swap(SiStripLazyGetter<T>& a, SiStripLazyGetter<T>& b) 
+    {
+      a.swap(b);
+    }
+  
+  //------------------------------------------------------------
 
+  /// Returns RegionIndex for region.
+  template<typename T>
+    struct FindRegion : public std::binary_function< const SiStripLazyGetter<T>&, const uint32_t, const RegionIndex<T>* > {
+      typedef FindRegion<T> self;
+      typename self::result_type operator()(typename self::first_argument_type iContainer, typename self::second_argument_type iIndex) const {
+	return &(*(iContainer.begin()+iIndex));
+      }
+    };
+  
 #if ! GCC_PREREQUISITE(3,4,4)
   // has swap function
   template <class T>
-  struct has_swap<edm::SiStripLazyGetter<T> > {
-    static bool const value = true;
-  };
+    struct has_swap<edm::SiStripLazyGetter<T> > {
+      static bool const value = true;
+    };
 #endif
-
+  
 }
 
 #endif
