@@ -109,17 +109,18 @@ vector<TransientVertex>
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks) const
 {
   std::cout<< "PrimaryVertexProducer::vertices> Obsolete function, using dummy beamspot " << std::endl;
-    BeamSpot dummyBeamSpot;
+    reco::BeamSpot dummyBeamSpot;
+    dummyBeamSpot.dummy();
     return vertices(tracks,dummyBeamSpot); 
 }
 
 
 vector<TransientVertex> 
 PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tracks,
-					 const BeamSpot & beamSpot) const
+					 const reco::BeamSpot & beamSpot) const
 {
   
-  VertexState beamVertexState(beamSpot.position(), beamSpot.error());
+  VertexState beamVertexState(beamSpot);
 
   if ( fapply_finder) {
         return theFinder.vertices( tracks );
@@ -135,7 +136,7 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
     for (vector<reco::TransientTrack>::const_iterator itk = tracks.begin();
 	 itk != tracks.end(); itk++) {
       //if (theTrackFilter(*itk)) seltks.push_back(*itk);
-      BeamTransientTrack t(*itk, beamSpot.position());
+      BeamTransientTrack t(*itk, beamVertexState.position());
       if (theTrackFilter(t)) seltks.push_back(t);
     }
 
@@ -183,12 +184,12 @@ PrimaryVertexProducerAlgorithm::vertices(const vector<reco::TransientTrack> & tr
           TransientVertex v = theFitter->vertex(*iclus, beamSpot);
 
 	  if (fVerbose){
-	    cout << "beamspot   x="<< beamSpot.position().x() 
-		 << " y=" << beamSpot.position().y()
-		 << " z=" << beamSpot.position().z()
-		 << " dx=" << sqrt(beamSpot.error().cxx())
-		 << " dy=" << sqrt(beamSpot.error().cyy())
-		 << " dz=" << sqrt(beamSpot.error().czz())
+	    cout << "beamspot   x="<< beamVertexState.position().x() 
+		 << " y=" << beamVertexState.position().y()
+		 << " z=" << beamVertexState.position().z()
+		 << " dx=" << sqrt(beamVertexState.error().cxx())
+		 << " dy=" << sqrt(beamVertexState.error().cyy())
+		 << " dz=" << sqrt(beamVertexState.error().czz())
 		 << std::endl;
 	    if (v.isValid()) cout << "x,y,z=" << v.position().x() <<" " << v.position().y() << " " <<  v.position().z() << endl;
 	      else cout <<"Invalid fitted vertex\n";

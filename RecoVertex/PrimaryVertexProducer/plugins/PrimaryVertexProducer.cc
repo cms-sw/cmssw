@@ -19,7 +19,6 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "RecoVertex/VertexPrimitives/interface/BeamSpot.h"
 
 //using namespace reco;
 
@@ -87,11 +86,11 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
 
    // get the BeamSpot, it will alwys be needed, even when not used as a constraint
-   BeamSpot vertexBeamSpot;   // the beamspot from VertexReco/VertexPrimitives
+   reco::BeamSpot vertexBeamSpot;   // the beamspot from VertexReco/VertexPrimitives
    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
    try{
      iEvent.getByType(recoBeamSpotHandle);
-     vertexBeamSpot = BeamSpot(*recoBeamSpotHandle);
+     vertexBeamSpot = *recoBeamSpotHandle;
      std::cout << "PrimaryVertexProducer: found BeamSpot" << std::endl;
      std::cout << *recoBeamSpotHandle << std::endl;
    }catch(const edm::Exception & err){
@@ -107,6 +106,7 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	    << "continue using default BeamSpot" 
 	    << endl;
      }
+     vertexBeamSpot.dummy();
    }
 
 
