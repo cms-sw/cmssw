@@ -1,3 +1,9 @@
+2007-06-28  Harry Cheung <cheung@fnal.gov>
+
+	* tag V03-04-07
+        * changes to scripts for communication with Tier-0 (Markus)
+        * changes to cfg files in test for LNF support change in IOPool/Streamer
+
 2007-06-19  Harry Cheung <cheung@fnal.gov>
 
 	* tag V03-04-06
@@ -9,3 +15,4 @@
         * fixes to DQM collation and archiving from Bill Badgett
 	* changes to scripts arguments for communication with Tier-0 from Markus
         * fix for using DQMHttpSource with a FUEP app running EP in async
+
