@@ -1,7 +1,7 @@
 /* \file EcalDCCUnpackingModule.h
  *
- *  $Date: 2007/06/22 16:08:56 $
- *  $Revision: 1.36 $
+ *  $Date: 2007/06/28 13:08:10 $
+ *  $Revision: 1.37 $
  *  \author N. Marinelli
  *  \author G. Della Ricca
  *  \author G. Franzoni
@@ -175,9 +175,9 @@ void EcalDCCUnpackingModule::produce(edm::Event & e, const edm::EventSetup& c){
 //    } 
     if (data.size()>16){
 
-      if (	  (id >= BEG_DCC_FED_ID && id <= END_DCC_FED_ID) ||
-	  ( BEG_DCC_FED_ID_GLOBAL >= id &&  id <= END_DCC_FED_ID_GLOBAL )
-	  )
+      if ( (id >= BEG_DCC_FED_ID && id <= END_DCC_FED_ID) ||
+	   (id >= BEG_DCC_FED_ID_GLOBAL && id <= END_DCC_FED_ID_GLOBAL)
+	 )
 	{	// do the DCC data unpacking and fill the collections
 	  
 	  (*productHeader).setSmInBeam(id);
