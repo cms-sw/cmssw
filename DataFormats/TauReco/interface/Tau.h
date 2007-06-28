@@ -68,6 +68,10 @@ namespace reco {
     float getMaximumHcalTowerEnergy() const { return maximumHcalTowerEnergy_;}
     //get em isolation variable
     float getEMIsolation() const { return emIsolation_;}
+    //get the number of Ecal clusters used for mass tag
+    int getNumberOfEcalClusters() const  { return numberOfEcalClusters_ ;}
+
+
 
     void setLeadingTrack(const TrackRef& myTrack) { leadingTrack_ = myTrack;}
     void setSignalTracks(const TrackRefVector& myTracks)  { signalTracks_ = myTracks;}
@@ -99,6 +103,7 @@ namespace reco {
     void setEmOverHadronEnergy(const float& emOverH)  {   emOverHadronEnergy_ = emOverH;}
     void setMaximumHcalTowerEnergy(const float& maxHcal)  {  maximumHcalTowerEnergy_ = maxHcal;}
     void setEMIsolation(const float& emIso)  {  emIsolation_ = emIso;}
+void setNumberOfEcalClusters(const int& myClus)  { numberOfEcalClusters_ = myClus;}
 
 
   private:
@@ -121,7 +126,7 @@ namespace reco {
     float sumPtIsolation_;
     float emOverHadronEnergy_;
     float emIsolation_;
-
+    int numberOfEcalClusters_;
   };
 }
 
