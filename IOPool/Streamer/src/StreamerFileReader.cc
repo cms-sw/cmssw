@@ -1,6 +1,7 @@
 #include "IOPool/Streamer/src/StreamerFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Catalog/interface/FileCatalog.h"
 
 using namespace std;
 using namespace edm;
@@ -10,16 +11,19 @@ namespace edm
   StreamerFileReader::StreamerFileReader(edm::ParameterSet const& pset):
     streamerNames_(pset.getUntrackedParameter<std::vector<std::string> >("fileNames"))
   {
-        if (streamerNames_.size() > 1)
-           stream_reader_ = std::auto_ptr<StreamerInputFile> 
+      InputFileCatalog catalog(pset);
+      streamerNames_ = catalog.fileNames();
+
+      if (streamerNames_.size() > 1)
+          stream_reader_ = std::auto_ptr<StreamerInputFile> 
                           (new StreamerInputFile(streamerNames_));
-        else if (streamerNames_.size() == 1) 
+      else if (streamerNames_.size() == 1) 
            stream_reader_ = std::auto_ptr<StreamerInputFile>
                           (new StreamerInputFile(streamerNames_.at(0)));
-        else {
+      else {
            throw cms::Exception("StreamerFileReader","StreamerFileReader")
               << " Not provided fileNames \n";
-        }
+      }
   }
 
   StreamerFileReader::~StreamerFileReader()
