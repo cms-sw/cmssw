@@ -57,16 +57,16 @@ void SiPixelRawDumper::analyze(const  edm::Event& ev, const edm::EventSetup& es)
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawDumper")<< " GET DATA FOR FED: " <<  fedId ;
     PixelDataFormatter::Digis digis;
+    PixelDataFormatter::Errors errors;
 
     //get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
     //convert data to digi
-    formatter.interpretRawData( fedId, fedRawData, digis);
+    formatter.interpretRawData( fedId, fedRawData, digis, errors);
   }
 
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SiPixelRawDumper);
-

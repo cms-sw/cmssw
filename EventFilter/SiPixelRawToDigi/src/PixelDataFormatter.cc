@@ -4,6 +4,7 @@
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameConverter.h"
 
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDTrailer.h"
@@ -50,7 +51,7 @@ PixelDataFormatter::PixelDataFormatter( const SiPixelFedCablingMap * map)
   }
 }
 
-void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, Digis& digis)
+void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, Digis& digis, Errors& errors)
 {
     int nWords = rawData.size()/sizeof(Word64);
     if (nWords==0) return;
@@ -66,11 +67,15 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       FEDHeader fedHeader( reinterpret_cast<const unsigned char*>(header));
       LogTrace("")<<"HEADER:  " <<  print(*header);
       if ( !fedHeader.check() ) break; // throw exception?
-      if ( fedHeader.sourceID() != fedId)  
-        LogError("PixelDataFormatter:interpretRawData, fedHeader.sourceID() != fedId")
+      if ( fedHeader.sourceID() != fedId) { 
+        LogError("PixelDataFormatter::interpretRawData, fedHeader.sourceID() != fedId")
               <<", sourceID = " <<fedHeader.sourceID()
-              <<", fedId = "<<fedId; 
+              <<", fedId = "<<fedId<<", errorType = 32"; 
+        int errorType = 32;
+     	SiPixelRawDataError error(*header, errorType);
+     	errors.push_back(error);
       moreHeaders = fedHeader.moreHeaders();
+      }
     }
 
     // check trailers
@@ -81,13 +86,19 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       FEDTrailer fedTrailer(reinterpret_cast<const unsigned char*>(trailer)); 
       LogTrace("")<<"TRAILER: " <<  print(*trailer);
       if ( !fedTrailer.check()) { 
+      	int errorType = 33;
+     	SiPixelRawDataError error(*trailer, errorType);
+     	errors.push_back(error);
         trailer++; 
-        LogError("PixelDataFormatter:interpretRawData, fedTrailer.check: ")
-            <<"fedTrailer.check failed";
+        LogError("PixelDataFormatter::interpretRawData, fedTrailer.check: ")
+            <<"fedTrailer.check failed"<<", errorType = 33";
         break; 
       } 
       if ( fedTrailer.lenght()!= nWords) {
-        LogError("PROBLEM in PixelDataFormatter,  fedTrailer.lenght()!= nWords !!");
+        LogError("PROBLEM in PixelDataFormatter,  fedTrailer.lenght()!= nWords !!")<<", errorType = 34";
+        int errorType = 34;
+     	SiPixelRawDataError error(*trailer, errorType);
+     	errors.push_back(error);
       }
       moreTrailers = fedTrailer.moreTrailers();
     }
@@ -103,18 +114,56 @@ void PixelDataFormatter::interpretRawData(int fedId, const FEDRawData& rawData, 
       if (w2==0) theWordCounter--;
 
       // check status of word...
-      if (checkError(w1)==0) {
+      if (checkError(w1, errors)==0) {
         int status1 = word2digi(converter, w1, digis);
         if (status1) LogError("PixelDataFormatter::interpretRawData") 
                     << "error #"<<status1<<" returned for word1";
+        if (status1==1) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid channel Id (errorType=35)";
+          int errorType = 35;
+     	  SiPixelRawDataError error(w1, errorType);
+     	  errors.push_back(error);
+        }
+        else if (status1==2) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid ROC Id (errorType=36)";
+          int errorType = 36;
+     	  SiPixelRawDataError error(w1, errorType);
+     	  errors.push_back(error);
+        }
+        else if (status1==3) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid dcol/pixel value (errorType=37)";
+          int errorType = 37;
+     	  SiPixelRawDataError error(w1, errorType);
+     	  errors.push_back(error);
+        }
+        else LogError("PixelDataFormatter::interpretRawData")<<"  cabling check returned unexpected result";
       }
-      if (checkError(w2)==0) {
+      if (checkError(w2, errors)==0) {
         int status2 = word2digi(converter, w2, digis);
         if (status2) LogError("PixelDataFormatter::interpretRawData") 
                     << "error #"<<status2<<" returned for word2";
+        if (status2==1) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid channel Id (errorType=35)";
+          int errorType = 35;
+     	  SiPixelRawDataError error(w2, errorType);
+     	  errors.push_back(error);
+        }
+        else if (status2==2) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid ROC Id (errorType=36)";
+          int errorType = 36;
+     	  SiPixelRawDataError error(w2, errorType);
+     	  errors.push_back(error);
+        }
+        else if (status2==3) {
+          LogError("PixelDataFormatter::interpretRawData")<<"  invalid dcol/pixel value (errorType=37)";
+          int errorType = 37;
+     	  SiPixelRawDataError error(w2, errorType);
+     	  errors.push_back(error);
+        }
+        else LogError("PixelDataFormatter::interpretRawData")<<"  cabling check returned unexpected result";
       }
-    } 
-
+    }
+    
   delete converter;
 }
 
@@ -150,7 +199,7 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
   LogTrace(" allDetDigis/hasDetDigis : ") << allDetDigis<<"/"<<hasDetDigis;
 
   //
-  // since digis are writted in the form og 64-bit packets
+  // since digis are written in the form of 64-bit packets
   // add extra 32-bit word to make number of digis even
   //
   if (words.size() %2 != 0) words.push_back( Word32(0) );
@@ -197,38 +246,56 @@ FEDRawData * PixelDataFormatter::formatData(int fedId, const Digis & digis)
   return rawData;
 }
 
-int PixelDataFormatter::checkError(const Word32& data) const
+int PixelDataFormatter::checkError(const Word32& data, Errors errors) const
 {
  static const Word32 ERROR_mask = ~(~Word32(0) << ROC_bits); 
- int error = (data >> ROC_shift) & ERROR_mask;
- switch (error) {
+ int errorType = (data >> ROC_shift) & ERROR_mask;
+ switch (errorType) {
+    case(25) : {
+     LogTrace("")<<"  invalid ROC=25 found (errorType=25)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
+     break;
+   }
    case(26) : {
-     LogTrace("")<<"  gap word found (error=26)";
+     LogTrace("")<<"  gap word found (errorType=26)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    case(27) : {
-     LogTrace("")<<"  dummy word found (error=27)";
+     LogTrace("")<<"  dummy word found (errorType=27)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    case(28) : {
-     LogTrace("")<<"  error fifo nearly full (error=28)";
+     LogTrace("")<<"  error fifo nearly full (errorType=28)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    case(29) : {
-     LogTrace("")<<"  timeout on a channel (error=29)";
+     LogTrace("")<<"  timeout on a channel (errorType=29)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    case(30) : {
-     LogTrace("")<<"  trailer error (error=30)";
+     LogTrace("")<<"  trailer error (errorType=30)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    case(31) : {
-     LogTrace("")<<"  event number error (error=31)";
+     LogTrace("")<<"  event number error (errorType=31)";
+     SiPixelRawDataError error(data, errorType);
+     errors.push_back(error);
      break;
    }
    default: return 0;
  };
- return error;
+ return errorType;
 }
 
 int PixelDataFormatter::digi2word( const SiPixelFrameConverter* converter,
@@ -272,8 +339,22 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   cabling.pxid = (word >> PXID_shift) & PXID_mask;
   cabling.link = (word >> LINK_shift) & LINK_mask;  
   cabling.roc  = (word >> ROC_shift) & ROC_mask;
-  int adc   = (word >> ADC_shift) & ADC_mask; 
+  int adc   = (word >> ADC_shift) & ADC_mask;
 
+  static SiPixelFrameConverter::CablingIndex lastcabl;
+  static bool lastcablexists = false;
+
+// check to make sure row and dcol values are in order (lowest to highest)
+  if (lastcablexists) {
+    if ((cabling.dcol < lastcabl.dcol) || (cabling.dcol==lastcabl.dcol && cabling.pxid < lastcabl.pxid)) {
+      LogError("PixelDataFormatter::raw2digi exception") 
+              <<" pixel not in correct order (pxid low to high, dcol low to high)"
+              <<" link: "<<cabling.link<<", ROC: "<<cabling.roc<<", dcol: "
+              <<cabling.dcol<<", pxid: "<<cabling.pxid;
+      return 4;
+    }
+  }
+    
   static bool debug = edm::MessageDrop::instance()->debugEnabled;
   if (debug) {
     int rocCol, rocRow;
@@ -286,13 +367,15 @@ int PixelDataFormatter::word2digi(const SiPixelFrameConverter* converter,
   if (!converter) return 0;
 
   SiPixelFrameConverter::DetectorIndex detIdx;
-  int status =  converter->toDetector(cabling, detIdx);
-  if (status) return status;
+  int status = converter->toDetector(cabling, detIdx);
+  if (status) return status; 
 
   PixelDigi pd(detIdx.row, detIdx.col,  adc);
   digis[detIdx.rawId].push_back(pd);
 
   theDigiCounter++;
+  lastcabl = cabling;
+  lastcablexists = true;
   if (debug)  LogTrace("") << print(pd);
   return 0;
 }

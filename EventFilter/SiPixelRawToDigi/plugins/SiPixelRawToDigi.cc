@@ -8,6 +8,8 @@
 #include "DataFormats/SiPixelDigi/interface/PixelDigi.h"
 #include "DataFormats/SiPixelDigi/interface/PixelDigiCollection.h"
 
+#include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+
 #include "DataFormats/DetId/interface/DetId.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -39,6 +41,7 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 {
   edm::LogInfo("SiPixelRawToDigi")<< " HERE ** constructor!" << endl;
   produces< edm::DetSetVector<PixelDigi> >();
+  produces< std::map<int, std::vector<SiPixelRawDataError> > >();
 
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
   if (timing) {
@@ -82,8 +85,9 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   static string instance = config_.getUntrackedParameter<string>("InputInstance","");
   ev.getByLabel( label, instance, buffers);
 
-// create product (digis)
+// create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
+  std::auto_ptr< std::map<int, std::vector<SiPixelRawDataError> > > errorcollection( new std::map<int, std::vector<SiPixelRawDataError> > );
   static int ndigis = 0;
   static int nwords = 0;
 
@@ -99,12 +103,13 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
   for (int fedId = fedIds.first; fedId <= fedIds.second; fedId++) {
     LogDebug("SiPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  fedId << endl;
     PixelDataFormatter::Digis digis;
+    PixelDataFormatter::Errors errors;
      
     //get event data for this fed
     const FEDRawData& fedRawData = buffers->FEDData( fedId );
 
-    //convert data to digi
-    formatter.interpretRawData( fedId, fedRawData, digis);
+    //convert data to digi and strip off errors
+    formatter.interpretRawData( fedId, fedRawData, digis, errors);
 
     //pack digi into collection
     typedef PixelDataFormatter::Digis::iterator ID;
@@ -115,6 +120,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 //      detSet.data = it->data;
       detSet.data = it->second;
     } 
+    //pack errors into collection
+    (*errorcollection)[fedId] = errors;
   }
 
   if (theTimer) {
@@ -128,7 +135,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     hDigi->Fill(formatter.nDigis());
   }
 
-  //send digis back to framework 
+  //send digis and errors back to framework 
   ev.put( collection );
+  ev.put( errorcollection );
 }
-
