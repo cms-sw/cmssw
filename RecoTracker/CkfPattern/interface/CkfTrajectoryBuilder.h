@@ -64,7 +64,7 @@ public:
   virtual void setEvent(const edm::Event& event) const;
 
 
- private:
+ protected:
   const TrajectoryStateUpdator*         theUpdator;
   const Propagator*                     thePropagatorAlong;
   const Propagator*                     thePropagatorOpposite;
@@ -80,6 +80,8 @@ public:
   TrajectoryFilter*              theMinPtCondition;
   TrajectoryFilter*              theMaxHitsCondition;
 
+
+ protected:
   int theMaxCand;               /**< Maximum number of trajectory candidates 
 		                     to propagate to the next layer. */
   int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
@@ -92,13 +94,14 @@ public:
   bool theAlwaysUseInvalidHits;
 
 
+ protected:
+  virtual std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const TempTrajectory& traj) const;
+
   TempTrajectory createStartingTrajectory( const TrajectorySeed& seed) const;
 
   std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
 
   void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
-
-  std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const TempTrajectory& traj) const;
 
   bool qualityFilter( const TempTrajectory& traj) const;
 

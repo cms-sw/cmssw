@@ -12,8 +12,6 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 
 #include "TrackingTools/TrackFitters/interface/KFTrajectoryFitter.h"
-#include "TrackingTools/TrackFitters/interface/KFTrajectorySmoother.h"
-#include "TrackingTools/TrackFitters/interface/KFFittingSmoother.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
