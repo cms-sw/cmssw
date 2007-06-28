@@ -1,0 +1,25 @@
+<use name=DataFormats/Common>
+<use name=DataFormats/DetId>
+<use name=DataFormats/EgammaReco>
+<use name=DataFormats/SiPixelDetId>
+<use name=DataFormats/TrackerRecHit2D>
+<use name=FWCore/Framework>
+<use name=FWCore/MessageLogger>
+<use name=FastSimulation/ParticlePropagator>
+<use name=FastSimulation/TrackerSetup>
+<use name=Geometry/Records>
+<use name=Geometry/TrackerGeometryBuilder>
+<use name=MagneticField/Records>
+<use name=RecoTracker/Record>
+<use name=RecoTracker/TkSeedGenerator>
+<use name=SimDataFormats/Track>
+<use name=TrackingTools/KalmanUpdators>
+<use name=TrackingTools/MaterialEffects>
+<use name=TrackingTools/TrajectoryState>
+<use name=TrackingTools/TransientTrackingRecHit>
+<export>
+  <use name=DataFormats/EgammaReco>
+  <use name=TrackingTools/TrajectoryState>
+  <use name=TrackingTools/TransientTrackingRecHit>
+  <lib name=FastSimulationEgammaElectronAlgos>
+</export>
