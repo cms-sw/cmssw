@@ -8,13 +8,15 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Jun 16 06:48:39 EDT 2007
-// $Id$
+// $Id: ChainEvent.cc,v 1.1 2007/06/18 16:22:00 chrjones Exp $
 //
 
 // system include files
 
 // user include files
 #include "DataFormats/FWLite/interface/ChainEvent.h"
+#include "TFile.h"
+#include "TTree.h"
 
 namespace fwlite {
 //

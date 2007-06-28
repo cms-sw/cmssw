@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
-// $Id: Event.h,v 1.4 2007/05/23 21:23:11 chrjones Exp $
+// $Id: Event.h,v 1.5 2007/06/18 16:20:29 chrjones Exp $
 //
 #if !defined(__CINT__) || defined(__MAKECINT__)
 // system include files
@@ -26,8 +26,6 @@
 #include <boost/shared_ptr.hpp>
 #include <memory>
 
-#include "TFile.h"
-#include "TTree.h"
 #include "TBranch.h"
 #include "Rtypes.h"
 #include "Reflex/Object.h"

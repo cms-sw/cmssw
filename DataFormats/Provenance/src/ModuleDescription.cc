@@ -4,12 +4,10 @@
 
 #include <ostream>
 #include <sstream>
-#include <string>
-
 
 /*----------------------------------------------------------------------
 
-$Id: ModuleDescription.cc,v 1.5 2007/02/12 18:16:32 chrjones Exp $
+$Id: ModuleDescription.cc,v 1.1 2007/03/04 04:48:09 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

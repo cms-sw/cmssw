@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------
   
-$Id: TypeID.cc,v 1.17 2006/09/01 18:16:42 wmtan Exp $
+$Id: TypeID.cc,v 1.1 2007/03/04 04:40:19 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 #include <ostream>
@@ -8,7 +8,6 @@ $Id: TypeID.cc,v 1.17 2006/09/01 18:16:42 wmtan Exp $
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "Reflex/Type.h"
-#include <string>
 #include "boost/thread/tss.hpp"
 
 namespace edm {

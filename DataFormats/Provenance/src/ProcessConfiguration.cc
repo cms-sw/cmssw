@@ -1,5 +1,4 @@
 #include <sstream>
-#include <string>
 
 #include "FWCore/Utilities/interface/Digest.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -7,7 +6,7 @@
 
 /*----------------------------------------------------------------------
 
-$Id: ProcessConfiguration.cc,v 1.3 2007/02/12 18:16:32 chrjones Exp $
+$Id: ProcessConfiguration.cc,v 1.1 2007/03/04 04:48:10 wmtan Exp $
 
 ----------------------------------------------------------------------*/
 

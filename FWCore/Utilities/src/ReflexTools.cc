@@ -7,10 +7,7 @@
 
 #include "Reflex/Base.h"
 #include "Reflex/Member.h"
-#include "Reflex/Object.h"
-#include "Reflex/Type.h"
 #include "Reflex/TypeTemplate.h"
-
 
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/EDMException.h"

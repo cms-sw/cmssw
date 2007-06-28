@@ -1,7 +1,6 @@
 #include <iterator>
 #include <ostream>
 #include <sstream>
-#include <string>
 #include "FWCore/Utilities/interface/Digest.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"

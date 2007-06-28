@@ -1,6 +1,5 @@
 #include <iomanip>
 #include <sstream>
-#include <string>
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Digest.h"
