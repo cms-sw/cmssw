@@ -11,7 +11,8 @@
 <use name=rootcintex>
 <use name=root>
 <use name=clhep>
-<use name=boost>
+<use name=boost>#
+<use name=CondCore/DBOutputService>
 <export>
 <lib name=CalibTrackerSiPixelLorentzAngle>
 </export>
