@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: IPAnalyzer.cc,v 1.1 2007/05/09 14:11:13 arizzi Exp $
+// $Id: IPAnalyzer.cc,v 1.2 2007/05/10 22:05:04 arizzi Exp $
 //
 //
 
@@ -116,5 +116,4 @@ IPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 //define this as a plug-in
-DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(IPAnalyzer);
+DEFINE_FWK_MODULE(IPAnalyzer);
