@@ -1,10 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: PoolSource.cc,v 1.53 2007/06/25 03:55:31 wmtan Exp $
+$Id: PoolSource.cc,v 1.54 2007/06/25 20:53:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
 #include "RootFile.h"
 #include "RootTree.h"
-#include "SealBase/Error.h"
 #include "IOPool/Common/interface/ClassFiller.h"
 
 #include "FWCore/Catalog/interface/FileCatalog.h"
@@ -12,10 +11,7 @@ $Id: PoolSource.cc,v 1.53 2007/06/25 03:55:31 wmtan Exp $
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
@@ -96,14 +92,8 @@ namespace edm {
 
   void PoolSource::init(FileCatalogItem const& file) {
     TTree::SetMaxTreeSize(kMaxLong64);
-    try {
-      TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
-      if (filePtr != 0) filePtr->Close();
-    }
-    catch (seal::Error& e) {
-      std::string errorMsg = "File '" + file.fileName() + "' is not found or could not be opened.\n" + e.explainSelf();
-      throw edm::Exception(edm::errors::NotFound, "PoolSource::PoolSource()") << errorMsg;
-    }
+    TFile *filePtr = (file.fileName().empty() ? 0 : TFile::Open(file.fileName().c_str()));
+    if (filePtr != 0) filePtr->Close();
     rootFile_ = RootFileSharedPtr(new RootFile(file.fileName(), catalog().url(),
 	processConfiguration(), file.logicalFileName()));
   }
