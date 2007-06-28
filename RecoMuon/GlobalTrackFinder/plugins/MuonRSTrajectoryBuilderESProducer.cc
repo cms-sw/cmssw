@@ -13,7 +13,7 @@
 //
 // Original Author:  Jean-Roch Vlimant
 //         Created:  Wed May 16 20:31:23 CEST 2007
-// $Id$
+// $Id: MuonRSTrajectoryBuilderESProducer.cc,v 1.1 2007/06/25 16:36:49 vlimant Exp $
 //
 //
 
@@ -66,12 +66,14 @@ MuonRSTrajectoryBuilderESProducer::produce(const CkfComponentsRecord& iRecord)
    return _trajectorybuilder;
 }
 
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ModuleFactory.h"
-#include "FWCore/Framework/interface/ESProducer.h"
-
-#include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
-
-//define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(MuonRSTrajectoryBuilderESProducer);
+/*
+  #include "FWCore/Framework/interface/EventSetup.h"
+  #include "FWCore/Framework/interface/ESHandle.h"
+  #include "FWCore/Framework/interface/ModuleFactory.h"
+  #include "FWCore/Framework/interface/ESProducer.h"
+  
+  #include "FWCore/Framework/interface/eventsetupdata_registration_macro.h"
+  
+  //define this as a plug-in
+  DEFINE_FWK_EVENTSETUP_MODULE(MuonRSTrajectoryBuilderESProducer);
+*/
