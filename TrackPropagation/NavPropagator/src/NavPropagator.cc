@@ -2,6 +2,9 @@
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include  "TrackPropagation/NavGeometry/interface/NavVolume6Faces.h"
+// magVolume6Faces needed to get access to volume name and material:
+#include "MagneticField/VolumeGeometry/interface/MagVolume6Faces.h"
+//
 #include "TrackPropagation/RungeKutta/interface/RKPropagatorInS.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
@@ -13,6 +16,21 @@ NavPropagator::NavPropagator( const MagneticField* field,
   Propagator(dir)
 {
   theField = dynamic_cast<const VolumeBasedMagneticField*>(field);
+  //FIXME: iron volumes are hard-coded below... will change with new .xml geometry MM 28/6/07
+  int myIronVolumes[126] = {6,9,11,14,15,18,22,23,26,29,30,33,36,37,43,46,49,53,56,57,60,62,
+			    63,65,71,77,105,106,107,111,112,113,114,115,116,117,118,122,123,
+			    125,126,128,129,130,131,132,133,135,137,141,145,147,148,149,153,
+			    154,155,156,157,158,159,160,164,165,167,168,170,171,172,173,174,
+			    175,177,178,179,180,184,185,186,187,188,189,190,191,195,196,198,
+			    200,204,208,210,211,212,216,217,218,219,220,221,222,223,227,228,
+			    230,231,233,234,235,236,237,238,240,241,242,243,247,248,249,250,
+			    251,252,253,254,258,259,261}; 
+  for(int i=0; i<272; i++) isIronVolume[i]=false;
+  for(int i=0; i<126 ; i++) isIronVolume[myIronVolumes[i]]=true; 
+  //  for(int i=1; i<272 ; i++) {
+  //  if(isIronVolume[i]) std::cout << "Volume no." << i << " is made of iron " << std::endl;
+  //  if(!isIronVolume[i]) std::cout << "Volume no." << i << " is made of air " << std::endl;
+  //}
 }
 
 NavPropagator::~NavPropagator() {
@@ -117,6 +135,8 @@ NavPropagator::propagateWithPath(const TrajectoryStateOnSurface& inputState,
     }
 
 
+    // std::cout << "Just moved " << exitState.path() << " cm through " << ( currentVolume->isIron()? "IRON":"AIR" ); 
+    // std::cout << " at radius: " << TempState.globalPosition().perp() << std::endl;
     // reflect back to normal universe if necessary:
     if (isReflected) { // reflect back... nobody should know we secretely z-reflected the tsos 
       
@@ -180,7 +200,26 @@ const NavVolume* NavPropagator::navVolume( const MagVolume* magVolume)  const
   NavVolume* result;
   MagVolumeMap::iterator i = theNavVolumeMap.find( magVolume);
   if (i == theNavVolumeMap.end()) {
-    result= new NavVolume6Faces( *magVolume);
+    // Create a NavVolume from a MagVolume if the NavVolume doesn't exist yet
+    // FIXME: hardcoded iron/air classification should be made into something more general
+    // will break with new magnetic field volume .xml file MM 28/6/07
+    const MagVolume6Faces* pVol6 = dynamic_cast<const MagVolume6Faces*> ( magVolume );
+    int n=0;
+    bool isIron=false;
+    if(pVol6) { 
+      std::stringstream ss(pVol6->name.substr(5));
+      ss >> n;
+      //      std::cout << " Found volume with number " << n << std::endl;
+    } else {
+      std::cout << "Error (NavVolume6Faces) failed to get MagVolume6Faces pointer" << std::endl;
+    }
+    if(n<1 || n>271) {
+      std::cout << "Error (NavVolume6Faces) unexpected Volume number!" << std::endl;
+    } else {
+      isIron = isIronVolume[n];
+    }
+
+    result= new NavVolume6Faces( *magVolume, isIron);
     theNavVolumeMap[magVolume] = result;
   }
   else result = i->second;

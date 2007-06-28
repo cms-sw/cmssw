@@ -75,6 +75,7 @@ private:
 
   const VolumeBasedMagneticField*   theField;
   mutable MagVolumeMap              theNavVolumeMap;
+  bool  isIronVolume[272];
 
 
   const NavVolume* findVolume( const TrajectoryStateOnSurface& inputState) const;
