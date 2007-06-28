@@ -12,8 +12,10 @@ MagneticFieldMap*
 MagneticFieldMap::instance(const MagneticField* pMF,
 			   TrackerInteractionGeometry* myGeo)
 {
-  if (!myself) myself = new MagneticFieldMap(pMF,myGeo);
-  myself->initialize();
+  if (!myself) { 
+    myself = new MagneticFieldMap(pMF,myGeo);
+    myself->initialize();
+  }
   return myself;
 }
 
