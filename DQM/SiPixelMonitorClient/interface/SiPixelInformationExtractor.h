@@ -32,6 +32,8 @@ class SiPixelInformationExtractor {
 			      	bool					  coll_flag);
   void plotSingleModuleHistos(	MonitorUserInterface			* mui,
                               	std::multimap<std::string, std::string> & req_map);
+  void plotHistosFromPath(      MonitorUserInterface                    * mui,
+                                std::multimap<std::string, std::string> & req_map);  
   void plotTkMapHistos(       	MonitorUserInterface			* mui,
                               	std::multimap<std::string, std::string> & req_map, 
 			      	std::string				  sName);
@@ -89,6 +91,7 @@ class SiPixelInformationExtractor {
   void getItemList(             std::multimap<std::string, std::string> & req_map,
                                 std::string                               item_name, 
 				std::vector<std::string>                & items);
+  void fillImageBuffer();
   void fillImageBuffer(         TCanvas                                 & c1);
   void fillNamedImageBuffer(    TCanvas                                 * c1,
                                 std::string                               theName);
@@ -115,7 +118,10 @@ class SiPixelInformationExtractor {
 	                        std::string                               item_name);
   MonitorElement* getModuleME(  MonitorUserInterface                    * mui, 
                                 std::string                               me_name);
-
+  void setCanvasMessage(        const std::string                       & error_string);
+  
+  
+  
   std::ostringstream                     pictureBuffer_ ;
   map<std::string, std::string>          namedPictureBuffer ;
 
@@ -124,5 +130,6 @@ class SiPixelInformationExtractor {
   SiPixelActionExecutor 	       * actionExecutor_;
   
   TCanvas                              * theCanvas ;
+  TCanvas                              * canvas_ ;
 };
 #endif

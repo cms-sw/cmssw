@@ -26,7 +26,7 @@ class SiPixelActionExecutor {
  void checkQTestResults(MonitorUserInterface * mui);
  void createCollation(MonitorUserInterface * mui);
  void createTkMap(MonitorUserInterface* mui, std::string mEName);
- bool readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq);
+ bool readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq);
  void readConfiguration();
  void createLayout(MonitorUserInterface * mui);
  void fillLayout(MonitorUserInterface * mui);
@@ -40,8 +40,6 @@ class SiPixelActionExecutor {
      std::vector<std::string>& me_names);
   void fillEndcapSummary(MonitorUserInterface* mui, std::string dir_name,
      std::vector<std::string>& me_names);
-  void drawMEs(int idet, std::vector<MonitorElement*>& mon_elements, 
-                    std::vector<std::pair <int, float> > & values);
   void fillGrandBarrelSummaryHistos(MonitorUserInterface* mui, 
 			      std::vector<std::string>& me_names);
   void fillGrandEndcapSummaryHistos(MonitorUserInterface* mui, 

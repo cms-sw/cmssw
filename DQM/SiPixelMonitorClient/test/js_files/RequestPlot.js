@@ -191,15 +191,43 @@ function FillStatus() {
   if (http_request.readyState == 4) {
     if (http_request.status == 200) {
       try {
-        var text = http_request.responseText;
-        var obj = document.getElementById("status_area");
-        if (obj != null) {
-          obj.innerHTML = text;
-        }       
+	var doc = http_request.responseXML;
+	var root = doc.documentElement;
+	var mrows = root.getElementsByTagName('Status');
+	if (mrows.length > 0) {
+	  var stat  = mrows[0].childNodes[0].nodeValue;
+	  var obj = document.getElementById("status_area");
+	  if (obj != null) {
+	    obj.innerHTML = stat;
+	  }	
+	}
+	mrows = root.getElementsByTagName('HPath');
+	if (mrows.length > 0) {
+	  var hpath  = mrows[0].childNodes[0].nodeValue;
+	  if (hpath != "NOME") DrawQTestHisto(hpath);
+	}
       }
       catch (err) {
 //        alert ("Error detail: " + err.message); 
       }
     }
   }
+}
+function DrawQTestHisto(path){
+  var url = getApplicationURL2();
+  url += "/Request?";
+  queryString = 'RequestID=PlotHistogramFromPath';
+  queryString += '&Path='+path;
+  var canvas = document.getElementById("drawingcanvas");
+  if (canvas == null) {
+    alert("Canvas is not defined!");
+    return;
+  }
+  queryString += '&width='+canvas.width+'&height='+canvas.height;
+  queryString += '&histotype=qtest';
+
+  url += queryString;
+  makeRequest(url, dummy);
+   
+  setTimeout('UpdatePlot()', 2000);	
 }

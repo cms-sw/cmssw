@@ -1,5 +1,6 @@
 <!-- saved from url=(0022)http://internet.e-mail -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+   "http://www.w3.org/TR/2000/REC-xhtml1-20000126/DTD/xhtml1-strict.dtd"> 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
 <head>
 <title>SiPixel DQM Viewer</title>
@@ -51,7 +52,7 @@
                   style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
                   onClick="SubscribeAll()" 
                   type="submit">
-               </input>
+               </input> 
 	       <input name="collate" 
                   id="collate_me"
                   value="Collate ME" 
@@ -66,27 +67,27 @@
                   onClick="CreateSummary()" 
                   type="submit">
                </input>
+<!--             <input name="setupQtest" 
+                  id="setup_qtest"
+                  value="Setup QTest" 
+                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
+                  onClick="SetupQualityTest()" 
+                  type="submit">
+               </input> --> 
+               <input name="QtestResult" 
+                  id="check_qtest_result"
+                  value="QTest Result" 
+                  style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
+                  onClick="CheckQualityTestResults()" 
+                  type="submit">
+               </input>  
 	       <input name="save" 
                   id="save_to_file"
                   value="Save All" 
                   style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
                   onClick="SaveToFile()" 
                   type="submit">
-              </input>  
-             <input name="setupQtest" 
-                 id="setup_qtest"
-                 value="Setup QTest" 
-                 style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                 onClick="SetupQualityTest()" 
-                 type="submit">
-             </input>  
-             <input name="QtestResult" 
-                 id="check_qtest_result"
-                 value="QTest Result" 
-                 style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt"
-                 onClick="CheckQualityTestResults()" 
-                 type="submit">
-             </input>  
+               </input>  
                <fieldset>
              	  <input name 	 = "UpdateTrackerMap" 
              	         id   	 = "create_tkmap"
@@ -136,13 +137,16 @@
       	      <div class="bloc" id="bloc2_2_1" style="background:#226684">
 	        <fieldset>
                   <label id="structures"
-                     style="margin-left:10%">
+                     style="margin-left:1%">
                      Sub-Detectors:
 	          </label>
                   <select name="struc_name" 
                        id="structure_for_module"
                        style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker/PixelBarrel/Shell_mI" SELECTED> BPIX/Shell_mI </option>
+                       <option value="Tracker" SELECTED> ALL PIXELS </option>
+                       <option value="Tracker/PixelBarrel"> BPIX </option>
+                       <option value="Tracker/PixelEndcap"> FPIX </option>
+                       <option value="Tracker/PixelBarrel/Shell_mI"> BPIX/Shell_mI </option>
                        <option value="Tracker/PixelBarrel/Shell_mO"> BPIX/Shell_mO </option>
                        <option value="Tracker/PixelBarrel/Shell_pI"> BPIX/Shell_pI </option>
                        <option value="Tracker/PixelBarrel/Shell_pO"> BPIX/Shell_pO </option>
@@ -150,6 +154,7 @@
                        <option value="Tracker/PixelEndcap/HalfCylinder_mO"> FPIX/HalfCylinder_mO </option>
                        <option value="Tracker/PixelEndcap/HalfCylinder_pI"> FPIX/HalfCylinder_pI </option>
                        <option value="Tracker/PixelEndcap/HalfCylinder_pO"> FPIX/HalfCylinder_pO </option>
+                       <option value="Tracker/PixelEndcap/HalfCylinder_pO/Disk_1/Blade_01/Panel_1"> FPIX/HalfCylinder_pO/Disk_1/Blade_01/Panel_1</option>
 		  </select>
                   <input name="listmodule" 
                         id="list_module"
@@ -166,17 +171,18 @@
             </div>
           </div>
           <div class="dhtmlgoodies_aTab">
-	    <div class="bloc" id="bloc2_3"> 
-      	      <div class="bloc" id="bloc2_3_1">
+	    <div class="bloc" id="bloc2_3" style="background:#554499"> 
+      	      <div class="bloc" id="bloc2_3_1" style="background:#554499">
 	        <fieldset>
                   <label id="structures"
-                     style="margin-left:10%">
+                     style="margin-left:1%">
                      Sub-Detectors:
 	          </label>
                   <select name="struc_name" 
                        id="structure_name"
                        style="width:20%;height:5%;text-align;margin-right:2%">
-                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
+                       <option value="Tracker" SELECTED> ALL PIXELS </option>
+                       <option value="Tracker/PixelBarrel"> BPIX </option>
                        <option value="Tracker/PixelEndcap"> FPIX </option>
                   </select>
                   <input name="listsummary" 
@@ -204,7 +210,8 @@
                   <select name="struc_alarm" 
                        id="structure_for_alarm"
                        style="margin-left:2%;margin-bottom:1%;margin-top:1%;margin-right:2%;font:sans;font-size:8pt">
-                       <option value="Tracker/PixelBarrel" SELECTED> BPIX </option>
+                       <option value="Tracker" SELECTED> ALL PIXELS </option>
+                       <option value="Tracker/PixelBarrel"> BPIX </option>
                        <option value="Tracker/PixelEndcap"> FPIX </option>
                   </select>
                   <input name="listalarm" 

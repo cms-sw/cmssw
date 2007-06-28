@@ -55,9 +55,10 @@ private:
   void setupQTest() const;
 
   int updateFrequencyForTrackerMap_;
-//  int updateFrequencyForSummary_;
   int updateFrequencyForBarrelSummary_;
   int updateFrequencyForEndcapSummary_;
+  int updateFrequencyForGrandBarrelSummary_;
+  int updateFrequencyForGrandEndcapSummary_;
 };
 
 // You always need to have this line! Do not remove:

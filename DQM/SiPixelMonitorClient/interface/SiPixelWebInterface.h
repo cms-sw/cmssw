@@ -24,7 +24,8 @@ public:
                          PlotSingleModuleHistos   =  8,
                          PlotSingleHistogram      =  9,
 			 PlotTkMapHistogram       = 10,
-			 periodicTrackerMapUpdate = 11};
+			 periodicTrackerMapUpdate = 11,
+			 PlotHistogramFromPath    = 12};
 
   SiPixelWebInterface(std::string theContextURL, std::string theApplicationURL, MonitorUserInterface ** _mui_p);
   ~SiPixelWebInterface();
@@ -34,8 +35,7 @@ public:
 
   void configureCustomRequest(xgi::Input * in, xgi::Output * out) throw (xgi::exception::Exception);
   void performAction();
-//  void readConfiguration(int& freq_tkmap, int& freq_sum);
-  void readConfiguration(int& freq_tkmap, int& freq_barrel_sum, int& freq_endcap_sum);
+  void readConfiguration(int& freq_tkmap, int& freq_barrel_sum, int& freq_endcap_sum, int& freq_grandbarrel_sum, int& freq_grandendcap_sum);
   void setupQTests();
 
   SiPixelActionType getActionFlag() {return theActionFlag;}

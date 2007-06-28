@@ -168,6 +168,8 @@ void SiPixelWebInterface::handleCustomRequest(xgi::Input* in,xgi::Output* out)
   } else if (requestID == "periodicTrackerMapUpdate") {
    theActionFlag = NoAction;
    periodicTkMapUpdate(out) ;
+  } else if (requestID == "PlotHistogramFromPath") {
+   theActionFlag = PlotHistogramFromPath;
   }
   configureCustomRequest(in, out);
 //  cout<<"leaving handleCustomRequest"<<endl;
@@ -189,13 +191,16 @@ void SiPixelWebInterface::setupQTests() {
 //
 // -- Read Configurations 
 //
-void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int& sum_endcap_freq){
+void SiPixelWebInterface::readConfiguration(int& tkmap_freq, int& sum_barrel_freq, int&
+sum_endcap_freq, int& sum_grandbarrel_freq, int& sum_grandendcap_freq){
   if (actionExecutor_)  {
-    if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq));
+    if (actionExecutor_->readConfiguration(tkmap_freq,sum_barrel_freq,sum_endcap_freq,sum_grandbarrel_freq,sum_grandendcap_freq));
   } else {
     tkmap_freq = -1;
     sum_barrel_freq   = -1;
     sum_endcap_freq   = -1;
+    sum_grandbarrel_freq   = -1;
+    sum_grandendcap_freq   = -1;
   }
 }
 //
@@ -299,6 +304,11 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::periodicTrackerMapUpdate :
     {
+      break;
+    }
+  case SiPixelWebInterface::PlotHistogramFromPath :
+    {
+      infoExtractor_->plotHistosFromPath((*mui_p), requestMap_);
       break;
     }
   case SiPixelWebInterface::NoAction :

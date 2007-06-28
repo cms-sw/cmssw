@@ -40,6 +40,7 @@ using namespace std;
 SiPixelInformationExtractor::SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Creating SiPixelInformationExtractor " << "\n" ;
+  canvas_ = new TCanvas("PlotCanvas", "Plot Canvas"); 
 }
 
 //------------------------------------------------------------------------------
@@ -50,6 +51,7 @@ SiPixelInformationExtractor::~SiPixelInformationExtractor() {
   edm::LogInfo("SiPixelInformationExtractor") << 
     " Deleting SiPixelInformationExtractor " << "\n" ;
   //  if (theCanvas) delete theCanvas;
+  if (canvas_) delete canvas_;
 }
 
 //------------------------------------------------------------------------------
@@ -93,11 +95,10 @@ void SiPixelInformationExtractor::fillBarrelList(MonitorUserInterface* mui,
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
         string sname = (*iv);
-        string tname = sname.substr(8,(sname.find("_",8)-8));
+        string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
 	if (((*im)).find(tname) == 0) {
 	  string fullpathname = mui->pwd() + "/" + (*im); 
-//          MonitorElement* me = getModuleME(mui, fullpathname); // Unused return pointer ?????
-          getModuleME(mui, fullpathname);                        // Modified by Dario
+          getModuleME(mui, fullpathname);                       
 	}
       }
     }
@@ -130,11 +131,10 @@ void SiPixelInformationExtractor::fillEndcapList(MonitorUserInterface* mui,
       for (vector<string>::const_iterator im = contents.begin();
 	   im != contents.end(); im++) {
         string sname = (*iv);
-        string tname = sname.substr(8,(sname.find("_",8)-8));
+        string tname = sname.substr(8,(sname.find("_",8)-8)) + "_";
 	if (((*im)).find(tname) == 0) {
 	  string fullpathname = mui->pwd() + "/" + (*im); 
-//          MonitorElement* me = getModuleME(mui, fullpathname); // Unused return pointer ?????
-          getModuleME(mui, fullpathname);                        // Modified by Dario
+          getModuleME(mui, fullpathname);                        
 	}
       }
     }
@@ -201,7 +201,6 @@ MonitorElement* SiPixelInformationExtractor::getModuleME(MonitorUserInterface* m
 void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * mui, ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printSummaryHistoList"<<endl;
   static string indent_str = "";
-
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
   if (dname.find("Module_") ==0) return;
@@ -243,15 +242,14 @@ void SiPixelInformationExtractor::printSummaryHistoList(MonitorUserInterface * m
 void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printAlarmList"<<endl;
   static string indent_str = "";
-
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  if (dname.find("_siPixel") ==0) return;
   string image_name;
   selectImage(image_name,mui->getStatus(currDir));
-  str_val << "<li><a href=\"#\" id=\"" 
-          << currDir << "\">" << dname << "</a> <img src=\"" 
-          << image_name << "\">" << endl;
+  if(image_name!="images/LI_green.gif")
+    str_val << "<li><a href=\"#\" id=\"" 
+            << currDir << "\">" << dname << "</a> <img src=\"" 
+            << image_name << "\">" << endl;
   vector<string> subDirVec = mui->getSubdirs();
   vector<string> meVec = mui->getMEs(); 
   if (subDirVec.size() == 0 && meVec.size() == 0) {
@@ -268,7 +266,8 @@ void SiPixelInformationExtractor::printAlarmList(MonitorUserInterface * mui, ost
     if (my_map.size() > 0) {
       string image_name1;
       selectImage(image_name1,my_map);
-      str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
+      if(image_name1!="images/LI_green.gif")
+        str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:ReadStatus('"
 		<< full_path<< "')\">" << (*it) << "</a><img src=\""
 		<< image_name1 << "\""<< "</li>" << endl;
     }
@@ -357,8 +356,12 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   vector<string> item_list;  
 
   string mod_id = getItemValue(req_map,"ModId");
-  //cout<<"mod_id in plotSingleModuleHistos:"<<mod_id<<endl;
-  if (mod_id.size() < 9) return;
+  if (mod_id.size() < 9) {
+    setCanvasMessage("Wrong Module Id!!");
+    fillImageBuffer();
+    canvas_->Clear(); 
+    return;
+  }
   item_list.clear();     
   getItemList(req_map,"histo", item_list); // item_list holds all histos to plot
   vector<MonitorElement*> me_list;
@@ -367,7 +370,14 @@ void SiPixelInformationExtractor::plotSingleModuleHistos(MonitorUserInterface* m
   selectSingleModuleHistos(mui, mod_id, item_list, me_list);
   mui->cd();
 
-  plotHistos(req_map,me_list);
+//  plotHistos(req_map,me_list);
+  if (me_list.size() == 0) {
+    setCanvasMessage("Wrong Module Id!!");  
+  } else {
+    plotHistos(req_map,me_list);
+  }
+  fillImageBuffer();
+  canvas_->Clear();
 //cout<<"leaving SiPixelInformationExtractor::plotSingleModuleHistos"<<endl;
 }
 //============================================================================================================
@@ -548,10 +558,13 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
   if (nhist == 0) return;
   int width = 600;
   int height = 600;
-  TCanvas canvas("TestCanvas", "Test Canvas");
-  canvas.Clear();
+  
+/////  TCanvas canvas("TestCanvas", "Test Canvas");
+/////  canvas.Clear();
+  
+  canvas_->Clear();
   gROOT->Reset(); gStyle->SetPalette(1);
-  int ncol, nrow;
+  int ncol=1, nrow=1;
  
   float xlow = -1.0;
   float xhigh = -1.0;
@@ -562,8 +575,8 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
     ncol = 1;
     nrow = 1;
   } else {
-    ncol = atoi(getItemValue(req_map, "cols").c_str());
-    nrow = atoi(getItemValue(req_map, "rows").c_str());
+    if (hasItem(req_map,"cols")) ncol = atoi(getItemValue(req_map, "cols").c_str());
+    if (hasItem(req_map,"rows")) nrow = atoi(getItemValue(req_map, "rows").c_str());
     if (ncol*nrow < nhist) {
       if (nhist == 2) {
 	ncol = 1;
@@ -593,8 +606,11 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
   if (hasItem(req_map,"height"))
               height = atoi(getItemValue(req_map, "height").c_str());
 
-  canvas.SetWindowSize(width,height);
-  canvas.Divide(ncol, nrow);
+/////  canvas.SetWindowSize(width,height);
+/////  canvas.Divide(ncol, nrow);
+
+  canvas_->SetWindowSize(width,height);
+  canvas_->Divide(ncol, nrow);
   int i=0;
   for (vector<MonitorElement*>::const_iterator it = me_list.begin();
        it != me_list.end(); it++) {
@@ -607,7 +623,8 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
     MonitorElementT<TNamed>* ob = 
       dynamic_cast<MonitorElementT<TNamed>*>((*it));
     if (ob) {
-      canvas.cd(i);
+/////      canvas.cd(i);
+      canvas_->cd(i);
       //      TAxis* xa = ob->operator->()->GetXaxis();
       //      xa->SetRangeUser(xlow, xhigh);
       if(hasItem(req_map,"colpal")){
@@ -634,12 +651,12 @@ void SiPixelInformationExtractor::plotHistos(multimap<string,string>& req_map,
       if (hasItem(req_map,"logy")) {
 	  gPad->SetLogy(1);
       }
-    }
+    } else setCanvasMessage("Plot does not exist (yet)!!!");
   }
   gStyle->SetPalette(1);
-  canvas.Update();
-  fillImageBuffer(canvas);
-  canvas.Clear();
+  canvas_->Update();
+  fillImageBuffer();
+  canvas_->Modified();
 //cout<<"leaving SiPixelInformationExtractor::plotHistos"<<endl;
 }
 //
@@ -692,6 +709,7 @@ void SiPixelInformationExtractor::fillModuleAndHistoList(MonitorUserInterface * 
         string mId=" ";
 	if(hname.find("ndigis")!=string::npos) mId = (*it).substr((*it).find("ndigis_siPixelDigis_")+20, 9);
 	if(mId==" " && hname.find("nclusters")!=string::npos) mId = (*it).substr((*it).find("nclusters_siPixelClusters_")+26, 9);
+        if(mId==" " && hname.find("hitResidual-x")!=string::npos) mId = (*it).substr((*it).find("hitResidual-x_siPixelTrack_")+27, 9);
         if(mId!=" ") modules.push_back(mId);
         //cout<<"mId="<<mId<<endl;
       }    
@@ -741,10 +759,8 @@ void SiPixelInformationExtractor::readModuleHistoTree(MonitorUserInterface* mui,
 void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mui, ostringstream& str_val){
 //cout<<"entering SiPixelInformationExtractor::printModuleHistoList"<<endl;
   static string indent_str = "";
-
   string currDir = mui->pwd();
   string dname = currDir.substr(currDir.find_last_of("/")+1);
-  //if (dname.find("_siPixel") ==0) return;
   str_val << "<li><a href=\"#\" id=\"" 
           << currDir << "\">" << dname << "</a>" << endl;
   vector<string> meVec = mui->getMEs(); 
@@ -755,15 +771,14 @@ void SiPixelInformationExtractor::printModuleHistoList(MonitorUserInterface * mu
   }
   str_val << "<ul>" << endl; 
   for (vector<string>::const_iterator it = meVec.begin();
-       it != meVec.end(); it++) {
+     it != meVec.end(); it++) {
     if ((*it).find("_siPixel")!=string::npos) {
       str_val << "<li class=\"dhtmlgoodies_sheet.gif\"><a href=\"javascript:DrawSingleHisto('"
-           << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
+              << currDir << "/"<< (*it) << "')\">" << (*it) << "</a></li>" << endl;
     }
   }
-
   for (vector<string>::const_iterator ic = subDirVec.begin();
-       ic != subDirVec.end(); ic++) {
+     ic != subDirVec.end(); ic++) {
     mui->cd(*ic);
     printModuleHistoList(mui, str_val);
     mui->goUp();
@@ -785,6 +800,15 @@ void SiPixelInformationExtractor::readSummaryHistoTree(MonitorUserInterface* mui
   } else {
     sumtree << "Desired Directory does not exist";
   }
+  cout << ACYellow << ACBold
+       << "[SiPixelInformationExtractor::readSummaryHistoTree()]"
+       << ACPlain << endl ;
+  //     << "html string follows: " << endl ;
+  //cout << sumtree.str() << endl ;
+  //cout << ACYellow << ACBold
+  //     << "[SiPixelInformationExtractor::readSummaryHistoTree()]"
+  //     << ACPlain
+  //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << sumtree.str();
    mui->cd();
@@ -804,6 +828,15 @@ void SiPixelInformationExtractor::readAlarmTree(MonitorUserInterface* mui,
   } else {
     alarmtree << "Desired Directory does not exist";
   }
+  cout << ACYellow << ACBold
+       << "[SiPixelInformationExtractor::readAlarmTree()]"
+       << ACPlain << endl ;
+  //     << "html string follows: " << endl ;
+  //cout << alarmtree.str() << endl ;
+  //cout << ACYellow << ACBold
+  //     << "[SiPixelInformationExtractor::readAlarmTree()]"
+  //     << ACPlain
+  //     << "String complete " << endl ;
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/plain");
   *out << alarmtree.str();
    mui->cd();
@@ -975,17 +1008,18 @@ bool SiPixelInformationExtractor::goToDir(MonitorUserInterface* mui, string& sna
 //cout<<"entering SiPixelInformationExtractor::goToDir"<<endl;
   mui->cd();
   mui->cd("Collector");
-//  cout << mui->pwd() << endl;
+  //cout << mui->pwd() << endl;
   vector<string> subdirs;
   subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return false;
   
   if (flg) mui->cd("Collated");
   else mui->cd(subdirs[0]);
-//  cout << mui->pwd() << endl;
+  //cout << mui->pwd() << endl;
   subdirs.clear();
   subdirs = mui->getSubdirs();
   if (subdirs.size() == 0) return false;
+  //cout<<"sname="<<sname<<endl;
   mui->cd(sname);
   string dirName = mui->pwd();
   if (dirName.find(sname) != string::npos) return true;
@@ -1047,6 +1081,11 @@ void SiPixelInformationExtractor::readStatusMessage(MonitorUserInterface* mui, s
       //test_status << " QTest Name  : " << mess_str.substr(0, mess_str.find(")")+1) << endl;
       //test_status << "&lt;br/&gt;";
       test_status <<  " QTest Detail  : " << mess_str.substr(mess_str.find(")")+2) << endl;
+      //if(mess_str.substr(0, mess_str.find(")")+1) == "Mean within allowed range?") 
+      //  test_status << "Mean= "<<
+      std::vector<dqm::me_util::Channel> badchs=it->second->getBadChannels();
+      //cout<<"STATUS: "<<status<<" ***** MESSAGE: "<<mess_str<<" ***** BAD CHANNELS: "<<endl;
+      //cout<<"STATUS: "<<status<<" ***** MESSAGE: "<<mess_str<<" ***** BAD CHANNELS: "<<it->second->getBadChannels()<<endl;
     }      
   }
   out->getHTTPResponseHeader().addHeader("Content-Type", "text/xml");
@@ -1286,4 +1325,72 @@ void SiPixelInformationExtractor::getMEList(MonitorUserInterface     * mui,
       mui->goUp();
     }
   }
+}
+
+void SiPixelInformationExtractor::fillImageBuffer() {
+//cout<<"entering SiPixelInformationExtractor::fillImageBuffer"<<endl;
+  canvas_->SetFixedAspectRatio(kTRUE);
+  gStyle->SetPalette(1);
+  // Now extract the image
+  // 114 - stands for "no write on Close"
+  TImageDump imgdump("tmp.png", 114);
+  canvas_->Paint();
+
+ // get an internal image which will be automatically deleted
+ // in the imgdump destructor
+  TImage *image = imgdump.GetImage();
+
+  char *buf;
+  int sz;
+  image->GetImageBuffer(&buf, &sz);         /* raw buffer */
+  pictureBuffer_.str("");
+  for (int i = 0; i < sz; i++)
+    pictureBuffer_ << buf[i];
+  
+  delete [] buf;
+//cout<<"leaving SiPixelInformationExtractor::fillImageBuffer"<<endl;
+}
+//
+// -- Set Canvas Message
+//
+void SiPixelInformationExtractor::setCanvasMessage(const string& error_string) {
+  TText tLabel;
+  tLabel.SetTextSize(0.16);
+  tLabel.SetTextColor(4);
+  tLabel.DrawTextNDC(0.1, 0.5, error_string.c_str());
+}
+void SiPixelInformationExtractor::plotHistosFromPath(MonitorUserInterface * mui, std::multimap<std::string, std::string>& req_map){
+  std::cout<<"Entering SiPixelInformationExtractor::plotHistosFromPath ..."<<std::endl;
+  vector<string> item_list;  
+  getItemList(req_map,"Path", item_list);
+  
+  if (item_list.size() == 0) return;
+std::cout<<"A1"<<std::endl;
+  vector<MonitorElement*> me_list;
+  string htype  = getItemValue(req_map,"histotype");
+  if (htype.size() == 0) htype="individual";
+std::cout<<"A2"<<std::endl;
+
+  for (vector<string>::iterator it = item_list.begin(); it != item_list.end(); it++) {  
+
+    string path_name = (*it);
+    if (path_name.size() == 0) continue;
+std::cout<<"A3"<<std::endl;
+    
+    MonitorElement* me = mui->get(path_name);
+if(me) std::cout<<"A4"<<std::endl;
+
+    if (me) me_list.push_back(me);
+  }
+  if (me_list.size() == 0) return; 
+std::cout<<"A5"<<std::endl;
+  //if (htype == "summary") plotHistos(req_map, me_list, true);
+  //else plotHistos(req_map, me_list, false); 
+  plotHistos(req_map, me_list); 
+
+  gROOT->Reset(); gStyle->SetPalette(1);
+  fillImageBuffer();
+  canvas_->Clear();
+  std::cout<<"... leaving SiPixelInformationExtractor::plotHistosFromPath."<<std::endl;
+
 }

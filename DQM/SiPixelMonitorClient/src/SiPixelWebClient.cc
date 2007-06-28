@@ -54,7 +54,9 @@ void SiPixelWebClient::configure()
 //				    updateFrequencyForSummary_);
   webInterface_p->readConfiguration(updateFrequencyForTrackerMap_, 
 				    updateFrequencyForBarrelSummary_,
-				    updateFrequencyForEndcapSummary_);
+				    updateFrequencyForEndcapSummary_,
+				    updateFrequencyForGrandBarrelSummary_,
+				    updateFrequencyForGrandEndcapSummary_);
 //  cout<<"leaving configure"<<endl;
 }
 
@@ -80,15 +82,21 @@ void SiPixelWebClient::endRun()
 */
 void SiPixelWebClient::onUpdate() const
 {
-/*  cout<<"entering onUpdate"<<endl;
+//  cout<<"entering onUpdate"<<endl;
   if (!mui_) return;
   int nUpdate = mui_->getNumUpdates();
-//******************  if (nUpdate == 0) mui_->subscribe("Collector/*");
+  
+  // SubscribeAll once:
+  if (nUpdate == 0) mui_->subscribe("Collector/*");
+  //if (nUpdate == 0) mui_->subscribe("Collector/FU*/Tracker/PixelBarrel/Shell_mI/Layer_1/*");
+
+  // Set Up Quality Tests once:
+  if (nUpdate == 10) webInterface_p->setupQTests();
 
   // put here the code that needs to be executed on every update:
   std::vector<std::string> uplist;
   mui_->getUpdatedContents(uplist);
-*/
+
   // Collation of Monitor Element
   /*  if (nUpdate == 10) {
     webInterface_p->setActionFlag(SiPixelWebInterface::Collate);
@@ -97,20 +105,16 @@ void SiPixelWebClient::onUpdate() const
     mui_->addCallback(action); 
     }*/
   
-  // Set Up Quality Tests
-/*  if (nUpdate == 2) webInterface_p->setupQTests();
-
-
   // Creation of Summary 
-  cout<<"updateFrequencyForSummary_="<<updateFrequencyForSummary_<<" , nUpdate="<<nUpdate<<endl;
-  if (updateFrequencyForSummary_ != -1 ) {
+  //cout<<"updateFrequencyForSummary_="<<updateFrequencyForSummary_<<" , nUpdate="<<nUpdate<<endl;
+/*  if (updateFrequencyForSummary_ != -1 ) {
     if (nUpdate > 0 && nUpdate%updateFrequencyForSummary_ == 0) {
       //webInterface_p->setActionFlag(SiPixelWebInterface::Summary);
       //seal::Callback action(seal::CreateCallback(webInterface_p, 
 	//		        &SiPixelWebInterface::performAction));
       //mui_->addCallback(action);	 
     }
-  }	
+  }*/	
 /*  // Creation of TrackerMap
   if (updateFrequencyForTrackerMap_ != -1 && nUpdate > 30) {
     if (nUpdate%updateFrequencyForTrackerMap_ == 1) {
@@ -121,8 +125,15 @@ void SiPixelWebClient::onUpdate() const
     }
   }
 */  
-  
+  // Save ME's into a file: 
+/*  if  (nUpdate%500 == 0) {
+       webInterface_p->setActionFlag(SiPixelWebInterface::SaveData);
+       seal::Callback action(seal::CreateCallback(webInterface_p, 
+						  &SiPixelWebInterface::performAction));
+       mui_->addCallback(action); 
+  } */ 
 
+ 
 //  cout<<"leaving onUpdate"<<endl;
 
 }
