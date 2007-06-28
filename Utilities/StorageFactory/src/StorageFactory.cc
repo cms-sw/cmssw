@@ -4,7 +4,6 @@
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "Utilities/StorageFactory/interface/StorageAccountProxy.h"
-#include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 //#include "SealBase/StringOps.h"

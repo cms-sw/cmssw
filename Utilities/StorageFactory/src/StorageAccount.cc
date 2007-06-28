@@ -3,7 +3,6 @@
 #include "Utilities/StorageFactory/interface/StorageAccount.h"
 #include "SealBase/TimeInfo.h"
 #include <sstream>
-#include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/mutex.hpp>
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
