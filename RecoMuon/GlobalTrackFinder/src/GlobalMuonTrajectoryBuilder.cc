@@ -12,8 +12,8 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2007/06/16 19:04:58 $
- *  $Revision: 1.101 $
+ *  $Date: 2007/06/25 16:36:50 $
+ *  $Revision: 1.102 $
  *
  *  Authors :
  *  N. Neumeister            Purdue University
@@ -70,7 +70,6 @@
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
-#include "RecoMuon/TrackingTools/interface/MuonTrackReFitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonCandidate.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
@@ -109,7 +108,6 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
   const std::string category = "Muon|RecoMuon|GlobalMuonTrajectoryBuilder|ctor";
 
   ParameterSet refitterPSet = par.getParameter<ParameterSet>("RefitterParameters");
-  theRefitter = new MuonTrackReFitter(refitterPSet,theService);
 
   theLayerMeasurements = new MuonDetLayerMeasurements();
 
@@ -193,7 +191,6 @@ GlobalMuonTrajectoryBuilder::GlobalMuonTrajectoryBuilder(const edm::ParameterSet
 
 GlobalMuonTrajectoryBuilder::~GlobalMuonTrajectoryBuilder() {
 
-  if (theRefitter) delete theRefitter;
   if (theTrackMatcher) delete theTrackMatcher;
   if (theLayerMeasurements) delete theLayerMeasurements;
   if (theTrajectoryCleaner) delete theTrajectoryCleaner;

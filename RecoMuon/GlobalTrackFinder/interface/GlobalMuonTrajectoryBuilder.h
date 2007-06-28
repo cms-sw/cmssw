@@ -4,8 +4,8 @@
 /** \class GlobalMuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *  $Date: 2007/06/16 19:04:57 $
- *  $Revision: 1.59 $
+ *  $Date: 2007/06/25 16:36:49 $
+ *  $Revision: 1.60 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -35,7 +35,6 @@ class TransientTrackingRecHitBuilder;
 class MuonTransientTrackingRecHitBuilder;
 
 class MuonDetLayerMeasurements;
-class MuonTrackReFitter;
 class MuonServiceProxy;
 class Trajectory;
 class TrackerSeedGenerator;
@@ -145,7 +144,6 @@ class GlobalMuonTrajectoryBuilder : public MuonTrajectoryBuilder {
     GlobalPoint theVertexPos;
     GlobalError theVertexErr;
     GlobalMuonTrackMatcher* theTrackMatcher;
-    MuonTrackReFitter* theRefitter;
     MuonDetLayerMeasurements* theLayerMeasurements;
     TrackerSeedGenerator* theTkSeedGenerator;
     TrajectoryCleaner* theTrajectoryCleaner;
