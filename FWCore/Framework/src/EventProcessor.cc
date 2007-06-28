@@ -38,6 +38,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 
+#include "FWCore/Framework/src/Breakpoints.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/InputSourceFactory.h"
 
@@ -900,6 +901,7 @@ namespace edm {
 
   EventProcessor::StatusCode
   EventProcessor::processRuns(int numberEventsToProcess, Msg m) {
+    bk::beginRuns(); // routine only for breakpointing
     changeState(m);
     StateSentry toerror(this);
 
@@ -1038,6 +1040,7 @@ namespace edm {
   EventProcessor::beginJob() 
   {
     if(state_ != sInit) return;
+    bk::beginJob();
     // can only be run if in the initial state
     changeState(mBeginJob);
 
