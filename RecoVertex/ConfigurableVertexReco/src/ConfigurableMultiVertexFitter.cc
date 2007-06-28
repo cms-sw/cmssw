@@ -1,9 +1,8 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableMultiVertexFitter.h"
 #include "RecoVertex/MultiVertexFit/interface/MultiVertexReconstructor.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableVertexReconstructor.h"
-#include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableTrimmedKalmanFinder.h"
-// FIXME this must not depend on RaveReconstructor!!!
-// #include "RaveBase/RaveEngine/interface/RaveReconstructor.h"
+// #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableTrimmedKalmanFinder.h"
+#include "RecoVertex/MultiVertexFit/interface/MultiVertexBSeeder.h"
 
 namespace {
   edm::ParameterSet mydefaults()
@@ -14,7 +13,7 @@ namespace {
     ret.addParameter<double>("ratio",0.25);
     ret.addParameter<int>("cheat",0);
     edm::ParameterSet nest;
-    nest.addParameter<string>("finder","tkf");
+    nest.addParameter<string>("finder","mbs");
     ret.addParameter<edm::ParameterSet>("ini",nest);
     return ret;
   }
@@ -35,7 +34,7 @@ namespace {
 }
 
 ConfigurableMultiVertexFitter::ConfigurableMultiVertexFitter() :
-  theRector ( new MultiVertexReconstructor( ConfigurableTrimmedKalmanFinder() ) ),
+  theRector ( new MultiVertexReconstructor( MultiVertexBSeeder() ) ),
   theCheater(0)
 {}
 

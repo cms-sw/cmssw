@@ -1,13 +1,13 @@
 #ifndef _ConfigurableAdaptiveFitter_H_
 #define _ConfigurableAdaptiveFitter_H_
 
-#include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfReconstructor.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfFitter.h"
 
 /**
  *  Wrap any VertexFitter into the VertexReconstructor interface
  */
 
-class ConfigurableAdaptiveFitter : public AbstractConfReconstructor
+class ConfigurableAdaptiveFitter : public AbstractConfFitter
 {
   public:
     /**
@@ -21,11 +21,7 @@ class ConfigurableAdaptiveFitter : public AbstractConfReconstructor
     ConfigurableAdaptiveFitter ( const ConfigurableAdaptiveFitter & o );
     ~ConfigurableAdaptiveFitter();
     ConfigurableAdaptiveFitter * clone () const;
-    std::vector < TransientVertex > vertices ( 
-        const std::vector < reco::TransientTrack > & t ) const;
     edm::ParameterSet defaults() const;
-  private:
-    const VertexReconstructor * theRector;
 };
 
 #endif

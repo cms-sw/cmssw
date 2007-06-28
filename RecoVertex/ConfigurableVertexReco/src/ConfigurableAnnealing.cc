@@ -1,9 +1,6 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableAnnealing.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
-// #include "RecoVertex/VertexTools/interface/CriticalAnnealing.h"
-// #include "RecoVertex/VertexTools/interface/EquityAnnealing.h"
 #include <string>
-#include <iostream>
 
 using namespace std;
 
@@ -11,31 +8,10 @@ ConfigurableAnnealing::ConfigurableAnnealing ( const edm::ParameterSet & m ) :
   theImpl( 0 )
 {
   string type = m.getParameter<string>("annealing");
-  if ( type == "crit" )
-  {
-    cout << "[ConfigurableAnnealing] no critical annealing!" << endl;
-	exit(-1);
-	  /*
-    theImpl = new CriticalAnnealing(
-                    m.getParameter<double>("sigmacut"),
-                    m.getParameter<double>("Tini"),
-                    m.getParameter<double>("ratio") );
-					*/
-  } else if ( type == "crit" ) {
-    cout << "[ConfigurableAnnealing] no equity annealing!" << endl;
-	exit(-1);
-	  /*
-    theImpl = new EquityAnnealing(
-                    m.getParameter<double>("sigmacut"),
-                    m.getParameter<double>("Tini"),
-                    m.getParameter<double>("ratio") );
-					*/
-  } else {
-    theImpl = new GeometricAnnealing(
-                    m.getParameter<double>("sigmacut"),
-                    m.getParameter<double>("Tini"),
-                    m.getParameter<double>("ratio") );
-  };
+  theImpl = new GeometricAnnealing(
+                  m.getParameter<double>("sigmacut"),
+                  m.getParameter<double>("Tini"),
+                  m.getParameter<double>("ratio") );
 }
 
 ConfigurableAnnealing::ConfigurableAnnealing ( const ConfigurableAnnealing & o ) :

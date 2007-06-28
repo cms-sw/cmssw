@@ -14,8 +14,7 @@ class VertexRecoManager {
 public:
   static VertexRecoManager & Instance();
   void registerReconstructor ( const std::string & name, AbstractConfReconstructor * o,
-                          const std::string & description );
-  void setFileName ( const std::string & );
+                  const std::string & description );
   std::string describe ( const std::string & );
 
   AbstractConfReconstructor * get ( const std::string & );

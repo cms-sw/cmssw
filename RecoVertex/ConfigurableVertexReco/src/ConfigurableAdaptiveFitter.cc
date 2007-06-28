@@ -17,12 +17,17 @@ namespace {
     ret.addParameter<double>("sigmacut",3.0);
     ret.addParameter<double>("Tini",256.0);
     ret.addParameter<double>("ratio",0.25);
+
+    ret.addParameter<double>("maxshift",0.0001);
+    ret.addParameter<double>("maxlpshift",0.1);
+    ret.addParameter<int>("maxstep",30);
+    ret.addParameter<double>("weightthreshhold",0.001);
     return ret;
   }
 }
 
 ConfigurableAdaptiveFitter::ConfigurableAdaptiveFitter() :
-    theRector( new ReconstructorFromFitter ( AdaptiveVertexFitter()  ) )
+    AbstractConfFitter ( AdaptiveVertexFitter() )
 {}
 
 void ConfigurableAdaptiveFitter::configure(
@@ -36,20 +41,23 @@ void ConfigurableAdaptiveFitter::configure(
   DummyVertexSmoother smoother;
   KalmanVertexTrackCompatibilityEstimator estimator;
 
-  AdaptiveVertexFitter fitter ( ann, linpt, updator, estimator, smoother );
-
-  if ( theRector ) delete theRector;
-  theRector = new ReconstructorFromFitter ( fitter );
+  if (theFitter) delete theFitter;
+  AdaptiveVertexFitter * fitter = new AdaptiveVertexFitter ( ann, linpt, updator, estimator, smoother );
+  fitter->setParameters ( m );
+  theFitter=fitter;
 }
 
 ConfigurableAdaptiveFitter::~ConfigurableAdaptiveFitter()
 {
-  delete theRector;
+  /*
+  if (theFitter) delete theFitter;
+  theFitter=0;
+  */
 }
 
 ConfigurableAdaptiveFitter::ConfigurableAdaptiveFitter 
     ( const ConfigurableAdaptiveFitter & o ) :
-  theRector ( o.theRector->clone() )
+  AbstractConfFitter ( o )
 {}
 
 ConfigurableAdaptiveFitter * ConfigurableAdaptiveFitter::clone() const
@@ -57,19 +65,13 @@ ConfigurableAdaptiveFitter * ConfigurableAdaptiveFitter::clone() const
   return new ConfigurableAdaptiveFitter ( *this );
 }
 
-vector < TransientVertex > ConfigurableAdaptiveFitter::vertices ( 
-    const std::vector < reco::TransientTrack > & t ) const
-{
-  return theRector->vertices ( t );
-}
-
 edm::ParameterSet ConfigurableAdaptiveFitter::defaults() const
 {
   return mydefaults();
 }
 
-#include "RecoVertex/ConfigurableVertexReco/interface/ConfRecoBuilder.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/ConfFitterBuilder.h"
 
 namespace {
-  ConfRecoBuilder < ConfigurableAdaptiveFitter > t ( "avf", "Adaptive Vertex Filter" );
+  ConfFitterBuilder < ConfigurableAdaptiveFitter > t ( "avf", "AdaptiveVertexFitter" );
 }

@@ -1,17 +1,18 @@
 #include "RecoVertex/ConfigurableVertexReco/interface/ConfigurableKalmanFitter.h"
-#include "RecoVertex/ConfigurableVertexReco/interface/ReconstructorFromFitter.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
 
 namespace {
   edm::ParameterSet mydefaults()
   {
     edm::ParameterSet ret;
+    ret.addParameter<double>("maxDistance",0.01);
+    ret.addParameter<int>("maxNbrOfIterations",10);
     return ret;
   }
 }
 
 ConfigurableKalmanFitter::ConfigurableKalmanFitter() :
-    theRector( new ReconstructorFromFitter ( KalmanVertexFitter()  ) )
+    AbstractConfFitter ( KalmanVertexFitter()  )
 {}
 
 void ConfigurableKalmanFitter::configure(
@@ -19,18 +20,18 @@ void ConfigurableKalmanFitter::configure(
 {
   edm::ParameterSet m = mydefaults();
   m.augment ( n );
-  if ( theRector ) delete theRector;
-  theRector = new ReconstructorFromFitter ( KalmanVertexFitter() );
+  if (theFitter ) delete theFitter;
+  theFitter = new KalmanVertexFitter( m ) ;
 }
 
 ConfigurableKalmanFitter::~ConfigurableKalmanFitter()
 {
-  if ( theRector ) delete theRector;
+  // if (theFitter) delete theFitter;
 }
 
 ConfigurableKalmanFitter::ConfigurableKalmanFitter 
     ( const ConfigurableKalmanFitter & o ) :
-  theRector ( o.theRector->clone() )
+  AbstractConfFitter ( o )
 {}
 
 
@@ -39,20 +40,14 @@ ConfigurableKalmanFitter * ConfigurableKalmanFitter::clone() const
   return new ConfigurableKalmanFitter ( *this );
 }
 
-vector < TransientVertex > ConfigurableKalmanFitter::vertices ( 
-    const std::vector < reco::TransientTrack > & t ) const
-{
-  return theRector->vertices ( t );
-}
-
 edm::ParameterSet ConfigurableKalmanFitter::defaults() const
 {
   return mydefaults();
 }
 
-#include "RecoVertex/ConfigurableVertexReco/interface/ConfRecoBuilder.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/ConfFitterBuilder.h"
 
 namespace {
-  ConfRecoBuilder < ConfigurableKalmanFitter > t ( "kalman", "Standard Kalman Filter" );
-  ConfRecoBuilder < ConfigurableKalmanFitter > s ( "default", "Standard Kalman Filter" );
+  ConfFitterBuilder < ConfigurableKalmanFitter > t ( "kalman", "Standard Kalman Filter" );
+  ConfFitterBuilder < ConfigurableKalmanFitter > s ( "default", "Standard Kalman Filter" );
 }

@@ -24,10 +24,7 @@ void ConfigurableAdaptiveReconstructor::configure(
   edm::ParameterSet m = mydefaults();
   m.augment ( n );
   if ( theRector ) delete theRector;
-  theRector = new AdaptiveVertexReconstructor(
-      m.getParameter<double>("primcut"),
-      m.getParameter<double>("seccut"),
-      m.getParameter<double>("minweight") );
+  theRector = new AdaptiveVertexReconstructor( m );
 }
 
 ConfigurableAdaptiveReconstructor::~ConfigurableAdaptiveReconstructor()
@@ -65,4 +62,5 @@ edm::ParameterSet ConfigurableAdaptiveReconstructor::defaults() const
 namespace {
   ConfRecoBuilder < ConfigurableAdaptiveReconstructor > t
     ( "avr", "Adaptive Vertex Reconstructor [ = Iterative avf]" );
+  // ConfRecoBuilder < ConfigurableAdaptiveReconstructor > s ( "default", "Adaptive Vertex Reconstructor [ = Iterative avf]" );
 }

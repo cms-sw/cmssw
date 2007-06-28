@@ -17,8 +17,7 @@ namespace {
       if ( i->second ) cout << "  " << i->first;
     }
     cout << endl;
-    exit(0);
-
+    throw std::string ( finder + " not available!" );
   }
 }
 

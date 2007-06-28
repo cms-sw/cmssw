@@ -11,11 +11,13 @@ void VertexRecoManager::registerReconstructor (
 
 VertexRecoManager::~VertexRecoManager()
 {
+  // why should we delete?
+  /*
   for ( map < string, AbstractConfReconstructor * >::iterator i=theAbstractConfReconstructors.begin(); 
         i!=theAbstractConfReconstructors.end() ; ++i )
   {
     delete i->second;
-  }
+  }*/
 }
 
 std::string VertexRecoManager::describe ( const std::string & d )
@@ -58,9 +60,6 @@ map < string, AbstractConfReconstructor * > VertexRecoManager::get()
 {
   return theAbstractConfReconstructors;
 }
-
-void VertexRecoManager::setFileName ( const std::string & s )
-{}
 
 VertexRecoManager::VertexRecoManager()
 {}

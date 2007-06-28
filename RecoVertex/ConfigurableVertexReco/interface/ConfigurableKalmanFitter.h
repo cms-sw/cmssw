@@ -1,13 +1,13 @@
 #ifndef _ConfigurableKalmanFitter_H_
 #define _ConfigurableKalmanFitter_H_
 
-#include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfReconstructor.h"
+#include "RecoVertex/ConfigurableVertexReco/interface/AbstractConfFitter.h"
 
 /**
- *  Wrap any VertexFitter into the VertexReconstructor interface
+ *  Kalman filter, configurable version
  */
 
-class ConfigurableKalmanFitter : public AbstractConfReconstructor
+class ConfigurableKalmanFitter : public AbstractConfFitter
 {
   public:
     ConfigurableKalmanFitter ();
@@ -16,10 +16,7 @@ class ConfigurableKalmanFitter : public AbstractConfReconstructor
     ~ConfigurableKalmanFitter();
     ConfigurableKalmanFitter * clone () const;
     edm::ParameterSet defaults() const;
-    std::vector < TransientVertex > vertices ( 
-        const std::vector < reco::TransientTrack > & t ) const;
-  private:
-    const VertexReconstructor * theRector;
+
 };
 
 #endif
