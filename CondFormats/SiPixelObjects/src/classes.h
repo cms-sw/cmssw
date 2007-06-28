@@ -29,3 +29,5 @@ std::vector< SiPixelGainCalibration::DetRegistry >::const_iterator p4;
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplate.h"
 // &&& Not sure what we need for templates here.
+
+#include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"

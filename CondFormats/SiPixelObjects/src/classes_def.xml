@@ -13,7 +13,9 @@
   <field name="theNRows" transient="true"/>
   <field name="theNCols" transient="true"/>
   </class>
-
+  
+  <class name="SiPixelLorentzAngle"/>
+  
   <class name="sipixelobjects::PixelFEDLink"/>
   <class name="std::vector<sipixelobjects::PixelROC>"/> 
 
