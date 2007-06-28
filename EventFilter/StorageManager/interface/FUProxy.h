@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Created by Markus Klute on 2007 Mar 22.
-// $Id: FUProxy.h,v 1.2 2007/06/06 21:41:01 meschi Exp $
+// $Id: FUProxy.h,v 1.3 2007/06/19 12:20:03 hcheung Exp $
 ////////////////////////////////////////////////////////////////////////////////
 // send back discards to filter units
 //
@@ -12,7 +12,7 @@
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 #include "EventFilter/Utilities/interface/Exception.h"
-#include "xdaq/include/xdaq/Application.h"
+#include "xdaq/Application.h"
 
 #include <string>
 

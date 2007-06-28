@@ -10,7 +10,7 @@
 
      See CMS EventFilter wiki page for further notes.
 
-   $Id: StorageManager.h,v 1.14 2007/05/16 22:53:45 hcheung Exp $
+   $Id: StorageManager.h,v 1.15 2007/06/11 12:24:55 badgett Exp $
 */
 
 #include <string>
@@ -43,9 +43,9 @@
 #include "xdata/Boolean.h"
 #include "xdata/Vector.h"
 
-#include "xgi/include/xgi/Input.h"
-#include "xgi/include/xgi/Output.h"
-#include "xgi/include/xgi/exception/Exception.h"
+#include "xgi/Input.h"
+#include "xgi/Output.h"
+#include "xgi/exception/Exception.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/thread/thread.hpp"
