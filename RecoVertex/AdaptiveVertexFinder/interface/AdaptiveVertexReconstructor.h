@@ -2,21 +2,31 @@
 #define _AdaptiveVertexReconstructor_H_
 
 #include "RecoVertex/VertexPrimitives/interface/VertexReconstructor.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <set>
 
 class AdaptiveVertexReconstructor : public VertexReconstructor {
 public:
 
   /***
-   * 
+   *
    * \paramname primcut sigma_cut for the first iteration
    *   (primary vertex)
    * \paramname seccut sigma_cut for all subsequent vertex fits.
-   * \paramname min_weight the minimum weight for a track to 
+   * \paramname minweight the minimum weight for a track to
    * stay in a fitted vertex
    */
-  AdaptiveVertexReconstructor( float primcut = 3.0, float seccut = 15.0, 
-                               float min_weight = 0.5 );
+  AdaptiveVertexReconstructor( float primcut = 2.0, float seccut = 6.0,
+                               float minweight = 0.5 );
+
+  /**
+   *  The ParameterSet should have the following defined:
+   *  double primcut
+   *  double seccut
+   *  double minweight
+   *  for descriptions see 
+   */
+  AdaptiveVertexReconstructor( const edm::ParameterSet & s );
 
   std::vector<TransientVertex> vertices(const std::vector<reco::TransientTrack> & v ) const;
 

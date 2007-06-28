@@ -1,11 +1,13 @@
 #include "RecoVertex/AdaptiveVertexFinder/interface/AdaptiveVertexReconstructor.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/AdaptiveVertexFitter.h"
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
 using namespace std;
 
-void AdaptiveVertexReconstructor::erase ( 
+void AdaptiveVertexReconstructor::erase (
     const TransientVertex & newvtx,
     std::set < reco::TransientTrack > & remainingtrks ) const
 {
@@ -30,6 +32,18 @@ AdaptiveVertexReconstructor::AdaptiveVertexReconstructor(
        theSecCut ( seccut ), theMinWeight ( min_weight )
 {}
 
+AdaptiveVertexReconstructor::AdaptiveVertexReconstructor( const edm::ParameterSet & m )
+  : thePrimCut ( 2.0 ), theSecCut ( 6.0 ), theMinWeight ( 0.5 )
+{
+  try {
+    thePrimCut =  m.getParameter<double>("primcut");
+    theSecCut  =  m.getParameter<double>("seccut");
+    theMinWeight = m.getParameter<double>("minweight");
+  } catch ( edm::Exception & e ) {
+    edm::LogError ("") << e.what();
+  }
+}
+
 TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & old ) const
 {
   if ( old.hasPrior() )
@@ -40,7 +54,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
   vector < reco::TransientTrack > trks = old.originalTracks();
   vector < reco::TransientTrack > newtrks;
   TransientVertex::TransientTrackToFloatMap mp;
-  for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
+  for ( vector< reco::TransientTrack >::const_iterator i=trks.begin();
         i!=trks.end() ; ++i )
   {
     if ( old.trackWeight ( *i ) > 1.e-8 )
@@ -49,7 +63,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp ( const TransientVertex & o
       mp[*i]=old.trackWeight ( *i );
     }
   }
-  TransientVertex ret ( old.vertexState(), newtrks, 
+  TransientVertex ret ( old.vertexState(), newtrks,
                         old.totalChiSquared(), old.degreesOfFreedom() );
   ret.weightMap ( mp );
   return ret;
@@ -60,7 +74,7 @@ std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
 {
   std::vector < TransientVertex > ret;
   std::set < reco::TransientTrack > remainingtrks;
-  for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
+  for ( vector< reco::TransientTrack >::const_iterator i=tracks.begin();
         i!=tracks.end() ; ++i )
   {
     remainingtrks.insert ( *i );
@@ -80,7 +94,7 @@ std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       AdaptiveVertexFitter fitter ( ann );
       vector < reco::TransientTrack > fittrks;
       fittrks.reserve ( remainingtrks.size() );
-      for ( set < reco::TransientTrack >::const_iterator i=remainingtrks.begin(); 
+      for ( set < reco::TransientTrack >::const_iterator i=remainingtrks.begin();
             i!=remainingtrks.end() ; ++i )
       {
         fittrks.push_back ( *i );
@@ -90,7 +104,7 @@ std::vector<TransientVertex> AdaptiveVertexReconstructor::vertices (
       erase ( newvtx, remainingtrks );
       if ( n_tracks == remainingtrks.size() )
       {
-        cout << "[AdaptiveVertexReconstructor] warning: all tracks (" << n_tracks 
+        cout << "[AdaptiveVertexReconstructor] warning: all tracks (" << n_tracks
              << ") would be recycled for next fit." << endl;
         cout << "                              breaking after reconstruction of "
              << ret.size() << " vertices." << endl;
