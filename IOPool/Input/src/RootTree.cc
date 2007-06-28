@@ -1,10 +1,7 @@
 #include "RootTree.h"
 #include "RootDelayedReader.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "FWCore/Framework/interface/Principal.h"
 #include "Reflex/Type.h"
-#include "Reflex/Object.h"
 #include "TTree.h"
 #include "TFile.h"
 class TBranch;
@@ -49,6 +46,7 @@ namespace edm {
   RootTree::addBranch(BranchKey const& key,
 		      BranchDescription const& prod,
 		      std::string const& oldBranchName) {
+      assert(isValid());
       prod.init();
       //use the translated branch name 
       TBranch * provBranch = metaTree_->GetBranch(oldBranchName.c_str());
