@@ -21,7 +21,7 @@ public:
     // implicit copy constructor
     // implicit assignment operator
 
-    virtual seal::Storage *open (const std::string &proto,
+    virtual seal::Storage *open_ (const std::string &proto,
 		    		 const std::string &path,
 				 int mode,
 				 const std::string &tmpdir);

@@ -5,7 +5,6 @@
 #include "SealZip/ZipArchive.h"
 #include "SealZip/ZipMember.h"
 #include "SealBase/StringOps.h"
-#include "SealZip/ZError.h"
 #include <boost/thread/tss.hpp>
 #include <boost/shared_ptr.hpp>
 #include <iostream>
@@ -36,7 +35,7 @@ namespace {
 }
 
 seal::Storage *
-ZipMemberStorageMaker::open (const std::string & /* proto */,
+ZipMemberStorageMaker::open_ (const std::string & /* proto */,
 		             const std::string &path,
 			     int mode,
 		             const std::string &tmpdir)

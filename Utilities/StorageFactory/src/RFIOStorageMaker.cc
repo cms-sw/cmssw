@@ -61,14 +61,14 @@ RFIOStorageMaker::RFIOStorageMaker() {
 }
 
 seal::Storage *
-RFIOStorageMaker::open (const std::string & /* proto */,
+RFIOStorageMaker::open_ (const std::string & /* proto */,
 		        const std::string &path,
 			int mode,
 		        const std::string & /* tmpdir */)
 { return new RFIOFile (normalizeURL(path), mode); }
 
 bool
-RFIOStorageMaker::check (const std::string &proto,
+RFIOStorageMaker::check_ (const std::string &proto,
 		         const std::string &path,
 		         seal::IOOffset *size /* = 0 */)
 {

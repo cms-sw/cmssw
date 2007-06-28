@@ -1,9 +1,11 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
+#include "SealBase/Error.h"
 #include "SealBase/Filename.h"
 #include "SealBase/TempFile.h"
 #include "SealBase/Storage.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 //<<<<<< PRIVATE DEFINES                                                >>>>>>
 //<<<<<< PRIVATE CONSTANTS                                              >>>>>>
@@ -18,8 +20,23 @@
 StorageMaker::~StorageMaker (void)
 {}
 
+seal::Storage *
+StorageMaker::open (const std::string &proto,
+                   const std::string &path,
+                   int mode,
+                   const std::string &tmpdir)
+{
+    try {
+      return open_(proto, path, mode, tmpdir);
+    }
+    catch (seal::Error& e) {
+      std::string errorMsg = "File '" + path + "' is not found or could not be opened.\n" + e.explainSelf();
+      throw edm::Exception(edm::errors::NotFound, "StorageMaker::open()") << errorMsg;
+    }
+}
+
 bool
-StorageMaker::check (const std::string &proto,
+StorageMaker::check_ (const std::string &proto,
 		     const std::string &path,
 		     seal::IOOffset *size /* = 0 */)
 {

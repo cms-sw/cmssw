@@ -20,7 +20,7 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 seal::Storage *
-HttpStorageMaker::open (const std::string &proto,
+HttpStorageMaker::open_ (const std::string &proto,
 		        const std::string &path,
 			int mode,
 		        const std::string &tmpdir)
@@ -73,7 +73,7 @@ readAllInput (const char **command)
 }
 
 bool
-HttpStorageMaker::check (const std::string &proto,
+HttpStorageMaker::check_ (const std::string &proto,
 		         const std::string &path,
 		         seal::IOOffset *size /* = 0 */)
 {

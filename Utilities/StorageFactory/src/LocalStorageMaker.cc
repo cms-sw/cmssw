@@ -16,7 +16,7 @@
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 seal::Storage *
-LocalStorageMaker::open (const std::string & /* proto */,
+LocalStorageMaker::open_ (const std::string & /* proto */,
 			 const std::string &path,
 			 int mode,
 			 const std::string & /* tmpdir */)
@@ -34,7 +34,7 @@ LocalStorageMaker::open (const std::string & /* proto */,
 }
 
 bool
-LocalStorageMaker::check (const std::string &proto,
+LocalStorageMaker::check_ (const std::string &proto,
 		          const std::string &path,
 		          seal::IOOffset *size /* = 0 */)
 {

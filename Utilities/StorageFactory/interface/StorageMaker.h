@@ -23,11 +23,19 @@ public:
     // implicit copy constructor
     // implicit assignment operator
 
-    virtual seal::Storage *open (const std::string &proto,
+    seal::Storage *open (const std::string &proto,
+		    		 const std::string &path,
+				 int mode,
+				 const std::string &tmpdir);
+    bool	check   (const std::string &proto,
+		    		 const std::string &path,
+				 seal::IOOffset *size = 0) {return check_(proto, path, size);}
+private:
+    virtual seal::Storage *open_ (const std::string &proto,
 		    		 const std::string &path,
 				 int mode,
 				 const std::string &tmpdir) = 0;
-    virtual bool	check   (const std::string &proto,
+    virtual bool	check_   (const std::string &proto,
 		    		 const std::string &path,
 				 seal::IOOffset *size = 0);
 };
