@@ -18,7 +18,7 @@
 //
 // Original Author:  Monica Vazquez Acosta - CERN
 //         Created:  Tue Jun 13 12:18:35 CEST 2006
-// $Id: EgammaHLTHcalIsolation.h,v 1.2 2006/10/24 10:58:09 monicava Exp $
+// $Id: EgammaHLTHcalIsolationDoubleCone.h,v 1.1 2007/05/31 19:38:50 mpieri Exp $
 //
 
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -30,7 +30,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
+//For160 #include "Geometry/Vector/interface/GlobalPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

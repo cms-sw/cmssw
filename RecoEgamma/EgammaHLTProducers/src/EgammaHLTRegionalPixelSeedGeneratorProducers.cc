@@ -2,7 +2,7 @@
 // Package:         RecoEgamma/EgammaHLTProducers
 // Class:           EgammaHLTRegionalPixelSeedGeneratorProducers
 //  Modified from TkSeedGeneratorFromTrk by Jeremy Werner, Princeton University, USA
-// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.3 2007/05/09 08:15:51 ghezzi Exp $
+// $Id: EgammaHLTRegionalPixelSeedGeneratorProducers.cc,v 1.4 2007/05/11 15:47:09 futyand Exp $
 //
 
 #include <iostream>
@@ -24,6 +24,11 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGeneratorFactory.h"
+#include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
+#include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromRegionHits.h"
+
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
@@ -31,7 +36,7 @@
 using namespace std;
 using namespace reco;
 
-EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(edm::ParameterSet const& conf) :   conf_(conf),combinatorialSeedGenerator(conf)
+EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(edm::ParameterSet const& conf) :   conf_(conf),combinatorialSeedGenerator(0)
 {
 
   produces<TrajectorySeedCollection>();
@@ -46,29 +51,31 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
   candTagEle_  = conf_.getParameter< edm::InputTag > ("candTagEle");
   useZvertex_  = conf_.getParameter<bool>("UseZInVertex");
 
+  // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
+  edm::ParameterSet hitsfactoryPSet =
+      conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
+
+  // get orderd hits generator from factory
+  OrderedHitsGenerator*  hitsGenerator =
+        OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
+
+  // start seed generator
+  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, conf_);
+
 }
 
 // Virtual destructor needed.
-EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { }  
+EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
+  delete combinatorialSeedGenerator;
+}  
 
 // Functions that gets called by framework every event
 void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  // get Inputs
-  edm::Handle<SiPixelRecHitCollection> pixelHits;
 
-  edm::ESHandle<TrackerGeometry> tracker;
-  iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-
-  //
-  // get the pixel Hits
-  //
-  std::string hitProducer = conf_.getParameter<std::string>("HitProducer");
-  iEvent.getByLabel(hitProducer, pixelHits);
-
+  // resulting collection
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());    
-
-  //
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
@@ -95,7 +102,7 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
 
     }
     GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
-    RectangularEtaPhiTrackingRegion* etaphiRegion = new  RectangularEtaPhiTrackingRegion(dirVector,
+    RectangularEtaPhiTrackingRegion etaphiRegion( dirVector,
 											   GlobalPoint(0,0,zvertex), 
 											   ptmin_,
 											   originradius_,
@@ -103,10 +110,8 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
 											   deltaEta_,
 											   deltaPhi_);
 
-    combinatorialSeedGenerator.init(*pixelHits,iSetup);
-    combinatorialSeedGenerator.run(*etaphiRegion,*output,iSetup);
-    
-    delete etaphiRegion;
+    // fill Trajectory seed collection
+    combinatorialSeedGenerator->run(*output, etaphiRegion, iEvent, iSetup);
     
   }
 
