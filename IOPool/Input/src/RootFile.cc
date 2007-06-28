@@ -1,8 +1,9 @@
 /*----------------------------------------------------------------------
-$Id: RootFile.cc,v 1.69 2007/06/25 03:55:31 wmtan Exp $
+$Id: RootFile.cc,v 1.70 2007/06/25 20:53:32 wmtan Exp $
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
+#include "Inputfwd.h"
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
