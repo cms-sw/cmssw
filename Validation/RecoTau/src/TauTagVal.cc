@@ -13,7 +13,7 @@
 //
 // Original Author:  Simone Gennai
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
-// $Id: TauTagVal.cc,v 1.6 2007/04/11 19:27:43 yarba Exp $
+// $Id: TauTagVal.cc,v 1.7 2007/05/10 14:27:44 gennai Exp $
 //
 //
 
@@ -22,14 +22,11 @@
 #include "Validation/RecoTau/interface/TauTagVal.h"
 #include "DQMServices/Core/interface/DaqMonitorBEInterface.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
-#include "TLorentzVector.h"
-#include "TH1D.h"
 #include "TF1.h"
 #include "TClonesArray.h"
-#include <vector>
+
 
 
 using namespace edm;

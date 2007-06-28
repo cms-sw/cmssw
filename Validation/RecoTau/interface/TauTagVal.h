@@ -25,7 +25,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
+#include "HepMC/GenParticle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/JetReco/interface/Jet.h"
@@ -43,7 +43,9 @@
 #include "TLorentzVector.h"
 #include "TH1D.h"
 #include <vector>
-
+namespace HepMC {
+  class GenParticle;
+ }
 class MonitorElement;
 
 //
@@ -62,13 +64,13 @@ public:
   virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   virtual void beginJob();
   virtual void endJob();
-  
-  vector<HepMC::GenParticle*> DaughtersVec(vector<HepMC::GenParticle*> pvec)
+  /*
+  std::vector<HepMC::GenParticle*> DaughtersVec(std::vector<HepMC::GenParticle*> pvec)
   {
-    vector<HepMC::GenParticle*>Daughters;
+    std::vector<HepMC::GenParticle*>Daughters;
     HepMC::GenVertex* end_vertex;
 
-    for(vector<HepMC::GenParticle*>::iterator pvecit=pvec.begin();pvecit!=pvec.end();pvecit++)
+    for(std::vector<HepMC::GenParticle*>::iterator pvecit=pvec.begin();pvecit!=pvec.end();pvecit++)
       {
 	end_vertex = (*pvecit)->end_vertex();
 	if(end_vertex){
@@ -81,9 +83,10 @@ public:
       }
     return Daughters;
   }
-  vector<HepMC::GenParticle*> Daughters(HepMC::GenParticle* p)
+  */
+  std::vector<HepMC::GenParticle*> Daughters(HepMC::GenParticle* p)
   {
-    vector<HepMC::GenParticle*>Daughters;
+    std::vector<HepMC::GenParticle*>Daughters;
     HepMC::GenVertex* end_vertex;
     end_vertex = p->end_vertex();
     if(end_vertex)
@@ -120,39 +123,39 @@ public:
 private:
   int nEvent;
   int nRuns;
-  vector<float> nEventsUsed;
+  std::vector<float> nEventsUsed;
   edm::InputTag jetTagSrc;
-  vector<float> nEventsRiso;
-  vector<float> nEventsEnergyUsed;
-  vector<float> nEventsEnergy;
-  vector<float> energyBins;
+  std::vector<float> nEventsRiso;
+  std::vector<float> nEventsEnergyUsed;
+  std::vector<float> nEventsEnergy;
+  std::vector<float> energyBins;
   
-  vector<double>nEventsUsed07;
-  vector<double>nEventsRiso07;
-  vector<double>nEventsUsed04;
-  vector<double>nEventsRiso04;
+  std::vector<double>nEventsUsed07;
+  std::vector<double>nEventsRiso07;
+  std::vector<double>nEventsUsed04;
+  std::vector<double>nEventsRiso04;
 
-  vector<double>nEventsUsed107;
-  vector<double>nEventsRiso107;
-  vector<double>nEventsUsed104;
-  vector<double>nEventsRiso104;
+  std::vector<double>nEventsUsed107;
+  std::vector<double>nEventsRiso107;
+  std::vector<double>nEventsUsed104;
+  std::vector<double>nEventsRiso104;
 
-  vector<double>nEventsUsed207;
-  vector<double>nEventsRiso207;
-  vector<double>nEventsUsed204;
-  vector<double>nEventsRiso204;
+  std::vector<double>nEventsUsed207;
+  std::vector<double>nEventsRiso207;
+  std::vector<double>nEventsUsed204;
+  std::vector<double>nEventsRiso204;
 
-  vector<double>nEventsUsed307;
-  vector<double>nEventsRiso307;
-  vector<double>nEventsUsed304;
-  vector<double>nEventsRiso304;
+  std::vector<double>nEventsUsed307;
+  std::vector<double>nEventsRiso307;
+  std::vector<double>nEventsUsed304;
+  std::vector<double>nEventsRiso304;
 
 
   TH1D* hRatio;
   TH1D* hRatioEta;
-  vector<TH1D*> ratio;
-  vector<TH1D*> ratioEta;
-  vector<double> etbin;
+  std::vector<TH1D*> ratio;
+  std::vector<TH1D*> ratioEta;
+  std::vector<double> etbin;
   
   std::string outPutFile;
   float rSig,rMatch,ptLeadTk, rIso;
