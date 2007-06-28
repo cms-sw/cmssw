@@ -10,27 +10,18 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexTrackCompatibilityEstimator.h"
 #include "RecoVertex/VertexTools/interface/LinearizedTrackStateFactory.h"
 #include "RecoVertex/KalmanVertexFit/interface/KalmanVertexTrackCompatibilityEstimator.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 /**
  * \class AdaptiveVertexFitter
  * An iterative reweighted fitter.
  * Very robust, very adaptive.
  *
- * FIXME insert citation.
- * FIXME insert more description.
- *
- * configurables, FIXME wait for the ParameterSet
- * discussion to finish.
- * AdaptiveVertexFitter:Debug = 0
- * AdaptiveVertexFitter:maximumDistance = 0.0001
- * AdaptiveVertexFitter:maximumLPDistance = 0.1
- * AdaptiveVertexFitter:maximumNumberOfIterations = 30
- * AdaptiveVertexFitter:WeightThreshold = .001
- *
+ * See CMS Note 2007/008.
  *
  * Exceptions
  * VertexException( "Supplied fewer than two tracks" )
- * VertexException( "fewer than 2 significant tracks (w>.1)" )
+ * VertexException( "fewer than 2 significant tracks (w>threshold)" )
  *
  */
 
@@ -117,6 +108,28 @@ public:
    */
   void setWeightThreshold ( float w );
 
+  /**
+   *   Reads the configurable parameters.
+   *   \param maxshift if the vertex moves further than this (in cm),
+   *   then we re-iterate.
+   *   \param maxlpshift if the vertex moves further than this,
+   *   then we re-linearize the tracks.
+   *   \param maxstep that's the maximum of iterations that we allow for.
+   *   \param weightthreshhold that's the minimum track weight
+   *   for a track to be considered "significant".
+   *   If fewer than two tracks are significant, an exception is thrown.
+   */
+  void setParameters( double maxshift=0.0001, double maxlpshift=0.1,
+                      unsigned maxstep=30, double weightthreshhold=.001 );
+
+  /**
+   *  Sets parameters.
+   *  The following parameters are expected:
+   *  maxshift,  maxlpshift,  maxstep,  weightthreshhold
+   */
+  void setParameters ( const edm::ParameterSet & );
+
+
 private:
   /**
    * Construct new a container of VertexTrack with a new linearization point
@@ -172,11 +185,6 @@ private:
   CachingVertex fit( const vector<RefCountedVertexTrack> & tracks,
                      const VertexState & priorSeed,
                      bool withPrior) const;
-
-  /**
-   *   Reads the configurable parameters.
-   */
-  void readParameters();
 
 private:
   float theMaxShift;

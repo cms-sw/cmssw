@@ -5,6 +5,7 @@
 #include "RecoVertex/VertexTools/interface/VertexTrackFactory.h"
 #include "RecoVertex/AdaptiveVertexFit/interface/KalmanChiSquare.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
 
@@ -30,7 +31,7 @@ AdaptiveVertexFitter::AdaptiveVertexFitter(
     theSmoother ( smoother.clone() ), theAssProbComputer( ann.clone() ),
     theComp ( crit.clone() ), theLinTrkFactory ( ltsf.clone() )
 {
-  readParameters();
+  setParameters();
 }
 
 void AdaptiveVertexFitter::setWeightThreshold ( float w )
@@ -60,14 +61,27 @@ AdaptiveVertexFitter::~AdaptiveVertexFitter()
   delete theLinTrkFactory;
 }
 
-void AdaptiveVertexFitter::readParameters()
+void AdaptiveVertexFitter::setParameters( double maxshift, double maxlpshift, 
+                                          unsigned maxstep, double weightthreshhold )
 {
-  theMaxShift = 0.0001;
-  theMaxLPShift = 0.1;
-  theMaxStep = 30;
-  theWeightThreshold=.001;
+  theMaxShift = maxshift;
+  theMaxLPShift = maxlpshift;
+  theMaxStep = maxstep;
+  theWeightThreshold=weightthreshhold;
 }
 
+
+void AdaptiveVertexFitter::setParameters ( const edm::ParameterSet & s )
+{
+  try {
+    setParameters ( s.getParameter<double>("maxshift"),
+                    s.getParameter<double>("maxlpshift"),
+                    s.getParameter<int>("maxstep"),
+                    s.getParameter<double>("weightthreshhold") );
+  } catch ( ... ) {
+    edm::LogWarning("") << "setParameters failed!";
+  };
+}
 
 CachingVertex
 AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks) const
@@ -154,6 +168,8 @@ AdaptiveVertexFitter::vertex(const vector<reco::TransientTrack> & tracks,
            << endl;
     }
     AlgebraicSymMatrix we(3,1);
+    // AlgebraicSymMatrix33 we;
+    // we(0,0)=1; we(1,1)=1; we(2,2);
     GlobalError error(we*10000);
     VertexState lpState(linP, error);
     vtContainer = linearizeTracks(tracks, lpState);
