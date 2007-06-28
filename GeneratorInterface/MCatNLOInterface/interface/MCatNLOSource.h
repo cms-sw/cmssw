@@ -15,6 +15,8 @@
 #include <string>
 #include "HepMC/GenEvent.h"
 
+class Run;
+
 namespace edm
 {
   class MCatNLOSource : public GeneratedInputSource {
@@ -23,6 +25,8 @@ namespace edm
     MCatNLOSource(const ParameterSet &, const InputSourceDescription &);
     virtual ~MCatNLOSource();
     
+    void endRun( Run& r);
+
   private:
     
     virtual bool produce(Event & e);
@@ -68,6 +72,10 @@ namespace edm
     bool doMPInteraction_;
     bool printCards_;
     int eventCounter_;
+
+    double extCrossSect;
+    double intCrossSect;
+    double extFilterEff;
 
   };
 } 

@@ -1,5 +1,6 @@
 #include "GeneratorInterface/MCatNLOInterface/interface/MCatNLOFilter.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MCatNLOFilter::MCatNLOFilter(const edm::ParameterSet& ppp) 
 {}
@@ -16,7 +17,7 @@ MCatNLOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getManyByType(AllProds);
    
    if(AllProds.size()==0) {
-     std::cout<<"   Event is skipped and removed." << std::endl;
+     LogInfo("")<<"   Event is skipped and removed.\n";
      return false;
    }
    else return true;
