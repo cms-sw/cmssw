@@ -98,6 +98,8 @@ public:
 
   void limitedCandidates( TempTrajectory& startingTraj, TrajectoryContainer& result) const;
 
+  void collectMeasurement(const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits) const;
+
   std::vector<TrajectoryMeasurement> findCompatibleMeasurements( const TempTrajectory& traj) const;
 
   bool qualityFilter( const TempTrajectory& traj) const;

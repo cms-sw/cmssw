@@ -112,7 +112,7 @@ limitedCandidates( TempTrajectory& startingTraj,
   TempTrajectoryContainer newCand; // = TrajectoryContainer();
   candidates.push_back( startingTraj);
 
-  while ( !candidates.empty()) {
+  while (!candidates.empty()) {
 
     newCand.clear();
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
@@ -300,33 +300,93 @@ bool MuonCkfTrajectoryBuilder::toBeContinued (const TempTrajectory& traj) const
   return true;
 }
 
+
+void MuonCkfTrajectoryBuilder::collectMeasurement(const std::vector<const DetLayer*>& nl,const TrajectoryStateOnSurface & currentState, std::vector<TM>& result,int& invalidHits) const{
+  for (vector<const DetLayer*>::const_iterator il = nl.begin();
+       il != nl.end(); il++) {
+    vector<TM> tmp =
+      theLayerMeasurements->measurements((**il),currentState, *theForwardPropagator, *theEstimator);
+
+    LogDebug("CkfPattern")<<tmp.size()<<" measurements returned by LayerMeasurements";
+
+    if ( !tmp.empty()) {
+      // FIXME durty-durty-durty cleaning: never do that please !
+      /*      for (vector<TM>::iterator it = tmp.begin(); it!=tmp.end(); ++it)
+              {if (it->recHit()->det()==0) it=tmp.erase(it)--;}*/
+
+      if ( result.empty()) result = tmp;
+      else {
+        // keep one dummy TM at the end, skip the others
+        result.insert( result.end()-invalidHits, tmp.begin(), tmp.end());
+      }
+      invalidHits++;
+    }
+  }
+
+  LogDebug("CkfPattern")<<result.size()<<" total measurements";
+  for (vector<TrajectoryMeasurement>::iterator it = result.begin(); it!=result.end();++it){
+    LogDebug("CkfPattern")<<"layer pointer: "<<it->layer()<<"\n"
+                          <<"estimate: "<<it->estimate()<<"\n"
+                          <<"forward state: \n"<<it->forwardPredictedState()
+                          <<"geomdet pointer from rechit: "<<it->recHit()->det()<<"\n"
+                          <<"detId: "<<it->recHit()->geographicalId().rawId();
+  }
+
+}
+
+
+
 std::vector<TrajectoryMeasurement> 
 MuonCkfTrajectoryBuilder::findCompatibleMeasurements( const TempTrajectory& traj) const
 {
   vector<TM> result;
   int invalidHits = 0;
 
-  TSOS currentState( traj.lastMeasurement().updatedState());
+  //----JR--- 15 March 2007  ---START MODIF
+  vector<const DetLayer*> nl;
+  TSOS currentState;
 
-  vector<const DetLayer*> nl = 
-    traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
-  
-  if (nl.empty()) return result;
+  if (traj.empty())
+    {
+      edm::LogInfo("CkfPattern")<<"using JR patch for no measurement case";
+      //what if there are no measurement on the Trajectory
 
-  for (vector<const DetLayer*>::iterator il = nl.begin(); 
-       il != nl.end(); il++) {
-    vector<TM> tmp = 
-      theLayerMeasurements->measurements((**il),currentState, *theForwardPropagator, *theEstimator);
+      //set the currentState to be the one from the trajectory seed starting point
+      PTrajectoryStateOnDet ptod =traj.seed().startingState();
+      DetId id(ptod.detId());
+      const GeomDet * g = theMeasurementTracker->geomTracker()->idToDet(id);
+      const Surface * surface=&g->surface();
+      TrajectoryStateTransform tsTransform;
+      currentState = tsTransform.transientState(ptod,surface,theForwardPropagator->magneticField());
 
-    if ( !tmp.empty()) {
-      if ( result.empty()) result = tmp;
-      else {
-	// keep one dummy TM at the end, skip the others
-	result.insert( result.end()-invalidHits, tmp.begin(), tmp.end());
+      //set the next layers to be that one the state is on
+      const DetLayer * l=theMeasurementTracker->geometricSearchTracker()->detLayer(id);
+      if ( traj.direction() == alongMomentum ){
+        //will fail if the building is outside-in
+        //because the propagator will cross over the barrel and give measurement on the other side of the barrel
+        nl.clear();
+        nl.push_back(l);
+        collectMeasurement(nl,currentState,result,invalidHits);
       }
-      invalidHits++;
+
+      if (result.size()==0)
+        {
+	  edm::LogInfo("CkfPattern")<<"using JR patch: need to go to next layer to get measurements";
+          //the following will "JUMP" the first layer measurements
+          nl = l->nextLayers(*currentState.freeState(), traj.direction());
+          invalidHits=0;
+          collectMeasurement(nl,currentState,result,invalidHits);}
     }
-  }
+  else
+    {
+      currentState = traj.lastMeasurement().updatedState();
+      nl = traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
+      if (nl.empty()){LogDebug("CkfPattern")<<" no next layers... going "<<traj.direction()<<"\n from: \n"<<currentState<<"\n from detId: "<<traj.lastMeasurement().recHit()->geographicalId().rawId(); return result;}
+
+      collectMeasurement(nl,currentState,result,invalidHits);
+    }
+  //----JR--- 15 March 2007  ---END
+
 
   // sort the final result, keep dummy measurements at the end
   if ( result.size() > 1) {
