@@ -41,9 +41,9 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
     computeBounds(faces);
 }
 
-NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol) :
+NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol, bool isIron) :
   NavVolume( magvol.position(), magvol.rotation(), magvol.shapeType(), magvol.provider()),
-  theFaces(magvol.faces())
+  theFaces(magvol.faces()), isThisIron(isIron)
 {
   std::vector<NavVolumeSide> navSides;
   std::vector<VolumeSide> magSides( magvol.faces());

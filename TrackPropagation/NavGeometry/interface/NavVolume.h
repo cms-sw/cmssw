@@ -38,6 +38,8 @@ public:
   virtual VolumeCrossReturnType crossToNextVolume( const TrajectoryStateOnSurface& currentState, 
 						   const Propagator& prop) const = 0;
 
+  virtual bool isIron() const = 0;
+
 };
 
 #endif

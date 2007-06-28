@@ -18,7 +18,7 @@ public:
 		     const MagneticFieldProvider<float> * mfp);
 
     /// A NavVolume6Faces that corresponds exactly to a MagVolume
-    explicit NavVolume6Faces( const MagVolume& magvol);
+    explicit NavVolume6Faces( const MagVolume& magvol, const bool isIron=false);
 
     /// Give a sorted list of possible surfaces to propagate to
     virtual Container nextSurface( const NavVolume::LocalPoint& pos, 
@@ -36,19 +36,19 @@ public:
 						     const Propagator& prop) const;
 
     /// Access to volume faces
-    std::vector<VolumeSide> faces() const {
+    std::vector<VolumeSide> faces() const { return theFaces; }
 
+    /// Access to Iron/Air information:
+    bool isIron() const { return isThisIron; }
 
-    return theFaces;
-  }
-
-  using MagVolume::inside;
-  bool inside( const GlobalPoint& gp, double tolerance) const; 
+    using MagVolume::inside;
+    bool inside( const GlobalPoint& gp, double tolerance) const; 
 
 private:
 
     std::vector<VolumeSide> theFaces;
     Container theNavSurfaces;
+    bool isThisIron; 
 
     void computeBounds(const std::vector<NavVolumeSide>& faces);
     Bounds* computeBounds( int index, const std::vector<const Plane*>& bpc);
