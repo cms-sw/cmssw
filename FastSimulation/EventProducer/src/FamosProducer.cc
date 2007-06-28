@@ -38,7 +38,9 @@ FamosProducer::FamosProducer(edm::ParameterSet const & p)
     produces<edm::PCaloHitContainer>("EcalHitsEE");
     produces<edm::PCaloHitContainer>("EcalHitsES");
     produces<edm::PCaloHitContainer>("HcalHits");
-    produces<edm::SimTrackContainer>("MuonSimTracks");
+    // Temporary facility to allow for the crossing frame to work...
+    simulateMuons = p.getParameter<bool>("SimulateMuons");
+    if ( simulateMuons ) produces<edm::SimTrackContainer>("MuonSimTracks");
     famosManager_ = new FamosManager(p);
 
 }
@@ -158,7 +160,7 @@ void FamosProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
    }
 
    iEvent.put(p1);
-   iEvent.put(m1,"MuonSimTracks");
+   if ( simulateMuons ) iEvent.put(m1,"MuonSimTracks");
    iEvent.put(p2);
    iEvent.put(p3,"TrackerHits");
    iEvent.put(p4,"EcalHitsEB");
