@@ -28,18 +28,25 @@ namespace reco {
     //default discriminator: returns the discriminator of the jet tag
     float discriminator() const {return -1. ;}
     
-    float discriminator(const double rm_cone,const double pt_cut,const double rs_cone,
-                        const double track_cone,const double m_cut) const;
+    float discriminator(double matching_cone, double leading_trk_pt,
+                                   double signal_cone, double cluster_track_cone, 
+                                   double m_cut) const;
     
     void  setIsolatedTauTag(const IsolatedTauTagInfoRef);
     const IsolatedTauTagInfoRef& getIsolatedTauTag() const;
 
     void storeClusterTrackCollection(reco::BasicClusterRef clusterRef,float dr);
+    TauMassTagInfo::ClusterTrackAssociationCollection clusterTrackCollection() const { return clusterMap;}
 
-    double getInvariantMass(const double rm_cone, const double pt_cut,
-                          const double rs_cone,const double track_cone) const;    
+    double getInvariantMassTrk(double matching_cone,double leading_trk_pt, double signal_cone) const;    
+    double getInvariantMass(double matching_cone,double leading_trk_pt, double signal_cone,
+                                double cluster_track_cone) const;    
 
   private:
+
+    bool calculateTrkP4(double matching_cone,double leading_trk_pt, double signal_cone, 
+                            math::XYZTLorentzVector& p4) const;
+
     IsolatedTauTagInfoRef             isolatedTau;
     ClusterTrackAssociationCollection clusterMap; // const?
 

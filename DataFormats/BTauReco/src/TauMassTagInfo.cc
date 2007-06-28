@@ -7,11 +7,11 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-float reco::TauMassTagInfo::discriminator(const double rm_cone,const double pt_cut,
-                                   const double rs_cone, const double track_cone, 
-                                   const double m_cut) const {
+float reco::TauMassTagInfo::discriminator(double matching_cone, double leading_trk_pt,
+                                   double signal_cone, double cluster_track_cone, 
+                                   double m_cut) const {
   float discriminator = 0.0;
-  double invariantMass = getInvariantMass(rm_cone,pt_cut,rs_cone,track_cone);  
+  double invariantMass = getInvariantMass(matching_cone,leading_trk_pt, signal_cone,cluster_track_cone);  
   if (invariantMass >= 0.0 && invariantMass < m_cut ) discriminator = 1.0;
   return discriminator;
 }
@@ -34,63 +34,83 @@ void reco::TauMassTagInfo::storeClusterTrackCollection(reco::BasicClusterRef clu
   
   clusterMap.insert(clusterRef, dr);
 }
+//
+// -- Calculate 4 momentum vector from tracks only
+//
+bool reco::TauMassTagInfo::calculateTrkP4(double matching_cone, 
+                       double leading_trk_pt, double signal_cone, 
+                       math::XYZTLorentzVector& p4) const {
 
-//void reco::TauMassTagInfo::setBasicClusterCollection(const BasicClusterCollection& clusters){
-//  basicClusters = clusters;
-//}
-//
-// -- Set Basic Cluster Collection
-//
-//const BasicClusterCollection& reco::TauMassTagInfo::getBasicClusterCollection() const {
-//  return basicClusters;
-//}
-//
-// -- Get Invariant Mass
-//
-double reco::TauMassTagInfo::getInvariantMass(const double rm_cone, const double pt_cut, 
-                        const double rs_cone, const double track_cone) const {
-  double invariantMass = -1.0;
 
-  const TrackRef leadTk= isolatedTau->leadingSignalTrack(rm_cone, pt_cut);
-  if(!leadTk) {
+  const TrackRef leadTk= isolatedTau->leadingSignalTrack(matching_cone,leading_trk_pt);
+  if (!leadTk) {
     cout <<" TauMassTagInfo::  No Leading Track !!  " << endl;    
-    return invariantMass;
+    return false;
   }
   math::XYZVector momentum = (*leadTk).momentum();
-  const RefVector<TrackCollection> signalTracks = isolatedTau->tracksInCone(momentum,rs_cone,pt_cut);
-  if (signalTracks.size() == 0) return invariantMass;
+  const RefVector<TrackCollection> signalTracks = 
+                 isolatedTau->tracksInCone(momentum,signal_cone,1.0);
+//  if (signalTracks.size() == 0 || signalTracks.size()%2 == 0) return false;
+  if (signalTracks.size() == 0) return false;
 
   double px_inv = 0.0;
   double py_inv = 0.0;
   double pz_inv = 0.0;
   double e_inv  = 0.0;
-  for(RefVector<TrackCollection>::const_iterator itrack = signalTracks.begin(); 
+  for (RefVector<TrackCollection>::const_iterator itrack = signalTracks.begin(); 
                itrack != signalTracks.end(); itrack++) {
+    double p = (*itrack)->p();
+    double energy = sqrt(p*p + 0.139*0.139); // use correct value!
     px_inv += (*itrack)->px();
     py_inv += (*itrack)->py();
     pz_inv += (*itrack)->pz();
-    e_inv += (*itrack)->p();
+    e_inv += energy;
   }
-  
-  // Add Clusters away from tracks
 
-  for(ClusterTrackAssociationCollection::const_iterator mapIter = clusterMap.begin(); mapIter != clusterMap.end(); mapIter++) {
+  p4.SetPx(px_inv);
+  p4.SetPy(py_inv);
+  p4.SetPz(pz_inv);
+  p4.SetE(e_inv);
+
+  return true;
+}
+//
+// -- Get Invariant Mass
+//
+double reco::TauMassTagInfo::getInvariantMassTrk(double matching_cone, 
+                       double leading_trk_pt, double signal_cone) const 
+{
+  math::XYZTLorentzVector totalP4;
+  if (!calculateTrkP4(matching_cone,leading_trk_pt, signal_cone, totalP4)) return -1.0;
+  return totalP4.M();
+}
+//
+// -- Get Invariant Mass
+//
+double reco::TauMassTagInfo::getInvariantMass(double matching_cone, 
+                       double leading_trk_pt, double signal_cone, 
+                       double track_cone) const 
+{
+
+  math::XYZTLorentzVector totalP4;
+  if (!calculateTrkP4(matching_cone, leading_trk_pt, signal_cone, totalP4)) return -1.0;
+
+  // Add Clusters away from tracks
+  for (ClusterTrackAssociationCollection::const_iterator mapIter = clusterMap.begin(); 
+                                                         mapIter != clusterMap.end(); mapIter++) {
     const reco::BasicClusterRef & iclus = mapIter->key;
     float dr  = mapIter->val;
     if (dr > track_cone) {
-      math::RhoEtaPhiVectorD clusREP(iclus->energy(), iclus->eta(), iclus->phi());
-      px_inv += clusREP.X();
-      py_inv += clusREP.Y();
-      pz_inv += clusREP.Z();
-      e_inv  += iclus->energy();
+      math::XYZVector clus3Vec(iclus->x(), iclus->y(), iclus->z());
+      double e  = iclus->energy(); 
+      double theta = clus3Vec.theta();
+      double phi   = clus3Vec.phi();
+      double px    = e * sin(theta) * cos(phi);
+      double py    = e * sin(theta) * sin(phi);
+      double pz    = e * cos(theta);
+      math::XYZTLorentzVector p4(px,py,pz,e);
+      totalP4 += p4;  
     }           
   }
-
-  invariantMass = e_inv*e_inv - px_inv*px_inv - py_inv*py_inv - pz_inv*pz_inv;
-  if (invariantMass >0.0) invariantMass = sqrt(invariantMass);
-  else {
-    cout << "TauMassTagInfo::(E,Px,Py,Pz): " << e_inv << " " << px_inv << " " << py_inv << " " << pz_inv << endl;
-    invariantMass = -1.0;
-  }
-  return invariantMass;
+  return totalP4.M();
 }
