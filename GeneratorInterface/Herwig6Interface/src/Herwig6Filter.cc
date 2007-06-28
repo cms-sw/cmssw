@@ -1,5 +1,7 @@
 #include "GeneratorInterface/Herwig6Interface/interface/Herwig6Filter.h"
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 Herwig6Filter::Herwig6Filter(const edm::ParameterSet& ppp) 
 {}
@@ -16,7 +18,7 @@ Herwig6Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getManyByType(AllProds);
    
    if(AllProds.size()==0) {
-     std::cout<<"   Event is skipped and removed." << std::endl;
+     LogInfo("")<<"   Event is skipped and removed.\n";
      return false;
    }
    else return true;

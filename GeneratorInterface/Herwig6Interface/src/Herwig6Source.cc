@@ -13,6 +13,9 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "SimDataFormats/HepMCProduct/interface/GenInfoProduct.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include <iostream>
 #include "time.h"
@@ -56,12 +59,19 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   lhapdfSetPath_(pset.getUntrackedParameter<string>("lhapdfSetPath","")),
   useJimmy_(pset.getUntrackedParameter<bool>("useJimmy",true)),
   doMPInteraction_(pset.getUntrackedParameter<bool>("doMPInteraction",true)),
-  printCards_(pset.getUntrackedParameter<bool>("printCards",true)),
-  numTrials_(pset.getUntrackedParameter<int>("numTrialsMPI",100))
+  printCards_(pset.getUntrackedParameter<bool>("printCards",false)),
+  numTrials_(pset.getUntrackedParameter<int>("numTrialsMPI",100)),
+  extCrossSect(pset.getUntrackedParameter<double>("crossSection", -1.)),
+  extFilterEff(pset.getUntrackedParameter<double>("filterEfficiency", -1.))
 {
-  cout << "----------------------------------------------" << endl;
-  cout << "Initializing Herwig6Source" << endl;
-  cout << "----------------------------------------------" << endl;
+
+  std::ostringstream header_str;
+
+  header_str << "----------------------------------------------\n";
+  header_str << "Initializing Herwig6Source\n";
+  header_str << "----------------------------------------------\n";
+
+  
   /* herwigVerbosity Level IPRINT
      valid argumets are: 0: print title only
                          1: + print selected input parameters
@@ -73,27 +83,28 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
 			 2=all 
   */
 
-  cout << "   Herwig verbosity level         = " << herwigVerbosity_ << endl;
-  cout << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << endl;
-  cout << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << endl;
-  cout << "   Number of events to be printed = " << maxEventsToPrint_ << endl;
+  header_str << "   Herwig verbosity level         = " << herwigVerbosity_ << "\n";
+  header_str << "   LHAPDF verbosity level         = " << herwigLhapdfVerbosity_ << "\n";
+  header_str << "   HepMC verbosity                = " << herwigHepMCVerbosity_ << "\n";
+  header_str << "   Number of events to be printed = " << maxEventsToPrint_ << "\n";
+
 
   if(useJimmy_) {
-    cout << "   HERWIG will be using JIMMY for UE/MI." << endl;
+    header_str << "   HERWIG will be using JIMMY for UE/MI." << "\n";
     if(doMPInteraction_) 
-      cout << "   JIMMY trying to generate multiple interactions." << endl;
+      header_str << "   JIMMY trying to generate multiple interactions." << "\n";
   }
 
   // setting up lhapdf path name from environment varaible (***)
   char* lhaPdfs = NULL;
-  std::cout<<"   Trying to find LHAPATH in environment ...";
+  header_str<<"   Trying to find LHAPATH in environment ...";
   lhaPdfs = getenv("LHAPATH");
   if(lhaPdfs != NULL) {
-    std::cout<<" done."<<std::endl;
+    header_str<<" done.\n";
     lhapdfSetPath_=std::string(lhaPdfs);
   }
   else
-    std::cout<<" failed."<<std::endl;
+    header_str<<" failed.\n";
 
 
   // Call hwudat to set up HERWIG block data
@@ -108,13 +119,15 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   for(int i=1;i<8;++i){
     hwbmch.PART1[i]  = ' ';
     hwbmch.PART2[i]  = ' ';}
-  int numEvents = desc.maxEvents_;  
-  hwevnt.MAXER = int(numEvents/10);
-  if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
+  int numEvents = maxEvents();  
   if(useJimmy_) jmparm.MSFLAG = 1;
 
   // initialize other common blocks ...
   hwigin();
+
+  hwevnt.MAXER = int(numEvents/10);
+  if(hwevnt.MAXER<100) hwevnt.MAXER = 100;
+
   if(useJimmy_) jimmin();
   
   // set some 'non-herwig' defaults
@@ -136,9 +149,9 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
     vector<string> pars = 
       herwig_params.getParameter<vector<string> >(mySet);
     
-    cout << "----------------------------------------------" << endl;
-    cout << "Read HERWIG parameter set " << mySet << endl;
-    cout << "----------------------------------------------" << endl;
+    header_str << "----------------------------------------------" << "\n";
+    header_str << "Read HERWIG parameter set " << mySet << "\n";
+    header_str << "----------------------------------------------" << "\n";
     
     // Loop over all parameters and stop in case of mistake
     for( vector<string>::const_iterator  
@@ -155,22 +168,22 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
 	  <<" herwig did not accept the following \""<<*itPar<<"\"";
       }
       else if(printCards_)
-	cout << "   " << *itPar << endl;
+	header_str << "   " << *itPar << "\n";
     }
   }
 
   // setting up herwgi RNG seeds NRN(.)
-  cout << "----------------------------------------------" << endl;
-  cout << "Setting Herwig random number generator seeds" << endl;
-  cout << "----------------------------------------------" << endl;
+  header_str << "----------------------------------------------" << "\n";
+  header_str << "Setting Herwig random number generator seeds" << "\n";
+  header_str << "----------------------------------------------" << "\n";
   edm::Service<RandomNumberGenerator> rng;
   int wwseed = rng->mySeed();
   bool rngok = setRngSeeds(wwseed);
   if(!rngok)
     throw edm::Exception(edm::errors::Configuration,"HerwigError")
       <<" Impossible error in setting 'NRN(.)'.";
-  cout << "   NRN(1) = "<<hwevnt.NRN[0]<<endl;
-  cout << "   NRN(2) = "<<hwevnt.NRN[1]<<endl;
+  header_str << "   NRN(1) = "<<hwevnt.NRN[0]<<"\n";
+  header_str << "   NRN(2) = "<<hwevnt.NRN[1]<<"\n";
 
   // set the LHAPDF grid directory and path
   setherwpdf();
@@ -188,19 +201,29 @@ Herwig6Source::Herwig6Source( const ParameterSet & pset,
   hweini();
   if(useJimmy_) jminit();
 
-  cout << endl; // Stetically add for the output
   produces<HepMCProduct>();
+  produces<GenInfoProduct, edm::InRun>();
 
-  cout << "----------------------------------------------" << endl;
-  cout << "Starting event generation" << endl;
-  cout << "----------------------------------------------" << endl;
+  header_str << "\n----------------------------------------------" << "\n";
+  header_str << "Starting event generation" << "\n";
+  header_str << "----------------------------------------------" << "\n";
+
+  edm::LogInfo("")<<header_str.str(); 
+
+
 }
 
 
 Herwig6Source::~Herwig6Source(){
-  cout << "----------------------------------------------" << endl;
-  cout << "Event generation done" << endl;
-  cout << "----------------------------------------------" << endl;
+
+  std::ostringstream footer_str;
+
+  footer_str << "----------------------------------------------" << "\n";
+  footer_str << "Event generation done" << "\n";
+  footer_str << "----------------------------------------------" << "\n";
+
+  LogInfo("") << footer_str.str();
+
   clear();
 }
 
@@ -232,8 +255,7 @@ bool Herwig6Source::produce(Event & e) {
   
   // event after numTrials MP is not ok -> skip event
   if(mpiok > 0.5) {
-    cout<<"   JIMMY could not produce MI in "<<numTrials_<<" trials."<<endl;
-    cout<<"   Event will be skipped to prevent from deadlock."<<endl;
+    LogWarning("") <<"   JIMMY could not produce MI in "<<numTrials_<<" trials.\n"<<"   Event will be skipped to prevent from deadlock.\n";
     return true;
   }  
   
@@ -247,6 +269,8 @@ bool Herwig6Source::produce(Event & e) {
   
   // if event was killed by HERWIG; skip 
   if(hwevnt.IERROR!=0) return true;
+
+  intCrossSect = 1000.0*hwevnt.AVWGT;
 
   // -----------------  HepMC converter --------------------
   HepMC::IO_HERWIG conv;
@@ -263,8 +287,7 @@ bool Herwig6Source::produce(Event & e) {
   evt->set_event_number(numberEventsInRun() - remainingEvents() - 1);
   
   if (herwigHepMCVerbosity_) {
-    cout << "Event process = " << evt->signal_process_id() <<endl
-	 << "----------------------" << endl;
+    LogWarning("") << "Event process = " << evt->signal_process_id() << "\n----------------------\n";
     evt->print();
   }
   
@@ -292,7 +315,7 @@ bool Herwig6Source::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"AUTPDF(",7)){
-    cout<<"   WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<endl;
+    LogWarning("") <<"   WARNING: AUTPDF parameter *not* suported. HERWIG will use LHAPDF."<<"\n";
   }
   else if(!strncmp(ParameterString.c_str(),"TAUDEC",6)){
     int tostart=0;
@@ -310,7 +333,7 @@ bool Herwig6Source::hwgive(const std::string& ParameterString) {
     }
   }
   else if(!strncmp(ParameterString.c_str(),"BDECAY",6)){
-    cout<<"   WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<endl;
+    LogWarning("")<<"   WARNING: BDECAY parameter *not* suported. HERWIG will use default b decay."<<"\n";
   }
   else if(!strncmp(ParameterString.c_str(),"QCDLAM",6))
     hwpram.QCDLAM = atof(&ParameterString[strcspn(ParameterString.c_str(),"=")+1]);
@@ -1058,9 +1081,24 @@ bool Herwig6Source::setRngSeeds(int mseed)
   return true;
 }
 
+void Herwig6Source::endRun(Run & r) {
+ 
+ auto_ptr<GenInfoProduct> giprod (new GenInfoProduct());
+ giprod->set_cross_section(intCrossSect);
+ cout<<"cross ection = "<<intCrossSect<<std::endl;
+ giprod->set_external_cross_section(extCrossSect);
+ giprod->set_filter_efficiency(extFilterEff);
+ r.put(giprod);
+
+}
+
+
+
+
+
 extern "C" {
   void cmsending_(int* ecode) {
-    cout<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<"."<<endl;
+    LogError("")<<"   ERROR: Herwig stoped run after recieving error code "<<*ecode<<".\n";
     throw cms::Exception("Herwig6Error") <<" Herwig stoped run with error code "<<*ecode<<".";
   }
 }
