@@ -4,9 +4,9 @@
 #include <CLHEP/Vector/LorentzVector.h>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 
 #include <cmath>
 #include <stdlib.h>

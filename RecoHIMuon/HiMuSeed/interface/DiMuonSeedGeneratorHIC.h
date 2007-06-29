@@ -40,7 +40,6 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedGeneratorFromTrackingRegion.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 // Internal stuff 

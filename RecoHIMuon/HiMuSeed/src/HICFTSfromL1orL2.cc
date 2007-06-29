@@ -55,6 +55,31 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL2(const RecoChargedC
   } // endfor
   return ftsL2;
 } // end createFTSfromL2
+
+
+vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromStandAlone(const TrackCollection& recmuons) 
+{ 
+// ========================================================================================
+//
+//  Switch on L2 muon trigger.
+//
+
+  vector<FreeTrajectoryState> ftsL2;
+//  RecQuery q(localRecAlgo);
+
+  TrackCollection::const_iterator recmuon = recmuons.begin();
+
+  int nrec = recmuons.size();
+  cout << "Number of muons found by the StandAlone : "
+       << nrec << endl;
+  for(recmuon=recmuons.begin(); recmuon!=recmuons.end(); recmuon++)
+  {
+  ftsL2.push_back(FTSfromStandAlone((*recmuon)));
+  } // endfor
+  return ftsL2;
+} // end createFTSfromL2
+
+
 //-----------------------------------------------------------------------------
 // Vector of Free Trajectory State in Muon stations from L1 Global Muon Trigger
 
@@ -274,6 +299,54 @@ vector<FreeTrajectoryState> HICFTSfromL1orL2::createFTSfromL1orL2(vector<L1MuGMT
     GlobalPoint pos(pos0.x(),pos0.y(),pos0.z());
     
     GlobalTrajectoryParameters gtp(pos,mom,tk1->charge(), field);
+    FreeTrajectoryState fts(gtp,cte);
+  
+  return fts;
+  }
+//-----------------------------------------------------------------------------
+// Vector of Free Trajectory State from StanAlone candidate
+
+  FreeTrajectoryState HICFTSfromL1orL2::FTSfromStandAlone(const Track& tk1)
+  {
+  
+//    TrackRef tk1 = gmt.get<TrackRef>();
+    
+    const math::XYZPoint pos0 = tk1.innerPosition();
+    const math::XYZVector mom0 = tk1.innerMomentum();
+    
+    double pp = sqrt(mom0.x()*mom0.x()+mom0.y()*mom0.y()+mom0.z()*mom0.z());
+    double pt = sqrt(mom0.x()*mom0.x()+mom0.y()*mom0.y());
+    double theta = mom0.theta();
+    double pz = mom0.z();
+    
+    GlobalVector mom(mom0.x(),mom0.y(),mom0.z());
+    
+    if( pt < 4.) 
+    {
+      pt = 4.; if (abs(pz) > 0. )  pz = pt/tan(theta);
+      double corr = sqrt( pt*pt + pz*pz )/pp;
+      GlobalVector mom1( corr*mom0.x(), corr*mom0.y(), corr*mom0.z() );
+      mom = mom1;
+    }
+
+    cout<<" StandAlone::Innermost state "<<pos0<<" new momentum "<<mom<<" old momentum "<<mom0<<endl;
+    
+    AlgebraicSymMatrix m(5,0);
+    double error;
+    if( abs(mom.eta()) < 1. )
+    {
+     error = 0.6*mom.perp();
+    }
+     else
+    {
+     error = 0.6*abs(mom.z());
+    }
+    m(1,1)=0.6*mom.perp(); m(2,2)=1.; m(3,3)=1.;
+    m(4,4)=1.;m(5,5)=0.; 
+    CurvilinearTrajectoryError cte(m);
+    GlobalPoint pos(pos0.x(),pos0.y(),pos0.z());
+    
+    GlobalTrajectoryParameters gtp(pos,mom,tk1.charge(), field);
     FreeTrajectoryState fts(gtp,cte);
   
   return fts;

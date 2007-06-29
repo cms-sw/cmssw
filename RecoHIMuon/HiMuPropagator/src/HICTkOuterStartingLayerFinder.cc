@@ -3,8 +3,8 @@
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h"

@@ -15,6 +15,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -39,13 +41,16 @@ class HICFTSfromL1orL2
 
     HICFTSfromL1orL2(const MagneticField * mf){field = mf;}
     virtual ~HICFTSfromL1orL2(){}
-    vector<FreeTrajectoryState> createFTSfromL1(std::vector<L1MuGMTExtendedCand>&);
-    vector<FreeTrajectoryState> createFTSfromL2(const reco::RecoChargedCandidateCollection& rc);
-    vector<FreeTrajectoryState> createFTSfromL1orL2(std::vector<L1MuGMTExtendedCand>& gmt, const reco::RecoChargedCandidateCollection& recmuons);
+    std::vector<FreeTrajectoryState> createFTSfromL1(std::vector<L1MuGMTExtendedCand>&);
+    std::vector<FreeTrajectoryState> createFTSfromL2(const reco::RecoChargedCandidateCollection& rc);
+    std::vector<FreeTrajectoryState> createFTSfromStandAlone(const reco::TrackCollection& rc);
+    std::vector<FreeTrajectoryState> createFTSfromL1orL2(std::vector<L1MuGMTExtendedCand>& gmt, const reco::RecoChargedCandidateCollection& recmuons);
     
   private:
     FreeTrajectoryState FTSfromL1(const L1MuGMTExtendedCand& gmt);
     FreeTrajectoryState FTSfromL2(const reco::RecoChargedCandidate& gmt);
+    FreeTrajectoryState FTSfromStandAlone(const reco::Track& gmt);
+    
     const MagneticField * field;
 };
 

@@ -4,7 +4,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "FWCore/Framework/interface/Handle.h"
+
+#include "DataFormats/Common/interface/Handle.h"
 using namespace edm;
 using namespace std;
 
@@ -163,7 +164,7 @@ TrajectoryMeasurement DiMuonSeedGeneratorHIC::barrelUpdateSeed (
   double phi = FTSOLD.parameters().position().phi(); 
   double pt = FTS.parameters().momentum().perp();
   double aCharge = FTS.parameters().charge();
-  AlgebraicSymMatrix e = FTS.curvilinearError().matrix();
+  AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
   double dpt = 3.*e(1,1);
   
 //
@@ -285,7 +286,7 @@ TrajectoryMeasurement DiMuonSeedGeneratorHIC::forwardUpdateSeed (
 
   double phi = FTSOLD.parameters().position().phi(); 
   double aCharge = FTS.parameters().charge();
-  AlgebraicSymMatrix e = FTS.curvilinearError().matrix();
+  AlgebraicSymMatrix55 e = FTS.curvilinearError().matrix();
   double pt = FTS.parameters().momentum().perp();
   double pz = FTS.parameters().momentum().z();
   double dpt = 0.6*pt;

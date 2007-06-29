@@ -23,7 +23,6 @@
 <use name=DataFormats/L1Trigger>
 <use name=rootrflx>
 
-<flags SEAL_PLUGIN_NAME="RecoHIMuonHiMuSeed">
 <export>
    <lib name=RecoHIMuonHiMuSeed>
    <use name=FWCore/Framework>

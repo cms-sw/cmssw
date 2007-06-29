@@ -1,6 +1,6 @@
 #ifndef _TRACKER_MU_HIC_PROPAGATOR_H_
 #define _TRACKER_MU_HIC_PROPAGATOR_H_
-#include "Geometry/CommonDetAlgo/interface/DeepCopyPointerByClone.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointerByClone.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "RecoHIMuon/HiMuSeed/interface/HICConst.h"
 #include "TrackingTools/MaterialEffects/interface/MaterialEffectsUpdator.h"

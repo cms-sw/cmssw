@@ -1,9 +1,9 @@
 #include "RecoHIMuon/HiMuPropagator/interface/HICMuonPropagator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "Geometry/Surface/interface/Cylinder.h"
-#include "Geometry/Surface/interface/Surface.h"
-#include "Geometry/Surface/interface/Plane.h"
+#include "DataFormats/GeometrySurface/interface/Cylinder.h"
+#include "DataFormats/GeometrySurface/interface/Surface.h"
+#include "DataFormats/GeometrySurface/interface/Plane.h"
  
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -28,7 +28,7 @@ TrajectoryStateOnSurface
   GlobalVector p = fts.parameters().momentum();
   double px = p.x(); double py = p.y(); double pz = p.z();
   double aCharge = fts.charge();
-  AlgebraicSymMatrix e = fts.curvilinearError().matrix();
+  AlgebraicSymMatrix55 e = fts.curvilinearError().matrix();
   double dfcalc,phnext,zdet;
   double pt = p.perp();
   double a = p.perp()/pz;
@@ -104,7 +104,7 @@ TrajectoryStateOnSurface
   GlobalVector p = fts.parameters().momentum();
   double px = p.x(); double py = p.y(); double pz = p.z();
   double aCharge = fts.charge();
-  AlgebraicSymMatrix e = fts.curvilinearError().matrix();
+  AlgebraicSymMatrix55 e = fts.curvilinearError().matrix();
   double phiold=x.phi();
   if(x.phi()<0.) phiold=twopi+x.phi();
 
