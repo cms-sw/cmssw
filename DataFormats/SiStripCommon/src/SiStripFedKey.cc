@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFedKey.cc,v 1.8 2007/04/04 06:56:18 bainbrid Exp $
+// Last commit: $Id: SiStripFedKey.cc,v 1.9 2007/06/05 14:06:27 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFedKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -189,7 +189,7 @@ bool SiStripFedKey::isValid( const sistrip::Granularity& gran ) const {
 	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
 
   if ( fedId_ != sistrip::invalid_ ) {
-    if ( gran == sistrip::FED ) { return true; }
+    if ( gran == sistrip::FE_DRIVER ) { return true; }
     if ( feUnit_ != sistrip::invalid_ ) {
       if ( gran == sistrip::FE_UNIT ) { return true; }
       if ( feChan_ != sistrip::invalid_ ) {
@@ -217,7 +217,7 @@ bool SiStripFedKey::isInvalid( const sistrip::Granularity& gran ) const {
 	    gran == sistrip::UNKNOWN_GRAN ) { return false; }
 
   if ( fedId_ == sistrip::invalid_ ) {
-    if ( gran == sistrip::FED ) { return true; }
+    if ( gran == sistrip::FE_DRIVER ) { return true; }
     if ( feUnit_ == sistrip::invalid_ ) {
       if ( gran == sistrip::FE_UNIT ) { return true; }
       if ( feChan_ == sistrip::invalid_ ) {
@@ -344,10 +344,10 @@ void SiStripFedKey::initFromPath() {
     
     dir << sistrip::root_ << sistrip::dir_ 
 	<< sistrip::readoutView_ << sistrip::dir_;
-
+    
     // Add FED id
     if ( fedId_ ) {
-      dir << sistrip::fedId_ << fedId_ << sistrip::dir_;
+      dir << sistrip::feDriver_ << fedId_ << sistrip::dir_;
 
       // Add FE unit
       if ( feUnit_ ) {
@@ -377,6 +377,12 @@ void SiStripFedKey::initFromPath() {
     feChan_ = 0;
     fedApv_ = 0;
     
+    // Check if root is found
+    if ( path().find( sistrip::root_ ) == std::string::npos ) {
+      std::string temp = path();
+      path( sistrip::root_ + sistrip::dir_ + temp );
+    }
+    
     uint32_t curr = 0; // current string position
     uint32_t next = 0; // next string position
     next = path().find( sistrip::readoutView_, curr );
@@ -384,7 +390,7 @@ void SiStripFedKey::initFromPath() {
     // Extract view 
     curr = next;
     if ( curr != std::string::npos ) { 
-      next = path().find( sistrip::fedId_, curr );
+      next = path().find( sistrip::feDriver_, curr );
       std::string readout_view( path(), 
 				curr+sistrip::readoutView_.size(), 
 				(next-sistrip::dir_.size())-curr );
@@ -394,7 +400,7 @@ void SiStripFedKey::initFromPath() {
       if ( curr != std::string::npos ) { 
 	next = path().find( sistrip::feUnit_, curr );
 	std::string fed_id( path(), 
-			    curr+sistrip::fedId_.size(), 
+			    curr+sistrip::feDriver_.size(), 
 			    (next-sistrip::dir_.size())-curr );
 	fedId_ = atoi( fed_id.c_str() );
 	
@@ -448,7 +454,7 @@ void SiStripFedKey::initGranularity() {
   granularity( sistrip::FED_SYSTEM );
   channel(0);
   if ( fedId_ && fedId_ != sistrip::invalid_ ) {
-    granularity( sistrip::FED ); 
+    granularity( sistrip::FE_DRIVER ); 
     channel(fedId_);
     if ( feUnit_ && feUnit_ != sistrip::invalid_ ) {
       granularity( sistrip::FE_UNIT );

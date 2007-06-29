@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripFecKey.cc,v 1.7 2007/05/24 15:28:12 bainbrid Exp $
+// Last commit: $Id: SiStripFecKey.cc,v 1.8 2007/06/05 14:05:29 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "DataFormats/SiStripCommon/interface/ConstantsForHardwareSystems.h"
@@ -600,6 +600,12 @@ void SiStripFecKey::initFromPath() {
     ccuChan_  = 0;
     lldChan_  = 0;
     i2cAddr_  = 0;
+
+    // Check if root is found
+    if ( path().find( sistrip::root_ ) == std::string::npos ) {
+      std::string temp = path();
+      path( sistrip::root_ + sistrip::dir_ + temp );
+    }
     
     uint32_t curr = 0; // current string position
     uint32_t next = 0; // next string position

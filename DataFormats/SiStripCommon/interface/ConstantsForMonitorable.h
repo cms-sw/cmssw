@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForMonitorable.h,v 1.2 2007/03/21 08:22:59 bainbrid Exp $
+// Last commit: $Id: ConstantsForMonitorable.h,v 1.3 2007/03/22 22:12:55 delaer Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForMonitorable_H
 #define DataFormats_SiStripCommon_ConstantsForMonitorable_H
@@ -24,6 +24,16 @@ namespace sistrip {
   static const std::string fedCablingFedId_    = "FedId";
   static const std::string fedCablingFedCh_    = "FedCh";
   static const std::string fedCablingAdcLevel_ = "AdcLevel";
+
+  // fast cabling
+  static const std::string fastFedCablingDcuId_     = "DcuId";
+  static const std::string fastFedCablingLldCh_     = "LldCh";
+  static const std::string fastFedCablingHighLevel_ = "HighLightLevel";
+  static const std::string fastFedCablingHighRms_   = "SpreadInHighLightLevel";
+  static const std::string fastFedCablingLowLevel_  = "LowLightLevel";
+  static const std::string fastFedCablingLowRms_    = "SpreadInLowLightLevel";
+  static const std::string fastFedCablingMax_       = "MaximumLightLevel";
+  static const std::string fastFedCablingMin_       = "MinimumLightLevel";
 
   // timing
   static const std::string apvTimingTime_   = "TimeOfTickMarkEdge";
@@ -90,6 +100,15 @@ namespace sistrip {
 		     FED_CABLING_FED_CH    = 1302, 
 		     FED_CABLING_ADC_LEVEL = 1303, 
 
+		     FAST_FED_CABLING_DCU_ID     = 2101, 
+		     FAST_FED_CABLING_LLD_CH     = 2102, 
+		     FAST_FED_CABLING_HIGH_LEVEL = 2103, 
+		     FAST_FED_CABLING_LOW_LEVEL  = 2104, 
+		     FAST_FED_CABLING_HIGH_RMS   = 2105, 
+		     FAST_FED_CABLING_LOW_RMS    = 2106, 
+		     FAST_FED_CABLING_MAX        = 2107, 
+		     FAST_FED_CABLING_MIN        = 2108, 
+
 		     APV_TIMING_TIME     = 501, 
 		     APV_TIMING_MAX_TIME = 502, 
 		     APV_TIMING_DELAY    = 503, 
@@ -98,8 +117,8 @@ namespace sistrip {
 		     APV_TIMING_PEAK     = 506, 
 		     APV_TIMING_HEIGHT   = 507,
 
-		     FED_TIMING_TIME     = 501, 
-		     FED_TIMING_MAX_TIME = 502, 
+		     FED_TIMING_TIME     = 1201, 
+		     FED_TIMING_MAX_TIME = 1202, 
 		     FED_TIMING_DELAY    = 1203, 
 		     FED_TIMING_ERROR    = 1204, 
 		     FED_TIMING_BASE     = 1205, 

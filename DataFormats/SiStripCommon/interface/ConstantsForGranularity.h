@@ -1,4 +1,4 @@
-// Last commit: $Id: $
+// Last commit: $Id: ConstantsForGranularity.h,v 1.3 2007/03/21 08:22:59 bainbrid Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForGranularity_H
 #define DataFormats_SiStripCommon_ConstantsForGranularity_H
@@ -42,7 +42,7 @@ namespace sistrip {
 
   // readout granularity
   static const std::string fedSystem_  = "FedSystem";
-  static const std::string fedId_      = "FedId";
+  static const std::string feDriver_   = "FrontEndDriver";
   static const std::string feUnit_     = "FrontEndUnit";
   static const std::string feChan_     = "FrontEndChannel";
   static const std::string fedApv_     = "FedApv";
@@ -79,7 +79,7 @@ namespace sistrip {
 		     APV      = 14,
 
 		     FED_SYSTEM  = 15, 
-		     FED         = 16, 
+		     FE_DRIVER   = 16, 
 		     FE_UNIT     = 17, 
 		     FE_CHAN     = 18,
 		     FED_APV     = 19,

@@ -1,4 +1,4 @@
-// Last commit: $Id: SiStripHistoTitle.cc,v 1.3 2007/04/04 06:56:18 bainbrid Exp $
+// Last commit: $Id: SiStripHistoTitle.cc,v 1.4 2007/06/19 12:16:53 bainbrid Exp $
 
 #include "DataFormats/SiStripCommon/interface/SiStripHistoTitle.h"
 #include "DataFormats/SiStripCommon/interface/SiStripKey.h"
@@ -119,7 +119,8 @@ void SiStripHistoTitle::extractTitle() {
   histoType_ = SiStripEnumsAndStrings::histoType( title_.substr(position,siz) );
   std::string histo_type = SiStripEnumsAndStrings::histoType( histoType_ );
   position += title_.substr(position).find( histo_type ) + histo_type.size() + sistrip::sep_.size();
-  if ( position >= length ) { return; }
+  if ( histoType_ == sistrip::UNKNOWN_HISTO_TYPE ) { position = 0; }
+  else if ( position >= length ) { return; }
   
   // Extract RunType
   siz = title_.find(sistrip::sep_,position) - position;
