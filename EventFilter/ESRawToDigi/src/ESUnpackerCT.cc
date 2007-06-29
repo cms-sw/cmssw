@@ -341,7 +341,7 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
   
   int kBC = word[0] & 0x0fff; 
   int kEC = word[1] & 0x00ff;
-  int kID = (word[2] >> 8) & 0xffff; 
+  int kID = (word[2] >> 8) & 0x00ff; 
   int kFlag1 = (word[0] >> 12) & 0x000f;
   int kFlag2 = (word[1] >>  8) & 0x00ff; 
   int chksum = word[297] & 0xffff;
@@ -372,15 +372,26 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
 
       int row = ((kID-4) % 3);
       int column = (kID-4)/3;
+      int edge = ( ((kID-4)%3) == 2)?1:0; 
 
       adc[0][i] = (word[i*98+5+j*3] >> 4) & 0x0fff;
-      ix[0] = column*2+1;
-      iy[0] = row*2+2;
+      if (edge == 0) {
+	ix[0] = column*2+1;
+	iy[0] = row*2+2;
+      } else {
+	ix[0] = column*2+1;
+	iy[0] = row*2+1;
+      }
 
       adc[1][i] = ((word[i*98+5+j*3] & 0x000f) << 8) ;
       adc[1][i] |= ((word[i*98+6+j*3] >> 8) & 0x00ff);  
-      ix[1] = column*2+1;
-      iy[1] = row*2+1;
+      if (edge == 0) {
+	ix[1] = column*2+1;
+	iy[1] = row*2+1;
+      } else {
+	ix[1] = column*2+2;
+	iy[1] = row*2+1;
+      }
 
       adc[2][i] = ((word[i*98+6+j*3] & 0x00ff) << 4);
       adc[2][i] |= ((word[i*98+7+j*3] >> 12) & 0x000f);  
@@ -388,14 +399,19 @@ void ESUnpackerCT::word2digi(int kchip, const vector<Word16> & word, ESLocalRawD
       iy[2] = row*2+2;
 
       adc[3][i] = (word[i*98+7+j*3])      & 0x0fff;
-      ix[3] = column*2+2;
-      iy[3] = row*2+1;
+      if (edge == 0) {
+	ix[3] = column*2+2;
+	iy[3] = row*2+1;
+      } else {
+	ix[3] = column*2+1;
+	iy[3] = row*2+2;
+      }
 
     }
     
     for (int k=0; k<4; ++k) {
 
-      ESDetId detId(j+1, ix[k], iy[k], 2, 1);
+      ESDetId detId(j+1, ix[k], iy[k], 1, 1);
       ESDataFrame df(detId);
       df.setSize(3);
       
